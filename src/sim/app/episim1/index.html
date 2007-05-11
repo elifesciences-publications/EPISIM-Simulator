@@ -1,0 +1,43 @@
+<h2>EpiSim V1.0</h2>
+<p>A systems biological simulation of epidermal homeostasis including barrier formation
+<p>(C) Niels Grabe, December 2004.
+<p> Parameter overview:
+<ul>
+<li><b>TypeColor</b> Coloring of cells, each number from 1 to 6 corresponds to one coloring scheme.
+<li><b>MaxCellAge:</b> Lifetime after which cells are removed from the simulation.
+<li><b>Randomness</b> random movement of cells
+<li><b>Neighborhood:</b> how many units (micrometer) in each direction each cell scans to determine nearby cells. Used for forces calculations and particle diffusions.
+<li><b>EpidermalWaterflux</b> directed transport of particles like ions, lamella, lipids towards the surface.
+<li><b>EpidermalDiffusion</b> undirected diffusion of lamella and calicum particles like into the neighborhood
+<li><b>MinSigCalLateSpinosum</b> Minimum calcium concentration from which on a keratinocyte differentiates to a late spinosum cell.
+<li><b>CalBasalEntry</b> Permanent entry of calcium at the basal membrane into the simulation.
+<li><b>CalSaturation</b> Maxmimum amount of calcium in the environment of each keratinocyte
+<li><b>LamellaSecretion</b> Permanent secretion of lamella by late spinosum and granulosum cells.
+<li><b>LamellaSaturation</b> Maxmimum amount of lamella in the environment of each keratinocyte
+<li><b>MinSigLipidsBarrier</b> Minimum lipid concentration from which on calicum loss stops is stopped in outer cells and from which on late spinosum cells develop to granulosum cells.
+<li><b>BarrierLamellaUse</b> Percentage by which in outer cells lamella are unloaded to incease the lipid concentration.
+<li><b>BarrierLossReduction</b> Percentage to which the barrier reduces the outflow of particles at the surface
+<li><b>Stem Cycle</b> Simulation time after which a stem cell proliferates.
+<li><b>TACycle</b> Simulation time after which a TA cell proliferates.
+<li><b>TAMaxBirthAge</b> Percenatge of first life time in which a TA Cell may proliferate.
+<li><b>BasalAmplitude</b> Amplitude of the gaussion for forming the basal membrane.
+<li><b>BasalOpening</b> Width of the opening of the gaussion for forming the basal membrane.
+<li><b>SeedMinDepthFrac</b> Fraction of the basal amplitude below stem cells may be seeded.
+<li><b>SeedReverse</b> At startup: do not seed stem cells below but above BasalMinDepthFrac.
+<li><b>BasalDensity</b> Horizontal distance between two succeeding stem cells.
+<li><b>ExternalPush</b> factor to multiply the avoidance reaction of each cell according to external pushes, i.e. moving wishes of other cells.
+<li><b>Cohesion</b> movement to a neighboring cell in the range distance to AdhesionDist.
+<li><b>Gravitation</b> Artifical force pulling all cells towards the basal membrane.
+<li><b>AdhesionDist</b> Distance between neighboring cells in which adhesion between cells acts.
+<li><b>Ad_x_y</b> Adhesion factors between cell type x and cell type y.
+<li><b>Directory</b> File directory to which the charts are saved every 1000 time steps as graphic files.
+</ul>
+<p><b>Differentiation: </b>In this model, initially stem cells are seeded on the basal membrane. Stem cells divide to transit amplifying (TA) cells which divide for a fraction of their lifetime.
+In this way TA cells form early spinosum cells. Under a minimal calcium level these differentiate to late spinosum cells. Under a minimal concentration of lipids 
+late spinosum cells develop to granulosum cells. 
+<p><b>Particles: </b>Early and late spinosum and granulosum cells emit <b>calcium</b>. Only late spinosum cells emit <b>lamella</b>. 
+Cells exposed to the surface (<b>outer cells</b>) convert lamella into <b>lipids</b>. Outer cells NOT having a minimal lipid concentration loose all their calcium.
+<p><b>Space: </b>The cells` world is based on a basal membrane and is toroidal to its' sides.  
+<p><b>Forces: </b>Each cell is shifted in the direction of a vector it has computed.  This vector is calculated consists of the move wishes of other cells 
+and the cell's own wish. Computationally, cells do only overlap with their stem cell at the moment of birth. What looks like on screen like overlapping is just for graphical purposes.
+<p><b>Implementation: </b>This simulator is written in JAVA based on the very valuable <a href="http://cs.gmu.edu/~eclab/projects/mason/">MASON</a> multi-agent simulation environment toolkit.

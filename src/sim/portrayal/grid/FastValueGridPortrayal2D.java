@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal.grid;
 import sim.portrayal.*;
 import sim.field.grid.*;
@@ -147,6 +153,7 @@ public class FastValueGridPortrayal2D extends ValueGridPortrayal2D
                     // oops, it looks like createCompatibleImage has big-time HILARIOUS bugs on OS X Java 1.3.1!
                     // So for the time being we're sticking with the (very slightly faster) 
                     // new BufferedImage(...)
+                    if (buffer != null) buffer.flush();  // in case Java forgets to clear memory -- bug in OS X
                     buffer = new BufferedImage(maxX,maxY,BufferedImage.TYPE_INT_ARGB); // transparency allowed
                     
                     // I had thought that TYPE_INT_ARGB_PRE would be faster because

@@ -1,6 +1,11 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal;
-
-
+import sim.portrayal.inspector.*;
 import java.awt.*;
 import sim.engine.*;
 import sim.util.gui.*;
@@ -81,8 +86,6 @@ public class SimpleInspector extends Inspector
             // The return value should be the value you want the display to show instead.
             public String newValue(final String newValue)
                 {
-                final String retval[] = new String[1];  // man, anonymous classes are idiotic
-                // compared to true closures...
                 // the underlying model could still be running, so we need
                 // to do this safely
                 synchronized(SimpleInspector.this.state.state.schedule)
@@ -94,43 +97,16 @@ public class SimpleInspector extends Inspector
                     if (SimpleInspector.this.state.controller != null)
                         SimpleInspector.this.state.controller.refresh();
                     // set text to the new value
-                    return props.getValue(index).toString();
+                    return props.betterToString(props.getValue(index));
                     }
                 }
-
             public void viewProperty()
                 {
                 final SimpleInspector simpleInspector = new SimpleInspector(props.getValue(index), SimpleInspector.this.state);
-                final Stoppable stopper = SimpleInspector.this.state.scheduleImmediateRepeat(true,
-                                                                                             simpleInspector.getUpdateSteppable());
-                    
+                final Stoppable stopper = simpleInspector.reviseStopper(
+                    SimpleInspector.this.state.scheduleImmediateRepeat(true,simpleInspector.getUpdateSteppable()));
                 SimpleInspector.this.state.controller.registerInspector(simpleInspector,stopper);
-                    
-                // put in new frame which stops when closed
-                JFrame frame = new JFrame("" + props.getValue(index))
-                    {
-                    public void dispose()
-                        {
-                        super.dispose();
-                        if (stopper!=null) stopper.stop();
-                        }
-                    };
-
-                frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                frame.getContentPane().setLayout(new BorderLayout());
-                frame.getContentPane().add(simpleInspector, BorderLayout.CENTER);
-                frame.setResizable(true);
-                frame.pack();
-                
-                if (Display2D.isMacOSX)
-                    {
-                    // fix a bug in MacOS X 1.4.2, which has a minimum possible width and height (128x37)
-                    Dimension d = frame.getSize();
-                    if (d.width < 128) d.width = 128;
-                    if (d.height< 37) d.height = 37;
-                    frame.setSize(d);
-                    }
-
+                JFrame frame = simpleInspector.createFrame(stopper);
                 frame.setVisible(true);
                 }
             };
@@ -203,7 +179,11 @@ public class SimpleInspector extends Inspector
         for( int i = start ; i < end; i++ )
             {
             members[i] = makePropertyField(i);
-            propertyList.addLabelled( properties.getName(i) + " ", members[i] );
+            propertyList.add(null,
+                             new JLabel(properties.getName(i) + " "), 
+                             PropertyInspector.getPopupMenu(properties,i,state), 
+                             members[i], 
+                             null);
             }
         add(propertyList, BorderLayout.CENTER);
         this.start = start;
@@ -237,15 +217,12 @@ public class SimpleInspector extends Inspector
                 updateButton.setMinimumSize(d);
                                 
                 // add to header
-                header.add(updateButton,BorderLayout.WEST); revalidate(); 
+                header.add(updateButton,BorderLayout.WEST);
+                revalidate(); 
                 }
             } 
         }
-/*    
-    public void submitInspector()
-        {
-        }
-*/  
+
     public void updateInspector()
         {
         if (properties.isVolatile())  // need to rebuild each time, YUCK
@@ -257,5 +234,13 @@ public class SimpleInspector extends Inspector
         else for( int i = start ; i < start+count ; i++ )
             members[i].setValue( 
                 properties.betterToString(properties.getValue(i)));
+        }
+
+    // additionally set the title
+    public JFrame createFrame(Stoppable stopper)
+        {
+        JFrame frame = super.createFrame(stopper);
+        frame.setTitle("" + object);
+        return frame;
         }
     }

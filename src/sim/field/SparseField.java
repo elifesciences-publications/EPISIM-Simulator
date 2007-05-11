@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.field;
 import sim.util.*;
 import java.util.*;
@@ -124,8 +130,8 @@ public abstract class SparseField implements java.io.Serializable
         return (getRawObjectLocation(obj) != null);
         }
     
-    /** Get the location of the provided object, or null if the object does not exist.  Override
-        this and create a <b> getObjectLocation(</b><i>Object obj</i><b>) </b> method which 
+    /** Get the location of the provided object, or null if the object does not exist.  
+        Subclasses should create a <b> getObjectLocation(</b><i>Object obj</i><b>) </b> method which 
         returns a location type appropriate for your kind of Sparse Field. */
 
     public final Object getRawObjectLocation(final Object obj)

@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.grid;
 import sim.portrayal3d.*;
 import sim.portrayal.*;
@@ -33,7 +39,6 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
     {
     protected TransformGroup createModel()
         {
-        Vector3d locationV3d = new Vector3d();
         TransformGroup globalTG = new TransformGroup(); 
         globalTG.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
                 
@@ -143,7 +148,6 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
         {
         Group global = (Group)(globalTG.getChild(0));
                 
-        Vector3d locationV3d = new Vector3d();
         if (field==null) return;
                 
         int count = 0;
@@ -354,6 +358,7 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
             
             public String getLocationName()
                 {
+                if (this.location == null) return null;
                 if (this.location instanceof Int3D)
                     return ((Int3D)this.location).toCoordinates();
                 else return ((Int2D)this.location).toCoordinates();

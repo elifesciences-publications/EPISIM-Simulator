@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.simple; 
 import sim.display.*;
 import sim.field.grid.*;
@@ -9,7 +15,23 @@ import sim.util.*;
 
 public class ValuePortrayal3D extends SimplePortrayal3D
     {
-    static final float[] verts = {
+    public static int SHAPE_CUBE = 0;
+    public static int SHAPE_SQUARE = 1;
+    
+    public int shape;
+    public ValuePortrayal3D()
+        {
+        super();
+        shape = SHAPE_CUBE;
+        }
+
+    public ValuePortrayal3D(int shape)
+        {
+        super();
+        this.shape = shape;
+        }
+        
+    static final float[] verts_cube = {
         // front face
         0.5f, -0.5f,  0.5f,                             0.5f,  0.5f,  0.5f,
         -0.5f,  0.5f,  0.5f,                            -0.5f, -0.5f,  0.5f,
@@ -30,6 +52,11 @@ public class ValuePortrayal3D extends SimplePortrayal3D
         0.5f, -0.5f, -0.5f,                             0.5f, -0.5f,  0.5f,
         };
    
+    static final float[] verts_square = {
+        0.5f, -0.5f,  0.0f,                             0.5f,  0.5f,  0.0f,
+        -0.5f,  0.5f,  0.0f,                            -0.5f, -0.5f,  0.0f
+        };
+
     public boolean usesTriangles=false; 
     public boolean getUsesTriangles() { return usesTriangles; } 
     public void setUsesTriangles(boolean val) { usesTriangles = val; }
@@ -45,17 +72,26 @@ public class ValuePortrayal3D extends SimplePortrayal3D
 
     final PolygonAttributes mPolyAttributes = new PolygonAttributes();
         {
-        mPolyAttributes.setCapability(PolygonAttributes.ALLOW_CULL_FACE_WRITE);
         mPolyAttributes.setCapability(PolygonAttributes.ALLOW_MODE_WRITE);
-        mPolyAttributes.clearCapabilityIsFrequent(PolygonAttributes.ALLOW_CULL_FACE_WRITE);
         mPolyAttributes.clearCapabilityIsFrequent(PolygonAttributes.ALLOW_MODE_WRITE);
-        }  
+        if (shape == SHAPE_SQUARE) 
+            {
+            mPolyAttributes.setCapability(PolygonAttributes.ALLOW_CULL_FACE_WRITE);
+            mPolyAttributes.clearCapabilityIsFrequent(PolygonAttributes.ALLOW_CULL_FACE_WRITE);
+            }
+        else 
+            mPolyAttributes.setCullFace(PolygonAttributes.CULL_BACK);
+        }
 
     public PolygonAttributes polygonAttributes()
         {
         return mPolyAttributes;
         }
         
+    // set up the geometry array
+    GeometryArray ga; 
+
+    /** Builds a model, but obj is expected to be a ValuePortrayal3D.ValueWrapper. */
     public TransformGroup getModel(Object obj, TransformGroup j3dModel) 
         {
         // extract color to use
@@ -74,40 +110,50 @@ public class ValuePortrayal3D extends SimplePortrayal3D
         if(j3dModel==null) 
             {
             j3dModel = new TransformGroup();
-                        
-            // set up the geometry array
-            GeometryArray ga; 
+            j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
 
-            if (usesTriangles) 
-                { 
-                int[] lengths = new int[6];
-                for(int i=0; i<lengths.length;i++)
-                    lengths[i]=4;
-                ga = new TriangleFanArray(4*lengths.length, TriangleFanArray.COORDINATES, lengths);
-                }
-            else 
+            if (ga==null)
                 {
-                ga = new QuadArray(24, QuadArray.COORDINATES ); 
+                float[] verts = null;
+                if (shape == SHAPE_CUBE)
+                    verts = verts_cube;
+                else verts = verts_square;
+                
+                if (usesTriangles) 
+                    { 
+                    int[] lengths = new int[verts.length/12];
+                    for(int i=0; i<lengths.length;i++)
+                        lengths[i]=4;
+                    ga = new TriangleFanArray(4*lengths.length, TriangleFanArray.COORDINATES, lengths);
+                    }
+                else 
+                    {
+                    ga = new QuadArray(verts.length/3, QuadArray.COORDINATES ); 
+                    }
+                ga.setCoordinates(0, verts);
                 }
-                                
-            ga.setCoordinates(0, verts);
 
             // set up an appearance that can be modified
             Appearance appearance = new Appearance();
             appearance.setCapability(Appearance.ALLOW_POLYGON_ATTRIBUTES_WRITE);  
             appearance.setCapability(Appearance.ALLOW_COLORING_ATTRIBUTES_READ); 
             appearance.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_READ);
+            appearance.setPolygonAttributes(polygonAttributes());
             ColoringAttributes ca = new ColoringAttributes(c[0], c[1], c[2], ColoringAttributes.SHADE_FLAT);
             ca.setCapability(ColoringAttributes.ALLOW_COLOR_WRITE);
             appearance.setColoringAttributes(ca);
             TransparencyAttributes ta = new TransparencyAttributes(TransparencyAttributes.BLENDED, 1.0f - c[3]);  // duh, alpha's backwards
             ta.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
             appearance.setTransparencyAttributes(ta);
+                
             // construct the shape
             Shape3D localShape = new Shape3D(ga, appearance);
             localShape.setCapability(Shape3D.ALLOW_APPEARANCE_READ); 
             setPickableFlags(localShape); 
-            localShape.setUserData(obj); 
+                        
+            // obj is our ValueWrapper, which is a LocationWrapper already
+            localShape.setUserData(obj);
+                        
             j3dModel.addChild(localShape); 
             }
         else            // just update color and transparency

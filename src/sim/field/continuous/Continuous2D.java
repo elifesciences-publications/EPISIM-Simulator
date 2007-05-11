@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.field.continuous;
 import sim.field.*;
 import sim.util.*;
@@ -331,13 +337,12 @@ public /*strictfp*/ class Continuous2D extends SparseField
             final int iHeight = (int)(StrictMath.ceil(height / discretization));
 
             // we promote to longs so that maxX - minX can't totally wrap around by accident
-            if ((long)maxX - (long)minX >= (long)iWidth)  // total wrap-around.
+            if ((long)maxX - (long)minX >= iWidth)  // total wrap-around.
                 { minX = 0; maxX = iWidth-1; }
-            if ((long)maxY - (long)minY >= (long)iHeight) // similar
+            if ((long)maxY - (long)minY >= iHeight) // similar
                 { minY = 0; maxY = iHeight-1; }
 
             // okay, now tx 'em.
-            // we promote to longs so that the value + iWidth etc. can't totally wrap around by accident
             final int tmaxX = toroidal(maxX,iWidth);
             final int tmaxY = toroidal(maxY,iHeight);
             final int tminX = toroidal(minX,iWidth);

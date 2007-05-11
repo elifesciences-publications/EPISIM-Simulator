@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d;
 
 import sim.portrayal.*;
@@ -90,6 +96,8 @@ public class SimplePortrayal3D implements Portrayal3D
         return new SimpleInspector(wrapper.getObject(), state, "Properties");
         }
         
+    public String getStatus(LocationWrapper wrapper) { return getName(wrapper); }
+    
     public String getName(LocationWrapper wrapper)
         {
         if (wrapper == null) return "";

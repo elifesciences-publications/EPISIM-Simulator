@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.simple;
 
 import sim.portrayal3d.*;
@@ -14,7 +20,7 @@ public class SpherePortrayal3D extends SimplePortrayal3D
     {
     public float scale = 1f;
     public Appearance appearance;
-    static final int DEFAULT_DIVISIONS = 15;  // the default number of divisions in Java3D spheres according to the docs
+    public static final int DEFAULT_DIVISIONS = 15;  // the default number of divisions in Java3D spheres according to the docs
     public int divisions;  
     public boolean generateNormals;
     public boolean generateTextureCoordinates;
@@ -81,6 +87,7 @@ public class SpherePortrayal3D extends SimplePortrayal3D
         if (j3dModel==null)
             {
             j3dModel = new TransformGroup();
+            j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
             
             // make a sphere
             Sphere sphere = new Sphere(scale/2,Primitive.GEOMETRY_NOT_SHARED | 

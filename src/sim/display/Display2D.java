@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.display;
 import sim.portrayal.*;
 import sim.engine.*;
@@ -11,6 +17,7 @@ import sim.util.Bag;
 import java.io.*;
 import sim.util.gui.*;
 import sim.util.media.*;
+import sim.util.*;
 
 /**
    Display2D holds, displays, and manipulates 2D Portrayal objects, allowing the user to scale them,
@@ -46,6 +53,7 @@ public class Display2D extends JComponent implements Steppable
         {
         // buffer stuff
         public int buffering;
+        
         public JRadioButton useNoBuffer = new JRadioButton("By Drawing Separate Rectangles");
         public JRadioButton useBuffer = new JRadioButton("Using a Stretched Image");
         public JRadioButton useDefault = new JRadioButton("Let the Program Decide How");
@@ -55,6 +63,7 @@ public class Display2D extends JComponent implements Steppable
         public JCheckBox antialiasText = new JCheckBox("Antialias Text");
         public JCheckBox alphaInterpolation = new JCheckBox("Better Transparency");
         public JCheckBox interpolation = new JCheckBox("Bilinear Interpolation of Images");
+        public JCheckBox tooltips = new JCheckBox("Tool Tips");
         
         public NumberTextField xOffsetField = new NumberTextField(0,1,50)
             {
@@ -112,6 +121,7 @@ public class Display2D extends JComponent implements Steppable
             b.add(antialiasText);
             b.add(interpolation);
             b.add(alphaInterpolation);
+            b.add(tooltips);
             p = new JPanel();
             p.setLayout(new BorderLayout());
             p.setBorder(new javax.swing.border.TitledBorder("Graphics Features"));
@@ -123,6 +133,7 @@ public class Display2D extends JComponent implements Steppable
                 {
                 public void actionPerformed(ActionEvent e)
                     {
+                    useTooltips = tooltips.isSelected();
                     if (useDefault.isSelected())
                         buffering = FieldPortrayal2D.DEFAULT;
                     else if (useBuffer.isSelected())
@@ -140,6 +151,7 @@ public class Display2D extends JComponent implements Steppable
             antialiasText.addActionListener(listener);
             alphaInterpolation.addActionListener(listener);
             interpolation.addActionListener(listener);
+            tooltips.addActionListener(listener);
             pack();
             }
         }
@@ -158,7 +170,7 @@ public class Display2D extends JComponent implements Steppable
         public double xOffset;
         /** y offset */
         public double yOffset;
-        
+                        
         /** Creates an InnerDisplay2D with the provided width and height. */
         public InnerDisplay2D(double width, double height)
             {
@@ -190,7 +202,7 @@ public class Display2D extends JComponent implements Steppable
             synchronized(Display2D.this.simulation.state.schedule)
                 {
                 Graphics g = getGraphics();
-                final BufferedImage i = paint(g,true);
+                final BufferedImage i = paint(g,true,false);
                 g.dispose();  // because we got it with getGraphics(), we're responsible for it
                 Display2D.this.movieMaker.add(i);
                 }
@@ -240,8 +252,52 @@ public class Display2D extends JComponent implements Steppable
                               RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY :
                               RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
             }
-            
-            
+        
+        java.lang.ref.WeakReference toolTip = new java.lang.ref.WeakReference(null);
+        public JToolTip createToolTip()
+            {
+            JToolTip tip = super.createToolTip();
+            toolTip = new java.lang.ref.WeakReference(tip);
+            return tip;
+            }
+                
+        protected MouseEvent lastToolTipEvent = null;
+        // could be called from the model thread OR the swing thread -- must be careful
+        public String getToolTipText(MouseEvent event)
+            {
+            if (useTooltips)
+                {
+                lastToolTipEvent = event;
+                final Point point = event.getPoint();
+                return createToolTipText( new Rectangle2D.Double(point.x,point.y,1,1), Display2D.this.simulation);
+                }
+            else return null;
+            }
+        
+        String lastToolTipText = null;
+        // this will be called from the model thread most likely, so we need
+        // to make sure that we actually do the updating in an invokeLater...
+        public void updateToolTips()
+            {
+            if (useTooltips && lastToolTipEvent != null)
+                {
+                final String s = getToolTipText(lastToolTipEvent);
+                if (s==null || !s.equals(lastToolTipText))
+                    {
+                    // ah, we need to update.
+                    SwingUtilities.invokeLater(new Runnable() 
+                        {
+                        public void run() 
+                            {
+                            setToolTipText(lastToolTipText = s);
+                            JToolTip tip = (JToolTip)(toolTip.get());
+                            if (tip!=null && tip.getComponent()==InnerDisplay2D.this) tip.setTipText(s);
+                            }
+                        });
+                    }
+                }
+            }
+        
         /** Swing's equivalent of paint(Graphics g).   Called by repaint().  In turn calls
             paintComponent(g,false);   You should not call this method directly.  Instead you probably want to
             call paintComponent(Graphics, buffer).  */
@@ -258,7 +314,6 @@ public class Display2D extends JComponent implements Steppable
             <tt>buffer</tt> determines if we do our ordinary paints buffered or not. */
         public void paintComponent(Graphics g, boolean buffer)
             {
-      	  
             synchronized(Display2D.this.simulation.state.schedule)  // for time()
                 {
                 if (movieMaker!=null)  // we're writing a movie
@@ -277,7 +332,6 @@ public class Display2D extends JComponent implements Steppable
                     }
                 else paint(g,buffer);
                 }
-            
             }
             
             
@@ -361,7 +415,9 @@ public class Display2D extends JComponent implements Steppable
             warnings.  But if but if shared is false, then the buffered image returned is 
             yours to do with as you please -- it is not shared internally.  If you need
             a buffered image NOW and are doing something with immediately and then throwing
-            it away, just call paint(graphics,buffered), it's better style.
+            it away, just call paint(graphics,buffered), it's better style.  If you need to hold
+            onto your image (you're making a movie or writing to a file, say), you should call
+            paint(graphics,buffered,_false_).
         */
         public BufferedImage paint(final Graphics graphics, boolean buffered, boolean shared)
             {
@@ -369,6 +425,7 @@ public class Display2D extends JComponent implements Steppable
                 {
                 BufferedImage returnval = paint(graphics,buffered);
                 if (!shared) buffer = null; // kill it so paintBuffered(graphics,clip) makes a new one next time
+                returnval.flush();  // just in case
                 return returnval;
                 }
             }
@@ -557,6 +614,9 @@ public class Display2D extends JComponent implements Steppable
     /** Set to true if we're running on Windows */
     public static final boolean isWindows = isWindows();
 
+    /** Set to the version number */
+    public static final String javaVersion = getVersion();
+
     static boolean isMacOSX() 
         {
         try  // we'll try to get certain properties if the security permits it
@@ -575,11 +635,22 @@ public class Display2D extends JComponent implements Steppable
         catch (Throwable e) { return false; }
         }
 
+    static String getVersion()
+        {
+        try
+            {
+            return System.getProperty("java.version");
+            }
+        catch (Throwable e) { return "unknown"; }
+        }
 
 
     /** Sets various MacOS X features */
     static
         {
+        // for some reason this turns off hardware acceleration in OS X 1.3.1
+        // ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
+
         try  // now we try to set certain properties if the security permits it
             {
             // turn on hardware acceleration on MacOS X.  As of September 2003, 1.3.1
@@ -618,6 +689,9 @@ public class Display2D extends JComponent implements Steppable
     public static final ImageIcon OPTIONS_ICON = iconFor("Options.png");
     public static final ImageIcon OPTIONS_ICON_P = iconFor("OptionsPressed.png");
     
+    /** Use tool tips? */
+    public boolean useTooltips;
+
     /** The last steps for a frame that was painted to the screen.  Keeping this
         variable around enables our movie maker to ensure that it doesn't write
         a frame twice to its movie stream. */
@@ -706,12 +780,20 @@ public class Display2D extends JComponent implements Steppable
         stopMovie();
         }
         
-    /** Resets the Display2D so it reschedules itself.  This is useful when reusing the Display2D. */
+    /** Resets the Display2D so it reschedules itself and clears out all selections.  This is useful when reusing the Display2D. */
     public void reset()
         {
         // now reschedule myself
         if (stopper!=null) stopper.stop();
         stopper = simulation.scheduleImmediateRepeat(true,this);
+                
+        // deselect existing objects
+        for(int x=0;x<selectedWrappers.size();x++)
+            {
+            LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
+            wrapper.getFieldPortrayal().setSelected(wrapper,false);
+            }
+        selectedWrappers.clear();
         }
     
     /** Attaches a portrayal to the Display2D, along with the provided human-readable name for the portrayal.
@@ -742,10 +824,23 @@ public class Display2D extends JComponent implements Steppable
         will be the last one attached.*/
     public void attach(FieldPortrayal2D portrayal, String name, boolean visible )
         {
-        attach(portrayal, name, 
-               new Rectangle2D.Double(0,0,insideDisplay.width,insideDisplay.height),
-               visible);
+        attach(portrayal, name, 0, 0, visible);
         }
+
+    /** Attaches a portrayal to the Display2D, along with the provided human-readable name for the portrayal.
+        The portrayal's attached origin is given with the coordinates provided.
+        The width and height will be equal to the Display2D's default width and height (display2D.insideDisplay.width and
+        display2D.insideDisplay.height respectively). To put the origin at the
+        center of the display, you can set the x and y coordinates to display2D.insideDisplay.width/2, display2D.insideDisplay.height/2).
+        The portrayal may be set to initially visible or not visible.  Portrayals are drawn 
+        on-screen in the order that they are attached; thus the "top-most" portrayal
+        will be the last one attached. 
+    */
+    public void attach(FieldPortrayal2D portrayal, String name, double x, double y, boolean visible)
+        {
+        attach(portrayal, name, new Rectangle2D.Double(x,y,insideDisplay.width, insideDisplay.height), visible);
+        }
+
 
     /** Attaches a portrayal to the Display2D, along with the provided 
         human-readable name for the portrayal.  The portrayal's attached 
@@ -760,7 +855,7 @@ public class Display2D extends JComponent implements Steppable
         portrayals.add(p);
         popup.add(p.menuItem);
         }
-
+                
     /** A convenience function: creates a popup menu item of the given name which, when selected, will display the
         given inspector in the Console.  Used rarely, typically for per-field Inspectors. */
     public void attach(final sim.portrayal.Inspector inspector, final String name)
@@ -792,7 +887,7 @@ public class Display2D extends JComponent implements Steppable
                 {
                 public void actionPerformed(ActionEvent e)
                     {
-                    c.show();
+                    c.setVisible(true);;
                     }
                 });
             }
@@ -854,7 +949,7 @@ public class Display2D extends JComponent implements Steppable
                 {
                 popup.show(e.getComponent(),
                            togglebutton.getLocation().x,
-                           togglebutton.getLocation().y+
+                           //togglebutton.getLocation().y+
                            togglebutton.getSize().height);
                 }
             public void mouseReleased(MouseEvent e) 
@@ -868,15 +963,25 @@ public class Display2D extends JComponent implements Steppable
             {
             public void mouseClicked(MouseEvent e) 
                 {
+                final Point point = e.getPoint();
                 if( e.getClickCount() == 2 )
-                    {
-                    final Point point = e.getPoint();
                     createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
                                       Display2D.this.simulation );
-                    }
+                if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
+                    performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
+                                      Display2D.this.simulation );
+                repaint();
+                }
+            
+            // clear tool-tip updates
+            public void mouseExited(MouseEvent event)
+                {
+                insideDisplay.lastToolTipEvent = null;
                 }
             });
-
+            
+        insideDisplay.setToolTipText("Display");  // sacrificial
+                
         // add the movie button
         movieButton = new JButton(MOVIE_OFF_ICON);
         movieButton.setPressedIcon(MOVIE_OFF_ICON_P);
@@ -923,7 +1028,7 @@ public class Display2D extends JComponent implements Steppable
                 {
                 optionPane.setTitle(getFrame().getTitle() + " Options");
                 optionPane.pack();
-                optionPane.show();
+                optionPane.setVisible(true);;
                 }
             });
         header.add(optionButton);
@@ -1022,6 +1127,56 @@ public class Display2D extends JComponent implements Steppable
         return hitObjs;
         }
 
+    static final int MAX_TOOLTIP_LINES = 10;
+    public String createToolTipText( Rectangle2D.Double rect, final GUIState simulation )
+        {
+        String s = "<html><font face=\"" +
+            getFont().getFamily() + "\" size=\"-1\">";
+        Bag[] hitObjects = objectsHitBy(rect);
+        int count = 0;
+        for(int x=0;x<hitObjects.length;x++)
+            {
+            FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(portrayals.get(x));
+            for( int i = 0 ; i < hitObjects[x].numObjs ; i++ )
+                {
+                if (count > 0) s += "<br>";
+                if (count >= MAX_TOOLTIP_LINES) { return s + "...<i>etc.</i></font></html>"; }
+                count++;
+                s += p.portrayal.getStatus((LocationWrapper) (hitObjects[x].objs[i]));
+                }
+            }
+        if (count==0) return null;
+        s += "</font></html>";
+        return s;
+        }
+                
+    /** */
+    ArrayList selectedWrappers = new ArrayList();
+        
+    public void performSelection( final Rectangle2D.Double rect, final GUIState simulation )
+        {
+        // deselect existing objects
+        for(int x=0;x<selectedWrappers.size();x++)
+            {
+            LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
+            wrapper.getFieldPortrayal().setSelected(wrapper,false);
+            }
+        selectedWrappers.clear();
+        
+        // gather objects hit and select them, and put in selectedObjects
+        Bag[] hitObjects = objectsHitBy(rect);
+        for(int x=0;x<hitObjects.length;x++)
+            {
+            FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(portrayals.get(x));
+            for( int i = 0 ; i < hitObjects[x].numObjs ; i++ )
+                {
+                LocationWrapper wrapper = (LocationWrapper) (hitObjects[x].objs[i]);
+                p.portrayal.setSelected(wrapper, true);
+                selectedWrappers.add(wrapper);
+                }
+            }
+        }
+
     /** Determines the inspectors appropriate for the given selection region (rect), and sends
         them on to the Controller. */
     public void createInspectors( final Rectangle2D.Double rect, final GUIState simulation )
@@ -1043,20 +1198,11 @@ public class Display2D extends JComponent implements Steppable
         simulation.controller.setInspectors(inspectors,names);
         }
 
-    /** Force-repaints the header by running the repaint through an invokeLater(), which seems
-        to be more stable than just calling header.repaint() directly.  This fixes a bug in
-        MacOS X 1.3.1 which doesn't redraw the header when we resize the window. */
-    public void ensureRepaintHeader()
-        {
-        SwingUtilities.invokeLater(new Runnable() 
-            { public void run() { if (header!=null) header.repaint(); } });
-        }
-
     /** Creates a frame holding the Display2D.  This is the best method to create the frame,
         rather than making a frame and putting the Display2D in it.  If you prefer the latter,
         then you need to handle two things.  First, when the frame is disposed, you need to
         call quit() on the Display2D.  Second, if you care about distribution to MacOS X
-        Java 1.3.1, you need to call ensureRepaintHeader() whenever the window is resized. */
+        Java 1.3.1, you need to call Utilities.doEnsuredRepaint(header) whenever the window is resized. */
     public JFrame createFrame()
         {
         JFrame frame = new JFrame()
@@ -1076,27 +1222,18 @@ public class Display2D extends JComponent implements Steppable
             // Bug in MacOS X Java 1.3.1 requires that we force a repaint.
             public void componentResized (ComponentEvent e) 
                 {
-                ensureRepaintHeader();
+                Utilities.doEnsuredRepaint(header);
                 }
             });
                                 
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(this,BorderLayout.CENTER);
         
-        frame.setTitle(simulation.getName() + " Display");
+        frame.setTitle(GUIState.getName(simulation.getClass()) + " Display");
         frame.pack();
         return frame;
         }
     
-    /** Utility method.  Returns a filename guaranteed to end with the given ending. */
-    public static String ensureFileEndsWith(String filename, String ending)
-        {
-        // do we end with the string?
-        if (filename.regionMatches(false,filename.length()-ending.length(),ending,0,ending.length()))
-            return filename;
-        else return filename + ending;
-        }
-
     /** Returns the frame holding this Component.  If there is NO such frame, an error will
         be generated (probably a ClassCastException). */
     Frame getFrame()
@@ -1142,11 +1279,11 @@ public class Display2D extends JComponent implements Steppable
         FileDialog fd = new FileDialog(getFrame(), 
                                        "Save Snapshot as 24-bit PNG...", FileDialog.SAVE);
         fd.setFile("Untitled.png");
-        fd.show();
+        fd.setVisible(true);;
         if (fd.getFile()!=null) try
             {
             OutputStream stream = new BufferedOutputStream(new FileOutputStream(
-                                                               new File(fd.getDirectory(), ensureFileEndsWith(fd.getFile(),".png"))));
+                                                               new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
             PngEncoder tmpEncoder = new
                 PngEncoder(img, false,PngEncoder.FILTER_NONE,9);
             stream.write(tmpEncoder.pngEncode());
@@ -1184,7 +1321,7 @@ public class Display2D extends JComponent implements Steppable
             if (movieMaker != null) return;  // already running
             movieMaker = new MovieMaker(getFrame());
             Graphics g = insideDisplay.getGraphics();
-            final BufferedImage typicalImage = insideDisplay.paint(g,true);
+            final BufferedImage typicalImage = insideDisplay.paint(g,true,false);
             g.dispose();
             
             if (!movieMaker.start(typicalImage))
@@ -1256,5 +1393,6 @@ public class Display2D extends JComponent implements Steppable
                 g.dispose();
                 }
             }
+        insideDisplay.updateToolTips();
         }
     }

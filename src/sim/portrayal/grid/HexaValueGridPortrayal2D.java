@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal.grid;
 import sim.portrayal.*;
 import sim.field.grid.*;
@@ -75,7 +81,6 @@ public class HexaValueGridPortrayal2D extends ValueGridPortrayal2D
         final double[][] doubleField = (isDoubleGrid2D ? ((DoubleGrid2D) field).field : null);
         final int[][] intField = (isDoubleGrid2D ? null : ((IntGrid2D) field).field);
 
-        int argb;
 
         if( startx < 0 ) startx = 0;
         if( starty < 0 ) starty = 0;

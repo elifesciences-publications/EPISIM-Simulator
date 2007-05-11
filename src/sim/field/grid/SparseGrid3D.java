@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.field.grid;
 import sim.field.*;
 import sim.util.*;
@@ -18,6 +24,25 @@ import sim.util.*;
    <p>Generally speaking, if you have a grid of objects, one per location, you should use an ObjectGrid3D.  If you have a large grid occupied by a few objects, or those objects can pile up on the same grid location, you should use a SparseGrid3D.
     
    <p>In either case, you might consider storing the location of an object IN THE OBJECT ITSELF if you need to query for the object location often -- it's faster than the hashtable lookup in SparseGrid3D, and certainly faster than searching the entire array of an ObjectGrid3D.
+
+   <p><b>Boundaries.</b>  SparseGrid3D has no boundaries at all.  <tt>width</tt> and <tt>height</tt> and <tt>length</tt> exist only to allow
+   you to define pseudo-boundaries for toroidal computation; and to provide typical bounds for visualization.  But you can
+   attach any coordinate as a location for an object with no restrictions.
+        
+   <b>Setting and getting an object and its Location.</b>  The method <b>setObjectLocation(...)</b> methods set the location of the object
+   (to an Int3D or an <x,y,z> location).
+   The method <b>getObjectsAtLocation(Object location)</b>, inherited from SparseField, returns a Bag (which you MUST NOT modify)
+   containing all objects at a given location (which must be provided in the form of an Int3D or MutableInt3D).  The <b>numObjectsAtLocation(location)</b>
+   method returns the number of such objects.  The <b>getObjectsAtLocations(Bag locations, Bag putInHere)</b> gathers objects
+   at a variety of locations and puts them in the bag you provide.  The <b>getAllObjects()</b> method returns all objects in a bag you
+   must NOT modiify.  The <b>removeObjectsAtLocation(Object location)</b> method removes and returns all objects at a given location
+   (defined as an Int3D or MutableDouble3D).  The <b>exists</b> method tells you if the object exists in the field.
+        
+   <b>Neighborhood Lookups.<?b>  The method <b>getObjectsAtLocationOfObject</b> returns all Objects at the same location as the provided
+   object (in a Bag, which must NOT modify).  The various <b>getNeighbors...Distance(...)</b> methods return all locations defined by certain
+   distance bounds, or all the objects stored at those locations.  They are expensive to compute and it may be wiser to compute them by hand
+   if there aren't many.
+
 */
 
 public class SparseGrid3D extends SparseField

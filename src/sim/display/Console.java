@@ -1,6 +1,11 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.display;
 import javax.swing.*;
-
 import java.awt.event.*;
 import javax.swing.event.*;
 import sim.engine.*;
@@ -12,6 +17,7 @@ import java.io.*;
 import sim.util.*;
 import sim.util.gui.*;
 import sim.portrayal.*;
+import java.lang.ref.*;
 
 /**
    Console is an elaborate Controller which provides a variety of GUI niceties to control the basics
@@ -70,12 +76,26 @@ public class Console extends JFrame implements Controller
     
     /** List of fully qualified classnames to include in the Console's "New Simulation" combo box */
     public static Vector classNames = new Vector();
+    /** List of short descriptive names for the classes in classNames.  If any one of them is null, then the
+        name must be fetched using the GUIState.getName(class) method */
+    public static Vector shortNames = new Vector();
     
     /** Do we only allow the user to type in other classNames? */
     public static boolean allowOtherClassNames;
 
     static 
         {
+        // Use Quaqua if it exists
+        try
+            {
+            System.setProperty( "Quaqua.TabbedPane.design","auto" );  // UI Manager Properties docs differ
+            System.setProperty( "Quaqua.visualMargin","1,1,1,1" );
+            UIManager.put("Panel.opaque", Boolean.TRUE);
+            UIManager.setLookAndFeel((String)(Class.forName("ch.randelshofer.quaqua.QuaquaManager").
+                                              getMethod("getLookAndFeelClassName",(Class[])null).invoke(null,(Object[])null)));
+            } 
+        catch (Exception e) { }
+
         try  // now we try to set certain properties if the security permits it
             {
             // macOS X 1.4.1 java doesn't show the grow box.  We try to force it here.
@@ -94,16 +114,54 @@ public class Console extends JFrame implements Controller
             InputStream s = Console.class.getResourceAsStream("simulation.classes");
             StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(s)));
             st.resetSyntax();
-            st.wordChars(33,255);
+            st.wordChars(32,255);
+            st.whitespaceChars(0,31);  // everything but space
             st.commentChar(35);
-            st.whitespaceChars(0,32);  // control chars
+            boolean errout = false;
+            String nextName = null;
+            //st.whitespaceChars(0,32);  // control chars
             while(st.nextToken()!=StreamTokenizer.TT_EOF)
                 {
                 if (st.sval == null) { } // ignore
                 else if ("ONLY".equalsIgnoreCase(st.sval))
                     allowOtherClassNames = false;
-                else classNames.add(st.sval);
+                else if (st.sval.toUpperCase().startsWith("NAME:"))
+                    {
+                    //if (shortNames.size() == 0) throw new Exception("The 'NAME:' tag occurred before any class name was declared");
+                    //shortNames.set(shortNames.size()-1, st.sval.substring(5).trim());
+                    nextName = st.sval.substring(5).trim();
+                    }
+                else 
+                    {
+                    String shortName = null;
+                    if (nextName==null)
+                        {
+                        try
+                            {
+                            Class c = Class.forName(st.sval);
+                            try
+                                { shortName = GUIState.getName(c); }
+                            catch (Throwable e)
+                                { shortName = GUIState.getTruncatedName(c); }
+                            }
+                        catch (Throwable e) 
+                            {
+                        	
+                            if (!errout) 
+                                System.err.println("Not all classes loaded, due to error: probably no Java3D");
+                            errout = true;
+                            }
+                        }
+                    else { shortName = nextName; nextName = null; }
+                    // at this point if it's still null we shouldn't list it.
+                    if (shortName!=null)
+                        {
+                        classNames.add(st.sval);
+                        shortNames.add(shortName);
+                        }
+                    }
                 }
+            if (nextName != null) System.err.println("Spurious NAME tag at end of simulation.classes file:\n\tNAME: " + nextName);
             s.close();
             }
         catch (Exception e)
@@ -129,15 +187,15 @@ public class Console extends JFrame implements Controller
     public static final ImageIcon I_STEP_OFF = iconFor("StepOff.png");
 
     /** The HTML Display pane */
-    public JEditorPane infoPane;
+    //public JEditorPane infoPane;
     /** The HTML Display pane's URL stack */
-    java.util.Stack stack;
+    //java.util.Stack stack;
     /** The HTML Display's back button */
-    JButton backButton;
+    //JButton backButton;
     /** The Box that holds the back button */
-    Box backButtonBox;
+    //Box backButtonBox;
     /** The HTML display's container panel */
-    JPanel infoPanel;
+    JComponent infoPanel;
     /** The current time */
     JLabel time;
     /** The frame rate */
@@ -224,7 +282,7 @@ public class Console extends JFrame implements Controller
         Sets the simulation's controller to point to this Console.    */
     public Console(final GUIState simulation)
         {
-        super(simulation.getName());
+        super(GUIState.getName(simulation.getClass()));
 
         this.simulation = simulation;
 
@@ -269,7 +327,6 @@ public class Console extends JFrame implements Controller
 
         // create stop button
         stopButton = new JButton(I_STOP_OFF);
-        //      stopButton.setPressedIcon(I_STOP_ON);
         stopButton.setIcon(I_STOP_ON);
         stopButton.setPressedIcon(I_STOP_OFF);
         //stopButton.setToolTipText("End Simulation");
@@ -321,102 +378,7 @@ public class Console extends JFrame implements Controller
 
         //////// create the "about" tab pane
         
-        // Woohoo!  An HTML display!  Anything to make our system take longer to load!  :-)
-        infoPane = new JEditorPane("text/html", simulation.getInfo());
-        infoPane.setEditable(false);
-        JScrollPane scroll = new JScrollPane(infoPane);        
-        infoPanel = new JPanel();
-        infoPanel.setLayout(new BorderLayout());
-        infoPanel.add(scroll,BorderLayout.CENTER);
-        // override a bug in JEditorPane which scrolls to the bottom on all subsequent Consoles
-        infoPane.getCaret().setDot(0);
-
-        // add a back button and 
-        backButton = new JButton("Back");
-        backButtonBox = new Box(BoxLayout.X_AXIS);
-        backButtonBox.add(backButton);
-        backButtonBox.add(Box.createGlue());
-        stack = new java.util.Stack();
-
-        // make the hyperlinks active
-        infoPane.addHyperlinkListener(new HyperlinkListener()
-            {
-            public void hyperlinkUpdate( HyperlinkEvent he ) 
-                {
-                HyperlinkEvent.EventType type = he.getEventType();
-                if (type == HyperlinkEvent.EventType.ENTERED) 
-                    {
-                    infoPane.setCursor(Cursor.getPredefinedCursor( Cursor.HAND_CURSOR) );
-                    } 
-                else if (type == HyperlinkEvent.EventType.EXITED) 
-                    {
-                    infoPane.setCursor( Cursor.getDefaultCursor() );
-                    } 
-                else // clicked on it!
-                    {
-                    java.net.URL url = he.getURL();
-                    try
-                        {
-                        infoPane.getEditorKit().createDefaultDocument();
-                        infoPane.setPage(url);
-                        if (stack.isEmpty())
-                            {
-                            // show back button
-                            infoPanel.add(backButtonBox,BorderLayout.SOUTH);
-                            infoPanel.revalidate();
-                            }
-                        stack.push(url);
-                        }
-                    catch (Exception e)
-                        {
-                        e.printStackTrace();
-                        java.awt.Toolkit.getDefaultToolkit().beep();
-                        }
-                    }
-                }
-            });
-
-        // code for when the user presses the "Back" button
-        backButton.addActionListener(new ActionListener()
-            {
-            public void actionPerformed(ActionEvent ae)
-                {
-                try
-                    {
-                    stack.pop();
-                    if (stack.isEmpty())
-                        {
-                        // hide back button
-                        infoPanel.remove(backButtonBox);
-                        infoPanel.revalidate();
-                        // delete any notion of a URL.  What a pain -- this is so backwards!
-                        // This is because JEditorPane's setText doesn't eliminate the
-                        // stream description property of the text (a bug), so the system
-                        // still thinks the URL is valid.
-                        infoPane.setDocument(infoPane.getEditorKit().createDefaultDocument());
-                        
-                        // .... could also be done as ...
-                        //  infoPane.getDocument().putProperty(
-                        //      javax.swing.text.Document.StreamDescriptionProperty,null);
-                        // now set the text again
-                        infoPane.setContentType("text/html");
-                        infoPane.setText(simulation.getInfo());
-                        // override a bug in JEditorPane which scrolls to the bottom on all subsequent Consoles
-                        infoPane.getCaret().setDot(0);
-                        }
-                    else infoPane.setPage((java.net.URL)(stack.peek()));
-                    }
-                catch (Exception e)
-                    {
-                    System.err.println("This should not have happened.");
-                    e.printStackTrace();
-                    /* should never happen */
-                    }
-                }
-            });
-
-
-
+        infoPanel = new HTMLBrowser(GUIState.getInfo(simulation.getClass()));
 
         //////// create the "Displays" tab pane
 
@@ -431,14 +393,12 @@ public class Console extends JFrame implements Controller
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
                 {
                 JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if(value instanceof JFrame){
                 JFrame frame = (JFrame) value;
                 if (frame.isVisible())
                     renderer.setForeground(Color.black);
                 else
                     renderer.setForeground(Color.gray);
                 renderer.setText(frame.getTitle());
-                }
                 return renderer;
                 }
             });
@@ -516,7 +476,6 @@ public class Console extends JFrame implements Controller
             public void stateChanged(ChangeEvent e)
                 {
                 int val = slider.getValue();
-//                long speed = (val / 10 >= 1 ? (long) (Math.pow(2, val / 10.0 - 3) * 1000) : val * 25);
                 long speed = (long)( 64000.0 / (Math.pow(4,5)-1) * ( Math.pow(4,val/20.0) - 1 ) );
                 if (!slider.getValueIsAdjusting())
                     setPlaySleep(speed); // convert to milliseconds
@@ -565,30 +524,6 @@ public class Console extends JFrame implements Controller
         b.add(prioritySliderText);
         controlPanel.addLabelled("Thread Priority ", b);
 
-
-        /*
-        // Create the yield checkbox
-        b = new Box(BoxLayout.X_AXIS)
-        {
-        Insets insets = new Insets(2, 4, 2, 4);  // Java jams the widgets too closely for my taste
-        public Insets getInsets()
-        {
-        return insets;
-        }
-        };
-        yield = new JCheckBox();
-        yield.addActionListener(new ActionListener()
-        {
-        public void actionPerformed(ActionEvent e)
-        {
-        setShouldYield(yield.isSelected());
-        }
-        });
-
-        yield.setSelected(false);
-        b.add(yield);
-        controlPanel.addLabelled("Give Up Some CPU ", b);
-        */
 
         // Create the step slider
         // the equation is: step = slider
@@ -1047,8 +982,8 @@ public class Console extends JFrame implements Controller
             {
             public void componentResized(ComponentEvent e)
                 {
-                doEnsuredRepaint(getContentPane());
-                doEnsuredRepaint(menuBar);
+                Utilities.doEnsuredRepaint(getContentPane());
+                Utilities.doEnsuredRepaint(menuBar);
                 }
             });
 
@@ -1132,27 +1067,6 @@ public class Console extends JFrame implements Controller
     /////////////////////// (many of these are private, and nearly all are synchronized to communicate state information
     /////////////////////// to the underlying thread)
 
-
-    //    /** Should we yield a little time?  Don't play with this. */
-    //boolean shouldYield = false;    
-    
-    //    /** Set if we should yield a little time. */
-    //public void setShouldYield(boolean val)
-    //      {
-    //      synchronized (playThreadLock)
-    //          {
-    //          shouldYield = val;
-    //          }
-    //      }
-    
-    //    /** Get if we should yield a little time.*/
-    //    public boolean getShouldYield()
-    //      {
-    //      synchronized (playThreadLock)
-    //          {
-    //          return shouldYield;
-    //          }
-    //      }
 
     /** Should the simulation repeat when the stop button is pressed? */
     boolean shouldRepeat = false;
@@ -1426,6 +1340,7 @@ public class Console extends JFrame implements Controller
 
     /////////////////////// UTILITY FUNCTIONS
 
+
     /** Simulations can call this to get access to the tabPane -- 
         to add tabbed panes as they like.  */
     public synchronized JTabbedPane getTabPane()
@@ -1435,22 +1350,23 @@ public class Console extends JFrame implements Controller
     
 
     static final int MAX_ERROR_WIDTH = 500;  // in pixels
+    static final int MIN_ERROR_WIDTH = 200;
+    static final int MIN_ERROR_HEIGHT = 200;
     /** Pops up an error dialog box.  error should be the error proper, and errorDescription should
         be some user-informative item that's shown first (the user must explicitly ask to be shown
         the raw error itself).  The error is also printed to the console.  */
     
     public void informOfError(Throwable error, String errorDescription)
         {
-        informOfError(error,errorDescription,this);
+        informOfError(error,errorDescription,null);
         }
     
     static void informOfError(Throwable error, String errorDescription, JFrame frame)
         {
-        Graphics g = frame.getGraphics();
-        FontMetrics fm = g.getFontMetrics();  // we presume these are the same as for the JOptionPane
         error.printStackTrace();
         Object[] options = { "What Error?", "Okay" };
         JLabel label = new JLabel();
+        FontMetrics fm = label.getFontMetrics(label.getFont());
         label.setText("<html><font face=\"" + 
                       WordWrap.toHTML(label.getFont().getFamily()) + "\">" + 
                       WordWrap.toHTML(WordWrap.wrap(""+errorDescription,MAX_ERROR_WIDTH,fm)) +
@@ -1468,33 +1384,29 @@ public class Console extends JFrame implements Controller
             label.setText("<html><font face=\"" + 
                           WordWrap.toHTML(label.getFont().getFamily()) + "\">" + 
                           WordWrap.toHTML(WordWrap.wrap(""+error,MAX_ERROR_WIDTH,fm)) +
-                          "</font></html>");
-            JOptionPane.showMessageDialog(frame, label);
-            }
-        g.dispose();
-        }
-
-    /** Private method.  Does a repaint that is guaranteed to work (on some systems, plain repaint())
-        fails if there's lots of updates going on as is the case in our simulator thread.  */
-    void doEnsuredRepaint(final Component component)
-        {
-        SwingUtilities.invokeLater(new Runnable()
-            {
-            public void run()
+                          "<br></font></html>");
+            StringWriter writer = new StringWriter();
+            PrintWriter pWriter = new PrintWriter(writer);
+            error.printStackTrace(pWriter);
+            pWriter.flush();
+            JTextArea area = new JTextArea(writer.toString());
+            JScrollPane pane = new JScrollPane(area)
                 {
-                if (component!=null) component.repaint();
-                }
-            });
-        }
-
-    /** Returns a filename which is guaranteed to end with the given ending.  */
-    public static String ensureFileEndsWith(String filename, String ending)
-        {
-        // do we end with the string?
-        if (filename.regionMatches(false, filename.length() - ending.length(), ending, 0, ending.length()))
-            return filename;
-        else
-            return filename + ending;
+                public Dimension getPreferredSize()
+                    {
+                    return new Dimension(MIN_ERROR_WIDTH,MIN_ERROR_HEIGHT);
+                    }
+                public Dimension getMinimumSize()
+                    {
+                    return new Dimension(MIN_ERROR_WIDTH,MIN_ERROR_HEIGHT);
+                    }
+                };
+            JPanel panel = new JPanel();
+            panel.setLayout(new BorderLayout());
+            panel.add(label,BorderLayout.NORTH);
+            panel.add(pane,BorderLayout.CENTER);
+            JOptionPane.showMessageDialog(frame, panel);
+            }
         }
 
     /** Sets the random number generator of the underlying model, pausing it first, then unpausing it after. 
@@ -1601,10 +1513,10 @@ public class Console extends JFrame implements Controller
         // this line is to fix a stupidity in MacOS X 1.3.1, where if Display2D isn't loaded before
         // windows are created (so its static { } can be executed before the graphics subsystem
         // fires up) the underlying graphics subsystem is messed up.  Apple's fixed this in 1.4.1.
-        boolean b = Display2D.isMacOSX;  // sacrificial  -- something to force Display2D.class to load
+        boolean b = Display2D.isMacOSX();  // sacrificial  -- something to force Display2D.class to load
                 
         // Okay here we go with the real code.
-        if (!doNew(new JFrame()) && !SimApplet.isApplet) System.exit(0); // just a dummy JFrame
+        if (!doNew(null, true) && !SimApplet.isApplet) System.exit(0); // just a dummy JFrame
         }
     
     /** Pops up the about box */
@@ -1622,7 +1534,7 @@ public class Console extends JFrame implements Controller
             p.add(b,BorderLayout.CENTER);
             aboutFrame.getContentPane().add(p,BorderLayout.CENTER);
             aboutFrame.setResizable(false);
-            Font small = new Font("Dialog",0,10);
+            Font small = new Font("Dialog",0,9);
 
             // start dumping in text
             JLabel j = new JLabel("MASON");
@@ -1668,7 +1580,11 @@ public class Console extends JFrame implements Controller
             spacer.setFont(new Font("Dialog",0,6));
             b.add(spacer);
                         
-            j = new JLabel("MASON is (c) 2005 Sean Luke and George Mason University.");
+            j = new JLabel("MASON is (c) 2005 Sean Luke and George Mason University,");
+            j.setFont(small);
+            b.add(j);
+
+            j = new JLabel("with various elements copyrighted by the above contributors.");
             j.setFont(small);
             b.add(j);
 
@@ -1684,10 +1600,13 @@ public class Console extends JFrame implements Controller
             j.setFont(small);
             b.add(j);
 
-            j = new JLabel("(c) 1993 by Michael Lecuyer.", JLabel.LEFT);
+            j = new JLabel("(c) 1993 Michael Lecuyer.  CapturingCanvas3D is based in", JLabel.LEFT);
             j.setFont(small);
             b.add(j);
         
+            j = new JLabel("part on code by Peter Kunszt.", JLabel.LEFT);
+            j.setFont(small);
+            b.add(j);
             aboutFrame.pack();
             }
             
@@ -1711,50 +1630,120 @@ public class Console extends JFrame implements Controller
     /** Pops up a window allowing the user to enter in a class name to start a new simulation. */
     public void doNew()
         {
-        doNew(this);
+        doNew(this, false);
         }
-     
-    /** Returns true if a new simulation has been created; false if the user cancelled. */
-    static boolean doNew(JFrame originalFrame)
+        
+    /** Returns the index of the option selected, or -1 if the user pressed the
+        close button on the window instead -- AWT is stupid. */
+    static int showOptionDialog(JFrame originalFrame, JComponent component,
+                                String title, Object[] options, boolean resizable)
         {
+        JOptionPane p = new JOptionPane(component, 
+                                        JOptionPane.PLAIN_MESSAGE,
+                                        JOptionPane.OK_CANCEL_OPTION,
+                                        null, options, options[0]);
+        JDialog d = p.createDialog(originalFrame, title);
+        d.pack();
+        d.setResizable(resizable);
+        p.selectInitialValue();
+        d.setVisible(true);;
+        for(int counter = 0; counter < options.length; counter++)
+            if(options[counter].equals(p.getValue()))
+                return counter;
+        return -1;
+        }
+        
+    /** Returns true if a new simulation has been created; false if the user cancelled. */
+    static boolean doNew(JFrame originalFrame, boolean startingUp)
+        {
+        final String defaultText = "<html><body bgcolor='white'><font face='dialog'><br><br><br><br><p align='center'>Select a MASON simulation from the list at left,<br>or type a Java class name below.</p></font></body></html>";
+        final String nothingSelectedText = "<html><body bgcolor='white'></body></html>";
+                
         while(true)
             {
-            final JComboBox cb = new JComboBox(new DefaultComboBoxModel(classNames));
-            cb.setMaximumRowCount(Math.max(cb.getMaximumRowCount(),30));
-            if (allowOtherClassNames)
+            final JList list = new JList(classNames);
+            final JScrollPane pane = new JScrollPane(list);
+                        
+            list.setCellRenderer(new DefaultListCellRenderer()
                 {
-                cb.setEditable(true);
-                cb.setSelectedIndex(-1);
-                cb.getEditor().setItem("sim.app.");
-                }
-            else
-                {
-                cb.setEditable(false);
-                // uneditable combo boxes don't update their editor
-                // like editable ones do.  So to make the getitem() below
-                // consistent for both, we add an action listener to update
-                // the editor with our current classname.
-                cb.addActionListener(new ActionListener()
+                public Component getListCellRendererComponent(
+                    JList list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) 
                     {
-                    public void actionPerformed(ActionEvent e)
+                    JLabel label = (JLabel)(super.getListCellRendererComponent(
+                                                list,value,index,isSelected,cellHasFocus)); 
+                    String text = "";
+                    String classname = "";
+                    if (index >= 0)
                         {
-                        cb.getEditor().setItem(""+cb.getSelectedItem());
+                        label.setText("<html><body><font face='dialog'> " + shortNames.get(index) + 
+                                      "<font size='-2' color='#AAAAAA'><br> " + classNames.get(index) +
+                                      "</font></font></body></html>");
                         }
-                    });
-                if (cb.getItemCount()==0) // uh oh
-                    cb.addItem("Error: No Simulations Available"); // something to warn the user that the developer was dumb
-                cb.getEditor().setItem(""+cb.getItemAt(0));
-                }
-                   
-            int reply = JOptionPane.showConfirmDialog(
-                originalFrame,
-                cb,
-                "New Simulation",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE);
-            if(reply!= JOptionPane.OK_OPTION) 
+                    return label;
+                    }
+                });
+                        
+            final HTMLBrowser browser = new HTMLBrowser(defaultText)
+                {
+                public Dimension getPreferredSize() { return new Dimension(400, 400); }
+                public Dimension getMinimumSize() { return new Dimension(10,10); }
+                };
+                        
+            final JTextField field = new JTextField("sim.app.");
+            JPanel fieldp = new JPanel();
+            fieldp.setLayout(new BorderLayout());
+            fieldp.add(field,BorderLayout.CENTER);
+            fieldp.add(new JLabel("Simulation class name: "), BorderLayout.WEST);
+            fieldp.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
+                        
+            list.addListSelectionListener(new ListSelectionListener()
+                {
+                public void valueChanged(ListSelectionEvent e)
+                    {
+                    if (!e.getValueIsAdjusting()) try
+                        {
+                        field.setText((String)list.getSelectedValue());
+                        browser.setText(GUIState.getInfo(Class.forName(field.getText())));
+                        }
+                    catch (Throwable ex)
+                        {
+                        field.setText((String)list.getSelectedValue());
+                        browser.setText(nothingSelectedText);
+                        }
+                    }
+                });
+
+            list.addMouseListener(new MouseAdapter() 
+                {
+                public void mouseClicked(MouseEvent e) 
+                    {
+                    if (e.getClickCount() == 2) 
+                        {
+                        // prematurely get frame and close it
+                        Component c = list;
+                        while(c.getParent() != null)
+                            c = c.getParent();
+                        ((Window)c).dispose();
+                        }
+                    }
+                });
+
+            JPanel p = new JPanel();
+            p.setLayout(new BorderLayout());
+            p.add(browser, BorderLayout.CENTER);
+            p.add(pane,BorderLayout.WEST);
+            p.add(fieldp, BorderLayout.SOUTH);
+                        
+            int reply = showOptionDialog(null,p, "New Simulation", new Object[] {"Select", 
+                                                                                 startingUp ? "Quit" : "Cancel"}, true);
+            if (reply == 1)  // not -1 -- caused by disposing the window, and not 0 -- caused by "Select"
                 return false;
-            String className = (String)cb.getEditor().getItem();
+                                
+            String className = field.getText(); // (String)cb.getEditor().getItem();
             try
                 {
                 // check first for a default constructor
@@ -1793,12 +1782,12 @@ public class Console extends JFrame implements Controller
             fd.setFile(simulationFile.getName());
             fd.setDirectory(simulationFile.getParentFile().getPath());
             }
-        fd.show();
+        fd.setVisible(true);;
         File f = null; // make compiler happy
         if (fd.getFile() != null)
             try
                 {
-                f = new File(fd.getDirectory(), ensureFileEndsWith(fd.getFile(), ".checkpoint"));
+                f = new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(), ".checkpoint"));
                 simulation.state.writeToCheckpoint(f);
                 simulationFile = f;
                 } 
@@ -1838,7 +1827,7 @@ public class Console extends JFrame implements Controller
             {
             public boolean accept(File dir, String name)
                 {
-                return ensureFileEndsWith(name, ".checkpoint").equals(name);
+                return Utilities.ensureFileEndsWith(name, ".checkpoint").equals(name);
                 }
             });
 
@@ -1853,7 +1842,7 @@ public class Console extends JFrame implements Controller
         if (originalPlayState == PS_PLAYING) // need to put into paused mode
             pressPause();
                 
-        fd.show();
+        fd.setVisible(true);;
         File f = null; // make compiler happy
         if (fd.getFile() != null)
             try
@@ -1962,18 +1951,16 @@ public class Console extends JFrame implements Controller
         if (getPlayState() != PS_STOPPED)
             {
             stopButton.setIcon(I_STOP_ON);
-            repaint();
-
-            killPlayThread();
-
-            simulation.finish();
-            stopButton.setIcon(I_STOP_ON);
             stopButton.setPressedIcon(I_STOP_OFF);
-            
             playButton.setIcon(I_PLAY_OFF);
             playButton.setPressedIcon(I_PLAY_ON);
             pauseButton.setIcon(I_PAUSE_OFF);
             pauseButton.setPressedIcon(I_PAUSE_ON);
+
+            repaint();
+            killPlayThread();
+            simulation.finish();
+            stopAllInspectors(true);                // stop the inspectors, letting them flush themselves out
             setPlayState(PS_STOPPED);
             repaint();
 
@@ -2125,38 +2112,24 @@ public class Console extends JFrame implements Controller
     NumberFormat rateFormat;
 
 
+    String lastText = null;
     /** updates the time and frame rate labels to the provided strings and color */
     void updateTimeText(final String timeString)
         {
-        // invokeLater is required in J3D mode or it'll lock -- dunno why
-        SwingUtilities.invokeLater(new Runnable()
+        if (!(timeString.equals(lastText)))  // only update if we're changing
             {
-            public void run()
+            lastText = timeString;
+            // invokeLater is required in J3D mode or it'll lock -- dunno why
+            SwingUtilities.invokeLater(new Runnable()
                 {
-                time.setText(timeString); // will auto-repaint
-                }
-            });
+                public void run()
+                    {
+                    time.setText(timeString); // will auto-repaint
+                    }
+                });
+            }
         }
 
-    /* Shows or hides the time and frame rate.  Called when the user clicks on the time or frame rate labels.
-       Why would you want to hide the time/frame rate?  Because on MacOS X, context switches to windows is
-       expensive, so avoiding changing the time and redrawing can speed up the system considerably.  */
-/*    public void toggleShowsTime()
-      {
-      // use the time label as our private lock
-      synchronized (time)
-      {
-      showsTime = !showsTime;
-      boolean simulationExists = (simulation != null && simulation.state != null);
-      if (showsTime)
-      updateTime(simulationExists ? simulation.state.schedule.getTimestamp(lastTime, "At Start", "At End") : "",
-      lastRate < 0 ? "" : rateFormat.format(lastRate),
-      Color.black);
-      else
-      updateTime("Hidden", "Hidden", Color.gray);
-      }
-      }
-*/
 
     void updateTime()
         {
@@ -2183,7 +2156,7 @@ public class Console extends JFrame implements Controller
                 updateTimeText(simulationExists ? "" + lastSteps: "");
                 break;
             case SHOWING_TPS:
-                updateTimeText(lastRate < 0 ? "" : rateFormat.format(lastRate));
+                if (lastRate != 0) updateTimeText(lastRate < 0 ? "" : rateFormat.format(lastRate));
                 break;
             default:
                 updateTimeText("");
@@ -2199,41 +2172,6 @@ public class Console extends JFrame implements Controller
             return lastRate;
             }
         }
-
-    /* Sets the frame rate.  If val is negative, the steps per second won't show anything */
-/*
-  public void setStepsPerSecond(double val)
-  {
-  // use the time label as our private lock
-  synchronized (time)
-  {
-  lastRate = val;
-  boolean simulationExists = (simulation != null && simulation.state != null);
-  if (showsTime)
-  updateTime(simulationExists ? simulation.state.schedule.getTimestamp(lastTime, "At Start", "At End") : "",
-  lastRate < 0 ? "" : rateFormat.format(lastRate),
-  Color.black);
-  }
-  }
-*/
-
-    /* Sets the time.  If val is negative, the steps per second won't show anything */
-/*    public void setTime(double val)
-      {
-      // use the time label as our private lock
-      synchronized (time)
-      {
-      lastTime = val;
-      boolean simulationExists = (simulation != null && simulation.state != null);
-      if (showsTime)
-      updateTime(simulationExists ? simulation.state.schedule.getTimestamp(lastTime, "At Start", "At End") : "",
-      lastRate < 0 ? "" : rateFormat.format(lastRate),
-      Color.black);
-      }
-      }
-*/
-    
-
 
 
 
@@ -2291,7 +2229,7 @@ public class Console extends JFrame implements Controller
                 }
             } 
         catch (InterruptedException e)
-            { System.out.println("This should never happen: " + e); }
+            { System.err.println("This should never happen: " + e); }
         }
 
 
@@ -2320,17 +2258,21 @@ public class Console extends JFrame implements Controller
         // start the playing thread
         Runnable run = new Runnable()
             {
-            final int STEPHISTORY = 32;
-            long[] stephistory = new long[STEPHISTORY];
+            final static int STEPHISTORY = 32;
+            //long[] stephistory = new long[STEPHISTORY];
 
             public void run()
                 {
                 try
                     {
                     // set up the step history
-                    long v = System.currentTimeMillis();
-                    for (int x = 0; x < STEPHISTORY; x++)
-                        stephistory[x] = v;
+                    //long v = System.currentTimeMillis();
+                    //for (int x = 0; x < STEPHISTORY; x++)
+                    //    stephistory[x] = v;
+                    long lastStepTime = System.currentTimeMillis();
+                    int currentSteps = 0;
+                    double currentRate = 0.0;
+                    final long RATE_UPDATE_INTERVAL = 500;
 
                     // we begin by doing a blocker on the swing event loop.  This gives any
                     // existing repaints a chance to do their thing.  See comments below as to
@@ -2352,7 +2294,7 @@ public class Console extends JFrame implements Controller
                             }                    
                         catch (java.lang.reflect.InvocationTargetException e)
                             {
-                            System.out.println("This should never happen: " + e);
+                            System.err.println("This should never happen: " + e);
                             }                    
                         catch (Exception e)
                             {
@@ -2360,7 +2302,7 @@ public class Console extends JFrame implements Controller
                             }
                     // start the main loop
 
-                    int numSteps = 1;
+//                    int numSteps = 1;
                     boolean result = true;
                     while (true)
                         {
@@ -2374,32 +2316,42 @@ public class Console extends JFrame implements Controller
                         //setTime(t);
 
                         // update the stephistory
-                        for (int x = 0; x < STEPHISTORY - 1; x++)
-                            stephistory[x] = stephistory[x + 1];
-                        stephistory[STEPHISTORY - 1] = System.currentTimeMillis();
-                        if (numSteps < STEPHISTORY) numSteps++;  // as of first call, this will be equal to 2
+                        //for (int x = 0; x < STEPHISTORY - 1; x++)
+                        //    stephistory[x] = stephistory[x + 1];
+                        //stephistory[STEPHISTORY - 1] = System.currentTimeMillis();
+                        //if (numSteps < STEPHISTORY) numSteps++;  // as of first call, this will be equal to 2
                         
                         // BUG in MacOS X 1.4.1.  Reported to Apple and had a long discussion with them.
                         // Basically, when MacOS X's Hotspot gets around to compiling this function, it
-                        // smashes the setStepsPerSecond call.  If you wrote the line thusly...
+                        // smashes the updateTime call.  If you wrote the line thusly...
 
-                        // setStepsPerSecond(1000 / ((stephistory[STEPHISTORY - 1] - stephistory[STEPHISTORY - numSteps]) / (double) numSteps));
+                        // updatetime(s, t, 1000 / ((stephistory[STEPHISTORY - 1] - stephistory[STEPHISTORY - numSteps]) / (double) numSteps));
 
                         // ... then it breaks as soon as compilation kicks in.  BAD bug in the VM.  They're
                         // fixed it as of September 10, 2003.  The workaround is
                         // to store in a long first as follows:
                        
-                        long a = (stephistory[STEPHISTORY - 1] - stephistory[STEPHISTORY - numSteps]);
-                        //setStepsPerSecond(1000 / (a / (double) numSteps));
-                        
-                        updateTime(s, t, 1000 / (a / (double) numSteps));
+                        //                      long a = (stephistory[STEPHISTORY - 1] - stephistory[STEPHISTORY - numSteps]);
+                        currentSteps++;
+                        long l = System.currentTimeMillis();
+                        if (l - lastStepTime >= RATE_UPDATE_INTERVAL)
+                            {
+                            currentRate = currentSteps / ((double) (l - lastStepTime) / 1000.0);
+                            currentSteps = 0;
+                            lastStepTime = l;
+                            }
+                                                        
+                        updateTime(s, t, currentRate);  // 1000 / (a / (double) numSteps));
 
                         // Some steps (notably 2D displays and the timer) call repaint()
                         // to update themselves.  We need to try to guarantee that this repaint()
                         // actually gets fulfilled and not bundled up with other repaints
                         // isssued by the same display.  We do that by blocking on the event
                         // loop here, giving them a chance to redraw themselves without our
-                        // thread running.
+                        // thread running.  Issuing an invokeAndWait also has the effect of flushing
+                        // out and forcing all current repaints and events; so since we're blocked
+                        // waiting, we want to make sure that no events get called which then try
+                        // to call us!
 
                         if (!Thread.currentThread().isInterrupted() && !getThreadShouldStop())
                             try  // it's possible we could be interrupted in-between here (see killPlayThread)
@@ -2418,7 +2370,7 @@ public class Console extends JFrame implements Controller
                                 }                        
                             catch (java.lang.reflect.InvocationTargetException e)
                                 {
-                                System.out.println("This should never happen" + e);
+                                System.err.println("This should never happen" + e);
                                 }                        
                             catch (Exception e)
                                 {
@@ -2473,7 +2425,7 @@ public class Console extends JFrame implements Controller
                                     }                        
                                 catch (Exception e)
                                     {  
-                                    System.out.println("This should never happen: " + e);
+                                    System.err.println("This should never happen: " + e);
                                     } // On X Windows, if we close the window during an invokeLater, we get a spurious exception
                                 }
                             });
@@ -2493,7 +2445,7 @@ public class Console extends JFrame implements Controller
                                     }                        
                                 catch (Exception e)
                                     {  
-                                    System.out.println("This should never happen: " + e);
+                                    System.err.println("This should never happen: " + e);
                                     } // On X Windows, if we close the window during an invokeLater, we get a spurious exception
                                 }
                             });
@@ -2558,11 +2510,8 @@ public class Console extends JFrame implements Controller
         {
         // updates the displays.
         final Enumeration e = frameList.elements();
-        while(e.hasMoreElements()){
-      	  Object obj = e.nextElement();
-          if(obj instanceof JFrame)  ((JFrame) obj).getContentPane().repaint();
-          else if(obj instanceof JInternalFrame) ((JInternalFrame) obj).getContentPane().repaint();
-        }
+        while(e.hasMoreElements())
+            ((JFrame)(e.nextElement())).getContentPane().repaint();
 
         // updates the inspectors
         Iterator i = allInspectors.keySet().iterator();
@@ -2596,20 +2545,36 @@ public class Console extends JFrame implements Controller
 
 
     /////////////////////// METHODS FOR HANDLING INSPECTORS
+        
+    // Inspectors may be in one of two places: 
+    // 1. Stored by the Console in its Inspectors panel
+    // 2. Detatched, and stored in a JFrame that should be closed when the inspector is told to go away
+    //
+    // When the Console stores inspectors in the first case, it places them in the vectors
+    // inspectorNames, inspectorStoppables, and inspectorToolbars below.  In both cases,
+    // the inspectors are stored in the WeakHashMap allInspectors.  The map is weak so that if
+    // the JFrame is closed, the inspector can go away and save some memory perhaps.  Note that
+    // not only is the inspector stored weakly, but so is the Stoppable responsible for stopping
+    // it.  Thus if no one else is holding onto the Stoppable, it might get GCed.  This is ordinarily
+    // not an issue because the JFrame itself is typically holding onto the Stoppable (to call it when
+    // the JFrame's close button is pressed).  But in unusual cases you want to make sure that
+    // it's held onto.
 
     // I dislike Vectors, but JList uses them, so go figure...
 
     /** Holds the names for each inspector presently in the inspectorSwitcher */
     Vector inspectorNames = new Vector();
-    /** Holds the Stoppable objects for each inspector presently in the inspectorSwitcher */
+    /** Holds the Stoppable objects for each inspector presently in the inspectorSwitcher. */
     Vector inspectorStoppables = new Vector();
     /** Holds the toolbars wrapping each inspector presently in the inspectorSwitcher. */
     Vector inspectorToolbars = new Vector();
-    /** Weakly holds all inspectors that might possibly be around.  Cleaned out when the user presses play. 
+        
+    /** Weakly maps inspectors to their stoppables for all inspectors that might possibly be around.
+        Cleaned out when the user presses play. 
         As inspectors are closed or eliminated, they may disappear from this WeakHashMap and be garbage collected. */
     WeakHashMap allInspectors = new WeakHashMap();
 
-    /** Resets the inspectors to the values given in the data structures above.  Sets the preferred
+    /** Resets the Console-internal inspectors to the values given in the data structures above.  Sets the preferred
         selection.  If it does not exist, sets selection 0.  If that does not exist, no selection is set. */
     void resetInspectors(int preferredSelection)
         {
@@ -2647,7 +2612,9 @@ public class Console extends JFrame implements Controller
         removeButton.setEnabled(shouldEnableButtons);
         }
 
-    /** Detatches an inspector */    
+
+    /** Detatches a Console-internal inspector, that is, removes it from the list and makes it into
+        its own JFrame */    
     void detatchInspector()
         {
         int currentInspector = inspectorList.getSelectedIndex();
@@ -2660,38 +2627,13 @@ public class Console extends JFrame implements Controller
 
         // make a new JScrollPane -- for some reason sometimes JScrollPanes don't display
         // properly when removed from one window and stuck into another
-        Component i = oldInspector.getViewport().getView();
-        oldInspector.remove(i);
-        JScrollPane inspector = new JScrollPane(i);
-        inspector.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-        
-        // put in new frame which stops when closed
-        JFrame frame = new JFrame(name)
-            {
-            public void dispose()
-                {
-                super.dispose();
-                if(stoppable!= null) stoppable.stop();
-                }
-            };
-        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(inspector, BorderLayout.CENTER);
-        frame.setResizable(true);
+        Inspector i = (Inspector)(oldInspector.getViewport().getView());
+        oldInspector.remove(i);        
+        JFrame frame = i.createFrame(stoppable);
+
         // stick it in a cool place: exactly where the inspector was inside
         // the console
         frame.setLocation(oldInspectorLocation);
-        frame.pack();
-
-        if (Display2D.isMacOSX())
-            {
-            // fix a bug in MacOS X 1.4.2, which has a minimum possible width and height (128x37)
-            Dimension d = frame.getSize();
-            if (d.width < 128) d.width = 128;
-            if (d.height< 37) d.height = 37;
-            frame.setSize(d);
-            }
-        
         frame.setVisible(true);
 
         // change selection
@@ -2703,7 +2645,8 @@ public class Console extends JFrame implements Controller
         resetInspectors(currentInspector);
         }
             
-    /** Adds new inspectors, given the provided inspectors, their portrayals, and appropriate names for them.
+                        
+    /** Adds new inspectors to the Console's list, given the provided inspectors, their portrayals, and appropriate names for them.
         These bags must match in size, else an exception will be thrown. */
     public void setInspectors(final Bag inspectors, final Bag names)
         {
@@ -2743,7 +2686,7 @@ public class Console extends JFrame implements Controller
                             });
                         }
                     };
-                Stoppable stopper = simulation.scheduleImmediateRepeat(true,stepper);
+                Stoppable stopper = ((Inspector)(inspectors.objs[x])).reviseStopper(simulation.scheduleImmediateRepeat(true,stepper));
                 inspectorStoppables.addElement(stopper);
 
                 // add the inspector
@@ -2762,30 +2705,49 @@ public class Console extends JFrame implements Controller
         try
             {
             tabPane.setSelectedComponent(inspectorPanel);
-            doEnsuredRepaint(inspectorPanel);
+            Utilities.doEnsuredRepaint(inspectorPanel);
             }
         catch (java.lang.IllegalArgumentException e) { } // it's possible inspectorPanel has been removed
         }
 
     /**
-       Registers
+       Registers an inspector to be Stopped if necessary in the future.  This automatically happens
+       if you call setInspectors(...).
     */
     public void registerInspector(Inspector inspector, Stoppable stopper)
         {
-        allInspectors.put(inspector,stopper);
+        allInspectors.put(inspector, new WeakReference(stopper));  // warning: if no one else refers to stopper, it gets GCed!
         }
 
-    /** Removes all inspectors. If killDraggedOutWindowsToo is true, then all inspector windows will be closed; else only
-        the inspectors presently embedded in the console will be removed. */
-    public void removeAllInspectors(boolean killDraggedOutWindowsToo)
+    /** Stops all inspectors.  If killDraggedOutWindowsToo is true, then the detatched inspectors are stopped as well. */
+    public void stopAllInspectors(boolean killDraggedOutWindowsToo)
         {
+        // inspectors may get stop() called on them multiple times
         for(int x=0;x<inspectorStoppables.size();x++)
             {
             Stoppable temp = ((Stoppable)(inspectorStoppables.elementAt(x)));
-            if(temp!=null) temp.stop();  // stop all inspectors
+            if (temp!=null) temp.stop();  // stop all inspectors
             }
+
         if (killDraggedOutWindowsToo)
             {
+            Iterator i = allInspectors.keySet().iterator();
+            while(i.hasNext())
+                {
+                Stoppable stopper = (Stoppable)(((WeakReference)allInspectors.get(i.next())).get());
+                if (stopper != null) stopper.stop();
+                }
+            }
+        }
+
+    /** Stops and removes all inspectors. If killDraggedOutWindowsToo is true, then all inspector windows will be closed; else only
+        the inspectors presently embedded in the console will be stopped and removed. */
+    public void removeAllInspectors(boolean killDraggedOutWindowsToo)
+        {
+        stopAllInspectors(killDraggedOutWindowsToo);
+        if (killDraggedOutWindowsToo)
+            {
+            // this will probably result in the inspectors getting 'stop' called on them a second time
             Iterator i = allInspectors.keySet().iterator();
             while(i.hasNext())
                 {
@@ -2800,12 +2762,9 @@ public class Console extends JFrame implements Controller
             allInspectors = new WeakHashMap();
             }
         inspectorNames = new Vector();
-        inspectorStoppables = new Vector();
         inspectorToolbars = new Vector();
         resetInspectors(-1);
         }
-        
 
-   
     }
 

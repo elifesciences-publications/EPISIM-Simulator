@@ -44,16 +44,8 @@ public class EpiDisplay2D extends Display2D {
         
     frame.setResizable(true);
     
-    // these bugs are tickled by our constant redraw requests.
-    frame.addComponentListener(new ComponentAdapter()
-        {
-        // Bug in MacOS X Java 1.3.1 requires that we force a repaint.
-        public void componentResized (ComponentEvent e) 
-            {
-      	  
-             ensureRepaintHeader();
-            }
-        });
+    
+         
                             
     frame.getContentPane().setLayout(new BorderLayout());
     frame.getContentPane().add(this,BorderLayout.CENTER);

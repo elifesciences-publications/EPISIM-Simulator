@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util.gui;
 import java.awt.event.*;
 import javax.swing.*;
@@ -54,12 +60,14 @@ public class PropertyField extends JComponent
     public Color editedColor = new Color(225,225,255);
     public void setEditedColor(Color c) { editedColor = c; }
     public Color getEditedColor() { return editedColor; }
-        
+    
+    /** Commits to the current setting of the propertyField, filtering it through newValue. */
     public void submit()
         {
         if (edited) { setValue(newValue( valField.getText() )); }
         }
         
+    /** Reverts the property field to its previous string value WITHOUT calling newValue() */
     public void update()
         {
         setValue(getValue());
@@ -100,16 +108,6 @@ public class PropertyField extends JComponent
             }
         };
         
-    /*
-    public ChangeListener checkListener = new ChangeListener()
-        {
-        public void stateChanged (ChangeEvent e)
-            {
-            setValue(newValue( new Boolean(checkField.isSelected()).toString() ));
-            }
-        };
-    */
-
     public ActionListener checkListener = new ActionListener()
         {
         public void actionPerformed ( ActionEvent e )
@@ -293,10 +291,14 @@ public class PropertyField extends JComponent
         defaultColor = valField.getBackground();
         valField.addKeyListener(listener);
         valField.addFocusListener(focusAdapter);
+        checkField.addActionListener(checkListener);
         viewButton.addActionListener(viewButtonListener);
         slider.addChangeListener(sliderListener);
         list.addActionListener(listListener);
-        checkField.addActionListener(checkListener);
+        
+        // quaquaify
+        viewButton.putClientProperty("Quaqua.Button.style","square");
+        
         
         // set values
         setValues(label, initialValue, isReadWrite, domain, show);
@@ -350,8 +352,8 @@ public class PropertyField extends JComponent
                 add(checkField, BorderLayout.CENTER);
                 break;
             case SHOW_VIEWBUTTON:
-                add(viewButton, BorderLayout.EAST);
                 add(viewLabel, BorderLayout.CENTER);
+                add(viewButton, BorderLayout.WEST);
                 break;
             case SHOW_LIST:
                 if (domain != null && domain instanceof java.util.List)

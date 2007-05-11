@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.engine;
 
 /** Fires up a separate thread which runs until the simulation model requests it be halted.
@@ -9,7 +15,13 @@ package sim.engine;
     access data at the same time as other threads, and so must deal with locking.  In general
     if you lock on the Schedule, you are guaranteed atomic access to the underlying simulation
     model.  You'll need to do this for even basic things such as accessing the random number
-    generator.  If you have no idea what we're talking about: don't use an AsynchronousSteppable.
+    generator.  Locking on the Schedule is fairly course-grained, however: the simulation model
+    obtains a lock on the Schedule for the whole duration of a Schedule's step.  Instead you
+    might create your own lock shared between the AsynchronousSteppable and the main thread which
+    allows access to some piece of data you both need in a more fine-grained fashion.  In this case,
+    make certain that the GUI isn't trying to read that data (to display it, say), or that the GUI
+    obtains a lock when it needs to as well.  If you have no idea what we're talking about:
+    don't use an AsynchronousSteppable.
     
     <p>When an AsynchronousSteppable is stepped, it fires off a thread which performs the asynchronous
     task.  This task could be an infinite loop (or otherwise very long process) 
@@ -29,15 +41,15 @@ package sim.engine;
     *   schedule.scheduleOnce(stopper....);
     </tt></pre>
 
-    <p>If the task is one-shot, then run(false) should perform the asynchronous task, run(true) should
-    be set to do nothing, and halt(true) and halt(false) should both do nothing if the task is SHORT and
-    the user can reasonably wait for the task to complete after he has presed the 'stop' button for example.
+    <p>If the task is a SHORT, one-shot process and the user can reasonably wait for the task to complete 
+    after he has presed the 'stop' button, then run(false) should perform the asynchronous task, 
+    run(true) should be set to do nothing, and halt(true) and halt(false) should both do nothing.
     Here's some code to show how to form such a beast.
 
     <pre><tt>
     *   AsynchronousSteppable s = new AsynchronousSteppable()
     *       {
-    *       public void run(boolean resuming)
+    *       protected void run(boolean resuming)
     *           {
     *           if (!resuming)
     *               {
@@ -45,11 +57,11 @@ package sim.engine;
     *               }
     *           }
     *
-    *       public void halt(boolean pausing) { } // nothing
+    *       protected void halt(boolean pausing) { } // nothing
     *       };
     </tt></pre>
     
-    <p>If the task is an infinite loop or other very long process, 
+    <p>If the task is an infinite loop or otherwise long process, 
     it needs to be pausable, resumable, and haltable.  In this case,
     run(false) should perform the asynchronous task, halt(false) and halt(true) should both cause the thread
     to die or trigger events which will soon lead to thread death halt(...) returns, and run(true) should
@@ -60,29 +72,93 @@ package sim.engine;
     <pre><tt>
     *   AsynchronousSteppable s = new AsynchronousSteppable()
     *       {
-    *       public boolean shouldDie = false;
-    *       public String shouldDieLock = "Lock";  // a String because it's serializable
+    *       boolean shouldQuit = false;
+    *       double[] shouldQuitLock = new double[1]; // an array is a unique, serializable object
     *
-    *       public boolean shouldDie()
+    *       boolean shouldQuit()
     *           {
-    *           synchronized(shouldDieLock) { return shouldDie; }
+    *           synchronized(shouldQuitLock) { return shouldQuit; }
     *           }
     *
-    *       public void run(boolean resuming)
+    *       protected void run(boolean resuming)
     *           {
-    *           while(!shouldDie())
+    *           while(!shouldQuit())
     *               {
     *               // do your stuff here -- assuming it doesn't block...
     *               }
+    *           // we're quitting -- do cleanup here if you need to
+    *
+    *           // now reset our flag
+    *           shouldQuit = false;
     *           }
     *
-    *       public void halt(boolean pausing)
+    *       protected void halt(boolean pausing)
     *           {
-    *           // if the run(...) loop iterates rapidly, this should be sufficient
-    *           synchronized(shouldDieLock) { shouldDie = val; }
+    *           synchronized(shouldQuitLock) { shouldQuit = val; }
     *           }
     *       };
     </tt></pre>
+
+    <p>Let's say the task needs to distinguish between being paused and being quit.  In this case
+    you need a custom way of handling pausing and knowing that you're resuming (perhaps to save state
+    away).  Here's some code for this situation:
+
+    <pre><tt>
+    *   AsynchronousSteppable s = new AsynchronousSteppable()
+    *       {
+    *       boolean shouldQuit = false;
+    *       double[] shouldQuitLock = new boolean[1]; // an array is a unique, serializable object
+    *       boolean shouldPause = false;
+    *       double[] shouldPauseLock = new boolean[1]; // an array is a unique, serializable object
+    *
+    *       boolean shouldQuit()
+    *           {
+    *           synchronized(shouldQuitLock) { return shouldQuit; }
+    *           }
+    *
+    *       boolean shouldPause()
+    *           {
+    *           synchronized(shouldPauseLock) { return shouldPause; }
+    *           }
+    *
+    *       protected void run(boolean resuming)
+    *           {
+    *           if (resuming)
+    *               {
+    *               // we're resuming from a pause -- re-set up here if you have to
+    *               }
+    *           else // (!resuming)
+    *               {
+    *               // we're starting fresh -- set up here if you have to
+    *               }
+    *
+    *           while(!shouldQuit() && !shouldPause())
+    *               {
+    *               // do your stuff here -- assuming it doesn't block...
+    *               }
+    *
+    *           if (shouldPause())
+    *               {
+    *               // we're pausing -- do cleanup here if you need to
+    *               }
+    *           else // if (shouldQuit())
+    *               {
+    *               // we're quitting -- do cleanup here if you need to
+    *               }
+    *
+    *           // now reset our flags
+    *           shouldPause = false;
+    *           shouldQuit = false;
+    *           }
+    *
+    *       protected void halt(boolean pausing)
+    *           {
+    *           if (pausing) synchronized(shouldPauseLock) { shouldPause = val; }
+    *           else synchronized(shouldQuitLock) { shouldQuit = val; }
+    *           }
+    *       };
+    </tt></pre>
+
 
 */
 
@@ -96,12 +172,12 @@ public abstract class AsynchronousSteppable implements Asynchronous
     /** This method should enter the parallel thread's loop.  If resuming is true, then you may assume
         the parallel steppable is being resumed in the middle of a simulation after being paused (likely to checkpoint),
         as opposed to being started fresh.  */
-    public abstract void run(boolean resuming);
+    protected abstract void run(boolean resuming);
     
     /** This method should cause the loop created in run(...) to die.  If pausing is true, then you may assume
         the parallel steppable is being paused in the middle of a simulation (likely to checkpoint),
         as opposed to being entirely stopped due to the end of the simulation.  */
-    public abstract void halt(boolean pausing);
+    protected abstract void halt(boolean pausing);
     
     /** Fires up the AsynchronousSteppable and registers it with the SimState.
         If it's already running, nothing happens. */

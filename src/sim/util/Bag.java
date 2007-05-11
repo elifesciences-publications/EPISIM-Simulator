@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util;
 import java.util.*;
 
@@ -59,9 +65,17 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         return (numObjs<= 0);
         }
     
-    public boolean addAll(final Collection other) { return addAll(numObjs, other.toArray()); }
+    public boolean addAll(final Collection other) 
+        { 
+        if (other instanceof Bag) return addAll((Bag)other);  // avoid an array build
+        return addAll(numObjs, other.toArray()); 
+        }
 
-    public boolean addAll(final int index, final Collection other) { return addAll(index, other.toArray()); }
+    public boolean addAll(final int index, final Collection other)
+        {
+        if (other instanceof Bag) return addAll(index, (Bag)other);  // avoid an array build
+        return addAll(index, other.toArray());
+        }
 
     public boolean addAll(final int index, final Object[] other)
         {
@@ -376,7 +390,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         Object obj;
         int rand;
         
-        for(int x=numObjs-1; x > 0 ; x--)
+        for(int x=numObjs-1; x > 1 ; x--)
             {
             rand = random.nextInt(x+1);
             obj = objs[x];
@@ -394,7 +408,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         Object obj;
         int rand;
         
-        for(int x=numObjs-1; x > 0 ; x--)
+        for(int x=numObjs-1; x > 1 ; x--)
             {
             rand = random.nextInt(x+1);
             obj = objs[x];

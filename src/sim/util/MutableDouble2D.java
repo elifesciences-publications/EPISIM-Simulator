@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util;
 
 /** 
@@ -26,6 +32,13 @@ public final class MutableDouble2D implements java.io.Serializable
     public MutableDouble2D(final double x, final double y) { this.x = x; this.y = y; }
     public final double getX() { return x; }
     public final double getY() { return y; }
+    public final void setX(double val) { x = val; }
+    public final void setY(double val) { y = val; }
+    public final void setTo(final double bx, final double by) { x = bx; y = by; }
+    public final void setTo(final Int2D b) { x = b.x; y = b.y; }
+    public final void setTo(final Double2D b) { x = b.x; y = b.y; }
+    public final void setTo(final MutableInt2D b) { x = b.x;  y = b.y; }
+    public final void setTo(final MutableDouble2D b) { x = b.x;  y = b.y; }
     public String toString() { return "MutableDouble2D["+x+","+y+"]"; }
     public String toCoordinates() { return "(" + x + ", " + y + ")"; }
 
@@ -229,6 +242,14 @@ public final class MutableDouble2D implements java.io.Serializable
         return this;
         }
             
+    /** Adds the x and y values into my x and y values, returning me. */
+    public final MutableDouble2D addIn(final double x, final double y)
+        {
+        this.x += x;
+        this.y += y;
+        return this;
+        }
+
     /** Returns the distance FROM this Double2D TO the specified point */
     public double distanceSq(final Double2D d)
         {
@@ -274,6 +295,12 @@ public final class MutableDouble2D implements java.io.Serializable
         return Math.sqrt(x * x + y * y);
         }
         
+    /** Returns the length of the vector between -Pi and Pi. */
+    public final double angle()
+        {
+        return Math.atan2(y,x);
+        }
+        
     /** Extends my length so that it is multiplied by val, and returns me. */
     public final MutableDouble2D multiplyIn(final double val)
         {
@@ -293,9 +320,24 @@ public final class MutableDouble2D implements java.io.Serializable
     /** Normalizes me (sets my length to 1.0), returning me.  Throws an error if my previous length wasof length 0. */
     public final MutableDouble2D normalize()
         {
-        final double len = Math.sqrt(x * x + y * y);
-        x = x /len;
-        y = y / len;
+        final double invertedlen = 1.0 / Math.sqrt(x * x + y * y);
+        x = x * invertedlen;
+        y = y * invertedlen;
+        return this;
+        } 
+                
+    /** Sets my length, which should be >= 0. */
+    public final MutableDouble2D setLength(double val)
+        {
+        if (val < 0) 
+            throw new IllegalArgumentException("The argument to MutableDouble2D.setLength(...) must be zero or positive");
+        if (val == 0) x = y = 0;
+        else
+            {
+            final double invertedlen = val / Math.sqrt(x * x + y * y);
+            x = x * invertedlen;
+            y = y * invertedlen;
+            }
         return this;
         } 
 
@@ -327,19 +369,30 @@ public final class MutableDouble2D implements java.io.Serializable
         return (-this.y) * other.x + this.x * other.y;
         }
         
-    //Gabriel's additional methods
-    public final void zero()                                                                        {this.x = 0; this.y = 0;}
-    public final void setTo(final double bx, final double by)               {x = bx; y = by;}
-    public final void setTo(final MutableDouble2D b)                                {x = b.x; y = b.y;}
-    public final void setTo(final Double2D b)                     {x = b.x; y = b.y;}
-    public final void setToMinus(final MutableDouble2D b)           {x = -b.x; y = -b.y;}
-    public final void negate()                                                              {x = -x; y = -y;}
-    public final double lengthSq()                                                  {return x*x+y*y;}
-    /** Adds other into me, returning me. */
-    public final MutableDouble2D addIn(final double x, final double y)
+    /** Sets the values to 0. */
+    public final void zero()                                                                        
         {
-        this.x += x;
-        this.y += y;
-        return this;
+        this.x = 0; 
+        this.y = 0;
+        }
+
+    /** Sets the values to the negation of the values in the provided MutableDouble2D */
+    public final void setToMinus(final MutableDouble2D b)           
+        {
+        x = -b.x; 
+        y = -b.y;
+        }
+                
+    /** Negates the MutableDouble2D's values */
+    public final void negate()                                                             
+        {
+        x = -x; 
+        y = -y;
+        }
+        
+    /** Returns the square of the length of the MutableDouble2D. */
+    public final double lengthSq()                                                  
+        {
+        return x*x+y*y;
         }
     }

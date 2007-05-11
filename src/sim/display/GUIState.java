@@ -1,7 +1,14 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.display;
 import sim.engine.*;
 import sim.portrayal.*;
 import java.io.*;
+import sim.util.Bag;
 
 /** A wrapper for SimState and Schedule which provides additional functionality for
     GUI objects. This wrapper extends the functionality of SimState and
@@ -23,8 +30,10 @@ import java.io.*;
     closed in the GUI, or the GUI is quitting).  
     
     <p>GUIState also has two methods used by the Controller to specify things about it.
-    In particular, getName() should return an intelligent name for the simulation,
-    and getInfo() should return an HTML description of the simulation.
+    In particular, <tt>public static String getName(Class class)</tt>
+    should return an intelligent name for the simulation,
+    and <tt>public static Object getInfo(Class class)</tt> should return an
+    HTML or textual description of the simulation either as a URL or a String.
     
     <p>You can create a global inspector for your model (as opposed to the individual
     per-object inspectors created by various portrayals).  This is done by overriding either 
@@ -48,7 +57,7 @@ import java.io.*;
     instead of the underlying methods in the SimState and Controller.  Otherwise, feel free
     to use the underlying methods (such as Schedule.time()).
     
-    <p><b>Exception Handling</b>.  It's a common error to schedule a null event, or one with an invalid ordering or time.
+    <p><b>Exception Handling</b>.  It's a common error to schedule a null event, or one with an invalid time.
     Like Schedule, GUIState previously returned false or null in such situations, 
     but this leaves the burden on the programmer to check,
     and programmers are forgetful!  We have changed GUIState and Schedule to throw exceptions by default instead.  
@@ -65,7 +74,10 @@ public abstract class GUIState
     /** The controller for the GUIState.  This field may be null if there is no controller
         or no controller YET */
     public Controller controller;
-    
+
+    /** A bag of objects containing objects that may be needed at various times */
+    public Bag guiObjects;
+
     /** Override this constructor in your subclass to call <code>super(state)</code> where state is a
         properly constructed SimState appropriate to your problem -- do NOT call <code>super()</code>*/
     private GUIState()
@@ -79,39 +91,116 @@ public abstract class GUIState
         this.state = state;
         resetQueues();
         }
-    
-    /** Name of the simulation.  Override this to make a nicer name than "foo.bar.baz.Quux Simulation" */
-    public String getName() { return "" + this.getClass().getName() + " Simulation"; }
-    
-    /** Returns an HTML string which gives descriptive information about the system.  The default version
-        of this function looks for a file called 'index.html' located in the same directory as your
-        GUIState subclass file.  If it exists and can be read, it is loaded into a string, and that string is returned.
-        Otherwise an empty HTML page with a white background is returned.  Override this as you see fit.*/
-    public String getInfo() 
+                
+    /** Returns the short name of the class.  If the Class is foo.bar.baz.Quux, then Quux
+        is returned. */
+    public static String getTruncatedName(Class theClass)
         {
-        Reader r = null;
-        try
-            {
-            InputStream i = getClass().getResourceAsStream("index.html");
-            if (i != null)
-                {
-                r = new BufferedReader(new InputStreamReader(i));
-                StringBuffer sb = new StringBuffer();
-                final int BUFLEN = 4096;
-                char[] buf = new char[BUFLEN];
-                int val;
-                while((val = r.read(buf,0,BUFLEN)) != -1)
-                    sb.append(buf,0,val);
-                return sb.toString();
-                }
-            }
-        catch (Exception e) { e.printStackTrace(); }  // hummm?
-        finally { try { r.close(); } catch (Exception e) { } }
-        
-        return "<html><head><title></title></head><body bgcolor=\"white\"></body></html>";
+        // do the default
+        if (theClass==null) return "";
+        String fullName = theClass.getName();
+        int lastPeriod = fullName.lastIndexOf(".");
+        return fullName.substring(lastPeriod + 1);  // nifty, works even if lastPeriod = -1
         }
     
-    /** By default returns a non-volatile Inspector r which wraps around
+    /** Call this method to get the simulation name for any class.  If a class does not implement
+        getName(), then the fully qualified classname is used instead.  To provide a descriptive
+        name for your class, override getName(). */
+                
+    public final static String getName(Class theClass)
+        {
+        if (theClass == null) return "";
+        try
+            {
+            java.lang.reflect.Method m = theClass.getMethod("getName", (Class[])null);
+            if (m.getDeclaringClass().equals(GUIState.class)) // it wasn't overridden
+                return getTruncatedName(theClass);
+            else return (String)(m.invoke(null,(Object[])null));
+            }
+        catch (NoSuchMethodException e)
+            {
+            e.printStackTrace();
+            return getTruncatedName(theClass);
+            }
+        catch (Throwable e)
+            {
+            e.printStackTrace();
+            return "Error in retrieving simulation name";
+            }
+        }
+        
+    /** Override this method in your subclass to provide a descriptive 
+        name for your simulation;
+        otherwise the default will be used: the short classname (that is,
+        if your class is foo.bar.Baz, Baz will be used).  That might not
+        be very descriptive!
+                        
+        <p>Notice that this is a static method, and yet you're overriding it as if it
+        were an instance method.  This is because the method <b>getInfo(Class)</b>
+        uses reflection to call the proper method on a per-class basis.  Like magic!
+    */
+    public static String getName() 
+        {
+        return "This is GUIState's getName() method.  It probably shouldn't have been called.";
+        }
+                
+    static Object doDefaultInfo(Class theClass)
+        {
+        java.net.URL url = theClass.getResource("index.html");
+        if (url == null)
+            return "<html><head><title></title></head><body bgcolor=\"white\"></body></html>";
+        else return url;
+        }
+                
+    /** Returns either a String or a URL which provides descriptive information about the simulation hosted by
+        the given class (which should be a GUIState subclass).  To change the information string about your
+        own simulation, override the <b>getInfo()</b> method instead.  If you don't override this method,
+        MASON will look for a file called "index.html" in the same directory as the class file and use that.
+        However if this then fails, Java will hunt for <i>any</i> "index.html" file and use that instead --
+        that's probably not what you wanted.  Long story short, either override the getInfo() method,
+        or provide an "index.html" file.
+    */
+    public final static Object getInfo(Class theClass)
+        {
+        if (theClass == null) return "";
+        try
+            {
+            java.lang.reflect.Method m = theClass.getMethod("getInfo", (Class[])null);
+            if (m.getDeclaringClass().equals(GUIState.class)) // it wasn't overridden
+                return doDefaultInfo(theClass);
+            else return m.invoke(null,(Object[])null);
+            }
+        catch (NoSuchMethodException e)
+            {
+            return doDefaultInfo(theClass);
+            }
+        catch (Throwable e)
+            {
+            e.printStackTrace();
+            return "Error in retrieving simulation info";
+            }
+        }
+        
+    /** Override this method with a static method of your own 
+        in your subclass to provide an object (a URL or a String) describing information about
+        your simulation;  if you do not override this method, then the system will
+        look for a file called <tt>index.html</tt> located next to your <tt>.class</tt> file
+        and use a URL to that file as the information.  If there is no such file, Java may then go
+        on a hunting expedition to find and return some file called <tt>index.html</tt> in your CLASSPATH;
+        this is probably not what you intended, but we can't easily prevent it.  If there's absolutely no
+        such file, getInfo() will return a blank HTML page.
+                
+        <p>Notice that this is a static method, and yet you're overriding it as if it
+        were an instance method.  This is because the method <b>getInfo(Class)</b>
+        uses reflection to call the proper method on a per-class basis.  Like magic!
+    */
+    public static Object getInfo()
+        {
+        return "This is GUIState's getInfo() method.  It probably shouldn't have been called.";
+        }
+        
+
+    /** By default returns a non-volatile Inspector which wraps around
         getSimulationInspectedObject(); if getSimulationInspectedObject() returns null, then getInspector()
         will return null also.  Override this to provide a custom inspector as you see fit.  */
     public Inspector getInspector()
@@ -129,7 +218,8 @@ public abstract class GUIState
         then nothing will be displayed to the user.  One trick you should know about your object:
         it should be public, as well its property methods, and if it's anonymous, it should not
         introduce any property methods not defined in its superclass.  Otherwise Java's reflection
-        API can't access those methods -- they're considered private. */
+        API can't access those methods -- they're considered private.  GUIState also supports
+        sim.util.Properties's domFoo(...) domain declarations to allow for sliders and pop-up lists.*/
     public Object getSimulationInspectedObject()
         {
         return null;

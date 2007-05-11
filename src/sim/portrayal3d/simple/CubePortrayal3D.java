@@ -1,7 +1,14 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.simple;
 
 import sim.portrayal3d.*;
 import javax.vecmath.*;
+import sim.portrayal.*;
 import javax.media.j3d.*;
 
 /**
@@ -73,24 +80,24 @@ public class CubePortrayal3D extends SimplePortrayal3D
 
     static final float[] verts = 
         {
-            // front face
-            0.5f, -0.5f,  0.5f,                             0.5f,  0.5f,  0.5f,
-            -0.5f,  0.5f,  0.5f,                            -0.5f, -0.5f,  0.5f,
-            // back face
-            -0.5f, -0.5f, -0.5f,                            -0.5f,  0.5f, -0.5f,
-            0.5f,  0.5f, -0.5f,                             0.5f, -0.5f, -0.5f,
-            // right face
-            0.5f, -0.5f, -0.5f,                             0.5f,  0.5f, -0.5f,
-            0.5f,  0.5f,  0.5f,                             0.5f, -0.5f,  0.5f,
-            // left face
-            -0.5f, -0.5f,  0.5f,                            -0.5f,  0.5f,  0.5f,
-            -0.5f,  0.5f, -0.5f,                            -0.5f, -0.5f, -0.5f,
-            // top face
-            0.5f,  0.5f,  0.5f,                             0.5f,  0.5f, -0.5f,
-            -0.5f,  0.5f, -0.5f,                            -0.5f,  0.5f,  0.5f,
-            // bottom face
-            -0.5f, -0.5f,  0.5f,                            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,                             0.5f, -0.5f,  0.5f,
+        // front face
+        0.5f, -0.5f,  0.5f,                             0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,                            -0.5f, -0.5f,  0.5f,
+        // back face
+        -0.5f, -0.5f, -0.5f,                            -0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,                             0.5f, -0.5f, -0.5f,
+        // right face
+        0.5f, -0.5f, -0.5f,                             0.5f,  0.5f, -0.5f,
+        0.5f,  0.5f,  0.5f,                             0.5f, -0.5f,  0.5f,
+        // left face
+        -0.5f, -0.5f,  0.5f,                            -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,                            -0.5f, -0.5f, -0.5f,
+        // top face
+        0.5f,  0.5f,  0.5f,                             0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,                            -0.5f,  0.5f,  0.5f,
+        // bottom face
+        -0.5f, -0.5f,  0.5f,                            -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,                             0.5f, -0.5f,  0.5f,
         };
 
     public TransformGroup getModel(Object obj, TransformGroup j3dModel)
@@ -98,6 +105,7 @@ public class CubePortrayal3D extends SimplePortrayal3D
         if(j3dModel==null)
             {
             j3dModel = new TransformGroup();
+            j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
             
             QuadArray quadArray = new QuadArray(24, QuadArray.COORDINATES |
                                                 (generateTextureCoordinates ? QuadArray.TEXTURE_COORDINATE_2 : 0) ); 
@@ -122,33 +130,13 @@ public class CubePortrayal3D extends SimplePortrayal3D
 
             Shape3D localShape = new Shape3D(quadArray,appearance); 
             localShape.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE); 
-            setPickableFlags(localShape); 
-            localShape.setUserData(obj); 
-            j3dModel.addChild(localShape); 
-
-/*                      j3dModel = new TransformGroup();
-                                
-GeometryArray ga; 
-
-if (useTriangles) { 
-int[] lengths = new int[6];
-for(int i=0; i<lengths.length;i++)
-lengths[i]=4;
-                                
-ga = new TriangleFanArray(4*lengths.length, TriangleFanArray.COORDINATES, lengths);
-}
-else 
-ga = new QuadArray(24, QuadArray.COORDINATES ); 
+            setPickableFlags(localShape);
                         
-ga.setCoordinates(0, verts);
-Shape3D localShape = new Shape3D(ga, appearance);
-
-localShape.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
-localShape.setCapability(Shape3D.ALLOW_APPEARANCE_READ); 
-setPickableFlags(localShape); 
-localShape.setUserData(obj); 
-j3dModel.addChild(localShape); 
-*/
+            // build a LocationWrapper for the object
+            LocationWrapper pickI = new LocationWrapper(obj, null, parentPortrayal);
+            localShape.setUserData(pickI); 
+                        
+            j3dModel.addChild(localShape); 
             }
         return j3dModel;
         }

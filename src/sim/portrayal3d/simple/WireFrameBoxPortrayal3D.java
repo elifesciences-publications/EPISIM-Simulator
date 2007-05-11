@@ -1,3 +1,13 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+
+
+  Portions of this software are copyrighted by Sun Microsystems Incorporated
+  and fall under the license listed at the end of this file.
+*/
+
 package sim.portrayal3d.simple;
 
 import sim.portrayal3d.*;
@@ -24,12 +34,12 @@ public class WireFrameBoxPortrayal3D extends SimplePortrayal3D
     
     private static final float[] verts = 
         {
-            1f, 0f,  1f,     1f,  1f,  1f,  0f,  1f,  1f,   0f, 0f,  1f,     1f, 0f,  1f,/* front face*/    
-            0f, 0f, 0f,     0f,  1f, 0f,     1f,  1f, 0f,    1f, 0f, 0f,    0f, 0f, 0f,/* back face*/       
-            1f, 0f, 0f,      1f,  1f, 0f,    1f,  1f,  1f,   1f, 0f,  1f,    1f, 0f, 0f,/* right face*/     
-            0f, 0f,  1f,    0f,  1f,  1f,   0f,  1f, 0f,    0f, 0f, 0f,     0f, 0f,  1f,/* left face*/      
-            1f,  1f,  1f,    1f,  1f, 0f,   0f,  1f, 0f,    0f,  1f,  1f,    1f,  1f,  1f,/* top face*/     
-            0f, 0f,  1f,    0f, 0f, 0f,      1f, 0f, 0f,     1f, 0f,  1f,   0f, 0f,  1f /* bottom face*/
+        1f, 0f,  1f,     1f,  1f,  1f,  0f,  1f,  1f,   0f, 0f,  1f,     1f, 0f,  1f,/* front face*/    
+        0f, 0f, 0f,     0f,  1f, 0f,     1f,  1f, 0f,    1f, 0f, 0f,    0f, 0f, 0f,/* back face*/       
+        1f, 0f, 0f,      1f,  1f, 0f,    1f,  1f,  1f,   1f, 0f,  1f,    1f, 0f, 0f,/* right face*/     
+        0f, 0f,  1f,    0f,  1f,  1f,   0f,  1f, 0f,    0f, 0f, 0f,     0f, 0f,  1f,/* left face*/      
+        1f,  1f,  1f,    1f,  1f, 0f,   0f,  1f, 0f,    0f,  1f,  1f,    1f,  1f,  1f,/* top face*/     
+        0f, 0f,  1f,    0f, 0f, 0f,      1f, 0f, 0f,     1f, 0f,  1f,   0f, 0f,  1f /* bottom face*/
         };
         
     float[] scaledVerts = new float[verts.length];

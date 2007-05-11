@@ -67,10 +67,11 @@ public class EpidermisWithUIClass extends GUIState{
 	ContinuousPortrayal2D basementPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D woundPortrayal = new ContinuousPortrayal2D();
 	
-
+	
 	public EpidermisWithUIClass(JFrame mainFrame) {
-
 		super(new EpidermisClass(System.currentTimeMillis()));
+		
+		
 		this.mainFrame = mainFrame;
 		this.setConsole(new EpiConsole(this));
 		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
@@ -114,7 +115,7 @@ public class EpidermisWithUIClass extends GUIState{
 	
 	
 	
-	public String getName() {
+	public static String getName() {
 
 		return "Epidermis Simulation  - Controller";
 	}

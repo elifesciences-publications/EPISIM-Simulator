@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.field.network;
 import sim.util.*;
 import java.util.*;
@@ -452,19 +458,59 @@ public class Network implements java.io.Serializable
         if (edge.owner != this)
             return null;
         edge.owner = null;
+        // we'll do an extraneous hash if this is being called from removeNode...
         
-        // remove the edge out the "out" node's "out" bag
+        // remove the edge from the "out" node's "out" bag
         final Bag outNodeBag = ((IndexOutIn)(indexOutInHash.get(edge.from))).out;
         outNodeBag.remove( edge.indexFrom );
         if( outNodeBag.numObjs > edge.indexFrom )
-            ((Edge)(outNodeBag.objs[edge.indexFrom])).indexFrom = edge.indexFrom;
+            {
+            Edge shiftedEdge = (Edge)(outNodeBag.objs[edge.indexFrom]);
+            int shiftedIndex = outNodeBag.numObjs;  // the old location of the shifted edge
+            if (directed)
+                {
+                // it's clear that it's an indexFrom
+                shiftedEdge.indexFrom = edge.indexFrom;
+                }
+            else
+                {
+                // we don't know if the edge shifted down needs to have its indexFrom or indexTo changed.
+                if (shiftedEdge.indexFrom == shiftedIndex &&
+                    shiftedEdge.from.equals(edge.from))
+                    shiftedEdge.indexFrom = edge.indexFrom;
+                // this second 'if' can be eliminated if we don't have bugs reported in the final 'else'
+                else if (shiftedEdge.indexTo == shiftedIndex &&
+                         shiftedEdge.to.equals(edge.from))
+                    shiftedEdge.indexTo = edge.indexFrom;
+                else throw new InternalError("This shouldn't ever happen: #1");
+                }
+            }
 
-        // remove the edge out the "in" node's "in" bag
+        // remove the edge from the "in" node's "in" bag
         final Bag inNodeBag = ((IndexOutIn)(indexOutInHash.get(edge.to))).in;
         inNodeBag.remove( edge.indexTo );
         if( inNodeBag.numObjs > edge.indexTo )
-            ((Edge)(inNodeBag.objs[edge.indexTo])).indexTo = edge.indexTo;
-
+            {
+            Edge shiftedEdge = (Edge)(inNodeBag.objs[edge.indexTo]);
+            int shiftedIndex = inNodeBag.numObjs;  // the old location of the shifted edge
+            if (directed)
+                {
+                // it's clear that it's an indexTo
+                shiftedEdge.indexTo = edge.indexTo;
+                }
+            else
+                {
+                // we don't know if the edge shifted down needs to have its indexFrom or indexTo changed.
+                if (shiftedEdge.indexTo == shiftedIndex &&
+                    shiftedEdge.to.equals(edge.to))
+                    shiftedEdge.indexTo = edge.indexTo;
+                // this second 'if' can be eliminated if we don't have bugs reported in the final 'else'
+                else if (shiftedEdge.indexFrom == shiftedIndex &&
+                         shiftedEdge.from.equals(edge.to))
+                    shiftedEdge.indexFrom = edge.indexTo;
+                else throw new InternalError("This shouldn't ever happen: #2");
+                }
+            }
         // return the edge
         return edge;
         }
@@ -476,8 +522,8 @@ public class Network implements java.io.Serializable
         {
         IndexOutIn ioi = (IndexOutIn)(indexOutInHash.get(node));
 
-        if (ioi == null) return null;
-
+        if (ioi == null) { return null; }
+                
         // remove all edges coming in the node
         while( ioi.out != null && ioi.out.numObjs > 0 )
             {
@@ -490,12 +536,17 @@ public class Network implements java.io.Serializable
             removeEdge( (Edge)(ioi.in.objs[0]) );
             }
 
-        // remove the node
+        // remove the node from the allNodes bag
         allNodes.remove(ioi.index);
         if (allNodes.numObjs > ioi.index)    // update the index of the guy who just got moved
+            {
             ((IndexOutIn)(indexOutInHash.get(allNodes.objs[ioi.index]))).index = ioi.index;
+            }
+                
+        // finally, delete the ioi
+        indexOutInHash.remove(node);
 
-        // return the edge
+        // return the node
         return node;
         }
 
@@ -592,14 +643,21 @@ public class Network implements java.io.Serializable
         for(int k=0;k<n;k++)
             {
             IndexOutIn ioi= (IndexOutIn)i.next();
-            Bag tmpB = ioi.out;   ioi.out = ioi.in;   ioi.in = tmpB;
+            Bag tmpB = ioi.out;
+            ioi.out = ioi.in;
+            ioi.in = tmpB;
             if(ioi.in!=null)
                 for(int j=0;j<ioi.in.numObjs;j++)
                     {
                     Edge e = (Edge)ioi.in.objs[j];
                     //reverse e
-                    Object tmpO = e.from;      e.from = e.to;                e.to= tmpO;
-                    int tmpI = e.indexFrom;    e.indexFrom = e.indexTo;      e.indexTo = tmpI;
+                    Object tmpO = e.from;
+                    e.from = e.to;
+                    e.to= tmpO;
+                    
+                    int tmpI = e.indexFrom;
+                    e.indexFrom = e.indexTo;
+                    e.indexTo = tmpI;
                     }
             }
         }

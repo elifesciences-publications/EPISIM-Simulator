@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util;
 import java.util.*;
 import java.lang.reflect.*;
@@ -20,16 +26,38 @@ import java.lang.reflect.*;
  *  <p>The idea behind domains is to make it easy to create graphical interfaces (sliders, pop-up menus)
  *  for the user to set properties, where it's often convenient to know beforehand what values the property
  *  can be set to in order to construct the GUI widget appropriately.  Here are the domain rules (other than null).
- *  If the domain is an Interval, then it is assumed that the property can only take on the values defined
- *  within that Interval.  Intervals can have both Doubles and Longs as min and max values: if the Interval
- *  has Double min/max values, then the interval is assumed to be real-valued, but if the Interval has
- *  Long min/max values, then the interval is assumed have integer values only (2.3 wouldn't be a valid
- *  setting for the property).  If the domain is an array of objects, then the property <i>must</i>
- *  be an integer (or long, or short, or byte) property.  In this case, it is presumed
- *  that the only values the property can take on are the integers 0 through array.length-1, and that the array's
- *  elements have toString() values which are representative of those integers.  For example, a property
- *  called Format might allow the number values 0, 1, and 2, and might have "names" in the array called
- *  "Left Justified", "Right Justified", and "Centered" respectively.
+ *
+ *  <ul>
+ *  <li>If your property type is a float or double, you can return a domain in the form of an Interval, with a 
+ *      double-valued minimum maximum value.  This will typically result in the GUI creating a slider.
+ *  <li>If your property type is an integer type (byte/short/int/long), you can return a domain in the form
+ *      of an Interval with a long-valued minimum and maximum value.  This will typically result in the GUI creating a slider.
+ *  <li>If your property type is an integer type (byte/short/int/long), and you want your domain to be just the
+ *      integers 0 ... n, you can return an array (n long) of Strings, each representing a name for the corresponding
+ *      integer value.  This will typically result in the GUI creating a pop-up list or menu, displaying those
+ *      string labels, and then setting the property to the equivalent number.  For example, a property
+ *      called Format might allow the number values 0, 1, and 2, and might have "names" in the array called
+ *      "Left Justified", "Right Justified", and "Centered" respectively.
+
+ *  <!--  NOT YET IMPLEMENTED
+ *  <li>If your property type is a String, and you want your domain to be any string but typically chosen from
+ *      some set of common Strings, you can return an array of Strings, each representing one of those options.
+ *      This will typically result in the GUI creating a ComboBox for the text which the user can type in or
+ *      choose an option from a drop-down menu.
+ *  <li>If your property type is an Object of some for (including a String or an array), and you want your domain
+ *      to be restricted to be only one of a set of possible Objects, return an array of arrays.  The
+ *      first item of each inner array will be the Object, and the second item in each inner array will be a
+ *      String labelling the object.  If there is no second item, then the label will be "" + object for the
+ *      first object.  For example, to restrict a Double return type to be one of three kinds of Doubles, you might 
+ *      return an array of the form {{new Double(4), "Fourth"}, {new Double(7), "Seventh"}, {new Double(8), "Fred"}}.
+ *      If you want a String property type to be one of three Strings, serving as their own labels, you might say:
+ *      {{"Hello"}, {"What's"}, {"Going On?"}} (or if you wish to be pedantic,
+ *      {{"Hello","Hello"}, {"What's","What's"}, {"Going on?","Going on?"}}).
+ *      Note that this is different from saying {"Hello", "What's", "Going on?"},
+ *      which more or less states that the user is allowed to enter any other String he wishes as well.
+ *  -->
+ 
+ *  </ul>
  *  
  *  <p>This class allows you to set and get properties on the object via boxing the property (java.lang.Integer
  *  for int, for example).  You can also pass in a String, and SimpleProperties will parse the appropriate
@@ -73,8 +101,6 @@ import java.lang.reflect.*;
 
 public class SimpleProperties extends Properties implements java.io.Serializable
     {
-    Object object;
-    
     ArrayList getMethods = new ArrayList();
     ArrayList setMethods = new ArrayList(); // if no setters, that corresponding spot will be null
     ArrayList domMethods = new ArrayList(); // if no domain, that corresponding spot will be null

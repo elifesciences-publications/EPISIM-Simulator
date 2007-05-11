@@ -1,3 +1,12 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+
+  Portions of this software are copyrighted by Sun Microsystems Incorporated
+  and fall under the license listed at the end of this file.
+*/
+
 package sim.display3d;
 
 import javax.media.j3d.*;
@@ -94,7 +103,6 @@ public class SelectionBehavior extends PickMouseBehavior
         
         int distinctObjectCount = 0;
                 
-        GeometryArray ga;
         for(int i=0; i<pickResults.length; i++)
             {
             pickResult = pickResults[i];
@@ -115,9 +123,8 @@ public class SelectionBehavior extends PickMouseBehavior
             if(duplicate)
                 continue;
             picks[distinctObjectCount++] = w;
-            if(pickResult.numGeometryArrays()>0)
+            if(pickResult.numGeometryArrays() > 0)
                 {
-                ga = pickResult.getGeometryArray();
                 PickIntersection pi = pickResult.getClosestIntersection(eyePos);
 
                 // ... has intersections  -- for reasons we cannot explain, 

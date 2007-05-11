@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.continuous;
 
 import javax.vecmath.*;
@@ -60,9 +66,16 @@ public class ContinuousPortrayal3D extends SparseFieldPortrayal3D
             public String getLocationName()
                 {
                 if(field instanceof Continuous3D)
-                    return ((Continuous3D)field).getObjectLocation(object).toCoordinates();
+                    {
+                    Double3D loc = ((Continuous3D)field).getObjectLocation(object);
+                    if (loc!=null) return loc.toCoordinates();
+                    }
                 else
-                    return ((Continuous2D)field).getObjectLocation(object).toCoordinates();
+                    {
+                    Double2D loc = ((Continuous2D)field).getObjectLocation(object);
+                    if (loc!=null) return loc.toCoordinates();
+                    }
+                return null;
                 }
             };
         }       

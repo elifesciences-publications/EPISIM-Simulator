@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.simple;
 
 import com.sun.j3d.utils.geometry.*;
@@ -68,6 +74,7 @@ public class CylinderPortrayal3D extends SimplePortrayal3D
         if(j3dModel==null)
             {
             j3dModel = new TransformGroup();
+            j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
             
             // make a cylinder
             Cylinder cylinder = new Cylinder(scale/2,scale,

@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.display3d;
 
 import sim.engine.*;
@@ -224,7 +230,7 @@ public class Display3D extends JPanel implements Steppable
             // Bug in MacOS X Java 1.3.1 requires that we force a repaint.
             public void componentResized (ComponentEvent e) 
                 {
-                ensureRepaintHeader();
+                Utilities.doEnsuredRepaint(header);
                 }
             });
 
@@ -232,7 +238,7 @@ public class Display3D extends JPanel implements Steppable
         frame.getContentPane().add(this,BorderLayout.CENTER);
         frame.getContentPane().setBackground(Color.yellow);
         //this.frame = frame;
-        frame.setTitle(simulation.getName() + " Display");
+        frame.setTitle(GUIState.getName(simulation.getClass()) + " Display");
         frame.pack();
         return frame;
         }
@@ -243,15 +249,6 @@ public class Display3D extends JPanel implements Steppable
         }
 
 
-    /** Force-repaints the header by running the repaint through an invokeLater(), which seems
-        to be more stable than just calling header.repaint() directly.  This fixes a bug in
-        MacOS X 1.3.1 which doesn't redraw the header when we resize the window. */
-    public void ensureRepaintHeader()
-        {
-        SwingUtilities.invokeLater(new Runnable() 
-            { public void run() { if (header!=null) header.repaint(); } });
-        }
-        
     // how many subgraphs (field portrayals) do we have?
     int subgraphCount = 0;
     
@@ -310,10 +307,13 @@ public class Display3D extends JPanel implements Steppable
     */
     public void reset()
         {
-        // now reschedule myself
-        if (stopper!=null) stopper.stop();
-        if (getInterval() < 1) setInterval(1);  // just in case...
-        stopper = simulation.scheduleImmediateRepeat(true,this);
+        synchronized(simulation.state.schedule)
+            {
+            // now reschedule myself
+            if (stopper!=null) stopper.stop();
+            if (getInterval() < 1) setInterval(1);  // just in case...
+            stopper = simulation.scheduleImmediateRepeat(true,this);
+            }
         }
 
 
@@ -372,7 +372,7 @@ public class Display3D extends JPanel implements Steppable
                 {
                 public void actionPerformed(ActionEvent e)
                     {
-                    c.show();
+                    c.setVisible(true);;
                     }
                 });
             }
@@ -427,7 +427,6 @@ public class Display3D extends JPanel implements Steppable
         header.add(togglebutton);
         
         //Create the popup menu.
-        JCheckBoxMenuItem menuItem;
         popup = new JPopupMenu();
         popup.setLightWeightPopupEnabled(false);
 
@@ -438,7 +437,7 @@ public class Display3D extends JPanel implements Steppable
                 {
                 popup.show(e.getComponent(),
                            togglebutton.getLocation().x,
-                           togglebutton.getLocation().y+
+                           //togglebutton.getLocation().y+
                            togglebutton.getSize().height);
                 }
             public void mouseReleased(MouseEvent e) 
@@ -648,6 +647,7 @@ public class Display3D extends JPanel implements Steppable
                 g.drawImage(backdropImage,0,0,null);
                 background.setImage(new ImageComponent2D(ImageComponent2D.FORMAT_RGB,img));
                 background.setImageScaleMode(Background.SCALE_FIT_MAX);
+                img.flush();  // just in case -- bug in OS X
                 }
                                         
             auxillarySwitch.addChild(background);
@@ -792,6 +792,9 @@ public class Display3D extends JPanel implements Steppable
         transform(other);
         }
 
+    ToolTipBehavior toolTipBehavior;
+    boolean usingToolTips;
+        
     /** Recreates the entire scene graph, including the universe, root, and canvas3d.  This is an expensive procedure
         and generally should only be called when starting a simulation (in GUIState's start() or load() methods). 
         Just before the renderer is started and the scene goes online, the hook sceneGraphCreated() is called in case
@@ -866,6 +869,10 @@ public class Display3D extends JPanel implements Steppable
         mSelectBehavior =  new SelectionBehavior(canvas, root, bounds, simulation);
         mSelectBehavior.setEnable(selectBehCheckBox.isSelected());
 
+        toolTipBehavior = new ToolTipBehavior(canvas, root, bounds, simulation);
+        toolTipBehavior.setEnable(true);
+        toolTipBehavior.setCanShowToolTips(usingToolTips);
+        
         // make autoSpinTransformGroup spinnable
         // note that Alpha's loop count is ZERO beacuse I want the spin behaivor turned off.
         // Don't forget to put a -1 instead if you want endless spinning. 
@@ -931,7 +938,7 @@ public class Display3D extends JPanel implements Steppable
         //updateSceneGraph(movieMaker != null);  // force a paint into a movie frame if necessary
         }
 
-    final double DEFAULT_FIELD_OF_VIEW = Math.PI / 4.0;
+    static final double DEFAULT_FIELD_OF_VIEW = Math.PI / 4.0;
     double scale;
     Object scaleLock = new Object();
     
@@ -997,7 +1004,6 @@ public class Display3D extends JPanel implements Steppable
     public void step(final SimState state)
         {
         long steps = state.schedule.getSteps();
-        Frame f = null;
         if (steps % getInterval() == 0 &&   // time to update!
             state.schedule.time() < Schedule.AFTER_SIMULATION &&  // don't update if we're done
             (canvas.isShowing()    // only draw if we can be seen
@@ -1095,15 +1101,6 @@ public class Display3D extends JPanel implements Steppable
             }
         }
     
-    /** Utility method.  Returns a filename guaranteed to end with the given ending. */
-    public static String ensureFileEndsWith(String filename, String ending)
-        {
-        // do we end with the string?
-        if (filename.regionMatches(false,filename.length()-ending.length(),ending,0,ending.length()))
-            return filename;
-        else return filename + ending;
-        }
-
     Rectangle2D getImageSize()
         {
         Dimension s = canvas.getSize();
@@ -1132,7 +1129,6 @@ public class Display3D extends JPanel implements Steppable
             return;
             }
 
-        Rectangle2D imgBounds = getImageSize();
         canvas.setWritingParams(getImageSize(), false);
 //              Image image = canvas.getFrameAsImage();
         
@@ -1141,16 +1137,18 @@ public class Display3D extends JPanel implements Steppable
                                        "Save Snapshot as 24-bit PNG...", 
                                        FileDialog.SAVE);
         fd.setFile("Untitled.png");
-        fd.show();
+        fd.setVisible(true);;
         if (fd.getFile()!=null)
             try
                 {
-                File snapShotFile = new File(fd.getDirectory(), ensureFileEndsWith(fd.getFile(),".png"));
+                File snapShotFile = new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"));
 //                PngEncoder tmpEncoder = new PngEncoder(image, false,PngEncoder.FILTER_NONE,9);
-                PngEncoder tmpEncoder = new PngEncoder(canvas.getFrameAsImage(), false,PngEncoder.FILTER_NONE,9);
+                BufferedImage image = canvas.getFrameAsImage();
+                PngEncoder tmpEncoder = new PngEncoder(image, false,PngEncoder.FILTER_NONE,9);
                 OutputStream stream = new BufferedOutputStream(new FileOutputStream(snapShotFile));
                 stream.write(tmpEncoder.pngEncode());
                 stream.close();
+                image.flush();  // just in case -- OS X bug?
                 }
             catch (FileNotFoundException e) { } // fail
             catch (IOException e) { /* could happen on close? */} // fail
@@ -1205,6 +1203,8 @@ public class Display3D extends JPanel implements Steppable
                     public void step(SimState state) { stopMovie(); }
                     });
                 }
+                                
+            typicalImage.flush();  // just in case -- bug in OS X
             }
         }
         
@@ -1272,6 +1272,7 @@ public class Display3D extends JPanel implements Steppable
     
     JCheckBox showAxesCheckBox = new JCheckBox("Axes");
     JCheckBox showBackgroundCheckBox = new JCheckBox("Backdrop");
+    JCheckBox tooltips = new JCheckBox("ToolTips");
         
     //JCheckBox antialiasCheckBox = new JCheckBox("Antialias Graphics");
     //JRadioButton viewPerspective = new JRadioButton("Perspective Projection", true);
@@ -1576,8 +1577,18 @@ public class Display3D extends JPanel implements Steppable
                 toggleBackdrop();
                 }
             });
+        auxillaryPanel.add(tooltips);
+        tooltips.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                usingToolTips = tooltips.isSelected();
+                if (toolTipBehavior != null)
+                    toolTipBehavior.setCanShowToolTips(usingToolTips);
+                }
+            });
         auxillaryPanel.add(Box.createGlue());
-            
+                
         // set up initial design
             
         
@@ -1611,7 +1622,11 @@ public class Display3D extends JPanel implements Steppable
         while(iter.hasNext())
             {
             PolygonAttributes pa = ((Portrayal3DHolder)iter.next()).portrayal.polygonAttributes();
-            if (pa != null) pa.setPolygonMode(mode);
+            try
+                {
+                if (pa != null) pa.setPolygonMode(mode);
+                }
+            catch (javax.media.j3d.CapabilityNotSetException e) { }
             }
         }
         
@@ -1631,7 +1646,11 @@ public class Display3D extends JPanel implements Steppable
         while(iter.hasNext())
             {
             PolygonAttributes pa = ((Portrayal3DHolder)iter.next()).portrayal.polygonAttributes();
-            if (pa != null) pa.setCullFace(mode);
+            try 
+                {
+                if (pa != null) pa.setCullFace(mode);
+                }
+            catch (javax.media.j3d.CapabilityNotSetException e) { }
             }
         }
     

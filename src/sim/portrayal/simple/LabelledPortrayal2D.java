@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal.simple;
 import sim.portrayal.*;
 import java.awt.*;
@@ -162,8 +168,8 @@ public class LabelledPortrayal2D extends SimplePortrayal2D
             String s = getLabel(object,info);
             double width = info.draw.width;
             double height = info.draw.height;
-            int x = (int)(info.draw.x + ox * info.draw.width) + dx;
-            int y = (int)(info.draw.y + oy * info.draw.height) + dy;
+            int x = (int)(info.draw.x + ox * width) + dx;
+            int y = (int)(info.draw.y + oy * height) + dy;
             graphics.setPaint(paint);
             graphics.setFont(scaledFont);
     

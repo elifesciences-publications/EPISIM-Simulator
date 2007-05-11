@@ -33,7 +33,7 @@ public class SnapshotWriter {
 			ObjectOutputStream oOut = new ObjectOutputStream(fOut);
 			
 			for(SnapshotListener listener : listeners){
-				for(SnapshotObject object : listener.deliverObjects()){
+				for(SnapshotObject object : listener.getSnapshotObjects()){
 					oOut.writeObject(object);
 				}
 			}

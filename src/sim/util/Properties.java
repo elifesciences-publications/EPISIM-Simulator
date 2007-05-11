@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util;
 import java.util.*;
 
@@ -56,7 +62,10 @@ public abstract class Properties implements java.io.Serializable
         else return new SimpleProperties(object, includeSuperclasses, includeGetClass, includeDomains);
         }
 
-
+    protected Object object;
+    /** Returns the original object from which the properties are extracted */
+    public Object getObject() { return object; }
+    
     /** Returns true if the number or order of properties could change at any time */
     public abstract boolean isVolatile();
     

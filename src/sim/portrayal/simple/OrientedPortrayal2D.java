@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal.simple;
 import sim.portrayal.*;
 import java.awt.*;
@@ -160,7 +166,53 @@ public class OrientedPortrayal2D extends SimplePortrayal2D
         
     public boolean hitObject(Object object, DrawInfo2D range)
         {
-        return getChild(object).hitObject(object,range);
+        if (getChild(object).hitObject(object,range)) return true;
+		
+		// now additionally determine if I was hit
+
+        if (showLine && (object!=null) && (object instanceof Oriented2D))
+            {
+            final double theta = ((Oriented2D)object).orientation2D();
+            final int length = ((int)(or * (range.draw.width < range.draw.height ? 
+                                            range.draw.width : range.draw.height)) + dr);  // fit in smallest dimension
+            
+            final double lenx = Math.cos(theta)*length;
+            final double leny = Math.sin(theta)*length;
+            final int x = (int)(range.draw.x + lenx);
+            final int y = (int)(range.draw.y + leny);
+
+            switch(shape)
+                {
+                default: case SHAPE_LINE: { break; }  // hard to hit a line
+                case SHAPE_KITE:
+					{
+					simplePolygonX[0] = x;
+					simplePolygonY[0] = y;
+					simplePolygonX[1] = (int)(range.draw.x + -leny + -lenx);
+					simplePolygonY[1] = (int)(range.draw.y + lenx + -leny);
+					simplePolygonX[2] = (int)(range.draw.x + -lenx/2);
+					simplePolygonY[2] = (int)(range.draw.y + -leny/2);
+					simplePolygonX[3] = (int)(range.draw.x + leny + -lenx);
+					simplePolygonY[3] = (int)(range.draw.y + -lenx + -leny);
+					return new Polygon(simplePolygonX,simplePolygonY,4).intersects(range.clip.x, range.clip.y, range.clip.width, range.clip.height);
+					//break;
+					}
+                case SHAPE_COMPASS:
+					{
+					simplePolygonX[0] = (int)(range.draw.x + lenx);
+					simplePolygonY[0] = (int)(range.draw.y + leny);
+					simplePolygonX[1] = (int)(range.draw.x + -leny/2);
+					simplePolygonY[1] = (int)(range.draw.y + lenx/2);
+					simplePolygonX[2] = (int)(range.draw.x + -lenx/2);
+					simplePolygonY[2] = (int)(range.draw.y + -leny/2);
+					simplePolygonX[3] = (int)(range.draw.x + leny/2);
+					simplePolygonY[3] = (int)(range.draw.y + -lenx/2);
+					return new Polygon(simplePolygonX,simplePolygonY,4).intersects(range.clip.x, range.clip.y, range.clip.width, range.clip.height);
+					// break;
+					}
+                }
+            }
+		return false;
         }
 
     public boolean setSelected(LocationWrapper wrapper, boolean selected)

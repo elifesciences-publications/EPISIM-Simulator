@@ -1,7 +1,14 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal.simple;
 import sim.portrayal.*;
 import java.awt.*;
 import java.awt.geom.*;
+import sim.display.*;
 
 /**
    A simple portrayal for 2D visualization of ovals. It extends the SimplePortrayal2D and
@@ -12,6 +19,7 @@ public class OvalPortrayal2D extends SimplePortrayal2D
     {
     public Paint paint;
     public double scale;
+    //boolean drawSmaller = Display2D.isMacOSX && !Display2D.javaVersion.startsWith("1.3"); // fix a bug in OS X
     
     public OvalPortrayal2D() { this(Color.gray,1.0); }
     public OvalPortrayal2D(Paint paint) { this(paint,1.0); }
@@ -34,12 +42,12 @@ public class OvalPortrayal2D extends SimplePortrayal2D
 
         final int x = (int)(info.draw.x - width / 2.0);
         final int y = (int)(info.draw.y - height / 2.0);
-        final int w = (int)(width);
-        final int h = (int)(height);
-
+        int w = (int)(width);
+        int h = (int)(height);
+        //if (drawSmaller) { --w; --h; }
+                
         // draw centered on the origin
         graphics.fillOval(x,y,w, h);
-        //System.out.println(""+x+" "+y+" "+w+" "+h);
         }
 
     /** If drawing area intersects selected area, add last portrayed object to the bag */

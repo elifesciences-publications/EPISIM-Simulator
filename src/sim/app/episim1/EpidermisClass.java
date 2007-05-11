@@ -15,10 +15,14 @@ import java.awt.geom.*;
 
 //PDF Writer
 import java.io.*;       
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.lowagie.text.*;  
 import com.lowagie.text.pdf.*;  
 
-public class EpidermisClass extends SimState
+public class EpidermisClass extends SimState implements SnapshotListener
 {
  
 private BioChemicalModelController modelController;
@@ -151,7 +155,7 @@ private String graphicsDirectory="pdf_png_simres/";
      
      modelController = BioChemicalModelController.getInstance();
      
-     
+     SnapshotWriter.getInstance().addSnapshotListener(this);
  }
 
  
@@ -1003,6 +1007,17 @@ public Bag getAllCells() {
 public void setAllCells(Bag allCells) {
 
 	this.allCells = allCells;
+}
+public List<SnapshotObject> getSnapshotObjects() {
+	
+	List<SnapshotObject> list = new LinkedList<SnapshotObject>();
+	Iterator iter = allCells.iterator();
+	
+	while(iter.hasNext()){
+		list.add(new SnapshotObject(SnapshotObject.KCYTE, iter.next()));
+	}
+	
+	return list;
 }    
 
  }

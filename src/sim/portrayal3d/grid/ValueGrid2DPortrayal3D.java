@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.grid;
 
 import sim.field.grid.*;
@@ -345,7 +351,8 @@ public class ValueGrid2DPortrayal3D extends FieldPortrayal3D
                 }
             public String getLocationName()
                 {
-                return ((Int2D)location).toCoordinates();
+                if (location!=null) return ((Int2D)location).toCoordinates();
+                return null;
                 }
             };
         }

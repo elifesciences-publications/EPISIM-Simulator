@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface SnapshotListener {
 
-	public List<SnapshotObject> deliverObjects();
+	public List<SnapshotObject> getSnapshotObjects();
 	
 }

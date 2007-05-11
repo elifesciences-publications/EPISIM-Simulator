@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.simple;
 
 import sim.portrayal3d.*;
@@ -88,6 +94,7 @@ public class LightPortrayal3D extends SimplePortrayal3D
         if(j3dModel==null)
             {
             j3dModel = new TransformGroup();
+            j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
             Light l = (Light)(light.cloneNode(false));
             clearPickableFlags(l);  // make un-pickable.  How do you catch a moonbeam in your hand?
             j3dModel.addChild(l);

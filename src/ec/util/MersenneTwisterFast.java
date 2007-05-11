@@ -4,7 +4,7 @@ import java.util.*;
 
 /** 
  * <h3>MersenneTwister and MersenneTwisterFast</h3>
- * <p><b>Version 10</b>, based on version MT199937(99/10/29)
+ * <p><b>Version 14</b>, based on version MT199937(99/10/29)
  * of the Mersenne Twister algorithm found at 
  * <a href="http://www.math.keio.ac.jp/matumoto/emt.html">
  * The Mersenne Twister Home Page</a>, with the initialization
@@ -37,10 +37,20 @@ import java.util.*;
  * Makato Matsumoto and Takuji Nishimura,
  * "Mersenne Twister: A 623-Dimensionally Equidistributed Uniform
  * Pseudo-Random Number Generator",
- * <i>ACM Transactions on Modeling and Computer Simulation,</i>
+ * <i>ACM Transactions on Modeling and. Computer Simulation,</i>
  * Vol. 8, No. 1, January 1998, pp 3--30.
  *
  * <h3>About this Version</h3>
+ *
+ * <p><b>Changes Since V13:</b> clone() method CloneNotSupportedException removed.  
+ *
+ * <p><b>Changes Since V12:</b> clone() method added.  
+ *
+ * <p><b>Changes Since V11:</b> stateEquals(...) method added.  MersenneTwisterFast
+ * is equal to other MersenneTwisterFasts with identical state; likewise
+ * MersenneTwister is equal to other MersenneTwister with identical state.
+ * This isn't equals(...) because that requires a contract of immutability
+ * to compare by value.
  *
  * <p><b>Changes Since V10:</b> A documentation error suggested that
  * setSeed(int[]) required an int[] array 624 long.  In fact, the array
@@ -132,7 +142,7 @@ import java.util.*;
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
  * POSSIBILITY OF SUCH DAMAGE.
  *
- @version 11
+ @version 14
 */
 
 // Note: this class is hard-inlined in all of its methods.  This makes some of
@@ -141,7 +151,7 @@ import java.util.*;
 // on the code, I strongly suggest looking at MersenneTwister.java first.
 // -- Sean
 
-public class MersenneTwisterFast implements Serializable
+public class MersenneTwisterFast implements Serializable, Cloneable
     {
     // Period parameters
     private static final int N = 624;
@@ -164,6 +174,33 @@ public class MersenneTwisterFast implements Serializable
 
     private double __nextNextGaussian;
     private boolean __haveNextNextGaussian;
+    
+    /* We're overriding all internal data, to my knowledge, so this should be okay */
+    public Object clone()
+        {
+        try
+            {
+            MersenneTwisterFast f = (MersenneTwisterFast)(super.clone());
+            f.mt = (int[])(mt.clone());
+            f.mag01 = (int[])(mag01.clone());
+            return f;
+            }
+        catch (CloneNotSupportedException e) { throw new InternalError(); } // should never happen
+        }
+    
+    public boolean stateEquals(Object o)
+        {
+        if (o==this) return true;
+        if (o == null || !(o instanceof MersenneTwisterFast))
+            return false;
+        MersenneTwisterFast other = (MersenneTwisterFast) o;
+        if (mti != other.mti) return false;
+        for(int x=0;x<mag01.length;x++)
+            if (mag01[x] != other.mag01[x]) return false;
+        for(int x=0;x<mt.length;x++)
+            if (mt[x] != other.mt[x]) return false;
+        return true;
+        }
 
     /** Reads the entire state of the MersenneTwister RNG from the stream */
     public void readState(DataInputStream stream) throws IOException

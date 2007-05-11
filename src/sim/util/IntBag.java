@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util;
 
 /** Maintains a simple array (objs) of ints and the number of ints (numObjs) in the array
@@ -250,7 +256,7 @@ public class IntBag implements java.io.Serializable, Cloneable, Indexed
         int obj;
         int rand;
         
-        for(int x=numObjs-1; x > 0 ; x--)
+        for(int x=numObjs-1; x > 1 ; x--)
             {
             rand = random.nextInt(x+1);
             obj = objs[x];
@@ -268,7 +274,7 @@ public class IntBag implements java.io.Serializable, Cloneable, Indexed
         int obj;
         int rand;
         
-        for(int x=numObjs-1; x > 0 ; x--)
+        for(int x=numObjs-1; x > 1 ; x--)
             {
             rand = random.nextInt(x+1);
             obj = objs[x];

@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.grid.quad;
 
 import sim.display.*;
@@ -45,6 +51,11 @@ public abstract class QuadPortrayal implements Portrayal
         {
         this.colorDispenser = colorDispenser;
         this.zScale = zScale;
+        }
+
+    public String getStatus(LocationWrapper wrapper)
+        {
+        return getName(wrapper) + ": " + ((MutableDouble)(wrapper.getObject())).val;
         }
 
     public String getName(LocationWrapper wrapper)
@@ -104,8 +115,8 @@ public abstract class QuadPortrayal implements Portrayal
             return null;
 
         int height = field.getHeight();
-        int x = indices[0]/4/field.getHeight();
-        int y = indices[0]/4%field.getHeight();
+        int x = indices[0]/4/height;
+        int y = indices[0]/4%height;
         return new Int2D(x,y);
         }
 

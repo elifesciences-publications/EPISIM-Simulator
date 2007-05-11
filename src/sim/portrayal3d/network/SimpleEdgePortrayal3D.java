@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.network;
 import sim.portrayal3d.*;
 import sim.portrayal.*;
@@ -80,7 +86,8 @@ public class SimpleEdgePortrayal3D extends SimplePortrayal3D
     com.sun.j3d.utils.geometry.Text2D tempText; 
     //Text3D tempText; 
 
-    public TransformGroup getModel (Object object, TransformGroup j3dModel) { 
+    public TransformGroup getModel (Object object, TransformGroup j3dModel) 
+        { 
 
         drawInfo = (EdgeWrapper)object; 
         field = (SpatialNetwork3D)drawInfo.fieldPortrayal.getField();
@@ -201,7 +208,7 @@ public class SimpleEdgePortrayal3D extends SimplePortrayal3D
             }
         
         return j3dModel; 
-    }
+        }
 
 
     public static class EdgeWrapper extends LocationWrapper

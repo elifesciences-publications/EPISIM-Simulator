@@ -1,7 +1,12 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util.gui;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.*;
 import java.awt.event.*;
 
 /** <p>A very simple histogram class.  Displays values as different colors left to right.
@@ -10,7 +15,7 @@ import java.awt.event.*;
     <p>This class can be used to describe any one-dimensional array of doubles: just provide 
     an array of doubles to setBuckets and it'll show them on-screen.  If you change the doubles in that
     array, no need to call setBuckets again: as soon as a repaint occurs, MiniHistogram will update them.
-    You can specify a color map to be more specific about which colors do what.  You can also provide a
+    You can also provide a
     set of bucket labels, one for each bucket, which get popped up in the tooltip along with the current
     bucket value.
     
@@ -28,27 +33,23 @@ import java.awt.event.*;
 
 public class MiniHistogram extends JPanel
     {
-    final static SimpleColorMap DEFAULT_MAP = new SimpleColorMap(0,1,Color.white,Color.blue);
     final static JLabel DEFAULT_SIZE_COMPARISON = new JLabel("X");
-    BufferedImage buffer;
     double[] buckets;
     String[] labels;
-    ColorMap map;
     
     public MiniHistogram()
         {
-        map = DEFAULT_MAP;
         setBuckets(new double[0]);
         addMouseListener(adapter);
         addMouseMotionListener(motionAdapter);
-        setBackground(Color.red);
+        setBackground(DEFAULT_SIZE_COMPARISON.getBackground());
         }
                 
     public MiniHistogram(double[] buckets, String[] labels)
         {
         this();
         setBucketsAndLabels(buckets,labels);
-        setBackground(Color.red);
+        setBackground(DEFAULT_SIZE_COMPARISON.getBackground());
         }
 
     public Dimension getPreferredSize() 
@@ -67,9 +68,6 @@ public class MiniHistogram extends JPanel
         {
         if (buckets == null) buckets = new double[0];
         int len = buckets.length;
-        if (len == 0) buffer = null;
-        else if (buffer==null || buffer.getWidth() != len)
-            buffer = new BufferedImage(len,1,BufferedImage.TYPE_INT_ARGB);
         this.buckets = buckets;
         repaint();
         }
@@ -86,20 +84,25 @@ public class MiniHistogram extends JPanel
         setBucketLabels(labels);
         }
    
-    /** Sets the color map used to draw the buckets. */
-    public void setColorMap(ColorMap map) { this.map = map; }
-    
     MouseMotionAdapter motionAdapter = new MouseMotionAdapter()
         {
         public void mouseMoved(MouseEvent event)
             {
+            String s = null;
             int x = (int)(event.getX() * 
                           (buckets == null ? 0 : buckets.length) / (double)(getBounds().width));
             if (labels != null && x < labels.length) 
-                setToolTipText(labels[x] + "\tValue: " + buckets[x]);
+                s = "<html><font size=\"-1\" face=\"" + getFont().getFamily() + "\">" +
+                    "Bucket: " + x + "<br>Range: " + labels[x] + "<br>Value: " + buckets[x] +
+                    "</font></html>";
             else if (buckets != null && buckets.length != 0)
-                setToolTipText("Bucket: " + x + "\tValue: " + buckets[x]);
-            else setToolTipText(null);
+                s = "<html><font size=\"-1\" face=\"" + getFont().getFamily() + "\">" +
+                    "Bucket: " + x + "<br>>Value: " + buckets[x] +
+                    "</font></html>";
+            else s=null;
+                        
+            if (!s.equalsIgnoreCase(getToolTipText()))
+                setToolTipText(s);
             }
         };
     
@@ -130,19 +133,17 @@ public class MiniHistogram extends JPanel
 
     public synchronized void paintComponent(final Graphics graphics)
         {
-        if (map==null) return;
         int len = 0;
         if (buckets != null) len = buckets.length;
         if (len==0) return; // don't bother drawing
         Rectangle bounds = getBounds();
+        graphics.setColor(getBackground());
+        graphics.fillRect(0,0,bounds.width,bounds.height);
         int height = bounds.height - 2;
-        if (height <= 0) return; 
+        if (height <= 0) return;
                 
-        // make locals
-        final ColorMap map = this.map;
-        final BufferedImage buffer = this.buffer;
-
-
+        graphics.setColor(getForeground());
+                
         // find maxbucket, minbucket
         double maxbucket = buckets[0];
         double minbucket = buckets[0];
@@ -201,6 +202,28 @@ public class MiniHistogram extends JPanel
         return s;
         }
 
+    /** Returns the minimum over the provided vals.  You might use this to set the minimum in makeBuckets
+        if you don't have a prescribed minimum */
+    public static double minimum(double[] vals)
+        {
+        double min = Double.POSITIVE_INFINITY;
+        for(int i=0;i<vals.length;i++)   // gather minimum
+            if (min > vals[i])
+                min = vals[i];
+        return min;
+        }
+                
+    /** Returns the minimum over the provided vals.  You might use this to set the minimum in makeBuckets
+        if you don't have a prescribed minimum */
+    public static double maximum(double[] vals)
+        {
+        double max = Double.NEGATIVE_INFINITY;
+        for(int i=0;i<vals.length;i++)   // gather maximum
+            if (max < vals[i])
+                max = vals[i];
+        return max;
+        }
+
     /** Generates a set of <i>numBuckets</i> buckets describing a histogram over the provided values in <i>vals</i>.
         <i>min</i> and <i>max</i> describe the ends of the histogram, inclusive: values outside those ranges are discarded.
         You can tell the histogram to bucket based on a log scale if you like (min and max are computed prior to log)),
@@ -209,11 +232,11 @@ public class MiniHistogram extends JPanel
     
     public static double[] makeBuckets(double[] vals, int numBuckets, double min, double max, boolean logScale)
         {
+        double[] b = new double[numBuckets];
+        if (vals == null || numBuckets == 0) return b;         // duh, stupid user
+
         if (logScale) { min = Math.log(min); max = Math.log(max); }
         
-        double[] b = new double[numBuckets];
-        
-        if (vals == null || numBuckets == 0) return b;         // duh, stupid user
         if (min>max) {double tmp = min; min = max; max = tmp;} // duh, stupid user
         else if (min==max) { b[0] += vals.length; return b; }  // duh, stupider user
 

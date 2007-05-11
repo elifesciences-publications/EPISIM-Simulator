@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util;
 
 /** 
@@ -281,6 +287,15 @@ public final class MutableDouble3D implements java.io.Serializable, Cloneable
         return this;
         }
     
+    /** Adds the x and y values into my x and y values, returning me. */
+    public final MutableDouble3D addIn(final double x, final double y, final double z)
+        {
+        this.x += x;
+        this.y += y;
+        this.z += z;
+        return this;
+        }
+
     /** Equivalent to <tt>(new MutableDouble3D(d))</tt>, but <tt>(d.dup())</tt> shorter of course, but perhaps not quite as fast. */
     public final MutableDouble3D dup()
         {
@@ -333,10 +348,26 @@ public final class MutableDouble3D implements java.io.Serializable, Cloneable
     /** Normalizes me (sets my length to 1.0), returning me.  Throws an error if my previous length was of length 0. */
     public final MutableDouble3D normalize()
         {
-        final double len = Math.sqrt(x * x + y * y + z * z);
-        x = x / len;
-        y = y / len;
-        z = z / len;
+        final double invertedlen = 1.0 / Math.sqrt(x * x + y * y + z * z);
+        x = x * invertedlen;
+        y = y * invertedlen;
+        z = z * invertedlen;
+        return this;
+        }
+                
+    /** Sets my length, which should be >= 0. */
+    public final MutableDouble3D setLength(double val)
+        {
+        if (val < 0)
+            throw new IllegalArgumentException("The argument to MutableDouble3D.setLength(...) must be zero or positive");
+        if (val == 0) x = y = z = 0;
+        else
+            {
+            final double invertedlen = val / Math.sqrt(x * x + y * y + z * z);
+            x = x * invertedlen;
+            y = y * invertedlen;
+            z = z * invertedlen;
+            }
         return this;
         } 
 
@@ -346,36 +377,33 @@ public final class MutableDouble3D implements java.io.Serializable, Cloneable
         return other.x * x + other.y * y + other.z * z;
         }
 
-
-    //Gabriel's additional methods
+    /** Sets the values to 0. */
     public final void zero()                                                                        
         {
         this.x = 0; 
         this.y = 0;
         this.z = 0;
         }
+                
+    /** Sets the values to the negation of the values in the provided MutableDouble2D */
     public final void setToMinus(final MutableDouble3D b)          
         {
         x = -b.x; 
         y = -b.y;
         z = -b.z;
         }
+                
+    /** Negates the MutableDouble2D's values */
     public final void negate()                                                        
         {
         x = -x;
         y = -y;
         z = -z;
         }
+                
+    /** Returns the square of the length of the MutableDouble2D. */
     public final double lengthSq()                                                
         {
         return x*x+y*y+z*z;
-        }
-    /** Adds other into me, returning me. */
-    public final MutableDouble3D addIn(final double x, final double y, final double z)
-        {
-        this.x += x;
-        this.y += y;
-        this.z += z;
-        return this;
         }
     }

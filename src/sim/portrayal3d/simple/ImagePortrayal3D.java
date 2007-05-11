@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.simple;
 
 import sim.portrayal3d.*;
@@ -52,10 +58,10 @@ public class ImagePortrayal3D extends SimplePortrayal3D
         // build the vertices using these measurements
         float[] vertices = new float[]
             {
-                width/2, -height/2, 0f,
-                width/2,  height/2,  0f,
-                -width/2,  height/2,  0f,
-                -width/2, -height/2,  0f,
+            width/2, -height/2, 0f,
+            width/2,  height/2,  0f,
+            -width/2,  height/2,  0f,
+            -width/2, -height/2,  0f,
             };
         
         // create an array out of the four vertices
@@ -87,6 +93,7 @@ public class ImagePortrayal3D extends SimplePortrayal3D
         if(j3dModel==null)
             {
             j3dModel = new TransformGroup();
+            j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
             
             // copy the shape
             Shape3D s = (Shape3D)(shape.cloneNode(false));  // I think we can share geometries

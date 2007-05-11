@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.grid;
 
 import javax.vecmath.*;
@@ -10,6 +16,7 @@ import sim.util.*;
 /**
  * Portrays both SparseGrid2D and SparseGrid3D fields.  A (0,0) or (0,0,0) object is centered
  * on the origin.  2D fields are spread through the XY plane and are presumed to have Z=0.
+ * Generally speaking, SparseGrid2D is better drawn using a different class: the SparseGrid2DPortrayal3D.
  * 
  * @author Gabriel Balan
  */
@@ -67,9 +74,16 @@ public class SparseGridPortrayal3D extends SparseFieldPortrayal3D
             public String getLocationName()
                 {
                 if(field instanceof SparseGrid3D)
-                    return ((SparseGrid3D)field).getObjectLocation(object).toCoordinates();
+                    {
+                    Int3D loc = ((SparseGrid3D)field).getObjectLocation(object);
+                    if (loc!=null) return loc.toCoordinates();
+                    }
                 else
-                    return ((SparseGrid2D)field).getObjectLocation(object).toCoordinates();
+                    {
+                    Int2D loc = ((SparseGrid2D)field).getObjectLocation(object);
+                    if (loc!=null) return loc.toCoordinates();
+                    }
+                return null;
                 }
             };
         }

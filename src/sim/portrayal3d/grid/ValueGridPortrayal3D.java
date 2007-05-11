@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal3d.grid;
 
 import sim.field.grid.*;
@@ -20,7 +26,6 @@ public class ValueGridPortrayal3D extends FieldPortrayal3D
 
     int width, height, length; 
     
-
     final MutableDouble valueToPass = new MutableDouble(0); 
 
     public ColorMap getMap() { return map;}
@@ -32,10 +37,10 @@ public class ValueGridPortrayal3D extends FieldPortrayal3D
         return defaultPortrayal; 
         }
 
-
     public void setField(Object field)
         {
         if (field instanceof IntGrid3D || field instanceof DoubleGrid3D) this.field = (AbstractGrid3D) field;
+        else if (field instanceof IntGrid2D || field instanceof DoubleGrid2D) this.field = (AbstractGrid2D) field;
         else throw new RuntimeException("Invalid field for ValueGridPortrayal3D: " + field);
         }
 
@@ -61,6 +66,11 @@ public class ValueGridPortrayal3D extends FieldPortrayal3D
         { 
         this.valueName = valueName; 
         this.scale = scale; 
+        }
+
+    public PolygonAttributes polygonAttributes()
+        {
+        return ((Portrayal3D)(getPortrayalForObject(new ValuePortrayal3D.ValueWrapper(0,0,0,0,this)))).polygonAttributes();
         }
 
     public double newValue(int x, int y, int z)
@@ -118,7 +128,7 @@ public class ValueGridPortrayal3D extends FieldPortrayal3D
                     trans.setTranslation(new Vector3f(x,y,z)); 
                     trans.setScale(scale); 
                     tg.setTransform(trans); 
-                    tg.setUserData(wrapper);
+                    //tg.setUserData(wrapper);  // already done when the object was created
                     localSwitch.addChild(tg);
 
                     if (map.getAlpha(value) > 2) // nontransparent
@@ -159,8 +169,9 @@ public class ValueGridPortrayal3D extends FieldPortrayal3D
             for (int y=0;y<height;y++) 
                 for (int z=0;z<length;z++) 
                     { 
-                    TransformGroup tg = (TransformGroup)localSwitch.getChild(i); 
-                    ValuePortrayal3D.ValueWrapper wrapper = (ValuePortrayal3D.ValueWrapper)(tg.getUserData());
+                    TransformGroup tg = (TransformGroup)localSwitch.getChild(i);
+                    Node shape = (Node)(tg.getChild(0));
+                    ValuePortrayal3D.ValueWrapper wrapper = (ValuePortrayal3D.ValueWrapper)(shape.getUserData());
                     double value = newValue(x,y,z); 
                     double oldValue = wrapper.lastVal;
 

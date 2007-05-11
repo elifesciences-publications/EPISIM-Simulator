@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.field.grid;
 import sim.util.*;
 /** 
@@ -331,10 +337,10 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
             {
             fieldx = field[x]; 
             for(int y=0;y<height;y++)
-                if (field[x][y] > 0.0) 
-                    /*Strict*/Math.floor(field[x][y]);
+                if (fieldx[y] > 0.0) 
+                    /*Strict*/Math.floor(fieldx[y]);
                 else
-                    /*Strict*/Math.ceil(field[x][y]);
+                    /*Strict*/Math.ceil(fieldx[y]);
             }
         return this;
         }

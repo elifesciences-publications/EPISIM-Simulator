@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal.grid;
 import sim.portrayal.*;
 import sim.field.grid.*;
@@ -124,12 +130,13 @@ public class FastHexaValueGridPortrayal2D extends HexaValueGridPortrayal2D
                     // interestingly, this is not quite as fast as just making a BufferedImage directly!
                     // at present, transparent images can't take advantage of new Sun efficiency improvements.
                     // Perhaps we should have a new option for opaque images...
-                    //buffer = graphics.getDeviceConfiguration().createCompatibleImage(maxX,maxY,Transparency.TRANSLUCENT);
+                    //buffer = graphics.getDeviceConfiguration().createCompatibleImage(maxX,(2*maxY+1),Transparency.TRANSLUCENT);
                     
                     // oops, it looks like createCompatibleImage has big-time HILARIOUS bugs on OS X Java 1.3.1!
                     // So for the time being we're sticking with the (very slightly faster) 
                     // new BufferedImage(...)
-                    buffer = new BufferedImage(maxX,maxY,BufferedImage.TYPE_INT_ARGB); // transparency allowed
+                    if (buffer != null) buffer.flush();  // in case Java forgets to clear memory -- bug in OS X
+                    buffer = new BufferedImage(maxX,(2*maxY+1),BufferedImage.TYPE_INT_ARGB); // transparency allowed
                     
                     // I had thought that TYPE_INT_ARGB_PRE would be faster because
                     // it's natively supported by MacOS X CoreGraphics so no optimization needs to be done

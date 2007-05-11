@@ -1,3 +1,12 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+
+  Portions of this software are copyrighted by Sun Microsystems Incorporated
+  and fall under the license listed at the end of this file.
+*/
+
 package sim.util.media;
 import javax.media.*;
 import javax.media.util.*;
@@ -44,6 +53,10 @@ import java.awt.*;
  *
  * <p>When you're all finished, you call the stop() method to clean up and complete
  * writing the file.
+ *
+ * <p><b>Note:</b> Sun's JMF spawns threads in the background which it never cleans up.
+ * Thus if you use this class, you'll need to call System.exit(0) to quit your program
+ * rather than just dropping out of main().
  *
  */
 
@@ -180,7 +193,6 @@ public class MovieEncoder implements DataSinkListener, ControllerListener, java.
         
         synchronized (waitSync) {
             try {
-                //            System.out.println(p.getState());
                 while (p.getState() < state && stateTransitionOK)
                     waitSync.wait();
                 } catch (Exception e) {}
@@ -191,7 +203,6 @@ public class MovieEncoder implements DataSinkListener, ControllerListener, java.
      * Controller Listener.
      */
     public void controllerUpdate(ControllerEvent evt) {
-        //      System.out.println(evt);
         if (evt instanceof ConfigureCompleteEvent ||
             evt instanceof RealizeCompleteEvent ||
             evt instanceof PrefetchCompleteEvent) {
@@ -257,13 +268,11 @@ public class MovieEncoder implements DataSinkListener, ControllerListener, java.
     public void dataSinkUpdate(DataSinkEvent evt) {
 
         if (evt instanceof EndOfStreamEvent) {
-            //System.err.println(evt);        
             synchronized (waitFileSync) {
                 fileDone = true;
                 waitFileSync.notifyAll();
                 }
             } else if (evt instanceof DataSinkErrorEvent) {
-                //System.err.println(evt);        
                 synchronized (waitFileSync) {
                     fileDone = true;
                     fileSuccess = false;
@@ -309,21 +318,16 @@ public class MovieEncoder implements DataSinkListener, ControllerListener, java.
         // new - set by requested format
         tcs[0].setFormat(encodeFormat);
 
-        //        System.err.println("Realizing");
         // realize the processor
         processor.realize();
         if (!waitForState(processor, Processor.Realized))
             throw new RuntimeException("Failed to Realize processor");
-        
-        //        System.err.println("Sinking");
-        
+                
         sink = Manager.createDataSink(processor.getDataOutput(), new MediaLocator(file.toURL()));
         sink.addDataSinkListener(this);
         sink.open();
         processor.start();
         sink.start();
-
-        //        System.err.println("Done");
 
         started = true;
         }
@@ -486,15 +490,7 @@ class MovieEncoderDataStream implements PullBufferStream
         // Check if we need to close up shop
         synchronized(this)
             {
-            if (ended) 
-                {
-                // We are done.  Set EndOfMedia.
-                buf.setEOM(true);
-                buf.setOffset(0);
-                buf.setLength(0);
-                endAcknowledged = true;
-                }
-            else
+            if (buffer != null)  // may still have data left even if ended, so we need to do that
                 {
                 // load the data
                 buf.setData(buffer.getData());
@@ -504,6 +500,14 @@ class MovieEncoderDataStream implements PullBufferStream
                 buf.setFlags(buf.getFlags() | Buffer.FLAG_KEY_FRAME | Buffer.FLAG_NO_DROP);  // must write the frame
                 }
             buffer = null;
+            if (ended) 
+                {
+                // We are done.  Set EndOfMedia.
+                buf.setEOM(true);
+                buf.setOffset(0);
+                buf.setLength(0);
+                endAcknowledged = true;
+                }
             }
         }
 

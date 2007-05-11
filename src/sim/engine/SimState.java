@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.engine;
 import ec.util.*;
 import java.util.*;
@@ -30,10 +36,24 @@ public class SimState implements java.io.Serializable
     // All registered Asynchronous steppables
     HashSet asynchronous = new HashSet();
     // Lock for accessing the HashSet
-    String asynchronousLock = "Lock";  // a string because it's serializable
+    Object asynchronousLock = new boolean[1];  // an array is a unique, serializable object
     // Are we cleaning house and replacing the HashSet?
     public boolean cleaningAsynchronous = false;
+        
+    /** Creates a SimState with a new random number generator initialized to the given seed,
+        plus a new, empty schedule. */
+    public SimState(long seed)
+        {
+        this(new MersenneTwisterFast(seed));
+        }
     
+    /** Creates a SimState with a new, empty Schedule and the provided random number generator. */
+    public SimState(MersenneTwisterFast random)
+        {
+        this(random, new Schedule());
+        }
+        
+    /** Creates a SimState with the provided random number generator and schedule. */
     public SimState(MersenneTwisterFast random, Schedule schedule)
         {
         this.random = random;
@@ -64,9 +84,19 @@ public class SimState implements java.io.Serializable
         and clear it in the first finish(). */
     public void finish()
         {
-        cleanupAsynchronous();
+        kill();  // cleans up asynchroonous and resets the schedule, a good ending
         }
 
+    /** A Steppable on the schedule can call this method to cancel the simulation.
+        All existing AsynchronousSteppables are stopped, and then the schedule is
+        reset.  AsynchronousSteppables should not call this method directly -- it will deadlock.
+        Instead, an AsynchronousSteppable may kill the simulation by scheduling a Steppable
+        for the next timestep which calls state.kill(). */
+    public void kill()
+        {
+        cleanupAsynchronous();
+        schedule.pushToAfterSimulation();
+        }
 
     /** Registers an Asynchronous to get its pause() method called prior to checkpointing,
         its resume() method to be called after checkpointing or recovery, and its stop()
@@ -163,8 +193,7 @@ public class SimState implements java.io.Serializable
         anything that may no longer exist.  Be sure to call super.awakeFromCheckpoint(). */
     public void awakeFromCheckpoint()
         {
-        Asynchronous[] b = null;
-        b = asynchronousRegistry();
+        Asynchronous[] b = asynchronousRegistry();
         final int len = b.length;
         for(int x=0;x<len;x++) b[x].resume();
         }
@@ -296,7 +325,6 @@ public class SimState implements java.io.Serializable
                 "                       [-help] [-checkpoint C] [-repeat R] [-seed S] \\\n" +
                 "                       [-for F] [-until U] [-time T] [-docheckpoint D] \n\n" +
                 "-help             Shows this message and exits.\n\n" +
-                "-version          Prints the MASON version.\n\n" +
                 "-repeat R         Long value > 0: Runs the job R times. The random seed for\n" +
                 "                  each job is the provided -seed plus the job# (starting at 0).\n" +
                 "                  Default: runs once only: job number is 0.\n\n" +
@@ -323,14 +351,10 @@ public class SimState implements java.io.Serializable
                 generator.simulationClass().getName().substring(generator.simulationClass().getName().lastIndexOf(".") + 1) + ".checkpoint\n");
             System.exit(0);
             }
-        
-        // print version
-        if (keyExists("-version", args, 0))
-            {
-            java.text.NumberFormat n = java.text.NumberFormat.getInstance();
-            n.setMinimumFractionDigits(0);
-            System.err.println("MASON Version " + n.format(version()));
-            }
+
+        java.text.NumberFormat n = java.text.NumberFormat.getInstance();
+        n.setMinimumFractionDigits(0);
+        System.err.println("MASON Version " + n.format(version()) + ".  For further options, try adding ' -help' at end.");
 
         // figure the checkpoint modulo
         double until = Double.POSITIVE_INFINITY;
@@ -413,7 +437,6 @@ public class SimState implements java.io.Serializable
        
         // okay, now we actually get down to brass tacks
         
-        boolean final_retval = true;
         seed--; // initialize like this so first seed++ gets us to seed+0
         for(long rep = 0 ; rep < repeat; rep++)
             {
@@ -494,7 +517,7 @@ public class SimState implements java.io.Serializable
     
     public static double version()
         {
-        return 10.0;
+        return 11.0;
         }
     
     // compute how much time per step 

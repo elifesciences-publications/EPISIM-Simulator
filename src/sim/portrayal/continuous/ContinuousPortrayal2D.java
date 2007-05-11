@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal.continuous;
 import sim.portrayal.*;
 import sim.portrayal.simple.*;
@@ -5,6 +11,7 @@ import sim.field.continuous.*;
 import sim.util.*;
 import java.awt.*;
 import java.awt.geom.*;
+import java.util.*;
 
 /**
    Portrays Continuous2D fields.  When asked to portray objects, this field computes the buckets
@@ -33,7 +40,9 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
         {
         final Continuous2D field = (Continuous2D)this.field;
         if (field==null) return;
-
+                
+        boolean objectSelected = !selectedWrappers.isEmpty();
+                
         Rectangle2D.Double cliprect = (Rectangle2D.Double)(info.draw.createIntersection(info.clip));
 
         final double xScale = info.draw.width / field.width;
@@ -82,7 +91,15 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
                     {
                     // MacOS X 10.3 Panther has a bug which resets the clip, YUCK
                     //                    graphics.setClip(clip);
-                    portrayal.draw(portrayedObject, graphics, newinfo);
+                    if (objectSelected &&  // there's something there
+                        selectedWrappers.get(portrayedObject) != null)
+                        {
+                        LocationWrapper wrapper = (LocationWrapper)(selectedWrappers.get(portrayedObject));
+                        portrayal.setSelected(wrapper,true);
+                        portrayal.draw(portrayedObject, graphics, newinfo);
+                        portrayal.setSelected(wrapper,false);
+                        }
+                    else portrayal.draw(portrayedObject, graphics, newinfo);
                     }
                 }
             }
@@ -107,6 +124,34 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
                 }
             };
         }
+                
+                        
+    HashMap selectedWrappers = new HashMap();
+    public boolean setSelected(LocationWrapper wrapper, boolean selected)
+        {
+        if (wrapper == null) return true;
+        if (wrapper.getFieldPortrayal() != this) return true;
+
+        Object obj = wrapper.getObject();
+        if (selected)
+            {
+            // first let's determine if the object WANTs to be selected
+            boolean b = getPortrayalForObject(obj).setSelected(wrapper,selected);
+                        
+            // now we turn the selection back to regular
+            getPortrayalForObject(obj).setSelected(wrapper,!selected);
+                        
+            // Okay, now we can tell whether or not to add to the wrapper collection
+            if (b==false) return false;
+            selectedWrappers.put(obj, wrapper);
+            }
+        else
+            {
+            selectedWrappers.remove(obj);
+            }
+        return true;
+        }
+
     }
     
     

@@ -1,9 +1,16 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util.gui;
 import java.awt.*;
 import javax.swing.*;
 import sim.util.WordWrap;
 import java.io.*;
 import java.awt.image.*;
+import sim.util.Utilities;
 
 
 /**
@@ -12,6 +19,11 @@ import java.awt.image.*;
    <p>At this point you can start feeding the MovieMaker frames with add(image).  When you are finished, call stop() and the MovieMaker will flush out the remaining movie frames to disk and create the file.  Throw your MovieMaker away at this point.
     
    <p>MovieMaker, like MovieEncoder, relies on the Java Media Framework (JMF) to do its magic.  If JMF doesn't exist, MovieMaker doesn't produce an error; instead, it will produce a dialog box informing the user of his mistake.  MovieMaker is coded in an odd way: no actual direct references are made to MovieEncoder.  This is in case the JVM is too smart and tries to load MovieEncoder (and the JMF) immediately rather than lazily as it gets referenced by MovieMaker.
+
+   <p><b>Note:</b> Sun's JMF spawns threads in the background which it never cleans up.
+   Thus if you use this class, you'll need to call System.exit(0) to quit your program
+   rather than just dropping out of main().
+
 */
 
 public class MovieMaker
@@ -106,7 +118,7 @@ public class MovieMaker
             
             FileDialog fd = new FileDialog(parentForDialogs,"Stream to Quicktime File...", FileDialog.SAVE);
             fd.setFile("Untitled.mov");
-            fd.show();
+            fd.setVisible(true);;
             if (fd.getFile()!=null) 
                 {
                 //                encoder = new sim.util.media.MovieEncoder(fps,  // frames per second
@@ -120,7 +132,7 @@ public class MovieMaker
                     Class.forName("javax.media.Format")
                     }).
                     newInstance(new Object[]{new Float(fps), 
-                                             new File(fd.getDirectory(), ensureFileEndsWith(fd.getFile(),".mov")),
+                                             new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".mov")),
                                              typicalImage,
                                              f[encodeFormatIndex]});
                 }
@@ -187,14 +199,5 @@ public class MovieMaker
             }
         isRunning = false;
         return success;
-        }
-
-    // Utility method.  Returns a filename guaranteed to end with the given ending.
-    static String ensureFileEndsWith(String filename, String ending)
-        {
-        // do we end with the string?
-        if (filename.regionMatches(false,filename.length()-ending.length(),ending,0,ending.length()))
-            return filename;
-        else return filename + ending;
         }
     }

@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.display3d;
 
 import java.awt.*;
@@ -79,6 +85,7 @@ public class CapturingCanvas3D extends Canvas3D
         ctx.readRaster(ras);
         // Now strip out the image info
         buffer_ = ras.getImage().getImage();
+        buffer_.flush();  // prevents possible os x 1.4.2 memory leak
         }
     
     public synchronized void stopMovie()

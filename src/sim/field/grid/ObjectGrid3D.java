@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.field.grid;
 
 import sim.util.*;
@@ -131,7 +137,7 @@ public class ObjectGrid3D extends AbstractGrid3D
                 fieldx = field[x];
                 ofieldx = ofield[x];
                 for(int y=0;y<height;y++)
-                    System.arraycopy(ofieldx[y],0,ofieldx[y],0,length);
+                    System.arraycopy(ofieldx[y],0,fieldx[y],0,length);
                 }
             }
         return this;

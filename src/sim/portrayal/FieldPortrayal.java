@@ -1,9 +1,16 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal;
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import sim.util.gui.*;
 import sim.display.*;
+import sim.util.*;
 
 /**
    A FieldPortrayal is an object which knows how to portray some kind of Field.
@@ -128,7 +135,6 @@ public abstract class FieldPortrayal
     /** Returns the appropriate Portrayal. */
     public Portrayal getPortrayalForObject(Object obj)
         {
-        Portrayal portrayal;
         Portrayal tmp;
         
         // return the portrayal-for-all if any
@@ -255,9 +261,15 @@ public abstract class FieldPortrayal
         return getPortrayalForObject(wrapper.getObject()).getName(wrapper);
         }
 
+    public String getStatus(LocationWrapper wrapper)
+        {
+        if (wrapper == null) return "";
+        return getPortrayalForObject(wrapper.getObject()).getStatus(wrapper);
+        }
+
     public boolean setSelected(LocationWrapper wrapper, boolean selected)
         {
-        if (wrapper == null) return false;
-        return getPortrayalForObject(wrapper.getObject()).setSelected(wrapper,selected);
+        // by default does nothing
+        return true;
         }
     }

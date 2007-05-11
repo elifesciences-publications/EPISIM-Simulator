@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal.simple;
 import sim.portrayal.*;
 import java.awt.*;
@@ -51,6 +57,18 @@ public class ShapePortrayal2D extends SimplePortrayal2D
 
     public boolean hitObject(Object object, DrawInfo2D range)
         {
-        return false;
+        final double width = range.draw.width*scale;
+        final double height = range.draw.height*scale;
+        if (bufferedShape == null || width != bufferedWidth || height != bufferedHeight)
+            {
+            transform.setToScale(bufferedWidth = width, bufferedHeight = height);
+            bufferedShape = transform.createTransformedShape(shape);
+            }
+        // center on the origin
+        transform.setToTranslation(range.draw.x,range.draw.y);
+                
+        // now hit-test
+        return new Area(transform.createTransformedShape(bufferedShape)).intersects(
+            range.clip.x, range.clip.y, range.clip.width, range.clip.height);
         }
     }

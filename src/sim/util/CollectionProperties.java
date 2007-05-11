@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.util;
 import java.util.*;
 import java.lang.reflect.*;
@@ -41,12 +47,14 @@ public class CollectionProperties extends Properties
         else if (o instanceof Collection) buildCollectionProperties((Collection)o);
         else if (o.getClass().isArray()) buildCollectionPropertiesForArray(o);
         else throw new IllegalArgumentException("Invalid type for collection properties: " + o);
+        object = o;
         }
 
     void buildCollectionProperties(final Collection c)
         {
         isVolatile = true;
         collection = c;
+        object = c;
         }
     
     void buildCollectionProperties(final List list)
@@ -59,18 +67,21 @@ public class CollectionProperties extends Properties
             public Object setValue(int index, Object value) { return list.set(index,value); }
             public Object getValue(int index) { return list.get(index); }
             };
+        object = list;
         }
 
     void buildCollectionProperties(Map m)
         {
         isVolatile = true;
         map = m;
+        object = m;
         }
     
     void buildCollectionProperties(Indexed i)
         {
         isVolatile = true;
         indexed = i;
+        object = i;
         }
 
     void buildCollectionPropertiesForArray(final Object o) // for arrays
@@ -89,6 +100,8 @@ public class CollectionProperties extends Properties
                 }
             public Object getValue(int index) { return Array.get(o,index); }
             };
+        
+        object = o;
         }
     
     public int numProperties()

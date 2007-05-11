@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.field.network;
 import sim.util.*;
 
@@ -33,10 +39,14 @@ public class Edge implements java.io.Serializable
     /** Other information (maybe cost) associated with the edge */
     public Object info;
 
-    /* The index where the Edge is located in the Out Bag of the edge's From node.  Used internally for faster remove operations*/
+    // purposely package-level protection: you shouldn't play with these.
+    /* The index where the Edge is located in the Out Bag of the edge's From node.
+       Used internally for faster remove operations*/
     int indexFrom;
 
-    /* The index where the Edge is located in the In Bag of the edge's To node.  Used internally for faster remove operations*/
+    // purposely package-level protection: you shouldn't play with these.
+    /* The index where the Edge is located in the In Bag of the edge's To node.  
+       Used internally for faster remove operations*/
     int indexTo;
     
     /** Returns the "from" object. */
@@ -45,10 +55,11 @@ public class Edge implements java.io.Serializable
     public Object to() { return to; }
     /** Returns the "owner" field. */    
     public Network owner() { return owner; }
-    /* Returns index where the Edge is located in the Out Bag of the edge's From node.  Used internally for faster remove operations*/
+    /* Returns the index where the Edge is located in the Out Bag of the edge's From node.  
+       Used internally for faster remove operations*/
     public int indexFrom() { return indexFrom; }
 
-    /* The index where the Edge is located in the In Bag of the edge's To node.  Used internally for faster remove operations*/
+    /* The index where the Edge is located in the In Bag of the edge's To node.  Used internally for faster remove operations. */
     public int indexTo() { return indexTo; }
 
     public Edge( final Edge e )
@@ -98,6 +109,11 @@ public class Edge implements java.io.Serializable
         if ( node.equals(from) )
             return to;
         return from;
+        }
+
+    public String toString()
+        {
+        return "Edge[" + from + "->" + to + " / " + indexFrom + "->" + indexTo + "]";
         }
 
     }

@@ -37,12 +37,13 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import sim.display.Console;
+import sim.display.ConsoleHack;
 import sim.display.GUIState;
 import sim.portrayal.SimpleInspector;
 import sim.util.gui.NumberTextField;
 import sim.util.gui.PropertyField;
 
-public class EpiConsole extends Console implements ActionListener{
+public class EpiConsole extends ConsoleHack implements ActionListener{
 	private Container controllerContainer;
 	
 	private KeyListener keyListener;
@@ -95,7 +96,7 @@ public class EpiConsole extends Console implements ActionListener{
 		
        //Liste der Frames überschreiben
        
-       frameListDisplay.setCellRenderer(new ListCellRenderer()
+       getFrameListDisplay().setCellRenderer(new ListCellRenderer()
            {
            // this ListCellRenderer will show the frame titles in black if they're
            // visible, and show them as gray if they're hidden.  You can add frames
@@ -130,9 +131,9 @@ public class EpiConsole extends Console implements ActionListener{
    /** Simulations can call this to add a frame to be listed in the "Display list" of the console */
    public synchronized boolean registerFrame(JInternalFrame frame)
    {
-   frameList.add(frame);
-   frameListDisplay.setListData(frameList);
-   return true;
+   	getFrameList().add(frame);
+   	getFrameListDisplay().setListData(getFrameList());
+   	return true;
    }
 	
 	
@@ -327,47 +328,47 @@ public class EpiConsole extends Console implements ActionListener{
    /** Called when the "show" button is pressed in the Displays window */
    synchronized void pressShow()
        {
-       Object[] vals = (Object[]) (frameListDisplay.getSelectedValues());
+       Object[] vals = (Object[]) (getFrameListDisplay().getSelectedValues());
        for (int x = 0; x < vals.length; x++)
            {
            ((JInternalFrame) (vals[x])).toFront();
            ((JInternalFrame) (vals[x])).setVisible(true);
            }
-       frameListDisplay.repaint();
+       getFrameListDisplay().repaint();
        }
 
    /** Called when the "show all" button is pressed in the Displays window */
    synchronized void pressShowAll()
        {
-       Object[] vals = (Object[]) (frameList.toArray());
+       Object[] vals = (Object[]) (getFrameList().toArray());
        for (int x = 0; x < vals.length; x++)
            {
            ((JInternalFrame) (vals[x])).toFront();
            ((JInternalFrame) (vals[x])).setVisible(true);
            }
-       frameListDisplay.repaint();
+       getFrameListDisplay().repaint();
        }
 
    /** Called when the "hide" button is pressed in the Displays window */
    synchronized void pressHide()
        {
-       Object[] vals = (Object[]) (frameListDisplay.getSelectedValues());
+       Object[] vals = (Object[]) (getFrameListDisplay().getSelectedValues());
        for (int x = 0; x < vals.length; x++)
            {
            ((JInternalFrame) (vals[x])).setVisible(false);
            }
-       frameListDisplay.repaint();
+       	getFrameListDisplay().repaint();
        }
 
    /** Called when the "hide all" button is pressed in the Displays window */
    synchronized void pressHideAll()
        {
-       Object[] vals = (Object[]) (frameList.toArray());
+       Object[] vals = (Object[]) (getFrameList().toArray());
        for (int x = 0; x < vals.length; x++)
            {
            ((JInternalFrame) (vals[x])).setVisible(false);
            }
-       frameListDisplay.repaint();
+       getFrameListDisplay().repaint();
        }
 	
    public synchronized void pressPlay(){

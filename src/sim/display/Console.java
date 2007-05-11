@@ -146,7 +146,6 @@ public class Console extends JFrame implements Controller
                             }
                         catch (Throwable e) 
                             {
-                        	
                             if (!errout) 
                                 System.err.println("Not all classes loaded, due to error: probably no Java3D");
                             errout = true;
@@ -223,9 +222,9 @@ public class Console extends JFrame implements Controller
     /** The top-level tabbed view */
     JTabbedPane tabPane;
     /** The list of frames shown in the "Displays" tab */
-    protected JList frameListDisplay;
+    JList frameListDisplay;
     /** The actual list of frames used in frameListDisplay */
-    protected Vector frameList;
+    Vector frameList;
     /** Where the user can enter in a step count to stop at */
     PropertyField endField;
     /** Where the user can enter in a step count to pause at */

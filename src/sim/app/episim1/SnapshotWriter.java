@@ -8,7 +8,7 @@ import java.io.*;
 public class SnapshotWriter {
 	
 	private List<SnapshotListener> listeners;
-	
+	private File snapshotPath;
 	private static SnapshotWriter instance;
 	
 	private SnapshotWriter(){
@@ -26,10 +26,10 @@ public class SnapshotWriter {
 		listeners.add(listener);
 	}
 	
-	public void writeSnapshot(File file){
-		if(file != null ){
+	public void writeSnapshot(){
+		if(snapshotPath != null ){
 		  try{
-			FileOutputStream fOut = new FileOutputStream(file);
+			FileOutputStream fOut = new FileOutputStream(snapshotPath);
 			ObjectOutputStream oOut = new ObjectOutputStream(fOut);
 			
 			for(SnapshotListener listener : listeners){
@@ -48,6 +48,18 @@ public class SnapshotWriter {
 		else{
 			ExceptionDisplayer.getInstance().displayException(new NullPointerException("SnapshotWriter: Filepath was null!"));
 		}
+	}
+
+	
+	public File getSnapshotPath() {
+	
+		return snapshotPath;
+	}
+
+	
+	public void setSnapshotPath(File snapshotPath) {
+	
+		this.snapshotPath = snapshotPath;
 	}
 	
 	

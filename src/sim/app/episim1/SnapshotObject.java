@@ -5,6 +5,8 @@ public class SnapshotObject implements java.io.Serializable {
 	
 	
 	public static final String KCYTE = "KCyte";
+	public static final String EPIDERMIS = "Epidermis";
+	public static final String CHARTS = "Charts";
 	
 	
 	private static final long serialVersionUID = -4796696464984805544L;

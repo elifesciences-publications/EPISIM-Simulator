@@ -16,7 +16,7 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
     
 	private static final long serialVersionUID = 5212944079288103141L;
 
-		private BioChemicalModelController modelController;
+		private transient BioChemicalModelController modelController;
         
         final public int gOptimalKeratinoDistance=4; // Default: 4
         final public int gOptimalKeratinoDistanceGranu=4; // Default: 3
@@ -27,7 +27,7 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
                 
         public Double2D lastd = new Double2D(0,0);
         public boolean holePassed= false;
-        public EpidermisClass theEpidermis;    
+        public transient EpidermisClass theEpidermis;    
         public int KeratinoType;    
         public int getKeratinoType() { return KeratinoType; }// for inspector 
         public void setKeratinoType(int type){ KeratinoType = type;}
@@ -592,21 +592,23 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 
         if ((KeratinoType==modelController.getGlobalIntConstant("KTYPE_NONUCLEUS"))) // && (isOuterCell))
         {
-            theEpidermis.nirvanaHeapLoaded=true;    // register in the Nirvana
-																		// Heap for resurrection
-            theEpidermis.nirvanaHeap=this;
-            theEpidermis.actualNoNucleus--;
-            KeratinoType=modelController.getGlobalIntConstant("KTYPE_NIRVANA");
-            theEpidermis.actualKCytes--;
-            inNirvana=true;            
-            Double2D newloc= new Double2D(0,0);
-            theEpidermis.continous2D.setObjectLocation(this, newloc);
+            killCell();
         }
   
    }
 
     
-    
+    public void killCell(){
+   	 theEpidermis.nirvanaHeapLoaded=true;    // register in the Nirvana
+			// Heap for resurrection
+   	 theEpidermis.nirvanaHeap=this;
+   	 theEpidermis.actualNoNucleus--;
+   	 KeratinoType=modelController.getGlobalIntConstant("KTYPE_NIRVANA");
+   	 theEpidermis.actualKCytes--;
+   	 inNirvana=true;            
+   	 Double2D newloc= new Double2D(0,0);
+   	 theEpidermis.continous2D.setObjectLocation(this, newloc);
+    }
 
     void cellcycle(boolean pNoCollision)
     {

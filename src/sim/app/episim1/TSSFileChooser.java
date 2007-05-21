@@ -4,6 +4,7 @@ package sim.app.episim1;
 
 
 
+import java.awt.Component;
 import java.io.File;
 
 import javax.swing.JFileChooser;
@@ -14,7 +15,7 @@ public class TSSFileChooser extends JFileChooser {
 	
 	public TSSFileChooser(){
 		super();
-		this.setDialogTitle("Open EpiSim Model");
+		
 		this.setFileFilter(new FileFilter() {
          public boolean accept(File f) {
             return f.getName().toLowerCase().endsWith(".tss") || f.isDirectory();
@@ -25,6 +26,14 @@ public class TSSFileChooser extends JFileChooser {
     });
 		
 		
+	}
+	public int showOpenDialog(Component comp){
+		this.setDialogTitle("Open Snapshot");
+		return super.showOpenDialog(comp);
+	}
+	public int showSaveDialog(Component comp){
+		this.setDialogTitle("Select Snapshot Path");
+		return super.showOpenDialog(comp);
 	}
 	
 	public File getSelectedFile(){

@@ -25,14 +25,14 @@ import com.lowagie.text.pdf.*;
 public class EpidermisClass extends SimState implements SnapshotListener
 {
  
-private BioChemicalModelController modelController;
+private transient BioChemicalModelController modelController;
         
 
 
-private EpiSimCharts epiSimCharts = EpiSimCharts.getInstance();
+private transient EpiSimCharts epiSimCharts = EpiSimCharts.getInstance();
 
 
-private String graphicsDirectory="pdf_png_simres/";
+private  String graphicsDirectory="pdf_png_simres/";
 
  //////////////////////////////////////
  // Purely Internal
@@ -88,12 +88,12 @@ private String graphicsDirectory="pdf_png_simres/";
  public void inkrementActualBasalStatisticsCells(){actualBasalStatisticsCells +=1;}
  public void dekrementActualBasalStatisticsCells(){actualBasalStatisticsCells -=1;}
  
- public int PNG_ChartWidth=400;
- public int PNG_ChartHeight=300;
- public int PNG_ChartWidth_Large=600;
- public int PNG_ChartHeight_Large=400;
- public int PDF_ChartWidth_Large=600;
- public int PDF_ChartHeight_Large=400;
+ public  int PNG_ChartWidth=400;
+ public  int PNG_ChartHeight=300;
+ public  int PNG_ChartWidth_Large=600;
+ public  int PNG_ChartHeight_Large=400;
+ public  int PDF_ChartWidth_Large=600;
+ public  int PDF_ChartHeight_Large=400;
  
  public int gCorneumY=20;    // gCorneum would start at this ..
  
@@ -1016,9 +1016,26 @@ public List<SnapshotObject> getSnapshotObjects() {
 	while(iter.hasNext()){
 		list.add(new SnapshotObject(SnapshotObject.KCYTE, iter.next()));
 	}
-	
+	list.add(new SnapshotObject(SnapshotObject.EPIDERMIS, this));
 	return list;
 }    
+
+public void removeCells(GeneralPath path){
+Iterator iter = allCells.iterator();
+	
+	while(iter.hasNext()){
+	  Object obj = iter.next();
+	  if (obj instanceof KCyteClass){
+		  KCyteClass kcyte =(KCyteClass) obj;
+		  if(path.contains(kcyte.LastDrawInfoX, kcyte.LastDrawInfoY)){ 
+			  System.out.println("Zelle gelöscht");
+			  //iter.remove();
+			  kcyte.killCell();
+		  }
+	  }
+	}
+}
+
 
  }
 

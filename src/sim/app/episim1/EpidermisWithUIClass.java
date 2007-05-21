@@ -54,6 +54,8 @@ public class EpidermisWithUIClass extends GUIState{
 	
 	private final BasementMembranePortrayal2D basementPortrayalDraw;
 	
+	private boolean resizeButtonIsActionSource = false;
+	
 	private final WoundPortrayal2D woundPortrayalDraw;
 	
 	private boolean activateDrawing = false;
@@ -210,8 +212,9 @@ public class EpidermisWithUIClass extends GUIState{
 			public void mouseReleased(MouseEvent e) {
 
 				if(e.getButton() == MouseEvent.BUTTON3){
-					if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
+					//if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
 					woundPortrayalDraw.closeWoundRegionPath(true);
+					((EpidermisClass) state).removeCells(woundPortrayalDraw.getWoundRegion());
 					activateDrawing = false;
 				}
 				
@@ -240,7 +243,8 @@ public class EpidermisWithUIClass extends GUIState{
 			 public void componentResized (ComponentEvent e) 
           {
     	      
-				 if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
+				 if(console.getPlayState() == console.PS_PAUSED && resizeButtonIsActionSource)console.pressPause();
+				 resizeButtonIsActionSource = false;
           }
 		});
 		displayFrame.setTitle("Epidermis Simulation v1.1");
@@ -441,7 +445,11 @@ public class EpidermisWithUIClass extends GUIState{
 
 	 				public void actionPerformed(ActionEvent e) {
 
-	 					if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
+	 					if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING){
+	 						console.pressPause();
+	 						resizeButtonIsActionSource = true;
+	 						
+	 					}
 	 					
 	 				}
 	    			 
@@ -450,7 +458,12 @@ public class EpidermisWithUIClass extends GUIState{
 	    }
 	}
 
-	
+	public void clearWoundPortrayalDraw(){
+		
+		woundPortrayalDraw.clearWoundRegionCoordinates();
+		woundPortrayalDraw.closeWoundRegionPath(false);
+		
+	}
 
 	
 

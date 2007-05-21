@@ -122,7 +122,19 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
        snapshotButton = new JButton();
        snapshotButton.setIcon(new ImageIcon(ImageLoader.class.getResource("Camera.png")));
        snapshotButton.setPressedIcon(new ImageIcon(ImageLoader.class.getResource("CameraPressed.png")));
-       snapshotButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+       snapshotButton.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+       if(SnapshotWriter.getInstance().getSnapshotPath() == null){ 
+      	 snapshotButton.setEnabled(false);
+       }
+       snapshotButton.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+
+				SnapshotWriter.getInstance().writeSnapshot();
+				
+			}
+      	 
+       });
        addSnapshotButton();
 		
 	}
@@ -373,7 +385,8 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	
    public synchronized void pressPlay(){
    	EpiSimCharts.getInstance().clearSeries();
-   	
+   	((EpidermisWithUIClass)this.simulation).clearWoundPortrayalDraw();
+   	;
    	super.pressPlay();
    }
    

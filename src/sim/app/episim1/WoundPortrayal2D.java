@@ -20,24 +20,30 @@ public class WoundPortrayal2D extends SimplePortrayal2D{
 	    private boolean closeWoundRegionPath = false;
 	    
 	    private double width;
+	    private double height;
 	    
 	    private DrawInfo2D lastActualInfo;
 	    
+	    private DrawInfo2D deltaInfo;
+	    
 	    private GeneralPath polygon;
 	    
-	    public WoundPortrayal2D(double width, double heigth) {
+	    private boolean refreshInfo = true;
+	    
+	    public WoundPortrayal2D(double width, double height) {
 	   	 
 	   	 this.width = width;
+	   	 this.height = height;
 	   	 
 	    }
 	    private void createPolygon(DrawInfo2D info){
-	   	 if(woundRegionCoordinates.size() > 1){
-		   		
+	   	 {
+	   		 
 	   		 polygon = new GeneralPath();
-	   		 ((GeneralPath)polygon).moveTo(lastActualInfo.clip.getMinX()+ woundRegionCoordinates.get(0).x, 
-	   				 lastActualInfo.clip.getMinY()+ woundRegionCoordinates.get(0).y);
+	   		 ((GeneralPath)polygon).moveTo(lastActualInfo.clip.getMinX()+ woundRegionCoordinates.get(0).x - getDeltaX(), 
+	   				 lastActualInfo.clip.getMinY()+ woundRegionCoordinates.get(0).y- getDeltaY());
 	   		 for(Double2D coord : woundRegionCoordinates){
-	   			polygon.lineTo(info.clip.getMinX() + coord.x, info.clip.getMinY() + coord.y);
+	   			polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX()+ coord.x, lastActualInfo.clip.getMinY() - getDeltaY() + coord.y);
 	   			
 	   		 }
 	   		if(closeWoundRegionPath)polygon.closePath();
@@ -47,36 +53,71 @@ public class WoundPortrayal2D extends SimplePortrayal2D{
 	    
 	    // assumes the graphics already has its color set
 	    public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
-	    {            
-	       graphics = (Graphics2D) graphics.create(); 
+	    {         
+	   	 lastActualInfo = info;
+	   	 graphics.setColor(Color.red);
+  		  
+     	  graphics.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+	       
+	   	  graphics = (Graphics2D) graphics.create(); 
 	   	 
-	      	  createPolygon(info);
+	   	  if(woundRegionCoordinates.size() > 1) createPolygon(info);
 	      
-	   		  graphics.setColor(Color.red);
-	   		  
-	      	  graphics.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-	      	  if(polygon != null && info.clip.contains(polygon.getBounds2D()))graphics.draw(polygon);
+	   	  else polygon = null;
+	      	 
+   	     
+   	        
+              
+      	     
+	      	  if(polygon != null && lastActualInfo.clip.contains(polygon.getBounds2D())){
+	      		 // AffineTransform transform = new AffineTransform();
+	       	      
+		      	//  transform.setToTranslation(getTranslationX(info), getTranslationY(info));
+	   	        //polygon = (GeneralPath) polygon.createTransformedShape(transform);
+	      		  
+	      		  graphics.draw(polygon);
+	      	  }
 	   	 
-	      	     
-	       lastActualInfo = info;
+	      	    
+	       
+	   	 
 	    }
 	    
 	    public void addMouseCoordinate(Double2D double2d){
+	   	 deltaInfo = lastActualInfo;
 	   	if(double2d != null && lastActualInfo != null){
-	   	 Double2D newDouble2d = new Double2D(double2d.x - lastActualInfo.clip.getMinX(),
-	   			 										 double2d.y - lastActualInfo.clip.getMinY());
+	   	 Double2D newDouble2d = new Double2D(double2d.x-lastActualInfo.clip.getMinX(),
+	   			 										 double2d.y-lastActualInfo.clip.getMinY());
 	   	
 	   	 woundRegionCoordinates.add(newDouble2d);
 	   	}
 	    }
 	    
 	    public void closeWoundRegionPath(boolean closewoundRegionPath){
-	   	 
+	   	 refreshInfo =false;
 	   	 this.closeWoundRegionPath =closewoundRegionPath;
+	   	 
 	    }
 	    
+	    public GeneralPath getWoundRegion(){
+	   	 return polygon;
+	    }
 	    public void clearWoundRegionCoordinates(){ 
 	   	 woundRegionCoordinates.clear();
+	    }
+	    private double getDeltaX(){
+	   	 if(lastActualInfo.clip.width< width){
+	   		 return lastActualInfo.clip.getMinX() - deltaInfo.clip.getMinX();
+	   	 }
+	   	 else return 0;
+	    }
+	    
+	    private double getDeltaY(){
+	   	 
+	   	 if(lastActualInfo.clip.height < height){
+	   		 return lastActualInfo.clip.getMinY() - deltaInfo.clip.getMinY();
+	   	 }
+	   	 else return 0;
 	    }
 	   
 }

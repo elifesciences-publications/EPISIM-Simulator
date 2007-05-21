@@ -10,9 +10,13 @@ package sim.app.episim1;
  * @author  Administrator
  */
 
-class GrahamPoint
+class GrahamPoint implements java.io.Serializable
 {
-    public double x, y;    // Koordinaten
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5484521194994996656L;
+	public double x, y;    // Koordinaten
     public int nr;
     public boolean marked=false;
 

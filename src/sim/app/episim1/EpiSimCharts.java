@@ -5,6 +5,8 @@ import java.awt.GradientPaint;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.jfree.data.xy.XYSeries;
@@ -35,7 +37,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import org.jfree.chart.*;
 
-public class EpiSimCharts {
+public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
 	
    //Schlüssel setzt sich XYSeriesCollection-Name Position 0 und XYSeries-Name zusammen
 	private HashMap<String[], XYSeries> xySeries = new HashMap<String[], XYSeries>();
@@ -47,7 +49,7 @@ public class EpiSimCharts {
 	private static  EpiSimCharts instance;
 	
 	private EpiSimCharts() {
-		
+		SnapshotWriter.getInstance().addSnapshotListener(this);
 		XYLineAndShapeRenderer lineShapeRenderer;
 		JFreeChart chart;
 		XYPlot xyPlot;
@@ -550,6 +552,17 @@ public class EpiSimCharts {
 	
 	public static synchronized void  rebuildCharts(){
 		instance = new EpiSimCharts();
+	}
+	public List<SnapshotObject> getSnapshotObjects() {
+
+		List<SnapshotObject> list = new LinkedList<SnapshotObject>();
+		
+		
+		
+			
+		
+		list.add(new SnapshotObject(SnapshotObject.CHARTS, this));
+		return list;
 	}
 	
 	

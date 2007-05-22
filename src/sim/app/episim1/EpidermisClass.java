@@ -22,7 +22,7 @@ import java.util.List;
 import com.lowagie.text.*;  
 import com.lowagie.text.pdf.*;  
 
-public class EpidermisClass extends SimState implements SnapshotListener
+public class EpidermisClass extends SimStateHack implements SnapshotListener
 {
  
 private transient BioChemicalModelController modelController;
@@ -221,7 +221,9 @@ private  String graphicsDirectory="pdf_png_simres/";
  
  public void start()
      {
-     super.start();
+	 
+   	  super.start(reloadedSnapshot);
+   	  
      
      
      modelController.initModel();
@@ -298,7 +300,7 @@ private  String graphicsDirectory="pdf_png_simres/";
      epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Granu").clear();
      epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear(); 
    }
-   else{
+  /* else{
    	
    	Iterator iter = allCells.iterator();
    		
@@ -308,10 +310,11 @@ private  String graphicsDirectory="pdf_png_simres/";
    			  KCyteClass kcyte =(KCyteClass) obj;
    			  
    			  schedule.scheduleRepeating(kcyte);
+   			  schedule.getSteps();
    				  
    			  }
    		  }
-   }
+   }*/
      /////////////////////////////////
      // charts
      /////////////////////////////////
@@ -462,7 +465,7 @@ private  String graphicsDirectory="pdf_png_simres/";
      //////////////////////////////////////        
      // CHART Updating Logfile
      //////////////////////////////////////
-      // logfilestat.write("Nielstest");
+      
                
      Steppable logfileUpdater = new Steppable()
     {
@@ -1037,8 +1040,11 @@ public List<SnapshotObject> getSnapshotObjects() {
 		list.add(new SnapshotObject(SnapshotObject.KCYTE, iter.next()));
 	}*/
 	list.add(new SnapshotObject(SnapshotObject.EPIDERMIS, this));
+
 	return list;
-}    
+}  
+
+
 
 public void removeCells(GeneralPath path){
 Iterator iter = allCells.iterator();
@@ -1080,7 +1086,7 @@ Iterator iter = allCells.iterator();
 }
 
 public void setReloadedSnapshot(boolean reloadedSnapshot) {
-
+	
 	this.reloadedSnapshot = reloadedSnapshot;
 }
 

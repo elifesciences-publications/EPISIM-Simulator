@@ -50,5 +50,13 @@ public class ConsoleHack extends Console {
            }
        getContentPane().repaint();
        }
-
+   	
+   public void setPlayState(int state){
+   	super.setPlayState(state);
+   }
+   public synchronized void pressPlay(boolean reloadSnapshot)
+   {
+   	
+   	 super.pressPlay();
+}
 }

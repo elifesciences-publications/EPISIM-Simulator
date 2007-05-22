@@ -53,8 +53,8 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	private JButton refreshButton;
 	private JButton snapshotButton;
 	private final static String RESETTEXT = "Reset";
-	
-	public EpiConsole(final GUIState simulation){
+	private boolean reloadedSnapshot = false;
+	public EpiConsole(final GUIState simulation, boolean reloadSnapshot){
 		super(simulation);
 		 
 		 controllerContainer = super.getContentPane();
@@ -129,9 +129,9 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
        snapshotButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-
+				if(getPlayState() != PS_PAUSED && getPlayState() == PS_PLAYING) pressPause();  
 				SnapshotWriter.getInstance().writeSnapshot();
-				
+				//if(getPlayState() == PS_PAUSED && getPlayState() != PS_PLAYING)pressPause();  
 			}
       	 
        });
@@ -384,10 +384,11 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
        }
 	
    public synchronized void pressPlay(){
-   	EpiSimCharts.getInstance().clearSeries();
-   	((EpidermisWithUIClass)this.simulation).clearWoundPortrayalDraw();
-   	;
-   	super.pressPlay();
+	if(!reloadedSnapshot)EpiSimCharts.getInstance().clearSeries();
+   	
+	((EpidermisWithUIClass)this.simulation).clearWoundPortrayalDraw();
+   	
+   	super.pressPlay(reloadedSnapshot);
    }
    
    private void addSnapshotButton(){
@@ -398,5 +399,12 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    		}
    	}
    }
+
+
+	
+	public void setReloadedSnapshot(boolean reloadedSnapshot) {
+	
+		this.reloadedSnapshot = reloadedSnapshot;
+	}
    
 }

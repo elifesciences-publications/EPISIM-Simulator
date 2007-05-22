@@ -75,16 +75,16 @@ public class EpidermisWithUIClass extends GUIState{
 		
 		
 		this.mainFrame = mainFrame;
-		this.setConsole(new EpiConsole(this));
+		this.setConsole(new EpiConsole(this,false));
 		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
 		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
 	}
 
-	public EpidermisWithUIClass(SimState state, JFrame mainFrame) {
+	public EpidermisWithUIClass(SimState state, JFrame mainFrame, boolean reloadSnapshot) {
 		
 		super(state);
 		this.mainFrame = mainFrame;
-		this.setConsole(new EpiConsole(this));
+		this.setConsole(new EpiConsole(this, reloadSnapshot));
 		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
 		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
 		
@@ -464,7 +464,10 @@ public class EpidermisWithUIClass extends GUIState{
 		woundPortrayalDraw.closeWoundRegionPath(false);
 		
 	}
-
+   
+	public void setReloadedSnapshot(boolean reloaded){
+		console.setReloadedSnapshot(reloaded);
+	}
 	
 
 }

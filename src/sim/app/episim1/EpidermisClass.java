@@ -29,8 +29,9 @@ private transient BioChemicalModelController modelController;
         
 
 
-private transient EpiSimCharts epiSimCharts = EpiSimCharts.getInstance();
+private  EpiSimCharts epiSimCharts = EpiSimCharts.getInstance();
 
+private boolean reloadedSnapshot = false;
 
 private  String graphicsDirectory="pdf_png_simres/";
 
@@ -221,11 +222,11 @@ private  String graphicsDirectory="pdf_png_simres/";
  public void start()
      {
      super.start();
-     allCells.clear();
+     
      
      modelController.initModel();
-   
-     
+   if(!reloadedSnapshot){
+     allCells.clear();
      // set up the C2dHerd field.  It looks like a discretization
      // of about neighborhood / 1.5 is close to optimal for us.  Hmph,
      // that's 16 hash lookups! I would have guessed that 
@@ -278,7 +279,39 @@ private  String graphicsDirectory="pdf_png_simres/";
      gStatistics_Barrier_Lamella=0;
      gStatistics_Barrier_Lipids=0;
      
-     
+     epiSimCharts.getXYSeries("ChartSeries_Kinetics_MeanCycleTime").clear();  // remove previous (X,Y) pairs from the chart
+     epiSimCharts.getXYSeries("ChartSeries_Kinetics_GrowthFraction").clear();  // remove previous (X,Y) pairs from the chart
+     epiSimCharts.getXYSeries("ChartSeries_Kinetics_Turnover").clear();  // remove previous (X,Y) pairs from the chart
+     epiSimCharts.getXYSeries("ChartSeries_KCyte_All").clear();  // remove previous (X,Y) pairs from the chart
+     epiSimCharts.getXYSeries("ChartSeries_KCyte_Spi").clear();
+     epiSimCharts.getXYSeries("ChartSeries_KCyte_TA").clear();
+     epiSimCharts.getXYSeries("ChartSeries_KCyte_LateSpi").clear();
+     epiSimCharts.getXYSeries("ChartSeries_KCyte_Granu").clear();
+     epiSimCharts.getXYSeries("ChartSeries_KCyte_NoNuc").clear();
+     epiSimCharts.getXYSeries("ChartSeries_KCyte_MeanAgeDate").clear();
+     epiSimCharts.getXYSeries("ChartSeries_Barrier_Calcium").clear();  // remove previous (X,Y) pairs from the chart
+     epiSimCharts.getXYSeries("ChartSeries_Barrier_Lamella").clear();
+     epiSimCharts.getXYSeries("ChartSeries_Barrier_Lipids").clear();
+     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear();  // remove previous (X,Y) pairs from the chart
+     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_EarlySpi").clear();
+     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_LateSpi").clear();        
+     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Granu").clear();
+     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear(); 
+   }
+   else{
+   	
+   	Iterator iter = allCells.iterator();
+   		
+   		while(iter.hasNext()){
+   		  Object obj = iter.next();
+   		  if (obj instanceof KCyteClass){
+   			  KCyteClass kcyte =(KCyteClass) obj;
+   			  
+   			  schedule.scheduleRepeating(kcyte);
+   				  
+   			  }
+   		  }
+   }
      /////////////////////////////////
      // charts
      /////////////////////////////////
@@ -357,9 +390,7 @@ private  String graphicsDirectory="pdf_png_simres/";
      // CHART Updating Kinetics Chart
      //////////////////////////////////////
      // clear is necessary for restart of simulation
-     epiSimCharts.getXYSeries("ChartSeries_Kinetics_MeanCycleTime").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_Kinetics_GrowthFraction").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_Kinetics_Turnover").clear();  // remove previous (X,Y) pairs from the chart
+     
 
      Steppable chartUpdaterKinetics= new Steppable()
     {
@@ -393,13 +424,7 @@ private  String graphicsDirectory="pdf_png_simres/";
      //////////////////////////////////////        
      // CHART Updating Num Cell Chart
      //////////////////////////////////////
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_All").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_Spi").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_TA").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_LateSpi").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_Granu").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_NoNuc").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_MeanAgeDate").clear();
+     
      
      Steppable chartUpdaterNumCells = new Steppable()
     {
@@ -421,9 +446,7 @@ private  String graphicsDirectory="pdf_png_simres/";
      //////////////////////////////////////        
      // CHART Updating Barrier Chart
      //////////////////////////////////////
-     epiSimCharts.getXYSeries("ChartSeries_Barrier_Calcium").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_Barrier_Lamella").clear();
-     epiSimCharts.getXYSeries("ChartSeries_Barrier_Lipids").clear();        
+    
      Steppable chartUpdaterBarrier = new Steppable()
     {
          public void step(SimState state)
@@ -479,10 +502,7 @@ private  String graphicsDirectory="pdf_png_simres/";
      //////////////////////////////////////        
      // CHART Updating Apoptosis Chart
      //////////////////////////////////////
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_EarlySpi").clear();
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_LateSpi").clear();        
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Granu").clear();        
+       
      Steppable chartUpdaterApoptosis = new Steppable()
     {
          public void step(SimState state)
@@ -502,7 +522,7 @@ private  String graphicsDirectory="pdf_png_simres/";
      //////////////////////////////////////
      // CHART Updating Performance Chart
      //////////////////////////////////////
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear();    
+        
      Steppable chartUpdaterPerformance = new Steppable()
     {
         private long previousTime = 0;
@@ -1011,11 +1031,11 @@ public void setAllCells(Bag allCells) {
 public List<SnapshotObject> getSnapshotObjects() {
 	
 	List<SnapshotObject> list = new LinkedList<SnapshotObject>();
-	Iterator iter = allCells.iterator();
+	/*Iterator iter = allCells.iterator();
 	
 	while(iter.hasNext()){
 		list.add(new SnapshotObject(SnapshotObject.KCYTE, iter.next()));
-	}
+	}*/
 	list.add(new SnapshotObject(SnapshotObject.EPIDERMIS, this));
 	return list;
 }    
@@ -1036,7 +1056,37 @@ Iterator iter = allCells.iterator();
 	}
 }
 
+public void setEpiSimCharts(EpiSimCharts epiSimCharts) {
+
+	this.epiSimCharts = epiSimCharts;
+}
+
+public void setModelController(BioChemicalModelController modelController) {
+
+	this.modelController = modelController;
+Iterator iter = allCells.iterator();
+	
+	while(iter.hasNext()){
+	  Object obj = iter.next();
+	  if (obj instanceof KCyteClass){
+		  KCyteClass kcyte =(KCyteClass) obj;
+		  
+			  kcyte.setModelController(modelController);
+			  
+		  }
+	  }
+	
+	
+}
+
+public void setReloadedSnapshot(boolean reloadedSnapshot) {
+
+	this.reloadedSnapshot = reloadedSnapshot;
+}
+
 
  }
+
+
 
 

@@ -41,7 +41,7 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 	     	 		}
 	
 	      	  
-	      	  graphics.setColor(new Color(255, 145, 145));
+	      	  graphics.setColor(new Color(255, 99, 0));
 	      	  graphics.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 	      	  
 	      	        AffineTransform transform = new AffineTransform();

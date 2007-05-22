@@ -27,7 +27,7 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
                 
         public Double2D lastd = new Double2D(0,0);
         public boolean holePassed= false;
-        public transient EpidermisClass theEpidermis;    
+        public EpidermisClass theEpidermis;    
         public int KeratinoType;    
         public int getKeratinoType() { return KeratinoType; }// for inspector 
         public void setKeratinoType(int type){ KeratinoType = type;}
@@ -834,5 +834,10 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 		public void setLocal_maxAge(long local_maxAge) {
 		
 			this.local_maxAge = local_maxAge;
+		}
+		
+		public void setModelController(BioChemicalModelController modelController) {
+		
+			this.modelController = modelController;
 		}           
     }

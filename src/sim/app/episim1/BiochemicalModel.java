@@ -11,8 +11,13 @@ import java.util.Map;
 
 
 
-public class BiochemicalModel {
+public class BiochemicalModel implements java.io.Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7116866406451878698L;
+
 	private Class modelClass;
 	
 	private Object actModelObject;

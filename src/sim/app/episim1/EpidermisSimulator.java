@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -188,13 +190,50 @@ public class EpidermisSimulator extends JFrame{
 	}
 	public void loadSnapshot(){
 		File file = null;
-
+		boolean success = false;
+		EpidermisClass epidermis = null;
+		
+		
 		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = tssFileChoose.getSelectedFile();
 			if(file != null){
 			  this.setTitle(getTitle()+ " - Snapshotpath: "+file.getAbsolutePath());
-			  SnapshotReader.getInstance().loadSnapshot(file);
+			  List<SnapshotObject> snapshotobjects = SnapshotReader.getInstance().loadSnapshot(file);
+			  for(SnapshotObject sObj: snapshotobjects){
+				  if(sObj.getIdentifier().equals(SnapshotObject.EPIDERMIS)){
+				  epidermis = (EpidermisClass) sObj.getSnapshotObject();
+				  epidermis.setReloadedSnapshot(true);
+				  }
+				  else if(sObj.getIdentifier().equals(SnapshotObject.CHARTS)){
+					  EpiSimCharts.setInstance((EpiSimCharts) sObj.getSnapshotObject());
+				  }
+			  }
+			  File file2 = null;
+
+				if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+					file2 = jarFileChoose.getSelectedFile();
+
+					 success = BioChemicalModelController.getInstance().loadModelFile(file2);
+			  if(SnapshotWriter.getInstance().getSnapshotPath() == null){
+					JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info", JOptionPane.INFORMATION_MESSAGE);
+					setSnapshotPath();
+					if(SnapshotWriter.getInstance().getSnapshotPath() == null)success = false;
+				}
+				//System.out.println(success);
+				if(success){
+					//EpiSimCharts.rebuildCharts();
+					cleanUpContentPane();
+					epidermis.setModelController(BioChemicalModelController.getInstance());
+					epiUI = new EpidermisWithUIClass(epidermis, this);
+					this.validate();
+					this.repaint();
+					modelOpened = true;
+					menuItemSetSnapshotPath.setEnabled(true);
+					menuItemLoadSnapshot.setEnabled(false);
+				}
 			}
+		
+	}
 		}
 	}
 	

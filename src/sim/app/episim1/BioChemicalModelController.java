@@ -10,8 +10,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class BioChemicalModelController {
+public class BioChemicalModelController implements java.io.Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2406025736169916469L;
 	private static BioChemicalModelController instance;
 	private BiochemicalModel biochemicalModel;
 	

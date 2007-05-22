@@ -188,7 +188,7 @@ public class EpidermisWithUIClass extends GUIState{
 		display = new EpiDisplay2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT, this, 1);
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
-		display.setBackdrop(myBack);
+		display.setBackdrop(Color.BLACK);
 	
 		
 		display.attach(basementPortrayal, "basementMembrane");
@@ -212,7 +212,7 @@ public class EpidermisWithUIClass extends GUIState{
 			public void mouseReleased(MouseEvent e) {
 
 				if(e.getButton() == MouseEvent.BUTTON3){
-					//if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
+					if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
 					woundPortrayalDraw.closeWoundRegionPath(true);
 					((EpidermisClass) state).removeCells(woundPortrayalDraw.getWoundRegion());
 					activateDrawing = false;

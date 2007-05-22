@@ -49,7 +49,7 @@ public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
 	private static  EpiSimCharts instance;
 	
 	private EpiSimCharts() {
-		SnapshotWriter.getInstance().addSnapshotListener(this);
+	SnapshotWriter.getInstance().addSnapshotListener(this);
 		XYLineAndShapeRenderer lineShapeRenderer;
 		JFreeChart chart;
 		XYPlot xyPlot;
@@ -239,7 +239,7 @@ public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
 		 
 		 xySeriesCollections.put("ChartSeries_Apoptosis", new XYSeriesCollection());
 		 
-		 chart = ChartFactory.createXYLineChart("Apoptosis", "Time in h", "Percentage",  
+		 chart = ChartFactory.createXYLineChart("Cell Death", "Time in h", "Percentage",  
 				 xySeriesCollections.get("ChartSeries_Apoptosis"), PlotOrientation.VERTICAL, true, true, false);   
 		
 		 chart.setBackgroundPaint(Color.white);
@@ -565,5 +565,7 @@ public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
 		return list;
 	}
 	
-	
+	public static void setInstance(EpiSimCharts charts){
+		instance = charts;
+	}
 }

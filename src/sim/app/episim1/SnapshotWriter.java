@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.io.*;
 
+import javax.swing.JOptionPane;
+
 
 public class SnapshotWriter {
 	
@@ -34,6 +36,9 @@ public class SnapshotWriter {
 			
 			for(SnapshotListener listener : listeners){
 				for(SnapshotObject object : listener.getSnapshotObjects()){
+					if(object.getIdentifier().equals(SnapshotObject.EPIDERMIS)){
+						System.out.println(((EpidermisClass)object.getSnapshotObject()).schedule.time());
+					}
 					oOut.writeObject(object);
 				}
 			}
@@ -48,6 +53,7 @@ public class SnapshotWriter {
 		else{
 			ExceptionDisplayer.getInstance().displayException(new NullPointerException("SnapshotWriter: Filepath was null!"));
 		}
+		
 	}
 
 	

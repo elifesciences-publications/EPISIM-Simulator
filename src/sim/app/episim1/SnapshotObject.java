@@ -4,7 +4,7 @@ package sim.app.episim1;
 public class SnapshotObject implements java.io.Serializable {
 	
 	
-	public static final String SCHEDULE = "Schedule";
+	public static final String WOUND = "Wound";
 	public static final String EPIDERMIS = "Epidermis";
 	public static final String CHARTS = "Charts";
 	

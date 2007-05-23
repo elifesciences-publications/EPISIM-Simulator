@@ -129,6 +129,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
        snapshotButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
+				
 				if(getPlayState() != PS_PAUSED && getPlayState() == PS_PLAYING) pressPause();  
 				SnapshotWriter.getInstance().writeSnapshot();
 				//if(getPlayState() == PS_PAUSED && getPlayState() != PS_PLAYING)pressPause();  
@@ -384,9 +385,12 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
        }
 	
    public synchronized void pressPlay(){
-	if(!reloadedSnapshot)EpiSimCharts.getInstance().clearSeries();
+	if(!reloadedSnapshot){
+		EpiSimCharts.getInstance().clearSeries();
+	
    	
 	((EpidermisWithUIClass)this.simulation).clearWoundPortrayalDraw();
+	}
    	
    	super.pressPlay(reloadedSnapshot);
    }

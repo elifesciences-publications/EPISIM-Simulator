@@ -10,13 +10,17 @@ import java.awt.*;
 import java.awt.geom.*;
 
 
-public class WoundPortrayal2D extends SimplePortrayal2D{
+public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListener{
 	
 	   
 	  
 
 	    
-	    private List<Double2D> woundRegionCoordinates = new ArrayList<Double2D>();
+	    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -569327606127370200L;
+		private List<Double2D> woundRegionCoordinates = new ArrayList<Double2D>();
 	    private boolean closeWoundRegionPath = false;
 	    
 	    private double width;
@@ -34,6 +38,7 @@ public class WoundPortrayal2D extends SimplePortrayal2D{
 	   	 
 	   	 this.width = width;
 	   	 this.height = height;
+	   	 SnapshotWriter.getInstance().addSnapshotListener(this);
 	   	 
 	    }
 	    private void createPolygon(DrawInfo2D info){
@@ -119,5 +124,16 @@ public class WoundPortrayal2D extends SimplePortrayal2D{
 	   	 }
 	   	 else return 0;
 	    }
+		public List<SnapshotObject> getSnapshotObjects() {
+
+			List<SnapshotObject> list = new ArrayList<SnapshotObject>();
+			list.add(new SnapshotObject(SnapshotObject.WOUND, woundRegionCoordinates));
+			return list;
+		}
+		public void setWoundRegionCoordinates(List<Double2D> woundRegionCoordinates){
+			this.woundRegionCoordinates.clear();
+			this.woundRegionCoordinates = woundRegionCoordinates;
+			this.closeWoundRegionPath = true;
+		}
 	   
 }

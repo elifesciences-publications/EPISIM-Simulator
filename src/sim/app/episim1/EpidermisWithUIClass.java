@@ -468,6 +468,12 @@ public class EpidermisWithUIClass extends GUIState{
 	public void setReloadedSnapshot(boolean reloaded){
 		console.setReloadedSnapshot(reloaded);
 	}
+
+	
+	public WoundPortrayal2D getWoundPortrayalDraw() {
+	
+		return woundPortrayalDraw;
+	}
 	
 
 }

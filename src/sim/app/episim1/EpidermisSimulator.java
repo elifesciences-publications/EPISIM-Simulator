@@ -26,6 +26,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import sim.engine.Schedule;
+import sim.util.Double2D;
 
 
 public class EpidermisSimulator extends JFrame{
@@ -195,11 +196,11 @@ public class EpidermisSimulator extends JFrame{
 		File file = null;
 		boolean success = false;
 		EpidermisClass epidermis = null;
-		
+		EpiSimCharts charts = null;
+		List<Double2D> woundRegionCoordinates = null;
 		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = tssFileChoose.getSelectedFile();
 			if(file != null){
-				this.setTitle(getTitle() + " - Snapshotpath: " + file.getAbsolutePath());
 				List<SnapshotObject> snapshotobjects = SnapshotReader.getInstance().loadSnapshot(file);
 				for(SnapshotObject sObj : snapshotobjects){
 					if(sObj.getIdentifier().equals(SnapshotObject.EPIDERMIS)){
@@ -207,11 +208,17 @@ public class EpidermisSimulator extends JFrame{
 						epidermis.setReloadedSnapshot(true);
 					}
 					else if(sObj.getIdentifier().equals(SnapshotObject.CHARTS)){
-						EpiSimCharts.setInstance((EpiSimCharts) sObj.getSnapshotObject());
+						charts = (EpiSimCharts) sObj.getSnapshotObject();
+						EpiSimCharts.setInstance(charts);
+					}
+					else if(sObj.getIdentifier().equals(SnapshotObject.WOUND)){
+						woundRegionCoordinates = (List<Double2D>) sObj.getSnapshotObject();
+						
 					}
 					
 				}
-				
+				if(charts != null) SnapshotWriter.getInstance().addSnapshotListener(charts);
+				if(epidermis != null) SnapshotWriter.getInstance().addSnapshotListener(epidermis);
 				File file2 = null;
 
 				if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
@@ -232,6 +239,10 @@ public class EpidermisSimulator extends JFrame{
 						epidermis.setModelController(BioChemicalModelController.getInstance());
 						epiUI = new EpidermisWithUIClass(epidermis, this, true);
 						epiUI.setReloadedSnapshot(true);
+						if(epiUI.getWoundPortrayalDraw() !=null){
+						  if(woundRegionCoordinates!= null) epiUI.getWoundPortrayalDraw().setWoundRegionCoordinates(woundRegionCoordinates);
+						  SnapshotWriter.getInstance().addSnapshotListener(epiUI.getWoundPortrayalDraw());
+						}
 						this.validate();
 						this.repaint();
 						modelOpened = true;

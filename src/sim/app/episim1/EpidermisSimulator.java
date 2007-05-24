@@ -26,6 +26,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import sim.engine.Schedule;
+import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
@@ -198,6 +199,7 @@ public class EpidermisSimulator extends JFrame{
 		EpidermisClass epidermis = null;
 		EpiSimCharts charts = null;
 		List<Double2D> woundRegionCoordinates = null;
+		java.awt.geom.Rectangle2D.Double[] deltaInfo = null;
 		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = tssFileChoose.getSelectedFile();
 			if(file != null){
@@ -212,7 +214,10 @@ public class EpidermisSimulator extends JFrame{
 						EpiSimCharts.setInstance(charts);
 					}
 					else if(sObj.getIdentifier().equals(SnapshotObject.WOUND)){
-						woundRegionCoordinates = (List<Double2D>) sObj.getSnapshotObject();
+						Object obj= null;
+						if((obj=sObj.getSnapshotObject())instanceof List)
+						                        woundRegionCoordinates = (List<Double2D>) obj;
+						else deltaInfo = (java.awt.geom.Rectangle2D.Double[])sObj.getSnapshotObject();
 						
 					}
 					
@@ -241,6 +246,8 @@ public class EpidermisSimulator extends JFrame{
 						epiUI.setReloadedSnapshot(true);
 						if(epiUI.getWoundPortrayalDraw() !=null){
 						  if(woundRegionCoordinates!= null) epiUI.getWoundPortrayalDraw().setWoundRegionCoordinates(woundRegionCoordinates);
+						  if(deltaInfo!= null && deltaInfo.length >=2) 
+							  epiUI.getWoundPortrayalDraw().setDeltaInfo(new DrawInfo2D(deltaInfo[0], deltaInfo[1]) );
 						  SnapshotWriter.getInstance().addSnapshotListener(epiUI.getWoundPortrayalDraw());
 						}
 						this.validate();

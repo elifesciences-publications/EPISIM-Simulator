@@ -59,6 +59,7 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 	    // assumes the graphics already has its color set
 	    public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
 	    {         
+	   	 if(info != null){
 	   	 lastActualInfo = info;
 	   	 graphics.setColor(Color.red);
   		  
@@ -75,15 +76,12 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
               
       	     
 	      	  if(polygon != null && lastActualInfo.clip.contains(polygon.getBounds2D())){
-	      		 // AffineTransform transform = new AffineTransform();
-	       	      
-		      	//  transform.setToTranslation(getTranslationX(info), getTranslationY(info));
-	   	        //polygon = (GeneralPath) polygon.createTransformedShape(transform);
+	      		
 	      		  
 	      		  graphics.draw(polygon);
 	      	  }
 	   	 
-	      	    
+	   	 }    
 	       
 	   	 
 	    }
@@ -127,13 +125,22 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 		public List<SnapshotObject> getSnapshotObjects() {
 
 			List<SnapshotObject> list = new ArrayList<SnapshotObject>();
+			if(woundRegionCoordinates.size() >0){
 			list.add(new SnapshotObject(SnapshotObject.WOUND, woundRegionCoordinates));
+			list.add(new SnapshotObject(SnapshotObject.WOUND, 
+					new java.awt.geom.Rectangle2D.Double[]{deltaInfo.draw, deltaInfo.clip}));
+			}
 			return list;
 		}
 		public void setWoundRegionCoordinates(List<Double2D> woundRegionCoordinates){
 			this.woundRegionCoordinates.clear();
 			this.woundRegionCoordinates = woundRegionCoordinates;
 			this.closeWoundRegionPath = true;
+		}
+		
+		public void setDeltaInfo(DrawInfo2D deltaInfo) {
+		
+			this.deltaInfo = deltaInfo;
 		}
 	   
 }

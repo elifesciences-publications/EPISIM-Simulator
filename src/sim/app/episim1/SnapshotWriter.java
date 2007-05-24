@@ -12,7 +12,7 @@ public class SnapshotWriter {
 	private List<SnapshotListener> listeners;
 	private File snapshotPath;
 	private static SnapshotWriter instance;
-	
+	private int counter = 1;
 	private SnapshotWriter(){
 		listeners = new LinkedList<SnapshotListener>();
 	} 
@@ -29,9 +29,16 @@ public class SnapshotWriter {
 	}
 	
 	public void writeSnapshot(){
-		if(snapshotPath != null ){
+		File actualSnapshotPath = snapshotPath;
+		if(snapshotPath != null && !snapshotPath.isDirectory()){
 		  try{
-			FileOutputStream fOut = new FileOutputStream(snapshotPath);
+			  if(counter > 1 && snapshotPath.exists()){
+				  
+				  actualSnapshotPath = new File(getNewPath(snapshotPath.getAbsolutePath()));
+				  counter++;
+			  }
+			  else if(snapshotPath.exists())counter++;
+			FileOutputStream fOut = new FileOutputStream(actualSnapshotPath);
 			ObjectOutputStream oOut = new ObjectOutputStream(fOut);
 			
 			for(SnapshotListener listener : listeners){
@@ -56,7 +63,9 @@ public class SnapshotWriter {
 		
 	}
 
-	
+	private String getNewPath(String oldPath){
+		return (oldPath.substring(0, oldPath.length()- 4) + "_"+ counter+oldPath.substring(oldPath.length()- 4, oldPath.length()));
+	}
 	public File getSnapshotPath() {
 	
 		return snapshotPath;

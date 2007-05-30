@@ -78,7 +78,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
                if(keyEvent.getSource() instanceof JTextField){
                	String name;
                	BioChemicalModelController.getInstance().reloadValue((name=((JTextField) keyEvent.getSource()).getName()));
-               	if(name.equals("TypeColor_1to9") && refreshButton !=null) refreshButton.doClick();
+               	if(name.equals("TypeColor") && refreshButton !=null) refreshButton.doClick();
                }
                }
            }

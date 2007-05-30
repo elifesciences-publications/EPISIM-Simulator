@@ -52,7 +52,7 @@ public class EpisimModel{
 		private double ad_Spi_Granu=0.0;    // 0.05
 		private double ad_Granu_Granu=0.0;    //0.1
 		private double width = 140;
-		public int typeColor=1;
+		private int typeColor=1;
 
 
 	 
@@ -112,10 +112,10 @@ public class EpisimModel{
 		}
 
 		
-	 	public int getTypeColor_1to9() { return typeColor; }
-	 	public void setTypeColor_1to9(int val) { if (val >= 0.0) typeColor= val; }
+	 	public int getTypeColor() { return typeColor; }
+	 	public void setTypeColor(int val) { if (val >= 0.0) typeColor= val; }
 	 	public String[] typeString={"Unused", "Color by cell type","Cell type and outer cells","Color by age", "Color by calcium", "Color by lamella", "Enough lipids for barrier", "Color by ion transports", "Voronoi", "Calcium Voronoi"};
-	 	public String getTypeColor() { if ((typeColor<1) || (typeColor>9)) typeColor=1; return typeString[typeColor]; }
+	 	public String getTypeColorName() { if ((typeColor<1) || (typeColor>9)) typeColor=1; return typeString[typeColor]; }
 		
 	 	public int getMaxCellAge_t() { return maxCellAge_t; }
 		public void setMaxCellAge_t(int val) { if (val >= 0.0) maxCellAge_t= val; }

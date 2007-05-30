@@ -87,7 +87,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 int id=kc.identity;
                 int numFlockers=kc.theEpidermis.allocatedKCytes;
                 int keratinoType=kc.KeratinoType;                                
-                int typeColor=modelController.getIntField("typeColor_1to9");                
+                int typeColor=modelController.getIntField("typeColor");                
                 int ownCol=(kc.ownColor)*kc.theEpidermis.individualColor;
                 int maxAge= BioChemicalModelController.getInstance().getIntField("maxCellAge_t"); 
                 wloc = kc.KeratinoWidth;                                
@@ -208,7 +208,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 int Red=255;         
                 int Green=0;
                 int Blue=0;
-                if ((typeColor<1) || (typeColor>9)) { typeColor=1; modelController.setIntField("typeColor_1to9", 1); }
+                if ((typeColor<1) || (typeColor>9)) { typeColor=1; modelController.setIntField("typeColor", 1); }
                 
                 if ((typeColor==1) || (typeColor==2) || (typeColor==8))  // Cell type coloring
                     {

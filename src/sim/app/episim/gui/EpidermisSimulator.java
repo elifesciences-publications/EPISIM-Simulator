@@ -127,6 +127,7 @@ public class EpidermisSimulator extends JFrame{
 		this.getContentPane().add(menuBar, BorderLayout.NORTH);
 		
 		jarFileChoose= new JarFileChooser();
+		jarFileChoose.setDialogTitle("Open EpiSim Model");
 		tssFileChoose = new TSSFileChooser();
 		
 		this.setTitle("Epidermis Simulator");

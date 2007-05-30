@@ -15,7 +15,7 @@ public class JarFileChooser extends JFileChooser {
 	
 	public JarFileChooser(){
 		super();
-		this.setDialogTitle("Open EpiSim Model");
+		
 		this.setFileFilter(new FileFilter() {
          public boolean accept(File f) {
             return f.getName().toLowerCase().endsWith(".jar") || f.isDirectory();
@@ -28,7 +28,18 @@ public class JarFileChooser extends JFileChooser {
 		
 	}
 
+	public int showSaveDialog(Component comp){
+		this.setDialogTitle("Select Path");
+		return super.showOpenDialog(comp);
+	}
 	
+	public File getSelectedFile(){
+		File file = super.getSelectedFile();
+		if(file !=null && !file.getAbsolutePath().toLowerCase().trim().endsWith(".jar")){ 
+			file= new File(file.getAbsolutePath() +".jar");
+		}
+		return file;
+	}
 	public int showOpenDialog(Component parent) throws HeadlessException {
 		
 		int result = super.showOpenDialog(parent);

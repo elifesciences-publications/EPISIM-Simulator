@@ -1,6 +1,13 @@
-package sim.app.episim;
+package sim.app.episim.gui;
 
 import sim.engine.*;
+import sim.app.episim.BioChemicalModelController;
+import sim.app.episim.EpidermisClass;
+import sim.app.episim.KCyteClass;
+import sim.app.episim.KCyteClassInspector;
+import sim.app.episim.visualization.BasementMembranePortrayal2D;
+import sim.app.episim.visualization.KeratinocytePortrayal2D;
+import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.*;
 import sim.portrayal.continuous.*;
 import sim.portrayal.*;
@@ -158,7 +165,7 @@ public class EpidermisWithUIClass extends GUIState{
 		java.awt.Color myColor = java.awt.Color.lightGray;
 
 		
-		epiPortrayal.setPortrayalForClass(KCyteClass.class, new HexagonalPortrayal2D(myColor) {
+		epiPortrayal.setPortrayalForClass(KCyteClass.class, new KeratinocytePortrayal2D(myColor) {
 
 			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
 

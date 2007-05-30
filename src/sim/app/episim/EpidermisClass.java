@@ -2,6 +2,7 @@
 package sim.app.episim;
 
 //MASON
+import sim.app.episim.gui.EpiSimCharts;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;

@@ -1,4 +1,8 @@
-package sim.app.episim;
+package sim.app.episim.visualization;
+import sim.app.episim.BioChemicalModelController;
+import sim.app.episim.GrahamPoint;
+import sim.app.episim.GrahamScan;
+import sim.app.episim.KCyteClass;
 import sim.portrayal.*;
 import sim.util.*;
 import java.util.Comparator;
@@ -16,7 +20,7 @@ import java.awt.geom.*;
    observed (especially when increasing the scale).
 */
 
-public class HexagonalPortrayal2D extends SimplePortrayal2D
+public class KeratinocytePortrayal2D extends SimplePortrayal2D
     {
     public Paint paint;
 
@@ -27,23 +31,23 @@ public class HexagonalPortrayal2D extends SimplePortrayal2D
     private BioChemicalModelController modelController;
     public boolean drawFrame = true;
 
-    public HexagonalPortrayal2D() {
+    public KeratinocytePortrayal2D() {
    	 
    	 this(Color.gray,false); 
    	 modelController = BioChemicalModelController.getInstance();
    	 
     }
-    public HexagonalPortrayal2D(Paint paint)  { 
+    public KeratinocytePortrayal2D(Paint paint)  { 
    	 
    	 this(paint,true); 
    	 modelController = BioChemicalModelController.getInstance();
    	 
     }
-    public HexagonalPortrayal2D(boolean drawFrame) { 
+    public KeratinocytePortrayal2D(boolean drawFrame) { 
    	 this(Color.gray,drawFrame); 
    	 modelController = BioChemicalModelController.getInstance();
    	 }
-    public HexagonalPortrayal2D(Paint paint, boolean drawFrame)  { 
+    public KeratinocytePortrayal2D(Paint paint, boolean drawFrame)  { 
    	 modelController = BioChemicalModelController.getInstance();
    	 this.paint = paint; 
    	 this.drawFrame = drawFrame; 

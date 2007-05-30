@@ -1,4 +1,4 @@
-package sim.app.episim;
+package sim.app.episim.gui;
 //Charts
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -36,6 +36,10 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import org.jfree.chart.*;
+
+import sim.app.episim.SnapshotListener;
+import sim.app.episim.SnapshotObject;
+import sim.app.episim.SnapshotWriter;
 
 public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
 	

@@ -1,5 +1,6 @@
-package sim.app.episim;
+package sim.app.episim.visualization;
 
+import sim.app.episim.BasementMembrane;
 import sim.portrayal.*;
 
 

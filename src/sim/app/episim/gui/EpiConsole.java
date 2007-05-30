@@ -1,4 +1,4 @@
-package sim.app.episim;
+package sim.app.episim.gui;
 
 
 
@@ -36,6 +36,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import sim.app.episim.BioChemicalModelController;
+import sim.app.episim.SnapshotWriter;
 import sim.display.Console;
 import sim.display.ConsoleHack;
 import sim.display.GUIState;

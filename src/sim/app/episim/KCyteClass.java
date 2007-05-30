@@ -42,7 +42,7 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         public double NeighborDrawInfoX[]=new double[50];
         public double NeighborDrawInfoY[]=new double[50];  
         public int VoronoiStable=0; // count if a voroni is displayable, only display when at least several times stable, so avoid permanent switching back to standardform
-        GrahamPoint voronoihull[]=new GrahamPoint[50];
+        public GrahamPoint voronoihull[]=new GrahamPoint[50];
         public int voronoihullvertexes=0;
         
         public int formCount=0; // Number of neighbors

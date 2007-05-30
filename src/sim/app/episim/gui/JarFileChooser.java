@@ -1,4 +1,4 @@
-package sim.app.episim;
+package sim.app.episim.gui;
 
 import java.awt.Component;
 import java.awt.Dimension;

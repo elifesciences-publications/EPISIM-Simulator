@@ -1,5 +1,8 @@
-package sim.app.episim;
+package sim.app.episim.visualization;
 
+import sim.app.episim.SnapshotListener;
+import sim.app.episim.SnapshotObject;
+import sim.app.episim.SnapshotWriter;
 import sim.portrayal.*;
 import sim.util.*;
 

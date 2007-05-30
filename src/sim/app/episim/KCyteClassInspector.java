@@ -1,4 +1,4 @@
-package sim.app.episim1;
+package sim.app.episim;
 import sim.portrayal.*;
 //import sim.portrayal.grid.*;
 

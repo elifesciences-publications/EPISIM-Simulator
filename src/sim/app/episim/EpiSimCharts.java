@@ -1,4 +1,4 @@
-package sim.app.episim1;
+package sim.app.episim;
 //Charts
 import java.awt.Color;
 import java.awt.GradientPaint;

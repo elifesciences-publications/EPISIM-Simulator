@@ -1,4 +1,4 @@
-package sim.app.episim1;
+package sim.app.episim;
 
 import java.util.List;
 

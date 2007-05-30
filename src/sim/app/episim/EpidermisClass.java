@@ -1,5 +1,5 @@
 
-package sim.app.episim1;
+package sim.app.episim;
 
 //MASON
 import sim.engine.*;

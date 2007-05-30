@@ -4,7 +4,7 @@
  * Created on 16. Februar 2005, 15:30
  */
 
-package sim.app.episim1;
+package sim.app.episim;
 /**
  *
  * @author  Administrator

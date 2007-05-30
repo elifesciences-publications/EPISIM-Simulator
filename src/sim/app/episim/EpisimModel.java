@@ -1,8 +1,11 @@
-package sim.app.episim1;
+package sim.app.episim;
 
 
-public class GlobalParameters {
-	  public static final int KTYPE_UNASSIGNED=0;
+import sim.app.episim.*;
+
+public class EpisimModel{
+
+      public static final int KTYPE_UNASSIGNED=0;
 		public static final int KTYPE_STEM=1;
 		public static final int KTYPE_BASAL=2;
 		public static final int KTYPE_TA=3;
@@ -57,10 +60,10 @@ public class GlobalParameters {
 
 		private double[][] adh_array=new double [10][10];
 
-	 	private static GlobalParameters instance;
+	 	
 	   
 	                          
-		private GlobalParameters(){
+		public EpisimModel(){
 
 			for (int i=0; i<10; i++)
 	         for (int j=0; j<10; j++)
@@ -316,15 +319,146 @@ public class GlobalParameters {
 	 }	               	               
 	               
 
-	
+	public void differentiate(KCyteClass  kCyte, EpidermisClass theEpidermis, boolean pBarrierMember){
+		
+		int keratinoType =kCyte.getKeratinoType();
+		
+		double ageFrac=(double)kCyte.getKeratinoAge() / maxCellAge_t;
+      
+      if (keratinoType!=KTYPE_NONUCLEUS)
+      {
+         kCyte.inkrementKeratinoAge(); 
+      	
+          ageFrac=(double)kCyte.getKeratinoAge() / (double)maxCellAge_t;
+      }
+		switch(keratinoType) {
+		case  KTYPE_TA: {
+			if(ageFrac >= tAMaxBirthAge_frac) // ta cells become
+																			// after their birth
+																			// period spinosum
+																			// cells
+			{
+				kCyte.setKeratinoType(KTYPE_SPINOSUM);
+				// update statistics
+				theEpidermis.dekrementActualTA();
+				theEpidermis.inkrementActualSpi();
+			}
+			break;
+		}
+
+		case KTYPE_SPINOSUM: {
+			if(((kCyte.getExternalCalcium() + kCyte.getInternalCalcium()) >= minSigCalLateSpinosum)
+					&& (!kCyte.isMembraneCell())) // ((ageFrac>=theEpidermis.LateSpinosumAge)
+													// &&
+			{
+				kCyte.setKeratinoType(KTYPE_LATESPINOSUM);
+				// statistics
+				theEpidermis.dekrementActualSpi();
+				theEpidermis.inkrementActualLateSpi();
+			}
+			break;
+		}
+
+		case KTYPE_LATESPINOSUM: {
+			if((theEpidermis.DevelopGranulosum) && (kCyte.getLipids() >= minSigLipidsBarrier)
+					&& (pBarrierMember)){
+				kCyte.incrementSpinosumCounter();
+				if(kCyte.getSpinosumCounter() > 100){
+					kCyte.setKeratinoType(KTYPE_GRANULOSUM); // Spinosum, nur über Signale
+																// erreichbar
+					// statistics
+					theEpidermis.dekrementActualLateSpi();
+					theEpidermis.inkrementActualGranu();
+				}
+
+			}
+			else if((kCyte.getExternalCalcium() + kCyte.getInternalCalcium()) < minSigCalLateSpinosum) // de-differentiate
+																																			// if
+																																			// not
+																																			// enough
+																																			// calcium
+			{
+				kCyte.dekrementSpinosumCounter();
+				
+			}
+			break;
+		}
+
+		case KTYPE_GRANULOSUM: {
+			
+			kCyte.setKeratinoWidth(kCyte.getGKeratinoWidthGranu());
+			kCyte.setKeratinoHeight(kCyte.getGKeratinoHeightGranu());
+		}
+		}
+//	 Death as to old, cell goes to nirvana and can be resurrected later
+		// as a new one
+     // if ((KeratinoType!=ktype_stem) && (KeratinoType!=ktype_nonucleus)
+		// &&(KeratinoAge>=theEpidermis.maxAge))
+     if ((kCyte.getKeratinoType()!=KTYPE_STEM) && 
+   		  (kCyte.getKeratinoType()!= KTYPE_NONUCLEUS) && (kCyte.getKeratinoAge()>=kCyte.getLocal_maxAge()))
+     {
+         if (kCyte.isBasalStatisticsCell())
+             theEpidermis.setGStatistics_Apoptosis_BasalCounter(
+            		 theEpidermis.getGStatistics_Apoptosis_BasalCounter() + 1); // Counter
+																						// counts
+																						// and
+																						// _BasalApoptosis
+																						// is the
+																						// value
+																						// per 10
+																						// timeticks
+         if (kCyte.getKeratinoType()==KTYPE_SPINOSUM)
+         	 theEpidermis.setGStatistics_Apoptosis_EarlySpiCounter(
+            		 theEpidermis.getGStatistics_Apoptosis_EarlySpiCounter() + 1);
+             
+																							// counts
+																							// and
+																							// _BasalApoptosis
+																							// is
+																							// the
+																							// value
+																							// per
+																							// 10
+																							// timeticks
+         if (kCyte.getKeratinoType()== KTYPE_LATESPINOSUM)
+         	 theEpidermis.setGStatistics_Apoptosis_LateSpiCounter(
+            		 theEpidermis.getGStatistics_Apoptosis_LateSpiCounter() + 1);
+            
+																						// counts
+																						// and
+																						// _BasalApoptosis
+																						// is the
+																						// value
+																						// per 10
+																						// timeticks
+         if (kCyte.getKeratinoType()== KTYPE_GRANULOSUM)
+         	 theEpidermis.setGStatistics_Apoptosis_GranuCounter(
+            		 theEpidermis.getGStatistics_Apoptosis_GranuCounter() + 1);
+            																		// counts
+																						// and
+																						// _BasalApoptosis
+																						// is the
+																						// value
+																						// per 10
+																						// timeticks
+
+         if (kCyte.getKeratinoType()==KTYPE_SPINOSUM) 
+         	theEpidermis.dekrementActualSpi();
+         if (kCyte.getKeratinoType()==KTYPE_LATESPINOSUM) 
+         	theEpidermis.dekrementActualLateSpi();
+         if (kCyte.getKeratinoType()==KTYPE_TA) 
+         	theEpidermis.dekrementActualTA();
+         if (kCyte.getKeratinoType()==KTYPE_GRANULOSUM) 
+         	theEpidermis.dekrementActualGranu();
+         kCyte.setKeratinoType(KTYPE_NONUCLEUS);
+         theEpidermis.inkrementActualNoNucleus();
+         
+     }
+	}
 
 	public double [][] returnAdhesionArray(){
 		return adh_array;
 	}
 
 
-	public static synchronized GlobalParameters getInstance(){
-		if(instance == null) instance = new GlobalParameters();
-		return instance;
-	}
 }

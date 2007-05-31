@@ -92,21 +92,16 @@ public class CompileTest {
 					sBuffer.append("Manifest-Version: 1.0\n");
 					sBuffer.append("Created-By: 1.1 (Episim - Uni Heidelberg)\n");
 					sBuffer.append("Main-Model-Class: EpisimModel\n");
-					File tempManifest = new File(System.getProperty("java.io.tmpdir") + File.pathSeparatorChar
-							+ "manifest.txt");
-					FileOutputStream fileOut = new FileOutputStream(tempManifest);
+					
+					byte[] buffer = new byte[sBuffer.toString().getBytes("UTF-8").length];
+					ByteArrayInputStream byteIn = new ByteArrayInputStream(sBuffer.toString().getBytes("UTF-8"));
+					
 
-					fileOut.write(sBuffer.toString().getBytes("UTF-8"));
+					
 
-					fileOut.flush();
-					fileOut.close();
+					Manifest manifest = new Manifest(byteIn);
 
-					FileInputStream fileIn = new FileInputStream(tempManifest);
-
-					Manifest manifest = new Manifest(fileIn);
-
-					FileOutputStream fileOut2 = new FileOutputStream(new File("d:/test.mf"));
-					manifest.write(fileOut2);
+					
 
 					System.out.println("putting entry  MANIFEST.MF");
 

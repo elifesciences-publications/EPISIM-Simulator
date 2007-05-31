@@ -1,0 +1,86 @@
+package sim.app.episim.devBasalLayer;
+
+
+//MASON
+import sim.engine.*;
+import sim.util.*;
+import sim.field.continuous.*;
+
+
+
+public class EpidermisDev extends SimStateHack
+{
+ 
+
+        
+
+
+
+ 
+ 
+
+ public Continuous2D basementContinous2D;
+ 
+
+ 
+ 
+ 
+ 
+ public double height = 150;    
+
+ 
+ 
+            
+     
+ //////////////////////////////////////
+ // Proliferation
+ //////////////////////////////////////
+ 
+ public int basalY=80;          // y coordinate at which undulations start, the base line    
+ public int basalPeriod=70;      // width of an undulation at the foot
+     
+
+ /////////////////////////////////////
+ // Code Procedures
+ /////////////////////////////////////
+ 
+   
+
+ 
+ 
+ /** Creates a EpidermisClass simulation with the given random number seed. */
+ public EpidermisDev(long seed)
+ {
+     super(new ec.util.MersenneTwisterFast(seed), new Schedule(1));
+     
+   
+ }
+ 
+ public void start()
+     {
+	 
+   	  super.start(false);
+   	  
+     
+     
+    
+     basementContinous2D = new Continuous2D(140,140,height);
+    
+    basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
+    
+    
+     
+     //BackImageClass backImage=new BackImageClass(this);        
+     //schedule.scheduleOnce(backImage);
+     
+     
+     
+                   
+                
+     }
+
+
+
+
+
+ }

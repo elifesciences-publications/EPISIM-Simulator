@@ -124,7 +124,7 @@ public class EpidermisSimulator extends JFrame{
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().setBackground(Color.LIGHT_GRAY);
-		this.getContentPane().add(menuBar, BorderLayout.NORTH);
+		this.setJMenuBar(menuBar);
 		
 		jarFileChoose= new JarFileChooser();
 		jarFileChoose.setDialogTitle("Open EpiSim Model");

@@ -68,7 +68,15 @@ public class EpidermisDev extends SimStateHack
     
     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
     
-    
+    Steppable dummy = new Steppable()
+    {
+         public void step(SimState state)
+         {   
+             
+         }
+     };
+     // Schedule the agent to update the chart
+     schedule.scheduleRepeating(dummy, 1);
      
      //BackImageClass backImage=new BackImageClass(this);        
      //schedule.scheduleOnce(backImage);

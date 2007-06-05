@@ -31,5 +31,6 @@ public class BasementMembraneDev {
 	     //System.out.println("x:"+x+" p:"+partition+" v:"+v+" Av:"+basalAmplitude*v);
 	     return basalY+40*v;        
 	 }
-
+	
+	
 }

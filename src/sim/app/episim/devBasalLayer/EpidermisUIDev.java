@@ -26,6 +26,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.Point2D;
 
 
 
@@ -62,7 +63,7 @@ public class EpidermisUIDev extends GUIState{
 	
 	private boolean resizeButtonIsActionSource = false;
 	
-	
+	private boolean movingInterpolationPoint = false;
 	
 	private boolean activateDrawing = false;
 	
@@ -198,20 +199,21 @@ public class EpidermisUIDev extends GUIState{
 
 			public void mousePressed(MouseEvent e) {
 
-				if(e.getButton() == MouseEvent.BUTTON3){
+				if(e.getButton() == MouseEvent.BUTTON1){
 					if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
-					
-					activateDrawing = true;
+					if(basementPortrayalDraw.getInterpolationPoint(new Point2D.Double(e.getX(), e.getY())))
+						movingInterpolationPoint = true;
 				}
 				
 			}
 			public void mouseReleased(MouseEvent e) {
 
-				if(e.getButton() == MouseEvent.BUTTON3){
+				if(e.getButton() == MouseEvent.BUTTON1){
 					if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
 					
 					
-					activateDrawing = false;
+					movingInterpolationPoint = false;
+					basementPortrayalDraw.setHitAndButtonPressed(false);
 				}
 				
 			}
@@ -220,8 +222,8 @@ public class EpidermisUIDev extends GUIState{
 		display.insideDisplay.addMouseMotionListener(new MouseMotionAdapter(){
 			public void mouseDragged(MouseEvent e){
 				
-				if(activateDrawing){
-					
+				if(movingInterpolationPoint){
+					basementPortrayalDraw.getInterpolationPoint(new Point2D.Double(e.getX(), e.getY()));
 					display.insideDisplay.repaint();
 				}
 				
@@ -238,7 +240,7 @@ public class EpidermisUIDev extends GUIState{
 		displayFrame.addComponentListener(new ComponentAdapter(){
 			 public void componentResized (ComponentEvent e) 
           {
-    	      System.out.print("Bert");
+    	      
 				 if(console !=null && console.getPlayState() == console.PS_PAUSED && resizeButtonIsActionSource)console.pressPause();
 				 resizeButtonIsActionSource = false;
           }

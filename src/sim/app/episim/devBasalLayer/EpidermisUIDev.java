@@ -65,7 +65,7 @@ public class EpidermisUIDev extends GUIState{
 	
 	private boolean movingInterpolationPoint = false;
 	
-	private boolean activateDrawing = false;
+	
 	
 	public Object getSimulationInspectedObject() {
 
@@ -214,6 +214,25 @@ public class EpidermisUIDev extends GUIState{
 					
 					movingInterpolationPoint = false;
 					basementPortrayalDraw.setHitAndButtonPressed(false);
+				}
+				
+			}
+			
+			public void mouseClicked(MouseEvent e) {
+				int result = -1;
+				if(e.getButton() == MouseEvent.BUTTON1 && !movingInterpolationPoint){
+					if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING) console.pressPause();
+					
+				  
+				   			
+				   	basementPortrayalDraw.addInterpolationPoint(new Point2D.Double(e.getX(), e.getY()));	
+				   	
+				   	
+				  
+				  if(console.getPlayState() == console.PS_PAUSED){ 
+						console.pressPause();
+					}
+				
 				}
 				
 			}

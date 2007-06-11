@@ -36,9 +36,9 @@ private static BasalLayerReader instance;
 	
 	
 	
-	public ArrayList<Point2D> loadBasalLayer(File path){
-		ArrayList<Point2D> points = new ArrayList<Point2D>();
-		HashMap<Double, Double> values = new HashMap<Double, Double>();
+	public List<Point2D> loadBasalLayer(File path){
+		List<Point2D> points = new ArrayList<Point2D>();
+		
 		if(path != null ){
 			FileReader fileRead = null;
 			BufferedReader bufferedReader = null;
@@ -55,7 +55,7 @@ private static BasalLayerReader instance;
 			if(line!= null){
 				String[] strings = line.split("\t");
 				if(strings.length == 2){
-					values.put(Double.parseDouble(strings[0]), Double.parseDouble(strings[1]));
+					points.add(new Point2D.Double(Double.parseDouble(strings[0]), Double.parseDouble(strings[1])));
 				}
 				
 			}
@@ -63,11 +63,7 @@ private static BasalLayerReader instance;
 		}
 		while(line !=null);
 		
-		    Iterator<Entry<Double, Double>> iter =values.entrySet().iterator();
-		    while(iter.hasNext()){
-		   	 Entry<Double, Double> entry = iter.next();
-		   	 points.add(new Point2D.Double(entry.getKey(), entry.getValue()));
-		    }
+		    
 			return points;
 		}
 		  catch (EOFException e){

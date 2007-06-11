@@ -37,7 +37,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    public BasementMembranePortrayal2DDev(double width, double height) {
 	   	 this.width = width;
 	   	 this.height = height;
-	   	 interpolationPoints = BasalLayerReader.getInstance().loadBasalLayer(new File("d:/basal.txt"));
+	   	
 	   	 
 	   	 
 	   	 xValues = new HashSet<Double>();
@@ -69,10 +69,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	      	 for(int i = 0; i < interpolationPoints.size(); i++){
 	      		 
 	      		 Point2D actPoint = interpolationPoints.get(i);
-	     /* 	graphics.drawLine((int)(lastActualInfo.clip.getMinX()-getDeltaX() + actPoint.getX()), 
-	      				(int)(lastActualInfo.clip.getMinY()-getDeltaY()+actPoint.getY()), 
-	      				(int)(lastActualInfo.clip.getMinX()-getDeltaX() +actPoint.getX()), 
-	      				(int)(lastActualInfo.clip.getMinY()-getDeltaY()+actPoint.getY()));*/
+	     
 	      		 
 	      		 
 	      		polygon.lineTo(interpolationPoints.get(i).getX(), interpolationPoints.get(i).getY());

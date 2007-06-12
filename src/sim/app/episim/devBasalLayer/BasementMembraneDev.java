@@ -16,8 +16,11 @@ public class BasementMembraneDev {
 	private List<Point2D> membranePoints;
 	
 	private static final int LOOKBACKSIZE = 3;
-	
+	private static final int THRESHHOLD = 5;
+	private static final int LOOKBACKREGION = 3;
 	private static  BasementMembraneDev instance;
+	
+	private boolean actualFilteredVersionAvailable = false; 
 	
 	private BasementMembraneDev(){
 		membranePoints = new ArrayList<Point2D>();
@@ -47,6 +50,11 @@ public class BasementMembraneDev {
 	}
 	public List<Point2D> getFilteredBasementMembranePoints(){
 		return membranePoints;
+	}
+	
+	private void filterMembranePoints(){
+		Point2D previousPoint= null;
+		
 	}
 	
 }

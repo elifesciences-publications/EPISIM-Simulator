@@ -25,8 +25,9 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    private double height;
 	    private DrawInfo2D lastActualInfo;
 	    private DrawInfo2D deltaInfo;
-	    private ArrayList<Point2D> interpolationPoints;
-	    private HashSet<Double> xValues;
+	    private List<Point2D> interpolationPoints;
+
+
 	    private boolean hitAndButtonPressed = false;
 	    
 	    private Point2D actDraggedPoint = null;
@@ -37,15 +38,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    public BasementMembranePortrayal2DDev(double width, double height) {
 	   	 this.width = width;
 	   	 this.height = height;
-	   	
-	   	 
-	   	 
-	   	 xValues = new HashSet<Double>();
-	   	
-	   	
-	   	 
-	   
-	   	 
+	   	 interpolationPoints = BasementMembraneDev.getInstance().getFilteredBasementMembranePoints();
 	    }
 	    
 	        
@@ -164,13 +157,13 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 				&& mouseposition.getY() < (point.getY() + DELTAPOINT)
 				&& !hitAndButtonPressed){
 				
-				if(!xValues.contains(mouseposition.getX()))point.setLocation(mouseposition.getX(), mouseposition.getY());
+				point.setLocation(mouseposition.getX(), mouseposition.getY());
 				hitAndButtonPressed=true;
 				actDraggedPoint = point;
 				return true;
 			}
 			else if(hitAndButtonPressed){
-				if(!xValues.contains(mouseposition.getX()))actDraggedPoint.setLocation(mouseposition.getX(), mouseposition.getY());
+				actDraggedPoint.setLocation(mouseposition.getX(), mouseposition.getY());
 				return true;
 			}
 			
@@ -187,10 +180,9 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 		                             mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY());
 		
 
-		if(!xValues.contains(mouseposition.getX())){
+		
 			interpolationPoints.add(mouseposition);
-			xValues.add(mouseposition.getX());
-		}
+		
 		
 		
 		}

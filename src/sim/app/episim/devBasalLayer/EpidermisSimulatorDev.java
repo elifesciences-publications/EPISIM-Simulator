@@ -60,6 +60,8 @@ public class EpidermisSimulatorDev extends JFrame{
 		final EpidermisSimulatorDev simulator = this;
 		
 		cleanUpContentPane();
+		
+		BasementMembraneDev.getInstance().loadBasementMembrane(new File("d:/basal1.txt"));
 		epiUI = new EpidermisUIDev(this);
 		this.validate();
 		this.repaint();
@@ -91,6 +93,7 @@ public class EpidermisSimulatorDev extends JFrame{
 	
 	public static void main(String[] args){
 		EpidermisSimulatorDev episim = new EpidermisSimulatorDev();
+		
 	}
 	
 	

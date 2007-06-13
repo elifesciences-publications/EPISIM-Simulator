@@ -25,7 +25,8 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    private double height;
 	    private DrawInfo2D lastActualInfo;
 	    private DrawInfo2D deltaInfo;
-	    private List<Point2D> interpolationPoints;
+	    private List<Point2D> basementMembranePoints;
+	    private List<Point2D> cellPoints;
 
 
 	    private boolean hitAndButtonPressed = false;
@@ -38,7 +39,8 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    public BasementMembranePortrayal2DDev(double width, double height) {
 	   	 this.width = width;
 	   	 this.height = height;
-	   	 interpolationPoints = BasementMembraneDev.getInstance().getFilteredBasementMembranePoints();
+	   	 cellPoints = new ArrayList<Point2D>();
+	   	 
 	    }
 	    
 	        
@@ -47,25 +49,26 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    // assumes the graphics already has its color set
 	    public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
 	    {
-	       if(info != null && interpolationPoints.size() > 0){
+	   	 basementMembranePoints = BasementMembraneDev.getInstance().getBasementMembranePoints();
+	   	 if(info != null && basementMembranePoints.size() > 0){
 	      	 if(deltaInfo == null) deltaInfo = info; //wird beim ersten Aufruf gesetzt.
 	      	 lastActualInfo = info;
 	      	 
-	      	 Collections.sort(interpolationPoints, new InterpolationPointComparator());
 	      	
-//      	drawInterpolationPoints(graphics);
+	      	
+      	
 	      	 graphics.setColor(new Color(255, 99, 0));
 	      	  //graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				
 					GeneralPath polygon = new GeneralPath();
-			polygon.moveTo(interpolationPoints.get(0).getX(), interpolationPoints.get(0).getY());
-	      	 for(int i = 0; i < interpolationPoints.size(); i++){
+			polygon.moveTo(basementMembranePoints.get(0).getX(), basementMembranePoints.get(0).getY());
+	      	 for(int i = 0; i < basementMembranePoints.size(); i++){
 	      		 
-	      		 Point2D actPoint = interpolationPoints.get(i);
+	      		 Point2D actPoint = basementMembranePoints.get(i);
 	     
 	      		 
 	      		 
-	      		polygon.lineTo(interpolationPoints.get(i).getX(), interpolationPoints.get(i).getY());
+	      		polygon.lineTo(basementMembranePoints.get(i).getX(), basementMembranePoints.get(i).getY());
 	      			 
 	      			
 	      		 
@@ -73,18 +76,19 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	      	  
 	      	  
 	     	 
-	      	//  graphics.setColor(new Color(255, 99, 0));
-	      	  //graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+	      	graphics.setColor(new Color(255, 99, 0));
+	      	graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 	      	  
 	      	 AffineTransform transform = new AffineTransform();
     	      
   	        
-	      	// transform.translate(0, 100);
-	      	double scaleX = width / polygon.getBounds2D().getWidth();
 	      	
+	      	double scaleX = width / polygon.getBounds2D().getWidth();
+	      	double scaleY = height / polygon.getBounds2D().getHeight();
+	      	drawCellPoints(graphics, scaleX, scaleY);
   	       transform.scale(scaleX, scaleX);
   	       polygon = (GeneralPath) polygon.createTransformedShape(transform);
-  	     
+  	       polygon.closePath();
   	     transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX(), 
   	   		lastActualInfo.clip.getMinY()-getDeltaY());
  	    
@@ -116,10 +120,10 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	   	 }
 	   	 else return 0;
 	    }
-	 private void drawInterpolationPoints(Graphics2D graphics) {
+	 private void drawCellPoints(Graphics2D graphics, double scaleX, double scaleY) {
 
 		if(graphics != null){
-			for(Point2D point : interpolationPoints){
+			for(Point2D point : cellPoints){
 				GeneralPath polygon = new GeneralPath();
 				polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + point.getX() - DELTACROSS, lastActualInfo.clip
 						.getMinY()
@@ -134,7 +138,11 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 						.getMinY()
 						- getDeltaY() + point.getY() + DELTACROSS);
 
-				graphics.setColor(Color.RED);
+				if(BasementMembraneDev.getInstance().isOverBasalLayer(new Point2D.Double(
+						((lastActualInfo.clip.getMinX() - getDeltaX() + point.getX()) /scaleX),
+						((lastActualInfo.clip.getMinY()	- getDeltaY() + point.getY())/ scaleY))))
+						graphics.setColor(Color.GREEN);
+				else graphics.setColor(Color.RED);
 				graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
 				graphics.draw(polygon);
@@ -142,13 +150,13 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 		}
 	}
 	 
-	public boolean getInterpolationPoint(Point2D mouseposition){
+	public boolean getCellPoint(Point2D mouseposition){
 		if(mouseposition != null && lastActualInfo != null){
 	   	
 		mouseposition = new Point2D.Double(mouseposition.getX()-lastActualInfo.clip.getMinX()+getDeltaX(),
 		                             mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY());
 		
-		for(Point2D point: interpolationPoints){
+		for(Point2D point: cellPoints){
 			
 		
 			if(mouseposition.getX() > (point.getX() - DELTAPOINT) 
@@ -172,7 +180,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 		return false;
 	
 	}
-	public void addInterpolationPoint(Point2D mouseposition){
+	public void addCellPoint(Point2D mouseposition){
 	   
 		if(mouseposition != null && lastActualInfo != null){
 	   	
@@ -181,7 +189,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 		
 
 		
-			interpolationPoints.add(mouseposition);
+			cellPoints.add(mouseposition);
 		
 		
 		

@@ -1,6 +1,7 @@
 package sim.app.episim.devBasalLayer;
 
 
+import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
@@ -13,14 +14,17 @@ public class BasementMembraneDev {
 	private static int basalY=80;          // y coordinate at which undulations start, the base line    
 	private static int basalPeriod=70;      // width of an undulation at the foot
 	
-	private List<Point2D> membranePoints;
+	private ArrayList<Point2D> membranePoints;
 	
-	private static final int LOOKBACKSIZE = 3;
+	
+	private GeneralPath polygon;
+	
+	
 	private static final int THRESHHOLD = 5;
-	private static final int LOOKBACKREGION = 3;
+	
 	private static  BasementMembraneDev instance;
 	
-	private boolean actualFilteredVersionAvailable = false; 
+	
 	
 	private BasementMembraneDev(){
 		membranePoints = new ArrayList<Point2D>();
@@ -41,20 +45,49 @@ public class BasementMembraneDev {
 	    return -1;
 	    
 	 }
-	public void loadBasementMembrane(File path){
-		if(path != null)membranePoints = BasalLayerReader.getInstance().loadBasalLayer(path);
+	public void loadBasementMembrane(File path) {
+
+		if(path != null){
+
+			List<Point2D> tmpMembranePoints = BasalLayerReader.getInstance().loadBasalLayer(path);
+			if(!(tmpMembranePoints instanceof ArrayList)){
+				ArrayList<Point2D> membranePoints = new ArrayList<Point2D>();
+				membranePoints.addAll(tmpMembranePoints);
+				this.membranePoints = membranePoints;
+			}
+			else
+				this.membranePoints = (ArrayList<Point2D>) tmpMembranePoints;
+			if(this.membranePoints.size() > 0){
+
+				polygon = new GeneralPath();
+				polygon.moveTo(this.membranePoints.get(0).getX(), this.membranePoints.get(0).getY());
+				for(int i = 0; i < this.membranePoints.size(); i++){
+
+					polygon.lineTo(this.membranePoints.get(i).getX(), this.membranePoints.get(i).getY());
+
+				}
+				polygon.closePath();
+			}
+		}
+
 	}
+	
 	public static synchronized BasementMembraneDev getInstance(){
 		if(instance == null) instance =  new BasementMembraneDev();
 		return instance;
 	}
-	public List<Point2D> getFilteredBasementMembranePoints(){
+	public List<Point2D> getBasementMembranePoints(){
 		return membranePoints;
-	}
-	
-	private void filterMembranePoints(){
-		Point2D previousPoint= null;
 		
 	}
+	
+	public boolean isOverBasalLayer(Point2D point){
+		if(polygon != null && polygon.contains(point))return true;
+		else return false;
+	}
+		      
+		
+		
+
 	
 }

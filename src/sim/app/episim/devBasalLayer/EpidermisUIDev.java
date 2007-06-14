@@ -33,7 +33,6 @@ import java.awt.geom.Point2D;
 import javax.swing.JFrame;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
-;
 
 
 public class EpidermisUIDev extends GUIState{
@@ -200,7 +199,7 @@ public class EpidermisUIDev extends GUIState{
 			public void mousePressed(MouseEvent e) {
 
 				if(e.getButton() == MouseEvent.BUTTON1){
-					if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
+					//if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
 					if(basementPortrayalDraw.getCellPoint(new Point2D.Double(e.getX(), e.getY())))
 						movingCellPoint = true;
 				}
@@ -209,7 +208,7 @@ public class EpidermisUIDev extends GUIState{
 			public void mouseReleased(MouseEvent e) {
 
 				if(e.getButton() == MouseEvent.BUTTON1){
-					if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
+					//if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
 					
 					
 					movingCellPoint = false;
@@ -221,7 +220,7 @@ public class EpidermisUIDev extends GUIState{
 			public void mouseClicked(MouseEvent e) {
 				int result = -1;
 				if(e.getButton() == MouseEvent.BUTTON1 && !movingCellPoint){
-					if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING) console.pressPause();
+					//if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING) console.pressPause();
 					
 				  
 				   			
@@ -229,9 +228,8 @@ public class EpidermisUIDev extends GUIState{
 				   	
 				   	
 				  
-				  if(console.getPlayState() == console.PS_PAUSED){ 
-						console.pressPause();
-					}
+				  //if(console.getPlayState() == console.PS_PAUSED)	console.pressPause();
+					
 				
 				}
 				
@@ -243,7 +241,7 @@ public class EpidermisUIDev extends GUIState{
 				
 				if(movingCellPoint){
 					basementPortrayalDraw.getCellPoint(new Point2D.Double(e.getX(), e.getY()));
-					display.insideDisplay.repaint();
+					
 				}
 				
 			}

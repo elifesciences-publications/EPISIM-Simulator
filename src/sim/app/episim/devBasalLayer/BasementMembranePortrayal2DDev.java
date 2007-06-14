@@ -25,7 +25,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    private double height;
 	    private DrawInfo2D lastActualInfo;
 	    private DrawInfo2D deltaInfo;
-	    private List<Point2D> basementMembranePoints;
+	    
 	    private List<Point2D> cellPoints;
 
 
@@ -47,59 +47,35 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    Rectangle2D.Double oldDraw = null;  
 	    
 	    // assumes the graphics already has its color set
-	    public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
-	    {
-	   	 basementMembranePoints = BasementMembraneDev.getInstance().getBasementMembranePoints();
-	   	 if(info != null && basementMembranePoints.size() > 0){
-	      	 if(deltaInfo == null) deltaInfo = info; //wird beim ersten Aufruf gesetzt.
-	      	 lastActualInfo = info;
-	      	 
-	      	
-	      	
-      	
-	      	 graphics.setColor(new Color(255, 99, 0));
-	      	  //graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-				
-					GeneralPath polygon = new GeneralPath();
-			polygon.moveTo(basementMembranePoints.get(0).getX(), basementMembranePoints.get(0).getY());
-	      	 for(int i = 0; i < basementMembranePoints.size(); i++){
-	      		 
-	      		 Point2D actPoint = basementMembranePoints.get(i);
-	     
-	      		 
-	      		 
-	      		polygon.lineTo(basementMembranePoints.get(i).getX(), basementMembranePoints.get(i).getY());
-	      			 
-	      			
-	      		 
-	      	 }
-	      	  
-	      	  
-	     	 
-	      	graphics.setColor(new Color(255, 99, 0));
-	      	graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-	      	  
-	      	 AffineTransform transform = new AffineTransform();
-    	      
-  	        
-	      	
-	      	double scaleX = width / polygon.getBounds2D().getWidth();
-	      	double scaleY = height / polygon.getBounds2D().getHeight();
-	      	drawCellPoints(graphics, scaleX, scaleY);
-  	       transform.scale(scaleX, scaleX);
-  	       polygon = (GeneralPath) polygon.createTransformedShape(transform);
-  	       polygon.closePath();
-  	     transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX(), 
-  	   		lastActualInfo.clip.getMinY()-getDeltaY());
- 	    
-	     polygon = (GeneralPath) polygon.createTransformedShape(transform);
-	      	        graphics.draw(polygon);
-				
-				   
-	      	       
-	       }     
-	      	
-	    }
+	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
+
+		GeneralPath polygon = BasementMembraneDev.getInstance().getBasementMembraneDrawPolygon();
+		if(info != null && polygon.getBounds().getWidth() > 0){
+			if(deltaInfo == null)
+				deltaInfo = info; // wird beim ersten Aufruf gesetzt.
+			lastActualInfo = info;
+
+			graphics.setColor(new Color(255, 99, 0));
+			graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+			AffineTransform transform = new AffineTransform();
+
+			double scaleX = width / polygon.getBounds2D().getWidth();
+
+			transform.scale(scaleX, scaleX);
+			polygon = (GeneralPath) polygon.createTransformedShape(transform);
+
+			transform.setToTranslation(lastActualInfo.clip.getMinX() - getDeltaX(), lastActualInfo.clip.getMinY()
+					- getDeltaY());
+
+			polygon = (GeneralPath) polygon.createTransformedShape(transform);
+			graphics.draw(polygon);
+
+			drawCellPoints(graphics, scaleX);
+
+		}
+
+	}
 	    
 	    
 
@@ -120,7 +96,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	   	 }
 	   	 else return 0;
 	    }
-	 private void drawCellPoints(Graphics2D graphics, double scaleX, double scaleY) {
+	 private void drawCellPoints(Graphics2D graphics, double scaleX) {
 
 		if(graphics != null){
 			for(Point2D point : cellPoints){
@@ -139,8 +115,8 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 						- getDeltaY() + point.getY() + DELTACROSS);
 
 				if(BasementMembraneDev.getInstance().isOverBasalLayer(new Point2D.Double(
-						((lastActualInfo.clip.getMinX() - getDeltaX() + point.getX()) /scaleX),
-						((lastActualInfo.clip.getMinY()	- getDeltaY() + point.getY())/ scaleY))))
+						((point.getX()) /scaleX),
+						((point.getY())/scaleX))))
 						graphics.setColor(Color.GREEN);
 				else graphics.setColor(Color.RED);
 				graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));

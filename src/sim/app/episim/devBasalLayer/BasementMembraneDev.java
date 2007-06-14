@@ -7,7 +7,10 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class BasementMembraneDev {
@@ -16,9 +19,11 @@ public class BasementMembraneDev {
 	
 	private ArrayList<Point2D> membranePoints;
 	
+	private HashMap<Double, HashSet<Double>> organizedXPoints;
 	
 	private GeneralPath polygon;
 	
+	private GeneralPath drawPolygon;
 	
 	private static final int THRESHHOLD = 5;
 	
@@ -28,7 +33,8 @@ public class BasementMembraneDev {
 	
 	private BasementMembraneDev(){
 		membranePoints = new ArrayList<Point2D>();
-		
+		polygon = new GeneralPath();
+		organizedXPoints = new HashMap<Double, HashSet<Double>>();
 	}
 	
 	
@@ -66,7 +72,11 @@ public class BasementMembraneDev {
 					polygon.lineTo(this.membranePoints.get(i).getX(), this.membranePoints.get(i).getY());
 
 				}
+				drawPolygon = (GeneralPath)polygon.clone();
+				polygon.lineTo(polygon.getBounds().getMinX(), polygon.getBounds().getMinY());
 				polygon.closePath();
+				
+				organizePoints();
 			}
 		}
 
@@ -76,18 +86,37 @@ public class BasementMembraneDev {
 		if(instance == null) instance =  new BasementMembraneDev();
 		return instance;
 	}
-	public List<Point2D> getBasementMembranePoints(){
-		return membranePoints;
+	
+	public GeneralPath getBasementMembraneDrawPolygon(){
+		return drawPolygon;
 		
 	}
 	
 	public boolean isOverBasalLayer(Point2D point){
-		if(polygon != null && polygon.contains(point))return true;
+		if(polygon != null && (polygon.contains(point) ||
+				(point.getX() >= polygon.getBounds().getMinX() && point.getX()<= polygon.getBounds().getMaxX()
+						&& point.getY() >=0 && point.getY() <= polygon.getBounds().getMinY())))return true;
 		else return false;
 	}
 		      
+	private void organizePoints(){
+		for(Point2D actPoint: membranePoints){
+			if(organizedXPoints.containsKey(actPoint.getX()))
+				organizedXPoints.get(actPoint.getX()).add(actPoint.getY());
+			else{
+				HashSet<Double> tmp =new HashSet<Double>();
+				tmp.add(actPoint.getY());
+				organizedXPoints.put(actPoint.getX(), tmp);
+			}
+		}
+		getYCoordinateForXCoordinate(0);
+	}
 		
+	public Set<Double> getYCoordinateForXCoordinate(double x){
 		
+		if(organizedXPoints.containsKey(x)) return organizedXPoints.get(x);
+		else return new HashSet<Double>();
+	}
 
 	
 }

@@ -109,7 +109,7 @@ public class BasementMembraneDev {
 				organizedXPoints.put(actPoint.getX(), tmp);
 			}
 		}
-		getYCoordinateForXCoordinate(0);
+		
 	}
 		
 	public Set<Double> getYCoordinateForXCoordinate(double x){

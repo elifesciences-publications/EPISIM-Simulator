@@ -38,6 +38,7 @@ import javax.swing.event.DocumentListener;
 
 import sim.app.episim.BioChemicalModelController;
 import sim.app.episim.SnapshotWriter;
+import sim.app.episim.charts.EpiSimCharts;
 import sim.display.Console;
 import sim.display.ConsoleHack;
 import sim.display.GUIState;

@@ -5,6 +5,7 @@ import sim.app.episim.BioChemicalModelController;
 import sim.app.episim.EpidermisClass;
 import sim.app.episim.KCyteClass;
 import sim.app.episim.KCyteClassInspector;
+import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.KeratinocytePortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;

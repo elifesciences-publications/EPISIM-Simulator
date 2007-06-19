@@ -1,13 +1,19 @@
 package sim.app.episim;
+import sim.app.episim.charts.ChartMonitoredCellType;
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
 import ec.util.*;
+
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
 
-public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable
+public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable, ChartMonitoredCellType
     {
        
 	
@@ -839,5 +845,25 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 		public void setModelController(BioChemicalModelController modelController) {
 		
 			this.modelController = modelController;
+		}
+		public List<Method> getParameters() {
+			List<Method> methods = new ArrayList<Method>();
+			
+			for(Method m : this.getClass().getMethods()){
+				if(m.getName().startsWith("get")) methods.add(m);
+			}
+			return methods;
 		}           
     }
+
+
+
+
+
+
+
+
+
+
+
+

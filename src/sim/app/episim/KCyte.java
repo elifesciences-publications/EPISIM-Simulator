@@ -82,58 +82,14 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
    private boolean isOuterCell=false;
    private boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
    public boolean isMembraneCell=false;    // cells directly sitting on membrane, very strict
+   
+   private Stoppable stopper = null;
+   
+   
+   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
-   
-   
-   public void inkrementVoronoiStable(){
-   	voronoiStable +=1;
-   }
-   
-   public void dekrementVoronoiStable(){
-   	voronoiStable -= 1;
-   }
-   
-   public int getKeratinoType() { return keratinoType; }// for inspector 
-   public void setKeratinoType(int type){ keratinoType = type;}
-       
-   public int getKeratinoAge() { return keratinoAge; } // for inspector
-   public void inkrementKeratinoAge() {  keratinoAge += 1; } // for inspector 
-        
-   public int getSpinosumCounter(){ return spinosum_counter;}
-        
-   public void incrementSpinosumCounter(){ spinosum_counter +=1;}
-        
-   public void dekrementSpinosumCounter(){ spinosum_counter -=1;}
-        
-   public double getExtForceX () { return extForce.x; }   // for inspector 
-   public double getExtForceY () { return extForce.y; }   // for inspector 
-        
-   public int getIdentity() { return identity; }   // for inspector 
-        
-        
-   public boolean getBirthWish() { return birthWish; }   // for inspector 
-        
-   public double getExternalCalcium() { return ownSigExternalCalcium; }   // for inspector 
-   
-   public double getInternalCalcium() { return ownSigInternalCalcium; }   // for inspector 
-        
-        public double getLipids() { return ownSigLipids; }   // for inspector 
-       
-        public double getLamella() { return ownSigLamella; }   // for inspector 
-        
-        
-        public boolean isOuterCell() { return isOuterCell; }   // for inspector 
-        
-        
-        public boolean isBasalStatisticsCell() { return isBasalStatisticsCell; }   // for inspector 
-        
-        
-        public boolean isMembraneCell() { return isMembraneCell; }   // for inspector        
-        
-        
-        
-        
+         
 
     public KCyte(EpidermisClass pFlock)
     {
@@ -228,7 +184,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
         else return x*x*x;
     }
   
-    public class hitResultClass
+    private class HitResultClass
     {        
         int numhits;    // number of hits
         int otherId; // when only one hit, then how id of this hit (usually this will be the mother)
@@ -237,7 +193,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
         Vector2D otherMomentum;
         boolean nextToOuterCell;
                 
-        hitResultClass()
+        HitResultClass()
         {
             nextToOuterCell=false;
             numhits=0;
@@ -248,19 +204,16 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
         }
     }
         
-    public hitResultClass hitsOther(Bag b, Continuous2D pC2dHerd, Double2D thisloc, boolean pressothers, double pBarrierMemberDist)
+    public HitResultClass hitsOther(Bag b, Continuous2D pC2dHerd, Double2D thisloc, boolean pressothers, double pBarrierMemberDist)
         {
             // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
             // for each collision calc a pressure vector and add it to the other's existing one
-            hitResultClass hitResult=new hitResultClass();            
+            HitResultClass hitResult=new HitResultClass();            
             if (b==null || b.numObjs == 0 || this.inNirvana) return hitResult;
             
-            double extSigCalcium=0; // first calculate calcium of below cells
-            double extSigLamella=0;
-            double extSigLipids=0;
             
-            double x = 0; 
-            double y = 0;            
+            
+                   
             int i=0;
             double adxOpt = GOPTIMALKERATINODISTANCE; //KeratinoWidth-2+theEpidermis.cellSpace;                         was 4 originally then 5
             //double adxOpt = KeratinoWidth; //KeratinoWidth-2+theEpidermis.cellSpace;                        
@@ -401,7 +354,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
     {
 
         double newx=0, newy=0;
-        Double2D thisloc = pC2dHerd.getObjectLocation(this); // update Global variable
+        
         
         newx=xPos;
         
@@ -498,7 +451,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
     }
 
         
-    public void Diffuser (Bag b, Continuous2D pC2dHerd, Double2D thisloc, boolean pBarrierMember)
+    public void diffuser (Bag b, Continuous2D pC2dHerd, Double2D thisloc, boolean pBarrierMember)
     {
         if (b==null || b.numObjs == 0 || this.inNirvana) return;
         int i=0;
@@ -609,7 +562,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
     
 
     
-    public void Differentiate(boolean pBarrierMember)
+    public void differentiate(boolean pBarrierMember)
     {
       modelController.differentiate(this, epidermis, pBarrierMember);
  
@@ -672,403 +625,275 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
     
 
 
-    //relocate basal and stem_cells bei veraenderter funktion fehlt noch.
-    
-    public void step(SimState state)
-    {        
-        final EpidermisClass epiderm = (EpidermisClass)state;
+    // relocate basal and stem_cells bei veraenderter funktion fehlt noch.
 
-        //
-        // Memory management
-        //
-        if (inNirvana)
-        {
-            // please for resurrection by registering as wating
-            epidermis.nirvanaHeapLoaded=true;
-            epidermis.nirvanaHeap=this;            
-            return; 
-        }
-        
-        hasGivenIons=0;
+	public void step(SimState state) {
 
-        //////////////////////////////////////////////////
-        // calculate ACTION force
-        //////////////////////////////////////////////////
-        int ministep=1; 
-        int maxmini=1;
+		final EpidermisClass epiderm = (EpidermisClass) state;
 
-        // Double2D rand = randomness(flock.random);
-        //Double2D mome = momentum();
-
-        // calc potential location from gravitation and external pressures
-        Double2D oldLoc=epiderm.continous2D.getObjectLocation(this);       
-        
-        if (extForce.length()>0.6)
-         extForce=extForce.setLength(0.6);
-        //extForce=extForce.setLength(2*(1-Math.exp(-0.5*extForce.length())));
-        //extForce=extForce.setLength(sigmoid(extForce.length())-sigmoid(0)); // die funktion muss 0 bei 0 liefern, daher absenkung auf sigmoid(0)
-        Double2D gravi=new Double2D(0,modelController.getDoubleField("gravitation")); // Vector which avoidance has to process
-        Double2D randi=new Double2D(modelController.getDoubleField("randomness")*(epidermis.random.nextDouble()-0.5), modelController.getDoubleField("randomness")*(epidermis.random.nextDouble()-0.5));
-        Vector2D actionForce=new Vector2D(gravi.x+extForce.x*modelController.getDoubleField("externalPush")+randi.x, gravi.y+extForce.y*modelController.getDoubleField("externalPush"));
-        Double2D potentialLoc=new Double2D (epiderm.continous2D.stx(actionForce.x+oldLoc.x),epiderm.continous2D.sty(actionForce.y+oldLoc.y));
-        extForce.x=0;   // alles einberechnet
-        extForce.y=0;
-
-      
-
-        //////////////////////////////////////////////////
-        // try ACTION force
-        //////////////////////////////////////////////////
-        Bag b = epiderm.continous2D.getObjectsWithinDistance(potentialLoc, modelController.getDoubleField("neighborhood_µm"), false); //theEpidermis.neighborhood
-        hitResultClass hitResult1;
-        hitResult1 = hitsOther(b, epiderm.continous2D, potentialLoc, true, epidermis.NextToOuterCell);
-
-        //////////////////////////////////////////////////
-        // estimate optimised POS from REACTION force
-        //////////////////////////////////////////////////
-        // optimise my own position by giving way to the calculated pressures
-        Vector2D reactionForce=extForce;
-        reactionForce=reactionForce.add(hitResult1.otherMomentum.amplify(epidermis.consistency));
-        reactionForce=reactionForce.add(hitResult1.adhForce.amplify(modelController.getDoubleField("cohesion")));
-
-        // restrict movement if direction changes to quickly (momentum of a cell movement)
-       
-                 
-
-        // bound optimised force
-        // problem: each cell bounces back two times as much as it should (to be able to move around immobile objects)
-        // but as we don't want bouncing the reaction force must never exceed the action force in its length 
-        // dx/dy contain move to make
-        if (reactionForce.length()>(actionForce.length()+0.1))
-            reactionForce=reactionForce.setLength(actionForce.length()+0.1);
-
-        extForce.x=0;
-        extForce.y=0;
-
-        // bound also by borders
-        double potX=oldLoc.x+actionForce.x+reactionForce.x;
-        double potY=oldLoc.y+actionForce.y+reactionForce.y;                               
-        potentialLoc=new Double2D(epiderm.continous2D.stx(potX), epiderm.continous2D.sty(potY));                                
-        potentialLoc=calcBoundedPos(epiderm.continous2D, potentialLoc.x, potentialLoc.y);
-
-        //////////////////////////////////////////////////
-        // try optimised POS 
-        //////////////////////////////////////////////////              
-        // check whether there is anything in the way at the new position
-
-        // aufgrund der gnaedigen Kollisionspruefung, die bei Aktueller Zelle (2) und Vorgaenger(1) keine Kollision meldet, 
-        // ueberlappen beide ein wenig, falls es eng wird. Wird dann die (2) selber nachgefolgt von (3), so wird (2) rausgeschoben, aber (3) nicht
-        // damit ueberlappen 3 und 1 und es kommt zum Stillstand.
-
-        b = epiderm.continous2D.getObjectsWithinDistance(potentialLoc, modelController.getDoubleField("neighborhood_µm"), false); //theEpidermis.neighborhood
-        hitResultClass hitResult2;
-        hitResult2 = hitsOther(b, epiderm.continous2D, potentialLoc, true, epidermis.NextToOuterCell);
-
-        // move only on pressure when not stem cell
-        if (keratinoType!=modelController.getGlobalIntConstant("KTYPE_STEM"))
-        { 
-            if ((hitResult2.numhits==0) || 
-                ((hitResult2.numhits==1) && ((hitResult2.otherId==this.motherIdentity) || (hitResult2.otherMotherId==this.identity))))
-            {
-                double dx=potentialLoc.x-oldLoc.x;
-                lastd = new Double2D(potentialLoc.x-oldLoc.x,potentialLoc.y-oldLoc.y);
-                setPositionRespectingBounds(epiderm.continous2D, potentialLoc);
-            }
-        }
-        
-        Double2D newLoc=epiderm.continous2D.getObjectLocation(this);
-        double maxy=BasementMembrane.lowerBound(newLoc.x);  
-        if ((maxy-newLoc.y)<modelController.getDoubleField("basalLayerWidth")) 
-            isBasalStatisticsCell=true; 
-        else 
-            isBasalStatisticsCell=false; // ABSOLUTE DISTANZ KONSTANTE
-
-        if ((maxy-newLoc.y)<modelController.getDoubleField("membraneCellsWidth")) 
-            isMembraneCell=true; 
-        else 
-            isMembraneCell=false; // ABSOLUTE DISTANZ KONSTANTE
-        
-        //////////////////////////////////////////////////
-        // Proliferation
-        //////////////////////////////////////////////////
-        
-        cellcycle(hitResult2.numhits==0);
-        
-        //////////////////////////////////////////////////
-        // Diffusion of signals
-        //////////////////////////////////////////////////  
-        
-        Diffuser(b, epiderm.continous2D, newLoc, (isOuterCell || hitResult2.nextToOuterCell));
-        
-        //////////////////////////////////////////////////
-        // Differentiation: Environment and Internal processing
-        //////////////////////////////////////////////////  
-      
-        Differentiate(isOuterCell || hitResult2.nextToOuterCell);
-        
-        }
-
-        private Stoppable stopper = null;
-        public void setStopper(Stoppable stopperparam)   {this.stopper = stopperparam;}
-        public void stop(){stopper.stop();}
-		
-		public int getGKeratinoHeightGranu() {
-		
-			return gKeratinoHeightGranu;
+		//
+		// Memory management
+		//
+		if(inNirvana){
+			// please for resurrection by registering as wating
+			epidermis.nirvanaHeapLoaded = true;
+			epidermis.nirvanaHeap = this;
+			return;
 		}
-		
-		public void setGKeratinoHeightGranu(int keratinoHeightGranu) {
-		
-			gKeratinoHeightGranu = keratinoHeightGranu;
-		}
-		
-		public int getGKeratinoWidthGranu() {
-		
-			return gKeratinoWidthGranu;
-		}
-		
-		public void setGKeratinoWidthGranu(int keratinoWidthGranu) {
-		
-			gKeratinoWidthGranu = keratinoWidthGranu;
-		}
-		
-		public int getKeratinoHeight() {
-		
-			return keratinoHeight;
-		}
-		
-		public void setKeratinoHeight(int keratinoHeight) {
-		
-			this.keratinoHeight = keratinoHeight;
-		}
-		
-		public int getKeratinoWidth() {
-		
-			return keratinoWidth;
-		}
-		
-		public void setKeratinoWidth(int keratinoWidth) {
-		
-			this.keratinoWidth = keratinoWidth;
-		}
-		
-		public long getLocal_maxAge() {
-		
-			return local_maxAge;
-		}
-		
-		public void setLocal_maxAge(long local_maxAge) {
-		
-			this.local_maxAge = local_maxAge;
-		}
-		
-		public void setModelController(BioChemicalModelController modelController) {
-		
-			this.modelController = modelController;
-		}
-		public List<Method> getParameters() {
-			List<Method> methods = new ArrayList<Method>();
-			
-			for(Method m : this.getClass().getMethods()){
-				if(m.getName().startsWith("get")) methods.add(m);
+
+		hasGivenIons = 0;
+
+		// ////////////////////////////////////////////////
+		// calculate ACTION force
+		// ////////////////////////////////////////////////
+		int ministep = 1;
+		int maxmini = 1;
+
+		// Double2D rand = randomness(flock.random);
+		// Double2D mome = momentum();
+
+		// calc potential location from gravitation and external pressures
+		Double2D oldLoc = epiderm.continous2D.getObjectLocation(this);
+
+		if(extForce.length() > 0.6)
+			extForce = extForce.setLength(0.6);
+		// extForce=extForce.setLength(2*(1-Math.exp(-0.5*extForce.length())));
+		// extForce=extForce.setLength(sigmoid(extForce.length())-sigmoid(0)); //
+		// die funktion muss 0 bei 0 liefern, daher absenkung auf sigmoid(0)
+		Double2D gravi = new Double2D(0, modelController.getDoubleField("gravitation")); // Vector
+																													// which
+																													// avoidance
+																													// has
+																													// to
+																													// process
+		Double2D randi = new Double2D(modelController.getDoubleField("randomness")
+				* (epidermis.random.nextDouble() - 0.5), modelController.getDoubleField("randomness")
+				* (epidermis.random.nextDouble() - 0.5));
+		Vector2D actionForce = new Vector2D(gravi.x + extForce.x * modelController.getDoubleField("externalPush")
+				+ randi.x, gravi.y + extForce.y * modelController.getDoubleField("externalPush"));
+		Double2D potentialLoc = new Double2D(epiderm.continous2D.stx(actionForce.x + oldLoc.x), epiderm.continous2D
+				.sty(actionForce.y + oldLoc.y));
+		extForce.x = 0; // alles einberechnet
+		extForce.y = 0;
+
+		// ////////////////////////////////////////////////
+		// try ACTION force
+		// ////////////////////////////////////////////////
+		Bag b = epiderm.continous2D.getObjectsWithinDistance(potentialLoc, modelController
+				.getDoubleField("neighborhood_µm"), false); // theEpidermis.neighborhood
+		HitResultClass hitResult1;
+		hitResult1 = hitsOther(b, epiderm.continous2D, potentialLoc, true, epidermis.NextToOuterCell);
+
+		// ////////////////////////////////////////////////
+		// estimate optimised POS from REACTION force
+		// ////////////////////////////////////////////////
+		// optimise my own position by giving way to the calculated pressures
+		Vector2D reactionForce = extForce;
+		reactionForce = reactionForce.add(hitResult1.otherMomentum.amplify(epidermis.consistency));
+		reactionForce = reactionForce.add(hitResult1.adhForce.amplify(modelController.getDoubleField("cohesion")));
+
+		// restrict movement if direction changes to quickly (momentum of a cell
+		// movement)
+
+		// bound optimised force
+		// problem: each cell bounces back two times as much as it should (to be
+		// able to move around immobile objects)
+		// but as we don't want bouncing the reaction force must never exceed the
+		// action force in its length
+		// dx/dy contain move to make
+		if(reactionForce.length() > (actionForce.length() + 0.1))
+			reactionForce = reactionForce.setLength(actionForce.length() + 0.1);
+
+		extForce.x = 0;
+		extForce.y = 0;
+
+		// bound also by borders
+		double potX = oldLoc.x + actionForce.x + reactionForce.x;
+		double potY = oldLoc.y + actionForce.y + reactionForce.y;
+		potentialLoc = new Double2D(epiderm.continous2D.stx(potX), epiderm.continous2D.sty(potY));
+		potentialLoc = calcBoundedPos(epiderm.continous2D, potentialLoc.x, potentialLoc.y);
+
+		// ////////////////////////////////////////////////
+		// try optimised POS
+		// ////////////////////////////////////////////////
+		// check whether there is anything in the way at the new position
+
+		// aufgrund der gnaedigen Kollisionspruefung, die bei Aktueller Zelle (2)
+		// und Vorgaenger(1) keine Kollision meldet,
+		// ueberlappen beide ein wenig, falls es eng wird. Wird dann die (2)
+		// selber nachgefolgt von (3), so wird (2) rausgeschoben, aber (3) nicht
+		// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
+
+		b = epiderm.continous2D.getObjectsWithinDistance(potentialLoc, modelController.getDoubleField("neighborhood_µm"),
+				false); // theEpidermis.neighborhood
+		HitResultClass hitResult2;
+		hitResult2 = hitsOther(b, epiderm.continous2D, potentialLoc, true, epidermis.NextToOuterCell);
+
+		// move only on pressure when not stem cell
+		if(keratinoType != modelController.getGlobalIntConstant("KTYPE_STEM")){
+			if((hitResult2.numhits == 0)
+					|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.motherIdentity) || (hitResult2.otherMotherId == this.identity)))){
+				double dx = potentialLoc.x - oldLoc.x;
+				lastd = new Double2D(potentialLoc.x - oldLoc.x, potentialLoc.y - oldLoc.y);
+				setPositionRespectingBounds(epiderm.continous2D, potentialLoc);
 			}
-			return methods;
-		}
-		public String getName() {
-
-			
-			return NAME;
-		}
-		
-		public boolean isInNirvana() {
-		
-			return inNirvana;
-		}
-		
-		public void setInNirvana(boolean inNirvana) {
-		
-			this.inNirvana = inNirvana;
-		}
-		
-		public double getOwnSigExternalCalcium() {
-		
-			return ownSigExternalCalcium;
-		}
-		
-		public void setOwnSigExternalCalcium(double ownSigExternalCalcium) {
-		
-			this.ownSigExternalCalcium = ownSigExternalCalcium;
-		}
-		
-		public double getOwnSigInternalCalcium() {
-		
-			return ownSigInternalCalcium;
-		}
-		
-		public void setOwnSigInternalCalcium(double ownSigInternalCalcium) {
-		
-			this.ownSigInternalCalcium = ownSigInternalCalcium;
-		}
-		
-		public double getOwnSigLamella() {
-		
-			return ownSigLamella;
-		}
-		
-		public void setOwnSigLamella(double ownSigLamella) {
-		
-			this.ownSigLamella = ownSigLamella;
-		}
-		
-		public double getOwnSigLipids() {
-		
-			return ownSigLipids;
-		}
-		
-		public void setOwnSigLipids(double ownSigLipids) {
-		
-			this.ownSigLipids = ownSigLipids;
-		}
-		
-		public void setOuterCell(boolean isOuterCell) {
-		
-			this.isOuterCell = isOuterCell;
-		}
-		
-		public int getVoronoihullvertexes() {
-		
-			return voronoihullvertexes;
-		}
-		
-		public void setVoronoihullvertexes(int voronoihullvertexes) {
-		
-			this.voronoihullvertexes = voronoihullvertexes;
-		}
-		
-		public GrahamPoint[] getVoronoihull() {
-		
-			return voronoihull;
-		}
-		
-		public void setVoronoihull(GrahamPoint[] voronoihull) {
-		
-			this.voronoihull = voronoihull;
 		}
 
-		
-		public int getHasGivenIons() {
-		
-			return hasGivenIons;
-		}
+		Double2D newLoc = epiderm.continous2D.getObjectLocation(this);
+		double maxy = BasementMembrane.lowerBound(newLoc.x);
+		if((maxy - newLoc.y) < modelController.getDoubleField("basalLayerWidth"))
+			isBasalStatisticsCell = true;
+		else
+			isBasalStatisticsCell = false; // ABSOLUTE DISTANZ KONSTANTE
 
-		
-		public void setHasGivenIons(int hasGivenIons) {
-		
-			this.hasGivenIons = hasGivenIons;
-		}
+		if((maxy - newLoc.y) < modelController.getDoubleField("membraneCellsWidth"))
+			isMembraneCell = true;
+		else
+			isMembraneCell = false; // ABSOLUTE DISTANZ KONSTANTE
 
-		
-		public boolean isLastDrawInfoAssigned() {
-		
-			return lastDrawInfoAssigned;
-		}
+		// ////////////////////////////////////////////////
+		// Proliferation
+		// ////////////////////////////////////////////////
 
-		
-		public void setLastDrawInfoAssigned(boolean lastDrawInfoAssigned) {
-		
-			this.lastDrawInfoAssigned = lastDrawInfoAssigned;
-		}
+		cellcycle(hitResult2.numhits == 0);
 
-		
-		public double getLastDrawInfoX() {
-		
-			return lastDrawInfoX;
-		}
+		// ////////////////////////////////////////////////
+		// Diffusion of signals
+		// ////////////////////////////////////////////////
 
-		
-		public void setLastDrawInfoX(double lastDrawInfoX) {
-		
-			this.lastDrawInfoX = lastDrawInfoX;
-		}
+		diffuser(b, epiderm.continous2D, newLoc, (isOuterCell || hitResult2.nextToOuterCell));
 
-		
-		public double getLastDrawInfoY() {
-		
-			return lastDrawInfoY;
-		}
+		/////////////////////////////////////////////////////////
+		// Differentiation: Environment and Internal processing
+		////////////////////////////////////////////////////////
 
-		
-		public void setLastDrawInfoY(double lastDrawInfoY) {
-		
-			this.lastDrawInfoY = lastDrawInfoY;
-		}
+		differentiate(isOuterCell || hitResult2.nextToOuterCell);
 
-		
-		public EpidermisClass getEpidermis() {
-		
-			return epidermis;
-		}
+	}
 
+	public List<Method> getParameters() {
+		List<Method> methods = new ArrayList<Method>();
 		
-		public void setEpidermis(EpidermisClass epidermis) {
-		
-			this.epidermis = epidermis;
+		for(Method m : this.getClass().getMethods()){
+			if(m.getName().startsWith("get")) methods.add(m);
 		}
+		return methods;
+	}
+	
+	public void stop(){stopper.stop();}	
 
+//	--------------------------------------------------------------------------------------------------------------------------------------------------------------
+// INCREMENT-DECREMENT-METHODS
+//	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
-		public int getFormCount() {
+	public void incrementKeratinoAge() {  keratinoAge += 1; } // for inspector
+	public void incrementSpinosumCounter(){ spinosum_counter +=1;}
+	public void incrementVoronoiStable(){ voronoiStable +=1; }
+	
+	public void decrementSpinosumCounter(){ spinosum_counter -=1;}
+	public void decrementVoronoiStable(){ voronoiStable -= 1; }
 		
-			return formCount;
-		}
-
-		
-		public void setFormCount(int formCount) {
-		
-			this.formCount = formCount;
-		}
-
-		
-		public double[] getNeighborDrawInfoX() {
-		
-			return neighborDrawInfoX;
-		}
-
-		
-		public void setNeighborDrawInfoX(double[] neighborDrawInfoX) {
-		
-			this.neighborDrawInfoX = neighborDrawInfoX;
-		}
-
-		
-		public double[] getNeighborDrawInfoY() {
-		
-			return neighborDrawInfoY;
-		}
-
-		
-		public void setNeighborDrawInfoY(double[] neighborDrawInfoY) {
-		
-			this.neighborDrawInfoY = neighborDrawInfoY;
-		}
-
-		
-		public int getOwnColor() {
-		
-			return ownColor;
-		}
-
-		
-		public void setOwnColor(int ownColor) {
-		
-			this.ownColor = ownColor;
-		}
-
-		
-		public void setKeratinoAge(int keratinoAge) {
-		
-			this.keratinoAge = keratinoAge;
-		}           
-    }
+	
+//	--------------------------------------------------------------------------------------------------------------------------------------------------------------
+// GETTER-METHODS
+//	--------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	public EpidermisClass getEpidermis() {	return epidermis;	}
+	public double getExternalCalcium() { return ownSigExternalCalcium; }   // for inspector 
+	public double getExtForceX () { return extForce.x; }   // for inspector 
+   public double getExtForceY () { return extForce.y; }   // for inspector
+ 
+   public int getFormCount() { return formCount; }
+   
+   public int getGKeratinoHeightGranu() {	return gKeratinoHeightGranu;}
+   public int getGKeratinoWidthGranu() { return gKeratinoWidthGranu;	}
+   
+   public int getHasGivenIons() { return hasGivenIons; }
+   
+   public int getIdentity() { return identity; }   // for inspector
+   public double getInternalCalcium() { return ownSigInternalCalcium; }   // for inspector 
+   
+   public int getKeratinoAge() { return keratinoAge; } // for inspector
+   public int getKeratinoHeight() {	return keratinoHeight; }
+	public int getKeratinoType() { return keratinoType; }// for inspector
+	public int getKeratinoWidth() {return keratinoWidth;}
+	
+	public double getLamella() { return ownSigLamella; }   // for inspector
+	public double getLastDrawInfoX() { return lastDrawInfoX;	}
+	public double getLastDrawInfoY() { return lastDrawInfoY; }
+	public double getLipids() { return ownSigLipids; }   // for inspector
+	public long getLocal_maxAge() {return local_maxAge;}
+	
+	public String getName() { return NAME; }
+	public double[] getNeighborDrawInfoX() { return neighborDrawInfoX; }
+	public double[] getNeighborDrawInfoY() { return neighborDrawInfoY; }
+	
+	public int getOwnColor() {	return ownColor; }
+	public double getOwnSigExternalCalcium() { return ownSigExternalCalcium; }
+	public double getOwnSigInternalCalcium() { return ownSigInternalCalcium; }
+	public double getOwnSigLamella() { return ownSigLamella;	}
+	public double getOwnSigLipids() { return ownSigLipids; }
+	
+	public int getSpinosumCounter(){ return spinosum_counter;}
+	
+	public GrahamPoint[] getVoronoihull() { return voronoihull;	}
+	public int getVoronoihullvertexes() { return voronoihullvertexes; }
+   
+	
+	
+	public boolean isBasalStatisticsCell() { return isBasalStatisticsCell; }   // for inspector 
+	public boolean isBirthWish() { return birthWish; }   // for inspector
+	public boolean isMembraneCell() { return isMembraneCell; }   // for inspector
+	public boolean isInNirvana() { return inNirvana; }
+	public boolean isLastDrawInfoAssigned() {	return lastDrawInfoAssigned; }
+	public boolean isOuterCell() { return isOuterCell; }   // for inspector
+        
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------
+// SETTER-METHODS
+//	--------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	public void setEpidermis(EpidermisClass epidermis) { this.epidermis = epidermis; }
+	
+	public void setFormCount(int formCount) {	this.formCount = formCount; }
+	
+	public void setGKeratinoHeightGranu(int keratinoHeightGranu) {	gKeratinoHeightGranu = keratinoHeightGranu; }
+	public void setGKeratinoWidthGranu(int keratinoWidthGranu) { gKeratinoWidthGranu = keratinoWidthGranu; }
+	
+	public void setHasGivenIons(int hasGivenIons) {	this.hasGivenIons = hasGivenIons; }
+	
+	public void setInNirvana(boolean inNirvana) { this.inNirvana = inNirvana; }
+	
+	public void setKeratinoAge(int keratinoAge) { this.keratinoAge = keratinoAge;	}
+	public void setKeratinoHeight(int keratinoHeight) { this.keratinoHeight = keratinoHeight;	}
+	public void setKeratinoType(int type){ keratinoType = type;}
+	public void setKeratinoWidth(int keratinoWidth) { this.keratinoWidth = keratinoWidth; }
+	
+	public void setLastDrawInfoAssigned(boolean lastDrawInfoAssigned) { this.lastDrawInfoAssigned = lastDrawInfoAssigned; }
+	public void setLastDrawInfoX(double lastDrawInfoX) { this.lastDrawInfoX = lastDrawInfoX; }
+	public void setLastDrawInfoY(double lastDrawInfoY) { this.lastDrawInfoY = lastDrawInfoY; }
+	public void setLocal_maxAge(long local_maxAge) { this.local_maxAge = local_maxAge; }
+	
+	public void setModelController(BioChemicalModelController modelController) { this.modelController = modelController;	}
+	
+	public void setNeighborDrawInfoX(double[] neighborDrawInfoX) { this.neighborDrawInfoX = neighborDrawInfoX; }
+   public void setNeighborDrawInfoY(double[] neighborDrawInfoY) { this.neighborDrawInfoY = neighborDrawInfoY; }
+	
+	public void setOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell;}
+	public void setOwnColor(int ownColor) { this.ownColor = ownColor; }
+	public void setOwnSigExternalCalcium(double ownSigExternalCalcium) { this.ownSigExternalCalcium = ownSigExternalCalcium; }
+	public void setOwnSigInternalCalcium(double ownSigInternalCalcium) { this.ownSigInternalCalcium = ownSigInternalCalcium; }
+	public void setOwnSigLamella(double ownSigLamella) { this.ownSigLamella = ownSigLamella; }
+	public void setOwnSigLipids(double ownSigLipids) { this.ownSigLipids = ownSigLipids; }
+	
+	public void setStopper(Stoppable stopperparam)   {this.stopper = stopperparam;}
+        
+	public void setVoronoihull(GrahamPoint[] voronoihull) { this.voronoihull = voronoihull; }
+	public void setVoronoihullvertexes(int voronoihullvertexes) { this.voronoihullvertexes = voronoihullvertexes; }	
+	
+		           
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------
+}
 
 
 

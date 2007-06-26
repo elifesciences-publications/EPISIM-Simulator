@@ -327,7 +327,7 @@ public class EpisimModel{
       
       if (keratinoType!=KTYPE_NONUCLEUS)
       {
-         kCyte.inkrementKeratinoAge(); 
+         kCyte.incrementKeratinoAge(); 
       	
           ageFrac=(double)kCyte.getKeratinoAge() / (double)maxCellAge_t;
       }
@@ -378,7 +378,7 @@ public class EpisimModel{
 																																			// enough
 																																			// calcium
 			{
-				kCyte.dekrementSpinosumCounter();
+				kCyte.decrementSpinosumCounter();
 				
 			}
 			break;

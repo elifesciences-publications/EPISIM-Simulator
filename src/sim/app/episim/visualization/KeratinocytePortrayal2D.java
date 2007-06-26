@@ -155,13 +155,13 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                             if (kc.getVoronoihullvertexes()>4) 
                             {
                                 drawVoronoi=true;
-                               kc.inkrementVoronoiStable();  // Voronoi was possible
+                               kc.incrementVoronoiStable();  // Voronoi was possible
                             }
 
                         } // not enough points for Voronoi
                         else
                             {
-                                kc.dekrementVoronoiStable();  // Voronoi was not possible
+                                kc.decrementVoronoiStable();  // Voronoi was not possible
                                 drawVoronoi=false;
                             }
                     } // any neighbors counted in KCyteClass

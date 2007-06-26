@@ -1,12 +1,13 @@
 package sim.app.episim.charts;
 
-import java.util.List;
+
+import java.util.Set;
 
 public class ChartController {
 	
 	private static ChartController instance = null;
 	
-	private List <ChartMonitoredCellType> chartMonitoredClasses;
+	private Set <ChartMonitoredCellType> chartMonitoredCellTypes;
 	
 	private ChartController(){}
 	
@@ -17,7 +18,7 @@ public class ChartController {
 		return instance;
 	}
 	
-	public void registerCelltypeForChartMonitoring(){
+	public void registerCelltypeForChartMonitoring(ChartMonitoredCellType cellType){
 		
 	}
    

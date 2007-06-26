@@ -7,6 +7,6 @@ import java.util.List;
 public interface ChartMonitoredCellType extends ChartMonitoredClass{
 	
 	
-	
+	public String getName();
 
 }

@@ -43,7 +43,7 @@ private  String graphicsDirectory="pdf_png_simres/";
  public Continuous2D continous2D;
  public Continuous2D basementContinous2D;
  public boolean nirvanaHeapLoaded=false; // is a one-element list
- public KCyteClass nirvanaHeap;          // is the one and only element in this list
+ public KCyte nirvanaHeap;          // is the one and only element in this list
  private Bag allCells=new Bag(3000);
  
  //////////////////////////////////////
@@ -259,10 +259,10 @@ private  String graphicsDirectory="pdf_png_simres/";
          if ((depthFrac(newloc.y)>modelController.getDoubleField("seedMinDepth_frac") && (!modelController.getBooleanField("seedReverse"))) || (depthFrac(newloc.y)<modelController.getDoubleField("seedMinDepth_frac") && modelController.getBooleanField("seedReverse")))
              if (distance>modelController.getIntField("basalDensity_µm"))
              {                
-                 KCyteClass stemCell= new KCyteClass(this);                 
-                 stemCell.KeratinoType=modelController.getGlobalIntConstant("KTYPE_STEM");
-                 stemCell.ownColor=10;
-                 stemCell.KeratinoAge=random.nextInt(modelController.getIntField("stemCycle_t"));     // somewhere on the stemCycle
+                 KCyte stemCell= new KCyte(this);                 
+                 stemCell.setKeratinoType(modelController.getGlobalIntConstant("KTYPE_STEM"));
+                 stemCell.setOwnColor(10);
+                 stemCell.setKeratinoAge(random.nextInt(modelController.getIntField("stemCycle_t")));     // somewhere on the stemCycle
                  continous2D.setObjectLocation(stemCell, newloc);
                  lastloc=newloc;
                  schedule.scheduleRepeating(stemCell);
@@ -610,48 +610,48 @@ private  String graphicsDirectory="pdf_png_simres/";
                  for (int i=0; i<allCells.size(); i++)
                  {
                      // iterate through all cells
-                     KCyteClass act=(KCyteClass)allCells.get(i);
-                     if (act.inNirvana) continue;
+                     KCyte act=(KCyte)allCells.get(i);
+                     if (act.isInNirvana()) continue;
                      // is a living cell..
                      Double2D loc=continous2D.getObjectLocation(act);
                      int histobin=(int)loc.y/7;
                      HistoNum[histobin]++;
-                     HistoExtCalConc[histobin]+=act.ownSigExternalCalcium;
-                     HistoIntCalConc[histobin]+=act.ownSigInternalCalcium;
-                     HistoLamellaConc[histobin]+=act.ownSigLamella;
-                     HistoLipidsConc[histobin]+=act.ownSigLipids;
-                     if (act.KeratinoType!= modelController.getGlobalIntConstant("KTYPE_STEM"))
-                         HistoAgeAvg[histobin]+=act.KeratinoAge;
+                     HistoExtCalConc[histobin]+=act.getOwnSigExternalCalcium();
+                     HistoIntCalConc[histobin]+=act.getOwnSigInternalCalcium();
+                     HistoLamellaConc[histobin]+=act.getOwnSigLamella();
+                     HistoLipidsConc[histobin]+=act.getOwnSigLipids();
+                     if (act.getKeratinoType()!= modelController.getGlobalIntConstant("KTYPE_STEM"))
+                         HistoAgeAvg[histobin]+=act.getKeratinoAge();
                      
-                     if(act.KeratinoType == modelController.getGlobalIntConstant("KTYPE_TA")) 
-                     { IntCal_TA+=act.ownSigInternalCalcium; 
-                       ExtCal_TA+=act.ownSigExternalCalcium; 
-                       Lam_TA+=act.ownSigLamella; 
-                       Lip_TA+=act.ownSigLipids;  
+                     if(act.getKeratinoType() == modelController.getGlobalIntConstant("KTYPE_TA")) 
+                     { IntCal_TA+=act.getOwnSigInternalCalcium(); 
+                       ExtCal_TA+=act.getOwnSigExternalCalcium(); 
+                       Lam_TA+=act.getOwnSigLamella(); 
+                       Lip_TA+=act.getOwnSigLipids();  
                       }
-                     else if(act.KeratinoType ==modelController.getGlobalIntConstant("KTYPE_SPINOSUM")){ 
-                     	IntCal_Spi+=act.ownSigInternalCalcium; 
-                     	ExtCal_Spi+=act.ownSigExternalCalcium; 
-                     	Lam_Spi+=act.ownSigLamella; 
-                     	Lip_Spi+=act.ownSigLipids; 
+                     else if(act.getKeratinoType() ==modelController.getGlobalIntConstant("KTYPE_SPINOSUM")){ 
+                     	IntCal_Spi+=act.getOwnSigInternalCalcium(); 
+                     	ExtCal_Spi+=act.getOwnSigExternalCalcium(); 
+                     	Lam_Spi+=act.getOwnSigLamella(); 
+                     	Lip_Spi+=act.getOwnSigLipids(); 
                      }
-                     else if(act.KeratinoType == modelController.getGlobalIntConstant("KTYPE_LATESPINOSUM")) { 
-                     	IntCal_LateSpi+=act.ownSigInternalCalcium; 
-                     	ExtCal_LateSpi+=act.ownSigExternalCalcium; 
-                     	Lam_LateSpi+=act.ownSigLamella; 
-                     	Lip_LateSpi+=act.ownSigLipids; 
+                     else if(act.getKeratinoType() == modelController.getGlobalIntConstant("KTYPE_LATESPINOSUM")) { 
+                     	IntCal_LateSpi+=act.getOwnSigInternalCalcium(); 
+                     	ExtCal_LateSpi+=act.getOwnSigExternalCalcium(); 
+                     	Lam_LateSpi+=act.getOwnSigLamella(); 
+                     	Lip_LateSpi+=act.getOwnSigLipids(); 
                      }
-                     else if(act.KeratinoType == modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")){ 
-                     	IntCal_Granu+=act.ownSigInternalCalcium; 
-                     	ExtCal_Granu+=act.ownSigExternalCalcium; 
-                     	Lam_Granu+=act.ownSigLamella; 
-                     	Lip_Granu+=act.ownSigLipids; 
+                     else if(act.getKeratinoType() == modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")){ 
+                     	IntCal_Granu+=act.getOwnSigInternalCalcium(); 
+                     	ExtCal_Granu+=act.getOwnSigExternalCalcium(); 
+                     	Lam_Granu+=act.getOwnSigLamella(); 
+                     	Lip_Granu+=act.getOwnSigLipids(); 
                      }
-                     else if(act.KeratinoType == modelController.getGlobalIntConstant("KTYPE_NONUCLEUS")){ 
-                     	IntCal_NoNuc+=act.ownSigInternalCalcium; 
-                     	ExtCal_NoNuc+=act.ownSigExternalCalcium; 
-                     	Lam_NoNuc+=act.ownSigLamella; 
-                     	Lip_NoNuc+=act.ownSigLipids; 
+                     else if(act.getKeratinoType() == modelController.getGlobalIntConstant("KTYPE_NONUCLEUS")){ 
+                     	IntCal_NoNuc+=act.getOwnSigInternalCalcium(); 
+                     	ExtCal_NoNuc+=act.getOwnSigExternalCalcium(); 
+                     	Lam_NoNuc+=act.getOwnSigLamella(); 
+                     	Lip_NoNuc+=act.getOwnSigLipids(); 
                      }
                      
                  }
@@ -764,7 +764,7 @@ private  String graphicsDirectory="pdf_png_simres/";
              public void step(SimState state)
              {
                  int MAX_XBINS=300; // for every 3 x coordinates one bin
-                 KCyteClass[] XLookUp=new KCyteClass[MAX_XBINS];                                         
+                 KCyte[] XLookUp=new KCyte[MAX_XBINS];                                         
                  double [] YLookUp=new double[MAX_XBINS]; // Concentrations *10 = 0 to 200
                  boolean [] LookUpUsed=new boolean[MAX_XBINS]; 
                  for (int k=0; k< MAX_XBINS; k++)
@@ -782,19 +782,19 @@ private  String graphicsDirectory="pdf_png_simres/";
                  for (int i=0; i<allCells.size(); i++)
                  {
                      // iterate through all cells and determine the KCyte with lowest Y at bin
-                     KCyteClass act=(KCyteClass)allCells.get(i);
-                     if (act.inNirvana) continue;
+                     KCyte act=(KCyte)allCells.get(i);
+                     if (act.isInNirvana()) continue;
                      // is a living cell..
                      
-                     if (act.isOuterCell) // statistics from last time evaluation (so we are always lacking behind one calling period !)
+                     if (act.isOuterCell()) // statistics from last time evaluation (so we are always lacking behind one calling period !)
                      {
-                         gStatistics_Barrier_ExtCalcium+=act.ownSigExternalCalcium;
-                         gStatistics_Barrier_Lamella+=act.ownSigLamella;
-                         gStatistics_Barrier_Lipids+=act.ownSigLipids;                            
+                         gStatistics_Barrier_ExtCalcium+=act.getOwnSigExternalCalcium();
+                         gStatistics_Barrier_Lamella+=act.getOwnSigLamella();
+                         gStatistics_Barrier_Lipids+=act.getOwnSigLipids();                            
                          OldNumOuterCells++;
                      }
                      
-                     if (act.isBasalStatisticsCell) actualBasalStatisticsCells++;
+                     if (act.isBasalStatisticsCell()) actualBasalStatisticsCells++;
                      
                      //act.isOuterCell=false; // set new default 
                      Double2D loc=continous2D.getObjectLocation(act);
@@ -811,10 +811,10 @@ private  String graphicsDirectory="pdf_png_simres/";
                              YLookUp[xbin]=loc.y;
                          }
                      // other statistics
-                     if ((act.KeratinoType!=modelController.getGlobalIntConstant("KTYPE_STEM")) && (act.KeratinoType!=modelController.getGlobalIntConstant("KTYPE_NONUCLEUS")))
+                     if ((act.getKeratinoType()!=modelController.getGlobalIntConstant("KTYPE_STEM")) && (act.getKeratinoType()!=modelController.getGlobalIntConstant("KTYPE_NONUCLEUS")))
                      {
-                         gStatistics_KCytes_MeanAge+=act.KeratinoAge;  
-                         if (act.KeratinoAge>modelController.getIntField("maxCellAge_t"))
+                         gStatistics_KCytes_MeanAge+=act.getKeratinoAge();  
+                         if (act.getKeratinoAge()>modelController.getIntField("maxCellAge_t"))
                              {
                                  System.out.println("Age Error");
                              }
@@ -823,8 +823,8 @@ private  String graphicsDirectory="pdf_png_simres/";
 
                  for (int k=0; k< MAX_XBINS; k++)
                  {
-                     if ((XLookUp[k]==null) || (XLookUp[k].KeratinoType==modelController.getGlobalIntConstant("KTYPE_STEM"))) continue; // stem cells cannot be outer cells (Assumption)                        
-                     XLookUp[k].isOuterCell=true;
+                     if ((XLookUp[k]==null) || (XLookUp[k].getKeratinoType()==modelController.getGlobalIntConstant("KTYPE_STEM"))) continue; // stem cells cannot be outer cells (Assumption)                        
+                     XLookUp[k].setOuterCell(true);
                  }
                  // other statistics
                  gStatistics_KCytes_MeanAge/=actualKCytes-actualNoNucleus;
@@ -1052,9 +1052,9 @@ Iterator iter = allCells.iterator();
 	
 	while(iter.hasNext()){
 	  Object obj = iter.next();
-	  if (obj instanceof KCyteClass){
-		  KCyteClass kcyte =(KCyteClass) obj;
-		  if(path.contains(kcyte.LastDrawInfoX, kcyte.LastDrawInfoY)){ 
+	  if (obj instanceof KCyte){
+		  KCyte kcyte =(KCyte) obj;
+		  if(path.contains(kcyte.getLastDrawInfoX(), kcyte.getLastDrawInfoY())){ 
 			  System.out.println("Zelle gelöscht");
 			  //iter.remove();
 			  kcyte.killCell();
@@ -1075,8 +1075,8 @@ Iterator iter = allCells.iterator();
 	
 	while(iter.hasNext()){
 	  Object obj = iter.next();
-	  if (obj instanceof KCyteClass){
-		  KCyteClass kcyte =(KCyteClass) obj;
+	  if (obj instanceof KCyte){
+		  KCyte kcyte =(KCyte) obj;
 		  
 			  kcyte.setModelController(modelController);
 			  

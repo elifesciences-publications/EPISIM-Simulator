@@ -154,8 +154,8 @@ public class BiochemicalModel implements java.io.Serializable{
 		}
    }
    
-   public void differentiate(KCyteClass  kCyte, EpidermisClass theEpidermis, boolean pBarrierMember) throws SecurityException, NoSuchMethodException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
-   	Method method = getMethod("differentiate", "", new Class[]{KCyteClass.class, EpidermisClass.class, Boolean.TYPE});
+   public void differentiate(KCyte  kCyte, EpidermisClass theEpidermis, boolean pBarrierMember) throws SecurityException, NoSuchMethodException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
+   	Method method = getMethod("differentiate", "", new Class[]{KCyte.class, EpidermisClass.class, Boolean.TYPE});
    	Object[] arguments = new Object[]{kCyte, theEpidermis, pBarrierMember};
 	
 			method.invoke(actModelObject, arguments);

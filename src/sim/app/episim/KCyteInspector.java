@@ -5,11 +5,11 @@ import sim.portrayal.*;
 import java.awt.*;
 import sim.display.*;
 
-public class KCyteClassInspector extends Inspector
+public class KCyteInspector extends Inspector
     {
     public Inspector originalInspector;
     
-    public KCyteClassInspector(Inspector originalInspector,
+    public KCyteInspector(Inspector originalInspector,
                                 LocationWrapper wrapper,
                                 GUIState guiState)
         {

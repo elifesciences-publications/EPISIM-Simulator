@@ -13,116 +13,143 @@ import java.util.List;
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
 
-public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable, ChartMonitoredCellType
-    {
-       
+public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable, ChartMonitoredCellType
+{
+//	-----------------------------------------------------------------------------------------------------------------------------------------   
+// CONSTANTS
+//	-----------------------------------------------------------------------------------------------------------------------------------------          
 	
-	
-   
-    
 	private static final long serialVersionUID = 5212944079288103141L;
+   
+   private final String NAME = "Keratinocyte";
+   
+   public final int GOPTIMALKERATINODISTANCE=4; // Default: 4
+   public final int GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
+   public final int GINITIALKERATINOHEIGHT=5; // Default: 5
+   public final int GINITIALKERATINOWIDTH=5; // Default: 5
 
-		private transient BioChemicalModelController modelController;
-        
-        final public int gOptimalKeratinoDistance=4; // Default: 4
-        final public int gOptimalKeratinoDistanceGranu=4; // Default: 3
-        final public int gInitialKeratinoHeight=5; // Default: 5
-        final public int gInitialKeratinoWidth=5; // Default: 5
-        public int gKeratinoWidthGranu=9; // defauolt: 10
-        public int gKeratinoHeightGranu=4;
+//	-----------------------------------------------------------------------------------------------------------------------------------------   
+// VARIABLES
+//	-----------------------------------------------------------------------------------------------------------------------------------------          
+   private transient BioChemicalModelController modelController;
+   
+   private int gKeratinoWidthGranu=9; // defauolt: 10
+   private int gKeratinoHeightGranu=4;
                 
-        public Double2D lastd = new Double2D(0,0);
-        public boolean holePassed= false;
-        public EpidermisClass theEpidermis;    
-        public int KeratinoType;    
-        public int getKeratinoType() { return KeratinoType; }// for inspector 
-        public void setKeratinoType(int type){ KeratinoType = type;}
-        public int KeratinoAge;
-        public int getKeratinoAge() { return KeratinoAge; } // for inspector
-        public void inkrementKeratinoAge() {  KeratinoAge += 1; } // for inspector 
-        
-        public boolean newborn;
-        public double LastDrawInfoX;
-        public double LastDrawInfoY;
-        public boolean LastDrawInfoAssigned=false;
-        public double NeighborDrawInfoX[]=new double[50];
-        public double NeighborDrawInfoY[]=new double[50];  
-        public int VoronoiStable=0; // count if a voroni is displayable, only display when at least several times stable, so avoid permanent switching back to standardform
-        public GrahamPoint voronoihull[]=new GrahamPoint[50];
-        public int voronoihullvertexes=0;
-        
-        public int formCount=0; // Number of neighbors
+   private Double2D lastd = new Double2D(0,0);
+   private boolean holePassed= false;
+   private EpidermisClass epidermis;    
+   private int keratinoType;
+   private int keratinoAge;
+   
+   
+   private boolean newborn;
+   private double lastDrawInfoX;
+   private double lastDrawInfoY;
+   private boolean lastDrawInfoAssigned=false;
+   private double neighborDrawInfoX[]=new double[50];
+   private double neighborDrawInfoY[]=new double[50];  
+   private int voronoiStable=0; // count if a voroni is displayable, only display when at least several times stable, so avoid permanent switching back to standardform
+   private GrahamPoint voronoihull[]=new GrahamPoint[50];
+   private int voronoihullvertexes=0;
+   
+   private int formCount=0; // Number of neighbors
 
-        public int KeratinoWidth=-11; // breite keratino
-        public int KeratinoHeight=-1; // höhe keratino
-        
-        public int ownColor=0;
-        public int motherIdentity=-1;   // -1 means not filled yet
-        public boolean inNirvana=false; // unvisible and without action: only ageing is active
-        
-        public int spinosum_counter=0;
-        
-        public int getSpinosumCounter(){ return spinosum_counter;}
-        
-        public void incrementSpinosumCounter(){ spinosum_counter +=1;}
-        
-        public void dekrementSpinosumCounter(){ spinosum_counter -=1;}
-        
-        //public boolean dead = false;
-        Vector2D extForce = new Vector2D(0,0);
-        public double getExtForceX () { return extForce.x; }   // for inspector 
-        public double getExtForceY () { return extForce.y; }   // for inspector 
-        
-        public int identity=0;
-        public int getIdentity() { return identity; }   // for inspector 
-        
-        public long local_maxAge;
-        
-        public boolean birthWish=false;
-        public boolean getBirthWish() { return birthWish; }   // for inspector 
-        public int hasGivenIons=0;
+   private int keratinoWidth=-11; // breite keratino
+   private int keratinoHeight=-1; // höhe keratino
+   
+   private int ownColor=0;
+   private int motherIdentity=-1;   // -1 means not filled yet
+   private boolean inNirvana=false; // unvisible and without action: only ageing is active
+   
+   private int spinosum_counter=0;
+  
+   // public boolean dead = false;
+   private Vector2D extForce = new Vector2D(0,0);
+   private int identity=0;
+   private long local_maxAge;
+   
+   private boolean birthWish=false;
+   
+   private int hasGivenIons=0;
 
-        // ENV
-        public double ownSigExternalCalcium=0;
-        public double getExternalCalcium() { return ownSigExternalCalcium; }   // for inspector 
-        public double ownSigInternalCalcium=0;        
-        public double getInternalCalcium() { return ownSigInternalCalcium; }   // for inspector 
-        public double ownSigLipids=0;
+   // ENV
+   private double ownSigExternalCalcium=0;
+   private double ownSigInternalCalcium=0;
+   private double ownSigLipids=0;
+   private double ownSigLamella=0;
+   
+   private boolean isOuterCell=false;
+   private boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
+   public boolean isMembraneCell=false;    // cells directly sitting on membrane, very strict
+//-----------------------------------------------------------------------------------------------------------------------------------------   
+//-----------------------------------------------------------------------------------------------------------------------------------------   
+   
+   
+   public void inkrementVoronoiStable(){
+   	voronoiStable +=1;
+   }
+   
+   public void dekrementVoronoiStable(){
+   	voronoiStable -= 1;
+   }
+   
+   public int getKeratinoType() { return keratinoType; }// for inspector 
+   public void setKeratinoType(int type){ keratinoType = type;}
+       
+   public int getKeratinoAge() { return keratinoAge; } // for inspector
+   public void inkrementKeratinoAge() {  keratinoAge += 1; } // for inspector 
+        
+   public int getSpinosumCounter(){ return spinosum_counter;}
+        
+   public void incrementSpinosumCounter(){ spinosum_counter +=1;}
+        
+   public void dekrementSpinosumCounter(){ spinosum_counter -=1;}
+        
+   public double getExtForceX () { return extForce.x; }   // for inspector 
+   public double getExtForceY () { return extForce.y; }   // for inspector 
+        
+   public int getIdentity() { return identity; }   // for inspector 
+        
+        
+   public boolean getBirthWish() { return birthWish; }   // for inspector 
+        
+   public double getExternalCalcium() { return ownSigExternalCalcium; }   // for inspector 
+   
+   public double getInternalCalcium() { return ownSigInternalCalcium; }   // for inspector 
+        
         public double getLipids() { return ownSigLipids; }   // for inspector 
-        public double ownSigLamella=0;
+       
         public double getLamella() { return ownSigLamella; }   // for inspector 
         
-        public boolean isOuterCell=false;
-        public boolean getOutCell() { return isOuterCell; }   // for inspector 
         
-        public boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
+        public boolean isOuterCell() { return isOuterCell; }   // for inspector 
+        
+        
         public boolean isBasalStatisticsCell() { return isBasalStatisticsCell; }   // for inspector 
         
-        public boolean isMembraneCell=false;    // cells directly sitting on membrane, very strict
+        
         public boolean isMembraneCell() { return isMembraneCell; }   // for inspector        
         
-        //public double getOrientation() { return orientation2D(); }
-
-        //public boolean isDead() { return dead; }
-        //public void setDead(boolean val) { dead = val; }
+        
         
         
 
-    public KCyteClass(EpidermisClass pFlock)
+    public KCyte(EpidermisClass pFlock)
     {
    	 modelController = BioChemicalModelController.getInstance(); 
    	 // always as first thing, set beholder
-        theEpidermis=pFlock;
+        epidermis=pFlock;
         // now local vars
-        theEpidermis.allocatedKCytes++;
-        identity=theEpidermis.allocatedKCytes;        
+        epidermis.allocatedKCytes++;
+        identity=epidermis.allocatedKCytes;        
         newborn();
         newborn=false;                    
         lastd=new Double2D(0.0,-3);
         // Memory Management
-        if (theEpidermis.allocatedKCytes>theEpidermis.getAllCells().size()-2) // for safety -2
-            theEpidermis.getAllCells().resize(theEpidermis.getAllCells().size()+500); // alloc 500 in advance
-        theEpidermis.getAllCells().add(this); // register this as additional one in Bag
+        if (epidermis.allocatedKCytes>epidermis.getAllCells().size()-2) // for safety -2
+            epidermis.getAllCells().resize(epidermis.getAllCells().size()+500); // alloc 500 in advance
+        epidermis.getAllCells().add(this); // register this as additional one in Bag
         //System.out.println("New Cell Nr."+theEpidermis.allocatedKCytes);
         
         
@@ -135,10 +162,10 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         holePassed=false;
         extForce=new Vector2D(0,0);
         inNirvana=false;        
-        KeratinoWidth=gInitialKeratinoWidth; //theEpidermis.InitialKeratinoSize;
-        KeratinoHeight=gInitialKeratinoHeight; //theEpidermis.InitialKeratinoSize; 
-        KeratinoAge=0;
-        KeratinoType=modelController.getGlobalIntConstant("KTYPE_UNASSIGNED");
+        keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
+        keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
+        keratinoAge=0;
+        keratinoType=modelController.getGlobalIntConstant("KTYPE_UNASSIGNED");
         ownSigExternalCalcium=0;
         ownSigInternalCalcium=0;
         ownSigLipids=0;
@@ -146,7 +173,7 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         isOuterCell=false;        
         newborn=true;        
         voronoihullvertexes=0;
-        VoronoiStable=0;
+        voronoiStable=0;
     }    
     
     public double orientation2D()
@@ -173,24 +200,17 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         return new Double2D(-(yright-yleft),10);
     }   
  
-    /*
-    public Double2D newborn_ypos(double x, EpidermisClass flock) // return the y-position at position x
-    {        
-        double y=theEpidermis.lowerBound(x)+theEpidermis.birthOffset;// -flock.random.nextDouble()*5;     
-	// y=20; // Oben geboren, wozu ??
-        return new Double2D(x,y); 
-    }
-*/
+   
     public void newbornRandomAge()
     {
         newborn();
-        KeratinoAge=theEpidermis.random.nextInt(modelController.getIntField("maxCellAge_t"));
+        keratinoAge=epidermis.random.nextInt(modelController.getIntField("maxCellAge_t"));
     }
 
     public void nirvanaAgeing(EpidermisClass flock)
     {
-        ++KeratinoAge;
-        if (KeratinoAge>=modelController.getIntField("maxCellAge_t")) newborn(); //{KeratinoType=0;} // stratum corneum
+        ++keratinoAge;
+        if (keratinoAge>=modelController.getIntField("maxCellAge_t")) newborn(); //{KeratinoType=0;} // stratum corneum
     }
     
  
@@ -242,12 +262,12 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
             double x = 0; 
             double y = 0;            
             int i=0;
-            double adxOpt = gOptimalKeratinoDistance; //KeratinoWidth-2+theEpidermis.cellSpace;                         was 4 originally then 5
+            double adxOpt = GOPTIMALKERATINODISTANCE; //KeratinoWidth-2+theEpidermis.cellSpace;                         was 4 originally then 5
             //double adxOpt = KeratinoWidth; //KeratinoWidth-2+theEpidermis.cellSpace;                        
             //double adyOpt = 5; // 3+theEpidermis.cellSpace;
             
             
-            if (KeratinoType==modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")) adxOpt=gOptimalKeratinoDistanceGranu; // was 3 // 4 in modified version
+            if (keratinoType==modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
             
             double optDistSq = adxOpt*adxOpt; //+adyOpt*adyOpt;
             double optDist=Math.sqrt(optDistSq);
@@ -257,10 +277,10 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 
             for(i=0;i<b.numObjs;i++)
                 {
-                    if (!(b.objs[i] instanceof KCyteClass))
+                    if (!(b.objs[i] instanceof KCyte))
                         continue;
             
-                KCyteClass other = (KCyteClass)(b.objs[i]);
+                KCyte other = (KCyte)(b.objs[i]);
                 if (other != this )
                     {
                         Double2D otherloc=pC2dHerd.getObjectLocation(other);
@@ -282,15 +302,15 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 //                                                    (notorus_dy<(double)gOptimalKeratinoDistance*1.5))
                                                 if (actdist < (optDist*1.7))
                                                 {
-                                                    if (other.LastDrawInfoAssigned==true)
-                                                        NeighborDrawInfoX[formCount]=other.LastDrawInfoX;
-                                                        NeighborDrawInfoY[formCount]=other.LastDrawInfoY;
+                                                    if (other.lastDrawInfoAssigned==true)
+                                                        neighborDrawInfoX[formCount]=other.lastDrawInfoX;
+                                                        neighborDrawInfoY[formCount]=other.lastDrawInfoY;
                                                     ++formCount;
                                                 }
                                             }
                         
                         
-                        if (optDist-actdist>theEpidermis.minDist) // ist die kollision signifikant ?
+                        if (optDist-actdist>epidermis.minDist) // ist die kollision signifikant ?
                                     {
                                             double fx=(actdist>0)?(optDist+0.1)/actdist*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
                                             double fy=(actdist>0)?(optDist+0.1)/actdist*dy-dy:0;                                            
@@ -318,7 +338,7 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 
                         else // attraction forces 
                         {
-                            double adhfac=modelController.get2DDoubleArrayValue("adh_array", KeratinoType, other.KeratinoType);                           
+                            double adhfac=modelController.get2DDoubleArrayValue("adh_array", keratinoType, other.keratinoType);                           
                             if (actdist-optDist<modelController.getDoubleField("adhesionDist"))
                                         {                                                   
                                                 double sx=dx-dx*optDist/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
@@ -334,7 +354,7 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
                         if (actdistsq <= pBarrierMemberDist * pBarrierMemberDist)
                         {
                                             
-                          Double2D m = ((KCyteClass)b.objs[i]).momentum();
+                          Double2D m = ((KCyte)b.objs[i]).momentum();
                           hitResult.otherMomentum.x+=m.x;
                           hitResult.otherMomentum.y+=m.y;
                           neighbors++;                         
@@ -411,31 +431,31 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         return 4/(1+0.1*Math.exp((-x-4)/1));
     }
     
-    public KCyteClass makeChild(Continuous2D pC2dHerd)
+    public KCyte makeChild(Continuous2D pC2dHerd)
     {       
         // Either we get use a currently unused cell oder we allocate a new one
-        KCyteClass kcyte;        
-        if (theEpidermis.nirvanaHeapLoaded)
+        KCyte kcyte;        
+        if (epidermis.nirvanaHeapLoaded)
         {
-            kcyte = theEpidermis.nirvanaHeap;
-            theEpidermis.nirvanaHeapLoaded=false;
+            kcyte = epidermis.nirvanaHeap;
+            epidermis.nirvanaHeapLoaded=false;
         }
         else
         {
-            kcyte= new KCyteClass(theEpidermis); 
-            theEpidermis.schedule.scheduleRepeating(kcyte);   // schedule only if not already running
+            kcyte= new KCyte(epidermis); 
+            epidermis.schedule.scheduleRepeating(kcyte);   // schedule only if not already running
         }
 
         Double2D newloc=pC2dHerd.getObjectLocation(this);
-        newloc=new Double2D(newloc.x +theEpidermis.random.nextDouble()*0.5-0.25, newloc.y-theEpidermis.random.nextDouble()*0.5-0.1);
+        newloc=new Double2D(newloc.x +epidermis.random.nextDouble()*0.5-0.25, newloc.y-epidermis.random.nextDouble()*0.5-0.1);
         //newloc=new Double2D(newloc.x - theEpidermis.random.nextInt(4)+2, newloc.y - theEpidermis.random.nextInt(2));
         //newloc=new Double2D(newloc.x +0.1, newloc.y-0.1);
         kcyte.motherIdentity=this.identity;
-        kcyte.ownColor=this.theEpidermis.random.nextInt(200);
-        kcyte.theEpidermis = this.theEpidermis;        // the herd
+        kcyte.ownColor=this.epidermis.random.nextInt(200);
+        kcyte.epidermis = this.epidermis;        // the herd
         kcyte.newborn();     
         kcyte.local_maxAge=modelController.getIntField("maxCellAge_t");
-        long pSimTime=(long) theEpidermis.schedule.time();
+        long pSimTime=(long) epidermis.schedule.time();
         if (pSimTime<(kcyte.local_maxAge)) kcyte.local_maxAge=pSimTime;
 
         
@@ -446,11 +466,11 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 
     public void makeTACell(Continuous2D pC2dHerd)
     {
-        theEpidermis.actualTA++;
-        theEpidermis.actualKCytes++;
-        KCyteClass TACell=makeChild(pC2dHerd);
-        TACell.KeratinoType=modelController.getGlobalIntConstant("KTYPE_TA");        
-        TACell.KeratinoAge=this.theEpidermis.random.nextInt(modelController.getIntField("tACycle_t"));  // somewhere on the TA Cycle
+        epidermis.actualTA++;
+        epidermis.actualKCytes++;
+        KCyte TACell=makeChild(pC2dHerd);
+        TACell.keratinoType=modelController.getGlobalIntConstant("KTYPE_TA");        
+        TACell.keratinoAge=this.epidermis.random.nextInt(modelController.getIntField("tACycle_t"));  // somewhere on the TA Cycle
         // erben der signal concentrationen
         TACell.ownSigLipids=0;
         TACell.ownSigLamella=0;
@@ -462,17 +482,17 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 
     public void makeSpiCell(Continuous2D pC2dHerd, long pSimTime)
     {
-        theEpidermis.actualSpi++;
-        theEpidermis.actualKCytes++;
-        KCyteClass TACell=makeChild(pC2dHerd);
+        epidermis.actualSpi++;
+        epidermis.actualKCytes++;
+        KCyte TACell=makeChild(pC2dHerd);
         TACell.ownSigInternalCalcium=this.ownSigInternalCalcium/2;
         ownSigInternalCalcium=ownSigInternalCalcium/2; // ownSigInternalCalcium;
         TACell.ownSigExternalCalcium=this.ownSigExternalCalcium/2;
         ownSigExternalCalcium=ownSigExternalCalcium/2; // ownSigExternalCalcium;
         TACell.ownSigLamella=0;
         TACell.ownSigLipids=0; 
-        TACell.KeratinoType=modelController.getGlobalIntConstant("KTYPE_SPINOSUM");        
-        TACell.KeratinoAge=0; // this.theEpidermis.random.nextInt(local_maxAge);  // somewhere on the TA Cycle
+        TACell.keratinoType=modelController.getGlobalIntConstant("KTYPE_SPINOSUM");        
+        TACell.keratinoAge=0; // this.theEpidermis.random.nextInt(local_maxAge);  // somewhere on the TA Cycle
         // erben der signal concentrationen
 
     }
@@ -487,7 +507,7 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         
         for(i=0;i<b.numObjs;i++)
             {
-            KCyteClass other = (KCyteClass)(b.objs[i]);
+            KCyte other = (KCyte)(b.objs[i]);
             if (other != this )
                 {
                     Double2D otherloc=pC2dHerd.getObjectLocation(other);
@@ -545,8 +565,8 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         //        
         ownSigInternalCalcium=ownSigExternalCalcium*0.01;
        
-        if ( (KeratinoType==modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")) || (KeratinoType==modelController.getGlobalIntConstant("KTYPE_SPINOSUM")) 
-      		  || (KeratinoType==modelController.getGlobalIntConstant("KTYPE_LATESPINOSUM")))
+        if ( (keratinoType==modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")) || (keratinoType==modelController.getGlobalIntConstant("KTYPE_SPINOSUM")) 
+      		  || (keratinoType==modelController.getGlobalIntConstant("KTYPE_LATESPINOSUM")))
         {
             //
             // Secretion of Lamella
@@ -591,12 +611,12 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
     
     public void Differentiate(boolean pBarrierMember)
     {
-      modelController.differentiate(this, theEpidermis, pBarrierMember);
+      modelController.differentiate(this, epidermis, pBarrierMember);
  
         
     
 
-        if ((KeratinoType==modelController.getGlobalIntConstant("KTYPE_NONUCLEUS"))) // && (isOuterCell))
+        if ((keratinoType==modelController.getGlobalIntConstant("KTYPE_NONUCLEUS"))) // && (isOuterCell))
         {
             killCell();
         }
@@ -605,15 +625,15 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 
     
     public void killCell(){
-   	 theEpidermis.nirvanaHeapLoaded=true;    // register in the Nirvana
+   	 epidermis.nirvanaHeapLoaded=true;    // register in the Nirvana
 			// Heap for resurrection
-   	 theEpidermis.nirvanaHeap=this;
-   	 theEpidermis.actualNoNucleus--;
-   	 KeratinoType=modelController.getGlobalIntConstant("KTYPE_NIRVANA");
-   	 theEpidermis.actualKCytes--;
+   	 epidermis.nirvanaHeap=this;
+   	 epidermis.actualNoNucleus--;
+   	 keratinoType=modelController.getGlobalIntConstant("KTYPE_NIRVANA");
+   	 epidermis.actualKCytes--;
    	 inNirvana=true;            
    	 Double2D newloc= new Double2D(0,0);
-   	 theEpidermis.continous2D.setObjectLocation(this, newloc);
+   	 epidermis.continous2D.setObjectLocation(this, newloc);
     }
 
     void cellcycle(boolean pNoCollision)
@@ -625,24 +645,24 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         // stem and TA cells divide
         // make child
         
-        double ageFrac=(double)KeratinoAge / (double)modelController.getIntField("maxCellAge_t");
-        if (KeratinoType==modelController.getGlobalIntConstant("KTYPE_STEM") || KeratinoType==modelController.getGlobalIntConstant("KTYPE_TA"))
+        double ageFrac=(double)keratinoAge / (double)modelController.getIntField("maxCellAge_t");
+        if (keratinoType==modelController.getGlobalIntConstant("KTYPE_STEM") || keratinoType==modelController.getGlobalIntConstant("KTYPE_TA"))
         {           
-                if (((KeratinoAge%modelController.getIntField("stemCycle_t"))==0) && (KeratinoType==modelController.getGlobalIntConstant("KTYPE_STEM")))                    
+                if (((keratinoAge%modelController.getIntField("stemCycle_t"))==0) && (keratinoType==modelController.getGlobalIntConstant("KTYPE_STEM")))                    
                     birthWish=true;
-                if (((KeratinoAge%modelController.getIntField("tACycle_t"))==0) && (KeratinoType==modelController.getGlobalIntConstant("KTYPE_TA")))
+                if (((keratinoAge%modelController.getIntField("tACycle_t"))==0) && (keratinoType==modelController.getGlobalIntConstant("KTYPE_TA")))
                     birthWish=true;
                
                 if (birthWish && (pNoCollision))    // numhits==0 means no overlap with any adjacent cell, not even a child
                 {
-                    if (KeratinoType==modelController.getGlobalIntConstant("KTYPE_STEM"))
+                    if (keratinoType==modelController.getGlobalIntConstant("KTYPE_STEM"))
                     {
-                        makeTACell(theEpidermis.continous2D);                        
-                        KeratinoAge=0; // begin new cycle, only stem cells do not age, TA cells do !
+                        makeTACell(epidermis.continous2D);                        
+                        keratinoAge=0; // begin new cycle, only stem cells do not age, TA cells do !
                     }
-                    if ((KeratinoType==modelController.getGlobalIntConstant("KTYPE_TA")) && (ageFrac<modelController.getDoubleField("tAMaxBirthAge_frac")))
+                    if ((keratinoType==modelController.getGlobalIntConstant("KTYPE_TA")) && (ageFrac<modelController.getDoubleField("tAMaxBirthAge_frac")))
                     {
-                        makeSpiCell(theEpidermis.continous2D, (long) theEpidermis.schedule.time());
+                        makeSpiCell(epidermis.continous2D, (long) epidermis.schedule.time());
                     }
                     birthWish=false;
                 }
@@ -664,8 +684,8 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         if (inNirvana)
         {
             // please for resurrection by registering as wating
-            theEpidermis.nirvanaHeapLoaded=true;
-            theEpidermis.nirvanaHeap=this;            
+            epidermis.nirvanaHeapLoaded=true;
+            epidermis.nirvanaHeap=this;            
             return; 
         }
         
@@ -688,7 +708,7 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         //extForce=extForce.setLength(2*(1-Math.exp(-0.5*extForce.length())));
         //extForce=extForce.setLength(sigmoid(extForce.length())-sigmoid(0)); // die funktion muss 0 bei 0 liefern, daher absenkung auf sigmoid(0)
         Double2D gravi=new Double2D(0,modelController.getDoubleField("gravitation")); // Vector which avoidance has to process
-        Double2D randi=new Double2D(modelController.getDoubleField("randomness")*(theEpidermis.random.nextDouble()-0.5), modelController.getDoubleField("randomness")*(theEpidermis.random.nextDouble()-0.5));
+        Double2D randi=new Double2D(modelController.getDoubleField("randomness")*(epidermis.random.nextDouble()-0.5), modelController.getDoubleField("randomness")*(epidermis.random.nextDouble()-0.5));
         Vector2D actionForce=new Vector2D(gravi.x+extForce.x*modelController.getDoubleField("externalPush")+randi.x, gravi.y+extForce.y*modelController.getDoubleField("externalPush"));
         Double2D potentialLoc=new Double2D (epiderm.continous2D.stx(actionForce.x+oldLoc.x),epiderm.continous2D.sty(actionForce.y+oldLoc.y));
         extForce.x=0;   // alles einberechnet
@@ -701,14 +721,14 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
         //////////////////////////////////////////////////
         Bag b = epiderm.continous2D.getObjectsWithinDistance(potentialLoc, modelController.getDoubleField("neighborhood_µm"), false); //theEpidermis.neighborhood
         hitResultClass hitResult1;
-        hitResult1 = hitsOther(b, epiderm.continous2D, potentialLoc, true, theEpidermis.NextToOuterCell);
+        hitResult1 = hitsOther(b, epiderm.continous2D, potentialLoc, true, epidermis.NextToOuterCell);
 
         //////////////////////////////////////////////////
         // estimate optimised POS from REACTION force
         //////////////////////////////////////////////////
         // optimise my own position by giving way to the calculated pressures
         Vector2D reactionForce=extForce;
-        reactionForce=reactionForce.add(hitResult1.otherMomentum.amplify(theEpidermis.consistency));
+        reactionForce=reactionForce.add(hitResult1.otherMomentum.amplify(epidermis.consistency));
         reactionForce=reactionForce.add(hitResult1.adhForce.amplify(modelController.getDoubleField("cohesion")));
 
         // restrict movement if direction changes to quickly (momentum of a cell movement)
@@ -742,10 +762,10 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 
         b = epiderm.continous2D.getObjectsWithinDistance(potentialLoc, modelController.getDoubleField("neighborhood_µm"), false); //theEpidermis.neighborhood
         hitResultClass hitResult2;
-        hitResult2 = hitsOther(b, epiderm.continous2D, potentialLoc, true, theEpidermis.NextToOuterCell);
+        hitResult2 = hitsOther(b, epiderm.continous2D, potentialLoc, true, epidermis.NextToOuterCell);
 
         // move only on pressure when not stem cell
-        if (KeratinoType!=modelController.getGlobalIntConstant("KTYPE_STEM"))
+        if (keratinoType!=modelController.getGlobalIntConstant("KTYPE_STEM"))
         { 
             if ((hitResult2.numhits==0) || 
                 ((hitResult2.numhits==1) && ((hitResult2.otherId==this.motherIdentity) || (hitResult2.otherMotherId==this.identity))))
@@ -814,22 +834,22 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 		
 		public int getKeratinoHeight() {
 		
-			return KeratinoHeight;
+			return keratinoHeight;
 		}
 		
 		public void setKeratinoHeight(int keratinoHeight) {
 		
-			KeratinoHeight = keratinoHeight;
+			this.keratinoHeight = keratinoHeight;
 		}
 		
 		public int getKeratinoWidth() {
 		
-			return KeratinoWidth;
+			return keratinoWidth;
 		}
 		
 		public void setKeratinoWidth(int keratinoWidth) {
 		
-			KeratinoWidth = keratinoWidth;
+			this.keratinoWidth = keratinoWidth;
 		}
 		
 		public long getLocal_maxAge() {
@@ -853,6 +873,200 @@ public class KCyteClass implements Steppable, Stoppable, sim.portrayal.Oriented2
 				if(m.getName().startsWith("get")) methods.add(m);
 			}
 			return methods;
+		}
+		public String getName() {
+
+			
+			return NAME;
+		}
+		
+		public boolean isInNirvana() {
+		
+			return inNirvana;
+		}
+		
+		public void setInNirvana(boolean inNirvana) {
+		
+			this.inNirvana = inNirvana;
+		}
+		
+		public double getOwnSigExternalCalcium() {
+		
+			return ownSigExternalCalcium;
+		}
+		
+		public void setOwnSigExternalCalcium(double ownSigExternalCalcium) {
+		
+			this.ownSigExternalCalcium = ownSigExternalCalcium;
+		}
+		
+		public double getOwnSigInternalCalcium() {
+		
+			return ownSigInternalCalcium;
+		}
+		
+		public void setOwnSigInternalCalcium(double ownSigInternalCalcium) {
+		
+			this.ownSigInternalCalcium = ownSigInternalCalcium;
+		}
+		
+		public double getOwnSigLamella() {
+		
+			return ownSigLamella;
+		}
+		
+		public void setOwnSigLamella(double ownSigLamella) {
+		
+			this.ownSigLamella = ownSigLamella;
+		}
+		
+		public double getOwnSigLipids() {
+		
+			return ownSigLipids;
+		}
+		
+		public void setOwnSigLipids(double ownSigLipids) {
+		
+			this.ownSigLipids = ownSigLipids;
+		}
+		
+		public void setOuterCell(boolean isOuterCell) {
+		
+			this.isOuterCell = isOuterCell;
+		}
+		
+		public int getVoronoihullvertexes() {
+		
+			return voronoihullvertexes;
+		}
+		
+		public void setVoronoihullvertexes(int voronoihullvertexes) {
+		
+			this.voronoihullvertexes = voronoihullvertexes;
+		}
+		
+		public GrahamPoint[] getVoronoihull() {
+		
+			return voronoihull;
+		}
+		
+		public void setVoronoihull(GrahamPoint[] voronoihull) {
+		
+			this.voronoihull = voronoihull;
+		}
+
+		
+		public int getHasGivenIons() {
+		
+			return hasGivenIons;
+		}
+
+		
+		public void setHasGivenIons(int hasGivenIons) {
+		
+			this.hasGivenIons = hasGivenIons;
+		}
+
+		
+		public boolean isLastDrawInfoAssigned() {
+		
+			return lastDrawInfoAssigned;
+		}
+
+		
+		public void setLastDrawInfoAssigned(boolean lastDrawInfoAssigned) {
+		
+			this.lastDrawInfoAssigned = lastDrawInfoAssigned;
+		}
+
+		
+		public double getLastDrawInfoX() {
+		
+			return lastDrawInfoX;
+		}
+
+		
+		public void setLastDrawInfoX(double lastDrawInfoX) {
+		
+			this.lastDrawInfoX = lastDrawInfoX;
+		}
+
+		
+		public double getLastDrawInfoY() {
+		
+			return lastDrawInfoY;
+		}
+
+		
+		public void setLastDrawInfoY(double lastDrawInfoY) {
+		
+			this.lastDrawInfoY = lastDrawInfoY;
+		}
+
+		
+		public EpidermisClass getEpidermis() {
+		
+			return epidermis;
+		}
+
+		
+		public void setEpidermis(EpidermisClass epidermis) {
+		
+			this.epidermis = epidermis;
+		}
+
+		
+		public int getFormCount() {
+		
+			return formCount;
+		}
+
+		
+		public void setFormCount(int formCount) {
+		
+			this.formCount = formCount;
+		}
+
+		
+		public double[] getNeighborDrawInfoX() {
+		
+			return neighborDrawInfoX;
+		}
+
+		
+		public void setNeighborDrawInfoX(double[] neighborDrawInfoX) {
+		
+			this.neighborDrawInfoX = neighborDrawInfoX;
+		}
+
+		
+		public double[] getNeighborDrawInfoY() {
+		
+			return neighborDrawInfoY;
+		}
+
+		
+		public void setNeighborDrawInfoY(double[] neighborDrawInfoY) {
+		
+			this.neighborDrawInfoY = neighborDrawInfoY;
+		}
+
+		
+		public int getOwnColor() {
+		
+			return ownColor;
+		}
+
+		
+		public void setOwnColor(int ownColor) {
+		
+			this.ownColor = ownColor;
+		}
+
+		
+		public void setKeratinoAge(int keratinoAge) {
+		
+			this.keratinoAge = keratinoAge;
 		}           
     }
 

@@ -38,7 +38,7 @@ import sim.util.*;
    must NOT modiify.  The <b>removeObjectsAtLocation(Object location)</b> method removes and returns all objects at a given location
    (defined as an Int2D or MutableDouble2D).  The <b>exists</b> method tells you if the object exists in the field.
         
-   <b>Neighborhood Lookups.<?b>  The method <b>getObjectsAtLocationOfObject</b> returns all Objects at the same location as the provided
+   <p><b>Neighborhood Lookups.</b>  The method <b>getObjectsAtLocationOfObject</b> returns all Objects at the same location as the provided
    object (in a Bag, which must NOT modify).  The various <b>getNeighbors...Distance(...)</b> methods return all locations defined by certain
    distance bounds, or all the objects stored at those locations.  They are expensive to compute and it may be wiser to compute them by hand
    if there aren't many.
@@ -62,28 +62,60 @@ public class SparseGrid2D extends SparseField implements Grid2D
     /** Returns the height of the grid */
     public int getHeight() { return height; }
     
-    public final int tx(final int x) 
+    /*
+      public final int tx(final int x) 
+      { 
+      final int width = this.width; 
+      if (x >= 0) return (x % width); 
+      final int width2 = (x % width) + height;
+      if (width2 < width) return width2;
+      return 0;
+      }
+    */
+
+    // slight revision for more efficiency
+    public final int tx(int x) 
         { 
-        final int width = this.width; 
-        if (x >= 0) return (x % width); 
-        final int width2 = (x % width) + width; 
-        if (width2 < width) return width2;
-        return 0;
+        final int width = this.width;
+        if (x >= 0 && x < width) return x;  // do clearest case first
+        x = x % width;
+        if (x < 0) x = x + width;
+        return x;
         }
-    
-    public final int ty(final int y) 
+        
+    /*
+      public final int ty(final int y) 
+      { 
+      final int height = this.height; 
+      if (y >= 0) return (y % height); 
+      final int height2 = (y % height) + height;
+      if (height2 < height) return height2;
+      return 0;
+      }
+    */
+        
+    // slight revision for more efficiency
+    public final int ty(int y) 
         { 
-        final int height = this.height; 
-        if (y >= 0) return (y % height); 
-        final int height2 = (y % height) + height;
-        if (height2 < height) return height2;
-        return 0;
+        final int height = this.height;
+        if (y >= 0 && y < height) return y;  // do clearest case first
+        y = y % height;
+        if (y < 0) y = y + height;
+        return y;
         }
 
     public int stx(final int x) 
         { if (x >= 0) { if (x < width) return x; return x - width; } return x + width; }
 
     public int sty(final int y) 
+        { if (y >= 0) { if (y < height) return y ; return y - height; } return y + height; }
+
+    // faster version
+    final int stx(final int x, final int width) 
+        { if (x >= 0) { if (x < width) return x; return x - width; } return x + width; }
+        
+    // faster version
+    final int sty(final int y, final int height) 
         { if (y >= 0) { if (y < height) return y ; return y - height; } return y + height; }
 
     public int ulx(final int x, final int y) { return x - 1; }
@@ -194,6 +226,10 @@ public class SparseGrid2D extends SparseField implements Grid2D
         xPos.clear();
         yPos.clear();
 
+        // local variables are faster
+        final int height = this.height;
+        final int width = this.width;
+
 
         // for toroidal environments the code will be different because of wrapping arround
         if( toroidal )
@@ -252,6 +288,10 @@ public class SparseGrid2D extends SparseField implements Grid2D
         xPos.clear();
         yPos.clear();
 
+        // local variables are faster
+        final int height = this.height;
+        final int width = this.width;
+
         // for toroidal environments the code will be different because of wrapping arround
         if( toroidal )
             {
@@ -308,6 +348,10 @@ public class SparseGrid2D extends SparseField implements Grid2D
 
         xPos.clear();
         yPos.clear();
+
+        // local variables are faster
+        final int height = this.height;
+        final int width = this.width;
 
         if( toroidal && height%2==1 )
             throw new RuntimeException( "Runtime exception in getNeighborsHexagonalDistance: toroidal hexagonal environment should have even heights" );

@@ -69,8 +69,9 @@ public class HexaSparseGridPortrayal2D extends SparseGridPortrayal2D
         int endx = /*startx +*/ (int)(((info.clip.x - info.draw.x + info.clip.width)/xScale-0.5)/1.5) + 4;  // with rounding, width be as much as 1 off
         int endy = /*starty +*/ (int)((info.clip.y - info.draw.y + info.clip.height)/(yScale*2.0)) + 4;  // with rounding, height be as much as 1 off
 
-        double precomputedWidth = -1;  // see discussion further below
-        double precomputedHeight = -1;  // see discussion further below
+//        double precomputedWidth = -1;  // see discussion further below
+//        double precomputedHeight = -1;  // see discussion further below
+        
         //
         //
         // CAUTION!
@@ -89,7 +90,7 @@ public class HexaSparseGridPortrayal2D extends SparseGridPortrayal2D
         // converted from floats to ints, there's a round down there, so we round up to
         // compensate.  This usually results in nice circles.
 
-        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
+//        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
 
         HexaDrawInfo2D newinfo = new HexaDrawInfo2D(new Rectangle2D.Double(0,0, 
                                                                            Math.ceil(info.draw.width / (HEXAGONAL_RATIO * ((maxX - 1) * 3.0 / 4.0 + 1))),

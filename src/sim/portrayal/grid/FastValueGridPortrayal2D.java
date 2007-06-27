@@ -128,7 +128,7 @@ public class FastValueGridPortrayal2D extends ValueGridPortrayal2D
         
         // next we determine if this is a DoubleGrid2D or an IntGrid2D
         
-        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
+//        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
 
         final boolean isDoubleGrid2D = (field instanceof DoubleGrid2D);
         final double[][] doubleField = (isDoubleGrid2D ? ((DoubleGrid2D) field).field : null);

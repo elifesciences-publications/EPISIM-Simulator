@@ -132,7 +132,7 @@ public class ValueGridPortrayal2D extends FieldPortrayal2D
         final double[][] doubleField = (isDoubleGrid2D ? ((DoubleGrid2D) field).field : null);
         final int[][] intField = (isDoubleGrid2D ? null : ((IntGrid2D) field).field);
         
-        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
+//        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
 
         // the drawinfo that the object's portrayal will use -- we fill in the blanks later
         DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale), info.clip);

@@ -150,18 +150,18 @@ public class LabelledList extends JComponent
         y++;
         }
 
-    /** Inserts a component spanning both columns. */
+    /** Inserts a component spanning all five columns. */
     public Component add(Component comp)
         {
         addComponent(comp);
         return comp;
         }
         
-    /** Inserts a component spanning left, center, and right columns.  Synonym for add(comp) */
+    /** Inserts a component spanning all five columns.  Synonym for add(comp) */
     public void addComponent(Component comp)
         {
         // set as a "left" component, but spanning using HORIZONTAL/REMAINDER
-        gbc.gridx = 1; gbc.gridy = y; gbc.weightx = 0; gbc.anchor=GridBagConstraints.CENTER; gbc.fill=GridBagConstraints.HORIZONTAL; gbc.gridwidth = 3; gbc.insets = new Insets(0,2,0,2);
+        gbc.gridx = 0; gbc.gridy = y; gbc.weightx = 1; gbc.anchor=GridBagConstraints.CENTER; gbc.fill=GridBagConstraints.HORIZONTAL; gbc.gridwidth = 5; gbc.insets = new Insets(0,2,0,2);
         gridbag.setConstraints(comp, gbc);
         consolePanel.add(comp);
         

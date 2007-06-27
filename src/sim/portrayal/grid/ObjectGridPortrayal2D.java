@@ -14,13 +14,18 @@ import sim.util.*;
 
 /**
    A portrayal for grids containing objects, such as maybe agents or agent bodies.
+   
+   <p>By default this portrayal describes objects as gray ovals (that's what getDefaultPortrayal() returns)
+   and null values as empty regions (that's what getDefaultNullPortrayal() returns).  You may wish to override this
+   for your own purposes.
 */
 
 public class ObjectGridPortrayal2D extends FieldPortrayal2D
     {
     // a grey oval.  You should provide your own protrayals...
     SimplePortrayal2D defaultPortrayal = new OvalPortrayal2D();
-    
+    SimplePortrayal2D defaultNullPortrayal = new SimplePortrayal2D();
+        
     public ObjectGridPortrayal2D()
         {
         super();
@@ -36,6 +41,11 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
     public Portrayal getDefaultPortrayal()
         {
         return defaultPortrayal;
+        }
+                
+    public Portrayal getDefaultNullPortrayal()
+        {
+        return defaultNullPortrayal;
         }
 
     protected void hitOrDraw(Graphics2D graphics, DrawInfo2D info, Bag putInHere)
@@ -63,7 +73,7 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
         int endx = /*startx +*/ (int)((info.clip.x - info.draw.x + info.clip.width) / xScale) + /*2*/ 1;  // with rounding, width be as much as 1 off
         int endy = /*starty +*/ (int)((info.clip.y - info.draw.y + info.clip.height) / yScale) + /*2*/ 1;  // with rounding, height be as much as 1 off
 
-        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
+//        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
 
         DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale),
                                             info.clip);  // we don't do further clipping 

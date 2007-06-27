@@ -39,31 +39,67 @@ public abstract class AbstractGrid3D implements Grid3D
     
     public final int getLength() { return length; }
     
-    public final int tx(final int x) 
+    /*
+      public final int tx(final int x) 
+      { 
+      final int width = this.width; 
+      if (x >= 0) return (x % width); 
+      final int width2 = (x % width) + height;
+      if (width2 < width) return width2;
+      return 0;
+      }
+    */
+
+    // slight revision for more efficiency
+    public final int tx(int x) 
         { 
-        final int width = this.width; 
-        if (x >= 0) return (x % width); 
-        final int width2 = (x % width) + width; 
-        if (width2 < width) return width2;
-        return 0;
-        }
-    
-    public final int ty(final int y) 
-        { 
-        final int height = this.height; 
-        if (y >= 0) return (y % height); 
-        final int height2 = (y % height) + height;
-        if (height2 < height) return height2;
-        return 0;
+        final int width = this.width;
+        if (x >= 0 && x < width) return x;  // do clearest case first
+        x = x % width;
+        if (x < 0) x = x + width;
+        return x;
         }
         
-    public final int tz(final int z) 
+    /*
+      public final int ty(final int y) 
+      { 
+      final int height = this.height; 
+      if (y >= 0) return (y % height); 
+      final int height2 = (y % height) + height;
+      if (height2 < height) return height2;
+      return 0;
+      }
+    */
+        
+    // slight revision for more efficiency
+    public final int ty(int y) 
         { 
-        final int length = this.length; 
-        if (z >= 0) return (z % length); 
-        final int length2 = (z % length) + length;
-        if (length2 < length) return length2;
-        return 0;
+        final int height = this.height;
+        if (y >= 0 && y < height) return y;  // do clearest case first
+        y = y % height;
+        if (y < 0) y = y + height;
+        return y;
+        }
+
+/*
+  public final int tz(final int z) 
+  { 
+  final int length = this.length; 
+  if (z >= 0) return (z % length); 
+  final int length2 = (z % length) + length;
+  if (length2 < length) return length2;
+  return 0;
+  }
+*/
+
+    // slight revision for more efficiency
+    public final int tz(int z) 
+        { 
+        final int length = this.length;
+        if (z >= 0 && z < length) return z;  // do clearest case first
+        z = z % length;
+        if (z < 0) z = z + height;
+        return z;
         }
 
     public final int stx(final int x) 
@@ -73,6 +109,18 @@ public abstract class AbstractGrid3D implements Grid3D
         { if (y >= 0) { if (y < height) return y ; return y - height; } return y + height; }
 
     public final int stz(final int z) 
+        { if (z >= 0) { if (z < length) return z ; return z - length; } return z + length; }
+
+    // faster version
+    final int stx(final int x, final int width) 
+        { if (x >= 0) { if (x < width) return x; return x - width; } return x + width; }
+        
+    // faster version
+    final int sty(final int y, final int height) 
+        { if (y >= 0) { if (y < height) return y ; return y - height; } return y + height; }
+
+    // faster version
+    public final int stz(final int z, final int length) 
         { if (z >= 0) { if (z < length) return z ; return z - length; } return z + length; }
 
     /*
@@ -96,6 +144,11 @@ public abstract class AbstractGrid3D implements Grid3D
         yPos.clear();
         zPos.clear();
 
+        // local variables are faster
+        final int height = this.height;
+        final int width = this.width;
+        final int length = this.length;
+
         // for toroidal environments the code will be different because of wrapping arround
         if( toroidal )
             {
@@ -112,13 +165,13 @@ public abstract class AbstractGrid3D implements Grid3D
 
             for( int x0 = xmin; x0 <= xmax ; x0++ )
                 {
-                final int x_0 = stx(x0);
+                final int x_0 = stx(x0, width);
                 for( int y0 = ymin ; y0 <= ymax ; y0++ )
                     {
-                    final int y_0 = sty(y0);
+                    final int y_0 = sty(y0, height);
                     for( int z0 = zmin ; z0 <= zmax ; z0++ )
                         {
-                        final int z_0 = stz(z0);
+                        final int z_0 = stz(z0, length);
                         if( x_0 != x || y_0 != y || z_0 != z )
                             {
                             xPos.add( x_0 );
@@ -181,6 +234,11 @@ public abstract class AbstractGrid3D implements Grid3D
         yPos.clear();
         zPos.clear();
 
+        // local variables are faster
+        final int height = this.height;
+        final int width = this.width;
+        final int length = this.length;
+
         // for toroidal environments the code will be different because of wrapping arround
         if( toroidal )
             {
@@ -189,18 +247,18 @@ public abstract class AbstractGrid3D implements Grid3D
             final int xmin = x-dist;
             for( int x0 = xmin; x0 <= xmax ; x0++ )
                 {
-                final int x_0 = stx(x0);
+                final int x_0 = stx(x0, width);
                 // compute ymin and ymax for the neighborhood; they depend on the curreny x0 value
                 final int ymax = y+(dist-((x0-x>=0)?x0-x:x-x0));
                 final int ymin = y-(dist-((x0-x>=0)?x0-x:x-x0));
                 for( int y0 =  ymin; y0 <= ymax; y0++ )
                     {
-                    final int y_0 = sty(y0);
+                    final int y_0 = sty(y0, height);
                     final int zmax = z+(dist-((x0-x>=0)?x0-x:x-x0)-((y0-y>=0)?y0-y:y-y0));
                     final int zmin = z-(dist-((x0-x>=0)?x0-x:x-x0)-((y0-y>=0)?y0-y:y-y0));
                     for( int z0 = zmin; z0 <= zmax; z0++ )
                         {
-                        final int z_0 = stz(z0);
+                        final int z_0 = stz(z0, length);
                         if( x_0 != x || y_0 != y || z_0 != z )
                             {
                             xPos.add( x_0 );

@@ -98,7 +98,7 @@ public class ObjectGrid2D extends AbstractGrid2D
         if (width != values.width || height != values.height)
             {
             final int width = this.width = values.width;
-            final int height = this.height = values.height;
+            /*final int height =*/ this.height = values.height;
             Object[][] field = this.field = new Object[width][];
             Object[][] ofield = values.field;
             for(int x =0 ; x < width; x++)

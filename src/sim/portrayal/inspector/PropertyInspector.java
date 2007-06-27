@@ -9,7 +9,6 @@ import sim.portrayal.*;
 import java.awt.*;
 import javax.swing.*;
 import sim.display.*;
-import sim.display.Console;
 import sim.engine.*;
 import sim.util.*;
 import java.io.*;
@@ -39,7 +38,11 @@ import java.awt.event.*;
     </ol>
 
     Like any inspector, your PropertyInspector will be asked to update and refresh itself to reflect new data whenevever
-    <code>public void updateInspector()</code> is called.  This Stoppable is not provided immediately on PropertyInspector
+    <code>public void updateInspector()</code> is called.  
+        
+    <p>Similarly, your PropertyInspector will be provided a Stoppable which it can use to stop MASON from continuing to
+    send update requests.  For example, if your PropertyInspector has a cancel button and the user has just clicked it,
+    you might wish to call stop() on that Stoppable.  This Stoppable is not provided immediately on PropertyInspector
     construction, but later when the system has built the Stoppable and is ready to go.  When it does so, it will call the
     method <code>public void setStopper(Stoppable stopper)</code> to provide you with the Stoppable.  You may override
     this method to determine what the Stoppable is; but be sure to call <code>super.setStopper(stopper)</code>.  Note that
@@ -58,7 +61,7 @@ public abstract class PropertyInspector extends Inspector
     protected boolean validInspector = false;
     Stoppable stopper;
         
-    protected void setStopper(Stoppable stopper)
+    public void setStopper(Stoppable stopper)
         {
         this.stopper = stopper;
         }
@@ -94,8 +97,16 @@ public abstract class PropertyInspector extends Inspector
             }
         }
     
+    /** A string which defines the task the user performs when constructing this Inspector: such as "Make Histogram" */
     public static String name() { return "Name Not Set"; }
+        
+    /** A list of data types this Inspector is capable of inspecting. */
     public static Class[] types() { return new Class[0]; }
+        
+    /** Create a PropertyInspector for a given property.  The property is element #index in the provided Properties class. Also provided
+        are the simulation and a 
+        'parent' (a Frame which serves as the location where dialog boxes will pop up as part of the PropertyInspector construction
+        process -- it's fine if you provide null for this).   */
 
     public PropertyInspector(Properties properties, int index, Frame parent, GUIState simulation)
         {
@@ -168,7 +179,7 @@ public abstract class PropertyInspector extends Inspector
     public static JToggleButton getPopupMenu(final Properties properties, final int index, final GUIState state)
         {
         boolean somethingCompatable = false;
-        Class propertyClass = properties.getType(index);
+//        Class propertyClass = properties.getType(index);
         loadClasses();
         
         // build the popup menu
@@ -177,6 +188,8 @@ public abstract class PropertyInspector extends Inspector
         popup.setLightWeightPopupEnabled(false);
         final JToggleButton toggleButton = new JToggleButton(INSPECT_ICON);
         toggleButton.setPressedIcon(INSPECT_ICON_P);
+        toggleButton.setBorderPainted(false);
+        toggleButton.setContentAreaFilled(false);
         toggleButton.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
         toggleButton.setToolTipText("Show Additional Per-Property Inspectors");
         toggleButton.addMouseListener(new MouseAdapter()
@@ -225,8 +238,8 @@ public abstract class PropertyInspector extends Inspector
                             }
                         catch (IllegalArgumentException ex)
                             {
-                            JOptionPane.showMessageDialog(null, "The simulation is over and the item could not be tracked.\n"+
-                                                          "Start the simulation paused, then try again.");
+                            Utilities.inform("The simulation is over and the item will not be tracked further.", 
+                                             "If you wanted to track, restart the simulation in paused state, then try tracking the item again.", null);
                             inspector.setStopper(inspector.reviseStopper(new Stoppable() { public void stop(){ } } ));  // does nothing
                             }
                                                         
@@ -237,6 +250,9 @@ public abstract class PropertyInspector extends Inspector
                             JFrame frame = inspector.createFrame(inspector.getStopper());
                             frame.setVisible(true);
                             }
+                                                        
+                        // update at least one time
+                        inspector.updateInspector();
                         }
                     }
                 });
@@ -247,7 +263,6 @@ public abstract class PropertyInspector extends Inspector
         else return toggleButton;
         }
     
-    // additionally set the title
     public JFrame createFrame(Stoppable stopper)
         {
         JFrame frame = super.createFrame(stopper);

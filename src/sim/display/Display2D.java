@@ -60,7 +60,6 @@ public class Display2D extends JComponent implements Steppable
         public ButtonGroup usageGroup = new ButtonGroup();
         
         public JCheckBox antialias = new JCheckBox("Antialias Graphics");
-        public JCheckBox antialiasText = new JCheckBox("Antialias Text");
         public JCheckBox alphaInterpolation = new JCheckBox("Better Transparency");
         public JCheckBox interpolation = new JCheckBox("Bilinear Interpolation of Images");
         public JCheckBox tooltips = new JCheckBox("Tool Tips");
@@ -118,7 +117,6 @@ public class Display2D extends JComponent implements Steppable
 
             b = new Box(BoxLayout.Y_AXIS);
             b.add(antialias);
-            b.add(antialiasText);
             b.add(interpolation);
             b.add(alphaInterpolation);
             b.add(tooltips);
@@ -128,7 +126,6 @@ public class Display2D extends JComponent implements Steppable
             p.add(b,BorderLayout.CENTER);
             getContentPane().add(p,BorderLayout.CENTER);
             
-
             ActionListener listener = new ActionListener()
                 {
                 public void actionPerformed(ActionEvent e)
@@ -139,8 +136,7 @@ public class Display2D extends JComponent implements Steppable
                     else if (useBuffer.isSelected())
                         buffering = FieldPortrayal2D.USE_BUFFER;
                     else buffering = FieldPortrayal2D.DONT_USE_BUFFER;
-                    insideDisplay.setupHints(antialias.isSelected(), antialiasText.isSelected(),
-                                             alphaInterpolation.isSelected(), interpolation.isSelected());
+                    insideDisplay.setupHints(antialias.isSelected(), alphaInterpolation.isSelected(), interpolation.isSelected());
                     Display2D.this.repaint();  // redraw the inside display
                     }
                 };
@@ -148,7 +144,6 @@ public class Display2D extends JComponent implements Steppable
             useBuffer.addActionListener(listener);
             useDefault.addActionListener(listener);
             antialias.addActionListener(listener);
-            antialiasText.addActionListener(listener);
             alphaInterpolation.addActionListener(listener);
             interpolation.addActionListener(listener);
             tooltips.addActionListener(listener);
@@ -176,7 +171,7 @@ public class Display2D extends JComponent implements Steppable
             {
             this.width = width;
             this.height = height;
-            setupHints(false,false,false,false);  // go for speed
+            setupHints(false,false,false);  // go for speed
             }
         
         /** Overloaded to return (width * scale, height * scale) */
@@ -215,7 +210,7 @@ public class Display2D extends JComponent implements Steppable
         
         /** The default method for setting up the given hints.
             By default they suggest that Java2D emphasize efficiency over prettiness.*/
-        public void setupHints(boolean antialias, boolean antialiasText, boolean niceAlphaInterpolation, boolean niceInterpolation)
+        public void setupHints(boolean antialias, boolean niceAlphaInterpolation, boolean niceInterpolation)
             {
             unbufferedHints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);  // in general
             unbufferedHints.put(RenderingHints.KEY_INTERPOLATION,
@@ -229,7 +224,7 @@ public class Display2D extends JComponent implements Steppable
                                 antialias ? RenderingHints.VALUE_ANTIALIAS_ON :
                                 RenderingHints.VALUE_ANTIALIAS_OFF);
             unbufferedHints.put(RenderingHints.KEY_TEXT_ANTIALIASING,
-                                antialiasText ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
+                                antialias ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
                                 RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
             unbufferedHints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, 
                                 niceAlphaInterpolation ? 
@@ -245,7 +240,7 @@ public class Display2D extends JComponent implements Steppable
                               antialias ? RenderingHints.VALUE_ANTIALIAS_ON :
                               RenderingHints.VALUE_ANTIALIAS_OFF);
             bufferedHints.put(RenderingHints.KEY_TEXT_ANTIALIASING,
-                              antialiasText ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
+                              antialias ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
                               RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
             bufferedHints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, 
                               niceAlphaInterpolation ? 
@@ -392,10 +387,6 @@ public class Display2D extends JComponent implements Steppable
             on Swing from inside this method. */
         public BufferedImage paint(final Graphics g, final boolean buffered)
             {
-            // is it possible we could get interrupted here, maybe from Console.doChangeCode()?
-            // I don't think this is likely, but it's possible -- perhaps we should wrap this
-            // in an interruptedException handler which does a repaint to guarantee that we
-            // get painted, I dunno...
             synchronized(Display2D.this.simulation.state.schedule)
                 {
                 Rectangle2D clip = computeClip();
@@ -476,11 +467,9 @@ public class Display2D extends JComponent implements Steppable
             if (clip.getWidth()!=0 && clip.getHeight()!=0)
                 {
                 // presently not scaled
-                Dimension s = getPreferredSize();
                 if (backdrop!=null)
                     {
                     g.setPaint(backdrop);
-                    //g.fillRect(0,0,s.width,s.height);
                     g.fillRect((int)clip.getX(),(int)clip.getY(),(int)clip.getWidth(),(int)clip.getHeight());
                     }
                 // get scale
@@ -531,7 +520,7 @@ public class Display2D extends JComponent implements Steppable
                 }
             }
 
-        /** TO FIX A SUBTLE BUG.  Can't call getViewRect() to get the proper
+        /*  TO FIX A SUBTLE BUG.  Can't call getViewRect() to get the proper
             clipping rect, because getViewRect calls some unknown synchronized gunk
             further up in Swing; thus if I'm in Windoze and splat to the screen from my own
             thread, and at the same time the Swing thread is trying to draw me, we
@@ -913,6 +902,8 @@ public class Display2D extends JComponent implements Steppable
         
         reset();  // must happen AFTER simulation and interval are assigned
         
+        final Color transparentBackground = new JPanel().getBackground();  // sacrificial JPanel
+
         // create the inner display and put it in a Scroll Panel
         insideDisplay = new InnerDisplay2D(width,height);
         display = new JScrollPane(insideDisplay,
@@ -935,9 +926,11 @@ public class Display2D extends JComponent implements Steppable
         //Create the popup menu.
         togglebutton = new JToggleButton(LAYERS_ICON);
         togglebutton.setPressedIcon(LAYERS_ICON_P);
-                
         togglebutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        togglebutton.setBorderPainted(false);
+        togglebutton.setContentAreaFilled(false);
         togglebutton.setToolTipText("Show and hide different layers");
+        
         header.add(togglebutton);
         popup = new JPopupMenu();
         popup.setLightWeightPopupEnabled(false);
@@ -986,6 +979,8 @@ public class Display2D extends JComponent implements Steppable
         movieButton = new JButton(MOVIE_OFF_ICON);
         movieButton.setPressedIcon(MOVIE_OFF_ICON_P);
         movieButton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        movieButton.setBorderPainted(false);
+        movieButton.setContentAreaFilled(false);
         movieButton.setToolTipText("Create a Quicktime movie");
         movieButton.addActionListener(new ActionListener()
             {
@@ -1007,7 +1002,9 @@ public class Display2D extends JComponent implements Steppable
         snapshotButton = new JButton(CAMERA_ICON);
         snapshotButton.setPressedIcon(CAMERA_ICON_P);
         snapshotButton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
-        snapshotButton.setToolTipText("Create a snapshot (as a PNG file)");
+        snapshotButton.setBorderPainted(false);
+        snapshotButton.setContentAreaFilled(false);
+        snapshotButton.setToolTipText("Create a snapshot (as a PNG or PDF file)");
         snapshotButton.addActionListener(new ActionListener()
             {
             public void actionPerformed(ActionEvent e)
@@ -1021,6 +1018,8 @@ public class Display2D extends JComponent implements Steppable
         optionButton = new JButton(OPTIONS_ICON);
         optionButton.setPressedIcon(OPTIONS_ICON_P);
         optionButton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));               
+        optionButton.setBorderPainted(false);
+        optionButton.setContentAreaFilled(false);
         optionButton.setToolTipText("Show the Option Pane");
         optionButton.addActionListener(new ActionListener()
             {
@@ -1088,7 +1087,6 @@ public class Display2D extends JComponent implements Steppable
     */
     public Bag[] objectsHitBy( final Rectangle2D.Double rect )
         {
-        Dimension s = insideDisplay.getPreferredSize();
         Bag[] hitObjs = new Bag[portrayals.size()];
         Iterator iter = portrayals.iterator();
         int x=0;
@@ -1257,39 +1255,87 @@ public class Display2D extends JComponent implements Steppable
     // all platforms (notably 1.3.1) and at the time we made the call, it wasn't available on the
     // Mac at all.
 
+    private Object sacrificialObj = null;
+    
     public void takeSnapshot()
         {
-        if (SimApplet.isApplet)
+        synchronized(Display2D.this.simulation.state.schedule)
             {
-            Object[] options = {"Oops"};
-            JOptionPane.showOptionDialog(
-                this, "You cannot save snapshots from an applet.",
-                "MASON Applet Restriction",
-                JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE,
-                null, options, options[0]);
-            return;
-            }
+            if (SimApplet.isApplet)
+                {
+                Object[] options = {"Oops"};
+                JOptionPane.showOptionDialog(
+                    this, "You cannot save snapshots from an applet.",
+                    "MASON Applet Restriction",
+                    JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE,
+                    null, options, options[0]);
+                return;
+                }
 
-        // snap the shot FIRST
-        Graphics g = insideDisplay.getGraphics();
-        BufferedImage img = insideDisplay.paint(g,true,false);  // notice we're painting to a non-shared buffer
-        g.dispose();  // because we got it with getGraphics(), we're responsible for it
-        
-        // NOW pop up the save window
-        FileDialog fd = new FileDialog(getFrame(), 
-                                       "Save Snapshot as 24-bit PNG...", FileDialog.SAVE);
-        fd.setFile("Untitled.png");
-        fd.setVisible(true);;
-        if (fd.getFile()!=null) try
-            {
-            OutputStream stream = new BufferedOutputStream(new FileOutputStream(
-                                                               new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
-            PngEncoder tmpEncoder = new
-                PngEncoder(img, false,PngEncoder.FILTER_NONE,9);
-            stream.write(tmpEncoder.pngEncode());
-            stream.close();
+            // do we have the PDFEncoder?
+            boolean havePDF = false;
+
+            // snap the shot FIRST
+            Graphics g = insideDisplay.getGraphics();
+            BufferedImage img = insideDisplay.paint(g,true,false);  // notice we're painting to a non-shared buffer
+            try
+                {
+                sacrificialObj = Class.forName("com.lowagie.text.Cell").newInstance(); // sacrificial
+                // if we survived that, then iText is installed and we're good.
+                havePDF = true; 
+                }
+            catch (Exception e)
+                {
+                // oh well...
+                }
+                                
+            g.dispose();  // because we got it with getGraphics(), we're responsible for it
+                        
+            // Ask what kind of thing we want to save?
+            int result = 2;  // PNG by default
+            if (havePDF) 
+                {
+                Object[] options = { "Cancel", "Save to PDF", "Save to PNG Bitmap" };
+                result = JOptionPane.showOptionDialog(getFrame(), "Save window snapshot to what kind of file format?", "Save Format", 
+                                                      JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                                                      null, options, options[0]);
+                }
+                        
+            if (result == 2)  // PNG
+                {
+                // NOW pop up the save window
+                FileDialog fd = new FileDialog(getFrame(), 
+                                               "Save Snapshot as 24-bit PNG...", FileDialog.SAVE);
+                fd.setFile("Untitled.png");
+                fd.setVisible(true);
+                if (fd.getFile()!=null) try
+                    {
+                    OutputStream stream = new BufferedOutputStream(new FileOutputStream(
+                                                                       new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
+                    PngEncoder tmpEncoder = new
+                        PngEncoder(img, false,PngEncoder.FILTER_NONE,9);
+                    stream.write(tmpEncoder.pngEncode());
+                    stream.close();
+                    }
+                catch (Exception e) { e.printStackTrace(); }
+                }
+            else if (result == 1)  // PDF
+                {
+                FileDialog fd = new FileDialog(getFrame(), 
+                                               "Save Snapshot as PDF...", FileDialog.SAVE);
+                fd.setFile("Untitled.pdf");
+                fd.setVisible(true);
+                if (fd.getFile()!=null) try
+                    {
+                    PDFEncoder.generatePDF(port, new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".pdf")));
+                    }
+                catch (Exception e) { e.printStackTrace(); }
+                }
+            else // (result == 0)  // Cancel
+                {
+                // don't bother
+                }
             }
-        catch (Exception e) { e.printStackTrace(); }
         }
 
     /** Starts a Quicktime movie on the given Display2D.  The size of the movie frame will be the size of
@@ -1299,18 +1345,6 @@ public class Display2D extends JComponent implements Steppable
         On the Mac, Quicktime Pro will do this quite elegantly. */
     public void startMovie()
         {
-        // can't start a movie if we're in an applet
-        if (SimApplet.isApplet)
-            {
-            Object[] options = {"Oops"};
-            JOptionPane.showOptionDialog(
-                this, "You cannot create movies from an applet.",
-                "MASON Applet Restriction",
-                JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE,
-                null, options, options[0]);
-            return;
-            }
-                    
         // we synchronize because movieMaker.add() could
         // get called, via paintToMovie(), from inside the model thread rather
         // than the Swing thread (see step(...) below).  This allows us to guarantee,
@@ -1318,6 +1352,18 @@ public class Display2D extends JComponent implements Steppable
         // isn't doing anything.
         synchronized(Display2D.this.simulation.state.schedule)
             {
+            // can't start a movie if we're in an applet
+            if (SimApplet.isApplet)
+                {
+                Object[] options = {"Oops"};
+                JOptionPane.showOptionDialog(
+                    this, "You cannot create movies from an applet.",
+                    "MASON Applet Restriction",
+                    JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE,
+                    null, options, options[0]);
+                return;
+                }
+                        
             if (movieMaker != null) return;  // already running
             movieMaker = new MovieMaker(getFrame());
             Graphics g = insideDisplay.getGraphics();
@@ -1376,7 +1422,6 @@ public class Display2D extends JComponent implements Steppable
     public void step(final SimState state)
         {
         long steps = simulation.state.schedule.getSteps();
-        Frame f = null;
     
         if (steps % getInterval() == 0   // time to update!
             && (insideDisplay.isShowing()    // only draw if we can be seen

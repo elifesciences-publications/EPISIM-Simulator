@@ -155,7 +155,7 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
             {
             final int width = this.width = values.width;
             final int height = this.height = values.height;
-            final int length = this.length = values.length;
+            /*final int length =*/ this.length = values.length;
             field = new double[width][height][];
             double[][] fieldx = null;
             for(int x = 0 ; x < width; x++)
@@ -217,8 +217,8 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
                 {
                 fieldxy = fieldx[y];
                 for(int z=0;z<length;z++)
-                    if (field[x][y][z] < toNoLowerThanThisMuch)
-                        field[x][y][z] = toNoLowerThanThisMuch;
+                    if (fieldxy[z] < toNoLowerThanThisMuch)
+                        fieldxy[z] = toNoLowerThanThisMuch;
                 }
             }
         return this;
@@ -325,7 +325,7 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
                 
                 fieldxy = fieldx[y];
                 for(int z=0;z<length;z++)
-                    field[x][y][z]*=byThisMuch;
+                    fieldxy[z]*=byThisMuch;
                 }
             }
         return this;
@@ -451,10 +451,10 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
                 {
                 fieldxy = fieldx[y];
                 for(int z=0;z<length;z++)
-                    if (field[x][y][z] > 0.0) 
-                        /*Strict*/Math.floor(field[x][y][z]);
+                    if (fieldxy[z] > 0.0) 
+                        /*Strict*/Math.floor(fieldxy[z]);
                     else
-                        /*Strict*/Math.ceil(field[x][y][z]);
+                        /*Strict*/Math.ceil(fieldxy[z]);
                 }
             }
         return this;

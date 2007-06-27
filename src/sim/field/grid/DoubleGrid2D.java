@@ -76,7 +76,7 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
         if (width != values.width || height != values.height)
             {
             final int width = this.width = values.width;
-            final int height = this.height = values.height;
+            /*final int height =*/ this.height = values.height;
             field = new double[width][];
             for(int x =0 ; x < width; x++)
                 field[x] = (double []) (values.field[x].clone());

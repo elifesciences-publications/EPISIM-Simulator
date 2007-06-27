@@ -36,7 +36,7 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
         double xScale = info.draw.width / field.getWidth();
         double yScale = info.draw.height / field.getHeight();
 
-        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
+//        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
 
         EdgeDrawInfo2D newinfo = new EdgeDrawInfo2D(
             new Rectangle2D.Double(0,0, xScale, yScale),  // the first two will get replaced

@@ -11,5 +11,6 @@
 # Empty lines in this file are ignored, as 
 # is any part of a line which starts with a pound sign.
 
-sim.portrayal.inspector.ChartingPropertyInspector
 sim.portrayal.inspector.StreamingPropertyInspector
+sim.portrayal.inspector.TimeSeriesChartingPropertyInspector
+sim.portrayal.inspector.HistogramChartingPropertyInspector

@@ -12,55 +12,87 @@ import sim.display.*;
 import sim.engine.*;
 import javax.swing.*;
 import sim.util.gui.*;
-import sim.util.media.*;
+import sim.util.media.chart.*;
 import org.jfree.data.xy.*;
 import org.jfree.data.general.*;
 
-public class ChartingPropertyInspector extends PropertyInspector
+/** An abstract superclass for property inspectors which use sim.util.ChartGenerator to produce charts.
+    Contains a number of utility methods that these property inspector often have in commmon.  Each ChartingPropertyInspector
+    works with a single data series on a single chart.  Additionally, each ChartingPropertyInspector has access to the
+    global attributes common to the ChartGenerator.
+        
+    <p>To construct a ChartingPropertyInspector subclass, you need to override the methods validChartGenerator(generator),
+    which indicates if the generator is one you know how to work with; createNewGenerator(), which produces a new
+    chart generator when you need to create one from scratch, and updateSeries(...), which revises the series to possibly
+    reflect new data.
+                
+    <p>Additionally, you may wish to override includeAggregationMethodAttributes() to indicate whether or not the 
+    ChartingPropertyInspector should include an aggregation method in its global attributes.
+    If so, the aggregation method will be stored in globalAttributes.aggregationMethod
+    and will be one of AGGREGATIONMETHOD_CURRENT (don't aggregate), AGGREGATIONMETHOD_MIN (use the minimum of
+    the aggregated data over time), AGGREGATIONMETHOD_MAX (use the maximum), or AGGREGATIONMETHOD_MEAN (use
+    the mean).   The aggregation interval -- how much time you should wait for before dumping the aggregated
+    results into the time series -- will be stored in globalAttriutes.interval. 
+*/
+
+public abstract class ChartingPropertyInspector extends PropertyInspector
     {
-    XYSeries chartSeries = null;
-    XYSeries aggregateSeries = new XYSeries("ChartingPropertyInspector.temp", false);
-    ChartGenerator generator;
-
+    /** The ChartGenerator used by this ChartingPropertyInspector */
+    protected ChartGenerator generator;
     double lastTime  = Schedule.BEFORE_SIMULATION;
+        
+    /** Called when the inspector is being asked to use an existing ChartGenerator.  Should return true if the
+        ChartGenerator is compatable with this inspector. */
+    protected abstract boolean validChartGenerator(ChartGenerator generator);
 
-    public static String name() { return "Chart"; }
-    public static Class[] types() 
-        {
-        return new Class[]
-                {
-                Number.class, Boolean.TYPE, Byte.TYPE, Short.TYPE,
-                Integer.TYPE, Long.TYPE, Float.TYPE,
-                Double.TYPE, Valuable.class
-                };
-        }
+    /** Called when the inspector is being asked to create a new ChartGenerator from scratch. */
+    protected abstract ChartGenerator createNewGenerator();
 
+    /** Called from updateInspector() to inform the ChartingPropertyInspector that it may want to update its data series
+        to reflect new data at this time.  The value lastTime indicates the previous timestep when this method was
+        called.  It's possible that time == lastTime, that is, the method is called multiple times and nothing has
+        changed. */
+    protected abstract void updateSeries(double time, double lastTime);
+
+    /** Returns true if a widget should be inserted into the series attributes that allows the user to specify
+        an aggregation method.  If so, the aggregation method will be stored in globalAttributes.aggregationMethod
+        and will be one of AGGREGATIONMETHOD_CURRENT (don't aggregate), AGGREGATIONMETHOD_MIN (use the minimum of
+        the aggregated data over time), AGGREGATIONMETHOD_MAX (use the maximum), or AGGREGATIONMETHOD_MEAN (use
+        the mean).   The aggregation interval -- how much time you should wait for before dumping the aggregated
+        results into the time series -- will be stored in globalAttriutes.interval. */
+    protected boolean includeAggregationMethodAttributes() { return true; }
+        
+    /** Produces a ChartingPropertyInspector which tracks property number index from the given properties list,
+        stored in the provided parent frame, and applied in the given simulation.  This constructor will give the
+        user a chance to cancel the construction, in which case validInspector will be set to false, and generator
+        may be set to null.  In that case, assume that the inspector will be deleted immediately after.  */
     public ChartingPropertyInspector(Properties properties, int index, Frame parent, final GUIState simulation)
         {
         super(properties,index,parent,simulation);
-        chartSeries = new XYSeries( properties.getName(index), false );
         generator = chartToUse( properties.getName(index), parent, simulation );
-        attributes = (GlobalAttributes)(generator.getGlobalAttribute(0));  // so we share timer information
+        globalAttributes = findGlobalAttributes();  // so we share timer information.  If null, we're in trouble.
         validInspector = (generator!=null);
         }
 
-    protected void setStopper(final Stoppable stopper)
+    /** Used to find the global attributes that another inspector has set so I can share it. */
+    GlobalAttributes findGlobalAttributes()
         {
-        super.setStopper(stopper);
-                
-        // add our series
-        generator.addSeries(chartSeries, new SeriesChangeListener()
-            {
-            public void seriesChanged(SeriesChangeEvent event) { stopper.stop(); }
-            });
+        if (generator == null) return null;  // got a problem
+        int len = generator.getGlobalAttributeCount();
+        for(int i = 0; i < len ; i ++)
+            if ((generator.getGlobalAttribute(i) instanceof GlobalAttributes))
+                return (GlobalAttributes) generator.getGlobalAttribute(i);
+        return null;
         }
                 
+    /** Used to find the global attributes that another inspector has set so I can share it. */
     ChartGenerator chartToUse( final String sName, Frame parent, final GUIState simulation )
         {
         Bag charts = new Bag();
         if( simulation.guiObjects != null )
             for( int i = 0 ; i < simulation.guiObjects.numObjs ; i++ )
-                if( simulation.guiObjects.objs[i] instanceof ChartGenerator )
+                if( simulation.guiObjects.objs[i] instanceof ChartGenerator &&
+                    validChartGenerator((ChartGenerator)(simulation.guiObjects.objs[i])))
                     charts.add( simulation.guiObjects.objs[i] );
         if( charts.numObjs == 0 )
             return createNewChart(simulation);
@@ -108,9 +140,13 @@ public class ChartingPropertyInspector extends PropertyInspector
     static final int REDRAW_FIVE_SECS = 5;
     static final int REDRAW_TEN_SECS = 6;
     static final int REDRAW_DONT = 7;
-    GlobalAttributes attributes;
+        
+    /** The Global Attributes panel (the top-left panel) of this ChartingPropertyInspector.  Note that this
+        panel is shared with other inspectors using the same chart. */
+    protected GlobalAttributes globalAttributes;
 
-    class GlobalAttributes extends JPanel
+    /** The Global Attributes panel (the top-left panel) of ChartingPropertyInspectors. */
+    protected class GlobalAttributes extends JPanel
         {
         public long interval = 1;
         public int aggregationMethod = AGGREGATIONMETHOD_CURRENT;
@@ -119,42 +155,46 @@ public class ChartingPropertyInspector extends PropertyInspector
         public GlobalAttributes()
             {
             setLayout(new BorderLayout());
-            LabelledList list = new LabelledList("Add Data...");
+            LabelledList list = new LabelledList(
+                includeAggregationMethodAttributes() ? "Add Data..." : "Redraw");
             add(list,BorderLayout.CENTER);
                         
-            NumberTextField stepsField = new NumberTextField(1,true)
+            if (includeAggregationMethodAttributes())
                 {
-                public double newValue(double value)
+                NumberTextField stepsField = new NumberTextField(1,true)
                     {
-                    value = (long)value;
-                    if (value <= 0) return currentValue;
-                    else 
+                    public double newValue(double value)
                         {
-                        interval = (long)value;
-                        return value;
+                        value = (long)value;
+                        if (value <= 0) return currentValue;
+                        else 
+                            {
+                            interval = (long)value;
+                            return value;
+                            }
                         }
-                    }
-                };
-                                        
-            list.addLabelled("Every",stepsField);
-            list.addLabelled("",new JLabel("...Timesteps"));
+                    };
+                                                                                        
+                list.addLabelled("Every",stepsField);
+                list.addLabelled("",new JLabel("...Timesteps"));
 
-            String[] optionsLabel = { "Current", "Maximum", "Minimum", "Mean" };
-            final JComboBox optionsBox = new JComboBox(optionsLabel);
-            optionsBox.setSelectedIndex(aggregationMethod);
-            optionsBox.addActionListener(
-                new ActionListener()
-                    {
-                    public void actionPerformed(ActionEvent e)
+                String[] optionsLabel = { "Current", "Maximum", "Minimum", "Mean" };
+                final JComboBox optionsBox = new JComboBox(optionsLabel);
+                optionsBox.setSelectedIndex(aggregationMethod);
+                optionsBox.addActionListener(
+                    new ActionListener()
                         {
-                        aggregationMethod = optionsBox.getSelectedIndex();
-                        }
-                    });
-            list.addLabelled("Using", optionsBox);
+                        public void actionPerformed(ActionEvent e)
+                            {
+                            aggregationMethod = optionsBox.getSelectedIndex();
+                            }
+                        });
+                list.addLabelled("Using", optionsBox);
+                }
                         
-            optionsLabel = new String[]{ "When Adding Data", "Every 0.1 Seconds", "Every 0.5 Seconds", 
-                                         "Every Second", "Every 2 Seconds", "Every 5 Seconds", "Every 10 Seconds", "Never" };
-            final JComboBox optionsBox2 = new JComboBox(optionsLabel);
+            String[] optionsLabel2 = new String[]{ "When Adding Data", "Every 0.1 Seconds", "Every 0.5 Seconds", 
+                                                   "Every Second", "Every 2 Seconds", "Every 5 Seconds", "Every 10 Seconds", "Never" };
+            final JComboBox optionsBox2 = new JComboBox(optionsLabel2);
             optionsBox2.setSelectedIndex(redraw);
             optionsBox2.addActionListener(
                 new ActionListener()
@@ -165,48 +205,40 @@ public class ChartingPropertyInspector extends PropertyInspector
                         generator.update();  // keep up-to-date
                         }
                     });
-            list.addLabelled("Redraw", optionsBox2);
+            if (includeAggregationMethodAttributes())
+                list.addLabelled("Redraw", optionsBox2);
+            else list.add(optionsBox2);
             }
+        }
+                
+    Thread timer = null;
 
-        Thread timer = null;
-        public void startTimer(final long milliseconds)
+    /** Updates the inspector asynchronously after the given milliseconds have transpired. */
+    public void updateBefore(final long milliseconds)
+        {
+        if (timer == null)
             {
-            if (timer == null)
+            timer= sim.util.Utilities.doLater(milliseconds, new Runnable()
                 {
-                timer= sim.util.Utilities.doLater(milliseconds, new Runnable()
+                public void run()
                     {
-                    public void run()
+                    if (generator!=null)
                         {
-                        if (generator!=null)
-                            {
-                            generator.update();  // keep up-to-date
-                            }
-                        // this is in the Swing thread, so it's okay
-                        timer = null;
+                        generator.update();  // keep up-to-date
                         }
-                    });
-                }
+                    // this is in the Swing thread, so it's okay
+                    timer = null;
+                    }
+                });
             }
         }
 
+
     ChartGenerator createNewChart( final GUIState simulation)
         {
-        generator = new ChartGenerator()
-            {
-            public void quit()
-                {
-                super.quit();
-                Stoppable stopper = getStopper();
-                if (stopper!=null) stopper.stop();
-
-                // remove the chart from the GUIState's guiObjects
-                if( simulation.guiObjects != null )
-                    simulation.guiObjects.remove(this);
-                }
-            };
-                        
-        attributes = new GlobalAttributes();
-        generator.addGlobalAttribute(attributes);
+        generator = createNewGenerator();
+        globalAttributes = new GlobalAttributes();
+        generator.addGlobalAttribute(globalAttributes);  // it'll be added last
                 
         // set up the simulation -- need a new name other than guiObjects: and it should be
         // a HashMap rather than a Bag.
@@ -225,7 +257,7 @@ public class ChartingPropertyInspector extends PropertyInspector
             public void windowOpened(WindowEvent e) {}
             };
         f.addWindowListener(wl);
-        f.setVisible(true);;
+        f.setVisible(true);
 
         return generator;
         }
@@ -239,114 +271,46 @@ public class ChartingPropertyInspector extends PropertyInspector
         else return filename + ending;
         }
 
-    protected double valueFor(Object o)
-        {
-        if (o instanceof java.lang.Number)  // compiler complains unless I include the full classname!!! Huh?
-            return ((Number)o).doubleValue();
-        else if (o instanceof Valuable)
-            return ((Valuable)o).doubleValue();
-        else if (o instanceof Boolean)
-            return ((Boolean)o).booleanValue() ? 1 : 0;
-        else return Double.NaN;  // unknown
-        }
-
+    boolean updatedOnceAlready = false;  // did we update at the simulation start?
+        
     public void updateInspector()
         {
         double time = simulation.state.schedule.time();
-        if (lastTime < time)
-            {
+        // we should only update if we're at a new time that we've not seen yet, or if
+        // we're at the start of inspection and haven't done an update yet.  It's possible
+        // for this second condition to be true while the first one is false: if we're at
+        // simulation start, then lastTime == Schedule.BEFORE_SIMULATION == time, but we'd
+        // still want to update at least one time.
+        if (time >= Schedule.EPOCH && time < Schedule.AFTER_SIMULATION &&
+            (lastTime < time || !updatedOnceAlready))  // bug fix 
+            {              
+            updatedOnceAlready = true;
+            updateSeries(time, lastTime);
             lastTime = time;
-            double d = 0;
-
-            // FIRST, load the aggregate series with the items
-            aggregateSeries.add(time, d = valueFor(properties.getValue(index)), false);
-            int len = aggregateSeries.getItemCount();
-                        
-            // SECOND, determine if it's time to dump stuff into the main series
-            long interval = attributes.interval;
-            double intervalMark = time % interval;
-            if (!
-                // I think these are the three cases for when we may need to update because
-                // we've exceeded the next interval
-                (intervalMark == 0 || 
-                 (time - lastTime >= interval) ||
-                 lastTime % interval > intervalMark))
-                return;  // not yet
-                        
-            // THIRD determine how and when to dump stuff into the main series
-            double y = 0;  // make compiler happy
-            double temp;
-            switch(attributes.aggregationMethod)
-                {
-                case AGGREGATIONMETHOD_CURRENT:  // in this case the aggregateSeries is sort of worthless
-                    chartSeries.add(time, d, false);
-                    break;
-                case AGGREGATIONMETHOD_MAX:
-                    double maxX = 0;
-                    for(int i=0;i<len;i++)
-                        {
-                        XYDataItem item = (XYDataItem)(aggregateSeries.getDataItem(i));
-                        y = item.getY().doubleValue();
-                        temp = item.getX().doubleValue();
-                        if( maxX < temp || i==0) maxX = temp;
-                        }
-                    chartSeries.add( maxX, y, false );
-                    break;
-                case AGGREGATIONMETHOD_MIN:
-                    double minX = 0;
-                    for(int i=0;i<len;i++)
-                        {
-                        XYDataItem item = (XYDataItem)(aggregateSeries.getDataItem(i));
-                        y = item.getY().doubleValue();
-                        temp = item.getX().doubleValue();
-                        if( minX > temp || i==0) minX = temp;
-                        }
-                    chartSeries.add( minX, y, false );
-                    break;
-                case AGGREGATIONMETHOD_MEAN:
-                    double sumX = 0;
-                    int n = 0;
-                    for(int i=0;i<len;i++)
-                        {
-                        XYDataItem item = (XYDataItem)(aggregateSeries.getDataItem(i));
-                        y = item.getY().doubleValue();
-                        sumX += item.getX().doubleValue();
-                        n++;
-                        }
-                    if (n == 0)
-                        System.err.println( "No element????" );
-                    else chartSeries.add(sumX / n, y, false);
-                    break;
-                default:
-                    System.err.println( "There are only four aggregation method implemented" );
-                }
-            aggregateSeries.clear();
-
-            // FOURTH, determine if it's time to redraw
-            // at present we will always redraw when there's new data dumped in -- but
-            // later we should add the option to redraw every N seconds.
-            switch(attributes.redraw) 
+                
+            // now determine when to update
+            switch(globalAttributes.redraw) 
                 {
                 case REDRAW_ALWAYS:  // do it now
                     generator.update();
                     break;
                 case REDRAW_TENTH_SEC:
-                    attributes.startTimer(100);
+                    updateBefore(100);
                     break;
                 case REDRAW_HALF_SEC:
-                    attributes.startTimer(500);
+                    updateBefore(500);
                     break;
                 case REDRAW_ONE_SEC:
-                    attributes.startTimer(1000);
+                    updateBefore(1000);
                     break;
                 case REDRAW_TWO_SECS:
-                    attributes.startTimer(2000);
+                    updateBefore(2000);
                     break;
                 case REDRAW_FIVE_SECS:
-                    attributes.startTimer(5000);
+                    updateBefore(5000);
                     break;
                 case REDRAW_TEN_SECS:
-                    attributes.startTimer(10000);
+                    updateBefore(10000);
                     break;
                 case REDRAW_DONT:  // do nothing
                     break;

@@ -10,7 +10,6 @@ import javax.swing.*;
 import java.awt.*;
 import sim.util.gui.*;
 import sim.display.*;
-import sim.util.*;
 
 /**
    A FieldPortrayal is an object which knows how to portray some kind of Field.
@@ -36,22 +35,27 @@ import sim.util.*;
    <ol>
    <li>
    If there is a portrayalForAll, return it.
+   <li>If the object is null:
+   <ol>
+   <li>Return the portrayalForNull if there is one
    <li>
-   If the object implements the appropriate Portrayal interface, return the object itself as its own Portrayal.
+   If a portrayal is explicitly registered for null, return that portrayal.
+   <li>Return the defaultNullPortrayal.
+   </ol>
+   <li>If the object is non-null:
+   <ol>
+   <li>If the object implements the appropriate Portrayal interface, return the object itself as its own Portrayal.
+   <li>Return the portrayalForNonNull if there is one
    <li>
    If a portrayal is explicitly registered for the object, return that portrayal.  Portrayals may be registered for <tt>null</tt> as well.
    <li>
-   If the object is null:
-   <ol>
-   <li>Return the portrayalForNull if there is one
-   <li>Return the defaultNullPortrayal.
-   </ol>
    <li> 
    If a Portrayal is registered for the object's exact class (superclasses are ignored), return that portrayal.
    <li>
    Return the portrayalForRemainder if there is one
    <li>
    Return the default Portrayal object.
+   </ol>
    </ol>
 
    <p>FieldPortrayals store Portrayal objects in WeakHashMaps.  This means that if you register a Portrayal explicitly for an object, and then later the object is eliminated from your model, the FieldPortrayal will not hold onto the object or onto its Portrayal, but will allow them to garbage collect as well.  Thus you don't have to worry about de-registering an object.
@@ -65,9 +69,10 @@ public abstract class FieldPortrayal
     {
     public Portrayal portrayalForAll;
     public Portrayal portrayalForNull;
+    public Portrayal portrayalForNonNull;
     public Portrayal portrayalForRemainder;
-    public WeakHashMap portrayals = new WeakHashMap();
-    public WeakHashMap classPortrayals = new WeakHashMap();
+    public WeakHashMap portrayals; // = new WeakHashMap();
+    public WeakHashMap classPortrayals; // = new WeakHashMap();
 
     /** Set the portrayal to null to remove it. */
     public void setPortrayalForAll(Portrayal portrayal)
@@ -92,6 +97,17 @@ public abstract class FieldPortrayal
         }
 
     /** Set the portrayal to null to remove it. */
+    public void setPortrayalForNonNull(Portrayal portrayal)
+        {
+        portrayalForNonNull = portrayal;
+        }
+        
+    public Portrayal getPortrayalForNonNull()
+        {
+        return portrayalForNonNull;
+        }
+
+    /** Set the portrayal to null to remove it. */
     public void setPortrayalForRemainder(Portrayal portrayal)
         {
         portrayalForRemainder = portrayal;
@@ -106,6 +122,7 @@ public abstract class FieldPortrayal
         to respond to this. Set the portrayal to null to remove it for a given class. */  
     public void setPortrayalForClass(Class cls, Portrayal portrayal)
         {
+        if (classPortrayals == null) classPortrayals = new WeakHashMap();
         if (portrayal==null)
             classPortrayals.remove(cls);
         else classPortrayals.put(cls,portrayal);
@@ -115,6 +132,7 @@ public abstract class FieldPortrayal
         to respond to this. Set the portrayal to null to remove it for a given object. */  
     public void setPortrayalForObject(Object obj, Portrayal portrayal)
         {
+        if (portrayals == null) portrayals = new WeakHashMap();
         if (portrayal==null)
             portrayals.remove(obj);
         else portrayals.put(obj,portrayal);
@@ -138,36 +156,26 @@ public abstract class FieldPortrayal
         Portrayal tmp;
         
         // return the portrayal-for-all if any
-        if (portrayalForAll!=null) 
-            return portrayalForAll;
+        if (portrayalForAll != null) return portrayalForAll;
         
-        // if the object is a portrayal itself
-        else if (obj != null && obj instanceof Portrayal)
-            return (Portrayal) obj;
-        
-        // return any portrayal registered for the object
-        else if (( tmp = ((Portrayal)(portrayals.get(obj))) ) !=null)
-            return tmp;
-        
-        else if (obj==null)
+        if (obj == null)
             {
-            // if the object is null, return the portrayalForNull if any
-            if (portrayalForNull!=null)
-                return portrayalForNull;
-                
-            // else return the default portrayal for null objects
+            if (portrayalForNull != null) return portrayalForNull;
+            if ( (portrayals != null /* && !portrayals.isEmpty() */) && // a little efficiency -- avoid making weak keys etc. 
+                 ((tmp = ((Portrayal)(portrayals.get(obj))) ) !=null)) return tmp;
             return getDefaultNullPortrayal();
             }
-            
-        // return any portrayal registered for the object's class
-        else if ((tmp = ((Portrayal)(classPortrayals.get(obj.getClass()))) ) !=null)
-            return tmp;
-        
-        else if (portrayalForRemainder!=null)
-            return portrayalForRemainder;
-        
-        // return a default portrayal
-        else return getDefaultPortrayal();
+        else
+            {
+            if (obj instanceof Portrayal) return (Portrayal) obj;
+            if (portrayalForNonNull != null) return portrayalForNonNull;
+            if ( (portrayals != null /* && !portrayals.isEmpty() */) &&  // a little efficiency -- avoid making weak keys etc. 
+                 ((tmp = ((Portrayal)(portrayals.get(obj))) ) !=null)) return tmp;
+            if ( (classPortrayals != null /* && !classPortrayals.isEmpty() */) &&  // a little efficiency -- avoid making weak keys etc. 
+                 ((tmp = ((Portrayal)(classPortrayals.get(obj.getClass()))) ) !=null)) return tmp;
+            if (portrayalForRemainder!=null) return portrayalForRemainder;
+            return getDefaultPortrayal();
+            }
         }
     
     protected Object field = null;

@@ -67,7 +67,6 @@ public class MiniHistogram extends JPanel
     public void setBuckets(double[] buckets)
         {
         if (buckets == null) buckets = new double[0];
-        int len = buckets.length;
         this.buckets = buckets;
         repaint();
         }
@@ -199,6 +198,26 @@ public class MiniHistogram extends JPanel
                 s[x] = "[" + ((x/(double)numBuckets)*(max-min) + min) + 
                     "..." + (((x+1)/(double)numBuckets)*(max-min) + min) +
                     (x==s.length-1 ? "]" : ")");
+        return s;
+        }
+
+    public static double[] makeBucketPositions(int numBuckets, double min, double max, boolean logScale)
+        {
+        double[] s = new double[numBuckets];
+        
+        if (min>=max) { for(int x=0;x<s.length;x++) s[x] = max; return s;}  // duh, stupider user
+        else if (logScale)
+            {
+            min = Math.log(min);
+            max = Math.log(max);
+            for(int x=0;x<s.length;x++)
+                s[x] =  (Math.exp((x/(double)numBuckets)*(max-min) + min) + 
+                         Math.exp(((x+1)/(double)numBuckets)*(max-min) + min)) / 2;
+            }
+        else
+            for(int x=0;x<s.length;x++)
+                s[x] =  (((x/(double)numBuckets)*(max-min) + min) + 
+                         (((x+1)/(double)numBuckets)*(max-min) + min)) / 2;
         return s;
         }
 

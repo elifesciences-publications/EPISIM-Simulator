@@ -103,8 +103,9 @@ public class FastHexaObjectGridPortrayal2D extends HexaObjectGridPortrayal2D
         int endx = /*startx +*/ (int)(((info.clip.x - info.draw.x + info.clip.width)/xScale-0.5)/1.5) + 4;  // with rounding, width be as much as 1 off
         int endy = /*starty +*/ (int)((info.clip.y - info.draw.y + info.clip.height)/(yScale*2.0)) + 4;  // with rounding, height be as much as 1 off
 
-        double precomputedWidth = -1;  // see discussion further below
-        double precomputedHeight = -1;  // see discussion further below
+//        double precomputedWidth = -1;  // see discussion further below
+//        double precomputedHeight = -1;  // see discussion further below
+        
         //
         //
         // CAUTION!

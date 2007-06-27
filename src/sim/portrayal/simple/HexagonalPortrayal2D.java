@@ -37,7 +37,8 @@ public class HexagonalPortrayal2D extends SimplePortrayal2D
         {
         graphics.setPaint(paint);
         GeneralPath generalPath = createGeneralPath( info );
-        graphics.fill(generalPath);
+        //graphics.fill(generalPath);
+        graphics.fillPolygon(xPoints,yPoints,6);
         if( drawFrame )
             {
             graphics.setColor( Color.black );
@@ -54,30 +55,41 @@ public class HexagonalPortrayal2D extends SimplePortrayal2D
         // we are doing a simple draw, so we ignore the info.clip
         if( info instanceof HexaDrawInfo2D )
             {
+            System.out.println("yo");
             final HexaDrawInfo2D temp = (HexaDrawInfo2D)info;
-            generalPath.moveTo( temp.xPoints[0], temp.yPoints[0] );
-            for( int i = 1 ; i < 6 ; i++ )
-                generalPath.lineTo( temp.xPoints[i], temp.yPoints[i] );
-            generalPath.closePath();
+                        
+            for(int i=0; i < 6; i++)
+                { xPoints[i] = temp.xPoints[i]; yPoints[i] = temp.yPoints[i]; }
+            return null;
+            //generalPath.moveTo( temp.xPoints[0], temp.yPoints[0] );
+            //for( int i = 1 ; i < 6 ; i++ )
+            //    generalPath.lineTo( temp.xPoints[i], temp.yPoints[i] );
+            //generalPath.closePath();
             }
         else
             {
-            xPoints[0] = (int)(info.draw.x+info.draw.width/2.0);
-            yPoints[0] = (int)(info.draw.y);
-            xPoints[1] = (int)(info.draw.x+info.draw.width/4.0);
-            yPoints[1] = (int)(info.draw.y-info.draw.height/2.0);
-            xPoints[2] = (int)(info.draw.x-info.draw.width/4.0);
-            yPoints[2] = (int)(info.draw.y-info.draw.height/2.0);
-            xPoints[3] = (int)(info.draw.x-info.draw.width/2.0);
-            yPoints[3] = (int)(info.draw.y);
-            xPoints[4] = (int)(info.draw.x-info.draw.width/4.0);
-            yPoints[4] = (int)(info.draw.y+info.draw.height/2.0);
-            xPoints[5] = (int)(info.draw.x+info.draw.width/4.0);
-            yPoints[5] = (int)(info.draw.y+info.draw.height/2.0);
-            generalPath.moveTo( xPoints[0], yPoints[0] );
-            for( int i = 1 ; i < 6 ; i++ )
-                generalPath.lineTo( xPoints[i], yPoints[i] );
-            generalPath.closePath();
+            final double infodrawx = info.draw.x;
+            final double infodrawy = info.draw.y;
+            final double infodrawwidth = info.draw.width;
+            final double infodrawheight = info.draw.height;
+            xPoints[0] = (int)(infodrawx+infodrawwidth/2.0);
+            yPoints[0] = (int)(infodrawy);
+            xPoints[1] = (int)(infodrawx+infodrawwidth/4.0);
+            yPoints[1] = (int)(infodrawy-infodrawheight/2.0);
+            xPoints[2] = (int)(infodrawx-infodrawwidth/4.0);
+            yPoints[2] = (int)(infodrawy-infodrawheight/2.0);
+            xPoints[3] = (int)(infodrawx-infodrawwidth/2.0);
+            yPoints[3] = (int)(infodrawy);
+            xPoints[4] = (int)(infodrawx-infodrawwidth/4.0);
+            yPoints[4] = (int)(infodrawy+infodrawheight/2.0);
+            xPoints[5] = (int)(infodrawx+infodrawwidth/4.0);
+            yPoints[5] = (int)(infodrawy+infodrawheight/2.0);
+            /*
+              generalPath.moveTo( xPoints[0], yPoints[0] );
+              for( int i = 1 ; i < 6 ; i++ )
+              generalPath.lineTo( xPoints[i], yPoints[i] );
+              generalPath.closePath();
+            */
             }
         return generalPath;
         }

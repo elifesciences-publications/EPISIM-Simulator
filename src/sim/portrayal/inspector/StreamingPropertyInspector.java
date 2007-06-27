@@ -34,6 +34,8 @@ public class StreamingPropertyInspector extends PropertyInspector
     public static String name() { return "Stream"; }
     public static Class[] types() { return null; } // accepts all types
         
+    /** Creates a custom StreamingPropertyInspector which writes to the provided stream, with the associated short name streamName.
+        This constructor is intended for people who want to create custom streaming inspectors programmatically. */
     public StreamingPropertyInspector(Properties properties, int index, 
                                       Frame parent, GUIState simulation, PrintWriter stream, String streamName)
         {
@@ -173,7 +175,8 @@ public class StreamingPropertyInspector extends PropertyInspector
     public void updateInspector()
         {
         double time = simulation.state.schedule.time();
-        if (lastTime <= time - interval)
+        if (time >= Schedule.EPOCH && time < Schedule.AFTER_SIMULATION &&
+            lastTime <= time - interval)
             {
             lastTime = time;
             switch(streamingTo)

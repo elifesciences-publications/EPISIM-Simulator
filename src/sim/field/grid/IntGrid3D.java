@@ -154,7 +154,7 @@ public /*strictfp*/ class IntGrid3D extends AbstractGrid3D
             {
             final int width = this.width = values.width;
             final int height = this.height = values.height;
-            final int length = this.length = values.length;
+            /*final int length = */this.length = values.length;
             field = new int[width][height][];
             int[][]fieldx = null;        
             int[][]ofieldx = null;        

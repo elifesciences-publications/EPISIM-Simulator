@@ -113,7 +113,7 @@ public class ObjectGrid3D extends AbstractGrid3D
             {
             final int width = this.width = values.width;
             final int height = this.height = values.height;
-            final int length = this.length = values.length;
+            /*final int length =*/ this.length = values.length;
             Object[][][] field = this.field = new Object[width][height][];
             Object[][][] ofield = values.field;
             Object[][] fieldx = null;

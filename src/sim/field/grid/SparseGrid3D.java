@@ -38,7 +38,7 @@ import sim.util.*;
    must NOT modiify.  The <b>removeObjectsAtLocation(Object location)</b> method removes and returns all objects at a given location
    (defined as an Int3D or MutableDouble3D).  The <b>exists</b> method tells you if the object exists in the field.
         
-   <b>Neighborhood Lookups.<?b>  The method <b>getObjectsAtLocationOfObject</b> returns all Objects at the same location as the provided
+   <p><b>Neighborhood Lookups.</b>  The method <b>getObjectsAtLocationOfObject</b> returns all Objects at the same location as the provided
    object (in a Bag, which must NOT modify).  The various <b>getNeighbors...Distance(...)</b> methods return all locations defined by certain
    distance bounds, or all the objects stored at those locations.  They are expensive to compute and it may be wiser to compute them by hand
    if there aren't many.
@@ -67,31 +67,67 @@ public class SparseGrid3D extends SparseField
     /** Returns the length of the grid */
     public int getLength() { return length; }
     
-    public final int tx(final int x) 
+    /*
+      public final int tx(final int x) 
+      { 
+      final int width = this.width; 
+      if (x >= 0) return (x % width); 
+      final int width2 = (x % width) + height;
+      if (width2 < width) return width2;
+      return 0;
+      }
+    */
+
+    // slight revision for more efficiency
+    public final int tx(int x) 
         { 
-        final int width = this.width; 
-        if (x >= 0) return (x % width); 
-        final int width2 = (x % width) + width; 
-        if (width2 < width) return width2;
-        return 0;
-        }
-    
-    public final int ty(final int y) 
-        { 
-        final int height = this.height; 
-        if (y >= 0) return (y % height); 
-        final int height2 = (y % height) + height;
-        if (height2 < height) return height2;
-        return 0;
+        final int width = this.width;
+        if (x >= 0 && x < width) return x;  // do clearest case first
+        x = x % width;
+        if (x < 0) x = x + width;
+        return x;
         }
         
-    public final int tz(final int z) 
+    /*
+      public final int ty(final int y) 
+      { 
+      final int height = this.height; 
+      if (y >= 0) return (y % height); 
+      final int height2 = (y % height) + height;
+      if (height2 < height) return height2;
+      return 0;
+      }
+    */
+        
+    // slight revision for more efficiency
+    public final int ty(int y) 
         { 
-        final int length = this.length; 
-        if (z >= 0) return (z % length); 
-        final int length2 = (z % length) + length;
-        if (length2 < length) return length2;
-        return 0;
+        final int height = this.height;
+        if (y >= 0 && y < height) return y;  // do clearest case first
+        y = y % height;
+        if (y < 0) y = y + height;
+        return y;
+        }
+
+/*
+  public final int tz(final int z) 
+  { 
+  final int length = this.length; 
+  if (z >= 0) return (z % length); 
+  final int length2 = (z % length) + length;
+  if (length2 < length) return length2;
+  return 0;
+  }
+*/
+
+    // slight revision for more efficiency
+    public final int tz(int z) 
+        { 
+        final int length = this.length;
+        if (z >= 0 && z < length) return z;  // do clearest case first
+        z = z % length;
+        if (z < 0) z = z + height;
+        return z;
         }
 
     public int stx(final int x) 
@@ -102,6 +138,19 @@ public class SparseGrid3D extends SparseField
 
     public int stz(final int z) 
         { if (z >= 0) { if (z < length) return z ; return z - length; } return z + length; }
+
+    // faster version
+    final int stx(final int x, final int width) 
+        { if (x >= 0) { if (x < width) return x; return x - width; } return x + width; }
+        
+    // faster version
+    final int sty(final int y, final int height) 
+        { if (y >= 0) { if (y < height) return y ; return y - height; } return y + height; }
+
+    // faster version
+    public final int stz(final int z, final int length) 
+        { if (z >= 0) { if (z < length) return z ; return z - length; } return z + length; }
+
 
     MutableInt3D speedyMutableInt3D = new MutableInt3D();
     /** Returns the number of objects stored in the grid at the given location. */
@@ -186,6 +235,11 @@ public class SparseGrid3D extends SparseField
         yPos.clear();
         zPos.clear();
 
+        // local variables are faster
+        final int height = this.height;
+        final int width = this.width;
+        final int length = this.length;
+
         // for toroidal environments the code will be different because of wrapping arround
         if( toroidal )
             {
@@ -266,6 +320,11 @@ public class SparseGrid3D extends SparseField
         xPos.clear();
         yPos.clear();
         zPos.clear();
+
+        // local variables are faster
+        final int height = this.height;
+        final int width = this.width;
+        final int length = this.length;
 
         // for toroidal environments the code will be different because of wrapping arround
         if( toroidal )

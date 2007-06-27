@@ -65,9 +65,9 @@ import java.lang.ref.*;
 public class Console extends JFrame implements Controller
     {
     /** Default width of the Console. */
-    public final static int DEFAULT_WIDTH = 350;
+    public final static int DEFAULT_WIDTH = 380;
     /** Default height of the Console. */
-    public final static int DEFAULT_HEIGHT = 360;
+    public final static int DEFAULT_HEIGHT = 380;
     /** When the Console is laid out to the right of some window, the space allocated between it and the window */
     public final static int DEFAULT_GUTTER = 5;
 
@@ -94,7 +94,7 @@ public class Console extends JFrame implements Controller
             UIManager.setLookAndFeel((String)(Class.forName("ch.randelshofer.quaqua.QuaquaManager").
                                               getMethod("getLookAndFeelClassName",(Class[])null).invoke(null,(Object[])null)));
             } 
-        catch (Exception e) { }
+        catch (Exception e) { /* e.printStackTrace(); */ }
 
         try  // now we try to set certain properties if the security permits it
             {
@@ -106,68 +106,6 @@ public class Console extends JFrame implements Controller
             // System.setProperty("com.apple.macos.smallTabs", "true");  // nah, looks dorky...
             }
         catch (Exception e) { }
-        
-        ///////// Build doNew() comboBox
-        allowOtherClassNames = true;
-        try
-            {
-            InputStream s = Console.class.getResourceAsStream("simulation.classes");
-            StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(s)));
-            st.resetSyntax();
-            st.wordChars(32,255);
-            st.whitespaceChars(0,31);  // everything but space
-            st.commentChar(35);
-            boolean errout = false;
-            String nextName = null;
-            //st.whitespaceChars(0,32);  // control chars
-            while(st.nextToken()!=StreamTokenizer.TT_EOF)
-                {
-                if (st.sval == null) { } // ignore
-                else if ("ONLY".equalsIgnoreCase(st.sval))
-                    allowOtherClassNames = false;
-                else if (st.sval.toUpperCase().startsWith("NAME:"))
-                    {
-                    //if (shortNames.size() == 0) throw new Exception("The 'NAME:' tag occurred before any class name was declared");
-                    //shortNames.set(shortNames.size()-1, st.sval.substring(5).trim());
-                    nextName = st.sval.substring(5).trim();
-                    }
-                else 
-                    {
-                    String shortName = null;
-                    if (nextName==null)
-                        {
-                        try
-                            {
-                            Class c = Class.forName(st.sval);
-                            try
-                                { shortName = GUIState.getName(c); }
-                            catch (Throwable e)
-                                { shortName = GUIState.getTruncatedName(c); }
-                            }
-                        catch (Throwable e) 
-                            {
-                            if (!errout) 
-                                System.err.println("Not all classes loaded, due to error: probably no Java3D");
-                            errout = true;
-                            }
-                        }
-                    else { shortName = nextName; nextName = null; }
-                    // at this point if it's still null we shouldn't list it.
-                    if (shortName!=null)
-                        {
-                        classNames.add(st.sval);
-                        shortNames.add(shortName);
-                        }
-                    }
-                }
-            if (nextName != null) System.err.println("Spurious NAME tag at end of simulation.classes file:\n\tNAME: " + nextName);
-            s.close();
-            }
-        catch (Exception e)
-            {
-            System.err.println("Couldn't load the simulation.classes file because of error. \nLikely the file does not exist or could not be opened.\nThe error was:\n");
-            e.printStackTrace();
-            }
         }
 
     /** Returns icons for a given filename, such as "NotPlaying.png". A utility function. */
@@ -283,6 +221,9 @@ public class Console extends JFrame implements Controller
         {
         super(GUIState.getName(simulation.getClass()));
 
+        final Color transparentBackground = new JPanel().getBackground();  // sacrificial JPanel
+
+
         this.simulation = simulation;
 
         rateFormat = NumberFormat.getInstance();
@@ -305,7 +246,10 @@ public class Console extends JFrame implements Controller
                 pressPlay();
                 }
             });
+        playButton.setBorderPainted(false);
+        playButton.setContentAreaFilled(false);
         playButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        //playButton.setBackground(transparentBackground);  // looks better in Windows
         //playButton.setToolTipText("<html><i>When Stopped:</i> Start Simulation<br><i>When Paused:</i> Step Simulation</html>");
         buttonBox.add(playButton);
 
@@ -320,15 +264,17 @@ public class Console extends JFrame implements Controller
                 pressPause();
                 }
             });
+        pauseButton.setBorderPainted(false);
+        pauseButton.setContentAreaFilled(false);
         pauseButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         //pauseButton.setToolTipText("<html><i>When Playing:</i> Pause/Resume Simulation<br><i>When Stopped:</i> Start Simulation Paused</html>");
+        //pauseButton.setBackground(transparentBackground);  // looks better in Windows
         buttonBox.add(pauseButton);
 
         // create stop button
         stopButton = new JButton(I_STOP_OFF);
         stopButton.setIcon(I_STOP_ON);
         stopButton.setPressedIcon(I_STOP_OFF);
-        //stopButton.setToolTipText("End Simulation");
         
         stopButton.addActionListener(new ActionListener()
             {
@@ -338,6 +284,10 @@ public class Console extends JFrame implements Controller
                 }
             });
         stopButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        //stopButton.setBackground(transparentBackground);  // looks better in Windows
+        //stopButton.setToolTipText("End Simulation");
+        stopButton.setBorderPainted(false);
+        stopButton.setContentAreaFilled(false);
         buttonBox.add(stopButton);
 
         timeBox = new JComboBox(new Object[] { "Time", "Steps", "Rate", "None" });
@@ -354,7 +304,7 @@ public class Console extends JFrame implements Controller
                 }
             });
         
-        // "float" it vertically so it looks nice in Windows
+        // "float" it vertically so it looks nice in Windows  -- or does this work?
         Box timeBox1 = new Box(BoxLayout.Y_AXIS);
         timeBox1.add(Box.createGlue());
         timeBox1.add(timeBox);
@@ -876,7 +826,7 @@ public class Console extends JFrame implements Controller
                 return insets;
                 }
             };
-        controlScroll.getViewport().setBackground(new JPanel().getBackground());//UIManager.getColor("window"));  // make nice stripes on MacOS X
+        controlScroll.getViewport().setBackground(transparentBackground);//UIManager.getColor("window"));  // make nice stripes on MacOS X
             
         tabPane.addTab("Console", controlScroll);
         tabPane.addTab("Displays", frameListPanel);
@@ -901,6 +851,8 @@ public class Console extends JFrame implements Controller
         JMenu fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
         
+        buildClassList(); // load the simulation class list in case it's not been loaded yet, to determine if we want to have simulations
+
         JMenuItem _new = new JMenuItem("New Simulation...");
         if (!allowOtherClassNames && classNames.size() == 0)  // nothing permitted
             _new.setEnabled(false);
@@ -1347,67 +1299,6 @@ public class Console extends JFrame implements Controller
         return tabPane;
         }
     
-
-    static final int MAX_ERROR_WIDTH = 500;  // in pixels
-    static final int MIN_ERROR_WIDTH = 200;
-    static final int MIN_ERROR_HEIGHT = 200;
-    /** Pops up an error dialog box.  error should be the error proper, and errorDescription should
-        be some user-informative item that's shown first (the user must explicitly ask to be shown
-        the raw error itself).  The error is also printed to the console.  */
-    
-    public void informOfError(Throwable error, String errorDescription)
-        {
-        informOfError(error,errorDescription,null);
-        }
-    
-    static void informOfError(Throwable error, String errorDescription, JFrame frame)
-        {
-        error.printStackTrace();
-        Object[] options = { "What Error?", "Okay" };
-        JLabel label = new JLabel();
-        FontMetrics fm = label.getFontMetrics(label.getFont());
-        label.setText("<html><font face=\"" + 
-                      WordWrap.toHTML(label.getFont().getFamily()) + "\">" + 
-                      WordWrap.toHTML(WordWrap.wrap(""+errorDescription,MAX_ERROR_WIDTH,fm)) +
-                      "</font></html>");
-        int n = JOptionPane.showOptionDialog(frame, label, "Error",
-                                             JOptionPane.YES_NO_OPTION,  
-                                             JOptionPane.ERROR_MESSAGE,  
-                                             null,   
-                                             //don't use a custom Icon
-                                             options, //the titles of buttons
-                                             options[1]); //default button title
-        if (n == 0)
-            {
-            label = new JLabel();
-            label.setText("<html><font face=\"" + 
-                          WordWrap.toHTML(label.getFont().getFamily()) + "\">" + 
-                          WordWrap.toHTML(WordWrap.wrap(""+error,MAX_ERROR_WIDTH,fm)) +
-                          "<br></font></html>");
-            StringWriter writer = new StringWriter();
-            PrintWriter pWriter = new PrintWriter(writer);
-            error.printStackTrace(pWriter);
-            pWriter.flush();
-            JTextArea area = new JTextArea(writer.toString());
-            JScrollPane pane = new JScrollPane(area)
-                {
-                public Dimension getPreferredSize()
-                    {
-                    return new Dimension(MIN_ERROR_WIDTH,MIN_ERROR_HEIGHT);
-                    }
-                public Dimension getMinimumSize()
-                    {
-                    return new Dimension(MIN_ERROR_WIDTH,MIN_ERROR_HEIGHT);
-                    }
-                };
-            JPanel panel = new JPanel();
-            panel.setLayout(new BorderLayout());
-            panel.add(label,BorderLayout.NORTH);
-            panel.add(pane,BorderLayout.CENTER);
-            JOptionPane.showMessageDialog(frame, panel);
-            }
-        }
-
     /** Sets the random number generator of the underlying model, pausing it first, then unpausing it after. 
         Updates the randomField. */ 
     void setRandomNumberGenerator(final int val)
@@ -1506,13 +1397,14 @@ public class Console extends JFrame implements Controller
             doQuit();
         }
 
+    static boolean sacrificial;
     /** Pops up a window allowing the user to enter in a class name to start a new simulation. */
     public static void main(String[] args)
         {
         // this line is to fix a stupidity in MacOS X 1.3.1, where if Display2D isn't loaded before
         // windows are created (so its static { } can be executed before the graphics subsystem
         // fires up) the underlying graphics subsystem is messed up.  Apple's fixed this in 1.4.1.
-        boolean b = Display2D.isMacOSX();  // sacrificial  -- something to force Display2D.class to load
+        sacrificial = Display2D.isMacOSX();  // sacrificial  -- something to force Display2D.class to load
                 
         // Okay here we go with the real code.
         if (!doNew(null, true) && !SimApplet.isApplet) System.exit(0); // just a dummy JFrame
@@ -1652,9 +1544,81 @@ public class Console extends JFrame implements Controller
         return -1;
         }
         
+    static Object classLock = new Object();
+    static boolean classListLoaded = false;
+    static void buildClassList()
+        {
+        // just in case someone crazy tries to load twice
+        synchronized(classLock) { if (classListLoaded) return; else classListLoaded = true; }
+                
+        ///////// Build doNew() comboBox
+        allowOtherClassNames = true;
+        try
+            {
+            InputStream s = Console.class.getResourceAsStream("simulation.classes");
+            StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(s)));
+            st.resetSyntax();
+            st.wordChars(32,255);
+            st.whitespaceChars(0,31);  // everything but space
+            st.commentChar(35);
+            boolean errout = false;
+            String nextName = null;
+            //st.whitespaceChars(0,32);  // control chars
+            while(st.nextToken()!=StreamTokenizer.TT_EOF)
+                {
+                if (st.sval == null) { } // ignore
+                else if ("ONLY".equalsIgnoreCase(st.sval))
+                    allowOtherClassNames = false;
+                else if (st.sval.toUpperCase().startsWith("NAME:"))
+                    {
+                    //if (shortNames.size() == 0) throw new Exception("The 'NAME:' tag occurred before any class name was declared");
+                    //shortNames.set(shortNames.size()-1, st.sval.substring(5).trim());
+                    nextName = st.sval.substring(5).trim();
+                    }
+                else 
+                    {
+                    String shortName = null;
+                    if (nextName==null)
+                        {
+                        try
+                            {
+                            Class c = Class.forName(st.sval);
+                            try
+                                { shortName = GUIState.getName(c); }
+                            catch (Throwable e)
+                                { shortName = GUIState.getTruncatedName(c); }
+                            }
+                        catch (Throwable e) 
+                            {
+                            if (!errout) 
+                                System.err.println("Not all classes loaded, due to error: probably no Java3D");
+                            errout = true;
+                            }
+                        }
+                    else { shortName = nextName; nextName = null; }
+                    // at this point if it's still null we shouldn't list it.
+                    if (shortName!=null)
+                        {
+                        classNames.add(st.sval);
+                        shortNames.add(shortName);
+                        }
+                    }
+                }
+            if (nextName != null) System.err.println("Spurious NAME tag at end of simulation.classes file:\n\tNAME: " + nextName);
+            s.close();
+            }
+        catch (Exception e)
+            {
+            System.err.println("Couldn't load the simulation.classes file because of error. \nLikely the file does not exist or could not be opened.\nThe error was:\n");
+            e.printStackTrace();
+            }
+        }
+
     /** Returns true if a new simulation has been created; false if the user cancelled. */
     static boolean doNew(JFrame originalFrame, boolean startingUp)
         {
+        buildClassList();
+                
         final String defaultText = "<html><body bgcolor='white'><font face='dialog'><br><br><br><br><p align='center'>Select a MASON simulation from the list at left,<br>or type a Java class name below.</p></font></body></html>";
         final String nothingSelectedText = "<html><body bgcolor='white'></body></html>";
                 
@@ -1674,8 +1638,6 @@ public class Console extends JFrame implements Controller
                     {
                     JLabel label = (JLabel)(super.getListCellRendererComponent(
                                                 list,value,index,isSelected,cellHasFocus)); 
-                    String text = "";
-                    String classname = "";
                     if (index >= 0)
                         {
                         label.setText("<html><body><font face='dialog'> " + shortNames.get(index) + 
@@ -1755,12 +1717,12 @@ public class Console extends JFrame implements Controller
                 }
             catch (NoSuchMethodException e)
                 {
-                informOfError(e, "The simulation does not have a default constructor: " + className, originalFrame);
+                Utilities.informOfError(e, "The simulation does not have a default constructor: " + className, originalFrame);
                 }
             catch (Throwable e)  // Most likely NoClassDefFoundError
                 {
-                informOfError(e, 
-                              "An error occurred while creating the simulation " + className, originalFrame);
+                Utilities.informOfError(e, 
+                                        "An error occurred while creating the simulation " + className, originalFrame);
                 }
             }
         }
@@ -1792,8 +1754,8 @@ public class Console extends JFrame implements Controller
                 } 
             catch (Exception e) // fail
                 {
-                informOfError(e, 
-                              "An error occurred while saving the simulation to the file " + (f == null ? " " : f.getName()));
+                Utilities.informOfError(e, 
+                                        "An error occurred while saving the simulation to the file " + (f == null ? " " : f.getName()), null);
                 }
         }
 
@@ -1812,8 +1774,8 @@ public class Console extends JFrame implements Controller
                 }
             catch (Exception e) // fail
                 {
-                informOfError(e, 
-                              "An error occurred while saving the simulation to the file " + simulationFile.getName());
+                Utilities.informOfError(e, 
+                                        "An error occurred while saving the simulation to the file " + simulationFile.getName(), null);
                 }
         }
 
@@ -1841,7 +1803,7 @@ public class Console extends JFrame implements Controller
         if (originalPlayState == PS_PLAYING) // need to put into paused mode
             pressPause();
                 
-        fd.setVisible(true);;
+        fd.setVisible(true);
         File f = null; // make compiler happy
         if (fd.getFile() != null)
             try
@@ -1860,9 +1822,9 @@ public class Console extends JFrame implements Controller
                 }        
             catch (Throwable e) // fail  -- could be an Error or an Exception
                 {
-                informOfError(e, 
-                              "An error occurred while loading the simulation from the file " + 
-                              (f == null ? fd.getFile(): f.getName()));
+                Utilities.informOfError(e, 
+                                        "An error occurred while loading the simulation from the file " + 
+                                        (f == null ? fd.getFile(): f.getName()), null);
                 }
                 
         // if we failed, reset play state.  If we were stopped, do nothing (we're still stopped).
@@ -2005,6 +1967,7 @@ public class Console extends JFrame implements Controller
             playButton.setIcon(I_STEP_OFF);
             playButton.setPressedIcon(I_STEP_ON);
             setPlayState(PS_PAUSED);
+            refresh();  // update displays even if they're skipping
             } 
         else if (getPlayState() == PS_PAUSED) // unpause
             {
@@ -2032,6 +1995,7 @@ public class Console extends JFrame implements Controller
             playButton.setIcon(I_STEP_OFF);
             playButton.setPressedIcon(I_STEP_ON);
             setPlayState(PS_PAUSED);
+            refresh();  // update displays even if they're skipping
             }
 
         repaint();
@@ -2081,6 +2045,7 @@ public class Console extends JFrame implements Controller
                     updateTime(simulation.state.schedule.getSteps(), simulation.state.schedule.time(), -1.0);
                     }
                 }
+            refresh();  // update displays even if they're skipping
             }
         repaint();
         }
@@ -2257,7 +2222,7 @@ public class Console extends JFrame implements Controller
         // start the playing thread
         Runnable run = new Runnable()
             {
-            final static int STEPHISTORY = 32;
+            //final static int STEPHISTORY = 32;
             //long[] stephistory = new long[STEPHISTORY];
 
             public void run()
@@ -2331,6 +2296,8 @@ public class Console extends JFrame implements Controller
                         // to store in a long first as follows:
                        
                         //                      long a = (stephistory[STEPHISTORY - 1] - stephistory[STEPHISTORY - numSteps]);
+
+                        // now we do something different instead anyway, so the above bug fix is immaterial
                         currentSteps++;
                         long l = System.currentTimeMillis();
                         if (l - lastStepTime >= RATE_UPDATE_INTERVAL)
@@ -2619,7 +2586,7 @@ public class Console extends JFrame implements Controller
         int currentInspector = inspectorList.getSelectedIndex();
         if (currentInspector == -1) return;
         
-        String name = (String)(inspectorNames.remove(currentInspector));
+        inspectorNames.remove(currentInspector);
         final Stoppable stoppable = (Stoppable)(inspectorStoppables.remove(currentInspector));
         JScrollPane oldInspector = (JScrollPane)(inspectorToolbars.remove(currentInspector));
         Point oldInspectorLocation = oldInspector.getLocationOnScreen();  // set here before inspector goes away
@@ -2685,8 +2652,14 @@ public class Console extends JFrame implements Controller
                             });
                         }
                     };
-                Stoppable stopper = ((Inspector)(inspectors.objs[x])).reviseStopper(simulation.scheduleImmediateRepeat(true,stepper));
-                inspectorStoppables.addElement(stopper);
+                
+                Stoppable stopper = null;
+                try
+                    {
+                    stopper = ((Inspector)(inspectors.objs[x])).reviseStopper(simulation.scheduleImmediateRepeat(true,stepper));
+                    inspectorStoppables.addElement(stopper);
+                    }
+                catch (IllegalArgumentException ex) { /* do nothing -- it's thrown if the user tries to pop up an inspector when the time is over. */ }
 
                 // add the inspector
                 registerInspector((Inspector)(inspectors.objs[x]),stopper);

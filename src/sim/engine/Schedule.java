@@ -186,7 +186,7 @@ public class Schedule implements java.io.Serializable
             {
             // figure the current time 
             time = ((Key)(queue.getMinKey())).time;
-           
+
             // loop as long as there are elements left in the heap that are the
             // same timzeone as the minimum key's time
             while(true)

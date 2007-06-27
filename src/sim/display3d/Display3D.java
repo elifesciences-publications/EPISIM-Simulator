@@ -13,7 +13,6 @@ import sim.util.*;
 import sim.util.gui.*;
 import sim.util.media.*;
 import sim.display.*;
-import sim.display.Console;
 
 import java.io.*;
 import java.util.*;
@@ -30,7 +29,7 @@ import com.sun.j3d.utils.universe.*;
 import com.sun.j3d.utils.behaviors.vp.*;
 import com.sun.j3d.utils.image.*;
 import com.sun.j3d.utils.geometry.Sphere;
-
+import sim.display.Console;
 
 /**
    Display3D holds, displays, and manipulates 3D Portrayal objects, allowing the user to scale them,

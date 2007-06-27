@@ -81,11 +81,11 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 kc.setLastDrawInfoAssigned(true);
                 kc.setLastDrawInfoX(info.draw.x);
                 kc.setLastDrawInfoY(info.draw.y);
-                if (kc.isInNirvana()) return;       
+              //  if (kc.isInNirvana()) return;       
                
                 // get Agent data
                 int id=kc.getIdentity();
-                int numFlockers=kc.getEpidermis().allocatedKCytes;
+                int numFlockers=kc.getEpidermis().getAllocatedKCytes();
                 int keratinoType=kc.getKeratinoType();                                
                 int typeColor=modelController.getIntField("typeColor");                
                 int ownCol=(kc.getOwnColor())*kc.getEpidermis().individualColor;
@@ -199,7 +199,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                	 showNucleus=false;
                 }
                         
-                if ((kc.isMembraneCell) || (kc.isOuterCell())) drawVoronoi=false;
+                if ((kc.isMembraneCell()) || (kc.isOuterCell())) drawVoronoi=false;
                 //
                 // set colors
                 //

@@ -81,9 +81,9 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
    
    private boolean isOuterCell=false;
    private boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
-   public boolean isMembraneCell=false;    // cells directly sitting on membrane, very strict
+   private boolean isMembraneCell=false;    // cells directly sitting on membrane, very strict
    
-   private Stoppable stopper = null;
+   private Stoppable stoppable = null;
    
    
    
@@ -97,13 +97,13 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
    	 // always as first thing, set beholder
         epidermis=pFlock;
         // now local vars
-        epidermis.allocatedKCytes++;
-        identity=epidermis.allocatedKCytes;        
+        epidermis.inkrementAllocatedKCytes();
+        identity=epidermis.getAllocatedKCytes();        
         newborn();
         newborn=false;                    
         lastd=new Double2D(0.0,-3);
         // Memory Management
-        if (epidermis.allocatedKCytes>epidermis.getAllCells().size()-2) // for safety -2
+        if (epidermis.getAllocatedKCytes()>epidermis.getAllCells().size()-2) // for safety -2
             epidermis.getAllCells().resize(epidermis.getAllCells().size()+500); // alloc 500 in advance
         epidermis.getAllCells().add(this); // register this as additional one in Bag
         //System.out.println("New Cell Nr."+theEpidermis.allocatedKCytes);
@@ -388,16 +388,10 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
     {       
         // Either we get use a currently unused cell oder we allocate a new one
         KCyte kcyte;        
-        if (epidermis.nirvanaHeapLoaded)
-        {
-            kcyte = epidermis.nirvanaHeap;
-            epidermis.nirvanaHeapLoaded=false;
-        }
-        else
-        {
+       
             kcyte= new KCyte(epidermis); 
-            epidermis.schedule.scheduleRepeating(kcyte);   // schedule only if not already running
-        }
+            Stoppable stoppable = epidermis.schedule.scheduleRepeating(kcyte);   // schedule only if not already running
+            this.setStoppable(stoppable);
 
         Double2D newloc=pC2dHerd.getObjectLocation(this);
         newloc=new Double2D(newloc.x +epidermis.random.nextDouble()*0.5-0.25, newloc.y-epidermis.random.nextDouble()*0.5-0.1);
@@ -578,15 +572,14 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 
     
     public void killCell(){
-   	 epidermis.nirvanaHeapLoaded=true;    // register in the Nirvana
-			// Heap for resurrection
-   	 epidermis.nirvanaHeap=this;
+   	 
+   	 
    	 epidermis.actualNoNucleus--;
    	 keratinoType=modelController.getGlobalIntConstant("KTYPE_NIRVANA");
    	 epidermis.actualKCytes--;
    	 inNirvana=true;            
-   	 Double2D newloc= new Double2D(0,0);
-   	 epidermis.continous2D.setObjectLocation(this, newloc);
+   	 
+   	 epidermis.getCellContinous2D().remove(this);
     }
 
     void cellcycle(boolean pNoCollision)
@@ -610,12 +603,12 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
                 {
                     if (keratinoType==modelController.getGlobalIntConstant("KTYPE_STEM"))
                     {
-                        makeTACell(epidermis.continous2D);                        
+                        makeTACell(epidermis.getCellContinous2D());                        
                         keratinoAge=0; // begin new cycle, only stem cells do not age, TA cells do !
                     }
                     if ((keratinoType==modelController.getGlobalIntConstant("KTYPE_TA")) && (ageFrac<modelController.getDoubleField("tAMaxBirthAge_frac")))
                     {
-                        makeSpiCell(epidermis.continous2D, (long) epidermis.schedule.time());
+                        makeSpiCell(epidermis.getCellContinous2D(), (long) epidermis.schedule.time());
                     }
                     birthWish=false;
                 }
@@ -636,8 +629,8 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 		//
 		if(inNirvana){
 			// please for resurrection by registering as wating
-			epidermis.nirvanaHeapLoaded = true;
-			epidermis.nirvanaHeap = this;
+			
+			removeFromSchedule();
 			return;
 		}
 
@@ -653,7 +646,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 		// Double2D mome = momentum();
 
 		// calc potential location from gravitation and external pressures
-		Double2D oldLoc = epiderm.continous2D.getObjectLocation(this);
+		Double2D oldLoc = epiderm.getCellContinous2D().getObjectLocation(this);
 
 		if(extForce.length() > 0.6)
 			extForce = extForce.setLength(0.6);
@@ -671,7 +664,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 				* (epidermis.random.nextDouble() - 0.5));
 		Vector2D actionForce = new Vector2D(gravi.x + extForce.x * modelController.getDoubleField("externalPush")
 				+ randi.x, gravi.y + extForce.y * modelController.getDoubleField("externalPush"));
-		Double2D potentialLoc = new Double2D(epiderm.continous2D.stx(actionForce.x + oldLoc.x), epiderm.continous2D
+		Double2D potentialLoc = new Double2D(epiderm.getCellContinous2D().stx(actionForce.x + oldLoc.x), epiderm.getCellContinous2D()
 				.sty(actionForce.y + oldLoc.y));
 		extForce.x = 0; // alles einberechnet
 		extForce.y = 0;
@@ -679,10 +672,10 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 		// ////////////////////////////////////////////////
 		// try ACTION force
 		// ////////////////////////////////////////////////
-		Bag b = epiderm.continous2D.getObjectsWithinDistance(potentialLoc, modelController
+		Bag b = epiderm.getCellContinous2D().getObjectsWithinDistance(potentialLoc, modelController
 				.getDoubleField("neighborhood_µm"), false); // theEpidermis.neighborhood
 		HitResultClass hitResult1;
-		hitResult1 = hitsOther(b, epiderm.continous2D, potentialLoc, true, epidermis.NextToOuterCell);
+		hitResult1 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, epidermis.NextToOuterCell);
 
 		// ////////////////////////////////////////////////
 		// estimate optimised POS from REACTION force
@@ -710,8 +703,8 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 		// bound also by borders
 		double potX = oldLoc.x + actionForce.x + reactionForce.x;
 		double potY = oldLoc.y + actionForce.y + reactionForce.y;
-		potentialLoc = new Double2D(epiderm.continous2D.stx(potX), epiderm.continous2D.sty(potY));
-		potentialLoc = calcBoundedPos(epiderm.continous2D, potentialLoc.x, potentialLoc.y);
+		potentialLoc = new Double2D(epiderm.getCellContinous2D().stx(potX), epiderm.getCellContinous2D().sty(potY));
+		potentialLoc = calcBoundedPos(epiderm.getCellContinous2D(), potentialLoc.x, potentialLoc.y);
 
 		// ////////////////////////////////////////////////
 		// try optimised POS
@@ -724,10 +717,10 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 		// selber nachgefolgt von (3), so wird (2) rausgeschoben, aber (3) nicht
 		// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
 
-		b = epiderm.continous2D.getObjectsWithinDistance(potentialLoc, modelController.getDoubleField("neighborhood_µm"),
+		b = epiderm.getCellContinous2D().getObjectsWithinDistance(potentialLoc, modelController.getDoubleField("neighborhood_µm"),
 				false); // theEpidermis.neighborhood
 		HitResultClass hitResult2;
-		hitResult2 = hitsOther(b, epiderm.continous2D, potentialLoc, true, epidermis.NextToOuterCell);
+		hitResult2 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, epidermis.NextToOuterCell);
 
 		// move only on pressure when not stem cell
 		if(keratinoType != modelController.getGlobalIntConstant("KTYPE_STEM")){
@@ -735,11 +728,11 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 					|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.motherIdentity) || (hitResult2.otherMotherId == this.identity)))){
 				double dx = potentialLoc.x - oldLoc.x;
 				lastd = new Double2D(potentialLoc.x - oldLoc.x, potentialLoc.y - oldLoc.y);
-				setPositionRespectingBounds(epiderm.continous2D, potentialLoc);
+				setPositionRespectingBounds(epiderm.getCellContinous2D(), potentialLoc);
 			}
 		}
 
-		Double2D newLoc = epiderm.continous2D.getObjectLocation(this);
+		Double2D newLoc = epiderm.getCellContinous2D().getObjectLocation(this);
 		double maxy = BasementMembrane.lowerBound(newLoc.x);
 		if((maxy - newLoc.y) < modelController.getDoubleField("basalLayerWidth"))
 			isBasalStatisticsCell = true;
@@ -761,7 +754,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 		// Diffusion of signals
 		// ////////////////////////////////////////////////
 
-		diffuser(b, epiderm.continous2D, newLoc, (isOuterCell || hitResult2.nextToOuterCell));
+		diffuser(b, epiderm.getCellContinous2D(), newLoc, (isOuterCell || hitResult2.nextToOuterCell));
 
 		/////////////////////////////////////////////////////////
 		// Differentiation: Environment and Internal processing
@@ -780,7 +773,18 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 		return methods;
 	}
 	
-	public void stop(){stopper.stop();}	
+	int bert = 1;
+	public void stop(){	
+	 System.out.println("Ich bin die Stopp-Methode, ja ja die Stopp-Methode");
+	}
+	public void removeFromSchedule(){
+	
+		if(stoppable != null){
+		  stoppable.stop();
+			System.out.println("Wurde zum "+ bert + ". Mal gestoppt");
+			bert +=1;
+		}
+	}
 
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 // INCREMENT-DECREMENT-METHODS
@@ -873,6 +877,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 	public void setLastDrawInfoY(double lastDrawInfoY) { this.lastDrawInfoY = lastDrawInfoY; }
 	public void setLocal_maxAge(long local_maxAge) { this.local_maxAge = local_maxAge; }
 	
+	public void setMembraneCell(boolean isMembraneCell) {	this.isMembraneCell = isMembraneCell; }
 	public void setModelController(BioChemicalModelController modelController) { this.modelController = modelController;	}
 	
 	public void setNeighborDrawInfoX(double[] neighborDrawInfoX) { this.neighborDrawInfoX = neighborDrawInfoX; }
@@ -885,10 +890,15 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 	public void setOwnSigLamella(double ownSigLamella) { this.ownSigLamella = ownSigLamella; }
 	public void setOwnSigLipids(double ownSigLipids) { this.ownSigLipids = ownSigLipids; }
 	
-	public void setStopper(Stoppable stopperparam)   {this.stopper = stopperparam;}
+	public void setStoppable(Stoppable stopperparam)   {
+		if(stopperparam == null) System.out.println("Ich bin null!");
+		this.stoppable = stopperparam;}
         
 	public void setVoronoihull(GrahamPoint[] voronoihull) { this.voronoihull = voronoihull; }
-	public void setVoronoihullvertexes(int voronoihullvertexes) { this.voronoihullvertexes = voronoihullvertexes; }	
+	public void setVoronoihullvertexes(int voronoihullvertexes) { this.voronoihullvertexes = voronoihullvertexes; }
+
+	
+		
 	
 		           
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------

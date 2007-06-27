@@ -25,36 +25,30 @@ import com.lowagie.text.pdf.*;
 
 public class Epidermis extends SimStateHack implements SnapshotListener
 {
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+// VARIABLES
+//--------------------------------------------------------------------------------------------------------------------------------------------------- 
+	private transient BioChemicalModelController modelController;
+
+	//get charts from Chart-Factory
+	private  EpiSimCharts epiSimCharts = EpiSimCharts.getInstance();
+
+	private boolean reloadedSnapshot = false;
+
+	private  String graphicsDirectory="pdf_png_simres/";
+
+	private Continuous2D cellContinous2D;
+	private Continuous2D basementContinous2D;
+	      
+	
+	private Bag allCells=new Bag(3000); //all cells will be stored in this bag
+	private int allocatedKCytes=0;   // allocated memory
+	private int actualStem=0;        // Stem cells
+	
+	public void inkrementAllocatedKCytes(){allocatedKCytes +=1;}
+	public void dekrementAllocatedKCytes(){allocatedKCytes -=1;}
  
-private transient BioChemicalModelController modelController;
-        
-
-
-private  EpiSimCharts epiSimCharts = EpiSimCharts.getInstance();
-
-private boolean reloadedSnapshot = false;
-
-private  String graphicsDirectory="pdf_png_simres/";
-
- //////////////////////////////////////
- // Purely Internal
- //////////////////////////////////////
- 
- public Continuous2D continous2D;
- public Continuous2D basementContinous2D;
- public boolean nirvanaHeapLoaded=false; // is a one-element list
- public KCyte nirvanaHeap;          // is the one and only element in this list
- private Bag allCells=new Bag(3000);
- 
- //////////////////////////////////////
- // General
- //////////////////////////////////////   
-     
- public int allocatedKCytes=0;   // allocated memory
- public void inkrementAllocatedKCytes(){allocatedKCytes +=1;}
- public void dekrementAllocatedKCytes(){allocatedKCytes -=1;}
- 
- public int actualStem=0;        // Stem cells
+	
  public void inkrementActualStem(){actualStem +=1;}
  public void dekrementActualStem(){actualStem -=1;}
 
@@ -235,7 +229,7 @@ private  String graphicsDirectory="pdf_png_simres/";
      // that's 16 hash lookups! I would have guessed that 
      // neighborhood * 2 (which is about 4 lookups on average)
      // would be optimal.  Go figure.
-     continous2D = new Continuous2D(modelController.getDoubleField("neighborhood_µm")/1.5,modelController.getDoubleField("width"),height);
+     cellContinous2D = new Continuous2D(modelController.getDoubleField("neighborhood_µm")/1.5,modelController.getDoubleField("width"),height);
      basementContinous2D = new Continuous2D(modelController.getDoubleField("width"),modelController.getDoubleField("width"),height);
     
     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
@@ -263,9 +257,10 @@ private  String graphicsDirectory="pdf_png_simres/";
                  stemCell.setKeratinoType(modelController.getGlobalIntConstant("KTYPE_STEM"));
                  stemCell.setOwnColor(10);
                  stemCell.setKeratinoAge(random.nextInt(modelController.getIntField("stemCycle_t")));     // somewhere on the stemCycle
-                 continous2D.setObjectLocation(stemCell, newloc);
+                 cellContinous2D.setObjectLocation(stemCell, newloc);
                  lastloc=newloc;
-                 schedule.scheduleRepeating(stemCell);
+                 Stoppable stoppable = schedule.scheduleRepeating(stemCell);
+                 stemCell.setStoppable(stoppable);
                  // x+=basalDensity; // in any case jump a step to the right to avoid overlay of stem cells
                  actualStem++;
                  actualKCytes++;
@@ -613,7 +608,7 @@ private  String graphicsDirectory="pdf_png_simres/";
                      KCyte act=(KCyte)allCells.get(i);
                      if (act.isInNirvana()) continue;
                      // is a living cell..
-                     Double2D loc=continous2D.getObjectLocation(act);
+                     Double2D loc=cellContinous2D.getObjectLocation(act);
                      int histobin=(int)loc.y/7;
                      HistoNum[histobin]++;
                      HistoExtCalConc[histobin]+=act.getOwnSigExternalCalcium();
@@ -797,7 +792,7 @@ private  String graphicsDirectory="pdf_png_simres/";
                      if (act.isBasalStatisticsCell()) actualBasalStatisticsCells++;
                      
                      //act.isOuterCell=false; // set new default 
-                     Double2D loc=continous2D.getObjectLocation(act);
+                     Double2D loc=cellContinous2D.getObjectLocation(act);
                      int xbin=(int)loc.x/InitialKeratinoSize;
                      if (XLookUp[xbin]==null) 
                      {
@@ -1090,6 +1085,42 @@ public void setReloadedSnapshot(boolean reloadedSnapshot) {
 	
 	this.reloadedSnapshot = reloadedSnapshot;
 }
+
+public int getAllocatedKCytes() {
+
+	return allocatedKCytes;
+}
+
+public void setAllocatedKCytes(int allocatedKCytes) {
+
+	this.allocatedKCytes = allocatedKCytes;
+}
+
+
+
+
+
+public Continuous2D getBasementContinous2D() {
+
+	return basementContinous2D;
+}
+
+public void setBasementContinous2D(Continuous2D basementContinous2D) {
+
+	this.basementContinous2D = basementContinous2D;
+}
+
+public Continuous2D getCellContinous2D() {
+
+	return cellContinous2D;
+}
+
+public void setCellContinous2D(Continuous2D cellContinous2D) {
+
+	this.cellContinous2D = cellContinous2D;
+}
+
+
 
 
  }

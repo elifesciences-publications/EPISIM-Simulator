@@ -158,9 +158,9 @@ public class EpidermisWithUIClass extends GUIState{
 
 		Epidermis theEpidermis = (Epidermis) state;
 		// obstacle portrayal needs no setup
-		epiPortrayal.setField(theEpidermis.continous2D);
-		basementPortrayal.setField(theEpidermis.basementContinous2D);
-		woundPortrayal.setField(theEpidermis.basementContinous2D);
+		epiPortrayal.setField(theEpidermis.getCellContinous2D());
+		basementPortrayal.setField(theEpidermis.getBasementContinous2D());
+		woundPortrayal.setField(theEpidermis.getBasementContinous2D());
 		// make the flockers random colors and four times their normal size
 		// (prettier)
 		java.awt.Color myColor = java.awt.Color.lightGray;

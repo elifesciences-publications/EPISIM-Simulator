@@ -851,7 +851,7 @@ public class Console extends JFrame implements Controller
         JMenu fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
         
-        buildClassList(); // load the simulation class list in case it's not been loaded yet, to determine if we want to have simulations
+       // buildClassList(); // load the simulation class list in case it's not been loaded yet, to determine if we want to have simulations
 
         JMenuItem _new = new JMenuItem("New Simulation...");
         if (!allowOtherClassNames && classNames.size() == 0)  // nothing permitted

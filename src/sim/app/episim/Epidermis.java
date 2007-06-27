@@ -25,6 +25,14 @@ import com.lowagie.text.pdf.*;
 
 public class Epidermis extends SimStateHack implements SnapshotListener
 {
+
+//	---------------------------------------------------------------------------------------------------------------------------------------------------
+// CONSTANTS
+//--------------------------------------------------------------------------------------------------------------------------------------------------- 
+		
+	public final int InitialKeratinoSize=5;
+	public final int NextToOuterCell=7;
+	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 // VARIABLES
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -39,111 +47,59 @@ public class Epidermis extends SimStateHack implements SnapshotListener
 
 	private Continuous2D cellContinous2D;
 	private Continuous2D basementContinous2D;
-	      
-	
+   
 	private Bag allCells=new Bag(3000); //all cells will be stored in this bag
 	private int allocatedKCytes=0;   // allocated memory
 	private int actualStem=0;        // Stem cells
+	private int actualKCytes=0;      // num of kcytes that are not in nirvana
+	private int actualSpi=0;         // Spinosum
+	private int actualTA=0;          // TA Cells
+	private int actualLateSpi=0;     // Late Spinosum
+	private int actualGranu=0;       // num of Granulosum KCytes
+	private int actualCorneum=0;       // num of Granulosum KCytes
+	private int actualNoNucleus=0;   // Cells after lifetime but not shed from the surface
+	private int actualBasalStatisticsCells=0;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
 	
-	public void inkrementAllocatedKCytes(){allocatedKCytes +=1;}
-	public void dekrementAllocatedKCytes(){allocatedKCytes -=1;}
- 
+	private  int PNG_ChartWidth=400;
+	private  int PNG_ChartHeight=300;
+	private  int PNG_ChartWidth_Large=600;
+	private  int PNG_ChartHeight_Large=400;
+	private  int PDF_ChartWidth_Large=600;
+	private  int PDF_ChartHeight_Large=400;
+	 
+	private int gCorneumY=20;    // gCorneum would start at this ..
+	 
+	private double height = 150;
+		
+	private int individualColor=1;
+	 
+	private double gTimefactor=0.5;   // conversion from timeticks to h for all diagrams: 2 time ticks mean 1 hour
+	 
+   private double consistency = 0.0;
+   private double minDist=0.1;    
+	private boolean DevelopGranulosum=true;
 	
- public void inkrementActualStem(){actualStem +=1;}
- public void dekrementActualStem(){actualStem -=1;}
-
- public int actualKCytes=0;      // num of kcytes that are not in nirvana
- public void inkrementActualKCytes(){actualKCytes +=1;}
- public void dekrementActualKCytes(){actualKCytes -=1;}
- 
- public int actualSpi=0;         // Spinosum
- public void inkrementActualSpi(){actualSpi +=1;}
- public void dekrementActualSpi(){actualSpi -=1;}
- 
- public int actualTA=0;          // TA Cells
- public void inkrementActualTA(){actualTA +=1;}
- public void dekrementActualTA(){actualTA -=1;}
- 
- public int actualLateSpi=0;     // Late Spinosum
- public void inkrementActualLateSpi(){actualLateSpi +=1;}
- public void dekrementActualLateSpi(){actualLateSpi -=1;}
- 
- public int actualGranu=0;       // num of Granulosum KCytes
- public void inkrementActualGranu(){actualGranu +=1;}
- public void dekrementActualGranu(){actualGranu -=1;}
- 
- public int actualCorneum=0;       // num of Granulosum KCytes
- public void inkrementActualCorneum(){actualCorneum +=1;}
- public void dekrementActualCorneum(){actualCorneum -=1;}
- 
- public int actualNoNucleus=0;   // Cells after lifetime but not shed from the surface
- public void inkrementActualNoNucleus(){actualNoNucleus +=1;}
- public void dekrementActualNoNucleus(){actualNoNucleus -=1;}
- 
- public int actualBasalStatisticsCells=0;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
- public void inkrementActualBasalStatisticsCells(){actualBasalStatisticsCells +=1;}
- public void dekrementActualBasalStatisticsCells(){actualBasalStatisticsCells -=1;}
- 
- public  int PNG_ChartWidth=400;
- public  int PNG_ChartHeight=300;
- public  int PNG_ChartWidth_Large=600;
- public  int PNG_ChartHeight_Large=400;
- public  int PDF_ChartWidth_Large=600;
- public  int PDF_ChartHeight_Large=400;
- 
- public int gCorneumY=20;    // gCorneum would start at this ..
- 
- //public int getNumCells() { return allocatedKCytes; }    
- 
- 
- 
- public double height = 150;    
- //public void setHeight(double val) { if (val > 0) height = val; }    
- //public double getHeight() { return height; }    
-
- 
- public final int InitialKeratinoSize=5;
- public final int NextToOuterCell=7;
- public int individualColor=1;
- 
- public double gTimefactor=0.5;   // conversion from timeticks to h for all diagrams: 2 time ticks mean 1 hour
- 
- 
- //////////////////////////////////////
- // Granular Flow Mechanis
- //////////////////////////////////////
- 
- public double consistency = 0.0;
-
- 
-
-
- public double minDist=0.1;    
- 
- 
- //////////////////////////////////////
- // Environment
- //////////////////////////////////////
-
- public boolean DevelopGranulosum=true;
-            
-     
- //////////////////////////////////////
- // Proliferation
- //////////////////////////////////////
- 
- public int basalY=80;          // y coordinate at which undulations start, the base line    
- public int basalPeriod=70;      // width of an undulation at the foot
-     
-
- /////////////////////////////////////
- // Code Procedures
- /////////////////////////////////////
- 
-   
-
- 
- 
+	private int basalY=80;          // y coordinate at which undulations start, the base line    
+	
+	private double gStatistics_KCytes_MeanAge=0;
+	private double gStatistics_Barrier_ExtCalcium=0;
+	private double gStatistics_Barrier_IntCalcium=0;
+	private double gStatistics_Barrier_Lamella=0;
+	private double gStatistics_Barrier_Lipids=0;
+	private double gStatistics_Apoptosis_Basal=0;    // apoptosis events during 10 ticks, is calculated from  ..Counter   
+	private int    gStatistics_Apoptosis_BasalCounter=0;    // Counter is reset every 100 ticks
+	private double gStatistics_Apoptosis_EarlySpi;
+	private int    gStatistics_Apoptosis_EarlySpiCounter=0;    // Counter is reset every 100 ticks
+	private double gStatistics_Apoptosis_LateSpi;
+	private int    gStatistics_Apoptosis_LateSpiCounter=0;    // Counter is reset every 100 ticks
+	private double gStatistics_Apoptosis_Granu;
+	private int    gStatistics_Apoptosis_GranuCounter=0;    // Counter is reset every 100 ticks
+	private int    gStatistics_GrowthFraction=0;             // Percentage
+	private double gStatistics_TurnoverTime=0;             // Percentage
+	
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------- 
+	 
  /** Creates a EpidermisClass simulation with the given random number seed. */
  public Epidermis(long seed)
  {
@@ -161,28 +117,9 @@ public class Epidermis extends SimStateHack implements SnapshotListener
      return (y-basalY)/modelController.getIntField("basalAmplitude_µm");                
  }
 
- /////////////////////////////////////
- // Statistics
- /////////////////////////////////////
  
- public double gStatistics_KCytes_MeanAge=0;
- public double gStatistics_Barrier_ExtCalcium=0;
- public double gStatistics_Barrier_IntCalcium=0;
- public double gStatistics_Barrier_Lamella=0;
- public double gStatistics_Barrier_Lipids=0;
  
- public double gStatistics_Apoptosis_Basal=0;    // apoptosis events during 10 ticks, is calculated from  ..Counter   
- public int    gStatistics_Apoptosis_BasalCounter=0;    // Counter is reset every 100 ticks
- 
- public double gStatistics_Apoptosis_EarlySpi;
- public int    gStatistics_Apoptosis_EarlySpiCounter=0;    // Counter is reset every 100 ticks
- public double gStatistics_Apoptosis_LateSpi;
- public int    gStatistics_Apoptosis_LateSpiCounter=0;    // Counter is reset every 100 ticks
- public double gStatistics_Apoptosis_Granu;
- public int    gStatistics_Apoptosis_GranuCounter=0;    // Counter is reset every 100 ticks
- 
- public int    gStatistics_GrowthFraction=0;             // Percentage
- public double gStatistics_TurnoverTime=0;             // Percentage    
+   
 
 
  
@@ -848,90 +785,119 @@ public class Epidermis extends SimStateHack implements SnapshotListener
      schedule.scheduleRepeating(airSurface, 100);
      }
 
-public int getGCorneumY() {
 
-	return gCorneumY;
-}
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+//INKREMENT-DEKREMENT-METHODS
+//--------------------------------------------------------------------------------------------------------------------------------------------------- 
+	 
+ 	public void inkrementAllocatedKCytes(){allocatedKCytes +=1;}
+	public void dekrementAllocatedKCytes(){allocatedKCytes -=1;}
+	
+	public void inkrementActualStem(){actualStem +=1;}
+	public void dekrementActualStem(){actualStem -=1;}
+
+	public void inkrementActualKCytes(){actualKCytes +=1;}
+	public void dekrementActualKCytes(){actualKCytes -=1;}
+
+	public void inkrementActualSpi(){actualSpi +=1;}
+	public void dekrementActualSpi(){actualSpi -=1;}
+
+	public void inkrementActualTA(){actualTA +=1;}
+	public void dekrementActualTA(){actualTA -=1;}
+
+	public void inkrementActualLateSpi(){actualLateSpi +=1;}
+	public void dekrementActualLateSpi(){actualLateSpi -=1;}
+
+
+	public void inkrementActualGranu(){actualGranu +=1;}
+	public void dekrementActualGranu(){actualGranu -=1;}
+
+	public void inkrementActualCorneum(){actualCorneum +=1;}
+	public void dekrementActualCorneum(){actualCorneum -=1;}
+
+	public void inkrementActualNoNucleus(){actualNoNucleus +=1;}
+	public void dekrementActualNoNucleus(){actualNoNucleus -=1;}
+
+	public void inkrementActualBasalStatisticsCells(){actualBasalStatisticsCells +=1;}
+	public void dekrementActualBasalStatisticsCells(){actualBasalStatisticsCells -=1;}
+	
+	
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+//GETTER-METHODS
+//--------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+	public int getGCorneumY() { return gCorneumY; }
+	public String getGraphicsDirectory() {	return graphicsDirectory; }
+	public double getGStatistics_Apoptosis_Basal() { return gStatistics_Apoptosis_Basal; }
+	public int getGStatistics_Apoptosis_BasalCounter() { return gStatistics_Apoptosis_BasalCounter; }
+	public double getGStatistics_Apoptosis_EarlySpi() { return gStatistics_Apoptosis_EarlySpi; }
+	public int getGStatistics_Apoptosis_EarlySpiCounter() { return gStatistics_Apoptosis_EarlySpiCounter; }
+	public double getGStatistics_Apoptosis_Granu() { return gStatistics_Apoptosis_Granu; }
+	public int getGStatistics_Apoptosis_GranuCounter() { return gStatistics_Apoptosis_GranuCounter; }
+	public double getGStatistics_Apoptosis_LateSpi() {	return gStatistics_Apoptosis_LateSpi; }
+ 
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+//SETTER-METHODS
+//--------------------------------------------------------------------------------------------------------------------------------------------------- 
+	 
+ 
+ 
 
 public void setGCorneumY(int corneumY) {
 
 	gCorneumY = corneumY;
 }
 
-public String getGraphicsDirectory() {
 
-	return graphicsDirectory;
-}
 
 public void setGraphicsDirectory(String graphicsDirectory) {
 
 	this.graphicsDirectory = graphicsDirectory;
 }
 
-public double getGStatistics_Apoptosis_Basal() {
 
-	return gStatistics_Apoptosis_Basal;
-}
 
 public void setGStatistics_Apoptosis_Basal(double statistics_Apoptosis_Basal) {
 
 	gStatistics_Apoptosis_Basal = statistics_Apoptosis_Basal;
 }
 
-public int getGStatistics_Apoptosis_BasalCounter() {
 
-	return gStatistics_Apoptosis_BasalCounter;
-}
 
 public void setGStatistics_Apoptosis_BasalCounter(int statistics_Apoptosis_BasalCounter) {
 
 	gStatistics_Apoptosis_BasalCounter = statistics_Apoptosis_BasalCounter;
 }
 
-public double getGStatistics_Apoptosis_EarlySpi() {
 
-	return gStatistics_Apoptosis_EarlySpi;
-}
 
 public void setGStatistics_Apoptosis_EarlySpi(double statistics_Apoptosis_EarlySpi) {
 
 	gStatistics_Apoptosis_EarlySpi = statistics_Apoptosis_EarlySpi;
 }
 
-public int getGStatistics_Apoptosis_EarlySpiCounter() {
 
-	return gStatistics_Apoptosis_EarlySpiCounter;
-}
 
 public void setGStatistics_Apoptosis_EarlySpiCounter(int statistics_Apoptosis_EarlySpiCounter) {
 
 	gStatistics_Apoptosis_EarlySpiCounter = statistics_Apoptosis_EarlySpiCounter;
 }
 
-public double getGStatistics_Apoptosis_Granu() {
 
-	return gStatistics_Apoptosis_Granu;
-}
 
 public void setGStatistics_Apoptosis_Granu(double statistics_Apoptosis_Granu) {
 
 	gStatistics_Apoptosis_Granu = statistics_Apoptosis_Granu;
 }
 
-public int getGStatistics_Apoptosis_GranuCounter() {
 
-	return gStatistics_Apoptosis_GranuCounter;
-}
 
 public void setGStatistics_Apoptosis_GranuCounter(int statistics_Apoptosis_GranuCounter) {
 
 	gStatistics_Apoptosis_GranuCounter = statistics_Apoptosis_GranuCounter;
 }
 
-public double getGStatistics_Apoptosis_LateSpi() {
 
-	return gStatistics_Apoptosis_LateSpi;
-}
 
 public void setGStatistics_Apoptosis_LateSpi(double statistics_Apoptosis_LateSpi) {
 
@@ -1066,7 +1032,7 @@ public void setEpiSimCharts(EpiSimCharts epiSimCharts) {
 public void setModelController(BioChemicalModelController modelController) {
 
 	this.modelController = modelController;
-Iterator iter = allCells.iterator();
+   Iterator iter = allCells.iterator();
 	
 	while(iter.hasNext()){
 	  Object obj = iter.next();
@@ -1118,6 +1084,56 @@ public Continuous2D getCellContinous2D() {
 public void setCellContinous2D(Continuous2D cellContinous2D) {
 
 	this.cellContinous2D = cellContinous2D;
+}
+
+public int getActualKCytes() {
+
+	return actualKCytes;
+}
+
+public void setActualKCytes(int actualKCytes) {
+
+	this.actualKCytes = actualKCytes;
+}
+
+public boolean isDevelopGranulosum() {
+
+	return DevelopGranulosum;
+}
+
+public void setDevelopGranulosum(boolean developGranulosum) {
+
+	DevelopGranulosum = developGranulosum;
+}
+
+public double getConsistency() {
+
+	return consistency;
+}
+
+public void setConsistency(double consistency) {
+
+	this.consistency = consistency;
+}
+
+public double getMinDist() {
+
+	return minDist;
+}
+
+public void setMinDist(double minDist) {
+
+	this.minDist = minDist;
+}
+
+public int getIndividualColor() {
+
+	return individualColor;
+}
+
+public void setIndividualColor(int individualColor) {
+
+	this.individualColor = individualColor;
 }
 
 

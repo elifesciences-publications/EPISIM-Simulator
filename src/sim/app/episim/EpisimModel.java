@@ -360,7 +360,7 @@ public class EpisimModel{
 		}
 
 		case KTYPE_LATESPINOSUM: {
-			if((theEpidermis.DevelopGranulosum) && (kCyte.getLipids() >= minSigLipidsBarrier)
+			if((theEpidermis.isDevelopGranulosum()) && (kCyte.getLipids() >= minSigLipidsBarrier)
 					&& (pBarrierMember)){
 				kCyte.incrementSpinosumCounter();
 				if(kCyte.getSpinosumCounter() > 100){

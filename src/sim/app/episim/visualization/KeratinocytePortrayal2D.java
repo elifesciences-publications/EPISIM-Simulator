@@ -88,7 +88,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 int numFlockers=kc.getEpidermis().getAllocatedKCytes();
                 int keratinoType=kc.getKeratinoType();                                
                 int typeColor=modelController.getIntField("typeColor");                
-                int ownCol=(kc.getOwnColor())*kc.getEpidermis().individualColor;
+                int ownCol=(kc.getOwnColor())*kc.getEpidermis().getIndividualColor();
                 int maxAge= BioChemicalModelController.getInstance().getIntField("maxCellAge_t"); 
                 wloc = kc.getKeratinoWidth();                                
                 hloc = kc.getKeratinoHeight();  

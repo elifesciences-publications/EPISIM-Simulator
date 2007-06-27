@@ -38,7 +38,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
                 
    private Double2D lastd = new Double2D(0,0);
    private boolean holePassed= false;
-   private EpidermisClass epidermis;    
+   private Epidermis epidermis;    
    private int keratinoType;
    private int keratinoAge;
    
@@ -91,7 +91,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
 
-    public KCyte(EpidermisClass pFlock)
+    public KCyte(Epidermis pFlock)
     {
    	 modelController = BioChemicalModelController.getInstance(); 
    	 // always as first thing, set beholder
@@ -163,7 +163,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
         keratinoAge=epidermis.random.nextInt(modelController.getIntField("maxCellAge_t"));
     }
 
-    public void nirvanaAgeing(EpidermisClass flock)
+    public void nirvanaAgeing(Epidermis flock)
     {
         ++keratinoAge;
         if (keratinoAge>=modelController.getIntField("maxCellAge_t")) newborn(); //{KeratinoType=0;} // stratum corneum
@@ -629,7 +629,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 
 	public void step(SimState state) {
 
-		final EpidermisClass epiderm = (EpidermisClass) state;
+		final Epidermis epiderm = (Epidermis) state;
 
 		//
 		// Memory management
@@ -798,7 +798,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 // GETTER-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	public EpidermisClass getEpidermis() {	return epidermis;	}
+	public Epidermis getEpidermis() {	return epidermis;	}
 	public double getExternalCalcium() { return ownSigExternalCalcium; }   // for inspector 
 	public double getExtForceX () { return extForce.x; }   // for inspector 
    public double getExtForceY () { return extForce.y; }   // for inspector
@@ -852,7 +852,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
 // SETTER-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	public void setEpidermis(EpidermisClass epidermis) { this.epidermis = epidermis; }
+	public void setEpidermis(Epidermis epidermis) { this.epidermis = epidermis; }
 	
 	public void setFormCount(int formCount) {	this.formCount = formCount; }
 	

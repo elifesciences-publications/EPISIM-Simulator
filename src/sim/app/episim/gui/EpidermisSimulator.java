@@ -26,7 +26,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import sim.app.episim.BioChemicalModelController;
-import sim.app.episim.EpidermisClass;
+import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SnapshotObject;
 import sim.app.episim.SnapshotReader;
@@ -204,7 +204,7 @@ public class EpidermisSimulator extends JFrame{
 
 		File file = null;
 		boolean success = false;
-		EpidermisClass epidermis = null;
+		Epidermis epidermis = null;
 		EpiSimCharts charts = null;
 		List<Double2D> woundRegionCoordinates = null;
 		java.awt.geom.Rectangle2D.Double[] deltaInfo = null;
@@ -214,7 +214,7 @@ public class EpidermisSimulator extends JFrame{
 				List<SnapshotObject> snapshotobjects = SnapshotReader.getInstance().loadSnapshot(file);
 				for(SnapshotObject sObj : snapshotobjects){
 					if(sObj.getIdentifier().equals(SnapshotObject.EPIDERMIS)){
-						epidermis = (EpidermisClass) sObj.getSnapshotObject();
+						epidermis = (Epidermis) sObj.getSnapshotObject();
 						epidermis.setReloadedSnapshot(true);
 					}
 					else if(sObj.getIdentifier().equals(SnapshotObject.CHARTS)){

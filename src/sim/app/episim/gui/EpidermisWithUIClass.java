@@ -2,7 +2,7 @@ package sim.app.episim.gui;
 
 import sim.engine.*;
 import sim.app.episim.BioChemicalModelController;
-import sim.app.episim.EpidermisClass;
+import sim.app.episim.Epidermis;
 import sim.app.episim.KCyte;
 import sim.app.episim.KCyteInspector;
 import sim.app.episim.charts.EpiSimCharts;
@@ -79,7 +79,7 @@ public class EpidermisWithUIClass extends GUIState{
 	
 	
 	public EpidermisWithUIClass(JFrame mainFrame) {
-		super(new EpidermisClass(System.currentTimeMillis()));
+		super(new Epidermis(System.currentTimeMillis()));
 		
 		
 		this.mainFrame = mainFrame;
@@ -156,7 +156,7 @@ public class EpidermisWithUIClass extends GUIState{
 	 */
 	public void setupPortrayals() {
 
-		EpidermisClass theEpidermis = (EpidermisClass) state;
+		Epidermis theEpidermis = (Epidermis) state;
 		// obstacle portrayal needs no setup
 		epiPortrayal.setField(theEpidermis.continous2D);
 		basementPortrayal.setField(theEpidermis.basementContinous2D);
@@ -222,7 +222,7 @@ public class EpidermisWithUIClass extends GUIState{
 				if(e.getButton() == MouseEvent.BUTTON3){
 					if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
 					woundPortrayalDraw.closeWoundRegionPath(true);
-					((EpidermisClass) state).removeCells(woundPortrayalDraw.getWoundRegion());
+					((Epidermis) state).removeCells(woundPortrayalDraw.getWoundRegion());
 					activateDrawing = false;
 				}
 				

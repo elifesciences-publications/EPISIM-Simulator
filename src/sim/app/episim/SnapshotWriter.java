@@ -44,7 +44,7 @@ public class SnapshotWriter {
 			for(SnapshotListener listener : listeners){
 				for(SnapshotObject object : listener.getSnapshotObjects()){
 					if(object.getIdentifier().equals(SnapshotObject.EPIDERMIS)){
-						System.out.println(((EpidermisClass)object.getSnapshotObject()).schedule.time());
+						System.out.println(((Epidermis)object.getSnapshotObject()).schedule.time());
 					}
 					oOut.writeObject(object);
 				}

@@ -319,7 +319,7 @@ public class EpisimModel{
 	 }	               	               
 	               
 
-	public void differentiate(KCyte  kCyte, EpidermisClass theEpidermis, boolean pBarrierMember){
+	public void differentiate(KCyte  kCyte, Epidermis theEpidermis, boolean pBarrierMember){
 		
 		int keratinoType =kCyte.getKeratinoType();
 		

@@ -272,7 +272,7 @@ public class BioChemicalModelController implements java.io.Serializable{
    	
    }
 	
-	public void differentiate(KCyte  kCyte, EpidermisClass theEpidermis, boolean pBarrierMember){
+	public void differentiate(KCyte  kCyte, Epidermis theEpidermis, boolean pBarrierMember){
 		try{
 			biochemicalModel.differentiate(kCyte, theEpidermis, pBarrierMember);
 		}

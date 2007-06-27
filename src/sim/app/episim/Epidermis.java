@@ -23,7 +23,7 @@ import java.util.List;
 import com.lowagie.text.*;  
 import com.lowagie.text.pdf.*;  
 
-public class EpidermisClass extends SimStateHack implements SnapshotListener
+public class Epidermis extends SimStateHack implements SnapshotListener
 {
  
 private transient BioChemicalModelController modelController;
@@ -151,7 +151,7 @@ private  String graphicsDirectory="pdf_png_simres/";
  
  
  /** Creates a EpidermisClass simulation with the given random number seed. */
- public EpidermisClass(long seed)
+ public Epidermis(long seed)
  {
      super(new ec.util.MersenneTwisterFast(seed), new Schedule(1));
      

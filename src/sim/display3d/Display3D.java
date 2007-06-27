@@ -13,6 +13,7 @@ import sim.util.*;
 import sim.util.gui.*;
 import sim.util.media.*;
 import sim.display.*;
+import sim.display.Console;
 
 import java.io.*;
 import java.util.*;

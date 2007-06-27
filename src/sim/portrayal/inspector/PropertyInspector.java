@@ -9,6 +9,7 @@ import sim.portrayal.*;
 import java.awt.*;
 import javax.swing.*;
 import sim.display.*;
+import sim.display.Console;
 import sim.engine.*;
 import sim.util.*;
 import java.io.*;

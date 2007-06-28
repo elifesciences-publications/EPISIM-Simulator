@@ -77,7 +77,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener
 	 
    private double consistency = 0.0;
    private double minDist=0.1;    
-	private boolean DevelopGranulosum=true;
+	private boolean developGranulosum=true;
 	
 	private int basalY=80;          // y coordinate at which undulations start, the base line    
 	
@@ -117,12 +117,6 @@ public class Epidermis extends SimStateHack implements SnapshotListener
      return (y-basalY)/modelController.getIntField("basalAmplitude_µm");                
  }
 
- 
- 
-   
-
-
- 
  
  
  void printChartToPDF( JFreeChart chart, int width, int height, String fileName )
@@ -786,6 +780,28 @@ public class Epidermis extends SimStateHack implements SnapshotListener
      }
 
 
+
+
+
+	public void removeCells(GeneralPath path){
+	Iterator iter = allCells.iterator();
+		
+		while(iter.hasNext()){
+		  Object obj = iter.next();
+		  if (obj instanceof KCyte){
+			  KCyte kcyte =(KCyte) obj;
+			  if(path.contains(kcyte.getLastDrawInfoX(), kcyte.getLastDrawInfoY())){ 
+				  System.out.println("Zelle gelöscht");
+				  //iter.remove();
+				  kcyte.killCell();
+			  }
+		  }
+		}
+	}
+
+
+
+ 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //INKREMENT-DEKREMENT-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -826,6 +842,15 @@ public class Epidermis extends SimStateHack implements SnapshotListener
 //GETTER-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 
+	public int getActualKCytes() { return actualKCytes; }
+	public Bag getAllCells() {	return allCells; }
+	public int getAllocatedKCytes() { return allocatedKCytes; }
+	
+	public Continuous2D getBasementContinous2D() { return basementContinous2D; }
+	
+	public Continuous2D getCellContinous2D() { return cellContinous2D; }
+	public double getConsistency() { return consistency; }
+	
 	public int getGCorneumY() { return gCorneumY; }
 	public String getGraphicsDirectory() {	return graphicsDirectory; }
 	public double getGStatistics_Apoptosis_Basal() { return gStatistics_Apoptosis_Basal; }
@@ -835,309 +860,102 @@ public class Epidermis extends SimStateHack implements SnapshotListener
 	public double getGStatistics_Apoptosis_Granu() { return gStatistics_Apoptosis_Granu; }
 	public int getGStatistics_Apoptosis_GranuCounter() { return gStatistics_Apoptosis_GranuCounter; }
 	public double getGStatistics_Apoptosis_LateSpi() {	return gStatistics_Apoptosis_LateSpi; }
- 
+	public int getGStatistics_Apoptosis_LateSpiCounter() { return gStatistics_Apoptosis_LateSpiCounter; }
+	public double getGStatistics_Barrier_ExtCalcium() { return gStatistics_Barrier_ExtCalcium; }
+	public double getGStatistics_Barrier_IntCalcium() { return gStatistics_Barrier_IntCalcium; }
+	public double getGStatistics_Barrier_Lamella() { return gStatistics_Barrier_Lamella; }
+	public double getGStatistics_Barrier_Lipids() {	return gStatistics_Barrier_Lipids; }
+	public int getGStatistics_GrowthFraction() {	return gStatistics_GrowthFraction; }
+	public double getGStatistics_KCytes_MeanAge() { return gStatistics_KCytes_MeanAge; }
+	public double getGStatistics_TurnoverTime() { return gStatistics_TurnoverTime; }
+	
+	public int getIndividualColor() { return individualColor; }
+	
+	public double getMinDist() { return minDist; }
+	
+	public boolean isDevelopGranulosum() {	return developGranulosum; }
+	
+	//complex-Methods------------------------------------------------------------------------------------------------------------------
+	
+	public List<SnapshotObject> getSnapshotObjects() {
+		
+		List<SnapshotObject> list = new LinkedList<SnapshotObject>();
+		/*Iterator iter = allCells.iterator();
+		
+		while(iter.hasNext()){
+			list.add(new SnapshotObject(SnapshotObject.KCYTE, iter.next()));
+		}*/
+		list.add(new SnapshotObject(SnapshotObject.EPIDERMIS, this));
+
+		return list;
+	}  
+	
+	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //SETTER-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	 
  
- 
-
-public void setGCorneumY(int corneumY) {
-
-	gCorneumY = corneumY;
-}
-
-
-
-public void setGraphicsDirectory(String graphicsDirectory) {
-
-	this.graphicsDirectory = graphicsDirectory;
-}
-
-
-
-public void setGStatistics_Apoptosis_Basal(double statistics_Apoptosis_Basal) {
-
-	gStatistics_Apoptosis_Basal = statistics_Apoptosis_Basal;
-}
-
-
-
-public void setGStatistics_Apoptosis_BasalCounter(int statistics_Apoptosis_BasalCounter) {
-
-	gStatistics_Apoptosis_BasalCounter = statistics_Apoptosis_BasalCounter;
-}
-
-
-
-public void setGStatistics_Apoptosis_EarlySpi(double statistics_Apoptosis_EarlySpi) {
-
-	gStatistics_Apoptosis_EarlySpi = statistics_Apoptosis_EarlySpi;
-}
-
-
-
-public void setGStatistics_Apoptosis_EarlySpiCounter(int statistics_Apoptosis_EarlySpiCounter) {
-
-	gStatistics_Apoptosis_EarlySpiCounter = statistics_Apoptosis_EarlySpiCounter;
-}
-
-
-
-public void setGStatistics_Apoptosis_Granu(double statistics_Apoptosis_Granu) {
-
-	gStatistics_Apoptosis_Granu = statistics_Apoptosis_Granu;
-}
-
-
-
-public void setGStatistics_Apoptosis_GranuCounter(int statistics_Apoptosis_GranuCounter) {
-
-	gStatistics_Apoptosis_GranuCounter = statistics_Apoptosis_GranuCounter;
-}
-
-
-
-public void setGStatistics_Apoptosis_LateSpi(double statistics_Apoptosis_LateSpi) {
-
-	gStatistics_Apoptosis_LateSpi = statistics_Apoptosis_LateSpi;
-}
-
-public int getGStatistics_Apoptosis_LateSpiCounter() {
-
-	return gStatistics_Apoptosis_LateSpiCounter;
-}
-
-public void setGStatistics_Apoptosis_LateSpiCounter(int statistics_Apoptosis_LateSpiCounter) {
-
-	gStatistics_Apoptosis_LateSpiCounter = statistics_Apoptosis_LateSpiCounter;
-}
-
-public double getGStatistics_Barrier_ExtCalcium() {
-
-	return gStatistics_Barrier_ExtCalcium;
-}
-
-public void setGStatistics_Barrier_ExtCalcium(double statistics_Barrier_ExtCalcium) {
-
-	gStatistics_Barrier_ExtCalcium = statistics_Barrier_ExtCalcium;
-}
-
-public double getGStatistics_Barrier_IntCalcium() {
-
-	return gStatistics_Barrier_IntCalcium;
-}
-
-public void setGStatistics_Barrier_IntCalcium(double statistics_Barrier_IntCalcium) {
-
-	gStatistics_Barrier_IntCalcium = statistics_Barrier_IntCalcium;
-}
-
-public double getGStatistics_Barrier_Lamella() {
-
-	return gStatistics_Barrier_Lamella;
-}
-
-public void setGStatistics_Barrier_Lamella(double statistics_Barrier_Lamella) {
-
-	gStatistics_Barrier_Lamella = statistics_Barrier_Lamella;
-}
-
-public double getGStatistics_Barrier_Lipids() {
-
-	return gStatistics_Barrier_Lipids;
-}
-
-public void setGStatistics_Barrier_Lipids(double statistics_Barrier_Lipids) {
-
-	gStatistics_Barrier_Lipids = statistics_Barrier_Lipids;
-}
-
-public int getGStatistics_GrowthFraction() {
-
-	return gStatistics_GrowthFraction;
-}
-
-public void setGStatistics_GrowthFraction(int statistics_GrowthFraction) {
-
-	gStatistics_GrowthFraction = statistics_GrowthFraction;
-}
-
-public double getGStatistics_KCytes_MeanAge() {
-
-	return gStatistics_KCytes_MeanAge;
-}
-
-public void setGStatistics_KCytes_MeanAge(double statistics_KCytes_MeanAge) {
-
-	gStatistics_KCytes_MeanAge = statistics_KCytes_MeanAge;
-}
-
-public double getGStatistics_TurnoverTime() {
-
-	return gStatistics_TurnoverTime;
-}
-
-public void setGStatistics_TurnoverTime(double statistics_TurnoverTime) {
-
-	gStatistics_TurnoverTime = statistics_TurnoverTime;
-}
-
-public Bag getAllCells() {
-
-	return allCells;
-}
-
-public void setAllCells(Bag allCells) {
-
-	this.allCells = allCells;
-}
-public List<SnapshotObject> getSnapshotObjects() {
+	public void setActualKCytes(int actualKCytes) {	this.actualKCytes = actualKCytes; }
+	public void setAllCells(Bag allCells) { this.allCells = allCells; }
+	public void setAllocatedKCytes(int allocatedKCytes) {	this.allocatedKCytes = allocatedKCytes; }
 	
-	List<SnapshotObject> list = new LinkedList<SnapshotObject>();
-	/*Iterator iter = allCells.iterator();
+	public void setBasementContinous2D(Continuous2D basementContinous2D) { this.basementContinous2D = basementContinous2D; }
 	
-	while(iter.hasNext()){
-		list.add(new SnapshotObject(SnapshotObject.KCYTE, iter.next()));
-	}*/
-	list.add(new SnapshotObject(SnapshotObject.EPIDERMIS, this));
-
-	return list;
-}  
-
-
-
-public void removeCells(GeneralPath path){
-Iterator iter = allCells.iterator();
+	public void setCellContinous2D(Continuous2D cellContinous2D) { this.cellContinous2D = cellContinous2D; }
+	public void setConsistency(double consistency) { this.consistency = consistency; }
 	
-	while(iter.hasNext()){
-	  Object obj = iter.next();
-	  if (obj instanceof KCyte){
-		  KCyte kcyte =(KCyte) obj;
-		  if(path.contains(kcyte.getLastDrawInfoX(), kcyte.getLastDrawInfoY())){ 
-			  System.out.println("Zelle gelöscht");
-			  //iter.remove();
-			  kcyte.killCell();
-		  }
-	  }
-	}
-}
-
-public void setEpiSimCharts(EpiSimCharts epiSimCharts) {
-
-	this.epiSimCharts = epiSimCharts;
-}
-
-public void setModelController(BioChemicalModelController modelController) {
-
-	this.modelController = modelController;
-   Iterator iter = allCells.iterator();
+	public void setDevelopGranulosum(boolean developGranulosum) { this.developGranulosum = developGranulosum; }
 	
-	while(iter.hasNext()){
-	  Object obj = iter.next();
-	  if (obj instanceof KCyte){
-		  KCyte kcyte =(KCyte) obj;
-		  
-			  kcyte.setModelController(modelController);
+	public void setEpiSimCharts(EpiSimCharts epiSimCharts) {	this.epiSimCharts = epiSimCharts; }
+	
+	public void setGCorneumY(int corneumY) { gCorneumY = corneumY; }
+	public void setGraphicsDirectory(String graphicsDirectory) { this.graphicsDirectory = graphicsDirectory; }
+	public void setGStatistics_Apoptosis_Basal(double statistics_Apoptosis_Basal) { gStatistics_Apoptosis_Basal = statistics_Apoptosis_Basal; }
+	public void setGStatistics_Apoptosis_BasalCounter(int statistics_Apoptosis_BasalCounter) { gStatistics_Apoptosis_BasalCounter = statistics_Apoptosis_BasalCounter; }
+	public void setGStatistics_Apoptosis_EarlySpi(double statistics_Apoptosis_EarlySpi) { gStatistics_Apoptosis_EarlySpi = statistics_Apoptosis_EarlySpi; }
+	public void setGStatistics_Apoptosis_EarlySpiCounter(int statistics_Apoptosis_EarlySpiCounter) { gStatistics_Apoptosis_EarlySpiCounter = statistics_Apoptosis_EarlySpiCounter; }
+	public void setGStatistics_Apoptosis_Granu(double statistics_Apoptosis_Granu) { gStatistics_Apoptosis_Granu = statistics_Apoptosis_Granu; }
+	public void setGStatistics_Apoptosis_GranuCounter(int statistics_Apoptosis_GranuCounter) { gStatistics_Apoptosis_GranuCounter = statistics_Apoptosis_GranuCounter; }
+	public void setGStatistics_Apoptosis_LateSpi(double statistics_Apoptosis_LateSpi) { gStatistics_Apoptosis_LateSpi = statistics_Apoptosis_LateSpi; }
+	public void setGStatistics_Apoptosis_LateSpiCounter(int statistics_Apoptosis_LateSpiCounter) { gStatistics_Apoptosis_LateSpiCounter = statistics_Apoptosis_LateSpiCounter; }
+	public void setGStatistics_Barrier_ExtCalcium(double statistics_Barrier_ExtCalcium) { gStatistics_Barrier_ExtCalcium = statistics_Barrier_ExtCalcium; }
+	public void setGStatistics_Barrier_IntCalcium(double statistics_Barrier_IntCalcium) { gStatistics_Barrier_IntCalcium = statistics_Barrier_IntCalcium; }
+	public void setGStatistics_Barrier_Lamella(double statistics_Barrier_Lamella) { gStatistics_Barrier_Lamella = statistics_Barrier_Lamella; }
+	public void setGStatistics_Barrier_Lipids(double statistics_Barrier_Lipids) { gStatistics_Barrier_Lipids = statistics_Barrier_Lipids; }
+	public void setGStatistics_GrowthFraction(int statistics_GrowthFraction) { gStatistics_GrowthFraction = statistics_GrowthFraction; }
+	public void setGStatistics_KCytes_MeanAge(double statistics_KCytes_MeanAge) { gStatistics_KCytes_MeanAge = statistics_KCytes_MeanAge; }
+	public void setGStatistics_TurnoverTime(double statistics_TurnoverTime) { gStatistics_TurnoverTime = statistics_TurnoverTime; }
+	
+	public void setIndividualColor(int individualColor) {	this.individualColor = individualColor; }
+	
+	public void setMinDist(double minDist) { this.minDist = minDist; }
+	
+	public void setReloadedSnapshot(boolean reloadedSnapshot) {	this.reloadedSnapshot = reloadedSnapshot; }
+	
+	
+	//	complex-Methods------------------------------------------------------------------------------------------------------------------
+	
+	
+	public void setModelController(BioChemicalModelController modelController) {
+
+		this.modelController = modelController;
+	   Iterator iter = allCells.iterator();
+		
+		while(iter.hasNext()){
+		  Object obj = iter.next();
+		  if (obj instanceof KCyte){
+			  KCyte kcyte =(KCyte) obj;
 			  
+				  kcyte.setModelController(modelController);
+				  
+			  }
 		  }
-	  }
-	
-	
-}
+		
+	}
 
-public void setReloadedSnapshot(boolean reloadedSnapshot) {
-	
-	this.reloadedSnapshot = reloadedSnapshot;
-}
-
-public int getAllocatedKCytes() {
-
-	return allocatedKCytes;
-}
-
-public void setAllocatedKCytes(int allocatedKCytes) {
-
-	this.allocatedKCytes = allocatedKCytes;
-}
-
-
-
-
-
-public Continuous2D getBasementContinous2D() {
-
-	return basementContinous2D;
-}
-
-public void setBasementContinous2D(Continuous2D basementContinous2D) {
-
-	this.basementContinous2D = basementContinous2D;
-}
-
-public Continuous2D getCellContinous2D() {
-
-	return cellContinous2D;
-}
-
-public void setCellContinous2D(Continuous2D cellContinous2D) {
-
-	this.cellContinous2D = cellContinous2D;
-}
-
-public int getActualKCytes() {
-
-	return actualKCytes;
-}
-
-public void setActualKCytes(int actualKCytes) {
-
-	this.actualKCytes = actualKCytes;
-}
-
-public boolean isDevelopGranulosum() {
-
-	return DevelopGranulosum;
-}
-
-public void setDevelopGranulosum(boolean developGranulosum) {
-
-	DevelopGranulosum = developGranulosum;
-}
-
-public double getConsistency() {
-
-	return consistency;
-}
-
-public void setConsistency(double consistency) {
-
-	this.consistency = consistency;
-}
-
-public double getMinDist() {
-
-	return minDist;
-}
-
-public void setMinDist(double minDist) {
-
-	this.minDist = minDist;
-}
-
-public int getIndividualColor() {
-
-	return individualColor;
-}
-
-public void setIndividualColor(int individualColor) {
-
-	this.individualColor = individualColor;
-}
-
-
-
+//	---------------------------------------------------------------------------------------------------------------------------------------------------
+//	--------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  }
 

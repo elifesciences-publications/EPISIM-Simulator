@@ -33,7 +33,7 @@ public class TSSFileChooser extends JFileChooser {
 	}
 	public int showSaveDialog(Component comp){
 		this.setDialogTitle("Select Snapshot Path");
-		return super.showOpenDialog(comp);
+		return super.showSaveDialog(comp);
 	}
 	
 	public File getSelectedFile(){

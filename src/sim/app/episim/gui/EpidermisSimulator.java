@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import sim.app.episim.BioChemicalModelController;
+import sim.app.episim.CompileWizard;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SnapshotObject;
@@ -42,15 +44,17 @@ public class EpidermisSimulator extends JFrame{
 	private JarFileChooser jarFileChoose;
 	private TSSFileChooser tssFileChoose;
 	
-	private final String OPENMODEL = "Open Model";
-	private final String CLOSEMODEL = "Close Model";
+	
 	
 	private EpidermisWithUIClass epiUI;
 	
 	private boolean modelOpened = false;
 	private JMenuItem menuItemSetSnapshotPath;
 	private JMenuItem menuItemLoadSnapshot;
-
+	private JMenuItem menuItemOpen;
+	private JMenuItem menuItemClose;
+	private JMenuItem menuItemBuild;
+	
 	
 	public EpidermisSimulator(){
 		ExceptionDisplayer.getInstance().registerParentComp(this);
@@ -66,7 +70,7 @@ public class EpidermisSimulator extends JFrame{
 		//Menü
 		JMenuBar  menuBar = new JMenuBar();
 		JMenu menu = new JMenu("File");
-		JMenuItem menuItemOpen = new JMenuItem("Open EpiSimModel");
+		menuItemOpen = new JMenuItem("Open EpiSimModel");
 		menuItemOpen.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -84,7 +88,7 @@ public class EpidermisSimulator extends JFrame{
 			
 		});
 		
-		JMenuItem menuItemClose = new JMenuItem("Close EpiSimModel");
+		menuItemClose = new JMenuItem("Close EpiSimModel");
 		menuItemClose.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -114,10 +118,23 @@ public class EpidermisSimulator extends JFrame{
 			}
 			
 		});
+		menuItemBuild = new JMenuItem("Build EpiSim-Model-Archive");
+		menuItemBuild.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+
+				buildModelArchive();
+				
+			}
+			
+		});
+		
 		menuItemLoadSnapshot.setEnabled(true);
 		menu.add(menuItemOpen);
 		menu.add(menuItemSetSnapshotPath);
 		menu.add(menuItemLoadSnapshot);
+		menu.addSeparator();
+		menu.add(menuItemBuild);
 		menu.addSeparator();
 		menu.add(menuItemClose);
 		
@@ -183,6 +200,7 @@ public class EpidermisSimulator extends JFrame{
 				modelOpened = true;
 				menuItemSetSnapshotPath.setEnabled(true);
 				menuItemLoadSnapshot.setEnabled(false);
+				menuItemBuild.setEnabled(false);
 			}
 
 		}
@@ -263,10 +281,22 @@ public class EpidermisSimulator extends JFrame{
 						modelOpened = true;
 						menuItemSetSnapshotPath.setEnabled(true);
 						menuItemLoadSnapshot.setEnabled(false);
+						menuItemBuild.setEnabled(false);
 					}
 				}
 
 			}
+		}
+	}
+	
+	private void buildModelArchive(){
+		CompileWizard wizard = new CompileWizard(this);
+		try {
+			wizard.createModelArchive();
+		} catch (IOException e) {
+			ExceptionDisplayer.getInstance().displayException(e);
+		} catch (URISyntaxException e) {
+			ExceptionDisplayer.getInstance().displayException(e);
 		}
 	}
 	
@@ -280,6 +310,7 @@ public class EpidermisSimulator extends JFrame{
 		this.repaint();
 		modelOpened = false;
 		menuItemLoadSnapshot.setEnabled(true);
+		menuItemBuild.setEnabled(true);
 	}
 	
 	private void cleanUpContentPane(){

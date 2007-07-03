@@ -29,8 +29,8 @@ public class JarFileChooser extends JFileChooser {
 	}
 
 	public int showSaveDialog(Component comp){
-		this.setDialogTitle("Select Path");
-		return super.showOpenDialog(comp);
+		
+		return super.showSaveDialog(comp);
 	}
 	
 	public File getSelectedFile(){

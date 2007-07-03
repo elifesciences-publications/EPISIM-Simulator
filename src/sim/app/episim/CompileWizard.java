@@ -1,4 +1,5 @@
 package sim.app.episim;
+import java.awt.BorderLayout;
 import java.io.*;
 
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import javax.tools.*;
 
 
 import java.io.*;
+import java.net.URISyntaxException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,20 +28,42 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JWindow;
 import javax.swing.filechooser.FileFilter;
 import javax.tools.*;
+import javax.tools.JavaCompiler.CompilationTask;
 
 import sim.app.episim.gui.JarFileChooser;
 
 
 
-public class CompileTest {
-	private static String path;
-	public static void main(String[] args) throws IOException {
+public class CompileWizard {
 
-		JFileChooser fileChoose = new JFileChooser();
-		fileChoose.setDialogTitle("Select Java Files");
+	
+	private JFileChooser fileChoose;
+	private JarFileChooser jarChooser;
+	private JWindow progressWindow;
+	private JLabel progressLabel;
+	private JProgressBar progressBar;
+	
+	public CompileWizard(){
+		progressWindow = new JWindow();
+		progressWindow.getContentPane().setLayout(new BorderLayout(5, 5));
+		if(progressWindow.getContentPane() instanceof JPanel)
+			((JPanel)progressWindow.getContentPane()).setBorder(BorderFactory.createEmptyBorder(10,10, 10, 10));
+		progressBar = new JProgressBar();
+		progressWindow.getContentPane().add(progressLabel, BorderLayout.NORTH);
+		progressWindow.getContentPane().add(progressBar, BorderLayout.CENTER);
+		
+		
+		
+		fileChoose = new JFileChooser();
+		fileChoose.setDialogTitle("Select Episim-Model Java-Files");
 		fileChoose.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChoose.setMultiSelectionEnabled(true);
 		fileChoose.setFileFilter(new FileFilter() {
@@ -54,34 +78,43 @@ public class CompileTest {
 				return "Java-Files";
 			}
 		});
+		
+		jarChooser = new JarFileChooser();
+		jarChooser.setDialogTitle("Select name for Episim-Model-Archive");
+	}
+	
+	public void createModelArchive() throws IOException, URISyntaxException {
+		
+		
 		List<File> classFiles = new ArrayList<File>();
 		if(JFileChooser.APPROVE_OPTION == fileChoose.showDialog(null, "Select")){
+			
+		  jarChooser.setCurrentDirectory(fileChoose.getCurrentDirectory());
+		 if(JFileChooser.APPROVE_OPTION == jarChooser.showSaveDialog(null)){
 
 			File[] files = fileChoose.getSelectedFiles();
+			
+			//Preparing Class-File-Objekts
 			for(File src : files){
-				System.out.println("compiling the file: " + src.getAbsolutePath());
-
 				File tmp = new File(src.getAbsolutePath().substring(0, src.getAbsolutePath().length() - 4) + "class");
 				classFiles.add(tmp);
-
 			}
 			JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 			StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Arrays
 					.asList(files));
 
-			fileChoose.setDialogTitle("Select Binary Directory");
-			fileChoose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			fileChoose.setMultiSelectionEnabled(false);
-			if(JFileChooser.APPROVE_OPTION == fileChoose.showOpenDialog(null)){
+			    //Wo liegen die Binaries der Simulationsumgebung
+			    File binPath = new File(this.getClass().getResource("../../../").toURI());
+			
 				Iterable<String> options = Arrays.asList(new String[] { "-cp",
-						fileChoose.getSelectedFile().getAbsolutePath() });
+						binPath.getAbsolutePath() });
 				compiler.getTask(null, fileManager, null, options, null, compilationUnits).call();
+				
 				fileManager.close();
 
-				JarFileChooser jarChooser = new JarFileChooser();
-				jarChooser.setDialogTitle("Select Path");
-				if(JFileChooser.APPROVE_OPTION == jarChooser.showSaveDialog(null)){
+				
+				
 
 					File jarFile = jarChooser.getSelectedFile();
 
@@ -118,11 +151,7 @@ public class CompileTest {
 							String name = f.getName();
 							System.out.println("Trying to put " + name + " to the jar File " + jarFile.getAbsolutePath());
 
-							/* if (name.endsWith(".java") && doJarSources) {
-							 String entry = getJarFilePath("src"+File.separator+getRelativePackagePath(f.getAbsolutePath()));
-							 System.out.println("putting entry "+entry);
-							 jarOut.putNextEntry(new JarEntry(entry));
-							 }*/
+							
 							if(name.endsWith(".class")){
 
 								System.out.println("putting entry " + f.getName());
@@ -151,10 +180,24 @@ public class CompileTest {
 					jarOut.flush();
 					jarOut.finish();
 					jarOut.close();
-
-				}
+		          }
+			  }
 			}
+		
+	
+	public static void main(String[] args) {
+		CompileWizard test = new CompileWizard();
+
+		try {
+			test.createModelArchive();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
 	}
 
 }

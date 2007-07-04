@@ -17,7 +17,7 @@ public class TissueBorderDev {
 	private static int basalY=80;          // y coordinate at which undulations start, the base line    
 	private static int basalPeriod=70;      // width of an undulation at the foot
 	
-	private ArrayList<Point2D> membranePoints;
+	private ArrayList<Point2D> fullcontour;
 	
 	private HashMap<Double, HashSet<Double>> organizedXPoints;
 	
@@ -32,7 +32,7 @@ public class TissueBorderDev {
 	
 	
 	private TissueBorderDev(){
-		membranePoints = new ArrayList<Point2D>();
+		fullcontour = new ArrayList<Point2D>();
 		polygon = new GeneralPath();
 		organizedXPoints = new HashMap<Double, HashSet<Double>>();
 	}
@@ -55,32 +55,33 @@ public class TissueBorderDev {
 
 		if(path != null){
 
-			List<Point2D> tmpMembranePoints = TissueProfileReader.getInstance().loadBasalLayer(path);
-			if(!(tmpMembranePoints instanceof ArrayList)){
-				ArrayList<Point2D> membranePoints = new ArrayList<Point2D>();
-				membranePoints.addAll(tmpMembranePoints);
-				this.membranePoints = membranePoints;
+			Tissue tissue = TissueProfileReader.getInstance().loadTissue(path);
+			
+				fullcontour = new ArrayList<Point2D>();
+				fullcontour.addAll(tissue.getBasalLayerPoints());
+				ArrayList<Point2D> surface = tissue.getSurfacePoints();
+				for(int i = surface.size()-1; i >= 0 ; i--) fullcontour.add(surface.get(i));
+				
 			}
-			else
-				this.membranePoints = (ArrayList<Point2D>) tmpMembranePoints;
-			if(this.membranePoints.size() > 0){
+			
+			if(this.fullcontour.size() > 0){
 
 				polygon = new GeneralPath();
-				polygon.moveTo(this.membranePoints.get(0).getX(), this.membranePoints.get(0).getY());
-				for(int i = 0; i < this.membranePoints.size(); i++){
+				polygon.moveTo(this.fullcontour.get(0).getX(), this.fullcontour.get(0).getY());
+				for(int i = 0; i < this.fullcontour.size(); i++){
 
-					polygon.lineTo(this.membranePoints.get(i).getX(), this.membranePoints.get(i).getY());
+					polygon.lineTo(this.fullcontour.get(i).getX(), this.fullcontour.get(i).getY());
 
 				}
 				drawPolygon = (GeneralPath)polygon.clone();
 				polygon.lineTo(polygon.getBounds().getMinX(), polygon.getBounds().getMinY());
 				polygon.closePath();
 				
-				organizePoints();
+			//	organizePoints();
 			}
 		}
 
-	}
+	
 	
 	public static synchronized TissueBorderDev getInstance(){
 		if(instance == null) instance =  new TissueBorderDev();
@@ -100,7 +101,7 @@ public class TissueBorderDev {
 	}
 		      
 	private void organizePoints(){
-		for(Point2D actPoint: membranePoints){
+		for(Point2D actPoint: fullcontour){
 			if(organizedXPoints.containsKey(actPoint.getX()))
 				organizedXPoints.get(actPoint.getX()).add(actPoint.getY());
 			else{

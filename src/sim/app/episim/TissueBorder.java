@@ -5,7 +5,7 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 
 
-public class BasementMembrane {
+public class TissueBorder {
 	private static int basalY=80;          // y coordinate at which undulations start, the base line    
 	private static int basalPeriod=70;      // width of an undulation at the foot
 	
@@ -13,7 +13,7 @@ public class BasementMembrane {
 	
 	
 	private static  double width =BioChemicalModelController.getInstance().getDoubleField("width")-2;
-	private BasementMembrane(){
+	private TissueBorder(){
 	 	
 	}
 	

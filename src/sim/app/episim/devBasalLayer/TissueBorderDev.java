@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class BasementMembraneDev {
+public class TissueBorderDev {
 	private static int basalY=80;          // y coordinate at which undulations start, the base line    
 	private static int basalPeriod=70;      // width of an undulation at the foot
 	
@@ -27,11 +27,11 @@ public class BasementMembraneDev {
 	
 	private static final int THRESHHOLD = 5;
 	
-	private static  BasementMembraneDev instance;
+	private static  TissueBorderDev instance;
 	
 	
 	
-	private BasementMembraneDev(){
+	private TissueBorderDev(){
 		membranePoints = new ArrayList<Point2D>();
 		polygon = new GeneralPath();
 		organizedXPoints = new HashMap<Double, HashSet<Double>>();
@@ -55,7 +55,7 @@ public class BasementMembraneDev {
 
 		if(path != null){
 
-			List<Point2D> tmpMembranePoints = BasalLayerReader.getInstance().loadBasalLayer(path);
+			List<Point2D> tmpMembranePoints = TissueProfileReader.getInstance().loadBasalLayer(path);
 			if(!(tmpMembranePoints instanceof ArrayList)){
 				ArrayList<Point2D> membranePoints = new ArrayList<Point2D>();
 				membranePoints.addAll(tmpMembranePoints);
@@ -82,8 +82,8 @@ public class BasementMembraneDev {
 
 	}
 	
-	public static synchronized BasementMembraneDev getInstance(){
-		if(instance == null) instance =  new BasementMembraneDev();
+	public static synchronized TissueBorderDev getInstance(){
+		if(instance == null) instance =  new TissueBorderDev();
 		return instance;
 	}
 	

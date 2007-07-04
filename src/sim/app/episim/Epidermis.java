@@ -175,10 +175,10 @@ public class Epidermis extends SimStateHack implements SnapshotListener
      actualNoNucleus=0;
      actualStem=0;
      
-     Double2D lastloc=new Double2D(2, BasementMembrane.lowerBound(2));        
+     Double2D lastloc=new Double2D(2, TissueBorder.lowerBound(2));        
      for(x=2; x<=modelController.getDoubleField("width")-2; x+=2)
      {           
-         Double2D newloc=new Double2D(x,BasementMembrane.lowerBound(x));
+         Double2D newloc=new Double2D(x,TissueBorder.lowerBound(x));
          double distance=newloc.distance(lastloc);            
          
          if ((depthFrac(newloc.y)>modelController.getDoubleField("seedMinDepth_frac") && (!modelController.getBooleanField("seedReverse"))) || (depthFrac(newloc.y)<modelController.getDoubleField("seedMinDepth_frac") && modelController.getBooleanField("seedReverse")))

@@ -61,7 +61,7 @@ public class EpidermisSimulatorDev extends JFrame{
 		
 		cleanUpContentPane();
 		
-		BasementMembraneDev.getInstance().loadBasementMembrane(new File("d:/basal1.txt"));
+		TissueBorderDev.getInstance().loadBasementMembrane(new File("d:/basal1.txt"));
 		epiUI = new EpidermisUIDev(this);
 		this.validate();
 		this.repaint();

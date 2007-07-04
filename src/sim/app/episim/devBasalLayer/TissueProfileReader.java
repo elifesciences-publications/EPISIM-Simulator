@@ -20,15 +20,25 @@ import sim.app.episim.SnapshotObject;
 import sim.app.episim.SnapshotReader;
 
 
-public class BasalLayerReader {
-private static BasalLayerReader instance;
+public class TissueProfileReader {
+private static TissueProfileReader instance;
+
+public static final String TISSUEDESCRIPTION = "Tissue description";
+public static final String IMAGEID = "Image ID";
+public static final String RESOLUTION = "Resolution [µm/pix]";
+public static final String BASALLAMINA = "Basal lamina";
+public static final String SURFACE = "Surface";
+public static final String FULLCONTOUR = "Full Contour";
+public static final String EPIDERMALWIDTH = "Epidermal Width";
+public static final String MEANEPIDERMALWIDTH = "Mean epidermal thickness";
+public static final String MAXIMUMEPIDERMALWIDTH = "Maximum epidermal thickness";
 	
-	private BasalLayerReader(){
+	private TissueProfileReader(){
 		
 	} 
 	
-	public synchronized static BasalLayerReader getInstance(){
-		if(instance == null) instance = new BasalLayerReader();
+	public synchronized static TissueProfileReader getInstance(){
+		if(instance == null) instance = new TissueProfileReader();
 		
 		return instance;
 		

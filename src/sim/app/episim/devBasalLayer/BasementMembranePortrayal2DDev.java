@@ -49,7 +49,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    // assumes the graphics already has its color set
 	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 
-		GeneralPath polygon = BasementMembraneDev.getInstance().getBasementMembraneDrawPolygon();
+		GeneralPath polygon = TissueBorderDev.getInstance().getBasementMembraneDrawPolygon();
 		if(info != null && polygon.getBounds().getWidth() > 0){
 			if(deltaInfo == null)
 				deltaInfo = info; // wird beim ersten Aufruf gesetzt.
@@ -114,7 +114,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 						.getMinY()
 						- getDeltaY() + point.getY() + DELTACROSS);
 
-				if(BasementMembraneDev.getInstance().isOverBasalLayer(new Point2D.Double(
+				if(TissueBorderDev.getInstance().isOverBasalLayer(new Point2D.Double(
 						((point.getX()) /scaleX),
 						((point.getY())/scaleX))))
 						graphics.setColor(Color.GREEN);

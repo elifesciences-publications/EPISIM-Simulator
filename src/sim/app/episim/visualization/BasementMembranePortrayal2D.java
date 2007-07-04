@@ -1,6 +1,6 @@
 package sim.app.episim.visualization;
 
-import sim.app.episim.BasementMembrane;
+import sim.app.episim.TissueBorder;
 import sim.portrayal.*;
 
 
@@ -36,9 +36,9 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 	      	 
 	      	  GeneralPath polygon = new GeneralPath();
 	     	 		final int STEPSIZE = 1;
-	     	 		((GeneralPath)polygon).moveTo(0, BasementMembrane.lowerBound(0));
-	     	 		for(double i = 0; i <= BasementMembrane.getWidth()+10; i += STEPSIZE){
-	     	 		((GeneralPath)polygon).lineTo(i, BasementMembrane.lowerBound(i));
+	     	 		((GeneralPath)polygon).moveTo(0, TissueBorder.lowerBound(0));
+	     	 		for(double i = 0; i <= TissueBorder.getWidth()+10; i += STEPSIZE){
+	     	 		((GeneralPath)polygon).lineTo(i, TissueBorder.lowerBound(i));
 	     	 		}
 	
 	      	  

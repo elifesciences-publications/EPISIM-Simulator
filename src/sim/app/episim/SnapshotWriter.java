@@ -24,14 +24,24 @@ public class SnapshotWriter {
 		
 	}
 	
+	public void clearListeners(){
+		listeners.clear();
+	}
+	
+	public void resetCounter(){ counter = 1;}
 	public void addSnapshotListener(SnapshotListener listener){
 		listeners.add(listener);
 	}
+	
 	
 	public void writeSnapshot(){
 		File actualSnapshotPath = snapshotPath;
 		if(snapshotPath != null && !snapshotPath.isDirectory()){
 		  try{
+			  if(snapshotPath.exists() && counter <= 1){ 
+				 
+				  snapshotPath.delete();
+				}
 			  if(counter > 1 && snapshotPath.exists()){
 				  
 				  actualSnapshotPath = new File(getNewPath(snapshotPath.getAbsolutePath()));
@@ -43,9 +53,7 @@ public class SnapshotWriter {
 			
 			for(SnapshotListener listener : listeners){
 				for(SnapshotObject object : listener.getSnapshotObjects()){
-					if(object.getIdentifier().equals(SnapshotObject.EPIDERMIS)){
-						System.out.println(((Epidermis)object.getSnapshotObject()).schedule.time());
-					}
+					
 					oOut.writeObject(object);
 				}
 			}

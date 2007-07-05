@@ -34,6 +34,7 @@ import sim.app.episim.SnapshotObject;
 import sim.app.episim.SnapshotReader;
 import sim.app.episim.SnapshotWriter;
 import sim.app.episim.charts.EpiSimCharts;
+import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.engine.Schedule;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
@@ -179,7 +180,8 @@ public class EpidermisSimulator extends JFrame{
 	
 	private void openModel(){
 		File file = null;
-
+		File standartDir =new File("d:/");
+		if(standartDir.exists())jarFileChoose.setCurrentDirectory(standartDir);
 		if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = jarFileChoose.getSelectedFile();
 
@@ -212,8 +214,9 @@ public class EpidermisSimulator extends JFrame{
 		if(tssFileChoose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = tssFileChoose.getSelectedFile();
 			if(file != null){
-			  this.setTitle(getTitle()+ " - Snapshotpath: "+file.getAbsolutePath());
+			  this.setTitle("Epidermis Simulator"+ " - Snapshotpath: "+file.getAbsolutePath());
 			  SnapshotWriter.getInstance().setSnapshotPath(file);
+			  SnapshotWriter.getInstance().resetCounter();
 			}
 		}
 		
@@ -311,6 +314,10 @@ public class EpidermisSimulator extends JFrame{
 		modelOpened = false;
 		menuItemLoadSnapshot.setEnabled(true);
 		menuItemBuild.setEnabled(true);
+		SnapshotWriter.getInstance().clearListeners();
+		SnapshotWriter.getInstance().resetCounter();
+		 this.setTitle("Epidermis Simulator");
+		  SnapshotWriter.getInstance().setSnapshotPath(null);
 	}
 	
 	private void cleanUpContentPane(){

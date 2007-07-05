@@ -31,8 +31,7 @@ public class BiochemicalModel implements java.io.Serializable{
 	
 	
 	public void initModel() throws InstantiationException, IllegalAccessException{
-		//System.out.println("Init Model");
-		//actModelObject = modelClass.newInstance();
+		
 	}
 	
 	public int getGlobalIntConstant(String name) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException{

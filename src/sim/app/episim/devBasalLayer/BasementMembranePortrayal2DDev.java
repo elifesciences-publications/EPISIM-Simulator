@@ -23,8 +23,10 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	   
 	    private double width;
 	    private double height;
+	    private final double INITIALWIDTH;
+	    private final double INITIALHEIGHT; 
 	    private DrawInfo2D lastActualInfo;
-	    private DrawInfo2D deltaInfo;
+	    private DrawInfo2D firstInfo;
 	    
 	    private List<Point2D> cellPoints;
 
@@ -36,9 +38,14 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    private static final double DELTACROSS = 10;
 	    private static final double DELTAPOINT = 10;
 	    
+	    
+	    
+	    
 	    public BasementMembranePortrayal2DDev(double width, double height) {
 	   	 this.width = width;
 	   	 this.height = height;
+	   	 this.INITIALWIDTH = width;
+	   	 this.INITIALHEIGHT = height;
 	   	 cellPoints = new ArrayList<Point2D>();
 	   	 
 	    }
@@ -51,27 +58,31 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 
 		GeneralPath polygon = TissueBorderDev.getInstance().getBasementMembraneDrawPolygon();
 		if(info != null && polygon.getBounds().getWidth() > 0){
-			if(deltaInfo == null)
-				deltaInfo = info; // wird beim ersten Aufruf gesetzt.
+			if(firstInfo == null)
+				firstInfo = info; // wird beim ersten Aufruf gesetzt.
 			lastActualInfo = info;
 
 			graphics.setColor(new Color(255, 99, 0));
 			graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
 			AffineTransform transform = new AffineTransform();
-
-			double scaleX = width / polygon.getBounds2D().getWidth();
+			
+			width = INITIALWIDTH *getScaleFactorOfTheDisplay(info);
+			height = INITIALHEIGHT *getScaleFactorOfTheDisplay(info);
+			double scaleX = (width / polygon.getBounds2D().getWidth());
 
 			transform.scale(scaleX, scaleX);
 			polygon = (GeneralPath) polygon.createTransformedShape(transform);
 
-			transform.setToTranslation(lastActualInfo.clip.getMinX() - getDeltaX(), lastActualInfo.clip.getMinY()
-					- getDeltaY());
+			transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX(), lastActualInfo.clip.getMinY()-getDeltaY());
 
 			polygon = (GeneralPath) polygon.createTransformedShape(transform);
 			graphics.draw(polygon);
 
 			drawCellPoints(graphics, scaleX);
+			
+			
+			
 
 		}
 
@@ -82,8 +93,8 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    
 	    private double getDeltaX(){
 	   	 if(lastActualInfo.clip.width< width){
-	   		
-	   		 return lastActualInfo.clip.getMinX() - deltaInfo.clip.getMinX();
+	   		 return lastActualInfo.clip.getMinX();
+
 	   		 
 	   	 }
 	   	 else return 0;
@@ -92,7 +103,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    private double getDeltaY(){
 	   	 
 	   	 if(lastActualInfo.clip.height < height){
-	   		 return lastActualInfo.clip.getMinY() - deltaInfo.clip.getMinY();
+	   		 return lastActualInfo.clip.getMinY();
 	   	 }
 	   	 else return 0;
 	    }
@@ -184,7 +195,9 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 
 
 
-
+	private double getScaleFactorOfTheDisplay(DrawInfo2D info){
+		return Math.rint((info.draw.getWidth()/ firstInfo.draw.getWidth())*100)/100;
+	}
 	
 	public void setHitAndButtonPressed(boolean hitAndButtonPressed) {
 		if(!hitAndButtonPressed) actDraggedPoint = null;

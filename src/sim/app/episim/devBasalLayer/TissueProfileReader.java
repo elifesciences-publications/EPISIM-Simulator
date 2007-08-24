@@ -31,8 +31,8 @@ public static final String BASALLAMINA = "Basal lamina";
 public static final String SURFACE = "Surface";
 public static final String FULLCONTOUR = "Full Contour";
 public static final String EPIDERMALWIDTH = "Epidermal Width";
-public static final String MEANEPIDERMALWIDTH = "Mean epidermal thickness";
-public static final String MAXIMUMEPIDERMALWIDTH = "Maximum epidermal thickness";
+public static final String MEANEPIDERMALTHICKNESS = "Mean epidermal thickness";
+public static final String MAXIMUMEPIDERMALTHICKNESS = "Maximum epidermal thickness";
 
 private ArrayList<Point2D> basalLayerPoints;
 private ArrayList<Point2D> surfacePoints;
@@ -40,8 +40,8 @@ private double resolution;
 private String imageid;
 private String tissueDescription;
 private double epidermalWidth;
-private double meanEpidermalWidth;
-private double maximumEpidermalWidth;
+private double meanEpidermalThickness;
+private double maximumEpidermalThickness;
 
 private String scannerState = "";
 	
@@ -64,8 +64,8 @@ private String scannerState = "";
 		basalLayerPoints.clear();
 		surfacePoints.clear();
 		epidermalWidth = 0;
-		meanEpidermalWidth= 0;
-		maximumEpidermalWidth=0;
+		meanEpidermalThickness= 0;
+		maximumEpidermalThickness=0;
 	}
 	
 	public Tissue loadTissue(File path){
@@ -97,8 +97,8 @@ private String scannerState = "";
 				else if(line.trim().equals(SURFACE)) scannerState = SURFACE;
 				else if(line.trim().equals(FULLCONTOUR)) scannerState = FULLCONTOUR;
 				else if(line.trim().equals(EPIDERMALWIDTH)) scannerState = EPIDERMALWIDTH;
-				else if(line.trim().equals(MEANEPIDERMALWIDTH)) scannerState = MEANEPIDERMALWIDTH;
-				else if(line.trim().equals(MAXIMUMEPIDERMALWIDTH)) scannerState = MAXIMUMEPIDERMALWIDTH;
+				else if(line.trim().equals(MEANEPIDERMALTHICKNESS)) scannerState = MEANEPIDERMALTHICKNESS;
+				else if(line.trim().equals(MAXIMUMEPIDERMALTHICKNESS)) scannerState = MAXIMUMEPIDERMALTHICKNESS;
 				else addValue(line);
 	
 			}
@@ -109,7 +109,7 @@ private String scannerState = "";
 		while(line !=null);
 		
 		    
-			return new Tissue(basalLayerPoints, surfacePoints, resolution, imageid, tissueDescription, epidermalWidth, meanEpidermalWidth, maximumEpidermalWidth);
+			return new Tissue(basalLayerPoints, surfacePoints, resolution, imageid, tissueDescription, epidermalWidth, meanEpidermalThickness, maximumEpidermalThickness);
 			
 		}
 		  catch (EOFException e){
@@ -166,11 +166,11 @@ private String scannerState = "";
 		else if(scannerState.equals(EPIDERMALWIDTH)){
 			epidermalWidth = Double.parseDouble(value);
 		}
-		else if(scannerState.equals(MEANEPIDERMALWIDTH)){ 
-			meanEpidermalWidth = Double.parseDouble(value);
+		else if(scannerState.equals(MEANEPIDERMALTHICKNESS)){ 
+			meanEpidermalThickness = Double.parseDouble(value);
 		}
-		else if(scannerState.equals(MAXIMUMEPIDERMALWIDTH)){ 
-			maximumEpidermalWidth = Double.parseDouble(value);
+		else if(scannerState.equals(MAXIMUMEPIDERMALTHICKNESS)){ 
+			maximumEpidermalThickness = Double.parseDouble(value);
 		}
 		
 		

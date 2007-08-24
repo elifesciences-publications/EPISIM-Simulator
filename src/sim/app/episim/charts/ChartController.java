@@ -1,5 +1,6 @@
 package sim.app.episim.charts;
 
+import java.awt.Frame;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +38,12 @@ public class ChartController {
 	public void registerTissueForChartMonitoring(ChartMonitoredTissue tissue){
 		if(chartMonitoredTissues.containsKey(tissue.getClass().getSimpleName()))
 			chartMonitoredTissues.put(tissue.getClass().getSimpleName(), tissue);
+	}
+	
+	public void showChartCreationWizard(Frame parent){
+		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true);
+		
+		if(chartMonitoredCellTypes.size()!=0);
 	}
 
 }

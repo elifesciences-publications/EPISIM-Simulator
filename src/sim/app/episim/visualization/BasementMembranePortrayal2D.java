@@ -68,10 +68,13 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 	    
 
 	    private double getTranslationX(DrawInfo2D info){
+	   
 	   	 if(info.clip.width< width){
+	   		 
 	   		 return 0;
 	   	 }
 	   	 else return info.clip.getMinX();
+	   	 
 	    }
 	    
 	    private double getTranslationY(DrawInfo2D info){

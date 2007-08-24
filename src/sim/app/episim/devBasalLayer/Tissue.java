@@ -4,7 +4,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 
-public class Tissue {
+public class Tissue implements java.io.Serializable {
 	
 	private ArrayList<Point2D> basalLayerPoints;
 	private ArrayList<Point2D> surfacePoints;
@@ -12,19 +12,19 @@ public class Tissue {
 	private String imageid;
 	private String tissueDescription;
 	private double epidermalWidth;
-	private double meanEpidermalWidth;
-	private double maximumEpidermalWidth;
+	private double meanEpidermalThickness;
+	private double maximumEpidermalThickness;
 	
 	public Tissue(ArrayList<Point2D> basalLayerPoints, ArrayList<Point2D> surfacePoints, double resolution, String imageid, String tissueDescription, 
-			double epidermalWidth, double meanEpidermalWidth, double maximumEpidermalWidth){
+			double epidermalWidth, double meanEpidermalThickness, double maximumEpidermalThickness){
 		this.basalLayerPoints = basalLayerPoints;
 		this.surfacePoints = surfacePoints;
 		this.resolution = resolution;
 		this.imageid = imageid;
 		this.tissueDescription = tissueDescription;
 		this.epidermalWidth = epidermalWidth;
-		this.meanEpidermalWidth = meanEpidermalWidth;
-		this.maximumEpidermalWidth = maximumEpidermalWidth;
+		this.meanEpidermalThickness = meanEpidermalThickness;
+		this.maximumEpidermalThickness = maximumEpidermalThickness;
 	}
 	
 	
@@ -88,24 +88,24 @@ public class Tissue {
 		this.epidermalWidth = epidermalWidth;
 	}
 	
-	public double getMeanEpidermalWidth() {
+	public double getMeanEpidermalThickness() {
 	
-		return meanEpidermalWidth;
+		return meanEpidermalThickness;
 	}
 	
-	public void setMeanEpidermalWidth(double meanEpidermalWidth) {
+	public void setMeanEpidermalThickness(double meanEpidermalWidth) {
 	
-		this.meanEpidermalWidth = meanEpidermalWidth;
+		this.meanEpidermalThickness = meanEpidermalWidth;
 	}
 	
-	public double getMaximumEpidermalWidth() {
+	public double getMaximumEpidermalThickness() {
 	
-		return maximumEpidermalWidth;
+		return maximumEpidermalThickness;
 	}
 	
-	public void setMaximumEpidermalWidth(double maximumEpidermalWidth) {
+	public void setMaximumEpidermalThickness(double maximumEpidermalWidth) {
 	
-		this.maximumEpidermalWidth = maximumEpidermalWidth;
+		this.maximumEpidermalThickness = maximumEpidermalWidth;
 	}
 	
 	

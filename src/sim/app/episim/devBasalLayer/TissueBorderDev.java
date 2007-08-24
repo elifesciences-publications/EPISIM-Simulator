@@ -14,8 +14,6 @@ import java.util.Set;
 
 
 public class TissueBorderDev {
-	private static int basalY=80;          // y coordinate at which undulations start, the base line    
-	private static int basalPeriod=70;      // width of an undulation at the foot
 	
 	private ArrayList<Point2D> fullcontour;
 	
@@ -29,7 +27,7 @@ public class TissueBorderDev {
 	
 	private static  TissueBorderDev instance;
 	
-	
+	private Tissue tissue;
 	
 	private TissueBorderDev(){
 		fullcontour = new ArrayList<Point2D>();
@@ -42,11 +40,12 @@ public class TissueBorderDev {
 	
 	
 	
-	public static double getWidth(){
-		return width;
+	public  double getWidth(){
+		
+		return tissue.getEpidermalWidth();
 	}
 	
-	public static double lowerBound(double x)
+	public  double lowerBound(double x)
 	 {
 	    return -1;
 	    
@@ -55,13 +54,13 @@ public class TissueBorderDev {
 
 		if(path != null){
 
-			Tissue tissue = TissueProfileReader.getInstance().loadTissue(path);
-			
+			   tissue = TissueProfileReader.getInstance().loadTissue(path);
+			if(tissue != null){
 				fullcontour = new ArrayList<Point2D>();
 				fullcontour.addAll(tissue.getBasalLayerPoints());
 				ArrayList<Point2D> surface = tissue.getSurfacePoints();
 				for(int i = surface.size()-1; i >= 0 ; i--) fullcontour.add(surface.get(i));
-				
+			}
 			}
 			
 			if(this.fullcontour.size() > 0){

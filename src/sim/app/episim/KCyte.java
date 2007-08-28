@@ -1,4 +1,5 @@
 package sim.app.episim;
+import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.ChartMonitoredCellType;
 import sim.engine.*;
 import sim.field.continuous.*;
@@ -13,7 +14,7 @@ import java.util.List;
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
 
-public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable, ChartMonitoredCellType
+public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable, ChartMonitoredCellType, Celltype
 {
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
 // CONSTANTS
@@ -108,7 +109,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
         epidermis.getAllCells().add(this); // register this as additional one in Bag
         //System.out.println("New Cell Nr."+theEpidermis.allocatedKCytes);
         
-        
+        ChartController.getInstance().registerCelltypeForChartMonitoring(this);
        
     }
 

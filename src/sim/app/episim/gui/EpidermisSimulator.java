@@ -34,6 +34,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SnapshotObject;
 import sim.app.episim.SnapshotReader;
 import sim.app.episim.SnapshotWriter;
+import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.engine.Schedule;
@@ -57,6 +58,9 @@ public class EpidermisSimulator extends JFrame{
 	private JMenuItem menuItemClose;
 	private JMenuItem menuItemBuild;
 	
+	JMenu chartMenu;
+	JMenuItem menuItemChartWizard;
+	
 	
 	public EpidermisSimulator(){
 		ExceptionDisplayer.getInstance().registerParentComp(this);
@@ -68,9 +72,13 @@ public class EpidermisSimulator extends JFrame{
 			ExceptionDisplayer.getInstance().displayException(e);
 		}
 		final EpidermisSimulator simulator = this;
-		
+		//--------------------------------------------------------------------------------------------------------------
 		//Menü
+		//--------------------------------------------------------------------------------------------------------------
 		JMenuBar  menuBar = new JMenuBar();
+		//--------------------------------------------------------------------------------------------------------------
+		//Menü File
+		//--------------------------------------------------------------------------------------------------------------
 		JMenu menu = new JMenu("File");
 		menuItemOpen = new JMenuItem("Open EpiSimModel");
 		menuItemOpen.addActionListener(new ActionListener(){
@@ -142,6 +150,27 @@ public class EpidermisSimulator extends JFrame{
 		
 		menuBar.add(menu);
 		
+		//--------------------------------------------------------------------------------------------------------------
+		// Menü Charts
+		//--------------------------------------------------------------------------------------------------------------
+		
+		chartMenu = new JMenu("Charting");
+		chartMenu.setEnabled(false);
+		menuItemChartWizard = new JMenuItem("Chart Wizard");
+		
+		menuItemChartWizard.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				ChartController.getInstance().showChartCreationWizard(simulator);
+			}
+			
+		});
+		
+		chartMenu.add(menuItemChartWizard);
+		menuBar.add(chartMenu);
+		
+		
+		//--------------------------------------------------------------------------------------------------------------
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().setBackground(Color.LIGHT_GRAY);
 		this.setJMenuBar(menuBar);
@@ -204,6 +233,7 @@ public class EpidermisSimulator extends JFrame{
 				menuItemSetSnapshotPath.setEnabled(true);
 				menuItemLoadSnapshot.setEnabled(false);
 				menuItemBuild.setEnabled(false);
+				chartMenu.setEnabled(true);
 			}
 
 		}
@@ -315,6 +345,7 @@ public class EpidermisSimulator extends JFrame{
 		modelOpened = false;
 		menuItemLoadSnapshot.setEnabled(true);
 		menuItemBuild.setEnabled(true);
+		chartMenu.setEnabled(false);
 		SnapshotWriter.getInstance().clearListeners();
 		SnapshotWriter.getInstance().resetCounter();
 		 this.setTitle("Epidermis Simulator");

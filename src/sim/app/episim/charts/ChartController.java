@@ -9,7 +9,7 @@ public class ChartController {
 	
 	private static ChartController instance = null;
 	
-	private List <ChartMonitoredCellType> chartMonitoredClasses;
+	private List <ChartMonitoredClass> chartMonitoredClasses;
 	
 	private ConcurrentHashMap<String, ChartMonitoredCellType> chartMonitoredCellTypes;
 	
@@ -17,7 +17,7 @@ public class ChartController {
 	
 	
 	private ChartController(){
-		chartMonitoredClasses = new ArrayList<ChartMonitoredCellType>();
+		chartMonitoredClasses = new ArrayList<ChartMonitoredClass>();
 		chartMonitoredCellTypes = new ConcurrentHashMap<String, ChartMonitoredCellType>();
 		chartMonitoredTissues = new ConcurrentHashMap<String, ChartMonitoredTissue>();
 	}
@@ -30,20 +30,20 @@ public class ChartController {
 	}
 	
 	public void registerCelltypeForChartMonitoring(ChartMonitoredCellType celltype){
-		if(chartMonitoredCellTypes.containsKey(celltype.getClass().getSimpleName()))
-				chartMonitoredCellTypes.put(celltype.getClass().getSimpleName(), celltype);
+		if(!chartMonitoredCellTypes.containsKey(celltype.getName()))
+				chartMonitoredCellTypes.put(celltype.getName(), celltype);
 		
 	}
    
 	public void registerTissueForChartMonitoring(ChartMonitoredTissue tissue){
-		if(chartMonitoredTissues.containsKey(tissue.getClass().getSimpleName()))
-			chartMonitoredTissues.put(tissue.getClass().getSimpleName(), tissue);
+		/*if(chartMonitoredTissues.containsKey(tissue.getClass().getSimpleName()))
+			chartMonitoredTissues.put(tissue.getClass().getSimpleName(), tissue;*/
 	}
 	
 	public void showChartCreationWizard(Frame parent){
 		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true);
 		
-		if(chartMonitoredCellTypes.size()!=0);
+		if(chartMonitoredCellTypes.size()!=0) wizard.showCellTypes(chartMonitoredCellTypes);
 	}
 
 }

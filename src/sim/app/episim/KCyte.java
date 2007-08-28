@@ -14,7 +14,7 @@ import java.util.List;
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
 
-public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable, ChartMonitoredCellType, Celltype
+public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable, ChartMonitoredCellType, CellType
 {
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
 // CONSTANTS

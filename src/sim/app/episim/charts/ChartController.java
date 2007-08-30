@@ -36,8 +36,10 @@ public class ChartController {
 	}
    
 	public void registerTissueForChartMonitoring(ChartMonitoredTissue tissue){
-		/*if(chartMonitoredTissues.containsKey(tissue.getClass().getSimpleName()))
-			chartMonitoredTissues.put(tissue.getClass().getSimpleName(), tissue;*/
+	if(!chartMonitoredTissues.containsKey(tissue.getTissueName())){
+			chartMonitoredTissues.put(tissue.getTissueName(), tissue);
+			for(ChartMonitoredCellType actCellType: tissue.getChartMonitoredCellTypes()) registerCelltypeForChartMonitoring(actCellType);
+	}
 	}
 	
 	public void showChartCreationWizard(Frame parent){

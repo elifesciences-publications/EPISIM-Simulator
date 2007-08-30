@@ -23,79 +23,69 @@ public class ChartCreationWizard extends JDialog {
 	
 	private JList cellTypeList;
 	private JList cellTypeParameterList;
-	private JList selectedCellTypeParameters;
+	
 	
 	private JScrollPane cellTypeListScroll;
 	private JScrollPane cellTypeParameterListScroll;
-	private JScrollPane selectedCellTypeParametersScroll;
 	
-	private JButton addButton;
 	
+	private JButton selectButton;
+	
+	private JPanel mathFunctionsPanel;
+	
+	private JPanel variableListPanel;
 	
 	public ChartCreationWizard(Frame owner, String title, boolean modal){
 		super(owner, title, modal);
-		cellTypeList = new JList();
-		cellTypeParameterList = new JList();
-		selectedCellTypeParameters = new JList();
-
-		
-		
-		cellTypeListScroll = new JScrollPane(cellTypeList);
-	   cellTypeParameterListScroll = new JScrollPane(cellTypeParameterList);
-		selectedCellTypeParametersScroll = new JScrollPane(selectedCellTypeParameters);
-		
-		addButton = new JButton("Select");
-		addButton.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-
-				
-				
-			}
-		});	
-		
-
-		
-		
-	
+			
 	   getContentPane().setLayout(new GridBagLayout());
 	   GridBagConstraints c = new GridBagConstraints();
+	   
+	   variableListPanel = buildVariableListPanel();
+	   
 	   
 	   c.anchor =GridBagConstraints.CENTER;
 	   c.fill = GridBagConstraints.BOTH;
 	   c.weightx = 1;
 	   c.weighty =1;
 	   c.insets = new Insets(10,10,10,10);
-	   c.gridx = 0;
-	   c.gridy = 0;
-	   getContentPane().add(cellTypeListScroll, c);
+	   c.gridwidth = GridBagConstraints.REMAINDER;
+	   getContentPane().add(variableListPanel, c);
 	   
 	   c.gridx = 1;
 	   c.gridy = 0;
 	   getContentPane().add(cellTypeParameterListScroll, c);
 	   
 	   c.fill = GridBagConstraints.NONE;
+	   c.gridwidth=GridBagConstraints.REMAINDER; 
 	   c.weightx =0;
 	   c.gridx = 2;
 	   c.gridy = 0;
 	   
-	   getContentPane().add(addButton, c);
-	   addButton.addActionListener(new ActionListener(){
+	   getContentPane().add(selectButton, c);
+	   selectButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
 
-				System.out.println("Add Button");
 				
 			}
 	   });
-	   c.fill = GridBagConstraints.BOTH;
-	   c.weightx = 1;
-	   c.gridx = 3;
-	   c.gridy = 0;
-	   getContentPane().add(selectedCellTypeParametersScroll, c);
+	   
+	  
+	   c.anchor =GridBagConstraints.WEST;
+	   c.fill = GridBagConstraints.NONE;
+	   c.weightx = 0;
+	   c.weighty =0;
+	   c.insets = new Insets(10,10,10,10);
+	   c.gridx = 0;
+	   c.gridy = 1;
 	   
 	   
 	   
+	   mathFunctionsPanel = buildMathOperatorButtonPanel();
+	   
+	   getContentPane().add(mathFunctionsPanel, c);
+	   /*
 	   JTextField numberField = new JTextField();
 	   numberField.setInputVerifier(new InputVerifier() {
 
@@ -115,7 +105,6 @@ public class ChartCreationWizard extends JDialog {
 				}
 
 			}
-
 			public boolean shouldYieldFocus(javax.swing.JComponent input) {
 
 				return verify(input);
@@ -155,9 +144,9 @@ public class ChartCreationWizard extends JDialog {
 	   c.gridy = 0;
 	   getContentPane().add(numberField, c);
 	   
-	   
+	   */
 	  // ((JPanel) this.getContentPane()).setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-	   setSize(500, 200);
+	   setSize(500, 600);
 		
 	}
 	
@@ -212,5 +201,63 @@ public class ChartCreationWizard extends JDialog {
 		((int)(screenDim.getHeight() /2) - (this.getHeight()/2)));
 	}
 	
+	
+	private JPanel buildMathOperatorButtonPanel(){
+		JButton plus = new JButton("+");
+		JButton minus = new JButton("-");
+		JButton mult = new JButton("*");
+		JButton div = new JButton("/");
+		
+		JButton oBra = new JButton("(");
+		JButton cBra = new JButton(")");
+		
+		
+		JPanel buttonPanel = new JPanel(new GridLayout(2,3,5,5));
+		
+		buttonPanel.add(plus);
+		buttonPanel.add(minus);
+		buttonPanel.add(mult);
+		buttonPanel.add(div);
+		buttonPanel.add(oBra);
+		buttonPanel.add(cBra);
+		
+		
+		buttonPanel.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createTitledBorder("Math-Functions"), 
+				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		
+		return buttonPanel;
+			
+	
+	}
+	
+	private JPanel buildVariableListPanel(){
+		
+		
+		JPanel listPanel = new JPanel(new GridLayout(1,2,5,5));
+		cellTypeList = new JList();
+		cellTypeParameterList = new JList();
+		
 
+		
+		
+		cellTypeListScroll = new JScrollPane(cellTypeList);
+	   cellTypeParameterListScroll = new JScrollPane(cellTypeParameterList);
+	
+	   listPanel.add(cellTypeListScroll);
+	   
+	   listPanel.add(cellTypeParameterListScroll);
+	   
+	 
+		
+	   listPanel.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createTitledBorder("Varibles"), 
+				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		
+		return listPanel;
+			
+	
+	}
 }
+
+

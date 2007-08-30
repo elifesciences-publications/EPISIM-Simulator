@@ -2,6 +2,9 @@
 package sim.app.episim;
 
 //MASON
+import sim.app.episim.charts.ChartController;
+import sim.app.episim.charts.ChartMonitoredCellType;
+import sim.app.episim.charts.ChartMonitoredTissue;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.engine.*;
 import sim.util.*;
@@ -16,6 +19,10 @@ import java.awt.geom.*;
 
 //PDF Writer
 import java.io.*;       
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +30,7 @@ import java.util.List;
 import com.lowagie.text.*;  
 import com.lowagie.text.pdf.*;  
 
-public class Epidermis extends SimStateHack implements SnapshotListener
+public class Epidermis extends SimStateHack implements SnapshotListener, ChartMonitoredTissue
 {
 
 //	---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -32,12 +39,17 @@ public class Epidermis extends SimStateHack implements SnapshotListener
 		
 	public final int InitialKeratinoSize=5;
 	public final int NextToOuterCell=7;
+	public final String NAME ="Epidermis";
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 // VARIABLES
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	private transient BioChemicalModelController modelController;
 
+	private List <Class<?extends CellType>> availableCelltypes;
+	
+	
+	
 	//get charts from Chart-Factory
 	private  EpiSimCharts epiSimCharts = EpiSimCharts.getInstance();
 
@@ -108,6 +120,9 @@ public class Epidermis extends SimStateHack implements SnapshotListener
      modelController = BioChemicalModelController.getInstance();
      
      SnapshotWriter.getInstance().addSnapshotListener(this);
+     availableCelltypes = new LinkedList<Class<?extends CellType>>();
+     availableCelltypes.add(KCyte.class);
+     ChartController.getInstance().registerTissueForChartMonitoring(this);
  }
 
  
@@ -798,8 +813,26 @@ public class Epidermis extends SimStateHack implements SnapshotListener
 		  }
 		}
 	}
+private void registerCellMonitoredCellTypes(){
+	
+}
 
-
+public List<ChartMonitoredCellType> getChartMonitoredCellTypes() {
+	List<ChartMonitoredCellType> cellList = new LinkedList<ChartMonitoredCellType>();
+	for(Class<?extends CellType> actCelltype:availableCelltypes){
+		try{
+			
+			Constructor <?extends CellType> construct =actCelltype.getConstructor(Epidermis.class);
+			CellType cell = construct.newInstance(this);
+			if( cell instanceof ChartMonitoredCellType) cellList.add(((ChartMonitoredCellType)cell));
+		}
+		catch (Exception e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+		
+	}
+	return cellList;
+}
 
  
 //---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -845,6 +878,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener
 	public int getActualKCytes() { return actualKCytes; }
 	public Bag getAllCells() {	return allCells; }
 	public int getAllocatedKCytes() { return allocatedKCytes; }
+	public static List <Class<? extends CellType>> getAvailableCellTypes; 
 	
 	public Continuous2D getBasementContinous2D() { return basementContinous2D; }
 	
@@ -872,6 +906,8 @@ public class Epidermis extends SimStateHack implements SnapshotListener
 	public int getIndividualColor() { return individualColor; }
 	
 	public double getMinDist() { return minDist; }
+	
+	public String getTissueName() {return NAME;}
 	
 	public boolean isDevelopGranulosum() {	return developGranulosum; }
 	
@@ -953,6 +989,23 @@ public class Epidermis extends SimStateHack implements SnapshotListener
 		  }
 		
 	}
+
+
+
+	
+
+
+
+	public List<Method> getParameters() {
+
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	
+	
 
 //	---------------------------------------------------------------------------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------------------------------------------------------------------------- 

@@ -14,7 +14,7 @@ import java.util.List;
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
 
-public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable, ChartMonitoredCellType, CellType
+public class KCyte extends CellType implements ChartMonitoredCellType
 {
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
 // CONSTANTS
@@ -109,7 +109,7 @@ public class KCyte implements Steppable, Stoppable, sim.portrayal.Oriented2D, ja
         epidermis.getAllCells().add(this); // register this as additional one in Bag
         //System.out.println("New Cell Nr."+theEpidermis.allocatedKCytes);
         
-        ChartController.getInstance().registerCelltypeForChartMonitoring(this);
+        
        
     }
 

@@ -1,9 +1,15 @@
 package sim.app.episim;
 
+import sim.engine.Steppable;
+import sim.engine.Stoppable;
 
-public interface Celltype {
 
+public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable{
 	
-	String getName();
+	
+	
+	public abstract String getName();
+	
+	
 	
 }

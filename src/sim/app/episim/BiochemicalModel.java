@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,8 @@ public class BiochemicalModel implements java.io.Serializable{
 	
 	private Object actModelObject;
 	private Object resetModelObject;
+	
+	
 	
 	public BiochemicalModel(Class modelClass)throws InstantiationException, IllegalAccessException{
 		this.modelClass = modelClass;

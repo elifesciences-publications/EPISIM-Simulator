@@ -1,0 +1,126 @@
+/**
+ * JavaCC file
+ */
+ 
+options {
+  JDK_VERSION = "1.5";
+  STATIC = false;
+}
+PARSER_BEGIN(ChartExpressionChecker)
+package sim.app.episim.charts.parser;
+
+public class ChartExpressionChecker {
+  public static void main(String args[]) throws ParseException {
+    ChartExpressionChecker parser = new ChartExpressionChecker(System.in);
+    while (true) {
+      System.out.println("Reading from standard input...");
+      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
+      try {
+        switch (ChartExpressionChecker.one_line()) {
+        case 0:
+          System.out.println("OK.");
+          break;
+        case 1:
+          System.out.println("Goodbye.");
+          break;
+        default:
+          break;
+        }
+      } catch (Exception e) {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+        ChartExpressionChecker.ReInit(System.in);
+      } catch (Error e) {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        break;
+      }
+    }
+  }
+}
+PARSER_END(ChartExpressionChecker)
+SKIP:{" " | "\r" | "\t" | "\n"}
+
+ TOKEN:{<IDENTIFIER:("n_")?<LETTER_SMALL>(<LETTER>|<DIGIT>)*
+ | ("com_")?<LETTER_SMALL>(<LETTER>|<DIGIT>)*>
+ | <#LETTER:["A"-"Z", "a"-"z"]>
+ | <#LETTER_SMALL:["a"-"z"]>
+ | <#DIGIT:["0"-"9"]>
+ }
+
+TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> > } 
+
+TOKEN : { < #DIGITS : (["0"-"9"])+ > }
+
+ 
+
+ 
+ void PowFunction():{}
+ {
+ ("Pow(" AdditiveExpression() "," AdditiveExpression()")")
+ }
+
+ void ModFunction():{}
+ {
+ ("Mod(" AdditiveExpression() "," AdditiveExpression() ")")
+ }
+
+ void SqrtFunction():{}
+ {
+ ("Sqrt("AdditiveExpression()")")
+ }
+
+ void ExpressionSwitch():{}
+ {
+ [AdditiveExpression()]";"
+ }
+
+ 
+
+
+
+
+
+
+
+ 
+
+ void AdditiveExpression():{
+ MultiplicativeExpression()
+ [("+"AdditiveExpression()
+ | "-"AdditiveExpression())]
+ }
+
+ void MultiplicativeExpression():{
+ UnaryExpression()
+ [("*"MultiplicativeExpression()
+ | "/"MultiplicativeExpression())]
+ }
+
+ void UnaryExpression():{
+ [UnaryOperator()]PrimaryExpression()
+ }
+
+ void UnaryOperator():{ ( "+" | "-") }
+
+ void PrimaryExpression():{
+ LOOKAHEAD(5)<IDENTIFIER>
+ | Constant()
+ | <STRING_KONSTANTE>
+ | PowFunction()
+ | SqrtFunction()
+ | "("AdditiveExpression()")"
+ }
+
+void Constant():{
+<INTEGER_LITERAL>
+ | <FLOATING_POINT_LITERAL>
+}
+
+void ConstantSwitch():
+{
+ <INTEGER_LITERAL>
+ | <STRING_KONSTANTE>
+}
+
+}

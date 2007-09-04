@@ -52,21 +52,19 @@ public class ChartCreationWizard extends JDialog {
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   getContentPane().add(variableListPanel, c);
 	   
-	   c.gridx = 1;
-	   c.gridy = 0;
-	   getContentPane().add(cellTypeParameterListScroll, c);
+	   
+	   
 	   
 	   c.fill = GridBagConstraints.NONE;
 	   c.gridwidth=GridBagConstraints.REMAINDER; 
 	   c.weightx =0;
-	   c.gridx = 2;
-	   c.gridy = 0;
 	   
+	   selectButton = new JButton("OK");
 	   getContentPane().add(selectButton, c);
 	   selectButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-
+				ChartController.getInstance().checkChartExpression("");
 				
 			}
 	   });
@@ -77,8 +75,7 @@ public class ChartCreationWizard extends JDialog {
 	   c.weightx = 0;
 	   c.weighty =0;
 	   c.insets = new Insets(10,10,10,10);
-	   c.gridx = 0;
-	   c.gridy = 1;
+	   
 	   
 	   
 	   

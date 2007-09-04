@@ -9,25 +9,13 @@ options {
 PARSER_BEGIN(ChartExpressionChecker)
 package sim.app.episim.charts.parser;
 import java.io.*;
+import java.util.*;
 
 public class ChartExpressionChecker {
-  public static void main(String args[]) throws ParseException {
-  	 StringReader sr = new java.io.StringReader("-Pow(Sqrt(2+(-3)/(2*1-(4+3)))*(1+1), (-3))");
-     Reader r = new java.io.BufferedReader( sr );
-    ChartExpressionChecker parser = new ChartExpressionChecker(r);
-    try{
-    	
-    	System.out.println(parser.Start());
-    }
-    catch(ParseException parseEx)
-    {
-    	System.out.println(parseEx.getMessage());	
-    }
-    catch(TokenMgrError err){
-    	System.out.println(err.getMessage());
-    }
-  }
+	private Set<String> varNameSet = new HashSet<String>();
+	
   
+   
 }
 PARSER_END(ChartExpressionChecker)
 
@@ -41,7 +29,7 @@ TOKEN : { < TIMES : "*" > }
 TOKEN : { < DIVIDE : "/" > }
 TOKEN : { < OPEN_PAR : "(" > } 
 TOKEN : { < CLOSE_PAR : ")" > }
-
+TOKEN : { < CLOSE_PA : "," > }
 TOKEN:{<IDENTIFIER:<LETTER>(<LETTER>|<DIGIT>)*"."<LETTER>(<LETTER>|<DIGIT>)*>
  | <#LETTER:["A"-"Z", "a"-"z"]>
  | <#DIGIT:["0"-"9"]>
@@ -51,8 +39,10 @@ TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGI
 
 TOKEN : { < #DIGITS : (["0"-"9"])+ > }
 
-String Start() throws NumberFormatException :
-{String partialResult = "";
+String Start(Set<String> varNameSet) throws NumberFormatException :
+{
+	if(varNameSet !=null)this.varNameSet =varNameSet;
+String partialResult = "";
 String totalResult = "";}
 {
   (partialResult =UnaryExpression()
@@ -68,8 +58,16 @@ String result ="";
 Token t;
 }
 {
-  (t =<NUMBER> { result = t.image;}| result = SqrtFunction() 
-    | result = PowFunction() |<OPEN_PAR> result = UnaryExpression() <CLOSE_PAR>{result = "(" + result +")";})
+  	(t =<NUMBER> { result = t.image;}
+   	| LOOKAHEAD(5)(t =<IDENTIFIER> 
+   		{if(!this.varNameSet.contains(t.image))
+   			throw new TokenMgrError(false,TokenMgrError.LEXICAL_ERROR, t.beginLine, t.beginColumn, t.image, 's',TokenMgrError.LEXICAL_ERROR); 
+   			else result = "getValue(\""+t.image+"\")";
+   		})
+   			
+   	| result = SqrtFunction() 
+    | result = PowFunction() 
+    |<OPEN_PAR> result = UnaryExpression() <CLOSE_PAR> {result = "(" + result +")";})
 
 {return result;}
 }

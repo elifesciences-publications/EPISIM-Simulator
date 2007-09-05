@@ -774,7 +774,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 		List<Method> methods = new ArrayList<Method>();
 		
 		for(Method m : this.getClass().getMethods()){
-			if(m.getName().startsWith("get")) methods.add(m);
+			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
 		}
 		return methods;
 	}

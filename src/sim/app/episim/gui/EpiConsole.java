@@ -13,6 +13,9 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -123,6 +126,22 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
            });
 		
        snapshotButton = new JButton();
+       snapshotButton.setContentAreaFilled( false );
+       snapshotButton.setBorderPainted( false );
+       snapshotButton.setFocusPainted( true );
+       snapshotButton.addMouseListener(new MouseAdapter(){
+			public void mouseEntered(MouseEvent e) {
+  			    snapshotButton.setContentAreaFilled( true );
+		       snapshotButton.setBorderPainted( true );
+				
+			}
+			public void mouseExited(MouseEvent e) {
+
+				 snapshotButton.setContentAreaFilled( false );
+		       snapshotButton.setBorderPainted( false );
+				
+			}
+       });
        snapshotButton.setIcon(new ImageIcon(ImageLoader.class.getResource("Camera.png")));
        snapshotButton.setPressedIcon(new ImageIcon(ImageLoader.class.getResource("CameraPressed.png")));
        snapshotButton.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
@@ -400,9 +419,48 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    
    private void addSnapshotButton(){
    	if(getContentPane().getLayout() instanceof BorderLayout){
-   		Component comp =((BorderLayout) getContentPane().getLayout()).getLayoutComponent(BorderLayout.SOUTH);
+   		final Component comp =((BorderLayout) getContentPane().getLayout()).getLayoutComponent(BorderLayout.SOUTH);
    		if(comp != null && comp instanceof Box){
    			((Box) comp).add(snapshotButton, 3);
+   			((JButton)((Box) comp).getComponent(0)).addMouseListener(new MouseAdapter(){
+   				public void mouseEntered(MouseEvent e) {
+   					((JButton)((Box) comp).getComponent(0)).setContentAreaFilled( true );
+   					((JButton)((Box) comp).getComponent(0)).setBorderPainted( true );
+   					
+   				}
+   				public void mouseExited(MouseEvent e) {
+
+   					((JButton)((Box) comp).getComponent(0)).setContentAreaFilled( false );
+   					((JButton)((Box) comp).getComponent(0)).setBorderPainted( false );
+   					
+   				}
+   	       });
+   			((JButton)((Box) comp).getComponent(1)).addMouseListener(new MouseAdapter(){
+   				public void mouseEntered(MouseEvent e) {
+   					((JButton)((Box) comp).getComponent(1)).setContentAreaFilled( true );
+   			       ((JButton)((Box) comp).getComponent(1)).setBorderPainted( true );
+   					
+   				}
+   				public void mouseExited(MouseEvent e) {
+
+   					((JButton)((Box) comp).getComponent(1)).setContentAreaFilled( false );
+   					((JButton)((Box) comp).getComponent(1)).setBorderPainted( false );
+   					
+   				}
+   	       });
+   			((JButton)((Box) comp).getComponent(2)).addMouseListener(new MouseAdapter(){
+   				public void mouseEntered(MouseEvent e) {
+   					((JButton)((Box) comp).getComponent(2)).setContentAreaFilled( true );
+   					((JButton)((Box) comp).getComponent(2)).setBorderPainted( true );
+   					
+   				}
+   				public void mouseExited(MouseEvent e) {
+
+   					((JButton)((Box) comp).getComponent(2)).setContentAreaFilled( false );
+   					((JButton)((Box) comp).getComponent(2)).setBorderPainted( false );
+   					
+   				}
+   	       });
    		}
    	}
    }

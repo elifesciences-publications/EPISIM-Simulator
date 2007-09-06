@@ -55,13 +55,16 @@ String totalResult = "";}
 
 String Primary() throws NumberFormatException :{
 String result ="";
+int[][] dummy1= new int[1][1];
+String[] dummy2 = new String[1];
+dummy2[0] = "";
 Token t;
 }
 {
   	(t =<NUMBER> { result = t.image;}
    	| LOOKAHEAD(5)(t =<IDENTIFIER> 
    		{if(!this.varNameSet.contains(t.image))
-   			throw new TokenMgrError(false,TokenMgrError.LEXICAL_ERROR, t.beginLine, t.beginColumn, t.image, 's',TokenMgrError.LEXICAL_ERROR); 
+   			throw new ParseException("Unknown Identifier: " + t.image); 
    			else result = "getValue(\""+t.image+"\")";
    		})
    			

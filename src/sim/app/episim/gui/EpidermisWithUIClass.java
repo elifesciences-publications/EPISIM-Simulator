@@ -105,6 +105,7 @@ public class EpidermisWithUIClass extends GUIState{
 		final JInternalFrame controllerFrame = new JInternalFrame("EpiSimulation-Controller", true, false, true, true);
 
 		controllerFrame.setContentPane(cons.getControllerContainer());
+		
 		controllerFrame.setResizable(true);
 		controllerFrame.setVisible(true);
 		controllerFrame.setName(CONTROLLERFRAME);

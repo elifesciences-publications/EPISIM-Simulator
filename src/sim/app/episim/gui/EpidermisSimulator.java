@@ -37,6 +37,8 @@ import sim.app.episim.SnapshotWriter;
 import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.visualization.WoundPortrayal2D;
+import sim.display.Console;
+import sim.display.ConsoleHack;
 import sim.engine.Schedule;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
@@ -52,14 +54,19 @@ public class EpidermisSimulator extends JFrame{
 	private EpidermisWithUIClass epiUI;
 	
 	private boolean modelOpened = false;
+	
+	private JMenu fileMenu;
 	private JMenuItem menuItemSetSnapshotPath;
 	private JMenuItem menuItemLoadSnapshot;
 	private JMenuItem menuItemOpen;
 	private JMenuItem menuItemClose;
 	private JMenuItem menuItemBuild;
 	
-	JMenu chartMenu;
-	JMenuItem menuItemChartWizard;
+	private JMenu chartMenu;
+	private JMenuItem menuItemChartWizard;
+	
+	private JMenu infoMenu;
+	private JMenuItem menuItemAboutMason;
 	
 	
 	public EpidermisSimulator(){
@@ -79,7 +86,7 @@ public class EpidermisSimulator extends JFrame{
 		//--------------------------------------------------------------------------------------------------------------
 		//Menü File
 		//--------------------------------------------------------------------------------------------------------------
-		JMenu menu = new JMenu("File");
+		fileMenu = new JMenu("File");
 		menuItemOpen = new JMenuItem("Open EpiSimModel");
 		menuItemOpen.addActionListener(new ActionListener(){
 
@@ -140,15 +147,15 @@ public class EpidermisSimulator extends JFrame{
 		});
 		
 		menuItemLoadSnapshot.setEnabled(true);
-		menu.add(menuItemOpen);
-		menu.add(menuItemSetSnapshotPath);
-		menu.add(menuItemLoadSnapshot);
-		menu.addSeparator();
-		menu.add(menuItemBuild);
-		menu.addSeparator();
-		menu.add(menuItemClose);
+		fileMenu.add(menuItemOpen);
+		fileMenu.add(menuItemSetSnapshotPath);
+		fileMenu.add(menuItemLoadSnapshot);
+		fileMenu.addSeparator();
+		fileMenu.add(menuItemBuild);
+		fileMenu.addSeparator();
+		fileMenu.add(menuItemClose);
 		
-		menuBar.add(menu);
+		menuBar.add(fileMenu);
 		
 		//--------------------------------------------------------------------------------------------------------------
 		// Menü Charts
@@ -171,6 +178,31 @@ public class EpidermisSimulator extends JFrame{
 		
 		
 		//--------------------------------------------------------------------------------------------------------------
+		
+		
+	
+		//--------------------------------------------------------------------------------------------------------------
+		// Menü Charts
+		//--------------------------------------------------------------------------------------------------------------
+		
+		infoMenu = new JMenu("Info");
+		
+		menuItemAboutMason = new JMenuItem("About MASON");
+		
+		menuItemAboutMason.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				ConsoleHack.showAbout();
+			}
+			
+		});
+		
+		infoMenu.add(menuItemAboutMason);
+		menuBar.add(infoMenu);
+		
+		
+		//--------------------------------------------------------------------------------------------------------------
+		
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().setBackground(Color.LIGHT_GRAY);
 		this.setJMenuBar(menuBar);

@@ -14,13 +14,16 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JMenuItem;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
+import sim.display.Console;
 import sim.display.Display2D;
+import sim.display.Display2DHack;
 import sim.display.GUIState;
 import sim.engine.SimState;
 
-public class EpiDisplay2D extends Display2D {
+public class EpiDisplay2D extends Display2DHack {
 	protected GUIState simulation;
 	
 	public EpiDisplay2D(final double width, final double height, GUIState simulation, long interval){

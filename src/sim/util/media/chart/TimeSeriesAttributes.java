@@ -11,6 +11,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.Vector;
+
 import sim.util.gui.*;
 
 // From JFreeChart (jfreechart.org)

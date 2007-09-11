@@ -63,6 +63,7 @@ import sim.app.episim.charts.parser.TokenMgrError;
 import sim.util.gui.LabelledList;
 import sim.util.gui.NumberTextField;
 import sim.util.media.ChartGenerator;
+import sim.util.media.chart.TimeSeriesChartGenerator;
 
 
 
@@ -299,7 +300,13 @@ public class ChartCreationWizard extends JDialog {
                                                                       BorderFactory.createEmptyBorder(5,5,5,5)));
 		previewChartScroll.setMinimumSize(new Dimension(0,0));
 	   getContentPane().add(previewChartScroll, c);
-       
+	   XYSeries chartSeries = new XYSeries("Test", false );
+
+      // add our series
+      addSeries(chartSeries, new SeriesChangeListener()
+          {
+          public void seriesChanged(SeriesChangeEvent event) { /*getStopper().stop();*/ }
+          }); 
       setSize(500, 400);
  		validate();
    }

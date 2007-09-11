@@ -9,6 +9,7 @@ package sim.util.media;
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;
+import java.util.Vector;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;

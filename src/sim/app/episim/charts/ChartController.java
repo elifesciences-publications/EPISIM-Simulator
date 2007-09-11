@@ -47,7 +47,7 @@ public class ChartController {
 	public void showChartCreationWizard(Frame parent){
 		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true);
 		
-		if(chartMonitoredCellTypes.size()!=0) wizard.showCellTypes(chartMonitoredCellTypes);
+		if(chartMonitoredCellTypes.size()!=0) wizard.createNewChart(chartMonitoredCellTypes);
 	}
 	
 	public String checkChartExpression(String expression, Set<String> varNameSet) throws ParseException,TokenMgrError{

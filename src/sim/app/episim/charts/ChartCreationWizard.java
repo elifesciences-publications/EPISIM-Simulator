@@ -40,17 +40,22 @@ import javax.swing.text.NumberFormatter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.event.TitleChangeEvent;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.SeriesChangeEvent;
 import org.jfree.data.general.SeriesChangeListener;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleAnchor;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.RectangleInsets;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.pdf.DefaultFontMapper;
@@ -58,8 +63,10 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.charts.parser.ParseException;
 import sim.app.episim.charts.parser.TokenMgrError;
+import sim.util.gui.ColorWell;
 import sim.util.gui.LabelledList;
 import sim.util.gui.NumberTextField;
 import sim.util.media.ChartGenerator;
@@ -74,28 +81,90 @@ public class ChartCreationWizard extends JDialog {
    protected Box attributes = Box.createVerticalBox();
    protected ArrayList attributesList = new ArrayList();
    protected XYSeriesCollection dataset = new XYSeriesCollection();
-   protected HashMap stoppables = new HashMap();
+   
    protected JFreeChart previewChart;
    protected ChartPanel previewChartPanel;
-   private JScrollPane previewChartScroll = new JScrollPane();
    
-   JTextField chartTitleField;
-   JTextField chartXLabel;
-   JTextField chartYLabel;
+   private  DatasetChangeEvent updateEvent;
+   
+   private static final Color CLEAR = new Color(0,0,0,0);
+   private Map<String, ChartMonitoredCellType> cellTypesMap;
+   private JTextField chartTitleField;
+   private JTextField chartXLabel;
+   private JTextField chartYLabel;
+   private NumberTextField frequencyInSimulationSteps;
+   private JLabel frequencyLabel;
 
-   // XYSeries violate the hashing and equality testing, so they don't 
-   // produce correct results in hash tables.  We need to put them in
-   // a wrapper instead.
-   class SeriesHolder
-       {
-       public SeriesHolder(XYSeries series) { this.series = series; }
-       public XYSeries series;
-       public boolean equals(Object o) { return ((SeriesHolder)o).series == series; }
-       public int hashCode() { return System.identityHashCode(series); }
-       }
+   private final int WIDTH = 500;
+   private final int HEIGHT = 600;
 
-   DatasetChangeEvent updateEvent;
-       
+   /** Generates a new ChartGenerator with a blank chart. */
+   public ChartCreationWizard(Frame owner, String title, boolean modal){
+		super(owner, title, modal);
+		
+		setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		previewChartPanel = buildXYLineChart();
+		
+		getContentPane().setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		  		   
+		c.anchor =GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1;
+		c.weighty =0;
+		c.insets = new Insets(10,10,10,10);
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		getContentPane().add(buildChartOptionPanel(), c);
+         
+		c.anchor =GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1;
+		c.weighty =0.5;
+		c.insets = new Insets(10,10,10,10);
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		JScrollPane attributeScroll = new JScrollPane();
+		attributeScroll.getViewport().setView(attributes);
+		attributeScroll.setBorder(null);
+		attributeScroll.setBackground(getBackground());
+		attributeScroll.getViewport().setBackground(getBackground());
+		getContentPane().add(attributeScroll, c);
+      
+		c.anchor =GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1;
+		c.weighty =1;
+		c.insets = new Insets(10,10,10,10);
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		
+		
+		previewChartPanel.setPreferredSize(new Dimension(getPreferredSize().width,	(int)(getPreferredSize().height*0.7)));
+		previewChartPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Preview"), 
+                                                                      BorderFactory.createEmptyBorder(5,5,5,5)));
+		
+	   getContentPane().add(previewChartPanel, c);
+	   XYSeries chartSeries = new XYSeries("Test", false );
+
+      // add our series
+      addSeries(chartSeries, new SeriesChangeListener()
+          {
+          public void seriesChanged(SeriesChangeEvent event) { /*getStopper().stop();*/ }
+          }); 
+      XYSeries chartSeries2 = new XYSeries("Test2", false );
+
+      // add our series
+      addSeries(chartSeries2, new SeriesChangeListener()
+          {
+          public void seriesChanged(SeriesChangeEvent event) { /*getStopper().stop();*/ }
+          });
+      
+      
+      setSize(WIDTH, HEIGHT);
+ 		validate();
+   }
+   
+   
+
+  
    /** Informs the chart of changes to the contents of its series. */
    public void update()
        {
@@ -111,12 +180,13 @@ public class ChartCreationWizard extends JDialog {
        {
        int i = dataset.getSeriesCount();
        dataset.addSeries(series);
+       previewChart.getXYPlot().getRenderer().setSeriesPaint(i, Color.BLACK);
        ChartSeriesAttributes csa = new ChartSeriesAttributes(previewChartPanel,i);
        attributes.add(csa);
        attributesList.add(new Object[] {csa,series});
-      
+       
        validate();
-       stoppables.put( new SeriesHolder(series), stopper );
+       
        return i;
        }
    
@@ -138,9 +208,8 @@ public class ChartCreationWizard extends JDialog {
        XYSeries series = dataset.getSeries(index);
                
        // stop the inspector....
-       Object tmpObj = stoppables.remove(new SeriesHolder(series));
-       if( ( tmpObj != null ) && ( tmpObj instanceof SeriesChangeListener ) )
-           ((SeriesChangeListener)tmpObj).seriesChanged(new SeriesChangeEvent(this));
+       
+       
                        
        dataset.removeSeries(index);
        Iterator iter = attributesList.iterator();
@@ -200,7 +269,7 @@ public class ChartCreationWizard extends JDialog {
        {
        previewChart.setTitle(title);
        previewChart.titleChanged(new TitleChangeEvent(new org.jfree.chart.title.TextTitle(title)));
-       this.setTitle(title);
+       super.setTitle("Chart Creation Wizard: "+ title);
        chartTitleField.setText(title);
        }
 
@@ -231,88 +300,10 @@ public class ChartCreationWizard extends JDialog {
        }
                
    public String getDomainAxisLabel()
-       {
+   {
        return ((XYPlot)(previewChart.getPlot())).getDomainAxis().getLabel();
-       }
-
-   /** Generates a new ChartGenerator with a blank chart. */
-   public ChartCreationWizard(Frame owner, String title, boolean modal){
-		super(owner, title, modal);
-		previewChartPanel = buildXYLineChart();
-		
-		getContentPane().setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		  		   
-		c.anchor =GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.BOTH;
-		c.weightx = 1;
-		c.weighty =0;
-		c.insets = new Insets(10,10,10,10);
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		getContentPane().add(buildChartOptionPanel(), c);
-          
-      c.anchor =GridBagConstraints.WEST;
-		c.fill = GridBagConstraints.NONE;
-		c.weightx = 0;
-		c.weighty =0;
-		c.insets = new Insets(10,10,10,10);
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		JButton pdfButton = new JButton("Save as PDF");
-		pdfButton.addActionListener(new ActionListener()
-      {
-         public void actionPerformed ( ActionEvent e )
-         {
-            FileDialog fd = new FileDialog(ChartCreationWizard.this,"Choose PDF file...", FileDialog.SAVE);
-            fd.setFile(previewChart.getTitle().getText() + ".PDF");
-            fd.setVisible(true);;
-            String fileName = fd.getFile();
-            if (fileName!=null)
-            {
-               Dimension dim = previewChartPanel.getPreferredSize();
-               printChartToPDF( previewChart, dim.width, dim.height, fd.getDirectory() + fileName );
-            } 
-         }
-      });
-		getContentPane().add(pdfButton, c);
-               
-       
-		c.anchor =GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.BOTH;
-		c.weightx = 1;
-		c.weighty =0;
-		c.insets = new Insets(10,10,10,10);
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		JScrollPane attributeScroll = new JScrollPane();
-		attributeScroll.getViewport().setView(attributes);
-		attributeScroll.setBackground(getBackground());
-		attributeScroll.getViewport().setBackground(getBackground());
-		getContentPane().add(attributeScroll, c);
-      
-		c.anchor =GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.BOTH;
-		c.weightx = 1;
-		c.weighty =1;
-		c.insets = new Insets(10,10,10,10);
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		
-		previewChartScroll.getViewport().setView(previewChartPanel);
-		previewChartScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Preview"), 
-                                                                      BorderFactory.createEmptyBorder(5,5,5,5)));
-		previewChartScroll.setMinimumSize(new Dimension(0,0));
-	   getContentPane().add(previewChartScroll, c);
-	   XYSeries chartSeries = new XYSeries("Test", false );
-
-      // add our series
-      addSeries(chartSeries, new SeriesChangeListener()
-          {
-          public void seriesChanged(SeriesChangeEvent event) { /*getStopper().stop();*/ }
-          }); 
-      setSize(500, 400);
- 		validate();
+   
    }
-   
-   
-       
    void printChartToPDF( JFreeChart chart, int width, int height, String fileName )
        {
        try
@@ -335,241 +326,6 @@ public class ChartCreationWizard extends JDialog {
            e.printStackTrace();
            }
        }
-
-       
-   
-   static final Color CLEAR = new Color(0,0,0,0);
-   class ChartSeriesAttributes extends LabelledList
-       {
-       static final float DASH = 6;
-       static final float DOT = 1;
-       static final float SPACE = 3;
-       static final float SKIP = DASH;
-       
-       public final float[][] dashes = 
-           { 
-           { DASH, 0.0f }, // --------
-               { DASH * 2, SKIP }, 
-               { DASH, SKIP } , // -  -  -  
-               { DASH, SPACE } , // - - - -
-               { DASH, SPACE, DASH, SPACE, DOT, SPACE },  // - - . - - . 
-               { DASH, SPACE, DOT, SPACE, }, // - . - .
-               { DASH, SPACE, DOT, SPACE, DOT, SPACE },  // - . . - . . 
-               { DOT, SPACE }, // . . . .
-               { DOT, SKIP }   // .  .  .  .  
-           };
-   
-       float stretch = 1.0f;
-       float thickness = 2.0f;
-       float[] dash = dashes[0];
-       int seriesIndex;
-       ChartPanel panel;
-       String name;
-       Color strokeColor = Color.black;
-       //Color fillColor = CLEAR;
-   
-       void setIndex(int i) { seriesIndex = i; }
-   
-       public XYSeries getSeries()
-           {
-           return dataset.getSeries(seriesIndex);
-           }
-       
-       public XYPlot getPlot()
-           {
-           return panel.getChart().getXYPlot();
-           }
-       
-       public void rebuildGraphicsDefinitions()
-           {
-           float[] newDash = new float[dash.length];
-           for(int x=0;x<dash.length;x++)
-               newDash[x] = dash[x] * stretch * thickness;  // include thickness so we dont' get overlaps -- will this confuse users?
-               
-           XYItemRenderer renderer = (XYItemRenderer)(getPlot().getRenderer());
-           
-           renderer.setSeriesStroke(seriesIndex,
-                                    new BasicStroke(thickness, BasicStroke.CAP_ROUND, 
-                                                    BasicStroke.JOIN_ROUND,0,newDash,0));
-
-           renderer.setSeriesPaint(seriesIndex,strokeColor);
-           //renderer.setSeriesOutlinePaint(seriesIndex,strokeColor);
-           repaint();
-           }
-       
-       public ChartSeriesAttributes(ChartPanel pan, int index)
-           {
-           super("" + dataset.getSeries(index).getKey());  //((XYSeriesCollection)(pan.getChart().getXYPlot().getDataset())).getSeries(index).getKey());
-           panel = pan;
-           seriesIndex = index;
-           final JCheckBox check = new JCheckBox();
-           check.setSelected(true);
-           check.addActionListener(new ActionListener()
-               {
-               public void actionPerformed(ActionEvent e)
-                   {
-                   getPlot().getRenderer().setSeriesVisible(seriesIndex,
-                                                            new Boolean(check.isSelected()));  // why in the WORLD is it Boolean?
-                   }
-               });
-           
-           addLabelled("Show", check);
-
-           name = "" + getSeries().getKey();
-           final JTextField nameF = new JTextField(name);
-           nameF.addActionListener(new ActionListener()
-               {
-               public void actionPerformed(ActionEvent e)
-                   {
-                   name = nameF.getText();
-                   getSeries().setKey(name);
-                   panel.repaint();
-                   }
-               });
-           addLabelled("Series",nameF);
-           ColorWell well = new ColorWell()
-               {
-               public void setColor(Color c) 
-                   {
-                   strokeColor = c;
-                   rebuildGraphicsDefinitions();
-                   }
-               };
-           strokeColor = (Color)(getPlot().getRenderer().getSeriesPaint(index));
-           well.setBackground(strokeColor);
-           well.setForeground(strokeColor);
-           addLabelled("Line",well);
-           //well = new ColorWell()
-           //    {
-           //    public void setColor(Color c) 
-           //        {
-           //        fillColor = c;
-           //        rebuildGraphicsDefinitions();
-           //        }
-           //    };
-           //fillColor = (Color)(getPlot().getRenderer().getSeriesPaint(index));
-           //well.setBackground(fillColor);
-           //well.setForeground(fillColor);
-           //addLabelled("Fill",well);
-           NumberTextField thickitude = new NumberTextField(2.0,true)
-               {
-               public double newValue(double newValue) 
-                   {
-                   if (newValue < 0.0) 
-                       newValue = currentValue;
-                   thickness = (float)newValue;
-                   rebuildGraphicsDefinitions();
-                   return newValue;
-                   }
-               };
-           addLabelled("Width",thickitude);
-           final JComboBox list = new JComboBox();
-           list.setEditable(false);
-           list.setModel(new DefaultComboBoxModel(new Vector(Arrays.asList(
-//           new String[] { "Solid", "Big Dash", "Dash w/Big Skip", "Dash", "Dash Dash Dot", "Dash Dot", "Dash Dot Dot", "Dot", "Dot w/Big Skip" }))));
-                                                                 new String[] { "Solid", "__  __  __", "_  _  _  _", "_ _ _ _ _", "_ _ . _ _ .", "_ . _ . _ .", "_ . . _ . .", ". . . . . . .", ".  .  .  .  ." }))));
-           list.setSelectedIndex(0);
-           list.addActionListener(new ActionListener()
-               {
-               public void actionPerformed ( ActionEvent e )
-                   {
-                   dash = dashes[list.getSelectedIndex()];
-                   rebuildGraphicsDefinitions();
-                   }
-               });
-           addLabelled("Dash",list);
-           NumberTextField stretchField = new NumberTextField(1.0,true)
-               {
-               public double newValue(double newValue) 
-                   {
-                   if (newValue < 0.0) 
-                       newValue = currentValue;
-                   stretch = (float)newValue;
-                   rebuildGraphicsDefinitions();
-                   return newValue;
-                   }
-               };
-           addLabelled("Stretch",stretchField);
-           JButton removeButton = new JButton("Remove");
-           removeButton.addActionListener(new ActionListener()
-               {
-               public void actionPerformed ( ActionEvent e )
-                   {
-                   if (JOptionPane.showOptionDialog(
-                           null,"Remove the Series " + name + "?","Confirm",
-                           JOptionPane.YES_NO_OPTION,
-                           JOptionPane.QUESTION_MESSAGE,null,
-                           new Object[] { "Remove", "Cancel" },
-                           null) == 0)  // remove
-                  	 ChartCreationWizard.this.removeSeries(seriesIndex);
-                   }
-               });
-           Box b = new Box(BoxLayout.X_AXIS);
-           b.add(removeButton);
-           b.add(Box.createGlue());
-           add(b);
-
-           rebuildGraphicsDefinitions();
-           }
-       }
-   
-   static
-       {
-       // quaquaify
-       try
-           {
-           String version = System.getProperty("java.version");
-           // both of the following will generate exceptions if the class doesn't exist, so we're okay
-           // trying to put them in the UIManager here
-           if (version.startsWith("1.3"))
-               {
-               // broken
-               //UIManager.put("ColorChooserUI", 
-               //      Class.forName("ch.randelshofer.quaqua.Quaqua13ColorChooserUI").getName());
-               }
-           else // hope there's no one using 1.2! 
-               UIManager.put("ColorChooserUI", 
-                             Class.forName("ch.randelshofer.quaqua.Quaqua14ColorChooserUI").getName());
-           }
-       catch (Exception e) { }
-       }
-       
-   class ColorWell extends JButton
-       {
-       public ColorWell()
-           {
-           super(" ");
-           // quaquaify
-           putClientProperty("Quaqua.Button.style","colorWell");
-           setOpaque(true);
-
-           addActionListener(new ActionListener()
-               {
-               public void actionPerformed(ActionEvent e)
-                   {
-                   Color c = JColorChooser.showDialog(null,
-                                                      "Choose Color", getBackground());
-                   if (c!=null)
-                       {
-                       setBackground(c);
-                       setForeground(c);
-                       setColor(c);
-                       }
-                   }
-               });
-           setBackground(Color.black);
-           setForeground(Color.black);
-           setBorder(new EmptyBorder(0,0,0,0));
-           }
-       public void setColor(Color c) { }
-       }
-
-
-	
-	private Map<String, ChartMonitoredCellType> cellTypesMap;
-	
-	
-	
 	
 	public void createNewChart(Map<String, ChartMonitoredCellType> cellTypes){
 		if(cellTypes != null){
@@ -622,7 +378,7 @@ public class ChartCreationWizard extends JDialog {
 		});
 
 		LabelledList list = new LabelledList("Chart");
-		globalAttributes.add(list);
+		
 		list.add(new JLabel("Title"), chartTitleField);
 
 		chartXLabel = new JTextField();
@@ -677,10 +433,20 @@ public class ChartCreationWizard extends JDialog {
 			public void itemStateChanged(ItemEvent e) {
 
 				if(e.getStateChange() == ItemEvent.SELECTED){
-					org.jfree.chart.title.LegendTitle title = new org.jfree.chart.title.LegendTitle(
+					LegendTitle title = new LegendTitle(
 							(XYItemRenderer) (previewChart.getXYPlot().getRenderer()));
 					title.setLegendItemGraphicPadding(new org.jfree.ui.RectangleInsets(0, 8, 0, 4));
+					title.setLegendItemGraphicAnchor(RectangleAnchor.BOTTOM);
+					
+					
+                title.setMargin(new RectangleInsets(1.0, 1.0, 1.0, 1.0));
+					title.setFrame(new LineBorder());
+					title.setBackgroundPaint(Color.white);
+					title.setPosition(RectangleEdge.BOTTOM);
+				
+					
 					previewChart.addLegend(title);
+					
 				}
 				else{
 					previewChart.removeLegend();
@@ -701,11 +467,239 @@ public class ChartCreationWizard extends JDialog {
 		};
 		aliasCheck.addItemListener(il);
 		list.add(new JLabel("Antialias"), aliasCheck);
-		
+	
+      final JCheckBox pdfCheck = new JCheckBox();
+      pdfCheck.setSelected(false);
+		pdfCheck.addItemListener(new ItemListener() {
 
-		optionsPanel.add(list);
+			public void itemStateChanged(ItemEvent e) {
+
+				if(e.getStateChange() == ItemEvent.SELECTED){
+					
+					FileDialog fd = new FileDialog(ChartCreationWizard.this,"Choose PDF file...", FileDialog.SAVE);
+	            fd.setFile(previewChart.getTitle().getText() + ".PDF");
+	            fd.setVisible(true);;
+	            String fileName = fd.getFile();
+	            if (fileName!=null)
+	            {
+	            	frequencyInSimulationSteps.setEnabled(true);
+	            	frequencyLabel.setEnabled(true);
+	            	Dimension dim = previewChartPanel.getPreferredSize();
+	               printChartToPDF( previewChart, dim.width, dim.height, fd.getDirectory() + fileName );
+	            }
+	            else pdfCheck.setSelected(false);
+	           }
+				else{
+					
+					frequencyInSimulationSteps.setEnabled(false);
+					frequencyLabel.setEnabled(false);
+				}
+			}
+		});
+		list.add(new JLabel("Save as PDF"), pdfCheck);
+		
+		frequencyInSimulationSteps = new NumberTextField(1,false){
+			public double newValue(double newValue)
+	      {
+	        return Math.round(newValue);
+	      }
+		};
+		frequencyInSimulationSteps.setEnabled(false);
+		frequencyLabel = new JLabel("Frequency in Simulation Steps: ");
+		frequencyLabel.setEnabled(false);
+		
+		list.add(frequencyLabel, frequencyInSimulationSteps);
+		
+		optionsPanel.add(list, BorderLayout.CENTER);
+		
 		return optionsPanel;
 	}
+
+       
+/**XYSeries violate the hashing and equality testing, so they don't 
+  *produce correct results in hash tables.  We need to put them in
+  *a wrapper instead.*/
+   private class SeriesHolder
+   {
+       public SeriesHolder(XYSeries series) { this.series = series; }
+       public XYSeries series;
+       public boolean equals(Object o) { return ((SeriesHolder)o).series == series; }
+       public int hashCode() { return System.identityHashCode(series); }
+   }    
+       
+   class ChartSeriesAttributes extends LabelledList
+   {
+   static final float DASH = 6;
+   static final float DOT = 1;
+   static final float SPACE = 3;
+   static final float SKIP = DASH;
+   
+   public final float[][] dashes = 
+       { 
+       { DASH, 0.0f }, // --------
+           { DASH * 2, SKIP }, 
+           { DASH, SKIP } , // -  -  -  
+           { DASH, SPACE } , // - - - -
+           { DASH, SPACE, DASH, SPACE, DOT, SPACE },  // - - . - - . 
+           { DASH, SPACE, DOT, SPACE, }, // - . - .
+           { DASH, SPACE, DOT, SPACE, DOT, SPACE },  // - . . - . . 
+           { DOT, SPACE }, // . . . .
+           { DOT, SKIP }   // .  .  .  .  
+       };
+
+   float stretch = 1.0f;
+   float thickness = 2.0f;
+   float[] dash = dashes[0];
+   int seriesIndex;
+   ChartPanel panel;
+   String name;
+   Color strokeColor;
+   //Color fillColor = CLEAR;
+
+   void setIndex(int i) { seriesIndex = i; }
+
+   public XYSeries getSeries()
+       {
+       return dataset.getSeries(seriesIndex);
+       }
+   
+   public XYPlot getPlot()
+       {
+       return panel.getChart().getXYPlot();
+       }
+   
+   public void rebuildGraphicsDefinitions()
+       {
+       float[] newDash = new float[dash.length];
+       for(int x=0;x<dash.length;x++)
+           newDash[x] = dash[x] * stretch * thickness;  // include thickness so we dont' get overlaps -- will this confuse users?
+           
+       XYItemRenderer renderer = (XYItemRenderer)(getPlot().getRenderer());
+       
+       renderer.setSeriesStroke(seriesIndex,
+                                new BasicStroke(thickness, BasicStroke.CAP_ROUND, 
+                                                BasicStroke.JOIN_ROUND,0,newDash,0));
+
+       renderer.setSeriesPaint(seriesIndex,strokeColor);
+       //renderer.setSeriesOutlinePaint(seriesIndex,strokeColor);
+       repaint();
+       }
+   
+   public ChartSeriesAttributes(ChartPanel pan, int index)
+       {
+       super("" + dataset.getSeries(index).getKey());  //((XYSeriesCollection)(pan.getChart().getXYPlot().getDataset())).getSeries(index).getKey());
+       panel = pan;
+       seriesIndex = index;
+       final JCheckBox check = new JCheckBox();
+       check.setSelected(true);
+       check.addActionListener(new ActionListener()
+           {
+           public void actionPerformed(ActionEvent e)
+               {
+               getPlot().getRenderer().setSeriesVisible(seriesIndex,
+                                                        new Boolean(check.isSelected()));  
+               }
+           });
+       
+       addLabelled("Show", check);
+
+       name = "" + getSeries().getKey();
+       final JTextField nameF = new JTextField(name);
+       nameF.addActionListener(new ActionListener()
+           {
+           public void actionPerformed(ActionEvent e)
+               {
+               name = nameF.getText();
+               getSeries().setKey(name);
+               panel.repaint();
+               rebuildGraphicsDefinitions();
+               }
+           });
+       nameF.addFocusListener(new FocusAdapter(){
+      	 public void focusLost(FocusEvent e){
+      		 
+      		 for(ActionListener actList: nameF.getActionListeners()){
+      			 actList.actionPerformed(new ActionEvent(nameF, 0, ""));
+      		 }
+      	 }
+       });
+       addLabelled("Series",nameF);
+       
+       strokeColor = (Color)(getPlot().getRenderer().getSeriesPaint(index));
+       ColorWell well = new ColorWell(strokeColor)
+       {
+       public Color changeColor(Color c) 
+           {
+           ChartSeriesAttributes.this.strokeColor = c;
+           rebuildGraphicsDefinitions();
+           return c;
+           }
+       };
+      
+       addLabelled("Line",well);
+      
+       NumberTextField thickitude = new NumberTextField(2.0,true)
+           {
+           public double newValue(double newValue) 
+               {
+               if (newValue < 0.0) 
+                   newValue = currentValue;
+               thickness = (float)newValue;
+               rebuildGraphicsDefinitions();
+               return newValue;
+               }
+           };
+       addLabelled("Width",thickitude);
+       final JComboBox list = new JComboBox();
+       list.setEditable(false);
+       list.setModel(new DefaultComboBoxModel(new Vector(Arrays.asList(
+//       new String[] { "Solid", "Big Dash", "Dash w/Big Skip", "Dash", "Dash Dash Dot", "Dash Dot", "Dash Dot Dot", "Dot", "Dot w/Big Skip" }))));
+                                                             new String[] { "Solid", "__  __  __", "_  _  _  _", "_ _ _ _ _", "_ _ . _ _ .", "_ . _ . _ .", "_ . . _ . .", ". . . . . . .", ".  .  .  .  ." }))));
+       list.setSelectedIndex(0);
+       list.addActionListener(new ActionListener()
+           {
+           public void actionPerformed ( ActionEvent e )
+               {
+               dash = dashes[list.getSelectedIndex()];
+               rebuildGraphicsDefinitions();
+               }
+           });
+       addLabelled("Dash",list);
+       NumberTextField stretchField = new NumberTextField(1.0,true)
+           {
+           public double newValue(double newValue) 
+               {
+               if (newValue < 0.0) 
+                   newValue = currentValue;
+               stretch = (float)newValue;
+               rebuildGraphicsDefinitions();
+               return newValue;
+               }
+           };
+       addLabelled("Stretch",stretchField);
+       JButton removeButton = new JButton("Remove");
+       removeButton.addActionListener(new ActionListener()
+           {
+           public void actionPerformed ( ActionEvent e )
+               {
+               if (JOptionPane.showOptionDialog(
+                       null,"Remove the Series " + name + "?","Confirm",
+                       JOptionPane.YES_NO_OPTION,
+                       JOptionPane.QUESTION_MESSAGE,null,
+                       new Object[] { "Remove", "Cancel" },
+                       null) == 0)  // remove
+              	 ChartCreationWizard.this.removeSeries(seriesIndex);
+               }
+           });
+       Box b = new Box(BoxLayout.X_AXIS);
+       b.add(removeButton);
+       b.add(Box.createGlue());
+       add(b);
+
+       rebuildGraphicsDefinitions();
+       }
+   }
+   
    }
 
 

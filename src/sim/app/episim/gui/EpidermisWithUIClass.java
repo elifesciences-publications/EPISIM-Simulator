@@ -111,7 +111,7 @@ public class EpidermisWithUIClass extends GUIState{
 		controllerFrame.setName(CONTROLLERFRAME);
 		controllerFrame.setFrameIcon(null);
 		desktop.add(controllerFrame);
-		this.arrangeElements(desktop);
+		arrangeElements(desktop);
 		
 		
 		console.addActionListeners();
@@ -189,6 +189,7 @@ public class EpidermisWithUIClass extends GUIState{
 	void addInternalFrames(Controller c) {
 
 		desktop = new JDesktopPane();
+		
 		desktop.setBackground(Color.LIGHT_GRAY);
 		// --------------------------------------------------------------------------
 		// Internal Frame for EpiSimlation Display
@@ -298,26 +299,36 @@ public class EpidermisWithUIClass extends GUIState{
 		
 		desktop.putClientProperty("JDesktopPane.dragMode", "outline");
 		
-		desktop.setPreferredSize(new Dimension((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-				(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 30));
+		//desktop.setPreferredSize(new Dimension((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+			//	(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 30));
+		
+	
+		JScrollPane desktopScroll = new JScrollPane(desktop);
+		
+		desktop.setPreferredSize(new Dimension(
+				(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
+				(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight())));
+	   desktop.setSize(desktop.getPreferredSize());
+		
 		
 		arrangeElements(desktop);
 		
-		mainFrame.getContentPane().add(desktop, BorderLayout.CENTER);
+		mainFrame.getContentPane().add(desktopScroll, BorderLayout.CENTER);
+		
+		
+		
 		
 		mainFrame.pack();
+		final JDesktopPane desktopFinal = desktop;
 		mainFrame.addComponentListener(new ComponentAdapter(){
 			public void componentResized(ComponentEvent comp) {
-
+				
 				Object obj;
 				if((obj = comp.getSource()) instanceof JFrame){
+					
 					JFrame frame = (JFrame) obj;
-					if(frame.getContentPane().getComponentCount() > 0
-							&& frame.getContentPane().getComponent(0) instanceof JDesktopPane){
-						JDesktopPane tempPane = (JDesktopPane) frame.getContentPane().getComponent(0);
-					//	tempPane.setPreferredSize(frame.getSize());
-						arrangeElements(tempPane);
-					}
+					if(desktopFinal != null) arrangeElements(desktopFinal);
+			
 
 				}
 
@@ -367,6 +378,7 @@ public class EpidermisWithUIClass extends GUIState{
 
 		JInternalFrame chartFrame = new JInternalFrame(title, true, false, true, true);
 		chartFrame.setResizable(true);
+		chartFrame.setIconifiable(false);
 		chartFrame.getContentPane().setLayout(new BorderLayout());
 		chartFrame.getContentPane().add(chartPanel, BorderLayout.CENTER);
 
@@ -390,9 +402,11 @@ public class EpidermisWithUIClass extends GUIState{
 	 *           Komponente in der die Fenster angeordnet werden sollen
 	 */
 	private void arrangeElements(JComponent comp) {
-		final int RANDUNTEN = 55;	
-		Dimension screenDim = comp.getPreferredSize();
+		final int RANDUNTEN = 0;	
+		Dimension screenDim; 
+		screenDim= comp.getPreferredSize();
 		comp.setPreferredSize(screenDim);
+		
 		comp.getComponentCount();
 		int corrNumber = comp.getComponentCount() - 2;
 		int remainder = 0;
@@ -400,12 +414,12 @@ public class EpidermisWithUIClass extends GUIState{
 			corrNumber += (INTERNALFRAMECOLS - remainder);
 		int framesPerCol = corrNumber / INTERNALFRAMECOLS;
 
-		int xDeltaSim = ((int) screenDim.getWidth() - 10) / 2;
+		int xDeltaSim = ((int) screenDim.getWidth()) / 2;
 
 		int yDeltaSim = ((int) screenDim.getHeight() - RANDUNTEN)*2 / 3;
 		int xDeltaChart = 0;
-		if(((int) screenDim.getWidth() - 10 - xDeltaSim) > 0 && INTERNALFRAMECOLS >0)
-			xDeltaChart= ((int) screenDim.getWidth() - 10 - xDeltaSim) / INTERNALFRAMECOLS;
+		if(((int) screenDim.getWidth()  - xDeltaSim) > 0 && INTERNALFRAMECOLS >0)
+			xDeltaChart= ((int) screenDim.getWidth() - xDeltaSim) / INTERNALFRAMECOLS;
 		int yDeltaChart = 0; 
 		if(framesPerCol > 0 && ((int) screenDim.getHeight() - RANDUNTEN)>0) yDeltaChart =((int) screenDim.getHeight() - RANDUNTEN) / framesPerCol;
 

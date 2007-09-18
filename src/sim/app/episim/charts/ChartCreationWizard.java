@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 
@@ -78,7 +79,7 @@ public class ChartCreationWizard extends JDialog {
 	
 	
    
-   protected Box attributes = Box.createVerticalBox();
+   
    protected ArrayList attributesList = new ArrayList();
    protected XYSeriesCollection dataset = new XYSeriesCollection();
    
@@ -87,16 +88,26 @@ public class ChartCreationWizard extends JDialog {
    
    private  DatasetChangeEvent updateEvent;
    
-   private static final Color CLEAR = new Color(0,0,0,0);
+ 
    private Map<String, ChartMonitoredCellType> cellTypesMap;
    private JTextField chartTitleField;
    private JTextField chartXLabel;
    private JTextField chartYLabel;
    private NumberTextField frequencyInSimulationSteps;
    private JLabel frequencyLabel;
-
-   private final int WIDTH = 500;
+   
+   private JPanel seriesPanel;
+   private JPanel propertiesPanel;
+	private JSplitPane mainSplit;
+   private JComboBox seriesCombo;
+   private DefaultComboBoxModel comboModel;
+   
+   private final String DEFAULTSERIENAME = "Chart Series ";
+ 
+   private final int WIDTH = 1200;
    private final int HEIGHT = 600;
+   
+   private String[] baselineExpression;
 
    /** Generates a new ChartGenerator with a blank chart. */
    public ChartCreationWizard(Frame owner, String title, boolean modal){
@@ -105,58 +116,91 @@ public class ChartCreationWizard extends JDialog {
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		previewChartPanel = buildXYLineChart();
 		
-		getContentPane().setLayout(new GridBagLayout());
+		propertiesPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		  		   
-		c.anchor =GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.BOTH;
+		c.anchor =GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.weighty =0;
 		c.insets = new Insets(10,10,10,10);
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		getContentPane().add(buildChartOptionPanel(), c);
+		propertiesPanel.add(buildChartOptionPanel(), c);
          
-		c.anchor =GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.BOTH;
+		JPanel seriesMainPanel = new JPanel(new GridBagLayout());
+		seriesMainPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Chart Series"),
+				                                                       BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+				c.anchor =GridBagConstraints.WEST;
+				c.fill = GridBagConstraints.HORIZONTAL;
+				c.weightx = 0.3;
+				c.weighty =0;
+				c.insets = new Insets(5,5,5,5);
+				c.gridwidth = GridBagConstraints.RELATIVE;
+				
+				comboModel = new DefaultComboBoxModel();
+				seriesCombo = new JComboBox(comboModel);
+				seriesCombo.addItemListener(new ItemListener(){
+					public void itemStateChanged(ItemEvent evt) {
+					    CardLayout cl = (CardLayout)(seriesPanel.getLayout());
+					    cl.show(seriesPanel, ""+ seriesCombo.getSelectedIndex());
+					}
+				});
+				
+				seriesMainPanel.add(seriesCombo, c);
+				
+			
+				c.gridwidth = GridBagConstraints.REMAINDER;
+				c.fill = GridBagConstraints.NONE;
+				c.weightx = 0.0;
+				JButton addSeriesButton = new JButton("Add Chart Series");
+				addSeriesButton.addActionListener(new ActionListener(){
+
+					public void actionPerformed(ActionEvent e) {
+						int index =addSeries();
+	               	comboModel.addElement(DEFAULTSERIENAME + (index+1));
+	               	seriesCombo.setSelectedIndex(index);
+               }
+					
+				});
+				seriesMainPanel.add(addSeriesButton, c);
+				
+				c.anchor =GridBagConstraints.CENTER;
+				c.fill = GridBagConstraints.BOTH;
+				c.weightx = 1;
+				c.weighty =1;
+				c.insets = new Insets(5,5,5,5);
+				c.gridwidth = GridBagConstraints.REMAINDER;
+									
+				
+				seriesPanel = new JPanel(new CardLayout());
+				seriesMainPanel.add(seriesPanel, c);
+		
+		
+		
+		c.anchor =GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
-		c.weighty =0.5;
-		c.insets = new Insets(10,10,10,10);
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		JScrollPane attributeScroll = new JScrollPane();
-		attributeScroll.getViewport().setView(attributes);
-		attributeScroll.setBorder(null);
-		attributeScroll.setBackground(getBackground());
-		attributeScroll.getViewport().setBackground(getBackground());
-		getContentPane().add(attributeScroll, c);
-      
-		c.anchor =GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.BOTH;
-		c.weightx = 1;
-		c.weighty =1;
+		c.weighty =0;
 		c.insets = new Insets(10,10,10,10);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		
+			
+		propertiesPanel.add(seriesMainPanel, c);
 		
 		previewChartPanel.setPreferredSize(new Dimension(getPreferredSize().width,	(int)(getPreferredSize().height*0.7)));
 		previewChartPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Preview"), 
                                                                       BorderFactory.createEmptyBorder(5,5,5,5)));
 		
-	   getContentPane().add(previewChartPanel, c);
-	   XYSeries chartSeries = new XYSeries("Test", false );
+		JPanel layoutCorrectingPanel = new JPanel(new BorderLayout());
+		layoutCorrectingPanel.add(propertiesPanel,BorderLayout.NORTH);
+		mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
+		new JScrollPane(layoutCorrectingPanel), previewChartPanel);
+      mainSplit.setOneTouchExpandable(false);
+      mainSplit.setDividerLocation(((int)WIDTH /2));
+	  
 
-      // add our series
-      addSeries(chartSeries, new SeriesChangeListener()
-          {
-          public void seriesChanged(SeriesChangeEvent event) { /*getStopper().stop();*/ }
-          }); 
-      XYSeries chartSeries2 = new XYSeries("Test2", false );
-
-      // add our series
-      addSeries(chartSeries2, new SeriesChangeListener()
-          {
-          public void seriesChanged(SeriesChangeEvent event) { /*getStopper().stop();*/ }
-          });
       
+      getContentPane().add(mainSplit, BorderLayout.CENTER);
       
       setSize(WIDTH, HEIGHT);
  		validate();
@@ -176,13 +220,16 @@ public class ChartCreationWizard extends JDialog {
    /** Adds a series, plus a (possibly null) SeriesChangeListener which will receive a <i>single</i>
        event if/when the series is deleted from the chart by the user.
        Returns the series index number. */
-   public int addSeries( final XYSeries series, final org.jfree.data.general.SeriesChangeListener stopper)
+   public int addSeries()
        {
-       int i = dataset.getSeriesCount();
+   	 int i = dataset.getSeriesCount();	
+   	 XYSeries series = new XYSeries(DEFAULTSERIENAME+ (i+1), false );
+   	 addRandomValues(series);
        dataset.addSeries(series);
        previewChart.getXYPlot().getRenderer().setSeriesPaint(i, Color.BLACK);
        ChartSeriesAttributes csa = new ChartSeriesAttributes(previewChartPanel,i);
-       attributes.add(csa);
+      
+       seriesPanel.add(csa, ""+i);
        attributesList.add(new Object[] {csa,series});
        
        validate();
@@ -207,10 +254,6 @@ public class ChartCreationWizard extends JDialog {
        {
        XYSeries series = dataset.getSeries(index);
                
-       // stop the inspector....
-       
-       
-                       
        dataset.removeSeries(index);
        Iterator iter = attributesList.iterator();
        while(iter.hasNext())
@@ -220,7 +263,16 @@ public class ChartCreationWizard extends JDialog {
            series = (XYSeries)(obj[1]);
            if (csa.seriesIndex == index)
                {
-               attributes.remove(csa);
+         	   
+         	    seriesPanel.remove(index);
+         	    comboModel.removeElementAt(index);
+         	    
+         	    Component[] comps = seriesPanel.getComponents();
+         	    seriesPanel.removeAll();
+         	    for(int i= 0; i < comps.length; i++) seriesPanel.add(comps[i], "" + i);
+         	    
+         	    seriesPanel.validate();
+         	    seriesPanel.repaint();
                iter.remove();
                }
            else if (csa.seriesIndex > index)  // must reduce
@@ -243,8 +295,14 @@ public class ChartCreationWizard extends JDialog {
        {
        removeAllSeries();
        }
-
-
+   
+   private void addRandomValues(XYSeries series){
+   	Random rand = new Random();
+   	for(int i = 0; i< 100; i += 10){
+   		series.add(i, rand.nextInt(100));
+   	}
+   }
+   
    /* Constructs an XYLineChart.  Ultimately we might allow various charts; but we need to also set the
       chart's antialiasing, titles, etc. to reflect the current desired information. */
    private ChartPanel buildXYLineChart()
@@ -331,9 +389,6 @@ public class ChartCreationWizard extends JDialog {
 		if(cellTypes != null){
 			this.cellTypesMap = cellTypes;
 			
-
-		
-
 			repaint();
 			centerMe();
 			setVisible(true);
@@ -420,12 +475,35 @@ public class ChartCreationWizard extends JDialog {
 		chartYLabel.addFocusListener(new FocusAdapter() {
 
 			public void focusLost(FocusEvent e) {
-
+				
 				setRangeAxisLabel(chartYLabel.getText());
 			}
 		});
 		list.add(new JLabel("Y Label"), chartYLabel);
 
+		baselineExpression = new String[2];
+		final JButton baselineButton = new JButton("Add Baseline Expression");
+      final JTextField baselineField = new JTextField("");
+      baselineButton.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+
+	         ChartExpressionEditor editor = new ChartExpressionEditor(
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true);
+	         baselineExpression =editor.getExpression(cellTypesMap, baselineExpression);
+	         if(baselineExpression != null && baselineExpression[0] != null && baselineExpression[1] != null){
+	         	baselineButton.setText("Edit Baseline Expression");
+	         	baselineField.setText(baselineExpression[0]);
+	         }
+	         
+        }
+     	 
+      });
+      baselineField.setEditable(false);
+      list.add(baselineButton, baselineField);
+		
+		
+		
 		final JCheckBox legendCheck = new JCheckBox();
 		legendCheck.setSelected(false);
 		ItemListener il = new ItemListener() {
@@ -514,25 +592,15 @@ public class ChartCreationWizard extends JDialog {
 		
 		return optionsPanel;
 	}
-
-       
-/**XYSeries violate the hashing and equality testing, so they don't 
-  *produce correct results in hash tables.  We need to put them in
-  *a wrapper instead.*/
-   private class SeriesHolder
-   {
-       public SeriesHolder(XYSeries series) { this.series = series; }
-       public XYSeries series;
-       public boolean equals(Object o) { return ((SeriesHolder)o).series == series; }
-       public int hashCode() { return System.identityHashCode(series); }
-   }    
-       
-   class ChartSeriesAttributes extends LabelledList
+     
+   private class ChartSeriesAttributes extends LabelledList
    {
    static final float DASH = 6;
    static final float DOT = 1;
    static final float SPACE = 3;
    static final float SKIP = DASH;
+   
+   private String[] expression = new String[2];
    
    public final float[][] dashes = 
        { 
@@ -556,17 +624,24 @@ public class ChartCreationWizard extends JDialog {
    Color strokeColor;
    //Color fillColor = CLEAR;
 
-   void setIndex(int i) { seriesIndex = i; }
+   public void setIndex(int i) { seriesIndex = i; }
 
    public XYSeries getSeries()
-       {
+   {
        return dataset.getSeries(seriesIndex);
-       }
+   }
    
    public XYPlot getPlot()
-       {
+   {
        return panel.getChart().getXYPlot();
-       }
+   }
+  
+   
+   public void setBorderTitle(String title){
+   
+      if (title != null) setBorder(new javax.swing.border.TitledBorder(title));
+      
+   }
    
    public void rebuildGraphicsDefinitions()
        {
@@ -588,6 +663,7 @@ public class ChartCreationWizard extends JDialog {
    public ChartSeriesAttributes(ChartPanel pan, int index)
        {
        super("" + dataset.getSeries(index).getKey());  //((XYSeriesCollection)(pan.getChart().getXYPlot().getDataset())).getSeries(index).getKey());
+       
        panel = pan;
        seriesIndex = index;
        final JCheckBox check = new JCheckBox();
@@ -596,6 +672,7 @@ public class ChartCreationWizard extends JDialog {
            {
            public void actionPerformed(ActionEvent e)
                {
+         	  	
                getPlot().getRenderer().setSeriesVisible(seriesIndex,
                                                         new Boolean(check.isSelected()));  
                }
@@ -610,7 +687,12 @@ public class ChartCreationWizard extends JDialog {
            public void actionPerformed(ActionEvent e)
                {
                name = nameF.getText();
+               setBorderTitle(name);
                getSeries().setKey(name);
+               int index = seriesCombo.getSelectedIndex();
+               comboModel.removeElementAt(index);
+               comboModel.insertElementAt(name, index);
+               seriesCombo.setSelectedIndex(index);
                panel.repaint();
                rebuildGraphicsDefinitions();
                }
@@ -623,7 +705,7 @@ public class ChartCreationWizard extends JDialog {
       		 }
       	 }
        });
-       addLabelled("Series",nameF);
+       addLabelled("Name",nameF);
        
        strokeColor = (Color)(getPlot().getRenderer().getSeriesPaint(index));
        ColorWell well = new ColorWell(strokeColor)
@@ -653,7 +735,6 @@ public class ChartCreationWizard extends JDialog {
        final JComboBox list = new JComboBox();
        list.setEditable(false);
        list.setModel(new DefaultComboBoxModel(new Vector(Arrays.asList(
-//       new String[] { "Solid", "Big Dash", "Dash w/Big Skip", "Dash", "Dash Dash Dot", "Dash Dot", "Dash Dot Dot", "Dot", "Dot w/Big Skip" }))));
                                                              new String[] { "Solid", "__  __  __", "_  _  _  _", "_ _ _ _ _", "_ _ . _ _ .", "_ . _ . _ .", "_ . . _ . .", ". . . . . . .", ".  .  .  .  ." }))));
        list.setSelectedIndex(0);
        list.addActionListener(new ActionListener()
@@ -691,7 +772,30 @@ public class ChartCreationWizard extends JDialog {
               	 ChartCreationWizard.this.removeSeries(seriesIndex);
                }
            });
+       
+       
+       final JButton formulaButton = new JButton("Add Expression");
+       final JTextField formulaField = new JTextField("");
+       formulaButton.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+
+	         ChartExpressionEditor editor = new ChartExpressionEditor(
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true);
+	         expression =editor.getExpression(cellTypesMap, expression);
+	         if(expression != null && expression[0] != null && expression[1] != null){
+	         	formulaButton.setText("Edit Expression");
+	         	formulaField.setText(expression[0]);
+	         }
+	         
+         }
+      	 
+       });
+       formulaField.setEditable(false);
+       add(formulaButton, formulaField);
+       
        Box b = new Box(BoxLayout.X_AXIS);
+       b.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
        b.add(removeButton);
        b.add(Box.createGlue());
        add(b);

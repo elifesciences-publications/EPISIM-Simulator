@@ -26,7 +26,6 @@ public class EpidermisDev extends SimStateHack
  
  
  
- public double height = 150;    
 
  
  
@@ -64,7 +63,9 @@ public class EpidermisDev extends SimStateHack
      
      
     
-     basementContinous2D = new Continuous2D(140,140,height);
+     basementContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
+   		                                   TissueBorderDev.getInstance().getWidth(),
+   		                                   TissueBorderDev.getInstance().getHeight());
     
     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
     

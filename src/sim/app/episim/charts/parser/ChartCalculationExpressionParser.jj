@@ -3,7 +3,7 @@
  */
  
 options {
-  JDK_VERSION = "1.5";
+  JDK_VERSION = "1.6";
   STATIC = false;
 }
 PARSER_BEGIN(ChartExpressionChecker)
@@ -13,8 +13,20 @@ import java.util.*;
 
 public class ChartExpressionChecker {
 	private Set<String> varNameSet = new HashSet<String>();
+	private Set<Character> booleanCharacterSet = new HashSet<Character>();
+	private char[] ops = new char[]{'>','<','=','!','&','|'};
 	
-  
+  	private void checkIfStringArithExpr(String str) throws ParseException{
+  		if(booleanCharacterSet.size() == 0) for(char c :ops) booleanCharacterSet.add(c);
+  		if(str != null){
+  			for(int i = 0; i< str.length();i++){
+  				if(booleanCharacterSet.contains(str.charAt(i))) 
+  				throw new ParseException("Unexpected Boolean or Relational Operator found: '" + str.charAt(i)+ "'\nSubsequence: \""
+  	                              		+str+"\nChar Pos: " + (i+1));
+  			}
+  		}
+  		
+  	}
    
 }
 PARSER_END(ChartExpressionChecker)
@@ -23,13 +35,14 @@ PARSER_END(ChartExpressionChecker)
 
 SKIP : { " " | "\n" | "\r" | "\r\n" }
 
-TOKEN : { < PLUS : "+" > }
-TOKEN : { < MINUS : "-" > }
-TOKEN : { < TIMES : "*" > } 
-TOKEN : { < DIVIDE : "/" > }
+TOKEN : { < ADD_SUBT_OP : ["+", "-"]> }
+TOKEN : { < MULT_DIV_OP : ["*", "/"]> }
 TOKEN : { < OPEN_PAR : "(" > } 
 TOKEN : { < CLOSE_PAR : ")" > }
-TOKEN : { < CLOSE_PA : "," > }
+TOKEN : { < REL_OP : <BIG_SMALL>| <BIG_SMALL><EQUAL> | <EQUAL><EQUAL> | <NOT><EQUAL>>
+	| <#BIG_SMALL:["<", ">"]>
+	| <#EQUAL:["="]>}
+TOKEN : { <NOT:["!"]>}	
 TOKEN:{<IDENTIFIER:<LETTER>(<LETTER>|<DIGIT>)*"."<LETTER>(<LETTER>|<DIGIT>)*>
  | <#LETTER:["A"-"Z", "a"-"z"]>
  | <#DIGIT:["0"-"9"]>
@@ -45,7 +58,7 @@ String Start(Set<String> varNameSet) throws NumberFormatException :
 String partialResult = "";
 String totalResult = "";}
 {
-  (partialResult =UnaryExpression()
+  (partialResult =BooleanExpression()
   
   {totalResult = totalResult.concat(partialResult);}
   
@@ -53,7 +66,7 @@ String totalResult = "";}
 {return totalResult;}
 }
 
-String Primary() throws NumberFormatException :{
+String Factor() throws NumberFormatException :{
 String result ="";
 int[][] dummy1= new int[1][1];
 String[] dummy2 = new String[1];
@@ -69,33 +82,65 @@ Token t;
    		})
    			
    	| result = SqrtFunction() 
-    | result = PowFunction() 
-    |<OPEN_PAR> result = UnaryExpression() <CLOSE_PAR> {result = "(" + result +")";})
+    | result = PowFunction()
+    | result = AllCellsWhere() 
+    | result = AllCellsMeanValueFunction()
+    |<OPEN_PAR> result = BooleanExpression() <CLOSE_PAR> {result = "(" + result +")";})
 
 {return result;}
 }
  
 String Expression():
 {
-	String result = "";
-	String tmp = "";
+	String exp1 = "";
+	String exp2 = "";
+	Token t = null;
 }
 {
-  result = Term()(<PLUS>tmp =Term() { result = result +"+"+ tmp;}| <MINUS> tmp =Term(){ result = result +"-"+ tmp;})*
-{return result;}
+  exp1 = Term()[t= <ADD_SUBT_OP> exp2 =Term(){checkIfStringArithExpr(exp2);}  	
+  	]
+{
+   if (t !=null)return exp1 + t.image + exp2;
+   else return exp1 + exp2;	
+ }
 }
 
 String Term():
 {
-	String result = "";
-	String tmp = "";
+	String exp1 = "";
+	String exp2 = "";
+	Token t = null;
 }
 {
  
- result = Primary()(<TIMES>tmp = Primary(){ result = result +"*"+ tmp;} | <DIVIDE>tmp=Primary(){ result = result +"/"+ tmp;})*
+ exp1 =SignedFactor()[t=<MULT_DIV_OP> exp2 = Factor(){checkIfStringArithExpr(exp2);}]
  
- {return result;}
+ {
+   if (t !=null)return exp1 + t.image + exp2;
+   else return exp1 + exp2;	
+ }
 }
+
+
+
+String SignedFactor():{
+ 	String unary = "";
+ 	String factor ="";
+ 	Token t = null;
+ }
+ {
+  [t = <ADD_SUBT_OP>] factor=Factor(){
+  	if(t != null)checkIfStringArithExpr(factor);
+  	     
+  	    if (t !=null)return t.image + factor;
+  	    else return factor;
+  } 
+  
+}
+
+	
+
+
 
 String PowFunction():{
 String exp1 = "";
@@ -103,32 +148,129 @@ String exp2 = "";
 
 }
  {
- ("Pow(" exp1 =UnaryExpression() "," exp2=UnaryExpression()")")
- {return "java.lang.Math.pow("+exp1+","+exp2+")";}
+ ("Pow(" exp1 =Expression() "," exp2=Expression()")")
+ {
+ 	
+ 	
+ 	return "java.lang.Math.pow("+exp1+","+exp2+")";}
  }
 
+ String AllCellsMeanValueFunction():
+ {
+ 	String exp1 = "";
+ 	String exp2 = null;
+ 	String exp3 = null;
+ 	String exp4 = null;
+ 	String exp5 = null;
+ 
+ }
+ {
+ ("ACMV("exp1 =Expression()((")") |
+  (                   "," 
+                      exp2 =Expression() ","
+                      exp3 =Expression() ","
+                      exp4 =Expression() ","
+                      exp5 =Expression()")" )))
+ {
+ 	
+ 	checkIfStringArithExpr(exp1);
+ 	checkIfStringArithExpr(exp2);
+ 	checkIfStringArithExpr(exp3);
+ 	checkIfStringArithExpr(exp4);
+ 	checkIfStringArithExpr(exp5);
+ 	
+ 	if(exp2 == null || exp3 == null || exp4 == null ||exp5 == null) return "getAllCellsMeanValue("+exp1+")";
+ 	else return "getAllCellsMeanValue("+exp1+","+exp2+","+exp3+","+exp4+","+exp5+")";
+ }
+ }
+ 
+
+ 
  
 
  String SqrtFunction():
  {String exp = "";}
  {
- ("Sqrt("exp =UnaryExpression()")")
- {return "java.lang.Math.sqrt("+exp+")";}
+ ("Sqrt("exp =Expression()")")
+ {
+ 	checkIfStringArithExpr(exp);
+ 	return "java.lang.Math.sqrt("+exp+")";}
  }
  
- String UnaryExpression():{
- 	String unary = "";
- 	String expression ="";
+ 
+ 
+ 
+
+String AllCellsWhere():
+ {
+ 	String exp1 = "";
+ 	String exp2 = "";
  }
  {
-  (unary=UnaryOperator())?expression=Expression()
-  {return unary + expression;}
-}
-String UnaryOperator():{
-String operator ="";
-}
-{ ("+" {operator = "+1*";}| "-" {operator ="-1*"; })
+ ("ACW("exp1 =Expression() "," exp2=BooleanExpression()")")
+ {
+ 	checkIfStringArithExpr(exp1);
+ 	return "getAllCellsWhere("+exp1+","+exp2+")";
+ 	
+ }
+ }
 
-{return operator;}
+String BooleanExpression():{
+ 	String exp1 = "";
+ 	String exp2 = ""; 	
+ }
+ { 
+    exp1 =BooleanTerm()  ("||" {exp1 += "||";} exp2=BooleanTerm())*
+    
+	
+	{return exp1+ exp2;}
 }
+
+
+
+String BooleanTerm():{
+ 	String exp1 = "";
+ 	String exp2 = ""; 	
+ }
+ { 
+    exp1 = NotFactor()("&&"{exp1 += "&&";} exp2 =NotFactor())*
+    
+	
+	{return exp1+ exp2;}
+}
+
+String NotFactor():{
+ 	String exp1 = "";
+ 	Token t = null; 	
+ }
+ { 
+    [t=<NOT>]exp1=RelationalExpression()
+    
+	
+	{
+		if(t != null) return t.image + exp1;
+		else return exp1;
+   }
+}
+
+String RelationalExpression():{
+ 	String exp1 = "";
+ 	String exp2 = "";
+ 	Token t = null; 	
+ }
+ {
+ exp1 =Expression()[t=<REL_OP> exp2 =Expression()]
+ 
+ {
+ 	if(t!=null) return exp1+ t.image + exp2;	
+ 	else return exp1 + exp2;
+ 	
+ }
+}
+
+
+
+
+
+
 

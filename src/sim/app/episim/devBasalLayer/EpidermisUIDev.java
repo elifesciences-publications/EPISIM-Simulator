@@ -54,9 +54,10 @@ public class EpidermisUIDev extends GUIState{
 	private JDesktopPane desktop;
 
 	private EpiConsoleDev console;
-
-	private final double EPIDISPLAYWIDTH = 750;
-	private final double EPIDISPLAYHEIGHT = 700;
+	
+	private static final double INITIALZOOMFACTOR = 2;
+	private final double EPIDISPLAYWIDTH = TissueBorderDev.getInstance().getWidth() * INITIALZOOMFACTOR;
+	private final double EPIDISPLAYHEIGHT = TissueBorderDev.getInstance().getHeight()* INITIALZOOMFACTOR;
 	
 	private final BasementMembranePortrayal2DDev basementPortrayalDraw;
 	

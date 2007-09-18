@@ -36,13 +36,19 @@ public class TissueBorderDev {
 	}
 	
 	
-	private static  double width =140-2;
+	
 	
 	
 	
 	public  double getWidth(){
 		
 		return tissue.getEpidermalWidth();
+	}
+	
+	public double getHeight(){
+		
+		
+		return polygon.getBounds().height;
 	}
 	
 	public  double lowerBound(double x)
@@ -73,6 +79,7 @@ public class TissueBorderDev {
 
 				}
 				drawPolygon = (GeneralPath)polygon.clone();
+				drawPolygon.closePath();
 				polygon.lineTo(polygon.getBounds().getMinX(), polygon.getBounds().getMinY());
 				polygon.closePath();
 				

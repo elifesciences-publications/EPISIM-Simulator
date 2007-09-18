@@ -38,14 +38,15 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    private static final double DELTACROSS = 10;
 	    private static final double DELTAPOINT = 10;
 	    
+	    private static final int EMPTYBORDER = 10;
 	    
 	    
 	    
 	    public BasementMembranePortrayal2DDev(double width, double height) {
-	   	 this.width = width;
-	   	 this.height = height;
-	   	 this.INITIALWIDTH = width;
-	   	 this.INITIALHEIGHT = height;
+	   	 this.width = width-(EMPTYBORDER*2);
+	   	 this.height = height-(EMPTYBORDER*2);
+	   	 this.INITIALWIDTH = width-(EMPTYBORDER*2);
+	   	 this.INITIALHEIGHT = height-(EMPTYBORDER*2);
 	   	 cellPoints = new ArrayList<Point2D>();
 	   	 
 	    }
@@ -74,7 +75,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 			transform.scale(scaleX, scaleX);
 			polygon = (GeneralPath) polygon.createTransformedShape(transform);
 
-			transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX(), lastActualInfo.clip.getMinY()-getDeltaY());
+			transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX() + EMPTYBORDER, lastActualInfo.clip.getMinY()-getDeltaY()+EMPTYBORDER);
 
 			polygon = (GeneralPath) polygon.createTransformedShape(transform);
 			graphics.draw(polygon);

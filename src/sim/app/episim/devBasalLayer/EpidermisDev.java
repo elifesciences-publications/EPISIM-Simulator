@@ -20,7 +20,7 @@ public class EpidermisDev extends SimStateHack
  
 
  public Continuous2D basementContinous2D;
- 
+ public Continuous2D rulerContinous2D;
 
  
  
@@ -66,8 +66,11 @@ public class EpidermisDev extends SimStateHack
      basementContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
    		                                   TissueBorderDev.getInstance().getWidth(),
    		                                   TissueBorderDev.getInstance().getHeight());
-    
+     rulerContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
+           TissueBorderDev.getInstance().getWidth(),
+           TissueBorderDev.getInstance().getHeight());
     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
+    rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
     
     Steppable dummy = new Steppable()
     {

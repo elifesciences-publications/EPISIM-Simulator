@@ -45,10 +45,17 @@ public class TissueBorderDev {
 		return tissue.getEpidermalWidth();
 	}
 	
+	public double getNumberOfPixelsPerMicrometer(){
+		double resolutionMicoMPerPixel = tissue.getResolutionInMicrometerPerPixel();
+		
+		return  1 /resolutionMicoMPerPixel;
+		
+	}
+	
 	public double getHeight(){
 		
-		
-		return polygon.getBounds().height;
+		//Bei der Berechnung durch GeneralPath geht ein Pixel verloren
+		return polygon.getBounds().height + 1;
 	}
 	
 	public  double lowerBound(double x)
@@ -85,6 +92,7 @@ public class TissueBorderDev {
 				
 			//	organizePoints();
 			}
+			
 		}
 
 	
@@ -124,6 +132,33 @@ public class TissueBorderDev {
 		if(organizedXPoints.containsKey(x)) return organizedXPoints.get(x);
 		else return new HashSet<Double>();
 	}
-
+	/**
+	 * Methode, die die Höhe berechnet
+	 */
+	private void calculateheight(){
+	int maxY = 0;
+	int minY = 0;
+	 for(Point2D point :tissue.getBasalLayerPoints()) if(point.getY() > maxY) maxY = (int)point.getY();
+	 for(Point2D point :tissue.getSurfacePoints()) if(point.getY() < minY) minY = (int)point.getY();
+	 System.out.println("Die berechnete Höhe ist: " + (maxY - minY));
+	}
+	
+	/**
+	 * Methode, die die Höhe berechnet
+	 */
+	private void calculateWidth(){
+	int maxX = 0;
+	int minX = 0;
+	 for(Point2D point :tissue.getBasalLayerPoints()){
+		 if(point.getX() > maxX) maxX = (int)point.getX();
+		 else if(point.getX() < minX) minX = (int)point.getX();
+	 }
+	 for(Point2D point :tissue.getSurfacePoints()){
+		 if(point.getX() > maxX) maxX = (int)point.getX();
+		 else if(point.getX() < minX) minX = (int)point.getX();
+	 }
+	 System.out.println("Die berechnete Breite ist: " + (maxX - minX));
+	 System.out.println("Die Höhe, die Thora berechnet hat, ist: " + tissue.getEpidermalWidth());
+	}
 	
 }

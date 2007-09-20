@@ -50,6 +50,9 @@ public class EpidermisUIDev extends GUIState{
 	private final String CONTROLLERFRAME = "controllerFrame";
 
 	private final String CHARTFRAME = "chartFrame";
+	
+	private final String BASEMENTMEMBRANENAME = "Basement Membrane";
+	private final String RULERNAME = "Ruler";
 
 	private JDesktopPane desktop;
 
@@ -59,13 +62,14 @@ public class EpidermisUIDev extends GUIState{
 	private final double EPIDISPLAYWIDTH = TissueBorderDev.getInstance().getWidth() * INITIALZOOMFACTOR;
 	private final double EPIDISPLAYHEIGHT = TissueBorderDev.getInstance().getHeight()* INITIALZOOMFACTOR;
 	
-	private final BasementMembranePortrayal2DDev basementPortrayalDraw;
+	private  BasementMembranePortrayal2DDev basementPortrayalDraw;
+	private  RulerPortrayal2D rulerPortrayalDraw;
 	
 	private boolean resizeButtonIsActionSource = false;
 	
 	private boolean movingCellPoint = false;
 	
-	
+	private static final int DISPLAYBORDER = 40;
 	
 	public Object getSimulationInspectedObject() {
 
@@ -74,16 +78,13 @@ public class EpidermisUIDev extends GUIState{
 
 	
 	ContinuousPortrayal2D basementPortrayal = new ContinuousPortrayal2D();
+	ContinuousPortrayal2D rulerPortrayal = new ContinuousPortrayal2D();
 
 	
 	
 	public EpidermisUIDev(JFrame mainFrame) {
-		super(new EpidermisDev(System.currentTimeMillis()));
 		
-		
-		this.mainFrame = mainFrame;
-		this.setConsole(new EpiConsoleDev(this,false));
-		basementPortrayalDraw =new BasementMembranePortrayal2DDev(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
+		this(new EpidermisDev(System.currentTimeMillis()), mainFrame, false);
 		
 	}
 
@@ -92,8 +93,8 @@ public class EpidermisUIDev extends GUIState{
 		super(state);
 		this.mainFrame = mainFrame;
 		this.setConsole(new EpiConsoleDev(this, false));
-		basementPortrayalDraw =new BasementMembranePortrayal2DDev(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
-		
+		basementPortrayalDraw =new BasementMembranePortrayal2DDev(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT, DISPLAYBORDER);
+		rulerPortrayalDraw =new RulerPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
 		
 	}
 
@@ -158,6 +159,9 @@ public class EpidermisUIDev extends GUIState{
 		EpidermisDev theEpidermis = (EpidermisDev) state;
 		
 		basementPortrayal.setField(theEpidermis.basementContinous2D);
+		rulerPortrayal.setField(theEpidermis.rulerContinous2D);
+		
+		
 		
 		// make the flockers random colors and four times their normal size
 		// (prettier)
@@ -167,6 +171,9 @@ public class EpidermisUIDev extends GUIState{
 		
 		
 		basementPortrayal.setPortrayalForAll(basementPortrayalDraw);
+		rulerPortrayal.setPortrayalForAll(rulerPortrayalDraw);
+		
+		
 		
 		
 		// reschedule the displayer
@@ -184,13 +191,15 @@ public class EpidermisUIDev extends GUIState{
 		// Internal Frame for EpiSimlation Display
 		// --------------------------------------------------------------------------
 
-		display = new EpiDisplay2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT, this, 1);
+		display = new EpiDisplay2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), this, 1);
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
 		display.setBackdrop(Color.BLACK);
 	
 		
-		display.attach(basementPortrayal, "basementMembrane");
+		display.attach(basementPortrayal, BASEMENTMEMBRANENAME);
+		display.attach(rulerPortrayal, RULERNAME);
+		
 		
 		
 		
@@ -210,23 +219,29 @@ public class EpidermisUIDev extends GUIState{
 
 				if(e.getButton() == MouseEvent.BUTTON1){
 					//if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
-					
-					
+				
 					movingCellPoint = false;
 					basementPortrayalDraw.setHitAndButtonPressed(false);
 				}
 				
 			}
 			
+			public void mouseEntered(MouseEvent e){
+				if(display.isPortrayalVisible(RULERNAME)){ 
+					rulerPortrayalDraw.setCrosshairsVisible(true);
+					rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+				}
+			}
+			public void mouseExited(MouseEvent e){
+				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setCrosshairsVisible(false);
+			}
+			
 			public void mouseClicked(MouseEvent e) {
 				int result = -1;
 				if(e.getButton() == MouseEvent.BUTTON1 && !movingCellPoint){
 					//if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING) console.pressPause();
-					
-				  
-				   			
+								
 				   	basementPortrayalDraw.addCellPoint(new Point2D.Double(e.getX(), e.getY()));	
-				   	
 				   	
 				  
 				  //if(console.getPlayState() == console.PS_PAUSED)	console.pressPause();
@@ -242,10 +257,14 @@ public class EpidermisUIDev extends GUIState{
 				
 				if(movingCellPoint){
 					basementPortrayalDraw.getCellPoint(new Point2D.Double(e.getX(), e.getY()));
-					
 				}
-				
+				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
 			}
+			public void mouseMoved(MouseEvent e){
+				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+							
+			}
+			
 		});
 		
 		

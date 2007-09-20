@@ -79,13 +79,7 @@ public class EpidermisWithUIClass extends GUIState{
 	
 	
 	public EpidermisWithUIClass(JFrame mainFrame) {
-		super(new Epidermis(System.currentTimeMillis()));
-		
-		
-		this.mainFrame = mainFrame;
-		this.setConsole(new EpiConsole(this,false));
-		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
-		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
+		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
 	}
 
 	public EpidermisWithUIClass(SimState state, JFrame mainFrame, boolean reloadSnapshot) {

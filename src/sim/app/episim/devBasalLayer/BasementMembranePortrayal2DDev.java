@@ -38,15 +38,18 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    private static final double DELTACROSS = 10;
 	    private static final double DELTAPOINT = 10;
 	    
-	    private static final int EMPTYBORDER = 10;
+	    private int border = 0;
 	    
 	    
 	    
-	    public BasementMembranePortrayal2DDev(double width, double height) {
-	   	 this.width = width-(EMPTYBORDER*2);
-	   	 this.height = height-(EMPTYBORDER*2);
-	   	 this.INITIALWIDTH = width-(EMPTYBORDER*2);
-	   	 this.INITIALHEIGHT = height-(EMPTYBORDER*2);
+	    
+	    
+	    public BasementMembranePortrayal2DDev(double width, double height, int border) {
+	   	 this.width = width;
+	   	 this.height = height;
+	   	 this.INITIALWIDTH = width;
+	   	 this.INITIALHEIGHT = height;
+	   	 this.border = border;
 	   	 cellPoints = new ArrayList<Point2D>();
 	   	 
 	    }
@@ -68,14 +71,16 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 
 			AffineTransform transform = new AffineTransform();
 			
-			width = INITIALWIDTH *getScaleFactorOfTheDisplay(info);
-			height = INITIALHEIGHT *getScaleFactorOfTheDisplay(info);
+			double dispScale = getScaleFactorOfTheDisplay(info);
+			width = INITIALWIDTH *dispScale ;
+			height = INITIALHEIGHT *dispScale;
 			double scaleX = (width / polygon.getBounds2D().getWidth());
-
+			
+			
 			transform.scale(scaleX, scaleX);
 			polygon = (GeneralPath) polygon.createTransformedShape(transform);
 
-			transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX() + EMPTYBORDER, lastActualInfo.clip.getMinY()-getDeltaY()+EMPTYBORDER);
+			transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX()+ (border*dispScale), lastActualInfo.clip.getMinY()-getDeltaY()+(border*dispScale));
 
 			polygon = (GeneralPath) polygon.createTransformedShape(transform);
 			graphics.draw(polygon);
@@ -93,7 +98,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 
 	    
 	    private double getDeltaX(){
-	   	 if(lastActualInfo.clip.width< width){
+	   	 if(lastActualInfo.clip.width< width+(2*border)){
 	   		 return lastActualInfo.clip.getMinX();
 
 	   		 
@@ -103,7 +108,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    
 	    private double getDeltaY(){
 	   	 
-	   	 if(lastActualInfo.clip.height < height){
+	   	 if(lastActualInfo.clip.height < height+(2*border)){
 	   		 return lastActualInfo.clip.getMinY();
 	   	 }
 	   	 else return 0;

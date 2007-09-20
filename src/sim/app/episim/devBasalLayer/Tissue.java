@@ -48,12 +48,12 @@ public class Tissue implements java.io.Serializable {
 		this.surfacePoints = surfacePoints;
 	}
 	
-	public double getResolution() {
+	public double getResolutionInMicrometerPerPixel() {
 	
 		return resolution;
 	}
 	
-	public void setResolution(double resolution) {
+	public void setResolutionInMicrometerPerPixel(double resolution) {
 	
 		this.resolution = resolution;
 	}

@@ -51,6 +51,8 @@ x.add(70,10);
 x.add(80,20);
 x.add(90,10);
 x.add(100,10);
+
+
 x.add(110,20);
 x.add(120,10);
 y = new XYSeries("Slugs");

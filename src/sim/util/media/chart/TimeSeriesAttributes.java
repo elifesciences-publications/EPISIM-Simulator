@@ -27,7 +27,9 @@ import org.jfree.data.general.*;
 /** A SeriesAttributes used for user control pf time series created with TimeSeriesCharGenerator.
     This is done largely through the
     manipulation of XYSeries objects and features of the XYPlot class. */
-        
+
+
+
 public class TimeSeriesAttributes extends SeriesAttributes
     {
     /** A dash */

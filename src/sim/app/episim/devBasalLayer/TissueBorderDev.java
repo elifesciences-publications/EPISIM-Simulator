@@ -52,6 +52,14 @@ public class TissueBorderDev {
 		
 	}
 	
+	
+	public String getTissueID(){
+		return tissue.getImageid();
+	}
+	
+	public String getTissueDescription(){
+		return tissue.getTissueDescription();
+	}
 	public double getHeight(){
 		
 		//Bei der Berechnung durch GeneralPath geht ein Pixel verloren

@@ -40,7 +40,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    
 	    private int border = 0;
 	    
-	    
+	    private final double XSHIFTCORRECTION = 1; //Corrects error of affine Transformation
 	    
 	    
 	    
@@ -72,15 +72,17 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 			AffineTransform transform = new AffineTransform();
 			
 			double dispScale = getScaleFactorOfTheDisplay(info);
-			width = INITIALWIDTH *dispScale ;
-			height = INITIALHEIGHT *dispScale;
+			
+			width = (INITIALWIDTH -2*border)*dispScale ;
+			height = (INITIALHEIGHT-2*border)*dispScale;
 			double scaleX = (width / polygon.getBounds2D().getWidth());
 			
 			
 			transform.scale(scaleX, scaleX);
 			polygon = (GeneralPath) polygon.createTransformedShape(transform);
 
-			transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX()+ (border*dispScale), lastActualInfo.clip.getMinY()-getDeltaY()+(border*dispScale));
+			transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX()+ (border*dispScale)-XSHIFTCORRECTION, 
+					                     lastActualInfo.clip.getMinY()-getDeltaY()+(border*dispScale));
 
 			polygon = (GeneralPath) polygon.createTransformedShape(transform);
 			graphics.draw(polygon);
@@ -98,7 +100,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 
 	    
 	    private double getDeltaX(){
-	   	 if(lastActualInfo.clip.width< width+(2*border)){
+	   	 if(lastActualInfo.clip.width< width){
 	   		 return lastActualInfo.clip.getMinX();
 
 	   		 
@@ -108,7 +110,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    
 	    private double getDeltaY(){
 	   	 
-	   	 if(lastActualInfo.clip.height < height+(2*border)){
+	   	 if(lastActualInfo.clip.height < height){
 	   		 return lastActualInfo.clip.getMinY();
 	   	 }
 	   	 else return 0;

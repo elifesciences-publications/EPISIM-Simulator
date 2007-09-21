@@ -30,15 +30,12 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 	    private DrawInfo2D lastActualInfo;
 	    private DrawInfo2D firstInfo;
 	    
-	    private List<Point2D> cellPoints;
+	   
 
 
 	    private boolean hitAndButtonPressed = false;
 	    
-	    private Point2D actDraggedPoint = null;
-	
-	    private static final double DELTACROSS = 10;
-	    private static final double DELTAPOINT = 10;
+	   
 	    
 	    private static final int EMPTYBORDER = 10;
 	    
@@ -62,7 +59,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 	   	 this.height = height;
 	   	 this.INITIALWIDTH = width;
 	   	 this.INITIALHEIGHT = height;
-	   	 this.cellPoints = new ArrayList<Point2D>();
+	   	
 	   	 this.border = border;
 	   	 this.implicitScale = implicitScale;
 	   	 this.ruleroffset = border - OFFSET;
@@ -86,7 +83,12 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 			drawRuler(graphics, info);
 			
 			//Responsible for drawing the Crosshairs
-			if(crosshairsVisible && actMousePositionXY!= null)drawCrosshairs(graphics);
+			if(crosshairsVisible && actMousePositionXY!= null 
+					&& actMousePositionXY.getX() >= getMinX(info)
+					&& actMousePositionXY.getX() <= getMaxX(info)
+					&& actMousePositionXY.getY() >= getMinY(info)
+					&& actMousePositionXY.getY() <= getMaxY(info))drawCrosshairs(graphics);
+			showTissueInformationLine( graphics,  info);
 		}
 
 	}
@@ -94,11 +96,10 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 	    private void drawRuler(Graphics2D graphics, DrawInfo2D info){
 	   	 graphics.setColor(Color.WHITE);
 			 graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
-			 double scale = getScaleFactorOfTheDisplay(info);
-			 double minX = lastActualInfo.clip.getMinX() -getDeltaX() + (ruleroffset*scale);
-			 double maxX = lastActualInfo.clip.getMinX()+width-getDeltaX()- (ruleroffset*scale);
-			 double minY = lastActualInfo.clip.getMinY()-getDeltaY()+ (ruleroffset*scale);
-			 double maxY = lastActualInfo.clip.getMinY()+height-getDeltaY()-(ruleroffset*scale);
+			 double minX = getMinX(info);
+			 double maxX = getMaxX(info);
+			 double minY = getMinY(info);
+			 double maxY = getMaxY(info);
 			
 			 Line2D horizontalAxis = new Line2D.Double(minX, maxY, maxX, maxY);
 			 
@@ -108,14 +109,14 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 			   graphics.draw(horizontalAxis);
 				graphics.draw(verticalAxis);
 				
-				double spaceBetweenSmallLines = TissueBorderDev.getInstance().getNumberOfPixelsPerMicrometer()*implicitScale*rulerResolution*scale;
+				double spaceBetweenSmallLines = getScaledNumberOfPixelPerMicrometer(info)*rulerResolution;
 				
 				double smallLine = 3;
 				double mediumLine = 8;
 				double bigLine = 12;
 				
 				 graphics.setFont(new Font("Arial", Font.PLAIN, 10));
-				//draw horizontal lines
+				//draw lines on horizontal Axis
 				for(double i = minX, lineNumber = 0; i <= maxX; i += spaceBetweenSmallLines, lineNumber++){
 					if((lineNumber%10) == 0)graphics.draw(new Line2D.Double(i, maxY, i, maxY+ bigLine));
 					else if((lineNumber%5) == 0)graphics.draw(new Line2D.Double(i, maxY, i, maxY+ mediumLine));
@@ -127,7 +128,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 						graphics.drawString(text, (float)(i - (stringBounds.getWidth()/2)), (float)(maxY+ bigLine+stringBounds.getHeight()));
 					}
 				}
-				//draw vertical lines
+				//draw lines on vertical Axis
 				for(double i = maxY, lineNumber = 0; i >= minY; i -= spaceBetweenSmallLines, lineNumber++){
 					if((lineNumber%10) == 0)graphics.draw(new Line2D.Double(minX, i, minX - bigLine, i));
 					else if((lineNumber%5) == 0)graphics.draw(new Line2D.Double(minX, i, minX - mediumLine, i));
@@ -139,9 +140,50 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 						graphics.drawString(text, (float)(minX- bigLine-stringBounds.getWidth()), (float)(i + (stringBounds.getHeight()/3)));
 					}
 				}
-				String text = "[Intervall: "+ rulerResolution+ "µm]";
-				graphics.setFont(new Font("Arial", Font.PLAIN, 14));
-				graphics.drawString(text, (float)(info.clip.getMinX() +10), (float)(info.clip.getMinY() +20));
+				//end of horizontal Axis
+				graphics.draw(new Line2D.Double(maxX, maxY, maxX, maxY+ bigLine));
+				
+				String text = ""+Math.round((maxX-minX)/getScaledNumberOfPixelPerMicrometer(info));
+				Rectangle2D stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
+				graphics.drawString(text, (float)(maxX - (stringBounds.getWidth()/2)), (float)(maxY+ bigLine+stringBounds.getHeight()));
+				
+				//end of vertical Axis
+				graphics.draw(new Line2D.Double(minX, minY, minX - bigLine, minY));
+				text = ""+Math.round((maxY-minY)/getScaledNumberOfPixelPerMicrometer(info));
+				stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
+				graphics.drawString(text, (float)(minX- bigLine-stringBounds.getWidth()), (float)(minY + (stringBounds.getHeight()/3)));
+	    }
+	    
+	    private void showTissueInformationLine(Graphics2D graphics, DrawInfo2D info){
+	   	 double minX = getMinX(info);
+			 double maxX = getMaxX(info);
+			 double minY = getMinY(info);
+			 double maxY = getMaxY(info);
+			 StringBuffer text = new StringBuffer();
+			 
+			 text.append("[Intervall: "+ rulerResolution+ "µm]");
+				graphics.setFont(new Font("Arial", Font.PLAIN, 12));
+				
+			 text.append("    Tissue ID: " + TissueBorderDev.getInstance().getTissueID());
+			 text.append("    Tissue Decription: " + TissueBorderDev.getInstance().getTissueDescription());
+				
+				if(actMousePositionXY!= null){
+					
+					if(actMousePositionXY.getX() >= getMinX(info)
+							&& actMousePositionXY.getX() <= getMaxX(info)
+							&& actMousePositionXY.getY() >= getMinY(info)
+							&& actMousePositionXY.getY() <= getMaxY(info)){
+							text.append("    Position in µm: "+ 
+									Math.round((actMousePositionXY.getX()- minX)/getScaledNumberOfPixelPerMicrometer(info))+
+									", "
+									+Math.abs(Math.round((actMousePositionXY.getY()- maxY)/getScaledNumberOfPixelPerMicrometer(info))));
+					}
+					else{
+						text.append("    Position in µm: (out of bounds)");
+					}
+					
+				}
+				graphics.drawString(text.toString(), (float)(info.clip.getMinX() +10), (float)(info.clip.getMinY() +20));
 	    }
 	    
 	    private void drawCrosshairs(Graphics2D graphics){
@@ -177,7 +219,19 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 	   	 }
 	   	 else return 0;
 	    }
+	 private double getMinX(DrawInfo2D info){
+		 return lastActualInfo.clip.getMinX() -getDeltaX() + (ruleroffset*getScaleFactorOfTheDisplay(info));
+	 }
 	 
+	 private double getMaxX(DrawInfo2D info){
+		 return lastActualInfo.clip.getMinX()+width-getDeltaX()- (ruleroffset*getScaleFactorOfTheDisplay(info));
+	 }
+	 private double getMinY(DrawInfo2D info){
+		 return lastActualInfo.clip.getMinY()-getDeltaY()+ (ruleroffset*getScaleFactorOfTheDisplay(info));
+	 }
+	 private double getMaxY(DrawInfo2D info){
+	  return lastActualInfo.clip.getMinY()+height-getDeltaY()-(ruleroffset*getScaleFactorOfTheDisplay(info));
+	}
 	
 	public void setCrosshairsVisible(boolean visible){
 		this.crosshairsVisible = visible;
@@ -195,12 +249,13 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 	}
 
 
-
+	private double getScaledNumberOfPixelPerMicrometer(DrawInfo2D info){
+		return TissueBorderDev.getInstance().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay(info);
+	}
 
 	
 	public boolean isHitAndButtonPressed() {
-	
-		return hitAndButtonPressed;
+			return hitAndButtonPressed;
 	}
 
 
@@ -208,9 +263,5 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 	private double getScaleFactorOfTheDisplay(DrawInfo2D info){
 		return Math.rint((info.draw.getWidth()/ firstInfo.draw.getWidth())*100)/100;
 	}
-	
-	public void setHitAndButtonPressed(boolean hitAndButtonPressed) {
-		if(!hitAndButtonPressed) actDraggedPoint = null;
-		this.hitAndButtonPressed = hitAndButtonPressed;
-	}   
+		
 }

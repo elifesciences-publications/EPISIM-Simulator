@@ -3,6 +3,7 @@ package sim.display;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -17,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
+import sim.app.episim.devBasalLayer.EpidermisUIDev;
 import sim.engine.SimState;
 import sim.portrayal.Inspector;
 
@@ -66,6 +68,7 @@ public class ConsoleHack extends Console {
    public void setPlayState(int state){
    	super.setPlayState(state);
    }
+   
    public synchronized void pressPlay(boolean reloadSnapshot)
    {
    	

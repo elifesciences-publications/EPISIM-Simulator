@@ -37,7 +37,7 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 public class EpidermisUIDev extends GUIState{
 
-	public EpiDisplay2D display;
+	private EpiDisplay2D display;
 
 	public JInternalFrame displayFrame;
 
@@ -53,6 +53,7 @@ public class EpidermisUIDev extends GUIState{
 	
 	private final String BASEMENTMEMBRANENAME = "Basement Membrane";
 	private final String RULERNAME = "Ruler";
+	private final String GRIDNAME = "Grid";
 
 	private JDesktopPane desktop;
 
@@ -64,6 +65,7 @@ public class EpidermisUIDev extends GUIState{
 	
 	private  BasementMembranePortrayal2DDev basementPortrayalDraw;
 	private  RulerPortrayal2D rulerPortrayalDraw;
+	private  GridPortrayal2D gridPortrayalDraw;
 	
 	private boolean resizeButtonIsActionSource = false;
 	
@@ -79,6 +81,7 @@ public class EpidermisUIDev extends GUIState{
 	
 	ContinuousPortrayal2D basementPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D rulerPortrayal = new ContinuousPortrayal2D();
+	ContinuousPortrayal2D gridPortrayal = new ContinuousPortrayal2D();
 
 	
 	
@@ -93,9 +96,10 @@ public class EpidermisUIDev extends GUIState{
 		super(state);
 		this.mainFrame = mainFrame;
 		this.setConsole(new EpiConsoleDev(this, false));
-		basementPortrayalDraw =new BasementMembranePortrayal2DDev(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT, DISPLAYBORDER);
+		basementPortrayalDraw =new BasementMembranePortrayal2DDev(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), DISPLAYBORDER);
 		rulerPortrayalDraw =new RulerPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
-		
+		gridPortrayalDraw =new GridPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
+		setupPortrayals();
 	}
 
 	public void setConsole(EpiConsoleDev cons) {
@@ -133,19 +137,15 @@ public class EpidermisUIDev extends GUIState{
 	public void start() {
 
 		super.start();
-		setupPortrayals();
 		
+		setupPortrayals();
 
 	}
 
 	public void load(SimState state) {
 
 		super.load(state);
-		
 		setupPortrayals();
-
-		
-
 	}
 	
 	
@@ -158,8 +158,9 @@ public class EpidermisUIDev extends GUIState{
 
 		EpidermisDev theEpidermis = (EpidermisDev) state;
 		
-		basementPortrayal.setField(theEpidermis.basementContinous2D);
-		rulerPortrayal.setField(theEpidermis.rulerContinous2D);
+		basementPortrayal.setField(theEpidermis.getBasementContinous2D());
+		rulerPortrayal.setField(theEpidermis.getRulerContinous2D());
+		gridPortrayal.setField(theEpidermis.getGridContinous2D());
 		
 		
 		
@@ -172,6 +173,7 @@ public class EpidermisUIDev extends GUIState{
 		
 		basementPortrayal.setPortrayalForAll(basementPortrayalDraw);
 		rulerPortrayal.setPortrayalForAll(rulerPortrayalDraw);
+		gridPortrayal.setPortrayalForAll(gridPortrayalDraw);
 		
 		
 		
@@ -199,6 +201,7 @@ public class EpidermisUIDev extends GUIState{
 		
 		display.attach(basementPortrayal, BASEMENTMEMBRANENAME);
 		display.attach(rulerPortrayal, RULERNAME);
+		display.attach(gridPortrayal, GRIDNAME);
 		
 		
 		
@@ -259,10 +262,13 @@ public class EpidermisUIDev extends GUIState{
 					basementPortrayalDraw.getCellPoint(new Point2D.Double(e.getX(), e.getY()));
 				}
 				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+				if(console.getPlayState()==Console.PS_PAUSED
+						||console.getPlayState()==Console.PS_STOPPED) redrawDisplay();	
 			}
 			public void mouseMoved(MouseEvent e){
 				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-							
+				if(console.getPlayState()==Console.PS_PAUSED
+						||console.getPlayState()==Console.PS_STOPPED) redrawDisplay();			
 			}
 			
 		});
@@ -333,6 +339,14 @@ public class EpidermisUIDev extends GUIState{
 			if(comp instanceof JInternalFrame &&
 					((JInternalFrame) comp).getName().equals(CHARTFRAME))c.registerFrame(((JInternalFrame)comp));
 		}
+	}
+	
+	public void redrawDisplay(){
+		
+   	 Graphics g = display.insideDisplay.getGraphics();
+   	 display.insideDisplay.paintComponent(g,true);
+   	 g.dispose();
+   	 
 	}
 
 	public void init(Controller c) {
@@ -444,6 +458,12 @@ public class EpidermisUIDev extends GUIState{
 	    	 }
 	    }
 	}
+
+	
+   public EpiDisplay2D getDisplay() {
+   
+   	return display;
+   }
 
 	
 	

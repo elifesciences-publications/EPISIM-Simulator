@@ -2,6 +2,7 @@ package sim.app.episim.devBasalLayer;
 
 
 //MASON
+import ec.util.MersenneTwisterFast;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -13,23 +14,15 @@ public class EpidermisDev extends SimStateHack
  
 
         
-
-
-
+	
  
  
 
- public Continuous2D basementContinous2D;
- public Continuous2D rulerContinous2D;
+ private Continuous2D basementContinous2D;
+ private Continuous2D rulerContinous2D;
+ private Continuous2D gridContinous2D;
 
- 
- 
- 
- 
-
- 
- 
-            
+        
      
  //////////////////////////////////////
  // Proliferation
@@ -52,6 +45,22 @@ public class EpidermisDev extends SimStateHack
  {
      super(new ec.util.MersenneTwisterFast(seed), new Schedule(1));
      
+     basementContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
+   			TissueBorderDev.getInstance().getWidth(),
+   			TissueBorderDev.getInstance().getHeight());
+   			
+     rulerContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
+   			TissueBorderDev.getInstance().getWidth(),
+   			TissueBorderDev.getInstance().getHeight());
+     
+     gridContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
+  			TissueBorderDev.getInstance().getWidth(),
+  			TissueBorderDev.getInstance().getHeight());
+   			
+     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
+     rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
+     gridContinous2D.setObjectLocation("DummyObjektForDrawingTheGrid", new Double2D(50, 50));
+     
    
  }
  
@@ -63,14 +72,7 @@ public class EpidermisDev extends SimStateHack
      
      
     
-     basementContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
-   		                                   TissueBorderDev.getInstance().getWidth(),
-   		                                   TissueBorderDev.getInstance().getHeight());
-     rulerContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
-           TissueBorderDev.getInstance().getWidth(),
-           TissueBorderDev.getInstance().getHeight());
-    basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
-    rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
+   
     
     Steppable dummy = new Steppable()
     {
@@ -90,6 +92,24 @@ public class EpidermisDev extends SimStateHack
                    
                 
      }
+
+
+public Continuous2D getBasementContinous2D() {
+
+	return basementContinous2D;
+}
+
+
+public Continuous2D getRulerContinous2D() {
+
+	return rulerContinous2D;
+}
+
+
+public Continuous2D getGridContinous2D() {
+
+	return gridContinous2D;
+}
 
 
 

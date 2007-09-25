@@ -78,6 +78,8 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 			double scaleX = (width / polygon.getBounds2D().getWidth());
 			
 			
+			
+			
 			transform.scale(scaleX, scaleX);
 			polygon = (GeneralPath) polygon.createTransformedShape(transform);
 
@@ -100,7 +102,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 
 	    
 	    private double getDeltaX(){
-	   	 if(lastActualInfo.clip.width< width){
+	   	 if(lastActualInfo.clip.width< (INITIALWIDTH *getScaleFactorOfTheDisplay(lastActualInfo))){
 	   		 return lastActualInfo.clip.getMinX();
 
 	   		 
@@ -110,7 +112,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    
 	    private double getDeltaY(){
 	   	 
-	   	 if(lastActualInfo.clip.height < height){
+	   	 if(lastActualInfo.clip.height < (INITIALHEIGHT *getScaleFactorOfTheDisplay(lastActualInfo))){
 	   		 return lastActualInfo.clip.getMinY();
 	   	 }
 	   	 else return 0;
@@ -120,22 +122,22 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 		if(graphics != null){
 			for(Point2D point : cellPoints){
 				GeneralPath polygon = new GeneralPath();
-				polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + point.getX() - DELTACROSS, lastActualInfo.clip
+				polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTACROSS, lastActualInfo.clip
 						.getMinY()
-						- getDeltaY() + point.getY() - DELTACROSS);
-				polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + point.getX() + DELTACROSS, lastActualInfo.clip
+						- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTACROSS);
+				polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() +(point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS, lastActualInfo.clip
 						.getMinY()
-						- getDeltaY() + point.getY() + DELTACROSS);
-				polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + point.getX() + DELTACROSS, lastActualInfo.clip
+						- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS);
+				polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS, lastActualInfo.clip
 						.getMinY()
-						- getDeltaY() + point.getY() - DELTACROSS);
-				polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + point.getX() - DELTACROSS, lastActualInfo.clip
+						- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTACROSS);
+				polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTACROSS, lastActualInfo.clip
 						.getMinY()
-						- getDeltaY() + point.getY() + DELTACROSS);
+						- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS);
 
 				if(TissueBorderDev.getInstance().isOverBasalLayer(new Point2D.Double(
-						((point.getX()) /scaleX),
-						((point.getY())/scaleX))))
+						(((point.getX()-border) /scaleX)),
+						(((point.getY()-border)/scaleX)))))
 						graphics.setColor(Color.GREEN);
 				else graphics.setColor(Color.RED);
 				graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -148,25 +150,25 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	public boolean getCellPoint(Point2D mouseposition){
 		if(mouseposition != null && lastActualInfo != null){
 	   	
-		mouseposition = new Point2D.Double(mouseposition.getX()-lastActualInfo.clip.getMinX()+getDeltaX(),
-		                             mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY());
+		mouseposition = new Point2D.Double((mouseposition.getX()-lastActualInfo.clip.getMinX()+getDeltaX()),
+		                             (mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY()));
 		
 		for(Point2D point: cellPoints){
 			
 		
-			if(mouseposition.getX() > (point.getX() - DELTAPOINT) 
-				&& mouseposition.getX() < (point.getX() + DELTAPOINT)
-				&& mouseposition.getY() > (point.getY() - DELTAPOINT)
-				&& mouseposition.getY() < (point.getY() + DELTAPOINT)
+			if(mouseposition.getX() > ((point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTAPOINT) 
+				&& mouseposition.getX() < ((point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTAPOINT)
+				&& mouseposition.getY() > ((point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTAPOINT)
+				&& mouseposition.getY() < ((point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTAPOINT)
 				&& !hitAndButtonPressed){
 				
-				point.setLocation(mouseposition.getX(), mouseposition.getY());
+				point.setLocation(mouseposition.getX()/getScaleFactorOfTheDisplay(lastActualInfo), mouseposition.getY()/getScaleFactorOfTheDisplay(lastActualInfo));
 				hitAndButtonPressed=true;
 				actDraggedPoint = point;
 				return true;
 			}
 			else if(hitAndButtonPressed){
-				actDraggedPoint.setLocation(mouseposition.getX(), mouseposition.getY());
+				actDraggedPoint.setLocation(mouseposition.getX()/getScaleFactorOfTheDisplay(lastActualInfo), mouseposition.getY()/getScaleFactorOfTheDisplay(lastActualInfo));
 				return true;
 			}
 			
@@ -179,8 +181,8 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	   
 		if(mouseposition != null && lastActualInfo != null){
 	   	
-		mouseposition = new Point2D.Double(mouseposition.getX()-lastActualInfo.clip.getMinX()+getDeltaX(),
-		                             mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY());
+		mouseposition = new Point2D.Double((mouseposition.getX()-lastActualInfo.clip.getMinX()+getDeltaX())/getScaleFactorOfTheDisplay(lastActualInfo),
+		                             (mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY())/getScaleFactorOfTheDisplay(lastActualInfo));
 		
 
 		

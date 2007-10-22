@@ -22,7 +22,7 @@ public class ChartExpressionChecker {
   			for(int i = 0; i< str.length();i++){
   				if(booleanCharacterSet.contains(str.charAt(i))) 
   				throw new ParseException("Unexpected Boolean or Relational Operator found: '" + str.charAt(i)+ "'\nSubsequence: \""
-  	                              		+str+"\nChar Pos: " + (i+1));
+  	                               		+str+"\nChar Pos: " + (i+1));
   			}
   		}
   		

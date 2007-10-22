@@ -132,7 +132,7 @@ public class CompileWizard {
 						// Preparing Compiler
 						progressLabel.setText("Compiling Episim-Model Java-Files");
 						compiler = ToolProvider.getSystemJavaCompiler();
-						fileManager = compiler.getStandardFileManager(null,	null, null);
+						fileManager = compiler.getStandardFileManager(null, null, null);
 						compilationUnits = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(files));
 						options = Arrays.asList(new String[] { "-cp", binPath.getAbsolutePath() });
 

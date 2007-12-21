@@ -5,6 +5,20 @@ import java.util.*;
 
 public @SuppressWarnings("all") class ChartExpressionChecker implements ChartExpressionCheckerConstants {
         private Set<String> varNameSet = new HashSet<String>();
+        private Set<Character> booleanCharacterSet = new HashSet<Character>();
+        private char[] ops = new char[]{'>','<','=','!','&','|'};
+
+        private void checkIfStringArithExpr(String str) throws ParseException{
+                if(booleanCharacterSet.size() == 0) for(char c :ops) booleanCharacterSet.add(c);
+                if(str != null){
+                        for(int i = 0; i< str.length();i++){
+                                if(booleanCharacterSet.contains(str.charAt(i)))
+                                throw new ParseException("Unexpected Boolean or Relational Operator found: '" + str.charAt(i)+ "'\nSubsequence: \""
+                                                +str+"\nChar Pos: " + (i+1));
+                        }
+                }
+
+        }
 
   final public String Start(Set<String> varNameSet) throws ParseException, NumberFormatException {
         if(varNameSet !=null)this.varNameSet =varNameSet;
@@ -13,27 +27,29 @@ String totalResult = "";
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case PLUS:
-      case MINUS:
+      case ADD_SUBT_OP:
       case OPEN_PAR:
+      case NOT:
       case IDENTIFIER:
       case NUMBER:
-      case 17:
       case 18:
+      case 20:
+      case 21:
+      case 22:
         ;
         break;
       default:
         jj_la1[0] = jj_gen;
         break label_1;
       }
-      partialResult = UnaryExpression();
+      partialResult = BooleanExpression();
    totalResult = totalResult.concat(partialResult);
     }
  {if (true) return totalResult;}
     throw new Error("Missing return statement in function");
   }
 
-  final public String Primary() throws ParseException, NumberFormatException {
+  final public String Factor() throws ParseException, NumberFormatException {
 String result ="";
 int[][] dummy1= new int[1][1];
 String[] dummy2 = new String[1];
@@ -53,17 +69,23 @@ Token t;
                         else result = "getValue(\""+t.image+"\")";
       } else {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 18:
+        case 21:
           result = SqrtFunction();
           break;
-        case 17:
+        case 18:
           result = PowFunction();
+          break;
+        case 22:
+          result = AllCellsWhere();
+          break;
+        case 20:
+          result = AllCellsMeanValueFunction();
           break;
         case OPEN_PAR:
           jj_consume_token(OPEN_PAR);
-          result = UnaryExpression();
+          result = BooleanExpression();
           jj_consume_token(CLOSE_PAR);
-                                                        result = "(" + result +")";
+                                                          result = "(" + result +")";
           break;
         default:
           jj_la1[2] = jj_gen;
@@ -77,132 +99,216 @@ Token t;
   }
 
   final public String Expression() throws ParseException {
-        String result = "";
-        String tmp = "";
-    result = Term();
-    label_2:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case PLUS:
-      case MINUS:
-        ;
-        break;
-      default:
-        jj_la1[3] = jj_gen;
-        break label_2;
-      }
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case PLUS:
-        jj_consume_token(PLUS);
-        tmp = Term();
-                                      result = result +"+"+ tmp;
-        break;
-      case MINUS:
-        jj_consume_token(MINUS);
-        tmp = Term();
-                                                                                        result = result +"-"+ tmp;
-        break;
-      default:
-        jj_la1[4] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
+        String exp1 = "";
+        String exp2 = "";
+        Token t = null;
+    exp1 = Term();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case ADD_SUBT_OP:
+      t = jj_consume_token(ADD_SUBT_OP);
+      exp2 = Term();
+                                              checkIfStringArithExpr(exp2);
+      break;
+    default:
+      jj_la1[3] = jj_gen;
+      ;
     }
- {if (true) return result;}
+   if (t !=null){if (true) return exp1 + t.image + exp2;}
+   else {if (true) return exp1 + exp2;}
     throw new Error("Missing return statement in function");
   }
 
   final public String Term() throws ParseException {
-        String result = "";
-        String tmp = "";
-    result = Primary();
-    label_3:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case TIMES:
-      case DIVIDE:
-        ;
-        break;
-      default:
-        jj_la1[5] = jj_gen;
-        break label_3;
-      }
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case TIMES:
-        jj_consume_token(TIMES);
-        tmp = Primary();
-                                            result = result +"*"+ tmp;
-        break;
-      case DIVIDE:
-        jj_consume_token(DIVIDE);
-        tmp = Primary();
-                                                                                                 result = result +"/"+ tmp;
-        break;
-      default:
-        jj_la1[6] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
+        String exp1 = "";
+        String exp2 = "";
+        Token t = null;
+    exp1 = SignedFactor();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case MULT_DIV_OP:
+      t = jj_consume_token(MULT_DIV_OP);
+      exp2 = Factor();
+                                                      checkIfStringArithExpr(exp2);
+      break;
+    default:
+      jj_la1[4] = jj_gen;
+      ;
     }
-  {if (true) return result;}
+   if (t !=null){if (true) return exp1 + t.image + exp2;}
+   else {if (true) return exp1 + exp2;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public String SignedFactor() throws ParseException {
+        String unary = "";
+        String factor ="";
+        Token t = null;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case ADD_SUBT_OP:
+      t = jj_consume_token(ADD_SUBT_OP);
+      break;
+    default:
+      jj_la1[5] = jj_gen;
+      ;
+    }
+    factor = Factor();
+        if(t != null)checkIfStringArithExpr(factor);
+
+            if (t !=null){if (true) return t.image + factor;}
+            else {if (true) return factor;}
     throw new Error("Missing return statement in function");
   }
 
   final public String PowFunction() throws ParseException {
 String exp1 = "";
 String exp2 = "";
-    jj_consume_token(17);
-    exp1 = UnaryExpression();
-    jj_consume_token(CLOSE_PA);
-    exp2 = UnaryExpression();
+    jj_consume_token(18);
+    exp1 = Expression();
+    jj_consume_token(19);
+    exp2 = Expression();
     jj_consume_token(CLOSE_PAR);
-  {if (true) return "java.lang.Math.pow("+exp1+","+exp2+")";}
+        {if (true) return "java.lang.Math.pow("+exp1+","+exp2+")";}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public String AllCellsMeanValueFunction() throws ParseException {
+        String exp1 = "";
+        String exp2 = null;
+        String exp3 = null;
+        String exp4 = null;
+        String exp5 = null;
+    jj_consume_token(20);
+    exp1 = Expression();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case CLOSE_PAR:
+      jj_consume_token(CLOSE_PAR);
+      break;
+    case 19:
+      jj_consume_token(19);
+      exp2 = Expression();
+      jj_consume_token(19);
+      exp3 = Expression();
+      jj_consume_token(19);
+      exp4 = Expression();
+      jj_consume_token(19);
+      exp5 = Expression();
+      jj_consume_token(CLOSE_PAR);
+      break;
+    default:
+      jj_la1[6] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+        checkIfStringArithExpr(exp1);
+        checkIfStringArithExpr(exp2);
+        checkIfStringArithExpr(exp3);
+        checkIfStringArithExpr(exp4);
+        checkIfStringArithExpr(exp5);
+
+        if(exp2 == null || exp3 == null || exp4 == null ||exp5 == null) {if (true) return "getAllCellsMeanValue("+exp1+")";}
+        else {if (true) return "getAllCellsMeanValue("+exp1+","+exp2+","+exp3+","+exp4+","+exp5+")";}
     throw new Error("Missing return statement in function");
   }
 
   final public String SqrtFunction() throws ParseException {
   String exp = "";
-    jj_consume_token(18);
-    exp = UnaryExpression();
+    jj_consume_token(21);
+    exp = Expression();
     jj_consume_token(CLOSE_PAR);
-  {if (true) return "java.lang.Math.sqrt("+exp+")";}
+        checkIfStringArithExpr(exp);
+        {if (true) return "java.lang.Math.sqrt("+exp+")";}
     throw new Error("Missing return statement in function");
   }
 
-  final public String UnaryExpression() throws ParseException {
-        String unary = "";
-        String expression ="";
+  final public String AllCellsWhere() throws ParseException {
+        String exp1 = "";
+        String exp2 = "";
+    jj_consume_token(22);
+    exp1 = Expression();
+    jj_consume_token(19);
+    exp2 = BooleanExpression();
+    jj_consume_token(CLOSE_PAR);
+        checkIfStringArithExpr(exp1);
+        {if (true) return "getAllCellsWhere("+exp1+","+exp2+")";}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public String BooleanExpression() throws ParseException {
+        String exp1 = "";
+        String exp2 = "";
+    exp1 = BooleanTerm();
+    label_2:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case 23:
+        ;
+        break;
+      default:
+        jj_la1[7] = jj_gen;
+        break label_2;
+      }
+      jj_consume_token(23);
+                                exp1 += "||";
+      exp2 = BooleanTerm();
+    }
+         {if (true) return exp1+ exp2;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public String BooleanTerm() throws ParseException {
+        String exp1 = "";
+        String exp2 = "";
+    exp1 = NotFactor();
+    label_3:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case 24:
+        ;
+        break;
+      default:
+        jj_la1[8] = jj_gen;
+        break label_3;
+      }
+      jj_consume_token(24);
+                            exp1 += "&&";
+      exp2 = NotFactor();
+    }
+         {if (true) return exp1+ exp2;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public String NotFactor() throws ParseException {
+        String exp1 = "";
+        Token t = null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case PLUS:
-    case MINUS:
-      unary = UnaryOperator();
+    case NOT:
+      t = jj_consume_token(NOT);
       break;
     default:
-      jj_la1[7] = jj_gen;
+      jj_la1[9] = jj_gen;
       ;
     }
-    expression = Expression();
-   {if (true) return unary + expression;}
+    exp1 = RelationalExpression();
+                if(t != null) {if (true) return t.image + exp1;}
+                else {if (true) return exp1;}
     throw new Error("Missing return statement in function");
   }
 
-  final public String UnaryOperator() throws ParseException {
-String operator ="";
+  final public String RelationalExpression() throws ParseException {
+        String exp1 = "";
+        String exp2 = "";
+        Token t = null;
+    exp1 = Expression();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case PLUS:
-      jj_consume_token(PLUS);
-        operator = "+1*";
-      break;
-    case MINUS:
-      jj_consume_token(MINUS);
-                                 operator ="-1*";
+    case REL_OP:
+      t = jj_consume_token(REL_OP);
+      exp2 = Expression();
       break;
     default:
-      jj_la1[8] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+      jj_la1[10] = jj_gen;
+      ;
     }
- {if (true) return operator;}
+        if(t!=null) {if (true) return exp1+ t.image + exp2;}
+        else {if (true) return exp1 + exp2;}
     throw new Error("Missing return statement in function");
   }
 
@@ -227,13 +333,13 @@ String operator ="";
   public boolean lookingAhead = false;
   private boolean jj_semLA;
   private int jj_gen;
-  final private int[] jj_la1 = new int[9];
+  final private int[] jj_la1 = new int[11];
   static private int[] jj_la1_0;
   static {
       jj_la1_0();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x69260,0x8000,0x60200,0x60,0x60,0x180,0x180,0x60,0x60,};
+      jj_la1_0 = new int[] {0x7530a0,0x10000,0x740080,0x20,0x40,0x20,0x80100,0x800000,0x1000000,0x1000,0x200,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[1];
   private boolean jj_rescan = false;
@@ -248,7 +354,7 @@ String operator ="";
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 9; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -261,7 +367,7 @@ String operator ="";
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 9; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -271,7 +377,7 @@ String operator ="";
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 9; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -281,7 +387,7 @@ String operator ="";
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 9; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -290,7 +396,7 @@ String operator ="";
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 9; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -299,7 +405,7 @@ String operator ="";
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 9; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -374,7 +480,7 @@ String operator ="";
       return (jj_ntk = jj_nt.kind);
   }
 
-  private java.util.Vector<int[]> jj_expentries = new java.util.Vector<int[]>();
+  private java.util.Vector jj_expentries = new java.util.Vector();
   private int[] jj_expentry;
   private int jj_kind = -1;
   private int[] jj_lasttokens = new int[100];
@@ -410,12 +516,12 @@ String operator ="";
 
   public ParseException generateParseException() {
     jj_expentries.removeAllElements();
-    boolean[] la1tokens = new boolean[19];
+    boolean[] la1tokens = new boolean[25];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 11; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -424,7 +530,7 @@ String operator ="";
         }
       }
     }
-    for (int i = 0; i < 19; i++) {
+    for (int i = 0; i < 25; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
@@ -436,7 +542,7 @@ String operator ="";
     jj_add_error_token(0, 0);
     int[][] exptokseq = new int[jj_expentries.size()][];
     for (int i = 0; i < jj_expentries.size(); i++) {
-      exptokseq[i] = jj_expentries.elementAt(i);
+      exptokseq[i] = (int[])jj_expentries.elementAt(i);
     }
     return new ParseException(token, exptokseq, tokenImage);
   }

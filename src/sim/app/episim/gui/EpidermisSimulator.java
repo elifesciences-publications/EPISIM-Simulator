@@ -135,7 +135,7 @@ public class EpidermisSimulator extends JFrame{
 			}
 			
 		});
-		menuItemBuild = new JMenuItem("Build EpiSim-Model-Archive");
+		menuItemBuild = new JMenuItem("Build Episim-Model-Archive");
 		menuItemBuild.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -357,13 +357,9 @@ public class EpidermisSimulator extends JFrame{
 	
 	private void buildModelArchive(){
 		CompileWizard wizard = new CompileWizard(this);
-		try {
-			wizard.createModelArchive();
-		} catch (IOException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
-		} catch (URISyntaxException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
-		}
+		
+			wizard.showSelectFilesDialogs();
+		
 	}
 	
 	private void closeModel(){

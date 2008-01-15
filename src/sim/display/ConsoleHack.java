@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -17,13 +18,19 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import sim.app.episim.devBasalLayer.EpidermisUIDev;
+import sim.app.episim.gui.EpidermisGUIState;
 import sim.engine.SimState;
 import sim.portrayal.Inspector;
 
 
 public class ConsoleHack extends Console {
+	JScrollPane biochemicalModelInspectorScrollPane;
+	JScrollPane biomechanicalModelInspectorScrollPane;
+	
+	
 	
 	public ConsoleHack(final GUIState simulation){
 		super(simulation);
@@ -181,4 +188,46 @@ public class ConsoleHack extends Console {
    // show it!
    aboutFrame.setVisible(true);
    }
+   
+   //Override to be able to deploy multiple model Inspectors
+	void buildModelInspector() {
+		EpidermisGUIState epiGUIState;
+		if(simulation != null && simulation instanceof EpidermisGUIState){
+			epiGUIState = (EpidermisGUIState) simulation;
+		
+			
+			deployInspector(epiGUIState.getBiochemicalModelInspector(), this.biochemicalModelInspectorScrollPane, "Biochemical-Model");
+		
+			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, "Biomechanical-Model");
+			
+		}
+		else
+			super.buildModelInspector();
+	}
+   
+	private void deployInspector(Inspector inspector, JScrollPane pane, String alternativeName){
+		// remove existing tab if it's there
+		if(pane != null) tabPane.remove(pane);
+		if(inspector != null){
+			String name = inspector.getName();
+			if(name == null || name.length() == 0)	name = alternativeName;
+			pane = new JScrollPane(inspector) {
+
+				Insets insets = new Insets(0, 0, 0, 0); // MacOS X adds a border
+
+				public Insets getInsets() {
+
+					return insets;
+				}
+			};
+			pane.getViewport().setBackground(new JPanel().getBackground()); // UIManager.getColor("window"));  // make nice stripes on MacOS X
+			tabPane.addTab(name, pane);
+		}
+		tabPane.revalidate();
+		
+	}
+   
+   
+   
+   
 }

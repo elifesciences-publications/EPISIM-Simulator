@@ -27,7 +27,6 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import sim.app.episim.BioChemicalModelController;
 import sim.app.episim.CompileWizard;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
@@ -36,6 +35,7 @@ import sim.app.episim.SnapshotReader;
 import sim.app.episim.SnapshotWriter;
 import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.EpiSimCharts;
+import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.Console;
 import sim.display.ConsoleHack;
@@ -51,7 +51,7 @@ public class EpidermisSimulator extends JFrame{
 	
 	
 	
-	private EpidermisWithUIClass epiUI;
+	private EpidermisGUIState epiUI;
 	
 	private boolean modelOpened = false;
 	
@@ -258,7 +258,7 @@ public class EpidermisSimulator extends JFrame{
 			if(success){
 				EpiSimCharts.rebuildCharts();
 				cleanUpContentPane();
-				epiUI = new EpidermisWithUIClass(this);
+				epiUI = new EpidermisGUIState(this);
 				this.validate();
 				this.repaint();
 				modelOpened = true;
@@ -334,7 +334,7 @@ public class EpidermisSimulator extends JFrame{
 						// EpiSimCharts.rebuildCharts();
 						cleanUpContentPane();
 						epidermis.setModelController(BioChemicalModelController.getInstance());
-						epiUI = new EpidermisWithUIClass(epidermis, this, true);
+						epiUI = new EpidermisGUIState(epidermis, this, true);
 						epiUI.setReloadedSnapshot(true);
 						if(epiUI.getWoundPortrayalDraw() !=null){
 						  if(woundRegionCoordinates!= null) epiUI.getWoundPortrayalDraw().setWoundRegionCoordinates(woundRegionCoordinates);

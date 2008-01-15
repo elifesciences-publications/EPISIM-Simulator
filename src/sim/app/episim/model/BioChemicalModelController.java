@@ -1,4 +1,4 @@
-package sim.app.episim;
+package sim.app.episim.model;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import sim.app.episim.Epidermis;
+import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.KCyte;
 
 
 public class BioChemicalModelController implements java.io.Serializable{
@@ -63,21 +67,38 @@ public class BioChemicalModelController implements java.io.Serializable{
 		
 	}
 	
-	public Object getModelAsObject(){
+	public EpisimStateModel getNewEpisimStateModelObject(){
 		
 			try{
-				return biochemicalModel.getModelAsObject();
+				////////////////////////////////////////////////////////
+				//TODO: Anpassen
+				//////////////////////////////////////////////////////////
+				return biochemicalModel.getEpisimStateModel();
 			}
 			catch (Exception e){
 				
-				
+				ExceptionDisplayer.getInstance().displayException(e);
 				return null;
 			}
 		
 		
 	}
 	
-	public void resetInitialGloabalValues(){
+	public EpisimStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
+		
+		try{
+			return biochemicalModel.getEpisimStateModelGlobalParameters();
+		}
+		catch (Exception e){
+			
+			ExceptionDisplayer.getInstance().displayException(e);
+			return null;
+		}
+	
+	
+}
+	
+	public void resetInitialGlobalValues(){
 		try{
 			biochemicalModel.resetInitialGlobalValues();
 			cache.clear();

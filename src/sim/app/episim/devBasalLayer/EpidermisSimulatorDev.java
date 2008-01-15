@@ -26,12 +26,12 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import sim.app.episim.BioChemicalModelController;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SnapshotObject;
 import sim.app.episim.SnapshotReader;
 import sim.app.episim.SnapshotWriter;
+import sim.app.episim.model.BioChemicalModelController;
 import sim.engine.Schedule;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;

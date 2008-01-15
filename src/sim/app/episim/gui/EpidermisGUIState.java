@@ -1,11 +1,14 @@
 package sim.app.episim.gui;
 
 import sim.engine.*;
-import sim.app.episim.BioChemicalModelController;
 import sim.app.episim.Epidermis;
 import sim.app.episim.KCyte;
 import sim.app.episim.KCyteInspector;
 import sim.app.episim.charts.EpiSimCharts;
+import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.EpisimMechanicalModelGlobalParameters;
+import sim.app.episim.model.EpisimStateModelGlobalParameters;
+import sim.app.episim.model.ModelController;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.KeratinocytePortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;
@@ -37,7 +40,7 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 import org.jfree.chart.*; // ChartPanel;
 
 
-public class EpidermisWithUIClass extends GUIState{
+public class EpidermisGUIState extends GUIState{
 
 	public EpiDisplay2D display;
 
@@ -68,21 +71,20 @@ public class EpidermisWithUIClass extends GUIState{
 	
 	private boolean activateDrawing = false;
 	
-	public Object getSimulationInspectedObject() {
-
-		return BioChemicalModelController.getInstance().getModelAsObject();
-	} // non-volatile
-
+	
+	
+	
+	
 	ContinuousPortrayal2D epiPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D basementPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D woundPortrayal = new ContinuousPortrayal2D();
 	
 	
-	public EpidermisWithUIClass(JFrame mainFrame) {
+	public EpidermisGUIState(JFrame mainFrame) {
 		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
 	}
 
-	public EpidermisWithUIClass(SimState state, JFrame mainFrame, boolean reloadSnapshot) {
+	public EpidermisGUIState(SimState state, JFrame mainFrame, boolean reloadSnapshot) {
 		
 		super(state);
 		this.mainFrame = mainFrame;
@@ -91,6 +93,29 @@ public class EpidermisWithUIClass extends GUIState{
 		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
 		
 	}
+	
+	
+	
+	public Inspector getBiochemicalModelInspector() {
+
+		EpisimStateModelGlobalParameters chemModel = ModelController.getInstance().getEpisimStateModelGlobalParameters();
+		if(chemModel == null)
+			return null;
+		Inspector i = new SimpleInspector(chemModel, this);
+		i.setVolatile(false);
+		return i;
+	}
+
+	public Inspector getBiomechnicalModelInspector() {
+
+		EpisimMechanicalModelGlobalParameters mechModel = ModelController.getInstance().getEpisimMechanicalModelGlobalParameters();
+		if(mechModel == null)
+			return null;
+		Inspector i = new SimpleInspector(mechModel, this);
+		i.setVolatile(false);
+		return i;
+	}
+	
 
 	public void setConsole(EpiConsole cons) {
 

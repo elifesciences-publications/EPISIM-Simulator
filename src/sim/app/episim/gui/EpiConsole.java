@@ -7,6 +7,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Insets;
 import java.awt.MenuBar;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,6 +33,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
@@ -40,9 +42,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import sim.app.episim.BioChemicalModelController;
 import sim.app.episim.SnapshotWriter;
 import sim.app.episim.charts.EpiSimCharts;
+import sim.app.episim.model.BioChemicalModelController;
 import sim.display.Console;
 import sim.display.ConsoleHack;
 import sim.display.GUIState;
@@ -284,6 +286,9 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 		
 	}
 	
+	 
+	
+	
 	private void addResetButton(JPanel inspectorHeader){
 		JPanel buttonPanel = new JPanel(new BorderLayout(10, 0));
 		
@@ -336,7 +341,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 			}
 			else if(((JButton) e.getSource()).getText().equalsIgnoreCase(RESETTEXT)){
 				if(getPlayState() == PS_PLAYING) super.pressPause();
-				BioChemicalModelController.getInstance().resetInitialGloabalValues();
+				BioChemicalModelController.getInstance().resetInitialGlobalValues();
 				refreshButton.doClick();
 				if(getPlayState() == PS_PAUSED)super.pressPause();
 				
@@ -412,7 +417,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 		EpiSimCharts.getInstance().clearSeries();
 	
    	
-	((EpidermisWithUIClass)this.simulation).clearWoundPortrayalDraw();
+	((EpidermisGUIState)this.simulation).clearWoundPortrayalDraw();
 	}
    	
    	super.pressPlay(reloadedSnapshot);

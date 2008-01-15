@@ -6,6 +6,7 @@ import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.ChartMonitoredCellType;
 import sim.app.episim.charts.ChartMonitoredTissue;
 import sim.app.episim.charts.EpiSimCharts;
+import sim.app.episim.model.BioChemicalModelController;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;

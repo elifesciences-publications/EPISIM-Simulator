@@ -1,4 +1,4 @@
-package sim.app.episim;
+package sim.app.episim.model;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import sim.app.episim.Epidermis;
+import sim.app.episim.KCyte;
 
 
 
@@ -43,8 +46,18 @@ public class BiochemicalModel implements java.io.Serializable{
 		else return -1;
 	}
 	
-	public Object getModelAsObject() {
-		return actModelObject;
+	public EpisimStateModel getEpisimStateModel() {
+		if(actModelObject instanceof EpisimStateModel)return (EpisimStateModel)actModelObject;
+		else return null;
+	}
+	
+	public EpisimStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
+		
+		/////////////////////////////////////////////////////
+		// TODO: ACHTUNG Untiger Rückgabewert dient nur Testzwecken, bitte anpassen...
+		////////////////////////////////////////////////////
+		
+		return new EpisimModel();
 	}
 	
    public int getIntField(String name)throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException{

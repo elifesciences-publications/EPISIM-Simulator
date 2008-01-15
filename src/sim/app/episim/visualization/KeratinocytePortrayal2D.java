@@ -1,8 +1,8 @@
 package sim.app.episim.visualization;
-import sim.app.episim.BioChemicalModelController;
 import sim.app.episim.GrahamPoint;
 import sim.app.episim.GrahamScan;
 import sim.app.episim.KCyte;
+import sim.app.episim.model.BioChemicalModelController;
 import sim.portrayal.*;
 import sim.util.*;
 import java.util.Comparator;

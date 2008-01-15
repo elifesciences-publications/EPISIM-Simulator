@@ -4,6 +4,8 @@ package sim.app.episim;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 
+import sim.app.episim.model.BioChemicalModelController;
+
 
 public class TissueBorder {
 	private static int basalY=80;          // y coordinate at which undulations start, the base line    

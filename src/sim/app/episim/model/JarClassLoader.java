@@ -1,4 +1,4 @@
-package sim.app.episim;
+package sim.app.episim.model;
 
 
 import java.net.URL;

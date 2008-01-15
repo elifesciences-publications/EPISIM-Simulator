@@ -1,6 +1,7 @@
 package sim.app.episim;
 import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.ChartMonitoredCellType;
+import sim.app.episim.model.BioChemicalModelController;
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;

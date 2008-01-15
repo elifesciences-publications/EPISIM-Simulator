@@ -67,7 +67,7 @@ public class BioChemicalModelController implements java.io.Serializable{
 		
 	}
 	
-	public EpisimStateModel getNewEpisimStateModelObject(){
+	public EpisimCellStateModel getNewEpisimStateModelObject(){
 		
 			try{
 				////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ public class BioChemicalModelController implements java.io.Serializable{
 		
 	}
 	
-	public EpisimStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
+	public EpisimCellStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
 		
 		try{
 			return biochemicalModel.getEpisimStateModelGlobalParameters();

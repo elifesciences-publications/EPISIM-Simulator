@@ -3,7 +3,7 @@ package sim.app.episim.model;
 
 import sim.app.episim.*;
 
-public class EpisimModel implements EpisimMechanicalModel, EpisimStateModelGlobalParameters, EpisimMechanicalModelGlobalParameters{
+public class EpisimModel implements EpisimMechanicalModel, EpisimCellStateModelGlobalParameters, EpisimMechanicalModelGlobalParameters{
 
       public static final int KTYPE_UNASSIGNED=0;
 		public static final int KTYPE_STEM=1;

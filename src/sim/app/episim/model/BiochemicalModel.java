@@ -46,12 +46,12 @@ public class BiochemicalModel implements java.io.Serializable{
 		else return -1;
 	}
 	
-	public EpisimStateModel getEpisimStateModel() {
-		if(actModelObject instanceof EpisimStateModel)return (EpisimStateModel)actModelObject;
+	public EpisimCellStateModel getEpisimStateModel() {
+		if(actModelObject instanceof EpisimCellStateModel)return (EpisimCellStateModel)actModelObject;
 		else return null;
 	}
 	
-	public EpisimStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
+	public EpisimCellStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
 		
 		/////////////////////////////////////////////////////
 		// TODO: ACHTUNG Untiger Rückgabewert dient nur Testzwecken, bitte anpassen...

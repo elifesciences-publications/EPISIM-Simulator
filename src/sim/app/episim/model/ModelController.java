@@ -23,7 +23,7 @@ public class ModelController implements java.io.Serializable{
 		return instance;
 	}
 	
-	public EpisimStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
+	public EpisimCellStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
 	
 		return BioChemicalModelController.getInstance().getEpisimStateModelGlobalParameters();
 	}
@@ -32,7 +32,7 @@ public class ModelController implements java.io.Serializable{
 		return BioMechanicalModelController.getInstance().getEpisimMechanicalModelGlobalParameters();
 	}
 	
-	public EpisimStateModel getNewEpisimStateModelObject(){
+	public EpisimCellStateModel getNewEpisimStateModelObject(){
 		
 		return BioChemicalModelController.getInstance().getNewEpisimStateModelObject();
 	}

@@ -7,6 +7,8 @@ import sim.app.episim.charts.ChartMonitoredCellType;
 import sim.app.episim.charts.ChartMonitoredTissue;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.BioMechanicalModelController;
+import sim.app.episim.model.ModelController;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -45,7 +47,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 // VARIABLES
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
-	private transient BioChemicalModelController modelController;
+	private transient ModelController modelController;
 
 	private List <Class<?extends CellType>> availableCelltypes;
 	
@@ -110,6 +112,9 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 	private int    gStatistics_GrowthFraction=0;             // Percentage
 	private double gStatistics_TurnoverTime=0;             // Percentage
 	
+	private BioMechanicalModelController mechanicalModContr;
+	private BioChemicalModelController chemicalModContr;
+	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	 
@@ -118,8 +123,9 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
  {
      super(new ec.util.MersenneTwisterFast(seed), new Schedule(1));
      
-     modelController = BioChemicalModelController.getInstance();
-     
+     modelController = ModelController.getInstance();
+     mechanicalModContr = modelController.getBioMechanicalModelController();
+     chemicalModContr =  modelController.getBioChemicalModelController();
      SnapshotWriter.getInstance().addSnapshotListener(this);
      availableCelltypes = new LinkedList<Class<?extends CellType>>();
      availableCelltypes.add(KCyte.class);
@@ -130,7 +136,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 
  public final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu retezapfen tiefe
  {
-     return (y-basalY)/modelController.getIntField("basalAmplitude_µm");                
+     return (y-basalY)/modelController.getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
  }
 
  
@@ -142,7 +148,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      {
      Document document = new Document(new com.lowagie.text.Rectangle(width,height));
      PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
-     document.addAuthor("Thomas Sütterlin, Niels Grabe");
+     document.addAuthor("Thomas Sütterlin");
      document.open();
      PdfContentByte cb = writer.getDirectContent();
      PdfTemplate tp = cb.createTemplate(width, height); 
@@ -168,7 +174,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
    	  
      
      
-     modelController.initModel();
+     
    if(!reloadedSnapshot){
      allCells.clear();
      // set up the C2dHerd field.  It looks like a discretization
@@ -176,8 +182,9 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      // that's 16 hash lookups! I would have guessed that 
      // neighborhood * 2 (which is about 4 lookups on average)
      // would be optimal.  Go figure.
-     cellContinous2D = new Continuous2D(modelController.getDoubleField("neighborhood_µm")/1.5,modelController.getDoubleField("width"),height);
-     basementContinous2D = new Continuous2D(modelController.getDoubleField("width"),modelController.getDoubleField("width"),height);
+     cellContinous2D = new Continuous2D(mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()/1.5,
+   		                               TissueBorder.getWidth()+2,height);
+     basementContinous2D = new Continuous2D(TissueBorder.getWidth()+2, TissueBorder.getWidth()+2,height);
     
     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
      double x=0;
@@ -192,18 +199,23 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      actualStem=0;
      
      Double2D lastloc=new Double2D(2, TissueBorder.lowerBound(2));        
-     for(x=2; x<=modelController.getDoubleField("width")-2; x+=2)
+     for(x=2; x<=TissueBorder.getWidth(); x+=2)
      {           
          Double2D newloc=new Double2D(x,TissueBorder.lowerBound(x));
          double distance=newloc.distance(lastloc);            
          
-         if ((depthFrac(newloc.y)>modelController.getDoubleField("seedMinDepth_frac") && (!modelController.getBooleanField("seedReverse"))) || (depthFrac(newloc.y)<modelController.getDoubleField("seedMinDepth_frac") && modelController.getBooleanField("seedReverse")))
-             if (distance>modelController.getIntField("basalDensity_µm"))
+         if ((depthFrac(newloc.y)>mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getSeedMinDepth_frac() 
+         		&& (!mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getSeedReverse())) 
+         		        || (depthFrac(newloc.y)<mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getSeedMinDepth_frac() 
+         		       && mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getSeedReverse()))
+             if (distance>mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm())
              {                
-                 KCyte stemCell= new KCyte(this);                 
-                 stemCell.setKeratinoType(modelController.getGlobalIntConstant("KTYPE_STEM"));
+                 
+            	 //TODO: Check creation of Stem Cells
+            	 KCyte stemCell= new KCyte(this);                 
+                // stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
                  stemCell.setOwnColor(10);
-                 stemCell.setKeratinoAge(random.nextInt(modelController.getIntField("stemCycle_t")));     // somewhere on the stemCycle
+                 stemCell.setKeratinoAge(random.nextInt(chemicalModContr.getEpisimCellDiffModelGlobalParameters().getStemCycle_t()));     // somewhere on the stemCycle
                  cellContinous2D.setObjectLocation(stemCell, newloc);
                  lastloc=newloc;
                  Stoppable stoppable = schedule.scheduleRepeating(stemCell);
@@ -336,7 +348,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      // CHART Updating Kinetics Chart
      //////////////////////////////////////
      // clear is necessary for restart of simulation
-     
+    /* 
 
      Steppable chartUpdaterKinetics= new Steppable()
     {
@@ -349,7 +361,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
              //double growthFraction=0; // instead globally defined
              if (actualKCytes>0)
              {
-                 meanCycleTime=(actualStem*modelController.getIntField("stemCycle_t")+actualTA*modelController.getIntField("tACycle_t"))/(actualStem+actualTA);
+                 meanCycleTime=(actualStem*modelController.getBioChemicalModelController().getIntField("stemCycle_t")+actualTA*modelController.getBioChemicalModelController().getIntField("tACycle_t"))/(actualStem+actualTA);
                  epiSimCharts.getXYSeries("ChartSeries_Kinetics_MeanCycleTime").add((double)(state.schedule.time()*gTimefactor), meanCycleTime*gTimefactor);
                  if (actualBasalStatisticsCells>0)
                      gStatistics_GrowthFraction=100*(actualTA+actualStem)/actualBasalStatisticsCells;
@@ -464,7 +476,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      };
      // Schedule the agent to update the chart
      schedule.scheduleRepeating(chartUpdaterApoptosis, 100);
-     
+    */ 
      //////////////////////////////////////
      // CHART Updating Performance Chart
      //////////////////////////////////////
@@ -497,7 +509,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      };
      // Schedule the agent to update the chart
      schedule.scheduleRepeating(chartUpdaterPerformance, 100);
-
+/*
      
      //////////////////////////////////////        
      // CHART Updating Particle Distributions
@@ -562,34 +574,34 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
                      HistoIntCalConc[histobin]+=act.getOwnSigInternalCalcium();
                      HistoLamellaConc[histobin]+=act.getOwnSigLamella();
                      HistoLipidsConc[histobin]+=act.getOwnSigLipids();
-                     if (act.getKeratinoType()!= modelController.getGlobalIntConstant("KTYPE_STEM"))
+                     if (act.getKeratinoType()!= modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"))
                          HistoAgeAvg[histobin]+=act.getKeratinoAge();
                      
-                     if(act.getKeratinoType() == modelController.getGlobalIntConstant("KTYPE_TA")) 
+                     if(act.getKeratinoType() == modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_TA")) 
                      { IntCal_TA+=act.getOwnSigInternalCalcium(); 
                        ExtCal_TA+=act.getOwnSigExternalCalcium(); 
                        Lam_TA+=act.getOwnSigLamella(); 
                        Lip_TA+=act.getOwnSigLipids();  
                       }
-                     else if(act.getKeratinoType() ==modelController.getGlobalIntConstant("KTYPE_SPINOSUM")){ 
+                     else if(act.getKeratinoType() ==modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_SPINOSUM")){ 
                      	IntCal_Spi+=act.getOwnSigInternalCalcium(); 
                      	ExtCal_Spi+=act.getOwnSigExternalCalcium(); 
                      	Lam_Spi+=act.getOwnSigLamella(); 
                      	Lip_Spi+=act.getOwnSigLipids(); 
                      }
-                     else if(act.getKeratinoType() == modelController.getGlobalIntConstant("KTYPE_LATESPINOSUM")) { 
+                     else if(act.getKeratinoType() == modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_LATESPINOSUM")) { 
                      	IntCal_LateSpi+=act.getOwnSigInternalCalcium(); 
                      	ExtCal_LateSpi+=act.getOwnSigExternalCalcium(); 
                      	Lam_LateSpi+=act.getOwnSigLamella(); 
                      	Lip_LateSpi+=act.getOwnSigLipids(); 
                      }
-                     else if(act.getKeratinoType() == modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")){ 
+                     else if(act.getKeratinoType() == modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_GRANULOSUM")){ 
                      	IntCal_Granu+=act.getOwnSigInternalCalcium(); 
                      	ExtCal_Granu+=act.getOwnSigExternalCalcium(); 
                      	Lam_Granu+=act.getOwnSigLamella(); 
                      	Lip_Granu+=act.getOwnSigLipids(); 
                      }
-                     else if(act.getKeratinoType() == modelController.getGlobalIntConstant("KTYPE_NONUCLEUS")){ 
+                     else if(act.getKeratinoType() == modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_NONUCLEUS")){ 
                      	IntCal_NoNuc+=act.getOwnSigInternalCalcium(); 
                      	ExtCal_NoNuc+=act.getOwnSigExternalCalcium(); 
                      	Lam_NoNuc+=act.getOwnSigLamella(); 
@@ -753,10 +765,11 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
                              YLookUp[xbin]=loc.y;
                          }
                      // other statistics
-                     if ((act.getKeratinoType()!=modelController.getGlobalIntConstant("KTYPE_STEM")) && (act.getKeratinoType()!=modelController.getGlobalIntConstant("KTYPE_NONUCLEUS")))
+                     if ((act.getKeratinoType()!=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM")) 
+                     		  && (act.getKeratinoType()!=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_NONUCLEUS")))
                      {
                          gStatistics_KCytes_MeanAge+=act.getKeratinoAge();  
-                         if (act.getKeratinoAge()>modelController.getIntField("maxCellAge_t"))
+                         if (act.getKeratinoAge()>modelController.getBioChemicalModelController().getIntField("maxCellAge_t"))
                              {
                                  System.out.println("Age Error");
                              }
@@ -765,7 +778,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 
                  for (int k=0; k< MAX_XBINS; k++)
                  {
-                     if ((XLookUp[k]==null) || (XLookUp[k].getKeratinoType()==modelController.getGlobalIntConstant("KTYPE_STEM"))) continue; // stem cells cannot be outer cells (Assumption)                        
+                     if ((XLookUp[k]==null) || (XLookUp[k].getKeratinoType()==modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"))) continue; // stem cells cannot be outer cells (Assumption)                        
                      XLookUp[k].setOuterCell(true);
                  }
                  // other statistics
@@ -792,7 +805,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      };
      // Schedule the agent to update is Outer Flag
      
-     schedule.scheduleRepeating(airSurface, 100);
+     schedule.scheduleRepeating(airSurface, 100);*/
      }
 
 
@@ -974,7 +987,7 @@ public List<ChartMonitoredCellType> getChartMonitoredCellTypes() {
 	//	complex-Methods------------------------------------------------------------------------------------------------------------------
 	
 	
-	public void setModelController(BioChemicalModelController modelController) {
+	public void setModelController(ModelController modelController) {
 
 		this.modelController = modelController;
 	   Iterator iter = allCells.iterator();

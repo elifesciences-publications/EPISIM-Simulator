@@ -23,23 +23,26 @@ public class ModelController implements java.io.Serializable{
 		return instance;
 	}
 	
-	public EpisimCellStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
+	public EpisimCellDiffModelGlobalParameters getEpisimCellDiffModelGlobalParameters(){
 	
-		return BioChemicalModelController.getInstance().getEpisimStateModelGlobalParameters();
+		return BioChemicalModelController.getInstance().getEpisimCellDiffModelGlobalParameters();
 	}
 	public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters(){
 		
 		return BioMechanicalModelController.getInstance().getEpisimMechanicalModelGlobalParameters();
 	}
 	
-	public EpisimCellStateModel getNewEpisimStateModelObject(){
+	public EpisimCellDiffModel getNewEpisimStateModelObject(){
 		
-		return BioChemicalModelController.getInstance().getNewEpisimStateModelObject();
+		return BioChemicalModelController.getInstance().getNewEpisimCellDiffModelObject();
 	}
 
 	public EpisimMechanicalModel getMechanicalModel(){
 		
 		return BioMechanicalModelController.getInstance().getEpisimMechanicalModel();
 	}
+	
+	public BioMechanicalModelController getBioMechanicalModelController(){ return BioMechanicalModelController.getInstance();}
+	public BioChemicalModelController getBioChemicalModelController() { return BioChemicalModelController.getInstance();}
 	
 }

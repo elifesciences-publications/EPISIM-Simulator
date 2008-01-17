@@ -3,6 +3,9 @@ import sim.app.episim.GrahamPoint;
 import sim.app.episim.GrahamScan;
 import sim.app.episim.KCyte;
 import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.BioMechanicalModelController;
+import sim.app.episim.model.EpisimCellDiffModelGlobalParameters;
+import sim.app.episim.model.ModelController;
 import sim.portrayal.*;
 import sim.util.*;
 import java.util.Comparator;
@@ -28,27 +31,29 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
     private int[] yPoints = new int[20];
     java.awt.Color myFrameColor = Color.white; //new Color(Red, Green, Blue);
      
-    private BioChemicalModelController modelController;
+    private ModelController modelController;
+    private BioChemicalModelController biochemModelController;
+    private BioMechanicalModelController biomechModelController;
     public boolean drawFrame = true;
 
     public KeratinocytePortrayal2D() {
    	 
    	 this(Color.gray,false); 
-   	 modelController = BioChemicalModelController.getInstance();
+   	 modelController = ModelController.getInstance();
    	 
     }
     public KeratinocytePortrayal2D(Paint paint)  { 
    	 
    	 this(paint,true); 
-   	 modelController = BioChemicalModelController.getInstance();
+   	 modelController = ModelController.getInstance();
    	 
     }
     public KeratinocytePortrayal2D(boolean drawFrame) { 
    	 this(Color.gray,drawFrame); 
-   	 modelController = BioChemicalModelController.getInstance();
+   	 modelController = ModelController.getInstance();
    	 }
     public KeratinocytePortrayal2D(Paint paint, boolean drawFrame)  { 
-   	 modelController = BioChemicalModelController.getInstance();
+   	 modelController = ModelController.getInstance();
    	 this.paint = paint; 
    	 this.drawFrame = drawFrame; 
    	 }
@@ -77,21 +82,21 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             boolean showNucleus=false;
             if (object instanceof KCyte)
             {                
-                final KCyte kc=((KCyte)object);
-                kc.setLastDrawInfoAssigned(true);
-                kc.setLastDrawInfoX(info.draw.x);
-                kc.setLastDrawInfoY(info.draw.y);
+                final KCyte kcyte=((KCyte)object);
+                kcyte.setLastDrawInfoAssigned(true);
+                kcyte.setLastDrawInfoX(info.draw.x);
+                kcyte.setLastDrawInfoY(info.draw.y);
               //  if (kc.isInNirvana()) return;       
                
                 // get Agent data
-                int id=kc.getIdentity();
-                int numFlockers=kc.getEpidermis().getAllocatedKCytes();
-                int keratinoType=kc.getKeratinoType();                                
-                int typeColor=modelController.getIntField("typeColor");                
-                int ownCol=(kc.getOwnColor())*kc.getEpidermis().getIndividualColor();
-                int maxAge= BioChemicalModelController.getInstance().getIntField("maxCellAge_t"); 
-                wloc = kc.getKeratinoWidth();                                
-                hloc = kc.getKeratinoHeight();  
+                int id=kcyte.getIdentity();
+                int numFlockers=kcyte.getEpidermis().getAllocatedKCytes();
+                int keratinoType=kcyte.getKeratinoType();                                
+                int typeColor=biomechModelController.getEpisimMechanicalModelGlobalParameters().getTypeColor();              
+                int ownCol=(kcyte.getOwnColor())*kcyte.getEpidermis().getIndividualColor();
+                int maxAge= kcyte.getEpisimCellDiffModelObject().getMaxCellAge(); 
+                wloc = kcyte.getKeratinoWidth();                                
+                hloc = kcyte.getKeratinoHeight();  
 
                 drawVoronoi=((typeColor==8) || (typeColor==9));
                 if (drawVoronoi)
@@ -99,13 +104,13 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                     drawVoronoi=false; // until here to draw a voronoi is only a wish, not test, if it can be done
                     formCount=0;
                     int i=0;
-                    if (kc.getFormCount()>0) // any neighbors counted in KCyteClass
+                    if (kcyte.getFormCount()>0) // any neighbors counted in KCyteClass
                     {
-                        for (i=0; i<kc.getFormCount(); ++i)
+                        for (i=0; i<kcyte.getFormCount(); ++i)
                         {
-                            if ((kc.getNeighborDrawInfoX()[i]==0) || (kc.getNeighborDrawInfoY()[i]==0)) continue;
-                            int dx=(int) kc.getNeighborDrawInfoX()[i] - (int) info.draw.x;
-                            int dy=(int) kc.getNeighborDrawInfoY()[i] - (int) info.draw.y;
+                            if ((kcyte.getNeighborDrawInfoX()[i]==0) || (kcyte.getNeighborDrawInfoY()[i]==0)) continue;
+                            int dx=(int) kcyte.getNeighborDrawInfoX()[i] - (int) info.draw.x;
+                            int dy=(int) kcyte.getNeighborDrawInfoY()[i] - (int) info.draw.y;
                             if ((dx>-80) && (dx<80) && (dy>-80) && (dy<80))                            
                             {
                             double xconvex= (int)info.draw.x +(int)(dx/2); //+(int)dx/2;
@@ -133,7 +138,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                                 double dx=xcenter-info.draw.x;  // distance is in pixels not in KCyte Dimensions ! Pixels are much more
                                 double dy=ycenter-info.draw.y;
                                 double actdist=Math.sqrt(dx*dx+dy*dy);
-                                double optDist=kc.GINITIALKERATINOHEIGHT*2; // factor 3 is much more 
+                                double optDist=kcyte.GINITIALKERATINOHEIGHT*2; // factor 3 is much more 
                                 if (actdist<optDist)
                                 {
                                     dx=(actdist>0)?(optDist+0.1)/actdist*dx:0;    // increase dx by factor optDist/actdist
@@ -142,26 +147,26 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                                 double newx=info.draw.x+dx;
                                 double newy=info.draw.y+dy;
                                 // Build Average of new and old shape when both have the same number of vertexes, i.e. nodes
-                                if (ResNumPoints==kc.getVoronoihullvertexes())
+                                if (ResNumPoints==kcyte.getVoronoihullvertexes())
                                 {
-                                    newx=(newx*0.05+kc.getVoronoihull()[i].x*0.95);
-                                    newy=(newy*0.05+kc.getVoronoihull()[i].y*0.95);
-                                    kc.getVoronoihull()[i]=new GrahamPoint(i, newx, newy);
+                                    newx=(newx*0.05+kcyte.getVoronoihull()[i].x*0.95);
+                                    newy=(newy*0.05+kcyte.getVoronoihull()[i].y*0.95);
+                                    kcyte.getVoronoihull()[i]=new GrahamPoint(i, newx, newy);
                                 }
                                 else
-                                    kc.getVoronoihull()[i]=new GrahamPoint(i, newx, newy);
+                                    kcyte.getVoronoihull()[i]=new GrahamPoint(i, newx, newy);
                             }                            
-                            kc.setVoronoihullvertexes(ResNumPoints);
-                            if (kc.getVoronoihullvertexes()>4) 
+                            kcyte.setVoronoihullvertexes(ResNumPoints);
+                            if (kcyte.getVoronoihullvertexes()>4) 
                             {
                                 drawVoronoi=true;
-                               kc.incrementVoronoiStable();  // Voronoi was possible
+                               kcyte.incrementVoronoiStable();  // Voronoi was possible
                             }
 
                         } // not enough points for Voronoi
                         else
                             {
-                                kc.decrementVoronoiStable();  // Voronoi was not possible
+                                kcyte.decrementVoronoiStable();  // Voronoi was not possible
                                 drawVoronoi=false;
                             }
                     } // any neighbors counted in KCyteClass
@@ -172,34 +177,34 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 // set shape
                 //
                 
-                if(keratinoType == modelController.getGlobalIntConstant("KTYPE_STEM")){ 
+                if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_STEM){ 
                	 showNucleus=true; 
                	 drawFrame=true;
                	 } // dunkelblau // mittels word zeichnen einfach zu finden
-                else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_TA")){ 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_TA){ 
                	 showNucleus=true; 
                	 drawFrame=true; 
                 }                             
-                else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_SPINOSUM")){ 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_SPINOSUM){ 
                	 showNucleus=true; 
                	 drawFrame=true;  
                 }
-                else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_LATESPINOSUM")){ 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_LATESPINOSUM){ 
                	 showNucleus=true; 
                	 drawFrame=true; 
                 }
-                else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")){ 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_GRANULOSUM){ 
                	 drawFrame=false; 
                	 drawVoronoi=false; 
                	 showNucleus=false; 
                }
-                else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_NONUCLEUS")){ 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS){ 
                	 drawFrame=true; 
                	 drawVoronoi=false; 
                	 showNucleus=false;
                 }
                         
-                if ((kc.isMembraneCell()) || (kc.isOuterCell())) drawVoronoi=false;
+                if ((kcyte.isMembraneCell()) || (kcyte.isOuterCell())) drawVoronoi=false;
                 //
                 // set colors
                 //
@@ -208,60 +213,63 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 int Red=255;         
                 int Green=0;
                 int Blue=0;
-                if ((typeColor<1) || (typeColor>9)) { typeColor=1; modelController.setIntField("typeColor", 1); }
+                if ((typeColor<1) || (typeColor>9)) { 
+               	 typeColor=1; 
+               	 biomechModelController.getEpisimMechanicalModelGlobalParameters().setTypeColor(1);
+                }
                 
                 if ((typeColor==1) || (typeColor==2) || (typeColor==8))  // Cell type coloring
                     {
                         
-                  	   if(keratinoType == modelController.getGlobalIntConstant("KTYPE_STEM")){ 
+                  	   if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_STEM){ 
                   	   	Red=0x46; 
                   	   	Green=0x72; 
                   	   	Blue=0xBE;  
                   	   } // dunkelblau // mittels word zeichnen einfach zu finden
-                  	   else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_TA")){ 
+                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_TA){ 
                   	   	Red=148; 
                   	   	Green=167; 
                   	   	Blue=214;  
                   	   }                             
-                  	   else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_SPINOSUM")){ 
+                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_SPINOSUM){ 
                   	   	Red=0xE1; 
                   	   	Green=0x6B; 
                   	   	Blue=0xF6; 
                   	   }
-                  	   else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_LATESPINOSUM")){ 
+                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_LATESPINOSUM){ 
                   	   	Red=0xC1; 
                   	   	Green=0x4B; 
                   	   	Blue=0xE6;
                   	   }
-                  	   else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")){ 
+                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_GRANULOSUM){ 
                   	   	Red=204; 
                   	   	Green=0; 
                   	   	Blue=102; 
                   	   }
-                  	   else if(keratinoType == modelController.getGlobalIntConstant("KTYPE_NONUCLEUS")){ 
+                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS){ 
                   	   	Red=198; 
                   	   	Green=148; 
                   	   	Blue=60; 
                   	   }
                         
-                        if ((kc.isOuterCell()) && (typeColor==2))
+                        if ((kcyte.isOuterCell()) && (typeColor==2))
                             {   Red=0xF3; Green=0xBE; Blue=0x4E; }        
-                        if ((kc.isMembraneCell()) && (typeColor==2))
+                        if ((kcyte.isMembraneCell()) && (typeColor==2))
                             {   Red=0xF3; Green=0xFF; Blue=0x4E; }                        
                    }
                   if (typeColor==3) // Age coloring
                     {
-                        Colorvalue= (int) (250-250*kc.getKeratinoAge()/maxAge);
+                        Colorvalue= (int) (250-250*kcyte.getKeratinoAge()/maxAge);
                         Red=255;
                         Green=Colorvalue;                        
                         Blue=Colorvalue;
-                        if (keratinoType==modelController.getGlobalIntConstant("KTYPE_STEM"))
+                        if (keratinoType== EpisimCellDiffModelGlobalParameters.KTYPE_STEM)
                         { Red=148; Green=167; Blue=214; } // stem cells do not age
                         myFrameColor=Color.black;
                     }
                   if ((typeColor==4) || (typeColor==9))  // Calcium coloring
                     {
-                        Colorvalue= (int) (255* (1-((kc.getOwnSigExternalCalcium()+kc.getOwnSigInternalCalcium()) / modelController.getDoubleField("calSaturation"))));
+                        Colorvalue= (int) (255* (1-((kcyte.getOwnSigExternalCalcium()+kcyte.getOwnSigInternalCalcium()) / kcyte.getEpisimCellDiffModelObject().getCalSaturation())));
                         Red=Colorvalue;         
                         Green=Colorvalue;
                         Blue=255;
@@ -271,7 +279,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                     }
                   if (typeColor==5)  // Lamella coloring
                     {
-                        Colorvalue= (int) (255* (1-(kc.getOwnSigLamella() / modelController.getDoubleField("lamellaSaturation"))));
+                        Colorvalue= (int) (255* (1-(kcyte.getOwnSigLamella() / kcyte.getEpisimCellDiffModelObject().getLamellaSaturation())));
                         Red=Colorvalue;         
                         Green=255;
                         Blue=Colorvalue;
@@ -279,7 +287,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                     }
                   if (typeColor==6)  // Lipid coloring
                     {
-                        if (kc.getOwnSigLipids()>=modelController.getDoubleField("minSigLipidsBarrier"))
+                        if (kcyte.getOwnSigLipids()>=kcyte.getEpisimCellDiffModelObject().getMinSigLipidsBarrier())
                         { Red=0xCB; Green=0x2F; Blue=0x9F; }
                         else 
                         { Red=0xAF; Green=0xCB; Blue=0x97; }
@@ -287,7 +295,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                     }
                   if (typeColor==7)  // ion transport activitiy
                     {                     
-                        Colorvalue= (int) (255* (1-(kc.getHasGivenIons() / 10)));
+                        Colorvalue= (int) (255* (1-(kcyte.getHasGivenIons() / 10)));
                         Red=Colorvalue;
                         Green=255;
                         Blue=Colorvalue;
@@ -306,7 +314,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 GeneralPath nucleusPath;
                 if (drawVoronoi) // it was possible to draw it five times then it may be stable
                 {                   
-                    cellPath = createVoronoiPath( info, wloc, hloc, kc.getVoronoihull(), kc.getVoronoihullvertexes());
+                    cellPath = createVoronoiPath( info, wloc, hloc, kcyte.getVoronoihull(), kcyte.getVoronoihullvertexes());
                     graphics.setPaint(myColor);
                     graphics.fill(cellPath);                
                 }
@@ -330,7 +338,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             } else 
             { 
                 graphics.setPaint(paint);  
-                System.out.println(" NOFLO");
+                System.out.println("NOFLO");
             }
         }
 
@@ -435,8 +443,8 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             int h=1;
             if (object instanceof KCyte)
             {
-                KCyte kc=((KCyte)object);
-                int KeratinoAge=kc.getKeratinoAge();                
+                KCyte kcyte=((KCyte)object);
+                int KeratinoAge=kcyte.getKeratinoAge();                
                 w=5;
                 h=5-(int)KeratinoAge/60;
                 h=(h<1 ? 1:h);

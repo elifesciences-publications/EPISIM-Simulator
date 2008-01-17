@@ -45,6 +45,7 @@ import javax.swing.event.DocumentListener;
 import sim.app.episim.SnapshotWriter;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.ModelController;
 import sim.display.Console;
 import sim.display.ConsoleHack;
 import sim.display.GUIState;
@@ -83,9 +84,9 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
                {
          	  
                if(keyEvent.getSource() instanceof JTextField){
-               	String name;
-               	BioChemicalModelController.getInstance().reloadValue((name=((JTextField) keyEvent.getSource()).getName()));
-               	if(name.equals("TypeColor") && refreshButton !=null) refreshButton.doClick();
+               String name =((JTextField) keyEvent.getSource()).getName();
+               //	ModelController.getInstance().getBioChemicalModelController().reloadValue(());
+               	if(name.equals("TypeColor_1to9") && refreshButton !=null) refreshButton.doClick();
                }
                }
            }
@@ -96,8 +97,8 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
        public void focusLost ( FocusEvent e )
            {
       	 if(e.getSource() instanceof JTextField){
-      		 String name;
-          	BioChemicalModelController.getInstance().reloadValue((name=((JTextField) e.getSource()).getName()));
+      		 String name =((JTextField) e.getSource()).getName();
+      		// ModelController.getInstance().getBioChemicalModelController().reloadValue((name=));
           	if(name.equals("TypeColor_1to9") && refreshButton !=null) refreshButton.doClick();
           }
            }
@@ -341,7 +342,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 			}
 			else if(((JButton) e.getSource()).getText().equalsIgnoreCase(RESETTEXT)){
 				if(getPlayState() == PS_PLAYING) super.pressPause();
-				BioChemicalModelController.getInstance().resetInitialGlobalValues();
+				ModelController.getInstance().getBioChemicalModelController().resetInitialGlobalValues();
 				refreshButton.doClick();
 				if(getPlayState() == PS_PAUSED)super.pressPause();
 				

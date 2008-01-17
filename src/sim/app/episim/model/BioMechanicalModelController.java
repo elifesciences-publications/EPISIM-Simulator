@@ -34,9 +34,10 @@ package sim.app.episim.model;
 		private ConcurrentHashMap<String, Object> resetCache;
 		private BioMechanicalModelController(){
 			cache = new ConcurrentHashMap<String, Object>();
+			biomechanicalModel = new BiomechanicalModel();
 			
 		}
-		public synchronized static BioMechanicalModelController getInstance(){
+		protected synchronized static BioMechanicalModelController getInstance(){
 			if(instance == null) instance = new BioMechanicalModelController();
 			return instance;
 		}

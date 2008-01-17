@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import sim.app.episim.Epidermis;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.KCyte;
 
 
@@ -22,117 +23,65 @@ public class BiochemicalModel implements java.io.Serializable{
 	 */
 	private static final long serialVersionUID = 7116866406451878698L;
 
-	private Class modelClass;
+	private Class<EpisimCellDiffModel> cellDiffModelClass;
+	private Class<EpisimCellDiffModelGlobalParameters> globalParametersClass;
+	private EpisimCellDiffModelGlobalParameters globalParametersObject;
+	private EpisimCellDiffModelGlobalParameters globalParametersResetObject;
 	
-	private Object actModelObject;
-	private Object resetModelObject;
 	
 	
 	
-	public BiochemicalModel(Class modelClass)throws InstantiationException, IllegalAccessException{
-		this.modelClass = modelClass;
-		actModelObject = modelClass.newInstance();
-		resetModelObject = modelClass.newInstance();
+	
+	public BiochemicalModel(Class<EpisimCellDiffModel> cellDiffModelClass, Class<EpisimCellDiffModelGlobalParameters> globalParametersClass){
+		this.cellDiffModelClass = cellDiffModelClass;
+		this.globalParametersClass = globalParametersClass;
+		if(globalParametersClass != null)
+	      try{
+	         this.globalParametersObject= (EpisimCellDiffModelGlobalParameters)globalParametersClass.getMethod("getInstance", null).invoke(null, null);
+	         this.globalParametersResetObject = (EpisimCellDiffModelGlobalParameters)globalParametersClass.getMethod("getInstance", null).invoke(null, null);
+         }
+         catch (Exception e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+        
 	}
 	
 	
-	public void initModel() throws InstantiationException, IllegalAccessException{
+	
 		
-	}
-	
-	public int getGlobalIntConstant(String name) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException{
-		Object obj;
-		if((obj=modelClass.getField(name.trim()).get(modelClass)) instanceof Integer) return ((Integer) obj).intValue();
-		else return -1;
-	}
-	
-	public EpisimCellStateModel getEpisimStateModel() {
-		if(actModelObject instanceof EpisimCellStateModel)return (EpisimCellStateModel)actModelObject;
-		else return null;
-	}
-	
-	public EpisimCellStateModelGlobalParameters getEpisimStateModelGlobalParameters(){
+	public EpisimCellDiffModel getNewEpisimCellDiffModelObject() {
+		if(this.cellDiffModelClass !=null)
+	      try{
+	         return this.cellDiffModelClass.newInstance();
+         }
+         catch (InstantiationException e){
+         	ExceptionDisplayer.getInstance().displayException(e);
+         	return null;
+         }
+         catch (IllegalAccessException e){
+         	ExceptionDisplayer.getInstance().displayException(e);
+         	return null;
+         }
 		
-		/////////////////////////////////////////////////////
-		// TODO: ACHTUNG Untiger Rückgabewert dient nur Testzwecken, bitte anpassen...
-		////////////////////////////////////////////////////
-		
-		return new EpisimModel();
+		return null;
 	}
 	
-   public int getIntField(String name)throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException{
-		Object value = getField(name);
-		if(value instanceof Integer) return ((Integer) value).intValue();
-		else throw new NoSuchFieldException("Field not found!");
+	public EpisimCellDiffModelGlobalParameters getEpisimCellDiffModelGlobalParameters(){
+		
+		return this.globalParametersObject;
 	}
 	
-   public double getDoubleField(String name)throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException{
-   	Object value = getField(name);
-		if(value instanceof Double) return ((Double) value).doubleValue();
-		else throw new NoSuchFieldException("Field not found!");
-	}
-   public float getFloatField(String name)throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException{
-		
-   	Object value = getField(name);
-		if(value instanceof Float) return ((Float) value).floatValue();
-		else throw new NoSuchFieldException("Field not found!");
-	}
    
-   public boolean getBooleanField(String name)throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException{
-   	Object value = getField(name);
-		if(value instanceof Boolean) return ((Boolean) value).booleanValue();
-		else throw new NoSuchFieldException("Field not found!");
-   }
    
-   public void setIntField(String name, int value)throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException{
-		
-   	setField( name, new Class[]{Integer.TYPE}, value);
-	}
-	
-   public void setDoubleField(String name, double value)throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException{
-   	setField( name,  new Class[]{Double.TYPE}, value);
-		
-	}
-   public void setFloatField(String name, float value)throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException{
-   	setField( name,  new Class[]{Float.TYPE}, value);
-		
-	}
+  
    
-   public void setBooleanField(String name, boolean value)throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException{
-   	setField( name,  new Class[]{Boolean.TYPE}, value);
-   }
-   
-   public double get2DDoubleArrayValue(String name, int pos1, int pos2) throws SecurityException, NoSuchMethodException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
-   	
-   	Method method = getMethod("gib", name, new Class[]{Integer.TYPE, Integer.TYPE});
-   	Object[] arguments = new Object[]{pos1, pos2};
-		if(method == null) throw new NoSuchFieldException();
-		else{
-			
-			return ((Double) method.invoke(actModelObject, arguments)).doubleValue();
-		}
-   	
-   }
-   
-   public void set2DDoubleArrayValue(String name, int pos1, int pos2, double val) throws SecurityException, NoSuchMethodException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
-   	
-   	Method method = getMethod("setze", name, new Class[]{Integer.TYPE, Integer.TYPE, Double.TYPE});
-   	Object[] arguments = new Object[]{pos1, pos2};
-		if(method == null) throw new NoSuchFieldException();
-		else{
-			
-			method.invoke(actModelObject, arguments);
-		}
-   	
-   }
-   
-   private Method getMethod(String prefix, String name, Class [] parameters) throws SecurityException, NoSuchMethodException{
+   private Method getMethod(Class theclass, String prefix, String name, Class [] parameters) throws SecurityException, NoSuchMethodException{
    	
    	if(name != null && name.length() >0)
-   	return actModelObject.getClass().getMethod((prefix+ name.substring(0,1).toUpperCase() + 
+   	return theclass.getMethod((prefix+ name.substring(0,1).toUpperCase() + 
    			name.substring(1, name.length())), parameters);
    	else
-   		return actModelObject.getClass().getMethod(prefix, parameters);
+   		return theclass.getMethod(prefix, parameters);
    }
    
   private List<Method> getMethods(String prefix, Object object) throws SecurityException, NoSuchMethodException{
@@ -150,25 +99,25 @@ public class BiochemicalModel implements java.io.Serializable{
    
    private Object getField(String name) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException
    {
-   	Method method = getMethod("get", name.trim(), null);
+   	Method method = getMethod(this.globalParametersClass,"get", name.trim(), null);
 		if(method == null) throw new NoSuchFieldException();
 		else{
 			
-			return method.invoke(actModelObject, ((Object[])null));
+			return method.invoke(this.globalParametersObject, ((Object[])null));
 		}
    }
    
    private Object setField(String name, Class[] parameters, Object value) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException
    {
-   	Method method = getMethod("set" , name.trim() , parameters);
+   	Method method = getMethod(this.globalParametersClass, "set" , name.trim() , parameters);
    	Object[] arguments = new Object[]{value};
 		if(method == null) throw new NoSuchFieldException();
 		else{
 			
-			return method.invoke(actModelObject, arguments);
+			return method.invoke(this.globalParametersObject, arguments);
 		}
    }
-   
+   /*
    public void differentiate(KCyte  kCyte, Epidermis theEpidermis, boolean pBarrierMember) throws SecurityException, NoSuchMethodException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
    	Method method = getMethod("differentiate", "", new Class[]{KCyte.class, Epidermis.class, Boolean.TYPE});
    	Object[] arguments = new Object[]{kCyte, theEpidermis, pBarrierMember};
@@ -192,13 +141,13 @@ public class BiochemicalModel implements java.io.Serializable{
    		 cache.put(fields[i].getName(), fields[i].get(modelClass));
    	}
    	
-   }
+   }*/
    
    
    public void resetInitialGlobalValues() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
    	
-   	List<Method> getMethods = getMethods("get", resetModelObject);
-   	List<Method> setMethods = getMethods("set", actModelObject);
+   	List<Method> getMethods = getMethods("get", this.globalParametersResetObject);
+   	List<Method> setMethods = getMethods("set", this.globalParametersObject);
    	
    	Iterator<Method> iterSet = setMethods.iterator();
    	Method setM = null;
@@ -209,24 +158,16 @@ public class BiochemicalModel implements java.io.Serializable{
       	while(iterGet.hasNext()){
       		getM = iterGet.next();
       		if(setM.getName().endsWith(getM.getName().substring(3))){
-      			setM.invoke(actModelObject, new Object[]{(getM.invoke(resetModelObject, (new Object[]{})))});
+      			setM.invoke(this.globalParametersObject, new Object[]{(getM.invoke(this.globalParametersResetObject, (new Object[]{})))});
       		}
       	}
    		
    	}
-   	
-   	
-   	
-   }
+  }
    
    
    
-   public double [][] getAdhesionArray() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
-   	Method method = getMethod("returnAdhesionArray", "", null);
-   	
-	
-			return (double[][]) method.invoke(actModelObject, ((Object[])null));
-   }
+  
    
    
 }

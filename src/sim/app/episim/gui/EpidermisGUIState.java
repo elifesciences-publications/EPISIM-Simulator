@@ -7,7 +7,7 @@ import sim.app.episim.KCyteInspector;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.EpisimMechanicalModelGlobalParameters;
-import sim.app.episim.model.EpisimCellStateModelGlobalParameters;
+import sim.app.episim.model.EpisimCellDiffModelGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.KeratinocytePortrayal2D;
@@ -98,7 +98,7 @@ public class EpidermisGUIState extends GUIState{
 	
 	public Inspector getBiochemicalModelInspector() {
 
-		EpisimCellStateModelGlobalParameters chemModel = ModelController.getInstance().getEpisimStateModelGlobalParameters();
+		EpisimCellDiffModelGlobalParameters chemModel = ModelController.getInstance().getEpisimCellDiffModelGlobalParameters();
 		if(chemModel == null)
 			return null;
 		Inspector i = new SimpleInspector(chemModel, this);

@@ -20,35 +20,33 @@ public class BiomechanicalModel implements java.io.Serializable{
 	
 	
 
-	private Class modelClass;
-	
-	private Object actModelObject;
-	private Object resetModelObject;
 	
 	
-	
-	public BiomechanicalModel(Class modelClass)throws InstantiationException, IllegalAccessException{
-		this.modelClass = modelClass;
-		actModelObject = modelClass.newInstance();
-		resetModelObject = modelClass.newInstance();
-	}
+	private MechanicalModelGlobalParameters actParametersObject;
+	private MechanicalModelGlobalParameters resetParametersObject;
 	
 	
-	public void initModel() throws InstantiationException, IllegalAccessException{
+	
+	public BiomechanicalModel(){
 		
+		actParametersObject = new MechanicalModelGlobalParameters();
+		resetParametersObject = new MechanicalModelGlobalParameters();
 	}
+	
+	
+	
 	
 	
 	
 	public EpisimMechanicalModel getEpisimMechanicalModel() {
-		return new EpisimModel();
+		return null;
 	}
 	
 	public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {
-		return new EpisimModel();
+		return actParametersObject;
 	}
 	
-  
+	
    
    
 }

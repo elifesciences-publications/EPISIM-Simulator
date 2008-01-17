@@ -2,6 +2,10 @@ package sim.app.episim;
 import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.ChartMonitoredCellType;
 import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.BioMechanicalModelController;
+import sim.app.episim.model.EpisimCellDiffModel;
+import sim.app.episim.model.EpisimCellDiffModelGlobalParameters;
+import sim.app.episim.model.ModelController;
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
@@ -33,7 +37,9 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
 // VARIABLES
 //	-----------------------------------------------------------------------------------------------------------------------------------------          
-   private transient BioChemicalModelController modelController;
+   private transient ModelController modelController;
+   private transient BioChemicalModelController biochemModelController;
+   private transient BioMechanicalModelController biomechModelController;
    
    private int gKeratinoWidthGranu=9; // defauolt: 10
    private int gKeratinoHeightGranu=4;
@@ -93,11 +99,13 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
 
-    public KCyte(Epidermis pFlock)
+    public KCyte(Epidermis epidermis)
     {
-   	 modelController = BioChemicalModelController.getInstance(); 
+   	 	modelController = ModelController.getInstance();
+   	 	biochemModelController = modelController.getBioChemicalModelController();
+   	 	biomechModelController = modelController.getBioMechanicalModelController();
    	 // always as first thing, set beholder
-        epidermis=pFlock;
+        this.epidermis=epidermis;
         // now local vars
         epidermis.inkrementAllocatedKCytes();
         identity=epidermis.getAllocatedKCytes();        
@@ -123,7 +131,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
         keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
         keratinoAge=0;
-        keratinoType=modelController.getGlobalIntConstant("KTYPE_UNASSIGNED");
+        keratinoType= EpisimCellDiffModelGlobalParameters.KTYPE_UNASSIGNED;
         ownSigExternalCalcium=0;
         ownSigInternalCalcium=0;
         ownSigLipids=0;
@@ -158,19 +166,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         return new Double2D(-(yright-yleft),10);
     }   
  
-   
-    public void newbornRandomAge()
-    {
-        newborn();
-        keratinoAge=epidermis.random.nextInt(modelController.getIntField("maxCellAge_t"));
-    }
-
-    public void nirvanaAgeing(Epidermis flock)
-    {
-        ++keratinoAge;
-        if (keratinoAge>=modelController.getIntField("maxCellAge_t")) newborn(); //{KeratinoType=0;} // stratum corneum
-    }
-    
+       
  
     public Double2D randomness(MersenneTwisterFast r)
         {
@@ -222,7 +218,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
             //double adyOpt = 5; // 3+theEpidermis.cellSpace;
             
             
-            if (keratinoType==modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
+            if (keratinoType==EpisimCellDiffModelGlobalParameters.KTYPE_GRANULOSUM) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
             
             double optDistSq = adxOpt*adxOpt; //+adyOpt*adyOpt;
             double optDist=Math.sqrt(optDistSq);
@@ -293,8 +289,8 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 
                         else // attraction forces 
                         {
-                            double adhfac=modelController.get2DDoubleArrayValue("adh_array", keratinoType, other.keratinoType);                           
-                            if (actdist-optDist<modelController.getDoubleField("adhesionDist"))
+                            double adhfac=biomechModelController.getEpisimMechanicalModelGlobalParameters().gibAdh_array(keratinoType, other.keratinoType);                           
+                            if (actdist-optDist<biomechModelController.getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
                                         {                                                   
                                                 double sx=dx-dx*optDist/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
                                                 double sy=dy-dy*optDist/actdist;
@@ -403,7 +399,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         kcyte.ownColor=this.epidermis.random.nextInt(200);
         kcyte.epidermis = this.epidermis;        // the herd
         kcyte.newborn();     
-        kcyte.local_maxAge=modelController.getIntField("maxCellAge_t");
+        kcyte.local_maxAge= biochemModelController.getEpisimCellDiffModelGlobalParameters().getMaxCellAge();
         long pSimTime=(long) epidermis.schedule.time();
         if (pSimTime<(kcyte.local_maxAge)) kcyte.local_maxAge=pSimTime;
 
@@ -418,15 +414,15 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         epidermis.inkrementActualTA();
         epidermis.inkrementActualKCytes();
         KCyte TACell=makeChild(pC2dHerd);
-        TACell.keratinoType=modelController.getGlobalIntConstant("KTYPE_TA");        
-        TACell.keratinoAge=this.epidermis.random.nextInt(modelController.getIntField("tACycle_t"));  // somewhere on the TA Cycle
+      //  TACell.keratinoType=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_TA");        
+        
+        ////////////////////////////////////////////////////////////
+        // WARUM bekommt die Zelle zufälliges alter?
+        /////////////////////////////////////////////////////////////
+        
+        TACell.keratinoAge=this.epidermis.random.nextInt(biochemModelController.getEpisimCellDiffModelGlobalParameters().getCellCycleTA());  // somewhere on the TA Cycle
         // erben der signal concentrationen
-        TACell.ownSigLipids=0;
-        TACell.ownSigLamella=0;
-        TACell.ownSigInternalCalcium=ownSigInternalCalcium/2; // ownSigInternalCalcium;
-        ownSigInternalCalcium=ownSigInternalCalcium/2; // ownSigInternalCalcium;
-        TACell.ownSigExternalCalcium=ownSigExternalCalcium/2; // ownSigExternalCalcium;
-        ownSigExternalCalcium=ownSigExternalCalcium/2; // ownSigExternalCalcium;
+      
     }
 
     public void makeSpiCell(Continuous2D pC2dHerd, long pSimTime)
@@ -434,138 +430,25 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         epidermis.inkrementActualSpi();
         epidermis.inkrementActualKCytes();
         KCyte TACell=makeChild(pC2dHerd);
-        TACell.ownSigInternalCalcium=this.ownSigInternalCalcium/2;
-        ownSigInternalCalcium=ownSigInternalCalcium/2; // ownSigInternalCalcium;
-        TACell.ownSigExternalCalcium=this.ownSigExternalCalcium/2;
-        ownSigExternalCalcium=ownSigExternalCalcium/2; // ownSigExternalCalcium;
-        TACell.ownSigLamella=0;
-        TACell.ownSigLipids=0; 
-        TACell.keratinoType=modelController.getGlobalIntConstant("KTYPE_SPINOSUM");        
-        TACell.keratinoAge=0; // this.theEpidermis.random.nextInt(local_maxAge);  // somewhere on the TA Cycle
-        // erben der signal concentrationen
+     
+        //TACell.keratinoType=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_SPINOSUM");        
+       
 
     }
 
         
-    public void diffuser (Bag b, Continuous2D pC2dHerd, Double2D thisloc, boolean pBarrierMember)
-    {
-        if (b==null || b.numObjs == 0 || this.inNirvana) return;
-        int i=0;
-       
-        int normalize=1; // b.numObjs;
-        
-        for(i=0;i<b.numObjs;i++)
-            {
-            KCyte other = (KCyte)(b.objs[i]);
-            if (other != this )
-                {
-                    Double2D otherloc=pC2dHerd.getObjectLocation(other);
-                    double dx = pC2dHerd.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
-                    double dy = pC2dHerd.tdy(thisloc.y,otherloc.y);
-
-                    if (other.hasGivenIons==0)
-                    {    
-                        other.hasGivenIons++;    // only one time per simulation tick
-                        
-                        //
-                        // undirected calcium diffusion
-                        //
-
-                        if ((ownSigExternalCalcium+ownSigInternalCalcium)<modelController.getDoubleField("calSaturation"))
-                        {
-                            ownSigExternalCalcium+=other.ownSigExternalCalcium*modelController.getDoubleField("epidermalDiffusion")/normalize; // collect signals
-                            other.ownSigExternalCalcium=(1-modelController.getDoubleField("epidermalDiffusion")/normalize)*other.ownSigExternalCalcium;
-                        }
-                        
-                        //
-                        // directed trans-epidermal water flow                          
-                        //
-                    
-                        if (dy<0) // oder > ?? auf jeden Fall, wenn unterhalb, da transcutaneous water flux drives particles up
-                        {
-                                
-                                if ((ownSigExternalCalcium+ownSigInternalCalcium)<modelController.getDoubleField("calSaturation"))
-                                {
-                                    ownSigExternalCalcium+=other.ownSigExternalCalcium*modelController.getDoubleField("epidermalWaterflux")/normalize; // collect signals
-                                    other.ownSigExternalCalcium=(1-modelController.getDoubleField("epidermalWaterflux")/normalize)*other.ownSigExternalCalcium;                                
-                                }                              
-                            
-                                if (ownSigLamella<modelController.getDoubleField("lamellaSaturation"))
-                                {
-                                    ownSigLamella+=other.ownSigLamella*modelController.getDoubleField("epidermalWaterflux")/normalize;
-                                    other.ownSigLamella=(1-modelController.getDoubleField("epidermalWaterflux")/normalize)*other.ownSigLamella;
-                                }
-                         }
-                    }                    
-                }
-        }
-        
-        //
-        //  Secretion of Calcium
-        //
-
-        if ((isMembraneCell) && ((ownSigExternalCalcium+ownSigInternalCalcium)<modelController.getDoubleField("calSaturation")))    // calcium enters model at the basal membrane        
-        {                
-                ownSigExternalCalcium+=modelController.getDoubleField("calBasalEntry_per_t");
-        }
-                
-        //
-        //  Uptake meaning Internalization of Calcium
-        //        
-        ownSigInternalCalcium=ownSigExternalCalcium*0.01;
-       
-        if ( (keratinoType==modelController.getGlobalIntConstant("KTYPE_GRANULOSUM")) || (keratinoType==modelController.getGlobalIntConstant("KTYPE_SPINOSUM")) 
-      		  || (keratinoType==modelController.getGlobalIntConstant("KTYPE_LATESPINOSUM")))
-        {
-            //
-            // Secretion of Lamella
-            //        
-            if (ownSigLamella <modelController.getDoubleField("lamellaSaturation"))
-                ownSigLamella+=modelController.getDoubleField("lamellaSecretion");
-        
-            //
-            // Barrier function
-            //
-            // zum testen folgende zeile rausgenommen 29.7.05
-            if (pBarrierMember)// flag is set by EpidermisClass airSurface Agent
-            {
-                    //
-                    // Conversion of Lamella to Lipids
-                    //
-                    if (ownSigLipids<modelController.getDoubleField("lipSaturation"))
-                    {
-                        ownSigLipids+=modelController.getDoubleField("barrierLamellaUse_frac")*ownSigLamella;
-                        ownSigLamella=(1-modelController.getDoubleField("barrierLamellaUse_frac"))*ownSigLamella;
-                    }
-
-                    //
-                    // Is Barrier established or not ?
-                    //
-                    if (ownSigLipids<modelController.getDoubleField("minSigLipidsBarrier"))
-                    {
-                        ownSigExternalCalcium=ownSigExternalCalcium*(1-modelController.getDoubleField("epidermalWaterflux"));    // without barrier water with ions flows out
-                        // ownSigLipids=ownSigLipids*(1-theEpidermis.waterflux);    // without barrier water with particles flows out
-                    }                
-                    else // Barrier reduces the waterflow to 1% e.g.s
-                    {
-                        ownSigExternalCalcium=ownSigExternalCalcium*(1-modelController.getDoubleField("epidermalWaterflux")*modelController.getDoubleField("barrierLossReduction_frac"));
-                        //ownSigLipids=ownSigLipids*(1-theEpidermis.waterflux*theEpidermis.gBarrierResistance);
-                    }
-            }
-        }
-        
-    }
+    
     
 
     
     public void differentiate(boolean pBarrierMember)
     {
-      modelController.differentiate(this, epidermis, pBarrierMember);
+     // modelController.getBioChemicalModelController().differentiate(this, epidermis, pBarrierMember);
  
         
     
 
-        if ((keratinoType==modelController.getGlobalIntConstant("KTYPE_NONUCLEUS"))) // && (isOuterCell))
+        if ((keratinoType==EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS)) // && (isOuterCell))
         {
             killCell();
         }
@@ -577,7 +460,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    	 
    	 
    	 epidermis.dekrementActualNoNucleus();
-   	 keratinoType=modelController.getGlobalIntConstant("KTYPE_NIRVANA");
+   	 keratinoType=EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA;
    	 epidermis.dekrementActualKCytes();
    	 inNirvana=true;            
    	 
@@ -593,29 +476,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         // stem and TA cells divide
         // make child
         
-        double ageFrac=(double)keratinoAge / (double)modelController.getIntField("maxCellAge_t");
-        if (keratinoType==modelController.getGlobalIntConstant("KTYPE_STEM") || keratinoType==modelController.getGlobalIntConstant("KTYPE_TA"))
-        {           
-                if (((keratinoAge%modelController.getIntField("stemCycle_t"))==0) && (keratinoType==modelController.getGlobalIntConstant("KTYPE_STEM")))                    
-                    birthWish=true;
-                if (((keratinoAge%modelController.getIntField("tACycle_t"))==0) && (keratinoType==modelController.getGlobalIntConstant("KTYPE_TA")))
-                    birthWish=true;
-               
-                if (birthWish && (pNoCollision))    // numhits==0 means no overlap with any adjacent cell, not even a child
-                {
-                    if (keratinoType==modelController.getGlobalIntConstant("KTYPE_STEM"))
-                    {
-                        makeTACell(epidermis.getCellContinous2D());                        
-                        keratinoAge=0; // begin new cycle, only stem cells do not age, TA cells do !
-                    }
-                    if ((keratinoType==modelController.getGlobalIntConstant("KTYPE_TA")) && (ageFrac<modelController.getDoubleField("tAMaxBirthAge_frac")))
-                    {
-                        makeSpiCell(epidermis.getCellContinous2D(), (long) epidermis.schedule.time());
-                    }
-                    birthWish=false;
-                }
-
-        }
+       
     }
     
 
@@ -655,17 +516,17 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			// extForce=extForce.setLength(sigmoid(extForce.length())-sigmoid(0));
 			// //
 			// die funktion muss 0 bei 0 liefern, daher absenkung auf sigmoid(0)
-			Double2D gravi = new Double2D(0, modelController.getDoubleField("gravitation")); // Vector
+			Double2D gravi = new Double2D(0, biomechModelController.getEpisimMechanicalModelGlobalParameters().getGravitation()); // Vector
 			// which
 			// avoidance
 			// has
 			// to
 			// process
-			Double2D randi = new Double2D(modelController.getDoubleField("randomness")
-					* (epidermis.random.nextDouble() - 0.5), modelController.getDoubleField("randomness")
+			Double2D randi = new Double2D(biomechModelController.getEpisimMechanicalModelGlobalParameters().getRandomness()
+					* (epidermis.random.nextDouble() - 0.5), biomechModelController.getEpisimMechanicalModelGlobalParameters().getRandomness()
 					* (epidermis.random.nextDouble() - 0.5));
-			Vector2D actionForce = new Vector2D(gravi.x + extForce.x * modelController.getDoubleField("externalPush")
-					+ randi.x, gravi.y + extForce.y * modelController.getDoubleField("externalPush"));
+			Vector2D actionForce = new Vector2D(gravi.x + extForce.x * biomechModelController.getEpisimMechanicalModelGlobalParameters().getExternalPush()
+					+ randi.x, gravi.y + extForce.y * biomechModelController.getEpisimMechanicalModelGlobalParameters().getExternalPush());
 			Double2D potentialLoc = new Double2D(epiderm.getCellContinous2D().stx(actionForce.x + oldLoc.x), epiderm
 					.getCellContinous2D().sty(actionForce.y + oldLoc.y));
 			extForce.x = 0; // alles einberechnet
@@ -675,7 +536,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			// try ACTION force
 			// ////////////////////////////////////////////////
 			Bag b = epiderm.getCellContinous2D().getObjectsWithinDistance(potentialLoc,
-					modelController.getDoubleField("neighborhood_µm"), false); // theEpidermis.neighborhood
+					biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
 			HitResultClass hitResult1;
 			hitResult1 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, epidermis.NextToOuterCell);
 
@@ -685,7 +546,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			// optimise my own position by giving way to the calculated pressures
 			Vector2D reactionForce = extForce;
 			reactionForce = reactionForce.add(hitResult1.otherMomentum.amplify(epidermis.getConsistency()));
-			reactionForce = reactionForce.add(hitResult1.adhForce.amplify(modelController.getDoubleField("cohesion")));
+			reactionForce = reactionForce.add(hitResult1.adhForce.amplify(biomechModelController.getEpisimMechanicalModelGlobalParameters().getCohesion()));
 
 			// restrict movement if direction changes to quickly (momentum of a
 			// cell
@@ -725,12 +586,12 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
 
 			b = epiderm.getCellContinous2D().getObjectsWithinDistance(potentialLoc,
-					modelController.getDoubleField("neighborhood_µm"), false); // theEpidermis.neighborhood
+					biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
 			HitResultClass hitResult2;
 			hitResult2 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, epidermis.NextToOuterCell);
 
 			// move only on pressure when not stem cell
-			if(keratinoType != modelController.getGlobalIntConstant("KTYPE_STEM")){
+			if(keratinoType != EpisimCellDiffModelGlobalParameters.KTYPE_STEM){
 				if((hitResult2.numhits == 0)
 						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.motherIdentity) || (hitResult2.otherMotherId == this.identity)))){
 					double dx = potentialLoc.x - oldLoc.x;
@@ -741,12 +602,12 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 
 			Double2D newLoc = epiderm.getCellContinous2D().getObjectLocation(this);
 			double maxy = TissueBorder.lowerBound(newLoc.x);
-			if((maxy - newLoc.y) < modelController.getDoubleField("basalLayerWidth"))
+			if((maxy - newLoc.y) < biomechModelController.getEpisimMechanicalModelGlobalParameters().getBasalLayerWidth())
 				isBasalStatisticsCell = true;
 			else
 				isBasalStatisticsCell = false; // ABSOLUTE DISTANZ KONSTANTE
 
-			if((maxy - newLoc.y) < modelController.getDoubleField("membraneCellsWidth"))
+			if((maxy - newLoc.y) < biomechModelController.getEpisimMechanicalModelGlobalParameters().getMembraneCellsWidth())
 				isMembraneCell = true;
 			else
 				isMembraneCell = false; // ABSOLUTE DISTANZ KONSTANTE
@@ -760,8 +621,8 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			// ////////////////////////////////////////////////
 			// Diffusion of signals
 			// ////////////////////////////////////////////////
-
-			diffuser(b, epiderm.getCellContinous2D(), newLoc, (isOuterCell || hitResult2.nextToOuterCell));
+//TODO: diffuser anbindung erstellen
+		//	diffuser(b, epiderm.getCellContinous2D(), newLoc, (isOuterCell || hitResult2.nextToOuterCell));
 
 			// ///////////////////////////////////////////////////////
 			// Differentiation: Environment and Internal processing
@@ -880,7 +741,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 	public void setLocal_maxAge(long local_maxAge) { this.local_maxAge = local_maxAge; }
 	
 	public void setMembraneCell(boolean isMembraneCell) {	this.isMembraneCell = isMembraneCell; }
-	public void setModelController(BioChemicalModelController modelController) { this.modelController = modelController;	}
+	public void setModelController(ModelController modelController) { this.modelController =modelController;	}
 	
 	public void setNeighborDrawInfoX(double[] neighborDrawInfoX) { this.neighborDrawInfoX = neighborDrawInfoX; }
    public void setNeighborDrawInfoY(double[] neighborDrawInfoY) { this.neighborDrawInfoY = neighborDrawInfoY; }
@@ -897,8 +758,9 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 	public void setVoronoihull(GrahamPoint[] voronoihull) { this.voronoihull = voronoihull; }
 	public void setVoronoihullvertexes(int voronoihullvertexes) { this.voronoihullvertexes = voronoihullvertexes; }
 
-	
-		
+	public EpisimCellDiffModel getEpisimCellDiffModelObject(){
+		return null;
+	}
 	
 		           
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------

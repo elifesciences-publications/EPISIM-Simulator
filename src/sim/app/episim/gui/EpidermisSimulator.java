@@ -36,6 +36,7 @@ import sim.app.episim.SnapshotWriter;
 import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.ModelController;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.Console;
 import sim.display.ConsoleHack;
@@ -247,7 +248,7 @@ public class EpidermisSimulator extends JFrame{
 		if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = jarFileChoose.getSelectedFile();
 
-			boolean success = BioChemicalModelController.getInstance().loadModelFile(file);
+			boolean success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(file);
 			
 			if(SnapshotWriter.getInstance().getSnapshotPath() == null){
 				JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info", JOptionPane.INFORMATION_MESSAGE);
@@ -321,7 +322,7 @@ public class EpidermisSimulator extends JFrame{
 				if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 					file2 = jarFileChoose.getSelectedFile();
 
-					success = BioChemicalModelController.getInstance().loadModelFile(file2);
+					success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(file2);
 					if(SnapshotWriter.getInstance().getSnapshotPath() == null){
 						JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info",
 								JOptionPane.INFORMATION_MESSAGE);
@@ -333,7 +334,7 @@ public class EpidermisSimulator extends JFrame{
 					if(success){
 						// EpiSimCharts.rebuildCharts();
 						cleanUpContentPane();
-						epidermis.setModelController(BioChemicalModelController.getInstance());
+						epidermis.setModelController(ModelController.getInstance());
 						epiUI = new EpidermisGUIState(epidermis, this, true);
 						epiUI.setReloadedSnapshot(true);
 						if(epiUI.getWoundPortrayalDraw() !=null){

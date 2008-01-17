@@ -5,6 +5,8 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 
 import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.EpisimMechanicalModelGlobalParameters;
+import sim.app.episim.model.ModelController;
 
 
 public class TissueBorder {
@@ -12,26 +14,30 @@ public class TissueBorder {
 	private static int basalPeriod=70;      // width of an undulation at the foot
 	
 	
+	private static  EpisimMechanicalModelGlobalParameters globalParameters;  
 	
 	
-	private static  double width =BioChemicalModelController.getInstance().getDoubleField("width")-2;
 	private TissueBorder(){
-	 	
+		globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters();  
+		
 	}
 	
 	
 	public static double getWidth(){
-		return width;
+		return globalParameters.getWidth()-2;
 	}
 	
 	public static double lowerBound(double x)
 	 {
-	     // y = a * e ^ (-b * x * x) Gaussche Glockenkurve
-	     double p=basalPeriod;        
+	
+		
+		// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
+	     double p=basalPeriod; 
+	     
 	     double partition=x-(int)(x/p)*p - p/2; // alle 10 einen buckel 5=10/2        
-	     double v=Math.exp(-partition*partition/BioChemicalModelController.getInstance().getIntField("basalOpening_µm"));
+	     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_µm());
 	     //System.out.println("x:"+x+" p:"+partition+" v:"+v+" Av:"+basalAmplitude*v);
-	     return basalY+BioChemicalModelController.getInstance().getIntField("basalAmplitude_µm")*v;        
+	     return basalY+globalParameters.getBasalAmplitude_µm()*v;        
 	 }
 
 }

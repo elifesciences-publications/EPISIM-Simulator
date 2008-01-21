@@ -4,13 +4,14 @@ import sim.app.episim.GrahamScan;
 import sim.app.episim.KCyte;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
-import sim.app.episim.model.EpisimCellDiffModelGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.portrayal.*;
 import sim.util.*;
 import java.util.Comparator;
 import java.awt.*;
 import java.awt.geom.*;
+
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
 //import sim.app.ngflock.*;
 //import sim.app.episim1.*;

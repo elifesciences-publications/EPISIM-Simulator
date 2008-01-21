@@ -10,6 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import episiminterfaces.EpisimMechanicalModel;
+import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+
 import sim.app.episim.Epidermis;
 import sim.app.episim.KCyte;
 

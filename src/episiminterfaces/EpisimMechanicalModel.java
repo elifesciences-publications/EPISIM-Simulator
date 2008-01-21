@@ -1,4 +1,4 @@
-package sim.app.episim.model;
+package episiminterfaces;
 
 
 public interface EpisimMechanicalModel {

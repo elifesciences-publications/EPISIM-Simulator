@@ -1,4 +1,4 @@
-package sim.app.episim.model;
+package episiminterfaces;
 
 
 public interface EpisimCellDiffModelGlobalParameters {
@@ -23,4 +23,6 @@ public interface EpisimCellDiffModelGlobalParameters {
 
  	public int getMaxCellAge();
 	public void setMaxCellAge(int val);
+	
+	void resetInitialGlobalValues();
 }

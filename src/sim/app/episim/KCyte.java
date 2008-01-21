@@ -3,13 +3,13 @@ import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.ChartMonitoredCellType;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
-import sim.app.episim.model.EpisimCellDiffModel;
-import sim.app.episim.model.EpisimCellDiffModelGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
 import ec.util.*;
+import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;

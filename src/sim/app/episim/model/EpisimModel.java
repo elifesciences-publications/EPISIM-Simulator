@@ -1,6 +1,8 @@
 package sim.app.episim.model;
 
 
+import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import sim.app.episim.*;
 
 public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlobalParameters{
@@ -233,6 +235,11 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
          theEpidermis.inkrementActualNoNucleus();
          
      }
+	}
+	public void resetInitialGlobalValues() {
+
+		// TODO Auto-generated method stub
+		
 	}
 
 	

@@ -4,8 +4,9 @@ package sim.app.episim;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 
+import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+
 import sim.app.episim.model.BioChemicalModelController;
-import sim.app.episim.model.EpisimMechanicalModelGlobalParameters;
 import sim.app.episim.model.ModelController;
 
 

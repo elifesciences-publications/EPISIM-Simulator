@@ -1,5 +1,7 @@
 package sim.app.episim.model;
 
+import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+
 public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlobalParameters {
 
 	public static final int KTYPE_UNASSIGNED = 0;

@@ -12,6 +12,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.io.IOException;
+
+import episimfactories.AbstractEpisimCellDiffModelFactory;
+import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimMechanicalModel;
+import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 import sim.app.episim.model.*;
 
 import sim.app.episim.ExceptionDisplayer;
@@ -23,8 +29,8 @@ class ModelJarClassLoader extends URLClassLoader {
     private URL url;
 
    
-    private Class modelClass;
-    private Class parametersClass;
+    private Class factoryClass;
+    private AbstractEpisimCellDiffModelFactory factory;
     
     /**
      * Creates a new JarClassLoader for the specified url.
@@ -36,29 +42,29 @@ class ModelJarClassLoader extends URLClassLoader {
         this.url = url;
         
         try{
-	      this.modelClass = loadClass(getClassName(new Attributes.Name("Model-Class")));
-     
-	      this.parametersClass = loadClass(getClassName(new Attributes.Name("Parameters-Class")));
+	      this.factoryClass = loadClass(getClassName(new Attributes.Name("Factory-Class")));
+	     
+	      if(factoryClass != null && AbstractEpisimCellDiffModelFactory.class.isAssignableFrom(this.factoryClass)){
+	      	factory = (AbstractEpisimCellDiffModelFactory) factoryClass.newInstance();
+	      }
+	      else throw new Exception("No compatible EpisimCellDiffModelFactory found!");
         }
-        catch (ClassNotFoundException e){
+        catch (Exception e){
       	  ExceptionDisplayer.getInstance().displayException(e);
         }
-        catch (IOException e){
-      	  ExceptionDisplayer.getInstance().displayException(e);
-        }
+       
     }
     
     public boolean isDiffModel(){
    	 
    	 
-   	if(modelClass != null && implementsInterface(modelClass, EpisimCellDiffModel.class)
-   			&&	parametersClass != null && implementsInterface(parametersClass, EpisimCellDiffModelGlobalParameters.class)) return true;
+   	if(factory != null && EpisimCellDiffModel.class.isAssignableFrom(factory.getEpisimCellDiffModelClass())
+   			&&	factory.getEpisimCellDiffModelGlobalParametersObject() != null) return true;
    	return false;
     }
     
     public boolean isMechnicalModel(){
-   	 if(modelClass != null && implementsInterface(modelClass, EpisimMechanicalModel.class)
-    			&&	parametersClass != null && implementsInterface(parametersClass,EpisimMechanicalModelGlobalParameters.class)) return true;
+   	//TODO: Please implements when mechanical Model can be dynamicly loaded
     	return false;
     }
     
@@ -73,12 +79,11 @@ class ModelJarClassLoader extends URLClassLoader {
     }
     
     public <T extends Object> Class<T> getModelClass(Class<T> modelInterface){
-   	if(implementsInterface(modelClass, modelInterface)) return modelClass;
+   	if(modelInterface.isAssignableFrom(factory.getEpisimCellDiffModelClass())) return factory.getEpisimCellDiffModelClass();
    	else return null;
     }
-    public <T extends Object> Class<T> getGlobalParametersClass(Class<T> globalParametersInterface){
-   	 if(implementsInterface(parametersClass, globalParametersInterface)) return parametersClass;
-    	else return null;
+    public Object getGlobalParametersObject(){
+   	 return factory.getEpisimCellDiffModelGlobalParametersObject();
     }
 
    

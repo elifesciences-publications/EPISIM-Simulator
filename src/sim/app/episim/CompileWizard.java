@@ -98,41 +98,36 @@ public class CompileWizard {
 	
 	
 	public void showSelectFilesDialogs(){
-		boolean mainModelApproved = false;
-		boolean parametersApproved = false;
+		boolean factoryApproved = false;
 		boolean modelFilesApproved = false;
 		boolean jarFileApproved = false;
-		File [] modelFiles = null;
-		File mainModelFile = null;
-		File parametersFile = null;
+		File modelFolder = null;
+		File factoryFile = null;
+		
 		File jarFile = null;
 		
-		fileChoose.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fileChoose.setMultiSelectionEnabled(true);
-		fileChoose.setDialogTitle("Select Episim-Model Java-Files");
+		fileChoose.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChoose.setMultiSelectionEnabled(false);
+		fileChoose.setDialogTitle("Select Episim-Model-Folder");
 		
 		modelFilesApproved = JFileChooser.APPROVE_OPTION == fileChoose.showDialog(null, "Select");
-		modelFiles = fileChoose.getSelectedFiles();
+		modelFolder = fileChoose.getSelectedFile();
+		fileChoose.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		if(modelFilesApproved){
 			fileChoose.setMultiSelectionEnabled(false);
-			fileChoose.setDialogTitle("Select Episim-Main-Model Java-File");
-			mainModelApproved = JFileChooser.APPROVE_OPTION == fileChoose.showDialog(null, "Select");
-			mainModelFile = fileChoose.getSelectedFile();
+			fileChoose.setDialogTitle("Select Episim-Model-Factory Java-File");
+			factoryApproved = JFileChooser.APPROVE_OPTION == fileChoose.showDialog(null, "Select");
+			factoryFile = fileChoose.getSelectedFile();
 		}
-		if(mainModelApproved && modelFilesApproved){
-			fileChoose.setDialogTitle("Select Episim-Parameters Java-File");
-			parametersApproved = JFileChooser.APPROVE_OPTION == fileChoose.showDialog(null, "Select");
-			parametersFile = fileChoose.getSelectedFile();
-		}
-		
-		if(mainModelApproved && parametersApproved && modelFilesApproved){
+				
+		if(factoryApproved && modelFilesApproved){
 			jarChooser.setCurrentDirectory(fileChoose.getCurrentDirectory());
 			jarFileApproved = JFileChooser.APPROVE_OPTION == jarChooser.showSaveDialog(null);
 		   jarFile = jarChooser.getSelectedFile();
 		}
-			if(mainModelApproved && parametersApproved && modelFilesApproved && jarFileApproved){
+			if(factoryApproved && modelFilesApproved && jarFileApproved){
 				try{
-	            createModelArchive(modelFiles, mainModelFile, parametersFile, jarFile);
+	            createModelArchive(modelFolder, factoryFile, jarFile);
             }
             catch (IOException e){
             	ExceptionDisplayer.getInstance()
@@ -146,10 +141,10 @@ public class CompileWizard {
 		
 	}
 	
-	private void createModelArchive(File[] modelFiles, File mainModelFile, File parametersFile, File jarFile) throws IOException, URISyntaxException {
-		final List<File> files = Arrays.asList(modelFiles);
-		final File mainModelFileFinal = mainModelFile;
-		final File parametersFileFinal = parametersFile;
+	private void createModelArchive(File modelFolder, File factoryFile, File jarFile) throws IOException, URISyntaxException {
+		final File modelFolderFinal = modelFolder;
+		final File factoryFileFinal = factoryFile;
+		
 		final File jarFileFinal = jarFile;
 		
 		Runnable runnable = new Runnable() {
@@ -164,6 +159,10 @@ public class CompileWizard {
 						
 						// Preparing Compiler
 						progressLabel.setText("Compiling Episim-Model Java-Files");
+						
+						List<File> files = new ArrayList<File>();
+						getFiles(modelFolderFinal, files, ".java");
+						
 						List<File> classFiles = compileModelFiles(files);
 
 						int ticksize = 50 / (classFiles.size() + 1);
@@ -178,8 +177,7 @@ public class CompileWizard {
 
 							sBuffer.append("Manifest-Version: 1.0\n");
 							sBuffer.append("Created-By: 1.1 (Episim - Uni Heidelberg)\n");
-							sBuffer.append("Model-Class: " + mainModelFileFinal.getName().substring(0, mainModelFileFinal.getName().length()-5)+"\n");
-							sBuffer.append("Parameters-Class: " + parametersFileFinal.getName().substring(0, parametersFileFinal.getName().length()-5)+"\n");
+							sBuffer.append("Factory-Class: " + factoryFileFinal.getName().substring(0, factoryFileFinal.getName().length()-5)+"\n");
 
 		
 							ByteArrayInputStream byteIn = new ByteArrayInputStream(sBuffer.toString().getBytes("UTF-8"));
@@ -198,14 +196,15 @@ public class CompileWizard {
 
 								if (f.isDirectory())
 									continue;
-								String name = f.getName();
+								String name = f.getAbsolutePath();
+								name =name.replace(modelFolderFinal.getAbsolutePath() + System.getProperty("file.separator"), "");
 								
 								if (name.endsWith(".class")) {
 
 									progressLabel.setText("Wrinting " + "into Episim-Model-Archive");
 									progressBar.setValue(progressBar.getValue()+ ticksize);
 									Thread.sleep(500);
-									jarOut.putNextEntry(new JarEntry(f.getName()));
+									jarOut.putNextEntry(new JarEntry(name));
 								} else
 									continue;
 
@@ -282,6 +281,18 @@ public class CompileWizard {
 
 				}
 			return classFiles;
+		
+	}
+	
+	private void getFiles(File rootDirectory, List<java.io.File> files, String suffix){
+		for (java.io.File src : rootDirectory.listFiles()) {
+			if(src.isDirectory()) getFiles(src, files, suffix);
+			else if (src.getAbsolutePath().endsWith(suffix)) {
+				
+				
+				files.add(src);
+			}
+		}
 		
 	}
 

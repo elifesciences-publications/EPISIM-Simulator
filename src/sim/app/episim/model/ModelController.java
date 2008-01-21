@@ -2,6 +2,11 @@ package sim.app.episim.model;
 
 import java.util.concurrent.Semaphore;
 
+import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimMechanicalModel;
+import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+
 import sim.app.episim.ExceptionDisplayer;
 public class ModelController implements java.io.Serializable{
 	

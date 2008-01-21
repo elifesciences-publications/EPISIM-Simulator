@@ -12,9 +12,12 @@ package sim.app.episim.model;
 	import java.util.Map;
 	import java.util.concurrent.ConcurrentHashMap;
 
+import episiminterfaces.EpisimMechanicalModel;
+import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+
 	import sim.app.episim.Epidermis;
 	import sim.app.episim.ExceptionDisplayer;
-	import sim.app.episim.KCyte;
+import sim.app.episim.KCyte;
 
 
 	public class BioMechanicalModelController implements java.io.Serializable{

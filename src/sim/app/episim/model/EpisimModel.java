@@ -35,8 +35,8 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
 		
 	 
 		
-	 	public int getMaxCellAge() { return maxCellAge_t; }
-		public void setMaxCellAge(int val) { if (val >= 0.0) maxCellAge_t= val; }
+	 	public int getMaxAge() { return maxCellAge_t; }
+		public void setMaxAge(int val) { if (val >= 0.0) maxCellAge_t= val; }
 	 	
 		
 	    
@@ -58,8 +58,8 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
 	 	public double getCalBasalEntry_per_t() { return calBasalEntry_per_t; }
 		public void   setCalBasalEntry_per_t(double val) { if (val >= 0.0) calBasalEntry_per_t= val; }
 		
-	 	public double getCalSaturation() { return calSaturation; }
-	 	public void   setCalSaturation(double val) { if (val >= 0.0) calSaturation= val; }
+	 	public double getMaxCa() { return calSaturation; }
+	 	public void   setMaxCa(double val) { if (val >= 0.0) calSaturation= val; }
 
 		
 	 	public double getLamellaSecretion() { return lamellaSecretion; }
@@ -67,8 +67,8 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
 
 		
 		
-	 	public double getLamellaSaturation() { return lamellaSaturation; }
-	 	public void   setLamellaSaturation(double val) { if (val >= 0.0) lamellaSaturation= val; }
+	 	public double getMaxLam() { return lamellaSaturation; }
+	 	public void   setMaxLam(double val) { if (val >= 0.0) lamellaSaturation= val; }
 
 		
 	 	public double getLipSaturation() { return lipSaturation; }
@@ -86,8 +86,8 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
 	 	public void   setBarrierLossReduction_frac(double val) { if (val >= 0.0) barrierLossReduction_frac= val; }
 
 		
-	 	public int getStemCycle_t() { return stemCycle_t; }
-	 	public void setStemCycle_t(int val) { if (val >= 0.0) stemCycle_t= val; }
+	 	public int getCellCycleStem() { return stemCycle_t; }
+	 	public void setCellCycleStem(int val) { if (val >= 0.0) stemCycle_t= val; }
 
 		
 		public int getCellCycleTA() { return tACycle_t ; }
@@ -102,7 +102,7 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
 
 	public void differentiate(KCyte  kCyte, Epidermis theEpidermis, boolean pBarrierMember){
 		
-		int keratinoType =kCyte.getKeratinoType();
+	/*	int keratinoType =kCyte.getKeratinoType();
 		
 		double ageFrac=(double)kCyte.getKeratinoAge() / maxCellAge_t;
       
@@ -234,13 +234,93 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
          kCyte.setKeratinoType(KTYPE_NONUCLEUS);
          theEpidermis.inkrementActualNoNucleus();
          
-     }
+     }*/
 	}
 	public void resetInitialGlobalValues() {
 
 		// TODO Auto-generated method stub
 		
 	}
+	public double getCa() {
+
+	   // TODO Auto-generated method stub
+	   return 0;
+   }
+	public double getLam() {
+
+	   // TODO Auto-generated method stub
+	   return 0;
+   }
+	public double getLip() {
+
+	   // TODO Auto-generated method stub
+	   return 0;
+   }
+	public void setCa(double val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public void setLam(double val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public void setLip(double val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public int getDifferentiation() {
+
+	   // TODO Auto-generated method stub
+	   return 0;
+   }
+	public void setDifferentiation(int val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public int getAge() {
+
+	   // TODO Auto-generated method stub
+	   return 0;
+   }
+	public void setAge(int val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public boolean getBooleanProperty(int propertycode) {
+
+	   // TODO Auto-generated method stub
+	   return false;
+   }
+	public double getNumberProperty(int propertycode) {
+
+	   // TODO Auto-generated method stub
+	   return 0;
+   }
+	public String getStringProperty(int propertycode) {
+
+	   // TODO Auto-generated method stub
+	   return null;
+   }
+	public void setBooleanProperty(int propertycode, boolean val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public void setNumberProperty(int propertycode, double val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public void setStringProperty(int propertycode, String val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
 
 	
 

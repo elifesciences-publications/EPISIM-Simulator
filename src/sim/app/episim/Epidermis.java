@@ -215,7 +215,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
             	 KCyte stemCell= new KCyte(this);                 
                 // stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
                  stemCell.setOwnColor(10);
-                 stemCell.setKeratinoAge(random.nextInt(chemicalModContr.getEpisimCellDiffModelGlobalParameters().getStemCycle_t()));     // somewhere on the stemCycle
+                 stemCell.getEpisimCellDiffModelObject().setAge(random.nextInt(chemicalModContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem()));     // somewhere on the stemCycle
                  cellContinous2D.setObjectLocation(stemCell, newloc);
                  lastloc=newloc;
                  Stoppable stoppable = schedule.scheduleRepeating(stemCell);

@@ -92,10 +92,10 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 // get Agent data
                 int id=kcyte.getIdentity();
                 int numFlockers=kcyte.getEpidermis().getAllocatedKCytes();
-                int keratinoType=kcyte.getKeratinoType();                                
+                int keratinoType=kcyte.getEpisimCellDiffModelObject().getDifferentiation();                                
                 int typeColor=biomechModelController.getEpisimMechanicalModelGlobalParameters().getTypeColor();              
                 int ownCol=(kcyte.getOwnColor())*kcyte.getEpidermis().getIndividualColor();
-                int maxAge= kcyte.getEpisimCellDiffModelObject().getMaxCellAge(); 
+                int maxAge= kcyte.getEpisimCellDiffModelObject().getMaxAge(); 
                 wloc = kcyte.getKeratinoWidth();                                
                 hloc = kcyte.getKeratinoHeight();  
 
@@ -178,23 +178,23 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 // set shape
                 //
                 
-                if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_STEM){ 
+                if(keratinoType == EpisimCellDiffModelGlobalParameters.STEMCELL){ 
                	 showNucleus=true; 
                	 drawFrame=true;
                	 } // dunkelblau // mittels word zeichnen einfach zu finden
-                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_TA){ 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.TACELL){ 
                	 showNucleus=true; 
                	 drawFrame=true; 
                 }                             
-                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_SPINOSUM){ 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.EARLYSPICELL){ 
                	 showNucleus=true; 
                	 drawFrame=true;  
                 }
-                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_LATESPINOSUM){ 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.LATESPICELL){ 
                	 showNucleus=true; 
                	 drawFrame=true; 
                 }
-                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_GRANULOSUM){ 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.GRANUCELL){ 
                	 drawFrame=false; 
                	 drawVoronoi=false; 
                	 showNucleus=false; 
@@ -222,27 +222,27 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 if ((typeColor==1) || (typeColor==2) || (typeColor==8))  // Cell type coloring
                     {
                         
-                  	   if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_STEM){ 
+                  	   if(keratinoType == EpisimCellDiffModelGlobalParameters.STEMCELL){ 
                   	   	Red=0x46; 
                   	   	Green=0x72; 
                   	   	Blue=0xBE;  
                   	   } // dunkelblau // mittels word zeichnen einfach zu finden
-                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_TA){ 
+                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.TACELL){ 
                   	   	Red=148; 
                   	   	Green=167; 
                   	   	Blue=214;  
                   	   }                             
-                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_SPINOSUM){ 
+                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.EARLYSPICELL){ 
                   	   	Red=0xE1; 
                   	   	Green=0x6B; 
                   	   	Blue=0xF6; 
                   	   }
-                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_LATESPINOSUM){ 
+                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.LATESPICELL){ 
                   	   	Red=0xC1; 
                   	   	Green=0x4B; 
                   	   	Blue=0xE6;
                   	   }
-                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_GRANULOSUM){ 
+                  	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.GRANUCELL){ 
                   	   	Red=204; 
                   	   	Green=0; 
                   	   	Blue=102; 
@@ -260,17 +260,17 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                    }
                   if (typeColor==3) // Age coloring
                     {
-                        Colorvalue= (int) (250-250*kcyte.getKeratinoAge()/maxAge);
+                        Colorvalue= (int) (250-250*kcyte.getEpisimCellDiffModelObject().getAge()/maxAge);
                         Red=255;
                         Green=Colorvalue;                        
                         Blue=Colorvalue;
-                        if (keratinoType== EpisimCellDiffModelGlobalParameters.KTYPE_STEM)
+                        if (keratinoType== EpisimCellDiffModelGlobalParameters.STEMCELL)
                         { Red=148; Green=167; Blue=214; } // stem cells do not age
                         myFrameColor=Color.black;
                     }
                   if ((typeColor==4) || (typeColor==9))  // Calcium coloring
                     {
-                        Colorvalue= (int) (255* (1-((kcyte.getOwnSigExternalCalcium()+kcyte.getOwnSigInternalCalcium()) / kcyte.getEpisimCellDiffModelObject().getCalSaturation())));
+                        Colorvalue= (int) (255* (1-((kcyte.getEpisimCellDiffModelObject().getCa()) / kcyte.getEpisimCellDiffModelObject().getMaxCa())));
                         Red=Colorvalue;         
                         Green=Colorvalue;
                         Blue=255;
@@ -280,7 +280,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                     }
                   if (typeColor==5)  // Lamella coloring
                     {
-                        Colorvalue= (int) (255* (1-(kcyte.getOwnSigLamella() / kcyte.getEpisimCellDiffModelObject().getLamellaSaturation())));
+                        Colorvalue= (int) (255* (1-(kcyte.getEpisimCellDiffModelObject().getLam() / kcyte.getEpisimCellDiffModelObject().getMaxLam())));
                         Red=Colorvalue;         
                         Green=255;
                         Blue=Colorvalue;
@@ -288,7 +288,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                     }
                   if (typeColor==6)  // Lipid coloring
                     {
-                        if (kcyte.getOwnSigLipids()>=kcyte.getEpisimCellDiffModelObject().getMinSigLipidsBarrier())
+                        if (kcyte.getEpisimCellDiffModelObject().getLip()>=biochemModelController.getEpisimCellDiffModelGlobalParameters().getMinSigLipidsBarrier())
                         { Red=0xCB; Green=0x2F; Blue=0x9F; }
                         else 
                         { Red=0xAF; Green=0xCB; Blue=0x97; }
@@ -445,9 +445,9 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             if (object instanceof KCyte)
             {
                 KCyte kcyte=((KCyte)object);
-                int KeratinoAge=kcyte.getKeratinoAge();                
+                int keratinoAge=kcyte.getEpisimCellDiffModelObject().getAge();                
                 w=5;
-                h=5-(int)KeratinoAge/60;
+                h=5-(int)keratinoAge/60;
                 h=(h<1 ? 1:h);
             };                    
             

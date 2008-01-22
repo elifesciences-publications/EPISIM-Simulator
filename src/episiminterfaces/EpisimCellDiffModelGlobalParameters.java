@@ -2,27 +2,32 @@ package episiminterfaces;
 
 
 public interface EpisimCellDiffModelGlobalParameters {
-	public static final int KTYPE_UNASSIGNED=0;
-	public static final int KTYPE_STEM=1;
-	public static final int KTYPE_BASAL=2;
-	public static final int KTYPE_TA=3;
-	public static final int KTYPE_SPINOSUM=4;
-	public static final int KTYPE_LATESPINOSUM=5;        
-	public static final int KTYPE_GRANULOSUM=7;
-	public static final int KTYPE_RENAME=8;
-	public static final int KTYPE_NONUCLEUS=9;
-	public static final int KTYPE_NIRVANA=9;
-	
-	int getStemCycle_t();
- 	void setStemCycle_t(int val);
 
+
+	public static final int KTYPE_UNASSIGNED=0;
+	public static final int KTYPE_NONUCLEUS=1;
+	public static final int KTYPE_NIRVANA=2;
+	public static final int STEMCELL=3;
+	public static final int EARLYSPICELL=4;
+	public static final int LATESPICELL=5;
+	public static final int TACELL=6;
+	public static final int GRANUCELL=7;
+	
+		
+	int getCellCycleStem();
+ 	void setCellCycleStem(int val);
 	
 	int getCellCycleTA();
  	void setCellCycleTA(int val);
  	
-
- 	public int getMaxCellAge();
-	public void setMaxCellAge(int val);
+ 	int getMaxAge();
+	void setMaxAge(int val);
 	
+	double getMinSigLipidsBarrier();
+ 	void setMinSigLipidsBarrier(double val);
+ 	
 	void resetInitialGlobalValues();
+
+
+
 }

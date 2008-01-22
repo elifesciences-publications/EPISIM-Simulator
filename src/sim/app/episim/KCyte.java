@@ -47,8 +47,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    private Double2D lastd = new Double2D(0,0);
    private boolean holePassed= false;
    private Epidermis epidermis;    
-   private int keratinoType;
-   private int keratinoAge;
+   
    
    
    private boolean newborn;
@@ -81,11 +80,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    
    private int hasGivenIons=0;
 
-   // ENV
-   private double ownSigExternalCalcium=0;
-   private double ownSigInternalCalcium=0;
-   private double ownSigLipids=0;
-   private double ownSigLamella=0;
+  
    
    private boolean isOuterCell=false;
    private boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
@@ -93,7 +88,11 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    
    private Stoppable stoppable = null;
    
+   ///////////////////////////////////////////////////////////
+   // THE CELL DIFFERENTIATION MODEL
+   ///////////////////////////////////////////////////////////
    
+   private EpisimCellDiffModel cellDiffModelObjekt;
    
 //-----------------------------------------------------------------------------------------------------------------------------------------   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
@@ -130,12 +129,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         inNirvana=false;        
         keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
         keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
-        keratinoAge=0;
-        keratinoType= EpisimCellDiffModelGlobalParameters.KTYPE_UNASSIGNED;
-        ownSigExternalCalcium=0;
-        ownSigInternalCalcium=0;
-        ownSigLipids=0;
-        ownSigLamella=0;
+       
         isOuterCell=false;        
         newborn=true;        
         voronoihullvertexes=0;
@@ -218,7 +212,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
             //double adyOpt = 5; // 3+theEpidermis.cellSpace;
             
             
-            if (keratinoType==EpisimCellDiffModelGlobalParameters.KTYPE_GRANULOSUM) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
+            if (this.cellDiffModelObjekt.getDifferentiation()==EpisimCellDiffModelGlobalParameters.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
             
             double optDistSq = adxOpt*adxOpt; //+adyOpt*adyOpt;
             double optDist=Math.sqrt(optDistSq);
@@ -289,7 +283,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 
                         else // attraction forces 
                         {
-                            double adhfac=biomechModelController.getEpisimMechanicalModelGlobalParameters().gibAdh_array(keratinoType, other.keratinoType);                           
+                            double adhfac=biomechModelController.getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellDiffModelObjekt.getDifferentiation(), other.getEpisimCellDiffModelObject().getDifferentiation());                           
                             if (actdist-optDist<biomechModelController.getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
                                         {                                                   
                                                 double sx=dx-dx*optDist/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
@@ -399,7 +393,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         kcyte.ownColor=this.epidermis.random.nextInt(200);
         kcyte.epidermis = this.epidermis;        // the herd
         kcyte.newborn();     
-        kcyte.local_maxAge= biochemModelController.getEpisimCellDiffModelGlobalParameters().getMaxCellAge();
+        kcyte.local_maxAge= biochemModelController.getEpisimCellDiffModelGlobalParameters().getMaxAge();
         long pSimTime=(long) epidermis.schedule.time();
         if (pSimTime<(kcyte.local_maxAge)) kcyte.local_maxAge=pSimTime;
 
@@ -413,14 +407,15 @@ public class KCyte extends CellType implements ChartMonitoredCellType
     {
         epidermis.inkrementActualTA();
         epidermis.inkrementActualKCytes();
-        KCyte TACell=makeChild(pC2dHerd);
+        KCyte taCell=makeChild(pC2dHerd);
       //  TACell.keratinoType=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_TA");        
         
         ////////////////////////////////////////////////////////////
         // WARUM bekommt die Zelle zufälliges alter?
         /////////////////////////////////////////////////////////////
         
-        TACell.keratinoAge=this.epidermis.random.nextInt(biochemModelController.getEpisimCellDiffModelGlobalParameters().getCellCycleTA());  // somewhere on the TA Cycle
+        taCell.getEpisimCellDiffModelObject()
+        	.setAge(this.epidermis.random.nextInt(biochemModelController.getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
         // erben der signal concentrationen
       
     }
@@ -448,7 +443,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         
     
 
-        if ((keratinoType==EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS)) // && (isOuterCell))
+        if ((this.cellDiffModelObjekt.getDifferentiation()==EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS)) // && (isOuterCell))
         {
             killCell();
         }
@@ -460,7 +455,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    	 
    	 
    	 epidermis.dekrementActualNoNucleus();
-   	 keratinoType=EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA;
+   	 this.cellDiffModelObjekt.setDifferentiation(EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA);
    	 epidermis.dekrementActualKCytes();
    	 inNirvana=true;            
    	 
@@ -591,7 +586,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			hitResult2 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, epidermis.NextToOuterCell);
 
 			// move only on pressure when not stem cell
-			if(keratinoType != EpisimCellDiffModelGlobalParameters.KTYPE_STEM){
+			if(this.cellDiffModelObjekt.getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL){
 				if((hitResult2.numhits == 0)
 						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.motherIdentity) || (hitResult2.otherMotherId == this.identity)))){
 					double dx = potentialLoc.x - oldLoc.x;
@@ -653,7 +648,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 // INCREMENT-DECREMENT-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
-	public void incrementKeratinoAge() {  keratinoAge += 1; } // for inspector
+	
 	public void incrementSpinosumCounter(){ spinosum_counter +=1;}
 	public void incrementVoronoiStable(){ voronoiStable +=1; }
 	
@@ -666,7 +661,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 	public Epidermis getEpidermis() {	return epidermis;	}
-	public double getExternalCalcium() { return ownSigExternalCalcium; }   // for inspector 
+	
 	public double getExtForceX () { return extForce.x; }   // for inspector 
    public double getExtForceY () { return extForce.y; }   // for inspector
  
@@ -678,17 +673,17 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    public int getHasGivenIons() { return hasGivenIons; }
    
    public int getIdentity() { return identity; }   // for inspector
-   public double getInternalCalcium() { return ownSigInternalCalcium; }   // for inspector 
    
-   public int getKeratinoAge() { return keratinoAge; } // for inspector
+   
+  
    public int getKeratinoHeight() {	return keratinoHeight; }
-	public int getKeratinoType() { return keratinoType; }// for inspector
+	
 	public int getKeratinoWidth() {return keratinoWidth;}
 	
-	public double getLamella() { return ownSigLamella; }   // for inspector
+	
 	public double getLastDrawInfoX() { return lastDrawInfoX;	}
 	public double getLastDrawInfoY() { return lastDrawInfoY; }
-	public double getLipids() { return ownSigLipids; }   // for inspector
+
 	public long getLocal_maxAge() {return local_maxAge;}
 	
 	public String getName() { return NAME; }
@@ -696,10 +691,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 	public double[] getNeighborDrawInfoY() { return neighborDrawInfoY; }
 	
 	public int getOwnColor() {	return ownColor; }
-	public double getOwnSigExternalCalcium() { return ownSigExternalCalcium; }
-	public double getOwnSigInternalCalcium() { return ownSigInternalCalcium; }
-	public double getOwnSigLamella() { return ownSigLamella;	}
-	public double getOwnSigLipids() { return ownSigLipids; }
+
 	
 	public int getSpinosumCounter(){ return spinosum_counter;}
 	
@@ -730,9 +722,9 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 	
 	public void setInNirvana(boolean inNirvana) { this.inNirvana = inNirvana; }
 	
-	public void setKeratinoAge(int keratinoAge) { this.keratinoAge = keratinoAge;	}
+	
 	public void setKeratinoHeight(int keratinoHeight) { this.keratinoHeight = keratinoHeight;	}
-	public void setKeratinoType(int type){ keratinoType = type;}
+	
 	public void setKeratinoWidth(int keratinoWidth) { this.keratinoWidth = keratinoWidth; }
 	
 	public void setLastDrawInfoAssigned(boolean lastDrawInfoAssigned) { this.lastDrawInfoAssigned = lastDrawInfoAssigned; }
@@ -748,10 +740,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 	
 	public void setOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell;}
 	public void setOwnColor(int ownColor) { this.ownColor = ownColor; }
-	public void setOwnSigExternalCalcium(double ownSigExternalCalcium) { this.ownSigExternalCalcium = ownSigExternalCalcium; }
-	public void setOwnSigInternalCalcium(double ownSigInternalCalcium) { this.ownSigInternalCalcium = ownSigInternalCalcium; }
-	public void setOwnSigLamella(double ownSigLamella) { this.ownSigLamella = ownSigLamella; }
-	public void setOwnSigLipids(double ownSigLipids) { this.ownSigLipids = ownSigLipids; }
+	
 	
 	public void setStoppable(Stoppable stopperparam)   { this.stoppable = stopperparam;}
         

@@ -40,21 +40,23 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
     public KeratinocytePortrayal2D() {
    	 
    	 this(Color.gray,false); 
-   	 modelController = ModelController.getInstance();
+   	
    	 
     }
     public KeratinocytePortrayal2D(Paint paint)  { 
    	 
    	 this(paint,true); 
-   	 modelController = ModelController.getInstance();
+   	 
    	 
     }
     public KeratinocytePortrayal2D(boolean drawFrame) { 
    	 this(Color.gray,drawFrame); 
-   	 modelController = ModelController.getInstance();
+   	
    	 }
     public KeratinocytePortrayal2D(Paint paint, boolean drawFrame)  { 
    	 modelController = ModelController.getInstance();
+   	 biomechModelController = modelController.getBioMechanicalModelController();
+   	 biochemModelController = modelController.getBioChemicalModelController();
    	 this.paint = paint; 
    	 this.drawFrame = drawFrame; 
    	 }
@@ -91,7 +93,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                
                 // get Agent data
                 int id=kcyte.getIdentity();
-                int numFlockers=kcyte.getEpidermis().getAllocatedKCytes();
+                int numFlockers=kcyte.getEpidermis().getNumberOfKCytes();
                 int keratinoType=kcyte.getEpisimCellDiffModelObject().getDifferentiation();                                
                 int typeColor=biomechModelController.getEpisimMechanicalModelGlobalParameters().getTypeColor();              
                 int ownCol=(kcyte.getOwnColor())*kcyte.getEpidermis().getIndividualColor();

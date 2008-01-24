@@ -45,12 +45,12 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    private int gKeratinoHeightGranu=4;
                 
    private Double2D lastd = new Double2D(0,0);
-   private boolean holePassed= false;
+ 
    private Epidermis epidermis;    
    
    
    
-   private boolean newborn;
+   
    private double lastDrawInfoX;
    private double lastDrawInfoY;
    private boolean lastDrawInfoAssigned=false;
@@ -97,44 +97,45 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 //-----------------------------------------------------------------------------------------------------------------------------------------   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
-
-    public KCyte(Epidermis epidermis)
+   public KCyte(){}
+    public KCyte(Epidermis epidermis, EpisimCellDiffModel cellDiffModel)
     {
+   	 	this.cellDiffModelObjekt = cellDiffModel;
    	 	modelController = ModelController.getInstance();
    	 	biochemModelController = modelController.getBioChemicalModelController();
    	 	biomechModelController = modelController.getBioMechanicalModelController();
    	 // always as first thing, set beholder
         this.epidermis=epidermis;
         // now local vars
-        epidermis.inkrementAllocatedKCytes();
-        identity=epidermis.getAllocatedKCytes();        
-        newborn();
-        newborn=false;                    
-        lastd=new Double2D(0.0,-3);
-        // Memory Management
-        if (epidermis.getAllocatedKCytes()>epidermis.getAllCells().size()-2) // for safety -2
-            epidermis.getAllCells().resize(epidermis.getAllCells().size()+500); // alloc 500 in advance
-        epidermis.getAllCells().add(this); // register this as additional one in Bag
-        //System.out.println("New Cell Nr."+theEpidermis.allocatedKCytes);
-        
-        
+        epidermis.inkrementNumberOfKCytes();
+        identity=epidermis.getNumberOfKCytes();        
        
-    }
-
-    // reset information of this keratinocyte
-    public void newborn()
-    {
-        holePassed=false;
         extForce=new Vector2D(0,0);
         inNirvana=false;        
         keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
         keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
        
         isOuterCell=false;        
-        newborn=true;        
+               
         voronoihullvertexes=0;
         voronoiStable=0;
-    }    
+        
+        
+        
+                      
+        lastd=new Double2D(0.0,-3);
+        
+        
+        epidermis.checkMemory();
+        
+       
+        epidermis.getAllCells().add(this); // register this as additional one in Bag
+       
+        
+        
+       
+    }
+
     
     public double orientation2D()
         {
@@ -376,38 +377,40 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         return 4/(1+0.1*Math.exp((-x-4)/1));
     }
     
-    public KCyte makeChild(Continuous2D pC2dHerd)
+    public KCyte makeChild(EpisimCellDiffModel cellDiffModel)
     {       
-        // Either we get use a currently unused cell oder we allocate a new one
+        
+   	 Continuous2D cellContinous2D = epidermis.getCellContinous2D();
+   	 
+   	 // Either we get use a currently unused cell oder we allocate a new one
         KCyte kcyte;        
        
-            kcyte= new KCyte(epidermis); 
+            kcyte= new KCyte(epidermis, cellDiffModel); 
             Stoppable stoppable = epidermis.schedule.scheduleRepeating(kcyte);   // schedule only if not already running
             kcyte.setStoppable(stoppable);
 
-        Double2D newloc=pC2dHerd.getObjectLocation(this);
+        Double2D newloc=cellContinous2D.getObjectLocation(this);
         newloc=new Double2D(newloc.x +epidermis.random.nextDouble()*0.5-0.25, newloc.y-epidermis.random.nextDouble()*0.5-0.1);
-        //newloc=new Double2D(newloc.x - theEpidermis.random.nextInt(4)+2, newloc.y - theEpidermis.random.nextInt(2));
-        //newloc=new Double2D(newloc.x +0.1, newloc.y-0.1);
+        
         kcyte.motherIdentity=this.identity;
         kcyte.ownColor=this.epidermis.random.nextInt(200);
         kcyte.epidermis = this.epidermis;        // the herd
-        kcyte.newborn();     
+             
         kcyte.local_maxAge= biochemModelController.getEpisimCellDiffModelGlobalParameters().getMaxAge();
         long pSimTime=(long) epidermis.schedule.time();
         if (pSimTime<(kcyte.local_maxAge)) kcyte.local_maxAge=pSimTime;
 
         
-        pC2dHerd.setObjectLocation(kcyte, newloc);        
-        //System.out.println("New Cell:"+flocker.identity);
+        cellContinous2D.setObjectLocation(kcyte, newloc);        
+       
         return kcyte;
     }
 
-    public void makeTACell(Continuous2D pC2dHerd)
+    public void makeTACell(EpisimCellDiffModel cellDiffModel)
     {
         epidermis.inkrementActualTA();
         epidermis.inkrementActualKCytes();
-        KCyte taCell=makeChild(pC2dHerd);
+        KCyte taCell=makeChild(cellDiffModel);
       //  TACell.keratinoType=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_TA");        
         
         ////////////////////////////////////////////////////////////
@@ -420,11 +423,11 @@ public class KCyte extends CellType implements ChartMonitoredCellType
       
     }
 
-    public void makeSpiCell(Continuous2D pC2dHerd, long pSimTime)
+    public void makeSpiCell(EpisimCellDiffModel cellDiffModel)
     {
         epidermis.inkrementActualSpi();
         epidermis.inkrementActualKCytes();
-        KCyte TACell=makeChild(pC2dHerd);
+        KCyte spiCell=makeChild(cellDiffModel);
      
         //TACell.keratinoType=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_SPINOSUM");        
        
@@ -436,19 +439,52 @@ public class KCyte extends CellType implements ChartMonitoredCellType
     
 
     
-    public void differentiate(boolean pBarrierMember)
+    public void differentiate(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean isSurface, boolean hasCollision)
     {
      // modelController.getBioChemicalModelController().differentiate(this, epidermis, pBarrierMember);
- 
-        
-    
+   	 
+   	 this.cellDiffModelObjekt.setX(thisloc.getX());
+   	 this.cellDiffModelObjekt.setY(thisloc.getY());
+   	 this.cellDiffModelObjekt.setIsMembrane(this.isMembraneCell);
+   	 this.cellDiffModelObjekt.setIsSurface(isSurface);
+   	 this.cellDiffModelObjekt.setHasCollision(hasCollision);
+   	 this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
+   	 List<EpisimCellDiffModel> neighbourCells = new ArrayList<EpisimCellDiffModel>();
+   	 for(int i=0;i<neighbours.numObjs;i++)
+       {
+   		 KCyte actNeighbour = (KCyte)(neighbours.objs[i]);
+     
+               Double2D otherloc=cellContinous2D.getObjectLocation(actNeighbour);
+               double dx = cellContinous2D.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
+               double dy = cellContinous2D.tdy(thisloc.y,otherloc.y);
+               
+               double distance = Math.sqrt(dx*dx + dy*dy);
 
-        if ((this.cellDiffModelObjekt.getDifferentiation()==EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS)) // && (isOuterCell))
+               neighbourCells.add(actNeighbour.getEpisimCellDiffModelObject());
+        }
+   	 	
+   	 	if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.GRANUCELL){
+   	 		setKeratinoWidth(getGKeratinoWidthGranu());
+   			setKeratinoHeight(getGKeratinoHeightGranu());
+   	 	}
+   	 
+   	 	makeChildren(this.cellDiffModelObjekt.oneStep(neighbourCells.toArray(new EpisimCellDiffModel[neighbourCells.size()])));
+   	 	
+        if (!this.cellDiffModelObjekt.getIsAlive()) // && (isOuterCell))
         {
             killCell();
         }
   
    }
+    
+    private void makeChildren(EpisimCellDiffModel[] children){
+   	 if(children!=null){
+   		 for(EpisimCellDiffModel actChild: children){
+   			 if(actChild.getDifferentiation() == EpisimCellDiffModelGlobalParameters.TACELL) makeTACell(actChild);
+   			 else if(actChild.getDifferentiation() == EpisimCellDiffModelGlobalParameters.EARLYSPICELL) makeSpiCell(actChild);
+   		 }
+   	 }
+    }
 
     
     public void killCell(){
@@ -462,17 +498,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    	 epidermis.getCellContinous2D().remove(this);
     }
 
-    void cellcycle(boolean pNoCollision)
-    {
-        // ///////////////////////////////////////////////////
-        // Cell Cycle
-        /////////////////////////////////////////////////////
-        
-        // stem and TA cells divide
-        // make child
-        
-       
-    }
+    
     
 
 
@@ -607,23 +633,13 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			else
 				isMembraneCell = false; // ABSOLUTE DISTANZ KONSTANTE
 
-			// ////////////////////////////////////////////////
-			// Proliferation
-			// ////////////////////////////////////////////////
-
-			cellcycle(hitResult2.numhits == 0);
-
-			// ////////////////////////////////////////////////
-			// Diffusion of signals
-			// ////////////////////////////////////////////////
-//TODO: diffuser anbindung erstellen
-		//	diffuser(b, epiderm.getCellContinous2D(), newLoc, (isOuterCell || hitResult2.nextToOuterCell));
+			
 
 			// ///////////////////////////////////////////////////////
-			// Differentiation: Environment and Internal processing
+			// Differentiation: Calling the loaded Cell-Diff-Model
 			// //////////////////////////////////////////////////////
 
-			differentiate(isOuterCell || hitResult2.nextToOuterCell);
+			differentiate(b,epiderm.getCellContinous2D(), newLoc, isOuterCell || hitResult2.nextToOuterCell, hitResult2.numhits != 0);
 		}
 	}
 
@@ -748,7 +764,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 	public void setVoronoihullvertexes(int voronoihullvertexes) { this.voronoihullvertexes = voronoihullvertexes; }
 
 	public EpisimCellDiffModel getEpisimCellDiffModelObject(){
-		return null;
+		return this.cellDiffModelObjekt;
 	}
 	
 		           

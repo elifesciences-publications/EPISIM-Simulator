@@ -33,6 +33,8 @@ import java.util.List;
 import com.lowagie.text.*;  
 import com.lowagie.text.pdf.*;  
 
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+
 public class Epidermis extends SimStateHack implements SnapshotListener, ChartMonitoredTissue
 {
 
@@ -112,8 +114,8 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 	private int    gStatistics_GrowthFraction=0;             // Percentage
 	private double gStatistics_TurnoverTime=0;             // Percentage
 	
-	private BioMechanicalModelController mechanicalModContr;
-	private BioChemicalModelController chemicalModContr;
+	private BioMechanicalModelController biomechModelContr;
+	private BioChemicalModelController biochemModelContr;
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -124,8 +126,8 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      super(new ec.util.MersenneTwisterFast(seed), new Schedule(1));
      
      modelController = ModelController.getInstance();
-     mechanicalModContr = modelController.getBioMechanicalModelController();
-     chemicalModContr =  modelController.getBioChemicalModelController();
+     biomechModelContr = modelController.getBioMechanicalModelController();
+     biochemModelContr =  modelController.getBioChemicalModelController();
      SnapshotWriter.getInstance().addSnapshotListener(this);
      availableCelltypes = new LinkedList<Class<?extends CellType>>();
      availableCelltypes.add(KCyte.class);
@@ -139,6 +141,13 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      return (y-basalY)/modelController.getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
  }
 
+ 
+ 
+ public void checkMemory(){
+	 // Memory Management
+    if (getNumberOfKCytes()>getAllCells().size()-2) // for safety -2
+        getAllCells().resize(getAllCells().size()+500); // alloc 500 in advance
+ }
  
  
  void printChartToPDF( JFreeChart chart, int width, int height, String fileName )
@@ -182,7 +191,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      // that's 16 hash lookups! I would have guessed that 
      // neighborhood * 2 (which is about 4 lookups on average)
      // would be optimal.  Go figure.
-     cellContinous2D = new Continuous2D(mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()/1.5,
+     cellContinous2D = new Continuous2D(biomechModelContr.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()/1.5,
    		                               TissueBorder.getWidth()+2,height);
      basementContinous2D = new Continuous2D(TissueBorder.getWidth()+2, TissueBorder.getWidth()+2,height);
     
@@ -204,19 +213,24 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
          Double2D newloc=new Double2D(x,TissueBorder.lowerBound(x));
          double distance=newloc.distance(lastloc);            
          
-         if ((depthFrac(newloc.y)>mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getSeedMinDepth_frac() 
-         		&& (!mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getSeedReverse())) 
-         		        || (depthFrac(newloc.y)<mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getSeedMinDepth_frac() 
-         		       && mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getSeedReverse()))
-             if (distance>mechanicalModContr.getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm())
+         if ((depthFrac(newloc.y)>biomechModelContr.getEpisimMechanicalModelGlobalParameters().getSeedMinDepth_frac() 
+         		&& (!biomechModelContr.getEpisimMechanicalModelGlobalParameters().getSeedReverse())) 
+         		        || (depthFrac(newloc.y)<biomechModelContr.getEpisimMechanicalModelGlobalParameters().getSeedMinDepth_frac() 
+         		       && biomechModelContr.getEpisimMechanicalModelGlobalParameters().getSeedReverse()))
+             if (distance>biomechModelContr.getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm())
              {                
                  
             	 //TODO: Check creation of Stem Cells
-            	 KCyte stemCell= new KCyte(this);                 
+            	 KCyte stemCell = new KCyte(this, biochemModelContr.getNewEpisimCellDiffModelObject());                 
                 // stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
                  stemCell.setOwnColor(10);
-                 stemCell.getEpisimCellDiffModelObject().setAge(random.nextInt(chemicalModContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem()));     // somewhere on the stemCycle
+                 stemCell.getEpisimCellDiffModelObject().setAge(random.nextInt(biochemModelContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem()));// somewhere on the stemCycle
+                 stemCell.getEpisimCellDiffModelObject().setDifferentiation(EpisimCellDiffModelGlobalParameters.STEMCELL);
+                 stemCell.getEpisimCellDiffModelObject().setSpecies(EpisimCellDiffModelGlobalParameters.KERATINOCYTE);
+                 stemCell.getEpisimCellDiffModelObject().setIsAlive(true);
+                 
                  cellContinous2D.setObjectLocation(stemCell, newloc);
+                 
                  lastloc=newloc;
                  Stoppable stoppable = schedule.scheduleRepeating(stemCell);
                  stemCell.setStoppable(stoppable);
@@ -707,7 +721,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      schedule.scheduleRepeating(chartUpdaterParticleDistributions, 50);
 
 
-             
+  */           
  //////////////////////////////////////        
  // CELL STATISTICS & Updating OUTER SURFACE CELLS
  //////////////////////////////////////  
@@ -739,7 +753,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
                      KCyte act=(KCyte)allCells.get(i);
                      if (act.isInNirvana()) continue;
                      // is a living cell..
-                     
+            /*         
                      if (act.isOuterCell()) // statistics from last time evaluation (so we are always lacking behind one calling period !)
                      {
                          gStatistics_Barrier_ExtCalcium+=act.getOwnSigExternalCalcium();
@@ -747,7 +761,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
                          gStatistics_Barrier_Lipids+=act.getOwnSigLipids();                            
                          OldNumOuterCells++;
                      }
-                     
+                  */   
                      if (act.isBasalStatisticsCell()) actualBasalStatisticsCells++;
                      
                      //act.isOuterCell=false; // set new default 
@@ -764,6 +778,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
                              XLookUp[xbin]=act;
                              YLookUp[xbin]=loc.y;
                          }
+                     /*
                      // other statistics
                      if ((act.getKeratinoType()!=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM")) 
                      		  && (act.getKeratinoType()!=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_NONUCLEUS")))
@@ -773,12 +788,12 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
                              {
                                  System.out.println("Age Error");
                              }
-                     }
+                     }*/
                  }            
 
                  for (int k=0; k< MAX_XBINS; k++)
                  {
-                     if ((XLookUp[k]==null) || (XLookUp[k].getKeratinoType()==modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"))) continue; // stem cells cannot be outer cells (Assumption)                        
+                     if ((XLookUp[k]==null) || (XLookUp[k].getEpisimCellDiffModelObject().getDifferentiation()==EpisimCellDiffModelGlobalParameters.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
                      XLookUp[k].setOuterCell(true);
                  }
                  // other statistics
@@ -805,7 +820,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      };
      // Schedule the agent to update is Outer Flag
      
-     schedule.scheduleRepeating(airSurface, 100);*/
+     schedule.scheduleRepeating(airSurface, 100);
      }
 
 
@@ -836,8 +851,8 @@ public List<ChartMonitoredCellType> getChartMonitoredCellTypes() {
 	for(Class<?extends CellType> actCelltype:availableCelltypes){
 		try{
 			
-			Constructor <?extends CellType> construct =actCelltype.getConstructor(Epidermis.class);
-			CellType cell = construct.newInstance(this);
+			Constructor <?extends CellType> construct =actCelltype.getConstructor();
+			CellType cell = construct.newInstance();
 			if( cell instanceof ChartMonitoredCellType) cellList.add(((ChartMonitoredCellType)cell));
 		}
 		catch (Exception e){
@@ -853,7 +868,7 @@ public List<ChartMonitoredCellType> getChartMonitoredCellTypes() {
 //INKREMENT-DEKREMENT-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	 
- 	public void inkrementAllocatedKCytes(){allocatedKCytes +=1;}
+ 	public void inkrementNumberOfKCytes(){allocatedKCytes +=1;}
 	public void dekrementAllocatedKCytes(){allocatedKCytes -=1;}
 	
 	public void inkrementActualStem(){actualStem +=1;}
@@ -891,7 +906,7 @@ public List<ChartMonitoredCellType> getChartMonitoredCellTypes() {
 
 	public int getActualKCytes() { return actualKCytes; }
 	public Bag getAllCells() {	return allCells; }
-	public int getAllocatedKCytes() { return allocatedKCytes; }
+	public int getNumberOfKCytes() { return allocatedKCytes; }
 	public static List <Class<? extends CellType>> getAvailableCellTypes; 
 	
 	public Continuous2D getBasementContinous2D() { return basementContinous2D; }

@@ -19,12 +19,13 @@ public class TissueBorder {
 	
 	
 	private TissueBorder(){
-		globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters();  
+		
 		
 	}
 	
 	
 	public static double getWidth(){
+		if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters();  
 		return globalParameters.getWidth()-2;
 	}
 	

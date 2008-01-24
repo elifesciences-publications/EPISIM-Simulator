@@ -321,6 +321,81 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
 	   // TODO Auto-generated method stub
 	   
    }
+	public boolean getIsAlive() {
+
+	   // TODO Auto-generated method stub
+	   return false;
+   }
+	public double getX() {
+
+	   // TODO Auto-generated method stub
+	   return 0;
+   }
+	public double getY() {
+
+	   // TODO Auto-generated method stub
+	   return 0;
+   }
+	public EpisimCellDiffModel[] oneStep(EpisimCellDiffModel[] neighbours) {
+
+	   // TODO Auto-generated method stub
+	   return null;
+   }
+	public void setIsAlive(boolean val) {
+
+	   // TODO Auto-generated method stub
+	  
+   }
+	public void setX(double val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public void setY(double val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public int getSpecies() {
+
+	   // TODO Auto-generated method stub
+	   return 0;
+   }
+	public void setSpecies(int val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public boolean getHasCollision() {
+
+	   // TODO Auto-generated method stub
+	   return false;
+   }
+	public boolean getIsMembrane() {
+
+	   // TODO Auto-generated method stub
+	   return false;
+   }
+	public boolean getIsSurface() {
+
+	   // TODO Auto-generated method stub
+	   return false;
+   }
+	public void setHasCollision(boolean val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public void setIsMembrane(boolean val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public void setIsSurface(boolean val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
 
 	
 

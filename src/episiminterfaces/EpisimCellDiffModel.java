@@ -3,6 +3,7 @@ package episiminterfaces;
 
 public interface EpisimCellDiffModel {
 	
+	
 	void setNumberProperty(int propertycode, double val);
 	void setStringProperty(int propertycode, String val);
 	void setBooleanProperty(int propertycode, boolean val);
@@ -33,7 +34,33 @@ public interface EpisimCellDiffModel {
 	int getDifferentiation();
 	void setDifferentiation(int val);
 	
+	int getSpecies();
+	void setSpecies(int val);
+	
 	int getAge();
 	void setAge(int val);
+	
+	double getX();
+	void setX(double val);
+	
+	double getY();
+	void setY(double val);
+	
+	boolean getIsAlive();
+	void setIsAlive(boolean val);
+	
+	boolean getIsSurface();
+	void setIsSurface(boolean val);
+	
+	boolean getIsMembrane();
+	void setIsMembrane(boolean val);
+	
+	boolean getHasCollision();
+	void setHasCollision(boolean val);
+	
+	EpisimCellDiffModel[] oneStep(EpisimCellDiffModel[] neighbours);
+	
+	
 
 }
+

@@ -1,9 +1,8 @@
 package episiminterfaces;
 
 
-public interface EpisimCellDiffModelGlobalParameters {
 
-
+public interface EpisimCellDiffModelGlobalParameters{
 	public static final int KTYPE_UNASSIGNED=0;
 	public static final int KTYPE_NONUCLEUS=1;
 	public static final int KTYPE_NIRVANA=2;
@@ -12,6 +11,8 @@ public interface EpisimCellDiffModelGlobalParameters {
 	public static final int LATESPICELL=5;
 	public static final int TACELL=6;
 	public static final int GRANUCELL=7;
+	
+	public static final int KERATINOCYTE=8;
 	
 		
 	int getCellCycleStem();
@@ -27,7 +28,5 @@ public interface EpisimCellDiffModelGlobalParameters {
  	void setMinSigLipidsBarrier(double val);
  	
 	void resetInitialGlobalValues();
-
-
-
+	
 }

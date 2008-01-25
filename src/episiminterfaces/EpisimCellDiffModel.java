@@ -58,6 +58,15 @@ public interface EpisimCellDiffModel {
 	boolean getHasCollision();
 	void setHasCollision(boolean val);
 	
+	int getColorR();
+	void setColorR(int val);
+	
+	int getColorG();
+	void setColorG(int val);
+	
+	int getColorB();
+	void setColorB(int val);
+	
 	EpisimCellDiffModel[] oneStep(EpisimCellDiffModel[] neighbours);
 	
 	

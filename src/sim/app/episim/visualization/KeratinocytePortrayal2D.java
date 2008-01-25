@@ -213,10 +213,10 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 //
                 myFrameColor=new Color(200, 165, 200);                
                 int Colorvalue=0;  
-                int Red=255;         
-                int Green=0;
-                int Blue=0;
-                if ((typeColor<1) || (typeColor>9)) { 
+                int red=255;         
+                int green=0;
+                int blue=0;
+                if ((typeColor<1) || (typeColor>10)) { 
                	 typeColor=1; 
                	 biomechModelController.getEpisimMechanicalModelGlobalParameters().setTypeColor(1);
                 }
@@ -225,57 +225,57 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                     {
                         
                   	   if(keratinoType == EpisimCellDiffModelGlobalParameters.STEMCELL){ 
-                  	   	Red=0x46; 
-                  	   	Green=0x72; 
-                  	   	Blue=0xBE;  
+                  	   	red=0x46; 
+                  	   	green=0x72; 
+                  	   	blue=0xBE;  
                   	   } // dunkelblau // mittels word zeichnen einfach zu finden
                   	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.TACELL){ 
-                  	   	Red=148; 
-                  	   	Green=167; 
-                  	   	Blue=214;  
+                  	   	red=148; 
+                  	   	green=167; 
+                  	   	blue=214;  
                   	   }                             
                   	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.EARLYSPICELL){ 
-                  	   	Red=0xE1; 
-                  	   	Green=0x6B; 
-                  	   	Blue=0xF6; 
+                  	   	red=0xE1; 
+                  	   	green=0x6B; 
+                  	   	blue=0xF6; 
                   	   }
                   	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.LATESPICELL){ 
-                  	   	Red=0xC1; 
-                  	   	Green=0x4B; 
-                  	   	Blue=0xE6;
+                  	   	red=0xC1; 
+                  	   	green=0x4B; 
+                  	   	blue=0xE6;
                   	   }
                   	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.GRANUCELL){ 
-                  	   	Red=204; 
-                  	   	Green=0; 
-                  	   	Blue=102; 
+                  	   	red=204; 
+                  	   	green=0; 
+                  	   	blue=102; 
                   	   }
                   	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS){ 
-                  	   	Red=198; 
-                  	   	Green=148; 
-                  	   	Blue=60; 
+                  	   	red=198; 
+                  	   	green=148; 
+                  	   	blue=60; 
                   	   }
                         
                         if ((kcyte.isOuterCell()) && (typeColor==2))
-                            {   Red=0xF3; Green=0xBE; Blue=0x4E; }        
+                            {   red=0xF3; green=0xBE; blue=0x4E; }        
                         if ((kcyte.isMembraneCell()) && (typeColor==2))
-                            {   Red=0xF3; Green=0xFF; Blue=0x4E; }                        
+                            {   red=0xF3; green=0xFF; blue=0x4E; }                        
                    }
                   if (typeColor==3) // Age coloring
                     {
                         Colorvalue= (int) (250-250*kcyte.getEpisimCellDiffModelObject().getAge()/maxAge);
-                        Red=255;
-                        Green=Colorvalue;                        
-                        Blue=Colorvalue;
+                        red=255;
+                        green=Colorvalue;                        
+                        blue=Colorvalue;
                         if (keratinoType== EpisimCellDiffModelGlobalParameters.STEMCELL)
-                        { Red=148; Green=167; Blue=214; } // stem cells do not age
+                        { red=148; green=167; blue=214; } // stem cells do not age
                         myFrameColor=Color.black;
                     }
                   if ((typeColor==4) || (typeColor==9))  // Calcium coloring
                     {
                         Colorvalue= (int) (255* (1-((kcyte.getEpisimCellDiffModelObject().getCa()) / kcyte.getEpisimCellDiffModelObject().getMaxCa())));
-                        Red=Colorvalue;         
-                        Green=Colorvalue;
-                        Blue=255;
+                        red=Colorvalue;         
+                        green=Colorvalue;
+                        blue=255;
                         myFrameColor=Color.black;
                         if (typeColor==9) showNucleus=false;
                         drawFrame=false; // immer frame zeichnen
@@ -283,33 +283,38 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                   if (typeColor==5)  // Lamella coloring
                     {
                         Colorvalue= (int) (255* (1-(kcyte.getEpisimCellDiffModelObject().getLam() / kcyte.getEpisimCellDiffModelObject().getMaxLam())));
-                        Red=Colorvalue;         
-                        Green=255;
-                        Blue=Colorvalue;
+                        red=Colorvalue;         
+                        green=255;
+                        blue=Colorvalue;
                         myFrameColor=Color.black;
                     }
                   if (typeColor==6)  // Lipid coloring
                     {
                         if (kcyte.getEpisimCellDiffModelObject().getLip()>=biochemModelController.getEpisimCellDiffModelGlobalParameters().getMinSigLipidsBarrier())
-                        { Red=0xCB; Green=0x2F; Blue=0x9F; }
+                        { red=0xCB; green=0x2F; blue=0x9F; }
                         else 
-                        { Red=0xAF; Green=0xCB; Blue=0x97; }
+                        { red=0xAF; green=0xCB; blue=0x97; }
                         myFrameColor=Color.black;
                     }
                   if (typeColor==7)  // ion transport activitiy
                     {                     
                         Colorvalue= (int) (255* (1-(kcyte.getHasGivenIons() / 10)));
-                        Red=Colorvalue;
-                        Green=255;
-                        Blue=Colorvalue;
+                        red=Colorvalue;
+                        green=255;
+                        blue=Colorvalue;
                         myFrameColor=Color.black;
-                    }                
+                    }
+                  if(typeColor==10){
+                  	red=kcyte.getEpisimCellDiffModelObject().getColorR();
+                     green=kcyte.getEpisimCellDiffModelObject().getColorG();
+                     blue=kcyte.getEpisimCellDiffModelObject().getColorB();
+                  }
 
                 // Limit the colors to 255
-                Green=(Green>255)?255:((Green<0)?0:Green);
-                Red=(Red>255)?255:((Red<0)?0:Red);
-                Blue=(Blue>255)?255:((Blue<0)?0:Blue);                
-                java.awt.Color myColor = new Color(Red, Green, Blue);
+                green=(green>255)?255:((green<0)?0:green);
+                red=(red>255)?255:((red<0)?0:red);
+                blue=(blue>255)?255:((blue<0)?0:blue);                
+                java.awt.Color myColor = new Color(red, green, blue);
                 //java.awt.Color myColor = new Color (255-ownCol, Colorvalue+ownCol, Colorvalue+ownCol);
 
                 

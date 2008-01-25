@@ -444,7 +444,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
      // modelController.getBioChemicalModelController().differentiate(this, epidermis, pBarrierMember);
    	 
    	 this.cellDiffModelObjekt.setX(thisloc.getX());
-   	 this.cellDiffModelObjekt.setY(thisloc.getY());
+   	 this.cellDiffModelObjekt.setY(-1*thisloc.getY());
    	 this.cellDiffModelObjekt.setIsMembrane(this.isMembraneCell);
    	 this.cellDiffModelObjekt.setIsSurface(isSurface);
    	 this.cellDiffModelObjekt.setHasCollision(hasCollision);

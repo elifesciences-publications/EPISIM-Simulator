@@ -195,11 +195,11 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 
 	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age",
 	      "Color by calcium", "Color by lamella", "Enough lipids for barrier", "Color by ion transports", "Voronoi",
-	      "Calcium Voronoi" };
+	      "Calcium Voronoi" , "Epsim-Modeller Custom Coloring"};
 
 	public String getTypeColorName() {
 
-		if((typeColor < 1) || (typeColor > 9))
+		if((typeColor < 1) || (typeColor > 10))
 			typeColor = 1;
 		return typeString[typeColor];
 	}

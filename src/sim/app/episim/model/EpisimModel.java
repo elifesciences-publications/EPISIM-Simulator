@@ -396,6 +396,36 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
 	   // TODO Auto-generated method stub
 	   
    }
+	public int getColorB() {
+
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	public int getColorG() {
+
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	public int getColorR() {
+
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	public void setColorB(int val) {
+
+		// TODO Auto-generated method stub
+		
+	}
+	public void setColorG(int val) {
+
+		// TODO Auto-generated method stub
+		
+	}
+	public void setColorR(int val) {
+
+		// TODO Auto-generated method stub
+		
+	}
 
 	
 

@@ -40,7 +40,9 @@ public class BioChemicalModelController implements java.io.Serializable{
 		return instance;
 	}
 	
-	
+	public void reloadCellDiffModelGlobalParametersObject(EpisimCellDiffModelGlobalParameters parametersObject){
+		if(biochemicalModel != null) biochemicalModel.reloadCellDiffModelGlobalParametersObject(parametersObject);
+	}
 	
 	
 	public boolean loadModelFile(File modelFile){

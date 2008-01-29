@@ -15,11 +15,14 @@ import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.KCyte;
+import sim.app.episim.snapshot.SnapshotListener;
+import sim.app.episim.snapshot.SnapshotObject;
+import sim.app.episim.snapshot.SnapshotWriter;
 
 
 
 
-public class BiochemicalModel implements java.io.Serializable{
+public class BiochemicalModel implements java.io.Serializable, SnapshotListener{
 	
 	/**
 	 * 
@@ -30,17 +33,17 @@ public class BiochemicalModel implements java.io.Serializable{
 	
 	private EpisimCellDiffModelGlobalParameters globalParametersObject;
 
-	
-	
-	
-	
+		
 	
 	public BiochemicalModel(Class<EpisimCellDiffModel> cellDiffModelClass, Object globalParametersObject){
 		this.cellDiffModelClass = cellDiffModelClass;
 		
 		try{
-		if(globalParametersObject != null && globalParametersObject instanceof EpisimCellDiffModelGlobalParameters)
+		if(globalParametersObject != null && globalParametersObject instanceof EpisimCellDiffModelGlobalParameters){
 	        this.globalParametersObject= (EpisimCellDiffModelGlobalParameters)globalParametersObject;
+	        SnapshotWriter.getInstance().addSnapshotListener(this);
+	        
+		}
       
 		else throw new Exception("No compatible EpisimCellDiffModelGlobalParameters_Object!!!");
 		}
@@ -51,7 +54,9 @@ public class BiochemicalModel implements java.io.Serializable{
 	}
 	
 	
-	
+	private void setReloadedGlobalParametersObject(EpisimCellDiffModelGlobalParameters globalParametersObject){
+		this.globalParametersObject = globalParametersObject;
+	}
 		
 	public EpisimCellDiffModel getNewEpisimCellDiffModelObject() {
 		if(this.cellDiffModelClass !=null)
@@ -76,7 +81,9 @@ public class BiochemicalModel implements java.io.Serializable{
 	}
 	
    
-   
+	public void reloadCellDiffModelGlobalParametersObject(EpisimCellDiffModelGlobalParameters parametersObject){
+		if(this.globalParametersObject != null)this.globalParametersObject.setSnapshotValues(parametersObject);
+	}
   
    
   
@@ -88,6 +95,13 @@ public class BiochemicalModel implements java.io.Serializable{
   public void resetInitialGlobalValues(){
 	  if(globalParametersObject !=null) globalParametersObject.resetInitialGlobalValues();
   }
+
+
+public List<SnapshotObject> getSnapshotObjects() {
+	List<SnapshotObject> list = new ArrayList<SnapshotObject>();
+	list.add(new SnapshotObject(SnapshotObject.CELLDIFFMODELGLOBALPARAMETERS, this.globalParametersObject));
+	return list;
+}
    
    
    

@@ -29,4 +29,6 @@ public interface EpisimCellDiffModelGlobalParameters{
  	
 	void resetInitialGlobalValues();
 	
+	void setSnapshotValues(EpisimCellDiffModelGlobalParameters parametersObj);
+	
 }

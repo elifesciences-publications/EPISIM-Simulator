@@ -2,7 +2,7 @@ package sim.app.episim.model;
 
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
-public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlobalParameters {
+public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlobalParameters, java.io.Serializable {
 
 	public static final int KTYPE_UNASSIGNED = 0;
 
@@ -23,6 +23,8 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 	public static final int KTYPE_NONUCLEUS = 9;
 
 	public static final int KTYPE_NIRVANA = 9;
+	
+	private int typeColor = 1;
 
 	private int basalAmplitude_µm = 40; // depth of an undulation
 
@@ -60,7 +62,7 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 
 	private double[][] adh_array = new double[10][10];
 
-	private int typeColor = 1;
+	
 	
 	private double neighborhood_µm= 10.0;
 	
@@ -114,7 +116,29 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 		adh_array[KTYPE_GRANULOSUM][KTYPE_LATESPINOSUM] = ad_Spi_Granu;
 
 	}
+	
+	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age",
+	      "Color by calcium", "Color by lamella", "Enough lipids for barrier", "Color by ion transports", "Voronoi",
+	      "Calcium Voronoi" , "Epsim-Modeller Custom Coloring"};
 
+	public String getTypeColorName() {
+
+		if((typeColor < 1) || (typeColor > 10))
+			typeColor = 1;
+		return typeString[typeColor];
+	}
+	
+	public int getTypeColor() {
+
+		return typeColor;
+	}
+
+	public void setTypeColor(int val) {
+
+		if(val >= 0.0)
+			typeColor = val;
+	}
+	
 	public int getBasalAmplitude_µm() {
 
 		return basalAmplitude_µm;
@@ -158,16 +182,7 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 			membraneCellsWidth = val;
 	}
 
-	public void setWidth(double val) {
-
-		if(val > 0)
-			width = val;
-	}
-
-	public double getWidth() {
-
-		return width;
-	}
+	
 	
 	public double getRandomness() {
 
@@ -180,29 +195,11 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 			randomness = val;
 	}
 	
-	public int getTypeColor() {
-
-		return typeColor;
-	}
-
-	public void setTypeColor(int val) {
-
-		if(val >= 0.0)
-			typeColor = val;
-	}
+	
 	public double getNeighborhood_µm() { return neighborhood_µm; }
  	public void setNeighborhood_µm(double val) { if (val > 0) neighborhood_µm= val; }
 
-	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age",
-	      "Color by calcium", "Color by lamella", "Enough lipids for barrier", "Color by ion transports", "Voronoi",
-	      "Calcium Voronoi" , "Epsim-Modeller Custom Coloring"};
-
-	public String getTypeColorName() {
-
-		if((typeColor < 1) || (typeColor > 10))
-			typeColor = 1;
-		return typeString[typeColor];
-	}
+	
 
 	public double getSeedMinDepth_frac() {
 
@@ -398,6 +395,16 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 	}
 	public double [][] returnAdhesionArray(){
 		return adh_array;
+	}
+	public void setWidth(double val) {
+
+		if(val > 0)
+			width = val;
+	}
+
+	public double getWidth() {
+
+		return width;
 	}
 
 }

@@ -12,6 +12,7 @@ package sim.app.episim.model;
 	import java.util.Map;
 	import java.util.concurrent.ConcurrentHashMap;
 
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
@@ -69,6 +70,12 @@ import sim.app.episim.KCyte;
 		}
 
 	}
+	
+	public void reloadMechanicalModelGlobalParametersObject(EpisimMechanicalModelGlobalParameters parametersObject){
+		if(parametersObject != null) biomechanicalModel.reloadMechanicalModelGlobalParametersObject(parametersObject);
+	}
+	
+	
 		
 		/*
 		 * public int getGlobalIntConstant(String name){ try{

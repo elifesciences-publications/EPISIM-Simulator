@@ -426,6 +426,16 @@ public class EpisimModel implements EpisimCellDiffModel, EpisimCellDiffModelGlob
 		// TODO Auto-generated method stub
 		
 	}
+	public void setNumberOfNeighbours(int val) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+	public void setSnapshotValues(EpisimCellDiffModelGlobalParameters parametersObj) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
 
 	
 

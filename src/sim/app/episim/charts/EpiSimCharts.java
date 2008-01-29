@@ -37,9 +37,9 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import org.jfree.chart.*;
 
-import sim.app.episim.SnapshotListener;
-import sim.app.episim.SnapshotObject;
-import sim.app.episim.SnapshotWriter;
+import sim.app.episim.snapshot.SnapshotListener;
+import sim.app.episim.snapshot.SnapshotObject;
+import sim.app.episim.snapshot.SnapshotWriter;
 
 public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
 	

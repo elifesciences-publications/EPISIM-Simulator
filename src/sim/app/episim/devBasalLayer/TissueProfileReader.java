@@ -17,8 +17,8 @@ import java.util.Scanner;
 import java.util.Map.Entry;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.SnapshotObject;
-import sim.app.episim.SnapshotReader;
+import sim.app.episim.snapshot.SnapshotObject;
+import sim.app.episim.snapshot.SnapshotReader;
 
 
 public class TissueProfileReader {

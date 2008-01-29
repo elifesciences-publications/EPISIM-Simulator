@@ -25,14 +25,14 @@ public class TissueBorder {
 	
 	
 	public static double getWidth(){
-		if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters();  
+		if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(); 
 		return globalParameters.getWidth()-2;
 	}
 	
 	public static double lowerBound(double x)
 	 {
 	
-		
+		if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(); 
 		// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
 	     double p=basalPeriod; 
 	     

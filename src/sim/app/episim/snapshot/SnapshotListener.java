@@ -1,6 +1,7 @@
-package sim.app.episim;
+package sim.app.episim.snapshot;
 
 import java.util.List;
+
 
 
 public interface SnapshotListener {

@@ -30,13 +30,14 @@ import javax.swing.UnsupportedLookAndFeelException;
 import sim.app.episim.CompileWizard;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.SnapshotObject;
-import sim.app.episim.SnapshotReader;
-import sim.app.episim.SnapshotWriter;
 import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.snapshot.SnapshotLoader;
+import sim.app.episim.snapshot.SnapshotObject;
+import sim.app.episim.snapshot.SnapshotReader;
+import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.Console;
 import sim.display.ConsoleHack;
@@ -209,7 +210,7 @@ public class EpidermisSimulator extends JFrame{
 		this.setJMenuBar(menuBar);
 		
 		jarFileChoose= new JarFileChooser();
-		jarFileChoose.setDialogTitle("Open EpiSim Model");
+		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model");
 		tssFileChoose = new TSSFileChooser();
 		
 		this.setTitle("Epidermis Simulator");
@@ -244,6 +245,7 @@ public class EpidermisSimulator extends JFrame{
 	private void openModel(){
 		File file = null;
 		File standartDir =new File("d:/");
+		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model");
 		if(standartDir.exists())jarFileChoose.setCurrentDirectory(standartDir);
 		if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = jarFileChoose.getSelectedFile();
@@ -287,42 +289,28 @@ public class EpidermisSimulator extends JFrame{
 	}
 	public void loadSnapshot() {
 
-		File file = null;
+		File snapshotFile = null;
+		File jarFile = null;
 		boolean success = false;
-		Epidermis epidermis = null;
-		EpiSimCharts charts = null;
-		List<Double2D> woundRegionCoordinates = null;
-		java.awt.geom.Rectangle2D.Double[] deltaInfo = null;
-		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
-			file = tssFileChoose.getSelectedFile();
-			if(file != null){
-				List<SnapshotObject> snapshotobjects = SnapshotReader.getInstance().loadSnapshot(file);
-				for(SnapshotObject sObj : snapshotobjects){
-					if(sObj.getIdentifier().equals(SnapshotObject.EPIDERMIS)){
-						epidermis = (Epidermis) sObj.getSnapshotObject();
-						epidermis.setReloadedSnapshot(true);
-					}
-					else if(sObj.getIdentifier().equals(SnapshotObject.CHARTS)){
-						charts = (EpiSimCharts) sObj.getSnapshotObject();
-						EpiSimCharts.setInstance(charts);
-					}
-					else if(sObj.getIdentifier().equals(SnapshotObject.WOUND)){
-						Object obj= null;
-						if((obj=sObj.getSnapshotObject())instanceof List)
-						                        woundRegionCoordinates = (List<Double2D>) obj;
-						else deltaInfo = (java.awt.geom.Rectangle2D.Double[])sObj.getSnapshotObject();
-						
-					}
-					
-				}
-				if(charts != null) SnapshotWriter.getInstance().addSnapshotListener(charts);
-				if(epidermis != null) SnapshotWriter.getInstance().addSnapshotListener(epidermis);
-				File file2 = null;
-
-				if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
-					file2 = jarFileChoose.getSelectedFile();
-
-					success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(file2);
+		
+		
+		
+		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model of the selected Snapshot");
+		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION && jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+			snapshotFile = tssFileChoose.getSelectedFile();
+			jarFile = jarFileChoose.getSelectedFile();
+			success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(jarFile);
+			SnapshotLoader snapshotLoader = null;
+			try{
+				snapshotLoader = new SnapshotLoader(snapshotFile, jarFile);
+			}
+			catch(IllegalArgumentException ex){
+				ExceptionDisplayer.getInstance().displayException(ex);
+			}
+			List<Double2D> woundRegionCoordinates = snapshotLoader.getWoundRegionCoordinates();		
+			Epidermis epidermis = snapshotLoader.getEpidermis();
+			EpiSimCharts.setInstance(snapshotLoader.getCharts());
+			java.awt.geom.Rectangle2D.Double[] deltaInfo = snapshotLoader.getDeltaInfo();
 					if(SnapshotWriter.getInstance().getSnapshotPath() == null){
 						JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info",
 								JOptionPane.INFORMATION_MESSAGE);
@@ -333,11 +321,16 @@ public class EpidermisSimulator extends JFrame{
 					// System.out.println(success);
 					if(success){
 						// EpiSimCharts.rebuildCharts();
+						ModelController.getInstance().getBioChemicalModelController().
+						                                          reloadCellDiffModelGlobalParametersObject(snapshotLoader.getEpisimCellDiffModelGlobalParameters());
+						ModelController.getInstance().getBioMechanicalModelController().
+								reloadMechanicalModelGlobalParametersObject(snapshotLoader.getEpisimMechanicalModelGlobalParameters());
 						cleanUpContentPane();
 						epidermis.setModelController(ModelController.getInstance());
 						epiUI = new EpidermisGUIState(epidermis, this, true);
 						epiUI.setReloadedSnapshot(true);
 						if(epiUI.getWoundPortrayalDraw() !=null){
+							
 						  if(woundRegionCoordinates!= null) epiUI.getWoundPortrayalDraw().setWoundRegionCoordinates(woundRegionCoordinates);
 						  if(deltaInfo!= null && deltaInfo.length >=2) 
 							  epiUI.getWoundPortrayalDraw().setDeltaInfo(new DrawInfo2D(deltaInfo[0], deltaInfo[1]) );
@@ -350,10 +343,10 @@ public class EpidermisSimulator extends JFrame{
 						menuItemLoadSnapshot.setEnabled(false);
 						menuItemBuild.setEnabled(false);
 					}
-				}
+				
 
 			}
-		}
+		
 	}
 	
 	private void buildModelArchive(){

@@ -42,10 +42,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import sim.app.episim.SnapshotWriter;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.snapshot.SnapshotWriter;
 import sim.display.Console;
 import sim.display.ConsoleHack;
 import sim.display.GUIState;

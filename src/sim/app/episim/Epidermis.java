@@ -9,6 +9,9 @@ import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.snapshot.SnapshotListener;
+import sim.app.episim.snapshot.SnapshotObject;
+import sim.app.episim.snapshot.SnapshotWriter;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -50,6 +53,8 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 // VARIABLES
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	private transient ModelController modelController;
+	private transient BioMechanicalModelController biomechModelContr;
+	private transient BioChemicalModelController biochemModelContr;
 
 	private List <Class<?extends CellType>> availableCelltypes;
 	
@@ -114,8 +119,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 	private int    gStatistics_GrowthFraction=0;             // Percentage
 	private double gStatistics_TurnoverTime=0;             // Percentage
 	
-	private BioMechanicalModelController biomechModelContr;
-	private BioChemicalModelController biochemModelContr;
+	
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -269,21 +273,20 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Granu").clear();
      epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear(); 
    }
-  /* else{
+  else{
    	
    	Iterator iter = allCells.iterator();
    		
    		while(iter.hasNext()){
    		  Object obj = iter.next();
-   		  if (obj instanceof KCyteClass){
-   			  KCyteClass kcyte =(KCyteClass) obj;
+   		  if (obj instanceof KCyte){
+   			  KCyte kcyte =(KCyte) obj;
    			  
-   			  schedule.scheduleRepeating(kcyte);
-   			  schedule.getSteps();
+   			  kcyte.reloadControllers();
    				  
    			  }
    		  }
-   }*/
+   }
      /////////////////////////////////
      // charts
      /////////////////////////////////

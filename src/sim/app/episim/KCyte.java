@@ -97,7 +97,9 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 //-----------------------------------------------------------------------------------------------------------------------------------------   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
-   public KCyte(){}
+   public KCyte(){
+   
+   }
     public KCyte(Epidermis epidermis, EpisimCellDiffModel cellDiffModel)
     {
    	 	this.cellDiffModelObjekt = cellDiffModel;
@@ -136,6 +138,11 @@ public class KCyte extends CellType implements ChartMonitoredCellType
        
     }
 
+    public void reloadControllers(){
+   	 modelController = ModelController.getInstance();
+ 	 	biochemModelController = modelController.getBioChemicalModelController();
+ 	 	biomechModelController = modelController.getBioMechanicalModelController();
+    }
     
     public double orientation2D()
         {

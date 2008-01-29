@@ -1,10 +1,12 @@
-package sim.app.episim;
+package sim.app.episim.snapshot;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.io.*;
 
 import javax.swing.JOptionPane;
+
+import sim.app.episim.ExceptionDisplayer;
 
 
 public class SnapshotWriter {

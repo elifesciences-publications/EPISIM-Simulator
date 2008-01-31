@@ -89,7 +89,7 @@ public class EpidermisSimulator extends JFrame{
 		//Menü File
 		//--------------------------------------------------------------------------------------------------------------
 		fileMenu = new JMenu("File");
-		menuItemOpen = new JMenuItem("Open EpiSimModel");
+		menuItemOpen = new JMenuItem("Open Episim-Cell-Diff-Model");
 		menuItemOpen.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -107,7 +107,7 @@ public class EpidermisSimulator extends JFrame{
 			
 		});
 		
-		menuItemClose = new JMenuItem("Close EpiSimModel");
+		menuItemClose = new JMenuItem("Close Episim-Cell-Diff-Model");
 		menuItemClose.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -117,6 +117,7 @@ public class EpidermisSimulator extends JFrame{
 			}
 			
 		});
+		menuItemClose.setEnabled(false);
 		menuItemSetSnapshotPath = new JMenuItem("Set Tissue-Snaphot-Path");
 		menuItemSetSnapshotPath.addActionListener(new ActionListener(){
 
@@ -149,6 +150,7 @@ public class EpidermisSimulator extends JFrame{
 		});
 		
 		menuItemLoadSnapshot.setEnabled(true);
+		
 		fileMenu.add(menuItemOpen);
 		fileMenu.add(menuItemSetSnapshotPath);
 		fileMenu.add(menuItemLoadSnapshot);
@@ -268,6 +270,7 @@ public class EpidermisSimulator extends JFrame{
 				menuItemSetSnapshotPath.setEnabled(true);
 				menuItemLoadSnapshot.setEnabled(false);
 				menuItemBuild.setEnabled(false);
+				menuItemClose.setEnabled(true);
 				chartMenu.setEnabled(true);
 			}
 
@@ -315,11 +318,11 @@ public class EpidermisSimulator extends JFrame{
 						JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info",
 								JOptionPane.INFORMATION_MESSAGE);
 						setSnapshotPath();
-						if(SnapshotWriter.getInstance().getSnapshotPath() == null)
-							success = false;
+						if(SnapshotWriter.getInstance().getSnapshotPath() == null)success = false;
 					}
-					// System.out.println(success);
+					
 					if(success){
+					
 						// EpiSimCharts.rebuildCharts();
 						ModelController.getInstance().getBioChemicalModelController().
 						                                          reloadCellDiffModelGlobalParametersObject(snapshotLoader.getEpisimCellDiffModelGlobalParameters());
@@ -340,6 +343,7 @@ public class EpidermisSimulator extends JFrame{
 						this.repaint();
 						modelOpened = true;
 						menuItemSetSnapshotPath.setEnabled(true);
+						menuItemClose.setEnabled(true);
 						menuItemLoadSnapshot.setEnabled(false);
 						menuItemBuild.setEnabled(false);
 					}
@@ -366,6 +370,7 @@ public class EpidermisSimulator extends JFrame{
 		this.repaint();
 		modelOpened = false;
 		menuItemLoadSnapshot.setEnabled(true);
+		menuItemClose.setEnabled(false);
 		menuItemBuild.setEnabled(true);
 		chartMenu.setEnabled(false);
 		SnapshotWriter.getInstance().clearListeners();

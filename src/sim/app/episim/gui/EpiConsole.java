@@ -20,6 +20,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -46,6 +47,7 @@ import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.util.Names;
 import sim.display.Console;
 import sim.display.ConsoleHack;
 import sim.display.GUIState;
@@ -60,7 +62,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 
 	private FocusAdapter focusAdapter;
 	private JButton resetButton;
-	private JButton refreshButton;
+	private List<JButton> refreshButtons;
 	private JButton snapshotButton;
 	private final static String RESETTEXT = "Reset";
 	private boolean reloadedSnapshot = false;
@@ -68,7 +70,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 		super(simulation);
 		 
 		 controllerContainer = super.getContentPane();
-		  
+		 refreshButtons = new ArrayList<JButton>();
 		
 		 
 		 
@@ -86,7 +88,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
                if(keyEvent.getSource() instanceof JTextField){
                String name =((JTextField) keyEvent.getSource()).getName();
                //	ModelController.getInstance().getBioChemicalModelController().reloadValue(());
-               	if(name.equals("TypeColor_1to9") && refreshButton !=null) refreshButton.doClick();
+               	if(name.equals("TypeColor")) clickRefreshButtons();
                }
                }
            }
@@ -99,7 +101,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
       	 if(e.getSource() instanceof JTextField){
       		 String name =((JTextField) e.getSource()).getName();
       		// ModelController.getInstance().getBioChemicalModelController().reloadValue((name=));
-          	if(name.equals("TypeColor_1to9") && refreshButton !=null) refreshButton.doClick();
+          	if(name.equals("TypeColor")) clickRefreshButtons();
           }
            }
        };
@@ -213,7 +215,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	}
 	
 	
-	public void addActionListeners(){
+	public void addActionListenersAndResetButtons(){
 		Object obj=null;
 		JTabbedPane tabPane;
 		for(int i = 0; i<controllerContainer.getComponentCount(); i++){
@@ -221,15 +223,37 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 			
 		}
 		for(int i=0; i< (tabPane= ((JTabbedPane) obj)).getTabCount(); i++){
-			if (tabPane.getTitleAt(i).equals("Model")){ 
-				
+			if (tabPane.getTitleAt(i).equals(Names.BIOCHEMMODEL) || tabPane.getTitleAt(i).equals(Names.MECHMODEL)){
+				String actionString = null;
+				if (tabPane.getTitleAt(i).equals(Names.BIOCHEMMODEL)) actionString = Names.BIOCHEMMODEL;
+				else if (tabPane.getTitleAt(i).equals(Names.MECHMODEL)) actionString = Names.MECHMODEL;
 				Component comp = tabPane.getComponentAt(i); 
-				
-					if(comp instanceof Container) getTextFields(((Container)comp)); 
-			
-				
+				if(comp instanceof Container){ 
+					SimpleInspector inspector = findSimpleInspector(((Container)comp));
+					if(inspector != null){
+					
+						addActionListenersToTextFields(inspector);
+						Component pan;
+						if((pan= inspector.header) instanceof JPanel){ 
+						addResetButton(((JPanel) pan), actionString);								
+						}
+					}
+				}
 			}
 		}
+	}
+	
+	private SimpleInspector findSimpleInspector(Container cont){
+		
+		for(int i = 0; i<cont.getComponentCount(); i++){
+		if(cont.getComponent(i) instanceof Container &&
+				!(cont.getComponent(i) instanceof SimpleInspector)){ 
+			return findSimpleInspector(((Container)cont.getComponent(i)));
+			
+		}
+		else if(cont.getComponent(i) instanceof SimpleInspector) return (SimpleInspector) cont.getComponent(i);
+		}
+		return null;
 	}
 	
 	private void getButtons(Container root, ArrayList<JButton> buttons){
@@ -241,60 +265,41 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	}
 	
 	
-	private void getTextFields(Container comp){
-		
-		
-		for(int i = 0; i<comp.getComponentCount(); i++){
-			
-			
-			if(comp.getComponent(i) instanceof Container &&
-					!(comp.getComponent(i) instanceof SimpleInspector)) 
-				getTextFields(((Container)comp.getComponent(i)));
-			else if(comp.getComponent(i) instanceof SimpleInspector){
-	//hier wird der Button für reset eingefügt
-				
-				Component pan;
-				if((pan=(((SimpleInspector)comp.getComponent(i)).header)) instanceof JPanel){ 
-					addResetButton(((JPanel) pan));
-					
-				}
-				
-				for(Component compo:((SimpleInspector) comp.getComponent(i)).startField.getComponents()){
-					
-					if(compo instanceof NumberTextField){
-						((NumberTextField)compo).bellyButton.removeActionListener(this);
-						((NumberTextField)compo).downButton.removeActionListener(this);
-						((NumberTextField)compo).upButton.removeActionListener(this);
-						((NumberTextField)compo).bellyButton.addActionListener(this);
-						((NumberTextField)compo).downButton.addActionListener(this);
-						((NumberTextField)compo).upButton.addActionListener(this);
-						
-					}
-				}
-				PropertyField field = null;
-				for(int n =0; n< ((SimpleInspector) comp.getComponent(i)).members.length; n++){
-					field =((SimpleInspector) comp.getComponent(i)).members[n];
-					if(field != null && field.valField != null){
-						field.valField.addKeyListener(keyListener);
-						field.valField.setName(((SimpleInspector) comp.getComponent(i)).properties.getName(n));
-						field.valField.addFocusListener(focusAdapter);
-					}
+	private void addActionListenersToTextFields(SimpleInspector comp) {
+		if(comp.startField != null){
+			for(Component compo : comp.startField.getComponents()){
+	
+				if(compo instanceof NumberTextField){
+					((NumberTextField) compo).bellyButton.removeActionListener(this);
+					((NumberTextField) compo).downButton.removeActionListener(this);
+					((NumberTextField) compo).upButton.removeActionListener(this);
+					((NumberTextField) compo).bellyButton.addActionListener(this);
+					((NumberTextField) compo).downButton.addActionListener(this);
+					((NumberTextField) compo).upButton.addActionListener(this);
+	
 				}
 			}
 		}
-		
-		
-		
+		PropertyField field = null;
+		if(comp.members != null){
+			for(int n = 0; n < comp.members.length; n++){
+				field = comp.members[n];
+				if(field != null && field.valField != null){
+					field.valField.addKeyListener(keyListener);
+					field.valField.setName(comp.properties.getName(n));
+					field.valField.addFocusListener(focusAdapter);
+				}
+			}
+		}
+
 	}
-	
-	 
-	
-	
-	private void addResetButton(JPanel inspectorHeader){
-		JPanel buttonPanel = new JPanel(new BorderLayout(10, 0));
 		
+	private void addResetButton(JPanel inspectorHeader, String actionString){
+		JPanel buttonPanel = new JPanel(new BorderLayout(10, 0));
+		JButton refreshButton = null;
 		Component [] comps = inspectorHeader.getComponents();
 		resetButton = new JButton(RESETTEXT);
+		resetButton.setActionCommand(actionString);
 		for(Component comp :comps){
 			if(comp instanceof JButton){
 				
@@ -316,6 +321,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 			}
 			
 		}
+		refreshButtons.add(refreshButton);
 		buttonPanel.add(refreshButton, BorderLayout.WEST);
 		buttonPanel.add(resetButton, BorderLayout.EAST);
 		buttonPanel.setName("ResetRefreshPanel");
@@ -327,23 +333,27 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 
 		if(e.getSource() instanceof JButton){
-			
-			if(((JButton) e.getSource()).getText().equalsIgnoreCase("Show")){
+			JButton pressedButton = (JButton) e.getSource();
+			if(pressedButton.getText().equalsIgnoreCase("Show")){
 				pressShow();
 			}
-			else if(((JButton) e.getSource()).getText().equalsIgnoreCase("Show All")){
+			else if(pressedButton.getText().equalsIgnoreCase("Show All")){
 				pressShowAll();
 			}
-			else if(((JButton) e.getSource()).getText().equalsIgnoreCase("Hide")){
+			else if(pressedButton.getText().equalsIgnoreCase("Hide")){
 				pressHide();
 			}
-			else if(((JButton) e.getSource()).getText().equalsIgnoreCase("Hide All")){
+			else if(pressedButton.getText().equalsIgnoreCase("Hide All")){
 				pressHideAll();
 			}
-			else if(((JButton) e.getSource()).getText().equalsIgnoreCase(RESETTEXT)){
+			else if(pressedButton.getText().equalsIgnoreCase(RESETTEXT)){
+				
 				if(getPlayState() == PS_PLAYING) super.pressPause();
-				ModelController.getInstance().getBioChemicalModelController().resetInitialGlobalValues();
-				refreshButton.doClick();
+				if(pressedButton.getActionCommand() != null){
+					if(pressedButton.getActionCommand().equals(Names.BIOCHEMMODEL))ModelController.getInstance().getBioChemicalModelController().resetInitialGlobalValues();
+					else if(pressedButton.getActionCommand().equals(Names.MECHMODEL))ModelController.getInstance().getBioMechanicalModelController().resetInitialGlobalValues();
+				}
+				this.clickRefreshButtons();
 				if(getPlayState() == PS_PAUSED)super.pressPause();
 				
 			}
@@ -353,7 +363,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 
 				public void run() {
 
-					addActionListeners();
+					addActionListenersAndResetButtons();
 				}
 			});
 			}
@@ -472,7 +482,9 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    	}
    }
 
-
+   private void clickRefreshButtons(){
+   	for(JButton refreshButton: refreshButtons) refreshButton.doClick();
+   }
 	
 	public void setReloadedSnapshot(boolean reloadedSnapshot) {
 	

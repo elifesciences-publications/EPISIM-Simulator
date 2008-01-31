@@ -22,6 +22,7 @@ import javax.swing.JScrollPane;
 
 import sim.app.episim.devBasalLayer.EpidermisUIDev;
 import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.util.Names;
 import sim.engine.SimState;
 import sim.portrayal.Inspector;
 
@@ -196,9 +197,9 @@ public class ConsoleHack extends Console {
 			epiGUIState = (EpidermisGUIState) simulation;
 		
 			
-			deployInspector(epiGUIState.getBiochemicalModelInspector(), this.biochemicalModelInspectorScrollPane, "Biochemical-Model");
+			deployInspector(epiGUIState.getBiochemicalModelInspector(), this.biochemicalModelInspectorScrollPane, Names.BIOCHEMMODEL);
 		
-			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, "Biomechanical-Model");
+			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECHMODEL);
 			
 		}
 		else

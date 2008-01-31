@@ -5,6 +5,12 @@ package episiminterfaces;
  */
 public interface EpisimMechanicalModelGlobalParameters {
 	
+	
+	int getTypeColor();
+ 	void setTypeColor(int val);
+ 	
+ 	String getTypeColorName();
+	
 	int getBasalAmplitude_µm();
  	void setBasalAmplitude_µm(int val);
 
@@ -21,13 +27,7 @@ public interface EpisimMechanicalModelGlobalParameters {
  	void setWidth(double val);
 	double getWidth();
 	
-	int getTypeColor();
- 	void setTypeColor(int val);
- 	
- 	String getTypeColorName();
- 	
- 	
- 	double getRandomness();
+	double getRandomness();
  	void setRandomness(double val);
  	
  	double getSeedMinDepth_frac();

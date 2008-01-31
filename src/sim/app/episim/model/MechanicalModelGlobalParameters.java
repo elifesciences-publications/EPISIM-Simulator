@@ -406,5 +406,6 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 
 		return width;
 	}
+	
 
 }

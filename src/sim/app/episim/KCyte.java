@@ -418,12 +418,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         epidermis.inkrementActualTA();
         epidermis.inkrementActualKCytes();
         KCyte taCell=makeChild(cellDiffModel);
-      //  TACell.keratinoType=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_TA");        
-        
-        ////////////////////////////////////////////////////////////
-        // WARUM bekommt die Zelle zufälliges alter?
-        /////////////////////////////////////////////////////////////
-        
+                    
         taCell.getEpisimCellDiffModelObject()
         	.setAge(this.epidermis.random.nextInt(biochemModelController.getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
         // erben der signal concentrationen
@@ -435,8 +430,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         epidermis.inkrementActualSpi();
         epidermis.inkrementActualKCytes();
         KCyte spiCell=makeChild(cellDiffModel);
-     
-        //TACell.keratinoType=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_SPINOSUM");        
+       
        
 
     }
@@ -465,18 +459,20 @@ public class KCyte extends CellType implements ChartMonitoredCellType
                double dx = cellContinous2D.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
                double dy = cellContinous2D.tdy(thisloc.y,otherloc.y);
                
+               actNeighbour.getEpisimCellDiffModelObject().setDy(-1*dy);
                double distance = Math.sqrt(dx*dx + dy*dy);
-
-               neighbourCells.add(actNeighbour.getEpisimCellDiffModelObject());
+               
+               if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
+               	neighbourCells.add(actNeighbour.getEpisimCellDiffModelObject());
+               }
         }
    	 	
+   	  	 
+   	 	makeChildren(this.cellDiffModelObjekt.oneStep(neighbourCells.toArray(new EpisimCellDiffModel[neighbourCells.size()])));
    	 	if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.GRANUCELL){
    	 		setKeratinoWidth(getGKeratinoWidthGranu());
    			setKeratinoHeight(getGKeratinoHeightGranu());
    	 	}
-   	 
-   	 	makeChildren(this.cellDiffModelObjekt.oneStep(neighbourCells.toArray(new EpisimCellDiffModel[neighbourCells.size()])));
-   	 	
         if (!this.cellDiffModelObjekt.getIsAlive()) // && (isOuterCell))
         {
             killCell();

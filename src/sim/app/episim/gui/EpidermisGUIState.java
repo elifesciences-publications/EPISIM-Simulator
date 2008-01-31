@@ -134,7 +134,7 @@ public class EpidermisGUIState extends GUIState{
 		arrangeElements(desktop);
 		
 		
-		console.addActionListeners();
+		console.addActionListenersAndResetButtons();
 
 	}
 	

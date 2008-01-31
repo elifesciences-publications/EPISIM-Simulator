@@ -39,12 +39,18 @@ public interface EpisimCellDiffModel {
 	
 	int getAge();
 	void setAge(int val);
-	
+		
 	double getX();
 	void setX(double val);
 	
 	double getY();
 	void setY(double val);
+	
+	double getDx();
+	void setDx(double val);
+	
+	double getDy();
+	void setDy(double val);
 	
 	boolean getIsAlive();
 	void setIsAlive(boolean val);

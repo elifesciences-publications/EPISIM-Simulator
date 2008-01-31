@@ -2,7 +2,6 @@ package sim.app.episim.model;
 
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +13,7 @@ import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 import sim.app.episim.Epidermis;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.KCyte;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
@@ -77,7 +77,7 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 	   	}
 	   	}
 	   	catch(Exception e){
-	   		e.printStackTrace();
+	   		ExceptionDisplayer.getInstance().displayException(e);
 	   	}
 	}
 

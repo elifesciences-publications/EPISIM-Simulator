@@ -374,6 +374,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
             {
                 newy=pC2dHerd.height; 
                 inNirvana=true;
+               
             }
 
             else            
@@ -411,7 +412,10 @@ public class KCyte extends CellType implements ChartMonitoredCellType
              
         kcyte.local_maxAge= biochemModelController.getEpisimCellDiffModelGlobalParameters().getMaxAge();
         long pSimTime=(long) epidermis.schedule.time();
-        if (pSimTime<(kcyte.local_maxAge)) kcyte.local_maxAge=pSimTime;
+        if (pSimTime<(kcyte.local_maxAge)){ 
+      	  kcyte.local_maxAge=pSimTime;
+      	  cellDiffModel.setMaxAge((int)kcyte.local_maxAge);
+        }
 
         
         cellContinous2D.setObjectLocation(kcyte, newloc);        
@@ -433,7 +437,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
       	  epidermis.alreadyfollow = true;
         }
     }
-
+    public boolean follow = false;
     public void makeSpiCell(EpisimCellDiffModel cellDiffModel)
     {
         epidermis.inkrementActualSpi();
@@ -446,7 +450,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
     }
 
         
-    public boolean follow = false;
+   
     
 
     
@@ -504,7 +508,16 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 
     
     public void killCell(){
-   	 
+   	 try {
+          BufferedWriter out = new BufferedWriter(new FileWriter("d:\\age_at_apoptosis_neu.csv", true));
+         
+          out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getAge())+ ";");
+        
+          
+         
+          out.write("\n");
+          out.close();
+           } catch (IOException e) {}    
    	 
    	 epidermis.dekrementActualNoNucleus();
    	 this.cellDiffModelObjekt.setDifferentiation(EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA);
@@ -660,7 +673,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			
 			
 			if(this.follow && this.cellDiffModelObjekt.getIsAlive()){
-                 try {
+           /*      try {
                   BufferedWriter out = new BufferedWriter(new FileWriter("d:\\simresults_neu.csv", true));
                   out.write((int) (state.schedule.time()) + ";");
                   out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.identity)+ ";");
@@ -673,7 +686,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
                  
                   out.write("\n");
                   out.close();
-                   } catch (IOException e) {}         
+                   } catch (IOException e) {}     */    
                  
 			}
 			

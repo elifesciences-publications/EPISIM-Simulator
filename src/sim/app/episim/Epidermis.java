@@ -58,6 +58,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 
 	private List <Class<?extends CellType>> availableCelltypes;
 	
+	public boolean alreadyfollow = false;
 	
 	
 	//get charts from Chart-Factory
@@ -765,7 +766,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
                          OldNumOuterCells++;
                      }
                   */   
-                     if (act.isBasalStatisticsCell()) actualBasalStatisticsCells++;
+                   //  if (act.isBasalStatisticsCell()) actualBasalStatisticsCells++;
                      
                      //act.isOuterCell=false; // set new default 
                      Double2D loc=cellContinous2D.getObjectLocation(act);

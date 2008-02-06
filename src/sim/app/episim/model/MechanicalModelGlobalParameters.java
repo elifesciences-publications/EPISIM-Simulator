@@ -1,28 +1,25 @@
 package sim.app.episim.model;
 
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlobalParameters, java.io.Serializable {
 
-	public static final int KTYPE_UNASSIGNED = 0;
+	public static final int KTYPE_UNASSIGNED = EpisimCellDiffModelGlobalParameters.KTYPE_UNASSIGNED;
 
-	public static final int KTYPE_STEM = 1;
+	public static final int KTYPE_STEM = EpisimCellDiffModelGlobalParameters.STEMCELL;
+	
+	public static final int KTYPE_TA = EpisimCellDiffModelGlobalParameters.TACELL;
 
-	public static final int KTYPE_BASAL = 2;
+	public static final int KTYPE_SPINOSUM = EpisimCellDiffModelGlobalParameters.EARLYSPICELL;
 
-	public static final int KTYPE_TA = 3;
+	public static final int KTYPE_LATESPINOSUM = EpisimCellDiffModelGlobalParameters.LATESPICELL;
 
-	public static final int KTYPE_SPINOSUM = 4;
+	public static final int KTYPE_GRANULOSUM = EpisimCellDiffModelGlobalParameters.GRANUCELL;
 
-	public static final int KTYPE_LATESPINOSUM = 5;
+	public static final int KTYPE_NONUCLEUS = EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS;
 
-	public static final int KTYPE_GRANULOSUM = 7;
-
-	public static final int KTYPE_RENAME = 8;
-
-	public static final int KTYPE_NONUCLEUS = 9;
-
-	public static final int KTYPE_NIRVANA = 9;
+	public static final int KTYPE_NIRVANA = EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA;
 	
 	private int typeColor = 1;
 
@@ -60,7 +57,7 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 
 	private double ad_Granu_Granu = 0.0; //0.1
 
-	private double[][] adh_array = new double[10][10];
+	private double[][] adh_array = new double[8][8];
 
 	
 	
@@ -71,39 +68,39 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 
 	public MechanicalModelGlobalParameters() {
 
-		for(int i = 0; i < 10; i++)
-			for(int j = 0; j < 10; j++)
+		for(int i = 0; i < 8; i++)
+			for(int j = 0; j < 8; j++)
 				adh_array[i][j] = 0; // default
 		//TODO: Review Adhesion Array --> Used Constants
 		adh_array[KTYPE_STEM][KTYPE_STEM] = ad_Stem_Other;
 		adh_array[KTYPE_STEM][KTYPE_TA] = ad_Stem_Other;
-		adh_array[KTYPE_STEM][KTYPE_BASAL] = ad_Stem_Other;
+		
 		adh_array[KTYPE_STEM][KTYPE_SPINOSUM] = ad_Stem_Other;
 		adh_array[KTYPE_STEM][KTYPE_LATESPINOSUM] = ad_Stem_Other;
 		adh_array[KTYPE_STEM][KTYPE_GRANULOSUM] = ad_Stem_Other;
-		adh_array[KTYPE_STEM][KTYPE_RENAME] = ad_Stem_Other;
+		
 		adh_array[KTYPE_STEM][KTYPE_STEM] = ad_Stem_Other;
 		adh_array[KTYPE_TA][KTYPE_STEM] = ad_Stem_Other;
-		adh_array[KTYPE_BASAL][KTYPE_STEM] = ad_Stem_Other;
+	
 		adh_array[KTYPE_SPINOSUM][KTYPE_STEM] = ad_Stem_Other;
 		adh_array[KTYPE_LATESPINOSUM][KTYPE_STEM] = ad_Stem_Other;
 		adh_array[KTYPE_GRANULOSUM][KTYPE_STEM] = ad_Stem_Other;
-		adh_array[KTYPE_RENAME][KTYPE_STEM] = ad_Stem_Other;
+	
 
 		adh_array[KTYPE_TA][KTYPE_STEM] = ad_TA_Other;
 		adh_array[KTYPE_TA][KTYPE_TA] = ad_TA_Other;
-		adh_array[KTYPE_TA][KTYPE_BASAL] = ad_TA_Other;
+		
 		adh_array[KTYPE_TA][KTYPE_SPINOSUM] = ad_TA_Other;
 		adh_array[KTYPE_TA][KTYPE_LATESPINOSUM] = ad_TA_Other;
 		adh_array[KTYPE_TA][KTYPE_GRANULOSUM] = ad_TA_Other;
-		adh_array[KTYPE_TA][KTYPE_RENAME] = ad_TA_Other;
+		
 		adh_array[KTYPE_TA][KTYPE_STEM] = ad_TA_Other;
 		adh_array[KTYPE_TA][KTYPE_TA] = ad_TA_Other;
-		adh_array[KTYPE_BASAL][KTYPE_TA] = ad_TA_Other;
+		
 		adh_array[KTYPE_SPINOSUM][KTYPE_TA] = ad_TA_Other;
 		adh_array[KTYPE_LATESPINOSUM][KTYPE_TA] = ad_TA_Other;
 		adh_array[KTYPE_GRANULOSUM][KTYPE_TA] = ad_TA_Other;
-		adh_array[KTYPE_RENAME][KTYPE_TA] = ad_TA_Other;
+		
 
 		adh_array[KTYPE_SPINOSUM][KTYPE_SPINOSUM] = ad_Spi_Spi;
 		adh_array[KTYPE_SPINOSUM][KTYPE_LATESPINOSUM] = ad_Spi_Spi;
@@ -292,18 +289,18 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 			ad_Stem_Other = val;
 			adh_array[KTYPE_STEM][KTYPE_STEM] = val;
 			adh_array[KTYPE_STEM][KTYPE_TA] = val;
-			adh_array[KTYPE_STEM][KTYPE_BASAL] = val;
+			
 			adh_array[KTYPE_STEM][KTYPE_SPINOSUM] = val;
 			adh_array[KTYPE_STEM][KTYPE_LATESPINOSUM] = val;
 			adh_array[KTYPE_STEM][KTYPE_GRANULOSUM] = val;
-			adh_array[KTYPE_STEM][KTYPE_RENAME] = val;
+			
 			adh_array[KTYPE_STEM][KTYPE_STEM] = val;
 			adh_array[KTYPE_TA][KTYPE_STEM] = val;
-			adh_array[KTYPE_BASAL][KTYPE_STEM] = val;
+			
 			adh_array[KTYPE_SPINOSUM][KTYPE_STEM] = val;
 			adh_array[KTYPE_LATESPINOSUM][KTYPE_STEM] = val;
 			adh_array[KTYPE_GRANULOSUM][KTYPE_STEM] = val;
-			adh_array[KTYPE_RENAME][KTYPE_STEM] = val;
+			
 		}
 	}
 
@@ -318,18 +315,18 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 			ad_TA_Other = val;
 			adh_array[KTYPE_TA][KTYPE_STEM] = val;
 			adh_array[KTYPE_TA][KTYPE_TA] = val;
-			adh_array[KTYPE_TA][KTYPE_BASAL] = val;
+			
 			adh_array[KTYPE_TA][KTYPE_SPINOSUM] = val;
 			adh_array[KTYPE_TA][KTYPE_LATESPINOSUM] = val;
 			adh_array[KTYPE_TA][KTYPE_GRANULOSUM] = val;
-			adh_array[KTYPE_TA][KTYPE_RENAME] = val;
+			
 			adh_array[KTYPE_TA][KTYPE_STEM] = val;
 			adh_array[KTYPE_TA][KTYPE_TA] = val;
-			adh_array[KTYPE_BASAL][KTYPE_TA] = val;
+			
 			adh_array[KTYPE_SPINOSUM][KTYPE_TA] = val;
 			adh_array[KTYPE_LATESPINOSUM][KTYPE_TA] = val;
 			adh_array[KTYPE_GRANULOSUM][KTYPE_TA] = val;
-			adh_array[KTYPE_RENAME][KTYPE_TA] = val;
+			
 		}
 	}
 

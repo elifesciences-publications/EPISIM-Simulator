@@ -11,10 +11,16 @@ import ec.util.*;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
@@ -422,7 +428,10 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         taCell.getEpisimCellDiffModelObject()
         	.setAge(this.epidermis.random.nextInt(biochemModelController.getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
         // erben der signal concentrationen
-      
+        if(this.identity == 2 && !epidermis.alreadyfollow){
+      	  taCell.follow = true;
+      	  epidermis.alreadyfollow = true;
+        }
     }
 
     public void makeSpiCell(EpisimCellDiffModel cellDiffModel)
@@ -430,13 +439,14 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         epidermis.inkrementActualSpi();
         epidermis.inkrementActualKCytes();
         KCyte spiCell=makeChild(cellDiffModel);
-       
+        
+        
        
 
     }
 
         
-    
+    public boolean follow = false;
     
 
     
@@ -449,8 +459,11 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    	 this.cellDiffModelObjekt.setIsMembrane(this.isMembraneCell);
    	 this.cellDiffModelObjekt.setIsSurface(isSurface);
    	 this.cellDiffModelObjekt.setHasCollision(hasCollision);
-   	 this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
+   	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL) this.cellDiffModelObjekt.setAge(0);
+   	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
    	 List<EpisimCellDiffModel> neighbourCells = new ArrayList<EpisimCellDiffModel>();
+   	 
+   	
    	 for(int i=0;i<neighbours.numObjs;i++)
        {
    		 KCyte actNeighbour = (KCyte)(neighbours.objs[i]);
@@ -463,11 +476,11 @@ public class KCyte extends CellType implements ChartMonitoredCellType
                double distance = Math.sqrt(dx*dx + dy*dy);
                
                if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
+               
                	neighbourCells.add(actNeighbour.getEpisimCellDiffModelObject());
                }
         }
-   	 	
-   	  	 
+   	   	  	 
    	 	makeChildren(this.cellDiffModelObjekt.oneStep(neighbourCells.toArray(new EpisimCellDiffModel[neighbourCells.size()])));
    	 	if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.GRANUCELL){
    	 		setKeratinoWidth(getGKeratinoWidthGranu());
@@ -643,6 +656,27 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			// //////////////////////////////////////////////////////
 
 			differentiate(b,epiderm.getCellContinous2D(), newLoc, isOuterCell || hitResult2.nextToOuterCell, hitResult2.numhits != 0);
+			
+			
+			
+			if(this.follow && this.cellDiffModelObjekt.getIsAlive()){
+                 try {
+                  BufferedWriter out = new BufferedWriter(new FileWriter("d:\\simresults_neu.csv", true));
+                  out.write((int) (state.schedule.time()) + ";");
+                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.identity)+ ";");
+                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getDifferentiation())+ ";");
+                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getAge())+ ";");
+                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getCa())+ ";");
+                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getLam())+ ";");
+                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getLip())+";");
+                  
+                 
+                  out.write("\n");
+                  out.close();
+                   } catch (IOException e) {}         
+                 
+			}
+			
 		}
 	}
 

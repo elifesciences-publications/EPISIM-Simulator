@@ -23,6 +23,7 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 	
 	private int typeColor = 1;
 
+	
 	private int basalAmplitude_µm = 40; // depth of an undulation
 
 	private int basalOpening_µm = 150; // width of undulation at the middle

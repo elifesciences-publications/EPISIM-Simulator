@@ -115,8 +115,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    	 // always as first thing, set beholder
         this.epidermis=epidermis;
         // now local vars
-        epidermis.inkrementNumberOfKCytes();
-        identity=epidermis.getNumberOfKCytes();        
+        
        
         extForce=new Vector2D(0,0);
         inNirvana=false;        
@@ -400,6 +399,9 @@ public class KCyte extends CellType implements ChartMonitoredCellType
         KCyte kcyte;        
        
             kcyte= new KCyte(epidermis, cellDiffModel); 
+            epidermis.inkrementNumberOfKCytes();
+            kcyte.identity = epidermis.getNumberOfKCytes();
+            cellDiffModel.setId(kcyte.identity);
             Stoppable stoppable = epidermis.schedule.scheduleRepeating(kcyte);   // schedule only if not already running
             kcyte.setStoppable(stoppable);
 
@@ -449,25 +451,9 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 
     }
 
-        
-   
     
-
-    
-    public void differentiate(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean isSurface, boolean hasCollision)
-    {
-     // modelController.getBioChemicalModelController().differentiate(this, epidermis, pBarrierMember);
-   	 
-   	 this.cellDiffModelObjekt.setX(thisloc.getX());
-   	 this.cellDiffModelObjekt.setY(-1*thisloc.getY());
-   	 this.cellDiffModelObjekt.setIsMembrane(this.isMembraneCell);
-   	 this.cellDiffModelObjekt.setIsSurface(isSurface);
-   	 this.cellDiffModelObjekt.setHasCollision(hasCollision);
-   	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL) this.cellDiffModelObjekt.setAge(0);
-   	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
+    private EpisimCellDiffModel[] getRealNeighbours(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc){
    	 List<EpisimCellDiffModel> neighbourCells = new ArrayList<EpisimCellDiffModel>();
-   	 
-   	
    	 for(int i=0;i<neighbours.numObjs;i++)
        {
    		 KCyte actNeighbour = (KCyte)(neighbours.objs[i]);
@@ -477,15 +463,60 @@ public class KCyte extends CellType implements ChartMonitoredCellType
                double dy = cellContinous2D.tdy(thisloc.y,otherloc.y);
                
                actNeighbour.getEpisimCellDiffModelObject().setDy(-1*dy);
-               double distance = Math.sqrt(dx*dx + dy*dy);
+               actNeighbour.getEpisimCellDiffModelObject().setDx(dx);
                
-               if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
+         //      double distance = Math.sqrt(dx*dx + dy*dy);
+               
+             //  if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
                
                	neighbourCells.add(actNeighbour.getEpisimCellDiffModelObject());
-               }
+               	
+             //}
         }
+   	 return neighbourCells.toArray(new EpisimCellDiffModel[neighbourCells.size()]);
+    }
+   
+    private boolean isSurfaceCell(EpisimCellDiffModel[] neighbours){
+   	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL) return false;
+   	 else{
+   		
+   		 int leftSideNeighbours = 0;
+   		 int rightSideNeighbours= 0;
+   		 int upperNeighbours = 0;
+   		 double height = (double) this.getKeratinoHeight();
+   		 double width = (double) this.getKeratinoWidth();
+   		  for(EpisimCellDiffModel actNeighbour :neighbours){
+   			  double dx =actNeighbour.getDx();
+   			  double dy =actNeighbour.getDy();
+   			  if(dy >=0) upperNeighbours++;
+   			  else if(dy < height && dx < 0 && Math.abs(dx)>= width) leftSideNeighbours++;
+   			  else if(dy < height  && dx > 0 && Math.abs(dx)>= width) rightSideNeighbours++;
+   		  }
+   		 
+   		 if(upperNeighbours == 0 || rightSideNeighbours == 0 || leftSideNeighbours == 0) return true;
+   		 
+   	 }
+   	 return false;
+    }
+    
+    public void differentiate(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean nextToOuterCell, boolean hasCollision)
+    {
+     // modelController.getBioChemicalModelController().differentiate(this, epidermis, pBarrierMember);
+   	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
+   	// this.isOuterCell = isSurfaceCell(realNeighbours);
+   	 this.cellDiffModelObjekt.setX(thisloc.getX());
+   	 this.cellDiffModelObjekt.setY(-1*thisloc.getY());
+   	 this.cellDiffModelObjekt.setIsMembrane(this.isMembraneCell);
+   	 this.cellDiffModelObjekt.setIsSurface(this.isOuterCell || nextToOuterCell);
+   	 this.cellDiffModelObjekt.setHasCollision(hasCollision);
+   	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL) this.cellDiffModelObjekt.setAge(0);
+   	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
+   	 
+   	 
+   	
+   	
    	   	  	 
-   	 	makeChildren(this.cellDiffModelObjekt.oneStep(neighbourCells.toArray(new EpisimCellDiffModel[neighbourCells.size()])));
+   	 	makeChildren(this.cellDiffModelObjekt.oneStep(realNeighbours));
    	 	if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.GRANUCELL){
    	 		setKeratinoWidth(getGKeratinoWidthGranu());
    			setKeratinoHeight(getGKeratinoHeightGranu());
@@ -508,17 +539,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 
     
     public void killCell(){
-   	 try {
-          BufferedWriter out = new BufferedWriter(new FileWriter("d:\\age_at_apoptosis_neu.csv", true));
-         
-          out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getAge())+ ";");
-        
-          
-         
-          out.write("\n");
-          out.close();
-           } catch (IOException e) {}    
-   	 
+   	    	 
    	 epidermis.dekrementActualNoNucleus();
    	 this.cellDiffModelObjekt.setDifferentiation(EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA);
    	 epidermis.dekrementActualKCytes();
@@ -528,19 +549,13 @@ public class KCyte extends CellType implements ChartMonitoredCellType
     }
 
     
-    
-
-
-    // relocate basal and stem_cells bei veraenderter funktion fehlt noch.
 	public void step(SimState state) {
 
 		final Epidermis epiderm = (Epidermis) state;
 		
-		//
-		// Memory management
-		//
+	
 		if(inNirvana){
-			// please for resurrection by registering as wating
+			
 
 			removeFromSchedule();
 			
@@ -668,7 +683,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 			// Differentiation: Calling the loaded Cell-Diff-Model
 			// //////////////////////////////////////////////////////
 
-			differentiate(b,epiderm.getCellContinous2D(), newLoc, isOuterCell || hitResult2.nextToOuterCell, hitResult2.numhits != 0);
+			differentiate(b,epiderm.getCellContinous2D(), newLoc, hitResult2.nextToOuterCell, hitResult2.numhits != 0);
 			
 			
 			

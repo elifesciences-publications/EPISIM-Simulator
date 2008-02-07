@@ -77,6 +77,9 @@ public interface EpisimCellDiffModel {
 	int getColorB();
 	void setColorB(int val);
 	
+	int getId();
+	void setId(int val);
+	
 	void setNumberOfNeighbours(int val);
 	
 	EpisimCellDiffModel[] oneStep(EpisimCellDiffModel[] neighbours);

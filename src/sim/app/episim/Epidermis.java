@@ -824,7 +824,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
      };
      // Schedule the agent to update is Outer Flag
      
-     schedule.scheduleRepeating(airSurface, 1);
+    // schedule.scheduleRepeating(airSurface, 1);
      }
 
 

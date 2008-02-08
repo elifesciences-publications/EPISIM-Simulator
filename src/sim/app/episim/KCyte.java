@@ -488,12 +488,12 @@ public class KCyte extends CellType implements ChartMonitoredCellType
    		  for(EpisimCellDiffModel actNeighbour :neighbours){
    			  double dx =actNeighbour.getDx();
    			  double dy =actNeighbour.getDy();
-   			  if(dy >=0) upperNeighbours++;
-   			  else if(dy < height && dx < 0 && Math.abs(dx)>= width) leftSideNeighbours++;
-   			  else if(dy < height  && dx > 0 && Math.abs(dx)>= width) rightSideNeighbours++;
+   			  if(dy <=0 && dx == 0) upperNeighbours++;
+   			  else if(dy <=0 && dx < 0) leftSideNeighbours++;
+   			  else if(dy <=0  && dx > 0) rightSideNeighbours++;
    		  }
    		 
-   		 if(upperNeighbours == 0 || rightSideNeighbours == 0 || leftSideNeighbours == 0) return true;
+   		 if(upperNeighbours == 0 || rightSideNeighbours == 0 || leftSideNeighbours == 0) return true; 
    		 
    	 }
    	 return false;
@@ -501,9 +501,9 @@ public class KCyte extends CellType implements ChartMonitoredCellType
     
     public void differentiate(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean nextToOuterCell, boolean hasCollision)
     {
-     // modelController.getBioChemicalModelController().differentiate(this, epidermis, pBarrierMember);
+     
    	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
-   	// this.isOuterCell = isSurfaceCell(realNeighbours);
+   	 this.isOuterCell = isSurfaceCell(realNeighbours);
    	 this.cellDiffModelObjekt.setX(thisloc.getX());
    	 this.cellDiffModelObjekt.setY(-1*thisloc.getY());
    	 this.cellDiffModelObjekt.setIsMembrane(this.isMembraneCell);

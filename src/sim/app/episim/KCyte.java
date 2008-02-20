@@ -1,6 +1,6 @@
 package sim.app.episim;
 import sim.app.episim.charts.ChartController;
-import sim.app.episim.charts.ChartMonitoredCellType;
+
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.ModelController;
@@ -25,7 +25,7 @@ import java.util.Locale;
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
 
-public class KCyte extends CellType implements ChartMonitoredCellType
+public class KCyte extends CellType
 {
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
 // CONSTANTS
@@ -104,43 +104,31 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
    public KCyte(){
-   
+   this(null, null);
    }
     public KCyte(Epidermis epidermis, EpisimCellDiffModel cellDiffModel)
     {
-   	 	this.cellDiffModelObjekt = cellDiffModel;
-   	 	modelController = ModelController.getInstance();
-   	 	biochemModelController = modelController.getBioChemicalModelController();
-   	 	biomechModelController = modelController.getBioMechanicalModelController();
-   	 // always as first thing, set beholder
-        this.epidermis=epidermis;
-        // now local vars
-        
-       
-        extForce=new Vector2D(0,0);
-        inNirvana=false;        
-        keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
-        keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
-       
-        isOuterCell=false;        
+   	 modelController = ModelController.getInstance();
+   	 biochemModelController = modelController.getBioChemicalModelController();
+   	 biomechModelController = modelController.getBioMechanicalModelController();
+   	
+       this.epidermis=epidermis;
+    	 this.cellDiffModelObjekt = cellDiffModel;
+    	 if(cellDiffModel == null) this.cellDiffModelObjekt = biochemModelController.getNewEpisimCellDiffModelObject();
+       extForce=new Vector2D(0,0);
+       inNirvana=false;        
+       keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
+       keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
+       isOuterCell=false;        
                
-        voronoihullvertexes=0;
-        voronoiStable=0;
-        
-        
-        
-                      
-        lastd=new Double2D(0.0,-3);
-        
-        
-        epidermis.checkMemory();
-        
-       
-        epidermis.getAllCells().add(this); // register this as additional one in Bag
-       
-        
-        
-       
+       voronoihullvertexes=0;
+       voronoiStable=0;
+                          
+       lastd=new Double2D(0.0,-3);
+       if(epidermis != null){ 
+           epidermis.checkMemory();
+	        epidermis.getAllCells().add(this); // register this as additional one in Bag
+       }
     }
 
     public void reloadControllers(){
@@ -714,6 +702,9 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 		for(Method m : this.getClass().getMethods()){
 			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
 		}
+		for(Method m : this.cellDiffModelObjekt.getClass().getMethods()){
+			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
+		}
 		return methods;
 	}
 	
@@ -767,7 +758,7 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 
 	public long getLocal_maxAge() {return local_maxAge;}
 	
-	public String getName() { return NAME; }
+	public String getCellName() { return NAME; }
 	public double[] getNeighborDrawInfoX() { return neighborDrawInfoX; }
 	public double[] getNeighborDrawInfoY() { return neighborDrawInfoY; }
 	
@@ -831,6 +822,11 @@ public class KCyte extends CellType implements ChartMonitoredCellType
 	public EpisimCellDiffModel getEpisimCellDiffModelObject(){
 		return this.cellDiffModelObjekt;
 	}
+	
+   public Class<? extends EpisimCellDiffModel> getEpisimCellDiffModelClass() {
+	  
+	   return this.cellDiffModelObjekt.getClass();
+   }
 	
 		           
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------

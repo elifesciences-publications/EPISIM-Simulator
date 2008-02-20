@@ -30,7 +30,7 @@ public class TissueBorderDev {
 	
 	private static  TissueBorderDev instance;
 	
-	private Tissue tissue;
+	private LoadedTissue tissue;
 	
 	private TissueBorderDev(){
 		fullcontour = new ArrayList<Point2D>();

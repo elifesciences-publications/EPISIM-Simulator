@@ -64,9 +64,11 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 
+import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.charts.parser.ParseException;
 import sim.app.episim.charts.parser.TokenMgrError;
+import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.util.gui.ColorWell;
 import sim.util.gui.LabelledList;
 import sim.util.gui.NumberTextField;
@@ -78,7 +80,7 @@ import sim.util.media.chart.TimeSeriesChartGenerator;
 public class ChartCreationWizard extends JDialog {
 	
 	
-   
+   private TissueCellDataFieldsInspector cellDataFieldsInspector;
    
    protected ArrayList attributesList = new ArrayList();
    protected XYSeriesCollection dataset = new XYSeriesCollection();
@@ -89,7 +91,7 @@ public class ChartCreationWizard extends JDialog {
    private  DatasetChangeEvent updateEvent;
    
  
-   private Map<String, ChartMonitoredCellType> cellTypesMap;
+   private Map<String, CellType> cellTypesMap;
    private JTextField chartTitleField;
    private JTextField chartXLabel;
    private JTextField chartYLabel;
@@ -385,19 +387,15 @@ public class ChartCreationWizard extends JDialog {
            }
        }
 	
-	public void createNewChart(Map<String, ChartMonitoredCellType> cellTypes){
-		if(cellTypes != null){
-			this.cellTypesMap = cellTypes;
+	public void createNewChart(TissueCellDataFieldsInspector cellDataFieldsInspector){
+		
+			this.cellDataFieldsInspector = cellDataFieldsInspector;
 			
 			repaint();
 			centerMe();
 			setVisible(true);
 		}
 		
-	}
-	
-	
-	
 	
 	
 	
@@ -489,8 +487,8 @@ public class ChartCreationWizard extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 	         ChartExpressionEditor editor = new ChartExpressionEditor(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true);
-	         baselineExpression =editor.getExpression(cellTypesMap, baselineExpression);
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector);
+	         baselineExpression =editor.getExpression(baselineExpression);
 	         if(baselineExpression != null && baselineExpression[0] != null && baselineExpression[1] != null){
 	         	baselineButton.setText("Edit Baseline Expression");
 	         	baselineField.setText(baselineExpression[0]);
@@ -781,8 +779,8 @@ public class ChartCreationWizard extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 	         ChartExpressionEditor editor = new ChartExpressionEditor(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true);
-	         expression =editor.getExpression(cellTypesMap, expression);
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector);
+	         expression =editor.getExpression(expression);
 	         if(expression != null && expression[0] != null && expression[1] != null){
 	         	formulaButton.setText("Edit Expression");
 	         	formulaField.setText(expression[0]);

@@ -6,22 +6,38 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 
+import sim.app.episim.CellType;
+import sim.app.episim.TissueType;
+
 import sim.app.episim.charts.parser.*;
+import sim.app.episim.util.TissueCellDataFieldsInspector;
 public class ChartController {
 	
 	private static ChartController instance = null;
 	
-	private List <ChartMonitoredClass> chartMonitoredClasses;
 	
-	private ConcurrentHashMap<String, ChartMonitoredCellType> chartMonitoredCellTypes;
 	
-	private ConcurrentHashMap<String, ChartMonitoredTissue> chartMonitoredTissues;
+
 	
+	private TissueType chartMonitoredTissue;
+	private Set<String> markerPrefixes;
+	private Set<Class<?>> validDataTypes;
 	
 	private ChartController(){
-		chartMonitoredClasses = new ArrayList<ChartMonitoredClass>();
-		chartMonitoredCellTypes = new ConcurrentHashMap<String, ChartMonitoredCellType>();
-		chartMonitoredTissues = new ConcurrentHashMap<String, ChartMonitoredTissue>();
+		
+		markerPrefixes = new HashSet<String>();
+		validDataTypes = new HashSet<Class<?>>();
+		
+		markerPrefixes.add("get");
+		markerPrefixes.add("is");
+		
+		validDataTypes.add(Integer.TYPE);
+		validDataTypes.add(Short.TYPE);
+		validDataTypes.add(Byte.TYPE);
+		validDataTypes.add(Long.TYPE);
+		validDataTypes.add(Float.TYPE);
+		validDataTypes.add(Double.TYPE);
+		
 	}
 	
 	
@@ -31,23 +47,17 @@ public class ChartController {
 		return instance;
 	}
 	
-	public void registerCelltypeForChartMonitoring(ChartMonitoredCellType celltype){
-		if(!chartMonitoredCellTypes.containsKey(celltype.getName()))
-				chartMonitoredCellTypes.put(celltype.getName(), celltype);
-		
-	}
+	
    
-	public void registerTissueForChartMonitoring(ChartMonitoredTissue tissue){
-	if(!chartMonitoredTissues.containsKey(tissue.getTissueName())){
-			chartMonitoredTissues.put(tissue.getTissueName(), tissue);
-			for(ChartMonitoredCellType actCellType: tissue.getChartMonitoredCellTypes()) registerCelltypeForChartMonitoring(actCellType);
-	}
+	public void setChartMonitoredTissue(TissueType tissue){
+		this.chartMonitoredTissue = tissue;
 	}
 	
 	public void showChartCreationWizard(Frame parent){
 		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true);
-		
-		if(chartMonitoredCellTypes.size()!=0) wizard.createNewChart(chartMonitoredCellTypes);
+		 new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes);
+		if(this.chartMonitoredTissue != null) 
+			wizard.createNewChart(new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes));
 	}
 	
 	public String checkChartExpression(String expression, Set<String> varNameSet) throws ParseException,TokenMgrError{

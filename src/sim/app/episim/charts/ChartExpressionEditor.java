@@ -38,38 +38,37 @@ import javax.swing.event.ListSelectionListener;
 
 import sim.app.episim.charts.parser.ParseException;
 import sim.app.episim.charts.parser.TokenMgrError;
+import sim.app.episim.util.TissueCellDataFieldsInspector;
 
 
 public class ChartExpressionEditor extends JDialog {
 	
-	private JList cellTypeList;
-	private JList cellTypeParameterList;
+	
 
 	private JTextArea chartExpressionTextArea;
 	
-	private JPanel variableListPanel;
+	
 	private JPanel textAreaPanel;
 	private JPanel formulaPanel;
 	private JPanel buttonPanel;
-	
+	private TissueCellDataFieldsInspector dataFieldsInspector;
 	
 	private JTextArea messageTextArea;
 	
-	private Set<String> varNameSet;
 	
-	private Map<String, ChartMonitoredCellType> cellTypesMap;
 	
 	private JDialog dialog;
 	//index 0: expression not compiled; index 1: expression compiled
 	private String [] expression = new String[2];
 	
-	public ChartExpressionEditor(Frame owner, String title, boolean modal){
+	public ChartExpressionEditor(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector){
 		super(owner, title, modal);
 			
 	   getContentPane().setLayout(new GridBagLayout());
 	   GridBagConstraints c = new GridBagConstraints();
 	   
-	   variableListPanel = buildVariableListPanel();
+	   if(_dataFieldsInspector != null)this.dataFieldsInspector = _dataFieldsInspector;
+	   else throw new IllegalArgumentException("Datafield Inspector is null!");
 	   
 	   
 	   c.anchor =GridBagConstraints.CENTER;
@@ -78,7 +77,7 @@ public class ChartExpressionEditor extends JDialog {
 	   c.weighty =1;
 	   c.insets = new Insets(10,10,10,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
-	   getContentPane().add(variableListPanel, c);
+	   getContentPane().add(this.dataFieldsInspector.getVariableListPanel(), c);
 	  	   
 	   c.fill = GridBagConstraints.BOTH;
 	   c.gridwidth = GridBagConstraints.REMAINDER;
@@ -105,6 +104,28 @@ public class ChartExpressionEditor extends JDialog {
 	   this.buttonPanel = buildButtonPanel();
 	   getContentPane().add(buttonPanel, c);
 	   
+	   
+	   this.dataFieldsInspector.getCellParameterList().addMouseListener(new MouseAdapter() {
+
+			public void mouseClicked(MouseEvent e) {
+
+				if((dataFieldsInspector.getCellParameterList().getSelectedIndex() != -1) && e.getClickCount() == 2){
+					insertStringInChartExpressionAtCursor(dataFieldsInspector.getCellTypeList().getSelectedValue() + "."
+					      + dataFieldsInspector.getCellParameterList().getSelectedValue());
+				}
+			}
+		});
+	   this.dataFieldsInspector.getTissueParameterList().addMouseListener(new MouseAdapter() {
+
+			public void mouseClicked(MouseEvent e) {
+
+				if((dataFieldsInspector.getTissueParameterList().getSelectedIndex() != -1) && e.getClickCount() == 2){
+					insertStringInChartExpressionAtCursor("globalTissueValue."
+					      + dataFieldsInspector.getTissueParameterList().getSelectedValue());
+				}
+			}
+		});
+	   
 	   this.addWindowListener(new WindowAdapter() {
 	   	public void windowActivated(WindowEvent e) {
 	   		chartExpressionTextArea.requestFocusInWindow();
@@ -116,56 +137,23 @@ public class ChartExpressionEditor extends JDialog {
 		dialog = this;
 	}
 	
-	public String[] getExpression(Map<String, ChartMonitoredCellType> cellTypes, String[] oldExpression){
-		if(cellTypes != null){
-			this.cellTypesMap = cellTypes;
+	public String[] getExpression(String[] oldExpression){
+					
 			if(oldExpression != null && oldExpression.length >=2){
 				expression = oldExpression;
 				if(expression[0] != null) chartExpressionTextArea.setText(expression[0]);
 				if(expression[1] != null) messageTextArea.setText(expression[1]);
 				
 			}
-			buildVarNameSet(cellTypes);
-
-			
-			DefaultListModel listModel = new DefaultListModel();
-
-			Set<String> cellTypeNames = cellTypes.keySet();
-			for(String actCellTypeName : cellTypeNames)
-				listModel.addElement(actCellTypeName);
-
-			cellTypeList.setModel(listModel);
-			
+									
 			repaint();
 			centerMe();
 			setVisible(true);
 			
-		}
 		return expression;
 	}
 	
-	private void showParameters(ChartMonitoredClass monitoredClass){
 	
-		DefaultListModel listModel = new DefaultListModel();
-		for(Method actMethod :monitoredClass.getParameters()){
-			
-			if(isValidReturnType(actMethod.getReturnType()))
-				listModel.addElement(getParameterName(actMethod.getName()));
-			
-		}
-		cellTypeParameterList.setModel(listModel);
-		
-	}
-	
-	
-	private boolean isValidReturnType(Class<?> cls){
-		if(cls.isPrimitive() 
-				&&!cls.isAssignableFrom(String.class)
-				&&!cls.isAssignableFrom(Boolean.TYPE)) 
-			return true;
-		
-		return false;
-	}
 	
 	private void centerMe(){
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -173,85 +161,12 @@ public class ChartExpressionEditor extends JDialog {
 		((int)(screenDim.getHeight() /2) - (this.getHeight()/2)));
 	}
 	
-	private void buildVarNameSet(Map<String, ChartMonitoredCellType> cellTypes){
-		
-		this.varNameSet = new HashSet<String>();
-		Set<String> cellTypeNames = cellTypes.keySet();
-		for(String actCellTypeName :cellTypeNames){
-			ChartMonitoredCellType actClass = cellTypes.get(actCellTypeName); 
-		
-			for(Method actMethod :actClass.getParameters())varNameSet.add(actCellTypeName+"."+getParameterName(actMethod.getName()));
-		}	
-	}
 	
 	
-	private JPanel buildVariableListPanel(){
-		
-		
-		JPanel listPanel = new JPanel(new GridLayout(1,2,5,5));
-		cellTypeList = new JList();
-		cellTypeParameterList = new JList();
-		
-
-		cellTypeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		cellTypeParameterList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
-		
-		cellTypeList.addListSelectionListener(new ListSelectionListener(){
-
-			public void valueChanged(ListSelectionEvent e) {
-
-			        if ((e.getValueIsAdjusting() != false) && cellTypeList.getSelectedIndex() != -1) {
-			        
-			      	  showParameters(cellTypesMap.get(((String) cellTypeList.getSelectedValue())));
-			            
-			        }
-			}
-			
-			
-		});
-		cellTypeParameterList.addMouseListener(new MouseAdapter(){
-
-			public void mouseClicked(MouseEvent e) {
-				
-			        if ((cellTypeParameterList.getSelectedIndex() != -1)&& e.getClickCount() == 2) {
-			          	  insertStringInChartExpressionAtCursor(cellTypeList.getSelectedValue()
-			       				+"."
-			        				+cellTypeParameterList.getSelectedValue());
-			       }
-		    }
-		});
-		
-		cellTypeParameterList.setToolTipText("double-click to select!");
-		
-		
-		
-		
-		
-		
-		JScrollPane cellTypeListScroll = new JScrollPane(cellTypeList);
-		JScrollPane cellTypeParameterListScroll = new JScrollPane(cellTypeParameterList);
 	
-	   listPanel.add(cellTypeListScroll);
-	   
-	   listPanel.add(cellTypeParameterListScroll);
-	   
-	 
-		
-	   listPanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createTitledBorder("Variables"), 
-				BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-		
-		return listPanel;
-			
 	
-	}
 	
-	private String getParameterName(String str){
-		if(str.startsWith("get")) return str.substring(3);
-		else if(str.startsWith("is")) return str.substring(2);
-		else return null;
-	}
+	
 	
 	private void insertStringInChartExpressionAtCursor(String str){
 		int curPos = chartExpressionTextArea.getCaretPosition();
@@ -347,7 +262,7 @@ public class ChartExpressionEditor extends JDialog {
 
 				try{
 					String result = ChartController.getInstance().checkChartExpression(
-							chartExpressionTextArea.getText().trim(), varNameSet);
+							chartExpressionTextArea.getText().trim(), dataFieldsInspector.getVarNameSet() );
 					messageTextArea.setText(result);
 					expression[0]=chartExpressionTextArea.getText().trim();
 					expression[1]=result;

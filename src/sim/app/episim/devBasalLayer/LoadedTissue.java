@@ -4,7 +4,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 
-public class Tissue implements java.io.Serializable {
+public class LoadedTissue implements java.io.Serializable {
 	
 	private ArrayList<Point2D> basalLayerPoints;
 	private ArrayList<Point2D> surfacePoints;
@@ -15,7 +15,7 @@ public class Tissue implements java.io.Serializable {
 	private double meanEpidermalThickness;
 	private double maximumEpidermalThickness;
 	
-	public Tissue(ArrayList<Point2D> basalLayerPoints, ArrayList<Point2D> surfacePoints, double resolution, String imageid, String tissueDescription, 
+	public LoadedTissue(ArrayList<Point2D> basalLayerPoints, ArrayList<Point2D> surfacePoints, double resolution, String imageid, String tissueDescription, 
 			double epidermalWidth, double meanEpidermalThickness, double maximumEpidermalThickness){
 		this.basalLayerPoints = basalLayerPoints;
 		this.surfacePoints = surfacePoints;

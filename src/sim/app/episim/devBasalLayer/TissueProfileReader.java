@@ -68,7 +68,7 @@ private String scannerState = "";
 		maximumEpidermalThickness=0;
 	}
 	
-	public Tissue loadTissue(File path){
+	public LoadedTissue loadTissue(File path){
 		
 		
 		if(path != null ){
@@ -109,7 +109,7 @@ private String scannerState = "";
 		while(line !=null);
 		
 		    
-			return new Tissue(basalLayerPoints, surfacePoints, resolution, imageid, tissueDescription, epidermalWidth, meanEpidermalThickness, maximumEpidermalThickness);
+			return new LoadedTissue(basalLayerPoints, surfacePoints, resolution, imageid, tissueDescription, epidermalWidth, meanEpidermalThickness, maximumEpidermalThickness);
 			
 		}
 		  catch (EOFException e){

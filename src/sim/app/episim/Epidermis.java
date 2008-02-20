@@ -3,8 +3,6 @@ package sim.app.episim;
 
 //MASON
 import sim.app.episim.charts.ChartController;
-import sim.app.episim.charts.ChartMonitoredCellType;
-import sim.app.episim.charts.ChartMonitoredTissue;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
@@ -28,6 +26,7 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -38,7 +37,7 @@ import com.lowagie.text.pdf.*;
 
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
-public class Epidermis extends SimStateHack implements SnapshotListener, ChartMonitoredTissue
+public class Epidermis extends TissueType implements SnapshotListener
 {
 
 //	---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -56,7 +55,7 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 	private transient BioMechanicalModelController biomechModelContr;
 	private transient BioChemicalModelController biochemModelContr;
 
-	private List <Class<?extends CellType>> availableCelltypes;
+	
 	
 	public boolean alreadyfollow = false;
 	
@@ -128,15 +127,15 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
  /** Creates a EpidermisClass simulation with the given random number seed. */
  public Epidermis(long seed)
  {
-     super(new ec.util.MersenneTwisterFast(seed), new Schedule(1));
+     super(seed);
      
      modelController = ModelController.getInstance();
      biomechModelContr = modelController.getBioMechanicalModelController();
      biochemModelContr =  modelController.getBioChemicalModelController();
      SnapshotWriter.getInstance().addSnapshotListener(this);
-     availableCelltypes = new LinkedList<Class<?extends CellType>>();
-     availableCelltypes.add(KCyte.class);
-     ChartController.getInstance().registerTissueForChartMonitoring(this);
+     this.registerCellType(KCyte.class);
+     
+     ChartController.getInstance().setChartMonitoredTissue(this);
  }
 
  
@@ -846,26 +845,9 @@ public class Epidermis extends SimStateHack implements SnapshotListener, ChartMo
 		  }
 		}
 	}
-private void registerCellMonitoredCellTypes(){
-	
-}
 
-public List<ChartMonitoredCellType> getChartMonitoredCellTypes() {
-	List<ChartMonitoredCellType> cellList = new LinkedList<ChartMonitoredCellType>();
-	for(Class<?extends CellType> actCelltype:availableCelltypes){
-		try{
-			
-			Constructor <?extends CellType> construct =actCelltype.getConstructor();
-			CellType cell = construct.newInstance();
-			if( cell instanceof ChartMonitoredCellType) cellList.add(((ChartMonitoredCellType)cell));
-		}
-		catch (Exception e){
-			ExceptionDisplayer.getInstance().displayException(e);
-		}
-		
-	}
-	return cellList;
-}
+
+
 
  
 //---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1028,11 +1010,13 @@ public List<ChartMonitoredCellType> getChartMonitoredCellTypes() {
 	
 
 
-
 	public List<Method> getParameters() {
-
-		// TODO Auto-generated method stub
-		return null;
+		List<Method> methods = new ArrayList<Method>();
+		
+		for(Method m : this.getClass().getMethods()){
+			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
+		}
+		return methods;
 	}
 
 

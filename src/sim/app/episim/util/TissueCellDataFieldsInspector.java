@@ -158,7 +158,7 @@ public class TissueCellDataFieldsInspector {
 
 	private JPanel buildVariableListPanel() {
 
-		JPanel listPanel = new JPanel(new GridLayout(1, 3, 5, 5));
+		final JPanel listPanel = new JPanel(new GridLayout(1, 3, 5, 5));
 		
 
 		cellTypeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -177,11 +177,27 @@ public class TissueCellDataFieldsInspector {
 					buildParametersList(tissueParameterList, inspectedTissue.getParameters());
 					parametersPanel.removeAll();
 					parametersPanel.add(tissueParameterList, BorderLayout.CENTER);
-					parametersPanel.validate();
-					parametersPanel.repaint();
+					listPanel.validate();
+					listPanel.repaint();
 				}
 			}
 
+		});
+		tissueTypeList.addMouseListener(new MouseAdapter() {
+
+			public void mouseClicked(MouseEvent e) {
+
+				if((tissueTypeList.getSelectedIndex() != -1) && e.getClickCount() == 1){
+					buildCellTypeList();
+					cellTypeList.validate();
+					cellTypeList.repaint();
+					buildParametersList(tissueParameterList, inspectedTissue.getParameters());
+					parametersPanel.removeAll();
+					parametersPanel.add(tissueParameterList, BorderLayout.CENTER);
+					listPanel.validate();
+					listPanel.repaint();
+				}
+			}
 		});
 		cellTypeList.addListSelectionListener(new ListSelectionListener() {
 
@@ -192,8 +208,8 @@ public class TissueCellDataFieldsInspector {
 					buildParametersList(cellParameterList, cellTypesMap.get(((String) cellTypeList.getSelectedValue())).getParameters());
 					parametersPanel.removeAll();
 					parametersPanel.add(cellParameterList, BorderLayout.CENTER);
-					parametersPanel.validate();
-					parametersPanel.repaint();
+					listPanel.validate();
+					listPanel.repaint();
 				}
 			}
 
@@ -207,6 +223,13 @@ public class TissueCellDataFieldsInspector {
 		JScrollPane cellListScroll = new JScrollPane(cellTypeList);
 		JScrollPane parameterListScroll = new JScrollPane(parametersPanel);
 
+		tissueListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Tissue Types"),
+		      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		cellListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Cell Types"),
+		      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		parameterListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Parameters"),
+		      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		
 		listPanel.add(tissueListScroll);
 		listPanel.add(cellListScroll);
 		listPanel.add(parameterListScroll);

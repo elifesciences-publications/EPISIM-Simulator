@@ -2,6 +2,7 @@
 package sim.app.episim;
 
 //MASON
+import sim.Dummy;
 import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.EpiSimCharts;
 import sim.app.episim.model.BioChemicalModelController;
@@ -27,6 +28,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -134,6 +136,7 @@ public class Epidermis extends TissueType implements SnapshotListener
      biochemModelContr =  modelController.getBioChemicalModelController();
      SnapshotWriter.getInstance().addSnapshotListener(this);
      this.registerCellType(KCyte.class);
+     this.registerCellType(Dummy.class);
      
      ChartController.getInstance().setChartMonitoredTissue(this);
  }
@@ -1012,10 +1015,9 @@ public class Epidermis extends TissueType implements SnapshotListener
 
 	public List<Method> getParameters() {
 		List<Method> methods = new ArrayList<Method>();
-		
-		for(Method m : this.getClass().getMethods()){
-			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
-		}
+		 methods.addAll(Arrays.asList(this.biochemModelContr.getEpisimCellDiffModelGlobalParameters().getClass().getMethods()));
+	    methods.addAll(Arrays.asList(this.getClass().getMethods()));
+	   
 		return methods;
 	}
 

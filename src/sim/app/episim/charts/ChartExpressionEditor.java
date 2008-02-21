@@ -115,6 +115,7 @@ public class ChartExpressionEditor extends JDialog {
 				}
 			}
 		});
+	   
 	   this.dataFieldsInspector.getTissueParameterList().addMouseListener(new MouseAdapter() {
 
 			public void mouseClicked(MouseEvent e) {

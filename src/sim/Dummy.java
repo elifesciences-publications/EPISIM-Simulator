@@ -15,7 +15,7 @@ public class Dummy extends CellType{
    public String getCellName() {
 
 	   
-	   return "Dummy Cell Type";
+	   return "DummyCellType";
    }
 
 	@Override

@@ -38,6 +38,7 @@ import javax.swing.event.ListSelectionListener;
 
 import sim.app.episim.charts.parser.ParseException;
 import sim.app.episim.charts.parser.TokenMgrError;
+import sim.app.episim.util.Names;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 
 
@@ -121,7 +122,7 @@ public class ChartExpressionEditor extends JDialog {
 			public void mouseClicked(MouseEvent e) {
 
 				if((dataFieldsInspector.getTissueParameterList().getSelectedIndex() != -1) && e.getClickCount() == 2){
-					insertStringInChartExpressionAtCursor("globalTissueValue."
+					insertStringInChartExpressionAtCursor(Names.GLOBALSIMULATIONVALUE +"."
 					      + dataFieldsInspector.getTissueParameterList().getSelectedValue());
 				}
 			}

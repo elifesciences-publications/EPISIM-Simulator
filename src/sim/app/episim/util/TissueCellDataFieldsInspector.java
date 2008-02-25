@@ -93,6 +93,10 @@ public class TissueCellDataFieldsInspector {
 			for(Method actMethod : actClass.getParameters())
 				varNameSet.add(actCellTypeName + "." + getParameterName(actMethod.getName()));
 		}
+		if(this.inspectedTissue != null){
+			for(Method actMethod : inspectedTissue.getParameters())
+				varNameSet.add(Names.GLOBALSIMULATIONVALUE + "." + getParameterName(actMethod.getName()));
+		}
 	}
 
 	private String getParameterName(String paramName) {

@@ -66,6 +66,7 @@ import com.lowagie.text.pdf.PdfWriter;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.charts.build.EpisimChart;
 import sim.app.episim.charts.parser.ParseException;
 import sim.app.episim.charts.parser.TokenMgrError;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
@@ -81,6 +82,8 @@ public class ChartCreationWizard extends JDialog {
 	
 	
    private TissueCellDataFieldsInspector cellDataFieldsInspector;
+   
+   private EpisimChart episimChart;
    
    protected ArrayList attributesList = new ArrayList();
    protected XYSeriesCollection dataset = new XYSeriesCollection();

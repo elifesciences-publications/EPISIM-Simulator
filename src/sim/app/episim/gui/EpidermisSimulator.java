@@ -65,7 +65,7 @@ public class EpidermisSimulator extends JFrame{
 	private JMenuItem menuItemBuild;
 	
 	private JMenu chartMenu;
-	private JMenuItem menuItemChartWizard;
+	private JMenuItem menuItemChartSet;
 	
 	private JMenu infoMenu;
 	private JMenuItem menuItemAboutMason;
@@ -167,17 +167,17 @@ public class EpidermisSimulator extends JFrame{
 		
 		chartMenu = new JMenu("Charting");
 		chartMenu.setEnabled(false);
-		menuItemChartWizard = new JMenuItem("Chart Wizard");
+		menuItemChartSet = new JMenuItem("Edit Chart-Set");
 		
-		menuItemChartWizard.addActionListener(new ActionListener(){
+		menuItemChartSet.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				ChartController.getInstance().showChartCreationWizard(simulator);
+				ChartController.getInstance().showChartSetDialog(simulator);
 			}
 			
 		});
 		
-		chartMenu.add(menuItemChartWizard);
+		chartMenu.add(menuItemChartSet);
 		menuBar.add(chartMenu);
 		
 		

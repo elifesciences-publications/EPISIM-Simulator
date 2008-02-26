@@ -2,6 +2,7 @@ package sim.app.episim.charts;
 
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,9 +135,10 @@ public class EpisimChartImpl implements EpisimChart{
 	}
 
 	public List<EpisimChartSeries> getEpisimChartSeries() {
-
-		
-		return (List<EpisimChartSeries>)this.seriesMap.values();
+					
+		List<EpisimChartSeries> result = new ArrayList<EpisimChartSeries>();
+		result.addAll(this.seriesMap.values());
+		return result;
 	}
 	
 	public EpisimChartSeries getEpisimChartSeries(long id){

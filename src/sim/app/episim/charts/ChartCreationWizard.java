@@ -84,7 +84,7 @@ public class ChartCreationWizard extends JDialog {
    private TissueCellDataFieldsInspector cellDataFieldsInspector;
    
    private EpisimChart episimChart;
-   
+   private boolean okButtonPressed = false;
    protected ArrayList attributesList = new ArrayList();
    protected XYSeriesCollection dataset = new XYSeriesCollection();
    
@@ -213,7 +213,7 @@ public class ChartCreationWizard extends JDialog {
 
       
       getContentPane().add(mainSplit, BorderLayout.CENTER);
-      
+      getContentPane().add(buildOKCancelButtonPanel(), BorderLayout.SOUTH);
       setSize(WIDTH, HEIGHT);
  		validate();
    }
@@ -417,7 +417,76 @@ public class ChartCreationWizard extends JDialog {
 	}
 		
 	
-	
+	public EpisimChart getEpisimChart(){
+		if(this.okButtonPressed) return this.episimChart;
+		return null;
+	}
+	private JPanel buildOKCancelButtonPanel() {
+
+		JPanel bPanel = new JPanel(new GridBagLayout());
+
+		GridBagConstraints c = new GridBagConstraints();
+
+		c.anchor = GridBagConstraints.EAST;
+		c.fill = GridBagConstraints.NONE;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		c.weighty = 1;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.gridwidth = 1;
+
+		JButton okButton = new JButton("  OK  ");
+		okButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				boolean errorFound = false;
+				if(episimChart.getBaselineExpression() == null || episimChart.getBaselineExpression().trim().equals("")){
+					errorFound = true;
+					JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please enter valid Baseline-Expression!", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				if(episimChart.getTitle() == null || episimChart.getTitle().trim().equals("")){
+					errorFound = true;
+					JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please enter valid Title!", "Error", JOptionPane.ERROR_MESSAGE);
+				
+				}
+				if(episimChart.getEpisimChartSeries().size() == 0){
+					errorFound = true;
+					JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please add at least one Chart-Series!", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				if(!errorFound){ 
+					ChartCreationWizard.this.okButtonPressed = true;
+					ChartCreationWizard.this.setVisible(false);
+					ChartCreationWizard.this.dispose();
+				}
+			}
+		});
+		bPanel.add(okButton, c);
+
+		c.anchor = GridBagConstraints.WEST;
+		c.fill = GridBagConstraints.NONE;
+		c.gridx = 1;
+		c.gridy = 0;
+		c.weightx = 1;
+		c.weighty = 1;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.gridwidth = 1;
+		c.gridwidth = 1;
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				ChartCreationWizard.this.okButtonPressed = false;
+				ChartCreationWizard.this.setVisible(false);
+				ChartCreationWizard.this.dispose();
+			}
+		});
+		bPanel.add(cancelButton, c);
+
+		return bPanel;
+
+	}
 	
 	private void centerMe(){
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();

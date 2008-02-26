@@ -20,6 +20,7 @@ public class ChartController {
 	private long nextChartId = 0;
 	
 	private TissueType chartMonitoredTissue;
+	private EpisimChartSet actLoadedChartSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
 	
@@ -55,12 +56,25 @@ public class ChartController {
 		this.chartMonitoredTissue = tissue;
 	}
 	
-	public void showChartCreationWizard(Frame parent){
+	protected EpisimChart showChartCreationWizard(Frame parent){
 		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true, 
 		new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes));
 		
 		if(this.chartMonitoredTissue != null) 
 			wizard.showWizard();
+		return wizard.getEpisimChart();
+	}
+	
+	public void showChartSetDialog(Frame parent){
+		ChartSetDialog dialog = new ChartSetDialog(parent, "Episim-Chart-Set", true);
+		
+		if(this.chartMonitoredTissue != null){ 
+			if(this.actLoadedChartSet == null){
+				this.actLoadedChartSet = new EpisimChartSetImpl();
+				
+			}
+			dialog.showChartSet(actLoadedChartSet);
+		}
 	}
 	
 	public String checkChartExpression(String expression, Set<String> varNameSet) throws ParseException,TokenMgrError{

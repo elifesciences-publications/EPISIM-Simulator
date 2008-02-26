@@ -160,6 +160,8 @@ public class TissueCellDataFieldsInspector {
 	
 	public Set<String> getVarNameSet(){ return this.varNameSet;}
 
+	
+	
 	private JPanel buildVariableListPanel() {
 
 		final JPanel listPanel = new JPanel(new GridLayout(1, 3, 5, 5));
@@ -261,6 +263,18 @@ public class TissueCellDataFieldsInspector {
    public JList getTissueParameterList() {
       
    	return tissueParameterList;
+   }
+
+	
+   public Map<String, CellType> getCellTypesMap() {
+   
+   	return cellTypesMap;
+   }
+
+	
+   public Map<String, TissueType> getTissueTypesMap() {
+   
+   	return tissueTypesMap;
    }
 
 }

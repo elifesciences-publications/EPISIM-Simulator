@@ -1,4 +1,4 @@
-package sim.app.episim.charts.build;
+package sim.app.episim.charts;
 
 import java.awt.Color;
 
@@ -9,7 +9,7 @@ public interface EpisimChartSeries {
 	
 	String getName();
 	Color getColor();
-	double getWidth();
+	double getThickness();
 	double getStretch();
 	float[] getDash();
 	String getExpression();
@@ -17,7 +17,7 @@ public interface EpisimChartSeries {
 	
 	void setName(String name);
 	void setColor(Color color);
-	void setWidth(double width);
+	void setThickness(double width);
 	void setDash(float[] dash);
 	void setStretch(double val);
 	void setExpression(String expression);

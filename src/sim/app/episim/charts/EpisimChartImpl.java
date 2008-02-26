@@ -1,6 +1,7 @@
-package sim.app.episim.charts.build;
+package sim.app.episim.charts;
 
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,17 +20,19 @@ public class EpisimChartImpl implements EpisimChart{
 	private boolean pdfPrintingEnabled = false;
 	private int pdfPrintingFrequency = 0;
 	
+	private File pdfPrintingPath = null;
+	
 	private String baselineExpression = "";
 	
-	private Set<TissueType> tissueTypes;
-	private Set<CellType> cellTypes;
+	private Map<String, TissueType> tissueTypesMap;
+	private Map<String,CellType> cellTypesMap;
 	
 	private Map<Long, EpisimChartSeries> seriesMap;
 	
-	public EpisimChartImpl(long id, Set<TissueType> tissueTypes, Set<CellType> cellTypes){
+	public EpisimChartImpl(long id, Map<String, TissueType> tissueTypes, Map<String, CellType> cellTypes){
 		this.id = id;
-		this.tissueTypes = tissueTypes;
-		this.cellTypes = cellTypes;
+		this.tissueTypesMap = tissueTypes;
+		this.cellTypesMap = cellTypes;
 		this.seriesMap = new HashMap<Long, EpisimChartSeries>();		
 	}
 	
@@ -113,15 +116,15 @@ public class EpisimChartImpl implements EpisimChart{
 	}
 
 	
-	public Set<TissueType> getTissueTypes() {
+	public Map<String,TissueType> getTissueTypesMap() {
 	
-		return tissueTypes;
+		return tissueTypesMap;
 	}
 
 	
-	public Set<CellType> getCellTypes() {
+	public Map<String,CellType> getCellTypesMap() {
 	
-		return cellTypes;
+		return cellTypesMap;
 	}
 
 	public void addEpisimChartSeries(EpisimChartSeries chartSeries) {
@@ -135,12 +138,28 @@ public class EpisimChartImpl implements EpisimChart{
 		
 		return (List<EpisimChartSeries>)this.seriesMap.values();
 	}
+	
+	public EpisimChartSeries getEpisimChartSeries(long id){
+		return this.seriesMap.get(id);
+	}
 
 	public void removeChartSeries(long id) {
 
 		this.seriesMap.remove(id);
 		
 	}
+
+	public File getPDFPrintingPath() {
+
+	 
+	   return this.pdfPrintingPath;
+   }
+
+	public void setPDFPrintingPath(File path) {
+
+	  this.pdfPrintingPath = path;
+	   
+   }
 	
 	
 }

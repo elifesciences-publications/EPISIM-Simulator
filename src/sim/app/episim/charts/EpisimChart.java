@@ -1,6 +1,8 @@
-package sim.app.episim.charts.build;
+package sim.app.episim.charts;
 
+import java.io.File;
 import java.util.List;
+
 
 public interface EpisimChart {
 	
@@ -14,6 +16,8 @@ public interface EpisimChart {
 	boolean isPDFPrintingEnabled();
 	int getPDFPrintingFrequency();
 	List<EpisimChartSeries> getEpisimChartSeries();
+	EpisimChartSeries getEpisimChartSeries(long no);
+	File getPDFPrintingPath();
 	
 	void setTitle(String title);
 	void setXLabel(String xLabel);
@@ -24,6 +28,8 @@ public interface EpisimChart {
 	void setPDFPrintingFrequency(int frequency);
 	void setBaselineExpression(String val);
 	void addEpisimChartSeries(EpisimChartSeries chartSeries);
+	void setPDFPrintingPath(File path);
+	
 	
 	void removeChartSeries(long id);
 }

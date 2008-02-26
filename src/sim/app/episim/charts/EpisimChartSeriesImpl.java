@@ -1,6 +1,7 @@
-package sim.app.episim.charts.build;
+package sim.app.episim.charts;
 
 import java.awt.Color;
+
 
 
 public class EpisimChartSeriesImpl implements EpisimChartSeries{
@@ -9,7 +10,7 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries{
 	
 	private String name = "";
 	private Color color = null;
-	private double width = 0;
+	private double thickness = 0;
 	private double stretch = 0;
 	private float[] dash= null;
 	private String expression = "";
@@ -46,15 +47,15 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries{
 	}
 
 	
-	public double getWidth() {
+	public double getThickness() {
 	
-		return width;
+		return thickness;
 	}
 
 	
-	public void setWidth(double width) {
+	public void setThickness(double thickness) {
 	
-		this.width = width;
+		this.thickness = thickness;
 	}
 
 	

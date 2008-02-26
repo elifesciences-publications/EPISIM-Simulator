@@ -17,7 +17,7 @@ public class ChartController {
 	
 	
 	
-
+	private long nextChartId = 0;
 	
 	private TissueType chartMonitoredTissue;
 	private Set<String> markerPrefixes;
@@ -40,24 +40,27 @@ public class ChartController {
 		
 	}
 	
+	public long getNextChartId(){
 	
+		return System.currentTimeMillis() + (this.nextChartId++);
+	}
+		
 	public synchronized static ChartController getInstance(){
 		if(instance == null) instance = new ChartController();
 		
 		return instance;
 	}
-	
-	
-   
+	   
 	public void setChartMonitoredTissue(TissueType tissue){
 		this.chartMonitoredTissue = tissue;
 	}
 	
 	public void showChartCreationWizard(Frame parent){
-		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true);
-		 new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes);
+		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true, 
+		new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes));
+		
 		if(this.chartMonitoredTissue != null) 
-			wizard.createNewChart(new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes));
+			wizard.showWizard();
 	}
 	
 	public String checkChartExpression(String expression, Set<String> varNameSet) throws ParseException,TokenMgrError{

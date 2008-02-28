@@ -3,7 +3,7 @@ package sim.app.episim.charts;
 import java.awt.Color;
 
 
-public interface EpisimChartSeries {
+public interface EpisimChartSeries extends Cloneable{
 	
 	long getId();
 	
@@ -12,7 +12,7 @@ public interface EpisimChartSeries {
 	double getThickness();
 	double getStretch();
 	float[] getDash();
-	String getExpression();
+	String[] getExpression();
 	
 	
 	void setName(String name);
@@ -20,6 +20,6 @@ public interface EpisimChartSeries {
 	void setThickness(double width);
 	void setDash(float[] dash);
 	void setStretch(double val);
-	void setExpression(String expression);
-
+	void setExpression(String[] expression);
+	EpisimChartSeries clone();
 }

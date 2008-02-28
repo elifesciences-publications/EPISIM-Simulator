@@ -48,8 +48,8 @@ import sim.util.Double2D;
 
 public class EpidermisSimulator extends JFrame{
 	
-	private JarFileChooser jarFileChoose;
-	private TSSFileChooser tssFileChoose;
+	private ExtendedFileChooser jarFileChoose;
+	private ExtendedFileChooser tssFileChoose;
 	
 	
 	
@@ -211,9 +211,9 @@ public class EpidermisSimulator extends JFrame{
 		this.getContentPane().setBackground(Color.LIGHT_GRAY);
 		this.setJMenuBar(menuBar);
 		
-		jarFileChoose= new JarFileChooser();
+		jarFileChoose= new ExtendedFileChooser("jar");
 		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model");
-		tssFileChoose = new TSSFileChooser();
+		tssFileChoose = new ExtendedFileChooser("tss");
 		
 		this.setTitle("Epidermis Simulator");
 		
@@ -279,11 +279,11 @@ public class EpidermisSimulator extends JFrame{
 	}
 	private void setSnapshotPath(){
 		File file = null;
-
+		tssFileChoose.setDialogTitle("Set Snaphot-Path");
 		if(tssFileChoose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = tssFileChoose.getSelectedFile();
 			if(file != null){
-			  this.setTitle("Epidermis Simulator"+ " - Snapshotpath: "+file.getAbsolutePath());
+			  this.setTitle("Epidermis Simulator"+ " - Snapshot-Path: "+file.getAbsolutePath());
 			  SnapshotWriter.getInstance().setSnapshotPath(file);
 			  SnapshotWriter.getInstance().resetCounter();
 			}
@@ -299,6 +299,7 @@ public class EpidermisSimulator extends JFrame{
 		
 		
 		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model of the selected Snapshot");
+		tssFileChoose.setDialogTitle("Load Snapshot");
 		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION && jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			snapshotFile = tssFileChoose.getSelectedFile();
 			jarFile = jarFileChoose.getSelectedFile();

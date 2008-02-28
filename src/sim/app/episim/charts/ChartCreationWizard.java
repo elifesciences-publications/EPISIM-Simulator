@@ -98,6 +98,10 @@ public class ChartCreationWizard extends JDialog {
    private JTextField chartTitleField;
    private JTextField chartXLabel;
    private JTextField chartYLabel;
+   private JTextField baselineField;
+   private JCheckBox legendCheck;
+   private JCheckBox pdfCheck;
+   
    private NumberTextField frequencyInSimulationSteps;
    private JLabel frequencyLabel;
    
@@ -106,6 +110,7 @@ public class ChartCreationWizard extends JDialog {
 	private JSplitPane mainSplit;
    private JComboBox seriesCombo;
    private DefaultComboBoxModel comboModel;
+   private JCheckBox aliasCheck;
    
    private final String DEFAULTSERIENAME = "Chart Series ";
  
@@ -244,7 +249,7 @@ public class ChartCreationWizard extends JDialog {
        previewChart.getXYPlot().getRenderer().setSeriesPaint(i, Color.BLACK);
        ChartSeriesAttributes csa = new ChartSeriesAttributes(previewChartPanel,i);
        episimChartSeries.setDash(csa.dash);
-       episimChartSeries.setExpression("");
+       episimChartSeries.setExpression(null);
        episimChartSeries.setStretch(csa.stretch);
        episimChartSeries.setThickness(csa.thickness);
        seriesPanel.add(csa, ""+i);
@@ -253,7 +258,30 @@ public class ChartCreationWizard extends JDialog {
        validate();
        this.episimChart.addEpisimChartSeries(episimChartSeries);
        return i;
-       }
+   }
+   
+   
+   private void addSeries(EpisimChartSeries chartSeries){
+   	
+  	 
+  	 XYSeries series = new XYSeries(chartSeries.getName(), false );
+  	 addRandomValues(series);
+      dataset.addSeries(series);
+      
+      
+      previewChart.getXYPlot().getRenderer().setSeriesPaint((int)chartSeries.getId(), chartSeries.getColor());
+      ChartSeriesAttributes csa = new ChartSeriesAttributes(previewChartPanel,(int)chartSeries.getId());
+      csa.setDash(chartSeries.getDash());
+      csa.setExpression(chartSeries.getExpression());
+      csa.setStretch((float)chartSeries.getStretch());
+      csa.setThickness((float)chartSeries.getThickness());
+      seriesPanel.add(csa, ""+chartSeries.getId());
+      attributesList.add(new Object[] {csa,series});
+      comboModel.addElement(chartSeries.getName());
+      
+      validate();
+      
+   }
    
    /** Returns the series at the given index. */
    public XYSeries getSeries(int index)
@@ -411,11 +439,52 @@ public class ChartCreationWizard extends JDialog {
 	public void showWizard(){
 		
 			
-			repaint();
-			centerMe();
-			setVisible(true);
+			showWizard(null);
 	}
+	
+	
+	private void restoreChartValues(EpisimChart chart){
+		if(chart != null){
+			this.episimChart = chart.clone();
+			
+			this.chartTitleField.setText(chart.getTitle());
+			this.setTitle(chart.getTitle());
+			
+			this.chartXLabel.setText(chart.getXLabel());
+			this.setDomainAxisLabel(chart.getXLabel());
+			
+			this.chartYLabel.setText(chart.getYLabel());
+			this.setRangeAxisLabel(chart.getYLabel());
+			
+			this.baselineExpression = chart.getBaselineExpression();
+			if(chart.getBaselineExpression() != null && chart.getBaselineExpression()[0] != null)
+				this.baselineField.setText(chart.getBaselineExpression()[0]);
+			
+			this.legendCheck.setSelected(chart.isLegendVisible());
+			
+			
+			this.aliasCheck.setSelected(chart.isAntialiasingEnabled());
+			
+			
+			this.pdfCheck.setSelected(chart.isPDFPrintingEnabled());
+			if(chart.isPDFPrintingEnabled())frequencyInSimulationSteps.setEnabled(true);
+			
+			this.frequencyInSimulationSteps.setValue(chart.getPDFPrintingFrequency());
+			
+			for(EpisimChartSeries chartSeries: chart.getEpisimChartSeries()) addSeries(chartSeries);
+			
+		}
 		
+	}
+	
+	
+		
+	public void showWizard(EpisimChart chart){
+		if(chart != null) restoreChartValues(chart);
+		repaint();
+		centerMe();
+		setVisible(true);
+	}
 	
 	public EpisimChart getEpisimChart(){
 		if(this.okButtonPressed) return this.episimChart;
@@ -441,7 +510,8 @@ public class ChartCreationWizard extends JDialog {
 
 			public void actionPerformed(ActionEvent e) {
 				boolean errorFound = false;
-				if(episimChart.getBaselineExpression() == null || episimChart.getBaselineExpression().trim().equals("")){
+				if(episimChart.getBaselineExpression() == null || episimChart.getBaselineExpression()[0] == null || episimChart.getBaselineExpression()[1] == null
+						|| episimChart.getBaselineExpression()[0].trim().equals("") || episimChart.getBaselineExpression()[1].trim().equals("")){
 					errorFound = true;
 					JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please enter valid Baseline-Expression!", "Error", JOptionPane.ERROR_MESSAGE);
 				}
@@ -453,6 +523,11 @@ public class ChartCreationWizard extends JDialog {
 				if(episimChart.getEpisimChartSeries().size() == 0){
 					errorFound = true;
 					JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please add at least one Chart-Series!", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+				if(!errorFound){ 
+					errorFound = !hasEverySeriesAnExpression();
+					if(errorFound)
+						JOptionPane.showMessageDialog(ChartCreationWizard.this, "Not every Chart-Series has an Expression!", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 				if(!errorFound){ 
 					ChartCreationWizard.this.okButtonPressed = true;
@@ -486,6 +561,17 @@ public class ChartCreationWizard extends JDialog {
 
 		return bPanel;
 
+	}
+	
+	private boolean hasEverySeriesAnExpression(){
+		for(EpisimChartSeries chartSeries:this.episimChart.getEpisimChartSeries()){
+			if(chartSeries.getExpression() == null) return false;
+			if(chartSeries.getExpression().length < 2) return false;
+			if(chartSeries.getExpression()[0] == null) return false;
+			if(chartSeries.getExpression()[1] == null) return false;
+		}
+		
+		return true;
 	}
 	
 	private void centerMe(){
@@ -573,7 +659,7 @@ public class ChartCreationWizard extends JDialog {
 
 		baselineExpression = new String[2];
 		final JButton baselineButton = new JButton("Add Baseline Expression");
-      final JTextField baselineField = new JTextField("");
+      baselineField = new JTextField("");
       baselineButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -584,7 +670,7 @@ public class ChartCreationWizard extends JDialog {
 	         if(baselineExpression != null && baselineExpression[0] != null && baselineExpression[1] != null){
 	         	baselineButton.setText("Edit Baseline Expression");
 	         	baselineField.setText(baselineExpression[0]);
-	         	episimChart.setBaselineExpression(baselineExpression[1]);
+	         	episimChart.setBaselineExpression(baselineExpression);
 	         }
 	         
         }
@@ -595,82 +681,66 @@ public class ChartCreationWizard extends JDialog {
 		
 		
 		
-		final JCheckBox legendCheck = new JCheckBox();
+		legendCheck = new JCheckBox();
 		legendCheck.setSelected(false);
 		episimChart.setLegendVisible(false);
 		legendCheck.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
 
-				if(e.getStateChange() == ItemEvent.SELECTED){
-					episimChart.setLegendVisible(true);
-					LegendTitle title = new LegendTitle(
-							(XYItemRenderer) (previewChart.getXYPlot().getRenderer()));
-					title.setLegendItemGraphicPadding(new org.jfree.ui.RectangleInsets(0, 8, 0, 4));
-					title.setLegendItemGraphicAnchor(RectangleAnchor.BOTTOM);
-					
-					
-               title.setMargin(new RectangleInsets(1.0, 1.0, 1.0, 1.0));
-					title.setFrame(new LineBorder());
-					title.setBackgroundPaint(Color.white);
-					title.setPosition(RectangleEdge.BOTTOM);
-				
-					
-					previewChart.addLegend(title);
-					
-				}
-				else{
-					episimChart.setLegendVisible(false);
-					previewChart.removeLegend();
-				}
+				setChartLegendVisible(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
 		list.add(new JLabel("Legend"), legendCheck);
 
-		final JCheckBox aliasCheck = new JCheckBox();
+		aliasCheck = new JCheckBox();
 		aliasCheck.setSelected(previewChart.getAntiAlias());
 		episimChart.setAntialiasingEnabled(previewChart.getAntiAlias());
 		aliasCheck.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
 
-				previewChart.setAntiAlias(e.getStateChange() == ItemEvent.SELECTED);
-				episimChart.setAntialiasingEnabled(e.getStateChange() == ItemEvent.SELECTED);
+				setAntiAliasEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
 		list.add(new JLabel("Antialias"), aliasCheck);
 	
-      final JCheckBox pdfCheck = new JCheckBox();
+      pdfCheck = new JCheckBox();
       pdfCheck.setSelected(false);
       episimChart.setPDFPrintingEnabled(false);
 		pdfCheck.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
-
-				if(e.getStateChange() == ItemEvent.SELECTED){
-					episimChart.setPDFPrintingEnabled(true);
-					FileDialog fd = new FileDialog(ChartCreationWizard.this,"Choose PDF Printing Path", FileDialog.SAVE);
-	            fd.setFile(previewChart.getTitle().getText() + ".PDF");
-	            fd.setVisible(true);
-	            
-	            String fileName = fd.getFile();
-	            if (fileName!=null)
-	            {
-	            	episimChart.setPDFPrintingPath(new File(fd.getFile()));
-	            	frequencyInSimulationSteps.setEnabled(true);
-	            	frequencyLabel.setEnabled(true);
-	            	//  	Dimension dim = previewChartPanel.getPreferredSize();
-	            	//   printChartToPDF( previewChart, dim.width, dim.height, fd.getDirectory() + fileName );
-	            }
-	            else{
-	            	pdfCheck.setSelected(false);
-	            	episimChart.setPDFPrintingEnabled(false);
-	            }
-	           }
-				else{
-					episimChart.setPDFPrintingEnabled(false);
-					frequencyInSimulationSteps.setEnabled(false);
-					frequencyLabel.setEnabled(false);
+				if(ChartCreationWizard.this.isVisible()){
+					if(e.getStateChange() == ItemEvent.SELECTED){
+						episimChart.setPDFPrintingEnabled(true);
+						FileDialog fd = new FileDialog(ChartCreationWizard.this,"Choose PDF Printing Path", FileDialog.SAVE);
+		            if(episimChart.getPDFPrintingPath() == null)fd.setFile(previewChart.getTitle().getText() + ".pdf");
+		            else{
+		            	fd.setDirectory(episimChart.getPDFPrintingPath().getPath());
+		            	fd.setFile(episimChart.getPDFPrintingPath().getName());
+		            }
+		            fd.setVisible(true);
+		            
+		            String fileName = fd.getFile();
+		            if (fileName!=null)
+		            {
+		            	episimChart.setPDFPrintingPath(new File(fd.getFile()));
+		            	frequencyInSimulationSteps.setEnabled(true);
+		            	frequencyLabel.setEnabled(true);
+		            	//  	Dimension dim = previewChartPanel.getPreferredSize();
+		            	//   printChartToPDF( previewChart, dim.width, dim.height, fd.getDirectory() + fileName );
+		            }
+		            else{
+		            	pdfCheck.setSelected(false);
+		            	episimChart.setPDFPrintingEnabled(false);
+		            }
+		           }
+					else{
+						episimChart.setPDFPrintingEnabled(false);
+						frequencyInSimulationSteps.setEnabled(false);
+						frequencyLabel.setEnabled(false);
+					}
 				}
 			}
 		});
@@ -679,7 +749,9 @@ public class ChartCreationWizard extends JDialog {
 		frequencyInSimulationSteps = new NumberTextField(1,false){
 			public double newValue(double newValue)
 	      {
-	        return Math.round(newValue);
+				 newValue = Math.round(newValue);;
+				episimChart.setPDFPrintingFrequency((int) newValue);
+	        return newValue;
 	      }
 		};
 		frequencyInSimulationSteps.addKeyListener(new KeyAdapter() {
@@ -710,6 +782,35 @@ public class ChartCreationWizard extends JDialog {
 		
 		return optionsPanel;
 	}
+	
+	private void setAntiAliasEnabled(boolean val){
+		previewChart.setAntiAlias(val);
+		episimChart.setAntialiasingEnabled(val);
+	}
+	
+	private void setChartLegendVisible(boolean val){
+		if(val){
+			episimChart.setLegendVisible(true);
+			LegendTitle title = new LegendTitle(
+					(XYItemRenderer) (previewChart.getXYPlot().getRenderer()));
+			title.setLegendItemGraphicPadding(new org.jfree.ui.RectangleInsets(0, 8, 0, 4));
+			title.setLegendItemGraphicAnchor(RectangleAnchor.BOTTOM);
+			
+			
+         title.setMargin(new RectangleInsets(1.0, 1.0, 1.0, 1.0));
+			title.setFrame(new LineBorder());
+			title.setBackgroundPaint(Color.white);
+			title.setPosition(RectangleEdge.BOTTOM);
+		
+			
+			previewChart.addLegend(title);
+			
+		}
+		else{
+			episimChart.setLegendVisible(false);
+			previewChart.removeLegend();
+		}
+	}
      
    private class ChartSeriesAttributes extends LabelledList
    {
@@ -733,15 +834,24 @@ public class ChartCreationWizard extends JDialog {
            { DOT, SKIP }   // .  .  .  .  
        };
 
-   float stretch = 1.0f;
-   float thickness = 2.0f;
-   float[] dash = dashes[0];
-   int seriesIndex;
-   ChartPanel panel;
-   String name;
-   Color strokeColor;
+   private float stretch = 1.0f;
+   private float thickness = 2.0f;
+   private float[] dash = dashes[0];
+   private int seriesIndex;
+   private ChartPanel panel;
+   private String name;
+   private Color strokeColor;
+   
+   
    //Color fillColor = CLEAR;
-
+   
+   private JTextField nameF;
+   private ColorWell colorwell;
+   private NumberTextField thickitude;
+   private JComboBox dashCombo;
+   private NumberTextField stretchField; 
+   private JTextField formulaField;
+   
    public void setIndex(int i) { seriesIndex = i; }
 
    public XYSeries getSeries()
@@ -779,7 +889,7 @@ public class ChartCreationWizard extends JDialog {
        }
    
    public ChartSeriesAttributes(ChartPanel pan, int index)
-       {
+   {
        super("" + dataset.getSeries(index).getKey());  //((XYSeriesCollection)(pan.getChart().getXYPlot().getDataset())).getSeries(index).getKey());
        
        panel = pan;
@@ -799,7 +909,7 @@ public class ChartCreationWizard extends JDialog {
        addLabelled("Show", check);
 
        name = "" + getSeries().getKey();
-       final JTextField nameF = new JTextField(name);
+       nameF = new JTextField(name);
        nameF.addActionListener(new ActionListener()
            {
            public void actionPerformed(ActionEvent e)
@@ -809,10 +919,12 @@ public class ChartCreationWizard extends JDialog {
                setBorderTitle(name);
                getSeries().setKey(name);
                int index = seriesCombo.getSelectedIndex();
+              if(index > -1){
                episimChart.getEpisimChartSeries(index).setName(name);
                comboModel.removeElementAt(index);
                comboModel.insertElementAt(name, index);
                seriesCombo.setSelectedIndex(index);
+              }
                panel.repaint();
                rebuildGraphicsDefinitions();
                }
@@ -829,21 +941,23 @@ public class ChartCreationWizard extends JDialog {
        
        strokeColor = (Color)(getPlot().getRenderer().getSeriesPaint(index));
        
-       ColorWell well = new ColorWell(strokeColor)
+       colorwell = new ColorWell(strokeColor)
        {
        public Color changeColor(Color c) 
            {
            ChartSeriesAttributes.this.strokeColor = c;
            int index = seriesCombo.getSelectedIndex();
+           if(index > -1){
            episimChart.getEpisimChartSeries(index).setColor(c);
+           }
            rebuildGraphicsDefinitions();
            return c;
            }
        };
       
-       addLabelled("Line",well);
+       addLabelled("Line",colorwell);
       
-       NumberTextField thickitude = new NumberTextField(2.0,true)
+       thickitude = new NumberTextField(2.0,true)
        {
            public double newValue(double newValue) 
            {
@@ -851,29 +965,29 @@ public class ChartCreationWizard extends JDialog {
                    newValue = currentValue;
                thickness = (float)newValue;
                int index = seriesCombo.getSelectedIndex();
-               episimChart.getEpisimChartSeries(index).setThickness(thickness);
+               if(index >= 0)episimChart.getEpisimChartSeries(index).setThickness(thickness);
                rebuildGraphicsDefinitions();
                return newValue;
             }
        };
        addLabelled("Width",thickitude);
-       final JComboBox list = new JComboBox();
-       list.setEditable(false);
-       list.setModel(new DefaultComboBoxModel(new Vector(Arrays.asList(
+       dashCombo = new JComboBox();
+       dashCombo.setEditable(false);
+       dashCombo.setModel(new DefaultComboBoxModel(new Vector(Arrays.asList(
                                                              new String[] { "Solid", "__  __  __", "_  _  _  _", "_ _ _ _ _", "_ _ . _ _ .", "_ . _ . _ .", "_ . . _ . .", ". . . . . . .", ".  .  .  .  ." }))));
-       list.setSelectedIndex(0);
-       list.addActionListener(new ActionListener()
+       dashCombo.setSelectedIndex(0);
+       dashCombo.addActionListener(new ActionListener()
            {
            public void actionPerformed ( ActionEvent e )
                {
-               dash = dashes[list.getSelectedIndex()];
+               dash = dashes[dashCombo.getSelectedIndex()];
                int index = seriesCombo.getSelectedIndex();
-               episimChart.getEpisimChartSeries(index).setDash(dash);
+               if(index >= 0) episimChart.getEpisimChartSeries(index).setDash(dash);
                rebuildGraphicsDefinitions();
                }
            });
-       addLabelled("Dash",list);
-       NumberTextField stretchField = new NumberTextField(1.0,true)
+       addLabelled("Dash",dashCombo);
+       stretchField = new NumberTextField(1.0,true)
            {
            public double newValue(double newValue) 
                {
@@ -881,7 +995,9 @@ public class ChartCreationWizard extends JDialog {
                    newValue = currentValue;
                stretch = (float)newValue;
                int index = seriesCombo.getSelectedIndex();
-               episimChart.getEpisimChartSeries(index).setStretch(stretch);
+               if(index > -1){
+               	episimChart.getEpisimChartSeries(index).setStretch(stretch);
+               }
                rebuildGraphicsDefinitions();
                return newValue;
                }
@@ -904,7 +1020,7 @@ public class ChartCreationWizard extends JDialog {
        
        
        final JButton formulaButton = new JButton("Add Expression");
-       final JTextField formulaField = new JTextField("");
+       formulaField = new JTextField("");
        formulaButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -916,7 +1032,7 @@ public class ChartCreationWizard extends JDialog {
 	         	formulaButton.setText("Edit Expression");
 	         	formulaField.setText(expression[0]);
 	         	int index = seriesCombo.getSelectedIndex();
-               episimChart.getEpisimChartSeries(index).setName(expression[1]);
+               episimChart.getEpisimChartSeries(index).setExpression(expression);
 	         }
 	         
          }
@@ -933,8 +1049,122 @@ public class ChartCreationWizard extends JDialog {
 
        rebuildGraphicsDefinitions();
        }
+
+	
+   public String[] getExpression() {
+   
+   	return expression;
+   }
+
+	
+   public void setExpression(String[] expression) {
+   	if(expression != null &&expression.length >= 2 && expression[0] != null && expression[1] != null){
+   		this.expression = expression;
+   		this.formulaField.setText(expression[0]);
+   	}
+   	
+   }
+
+	
+   public float getStretch() {
+   
+   	return stretch;
+   }
+
+	
+   public void setStretch(float stretch) {
+   
+   	this.stretch = stretch;
+   	this.stretchField.setValue(stretch);
+   }
+
+	
+   public float getThickness() {
+   
+   	return thickness;
+   }
+
+	
+   public void setThickness(float thickness) {
+   
+   	this.thickness = thickness;
+   	this.thickitude.newValue(thickness);
+   }
+
+	
+   public float[] getDash() {
+   
+   	return dash;
+   }
+
+	
+   public void setDash(float[] dash) {
+   
+   	this.dash = dash;
+   	for(int i = 0; i< dashes.length; i++){
+   		if(Arrays.equals(dash, dashes[i])){
+   			this.dashCombo.setSelectedIndex(i);
+   			break;
+   		}
+   	}
+   }
+
+	
+   public int getSeriesIndex() {
+   
+   	return seriesIndex;
+   }
+
+	
+   public void setSeriesIndex(int seriesIndex) {
+   
+   	this.seriesIndex = seriesIndex;
+   }
+
+	
+   public ChartPanel getPanel() {
+   
+   	return panel;
+   }
+
+	
+   public void setPanel(ChartPanel panel) {
+   
+   	this.panel = panel;
+   }
+
+	
+   public String getName() {
+   
+   	return name;
+   }
+
+	
+   public void setName(String name) {
+   
+   	this.name = name;
+   	this.nameF.setText(name);
+   }
+
+	
+   public Color getStrokeColor() {
+   
+   	return strokeColor;
+   }
+
+	
+   public void setStrokeColor(Color strokeColor) {
+   
+   	this.strokeColor = strokeColor;
+   	this.colorwell.setColor(strokeColor);
    }
    
+   
+   
+  
    }
+   
 
+	
 
+	}

@@ -10,10 +10,18 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -21,19 +29,26 @@ import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JWindow;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import sim.app.episim.charts.io.ECSFileWriter;
 import sim.app.episim.charts.parser.ParseException;
 import sim.app.episim.charts.parser.TokenMgrError;
+import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.util.Names;
+import sim.app.episim.util.ObjectCloner;
 
 
 
@@ -41,6 +56,7 @@ public class ChartSetDialog extends JDialog {
 	
 	
 	private EpisimChartSet episimChartSet;
+	private EpisimChartSet episimChartSetOld;
 	
 	private JTextArea chartExpressionTextArea;
 	
@@ -52,14 +68,41 @@ public class ChartSetDialog extends JDialog {
 	
 	private JTextField chartSetName;
 	
+	private Map<Integer, Long> indexChartIdMap;
+	private ExtendedFileChooser ecsChooser = new ExtendedFileChooser("ecs");
 	
 	private JDialog dialog;
 	
 	private JButton editButton;
 	private JButton removeButton;
+	private JWindow progressWindow;
 	private Frame owner;
+	
+	private boolean okButtonPressed = false;
 	public ChartSetDialog(Frame owner, String title, boolean modal){
 		super(owner, title, modal);
+		
+		progressWindow = new JWindow(owner);
+		
+		progressWindow.getContentPane().setLayout(new BorderLayout(5, 5));
+		if(progressWindow.getContentPane() instanceof JPanel)
+			((JPanel)progressWindow.getContentPane()).setBorder(BorderFactory.createCompoundBorder(
+					BorderFactory.createBevelBorder(BevelBorder.RAISED), BorderFactory.createEmptyBorder(10,10, 10, 10)));
+		JProgressBar progressBar = new JProgressBar();
+		progressBar.setIndeterminate(true);
+		JLabel progressLabel = new JLabel("Writing Episim-Chartset-Archive");
+		progressWindow.getContentPane().add(progressLabel, BorderLayout.NORTH);
+		progressWindow.getContentPane().add(progressBar, BorderLayout.CENTER);
+		
+		progressWindow.setSize(400, 65);
+		
+		progressWindow.setLocation(owner.getLocation().x + (owner.getWidth()/2) - (progressWindow.getWidth()/2), 
+				owner.getLocation().y + (owner.getHeight()/2) - (progressWindow.getHeight()/2));
+		
+		
+		
+		indexChartIdMap = new HashMap<Integer, Long>();
+		
 		this.owner = owner;
 	   getContentPane().setLayout(new GridBagLayout());
 	   GridBagConstraints c = new GridBagConstraints();
@@ -112,6 +155,14 @@ public class ChartSetDialog extends JDialog {
 	   c.insets = new Insets(10,10,10,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   getContentPane().add(buildAddRemoveEditButtonPanel(), c);
+	   
+	   c.anchor =GridBagConstraints.CENTER;
+	   c.fill = GridBagConstraints.HORIZONTAL;
+	   c.weightx = 1;
+	   c.weighty =0;
+	   c.insets = new Insets(10,10,10,10);
+	   c.gridwidth = GridBagConstraints.REMAINDER;
+	   getContentPane().add(buildPathPanel(), c);
 	  	   
 	  
 	   
@@ -134,14 +185,27 @@ public class ChartSetDialog extends JDialog {
 		dialog = this;
 	}
 	
-	public void showChartSet(EpisimChartSet chartSet){
+	public EpisimChartSet showChartSet(EpisimChartSet chartSet){
+		
 		if(chartSet == null) throw new IllegalArgumentException("ChartSet to display was null!");
+		okButtonPressed = false;
+		indexChartIdMap = new HashMap<Integer, Long>();
 		this.episimChartSet = chartSet;
+		this.episimChartSetOld = ObjectCloner.cloneObject(chartSet);
+		this.chartSetName.setText(chartSet.getName());
 		DefaultListModel listModel = new DefaultListModel();
-		for(EpisimChart actChart : chartSet.getEpisimCharts()) listModel.addElement(actChart.getTitle());
+		int i = 0;
+		for(EpisimChart actChart : chartSet.getEpisimCharts()){
+			indexChartIdMap.put(i, actChart.getId());
+			listModel.addElement(actChart.getTitle());
+			i++;
+		}
 		
 		centerMe();
 		this.setVisible(true);
+		if(okButtonPressed) return this.episimChartSet;
+		
+		return this.episimChartSetOld;
 	}
 	
 	
@@ -155,7 +219,7 @@ public class ChartSetDialog extends JDialog {
 	private JPanel buildNamePanel(){
 		JPanel namePanel = new JPanel(new GridBagLayout());
 		 GridBagConstraints c = new GridBagConstraints();
-		 c.anchor =GridBagConstraints.EAST;
+		 c.anchor =GridBagConstraints.WEST;
 		   c.fill = GridBagConstraints.NONE;
 		   c.weightx = 0;
 		   c.weighty =0;
@@ -164,6 +228,24 @@ public class ChartSetDialog extends JDialog {
 		   namePanel.add(new JLabel("Chartset-Name: "), c);
 		   
 		   chartSetName = new JTextField("noname"); 
+		   chartSetName.addKeyListener(new KeyAdapter() {
+
+				public void keyPressed(KeyEvent keyEvent) {
+
+					if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
+						episimChartSet.setName(chartSetName.getText());
+					}
+					else if(keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
+						chartSetName.setText(chartSetName.getText());
+				}
+			});
+		   chartSetName.addFocusListener(new FocusAdapter() {
+
+				public void focusLost(FocusEvent e) {
+
+					episimChartSet.setName(chartSetName.getText());
+				}
+			});
 		   c.anchor =GridBagConstraints.CENTER;
 		   c.fill = GridBagConstraints.HORIZONTAL;
 		   c.weightx = 1;
@@ -185,13 +267,48 @@ public class ChartSetDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 	       EpisimChart newChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner);
-	       if(newChart != null) ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
+	       if(newChart != null){ 
+	      	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
+	      	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
+	      	 episimChartSet.addEpisimChart(newChart);
+	       }
 	         
          }});
 		
 		editButton = new JButton("Edit Chart");
+
+		editButton.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				
+				EpisimChart editedChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner, 
+	      		      episimChartSet.getEpisimChart(indexChartIdMap.get(chartsList.getSelectedIndex())));
+				if(editedChart != null){ 
+					episimChartSet.updateChart(editedChart);
+					int index = chartsList.getSelectedIndex();
+					if(index > -1){
+					 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).remove(index);
+					 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).insertElementAt(editedChart.getTitle(), index); 
+					 editButton.setEnabled(false);
+					 removeButton.setEnabled(false);
+					}
+				}
+	         
+         }});
+		
 		editButton.setEnabled(false);
 		removeButton = new JButton("Remove Chart");
+		removeButton.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+
+	           episimChartSet.removeEpisimChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
+	           ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).remove(chartsList.getSelectedIndex());
+	           updateIndexMap();
+	           editButton.setEnabled(false);
+					 removeButton.setEnabled(false);
+	         
+         }});
 		removeButton.setEnabled(false);
 		
 		buttonPanel.add(addButton);
@@ -202,12 +319,73 @@ public class ChartSetDialog extends JDialog {
 	}
 	
 	
+	private void updateIndexMap(){
+		
+		int elementCount = ((DefaultListModel)(chartsList.getModel())).getSize(); 
+		for(int i = 0; i < elementCount; i++ ){
+			if(!indexChartIdMap.keySet().contains(i)){
+				long chartId = indexChartIdMap.get(i+1);
+				indexChartIdMap.remove(i+1);
+				indexChartIdMap.put(i, chartId);
+			}
+		}
+	}
 	
-	
-	
+	 private JPanel buildPathPanel() {
+
+			JPanel pPanel = new JPanel(new GridBagLayout());
+
+			GridBagConstraints c = new GridBagConstraints();
+
+			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.NONE;
+			c.weightx = 0;
+			c.weighty = 0;
+			c.insets = new Insets(10, 10, 10, 10);
+			c.gridwidth = 1;
+			
+			pPanel.add(new JLabel("Path:"), c);
+			
+			final JTextField pathText = new JTextField("");
+			pathText.setEnabled(true);
+			pathText.setEditable(false);
+			c.anchor = GridBagConstraints.CENTER;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 1;
+			c.weighty = 0;
+			c.insets = new Insets(10, 10, 10, 10);
+			c.gridwidth = 1;
+			
+			pPanel.add(pathText, c);
+			
+
+			JButton editPathButton = new JButton("Edit Path");
+			
+			editPathButton.addActionListener(new ActionListener(){
+
+				public void actionPerformed(ActionEvent e) {
+					if(pathText.getText() != null && !pathText.getText().equals(""))episimChartSet.setPath(showPathDialog(pathText.getText()));
+					else episimChartSet.setPath(showPathDialog(""));
+	          if(episimChartSet.getPath() != null) pathText.setText(episimChartSet.getPath().getAbsolutePath());
+	            
+            }});
+			
+			c.anchor = GridBagConstraints.EAST;
+			c.fill = GridBagConstraints.NONE;
+			c.weightx = 0;
+			c.weighty = 0;
+			c.insets = new Insets(10, 10, 10, 10);
+			c.gridwidth = 1;
+			
+			pPanel.add(editPathButton, c);
+			
+			
+			return pPanel;
+
+		}
 	
    private JPanel buildOKCancelButtonPanel() {
-
+   	
 		JPanel bPanel = new JPanel(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -225,7 +403,24 @@ public class ChartSetDialog extends JDialog {
 		okButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
+				if(((DefaultListModel)(chartsList.getModel())).getSize() > 0 && episimChartSet.getPath() != null){
+					okButtonPressed = true;
+					Runnable r = new Runnable(){
 
+						public void run() {
+							progressWindow.setVisible(true);
+							dialog.setVisible(false);
+							dialog.dispose();
+							ECSFileWriter fileWriter = new ECSFileWriter(episimChartSet.getPath());
+							fileWriter.createChartSetArchive(EpisimChartSetFactory.class, episimChartSet);
+							progressWindow.setVisible(false);
+                  }
+				
+					};
+					Thread writingThread = new Thread(r);
+					writingThread.start();
+				}
+			
 			}
 		});
 		bPanel.add(okButton, c);
@@ -244,7 +439,7 @@ public class ChartSetDialog extends JDialog {
 		cancelButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-
+				okButtonPressed = false;
 				dialog.setVisible(false);
 				dialog.dispose();
 			}
@@ -253,6 +448,14 @@ public class ChartSetDialog extends JDialog {
 
 		return bPanel;
 
+	}
+   private File showPathDialog(String path){
+   	
+   	if(path!= null && !path.equals("")) ecsChooser.setCurrentDirectory(new File(path));
+   	
+   	ecsChooser.setDialogTitle("Choose Episim-Chartset-Path");
+		if(ecsChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return ecsChooser.getSelectedFile();
+		return null;
 	}
 
 }

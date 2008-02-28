@@ -4,13 +4,13 @@ import java.io.File;
 import java.util.List;
 
 
-public interface EpisimChart {
+public interface EpisimChart extends Cloneable {
 	
 	long getId();
 	String getTitle();
 	String getXLabel();
 	String getYLabel();
-	String getBaselineExpression();
+	String[] getBaselineExpression();
 	boolean isLegendVisible();
 	boolean isAntialiasingEnabled();
 	boolean isPDFPrintingEnabled();
@@ -26,10 +26,12 @@ public interface EpisimChart {
 	void setAntialiasingEnabled(boolean val);
 	void setPDFPrintingEnabled(boolean val);
 	void setPDFPrintingFrequency(int frequency);
-	void setBaselineExpression(String val);
+	void setBaselineExpression(String[] val);
 	void addEpisimChartSeries(EpisimChartSeries chartSeries);
 	void setPDFPrintingPath(File path);
 	
 	
 	void removeChartSeries(long id);
+	
+	EpisimChart clone();
 }

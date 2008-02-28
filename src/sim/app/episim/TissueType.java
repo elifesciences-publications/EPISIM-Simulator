@@ -8,7 +8,7 @@ import sim.engine.Schedule;
 import sim.engine.SimStateHack;
 
 
-public abstract class TissueType extends SimStateHack{
+public abstract class TissueType extends SimStateHack implements java.io.Serializable{
 	
 	private List<Class<? extends CellType>> registeredCellTypes;
 	

@@ -1,10 +1,13 @@
 package sim.app.episim.charts;
 
 import java.awt.Color;
+import java.io.File;
+
+import javax.swing.JFileChooser;
 
 
 
-public class EpisimChartSeriesImpl implements EpisimChartSeries{
+public class EpisimChartSeriesImpl implements EpisimChartSeries, java.io.Serializable{
 	
 	private long id;
 	
@@ -13,7 +16,7 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries{
 	private double thickness = 0;
 	private double stretch = 0;
 	private float[] dash= null;
-	private String expression = "";
+	private String[] expression = null;
 	
 	public EpisimChartSeriesImpl(long id){
 		this.id = id;
@@ -83,15 +86,29 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries{
 	}
 
 	
-	public String getExpression() {
+	public String[] getExpression() {
 	
 		return expression;
 	}
 
 	
-	public void setExpression(String expression) {
+	public void setExpression(String[] expression) {
 	
 		this.expression = expression;
 	}
 
+	
+	public EpisimChartSeries clone(){
+		EpisimChartSeries clone = new EpisimChartSeriesImpl(this.id);
+		clone.setColor(new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue()));
+		clone.setDash(this.dash.clone());
+		clone.setExpression(this.expression.clone());
+		clone.setName(this.name);
+		clone.setStretch(this.stretch);
+		clone.setThickness(this.thickness);
+		
+		return clone;
+	}
+	
+	
 }

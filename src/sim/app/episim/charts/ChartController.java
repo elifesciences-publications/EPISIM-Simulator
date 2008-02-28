@@ -57,11 +57,17 @@ public class ChartController {
 	}
 	
 	protected EpisimChart showChartCreationWizard(Frame parent){
+		return showChartCreationWizard(parent, null);
+	}
+	protected EpisimChart showChartCreationWizard(Frame parent, EpisimChart chart){
 		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true, 
 		new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes));
 		
-		if(this.chartMonitoredTissue != null) 
-			wizard.showWizard();
+		if(this.chartMonitoredTissue != null){
+			if(chart == null)wizard.showWizard();
+			else wizard.showWizard(chart);
+		}
+			
 		return wizard.getEpisimChart();
 	}
 	
@@ -72,8 +78,10 @@ public class ChartController {
 			if(this.actLoadedChartSet == null){
 				this.actLoadedChartSet = new EpisimChartSetImpl();
 				
+				
 			}
-			dialog.showChartSet(actLoadedChartSet);
+			EpisimChartSet updatedChartSet =dialog.showChartSet(actLoadedChartSet);
+			if(updatedChartSet != null) this.actLoadedChartSet = updatedChartSet;
 		}
 	}
 	

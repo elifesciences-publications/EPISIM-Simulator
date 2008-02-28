@@ -42,7 +42,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.tools.*;
 import javax.tools.JavaCompiler.CompilationTask;
 
-import sim.app.episim.gui.JarFileChooser;
+import sim.app.episim.gui.ExtendedFileChooser;
 
 
 
@@ -50,7 +50,7 @@ public class CompileWizard {
 
 	
 	private JFileChooser fileChoose;
-	private JarFileChooser jarChooser;
+	private ExtendedFileChooser jarChooser;
 	private JWindow progressWindow;
 	private JLabel progressLabel;
 	private JProgressBar progressBar;
@@ -91,7 +91,7 @@ public class CompileWizard {
 				}
 			});
 			
-			jarChooser = new JarFileChooser();
+			jarChooser = new ExtendedFileChooser("jar");
 			jarChooser.setDialogTitle("Select name for Episim-Model-Archive");
 		}
 	}
@@ -204,7 +204,10 @@ public class CompileWizard {
 									progressLabel.setText("Wrinting " + "into Episim-Model-Archive");
 									progressBar.setValue(progressBar.getValue()+ ticksize);
 									Thread.sleep(500);
+																							
 									jarOut.putNextEntry(new JarEntry(name));
+								
+									
 								} else
 									continue;
 

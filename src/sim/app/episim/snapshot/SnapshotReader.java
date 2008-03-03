@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.util.ObjectStreamFactory;
 public class SnapshotReader {
 	
 	
@@ -43,26 +44,7 @@ public class SnapshotReader {
 			  fIn = new FileInputStream(snapshotPath);
 			
 			  //Overwriting resolveClass Method to include the Modeljar with a custom ClassLoader
-			  oIn = new ObjectInputStream(fIn) {
-
-					protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-
-						try{
-							return super.resolveClass(desc);
-						}
-						catch (ClassNotFoundException ex){
-							String name = desc.getName();
-							Class cl = Class.forName(name, false, new URLClassLoader(new URL[] { jarFile.toURI().toURL() },
-							      ClassLoader.getSystemClassLoader()));
-							if(cl != null){
-								return cl;
-							}
-							else{
-								throw ex;
-							}
-						}
-					}
-				};
+			  oIn = ObjectStreamFactory.getObjectInputStreamForInputStream(fIn);
 			
 			Object obj = null;
 			obj = oIn.readObject();

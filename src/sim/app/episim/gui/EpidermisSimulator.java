@@ -65,7 +65,9 @@ public class EpidermisSimulator extends JFrame{
 	private JMenuItem menuItemBuild;
 	
 	private JMenu chartMenu;
-	private JMenuItem menuItemChartSet;
+	private JMenuItem menuItemEditChartSet;
+	private JMenuItem menuItemLoadChartSet;
+	private JMenuItem menuItemNewChartSet;
 	
 	private JMenu infoMenu;
 	private JMenuItem menuItemAboutMason;
@@ -167,17 +169,43 @@ public class EpidermisSimulator extends JFrame{
 		
 		chartMenu = new JMenu("Charting");
 		chartMenu.setEnabled(false);
-		menuItemChartSet = new JMenuItem("Edit Chart-Set");
 		
-		menuItemChartSet.addActionListener(new ActionListener(){
+		menuItemNewChartSet = new JMenuItem("New Chart-Set");
+		menuItemNewChartSet.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				ChartController.getInstance().showChartSetDialog(simulator);
+				boolean success = ChartController.getInstance().showNewChartSetDialog(simulator);
+				if(success)menuItemEditChartSet.setEnabled(true);
+				
 			}
 			
 		});
 		
-		chartMenu.add(menuItemChartSet);
+		menuItemLoadChartSet = new JMenuItem("Load Chart-Set");
+		menuItemLoadChartSet.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				boolean success = ChartController.getInstance().loadChartSet(simulator);
+				ChartController.getInstance().showEditChartSetDialog(simulator);
+				if(success) menuItemEditChartSet.setEnabled(true);
+				else menuItemEditChartSet.setEnabled(false);
+			}
+			
+		});
+		
+		menuItemEditChartSet = new JMenuItem("Edit Chart-Set");
+		menuItemEditChartSet.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				ChartController.getInstance().showEditChartSetDialog(simulator);
+			}
+			
+		});
+		menuItemEditChartSet.setEnabled(false);
+		
+		chartMenu.add(menuItemNewChartSet);
+		chartMenu.add(menuItemLoadChartSet);
+		chartMenu.add(menuItemEditChartSet);
 		menuBar.add(chartMenu);
 		
 		
@@ -186,7 +214,7 @@ public class EpidermisSimulator extends JFrame{
 		
 	
 		//--------------------------------------------------------------------------------------------------------------
-		// Menü Charts
+		// Menü Info
 		//--------------------------------------------------------------------------------------------------------------
 		
 		infoMenu = new JMenu("Info");

@@ -51,7 +51,7 @@ public class ECSFileWriter {
 
 							sBuffer.append("Manifest-Version: 1.0\n");
 							sBuffer.append("Created-By: 1.1 (Episim - Uni Heidelberg)\n");
-							sBuffer.append("Factory-Class: "+ chartSetFactoryClass.getCanonicalName().replace(".", System.getProperty("file.separator"))+"\n");
+							sBuffer.append("Factory-Class: "+ chartSetFactoryClass.getCanonicalName() +"\n");
 							
 							
 		

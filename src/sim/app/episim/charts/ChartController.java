@@ -5,11 +5,17 @@ import java.util.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
+import java.net.MalformedURLException;
+
+import javax.swing.JFileChooser;
 
 import sim.app.episim.CellType;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.TissueType;
 
+import sim.app.episim.charts.io.ECSFileReader;
 import sim.app.episim.charts.parser.*;
+import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 public class ChartController {
 	
@@ -23,7 +29,7 @@ public class ChartController {
 	private EpisimChartSet actLoadedChartSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
-	
+	private ExtendedFileChooser ecsChooser = new ExtendedFileChooser("ecs");
 	private ChartController(){
 		
 		markerPrefixes = new HashSet<String>();
@@ -71,19 +77,52 @@ public class ChartController {
 		return wizard.getEpisimChart();
 	}
 	
-	public void showChartSetDialog(Frame parent){
+	public boolean loadChartSet(Frame parent){
+		ecsChooser.setDialogTitle("Load Episim-Chartset");
+		if(ecsChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION){ 
+			try{
+				ECSFileReader ecsReader = new ECSFileReader(ecsChooser.getSelectedFile().toURI().toURL());
+				this.actLoadedChartSet = ecsReader.getEpisimChartSet();
+				return true;
+			}
+			catch (MalformedURLException e){
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
+		}
+		return false;
+	}
+	
+	public void showEditChartSetDialog(Frame parent){
 		ChartSetDialog dialog = new ChartSetDialog(parent, "Episim-Chart-Set", true);
 		
 		if(this.chartMonitoredTissue != null){ 
-			if(this.actLoadedChartSet == null){
-				this.actLoadedChartSet = new EpisimChartSetImpl();
-				
-				
-			}
+			
 			EpisimChartSet updatedChartSet =dialog.showChartSet(actLoadedChartSet);
 			if(updatedChartSet != null) this.actLoadedChartSet = updatedChartSet;
 		}
 	}
+	
+	public boolean showNewChartSetDialog(Frame parent){
+		ChartSetDialog dialog = new ChartSetDialog(parent, "Episim-Chart-Set", true);
+		
+		if(this.chartMonitoredTissue != null){ 
+			
+			
+					
+			EpisimChartSet updatedChartSet =dialog.showNewChartSet();
+			if(updatedChartSet != null){ 
+				
+				this.actLoadedChartSet = updatedChartSet;
+				return true;
+			}
+			
+				
+				
+			
+		}
+		return false;
+	}
+	
 	
 	public String checkChartExpression(String expression, Set<String> varNameSet) throws ParseException,TokenMgrError{
 		

@@ -27,26 +27,7 @@ public class ObjectCloner<T> {
 			objOut.writeObject(object);
 			
 			ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
-			ObjectInputStream objIn = new ObjectInputStream(byteIn){
-
-				protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-
-					try{
-						return super.resolveClass(desc);
-					}
-					catch (ClassNotFoundException ex){
-						String name = desc.getName();
-						Class cl = Class.forName(name, false, new URLClassLoader(new URL[] { jarFile.toURI().toURL() },
-						      ClassLoader.getSystemClassLoader()));
-						if(cl != null){
-							return cl;
-						}
-						else{
-							throw ex;
-						}
-					}
-				}
-			};
+			ObjectInputStream objIn = ObjectStreamFactory.getObjectInputStreamForInputStream(byteIn);
 			Object result = objIn.readObject();
 			
 			if(result.getClass().isAssignableFrom(object.getClass())) return (T) result;

@@ -185,7 +185,7 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 		clone.setLegendVisible(this.legendVisible);
 		clone.setPDFPrintingEnabled(this.pdfPrintingEnabled);
 		clone.setPDFPrintingFrequency(this.pdfPrintingFrequency);
-		clone.setPDFPrintingPath(new File(this.pdfPrintingPath.getAbsolutePath()));
+		if(this.pdfPrintingPath != null)clone.setPDFPrintingPath(new File(this.pdfPrintingPath.getAbsolutePath()));
 		clone.setTitle(this.title);
 		clone.setXLabel(this.xLabel);
 		clone.setYLabel(this.yLabel);

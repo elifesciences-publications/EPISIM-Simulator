@@ -67,6 +67,7 @@ public class ChartSetDialog extends JDialog {
 	private JList chartsList;
 	
 	private JTextField chartSetName;
+	private JTextField pathText;
 	
 	private Map<Integer, Long> indexChartIdMap;
 	private ExtendedFileChooser ecsChooser = new ExtendedFileChooser("ecs");
@@ -200,12 +201,21 @@ public class ChartSetDialog extends JDialog {
 			listModel.addElement(actChart.getTitle());
 			i++;
 		}
-		
+		this.chartsList.setModel(listModel);
+		if(chartSet.getPath() != null) this.pathText.setText(chartSet.getPath().getAbsolutePath());
 		centerMe();
 		this.setVisible(true);
 		if(okButtonPressed) return this.episimChartSet;
 		
 		return this.episimChartSetOld;
+	}
+	
+	public EpisimChartSet showNewChartSet(){
+		
+		EpisimChartSet newChartSet = showChartSet(new EpisimChartSetImpl());
+		if(okButtonPressed) return newChartSet;
+		
+		return null;
 	}
 	
 	
@@ -346,7 +356,7 @@ public class ChartSetDialog extends JDialog {
 			
 			pPanel.add(new JLabel("Path:"), c);
 			
-			final JTextField pathText = new JTextField("");
+			pathText = new JTextField("");
 			pathText.setEnabled(true);
 			pathText.setEditable(false);
 			c.anchor = GridBagConstraints.CENTER;

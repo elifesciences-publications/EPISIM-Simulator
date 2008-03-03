@@ -29,7 +29,7 @@ public class BioChemicalModelController implements java.io.Serializable{
 	
 	private boolean caching = true;
 	
-	
+	private File actLoadedCellDiffFile;
 	
 	private BioChemicalModelController(){
 		
@@ -51,15 +51,23 @@ public class BioChemicalModelController implements java.io.Serializable{
 			if(jarLoader.isDiffModel()){
 				biochemicalModel = new BiochemicalModel(jarLoader.getModelClass(EpisimCellDiffModel.class), 
 																	jarLoader.getGlobalParametersObject());
+				this.actLoadedCellDiffFile = modelFile;
 				return true;
 			}
-			else throw new Exception("Model ist not a compatible Differentiation Model");
+			else{
+				this.actLoadedCellDiffFile = null;
+				throw new Exception("Model ist not a compatible Differentiation Model");
+			}
 		}
 		catch (Exception e){
 			ExceptionDisplayer.getInstance().displayException(e);
 			return false;
 		}
 		
+	}
+	
+	public File getActLoadedModelFile(){
+		return this.actLoadedCellDiffFile;
 	}
 	
 	public EpisimCellDiffModel getNewEpisimCellDiffModelObject(){

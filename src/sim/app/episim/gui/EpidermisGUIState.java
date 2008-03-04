@@ -4,7 +4,7 @@ import sim.engine.*;
 import sim.app.episim.Epidermis;
 import sim.app.episim.KCyte;
 import sim.app.episim.KCyteInspector;
-import sim.app.episim.charts.EpiSimCharts;
+import sim.app.episim.charts.DefaultCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
@@ -293,29 +293,29 @@ public class EpidermisGUIState extends GUIState{
 		
 		// Chart Kinetics
 		
-		desktop.add(getChartInternalFrame(EpiSimCharts.getInstance().getKineticsChart(), "Kinetics Statistics"));
+		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getKineticsChart(), "Kinetics Statistics"));
 
 		// Num Cells Chart
 		
-		desktop.add(getChartInternalFrame(EpiSimCharts.getInstance().getNumCellsChart(), "Cell Type Statistics"));
+		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getNumCellsChart(), "Cell Type Statistics"));
 
 		// Epidermis Barrier Dist chart
-		desktop.add(getChartInternalFrame(EpiSimCharts.getInstance().getBarrierChart(), "Barrier Statistics"));
+		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getBarrierChart(), "Barrier Statistics"));
 
 		// Apoptosis Chart
-		desktop.add(getChartInternalFrame(EpiSimCharts.getInstance().getApoptosisChart(), "Apoptosis Statistics"));
+		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getApoptosisChart(), "Apoptosis Statistics"));
 
 		// Particel Celltype chart
-		desktop.add(getChartInternalFrame(EpiSimCharts.getInstance().getParticleCellTypeChart(), "Particles per Cell Type"));
+		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getParticleCellTypeChart(), "Particles per Cell Type"));
 
 		// Particel Dist chart
-		desktop.add(getChartInternalFrame(EpiSimCharts.getInstance().getParticleDistribution(), "Particles per Depth"));
+		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getParticleDistribution(), "Particles per Depth"));
 
 		// age dist chart
-		desktop.add(getChartInternalFrame(EpiSimCharts.getInstance().getAgeDistribution(), "Age Statistics"));
+		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getAgeDistribution(), "Age Statistics"));
 		
 		//performance chart
-		desktop.add(getChartInternalFrame(EpiSimCharts.getInstance().getPerformanceChart(), "Performance"));
+		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getPerformanceChart(), "Performance"));
 		
 		desktop.putClientProperty("JDesktopPane.dragMode", "outline");
 		

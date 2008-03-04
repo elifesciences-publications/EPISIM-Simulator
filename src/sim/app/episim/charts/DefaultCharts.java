@@ -41,7 +41,7 @@ import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
 
-public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
+public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	
    //Schlüssel setzt sich XYSeriesCollection-Name Position 0 und XYSeries-Name zusammen
 	private HashMap<String[], XYSeries> xySeries = new HashMap<String[], XYSeries>();
@@ -50,9 +50,9 @@ public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
 	private HashMap<String, JFreeChart> charts = new HashMap<String, JFreeChart>();
 	
 	
-	private static  EpiSimCharts instance;
+	private static  DefaultCharts instance;
 	
-	private EpiSimCharts() {
+	private DefaultCharts() {
 	SnapshotWriter.getInstance().addSnapshotListener(this);
 		XYLineAndShapeRenderer lineShapeRenderer;
 		JFreeChart chart;
@@ -542,8 +542,8 @@ public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
    	return categoryDatasets.get(name);
    }
 	
-	public static synchronized EpiSimCharts getInstance(){
-		if(instance == null) instance = new EpiSimCharts();
+	public static synchronized DefaultCharts getInstance(){
+		if(instance == null) instance = new DefaultCharts();
 		
 		return instance;
 	}
@@ -555,7 +555,7 @@ public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
 	}
 	
 	public static synchronized void  rebuildCharts(){
-		instance = new EpiSimCharts();
+		instance = new DefaultCharts();
 	}
 	public List<SnapshotObject> getSnapshotObjects() {
 
@@ -569,7 +569,7 @@ public class EpiSimCharts implements SnapshotListener,java.io.Serializable{
 		return list;
 	}
 	
-	public static void setInstance(EpiSimCharts charts){
+	public static void setInstance(DefaultCharts charts){
 		instance = charts;
 	}
 }

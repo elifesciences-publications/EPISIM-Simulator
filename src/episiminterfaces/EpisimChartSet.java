@@ -1,7 +1,8 @@
-package sim.app.episim.charts;
+package episiminterfaces;
 
 import java.io.File;
 import java.util.List;
+
 
 
 public interface EpisimChartSet {

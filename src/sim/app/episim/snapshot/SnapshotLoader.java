@@ -7,7 +7,7 @@ import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 import sim.app.episim.Epidermis;
-import sim.app.episim.charts.EpiSimCharts;
+import sim.app.episim.charts.DefaultCharts;
 import sim.app.episim.model.ModelController;
 import sim.util.Double2D;
 
@@ -16,7 +16,7 @@ public class SnapshotLoader {
 	
 	private List<Double2D> woundRegionCoordinates = null;
 	private Epidermis epidermis = null;
-	private EpiSimCharts charts = null;
+	private DefaultCharts charts = null;
 	private java.awt.geom.Rectangle2D.Double[] deltaInfo = null;
 	private EpisimCellDiffModelGlobalParameters diffModelGlobalParameters = null;
 	private EpisimMechanicalModelGlobalParameters mechModelGlobalParameters = null;
@@ -32,7 +32,7 @@ public class SnapshotLoader {
 					epidermis.setReloadedSnapshot(true);
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.CHARTS)){
-					charts = (EpiSimCharts) sObj.getSnapshotObject();
+					charts = (DefaultCharts) sObj.getSnapshotObject();
 				
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.CELLDIFFMODELGLOBALPARAMETERS)){
@@ -74,7 +74,7 @@ public class SnapshotLoader {
 
 
 	
-   public EpiSimCharts getCharts() {
+   public DefaultCharts getCharts() {
    
    	return charts;
    }

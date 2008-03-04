@@ -27,11 +27,13 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import episimexceptions.ModelCompatibilityException;
+
 import sim.app.episim.CompileWizard;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.charts.ChartController;
-import sim.app.episim.charts.EpiSimCharts;
+import sim.app.episim.charts.DefaultCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotLoader;
@@ -186,9 +188,14 @@ public class EpidermisSimulator extends JFrame{
 
 			public void actionPerformed(ActionEvent e) {
 				boolean success = ChartController.getInstance().loadChartSet(simulator);
-				ChartController.getInstance().showEditChartSetDialog(simulator);
-				if(success) menuItemEditChartSet.setEnabled(true);
-				else menuItemEditChartSet.setEnabled(false);
+				
+				if(success){ 
+					ChartController.getInstance().showEditChartSetDialog(simulator);
+					menuItemEditChartSet.setEnabled(true);
+				}
+				else{ 
+					if(!ChartController.getInstance().isAlreadyChartSetLoaded()) menuItemEditChartSet.setEnabled(false);
+				}
 			}
 			
 		});
@@ -280,16 +287,24 @@ public class EpidermisSimulator extends JFrame{
 		if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = jarFileChoose.getSelectedFile();
 
-			boolean success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(file);
+			boolean success = false; 
+			try{
+	         success= ModelController.getInstance().getBioChemicalModelController().loadModelFile(file);
+         }
+         catch (ModelCompatibilityException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+	        JOptionPane.showMessageDialog(this, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+	        success = false;
+         }
 			
-			if(SnapshotWriter.getInstance().getSnapshotPath() == null){
+			if(success && SnapshotWriter.getInstance().getSnapshotPath() == null){
 				JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info", JOptionPane.INFORMATION_MESSAGE);
 				setSnapshotPath();
 				if(SnapshotWriter.getInstance().getSnapshotPath() == null)success = false;
 			}
 			//System.out.println(success);
 			if(success){
-				EpiSimCharts.rebuildCharts();
+				DefaultCharts.rebuildCharts();
 				cleanUpContentPane();
 				epiUI = new EpidermisGUIState(this);
 				this.validate();
@@ -331,7 +346,14 @@ public class EpidermisSimulator extends JFrame{
 		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION && jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			snapshotFile = tssFileChoose.getSelectedFile();
 			jarFile = jarFileChoose.getSelectedFile();
-			success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(jarFile);
+			try{
+	         success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(jarFile);
+         }
+         catch (ModelCompatibilityException e){
+         	 ExceptionDisplayer.getInstance().displayException(e);
+         	 JOptionPane.showMessageDialog(this, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+         	 success = false;
+         }
 			SnapshotLoader snapshotLoader = null;
 			try{
 				snapshotLoader = new SnapshotLoader(snapshotFile, jarFile);
@@ -341,7 +363,7 @@ public class EpidermisSimulator extends JFrame{
 			}
 			List<Double2D> woundRegionCoordinates = snapshotLoader.getWoundRegionCoordinates();		
 			Epidermis epidermis = snapshotLoader.getEpidermis();
-			EpiSimCharts.setInstance(snapshotLoader.getCharts());
+			DefaultCharts.setInstance(snapshotLoader.getCharts());
 			java.awt.geom.Rectangle2D.Double[] deltaInfo = snapshotLoader.getDeltaInfo();
 					if(SnapshotWriter.getInstance().getSnapshotPath() == null){
 						JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info",

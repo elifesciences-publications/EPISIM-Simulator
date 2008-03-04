@@ -43,6 +43,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import episiminterfaces.EpisimChart;
+import episiminterfaces.EpisimChartSet;
+
 import sim.app.episim.charts.io.ECSFileWriter;
 import sim.app.episim.charts.parser.ParseException;
 import sim.app.episim.charts.parser.TokenMgrError;

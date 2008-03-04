@@ -1,4 +1,4 @@
-package sim.app.episim.charts;
+package episiminterfaces;
 
 import java.awt.Color;
 

@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import episiminterfaces.EpisimChart;
+import episiminterfaces.EpisimChartSet;
+
 
 public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable {
 	

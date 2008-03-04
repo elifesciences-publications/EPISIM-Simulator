@@ -16,18 +16,23 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import episiminterfaces.EpisimChart;
+import episiminterfaces.EpisimChartSet;
+
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.charts.EpisimChartSet;
 import sim.app.episim.charts.EpisimChartSetFactory;
+import sim.app.episim.charts.build.ChartSourceBuilder;
 import sim.app.episim.util.Names;
 
 
 public class ECSFileWriter {
 	
 	private File path;
+	private ChartSourceBuilder chartSourceBuilder;
 	public ECSFileWriter(File path){
 		this.path = path;
+		this.chartSourceBuilder = new ChartSourceBuilder();
 	}
 	
 	public void createChartSetArchive(Class<EpisimChartSetFactory> chartSetFactoryClass, EpisimChartSet chartSet) {
@@ -63,7 +68,14 @@ public class ECSFileWriter {
 							
 							
 							
-							List<File> fileList = new ArrayList<File>();
+							
+							for(EpisimChart actChart: chartSet.getEpisimCharts()){
+								jarOut.putNextEntry(new JarEntry(Names.cleanString(actChart.getTitle())+actChart.getId()+".java"));
+								jarOut.write(chartSourceBuilder.buildEpisimChartSource(actChart).getBytes("UTF-8"));
+								jarOut.flush();
+							}
+							
+							
 							
 							jarOut.putNextEntry(new JarEntry(Names.EPISIMCHARTSETFILENAME));
 							jarOut.write(byteOut.toByteArray());

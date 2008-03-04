@@ -51,8 +51,6 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.general.DatasetChangeEvent;
-import org.jfree.data.general.SeriesChangeEvent;
-import org.jfree.data.general.SeriesChangeListener;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleAnchor;
@@ -64,6 +62,9 @@ import com.lowagie.text.pdf.DefaultFontMapper;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
+
+import episiminterfaces.EpisimChart;
+import episiminterfaces.EpisimChartSeries;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
@@ -86,10 +87,10 @@ public class ChartCreationWizard extends JDialog {
    private EpisimChart episimChart;
    private boolean okButtonPressed = false;
    protected ArrayList attributesList = new ArrayList();
-   protected XYSeriesCollection dataset = new XYSeriesCollection();
    
-   protected JFreeChart previewChart;
-   protected ChartPanel previewChartPanel;
+   private JFreeChart previewChart;
+   private ChartPanel previewChartPanel;
+   private XYSeriesCollection dataset = new XYSeriesCollection();
    
    private  DatasetChangeEvent updateEvent;
    
@@ -979,12 +980,12 @@ public class ChartCreationWizard extends JDialog {
        dashCombo.addActionListener(new ActionListener()
            {
            public void actionPerformed ( ActionEvent e )
-               {
+           {
                dash = dashes[dashCombo.getSelectedIndex()];
                int index = seriesCombo.getSelectedIndex();
                if(index >= 0) episimChart.getEpisimChartSeries(index).setDash(dash);
                rebuildGraphicsDefinitions();
-               }
+           }
            });
        addLabelled("Dash",dashCombo);
        stretchField = new NumberTextField(1.0,true)

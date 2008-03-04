@@ -5,6 +5,8 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 
+import episiminterfaces.EpisimChartSeries;
+
 
 
 public class EpisimChartSeriesImpl implements EpisimChartSeries, java.io.Serializable{

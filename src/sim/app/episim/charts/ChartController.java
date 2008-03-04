@@ -9,6 +9,9 @@ import java.net.MalformedURLException;
 
 import javax.swing.JFileChooser;
 
+import episiminterfaces.EpisimChart;
+import episiminterfaces.EpisimChartSet;
+
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.TissueType;
@@ -45,6 +48,12 @@ public class ChartController {
 		validDataTypes.add(Float.TYPE);
 		validDataTypes.add(Double.TYPE);
 		
+	}
+	
+	public boolean isAlreadyChartSetLoaded(){
+		if(this.actLoadedChartSet != null) return true;
+		
+		return false;
 	}
 	
 	public long getNextChartId(){

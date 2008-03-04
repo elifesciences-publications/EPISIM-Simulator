@@ -9,6 +9,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JOptionPane;
+
+import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
@@ -45,9 +48,15 @@ public class BioChemicalModelController implements java.io.Serializable{
 	}
 	
 	
-	public boolean loadModelFile(File modelFile){
-		try{
-			ModelJarClassLoader jarLoader = new ModelJarClassLoader(modelFile.toURI().toURL());
+	public boolean loadModelFile(File modelFile) throws ModelCompatibilityException{
+		
+			ModelJarClassLoader jarLoader = null;
+         try{
+	         jarLoader = new ModelJarClassLoader(modelFile.toURI().toURL());
+         }
+         catch (MalformedURLException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
 			if(jarLoader.isDiffModel()){
 				biochemicalModel = new BiochemicalModel(jarLoader.getModelClass(EpisimCellDiffModel.class), 
 																	jarLoader.getGlobalParametersObject());
@@ -56,13 +65,10 @@ public class BioChemicalModelController implements java.io.Serializable{
 			}
 			else{
 				this.actLoadedCellDiffFile = null;
-				throw new Exception("Model ist not a compatible Differentiation Model");
+				throw new ModelCompatibilityException("Model ist not a compatible Differentiation Model");
 			}
-		}
-		catch (Exception e){
-			ExceptionDisplayer.getInstance().displayException(e);
-			return false;
-		}
+		
+		
 		
 	}
 	

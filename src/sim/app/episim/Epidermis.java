@@ -4,7 +4,7 @@ package sim.app.episim;
 //MASON
 import sim.Dummy;
 import sim.app.episim.charts.ChartController;
-import sim.app.episim.charts.EpiSimCharts;
+import sim.app.episim.charts.DefaultCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.ModelController;
@@ -63,7 +63,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	
 	
 	//get charts from Chart-Factory
-	private  EpiSimCharts epiSimCharts = EpiSimCharts.getInstance();
+	private  DefaultCharts epiSimCharts = DefaultCharts.getInstance();
 
 	private boolean reloadedSnapshot = false;
 
@@ -961,7 +961,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	
 	public void setDevelopGranulosum(boolean developGranulosum) { this.developGranulosum = developGranulosum; }
 	
-	public void setEpiSimCharts(EpiSimCharts epiSimCharts) {	this.epiSimCharts = epiSimCharts; }
+	public void setEpiSimCharts(DefaultCharts epiSimCharts) {	this.epiSimCharts = epiSimCharts; }
 	
 	public void setGCorneumY(int corneumY) { gCorneumY = corneumY; }
 	public void setGraphicsDirectory(String graphicsDirectory) { this.graphicsDirectory = graphicsDirectory; }

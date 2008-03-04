@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
@@ -35,21 +36,19 @@ public class BiochemicalModel implements java.io.Serializable, SnapshotListener{
 
 		
 	
-	public BiochemicalModel(Class<EpisimCellDiffModel> cellDiffModelClass, Object globalParametersObject){
+	public BiochemicalModel(Class<EpisimCellDiffModel> cellDiffModelClass, Object globalParametersObject) throws ModelCompatibilityException{
 		this.cellDiffModelClass = cellDiffModelClass;
 		
-		try{
+		
 		if(globalParametersObject != null && globalParametersObject instanceof EpisimCellDiffModelGlobalParameters){
 	        this.globalParametersObject= (EpisimCellDiffModelGlobalParameters)globalParametersObject;
 	        SnapshotWriter.getInstance().addSnapshotListener(this);
 	        
 		}
       
-		else throw new Exception("No compatible EpisimCellDiffModelGlobalParameters_Object!!!");
-		}
-		catch (Exception e){
-	       ExceptionDisplayer.getInstance().displayException(e);
-      }
+		else throw new ModelCompatibilityException("No compatible EpisimCellDiffModelGlobalParameters-Object!");
+		
+		
         
 	}
 	

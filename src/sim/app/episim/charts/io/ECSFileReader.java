@@ -11,10 +11,10 @@ import java.util.Set;
 import java.util.jar.Attributes;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.charts.EpisimChartSet;
 import episimfactories.AbstractChartSetFactory;
 import episimfactories.AbstractEpisimCellDiffModelFactory;
 import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimChartSet;
 
 
 public class ECSFileReader extends URLClassLoader {

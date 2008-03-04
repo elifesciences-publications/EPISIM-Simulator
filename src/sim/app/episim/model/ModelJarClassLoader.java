@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.io.IOException;
 
+import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractEpisimCellDiffModelFactory;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
@@ -36,22 +37,36 @@ class ModelJarClassLoader extends URLClassLoader {
      * Creates a new JarClassLoader for the specified url.
      *
      * @param url the url of the jar file
+    * @throws ModelCompatibilityException 
      */
-    public ModelJarClassLoader(URL url) {
+    public ModelJarClassLoader(URL url) throws ModelCompatibilityException {
         super(new URL[] { url });
         this.url = url;
         
-        try{
-	      this.factoryClass = loadClass(getClassName(new Attributes.Name("Factory-Class")));
+        
+	      try{
+	         this.factoryClass = loadClass(getClassName(new Attributes.Name("Factory-Class")));
+         }
+         catch (ClassNotFoundException e){
+         	throw new ModelCompatibilityException("No compatible EpisimCellDiffModelFactory found!");
+         }
+         catch (IOException e){
+         	throw new ModelCompatibilityException("File-Access Error!");
+         }
 	     
 	      if(factoryClass != null && AbstractEpisimCellDiffModelFactory.class.isAssignableFrom(this.factoryClass)){
-	      	factory = (AbstractEpisimCellDiffModelFactory) factoryClass.newInstance();
+	      	try{
+	            factory = (AbstractEpisimCellDiffModelFactory) factoryClass.newInstance();
+            }
+            catch (InstantiationException e){
+            	throw new ModelCompatibilityException("Cannot instantiate Model-Factory!");
+            }
+            catch (IllegalAccessException e){
+            	throw new ModelCompatibilityException("Cannot access Model-Factory!");
+            }
 	      }
-	      else throw new Exception("No compatible EpisimCellDiffModelFactory found!");
-        }
-        catch (Exception e){
-      	  ExceptionDisplayer.getInstance().displayException(e);
-        }
+	      else throw new ModelCompatibilityException("No compatible EpisimCellDiffModelFactory found!");
+              
        
     }
     

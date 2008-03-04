@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import episiminterfaces.EpisimChart;
+import episiminterfaces.EpisimChartSeries;
 import sim.app.episim.CellType;
 import sim.app.episim.TissueType;
 

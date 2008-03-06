@@ -2,6 +2,7 @@ package episiminterfaces;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 
 
@@ -11,8 +12,10 @@ public interface EpisimChartSet {
 	File getPath();
 	List<EpisimChart> getEpisimCharts();
 	
+	
 	void setName(String name);
 	void setPath(File path);
+
 	void addEpisimChart(EpisimChart chart);
 	void updateChart(EpisimChart chart);
 	EpisimChart getEpisimChart(long id);

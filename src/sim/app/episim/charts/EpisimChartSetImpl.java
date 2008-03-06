@@ -2,7 +2,9 @@ package sim.app.episim.charts;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSet;
@@ -16,8 +18,11 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 	
 	private File path;
 	
+	
+	
 	public EpisimChartSetImpl(){
 		episimCharts = new ArrayList<EpisimChart>();
+		
 		name = "";
 	}
 
@@ -43,6 +48,7 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 		removeEpisimChart(chart.getId());
 		addEpisimChart(chart);
 	}
+	
 	
 	public void removeEpisimChart(long id) {
 

@@ -154,6 +154,8 @@ public class KCyte extends CellType
         }
 
   
+    
+    
     public final Double2D forceFromBound(Continuous2D pC2dHerd, double x) // Calculate the Force orthogonal to lower bound
     {        
         double yleft=TissueBorder.lowerBound(pC2dHerd.stx(x-5));

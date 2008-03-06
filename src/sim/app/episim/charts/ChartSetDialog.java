@@ -284,6 +284,7 @@ public class ChartSetDialog extends JDialog {
 	      	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
 	      	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
 	      	 episimChartSet.addEpisimChart(newChart);
+	      	 
 	       }
 	         
          }});

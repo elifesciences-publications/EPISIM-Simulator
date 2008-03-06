@@ -133,15 +133,15 @@ public class ChartController {
 	}
 	
 	
-	public String checkChartExpression(String expression, Set<String> varNameSet) throws ParseException,TokenMgrError{
+	public String checkChartExpression(String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException,TokenMgrError{
 		
 		String result = "";
 		
-	   if(expression != null && varNameSet != null){
+	   if(expression != null && tissueDataFieldsInspector != null){
 		 StringReader sr = new java.io.StringReader(expression);
 	    Reader r = new java.io.BufferedReader( sr );
 	    ChartExpressionChecker parser = new ChartExpressionChecker(r);
-	    result = parser.Start(varNameSet);
+	    result = parser.check(tissueDataFieldsInspector);
 	    
 	   }
 		return result;

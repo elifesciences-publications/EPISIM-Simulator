@@ -488,7 +488,12 @@ public class ChartCreationWizard extends JDialog {
 	}
 	
 	public EpisimChart getEpisimChart(){
-		if(this.okButtonPressed) return this.episimChart;
+		if(this.okButtonPressed){
+			for(Class<?> actClass: this.cellDataFieldsInspector.getRequiredClasses()){
+				this.episimChart.addRequiredClass(actClass);
+			}
+			return this.episimChart;
+		}
 		return null;
 	}
 	private JPanel buildOKCancelButtonPanel() {

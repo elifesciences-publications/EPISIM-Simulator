@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,16 +36,23 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	
 	private Map<Long, EpisimChartSeries> seriesMap;
 	
+	private Set<Class<?>> requiredClasses;
+	
 	public EpisimChartImpl(long id, Map<String, TissueType> tissueTypes, Map<String, CellType> cellTypes){
 		this.id = id;
 		this.tissueTypesMap = tissueTypes;
 		this.cellTypesMap = cellTypes;
 		this.seriesMap = new HashMap<Long, EpisimChartSeries>();		
+		this.requiredClasses = new HashSet<Class<?>>();
 	}
 	
 	public long getId(){
 		return this.id;
 	}
+	
+	public void addRequiredClass(Class<?> requiredClass){ requiredClasses.add(requiredClass);}
+	
+	public Set<Class<?>> getRequiredClasses(){ return this.requiredClasses; }
 	
 	public int getPDFPrintingFrequency() {
 		

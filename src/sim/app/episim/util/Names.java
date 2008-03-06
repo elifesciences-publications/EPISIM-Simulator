@@ -6,8 +6,11 @@ public abstract class Names {
 	public static final String BIOCHEMMODEL ="Biochemical-Model";
 	public static final String MECHMODEL ="Biomechanical-Model";
 	public static final String EPISIMCHARTSETFILENAME ="EpisimChartSet.dat";
+	public static final String EPISIMCELLDIFFMODELVALUE ="celldiffmodel";
 	
-	public static final String GLOBALSIMULATIONVALUE="globalSimulationValue";
+	public static final String EPISIMCHARTSETFACTORYNAME ="EpisimChartSetFactory";
+	
+	
 	
 	public static String cleanString(String str){
 		

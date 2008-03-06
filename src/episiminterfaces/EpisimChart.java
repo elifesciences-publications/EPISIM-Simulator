@@ -2,6 +2,7 @@ package episiminterfaces;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 
 
@@ -19,6 +20,7 @@ public interface EpisimChart extends Cloneable {
 	List<EpisimChartSeries> getEpisimChartSeries();
 	EpisimChartSeries getEpisimChartSeries(long no);
 	File getPDFPrintingPath();
+	Set<Class<?>> getRequiredClasses();
 	
 	void setTitle(String title);
 	void setXLabel(String xLabel);
@@ -29,6 +31,7 @@ public interface EpisimChart extends Cloneable {
 	void setPDFPrintingFrequency(int frequency);
 	void setBaselineExpression(String[] val);
 	void addEpisimChartSeries(EpisimChartSeries chartSeries);
+	void addRequiredClass(Class<?> requiredClass);
 	void setPDFPrintingPath(File path);
 	
 	

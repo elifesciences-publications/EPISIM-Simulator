@@ -188,7 +188,7 @@ public class CompileWizard {
 							progressBar.setValue(progressBar.getValue()+ ticksize);
 
 							jarOut = new JarOutputStream(new FileOutputStream(jarFileFinal), manifest);
-
+							jarOut.setLevel(1);
 							
 							File[] fileList = new File[classFiles.size()];
 							classFiles.toArray(fileList);
@@ -197,7 +197,8 @@ public class CompileWizard {
 								if (f.isDirectory())
 									continue;
 								String name = f.getAbsolutePath();
-								name =name.replace(modelFolderFinal.getAbsolutePath() + System.getProperty("file.separator"), "");
+								name =name.replace(modelFolderFinal.getAbsolutePath() +java.io.File.separatorChar, "");
+								name =name.replace(java.io.File.separatorChar, '/');
 								
 								if (name.endsWith(".class")) {
 

@@ -23,6 +23,7 @@ import episiminterfaces.EpisimChartSet;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.charts.EpisimChartSetFactory;
 import sim.app.episim.charts.build.ChartSourceBuilder;
+import sim.app.episim.charts.build.FactorySourceBuilder;
 import sim.app.episim.util.Names;
 
 
@@ -30,9 +31,11 @@ public class ECSFileWriter {
 	
 	private File path;
 	private ChartSourceBuilder chartSourceBuilder;
+	private FactorySourceBuilder factorySourceBuilder;
 	public ECSFileWriter(File path){
 		this.path = path;
 		this.chartSourceBuilder = new ChartSourceBuilder();
+		this.factorySourceBuilder = new FactorySourceBuilder();
 	}
 	
 	public void createChartSetArchive(Class<EpisimChartSetFactory> chartSetFactoryClass, EpisimChartSet chartSet) {
@@ -65,7 +68,7 @@ public class ECSFileWriter {
 							manifest = new Manifest(byteIn);
 
 							jarOut = new JarOutputStream(new FileOutputStream(path), manifest);
-							
+							jarOut.setLevel(1);
 							
 							
 							
@@ -76,6 +79,12 @@ public class ECSFileWriter {
 							}
 							
 							
+							jarOut.putNextEntry(new JarEntry(Names.cleanString(Names.EPISIMCHARTSETFACTORYNAME)+".java"));
+							jarOut.write(factorySourceBuilder.buildEpisimFactorySource(chartSet).getBytes("UTF-8"));
+							jarOut.flush();
+							
+							
+							
 							
 							jarOut.putNextEntry(new JarEntry(Names.EPISIMCHARTSETFILENAME));
 							jarOut.write(byteOut.toByteArray());
@@ -83,7 +92,7 @@ public class ECSFileWriter {
 							
 							
 							
-							jarOut.putNextEntry(new JarEntry(chartSetFactoryClass.getCanonicalName().replace(".", System.getProperty("file.separator")) +".class"));
+							jarOut.putNextEntry(new JarEntry(chartSetFactoryClass.getCanonicalName().replace(".", "/") +".class"));
 							
 							InputStream factoryClassStream =chartSetFactoryClass.getResourceAsStream(chartSetFactoryClass.getSimpleName()+".class");
 							
@@ -97,7 +106,7 @@ public class ECSFileWriter {
 							
 							
 							
-							jarOut.putNextEntry(new JarEntry(chartSetFactoryClass.getSuperclass().getCanonicalName().replace(".", System.getProperty("file.separator")) +".class"));
+							jarOut.putNextEntry(new JarEntry(chartSetFactoryClass.getSuperclass().getCanonicalName().replace(".", "/") +".class"));
 							InputStream superClassStream =chartSetFactoryClass.getSuperclass().getResourceAsStream(chartSetFactoryClass.getSuperclass().getSimpleName()+".class");
 							bytes = new byte[1024];
 							while ((available = superClassStream.read(bytes)) > 0) {

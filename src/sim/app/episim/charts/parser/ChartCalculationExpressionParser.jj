@@ -10,10 +10,12 @@ PARSER_BEGIN(ChartExpressionChecker)
 package sim.app.episim.charts.parser;
 import java.io.*;
 import java.util.*;
+import sim.app.episim.util.*;
 
 public class ChartExpressionChecker {
 	private Set<String> varNameSet = new HashSet<String>();
 	private Set<Character> booleanCharacterSet = new HashSet<Character>();
+	private TissueCellDataFieldsInspector tissueDataFieldsInspector;
 	private char[] ops = new char[]{'>','<','=','!','&','|'};
 	
   	private void checkIfStringArithExpr(String str) throws ParseException{
@@ -43,8 +45,9 @@ TOKEN : { < REL_OP : <BIG_SMALL>| <BIG_SMALL><EQUAL> | <EQUAL><EQUAL> | <NOT><EQ
 	| <#BIG_SMALL:["<", ">"]>
 	| <#EQUAL:["="]>}
 TOKEN : { <NOT:["!"]>}	
-TOKEN:{<IDENTIFIER:<LETTER>(<LETTER>|<DIGIT>)*"."<LETTER>(<LETTER>|<DIGIT>)*>
+TOKEN:{<IDENTIFIER:<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*>
  | <#LETTER:["A"-"Z", "a"-"z"]>
+ | <#SIGN:["_"]>
  | <#DIGIT:["0"-"9"]>
  }
 
@@ -52,9 +55,10 @@ TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGI
 
 TOKEN : { < #DIGITS : (["0"-"9"])+ > }
 
-String Start(Set<String> varNameSet) throws NumberFormatException :
+String check(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
 {
-	if(varNameSet !=null)this.varNameSet =varNameSet;
+	this.varNameSet = tissueDataFieldsInspector.getOverallVarNameSet();
+	this.tissueDataFieldsInspector = tissueDataFieldsInspector;
 String partialResult = "";
 String totalResult = "";}
 {
@@ -78,7 +82,7 @@ Token t;
    	| LOOKAHEAD(5)(t =<IDENTIFIER> 
    		{if(!this.varNameSet.contains(t.image))
    			throw new ParseException("Unknown Identifier: " + t.image); 
-   			else result = "getValue(\""+t.image+"\")";
+   			else result = this.tissueDataFieldsInspector.getMethodCallStrForVarName(t.image);
    		})
    			
    	| result = SqrtFunction() 

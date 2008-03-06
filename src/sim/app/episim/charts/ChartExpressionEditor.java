@@ -122,7 +122,7 @@ public class ChartExpressionEditor extends JDialog {
 			public void mouseClicked(MouseEvent e) {
 
 				if((dataFieldsInspector.getTissueParameterList().getSelectedIndex() != -1) && e.getClickCount() == 2){
-					insertStringInChartExpressionAtCursor(Names.GLOBALSIMULATIONVALUE +"."
+					insertStringInChartExpressionAtCursor(dataFieldsInspector.getTissueTypeList().getSelectedValue() +"."
 					      + dataFieldsInspector.getTissueParameterList().getSelectedValue());
 				}
 			}
@@ -134,7 +134,7 @@ public class ChartExpressionEditor extends JDialog {
 	   	}
 	   	});
 	   
-	   setSize(500, 600);
+	   setSize(750, 600);
 		validate();
 		dialog = this;
 	}
@@ -264,7 +264,7 @@ public class ChartExpressionEditor extends JDialog {
 
 				try{
 					String result = ChartController.getInstance().checkChartExpression(
-							chartExpressionTextArea.getText().trim(), dataFieldsInspector.getVarNameSet() );
+							chartExpressionTextArea.getText().trim(), dataFieldsInspector);
 					messageTextArea.setText(result);
 					expression[0]=chartExpressionTextArea.getText().trim();
 					expression[1]=result;

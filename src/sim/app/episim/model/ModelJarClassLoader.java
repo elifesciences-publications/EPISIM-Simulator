@@ -45,13 +45,50 @@ class ModelJarClassLoader extends URLClassLoader {
         
         
 	      try{
-	         this.factoryClass = loadClass(getClassName(new Attributes.Name("Factory-Class")));
+	         
+	         
+	        
+	         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+	        
+	                 if(classLoader != null && (classLoader instanceof URLClassLoader)){
+	         
+	                     URLClassLoader urlClassLoader = (URLClassLoader)classLoader;
+	         
+	                     Method addURL = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
+	        
+	                     addURL.setAccessible(true);
+	         
+	                     addURL.invoke(urlClassLoader, new Object[]{url});
+	         
+	                 }
+	                
+	                
+	               this.factoryClass =  classLoader.loadClass(getClassName(new Attributes.Name("Factory-Class")));
+	                 
+	         
          }
          catch (ClassNotFoundException e){
+         	
          	throw new ModelCompatibilityException("No compatible EpisimCellDiffModelFactory found!");
          }
+        
+         catch (SecurityException e){
+         	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
+         }
+         catch (NoSuchMethodException e){
+         	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
+         }
+         catch (IllegalArgumentException e){
+         	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
+         }
+         catch (IllegalAccessException e){
+         	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
+         }
+         catch (InvocationTargetException e){
+         	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
+         }
          catch (IOException e){
-         	throw new ModelCompatibilityException("File-Access Error!");
+         	throw new ModelCompatibilityException("Error while reading the Model Archive found!");
          }
 	     
 	      if(factoryClass != null && AbstractEpisimCellDiffModelFactory.class.isAssignableFrom(this.factoryClass)){
@@ -74,7 +111,8 @@ class ModelJarClassLoader extends URLClassLoader {
    	 
    	 
    	if(factory != null && EpisimCellDiffModel.class.isAssignableFrom(factory.getEpisimCellDiffModelClass())
-   			&&	factory.getEpisimCellDiffModelGlobalParametersObject() != null) return true;
+   			&& factory.getEpisimCellDiffModelGlobalParametersObject() != null) return true;
+   				
    	return false;
     }
     

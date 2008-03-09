@@ -1,10 +1,11 @@
 
 package sim.app.episim;
 
-//MASON
+
 import sim.Dummy;
 import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.DefaultCharts;
+
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.ModelController;
@@ -71,6 +72,8 @@ public class Epidermis extends TissueType implements SnapshotListener
 
 	private Continuous2D cellContinous2D;
 	private Continuous2D basementContinous2D;
+	private Continuous2D rulerContinous2D;
+	private Continuous2D gridContinous2D;
    
 	private Bag allCells=new Bag(3000); //all cells will be stored in this bag
 	private int allocatedKCytes=0;   // allocated memory
@@ -93,7 +96,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	 
 	private int gCorneumY=20;    // gCorneum would start at this ..
 	 
-	private double height = 150;
+	
 		
 	private int individualColor=1;
 	 
@@ -103,7 +106,7 @@ public class Epidermis extends TissueType implements SnapshotListener
    private double minDist=0.1;    
 	private boolean developGranulosum=true;
 	
-	private int basalY=80;          // y coordinate at which undulations start, the base line    
+	    
 	
 	private double gStatistics_KCytes_MeanAge=0;
 	private double gStatistics_Barrier_ExtCalcium=0;
@@ -145,7 +148,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 
  public final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu retezapfen tiefe
  {
-     return (y-basalY)/modelController.getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
+     return (y-TissueBorder.getInstance().getUndulationBaseLine())/modelController.getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
  }
 
  
@@ -183,181 +186,243 @@ public class Epidermis extends TissueType implements SnapshotListener
  
     
  
- public void start()
-     {
-	 
-   	  super.start(reloadedSnapshot);
-   	  
-     
-     
-     
-   if(!reloadedSnapshot){
-     allCells.clear();
-     // set up the C2dHerd field.  It looks like a discretization
-     // of about neighborhood / 1.5 is close to optimal for us.  Hmph,
-     // that's 16 hash lookups! I would have guessed that 
-     // neighborhood * 2 (which is about 4 lookups on average)
-     // would be optimal.  Go figure.
-     cellContinous2D = new Continuous2D(biomechModelContr.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()/1.5,
-   		                               TissueBorder.getWidth()+2,height);
-     basementContinous2D = new Continuous2D(TissueBorder.getWidth()+2, TissueBorder.getWidth()+2,height);
-    
-    basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
-     double x=0;
-     // seeding the stem cells
-     allocatedKCytes=0;   // allocated memory
-     actualKCytes=0;      // num of kcytes that are not in nirvana
-     actualSpi=0;         // Spinosum
-     actualTA=0;          // TA Cells
-     actualLateSpi=0;     // Late Spinosum
-     actualGranu=0;
-     actualNoNucleus=0;
-     actualStem=0;
-     
-     Double2D lastloc=new Double2D(2, TissueBorder.lowerBound(2));        
-     for(x=2; x<=TissueBorder.getWidth(); x+=2)
-     {           
-         Double2D newloc=new Double2D(x,TissueBorder.lowerBound(x));
-         double distance=newloc.distance(lastloc);            
-         
-         if ((depthFrac(newloc.y)>biomechModelContr.getEpisimMechanicalModelGlobalParameters().getSeedMinDepth_frac() 
-         		&& (!biomechModelContr.getEpisimMechanicalModelGlobalParameters().getSeedReverse())) 
-         		        || (depthFrac(newloc.y)<biomechModelContr.getEpisimMechanicalModelGlobalParameters().getSeedMinDepth_frac() 
-         		       && biomechModelContr.getEpisimMechanicalModelGlobalParameters().getSeedReverse()))
-             if (distance>biomechModelContr.getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm())
-             {                
-                 
-            	 //TODO: Check creation of Stem Cells
-            	 KCyte stemCell = new KCyte(this, biochemModelContr.getNewEpisimCellDiffModelObject());                 
-                // stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
-                 stemCell.setOwnColor(10);
-                 stemCell.getEpisimCellDiffModelObject().setAge(random.nextInt(biochemModelContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem()));// somewhere on the stemCycle
-                 stemCell.getEpisimCellDiffModelObject().setDifferentiation(EpisimCellDiffModelGlobalParameters.STEMCELL);
-                 stemCell.getEpisimCellDiffModelObject().setSpecies(EpisimCellDiffModelGlobalParameters.KERATINOCYTE);
-                 stemCell.getEpisimCellDiffModelObject().setIsAlive(true);
-                 
-                 cellContinous2D.setObjectLocation(stemCell, newloc);
-                 
-                 lastloc=newloc;
-                 Stoppable stoppable = schedule.scheduleRepeating(stemCell);
-                 stemCell.setStoppable(stoppable);
-                 // x+=basalDensity; // in any case jump a step to the right to avoid overlay of stem cells
-                 actualStem++;
-                 actualKCytes++;
-             }
-     }
-     
-     //BackImageClass backImage=new BackImageClass(this);        
-     //schedule.scheduleOnce(backImage);
-     
-     
-     gStatistics_KCytes_MeanAge=0;
-     gStatistics_Barrier_ExtCalcium=0;
-     gStatistics_Barrier_IntCalcium=0;
-     gStatistics_Barrier_Lamella=0;
-     gStatistics_Barrier_Lipids=0;
-     
-     epiSimCharts.getXYSeries("ChartSeries_Kinetics_MeanCycleTime").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_Kinetics_GrowthFraction").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_Kinetics_Turnover").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_All").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_Spi").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_TA").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_LateSpi").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_Granu").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_NoNuc").clear();
-     epiSimCharts.getXYSeries("ChartSeries_KCyte_MeanAgeDate").clear();
-     epiSimCharts.getXYSeries("ChartSeries_Barrier_Calcium").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_Barrier_Lamella").clear();
-     epiSimCharts.getXYSeries("ChartSeries_Barrier_Lipids").clear();
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear();  // remove previous (X,Y) pairs from the chart
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_EarlySpi").clear();
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_LateSpi").clear();        
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Granu").clear();
-     epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear(); 
-   }
-  else{
-   	
-   	Iterator iter = allCells.iterator();
-   		
-   		while(iter.hasNext()){
-   		  Object obj = iter.next();
-   		  if (obj instanceof KCyte){
-   			  KCyte kcyte =(KCyte) obj;
-   			  
-   			  kcyte.reloadControllers();
-   				  
-   			  }
-   		  }
-   }
-     /////////////////////////////////
+ public void start() {
+
+		super.start(reloadedSnapshot);
+
+		if(!reloadedSnapshot){
+			allCells.clear();
+			// set up the C2dHerd field. It looks like a discretization
+			// of about neighborhood / 1.5 is close to optimal for us. Hmph,
+			// that's 16 hash lookups! I would have guessed that
+			// neighborhood * 2 (which is about 4 lookups on average)
+			// would be optimal. Go figure.
+			
+			//TODO: plus 2 Korrektur überprüfen
+			cellContinous2D = new Continuous2D(biomechModelContr.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
+					TissueBorder.getInstance().getWidth() + 2, 
+					TissueBorder.getInstance().getHeight());
+			basementContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth() + 2, 
+					TissueBorder.getInstance().getWidth() + 2, 
+					TissueBorder.getInstance().getHeight());
+			rulerContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth()+2,
+		   			TissueBorder.getInstance().getWidth()+2,
+		   			TissueBorder.getInstance().getHeight());
+		   gridContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth()+2,
+		  			TissueBorder.getInstance().getWidth()+2,
+		  			TissueBorder.getInstance().getHeight());
+						
+	     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
+	     rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
+	     gridContinous2D.setObjectLocation("DummyObjektForDrawingTheGrid", new Double2D(50, 50));
+			
+			
+			double x = 0;
+			// seeding the stem cells
+			allocatedKCytes = 0; // allocated memory
+			actualKCytes = 0; // num of kcytes that are not in nirvana
+			actualSpi = 0; // Spinosum
+			actualTA = 0; // TA Cells
+			actualLateSpi = 0; // Late Spinosum
+			actualGranu = 0;
+			actualNoNucleus = 0;
+			actualStem = 0;
+
+			Double2D lastloc = new Double2D(2, TissueBorder.getInstance().lowerBound(2));
+			for(x = 2; x <= TissueBorder.getInstance().getWidth(); x += 2){
+				Double2D newloc = new Double2D(x, TissueBorder.getInstance().lowerBound(x));
+				double distance = newloc.distance(lastloc);
+
+				if((depthFrac(newloc.y) > biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+						.getSeedMinDepth_frac() && (!biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+						.getSeedReverse()))
+						|| (depthFrac(newloc.y) < biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+								.getSeedMinDepth_frac() && biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+								.getSeedReverse()))
+					if(distance > biomechModelContr.getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
+
+						// TODO: Check creation of Stem Cells
+						KCyte stemCell = new KCyte(this, biochemModelContr.getNewEpisimCellDiffModelObject());
+						// stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
+						stemCell.setOwnColor(10);
+						stemCell.getEpisimCellDiffModelObject().setAge(
+								random.nextInt(biochemModelContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem()));// somewhere
+																																								// on
+																																								// the
+																																								// stemCycle
+						stemCell.getEpisimCellDiffModelObject().setDifferentiation(
+								EpisimCellDiffModelGlobalParameters.STEMCELL);
+						stemCell.getEpisimCellDiffModelObject().setSpecies(EpisimCellDiffModelGlobalParameters.KERATINOCYTE);
+						stemCell.getEpisimCellDiffModelObject().setIsAlive(true);
+
+						cellContinous2D.setObjectLocation(stemCell, newloc);
+
+						lastloc = newloc;
+						Stoppable stoppable = schedule.scheduleRepeating(stemCell);
+						stemCell.setStoppable(stoppable);
+						// x+=basalDensity; // in any case jump a step to the right to
+						// avoid overlay of stem cells
+						actualStem++;
+						actualKCytes++;
+					}
+			}
+
+			// BackImageClass backImage=new BackImageClass(this);
+			// schedule.scheduleOnce(backImage);
+
+			gStatistics_KCytes_MeanAge = 0;
+			gStatistics_Barrier_ExtCalcium = 0;
+			gStatistics_Barrier_IntCalcium = 0;
+			gStatistics_Barrier_Lamella = 0;
+			gStatistics_Barrier_Lipids = 0;
+
+			epiSimCharts.getXYSeries("ChartSeries_Kinetics_MeanCycleTime").clear(); // remove
+																											// previous
+																											// (X,Y)
+																											// pairs
+																											// from
+																											// the
+																											// chart
+			epiSimCharts.getXYSeries("ChartSeries_Kinetics_GrowthFraction").clear(); // remove
+																												// previous
+																												// (X,Y)
+																												// pairs
+																												// from
+																												// the
+																												// chart
+			epiSimCharts.getXYSeries("ChartSeries_Kinetics_Turnover").clear(); // remove
+																										// previous
+																										// (X,Y)
+																										// pairs
+																										// from
+																										// the
+																										// chart
+			epiSimCharts.getXYSeries("ChartSeries_KCyte_All").clear(); // remove
+																							// previous
+																							// (X,Y)
+																							// pairs
+																							// from the
+																							// chart
+			epiSimCharts.getXYSeries("ChartSeries_KCyte_Spi").clear();
+			epiSimCharts.getXYSeries("ChartSeries_KCyte_TA").clear();
+			epiSimCharts.getXYSeries("ChartSeries_KCyte_LateSpi").clear();
+			epiSimCharts.getXYSeries("ChartSeries_KCyte_Granu").clear();
+			epiSimCharts.getXYSeries("ChartSeries_KCyte_NoNuc").clear();
+			epiSimCharts.getXYSeries("ChartSeries_KCyte_MeanAgeDate").clear();
+			epiSimCharts.getXYSeries("ChartSeries_Barrier_Calcium").clear(); // remove
+																									// previous
+																									// (X,Y)
+																									// pairs
+																									// from
+																									// the
+																									// chart
+			epiSimCharts.getXYSeries("ChartSeries_Barrier_Lamella").clear();
+			epiSimCharts.getXYSeries("ChartSeries_Barrier_Lipids").clear();
+			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear(); // remove
+																									// previous
+																									// (X,Y)
+																									// pairs
+																									// from
+																									// the
+																									// chart
+			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_EarlySpi").clear();
+			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_LateSpi").clear();
+			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Granu").clear();
+			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear();
+		}
+		else{
+
+			Iterator iter = allCells.iterator();
+
+			while (iter.hasNext()){
+				Object obj = iter.next();
+				if(obj instanceof KCyte){
+					KCyte kcyte = (KCyte) obj;
+
+					kcyte.reloadControllers();
+
+				}
+			}
+		}
+     // ///////////////////////////////
      // charts
-     /////////////////////////////////
+     // ///////////////////////////////
      
  /*
-    Steppable chartPrinter = new Steppable()
-    {
-         public void step(SimState state)
-         {        
-            long t=(long) state.schedule.time();
-            File dir = new File(graphicsDirectory);
-            if(!dir.exists()){ 
-            	dir.mkdir();
-            	System.out.println("Directory " + dir.getAbsolutePath() + " created!");
-            }
-           
-             String fnumcells=graphicsDirectory+"episim_chart_numcells_"+t+".png";
-             String fnumcells_Large=graphicsDirectory+"episim_chart_numcells_large_"+t+".png";
-             String pdfnumcells=graphicsDirectory+"episim_chart_numcells_"+t+".pdf";
-             
-             String fbarrier=graphicsDirectory+"episim_chart_barrier_"+t+".png";
-             String fbarrier_Large=graphicsDirectory+"episim_chart_barrier_large_"+t+".png";
-             String pdfbarrier=graphicsDirectory+"episim_chart_barrier_"+t+".pdf";
-             
-             String fcelltypes=graphicsDirectory+"episim_chart_celltypes_"+t+".png";                
-             String fcelltypes_Large=graphicsDirectory+"episim_chart_celltypes_large_"+t+".png";
-             String pdfcelltypes=graphicsDirectory+"episim_chart_celltypes_"+t+".pdf";
-             
-             String fpartdist=graphicsDirectory+"episim_chart_particlegradients_"+t+".png";
-             String fpartdist_Large=graphicsDirectory+"episim_chart_particlegradients_large_"+t+".png";
-             String pdfpartdist=graphicsDirectory+"episim_chart_particlegradients_"+t+".pdf";
-             
-             String fagedist=graphicsDirectory+"episim_chart_agegradient_"+t+".png";
-             String fagedist_Large=graphicsDirectory+"episim_chart_agegradient_large_"+t+".png";
-             String pdfagedist=graphicsDirectory+"episim_chart_agegradient_"+t+".pdf";
-             
-             String fkinetics=graphicsDirectory+"episim_chart_kinetics_"+t+".png";                
-             String fkinetics_Large=graphicsDirectory+"episim_chart_kinetics_large_"+t+".png";
-             String pdfkinetics=graphicsDirectory+"episim_chart_kinetics_"+t+".pdf";
-             
-             String fapoptosis=graphicsDirectory+"episim_chart_apoptosis_"+t+".png";
-             String fapoptosis_Large=graphicsDirectory+"episim_chart_apoptosis_large_"+t+".png";
-             String pdfapoptosis=graphicsDirectory+"episim_chart_apoptosis_"+t+".pdf";
-
-             try {
-                     ChartUtilities.saveChartAsPNG(new File(fnumcells),  epiSimCharts.getNumCellsChart(),    PNG_ChartWidth, PNG_ChartHeight);
-                     ChartUtilities.saveChartAsPNG(new File(fnumcells_Large),  epiSimCharts.getNumCellsChart(),    PNG_ChartWidth_Large, PNG_ChartHeight_Large);
-                     ChartUtilities.saveChartAsPNG(new File(fbarrier),   epiSimCharts.getBarrierChart(), PNG_ChartWidth, PNG_ChartHeight);
-                     ChartUtilities.saveChartAsPNG(new File(fcelltypes), epiSimCharts.getParticleCellTypeChart(),   PNG_ChartWidth, PNG_ChartHeight);
-                     ChartUtilities.saveChartAsPNG(new File(fpartdist),  epiSimCharts.getParticleDistribution(),    PNG_ChartWidth, PNG_ChartHeight);
-                     ChartUtilities.saveChartAsPNG(new File(fpartdist_Large),  epiSimCharts.getParticleDistribution(),    PNG_ChartWidth_Large, PNG_ChartHeight_Large);
-                     ChartUtilities.saveChartAsPNG(new File(fagedist),   epiSimCharts.getAgeDistribution(),     PNG_ChartWidth, PNG_ChartHeight);
-                     ChartUtilities.saveChartAsPNG(new File(fkinetics),  epiSimCharts.getKineticsChart(),    PNG_ChartWidth, PNG_ChartHeight);
-                     ChartUtilities.saveChartAsPNG(new File(fkinetics_Large),  epiSimCharts.getKineticsChart(),    PNG_ChartWidth_Large, PNG_ChartHeight_Large);
-                     ChartUtilities.saveChartAsPNG(new File(fapoptosis), epiSimCharts.getApoptosisChart(),   PNG_ChartWidth, PNG_ChartHeight);
-	} catch(Exception ex){
-		System.out.println("File writing for charts didn't work.");
-             }
-                     // alternatice for pdf creation:
-             /*
-                     printChartToPDF(chartNumCells, PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfnumcells);
-                     printChartToPDF(chartBarrierDist, PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfbarrier);
-                     printChartToPDF(chartCellTypes, PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfcelltypes);
-                     printChartToPDF(chartPartDist, PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfpartdist);
-                     printChartToPDF(chartAgeDist, PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfagedist);
-                     printChartToPDF(chartKinetics, PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfkinetics);
-                     printChartToPDF(chartApoptosis, PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfapoptosis);
-              */
+	 * Steppable chartPrinter = new Steppable() { public void step(SimState
+	 * state) { long t=(long) state.schedule.time(); File dir = new
+	 * File(graphicsDirectory); if(!dir.exists()){ dir.mkdir();
+	 * System.out.println("Directory " + dir.getAbsolutePath() + " created!"); }
+	 * 
+	 * String fnumcells=graphicsDirectory+"episim_chart_numcells_"+t+".png";
+	 * String
+	 * fnumcells_Large=graphicsDirectory+"episim_chart_numcells_large_"+t+".png";
+	 * String pdfnumcells=graphicsDirectory+"episim_chart_numcells_"+t+".pdf";
+	 * 
+	 * String fbarrier=graphicsDirectory+"episim_chart_barrier_"+t+".png"; String
+	 * fbarrier_Large=graphicsDirectory+"episim_chart_barrier_large_"+t+".png";
+	 * String pdfbarrier=graphicsDirectory+"episim_chart_barrier_"+t+".pdf";
+	 * 
+	 * String fcelltypes=graphicsDirectory+"episim_chart_celltypes_"+t+".png";
+	 * String
+	 * fcelltypes_Large=graphicsDirectory+"episim_chart_celltypes_large_"+t+".png";
+	 * String pdfcelltypes=graphicsDirectory+"episim_chart_celltypes_"+t+".pdf";
+	 * 
+	 * String
+	 * fpartdist=graphicsDirectory+"episim_chart_particlegradients_"+t+".png";
+	 * String
+	 * fpartdist_Large=graphicsDirectory+"episim_chart_particlegradients_large_"+t+".png";
+	 * String
+	 * pdfpartdist=graphicsDirectory+"episim_chart_particlegradients_"+t+".pdf";
+	 * 
+	 * String fagedist=graphicsDirectory+"episim_chart_agegradient_"+t+".png";
+	 * String
+	 * fagedist_Large=graphicsDirectory+"episim_chart_agegradient_large_"+t+".png";
+	 * String pdfagedist=graphicsDirectory+"episim_chart_agegradient_"+t+".pdf";
+	 * 
+	 * String fkinetics=graphicsDirectory+"episim_chart_kinetics_"+t+".png";
+	 * String
+	 * fkinetics_Large=graphicsDirectory+"episim_chart_kinetics_large_"+t+".png";
+	 * String pdfkinetics=graphicsDirectory+"episim_chart_kinetics_"+t+".pdf";
+	 * 
+	 * String fapoptosis=graphicsDirectory+"episim_chart_apoptosis_"+t+".png";
+	 * String
+	 * fapoptosis_Large=graphicsDirectory+"episim_chart_apoptosis_large_"+t+".png";
+	 * String pdfapoptosis=graphicsDirectory+"episim_chart_apoptosis_"+t+".pdf";
+	 * 
+	 * try { ChartUtilities.saveChartAsPNG(new File(fnumcells),
+	 * epiSimCharts.getNumCellsChart(), PNG_ChartWidth, PNG_ChartHeight);
+	 * ChartUtilities.saveChartAsPNG(new File(fnumcells_Large),
+	 * epiSimCharts.getNumCellsChart(), PNG_ChartWidth_Large,
+	 * PNG_ChartHeight_Large); ChartUtilities.saveChartAsPNG(new File(fbarrier),
+	 * epiSimCharts.getBarrierChart(), PNG_ChartWidth, PNG_ChartHeight);
+	 * ChartUtilities.saveChartAsPNG(new File(fcelltypes),
+	 * epiSimCharts.getParticleCellTypeChart(), PNG_ChartWidth, PNG_ChartHeight);
+	 * ChartUtilities.saveChartAsPNG(new File(fpartdist),
+	 * epiSimCharts.getParticleDistribution(), PNG_ChartWidth, PNG_ChartHeight);
+	 * ChartUtilities.saveChartAsPNG(new File(fpartdist_Large),
+	 * epiSimCharts.getParticleDistribution(), PNG_ChartWidth_Large,
+	 * PNG_ChartHeight_Large); ChartUtilities.saveChartAsPNG(new File(fagedist),
+	 * epiSimCharts.getAgeDistribution(), PNG_ChartWidth, PNG_ChartHeight);
+	 * ChartUtilities.saveChartAsPNG(new File(fkinetics),
+	 * epiSimCharts.getKineticsChart(), PNG_ChartWidth, PNG_ChartHeight);
+	 * ChartUtilities.saveChartAsPNG(new File(fkinetics_Large),
+	 * epiSimCharts.getKineticsChart(), PNG_ChartWidth_Large,
+	 * PNG_ChartHeight_Large); ChartUtilities.saveChartAsPNG(new
+	 * File(fapoptosis), epiSimCharts.getApoptosisChart(), PNG_ChartWidth,
+	 * PNG_ChartHeight); } catch(Exception ex){ System.out.println("File writing
+	 * for charts didn't work."); } // alternatice for pdf creation: /*
+	 * printChartToPDF(chartNumCells, PDF_ChartWidth_Large,
+	 * PDF_ChartHeight_Large, pdfnumcells); printChartToPDF(chartBarrierDist,
+	 * PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfbarrier);
+	 * printChartToPDF(chartCellTypes, PDF_ChartWidth_Large,
+	 * PDF_ChartHeight_Large, pdfcelltypes); printChartToPDF(chartPartDist,
+	 * PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfpartdist);
+	 * printChartToPDF(chartAgeDist, PDF_ChartWidth_Large, PDF_ChartHeight_Large,
+	 * pdfagedist); printChartToPDF(chartKinetics, PDF_ChartWidth_Large,
+	 * PDF_ChartHeight_Large, pdfkinetics); printChartToPDF(chartApoptosis,
+	 * PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfapoptosis);
+	 */
      /*         }          
 };
     // Schedule the agent to update the chart
@@ -904,6 +969,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	public double getConsistency() { return consistency; }
 	
 	public int getGCorneumY() { return gCorneumY; }
+	public Continuous2D getGridContinous2D() { return gridContinous2D; }
 	public String getGraphicsDirectory() {	return graphicsDirectory; }
 	public double getGStatistics_Apoptosis_Basal() { return gStatistics_Apoptosis_Basal; }
 	public int getGStatistics_Apoptosis_BasalCounter() { return gStatistics_Apoptosis_BasalCounter; }
@@ -925,6 +991,8 @@ public class Epidermis extends TissueType implements SnapshotListener
 	
 	public double getMinDist() { return minDist; }
 	
+	public Continuous2D getRulerContinous2D() { return rulerContinous2D; }
+
 	public String getTissueName() {return NAME;}
 	
 	public boolean isDevelopGranulosum() {	return developGranulosum; }

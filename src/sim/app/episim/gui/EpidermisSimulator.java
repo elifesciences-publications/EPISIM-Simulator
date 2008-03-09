@@ -32,8 +32,10 @@ import episimexceptions.ModelCompatibilityException;
 import sim.app.episim.CompileWizard;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.TissueBorder;
 import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.DefaultCharts;
+
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotLoader;
@@ -70,6 +72,7 @@ public class EpidermisSimulator extends JFrame{
 	private JMenuItem menuItemEditChartSet;
 	private JMenuItem menuItemLoadChartSet;
 	private JMenuItem menuItemNewChartSet;
+	private JMenuItem menuItemCloseChartSet;
 	
 	private JMenu infoMenu;
 	private JMenuItem menuItemAboutMason;
@@ -177,7 +180,12 @@ public class EpidermisSimulator extends JFrame{
 
 			public void actionPerformed(ActionEvent e) {
 				boolean success = ChartController.getInstance().showNewChartSetDialog(simulator);
-				if(success)menuItemEditChartSet.setEnabled(true);
+				if(success){
+					menuItemEditChartSet.setEnabled(true);
+					menuItemCloseChartSet.setEnabled(true);
+					menuItemNewChartSet.setEnabled(false);
+					menuItemLoadChartSet.setEnabled(false);
+				}
 				
 			}
 			
@@ -192,6 +200,9 @@ public class EpidermisSimulator extends JFrame{
 				if(success){ 
 					ChartController.getInstance().showEditChartSetDialog(simulator);
 					menuItemEditChartSet.setEnabled(true);
+					menuItemCloseChartSet.setEnabled(true);
+					menuItemNewChartSet.setEnabled(false);
+					menuItemLoadChartSet.setEnabled(false);
 				}
 				else{ 
 					if(!ChartController.getInstance().isAlreadyChartSetLoaded()) menuItemEditChartSet.setEnabled(false);
@@ -210,9 +221,25 @@ public class EpidermisSimulator extends JFrame{
 		});
 		menuItemEditChartSet.setEnabled(false);
 		
+		menuItemCloseChartSet = new JMenuItem("Close Chart-Set");
+		menuItemCloseChartSet.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				menuItemNewChartSet.setEnabled(true);
+				menuItemLoadChartSet.setEnabled(true);
+				menuItemCloseChartSet.setEnabled(false);
+				menuItemEditChartSet.setEnabled(false);
+				ChartController.getInstance().closeActLoadedChartSet();
+			}
+			
+		});
+		menuItemCloseChartSet.setEnabled(false);
+		
 		chartMenu.add(menuItemNewChartSet);
 		chartMenu.add(menuItemLoadChartSet);
 		chartMenu.add(menuItemEditChartSet);
+		chartMenu.addSeparator();
+		chartMenu.add(menuItemCloseChartSet);
 		menuBar.add(chartMenu);
 		
 		
@@ -280,6 +307,7 @@ public class EpidermisSimulator extends JFrame{
 	
 	
 	private void openModel(){
+		TissueBorder.getInstance().loadStandardMebrane();
 		File file = null;
 		File standartDir =new File("d:/");
 		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model");
@@ -334,7 +362,7 @@ public class EpidermisSimulator extends JFrame{
 		
 	}
 	public void loadSnapshot() {
-
+		TissueBorder.getInstance().loadStandardMebrane();
 		File snapshotFile = null;
 		File jarFile = null;
 		boolean success = false;
@@ -424,6 +452,11 @@ public class EpidermisSimulator extends JFrame{
 		menuItemClose.setEnabled(false);
 		menuItemBuild.setEnabled(true);
 		chartMenu.setEnabled(false);
+		this.menuItemEditChartSet.setEnabled(false);
+		this.menuItemLoadChartSet.setEnabled(true);
+		this.menuItemCloseChartSet.setEnabled(false);
+		this.menuItemNewChartSet.setEnabled(true);
+		ChartController.getInstance().closeActLoadedChartSet();
 		SnapshotWriter.getInstance().clearListeners();
 		SnapshotWriter.getInstance().resetCounter();
 		 this.setTitle("Epidermis Simulator");

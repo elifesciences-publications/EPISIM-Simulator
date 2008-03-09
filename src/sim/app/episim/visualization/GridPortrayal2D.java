@@ -1,8 +1,10 @@
-package sim.app.episim.devBasalLayer;
+package sim.app.episim.visualization;
 
 
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.TissueBorder;
+
 import sim.portrayal.*;
 
 
@@ -51,7 +53,7 @@ public class GridPortrayal2D extends SimplePortrayal2D{
 	    private double implicitScale;
 	    
 	    private double gridResolution = 5;
-	    private double gridSize = 10;
+	    private double gridSize = 5;
 	    
 	    public GridPortrayal2D(double width, double height, int border, double implicitScale) {
 	   	 this.width = width;
@@ -143,7 +145,7 @@ public class GridPortrayal2D extends SimplePortrayal2D{
 
 
 	private double getScaledNumberOfPixelPerMicrometer(DrawInfo2D info){
-		return TissueBorderDev.getInstance().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay(info);
+		return TissueBorder.getInstance().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay(info);
 	}
 
 	private double getScaleFactorOfTheDisplay(DrawInfo2D info){

@@ -4,9 +4,11 @@ package sim.app.episim.charts.build;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSeries;
+import episiminterfaces.*;
 
+
+
+import sim.app.episim.CellType;
 import sim.app.episim.util.Names;
 import sim.engine.Steppable;
 
@@ -30,12 +32,14 @@ public class ChartSourceBuilder {
 		appendDataFields();
 		appendConstructor();
 		appendStandardMethods();
+		appendRegisterObjectsMethod();
 		appendEnd();
 		return chartSource.toString();
 	}
 	
 	private void appendHeader(){
 		
+		chartSource.append("package generatedcharts;\n");
 		chartSource.append("import org.jfree.chart.*;\n");
 		chartSource.append("import org.jfree.chart.block.*;\n");
 		chartSource.append("import org.jfree.chart.event.*;\n");
@@ -49,6 +53,10 @@ public class ChartSourceBuilder {
 		chartSource.append("import java.awt.*;\n");
 		
 		chartSource.append("import sim.engine.Steppable;\n");
+		
+		chartSource.append("import sim.util.Bag;\n");
+		chartSource.append("import sim.field.continuous.*;\n");
+		
 		chartSource.append("public class " +Names.cleanString(this.actChart.getTitle())+ this.actChart.getId()+" implements episiminterfaces.GeneratedChart{\n");
 	
 	}
@@ -56,12 +64,17 @@ public class ChartSourceBuilder {
 	private void appendDataFields(){
 				   
 		   chartSource.append("  private JFreeChart chart;\n");
+		   chartSource.append("  private Continuous2D cellContinuous;\n");
+		   chartSource.append("  private Bag allCells;\n");
 		   chartSource.append("  private ChartPanel chartPanel;\n");
 		   chartSource.append("  private XYSeriesCollection dataset = new XYSeriesCollection();\n");
 		   for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
 		   	chartSource.append("  private XYSeries "+Names.cleanString(actSeries.getName())+actSeries.getId()+
 		   			" = new XYSeries(\""+Names.cleanString(actSeries.getName())+"\", false);\n");
 		   }
+		   for(Class<?> actClass : this.actChart.getRequiredClasses())
+				this.chartSource.append("  private "+ actClass.getSimpleName()+ " "+actClass.getSimpleName().substring(0, 1).toLowerCase() +
+						actClass.getSimpleName().substring(1)+ ";\n");
 	}
 	
 	private void appendConstructor(){
@@ -119,8 +132,30 @@ public class ChartSourceBuilder {
 		chartSource.append("  title.setPosition(RectangleEdge.BOTTOM);\n");
 	}
 	
+	private void appendRegisterObjectsMethod(){
+		this.chartSource.append("  public void registerRequiredObjects(");
+		for(Class<?> actClass: this.actChart.getRequiredClasses()){
+			if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+				chartSource.append(actClass.getSimpleName() + " " + Names.convertClassToVariable(actClass.getSimpleName())+", ");
+			}
+		}
+		this.chartSource.append("Bag allCells, Continuous2D cellContinuous){\n");
+		this.chartSource.append("    this.allCells = allCells;\n");
+		this.chartSource.append("    this.cellContinuous = cellContinuous;\n");
+		for(Class<?> actClass: this.actChart.getRequiredClasses()){
+			if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+				this.chartSource.append("    this." + Names.convertClassToVariable(actClass.getSimpleName())+" = "
+						+ Names.convertClassToVariable(actClass.getSimpleName())+";\n");
+			}
+		}
+		
+		
+		this.chartSource.append("  }\n");
+		
+	}
+	
 	private void appendStandardMethods(){
-		chartSource.append("public ChartPanel getChartPanel(){this.chartPanel;}\n");
+		chartSource.append("public ChartPanel getChartPanel(){ return this.chartPanel;}\n");
 		chartSource.append("public Steppable getSteppable(){return null;}\n");
 		
 	}

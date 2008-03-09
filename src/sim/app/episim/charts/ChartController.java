@@ -8,7 +8,9 @@ import java.io.*;
 import java.net.MalformedURLException;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
+import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSet;
 
@@ -56,7 +58,7 @@ public class ChartController {
 		return false;
 	}
 	
-	public long getNextChartId(){
+	protected long getNextChartId(){
 	
 		return System.currentTimeMillis() + (this.nextChartId++);
 	}
@@ -92,9 +94,15 @@ public class ChartController {
 			try{
 				ECSFileReader ecsReader = new ECSFileReader(ecsChooser.getSelectedFile().toURI().toURL());
 				this.actLoadedChartSet = ecsReader.getEpisimChartSet();
+				CompatibilityChecker checker = new CompatibilityChecker();
+				checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
 				return true;
 			}
 			catch (MalformedURLException e){
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
+			catch (ModelCompatibilityException e){
+				JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
 				ExceptionDisplayer.getInstance().displayException(e);
 			}
 		}
@@ -132,8 +140,11 @@ public class ChartController {
 		return false;
 	}
 	
+	public void closeActLoadedChartSet(){
+		this.actLoadedChartSet = null;
+	}
 	
-	public String checkChartExpression(String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException,TokenMgrError{
+	protected String checkChartExpression(String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException,TokenMgrError{
 		
 		String result = "";
 		

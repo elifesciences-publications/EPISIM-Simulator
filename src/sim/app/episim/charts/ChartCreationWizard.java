@@ -489,6 +489,7 @@ public class ChartCreationWizard extends JDialog {
 	
 	public EpisimChart getEpisimChart(){
 		if(this.okButtonPressed){
+			this.episimChart.getRequiredClasses().clear();
 			for(Class<?> actClass: this.cellDataFieldsInspector.getRequiredClasses()){
 				this.episimChart.addRequiredClass(actClass);
 			}
@@ -515,31 +516,7 @@ public class ChartCreationWizard extends JDialog {
 		okButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				boolean errorFound = false;
-				if(episimChart.getBaselineExpression() == null || episimChart.getBaselineExpression()[0] == null || episimChart.getBaselineExpression()[1] == null
-						|| episimChart.getBaselineExpression()[0].trim().equals("") || episimChart.getBaselineExpression()[1].trim().equals("")){
-					errorFound = true;
-					JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please enter valid Baseline-Expression!", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-				if(episimChart.getTitle() == null || episimChart.getTitle().trim().equals("")){
-					errorFound = true;
-					JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please enter valid Title!", "Error", JOptionPane.ERROR_MESSAGE);
-				
-				}
-				if(episimChart.getEpisimChartSeries().size() == 0){
-					errorFound = true;
-					JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please add at least one Chart-Series!", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-				if(!errorFound){ 
-					errorFound = !hasEverySeriesAnExpression();
-					if(errorFound)
-						JOptionPane.showMessageDialog(ChartCreationWizard.this, "Not every Chart-Series has an Expression!", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-				if(!errorFound){ 
-					ChartCreationWizard.this.okButtonPressed = true;
-					ChartCreationWizard.this.setVisible(false);
-					ChartCreationWizard.this.dispose();
-				}
+				okButtonPressed();
 			}
 		});
 		bPanel.add(okButton, c);
@@ -569,12 +546,57 @@ public class ChartCreationWizard extends JDialog {
 
 	}
 	
+	private void okButtonPressed(){
+		boolean errorFound = false;
+		if(episimChart.getBaselineExpression() == null || episimChart.getBaselineExpression()[0] == null || episimChart.getBaselineExpression()[1] == null
+				|| episimChart.getBaselineExpression()[0].trim().equals("") || episimChart.getBaselineExpression()[1].trim().equals("")){
+			errorFound = true;
+			JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please enter valid Baseline-Expression!", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		else{
+			try{
+				ChartController.getInstance().checkChartExpression(episimChart.getBaselineExpression()[0], this.cellDataFieldsInspector);
+			}
+			catch (Exception e1){
+				ExceptionDisplayer.getInstance().displayException(e1);
+			}
+			
+		}
+		if(episimChart.getTitle() == null || episimChart.getTitle().trim().equals("")){
+			errorFound = true;
+			JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please enter valid Title!", "Error", JOptionPane.ERROR_MESSAGE);
+		
+		}
+		if(episimChart.getEpisimChartSeries().size() == 0){
+			errorFound = true;
+			JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please add at least one Chart-Series!", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		if(!errorFound){ 
+			errorFound = !hasEverySeriesAnExpression();
+			if(errorFound)
+				JOptionPane.showMessageDialog(ChartCreationWizard.this, "Not every Chart-Series has an Expression!", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		if(!errorFound){ 
+			ChartCreationWizard.this.okButtonPressed = true;
+			ChartCreationWizard.this.setVisible(false);
+			ChartCreationWizard.this.dispose();
+		}
+	}
+	
 	private boolean hasEverySeriesAnExpression(){
 		for(EpisimChartSeries chartSeries:this.episimChart.getEpisimChartSeries()){
-			if(chartSeries.getExpression() == null) return false;
-			if(chartSeries.getExpression().length < 2) return false;
-			if(chartSeries.getExpression()[0] == null) return false;
-			if(chartSeries.getExpression()[1] == null) return false;
+			if(chartSeries.getExpression() == null
+			 || chartSeries.getExpression().length < 2
+			 || chartSeries.getExpression()[0] == null
+			 || chartSeries.getExpression()[1] == null) return false;
+			else{
+				try{
+					ChartController.getInstance().checkChartExpression(chartSeries.getExpression()[0], this.cellDataFieldsInspector);
+				}
+				catch (Exception e1){
+					ExceptionDisplayer.getInstance().displayException(e1);
+				}
+			}
 		}
 		
 		return true;

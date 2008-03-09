@@ -30,7 +30,8 @@ public class FactorySourceBuilder {
 		}
 		
 		appendHeader();
-		
+		appendDataFields();
+		appendConstructor();
 		appendEnd();
 		
 		return factorySource.toString();
@@ -41,7 +42,28 @@ public class FactorySourceBuilder {
 		for(Class<?> actClass : this.requiredClasses){
 			if(actClass.getCanonicalName().contains(".")) this.factorySource.append("import "+ actClass.getCanonicalName()+";\n");
 		}
+		this.factorySource.append("import java.util.*;\n");
+		this.factorySource.append("import sim.util.Bag;\n");
+		this.factorySource.append("import sim.field.continuous.*;\n");
+		this.factorySource.append("import generatedcharts.*;\n");
 		this.factorySource.append("public class "+ Names.EPISIMCHARTSETFACTORYNAME+" extends AbstractChartSetFactory{\n");
+	}
+	
+	public void appendDataFields(){
+		for(Class<?> actClass : this.requiredClasses)
+			this.factorySource.append("  private "+ actClass.getSimpleName()+ " "+Names.convertClassToVariable(actClass.getSimpleName())+ ";\n");
+		
+		this.factorySource.append("private List<GeneratedCharts> allChartsOfTheSet;\n");
+		
+	}
+	
+	public void appendConstructor(){
+		this.factorySource.append("public EpisimChartSetFactory(){\n");
+		this.factorySource.append("allChartsOfTheSet = new ArrayList<GeneratedChart>();\n");
+		for(EpisimChart actChart:actChartSet.getEpisimCharts()){
+			this.factorySource.append("this.allChartsOfTheSet.add(new "+Names.cleanString(actChart.getTitle())+ actChart.getId()+"());\n");
+		}
+		this.factorySource.append("}\n");
 	}
 	
 	public void appendEnd(){

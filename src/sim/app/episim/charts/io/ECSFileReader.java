@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.jar.Attributes;
 
 import sim.app.episim.ExceptionDisplayer;
+import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractChartSetFactory;
 import episimfactories.AbstractEpisimCellDiffModelFactory;
 import episiminterfaces.EpisimCellDiffModel;
@@ -48,22 +49,34 @@ public class ECSFileReader extends URLClassLoader {
 	       
 	    }
 	    
-	    public EpisimChartSet getEpisimChartSet(){
-	   	 
-	   	 URL u;
-			try{
-				u = new URL("jar", "", url + "!/" + factory.getEpisimChartSetBinaryName());
-			
-	       JarURLConnection uc = (JarURLConnection)u.openConnection();
-	       
-	   	 return factory.getEpisimChartSet(uc.getInputStream());
-			}
-			catch (Exception e){
-				ExceptionDisplayer.getInstance().displayException(e);
-			}
-			
-	   	 return null;
-	    }
+	 public EpisimChartSet getEpisimChartSet() throws ModelCompatibilityException {
+
+		URL u = null;
+
+		try{
+			u = new URL("jar", "", url + "!/" + factory.getEpisimChartSetBinaryName());
+		}
+		catch (MalformedURLException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+
+		JarURLConnection uc = null;
+		try{
+			uc = (JarURLConnection) u.openConnection();
+		}
+		catch (IOException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+
+		try{
+			return factory.getEpisimChartSet(uc.getInputStream());
+		}
+		catch (IOException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+
+		return null;
+	}
 	    
 	    private boolean implementsInterface(Class implementingClass, Class interfaceClass){
 	   	 Set<String> interfaceNameSet = new HashSet<String>();

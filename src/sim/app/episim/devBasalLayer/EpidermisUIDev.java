@@ -3,10 +3,13 @@ package sim.app.episim.devBasalLayer;
 
 import sim.engine.*;
 import sim.app.episim.Epidermis;
+import sim.app.episim.TissueBorder;
 
 import sim.app.episim.gui.EpiDisplay2D;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
+import sim.app.episim.visualization.GridPortrayal2D;
+import sim.app.episim.visualization.RulerPortrayal2D;
 
 import sim.display.*;
 import sim.portrayal.continuous.*;
@@ -27,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 
 
@@ -60,10 +64,10 @@ public class EpidermisUIDev extends GUIState{
 	private EpiConsoleDev console;
 	
 	private static final double INITIALZOOMFACTOR = 2;
-	private final double EPIDISPLAYWIDTH = TissueBorderDev.getInstance().getWidth() * INITIALZOOMFACTOR;
-	private final double EPIDISPLAYHEIGHT = TissueBorderDev.getInstance().getHeight()* INITIALZOOMFACTOR;
+	private final double EPIDISPLAYWIDTH = TissueBorder.getInstance().getWidth() * INITIALZOOMFACTOR;
+	private final double EPIDISPLAYHEIGHT = TissueBorder.getInstance().getHeight()* INITIALZOOMFACTOR;
 	
-	private  BasementMembranePortrayal2DDev basementPortrayalDraw;
+	private  BasementMembranePortrayal2D basementPortrayalDraw;
 	private  RulerPortrayal2D rulerPortrayalDraw;
 	private  GridPortrayal2D gridPortrayalDraw;
 	
@@ -96,7 +100,7 @@ public class EpidermisUIDev extends GUIState{
 		super(state);
 		this.mainFrame = mainFrame;
 		this.setConsole(new EpiConsoleDev(this, false));
-		basementPortrayalDraw =new BasementMembranePortrayal2DDev(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), DISPLAYBORDER);
+		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH+ (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER);
 		rulerPortrayalDraw =new RulerPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
 		gridPortrayalDraw =new GridPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
 		setupPortrayals();

@@ -3,6 +3,7 @@ package sim.app.episim.devBasalLayer;
 
 //MASON
 import ec.util.MersenneTwisterFast;
+import sim.app.episim.TissueBorder;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -45,17 +46,17 @@ public class EpidermisDev extends SimStateHack
  {
      super(new ec.util.MersenneTwisterFast(seed), new Schedule(1));
      
-     basementContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
-   			TissueBorderDev.getInstance().getWidth(),
-   			TissueBorderDev.getInstance().getHeight());
+     basementContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth(),
+   			TissueBorder.getInstance().getWidth(),
+   			TissueBorder.getInstance().getHeight());
    			
-     rulerContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
-   			TissueBorderDev.getInstance().getWidth(),
-   			TissueBorderDev.getInstance().getHeight());
+     rulerContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth(),
+   			TissueBorder.getInstance().getWidth(),
+   			TissueBorder.getInstance().getHeight());
      
-     gridContinous2D = new Continuous2D(TissueBorderDev.getInstance().getWidth(),
-  			TissueBorderDev.getInstance().getWidth(),
-  			TissueBorderDev.getInstance().getHeight());
+     gridContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth(),
+  			TissueBorder.getInstance().getWidth(),
+  			TissueBorder.getInstance().getHeight());
    			
      basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
      rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));

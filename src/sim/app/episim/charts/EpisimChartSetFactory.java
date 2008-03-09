@@ -24,9 +24,7 @@ public class EpisimChartSetFactory extends AbstractChartSetFactory{
 		
 	
 	
-	public EpisimChartSetFactory(){
-		
-	}
+	
 	
 	
 

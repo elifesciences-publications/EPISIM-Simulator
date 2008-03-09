@@ -1,7 +1,8 @@
-package sim.app.episim.devBasalLayer;
+package sim.app.episim.visualization;
 
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.TissueBorder;
 import sim.portrayal.*;
 
 
@@ -164,8 +165,8 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 			 text.append("[Intervall: "+ rulerResolution+ "µm]");
 				graphics.setFont(new Font("Arial", Font.PLAIN, 12));
 				
-			 text.append("    Tissue ID: " + TissueBorderDev.getInstance().getTissueID());
-			 text.append("    Tissue Decription: " + TissueBorderDev.getInstance().getTissueDescription());
+			 text.append("    Tissue ID: " + TissueBorder.getInstance().getTissueID());
+			 text.append("    Tissue Decription: " + TissueBorder.getInstance().getTissueDescription());
 				
 				if(actMousePositionXY!= null){
 					
@@ -250,7 +251,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 
 
 	private double getScaledNumberOfPixelPerMicrometer(DrawInfo2D info){
-		return TissueBorderDev.getInstance().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay(info);
+		return TissueBorder.getInstance().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay(info);
 	}
 
 	

@@ -21,5 +21,9 @@ public abstract class Names {
 		
 		return str;
 	}
+	
+	public static String convertClassToVariable(String classname){
+		return classname.substring(0,1).toLowerCase() + classname.substring(1);
+	}
 
 }

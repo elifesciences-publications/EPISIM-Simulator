@@ -1,4 +1,4 @@
-package sim.app.episim.devBasalLayer;
+package sim.app.episim;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;

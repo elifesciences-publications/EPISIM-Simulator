@@ -50,7 +50,7 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 	
 	
 	public EpisimMechanicalModel getEpisimMechanicalModel() {
-		return null;
+		return new EpisimMechanicalModel(){};
 	}
 	
 	public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {

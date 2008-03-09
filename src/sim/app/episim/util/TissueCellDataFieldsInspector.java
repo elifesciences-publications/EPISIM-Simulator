@@ -35,6 +35,7 @@ public class TissueCellDataFieldsInspector {
 	private Map<String, CellType> cellTypesMap;
 	private Map<String, TissueType> tissueTypesMap;
 	private Map<String, String> overallMethodCallMap;
+	private Map<String, Method> overallMethodMap;
 	
 	private SortedJList cellTypeList;
 	private SortedJList tissueTypeList;
@@ -102,6 +103,7 @@ public class TissueCellDataFieldsInspector {
 		this.overallVarNameSet = new HashSet<String>();
 		this.requiredClasses = new HashSet<Class<?>>();
 		this.overallMethodCallMap = new HashMap<String, String>();
+		this.overallMethodMap = new HashMap<String, Method>();
 		Set<String> cellTypeNames = cellTypes.keySet();
 		for(String actCellTypeName : cellTypeNames){
 			CellType actClass = cellTypes.get(actCellTypeName);
@@ -124,13 +126,17 @@ public class TissueCellDataFieldsInspector {
 			
 			if(parameterName != null){
 				String finalName = getRedundancyCheckedName(firstName + "." + parameterName);
-				String methodCallName = actMethod.getDeclaringClass().getSimpleName().substring(0, 1).toLowerCase() +
-													actMethod.getDeclaringClass().getSimpleName().substring(1) + "."+ actMethod.getName()+"()";
+				String methodCallName = Names.convertClassToVariable(actMethod.getDeclaringClass().getSimpleName()) + "."+ actMethod.getName()+"()";
 				this.overallMethodCallMap.put(finalName,methodCallName);
-				this.requiredClasses.add(actMethod.getDeclaringClass());
+				this.overallMethodMap.put(finalName,actMethod);
 				this.overallVarNameSet.add(finalName);
 			}
 		}
+	}
+	
+	public void addRequiredClassForIdentifier(String identifier){
+		Method method = overallMethodMap.get(identifier);
+		if(method != null) this.requiredClasses.add(method.getDeclaringClass());
 	}
 	
 	public Set<Class<?>> getRequiredClasses(){ return this.requiredClasses;}
@@ -267,6 +273,7 @@ public class TissueCellDataFieldsInspector {
 			}
 
 		});
+		
 		
 
 		cellParameterList.setToolTipText("double-click to select!");

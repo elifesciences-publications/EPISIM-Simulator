@@ -20,8 +20,9 @@ public class ChartExpressionChecker {
 	
   	private void checkIfStringArithExpr(String str) throws ParseException{
   		if(booleanCharacterSet.size() == 0) for(char c :ops) booleanCharacterSet.add(c);
+  		
   		if(str != null){
-  			for(int i = 0; i< str.length();i++){
+  			for(int i = 0; i< str.length();i++){ 
   				if(booleanCharacterSet.contains(str.charAt(i))) 
   				throw new ParseException("Unexpected Boolean or Relational Operator found: '" + str.charAt(i)+ "'\nSubsequence: \""
   	                               		+str+"\nChar Pos: " + (i+1));
@@ -82,14 +83,17 @@ Token t;
    	| LOOKAHEAD(5)(t =<IDENTIFIER> 
    		{if(!this.varNameSet.contains(t.image))
    			throw new ParseException("Unknown Identifier: " + t.image); 
-   			else result = this.tissueDataFieldsInspector.getMethodCallStrForVarName(t.image);
+   			else{
+   				this.tissueDataFieldsInspector.addRequiredClassForIdentifier(t.image);
+   				result = this.tissueDataFieldsInspector.getMethodCallStrForVarName(t.image);
+   			}
    		})
    			
    	| result = SqrtFunction() 
     | result = PowFunction()
     | result = AllCellsWhere() 
     | result = AllCellsMeanValueFunction()
-    |<OPEN_PAR> result = BooleanExpression() <CLOSE_PAR> {result = "(" + result +")";})
+    | <OPEN_PAR> result = BooleanExpression() <CLOSE_PAR> {result = "(" + result +")";})
 
 {return result;}
 }

@@ -45,26 +45,8 @@ class ModelJarClassLoader extends URLClassLoader {
         
         
 	      try{
-	         
-	         
-	        
-	         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-	        
-	                 if(classLoader != null && (classLoader instanceof URLClassLoader)){
-	         
-	                     URLClassLoader urlClassLoader = (URLClassLoader)classLoader;
-	         
-	                     Method addURL = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
-	        
-	                     addURL.setAccessible(true);
-	         
-	                     addURL.invoke(urlClassLoader, new Object[]{url});
-	         
-	                 }
-	                
-	                
-	               this.factoryClass =  classLoader.loadClass(getClassName(new Attributes.Name("Factory-Class")));
-	                 
+	        	        
+	      	this.factoryClass = this.loadClass(getClassName(new Attributes.Name("Factory-Class")));
 	         
          }
          catch (ClassNotFoundException e){
@@ -73,18 +55,6 @@ class ModelJarClassLoader extends URLClassLoader {
          }
         
          catch (SecurityException e){
-         	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
-         }
-         catch (NoSuchMethodException e){
-         	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
-         }
-         catch (IllegalArgumentException e){
-         	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
-         }
-         catch (IllegalAccessException e){
-         	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
-         }
-         catch (InvocationTargetException e){
          	throw new ModelCompatibilityException("Error while Opening the Model Archive found!");
          }
          catch (IOException e){

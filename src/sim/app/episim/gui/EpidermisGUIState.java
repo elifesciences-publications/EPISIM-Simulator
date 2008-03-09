@@ -4,11 +4,16 @@ import sim.engine.*;
 import sim.app.episim.Epidermis;
 import sim.app.episim.KCyte;
 import sim.app.episim.KCyteInspector;
+import sim.app.episim.TissueBorder;
 import sim.app.episim.charts.DefaultCharts;
+import sim.app.episim.devBasalLayer.BasementMembranePortrayal2DDev;
+import sim.app.episim.devBasalLayer.EpidermisDev;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
+import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.KeratinocytePortrayal2D;
+import sim.app.episim.visualization.RulerPortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.*;
 import sim.portrayal.continuous.*;
@@ -29,6 +34,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 
@@ -52,19 +58,34 @@ public class EpidermisGUIState extends GUIState{
 	private final int INTERNALFRAMECOLS = 2;
 
 	private final String SIMULATIONFRAME = "Simframe";
-
 	private final String CONTROLLERFRAME = "controllerFrame";
-
 	private final String CHARTFRAME = "chartFrame";
+	
+	private final String EPIDERMISNAME = "Epidermis";
+	private final String BASEMENTMEMBRANENAME = "Basement Membrane";
+	private final String WOUNDNAME = "Wound Region";
+	private final String RULERNAME = "Ruler";
+	private final String GRIDNAME = "Grid";
 
 	private JDesktopPane desktop;
 
 	private EpiConsole console;
 
+	private static final double INITIALZOOMFACTOR = 5;
+	private final double EPIDISPLAYWIDTH = TissueBorder.getInstance().getWidth() * INITIALZOOMFACTOR;
+	private final double EPIDISPLAYHEIGHT = TissueBorder.getInstance().getHeight()* INITIALZOOMFACTOR;
+	
+	private static final int DISPLAYBORDER = 40;
+	
+	private boolean workaroundPauseWasPressed = false;
+	
+	/*
 	private final double EPIDISPLAYWIDTH = 750;
 	private final double EPIDISPLAYHEIGHT = 700;
-	
+	*/
 	private final BasementMembranePortrayal2D basementPortrayalDraw;
+	private  RulerPortrayal2D rulerPortrayalDraw;
+	private  GridPortrayal2D gridPortrayalDraw;
 	
 	private boolean resizeButtonIsActionSource = false;
 	
@@ -79,6 +100,8 @@ public class EpidermisGUIState extends GUIState{
 	ContinuousPortrayal2D epiPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D basementPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D woundPortrayal = new ContinuousPortrayal2D();
+	ContinuousPortrayal2D rulerPortrayal = new ContinuousPortrayal2D();
+	ContinuousPortrayal2D gridPortrayal = new ContinuousPortrayal2D();
 	
 	
 	public EpidermisGUIState(JFrame mainFrame) {
@@ -90,8 +113,10 @@ public class EpidermisGUIState extends GUIState{
 		super(state);
 		this.mainFrame = mainFrame;
 		this.setConsole(new EpiConsole(this, reloadSnapshot));
-		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
-		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT);
+		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), DISPLAYBORDER);
+		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER));
+		rulerPortrayalDraw =new RulerPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
+		gridPortrayalDraw =new GridPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
 		
 	}
 	
@@ -182,6 +207,8 @@ public class EpidermisGUIState extends GUIState{
 		epiPortrayal.setField(theEpidermis.getCellContinous2D());
 		basementPortrayal.setField(theEpidermis.getBasementContinous2D());
 		woundPortrayal.setField(theEpidermis.getBasementContinous2D());
+		rulerPortrayal.setField(theEpidermis.getRulerContinous2D());
+		gridPortrayal.setField(theEpidermis.getGridContinous2D());
 		// make the flockers random colors and four times their normal size
 		// (prettier)
 		java.awt.Color myColor = java.awt.Color.lightGray;
@@ -198,6 +225,8 @@ public class EpidermisGUIState extends GUIState{
 		
 		basementPortrayal.setPortrayalForAll(basementPortrayalDraw);
 		woundPortrayal.setPortrayalForAll(woundPortrayalDraw);
+		rulerPortrayal.setPortrayalForAll(rulerPortrayalDraw);
+		gridPortrayal.setPortrayalForAll(gridPortrayalDraw);
 		
 		// reschedule the displayer
 		display.reset();
@@ -205,6 +234,8 @@ public class EpidermisGUIState extends GUIState{
 		// redraw the display
 		display.repaint();
 	}
+	
+	
 
 	void addInternalFrames(Controller c) {
 
@@ -215,40 +246,52 @@ public class EpidermisGUIState extends GUIState{
 		// Internal Frame for EpiSimlation Display
 		// --------------------------------------------------------------------------
 
-		display = new EpiDisplay2D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT, this, 1);
+		display = new EpiDisplay2D(EPIDISPLAYWIDTH+ (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), this, 1);
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
 		display.setBackdrop(Color.BLACK);
 	
 		
-		display.attach(basementPortrayal, "basementMembrane");
 		
-		display.attach(epiPortrayal, "epidermis");
-		display.attach(woundPortrayal, "wound");
+		display.attach(basementPortrayal, BASEMENTMEMBRANENAME, new Rectangle2D.Double(0,0,EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER)), true);
+		display.attach(epiPortrayal, EPIDERMISNAME, new Rectangle2D.Double(DISPLAYBORDER,DISPLAYBORDER,EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT), true);
+		display.attach(woundPortrayal, WOUNDNAME, new Rectangle2D.Double(DISPLAYBORDER,DISPLAYBORDER,EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT), true);
+		display.attach(rulerPortrayal, RULERNAME, new Rectangle2D.Double(0,0,EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER)), true);
+		display.attach(gridPortrayal, GRIDNAME, new Rectangle2D.Double(0,0,EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER)), true);
 		
 		
 		display.insideDisplay.addMouseListener(new MouseAdapter(){			
 
-			public void mousePressed(MouseEvent e) {
-
-				if(e.getButton() == MouseEvent.BUTTON3){
-					if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
-					woundPortrayalDraw.clearWoundRegionCoordinates();
-					woundPortrayalDraw.closeWoundRegionPath(false);
-					activateDrawing = true;
+				public void mousePressed(MouseEvent e) {
+	
+					if(e.getButton() == MouseEvent.BUTTON3){
+						if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
+						woundPortrayalDraw.clearWoundRegionCoordinates();
+						woundPortrayalDraw.closeWoundRegionPath(false);
+						activateDrawing = true;
+					}
+					
 				}
-				
-			}
-			public void mouseReleased(MouseEvent e) {
-
-				if(e.getButton() == MouseEvent.BUTTON3){
-					if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
-					woundPortrayalDraw.closeWoundRegionPath(true);
-					((Epidermis) state).removeCells(woundPortrayalDraw.getWoundRegion());
-					activateDrawing = false;
+				public void mouseReleased(MouseEvent e) {
+	
+					if(e.getButton() == MouseEvent.BUTTON3){
+						if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
+						woundPortrayalDraw.closeWoundRegionPath(true);
+						((Epidermis) state).removeCells(woundPortrayalDraw.getWoundRegion());
+						activateDrawing = false;
+					}
+					
 				}
-				
-			}
+	
+				public void mouseEntered(MouseEvent e){
+					if(display.isPortrayalVisible(RULERNAME)){ 
+						rulerPortrayalDraw.setCrosshairsVisible(true);
+						rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+					}
+				}
+				public void mouseExited(MouseEvent e){
+					if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setCrosshairsVisible(false);
+				}
 
 			});
 		display.insideDisplay.addMouseMotionListener(new MouseMotionAdapter(){
@@ -256,12 +299,21 @@ public class EpidermisGUIState extends GUIState{
 				
 				if(activateDrawing){
 					woundPortrayalDraw.addMouseCoordinate(new Double2D(e.getX(), e.getY()));
-					display.insideDisplay.repaint();
+					redrawDisplay();
 				}
+				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+				if(console.getPlayState()==Console.PS_PAUSED
+						||console.getPlayState()==Console.PS_STOPPED) redrawDisplay();	
 				
+			}
+			public void mouseMoved(MouseEvent e){
+				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+				if(console.getPlayState()==Console.PS_PAUSED
+						||console.getPlayState()==Console.PS_STOPPED) redrawDisplay();			
 			}
 		});
 		
+
 		
 		
 		// display.setBackdrop(Color.white);
@@ -277,7 +329,7 @@ public class EpidermisGUIState extends GUIState{
 				 resizeButtonIsActionSource = false;
           }
 		});
-		displayFrame.setTitle("Epidermis Simulation v1.1");
+		displayFrame.setTitle("Epidermis Simulation v 1.1");
 		displayFrame.setName(SIMULATIONFRAME);
 		displayFrame.setMaximizable(true);
 		displayFrame.setIconifiable(true);
@@ -366,6 +418,14 @@ public class EpidermisGUIState extends GUIState{
 			if(comp instanceof JInternalFrame &&
 					((JInternalFrame) comp).getName().equals(CHARTFRAME))c.registerFrame(((JInternalFrame)comp));
 		}
+	}
+	
+	public void redrawDisplay(){
+		
+  	 Graphics g = display.insideDisplay.getGraphics();
+  	 display.insideDisplay.paintComponent(g,true);
+  	 g.dispose();
+  	 
 	}
 
 	public void init(Controller c) {
@@ -500,7 +560,22 @@ public class EpidermisGUIState extends GUIState{
 	    	 }
 	    }
 	}
-
+	
+	
+	public void workaroundConsolePause(){
+		if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING){
+				console.pressPause();
+				workaroundPauseWasPressed = true;
+		}
+	}
+	
+	public void workaroundConsolePlay(){
+		if(console.getPlayState() == console.PS_PAUSED && console.getPlayState() != console.PS_STOPPED){
+			console.pressPause();
+			workaroundPauseWasPressed = false;
+		}
+	}
+	
 	public void clearWoundPortrayalDraw(){
 		
 		woundPortrayalDraw.clearWoundRegionCoordinates();
@@ -517,6 +592,10 @@ public class EpidermisGUIState extends GUIState{
 	
 		return woundPortrayalDraw;
 	}
+	public EpiDisplay2D getDisplay() {
+	   
+   	return display;
+   }
 	
 
 }

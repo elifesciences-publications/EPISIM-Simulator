@@ -158,8 +158,8 @@ public class KCyte extends CellType
     
     public final Double2D forceFromBound(Continuous2D pC2dHerd, double x) // Calculate the Force orthogonal to lower bound
     {        
-        double yleft=TissueBorder.lowerBound(pC2dHerd.stx(x-5));
-        double yright=TissueBorder.lowerBound(pC2dHerd.stx(x+5));
+        double yleft=TissueBorder.getInstance().lowerBound(pC2dHerd.stx(x-5));
+        double yright=TissueBorder.getInstance().lowerBound(pC2dHerd.stx(x+5));
         return new Double2D(-(yright-yleft),10);
     }   
  
@@ -329,7 +329,7 @@ public class KCyte extends CellType
                 return;
         double newx=p_potentialLoc.x;
         double newy=p_potentialLoc.y;               
-        double maxy=TissueBorder.lowerBound(p_potentialLoc.x);  
+        double maxy=TissueBorder.getInstance().lowerBound(p_potentialLoc.x);  
         
        
         if (newy>maxy)
@@ -355,7 +355,7 @@ public class KCyte extends CellType
         
         
         newy=yPos;
-        double maxy=TissueBorder.lowerBound(newx);        
+        double maxy=TissueBorder.getInstance().lowerBound(newx);        
                 
         if (newy>maxy)  // border crossed
         {
@@ -656,7 +656,7 @@ public class KCyte extends CellType
 			}
 
 			Double2D newLoc = epiderm.getCellContinous2D().getObjectLocation(this);
-			double maxy = TissueBorder.lowerBound(newLoc.x);
+			double maxy = TissueBorder.getInstance().lowerBound(newLoc.x);
 			if((maxy - newLoc.y) < biomechModelController.getEpisimMechanicalModelGlobalParameters().getBasalLayerWidth())
 				isBasalStatisticsCell = true;
 			else

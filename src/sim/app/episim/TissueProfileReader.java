@@ -1,4 +1,4 @@
-package sim.app.episim.devBasalLayer;
+package sim.app.episim;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Map.Entry;
 
-import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
 

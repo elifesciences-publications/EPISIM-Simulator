@@ -28,6 +28,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.TissueBorder;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
@@ -61,7 +62,7 @@ public class EpidermisSimulatorDev extends JFrame{
 		
 		cleanUpContentPane();
 		
-		TissueBorderDev.getInstance().loadBasementMembrane(new File("D:/BeispielModels/Thora Dateien/eingehendeAnalyse.txt"));
+		TissueBorder.getInstance().loadBasementMembrane(new File("D:/eingehendeAnalyse.txt"));
 		epiUI = new EpidermisUIDev(this);
 		this.validate();
 		this.repaint();

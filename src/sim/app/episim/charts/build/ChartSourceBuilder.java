@@ -49,7 +49,9 @@ public class ChartSourceBuilder {
 		chartSource.append("import org.jfree.data.general.*;\n");
 		chartSource.append("import org.jfree.data.xy.*;\n");
 		chartSource.append("import org.jfree.ui.*;\n");
-		
+		chartSource.append("import episiminterfaces.*;\n");
+		chartSource.append("import episimexceptions.*;\n");
+		chartSource.append("import episimfactories.*;\n");
 		chartSource.append("import java.awt.*;\n");
 		
 		chartSource.append("import sim.engine.Steppable;\n");
@@ -57,7 +59,7 @@ public class ChartSourceBuilder {
 		chartSource.append("import sim.util.Bag;\n");
 		chartSource.append("import sim.field.continuous.*;\n");
 		
-		chartSource.append("public class " +Names.cleanString(this.actChart.getTitle())+ this.actChart.getId()+" implements episiminterfaces.GeneratedChart{\n");
+		chartSource.append("public class " +Names.convertVariableToClass(Names.cleanString(this.actChart.getTitle())+ this.actChart.getId())+" implements GeneratedChart{\n");
 	
 	}
 	

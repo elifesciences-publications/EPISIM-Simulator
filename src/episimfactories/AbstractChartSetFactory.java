@@ -9,7 +9,9 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import episimexceptions.IncompatibleObjectsException;
+import org.jfree.chart.ChartPanel;
+
+import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSet;
@@ -57,8 +59,8 @@ public abstract class AbstractChartSetFactory {
 		
 		return Names.EPISIMCHARTSETFILENAME;
 	}
-	public abstract List<JPanel> getPanelsOfCharts();
+	public abstract List<ChartPanel> getChartPanels();
    public abstract List<Steppable> getSteppablesOfCharts();
    
-   public abstract void registerNecessaryObjects(Object[] objects) throws IncompatibleObjectsException;
+   public abstract void registerNecessaryObjects(Object[] objects) throws MissingObjectsException;
 }

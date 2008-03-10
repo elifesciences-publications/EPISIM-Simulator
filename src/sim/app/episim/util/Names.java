@@ -25,5 +25,9 @@ public abstract class Names {
 	public static String convertClassToVariable(String classname){
 		return classname.substring(0,1).toLowerCase() + classname.substring(1);
 	}
+	
+	public static String convertVariableToClass(String variablename){
+		return variablename.substring(0,1).toUpperCase() + variablename.substring(1);
+	}
 
 }

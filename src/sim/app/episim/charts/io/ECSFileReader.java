@@ -66,6 +66,7 @@ public class ECSFileReader extends URLClassLoader {
 		JarURLConnection uc = null;
 		try{
 			uc = (JarURLConnection) u.openConnection();
+			uc.setDefaultUseCaches(false);
 		}
 		catch (IOException e){
 			ExceptionDisplayer.getInstance().displayException(e);

@@ -34,6 +34,9 @@ public abstract class AbstractChartSetFactory {
 			Object result = null;
 			try{
 				result = objIn.readObject();
+				stream.close();
+				objIn.close();
+				
 			}
 			catch (IOException e){
 				

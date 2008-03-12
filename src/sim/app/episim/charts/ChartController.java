@@ -126,12 +126,7 @@ public class ChartController {
 			EpisimChartSet updatedChartSet =dialog.showChartSet(actLoadedChartSet);
 			if(updatedChartSet != null){ 
 				this.actLoadedChartSet = updatedChartSet;
-				try{
-			      loadEpisimChartSet(actLoadedChartSet.getPath().toURI().toURL());
-		      }
-		      catch (MalformedURLException e){
-			      ExceptionDisplayer.getInstance().displayException(e);
-		      }
+				
 			}
 		}
 	}
@@ -139,6 +134,12 @@ public class ChartController {
 	protected void storeEpisimChartSet(EpisimChartSet chartSet){
 		ECSFileWriter fileWriter = new ECSFileWriter(chartSet.getPath());
 		fileWriter.createChartSetArchive(chartSet);
+		try{
+	      loadEpisimChartSet(new File(chartSet.getPath().getAbsolutePath()).toURI().toURL());
+      }
+      catch (MalformedURLException e){
+	      ExceptionDisplayer.getInstance().displayException(e);
+      }
 	}
 	
 	private boolean loadEpisimChartSet(URL url){

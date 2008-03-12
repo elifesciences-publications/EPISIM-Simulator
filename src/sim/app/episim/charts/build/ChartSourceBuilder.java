@@ -39,7 +39,7 @@ public class ChartSourceBuilder {
 	
 	private void appendHeader(){
 		
-		chartSource.append("package generatedcharts;\n");
+		chartSource.append("package "+ Names.GENERATEDCHARTSPACKAGENAME +";\n");
 		chartSource.append("import org.jfree.chart.*;\n");
 		chartSource.append("import org.jfree.chart.block.*;\n");
 		chartSource.append("import org.jfree.chart.event.*;\n");
@@ -53,11 +53,14 @@ public class ChartSourceBuilder {
 		chartSource.append("import episimexceptions.*;\n");
 		chartSource.append("import episimfactories.*;\n");
 		chartSource.append("import java.awt.*;\n");
-		
+		chartSource.append("import sim.app.episim.util.EnhancedSteppable;\n");
 		chartSource.append("import sim.engine.Steppable;\n");
 		
 		chartSource.append("import sim.util.Bag;\n");
 		chartSource.append("import sim.field.continuous.*;\n");
+		for(Class<?> actClass: this.actChart.getRequiredClasses()){
+			chartSource.append("import " + actClass.getCanonicalName()+";\n");	
+		}
 		
 		chartSource.append("public class " +Names.convertVariableToClass(Names.cleanString(this.actChart.getTitle())+ this.actChart.getId())+" implements GeneratedChart{\n");
 	
@@ -80,7 +83,7 @@ public class ChartSourceBuilder {
 	}
 	
 	private void appendConstructor(){
-		chartSource.append("public " +Names.cleanString(this.actChart.getTitle())+ this.actChart.getId()+"(){\n");
+		chartSource.append("public " +Names.convertVariableToClass(Names.cleanString(this.actChart.getTitle())+ this.actChart.getId())+"(){\n");
 		
 		chartSource.append("  chart = ChartFactory.createXYLineChart(\""+actChart.getTitle()+"\",\""+actChart.getXLabel()+"\",\""+
 				actChart.getYLabel()+"\",dataset,"+"PlotOrientation.VERTICAL, "+actChart.isLegendVisible()+", true, false);\n");
@@ -105,6 +108,7 @@ public class ChartSourceBuilder {
 	private void appendChartSeriesInit(){
 		chartSource.append("  float[] newDash = null;\n");
 		chartSource.append("  XYItemRenderer renderer = null;\n");
+		int i = 0;
 		for(EpisimChartSeries actSeries: actChart.getEpisimChartSeries()){
 			
 			chartSource.append("  dataset.addSeries("+Names.cleanString(actSeries.getName())+actSeries.getId()+");\n");
@@ -117,10 +121,11 @@ public class ChartSourceBuilder {
 			}
 			chartSource.append("};\n");
 			chartSource.append("  renderer = (XYItemRenderer)(chartPanel.getChart().getXYPlot().getRenderer());\n");
-			chartSource.append("  renderer.setSeriesStroke("+actSeries.getId()+", new BasicStroke("+actSeries.getThickness()+"f, BasicStroke.CAP_ROUND, "+ 
+			chartSource.append("  renderer.setSeriesStroke("+i+", new BasicStroke("+actSeries.getThickness()+"f, BasicStroke.CAP_ROUND, "+ 
 		                                                "BasicStroke.JOIN_ROUND,0f,newDash,0f));\n");
-			chartSource.append("  renderer.setSeriesPaint("+actSeries.getId()+", new Color("+actSeries.getColor().getRed()+", "+
+			chartSource.append("  renderer.setSeriesPaint("+i+", new Color("+actSeries.getColor().getRed()+", "+
 					actSeries.getColor().getGreen()+", "+actSeries.getColor().getBlue()+"));\n");
+			i++;
 		}
 	}
 	
@@ -158,7 +163,7 @@ public class ChartSourceBuilder {
 	
 	private void appendStandardMethods(){
 		chartSource.append("public ChartPanel getChartPanel(){ return this.chartPanel;}\n");
-		chartSource.append("public Steppable getSteppable(){return null;}\n");
+		chartSource.append("public EnhancedSteppable getSteppable(){return null;}\n");
 		
 	}
 	

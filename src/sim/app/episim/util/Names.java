@@ -7,6 +7,7 @@ public abstract class Names {
 	public static final String MECHMODEL ="Biomechanical-Model";
 	public static final String EPISIMCHARTSETFILENAME ="EpisimChartSet.dat";
 	public static final String EPISIMCELLDIFFMODELVALUE ="celldiffmodel";
+	public static final String GENERATEDCHARTSPACKAGENAME = "generatedcharts";
 	
 	public static final String EPISIMCHARTSETFACTORYNAME ="EpisimChartSetFactory";
 	

@@ -7,8 +7,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
+
+import org.jfree.chart.ChartPanel;
 
 import sim.app.episim.ExceptionDisplayer;
 import episimexceptions.ModelCompatibilityException;
@@ -78,24 +81,9 @@ public class ECSFileReader extends URLClassLoader {
 		return null;
 	}
 	    
-	    private boolean implementsInterface(Class implementingClass, Class interfaceClass){
-	   	 Set<String> interfaceNameSet = new HashSet<String>();
-	   	 for(Class actClass: implementingClass.getInterfaces()) interfaceNameSet.add(actClass.getName());
-	   		
-	   	 
-	   	
-	   	 
-	   	 return interfaceNameSet.contains(interfaceClass.getSimpleName());
-	    }
-	    /*
-	    public <T extends Object> Class<T> getModelClass(Class<T> modelInterface){
-	   	if(modelInterface.isAssignableFrom(factory.getEpisimCellDiffModelClass())) return factory.getEpisimCellDiffModelClass();
-	   	else return null;
-	    }
-	    public Object getGlobalParametersObject(){
-	   	 return factory.getEpisimCellDiffModelGlobalParametersObject();
-	    }
-*/
+	public List<ChartPanel> getChartPanels(){
+		return this.factory.getChartPanels();
+	}
 	   
 	    
 	    

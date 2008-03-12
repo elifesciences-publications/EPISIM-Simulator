@@ -267,7 +267,7 @@ public class CompileWizard {
 		
 		//Preparing Compiler
 				compiler = ToolProvider.getSystemJavaCompiler();
-				fileManager = compiler.getStandardFileManager(null,	null, null);
+				fileManager = compiler.getStandardFileManager(null, null, null);
 				compilationUnits = fileManager.getJavaFileObjectsFromFiles(files);
 				options = Arrays.asList(new String[] { "-cp", binPath.getAbsolutePath() });
 

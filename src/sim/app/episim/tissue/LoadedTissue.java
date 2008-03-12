@@ -1,4 +1,4 @@
-package sim.app.episim;
+package sim.app.episim.tissue;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;

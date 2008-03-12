@@ -17,6 +17,7 @@ public interface EpisimChart extends Cloneable {
 	boolean isAntialiasingEnabled();
 	boolean isPDFPrintingEnabled();
 	int getPDFPrintingFrequency();
+	int getChartUpdatingFrequency();
 	List<EpisimChartSeries> getEpisimChartSeries();
 	EpisimChartSeries getEpisimChartSeries(long no);
 	File getPDFPrintingPath();
@@ -29,6 +30,7 @@ public interface EpisimChart extends Cloneable {
 	void setAntialiasingEnabled(boolean val);
 	void setPDFPrintingEnabled(boolean val);
 	void setPDFPrintingFrequency(int frequency);
+	void setChartUpdatingFrequency(int frequency);
 	void setBaselineExpression(String[] val);
 	void addEpisimChartSeries(EpisimChartSeries chartSeries);
 	void addRequiredClass(Class<?> requiredClass);

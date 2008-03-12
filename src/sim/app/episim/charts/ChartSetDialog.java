@@ -425,8 +425,8 @@ public class ChartSetDialog extends JDialog {
 							progressWindow.setVisible(true);
 							dialog.setVisible(false);
 							dialog.dispose();
-							ECSFileWriter fileWriter = new ECSFileWriter(episimChartSet.getPath());
-							fileWriter.createChartSetArchive(EpisimChartSetFactory.class, episimChartSet);
+							ChartController.getInstance().storeEpisimChartSet(episimChartSet);
+							
 							progressWindow.setVisible(false);
                   }
 				

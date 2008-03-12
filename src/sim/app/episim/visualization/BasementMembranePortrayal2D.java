@@ -1,6 +1,6 @@
 package sim.app.episim.visualization;
 
-import sim.app.episim.TissueBorder;
+import sim.app.episim.tissue.TissueBorder;
 import sim.portrayal.*;
 
 import java.awt.*;

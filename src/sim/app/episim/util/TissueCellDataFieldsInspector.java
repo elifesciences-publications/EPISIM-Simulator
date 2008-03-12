@@ -24,7 +24,7 @@ import javax.swing.event.ListSelectionListener;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.TissueType;
+import sim.app.episim.tissue.TissueType;
 
 
 public class TissueCellDataFieldsInspector {

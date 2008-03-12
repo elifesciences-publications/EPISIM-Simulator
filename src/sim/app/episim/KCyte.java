@@ -4,6 +4,7 @@ import sim.app.episim.charts.ChartController;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.tissue.TissueBorder;
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;

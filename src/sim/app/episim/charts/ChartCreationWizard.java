@@ -96,6 +96,7 @@ public class ChartCreationWizard extends JDialog {
    
  
    private Map<String, CellType> cellTypesMap;
+   private Map<Integer, Long> seriesIdMap;
    private JTextField chartTitleField;
    private JTextField chartXLabel;
    private JTextField chartYLabel;
@@ -103,8 +104,10 @@ public class ChartCreationWizard extends JDialog {
    private JCheckBox legendCheck;
    private JCheckBox pdfCheck;
    
-   private NumberTextField frequencyInSimulationSteps;
-   private JLabel frequencyLabel;
+   private NumberTextField pdfFrequencyInSimulationSteps;
+   private NumberTextField chartFrequencyInSimulationSteps;
+   private JLabel pdfFrequencyLabel;
+   private JLabel chartFrequencyLabel;
    
    private JPanel seriesPanel;
    private JPanel propertiesPanel;
@@ -117,6 +120,7 @@ public class ChartCreationWizard extends JDialog {
  
    private final int WIDTH = 1200;
    private final int HEIGHT = 600;
+   
    
    private String[] baselineExpression;
 
@@ -240,7 +244,8 @@ public class ChartCreationWizard extends JDialog {
    public int addSeries()
        {
    	 int i = dataset.getSeriesCount();
-   	 EpisimChartSeries episimChartSeries = new EpisimChartSeriesImpl((long)i);
+   	 EpisimChartSeries episimChartSeries = new EpisimChartSeriesImpl(System.currentTimeMillis());
+   	 
    	 episimChartSeries.setName(DEFAULTSERIENAME+ (i+1));
    	 XYSeries series = new XYSeries(DEFAULTSERIENAME+ (i+1), false );
    	 addRandomValues(series);
@@ -258,9 +263,18 @@ public class ChartCreationWizard extends JDialog {
        
        validate();
        this.episimChart.addEpisimChartSeries(episimChartSeries);
+       rebuildSeriesIdMap();
        return i;
    }
    
+   private void rebuildSeriesIdMap(){
+   	seriesIdMap = new HashMap<Integer, Long>();
+   	int i = 0;
+   	for(EpisimChartSeries actSeries :this.episimChart.getEpisimChartSeries()){
+   		seriesIdMap.put(i, actSeries.getId());
+   		i++;
+   	}
+   }
    
    private void addSeries(EpisimChartSeries chartSeries){
    	
@@ -299,10 +313,12 @@ public class ChartCreationWizard extends JDialog {
    /* Removes the series at the given index and returns it. */
    public XYSeries removeSeries(int index)
        {
-   	 this.episimChart.removeChartSeries(index);
+   	
+   	 this.episimChart.removeChartSeries(seriesIdMap.get(index));
        XYSeries series = dataset.getSeries(index);
                
        dataset.removeSeries(index);
+       rebuildSeriesIdMap();
        Iterator iter = attributesList.iterator();
        while(iter.hasNext())
            {
@@ -446,6 +462,7 @@ public class ChartCreationWizard extends JDialog {
 	
 	private void restoreChartValues(EpisimChart chart){
 		if(chart != null){
+			chart.getEpisimChartSeries().size();
 			this.episimChart = chart.clone();
 			
 			this.chartTitleField.setText(chart.getTitle());
@@ -468,9 +485,10 @@ public class ChartCreationWizard extends JDialog {
 			
 			
 			this.pdfCheck.setSelected(chart.isPDFPrintingEnabled());
-			if(chart.isPDFPrintingEnabled())frequencyInSimulationSteps.setEnabled(true);
+			if(chart.isPDFPrintingEnabled())pdfFrequencyInSimulationSteps.setEnabled(true);
 			
-			this.frequencyInSimulationSteps.setValue(chart.getPDFPrintingFrequency());
+			this.pdfFrequencyInSimulationSteps.setValue(chart.getPDFPrintingFrequency());
+			this.chartFrequencyInSimulationSteps.setValue(chart.getChartUpdatingFrequency());
 			
 			for(EpisimChartSeries chartSeries: chart.getEpisimChartSeries()) addSeries(chartSeries);
 			
@@ -706,7 +724,38 @@ public class ChartCreationWizard extends JDialog {
       });
       baselineField.setEditable(false);
       list.add(baselineButton, baselineField);
+      
+      chartFrequencyLabel = new JLabel("Chart Updating Frequency in Simulation Steps: ");
 		
+		chartFrequencyInSimulationSteps = new NumberTextField(100,false){
+			public double newValue(double newValue)
+	      {
+				 newValue = Math.round(newValue);;
+				episimChart.setChartUpdatingFrequency((int) newValue);
+	        return newValue;
+	      }
+		};
+		chartFrequencyInSimulationSteps.addKeyListener(new KeyAdapter() {
+
+			public void keyPressed(KeyEvent keyEvent) {
+
+				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
+					episimChart.setChartUpdatingFrequency((int)chartFrequencyInSimulationSteps.getValue());
+				}
+				else if(keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
+					chartFrequencyInSimulationSteps.setValue(chartFrequencyInSimulationSteps.getValue());
+			}
+		});
+		chartFrequencyInSimulationSteps.addFocusListener(new FocusAdapter() {
+
+			public void focusLost(FocusEvent e) {
+
+				episimChart.setChartUpdatingFrequency((int)chartFrequencyInSimulationSteps.getValue());
+			}
+		});
+		
+		
+		list.add(chartFrequencyLabel, chartFrequencyInSimulationSteps);
 		
 		
 		legendCheck = new JCheckBox();
@@ -754,8 +803,8 @@ public class ChartCreationWizard extends JDialog {
 		            if (fileName!=null)
 		            {
 		            	episimChart.setPDFPrintingPath(new File(fd.getFile()));
-		            	frequencyInSimulationSteps.setEnabled(true);
-		            	frequencyLabel.setEnabled(true);
+		            	pdfFrequencyInSimulationSteps.setEnabled(true);
+		            	pdfFrequencyLabel.setEnabled(true);
 		            	//  	Dimension dim = previewChartPanel.getPreferredSize();
 		            	//   printChartToPDF( previewChart, dim.width, dim.height, fd.getDirectory() + fileName );
 		            }
@@ -766,15 +815,15 @@ public class ChartCreationWizard extends JDialog {
 		           }
 					else{
 						episimChart.setPDFPrintingEnabled(false);
-						frequencyInSimulationSteps.setEnabled(false);
-						frequencyLabel.setEnabled(false);
+						pdfFrequencyInSimulationSteps.setEnabled(false);
+						pdfFrequencyLabel.setEnabled(false);
 					}
 				}
 			}
 		});
 		list.add(new JLabel("Save as PDF"), pdfCheck);
 		
-		frequencyInSimulationSteps = new NumberTextField(1,false){
+		pdfFrequencyInSimulationSteps = new NumberTextField(100,false){
 			public double newValue(double newValue)
 	      {
 				 newValue = Math.round(newValue);;
@@ -782,29 +831,31 @@ public class ChartCreationWizard extends JDialog {
 	        return newValue;
 	      }
 		};
-		frequencyInSimulationSteps.addKeyListener(new KeyAdapter() {
+		pdfFrequencyInSimulationSteps.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent keyEvent) {
 
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
-					episimChart.setPDFPrintingFrequency((int)frequencyInSimulationSteps.getValue());
+					episimChart.setPDFPrintingFrequency((int)pdfFrequencyInSimulationSteps.getValue());
 				}
 				else if(keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
-					frequencyInSimulationSteps.setValue(frequencyInSimulationSteps.getValue());
+					pdfFrequencyInSimulationSteps.setValue(pdfFrequencyInSimulationSteps.getValue());
 			}
 		});
-		frequencyInSimulationSteps.addFocusListener(new FocusAdapter() {
+		pdfFrequencyInSimulationSteps.addFocusListener(new FocusAdapter() {
 
 			public void focusLost(FocusEvent e) {
 
-				episimChart.setPDFPrintingFrequency((int)frequencyInSimulationSteps.getValue());
+				episimChart.setPDFPrintingFrequency((int)pdfFrequencyInSimulationSteps.getValue());
 			}
 		});
-		frequencyInSimulationSteps.setEnabled(false);
-		frequencyLabel = new JLabel("Frequency in Simulation Steps: ");
-		frequencyLabel.setEnabled(false);
+		pdfFrequencyInSimulationSteps.setEnabled(false);
+		pdfFrequencyLabel = new JLabel("PDF Printing Frequency in Simulation Steps: ");
+		pdfFrequencyLabel.setEnabled(false);
 		
-		list.add(frequencyLabel, frequencyInSimulationSteps);
+		
+		
+		list.add(pdfFrequencyLabel, pdfFrequencyInSimulationSteps);
 		
 		optionsPanel.add(list, BorderLayout.CENTER);
 		
@@ -948,7 +999,7 @@ public class ChartCreationWizard extends JDialog {
                getSeries().setKey(name);
                int index = seriesCombo.getSelectedIndex();
               if(index > -1){
-               episimChart.getEpisimChartSeries(index).setName(name);
+               episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setName(name);
                comboModel.removeElementAt(index);
                comboModel.insertElementAt(name, index);
                seriesCombo.setSelectedIndex(index);
@@ -976,7 +1027,7 @@ public class ChartCreationWizard extends JDialog {
            ChartSeriesAttributes.this.strokeColor = c;
            int index = seriesCombo.getSelectedIndex();
            if(index > -1){
-           episimChart.getEpisimChartSeries(index).setColor(c);
+           episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setColor(c);
            }
            rebuildGraphicsDefinitions();
            return c;
@@ -993,7 +1044,7 @@ public class ChartCreationWizard extends JDialog {
                    newValue = currentValue;
                thickness = (float)newValue;
                int index = seriesCombo.getSelectedIndex();
-               if(index >= 0)episimChart.getEpisimChartSeries(index).setThickness(thickness);
+               if(index >= 0)episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setThickness(thickness);
                rebuildGraphicsDefinitions();
                return newValue;
             }
@@ -1010,7 +1061,7 @@ public class ChartCreationWizard extends JDialog {
            {
                dash = dashes[dashCombo.getSelectedIndex()];
                int index = seriesCombo.getSelectedIndex();
-               if(index >= 0) episimChart.getEpisimChartSeries(index).setDash(dash);
+               if(index >= 0) episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setDash(dash);
                rebuildGraphicsDefinitions();
            }
            });
@@ -1024,7 +1075,7 @@ public class ChartCreationWizard extends JDialog {
                stretch = (float)newValue;
                int index = seriesCombo.getSelectedIndex();
                if(index > -1){
-               	episimChart.getEpisimChartSeries(index).setStretch(stretch);
+               	episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setStretch(stretch);
                }
                rebuildGraphicsDefinitions();
                return newValue;
@@ -1060,7 +1111,7 @@ public class ChartCreationWizard extends JDialog {
 	         	formulaButton.setText("Edit Expression");
 	         	formulaField.setText(expression[0]);
 	         	int index = seriesCombo.getSelectedIndex();
-               episimChart.getEpisimChartSeries(index).setExpression(expression);
+               episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setExpression(expression);
 	         }
 	         
          }

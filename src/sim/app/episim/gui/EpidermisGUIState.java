@@ -4,12 +4,15 @@ import sim.engine.*;
 import sim.app.episim.Epidermis;
 import sim.app.episim.KCyte;
 import sim.app.episim.KCyteInspector;
-import sim.app.episim.TissueBorder;
+import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.charts.ChartController;
+import sim.app.episim.charts.ChartSetChangeListener;
 import sim.app.episim.charts.DefaultCharts;
 import sim.app.episim.devBasalLayer.BasementMembranePortrayal2DDev;
 import sim.app.episim.devBasalLayer.EpidermisDev;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.KeratinocytePortrayal2D;
@@ -24,6 +27,7 @@ import javax.swing.*;
 
 import java.awt.*;
 
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,6 +40,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 
 import javax.swing.JFrame;
@@ -47,7 +52,7 @@ import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 
-public class EpidermisGUIState extends GUIState{
+public class EpidermisGUIState extends GUIState implements ChartSetChangeListener{
 
 	public EpiDisplay2D display;
 
@@ -77,6 +82,8 @@ public class EpidermisGUIState extends GUIState{
 	
 	private static final int DISPLAYBORDER = 40;
 	
+	private final double MAXHEIGHTFACTOR = 1;
+	
 	private boolean workaroundPauseWasPressed = false;
 	
 	/*
@@ -93,7 +100,7 @@ public class EpidermisGUIState extends GUIState{
 	
 	private boolean activateDrawing = false;
 	
-	
+	private ArrayList<SimulationStateChangeListener> simulationStateListeners;
 	
 	
 	
@@ -111,6 +118,8 @@ public class EpidermisGUIState extends GUIState{
 	public EpidermisGUIState(SimState state, JFrame mainFrame, boolean reloadSnapshot) {
 		
 		super(state);
+		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();
+		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainFrame = mainFrame;
 		this.setConsole(new EpiConsole(this, reloadSnapshot));
 		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), DISPLAYBORDER);
@@ -302,13 +311,13 @@ public class EpidermisGUIState extends GUIState{
 					redrawDisplay();
 				}
 				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-				if(console.getPlayState()==Console.PS_PAUSED
+				if(display.isPortrayalVisible(RULERNAME)&& console.getPlayState()==Console.PS_PAUSED
 						||console.getPlayState()==Console.PS_STOPPED) redrawDisplay();	
 				
 			}
 			public void mouseMoved(MouseEvent e){
 				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-				if(console.getPlayState()==Console.PS_PAUSED
+				if(display.isPortrayalVisible(RULERNAME)&&console.getPlayState()==Console.PS_PAUSED
 						||console.getPlayState()==Console.PS_STOPPED) redrawDisplay();			
 			}
 		});
@@ -339,35 +348,8 @@ public class EpidermisGUIState extends GUIState{
 		
 		desktop.add(displayFrame);
 
-		// --------------------------------------------------------------------------
-		// Internal Frames for the different available charts
-		// --------------------------------------------------------------------------
 		
-		// Chart Kinetics
 		
-		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getKineticsChart(), "Kinetics Statistics"));
-
-		// Num Cells Chart
-		
-		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getNumCellsChart(), "Cell Type Statistics"));
-
-		// Epidermis Barrier Dist chart
-		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getBarrierChart(), "Barrier Statistics"));
-
-		// Apoptosis Chart
-		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getApoptosisChart(), "Apoptosis Statistics"));
-
-		// Particel Celltype chart
-		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getParticleCellTypeChart(), "Particles per Cell Type"));
-
-		// Particel Dist chart
-		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getParticleDistribution(), "Particles per Depth"));
-
-		// age dist chart
-		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getAgeDistribution(), "Age Statistics"));
-		
-		//performance chart
-		desktop.add(getChartInternalFrame(DefaultCharts.getInstance().getPerformanceChart(), "Performance"));
 		
 		desktop.putClientProperty("JDesktopPane.dragMode", "outline");
 		
@@ -452,9 +434,7 @@ public class EpidermisGUIState extends GUIState{
 		
 	}
 
-	private JInternalFrame getChartInternalFrame(JFreeChart chart, String title) {
-
-		ChartPanel chartPanel = new ChartPanel(chart);
+	private JInternalFrame getChartInternalFrame(ChartPanel chartPanel, String title) {
 
 		JInternalFrame chartFrame = new JInternalFrame(title, true, false, true, true);
 		chartFrame.setResizable(true);
@@ -467,11 +447,6 @@ public class EpidermisGUIState extends GUIState{
 		chartFrame.setFrameIcon(null);
 		chartFrame.setVisible(true);
 		
-		
-		
-		
-		
-
 		return chartFrame;
 	}
 
@@ -502,7 +477,9 @@ public class EpidermisGUIState extends GUIState{
 			xDeltaChart= ((int) screenDim.getWidth() - xDeltaSim) / INTERNALFRAMECOLS;
 		int yDeltaChart = 0; 
 		if(framesPerCol > 0 && ((int) screenDim.getHeight() - RANDUNTEN)>0) yDeltaChart =((int) screenDim.getHeight() - RANDUNTEN) / framesPerCol;
-
+		
+		if(yDeltaChart > MAXHEIGHTFACTOR * xDeltaChart) yDeltaChart = (int)(MAXHEIGHTFACTOR * xDeltaChart);
+		
 		Component actComp;
 		int xCompCount = 0;
 		int yCompCount = 0;
@@ -535,6 +512,21 @@ public class EpidermisGUIState extends GUIState{
 
 		}
 
+	}
+	
+	public void removeAllChartInternalFrames(){
+		 removeAllChartInternalFrames(desktop);
+	}
+	
+	private void removeAllChartInternalFrames(JComponent comp){
+		for(Component actComp : comp.getComponents()){
+		
+			if(actComp != null && actComp instanceof JInternalFrame){
+				if(((JInternalFrame) actComp).getName().equals(CHARTFRAME)) comp.remove(actComp);
+			}
+		}
+		comp.validate();
+		comp.repaint();
 	}
 
 	private void maximizeWorkaround(JInternalFrame frame){
@@ -595,6 +587,26 @@ public class EpidermisGUIState extends GUIState{
 	public EpiDisplay2D getDisplay() {
 	   
    	return display;
+   }
+	
+	public void simulationWasStarted(){
+		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStarted();
+	}
+	
+	public void simulationWasStopped(){
+		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStopped();
+	}
+	
+	public void addSimulationStateChangeListener(SimulationStateChangeListener listener){
+		this.simulationStateListeners.add(listener);
+	}
+
+	public void chartSetHasChanged() {
+		removeAllChartInternalFrames(desktop);
+		for(ChartPanel actPanel : ChartController.getInstance().getChartPanelsofActLoadedChartSet()){
+			desktop.add(getChartInternalFrame(actPanel, actPanel.getChart().getTitle().getText()));
+		}
+	   arrangeElements(desktop);
    }
 	
 

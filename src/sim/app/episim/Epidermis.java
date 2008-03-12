@@ -12,6 +12,9 @@ import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueType;
+import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -63,8 +66,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	public boolean alreadyfollow = false;
 	
 	
-	//get charts from Chart-Factory
-	private  DefaultCharts epiSimCharts = DefaultCharts.getInstance();
+	
 
 	private boolean reloadedSnapshot = false;
 
@@ -275,7 +277,9 @@ public class Epidermis extends TissueType implements SnapshotListener
 			gStatistics_Barrier_IntCalcium = 0;
 			gStatistics_Barrier_Lamella = 0;
 			gStatistics_Barrier_Lipids = 0;
-
+			
+			ChartController.getInstance().clearAllSeries();
+/*
 			epiSimCharts.getXYSeries("ChartSeries_Kinetics_MeanCycleTime").clear(); // remove
 																											// previous
 																											// (X,Y)
@@ -328,7 +332,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_EarlySpi").clear();
 			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_LateSpi").clear();
 			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Granu").clear();
-			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear();
+			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear();*/
 		}
 		else{
 
@@ -566,34 +570,10 @@ public class Epidermis extends TissueType implements SnapshotListener
      // CHART Updating Performance Chart
      //////////////////////////////////////
         
-     Steppable chartUpdaterPerformance = new Steppable()
-    {
-        private long previousTime = 0;
-        private long previousSteps = 0;
-   	  
-   	  public void step(SimState state)
-         {   
-         	
-   		   if(state.schedule.getSteps() > 400){
-   		   	long actTime = System.currentTimeMillis()/1000;
-         	long actSteps = state.schedule.getSteps();
-   		   long deltaTime = actTime - previousTime;
-   		   long deltaSteps = actSteps - previousSteps;
-   		   
-   		   previousTime = actTime;
-   		   previousSteps = actSteps;
-   		   if(deltaTime > 0){
-   		   double stepsPerTime = deltaSteps/deltaTime;
-         	epiSimCharts.getXYSeries("Steps_Time").add(state.schedule.getSteps(), stepsPerTime);
-   		   epiSimCharts.getXYSeries("Num_Cells_Steps").add(state.schedule.getSteps(), actualKCytes);
-   		   }
-   		   }	
-   		   
-             
-         }
-     };
+    
+     
      // Schedule the agent to update the chart
-     schedule.scheduleRepeating(chartUpdaterPerformance, 100);
+  //   schedule.scheduleRepeating(chartUpdaterPerformance, 100);
 /*
      
      //////////////////////////////////////        
@@ -1029,7 +1009,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	
 	public void setDevelopGranulosum(boolean developGranulosum) { this.developGranulosum = developGranulosum; }
 	
-	public void setEpiSimCharts(DefaultCharts epiSimCharts) {	this.epiSimCharts = epiSimCharts; }
+	
 	
 	public void setGCorneumY(int corneumY) { gCorneumY = corneumY; }
 	public void setGraphicsDirectory(String graphicsDirectory) { this.graphicsDirectory = graphicsDirectory; }

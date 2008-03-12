@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sim.app.episim.CellType;
-import sim.app.episim.TissueType;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.tissue.TissueType;
 
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimChart;

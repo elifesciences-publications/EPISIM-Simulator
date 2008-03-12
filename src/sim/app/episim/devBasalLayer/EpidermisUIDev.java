@@ -3,10 +3,10 @@ package sim.app.episim.devBasalLayer;
 
 import sim.engine.*;
 import sim.app.episim.Epidermis;
-import sim.app.episim.TissueBorder;
 
 import sim.app.episim.gui.EpiDisplay2D;
 import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;

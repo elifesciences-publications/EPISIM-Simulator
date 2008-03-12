@@ -1,9 +1,10 @@
-package sim.app.episim;
+package sim.app.episim.tissue;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import sim.app.episim.CellType;
 import sim.engine.Schedule;
 import sim.engine.SimStateHack;
 

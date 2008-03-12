@@ -32,8 +32,9 @@ import episimexceptions.ModelCompatibilityException;
 import sim.app.episim.CompileWizard;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.TissueBorder;
+import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.charts.ChartController;
+import sim.app.episim.charts.ChartPanelAndSteppableServer;
 import sim.app.episim.charts.DefaultCharts;
 
 import sim.app.episim.model.BioChemicalModelController;
@@ -42,6 +43,7 @@ import sim.app.episim.snapshot.SnapshotLoader;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.Console;
 import sim.display.ConsoleHack;
@@ -50,7 +52,7 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public class EpidermisSimulator extends JFrame{
+public class EpidermisSimulator extends JFrame implements SimulationStateChangeListener{
 	
 	private ExtendedFileChooser jarFileChoose;
 	private ExtendedFileChooser tssFileChoose;
@@ -78,7 +80,7 @@ public class EpidermisSimulator extends JFrame{
 	private JMenuItem menuItemAboutMason;
 	
 	
-	public EpidermisSimulator(){
+	public EpidermisSimulator() {
 		ExceptionDisplayer.getInstance().registerParentComp(this);
 		try{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -230,6 +232,7 @@ public class EpidermisSimulator extends JFrame{
 				menuItemCloseChartSet.setEnabled(false);
 				menuItemEditChartSet.setEnabled(false);
 				ChartController.getInstance().closeActLoadedChartSet();
+				epiUI.removeAllChartInternalFrames();
 			}
 			
 		});
@@ -335,6 +338,7 @@ public class EpidermisSimulator extends JFrame{
 				DefaultCharts.rebuildCharts();
 				cleanUpContentPane();
 				epiUI = new EpidermisGUIState(this);
+				epiUI.addSimulationStateChangeListener(this);
 				this.validate();
 				this.repaint();
 				modelOpened = true;
@@ -391,7 +395,9 @@ public class EpidermisSimulator extends JFrame{
 			}
 			List<Double2D> woundRegionCoordinates = snapshotLoader.getWoundRegionCoordinates();		
 			Epidermis epidermis = snapshotLoader.getEpidermis();
-			DefaultCharts.setInstance(snapshotLoader.getCharts());
+			
+			//TODO: implement Reload Charts from Snapshot
+			//DefaultCharts.setInstance(snapshotLoader.getCharts());
 			java.awt.geom.Rectangle2D.Double[] deltaInfo = snapshotLoader.getDeltaInfo();
 					if(SnapshotWriter.getInstance().getSnapshotPath() == null){
 						JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info",
@@ -410,6 +416,7 @@ public class EpidermisSimulator extends JFrame{
 						cleanUpContentPane();
 						epidermis.setModelController(ModelController.getInstance());
 						epiUI = new EpidermisGUIState(epidermis, this, true);
+						epiUI.addSimulationStateChangeListener(this);
 						epiUI.setReloadedSnapshot(true);
 						if(epiUI.getWoundPortrayalDraw() !=null){
 							
@@ -452,15 +459,25 @@ public class EpidermisSimulator extends JFrame{
 		menuItemClose.setEnabled(false);
 		menuItemBuild.setEnabled(true);
 		chartMenu.setEnabled(false);
+		ChartController.getInstance().modelWasClosed();
 		this.menuItemEditChartSet.setEnabled(false);
 		this.menuItemLoadChartSet.setEnabled(true);
 		this.menuItemCloseChartSet.setEnabled(false);
 		this.menuItemNewChartSet.setEnabled(true);
-		ChartController.getInstance().closeActLoadedChartSet();
+		
 		SnapshotWriter.getInstance().clearListeners();
 		SnapshotWriter.getInstance().resetCounter();
 		 this.setTitle("Epidermis Simulator");
 		  SnapshotWriter.getInstance().setSnapshotPath(null);
+	}
+	
+	public void simulationWasStarted(){
+		
+		this.chartMenu.setEnabled(false);
+	}
+	
+	public void simulationWasStopped(){
+		this.chartMenu.setEnabled(true);
 	}
 	
 	private void cleanUpContentPane(){

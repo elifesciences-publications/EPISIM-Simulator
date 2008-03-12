@@ -61,10 +61,11 @@ public class FactorySourceBuilder {
 		this.factorySource.append("import sim.util.Bag;\n");
 		this.factorySource.append("import sim.field.continuous.*;\n");
 		this.factorySource.append("import sim.engine.Steppable;\n");
-		this.factorySource.append("import generatedcharts.*;\n");
+		this.factorySource.append("import "+Names.GENERATEDCHARTSPACKAGENAME+".*;\n");
 		this.factorySource.append("import org.jfree.chart.ChartPanel;\n");
 		this.factorySource.append("import sim.util.Bag;\n");
 		this.factorySource.append("import sim.field.continuous.*;\n");
+		this.factorySource.append("import sim.app.episim.util.EnhancedSteppable;\n");
 		this.factorySource.append("public class "+ Names.EPISIMCHARTSETFACTORYNAME+" extends AbstractChartSetFactory{\n");
 	}
 	
@@ -78,7 +79,7 @@ public class FactorySourceBuilder {
 			this.factorySource.append("  private "+ Names.convertVariableToClass(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
 					" " + Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId())+";\n");
 		}
-		this.factorySource.append("  private List<GeneratedCharts> allChartsOfTheSet;\n");
+		this.factorySource.append("  private List<GeneratedChart> allChartsOfTheSet;\n");
 		this.factorySource.append("  private Continuous2D cellContinuous;\n");
 		this.factorySource.append("  private Bag allCells;\n");
 		
@@ -97,7 +98,7 @@ public class FactorySourceBuilder {
 	
 	private void appendRegisterMethod(){
 		this.factorySource.append("public void registerNecessaryObjects(Object[] objects) throws MissingObjectsException{\n");
-		this.factorySource.append("  if(objects == null) throw new IllegalArgumentsException(\"Objects-Array with Objects to be regisered for charting must not be null\");\n");
+		this.factorySource.append("  if(objects == null) throw new IllegalArgumentException(\"Objects-Array with Objects to be regisered for charting must not be null\");\n");
 		this.factorySource.append("  for(Object actObject: objects){\n");
 		this.factorySource.append("    if(actObject instanceof Continuous2D) this.cellContinuous = (Continuous2D) actObject;\n");
 		this.factorySource.append("    else if(actObject instanceof Bag) this.allCells = (Bag) actObject;\n");
@@ -139,8 +140,8 @@ public class FactorySourceBuilder {
 	}
 	
 	private void appendGetSteppablesOfChartsMethod(){
-		this.factorySource.append("public abstract List<Steppable> getSteppablesOfCharts(){\n");
-		this.factorySource.append("  List<Steppable> chartSteppables = new ArrayList<Steppable>();\n");
+		this.factorySource.append("public List<EnhancedSteppable> getSteppablesOfCharts(){\n");
+		this.factorySource.append("  List<EnhancedSteppable> chartSteppables = new ArrayList<EnhancedSteppable>();\n");
 		this.factorySource.append("  for(GeneratedChart actChart : allChartsOfTheSet){\n");
 		this.factorySource.append("    chartSteppables.add(actChart.getSteppable());\n");
 		this.factorySource.append("  }\n");

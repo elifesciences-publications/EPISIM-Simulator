@@ -6,9 +6,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+
+import org.jfree.chart.ChartPanel;
 
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimChart;
@@ -16,11 +19,12 @@ import episiminterfaces.EpisimChartSet;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.TissueType;
 
 import sim.app.episim.charts.io.ECSFileReader;
+import sim.app.episim.charts.io.ECSFileWriter;
 import sim.app.episim.charts.parser.*;
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 public class ChartController {
 	
@@ -90,23 +94,28 @@ public class ChartController {
 	
 	public boolean loadChartSet(Frame parent){
 		ecsChooser.setDialogTitle("Load Episim-Chartset");
-		if(ecsChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION){ 
+		if(ecsChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION){
 			try{
-				ECSFileReader ecsReader = new ECSFileReader(ecsChooser.getSelectedFile().toURI().toURL());
-				this.actLoadedChartSet = ecsReader.getEpisimChartSet();
-				CompatibilityChecker checker = new CompatibilityChecker();
-				checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
-				return true;
+				return loadEpisimChartSet(ecsChooser.getSelectedFile().toURI().toURL(), parent);	
 			}
 			catch (MalformedURLException e){
 				ExceptionDisplayer.getInstance().displayException(e);
 			}
-			catch (ModelCompatibilityException e){
-				JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
-				ExceptionDisplayer.getInstance().displayException(e);
-			}
 		}
 		return false;
+	}
+	
+	public void registerChartSetChangeListener(ChartSetChangeListener changeListener){
+		ChartPanelAndSteppableServer.getInstance().registerChartSetChangeListener(changeListener);
+		closeActLoadedChartSet();
+	}
+	
+	public  List<ChartPanel> getChartPanelsofActLoadedChartSet(){
+		return ChartPanelAndSteppableServer.getInstance().getChartPanels();
+	}
+	
+	public void modelWasClosed(){
+		ChartPanelAndSteppableServer.getInstance().removeAllListeners();
 	}
 	
 	public void showEditChartSetDialog(Frame parent){
@@ -115,8 +124,41 @@ public class ChartController {
 		if(this.chartMonitoredTissue != null){ 
 			
 			EpisimChartSet updatedChartSet =dialog.showChartSet(actLoadedChartSet);
-			if(updatedChartSet != null) this.actLoadedChartSet = updatedChartSet;
+			if(updatedChartSet != null){ 
+				this.actLoadedChartSet = updatedChartSet;
+				try{
+			      loadEpisimChartSet(actLoadedChartSet.getPath().toURI().toURL());
+		      }
+		      catch (MalformedURLException e){
+			      ExceptionDisplayer.getInstance().displayException(e);
+		      }
+			}
 		}
+	}
+	
+	protected void storeEpisimChartSet(EpisimChartSet chartSet){
+		ECSFileWriter fileWriter = new ECSFileWriter(chartSet.getPath());
+		fileWriter.createChartSetArchive(chartSet);
+	}
+	
+	private boolean loadEpisimChartSet(URL url){
+		return loadEpisimChartSet(url, null);
+	}
+	
+	private boolean loadEpisimChartSet(URL url, Frame parent){
+		try{
+			ECSFileReader ecsReader = new ECSFileReader(url);
+			this.actLoadedChartSet = ecsReader.getEpisimChartSet();
+			ChartPanelAndSteppableServer.getInstance().registerChartPanels(ecsReader.getChartPanels());
+			CompatibilityChecker checker = new CompatibilityChecker();
+			checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
+			return true;
+		}
+		catch (ModelCompatibilityException e){
+			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+		return false;
 	}
 	
 	public boolean showNewChartSetDialog(Frame parent){
@@ -124,18 +166,13 @@ public class ChartController {
 		
 		if(this.chartMonitoredTissue != null){ 
 			
-			
-					
 			EpisimChartSet updatedChartSet =dialog.showNewChartSet();
 			if(updatedChartSet != null){ 
 				
 				this.actLoadedChartSet = updatedChartSet;
 				return true;
 			}
-			
-				
-				
-			
+					
 		}
 		return false;
 	}
@@ -157,5 +194,9 @@ public class ChartController {
 	   }
 		return result;
 	}
-
+	
+	public void clearAllSeries(){
+		DefaultCharts.getInstance().clearSeries();
+		//TODO: Implement clearAllSeries method
+	}
 }

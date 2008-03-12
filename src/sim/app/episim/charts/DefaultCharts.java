@@ -2,6 +2,7 @@ package sim.app.episim.charts;
 //Charts
 import java.awt.Color;
 import java.awt.GradientPaint;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,6 +41,9 @@ import org.jfree.chart.*;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.util.EnhancedSteppable;
+import sim.engine.SimState;
+import sim.engine.Steppable;
 
 public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	
@@ -49,10 +53,14 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	private HashMap<String, DefaultCategoryDataset> categoryDatasets = new HashMap<String, DefaultCategoryDataset>();
 	private HashMap<String, JFreeChart> charts = new HashMap<String, JFreeChart>();
 	
+	private List<EnhancedSteppable> defaultSteppables;
+	
 	
 	private static  DefaultCharts instance;
 	
 	private DefaultCharts() {
+		defaultSteppables = new ArrayList<EnhancedSteppable>();
+		addDefaultSteppables();
 	SnapshotWriter.getInstance().addSnapshotListener(this);
 		XYLineAndShapeRenderer lineShapeRenderer;
 		JFreeChart chart;
@@ -542,7 +550,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
    	return categoryDatasets.get(name);
    }
 	
-	public static synchronized DefaultCharts getInstance(){
+	protected static synchronized DefaultCharts getInstance(){
 		if(instance == null) instance = new DefaultCharts();
 		
 		return instance;
@@ -569,7 +577,43 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		return list;
 	}
 	
-	public static void setInstance(DefaultCharts charts){
+	protected static void setInstance(DefaultCharts charts){
 		instance = charts;
 	}
+	
+	private void addDefaultSteppables(){
+		this.defaultSteppables.add(new EnhancedSteppable()
+	    {
+	        private long previousTime = 0;
+	        private long previousSteps = 0;
+	   	  
+	   	  public void step(SimState state)
+	         {   
+	         	
+	   		   if(state.schedule.getSteps() > 400){
+	   		   	long actTime = System.currentTimeMillis()/1000;
+	         	long actSteps = state.schedule.getSteps();
+	   		   long deltaTime = actTime - previousTime;
+	   		   long deltaSteps = actSteps - previousSteps;
+	   		   
+	   		   previousTime = actTime;
+	   		   previousSteps = actSteps;
+	   		   if(deltaTime > 0){
+	   		   double stepsPerTime = deltaSteps/deltaTime;
+	         	getXYSeries("Steps_Time").add(state.schedule.getSteps(), stepsPerTime);
+	   		   //getXYSeries("Num_Cells_Steps").add(state.schedule.getSteps(), actualKCytes);
+	   		   }
+	   		   }	
+	   		   
+	             
+	         }
+
+			public double getInterval() {
+
+	         // TODO Auto-generated method stub
+	         return 0;
+         }
+	     });
+	}
+	
 }

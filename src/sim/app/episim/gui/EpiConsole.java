@@ -43,6 +43,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import sim.app.episim.charts.ChartController;
 import sim.app.episim.charts.DefaultCharts;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
@@ -425,14 +426,22 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	
    public synchronized void pressPlay(){
 	if(!reloadedSnapshot){
-		DefaultCharts.getInstance().clearSeries();
+		ChartController.getInstance().clearAllSeries();
 	
    	
 	((EpidermisGUIState)this.simulation).clearWoundPortrayalDraw();
+	
 	}
-   	
+	((EpidermisGUIState)this.simulation).simulationWasStarted();
    	super.pressPlay(reloadedSnapshot);
    }
+   public synchronized void pressStop(){
+   
+   	((EpidermisGUIState)this.simulation).simulationWasStopped();
+   	
+      	
+      	super.pressStop();
+      }
    
    private void addSnapshotButton(){
    	if(getContentPane().getLayout() instanceof BorderLayout){

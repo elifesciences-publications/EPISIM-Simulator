@@ -21,7 +21,7 @@ import episiminterfaces.EpisimChartSet;
 
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.charts.EpisimChartSetFactory;
+import sim.app.episim.charts.build.ChartCompiler;
 import sim.app.episim.charts.build.ChartSourceBuilder;
 import sim.app.episim.charts.build.FactorySourceBuilder;
 import sim.app.episim.util.Names;
@@ -30,15 +30,14 @@ import sim.app.episim.util.Names;
 public class ECSFileWriter {
 	
 	private File path;
-	private ChartSourceBuilder chartSourceBuilder;
-	private FactorySourceBuilder factorySourceBuilder;
+	
 	public ECSFileWriter(File path){
 		this.path = path;
-		this.chartSourceBuilder = new ChartSourceBuilder();
-		this.factorySourceBuilder = new FactorySourceBuilder();
+		
+		
 	}
 	
-	public void createChartSetArchive(Class<EpisimChartSetFactory> chartSetFactoryClass, EpisimChartSet chartSet) {
+	public void createChartSetArchive(EpisimChartSet chartSet) {
 				
 				JarOutputStream jarOut=null;
 				Manifest manifest;
@@ -46,11 +45,7 @@ public class ECSFileWriter {
 								
 					try {
 					
-							ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-							
-							ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
-							
-							objOut.writeObject(chartSet);
+						
 							
 							
 							// Adding MANIFEST:MF
@@ -59,7 +54,7 @@ public class ECSFileWriter {
 
 							sBuffer.append("Manifest-Version: 1.0\n");
 							sBuffer.append("Created-By: 1.1 (Episim - Uni Heidelberg)\n");
-							sBuffer.append("Factory-Class: "+ chartSetFactoryClass.getCanonicalName() +"\n");
+							sBuffer.append("Factory-Class: "+ Names.EPISIMCHARTSETFACTORYNAME +"\n");
 							
 							
 		
@@ -70,79 +65,50 @@ public class ECSFileWriter {
 							jarOut = new JarOutputStream(new FileOutputStream(path), manifest);
 							jarOut.setLevel(1);
 							
+							ChartCompiler chartCompiler = new ChartCompiler();
+							chartCompiler.compileEpisimChartSet(chartSet);
 							
 							
-							for(EpisimChart actChart: chartSet.getEpisimCharts()){
-								jarOut.putNextEntry(new JarEntry(Names.cleanString(actChart.getTitle())+actChart.getId()+".java"));
-								jarOut.write(chartSourceBuilder.buildEpisimChartSource(actChart).getBytes("UTF-8"));
-								jarOut.flush();
-							}
-							
-							
-							jarOut.putNextEntry(new JarEntry(Names.cleanString(Names.EPISIMCHARTSETFACTORYNAME)+".java"));
-							jarOut.write(factorySourceBuilder.buildEpisimFactorySource(chartSet).getBytes("UTF-8"));
-							jarOut.flush();
-							
-							
-							
-							
-							jarOut.putNextEntry(new JarEntry(Names.EPISIMCHARTSETFILENAME));
-							jarOut.write(byteOut.toByteArray());
-							jarOut.flush();
-							
-							
-							
-							jarOut.putNextEntry(new JarEntry(chartSetFactoryClass.getCanonicalName().replace(".", "/") +".class"));
-							
-							InputStream factoryClassStream =chartSetFactoryClass.getResourceAsStream(chartSetFactoryClass.getSimpleName()+".class");
-							
-							byte[] bytes = new byte[1024];
-							int available;
-							while ((available = factoryClassStream.read(bytes)) > 0) {
-								jarOut.write(bytes, 0, available);
-							}
-							
-							jarOut.flush();
-							
-							
-							
-							jarOut.putNextEntry(new JarEntry(chartSetFactoryClass.getSuperclass().getCanonicalName().replace(".", "/") +".class"));
-							InputStream superClassStream =chartSetFactoryClass.getSuperclass().getResourceAsStream(chartSetFactoryClass.getSuperclass().getSimpleName()+".class");
-							bytes = new byte[1024];
-							while ((available = superClassStream.read(bytes)) > 0) {
-								jarOut.write(bytes, 0, available);
-							}
-							jarOut.flush();
-					/*		
-							
-							for (File f : fileList) {
-
-								if (f.isDirectory())
-									continue;
-								String name = f.getAbsolutePath();
-								//name =name.replace(modelFolderFinal.getAbsolutePath() + System.getProperty("file.separator"), "");
-								
-								if (name.endsWith(".class")) {
-
-									jarOut.putNextEntry(new JarEntry(name));
-								} else
-									continue;
-
-								FileInputStream fileInput = new FileInputStream(f);
-
-							   bytes = new byte[1024];
-								 
-								while ((available = fileInput.read(bytes)) > 0) {
+							FileInputStream fileIn;
+							for(File actChartFile: chartCompiler.getChartFiles()){
+								jarOut.putNextEntry(new JarEntry(Names.GENERATEDCHARTSPACKAGENAME+ "/"+actChartFile.getName()));
+								fileIn = new FileInputStream(actChartFile);
+								byte[] bytes = new byte[1024];
+								int available = 0;
+								while ((available = fileIn.read(bytes)) > 0) {
 									jarOut.write(bytes, 0, available);
 								}
 								jarOut.flush();
-								fileInput.close();
-
-							}*/
-							//jarOut.flush();
+								fileIn.close();
+							}							
+						
+							
+							jarOut.putNextEntry(new JarEntry(chartCompiler.getFactoryFile().getName()));
+							fileIn = new FileInputStream(chartCompiler.getFactoryFile());
+							byte[] bytes = new byte[1024];
+							int available = 0;
+							while ((available = fileIn.read(bytes)) > 0) {
+								jarOut.write(bytes, 0, available);
+							}
+							fileIn.close();
+							jarOut.flush();	
+							
+							
+							
+							ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+							ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
+							objOut.writeObject(chartSet);
+							objOut.flush();
+							objOut.close();
+							byteOut.close();
+							jarOut.putNextEntry(new JarEntry(Names.EPISIMCHARTSETFILENAME));
+							jarOut.write(byteOut.toByteArray());
+							jarOut.flush();
+		
 							jarOut.finish();
 							jarOut.close();
 							
+							chartCompiler.deleteTempData();
 							
 						} catch (Exception e) {
 							ExceptionDisplayer.getInstance()

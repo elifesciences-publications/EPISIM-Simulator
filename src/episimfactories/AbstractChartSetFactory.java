@@ -17,6 +17,7 @@ import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSet;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectStreamFactory;
 import sim.engine.Steppable;
@@ -60,7 +61,7 @@ public abstract class AbstractChartSetFactory {
 		return Names.EPISIMCHARTSETFILENAME;
 	}
 	public abstract List<ChartPanel> getChartPanels();
-   public abstract List<Steppable> getSteppablesOfCharts();
+   public abstract List<EnhancedSteppable> getSteppablesOfCharts();
    
    public abstract void registerNecessaryObjects(Object[] objects) throws MissingObjectsException;
 }

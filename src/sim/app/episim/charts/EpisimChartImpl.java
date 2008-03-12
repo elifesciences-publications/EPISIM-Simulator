@@ -14,7 +14,7 @@ import java.util.Set;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSeries;
 import sim.app.episim.CellType;
-import sim.app.episim.TissueType;
+import sim.app.episim.tissue.TissueType;
 
 public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	
@@ -25,7 +25,8 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	private boolean antiAliasingEnabled = false;
 	private boolean legendVisible = false;
 	private boolean pdfPrintingEnabled = false;
-	private int pdfPrintingFrequency = 1;
+	private int pdfPrintingFrequency = 100;
+	private int chartUpdatingFrequency = 100;
 	
 	private File pdfPrintingPath = null;
 	
@@ -57,6 +58,10 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	public int getPDFPrintingFrequency() {
 		
 		return pdfPrintingFrequency;
+	}
+	public int getChartUpdatingFrequency() {
+		
+		return chartUpdatingFrequency;
 	}
 	public String getTitle() {
 
@@ -101,6 +106,11 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	public void setPDFPrintingFrequency(int frequency) {
 
 		this.pdfPrintingFrequency = frequency;
+		
+	}
+	public void setChartUpdatingFrequency(int frequency) {
+
+		this.chartUpdatingFrequency = frequency;
 		
 	}
 	public void setTitle(String title) {

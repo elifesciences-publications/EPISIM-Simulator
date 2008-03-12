@@ -28,11 +28,11 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.TissueBorder;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.tissue.TissueBorder;
 import sim.engine.Schedule;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;

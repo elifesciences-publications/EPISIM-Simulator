@@ -2,13 +2,15 @@ package episiminterfaces;
 
 import org.jfree.chart.ChartPanel;
 
-import sim.engine.Steppable;
+import sim.app.episim.util.EnhancedSteppable;
+
+
 
 
 public interface GeneratedChart {
 	
 	public ChartPanel getChartPanel();
 	
-	public Steppable getSteppable();
+	public EnhancedSteppable getSteppable();
 
 }

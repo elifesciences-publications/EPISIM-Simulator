@@ -3,7 +3,7 @@ package sim.app.episim.devBasalLayer;
 
 //MASON
 import ec.util.MersenneTwisterFast;
-import sim.app.episim.TissueBorder;
+import sim.app.episim.tissue.TissueBorder;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;

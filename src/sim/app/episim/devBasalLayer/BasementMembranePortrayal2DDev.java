@@ -3,7 +3,7 @@ package sim.app.episim.devBasalLayer;
 
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.TissueBorder;
+import sim.app.episim.tissue.TissueBorder;
 import sim.portrayal.*;
 
 

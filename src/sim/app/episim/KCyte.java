@@ -1,5 +1,5 @@
 package sim.app.episim;
-import sim.app.episim.charts.ChartController;
+import sim.app.episim.datamonitoring.charts.ChartController;
 
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;

@@ -3,8 +3,8 @@ package sim.app.episim;
 
 
 import sim.Dummy;
-import sim.app.episim.charts.ChartController;
-import sim.app.episim.charts.DefaultCharts;
+import sim.app.episim.datamonitoring.charts.ChartController;
+import sim.app.episim.datamonitoring.charts.DefaultCharts;
 
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;

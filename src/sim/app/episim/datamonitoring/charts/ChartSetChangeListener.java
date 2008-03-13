@@ -1,4 +1,4 @@
-package sim.app.episim.charts;
+package sim.app.episim.datamonitoring.charts;
 
 
 public interface ChartSetChangeListener  {

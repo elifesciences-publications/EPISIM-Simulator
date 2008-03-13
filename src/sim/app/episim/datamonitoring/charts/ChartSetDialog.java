@@ -1,4 +1,4 @@
-package sim.app.episim.charts;
+package sim.app.episim.datamonitoring.charts;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -46,9 +46,9 @@ import javax.swing.event.ListSelectionListener;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSet;
 
-import sim.app.episim.charts.io.ECSFileWriter;
-import sim.app.episim.charts.parser.ParseException;
-import sim.app.episim.charts.parser.TokenMgrError;
+import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
+import sim.app.episim.datamonitoring.parser.ParseException;
+import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectCloner;

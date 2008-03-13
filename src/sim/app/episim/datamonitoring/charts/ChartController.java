@@ -1,4 +1,4 @@
-package sim.app.episim.charts;
+package sim.app.episim.datamonitoring.charts;
 
 import java.awt.Frame;
 import java.util.*;
@@ -20,9 +20,13 @@ import episiminterfaces.EpisimChartSet;
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 
-import sim.app.episim.charts.io.ECSFileReader;
-import sim.app.episim.charts.io.ECSFileWriter;
 import sim.app.episim.charts.parser.*;
+import sim.app.episim.datamonitoring.CompatibilityChecker;
+import sim.app.episim.datamonitoring.charts.io.ECSFileReader;
+import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
+import sim.app.episim.datamonitoring.parser.ChartExpressionChecker;
+import sim.app.episim.datamonitoring.parser.ParseException;
+import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.TissueCellDataFieldsInspector;

@@ -1,4 +1,4 @@
-package sim.app.episim.charts.build;
+package sim.app.episim.datamonitoring.charts.build;
 
 import java.io.File;
 import java.io.FileNotFoundException;

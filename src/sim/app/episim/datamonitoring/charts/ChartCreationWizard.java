@@ -1,4 +1,4 @@
-package sim.app.episim.charts;
+package sim.app.episim.datamonitoring.charts;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -68,8 +68,8 @@ import episiminterfaces.EpisimChartSeries;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.charts.parser.ParseException;
-import sim.app.episim.charts.parser.TokenMgrError;
+import sim.app.episim.datamonitoring.parser.ParseException;
+import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.util.gui.ColorWell;
 import sim.util.gui.LabelledList;
@@ -276,7 +276,7 @@ public class ChartCreationWizard extends JDialog {
    	}
    }
    
-   private void addSeries(EpisimChartSeries chartSeries){
+   private void addSeries(int index, EpisimChartSeries chartSeries){
    	
   	 
   	 XYSeries series = new XYSeries(chartSeries.getName(), false );
@@ -284,13 +284,13 @@ public class ChartCreationWizard extends JDialog {
       dataset.addSeries(series);
       
       
-      previewChart.getXYPlot().getRenderer().setSeriesPaint((int)chartSeries.getId(), chartSeries.getColor());
-      ChartSeriesAttributes csa = new ChartSeriesAttributes(previewChartPanel,(int)chartSeries.getId());
+      previewChart.getXYPlot().getRenderer().setSeriesPaint(index, chartSeries.getColor());
+      ChartSeriesAttributes csa = new ChartSeriesAttributes(previewChartPanel, index);
       csa.setDash(chartSeries.getDash());
       csa.setExpression(chartSeries.getExpression());
       csa.setStretch((float)chartSeries.getStretch());
       csa.setThickness((float)chartSeries.getThickness());
-      seriesPanel.add(csa, ""+chartSeries.getId());
+      seriesPanel.add(csa, ""+index);
       attributesList.add(new Object[] {csa,series});
       comboModel.addElement(chartSeries.getName());
       
@@ -489,8 +489,11 @@ public class ChartCreationWizard extends JDialog {
 			
 			this.pdfFrequencyInSimulationSteps.setValue(chart.getPDFPrintingFrequency());
 			this.chartFrequencyInSimulationSteps.setValue(chart.getChartUpdatingFrequency());
-			
-			for(EpisimChartSeries chartSeries: chart.getEpisimChartSeries()) addSeries(chartSeries);
+			int i = 0;
+			for(EpisimChartSeries chartSeries: chart.getEpisimChartSeries()){ 
+				addSeries(i, chartSeries);
+				i++;
+			}
 			
 		}
 		

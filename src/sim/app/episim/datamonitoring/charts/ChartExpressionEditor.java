@@ -1,4 +1,4 @@
-package sim.app.episim.charts;
+package sim.app.episim.datamonitoring.charts;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -36,8 +36,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import sim.app.episim.charts.parser.ParseException;
-import sim.app.episim.charts.parser.TokenMgrError;
+import sim.app.episim.datamonitoring.parser.ParseException;
+import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 

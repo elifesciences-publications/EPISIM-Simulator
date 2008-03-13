@@ -7,7 +7,7 @@ import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 import sim.app.episim.Epidermis;
-import sim.app.episim.charts.DefaultCharts;
+import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.model.ModelController;
 import sim.util.Double2D;
 

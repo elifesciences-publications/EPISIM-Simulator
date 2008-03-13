@@ -7,7 +7,7 @@ options {
   STATIC = false;
 }
 PARSER_BEGIN(ChartExpressionChecker)
-package sim.app.episim.charts.parser;
+package sim.app.episim.datamonitoring.parser;
 import java.io.*;
 import java.util.*;
 import sim.app.episim.util.*;

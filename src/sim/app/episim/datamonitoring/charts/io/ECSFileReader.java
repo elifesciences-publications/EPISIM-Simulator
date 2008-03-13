@@ -1,4 +1,4 @@
-package sim.app.episim.charts.io;
+package sim.app.episim.datamonitoring.charts.io;
 
 import java.io.File;
 import java.io.IOException;

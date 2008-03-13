@@ -6,13 +6,13 @@ options {
   JDK_VERSION = "1.6";
   STATIC = false;
 }
-PARSER_BEGIN(ChartExpressionChecker)
+PARSER_BEGIN(DataMonitoringExpressionChecker)
 package sim.app.episim.datamonitoring.parser;
 import java.io.*;
 import java.util.*;
 import sim.app.episim.util.*;
 
-public class ChartExpressionChecker {
+public class DataMonitoringExpressionChecker {
 	private Set<String> varNameSet = new HashSet<String>();
 	private Set<Character> booleanCharacterSet = new HashSet<Character>();
 	private TissueCellDataFieldsInspector tissueDataFieldsInspector;
@@ -32,7 +32,7 @@ public class ChartExpressionChecker {
   	}
    
 }
-PARSER_END(ChartExpressionChecker)
+PARSER_END(DataMonitoringExpressionChecker)
 
 //All possible Tokens
 

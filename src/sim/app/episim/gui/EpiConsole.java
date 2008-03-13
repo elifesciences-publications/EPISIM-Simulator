@@ -177,6 +177,13 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    	getFrameListDisplay().setListData(getFrameList());
    	return true;
    }
+   
+   public synchronized boolean deregisterAllFrames()
+   {
+   	getFrameList().clear();
+   	getFrameListDisplay().setListData(getFrameList());
+   	return true;
+   }
 	
 	
 	public Container getControllerContainer(){

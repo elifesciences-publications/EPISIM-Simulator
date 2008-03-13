@@ -36,6 +36,7 @@ import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
+import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
@@ -262,7 +263,8 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		menuItemNewDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				boolean success = ChartController.getInstance().showNewChartSetDialog(simulator);
+				boolean success = true;
+					DataExportController.getInstance().showEditDataExportDialog(simulator);
 				if(success){
 					menuItemEditDataExport.setEnabled(true);
 					menuItemCloseDataExport.setEnabled(true);

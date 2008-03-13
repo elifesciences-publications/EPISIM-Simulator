@@ -20,11 +20,11 @@ import episiminterfaces.EpisimChartSet;
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 
-import sim.app.episim.charts.parser.*;
+import sim.app.episim.datamonitoring.parser.*;
 import sim.app.episim.datamonitoring.CompatibilityChecker;
 import sim.app.episim.datamonitoring.charts.io.ECSFileReader;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
-import sim.app.episim.datamonitoring.parser.ChartExpressionChecker;
+import sim.app.episim.datamonitoring.parser.DataMonitoringExpressionChecker;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
@@ -186,19 +186,7 @@ public class ChartController {
 		this.actLoadedChartSet = null;
 	}
 	
-	protected String checkChartExpression(String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException,TokenMgrError{
-		
-		String result = "";
-		
-	   if(expression != null && tissueDataFieldsInspector != null){
-		 StringReader sr = new java.io.StringReader(expression);
-	    Reader r = new java.io.BufferedReader( sr );
-	    ChartExpressionChecker parser = new ChartExpressionChecker(r);
-	    result = parser.check(tissueDataFieldsInspector);
-	    
-	   }
-		return result;
-	}
+	
 	
 	public void clearAllSeries(){
 		DefaultCharts.getInstance().clearSeries();

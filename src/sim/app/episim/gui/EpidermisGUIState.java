@@ -602,11 +602,13 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	}
 
 	public void chartSetHasChanged() {
+		console.deregisterAllFrames();
 		removeAllChartInternalFrames(desktop);
 		for(ChartPanel actPanel : ChartController.getInstance().getChartPanelsofActLoadedChartSet()){
 			desktop.add(getChartInternalFrame(actPanel, actPanel.getChart().getTitle().getText()));
 		}
 	   arrangeElements(desktop);
+	   registerInternalFrames(desktop, console);
    }
 	
 

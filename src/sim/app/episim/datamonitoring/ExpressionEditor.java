@@ -1,4 +1,4 @@
-package sim.app.episim.datamonitoring.charts;
+package sim.app.episim.datamonitoring;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -36,13 +36,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 
 
-public class ChartExpressionEditor extends JDialog {
+public class ExpressionEditor extends JDialog {
 	
 	
 
@@ -62,7 +63,7 @@ public class ChartExpressionEditor extends JDialog {
 	//index 0: expression not compiled; index 1: expression compiled
 	private String [] expression = new String[2];
 	
-	public ChartExpressionEditor(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector){
+	public ExpressionEditor(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector){
 		super(owner, title, modal);
 			
 	   getContentPane().setLayout(new GridBagLayout());
@@ -263,8 +264,7 @@ public class ChartExpressionEditor extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 				try{
-					String result = ChartController.getInstance().checkChartExpression(
-							chartExpressionTextArea.getText().trim(), dataFieldsInspector);
+					String result = ExpressionCheckerController.getInstance().checkChartExpression(chartExpressionTextArea.getText().trim(), dataFieldsInspector);
 					messageTextArea.setText(result);
 					expression[0]=chartExpressionTextArea.getText().trim();
 					expression[1]=result;

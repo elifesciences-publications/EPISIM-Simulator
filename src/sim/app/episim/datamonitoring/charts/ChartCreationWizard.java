@@ -72,6 +72,7 @@ import sim.app.episim.datamonitoring.ExpressionEditor;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
+import sim.app.episim.util.ObjectCloner;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.util.gui.ColorWell;
 import sim.util.gui.LabelledList;
@@ -88,7 +89,7 @@ public class ChartCreationWizard extends JDialog {
    
    private EpisimChart episimChart;
    private boolean okButtonPressed = false;
-   protected ArrayList attributesList = new ArrayList();
+   protected ArrayList<Object[]> attributesList = new ArrayList<Object[]>();
    
    private JFreeChart previewChart;
    private ChartPanel previewChartPanel;
@@ -118,10 +119,12 @@ public class ChartCreationWizard extends JDialog {
    private DefaultComboBoxModel comboModel;
    private JCheckBox aliasCheck;
    
+   private CardLayout seriesCards;
+   
    private final String DEFAULTSERIENAME = "Chart Series ";
  
    private final int WIDTH = 1200;
-   private final int HEIGHT = 600;
+   private final int HEIGHT = 650;
    
    
    private String[] baselineExpression;
@@ -133,8 +136,7 @@ public class ChartCreationWizard extends JDialog {
 		this.cellDataFieldsInspector= cellDataFieldsInspector;
 		if(cellDataFieldsInspector == null) throw new IllegalArgumentException("TissueCellDataFieldsInspector was null !");
 		
-		this.episimChart = new EpisimChartImpl(ChartController.getInstance().getNextChartId(), this.cellDataFieldsInspector.getTissueTypesMap(),
-   			this.cellDataFieldsInspector.getCellTypesMap());
+		this.episimChart = new EpisimChartImpl(ChartController.getInstance().getNextChartId());
 		
 		
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -195,7 +197,7 @@ public class ChartCreationWizard extends JDialog {
 				c.insets = new Insets(5,5,5,5);
 				c.gridwidth = GridBagConstraints.REMAINDER;
 									
-				
+				seriesCards = new CardLayout();
 				seriesPanel = new JPanel(new CardLayout());
 				seriesMainPanel.add(seriesPanel, c);
 		
@@ -337,6 +339,7 @@ public class ChartCreationWizard extends JDialog {
          	    seriesPanel.removeAll();
          	    for(int i= 0; i < comps.length; i++) seriesPanel.add(comps[i], "" + i);
          	    
+         	    seriesCards.show(seriesPanel, "" + (index-1));
          	    seriesPanel.validate();
          	    seriesPanel.repaint();
                iter.remove();
@@ -465,7 +468,7 @@ public class ChartCreationWizard extends JDialog {
 	private void restoreChartValues(EpisimChart chart){
 		if(chart != null){
 			chart.getEpisimChartSeries().size();
-			this.episimChart = chart.clone();
+			this.episimChart = ObjectCloner.cloneObject(chart);
 			
 			this.chartTitleField.setText(chart.getTitle());
 			this.setTitle(chart.getTitle());
@@ -1125,7 +1128,10 @@ public class ChartCreationWizard extends JDialog {
       	 
        });
        formulaField.setEditable(false);
-       add(formulaButton, formulaField);
+       JPanel fieldButtonPanel = new JPanel(new BorderLayout(5,0));
+		fieldButtonPanel.add(formulaField, BorderLayout.CENTER);
+		fieldButtonPanel.add(formulaButton, BorderLayout.EAST);
+		add(new JLabel("Expression:"), fieldButtonPanel);
        
        Box b = new Box(BoxLayout.X_AXIS);
        b.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));

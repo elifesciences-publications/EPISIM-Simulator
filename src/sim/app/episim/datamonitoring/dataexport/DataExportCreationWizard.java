@@ -12,6 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Label;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,6 +41,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -49,6 +51,9 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
+
+import org.jfree.data.xy.XYSeries;
+
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
@@ -57,6 +62,8 @@ import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartCreationWizard;
 import sim.app.episim.datamonitoring.charts.EpisimChartImpl;
 import sim.app.episim.datamonitoring.charts.EpisimChartSeriesImpl;
+import sim.app.episim.gui.ExtendedFileChooser;
+
 
 
 import sim.app.episim.util.TissueCellDataFieldsInspector;
@@ -84,7 +91,7 @@ public class DataExportCreationWizard extends JDialog {
    private Map<Integer, Long> columnsIdMap;
    private JTextField dataExportNameField;
   
-   
+   protected ArrayList<ColumnAttributes> attributesList = new ArrayList<ColumnAttributes>();
    
    private JLabel dataExportFrequencyLabel;
    
@@ -96,12 +103,17 @@ public class DataExportCreationWizard extends JDialog {
    private NumberTextField dataExportFrequencyInSimulationSteps;
    private DefaultComboBoxModel comboModel;
   
+   private JTextField csvPathField;
+   private JTextField dataExportDefinitionPathField;
+   
    
    private final String DEFAULTCOLUMNNAME = "Data Export Column ";
- 
+   private CardLayout columnsCards;
    private final int WIDTH = 1200;
-   private final int HEIGHT = 600;
+   private final int HEIGHT = 400;
    
+   private ExtendedFileChooser edeChooser = new ExtendedFileChooser("ede");
+   private ExtendedFileChooser csvChooser = new ExtendedFileChooser("csv");
    
   
 
@@ -112,7 +124,7 @@ public class DataExportCreationWizard extends JDialog {
 		this.cellDataFieldsInspector= cellDataFieldsInspector;
 		if(cellDataFieldsInspector == null) throw new IllegalArgumentException("TissueCellDataFieldsInspector was null !");
 		
-		
+		this.episimDataExport = new EpisimDataExportImpl(DataExportController.getInstance().getNextDataExportId());
 		
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		
@@ -172,8 +184,8 @@ public class DataExportCreationWizard extends JDialog {
 				c.insets = new Insets(5,5,5,5);
 				c.gridwidth = GridBagConstraints.REMAINDER;
 									
-				
-				columnsPanel = new JPanel(new CardLayout());
+				columnsCards = new CardLayout();
+				columnsPanel = new JPanel(columnsCards);
 				columnsMainPanel.add(columnsPanel, c);
 		
 		
@@ -211,26 +223,28 @@ public class DataExportCreationWizard extends JDialog {
    {
    	 int i = this.episimDataExport.getEpisimDataExportColumns().size();
    	 EpisimDataExportColumn episimDataExportColumn = new EpisimDataExportColumnImpl(System.currentTimeMillis());
-   	 
+   	 this.episimDataExport.addEpisimDataExportColumn(episimDataExportColumn);
    	 episimDataExportColumn.setName(DEFAULTCOLUMNNAME+ (i+1));
    	 
+   	 this.columnsIdMap.put(i, episimDataExportColumn.getId());
    	 
    	 ColumnAttributes columnAttr = new ColumnAttributes(previewPanel,i);
       
        columnsPanel.add(columnAttr, ""+i);
+       attributesList.add(columnAttr);
+     
       
-       
-       validate();
-       this.episimDataExport.addEpisimDataExportColumn(episimDataExportColumn);
-       
-       this.previewPanel.removeAll();
-       this.previewPanel.setLayout(new BorderLayout());
-       this.previewPanel.add(buildPreviewPanel(), BorderLayout.CENTER);
-       
+       refreshPreview();
        validate();
        
        rebuildColumnsIdMap();
-       return 0;
+       return i;
+   }
+   
+   private void refreshPreview(){
+   	 this.previewPanel.removeAll();
+       this.previewPanel.setLayout(new BorderLayout());
+       this.previewPanel.add(buildPreviewPanel(), BorderLayout.CENTER);
    }
    
    private void rebuildColumnsIdMap(){
@@ -253,12 +267,40 @@ public class DataExportCreationWizard extends JDialog {
   
        
    /* Removes the series at the given index and returns it. */
-   public boolean removeColumn(int index)
-   {
-   	 this.episimDataExport.removeEpisimDataExportColumn(columnsIdMap.get(index));
-   	 validate();
-       return true;
-    }
+   public boolean removeColumn(int index) {
+
+		this.episimDataExport.removeEpisimDataExportColumn(columnsIdMap.get(index));
+
+		Iterator<ColumnAttributes> iter = attributesList.iterator();
+		while (iter.hasNext()){
+
+			ColumnAttributes columnAttr = iter.next();
+
+			if(columnAttr.columnIndex == index){
+
+				columnsPanel.remove(index);
+				comboModel.removeElementAt(index);
+
+				Component[] comps = columnsPanel.getComponents();
+				columnsPanel.removeAll();
+				for(int i = 0; i < comps.length; i++)
+					columnsPanel.add(comps[i], "" + i);
+				columnsCards.show(columnsPanel, "" + (index-1));
+				columnsPanel.validate();
+				columnsPanel.repaint();
+				iter.remove();
+			}
+			else if(columnAttr.columnIndex > index){
+				columnAttr.columnIndex--;
+
+			}
+		}
+		rebuildColumnsIdMap();
+		refreshPreview();
+		validate();
+
+		return true;
+	}
                
    
    
@@ -273,15 +315,21 @@ public class DataExportCreationWizard extends JDialog {
    
    private JPanel buildPreviewPanel(){
    	JPanel previewPanel = new JPanel(new BorderLayout());
+   
    	JTable previewTable = new JTable();	
-   	if(this.episimDataExport != null){
+   	if(this.episimDataExport != null && this.episimDataExport.getEpisimDataExportColumns().size() > 0){
    		
    		final String [] columnNamesFinal = new String[this.episimDataExport.getEpisimDataExportColumns().size()];
-   		this.episimDataExport.getEpisimDataExportColumns().toArray(columnNamesFinal);
+   		int i = 0;
+   		for(EpisimDataExportColumn column: this.episimDataExport.getEpisimDataExportColumns()){
+   			columnNamesFinal[i] = column.getName();
+   			i++;
+   		}
+   		
    		
    		previewTable.setModel(new AbstractTableModel() {
 
-				private String[] columnNames = null;
+				private String[] columnNames = columnNamesFinal;
 
 				private Object[][] data = new Object[10][columnNames.length];
 
@@ -307,7 +355,7 @@ public class DataExportCreationWizard extends JDialog {
 
 				public Class getColumnClass(int c) {
 
-					return getValueAt(0, c).getClass();
+					return super.getColumnClass(c);
 				}
 
 				public boolean isCellEditable(int row, int col) {
@@ -324,7 +372,13 @@ public class DataExportCreationWizard extends JDialog {
 			});
    	 }
    	
-   	previewPanel.add(previewTable, BorderLayout.CENTER);
+   	
+   	JLabel l=(JLabel)previewTable.getTableHeader().getDefaultRenderer();
+   	l.setPreferredSize(new Dimension(0,25));
+   	addRandomValues(previewTable);
+ //previewTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
+ //previewTable.setFillsViewportHeight(true);
+   	previewPanel.add(new JScrollPane(previewTable), BorderLayout.CENTER);
    	
    	return previewPanel;
    }
@@ -346,6 +400,7 @@ public class DataExportCreationWizard extends JDialog {
 		
 	public void showWizard(EpisimDataExport dataExport){
 		if(dataExport != null) restoreDataExportValues(dataExport);
+		rebuildColumnsIdMap();
 		repaint();
 		centerMe();
 		setVisible(true);
@@ -431,6 +486,16 @@ public class DataExportCreationWizard extends JDialog {
 		if(this.episimDataExport.getEpisimDataExportColumns().size() == 0){
 			errorFound = true;
 			JOptionPane.showMessageDialog(DataExportCreationWizard.this, "Please add at least one column for Data Export!", "Error", JOptionPane.ERROR_MESSAGE);
+		
+		}
+		if(this.episimDataExport.getExportDefinitionPath() == null){
+			errorFound = true;
+			JOptionPane.showMessageDialog(DataExportCreationWizard.this, "Please define Path for Data Export Definition File!", "Error", JOptionPane.ERROR_MESSAGE);
+		
+		}
+		if(this.episimDataExport.getCSVFilePath() == null){
+			errorFound = true;
+			JOptionPane.showMessageDialog(DataExportCreationWizard.this, "Please define Path for CSV-File!", "Error", JOptionPane.ERROR_MESSAGE);
 		
 		}
 		if(!errorFound){ 
@@ -535,13 +600,66 @@ public class DataExportCreationWizard extends JDialog {
 		
 		list.add(dataExportFrequencyLabel, dataExportFrequencyInSimulationSteps);
 		
-			
+		  
+		JPanel fieldButtonPanel = new JPanel(new BorderLayout(5, 0));
+		csvPathField = new JTextField("");
+		csvPathField.setEditable(false);
+		JButton editCSVPathButton = new JButton("Edit Path");
+		editCSVPathButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if(csvPathField.getText() != null && !csvPathField.getText().trim().equals("")){
+					episimDataExport.setCSVFilePath(showCSVPathDialog(csvPathField.getText()));
+				}
+				else episimDataExport.setCSVFilePath(showCSVPathDialog(""));
+				if(episimDataExport.getCSVFilePath() != null) csvPathField.setText(episimDataExport.getCSVFilePath().getAbsolutePath());
+            
+         }});
+		fieldButtonPanel.add(csvPathField, BorderLayout.CENTER);
+		fieldButtonPanel.add(editCSVPathButton, BorderLayout.EAST);
 		
+		list.add(new JLabel("CSV-File-Path: "), fieldButtonPanel);
+		
+		
+		fieldButtonPanel = new JPanel(new BorderLayout(5, 0));
+		dataExportDefinitionPathField = new JTextField("");
+		dataExportDefinitionPathField.setEditable(false);
+		JButton editDataExportDefinitionPathButton = new JButton("Edit Path");
+		editDataExportDefinitionPathButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if(dataExportDefinitionPathField.getText() != null && !dataExportDefinitionPathField.getText().trim().equals("")){
+					episimDataExport.setExportDefinitionPath(showDataExportDefinitionPathDialog(dataExportDefinitionPathField.getText()));
+				}
+				else episimDataExport.setExportDefinitionPath(showDataExportDefinitionPathDialog(""));
+				if(episimDataExport.getExportDefinitionPath() != null) dataExportDefinitionPathField.setText(episimDataExport.getExportDefinitionPath().getAbsolutePath());
+            
+         }});
+		fieldButtonPanel.add(dataExportDefinitionPathField, BorderLayout.CENTER);
+		fieldButtonPanel.add(editDataExportDefinitionPathButton, BorderLayout.EAST);
+		
+		list.add(new JLabel("Data-Export-Definition-Path: "), fieldButtonPanel);
 		
 		
 		optionsPanel.add(list, BorderLayout.CENTER);
 		
 		return optionsPanel;
+	}
+	
+	
+	private File showCSVPathDialog(String path){
+   	
+   	if(path!= null && !path.equals("")) csvChooser.setCurrentDirectory(new File(path));
+   	
+   	csvChooser.setDialogTitle("Choose CSV-File-Path");
+		if(csvChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return csvChooser.getSelectedFile();
+		return null;
+	}
+	private File showDataExportDefinitionPathDialog(String path){
+   	
+   	if(path!= null && !path.equals("")) edeChooser.setCurrentDirectory(new File(path));
+   	
+   	edeChooser.setDialogTitle("Choose Data-Export-Definition-Path");
+		if(edeChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return edeChooser.getSelectedFile();
+		return null;
 	}
 	
 	
@@ -561,7 +679,7 @@ public class DataExportCreationWizard extends JDialog {
 
 		public ColumnAttributes(JPanel panel, int index) {
 
-			super("" + episimDataExport.getEpisimDataExportColumn(columnsIdMap.get(index)));
+			super(episimDataExport.getEpisimDataExportColumn(columnsIdMap.get(index)).getName());
 
 			previewPanel = panel;
 			columnIndex = index;
@@ -569,7 +687,7 @@ public class DataExportCreationWizard extends JDialog {
 			columnName.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
-
+					setBorderTitle(columnName.getText());
 					int index = columnCombo.getSelectedIndex();
 					if(index > -1){
 						episimDataExport.getEpisimDataExportColumn(columnsIdMap.get(index)).setName(columnName.getText());
@@ -577,7 +695,8 @@ public class DataExportCreationWizard extends JDialog {
 						comboModel.insertElementAt(columnName.getText(), index);
 						columnCombo.setSelectedIndex(index);
 					}
-					previewPanel.repaint();
+					refreshPreview();
+					repaint();
 
 				}
 			});
@@ -604,7 +723,7 @@ public class DataExportCreationWizard extends JDialog {
 				}
 			});
 
-			final JButton formulaButton = new JButton("Add Expression");
+			final JButton formulaButton = new JButton("Add");
 			formulaField = new JTextField("");
 			formulaButton.addActionListener(new ActionListener() {
 
@@ -615,7 +734,7 @@ public class DataExportCreationWizard extends JDialog {
 					      cellDataFieldsInspector);
 					expression = editor.getExpression(expression);
 					if(expression != null && expression[0] != null && expression[1] != null){
-						formulaButton.setText("Edit Expression");
+						formulaButton.setText("Edit");
 						formulaField.setText(expression[0]);
 						int index = columnCombo.getSelectedIndex();
 						episimDataExport.getEpisimDataExportColumn(columnsIdMap.get(index)).setCalculationExpression(
@@ -626,7 +745,10 @@ public class DataExportCreationWizard extends JDialog {
 
 			});
 			formulaField.setEditable(false);
-			add(formulaButton, formulaField);
+			JPanel fieldButtonPanel = new JPanel(new BorderLayout(5,0));
+			fieldButtonPanel.add(formulaField, BorderLayout.CENTER);
+			fieldButtonPanel.add(formulaButton, BorderLayout.EAST);
+			add(new JLabel("Expression:"), fieldButtonPanel);
 
 			Box b = new Box(BoxLayout.X_AXIS);
 			b.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
@@ -664,6 +786,12 @@ public class DataExportCreationWizard extends JDialog {
 
 			this.columnName.setText(name);
 		}
+		
+		public void setBorderTitle(String title){
+		   
+	      if (title != null) setBorder(new javax.swing.border.TitledBorder(title));
+	      
+	   }
 
 	}
    

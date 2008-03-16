@@ -48,7 +48,7 @@ public class DataExportController {
 	private long nextDataExportId = 0;
 	
 	private TissueType dataExportMonitoredTissue;
-	private EpisimChartSet actLoadedDataExport;
+	private EpisimDataExport actLoadedDataExport;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
 	private ExtendedFileChooser edeChooser = new ExtendedFileChooser("ede");
@@ -93,13 +93,13 @@ public class DataExportController {
 	protected EpisimDataExport showDataExportCreationWizard(Frame parent){
 		return showDataExportCreationWizard(parent, null);
 	}
-	protected EpisimDataExport showDataExportCreationWizard(Frame parent, EpisimChart chart){
+	protected EpisimDataExport showDataExportCreationWizard(Frame parent, EpisimDataExport dataExport){
 		DataExportCreationWizard wizard = new DataExportCreationWizard(parent, "Data-Export-Creation-Wizard", true, 
 		new TissueCellDataFieldsInspector(this.dataExportMonitoredTissue, this.markerPrefixes, this.validDataTypes));
 		
 		if(this.dataExportMonitoredTissue != null){
-			if(chart == null)wizard.showWizard();
-			//else wizard.showWizard(chart);
+			if(dataExport == null)wizard.showWizard();
+			else wizard.showWizard(dataExport);
 		}
 			
 		return wizard.getEpisimDataExport();	
@@ -124,6 +124,21 @@ public class DataExportController {
 		//
 	}
 	
+	public boolean showNewChartSetDialog(Frame parent){
+		
+		
+		if(this.dataExportMonitoredTissue != null){ 
+			
+			EpisimDataExport updatedDataExport =showDataExportCreationWizard(parent);
+			if(updatedDataExport != null){ 
+				this.actLoadedDataExport = updatedDataExport;
+				return true;
+			}
+					
+		}
+		return false;
+	}
+	/*
 	public void showEditDataExportDialog(Frame parent){
 		ChartSetDialog dialog = new ChartSetDialog(parent, "Data-Export", true);
 		
@@ -135,7 +150,7 @@ public class DataExportController {
 				
 			}
 		}
-	}
+	}*/
 	/*
 	protected void storeDataExport(EpisimChartSet chartSet){
 		ECSFileWriter fileWriter = new ECSFileWriter(chartSet.getPath());

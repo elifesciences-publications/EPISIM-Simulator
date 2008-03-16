@@ -264,7 +264,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 
 			public void actionPerformed(ActionEvent e) {
 				boolean success = true;
-					DataExportController.getInstance().showEditDataExportDialog(simulator);
+				success = DataExportController.getInstance().showNewChartSetDialog(simulator);
 				if(success){
 					menuItemEditDataExport.setEnabled(true);
 					menuItemCloseDataExport.setEnabled(true);

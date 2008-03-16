@@ -32,17 +32,15 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	
 	private String[] baselineExpression = null;
 	
-	private Map<String, TissueType> tissueTypesMap;
-	private Map<String, CellType> cellTypesMap;
+	
 	
 	private Map<Long, EpisimChartSeries> seriesMap;
 	
 	private Set<Class<?>> requiredClasses;
 	
-	public EpisimChartImpl(long id, Map<String, TissueType> tissueTypes, Map<String, CellType> cellTypes){
+	public EpisimChartImpl(long id){
 		this.id = id;
-		this.tissueTypesMap = tissueTypes;
-		this.cellTypesMap = cellTypes;
+		
 		this.seriesMap = new HashMap<Long, EpisimChartSeries>();		
 		this.requiredClasses = new HashSet<Class<?>>();
 	}
@@ -115,7 +113,7 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	}
 	public void setTitle(String title) {
 
-		this.title = title;
+		if(title != null && !title.trim().equals("")) this.title = title;
 		
 	}
 	public void setXLabel(String label) {
@@ -140,16 +138,7 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	}
 
 	
-	public Map<String,TissueType> getTissueTypesMap() {
 	
-		return tissueTypesMap;
-	}
-
-	
-	public Map<String,CellType> getCellTypesMap() {
-	
-		return cellTypesMap;
-	}
 
 	public void addEpisimChartSeries(EpisimChartSeries chartSeries) {
 
@@ -198,22 +187,6 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	  this.pdfPrintingPath = path;
 	   
    }
-	//Only a flat  copy
-	public EpisimChart clone(){
-		EpisimChart clone = new EpisimChartImpl(this.id, this.tissueTypesMap, this.cellTypesMap);
-		clone.setAntialiasingEnabled(this.antiAliasingEnabled);
-		clone.setBaselineExpression(this.baselineExpression.clone());
-		clone.setLegendVisible(this.legendVisible);
-		clone.setPDFPrintingEnabled(this.pdfPrintingEnabled);
-		clone.setPDFPrintingFrequency(this.pdfPrintingFrequency);
-		if(this.pdfPrintingPath != null)clone.setPDFPrintingPath(new File(this.pdfPrintingPath.getAbsolutePath()));
-		clone.setTitle(this.title);
-		clone.setXLabel(this.xLabel);
-		clone.setYLabel(this.yLabel);
-		for(EpisimChartSeries series: seriesMap.values()){
-			clone.addEpisimChartSeries(series.clone());
-		}
-		return clone;
-	}
+	
 	
 }

@@ -6,7 +6,7 @@ import java.util.Set;
 
 
 
-public interface EpisimChart extends Cloneable {
+public interface EpisimChart{
 	
 	long getId();
 	String getTitle();
@@ -39,5 +39,5 @@ public interface EpisimChart extends Cloneable {
 	
 	void removeChartSeries(long id);
 	
-	EpisimChart clone();
+	
 }

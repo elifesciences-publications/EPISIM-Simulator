@@ -6,7 +6,7 @@ import episiminterfaces.EpisimDataExportColumn;
 public class EpisimDataExportColumnImpl implements EpisimDataExportColumn{
 	
 	private final long id;
-	private String name;
+	private String name = null;
 	private String[] calculationExpression;
 	
 	public EpisimDataExportColumnImpl(long id){
@@ -30,7 +30,7 @@ public class EpisimDataExportColumnImpl implements EpisimDataExportColumn{
 	}
 
 	public void setName(String val) {
-	   if(name != null && name.trim().equals("")) this.name = val; 	   
+	   if(val != null && !val.trim().equals("")) this.name = val; 	   
    }
 
 }

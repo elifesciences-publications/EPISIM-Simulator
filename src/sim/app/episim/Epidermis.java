@@ -5,6 +5,7 @@ package sim.app.episim;
 import sim.Dummy;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
+import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
@@ -144,6 +145,7 @@ public class Epidermis extends TissueType implements SnapshotListener
      this.registerCellType(Dummy.class);
      
      ChartController.getInstance().setChartMonitoredTissue(this);
+     DataExportController.getInstance().setDataExportMonitoredTissue(this);
  }
 
  

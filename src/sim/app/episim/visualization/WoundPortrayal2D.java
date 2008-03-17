@@ -133,7 +133,7 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 			return 0;
 	}
 
-	public List<SnapshotObject> getSnapshotObjects() {
+	public List<SnapshotObject> collectSnapshotObjects() {
 
 		List<SnapshotObject> list = new ArrayList<SnapshotObject>();
 		if(woundRegionCoordinates.size() > 0){

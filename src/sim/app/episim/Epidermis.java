@@ -99,7 +99,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	 
 	private int gCorneumY=20;    // gCorneum would start at this ..
 	 
-	
+	private long timeInSimulationSteps = 0;
 		
 	private int individualColor=1;
 	 
@@ -874,11 +874,21 @@ public class Epidermis extends TissueType implements SnapshotListener
      // Schedule the agent to update is Outer Flag
      
     // schedule.scheduleRepeating(airSurface, 1);
-     }
+     
 
 
-
-
+	 	//////////////////////////////////////
+	 	// Time Updater
+	 	//////////////////////////////////////
+	  	Steppable timeUpdater= new Steppable()
+	  	{
+	     public void step(SimState state)
+	     {            	
+	   	  setTimeInSimulationSteps(state.schedule.getSteps());
+	     }
+	  	};
+	  	schedule.scheduleRepeating(timeUpdater, 1);
+ 	}
 
 	public void removeCells(GeneralPath path){
 	Iterator iter = allCells.iterator();
@@ -974,6 +984,8 @@ public class Epidermis extends TissueType implements SnapshotListener
 	public double getMinDist() { return minDist; }
 	
 	public Continuous2D getRulerContinous2D() { return rulerContinous2D; }
+	
+	public long getTimeInSimulationSteps(){ return this.timeInSimulationSteps;}
 
 	public String getTissueName() {return NAME;}
 	
@@ -981,7 +993,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	
 	//complex-Methods------------------------------------------------------------------------------------------------------------------
 	
-	public List<SnapshotObject> getSnapshotObjects() {
+	public List<SnapshotObject> collectSnapshotObjects() {
 		
 		List<SnapshotObject> list = new LinkedList<SnapshotObject>();
 		/*Iterator iter = allCells.iterator();
@@ -1036,6 +1048,8 @@ public class Epidermis extends TissueType implements SnapshotListener
 	public void setMinDist(double minDist) { this.minDist = minDist; }
 	
 	public void setReloadedSnapshot(boolean reloadedSnapshot) {	this.reloadedSnapshot = reloadedSnapshot; }
+	
+	public void setTimeInSimulationSteps(long time){ if(time >= 0) this.timeInSimulationSteps = time;}
 	
 	
 	//	complex-Methods------------------------------------------------------------------------------------------------------------------

@@ -46,6 +46,7 @@ import javax.swing.event.DocumentListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.util.Names;
@@ -231,10 +232,11 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 			
 		}
 		for(int i=0; i< (tabPane= ((JTabbedPane) obj)).getTabCount(); i++){
-			if (tabPane.getTitleAt(i).equals(Names.BIOCHEMMODEL) || tabPane.getTitleAt(i).equals(Names.MECHMODEL)){
+			if (tabPane.getTitleAt(i).equals(Names.BIOCHEMMODEL) || tabPane.getTitleAt(i).equals(Names.MECHMODEL) || tabPane.getTitleAt(i).equals(Names.MISCALLENEOUS)){
 				String actionString = null;
 				if (tabPane.getTitleAt(i).equals(Names.BIOCHEMMODEL)) actionString = Names.BIOCHEMMODEL;
 				else if (tabPane.getTitleAt(i).equals(Names.MECHMODEL)) actionString = Names.MECHMODEL;
+				else if (tabPane.getTitleAt(i).equals(Names.MISCALLENEOUS)) actionString = Names.MISCALLENEOUS;
 				Component comp = tabPane.getComponentAt(i); 
 				if(comp instanceof Container){ 
 					SimpleInspector inspector = findSimpleInspector(((Container)comp));
@@ -360,6 +362,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 				if(pressedButton.getActionCommand() != null){
 					if(pressedButton.getActionCommand().equals(Names.BIOCHEMMODEL))ModelController.getInstance().getBioChemicalModelController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MECHMODEL))ModelController.getInstance().getBioMechanicalModelController().resetInitialGlobalValues();
+					else if(pressedButton.getActionCommand().equals(Names.MISCALLENEOUS))MiscalleneousGlobalParameters.instance().resetInitialGlobalValues();
 				}
 				this.clickRefreshButtons();
 				if(getPlayState() == PS_PAUSED)super.pressPause();

@@ -72,7 +72,7 @@ import sim.app.episim.datamonitoring.ExpressionEditor;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
-import sim.app.episim.util.ObjectCloner;
+import sim.app.episim.util.ObjectManipulations;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.util.gui.ColorWell;
 import sim.util.gui.LabelledList;
@@ -118,7 +118,7 @@ public class ChartCreationWizard extends JDialog {
    private JComboBox seriesCombo;
    private DefaultComboBoxModel comboModel;
    private JCheckBox aliasCheck;
-   
+   private JButton baselineButton;
    private CardLayout seriesCards;
    
    private final String DEFAULTSERIENAME = "Chart Series ";
@@ -245,7 +245,7 @@ public class ChartCreationWizard extends JDialog {
    /** Adds a series, plus a (possibly null) SeriesChangeListener which will receive a <i>single</i>
        event if/when the series is deleted from the chart by the user.
        Returns the series index number. */
-   public int addSeries()
+   private int addSeries()
        {
    	 int i = dataset.getSeriesCount();
    	 EpisimChartSeries episimChartSeries = new EpisimChartSeriesImpl(System.currentTimeMillis());
@@ -292,6 +292,7 @@ public class ChartCreationWizard extends JDialog {
       ChartSeriesAttributes csa = new ChartSeriesAttributes(previewChartPanel, index);
       csa.setDash(chartSeries.getDash());
       csa.setExpression(chartSeries.getExpression());
+      csa.getFormulaButton().setText("Edit Expression");
       csa.setStretch((float)chartSeries.getStretch());
       csa.setThickness((float)chartSeries.getThickness());
       seriesPanel.add(csa, ""+index);
@@ -468,7 +469,7 @@ public class ChartCreationWizard extends JDialog {
 	private void restoreChartValues(EpisimChart chart){
 		if(chart != null){
 			chart.getEpisimChartSeries().size();
-			this.episimChart = ObjectCloner.cloneObject(chart);
+			this.episimChart = ObjectManipulations.cloneObject(chart);
 			
 			this.chartTitleField.setText(chart.getTitle());
 			this.setTitle(chart.getTitle());
@@ -480,9 +481,10 @@ public class ChartCreationWizard extends JDialog {
 			this.setRangeAxisLabel(chart.getYLabel());
 			
 			this.baselineExpression = chart.getBaselineExpression();
-			if(chart.getBaselineExpression() != null && chart.getBaselineExpression()[0] != null)
+			if(chart.getBaselineExpression() != null && chart.getBaselineExpression()[0] != null){
 				this.baselineField.setText(chart.getBaselineExpression()[0]);
-			
+				this.baselineButton.setText("Edit Baseline Expression");
+			}
 			this.legendCheck.setSelected(chart.isLegendVisible());
 			
 			
@@ -581,7 +583,7 @@ public class ChartCreationWizard extends JDialog {
 		}
 		else{
 			try{
-				ExpressionCheckerController.getInstance().checkChartExpression(episimChart.getBaselineExpression()[0], this.cellDataFieldsInspector);
+				ExpressionCheckerController.getInstance().checkDataMonitoringExpression(episimChart.getBaselineExpression()[0], this.cellDataFieldsInspector);
 			}
 			catch (Exception e1){
 				ExceptionDisplayer.getInstance().displayException(e1);
@@ -619,7 +621,7 @@ public class ChartCreationWizard extends JDialog {
 			 || chartSeries.getExpression()[1].trim().equals("")) return false;
 			else{
 				try{
-					ExpressionCheckerController.getInstance().checkChartExpression(chartSeries.getExpression()[0], this.cellDataFieldsInspector);
+					ExpressionCheckerController.getInstance().checkDataMonitoringExpression(chartSeries.getExpression()[0], this.cellDataFieldsInspector);
 				}
 				catch (Exception e1){
 					ExceptionDisplayer.getInstance().displayException(e1);
@@ -714,7 +716,7 @@ public class ChartCreationWizard extends JDialog {
 		list.add(new JLabel("Y Label"), chartYLabel);
 
 		baselineExpression = new String[2];
-		final JButton baselineButton = new JButton("Add Baseline Expression");
+		baselineButton = new JButton("Add Baseline Expression");
       baselineField = new JTextField("");
       baselineButton.addActionListener(new ActionListener(){
 
@@ -940,8 +942,11 @@ public class ChartCreationWizard extends JDialog {
    private JComboBox dashCombo;
    private NumberTextField stretchField; 
    private JTextField formulaField;
+   private JButton formulaButton;
    
    public void setIndex(int i) { seriesIndex = i; }
+   
+   public JButton getFormulaButton(){ return this.formulaButton; }
 
    public XYSeries getSeries()
    {
@@ -1108,7 +1113,7 @@ public class ChartCreationWizard extends JDialog {
            });
        
        
-       final JButton formulaButton = new JButton("Add Expression");
+       formulaButton = new JButton("Add Expression");
        formulaField = new JTextField("");
        formulaButton.addActionListener(new ActionListener(){
 

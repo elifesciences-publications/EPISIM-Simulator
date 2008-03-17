@@ -96,7 +96,7 @@ public class BiochemicalModel implements java.io.Serializable, SnapshotListener{
   }
 
 
-public List<SnapshotObject> getSnapshotObjects() {
+public List<SnapshotObject> collectSnapshotObjects() {
 	List<SnapshotObject> list = new ArrayList<SnapshotObject>();
 	list.add(new SnapshotObject(SnapshotObject.CELLDIFFMODELGLOBALPARAMETERS, this.globalParametersObject));
 	return list;

@@ -115,6 +115,7 @@ class ModelJarClassLoader extends URLClassLoader {
     private String getClassName(Attributes.Name attrName)throws IOException{
    	 URL u = new URL("jar", "", url + "!/");
        JarURLConnection uc = (JarURLConnection)u.openConnection();
+       uc.setDefaultUseCaches(false);
        Attributes attr = uc.getMainAttributes();
        return attr != null ? attr.getValue(attrName) : null;
     }

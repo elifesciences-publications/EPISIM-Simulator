@@ -59,7 +59,7 @@ public class TissueBorder {
 	public  double getWidth(){
 		if(standardMembraneLoaded){
 			if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(); 
-			return globalParameters.getWidth()-2;
+			return globalParameters.getWidth();
 		}
 		else{
 			return tissue.getEpidermalWidth();

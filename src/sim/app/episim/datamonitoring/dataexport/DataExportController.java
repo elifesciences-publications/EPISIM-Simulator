@@ -2,39 +2,30 @@ package sim.app.episim.datamonitoring.dataexport;
 
 import java.awt.Frame;
 import java.io.File;
-import java.io.Reader;
-import java.io.StringReader;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.List;
+
 import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import org.jfree.chart.ChartPanel;
-
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.datamonitoring.CompatibilityChecker;
 
-import sim.app.episim.datamonitoring.charts.ChartCreationWizard;
-import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
-import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
-import sim.app.episim.datamonitoring.charts.ChartSetDialog;
-import sim.app.episim.datamonitoring.charts.DefaultCharts;
-import sim.app.episim.datamonitoring.charts.io.ECSFileReader;
-import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
-import sim.app.episim.datamonitoring.parser.DataMonitoringExpressionChecker;
-import sim.app.episim.datamonitoring.parser.ParseException;
-import sim.app.episim.datamonitoring.parser.TokenMgrError;
+
+
+import sim.app.episim.datamonitoring.dataexport.io.EDEFileReader;
+import sim.app.episim.datamonitoring.dataexport.io.EDEFileWriter;
+
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
+import sim.app.episim.util.CompatibilityChecker;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
+
 import episimexceptions.ModelCompatibilityException;
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSet;
-import episiminterfaces.EpisimDataExport;
+import episiminterfaces.EpisimDataExportDefinition;
 
 
 
@@ -48,7 +39,7 @@ public class DataExportController {
 	private long nextDataExportId = 0;
 	
 	private TissueType dataExportMonitoredTissue;
-	private EpisimDataExport actLoadedDataExport;
+	private EpisimDataExportDefinition actLoadedDataExport;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
 	private ExtendedFileChooser edeChooser = new ExtendedFileChooser("ede");
@@ -90,10 +81,10 @@ public class DataExportController {
 		this.dataExportMonitoredTissue = tissue;
 	}
 	
-	protected EpisimDataExport showDataExportCreationWizard(Frame parent){
+	protected EpisimDataExportDefinition showDataExportCreationWizard(Frame parent){
 		return showDataExportCreationWizard(parent, null);
 	}
-	protected EpisimDataExport showDataExportCreationWizard(Frame parent, EpisimDataExport dataExport){
+	protected EpisimDataExportDefinition showDataExportCreationWizard(Frame parent, EpisimDataExportDefinition dataExport){
 		DataExportCreationWizard wizard = new DataExportCreationWizard(parent, "Data-Export-Creation-Wizard", true, 
 		new TissueCellDataFieldsInspector(this.dataExportMonitoredTissue, this.markerPrefixes, this.validDataTypes));
 		
@@ -105,7 +96,7 @@ public class DataExportController {
 		return wizard.getEpisimDataExport();	
 	}
 	
-	public boolean loadChartSet(Frame parent){
+	public boolean loadDataExportDefinition(Frame parent){
 		edeChooser.setDialogTitle("Load Already Defined DataExport");
 		if(edeChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION){
 			try{
@@ -121,7 +112,8 @@ public class DataExportController {
 	
 	
 	public void modelWasClosed(){
-		//
+		
+		this.closeActLoadedDataExportDefiniton();
 	}
 	
 	public boolean showNewChartSetDialog(Frame parent){
@@ -129,7 +121,7 @@ public class DataExportController {
 		
 		if(this.dataExportMonitoredTissue != null){ 
 			
-			EpisimDataExport updatedDataExport =showDataExportCreationWizard(parent);
+			EpisimDataExportDefinition updatedDataExport =showDataExportCreationWizard(parent);
 			if(updatedDataExport != null){ 
 				this.actLoadedDataExport = updatedDataExport;
 				return true;
@@ -138,25 +130,24 @@ public class DataExportController {
 		}
 		return false;
 	}
-	/*
-	public void showEditDataExportDialog(Frame parent){
-		ChartSetDialog dialog = new ChartSetDialog(parent, "Data-Export", true);
+	
+	public void showEditDataExportDefinitionDialog(Frame parent){
 		
-		if(this.dataExportMonitoredTissue != null){ 
+		if(this.dataExportMonitoredTissue != null && this.actLoadedDataExport != null){ 
 			
-			EpisimChartSet updatedChartSet =dialog.showChartSet(actLoadedDataExport);
-			if(updatedChartSet != null){ 
-				this.actLoadedDataExport = updatedChartSet;
-				
-			}
+			EpisimDataExportDefinition updatedDataExport =showDataExportCreationWizard(parent, this.actLoadedDataExport);
+			if(updatedDataExport != null){ 
+				this.actLoadedDataExport = updatedDataExport;
+			}		
 		}
-	}*/
-	/*
-	protected void storeDataExport(EpisimChartSet chartSet){
-		ECSFileWriter fileWriter = new ECSFileWriter(chartSet.getPath());
-		fileWriter.createChartSetArchive(chartSet);
+	}
+	
+	
+	protected void storeDataExportDefinition(EpisimDataExportDefinition dataExport){
+		EDEFileWriter fileWriter = new EDEFileWriter(dataExport.getDataExportDefinitionPath());
+		fileWriter.createDataExportDefinitionArchive(dataExport);
 		try{
-	      loadEpisimChartSet(new File(chartSet.getPath().getAbsolutePath()).toURI().toURL());
+	      loadEpisimChartSet(new File(dataExport.getDataExportDefinitionPath().getAbsolutePath()).toURI().toURL());
       }
       catch (MalformedURLException e){
 	      ExceptionDisplayer.getInstance().displayException(e);
@@ -166,42 +157,30 @@ public class DataExportController {
 	private boolean loadEpisimChartSet(URL url){
 		return loadEpisimChartSet(url, null);
 	}
-	*/
+
 	private boolean loadEpisimChartSet(URL url, Frame parent){
-	//	try{
-		/*	ECSFileReader ecsReader = new ECSFileReader(url);
-			this.actLoadedDataExport = ecsReader.getEpisimChartSet();
-			ChartPanelAndSteppableServer.getInstance().registerChartPanels(ecsReader.getChartPanels());
+		try{
+			EDEFileReader ecsReader = new EDEFileReader(url);
+			this.actLoadedDataExport = ecsReader.getEpisimDataExportDefinition();
+			
 			CompatibilityChecker checker = new CompatibilityChecker();
-			checker.checkEpisimChartSetForCompatibility(actLoadedDataExport, this.dataExportMonitoredTissue);*/
+			checker.checkEpisimDataExportDefinitionForCompatibility(actLoadedDataExport, this.dataExportMonitoredTissue);
 			return true;
-		//}
-		/*catch (ModelCompatibilityException e){
-			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
+		}
+		catch (ModelCompatibilityException e){
+			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Data-Export Definition!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
 			ExceptionDisplayer.getInstance().displayException(e);
 		}
-		return false;*/
+		return false;
 	}
 	
 	
 	
-	public void closeActLoadedChartSet(){
+	public void closeActLoadedDataExportDefiniton(){
 		this.actLoadedDataExport = null;
 	}
 	
-	protected String checkChartExpression(String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException,TokenMgrError{
-		
-		String result = "";
-		
-	   if(expression != null && tissueDataFieldsInspector != null){
-		 StringReader sr = new java.io.StringReader(expression);
-	    Reader r = new java.io.BufferedReader( sr );
-	    DataMonitoringExpressionChecker parser = new DataMonitoringExpressionChecker(r);
-	    result = parser.check(tissueDataFieldsInspector);
-	    
-	   }
-		return result;
-	}
+	
 	
 	
 }

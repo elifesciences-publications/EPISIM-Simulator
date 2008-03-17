@@ -4,6 +4,7 @@ import sim.app.episim.GrahamScan;
 import sim.app.episim.KCyte;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
+import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.portrayal.*;
 import sim.util.*;
@@ -95,7 +96,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 int id=kcyte.getIdentity();
                 int numFlockers=kcyte.getEpidermis().getNumberOfKCytes();
                 int keratinoType=kcyte.getEpisimCellDiffModelObject().getDifferentiation();                                
-                int typeColor=biomechModelController.getEpisimMechanicalModelGlobalParameters().getTypeColor();              
+                int typeColor=MiscalleneousGlobalParameters.instance().getTypeColor();              
                 int ownCol=(kcyte.getOwnColor())*kcyte.getEpidermis().getIndividualColor();
                 int maxAge= kcyte.getEpisimCellDiffModelObject().getMaxAge(); 
                 wloc = kcyte.getKeratinoWidth();                                
@@ -218,7 +219,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 int blue=0;
                 if ((typeColor<1) || (typeColor>10)) { 
                	 typeColor=1; 
-               	 biomechModelController.getEpisimMechanicalModelGlobalParameters().setTypeColor(1);
+               	 MiscalleneousGlobalParameters.instance().setTypeColor(1);
                 }
                 
                 if ((typeColor==1) || (typeColor==2) || (typeColor==8))  // Cell type coloring

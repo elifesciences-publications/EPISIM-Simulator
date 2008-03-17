@@ -54,7 +54,7 @@ public class SnapshotWriter {
 			ObjectOutputStream oOut = new ObjectOutputStream(fOut);
 			
 			for(SnapshotListener listener : listeners){
-				for(SnapshotObject object : listener.getSnapshotObjects()){
+				for(SnapshotObject object : listener.collectSnapshotObjects()){
 					
 					oOut.writeObject(object);
 				}

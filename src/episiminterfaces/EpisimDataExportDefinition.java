@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public interface EpisimDataExport extends java.io.Serializable{
+public interface EpisimDataExportDefinition extends java.io.Serializable{
 	
 	long getId();
 	String getName();
@@ -13,14 +13,14 @@ public interface EpisimDataExport extends java.io.Serializable{
 	List<EpisimDataExportColumn> getEpisimDataExportColumns();
 	EpisimDataExportColumn getEpisimDataExportColumn(long id);
 	Set<Class<?>> getRequiredClasses();
-	File getExportDefinitionPath();
+	File getDataExportDefinitionPath();
 	File getCSVFilePath();
 	
 	void addRequiredClass(Class<?> requiredClass);
 	void addEpisimDataExportColumn(EpisimDataExportColumn column);
 	void setName(String val);
 	void setDataExportFrequncyInSimulationSteps(int val);
-	void setExportDefinitionPath(File path);
+	void setDataExportDefinitionPath(File path);
 	void setCSVFilePath(File path);
 	
 	void removeAllEpisimDataExportColumns();

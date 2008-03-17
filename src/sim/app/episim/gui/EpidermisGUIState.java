@@ -11,6 +11,7 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.devBasalLayer.BasementMembranePortrayal2DDev;
 import sim.app.episim.devBasalLayer.EpidermisDev;
 import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
@@ -147,6 +148,16 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		if(mechModel == null)
 			return null;
 		Inspector i = new SimpleInspector(mechModel, this);
+		i.setVolatile(false);
+		return i;
+	}
+	
+	public Inspector getMiscalleneousInspector() {
+
+		Object miscalleneous = MiscalleneousGlobalParameters.instance();
+		if(miscalleneous == null)
+			return null;
+		Inspector i = new SimpleInspector(miscalleneous, this);
 		i.setVolatile(false);
 		return i;
 	}

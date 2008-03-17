@@ -5,11 +5,15 @@ public abstract class Names {
 	private static String [] charactersToRemove = new String[]{";", "/", "\\", ",", ".", ":", "?", "!", "_", "-", "<", ">", "&", "%", "+", "*", " "};
 	public static final String BIOCHEMMODEL ="Biochemical-Model";
 	public static final String MECHMODEL ="Biomechanical-Model";
+	public static final String MISCALLENEOUS = "Miscalleneous";
 	public static final String EPISIMCHARTSETFILENAME ="EpisimChartSet.dat";
+	public static final String EPISIMDATAEXPORTFILENAME ="EpisimDataExport.dat";
 	public static final String EPISIMCELLDIFFMODELVALUE ="celldiffmodel";
 	public static final String GENERATEDCHARTSPACKAGENAME = "generatedcharts";
+	public static final String GENERATEDDATAEXPORTPACKAGENAME = "generateddataexports";
 	
 	public static final String EPISIMCHARTSETFACTORYNAME ="EpisimChartSetFactory";
+	public static final String EPISIMDATAEXPORTFACTORYNAME ="EpisimDataExportFactory";
 	
 	
 	

@@ -21,7 +21,6 @@ import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 
 import sim.app.episim.datamonitoring.parser.*;
-import sim.app.episim.datamonitoring.CompatibilityChecker;
 import sim.app.episim.datamonitoring.charts.io.ECSFileReader;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
 import sim.app.episim.datamonitoring.parser.DataMonitoringExpressionChecker;
@@ -29,6 +28,7 @@ import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
+import sim.app.episim.util.CompatibilityChecker;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 public class ChartController {
 	
@@ -120,6 +120,7 @@ public class ChartController {
 	
 	public void modelWasClosed(){
 		ChartPanelAndSteppableServer.getInstance().removeAllListeners();
+		this.closeActLoadedChartSet();
 	}
 	
 	public void showEditChartSetDialog(Frame parent){

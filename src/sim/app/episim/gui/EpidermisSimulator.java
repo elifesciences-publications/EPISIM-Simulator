@@ -259,7 +259,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		dataExportMenu = new JMenu("Data Export");
 		dataExportMenu.setEnabled(false);
 		
-		menuItemNewDataExport = new JMenuItem("Define New Data Export");
+		menuItemNewDataExport = new JMenuItem("New Data-Export-Definition");
 		menuItemNewDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -276,37 +276,37 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			
 		});
 		
-		menuItemLoadDataExport = new JMenuItem("Load Defined Data Export");
+		menuItemLoadDataExport = new JMenuItem("Load Data-Export-Definition");
 		menuItemLoadDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				boolean success = ChartController.getInstance().loadChartSet(simulator);
+				boolean success = DataExportController.getInstance().loadDataExportDefinition(simulator);
 				
 				if(success){ 
-					ChartController.getInstance().showEditChartSetDialog(simulator);
+					DataExportController.getInstance().showEditDataExportDefinitionDialog(simulator);
 					menuItemEditDataExport.setEnabled(true);
 					menuItemCloseDataExport.setEnabled(true);
 					menuItemNewDataExport.setEnabled(false);
 					menuItemLoadDataExport.setEnabled(false);
 				}
 				else{ 
-					if(!ChartController.getInstance().isAlreadyChartSetLoaded()) menuItemEditDataExport.setEnabled(false);
+					if(!DataExportController.getInstance().isAlreadyDataExportLoaded()) menuItemEditDataExport.setEnabled(false);
 				}
 			}
 			
 		});
 		
-		menuItemEditDataExport = new JMenuItem("Edit Loaded Data Export");
+		menuItemEditDataExport = new JMenuItem("Edit Loaded Data-Export-Definition");
 		menuItemEditDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				ChartController.getInstance().showEditChartSetDialog(simulator);
+				DataExportController.getInstance().showEditDataExportDefinitionDialog(simulator);
 			}
 			
 		});
 		menuItemEditDataExport.setEnabled(false);
 		
-		menuItemCloseDataExport = new JMenuItem("Close Loaded Data Export");
+		menuItemCloseDataExport = new JMenuItem("Close Loaded Data-Export-Definition");
 		menuItemCloseDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -314,8 +314,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				menuItemLoadDataExport.setEnabled(true);
 				menuItemCloseDataExport.setEnabled(false);
 				menuItemEditDataExport.setEnabled(false);
-				ChartController.getInstance().closeActLoadedChartSet();
-				epiUI.removeAllChartInternalFrames();
+				DataExportController.getInstance().closeActLoadedDataExportDefiniton();
 			}
 			
 		});
@@ -546,6 +545,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		chartMenu.setEnabled(false);
 		dataExportMenu.setEnabled(false);
 		ChartController.getInstance().modelWasClosed();
+		DataExportController.getInstance().modelWasClosed();
 		this.menuItemEditChartSet.setEnabled(false);
 		this.menuItemLoadChartSet.setEnabled(true);
 		this.menuItemCloseChartSet.setEnabled(false);

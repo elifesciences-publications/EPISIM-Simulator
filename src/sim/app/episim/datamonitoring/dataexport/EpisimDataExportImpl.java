@@ -11,15 +11,15 @@ import java.util.Map;
 import java.util.Set;
 
 import episiminterfaces.EpisimChartSeries;
-import episiminterfaces.EpisimDataExport;
+import episiminterfaces.EpisimDataExportDefinition;
 import episiminterfaces.EpisimDataExportColumn;
 
 
-public class EpisimDataExportImpl implements EpisimDataExport {
+public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	
 	private final long id;
 	private Map<Long, EpisimDataExportColumn> columnMap;
-	private int exportFrequency = 1;
+	private int exportFrequency = 100;
 	private String name;
 	
 	private File csvFilePath;
@@ -82,8 +82,8 @@ public class EpisimDataExportImpl implements EpisimDataExport {
 
 	public void setCSVFilePath(File path) { this.csvFilePath = path; }
 
-	public File getExportDefinitionPath() { return this.dataExportPath; 	}
+	public File getDataExportDefinitionPath() { return this.dataExportPath; 	}
 
-	public void setExportDefinitionPath(File path) { this.dataExportPath = path; }
+	public void setDataExportDefinitionPath(File path) { this.dataExportPath = path; }
 
 }

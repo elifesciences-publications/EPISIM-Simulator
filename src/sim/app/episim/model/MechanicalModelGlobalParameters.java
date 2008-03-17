@@ -21,7 +21,7 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 
 	public static final int KTYPE_NIRVANA = EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA;
 	
-	private int typeColor = 1;
+	
 
 	
 	private int basalAmplitude_µm = 40; // depth of an undulation
@@ -36,7 +36,7 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 
 	private boolean seedReverse = false;
 
-	private boolean uptakeCalcium = false;
+	
 
 	private int basalDensity_µm = 8; // width of undulation at the middle
 
@@ -115,27 +115,7 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 
 	}
 	
-	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age",
-	      "Color by calcium", "Color by lamella", "Enough lipids for barrier", "Color by ion transports", "Voronoi",
-	      "Calcium Voronoi" , "Epsim-Modeller Custom Coloring"};
-
-	public String getTypeColorName() {
-
-		if((typeColor < 1) || (typeColor > 10))
-			typeColor = 1;
-		return typeString[typeColor];
-	}
 	
-	public int getTypeColor() {
-
-		return typeColor;
-	}
-
-	public void setTypeColor(int val) {
-
-		if(val >= 0.0)
-			typeColor = val;
-	}
 	
 	public int getBasalAmplitude_µm() {
 
@@ -220,15 +200,7 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 		seedReverse = val;
 	}
 
-	public boolean getUptakeCalcium() {
-
-		return uptakeCalcium;
-	}
-
-	public void setUptakeCalcium(boolean val) {
-
-		uptakeCalcium = val;
-	}
+	
 
 	public int getBasalDensity_µm() {
 

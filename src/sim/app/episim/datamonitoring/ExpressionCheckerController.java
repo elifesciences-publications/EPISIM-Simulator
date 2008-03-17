@@ -20,7 +20,7 @@ public class ExpressionCheckerController {
 		return instance;
 	}
 	
-	public String checkChartExpression(String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException,TokenMgrError{
+	public String checkDataMonitoringExpression(String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException,TokenMgrError{
 		
 		String result = "";
 		

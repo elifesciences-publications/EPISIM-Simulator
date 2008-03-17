@@ -18,6 +18,7 @@ import sim.app.episim.KCyte;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.util.ObjectManipulations;
 
 
 
@@ -44,7 +45,7 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 	
 	public void reloadMechanicalModelGlobalParametersObject(EpisimMechanicalModelGlobalParameters parametersObject){
 		this.resetParametersObject = parametersObject;
-		resetInitialGlobalValues();
+		ObjectManipulations.resetInitialGlobalValues(actParametersObject, resetParametersObject);
 	}
 	
 	
@@ -57,43 +58,17 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 		return actParametersObject;
 	}
 	
+	
 	public void resetInitialGlobalValues(){
-	   try{	
-	   	List<Method> getMethods = getMethods("get", this.resetParametersObject);
-	   	List<Method> setMethods = getMethods("set", this.actParametersObject);
-	   	
-	   	Iterator<Method> iterSet = setMethods.iterator();
-	   	Method setM = null;
-	   	Method getM = null;
-	   	while(iterSet.hasNext()){
-	   		setM = iterSet.next();
-	   		Iterator<Method> iterGet = getMethods.iterator();
-	      	while(iterGet.hasNext()){
-	      		getM = iterGet.next();
-	      		if(setM.getName().endsWith(getM.getName().substring(3))){
-	      			setM.invoke(this.actParametersObject, new Object[]{(getM.invoke(this.resetParametersObject, (new Object[]{})))});
-	      		}
-	      	}
-	   	}
-	   	}
-	   	catch(Exception e){
-	   		ExceptionDisplayer.getInstance().displayException(e);
-	   	}
+		ObjectManipulations.resetInitialGlobalValues(actParametersObject, resetParametersObject);
 	}
+	
+	
 
-	private List<Method> getMethods(String prefix, Object object) throws SecurityException, NoSuchMethodException{
-		  List<Method> methods = new ArrayList<Method>();
-	   	
-	   	for(Method m :object.getClass().getMethods()){
-	   		if(m.getName().startsWith(prefix)) methods.add(m);
-	   	}
-	   	
-	   	return methods;
-	   
-	}
+	
 
 
-	public List<SnapshotObject> getSnapshotObjects() {
+	public List<SnapshotObject> collectSnapshotObjects() {
 		List<SnapshotObject> list = new ArrayList<SnapshotObject>();
 		list.add(new SnapshotObject(SnapshotObject.MECHANICALMODELGLOBALPARAMETERS, this.actParametersObject));
 		return list;

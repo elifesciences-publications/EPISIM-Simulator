@@ -6,10 +6,9 @@ package episiminterfaces;
 public interface EpisimMechanicalModelGlobalParameters {
 	
 	
-	int getTypeColor();
- 	void setTypeColor(int val);
+	
  	
- 	String getTypeColorName();
+ 	
 	
 	int getBasalAmplitude_µm();
  	void setBasalAmplitude_µm(int val);
@@ -38,8 +37,7 @@ public interface EpisimMechanicalModelGlobalParameters {
  	void setSeedReverse(boolean val);
 
 	
- 	boolean getUptakeCalcium();
- 	void setUptakeCalcium(boolean val);
+ 	
 
 	
  	int getBasalDensity_µm();

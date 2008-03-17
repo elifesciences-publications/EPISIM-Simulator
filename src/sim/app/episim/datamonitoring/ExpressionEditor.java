@@ -264,7 +264,7 @@ public class ExpressionEditor extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 				try{
-					String result = ExpressionCheckerController.getInstance().checkChartExpression(chartExpressionTextArea.getText().trim(), dataFieldsInspector);
+					String result = ExpressionCheckerController.getInstance().checkDataMonitoringExpression(chartExpressionTextArea.getText().trim(), dataFieldsInspector);
 					messageTextArea.setText(result);
 					expression[0]=chartExpressionTextArea.getText().trim();
 					expression[1]=result;

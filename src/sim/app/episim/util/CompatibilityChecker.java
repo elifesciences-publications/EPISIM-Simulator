@@ -1,4 +1,4 @@
-package sim.app.episim.datamonitoring;
+package sim.app.episim.util;
 
 import java.io.ObjectStreamClass;
 import java.util.HashMap;
@@ -11,6 +11,7 @@ import sim.app.episim.tissue.TissueType;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSet;
+import episiminterfaces.EpisimDataExportDefinition;
 
 
 public class CompatibilityChecker {
@@ -32,20 +33,41 @@ public class CompatibilityChecker {
 			}
 		}
 		
-		//Check loaded Model-Classes
-		checkForCompatibility(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass());
-		checkForCompatibility(ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject().getClass());
-		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel().getClass());
-		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getClass());
+		checkCellDiffAndMechanicalModelClasses();
+		checkTissueAndCellTypes(actTissue);			
+	}
+	
+	public void checkEpisimDataExportDefinitionForCompatibility(EpisimDataExportDefinition exportDefinition, TissueType actTissue) throws ModelCompatibilityException{
+		classNameHashValueMap.clear();
+		if(exportDefinition == null) throw new IllegalArgumentException("Data-Export-Definition for Compatibility-Check must not be null!");
 		
-		//Check Tissue-Type and Cell-Types
+		for(Class<?> actClass : exportDefinition.getRequiredClasses()){
+			classNameHashValueMap.put(actClass.getCanonicalName(), 
+						ObjectStreamClass.lookup(actClass).getSerialVersionUID());
+		}
+				
+		checkCellDiffAndMechanicalModelClasses();
+		checkTissueAndCellTypes(actTissue);
+	}
+	
+	 
+	
+	
+	private void checkTissueAndCellTypes(TissueType actTissue) throws ModelCompatibilityException{
+		
 		checkForCompatibility(actTissue.getClass());
 		
 		for(Class<? extends CellType> actCellTypeClass: actTissue.getRegiseredCellTypes()){
 			checkForCompatibility(actCellTypeClass);
 		}
+	}
+	
+	private void checkCellDiffAndMechanicalModelClasses() throws ModelCompatibilityException{
 		
-		
+		checkForCompatibility(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass());
+		checkForCompatibility(ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject().getClass());
+		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel().getClass());
+		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getClass());
 	}
 	
 	private void checkForCompatibility(Class<?> actClass) throws ModelCompatibilityException{

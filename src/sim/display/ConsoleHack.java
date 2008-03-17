@@ -30,6 +30,7 @@ import sim.portrayal.Inspector;
 public class ConsoleHack extends Console {
 	JScrollPane biochemicalModelInspectorScrollPane;
 	JScrollPane biomechanicalModelInspectorScrollPane;
+	JScrollPane miscalleneousInspectorScrollPane;
 	
 	
 	
@@ -200,6 +201,7 @@ public class ConsoleHack extends Console {
 			deployInspector(epiGUIState.getBiochemicalModelInspector(), this.biochemicalModelInspectorScrollPane, Names.BIOCHEMMODEL);
 		
 			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECHMODEL);
+			deployInspector(epiGUIState.getMiscalleneousInspector(), this.miscalleneousInspectorScrollPane, Names.MISCALLENEOUS);
 			
 		}
 		else

@@ -565,7 +565,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	public static synchronized void  rebuildCharts(){
 		instance = new DefaultCharts();
 	}
-	public List<SnapshotObject> getSnapshotObjects() {
+	public List<SnapshotObject> collectSnapshotObjects() {
 
 		List<SnapshotObject> list = new LinkedList<SnapshotObject>();
 		

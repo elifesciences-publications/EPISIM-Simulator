@@ -8,6 +8,7 @@ import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 import sim.app.episim.Epidermis;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
+import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.util.Double2D;
 
@@ -43,6 +44,10 @@ public class SnapshotLoader {
 					mechModelGlobalParameters = (EpisimMechanicalModelGlobalParameters) sObj.getSnapshotObject();
 					
 				}
+				else if(sObj.getIdentifier().equals(SnapshotObject.MISCALLENEOUSGLOBALPARAMETERS)){
+					MiscalleneousGlobalParameters.instance().reloadMiscalleneousGlobalParametersObject((MiscalleneousGlobalParameters) sObj.getSnapshotObject());
+					
+				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.WOUND)){
 					Object obj= null;
 					if((obj=sObj.getSnapshotObject())instanceof List)
@@ -54,6 +59,7 @@ public class SnapshotLoader {
 			}
 			if(charts != null) SnapshotWriter.getInstance().addSnapshotListener(charts);
 			if(epidermis != null) SnapshotWriter.getInstance().addSnapshotListener(epidermis);
+			SnapshotWriter.getInstance().addSnapshotListener(MiscalleneousGlobalParameters.instance());
 	}
 		else throw new IllegalArgumentException("Snapshot-Path and/or Model-File-Path is null");	
 }

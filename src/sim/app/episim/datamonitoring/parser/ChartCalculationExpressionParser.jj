@@ -63,7 +63,7 @@ String check(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws Num
 String partialResult = "";
 String totalResult = "";}
 {
-  (partialResult =BooleanExpression()
+  (partialResult =Start()
   
   {totalResult = totalResult.concat(partialResult);}
   
@@ -71,11 +71,28 @@ String totalResult = "";}
 {return totalResult;}
 }
 
+String Start():{
+String result ="";
+
+
+}
+{
+  	(result = GradientFunction()
+  	 | result = BooleanExpression()) 
+
+{return result;}
+}
+
+
+
+
+
+
+
+
 String Factor() throws NumberFormatException :{
 String result ="";
-int[][] dummy1= new int[1][1];
-String[] dummy2 = new String[1];
-dummy2[0] = "";
+
 Token t;
 }
 {
@@ -91,8 +108,8 @@ Token t;
    			
    	| result = SqrtFunction() 
     | result = PowFunction()
-    | result = AllCellsWhere() 
-    | result = AllCellsMeanValueFunction()
+   // | result = AllCellsWhere() 
+   // | result = AllCellsMeanValueFunction()
     | <OPEN_PAR> result = BooleanExpression() <CLOSE_PAR> {result = "(" + result +")";})
 
 {return result;}
@@ -189,6 +206,22 @@ String exp2 = "";
  	
  	if(exp2 == null || exp3 == null || exp4 == null ||exp5 == null) return "getAllCellsMeanValue("+exp1+")";
  	else return "getAllCellsMeanValue("+exp1+","+exp2+","+exp3+","+exp4+","+exp5+")";
+ }
+ }
+ 
+ 
+ String GradientFunction():
+ {
+ 	String exp1 = ""; 
+ }
+ {
+ ("GRAD("exp1 =Expression()(")"))
+ {
+ 	
+ 	checkIfStringArithExpr(exp1);
+ 	 	
+ 	return Names.BUILDGRADIENTHANDLER +exp1;
+ 	
  }
  }
  

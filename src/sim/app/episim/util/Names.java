@@ -15,7 +15,7 @@ public abstract class Names {
 	public static final String EPISIMCHARTSETFACTORYNAME ="EpisimChartSetFactory";
 	public static final String EPISIMDATAEXPORTFACTORYNAME ="EpisimDataExportFactory";
 	
-	
+	public static final String BUILDGRADIENTHANDLER = "buildGradientHandler_";
 	
 	public static String cleanString(String str){
 		

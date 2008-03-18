@@ -16,6 +16,10 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
 	
 	public abstract Class<? extends EpisimCellDiffModel> getEpisimCellDiffModelClass();
 	
+	
+	public abstract EpisimCellDiffModel getEpisimCellDiffModelObject();
+	
+	
 	public abstract List<Method> getParameters();
 	
 }

@@ -53,4 +53,11 @@ public class Dummy extends CellType{
 	   return 0;
    }
 
+	@Override
+   public EpisimCellDiffModel getEpisimCellDiffModelObject() {
+
+	   // TODO Auto-generated method stub
+	   return null;
+   }
+
 }

@@ -39,7 +39,8 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		generatedSourceCode.append("import episimfactories.*;\n");
 		generatedSourceCode.append("import sim.app.episim.util.EnhancedSteppable;\n");
 		generatedSourceCode.append("import sim.engine.Steppable;\n");
-		generatedSourceCode.append("import sim.util.Bag;\n");
+		generatedSourceCode.append("import sim.app.episim.util.GenericBag;\n");
+		generatedSourceCode.append("import sim.app.episim.CellType;\n");
 		generatedSourceCode.append("import sim.field.continuous.*;\n");
 		for(Class<?> actClass: this.actDataExportDefinition.getRequiredClasses()){
 			generatedSourceCode.append("import " + actClass.getCanonicalName()+";\n");	
@@ -54,7 +55,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 				   
 		   
 		   generatedSourceCode.append("  private Continuous2D cellContinuous;\n");
-		   generatedSourceCode.append("  private Bag allCells;\n");
+		   generatedSourceCode.append("  private GenericBag<CellType> allCells;\n");
 		 
 		  
 		   for(Class<?> actClass : this.actDataExportDefinition.getRequiredClasses())

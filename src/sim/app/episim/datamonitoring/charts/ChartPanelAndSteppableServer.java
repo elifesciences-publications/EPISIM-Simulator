@@ -1,6 +1,7 @@
 package sim.app.episim.datamonitoring.charts;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jfree.chart.ChartPanel;
@@ -10,7 +11,8 @@ import org.jfree.chart.ChartPanel;
 public class ChartPanelAndSteppableServer {
 	
 	private ArrayList<ChartSetChangeListener> listeners;
-	private List<ChartPanel> chartPanels;
+	private List<ChartPanel> customChartPanels;
+	private List<ChartPanel> defaultChartPanels;
 	private static ChartPanelAndSteppableServer instance = null;
 	private ChartPanelAndSteppableServer(){
 		listeners = new ArrayList<ChartSetChangeListener>();
@@ -21,15 +23,25 @@ public class ChartPanelAndSteppableServer {
 		return instance;
 	}
 	
-	public void registerChartPanels(List<ChartPanel> chartPanels){
+	public void registerCustomChartPanels(List<ChartPanel> chartPanels){
 		if(chartPanels == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: List with chart panels to be registered must not be null!");
-		this.chartPanels = chartPanels;
+		this.customChartPanels = chartPanels;
+		notifyListeners();
+		
+	}
+	
+	public void registerDefaultChartPanels(List<ChartPanel> chartPanels){
+		if(chartPanels == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: List with chart panels to be registered must not be null!");
+		this.defaultChartPanels = chartPanels;
 		notifyListeners();
 		
 	}
 	
 	public List<ChartPanel> getChartPanels(){
-		return this.chartPanels;
+		List<ChartPanel> allPanels = new LinkedList<ChartPanel>();
+		if(this.customChartPanels != null)allPanels.addAll(this.customChartPanels);
+		if(this.defaultChartPanels != null)allPanels.addAll(this.defaultChartPanels);
+		return allPanels;
 	}
 	
 	public void registerChartSetChangeListener(ChartSetChangeListener listener){

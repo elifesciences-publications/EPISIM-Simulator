@@ -10,6 +10,10 @@ import sim.engine.SimState;
 import java.util.*;
 
 public class Dummy extends CellType{
+	
+	public Dummy(){
+		super(-1, -1);
+	}
 
 	@Override
    public String getCellName() {
@@ -58,6 +62,13 @@ public class Dummy extends CellType{
 
 	   // TODO Auto-generated method stub
 	   return null;
+   }
+
+	@Override
+   public void killCell() {
+
+	   // TODO Auto-generated method stub
+	   
    }
 
 }

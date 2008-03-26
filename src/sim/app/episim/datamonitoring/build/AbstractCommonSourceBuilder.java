@@ -19,7 +19,7 @@ public abstract class  AbstractCommonSourceBuilder {
 					generatedSourceCode.append(actClass.getSimpleName() + " " + Names.convertClassToVariable(actClass.getSimpleName())+", ");
 				}
 			}
-			this.generatedSourceCode.append("Bag allCells, Continuous2D cellContinuous){\n");
+			this.generatedSourceCode.append("GenericBag<CellType> allCells, Continuous2D cellContinuous){\n");
 			this.generatedSourceCode.append("    this.allCells = allCells;\n");
 			this.generatedSourceCode.append("    this.cellContinuous = cellContinuous;\n");
 			for(Class<?> actClass: requiredClasses){

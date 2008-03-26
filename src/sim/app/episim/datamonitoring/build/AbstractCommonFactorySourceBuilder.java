@@ -29,12 +29,12 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("import episiminterfaces.*;\n");
 		this.factorySource.append("import episimexceptions.*;\n");
 		this.factorySource.append("import episimfactories.*;\n");
-		this.factorySource.append("import sim.util.Bag;\n");
 		this.factorySource.append("import sim.field.continuous.*;\n");
 		this.factorySource.append("import sim.engine.Steppable;\n");
-		this.factorySource.append("import sim.util.Bag;\n");
 		this.factorySource.append("import sim.field.continuous.*;\n");
 		this.factorySource.append("import sim.app.episim.util.EnhancedSteppable;\n");
+		this.factorySource.append("import sim.app.episim.util.GenericBag;\n");
+		this.factorySource.append("import sim.app.episim.CellType;\n");
 	}
 	
 	protected void appendDataFields(){
@@ -44,7 +44,7 @@ public abstract class AbstractCommonFactorySourceBuilder {
 			}
 		}
 		this.factorySource.append("  private Continuous2D cellContinuous;\n");
-		this.factorySource.append("  private Bag allCells;\n");		
+		this.factorySource.append("  private GenericBag<CellType> allCells;\n");		
 	}
 	
 	protected void appendRegisterMethod(){
@@ -52,7 +52,7 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("  if(objects == null) throw new IllegalArgumentException(\"Objects-Array with Objects to be registered for charting must not be null\");\n");
 		this.factorySource.append("  for(Object actObject: objects){\n");
 		this.factorySource.append("    if(actObject instanceof Continuous2D) this.cellContinuous = (Continuous2D) actObject;\n");
-		this.factorySource.append("    else if(actObject instanceof Bag) this.allCells = (Bag) actObject;\n");
+		this.factorySource.append("    else if(actObject instanceof GenericBag) this.allCells = (GenericBag) actObject;\n");
 		for(Class<?> actClass : this.requiredClasses){
 			if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
 				this.factorySource.append("    else if(actObject instanceof "+actClass.getSimpleName()+") this."+Names.convertClassToVariable(actClass.getSimpleName())+" = ("+actClass.getSimpleName()+") actObject;\n"); 

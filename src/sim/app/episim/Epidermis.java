@@ -3,6 +3,7 @@ package sim.app.episim;
 
 
 import sim.Dummy;
+import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
@@ -16,6 +17,7 @@ import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GenericBag;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -78,17 +80,8 @@ public class Epidermis extends TissueType implements SnapshotListener
 	private Continuous2D rulerContinous2D;
 	private Continuous2D gridContinous2D;
    
-	private Bag allCells=new Bag(3000); //all cells will be stored in this bag
+	private GenericBag<CellType> allCells=new GenericBag<CellType>(3000); //all cells will be stored in this bag
 	private int allocatedKCytes=0;   // allocated memory
-	private int actualStem=0;        // Stem cells
-	private int actualKCytes=0;      // num of kcytes that are not in nirvana
-	private int actualSpi=0;         // Spinosum
-	private int actualTA=0;          // TA Cells
-	private int actualLateSpi=0;     // Late Spinosum
-	private int actualGranu=0;       // num of Granulosum KCytes
-	private int actualCorneum=0;       // num of Granulosum KCytes
-	private int actualNoNucleus=0;   // Cells after lifetime but not shed from the surface
-	private int actualBasalStatisticsCells=0;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
 	
 	private  int PNG_ChartWidth=400;
 	private  int PNG_ChartHeight=300;
@@ -103,7 +96,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 		
 	private int individualColor=1;
 	 
-	private double gTimefactor=0.5;   // conversion from timeticks to h for all diagrams: 2 time ticks mean 1 hour
+	
 	 
    private double consistency = 0.0;
    private double minDist=0.1;    
@@ -167,25 +160,25 @@ public class Epidermis extends TissueType implements SnapshotListener
  void printChartToPDF( JFreeChart chart, int width, int height, String fileName )
  {
      // call: printChartToPDF( EpidermisClass.createChart(), 500, 500, "test.pdf" );
- try
-     {
-     Document document = new Document(new com.lowagie.text.Rectangle(width,height));
-     PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
-     document.addAuthor("Thomas Sütterlin");
-     document.open();
-     PdfContentByte cb = writer.getDirectContent();
-     PdfTemplate tp = cb.createTemplate(width, height); 
-     Graphics2D g2 = tp.createGraphics(width, height, new DefaultFontMapper());
-     Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, width, height); 
-     chart.draw(g2, rectangle2D);
-     g2.dispose();
-     cb.addTemplate(tp, 0, 0);
-     document.close();
-     }
- catch( Exception e )
-     {
-     e.printStackTrace();
-     }
+	 try
+	     {
+	     Document document = new Document(new com.lowagie.text.Rectangle(width,height));
+	     PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
+	     document.addAuthor("Thomas Sütterlin");
+	     document.open();
+	     PdfContentByte cb = writer.getDirectContent();
+	     PdfTemplate tp = cb.createTemplate(width, height); 
+	     Graphics2D g2 = tp.createGraphics(width, height, new DefaultFontMapper());
+	     Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, width, height); 
+	     chart.draw(g2, rectangle2D);
+	     g2.dispose();
+	     cb.addTemplate(tp, 0, 0);
+	     document.close();
+	     }
+	 catch( Exception e )
+	     {
+	     e.printStackTrace();
+	     }
  }
  
     
@@ -224,13 +217,8 @@ public class Epidermis extends TissueType implements SnapshotListener
 			double x = 0;
 			// seeding the stem cells
 			allocatedKCytes = 0; // allocated memory
-			actualKCytes = 0; // num of kcytes that are not in nirvana
-			actualSpi = 0; // Spinosum
-			actualTA = 0; // TA Cells
-			actualLateSpi = 0; // Late Spinosum
-			actualGranu = 0;
-			actualNoNucleus = 0;
-			actualStem = 0;
+			GlobalStatistics.getInstance().reset();
+	
 
 			Double2D lastloc = new Double2D(2, TissueBorder.getInstance().lowerBound(2));
 			for(x = 2; x <= TissueBorder.getInstance().getWidth(); x += 2){
@@ -246,7 +234,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 					if(distance > biomechModelContr.getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
 
 						// TODO: Check creation of Stem Cells
-						KCyte stemCell = new KCyte(this, biochemModelContr.getNewEpisimCellDiffModelObject());
+						KCyte stemCell = new KCyte(GlobalStatistics.getInstance().getActualNumberOfKCytes(),-1,this, biochemModelContr.getNewEpisimCellDiffModelObject());
 						// stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
 						stemCell.setOwnColor(10);
 						stemCell.getEpisimCellDiffModelObject().setAge(
@@ -266,8 +254,8 @@ public class Epidermis extends TissueType implements SnapshotListener
 						stemCell.setStoppable(stoppable);
 						// x+=basalDensity; // in any case jump a step to the right to
 						// avoid overlay of stem cells
-						actualStem++;
-						actualKCytes++;
+						GlobalStatistics.getInstance().inkrementActualNumberStemCells();
+						GlobalStatistics.getInstance().inkrementActualNumberKCytes();
 					}
 			}
 
@@ -439,37 +427,11 @@ public class Epidermis extends TissueType implements SnapshotListener
      // CHART Updating Kinetics Chart
      //////////////////////////////////////
      // clear is necessary for restart of simulation
-    /* 
+   
 
-     Steppable chartUpdaterKinetics= new Steppable()
-    {
-         public void step(SimState state)
-         {            	
-         	// add a new (X,Y) point on the graph, with X = the time step and Y = the number of live cells
-         	//ChartSeries_KCyte_All.add((double)(state.schedule.time()), actualKCytes);    
-             double meanCycleTime=0;
-             double turnover=0;
-             //double growthFraction=0; // instead globally defined
-             if (actualKCytes>0)
-             {
-                 meanCycleTime=(actualStem*modelController.getBioChemicalModelController().getIntField("stemCycle_t")+actualTA*modelController.getBioChemicalModelController().getIntField("tACycle_t"))/(actualStem+actualTA);
-                 epiSimCharts.getXYSeries("ChartSeries_Kinetics_MeanCycleTime").add((double)(state.schedule.time()*gTimefactor), meanCycleTime*gTimefactor);
-                 if (actualBasalStatisticsCells>0)
-                     gStatistics_GrowthFraction=100*(actualTA+actualStem)/actualBasalStatisticsCells;
-                 if (gStatistics_GrowthFraction>100) gStatistics_GrowthFraction=100;
-                 //ChartSeries_Kinetics_GrowthCells.add((double)(state.schedule.time()), growthFraction);                
-                 epiSimCharts.getXYSeries("ChartSeries_Kinetics_GrowthFraction").add((double)(state.schedule.time()*gTimefactor), gStatistics_GrowthFraction);                
-                 if (meanCycleTime>0) 
-                     gStatistics_TurnoverTime=(actualKCytes)*meanCycleTime/(actualTA+actualStem); // Number of cells producing X mean production per time
-                 else
-                     gStatistics_TurnoverTime=0;
-                 epiSimCharts.getXYSeries("ChartSeries_Kinetics_Turnover").add((double)(state.schedule.time()*gTimefactor), gStatistics_TurnoverTime*gTimefactor);
-             }
-         }
-     };
-     // Schedule the agent to update the chart
-     schedule.scheduleRepeating(chartUpdaterKinetics, 100);
-     
+    
+    
+    /* 
      //////////////////////////////////////        
      // CHART Updating Num Cell Chart
      //////////////////////////////////////
@@ -785,25 +747,25 @@ public class Epidermis extends TissueType implements SnapshotListener
              public void step(SimState state)
              {
                  int MAX_XBINS=300; // for every 3 x coordinates one bin
-                 KCyte[] XLookUp=new KCyte[MAX_XBINS];                                         
-                 double [] YLookUp=new double[MAX_XBINS]; // Concentrations *10 = 0 to 200
+                 CellType[] xLookUp=new CellType[MAX_XBINS];                                         
+                 double [] yLookUp=new double[MAX_XBINS]; // Concentrations *10 = 0 to 200
                  boolean [] LookUpUsed=new boolean[MAX_XBINS]; 
                  for (int k=0; k< MAX_XBINS; k++)
                  {
-                     YLookUp[k]=9999.9; // deepest value, all coming are above
-                     XLookUp[k]=null;
+                     yLookUp[k]=9999.9; // deepest value, all coming are above
+                     xLookUp[k]=null;
                  }
                  gStatistics_KCytes_MeanAge=0;
                  gStatistics_Barrier_ExtCalcium=0;
                  gStatistics_Barrier_Lipids=0;
                  gStatistics_Barrier_Lamella=0;
                  int OldNumOuterCells=0;                    
-                 actualBasalStatisticsCells=0;                    
+                                 
                  
                  for (int i=0; i<allCells.size(); i++)
                  {
                      // iterate through all cells and determine the KCyte with lowest Y at bin
-                     KCyte act=(KCyte)allCells.get(i);
+                     CellType act=(CellType)allCells.get(i);
                      if (act.isInNirvana()) continue;
                      // is a living cell..
             /*         
@@ -820,16 +782,16 @@ public class Epidermis extends TissueType implements SnapshotListener
                      //act.isOuterCell=false; // set new default 
                      Double2D loc=cellContinous2D.getObjectLocation(act);
                      int xbin=(int)loc.x/InitialKeratinoSize;
-                     if (XLookUp[xbin]==null) 
+                     if (xLookUp[xbin]==null) 
                      {
-                         XLookUp[xbin]=act;                            
-                         YLookUp[xbin]=loc.y;
+                         xLookUp[xbin]=act;                            
+                         yLookUp[xbin]=loc.y;
                      }
                      else
-                         if (loc.y<YLookUp[xbin]) 
+                         if (loc.y<yLookUp[xbin]) 
                          {
-                             XLookUp[xbin]=act;
-                             YLookUp[xbin]=loc.y;
+                             xLookUp[xbin]=act;
+                             yLookUp[xbin]=loc.y;
                          }
                      /*
                      // other statistics
@@ -846,10 +808,11 @@ public class Epidermis extends TissueType implements SnapshotListener
 
                  for (int k=0; k< MAX_XBINS; k++)
                  {
-                     if ((XLookUp[k]==null) || (XLookUp[k].getEpisimCellDiffModelObject().getDifferentiation()==EpisimCellDiffModelGlobalParameters.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
-                     XLookUp[k].setOuterCell(true);
+                     if ((xLookUp[k]==null) || (xLookUp[k].getEpisimCellDiffModelObject().getDifferentiation()==EpisimCellDiffModelGlobalParameters.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+                     xLookUp[k].setIsOuterCell(true);
                  }
                  // other statistics
+                 /*
                  gStatistics_KCytes_MeanAge/=actualKCytes-actualNoNucleus;
                  gStatistics_Barrier_ExtCalcium/=OldNumOuterCells;
                  gStatistics_Barrier_Lipids/=OldNumOuterCells;
@@ -868,7 +831,7 @@ public class Epidermis extends TissueType implements SnapshotListener
                  gStatistics_Apoptosis_EarlySpiCounter=0;
                  gStatistics_Apoptosis_LateSpiCounter=0;
                  gStatistics_Apoptosis_GranuCounter=0;
-
+*/
              }
      };
      // Schedule the agent to update is Outer Flag
@@ -891,18 +854,15 @@ public class Epidermis extends TissueType implements SnapshotListener
  	}
 
 	public void removeCells(GeneralPath path){
-	Iterator iter = allCells.iterator();
+	Iterator<CellType> iter = allCells.iterator();
 		
 		while(iter.hasNext()){
-		  Object obj = iter.next();
-		  if (obj instanceof KCyte){
-			  KCyte kcyte =(KCyte) obj;
-			  if(path.contains(kcyte.getLastDrawInfoX(), kcyte.getLastDrawInfoY())){ 
-				  System.out.println("Zelle gelöscht");
-				  //iter.remove();
-				  kcyte.killCell();
-			  }
-		  }
+			CellType cell = iter.next();
+		  
+			if(path.contains(cell.getLastDrawInfoX(), cell.getLastDrawInfoY())){ 
+			  
+				  cell.killCell();
+			}
 		}
 	}
 
@@ -917,41 +877,15 @@ public class Epidermis extends TissueType implements SnapshotListener
  	public void inkrementNumberOfKCytes(){allocatedKCytes +=1;}
 	public void dekrementAllocatedKCytes(){allocatedKCytes -=1;}
 	
-	public void inkrementActualStem(){actualStem +=1;}
-	public void dekrementActualStem(){actualStem -=1;}
-
-	public void inkrementActualKCytes(){actualKCytes +=1;}
-	public void dekrementActualKCytes(){actualKCytes -=1;}
-
-	public void inkrementActualSpi(){actualSpi +=1;}
-	public void dekrementActualSpi(){actualSpi -=1;}
-
-	public void inkrementActualTA(){actualTA +=1;}
-	public void dekrementActualTA(){actualTA -=1;}
-
-	public void inkrementActualLateSpi(){actualLateSpi +=1;}
-	public void dekrementActualLateSpi(){actualLateSpi -=1;}
-
-
-	public void inkrementActualGranu(){actualGranu +=1;}
-	public void dekrementActualGranu(){actualGranu -=1;}
-
-	public void inkrementActualCorneum(){actualCorneum +=1;}
-	public void dekrementActualCorneum(){actualCorneum -=1;}
-
-	public void inkrementActualNoNucleus(){actualNoNucleus +=1;}
-	public void dekrementActualNoNucleus(){actualNoNucleus -=1;}
-
-	public void inkrementActualBasalStatisticsCells(){actualBasalStatisticsCells +=1;}
-	public void dekrementActualBasalStatisticsCells(){actualBasalStatisticsCells -=1;}
+	
 	
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //GETTER-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 
-	public int getActualKCytes() { return actualKCytes; }
-	public Bag getAllCells() {	return allCells; }
+	
+	public GenericBag<CellType> getAllCells() {	return allCells; }
 	public int getNumberOfKCytes() { return allocatedKCytes; }
 	public static List <Class<? extends CellType>> getAvailableCellTypes; 
 	
@@ -1012,8 +946,8 @@ public class Epidermis extends TissueType implements SnapshotListener
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	 
  
-	public void setActualKCytes(int actualKCytes) {	this.actualKCytes = actualKCytes; }
-	public void setAllCells(Bag allCells) { this.allCells = allCells; }
+	
+	public void setAllCells(GenericBag<CellType> allCells) { this.allCells = allCells; }
 	public void setAllocatedKCytes(int allocatedKCytes) {	this.allocatedKCytes = allocatedKCytes; }
 	
 	public void setBasementContinous2D(Continuous2D basementContinous2D) { this.basementContinous2D = basementContinous2D; }

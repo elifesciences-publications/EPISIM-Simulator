@@ -1,4 +1,5 @@
 package sim.app.episim;
+import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
 
 import sim.app.episim.model.BioChemicalModelController;
@@ -48,7 +49,7 @@ public class KCyte extends CellType
    private transient BioChemicalModelController biochemModelController;
    private transient BioMechanicalModelController biomechModelController;
    
-   private int gKeratinoWidthGranu=9; // defauolt: 10
+   private int gKeratinoWidthGranu=9; // default: 10
    private int gKeratinoHeightGranu=4;
                 
    private Double2D lastd = new Double2D(0,0);
@@ -58,8 +59,7 @@ public class KCyte extends CellType
    
    
    
-   private double lastDrawInfoX;
-   private double lastDrawInfoY;
+   
    private boolean lastDrawInfoAssigned=false;
    private double neighborDrawInfoX[]=new double[50];
    private double neighborDrawInfoY[]=new double[50];  
@@ -73,14 +73,14 @@ public class KCyte extends CellType
    private int keratinoHeight=-1; // höhe keratino
    
    private int ownColor=0;
-   private int motherIdentity=-1;   // -1 means not filled yet
-   private boolean inNirvana=false; // unvisible and without action: only ageing is active
+  
+   
    
    private int spinosum_counter=0;
   
    // public boolean dead = false;
    private Vector2D extForce = new Vector2D(0,0);
-   private int identity=0;
+   
    private long local_maxAge;
    
    private boolean birthWish=false;
@@ -89,9 +89,7 @@ public class KCyte extends CellType
 
   
    
-   private boolean isOuterCell=false;
-   private boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
-   private boolean isMembraneCell=false;    // cells directly sitting on membrane, very strict
+  
    
    private Stoppable stoppable = null;
    
@@ -105,10 +103,11 @@ public class KCyte extends CellType
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
    public KCyte(){
-   this(null, null);
+   this(-1, -1, null, null);
    }
-    public KCyte(Epidermis epidermis, EpisimCellDiffModel cellDiffModel)
+    public KCyte(int identity, int motherIdentity, Epidermis epidermis, EpisimCellDiffModel cellDiffModel)
     {
+   	 super(identity, motherIdentity);
    	 modelController = ModelController.getInstance();
    	 biochemModelController = modelController.getBioChemicalModelController();
    	 biomechModelController = modelController.getBioMechanicalModelController();
@@ -117,10 +116,10 @@ public class KCyte extends CellType
     	 this.cellDiffModelObjekt = cellDiffModel;
     	 if(cellDiffModel == null) this.cellDiffModelObjekt = biochemModelController.getNewEpisimCellDiffModelObject();
        extForce=new Vector2D(0,0);
-       inNirvana=false;        
+         
        keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
        keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
-       isOuterCell=false;        
+         
                
        voronoihullvertexes=0;
        voronoiStable=0;
@@ -205,7 +204,7 @@ public class KCyte extends CellType
             // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
             // for each collision calc a pressure vector and add it to the other's existing one
             HitResultClass hitResult=new HitResultClass();            
-            if (b==null || b.numObjs == 0 || this.inNirvana) return hitResult;
+            if (b==null || b.numObjs == 0 || this.isInNirvana()) return hitResult;
             
             
             
@@ -252,8 +251,8 @@ public class KCyte extends CellType
                                                 if (actdist < (optDist*1.7))
                                                 {
                                                     if (other.lastDrawInfoAssigned==true)
-                                                        neighborDrawInfoX[formCount]=other.lastDrawInfoX;
-                                                        neighborDrawInfoY[formCount]=other.lastDrawInfoY;
+                                                        neighborDrawInfoX[formCount]=other.getLastDrawInfoX();
+                                                        neighborDrawInfoY[formCount]=other.getLastDrawInfoY();
                                                     ++formCount;
                                                 }
                                             }
@@ -268,10 +267,10 @@ public class KCyte extends CellType
                                             //fx=elastic(fx);
                                             //fy=elastic(fy);
                                             hitResult.numhits++;
-                                            hitResult.otherId=other.identity;
-                                            hitResult.otherMotherId=other.motherIdentity;
+                                            hitResult.otherId=other.getIdentity();
+                                            hitResult.otherMotherId=other.getMotherIdentity();
                                             
-                                            if ((other.motherIdentity==identity) || (other.identity==motherIdentity))
+                                            if ((other.getMotherIdentity()==getIdentity()) || (other.getIdentity()==getMotherIdentity()))
                                             {
                                                 //fx*=1.5;// birth pressure is greater than normal pressure
                                                 //fy*=1.5;
@@ -309,7 +308,7 @@ public class KCyte extends CellType
                           neighbors++;                         
                           
                           // lipids do not diffuse
-                          if ((dy>0) && (other.isOuterCell)) hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
+                          if ((dy>0) && (other.isOuterCell())) hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
                         }
                     }
                 }    
@@ -326,7 +325,7 @@ public class KCyte extends CellType
     public void setPositionRespectingBounds(Continuous2D pC2dHerd, Double2D p_potentialLoc)
     {
         // modelling a hole in the wall at position hole holeX with width  holeHalfWidth
-        if (inNirvana) 
+        if (isInNirvana()) 
                 return;
         double newx=p_potentialLoc.x;
         double newy=p_potentialLoc.y;               
@@ -363,7 +362,7 @@ public class KCyte extends CellType
             if (newy>pC2dHerd.height) // unterste Auffangebene
             {
                 newy=pC2dHerd.height; 
-                inNirvana=true;
+                setInNirvana(true);
                
             }
 
@@ -389,17 +388,17 @@ public class KCyte extends CellType
    	 // Either we get use a currently unused cell oder we allocate a new one
         KCyte kcyte;        
        
-            kcyte= new KCyte(epidermis, cellDiffModel); 
+            kcyte= new KCyte(epidermis.getNumberOfKCytes(), getIdentity(), epidermis, cellDiffModel); 
             epidermis.inkrementNumberOfKCytes();
-            kcyte.identity = epidermis.getNumberOfKCytes();
-            cellDiffModel.setId(kcyte.identity);
+            
+            cellDiffModel.setId(kcyte.getIdentity());
             Stoppable stoppable = epidermis.schedule.scheduleRepeating(kcyte);   // schedule only if not already running
             kcyte.setStoppable(stoppable);
 
         Double2D newloc=cellContinous2D.getObjectLocation(this);
         newloc=new Double2D(newloc.x +epidermis.random.nextDouble()*0.5-0.25, newloc.y-epidermis.random.nextDouble()*0.5-0.1);
         
-        kcyte.motherIdentity=this.identity;
+       
         kcyte.ownColor=this.epidermis.random.nextInt(200);
         kcyte.epidermis = this.epidermis;        // the herd
              
@@ -418,14 +417,14 @@ public class KCyte extends CellType
 
     public void makeTACell(EpisimCellDiffModel cellDiffModel)
     {
-        epidermis.inkrementActualTA();
-        epidermis.inkrementActualKCytes();
+        
+        GlobalStatistics.getInstance().inkrementActualNumberKCytes();
         KCyte taCell=makeChild(cellDiffModel);
                     
         taCell.getEpisimCellDiffModelObject()
         	.setAge(this.epidermis.random.nextInt(biochemModelController.getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
         // erben der signal concentrationen
-        if(this.identity == 2 && !epidermis.alreadyfollow){
+        if(this.getIdentity() == 2 && !epidermis.alreadyfollow){
       	  taCell.follow = true;
       	  epidermis.alreadyfollow = true;
         }
@@ -433,8 +432,8 @@ public class KCyte extends CellType
     public boolean follow = false;
     public void makeSpiCell(EpisimCellDiffModel cellDiffModel)
     {
-        epidermis.inkrementActualSpi();
-        epidermis.inkrementActualKCytes();
+       
+   	 GlobalStatistics.getInstance().inkrementActualNumberKCytes();
         KCyte spiCell=makeChild(cellDiffModel);
         
         
@@ -494,11 +493,11 @@ public class KCyte extends CellType
     {
      
    	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
-   	 this.isOuterCell = isSurfaceCell(realNeighbours);
+   	 setIsOuterCell(isSurfaceCell(realNeighbours));
    	 this.cellDiffModelObjekt.setX(thisloc.getX());
    	 this.cellDiffModelObjekt.setY(-1*thisloc.getY());
-   	 this.cellDiffModelObjekt.setIsMembrane(this.isMembraneCell);
-   	 this.cellDiffModelObjekt.setIsSurface(this.isOuterCell || nextToOuterCell);
+   	 this.cellDiffModelObjekt.setIsMembrane(isMembraneCell());
+   	 this.cellDiffModelObjekt.setIsSurface(isOuterCell() || nextToOuterCell);
    	 this.cellDiffModelObjekt.setHasCollision(hasCollision);
    	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL) this.cellDiffModelObjekt.setAge(0);
    	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
@@ -531,10 +530,10 @@ public class KCyte extends CellType
     
     public void killCell(){
    	    	 
-   	 epidermis.dekrementActualNoNucleus();
+   	 GlobalStatistics.getInstance().dekrementActualNumberOfNoNucleus();
    	 this.cellDiffModelObjekt.setDifferentiation(EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA);
-   	 epidermis.dekrementActualKCytes();
-   	 inNirvana=true;            
+   	 GlobalStatistics.getInstance().dekrementActualNumberKCytes();
+   	 setInNirvana(true);            
    	 
    	 epidermis.getCellContinous2D().remove(this);
     }
@@ -545,7 +544,7 @@ public class KCyte extends CellType
 		final Epidermis epiderm = (Epidermis) state;
 		
 	
-		if(inNirvana){
+		if(isInNirvana()){
 			
 
 			removeFromSchedule();
@@ -649,7 +648,7 @@ public class KCyte extends CellType
 			// move only on pressure when not stem cell
 			if(this.cellDiffModelObjekt.getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL){
 				if((hitResult2.numhits == 0)
-						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.motherIdentity) || (hitResult2.otherMotherId == this.identity)))){
+						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.getMotherIdentity()) || (hitResult2.otherMotherId == this.getIdentity())))){
 					double dx = potentialLoc.x - oldLoc.x;
 					lastd = new Double2D(potentialLoc.x - oldLoc.x, potentialLoc.y - oldLoc.y);
 					setPositionRespectingBounds(epiderm.getCellContinous2D(), potentialLoc);
@@ -659,14 +658,14 @@ public class KCyte extends CellType
 			Double2D newLoc = epiderm.getCellContinous2D().getObjectLocation(this);
 			double maxy = TissueBorder.getInstance().lowerBound(newLoc.x);
 			if((maxy - newLoc.y) < biomechModelController.getEpisimMechanicalModelGlobalParameters().getBasalLayerWidth())
-				isBasalStatisticsCell = true;
+				setIsBasalStatisticsCell(true);
 			else
-				isBasalStatisticsCell = false; // ABSOLUTE DISTANZ KONSTANTE
+				setIsBasalStatisticsCell(false); // ABSOLUTE DISTANZ KONSTANTE
 
 			if((maxy - newLoc.y) < biomechModelController.getEpisimMechanicalModelGlobalParameters().getMembraneCellsWidth())
-				isMembraneCell = true;
+				setIsMembraneCell(true);
 			else
-				isMembraneCell = false; // ABSOLUTE DISTANZ KONSTANTE
+				setIsMembraneCell(false); // ABSOLUTE DISTANZ KONSTANTE
 
 			
 
@@ -724,10 +723,10 @@ public class KCyte extends CellType
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 	
-	public void incrementSpinosumCounter(){ spinosum_counter +=1;}
+
 	public void incrementVoronoiStable(){ voronoiStable +=1; }
 	
-	public void decrementSpinosumCounter(){ spinosum_counter -=1;}
+
 	public void decrementVoronoiStable(){ voronoiStable -= 1; }
 		
 	
@@ -747,7 +746,7 @@ public class KCyte extends CellType
    
    public int getHasGivenIons() { return hasGivenIons; }
    
-   public int getIdentity() { return identity; }   // for inspector
+   
    
    
   
@@ -756,8 +755,7 @@ public class KCyte extends CellType
 	public int getKeratinoWidth() {return keratinoWidth;}
 	
 	
-	public double getLastDrawInfoX() { return lastDrawInfoX;	}
-	public double getLastDrawInfoY() { return lastDrawInfoY; }
+	
 
 	public long getLocal_maxAge() {return local_maxAge;}
 	
@@ -775,12 +773,12 @@ public class KCyte extends CellType
    
 	
 	
-	public boolean isBasalStatisticsCell() { return isBasalStatisticsCell; }   // for inspector 
+	
 	public boolean isBirthWish() { return birthWish; }   // for inspector
-	public boolean isMembraneCell() { return isMembraneCell; }   // for inspector
-	public boolean isInNirvana() { return inNirvana; }
+	
+	
 	public boolean isLastDrawInfoAssigned() {	return lastDrawInfoAssigned; }
-	public boolean isOuterCell() { return isOuterCell; }   // for inspector
+
         
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 // SETTER-METHODS
@@ -795,7 +793,7 @@ public class KCyte extends CellType
 	
 	public void setHasGivenIons(int hasGivenIons) {	this.hasGivenIons = hasGivenIons; }
 	
-	public void setInNirvana(boolean inNirvana) { this.inNirvana = inNirvana; }
+	
 	
 	
 	public void setKeratinoHeight(int keratinoHeight) { this.keratinoHeight = keratinoHeight;	}
@@ -803,17 +801,16 @@ public class KCyte extends CellType
 	public void setKeratinoWidth(int keratinoWidth) { this.keratinoWidth = keratinoWidth; }
 	
 	public void setLastDrawInfoAssigned(boolean lastDrawInfoAssigned) { this.lastDrawInfoAssigned = lastDrawInfoAssigned; }
-	public void setLastDrawInfoX(double lastDrawInfoX) { this.lastDrawInfoX = lastDrawInfoX; }
-	public void setLastDrawInfoY(double lastDrawInfoY) { this.lastDrawInfoY = lastDrawInfoY; }
+	
 	public void setLocal_maxAge(long local_maxAge) { this.local_maxAge = local_maxAge; }
 	
-	public void setMembraneCell(boolean isMembraneCell) {	this.isMembraneCell = isMembraneCell; }
+	
 	public void setModelController(ModelController modelController) { this.modelController =modelController;	}
 	
 	public void setNeighborDrawInfoX(double[] neighborDrawInfoX) { this.neighborDrawInfoX = neighborDrawInfoX; }
    public void setNeighborDrawInfoY(double[] neighborDrawInfoY) { this.neighborDrawInfoY = neighborDrawInfoY; }
 	
-	public void setOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell;}
+	
 	public void setOwnColor(int ownColor) { this.ownColor = ownColor; }
 	
 	

@@ -114,6 +114,19 @@ public class ChartController {
 		closeActLoadedChartSet();
 	}
 	
+	public void activateDefaultChart(String name){
+		DefaultCharts.getInstance().activateDefaultChart(name);
+	}
+	
+	public void deactivateDefaultChart(String name){
+		DefaultCharts.getInstance().deactivateDefaultChart(name);
+	}
+	
+	public void showDefaultChartsSelectionDialog(Frame parent){
+		DefaultChartSelectDialog dialog = new DefaultChartSelectDialog(parent, "Select Episim-Defaul-Charts", true, DefaultCharts.getInstance().getNamesAndActivationStatusOfAvailableDefaultCharts());
+		dialog.setVisible(true);
+	}
+	
 	public  List<ChartPanel> getChartPanelsofActLoadedChartSet(){
 		return ChartPanelAndSteppableServer.getInstance().getChartPanels();
 	}
@@ -136,6 +149,14 @@ public class ChartController {
 		}
 	}
 	
+	public void rebuildDefaultCharts(){
+		DefaultCharts.rebuildCharts();
+	}
+	
+	protected void registerDefaultChartsAtServer(){
+		ChartPanelAndSteppableServer.getInstance().registerDefaultChartPanels(DefaultCharts.getInstance().getChartPanelsOfActivatedDefaultCharts());
+	}
+	
 	protected void storeEpisimChartSet(EpisimChartSet chartSet){
 		ECSFileWriter fileWriter = new ECSFileWriter(chartSet.getPath());
 		fileWriter.createChartSetArchive(chartSet);
@@ -155,7 +176,7 @@ public class ChartController {
 		try{
 			ECSFileReader ecsReader = new ECSFileReader(url);
 			this.actLoadedChartSet = ecsReader.getEpisimChartSet();
-			ChartPanelAndSteppableServer.getInstance().registerChartPanels(ecsReader.getChartPanels());
+			ChartPanelAndSteppableServer.getInstance().registerCustomChartPanels(ecsReader.getChartPanels());
 			CompatibilityChecker checker = new CompatibilityChecker();
 			checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
 			return true;

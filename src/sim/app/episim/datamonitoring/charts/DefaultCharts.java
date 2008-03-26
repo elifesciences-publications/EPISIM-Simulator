@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.jfree.data.xy.XYSeries;
@@ -38,6 +39,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import org.jfree.chart.*;
 
+import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
@@ -47,21 +50,36 @@ import sim.engine.Steppable;
 
 public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	
+	
+	private double TIMEFACTOR=0.5;   // conversion from timeticks to h for all diagrams: 2 time ticks mean 1 hour
+	
+	
    //Schlüssel setzt sich XYSeriesCollection-Name Position 0 und XYSeries-Name zusammen
 	private HashMap<String[], XYSeries> xySeries = new HashMap<String[], XYSeries>();
 	private HashMap<String, XYSeriesCollection> xySeriesCollections = new HashMap<String, XYSeriesCollection>();
 	private HashMap<String, DefaultCategoryDataset> categoryDatasets = new HashMap<String, DefaultCategoryDataset>();
-	private HashMap<String, JFreeChart> charts = new HashMap<String, JFreeChart>();
+	private HashMap<String, ChartPanel> chartsMap = new HashMap<String, ChartPanel>();
+	private HashMap<String, EnhancedSteppable> steppablesMap = new HashMap<String, EnhancedSteppable>();
+	private HashMap<String, Boolean> chartEnabled = new HashMap<String, Boolean>();
 	
-	private List<EnhancedSteppable> defaultSteppables;
+	
+	
+	//Available Default Charts
+	private final String PERFORMANCE = "Performance";
+	private final String CELLCOUNTS = "Cell Counts";
+	private final String TISSUEKINETICPARAMETERS = "Tissue Kinetic Parameters";
+	private final String PARTICLECONCENTRATIONSINBARRIER = "Particle Concentrations in Barrier";
+	private final String CELLDEATH = "Cell Death";
+	private final String PARTICLESPERCELLTYPE = "Particles per Cell Type";
+	private final String AGEGRADIENT = "Age Gradient";
 	
 	
 	private static  DefaultCharts instance;
 	
 	private DefaultCharts() {
-		defaultSteppables = new ArrayList<EnhancedSteppable>();
+		initChartActivationMap();
 		addDefaultSteppables();
-	SnapshotWriter.getInstance().addSnapshotListener(this);
+		SnapshotWriter.getInstance().addSnapshotListener(this);
 		XYLineAndShapeRenderer lineShapeRenderer;
 		JFreeChart chart;
 		XYPlot xyPlot;
@@ -78,13 +96,13 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 
 		xySeries.put(new String[] { "Steps_Time", "Performance_Series" }, new XYSeries("Steps / Time"));
 		
-		xySeries.put(new String[] { "Num_Cells_Steps", "Performance_Series_Num_Cells" }, new XYSeries("Steps / Time"));
+		xySeries.put(new String[] { "Num_Cells_Steps", "Performance_Series_Num_Cells" }, new XYSeries("Number Of Cells"));
 		
 		xySeriesCollections.put("Performance_Series", new XYSeriesCollection());
 		xySeriesCollections.put("Performance_Series_Num_Cells", new XYSeriesCollection());
 		
 
-		chart = ChartFactory.createXYLineChart("Performance", "Steps", "Steps per time", 
+		chart = ChartFactory.createXYLineChart(PERFORMANCE, "Steps", "Steps per time", 
 				xySeriesCollections.get("Performance_Series"), PlotOrientation.VERTICAL, true, true, false); 		
 		
 		chart.setBackgroundPaint(Color.white);
@@ -113,7 +131,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		
 		
 		
-		charts.put("Performance", chart);
+		chartsMap.put(PERFORMANCE, new ChartPanel(chart));
 
 		// ///////////////////////////////////
 		// Charts: NumCells
@@ -130,7 +148,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		xySeriesCollections.put("ChartSeries_KCytes", new XYSeriesCollection());
 		xySeriesCollections.put("ChartSeries_MeanAgeColl", new XYSeriesCollection());
 
-		chart = ChartFactory.createXYLineChart("Cell Counts", "Time in h", "Cell Number", 
+		chart = ChartFactory.createXYLineChart(CELLCOUNTS, "Time in h", "Cell Number", 
 				xySeriesCollections.get("ChartSeries_KCytes"), PlotOrientation.VERTICAL, true, true, false); 		
 		
 		chart.setBackgroundPaint(Color.white);
@@ -162,7 +180,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		xyPlot.setRenderer(1, rendererXYItem);
 		
 		
-		charts.put("NumCells", chart);
+		chartsMap.put(CELLCOUNTS, new ChartPanel(chart));
 		
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -177,7 +195,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		xySeriesCollections.put("ChartSeries_Kinetics100Coll", new XYSeriesCollection());
 		xySeriesCollections.put("ChartSeries_Kinetics2000Coll", new XYSeriesCollection());
 	   
-		chart = ChartFactory.createXYLineChart("Tissue Kinetic Parameters",  "Time in h", "Fraction (%) / Time", 
+		chart = ChartFactory.createXYLineChart(TISSUEKINETICPARAMETERS,  "Time in h", "Fraction (%) / Time", 
 		   		xySeriesCollections.get("ChartSeries_Kinetics100Coll"), PlotOrientation.VERTICAL, true, true, false);                                               
     
       chart.setBackgroundPaint(Color.white);
@@ -205,7 +223,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	   rendererXYItem.setSeriesPaint(0, Color.darkGray);
 	   xyPlot.setRenderer(1, rendererXYItem);        
 	   
-	   charts.put("KineticsStatistics", chart);
+	   chartsMap.put(TISSUEKINETICPARAMETERS, new ChartPanel(chart));
 		
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -219,7 +237,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	   
 	   xySeriesCollections.put("ChartSeries_Barrier", new XYSeriesCollection());
 	   
-	   chart = ChartFactory.createXYLineChart("Particle Concentrations in Barrier", "Time in h", "Concentration", 
+	   chart = ChartFactory.createXYLineChart(PARTICLECONCENTRATIONSINBARRIER, "Time in h", "Concentration", 
 	   		 xySeriesCollections.get("ChartSeries_Barrier"), PlotOrientation.VERTICAL, true, true, false);                                               
 
 		chart.setBackgroundPaint(Color.white);
@@ -236,7 +254,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		 lineShapeRenderer.setSeriesPaint(1, Color.green);   // 0 = Calcium
 		 lineShapeRenderer.setSeriesPaint(2, Color.red);    // 2 = Lamella
 		 
-		 charts.put("Barrier", chart);
+		 chartsMap.put(PARTICLECONCENTRATIONSINBARRIER, new ChartPanel(chart));
 			
 		 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	    
@@ -251,7 +269,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		 
 		 xySeriesCollections.put("ChartSeries_Apoptosis", new XYSeriesCollection());
 		 
-		 chart = ChartFactory.createXYLineChart("Cell Death", "Time in h", "Percentage",  
+		 chart = ChartFactory.createXYLineChart(CELLDEATH, "Time in h", "Percentage",  
 				 xySeriesCollections.get("ChartSeries_Apoptosis"), PlotOrientation.VERTICAL, true, true, false);   
 		
 		 chart.setBackgroundPaint(Color.white);
@@ -270,7 +288,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		 lineShapeRenderer.setSeriesPaint(2, Color.red);
 		 lineShapeRenderer.setSeriesPaint(3, Color.green);
 	  
-		 charts.put("Apoptosis", chart);
+		 chartsMap.put(CELLDEATH, new ChartPanel(chart));
 			
 		 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			
@@ -280,7 +298,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		 categoryDatasets.put("particleCellTypeDataset", new DefaultCategoryDataset()); 
 		 categoryDatasets.get("particleCellTypeDataset").clear();
 	    
-		 chart = ChartFactory.createBarChart("Particles per Cell Type", "Cell Type", "Concentration",  
+		 chart = ChartFactory.createBarChart(PARTICLESPERCELLTYPE, "Cell Type", "Concentration",  
 				 categoryDatasets.get("particleCellTypeDataset"), PlotOrientation.VERTICAL, true, true, false);
 
 	    chart.setBackgroundPaint(Color.white);
@@ -323,7 +341,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	           CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0)
 	       );
 	  
-	  charts.put("ParticleCellType", chart);
+	  chartsMap.put(PARTICLESPERCELLTYPE, new ChartPanel(chart));
 				
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -377,7 +395,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
       rendererXYItem2.setSeriesPaint(0, Color.black);
       xyPlot.setRenderer(1, rendererXYItem2);
       
-      charts.put("LineChartParticleDistributions", chart);
+      chartsMap.put("LineChartParticleDistributions", new ChartPanel(chart));
 		
  	  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       
@@ -388,7 +406,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
       
       xySeriesCollections.put("CollAge", new XYSeriesCollection());
       
-      chart = ChartFactory.createXYLineChart("Age Gradient", "Depth (µm)", "Age in h",
+      chart = ChartFactory.createXYLineChart(AGEGRADIENT, "Depth (µm)", "Age in h",
       		xySeriesCollections.get("CollAge"), PlotOrientation.VERTICAL, true, true, false);
 
       chart.setBackgroundPaint(Color.white);
@@ -422,12 +440,27 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
       renderer2.setSeriesPaint(0, Color.black);
       xyPlot.setRenderer(1, renderer2);
       
-      charts.put("AgeDistribution", chart);
+      chartsMap.put(AGEGRADIENT, new ChartPanel(chart));
 		
   	   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
        
       
 		addXYSeriesToCollections();
+	}
+	
+	private void initChartActivationMap(){
+		
+		chartEnabled.put(PERFORMANCE, false);
+		//chartEnabled.put(CELLCOUNTS, false);
+		chartEnabled.put(TISSUEKINETICPARAMETERS, false);
+		/*chartEnabled.put(PARTICLECONCENTRATIONSINBARRIER, false);
+		chartEnabled.put(CELLDEATH, false);
+		chartEnabled.put(PARTICLESPERCELLTYPE, false);
+		chartEnabled.put(AGEGRADIENT, false);*/
+	}
+	
+	public Map<String, Boolean> getNamesAndActivationStatusOfAvailableDefaultCharts(){
+		return (Map<String, Boolean>) this.chartEnabled.clone();
 	}
 	/**
 	 * Fügt die Series Objekte in die Collections ein
@@ -450,7 +483,15 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		
 	}
 	
-	public XYSeries getXYSeries(String name){
+	protected void activateDefaultChart(String name){
+		if(this.chartEnabled.containsKey(name)) this.chartEnabled.put(name, true);
+	}
+	
+	protected void deactivateDefaultChart(String name){
+		if(this.chartEnabled.containsKey(name)) this.chartEnabled.put(name, false);
+	}
+	
+	private XYSeries getXYSeries(String name){
 		Set keySet = xySeries.keySet();
 		Iterator <String[]> iter = keySet.iterator();
 		
@@ -463,90 +504,14 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		return null;
 	}
 	
-	public XYSeriesCollection getXYSeriesCollection(String name){
+	private XYSeriesCollection getXYSeriesCollection(String name){
 		return xySeriesCollections.get(name);
 	}
 	
 	
-	/////////////////////////////////////
-   // Charts: Steps / tick
-   /////////////////////////////////////
-  
-   public JFreeChart getPerformanceChart()
-   {
-         
-       return charts.get("Performance");
-   }
 	
-	
-	
-	
-	/////////////////////////////////////
-   // Charts: NumCells
-   /////////////////////////////////////
-  
-   public JFreeChart getNumCellsChart()
-   {
-         
-       return charts.get("NumCells");
-   }
-
-   /////////////////////////////////////
-   // Charts: Kinetics Statistics
-   /////////////////////////////////////
-      
-   public JFreeChart getKineticsChart()
-   {
        
-       return charts.get("KineticsStatistics");
-   }
-   
-   /////////////////////////////////////
-   // Charts: Barrier
-   /////////////////////////////////////
-   
-   public JFreeChart getBarrierChart()
-   {
-       return charts.get("Barrier");
-   }
-   
-   /////////////////////////////////////
-   // Charts: Apopotosis
-   /////////////////////////////////////
-   
-   public JFreeChart getApoptosisChart()
-   {
-         return charts.get("Apoptosis");
-   }
-
-   /////////////////////////////////////
-   // Charts: ParticleCellType
-   /////////////////////////////////////	
-       
-   public JFreeChart getParticleCellTypeChart() {
- 
-       return charts.get("ParticleCellType");
-   }
-      
-   ///////////////////////////////////////////////////
-   // Charts: LineChart Particle Distributions
-   /////////////////////////////////////////////////////
-
-   public JFreeChart getParticleDistribution() {
-   
-   	return charts.get("LineChartParticleDistributions");
-   }
-   
-   ///////////////////////////////////////////////////
-   // Charts: LineChart Age Distribution
-   /////////////////////////////////////////////////////
-   
-   public JFreeChart getAgeDistribution() {
-       
-       return charts.get("AgeDistribution");
-   }
-       
-   public DefaultCategoryDataset getDefaultCategoryDataset(String name){
+   private DefaultCategoryDataset getDefaultCategoryDataset(String name){
    	return categoryDatasets.get(name);
    }
 	
@@ -556,13 +521,13 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		return instance;
 	}
 	
-	public void clearSeries(){
+	protected void clearSeries(){
 	 Collection<XYSeries> col =	xySeries.values();
 	 Iterator<XYSeries> iter = col.iterator();
 	 while(iter.hasNext()) iter.next().clear();
 	}
 	
-	public static synchronized void  rebuildCharts(){
+	protected static synchronized void  rebuildCharts(){
 		instance = new DefaultCharts();
 	}
 	public List<SnapshotObject> collectSnapshotObjects() {
@@ -581,8 +546,29 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		instance = charts;
 	}
 	
+	
+	protected List<EnhancedSteppable> getSteppablesOfActivatedDefaultCharts(){
+		
+		return getActivatedElements(this.steppablesMap);
+	}
+	protected List<ChartPanel> getChartPanelsOfActivatedDefaultCharts(){
+		
+		return getActivatedElements(this.chartsMap);
+	}
+	
+	private <T> List<T> getActivatedElements(Map<String, T> elementsMap){
+		List<T> elements = new LinkedList<T>();
+		for(String actChartName: this.chartEnabled.keySet()){
+			if(this.chartEnabled.get(actChartName)){
+				elements.add(elementsMap.get(actChartName));
+			}
+		}
+		return elements;
+		
+	}
+	
 	private void addDefaultSteppables(){
-		this.defaultSteppables.add(new EnhancedSteppable()
+		this.steppablesMap.put(this.PERFORMANCE, new EnhancedSteppable()
 	    {
 	        private long previousTime = 0;
 	        private long previousSteps = 0;
@@ -614,6 +600,42 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	         return 0;
          }
 	     });
+		//chartUpdaterKinetics
+		this.steppablesMap.put(this.TISSUEKINETICPARAMETERS, new EnhancedSteppable()
+				{
+         public void step(SimState state)
+         {            	
+         	// add a new (X,Y) point on the graph, with X = the time step and Y = the number of live cells
+         	//ChartSeries_KCyte_All.add((double)(state.schedule.time()), actualKCytes);    
+             double meanCycleTime=0;
+             double turnover=0;
+             double gStatistics_GrowthFraction = 0;
+             double gStatistics_TurnoverTime = 0;
+             //double growthFraction=0; // instead globally defined
+             if (GlobalStatistics.getInstance().getActualNumberKCytes()>0)
+             {
+                 meanCycleTime=(GlobalStatistics.getInstance().getActualNumberStemCells()*ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleStem()
+               		             +GlobalStatistics.getInstance().getActualNumberTASells()*ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA())
+               		             /(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTASells());
+                 getXYSeries("ChartSeries_Kinetics_MeanCycleTime").add((double)(state.schedule.time()*TIMEFACTOR), meanCycleTime*TIMEFACTOR);
+                 if (GlobalStatistics.getInstance().getActualBasalStatisticsCells()>0)
+                     gStatistics_GrowthFraction=100*(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTASells())
+                                                      /GlobalStatistics.getInstance().getActualBasalStatisticsCells();
+                 if (gStatistics_GrowthFraction>100) gStatistics_GrowthFraction=100;
+                 //ChartSeries_Kinetics_GrowthCells.add((double)(state.schedule.time()), growthFraction);                
+                 getXYSeries("ChartSeries_Kinetics_GrowthFraction").add((double)(state.schedule.time()*TIMEFACTOR), gStatistics_GrowthFraction);                
+                 if (meanCycleTime>0) 
+                     gStatistics_TurnoverTime=(GlobalStatistics.getInstance().getActualNumberKCytes())*meanCycleTime/(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTASells()); // Number of cells producing X mean production per time
+                 else
+                     gStatistics_TurnoverTime=0;
+                 getXYSeries("ChartSeries_Kinetics_Turnover").add((double)(state.schedule.time()*TIMEFACTOR), gStatistics_TurnoverTime*TIMEFACTOR);
+             }
+         }
+         public double getInterval() {
+
+	         return 100;
+         }
+     });
 	}
 	
 }

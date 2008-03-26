@@ -76,6 +76,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	private JMenuItem menuItemLoadChartSet;
 	private JMenuItem menuItemNewChartSet;
 	private JMenuItem menuItemCloseChartSet;
+	private JMenuItem menuItemSelectDefaultCharts;
 	
 	private JMenu dataExportMenu;
 	private JMenuItem menuItemEditDataExport;
@@ -245,11 +246,25 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		});
 		menuItemCloseChartSet.setEnabled(false);
 		
+		menuItemSelectDefaultCharts = new JMenuItem("Select Episim Default-Charts");
+		menuItemSelectDefaultCharts.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				
+				ChartController.getInstance().showDefaultChartsSelectionDialog(simulator);
+				
+			}
+			
+		});
+		menuItemSelectDefaultCharts.setEnabled(true);
+		
 		chartMenu.add(menuItemNewChartSet);
 		chartMenu.add(menuItemLoadChartSet);
 		chartMenu.add(menuItemEditChartSet);
 		chartMenu.addSeparator();
 		chartMenu.add(menuItemCloseChartSet);
+		chartMenu.addSeparator();
+		chartMenu.add(menuItemSelectDefaultCharts);
 		menuBar.add(chartMenu);
 		
 		//--------------------------------------------------------------------------------------------------------------
@@ -416,7 +431,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			}
 			//System.out.println(success);
 			if(success){
-				DefaultCharts.rebuildCharts();
+				ChartController.getInstance().rebuildDefaultCharts();
 				cleanUpContentPane();
 				epiUI = new EpidermisGUIState(this);
 				epiUI.addSimulationStateChangeListener(this);

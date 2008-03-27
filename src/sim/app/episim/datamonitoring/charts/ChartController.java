@@ -29,6 +29,7 @@ import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.CompatibilityChecker;
+import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 public class ChartController {
 	
@@ -123,7 +124,7 @@ public class ChartController {
 	}
 	
 	public void showDefaultChartsSelectionDialog(Frame parent){
-		DefaultChartSelectDialog dialog = new DefaultChartSelectDialog(parent, "Select Episim-Defaul-Charts", true, DefaultCharts.getInstance().getNamesAndActivationStatusOfAvailableDefaultCharts());
+		DefaultChartSelectDialog dialog = new DefaultChartSelectDialog(parent, "Select Episim-Default-Charts", true, DefaultCharts.getInstance().getNamesAndActivationStatusOfAvailableDefaultCharts());
 		dialog.setVisible(true);
 	}
 	
@@ -153,8 +154,12 @@ public class ChartController {
 		DefaultCharts.rebuildCharts();
 	}
 	
+	protected void resetToOldDefaultChartSelectionValues(){
+		DefaultCharts.getInstance().resetToOldSelectionValues();
+	}
+	
 	protected void registerDefaultChartsAtServer(){
-		ChartPanelAndSteppableServer.getInstance().registerDefaultChartPanels(DefaultCharts.getInstance().getChartPanelsOfActivatedDefaultCharts());
+		ChartPanelAndSteppableServer.getInstance().registerDefaultChartPanelsAndSteppables(DefaultCharts.getInstance().getChartPanelsOfActivatedDefaultCharts(), DefaultCharts.getInstance().getSteppablesOfActivatedDefaultCharts());
 	}
 	
 	protected void storeEpisimChartSet(EpisimChartSet chartSet){
@@ -172,11 +177,15 @@ public class ChartController {
 		return loadEpisimChartSet(url, null);
 	}
 	
+	public List<EnhancedSteppable> getChartSteppablesOfActLoadedChartSet(){
+		return ChartPanelAndSteppableServer.getInstance().getChartSteppables();
+	}
+	
 	private boolean loadEpisimChartSet(URL url, Frame parent){
 		try{
 			ECSFileReader ecsReader = new ECSFileReader(url);
 			this.actLoadedChartSet = ecsReader.getEpisimChartSet();
-			ChartPanelAndSteppableServer.getInstance().registerCustomChartPanels(ecsReader.getChartPanels());
+			ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getChartSteppables());
 			CompatibilityChecker checker = new CompatibilityChecker();
 			checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
 			return true;

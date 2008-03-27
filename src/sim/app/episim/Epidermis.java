@@ -120,7 +120,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	private int    gStatistics_GrowthFraction=0;             // Percentage
 	private double gStatistics_TurnoverTime=0;             // Percentage
 	
-	
+	private List<EnhancedSteppable> chartSteppables = null;
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -139,6 +139,7 @@ public class Epidermis extends TissueType implements SnapshotListener
      
      ChartController.getInstance().setChartMonitoredTissue(this);
      DataExportController.getInstance().setDataExportMonitoredTissue(this);
+     ChartController.getInstance().registerChartSetChangeListener(this);
  }
 
  
@@ -259,6 +260,16 @@ public class Epidermis extends TissueType implements SnapshotListener
 					}
 			}
 
+			if(this.chartSteppables != null){
+				for(EnhancedSteppable steppable: this.chartSteppables){
+			   	schedule.scheduleRepeating(steppable, steppable.getInterval());
+			   }
+			}
+			
+			
+			
+			
+			
 			// BackImageClass backImage=new BackImageClass(this);
 			// schedule.scheduleOnce(backImage);
 
@@ -1018,6 +1029,14 @@ public class Epidermis extends TissueType implements SnapshotListener
 	   
 		return methods;
 	}
+
+
+
+	public void chartSetHasChanged() {
+
+		this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet();
+	   
+   }
 
 
 

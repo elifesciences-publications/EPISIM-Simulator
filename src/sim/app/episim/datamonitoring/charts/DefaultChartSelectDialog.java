@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -81,7 +82,13 @@ public class DefaultChartSelectDialog extends JDialog {
 	   this.buttonPanel = buildButtonPanel();
 	   getContentPane().add(buttonPanel, c);
 	   
-	  
+	   this.addWindowListener(new WindowAdapter(){
+	   	public void windowClosing(WindowEvent e){
+	   	 		ChartController.getInstance().resetToOldDefaultChartSelectionValues();
+	   	}
+	   });
+	   
+	   this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	   
 	   setSize(300, 200);
 		validate();

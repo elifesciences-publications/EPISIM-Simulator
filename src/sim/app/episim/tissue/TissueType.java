@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sim.app.episim.CellType;
+import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.engine.Schedule;
 import sim.engine.SimStateHack;
 
 
-public abstract class TissueType extends SimStateHack implements java.io.Serializable{
+public abstract class TissueType extends SimStateHack implements java.io.Serializable, ChartSetChangeListener{
 	
 	private List<Class<? extends CellType>> registeredCellTypes;
 	

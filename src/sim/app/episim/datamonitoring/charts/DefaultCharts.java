@@ -55,12 +55,13 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	
 	
    //Schlüssel setzt sich XYSeriesCollection-Name Position 0 und XYSeries-Name zusammen
-	private HashMap<String[], XYSeries> xySeries = new HashMap<String[], XYSeries>();
-	private HashMap<String, XYSeriesCollection> xySeriesCollections = new HashMap<String, XYSeriesCollection>();
-	private HashMap<String, DefaultCategoryDataset> categoryDatasets = new HashMap<String, DefaultCategoryDataset>();
-	private HashMap<String, ChartPanel> chartsMap = new HashMap<String, ChartPanel>();
-	private HashMap<String, EnhancedSteppable> steppablesMap = new HashMap<String, EnhancedSteppable>();
+	private Map<String[], XYSeries> xySeries = new HashMap<String[], XYSeries>();
+	private Map<String, XYSeriesCollection> xySeriesCollections = new HashMap<String, XYSeriesCollection>();
+	private Map<String, DefaultCategoryDataset> categoryDatasets = new HashMap<String, DefaultCategoryDataset>();
+	private Map<String, ChartPanel> chartsMap = new HashMap<String, ChartPanel>();
+	private Map<String, EnhancedSteppable> steppablesMap = new HashMap<String, EnhancedSteppable>();
 	private HashMap<String, Boolean> chartEnabled = new HashMap<String, Boolean>();
+	private HashMap<String, Boolean> chartEnabledOld = new HashMap<String, Boolean>();
 	
 	
 	
@@ -459,8 +460,10 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		chartEnabled.put(AGEGRADIENT, false);*/
 	}
 	
-	public Map<String, Boolean> getNamesAndActivationStatusOfAvailableDefaultCharts(){
-		return (Map<String, Boolean>) this.chartEnabled.clone();
+	protected HashMap<String, Boolean> getNamesAndActivationStatusOfAvailableDefaultCharts(){
+		this.chartEnabledOld = (HashMap<String, Boolean>)this.chartEnabled.clone();
+		return (HashMap<String, Boolean>)this.chartEnabled.clone();
+		
 	}
 	/**
 	 * Fügt die Series Objekte in die Collections ein
@@ -481,6 +484,10 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 			
 		}
 		
+	}
+	
+	protected void resetToOldSelectionValues(){
+		if(chartEnabledOld != null) this.chartEnabled = chartEnabledOld;
 	}
 	
 	protected void activateDefaultChart(String name){
@@ -587,7 +594,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	   		   if(deltaTime > 0){
 	   		   double stepsPerTime = deltaSteps/deltaTime;
 	         	getXYSeries("Steps_Time").add(state.schedule.getSteps(), stepsPerTime);
-	   		   //getXYSeries("Num_Cells_Steps").add(state.schedule.getSteps(), actualKCytes);
+	   		   getXYSeries("Num_Cells_Steps").add(state.schedule.getSteps(), GlobalStatistics.getInstance().getActualNumberKCytes());
 	   		   }
 	   		   }	
 	   		   
@@ -597,7 +604,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 			public double getInterval() {
 
 	         // TODO Auto-generated method stub
-	         return 0;
+	         return 100;
          }
 	     });
 		//chartUpdaterKinetics

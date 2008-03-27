@@ -14,6 +14,7 @@ import java.util.jar.Attributes;
 import org.jfree.chart.ChartPanel;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.util.EnhancedSteppable;
 import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractChartSetFactory;
 import episimfactories.AbstractEpisimCellDiffModelFactory;
@@ -84,6 +85,10 @@ public class ECSFileReader extends URLClassLoader {
 	    
 	public List<ChartPanel> getChartPanels(){
 		return this.factory.getChartPanels();
+	}
+	
+	public List<EnhancedSteppable> getChartSteppables(){
+		return this.factory.getSteppablesOfCharts();
 	}
 	   
 	    

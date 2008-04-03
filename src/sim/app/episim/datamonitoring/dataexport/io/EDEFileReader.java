@@ -14,6 +14,7 @@ import java.util.jar.Attributes;
 import org.jfree.chart.ChartPanel;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractChartSetFactory;
 import episimfactories.AbstractDataExportFactory;
@@ -22,7 +23,7 @@ import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimChartSet;
 import episiminterfaces.EpisimDataExportDefinition;
 
-public class EDEFileReader extends URLClassLoader {
+public class EDEFileReader{
 
 	private URL url;
 
@@ -38,11 +39,13 @@ public class EDEFileReader extends URLClassLoader {
 	 */
 	public EDEFileReader(URL url) {
 
-		super(new URL[] { url });
+		
 		this.url = url;
 
 		try{
-			this.factoryClass = loadClass(getClassName(new Attributes.Name("Factory-Class")));
+			 GlobalClassLoader.getInstance().registerURL(url);
+		      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
+			
 
 			if(factoryClass != null && AbstractDataExportFactory.class.isAssignableFrom(this.factoryClass)){
 				factory = (AbstractDataExportFactory) factoryClass.newInstance();

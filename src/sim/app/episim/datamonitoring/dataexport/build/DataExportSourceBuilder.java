@@ -51,7 +51,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	
 	}
 	
-	private void appendDataFields(){
+	protected void appendDataFields(){
 				   
 		   
 		   generatedSourceCode.append("  private Continuous2D cellContinuous;\n");

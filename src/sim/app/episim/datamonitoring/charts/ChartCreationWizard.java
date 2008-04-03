@@ -72,6 +72,7 @@ import sim.app.episim.datamonitoring.ExpressionEditor;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
+import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectManipulations;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.util.gui.ColorWell;
@@ -300,7 +301,7 @@ public class ChartCreationWizard extends JDialog {
       comboModel.addElement(chartSeries.getName());
       
       validate();
-      
+      rebuildSeriesIdMap();
    }
    
    /** Returns the series at the given index. */
@@ -583,10 +584,12 @@ public class ChartCreationWizard extends JDialog {
 		}
 		else{
 			try{
-				ExpressionCheckerController.getInstance().checkDataMonitoringExpression(episimChart.getBaselineExpression()[0], this.cellDataFieldsInspector);
+				if(!episimChart.getBaselineExpression()[0].trim().equals(Names.GRADBASELINE))
+					ExpressionCheckerController.getInstance().checkDataMonitoringExpression(episimChart.getBaselineExpression()[0], this.cellDataFieldsInspector);
 			}
 			catch (Exception e1){
-				ExceptionDisplayer.getInstance().displayException(e1);
+				
+			   ExceptionDisplayer.getInstance().displayException(e1);
 			}
 			
 		}
@@ -723,7 +726,7 @@ public class ChartCreationWizard extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 	         ExpressionEditor editor = new ExpressionEditor(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector);
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector, Names.CHARTBASELINEEXPRESSIONEDITORROLE);
 	         baselineExpression =editor.getExpression(baselineExpression);
 	         if(baselineExpression != null && baselineExpression[0] != null && baselineExpression[1] != null){
 	         	baselineButton.setText("Edit Baseline Expression");
@@ -1120,7 +1123,7 @@ public class ChartCreationWizard extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 	         ExpressionEditor editor = new ExpressionEditor(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector);
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector, Names.CHARTSERIESEXPRESSIONEDITORROLE);
 	         expression =editor.getExpression(expression);
 	         if(expression != null && expression[0] != null && expression[1] != null){
 	         	formulaButton.setText("Edit Expression");

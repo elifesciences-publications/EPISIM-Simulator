@@ -1,35 +1,123 @@
 package sim.app.episim.datamonitoring;
 
-
-public class GlobalStatistics {
+import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import sim.app.episim.CellType;
+import sim.app.episim.KCyte;
+import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GenericBag;
+import sim.engine.SimState;
+public class GlobalStatistics implements java.io.Serializable{
 	private static GlobalStatistics instance;
 	
 	
 	private int actualNumberStemCells=0;        // Stem cells
 	private int actualNumberKCytes=0;      // num of kcytes that are not in nirvana
 	private int actualNumberEarlySpiCells=0;         // Spinosum
-	private int actualNumberTASells=0;          // TA Cells
+	private int actualNumberTACells=0;          // TA Cells
 	private int actualNumberLateSpi=0;     // Late Spinosum
-	private int actualGranu=0;       // num of Granulosum KCytes
-	private int actualNumberCorneum=0;       // num of Granulosum KCytes
+	private int actualGranuCells=0;       // num of Granulosum KCytes
 	private int actualNumberOfNoNucleus=0;   // Cells after lifetime but not shed from the surface
 	private int actualBasalStatisticsCells=0;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
-	
-	private int actualNumberOfKCytes = 0;
-	private int actualNumberOfEarlySpiCells = 0;
-	private int actualNumberOfLateSpiCells = 0;
-	private int actualNumberOfGranuCells = 0;
+
 	
 	private int actualNumberOfBasalStatisticsCells = 0;
 	
+	private GenericBag<CellType> allCells;
+	
+	private double sumOfAllAges = 0;
+	
 	private GlobalStatistics(){
 		
+	}
+	
+	public double getGradientMinX(){
+		return 30;
+	}
+	public double getGradientMaxX(){
+		return 40;
+	}
+	public double getGradientMinY(){
+		return 0;
+	}
+	public double getGradientMaxY(){
+		return TissueBorder.getInstance().getHeight();
 	}
 	
 	public static synchronized GlobalStatistics getInstance(){
 		if(instance == null) instance = new GlobalStatistics();
 		return instance;
 	}
+	
+	
+	public EnhancedSteppable getUpdateSteppable(GenericBag<CellType> cells){
+		if(cells == null) throw new IllegalArgumentException("Global Statistic Bag containing all cells must not be null!");
+		this.allCells = cells;
+		return new EnhancedSteppable(){
+
+			public double getInterval() {
+				
+	         return 50;
+         }
+
+			public void step(SimState state) {
+ 
+					updateDataFields();
+         }
+			
+		};
+		
+	}
+	
+	
+	
+	private void updateDataFields(){
+		
+		reset();
+		this.actualNumberKCytes = allCells.size();
+		
+		for(CellType actCell: allCells){
+			int diffLevel =  actCell.getEpisimCellDiffModelObject().getDifferentiation();
+			  switch(diffLevel){
+				  case EpisimCellDiffModelGlobalParameters.EARLYSPICELL:{
+					  this.actualNumberEarlySpiCells++;
+				  }
+				  break;
+				  case EpisimCellDiffModelGlobalParameters.GRANUCELL:{
+					  this.actualGranuCells++;
+				  }
+				  break;
+				  case EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA:{
+					  
+				  }
+				  break;
+				  case EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS:{
+					  this.actualNumberOfNoNucleus++;
+				  }
+				  break;
+				  case EpisimCellDiffModelGlobalParameters.KTYPE_UNASSIGNED:{
+				  }
+				  break;
+				  case EpisimCellDiffModelGlobalParameters.LATESPICELL:{
+					  this.actualNumberLateSpi++;
+				  }
+				  break;
+				  case EpisimCellDiffModelGlobalParameters.STEMCELL:{
+					  this.actualNumberStemCells++;
+				  }
+				  break;
+				  case EpisimCellDiffModelGlobalParameters.TACELL:{
+					  this.actualNumberTACells++;
+				  }
+				  break;
+			  }
+			  
+			  if(actCell instanceof KCyte && ((KCyte) actCell).isBasalStatisticsCell()) this.actualBasalStatisticsCells++;
+			  sumOfAllAges += actCell.getEpisimCellDiffModelObject().getAge();
+		}
+	}
+	
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	// Inkrement
@@ -44,35 +132,19 @@ public class GlobalStatistics {
 		actualNumberEarlySpiCells++;         // Spinosum
 	}
 	public void inkrementActualNumberTASells(){
-		actualNumberTASells++;          // TA Cells
+		actualNumberTACells++;          // TA Cells
 	}
 	public void inkrementActualNumberLateSpi(){
 		actualNumberLateSpi++;     // Late Spinosum
 	}
-	public void inkrementActualGranu(){
-		actualGranu++;       // num of Granulosum KCytes
-	}
-	public void inkrementActualNumberCorneum(){
-		actualNumberCorneum++;       // num of Granulosum KCytes
+	public void inkrementActualGranuCells(){
+		actualGranuCells++;       // num of Granulosum KCytes
 	}
 	public void inkrementActualNumberOfNoNucleus(){
 		actualNumberOfNoNucleus++;   // Cells after lifetime but not shed from the surface
 	}
 	public void inkrementActualBasalStatisticsCells(){
 		actualBasalStatisticsCells++;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
-	}
-	
-	public void inkrementActualNumberOfKCytes(){
-		actualNumberOfKCytes++;
-	}
-	public void inkrementActualNumberOfEarlySpiCells(){
-		actualNumberOfEarlySpiCells++;
-	}
-	public void inkrementActualNumberOfLateSpiCells(){
-		actualNumberOfLateSpiCells++;
-	}
-	public void inkrementActualNumberOfGranuCells(){
-		actualNumberOfGranuCells++;
 	}
 	
 	public void inkrementActualNumberOfBasalStatisticsCells(){
@@ -97,16 +169,13 @@ public class GlobalStatistics {
 		actualNumberEarlySpiCells--;         // Spinosum
 	}
 	public void dekrementActualNumberTASells(){
-		actualNumberTASells--;          // TA Cells
+		actualNumberTACells--;          // TA Cells
 	}
 	public void dekrementActualNumberLateSpi(){
 		actualNumberLateSpi--;     // Late Spinosum
 	}
-	public void dekrementActualGranu(){
-		actualGranu--;       // num of Granulosum KCytes
-	}
-	public void dekrementActualNumberCorneum(){
-		actualNumberCorneum--;       // num of Granulosum KCytes
+	public void dekrementActualGranuCells(){
+		actualGranuCells--;       // num of Granulosum KCytes
 	}
 	public void dekrementActualNumberOfNoNucleus(){
 		actualNumberOfNoNucleus--;   // Cells after lifetime but not shed from the surface
@@ -114,20 +183,7 @@ public class GlobalStatistics {
 	public void dekrementActualBasalStatisticsCells(){
 		actualBasalStatisticsCells--;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
 	}
-	
-	public void dekrementActualNumberOfKCytes(){
-		actualNumberOfKCytes--;
-	}
-	public void dekrementActualNumberOfEarlySpiCells(){
-		actualNumberOfEarlySpiCells--;
-	}
-	public void dekrementActualNumberOfLateSpiCells(){
-		actualNumberOfLateSpiCells--;
-	}
-	public void dekrementActualNumberOfGranuCells(){
-		actualNumberOfGranuCells--;
-	}
-	
+		
 	public void dekrementActualNumberOfBasalStatisticsCells(){
 		actualNumberOfBasalStatisticsCells--;
 	}
@@ -136,18 +192,14 @@ public class GlobalStatistics {
 		actualNumberStemCells=0;       
 		actualNumberKCytes=0;      
 		actualNumberEarlySpiCells=0;         
-		actualNumberTASells=0;          
+		actualNumberTACells=0;          
 		actualNumberLateSpi=0;     
-		actualGranu=0;      
-		actualNumberCorneum=0;       
+		actualGranuCells=0;      
 		actualNumberOfNoNucleus=0;   
 		actualBasalStatisticsCells=0;   
 		
-		actualNumberOfKCytes = 0;
-		actualNumberOfEarlySpiCells = 0;
-		actualNumberOfLateSpiCells = 0;
-		actualNumberOfGranuCells = 0;
 		actualNumberOfBasalStatisticsCells = 0;
+		sumOfAllAges = 0;
 	
 	}
 
@@ -170,9 +222,9 @@ public class GlobalStatistics {
    }
 
 	
-   public int getActualNumberTASells() {
+   public int getActualNumberTACells() {
    
-   	return actualNumberTASells;
+   	return actualNumberTACells;
    }
 
 	
@@ -182,18 +234,11 @@ public class GlobalStatistics {
    }
 
 	
-   public int getActualGranu() {
+   public int getActualGranuCells() {
    
-   	return actualGranu;
+   	return actualGranuCells;
    }
 
-	
-   public int getActualNumberCorneum() {
-   
-   	return actualNumberCorneum;
-   }
-
-	
    public int getActualNumberOfNoNucleus() {
    
    	return actualNumberOfNoNucleus;
@@ -204,35 +249,17 @@ public class GlobalStatistics {
    
    	return actualBasalStatisticsCells;
    }
-
-	
-   public int getActualNumberOfKCytes() {
    
-   	return actualNumberOfKCytes;
-   }
-
-	
-   public int getActualNumberOfEarlySpiCells() {
-   
-   	return actualNumberOfEarlySpiCells;
-   }
-
-	
-   public int getActualNumberOfLateSpiCells() {
-   
-   	return actualNumberOfLateSpiCells;
-   }
-
-	
-   public int getActualNumberOfGranuCells() {
-   
-   	return actualNumberOfGranuCells;
-   }
 
 	
    public int getActualNumberOfBasalStatisticsCells() {
    
    	return actualNumberOfBasalStatisticsCells;
+   }
+   
+   public double getMeanAgeOfAllCells(){
+   	
+   	return (this.sumOfAllAges / this.actualNumberKCytes);
    }
 
 	

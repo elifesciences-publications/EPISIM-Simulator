@@ -24,6 +24,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.build.ChartSetFactorySourceBuilder;
+import sim.app.episim.model.ModelController;
 import sim.app.episim.util.Names;
 
 
@@ -93,6 +94,37 @@ public class ECSFileWriter {
 							fileIn.close();
 							jarOut.flush();	
 							
+							//insert biochem model class files------------------------------------------------------------------------------
+							
+							InputStream in = ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject().getClass().getResourceAsStream(
+									ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject().getClass().getSimpleName()+".class");
+							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject()
+									                            .getClass().getName().replace(".", "/") + ".class"));
+							
+							 bytes = new byte[1024];
+							 available = 0;
+							
+							while ((available = in.read(bytes)) > 0) {
+								jarOut.write(bytes, 0, available);
+							}
+							in.close();
+							jarOut.flush();
+							
+							in = ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass().getResourceAsStream(
+									ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass().getSimpleName()+".class");
+							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters()
+									                            .getClass().getName().replace(".", "/") + ".class"));
+							
+							 bytes = new byte[1024];
+							 available = 0;
+							
+							while ((available = in.read(bytes)) > 0) {
+								jarOut.write(bytes, 0, available);
+							}
+							in.close();
+							jarOut.flush();	
+							//-------------------------------------------------------------------------------------------------------------------------
+							
 							
 							
 							ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
@@ -108,7 +140,7 @@ public class ECSFileWriter {
 							jarOut.finish();
 							jarOut.close();
 							
-							chartCompiler.deleteTempData();
+						//	chartCompiler.deleteTempData();
 							
 						} catch (Exception e) {
 							ExceptionDisplayer.getInstance()

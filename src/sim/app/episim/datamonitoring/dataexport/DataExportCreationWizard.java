@@ -69,6 +69,7 @@ import sim.app.episim.gui.ExtendedFileChooser;
 
 
 
+import sim.app.episim.util.Names;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 
 import sim.util.gui.LabelledList;
@@ -798,7 +799,7 @@ public class DataExportCreationWizard extends JDialog {
 
 					ExpressionEditor editor = new ExpressionEditor(((Frame) DataExportCreationWizard.this.getOwner()),
 					      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
-					      cellDataFieldsInspector);
+					      cellDataFieldsInspector, Names.DATAEXPORTEXPRESSIONEDITORROLE);
 					expression = editor.getExpression(expression);
 					if(expression != null && expression[0] != null && expression[1] != null){
 						formulaButton.setText("Edit");

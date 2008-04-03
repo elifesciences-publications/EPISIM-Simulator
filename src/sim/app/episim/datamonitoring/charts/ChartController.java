@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartPanel;
 
+import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSet;
@@ -30,7 +31,9 @@ import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.CompatibilityChecker;
 import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
+import sim.field.continuous.Continuous2D;
 public class ChartController {
 	
 	private static ChartController instance = null;
@@ -177,15 +180,16 @@ public class ChartController {
 		return loadEpisimChartSet(url, null);
 	}
 	
-	public List<EnhancedSteppable> getChartSteppablesOfActLoadedChartSet(){
-		return ChartPanelAndSteppableServer.getInstance().getChartSteppables();
+	public List<EnhancedSteppable> getChartSteppablesOfActLoadedChartSet(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+		return ChartPanelAndSteppableServer.getInstance().getChartSteppables(allCells, continuous, objects );
 	}
+	
 	
 	private boolean loadEpisimChartSet(URL url, Frame parent){
 		try{
 			ECSFileReader ecsReader = new ECSFileReader(url);
 			this.actLoadedChartSet = ecsReader.getEpisimChartSet();
-			ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getChartSteppables());
+			ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());
 			CompatibilityChecker checker = new CompatibilityChecker();
 			checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
 			return true;

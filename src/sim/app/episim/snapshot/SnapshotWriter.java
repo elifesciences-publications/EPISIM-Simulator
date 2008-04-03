@@ -7,6 +7,7 @@ import java.io.*;
 import javax.swing.JOptionPane;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.util.ObjectStreamFactory;
 
 
 public class SnapshotWriter {
@@ -51,7 +52,7 @@ public class SnapshotWriter {
 			  }
 			  else if(snapshotPath.exists())counter++;
 			FileOutputStream fOut = new FileOutputStream(actualSnapshotPath);
-			ObjectOutputStream oOut = new ObjectOutputStream(fOut);
+			ObjectOutputStream oOut = ObjectStreamFactory.getObjectOutputStreamForInputStream(fOut);
 			
 			for(SnapshotListener listener : listeners){
 				for(SnapshotObject object : listener.collectSnapshotObjects()){

@@ -44,6 +44,7 @@ import java.util.List;
 import com.lowagie.text.*;  
 import com.lowagie.text.pdf.*;  
 
+import episimexceptions.MissingObjectsException;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
 public class Epidermis extends TissueType implements SnapshotListener
@@ -140,6 +141,25 @@ public class Epidermis extends TissueType implements SnapshotListener
      ChartController.getInstance().setChartMonitoredTissue(this);
      DataExportController.getInstance().setDataExportMonitoredTissue(this);
      ChartController.getInstance().registerChartSetChangeListener(this);
+  	// set up the C2dHerd field. It looks like a discretization
+		// of about neighborhood / 1.5 is close to optimal for us. Hmph,
+		// that's 16 hash lookups! I would have guessed that
+		// neighborhood * 2 (which is about 4 lookups on average)
+		// would be optimal. Go figure.
+		
+		//TODO: plus 2 Korrektur überprüfen
+		cellContinous2D = new Continuous2D(biomechModelContr.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
+				TissueBorder.getInstance().getWidth() + 2, 
+				TissueBorder.getInstance().getHeight());
+		basementContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth() + 2, 
+				TissueBorder.getInstance().getWidth() + 2, 
+				TissueBorder.getInstance().getHeight());
+		rulerContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth()+2,
+	   			TissueBorder.getInstance().getWidth()+2,
+	   			TissueBorder.getInstance().getHeight());
+	   gridContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth()+2,
+	  			TissueBorder.getInstance().getWidth()+2,
+	  			TissueBorder.getInstance().getHeight());
  }
 
  
@@ -182,7 +202,51 @@ public class Epidermis extends TissueType implements SnapshotListener
 	     }
  }
  
-    
+ 
+private void seedStemCells(){
+	Double2D lastloc = new Double2D(2, TissueBorder.getInstance().lowerBound(2));
+	for(double x = 2; x <= TissueBorder.getInstance().getWidth(); x += 2){
+		Double2D newloc = new Double2D(x, TissueBorder.getInstance().lowerBound(x));
+		double distance = newloc.distance(lastloc);
+
+		if((depthFrac(newloc.y) > biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+				.getSeedMinDepth_frac() && (!biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+				.getSeedReverse()))
+				|| (depthFrac(newloc.y) < biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+						.getSeedMinDepth_frac() && biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+						.getSeedReverse()))
+			if(distance > biomechModelContr.getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
+
+				// TODO: Check creation of Stem Cells
+				KCyte stemCell = new KCyte(CellType.getNextCellId(),-1,this, biochemModelContr.getNewEpisimCellDiffModelObject());
+				// stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
+				stemCell.setOwnColor(10);
+				stemCell.getEpisimCellDiffModelObject().setAge(
+						random.nextInt(biochemModelContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem()));// somewhere
+																																						// on
+																																						// the
+																																						// stemCycle
+				stemCell.getEpisimCellDiffModelObject().setDifferentiation(
+						EpisimCellDiffModelGlobalParameters.STEMCELL);
+				stemCell.getEpisimCellDiffModelObject().setSpecies(EpisimCellDiffModelGlobalParameters.KERATINOCYTE);
+				stemCell.getEpisimCellDiffModelObject().setIsAlive(true);
+	
+
+				cellContinous2D.setObjectLocation(stemCell, newloc);
+
+				lastloc = newloc;
+				Stoppable stoppable = schedule.scheduleRepeating(stemCell);
+				stemCell.setStoppable(stoppable);
+				// x+=basalDensity; // in any case jump a step to the right to
+				// avoid overlay of stem cells
+				GlobalStatistics.getInstance().inkrementActualNumberStemCells();
+				GlobalStatistics.getInstance().inkrementActualNumberKCytes();
+			}
+	}
+
+}
+ 
+ 
  
  public void start() {
 
@@ -197,76 +261,34 @@ public class Epidermis extends TissueType implements SnapshotListener
 			// would be optimal. Go figure.
 			
 			//TODO: plus 2 Korrektur überprüfen
-			cellContinous2D = new Continuous2D(biomechModelContr.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
-					TissueBorder.getInstance().getWidth() + 2, 
-					TissueBorder.getInstance().getHeight());
-			basementContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth() + 2, 
-					TissueBorder.getInstance().getWidth() + 2, 
-					TissueBorder.getInstance().getHeight());
-			rulerContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth()+2,
-		   			TissueBorder.getInstance().getWidth()+2,
-		   			TissueBorder.getInstance().getHeight());
-		   gridContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth()+2,
-		  			TissueBorder.getInstance().getWidth()+2,
-		  			TissueBorder.getInstance().getHeight());
+			cellContinous2D.clear();
+			basementContinous2D.clear();
+			rulerContinous2D.clear();
+		   gridContinous2D.clear();
 						
 	     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
 	     rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
 	     gridContinous2D.setObjectLocation("DummyObjektForDrawingTheGrid", new Double2D(50, 50));
 			
 			
-			double x = 0;
-			// seeding the stem cells
+			
+			
 			allocatedKCytes = 0; // allocated memory
 			GlobalStatistics.getInstance().reset();
 	
-
-			Double2D lastloc = new Double2D(2, TissueBorder.getInstance().lowerBound(2));
-			for(x = 2; x <= TissueBorder.getInstance().getWidth(); x += 2){
-				Double2D newloc = new Double2D(x, TissueBorder.getInstance().lowerBound(x));
-				double distance = newloc.distance(lastloc);
-
-				if((depthFrac(newloc.y) > biomechModelContr.getEpisimMechanicalModelGlobalParameters()
-						.getSeedMinDepth_frac() && (!biomechModelContr.getEpisimMechanicalModelGlobalParameters()
-						.getSeedReverse()))
-						|| (depthFrac(newloc.y) < biomechModelContr.getEpisimMechanicalModelGlobalParameters()
-								.getSeedMinDepth_frac() && biomechModelContr.getEpisimMechanicalModelGlobalParameters()
-								.getSeedReverse()))
-					if(distance > biomechModelContr.getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
-
-						// TODO: Check creation of Stem Cells
-						KCyte stemCell = new KCyte(GlobalStatistics.getInstance().getActualNumberOfKCytes(),-1,this, biochemModelContr.getNewEpisimCellDiffModelObject());
-						// stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
-						stemCell.setOwnColor(10);
-						stemCell.getEpisimCellDiffModelObject().setAge(
-								random.nextInt(biochemModelContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem()));// somewhere
-																																								// on
-																																								// the
-																																								// stemCycle
-						stemCell.getEpisimCellDiffModelObject().setDifferentiation(
-								EpisimCellDiffModelGlobalParameters.STEMCELL);
-						stemCell.getEpisimCellDiffModelObject().setSpecies(EpisimCellDiffModelGlobalParameters.KERATINOCYTE);
-						stemCell.getEpisimCellDiffModelObject().setIsAlive(true);
-
-						cellContinous2D.setObjectLocation(stemCell, newloc);
-
-						lastloc = newloc;
-						Stoppable stoppable = schedule.scheduleRepeating(stemCell);
-						stemCell.setStoppable(stoppable);
-						// x+=basalDensity; // in any case jump a step to the right to
-						// avoid overlay of stem cells
-						GlobalStatistics.getInstance().inkrementActualNumberStemCells();
-						GlobalStatistics.getInstance().inkrementActualNumberKCytes();
-					}
-			}
-
+			// seeding the stem cells
+			seedStemCells();
+			
+			
 			if(this.chartSteppables != null){
 				for(EnhancedSteppable steppable: this.chartSteppables){
 			   	schedule.scheduleRepeating(steppable, steppable.getInterval());
 			   }
 			}
 			
-			
+			GlobalStatistics.getInstance().reset();
+			EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(this.allCells);
+			schedule.scheduleRepeating(globalStatisticsSteppable, globalStatisticsSteppable.getInterval());
 			
 			
 			
@@ -443,28 +465,7 @@ public class Epidermis extends TissueType implements SnapshotListener
     
     
     /* 
-     //////////////////////////////////////        
-     // CHART Updating Num Cell Chart
-     //////////////////////////////////////
      
-     
-     Steppable chartUpdaterNumCells = new Steppable()
-    {
-         public void step(SimState state)
-         {            	
-         	// add a new (X,Y) point on the graph, with X = the time step and Y = the number of live cells
-         	 epiSimCharts.getXYSeries("ChartSeries_KCyte_All").add((double)(state.schedule.time()*gTimefactor), actualKCytes);
-         	 epiSimCharts.getXYSeries("ChartSeries_KCyte_TA").add((double)(state.schedule.time()*gTimefactor), actualTA);
-         	 epiSimCharts.getXYSeries("ChartSeries_KCyte_Spi").add((double)(state.schedule.time()*gTimefactor), actualSpi);
-         	 epiSimCharts.getXYSeries("ChartSeries_KCyte_LateSpi").add((double)(state.schedule.time()*gTimefactor), actualLateSpi);
-         	 epiSimCharts.getXYSeries("ChartSeries_KCyte_Granu").add((double)(state.schedule.time()*gTimefactor), actualGranu);
-         	 epiSimCharts.getXYSeries("ChartSeries_KCyte_NoNuc").add((double)(state.schedule.time()*gTimefactor), actualNoNucleus);
-         	 epiSimCharts.getXYSeries("ChartSeries_KCyte_MeanAgeDate").add((double)(state.schedule.time()*gTimefactor), gStatistics_KCytes_MeanAge*gTimefactor);
-         }
-     };
-     // Schedule the agent to update the chart
-     schedule.scheduleRepeating(chartUpdaterNumCells, 100);
-
      //////////////////////////////////////        
      // CHART Updating Barrier Chart
      //////////////////////////////////////
@@ -541,14 +542,7 @@ public class Epidermis extends TissueType implements SnapshotListener
      // Schedule the agent to update the chart
      schedule.scheduleRepeating(chartUpdaterApoptosis, 100);
     */ 
-     //////////////////////////////////////
-     // CHART Updating Performance Chart
-     //////////////////////////////////////
-        
-    
      
-     // Schedule the agent to update the chart
-  //   schedule.scheduleRepeating(chartUpdaterPerformance, 100);
 /*
      
      //////////////////////////////////////        
@@ -1034,9 +1028,18 @@ public class Epidermis extends TissueType implements SnapshotListener
 
 	public void chartSetHasChanged() {
 
-		this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet();
+		try{
+	      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(allCells, this.cellContinous2D, new Object[]{
+	      	this.biochemModelContr.getEpisimCellDiffModelGlobalParameters(), 
+	      	this.biomechModelContr.getEpisimMechanicalModelGlobalParameters(), 
+	      	this.biomechModelContr.getEpisimMechanicalModel()});
+      }
+      catch (MissingObjectsException e){
+	     ExceptionDisplayer.getInstance().displayException(e);
+      }
+		}
 	   
-   }
+   
 
 
 

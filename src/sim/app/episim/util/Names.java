@@ -1,5 +1,7 @@
 package sim.app.episim.util;
 
+import episiminterfaces.EpisimChartSeries;
+
 
 public abstract class Names {
 	private static String [] charactersToRemove = new String[]{";", "/", "\\", ",", ".", ":", "?", "!", "_", "-", "<", ">", "&", "%", "+", "*", " "};
@@ -11,11 +13,19 @@ public abstract class Names {
 	public static final String EPISIMCELLDIFFMODELVALUE ="celldiffmodel";
 	public static final String GENERATEDCHARTSPACKAGENAME = "generatedcharts";
 	public static final String GENERATEDDATAEXPORTPACKAGENAME = "generateddataexports";
-	
+	public static final String CELLDIFFMODEL ="_CellDiffModel";
 	public static final String EPISIMCHARTSETFACTORYNAME ="EpisimChartSetFactory";
 	public static final String EPISIMDATAEXPORTFACTORYNAME ="EpisimDataExportFactory";
 	
 	public static final String BUILDGRADIENTHANDLER = "buildGradientHandler_";
+	
+	public static final String GENERATEDGRADIENTFUNCTIONNAME = "gradients";
+	
+	public static final String GRADBASELINE = "GRADBASELINE";
+	
+	public static final String CHARTBASELINEEXPRESSIONEDITORROLE = "ChartBaselineExpressionEditorRole";
+	public static final String CHARTSERIESEXPRESSIONEDITORROLE = "ChartSeriesExpressionEditorRole";
+	public static final String DATAEXPORTEXPRESSIONEDITORROLE = "DataExportExpressionEditorRole";
 	
 	public static String cleanString(String str){
 		
@@ -35,4 +45,10 @@ public abstract class Names {
 		return variablename.substring(0,1).toUpperCase() + variablename.substring(1);
 	}
 
+	
+	public static String getSeriesFunctionName(EpisimChartSeries series){
+		return convertClassToVariable(cleanString(series.getName()+series.getId()));
+	}
+	
+	
 }

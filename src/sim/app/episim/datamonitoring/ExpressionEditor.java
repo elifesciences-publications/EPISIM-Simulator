@@ -37,6 +37,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import sim.app.episim.datamonitoring.charts.ChartController;
+import sim.app.episim.datamonitoring.charts.ChartCreationWizard;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.util.Names;
@@ -57,15 +58,15 @@ public class ExpressionEditor extends JDialog {
 	
 	private JTextArea messageTextArea;
 	
-	
+	private String role;
 	
 	private JDialog dialog;
 	//index 0: expression not compiled; index 1: expression compiled
 	private String [] expression = new String[2];
 	
-	public ExpressionEditor(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector){
+	public ExpressionEditor(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector, String role){
 		super(owner, title, modal);
-			
+		this.role = role;	
 	   getContentPane().setLayout(new GridBagLayout());
 	   GridBagConstraints c = new GridBagConstraints();
 	   
@@ -112,8 +113,10 @@ public class ExpressionEditor extends JDialog {
 			public void mouseClicked(MouseEvent e) {
 
 				if((dataFieldsInspector.getCellParameterList().getSelectedIndex() != -1) && e.getClickCount() == 2){
-					insertStringInChartExpressionAtCursor(dataFieldsInspector.getCellTypeList().getSelectedValue() + "."
-					      + dataFieldsInspector.getCellParameterList().getSelectedValue());
+					String name = dataFieldsInspector.getCellTypeList().getSelectedValue() + "."  + dataFieldsInspector.getCellParameterList().getSelectedValue();
+					String alternName = dataFieldsInspector.getCellTypeList().getSelectedValue()+Names.CELLDIFFMODEL + "."  + dataFieldsInspector.getCellParameterList().getSelectedValue();
+					if(!dataFieldsInspector.getOverallVarNameSet().contains(name) &&dataFieldsInspector.getOverallVarNameSet().contains(alternName)) name = alternName;
+					insertStringInChartExpressionAtCursor(name);
 				}
 			}
 		});
@@ -260,6 +263,18 @@ public class ExpressionEditor extends JDialog {
 
 		JButton okButton = new JButton("  OK  ");
 		okButton.addActionListener(new ActionListener() {
+			
+			private boolean checkAlternative(){
+				if(chartExpressionTextArea.getText().trim() != null 
+						&& chartExpressionTextArea.getText().trim().equals(Names.GRADBASELINE) 
+						&& role.equals(Names.CHARTBASELINEEXPRESSIONEDITORROLE)){
+					expression[0]=Names.GRADBASELINE;
+					expression[1]=Names.GRADBASELINE;
+					
+					return true;
+				}
+				return false;
+			}
 
 			public void actionPerformed(ActionEvent e) {
 
@@ -274,10 +289,18 @@ public class ExpressionEditor extends JDialog {
 					
 				}
 				catch (ParseException e1){
-					messageTextArea.setText(e1.getMessage());
+					if(checkAlternative()){
+						dialog.setVisible(false);
+						dialog.dispose();
+					}
+					else messageTextArea.setText(e1.getMessage());
 				}
 				catch (TokenMgrError e1){
-					messageTextArea.setText(e1.getMessage());
+					if(checkAlternative()){
+						dialog.setVisible(false);
+						dialog.dispose();
+					}
+					else messageTextArea.setText(e1.getMessage());
 				}
 
 			}

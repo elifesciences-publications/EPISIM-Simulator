@@ -45,6 +45,8 @@ import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.Console;
 import sim.display.ConsoleHack;
@@ -53,7 +55,7 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public class EpidermisSimulator extends JFrame implements SimulationStateChangeListener{
+public class EpidermisSimulator extends JFrame implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
 	private ExtendedFileChooser jarFileChoose;
 	private ExtendedFileChooser tssFileChoose;
@@ -62,7 +64,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	private EpidermisGUIState epiUI;
 	
-	private boolean modelOpened = false;
+	
 	
 	private JMenu fileMenu;
 	private JMenuItem menuItemSetSnapshotPath;
@@ -90,6 +92,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	public EpidermisSimulator() {
 		ExceptionDisplayer.getInstance().registerParentComp(this);
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		try{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
@@ -111,7 +114,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 
 			public void actionPerformed(ActionEvent e) {
 
-				if(modelOpened){
+				if(ModelController.getInstance().isModelOpened()){
 					int choice = JOptionPane.showConfirmDialog(simulator, "Do you really want to close the opened model?", "Close Model?", JOptionPane.YES_NO_OPTION);
 					if(choice == JOptionPane.OK_OPTION){
 						closeModel();
@@ -129,7 +132,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 
 			public void actionPerformed(ActionEvent e) {
 
-				if(modelOpened) closeModel();
+				if(ModelController.getInstance().isModelOpened()) closeModel();
 				
 			}
 			
@@ -437,7 +440,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				epiUI.addSimulationStateChangeListener(this);
 				this.validate();
 				this.repaint();
-				modelOpened = true;
+				ModelController.getInstance().setModelOpened(true);
 				menuItemSetSnapshotPath.setEnabled(true);
 				menuItemLoadSnapshot.setEnabled(false);
 				menuItemBuild.setEnabled(false);
@@ -449,17 +452,56 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		}
 		
 	}
+	private void reloadModel(File modelFile, File snapshotPath){
+		TissueBorder.getInstance().loadStandardMebrane();
+		boolean success = false; 
+		try{
+         success= ModelController.getInstance().getBioChemicalModelController().loadModelFile(modelFile);
+      }
+      catch (ModelCompatibilityException e){
+        ExceptionDisplayer.getInstance().displayException(e);
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+        success = false;
+      }
+		
+		if(success){
+			
+			setSnapshotPath(snapshotPath);
+			ChartController.getInstance().rebuildDefaultCharts();
+			cleanUpContentPane();
+			epiUI = new EpidermisGUIState(this);
+			epiUI.addSimulationStateChangeListener(this);
+			this.validate();
+			this.repaint();
+			ModelController.getInstance().setModelOpened(true);
+			
+		}
+	}
+	
+	public void classLoaderHasChanged() {
+
+	   if(ModelController.getInstance().isModelOpened()){
+	   	
+	         reloadModel(ModelController.getInstance().getBioChemicalModelController().getActLoadedModelFile(), SnapshotWriter.getInstance().getSnapshotPath());
+        
+	   }
+	   
+   }
 	private void setSnapshotPath(){
-		File file = null;
-		tssFileChoose.setDialogTitle("Set Snaphot-Path");
-		if(tssFileChoose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION){
-			file = tssFileChoose.getSelectedFile();
-			if(file != null){
+		setSnapshotPath(null);
+		
+	}
+	private void setSnapshotPath(File file){
+		if(file == null){
+			tssFileChoose.setDialogTitle("Set Snaphot-Path");
+			if(tssFileChoose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) file = tssFileChoose.getSelectedFile();
+			
+		}
+		if(file != null){
 			  this.setTitle("Epidermis Simulator"+ " - Snapshot-Path: "+file.getAbsolutePath());
 			  SnapshotWriter.getInstance().setSnapshotPath(file);
 			  SnapshotWriter.getInstance().resetCounter();
-			}
-		}
+		}	
 		
 	}
 	public void loadSnapshot() {
@@ -524,7 +566,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 						}
 						this.validate();
 						this.repaint();
-						modelOpened = true;
+						ModelController.getInstance().setModelOpened(success);
 						menuItemSetSnapshotPath.setEnabled(true);
 						menuItemClose.setEnabled(true);
 						menuItemLoadSnapshot.setEnabled(false);
@@ -553,7 +595,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		epiUI = null;
 		System.gc();
 		this.repaint();
-		modelOpened = false;
+		ModelController.getInstance().setModelOpened(false);
 		menuItemLoadSnapshot.setEnabled(true);
 		menuItemClose.setEnabled(false);
 		menuItemBuild.setEnabled(true);
@@ -565,7 +607,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		this.menuItemLoadChartSet.setEnabled(true);
 		this.menuItemCloseChartSet.setEnabled(false);
 		this.menuItemNewChartSet.setEnabled(true);
-		
+		GlobalClassLoader.getInstance().destroyClassLoader();
 		SnapshotWriter.getInstance().clearListeners();
 		SnapshotWriter.getInstance().resetCounter();
 		 this.setTitle("Epidermis Simulator");

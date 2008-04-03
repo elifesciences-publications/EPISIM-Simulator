@@ -12,6 +12,8 @@ public class ModelController implements java.io.Serializable{
 	
 	private static Semaphore sem = new Semaphore (1);
 	
+	private boolean modelOpened = false;
+	
 	private static ModelController instance;
 	private ModelController(){}
 	
@@ -49,5 +51,17 @@ public class ModelController implements java.io.Serializable{
 	
 	public BioMechanicalModelController getBioMechanicalModelController(){ return BioMechanicalModelController.getInstance();}
 	public BioChemicalModelController getBioChemicalModelController() { return BioChemicalModelController.getInstance();}
+
+	
+   public boolean isModelOpened() {
+   
+   	return modelOpened;
+   }
+
+	
+   public void setModelOpened(boolean modelOpened) {
+   
+   	this.modelOpened = modelOpened;
+   }
 	
 }

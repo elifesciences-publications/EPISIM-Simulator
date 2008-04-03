@@ -105,7 +105,7 @@ public class KCyte extends CellType
    public KCyte(){
    this(-1, -1, null, null);
    }
-    public KCyte(int identity, int motherIdentity, Epidermis epidermis, EpisimCellDiffModel cellDiffModel)
+    public KCyte(long identity, long motherIdentity, Epidermis epidermis, EpisimCellDiffModel cellDiffModel)
     {
    	 super(identity, motherIdentity);
    	 modelController = ModelController.getInstance();
@@ -182,8 +182,8 @@ public class KCyte extends CellType
     private class HitResultClass
     {        
         int numhits;    // number of hits
-        int otherId; // when only one hit, then how id of this hit (usually this will be the mother)
-        int otherMotherId; // mother of other
+        long otherId; // when only one hit, then how id of this hit (usually this will be the mother)
+        long otherMotherId; // mother of other
         Vector2D adhForce;
         Vector2D otherMomentum;
         boolean nextToOuterCell;
@@ -388,10 +388,10 @@ public class KCyte extends CellType
    	 // Either we get use a currently unused cell oder we allocate a new one
         KCyte kcyte;        
        
-            kcyte= new KCyte(epidermis.getNumberOfKCytes(), getIdentity(), epidermis, cellDiffModel); 
+            kcyte= new KCyte(CellType.getNextCellId(), getIdentity(), epidermis, cellDiffModel); 
             epidermis.inkrementNumberOfKCytes();
             
-            cellDiffModel.setId(kcyte.getIdentity());
+            cellDiffModel.setId((int)kcyte.getIdentity());
             Stoppable stoppable = epidermis.schedule.scheduleRepeating(kcyte);   // schedule only if not already running
             kcyte.setStoppable(stoppable);
 
@@ -495,7 +495,7 @@ public class KCyte extends CellType
    	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
    	 setIsOuterCell(isSurfaceCell(realNeighbours));
    	 this.cellDiffModelObjekt.setX(thisloc.getX());
-   	 this.cellDiffModelObjekt.setY(-1*thisloc.getY());
+   	 this.cellDiffModelObjekt.setY(TissueBorder.getInstance().getHeight()- thisloc.getY());
    	 this.cellDiffModelObjekt.setIsMembrane(isMembraneCell());
    	 this.cellDiffModelObjekt.setIsSurface(isOuterCell() || nextToOuterCell);
    	 this.cellDiffModelObjekt.setHasCollision(hasCollision);
@@ -535,6 +535,7 @@ public class KCyte extends CellType
    	 GlobalStatistics.getInstance().dekrementActualNumberKCytes();
    	 setInNirvana(true);            
    	 
+   	 epidermis.getAllCells().remove(this);
    	 epidermis.getCellContinous2D().remove(this);
     }
 

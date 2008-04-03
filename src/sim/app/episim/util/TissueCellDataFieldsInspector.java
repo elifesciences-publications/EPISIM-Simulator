@@ -25,7 +25,7 @@ import javax.swing.event.ListSelectionListener;
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.tissue.TissueType;
-
+import episiminterfaces.*;
 
 public class TissueCellDataFieldsInspector {
 	
@@ -121,6 +121,7 @@ public class TissueCellDataFieldsInspector {
 	
 	private void processMethodForVarNameSetAndMethodCallMap(String firstName, Method actMethod){
 		String parameterName="";
+		if(EpisimCellDiffModel.class.isAssignableFrom(actMethod.getDeclaringClass())) firstName += Names.CELLDIFFMODEL;
 		if(isValidReturnType(actMethod.getReturnType())){
 			parameterName=getParameterName(actMethod.getName());
 			
@@ -165,7 +166,9 @@ public class TissueCellDataFieldsInspector {
 				if(subNames.length >= 2 && subNames[0].equals(cellOrTissueTypeName)){
 					list.add(subNames[1]);
 				}
-
+				else if(subNames.length >= 2 && subNames[0].equals(cellOrTissueTypeName+Names.CELLDIFFMODEL)){
+					list.add(subNames[1]);
+				}
 		}
 		
 
@@ -211,6 +214,21 @@ public class TissueCellDataFieldsInspector {
 	public JPanel getVariableListPanel(){ return buildVariableListPanel();}
 	
 	public Set<String> getOverallVarNameSet(){ return this.overallVarNameSet;}
+	
+	
+	public boolean checkForCellTypeConflict(Set<String> varNames){
+		String foundCellTypeName = null;
+		Set<String> cellTypeClassNames = new HashSet<String>();
+		for(CellType actType: this.cellTypesMap.values()) cellTypeClassNames.add(actType.getClass().getSimpleName().toLowerCase());
+		for(String actVarName:varNames){
+			if(cellTypeClassNames.contains(getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase())){ 
+				if(foundCellTypeName== null)foundCellTypeName =getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase();
+				else if(foundCellTypeName.equals(getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase()))continue;
+				else return false;
+			}
+		}
+		return true;
+	}
 
 	public String getMethodCallStrForVarName(String varName){ return this.overallMethodCallMap.get(varName);}
 	

@@ -20,13 +20,14 @@ import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 import sim.app.episim.model.*;
+import sim.app.episim.util.GlobalClassLoader;
 
 import sim.app.episim.ExceptionDisplayer;
 
 /**
  * A class loader for loading jar files, both local and remote.
  */
-class ModelJarClassLoader extends URLClassLoader {
+class ModelJarClassLoader{
     private URL url;
 
    
@@ -40,13 +41,15 @@ class ModelJarClassLoader extends URLClassLoader {
     * @throws ModelCompatibilityException 
      */
     public ModelJarClassLoader(URL url) throws ModelCompatibilityException {
-        super(new URL[] { url });
+        
         this.url = url;
         
         
 	      try{
+	      	 GlobalClassLoader.getInstance().registerURL(url);
+			     this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
 	        	        
-	      	this.factoryClass = this.loadClass(getClassName(new Attributes.Name("Factory-Class")));
+	      	
 	         
          }
          catch (ClassNotFoundException e){

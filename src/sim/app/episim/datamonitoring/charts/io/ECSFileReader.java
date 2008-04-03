@@ -15,6 +15,7 @@ import org.jfree.chart.ChartPanel;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractChartSetFactory;
 import episimfactories.AbstractEpisimCellDiffModelFactory;
@@ -22,7 +23,7 @@ import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimChartSet;
 
 
-public class ECSFileReader extends URLClassLoader {
+public class ECSFileReader{
 	    private URL url;
 
 	   
@@ -35,11 +36,12 @@ public class ECSFileReader extends URLClassLoader {
 	     * @param url the url of the jar file
 	     */
 	    public ECSFileReader(URL url) {
-	        super(new URL[] { url });
+	       
 	        this.url = url;
 	        
 	        try{
-		      this.factoryClass = loadClass(getClassName(new Attributes.Name("Factory-Class")));
+	      	  GlobalClassLoader.getInstance().registerURL(url);
+		      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
 		     
 		      if(factoryClass != null && AbstractChartSetFactory.class.isAssignableFrom(this.factoryClass)){
 		      	factory = (AbstractChartSetFactory) factoryClass.newInstance();
@@ -52,6 +54,7 @@ public class ECSFileReader extends URLClassLoader {
 	        }
 	       
 	    }
+	  public AbstractChartSetFactory getChartSetFactory(){ return this.factory;}
 	    
 	 public EpisimChartSet getEpisimChartSet() throws ModelCompatibilityException {
 

@@ -1,10 +1,14 @@
 package sim.app.episim.datamonitoring.build;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
@@ -70,9 +74,26 @@ public abstract class AbstractCommonCompiler {
 
 		}
 		
+		checkForMissingClassFiles(classFiles);
+		
 		return classFiles;
 	}
 	
+	private void checkForMissingClassFiles(List<File> classFiles){
+		Set<String> nameSet = new HashSet<String>();
+		List<File> newFiles = new LinkedList<File>();
+		for(File file : classFiles) nameSet.add(file.getAbsolutePath());
+		for(File file : classFiles){	
+			
+			if(file.getParentFile() != null){		
+				for(File actFile: file.getParentFile().listFiles(new FileFilter(){
+					public boolean accept(File pathname) {return pathname.getAbsolutePath().endsWith(".class");}})){
+				 if(!nameSet.contains(actFile.getAbsolutePath())) newFiles.add(actFile);					
+				}
+			}
+		}
+		classFiles.addAll(newFiles);		
+	}
 	
 	protected File convertBinPathToLibPath(String path){
 		

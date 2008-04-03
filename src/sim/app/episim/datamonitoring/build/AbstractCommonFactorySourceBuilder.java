@@ -4,7 +4,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import sim.app.episim.CellType;
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Names;
+import sim.field.continuous.Continuous2D;
+import episimexceptions.MissingObjectsException;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimChart;
 
@@ -48,11 +51,11 @@ public abstract class AbstractCommonFactorySourceBuilder {
 	}
 	
 	protected void appendRegisterMethod(){
-		this.factorySource.append("public void registerNecessaryObjects(Object[] objects) throws MissingObjectsException{\n");
-		this.factorySource.append("  if(objects == null) throw new IllegalArgumentException(\"Objects-Array with Objects to be registered for charting must not be null\");\n");
+		this.factorySource.append("public void registerNecessaryObjects(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{\n");
+		this.factorySource.append("  if(objects == null || allCells == null || continuous == null) throw new IllegalArgumentException(\"Objects to be registered for charting must not be null\");\n");
+		this.factorySource.append("    this.cellContinuous = continuous;\n");
+		this.factorySource.append("    this.allCells = allCells;\n");
 		this.factorySource.append("  for(Object actObject: objects){\n");
-		this.factorySource.append("    if(actObject instanceof Continuous2D) this.cellContinuous = (Continuous2D) actObject;\n");
-		this.factorySource.append("    else if(actObject instanceof GenericBag) this.allCells = (GenericBag) actObject;\n");
 		for(Class<?> actClass : this.requiredClasses){
 			if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
 				this.factorySource.append("    else if(actObject instanceof "+actClass.getSimpleName()+") this."+Names.convertClassToVariable(actClass.getSimpleName())+" = ("+actClass.getSimpleName()+") actObject;\n"); 

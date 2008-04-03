@@ -5,6 +5,7 @@ import java.util.Set;
 import sim.app.episim.CellType;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimChartSeries;
 
 
 public abstract class  AbstractCommonSourceBuilder {
@@ -34,9 +35,12 @@ public abstract class  AbstractCommonSourceBuilder {
 		}
 		
 	}
+	protected void appendDataFields(){
+	   generatedSourceCode.append("  private EnhancedSteppable steppable;\n");
+	}
 	
 	protected void appendStandardMethods(){
-		generatedSourceCode.append("public EnhancedSteppable getSteppable(){return null;}\n");
+		generatedSourceCode.append("public EnhancedSteppable getSteppable(){return steppable;}\n");
 		
 	}
 	

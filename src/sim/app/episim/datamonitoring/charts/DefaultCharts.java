@@ -143,7 +143,6 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		xySeries.put(new String[] { "ChartSeries_KCyte_LateSpi", "ChartSeries_KCytes" }, new XYSeries("Late Spinosum"));
 		xySeries.put(new String[] { "ChartSeries_KCyte_Granu", "ChartSeries_KCytes" }, new XYSeries("Granulosum"));
 		xySeries.put(new String[] { "ChartSeries_KCyte_TA", "ChartSeries_KCytes" }, new XYSeries("Transit Amplifying"));
-		xySeries.put(new String[] { "ChartSeries_KCyte_NoNuc", "ChartSeries_KCytes" }, new XYSeries("NoNucleus"));
 		xySeries.put(new String[] { "ChartSeries_KCyte_MeanAgeDate", "ChartSeries_MeanAgeColl" },
 				new XYSeries("Mean Age"));
 		xySeriesCollections.put("ChartSeries_KCytes", new XYSeriesCollection());
@@ -452,7 +451,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	private void initChartActivationMap(){
 		
 		chartEnabled.put(PERFORMANCE, false);
-		//chartEnabled.put(CELLCOUNTS, false);
+		chartEnabled.put(CELLCOUNTS, false);
 		chartEnabled.put(TISSUEKINETICPARAMETERS, false);
 		/*chartEnabled.put(PARTICLECONCENTRATIONSINBARRIER, false);
 		chartEnabled.put(CELLDEATH, false);
@@ -622,17 +621,17 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
              if (GlobalStatistics.getInstance().getActualNumberKCytes()>0)
              {
                  meanCycleTime=(GlobalStatistics.getInstance().getActualNumberStemCells()*ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleStem()
-               		             +GlobalStatistics.getInstance().getActualNumberTASells()*ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA())
-               		             /(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTASells());
+               		             +GlobalStatistics.getInstance().getActualNumberTACells()*ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA())
+               		             /(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTACells());
                  getXYSeries("ChartSeries_Kinetics_MeanCycleTime").add((double)(state.schedule.time()*TIMEFACTOR), meanCycleTime*TIMEFACTOR);
                  if (GlobalStatistics.getInstance().getActualBasalStatisticsCells()>0)
-                     gStatistics_GrowthFraction=100*(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTASells())
+                     gStatistics_GrowthFraction=100*(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTACells())
                                                       /GlobalStatistics.getInstance().getActualBasalStatisticsCells();
                  if (gStatistics_GrowthFraction>100) gStatistics_GrowthFraction=100;
                  //ChartSeries_Kinetics_GrowthCells.add((double)(state.schedule.time()), growthFraction);                
                  getXYSeries("ChartSeries_Kinetics_GrowthFraction").add((double)(state.schedule.time()*TIMEFACTOR), gStatistics_GrowthFraction);                
                  if (meanCycleTime>0) 
-                     gStatistics_TurnoverTime=(GlobalStatistics.getInstance().getActualNumberKCytes())*meanCycleTime/(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTASells()); // Number of cells producing X mean production per time
+                     gStatistics_TurnoverTime=(GlobalStatistics.getInstance().getActualNumberKCytes())*meanCycleTime/(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTACells()); // Number of cells producing X mean production per time
                  else
                      gStatistics_TurnoverTime=0;
                  getXYSeries("ChartSeries_Kinetics_Turnover").add((double)(state.schedule.time()*TIMEFACTOR), gStatistics_TurnoverTime*TIMEFACTOR);
@@ -643,6 +642,31 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	         return 100;
          }
      });
+		
+		  //////////////////////////////////////
+	     // CHART Updating Num Cell Chart
+	     //////////////////////////////////////
+	     
+	     
+			this.steppablesMap.put(this.CELLCOUNTS, new EnhancedSteppable()
+			{
+	         public void step(SimState state)
+	         {            	
+	         	// add a new (X,Y) point on the graph, with X = the time step and Y = the number of live cells
+	         	 getXYSeries("ChartSeries_KCyte_All").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberKCytes());
+	         	 getXYSeries("ChartSeries_KCyte_TA").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberTACells());
+	         	 getXYSeries("ChartSeries_KCyte_Spi").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberEarlySpiCells());
+	         	 getXYSeries("ChartSeries_KCyte_LateSpi").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberLateSpi());
+	         	 getXYSeries("ChartSeries_KCyte_Granu").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualGranuCells());
+	         	 getXYSeries("ChartSeries_KCyte_MeanAgeDate").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getMeanAgeOfAllCells()*TIMEFACTOR);
+	         }
+
+				public double getInterval() {
+	            return 100;
+            }
+			});
+	     
+
 	}
 	
 }

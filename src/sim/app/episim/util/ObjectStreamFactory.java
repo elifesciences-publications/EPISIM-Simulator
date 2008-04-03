@@ -33,8 +33,7 @@ public abstract class ObjectStreamFactory {
 						}
 						catch (ClassNotFoundException ex){
 							String name = desc.getName();
-							Class cl = Class.forName(name, false, new URLClassLoader(new URL[] { cellDiffModelJarFile.toURI().toURL() },
-							      ClassLoader.getSystemClassLoader()));
+							Class cl = Class.forName(name, false, GlobalClassLoader.getInstance());
 							if(cl != null){
 								return cl;
 							}

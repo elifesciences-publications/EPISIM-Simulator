@@ -16,16 +16,23 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    private boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
    private boolean isMembraneCell=false;    // cells directly sitting on membrane, very strict
    private boolean inNirvana=false; // unvisible and without action: only ageing is active
-   private final int identity;
-   private final int motherIdentity;   // -1 means not yet set
+   private final long identity;
+   private final long motherIdentity;   // -1 means not yet set
    
-   public CellType(int identity, int motherIdentity){
+   private static int cellCounter = 0;
+   
+   public CellType(long identity, long motherIdentity){
    	inNirvana=false;
    	isOuterCell=false;
    	this.identity = identity;
    	this.motherIdentity = motherIdentity;
    }
 	
+   public synchronized static  final long getNextCellId(){
+   	cellCounter++;
+   	return (System.currentTimeMillis() + cellCounter);
+   }
+   
 	public abstract String getCellName();
 	
 	public abstract Class<? extends EpisimCellDiffModel> getEpisimCellDiffModelClass();
@@ -47,7 +54,7 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
 	public boolean isInNirvana() { return inNirvana; }
 	public void setInNirvana(boolean inNirvana) { this.inNirvana = inNirvana; }
 	
-	public int getIdentity() { return identity; }   
+	public long getIdentity() { return identity; }   
 	
 	public boolean isBasalStatisticsCell() { return isBasalStatisticsCell; }
 	public void setIsBasalStatisticsCell(boolean val){ this.isBasalStatisticsCell = val; }
@@ -59,5 +66,5 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell;}
 	
 	
-	protected int getMotherIdentity(){ return this.motherIdentity;}
+	protected long getMotherIdentity(){ return this.motherIdentity;}
 }

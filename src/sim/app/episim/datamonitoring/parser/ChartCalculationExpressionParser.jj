@@ -14,6 +14,7 @@ import sim.app.episim.util.*;
 
 public class DataMonitoringExpressionChecker {
 	private Set<String> varNameSet = new HashSet<String>();
+	private Set<String> recognizedVarNames;
 	private Set<Character> booleanCharacterSet = new HashSet<Character>();
 	private TissueCellDataFieldsInspector tissueDataFieldsInspector;
 	private char[] ops = new char[]{'>','<','=','!','&','|'};
@@ -60,6 +61,7 @@ String check(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws Num
 {
 	this.varNameSet = tissueDataFieldsInspector.getOverallVarNameSet();
 	this.tissueDataFieldsInspector = tissueDataFieldsInspector;
+	this.recognizedVarNames = new HashSet<String>();
 String partialResult = "";
 String totalResult = "";}
 {
@@ -101,6 +103,7 @@ Token t;
    		{if(!this.varNameSet.contains(t.image))
    			throw new ParseException("Unknown Identifier: " + t.image); 
    			else{
+   				this.recognizedVarNames.add(t.image);
    				this.tissueDataFieldsInspector.addRequiredClassForIdentifier(t.image);
    				result = this.tissueDataFieldsInspector.getMethodCallStrForVarName(t.image);
    			}
@@ -219,7 +222,8 @@ String exp2 = "";
  {
  	
  	checkIfStringArithExpr(exp1);
- 	 	
+ 	if(!(this.tissueDataFieldsInspector.checkForCellTypeConflict(this.recognizedVarNames))) 
+ 		throw new ParseException("Usage of parameters owned by different cell types in one expression is not allowed!"); 	
  	return Names.BUILDGRADIENTHANDLER +exp1;
  	
  }

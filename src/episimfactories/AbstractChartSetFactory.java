@@ -16,11 +16,14 @@ import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSet;
 
+import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectStreamFactory;
 import sim.engine.Steppable;
+import sim.field.continuous.Continuous2D;
 
 
 public abstract class AbstractChartSetFactory {
@@ -66,5 +69,5 @@ public abstract class AbstractChartSetFactory {
 	public abstract List<ChartPanel> getChartPanels();
    public abstract List<EnhancedSteppable> getSteppablesOfCharts();
    
-   public abstract void registerNecessaryObjects(Object[] objects) throws MissingObjectsException;
+   public abstract void registerNecessaryObjects(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
 }

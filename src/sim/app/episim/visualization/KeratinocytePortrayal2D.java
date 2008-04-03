@@ -93,7 +93,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
               //  if (kc.isInNirvana()) return;       
                
                 // get Agent data
-                int id=kcyte.getIdentity();
+                long id=kcyte.getIdentity();
                 int numFlockers=kcyte.getEpidermis().getNumberOfKCytes();
                 int keratinoType=kcyte.getEpisimCellDiffModelObject().getDifferentiation();                                
                 int typeColor=MiscalleneousGlobalParameters.instance().getTypeColor();              

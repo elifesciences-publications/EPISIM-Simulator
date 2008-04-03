@@ -6,10 +6,13 @@ import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.util.List;
 
+import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectStreamFactory;
+import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 
@@ -58,5 +61,5 @@ public abstract class AbstractDataExportFactory {
 	}
    public abstract EnhancedSteppable getSteppableOfDataExport();
    
-   public abstract void registerNecessaryObjects(Object[] objects) throws MissingObjectsException;
+   public abstract void registerNecessaryObjects(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
 }

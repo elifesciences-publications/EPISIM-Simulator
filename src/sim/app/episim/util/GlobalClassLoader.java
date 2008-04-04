@@ -16,13 +16,13 @@ public class GlobalClassLoader extends URLClassLoader{
 	
 	boolean destroyed = false;
 	
-	public List<ClassLoaderChangeListener> changeListener;
+	public Set<ClassLoaderChangeListener> changeListener;
 	
 	private GlobalClassLoader() {
 
 	  super(new URL[]{});
 	   	 urlRegistry = new HashSet<String>(); 
-	   	 changeListener = new LinkedList<ClassLoaderChangeListener>();
+	   	 changeListener = new HashSet<ClassLoaderChangeListener>();
    }
 	
 	public static GlobalClassLoader getInstance(){
@@ -33,14 +33,22 @@ public class GlobalClassLoader extends URLClassLoader{
 	}
 	
 	private void refresh(){
-		List<ClassLoaderChangeListener> listCopy = changeListener;
-		Set<String> registryCopy = urlRegistry;
+		Set<ClassLoaderChangeListener> setCopy = this.changeListener;
+		Set<String> registryCopy = this.urlRegistry;
 		URL[] urls = this.getURLs();
 		destroyClassLoader();
 		instance = new GlobalClassLoader();
-		instance.changeListener = listCopy;
+		for(ClassLoaderChangeListener listener : setCopy){
+			instance.addClassLoaderChangeListener(listener);
+			System.out.println(listener.getClass().getName());
+		}
 		for(URL url: urls) instance.addURL(url);
-		notifyAllListeners();
+		
+		instance.notifyAllListeners();
+		
+		for(String str : registryCopy)instance.urlRegistry.add(str);	
+		
+		
 	}
 	
 	public void destroyClassLoader(){
@@ -55,6 +63,8 @@ public class GlobalClassLoader extends URLClassLoader{
 			super.addURL(url);
 		}
 	}
+	
+	
 	public void addClassLoaderChangeListener(ClassLoaderChangeListener listener){
 	   this.changeListener.add(listener);
 	}

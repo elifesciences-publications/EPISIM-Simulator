@@ -345,7 +345,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 			 public void componentResized (ComponentEvent e) 
           {
     	      
-				 if(console.getPlayState() == console.PS_PAUSED && resizeButtonIsActionSource)console.pressPause();
+				 if(console != null && console.getPlayState() == console.PS_PAUSED && resizeButtonIsActionSource)console.pressPause();
 				 resizeButtonIsActionSource = false;
           }
 		});

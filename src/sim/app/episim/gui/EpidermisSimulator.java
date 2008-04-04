@@ -92,7 +92,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	public EpidermisSimulator() {
 		ExceptionDisplayer.getInstance().registerParentComp(this);
-		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
+		
 		try{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
@@ -410,6 +410,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	private void openModel(){
 		TissueBorder.getInstance().loadStandardMebrane();
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		File file = null;
 		File standartDir =new File("d:/");
 		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model");
@@ -454,11 +455,12 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	}
 	private void reloadModel(File modelFile, File snapshotPath){
 		TissueBorder.getInstance().loadStandardMebrane();
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		boolean success = false; 
 		try{
          success= ModelController.getInstance().getBioChemicalModelController().loadModelFile(modelFile);
       }
-      catch (ModelCompatibilityException e){
+      catch(ModelCompatibilityException e){
         ExceptionDisplayer.getInstance().displayException(e);
         JOptionPane.showMessageDialog(this, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
         success = false;

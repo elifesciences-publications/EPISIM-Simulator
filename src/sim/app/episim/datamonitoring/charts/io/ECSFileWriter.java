@@ -45,12 +45,8 @@ public class ECSFileWriter {
 				
 								
 					try {
-					
-						
-							
-							
+										
 							// Adding MANIFEST:MF
-
 							StringBuffer sBuffer = new StringBuffer();
 
 							sBuffer.append("Manifest-Version: 1.0\n");

@@ -22,6 +22,7 @@ import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 
 import sim.app.episim.datamonitoring.parser.*;
+import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.charts.io.ECSFileReader;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
 import sim.app.episim.datamonitoring.parser.DataMonitoringExpressionChecker;
@@ -187,6 +188,7 @@ public class ChartController {
 	
 	private boolean loadEpisimChartSet(URL url, Frame parent){
 		try{
+			CalculationController.getInstance().resetChart();
 			ECSFileReader ecsReader = new ECSFileReader(url);
 			this.actLoadedChartSet = ecsReader.getEpisimChartSet();
 			ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());

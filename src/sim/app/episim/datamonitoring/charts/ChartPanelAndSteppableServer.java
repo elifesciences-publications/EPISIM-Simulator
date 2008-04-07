@@ -8,8 +8,10 @@ import org.jfree.chart.ChartPanel;
 
 import episimexceptions.MissingObjectsException;
 import episimfactories.AbstractChartSetFactory;
+import episiminterfaces.GeneratedChart;
 
 import sim.app.episim.CellType;
+import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
 import sim.field.continuous.Continuous2D;
@@ -58,11 +60,15 @@ public class ChartPanelAndSteppableServer {
 		List<ChartPanel> allPanels = new LinkedList<ChartPanel>();
 		if(this.customChartPanels != null)allPanels.addAll(this.customChartPanels);
 		if(this.defaultChartPanels != null)allPanels.addAll(this.defaultChartPanels);
+		
 		return allPanels;
 	}
 	
 	public List<EnhancedSteppable> getChartSteppables(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
-		if(factory != null)factory.registerNecessaryObjects(allCells, continuous, objects);
+		if(factory != null){
+			factory.registerNecessaryObjects(allCells, continuous, objects);
+			CalculationController.getInstance().registerCells(allCells);
+		}
 		List<EnhancedSteppable> allSteppables = new LinkedList<EnhancedSteppable>();
 		if(this.customSteppables != null)allSteppables.addAll(this.customSteppables);
 		if(this.defaultSteppables != null)allSteppables.addAll(this.defaultSteppables);
@@ -75,6 +81,13 @@ public class ChartPanelAndSteppableServer {
 	
 	public void removeAllListeners(){
 		this.listeners.clear();
+	}
+	
+	public void clearAllSeries(){
+		DefaultCharts.getInstance().clearSeries();
+		for(ChartPanel pan: this.customChartPanels){
+			if(pan.getChart() instanceof GeneratedChart) ((GeneratedChart) pan.getChart()).clearAllSeries();
+		}
 	}
 	
 	private void notifyListeners(){

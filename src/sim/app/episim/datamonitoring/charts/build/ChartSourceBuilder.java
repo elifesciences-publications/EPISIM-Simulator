@@ -35,7 +35,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		appendConstructor();
 		appendStandardMethods();
 		appendRegisterObjectsMethod(episimChart.getRequiredClasses());
-		
+		appendClearSeriesMethod();
 		appendEnd();
 		return generatedSourceCode.toString();
 	}
@@ -55,12 +55,14 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import episiminterfaces.*;\n");
 		generatedSourceCode.append("import episimexceptions.*;\n");
 		generatedSourceCode.append("import episimfactories.*;\n");
+		
 		generatedSourceCode.append("import java.awt.*;\n");
 		generatedSourceCode.append("import java.util.*;\n");
 		generatedSourceCode.append("import sim.app.episim.util.*;\n");
 		generatedSourceCode.append("import sim.engine.Steppable;\n");
 		generatedSourceCode.append("import sim.app.episim.util.GenericBag;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.GlobalStatistics;\n");
+		generatedSourceCode.append("import sim.app.episim.datamonitoring.calc.*;\n");
 		generatedSourceCode.append("import sim.app.episim.CellType;\n");
 		generatedSourceCode.append("import sim.engine.SimState;\n");
 		generatedSourceCode.append("import sim.field.continuous.*;\n");
@@ -103,6 +105,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 		if(actChart.isLegendVisible()) appendLegend();
 		appendChartSeriesInit();
+		appendGradientHandlerRegistration();			
 		appendSteppable();
 		generatedSourceCode.append("}\n");
 	}
@@ -147,6 +150,15 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("  title.setPosition(RectangleEdge.BOTTOM);\n");
 	}
 	
+	private void appendClearSeriesMethod(){
+		generatedSourceCode.append("  public void clearAllSeries(){\n");
+		for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
+	   	generatedSourceCode.append("    "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".clear();\n");
+	   }
+		generatedSourceCode.append("  }\n");
+	}
+	
+	
 		
 	protected void appendStandardMethods(){
 		super.appendStandardMethods();
@@ -154,5 +166,8 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 	}
 	
+	private void appendGradientHandlerRegistration(){
+		SteppableCodeFactory.appendGradientCalucationHandlerRegistration(actChart, generatedSourceCode);
+	}
 
 }

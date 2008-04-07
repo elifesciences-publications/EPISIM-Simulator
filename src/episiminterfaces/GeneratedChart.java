@@ -12,5 +12,7 @@ public interface GeneratedChart {
 	ChartPanel getChartPanel();
 	
 	EnhancedSteppable getSteppable();
+	
+	void clearAllSeries();
 
 }

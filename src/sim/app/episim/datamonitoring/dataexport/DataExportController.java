@@ -16,6 +16,7 @@ import sim.app.episim.ExceptionDisplayer;
 
 
 
+import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileReader;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileWriter;
 
@@ -100,7 +101,7 @@ public class DataExportController {
 		edeChooser.setDialogTitle("Load Already Defined DataExport");
 		if(edeChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION){
 			try{
-				return loadEpisimChartSet(edeChooser.getSelectedFile().toURI().toURL(), parent);	
+				return loadDataExportDefinition(edeChooser.getSelectedFile().toURI().toURL(), parent);	
 			}
 			catch (MalformedURLException e){
 				ExceptionDisplayer.getInstance().displayException(e);
@@ -147,19 +148,20 @@ public class DataExportController {
 		EDEFileWriter fileWriter = new EDEFileWriter(dataExport.getDataExportDefinitionPath());
 		fileWriter.createDataExportDefinitionArchive(dataExport);
 		try{
-	      loadEpisimChartSet(new File(dataExport.getDataExportDefinitionPath().getAbsolutePath()).toURI().toURL());
+	      loadDataExportDefinition(new File(dataExport.getDataExportDefinitionPath().getAbsolutePath()).toURI().toURL());
       }
       catch (MalformedURLException e){
 	      ExceptionDisplayer.getInstance().displayException(e);
       }
 	}
 	
-	private boolean loadEpisimChartSet(URL url){
-		return loadEpisimChartSet(url, null);
+	private boolean loadDataExportDefinition(URL url){
+		return loadDataExportDefinition(url, null);
 	}
 
-	private boolean loadEpisimChartSet(URL url, Frame parent){
+	private boolean loadDataExportDefinition(URL url, Frame parent){
 		try{
+			CalculationController.getInstance().resetDataExport();
 			EDEFileReader ecsReader = new EDEFileReader(url);
 			this.actLoadedDataExport = ecsReader.getEpisimDataExportDefinition();
 			

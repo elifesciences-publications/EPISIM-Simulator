@@ -11,6 +11,7 @@ package sim.app.episim.datamonitoring.parser;
 import java.io.*;
 import java.util.*;
 import sim.app.episim.util.*;
+import sim.app.episim.datamonitoring.steppables.*;
 
 public class DataMonitoringExpressionChecker {
 	private Set<String> varNameSet = new HashSet<String>();
@@ -185,30 +186,18 @@ String exp2 = "";
 
  String AllCellsMeanValueFunction():
  {
- 	String exp1 = "";
- 	String exp2 = null;
- 	String exp3 = null;
- 	String exp4 = null;
- 	String exp5 = null;
- 
+ 	String exp1 = ""; 
  }
  {
- ("ACMV("exp1 =Expression()((")") |
-  (                   "," 
-                      exp2 =Expression() ","
-                      exp3 =Expression() ","
-                      exp4 =Expression() ","
-                      exp5 =Expression()")" )))
+ ("ACMV("exp1 =Expression()(")")) 
  {
  	
  	checkIfStringArithExpr(exp1);
- 	checkIfStringArithExpr(exp2);
- 	checkIfStringArithExpr(exp3);
- 	checkIfStringArithExpr(exp4);
- 	checkIfStringArithExpr(exp5);
+ 	if(!(this.tissueDataFieldsInspector.checkForCellTypeConflict(this.recognizedVarNames))) 
+ 		throw new ParseException("Usage of parameters owned by different cell types in one expression is not allowed!"); 	
+ 	return SteppableCodeFactory.
+ 	                          getCalculationHandlerAnMethodCallForExpression(Names.BUILDACMVHANDLER+exp1, this.tissueDataFieldsInspector.getRequiredClasses());
  	
- 	if(exp2 == null || exp3 == null || exp4 == null ||exp5 == null) return "getAllCellsMeanValue("+exp1+")";
- 	else return "getAllCellsMeanValue("+exp1+","+exp2+","+exp3+","+exp4+","+exp5+")";
  }
  }
  
@@ -224,7 +213,8 @@ String exp2 = "";
  	checkIfStringArithExpr(exp1);
  	if(!(this.tissueDataFieldsInspector.checkForCellTypeConflict(this.recognizedVarNames))) 
  		throw new ParseException("Usage of parameters owned by different cell types in one expression is not allowed!"); 	
- 	return Names.BUILDGRADIENTHANDLER +exp1;
+ 	return Names.BUILDGRADIENTHANDLER + SteppableCodeFactory.
+ 	                          getCalculationHandlerAnMethodCallForExpression(Names.BUILDGRADIENTHANDLER+exp1, this.tissueDataFieldsInspector.getRequiredClasses());
  	
  }
  }

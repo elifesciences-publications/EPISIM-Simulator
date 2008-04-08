@@ -226,7 +226,7 @@ public class ChartController {
 	
 	
 	public void clearAllSeries(){
-		DefaultCharts.getInstance().clearSeries();
-		//TODO: Implement clearAllSeries method
+		CalculationController.getInstance().restartSimulation();
+		ChartPanelAndSteppableServer.getInstance().clearAllSeries();
 	}
 }

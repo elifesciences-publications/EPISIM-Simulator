@@ -12,8 +12,11 @@ public class CalculationController {
 	
 	private GradientCalculator chartGradientCalculator;
 	private ACMVCalculator acmvCalculator;
+	private OneCellCalculator oneCellCalculator;
 	private CalculationController(){
 		chartGradientCalculator = new GradientCalculator();
+		acmvCalculator = new ACMVCalculator();
+		oneCellCalculator = new OneCellCalculator();
 	}
 	
 	
@@ -25,6 +28,8 @@ public class CalculationController {
 	public void registerCells(GenericBag<CellType> allCells){
 		if(allCells == null) throw new IllegalArgumentException("CalculationController: the cells bag must not be null!");
 		chartGradientCalculator.registerCells(allCells);
+		acmvCalculator.registerCells(allCells);
+		oneCellCalculator.registerCells(allCells);
 	}
 	
 	public void registerForGradientCalculationGradient(CalculationHandler handler, XYSeries series){
@@ -38,8 +43,26 @@ public class CalculationController {
 		chartGradientCalculator.calculateGradients();
 	}
 	
+	public double calculateOneCellBaseLine(long chartId, CalculationHandler handler){
+		return oneCellCalculator.calculateOneCellBaseLine(chartId, handler);
+	}
+	
+	public void calculateOneCell(double baseLineResult){
+		oneCellCalculator.calculateOneCell(baseLineResult);
+	}
+	
+	public void registerForOneCellCalculation(CalculationHandler handler, XYSeries series){
+		oneCellCalculator.registerForOneCellCalculation(handler, series);
+	}
+	
 	public void resetChart(){
 		chartGradientCalculator = new GradientCalculator();
+		oneCellCalculator = new OneCellCalculator();
+	}
+	
+	public void restartSimulation(){
+		chartGradientCalculator.restartSimulation();
+		oneCellCalculator.restartSimulation();
 	}
 	
 	public void resetDataExport(){

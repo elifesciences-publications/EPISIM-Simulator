@@ -132,6 +132,18 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
      
        return (T)bag.get(index);
    }
+   
+   public <R extends T> R getRandomItemOfClass(Class<R> classOfElement)
+   {
+     Random rand = new Random();
+     int start = rand.nextInt(bag.size());
+     for (int i = start; i < (bag.size()+ start); i++){
+   	  T t = (T)bag.get((i%bag.size()));
+   	  if(classOfElement.isAssignableFrom(t.getClass())) return (R) t;
+     }
+     return null;
+    
+   }
 
    /** identical to get(index) */
    public T getValue(final int index)

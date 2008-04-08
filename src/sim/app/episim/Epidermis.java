@@ -280,6 +280,7 @@ private void seedStemCells(){
 			seedStemCells();
 			
 			
+			
 			if(this.chartSteppables != null){
 				for(EnhancedSteppable steppable: this.chartSteppables){
 			   	schedule.scheduleRepeating(steppable, steppable.getInterval());
@@ -1032,7 +1033,8 @@ private void seedStemCells(){
 	      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(allCells, this.cellContinous2D, new Object[]{
 	      	this.biochemModelContr.getEpisimCellDiffModelGlobalParameters(), 
 	      	this.biomechModelContr.getEpisimMechanicalModelGlobalParameters(), 
-	      	this.biomechModelContr.getEpisimMechanicalModel()});
+	      	this.biomechModelContr.getEpisimMechanicalModel(),
+	      	this});
       }
       catch (MissingObjectsException e){
 	     ExceptionDisplayer.getInstance().displayException(e);

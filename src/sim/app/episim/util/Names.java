@@ -19,6 +19,7 @@ public abstract class Names {
 	
 	public static final String BUILDGRADIENTHANDLER = "buildGradientHandler_";
 	public static final String BUILDACMVHANDLER = "buildAllCellsMeanValueHandler_";
+	public static final String BUILDCELLHANDLER = "buildOneCellTrackingHandler_";
 	
 	public static final String GENERATEDGRADIENTFUNCTIONNAME = "gradients";
 	

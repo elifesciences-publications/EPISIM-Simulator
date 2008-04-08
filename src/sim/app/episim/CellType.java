@@ -21,6 +21,8 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    
    private static int cellCounter = 0;
    
+   private boolean tracked = false;
+   
    public CellType(long identity, long motherIdentity){
    	inNirvana=false;
    	isOuterCell=false;
@@ -67,4 +69,18 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
 	
 	
 	protected long getMotherIdentity(){ return this.motherIdentity;}
+
+	
+   public boolean isTracked() {
+   
+   	return tracked;
+   }
+
+	
+   public void setTracked(boolean tracked) {
+   
+   	this.tracked = tracked;
+   }
+	
+	
 }

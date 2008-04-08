@@ -26,7 +26,10 @@ public class GradientCalculator extends AbstractCommonCalculator {
 		this.resultMaps = new ArrayList<Map<Double, Double>>();
 		this.xySeries = new ArrayList<XYSeries>();
 	}
-	
+	public void restartSimulation(){
+		for(Map<Double, Double> map : this.resultMaps) map.clear();
+		for(XYSeries series : this.xySeries) series.clear();
+	}
 	
 	public void registerForGradientCalculationGradient(CalculationHandler handler, XYSeries series){
 		if(handler == null || series == null) throw new IllegalArgumentException("GradientCalculator: CalculationHandler or XYSeries must not be null!");

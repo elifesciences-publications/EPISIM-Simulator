@@ -140,9 +140,18 @@ public class TissueCellDataFieldsInspector {
 		if(method != null) this.requiredClasses.add(method.getDeclaringClass());
 	}
 	
+	public boolean checkIfIdentifierIsGlobalParameter(String identifier){
+		Class<?> identifiersClass = overallMethodMap.get(identifier).getDeclaringClass();
+		if(EpisimCellDiffModel.class.isAssignableFrom(identifiersClass)
+				|| EpisimMechanicalModel.class.isAssignableFrom(identifiersClass)
+				|| CellType.class.isAssignableFrom(identifiersClass)) return false;
+		return true;		
+	}
+	
 	public Set<Class<?>> getRequiredClasses(){ return this.requiredClasses;}
 	
 	private String getRedundancyCheckedName(String name){
+		
 		String newName = name;
 		if(overallVarNameSet.contains(newName)){
 			for(int i = 2; overallVarNameSet.contains(newName); i++) newName = name.concat(""+i);

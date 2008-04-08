@@ -58,7 +58,7 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("  for(Object actObject: objects){\n");
 		for(Class<?> actClass : this.requiredClasses){
 			if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
-				this.factorySource.append("    else if(actObject instanceof "+actClass.getSimpleName()+") this."+Names.convertClassToVariable(actClass.getSimpleName())+" = ("+actClass.getSimpleName()+") actObject;\n"); 
+				this.factorySource.append("    if(actObject instanceof "+actClass.getSimpleName()+") this."+Names.convertClassToVariable(actClass.getSimpleName())+" = ("+actClass.getSimpleName()+") actObject;\n"); 
 			}
 		}
 		this.factorySource.append("  }\n");

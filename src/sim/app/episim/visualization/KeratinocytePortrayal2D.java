@@ -318,7 +318,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 java.awt.Color myColor = new Color(red, green, blue);
                 //java.awt.Color myColor = new Color (255-ownCol, Colorvalue+ownCol, Colorvalue+ownCol);
 
-                
+                if(kcyte.isTracked()) myColor = Color.RED;
                 GeneralPath cellPath;
                 GeneralPath nucleusPath;
                 if (drawVoronoi) // it was possible to draw it five times then it may be stable

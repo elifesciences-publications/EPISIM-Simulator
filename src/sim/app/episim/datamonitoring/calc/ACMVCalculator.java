@@ -31,10 +31,8 @@ public class ACMVCalculator extends AbstractCommonCalculator{
 			catch (CellNotValidException e){
 				//Exception is ignored
 			}
-
-			System.out.println(counter == allCells.size());
-
 		}
+		
 		return (sum / counter);
 	}
 }

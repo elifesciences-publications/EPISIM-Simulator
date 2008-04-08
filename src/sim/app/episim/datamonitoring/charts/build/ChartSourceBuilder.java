@@ -105,7 +105,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 		if(actChart.isLegendVisible()) appendLegend();
 		appendChartSeriesInit();
-		appendGradientHandlerRegistration();			
+		appendHandlerRegistration();			
 		appendSteppable();
 		generatedSourceCode.append("}\n");
 	}
@@ -116,7 +116,6 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("  XYItemRenderer renderer = null;\n");
 		int i = 0;
 		for(EpisimChartSeries actSeries: actChart.getEpisimChartSeries()){
-			
 			generatedSourceCode.append("  dataset.addSeries("+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+");\n");
 			
 			generatedSourceCode.append("  newDash = new float[]{");
@@ -166,7 +165,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 	}
 	
-	private void appendGradientHandlerRegistration(){
+	private void appendHandlerRegistration(){
 		SteppableCodeFactory.appendGradientCalucationHandlerRegistration(actChart, generatedSourceCode);
 	}
 

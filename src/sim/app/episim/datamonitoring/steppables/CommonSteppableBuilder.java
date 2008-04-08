@@ -5,6 +5,7 @@ import sim.app.episim.CellType;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimChart;
+import episiminterfaces.EpisimChartSeries;
 
 
 public class CommonSteppableBuilder {
@@ -12,6 +13,16 @@ public class CommonSteppableBuilder {
 	public String buildCalculationHandler(String expr, Set<Class<?>> requiredClasses){
       StringBuffer handlerSource = new StringBuffer();
       handlerSource.append("new CalculationHandler(){\n");
+      
+      handlerSource.append("  public Class<? extends CellType> getRequiredCellType(){\n");
+      boolean classFound = false;
+      for(Class<?> actClass: requiredClasses){
+			if(CellType.class.isAssignableFrom(actClass)){
+				handlerSource.append("    return "+ actClass.getSimpleName()+ ".class));\n");
+				classFound = true;
+			}
+		}
+      if(!classFound) handlerSource.append("    return null;\n}\n");
       appendCellValidCheck(handlerSource, requiredClasses);
       handlerSource.append("  public double calculate(CellType cellTypeLocal) throws CellNotValidException{\n");
       handlerSource.append("    EpisimCellDiffModel cellDiff = cellTypeLocal.getEpisimCellDiffModelObject();\n");
@@ -64,6 +75,21 @@ public class CommonSteppableBuilder {
 							Names.convertClassToVariable(actClass.getSimpleName())+"= ("+ actClass.getSimpleName()+ ")"+varName+ ";\n");
 				}
 				
+			}
+		}
+	}
+	
+	public void appendCalucationHandlerRegistration(EpisimChart chart, StringBuffer source){
+		for(EpisimChartSeries actSeries: chart.getEpisimChartSeries()){
+			if(actSeries.getExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)) {
+				source.append("CalculationController.getInstance().registerForGradientCalculationGradient(");
+				source.append(actSeries.getExpression()[1].substring(Names.BUILDGRADIENTHANDLER.length())+", ");
+				source.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+");\n");
+			}
+			if(actSeries.getExpression()[1].startsWith(Names.BUILDCELLHANDLER)) {
+				source.append("CalculationController.getInstance().registerForOneCellCalculation(");
+				source.append(actSeries.getExpression()[1].substring(Names.BUILDCELLHANDLER.length())+", ");
+				source.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+");\n");
 			}
 		}
 	}

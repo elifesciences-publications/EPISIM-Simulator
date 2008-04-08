@@ -136,7 +136,7 @@ public class ECSFileWriter {
 							jarOut.finish();
 							jarOut.close();
 							
-					//		chartCompiler.deleteTempData();
+							chartCompiler.deleteTempData();
 							
 						} catch (Exception e) {
 							ExceptionDisplayer.getInstance()

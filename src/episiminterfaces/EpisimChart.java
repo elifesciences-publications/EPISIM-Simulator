@@ -15,12 +15,12 @@ public interface EpisimChart{
 	String[] getBaselineExpression();
 	boolean isLegendVisible();
 	boolean isAntialiasingEnabled();
-	boolean isPDFPrintingEnabled();
-	int getPDFPrintingFrequency();
+	boolean isPNGPrintingEnabled();
+	int getPNGPrintingFrequency();
 	int getChartUpdatingFrequency();
 	List<EpisimChartSeries> getEpisimChartSeries();
 	EpisimChartSeries getEpisimChartSeries(long no);
-	File getPDFPrintingPath();
+	File getPNGPrintingPath();
 	Set<Class<?>> getRequiredClasses();
 	
 	void setTitle(String title);
@@ -28,13 +28,13 @@ public interface EpisimChart{
 	void setYLabel(String yLabel);
 	void setLegendVisible(boolean val);
 	void setAntialiasingEnabled(boolean val);
-	void setPDFPrintingEnabled(boolean val);
-	void setPDFPrintingFrequency(int frequency);
+	void setPNGPrintingEnabled(boolean val);
+	void setPNGPrintingFrequency(int frequency);
 	void setChartUpdatingFrequency(int frequency);
 	void setBaselineExpression(String[] val);
 	void addEpisimChartSeries(EpisimChartSeries chartSeries);
 	void addRequiredClass(Class<?> requiredClass);
-	void setPDFPrintingPath(File path);
+	void setPNGPrintingPath(File path);
 	
 	
 	void removeChartSeries(long id);

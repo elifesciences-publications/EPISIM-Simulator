@@ -85,8 +85,10 @@ public class ChartPanelAndSteppableServer {
 	
 	public void clearAllSeries(){
 		DefaultCharts.getInstance().clearSeries();
-		for(ChartPanel pan: this.customChartPanels){
-			if(pan.getChart() instanceof GeneratedChart) ((GeneratedChart) pan.getChart()).clearAllSeries();
+		if(this.customChartPanels != null){
+			for(ChartPanel pan: this.customChartPanels){
+				if(pan.getChart() instanceof GeneratedChart) ((GeneratedChart) pan.getChart()).clearAllSeries();
+			}
 		}
 	}
 	

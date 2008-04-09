@@ -18,7 +18,8 @@ import sim.engine.Steppable;
 public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	
 	
-	
+	public static final String CHARTDATAFIELDNAME = "chart";
+	public static final String PNGDIRECTORYDATAFIELDNAME = "pngPrintingDirectory";
 	
 	private EpisimChart actChart;
 	public ChartSourceBuilder(){
@@ -63,6 +64,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import sim.app.episim.util.GenericBag;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.GlobalStatistics;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.calc.*;\n");
+		generatedSourceCode.append("import sim.app.episim.datamonitoring.charts.io.*;\n");
 		generatedSourceCode.append("import sim.app.episim.CellType;\n");
 		generatedSourceCode.append("import sim.engine.SimState;\n");
 		generatedSourceCode.append("import sim.field.continuous.*;\n");
@@ -75,12 +77,15 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	}
 	
 	protected void appendDataFields(){
-			super.appendDataFields();	   
-		   generatedSourceCode.append("  private JFreeChart chart;\n");
+			super.appendDataFields();	
+			generatedSourceCode.append("  private EnhancedSteppable pngSteppable = null;\n");
+		   generatedSourceCode.append("  private JFreeChart "+CHARTDATAFIELDNAME+";\n");
 		   generatedSourceCode.append("  private Continuous2D cellContinuous;\n");
 		   generatedSourceCode.append("  private GenericBag<CellType> allCells;\n");
 		   generatedSourceCode.append("  private ChartPanel chartPanel;\n");
 		   generatedSourceCode.append("  private XYSeriesCollection dataset = new XYSeriesCollection();\n");
+		
+		   
 		   for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
 		   	generatedSourceCode.append("  private XYSeries "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
 		   			" = new XYSeries(\""+Names.cleanString(actSeries.getName())+"\", false);\n");
@@ -92,21 +97,25 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	
 	private void appendConstructor(){
 		generatedSourceCode.append("public " +Names.convertVariableToClass(Names.cleanString(this.actChart.getTitle())+ this.actChart.getId())+"(){\n");
-		generatedSourceCode.append("  chart = ChartFactory.createXYLineChart(\""+actChart.getTitle()+"\",\""+actChart.getXLabel()+"\",\""+
+		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createXYLineChart(\""+actChart.getTitle()+"\",\""+actChart.getXLabel()+"\",\""+
 				actChart.getYLabel()+"\",dataset,"+"PlotOrientation.VERTICAL, "+actChart.isLegendVisible()+", true, false);\n");
-		generatedSourceCode.append("  ((XYLineAndShapeRenderer)(((XYPlot)(chart.getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);\n");
-		generatedSourceCode.append("  chart.setAntiAlias("+actChart.isAntialiasingEnabled()+");\n");
-		generatedSourceCode.append("  chartPanel = new ChartPanel(chart, true);\n");
+		generatedSourceCode.append("  ((XYLineAndShapeRenderer)(((XYPlot)("+CHARTDATAFIELDNAME+".getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);\n");
+		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".setAntiAlias("+actChart.isAntialiasingEnabled()+");\n");
+		generatedSourceCode.append("  chartPanel = new ChartPanel("+CHARTDATAFIELDNAME+", true);\n");
 		generatedSourceCode.append("  chartPanel.setPreferredSize(new java.awt.Dimension(640,480));\n");
 		generatedSourceCode.append("  chartPanel.setMinimumDrawHeight(10);\n");
 		generatedSourceCode.append("  chartPanel.setMaximumDrawHeight(2000);\n");
 		generatedSourceCode.append("  chartPanel.setMinimumDrawWidth(20);\n");
 		generatedSourceCode.append("  chartPanel.setMaximumDrawWidth(2000);\n\n");
 		
+		
+		
+		
 		if(actChart.isLegendVisible()) appendLegend();
 		appendChartSeriesInit();
 		appendHandlerRegistration();			
 		appendSteppable();
+		if(actChart.isPNGPrintingEnabled())appendPNGSteppable();
 		generatedSourceCode.append("}\n");
 	}
 	
@@ -139,6 +148,11 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforChart(actChart)+";\n");
 	}
 	
+	private void appendPNGSteppable(){
+		
+		generatedSourceCode.append("pngSteppable = "+SteppableCodeFactory.getEnhancedSteppableForPNGPrinting(actChart)+";\n");
+	}
+	
 	private void appendLegend(){
 		generatedSourceCode.append("  LegendTitle title = new LegendTitle((XYItemRenderer) (chart.getXYPlot().getRenderer()));\n");
 		generatedSourceCode.append("  title.setLegendItemGraphicPadding(new org.jfree.ui.RectangleInsets(0, 8, 0, 4));\n");
@@ -162,6 +176,8 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	protected void appendStandardMethods(){
 		super.appendStandardMethods();
 		generatedSourceCode.append("public ChartPanel getChartPanel(){ return this.chartPanel;}\n");
+		
+		generatedSourceCode.append("public EnhancedSteppable getPNGSteppable(){ return this.pngSteppable;}\n");
 		
 	}
 	

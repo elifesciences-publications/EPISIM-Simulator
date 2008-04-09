@@ -24,11 +24,11 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	private String yLabel = "";
 	private boolean antiAliasingEnabled = false;
 	private boolean legendVisible = false;
-	private boolean pdfPrintingEnabled = false;
-	private int pdfPrintingFrequency = 100;
+	private boolean pngPrintingEnabled = false;
+	private int pngPrintingFrequency = 100;
 	private int chartUpdatingFrequency = 100;
 	
-	private File pdfPrintingPath = null;
+	private File pngPrintingPath = null;
 	
 	private String[] baselineExpression = null;
 	
@@ -53,9 +53,9 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	
 	public Set<Class<?>> getRequiredClasses(){ return this.requiredClasses; }
 	
-	public int getPDFPrintingFrequency() {
+	public int getPNGPrintingFrequency() {
 		
-		return pdfPrintingFrequency;
+		return pngPrintingFrequency;
 	}
 	public int getChartUpdatingFrequency() {
 		
@@ -81,10 +81,10 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 
 		return legendVisible;
 	}
-	public boolean isPDFPrintingEnabled() {
+	public boolean isPNGPrintingEnabled() {
 
 		
-		return pdfPrintingEnabled;
+		return pngPrintingEnabled;
 	}
 	public void setAntialiasingEnabled(boolean val) {
 
@@ -96,14 +96,14 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 		this.legendVisible = val;
 		
 	}
-	public void setPDFPrintingEnabled(boolean val) {
+	public void setPNGPrintingEnabled(boolean val) {
 
-		this.pdfPrintingEnabled = val;
+		this.pngPrintingEnabled = val;
 		
 	}
-	public void setPDFPrintingFrequency(int frequency) {
+	public void setPNGPrintingFrequency(int frequency) {
 
-		this.pdfPrintingFrequency = frequency;
+		this.pngPrintingFrequency = frequency;
 		
 	}
 	public void setChartUpdatingFrequency(int frequency) {
@@ -176,15 +176,15 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 		
 	}
 
-	public File getPDFPrintingPath() {
+	public File getPNGPrintingPath() {
 
 	 
-	   return this.pdfPrintingPath;
+	   return this.pngPrintingPath;
    }
 
-	public void setPDFPrintingPath(File path) {
+	public void setPNGPrintingPath(File path) {
 
-	  this.pdfPrintingPath = path;
+	  this.pngPrintingPath = path;
 	   
    }
 	

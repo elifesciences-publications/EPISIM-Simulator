@@ -363,7 +363,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    	  
         // we are doing a simple draw, so we ignore the info.clip
         if( info instanceof HexaDrawInfo2D )
-            {
+         {
       	  
             final HexaDrawInfo2D temp = (HexaDrawInfo2D)info;
             generalPath.moveTo( temp.xPoints[0], temp.yPoints[0] );
@@ -371,7 +371,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             for( int i = 1 ; i < 6 ; i++ )
                 generalPath.lineTo( temp.xPoints[i], temp.yPoints[i] );
             generalPath.closePath();
-            }
+        }
         else
             {
             xPoints[0] = (int)(info.draw.x+info.draw.width/2.0*w);
@@ -386,9 +386,8 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             yPoints[4] = (int)(info.draw.y+info.draw.height/2.0*h);
             xPoints[5] = (int)(info.draw.x+info.draw.width/4.0*w);
             yPoints[5] = (int)(info.draw.y+info.draw.height/2.0*h);
-            generalPath.moveTo( xPoints[0], yPoints[0] );
-            for( int i = 1 ; i < 6 ; i++ )
-                generalPath.lineTo( xPoints[i], yPoints[i] );
+            generalPath.moveTo(xPoints[0], yPoints[0] );
+            for( int i = 1 ; i < 6 ; i++ ) generalPath.lineTo( xPoints[i], yPoints[i] );
             generalPath.closePath();
             }
         return generalPath;

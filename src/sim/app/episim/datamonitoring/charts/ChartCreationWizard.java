@@ -72,6 +72,7 @@ import sim.app.episim.datamonitoring.ExpressionEditor;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
+import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectManipulations;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
@@ -105,12 +106,14 @@ public class ChartCreationWizard extends JDialog {
    private JTextField chartXLabel;
    private JTextField chartYLabel;
    private JTextField baselineField;
+   private JTextField pngPathField;
+   private JButton changePngPathButton;
    private JCheckBox legendCheck;
-   private JCheckBox pdfCheck;
+   private JCheckBox pngCheck;
    
-   private NumberTextField pdfFrequencyInSimulationSteps;
+   private NumberTextField pngFrequencyInSimulationSteps;
    private NumberTextField chartFrequencyInSimulationSteps;
-   private JLabel pdfFrequencyLabel;
+   private JLabel pngFrequencyLabel;
    private JLabel chartFrequencyLabel;
    
    private JPanel seriesPanel;
@@ -492,10 +495,21 @@ public class ChartCreationWizard extends JDialog {
 			this.aliasCheck.setSelected(chart.isAntialiasingEnabled());
 			
 			
-			this.pdfCheck.setSelected(chart.isPDFPrintingEnabled());
-			if(chart.isPDFPrintingEnabled())pdfFrequencyInSimulationSteps.setEnabled(true);
+			this.pngCheck.setSelected(chart.isPNGPrintingEnabled());
+			if(chart.isPNGPrintingEnabled()){
+				pngFrequencyInSimulationSteps.setEnabled(true);
+				this.changePngPathButton.setEnabled(true);
+				this.pngPathField.setText(chart.getPNGPrintingPath().getAbsolutePath());
+				pngPathField.setEnabled(true);
+			}
+			else{
+				pngFrequencyInSimulationSteps.setEnabled(false);
+				this.changePngPathButton.setEnabled(false);
+				pngPathField.setEnabled(false);
+				this.pngPathField.setText(chart.getPNGPrintingPath().getAbsolutePath());
+			}
 			
-			this.pdfFrequencyInSimulationSteps.setValue(chart.getPDFPrintingFrequency());
+			this.pngFrequencyInSimulationSteps.setValue(chart.getPNGPrintingFrequency());
 			this.chartFrequencyInSimulationSteps.setValue(chart.getChartUpdatingFrequency());
 			int i = 0;
 			for(EpisimChartSeries chartSeries: chart.getEpisimChartSeries()){ 
@@ -797,80 +811,78 @@ public class ChartCreationWizard extends JDialog {
 		});
 		list.add(new JLabel("Antialias"), aliasCheck);
 	
-      pdfCheck = new JCheckBox();
-      pdfCheck.setSelected(false);
-      episimChart.setPDFPrintingEnabled(false);
-		pdfCheck.addItemListener(new ItemListener() {
+      pngCheck = new JCheckBox();
+      pngCheck.setSelected(false);
+      episimChart.setPNGPrintingEnabled(false);
+		pngCheck.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
 				if(ChartCreationWizard.this.isVisible()){
 					if(e.getStateChange() == ItemEvent.SELECTED){
-						episimChart.setPDFPrintingEnabled(true);
-						FileDialog fd = new FileDialog(ChartCreationWizard.this,"Choose PDF Printing Path", FileDialog.SAVE);
-		            if(episimChart.getPDFPrintingPath() == null)fd.setFile(previewChart.getTitle().getText() + ".pdf");
-		            else{
-		            	fd.setDirectory(episimChart.getPDFPrintingPath().getPath());
-		            	fd.setFile(episimChart.getPDFPrintingPath().getName());
-		            }
-		            fd.setVisible(true);
-		            
-		            String fileName = fd.getFile();
-		            if (fileName!=null)
-		            {
-		            	episimChart.setPDFPrintingPath(new File(fd.getFile()));
-		            	pdfFrequencyInSimulationSteps.setEnabled(true);
-		            	pdfFrequencyLabel.setEnabled(true);
-		            	//  	Dimension dim = previewChartPanel.getPreferredSize();
-		            	//   printChartToPDF( previewChart, dim.width, dim.height, fd.getDirectory() + fileName );
-		            }
-		            else{
-		            	pdfCheck.setSelected(false);
-		            	episimChart.setPDFPrintingEnabled(false);
-		            }
-		           }
+						
+						selectPNGPath(false);
+						
+		          }
 					else{
-						episimChart.setPDFPrintingEnabled(false);
-						pdfFrequencyInSimulationSteps.setEnabled(false);
-						pdfFrequencyLabel.setEnabled(false);
+						episimChart.setPNGPrintingEnabled(false);
+						pngFrequencyInSimulationSteps.setEnabled(false);
+						pngFrequencyLabel.setEnabled(false);
+						pngPathField.setEnabled(false);
+						changePngPathButton.setEnabled(false);
 					}
 				}
 			}
 		});
-		list.add(new JLabel("Save as PDF"), pdfCheck);
+		JPanel labelCheckPanel = new JPanel(new BorderLayout(5,5));
+		labelCheckPanel.add(new JLabel("Save as PNG"), BorderLayout.WEST);
+		labelCheckPanel.add(pngCheck, BorderLayout.EAST);
+		JPanel fieldButtonPanel = new JPanel(new BorderLayout(5,5));
+		this.pngPathField = new JTextField();
+		this.pngPathField.setEditable(false);
+		pngPathField.setEnabled(false);
+		this.changePngPathButton = new JButton("Change");
+		this.changePngPathButton.setEnabled(false);
+		this.changePngPathButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				selectPNGPath(true);	         
+         }});
+		fieldButtonPanel.add(this.pngPathField, BorderLayout.CENTER);
+		fieldButtonPanel.add(this.changePngPathButton, BorderLayout.EAST);
+		list.add(labelCheckPanel, fieldButtonPanel);
 		
-		pdfFrequencyInSimulationSteps = new NumberTextField(100,false){
+		pngFrequencyInSimulationSteps = new NumberTextField(100,false){
 			public double newValue(double newValue)
 	      {
 				 newValue = Math.round(newValue);;
-				episimChart.setPDFPrintingFrequency((int) newValue);
+				episimChart.setPNGPrintingFrequency((int) newValue);
 	        return newValue;
 	      }
 		};
-		pdfFrequencyInSimulationSteps.addKeyListener(new KeyAdapter() {
+		pngFrequencyInSimulationSteps.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent keyEvent) {
 
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
-					episimChart.setPDFPrintingFrequency((int)pdfFrequencyInSimulationSteps.getValue());
+					episimChart.setPNGPrintingFrequency((int)pngFrequencyInSimulationSteps.getValue());
 				}
 				else if(keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
-					pdfFrequencyInSimulationSteps.setValue(pdfFrequencyInSimulationSteps.getValue());
+					pngFrequencyInSimulationSteps.setValue(pngFrequencyInSimulationSteps.getValue());
 			}
 		});
-		pdfFrequencyInSimulationSteps.addFocusListener(new FocusAdapter() {
+		pngFrequencyInSimulationSteps.addFocusListener(new FocusAdapter() {
 
 			public void focusLost(FocusEvent e) {
 
-				episimChart.setPDFPrintingFrequency((int)pdfFrequencyInSimulationSteps.getValue());
+				episimChart.setPNGPrintingFrequency((int)pngFrequencyInSimulationSteps.getValue());
 			}
 		});
-		pdfFrequencyInSimulationSteps.setEnabled(false);
-		pdfFrequencyLabel = new JLabel("PDF Printing Frequency in Simulation Steps: ");
-		pdfFrequencyLabel.setEnabled(false);
+		pngFrequencyInSimulationSteps.setEnabled(false);
+		pngFrequencyLabel = new JLabel("PDF Printing Frequency in Simulation Steps: ");
+		pngFrequencyLabel.setEnabled(false);
 		
 		
 		
-		list.add(pdfFrequencyLabel, pdfFrequencyInSimulationSteps);
+		list.add(pngFrequencyLabel, pngFrequencyInSimulationSteps);
 		
 		optionsPanel.add(list, BorderLayout.CENTER);
 		
@@ -880,6 +892,42 @@ public class ChartCreationWizard extends JDialog {
 	private void setAntiAliasEnabled(boolean val){
 		previewChart.setAntiAlias(val);
 		episimChart.setAntialiasingEnabled(val);
+	}
+	
+	private void selectPNGPath(boolean buttonCall){
+		
+		
+		
+		ExtendedFileChooser fileChooser = new ExtendedFileChooser(".png");
+		fileChooser.setDialogTitle("Choose ONG Printing Path");
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+      fileChooser.setCurrentDirectory(episimChart.getPNGPrintingPath());
+      fileChooser.setSelectedFile(episimChart.getPNGPrintingPath());
+      
+      File selectedPath = null;
+      if (JFileChooser.APPROVE_OPTION == fileChooser.showSaveDialog(ChartCreationWizard.this) && 
+      		(selectedPath = fileChooser.getSelectedFile()) != null)
+      {
+      	episimChart.setPNGPrintingEnabled(true);
+      	episimChart.setPNGPrintingPath(selectedPath);
+      	pngFrequencyInSimulationSteps.setEnabled(true);
+      	pngFrequencyLabel.setEnabled(true);
+      	this.pngPathField.setText(selectedPath.getAbsolutePath());
+      	this.changePngPathButton.setEnabled(true);
+      	pngPathField.setEnabled(true);
+      	//  	Dimension dim = previewChartPanel.getPreferredSize();
+      	//   printChartToPDF( previewChart, dim.width, dim.height, fd.getDirectory() + fileName );
+      }
+      else{
+      	if(!buttonCall){
+      	pngCheck.setSelected(false);
+      	episimChart.setPNGPrintingEnabled(false);
+      	pngFrequencyInSimulationSteps.setEnabled(false);
+      	this.changePngPathButton.setEnabled(false);
+      	pngPathField.setEnabled(false);
+      	}
+      }
 	}
 	
 	private void setChartLegendVisible(boolean val){

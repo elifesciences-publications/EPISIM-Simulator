@@ -13,6 +13,8 @@ public interface GeneratedChart {
 	
 	EnhancedSteppable getSteppable();
 	
+	EnhancedSteppable getPNGSteppable();
+	
 	void clearAllSeries();
 
 }

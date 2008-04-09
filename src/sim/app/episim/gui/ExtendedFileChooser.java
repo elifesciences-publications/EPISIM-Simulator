@@ -34,7 +34,7 @@ public class ExtendedFileChooser extends JFileChooser {
 	
 	public File getSelectedFile(){
 		File file = super.getSelectedFile();
-		if(file !=null && !file.getAbsolutePath().toLowerCase().trim().endsWith(fileExtension)){ 
+		if(file !=null && !file.isDirectory()&& !file.getAbsolutePath().toLowerCase().trim().endsWith(fileExtension)){ 
 			file= new File(file.getAbsolutePath() +fileExtension);
 		}
 		return file;

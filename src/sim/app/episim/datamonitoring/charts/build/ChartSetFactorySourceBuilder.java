@@ -85,6 +85,7 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 		this.factorySource.append("  List<EnhancedSteppable> chartSteppables = new ArrayList<EnhancedSteppable>();\n");
 		this.factorySource.append("  for(GeneratedChart actChart : allChartsOfTheSet){\n");
 		this.factorySource.append("    chartSteppables.add(actChart.getSteppable());\n");
+		this.factorySource.append("    if(actChart.getPNGSteppable() != null) chartSteppables.add(actChart.getPNGSteppable());\n");
 		this.factorySource.append("  }\n");
 		this.factorySource.append("  return chartSteppables;\n");
 		this.factorySource.append("}\n");

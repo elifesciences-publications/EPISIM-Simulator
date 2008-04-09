@@ -436,7 +436,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	
    public synchronized void pressPlay(){
 	if(!reloadedSnapshot){
-		ChartController.getInstance().clearAllSeries();
+		
 	
    	
 	((EpidermisGUIState)this.simulation).clearWoundPortrayalDraw();

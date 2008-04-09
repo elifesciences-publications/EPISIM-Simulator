@@ -84,10 +84,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	private GenericBag<CellType> allCells=new GenericBag<CellType>(3000); //all cells will be stored in this bag
 	private int allocatedKCytes=0;   // allocated memory
 	
-	private  int PNG_ChartWidth=400;
-	private  int PNG_ChartHeight=300;
-	private  int PNG_ChartWidth_Large=600;
-	private  int PNG_ChartHeight_Large=400;
+	
 	private  int PDF_ChartWidth_Large=600;
 	private  int PDF_ChartHeight_Large=400;
 	 
@@ -195,6 +192,7 @@ public class Epidermis extends TissueType implements SnapshotListener
 	     g2.dispose();
 	     cb.addTemplate(tp, 0, 0);
 	     document.close();
+	     writer.close();
 	     }
 	 catch( Exception e )
 	     {
@@ -376,87 +374,7 @@ private void seedStemCells(){
      // charts
      // ///////////////////////////////
      
- /*
-	 * Steppable chartPrinter = new Steppable() { public void step(SimState
-	 * state) { long t=(long) state.schedule.time(); File dir = new
-	 * File(graphicsDirectory); if(!dir.exists()){ dir.mkdir();
-	 * System.out.println("Directory " + dir.getAbsolutePath() + " created!"); }
-	 * 
-	 * String fnumcells=graphicsDirectory+"episim_chart_numcells_"+t+".png";
-	 * String
-	 * fnumcells_Large=graphicsDirectory+"episim_chart_numcells_large_"+t+".png";
-	 * String pdfnumcells=graphicsDirectory+"episim_chart_numcells_"+t+".pdf";
-	 * 
-	 * String fbarrier=graphicsDirectory+"episim_chart_barrier_"+t+".png"; String
-	 * fbarrier_Large=graphicsDirectory+"episim_chart_barrier_large_"+t+".png";
-	 * String pdfbarrier=graphicsDirectory+"episim_chart_barrier_"+t+".pdf";
-	 * 
-	 * String fcelltypes=graphicsDirectory+"episim_chart_celltypes_"+t+".png";
-	 * String
-	 * fcelltypes_Large=graphicsDirectory+"episim_chart_celltypes_large_"+t+".png";
-	 * String pdfcelltypes=graphicsDirectory+"episim_chart_celltypes_"+t+".pdf";
-	 * 
-	 * String
-	 * fpartdist=graphicsDirectory+"episim_chart_particlegradients_"+t+".png";
-	 * String
-	 * fpartdist_Large=graphicsDirectory+"episim_chart_particlegradients_large_"+t+".png";
-	 * String
-	 * pdfpartdist=graphicsDirectory+"episim_chart_particlegradients_"+t+".pdf";
-	 * 
-	 * String fagedist=graphicsDirectory+"episim_chart_agegradient_"+t+".png";
-	 * String
-	 * fagedist_Large=graphicsDirectory+"episim_chart_agegradient_large_"+t+".png";
-	 * String pdfagedist=graphicsDirectory+"episim_chart_agegradient_"+t+".pdf";
-	 * 
-	 * String fkinetics=graphicsDirectory+"episim_chart_kinetics_"+t+".png";
-	 * String
-	 * fkinetics_Large=graphicsDirectory+"episim_chart_kinetics_large_"+t+".png";
-	 * String pdfkinetics=graphicsDirectory+"episim_chart_kinetics_"+t+".pdf";
-	 * 
-	 * String fapoptosis=graphicsDirectory+"episim_chart_apoptosis_"+t+".png";
-	 * String
-	 * fapoptosis_Large=graphicsDirectory+"episim_chart_apoptosis_large_"+t+".png";
-	 * String pdfapoptosis=graphicsDirectory+"episim_chart_apoptosis_"+t+".pdf";
-	 * 
-	 * try { ChartUtilities.saveChartAsPNG(new File(fnumcells),
-	 * epiSimCharts.getNumCellsChart(), PNG_ChartWidth, PNG_ChartHeight);
-	 * ChartUtilities.saveChartAsPNG(new File(fnumcells_Large),
-	 * epiSimCharts.getNumCellsChart(), PNG_ChartWidth_Large,
-	 * PNG_ChartHeight_Large); ChartUtilities.saveChartAsPNG(new File(fbarrier),
-	 * epiSimCharts.getBarrierChart(), PNG_ChartWidth, PNG_ChartHeight);
-	 * ChartUtilities.saveChartAsPNG(new File(fcelltypes),
-	 * epiSimCharts.getParticleCellTypeChart(), PNG_ChartWidth, PNG_ChartHeight);
-	 * ChartUtilities.saveChartAsPNG(new File(fpartdist),
-	 * epiSimCharts.getParticleDistribution(), PNG_ChartWidth, PNG_ChartHeight);
-	 * ChartUtilities.saveChartAsPNG(new File(fpartdist_Large),
-	 * epiSimCharts.getParticleDistribution(), PNG_ChartWidth_Large,
-	 * PNG_ChartHeight_Large); ChartUtilities.saveChartAsPNG(new File(fagedist),
-	 * epiSimCharts.getAgeDistribution(), PNG_ChartWidth, PNG_ChartHeight);
-	 * ChartUtilities.saveChartAsPNG(new File(fkinetics),
-	 * epiSimCharts.getKineticsChart(), PNG_ChartWidth, PNG_ChartHeight);
-	 * ChartUtilities.saveChartAsPNG(new File(fkinetics_Large),
-	 * epiSimCharts.getKineticsChart(), PNG_ChartWidth_Large,
-	 * PNG_ChartHeight_Large); ChartUtilities.saveChartAsPNG(new
-	 * File(fapoptosis), epiSimCharts.getApoptosisChart(), PNG_ChartWidth,
-	 * PNG_ChartHeight); } catch(Exception ex){ System.out.println("File writing
-	 * for charts didn't work."); } // alternatice for pdf creation: /*
-	 * printChartToPDF(chartNumCells, PDF_ChartWidth_Large,
-	 * PDF_ChartHeight_Large, pdfnumcells); printChartToPDF(chartBarrierDist,
-	 * PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfbarrier);
-	 * printChartToPDF(chartCellTypes, PDF_ChartWidth_Large,
-	 * PDF_ChartHeight_Large, pdfcelltypes); printChartToPDF(chartPartDist,
-	 * PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfpartdist);
-	 * printChartToPDF(chartAgeDist, PDF_ChartWidth_Large, PDF_ChartHeight_Large,
-	 * pdfagedist); printChartToPDF(chartKinetics, PDF_ChartWidth_Large,
-	 * PDF_ChartHeight_Large, pdfkinetics); printChartToPDF(chartApoptosis,
-	 * PDF_ChartWidth_Large, PDF_ChartHeight_Large, pdfapoptosis);
-	 */
-     /*         }          
-};
-    // Schedule the agent to update the chart
-     schedule.scheduleRepeating(chartPrinter, 1000);
-     schedule.scheduleOnce(300,chartPrinter);
-   */  
+ 
      //////////////////////////////////////        
      // CHART Updating Kinetics Chart
      //////////////////////////////////////

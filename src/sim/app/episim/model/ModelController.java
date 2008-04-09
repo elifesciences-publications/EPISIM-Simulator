@@ -14,8 +14,11 @@ public class ModelController implements java.io.Serializable{
 	
 	private boolean modelOpened = false;
 	
+	private boolean simulationStartedOnce = false;
+	
 	private static ModelController instance;
 	private ModelController(){}
+	
 	
 	public static ModelController getInstance(){
 		
@@ -63,5 +66,9 @@ public class ModelController implements java.io.Serializable{
    
    	this.modelOpened = modelOpened;
    }
+   
+   public void setSimulationStartedOnce(boolean val){ this.simulationStartedOnce = val;}
+   
+   public boolean isSimulationStartedOnce(){ return this.simulationStartedOnce;}
 	
 }

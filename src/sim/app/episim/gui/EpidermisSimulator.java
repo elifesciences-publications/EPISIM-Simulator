@@ -409,6 +409,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	
 	private void openModel(){
+		ModelController.getInstance().setSimulationStartedOnce(false);
 		TissueBorder.getInstance().loadStandardMebrane();
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		File file = null;

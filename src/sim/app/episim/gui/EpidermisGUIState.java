@@ -281,13 +281,22 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		
 		
 		display.insideDisplay.addMouseListener(new MouseAdapter(){			
-
+			
+			
+				public void mouseClicked(MouseEvent e){
+					if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2){
+						if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
+					}
+				}
+			
 				public void mousePressed(MouseEvent e) {
 	
 					if(e.getButton() == MouseEvent.BUTTON3){
 						if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
-						woundPortrayalDraw.clearWoundRegionCoordinates();
-						woundPortrayalDraw.closeWoundRegionPath(false);
+						if(woundPortrayalDraw != null){
+							woundPortrayalDraw.clearWoundRegionCoordinates();
+							woundPortrayalDraw.closeWoundRegionPath(false);
+						}
 						activateDrawing = true;
 					}
 					
@@ -296,21 +305,25 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 					if(e.getButton() == MouseEvent.BUTTON3){
 						if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
-						woundPortrayalDraw.closeWoundRegionPath(true);
-						((Epidermis) state).removeCells(woundPortrayalDraw.getWoundRegion());
-						activateDrawing = false;
+						if(woundPortrayalDraw != null){
+							woundPortrayalDraw.closeWoundRegionPath(true);
+							((Epidermis) state).removeCells(woundPortrayalDraw.getWoundRegion());
+							activateDrawing = false;
+						}
 					}
 					
 				}
 	
 				public void mouseEntered(MouseEvent e){
-					if(display.isPortrayalVisible(RULERNAME)){ 
-						rulerPortrayalDraw.setCrosshairsVisible(true);
-						rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+					if(display.isPortrayalVisible(RULERNAME)){
+						if(rulerPortrayalDraw != null){
+							rulerPortrayalDraw.setCrosshairsVisible(true);
+							rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+						}
 					}
 				}
 				public void mouseExited(MouseEvent e){
-					if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setCrosshairsVisible(false);
+					if(display.isPortrayalVisible(RULERNAME) && rulerPortrayalDraw != null) rulerPortrayalDraw.setCrosshairsVisible(false);
 				}
 
 			});
@@ -318,19 +331,21 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 			public void mouseDragged(MouseEvent e){
 				
 				if(activateDrawing){
-					woundPortrayalDraw.addMouseCoordinate(new Double2D(e.getX(), e.getY()));
-					redrawDisplay();
+					if(woundPortrayalDraw != null){
+						woundPortrayalDraw.addMouseCoordinate(new Double2D(e.getX(), e.getY()));
+						redrawDisplay();
+					}
 				}
 				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-				if(display.isPortrayalVisible(RULERNAME)&& console.getPlayState()==Console.PS_PAUSED
-						||console.getPlayState()==Console.PS_STOPPED) redrawDisplay();	
+				if(display.isPortrayalVisible(RULERNAME)&& (console.getPlayState()==Console.PS_PAUSED
+						||console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplay();	
 				
 			}
 			public void mouseMoved(MouseEvent e){
 				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-				if(display.isPortrayalVisible(RULERNAME)&&console.getPlayState()==Console.PS_PAUSED
-						||console.getPlayState()==Console.PS_STOPPED) redrawDisplay();			
-			}
+				if(display.isPortrayalVisible(RULERNAME)&&(console.getPlayState()==Console.PS_PAUSED
+						|| console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplay();			
+			} 
 		});
 		
 
@@ -414,11 +429,11 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	}
 	
 	public void redrawDisplay(){
-		
+	if(display.insideDisplay.getWidth() > 0 && display.insideDisplay.getHeight() > 0){	
   	 Graphics g = display.insideDisplay.getGraphics();
   	 display.insideDisplay.paintComponent(g,true);
   	 g.dispose();
-  	 
+	}
 	}
 
 	public void init(Controller c) {
@@ -601,6 +616,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
    }
 	
 	public void simulationWasStarted(){
+		ModelController.getInstance().setSimulationStartedOnce(true);
 		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStarted();
 	}
 	

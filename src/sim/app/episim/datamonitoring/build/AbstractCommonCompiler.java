@@ -88,7 +88,10 @@ public abstract class AbstractCommonCompiler {
 			if(file.getParentFile() != null){		
 				for(File actFile: file.getParentFile().listFiles(new FileFilter(){
 					public boolean accept(File pathname) {return pathname.getAbsolutePath().endsWith(".class");}})){
-				 if(!nameSet.contains(actFile.getAbsolutePath())) newFiles.add(actFile);					
+				 if(!nameSet.contains(actFile.getAbsolutePath())){
+					 nameSet.add(actFile.getAbsolutePath());
+					 newFiles.add(actFile);					
+				 }
 				}
 			}
 		}

@@ -23,7 +23,7 @@ public class PNGPrinter {
 	private static final int PNG_CHARTHEIGHT=300;
 	private static final int PNG_CHARTWIDTH_LARGE=600;
 	private static final int PNG_CHARTHEIGHT_LARGE=400;
-	
+	private static final String FILEEXTENSION = ".png";
 	private Set<String> filenameSet;
 	private Map<Long, String> fileNameMap;
 	
@@ -43,11 +43,13 @@ public class PNGPrinter {
 		
 		if(directory.isDirectory() && chart != null && state != null){
 			
+			File pngFile = new File(directory.getAbsolutePath()+File.separatorChar + this.fileNameMap.get(chartId) + 
+         		"(SimulationStep " +state.schedule.getSteps()+ ")"+FILEEXTENSION);	
+			
+			pngFile = checkFile(pngFile);
 			
 				try{
-	            ChartUtilities.saveChartAsPNG(new File(directory.getAbsolutePath()+ this.fileNameMap.get(chartId) + 
-	            		"(SimulationStep " +state.schedule.getSteps()+ " ("+ simulationCycleCounter+")).png"),	
-	            	  chart, PNG_CHARTWIDTH, PNG_CHARTHEIGHT);
+	            ChartUtilities.saveChartAsPNG(pngFile, chart, PNG_CHARTWIDTH, PNG_CHARTHEIGHT);
             }
             catch (IOException e){
 	           ExceptionDisplayer.getInstance().displayException(e);
@@ -55,8 +57,13 @@ public class PNGPrinter {
 		}
 	}
 	
-	
-	private void reset(){
+	private File checkFile(File file){
+		for(int i = 2;file.exists(); i++){
+			file = new File(file.getAbsolutePath().substring(0, (file.getAbsolutePath().length()-FILEEXTENSION.length()))+"_"+ i+FILEEXTENSION);
+		}
+		return file;
+	}
+	public void reset(){
 		this.filenameSet = new HashSet<String>();
 		this.fileNameMap = new HashMap<Long, String>();
 		simulationCycleCounter = 1;

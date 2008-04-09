@@ -506,7 +506,6 @@ public class ChartCreationWizard extends JDialog {
 				pngFrequencyInSimulationSteps.setEnabled(false);
 				this.changePngPathButton.setEnabled(false);
 				pngPathField.setEnabled(false);
-				this.pngPathField.setText(chart.getPNGPrintingPath().getAbsolutePath());
 			}
 			
 			this.pngFrequencyInSimulationSteps.setValue(chart.getPNGPrintingFrequency());

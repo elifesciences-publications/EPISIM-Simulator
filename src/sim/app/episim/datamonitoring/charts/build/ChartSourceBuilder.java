@@ -58,6 +58,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import episimfactories.*;\n");
 		
 		generatedSourceCode.append("import java.awt.*;\n");
+		generatedSourceCode.append("import java.io.*;\n");
 		generatedSourceCode.append("import java.util.*;\n");
 		generatedSourceCode.append("import sim.app.episim.util.*;\n");
 		generatedSourceCode.append("import sim.engine.Steppable;\n");

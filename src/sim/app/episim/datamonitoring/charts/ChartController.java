@@ -25,6 +25,7 @@ import sim.app.episim.datamonitoring.parser.*;
 import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.charts.io.ECSFileReader;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
+import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
 import sim.app.episim.datamonitoring.parser.DataMonitoringExpressionChecker;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
@@ -188,6 +189,7 @@ public class ChartController {
 	
 	private boolean loadEpisimChartSet(URL url, Frame parent){
 		try{
+			PNGPrinter.getInstance().reset();
 			CalculationController.getInstance().resetChart();
 			ECSFileReader ecsReader = new ECSFileReader(url);
 			this.actLoadedChartSet = ecsReader.getEpisimChartSet();

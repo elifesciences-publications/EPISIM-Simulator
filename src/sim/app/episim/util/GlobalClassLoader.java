@@ -40,7 +40,6 @@ public class GlobalClassLoader extends URLClassLoader{
 		instance = new GlobalClassLoader();
 		for(ClassLoaderChangeListener listener : setCopy){
 			instance.addClassLoaderChangeListener(listener);
-			System.out.println(listener.getClass().getName());
 		}
 		for(URL url: urls) instance.addURL(url);
 		

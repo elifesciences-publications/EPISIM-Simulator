@@ -1,6 +1,8 @@
 package sim.app.episim.datamonitoring.charts.build;
 
 
+import java.awt.Color;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 
@@ -100,6 +102,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("public " +Names.convertVariableToClass(Names.cleanString(this.actChart.getTitle())+ this.actChart.getId())+"(){\n");
 		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createXYLineChart(\""+actChart.getTitle()+"\",\""+actChart.getXLabel()+"\",\""+
 				actChart.getYLabel()+"\",dataset,"+"PlotOrientation.VERTICAL, "+actChart.isLegendVisible()+", true, false);\n");
+		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".setBackgroundPaint(Color.white);\n");
 		generatedSourceCode.append("  ((XYLineAndShapeRenderer)(((XYPlot)("+CHARTDATAFIELDNAME+".getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);\n");
 		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".setAntiAlias("+actChart.isAntialiasingEnabled()+");\n");
 		generatedSourceCode.append("  chartPanel = new ChartPanel("+CHARTDATAFIELDNAME+", true);\n");

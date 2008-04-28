@@ -40,14 +40,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.lowagie.text.*;  
 import com.lowagie.text.pdf.*;  
 
 import episimexceptions.MissingObjectsException;
+import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
-public class Epidermis extends TissueType implements SnapshotListener
+public class Epidermis extends TissueType implements SnapshotListener, CellDeathListener
 {
 
 //	---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -779,15 +781,31 @@ private void seedStemCells(){
 
 	public void removeCells(GeneralPath path){
 	Iterator<CellType> iter = allCells.iterator();
-		
+	Map<Long, Double2D> map = new HashMap<Long, Double2D>();
+	List<CellType> livingCells = new LinkedList<CellType>();
+		int i = 0;
 		while(iter.hasNext()){
 			CellType cell = iter.next();
-		  
-			if(path.contains(cell.getLastDrawInfoX(), cell.getLastDrawInfoY())){ 
-			  
-				  cell.killCell();
+	
+			if(path.contains(cell.getLastDrawInfoX(), cell.getLastDrawInfoY())&&
+					cell.getEpisimCellDiffModelObject().getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL){  
+				cell.killCell();
+				 
+				  i++;
+			}
+			else{
+				 livingCells.add(cell);
+				 map.put(cell.getIdentity(), this.cellContinous2D.getObjectLocation(cell));
 			}
 		}
+		
+	this.allCells.clear();
+	this.cellContinous2D.clear();
+		for(CellType cell: livingCells){
+			this.allCells.add(cell);
+			this.cellContinous2D.setObjectLocation(cell, map.get(cell.getIdentity()));
+		}
+		
 	}
 
 
@@ -958,6 +976,15 @@ private void seedStemCells(){
 	     ExceptionDisplayer.getInstance().displayException(e);
       }
 		}
+
+
+
+	public void cellIsDead(CellType cell) {
+		this.allCells.remove(cell);
+		this.cellContinous2D.remove(cell);
+		
+		
+	}
 	   
    
 

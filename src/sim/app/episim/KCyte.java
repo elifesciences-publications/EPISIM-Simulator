@@ -10,6 +10,7 @@ import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
 import ec.util.*;
+import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
@@ -21,6 +22,7 @@ import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -88,7 +90,7 @@ public class KCyte extends CellType
    private int hasGivenIons=0;
 
   
-   
+   private List<CellDeathListener> cellDeathListeners;
   
    
    private Stoppable stoppable = null;
@@ -116,7 +118,10 @@ public class KCyte extends CellType
     	 this.cellDiffModelObjekt = cellDiffModel;
     	 if(cellDiffModel == null) this.cellDiffModelObjekt = biochemModelController.getNewEpisimCellDiffModelObject();
        extForce=new Vector2D(0,0);
-         
+       cellDeathListeners = new LinkedList<CellDeathListener>();
+       
+       if(epidermis != null) cellDeathListeners.add(epidermis);
+       
        keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
        keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
          
@@ -533,10 +538,10 @@ public class KCyte extends CellType
    	 GlobalStatistics.getInstance().dekrementActualNumberOfNoNucleus();
    	 this.cellDiffModelObjekt.setDifferentiation(EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA);
    	 GlobalStatistics.getInstance().dekrementActualNumberKCytes();
-   	 setInNirvana(true);            
-   	 
-   	 epidermis.getAllCells().remove(this);
-   	 epidermis.getCellContinous2D().remove(this);
+   	 setInNirvana(true);
+   	 this.cellDiffModelObjekt.setIsAlive(false);
+   	 removeFromSchedule();
+   	for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
     }
 
     
@@ -545,7 +550,7 @@ public class KCyte extends CellType
 		final Epidermis epiderm = (Epidermis) state;
 		
 	
-		if(isInNirvana()){
+		if(isInNirvana() || !this.cellDiffModelObjekt.getIsAlive()){
 			
 
 			removeFromSchedule();
@@ -565,7 +570,7 @@ public class KCyte extends CellType
 
 			// calc potential location from gravitation and external pressures
 			Double2D oldLoc = epiderm.getCellContinous2D().getObjectLocation(this);
-
+			if(oldLoc != null){
 			if(extForce.length() > 0.6)
 				extForce = extForce.setLength(0.6);
 			// extForce=extForce.setLength(2*(1-Math.exp(-0.5*extForce.length())));
@@ -583,8 +588,11 @@ public class KCyte extends CellType
 					* (epidermis.random.nextDouble() - 0.5));
 			Vector2D actionForce = new Vector2D(gravi.x + extForce.x * biomechModelController.getEpisimMechanicalModelGlobalParameters().getExternalPush()
 					+ randi.x, gravi.y + extForce.y * biomechModelController.getEpisimMechanicalModelGlobalParameters().getExternalPush());
-			Double2D potentialLoc = new Double2D(epiderm.getCellContinous2D().stx(actionForce.x + oldLoc.x), epiderm
-					.getCellContinous2D().sty(actionForce.y + oldLoc.y));
+			Double2D potentialLoc = null;
+			
+				potentialLoc = new Double2D(epiderm.getCellContinous2D().stx(actionForce.x + oldLoc.x), 
+						epiderm.getCellContinous2D().sty(actionForce.y + oldLoc.y));
+			
 			extForce.x = 0; // alles einberechnet
 			extForce.y = 0;
 
@@ -678,21 +686,7 @@ public class KCyte extends CellType
 			
 			
 			
-			if(this.follow && this.cellDiffModelObjekt.getIsAlive()){
-           /*      try {
-                  BufferedWriter out = new BufferedWriter(new FileWriter("d:\\simresults_neu.csv", true));
-                  out.write((int) (state.schedule.time()) + ";");
-                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.identity)+ ";");
-                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getDifferentiation())+ ";");
-                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getAge())+ ";");
-                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getCa())+ ";");
-                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getLam())+ ";");
-                  out.write(NumberFormat.getInstance(Locale.GERMANY).format(this.cellDiffModelObjekt.getLip())+";");
-                  
-                 
-                  out.write("\n");
-                  out.close();
-                   } catch (IOException e) {}     */    
+			
                  
 			}
 			

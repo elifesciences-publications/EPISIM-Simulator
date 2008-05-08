@@ -71,9 +71,9 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	public EpiConsole(final GUIState simulation, boolean reloadSnapshot){
 		super(simulation);
 		 
-		 controllerContainer = super.getContentPane();
+		 controllerContainer = getControllerContainer(super.getContentPane());
 		 refreshButtons = new ArrayList<JButton>();
-		
+		 
 		 
 		 
 		changeDisplaysTab();
@@ -159,10 +159,11 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
        snapshotButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				
-				if(getPlayState() != PS_PAUSED && getPlayState() == PS_PLAYING) pressPause();  
+				simulation.state.preCheckpoint();
+				//if(getPlayState() != PS_PAUSED && getPlayState() == PS_PLAYING) pressPause();  
 				SnapshotWriter.getInstance().writeSnapshot();
-				//if(getPlayState() == PS_PAUSED && getPlayState() != PS_PLAYING)pressPause();  
+				//if(getPlayState() == PS_PAUSED && getPlayState() != PS_PLAYING)pressPause(); 
+				simulation.state.postCheckpoint();
 			}
       	 
        });
@@ -170,6 +171,18 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 		
 	}
 	
+	
+	private Container getControllerContainer(Container con){
+		if(con.getName() != null && con.getName().equals(Names.CONSOLEMAINCONTAINER)) return con;
+		else{
+		 for(Component comp : con.getComponents()){
+			 if(comp.getName() != null && comp.getName().equals(Names.CONSOLEMAINCONTAINER) && comp instanceof Container) return (Container)comp;
+			 else if(comp instanceof Container) return getControllerContainer(((Container)comp));
+		 }
+		 return null;
+		}
+		
+	}
 
    /** Simulations can call this to add a frame to be listed in the "Display list" of the console */
    public synchronized boolean registerFrame(JInternalFrame frame)

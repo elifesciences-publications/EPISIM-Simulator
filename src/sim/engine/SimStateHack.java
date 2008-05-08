@@ -35,6 +35,7 @@ public void start(boolean reloadSnapshot)
 {
 	// just in case
 	cleanupAsynchronous();
+	
 	// reset schedule
 	if(!reloadSnapshot)schedule.reset();
 }

@@ -44,6 +44,7 @@ public class SnapshotWriter {
 			  if(snapshotPath.exists() && counter <= 1){ 
 				 
 				  snapshotPath.delete();
+				  counter++;
 				}
 			  if(counter > 1 && snapshotPath.exists()){
 				  

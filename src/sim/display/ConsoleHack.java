@@ -1,6 +1,7 @@
 package sim.display;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -17,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -36,8 +38,15 @@ public class ConsoleHack extends Console {
 	
 	public ConsoleHack(final GUIState simulation){
 		super(simulation);
+		
+		super.getContentPane().setName(Names.CONSOLEMAINCONTAINER);
+		
 	}
 	
+	
+	public JMenuBar getTheMenuBar(){
+		return menuBar;
+	}
 	
 	public Vector getFrameList(){ return this.frameList;}
 	

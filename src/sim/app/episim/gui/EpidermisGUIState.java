@@ -170,7 +170,6 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		final JInternalFrame controllerFrame = new JInternalFrame("EpiSimulation-Controller", true, false, true, true);
 
 		controllerFrame.setContentPane(cons.getControllerContainer());
-		
 		controllerFrame.setResizable(true);
 		controllerFrame.setVisible(true);
 		controllerFrame.setName(CONTROLLERFRAME);

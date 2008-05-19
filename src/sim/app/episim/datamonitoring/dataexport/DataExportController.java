@@ -27,6 +27,7 @@ import sim.app.episim.util.TissueCellDataFieldsInspector;
 
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.EpisimDataExportDefinitionSet;
 
 
 
@@ -40,7 +41,7 @@ public class DataExportController {
 	private long nextDataExportId = 0;
 	
 	private TissueType dataExportMonitoredTissue;
-	private EpisimDataExportDefinition actLoadedDataExport;
+	private EpisimDataExportDefinitionSet actLoadedDataExportSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
 	private ExtendedFileChooser edeChooser = new ExtendedFileChooser("ede");
@@ -61,8 +62,8 @@ public class DataExportController {
 		
 	}
 	
-	public boolean isAlreadyDataExportLoaded(){
-		if(this.actLoadedDataExport != null) return true;
+	public boolean isAlreadyDataExportSetLoaded(){
+		if(this.actLoadedDataExportSet != null) return true;
 		
 		return false;
 	}
@@ -82,23 +83,39 @@ public class DataExportController {
 		this.dataExportMonitoredTissue = tissue;
 	}
 	
-	protected EpisimDataExportDefinition showDataExportCreationWizard(Frame parent){
-		return showDataExportCreationWizard(parent, null);
+	protected EpisimDataExportDefinitionSet showDataExportSetDialog(Frame parent){
+		return showDataExportSetDialog(parent, null);
 	}
-	protected EpisimDataExportDefinition showDataExportCreationWizard(Frame parent, EpisimDataExportDefinition dataExport){
-		DataExportCreationWizard wizard = new DataExportCreationWizard(parent, "Data-Export-Creation-Wizard", true, 
-		new TissueCellDataFieldsInspector(this.dataExportMonitoredTissue, this.markerPrefixes, this.validDataTypes));
+	protected EpisimDataExportDefinitionSet showDataExportSetDialog(Frame parent, EpisimDataExportDefinitionSet dataExportSet){
+		DataExportDefinitionSetDialog dialog = new DataExportDefinitionSetDialog(parent, "Data-Export-Set", true);
 		
 		if(this.dataExportMonitoredTissue != null){
-			if(dataExport == null)wizard.showWizard();
-			else wizard.showWizard(dataExport);
+			if(dataExportSet == null) return dialog.showNewDataExportDefinitionSet();
+			else return dialog.showDataExportDefinitionSet(dataExportSet);
 		}
 			
-		return wizard.getEpisimDataExport();	
+		return null;	
+	}
+	
+	public EpisimDataExportDefinition showDataExportCreationWizard(Frame parent){
+		return showDataExportCreationWizard(parent, null);
+	}
+	
+	
+	public EpisimDataExportDefinition showDataExportCreationWizard(Frame parent, EpisimDataExportDefinition exportDefinition){
+		
+		DataExportCreationWizard creationWizard = new DataExportCreationWizard(parent, "Data-Export", true, 
+				new TissueCellDataFieldsInspector(this.dataExportMonitoredTissue, this.markerPrefixes, this.validDataTypes));
+		
+		if(exportDefinition == null) creationWizard.showWizard();
+		
+		else creationWizard.showWizard(exportDefinition);
+		
+		return creationWizard.getEpisimDataExport();
 	}
 	
 	public boolean loadDataExportDefinition(Frame parent){
-		edeChooser.setDialogTitle("Load Already Defined DataExport");
+		edeChooser.setDialogTitle("Load Already Defined Data Export Set");
 		if(edeChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION){
 			try{
 				return loadDataExportDefinition(edeChooser.getSelectedFile().toURI().toURL(), parent);	
@@ -114,17 +131,17 @@ public class DataExportController {
 	
 	public void modelWasClosed(){
 		
-		this.closeActLoadedDataExportDefiniton();
+		this.closeActLoadedDataExportDefinitonSet();
 	}
 	
-	public boolean showNewChartSetDialog(Frame parent){
+	public boolean showNewDataExportDefinitionSetDialog(Frame parent){
 		
 		
 		if(this.dataExportMonitoredTissue != null){ 
 			
-			EpisimDataExportDefinition updatedDataExport =showDataExportCreationWizard(parent);
+			EpisimDataExportDefinitionSet updatedDataExport =showDataExportSetDialog(parent);
 			if(updatedDataExport != null){ 
-				this.actLoadedDataExport = updatedDataExport;
+				this.actLoadedDataExportSet = updatedDataExport;
 				return true;
 			}
 					
@@ -134,39 +151,39 @@ public class DataExportController {
 	
 	public void showEditDataExportDefinitionDialog(Frame parent){
 		
-		if(this.dataExportMonitoredTissue != null && this.actLoadedDataExport != null){ 
+		if(this.dataExportMonitoredTissue != null && this.actLoadedDataExportSet != null){ 
 			
-			EpisimDataExportDefinition updatedDataExport =showDataExportCreationWizard(parent, this.actLoadedDataExport);
-			if(updatedDataExport != null){ 
-				this.actLoadedDataExport = updatedDataExport;
+			EpisimDataExportDefinitionSet updatedDataExportSet =showDataExportSetDialog(parent, this.actLoadedDataExportSet);
+			if(updatedDataExportSet != null){ 
+				this.actLoadedDataExportSet = updatedDataExportSet;
 			}		
 		}
 	}
 	
 	
-	protected void storeDataExportDefinition(EpisimDataExportDefinition dataExport){
-		EDEFileWriter fileWriter = new EDEFileWriter(dataExport.getDataExportDefinitionPath());
-		fileWriter.createDataExportDefinitionArchive(dataExport);
+	protected void storeDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportSet){
+		EDEFileWriter fileWriter = new EDEFileWriter(dataExportSet.getPath());
+		fileWriter.createDataExportDefinitionSetArchive(dataExportSet);
 		try{
-	      loadDataExportDefinition(new File(dataExport.getDataExportDefinitionPath().getAbsolutePath()).toURI().toURL());
+	      loadDataExportDefinitionSet(new File(dataExportSet.getPath().getAbsolutePath()).toURI().toURL());
       }
       catch (MalformedURLException e){
 	      ExceptionDisplayer.getInstance().displayException(e);
       }
 	}
 	
-	private boolean loadDataExportDefinition(URL url){
+	private boolean loadDataExportDefinitionSet(URL url){
 		return loadDataExportDefinition(url, null);
 	}
 
 	private boolean loadDataExportDefinition(URL url, Frame parent){
 		try{
 			CalculationController.getInstance().resetDataExport();
-			EDEFileReader ecsReader = new EDEFileReader(url);
-			this.actLoadedDataExport = ecsReader.getEpisimDataExportDefinition();
+			EDEFileReader edeReader = new EDEFileReader(url);
+			this.actLoadedDataExportSet = edeReader.getEpisimDataExportDefinitionSet();
 			
 			CompatibilityChecker checker = new CompatibilityChecker();
-			checker.checkEpisimDataExportDefinitionForCompatibility(actLoadedDataExport, this.dataExportMonitoredTissue);
+			checker.checkEpisimDataExportDefinitionSetForCompatibility(actLoadedDataExportSet, this.dataExportMonitoredTissue);
 			return true;
 		}
 		catch (ModelCompatibilityException e){
@@ -178,8 +195,8 @@ public class DataExportController {
 	
 	
 	
-	public void closeActLoadedDataExportDefiniton(){
-		this.actLoadedDataExport = null;
+	public void closeActLoadedDataExportDefinitonSet(){
+		this.actLoadedDataExportSet = null;
 	}
 	
 	

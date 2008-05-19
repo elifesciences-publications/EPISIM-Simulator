@@ -2,7 +2,9 @@ package sim.app.episim.util;
 
 import java.io.ObjectStreamClass;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import sim.app.episim.CellType;
 import sim.app.episim.model.ModelController;
@@ -12,6 +14,7 @@ import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSet;
 import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.EpisimDataExportDefinitionSet;
 
 
 public class CompatibilityChecker {
@@ -37,11 +40,17 @@ public class CompatibilityChecker {
 		checkTissueAndCellTypes(actTissue);			
 	}
 	
-	public void checkEpisimDataExportDefinitionForCompatibility(EpisimDataExportDefinition exportDefinition, TissueType actTissue) throws ModelCompatibilityException{
+	public void checkEpisimDataExportDefinitionSetForCompatibility(EpisimDataExportDefinitionSet exportDefinitionSet, TissueType actTissue) throws ModelCompatibilityException{
 		classNameHashValueMap.clear();
-		if(exportDefinition == null) throw new IllegalArgumentException("Data-Export-Definition for Compatibility-Check must not be null!");
+		if(exportDefinitionSet == null) throw new IllegalArgumentException("Data-Export-Definition-Set for Compatibility-Check must not be null!");
 		
-		for(Class<?> actClass : exportDefinition.getRequiredClasses()){
+		Set<Class<?>> requiredClasses = new HashSet<Class<?>>();
+		
+		for(EpisimDataExportDefinition exp : exportDefinitionSet.getEpisimDataExportDefinitions()){
+			requiredClasses.addAll(exp.getRequiredClasses());
+		}
+		
+		for(Class<?> actClass : requiredClasses){
 			classNameHashValueMap.put(actClass.getCanonicalName(), 
 						ObjectStreamClass.lookup(actClass).getSerialVersionUID());
 		}

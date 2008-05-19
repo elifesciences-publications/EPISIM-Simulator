@@ -2,6 +2,7 @@ package sim.app.episim.datamonitoring.dataexport.build;
 
 
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
+import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimDataExportDefinition;
 
@@ -53,7 +54,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	
 	protected void appendDataFields(){
 				   
-		   
+		   super.appendDataFields();
 		   generatedSourceCode.append("  private Continuous2D cellContinuous;\n");
 		   generatedSourceCode.append("  private GenericBag<CellType> allCells;\n");
 		 
@@ -66,14 +67,21 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	private void appendConstructor(){
 		generatedSourceCode.append("public " +Names.convertVariableToClass(Names.cleanString(this.actDataExportDefinition.getName())+ this.actDataExportDefinition.getId())+"(){\n");
 		
-		
+		appendHandlerRegistration();			
+		appendSteppable();
 		
 		generatedSourceCode.append("}\n");
 	}
 	
 	
+	private void appendSteppable(){
+		
+		//generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforChart(actChart)+";\n");
+	}
 	
-	
+	private void appendHandlerRegistration(){
+	//	SteppableCodeFactory.appendGradientCalucationHandlerRegistration(actChart, generatedSourceCode);
+	}
 	
 	
 		

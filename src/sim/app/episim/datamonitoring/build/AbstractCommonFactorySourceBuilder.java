@@ -63,7 +63,7 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		}
 		this.factorySource.append("  }\n");
 		this.factorySource.append("  checkForMissingObjects();\n");
-		this.factorySource.append("  registerRequiredObjectsAtCharts();\n");
+		this.factorySource.append("  registerRequiredObjects();\n");
 		this.factorySource.append("}\n");
 	}
 	

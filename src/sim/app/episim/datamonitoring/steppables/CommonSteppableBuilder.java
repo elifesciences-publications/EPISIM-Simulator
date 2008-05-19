@@ -82,7 +82,7 @@ public class CommonSteppableBuilder {
 	public void appendCalucationHandlerRegistration(EpisimChart chart, StringBuffer source){
 		for(EpisimChartSeries actSeries: chart.getEpisimChartSeries()){
 			if(actSeries.getExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)) {
-				source.append("CalculationController.getInstance().registerForGradientCalculationGradient(");
+				source.append("CalculationController.getInstance().registerForChartCalculationGradient(");
 				source.append(actSeries.getExpression()[1].substring(Names.BUILDGRADIENTHANDLER.length())+", ");
 				source.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+");\n");
 			}

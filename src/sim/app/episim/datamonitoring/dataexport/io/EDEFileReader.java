@@ -22,6 +22,7 @@ import episimfactories.AbstractEpisimCellDiffModelFactory;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimChartSet;
 import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.EpisimDataExportDefinitionSet;
 
 public class EDEFileReader{
 
@@ -60,12 +61,12 @@ public class EDEFileReader{
 
 	}
 
-	public EpisimDataExportDefinition getEpisimDataExportDefinition() throws ModelCompatibilityException {
+	public EpisimDataExportDefinitionSet getEpisimDataExportDefinitionSet() throws ModelCompatibilityException {
 
 		URL u = null;
 
 		try{
-			u = new URL("jar", "", url + "!/" + factory.getEpisimDataExportDefinitionBinaryName());
+			u = new URL("jar", "", url + "!/" + factory.getEpisimDataExportDefinitionSetBinaryName());
 		}
 		catch (MalformedURLException e){
 			ExceptionDisplayer.getInstance().displayException(e);
@@ -81,7 +82,7 @@ public class EDEFileReader{
 		}
 
 		try{
-			return factory.getEpisimDataExportDefinition(uc.getInputStream());
+			return factory.getEpisimDataExportDefinitionSet(uc.getInputStream());
 		}
 		catch (IOException e){
 			ExceptionDisplayer.getInstance().displayException(e);

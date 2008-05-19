@@ -23,7 +23,7 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	private String name;
 	
 	private File csvFilePath;
-	private File dataExportPath;
+	
 	
 	private Set<Class<?>> requiredClasses;
 	
@@ -82,8 +82,6 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 
 	public void setCSVFilePath(File path) { this.csvFilePath = path; }
 
-	public File getDataExportDefinitionPath() { return this.dataExportPath; 	}
 
-	public void setDataExportDefinitionPath(File path) { this.dataExportPath = path; }
 
 }

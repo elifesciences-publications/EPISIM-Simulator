@@ -14,13 +14,14 @@ import sim.app.episim.datamonitoring.build.AbstractCommonCompiler;
 import sim.app.episim.util.Names;
 import binloc.ProjectLocator;
 import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.EpisimDataExportDefinitionSet;
 
 public class DataExportCompiler extends AbstractCommonCompiler {
 	private DataExportSourceBuilder dataExportSourceBuilder;
 	private DataExportFactorySourceBuilder factorySourceBuilder;
 	private final String TMPPATH = System.getProperty("java.io.tmpdir", "temp")+ "episimdataexport"+ System.getProperty("file.separator");
 	private File factoryFile = null;
-	private File dataExportFile = null;
+	private List<File> dataExportFiles = null;
 	
 	public DataExportCompiler(){
 		
@@ -36,10 +37,10 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 		if(!packageDirectory.exists()) packageDirectory.mkdir();
 	}
 	
-	public void compileEpisimDataExportDefinition(EpisimDataExportDefinition dataExportDefinition){
+	public void compileEpisimDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportDefinitionSet){
 		makeTempDir();
 		File libPath = null;
-		List<File> javaFiles = new ArrayList<File>();
+		List<File> javaFiles;
 		try{
 	      File binPath = new File(ProjectLocator.class.getResource("../").toURI());
 	      libPath = convertBinPathToLibPath(binPath.getAbsolutePath());
@@ -48,14 +49,14 @@ public class DataExportCompiler extends AbstractCommonCompiler {
       	ExceptionDisplayer.getInstance()
 			.displayException(e);
       }
-		javaFiles.add(buildDataExportJavaFile(dataExportDefinition));
-		javaFiles.add(buildFactoryJavaFile(dataExportDefinition));
+		javaFiles = buildDataExportJavaFiles(dataExportDefinitionSet);
+		javaFiles.add(buildFactoryJavaFile(dataExportDefinitionSet));
 		javaFiles =compileJavaFiles(javaFiles,"");
 		
 		for(File actFile:javaFiles){
 			if(actFile.getName().startsWith(Names.EPISIMDATAEXPORTFACTORYNAME)){
 				javaFiles.remove(actFile);
-				this.dataExportFile = javaFiles.get(0);
+				this.dataExportFiles = javaFiles;
 				this.factoryFile = actFile;
 				break;
 			}
@@ -63,36 +64,38 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 		
 	}
 	
-	private File buildDataExportJavaFile(EpisimDataExportDefinition dataExportDefinition) {
+	private List<File> buildDataExportJavaFiles(EpisimDataExportDefinitionSet dataExportDefinitionSet) {
 
 		FileOutputStream fileOut = null;
 		File javaFile = null;
-
-		try{
-			javaFile = new File(TMPPATH + Names.GENERATEDDATAEXPORTPACKAGENAME + System.getProperty("file.separator")
-			      + Names.convertVariableToClass(Names.cleanString(dataExportDefinition.getName())
-			      + dataExportDefinition.getId()) + ".java");
-			fileOut = new FileOutputStream(javaFile);
+		List<File> javaFiles = new ArrayList<File>();
+		for(EpisimDataExportDefinition dataExportDefinition:dataExportDefinitionSet.getEpisimDataExportDefinitions()){
+			try{
+				javaFile = new File(TMPPATH + Names.GENERATEDDATAEXPORTPACKAGENAME + System.getProperty("file.separator")
+				      + Names.convertVariableToClass(Names.cleanString(dataExportDefinition.getName())
+				      + dataExportDefinition.getId()) + ".java");
+				fileOut = new FileOutputStream(javaFile);
+			}
+			catch (FileNotFoundException e){
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
+			try{
+				fileOut.write(dataExportSourceBuilder.buildEpisimDataExportSource(dataExportDefinition).getBytes("UTF-8"));
+				fileOut.flush();
+				fileOut.close();
+			}
+			catch (UnsupportedEncodingException e){
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
+			catch (IOException e){
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
+			javaFiles.add(javaFile);
 		}
-		catch (FileNotFoundException e){
-			ExceptionDisplayer.getInstance().displayException(e);
-		}
-		try{
-			fileOut.write(dataExportSourceBuilder.buildEpisimDataExportSource(dataExportDefinition).getBytes("UTF-8"));
-			fileOut.flush();
-			fileOut.close();
-		}
-		catch (UnsupportedEncodingException e){
-			ExceptionDisplayer.getInstance().displayException(e);
-		}
-		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
-		}
-
-		return javaFile;
+		return javaFiles;
 	}
 	
-	private File buildFactoryJavaFile(EpisimDataExportDefinition dataExportDefinition){
+	private File buildFactoryJavaFile(EpisimDataExportDefinitionSet dataExportDefinitionSet){
 		FileOutputStream fileOut = null;
 		File javaFile = null;
 		
@@ -104,7 +107,7 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 	        ExceptionDisplayer.getInstance().displayException(e);
          }
 			try{
-	         fileOut.write(factorySourceBuilder.buildEpisimFactorySource(dataExportDefinition).getBytes("UTF-8"));
+	         fileOut.write(factorySourceBuilder.buildEpisimFactorySource(dataExportDefinitionSet).getBytes("UTF-8"));
 	         fileOut.flush();
 	         fileOut.close();
          }
@@ -119,7 +122,7 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 	
 	public File getFactoryFile(){ return this.factoryFile; }
 	
-	public File getDataExportFile(){ return this.dataExportFile; }
+	public List<File> getDataExportSetFiles(){ return this.dataExportFiles; }
 	
    protected String getTmpPath() { return this.TMPPATH; }
 	

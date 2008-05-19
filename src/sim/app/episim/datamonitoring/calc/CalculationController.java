@@ -32,8 +32,8 @@ public class CalculationController {
 		oneCellCalculator.registerCells(allCells);
 	}
 	
-	public void registerForGradientCalculationGradient(CalculationHandler handler, XYSeries series){
-		chartGradientCalculator.registerForGradientCalculationGradient(handler, series);
+	public void registerForChartCalculationGradient(CalculationHandler handler, XYSeries series){
+		chartGradientCalculator.registerForChartGradientCalculation(handler, series);
 	}
 	
 	public double calculateACMV(CalculationHandler handler){

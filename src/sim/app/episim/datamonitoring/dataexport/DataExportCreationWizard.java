@@ -108,9 +108,9 @@ public class DataExportCreationWizard extends JDialog {
    private DefaultComboBoxModel comboModel;
   
    private JTextField csvPathField;
-   private JTextField dataExportDefinitionPathField;
+
    
-   private JWindow progressWindow;
+   
    
    private final String DEFAULTCOLUMNNAME = "Data Export Column ";
    private CardLayout columnsCards;
@@ -126,7 +126,7 @@ public class DataExportCreationWizard extends JDialog {
    public DataExportCreationWizard(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector cellDataFieldsInspector){
 		super(owner, title, modal);
 		
-		buildProgessWindow(owner);
+		
 		
 		this.cellDataFieldsInspector= cellDataFieldsInspector;
 		if(cellDataFieldsInspector == null) throw new IllegalArgumentException("TissueCellDataFieldsInspector was null !");
@@ -226,24 +226,7 @@ public class DataExportCreationWizard extends JDialog {
    }
      
   
-   private void buildProgessWindow(Frame owner){
-   	progressWindow = new JWindow(owner);
-		
-		progressWindow.getContentPane().setLayout(new BorderLayout(5, 5));
-		if(progressWindow.getContentPane() instanceof JPanel)
-			((JPanel)progressWindow.getContentPane()).setBorder(BorderFactory.createCompoundBorder(
-					BorderFactory.createBevelBorder(BevelBorder.RAISED), BorderFactory.createEmptyBorder(10,10, 10, 10)));
-		JProgressBar progressBar = new JProgressBar();
-		progressBar.setIndeterminate(true);
-		JLabel progressLabel = new JLabel("Writing Episim-Chartset-Archive");
-		progressWindow.getContentPane().add(progressLabel, BorderLayout.NORTH);
-		progressWindow.getContentPane().add(progressBar, BorderLayout.CENTER);
-		
-		progressWindow.setSize(400, 65);
-		
-		progressWindow.setLocation(owner.getLocation().x + (owner.getWidth()/2) - (progressWindow.getWidth()/2), 
-				owner.getLocation().y + (owner.getHeight()/2) - (progressWindow.getHeight()/2));
-   }
+   
    
    private int addDataExportColumn()
    {
@@ -434,7 +417,6 @@ public class DataExportCreationWizard extends JDialog {
 			this.episimDataExportDefinition = dataExport;
 			this.columnsIdMap = new HashMap<Integer, Long>();
 			this.dataExportNameField.setText(dataExport.getName());
-			this.dataExportDefinitionPathField.setText(dataExport.getDataExportDefinitionPath().getAbsolutePath());
 			this.csvPathField.setText(dataExport.getCSVFilePath().getAbsolutePath());
 			this.dataExportFrequencyInSimulationSteps.setValue(dataExport.getDataExportFrequncyInSimulationSteps());
 			int i = 0;
@@ -539,11 +521,6 @@ public class DataExportCreationWizard extends JDialog {
 			JOptionPane.showMessageDialog(DataExportCreationWizard.this, "Please add at least one column for Data Export!", "Error", JOptionPane.ERROR_MESSAGE);
 		
 		}
-		if(this.episimDataExportDefinition.getDataExportDefinitionPath() == null){
-			errorFound = true;
-			JOptionPane.showMessageDialog(DataExportCreationWizard.this, "Please define Path for Data Export Definition File!", "Error", JOptionPane.ERROR_MESSAGE);
-		
-		}
 		if(this.episimDataExportDefinition.getCSVFilePath() == null){
 			errorFound = true;
 			JOptionPane.showMessageDialog(DataExportCreationWizard.this, "Please define Path for CSV-File!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -556,20 +533,9 @@ public class DataExportCreationWizard extends JDialog {
 		}
 		if(!errorFound){ 
 			DataExportCreationWizard.this.okButtonPressed = true;
-			Runnable r = new Runnable(){
-
-				public void run() {
-					progressWindow.setVisible(true);
-					DataExportCreationWizard.this.setVisible(false);
-					DataExportCreationWizard.this.dispose();
-					DataExportController.getInstance().storeDataExportDefinition(episimDataExportDefinition);
-					
-					progressWindow.setVisible(false);
-            }
-		
-			};
-			Thread writingThread = new Thread(r);
-			writingThread.start();
+			DataExportCreationWizard.this.setVisible(false);
+			DataExportCreationWizard.this.dispose();
+         
 			
 		}
 	}
@@ -686,23 +652,7 @@ public class DataExportCreationWizard extends JDialog {
 		list.add(new JLabel("CSV-File-Path: "), fieldButtonPanel);
 		
 		
-		fieldButtonPanel = new JPanel(new BorderLayout(5, 0));
-		dataExportDefinitionPathField = new JTextField("");
-		dataExportDefinitionPathField.setEditable(false);
-		JButton editDataExportDefinitionPathButton = new JButton("Edit Path");
-		editDataExportDefinitionPathButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				if(dataExportDefinitionPathField.getText() != null && !dataExportDefinitionPathField.getText().trim().equals("")){
-					episimDataExportDefinition.setDataExportDefinitionPath(showDataExportDefinitionPathDialog(dataExportDefinitionPathField.getText()));
-				}
-				else episimDataExportDefinition.setDataExportDefinitionPath(showDataExportDefinitionPathDialog(""));
-				if(episimDataExportDefinition.getDataExportDefinitionPath() != null) dataExportDefinitionPathField.setText(episimDataExportDefinition.getDataExportDefinitionPath().getAbsolutePath());
-            
-         }});
-		fieldButtonPanel.add(dataExportDefinitionPathField, BorderLayout.CENTER);
-		fieldButtonPanel.add(editDataExportDefinitionPathButton, BorderLayout.EAST);
 		
-		list.add(new JLabel("Data-Export-Definition-Path: "), fieldButtonPanel);
 		
 		
 		optionsPanel.add(list, BorderLayout.CENTER);

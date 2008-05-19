@@ -280,12 +280,12 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		dataExportMenu = new JMenu("Data Export");
 		dataExportMenu.setEnabled(false);
 		
-		menuItemNewDataExport = new JMenuItem("New Data-Export-Definition");
+		menuItemNewDataExport = new JMenuItem("New Data-Export-Definition-Set");
 		menuItemNewDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
 				boolean success = true;
-				success = DataExportController.getInstance().showNewChartSetDialog(simulator);
+				success = DataExportController.getInstance().showNewDataExportDefinitionSetDialog(simulator);
 				if(success){
 					menuItemEditDataExport.setEnabled(true);
 					menuItemCloseDataExport.setEnabled(true);
@@ -297,7 +297,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			
 		});
 		
-		menuItemLoadDataExport = new JMenuItem("Load Data-Export-Definition");
+		menuItemLoadDataExport = new JMenuItem("Load Data-Export-Definition-Set");
 		menuItemLoadDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -311,13 +311,13 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 					menuItemLoadDataExport.setEnabled(false);
 				}
 				else{ 
-					if(!DataExportController.getInstance().isAlreadyDataExportLoaded()) menuItemEditDataExport.setEnabled(false);
+					if(!DataExportController.getInstance().isAlreadyDataExportSetLoaded()) menuItemEditDataExport.setEnabled(false);
 				}
 			}
 			
 		});
 		
-		menuItemEditDataExport = new JMenuItem("Edit Loaded Data-Export-Definition");
+		menuItemEditDataExport = new JMenuItem("Edit Loaded Data-Export-Definition-Set");
 		menuItemEditDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -327,7 +327,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		});
 		menuItemEditDataExport.setEnabled(false);
 		
-		menuItemCloseDataExport = new JMenuItem("Close Loaded Data-Export-Definition");
+		menuItemCloseDataExport = new JMenuItem("Close Loaded Data-Export-Definition-Set");
 		menuItemCloseDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -335,7 +335,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				menuItemLoadDataExport.setEnabled(true);
 				menuItemCloseDataExport.setEnabled(false);
 				menuItemEditDataExport.setEnabled(false);
-				DataExportController.getInstance().closeActLoadedDataExportDefiniton();
+				DataExportController.getInstance().closeActLoadedDataExportDefinitonSet();
 			}
 			
 		});

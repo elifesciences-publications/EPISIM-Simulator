@@ -31,7 +31,7 @@ public class GradientCalculator extends AbstractCommonCalculator {
 		for(XYSeries series : this.xySeries) series.clear();
 	}
 	
-	public void registerForGradientCalculationGradient(CalculationHandler handler, XYSeries series){
+	public void registerForChartGradientCalculation(CalculationHandler handler, XYSeries series){
 		if(handler == null || series == null) throw new IllegalArgumentException("GradientCalculator: CalculationHandler or XYSeries must not be null!");
 		this.calculationHandlers.add(handler);
 		this.xySeries.add(series);

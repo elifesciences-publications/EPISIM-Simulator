@@ -33,7 +33,7 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 		appendCheckForMissingObjectsMethod();
 		appendGetChartPanelsMethod();
 		appendGetSteppablesOfChartsMethod();
-		appendRegisterRequiredObjectsAtChartsMethod();
+		appendRegisterRequiredObjectsMethod();
 		appendEnd();
 		
 		return factorySource.toString();
@@ -93,8 +93,8 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 	
 	
 	
-	private void appendRegisterRequiredObjectsAtChartsMethod(){
-		this.factorySource.append("private void registerRequiredObjectsAtCharts(){\n");
+	private void appendRegisterRequiredObjectsMethod(){
+		this.factorySource.append("private void registerRequiredObjects(){\n");
 		for(EpisimChart actChart:actChartSet.getEpisimCharts()){
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
 					".registerRequiredObjects(");

@@ -17,6 +17,7 @@ import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 
 import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.EpisimDataExportDefinitionSet;
 
 
 public abstract class AbstractDataExportFactory {
@@ -25,7 +26,7 @@ public abstract class AbstractDataExportFactory {
 	 * Override this Method if necessary 
 	 * 
 	 */
-	public EpisimDataExportDefinition getEpisimDataExportDefinition(InputStream stream) throws ModelCompatibilityException{
+	public EpisimDataExportDefinitionSet getEpisimDataExportDefinitionSet(InputStream stream) throws ModelCompatibilityException{
 		
 			ObjectInputStream objIn =ObjectStreamFactory.getObjectInputStreamForInputStream(stream);
 			Object result = null;
@@ -37,15 +38,15 @@ public abstract class AbstractDataExportFactory {
 			}
 			catch (IOException e){
 				
-				if(e instanceof InvalidClassException) throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data-Export-Definiton!");
+				if(e instanceof InvalidClassException) throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data-Export-Definiton-Set!");
 				else{
 					ExceptionDisplayer.getInstance().displayException(e);
 				}
 			}
 			catch (ClassNotFoundException e){
-				throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data Export-Definiton!");
+				throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data Export-Definiton-Set!");
 			}
-			if(result != null && result instanceof EpisimDataExportDefinition) return (EpisimDataExportDefinition) result;
+			if(result != null && result instanceof EpisimDataExportDefinitionSet) return (EpisimDataExportDefinitionSet) result;
 		
 		
 		return null;
@@ -55,11 +56,11 @@ public abstract class AbstractDataExportFactory {
 	 * Override this Method if necessary 
 	 * 
 	 */
-	public String getEpisimDataExportDefinitionBinaryName() {
+	public String getEpisimDataExportDefinitionSetBinaryName() {
 		
 		return Names.EPISIMDATAEXPORTFILENAME;
 	}
-   public abstract EnhancedSteppable getSteppableOfDataExport();
+   public abstract List<EnhancedSteppable> getSteppablesOfDataExports();
    
    public abstract void registerNecessaryObjects(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
 }

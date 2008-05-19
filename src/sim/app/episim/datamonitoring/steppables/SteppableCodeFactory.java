@@ -11,6 +11,8 @@ import sim.app.episim.util.Names;
 import sim.engine.SimState;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSeries;
+import episiminterfaces.EpisimDataExportColumn;
+import episiminterfaces.EpisimDataExportDefinition;
 
 
 public abstract class SteppableCodeFactory {
@@ -57,6 +59,48 @@ public abstract class SteppableCodeFactory {
 		
 		return steppableCode.toString();
 	}
+	
+	
+	public synchronized static String getEnhancedSteppableSourceCodeforDataExport(EpisimDataExportDefinition exportDefinition){
+		boolean gradientColumnFound = false;
+		boolean oneCellColumnFound = false;
+		steppableCode = new StringBuffer();
+		steppableCode.append("new EnhancedSteppable(){\n");
+		
+		steppableCode.append("public void step(SimState state){\n");
+		
+		
+		
+		for(EpisimDataExportColumn actColumn: exportDefinition.getEpisimDataExportColumns()){
+			if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)) gradientColumnFound = true;
+			else if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDCELLHANDLER)) oneCellColumnFound = true;
+			else{ 
+				steppableCode.append(Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
+						".add(baseLineResult, "+ actColumn.getCalculationExpression()[1]+");\n");
+			}
+		}
+	
+		//________________________________________________________
+		
+		// TODO: Vervollständigen
+		//__________________________________________________________
+		
+		
+		
+		if(gradientColumnFound) steppableCode.append("CalculationController.getInstance().calculateGradients();\n");
+		if(oneCellColumnFound) steppableCode.append("CalculationController.getInstance().calculateOneCell(baseLineResult);\n");
+		steppableCode.append("}\n");
+		steppableCode.append("public double getInterval(){\n");
+		steppableCode.append("return " + exportDefinition.getDataExportFrequncyInSimulationSteps()+ ";\n");
+		steppableCode.append("}\n");
+		steppableCode.append("}\n");
+		
+		return steppableCode.toString();
+	}
+	
+	
+	
+	
 	
 	public synchronized static String getEnhancedSteppableForPNGPrinting(EpisimChart chart){
 		

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -15,6 +16,7 @@ import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.dataexport.build.DataExportCompiler;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.EpisimDataExportDefinitionSet;
 
 
 public class EDEFileWriter {
@@ -27,7 +29,7 @@ public class EDEFileWriter {
 		
 	}
 	
-	public void createDataExportDefinitionArchive(EpisimDataExportDefinition dataExport) {
+	public void createDataExportDefinitionSetArchive(EpisimDataExportDefinitionSet dataExportSet) {
 				
 				JarOutputStream jarOut=null;
 				Manifest manifest;
@@ -54,27 +56,28 @@ public class EDEFileWriter {
 							jarOut.setLevel(1);
 						
 							DataExportCompiler dataExportCompiler = new DataExportCompiler();
-							dataExportCompiler.compileEpisimDataExportDefinition(dataExport);
+							dataExportCompiler.compileEpisimDataExportDefinitionSet(dataExportSet);
 							
 							
 							FileInputStream fileIn;
-							File dataExportFile = dataExportCompiler.getDataExportFile();
-							jarOut.putNextEntry(new JarEntry(Names.GENERATEDDATAEXPORTPACKAGENAME+ "/"+dataExportFile.getName()));
-							fileIn = new FileInputStream(dataExportFile);
-							byte[] bytes = new byte[1024];
-							int available = 0;
-							while ((available = fileIn.read(bytes)) > 0) {
-								jarOut.write(bytes, 0, available);
-							}
-							jarOut.flush();
-							fileIn.close();
-														
+							List<File> dataExportFiles = dataExportCompiler.getDataExportSetFiles();
+							for(File dataExportFile : dataExportFiles){
+								jarOut.putNextEntry(new JarEntry(Names.GENERATEDDATAEXPORTPACKAGENAME+ "/"+dataExportFile.getName()));
+								fileIn = new FileInputStream(dataExportFile);
+								byte[] bytes = new byte[1024];
+								int available = 0;
+								while ((available = fileIn.read(bytes)) > 0) {
+									jarOut.write(bytes, 0, available);
+								}
+								jarOut.flush();
+								fileIn.close();
+							}							
 						
 							
 							jarOut.putNextEntry(new JarEntry(dataExportCompiler.getFactoryFile().getName()));
 							fileIn = new FileInputStream(dataExportCompiler.getFactoryFile());
-							bytes = new byte[1024];
-							available = 0;
+							byte[] bytes = new byte[1024];
+							int available = 0;
 							while ((available = fileIn.read(bytes)) > 0) {
 								jarOut.write(bytes, 0, available);
 							}
@@ -84,7 +87,7 @@ public class EDEFileWriter {
 														
 							ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 							ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
-							objOut.writeObject(dataExport);
+							objOut.writeObject(dataExportSet);
 							objOut.flush();
 							objOut.close();
 							byteOut.close();

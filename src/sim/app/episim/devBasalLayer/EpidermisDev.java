@@ -44,7 +44,7 @@ public class EpidermisDev extends SimStateHack
  /** Creates a EpidermisClass simulation with the given random number seed. */
  public EpidermisDev(long seed)
  {
-     super(new ec.util.MersenneTwisterFast(seed), new Schedule(1));
+     super(new ec.util.MersenneTwisterFast(seed), new Schedule());
      
      basementContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth(),
    			TissueBorder.getInstance().getWidth(),

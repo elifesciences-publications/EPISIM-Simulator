@@ -11,8 +11,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.Vector;
-
 import sim.util.gui.*;
 
 // From JFreeChart (jfreechart.org)
@@ -27,9 +25,7 @@ import org.jfree.data.general.*;
 /** A SeriesAttributes used for user control pf time series created with TimeSeriesCharGenerator.
     This is done largely through the
     manipulation of XYSeries objects and features of the XYPlot class. */
-
-
-
+        
 public class TimeSeriesAttributes extends SeriesAttributes
     {
     /** A dash */
@@ -71,7 +67,9 @@ public class TimeSeriesAttributes extends SeriesAttributes
                 
     /** Builds a TimeSeriesAttributes with the given generator, series, and index for the series. */
     public TimeSeriesAttributes(ChartGenerator generator, XYSeries series, int index)
-        { super(generator, "" + series.getKey(), index); this.series = series; }
+        { 
+        super(generator, "" + series.getKey(), index); this.series = series;
+        }
 
     public void rebuildGraphicsDefinitions()
         {
@@ -80,7 +78,7 @@ public class TimeSeriesAttributes extends SeriesAttributes
             if (stretch*thickness > 0)
                 newDash[x] = dash[x] * stretch * thickness;  // include thickness so we dont' get overlaps -- will this confuse users?
                 
-        XYItemRenderer renderer = (XYItemRenderer)(getPlot().getRenderer());
+        XYItemRenderer renderer = getRenderer();
             
         renderer.setSeriesStroke(getSeriesIndex(),
                                  new BasicStroke(thickness, BasicStroke.CAP_ROUND, 
@@ -100,10 +98,17 @@ public class TimeSeriesAttributes extends SeriesAttributes
         thickness = 2.0f;
 
         // strokeColor = Color.black;  // rebuildGraphicsDefinitions will get called by our caller afterwards
-        XYItemRenderer renderer = (XYItemRenderer)(getPlot().getRenderer());
-        Paint paint = renderer.getSeriesPaint(getSeriesIndex());
+        XYItemRenderer renderer = getRenderer();
+        //Paint paint = renderer.getSeriesPaint(getSeriesIndex());
+        
+        //In jfc 1.0.6 getSeriesPaint returns null!!!
+        //You need lookupSeriesPaint(), but that's not backward compatible.
+        //The only thing consistent in all versions is getItemPaint 
+        //(which looks like a gross miss-use, but gets the job done)
+        Paint paint = renderer.getItemPaint(getSeriesIndex(), -1);
+        
         strokeColor = (Color)paint;
-                
+        
         ColorWell well = new ColorWell(strokeColor)
             {
             public Color changeColor(Color c) 
@@ -113,7 +118,7 @@ public class TimeSeriesAttributes extends SeriesAttributes
                 return c;
                 }
             };
-        addLabelled("Line",well);
+        addLabelled("Color",well);
                         
         NumberTextField thickitude = new NumberTextField(2.0,true)
             {
@@ -129,9 +134,9 @@ public class TimeSeriesAttributes extends SeriesAttributes
         addLabelled("Width",thickitude);
         final JComboBox list = new JComboBox();
         list.setEditable(false);
-        list.setModel(new DefaultComboBoxModel(new Vector(Arrays.asList(
-                                                              new String[] { "Solid", "__  __  __", "_  _  _  _", "_ _ _ _ _", "_ _ . _ _ .", 
-                                                                             "_ . _ . _ .", "_ . . _ . .", ". . . . . . .", ".  .  .  .  ." }))));
+        list.setModel(new DefaultComboBoxModel(new java.util.Vector(Arrays.asList(
+                                                                        new String[] { "Solid", "__  __  __", "_  _  _  _", "_ _ _ _ _", "_ _ . _ _ .", 
+                                                                                       "_ . _ . _ .", "_ . . _ . .", ". . . . . . .", ".  .  .  .  ." }))));
         list.setSelectedIndex(0);
         list.addActionListener(new ActionListener()
             {

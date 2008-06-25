@@ -94,13 +94,52 @@ public class HistogramGenerator extends ChartGenerator
         for(int i = 0; i < c.length; i++)  // do for just the components >= index in the seriesAttributes
             {
             SeriesAttributes csa = (SeriesAttributes)(c[i]);
-            csa.rebuildGraphicsDefinitions();  // they've ALL just been deleted and changed, must update
             if (i >= index) 
                 csa.setSeriesIndex(csa.getSeriesIndex() - 1);
+
+            csa.rebuildGraphicsDefinitions();  // they've ALL just been deleted and changed, must update
             }
         revalidate();
         }
                 
+
+    public void moveSeries(int index, boolean up)
+        {
+        if ((index == 0 && up) || (index == histogramSeries.size()-1 && !up))
+            //first one can't move up, last one can't move down
+            return;
+        int delta = up? -1:1;
+        // move the series
+        histogramSeries.add(index + delta, histogramSeries.remove(index));
+        XYPlot xyplot = (XYPlot)(chart.getPlot());
+        dataset = new HistogramDataset();
+        for(int i=0; i < histogramSeries.size(); i++)
+            {
+            HistogramSeries series = (HistogramSeries)(histogramSeries.get(i));
+            dataset.addSeries(series.getName(),series.getValues(), series.getBins());
+            }
+        xyplot.setDataset(dataset);
+        dataset.setType(histogramType);  // It looks like the histograms reset
+                    
+        // adjust the seriesAttributes' indices         
+        Component[] c = seriesAttributes.getComponents();
+        SeriesAttributes csa;
+        (csa = (SeriesAttributes)c[index]).setSeriesIndex(index+delta);
+        csa.rebuildGraphicsDefinitions();
+        (csa = (SeriesAttributes)c[index+delta]).setSeriesIndex(index);
+        csa.rebuildGraphicsDefinitions();
+                
+        seriesAttributes.remove(index+delta);
+        //seriesAttributes.add((SeriesAttributes)(c[index+delta]), index);
+        seriesAttributes.add(csa, index);
+
+        revalidate();
+            
+        // adjust the stoppables, too
+        stoppables.add(index+delta, stoppables.remove(index));
+        }
+                
+
     protected void buildChart()
         {
         dataset = new HistogramDataset();
@@ -116,6 +155,14 @@ public class HistogramGenerator extends ChartGenerator
         chartPanel.setMaximumDrawWidth(2000);
         chartHolder.getViewport().setView(chartPanel);
         }
+
+
+    //I need this so I can override this later when going for unit-wide bins
+    //(chose the values for min, max and # bins).
+    protected void addSeriesToDataSet(HistogramSeries series)
+        {
+        dataset.addSeries(series.getName(),series.getValues(), series.getBins());
+        }
     
     public void update()
         {
@@ -125,7 +172,7 @@ public class HistogramGenerator extends ChartGenerator
         for(int i=0; i < histogramSeries.size(); i++)
             {
             HistogramSeries series = (HistogramSeries)(histogramSeries.get(i));
-            dataset.addSeries(series.getName(),series.getValues(), series.getBins());
+            addSeriesToDataSet(series);
             }
         xyplot.setDataset(dataset);
         dataset.setType(histogramType);  // It looks like the histograms reset

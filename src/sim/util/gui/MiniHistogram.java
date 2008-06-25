@@ -31,7 +31,7 @@ import java.awt.event.*;
     </pre></tt>
 */
 
-public class MiniHistogram extends JPanel
+public class MiniHistogram extends JComponent
     {
     final static JLabel DEFAULT_SIZE_COMPARISON = new JLabel("X");
     double[] buckets;
@@ -50,6 +50,7 @@ public class MiniHistogram extends JPanel
         this();
         setBucketsAndLabels(buckets,labels);
         setBackground(DEFAULT_SIZE_COMPARISON.getBackground());
+        setOpaque(true);
         }
 
     public Dimension getPreferredSize() 
@@ -88,19 +89,21 @@ public class MiniHistogram extends JPanel
         public void mouseMoved(MouseEvent event)
             {
             String s = null;
-            int x = (int)(event.getX() * 
-                          (buckets == null ? 0 : buckets.length) / (double)(getBounds().width));
-            if (labels != null && x < labels.length) 
-                s = "<html><font size=\"-1\" face=\"" + getFont().getFamily() + "\">" +
-                    "Bucket: " + x + "<br>Range: " + labels[x] + "<br>Value: " + buckets[x] +
-                    "</font></html>";
-            else if (buckets != null && buckets.length != 0)
-                s = "<html><font size=\"-1\" face=\"" + getFont().getFamily() + "\">" +
-                    "Bucket: " + x + "<br>>Value: " + buckets[x] +
-                    "</font></html>";
-            else s=null;
+            if (buckets !=null)
+                {
+                int x = (int)((event.getX() * buckets.length) / (double)(getBounds().width));
+                if (labels != null && x < labels.length) 
+                    s = "<html><font size=\"-1\" face=\"" + getFont().getFamily() + "\">" +
+                        "Bucket: " + x + "<br>Range: " + labels[x] + "<br>Value: " + buckets[x] +
+                        "</font></html>";
+                else if (buckets != null && buckets.length != 0)
+                    s = "<html><font size=\"-1\" face=\"" + getFont().getFamily() + "\">" +
+                        "Bucket: " + x + "<br>>Value: " + buckets[x] +
+                        "</font></html>";
+                else s=null;
+                }
                         
-            if (!s.equalsIgnoreCase(getToolTipText()))
+            if ((s != null) && !s.equalsIgnoreCase(getToolTipText()))
                 setToolTipText(s);
             }
         };
@@ -160,8 +163,8 @@ public class MiniHistogram extends JPanel
                 
         for(int i=0;i<len;i++)
             {
-            int x0 = bounds.width / len * i;
-            int x1 = bounds.width / len * (i+1);
+            int x0 = (int)(bounds.width / (double)len * i);
+            int x1 = (int)(bounds.width / (double)len * (i+1));
             int y0 = 0;
             int y1;
             if (buckets[i]==Double.POSITIVE_INFINITY) y1 = height;

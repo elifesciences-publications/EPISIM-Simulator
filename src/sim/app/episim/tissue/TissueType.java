@@ -15,7 +15,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	private List<Class<? extends CellType>> registeredCellTypes;
 	
 	public TissueType(long seed){ 
-		super(new ec.util.MersenneTwisterFast(seed), new Schedule(1));
+		super(new ec.util.MersenneTwisterFast(seed), new Schedule());
 		registeredCellTypes = new ArrayList<Class<? extends CellType>>();
 	}
 	

@@ -705,17 +705,21 @@ public class Display2D extends JComponent implements Steppable
     /** The simulation proper. */
     GUIState simulation;
     /** The component bar at the top of the Display2D. */
-    Box header;
+    public Box header;
     /** The popup layers menu */
-    JPopupMenu popup;
+    public JPopupMenu popup;
     /** The button which pops up the layers menu */
-    JToggleButton togglebutton;  // for popup
+    public JToggleButton togglebutton;  // for popup
     /** The button which starts or stops a movie */
-    JButton movieButton;
+    public JButton movieButton;
     /** The button which snaps a screenshot */
-    JButton snapshotButton;
+    public JButton snapshotButton;
     /** The button which pops up the option pane */
-    JButton optionButton;
+    public JButton optionButton;
+    /** The field for scaling values */
+    public NumberTextField scaleField;
+    /** The field for skipping frames */
+    public NumberTextField skipField;
         
     /** Scale (zoom value).  1.0 is 1:1.  2.0 is zoomed in 2 times.  Etc. */
     double scale = 1.0;
@@ -746,7 +750,9 @@ public class Display2D extends JComponent implements Steppable
         color, which is the color of any area that the simulation doesn't draw on. */
     Paint backdrop = Color.white;  // default.  It'll get changed.
     /** Specify the backdrop color or other paint.  The backdrop is the region behind where the simulation 
-        actually draws.  If set to null, no color/paint is used. */
+        actually draws.  If set to null, no color/paint is used -- and indeed the background you're drawing on
+        is not defined.  Only set to null if you know you're filling the entire background with something else
+        anyway. */
     public void setBackdrop(Paint c) { backdrop = c; }
     /** Returns the backdrop color or paint.  The backdrop is the region behind where the simulation actually draws.
         If set to null, no color/paint is used. */
@@ -864,7 +870,7 @@ public class Display2D extends JComponent implements Steppable
             });
         }
     
-    void createConsoleMenu()
+    public void createConsoleMenu()
         {
         if (simulation != null && simulation.controller != null &&
             simulation.controller instanceof Console)
@@ -880,6 +886,7 @@ public class Display2D extends JComponent implements Steppable
                     }
                 });
             }
+        popup.addSeparator();
         }
         
     /** Detatches all portrayals from the Display2D. */
@@ -888,7 +895,6 @@ public class Display2D extends JComponent implements Steppable
         ArrayList old = portrayals;
         popup.removeAll();
         createConsoleMenu();
-        popup.addSeparator();
         portrayals = new ArrayList();
         return old;
         }
@@ -915,9 +921,11 @@ public class Display2D extends JComponent implements Steppable
         display.getVerticalScrollBar().setBorder(null);
         port = display.getViewport();
         insideDisplay.setViewRect(port.getViewRect());
-
+        insideDisplay.setOpaque(true);  // radically increases speed in OS X, maybe others
         // Bug in Panther causes this color to be wrong, ARGH
 //        port.setBackground(UIManager.getColor("window"));  // make the nice stripes on MacOS X
+        insideDisplay.setBackground(UIManager.getColor("Panel.background"));
+        display.setBackground(UIManager.getColor("Panel.background")); // this is the one that has any affect
         port.setBackground(UIManager.getColor("Panel.background"));
         
         // create the button bar at the top.
@@ -942,10 +950,9 @@ public class Display2D extends JComponent implements Steppable
                 {
                 popup.show(e.getComponent(),
                            togglebutton.getLocation().x,
-                           //togglebutton.getLocation().y+
                            togglebutton.getSize().height);
                 }
-            public void mouseReleased(MouseEvent e) 
+            public void mouseReleased(MouseEvent e)
                 {
                 togglebutton.setSelected(false);
                 }
@@ -1033,17 +1040,16 @@ public class Display2D extends JComponent implements Steppable
         header.add(optionButton);
         
         // add the scale field
-        NumberTextField scaleField = new NumberTextField("  Scale: ", 1.0, true)
+        scaleField = new NumberTextField("  Scale: ", 1.0, true)
             {
             public double newValue(double newValue)
                 {
                 if (newValue <= 0.0) newValue = currentValue;
                 setScale(newValue);
                 port.setView(insideDisplay);
-                //optionPane.xOffsetField.add *= (newValue / currentValue);
                 optionPane.xOffsetField.setValue(insideDisplay.xOffset * newValue);
-                //optionPane.yOffsetField.add *= (newValue / currentValue);
                 optionPane.yOffsetField.setValue(insideDisplay.yOffset * newValue);
+                Display2D.this.repaint();
                 return newValue;
                 }
             };
@@ -1051,7 +1057,7 @@ public class Display2D extends JComponent implements Steppable
         header.add(scaleField);
         
         // add the interval (skip) field
-        NumberTextField skipField = new NumberTextField("  Skip: ", 1, false)
+        skipField = new NumberTextField("  Skip: ", 1, false)
             {
             public double newValue(double newValue)
                 {
@@ -1074,7 +1080,6 @@ public class Display2D extends JComponent implements Steppable
         add(display,BorderLayout.CENTER);
 
         createConsoleMenu();
-        popup.addSeparator();
         }
 
     /** Returns LocationWrappers for all the objects which fall within the coordinate rectangle specified by rect.  This 
@@ -1252,8 +1257,7 @@ public class Display2D extends JComponent implements Steppable
     // you may need to convert it.  :-(
 
     // We're using our own small PNG package (see sim.util.media) because the JAI isn't standard across
-    // all platforms (notably 1.3.1) and at the time we made the call, it wasn't available on the
-    // Mac at all.
+    // all platforms (notably 1.3.1) and at the time we made the call, it wasn't available on the Mac at all.
 
     private Object sacrificialObj = null;
     
@@ -1429,7 +1433,7 @@ public class Display2D extends JComponent implements Steppable
             {
             if (isMacOSX && movieMaker == null) 
                 {   // macos x should use other method for movie maker and off-screen buffers
-                repaint();
+                insideDisplay.repaint();
                 }
             else  // Windows or X Windows
                 {

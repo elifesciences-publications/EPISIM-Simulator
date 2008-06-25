@@ -96,108 +96,108 @@ public class ConsoleHack extends Console {
    //this method is a copy
    public static void showAbout()
    {
-   if (aboutFrame == null)
-       {
-       // construct the frame
-       
-       aboutFrame = new JFrame("About MASON");
-       JPanel p = new JPanel();  // 1.3.1 only has borders for JComponents, not Boxes
-       p.setBorder(BorderFactory.createEmptyBorder(25,30,30,30));
-       Box b = new Box(BoxLayout.Y_AXIS);
-       p.add(b,BorderLayout.CENTER);
-       aboutFrame.getContentPane().add(p,BorderLayout.CENTER);
-       aboutFrame.setResizable(false);
-       Font small = new Font("Dialog",0,9);
+   	if (aboutFrame == null)
+      {
+      // construct the frame
+      
+      aboutFrame = new JFrame("About MASON");
+      JPanel p = new JPanel();  // 1.3.1 only has borders for JComponents, not Boxes
+      p.setBorder(BorderFactory.createEmptyBorder(25,30,30,30));
+      Box b = new Box(BoxLayout.Y_AXIS);
+      p.add(b,BorderLayout.CENTER);
+      aboutFrame.getContentPane().add(p,BorderLayout.CENTER);
+      aboutFrame.setResizable(false);
+      Font small = new Font("Dialog",0,9);
 
-       // start dumping in text
-       JLabel j = new JLabel("MASON");
-       j.setFont(new Font("Serif",0,36));
-       b.add(j);
-               
-       java.text.NumberFormat n = java.text.NumberFormat.getInstance();
-       n.setMinimumFractionDigits(0);
-       j = new JLabel("Version " + n.format(SimState.version()));
-       b.add(j);
-       JLabel spacer = new JLabel(" ");
-       spacer.setFont(new Font("Dialog",0,6));
-       b.add(spacer);
+      // start dumping in text
+      JLabel j = new JLabel("MASON");
+      j.setFont(new Font("Serif",0,36));
+      b.add(j);
+              
+      java.text.NumberFormat n = java.text.NumberFormat.getInstance();
+      n.setMinimumFractionDigits(0);
+      j = new JLabel("Version " + n.format(SimState.version()));
+      b.add(j);
+      JLabel spacer = new JLabel(" ");
+      spacer.setFont(new Font("Dialog",0,6));
+      b.add(spacer);
 
-       j = new JLabel("Co-created by George Mason University's");
-       b.add(j);
-       j = new JLabel("Evolutionary Computation Laboratory and");
-       b.add(j);
-       j = new JLabel("Center for Social Complexity");
-       b.add(j);
+      j = new JLabel("Co-created by George Mason University's");
+      b.add(j);
+      j = new JLabel("Evolutionary Computation Laboratory and");
+      b.add(j);
+      j = new JLabel("Center for Social Complexity");
+      b.add(j);
 
-       spacer = new JLabel(" ");
-       spacer.setFont(new Font("Dialog",0,6));
-       b.add(spacer);
-       
-       j = new JLabel("http://cs.gmu.edu/~eclab/projects/mason/");
-       b.add(j);
+      spacer = new JLabel(" ");
+      spacer.setFont(new Font("Dialog",0,6));
+      b.add(spacer);
+      
+      j = new JLabel("http://cs.gmu.edu/~eclab/projects/mason/");
+      b.add(j);
 
-       spacer = new JLabel(" ");
-       spacer.setFont(new Font("Dialog",0,6));
-       b.add(spacer);
+      spacer = new JLabel(" ");
+      spacer.setFont(new Font("Dialog",0,6));
+      b.add(spacer);
 
-       j = new JLabel("Major contributors include Sean Luke,");
-       b.add(j);
-       j = new JLabel("Gabriel Catalin Balan, Liviu Panait,");
-       b.add(j);
-       j = new JLabel("Claudio Cioffi-Revilla, Sean Paus,");
-       b.add(j);
-       j = new JLabel("Keith Sullivan, and Daniel Kuebrich.");
-       b.add(j);
-           
-       spacer = new JLabel(" ");
-       spacer.setFont(new Font("Dialog",0,6));
-       b.add(spacer);
-                   
-       j = new JLabel("MASON is (c) 2005 Sean Luke and George Mason University,");
-       j.setFont(small);
-       b.add(j);
+      j = new JLabel("Major contributors include Sean Luke,");
+      b.add(j);
+      j = new JLabel("Gabriel Catalin Balan, Liviu Panait,");
+      b.add(j);
+      j = new JLabel("Claudio Cioffi-Revilla, Sean Paus,");
+      b.add(j);
+      j = new JLabel("Keith Sullivan, and Daniel Kuebrich.");
+      b.add(j);
+          
+      spacer = new JLabel(" ");
+      spacer.setFont(new Font("Dialog",0,6));
+      b.add(spacer);
+                  
+      j = new JLabel("MASON is (c) 2005 Sean Luke and George Mason University,");
+      j.setFont(small);
+      b.add(j);
 
-       j = new JLabel("with various elements copyrighted by the above contributors.");
-       j.setFont(small);
-       b.add(j);
+      j = new JLabel("with various elements copyrighted by the above contributors.");
+      j.setFont(small);
+      b.add(j);
 
-       j = new JLabel("PNGEncoder is (c) 2000 J. David Eisenberg.  MovieEncoder,", JLabel.LEFT);
-       j.setFont(small);
-       b.add(j);
-       
-       j = new JLabel("SelectionBehavior, and WireFrameBoxPortrayal3D are partly", JLabel.LEFT);
-       j.setFont(small);
-       b.add(j);
-       
-       j = new JLabel("(c) 1996 Sun Microsystems.  MersenneTwisterFast is partly", JLabel.LEFT);
-       j.setFont(small);
-       b.add(j);
+      j = new JLabel("PNGEncoder is (c) 2000 J. David Eisenberg.  MovieEncoder,", JLabel.LEFT);
+      j.setFont(small);
+      b.add(j);
+      
+      j = new JLabel("SelectionBehavior, and WireFrameBoxPortrayal3D are partly", JLabel.LEFT);
+      j.setFont(small);
+      b.add(j);
+      
+      j = new JLabel("(c) 1996 Sun Microsystems.  MersenneTwisterFast is partly", JLabel.LEFT);
+      j.setFont(small);
+      b.add(j);
 
-       j = new JLabel("(c) 1993 Michael Lecuyer.  CapturingCanvas3D is based in", JLabel.LEFT);
-       j.setFont(small);
-       b.add(j);
-   
-       j = new JLabel("part on code by Peter Kunszt.", JLabel.LEFT);
-       j.setFont(small);
-       b.add(j);
-       aboutFrame.pack();
-       }
-       
-   // if not on screen right now, move to center of screen
-   if (!aboutFrame.isVisible())
-       {
-       Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-       d.width -= aboutFrame.getWidth();
-       d.height -= aboutFrame.getHeight();
-       d.width /= 2;
-       d.height /= 2;
-       if (d.width < 0) d.width = 0;
-       if (d.height < 0) d.height = 0;
-       aboutFrame.setLocation(d.width,d.height);
-       }
-   
-   // show it!
-   aboutFrame.setVisible(true);
+      j = new JLabel("(c) 1993 Michael Lecuyer.  CapturingCanvas3D is based in", JLabel.LEFT);
+      j.setFont(small);
+      b.add(j);
+  
+      j = new JLabel("part on code by Peter Kunszt.", JLabel.LEFT);
+      j.setFont(small);
+      b.add(j);
+      aboutFrame.pack();
+      }
+      
+  // if not on screen right now, move to center of screen
+  if (!aboutFrame.isVisible())
+      {
+      Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+      d.width -= aboutFrame.getWidth();
+      d.height -= aboutFrame.getHeight();
+      d.width /= 2;
+      d.height /= 2;
+      if (d.width < 0) d.width = 0;
+      if (d.height < 0) d.height = 0;
+      aboutFrame.setLocation(d.width,d.height);
+      }
+  
+  // show it!
+  aboutFrame.setVisible(true);
    }
    
    //Override to be able to deploy multiple model Inspectors

@@ -8,11 +8,12 @@ package sim.engine;
 import java.io.Serializable;
 
 import sim.util.*;
+import ec.util.*;
 
 /**
    Schedule defines a threadsafe scheduling queue in which events can be scheduled to occur
    at future time.  The time of the most recent event which has already occured
-   is given by the <b>time()</b> method.  If the current time is <tt>BEFORE_SIMULATION</tt> (defined
+   is given by the <b>getTime()</b> method.  If the current time is <tt>BEFORE_SIMULATION</tt> (defined
    to be <tt>EPOCH - 1</tt>),
    then the schedule is set to the "time before time" (the schedule hasn't started running
    yet).  If the current time is <tt>AFTER_SIMULATION</tt> (positive infinity), then the schedule has run
@@ -32,9 +33,9 @@ import sim.util.*;
    <p>The schedule is pulsed by calling its <b>step(...)</b> method.  Each pulse, the schedule
    finds the minimum time at which events are scheduled, moves ahead to that time, and then calls
    all the events scheduled at that time.    Multiple events may be scheduled for the same time.
-   No event may be scheduled for a time earlier than time().  If at time time() you schedule a new
-   event for time time(), then actually this event will occur at time time()+epsilon, that is, the
-   smallest possible slice of time greater than time().
+   No event may be scheduled for a time earlier than getTime().  If at time getTime() you schedule a new
+   event for time getTime(), then actually this event will occur at time getTime()+epsilon, that is, the
+   smallest possible slice of time greater than getTime().
    
    <p>Events at a step are further subdivided and scheduled according to their <i>ordering</i>, an integer.
    Objects for scheduled for lower orderings for a given time will be executed before objects with
@@ -44,12 +45,8 @@ import sim.util.*;
    good model methodologies will want random shuffling left on, and if you need an explicit ordering, it may be
    better to rely on Steppable's orderings or to use a Sequence.
    
-   <p>Previous versions of Schedule required you to specify the number of orderings when instantiating a Schedule.
-   This is no longer the case.  The constructor is still there, but the number of orderings passed in is entirely
-   ignored.
-   
    <p>You might be wondering: why bother with using orderings?  After all, can't you achieve the same thing by just
-   stretching elements out in time?  There are two reasons to use orderings.  First, it allows you to use the time()
+   stretching elements out in time?  There are two reasons to use orderings.  First, it allows you to use the getTime()
    method to keep tabs on the current time in a way that might be convenient to you.  But second and more importantly,
    MASON's GUI facility will update its displays and inspectors only after all Steppables scheduled for a 
    given timestamp have completed, and so orderings give you a way of subdividing the interval of time between
@@ -64,252 +61,324 @@ import sim.util.*;
    <p>You can get the number of times that step(...) has been called on the schedule by calling the getSteps() method.
    This value is incremented just as the Schedule exits its step(...) method and only if the method returned true.
    Additionally, you can get a string version of the current time with the getTimestamp(...) method.
-
-   <p><b>Exception Handling</b>.  It's a common error to schedule a null event, or one with an invalid ordering or time.
-   Schedule previously returned false or null in such situations, but this leaves the burden on the programmer to check,
-   and programmers are forgetful!  We have changed Schedule to throw exceptions by default instead.  You can change
-   Schedule back to returning false or null (perhaps if you want to handle the situations yourself more efficiently than
-   catching an exception, or if you know what you're doing schedule-wise) by setting setThrowingScheduleExceptions(false).
+   
+   <p><b>Note on Synchronization</b>.  In order to maximize the ability for threads to access the Schedule at any time, 
+   Schedule uses two locks for synchronization.  First, the <b>step() method synchronizes on the Schedule</b> itself.  This
+   prevents step() from being called simultaneously from different threads; also step() tests to make sure that it's not
+   called reentrantly from within the same thread.  Second, <b>many methods synchronize on an internal lock</b>, including step().
+   This allows step() to synchronize on the lock only to suck out the relevant Steppables from the Heap and to advance the timestep;
+   all other portions of step() are outside of the lock.  Thus when step() actually steps the Steppables, even in different threads
+   (like AsynchronousSteppable or ParallelSequence), they can turn around and submit step-requests to the Schedule even while it's still
+   in its step() method.
+   
+   <p>One downside to this flexibility is that it's very inefficient to check, at each step of a Steppable, whether the Schedule
+   has been reset or not.  Thus now if you call reset() or [better] SimState.kill(), the Schedule will continue to step Steppables
+   until it has exhausted ones scheduled for the current timestep.  Only at that point will it cease.
+   
+   <p><b>Heaps and Calendar Queues</b>.  Schedule uses a plain-old binary heap for its queueing mechanism.  This is reasonably efficient,
+   but it could be made more efficient with a Calendar Queue designed for the purposes of your simulation.  We settled on a Heap because
+   we do not know what the expected scheduling pattern will be for any given simulation, and so had to go for the most general case.  If you'd
+   care to customize your queue, you can do so by overriding the createHeap() method in a custom Schedule.  We imagine this would be rare.
 */
     
 
 public class Schedule implements java.io.Serializable
     {
+    /** The first possible schedulable time. */
     public static final double EPOCH = 0.0;
+    /** The time which indicates that the Schedule hasn't started yet. Less than EPOCH. */
     public static final double BEFORE_SIMULATION = EPOCH - 1.0;
+    /** The time which indicates that the Schedule is finished.  Equal positive infinity, and thus greater than any schedulable time. */
     public static final double AFTER_SIMULATION = Double.POSITIVE_INFINITY;
+    /** The second possible schedulable time. */
     public static final double EPOCH_PLUS_EPSILON = Double.longBitsToDouble(Double.doubleToRawLongBits(EPOCH)+1L);
+    /** The last time beyond which the schedule is no longer able to precisely maintain integer values due to loss of precision.  That is, MAXIMUM_INTEGER + 1.0 == MAXIMUM_INTEGER. */
     public static final double MAXIMUM_INTEGER = 9.007199254740992E15;
 
     // should we shuffle individuals with the same timestep and ordering?
     boolean shuffling = true;  // by default, we WANT to shuffle
 
-    Heap queue = new Heap();
+    Heap queue = createHeap();
+    
+    /** Returns a Heap to be used by the Schedule.  By default, returns a
+        binary heap.  Override this to provide your own
+        subclass of Heap tuned for your particular problem. */
+    protected Heap createHeap() { return new Heap(); }
     
     // the time
     double time;
     
-    // the number of times step() has been called on m
+    // the number of times step() has been called on me
     long steps;
     
-    // whether or not the Schedule throws errors when it encounters an exceptional condition
-    // on attempting to schedule an item
-    boolean throwingScheduleExceptions = true;
-        
+    // time steps lock  -- the objective here is to enable synchronization on a different lock
+    // so people can read the time and the steps without having to wait on the general schedule lock
+    protected Object lock = new boolean[1];  // an array is a unique, serializable object
+    
     /** Sets the schedule to randomly shuffle the order of Steppables (the default), or to not do so, when they
         have identical orderings and are scheduled for the same time.  If the Steppables are not randomly shuffled,
-        they will be executed in the order in which they were inserted into the schedule.  You should set this to
+        they will be executed in the order in which they were inserted into the schedule, if they have identical
+        orderings.  You should set this to
         FALSE only under unusual circumstances when you know what you're doing -- in the vast majority of cases you
-        will want it to be TRUE.  */
-    public synchronized void setShuffling(boolean val)
+        will want it to be TRUE (the default).  */
+    public void setShuffling(boolean val)
         {
-        shuffling = val;
+        synchronized(lock)
+            {
+            shuffling = val;
+            }
         }
         
     /** Returns true (the default) if the Steppables' order is randomly shuffled when they have identical orderings
-        and are scheduled for the same time; else returns false. */
-    public synchronized boolean isShuffling()
+        and are scheduled for the same time; else returns false, indicating that Steppables with identical orderings
+        will be executed in the order in which they were inserted into the schedule. */
+    public boolean isShuffling()
         {
-        return shuffling;
+        synchronized(lock)
+            {
+            return shuffling;
+            }
         }
         
-    /** Sets the Schedule to either throw exceptions or return false when a Steppable is scheduled
-        in an invalid fashion -- an invalid time, or a null Steppable, etc.  By default, throwing
-        exceptions is set to TRUE.  You should change this only if you require backward-compatability. */
-    public synchronized void setThrowingScheduleExceptions(boolean val)
-        {
-        throwingScheduleExceptions = val;
-        }
-        
-    /** Returns if the Schedule is set to either throw exceptions or return false when a Steppable is scheduled
-        in an invalid fashion -- an invalid time, or a null Steppable, etc.  By default, throwing
-        exceptions is set to TRUE.  */
-    public synchronized boolean isThrowingScheduleExceptions()
-        {
-        return throwingScheduleExceptions;
-        }
-    
-    /** Creates a Schedule.  The <i>numOrders</i> argument is ignored. */
-    public Schedule(final int numOrders)
+    /** Creates a Schedule. */
+    public Schedule()
         {
         time = BEFORE_SIMULATION;
         steps = 0;
         }
     
-    /** Creates a Schedule. */
-    public Schedule()
-        {
-        this(1);
-        }
-    
-    public synchronized double time() { return time; }
+    /** Returns the current timestep */
+    public double time() { synchronized(lock) { return time; } }
+
+    /** Same as getTime() -- returns the current timestep */
+    public double getTime() { synchronized(lock) { return time; } }
     
     /** Returns the current time in string format. If the time is BEFORE_SIMULATION, then beforeSimulationString is
         returned.  If the time is AFTER_SIMULATION, then afterSimulationString is returned.  Otherwise a numerical
         representation of the time is returned. */
-    public synchronized String getTimestamp(final String beforeSimulationString, final String afterSimulationString)
+    public String getTimestamp(final String beforeSimulationString, final String afterSimulationString)
         {
-        return getTimestamp(time(), beforeSimulationString, afterSimulationString);
+        return getTimestamp(getTime(), beforeSimulationString, afterSimulationString);
         }
     
-    /** Returns a given time in string format. If the time is BEFORE_SIMULATION, then beforeSimulationString is
+    /** Returns a given time in string format. If the time is earlier than EPOCH (such as BEFORE_SIMULATION), then beforeSimulationString is
         returned.  If the time is AFTER_SIMULATION, then afterSimulationString is returned.  Otherwise a numerical
         representation of the time is returned. */
+    // could be static, but why not let it be overridden?
     public String getTimestamp(double time, final String beforeSimulationString, final String afterSimulationString)
         {
-        if (time <= BEFORE_SIMULATION) return beforeSimulationString;
+        if (time < EPOCH) return beforeSimulationString;
         if (time >= AFTER_SIMULATION) return afterSimulationString;
         if (time == (long)time) return Long.toString((long)time);
         return Double.toString(time);
         }
 
     /** Returns the number of steps the Schedule has pulsed so far. */
-    public synchronized long getSteps() { return steps; }
+    public long getSteps() { synchronized(lock) { return steps; } }
 
     // pushes the time to AFTER_SIMULATION and attempts to kill all
     // remaining scheduled items
-    synchronized void pushToAfterSimulation()
+    void pushToAfterSimulation()
         {
-        time = AFTER_SIMULATION;
-        if (inStep)
-            killStep = true;
-        queue = new Heap();  // let 'em GC
+        synchronized(lock)
+            {
+            time = AFTER_SIMULATION;
+            queue = createHeap();  // let 'em GC  -- must be inside the lock so scheduleOnce doesn't try to add more
+            }
         }
 
     /** Empties out the schedule and resets it to a pristine state BEFORE_SIMULATION, with steps = 0.  If you're
         looking for a way to kill your simulation from a Steppable, use SimState.kill() instead.  */
-    public synchronized void reset()
+    public void reset()
         {
-        time = BEFORE_SIMULATION;
-        steps = 0;
-        if (inStep)  // we're doing this inside the step(...) method
-            killStep = true;
-        queue = new Heap();  // let 'em GC
+        synchronized(lock)
+            {
+            time = BEFORE_SIMULATION;
+            steps = 0;
+            queue = createHeap();  // let 'em GC  -- must be inside the lock so scheduleOnce doesn't try to add more
+            }
         }
     
     /** Returns true if the schedule has nothing left to do. */
-    public synchronized boolean scheduleComplete()
+    public boolean scheduleComplete()
         {
-        return _scheduleComplete();
-        }
-    
-    boolean _scheduleComplete()
-        {
-        return queue.isEmpty();
+        synchronized(lock)
+            {
+            return queue.isEmpty();
+            }
         }
 
-    // substeps is now private to the step(...) function
+    Bag currentSteps = new Bag();
     Bag substeps = new Bag();
-    boolean inStep = false;     // are we inside a step() method?
-    boolean killStep = false;   // has a request been made to stop stepping?
+    boolean inStep = false;  // prevens reentrancy
     /** Steps the schedule, gathering and ordering all the items to step on the next time step (skipping
         blank time steps), and then stepping all of them in the decided order.  
         Returns FALSE if nothing was stepped -- the schedule is exhausted or time has run out. */
     public synchronized boolean step(final SimState state)
         {
-        inStep = true;
-        final double AFTER_SIMULATION = Schedule.AFTER_SIMULATION;  // a little faster
-        
-        if (time==AFTER_SIMULATION) return false;
-        Bag substeps = this.substeps;  // a little faster
-                
-        if (!_scheduleComplete())
+        if (inStep)  // check for reentrant calls and deny
             {
-            boolean shuffling = this.shuffling;  // a little faster
+            throw new RuntimeException("Schedule.step() is not reentrant, yet is being called recursively.");
+            }
+            
+        inStep = true;
+        Bag currentSteps = this.currentSteps;  // locals are faster
+        final MersenneTwisterFast random = state.random; // locals are faster
+        
+        int topSubstep = 0;  // we set this as a hack to avoid having to clear all the substeps each time until the very end
 
-            // figure the current time 
-            time = ((Key)(queue.getMinKey())).time;
+        // grab the events as quickly as possible
+        synchronized(lock)
+            {
+            if (time == AFTER_SIMULATION || queue.isEmpty())
+                { time = AFTER_SIMULATION; inStep = false; return false; }  // bump the time for the queue.isEmpty() bit
+            
+            // now change the time
+            time = ((Key)(queue.getMinKey())).time;  // key shouldn't be able to be null; time should always be one bigger
 
-            // loop as long as there are elements left in the heap that are the
-            // same timzeone as the minimum key's time
+            final boolean shuffling = this.shuffling; // locals are faster.  This one needs to be synchronized inside lock
+
+            // grab all of the steppables in the right order.  To do this, we employ two Bags:
+            // 1. Each iteration of the while-loop, we grab all the steppables of the next ordering, put into the substeps Bag
+            // 2. Next we either shuffle or reverse the substeps.
+            // 3. Next we add them all to the end of the currentSteps Bag
+            // 4. Then we clear the substeps bag, but we don't let them GC yet
+            // 5. Last, out of the while-loop, we clear the substeps bag "for real", allowing them to GC
             while(true)
                 {
-                Key key = (Key)(queue.getMinKey());
-                if (key == null || key.time != time) break;
-                                
-                // Suck out the contents -- but just the ones in the minimum ordering
+                // Suck out the contents of the next ordering
                 queue.extractMin(substeps);  // come out in reverse order
 
                 // shuffle
                 if (substeps.numObjs > 1) 
                     {
-                    if (shuffling) substeps.shuffle(state.random);  // no need to flip -- we're randomizing
+                    if (shuffling) substeps.shuffle(random);  // no need to flip -- we're randomizing
                     else substeps.reverse();  // they came out in reverse order; we need to flip 'em
                     }
-                                
-                // execute
-                int len = substeps.numObjs;
-                Object[] objs = substeps.objs;
-                                
-                inStep = true;  // so reset() knows it can kill me
-                for(int x=0;x<len;x++)  // if we're not being killed...
-                    {
-                    if (!killStep) // lots of overhead here... :-(
-                        ((Steppable)(objs[x])).step(state);
-                    objs[x] = null;  // let gc even if being killed
-                    }
-                inStep = false;  // we're done
-                killStep = false;
-                                
-                // reuse substeps -- all objects should have been released to gc already
-                substeps.numObjs = 0;
+                    
+                // dump
+                if (topSubstep < substeps.numObjs) topSubstep = substeps.numObjs;  // remember index of largest substep since we're violating clear()
+                currentSteps.addAll(substeps);
+                substeps.numObjs = 0;  // temporarily clear
+                
+                // check next key and break if we don't need to go on
+                Key currentKey = (Key)(queue.getMinKey());
+                if (currentKey == null || currentKey.time != time) break;  // looks like no more substeps at this timestamp
                 }
             }
-        else
+            
+        // now finally clear out the substeps for real
+        substeps.numObjs = topSubstep;
+        substeps.clear();  // clear for real so everything can GC
+                        
+        // execute
+        int len = currentSteps.numObjs;
+        Object[] objs = currentSteps.objs;
+        for(int x=0;x<len;x++)  // if we're not being killed...
             {
-            time = AFTER_SIMULATION;
-            inStep = false;
-            killStep = false;
-            return false;
+            ((Steppable)(objs[x])).step(state);
+            objs[x] = null;  // let gc even if being killed
             }
-        steps++;
+
+        // reuse currentSteps -- all objects should have been released to gc already, no need to call clear()
+        currentSteps.numObjs = 0;
+            
+        synchronized(lock) { steps++; }
         inStep = false;
-        killStep = false;
         return true;
         }
         
-    /** Schedules the event to occur at time() + 1.0, 0 ordering. If this is a valid time
+    /** Schedules the event to occur at getTime() + 1.0, 0 ordering. If this is a valid time
         and event, schedules the event and returns TRUE, else returns FALSE.  */
     
     // synchronized so getting the time can be atomic with the subsidiary scheduleOnce function call
-    public synchronized boolean scheduleOnce(final Steppable event)
+    public boolean scheduleOnce(final Steppable event)
         {
-        return scheduleOnce(new Key(time+1.0,0),event);
+        synchronized(lock)
+            {
+            return _scheduleOnce(new Key(/*must lock for:*/time +1.0,0),event);
+            }
+        }
+    
+    /** Schedules the event to occur at getTime() + delta, 0 ordering. If this is a valid time
+        and event, schedules the event and returns TRUE, else returns FALSE.  */
+    
+    // synchronized so getting the time can be atomic with the subsidiary scheduleOnce function call
+    public boolean scheduleOnceIn(final double delta, final Steppable event)
+        {
+        synchronized(lock)
+            {
+            return _scheduleOnce(new Key(/*must lock for:*/ time + delta, 0), event);
+            }
         }
         
-    /** Schedules the event to occur at time() + 1.0, 0 ordering. If this is a valid time
+    /** Schedules the event to occur at getTime() + 1.0, and in the ordering provided. If this is a valid time
         and event, schedules the event and returns TRUE, else returns FALSE.  */
     
     // synchronized so getting the time can be atomic with the subsidiary scheduleOnce function call
-    public synchronized boolean scheduleOnce(final Steppable event, final int ordering)
+    public boolean scheduleOnce(final Steppable event, final int ordering)
         {
-        return scheduleOnce(new Key(time+1.0,ordering),event);
+        synchronized(lock)
+            {
+            return _scheduleOnce(new Key(/*must lock for:*/time +1.0,ordering),event);
+            }
         }
 
-    /** Schedules the event to occur at the provided time, 0 ordering.  If the time() == the provided
-        time, then the event is instead scheduled to occur at time() + epsilon (the minimum possible next
+    /** Schedules the event to occur at getTime() + delta, and in the ordering provided. If this is a valid time
+        and event, schedules the event and returns TRUE, else returns FALSE.  */
+    
+    // synchronized so getting the time can be atomic with the subsidiary scheduleOnce function call
+    public boolean scheduleOnceIn(final double delta, final Steppable event, final int ordering)
+        {
+        synchronized(lock)
+            {
+            return _scheduleOnce(new Key(/*must lock for:*/ time + delta, ordering), event);
+            }
+        }
+
+    /** Schedules the event to occur at the provided time, 0 ordering.  If the getTime() == the provided
+        time, then the event is instead scheduled to occur at getTime() + epsilon (the minimum possible next
         timestamp). If this is a valid time
         and event, schedules the event and returns TRUE, else returns FALSE.*/
     
-    public boolean scheduleOnce(final double time, final Steppable event)
+    public boolean scheduleOnce(double time, final Steppable event)
         {
-        return scheduleOnce(new Key(time,0),event);
+        synchronized(lock)
+            {
+            return _scheduleOnce(new Key(time,0),event);
+            }
         }
         
-    /** Schedules the event to occur at the provided time, and in the ordering provided.  If the time() == the provided
-        time, then the event is instead scheduled to occur at time() + epsilon (the minimum possible next
+    /** Schedules the event to occur at the provided time, and in the ordering provided.  If the getTime() == the provided
+        time, then the event is instead scheduled to occur at getTime() + epsilon (the minimum possible next
         timestamp). If this is a valid time, ordering,
         and event, schedules the event and returns TRUE, else returns FALSE.
     */
-    public synchronized boolean scheduleOnce(double time, final int ordering, final Steppable event)
+    public boolean scheduleOnce(double time, final int ordering, final Steppable event)
         {
-        return scheduleOnce(new Key(time,ordering),event);
+        synchronized(lock)
+            {
+            return _scheduleOnce(new Key(time,ordering),event);
+            }
         }
     
-    synchronized boolean scheduleOnce(Key key, final Steppable event)
+    /** Schedules an item. */
+    public boolean scheduleOnce(Key key, final Steppable event)
+        {
+        synchronized(lock)
+            {
+            return _scheduleOnce(key, event);
+            }
+        }
+
+    
+    /** Schedules an item.  You must synchronize on this.lock before calling this method.   This allows us to avoid synchronizing twice,
+        and incurring any overhead (not sure if that's an issue really).  */
+    boolean _scheduleOnce(Key key, final Steppable event)
         {
         // locals are a teeny bit faster
-        double time = this.time;
+        double time = 0;
+        time = this.time;
         double t = key.time;
 
         // check to see if we're scheduling for the same exact time -- even if of different orderings, that doesn't matter
@@ -317,33 +386,32 @@ public class Schedule implements java.io.Serializable
             // bump up time to the next possible item, unless we're at infinity already (AFTER_SIMULATION)
             t = key.time = Double.longBitsToDouble(Double.doubleToRawLongBits(t)+1L);
 
-        if (t < EPOCH || t >= AFTER_SIMULATION || t != t /* NaN */ || t < time || event == null)
-            {
-            if (!isThrowingScheduleExceptions()) 
-                return false;
-            else if (t < EPOCH)
-                throw new IllegalArgumentException("For the Steppable...\n\n"+event+
-                                                   "\n\n...the time provided ("+t+") is < EPOCH (" + EPOCH + ")");
-            else if (t >= AFTER_SIMULATION)
-                throw new IllegalArgumentException("For the Steppable...\n\n"+event+
-                                                   "\n\n...the time provided ("+t+") is >= AFTER_SIMULATION (" + AFTER_SIMULATION + ")");
-            else if (t != t /* NaN */)
-                throw new IllegalArgumentException("For the Steppable...\n\n"+event+
-                                                   "\n\n...the time provided ("+t+") is NaN");
-            else if (t < time)
-                throw new IllegalArgumentException("For the Steppable...\n\n"+event+
-                                                   "\n\n...the time provided ("+t+") is less than the current time (" + time + ")");
-            else if (event == null)
-                throw new IllegalArgumentException("The provided Steppable is null");
-            }
+        // this shouldn't compile to anything more efficient -- we still check all of it -- so I'm taking it out
+        //if (t < EPOCH || t >= AFTER_SIMULATION || t != t /* NaN */ || t < time || event == null)
+        //    {
+        if (t < EPOCH)
+            throw new IllegalArgumentException("For the Steppable...\n\n"+event+
+                                               "\n\n...the time provided ("+t+") is < EPOCH (" + EPOCH + ")");
+        else if (t >= AFTER_SIMULATION)
+            throw new IllegalArgumentException("For the Steppable...\n\n"+event+
+                                               "\n\n...the time provided ("+t+") is >= AFTER_SIMULATION (" + AFTER_SIMULATION + ")");
+        else if (t != t /* NaN */)
+            throw new IllegalArgumentException("For the Steppable...\n\n"+event+
+                                               "\n\n...the time provided ("+t+") is NaN");
+        else if (t < time)
+            throw new IllegalArgumentException("For the Steppable...\n\n"+event+
+                                               "\n\n...the time provided ("+t+") is less than the current time (" + time + ")");
+        else if (event == null)
+            throw new IllegalArgumentException("The provided Steppable is null");
+        //    }
         
-        if (!killStep) queue.add(event, key);  // only bother adding if we're not being killed
+        queue.add(event, key);
         return true;
         }
 
-    /** Schedules the event to recur at an interval of 1.0 starting at time() + 1.0, and at 0 ordering.
+    /** Schedules the event to recur at an interval of 1.0 starting at getTime() + 1.0, and at 0 ordering.
         If this is a valid event, schedules the event and returns a Stoppable, else returns null.
-        The recurrence will continue until time() >= AFTER_SIMULATION, the Schedule is cleared out,
+        The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
 
         <p> Note that calling stop() on the Stoppable
@@ -352,16 +420,19 @@ public class Schedule implements java.io.Serializable
         if you need to make the Schedule NOT serialize certain Steppable objects. */
     
     // synchronized so getting the time can be atomic with the subsidiary scheduleRepeating function call
-    public synchronized Stoppable scheduleRepeating(final Steppable event)
+    public Stoppable scheduleRepeating(final Steppable event)
         {
-        return scheduleRepeating(time+1.0,0,event,1.0);
+        synchronized(lock)
+            {
+            return scheduleRepeating(/*must lock for:*/time +1.0,0,event,1.0);
+            }
         }
 
-    /** Schedules the event to recur at the specified interval starting at time() + interval, and at 0 ordering.
+    /** Schedules the event to recur at the specified interval starting at getTime() + interval, and at 0 ordering.
         If this is a valid interval (must be >= 0)
         and event, schedules the event and returns a Stoppable, else returns null.
         If interval is 0, then the recurrence will be scheduled at the current time + epsilon.
-        The recurrence will continue until time() >= AFTER_SIMULATION, the Schedule is cleared out,
+        The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
 
         <p> Note that calling stop() on the Stoppable
@@ -370,16 +441,19 @@ public class Schedule implements java.io.Serializable
         if you need to make the Schedule NOT serialize certain Steppable objects. */
     
     // synchronized so getting the time can be atomic with the subsidiary scheduleRepeating function call
-    public synchronized Stoppable scheduleRepeating(final Steppable event, final double interval)
+    public Stoppable scheduleRepeating(final Steppable event, final double interval)
         {
-        return scheduleRepeating(time+interval,0,event,interval);
+        synchronized(lock)
+            {
+            return scheduleRepeating(/*must lock for:*/time +interval,0,event,interval);
+            }
         }
 
-    /** Schedules the event to recur at the specified interval starting at time() + interval, and at the provided ordering.
+    /** Schedules the event to recur at the specified interval starting at getTime() + interval, and at the provided ordering.
         If this is a valid interval (must be >=> 0)
         and event, schedules the event and returns a Stoppable, else returns null.
         If interval is 0, then the recurrence will be scheduled at the current time + epsilon.
-        The recurrence will continue until time() >= AFTER_SIMULATION, the Schedule is cleared out,
+        The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
 
         <p> Note that calling stop() on the Stoppable
@@ -388,17 +462,20 @@ public class Schedule implements java.io.Serializable
         if you need to make the Schedule NOT serialize certain Steppable objects. */
     
     // synchronized so getting the time can be atomic with the subsidiary scheduleRepeating function call
-    public synchronized Stoppable scheduleRepeating(final Steppable event, final int ordering, final double interval)
+    public Stoppable scheduleRepeating(final Steppable event, final int ordering, final double interval)
         {
-        return scheduleRepeating(time+interval,ordering,event,interval);
+        synchronized(lock)
+            {
+            return scheduleRepeating(/*must lock for:*/time +interval,ordering,event,interval);
+            }
         }
 
     /** Schedules the event to recur at the specified interval starting at the provided time, and at 0 ordering.
-        If the time() == the provided
-        time, then the first event is instead scheduled to occur at time() + epsilon (the minimum possible next
+        If the getTime() == the provided
+        time, then the first event is instead scheduled to occur at getTime() + epsilon (the minimum possible next
         timestamp). If this is a valid time, ordering, interval (must be positive), 
         and event, schedules the event and returns a Stoppable, else returns null.
-        The recurrence will continue until time() >= AFTER_SIMULATION, the Schedule is cleared out,
+        The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
     
         <p> Note that calling stop() on the Stoppable
@@ -408,16 +485,17 @@ public class Schedule implements java.io.Serializable
 
     public Stoppable scheduleRepeating(final double time, final Steppable event)
         {
+        // No need to lock -- we're not grabbing time from the schedule
         return scheduleRepeating(time,0,event,1.0);
         }
 
     /** Schedules the event to recur at the specified interval starting at the provided time, 
-        in ordering 0.  If the time() == the provided
-        time, then the first event is instead scheduled to occur at time() + epsilon (the minimum possible next
+        in ordering 0.  If the getTime() == the provided
+        time, then the first event is instead scheduled to occur at getTime() + epsilon (the minimum possible next
         timestamp). If this is a valid time, interval (must be >=0), 
         and event, schedules the event and returns a Stoppable, else returns null.
         If interval is 0, then the recurrence will be scheduled at the current time + epsilon.
-        The recurrence will continue until time() >= AFTER_SIMULATION, the Schedule is cleared out,
+        The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
     
         <p> Note that calling stop() on the Stoppable
@@ -427,15 +505,16 @@ public class Schedule implements java.io.Serializable
 
     public Stoppable scheduleRepeating(final double time, final Steppable event, final double interval)
         {
+        // No need to lock -- we're not grabbing time from the schedule
         return scheduleRepeating(time,0,event,interval);
         }
 
     /** Schedules the event to recur at an interval of 1.0 starting at the provided time, 
-        and in the ordering provided.  If the time() == the provided
-        time, then the first event is instead scheduled to occur at time() + epsilon (the minimum possible next
+        and in the ordering provided.  If the getTime() == the provided
+        time, then the first event is instead scheduled to occur at getTime() + epsilon (the minimum possible next
         timestamp). If this is a valid time, ordering,
         and event, schedules the event and returns a Stoppable, else returns null.
-        The recurrence will continue until time() >= AFTER_SIMULATION, the Schedule is cleared out,
+        The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
     
         <p> Note that calling stop() on the Stoppable
@@ -445,16 +524,17 @@ public class Schedule implements java.io.Serializable
 
     public Stoppable scheduleRepeating(final double time, final int ordering, final Steppable event)
         {
+        // No need to lock -- we're not grabbing time from the schedule
         return scheduleRepeating(time,ordering,event,1.0);
         }
 
     /** Schedules the event to recur at the specified interval starting at the provided time, 
-        and in the ordering provided.  If the time() == the provided
-        time, then the first event is instead scheduled to occur at time() + epsilon (the minimum possible next
+        and in the ordering provided.  If the getTime() == the provided
+        time, then the first event is instead scheduled to occur at getTime() + epsilon (the minimum possible next
         timestamp). If this is a valid time, ordering, interval (must be >= 0), 
         and event, schedules the event and returns a Stoppable, else returns null.
         If interval is 0, then the recurrence will be scheduled at the current time + epsilon.
-        The recurrence will continue until time() >= AFTER_SIMULATION, the Schedule is cleared out,
+        The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
     
         <p> Note that calling stop() on the Stoppable
@@ -464,27 +544,47 @@ public class Schedule implements java.io.Serializable
 
     public Stoppable scheduleRepeating(final double time, final int ordering, final Steppable event, final double interval)
         {
-        if (event==null || interval < 0 || interval != interval /* NaN */) // don't check for interval being infinite -- that might be valid!
-            {
-            if (!isThrowingScheduleExceptions())
-                return null;  // 0 is okay because it's "the immediate next"
-            else if (event == null)
-                throw new IllegalArgumentException("The provided Steppable is null");
-            else if (interval < 0)
-                throw new IllegalArgumentException("For the Steppable...\n\n"+event+
-                                                   "\n\n...the interval provided ("+interval+") is less than zero");
-            else if (interval != interval)  /* NaN */
-                throw new IllegalArgumentException("For the Steppable...\n\n"+event+
-                                                   "\n\n...the interval provided ("+interval+") is NaN");
-            }
-                        
-        Key k = new Key(time,ordering);
+        Schedule.Key k = new Schedule.Key(time,ordering);
         Repeat r = new Repeat(event,interval,k);
-        if (scheduleOnce(k,r)) return r; 
-        else return null;
+
+        synchronized(lock)
+            {
+            if (_scheduleOnce(k,r)) return r; 
+            else return null;
+            }
+        }
+
+    /** Timestamps stored as keys in the heap.  Comps are comparable by their time first, and their ordering second. */
+    public static class Key implements Comparable, Serializable
+        {
+        double time;
+        int ordering;
+            
+        public Key(double time, int ordering)
+            {
+            this.time = time;
+            this.ordering = ordering;
+            }
+                    
+        public int compareTo(Object obj)
+            {
+            Key o = (Key)obj;
+            double time = this.time;
+            double time2 = o.time;
+            if (time == time2)  // the most common situation
+                {
+                int ordering = this.ordering;
+                int ordering2 = o.ordering;
+                if (ordering == ordering2) return 0;  // the most common situation
+                if (ordering < ordering2) return -1;
+                /* if (ordering > ordering2) */ return 1;
+                }
+            // okay, so they're different times
+            if (time < time2) return -1;
+            /* if (time > time2) */ return 1;
+            }
         }
     }
-
 
 
 /**
@@ -500,10 +600,17 @@ class Repeat implements Steppable, Stoppable
     {
     double interval;
     Steppable step;  // if null, does not reschedule
-    Key key;
+    Schedule.Key key;
         
-    public Repeat(final Steppable step, final double interval, final Key key)
+    public Repeat(final Steppable step, final double interval, final Schedule.Key key)
         {
+        if (interval < 0)
+            throw new IllegalArgumentException("For the Steppable...\n\n" + step +
+                                               "\n\n...the interval provided ("+interval+") is less than zero");
+        else if (interval != interval)  /* NaN */
+            throw new IllegalArgumentException("For the Steppable...\n\n" + step +
+                                               "\n\n...the interval provided ("+interval+") is NaN");
+
         this.step = step;
         this.interval = interval;
         this.key = key;
@@ -513,16 +620,13 @@ class Repeat implements Steppable, Stoppable
         {
         if (step!=null)
             {
-            // this occurs WITHIN the schedule's synchronized step, so time()
-            // and scheduleOnce() will both occur together without the time
-            // changing
             try
                 {
                 // reuse the Key to save some gc perhaps -- it's been pulled out and discarded at this point
-                key.time += interval; //  = time()+interval;
-                state.schedule.scheduleOnce(key,this);  // will return false if time has run out and throwingScheduleExceptions = false
+                key.time += interval;
+                state.schedule.scheduleOnce(key,this);
                 }
-            catch (IllegalArgumentException e) { } // occurs if time has run out and throwingScheduleExceptions = true
+            catch (IllegalArgumentException e) { } // occurs if time has run out
             step.step(state);
             }
         }
@@ -533,33 +637,3 @@ class Repeat implements Steppable, Stoppable
         }
     }
 
-/** Timestamps stored as keys in the heap.  Comps are comparable by their time first, and their ordering second. */
-class Key implements Comparable, Serializable
-    {
-    double time;
-    int ordering;
-        
-    public Key(double time, int ordering)
-        {
-        this.time = time;
-        this.ordering = ordering;
-        }
-                
-    public int compareTo(Object obj)
-        {
-        Key o = (Key)obj;
-        double time = this.time;
-        double time2 = o.time;
-        if (time == time2)  // the most common situation
-            {
-            int ordering = this.ordering;
-            int ordering2 = o.ordering;
-            if (ordering == ordering2) return 0;  // the most common situation
-            if (ordering < ordering2) return -1;
-            /* if (ordering > ordering2) */ return 1;
-            }
-        // okay, so they're different times
-        if (time < time2) return -1;
-        /* if (time > time2) */ return 1;
-        }
-    }

@@ -18,40 +18,44 @@ public class CylinderEdgePortrayal3D extends GenericEdgePortrayal3D
     {
     static class PickableCylinder extends Cylinder
         {
-        public PickableCylinder(){super();}
+        public PickableCylinder()
+            {
+            super(); 
+            setAllPickableFlags();
+            }
                 
         public PickableCylinder(float radius)
             {
             super(radius, 2);
+            setAllPickableFlags();
             }
                 
         public PickableCylinder(float radius, Appearance ap)
             {
             super(radius, 2, ap);
+            setAllPickableFlags();
             }
+        
         public PickableCylinder(Appearance ap)
             {
             super(1, 2, ap);
+            setAllPickableFlags();
             }
 
         public void setUserData(java.lang.Object userData)
             {
-            super.setUserData(userData);
-            setup(getShape(Cylinder.BODY), userData);
-            setup(getShape(Cylinder.TOP), userData);
-            setup(getShape(Cylinder.BOTTOM), userData);
-
-
+            getShape(Cylinder.BODY).setUserData(userData);
+            getShape(Cylinder.TOP).setUserData(userData);
+            getShape(Cylinder.BOTTOM).setUserData(userData);
             }
-                
-        private void setup(Shape3D shape,java.lang.Object userData)
+        public void setAllPickableFlags()
             {
-            shape.setUserData(userData);
-            setPickableFlags(shape);
+            setPickableFlags(getShape(Cylinder.BODY));
+            setPickableFlags(getShape(Cylinder.TOP));
+            setPickableFlags(getShape(Cylinder.BOTTOM));
             }
-                
+               
         }
-
     public CylinderEdgePortrayal3D()
         {
         super(new PickableCylinder());

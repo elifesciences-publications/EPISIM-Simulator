@@ -851,7 +851,7 @@ public class Console extends JFrame implements Controller
         JMenu fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
         
-       // buildClassList(); // load the simulation class list in case it's not been loaded yet, to determine if we want to have simulations
+        buildClassList(); // load the simulation class list in case it's not been loaded yet, to determine if we want to have simulations
 
         JMenuItem _new = new JMenuItem("New Simulation...");
         if (!allowOtherClassNames && classNames.size() == 0)  // nothing permitted
@@ -1551,11 +1551,11 @@ public class Console extends JFrame implements Controller
         // just in case someone crazy tries to load twice
         synchronized(classLock) { if (classListLoaded) return; else classListLoaded = true; }
                 
-        ///////// Build doNew() comboBox
+        /*  ///////// Build doNew() comboBox
         allowOtherClassNames = true;
         try
             {
-            InputStream s = Console.class.getResourceAsStream("simulation.classes");
+          InputStream s = Console.class.getResourceAsStream("simulation.classes");
             StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(s)));
             st.resetSyntax();
             st.wordChars(32,255);
@@ -1611,7 +1611,7 @@ public class Console extends JFrame implements Controller
             {
             System.err.println("Couldn't load the simulation.classes file because of error. \nLikely the file does not exist or could not be opened.\nThe error was:\n");
             e.printStackTrace();
-            }
+            }*/
         }
 
     /** Returns true if a new simulation has been created; false if the user cancelled. */

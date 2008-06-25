@@ -12,8 +12,8 @@ import sim.portrayal3d.simple.*;
 import sim.util.*;
 import sim.util.gui.*;
 import sim.util.media.*;
-import sim.display.*;
 import sim.display.Console;
+import sim.display.*;
 
 import java.io.*;
 import java.util.*;
@@ -118,11 +118,18 @@ public class Display3D extends JPanel implements Steppable
     ArrayList portrayals = new ArrayList();
     Stoppable stopper;
     GUIState simulation;
-    JComponent header;
-    JButton movieButton;
-    JButton snapshotButton;
-    JButton optionButton;
-    NumberTextField scaleField;
+    /** The component bar at the top of the Display3D. */
+    public JComponent header;
+    /** The button which starts or stops a movie */
+    public JButton movieButton;
+    /** The button which snaps a screenshot */
+    public JButton snapshotButton;
+    /** The button which pops up the option pane */
+    public JButton optionButton;
+    /** The field for scaling values */
+    public NumberTextField scaleField;
+    /** The field for skipping frames */
+    public NumberTextField skipField;
         
     long interval = 1;
     Object intervalLock = new Object();
@@ -175,8 +182,10 @@ public class Display3D extends JPanel implements Steppable
     /** The MovieMaker.  If null, we're not shooting a movie. */
     public MovieMaker movieMaker = null;    
 
-    JPopupMenu popup;
-    JToggleButton togglebutton;  // for popup
+    /** The popup layers menu */
+    public JPopupMenu popup;
+    /** The button which pops up the layers menu */
+    public JToggleButton togglebutton;  // for popup
 
     static
         {
@@ -374,7 +383,7 @@ public class Display3D extends JPanel implements Steppable
             });
         }
     
-    void createConsoleMenu()
+    public void createConsoleMenu()
         {
         if (simulation != null && simulation.controller != null &&
             simulation.controller instanceof Console)
@@ -390,6 +399,7 @@ public class Display3D extends JPanel implements Steppable
                     }
                 });
             }
+        popup.addSeparator();
         }
         
     /** Detatches all portrayals from the Display3D. */
@@ -398,7 +408,6 @@ public class Display3D extends JPanel implements Steppable
         ArrayList old = portrayals;
         popup.removeAll();
         createConsoleMenu();
-        popup.addSeparator();
         portrayals = new ArrayList();
         portrayalSwitchMask = null;
         subgraphCount = 0;
@@ -528,7 +537,7 @@ public class Display3D extends JPanel implements Steppable
         scaleField.setToolTipText("Magnifies the scene.  Not the same as zooming (see the options panel)");
         header.add(scaleField);
 
-        NumberTextField skipField = new NumberTextField("  Skip: ", 1, false)
+        skipField = new NumberTextField("  Skip: ", 1, false)
             {
             public double newValue(double newValue)
                 {
@@ -558,7 +567,6 @@ public class Display3D extends JPanel implements Steppable
         createSceneGraph();
 
         createConsoleMenu();
-        popup.addSeparator();
         }
     
     Appearance backdropAppearance = null;  // for spherical backgrounds
@@ -856,6 +864,19 @@ public class Display3D extends JPanel implements Steppable
         transform(other);
         }
 
+    /** Eliminates the existing scene graph.  This ought to be called when starting a simulation prior to creating
+        any new Portrayal3Ds.  The reason is simple: if the Portrayal3Ds use shared geometry objects underneath, then
+        creating them may create new shared geometry objects, which isn't permitted if there are existing shared geometry
+        objects in a live scene graph.  So destroy the scene graph, create the new objects, and recreate the scene graph, and you're set.
+    */
+    public void destroySceneGraph()
+        {
+        // unhook the root from the universe so we can reuse the universe (Hmmmm....)
+            
+        universe.getLocale().removeBranchGraph(root);
+        canvas.stopRenderer();
+        }
+
     ToolTipBehavior toolTipBehavior;
     boolean usingToolTips;
         
@@ -901,10 +922,7 @@ public class Display3D extends JPanel implements Steppable
             }
         else // reset the canvas
             {
-            // unhook the root from the universe so we can reuse the universe (Hmmmm....)
-            
-            universe.getLocale().removeBranchGraph(root);
-            canvas.stopRenderer();
+            destroySceneGraph();
             }
         
         // The root in our universe will be a branchgroup

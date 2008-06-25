@@ -12,20 +12,24 @@ import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.*;
 import java.io.*;
 
 // From MASON (cs.gmu.edu/~eclab/projects/mason/)
 import sim.util.gui.LabelledList;
 import sim.util.gui.NumberTextField;
+import sim.util.gui.PropertyField;
 
 // From JFreeChart (jfreechart.org)
 import org.jfree.data.xy.*;
 import org.jfree.chart.*;
+import org.jfree.chart.axis.*;
 import org.jfree.chart.event.*;
 import org.jfree.chart.plot.*;
 import org.jfree.data.general.*;
 import org.jfree.chart.renderer.xy.*;
 import org.jfree.data.general.*;
+import org.jfree.chart.title.*;
 
 // from iText (www.lowagie.com/iText/)
 import com.lowagie.text.*;
@@ -62,6 +66,12 @@ public abstract class ChartGenerator extends JPanel
     protected Box globalAttributes = Box.createVerticalBox();
     /** A holder for series attributes components */
     protected Box seriesAttributes = Box.createVerticalBox();
+    public SeriesAttributes getSeriesAttributes(int seriesIndex)
+        {
+        Component[] c = seriesAttributes.getComponents();
+        return (SeriesAttributes)c[seriesIndex];
+        }
+    
     /** The chart */
     protected JFreeChart chart;
     /** The panel which holds and draws the chart */
@@ -71,12 +81,17 @@ public abstract class ChartGenerator extends JPanel
     /** The JFrame which stores the whole chart.  Set in createFrame(), else null. */
     protected JFrame frame;
     /** The global attributes chart title field. */
-    protected JTextField titleField;
+    protected PropertyField titleField;
     /** The global attributes domain axis field. */
-    protected JTextField xLabel;
+    protected PropertyField xLabel;
     /** The global attributes range axis field. */
-    protected  JTextField yLabel;
-        
+    protected  PropertyField yLabel;
+    
+    /** The global attributes logarithmic range axis check box. */
+    protected JCheckBox yLog;
+    /** The global attributes logarithmic domain axis check box. */
+    protected JCheckBox xLog;
+    
     /** Override this to return the JFreeChart data set used by your Chart.  For example, time series charts
         might return the XYSeriesCollection. */ 
     public abstract AbstractSeriesDataset getSeriesDataset();
@@ -86,6 +101,9 @@ public abstract class ChartGenerator extends JPanel
         
     /** Override this to remove a series from the chart. */
     public abstract void removeSeries(int index);
+    
+    /** Override this to move a series relative to other series. */
+    public abstract void moveSeries(int index, boolean up); 
                 
     /** Override this to construct the appropriate kind of chart.  This is the first thing called from the constructor; so certain
         of your instance variables may not have been set yet and you may need to set them yourself.  */
@@ -143,7 +161,7 @@ public abstract class ChartGenerator extends JPanel
         chart.setTitle(title);
         chart.titleChanged(new TitleChangeEvent(new org.jfree.chart.title.TextTitle(title)));
         if (frame!=null) frame.setTitle(title);
-        titleField.setText(title);
+        titleField.setValue(title);
         }
 
     /** Returns the title of the chart */
@@ -158,7 +176,7 @@ public abstract class ChartGenerator extends JPanel
         XYPlot xyplot = (XYPlot)(chart.getPlot());
         xyplot.getRangeAxis().setLabel(val);
         xyplot.axisChanged(new AxisChangeEvent(xyplot.getRangeAxis()));
-        yLabel.setText(val);
+        yLabel.setValue(val);
         }
                 
     /** Returns the name of the Range Axis Label -- usually this is the Y axis. */
@@ -173,7 +191,7 @@ public abstract class ChartGenerator extends JPanel
         XYPlot xyplot = (XYPlot)(chart.getPlot());
         xyplot.getDomainAxis().setLabel(val);
         xyplot.axisChanged(new AxisChangeEvent(xyplot.getDomainAxis()));
-        xLabel.setText(val);
+        xLabel.setValue(val);
         }
                 
     /** Returns the name of the Domain Axis label -- usually this is the X axis. */
@@ -191,91 +209,166 @@ public abstract class ChartGenerator extends JPanel
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         split.setBorder(new EmptyBorder(0,0,0,0));
         JScrollPane scroll = new JScrollPane();
-        scroll.getViewport().setView(seriesAttributes);
+        JPanel b = new JPanel();
+        b.setLayout(new BorderLayout());
+        b.add(seriesAttributes, BorderLayout.NORTH);
+        b.add(new JPanel(), BorderLayout.CENTER);
+        scroll.getViewport().setView(b);
         scroll.setBackground(getBackground());
         scroll.getViewport().setBackground(getBackground());
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout());
 
-        titleField = new JTextField();
-        titleField.setText(chart.getTitle().getText());
-        titleField.addKeyListener(new KeyListener()
-            {
-            public void keyReleased(KeyEvent keyEvent) {}
-            public void keyTyped(KeyEvent keyEvent) {}
-            public void keyPressed(KeyEvent keyEvent)
-                {
-                if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER)
-                    {
-                    setTitle(titleField.getText());
-                    }
-                else if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
-                    titleField.setText(getTitle());
-                }
-            });
-        titleField.addFocusListener(new FocusAdapter()
-            {
-            public void focusLost ( FocusEvent e )
-                {
-                setTitle(titleField.getText());
-                }
-            });
-
-
         LabelledList list = new LabelledList("Chart");
         globalAttributes.add(list);
+
+/*
+  titleField = new JTextField();
+  titleField.setText(chart.getTitle().getText());
+  titleField.addKeyListener(new KeyListener()
+  {
+  public void keyReleased(KeyEvent keyEvent) {}
+  public void keyTyped(KeyEvent keyEvent) {}
+  public void keyPressed(KeyEvent keyEvent)
+  {
+  if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER)
+  {
+  setTitle(titleField.getText());
+  }
+  else if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
+  titleField.setText(getTitle());
+  }
+  });
+  titleField.addFocusListener(new FocusAdapter()
+  {
+  public void focusLost ( FocusEvent e )
+  {
+  setTitle(titleField.getText());
+  }
+  });
+*/
+
+        titleField = new PropertyField()
+            {
+            public String newValue(String newValue)
+                {
+                setTitle(newValue);
+                getChartPanel().repaint();
+                return newValue;
+                }
+            };
+        titleField.setValue(chart.getTitle().getText());
+
         list.add(new JLabel("Title"), titleField);
 
-        xLabel = new JTextField();
-        xLabel.setText(getDomainAxisLabel());
-        xLabel.addKeyListener(new KeyListener()
+/*
+  xLabel = new JTextField();
+  xLabel.setText(getDomainAxisLabel());
+  xLabel.addKeyListener(new KeyListener()
+  {
+  public void keyReleased(KeyEvent keyEvent) {}
+  public void keyTyped(KeyEvent keyEvent) {}
+  public void keyPressed(KeyEvent keyEvent)
+  {
+  if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER)
+  {
+  setDomainAxisLabel(xLabel.getText());
+  }
+  else if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
+  xLabel.setText(getDomainAxisLabel());
+  }
+  });
+  xLabel.addFocusListener(new FocusAdapter()
+  {
+  public void focusLost ( FocusEvent e )
+  {
+  setDomainAxisLabel(xLabel.getText());
+  }
+  });
+*/
+        xLabel = new PropertyField()
             {
-            public void keyReleased(KeyEvent keyEvent) {}
-            public void keyTyped(KeyEvent keyEvent) {}
-            public void keyPressed(KeyEvent keyEvent)
+            public String newValue(String newValue)
                 {
-                if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER)
-                    {
-                    setDomainAxisLabel(xLabel.getText());
-                    }
-                else if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
-                    xLabel.setText(getDomainAxisLabel());
+                setDomainAxisLabel(newValue);
+                getChartPanel().repaint();
+                return newValue;
                 }
-            });
-        xLabel.addFocusListener(new FocusAdapter()
-            {
-            public void focusLost ( FocusEvent e )
-                {
-                setDomainAxisLabel(xLabel.getText());
-                }
-            });
+            };
+        xLabel.setValue(getDomainAxisLabel());
 
         list.add(new JLabel("X Label"), xLabel);
-
-        yLabel = new JTextField();
-        yLabel.setText(getRangeAxisLabel());
-        yLabel.addKeyListener(new KeyListener()
+        
+/*
+  yLabel = new JTextField();
+  yLabel.setText(getRangeAxisLabel());
+  yLabel.addKeyListener(new KeyListener()
+  {
+  public void keyReleased(KeyEvent keyEvent) {}
+  public void keyTyped(KeyEvent keyEvent) {}
+  public void keyPressed(KeyEvent keyEvent)
+  {
+  if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER)
+  {
+  setRangeAxisLabel(yLabel.getText());
+  }
+  else if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
+  yLabel.setText(getRangeAxisLabel());
+  }
+  });
+  yLabel.addFocusListener(new FocusAdapter()
+  {
+  public void focusLost ( FocusEvent e )
+  {
+  setRangeAxisLabel(yLabel.getText());
+  }
+  });
+*/
+        yLabel = new PropertyField()
             {
-            public void keyReleased(KeyEvent keyEvent) {}
-            public void keyTyped(KeyEvent keyEvent) {}
-            public void keyPressed(KeyEvent keyEvent)
+            public String newValue(String newValue)
                 {
-                if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER)
-                    {
-                    setRangeAxisLabel(yLabel.getText());
-                    }
-                else if (keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
-                    yLabel.setText(getRangeAxisLabel());
+                setRangeAxisLabel(newValue);
+                getChartPanel().repaint();
+                return newValue;
                 }
-            });
-        yLabel.addFocusListener(new FocusAdapter()
-            {
-            public void focusLost ( FocusEvent e )
-                {
-                setRangeAxisLabel(yLabel.getText());
-                }
-            });
+            };
+        yLabel.setValue(getRangeAxisLabel());
+        
         list.add(new JLabel("Y Label"), yLabel);
+        
+        xLog = new JCheckBox();
+        xLog.addChangeListener(new ChangeListener(){
+            public void stateChanged(ChangeEvent e)
+                {
+                if(xLog.isSelected())
+                    {
+                    LogarithmicAxis logAxis = new LogarithmicAxis(xLabel.getValue());
+                    logAxis.setStrictValuesFlag(false);
+                    chart.getXYPlot().setDomainAxis(logAxis);
+                    }
+                else
+                    chart.getXYPlot().setDomainAxis(new NumberAxis(xLabel.getValue()));
+                }
+            });
+        list.add(new JLabel("Log X axis"), xLog);
+        
+
+        yLog = new JCheckBox();
+        yLog.addChangeListener(new ChangeListener(){
+            public void stateChanged(ChangeEvent e)
+                {
+                if(yLog.isSelected())
+                    {
+                    LogarithmicAxis logAxis = new LogarithmicAxis(yLabel.getValue());
+                    logAxis.setStrictValuesFlag(false);
+                    chart.getXYPlot().setRangeAxis(logAxis);
+                    }
+                else
+                    chart.getXYPlot().setRangeAxis(new NumberAxis(yLabel.getValue()));
+                }
+            });
+        list.add(new JLabel("Log Y axis"), yLog);
 
         final JCheckBox legendCheck = new JCheckBox();
         legendCheck.setSelected(false);
@@ -285,8 +378,7 @@ public abstract class ChartGenerator extends JPanel
                 {
                 if (e.getStateChange() == ItemEvent.SELECTED)
                     {
-                    org.jfree.chart.title.LegendTitle title = new org.jfree.chart.title.LegendTitle(
-                        (XYItemRenderer)(chart.getXYPlot().getRenderer()));
+                    LegendTitle title = new LegendTitle(chart.getXYPlot());
                     title.setLegendItemGraphicPadding(new org.jfree.ui.RectangleInsets(0,8,0,4));
                     chart.addLegend(title);
                     }

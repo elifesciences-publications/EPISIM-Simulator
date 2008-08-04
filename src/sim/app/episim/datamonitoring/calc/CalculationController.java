@@ -1,6 +1,8 @@
 package sim.app.episim.datamonitoring.calc;
 
 
+import java.util.Map;
+
 import org.jfree.data.xy.XYSeries;
 import episiminterfaces.CalculationHandler;
 import sim.app.episim.*;
@@ -51,9 +53,66 @@ public class CalculationController {
 		oneCellCalculator.calculateOneCell(baseLineResult);
 	}
 	
-	public void registerForOneCellCalculation(CalculationHandler handler, XYSeries series){
-		oneCellCalculator.registerForOneCellCalculation(handler, series);
+	public void registerForOneCellCalculation(CalculationHandler handler, final XYSeries series){
+	
+		oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
+			
+			private int counter = 0;
+			private boolean firstCellEver = true;
+		
+			
+			public void addNewValue(Double key, Double value) {
+				series.add(key, value);	         
+         }
+
+			public void cellHasChanged() {
+				series.clear();
+				if(firstCellEver){
+					series.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
+					firstCellEver = false;
+					
+				}
+				else
+					series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
+				counter++;	         
+         }
+
+			public void restartSimulation() {
+	        counter = 0;	         
+         }			
+		});
 	}
+	
+	/*public void registerForOneCellCalculation(CalculationHandler handler, final Map<Double, Double> resultMap){
+		
+		oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
+			
+			private int counter = 0;
+			private boolean firstCellEver = true;
+		
+			
+			public void addNewValue(Double key, Double value) {
+				resultMap.put(key, value);	         
+         }
+
+			public void cellHasChanged() {
+				resultMap.clear();
+				if(firstCellEver){
+					resultMap.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
+					firstCellEver = false;
+					
+				}
+				else
+					series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
+				counter++;	         
+         }
+
+			public void restartSimulation() {
+	        counter = 0;	         
+         }			
+		});
+	}*/
+	
 	
 	public void resetChart(){
 		chartGradientCalculator = new GradientCalculator();

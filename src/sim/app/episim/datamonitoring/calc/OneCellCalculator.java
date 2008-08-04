@@ -1,16 +1,10 @@
 package sim.app.episim.datamonitoring.calc;
 
 import java.util.ArrayList;
-import java.util.Collection;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
-
-import org.jfree.data.xy.XYSeries;
-
 import sim.app.episim.CellType;
-import sim.app.episim.datamonitoring.GlobalStatistics;
-import sim.app.episim.util.Sorting;
 import episimexceptions.CellNotValidException;
 import episiminterfaces.*;
 
@@ -19,35 +13,35 @@ import episiminterfaces.*;
 public class OneCellCalculator extends AbstractCommonCalculator{
 	
 	private ArrayList<CalculationHandler> calculationHandlers;
-	private ArrayList<XYSeries> xySeries;
+	private ArrayList<OneCellTrackingDataManager<Double,Double>> dataManagers;
 	
 	
 	private Map<Integer, CellType> trackedCells;
 	private Map<Long, CellType> trackedCellsBaseLine;
-	private Map<Integer, Integer> cellCounters;
-	int seriesCounter = 0;
-	private int counterInit = 0;
+	
+	int dataManagerCounter = 0;
+	
 	protected OneCellCalculator(){
 		this.calculationHandlers = new ArrayList<CalculationHandler>();
-		this.xySeries = new ArrayList<XYSeries>();
+		this.dataManagers = new ArrayList<OneCellTrackingDataManager<Double,Double>>();
 		this.trackedCells = new HashMap<Integer, CellType>();
 		this.trackedCellsBaseLine = new HashMap<Long, CellType>();
-		this.cellCounters = new HashMap<Integer, Integer>();
+		
 	}
 	
 	public void restartSimulation(){
 		this.trackedCells.clear();
 		this.trackedCellsBaseLine.clear();
-		this.cellCounters.clear();
-		for(int i = 0; i < xySeries.size(); i++) this.cellCounters.put(i, counterInit);
+		
+		
 	}
 	
-	public void registerForOneCellCalculation(CalculationHandler handler, XYSeries series){
-		if(handler == null || series == null) throw new IllegalArgumentException("OneCellCalculator: CalculationHandler or XYSeries must not be null!");
+	public void registerForOneCellCalculation(CalculationHandler handler, OneCellTrackingDataManager<Double,Double> datamanager){
+		if(handler == null || datamanager == null) throw new IllegalArgumentException("OneCellCalculator: CalculationHandler or XYSeries must not be null!");
 		this.calculationHandlers.add(handler);
-		this.xySeries.add(series);
-		this.cellCounters.put(seriesCounter, counterInit);
-		seriesCounter++;
+		this.dataManagers.add(datamanager);
+		
+		dataManagerCounter++;
 	}
 	
 	
@@ -59,7 +53,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 				CellType actTrackedCell = null;
 				CellType newTrackedCell = null;
 				int counter = 0;
-				for(XYSeries actSeries: this.xySeries){
+				for(OneCellTrackingDataManager<Double,Double> actDataManager: this.dataManagers){
 					
 					if(newTrackedCell == null) newTrackedCell =getNewCellForTacking(this.calculationHandlers.get(counter));
 					if(newTrackedCell != null){
@@ -68,9 +62,9 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 							if(this.calculationHandlers.get(counter).getRequiredCellType() == null
 									|| this.calculationHandlers.get(counter).getRequiredCellType().isAssignableFrom(newTrackedCell.getClass())){
 								if(actTrackedCell != null) actTrackedCell.setTracked(false);
-								actSeries.clear();
-								actSeries.setKey(((String)actSeries.getKey()).substring(0, (" (Cell " + cellCounters.get(counter) +")").length()) + (" (Cell " + (cellCounters.get(counter) +1)+ ")"));
-								cellCounters.put(counter, (cellCounters.get(counter)+1));
+								
+								actDataManager.cellHasChanged();
+								
 								this.trackedCells.put(counter, newTrackedCell);
 								newTrackedCell.setTracked(true);
 							}
@@ -83,7 +77,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 			while(invalidCellFound);
 			
 	}
-	
+		
 	
 	private CellType getNewCellForTacking(CalculationHandler handler){
 		Class<? extends CellType> requiredClass = handler.getRequiredCellType();
@@ -174,7 +168,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 				CellType trackedCell = this.trackedCells.get(i);
 				if(trackedCell != null){
 					result = calculationHandlers.get(i).calculate(trackedCell);
-					this.xySeries.get(i).add(baseLineResult, result);
+					this.dataManagers.get(i).addNewValue(baseLineResult, result);
 				}
 			}
 			catch (CellNotValidException e){

@@ -11,7 +11,6 @@ import episiminterfaces.CalculationHandler;
 import episiminterfaces.EpisimCellDiffModel;
 import sim.app.episim.*;
 import sim.app.episim.datamonitoring.GlobalStatistics;
-import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Sorting;
 
 public class GradientCalculator extends AbstractCommonCalculator {
@@ -36,7 +35,6 @@ public class GradientCalculator extends AbstractCommonCalculator {
 		this.calculationHandlers.add(handler);
 		this.xySeries.add(series);
 		this.resultMaps.add(new HashMap<Double, Double>());
-		
 	}
 	
 	
@@ -53,11 +51,10 @@ public class GradientCalculator extends AbstractCommonCalculator {
 				for(int i = 0; i < calculationHandlers.size(); i++){
 					try{
 						result = calculationHandlers.get(i).calculate(actCell);
-						resultMaps.get(i).put(actCell.getEpisimCellDiffModelObject().getY(), 
-								result);
+						resultMaps.get(i).put(actCell.getEpisimCellDiffModelObject().getY(), result);
 					}
 					catch (CellNotValidException e){
-						//Exception is Ignores
+						//Exception is Ignored
 					}
 					
 				}

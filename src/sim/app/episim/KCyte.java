@@ -6,6 +6,7 @@ import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.util.GenericBag;
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
@@ -498,7 +499,7 @@ public class KCyte extends CellType
     {
      
    	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
-   	 setIsOuterCell(isSurfaceCell(realNeighbours));
+   	// setIsOuterCell(isSurfaceCell(realNeighbours));
    	 this.cellDiffModelObjekt.setX(thisloc.getX());
    	 this.cellDiffModelObjekt.setY(TissueBorder.getInstance().getHeight()- thisloc.getY());
    	 this.cellDiffModelObjekt.setIsMembrane(isMembraneCell());
@@ -508,7 +509,7 @@ public class KCyte extends CellType
    	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
    	 
    	 
-   	
+   	 //EpisimCellDiffModel[] realNeighbours = neighbours;
    	
    	   	  	 
    	 	makeChildren(this.cellDiffModelObjekt.oneStep(realNeighbours));
@@ -544,7 +545,8 @@ public class KCyte extends CellType
    	for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
     }
 
-    
+    static  long actNumberSteps = 0;
+  static  long deltaTime = 0;
 	public void step(SimState state) {
 
 		final Epidermis epiderm = (Epidermis) state;
@@ -564,7 +566,7 @@ public class KCyte extends CellType
 			// ////////////////////////////////////////////////
 			int ministep = 1;
 			int maxmini = 1;
-
+			
 			// Double2D rand = randomness(flock.random);
 			// Double2D mome = momentum();
 
@@ -675,17 +677,47 @@ public class KCyte extends CellType
 				setIsMembraneCell(true);
 			else
 				setIsMembraneCell(false); // ABSOLUTE DISTANZ KONSTANTE
-
 			
+		/*	EpisimCellDiffModel[] neighbours = new EpisimCellDiffModel[b.size()];
+			Object[] cytes = b.toArray();
+			for(int i=0; i < b.size(); i++){ 
+				if(cytes[i] instanceof CellType){
+					neighbours[i] = ((CellType) cytes[i]).getEpisimCellDiffModelObject();
+				}
+			}*/
 
+			long timeBefore = System.currentTimeMillis();
 			// ///////////////////////////////////////////////////////
 			// Differentiation: Calling the loaded Cell-Diff-Model
 			// //////////////////////////////////////////////////////
 
 			differentiate(b,epiderm.getCellContinous2D(), newLoc, hitResult2.nextToOuterCell, hitResult2.numhits != 0);
 			
+			long timeAfter = System.currentTimeMillis();
+	        //  	long actSteps = state.schedule.getSteps();
+			long deltaTimeTmp = timeAfter-timeBefore;
 			
-			
+			if(state.schedule.getSteps() > actNumberSteps){
+				actNumberSteps = state.schedule.getSteps();
+			    		
+		    		// if(this.follow && this.KeratinoAge <=2000){   		
+		   			  	
+				 if(deltaTime > 0){  
+				   try {
+		           BufferedWriter out = new BufferedWriter(new FileWriter("d:\\performance_neu.csv", true));
+		        //   out.write(NumberFormat.getInstance(Locale.GERMANY).format(actSteps)+ ";");
+		           out.write(NumberFormat.getInstance(Locale.GERMANY).format(deltaTime)+ ";");
+		      //     out.write(NumberFormat.getInstance(Locale.GERMANY).format(allCells.size())+ ";");
+		                   
+		           out.write("\n");
+		           out.flush();
+		           out.close();
+		            } catch (IOException e) {}
+				   
+				  }
+				 deltaTime = 0;
+			}
+			deltaTime +=deltaTimeTmp;			
 			
                  
 			}

@@ -2,7 +2,6 @@ package sim.app.episim.datamonitoring.calc;
 
 
 import java.util.Map;
-
 import org.jfree.data.xy.XYSeries;
 import episiminterfaces.CalculationHandler;
 import sim.app.episim.*;
@@ -69,8 +68,7 @@ public class CalculationController {
 				series.clear();
 				if(firstCellEver){
 					series.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
-					firstCellEver = false;
-					
+					firstCellEver = false;					
 				}
 				else
 					series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
@@ -83,7 +81,7 @@ public class CalculationController {
 		});
 	}
 	
-	/*public void registerForOneCellCalculation(CalculationHandler handler, final Map<Double, Double> resultMap){
+	public void registerForOneCellCalculation(CalculationHandler handler, final Map<Double, Double> resultMap){
 		
 		oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
 			
@@ -92,18 +90,19 @@ public class CalculationController {
 		
 			
 			public void addNewValue(Double key, Double value) {
+				
 				resultMap.put(key, value);	         
          }
 
 			public void cellHasChanged() {
 				resultMap.clear();
 				if(firstCellEver){
-					resultMap.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
+					//resultMap.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
 					firstCellEver = false;
 					
 				}
 				else
-					series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
+					//series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
 				counter++;	         
          }
 
@@ -111,7 +110,7 @@ public class CalculationController {
 	        counter = 0;	         
          }			
 		});
-	}*/
+	}
 	
 	
 	public void resetChart(){

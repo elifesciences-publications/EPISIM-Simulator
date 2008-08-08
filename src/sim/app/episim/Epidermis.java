@@ -34,12 +34,14 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.lowagie.text.*;  
@@ -762,8 +764,47 @@ private void seedStemCells(){
      };
      // Schedule the agent to update is Outer Flag
      
-    // schedule.scheduleRepeating(airSurface, 1);
+     schedule.scheduleRepeating(airSurface, 1);
      
+     Steppable chartUpdaterPerformance = new Steppable()
+     {
+         private long previousTime = 0;
+         private long previousSteps = 0;
+    	  
+    	  public void step(SimState state)
+          {   
+          	long actTime = System.currentTimeMillis()/100;
+          	long actSteps = state.schedule.getSteps();
+    		   long deltaTime = actTime - previousTime;
+    		   long deltaSteps = actSteps - previousSteps;
+    		   
+    		   
+    		  if(deltaTime>0) { 
+    			  	previousTime = actTime;
+      		   	previousSteps = actSteps;
+      		   	double stepsPerTime = 0;
+    			  stepsPerTime = deltaSteps/deltaTime;
+    		  // if(state.schedule.getSteps() > 400)
+        //  	Steps_Time.add(state.schedule.getSteps(), stepsPerTime);
+    		//   Num_Cells_Steps.add(state.schedule.getSteps(), actualKCytes);
+             
+    		   
+    		   try {
+                BufferedWriter out = new BufferedWriter(new FileWriter("d:\\performance_neu.csv", true));
+                out.write(NumberFormat.getInstance(Locale.GERMANY).format(actSteps)+ ";");
+                out.write(NumberFormat.getInstance(Locale.GERMANY).format(stepsPerTime)+ ";");
+                out.write(NumberFormat.getInstance(Locale.GERMANY).format(allCells.size())+ ";");
+                        
+                out.write("\n");
+                out.close();
+                 } catch (IOException e) {}
+    		   
+    		  }
+              
+          }
+      };
+      // Schedule the agent to update the chart
+    //  schedule.scheduleRepeating(chartUpdaterPerformance, 10);
 
 
 	 	//////////////////////////////////////

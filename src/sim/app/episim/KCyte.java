@@ -494,8 +494,9 @@ public class KCyte extends CellType
    	 }
    	 return false;
     }
-    
-    public void differentiate(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean nextToOuterCell, boolean hasCollision)
+    static  long actNumberSteps = 0;
+    static  long deltaTime = 0;
+    public void differentiate(SimState state, Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean nextToOuterCell, boolean hasCollision)
     {
      
    	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
@@ -509,10 +510,44 @@ public class KCyte extends CellType
    	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
    	 
    	 
-   	 //EpisimCellDiffModel[] realNeighbours = neighbours;
+   	 
    	
    	   	  	 
-   	 	makeChildren(this.cellDiffModelObjekt.oneStep(realNeighbours));
+   	 long timeBefore = System.currentTimeMillis();
+		
+   	 EpisimCellDiffModel[] children = this.cellDiffModelObjekt.oneStep(realNeighbours);
+			long timeAfter = System.currentTimeMillis();
+	        //  	long actSteps = state.schedule.getSteps();
+			long deltaTimeTmp = timeAfter-timeBefore;
+			
+			if(state.schedule.getSteps() > actNumberSteps){
+				actNumberSteps = state.schedule.getSteps();
+			    		
+		    		// if(this.follow && this.KeratinoAge <=2000){   		
+		   			  	
+				 if(deltaTime > 0){  
+				   try {
+		           BufferedWriter out = new BufferedWriter(new FileWriter("d:\\performance_neu.csv", true));
+		        //   out.write(NumberFormat.getInstance(Locale.GERMANY).format(actSteps)+ ";");
+		           out.write(NumberFormat.getInstance(Locale.GERMANY).format(deltaTime)+ ";");
+		      //     out.write(NumberFormat.getInstance(Locale.GERMANY).format(allCells.size())+ ";");
+		                   
+		           out.write("\n");
+		           out.flush();
+		           out.close();
+		            } catch (IOException e) {}
+				   
+				  }
+				 deltaTime = 0;
+			}
+			deltaTime +=deltaTimeTmp;		
+   	 
+   	 makeChildren(children);
+   	 	
+   	 	
+   	 	
+   	 	
+   	 	
    	 	if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.GRANUCELL){
    	 		setKeratinoWidth(getGKeratinoWidthGranu());
    			setKeratinoHeight(getGKeratinoHeightGranu());
@@ -545,8 +580,8 @@ public class KCyte extends CellType
    	for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
     }
 
-    static  long actNumberSteps = 0;
-  static  long deltaTime = 0;
+//    static  long actNumberSteps = 0;
+ // static  long deltaTime = 0;
 	public void step(SimState state) {
 
 		final Epidermis epiderm = (Epidermis) state;
@@ -686,14 +721,14 @@ public class KCyte extends CellType
 				}
 			}*/
 
-			long timeBefore = System.currentTimeMillis();
+		//	long timeBefore = System.currentTimeMillis();
 			// ///////////////////////////////////////////////////////
 			// Differentiation: Calling the loaded Cell-Diff-Model
 			// //////////////////////////////////////////////////////
 
-			differentiate(b,epiderm.getCellContinous2D(), newLoc, hitResult2.nextToOuterCell, hitResult2.numhits != 0);
+			differentiate(state, b,epiderm.getCellContinous2D(), newLoc, hitResult2.nextToOuterCell, hitResult2.numhits != 0);
 			
-			long timeAfter = System.currentTimeMillis();
+/*			long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
 			long deltaTimeTmp = timeAfter-timeBefore;
 			
@@ -717,7 +752,7 @@ public class KCyte extends CellType
 				  }
 				 deltaTime = 0;
 			}
-			deltaTime +=deltaTimeTmp;			
+			deltaTime +=deltaTimeTmp;		*/	
 			
                  
 			}

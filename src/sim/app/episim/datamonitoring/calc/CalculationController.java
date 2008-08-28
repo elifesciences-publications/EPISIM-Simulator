@@ -52,6 +52,10 @@ public class CalculationController {
 		oneCellCalculator.calculateOneCell(baseLineResult);
 	}
 	
+	public void calculateOneCell(){
+		oneCellCalculator.calculateOneCell();
+	}
+	
 	public void registerForOneCellCalculation(CalculationHandler handler, final XYSeries series){
 	
 		oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){

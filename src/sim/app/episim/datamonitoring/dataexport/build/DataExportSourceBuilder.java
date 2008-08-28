@@ -1,9 +1,15 @@
 package sim.app.episim.datamonitoring.dataexport.build;
 
 
+import java.io.File;
+import java.net.MalformedURLException;
+
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory;
 import sim.app.episim.util.Names;
+import episiminterfaces.EpisimChartSeries;
+import episiminterfaces.EpisimDataExportColumn;
 import episiminterfaces.EpisimDataExportDefinition;
 
 
@@ -29,6 +35,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		appendStandardMethods();
 		appendRegisterObjectsMethod(episimDataExportDefinition.getRequiredClasses());
 		appendEnd();
+		System.out.println(generatedSourceCode.toString());
 		return generatedSourceCode.toString();
 	}
 	
@@ -43,6 +50,11 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		generatedSourceCode.append("import sim.app.episim.util.GenericBag;\n");
 		generatedSourceCode.append("import sim.app.episim.CellType;\n");
 		generatedSourceCode.append("import sim.field.continuous.*;\n");
+		generatedSourceCode.append("import sim.app.episim.datamonitoring.calc.*;\n");
+		generatedSourceCode.append("import sim.app.episim.datamonitoring.dataexport.ObservedHashMap;\n");
+		generatedSourceCode.append("import sim.engine.SimState;\n");
+		generatedSourceCode.append("import sim.app.episim.datamonitoring.dataexport.io.*;\n");
+		generatedSourceCode.append("import java.io.*;\n");
 		for(Class<?> actClass: this.actDataExportDefinition.getRequiredClasses()){
 			generatedSourceCode.append("import " + actClass.getCanonicalName()+";\n");	
 		}
@@ -57,7 +69,12 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		   super.appendDataFields();
 		   generatedSourceCode.append("  private Continuous2D cellContinuous;\n");
 		   generatedSourceCode.append("  private GenericBag<CellType> allCells;\n");
-		 
+		   generatedSourceCode.append("  private DataExportCSVWriter dataExportCSVWriter;\n");
+		   
+		   for(EpisimDataExportColumn actColumn: this.actDataExportDefinition.getEpisimDataExportColumns()){
+		   	generatedSourceCode.append("  private ObservedHashMap<Double, Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
+		   			" = new ObservedHashMap<Double, Double>();\n");
+		   }
 		  
 		   for(Class<?> actClass : this.actDataExportDefinition.getRequiredClasses())
 				this.generatedSourceCode.append("  private "+ Names.convertVariableToClass(actClass.getSimpleName())+ " "
@@ -67,20 +84,44 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	private void appendConstructor(){
 		generatedSourceCode.append("public " +Names.convertVariableToClass(Names.cleanString(this.actDataExportDefinition.getName())+ this.actDataExportDefinition.getId())+"(){\n");
 		
+		
+	      generatedSourceCode.append("  dataExportCSVWriter = new DataExportCSVWriter(new File(\""+ this.actDataExportDefinition.getCSVFilePath().getPath().replace(File.separatorChar, '/')+"\"), \""+ getColumnNamesString()+"\");\n");
+   
+		
 		appendHandlerRegistration();			
 		appendSteppable();
+		appendDataMapsRegistration();
 		
 		generatedSourceCode.append("}\n");
 	}
 	
+	private String getColumnNamesString(){
+		String result = "";
+		for(EpisimDataExportColumn actColumn : this.actDataExportDefinition.getEpisimDataExportColumns()){
+			result = result.concat(actColumn.getName());
+			result = result.concat(";");
+		}
+		result = result.concat("\\n");
+		
+		return result;
+	}
 	
 	private void appendSteppable(){
 		
-		//generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforChart(actChart)+";\n");
+		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforDataExport(actDataExportDefinition)+";\n");
+		System.out.println(SteppableCodeFactory.getEnhancedSteppableSourceCodeforDataExport(actDataExportDefinition));
 	}
 	
 	private void appendHandlerRegistration(){
-	//	SteppableCodeFactory.appendGradientCalucationHandlerRegistration(actChart, generatedSourceCode);
+		SteppableCodeFactory.appendCalucationHandlerRegistration(actDataExportDefinition, generatedSourceCode);
+	}
+	
+	private void appendDataMapsRegistration(){
+		for(EpisimDataExportColumn actColumn : this.actDataExportDefinition.getEpisimDataExportColumns()){
+			generatedSourceCode.append("dataExportCSVWriter.registerObservedHashMap(" + actColumn.getId()+"l, "+
+					Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+");\n");
+		}
+		
 	}
 	
 	

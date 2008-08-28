@@ -14,6 +14,7 @@ import java.util.jar.Attributes;
 import org.jfree.chart.ChartPanel;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractChartSetFactory;
@@ -23,6 +24,7 @@ import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimChartSet;
 import episiminterfaces.EpisimDataExportDefinition;
 import episiminterfaces.EpisimDataExportDefinitionSet;
+import episiminterfaces.GeneratedDataExport;
 
 public class EDEFileReader{
 
@@ -89,6 +91,16 @@ public class EDEFileReader{
 		}
 
 		return null;
+	}
+	
+	public AbstractDataExportFactory getDataExportFactory(){ return this.factory;}
+	
+	public List<GeneratedDataExport> getDataExports(){
+		return this.factory.getDataExports();
+	}
+	
+	public List<EnhancedSteppable> getDataExportSteppables(){
+		return this.factory.getSteppablesOfDataExports();
 	}
 
 	private String getClassName(Attributes.Name attrName) throws IOException {

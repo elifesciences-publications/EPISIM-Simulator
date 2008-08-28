@@ -1,11 +1,14 @@
 package sim.app.episim.datamonitoring.dataexport.build;
 
 
+import java.util.List;
+
 import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimDataExportDefinitionSet;
+import episiminterfaces.GeneratedDataExport;
 
 import episiminterfaces.EpisimDataExportDefinition;
 
@@ -34,6 +37,7 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 		appendConstructor();
 		appendRegisterMethod();
 		appendCheckForMissingObjectsMethod();
+		appendGetGeneratedDataExportsMethod();
 		appendGetSteppableOfDataExportMethod();
 		appendRegisterRequiredObjectsMethod();
 		appendEnd();
@@ -80,7 +84,11 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 		this.factorySource.append("}\n");
 	}
 	
-	
+	private void appendGetGeneratedDataExportsMethod(){
+		this.factorySource.append("public List<GeneratedDataExport> getDataExports(){\n");
+		this.factorySource.append("  return allDataExports;\n");
+		this.factorySource.append("}\n");
+	}
 	private void appendRegisterRequiredObjectsMethod(){
 		this.factorySource.append("private void registerRequiredObjects(){\n");
 		for(EpisimDataExportDefinition actdataExportDefinition: actdataExportDefinitionSet.getEpisimDataExportDefinitions()){

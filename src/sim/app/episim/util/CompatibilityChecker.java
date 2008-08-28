@@ -66,7 +66,7 @@ public class CompatibilityChecker {
 		
 		checkForCompatibility(actTissue.getClass());
 		
-		for(Class<? extends CellType> actCellTypeClass: actTissue.getRegiseredCellTypes()){
+		for(Class<? extends CellType> actCellTypeClass: actTissue.getRegisteredCellTypes()){
 			checkForCompatibility(actCellTypeClass);
 		}
 	}

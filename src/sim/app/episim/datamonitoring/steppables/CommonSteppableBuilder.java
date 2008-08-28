@@ -6,6 +6,8 @@ import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimChart;
 import episiminterfaces.EpisimChartSeries;
+import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.EpisimDataExportColumn;
 
 
 public class CommonSteppableBuilder {
@@ -90,6 +92,24 @@ public class CommonSteppableBuilder {
 				source.append("CalculationController.getInstance().registerForOneCellCalculation(");
 				source.append(actSeries.getExpression()[1].substring(Names.BUILDCELLHANDLER.length())+", ");
 				source.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+");\n");
+			}
+		}
+	}
+	
+	public void appendCalucationHandlerRegistration(EpisimDataExportDefinition dataExportDef, StringBuffer source){
+		
+		for(EpisimDataExportColumn actColumn: dataExportDef.getEpisimDataExportColumns()){
+			if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)) {
+				
+				//TODO: diese Zeile noch für DatenExport anpassen
+				source.append("CalculationController.getInstance().registerForChartCalculationGradient(");
+				source.append(actColumn.getCalculationExpression()[1].substring(Names.BUILDGRADIENTHANDLER.length())+", ");
+				source.append(Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+");\n");
+			}
+			if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDCELLHANDLER)) {
+				source.append("CalculationController.getInstance().registerForOneCellCalculation(");
+				source.append(actColumn.getCalculationExpression()[1].substring(Names.BUILDCELLHANDLER.length())+", ");
+				source.append(Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+");\n");
 			}
 		}
 	}

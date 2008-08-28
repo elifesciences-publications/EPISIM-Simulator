@@ -46,13 +46,11 @@ public class ObservedHashMap<K,V> implements Map<K,V>{
    }
 
 	public boolean isEmpty() {
-
-	   
+  
 	   return map.isEmpty();
    }
 
 	public Set<K> keySet() {
-
 	  
 	   return map.keySet();
    }
@@ -94,6 +92,10 @@ public class ObservedHashMap<K,V> implements Map<K,V>{
 	   return map.values();
    }
 	
+	
+	public void addValueMapListener(ValueMapListener<K,V> valueMapListener){
+		this.valueMapListenerSet.add(valueMapListener);
+	}
 	
 	private void notifyAllListeners(ListenerAction<K,V> listenerAction){
 		for(ValueMapListener<K,V> valueMapListener: valueMapListenerSet) listenerAction.performListenerAction(valueMapListener);

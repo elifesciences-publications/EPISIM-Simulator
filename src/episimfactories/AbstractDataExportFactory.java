@@ -6,6 +6,8 @@ import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.util.List;
 
+import org.jfree.chart.ChartPanel;
+
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.EnhancedSteppable;
@@ -18,6 +20,7 @@ import episimexceptions.ModelCompatibilityException;
 
 import episiminterfaces.EpisimDataExportDefinition;
 import episiminterfaces.EpisimDataExportDefinitionSet;
+import episiminterfaces.GeneratedDataExport;
 
 
 public abstract class AbstractDataExportFactory {
@@ -61,6 +64,8 @@ public abstract class AbstractDataExportFactory {
 		return Names.EPISIMDATAEXPORTFILENAME;
 	}
    public abstract List<EnhancedSteppable> getSteppablesOfDataExports();
+   
+   public abstract List<GeneratedDataExport> getDataExports();
    
    public abstract void registerNecessaryObjects(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
 }

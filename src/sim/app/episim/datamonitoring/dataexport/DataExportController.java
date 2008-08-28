@@ -17,6 +17,8 @@ import sim.app.episim.ExceptionDisplayer;
 
 
 import sim.app.episim.datamonitoring.calc.CalculationController;
+import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
+import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileReader;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileWriter;
 
@@ -161,6 +163,12 @@ public class DataExportController {
 	}
 	
 	
+	public void registerDataExportChangeListener(DataExportChangeListener changeListener){
+		DataExportSteppableServer.getInstance().registerDataExportChangeListener(changeListener);
+		closeActLoadedChartSet();
+	}
+	
+	
 	protected void storeDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportSet){
 		EDEFileWriter fileWriter = new EDEFileWriter(dataExportSet.getPath());
 		fileWriter.createDataExportDefinitionSetArchive(dataExportSet);
@@ -181,7 +189,7 @@ public class DataExportController {
 			CalculationController.getInstance().resetDataExport();
 			EDEFileReader edeReader = new EDEFileReader(url);
 			this.actLoadedDataExportSet = edeReader.getEpisimDataExportDefinitionSet();
-			
+			DataExportSteppableServer.getInstance().registerCustomDataExportSteppables(edeReader.getDataExports(), edeReader.getDataExportSteppables(), edeReader.getDataExportFactory());
 			CompatibilityChecker checker = new CompatibilityChecker();
 			checker.checkEpisimDataExportDefinitionSetForCompatibility(actLoadedDataExportSet, this.dataExportMonitoredTissue);
 			return true;

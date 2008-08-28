@@ -26,14 +26,11 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 		this.dataManagers = new ArrayList<OneCellTrackingDataManager<Double,Double>>();
 		this.trackedCells = new HashMap<Integer, CellType>();
 		this.trackedCellsBaseLine = new HashMap<Long, CellType>();
-		
 	}
 	
 	public void restartSimulation(){
 		this.trackedCells.clear();
-		this.trackedCellsBaseLine.clear();
-		
-		
+		this.trackedCellsBaseLine.clear();		
 	}
 	
 	public void registerForOneCellCalculation(CalculationHandler handler, OneCellTrackingDataManager<Double,Double> datamanager){
@@ -70,7 +67,6 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 							}
 						}
 					}
-						
 					counter++;
 				}
 			}
@@ -113,7 +109,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 	
 	
 	
-	private CellType findValidSeriesTrackedCellForBaseLine(CalculationHandler handler){
+	private CellType findValidTrackedCellForCalculationHandler(CalculationHandler handler){
 		if(handler != null){
 			for(CellType actCell: this.trackedCells.values()){
 			
@@ -139,10 +135,9 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 			foundCell.setTracked(false);
 			foundCell = null;
 		}
-		if(foundCell == null) foundCell = findValidSeriesTrackedCellForBaseLine(handler);
+		if(foundCell == null) foundCell = findValidTrackedCellForCalculationHandler(handler);
 		if(foundCell == null) foundCell = getNewCellForTacking(handler);
 		try{
-			
 			if(foundCell != null){
 				this.trackedCellsBaseLine.put(chartId, foundCell);
 				return handler.calculate(foundCell);
@@ -168,14 +163,19 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 				CellType trackedCell = this.trackedCells.get(i);
 				if(trackedCell != null){
 					result = calculationHandlers.get(i).calculate(trackedCell);
-					this.dataManagers.get(i).addNewValue(baseLineResult, result);
+					if(baseLineResult != Double.NEGATIVE_INFINITY)this.dataManagers.get(i).addNewValue(baseLineResult, result);
+					else this.dataManagers.get(i).addNewValue(((double)i), result);
 				}
 			}
 			catch (CellNotValidException e){
-				//Exception is Ignores
+				System.out.println("This exception should never occur: " + e.getClass().toString() + " - "+ e.getMessage());
 			}
 			
 		}
+	}
+	
+	public void calculateOneCell(){
+		calculateOneCell(Double.NEGATIVE_INFINITY);
 	}
 		
 		

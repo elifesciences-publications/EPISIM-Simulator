@@ -78,7 +78,7 @@ public class TissueCellDataFieldsInspector {
 	
 	private void buildCellTypesMap(){
 		this.cellTypesMap = new HashMap<String, CellType>();
-		for(Class<?extends CellType> actCellType : this.inspectedTissue.getRegiseredCellTypes()){
+		for(Class<?extends CellType> actCellType : this.inspectedTissue.getRegisteredCellTypes()){
 			try{
 	        CellType cellType =  actCellType.newInstance();
 	        cellTypesMap.put(cellType.getCellName(), cellType);

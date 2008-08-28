@@ -186,7 +186,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	}
 	
 	private void appendHandlerRegistration(){
-		SteppableCodeFactory.appendGradientCalucationHandlerRegistration(actChart, generatedSourceCode);
+		SteppableCodeFactory.appendCalucationHandlerRegistration(actChart, generatedSourceCode);
 	}
 
 }

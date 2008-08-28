@@ -6,11 +6,12 @@ import java.util.List;
 
 import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
+import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
 import sim.engine.Schedule;
 import sim.engine.SimStateHack;
 
 
-public abstract class TissueType extends SimStateHack implements java.io.Serializable, ChartSetChangeListener{
+public abstract class TissueType extends SimStateHack implements java.io.Serializable, ChartSetChangeListener, DataExportChangeListener{
 	
 	private List<Class<? extends CellType>> registeredCellTypes;
 	
@@ -24,7 +25,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	
 	public abstract List<Method> getParameters();
 	
-	public List <Class<? extends CellType>> getRegiseredCellTypes(){
+	public List <Class<? extends CellType>> getRegisteredCellTypes(){
 		return this.registeredCellTypes;
 	}
 	

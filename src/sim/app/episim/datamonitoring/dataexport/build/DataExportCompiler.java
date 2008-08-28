@@ -51,7 +51,9 @@ public class DataExportCompiler extends AbstractCommonCompiler {
       }
 		javaFiles = buildDataExportJavaFiles(dataExportDefinitionSet);
 		javaFiles.add(buildFactoryJavaFile(dataExportDefinitionSet));
-		javaFiles =compileJavaFiles(javaFiles,"");
+		javaFiles =compileJavaFiles(javaFiles, libPath.getAbsolutePath()+System.getProperty("file.separator")+"jcommon-1.0.12.jar"+";"
+				+libPath.getAbsolutePath()+System.getProperty("file.separator")+"jfreechart-1.0.9.jar"+";"
+				+libPath.getAbsolutePath()+System.getProperty("file.separator")+"jfreechart-1.0.9-experimental.jar"+";");
 		
 		for(File actFile:javaFiles){
 			if(actFile.getName().startsWith(Names.EPISIMDATAEXPORTFACTORYNAME)){

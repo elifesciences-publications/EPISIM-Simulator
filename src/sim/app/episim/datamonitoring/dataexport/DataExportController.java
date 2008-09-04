@@ -6,17 +6,20 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 
 import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 
 
 
 import sim.app.episim.datamonitoring.calc.CalculationController;
+import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileReader;
@@ -25,8 +28,12 @@ import sim.app.episim.datamonitoring.dataexport.io.EDEFileWriter;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.CompatibilityChecker;
+import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
+import sim.field.continuous.Continuous2D;
 
+import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimDataExportDefinition;
 import episiminterfaces.EpisimDataExportDefinitionSet;
@@ -163,9 +170,13 @@ public class DataExportController {
 	}
 	
 	
+	public List<EnhancedSteppable> getDataExportSteppablesOfActLoadedChartSet(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+		return DataExportSteppableServer.getInstance().getDataExportSteppables(allCells, continuous, objects );
+	}
+	
 	public void registerDataExportChangeListener(DataExportChangeListener changeListener){
 		DataExportSteppableServer.getInstance().registerDataExportChangeListener(changeListener);
-		closeActLoadedChartSet();
+		closeActLoadedDataExportDefinitonSet();
 	}
 	
 	
@@ -173,7 +184,9 @@ public class DataExportController {
 		EDEFileWriter fileWriter = new EDEFileWriter(dataExportSet.getPath());
 		fileWriter.createDataExportDefinitionSetArchive(dataExportSet);
 		try{
+			
 	      loadDataExportDefinitionSet(new File(dataExportSet.getPath().getAbsolutePath()).toURI().toURL());
+	     // if(ChartController.getInstance().isAlreadyChartSetLoaded()) ChartController.getInstance().reloadCurrentlyLoadedChartSet();
       }
       catch (MalformedURLException e){
 	      ExceptionDisplayer.getInstance().displayException(e);
@@ -201,6 +214,10 @@ public class DataExportController {
 		return false;
 	}
 	
+	public void newSimulationRun(){
+		CalculationController.getInstance().restartSimulation();
+		DataExportSteppableServer.getInstance().newSimulationRun();
+	}
 	
 	
 	public void closeActLoadedDataExportDefinitonSet(){

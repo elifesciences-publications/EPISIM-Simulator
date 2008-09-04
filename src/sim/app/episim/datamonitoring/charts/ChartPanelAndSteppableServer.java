@@ -1,8 +1,9 @@
 package sim.app.episim.datamonitoring.charts;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jfree.chart.ChartPanel;
 
@@ -20,7 +21,7 @@ import sim.field.continuous.Continuous2D;
 
 public class ChartPanelAndSteppableServer {
 	
-	private ArrayList<ChartSetChangeListener> listeners;
+	private Set<ChartSetChangeListener> listeners;
 	private List<ChartPanel> customChartPanels;
 	private List<ChartPanel> defaultChartPanels;
 	private List<EnhancedSteppable> customSteppables;
@@ -28,7 +29,7 @@ public class ChartPanelAndSteppableServer {
 	private static ChartPanelAndSteppableServer instance = null;
 	private AbstractChartSetFactory factory = null;
 	private ChartPanelAndSteppableServer(){
-		listeners = new ArrayList<ChartSetChangeListener>();
+		listeners = new HashSet<ChartSetChangeListener>();
 	}
 	
 	protected static synchronized ChartPanelAndSteppableServer getInstance(){
@@ -75,8 +76,8 @@ public class ChartPanelAndSteppableServer {
 		return allSteppables;
 	}
 	
-	public void registerChartSetChangeListener(ChartSetChangeListener listener){
-		listeners.add(listener);
+	public boolean registerChartSetChangeListener(ChartSetChangeListener listener){
+		return listeners.add(listener);
 	}
 	
 	public void removeAllListeners(){

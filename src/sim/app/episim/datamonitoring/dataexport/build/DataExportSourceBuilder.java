@@ -33,9 +33,10 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		appendDataFields();
 		appendConstructor();
 		appendStandardMethods();
+		appendNewSimulationRun();
 		appendRegisterObjectsMethod(episimDataExportDefinition.getRequiredClasses());
 		appendEnd();
-		System.out.println(generatedSourceCode.toString());
+		
 		return generatedSourceCode.toString();
 	}
 	
@@ -106,10 +107,16 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		return result;
 	}
 	
+	private void appendNewSimulationRun(){
+		generatedSourceCode.append("public void newSimulationRun(){\n");
+		generatedSourceCode.append("   dataExportCSVWriter.newSimulationRun();\n");
+		generatedSourceCode.append("}\n");
+	}
+	
 	private void appendSteppable(){
 		
 		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforDataExport(actDataExportDefinition)+";\n");
-		System.out.println(SteppableCodeFactory.getEnhancedSteppableSourceCodeforDataExport(actDataExportDefinition));
+	
 	}
 	
 	private void appendHandlerRegistration(){

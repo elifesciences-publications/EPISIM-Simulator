@@ -78,7 +78,10 @@ public class ChartController {
 	}
 		
 	public synchronized static ChartController getInstance(){
-		if(instance == null) instance = new ChartController();
+		if(instance == null){ 
+			
+			instance = new ChartController();
+		}
 		
 		return instance;
 	}
@@ -116,8 +119,8 @@ public class ChartController {
 	}
 	
 	public void registerChartSetChangeListener(ChartSetChangeListener changeListener){
-		ChartPanelAndSteppableServer.getInstance().registerChartSetChangeListener(changeListener);
-		closeActLoadedChartSet();
+		System.out.println("New CharSetChangeListener?"+ ChartPanelAndSteppableServer.getInstance().registerChartSetChangeListener(changeListener));
+		//closeActLoadedChartSet();
 	}
 	
 	public void activateDefaultChart(String name){
@@ -148,7 +151,7 @@ public class ChartController {
 		if(this.chartMonitoredTissue != null){ 
 			
 			EpisimChartSet updatedChartSet =dialog.showChartSet(actLoadedChartSet);
-			if(updatedChartSet != null){ 
+			if(updatedChartSet != null){
 				this.actLoadedChartSet = updatedChartSet;
 				
 			}
@@ -172,6 +175,16 @@ public class ChartController {
 		fileWriter.createChartSetArchive(chartSet);
 		try{
 	      loadEpisimChartSet(new File(chartSet.getPath().getAbsolutePath()).toURI().toURL());
+      }
+      catch (MalformedURLException e){
+	      ExceptionDisplayer.getInstance().displayException(e);
+      }
+	}
+	
+	public void reloadCurrentlyLoadedChartSet(){
+	
+		try{
+	      loadEpisimChartSet(new File(this.actLoadedChartSet.getPath().getAbsolutePath()).toURI().toURL());
       }
       catch (MalformedURLException e){
 	      ExceptionDisplayer.getInstance().displayException(e);
@@ -222,6 +235,7 @@ public class ChartController {
 	}
 	
 	public void closeActLoadedChartSet(){
+		System.out.println("closeActLoadedChartSet was called...");
 		this.actLoadedChartSet = null;
 	}
 	

@@ -473,6 +473,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		if(success){
 			
 			setSnapshotPath(snapshotPath);
+			System.out.println("Already Chart Set Loaded: " + ChartController.getInstance().isAlreadyChartSetLoaded());
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
 			epiUI = new EpidermisGUIState(this);
@@ -609,10 +610,21 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		dataExportMenu.setEnabled(false);
 		ChartController.getInstance().modelWasClosed();
 		DataExportController.getInstance().modelWasClosed();
+		
+		
+		//Menu-Items ChartSet
 		this.menuItemEditChartSet.setEnabled(false);
 		this.menuItemLoadChartSet.setEnabled(true);
 		this.menuItemCloseChartSet.setEnabled(false);
 		this.menuItemNewChartSet.setEnabled(true);
+		
+		//Menu-Items DataExport
+		this.menuItemEditDataExport.setEnabled(false);
+		this.menuItemLoadDataExport.setEnabled(true);
+		this.menuItemCloseDataExport.setEnabled(false);
+		this.menuItemNewDataExport.setEnabled(true);
+		
+		
 		GlobalClassLoader.getInstance().destroyClassLoader();
 		SnapshotWriter.getInstance().clearListeners();
 		SnapshotWriter.getInstance().resetCounter();

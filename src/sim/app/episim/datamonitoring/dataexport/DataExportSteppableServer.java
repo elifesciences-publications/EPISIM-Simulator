@@ -1,8 +1,9 @@
 package sim.app.episim.datamonitoring.dataexport;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jfree.chart.ChartPanel;
 
@@ -23,13 +24,13 @@ import episiminterfaces.GeneratedDataExport;
 
 public class DataExportSteppableServer {
 	
-	private ArrayList<DataExportChangeListener> listeners;
+	private Set<DataExportChangeListener> listeners;
 	private List<GeneratedDataExport> customDataExportDefinitions;
 	private List<EnhancedSteppable> customSteppables;
 	private static DataExportSteppableServer instance = null;
 	private AbstractDataExportFactory factory = null;
 	private DataExportSteppableServer(){
-		listeners = new ArrayList<DataExportChangeListener>();
+		listeners = new HashSet<DataExportChangeListener>();
 	}
 	
 	protected static synchronized DataExportSteppableServer getInstance(){
@@ -70,17 +71,17 @@ public class DataExportSteppableServer {
 		this.listeners.clear();
 	}
 	
-	public void clearAllSeries(){
-		DefaultCharts.getInstance().clearSeries();
-		if(this.customChartPanels != null){
-			for(ChartPanel pan: this.customChartPanels){
-				if(pan.getChart() instanceof GeneratedChart) ((GeneratedChart) pan.getChart()).clearAllSeries();
+	public void newSimulationRun(){
+		
+		if(this.customDataExportDefinitions != null){
+			for(GeneratedDataExport dataExport: this.customDataExportDefinitions){
+				dataExport.newSimulationRun();
 			}
 		}
 	}
 	
 	private void notifyListeners(){
-		for(ChartSetChangeListener actListener : this.listeners) actListener.chartSetHasChanged();
+		for(DataExportChangeListener actListener : this.listeners) actListener.dataExportHasChanged();
 	}
 
 }

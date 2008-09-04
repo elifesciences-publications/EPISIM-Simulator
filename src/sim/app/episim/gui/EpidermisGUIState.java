@@ -8,6 +8,7 @@ import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
+
 import sim.app.episim.devBasalLayer.BasementMembranePortrayal2DDev;
 import sim.app.episim.devBasalLayer.EpidermisDev;
 import sim.app.episim.model.BioChemicalModelController;
@@ -636,6 +637,8 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	   arrangeElements(desktop);
 	   registerInternalFrames(desktop, console);
    }
+
+	
 	
 
 }

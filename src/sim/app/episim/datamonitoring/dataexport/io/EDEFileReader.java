@@ -1,28 +1,16 @@
 package sim.app.episim.datamonitoring.dataexport.io;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.jar.Attributes;
-
-import org.jfree.chart.ChartPanel;
-
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.ModelCompatibilityException;
-import episimfactories.AbstractChartSetFactory;
 import episimfactories.AbstractDataExportFactory;
-import episimfactories.AbstractEpisimCellDiffModelFactory;
-import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimChartSet;
-import episiminterfaces.EpisimDataExportDefinition;
 import episiminterfaces.EpisimDataExportDefinitionSet;
 import episiminterfaces.GeneratedDataExport;
 

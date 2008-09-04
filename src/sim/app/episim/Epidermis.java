@@ -124,6 +124,8 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 	
 	private List<EnhancedSteppable> chartSteppables = null;
 	
+	private List<EnhancedSteppable> dataExportSteppables = null;
+	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	 
@@ -142,6 +144,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
      ChartController.getInstance().setChartMonitoredTissue(this);
      DataExportController.getInstance().setDataExportMonitoredTissue(this);
      ChartController.getInstance().registerChartSetChangeListener(this);
+     DataExportController.getInstance().registerDataExportChangeListener(this);
   	// set up the C2dHerd field. It looks like a discretization
 		// of about neighborhood / 1.5 is close to optimal for us. Hmph,
 		// that's 16 hash lookups! I would have guessed that
@@ -289,6 +292,13 @@ private void seedStemCells(){
 			   }
 			}
 			
+
+			if(this.dataExportSteppables != null){
+				for(EnhancedSteppable steppable: this.dataExportSteppables){
+			   	schedule.scheduleRepeating(steppable, steppable.getInterval());
+			   }
+			}
+			
 			GlobalStatistics.getInstance().reset();
 			EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(this.allCells);
 			schedule.scheduleRepeating(globalStatisticsSteppable, globalStatisticsSteppable.getInterval());
@@ -305,6 +315,7 @@ private void seedStemCells(){
 			gStatistics_Barrier_Lipids = 0;
 			
 			ChartController.getInstance().clearAllSeries();
+			DataExportController.getInstance().newSimulationRun();
 /*
 			epiSimCharts.getXYSeries("ChartSeries_Kinetics_MeanCycleTime").clear(); // remove
 																											// previous
@@ -1026,6 +1037,23 @@ private void seedStemCells(){
 		
 		
 	}
+
+
+
+	public void dataExportHasChanged() {
+
+	   try{
+	      this.dataExportSteppables = DataExportController.getInstance().getDataExportSteppablesOfActLoadedChartSet(getAllCells(), getBasementContinous2D(), new Object[]{
+	         	this.biochemModelContr.getEpisimCellDiffModelGlobalParameters(), 
+	         	this.biomechModelContr.getEpisimMechanicalModelGlobalParameters(), 
+	         	this.biomechModelContr.getEpisimMechanicalModel(),
+	         	this});
+      }
+      catch (MissingObjectsException e){
+      	 ExceptionDisplayer.getInstance().displayException(e);
+      }
+	   
+   }
 	   
    
 

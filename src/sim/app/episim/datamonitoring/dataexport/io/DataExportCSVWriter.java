@@ -102,6 +102,10 @@ public class DataExportCSVWriter{
         ExceptionDisplayer.getInstance().displayException(e);
       }
 	}
+	
+	public void newSimulationRun(){
+		firstTime = true;
+	}
 		
 
 }

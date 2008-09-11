@@ -119,8 +119,8 @@ public class ChartController {
 	}
 	
 	public void registerChartSetChangeListener(ChartSetChangeListener changeListener){
-		System.out.println("New CharSetChangeListener?"+ ChartPanelAndSteppableServer.getInstance().registerChartSetChangeListener(changeListener));
-		//closeActLoadedChartSet();
+		ChartPanelAndSteppableServer.getInstance().registerChartSetChangeListener(changeListener);
+		closeActLoadedChartSet();
 	}
 	
 	public void activateDefaultChart(String name){
@@ -235,7 +235,7 @@ public class ChartController {
 	}
 	
 	public void closeActLoadedChartSet(){
-		System.out.println("closeActLoadedChartSet was called...");
+		
 		this.actLoadedChartSet = null;
 	}
 	

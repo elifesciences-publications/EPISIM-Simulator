@@ -383,7 +383,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 			//	(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 30));
 		
 	
-		JScrollPane desktopScroll = new JScrollPane(desktop);
+		final JScrollPane desktopScroll = new JScrollPane(desktop);
 		
 		desktop.setPreferredSize(new Dimension(
 				(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
@@ -399,19 +399,25 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		
 		
 		mainFrame.pack();
-		final JDesktopPane desktopFinal = desktop;
+		
 		mainFrame.addComponentListener(new ComponentAdapter(){
 			public void componentResized(ComponentEvent comp) {
 				
-				Object obj;
-				if((obj = comp.getSource()) instanceof JFrame){
+							
+				if(comp.getSource() instanceof JFrame){
 					
-					JFrame frame = (JFrame) obj;
-					if(desktopFinal != null) arrangeElements(desktopFinal);
+					if(desktop != null){ 
+						
+						desktop.setPreferredSize(new Dimension(
+								(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
+								(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight())));
+						arrangeElements(desktop);
+					}
 			
 
 				}
-
+				
+				
 			}
 		});
 		
@@ -467,7 +473,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		chartFrame.setIconifiable(false);
 		chartFrame.getContentPane().setLayout(new BorderLayout());
 		chartFrame.getContentPane().add(chartPanel, BorderLayout.CENTER);
-
+		System.out.println("Chart-Panel: "+ (chartPanel==null));
 		chartFrame.setName(CHARTFRAME);
 		
 		chartFrame.setFrameIcon(null);
@@ -484,9 +490,9 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	 */
 	private void arrangeElements(JComponent comp) {
 		final int RANDUNTEN = 0;	
-		Dimension screenDim; 
-		screenDim= comp.getPreferredSize();
-		comp.setPreferredSize(screenDim);
+		Dimension mainFrameDim; 
+		mainFrameDim= comp.getPreferredSize();
+		comp.setPreferredSize(mainFrameDim);
 		
 		comp.getComponentCount();
 		int corrNumber = comp.getComponentCount() - 2;
@@ -495,14 +501,14 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 			corrNumber += (INTERNALFRAMECOLS - remainder);
 		int framesPerCol = corrNumber / INTERNALFRAMECOLS;
 
-		int xDeltaSim = ((int) screenDim.getWidth()) / 2;
+		int xDeltaSim = ((int) mainFrameDim.getWidth()) / 2;
 
-		int yDeltaSim = ((int) screenDim.getHeight() - RANDUNTEN)*2 / 3;
+		int yDeltaSim = ((int) mainFrameDim.getHeight() - RANDUNTEN)*2 / 3;
 		int xDeltaChart = 0;
-		if(((int) screenDim.getWidth()  - xDeltaSim) > 0 && INTERNALFRAMECOLS >0)
-			xDeltaChart= ((int) screenDim.getWidth() - xDeltaSim) / INTERNALFRAMECOLS;
+		if(((int) mainFrameDim.getWidth()  - xDeltaSim) > 0 && INTERNALFRAMECOLS >0)
+			xDeltaChart= ((int) mainFrameDim.getWidth() - xDeltaSim) / INTERNALFRAMECOLS;
 		int yDeltaChart = 0; 
-		if(framesPerCol > 0 && ((int) screenDim.getHeight() - RANDUNTEN)>0) yDeltaChart =((int) screenDim.getHeight() - RANDUNTEN) / framesPerCol;
+		if(framesPerCol > 0 && ((int) mainFrameDim.getHeight() - RANDUNTEN)>0) yDeltaChart =((int) mainFrameDim.getHeight() - RANDUNTEN) / framesPerCol;
 		
 		if(yDeltaChart > MAXHEIGHTFACTOR * xDeltaChart) yDeltaChart = (int)(MAXHEIGHTFACTOR * xDeltaChart);
 		
@@ -528,7 +534,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 				}
 				else if(((JInternalFrame) actComp).getName().equals(CONTROLLERFRAME)){
-					((JInternalFrame) actComp).setPreferredSize(new Dimension(xDeltaSim, ((int) screenDim.getHeight() - RANDUNTEN - yDeltaSim)));
+					((JInternalFrame) actComp).setPreferredSize(new Dimension(xDeltaSim, ((int) mainFrameDim.getHeight() - RANDUNTEN - yDeltaSim)));
 					((JInternalFrame) actComp).setLocation(0, yDeltaSim);
 							
 

@@ -44,7 +44,6 @@ public class GlobalClassLoader extends URLClassLoader{
 		for(URL url: urls) instance.addURL(url);
 		
 		instance.notifyAllListeners();
-		System.out.println("URLs currently available in Registry: ");
 		for(String str : registryCopy){
 			System.out.println(str);
 			instance.urlRegistry.add(str);	
@@ -60,7 +59,7 @@ public class GlobalClassLoader extends URLClassLoader{
 	
 	public void registerURL(URL url){
 		if(urlRegistry.contains(url.getPath())){ 
-			System.out.println("Refresh GlobalClassLoader! Source: " + url.getPath());
+			
 			refresh();
 		}
 		else{

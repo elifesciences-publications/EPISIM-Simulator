@@ -525,7 +525,7 @@ public class KCyte extends CellType
 			    		
 		    		// if(this.follow && this.KeratinoAge <=2000){   		
 		   			  	
-				 if(deltaTime > 0){  
+				 
 				   try {
 		           BufferedWriter out = new BufferedWriter(new FileWriter("d:\\performance_neu.csv", true));
 		        //   out.write(NumberFormat.getInstance(Locale.GERMANY).format(actSteps)+ ";");
@@ -537,7 +537,7 @@ public class KCyte extends CellType
 		           out.close();
 		            } catch (IOException e) {}
 				   
-				  }
+				  
 				 deltaTime = 0;
 			}
 			deltaTime +=deltaTimeTmp;		

@@ -628,8 +628,8 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		GlobalClassLoader.getInstance().destroyClassLoader();
 		SnapshotWriter.getInstance().clearListeners();
 		SnapshotWriter.getInstance().resetCounter();
-		 this.setTitle("Epidermis Simulator");
-		  SnapshotWriter.getInstance().setSnapshotPath(null);
+		this.setTitle("Epidermis Simulator");
+		SnapshotWriter.getInstance().setSnapshotPath(null);
 	}
 	
 	public void simulationWasStarted(){

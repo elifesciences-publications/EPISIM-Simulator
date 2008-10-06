@@ -49,7 +49,7 @@ public class DataExportSteppableServer {
 		
 	}
 	
-	public List<GeneratedDataExport> getChartPanels(){
+	public List<GeneratedDataExport> getDataExports(){
 				
 		return customDataExportDefinitions;
 	}	
@@ -69,6 +69,12 @@ public class DataExportSteppableServer {
 	
 	public void removeAllListeners(){
 		this.listeners.clear();
+	}
+	public void removeAllSteppables(){
+		if(this.customSteppables != null)this.customSteppables.clear();
+	}
+	public void removeAllDataExports(){
+		if(this.customDataExportDefinitions != null)this.customDataExportDefinitions.clear();
 	}
 	
 	public void newSimulationRun(){

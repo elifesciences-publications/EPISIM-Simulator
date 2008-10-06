@@ -139,7 +139,9 @@ public class DataExportController {
 	
 	
 	public void modelWasClosed(){
-		
+		DataExportSteppableServer.getInstance().removeAllSteppables();
+		DataExportSteppableServer.getInstance().removeAllListeners();
+		DataExportSteppableServer.getInstance().removeAllDataExports();
 		this.closeActLoadedDataExportDefinitonSet();
 	}
 	

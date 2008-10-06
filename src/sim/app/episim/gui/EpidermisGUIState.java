@@ -473,7 +473,6 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		chartFrame.setIconifiable(false);
 		chartFrame.getContentPane().setLayout(new BorderLayout());
 		chartFrame.getContentPane().add(chartPanel, BorderLayout.CENTER);
-		System.out.println("Chart-Panel: "+ (chartPanel==null));
 		chartFrame.setName(CHARTFRAME);
 		
 		chartFrame.setFrameIcon(null);
@@ -635,13 +634,17 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	}
 
 	public void chartSetHasChanged() {
-		console.deregisterAllFrames();
-		removeAllChartInternalFrames(desktop);
-		for(ChartPanel actPanel : ChartController.getInstance().getChartPanelsofActLoadedChartSet()){
-			desktop.add(getChartInternalFrame(actPanel, actPanel.getChart().getTitle().getText()));
+		if(console != null){ 
+			console.deregisterAllFrames();
+			removeAllChartInternalFrames(desktop);
+			System.out.println("Number of Charts Available: "+ ChartController.getInstance().getChartPanelsofActLoadedChartSet().size());
+			for(ChartPanel actPanel : ChartController.getInstance().getChartPanelsofActLoadedChartSet()){
+				desktop.add(getChartInternalFrame(actPanel, actPanel.getChart().getTitle().getText()));
+				System.out.println("Name act Chart: "+ actPanel.getChart().getTitle().getText());
+			}
+		   arrangeElements(desktop);
+		   registerInternalFrames(desktop, console);
 		}
-	   arrangeElements(desktop);
-	   registerInternalFrames(desktop, console);
    }
 
 	

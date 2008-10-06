@@ -1018,11 +1018,15 @@ private void seedStemCells(){
 	public void chartSetHasChanged() {
 
 		try{
-	      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(allCells, this.cellContinous2D, new Object[]{
-	      	this.biochemModelContr.getEpisimCellDiffModelGlobalParameters(), 
-	      	this.biomechModelContr.getEpisimMechanicalModelGlobalParameters(), 
-	      	this.biomechModelContr.getEpisimMechanicalModel(),
-	      	this});
+			if(allCells != null && this.cellContinous2D != null && this.biochemModelContr.getEpisimCellDiffModelGlobalParameters() != null
+					&& this.biomechModelContr.getEpisimMechanicalModelGlobalParameters() != null
+					&& this.biomechModelContr.getEpisimMechanicalModel() != null){
+		      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(allCells, this.cellContinous2D, new Object[]{
+		      	this.biochemModelContr.getEpisimCellDiffModelGlobalParameters(), 
+		      	this.biomechModelContr.getEpisimMechanicalModelGlobalParameters(), 
+		      	this.biomechModelContr.getEpisimMechanicalModel(),
+		      	this});
+			}
       }
       catch (MissingObjectsException e){
 	     ExceptionDisplayer.getInstance().displayException(e);

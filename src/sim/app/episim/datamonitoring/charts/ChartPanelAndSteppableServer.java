@@ -84,6 +84,30 @@ public class ChartPanelAndSteppableServer {
 		this.listeners.clear();
 	}
 	
+	public void removeAllChartPanels(){
+		if(this.customChartPanels != null)this.customChartPanels.clear();
+		if(this.defaultChartPanels != null)this.defaultChartPanels.clear();
+		notifyListeners();
+	}
+	
+	public void actLoadedChartSetWasClosed(){
+		if(this.customChartPanels != null){ 
+			this.customChartPanels.clear();
+			this.customChartPanels = null;
+		}
+		if(this.customSteppables != null){ 
+			this.customSteppables.clear();
+			this.customSteppables = null;
+		}
+		notifyListeners();
+	}
+	
+	
+	public void removeAllSteppables(){
+		if(this.customSteppables != null)this.customSteppables.clear();
+		if(this.defaultSteppables != null)this.defaultSteppables.clear();
+	}
+	
 	public void clearAllSeries(){
 		DefaultCharts.getInstance().clearSeries();
 		if(this.customChartPanels != null){

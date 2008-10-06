@@ -142,6 +142,8 @@ public class ChartController {
 	
 	public void modelWasClosed(){
 		ChartPanelAndSteppableServer.getInstance().removeAllListeners();
+		ChartPanelAndSteppableServer.getInstance().removeAllChartPanels();
+		ChartPanelAndSteppableServer.getInstance().removeAllSteppables();
 		this.closeActLoadedChartSet();
 	}
 	
@@ -235,8 +237,8 @@ public class ChartController {
 	}
 	
 	public void closeActLoadedChartSet(){
-		
 		this.actLoadedChartSet = null;
+		ChartPanelAndSteppableServer.getInstance().actLoadedChartSetWasClosed();	
 	}
 	
 	

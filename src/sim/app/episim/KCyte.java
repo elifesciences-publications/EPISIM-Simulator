@@ -461,13 +461,13 @@ public class KCyte extends CellType
                actNeighbour.getEpisimCellDiffModelObject().setDy(-1*dy);
                actNeighbour.getEpisimCellDiffModelObject().setDx(dx);
                
-         //      double distance = Math.sqrt(dx*dx + dy*dy);
+               double distance = Math.sqrt(dx*dx + dy*dy);
                
-             //  if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
+               if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
                
                	neighbourCells.add(actNeighbour.getEpisimCellDiffModelObject());
                	
-             //}
+             }
         }
    	 return neighbourCells.toArray(new EpisimCellDiffModel[neighbourCells.size()]);
     }
@@ -519,7 +519,7 @@ public class KCyte extends CellType
 			long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
 			long deltaTimeTmp = timeAfter-timeBefore;
-			
+		
 			if(state.schedule.getSteps() > actNumberSteps){
 				actNumberSteps = state.schedule.getSteps();
 			    		
@@ -527,7 +527,7 @@ public class KCyte extends CellType
 		   			  	
 				 
 				   try {
-		           BufferedWriter out = new BufferedWriter(new FileWriter("d:\\performance_neu.csv", true));
+		           BufferedWriter out = new BufferedWriter(new FileWriter("d:\\performance_neu_10000.csv", true));
 		        //   out.write(NumberFormat.getInstance(Locale.GERMANY).format(actSteps)+ ";");
 		           out.write(NumberFormat.getInstance(Locale.GERMANY).format(deltaTime)+ ";");
 		      //     out.write(NumberFormat.getInstance(Locale.GERMANY).format(allCells.size())+ ";");

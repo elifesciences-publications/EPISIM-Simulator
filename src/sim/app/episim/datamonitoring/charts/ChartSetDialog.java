@@ -83,6 +83,9 @@ public class ChartSetDialog extends JDialog {
 	private Frame owner;
 	
 	private boolean okButtonPressed = false;
+	
+	private boolean isDirty = false;
+	
 	public ChartSetDialog(Frame owner, String title, boolean modal){
 		super(owner, title, modal);
 		
@@ -207,6 +210,7 @@ public class ChartSetDialog extends JDialog {
 		this.chartsList.setModel(listModel);
 		if(chartSet.getPath() != null) this.pathText.setText(chartSet.getPath().getAbsolutePath());
 		centerMe();
+		isDirty = false;
 		this.setVisible(true);
 		if(okButtonPressed) return this.episimChartSet;
 		
@@ -244,7 +248,7 @@ public class ChartSetDialog extends JDialog {
 		   chartSetName.addKeyListener(new KeyAdapter() {
 
 				public void keyPressed(KeyEvent keyEvent) {
-
+					isDirty = true;
 					if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
 						episimChartSet.setName(chartSetName.getText());
 					}
@@ -278,7 +282,7 @@ public class ChartSetDialog extends JDialog {
 		addButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-
+			 isDirty = true;	
 	       EpisimChart newChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner);
 	       if(newChart != null){ 
 	      	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
@@ -315,7 +319,7 @@ public class ChartSetDialog extends JDialog {
 		removeButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-
+				  isDirty = true;
 	           episimChartSet.removeEpisimChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 	           ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).remove(chartsList.getSelectedIndex());
 	           updateIndexMap();
@@ -378,6 +382,7 @@ public class ChartSetDialog extends JDialog {
 			editPathButton.addActionListener(new ActionListener(){
 
 				public void actionPerformed(ActionEvent e) {
+					isDirty = true;
 					if(pathText.getText() != null && !pathText.getText().equals(""))episimChartSet.setPath(showPathDialog(pathText.getText()));
 					else episimChartSet.setPath(showPathDialog(""));
 	          if(episimChartSet.getPath() != null) pathText.setText(episimChartSet.getPath().getAbsolutePath());
@@ -419,22 +424,25 @@ public class ChartSetDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if(((DefaultListModel)(chartsList.getModel())).getSize() > 0 && episimChartSet.getPath() != null){
 					okButtonPressed = true;
-					Runnable r = new Runnable(){
-
-						public void run() {
-							progressWindow.setVisible(true);
-							dialog.setVisible(false);
-							dialog.dispose();
-							ChartController.getInstance().storeEpisimChartSet(episimChartSet);
-							
-							progressWindow.setVisible(false);
-                  }
-				
-					};
-					Thread writingThread = new Thread(r);
-					writingThread.start();
+					dialog.setVisible(false);
+					dialog.dispose();
+					if(checkForDirtyCharts()){
+						resetChartDirtyStatus(); 
+									
+						Runnable r = new Runnable(){
+	
+							public void run() {
+								progressWindow.setVisible(true);
+								ChartController.getInstance().storeEpisimChartSet(episimChartSet);
+								progressWindow.setVisible(false);
+	                  }
+					
+						};
+						Thread writingThread = new Thread(r);
+						writingThread.start();
+					}
+					
 				}
-			
 			}
 		});
 		bPanel.add(okButton, c);
@@ -472,4 +480,18 @@ public class ChartSetDialog extends JDialog {
 		return null;
 	}
 
+   
+   private boolean checkForDirtyCharts(){
+   	for(EpisimChart actChart: this.episimChartSet.getEpisimCharts()) {
+   		if(actChart.isDirty()) return true;
+   	}
+   	return isDirty;
+   }
+   
+   private void resetChartDirtyStatus(){
+   	for(EpisimChart actChart: this.episimChartSet.getEpisimCharts()) {
+   		actChart.setIsDirty(false);
+   	}
+   	isDirty=false;
+   }
 }

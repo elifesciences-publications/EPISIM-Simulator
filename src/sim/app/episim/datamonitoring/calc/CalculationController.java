@@ -103,7 +103,6 @@ public class CalculationController {
 				if(firstCellEver){
 					//resultMap.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
 					firstCellEver = false;
-					
 				}
 				else
 					//series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));

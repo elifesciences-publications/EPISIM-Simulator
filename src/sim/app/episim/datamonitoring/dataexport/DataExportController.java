@@ -106,6 +106,13 @@ public class DataExportController {
 		return null;	
 	}
 	
+	public String getActLoadedDataExportsName(){
+		if(actLoadedDataExportSet == null){
+			return "";
+		}
+		else return actLoadedDataExportSet.getName();
+	}
+	
 	public EpisimDataExportDefinition showDataExportCreationWizard(Frame parent){
 		return showDataExportCreationWizard(parent, null);
 	}

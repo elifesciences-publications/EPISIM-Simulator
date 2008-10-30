@@ -39,5 +39,8 @@ public interface EpisimChart{
 	
 	void removeChartSeries(long id);
 	
+	boolean isDirty();
+	void setIsDirty(boolean value);
+	
 	
 }

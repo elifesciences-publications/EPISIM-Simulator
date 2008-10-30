@@ -32,7 +32,7 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	
 	private String[] baselineExpression = null;
 	
-	
+	private boolean isDirty = false;
 	
 	private Map<Long, EpisimChartSeries> seriesMap;
 	
@@ -186,6 +186,18 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 
 	  this.pngPrintingPath = path;
 	   
+   }
+
+	
+   public boolean isDirty() {
+   
+   	return isDirty;
+   }
+
+	
+   public void setIsDirty(boolean isDirty) {
+   
+   	this.isDirty = isDirty;
    }
 	
 	

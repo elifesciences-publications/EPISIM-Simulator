@@ -120,6 +120,7 @@ public class DataExportCreationWizard extends JDialog {
    private ExtendedFileChooser edeChooser = new ExtendedFileChooser("ede");
    private ExtendedFileChooser csvChooser = new ExtendedFileChooser("csv");
    
+   private boolean isDirty = false;
   
 
    /** Generates a new ChartGenerator with a blank chart. */
@@ -161,6 +162,7 @@ public class DataExportCreationWizard extends JDialog {
 				columnCombo = new JComboBox(comboModel);
 				columnCombo.addItemListener(new ItemListener(){
 					public void itemStateChanged(ItemEvent evt) {
+						 isDirty = true;	
 					    CardLayout cl = (CardLayout)(columnsPanel.getLayout());
 					    cl.show(columnsPanel, ""+ columnCombo.getSelectedIndex());
 					}
@@ -176,6 +178,7 @@ public class DataExportCreationWizard extends JDialog {
 				addSeriesButton.addActionListener(new ActionListener(){
 
 					public void actionPerformed(ActionEvent e) {
+						isDirty = true;	
 						int index = addDataExportColumn();
 	               	comboModel.addElement(DEFAULTCOLUMNNAME + (index+1));
 	               	columnCombo.setSelectedIndex(index);
@@ -408,7 +411,7 @@ public class DataExportCreationWizard extends JDialog {
     	
 	public void showWizard(){
 		
-			
+			isDirty = false;
 			showWizard(null);
 	}
 		
@@ -424,7 +427,7 @@ public class DataExportCreationWizard extends JDialog {
 				addDataExportColumn(i, col);
 				i++;
 			}
-			
+			isDirty = false;
 		}
 		
 	}
@@ -432,6 +435,7 @@ public class DataExportCreationWizard extends JDialog {
 	
 		
 	public void showWizard(EpisimDataExportDefinition dataExport){
+		isDirty = false;
 		if(dataExport != null) restoreDataExportValues(dataExport);
 		rebuildColumnsIdMap();
 		repaint();
@@ -531,7 +535,8 @@ public class DataExportCreationWizard extends JDialog {
 			if(errorFound)
 				JOptionPane.showMessageDialog(DataExportCreationWizard.this, "Not every Column has an Calculation Expression!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
-		if(!errorFound){ 
+		if(!errorFound){
+			this.episimDataExportDefinition.setIsDirty(isDirty);
 			DataExportCreationWizard.this.okButtonPressed = true;
 			DataExportCreationWizard.this.setVisible(false);
 			DataExportCreationWizard.this.dispose();
@@ -577,7 +582,7 @@ public class DataExportCreationWizard extends JDialog {
 		dataExportNameField.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent keyEvent) {
-
+				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
 					setTitle(dataExportNameField.getText());
 					episimDataExportDefinition.setName(dataExportNameField.getText());
@@ -605,6 +610,7 @@ public class DataExportCreationWizard extends JDialog {
 		dataExportFrequencyInSimulationSteps = new NumberTextField(100,false){
 			public double newValue(double newValue)
 	      {
+				isDirty = true;
 				 newValue = Math.round(newValue);
 				 episimDataExportDefinition.setDataExportFrequncyInSimulationSteps((int) newValue);
 	        return newValue;
@@ -613,7 +619,7 @@ public class DataExportCreationWizard extends JDialog {
 		dataExportFrequencyInSimulationSteps.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent keyEvent) {
-
+				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
 					episimDataExportDefinition.setDataExportFrequncyInSimulationSteps((int)dataExportFrequencyInSimulationSteps.getValue());
 				}
@@ -639,6 +645,7 @@ public class DataExportCreationWizard extends JDialog {
 		JButton editCSVPathButton = new JButton("Edit Path");
 		editCSVPathButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
+				isDirty = true;
 				if(csvPathField.getText() != null && !csvPathField.getText().trim().equals("")){
 					episimDataExportDefinition.setCSVFilePath(showCSVPathDialog(csvPathField.getText()));
 				}
@@ -705,6 +712,7 @@ public class DataExportCreationWizard extends JDialog {
 			columnName.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
+					isDirty = true;
 					setBorderTitle(columnName.getText());
 					int index = columnCombo.getSelectedIndex();
 					if(index > -1){
@@ -733,7 +741,7 @@ public class DataExportCreationWizard extends JDialog {
 			removeButton.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
-
+					isDirty = true;
 					if(JOptionPane.showOptionDialog(null, "Remove the Series " + columnName.getText() + "?", "Confirm",
 					      JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 					      new Object[] { "Remove", "Cancel" }, null) == 0) // remove
@@ -746,7 +754,7 @@ public class DataExportCreationWizard extends JDialog {
 			formulaButton.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
-
+					isDirty = true;
 					ExpressionEditor editor = new ExpressionEditor(((Frame) DataExportCreationWizard.this.getOwner()),
 					      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
 					      cellDataFieldsInspector, Names.DATAEXPORTEXPRESSIONEDITORROLE);

@@ -72,6 +72,9 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		private Frame owner;
 		
 		private boolean okButtonPressed = false;
+		
+		private boolean isDirty = false;
+		
 		public DataExportDefinitionSetDialog(Frame owner, String title, boolean modal){
 			super(owner, title, modal);
 			
@@ -197,6 +200,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			if(dataExportDefinitonSet.getPath() != null) this.pathText.setText(dataExportDefinitonSet.getPath().getAbsolutePath());
 			centerMe();
 			this.setVisible(true);
+			isDirty = false;
 			if(okButtonPressed) return this.episimDataExportDefinitionSet;
 			
 			return this.episimDataExportDefinitionSetOld;
@@ -233,7 +237,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			   dataExportDefinitionSetName.addKeyListener(new KeyAdapter() {
 
 					public void keyPressed(KeyEvent keyEvent) {
-
+						isDirty = true;
 						if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
 							episimDataExportDefinitionSet.setName(dataExportDefinitionSetName.getText());
 						}
@@ -267,7 +271,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			addButton.addActionListener(new ActionListener(){
 
 				public void actionPerformed(ActionEvent e) {
-
+					isDirty = true;
 		       EpisimDataExportDefinition newDefinition = DataExportController.getInstance().showDataExportCreationWizard(DataExportDefinitionSetDialog.this.owner);
 		       if(newDefinition != null){ 
 		      	 ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).addElement(newDefinition.getName());
@@ -304,7 +308,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			removeButton.addActionListener(new ActionListener(){
 
 				public void actionPerformed(ActionEvent e) {
-
+					  isDirty = true;	
 		           episimDataExportDefinitionSet.removeEpisimDataExportDefinition(indexDataExportDefinitionIdMap.get(dataExportDefinitionsList.getSelectedIndex()));
 		           ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).remove(dataExportDefinitionsList.getSelectedIndex());
 		           updateIndexMap();
@@ -367,6 +371,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 				editPathButton.addActionListener(new ActionListener(){
 
 					public void actionPerformed(ActionEvent e) {
+						isDirty = true;
 						if(pathText.getText() != null && !pathText.getText().equals(""))episimDataExportDefinitionSet.setPath(showPathDialog(pathText.getText()));
 						else episimDataExportDefinitionSet.setPath(showPathDialog(""));
 		          if(episimDataExportDefinitionSet.getPath() != null) pathText.setText(episimDataExportDefinitionSet.getPath().getAbsolutePath());
@@ -411,22 +416,25 @@ public class DataExportDefinitionSetDialog extends JDialog {
 				public void actionPerformed(ActionEvent e) {
 					if(((DefaultListModel)(dataExportDefinitionsList.getModel())).getSize() > 0 && episimDataExportDefinitionSet.getPath() != null){
 						okButtonPressed = true;
-						Runnable r = new Runnable(){
-
-							public void run() {
-								progressWindow.setVisible(true);
-								dialog.setVisible(false);
-								dialog.dispose();
-								DataExportController.getInstance().storeDataExportDefinitionSet(episimDataExportDefinitionSet);
-								
-								progressWindow.setVisible(false);
-	                  }
-					
-						};
-						Thread writingThread = new Thread(r);
-						writingThread.start();
+						dialog.setVisible(false);
+						dialog.dispose();
+						if(checkForDirtyDataExports()){
+								resetChartDirtyDataExports(); 
+							Runnable r = new Runnable(){
+	
+								public void run() {
+									progressWindow.setVisible(true);
+									
+									DataExportController.getInstance().storeDataExportDefinitionSet(episimDataExportDefinitionSet);
+									
+									progressWindow.setVisible(false);
+		                  }
+						
+							};
+							Thread writingThread = new Thread(r);
+							writingThread.start();
+						}
 					}
-				
 				}
 			});
 			bPanel.add(okButton, c);
@@ -463,5 +471,19 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			if(edeChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return edeChooser.getSelectedFile();
 			return null;
 		}
+	   
+	   private boolean checkForDirtyDataExports(){
+	   	for(EpisimDataExportDefinition actDef: this.episimDataExportDefinitionSet.getEpisimDataExportDefinitions()) {
+	   		if(actDef.isDirty()) return true;
+	   	}
+	   	return isDirty;
+	   }
+	   
+	   private void resetChartDirtyDataExports(){
+	   	for(EpisimDataExportDefinition actDef: this.episimDataExportDefinitionSet.getEpisimDataExportDefinitions()) {
+	   		actDef.setIsDirty(false);
+	   	}
+	   	isDirty = false;
+	   }
 
 	}

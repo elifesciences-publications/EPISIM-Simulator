@@ -24,6 +24,7 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	
 	private File csvFilePath;
 	
+	private boolean isDirty = false;
 	
 	private Set<Class<?>> requiredClasses;
 	
@@ -81,6 +82,17 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	public File getCSVFilePath() { return this.csvFilePath; }
 
 	public void setCSVFilePath(File path) { this.csvFilePath = path; }
+
+	public boolean isDirty() {
+	   
+	   return isDirty;
+   }
+
+	public void setIsDirty(boolean value) {
+
+	   isDirty = value;
+	   
+   }
 
 
 

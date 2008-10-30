@@ -77,6 +77,8 @@ public class ChartPanelAndSteppableServer {
 	}
 	
 	public boolean registerChartSetChangeListener(ChartSetChangeListener listener){
+		
+		cleanListeners(listener.getClass().getName());
 		return listeners.add(listener);
 	}
 	
@@ -121,5 +123,13 @@ public class ChartPanelAndSteppableServer {
 		for(ChartSetChangeListener actListener : this.listeners) actListener.chartSetHasChanged();
 	}
 	
+	private void cleanListeners(String className){
+		for(ChartSetChangeListener actListener: listeners){
+			if(actListener.getClass().getName().equals(className)){
+				listeners.remove(actListener);
+				return;
+			}
+		}
+	}
 
 }

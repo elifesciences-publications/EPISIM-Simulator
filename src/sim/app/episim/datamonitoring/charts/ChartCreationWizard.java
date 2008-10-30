@@ -132,6 +132,10 @@ public class ChartCreationWizard extends JDialog {
    
    
    private String[] baselineExpression;
+   
+   private boolean isDirty = false;
+   
+   
 
    /** Generates a new ChartGenerator with a blank chart. */
    public ChartCreationWizard(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector cellDataFieldsInspector){
@@ -173,6 +177,7 @@ public class ChartCreationWizard extends JDialog {
 					public void itemStateChanged(ItemEvent evt) {
 					    CardLayout cl = (CardLayout)(seriesPanel.getLayout());
 					    cl.show(seriesPanel, ""+ seriesCombo.getSelectedIndex());
+					    isDirty = true;
 					}
 				});
 				
@@ -189,6 +194,7 @@ public class ChartCreationWizard extends JDialog {
 						int index =addSeries();
 	               	comboModel.addElement(DEFAULTSERIENAME + (index+1));
 	               	seriesCombo.setSelectedIndex(index);
+	               	isDirty = true;
                }
 					
 				});
@@ -465,7 +471,7 @@ public class ChartCreationWizard extends JDialog {
 	
 	public void showWizard(){
 		
-			
+		isDirty = false;
 			showWizard(null);
 	}
 	
@@ -515,7 +521,7 @@ public class ChartCreationWizard extends JDialog {
 				addSeries(i, chartSeries);
 				i++;
 			}
-			
+			this.isDirty = false;
 		}
 		
 	}
@@ -523,6 +529,7 @@ public class ChartCreationWizard extends JDialog {
 	
 		
 	public void showWizard(EpisimChart chart){
+		isDirty = false;
 		if(chart != null) restoreChartValues(chart);
 		repaint();
 		centerMe();
@@ -589,6 +596,7 @@ public class ChartCreationWizard extends JDialog {
 	}
 	
 	private void okButtonPressed(){
+		
 		boolean errorFound = false;
 		if(episimChart.getBaselineExpression() == null || episimChart.getBaselineExpression()[0] == null || episimChart.getBaselineExpression()[1] == null
 				|| episimChart.getBaselineExpression()[0].trim().equals("") || episimChart.getBaselineExpression()[1].trim().equals("")){
@@ -620,7 +628,8 @@ public class ChartCreationWizard extends JDialog {
 			if(errorFound)
 				JOptionPane.showMessageDialog(ChartCreationWizard.this, "Not every Chart-Series has an Expression!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
-		if(!errorFound){ 
+		if(!errorFound){
+			episimChart.setIsDirty(isDirty);
 			ChartCreationWizard.this.okButtonPressed = true;
 			ChartCreationWizard.this.setVisible(false);
 			ChartCreationWizard.this.dispose();
@@ -664,7 +673,7 @@ public class ChartCreationWizard extends JDialog {
 		chartTitleField.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent keyEvent) {
-
+				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
 					setTitle(chartTitleField.getText());
 				}
@@ -690,7 +699,7 @@ public class ChartCreationWizard extends JDialog {
 		chartXLabel.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent keyEvent) {
-
+				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
 					setDomainAxisLabel(chartXLabel.getText());
 				}
@@ -714,7 +723,7 @@ public class ChartCreationWizard extends JDialog {
 		chartYLabel.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent keyEvent) {
-
+				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
 					setRangeAxisLabel(chartYLabel.getText());
 				}
@@ -737,7 +746,7 @@ public class ChartCreationWizard extends JDialog {
       baselineButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-
+				isDirty = true;
 	         ExpressionEditor editor = new ExpressionEditor(
 	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector, Names.CHARTBASELINEEXPRESSIONEDITORROLE);
 	         baselineExpression =editor.getExpression(baselineExpression);
@@ -758,7 +767,8 @@ public class ChartCreationWizard extends JDialog {
 		chartFrequencyInSimulationSteps = new NumberTextField(100,false){
 			public double newValue(double newValue)
 	      {
-				 newValue = Math.round(newValue);;
+				isDirty = true; 
+				newValue = Math.round(newValue);;
 				episimChart.setChartUpdatingFrequency((int) newValue);
 	        return newValue;
 	      }
@@ -766,7 +776,7 @@ public class ChartCreationWizard extends JDialog {
 		chartFrequencyInSimulationSteps.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent keyEvent) {
-
+				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
 					episimChart.setChartUpdatingFrequency((int)chartFrequencyInSimulationSteps.getValue());
 				}
@@ -792,7 +802,7 @@ public class ChartCreationWizard extends JDialog {
 		legendCheck.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
-
+				isDirty = true;
 				setChartLegendVisible(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
@@ -804,7 +814,7 @@ public class ChartCreationWizard extends JDialog {
 		aliasCheck.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
-
+				isDirty = true;
 				setAntiAliasEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
@@ -816,6 +826,7 @@ public class ChartCreationWizard extends JDialog {
 		pngCheck.addItemListener(new ItemListener() {
 
 			public void itemStateChanged(ItemEvent e) {
+				isDirty = true;
 				if(ChartCreationWizard.this.isVisible()){
 					if(e.getStateChange() == ItemEvent.SELECTED){
 						
@@ -843,6 +854,7 @@ public class ChartCreationWizard extends JDialog {
 		this.changePngPathButton.setEnabled(false);
 		this.changePngPathButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
+				isDirty = true;
 				selectPNGPath(true);	         
          }});
 		fieldButtonPanel.add(this.pngPathField, BorderLayout.CENTER);
@@ -852,7 +864,8 @@ public class ChartCreationWizard extends JDialog {
 		pngFrequencyInSimulationSteps = new NumberTextField(100,false){
 			public double newValue(double newValue)
 	      {
-				 newValue = Math.round(newValue);;
+				isDirty = true;
+				newValue = Math.round(newValue);;
 				episimChart.setPNGPrintingFrequency((int) newValue);
 	        return newValue;
 	      }
@@ -860,7 +873,7 @@ public class ChartCreationWizard extends JDialog {
 		pngFrequencyInSimulationSteps.addKeyListener(new KeyAdapter() {
 
 			public void keyPressed(KeyEvent keyEvent) {
-
+				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
 					episimChart.setPNGPrintingFrequency((int)pngFrequencyInSimulationSteps.getValue());
 				}
@@ -1044,7 +1057,7 @@ public class ChartCreationWizard extends JDialog {
            {
            public void actionPerformed(ActionEvent e)
                {
-         	  	
+         	  isDirty = true;
                getPlot().getRenderer().setSeriesVisible(seriesIndex,
                                                         new Boolean(check.isSelected()));  
                }
@@ -1058,6 +1071,7 @@ public class ChartCreationWizard extends JDialog {
            {
            public void actionPerformed(ActionEvent e)
                {
+         	  isDirty = true;
                name = nameF.getText();
                
                setBorderTitle(name);
@@ -1089,6 +1103,7 @@ public class ChartCreationWizard extends JDialog {
        {
        public Color changeColor(Color c) 
            {
+      	 	isDirty = true;
            ChartSeriesAttributes.this.strokeColor = c;
            int index = seriesCombo.getSelectedIndex();
            if(index > -1){
@@ -1105,7 +1120,8 @@ public class ChartCreationWizard extends JDialog {
        {
            public double newValue(double newValue) 
            {
-               if (newValue < 0.0) 
+         	  isDirty = true; 
+         	  if (newValue < 0.0) 
                    newValue = currentValue;
                thickness = (float)newValue;
                int index = seriesCombo.getSelectedIndex();
@@ -1124,7 +1140,8 @@ public class ChartCreationWizard extends JDialog {
            {
            public void actionPerformed ( ActionEvent e )
            {
-               dash = dashes[dashCombo.getSelectedIndex()];
+         	  isDirty = true; 
+         	  dash = dashes[dashCombo.getSelectedIndex()];
                int index = seriesCombo.getSelectedIndex();
                if(index >= 0) episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setDash(dash);
                rebuildGraphicsDefinitions();
@@ -1135,6 +1152,7 @@ public class ChartCreationWizard extends JDialog {
            {
            public double newValue(double newValue) 
                {
+         	  isDirty = true;
                if (newValue < 0.0) 
                    newValue = currentValue;
                stretch = (float)newValue;
@@ -1152,6 +1170,7 @@ public class ChartCreationWizard extends JDialog {
            {
            public void actionPerformed ( ActionEvent e )
                {
+         	  isDirty = true;
                if (JOptionPane.showOptionDialog(
                        null,"Remove the Series " + name + "?","Confirm",
                        JOptionPane.YES_NO_OPTION,
@@ -1168,7 +1187,7 @@ public class ChartCreationWizard extends JDialog {
        formulaButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-
+				isDirty = true;
 	         ExpressionEditor editor = new ExpressionEditor(
 	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector, Names.CHARTSERIESEXPRESSIONEDITORROLE);
 	         expression =editor.getExpression(expression);
@@ -1310,8 +1329,12 @@ public class ChartCreationWizard extends JDialog {
    
   
    }
-   
 
+	
+   
+   
+   
+   
 	
 
 	}

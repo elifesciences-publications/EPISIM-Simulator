@@ -120,7 +120,7 @@ public class ChartController {
 	
 	public void registerChartSetChangeListener(ChartSetChangeListener changeListener){
 		ChartPanelAndSteppableServer.getInstance().registerChartSetChangeListener(changeListener);
-		closeActLoadedChartSet();
+		//closeActLoadedChartSet();
 	}
 	
 	public void activateDefaultChart(String name){

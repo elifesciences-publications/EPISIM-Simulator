@@ -24,5 +24,8 @@ public interface EpisimDataExportDefinition extends java.io.Serializable{
 	
 	void removeAllEpisimDataExportColumns();
 	void removeEpisimDataExportColumn(long id);
+	
+	void setIsDirty(boolean value);
+	boolean isDirty();
 
 }

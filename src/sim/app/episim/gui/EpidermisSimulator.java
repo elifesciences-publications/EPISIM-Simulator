@@ -91,9 +91,12 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	private JMenu infoMenu;
 	private JMenuItem menuItemAboutMason;
 	
+	private StatusBar statusbar;
 	
 	public EpidermisSimulator() {
 		ExceptionDisplayer.getInstance().registerParentComp(this);
+		
+		statusbar = new StatusBar();
 		
 		try{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -309,6 +312,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 					menuItemCloseDataExport.setEnabled(true);
 					menuItemNewDataExport.setEnabled(false);
 					menuItemLoadDataExport.setEnabled(false);
+					statusbar.setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
 				}
 				else{ 
 					if(!DataExportController.getInstance().isAlreadyDataExportSetLoaded()) menuItemEditDataExport.setEnabled(false);
@@ -322,6 +326,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 
 			public void actionPerformed(ActionEvent e) {
 				DataExportController.getInstance().showEditDataExportDefinitionDialog(simulator);
+				statusbar.setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
 			}
 			
 		});
@@ -336,6 +341,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				menuItemCloseDataExport.setEnabled(false);
 				menuItemEditDataExport.setEnabled(false);
 				DataExportController.getInstance().closeActLoadedDataExportDefinitonSet();
+				statusbar.setMessage("");
 			}
 			
 		});
@@ -377,6 +383,9 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().setBackground(Color.LIGHT_GRAY);
 		this.setJMenuBar(menuBar);
+		
+		
+		this.getContentPane().add(statusbar, BorderLayout.SOUTH);
 		
 		jarFileChoose= new ExtendedFileChooser("jar");
 		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model");
@@ -608,6 +617,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		menuItemBuild.setEnabled(true);
 		chartMenu.setEnabled(false);
 		dataExportMenu.setEnabled(false);
+		statusbar.setMessage("");
 		ChartController.getInstance().modelWasClosed();
 		DataExportController.getInstance().modelWasClosed();
 		
@@ -646,7 +656,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	private void cleanUpContentPane(){
 		Component[] comps = this.getContentPane().getComponents();
 		for(int i = 0; i < comps.length; i++){
-			if(!(comps[i] instanceof JMenuBar)) this.getContentPane().remove(i);
+			if(!(comps[i] instanceof JMenuBar) && !(comps[i] instanceof StatusBar)) this.getContentPane().remove(i);
 		}
 			
 	}

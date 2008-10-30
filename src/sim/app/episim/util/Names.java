@@ -29,6 +29,10 @@ public abstract class Names {
 	public static final String CHARTSERIESEXPRESSIONEDITORROLE = "ChartSeriesExpressionEditorRole";
 	public static final String DATAEXPORTEXPRESSIONEDITORROLE = "DataExportExpressionEditorRole";
 	
+	public static final String DATAEXPORTFILETYPE = ".ede";
+	public static final String CHARTSETFILETYPE = ".ecs";
+	public static final String MODELFILETYPE = ".jar";
+	
 	public static final String CONSOLEMAINCONTAINER = "ConsoleMainContainer";
 	
 	public static String cleanString(String str){

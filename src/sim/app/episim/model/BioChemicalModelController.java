@@ -1,24 +1,16 @@
 package sim.app.episim.model;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+
 import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.swing.JOptionPane;
-
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
-import sim.app.episim.Epidermis;
+
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.KCyte;
-import sim.app.episim.util.ClassLoaderChangeListener;
+
+
 
 
 public class BioChemicalModelController implements java.io.Serializable{

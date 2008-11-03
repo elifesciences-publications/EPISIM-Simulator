@@ -294,6 +294,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 					menuItemCloseDataExport.setEnabled(true);
 					menuItemNewDataExport.setEnabled(false);
 					menuItemLoadDataExport.setEnabled(false);
+					statusbar.setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
 				}
 				
 			}
@@ -483,6 +484,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			
 			setSnapshotPath(snapshotPath);
 			System.out.println("Already Chart Set Loaded: " + ChartController.getInstance().isAlreadyChartSetLoaded());
+			System.out.println("Already Data Export Loaded: " + DataExportController.getInstance().isAlreadyDataExportSetLoaded());
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
 			epiUI = new EpidermisGUIState(this);

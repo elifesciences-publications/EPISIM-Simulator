@@ -13,11 +13,12 @@ import java.util.Map;
 import java.util.Set;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.dataexport.ObservedHashMap;
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
 import episiminterfaces.*;
 
-public class DataExportCSVWriter{
+public class DataExportCSVWriter implements SimulationStateChangeListener{
 	
 
 	
@@ -35,21 +36,18 @@ public class DataExportCSVWriter{
 	
 	private String columnNames;
 	
+	private File csvFile;
+	
 	public DataExportCSVWriter(File csvFile, String columnNames) {
+		
+		this.csvFile = csvFile;
 
-		try{
-			csvWriter = new BufferedWriter(new FileWriter(csvFile, true));
-		}
-		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
-		}
+		
 		
 		this.columnNames = columnNames;
 	}
 	
-	public void simulationWasStopped(){
-		// csvWriter
-	}
+	
 	
 	public void registerObservedHashMap(final long columnId, ObservedHashMap<Double, Double> map){
 		indexLookUp.put(columnId, actIndex);
@@ -103,9 +101,26 @@ public class DataExportCSVWriter{
       }
 	}
 	
-	public void newSimulationRun(){
-		firstTime = true;
+	
+	public void simulationWasStopped(){
+		try{
+	      csvWriter.close();
+      }
+      catch (IOException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }
 	}
+	
+	public void simulationWasStarted() {
+		try{
+			csvWriter = new BufferedWriter(new FileWriter(csvFile, true));
+		}
+		catch (IOException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+		firstTime = true;
+	   
+   }
 		
 
 }

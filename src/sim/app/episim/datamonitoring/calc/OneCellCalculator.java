@@ -130,6 +130,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 	 * @return returns negative infinity if cell not valid
 	 */
 	public double calculateOneCellBaseLine(long chartId, CalculationHandler handler){
+		
 		CellType foundCell = this.trackedCellsBaseLine.get(chartId);
 		if(foundCell!= null && foundCell.getEpisimCellDiffModelObject().getIsAlive() == false){
 			foundCell.setTracked(false);
@@ -163,8 +164,11 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 				CellType trackedCell = this.trackedCells.get(i);
 				if(trackedCell != null){
 					result = calculationHandlers.get(i).calculate(trackedCell);
-					if(baseLineResult != Double.NEGATIVE_INFINITY)this.dataManagers.get(i).addNewValue(baseLineResult, result);
-					else this.dataManagers.get(i).addNewValue(((double)i), result);
+					//if(baseLineResult != Double.NEGATIVE_INFINITY)
+					
+					//TODO: Wechsel der Zelle kenntlich machen
+					this.dataManagers.get(i).addNewValue(baseLineResult, result);
+					//else this.dataManagers.get(i).addNewValue(((double)i), result);
 				}
 			}
 			catch (CellNotValidException e){

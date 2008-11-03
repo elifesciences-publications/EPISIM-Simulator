@@ -10,6 +10,7 @@ import org.jfree.chart.ChartPanel;
 import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
+import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -64,6 +65,7 @@ public class DataExportSteppableServer {
 	}
 	
 	public void registerDataExportChangeListener(DataExportChangeListener listener){
+		cleanListeners(listener.getClass().getName());
 		listeners.add(listener);
 	}
 	
@@ -81,13 +83,31 @@ public class DataExportSteppableServer {
 		
 		if(this.customDataExportDefinitions != null){
 			for(GeneratedDataExport dataExport: this.customDataExportDefinitions){
-				dataExport.newSimulationRun();
+				dataExport.getCSVWriter().simulationWasStarted();
+			}
+		}
+	}
+	
+	public void simulationWasStopped(){
+		
+		if(this.customDataExportDefinitions != null){
+			for(GeneratedDataExport dataExport: this.customDataExportDefinitions){
+				dataExport.getCSVWriter().simulationWasStopped();
 			}
 		}
 	}
 	
 	private void notifyListeners(){
 		for(DataExportChangeListener actListener : this.listeners) actListener.dataExportHasChanged();
+	}
+	
+	private void cleanListeners(String className){
+		for(DataExportChangeListener actListener: listeners){
+			if(actListener.getClass().getName().equals(className)){
+				listeners.remove(actListener);
+				return;
+			}
+		}
 	}
 
 }

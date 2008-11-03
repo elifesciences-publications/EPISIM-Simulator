@@ -1,10 +1,11 @@
 package episiminterfaces;
 
+import sim.app.episim.datamonitoring.dataexport.io.DataExportCSVWriter;
 import sim.app.episim.util.EnhancedSteppable;
 
 
 public interface GeneratedDataExport {
 	EnhancedSteppable getSteppable();
 	
-	void newSimulationRun();
+	DataExportCSVWriter getCSVWriter();
 }

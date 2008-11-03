@@ -88,7 +88,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	private boolean workaroundPauseWasPressed = false;
 	
-	private final int RANDUNTEN = 10;
+	private final int RANDUNTEN = 15;
 	
 	/*
 	private final double EPIDISPLAYWIDTH = 750;

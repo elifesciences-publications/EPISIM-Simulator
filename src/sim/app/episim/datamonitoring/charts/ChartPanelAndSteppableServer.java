@@ -119,6 +119,8 @@ public class ChartPanelAndSteppableServer {
 		}
 	}
 	
+	
+	
 	private void notifyListeners(){
 		for(ChartSetChangeListener actListener : this.listeners) actListener.chartSetHasChanged();
 	}

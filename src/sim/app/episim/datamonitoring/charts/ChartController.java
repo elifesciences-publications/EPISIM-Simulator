@@ -118,6 +118,8 @@ public class ChartController {
 		return false;
 	}
 	
+	
+	
 	public void registerChartSetChangeListener(ChartSetChangeListener changeListener){
 		ChartPanelAndSteppableServer.getInstance().registerChartSetChangeListener(changeListener);
 		//closeActLoadedChartSet();
@@ -146,6 +148,8 @@ public class ChartController {
 		ChartPanelAndSteppableServer.getInstance().removeAllSteppables();
 		this.closeActLoadedChartSet();
 	}
+	
+	
 	
 	public void showEditChartSetDialog(Frame parent){
 		ChartSetDialog dialog = new ChartSetDialog(parent, "Episim-Chart-Set", true);

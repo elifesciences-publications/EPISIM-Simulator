@@ -1,4 +1,3 @@
-
 package sim.app.episim;
 
 
@@ -1026,7 +1025,7 @@ private void seedStemCells(){
 		      	this.biomechModelContr.getEpisimMechanicalModelGlobalParameters(), 
 		      	this.biomechModelContr.getEpisimMechanicalModel(),
 		      	this});
-			}
+		   }
       }
       catch (MissingObjectsException e){
 	     ExceptionDisplayer.getInstance().displayException(e);

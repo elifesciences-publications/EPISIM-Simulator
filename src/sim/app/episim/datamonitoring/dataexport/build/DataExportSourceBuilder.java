@@ -33,7 +33,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		appendDataFields();
 		appendConstructor();
 		appendStandardMethods();
-		appendNewSimulationRun();
+		appendGetCSVWriter();
 		appendRegisterObjectsMethod(episimDataExportDefinition.getRequiredClasses());
 		appendEnd();
 		
@@ -107,9 +107,9 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		return result;
 	}
 	
-	private void appendNewSimulationRun(){
-		generatedSourceCode.append("public void newSimulationRun(){\n");
-		generatedSourceCode.append("   dataExportCSVWriter.newSimulationRun();\n");
+	private void appendGetCSVWriter(){
+		generatedSourceCode.append("public DataExportCSVWriter getCSVWriter(){\n");
+		generatedSourceCode.append("   return dataExportCSVWriter;\n");
 		generatedSourceCode.append("}\n");
 	}
 	

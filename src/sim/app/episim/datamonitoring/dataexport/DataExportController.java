@@ -118,6 +118,10 @@ public class DataExportController {
 	}
 	
 	
+	public void getDataExportCSVWriters(){
+		
+	}
+	
 	public EpisimDataExportDefinition showDataExportCreationWizard(Frame parent, EpisimDataExportDefinition exportDefinition){
 		
 		DataExportCreationWizard creationWizard = new DataExportCreationWizard(parent, "Data-Export", true, 
@@ -185,8 +189,10 @@ public class DataExportController {
 	
 	public void registerDataExportChangeListener(DataExportChangeListener changeListener){
 		DataExportSteppableServer.getInstance().registerDataExportChangeListener(changeListener);
-		closeActLoadedDataExportDefinitonSet();
+	   //	closeActLoadedDataExportDefinitonSet();
 	}
+	
+	
 	
 	
 	protected void storeDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportSet){
@@ -205,6 +211,17 @@ public class DataExportController {
 	private boolean loadDataExportDefinitionSet(URL url){
 		return loadDataExportDefinition(url, null);
 	}
+	
+	public void reloadCurrentlyLoadedDataExportDefinitionSet(){
+		
+		try{
+			loadDataExportDefinitionSet(new File(this.actLoadedDataExportSet.getPath().getAbsolutePath()).toURI().toURL());
+      }
+      catch (MalformedURLException e){
+	      ExceptionDisplayer.getInstance().displayException(e);
+      }
+	}
+	
 
 	private boolean loadDataExportDefinition(URL url, Frame parent){
 		try{
@@ -227,6 +244,12 @@ public class DataExportController {
 		CalculationController.getInstance().restartSimulation();
 		DataExportSteppableServer.getInstance().newSimulationRun();
 	}
+	
+	public void simulationWasStopped(){
+		
+		DataExportSteppableServer.getInstance().simulationWasStopped();
+	}
+	
 	
 	
 	public void closeActLoadedDataExportDefinitonSet(){

@@ -13,7 +13,13 @@ import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
 public class GlobalClassLoader extends URLClassLoader{
 	
+	public static final String IGNOREDATAEXPORTMODE = "ignoredataexportmode";
+	public static final String IGNORECHARTSETMODE = "ignorechartsetmode";
+	public static final String NOMODE = "nomode";
+	
 	private static GlobalClassLoader instance;
+	
+	private String mode = NOMODE;
 	
 	private Set<String> urlRegistry;
 	
@@ -41,6 +47,10 @@ public class GlobalClassLoader extends URLClassLoader{
 		Set<ClassLoaderChangeListener> setCopy = this.changeListener;
 		Set<String> registryCopy = this.urlRegistry;
 		URL[] urls = this.getURLs();
+		
+		
+		String modeCopy = this.mode;
+		
 		destroyClassLoader();
 		instance = new GlobalClassLoader();
 		for(ClassLoaderChangeListener listener : setCopy){
@@ -48,7 +58,10 @@ public class GlobalClassLoader extends URLClassLoader{
 		}
 		for(URL url: urls) instance.addURL(url);
 		
+		instance.mode =modeCopy;
+		
 		instance.notifyAllListeners();
+		
 		for(String str : registryCopy){
 			System.out.println(str);
 			instance.urlRegistry.add(str);	
@@ -67,20 +80,23 @@ public class GlobalClassLoader extends URLClassLoader{
 			
 			if(url.getPath().endsWith(Names.DATAEXPORTFILETYPE)){
 				
-				if(ChartController.getInstance().isAlreadyChartSetLoaded()){
-					ChartController.getInstance();
+				if(ChartController.getInstance().isAlreadyChartSetLoaded() && mode.equals(NOMODE)){
+					this.mode = IGNORECHARTSETMODE;
+					refresh();
 				}
-				else{
-					System.out.println( (orderCounter++) + ".) Neuer Dataexport wird geladen ");
+				else if(!mode.equals(IGNOREDATAEXPORTMODE)){
+					refresh();
+					
 				}
 				
 			}
 			else if(url.getPath().endsWith(Names.CHARTSETFILETYPE)){
-				if(ChartController.getInstance().isAlreadyChartSetLoaded()){
-					System.out.println("Entering Ingore-Refresh-Caused-by-DataExport-Mode");
+				if(DataExportController.getInstance().isAlreadyDataExportSetLoaded() && mode.equals(NOMODE)){
+					this.mode = IGNOREDATAEXPORTMODE;
+					refresh();
 				}
-				else{
-					System.out.println( (orderCounter++) + ".) Neue ChartSet wird geladen ");
+				else if(!mode.equals(IGNORECHARTSETMODE)){
+					refresh();
 				}
 				
 			}
@@ -88,7 +104,7 @@ public class GlobalClassLoader extends URLClassLoader{
 				System.out.println( (orderCounter++) + ".) Neues Modell wird geladen ");
 			}
 			
-			refresh();
+			
 		}
 		else{
 			urlRegistry.add(url.getPath());
@@ -121,5 +137,12 @@ public class GlobalClassLoader extends URLClassLoader{
 			}
 		}
 		
+	}
+	public void resetMode(){
+		mode = NOMODE;
+	}
+	
+	public String getMode(){
+		return mode;
 	}
 }

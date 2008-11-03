@@ -483,12 +483,22 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		if(success){
 			
 			setSnapshotPath(snapshotPath);
-			System.out.println("Already Chart Set Loaded: " + ChartController.getInstance().isAlreadyChartSetLoaded());
+			
+			
 			System.out.println("Already Data Export Loaded: " + DataExportController.getInstance().isAlreadyDataExportSetLoaded());
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
 			epiUI = new EpidermisGUIState(this);
 			epiUI.addSimulationStateChangeListener(this);
+			if(ChartController.getInstance().isAlreadyChartSetLoaded() && GlobalClassLoader.getInstance().getMode().equals(GlobalClassLoader.IGNORECHARTSETMODE)){
+				ChartController.getInstance().reloadCurrentlyLoadedChartSet();
+				GlobalClassLoader.getInstance().resetMode();
+			}
+			if(DataExportController.getInstance().isAlreadyDataExportSetLoaded() && GlobalClassLoader.getInstance().getMode().equals(GlobalClassLoader.IGNOREDATAEXPORTMODE)){
+				DataExportController.getInstance().reloadCurrentlyLoadedDataExportDefinitionSet();
+				GlobalClassLoader.getInstance().resetMode();
+			}
+			
 			this.validate();
 			this.repaint();
 			ModelController.getInstance().setModelOpened(true);
@@ -653,6 +663,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	public void simulationWasStopped(){
 		this.chartMenu.setEnabled(true);
 		this.dataExportMenu.setEnabled(true);
+		DataExportController.getInstance().simulationWasStopped();
 	}
 	
 	private void cleanUpContentPane(){

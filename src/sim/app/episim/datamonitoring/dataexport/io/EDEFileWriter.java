@@ -98,7 +98,7 @@ public class EDEFileWriter {
 							jarOut.finish();
 							jarOut.close();
 							
-							dataExportCompiler.deleteTempData();
+						//	dataExportCompiler.deleteTempData();
 							
 						} catch (Exception e) {
 							ExceptionDisplayer.getInstance()

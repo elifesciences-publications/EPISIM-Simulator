@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.event.WindowAdapter;
@@ -14,7 +15,9 @@ import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class TestCanvas extends Canvas {
@@ -27,30 +30,36 @@ public class TestCanvas extends Canvas {
 	
 	private CellEllipse draggedCellEllipse = null;
 	
+	private Set<String> ellipseKeySet;
 	
+	private int nextId = 0;
 	
 	public TestCanvas(){
-		
+		ellipseKeySet = new HashSet<String>();
 		this.setBackground(Color.white);
 		
 		
 	}
 	
 	
-	public void drawCellEllipse(int x, int y){
-		drawCellEllipse(new CellEllipse(x, y, RADIUS, RADIUS*2), true);		
+	public void drawCellEllipse(int x, int y, Color c){
+		drawCellEllipse(new CellEllipse(getNextCellEllipseId(), x, y, RADIUS, RADIUS*2, c), true);		
 	}
 	
-	public void drawCellEllipse(int x, int y, int r1, int r2){
-		drawCellEllipse(new CellEllipse(x, y, r1, r2), true);
+	public void drawCellEllipse(int x, int y, int r1, int r2, Color c){
+		drawCellEllipse(new CellEllipse(getNextCellEllipseId(),x, y, r1, r2, c), true);
 	}
 	
 	private void drawCellEllipse(CellEllipse cellEllipse, boolean newCellEllipse){
 		Graphics2D g = (Graphics2D) this.getGraphics();
-		g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		g.setColor(Color.BLUE);
-		g.draw(cellEllipse.getEllipse());
-		drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, Color.BLUE);
+		if(g != null){
+			g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+			Color oldColor = g.getColor();
+			g.setColor(cellEllipse.c);
+			g.draw(cellEllipse.getClippedEllipse());
+			g.setColor(oldColor);
+			drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellEllipse.c);
+		}
 		if(newCellEllipse) cellEllipses.add(cellEllipse);
 	}
 	
@@ -77,15 +86,16 @@ public class TestCanvas extends Canvas {
 	
 	public void paint(Graphics g){
 		super.paint(g);
-		
-		
-		g.drawLine(50, 10, 150, 10);
-		g.drawLine(50, 10, (int)(100*Math.cos(0.5*Math.PI) +50), (int)(100*Math.sin(0.5*Math.PI) +10));
+		this.ellipseKeySet.clear();
 		
 		for(CellEllipse ell : cellEllipses){
-			drawCellEllipse(ell, false);
+			ell.resetClippedEllipse();
 		}
 		drawIntersectionPointsForCellEllipses((Graphics2D)g);
+		for(CellEllipse ell : cellEllipses){
+			
+			drawCellEllipse(ell, false);
+		}
 	}
 	
 	private CellEllipse findCellEllipse(int x, int y){
@@ -107,11 +117,8 @@ public class TestCanvas extends Canvas {
 		return cellEllipseWithMinimalDistance;
 	}
 	
-	private double distance(int x1, int y1, int x2, int y2){
-		
-		
-		return Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2));
-		
+	private double distance(int x1, int y1, int x2, int y2){	
+		return Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2));		
 	}
 	
 	
@@ -137,7 +144,14 @@ public class TestCanvas extends Canvas {
 						//maximum of 4 intersection points for two ellipses
 						for(int i = 0; i < 4; i++){
 							drawPoint(g, intersectionPoints[i][0], intersectionPoints[i][1], 4, Color.RED);
+							
 						}
+						//maxiumum of two intersection points for cells in later simulation
+						//drawSquare(g, intersectionPoints[0], intersectionPoints[1], (int) actEll.getEllipse().getWidth(), actEll.getY() > otherEll.getY());
+					
+						if(!this.ellipseKeySet.contains(actEll.getId()+","+otherEll.getId()))
+							clipEllipse(g, intersectionPoints[0], intersectionPoints[1], actEll, otherEll);
+						
 					}
 				}
 			}
@@ -173,7 +187,7 @@ public class TestCanvas extends Canvas {
 						if(Math.round(d[0]) == xOLD && Math.round(d[1]) == yOLD){
 							intersectionPoints[i][0] = (int)xOLD;
 							intersectionPoints[i][1] = (int)yOLD;
-							System.out.println("IntersectionPoint " +i+" found:" + xOLD +", " + yOLD);
+							
 							i++;
 						}
 						xOLD = Math.round(d[4]);
@@ -185,7 +199,6 @@ public class TestCanvas extends Canvas {
 						if(i< 4 && (i % 2)!=0){
 							intersectionPoints[i][0] = (int) Math.round(d[4]);
 							intersectionPoints[i][1] = (int) Math.round(d[5]);
-							System.out.println("IntersectionPoint " +i+" found:" + xOLD +", " + yOLD);
 						}
 						newIteration = false;
 					}
@@ -195,7 +208,7 @@ public class TestCanvas extends Canvas {
 			}
 			
 		}
-		System.out.println();
+		
 		
 		return intersectionPoints;
 	}
@@ -210,6 +223,75 @@ public class TestCanvas extends Canvas {
 		}
 	}
 	
+	private void drawSquare(Graphics2D g, int[] sp1, int[] sp2, CellEllipse actEllipse, CellEllipse otherEllipse){
+		
+		double [] directionVector = {sp1[0]-sp2[0], sp1[1]-sp2[1]};
+
+		double[] newVector = {-1*(directionVector[1]/directionVector[0]), 1};
+		double newVectorNormfact = 1/Math.sqrt(Math.pow(newVector[0], 2)+Math.pow(newVector[1], 2));
+		
+
+		newVector[0] *= newVectorNormfact;
+		newVector[1] *= newVectorNormfact;
+		if(actEllipse.getY() < otherEllipse.getY()){				
+			newVector[0] *= actEllipse.getBiggerAxis();
+			newVector[1] *= actEllipse.getBiggerAxis();
+		}
+		else{
+			newVector[0] *= (-1* actEllipse.getBiggerAxis());
+			newVector[1] *= (-1* actEllipse.getBiggerAxis());
+		}
+		
+		//System.out.println(newVector[0]+","+newVector[1]);
+		g.drawLine(sp1[0], sp1[1], sp2[0], sp2[1]);
+		g.drawLine(sp2[0], sp2[1], sp2[0] + (int)newVector[0],sp2[1] + (int)newVector[1]);
+		g.drawLine(sp1[0], sp1[1], sp1[0] + (int)newVector[0],sp1[1] +(int)newVector[1]);
+		g.drawLine(sp1[0]+(int)newVector[0], sp1[1]+(int)newVector[1], sp2[0]+(int)newVector[0], sp2[1]+(int)newVector[1]);
+	}
+	
+	private void clipEllipse(Graphics2D g, int[] sp1, int[] sp2, CellEllipse actEllipse, CellEllipse otherEllipse){
+		
+		this.ellipseKeySet.add(actEllipse.getId()+","+otherEllipse.getId());
+		this.ellipseKeySet.add(otherEllipse.getId()+","+actEllipse.getId());
+		
+		double [] directionVector = {sp1[0]-sp2[0], sp1[1]-sp2[1]};
+
+		double[] newVector = {-1*(directionVector[1]/directionVector[0]), 1};
+		double newVectorNormfact = 1/Math.sqrt(Math.pow(newVector[0], 2)+Math.pow(newVector[1], 2));
+		
+
+		newVector[0] *= newVectorNormfact;
+		newVector[1] *= newVectorNormfact;
+		if(actEllipse.getY() < otherEllipse.getY()){				
+			newVector[0] *= actEllipse.getBiggerAxis();
+			newVector[1] *= actEllipse.getBiggerAxis();
+		}
+		else{
+			newVector[0] *= (-1* actEllipse.getBiggerAxis());
+			newVector[1] *= (-1* actEllipse.getBiggerAxis());
+		}		
+		//System.out.println(newVector[0]+","+newVector[1]);
+		
+		actEllipse.clipAreaFromEllipse(new Area(new Polygon(
+		new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]},/*x-Points*/
+		new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]},/*y-Points*/
+		4
+		)));
+		
+		newVector[0] *= -1;
+		newVector[1] *= -1;
+		
+		otherEllipse.clipAreaFromEllipse(new Area(new Polygon(
+				new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]},/*x-Points*/
+				new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]},/*y-Points*/
+				4
+				)));
+		
+	}
+	
+	private int getNextCellEllipseId(){
+		return this.nextId++;
+	}
 	
 	
 	

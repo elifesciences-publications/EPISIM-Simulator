@@ -1,12 +1,14 @@
 package sim.app.episim.visualization;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 
 import javax.swing.JFrame;
 
@@ -17,10 +19,12 @@ public class TestVisualizationMain {
 	
 	private TestCanvas canvas;
 	
+	
 	public TestVisualizationMain(){
 		
 		mainFrame = new JFrame();
 		canvas = new TestCanvas();
+		
 		
 		initCanvas();
 		
@@ -51,7 +55,7 @@ public class TestVisualizationMain {
 	
 	public static void main(String[] args) {
 
-		TestVisualizationMain test = new TestVisualizationMain();
+		new TestVisualizationMain();
 
 	}
 	
@@ -60,7 +64,7 @@ public class TestVisualizationMain {
 		canvas.addMouseListener(new MouseAdapter(){
 			
 			 public void mouseClicked(MouseEvent e){
-				 canvas.drawCellEllipse(e.getX(), e.getY());
+				canvas.drawCellEllipse(e.getX(), e.getY(), Color.BLUE);
 			 }
 			 
 			 public void mousePressed(MouseEvent e){
@@ -93,4 +97,6 @@ public class TestVisualizationMain {
 		}
 	}
 
+	
+	
 }

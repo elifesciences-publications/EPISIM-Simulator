@@ -17,6 +17,7 @@ import java.awt.geom.PathIterator;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 
@@ -33,17 +34,26 @@ public class TestCanvas extends Canvas {
 	private Set<String> ellipseKeySet;
 	
 	private int nextId = 0;
-	
+	private Random rand;
 	public TestCanvas(){
 		ellipseKeySet = new HashSet<String>();
 		this.setBackground(Color.white);
 		
+		this.drawCellEllipse(new CellEllipse(getNextCellEllipseId(), 162, 268, RADIUS, RADIUS*2, Color.BLUE), true);
+		this.drawCellEllipse(new CellEllipse(getNextCellEllipseId(), 149, 268, RADIUS, RADIUS*2, Color.BLUE), true);
+	/*	CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 300, 300, RADIUS, RADIUS*2, Color.BLUE);
+		cellEll.rotateCellEllipseInDegrees(90);
+		this.drawCellEllipse(cellEll, true);*/
 		
+		rand = new Random();
 	}
 	
 	
 	public void drawCellEllipse(int x, int y, Color c){
-		drawCellEllipse(new CellEllipse(getNextCellEllipseId(), x, y, RADIUS, RADIUS*2, c), true);		
+		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), x, y, RADIUS, RADIUS*2, c);
+		cellEll.rotateCellEllipseInDegrees(rand.nextInt(180));
+		drawCellEllipse(cellEll, true);
+		
 	}
 	
 	public void drawCellEllipse(int x, int y, int r1, int r2, Color c){
@@ -133,6 +143,7 @@ public class TestCanvas extends Canvas {
 	
 	private void drawIntersectionPointsForCellEllipses(Graphics2D g){
 		int numberOfCells = cellEllipses.size();
+		int [][] intersectionPoints = new int[4][2];
 		for(int n = 0; n < numberOfCells; n++){
 			CellEllipse actEll = cellEllipses.get(n);
 			for(int m = 0; m < numberOfCells; m++){
@@ -140,17 +151,21 @@ public class TestCanvas extends Canvas {
 				else{
 					CellEllipse otherEll = cellEllipses.get(m);
 					if(doOverlap(actEll.getEllipse(), otherEll.getEllipse())){
-						int [][] intersectionPoints = getIntersectionPoints(actEll.getEllipse(), otherEll.getEllipse());
-						//maximum of 4 intersection points for two ellipses
-						for(int i = 0; i < 4; i++){
-							drawPoint(g, intersectionPoints[i][0], intersectionPoints[i][1], 4, Color.RED);
+						
+						if(!this.ellipseKeySet.contains(actEll.getId()+","+otherEll.getId())){
+								
+							intersectionPoints = getIntersectionPoints(actEll.getEllipse(), otherEll.getEllipse());
+						
+							//maximum of 4 intersection points for two ellipses
+							for(int i = 0; i < 4; i++){
+								drawPoint(g, intersectionPoints[i][0], intersectionPoints[i][1], 4, Color.RED);
+								
+							}
 							
+							clipEllipse(g, intersectionPoints[0], intersectionPoints[1], actEll, otherEll);
 						}
 						//maxiumum of two intersection points for cells in later simulation
-						//drawSquare(g, intersectionPoints[0], intersectionPoints[1], (int) actEll.getEllipse().getWidth(), actEll.getY() > otherEll.getY());
-					
-						if(!this.ellipseKeySet.contains(actEll.getId()+","+otherEll.getId()))
-							clipEllipse(g, intersectionPoints[0], intersectionPoints[1], actEll, otherEll);
+						drawSquare(g, intersectionPoints[0], intersectionPoints[1], actEll, otherEll);
 						
 					}
 				}
@@ -162,10 +177,7 @@ public class TestCanvas extends Canvas {
 		
 		//maximum of 4 intersection points for two ellipses
 		int [][] intersectionPoints = new int[4][2];
-		
-		
-		if(shape1 instanceof Ellipse2D && shape2 instanceof Ellipse2D){
-			
+					
 			Area a1 = new Area(shape1);
 	        Area a2 = new Area(shape2);
 	        a1.intersect(a2);
@@ -175,30 +187,45 @@ public class TestCanvas extends Canvas {
 	        double yOLD = 0;
 	        int i = 0;       
 	        
+	        int previousSpX=0;
+	        int previousSpY=0;
+	        
 	        boolean newIteration = true;
+	        boolean intersectionPointConfirmed = false;
+	        
 	        while (newIteration){
+	      	  
 				int type = it.currentSegment(d);
 
 				switch(type) {
 
-					case PathIterator.SEG_CUBICTO:
+					case PathIterator.SEG_LINETO:{
+						intersectionPointConfirmed = true;
+					}
 	
-					case PathIterator.SEG_LINETO: {
-						if(Math.round(d[0]) == xOLD && Math.round(d[1]) == yOLD){
-							intersectionPoints[i][0] = (int)xOLD;
-							intersectionPoints[i][1] = (int)yOLD;
-							
-							i++;
+					case PathIterator.SEG_CUBICTO: {
+						if(equalPointsForItersection(xOLD, d[0])  && equalPointsForItersection(yOLD, d[1]) && intersectionPointConfirmed){
+							if(previousSpX != getEqualPointsForItersection(xOLD, d[0]) || previousSpY != getEqualPointsForItersection(yOLD, d[1])){
+								intersectionPoints[i][0] = getEqualPointsForItersection(xOLD, d[0]);
+								intersectionPoints[i][1] = getEqualPointsForItersection(yOLD, d[1]);
+								previousSpX = intersectionPoints[i][0];
+						      previousSpY = intersectionPoints[i][1];
+						      intersectionPointConfirmed = false;
+								i++;
+							}
 						}
-						xOLD = Math.round(d[4]);
-						yOLD = Math.round(d[5]);
+						else intersectionPointConfirmed = false;
+						xOLD = d[4];
+						yOLD = d[5];
 	
 					}
 						break;
 					case PathIterator.SEG_CLOSE:{
 						if(i< 4 && (i % 2)!=0){
-							intersectionPoints[i][0] = (int) Math.round(d[4]);
-							intersectionPoints[i][1] = (int) Math.round(d[5]);
+							if(previousSpX != ((int) Math.round(d[4])) || previousSpY != ((int) Math.round(d[5]))){
+								intersectionPoints[i][0] = (int) Math.round(d[4]);
+								intersectionPoints[i][1] = (int) Math.round(d[5]);
+							}
 						}
 						newIteration = false;
 					}
@@ -206,11 +233,22 @@ public class TestCanvas extends Canvas {
 				it.next();
 
 			}
-			
-		}
-		
-		
+				
 		return intersectionPoints;
+	}
+	
+	private boolean equalPointsForItersection(double oldPoint, double newPoint){
+		if(Math.abs(oldPoint-newPoint) <= 1.5) return true;
+		
+		return false;
+	}
+	private int getEqualPointsForItersection(double oldPoint, double newPoint){
+		if(Math.round(oldPoint) == Math.round(newPoint)) return (int) Math.round(newPoint);
+		else if(Math.floor(oldPoint) == Math.round(newPoint)) return (int) Math.round(newPoint);
+		else if(Math.round(oldPoint) == Math.floor(newPoint)) return (int) Math.floor(newPoint);
+		else if(Math.floor(oldPoint) == Math.floor(newPoint)) return (int) Math.floor(newPoint);
+		
+		return (int) Math.round(newPoint);
 	}
 	
 	private void drawPoint(Graphics2D g, int x, int y, int size, Color c){
@@ -227,7 +265,12 @@ public class TestCanvas extends Canvas {
 		
 		double [] directionVector = {sp1[0]-sp2[0], sp1[1]-sp2[1]};
 
-		double[] newVector = {-1*(directionVector[1]/directionVector[0]), 1};
+		double[] newVector; 
+		
+		if(directionVector[0]==0) newVector = new double[]{-1, 0};
+		else if(directionVector[1]==0) newVector = new double[]{0, 1};
+		else newVector = new double[]{-1*(directionVector[1]/directionVector[0]), 1};
+		
 		double newVectorNormfact = 1/Math.sqrt(Math.pow(newVector[0], 2)+Math.pow(newVector[1], 2));
 		
 
@@ -236,17 +279,41 @@ public class TestCanvas extends Canvas {
 		if(actEllipse.getY() < otherEllipse.getY()){				
 			newVector[0] *= actEllipse.getBiggerAxis();
 			newVector[1] *= actEllipse.getBiggerAxis();
+			
 		}
 		else{
+			
 			newVector[0] *= (-1* actEllipse.getBiggerAxis());
 			newVector[1] *= (-1* actEllipse.getBiggerAxis());
 		}
 		
+		int [] xPoints = new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]};/*x-Points*/
+		int [] yPoints = new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]};/*y-Points*/
+		
+		//Point-correction in order to cut everything without remaining spaces
+		if(xPoints[2] < xPoints[3]){
+			xPoints[2] -= actEllipse.getBiggerAxis();
+			xPoints[3] += actEllipse.getBiggerAxis();
+		}
+		else if(xPoints[2] > xPoints[3]){
+			xPoints[3] -= actEllipse.getBiggerAxis();
+			xPoints[2] += actEllipse.getBiggerAxis();
+		}
+		if(yPoints[2] < yPoints[3]){
+			yPoints[2] -= actEllipse.getBiggerAxis();
+			yPoints[3] += actEllipse.getBiggerAxis();
+		}
+		else if(yPoints[2] > yPoints[3]){
+			yPoints[3] -= actEllipse.getBiggerAxis();
+			yPoints[2] += actEllipse.getBiggerAxis();
+		}
+		
 		//System.out.println(newVector[0]+","+newVector[1]);
-		g.drawLine(sp1[0], sp1[1], sp2[0], sp2[1]);
-		g.drawLine(sp2[0], sp2[1], sp2[0] + (int)newVector[0],sp2[1] + (int)newVector[1]);
-		g.drawLine(sp1[0], sp1[1], sp1[0] + (int)newVector[0],sp1[1] +(int)newVector[1]);
-		g.drawLine(sp1[0]+(int)newVector[0], sp1[1]+(int)newVector[1], sp2[0]+(int)newVector[0], sp2[1]+(int)newVector[1]);
+		g.drawLine(xPoints[0], yPoints[0], xPoints[1], yPoints[1]);
+		g.drawLine(xPoints[1], yPoints[1], xPoints[2], yPoints[2]);
+		g.drawLine(xPoints[2], yPoints[2], xPoints[3], yPoints[3]);
+		g.drawLine(xPoints[3], yPoints[3], xPoints[0], yPoints[0]);
+		
 	}
 	
 	private void clipEllipse(Graphics2D g, int[] sp1, int[] sp2, CellEllipse actEllipse, CellEllipse otherEllipse){
@@ -254,9 +321,19 @@ public class TestCanvas extends Canvas {
 		this.ellipseKeySet.add(actEllipse.getId()+","+otherEllipse.getId());
 		this.ellipseKeySet.add(otherEllipse.getId()+","+actEllipse.getId());
 		
-		double [] directionVector = {sp1[0]-sp2[0], sp1[1]-sp2[1]};
+		System.out.println("SP 1:"+ sp1[0] + ","+ sp1[1]);
+		System.out.println("SP 2:"+ sp2[0] + ","+ sp2[1]);
+		
+		double [] directionVector = new double[]{sp1[0]-sp2[0], sp1[1]-sp2[1]};
 
-		double[] newVector = {-1*(directionVector[1]/directionVector[0]), 1};
+		double[] newVector; 
+		
+		if(directionVector[0]==0) newVector = new double[]{-1, 0};
+		else if(directionVector[1]==0) newVector = new double[]{0, 1};
+		else newVector = new double[]{-1*(directionVector[1]/directionVector[0]), 1};
+		
+		
+		
 		double newVectorNormfact = 1/Math.sqrt(Math.pow(newVector[0], 2)+Math.pow(newVector[1], 2));
 		
 
@@ -265,27 +342,72 @@ public class TestCanvas extends Canvas {
 		if(actEllipse.getY() < otherEllipse.getY()){				
 			newVector[0] *= actEllipse.getBiggerAxis();
 			newVector[1] *= actEllipse.getBiggerAxis();
+			System.out.println("Nicht Invertieren, actEllipse("+actEllipse.getX()+","+ actEllipse.getY()+") otherEllipse("+otherEllipse.getX()+","+otherEllipse.getY()+")");
 		}
 		else{
 			newVector[0] *= (-1* actEllipse.getBiggerAxis());
 			newVector[1] *= (-1* actEllipse.getBiggerAxis());
+			System.out.println("Invertieren, actEllipse("+actEllipse.getX()+","+ actEllipse.getY()+") otherEllipse("+otherEllipse.getX()+","+otherEllipse.getY()+")");
 		}		
 		//System.out.println(newVector[0]+","+newVector[1]);
 		
-		actEllipse.clipAreaFromEllipse(new Area(new Polygon(
-		new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]},/*x-Points*/
-		new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]},/*y-Points*/
-		4
-		)));
+		int [] xPoints = new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]};/*x-Points*/
+		int [] yPoints = new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]};/*y-Points*/
+		
+		System.out.print("X-Points: ");
+		for(int x:xPoints)System.out.print(x+", ");
+		System.out.println();
+		
+		System.out.print("Y-Points: ");
+		for(int y:yPoints)System.out.print(y+", ");
+		System.out.println();
+		
+		//Point-correction in order to cut everything without remaining spaces
+		if(xPoints[2] < xPoints[3]){
+			xPoints[2] -= actEllipse.getBiggerAxis();
+			xPoints[3] += actEllipse.getBiggerAxis();
+		}
+		else if(xPoints[2] > xPoints[3]){
+			xPoints[3] -= actEllipse.getBiggerAxis();
+			xPoints[2] += actEllipse.getBiggerAxis();
+		}
+		if(yPoints[2] < yPoints[3]){
+			yPoints[2] -= actEllipse.getBiggerAxis();
+			yPoints[3] += actEllipse.getBiggerAxis();
+		}
+		else if(yPoints[2] > yPoints[3]){
+			yPoints[3] -= actEllipse.getBiggerAxis();
+			yPoints[2] += actEllipse.getBiggerAxis();
+		}
+				
+		actEllipse.clipAreaFromEllipse(new Area(new Polygon(xPoints, yPoints, 4)));
 		
 		newVector[0] *= -1;
 		newVector[1] *= -1;
 		
-		otherEllipse.clipAreaFromEllipse(new Area(new Polygon(
-				new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]},/*x-Points*/
-				new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]},/*y-Points*/
-				4
-				)));
+		
+		xPoints = new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]};/*x-Points*/
+		yPoints = new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]};/*y-Points*/
+		
+		//Point-correction in order to cut everything without remaining spaces
+		if(xPoints[2] < xPoints[3]){
+			xPoints[2] -= actEllipse.getBiggerAxis();
+			xPoints[3] += actEllipse.getBiggerAxis();
+		}
+		else{
+			xPoints[3] -= actEllipse.getBiggerAxis();
+			xPoints[2] += actEllipse.getBiggerAxis();
+		}
+		if(yPoints[2] < yPoints[3]){
+			yPoints[2] -= actEllipse.getBiggerAxis();
+			yPoints[3] += actEllipse.getBiggerAxis();
+		}
+		else{
+			yPoints[3] -= actEllipse.getBiggerAxis();
+			yPoints[2] += actEllipse.getBiggerAxis();
+		}
+		
+		otherEllipse.clipAreaFromEllipse(new Area(new Polygon(xPoints, yPoints, 4)));
 		
 	}
 	

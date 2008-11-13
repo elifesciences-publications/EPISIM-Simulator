@@ -1,6 +1,8 @@
 package sim.app.episim.visualization;
 
 import java.awt.Color;
+import java.awt.Polygon;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
@@ -8,7 +10,7 @@ import java.awt.geom.Ellipse2D;
 
 public class CellEllipse {
 	
-		private Ellipse2D.Double ellipse;
+		private Shape ellipse;
 		
 		private Area clippedEllipse;
 		
@@ -18,6 +20,8 @@ public class CellEllipse {
 		private int y;
 		private int r1;
 		private int r2;
+		private double orientationInRadians;
+		
 		
 		public Color c;
 		
@@ -30,7 +34,6 @@ public class CellEllipse {
 			this.r1 = r1;
 			this.r2 = r2;
 			this.c = c;
-			System.out.println("Id:"+id);
 		}
 
 		public void resetClippedEllipse(){ clippedEllipse = new Area(ellipse);}
@@ -39,7 +42,9 @@ public class CellEllipse {
 
 		
       public void setX(int x) {
-      	ellipse.x = (x-r1);
+      	AffineTransform trans = new AffineTransform();
+      	trans.translate((x-this.x), 0);
+      	ellipse = trans.createTransformedShape(ellipse);
       	this.x = x;
       }
 
@@ -48,7 +53,9 @@ public class CellEllipse {
 
 		
       public void setY(int y) {
-      	ellipse.y = (y-r2);
+      	AffineTransform trans = new AffineTransform();
+      	trans.translate(0, (y-this.y));
+      	ellipse = trans.createTransformedShape(ellipse);
       	this.y = y;
       }
 
@@ -57,8 +64,9 @@ public class CellEllipse {
 
 		
       public void setR1(int r1) {
-      	ellipse.width = 2*r1;
+      	ellipse = new Ellipse2D.Double(x - r1,y-r2,r1*2,r2*2);
       	this.r1 = r1;
+      	this.rotateCellEllipseInRadians(this.orientationInRadians);
       }
 
 		
@@ -66,12 +74,12 @@ public class CellEllipse {
 
 		
       public void setR2(int r2) {
-      	ellipse.height = 2*r2;
+      	ellipse = new Ellipse2D.Double(x - r1,y-r2,r1*2,r2*2);
       	this.r2 = r2;
+      	this.rotateCellEllipseInRadians(this.orientationInRadians);
       }
-
 		
-      public Ellipse2D.Double getEllipse() { return ellipse;}
+      public Shape getEllipse() { return ellipse;}
 
       public void clipAreaFromEllipse(Area area){
       	this.clippedEllipse.subtract(area);
@@ -80,17 +88,41 @@ public class CellEllipse {
       public Shape getClippedEllipse(){
       	return this.clippedEllipse;
       }
-      
-      
-		
+     		
 		public int getId() {		
 			return id;
 		}
 		
-		public int getBiggerAxis(){
-			if(ellipse.width > ellipse.height) return (int)ellipse.width;
-			else return (int) ellipse.height;
+		public void rotateCellEllipseInDegrees(double degrees){
+			this.orientationInRadians = degrees*(Math.PI/180);
+			rotateCellEllipseInRadians(orientationInRadians);
 		}
+		
+		public void rotateCellEllipseInRadians(double radians){
+			this.orientationInRadians = radians;
+			AffineTransform trans = new AffineTransform();
+			trans.rotate(radians, x, y);
+			this.ellipse = trans.createTransformedShape(this.ellipse);
+			if(this.clippedEllipse != null) this.clippedEllipse = new Area(trans.createTransformedShape(clippedEllipse));
+		}
+		
+		public int getBiggerAxis(){
+			if(r1 > r2) return 2*r1;
+			else return 2*r2;
+		}
+
+		
+      public double getOrientationInRadians() {
+      
+      	return orientationInRadians;
+      }
+      
+      public double getOrientationInDegrees(){
+      	return this.orientationInRadians*(180/Math.PI);
+      }
+
+		
+     
 }
 
 

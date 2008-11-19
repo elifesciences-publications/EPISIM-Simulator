@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.Stroke;
@@ -20,8 +21,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import javax.swing.JPanel;
 
-public class TestCanvas extends Canvas {
+
+public class TestCanvas extends JPanel {
 	
 	private final int RADIUS = 20;
 	
@@ -38,9 +41,9 @@ public class TestCanvas extends Canvas {
 	public TestCanvas(){
 		ellipseKeySet = new HashSet<String>();
 		this.setBackground(Color.white);
-		
-		this.drawCellEllipse(new CellEllipse(getNextCellEllipseId(), 162, 268, RADIUS, RADIUS*2, Color.BLUE), true);
-		this.drawCellEllipse(new CellEllipse(getNextCellEllipseId(), 149, 268, RADIUS, RADIUS*2, Color.BLUE), true);
+		//this.setDoubleBuffered(false);
+		this.drawCellEllipse(null,new CellEllipse(getNextCellEllipseId(), 162, 268, RADIUS, RADIUS*2, Color.BLUE), true);
+		this.drawCellEllipse(null, new CellEllipse(getNextCellEllipseId(), 149, 268, RADIUS, RADIUS*2, Color.BLUE), true);
 	/*	CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 300, 300, RADIUS, RADIUS*2, Color.BLUE);
 		cellEll.rotateCellEllipseInDegrees(90);
 		this.drawCellEllipse(cellEll, true);*/
@@ -52,16 +55,16 @@ public class TestCanvas extends Canvas {
 	public void drawCellEllipse(int x, int y, Color c){
 		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), x, y, RADIUS, RADIUS*2, c);
 		cellEll.rotateCellEllipseInDegrees(rand.nextInt(180));
-		drawCellEllipse(cellEll, true);
+		drawCellEllipse(null,cellEll, true);
 		
 	}
 	
 	public void drawCellEllipse(int x, int y, int r1, int r2, Color c){
-		drawCellEllipse(new CellEllipse(getNextCellEllipseId(),x, y, r1, r2, c), true);
+		drawCellEllipse(null,new CellEllipse(getNextCellEllipseId(),x, y, r1, r2, c), true);
 	}
 	
-	private void drawCellEllipse(CellEllipse cellEllipse, boolean newCellEllipse){
-		Graphics2D g = (Graphics2D) this.getGraphics();
+	private void drawCellEllipse(Graphics2D g,CellEllipse cellEllipse, boolean newCellEllipse){
+		if(g==null)g = (Graphics2D) this.getGraphics();
 		if(g != null){
 			g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 			Color oldColor = g.getColor();
@@ -104,7 +107,7 @@ public class TestCanvas extends Canvas {
 		drawIntersectionPointsForCellEllipses((Graphics2D)g);
 		for(CellEllipse ell : cellEllipses){
 			
-			drawCellEllipse(ell, false);
+			drawCellEllipse((Graphics2D) g,ell, false);
 		}
 	}
 	
@@ -414,8 +417,10 @@ public class TestCanvas extends Canvas {
 	private int getNextCellEllipseId(){
 		return this.nextId++;
 	}
+
 	
 	
+
 	
 
 }

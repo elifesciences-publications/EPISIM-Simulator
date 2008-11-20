@@ -64,7 +64,7 @@ public class TestVisualizationMain {
 		canvas.addMouseListener(new MouseAdapter(){
 			
 			 public void mouseClicked(MouseEvent e){
-				canvas.drawCellEllipse(e.getX(), e.getY(), Color.BLUE);
+				//canvas.drawCellEllipse(e.getX(), e.getY(), Color.BLUE);
 			 }
 			 
 			 public void mousePressed(MouseEvent e){

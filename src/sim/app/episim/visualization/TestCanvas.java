@@ -1,23 +1,18 @@
 package sim.app.episim.visualization;
 
 import java.awt.BasicStroke;
-import java.awt.Canvas;
+
 import java.awt.Color;
-import java.awt.Dimension;
+
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
+
 import java.awt.Polygon;
 import java.awt.Shape;
-import java.awt.Stroke;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -43,11 +38,11 @@ public class TestCanvas extends JPanel {
 		this.setBackground(Color.white);
 		
 		
-		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 162, 268, RADIUS, RADIUS*2, Color.BLUE);
+		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 165, 286, RADIUS, RADIUS*2, Color.BLUE);
 		//cellEll.rotateCellEllipseInDegrees(30);
 		this.drawCellEllipse(null,cellEll, true);
 		
-		cellEll = new CellEllipse(getNextCellEllipseId(), 149, 268, RADIUS, RADIUS*2, Color.BLUE);
+		cellEll = new CellEllipse(getNextCellEllipseId(), 199, 288, RADIUS, RADIUS*2, Color.BLUE);
 	//	cellEll.rotateCellEllipseInDegrees(30);
 		this.drawCellEllipse(null,cellEll, true);
 		
@@ -317,8 +312,7 @@ public class TestCanvas extends JPanel {
 		System.out.println("SP 2:"+ sp2[0] + ","+ sp2[1]);
 		
 		double [] directionVector = new double[]{sp1[0]-sp2[0], sp1[1]-sp2[1]};
-		double directionVectorNormfact = 1/Math.sqrt(Math.pow(directionVector[0], 2)+Math.pow(directionVector[1], 2));
-
+		
 		double[] newVector; 
 		
 		if(directionVector[0]==0) newVector = new double[]{-1, 0};
@@ -348,38 +342,16 @@ public class TestCanvas extends JPanel {
 		
 		xyPoints.xPointsEllipse1 = new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]};/*x-Points*/
 		xyPoints.yPointsEllipse1 = new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]};/*y-Points*/
-		
+	/*	
 		System.out.print("X-Points: ");
 		for(int x:xyPoints.xPointsEllipse1)System.out.print(x+", ");
 		System.out.println();
-		
+	
 		System.out.print("Y-Points: ");
 		for(int y:xyPoints.yPointsEllipse1)System.out.print(y+", ");
 		System.out.println();
-		
-	/*	
-		directionVector[0] *= directionVectorNormfact;
-		directionVector[1] *= directionVectorNormfact;
-	*/	
-		
-	//Point-correction in order to cut everything without remaining spaces
-		if(xyPoints.xPointsEllipse1[2] < xyPoints.xPointsEllipse1[3]){
-			xyPoints.xPointsEllipse1[2] += directionVector[0];
-			xyPoints.xPointsEllipse1[3] -= directionVector[0];
-		}
-		else if(xyPoints.xPointsEllipse1[2] > xyPoints.xPointsEllipse1[3]){
-			xyPoints.xPointsEllipse1[3] += directionVector[0];
-			xyPoints.xPointsEllipse1[2] -= directionVector[0];
-		}
-		if(xyPoints.yPointsEllipse1[2] < xyPoints.yPointsEllipse1[3]){
-			xyPoints.yPointsEllipse1[2] += directionVector[1];
-			xyPoints.yPointsEllipse1[3] -= directionVector[1];
-		}
-		else if(xyPoints.yPointsEllipse1[2] > xyPoints.yPointsEllipse1[3]){
-			xyPoints.yPointsEllipse1[3] += directionVector[1];
-			xyPoints.yPointsEllipse1[2] -= directionVector[1];
-		}
-				
+		*/
+		System.out.println("Direction Vector: ("+directionVector[0]+", "+directionVector[1]+")");
 		
 		
 		newVector[0] *= -1;
@@ -389,23 +361,93 @@ public class TestCanvas extends JPanel {
 		xyPoints.xPointsEllipse2 = new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]};/*x-Points*/
 		xyPoints.yPointsEllipse2 = new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]};/*y-Points*/
 		
-/*		//Point-correction in order to cut everything without remaining spaces
+	final double FACTORDIRVECT = 1.5;	
+		
+	//Point-correction in order to cut everything without remaining spaces
+		if(xyPoints.xPointsEllipse1[2] < xyPoints.xPointsEllipse1[3]){
+			if(directionVector[0] <= 0){
+				xyPoints.xPointsEllipse1[2] += directionVector[0]*FACTORDIRVECT;
+				xyPoints.xPointsEllipse1[3] -= directionVector[0]*FACTORDIRVECT;
+			}
+			else{
+				xyPoints.xPointsEllipse1[2] -= directionVector[0]*FACTORDIRVECT;
+				xyPoints.xPointsEllipse1[3] += directionVector[0]*FACTORDIRVECT;
+			}
+		}
+		else if(xyPoints.xPointsEllipse1[2] > xyPoints.xPointsEllipse1[3]){			
+			if(directionVector[0] <= 0){
+				xyPoints.xPointsEllipse1[3] += directionVector[0]*FACTORDIRVECT;
+				xyPoints.xPointsEllipse1[2] -= directionVector[0]*FACTORDIRVECT;
+			}
+			else{
+				xyPoints.xPointsEllipse1[3] -= directionVector[0]*FACTORDIRVECT;
+				xyPoints.xPointsEllipse1[2] += directionVector[0]*FACTORDIRVECT;
+			}
+		}
+		if(xyPoints.yPointsEllipse1[2] < xyPoints.yPointsEllipse1[3]){
+			if(directionVector[1] <= 0){
+				xyPoints.yPointsEllipse1[2] += directionVector[1]*FACTORDIRVECT;
+				xyPoints.yPointsEllipse1[3] -= directionVector[1]*FACTORDIRVECT;
+			}
+			else{
+				xyPoints.yPointsEllipse1[2] -= directionVector[1]*FACTORDIRVECT;
+				xyPoints.yPointsEllipse1[3] += directionVector[1]*FACTORDIRVECT;
+			}
+		}
+		else if(xyPoints.yPointsEllipse1[2] > xyPoints.yPointsEllipse1[3]){
+			if(directionVector[1] <= 0){
+				xyPoints.yPointsEllipse1[3] += directionVector[1]*FACTORDIRVECT;
+				xyPoints.yPointsEllipse1[2] -= directionVector[1]*FACTORDIRVECT;
+			}
+			else{
+				xyPoints.yPointsEllipse1[3] -= directionVector[1]*FACTORDIRVECT;
+				xyPoints.yPointsEllipse1[2] += directionVector[1]*FACTORDIRVECT;
+			}
+		}
+				
+				
+		
+		//Point-correction in order to cut everything without remaining spaces
 		if(xyPoints.xPointsEllipse2[2] < xyPoints.xPointsEllipse2[3]){
-			xyPoints.xPointsEllipse2[2] += ((otherEllipse.getBiggerAxis()/2)*directionVector[0]);
-			xyPoints.xPointsEllipse2[3] -= ((otherEllipse.getBiggerAxis()/2)*directionVector[0]);
+			if(directionVector[0] <= 0){
+				xyPoints.xPointsEllipse2[2] += directionVector[0]*FACTORDIRVECT;
+				xyPoints.xPointsEllipse2[3] -= directionVector[0]*FACTORDIRVECT;
+			}
+			else{
+				xyPoints.xPointsEllipse2[2] -= directionVector[0]*FACTORDIRVECT;
+				xyPoints.xPointsEllipse2[3] += directionVector[0]*FACTORDIRVECT;
+			}
 		}
 		else if(xyPoints.xPointsEllipse2[2] > xyPoints.xPointsEllipse2[3]){
-			xyPoints.xPointsEllipse2[3] += ((otherEllipse.getBiggerAxis()/2)*directionVector[0]);
-			xyPoints.xPointsEllipse2[2] -= ((otherEllipse.getBiggerAxis()/2)*directionVector[0]);
+			if(directionVector[0] <= 0){
+				xyPoints.xPointsEllipse2[3] += directionVector[0]*FACTORDIRVECT;
+				xyPoints.xPointsEllipse2[2] -= directionVector[0]*FACTORDIRVECT;
+			}
+			else{
+				xyPoints.xPointsEllipse2[3] -= directionVector[0]*FACTORDIRVECT;
+				xyPoints.xPointsEllipse2[2] += directionVector[0]*FACTORDIRVECT;
+			}
 		}
 		if(xyPoints.yPointsEllipse2[2] < xyPoints.yPointsEllipse2[3]){
-			xyPoints.yPointsEllipse2[2] += ((otherEllipse.getBiggerAxis()/2)*directionVector[1]);
-			xyPoints.yPointsEllipse2[3] -= ((otherEllipse.getBiggerAxis()/2)*directionVector[1]);
+			if(directionVector[1] <= 0){
+				xyPoints.yPointsEllipse2[2] += directionVector[1]*FACTORDIRVECT;
+				xyPoints.yPointsEllipse2[3] -= directionVector[1]*FACTORDIRVECT;
+			}
+			else{
+				xyPoints.yPointsEllipse2[2] -= directionVector[1]*FACTORDIRVECT;
+				xyPoints.yPointsEllipse2[3] += directionVector[1]*FACTORDIRVECT;
+			}
 		}
 		else if(xyPoints.yPointsEllipse2[2] > xyPoints.yPointsEllipse2[3]){
-			xyPoints.yPointsEllipse2[3] += ((otherEllipse.getBiggerAxis()/2)*directionVector[1]);
-			xyPoints.yPointsEllipse2[2] -= ((otherEllipse.getBiggerAxis()/2)*directionVector[1]);
-		}*/
+			if(directionVector[1] <= 0){
+				xyPoints.yPointsEllipse2[3] += directionVector[1]*FACTORDIRVECT;
+				xyPoints.yPointsEllipse2[2] -= directionVector[1]*FACTORDIRVECT;
+			}
+			else{
+				xyPoints.yPointsEllipse2[3] -= directionVector[1]*FACTORDIRVECT;
+				xyPoints.yPointsEllipse2[2] += directionVector[1]*FACTORDIRVECT;
+			}
+		}
 		return xyPoints;
 	}
 

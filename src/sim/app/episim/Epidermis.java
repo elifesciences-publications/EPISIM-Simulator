@@ -14,6 +14,7 @@ import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -152,24 +153,24 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 		
 		//TODO: plus 2 Korrektur überprüfen
 		cellContinous2D = new Continuous2D(biomechModelContr.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
-				TissueBorder.getInstance().getWidth() + 2, 
-				TissueBorder.getInstance().getHeight());
-		basementContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth() + 2, 
-				TissueBorder.getInstance().getWidth() + 2, 
-				TissueBorder.getInstance().getHeight());
-		rulerContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth()+2,
-	   			TissueBorder.getInstance().getWidth()+2,
-	   			TissueBorder.getInstance().getHeight());
-	   gridContinous2D = new Continuous2D(TissueBorder.getInstance().getWidth()+2,
-	  			TissueBorder.getInstance().getWidth()+2,
-	  			TissueBorder.getInstance().getHeight());
+				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
+				TissueController.getInstance().getTissueBorder().getHeight());
+		basementContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth() + 2, 
+				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
+				TissueController.getInstance().getTissueBorder().getHeight());
+		rulerContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth()+2,
+				TissueController.getInstance().getTissueBorder().getWidth()+2,
+				TissueController.getInstance().getTissueBorder().getHeight());
+	   gridContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth()+2,
+	   		TissueController.getInstance().getTissueBorder().getWidth()+2,
+	   		TissueController.getInstance().getTissueBorder().getHeight());
  }
 
  
 
  public final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu retezapfen tiefe
  {
-     return (y-TissueBorder.getInstance().getUndulationBaseLine())/modelController.getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
+     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/modelController.getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
  }
 
  
@@ -208,9 +209,9 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
  
  
 private void seedStemCells(){
-	Double2D lastloc = new Double2D(2, TissueBorder.getInstance().lowerBound(2));
-	for(double x = 2; x <= TissueBorder.getInstance().getWidth(); x += 2){
-		Double2D newloc = new Double2D(x, TissueBorder.getInstance().lowerBound(x));
+	Double2D lastloc = new Double2D(2, TissueController.getInstance().getTissueBorder().lowerBound(2));
+	for(double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidth(); x += 2){
+		Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBound(x));
 		double distance = newloc.distance(lastloc);
 
 		if((depthFrac(newloc.y) > biomechModelContr.getEpisimMechanicalModelGlobalParameters()

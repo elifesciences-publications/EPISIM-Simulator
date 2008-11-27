@@ -1,6 +1,7 @@
 package sim.app.episim.visualization;
 
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.portrayal.*;
 
 import java.awt.*;
@@ -50,7 +51,7 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
    // assumes the graphics already has its color set
 	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 	
-		GeneralPath polygon = TissueBorder.getInstance().getBasementMembraneDrawPolygon();
+		GeneralPath polygon = TissueController.getInstance().getTissueBorder().getBasementMembraneDrawPolygon();
 		if(polygon != null){
 			{
 				if(info != null && polygon.getBounds().getWidth() > 0){
@@ -70,7 +71,7 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 					height = (INITIALHEIGHT-2*border)*dispScale;
 					double scaleX = (width / polygon.getBounds2D().getWidth());
 					
-					if(TissueBorder.getInstance().isStandardMembraneLoaded()){
+					if(TissueController.getInstance().getTissueBorder().isStandardMembraneLoaded()){
 						 graphics.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 						// scaleX *= 1.06;
 					}
@@ -136,7 +137,7 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 							.getMinY()
 							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS);
 		
-					if(TissueBorder.getInstance().isOverBasalLayer(new Point2D.Double(
+					if(TissueController.getInstance().getTissueBorder().isOverBasalLayer(new Point2D.Double(
 							(((point.getX()-border) /scaleX)),
 							(((point.getY()-border)/scaleX)))))
 							graphics.setColor(Color.GREEN);

@@ -4,6 +4,7 @@ package sim.app.episim.devBasalLayer;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.portrayal.*;
 
 
@@ -61,7 +62,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    // assumes the graphics already has its color set
 	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 
-		GeneralPath polygon = TissueBorder.getInstance().getBasementMembraneDrawPolygon();
+		GeneralPath polygon = TissueController.getInstance().getTissueBorder().getBasementMembraneDrawPolygon();
 		if(info != null && polygon.getBounds().getWidth() > 0){
 			if(firstInfo == null)
 				firstInfo = info; // wird beim ersten Aufruf gesetzt.
@@ -136,7 +137,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 						.getMinY()
 						- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS);
 
-				if(TissueBorder.getInstance().isOverBasalLayer(new Point2D.Double(
+				if(TissueController.getInstance().getTissueBorder().isOverBasalLayer(new Point2D.Double(
 						(((point.getX()-border) /scaleX)),
 						(((point.getY()-border)/scaleX)))))
 						graphics.setColor(Color.GREEN);

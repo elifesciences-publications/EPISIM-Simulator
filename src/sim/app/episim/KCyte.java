@@ -6,6 +6,7 @@ import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.engine.*;
 import sim.field.continuous.*;
@@ -164,8 +165,8 @@ public class KCyte extends CellType
     
     public final Double2D forceFromBound(Continuous2D pC2dHerd, double x) // Calculate the Force orthogonal to lower bound
     {        
-        double yleft=TissueBorder.getInstance().lowerBound(pC2dHerd.stx(x-5));
-        double yright=TissueBorder.getInstance().lowerBound(pC2dHerd.stx(x+5));
+        double yleft=TissueController.getInstance().getTissueBorder().lowerBound(pC2dHerd.stx(x-5));
+        double yright=TissueController.getInstance().getTissueBorder().lowerBound(pC2dHerd.stx(x+5));
         return new Double2D(-(yright-yleft),10);
     }   
  
@@ -335,7 +336,7 @@ public class KCyte extends CellType
                 return;
         double newx=p_potentialLoc.x;
         double newy=p_potentialLoc.y;               
-        double maxy=TissueBorder.getInstance().lowerBound(p_potentialLoc.x);  
+        double maxy=TissueController.getInstance().getTissueBorder().lowerBound(p_potentialLoc.x);  
         
        
         if (newy>maxy)
@@ -361,7 +362,7 @@ public class KCyte extends CellType
         
         
         newy=yPos;
-        double maxy=TissueBorder.getInstance().lowerBound(newx);        
+        double maxy=TissueController.getInstance().getTissueBorder().lowerBound(newx);        
                 
         if (newy>maxy)  // border crossed
         {
@@ -502,7 +503,7 @@ public class KCyte extends CellType
    	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
    	// setIsOuterCell(isSurfaceCell(realNeighbours));
    	 this.cellDiffModelObjekt.setX(thisloc.getX());
-   	 this.cellDiffModelObjekt.setY(TissueBorder.getInstance().getHeight()- thisloc.getY());
+   	 this.cellDiffModelObjekt.setY(TissueController.getInstance().getTissueBorder().getHeight()- thisloc.getY());
    	 this.cellDiffModelObjekt.setIsMembrane(isMembraneCell());
    	 this.cellDiffModelObjekt.setIsSurface(isOuterCell() || nextToOuterCell);
    	 this.cellDiffModelObjekt.setHasCollision(hasCollision);
@@ -702,7 +703,7 @@ public class KCyte extends CellType
 			}
 
 			Double2D newLoc = epiderm.getCellContinous2D().getObjectLocation(this);
-			double maxy = TissueBorder.getInstance().lowerBound(newLoc.x);
+			double maxy = TissueController.getInstance().getTissueBorder().lowerBound(newLoc.x);
 			if((maxy - newLoc.y) < biomechModelController.getEpisimMechanicalModelGlobalParameters().getBasalLayerWidth())
 				setIsBasalStatisticsCell(true);
 			else

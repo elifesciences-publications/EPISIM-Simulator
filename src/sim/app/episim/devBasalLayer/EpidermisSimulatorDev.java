@@ -33,6 +33,7 @@ import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.engine.Schedule;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
@@ -62,7 +63,7 @@ public class EpidermisSimulatorDev extends JFrame{
 		
 		cleanUpContentPane();
 		
-		TissueBorder.getInstance().loadBasementMembrane(new File("D:/eingehendeAnalyse.txt"));
+		TissueController.getInstance().loadTissue(new File("D:/eingehendeAnalyse.txt"));
 		epiUI = new EpidermisUIDev(this);
 		this.validate();
 		this.repaint();

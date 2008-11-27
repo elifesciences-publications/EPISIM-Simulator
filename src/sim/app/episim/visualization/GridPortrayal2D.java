@@ -4,6 +4,7 @@ package sim.app.episim.visualization;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 
 import sim.portrayal.*;
 
@@ -145,7 +146,7 @@ public class GridPortrayal2D extends SimplePortrayal2D{
 
 
 	private double getScaledNumberOfPixelPerMicrometer(DrawInfo2D info){
-		return TissueBorder.getInstance().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay(info);
+		return TissueController.getInstance().getTissueBorder().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay(info);
 	}
 
 	private double getScaleFactorOfTheDisplay(DrawInfo2D info){

@@ -7,6 +7,7 @@ import sim.app.episim.Epidermis;
 import sim.app.episim.gui.EpiDisplay2D;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;
@@ -64,8 +65,8 @@ public class EpidermisUIDev extends GUIState{
 	private EpiConsoleDev console;
 	
 	private static final double INITIALZOOMFACTOR = 2;
-	private final double EPIDISPLAYWIDTH = TissueBorder.getInstance().getWidth() * INITIALZOOMFACTOR;
-	private final double EPIDISPLAYHEIGHT = TissueBorder.getInstance().getHeight()* INITIALZOOMFACTOR;
+	private final double EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidth() * INITIALZOOMFACTOR;
+	private final double EPIDISPLAYHEIGHT = TissueController.getInstance().getTissueBorder().getHeight()* INITIALZOOMFACTOR;
 	
 	private  BasementMembranePortrayal2D basementPortrayalDraw;
 	private  RulerPortrayal2D rulerPortrayalDraw;

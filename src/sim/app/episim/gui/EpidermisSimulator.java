@@ -47,6 +47,7 @@ import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.visualization.WoundPortrayal2D;
@@ -423,7 +424,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	private void openModel(){
 		ModelController.getInstance().setSimulationStartedOnce(false);
-		TissueBorder.getInstance().loadStandardMebrane();
+		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		File file = null;
 		File standartDir =new File("d:/");
@@ -468,7 +469,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		
 	}
 	private void reloadModel(File modelFile, File snapshotPath){
-		TissueBorder.getInstance().loadStandardMebrane();
+		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		boolean success = false; 
 		try{
@@ -533,7 +534,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		
 	}
 	public void loadSnapshot() {
-		TissueBorder.getInstance().loadStandardMebrane();
+		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
 		File snapshotFile = null;
 		File jarFile = null;
 		boolean success = false;

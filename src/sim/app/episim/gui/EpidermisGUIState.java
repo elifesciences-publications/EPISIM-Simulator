@@ -15,6 +15,7 @@ import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.KeratinocytePortrayal2D;
@@ -79,8 +80,8 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	private EpiConsole console;
 
 	private static final double INITIALZOOMFACTOR = 5;
-	private final double EPIDISPLAYWIDTH = TissueBorder.getInstance().getWidth() * INITIALZOOMFACTOR;
-	private final double EPIDISPLAYHEIGHT = TissueBorder.getInstance().getHeight()* INITIALZOOMFACTOR;
+	private final double EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidth() * INITIALZOOMFACTOR;
+	private final double EPIDISPLAYHEIGHT = TissueController.getInstance().getTissueBorder().getHeight()* INITIALZOOMFACTOR;
 	
 	private static final int DISPLAYBORDER = 40;
 	

@@ -37,7 +37,7 @@ public class TissueBorder {
 	
 	private static  EpisimMechanicalModelGlobalParameters globalParameters;  
 	
-	private LoadedTissue tissue;
+	private ImportedTissue tissue;
 	
 	private boolean standardMembraneLoaded = false;
 	
@@ -119,18 +119,18 @@ public class TissueBorder {
 	 }
 	
 	
-	public void loadBasementMembrane(File path) {
+	public void setImportedBasementMembrane(ImportedTissue _tissue) {
 		standardMembraneLoaded = false;
-		if(path != null){
+		if(_tissue != null){
 			
-			   tissue = TissueProfileReader.getInstance().loadTissue(path);
-			if(tissue != null){
+			   tissue = _tissue;
+			
 				fullcontour = new ArrayList<Point2D>();
 				fullcontour.addAll(tissue.getBasalLayerPoints());
 				ArrayList<Point2D> surface = tissue.getSurfacePoints();
 				
 				for(int i = surface.size()-1; i >= 0 ; i--) fullcontour.add(surface.get(i));
-			}
+			
 			}
 			
 			if(this.fullcontour.size() > 0){
@@ -166,7 +166,7 @@ public class TissueBorder {
 
 	
 	
-	public static synchronized TissueBorder getInstance(){
+	protected static synchronized TissueBorder getInstance(){
 		if(instance == null) instance =  new TissueBorder();
 		return instance;
 	}

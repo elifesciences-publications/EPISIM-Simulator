@@ -5,6 +5,7 @@ import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import sim.app.episim.CellType;
 import sim.app.episim.KCyte;
 import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
 import sim.engine.SimState;
@@ -42,7 +43,7 @@ public class GlobalStatistics implements java.io.Serializable{
 		return 0;
 	}
 	public double getGradientMaxY(){
-		return TissueBorder.getInstance().getHeight();
+		return TissueController.getInstance().getTissueBorder().getHeight();
 	}
 	
 	public static synchronized GlobalStatistics getInstance(){

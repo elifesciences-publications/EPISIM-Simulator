@@ -4,27 +4,22 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 
-public class LoadedTissue implements java.io.Serializable {
+public class ImportedTissue implements java.io.Serializable {
 	
 	private ArrayList<Point2D> basalLayerPoints;
 	private ArrayList<Point2D> surfacePoints;
 	private double resolution;
-	private String imageid;
-	private String tissueDescription;
+	private String imageid = "no ID";
+	private String tissueDescription = "no description";
 	private double epidermalWidth;
+	private double epidermalHeight;
 	private double meanEpidermalThickness;
 	private double maximumEpidermalThickness;
+	private double scalingFactor = 1;
 	
-	public LoadedTissue(ArrayList<Point2D> basalLayerPoints, ArrayList<Point2D> surfacePoints, double resolution, String imageid, String tissueDescription, 
-			double epidermalWidth, double meanEpidermalThickness, double maximumEpidermalThickness){
-		this.basalLayerPoints = basalLayerPoints;
-		this.surfacePoints = surfacePoints;
-		this.resolution = resolution;
-		this.imageid = imageid;
-		this.tissueDescription = tissueDescription;
-		this.epidermalWidth = epidermalWidth;
-		this.meanEpidermalThickness = meanEpidermalThickness;
-		this.maximumEpidermalThickness = maximumEpidermalThickness;
+	
+	public ImportedTissue(){
+		
 	}
 	
 	
@@ -107,6 +102,34 @@ public class LoadedTissue implements java.io.Serializable {
 	
 		this.maximumEpidermalThickness = maximumEpidermalWidth;
 	}
+
+
+	
+   public double getEpidermalHeight() {
+   
+   	return epidermalHeight;
+   }
+
+
+	
+   public void setEpidermalHeight(double epidermalHeight) {
+   
+   	this.epidermalHeight = epidermalHeight;
+   }
+
+
+	
+   public double getScalingFactor() {
+   
+   	return scalingFactor;
+   }
+
+
+	
+   public void setScalingFactor(double scalingFactor) {
+   
+   	this.scalingFactor = scalingFactor;
+   }
 	
 	
 	

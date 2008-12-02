@@ -41,18 +41,12 @@ public class TestVisualizationMain {
 			e.printStackTrace();
 		}	
 		
-		
-		
+				
 		mainFrame = new JFrame();
 		canvas = new TestCanvas();
-		
-		
-		
-		
+				
 		initCanvas();
-		
-		
-		
+				
 		mainFrame.setTitle("Episim Tissue / Cell Visualization");
 		
 		//Menü
@@ -77,6 +71,7 @@ public class TestVisualizationMain {
 	         
 	         if(JFileChooser.APPROVE_OPTION== xmlChooser.showOpenDialog(mainFrame)){
 	         	TissueController.getInstance().loadTissue(xmlChooser.getSelectedFile());
+	         	canvas.addImportedCells(TissueController.getInstance().getImportedCells());
 	         }
 	         	
 	         

@@ -1,5 +1,6 @@
 package sim.app.episim.tissue;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.geom.Point2D;
@@ -34,6 +35,7 @@ import org.xml.sax.SAXException;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
+import sim.app.episim.visualization.CellEllipse;
 
 
 public class TissueImporter {
@@ -80,6 +82,9 @@ public class TissueImporter {
 
 	private double scalingFactor = 1;
 	
+	private Node nuclei = null;
+	
+	private ArrayList<CellEllipse> importedCells;
 	protected TissueImporter(){
 		
 	} 
@@ -87,7 +92,9 @@ public class TissueImporter {
 	
 	private void reset(){
 		scalingFactor = 1;
+		nuclei = null;
 		actImportedTissue = new ImportedTissue();
+		importedCells = new ArrayList<CellEllipse>();
 	}
 	
 	public ImportedTissue loadTissue(File path){
@@ -246,11 +253,63 @@ public class TissueImporter {
 	}
 	
 	private void processCellsElement(Node node){
+		processCellOrNucleiData(node.getChildNodes(), true);
+		if(this.nuclei != null) processCellOrNucleiData(this.nuclei.getChildNodes(), false);
+		this.actImportedTissue.setCells(importedCells);
+	}
+	
+	
+	private void processCellOrNucleiData(NodeList cellsOrNuclei, boolean isCells){
+		double majorAxis=0, minorAxis=0, height=0, width=0, solidity=0, distanceToBL=0,centroidX=0, centroidY=0;
+		int cellID = 0, area=0, orientation=0;
+		
+		for(int i = 0; i < cellsOrNuclei.getLength(); i++){
+			Node actNode = cellsOrNuclei.item(i);
+			if(actNode.getNodeName() != null && (actNode.getNodeName().equals(CELL)||actNode.getNodeName().equals(NUCLEUS))){
+				if(isCells){
+					cellID = Integer.parseInt(actNode.getAttributes().getNamedItem("id").getNodeValue());
+				}
+				
+				NodeList children = actNode.getChildNodes();
+				for(int n = 0; n < children.getLength(); n++){
+					Node actChildNode = children.item(n);
+					if(actChildNode.getNodeName().equals(AREA)) area= Integer.parseInt(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
+					else if(actChildNode.getNodeName().equals(ORIENTATION)) orientation= Integer.parseInt(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
+					else if(actChildNode.getNodeName().equals(CENTROID)){ 
+						centroidX = Double.parseDouble(actChildNode.getAttributes().getNamedItem("value1").getNodeValue())*this.scalingFactor;
+						centroidY = Double.parseDouble(actChildNode.getAttributes().getNamedItem("value2").getNodeValue())*this.scalingFactor;
+					}
+					else if(actChildNode.getNodeName().equals(MAJORAXISLENGTH)) majorAxis= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
+					else if(actChildNode.getNodeName().equals(MINORAXISLENGTH)) minorAxis= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
+					else if(actChildNode.getNodeName().equals(HEIGHT)) height= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
+					else if(actChildNode.getNodeName().equals(WIDTH)) width= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
+					else if(actChildNode.getNodeName().equals(SOLIDITY)) solidity= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
+					else if(actChildNode.getNodeName().equals(DIST2BL)) distanceToBL= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
+					else if(!isCells && actChildNode.getNodeName().equals(CELLID)) cellID= Integer.parseInt(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
+				}
+				
+				if(isCells){
+					this.importedCells.add(new CellEllipse(cellID, (int) centroidX, (int) centroidY, (int) majorAxis, (int)minorAxis, (int)height, (int)width, orientation,area, solidity, distanceToBL, Color.BLUE));
+				}
+				else{
+					CellEllipse cell =this.importedCells.get(cellID-1);
+					if(cell!= null)cell.setNucleus(
+							cell.new Nucleus(cellID, (int) centroidX, (int) centroidY,(int) majorAxis, (int)minorAxis,(int) height, (int)width, orientation, area, solidity, distanceToBL, Color.RED));
+				}
+			}
+		}
+		
+		
 		
 	}
 	
+	
+	
+	
+	
 	private void processNucleiElement(Node node){
-		System.out.println("Nuclei Data is currently ignored by the Tissue Importer");
+		if(this.importedCells.size() > 0) processCellOrNucleiData(node.getChildNodes(), false);
+		else this.nuclei = node;
 	}
 	
 	private void addAllPointsXY(NodeList pointNodes, List<Point2D> pointList){

@@ -3,11 +3,14 @@ package sim.app.episim.tissue;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
+import sim.app.episim.visualization.CellEllipse;
+
 
 public class ImportedTissue implements java.io.Serializable {
 	
 	private ArrayList<Point2D> basalLayerPoints;
 	private ArrayList<Point2D> surfacePoints;
+	private ArrayList<CellEllipse> cells;
 	private double resolution;
 	private String imageid = "no ID";
 	private String tissueDescription = "no description";
@@ -15,123 +18,55 @@ public class ImportedTissue implements java.io.Serializable {
 	private double epidermalHeight;
 	private double meanEpidermalThickness;
 	private double maximumEpidermalThickness;
-	private double scalingFactor = 1;
-	
+	private double scalingFactor = 1;	
 	
 	public ImportedTissue(){
 		
 	}
 	
 	
-	public ArrayList<Point2D> getBasalLayerPoints() {
+	public ArrayList<Point2D> getBasalLayerPoints() { return basalLayerPoints; }
 	
-		return basalLayerPoints;
-	}
+	public void setBasalLayerPoints(ArrayList<Point2D> basalLayerPoints) { this.basalLayerPoints = basalLayerPoints; }
 	
-	public void setBasalLayerPoints(ArrayList<Point2D> basalLayerPoints) {
+	public ArrayList<Point2D> getSurfacePoints() { return surfacePoints; }
 	
-		this.basalLayerPoints = basalLayerPoints;
-	}
+	public void setSurfacePoints(ArrayList<Point2D> surfacePoints){ this.surfacePoints = surfacePoints; }
 	
-	public ArrayList<Point2D> getSurfacePoints() {
+	public double getResolutionInMicrometerPerPixel() { return resolution; }
 	
-		return surfacePoints;
-	}
+	public void setResolutionInMicrometerPerPixel(double resolution) { this.resolution = resolution; }
 	
-	public void setSurfacePoints(ArrayList<Point2D> surfacePoints) {
+	public String getImageid() { return imageid; }
 	
-		this.surfacePoints = surfacePoints;
-	}
+	public void setImageid(String imageid) { this.imageid = imageid; }
 	
-	public double getResolutionInMicrometerPerPixel() {
+	public String getTissueDescription() { return tissueDescription; }
 	
-		return resolution;
-	}
+	public void setTissueDescription(String tissueDescription) { this.tissueDescription = tissueDescription;	}
 	
-	public void setResolutionInMicrometerPerPixel(double resolution) {
+	public double getEpidermalWidth() { return epidermalWidth; }
 	
-		this.resolution = resolution;
-	}
+	public void setEpidermalWidth(double epidermalWidth) { this.epidermalWidth = epidermalWidth;	}
 	
-	public String getImageid() {
+	public double getMeanEpidermalThickness() { return meanEpidermalThickness;	}
 	
-		return imageid;
-	}
+	public void setMeanEpidermalThickness(double meanEpidermalWidth) { this.meanEpidermalThickness = meanEpidermalWidth; }
 	
-	public void setImageid(String imageid) {
+	public double getMaximumEpidermalThickness() { return maximumEpidermalThickness;	}
 	
-		this.imageid = imageid;
-	}
+	public void setMaximumEpidermalThickness(double maximumEpidermalWidth) { this.maximumEpidermalThickness = maximumEpidermalWidth;	}
 	
-	public String getTissueDescription() {
+   public double getEpidermalHeight() { return epidermalHeight; }
 	
-		return tissueDescription;
-	}
+   public void setEpidermalHeight(double epidermalHeight) { this.epidermalHeight = epidermalHeight; }
 	
-	public void setTissueDescription(String tissueDescription) {
+   public double getScalingFactor() { return scalingFactor; }
 	
-		this.tissueDescription = tissueDescription;
-	}
+   public void setScalingFactor(double scalingFactor) { this.scalingFactor = scalingFactor; }
 	
-	public double getEpidermalWidth() {
-	
-		return epidermalWidth;
-	}
-	
-	public void setEpidermalWidth(double epidermalWidth) {
-	
-		this.epidermalWidth = epidermalWidth;
-	}
-	
-	public double getMeanEpidermalThickness() {
-	
-		return meanEpidermalThickness;
-	}
-	
-	public void setMeanEpidermalThickness(double meanEpidermalWidth) {
-	
-		this.meanEpidermalThickness = meanEpidermalWidth;
-	}
-	
-	public double getMaximumEpidermalThickness() {
-	
-		return maximumEpidermalThickness;
-	}
-	
-	public void setMaximumEpidermalThickness(double maximumEpidermalWidth) {
-	
-		this.maximumEpidermalThickness = maximumEpidermalWidth;
-	}
+   public ArrayList<CellEllipse> getCells() { return cells; }
 
-
+   public void setCells(ArrayList<CellEllipse> cells) { this.cells = cells; }
 	
-   public double getEpidermalHeight() {
-   
-   	return epidermalHeight;
-   }
-
-
-	
-   public void setEpidermalHeight(double epidermalHeight) {
-   
-   	this.epidermalHeight = epidermalHeight;
-   }
-
-
-	
-   public double getScalingFactor() {
-   
-   	return scalingFactor;
-   }
-
-
-	
-   public void setScalingFactor(double scalingFactor) {
-   
-   	this.scalingFactor = scalingFactor;
-   }
-	
-	
-	
-
 }

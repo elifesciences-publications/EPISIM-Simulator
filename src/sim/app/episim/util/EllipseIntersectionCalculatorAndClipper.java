@@ -48,8 +48,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 		
 	}
 	
-	private XYPoints calculateClippedEllipses(CellEllipse actEllipse, CellEllipse otherEllipse){
-		
+	private XYPoints calculateClippedEllipses(CellEllipse actEllipse, CellEllipse otherEllipse){		
 			int [][] intersectionPoints = getIntersectionPoints(actEllipse.getEllipse(), otherEllipse.getEllipse());
 			if(intersectionPoints != null){
 				XYPoints xyPoints = calculateXYPoints(intersectionPoints[0], intersectionPoints[1], actEllipse, otherEllipse);
@@ -80,9 +79,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 		//maximum of 4 intersection points for two ellipses
 		int [][] intersectionPoints = new int[4][2];
 					
-			  Area a1 = new Area(shape1);
-	        Area a2 = new Area(shape2);
-	        a1.intersect(a2);
+			 	Area a1 = getIntersection(shape1, shape2);
 	        
 	        //return if the ellipses don't overlap
 	        if(a1.isEmpty()) return null;
@@ -113,9 +110,11 @@ public class EllipseIntersectionCalculatorAndClipper {
 	
 					case PathIterator.SEG_CUBICTO: {
 						if(equalPointsForItersection(xOLD, d[0])  && equalPointsForItersection(yOLD, d[1]) && intersectionPointConfirmed){
-							if(previousSpX != getEqualPointsForItersection(xOLD, d[0]) || previousSpY != getEqualPointsForItersection(yOLD, d[1])){
-								intersectionPoints[i][0] = getEqualPointsForItersection(xOLD, d[0]);
-								intersectionPoints[i][1] = getEqualPointsForItersection(yOLD, d[1]);
+							int equalPointsForIntersectionX = getEqualPointsForItersection(xOLD, d[0]);
+							int equalPointsForIntersectionY = getEqualPointsForItersection(yOLD, d[1]);
+							if(previousSpX != equalPointsForIntersectionX || previousSpY != equalPointsForIntersectionY){
+								intersectionPoints[i][0] = equalPointsForIntersectionX;
+								intersectionPoints[i][1] = equalPointsForIntersectionY;
 								previousSpX = intersectionPoints[i][0];
 						      previousSpY = intersectionPoints[i][1];
 						      intersectionPointConfirmed = false;
@@ -132,11 +131,15 @@ public class EllipseIntersectionCalculatorAndClipper {
 						break;
 					case PathIterator.SEG_CLOSE:{
 						if(i< 4 && (i % 2)!=0){
-							if(previousSpX != ((int) Math.round(d[4])) || previousSpY != ((int) Math.round(d[5]))){
-								intersectionPoints[i][0] = (int) Math.round(d[4]);
-								intersectionPoints[i][1] = (int) Math.round(d[5]);
+							int roundedNewX = (int) Math.round(d[4]);
+							int roundedNewY = (int) Math.round(d[5]);
+							if(previousSpX != roundedNewX || previousSpY != roundedNewY){
+								intersectionPoints[i][0] = roundedNewX;
+								intersectionPoints[i][1] = roundedNewY;
 							}
 						}
+						//exceptional case if no intersection point is found by the algorithm
+						//then the starting and the end point of the intersection area are the intersection points
 						else if(i==0 && protocollXPoints.size()==2 &&protocollYPoints.size()==2){
 							intersectionPoints[0][0] = (int) Math.round(protocollXPoints.get(0));
 							intersectionPoints[0][1] = (int) Math.round(protocollYPoints.get(0));
@@ -179,10 +182,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 			if(actEllipse.getY() >= otherEllipse.getY()){
 				newVector[0] *= -1;
 				newVector[1] *= -1;
-			}
-			
-			//if(sp1[0] < acr)
-			
+			}			
 		}
 		
 		//System.out.println("actEllipse("+actEllipse.getX()+","+ actEllipse.getY()+") otherEllipse("+otherEllipse.getX()+","+otherEllipse.getY()+")");
@@ -216,93 +216,9 @@ public class EllipseIntersectionCalculatorAndClipper {
 		xyPoints.xPointsEllipse2 = new int[]{sp1[0], sp2[0], sp2[0] + (int)newVector[0], sp1[0] + (int)newVector[0]};/*x-Points*/
 		xyPoints.yPointsEllipse2 = new int[]{sp1[1], sp2[1], sp2[1] + (int)newVector[1], sp1[1] + (int)newVector[1]};/*y-Points*/
 		
-	final double FACTORDIRVECT = 1.5;	
-		
-	//Point-correction in order to cut everything without remaining spaces
-		if(xyPoints.xPointsEllipse1[2] < xyPoints.xPointsEllipse1[3]){
-			if(directionVector[0] <= 0){
-				xyPoints.xPointsEllipse1[2] += directionVector[0]*FACTORDIRVECT;
-				xyPoints.xPointsEllipse1[3] -= directionVector[0]*FACTORDIRVECT;
-			}
-			else{
-				xyPoints.xPointsEllipse1[2] -= directionVector[0]*FACTORDIRVECT;
-				xyPoints.xPointsEllipse1[3] += directionVector[0]*FACTORDIRVECT;
-			}
-		}
-		else if(xyPoints.xPointsEllipse1[2] > xyPoints.xPointsEllipse1[3]){			
-			if(directionVector[0] <= 0){
-				xyPoints.xPointsEllipse1[3] += directionVector[0]*FACTORDIRVECT;
-				xyPoints.xPointsEllipse1[2] -= directionVector[0]*FACTORDIRVECT;
-			}
-			else{
-				xyPoints.xPointsEllipse1[3] -= directionVector[0]*FACTORDIRVECT;
-				xyPoints.xPointsEllipse1[2] += directionVector[0]*FACTORDIRVECT;
-			}
-		}
-		if(xyPoints.yPointsEllipse1[2] < xyPoints.yPointsEllipse1[3]){
-			if(directionVector[1] <= 0){
-				xyPoints.yPointsEllipse1[2] += directionVector[1]*FACTORDIRVECT;
-				xyPoints.yPointsEllipse1[3] -= directionVector[1]*FACTORDIRVECT;
-			}
-			else{
-				xyPoints.yPointsEllipse1[2] -= directionVector[1]*FACTORDIRVECT;
-				xyPoints.yPointsEllipse1[3] += directionVector[1]*FACTORDIRVECT;
-			}
-		}
-		else if(xyPoints.yPointsEllipse1[2] > xyPoints.yPointsEllipse1[3]){
-			if(directionVector[1] <= 0){
-				xyPoints.yPointsEllipse1[3] += directionVector[1]*FACTORDIRVECT;
-				xyPoints.yPointsEllipse1[2] -= directionVector[1]*FACTORDIRVECT;
-			}
-			else{
-				xyPoints.yPointsEllipse1[3] -= directionVector[1]*FACTORDIRVECT;
-				xyPoints.yPointsEllipse1[2] += directionVector[1]*FACTORDIRVECT;
-			}
-		}
-				
-				
-		
-		//Point-correction in order to cut everything without remaining spaces
-		if(xyPoints.xPointsEllipse2[2] < xyPoints.xPointsEllipse2[3]){
-			if(directionVector[0] <= 0){
-				xyPoints.xPointsEllipse2[2] += directionVector[0]*FACTORDIRVECT;
-				xyPoints.xPointsEllipse2[3] -= directionVector[0]*FACTORDIRVECT;
-			}
-			else{
-				xyPoints.xPointsEllipse2[2] -= directionVector[0]*FACTORDIRVECT;
-				xyPoints.xPointsEllipse2[3] += directionVector[0]*FACTORDIRVECT;
-			}
-		}
-		else if(xyPoints.xPointsEllipse2[2] > xyPoints.xPointsEllipse2[3]){
-			if(directionVector[0] <= 0){
-				xyPoints.xPointsEllipse2[3] += directionVector[0]*FACTORDIRVECT;
-				xyPoints.xPointsEllipse2[2] -= directionVector[0]*FACTORDIRVECT;
-			}
-			else{
-				xyPoints.xPointsEllipse2[3] -= directionVector[0]*FACTORDIRVECT;
-				xyPoints.xPointsEllipse2[2] += directionVector[0]*FACTORDIRVECT;
-			}
-		}
-		if(xyPoints.yPointsEllipse2[2] < xyPoints.yPointsEllipse2[3]){
-			if(directionVector[1] <= 0){
-				xyPoints.yPointsEllipse2[2] += directionVector[1]*FACTORDIRVECT;
-				xyPoints.yPointsEllipse2[3] -= directionVector[1]*FACTORDIRVECT;
-			}
-			else{
-				xyPoints.yPointsEllipse2[2] -= directionVector[1]*FACTORDIRVECT;
-				xyPoints.yPointsEllipse2[3] += directionVector[1]*FACTORDIRVECT;
-			}
-		}
-		else if(xyPoints.yPointsEllipse2[2] > xyPoints.yPointsEllipse2[3]){
-			if(directionVector[1] <= 0){
-				xyPoints.yPointsEllipse2[3] += directionVector[1]*FACTORDIRVECT;
-				xyPoints.yPointsEllipse2[2] -= directionVector[1]*FACTORDIRVECT;
-			}
-			else{
-				xyPoints.yPointsEllipse2[3] -= directionVector[1]*FACTORDIRVECT;
-				xyPoints.yPointsEllipse2[2] += directionVector[1]*FACTORDIRVECT;
-			}
-		}
+	
+		pointCorrectionXYPoints(xyPoints.xPointsEllipse1, xyPoints.yPointsEllipse1, directionVector);
+		pointCorrectionXYPoints(xyPoints.xPointsEllipse2, xyPoints.yPointsEllipse2, directionVector);	
 		
 		//Look if swap is necessary using the distance between centroid of actEllipse and the 
 		//one of the resulting points of the trapeze (different from the intersection points sp)
@@ -315,16 +231,65 @@ public class EllipseIntersectionCalculatorAndClipper {
 	}
 	
 	
+	//Point-correction to make trapezoids out in order to cut everything without remaining spaces
+	private void pointCorrectionXYPoints(int[] xPointsEllipse, int[] yPointsEllipse, double[] directionVector){
+		final double FACTORDIRVECT = 1.5;	
+		
+		//Point-correction in order to cut everything without remaining spaces
+		if(xPointsEllipse[2] < xPointsEllipse[3]){
+			if(directionVector[0] <= 0){
+				xPointsEllipse[2] += directionVector[0]*FACTORDIRVECT;
+				xPointsEllipse[3] -= directionVector[0]*FACTORDIRVECT;
+			}
+			else{
+				xPointsEllipse[2] -= directionVector[0]*FACTORDIRVECT;
+				xPointsEllipse[3] += directionVector[0]*FACTORDIRVECT;
+			}
+		}
+		else if(xPointsEllipse[2] > xPointsEllipse[3]){			
+			if(directionVector[0] <= 0){
+				xPointsEllipse[3] += directionVector[0]*FACTORDIRVECT;
+				xPointsEllipse[2] -= directionVector[0]*FACTORDIRVECT;
+			}
+			else{
+				xPointsEllipse[3] -= directionVector[0]*FACTORDIRVECT;
+				xPointsEllipse[2] += directionVector[0]*FACTORDIRVECT;
+			}
+		}
+		if(yPointsEllipse[2] < yPointsEllipse[3]){
+			if(directionVector[1] <= 0){
+				yPointsEllipse[2] += directionVector[1]*FACTORDIRVECT;
+				yPointsEllipse[3] -= directionVector[1]*FACTORDIRVECT;
+			}
+			else{
+				yPointsEllipse[2] -= directionVector[1]*FACTORDIRVECT;
+				yPointsEllipse[3] += directionVector[1]*FACTORDIRVECT;
+			}
+		}
+		else if(yPointsEllipse[2] > yPointsEllipse[3]){
+			if(directionVector[1] <= 0){
+				yPointsEllipse[3] += directionVector[1]*FACTORDIRVECT;
+				yPointsEllipse[2] -= directionVector[1]*FACTORDIRVECT;
+			}
+			else{
+				yPointsEllipse[3] -= directionVector[1]*FACTORDIRVECT;
+				yPointsEllipse[2] += directionVector[1]*FACTORDIRVECT;
+			}
+		}
+	}
+	
 	private boolean equalPointsForItersection(double oldPoint, double newPoint){
 		if(Math.abs(oldPoint-newPoint) <= 1.5) return true;
 		
 		return false;
 	}
 	private int getEqualPointsForItersection(double oldPoint, double newPoint){
-		if(Math.round(oldPoint) == Math.round(newPoint)) return (int) Math.round(newPoint);
-		else if(Math.floor(oldPoint) == Math.round(newPoint)) return (int) Math.round(newPoint);
-		else if(Math.round(oldPoint) == Math.floor(newPoint)) return (int) Math.floor(newPoint);
-		else if(Math.floor(oldPoint) == Math.floor(newPoint)) return (int) Math.floor(newPoint);
+		long valueL=0;
+		double valueD=0;
+		if(Math.round(oldPoint) == (valueL=Math.round(newPoint))) return (int) valueL;
+		else if(Math.floor(oldPoint) == (valueL=Math.round(newPoint))) return (int) valueL;
+		else if(Math.round(oldPoint) == (valueD=Math.floor(newPoint))) return (int) valueD;
+		else if(Math.floor(oldPoint) == (valueD=Math.floor(newPoint))) return (int) valueD;
 		
 		return (int) Math.round(newPoint);
 	}
@@ -334,5 +299,12 @@ public class EllipseIntersectionCalculatorAndClipper {
 		actEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsEllipse1, xyPoints.yPointsEllipse1, 4)));
 		otherEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsEllipse2, xyPoints.yPointsEllipse2, 4)));
 		
+	}
+	
+	private Area getIntersection(Shape shape1, Shape shape2){
+		 Area a1 = new Area(shape1);
+       Area a2 = new Area(shape2);
+       a1.intersect(a2);
+       return a1;
 	}
 }

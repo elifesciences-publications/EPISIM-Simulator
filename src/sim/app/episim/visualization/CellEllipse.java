@@ -1,7 +1,6 @@
 package sim.app.episim.visualization;
 
 import java.awt.Color;
-import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;

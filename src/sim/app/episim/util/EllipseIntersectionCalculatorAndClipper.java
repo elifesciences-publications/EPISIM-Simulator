@@ -30,6 +30,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 			xPointsEllipse1 = xPointsEllipse2;
 			yPointsEllipse1 = yPointsEllipse2;
 			
+			
 			xPointsEllipse2 =	tmpX;
 			yPointsEllipse2 = tmpY;
 		}

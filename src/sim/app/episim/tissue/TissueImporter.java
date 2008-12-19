@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
+import sim.app.episim.util.TissueRotator;
 import sim.app.episim.visualization.CellEllipse;
 
 
@@ -85,6 +86,9 @@ public class TissueImporter {
 	private Node nuclei = null;
 	
 	private ArrayList<CellEllipse> importedCells;
+	
+	private double surfaceOrientation = 0;
+	
 	protected TissueImporter(){
 		
 	} 
@@ -92,6 +96,7 @@ public class TissueImporter {
 	
 	private void reset(){
 		scalingFactor = 1;
+		surfaceOrientation = 0;
 		nuclei = null;
 		actImportedTissue = new ImportedTissue();
 		importedCells = new ArrayList<CellEllipse>();
@@ -104,7 +109,8 @@ public class TissueImporter {
 			reset();
 			
 			loadXML(path);
-		    
+		   TissueRotator rotator = new TissueRotator();
+		   rotator.rotateTissue(actImportedTissue, surfaceOrientation);
 			return actImportedTissue;
 			
 		}
@@ -323,6 +329,9 @@ public class TissueImporter {
 					else if(points.item(n).getNodeName().equals(Y)) y = Double.parseDouble(points.item(n).getAttributes().getNamedItem("value").getNodeValue());
 				}
 				pointList.add(new Point2D.Double(x, y));
+			}
+			else if(actNode.getNodeName().equals(ORIENTATION)){				
+				surfaceOrientation = Double.parseDouble(actNode.getAttributes().getNamedItem("value").getNodeValue());
 			}
 		}
 	}

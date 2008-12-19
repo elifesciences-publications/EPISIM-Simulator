@@ -1,6 +1,5 @@
 package sim.app.episim.util;
 
-import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Area;
@@ -52,6 +51,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 	private XYPoints calculateClippedEllipses(CellEllipse actEllipse, CellEllipse otherEllipse){		
 			int [][] intersectionPoints = getIntersectionPoints(actEllipse.getEllipse(), otherEllipse.getEllipse());
 			if(intersectionPoints != null){
+				intersectionPoints = select2InterSectionPointsWithMinDistance(intersectionPoints, new int[]{actEllipse.getX(), actEllipse.getY()},new int[]{otherEllipse.getX(), otherEllipse.getY()});
 				XYPoints xyPoints = calculateXYPoints(intersectionPoints[0], intersectionPoints[1], actEllipse, otherEllipse);
 				clipEllipses(actEllipse, otherEllipse, xyPoints);
 				return xyPoints;
@@ -307,5 +307,37 @@ public class EllipseIntersectionCalculatorAndClipper {
        Area a2 = new Area(shape2);
        a1.intersect(a2);
        return a1;
+	}
+	
+	private int[][] select2InterSectionPointsWithMinDistance(int[][] intersectionPoints, int[] actEll, int[] otherEll){
+		//if there are only two intersection points no changes are necessary
+		if(intersectionPoints[2][0] == 0 && intersectionPoints[2][1] == 0 && intersectionPoints[3][0] == 0 && intersectionPoints[3][1] == 0) return intersectionPoints;
+		else{
+			double [] distances = new double[4];
+			for(int i = 0; i < intersectionPoints.length; i++){
+				distances[i]+= distance(actEll[0], actEll[1], intersectionPoints[i][0], intersectionPoints[i][1]);
+				distances[i]+= distance(otherEll[0], otherEll[1], intersectionPoints[i][0], intersectionPoints[i][1]);
+			}
+			
+			double min1 = Double.POSITIVE_INFINITY;
+			double min2 = Double.POSITIVE_INFINITY;
+			int min1Index = -1;
+			int min2Index = -1;
+			for(int i = 0; i < distances.length; i++){
+				if(distances[i] < min1){
+					if(min1 < min2){
+						min2 = min1;
+						min2Index = min1Index;
+					}
+					min1 = distances[i];
+					min1Index = i;
+				}
+				else if(distances[i] < min2){
+					min2 = distances[i];
+					min2Index = i;
+				}
+			}
+			return new int[][]{{intersectionPoints[min1Index][0], intersectionPoints[min1Index][1]},{intersectionPoints[min2Index][0], intersectionPoints[min2Index][1]},{0,0},{0,0}};
+		}
 	}
 }

@@ -29,6 +29,8 @@ public class CellEllipse {
 			
 		private Color color;
 		
+		
+		
 		private Nucleus nucleus = null;
 		
 		public CellEllipse(int id, int x, int y, int majorAxis, int minorAxis, Color c){
@@ -60,6 +62,7 @@ public class CellEllipse {
       public int getX() { return x; }
 		
       public void setX(int x) {
+      	
       	AffineTransform trans = new AffineTransform();
       	trans.translate((x-this.x), 0);
       	ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));
@@ -69,6 +72,7 @@ public class CellEllipse {
       public int getY() { return y; }
 		
       public void setY(int y) {
+      	
       	AffineTransform trans = new AffineTransform();
       	trans.translate(0, (y-this.y));
       	ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));
@@ -78,6 +82,7 @@ public class CellEllipse {
       public int getMajorAxis() { return majorAxis; }
 		
       public void setMajorAxis(int majorAxis) {
+      	
       	ellipseAsArea = new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis);
       	this.majorAxis = majorAxis;
       	this.rotateCellEllipseInRadians(this.orientationInRadians);
@@ -86,6 +91,7 @@ public class CellEllipse {
       public int getMinorAxis() { return minorAxis; }
 		
       public void setMinorAxis(int minorAxis) {
+      	
       	ellipseAsArea = new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis);
       	this.minorAxis = minorAxis;
       	this.rotateCellEllipseInRadians(this.orientationInRadians);
@@ -102,21 +108,24 @@ public class CellEllipse {
 		public int getId() { return id; }
 		
 		public void rotateCellEllipseInDegrees(double degrees){
-			this.orientationInRadians = degrees*(Math.PI/180);
-			rotateCellEllipseInRadians(orientationInRadians);
+			
+		
+			rotateCellEllipseInRadians(Math.toRadians(degrees));
 		}
 		
 		public void rotateCellEllipseInRadians(double radians){
-			this.orientationInRadians = radians;
+			this.orientationInRadians = (orientationInRadians+radians)%(2*Math.PI);
 			AffineTransform trans = new AffineTransform();
 			trans.rotate(radians, x, y);
 			ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));
 			if(this.clippedEllipse != null) this.clippedEllipse = new Area(trans.createTransformedShape(clippedEllipse));
 		}
-				
+		
+		
+		
       public double getOrientationInRadians() { return orientationInRadians; }
       
-      public double getOrientationInDegrees(){ return this.orientationInRadians*(180/Math.PI); }
+      public double getOrientationInDegrees(){ return Math.toDegrees(orientationInRadians); }
 
       public int getHeightExp() {return heightExp;}
 		

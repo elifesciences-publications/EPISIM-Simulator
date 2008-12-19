@@ -42,12 +42,12 @@ public class TestCanvas extends JPanel {
 		this.setBackground(Color.white);
 		
 		
-		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 99, 290, RADIUS*3, RADIUS, Color.BLUE);
+		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 99, 290, RADIUS*5, RADIUS, Color.BLUE);
 		//cellEll.rotateCellEllipseInDegrees(10);
 		this.drawCellEllipse(null,cellEll, true);
 		
-		cellEll = new CellEllipse(getNextCellEllipseId(), 129, 280, RADIUS*3, RADIUS, Color.BLUE);
-	   //cellEll.rotateCellEllipseInDegrees(100);
+		cellEll = new CellEllipse(getNextCellEllipseId(), 129, 280, RADIUS*5, RADIUS, Color.BLUE);
+	   cellEll.rotateCellEllipseInDegrees(90);
 		this.drawCellEllipse(null,cellEll, true);
 		
 		rand = new Random();
@@ -115,7 +115,7 @@ public class TestCanvas extends JPanel {
 		for(CellEllipse ell : cellEllipses){
 			ell.resetClippedEllipse();
 		}
-		drawIntersectionPointsForCellEllipses((Graphics2D)g);
+		calculateIntersectionPointsForCellEllipses((Graphics2D)g);
 		for(CellEllipse ell : cellEllipses){
 			
 			drawCellEllipse((Graphics2D) g,ell, false);
@@ -148,39 +148,41 @@ public class TestCanvas extends JPanel {
 	
 	
 	
-	private void drawIntersectionPointsForCellEllipses(Graphics2D g){
+	private void calculateIntersectionPointsForCellEllipses(Graphics2D g){
 		int numberOfCells = cellEllipses.size();
 		
 		for(int n = 0; n < numberOfCells; n++){
 			CellEllipse actEll = cellEllipses.get(n);
-			for(int m = 0; m < numberOfCells; m++){
-				if(n == m) continue;
-				else{
-					CellEllipse otherEll = cellEllipses.get(m);
+			
+				for(int m = 0; m < numberOfCells; m++){
+					if(n == m) continue;
+					else{
+						CellEllipse otherEll = cellEllipses.get(m);
+						
+							
+							if(!this.ellipseKeySet.contains(actEll.getId()+","+otherEll.getId())){
+									
+								
+							
+								//maximum of 4 intersection points for two ellipses
+							/*	for(int i = 0; i < 4; i++){
+									drawPoint(g, intersectionPoints[i][0], intersectionPoints[i][1], 4, Color.RED);
+									
+								}*/
+								this.ellipseKeySet.add(actEll.getId()+","+otherEll.getId());
+								this.ellipseKeySet.add(otherEll.getId()+","+actEll.getId());
+								
+								
+								XYPoints xyPoints = EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(actEll, otherEll);
+								//if(xyPoints != null) drawSquares(g, xyPoints);
+							}
+							//maxiumum of two intersection points for cells in later simulation
+							
+							
 					
-						
-						if(!this.ellipseKeySet.contains(actEll.getId()+","+otherEll.getId())){
-								
-							
-						
-							//maximum of 4 intersection points for two ellipses
-						/*	for(int i = 0; i < 4; i++){
-								drawPoint(g, intersectionPoints[i][0], intersectionPoints[i][1], 4, Color.RED);
-								
-							}*/
-							this.ellipseKeySet.add(actEll.getId()+","+otherEll.getId());
-							this.ellipseKeySet.add(otherEll.getId()+","+actEll.getId());
-							
-							
-							XYPoints xyPoints = EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(actEll, otherEll);
-							//if(xyPoints != null) drawSquares(g, xyPoints);
-						}
-						//maxiumum of two intersection points for cells in later simulation
-						
-						
-				
+					}
 				}
-			}
+				
 		}
 	}
 	

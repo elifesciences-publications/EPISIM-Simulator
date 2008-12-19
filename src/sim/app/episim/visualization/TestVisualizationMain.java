@@ -72,6 +72,8 @@ public class TestVisualizationMain {
 	         if(JFileChooser.APPROVE_OPTION== xmlChooser.showOpenDialog(mainFrame)){
 	         	TissueController.getInstance().loadTissue(xmlChooser.getSelectedFile());
 	         	canvas.addImportedCells(TissueController.getInstance().getImportedCells());
+	         	mainFrame.setSize(new Dimension(TissueController.getInstance().getTissueWidth()+30, TissueController.getInstance().getTissueHeight()+30));
+	         	mainFrame.repaint();
 	         }
 	         	
 	         

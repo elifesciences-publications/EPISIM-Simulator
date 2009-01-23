@@ -295,7 +295,7 @@ public class TissueImporter {
 				}
 				
 				if(isCells){
-					this.importedCells.add(new CellEllipse(cellID, (int) centroidX, (int) centroidY, (int) majorAxis, (int)minorAxis, (int)height, (int)width, orientation,area, solidity, distanceToBL, Color.BLUE));
+					this.importedCells.add(new CellEllipse(cellID, (int) centroidX, (int) centroidY, (int) majorAxis, (int)minorAxis, (int)height, (int)width, orientation,area, solidity, distanceToBL, new Color(cellID, cellID, cellID)));
 				}
 				else{
 					CellEllipse cell =this.importedCells.get(cellID-1);

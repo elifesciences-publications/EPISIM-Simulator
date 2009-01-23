@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import sim.app.episim.gui.ExtendedFileChooser;
@@ -113,7 +114,13 @@ public class TestVisualizationMain {
 		canvas.addMouseListener(new MouseAdapter(){
 			
 			 public void mouseClicked(MouseEvent e){
-				canvas.drawCellEllipse(e.getX(), e.getY(), Color.BLUE);
+				if(e.getButton() == MouseEvent.BUTTON1)canvas.drawCellEllipse(e.getX(), e.getY(), Color.BLUE);
+				else if(e.getButton() == MouseEvent.BUTTON3){
+					CellEllipse cell = canvas.pickCellEllipse(e.getX(), e.getY());
+					if(cell != null){
+						JOptionPane.showMessageDialog(mainFrame, "The RGB value of the selected Cell is: ("+ cell.getColor().getRed()+ ", " + cell.getColor().getGreen() + ", " + cell.getColor().getBlue()+")", "Cell-Info", JOptionPane.INFORMATION_MESSAGE);
+					}
+				}
 			 }
 			 
 			 public void mousePressed(MouseEvent e){
@@ -124,7 +131,6 @@ public class TestVisualizationMain {
 			 public void mouseReleased(MouseEvent e){
 				 canvas.releaseCellEllipse();
 			 }
-			 
 		});
 		
 		canvas.addMouseMotionListener(new MouseAdapter(){

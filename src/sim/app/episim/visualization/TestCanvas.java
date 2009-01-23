@@ -88,11 +88,12 @@ public class TestCanvas extends JPanel {
 	}
 	
 	
-	public void pickCellEllipse(int x, int y){
+	public CellEllipse pickCellEllipse(int x, int y){
 		CellEllipse cellEllipse = findCellEllipse(x, y);
 		if(cellEllipse != null){
 			draggedCellEllipse	=cellEllipse;
 		}
+		return cellEllipse;
 	}
 	
 	public void dragCellEllipse(int x, int y){

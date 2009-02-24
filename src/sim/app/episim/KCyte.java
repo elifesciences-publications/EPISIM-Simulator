@@ -462,13 +462,13 @@ public class KCyte extends CellType
                actNeighbour.getEpisimCellDiffModelObject().setDy(-1*dy);
                actNeighbour.getEpisimCellDiffModelObject().setDx(dx);
                
-               double distance = Math.sqrt(dx*dx + dy*dy);
+             //  double distance = Math.sqrt(dx*dx + dy*dy);
                
-               if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
+             //  if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
                
                	neighbourCells.add(actNeighbour.getEpisimCellDiffModelObject());
                	
-             }
+             //}
         }
    	 return neighbourCells.toArray(new EpisimCellDiffModel[neighbourCells.size()]);
     }
@@ -499,8 +499,7 @@ public class KCyte extends CellType
     static  long deltaTime = 0;
     public void differentiate(SimState state, Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean nextToOuterCell, boolean hasCollision)
     {
-     
-   	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
+     	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
    	// setIsOuterCell(isSurfaceCell(realNeighbours));
    	 this.cellDiffModelObjekt.setX(thisloc.getX());
    	 this.cellDiffModelObjekt.setY(TissueController.getInstance().getTissueBorder().getHeight()- thisloc.getY());
@@ -509,11 +508,7 @@ public class KCyte extends CellType
    	 this.cellDiffModelObjekt.setHasCollision(hasCollision);
    	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL) this.cellDiffModelObjekt.setAge(0);
    	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
-   	 
-   	 
-   	 
-   	
-   	   	  	 
+   	 	  	 
    	 long timeBefore = System.currentTimeMillis();
 		
    	 EpisimCellDiffModel[] children = this.cellDiffModelObjekt.oneStep(realNeighbours);

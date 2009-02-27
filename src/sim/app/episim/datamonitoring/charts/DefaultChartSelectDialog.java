@@ -90,7 +90,9 @@ public class DefaultChartSelectDialog extends JDialog {
 	   
 	   this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	   
-	   setSize(300, 200);
+	   int height = 130 + namesOfDefaultChartsAndActivationStatus.size()*30;
+	   if(height > 400) height = 400;
+	   setSize(350, height);
 		validate();
 		centerMe();
 		dialog = this;

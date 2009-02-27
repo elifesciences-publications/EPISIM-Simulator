@@ -124,6 +124,8 @@ public class KCyte extends CellType
        
        if(epidermis != null) cellDeathListeners.add(epidermis);
        
+       cellDeathListeners.add(GlobalStatistics.getInstance());
+       
        keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
        keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
          
@@ -139,7 +141,7 @@ public class KCyte extends CellType
     }
 
     public void reloadControllers(){
-   	 modelController = ModelController.getInstance();
+   	modelController = ModelController.getInstance();
  	 	biochemModelController = modelController.getBioChemicalModelController();
  	 	biomechModelController = modelController.getBioMechanicalModelController();
     }
@@ -567,13 +569,13 @@ public class KCyte extends CellType
     
     public void killCell(){
    	    	 
-   	 GlobalStatistics.getInstance().dekrementActualNumberOfNoNucleus();
+   	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
    	 this.cellDiffModelObjekt.setDifferentiation(EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA);
-   	 GlobalStatistics.getInstance().dekrementActualNumberKCytes();
+   	 
    	 setInNirvana(true);
    	 this.cellDiffModelObjekt.setIsAlive(false);
    	 removeFromSchedule();
-   	for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
+   	
     }
 
 //    static  long actNumberSteps = 0;

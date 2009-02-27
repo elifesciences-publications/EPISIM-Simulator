@@ -100,7 +100,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 	 
 	
 	 
-   private double consistency = 0.0;
+   private double consistency=0.0;
    private double minDist=0.1;    
 	private boolean developGranulosum=true;
 	
@@ -111,14 +111,10 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 	private double gStatistics_Barrier_IntCalcium=0;
 	private double gStatistics_Barrier_Lamella=0;
 	private double gStatistics_Barrier_Lipids=0;
-	private double gStatistics_Apoptosis_Basal=0;    // apoptosis events during 10 ticks, is calculated from  ..Counter   
-	private int    gStatistics_Apoptosis_BasalCounter=0;    // Counter is reset every 100 ticks
-	private double gStatistics_Apoptosis_EarlySpi;
-	private int    gStatistics_Apoptosis_EarlySpiCounter=0;    // Counter is reset every 100 ticks
-	private double gStatistics_Apoptosis_LateSpi;
-	private int    gStatistics_Apoptosis_LateSpiCounter=0;    // Counter is reset every 100 ticks
-	private double gStatistics_Apoptosis_Granu;
-	private int    gStatistics_Apoptosis_GranuCounter=0;    // Counter is reset every 100 ticks
+	
+	
+	
+	
 	private int    gStatistics_GrowthFraction=0;             // Percentage
 	private double gStatistics_TurnoverTime=0;             // Percentage
 	
@@ -316,60 +312,7 @@ private void seedStemCells(){
 			
 			ChartController.getInstance().clearAllSeries();
 			DataExportController.getInstance().newSimulationRun();
-/*
-			epiSimCharts.getXYSeries("ChartSeries_Kinetics_MeanCycleTime").clear(); // remove
-																											// previous
-																											// (X,Y)
-																											// pairs
-																											// from
-																											// the
-																											// chart
-			epiSimCharts.getXYSeries("ChartSeries_Kinetics_GrowthFraction").clear(); // remove
-																												// previous
-																												// (X,Y)
-																												// pairs
-																												// from
-																												// the
-																												// chart
-			epiSimCharts.getXYSeries("ChartSeries_Kinetics_Turnover").clear(); // remove
-																										// previous
-																										// (X,Y)
-																										// pairs
-																										// from
-																										// the
-																										// chart
-			epiSimCharts.getXYSeries("ChartSeries_KCyte_All").clear(); // remove
-																							// previous
-																							// (X,Y)
-																							// pairs
-																							// from the
-																							// chart
-			epiSimCharts.getXYSeries("ChartSeries_KCyte_Spi").clear();
-			epiSimCharts.getXYSeries("ChartSeries_KCyte_TA").clear();
-			epiSimCharts.getXYSeries("ChartSeries_KCyte_LateSpi").clear();
-			epiSimCharts.getXYSeries("ChartSeries_KCyte_Granu").clear();
-			epiSimCharts.getXYSeries("ChartSeries_KCyte_NoNuc").clear();
-			epiSimCharts.getXYSeries("ChartSeries_KCyte_MeanAgeDate").clear();
-			epiSimCharts.getXYSeries("ChartSeries_Barrier_Calcium").clear(); // remove
-																									// previous
-																									// (X,Y)
-																									// pairs
-																									// from
-																									// the
-																									// chart
-			epiSimCharts.getXYSeries("ChartSeries_Barrier_Lamella").clear();
-			epiSimCharts.getXYSeries("ChartSeries_Barrier_Lipids").clear();
-			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear(); // remove
-																									// previous
-																									// (X,Y)
-																									// pairs
-																									// from
-																									// the
-																									// chart
-			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_EarlySpi").clear();
-			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_LateSpi").clear();
-			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Granu").clear();
-			epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").clear();*/
+
 		}
 		else{
 
@@ -389,14 +332,6 @@ private void seedStemCells(){
      // charts
      // ///////////////////////////////
      
- 
-     //////////////////////////////////////        
-     // CHART Updating Kinetics Chart
-     //////////////////////////////////////
-     // clear is necessary for restart of simulation
-   
-
-    
     
     /* 
      
@@ -455,227 +390,11 @@ private void seedStemCells(){
          //logfilestat.write ("SimTicks; (h)SimTime; Stem; TA; EarlySpi; LateSpi; Granu; TotalNum; PropProl; PropDiff; Turnover; Growth;");
          out.close();
          } catch (IOException e) {}  
+        
      
-     //////////////////////////////////////        
-     // CHART Updating Apoptosis Chart
-     //////////////////////////////////////
-       
-     Steppable chartUpdaterApoptosis = new Steppable()
-    {
-         public void step(SimState state)
-         {   
-             if (state.schedule.time()>2000)
-             {
-            	 epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Basal").add((double)(state.schedule.time()*gTimefactor), gStatistics_Apoptosis_Basal);
-            	 epiSimCharts.getXYSeries("ChartSeries_Apoptosis_EarlySpi").add((double)(state.schedule.time()*gTimefactor), gStatistics_Apoptosis_EarlySpi);
-            	 epiSimCharts.getXYSeries("ChartSeries_Apoptosis_LateSpi").add((double)(state.schedule.time()*gTimefactor), gStatistics_Apoptosis_LateSpi);
-            	 epiSimCharts.getXYSeries("ChartSeries_Apoptosis_Granu").add((double)(state.schedule.time()*gTimefactor), gStatistics_Apoptosis_Granu);
-             }
-         }
-     };
-     // Schedule the agent to update the chart
-     schedule.scheduleRepeating(chartUpdaterApoptosis, 100);
     */ 
-     
-/*
-     
-     //////////////////////////////////////        
-     // CHART Updating Particle Distributions
-     //////////////////////////////////////        
-    
-     
-     Steppable chartUpdaterParticleDistributions = new Steppable()
-    {
-             public void step(SimState state)
-             {
-            	  epiSimCharts.getXYSeries("ExtCalConcAvg").clear();
-            	  epiSimCharts.getXYSeries("LamellaConcAvg").clear(); 
-            	  epiSimCharts.getXYSeries("LipidsConcAvg").clear();
-            	  epiSimCharts.getXYSeries("AgeAvg").clear();
-            	  epiSimCharts.getXYSeries("Num").clear();
-                 
-            	  int MAX_YBINS=30; // for every 10 y coordinates one bin
-                 int[] HistoExtCalConc=new int[MAX_YBINS]; // Concentrations *10 = 0 to 200
-                 int[] HistoIntCalConc=new int[MAX_YBINS]; // Concentrations *10 = 0 to 200
-                 int[] HistoLamellaConc=new int[MAX_YBINS]; // Concentrations *10 = 0 to 200
-                 int[] HistoLipidsConc=new int[MAX_YBINS]; // Concentrations *10 = 0 to 200
-                 int[] HistoAgeAvg=new int[MAX_YBINS]; // Concentrations *10 = 0 to 200
-                 int[] HistoNum=new int[MAX_YBINS];  // Number of Cells in this bin
-                 double ExtCal_TA=0;                    
-                 double ExtCal_Spi=0;
-                 double ExtCal_LateSpi=0;
-                 double ExtCal_Granu=0; 
-                 double ExtCal_NoNuc=0;
-                 double IntCal_TA=0;                    
-                 double IntCal_Spi=0;
-                 double IntCal_LateSpi=0;
-                 double IntCal_Granu=0; 
-                 double IntCal_NoNuc=0;
-                 double Lam_TA=0;                    
-                 double Lam_Spi=0;
-                 double Lam_LateSpi=0;
-                 double Lam_Granu=0;                    
-                 double Lam_NoNuc=0;
-                 double Lip_TA=0;                    
-                 double Lip_Spi=0;
-                 double Lip_LateSpi=0;
-                 double Lip_Granu=0;
-                 double Lip_NoNuc=0;
-                 
-                 for (int k=0; k<MAX_YBINS; k++)
-                 {
-                     HistoExtCalConc[k]=0;
-                     HistoIntCalConc[k]=0;
-                     HistoNum[k]=0;
-                 }
-                 
-                 for (int i=0; i<allCells.size(); i++)
-                 {
-                     // iterate through all cells
-                     KCyte act=(KCyte)allCells.get(i);
-                     if (act.isInNirvana()) continue;
-                     // is a living cell..
-                     Double2D loc=cellContinous2D.getObjectLocation(act);
-                     int histobin=(int)loc.y/7;
-                     HistoNum[histobin]++;
-                     HistoExtCalConc[histobin]+=act.getOwnSigExternalCalcium();
-                     HistoIntCalConc[histobin]+=act.getOwnSigInternalCalcium();
-                     HistoLamellaConc[histobin]+=act.getOwnSigLamella();
-                     HistoLipidsConc[histobin]+=act.getOwnSigLipids();
-                     if (act.getKeratinoType()!= modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"))
-                         HistoAgeAvg[histobin]+=act.getKeratinoAge();
-                     
-                     if(act.getKeratinoType() == modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_TA")) 
-                     { IntCal_TA+=act.getOwnSigInternalCalcium(); 
-                       ExtCal_TA+=act.getOwnSigExternalCalcium(); 
-                       Lam_TA+=act.getOwnSigLamella(); 
-                       Lip_TA+=act.getOwnSigLipids();  
-                      }
-                     else if(act.getKeratinoType() ==modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_SPINOSUM")){ 
-                     	IntCal_Spi+=act.getOwnSigInternalCalcium(); 
-                     	ExtCal_Spi+=act.getOwnSigExternalCalcium(); 
-                     	Lam_Spi+=act.getOwnSigLamella(); 
-                     	Lip_Spi+=act.getOwnSigLipids(); 
-                     }
-                     else if(act.getKeratinoType() == modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_LATESPINOSUM")) { 
-                     	IntCal_LateSpi+=act.getOwnSigInternalCalcium(); 
-                     	ExtCal_LateSpi+=act.getOwnSigExternalCalcium(); 
-                     	Lam_LateSpi+=act.getOwnSigLamella(); 
-                     	Lip_LateSpi+=act.getOwnSigLipids(); 
-                     }
-                     else if(act.getKeratinoType() == modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_GRANULOSUM")){ 
-                     	IntCal_Granu+=act.getOwnSigInternalCalcium(); 
-                     	ExtCal_Granu+=act.getOwnSigExternalCalcium(); 
-                     	Lam_Granu+=act.getOwnSigLamella(); 
-                     	Lip_Granu+=act.getOwnSigLipids(); 
-                     }
-                     else if(act.getKeratinoType() == modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_NONUCLEUS")){ 
-                     	IntCal_NoNuc+=act.getOwnSigInternalCalcium(); 
-                     	ExtCal_NoNuc+=act.getOwnSigExternalCalcium(); 
-                     	Lam_NoNuc+=act.getOwnSigLamella(); 
-                     	Lip_NoNuc+=act.getOwnSigLipids(); 
-                     }
-                     
-                 }
-                 
-                 ///////////////////////////////////////////
-                 // Cell Type Statistics
-                 ///////////////////////////////////////////
-                 
-                 if (actualTA>3) ExtCal_TA/=actualTA;
-                 if (actualSpi>3) ExtCal_Spi/=actualSpi;
-                 if (actualLateSpi>3) ExtCal_LateSpi/=actualLateSpi;
-                 if (actualGranu>3) ExtCal_Granu/=actualGranu;                    
-                 if (actualNoNucleus>3) ExtCal_NoNuc/=actualNoNucleus;                    
-
-                 if (actualTA>3) IntCal_TA/=actualTA;
-                 if (actualSpi>3) IntCal_Spi/=actualSpi;
-                 if (actualLateSpi>3) IntCal_LateSpi/=actualLateSpi;
-                 if (actualGranu>3) IntCal_Granu/=actualGranu;                    
-                 if (actualNoNucleus>3) IntCal_NoNuc/=actualNoNucleus;                    
-
-                 if (actualTA>3) Lam_TA/=actualTA;
-                 if (actualSpi>3) Lam_Spi/=actualSpi;
-                 if (actualLateSpi>3) Lam_LateSpi/=actualLateSpi;
-                 if (actualGranu>3) Lam_Granu/=actualGranu;
-                 if (actualNoNucleus>3) Lam_NoNuc/=actualNoNucleus;                    
-                 
-                 if (actualTA>3) Lip_TA/=actualTA;
-                 if (actualSpi>3) Lip_Spi/=actualSpi;
-                 if (actualLateSpi>3) Lip_LateSpi/=actualLateSpi;
-                 if (actualGranu>3) Lip_Granu/=actualGranu;
-                 if (actualNoNucleus>3) Lip_NoNuc/=actualNoNucleus;                    
-                 
-                 // row keys...
-                 String sExtCal = "Ext Cal (mg/kg)";
-                 String sIntCal = "Int Cal (mg/kg)";
-                 String sLam= "Lamella";
-                 String sLip = "Lipids";
-
-                 // column keys...
-                 String cTA = "TA";
-                 String cSpi = "EarlySpinosum";
-                 String cLateSpi = "LateSpinosum";
-                 String cGranu = "Granulosum";
-                 String cNoNuc = "NoNucleus";
-                 
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").clear();
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(ExtCal_TA, sExtCal, cTA);
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(ExtCal_Spi, sExtCal, cSpi);
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(ExtCal_LateSpi, sExtCal, cLateSpi);
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(ExtCal_Granu, sExtCal, cGranu);                    
-             
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lam_TA, sLam, cTA);
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lam_Spi, sLam, cSpi);
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lam_LateSpi, sLam, cLateSpi);
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lam_Granu, sLam, cGranu);                    
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lip_TA, sLip, cTA);
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lip_Spi, sLip, cSpi);
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lip_LateSpi, sLip, cLateSpi);
-                 epiSimCharts.getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lip_Granu, sLip, cGranu);                              
-                 
-                 // Make Chartdata from Histo
-                 double concExtCal=0;   // averaged concentrations
-                 double concIntCal=0;   // averaged concentrations
-                 double concLamella=0;
-                 double concLipids=0;
-                 double avgAge=0;
-                 for (int j=0; j<MAX_YBINS; j++)
-                 {                        
-                     if (HistoNum[j]>=10)
-                     {
-                         concExtCal=HistoExtCalConc[j]/ HistoNum[j];
-                         concIntCal=HistoIntCalConc[j]/ HistoNum[j];
-                         concLamella=HistoLamellaConc[j] /HistoNum[j];
-                         concLipids=HistoLipidsConc[j]/ HistoNum[j];
-                         avgAge=HistoAgeAvg[j]/ HistoNum[j];
-                         
-                     }
-                     else
-                     {
-                         concExtCal=0;
-                         concIntCal=0;
-                         concLamella=0;
-                         concLipids=0;
-                         avgAge=0;
-                     }
-                     if (HistoNum[j]>=10)
-                     {
-                     	 epiSimCharts.getXYSeries("ExtCalConcAvg").add(j*7-gCorneumY, concExtCal);
-                     	 epiSimCharts.getXYSeries("LamellaConcAvg").add(j*7-gCorneumY, concLamella);
-                     	 epiSimCharts.getXYSeries("LipidsConcAvg").add(j*7-gCorneumY, concLipids);
-                     	 epiSimCharts.getXYSeries("AgeAvg").add(j*7-gCorneumY, avgAge*gTimefactor);
-                     	 epiSimCharts.getXYSeries("Num").add(j*7-gCorneumY, HistoNum[j]);
-                     }
-                 }
-                        
-          }
-     };
-     // Schedule the agent to update the chart
-     schedule.scheduleRepeating(chartUpdaterParticleDistributions, 50);
-
-
-  */           
+ 
+        
  //////////////////////////////////////        
  // CELL STATISTICS & Updating OUTER SURFACE CELLS
  //////////////////////////////////////  
@@ -755,21 +474,8 @@ private void seedStemCells(){
                  gStatistics_KCytes_MeanAge/=actualKCytes-actualNoNucleus;
                  gStatistics_Barrier_ExtCalcium/=OldNumOuterCells;
                  gStatistics_Barrier_Lipids/=OldNumOuterCells;
-                 gStatistics_Barrier_Lamella/=OldNumOuterCells;
+                 gStatistics_Barrier_Lamella/=OldNumOuterCells;                 
                  
-                 gStatistics_Apoptosis_Basal=gStatistics_Apoptosis_BasalCounter;
-                 gStatistics_Apoptosis_Basal=gStatistics_Apoptosis_Basal/10/actualBasalStatisticsCells*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-                 gStatistics_Apoptosis_EarlySpi=gStatistics_Apoptosis_EarlySpiCounter;
-                 gStatistics_Apoptosis_EarlySpi=gStatistics_Apoptosis_EarlySpi/10/actualSpi*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-                 gStatistics_Apoptosis_LateSpi=gStatistics_Apoptosis_LateSpiCounter;
-                 gStatistics_Apoptosis_LateSpi=gStatistics_Apoptosis_LateSpi/10/actualLateSpi*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-                 gStatistics_Apoptosis_Granu=gStatistics_Apoptosis_GranuCounter;
-                 gStatistics_Apoptosis_Granu=gStatistics_Apoptosis_Granu/10/actualGranu*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-
-                 gStatistics_Apoptosis_BasalCounter=0;    // Cells removed from simulation during last time tick    
-                 gStatistics_Apoptosis_EarlySpiCounter=0;
-                 gStatistics_Apoptosis_LateSpiCounter=0;
-                 gStatistics_Apoptosis_GranuCounter=0;
 */
              }
      };
@@ -777,47 +483,7 @@ private void seedStemCells(){
      
      schedule.scheduleRepeating(airSurface, 1);
      
-     Steppable chartUpdaterPerformance = new Steppable()
-     {
-         private long previousTime = 0;
-         private long previousSteps = 0;
-    	  
-    	  public void step(SimState state)
-          {   
-          	long actTime = System.currentTimeMillis()/100;
-          	long actSteps = state.schedule.getSteps();
-    		   long deltaTime = actTime - previousTime;
-    		   long deltaSteps = actSteps - previousSteps;
-    		   
-    		   
-    		  if(deltaTime>0) { 
-    			  	previousTime = actTime;
-      		   	previousSteps = actSteps;
-      		   	double stepsPerTime = 0;
-    			  stepsPerTime = deltaSteps/deltaTime;
-    		  // if(state.schedule.getSteps() > 400)
-        //  	Steps_Time.add(state.schedule.getSteps(), stepsPerTime);
-    		//   Num_Cells_Steps.add(state.schedule.getSteps(), actualKCytes);
-             
-    		   
-    		   try {
-                BufferedWriter out = new BufferedWriter(new FileWriter("d:\\performance_neu.csv", true));
-                out.write(NumberFormat.getInstance(Locale.GERMANY).format(actSteps)+ ";");
-                out.write(NumberFormat.getInstance(Locale.GERMANY).format(stepsPerTime)+ ";");
-                out.write(NumberFormat.getInstance(Locale.GERMANY).format(allCells.size())+ ";");
-                        
-                out.write("\n");
-                out.close();
-                 } catch (IOException e) {}
-    		   
-    		  }
-              
-          }
-      };
-      // Schedule the agent to update the chart
-    //  schedule.scheduleRepeating(chartUpdaterPerformance, 10);
-
-
+     
 	 	//////////////////////////////////////
 	 	// Time Updater
 	 	//////////////////////////////////////
@@ -891,14 +557,6 @@ private void seedStemCells(){
 	public int getGCorneumY() { return gCorneumY; }
 	public Continuous2D getGridContinous2D() { return gridContinous2D; }
 	public String getGraphicsDirectory() {	return graphicsDirectory; }
-	public double getGStatistics_Apoptosis_Basal() { return gStatistics_Apoptosis_Basal; }
-	public int getGStatistics_Apoptosis_BasalCounter() { return gStatistics_Apoptosis_BasalCounter; }
-	public double getGStatistics_Apoptosis_EarlySpi() { return gStatistics_Apoptosis_EarlySpi; }
-	public int getGStatistics_Apoptosis_EarlySpiCounter() { return gStatistics_Apoptosis_EarlySpiCounter; }
-	public double getGStatistics_Apoptosis_Granu() { return gStatistics_Apoptosis_Granu; }
-	public int getGStatistics_Apoptosis_GranuCounter() { return gStatistics_Apoptosis_GranuCounter; }
-	public double getGStatistics_Apoptosis_LateSpi() {	return gStatistics_Apoptosis_LateSpi; }
-	public int getGStatistics_Apoptosis_LateSpiCounter() { return gStatistics_Apoptosis_LateSpiCounter; }
 	public double getGStatistics_Barrier_ExtCalcium() { return gStatistics_Barrier_ExtCalcium; }
 	public double getGStatistics_Barrier_IntCalcium() { return gStatistics_Barrier_IntCalcium; }
 	public double getGStatistics_Barrier_Lamella() { return gStatistics_Barrier_Lamella; }
@@ -955,14 +613,7 @@ private void seedStemCells(){
 	
 	public void setGCorneumY(int corneumY) { gCorneumY = corneumY; }
 	public void setGraphicsDirectory(String graphicsDirectory) { this.graphicsDirectory = graphicsDirectory; }
-	public void setGStatistics_Apoptosis_Basal(double statistics_Apoptosis_Basal) { gStatistics_Apoptosis_Basal = statistics_Apoptosis_Basal; }
-	public void setGStatistics_Apoptosis_BasalCounter(int statistics_Apoptosis_BasalCounter) { gStatistics_Apoptosis_BasalCounter = statistics_Apoptosis_BasalCounter; }
-	public void setGStatistics_Apoptosis_EarlySpi(double statistics_Apoptosis_EarlySpi) { gStatistics_Apoptosis_EarlySpi = statistics_Apoptosis_EarlySpi; }
-	public void setGStatistics_Apoptosis_EarlySpiCounter(int statistics_Apoptosis_EarlySpiCounter) { gStatistics_Apoptosis_EarlySpiCounter = statistics_Apoptosis_EarlySpiCounter; }
-	public void setGStatistics_Apoptosis_Granu(double statistics_Apoptosis_Granu) { gStatistics_Apoptosis_Granu = statistics_Apoptosis_Granu; }
-	public void setGStatistics_Apoptosis_GranuCounter(int statistics_Apoptosis_GranuCounter) { gStatistics_Apoptosis_GranuCounter = statistics_Apoptosis_GranuCounter; }
-	public void setGStatistics_Apoptosis_LateSpi(double statistics_Apoptosis_LateSpi) { gStatistics_Apoptosis_LateSpi = statistics_Apoptosis_LateSpi; }
-	public void setGStatistics_Apoptosis_LateSpiCounter(int statistics_Apoptosis_LateSpiCounter) { gStatistics_Apoptosis_LateSpiCounter = statistics_Apoptosis_LateSpiCounter; }
+	
 	public void setGStatistics_Barrier_ExtCalcium(double statistics_Barrier_ExtCalcium) { gStatistics_Barrier_ExtCalcium = statistics_Barrier_ExtCalcium; }
 	public void setGStatistics_Barrier_IntCalcium(double statistics_Barrier_IntCalcium) { gStatistics_Barrier_IntCalcium = statistics_Barrier_IntCalcium; }
 	public void setGStatistics_Barrier_Lamella(double statistics_Barrier_Lamella) { gStatistics_Barrier_Lamella = statistics_Barrier_Lamella; }

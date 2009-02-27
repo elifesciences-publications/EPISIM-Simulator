@@ -39,6 +39,9 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import org.jfree.chart.*;
 
+import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+
+import sim.app.episim.KCyte;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotListener;
@@ -53,6 +56,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	
 	private double TIMEFACTOR=0.5;   // conversion from timeticks to h for all diagrams: 2 time ticks mean 1 hour
 	
+	private int CORNEUMY=20;
 	
    //Schlüssel setzt sich XYSeriesCollection-Name Position 0 und XYSeries-Name zusammen
 	private Map<String[], XYSeries> xySeries = new HashMap<String[], XYSeries>();
@@ -72,6 +76,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	private final String PARTICLECONCENTRATIONSINBARRIER = "Particle Concentrations in Barrier";
 	private final String CELLDEATH = "Cell Death";
 	private final String PARTICLESPERCELLTYPE = "Particles per Cell Type";
+	private final String PARTICLEGRADIENTS = "Particle Gradients";
 	private final String AGEGRADIENT = "Age Gradient";
 	
 	
@@ -359,7 +364,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
       
       xySeriesCollections.put("CollNum", new XYSeriesCollection());
       
-      chart = ChartFactory.createXYLineChart("Particle Gradients", "Depth (µm)", "Concentration", 
+      chart = ChartFactory.createXYLineChart(PARTICLEGRADIENTS, "Depth (µm)", "Concentration", 
       		xySeriesCollections.get("CollPartDist"), PlotOrientation.VERTICAL, true, true, false);
       
       chart.setBackgroundPaint(Color.white);
@@ -395,7 +400,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
       rendererXYItem2.setSeriesPaint(0, Color.black);
       xyPlot.setRenderer(1, rendererXYItem2);
       
-      chartsMap.put("LineChartParticleDistributions", new ChartPanel(chart));
+      chartsMap.put(PARTICLEGRADIENTS, new ChartPanel(chart));
 		
  	  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       
@@ -453,10 +458,11 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		chartEnabled.put(PERFORMANCE, false);
 		chartEnabled.put(CELLCOUNTS, false);
 		chartEnabled.put(TISSUEKINETICPARAMETERS, false);
-		/*chartEnabled.put(PARTICLECONCENTRATIONSINBARRIER, false);
+	//	chartEnabled.put(PARTICLECONCENTRATIONSINBARRIER, false);
 		chartEnabled.put(CELLDEATH, false);
 		chartEnabled.put(PARTICLESPERCELLTYPE, false);
-		chartEnabled.put(AGEGRADIENT, false);*/
+		chartEnabled.put(PARTICLEGRADIENTS, false);
+		//chartEnabled.put(AGEGRADIENT, false);
 	}
 	
 	protected HashMap<String, Boolean> getNamesAndActivationStatusOfAvailableDefaultCharts(){
@@ -665,6 +671,238 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	            return 100;
             }
 			});
+			
+			
+			
+			this.steppablesMap.put(this.PARTICLEGRADIENTS , new EnhancedSteppable()
+		    {
+		             public void step(SimState state)
+		             {
+		            	  getXYSeries("ExtCalConcAvg").clear();
+		            	  getXYSeries("LamellaConcAvg").clear(); 
+		            	  getXYSeries("LipidsConcAvg").clear();
+		            	  getXYSeries("AgeAvg").clear();
+		            	  getXYSeries("Num").clear();
+		                 
+		            	  int MAX_YBINS=30; // for every 10 y coordinates one bin
+		                 int[] HistoExtCalConc=new int[MAX_YBINS]; // Concentrations *10 = 0 to 200
+		                 int[] HistoLamellaConc=new int[MAX_YBINS]; // Concentrations *10 = 0 to 200
+		                 int[] HistoLipidsConc=new int[MAX_YBINS]; // Concentrations *10 = 0 to 200
+		                 int[] HistoAgeAvg=new int[MAX_YBINS]; // Concentrations *10 = 0 to 200
+		                 int[] HistoNum=new int[MAX_YBINS];  // Number of Cells in this bin
+		                
+		                 
+		                 for (int k=0; k<MAX_YBINS; k++)
+		                 {
+		                     HistoExtCalConc[k]=0;
+		                     HistoNum[k]=0;
+		                 }
+		                 
+		                 for (int i=0; i< GlobalStatistics.getInstance().getCells().size(); i++)
+		                 {
+		                     // iterate through all cells
+		                     KCyte act=(KCyte)GlobalStatistics.getInstance().getCells().get(i);
+		                     if (act.isInNirvana()) continue;
+		                     // is a living cell..
+		                     int histobin=(int)(act.getEpisimCellDiffModelObject().getY()/7);
+		                     HistoNum[histobin]++;
+		                     HistoExtCalConc[histobin]+=act.getEpisimCellDiffModelObject().getCa();
+		                     HistoLamellaConc[histobin]+=act.getEpisimCellDiffModelObject().getLam();
+		                     HistoLipidsConc[histobin]+=act.getEpisimCellDiffModelObject().getLip();
+		                     
+		                     int diffLevel =  act.getEpisimCellDiffModelObject().getDifferentiation();
+		          			  
+		          				  if(diffLevel == EpisimCellDiffModelGlobalParameters.STEMCELL){
+		          					 HistoAgeAvg[histobin]+=act.getEpisimCellDiffModelObject().getAge();
+		          				  }
+		          		  }
+		                 
+		                 ///////////////////////////////////////////
+		                 // Cell Type Statistics
+		                 ///////////////////////////////////////////
+		                             
+		                 // Make Chartdata from Histo
+		                 double concExtCal=0;   // averaged concentrations
+		                 double concLamella=0;
+		                 double concLipids=0;
+		                 double avgAge=0;
+		                 for (int j=0; j<MAX_YBINS; j++)
+		                 {                        
+		                     if (HistoNum[j]>=10)
+		                     {
+		                         concExtCal=HistoExtCalConc[j]/ HistoNum[j];
+		                         concLamella=HistoLamellaConc[j] /HistoNum[j];
+		                         concLipids=HistoLipidsConc[j]/ HistoNum[j];
+		                         avgAge=HistoAgeAvg[j]/ HistoNum[j];		                         
+		                     }
+		                     else
+		                     {
+		                         concExtCal=0;
+		                         concLamella=0;
+		                         concLipids=0;
+		                         avgAge=0;
+		                     }
+		                     if (HistoNum[j]>=10)
+		                     {
+		                     	 getXYSeries("ExtCalConcAvg").add(j*7-CORNEUMY, concExtCal);
+		                     	 getXYSeries("LamellaConcAvg").add(j*7-CORNEUMY, concLamella);
+		                     	 getXYSeries("LipidsConcAvg").add(j*7-CORNEUMY, concLipids);
+		                     	 getXYSeries("AgeAvg").add(j*7-CORNEUMY, avgAge*TIMEFACTOR);
+		                     	 getXYSeries("Num").add(j*7-CORNEUMY, HistoNum[j]);
+		                     }
+		                 }
+		            }
+						public double getInterval() {
+	                  return 100;
+                  }
+		    });
+			
+			this.steppablesMap.put(this.PARTICLESPERCELLTYPE , new EnhancedSteppable()
+		    {
+		             public void step(SimState state)
+		             {
+		            	  double ExtCal_TA=0;                    
+		                 double ExtCal_Spi=0;
+		                 double ExtCal_LateSpi=0;
+		                 double ExtCal_Granu=0; 
+		                 double ExtCal_NoNuc=0;
+		                 double Lam_TA=0;                    
+		                 double Lam_Spi=0;
+		                 double Lam_LateSpi=0;
+		                 double Lam_Granu=0;                    
+		                 double Lam_NoNuc=0;
+		                 double Lip_TA=0;                    
+		                 double Lip_Spi=0;
+		                 double Lip_LateSpi=0;
+		                 double Lip_Granu=0;
+		                 double Lip_NoNuc=0;
+		                            
+		                 for (int i=0; i< GlobalStatistics.getInstance().getCells().size(); i++)
+		                 {
+		                     // iterate through all cells
+		                     KCyte act=(KCyte)GlobalStatistics.getInstance().getCells().get(i);
+		                     if (act.isInNirvana()) continue;
+		                     // is a living cell..
+		                    
+		                     
+		                     int diffLevel =  act.getEpisimCellDiffModelObject().getDifferentiation();
+		          			  switch(diffLevel){
+		          				  case EpisimCellDiffModelGlobalParameters.EARLYSPICELL:{
+		          					  	ExtCal_Spi+=act.getEpisimCellDiffModelObject().getCa(); 
+			                     	Lam_Spi+=act.getEpisimCellDiffModelObject().getLam(); 
+			                     	Lip_Spi+=act.getEpisimCellDiffModelObject().getLip(); 
+		          				  }
+		          				  break;
+		          				  case EpisimCellDiffModelGlobalParameters.GRANUCELL:{
+		          					  	ExtCal_Granu+=act.getEpisimCellDiffModelObject().getCa(); 
+			                     	Lam_Granu+=act.getEpisimCellDiffModelObject().getLam(); 
+			                     	Lip_Granu+=act.getEpisimCellDiffModelObject().getLip();
+		          				  }
+		          				  break;
+		          				  case EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA:{
+		          					  
+		          				  }
+		          				  break;
+		          				  case EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS:{
+		          					  	ExtCal_NoNuc+=act.getEpisimCellDiffModelObject().getCa(); 
+			                     	Lam_NoNuc+=act.getEpisimCellDiffModelObject().getLam(); 
+			                     	Lip_NoNuc+=act.getEpisimCellDiffModelObject().getLip(); 
+		          				  }
+		          				  break;
+		          				  case EpisimCellDiffModelGlobalParameters.KTYPE_UNASSIGNED:{
+		          				  }
+		          				  break;
+		          				  case EpisimCellDiffModelGlobalParameters.LATESPICELL:{
+		          					  	ExtCal_LateSpi+=act.getEpisimCellDiffModelObject().getCa(); 
+			                     	Lam_LateSpi+=act.getEpisimCellDiffModelObject().getLam(); 
+			                     	Lip_LateSpi+=act.getEpisimCellDiffModelObject().getLip(); 
+		          				  }
+		          				  break;
+		          				  case EpisimCellDiffModelGlobalParameters.TACELL:{
+		          					  ExtCal_TA+=act.getEpisimCellDiffModelObject().getCa(); 
+			                       Lam_TA+=act.getEpisimCellDiffModelObject().getLam(); 
+			                       Lip_TA+=act.getEpisimCellDiffModelObject().getLip();  
+		          				  }
+		          				  break;
+		          			  }
+		                                     
+		                 }
+		                 
+		                 ///////////////////////////////////////////
+		                 // Cell Type Statistics
+		                 ///////////////////////////////////////////
+		                 
+		                 if (GlobalStatistics.getInstance().getActualNumberTACells()>3) ExtCal_TA/=GlobalStatistics.getInstance().getActualNumberTACells();
+		                 if (GlobalStatistics.getInstance().getActualNumberEarlySpiCells()>3) ExtCal_Spi/=GlobalStatistics.getInstance().getActualNumberEarlySpiCells();
+		                 if (GlobalStatistics.getInstance().getActualNumberLateSpi()>3) ExtCal_LateSpi/=GlobalStatistics.getInstance().getActualNumberLateSpi();
+		                 if (GlobalStatistics.getInstance().getActualGranuCells()>3) ExtCal_Granu/=GlobalStatistics.getInstance().getActualGranuCells();                    
+		                 if (GlobalStatistics.getInstance().getActualNumberOfNoNucleus()>3) ExtCal_NoNuc/=GlobalStatistics.getInstance().getActualNumberOfNoNucleus();                    
+                     
+
+		                 if (GlobalStatistics.getInstance().getActualNumberTACells()>3) Lam_TA/=GlobalStatistics.getInstance().getActualNumberTACells();
+		                 if (GlobalStatistics.getInstance().getActualNumberEarlySpiCells()>3) Lam_Spi/=GlobalStatistics.getInstance().getActualNumberEarlySpiCells();
+		                 if (GlobalStatistics.getInstance().getActualNumberLateSpi()>3) Lam_LateSpi/=GlobalStatistics.getInstance().getActualNumberLateSpi();
+		                 if (GlobalStatistics.getInstance().getActualGranuCells()>3) Lam_Granu/=GlobalStatistics.getInstance().getActualGranuCells();
+		                 if (GlobalStatistics.getInstance().getActualNumberOfNoNucleus()>3) Lam_NoNuc/=GlobalStatistics.getInstance().getActualNumberOfNoNucleus();                    
+		                 
+		                 if (GlobalStatistics.getInstance().getActualNumberTACells()>3) Lip_TA/=GlobalStatistics.getInstance().getActualNumberTACells();
+		                 if (GlobalStatistics.getInstance().getActualNumberEarlySpiCells()>3) Lip_Spi/=GlobalStatistics.getInstance().getActualNumberEarlySpiCells();
+		                 if (GlobalStatistics.getInstance().getActualNumberLateSpi()>3) Lip_LateSpi/=GlobalStatistics.getInstance().getActualNumberLateSpi();
+		                 if (GlobalStatistics.getInstance().getActualGranuCells()>3) Lip_Granu/=GlobalStatistics.getInstance().getActualGranuCells();
+		                 if (GlobalStatistics.getInstance().getActualNumberOfNoNucleus()>3) Lip_NoNuc/=GlobalStatistics.getInstance().getActualNumberOfNoNucleus();                    
+		                 
+		                 // row keys...
+		                 String sExtCal = "Ext Cal (mg/kg)";
+		                 String sLam= "Lamella";
+		                 String sLip = "Lipids";
+
+		                 // column keys...
+		                 String cTA = "TA";
+		                 String cSpi = "EarlySpinosum";
+		                 String cLateSpi = "LateSpinosum";
+		                 String cGranu = "Granulosum";
+		                 		                 
+		                 getDefaultCategoryDataset("particleCellTypeDataset").clear();
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(ExtCal_TA, sExtCal, cTA);
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(ExtCal_Spi, sExtCal, cSpi);
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(ExtCal_LateSpi, sExtCal, cLateSpi);
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(ExtCal_Granu, sExtCal, cGranu);                    
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lam_TA, sLam, cTA);
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lam_Spi, sLam, cSpi);
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lam_LateSpi, sLam, cLateSpi);
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lam_Granu, sLam, cGranu);                    
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lip_TA, sLip, cTA);
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lip_Spi, sLip, cSpi);
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lip_LateSpi, sLip, cLateSpi);
+		                 getDefaultCategoryDataset("particleCellTypeDataset").addValue(Lip_Granu, sLip, cGranu);                              
+		                               
+		            }
+						public double getInterval() {
+	                  return 100;
+                 }
+		    });
+			
+				//////////////////////////////////////
+		     // CHART Updating Apoptosis Chart
+		     //////////////////////////////////////
+		       
+			this.steppablesMap.put(this.CELLDEATH , new EnhancedSteppable()
+		   {
+		         public void step(SimState state)
+		         {   
+		             if (state.schedule.time()>2000)
+		             {
+		            	 getXYSeries("ChartSeries_Apoptosis_Basal").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_Basal_Statistics());
+		            	 getXYSeries("ChartSeries_Apoptosis_EarlySpi").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_EarlySpi_Statistics());
+		            	 getXYSeries("ChartSeries_Apoptosis_LateSpi").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_LateSpi_Statistics());
+		            	 getXYSeries("ChartSeries_Apoptosis_Granu").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_Granu_Statistics());
+		             }
+		         }
+
+					public double getInterval() {
+	               return 100;
+               }
+		     });
 	     
 
 	}

@@ -13,7 +13,6 @@ import sim.engine.SimState;
 public class GlobalStatistics implements java.io.Serializable, CellDeathListener{
 	private static GlobalStatistics instance;
 	
-	
 	private int actualNumberStemCells=0;        // Stem cells
 	private int actualNumberKCytes=0;      // num of kcytes that are not in nirvana
 	private int actualNumberEarlySpiCells=0;         // Spinosum
@@ -23,18 +22,25 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	private int actualNumberOfNoNucleus=0;   // Cells after lifetime but not shed from the surface
 	private int actualBasalStatisticsCells=0;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
 	
-	
 	private double apoptosis_Basal_Statistics=0;    // apoptosis events during 100 ticks, is calculated from  ..Counter   
 	private double apoptosis_EarlySpi_Statistics=0;
 	private double apoptosis_LateSpi_Statistics=0;
 	private double apoptosis_Granu_Statistics=0;
 	
-	private int    apoptosis_BasalCounter=0;        // Counter is reset every 100 ticks
-	private int    apoptosis_EarlySpiCounter=0;    // Counter is reset every 100 ticks
-	private int    apoptosis_LateSpiCounter=0;    // Counter is reset every 100 ticks
-	private int    apoptosis_GranuCounter=0;     // Counter is reset every 100 ticks
+	private double apoptosis_BasalCounter=0;        // Counter is reset every 100 ticks
+	private double apoptosis_EarlySpiCounter=0;    // Counter is reset every 100 ticks
+	private double apoptosis_LateSpiCounter=0;    // Counter is reset every 100 ticks
+	private double apoptosis_GranuCounter=0;     // Counter is reset every 100 ticks
 	
-
+	private double barrier_ExtCalcium_Statistics=0;
+	private double barrier_Lamella_Statistics=0;
+	private double barrier_Lipids_Statistics=0;
+	
+	private double barrier_ExtCalcium_Statistics_temp=0;
+	private double barrier_Lamella_Statistics_temp=0;
+	private double barrier_Lipids_Statistics_temp=0;
+	
+	private int oldNumOuterCells=0;
 	
 	private int actualNumberOfBasalStatisticsCells = 0;
 	
@@ -72,14 +78,14 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		if(cells == null) throw new IllegalArgumentException("Global Statistic Bag containing all cells must not be null!");
 		this.allCells = cells;
 		return new EnhancedSteppable(){
+			private int counter = 0;
 
 			public double getInterval() {
-				
-	         return 10;
+				return 10;
          }
-
 			public void step(SimState state){ 
-					updateDataFields();
+					updateDataFields(++counter);
+					if(counter == 10) counter = 0;
          }
 			
 		};
@@ -88,9 +94,9 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	
 	
 	
-	private void updateDataFields(){
+	private void updateDataFields(int counter){
 		
-		reset();
+		reset(false);
 		this.actualNumberKCytes = allCells.size();
 		
 		for(CellType actCell: allCells){
@@ -129,20 +135,43 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 				  break;
 			  }
 			  
+			  if (actCell.isOuterCell()) // statistics from last time evaluation (so we are always lacking behind one calling period !)
+           {
+               barrier_ExtCalcium_Statistics_temp += actCell.getEpisimCellDiffModelObject().getCa();
+               barrier_Lamella_Statistics_temp +=actCell.getEpisimCellDiffModelObject().getLam();
+               barrier_Lipids_Statistics_temp +=actCell.getEpisimCellDiffModelObject().getLip();                            
+               oldNumOuterCells++;
+           }
+			  
 			  if(actCell instanceof KCyte && ((KCyte) actCell).isBasalStatisticsCell()) this.actualBasalStatisticsCells++;
 			  sumOfAllAges += actCell.getEpisimCellDiffModelObject().getAge();
-			  
-			 
-			  if(this.actualBasalStatisticsCells>0)this.apoptosis_Basal_Statistics=this.apoptosis_BasalCounter/10/actualBasalStatisticsCells*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-			  if(this.actualNumberEarlySpiCells>0)this.apoptosis_EarlySpi_Statistics=this.apoptosis_EarlySpiCounter/10/this.actualNumberEarlySpiCells*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-			  if(this.actualNumberLateSpi>0)this.apoptosis_LateSpi_Statistics=this.apoptosis_LateSpiCounter/10/this.actualNumberLateSpi*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-			  if(this.actualNumberGranuCells>0)this.apoptosis_Granu_Statistics=this.apoptosis_GranuCounter/10/this.actualNumberGranuCells*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-
-           this.apoptosis_BasalCounter=0;    // Cells removed from simulation during last time tick    
-           this.apoptosis_EarlySpiCounter=0;
-           this.apoptosis_LateSpiCounter=0;
-           this.apoptosis_GranuCounter=0;
 		}
+			if(counter == 10){
+				
+				  if(this.actualBasalStatisticsCells>0) this.apoptosis_Basal_Statistics=((this.apoptosis_BasalCounter/10)/actualBasalStatisticsCells)*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
+				  if(this.actualNumberEarlySpiCells>0) this.apoptosis_EarlySpi_Statistics=((this.apoptosis_EarlySpiCounter/10)/this.actualNumberEarlySpiCells)*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
+				  if(this.actualNumberLateSpi>0)this.apoptosis_LateSpi_Statistics=((this.apoptosis_LateSpiCounter/10)/this.actualNumberLateSpi)*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
+				  if(this.actualNumberGranuCells>0)this.apoptosis_Granu_Statistics=((this.apoptosis_GranuCounter/10)/this.actualNumberGranuCells)*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
+	
+				  barrier_ExtCalcium_Statistics=barrier_ExtCalcium_Statistics_temp/oldNumOuterCells;
+				  barrier_Lipids_Statistics= barrier_Lipids_Statistics_temp/oldNumOuterCells;
+				  barrier_Lamella_Statistics=barrier_Lamella_Statistics_temp/oldNumOuterCells;
+				  
+				 
+				  
+				  
+				  oldNumOuterCells=0;
+              
+              barrier_ExtCalcium_Statistics_temp=0;
+              barrier_Lipids_Statistics_temp=0;
+              barrier_Lamella_Statistics_temp=0;
+				  
+	           this.apoptosis_BasalCounter=0;    // Cells removed from simulation during last time tick    
+	           this.apoptosis_EarlySpiCounter=0;
+	           this.apoptosis_LateSpiCounter=0;
+	           this.apoptosis_GranuCounter=0;
+			}
+		
 	}
 	
 	
@@ -215,7 +244,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		actualNumberOfBasalStatisticsCells--;
 	}
 	
-	public void reset(){
+	public void reset(boolean isRestartReset){
 		actualNumberStemCells=0;       
 		actualNumberKCytes=0;      
 		actualNumberEarlySpiCells=0;         
@@ -223,11 +252,33 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		actualNumberLateSpi=0;     
 		actualNumberGranuCells=0;      
 		actualNumberOfNoNucleus=0;   
-		actualBasalStatisticsCells=0;   
-		
+		actualBasalStatisticsCells=0;		
 		actualNumberOfBasalStatisticsCells = 0;
 		sumOfAllAges = 0;
-	
+		
+		
+		
+		apoptosis_BasalCounter=0;
+		apoptosis_EarlySpiCounter=0; 
+		apoptosis_LateSpiCounter=0;
+		apoptosis_GranuCounter=0;
+		
+		barrier_ExtCalcium_Statistics_temp=0;
+		barrier_Lamella_Statistics_temp=0;
+		barrier_Lipids_Statistics_temp=0;
+		oldNumOuterCells=0;
+		
+		if(isRestartReset){
+			apoptosis_Basal_Statistics=0;       
+			apoptosis_EarlySpi_Statistics=0;
+			apoptosis_LateSpi_Statistics=0;
+			apoptosis_Granu_Statistics=0;
+			
+			barrier_ExtCalcium_Statistics=0;
+			barrier_Lamella_Statistics=0;
+			barrier_Lipids_Statistics=0;
+			
+		}	
 	}
 
 
@@ -243,17 +294,16 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	   	  switch(diffLevel){
  			    case EpisimCellDiffModelGlobalParameters.EARLYSPICELL:{
  					  this.apoptosis_EarlySpiCounter++;
- 				  }
- 				  break;
- 				  case EpisimCellDiffModelGlobalParameters.GRANUCELL:{
+ 				 }
+ 				 break;
+ 				 case EpisimCellDiffModelGlobalParameters.GRANUCELL:{
  					  	this.apoptosis_GranuCounter++;
- 				  }
- 				  break;
- 				  case EpisimCellDiffModelGlobalParameters.LATESPICELL:{
+ 				 }
+ 				 break;
+ 				 case EpisimCellDiffModelGlobalParameters.LATESPICELL:{
  					  	this.apoptosis_LateSpiCounter++;
- 				  }
- 				  break;
- 				  
+ 				 }
+ 				 break; 				  
  			  }
 	   	
 	   }
@@ -274,5 +324,8 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	public double getApoptosis_EarlySpi_Statistics(){ return apoptosis_EarlySpi_Statistics; }	
    public double getApoptosis_LateSpi_Statistics(){ return apoptosis_LateSpi_Statistics; }
 	public double getApoptosis_Granu_Statistics(){ return apoptosis_Granu_Statistics; }
+   public double getBarrier_ExtCalcium_Statistics() {	return barrier_ExtCalcium_Statistics; }
+   public double getBarrier_Lamella_Statistics() { return barrier_Lamella_Statistics; }	
+   public double getBarrier_Lipids_Statistics() {return barrier_Lipids_Statistics; }
    
 }

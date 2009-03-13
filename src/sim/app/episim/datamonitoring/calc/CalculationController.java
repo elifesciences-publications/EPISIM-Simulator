@@ -43,76 +43,85 @@ public class CalculationController {
 	public void calculateGradients(){
 		chartGradientCalculator.calculateGradients();
 	}
-	
-	public double calculateOneCellBaseLine(long chartId, CalculationHandler handler){
-		return oneCellCalculator.calculateOneCellBaseLine(chartId, handler);
+		
+	public void calculateOneCell(double baselineResult, long valueHandlerID){
+		oneCellCalculator.calculateOneCell(baselineResult, valueHandlerID);
 	}
 	
-	public void calculateOneCell(double baseLineResult){
-		oneCellCalculator.calculateOneCell(baseLineResult);
+	public double calculateOneCellBaseline(long valueHandlerID){
+		return oneCellCalculator.calculateOneCellBaseline(valueHandlerID);
 	}
 	
-	public void calculateOneCell(){
-		oneCellCalculator.calculateOneCell();
+	public void calculateOneCell(long valueHandlerID){
+		oneCellCalculator.calculateOneCell(valueHandlerID);
 	}
 	
 	public void registerForOneCellCalculation(CalculationHandler handler, final XYSeries series){
+		if(series != null){
+			oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
+				
+				private int counter = 0;
+				private boolean firstCellEver = true;
+			
+				
+				public void addNewValue(Double key, Double value) {
+					series.add(key, value);	         
+	         }
 	
-		oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
-			
-			private int counter = 0;
-			private boolean firstCellEver = true;
-		
-			
-			public void addNewValue(Double key, Double value) {
-				series.add(key, value);	         
-         }
-
-			public void cellHasChanged() {
-				series.clear();
-				if(firstCellEver){
-					series.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
-					firstCellEver = false;					
-				}
-				else
-					series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
-				counter++;	         
-         }
-
-			public void restartSimulation() {
-	        counter = 0;	         
-         }			
-		});
+				public void cellHasChanged() {
+					series.clear();
+					if(firstCellEver){
+						series.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
+						firstCellEver = false;					
+					}
+					else
+						series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
+					counter++;	         
+	         }
+	
+				public void restartSimulation() {
+		        counter = 0;	         
+	         }			
+			});
+		}
+		else{
+			oneCellCalculator.registerForOneCellCalculation(handler, null);
+		}
 	}
 	
 	public void registerForOneCellCalculation(CalculationHandler handler, final Map<Double, Double> resultMap){
 		
-		oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
-			
-			private int counter = 0;
-			private boolean firstCellEver = true;
-		
-			
-			public void addNewValue(Double key, Double value) {
+		if(resultMap != null){
+			oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
 				
-				resultMap.put(key, value);	         
-         }
-
-			public void cellHasChanged() {
-				resultMap.clear();
-				if(firstCellEver){
-					//resultMap.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
-					firstCellEver = false;
-				}
-				else
-					//series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
-				counter++;	         
-         }
-
-			public void restartSimulation() {
-	        counter = 0;	         
-         }			
-		});
+				private int counter = 0;
+				private boolean firstCellEver = true;
+			
+				
+				public void addNewValue(Double key, Double value) {
+					
+					resultMap.put(key, value);	         
+	         }
+	
+				public void cellHasChanged() {
+					resultMap.clear();
+					if(firstCellEver){
+						//resultMap.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
+						firstCellEver = false;
+					}
+					else
+						//series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
+					counter++;	         
+	         }
+	
+				public void restartSimulation() {
+		        counter = 0;	         
+	         }			
+			});
+		}
+		else{
+			oneCellCalculator.registerForOneCellCalculation(handler, null);
+		}
 	}
 	
 	

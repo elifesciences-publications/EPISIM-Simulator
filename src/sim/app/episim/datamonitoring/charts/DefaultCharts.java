@@ -4,12 +4,15 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.chart.JFreeChart;
@@ -59,7 +62,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	private int CORNEUMY=20;
 	
    //Schlüssel setzt sich XYSeriesCollection-Name Position 0 und XYSeries-Name zusammen
-	private Map<String[], XYSeries> xySeries = new HashMap<String[], XYSeries>();
+	private Map<String[], XYSeries> xySeries; 
 	private Map<String, XYSeriesCollection> xySeriesCollections = new HashMap<String, XYSeriesCollection>();
 	private Map<String, DefaultCategoryDataset> categoryDatasets = new HashMap<String, DefaultCategoryDataset>();
 	private Map<String, ChartPanel> chartsMap = new HashMap<String, ChartPanel>();
@@ -96,13 +99,29 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		BarRenderer barRenderer;
 		NumberAxis rangeAxis;
 		
+		//---------------------------------------------------------------------------------------------------------------------------
+		// Initialize TreeMap
+		//-----------------------------------------------------------------------------------------------------------------------
+		
+		this.xySeries = new TreeMap<String[], XYSeries>(new Comparator<String[]>(){
+
+			public int compare(String[] o1, String[] o2) {
+
+	         if(o1.length < 3 || o2.length < 3) return 0;
+	         else return (o1[2].concat(o1[0])).compareTo(o2[2].concat(o2[0]));
+         }
+		});
+		
+		
+		
+		
       /////////////////////////////////////
 		// Charts: Performance Statistics
 		/////////////////////////////////////
 
-		xySeries.put(new String[] { "Steps_Time", "Performance_Series" }, new XYSeries("Steps / Time"));
+		xySeries.put(new String[] { "Steps_Time", "Performance_Series", "0"}, new XYSeries("Steps / Time"));
 		
-		xySeries.put(new String[] { "Num_Cells_Steps", "Performance_Series_Num_Cells" }, new XYSeries("Number Of Cells"));
+		xySeries.put(new String[] { "Num_Cells_Steps", "Performance_Series_Num_Cells", "1"}, new XYSeries("Number Of Cells"));
 		
 		xySeriesCollections.put("Performance_Series", new XYSeriesCollection());
 		xySeriesCollections.put("Performance_Series_Num_Cells", new XYSeriesCollection());
@@ -143,12 +162,12 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		// Charts: NumCells
 		// ///////////////////////////////////
 
-		xySeries.put(new String[] { "ChartSeries_KCyte_All", "ChartSeries_KCytes" }, new XYSeries("All Cells"));
-		xySeries.put(new String[] { "ChartSeries_KCyte_Spi", "ChartSeries_KCytes" }, new XYSeries("Early Spinosum"));
-		xySeries.put(new String[] { "ChartSeries_KCyte_LateSpi", "ChartSeries_KCytes" }, new XYSeries("Late Spinosum"));
-		xySeries.put(new String[] { "ChartSeries_KCyte_Granu", "ChartSeries_KCytes" }, new XYSeries("Granulosum"));
-		xySeries.put(new String[] { "ChartSeries_KCyte_TA", "ChartSeries_KCytes" }, new XYSeries("Transit Amplifying"));
-		xySeries.put(new String[] { "ChartSeries_KCyte_MeanAgeDate", "ChartSeries_MeanAgeColl" },
+		xySeries.put(new String[] { "ChartSeries_KCyte_All", "ChartSeries_KCytes", "0" }, new XYSeries("All Cells"));
+		xySeries.put(new String[] { "ChartSeries_KCyte_Spi", "ChartSeries_KCytes", "1" }, new XYSeries("Early Spinosum"));
+		xySeries.put(new String[] { "ChartSeries_KCyte_LateSpi", "ChartSeries_KCytes", "2" }, new XYSeries("Late Spinosum"));
+		xySeries.put(new String[] { "ChartSeries_KCyte_Granu", "ChartSeries_KCytes", "3" }, new XYSeries("Granulosum"));
+		xySeries.put(new String[] { "ChartSeries_KCyte_TA", "ChartSeries_KCytes", "4" }, new XYSeries("Transit Amplifying"));
+		xySeries.put(new String[] { "ChartSeries_KCyte_MeanAgeDate", "ChartSeries_MeanAgeColl", "5" },
 				new XYSeries("Mean Age"));
 		xySeriesCollections.put("ChartSeries_KCytes", new XYSeriesCollection());
 		xySeriesCollections.put("ChartSeries_MeanAgeColl", new XYSeriesCollection());
@@ -193,9 +212,9 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	   // Charts: Kinetics Statistics
 	   /////////////////////////////////////
 		
-		xySeries.put(new String[] { "ChartSeries_Kinetics_GrowthFraction", "ChartSeries_Kinetics100Coll" }, new XYSeries( "Growth Fraction" ));
-		xySeries.put(new String[] { "ChartSeries_Kinetics_MeanCycleTime", "ChartSeries_Kinetics100Coll" }, new XYSeries( "Mean Cell Cycle Time" ));
-		xySeries.put(new String[] { "ChartSeries_Kinetics_Turnover", "ChartSeries_Kinetics2000Coll" }, new XYSeries( "Turnover Time" ));
+		xySeries.put(new String[] { "ChartSeries_Kinetics_GrowthFraction", "ChartSeries_Kinetics100Coll", "0" }, new XYSeries( "Growth Fraction" ));
+		xySeries.put(new String[] { "ChartSeries_Kinetics_MeanCycleTime", "ChartSeries_Kinetics100Coll", "1" }, new XYSeries( "Mean Cell Cycle Time" ));
+		xySeries.put(new String[] { "ChartSeries_Kinetics_Turnover", "ChartSeries_Kinetics2000Coll", "2" }, new XYSeries( "Turnover Time" ));
 		
 		xySeriesCollections.put("ChartSeries_Kinetics100Coll", new XYSeriesCollection());
 		xySeriesCollections.put("ChartSeries_Kinetics2000Coll", new XYSeriesCollection());
@@ -236,9 +255,9 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	   // Charts: Barrier
 	   /////////////////////////////////////
 	   
-	   xySeries.put(new String[] { "ChartSeries_Barrier_Calcium", "ChartSeries_Barrier" }, new XYSeries( "Barrier Calcium (mg/kg)" ));
-	   xySeries.put(new String[] { "ChartSeries_Barrier_Lamella", "ChartSeries_Barrier" }, new XYSeries( "Barrier Lamella" ));
-	   xySeries.put(new String[] { "ChartSeries_Barrier_Lipids", "ChartSeries_Barrier" }, new XYSeries( "Barrier Lipids" ));
+	   xySeries.put(new String[] { "ChartSeries_Barrier_Calcium", "ChartSeries_Barrier", "0" }, new XYSeries( "Barrier Calcium (mg/kg)" ));
+	   xySeries.put(new String[] { "ChartSeries_Barrier_Lamella", "ChartSeries_Barrier", "1" }, new XYSeries( "Barrier Lamella" ));
+	   xySeries.put(new String[] { "ChartSeries_Barrier_Lipids", "ChartSeries_Barrier", "2" }, new XYSeries( "Barrier Lipids" ));
 	   
 	   xySeriesCollections.put("ChartSeries_Barrier", new XYSeriesCollection());
 	   
@@ -267,10 +286,10 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		 // Charts: Apopotosis
 		 /////////////////////////////////////
 		 
-		 xySeries.put(new String[] { "ChartSeries_Apoptosis_Basal", "ChartSeries_Apoptosis" }, new XYSeries( "Basal" ));
-		 xySeries.put(new String[] { "ChartSeries_Apoptosis_EarlySpi", "ChartSeries_Apoptosis" }, new XYSeries( "EarlySpi" ));
-		 xySeries.put(new String[] { "ChartSeries_Apoptosis_LateSpi", "ChartSeries_Apoptosis" }, new XYSeries( "LateSpi" ));
-		 xySeries.put(new String[] { "ChartSeries_Apoptosis_Granu", "ChartSeries_Apoptosis" }, new XYSeries( "Granu" ));
+		 xySeries.put(new String[] { "ChartSeries_Apoptosis_Basal", "ChartSeries_Apoptosis", "0" }, new XYSeries( "Basal" ));
+		 xySeries.put(new String[] { "ChartSeries_Apoptosis_EarlySpi", "ChartSeries_Apoptosis", "1" }, new XYSeries( "EarlySpi" ));
+		 xySeries.put(new String[] { "ChartSeries_Apoptosis_LateSpi", "ChartSeries_Apoptosis", "2" }, new XYSeries( "LateSpi" ));
+		 xySeries.put(new String[] { "ChartSeries_Apoptosis_Granu", "ChartSeries_Apoptosis", "3" }, new XYSeries( "Granu" ));
 		 
 		 xySeriesCollections.put("ChartSeries_Apoptosis", new XYSeriesCollection());
 		 
@@ -354,9 +373,9 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	   // Charts: LineChartParticleDistributions
 	   ///////////////////////////////////////////////////
 	  
-      xySeries.put(new String[] { "ExtCalConcAvg", "CollPartDist" }, new XYSeries("Mean Ext. Calcium (mg/kg)"));
-      xySeries.put(new String[] { "LamellaConcAvg", "CollPartDist" }, new XYSeries("Mean Lamella"));
-      xySeries.put(new String[] { "LipidsConcAvg", "CollPartDist" }, new XYSeries("Mean Lipids"));
+      xySeries.put(new String[] { "ExtCalConcAvg", "CollPartDist", "0" }, new XYSeries("Mean Ext. Calcium (mg/kg)"));
+      xySeries.put(new String[] { "LamellaConcAvg", "CollPartDist", "1" }, new XYSeries("Mean Lamella"));
+      xySeries.put(new String[] { "LipidsConcAvg", "CollPartDist", "2" }, new XYSeries("Mean Lipids"));
      
       xySeries.put(new String[] { "Num", "CollNum" }, new XYSeries("Num Cells")); 
         
@@ -407,7 +426,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
       ///////////////////////////////////////////////////
       // Charts: LineChart AgeDistribution
       /////////////////////////////////////////////////////
-      xySeries.put(new String[] { "AgeAvg", "CollAge" }, new XYSeries("Mean Age")); 
+      xySeries.put(new String[] { "AgeAvg", "CollAge", "0" }, new XYSeries("Mean Age")); 
       
       xySeriesCollections.put("CollAge", new XYSeriesCollection());
       
@@ -458,7 +477,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		chartEnabled.put(PERFORMANCE, false);
 		chartEnabled.put(CELLCOUNTS, false);
 		chartEnabled.put(TISSUEKINETICPARAMETERS, false);
-	//	chartEnabled.put(PARTICLECONCENTRATIONSINBARRIER, false);
+		chartEnabled.put(PARTICLECONCENTRATIONSINBARRIER, false);
 		chartEnabled.put(CELLDEATH, false);
 		chartEnabled.put(PARTICLESPERCELLTYPE, false);
 		chartEnabled.put(PARTICLEGRADIENTS, false);
@@ -472,7 +491,6 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	}
 	/**
 	 * Fügt die Series Objekte in die Collections ein
-	 *
 	 */
 	private void addXYSeriesToCollections(){
 		Set keySetXYSeries = xySeries.keySet();
@@ -480,9 +498,8 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		String [] actKey;
 		while(iter.hasNext()){
 			actKey = iter.next();
-			if(actKey.length == 2 && xySeriesCollections.containsKey(actKey[1])){ 
-				if(xySeriesCollections.get(actKey[1]) != null){ 
-					
+			if(actKey.length >= 2 && xySeriesCollections.containsKey(actKey[1])){ 
+				if(xySeriesCollections.get(actKey[1]) != null){					
 					xySeriesCollections.get(actKey[1]).addSeries(xySeries.get(actKey));
 				}
 			}
@@ -510,7 +527,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		
 		while(iter.hasNext()){
 			String[] key = iter.next();
-			if(key.length ==2 && key[0].equals(name)) return xySeries.get(key);
+			if(key.length >=2 && key[0].equals(name)) return xySeries.get(key);
 		}
 		
 		return null;
@@ -544,7 +561,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	}
 	public List<SnapshotObject> collectSnapshotObjects() {
 
-		List<SnapshotObject> list = new LinkedList<SnapshotObject>();
+	List<SnapshotObject> list = new LinkedList<SnapshotObject>();
 		
 		
 		
@@ -824,8 +841,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 			                       Lip_TA+=act.getEpisimCellDiffModelObject().getLip();  
 		          				  }
 		          				  break;
-		          			  }
-		                                     
+		          			  }		                                     
 		                 }
 		                 
 		                 ///////////////////////////////////////////
@@ -890,7 +906,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		   {
 		         public void step(SimState state)
 		         {   
-		             if (state.schedule.time()>2000)
+		             if (state.schedule.time()>500)//2000)
 		             {
 		            	 getXYSeries("ChartSeries_Apoptosis_Basal").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_Basal_Statistics());
 		            	 getXYSeries("ChartSeries_Apoptosis_EarlySpi").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_EarlySpi_Statistics());
@@ -904,7 +920,30 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
                }
 		     });
 	     
+			  
+		    
+			  //////////////////////////////////////
+		     // CHART Updating Barrier Chart
+		     //////////////////////////////////////
+		    
+			this.steppablesMap.put(this.PARTICLECONCENTRATIONSINBARRIER, new EnhancedSteppable()
+		    {
+		         public void step(SimState state)
+		         {          
+		         	
+		         	if(GlobalStatistics.getInstance().getBarrier_ExtCalcium_Statistics() < 10){
+		         		System.out.println("CA Warnung");
+		         	}
+		         	
+		         	getXYSeries("ChartSeries_Barrier_Calcium").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getBarrier_ExtCalcium_Statistics());
+		         	getXYSeries("ChartSeries_Barrier_Lamella").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getBarrier_Lamella_Statistics());
+		         	getXYSeries("ChartSeries_Barrier_Lipids").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getBarrier_Lipids_Statistics());
+		         }
 
+					public double getInterval() {
+						return 100;
+               }
+		     }); 
 	}
 	
 }

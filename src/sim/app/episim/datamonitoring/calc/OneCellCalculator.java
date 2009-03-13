@@ -12,70 +12,60 @@ import episiminterfaces.*;
 
 public class OneCellCalculator extends AbstractCommonCalculator{
 	
-	private ArrayList<CalculationHandler> calculationHandlers;
-	private ArrayList<OneCellTrackingDataManager<Double,Double>> dataManagers;
+	private Map<Long, CalculationHandler> calculationHandlers;
+   private Map<Long, OneCellTrackingDataManager<Double,Double>> dataManagers;
 	
 	
-	private Map<Integer, CellType> trackedCells;
-	private Map<Long, CellType> trackedCellsBaseLine;
-	
-	int dataManagerCounter = 0;
-	
+	private Map<Long, CellType> trackedCells;
+		
 	protected OneCellCalculator(){
-		this.calculationHandlers = new ArrayList<CalculationHandler>();
-		this.dataManagers = new ArrayList<OneCellTrackingDataManager<Double,Double>>();
-		this.trackedCells = new HashMap<Integer, CellType>();
-		this.trackedCellsBaseLine = new HashMap<Long, CellType>();
+		this.calculationHandlers = new HashMap<Long, CalculationHandler>();
+		this.dataManagers = new HashMap<Long, OneCellTrackingDataManager<Double,Double>>();
+		this.trackedCells = new HashMap<Long, CellType>();
 	}
 	
 	public void restartSimulation(){
 		this.trackedCells.clear();
-		this.trackedCellsBaseLine.clear();		
+		for(OneCellTrackingDataManager<Double,Double> manager : dataManagers.values()){ 
+			
+			if(manager != null) manager.restartSimulation();
+			
+		}
 	}
 	
 	public void registerForOneCellCalculation(CalculationHandler handler, OneCellTrackingDataManager<Double,Double> datamanager){
-		if(handler == null || datamanager == null) throw new IllegalArgumentException("OneCellCalculator: CalculationHandler or XYSeries must not be null!");
-		this.calculationHandlers.add(handler);
-		this.dataManagers.add(datamanager);
-		
-		dataManagerCounter++;
+		if(handler == null) throw new IllegalArgumentException("OneCellCalculator: CalculationHandler must not be null!");
+		this.calculationHandlers.put(handler.getID(),handler);
+		this.dataManagers.put(handler.getID(),datamanager);
 	}
 	
 	
-	private void checkTrackedCell(){
-			boolean invalidCellFound = false;
-			
-			do{
-				invalidCellFound = false;
-				CellType actTrackedCell = null;
-				CellType newTrackedCell = null;
-				int counter = 0;
-				for(OneCellTrackingDataManager<Double,Double> actDataManager: this.dataManagers){
+	private void checkTrackedCells() {
+
+		CellType actTrackedCell = null;
+		CellType newTrackedCell = null;
+
+		for(CalculationHandler handler : this.calculationHandlers.values()){
+
+			actTrackedCell = this.trackedCells.get(handler.getID());
+			if(actTrackedCell == null || actTrackedCell.getEpisimCellDiffModelObject().getIsAlive() == false){
+
+				if(actTrackedCell != null)	actTrackedCell.setTracked(false);
+
+				if(dataManagers.get(handler.getID())!= null)dataManagers.get(handler.getID()).cellHasChanged();
+				newTrackedCell = getNewCellForTracking(handler);
+				if(newTrackedCell != null &&(handler.getRequiredCellType() == null
+				      || handler.getRequiredCellType().isAssignableFrom(newTrackedCell.getClass()))){
 					
-					if(newTrackedCell == null) newTrackedCell =getNewCellForTacking(this.calculationHandlers.get(counter));
-					if(newTrackedCell != null){
-						actTrackedCell = this.trackedCells.get(counter);
-						if(actTrackedCell == null || actTrackedCell.getEpisimCellDiffModelObject().getIsAlive() == false){
-							if(this.calculationHandlers.get(counter).getRequiredCellType() == null
-									|| this.calculationHandlers.get(counter).getRequiredCellType().isAssignableFrom(newTrackedCell.getClass())){
-								if(actTrackedCell != null) actTrackedCell.setTracked(false);
-								
-								actDataManager.cellHasChanged();
-								
-								this.trackedCells.put(counter, newTrackedCell);
-								newTrackedCell.setTracked(true);
-							}
-						}
-					}
-					counter++;
+					newTrackedCell.setTracked(true);
 				}
+				this.trackedCells.put(handler.getID(), newTrackedCell);
 			}
-			while(invalidCellFound);
-			
+		}
 	}
 		
 	
-	private CellType getNewCellForTacking(CalculationHandler handler){
+	private CellType getNewCellForTracking(CalculationHandler handler){
 		Class<? extends CellType> requiredClass = handler.getRequiredCellType();
 		if(requiredClass == null){
 			for(CellType actCell : this.allCells){
@@ -98,7 +88,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 			
 			do{
 				counter++;
-			
+				System.out.println("Suche zufällige Zelle für Tracking passend zur Klasse: "+  requiredClass.getCanonicalName());
 				result = this.allCells.getRandomItemOfClass(requiredClass);
 			}
 			while(result != null && result.getEpisimCellDiffModelObject().getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL && counter < this.allCells.size());
@@ -109,80 +99,52 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 	
 	
 	
-	private CellType findValidTrackedCellForCalculationHandler(CalculationHandler handler){
-		if(handler != null){
-			for(CellType actCell: this.trackedCells.values()){
-			
-		         if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){ 
-		         	if(actCell.getEpisimCellDiffModelObject().getIsAlive() == true)return actCell;
-		         }
-		         
-	       }
-	         
-			
-		}
-		return null;
-	}
-	
-	/**
-	 * 
-	 * @param handler
-	 * @return returns negative infinity if cell not valid
-	 */
-	public double calculateOneCellBaseLine(long chartId, CalculationHandler handler){
+	public double calculateOneCellBaseline(long valueHandlerID){
+		CellType trackedCellBaseLine=null;
 		
-		CellType foundCell = this.trackedCellsBaseLine.get(chartId);
-		if(foundCell!= null && foundCell.getEpisimCellDiffModelObject().getIsAlive() == false){
-			foundCell.setTracked(false);
-			foundCell = null;
-		}
-		if(foundCell == null) foundCell = findValidTrackedCellForCalculationHandler(handler);
-		if(foundCell == null) foundCell = getNewCellForTacking(handler);
-		try{
-			if(foundCell != null){
-				this.trackedCellsBaseLine.put(chartId, foundCell);
-				return handler.calculate(foundCell);
+			trackedCellBaseLine = this.trackedCells.get(valueHandlerID);
+			if(trackedCellBaseLine != null){
+				try{
+	            return calculationHandlers.get(valueHandlerID).calculate(trackedCellBaseLine);
+            }
+            catch (CellNotValidException e){
+            	System.out.println("This exception should never occur: " + e.getClass().toString() + " - "+ e.getMessage());
+            }			
 			}
-			else{
-				return Double.NEGATIVE_INFINITY;
-			}
-      }
-      catch (CellNotValidException e){
-	     
-	      return Double.NEGATIVE_INFINITY;
-      }
-     
+		
+		return Double.NEGATIVE_INFINITY;
 	}
 	
-	public void calculateOneCell(double baseLineResult){
-		checkTrackedCell();
+	
+	public void calculateOneCell(double baselineResult, long valueHandlerID){
+		checkTrackedCells();
 	
 		double result = 0;
 		
-		for(int i = 0; i < calculationHandlers.size(); i++){
+		CellType trackedCell=null;
+		
+		
 			try{
-				CellType trackedCell = this.trackedCells.get(i);
+				
+				trackedCell = this.trackedCells.get(valueHandlerID);
 				if(trackedCell != null){
-					result = calculationHandlers.get(i).calculate(trackedCell);
+					result = calculationHandlers.get(valueHandlerID).calculate(trackedCell);
 					//if(baseLineResult != Double.NEGATIVE_INFINITY)
-					
-					//TODO: Wechsel der Zelle kenntlich machen
-					this.dataManagers.get(i).addNewValue(baseLineResult, result);
-					//else this.dataManagers.get(i).addNewValue(((double)i), result);
 				}
+					//TODO: Wechsel der Zelle beim Rausschreiben in CSV kenntlich machen
+					this.dataManagers.get(valueHandlerID).addNewValue(baselineResult, result);
+					
 			}
 			catch (CellNotValidException e){
 				System.out.println("This exception should never occur: " + e.getClass().toString() + " - "+ e.getMessage());
 			}
 			
-		}
+		
 	}
 	
-	public void calculateOneCell(){
-		calculateOneCell(Double.NEGATIVE_INFINITY);
+	public void calculateOneCell(long secondValueHandlerID){
+		calculateOneCell(Double.NEGATIVE_INFINITY,secondValueHandlerID);
 	}
-		
-		
 	
 
 }

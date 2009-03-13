@@ -7,6 +7,8 @@ import episimexceptions.MissingObjectsException;
 
 public interface CalculationHandler {
 	
+	long getID();
+	
 	Class<? extends CellType> getRequiredCellType();
 	double calculate(CellType cell) throws CellNotValidException;
 

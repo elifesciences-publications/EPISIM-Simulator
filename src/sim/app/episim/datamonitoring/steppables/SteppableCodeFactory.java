@@ -1,6 +1,7 @@
 package sim.app.episim.datamonitoring.steppables;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Set;
 
 import org.jfree.chart.JFreeChart;
@@ -23,9 +24,9 @@ public abstract class SteppableCodeFactory {
 	private static CommonSteppableBuilder commonBuilder = new CommonSteppableBuilder(); 
 	
 	//returns something like new EnhancedSteppable(){...}
-	public synchronized static String getEnhancedSteppableSourceCodeforChart(EpisimChart chart){
+	public synchronized static String getEnhancedSteppableSourceCodeforChart(EpisimChart chart, long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
 		boolean gradientSeriesFound = false;
-		boolean oneCellSeriesFound = false;
+		
 		steppableCode = new StringBuffer();
 		steppableCode.append("new EnhancedSteppable(){\n");
 		
@@ -37,20 +38,24 @@ public abstract class SteppableCodeFactory {
 			steppableCode.append("baseLineResult = " + chart.getBaselineExpression() [1]+";\n");
 		}
 		else if(chart.getBaselineExpression() [1].startsWith(Names.BUILDCELLHANDLER)){
-			steppableCode.append("baseLineResult = CalculationController.getInstance().calculateOneCellBaseLine("
-					+ chart.getId() + "l, "
-					+ chart.getBaselineExpression()[1].substring(Names.BUILDCELLHANDLER.length())+");\n");
+			steppableCode.append("baseLineResult = CalculationController.getInstance().calculateOneCellBaseline("
+					+ baselineCalculationHandlerID + "l);\n");
 		}
 		for(EpisimChartSeries actSeries: chart.getEpisimChartSeries()){
 			if(actSeries.getExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)) gradientSeriesFound = true;
-			else if(actSeries.getExpression()[1].startsWith(Names.BUILDCELLHANDLER)) oneCellSeriesFound = true;
+			else if(actSeries.getExpression()[1].startsWith(Names.BUILDCELLHANDLER)){
+						
+				steppableCode.append("CalculationController.getInstance().calculateOneCell(baseLineResult, "
+						+ seriesCalculationHandlerIDs.get(actSeries.getId()) + "l);\n");
+				
+			}
 			else{ 
 				steppableCode.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
 						".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");
 			}
 		}
 		if(gradientSeriesFound) steppableCode.append("CalculationController.getInstance().calculateGradients();\n");
-		if(oneCellSeriesFound) steppableCode.append("CalculationController.getInstance().calculateOneCell(baseLineResult);\n");
+		
 		steppableCode.append("}\n");
 		steppableCode.append("public double getInterval(){\n");
 		steppableCode.append("return " + chart.getChartUpdatingFrequency() + ";\n");
@@ -61,7 +66,7 @@ public abstract class SteppableCodeFactory {
 	}
 	
 	
-	public synchronized static String getEnhancedSteppableSourceCodeforDataExport(EpisimDataExportDefinition exportDefinition){
+	public synchronized static String getEnhancedSteppableSourceCodeforDataExport(EpisimDataExportDefinition exportDefinition, Map <Long, Long> columnCalculationHandlerIDs){
 		boolean gradientColumnFound = false;
 		boolean oneCellColumnFound = false;
 		steppableCode = new StringBuffer();
@@ -73,7 +78,13 @@ public abstract class SteppableCodeFactory {
 		
 		for(EpisimDataExportColumn actColumn: exportDefinition.getEpisimDataExportColumns()){
 			if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)) gradientColumnFound = true;
-			else if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDCELLHANDLER)) oneCellColumnFound = true;
+			else if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDCELLHANDLER)){
+				
+				steppableCode.append("CalculationController.getInstance().calculateOneCell("
+						+ columnCalculationHandlerIDs.get(actColumn.getId()) + "l);\n");
+				
+			}
+			
 			else{ 
 				steppableCode.append(Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
 						".put(new Double(Double.NEGATIVE_INFINITY), new Double("+ actColumn.getCalculationExpression()[1]+"));\n");
@@ -88,7 +99,6 @@ public abstract class SteppableCodeFactory {
 		
 		
 		if(gradientColumnFound) steppableCode.append("CalculationController.getInstance().calculateGradients();\n");
-		if(oneCellColumnFound) steppableCode.append("CalculationController.getInstance().calculateOneCell();\n");
 		steppableCode.append("}\n");
 		steppableCode.append("public double getInterval(){\n");
 		steppableCode.append("return " + exportDefinition.getDataExportFrequncyInSimulationSteps()+ ";\n");
@@ -137,12 +147,12 @@ public abstract class SteppableCodeFactory {
 		return "";
 	}
 	
-	public static void appendCalucationHandlerRegistration(EpisimChart chart, StringBuffer source){
-		commonBuilder.appendCalucationHandlerRegistration(chart, source);
+	public static void appendCalucationHandlerRegistration(EpisimChart chart, StringBuffer source, long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
+		commonBuilder.appendCalucationHandlerRegistration(chart, source, baselineCalculationHandlerID, seriesCalculationHandlerIDs);
 	}
 	
-	public static void appendCalucationHandlerRegistration(EpisimDataExportDefinition dataExport, StringBuffer source){
-		commonBuilder.appendCalucationHandlerRegistration(dataExport, source);
+	public static void appendCalucationHandlerRegistration(EpisimDataExportDefinition dataExport, StringBuffer source, Map<Long, Long> seriesCalculationHandlerIDs){
+		commonBuilder.appendCalucationHandlerRegistration(dataExport, source, seriesCalculationHandlerIDs);
 	}
 	
 	

@@ -45,6 +45,21 @@ public abstract class Names {
 		return str;
 	}
 	
+	public static String insertIDIntoCalculationHandlerAndRemovePrefix(String handler, long id){
+		String prefixString = "";
+		if(handler.startsWith(BUILDACMVHANDLER)) prefixString = BUILDACMVHANDLER;
+		else if(handler.startsWith(BUILDCELLHANDLER)) prefixString = BUILDCELLHANDLER;
+		else if(handler.startsWith(BUILDGRADIENTHANDLER)) prefixString = BUILDGRADIENTHANDLER;
+		
+		handler = handler.substring(prefixString.length());
+		
+		prefixString = "new CalculationHandler(){\n";
+		
+		handler = handler.substring(prefixString.length());
+		
+		return prefixString.concat("{id="+id+"l;}\n").concat(handler);
+	}
+	
 	public static String convertClassToVariable(String classname){
 		return classname.substring(0,1).toLowerCase() + classname.substring(1);
 	}

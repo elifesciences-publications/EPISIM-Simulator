@@ -3,6 +3,8 @@ package sim.app.episim.datamonitoring.dataexport.build;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
@@ -88,9 +90,21 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		
 	      generatedSourceCode.append("  dataExportCSVWriter = new DataExportCSVWriter(new File(\""+ this.actDataExportDefinition.getCSVFilePath().getPath().replace(File.separatorChar, '/')+"\"), \""+ getColumnNamesString()+"\");\n");
    
+	      
+	      long counter = 1;
+			
+			Map <Long, Long> columnCalculationHandlerIDs = new HashMap<Long, Long>();
+			
+			for(EpisimDataExportColumn column: actDataExportDefinition.getEpisimDataExportColumns()){
+				
+				//TODO: id für andere Chart Modalitäten erweitern
+				if(column.getCalculationExpression()[1].startsWith(Names.BUILDCELLHANDLER)) columnCalculationHandlerIDs.put(column.getId(), (System.currentTimeMillis()+ counter));
+				counter++;
+			}
+	      
 		
-		appendHandlerRegistration();			
-		appendSteppable();
+		appendHandlerRegistration(columnCalculationHandlerIDs);			
+		appendSteppable(columnCalculationHandlerIDs);
 		appendDataMapsRegistration();
 		
 		generatedSourceCode.append("}\n");
@@ -113,14 +127,14 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		generatedSourceCode.append("}\n");
 	}
 	
-	private void appendSteppable(){
+	private void appendSteppable(Map <Long, Long> columnCalculationHandlerIDs){
 		
-		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforDataExport(actDataExportDefinition)+";\n");
+		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforDataExport(actDataExportDefinition, columnCalculationHandlerIDs)+";\n");
 	
 	}
 	
-	private void appendHandlerRegistration(){
-		SteppableCodeFactory.appendCalucationHandlerRegistration(actDataExportDefinition, generatedSourceCode);
+	private void appendHandlerRegistration(Map<Long, Long> calculationHandlerIDs){
+		SteppableCodeFactory.appendCalucationHandlerRegistration(actDataExportDefinition, generatedSourceCode, calculationHandlerIDs);
 	}
 	
 	private void appendDataMapsRegistration(){

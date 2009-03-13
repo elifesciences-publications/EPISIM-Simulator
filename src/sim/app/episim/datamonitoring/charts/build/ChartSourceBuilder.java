@@ -2,6 +2,8 @@ package sim.app.episim.datamonitoring.charts.build;
 
 
 import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
@@ -117,8 +119,21 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 		if(actChart.isLegendVisible()) appendLegend();
 		appendChartSeriesInit();
-		appendHandlerRegistration();			
-		appendSteppable();
+		
+		
+		long counter = 1;
+		long baselineCalculationHandlerID = System.currentTimeMillis();
+		Map <Long, Long> seriesCalculationHandlerIDs = new HashMap<Long, Long>();
+		
+		for(EpisimChartSeries series: actChart.getEpisimChartSeries()){
+			
+			//TODO: id für andere Chart Modalitäten erweitern
+			if(series.getExpression()[1].startsWith(Names.BUILDCELLHANDLER)) seriesCalculationHandlerIDs.put(series.getId(), (System.currentTimeMillis()+ counter));
+			counter++;
+		}
+		
+		appendHandlerRegistration(baselineCalculationHandlerID, seriesCalculationHandlerIDs);
+		appendSteppable(baselineCalculationHandlerID, seriesCalculationHandlerIDs);
 		if(actChart.isPNGPrintingEnabled())appendPNGSteppable();
 		generatedSourceCode.append("}\n");
 	}
@@ -147,9 +162,9 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		}
 	}
 	
-	private void appendSteppable(){
+	private void appendSteppable(long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
 		
-		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforChart(actChart)+";\n");
+		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforChart(actChart, baselineCalculationHandlerID, seriesCalculationHandlerIDs)+";\n");
 	}
 	
 	private void appendPNGSteppable(){
@@ -185,8 +200,8 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 	}
 	
-	private void appendHandlerRegistration(){
-		SteppableCodeFactory.appendCalucationHandlerRegistration(actChart, generatedSourceCode);
+	private void appendHandlerRegistration(long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
+		SteppableCodeFactory.appendCalucationHandlerRegistration(actChart, generatedSourceCode, baselineCalculationHandlerID, seriesCalculationHandlerIDs);
 	}
 
 }

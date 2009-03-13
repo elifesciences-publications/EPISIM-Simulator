@@ -107,10 +107,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 	    
 	
 	private double gStatistics_KCytes_MeanAge=0;
-	private double gStatistics_Barrier_ExtCalcium=0;
-	private double gStatistics_Barrier_IntCalcium=0;
-	private double gStatistics_Barrier_Lamella=0;
-	private double gStatistics_Barrier_Lipids=0;
+	
 	
 	
 	
@@ -270,17 +267,12 @@ private void seedStemCells(){
 	     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
 	     rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
 	     gridContinous2D.setObjectLocation("DummyObjektForDrawingTheGrid", new Double2D(50, 50));
-			
-			
-			
-			
+						
 			allocatedKCytes = 0; // allocated memory
-			GlobalStatistics.getInstance().reset();
+			GlobalStatistics.getInstance().reset(true);
 	
 			// seeding the stem cells
 			seedStemCells();
-			
-			
 			
 			if(this.chartSteppables != null){
 				for(EnhancedSteppable steppable: this.chartSteppables){
@@ -295,7 +287,7 @@ private void seedStemCells(){
 			   }
 			}
 			
-			GlobalStatistics.getInstance().reset();
+			
 			EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(this.allCells);
 			schedule.scheduleRepeating(globalStatisticsSteppable, globalStatisticsSteppable.getInterval());
 			
@@ -305,10 +297,7 @@ private void seedStemCells(){
 			// schedule.scheduleOnce(backImage);
 
 			gStatistics_KCytes_MeanAge = 0;
-			gStatistics_Barrier_ExtCalcium = 0;
-			gStatistics_Barrier_IntCalcium = 0;
-			gStatistics_Barrier_Lamella = 0;
-			gStatistics_Barrier_Lipids = 0;
+			
 			
 			ChartController.getInstance().clearAllSeries();
 			DataExportController.getInstance().newSimulationRun();
@@ -335,21 +324,8 @@ private void seedStemCells(){
     
     /* 
      
-     //////////////////////////////////////        
-     // CHART Updating Barrier Chart
-     //////////////////////////////////////
+     
     
-     Steppable chartUpdaterBarrier = new Steppable()
-    {
-         public void step(SimState state)
-         {          
-         	epiSimCharts.getXYSeries("ChartSeries_Barrier_Calcium").add((double)(state.schedule.time()*gTimefactor), gStatistics_Barrier_ExtCalcium);
-         	epiSimCharts.getXYSeries("ChartSeries_Barrier_Lamella").add((double)(state.schedule.time()*gTimefactor), gStatistics_Barrier_Lamella);
-         	epiSimCharts.getXYSeries("ChartSeries_Barrier_Lipids").add((double)(state.schedule.time()*gTimefactor), gStatistics_Barrier_Lipids);
-         }
-     };
-     // Schedule the agent to update the chart
-     schedule.scheduleRepeating(chartUpdaterBarrier, 100);
 
      //////////////////////////////////////        
      // CHART Updating Logfile
@@ -414,10 +390,8 @@ private void seedStemCells(){
                      xLookUp[k]=null;
                  }
                  gStatistics_KCytes_MeanAge=0;
-                 gStatistics_Barrier_ExtCalcium=0;
-                 gStatistics_Barrier_Lipids=0;
-                 gStatistics_Barrier_Lamella=0;
-                 int OldNumOuterCells=0;                    
+                
+                                     
                                  
                  
                  for (int i=0; i<allCells.size(); i++)
@@ -426,15 +400,9 @@ private void seedStemCells(){
                      CellType act=(CellType)allCells.get(i);
                      if (act.isInNirvana()) continue;
                      // is a living cell..
-            /*         
-                     if (act.isOuterCell()) // statistics from last time evaluation (so we are always lacking behind one calling period !)
-                     {
-                         gStatistics_Barrier_ExtCalcium+=act.getOwnSigExternalCalcium();
-                         gStatistics_Barrier_Lamella+=act.getOwnSigLamella();
-                         gStatistics_Barrier_Lipids+=act.getOwnSigLipids();                            
-                         OldNumOuterCells++;
-                     }
-                  */   
+                     
+                     
+                     
                    //  if (act.isBasalStatisticsCell()) actualBasalStatisticsCells++;
                      
                      //act.isOuterCell=false; // set new default 
@@ -470,13 +438,10 @@ private void seedStemCells(){
                      xLookUp[k].setIsOuterCell(true);
                  }
                  // other statistics
-                 /*
-                 gStatistics_KCytes_MeanAge/=actualKCytes-actualNoNucleus;
-                 gStatistics_Barrier_ExtCalcium/=OldNumOuterCells;
-                 gStatistics_Barrier_Lipids/=OldNumOuterCells;
-                 gStatistics_Barrier_Lamella/=OldNumOuterCells;                 
                  
-*/
+               //  gStatistics_KCytes_MeanAge/=actualKCytes-actualNoNucleus;
+                 
+
              }
      };
      // Schedule the agent to update is Outer Flag
@@ -557,14 +522,7 @@ private void seedStemCells(){
 	public int getGCorneumY() { return gCorneumY; }
 	public Continuous2D getGridContinous2D() { return gridContinous2D; }
 	public String getGraphicsDirectory() {	return graphicsDirectory; }
-	public double getGStatistics_Barrier_ExtCalcium() { return gStatistics_Barrier_ExtCalcium; }
-	public double getGStatistics_Barrier_IntCalcium() { return gStatistics_Barrier_IntCalcium; }
-	public double getGStatistics_Barrier_Lamella() { return gStatistics_Barrier_Lamella; }
-	public double getGStatistics_Barrier_Lipids() {	return gStatistics_Barrier_Lipids; }
-	public int getGStatistics_GrowthFraction() {	return gStatistics_GrowthFraction; }
-	public double getGStatistics_KCytes_MeanAge() { return gStatistics_KCytes_MeanAge; }
-	public double getGStatistics_TurnoverTime() { return gStatistics_TurnoverTime; }
-	
+		
 	public int getIndividualColor() { return individualColor; }
 	
 	public double getMinDist() { return minDist; }
@@ -596,8 +554,6 @@ private void seedStemCells(){
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //SETTER-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
-	 
- 
 	
 	public void setAllCells(GenericBag<CellType> allCells) { this.allCells = allCells; }
 	public void setAllocatedKCytes(int allocatedKCytes) {	this.allocatedKCytes = allocatedKCytes; }
@@ -608,20 +564,10 @@ private void seedStemCells(){
 	public void setConsistency(double consistency) { this.consistency = consistency; }
 	
 	public void setDevelopGranulosum(boolean developGranulosum) { this.developGranulosum = developGranulosum; }
-	
-	
-	
+
 	public void setGCorneumY(int corneumY) { gCorneumY = corneumY; }
 	public void setGraphicsDirectory(String graphicsDirectory) { this.graphicsDirectory = graphicsDirectory; }
-	
-	public void setGStatistics_Barrier_ExtCalcium(double statistics_Barrier_ExtCalcium) { gStatistics_Barrier_ExtCalcium = statistics_Barrier_ExtCalcium; }
-	public void setGStatistics_Barrier_IntCalcium(double statistics_Barrier_IntCalcium) { gStatistics_Barrier_IntCalcium = statistics_Barrier_IntCalcium; }
-	public void setGStatistics_Barrier_Lamella(double statistics_Barrier_Lamella) { gStatistics_Barrier_Lamella = statistics_Barrier_Lamella; }
-	public void setGStatistics_Barrier_Lipids(double statistics_Barrier_Lipids) { gStatistics_Barrier_Lipids = statistics_Barrier_Lipids; }
-	public void setGStatistics_GrowthFraction(int statistics_GrowthFraction) { gStatistics_GrowthFraction = statistics_GrowthFraction; }
-	public void setGStatistics_KCytes_MeanAge(double statistics_KCytes_MeanAge) { gStatistics_KCytes_MeanAge = statistics_KCytes_MeanAge; }
-	public void setGStatistics_TurnoverTime(double statistics_TurnoverTime) { gStatistics_TurnoverTime = statistics_TurnoverTime; }
-	
+
 	public void setIndividualColor(int individualColor) {	this.individualColor = individualColor; }
 	
 	public void setMinDist(double minDist) { this.minDist = minDist; }

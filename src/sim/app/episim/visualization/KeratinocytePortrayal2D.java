@@ -32,7 +32,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
     private int[] xPoints = new int[20];
     private int[] yPoints = new int[20];
    
-     
+      
     private ModelController modelController;
     private BioChemicalModelController biochemModelController;
     private BioMechanicalModelController biomechModelController;

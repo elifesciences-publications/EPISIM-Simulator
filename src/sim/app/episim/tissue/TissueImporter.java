@@ -48,7 +48,7 @@ public class TissueImporter {
 	
 	private static final String AREA = "Area";
 	private static final String BASALLAMINA = "BasalLamina";
-	private static final String CELL = "Cell";
+	private static final String CELL = "Cell";  
 	private static final String CELLID = "CellID";
 	private static final String CELLS = "Cells";
 	private static final String CENTROID  = "Centroid";

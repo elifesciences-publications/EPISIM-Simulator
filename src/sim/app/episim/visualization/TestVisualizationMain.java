@@ -41,7 +41,7 @@ public class TestVisualizationMain {
 			
 			e.printStackTrace();
 		}	
-		
+		 
 				
 		mainFrame = new JFrame();
 		canvas = new TestCanvas();

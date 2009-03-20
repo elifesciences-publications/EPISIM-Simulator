@@ -41,7 +41,7 @@ public class TestCanvas extends JPanel {
 		ellipseKeySet = new HashSet<String>();
 		this.setBackground(Color.white);
 		
-		
+		 
 		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 99, 290, RADIUS*5, RADIUS, Color.BLUE);
 		//cellEll.rotateCellEllipseInDegrees(10);
 		this.drawCellEllipse(null,cellEll, true);

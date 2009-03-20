@@ -401,7 +401,7 @@ public class KCyte extends CellType
             epidermis.inkrementNumberOfKCytes();
             
             cellDiffModel.setId((int)kcyte.getIdentity());
-            Stoppable stoppable = epidermis.schedule.scheduleRepeating(kcyte);   // schedule only if not already running
+            Stoppable stoppable = epidermis.schedule.scheduleRepeating(kcyte, 1, 1);   // schedule only if not already running
             kcyte.setStoppable(stoppable);
 
         Double2D newloc=cellContinous2D.getObjectLocation(this);

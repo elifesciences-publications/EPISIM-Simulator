@@ -104,14 +104,15 @@ public class CalculationController {
 	         }
 	
 				public void cellHasChanged() {
-					resultMap.clear();
-					if(firstCellEver){
+					//resultMap.clear();
+					/*if(firstCellEver){
 						//resultMap.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
 						firstCellEver = false;
 					}
 					else
 						//series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
-					counter++;	         
+					counter++;	 */
+					resultMap.put(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
 	         }
 	
 				public void restartSimulation() {

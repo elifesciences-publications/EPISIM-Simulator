@@ -15,7 +15,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 	private Map<Long, CalculationHandler> calculationHandlers;
    private Map<Long, OneCellTrackingDataManager<Double,Double>> dataManagers;
 	
-	
+	private final int MINCELLAGE = 2;
 	private Map<Long, CellType> trackedCells;
 		
 	protected OneCellCalculator(){
@@ -49,10 +49,15 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 
 			actTrackedCell = this.trackedCells.get(handler.getID());
 			if(actTrackedCell == null || actTrackedCell.getEpisimCellDiffModelObject().getIsAlive() == false){
+				
+				
+				
+				if(actTrackedCell != null){
+					if(dataManagers.get(handler.getID())!= null)dataManagers.get(handler.getID()).cellHasChanged();
+					actTrackedCell.setTracked(false);
+				}
 
-				if(actTrackedCell != null)	actTrackedCell.setTracked(false);
-
-				if(dataManagers.get(handler.getID())!= null)dataManagers.get(handler.getID()).cellHasChanged();
+				
 				newTrackedCell = getNewCellForTracking(handler);
 				if(newTrackedCell != null &&(handler.getRequiredCellType() == null
 				      || handler.getRequiredCellType().isAssignableFrom(newTrackedCell.getClass()))){
@@ -73,7 +78,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 			}
 			
 			for(CellType actCell : this.allCells){
-				if(actCell.getEpisimCellDiffModelObject().getAge() < 10 && actCell.getEpisimCellDiffModelObject().getIsAlive() == true && 
+				if(actCell.getEpisimCellDiffModelObject().getAge() < MINCELLAGE && actCell.getEpisimCellDiffModelObject().getIsAlive() == true && 
 						actCell.getEpisimCellDiffModelObject().getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL) return actCell;
 			}
 		}
@@ -100,6 +105,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 	
 	
 	public double calculateOneCellBaseline(long valueHandlerID){
+		checkTrackedCells();
 		CellType trackedCellBaseLine=null;
 		
 			trackedCellBaseLine = this.trackedCells.get(valueHandlerID);
@@ -117,7 +123,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 	
 	
 	public void calculateOneCell(double baselineResult, long valueHandlerID){
-		checkTrackedCells();
+		if(baselineResult == Double.NEGATIVE_INFINITY) checkTrackedCells();
 	
 		double result = 0;
 		
@@ -130,9 +136,10 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 				if(trackedCell != null){
 					result = calculationHandlers.get(valueHandlerID).calculate(trackedCell);
 					//if(baseLineResult != Double.NEGATIVE_INFINITY)
-				}
 					//TODO: Wechsel der Zelle beim Rausschreiben in CSV kenntlich machen
 					this.dataManagers.get(valueHandlerID).addNewValue(baselineResult, result);
+				}
+					
 					
 			}
 			catch (CellNotValidException e){

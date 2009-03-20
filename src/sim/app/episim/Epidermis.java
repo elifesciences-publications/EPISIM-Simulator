@@ -233,7 +233,7 @@ private void seedStemCells(){
 				cellContinous2D.setObjectLocation(stemCell, newloc);
 
 				lastloc = newloc;
-				Stoppable stoppable = schedule.scheduleRepeating(stemCell);
+				Stoppable stoppable = schedule.scheduleRepeating(stemCell, 1, 1);
 				stemCell.setStoppable(stoppable);
 				// x+=basalDensity; // in any case jump a step to the right to
 				// avoid overlay of stem cells
@@ -252,6 +252,9 @@ private void seedStemCells(){
 
 		if(!reloadedSnapshot){
 			allCells.clear();
+			ChartController.getInstance().clearAllSeries();
+			DataExportController.getInstance().newSimulationRun();
+			
 			// set up the C2dHerd field. It looks like a discretization
 			// of about neighborhood / 1.5 is close to optimal for us. Hmph,
 			// that's 16 hash lookups! I would have guessed that
@@ -274,22 +277,24 @@ private void seedStemCells(){
 			// seeding the stem cells
 			seedStemCells();
 			
+			
+			
 			if(this.chartSteppables != null){
 				for(EnhancedSteppable steppable: this.chartSteppables){
-			   	schedule.scheduleRepeating(steppable, steppable.getInterval());
+			   	schedule.scheduleRepeating(steppable, 4, steppable.getInterval());
 			   }
 			}
 			
 
 			if(this.dataExportSteppables != null){
 				for(EnhancedSteppable steppable: this.dataExportSteppables){
-			   	schedule.scheduleRepeating(steppable, steppable.getInterval());
+			   	schedule.scheduleRepeating(steppable, 4, steppable.getInterval());
 			   }
 			}
 			
 			
 			EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(this.allCells);
-			schedule.scheduleRepeating(globalStatisticsSteppable, globalStatisticsSteppable.getInterval());
+			schedule.scheduleRepeating(globalStatisticsSteppable, 3, globalStatisticsSteppable.getInterval());
 			
 			
 			
@@ -299,9 +304,7 @@ private void seedStemCells(){
 			gStatistics_KCytes_MeanAge = 0;
 			
 			
-			ChartController.getInstance().clearAllSeries();
-			DataExportController.getInstance().newSimulationRun();
-
+			
 		}
 		else{
 
@@ -444,22 +447,9 @@ private void seedStemCells(){
 
              }
      };
-     // Schedule the agent to update is Outer Flag
+     // Schedule the agent to update is Outer Flag     
+     schedule.scheduleRepeating(airSurface,2,1);
      
-     schedule.scheduleRepeating(airSurface, 1);
-     
-     
-	 	//////////////////////////////////////
-	 	// Time Updater
-	 	//////////////////////////////////////
-	  	Steppable timeUpdater= new Steppable()
-	  	{
-	     public void step(SimState state)
-	     {            	
-	   	  setTimeInSimulationSteps(state.schedule.getSteps());
-	     }
-	  	};
-	  	schedule.scheduleRepeating(timeUpdater, 1);
  	}
 
 	public void removeCells(GeneralPath path){
@@ -529,7 +519,7 @@ private void seedStemCells(){
 	
 	public Continuous2D getRulerContinous2D() { return rulerContinous2D; }
 	
-	public long getTimeInSimulationSteps(){ return this.timeInSimulationSteps;}
+	public long getTimeInSimulationSteps(){ return schedule.getSteps();}
 
 	public String getTissueName() {return NAME;}
 	

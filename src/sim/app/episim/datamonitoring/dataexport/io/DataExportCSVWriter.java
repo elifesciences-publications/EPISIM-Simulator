@@ -4,7 +4,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +43,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	
 	private File csvFile;
 	
+	private boolean aCellHasBeenChanged = false;
+	
 	public DataExportCSVWriter(File csvFile, String columnNames) {
 		
 		this.csvFile = csvFile;
@@ -54,26 +61,37 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		actIndex++;
 		map.addValueMapListener(new ValueMapListener<Double, Double>(){
 			public void valueAdded(Double key, Double value) {
-	         values[indexLookUp.get(columnId)][0] = key;
-	         values[indexLookUp.get(columnId)][1] = value;
-	         alreadyCalculatedColumnsIds.add(columnId);
-	         checkIfDataWriteToDisk();
+				if(key == Double.NEGATIVE_INFINITY && value == Double.NEGATIVE_INFINITY) aCellHasBeenChanged = true;
+				else{
+		         values[indexLookUp.get(columnId)][0] = key;
+		         values[indexLookUp.get(columnId)][1] = value;
+		         alreadyCalculatedColumnsIds.add(columnId);
+		         checkIfDataWriteToDisk();
+				}
          }
 		});
 		values = new Double[actIndex][2];
 	}
 	
 	private void checkIfDataWriteToDisk(){
+				
 		if(firstTime){
+			writeHeader();
 			writeColumnNames();
 			firstTime = false;
 		}
 		if(this.alreadyCalculatedColumnsIds.size() == values.length){
 			try{
 				for(int i = 0; i < values.length; i++){
-					if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(NumberFormat.getInstance(Locale.getDefault()).format(values[i][0]) + ";");
-					csvWriter.write(NumberFormat.getInstance(Locale.getDefault()).format(values[i][1]) + ";");
-										
+						
+					
+						if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(getFormattedValue(values[i][0]) + ";");
+											 
+						csvWriter.write(getFormattedValue(values[i][1]) + ";");													
+				}
+				if(aCellHasBeenChanged){
+					csvWriter.write("(A Cell was changed);");
+					aCellHasBeenChanged = false;
 				}
 				csvWriter.write("\n");
 				csvWriter.flush();
@@ -100,7 +118,23 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
         ExceptionDisplayer.getInstance().displayException(e);
       }
 	}
+	private void writeHeader(){
+		try{
+			
+			if(csvWriter != null){
+				
+				
+				
+				csvWriter.write("Episim Simulation Run on " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault()).format(new Date())+";\n");
+				csvWriter.flush();
+         }
 	
+	}
+   catch (IOException e){
+     ExceptionDisplayer.getInstance().displayException(e);
+   }
+		
+	}
 	
 	public void simulationWasStopped(){
 		try{
@@ -121,6 +155,10 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		firstTime = true;
 	   
    }
-		
+	
+	private String getFormattedValue(double value){
+		if(Locale.getDefault() == Locale.GERMAN || Locale.getDefault() == Locale.GERMANY) return (new Double (value)).toString().replace('.', ',');
+		else return ""+ value;
+	}
 
 }

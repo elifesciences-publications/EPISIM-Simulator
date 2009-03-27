@@ -5,7 +5,7 @@ import episiminterfaces.EpisimChartSeries;
 
 public abstract class Names {
 	private static String [] charactersToRemove = new String[]{";", "/", "\\", ",", ".", ":", "?", "!", "_", "-", "<", ">", "&", "%", "+", "*", " "};
-	public static final String BIOCHEMMODEL ="Biochemical-Model";
+	public static final String BIOCHEMMODEL ="Cell-Behavioral-Model";
 	public static final String MECHMODEL ="Biomechanical-Model";
 	public static final String MISCALLENEOUS = "Miscalleneous";
 	public static final String EPISIMCHARTSETFILENAME ="EpisimChartSet.dat";

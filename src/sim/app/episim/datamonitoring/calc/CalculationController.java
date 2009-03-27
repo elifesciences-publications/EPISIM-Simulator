@@ -80,7 +80,8 @@ public class CalculationController {
 	         }
 	
 				public void restartSimulation() {
-		        counter = 0;	         
+		        counter = 0;
+		        series.clear();
 	         }			
 			});
 		}

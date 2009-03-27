@@ -82,6 +82,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	private final String PARTICLEGRADIENTS = "Particle Gradients";
 	private final String AGEGRADIENT = "Age Gradient";
 	
+	private final String DNAHISTOGRAMM = "DNA Histogramm";
 	
 	private static  DefaultCharts instance;
 	
@@ -112,8 +113,27 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
          }
 		});
 		
+		/////////////////////////////////////
+		// Charts: DNA content Histogramm
+		/////////////////////////////////////
+		xySeries.put(new String[] { "DNA_Content", "DNA_Content_Series", "0"}, new XYSeries("DNA content"));
+		
+		xySeriesCollections.put("DNA_Content_Series", new XYSeriesCollection());
 		
 		
+
+		chart = ChartFactory.createXYLineChart(DNAHISTOGRAMM, "DNA content", "number of cells", 
+				xySeriesCollections.get("DNA_Content_Series"), PlotOrientation.VERTICAL, true, true, false); 		
+		
+		chart.setBackgroundPaint(Color.white);
+		
+		xyPlot = chart.getXYPlot();
+	   yAxis = xyPlot.getRangeAxis();
+		
+	   lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
+		lineShapeRenderer.setSeriesPaint(0, Color.black);
+		
+		chartsMap.put(DNAHISTOGRAMM, new ChartPanel(chart));
 		
       /////////////////////////////////////
 		// Charts: Performance Statistics
@@ -375,9 +395,8 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	  
       xySeries.put(new String[] { "ExtCalConcAvg", "CollPartDist", "0" }, new XYSeries("Mean Ext. Calcium (mg/kg)"));
       xySeries.put(new String[] { "LamellaConcAvg", "CollPartDist", "1" }, new XYSeries("Mean Lamella"));
-      xySeries.put(new String[] { "LipidsConcAvg", "CollPartDist", "2" }, new XYSeries("Mean Lipids"));
-     
-      xySeries.put(new String[] { "Num", "CollNum" }, new XYSeries("Num Cells")); 
+      xySeries.put(new String[] { "LipidsConcAvg", "CollPartDist", "2" }, new XYSeries("Mean Lipids"));     
+      xySeries.put(new String[] { "Num", "CollNum", "3"}, new XYSeries("Num Cells")); 
         
       xySeriesCollections.put("CollPartDist", new XYSeriesCollection());
       
@@ -481,6 +500,8 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		chartEnabled.put(CELLDEATH, false);
 		chartEnabled.put(PARTICLESPERCELLTYPE, false);
 		chartEnabled.put(PARTICLEGRADIENTS, false);
+		chartEnabled.put(DNAHISTOGRAMM, false);
+		
 		//chartEnabled.put(AGEGRADIENT, false);
 	}
 	
@@ -905,16 +926,12 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 			this.steppablesMap.put(this.CELLDEATH , new EnhancedSteppable()
 		   {
 		         public void step(SimState state)
-		         {   
-		             if (state.schedule.time()>500)//2000)
-		             {
+		         {
+		         	
 		            	 getXYSeries("ChartSeries_Apoptosis_Basal").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_Basal_Statistics());
-		            	 getXYSeries("ChartSeries_Apoptosis_EarlySpi").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_EarlySpi_Statistics());
-		            	 getXYSeries("ChartSeries_Apoptosis_LateSpi").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_LateSpi_Statistics());
-		            	 getXYSeries("ChartSeries_Apoptosis_Granu").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getApoptosis_Granu_Statistics());
-		             }
+		            	
+		             
 		         }
-
 					public double getInterval() {
 	               return 100;
                }
@@ -943,7 +960,42 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 					public double getInterval() {
 						return 100;
                }
-		     }); 
+		     });
+			
+			
+			  //////////////////////////////////////
+		     // CHART DNA Content
+		     //////////////////////////////////////
+			
+			this.steppablesMap.put(this.DNAHISTOGRAMM, new EnhancedSteppable()
+		    {
+		         public void step(SimState state)
+		         {  
+		         	
+		         	getXYSeries("DNA_Content").clear();
+		         	double [] dnaContents = GlobalStatistics.getInstance().getDNAContents();
+		         	double intervalSize = GlobalStatistics.getInstance().getBucketIntervalSize();
+		         	getXYSeries("DNA_Content").add(0, 0);
+		         	getXYSeries("DNA_Content").add((GlobalStatistics.FIRSTBUCKETAMOUNT-intervalSize), 0);
+		         	
+		         	
+		         	for(int i = 0; i < dnaContents.length; i++){
+							double dnaContent = (GlobalStatistics.FIRSTBUCKETAMOUNT + i * intervalSize);
+							if(dnaContent > GlobalStatistics.LASTBUCKETAMOUNT) dnaContent = GlobalStatistics.LASTBUCKETAMOUNT;
+							getXYSeries("DNA_Content").add(dnaContent, dnaContents[i]);
+						
+						}
+		         	getXYSeries("DNA_Content").add((GlobalStatistics.LASTBUCKETAMOUNT+intervalSize), 0);
+		         	getXYSeries("DNA_Content").add((GlobalStatistics.LASTBUCKETAMOUNT+1), 0);
+		         	
+		         }
+
+					public double getInterval() {
+						return 100;
+              }
+		     });
+			
+			
 	}
 	
 }

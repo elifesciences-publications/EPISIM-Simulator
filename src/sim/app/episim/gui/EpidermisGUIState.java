@@ -89,7 +89,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	private boolean workaroundPauseWasPressed = false;
 	
-	private final int RANDUNTEN = 15;
+	private final int STATUSBARHEIGHT = 15;
 	
 	/*
 	private final double EPIDISPLAYWIDTH = 750;
@@ -179,7 +179,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		controllerFrame.setName(CONTROLLERFRAME);
 		controllerFrame.setFrameIcon(null);
 		desktop.add(controllerFrame);
-		arrangeElements(desktop);
+		arrangeElements(desktop, false);
 		
 		
 		console.addActionListenersAndResetButtons();
@@ -390,11 +390,11 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		
 		desktop.setPreferredSize(new Dimension(
 				(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
-				(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight()-RANDUNTEN)));
+				(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight()-STATUSBARHEIGHT)));
 	   desktop.setSize(desktop.getPreferredSize());
 		
 		
-		arrangeElements(desktop);
+		arrangeElements(desktop, true);
 		
 		mainFrame.getContentPane().add(desktopScroll, BorderLayout.CENTER);
 		
@@ -414,7 +414,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 						desktop.setPreferredSize(new Dimension(
 								(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
 								(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight())));
-						arrangeElements(desktop);
+						arrangeElements(desktop, false);
 					}
 			
 
@@ -490,10 +490,11 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	 * @param comp
 	 *           Komponente in der die Fenster angeordnet werden sollen
 	 */
-	private void arrangeElements(JComponent comp) {
+	private void arrangeElements(JComponent comp, boolean firstArrangement) {
 			
 		Dimension mainFrameDim; 
 		mainFrameDim= comp.getPreferredSize();
+		if(!firstArrangement)mainFrameDim.height = mainFrameDim.height - STATUSBARHEIGHT;
 		comp.setPreferredSize(mainFrameDim);
 		
 		comp.getComponentCount();
@@ -644,7 +645,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 			for(ChartPanel actPanel : ChartController.getInstance().getChartPanelsofActLoadedChartSet()){
 				desktop.add(getChartInternalFrame(actPanel, actPanel.getChart().getTitle().getText()));
 			}
-		   arrangeElements(desktop);
+		   arrangeElements(desktop, false);
 		   registerInternalFrames(desktop, console);
 		}
    }

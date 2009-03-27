@@ -208,7 +208,7 @@ public class ChartCreationWizard extends JDialog {
 				c.gridwidth = GridBagConstraints.REMAINDER;
 									
 				seriesCards = new CardLayout();
-				seriesPanel = new JPanel(new CardLayout());
+				seriesPanel = new JPanel(seriesCards);
 				seriesMainPanel.add(seriesPanel, c);
 		
 		

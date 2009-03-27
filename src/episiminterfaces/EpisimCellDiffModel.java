@@ -80,6 +80,9 @@ public interface EpisimCellDiffModel {
 	int getId();
 	void setId(int val);
 	
+	double getDnaContent();
+	void setDnaContent(double val);
+	
 	void setNumberOfNeighbours(int val);
 	
 	EpisimCellDiffModel[] oneStep(EpisimCellDiffModel[] neighbours);

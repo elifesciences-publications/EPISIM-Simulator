@@ -5,6 +5,7 @@ import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import sim.app.episim.CellType;
 import sim.app.episim.KCyte;
+import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EnhancedSteppable;
@@ -12,6 +13,11 @@ import sim.app.episim.util.GenericBag;
 import sim.engine.SimState;
 public class GlobalStatistics implements java.io.Serializable, CellDeathListener{
 	private static GlobalStatistics instance;
+	
+	
+	private static final int  NUMBEROFBUCKETS = 10;
+	public static final double LASTBUCKETAMOUNT = 2;
+	public static final double FIRSTBUCKETAMOUNT = 1;
 	
 	private int actualNumberStemCells=0;        // Stem cells
 	private int actualNumberKCytes=0;      // num of kcytes that are not in nirvana
@@ -47,6 +53,11 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	private GenericBag<CellType> allCells;
 	
 	private double sumOfAllAges = 0;
+	
+	private double [] dnaContents = new double[NUMBEROFBUCKETS]; 
+	
+	
+	
 	
 	private GlobalStatistics(){
 		
@@ -92,12 +103,16 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 	}
 	
-	
+	public double getBucketIntervalSize(){
+		return ((LASTBUCKETAMOUNT-FIRSTBUCKETAMOUNT)/ ((double)(NUMBEROFBUCKETS-2)));
+	}
 	
 	private void updateDataFields(int counter){
 		
 		reset(false);
 		this.actualNumberKCytes = allCells.size();
+		calculateDnaAmountHistogramm(allCells);
+		
 		
 		for(CellType actCell: allCells){
 			int diffLevel =  actCell.getEpisimCellDiffModelObject().getDifferentiation();
@@ -148,16 +163,16 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		}
 			if(counter == 10){
 				
-				  if(this.actualBasalStatisticsCells>0) this.apoptosis_Basal_Statistics=((this.apoptosis_BasalCounter/10)/actualBasalStatisticsCells)*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-				  if(this.actualNumberEarlySpiCells>0) this.apoptosis_EarlySpi_Statistics=((this.apoptosis_EarlySpiCounter/10)/this.actualNumberEarlySpiCells)*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-				  if(this.actualNumberLateSpi>0)this.apoptosis_LateSpi_Statistics=((this.apoptosis_LateSpiCounter/10)/this.actualNumberLateSpi)*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
-				  if(this.actualNumberGranuCells>0)this.apoptosis_Granu_Statistics=((this.apoptosis_GranuCounter/10)/this.actualNumberGranuCells)*100;    // /10: per 10 timeticks, then:percentage of Apopotosis
+				  if(this.actualBasalStatisticsCells>0) this.apoptosis_Basal_Statistics=((this.apoptosis_BasalCounter/100)/actualBasalStatisticsCells)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
+				  if(this.actualNumberEarlySpiCells>0) this.apoptosis_EarlySpi_Statistics=((this.apoptosis_EarlySpiCounter/100)/this.actualNumberEarlySpiCells)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
+				  if(this.actualNumberLateSpi>0)this.apoptosis_LateSpi_Statistics=((this.apoptosis_LateSpiCounter/100)/this.actualNumberLateSpi)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
+				  if(this.actualNumberGranuCells>0)this.apoptosis_Granu_Statistics=((this.apoptosis_GranuCounter/100)/this.actualNumberGranuCells)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
 	
 				  barrier_ExtCalcium_Statistics=barrier_ExtCalcium_Statistics_temp/oldNumOuterCells;
 				  barrier_Lipids_Statistics= barrier_Lipids_Statistics_temp/oldNumOuterCells;
 				  barrier_Lamella_Statistics=barrier_Lamella_Statistics_temp/oldNumOuterCells;
 				  
-				 
+				// System.out.println(this.apoptosis_Basal_Statistics + ", "+this.apoptosis_EarlySpi_Statistics + ", "+ this.apoptosis_LateSpi_Statistics + ", "+ this.apoptosis_Granu_Statistics);
 				  
 				  
 				  oldNumOuterCells=0;
@@ -173,7 +188,29 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 			}
 		
 	}
+	public double [] getDNAContents(){ return this.dnaContents; }
 	
+	private void calculateDnaAmountHistogramm(GenericBag<CellType> allCells)
+	{
+		double intervalSize = getBucketIntervalSize();
+		//System.out.println(intervalSize);
+		
+		
+		
+		for(CellType actCell : allCells){
+			if(actCell.getEpisimCellDiffModelObject().getDifferentiation() == EpisimCellDiffModelGlobalParameters.TACELL ||
+					actCell.getEpisimCellDiffModelObject().getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL){
+				double dnaContent = actCell.getEpisimCellDiffModelObject().getDnaContent();
+				for(int i = 0; i < dnaContents.length; i++){
+					if(dnaContent <= (FIRSTBUCKETAMOUNT + i * intervalSize)){ 
+						dnaContents[i] += 1;
+						break;
+					}
+				//	System.out.println("Act Value: " + (FIRSTBUCKETAMOUNT + i * intervalSize));
+				}
+			}
+		}
+	}
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	// Inkrement
@@ -257,11 +294,8 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		sumOfAllAges = 0;
 		
 		
+		dnaContents = new double[NUMBEROFBUCKETS];
 		
-		apoptosis_BasalCounter=0;
-		apoptosis_EarlySpiCounter=0; 
-		apoptosis_LateSpiCounter=0;
-		apoptosis_GranuCounter=0;
 		
 		barrier_ExtCalcium_Statistics_temp=0;
 		barrier_Lamella_Statistics_temp=0;
@@ -269,6 +303,13 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		oldNumOuterCells=0;
 		
 		if(isRestartReset){
+			
+			
+			apoptosis_BasalCounter=0;
+			apoptosis_EarlySpiCounter=0; 
+			apoptosis_LateSpiCounter=0;
+			apoptosis_GranuCounter=0;
+			
 			apoptosis_Basal_Statistics=0;       
 			apoptosis_EarlySpi_Statistics=0;
 			apoptosis_LateSpi_Statistics=0;
@@ -289,19 +330,25 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	   	dekrementActualNumberOfNoNucleus();
 	   	dekrementActualNumberKCytes();
 	   	
-	   	if(kcyte.isBasalStatisticsCell()) this.apoptosis_BasalCounter++;
+	   	if(kcyte.isBasalStatisticsCell()){ 
+	   		this.apoptosis_BasalCounter++;
+	   		
+	   	}
 	   	int diffLevel =  kcyte.getEpisimCellDiffModelObject().getDifferentiation();
 	   	  switch(diffLevel){
  			    case EpisimCellDiffModelGlobalParameters.EARLYSPICELL:{
  					  this.apoptosis_EarlySpiCounter++;
+ 					 
  				 }
  				 break;
  				 case EpisimCellDiffModelGlobalParameters.GRANUCELL:{
  					  	this.apoptosis_GranuCounter++;
+ 					  
  				 }
  				 break;
  				 case EpisimCellDiffModelGlobalParameters.LATESPICELL:{
  					  	this.apoptosis_LateSpiCounter++;
+ 					  
  				 }
  				 break; 				  
  			  }

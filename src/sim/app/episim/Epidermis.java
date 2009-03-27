@@ -18,6 +18,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.TysonRungeCuttaCalculator;
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -219,11 +220,12 @@ private void seedStemCells(){
 				KCyte stemCell = new KCyte(CellType.getNextCellId(),-1,this, biochemModelContr.getNewEpisimCellDiffModelObject());
 				// stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
 				stemCell.setOwnColor(10);
-				stemCell.getEpisimCellDiffModelObject().setAge(
-						random.nextInt(biochemModelContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem()));// somewhere
-																																						// on
-																																						// the
-																																						// stemCycle
+				int cellCyclePos = random.nextInt(biochemModelContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem());
+				
+				//assign random age
+				stemCell.getEpisimCellDiffModelObject().setAge(cellCyclePos);// somewhere in the stemcellcycle
+				TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellDiffModelObject(), cellCyclePos);																																		// on
+																																						
 				stemCell.getEpisimCellDiffModelObject().setDifferentiation(
 						EpisimCellDiffModelGlobalParameters.STEMCELL);
 				stemCell.getEpisimCellDiffModelObject().setSpecies(EpisimCellDiffModelGlobalParameters.KERATINOCYTE);

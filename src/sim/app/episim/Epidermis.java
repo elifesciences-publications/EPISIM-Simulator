@@ -223,7 +223,7 @@ private void seedStemCells(){
 				int cellCyclePos = random.nextInt(biochemModelContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem());
 				
 				//assign random age
-				stemCell.getEpisimCellDiffModelObject().setAge(cellCyclePos);// somewhere in the stemcellcycle
+				stemCell.getEpisimCellDiffModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
 				TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellDiffModelObject(), cellCyclePos);																																		// on
 																																						
 				stemCell.getEpisimCellDiffModelObject().setDifferentiation(

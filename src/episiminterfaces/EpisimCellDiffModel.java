@@ -23,8 +23,8 @@ public interface EpisimCellDiffModel {
  	double getMaxLam();
  	void setMaxLam(double val);
 
- 	int getMaxAge();
-	void setMaxAge(int val);
+ 	double getMaxAge();
+	void setMaxAge(double val);
 	
 	double getCa();
 	void setCa(double val);
@@ -41,8 +41,8 @@ public interface EpisimCellDiffModel {
 	int getSpecies();
 	void setSpecies(int val);
 	
-	int getAge();
-	void setAge(int val);
+	double getAge();
+	void setAge(double val);
 		
 	double getX();
 	void setX(double val);

@@ -265,7 +265,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
       //
                     
       int calculatedColorValue=0;  
-      int maxAge= kcyte.getEpisimCellDiffModelObject().getMaxAge();
+      double maxAge= kcyte.getEpisimCellDiffModelObject().getMaxAge();
       int red=255;         
       int green=0;
       int blue=0;

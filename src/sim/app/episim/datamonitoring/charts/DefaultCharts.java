@@ -83,6 +83,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	private final String AGEGRADIENT = "Age Gradient";
 	
 	private final String DNAHISTOGRAMM = "DNA Histogramm";
+	private final String DNAHISTOGRAMMAVG = "DNA Histogramm Averaged";
 	
 	private static  DefaultCharts instance;
 	
@@ -112,6 +113,32 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	         else return (o1[2].concat(o1[0])).compareTo(o2[2].concat(o2[0]));
          }
 		});
+		
+		////////////////////////////////////////////
+		// Charts: DNA content Histogramm Averaged
+		////////////////////////////////////////////
+		xySeries.put(new String[] { "DNA_Content_AVG", "DNA_Content_Series_AVG", "0"}, new XYSeries("DNA content averaged"));
+		
+		xySeriesCollections.put("DNA_Content_Series_AVG", new XYSeriesCollection());
+		
+		
+
+		chart = ChartFactory.createXYLineChart(DNAHISTOGRAMMAVG, "DNA content averaged", "number of cells", 
+				xySeriesCollections.get("DNA_Content_Series_AVG"), PlotOrientation.VERTICAL, true, true, false); 		
+		
+		chart.setBackgroundPaint(Color.white);
+		chart.setAntiAlias(true);
+		
+		
+		xyPlot = chart.getXYPlot();
+	   yAxis = xyPlot.getRangeAxis();
+		
+	   lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
+		lineShapeRenderer.setSeriesPaint(0, Color.black);
+		
+		chartsMap.put(DNAHISTOGRAMMAVG, new ChartPanel(chart));
+		
+		
 		
 		/////////////////////////////////////
 		// Charts: DNA content Histogramm
@@ -501,6 +528,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		chartEnabled.put(PARTICLESPERCELLTYPE, false);
 		chartEnabled.put(PARTICLEGRADIENTS, false);
 		chartEnabled.put(DNAHISTOGRAMM, false);
+		chartEnabled.put(DNAHISTOGRAMMAVG, false);
 		
 		//chartEnabled.put(AGEGRADIENT, false);
 	}
@@ -981,11 +1009,11 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		         	
 		         	for(int i = 0; i < dnaContents.length; i++){
 							double dnaContent = (GlobalStatistics.FIRSTBUCKETAMOUNT + i * intervalSize);
-							if(dnaContent > GlobalStatistics.LASTBUCKETAMOUNT) dnaContent = GlobalStatistics.LASTBUCKETAMOUNT;
+							
 							getXYSeries("DNA_Content").add(dnaContent, dnaContents[i]);
-						
+							
 						}
-		         	getXYSeries("DNA_Content").add((GlobalStatistics.LASTBUCKETAMOUNT+intervalSize), 0);
+		         	
 		         	getXYSeries("DNA_Content").add((GlobalStatistics.LASTBUCKETAMOUNT+1), 0);
 		         	
 		         }
@@ -993,6 +1021,38 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 					public double getInterval() {
 						return 100;
               }
+		     });
+			
+			  //////////////////////////////////////
+		     // CHART DNA Content Averaged
+		     //////////////////////////////////////
+			
+			this.steppablesMap.put(this.DNAHISTOGRAMMAVG, new EnhancedSteppable()
+		    {
+		         public void step(SimState state)
+		         {  
+		         	
+		         	getXYSeries("DNA_Content_AVG").clear();
+		         	double [] dnaContentsAVG = GlobalStatistics.getInstance().getDNAContentsAveraged();
+		         	double intervalSize = GlobalStatistics.getInstance().getBucketIntervalSize();
+		         	getXYSeries("DNA_Content_AVG").add(0, 0);
+		         	getXYSeries("DNA_Content_AVG").add((GlobalStatistics.FIRSTBUCKETAMOUNT-intervalSize), 0);
+		         	
+		         	
+		         	for(int i = 0; i < dnaContentsAVG.length; i++){
+							double dnaContent = (GlobalStatistics.FIRSTBUCKETAMOUNT + i * intervalSize);
+							
+							getXYSeries("DNA_Content_AVG").add(dnaContent, dnaContentsAVG[i]);
+						
+						}
+		         	
+		         	getXYSeries("DNA_Content_AVG").add((GlobalStatistics.LASTBUCKETAMOUNT+1), 0);
+		         	
+		         }
+
+					public double getInterval() {
+						return 100;
+            }
 		     });
 			
 			

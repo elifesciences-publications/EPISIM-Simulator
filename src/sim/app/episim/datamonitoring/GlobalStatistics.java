@@ -56,7 +56,9 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	
 	private double [] dnaContents = new double[NUMBEROFBUCKETS]; 
 	
-	
+	private double [] dnaContentsCumulative = new double [NUMBEROFBUCKETS];
+	private double [] dnaContentsAveraged = new double [NUMBEROFBUCKETS];
+	private int histogrammCounter = 0;
 	
 	
 	private GlobalStatistics(){
@@ -204,13 +206,23 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 				for(int i = 0; i < dnaContents.length; i++){
 					if(dnaContent <= (FIRSTBUCKETAMOUNT + i * intervalSize)){ 
 						dnaContents[i] += 1;
+						dnaContentsCumulative [i] += 1;
 						break;
 					}
 				//	System.out.println("Act Value: " + (FIRSTBUCKETAMOUNT + i * intervalSize));
 				}
 			}
 		}
+		histogrammCounter++;
+		//Calcutlate averaged histogramm
+		for(int i = 0; i < dnaContentsAveraged.length; i++){
+			dnaContentsAveraged[i] = dnaContentsCumulative[i] / histogrammCounter;
+		}
+		
 	}
+	
+	public double[] getDNAContentsAveraged(){ return this.dnaContentsAveraged; }
+	
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	// Inkrement
@@ -295,15 +307,14 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 		
 		dnaContents = new double[NUMBEROFBUCKETS];
-		
+		dnaContentsAveraged = new double [NUMBEROFBUCKETS];
 		
 		barrier_ExtCalcium_Statistics_temp=0;
 		barrier_Lamella_Statistics_temp=0;
 		barrier_Lipids_Statistics_temp=0;
 		oldNumOuterCells=0;
 		
-		if(isRestartReset){
-			
+		if(isRestartReset){		
 			
 			apoptosis_BasalCounter=0;
 			apoptosis_EarlySpiCounter=0; 
@@ -318,6 +329,9 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 			barrier_ExtCalcium_Statistics=0;
 			barrier_Lamella_Statistics=0;
 			barrier_Lipids_Statistics=0;
+			
+			dnaContentsCumulative = new double [NUMBEROFBUCKETS];
+			histogrammCounter = 0;			
 			
 		}	
 	}

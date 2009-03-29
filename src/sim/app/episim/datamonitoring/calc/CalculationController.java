@@ -33,8 +33,8 @@ public class CalculationController {
 		oneCellCalculator.registerCells(allCells);
 	}
 	
-	public void registerForChartCalculationGradient(CalculationHandler handler, XYSeries series){
-		chartGradientCalculator.registerForChartGradientCalculation(handler, series);
+	public void registerForChartCalculationGradient(CalculationHandler handler, XYSeries series, boolean isLogarithmic){
+		chartGradientCalculator.registerForChartGradientCalculation(handler, series, isLogarithmic);
 	}
 	
 	public double calculateACMV(CalculationHandler handler){
@@ -56,7 +56,7 @@ public class CalculationController {
 		oneCellCalculator.calculateOneCell(valueHandlerID);
 	}
 	
-	public void registerForOneCellCalculation(CalculationHandler handler, final XYSeries series){
+	public void registerForOneCellCalculation(CalculationHandler handler, final XYSeries series, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
 		if(series != null){
 			oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
 				
@@ -65,7 +65,18 @@ public class CalculationController {
 			
 				
 				public void addNewValue(Double key, Double value) {
-					series.add(key, value);	         
+					if(xAxisLogarithmic && !yAxisLogarithmic){ 
+						if(key > 0)series.add(key, value);	         
+					}
+					else if(!xAxisLogarithmic && yAxisLogarithmic){ 
+						if(value > 0)series.add(key, value);	         
+					}
+					else if(xAxisLogarithmic && yAxisLogarithmic){
+						if(value > 0 && key > 0)series.add(key, value);
+					}
+					else{
+						series.add(key, value);
+					}
 	         }
 	
 				public void cellHasChanged() {

@@ -42,6 +42,9 @@ import javax.swing.text.NumberFormatter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.event.TitleChangeEvent;
@@ -109,6 +112,8 @@ public class ChartCreationWizard extends JDialog {
    private JTextField pngPathField;
    private JButton changePngPathButton;
    private JCheckBox legendCheck;
+   private JCheckBox xAxisLogarithmicCheck;
+   private JCheckBox yAxisLogarithmicCheck;
    private JCheckBox pngCheck;
    
    private NumberTextField pngFrequencyInSimulationSteps;
@@ -378,8 +383,11 @@ public class ChartCreationWizard extends JDialog {
    
    private void addRandomValues(XYSeries series){
    	Random rand = new Random();
-   	for(int i = 0; i< 100; i += 10){
-   		series.add(i, rand.nextInt(100));
+   	int randomValue = 0;
+   	for(int i = 1; i<= 101; i += 10){
+   		randomValue = rand.nextInt(100);
+   		if(randomValue == 0) randomValue = 1;
+   		series.add(i, randomValue);
    	}
    }
    
@@ -498,8 +506,14 @@ public class ChartCreationWizard extends JDialog {
 			this.legendCheck.setSelected(chart.isLegendVisible());
 			
 			
-			this.aliasCheck.setSelected(chart.isAntialiasingEnabled());
+			this.xAxisLogarithmicCheck.setSelected(chart.isXAxisLogarithmic());
+			this.setXAxisLogarithmic(chart.isXAxisLogarithmic());
 			
+			this.yAxisLogarithmicCheck.setSelected(chart.isYAxisLogarithmic());
+			this.setYAxisLogarithmic(chart.isYAxisLogarithmic());
+			
+			this.aliasCheck.setSelected(chart.isAntialiasingEnabled());
+			this.setAntiAliasEnabled(chart.isAntialiasingEnabled());
 			
 			this.pngCheck.setSelected(chart.isPNGPrintingEnabled());
 			if(chart.isPNGPrintingEnabled()){
@@ -795,6 +809,30 @@ public class ChartCreationWizard extends JDialog {
 		
 		list.add(chartFrequencyLabel, chartFrequencyInSimulationSteps);
 		
+		xAxisLogarithmicCheck = new JCheckBox();
+		xAxisLogarithmicCheck.setSelected(false);
+		episimChart.setXAxisLogarithmic(false);
+		xAxisLogarithmicCheck.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				isDirty = true;
+				setXAxisLogarithmic(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		list.add(new JLabel("Logarithmic X Axis"), xAxisLogarithmicCheck);
+		
+		yAxisLogarithmicCheck = new JCheckBox();
+		yAxisLogarithmicCheck.setSelected(false);
+		episimChart.setYAxisLogarithmic(false);
+		yAxisLogarithmicCheck.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				isDirty = true;
+				setYAxisLogarithmic(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		list.add(new JLabel("Logarithmic Y Axis"), yAxisLogarithmicCheck);
+		
 		
 		legendCheck = new JCheckBox();
 		legendCheck.setSelected(false);
@@ -807,6 +845,16 @@ public class ChartCreationWizard extends JDialog {
 			}
 		});
 		list.add(new JLabel("Legend"), legendCheck);
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
 		aliasCheck = new JCheckBox();
 		aliasCheck.setSelected(previewChart.getAntiAlias());
@@ -965,6 +1013,36 @@ public class ChartCreationWizard extends JDialog {
 			previewChart.removeLegend();
 		}
 	}
+	
+	private void setXAxisLogarithmic(boolean val){
+		if(val){
+			episimChart.setXAxisLogarithmic(true);
+			ValueAxis  xAxis = previewChart.getXYPlot().getDomainAxis();
+			previewChart.getXYPlot().setDomainAxis(new LogarithmicAxis(xAxis.getLabel()));
+			
+		}
+		else{
+			episimChart.setXAxisLogarithmic(false);
+			ValueAxis  xAxis = previewChart.getXYPlot().getDomainAxis();
+			previewChart.getXYPlot().setDomainAxis(new NumberAxis(xAxis.getLabel()));
+		}
+	}
+	
+	private void setYAxisLogarithmic(boolean val){
+		if(val){
+			episimChart.setYAxisLogarithmic(true);
+			ValueAxis  yAxis = previewChart.getXYPlot().getRangeAxis();
+			previewChart.getXYPlot().setRangeAxis(new LogarithmicAxis(yAxis.getLabel()));
+			
+		}
+		else{
+			episimChart.setYAxisLogarithmic(false);
+			ValueAxis  yAxis = previewChart.getXYPlot().getRangeAxis();
+			previewChart.getXYPlot().setRangeAxis(new NumberAxis(yAxis.getLabel()));
+		}
+	}
+	
+	
      
    private class ChartSeriesAttributes extends LabelledList
    {

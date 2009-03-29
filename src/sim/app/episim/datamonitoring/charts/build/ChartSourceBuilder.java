@@ -56,6 +56,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import org.jfree.chart.title.*;\n");
 		generatedSourceCode.append("import org.jfree.data.general.*;\n");
 		generatedSourceCode.append("import org.jfree.data.xy.*;\n");
+		generatedSourceCode.append("import org.jfree.chart.axis.*;\n");
 		generatedSourceCode.append("import org.jfree.ui.*;\n");
 		generatedSourceCode.append("import episiminterfaces.*;\n");
 		generatedSourceCode.append("import episimexceptions.*;\n");
@@ -107,6 +108,13 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".setBackgroundPaint(Color.white);\n");
 		generatedSourceCode.append("  ((XYLineAndShapeRenderer)(((XYPlot)("+CHARTDATAFIELDNAME+".getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);\n");
 		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".setAntiAlias("+actChart.isAntialiasingEnabled()+");\n");
+		if(actChart.isXAxisLogarithmic()){
+			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".getXYPlot().setDomainAxis(new LogarithmicAxis(\""+ actChart.getXLabel()+"\"));\n");
+		}
+		if(actChart.isYAxisLogarithmic()){
+			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".getXYPlot().setRangeAxis(new LogarithmicAxis(\""+ actChart.getYLabel()+"\"));\n");
+		}
+		
 		generatedSourceCode.append("  chartPanel = new ChartPanel("+CHARTDATAFIELDNAME+", true);\n");
 		generatedSourceCode.append("  chartPanel.setPreferredSize(new java.awt.Dimension(640,480));\n");
 		generatedSourceCode.append("  chartPanel.setMinimumDrawHeight(10);\n");

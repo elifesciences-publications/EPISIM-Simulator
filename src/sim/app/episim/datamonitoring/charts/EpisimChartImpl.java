@@ -27,6 +27,9 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	private boolean pngPrintingEnabled = false;
 	private int pngPrintingFrequency = 100;
 	private int chartUpdatingFrequency = 100;
+	private boolean xAxisLogarithmic = false;
+	private boolean yAxisLogarithmic = false;
+	
 	
 	private File pngPrintingPath = null;
 	
@@ -199,6 +202,30 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
    
    	this.isDirty = isDirty;
    }
+
+	public boolean isXAxisLogarithmic() {
+
+		
+		return this.xAxisLogarithmic;
+	}
+
+	public boolean isYAxisLogarithmic() {
+
+		
+		return this.yAxisLogarithmic;
+	}
+
+	public void setXAxisLogarithmic(boolean val) {
+
+		this.xAxisLogarithmic = val;
+		
+	}
+
+	public void setYAxisLogarithmic(boolean val) {
+
+		this.yAxisLogarithmic = val;
+		
+	}
 	
 	
 }

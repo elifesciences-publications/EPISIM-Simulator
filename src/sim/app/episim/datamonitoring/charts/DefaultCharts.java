@@ -34,6 +34,7 @@ import org.jfree.data.statistics.HistogramType;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
@@ -132,7 +133,9 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		
 		xyPlot = chart.getXYPlot();
 	   yAxis = xyPlot.getRangeAxis();
-		
+		//xyPlot.setRangeAxis(new LogarithmicAxis(yAxis.getLabel()));
+	   
+	   
 	   lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
 		lineShapeRenderer.setSeriesPaint(0, Color.black);
 		

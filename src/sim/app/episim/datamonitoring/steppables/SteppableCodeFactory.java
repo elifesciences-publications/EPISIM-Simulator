@@ -49,9 +49,24 @@ public abstract class SteppableCodeFactory {
 						+ seriesCalculationHandlerIDs.get(actSeries.getId()) + "l);\n");
 				
 			}
-			else{ 
-				steppableCode.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-						".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");
+			else{
+				if(chart.isXAxisLogarithmic() && !chart.isYAxisLogarithmic()){ 
+					steppableCode.append("if(baseLineResult > 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
+							".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");         
+				}
+				else if(!chart.isXAxisLogarithmic() && chart.isYAxisLogarithmic()){ 
+					steppableCode.append("if(("+ actSeries.getExpression()[1]+ ")> 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
+							".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");           
+				}
+				else if(chart.isXAxisLogarithmic() && chart.isYAxisLogarithmic()){
+					steppableCode.append("if(("+ actSeries.getExpression()[1]+ ")> 0 && baseLineResult > 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
+							".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");
+				}
+				else{
+					steppableCode.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
+							".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");
+				}
+				
 			}
 		}
 		if(gradientSeriesFound) steppableCode.append("CalculationController.getInstance().calculateGradients();\n");

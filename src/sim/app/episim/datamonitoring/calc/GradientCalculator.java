@@ -18,23 +18,27 @@ public class GradientCalculator extends AbstractCommonCalculator {
 	private ArrayList<CalculationHandler> calculationHandlers;
 	private ArrayList<Map<Double, Double>> resultMaps;
 	private ArrayList<XYSeries> xySeries;
+	private ArrayList<Boolean> isLogarithmic;
 	
 	
 	protected GradientCalculator(){
 		this.calculationHandlers = new ArrayList<CalculationHandler>();
 		this.resultMaps = new ArrayList<Map<Double, Double>>();
 		this.xySeries = new ArrayList<XYSeries>();
+		this.isLogarithmic = new ArrayList<Boolean>();
 	}
 	public void restartSimulation(){
 		for(Map<Double, Double> map : this.resultMaps) map.clear();
 		for(XYSeries series : this.xySeries) series.clear();
 	}
 	
-	public void registerForChartGradientCalculation(CalculationHandler handler, XYSeries series){
+	public void registerForChartGradientCalculation(CalculationHandler handler, XYSeries series, boolean isLogarithmic){
 		if(handler == null || series == null) throw new IllegalArgumentException("GradientCalculator: CalculationHandler or XYSeries must not be null!");
 		this.calculationHandlers.add(handler);
 		this.xySeries.add(series);
 		this.resultMaps.add(new HashMap<Double, Double>());
+		this.isLogarithmic.add(isLogarithmic);
+		
 	}
 	
 	
@@ -51,7 +55,15 @@ public class GradientCalculator extends AbstractCommonCalculator {
 				for(int i = 0; i < calculationHandlers.size(); i++){
 					try{
 						result = calculationHandlers.get(i).calculate(actCell);
-						resultMaps.get(i).put(actCell.getEpisimCellDiffModelObject().getY(), result);
+						if(this.isLogarithmic.get(i)){
+							if(result > 0 && actCell.getEpisimCellDiffModelObject().getY() >0){
+								resultMaps.get(i).put(actCell.getEpisimCellDiffModelObject().getY(), result);
+							}
+						}
+						else{
+							
+							resultMaps.get(i).put(actCell.getEpisimCellDiffModelObject().getY(), result);
+						}
 					}
 					catch (CellNotValidException e){
 						//Exception is Ignored

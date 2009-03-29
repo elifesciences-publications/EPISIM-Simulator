@@ -14,6 +14,8 @@ public interface EpisimChart{
 	String getYLabel();
 	String[] getBaselineExpression();
 	boolean isLegendVisible();
+	boolean isXAxisLogarithmic();
+	boolean isYAxisLogarithmic();
 	boolean isAntialiasingEnabled();
 	boolean isPNGPrintingEnabled();
 	int getPNGPrintingFrequency();
@@ -35,7 +37,8 @@ public interface EpisimChart{
 	void addEpisimChartSeries(EpisimChartSeries chartSeries);
 	void addRequiredClass(Class<?> requiredClass);
 	void setPNGPrintingPath(File path);
-	
+	void setXAxisLogarithmic(boolean val);
+	void setYAxisLogarithmic(boolean val);
 	
 	void removeChartSeries(long id);
 	

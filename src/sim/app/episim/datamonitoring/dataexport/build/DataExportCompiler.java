@@ -39,21 +39,12 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 	
 	public void compileEpisimDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportDefinitionSet){
 		makeTempDir();
-		File libPath = null;
+		
 		List<File> javaFiles;
-		try{
-	      File binPath = new File(ProjectLocator.class.getResource("../").toURI());
-	      libPath = convertBinPathToLibPath(binPath.getAbsolutePath());
-      }
-      catch (URISyntaxException e){
-      	ExceptionDisplayer.getInstance()
-			.displayException(e);
-      }
+		
 		javaFiles = buildDataExportJavaFiles(dataExportDefinitionSet);
 		javaFiles.add(buildFactoryJavaFile(dataExportDefinitionSet));
-		javaFiles =compileJavaFiles(javaFiles, libPath.getAbsolutePath()+System.getProperty("file.separator")+"jcommon-1.0.12.jar"+";"
-				+libPath.getAbsolutePath()+System.getProperty("file.separator")+"jfreechart-1.0.9.jar"+";"
-				+libPath.getAbsolutePath()+System.getProperty("file.separator")+"jfreechart-1.0.9-experimental.jar"+";");
+		javaFiles =compileJavaFiles(javaFiles);
 		
 		for(File actFile:javaFiles){
 			if(actFile.getName().startsWith(Names.EPISIMDATAEXPORTFACTORYNAME)){

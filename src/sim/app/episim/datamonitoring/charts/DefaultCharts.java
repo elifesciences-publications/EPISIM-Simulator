@@ -88,10 +88,27 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	
 	private static  DefaultCharts instance;
 	
+	
+	private class SeriesComparator implements Comparator<String[]>, java.io.Serializable{
+
+		public int compare(String[] o1, String[] o2) {
+
+         if(o1.length < 3 || o2.length < 3) return 0;
+         else return (o1[2].concat(o1[0])).compareTo(o2[2].concat(o2[0]));
+      }
+	}
+	
+	
 	private DefaultCharts() {
 		initChartActivationMap();
 		addDefaultSteppables();
-		SnapshotWriter.getInstance().addSnapshotListener(this);
+		
+		//Registration for Snapshots
+		
+		//SnapshotWriter.getInstance().addSnapshotListener(this);
+		
+		
+		
 		XYLineAndShapeRenderer lineShapeRenderer;
 		JFreeChart chart;
 		XYPlot xyPlot;
@@ -106,14 +123,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 		// Initialize TreeMap
 		//-----------------------------------------------------------------------------------------------------------------------
 		
-		this.xySeries = new TreeMap<String[], XYSeries>(new Comparator<String[]>(){
-
-			public int compare(String[] o1, String[] o2) {
-
-	         if(o1.length < 3 || o2.length < 3) return 0;
-	         else return (o1[2].concat(o1[0])).compareTo(o2[2].concat(o2[0]));
-         }
-		});
+	this.xySeries = new TreeMap<String[], XYSeries>(new SeriesComparator());
 		
 		////////////////////////////////////////////
 		// Charts: DNA content Histogramm Averaged

@@ -514,7 +514,7 @@ public class KCyte extends CellType
    	 long timeBefore = System.currentTimeMillis();
 		
    	 EpisimCellDiffModel[] children = this.cellDiffModelObjekt.oneStep(realNeighbours);
-			long timeAfter = System.currentTimeMillis();
+		/*	long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
 			long deltaTimeTmp = timeAfter-timeBefore;
 		
@@ -538,7 +538,7 @@ public class KCyte extends CellType
 				  
 				 deltaTime = 0;
 			}
-			deltaTime +=deltaTimeTmp;		
+			deltaTime +=deltaTimeTmp;		*/
    	 
    	 makeChildren(children);
    	 	

@@ -167,7 +167,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 			}
       	 
        });
-       addSnapshotButton();
+   //   addSnapshotButton();
 		
 	}
 	

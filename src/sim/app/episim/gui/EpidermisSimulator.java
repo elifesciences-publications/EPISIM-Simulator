@@ -29,6 +29,8 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import binloc.ProjectLocator;
+
 import episimexceptions.ModelCompatibilityException;
 
 import sim.app.episim.CompileWizard;
@@ -155,7 +157,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			}
 			
 		});
-		menuItemLoadSnapshot = new JMenuItem("Load Tissue-Snaphot");
+	menuItemLoadSnapshot = new JMenuItem("Load Tissue-Snaphot");
 		menuItemLoadSnapshot.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -180,9 +182,9 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		
 		fileMenu.add(menuItemOpen);
 		fileMenu.add(menuItemSetSnapshotPath);
-		fileMenu.add(menuItemLoadSnapshot);
-		fileMenu.addSeparator();
-		fileMenu.add(menuItemBuild);
+		//fileMenu.add(menuItemLoadSnapshot);
+		//fileMenu.addSeparator();
+		//fileMenu.add(menuItemBuild);
 		fileMenu.addSeparator();
 		fileMenu.add(menuItemClose);
 		
@@ -354,7 +356,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		dataExportMenu.add(menuItemEditDataExport);
 		dataExportMenu.addSeparator();
 		dataExportMenu.add(menuItemCloseDataExport);
-		menuBar.add(dataExportMenu);
+	//	menuBar.add(dataExportMenu);
 		
 		
 		//--------------------------------------------------------------------------------------------------------------
@@ -416,7 +418,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	}
 	
 	public static void main(String[] args){
-		EpidermisSimulator episim = new EpidermisSimulator();
+		EpidermisSimulator episim = new EpidermisSimulator();		
 	}
 	
 	

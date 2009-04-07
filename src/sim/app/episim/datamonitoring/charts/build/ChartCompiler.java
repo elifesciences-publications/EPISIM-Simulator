@@ -18,11 +18,13 @@ import episiminterfaces.EpisimChart;
 public class ChartCompiler extends AbstractCommonCompiler {
 	private ChartSourceBuilder chartSourceBuilder;
 	private ChartSetFactorySourceBuilder factorySourceBuilder;
-	private final String TMPPATH = System.getProperty("java.io.tmpdir", "temp")+ "episimcharts"+ System.getProperty("file.separator");
+	private final String TMPPATH;
 	private File factoryFile = null;
 	private List<File> chartFiles = null;
 	public ChartCompiler(){
-		
+		String userTmpDir = System.getProperty("java.io.tmpdir", "temp");
+		if(!userTmpDir.endsWith(System.getProperty("file.separator"))) userTmpDir = userTmpDir.concat(System.getProperty("file.separator"));
+		TMPPATH= userTmpDir+ "episimcharts"+ System.getProperty("file.separator");
 		this.chartSourceBuilder = new ChartSourceBuilder();
 		this.factorySourceBuilder = new ChartSetFactorySourceBuilder();
 	}
@@ -37,20 +39,10 @@ public class ChartCompiler extends AbstractCommonCompiler {
 	
 	public void compileEpisimChartSet(EpisimChartSet chartSet){
 		makeTempDir();
-		File libPath = null;
-		try{
-	      File binPath = new File(ProjectLocator.class.getResource("../").toURI());
-	      libPath = convertBinPathToLibPath(binPath.getAbsolutePath());
-      }
-      catch (URISyntaxException e){
-      	ExceptionDisplayer.getInstance()
-			.displayException(e);
-      }
+		
 		List<File> javaFiles = buildChartJavaFiles(chartSet);
 		javaFiles.add(buildFactoryJavaFile(chartSet));
-		javaFiles =compileJavaFiles(javaFiles, libPath.getAbsolutePath()+System.getProperty("file.separator")+"jcommon-1.0.12.jar"+";"
-				+libPath.getAbsolutePath()+System.getProperty("file.separator")+"jfreechart-1.0.9.jar"+";"
-				+libPath.getAbsolutePath()+System.getProperty("file.separator")+"jfreechart-1.0.9-experimental.jar"+";");
+		javaFiles =compileJavaFiles(javaFiles);
 		
 		for(File actFile:javaFiles){
 			if(actFile.getName().startsWith(Names.EPISIMCHARTSETFACTORYNAME)){

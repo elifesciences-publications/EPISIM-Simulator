@@ -22,26 +22,19 @@ import binloc.ProjectLocator;
 
 public abstract class AbstractCommonCompiler {
 	
-	protected File compileJavaFile(File javaFile, String extendedClassPath){
+	
+	
+	
+	protected File compileJavaFile(File javaFile){
 		List<File> tmpList = new ArrayList<File>();
 		tmpList.add(javaFile);
-		tmpList = compileJavaFiles(tmpList, extendedClassPath);
+		tmpList = compileJavaFiles(tmpList);
 		if(tmpList.size()>0) return tmpList.get(0);
 		return null;
 	}
 	
-	protected List<File> compileJavaFiles(List<File> javaFiles, String extendedClassPath){
-		File binPath = null;
-		File libPath = null;
-		//Binary location of the simulation environment and the charting libraries
-		try{
-	      binPath = new File(ProjectLocator.class.getResource("../").toURI());
-	      libPath = convertBinPathToLibPath(binPath.getAbsolutePath());
-      }
-      catch (URISyntaxException e){
-      	ExceptionDisplayer.getInstance()
-			.displayException(e);
-      }
+	protected List<File> compileJavaFiles(List<File> javaFiles){
+		ClassPathConfigFileReader configReader = new ClassPathConfigFileReader();
 		
 		List<File> classFiles = new ArrayList<File>();
 		JavaCompiler compiler;
@@ -65,8 +58,8 @@ public abstract class AbstractCommonCompiler {
 		try {
 			
 			options = Arrays.asList(new String[] { "-cp", 
-					ModelController.getInstance().getBioChemicalModelController().getActLoadedModelFile().getAbsolutePath()+";"+
-					binPath.getAbsolutePath()+";"+ extendedClassPath});
+					ModelController.getInstance().getBioChemicalModelController().getActLoadedModelFile().getAbsolutePath()+configReader.getClasspathSeparatorChar()+
+					configReader.getBinPath().getAbsolutePath()+configReader.getClasspathSeparatorChar()+ configReader.getBinClasspath()+configReader.getLibClasspath()});
 			compiler.getTask(null, fileManager, null, options, null, compilationUnits).call();
 			fileManager.close();
 		} catch (Exception e) {
@@ -98,15 +91,10 @@ public abstract class AbstractCommonCompiler {
 		classFiles.addAll(newFiles);		
 	}
 	
-	protected File convertBinPathToLibPath(String path){
-		
-		
-		if(path.endsWith(System.getProperty("file.separator"))) path = path.substring(0, path.length()-1);
-		int i = path.length()-1;
-		for(;path.charAt(i)!= System.getProperty("file.separator").charAt(0); i--);
-		
-		return (new File((path.substring(0, i)+System.getProperty("file.separator")+"lib")));
-	}
+	
+	
+	
+	
 	
 	public void deleteTempData(){
 		File tempData = new File(getTmpPath());

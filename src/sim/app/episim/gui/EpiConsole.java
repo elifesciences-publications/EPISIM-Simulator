@@ -68,78 +68,82 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	private JButton snapshotButton;
 	private final static String RESETTEXT = "Reset";
 	private boolean reloadedSnapshot = false;
+	private ArrayList<SnapshotRestartListener> snapshotRestartListener;
+	
+	private boolean wasStartedOnce = false;
+	
 	public EpiConsole(final GUIState simulation, boolean reloadSnapshot){
 		super(simulation);
 		 
 		 controllerContainer = getControllerContainer(super.getContentPane());
 		 refreshButtons = new ArrayList<JButton>();
-		 
+		 snapshotRestartListener = new ArrayList<SnapshotRestartListener>();
 		 
 		 
 		changeDisplaysTab();
 		
 		 keyListener = new KeyListener()
-       {
-       public void keyReleased(KeyEvent keyEvent) { }
-       public void keyTyped(KeyEvent keyEvent) { }
-       public void keyPressed(KeyEvent keyEvent) 
-       {
-           if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER)
-               {
-         	  
-               if(keyEvent.getSource() instanceof JTextField){
-               String name =((JTextField) keyEvent.getSource()).getName();
-               //	ModelController.getInstance().getBioChemicalModelController().reloadValue(());
-               	if(name.equals("TypeColor")) clickRefreshButtons();
-               }
-               }
-           }
-       };
-       
-       focusAdapter = new FocusAdapter()
-       {
-       public void focusLost ( FocusEvent e )
-           {
-      	 if(e.getSource() instanceof JTextField){
-      		 String name =((JTextField) e.getSource()).getName();
-      		// ModelController.getInstance().getBioChemicalModelController().reloadValue((name=));
-          	if(name.equals("TypeColor")) clickRefreshButtons();
+      {
+      public void keyReleased(KeyEvent keyEvent) { }
+      public void keyTyped(KeyEvent keyEvent) { }
+      public void keyPressed(KeyEvent keyEvent) 
+      {
+          if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER)
+              {
+        	  
+              if(keyEvent.getSource() instanceof JTextField){
+              String name =((JTextField) keyEvent.getSource()).getName();
+              //	ModelController.getInstance().getBioChemicalModelController().reloadValue(());
+              	if(name.equals("TypeColor")) clickRefreshButtons();
+              }
+              }
           }
-           }
-       };
+      };
+      
+      focusAdapter = new FocusAdapter()
+      {
+      public void focusLost ( FocusEvent e )
+          {
+     	 if(e.getSource() instanceof JTextField){
+     		 String name =((JTextField) e.getSource()).getName();
+     		// ModelController.getInstance().getBioChemicalModelController().reloadValue((name=));
+         	if(name.equals("TypeColor")) clickRefreshButtons();
+         }
+          }
+      };
 		
-       //Liste der Frames überschreiben
-       
-       getFrameListDisplay().setCellRenderer(new ListCellRenderer()
-           {
-           // this ListCellRenderer will show the frame titles in black if they're
-           // visible, and show them as gray if they're hidden.  You can add frames
-           // to this list by calling the registerFrame() method.
-           protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
-           public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
-               {
-               JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+      //Liste der Frames überschreiben
+      
+      getFrameListDisplay().setCellRenderer(new ListCellRenderer()
+          {
+          // this ListCellRenderer will show the frame titles in black if they're
+          // visible, and show them as gray if they're hidden.  You can add frames
+          // to this list by calling the registerFrame() method.
+          protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
+          public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+              {
+              JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+             
+              JInternalFrame frame = (JInternalFrame) value;
               
-               JInternalFrame frame = (JInternalFrame) value;
-               
-               if (frame.isVisible())
-                   renderer.setForeground(Color.black);
-               else
-                   renderer.setForeground(Color.gray);
-              
-               renderer.setText(frame.getTitle());
-              
-               return renderer;
-               }
-           });
+              if (frame.isVisible())
+                  renderer.setForeground(Color.black);
+              else
+                  renderer.setForeground(Color.gray);
+             
+              renderer.setText(frame.getTitle());
+             
+              return renderer;
+              }
+          });
 		
-       snapshotButton = new JButton();
-       snapshotButton.setContentAreaFilled( false );
-       snapshotButton.setBorderPainted( false );
-       snapshotButton.setFocusPainted( true );
-       snapshotButton.addMouseListener(new MouseAdapter(){
+      snapshotButton = new JButton();
+      snapshotButton.setContentAreaFilled( false );
+      snapshotButton.setBorderPainted( false );
+      snapshotButton.setFocusPainted( true );
+      snapshotButton.addMouseListener(new MouseAdapter(){
 			public void mouseEntered(MouseEvent e) {
-  			    snapshotButton.setContentAreaFilled( true );
+ 			    snapshotButton.setContentAreaFilled( true );
 		       snapshotButton.setBorderPainted( true );
 				
 			}
@@ -149,14 +153,14 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 		       snapshotButton.setBorderPainted( false );
 				
 			}
-       });
-       snapshotButton.setIcon(new ImageIcon(ImageLoader.class.getResource("Camera.png")));
-       snapshotButton.setPressedIcon(new ImageIcon(ImageLoader.class.getResource("CameraPressed.png")));
-       snapshotButton.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
-       if(SnapshotWriter.getInstance().getSnapshotPath() == null){ 
-      	 snapshotButton.setEnabled(false);
-       }
-       snapshotButton.addActionListener(new ActionListener(){
+      });
+      snapshotButton.setIcon(new ImageIcon(ImageLoader.class.getResource("Camera.png")));
+      snapshotButton.setPressedIcon(new ImageIcon(ImageLoader.class.getResource("CameraPressed.png")));
+      snapshotButton.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+      if(SnapshotWriter.getInstance().getSnapshotPath() == null){ 
+     	 snapshotButton.setEnabled(false);
+      }
+      snapshotButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
 				simulation.state.preCheckpoint();
@@ -165,10 +169,10 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 				//if(getPlayState() == PS_PAUSED && getPlayState() != PS_PLAYING)pressPause(); 
 				simulation.state.postCheckpoint();
 			}
-      	 
-       });
-   //   addSnapshotButton();
-		
+     	 
+      });
+     addSnapshotButton();
+     
 	}
 	
 	
@@ -447,17 +451,29 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
        getFrameListDisplay().repaint();
        }
 	
+ 
+   
    public synchronized void pressPlay(){
-	if(!reloadedSnapshot){
-		
-	
+   	if(!reloadedSnapshot){
+   		
+   		
+      	
+   		((EpidermisGUIState)this.simulation).clearWoundPortrayalDraw();
+   		
+   	}
+   	else if(wasStartedOnce && this.reloadedSnapshot){
+   		notifyAllSnapshotRestartListeners();
+   		return;
+   	}
    	
-	((EpidermisGUIState)this.simulation).clearWoundPortrayalDraw();
-	
-	}
-	((EpidermisGUIState)this.simulation).simulationWasStarted();
-   	super.pressPlay(reloadedSnapshot);
+   	wasStartedOnce = true;  
+   	((EpidermisGUIState)this.simulation).simulationWasStarted();
+   	   	super.pressPlay(reloadedSnapshot);
+   	 	   	
    }
+   
+   
+   
    public synchronized void pressStop(){
    
    	((EpidermisGUIState)this.simulation).simulationWasStopped();
@@ -522,5 +538,12 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	
 		this.reloadedSnapshot = reloadedSnapshot;
 	}
-   
+	public void addSnapshotRestartListener(SnapshotRestartListener listener){
+		this.snapshotRestartListener.add(listener);
+	}
+	private void notifyAllSnapshotRestartListeners(){
+		for(SnapshotRestartListener listener : this.snapshotRestartListener){
+			listener.snapShotRestart();
+		}
+	}
 }

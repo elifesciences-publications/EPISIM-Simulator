@@ -60,7 +60,7 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public class EpidermisSimulator extends JFrame implements SimulationStateChangeListener, ClassLoaderChangeListener{
+public class EpidermisSimulator extends JFrame implements SimulationStateChangeListener, ClassLoaderChangeListener, SnapshotRestartListener{
 	
 	private ExtendedFileChooser jarFileChoose;
 	private ExtendedFileChooser tssFileChoose;
@@ -95,6 +95,9 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	private JMenuItem menuItemAboutMason;
 	
 	private StatusBar statusbar;
+	
+	private File actLoadedJarFile = null;
+	private File actLoadedSnapshotFile = null;
 	
 	public EpidermisSimulator() {
 		ExceptionDisplayer.getInstance().registerParentComp(this);
@@ -182,7 +185,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		
 		fileMenu.add(menuItemOpen);
 		fileMenu.add(menuItemSetSnapshotPath);
-		//fileMenu.add(menuItemLoadSnapshot);
+		fileMenu.add(menuItemLoadSnapshot);
 		//fileMenu.addSeparator();
 		//fileMenu.add(menuItemBuild);
 		fileMenu.addSeparator();
@@ -465,6 +468,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				menuItemClose.setEnabled(true);
 				chartMenu.setEnabled(true);
 				dataExportMenu.setEnabled(true);
+				this.actLoadedJarFile = file;
 			}
 
 		}
@@ -501,7 +505,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				DataExportController.getInstance().reloadCurrentlyLoadedDataExportDefinitionSet();
 				GlobalClassLoader.getInstance().resetMode();
 			}
-			
+			this.actLoadedJarFile = modelFile;
 			this.validate();
 			this.repaint();
 			ModelController.getInstance().setModelOpened(true);
@@ -539,76 +543,79 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
 		File snapshotFile = null;
 		File jarFile = null;
-		boolean success = false;
-		
-		
-		
+				
 		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model of the selected Snapshot");
 		tssFileChoose.setDialogTitle("Load Snapshot");
 		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION && jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			snapshotFile = tssFileChoose.getSelectedFile();
 			jarFile = jarFileChoose.getSelectedFile();
-			try{
-	         success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(jarFile);
-         }
-         catch (ModelCompatibilityException e){
-         	 ExceptionDisplayer.getInstance().displayException(e);
-         	 JOptionPane.showMessageDialog(this, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
-         	 success = false;
-         }
-			SnapshotLoader snapshotLoader = null;
-			try{
-				snapshotLoader = new SnapshotLoader(snapshotFile, jarFile);
-			}
-			catch(IllegalArgumentException ex){
-				ExceptionDisplayer.getInstance().displayException(ex);
-			}
-			List<Double2D> woundRegionCoordinates = snapshotLoader.getWoundRegionCoordinates();		
-			Epidermis epidermis = snapshotLoader.getEpidermis();
-			
-			//TODO: implement Reload Charts from Snapshot
-			//DefaultCharts.setInstance(snapshotLoader.getCharts());
-			java.awt.geom.Rectangle2D.Double[] deltaInfo = snapshotLoader.getDeltaInfo();
-					if(SnapshotWriter.getInstance().getSnapshotPath() == null){
-						JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info",
-								JOptionPane.INFORMATION_MESSAGE);
-						setSnapshotPath();
-						if(SnapshotWriter.getInstance().getSnapshotPath() == null)success = false;
-					}
-					
-					if(success){
-					
-						// EpiSimCharts.rebuildCharts();
-						ModelController.getInstance().getBioChemicalModelController().
-						                                          reloadCellDiffModelGlobalParametersObject(snapshotLoader.getEpisimCellDiffModelGlobalParameters());
-						ModelController.getInstance().getBioMechanicalModelController().
-								reloadMechanicalModelGlobalParametersObject(snapshotLoader.getEpisimMechanicalModelGlobalParameters());
-						cleanUpContentPane();
-						epidermis.setModelController(ModelController.getInstance());
-						epiUI = new EpidermisGUIState(epidermis, this, true);
-						epiUI.addSimulationStateChangeListener(this);
-						epiUI.setReloadedSnapshot(true);
-						if(epiUI.getWoundPortrayalDraw() !=null){
-							
-						  if(woundRegionCoordinates!= null) epiUI.getWoundPortrayalDraw().setWoundRegionCoordinates(woundRegionCoordinates);
-						  if(deltaInfo!= null && deltaInfo.length >=2) 
-							  epiUI.getWoundPortrayalDraw().setDeltaInfo(new DrawInfo2D(deltaInfo[0], deltaInfo[1]) );
-						  SnapshotWriter.getInstance().addSnapshotListener(epiUI.getWoundPortrayalDraw());
-						}
-						this.validate();
-						this.repaint();
-						ModelController.getInstance().setModelOpened(success);
-						menuItemSetSnapshotPath.setEnabled(true);
-						menuItemClose.setEnabled(true);
-						menuItemLoadSnapshot.setEnabled(false);
-						menuItemBuild.setEnabled(false);
-						chartMenu.setEnabled(true);
-						dataExportMenu.setEnabled(true);
-					}
-				
-
-			}
+			loadSnapshot(snapshotFile, jarFile, false);
+		}
 		
+	}
+	
+	private void loadSnapshot(File snapshotFile, File jarFile, boolean snapshotRestart){
+		boolean success = false;
+		try{
+         success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(jarFile);
+      }
+      catch (ModelCompatibilityException e){
+      	 ExceptionDisplayer.getInstance().displayException(e);
+      	 JOptionPane.showMessageDialog(this, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+      	 success = false;
+      }
+		SnapshotLoader snapshotLoader = null;
+		try{
+			snapshotLoader = new SnapshotLoader(snapshotFile, jarFile);
+		}
+		catch(IllegalArgumentException ex){
+			ExceptionDisplayer.getInstance().displayException(ex);
+		}
+		List<Double2D> woundRegionCoordinates = snapshotLoader.getWoundRegionCoordinates();		
+		Epidermis epidermis = snapshotLoader.getEpidermis();
+		
+		//TODO: implement Reload Charts from Snapshot
+		//DefaultCharts.setInstance(snapshotLoader.getCharts());
+		java.awt.geom.Rectangle2D.Double[] deltaInfo = snapshotLoader.getDeltaInfo();
+				if(SnapshotWriter.getInstance().getSnapshotPath() == null){
+					JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info",
+							JOptionPane.INFORMATION_MESSAGE);
+					setSnapshotPath();
+					if(SnapshotWriter.getInstance().getSnapshotPath() == null)success = false;
+				}
+				
+				if(success){
+				
+					// EpiSimCharts.rebuildCharts();
+					ModelController.getInstance().getBioChemicalModelController().
+					                                          reloadCellDiffModelGlobalParametersObject(snapshotLoader.getEpisimCellDiffModelGlobalParameters());
+					ModelController.getInstance().getBioMechanicalModelController().
+							reloadMechanicalModelGlobalParametersObject(snapshotLoader.getEpisimMechanicalModelGlobalParameters());
+					cleanUpContentPane();
+					
+					epiUI = new EpidermisGUIState(epidermis, this, true);
+					epiUI.addSimulationStateChangeListener(this);
+					epiUI.addSnapshotRestartListener(this);
+					epiUI.setReloadedSnapshot(true);
+					if(epiUI.getWoundPortrayalDraw() !=null){
+						
+					  if(woundRegionCoordinates!= null) epiUI.getWoundPortrayalDraw().setWoundRegionCoordinates(woundRegionCoordinates);
+					  if(deltaInfo!= null && deltaInfo.length >=2) 
+						  epiUI.getWoundPortrayalDraw().setDeltaInfo(new DrawInfo2D(deltaInfo[0], deltaInfo[1]) );
+					  SnapshotWriter.getInstance().addSnapshotListener(epiUI.getWoundPortrayalDraw());
+					}
+					this.validate();
+					this.repaint();
+					ModelController.getInstance().setModelOpened(success);
+					menuItemSetSnapshotPath.setEnabled(true);
+					menuItemClose.setEnabled(true);
+					menuItemLoadSnapshot.setEnabled(false);
+					menuItemBuild.setEnabled(false);
+					chartMenu.setEnabled(true);
+					dataExportMenu.setEnabled(true);
+					this.actLoadedJarFile = jarFile;
+					this.actLoadedSnapshotFile = snapshotFile;
+				}
 	}
 	
 	private void buildModelArchive(){
@@ -655,6 +662,8 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		SnapshotWriter.getInstance().resetCounter();
 		this.setTitle("Epidermis Simulator");
 		SnapshotWriter.getInstance().setSnapshotPath(null);
+		this.actLoadedJarFile = null;
+		this.actLoadedSnapshotFile = null;
 	}
 	
 	public void simulationWasStarted(){
@@ -676,5 +685,17 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		}
 			
 	}
+
+	public void snapShotRestart() {
+		int option = JOptionPane.showConfirmDialog(this, "For restarting a Snapshot a full reload of the respective file is necessary. All charts will be closed! Continue?", "Snapshot Restart", JOptionPane.YES_NO_OPTION);
+		if(option == JOptionPane.YES_OPTION){
+			File jar = this.actLoadedJarFile;
+			File snap = this.actLoadedSnapshotFile;
+			closeModel();
+		  if(jar != null && snap != null){
+			  loadSnapshot(snap, jar, true);
+		  }
+		}
+   }
 
 }

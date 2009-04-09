@@ -120,6 +120,8 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
 	}
 
+	
+	
 	public EpidermisGUIState(SimState state, JFrame mainFrame, boolean reloadSnapshot) {
 		
 		super(state);
@@ -635,6 +637,10 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	public void addSimulationStateChangeListener(SimulationStateChangeListener listener){
 		this.simulationStateListeners.add(listener);
+	}
+	
+	public void addSnapshotRestartListener(SnapshotRestartListener listener){
+		if(this.console != null) console.addSnapshotRestartListener(listener); 
 	}
 
 	public void chartSetHasChanged() {

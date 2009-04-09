@@ -66,9 +66,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 // VARIABLES
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
-	private transient ModelController modelController;
-	private transient BioMechanicalModelController biomechModelContr;
-	private transient BioChemicalModelController biochemModelContr;
+	
 
 	
 	
@@ -116,9 +114,9 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 	private int    gStatistics_GrowthFraction=0;             // Percentage
 	private double gStatistics_TurnoverTime=0;             // Percentage
 	
-	private List<EnhancedSteppable> chartSteppables = null;
+	private transient List<EnhancedSteppable> chartSteppables = null;
 	
-	private List<EnhancedSteppable> dataExportSteppables = null;
+	private transient List<EnhancedSteppable> dataExportSteppables = null;
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -128,9 +126,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
  {
      super(seed);
      
-     modelController = ModelController.getInstance();
-     biomechModelContr = modelController.getBioMechanicalModelController();
-     biochemModelContr =  modelController.getBioChemicalModelController();
+     
      SnapshotWriter.getInstance().addSnapshotListener(this);
      this.registerCellType(KCyte.class);
      this.registerCellType(Dummy.class);
@@ -146,7 +142,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 		// would be optimal. Go figure.
 		
 		//TODO: plus 2 Korrektur überprüfen
-		cellContinous2D = new Continuous2D(biomechModelContr.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
+		cellContinous2D = new Continuous2D(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
 				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
 				TissueController.getInstance().getTissueBorder().getHeight());
 		basementContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth() + 2, 
@@ -164,7 +160,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 
  public final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu retezapfen tiefe
  {
-     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/modelController.getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
+     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
  }
 
  
@@ -208,19 +204,19 @@ private void seedStemCells(){
 		Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBound(x));
 		double distance = newloc.distance(lastloc);
 
-		if((depthFrac(newloc.y) > biomechModelContr.getEpisimMechanicalModelGlobalParameters()
-				.getSeedMinDepth_frac() && (!biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+		if((depthFrac(newloc.y) > ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters()
+				.getSeedMinDepth_frac() && (!ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters()
 				.getSeedReverse()))
-				|| (depthFrac(newloc.y) < biomechModelContr.getEpisimMechanicalModelGlobalParameters()
-						.getSeedMinDepth_frac() && biomechModelContr.getEpisimMechanicalModelGlobalParameters()
+				|| (depthFrac(newloc.y) < ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters()
+						.getSeedMinDepth_frac() && ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters()
 						.getSeedReverse()))
-			if(distance > biomechModelContr.getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
+			if(distance > ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
 
 				// TODO: Check creation of Stem Cells
-				KCyte stemCell = new KCyte(CellType.getNextCellId(),-1,this, biochemModelContr.getNewEpisimCellDiffModelObject());
+				KCyte stemCell = new KCyte(CellType.getNextCellId(),-1,this, ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject());
 				// stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
 				stemCell.setOwnColor(10);
-				int cellCyclePos = random.nextInt(biochemModelContr.getEpisimCellDiffModelGlobalParameters().getCellCycleStem());
+				int cellCyclePos = random.nextInt(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleStem());
 				
 				//assign random age
 				stemCell.getEpisimCellDiffModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
@@ -251,11 +247,25 @@ private void seedStemCells(){
  public void start() {
 
 		super.start(reloadedSnapshot);
+		ChartController.getInstance().clearAllSeries();
+		DataExportController.getInstance().newSimulationRun();
+		
+		if(this.chartSteppables != null){
+			for(EnhancedSteppable steppable: this.chartSteppables){
+		   	schedule.scheduleRepeating(steppable, 4, steppable.getInterval());
+		   }
+		}
+		
+
+		if(this.dataExportSteppables != null){
+			for(EnhancedSteppable steppable: this.dataExportSteppables){
+		   	schedule.scheduleRepeating(steppable, 4, steppable.getInterval());
+		   }
+		}
 
 		if(!reloadedSnapshot){
 			allCells.clear();
-			ChartController.getInstance().clearAllSeries();
-			DataExportController.getInstance().newSimulationRun();
+			
 			
 			// set up the C2dHerd field. It looks like a discretization
 			// of about neighborhood / 1.5 is close to optimal for us. Hmph,
@@ -279,20 +289,7 @@ private void seedStemCells(){
 			// seeding the stem cells
 			seedStemCells();
 			
-			
-			
-			if(this.chartSteppables != null){
-				for(EnhancedSteppable steppable: this.chartSteppables){
-			   	schedule.scheduleRepeating(steppable, 4, steppable.getInterval());
-			   }
-			}
-			
-
-			if(this.dataExportSteppables != null){
-				for(EnhancedSteppable steppable: this.dataExportSteppables){
-			   	schedule.scheduleRepeating(steppable, 4, steppable.getInterval());
-			   }
-			}
+		
 			
 			
 			EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(this.allCells);
@@ -307,21 +304,7 @@ private void seedStemCells(){
 			
 			
 			
-		}
-		else{
-
-			Iterator iter = allCells.iterator();
-
-			while (iter.hasNext()){
-				Object obj = iter.next();
-				if(obj instanceof KCyte){
-					KCyte kcyte = (KCyte) obj;
-
-					kcyte.reloadControllers();
-
-				}
-			}
-		}
+		
      // ///////////////////////////////
      // charts
      // ///////////////////////////////
@@ -451,7 +434,18 @@ private void seedStemCells(){
      };
      // Schedule the agent to update is Outer Flag     
      schedule.scheduleRepeating(airSurface,2,1);
-     
+		}
+		else{
+			 SnapshotWriter.getInstance().addSnapshotListener(this);
+		     
+		     
+		     ChartController.getInstance().setChartMonitoredTissue(this);
+		     DataExportController.getInstance().setDataExportMonitoredTissue(this);
+		     ChartController.getInstance().registerChartSetChangeListener(this);
+		     DataExportController.getInstance().registerDataExportChangeListener(this);
+
+			
+		}
  	}
 
 	public void removeCells(GeneralPath path){
@@ -572,31 +566,9 @@ private void seedStemCells(){
 	//	complex-Methods------------------------------------------------------------------------------------------------------------------
 	
 	
-	public void setModelController(ModelController modelController) {
-
-		this.modelController = modelController;
-	   Iterator iter = allCells.iterator();
-		
-		while(iter.hasNext()){
-		  Object obj = iter.next();
-		  if (obj instanceof KCyte){
-			  KCyte kcyte =(KCyte) obj;
-			  
-				  kcyte.setModelController(modelController);
-				  
-			  }
-		  }
-		
-	}
-
-
-
-	
-
-
 	public List<Method> getParameters() {
 		List<Method> methods = new ArrayList<Method>();
-		 methods.addAll(Arrays.asList(this.biochemModelContr.getEpisimCellDiffModelGlobalParameters().getClass().getMethods()));
+		 methods.addAll(Arrays.asList(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass().getMethods()));
 	    methods.addAll(Arrays.asList(this.getClass().getMethods()));
 	   
 		return methods;
@@ -607,13 +579,13 @@ private void seedStemCells(){
 	public void chartSetHasChanged() {
 
 		try{
-			if(allCells != null && this.cellContinous2D != null && this.biochemModelContr.getEpisimCellDiffModelGlobalParameters() != null
-					&& this.biomechModelContr.getEpisimMechanicalModelGlobalParameters() != null
-					&& this.biomechModelContr.getEpisimMechanicalModel() != null){
+			if(allCells != null && this.cellContinous2D != null && ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters() != null
+					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters() != null
+					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel() != null){
 		      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(allCells, this.cellContinous2D, new Object[]{
-		      	this.biochemModelContr.getEpisimCellDiffModelGlobalParameters(), 
-		      	this.biomechModelContr.getEpisimMechanicalModelGlobalParameters(), 
-		      	this.biomechModelContr.getEpisimMechanicalModel(),
+		      		ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters(), 
+		      		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(), 
+		      		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel(),
 		      	this});
 		   }
       }
@@ -637,9 +609,9 @@ private void seedStemCells(){
 
 	   try{
 	      this.dataExportSteppables = DataExportController.getInstance().getDataExportSteppablesOfActLoadedChartSet(getAllCells(), getBasementContinous2D(), new Object[]{
-	         	this.biochemModelContr.getEpisimCellDiffModelGlobalParameters(), 
-	         	this.biomechModelContr.getEpisimMechanicalModelGlobalParameters(), 
-	         	this.biomechModelContr.getEpisimMechanicalModel(),
+	      	ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters(), 
+	      	ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(), 
+	      	ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel(),
 	         	this});
       }
       catch (MissingObjectsException e){

@@ -55,7 +55,7 @@ import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
-public class DefaultCharts implements SnapshotListener,java.io.Serializable{
+public class DefaultCharts implements java.io.Serializable{
 	
 	
 	private double TIMEFACTOR=0.5;   // conversion from timeticks to h for all diagrams: 2 time ticks mean 1 hour
@@ -621,17 +621,7 @@ public class DefaultCharts implements SnapshotListener,java.io.Serializable{
 	protected static synchronized void  rebuildCharts(){
 		instance = new DefaultCharts();
 	}
-	public List<SnapshotObject> collectSnapshotObjects() {
-
-	List<SnapshotObject> list = new LinkedList<SnapshotObject>();
-		
-		
-		
-			
-		
-		list.add(new SnapshotObject(SnapshotObject.CHARTS, this));
-		return list;
-	}
+	
 	
 	protected static void setInstance(DefaultCharts charts){
 		instance = charts;

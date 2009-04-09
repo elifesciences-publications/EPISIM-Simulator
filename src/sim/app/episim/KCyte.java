@@ -49,9 +49,7 @@ public class KCyte extends CellType
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
 // VARIABLES
 //	-----------------------------------------------------------------------------------------------------------------------------------------          
-   private transient ModelController modelController;
-   private transient BioChemicalModelController biochemModelController;
-   private transient BioMechanicalModelController biomechModelController;
+   
    
    private int gKeratinoWidthGranu=9; // default: 10
    private int gKeratinoHeightGranu=4;
@@ -112,13 +110,11 @@ public class KCyte extends CellType
     public KCyte(long identity, long motherIdentity, Epidermis epidermis, EpisimCellDiffModel cellDiffModel)
     {
    	 super(identity, motherIdentity);
-   	 modelController = ModelController.getInstance();
-   	 biochemModelController = modelController.getBioChemicalModelController();
-   	 biomechModelController = modelController.getBioMechanicalModelController();
+   	 
    	
        this.epidermis=epidermis;
     	 this.cellDiffModelObjekt = cellDiffModel;
-    	 if(cellDiffModel == null) this.cellDiffModelObjekt = biochemModelController.getNewEpisimCellDiffModelObject();
+    	 if(cellDiffModel == null) this.cellDiffModelObjekt = ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject();
        extForce=new Vector2D(0,0);
        cellDeathListeners = new LinkedList<CellDeathListener>();
        
@@ -140,11 +136,7 @@ public class KCyte extends CellType
        }
     }
 
-    public void reloadControllers(){
-   	modelController = ModelController.getInstance();
- 	 	biochemModelController = modelController.getBioChemicalModelController();
- 	 	biomechModelController = modelController.getBioMechanicalModelController();
-    }
+   
     
     public double orientation2D()
         {
@@ -295,8 +287,8 @@ public class KCyte extends CellType
 
                         else // attraction forces 
                         {
-                            double adhfac=biomechModelController.getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellDiffModelObjekt.getDifferentiation(), other.getEpisimCellDiffModelObject().getDifferentiation());                           
-                            if (actdist-optDist<biomechModelController.getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
+                            double adhfac=ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellDiffModelObjekt.getDifferentiation(), other.getEpisimCellDiffModelObject().getDifferentiation());                           
+                            if (actdist-optDist<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
                                         {                                                   
                                                 double sx=dx-dx*optDist/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
                                                 double sy=dy-dy*optDist/actdist;
@@ -411,7 +403,7 @@ public class KCyte extends CellType
         kcyte.ownColor=this.epidermis.random.nextInt(200);
         kcyte.epidermis = this.epidermis;        // the herd
              
-        kcyte.local_maxAge= biochemModelController.getEpisimCellDiffModelGlobalParameters().getMaxAge();
+        kcyte.local_maxAge= ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getMaxAge();
         long pSimTime=(long) epidermis.schedule.time();
         if (pSimTime<(kcyte.local_maxAge)){ 
       	  kcyte.local_maxAge=pSimTime;
@@ -431,7 +423,7 @@ public class KCyte extends CellType
         KCyte taCell=makeChild(cellDiffModel);
                     
         taCell.getEpisimCellDiffModelObject()
-        	.setAge(this.epidermis.random.nextInt(biochemModelController.getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
+        	.setAge(this.epidermis.random.nextInt(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
         // erben der signal concentrationen
         if(this.getIdentity() == 2 && !epidermis.alreadyfollow){
       	  taCell.follow = true;
@@ -612,17 +604,17 @@ public class KCyte extends CellType
 			// extForce=extForce.setLength(sigmoid(extForce.length())-sigmoid(0));
 			// //
 			// die funktion muss 0 bei 0 liefern, daher absenkung auf sigmoid(0)
-			Double2D gravi = new Double2D(0, biomechModelController.getEpisimMechanicalModelGlobalParameters().getGravitation()); // Vector
+			Double2D gravi = new Double2D(0, ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getGravitation()); // Vector
 			// which
 			// avoidance
 			// has
 			// to
 			// process
-			Double2D randi = new Double2D(biomechModelController.getEpisimMechanicalModelGlobalParameters().getRandomness()
-					* (epidermis.random.nextDouble() - 0.5), biomechModelController.getEpisimMechanicalModelGlobalParameters().getRandomness()
+			Double2D randi = new Double2D(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getRandomness()
+					* (epidermis.random.nextDouble() - 0.5), ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getRandomness()
 					* (epidermis.random.nextDouble() - 0.5));
-			Vector2D actionForce = new Vector2D(gravi.x + extForce.x * biomechModelController.getEpisimMechanicalModelGlobalParameters().getExternalPush()
-					+ randi.x, gravi.y + extForce.y * biomechModelController.getEpisimMechanicalModelGlobalParameters().getExternalPush());
+			Vector2D actionForce = new Vector2D(gravi.x + extForce.x * ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getExternalPush()
+					+ randi.x, gravi.y + extForce.y * ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getExternalPush());
 			Double2D potentialLoc = null;
 			
 				potentialLoc = new Double2D(epiderm.getCellContinous2D().stx(actionForce.x + oldLoc.x), 
@@ -635,7 +627,7 @@ public class KCyte extends CellType
 			// try ACTION force
 			// ////////////////////////////////////////////////
 			Bag b = epiderm.getCellContinous2D().getObjectsWithinDistance(potentialLoc,
-					biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
+					ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
 			HitResultClass hitResult1;
 			hitResult1 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, epidermis.NextToOuterCell);
 
@@ -645,7 +637,7 @@ public class KCyte extends CellType
 			// optimise my own position by giving way to the calculated pressures
 			Vector2D reactionForce = extForce;
 			reactionForce = reactionForce.add(hitResult1.otherMomentum.amplify(epidermis.getConsistency()));
-			reactionForce = reactionForce.add(hitResult1.adhForce.amplify(biomechModelController.getEpisimMechanicalModelGlobalParameters().getCohesion()));
+			reactionForce = reactionForce.add(hitResult1.adhForce.amplify(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getCohesion()));
 
 			// restrict movement if direction changes to quickly (momentum of a
 			// cell
@@ -685,7 +677,7 @@ public class KCyte extends CellType
 			// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
 
 			b = epiderm.getCellContinous2D().getObjectsWithinDistance(potentialLoc,
-					biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
+					ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
 			HitResultClass hitResult2;
 			hitResult2 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, epidermis.NextToOuterCell);
 
@@ -701,12 +693,12 @@ public class KCyte extends CellType
 
 			Double2D newLoc = epiderm.getCellContinous2D().getObjectLocation(this);
 			double maxy = TissueController.getInstance().getTissueBorder().lowerBound(newLoc.x);
-			if((maxy - newLoc.y) < biomechModelController.getEpisimMechanicalModelGlobalParameters().getBasalLayerWidth())
+			if((maxy - newLoc.y) < ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalLayerWidth())
 				setIsBasalStatisticsCell(true);
 			else
 				setIsBasalStatisticsCell(false); // ABSOLUTE DISTANZ KONSTANTE
 
-			if((maxy - newLoc.y) < biomechModelController.getEpisimMechanicalModelGlobalParameters().getMembraneCellsWidth())
+			if((maxy - newLoc.y) < ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getMembraneCellsWidth())
 				setIsMembraneCell(true);
 			else
 				setIsMembraneCell(false); // ABSOLUTE DISTANZ KONSTANTE
@@ -864,8 +856,7 @@ public class KCyte extends CellType
 	
 	public void setLocal_maxAge(long local_maxAge) { this.local_maxAge = local_maxAge; }
 	
-	
-	public void setModelController(ModelController modelController) { this.modelController =modelController;	}
+		
 	
 	public void setNeighborDrawInfoX(double[] neighborDrawInfoX) { this.neighborDrawInfoX = neighborDrawInfoX; }
    public void setNeighborDrawInfoY(double[] neighborDrawInfoY) { this.neighborDrawInfoY = neighborDrawInfoY; }

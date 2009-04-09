@@ -33,7 +33,7 @@ public class SnapshotLoader {
 					epidermis.setReloadedSnapshot(true);
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.CHARTS)){
-					charts = (DefaultCharts) sObj.getSnapshotObject();
+				//	charts = (DefaultCharts) sObj.getSnapshotObject();
 				
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.CELLDIFFMODELGLOBALPARAMETERS)){
@@ -57,7 +57,7 @@ public class SnapshotLoader {
 				}
 				
 			}
-			if(charts != null) SnapshotWriter.getInstance().addSnapshotListener(charts);
+		//	if(charts != null) SnapshotWriter.getInstance().addSnapshotListener(charts);
 			if(epidermis != null) SnapshotWriter.getInstance().addSnapshotListener(epidermis);
 			SnapshotWriter.getInstance().addSnapshotListener(MiscalleneousGlobalParameters.instance());
 	}

@@ -4,6 +4,7 @@ package sim.app.episim.visualization;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.Scale;
 import sim.portrayal.*;
 
 
@@ -77,8 +78,8 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 			
 		}
 		lastActualInfo = info;
-		width = INITIALWIDTH *getScaleFactorOfTheDisplay(info);
-		height = INITIALHEIGHT *getScaleFactorOfTheDisplay(info);
+		width = INITIALWIDTH *getScaleFactorOfTheDisplay();
+		height = INITIALHEIGHT *getScaleFactorOfTheDisplay();
 		
 		if(lastActualInfo != null &&lastActualInfo.clip !=null){ 
 			
@@ -222,17 +223,17 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 	   	 else return 0;
 	    }
 	 private double getMinX(DrawInfo2D info){
-		 return lastActualInfo.clip.getMinX() -getDeltaX() + (ruleroffset*getScaleFactorOfTheDisplay(info));
+		 return lastActualInfo.clip.getMinX() -getDeltaX() + (ruleroffset*getScaleFactorOfTheDisplay());
 	 }
 	 
 	 private double getMaxX(DrawInfo2D info){
-		 return lastActualInfo.clip.getMinX()+width-getDeltaX()- (ruleroffset*getScaleFactorOfTheDisplay(info));
+		 return lastActualInfo.clip.getMinX()+width-getDeltaX()- (ruleroffset*getScaleFactorOfTheDisplay());
 	 }
 	 private double getMinY(DrawInfo2D info){
-		 return lastActualInfo.clip.getMinY()-getDeltaY()+ (ruleroffset*getScaleFactorOfTheDisplay(info));
+		 return lastActualInfo.clip.getMinY()-getDeltaY()+ (ruleroffset*getScaleFactorOfTheDisplay());
 	 }
 	 private double getMaxY(DrawInfo2D info){
-	  return lastActualInfo.clip.getMinY()+height-getDeltaY()-(ruleroffset*getScaleFactorOfTheDisplay(info));
+	  return lastActualInfo.clip.getMinY()+height-getDeltaY()-(ruleroffset*getScaleFactorOfTheDisplay());
 	}
 	
 	public void setCrosshairsVisible(boolean visible){
@@ -252,7 +253,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 
 
 	private double getScaledNumberOfPixelPerMicrometer(DrawInfo2D info){
-		return TissueController.getInstance().getTissueBorder().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay(info);
+		return TissueController.getInstance().getTissueBorder().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay();
 	}
 
 	
@@ -262,8 +263,10 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 
 
 
-	private double getScaleFactorOfTheDisplay(DrawInfo2D info){
-		return Math.rint((info.draw.getWidth()/ firstInfo.draw.getWidth())*100)/100;
+	private double getScaleFactorOfTheDisplay(){
+		
+		
+		return Scale.displayScale;
 	}
 		
 }

@@ -2,6 +2,7 @@ package sim.app.episim.visualization;
 
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.Scale;
 import sim.portrayal.*;
 
 import java.awt.*;
@@ -65,7 +66,7 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 			
 					AffineTransform transform = new AffineTransform();
 					
-					double dispScale = getScaleFactorOfTheDisplay(info);
+					double dispScale = getScaleFactorOfTheDisplay();
 					
 					width = (INITIALWIDTH -2*border)*dispScale ;
 					height = (INITIALHEIGHT-2*border)*dispScale;
@@ -102,7 +103,7 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 
    
    private double getDeltaX(){
-  	 if(lastActualInfo.clip.width< (INITIALWIDTH *getScaleFactorOfTheDisplay(lastActualInfo))){
+  	 if(lastActualInfo.clip.width< (INITIALWIDTH *getScaleFactorOfTheDisplay())){
   		 return lastActualInfo.clip.getMinX();
 
   		 
@@ -112,7 +113,7 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
    
    private double getDeltaY(){
   	 
-  	 if(lastActualInfo.clip.height < (INITIALHEIGHT *getScaleFactorOfTheDisplay(lastActualInfo))){
+  	 if(lastActualInfo.clip.height < (INITIALHEIGHT *getScaleFactorOfTheDisplay())){
   		 return lastActualInfo.clip.getMinY();
   	 }
   	 else return 0;
@@ -124,18 +125,18 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 		
 				for(Point2D point : cellPoints){
 					GeneralPath polygon = new GeneralPath();
-					polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTACROSS, lastActualInfo.clip
+					polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay()) - DELTACROSS, lastActualInfo.clip
 							.getMinY()
-							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTACROSS);
-					polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() +(point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS, lastActualInfo.clip
+							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay()) - DELTACROSS);
+					polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() +(point.getX()*getScaleFactorOfTheDisplay()) + DELTACROSS, lastActualInfo.clip
 							.getMinY()
-							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS);
-					polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS, lastActualInfo.clip
+							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay()) + DELTACROSS);
+					polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay()) + DELTACROSS, lastActualInfo.clip
 							.getMinY()
-							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTACROSS);
-					polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTACROSS, lastActualInfo.clip
+							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay()) - DELTACROSS);
+					polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay()) - DELTACROSS, lastActualInfo.clip
 							.getMinY()
-							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTACROSS);
+							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay()) + DELTACROSS);
 		
 					if(TissueController.getInstance().getTissueBorder().isOverBasalLayer(new Point2D.Double(
 							(((point.getX()-border) /scaleX)),
@@ -160,19 +161,19 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 		for(Point2D point: cellPoints){
 			
 		
-			if(mouseposition.getX() > ((point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTAPOINT) 
-				&& mouseposition.getX() < ((point.getX()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTAPOINT)
-				&& mouseposition.getY() > ((point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) - DELTAPOINT)
-				&& mouseposition.getY() < ((point.getY()*getScaleFactorOfTheDisplay(lastActualInfo)) + DELTAPOINT)
+			if(mouseposition.getX() > ((point.getX()*getScaleFactorOfTheDisplay()) - DELTAPOINT) 
+				&& mouseposition.getX() < ((point.getX()*getScaleFactorOfTheDisplay()) + DELTAPOINT)
+				&& mouseposition.getY() > ((point.getY()*getScaleFactorOfTheDisplay()) - DELTAPOINT)
+				&& mouseposition.getY() < ((point.getY()*getScaleFactorOfTheDisplay()) + DELTAPOINT)
 				&& !hitAndButtonPressed){
 				
-				point.setLocation(mouseposition.getX()/getScaleFactorOfTheDisplay(lastActualInfo), mouseposition.getY()/getScaleFactorOfTheDisplay(lastActualInfo));
+				point.setLocation(mouseposition.getX()/getScaleFactorOfTheDisplay(), mouseposition.getY()/getScaleFactorOfTheDisplay());
 				hitAndButtonPressed=true;
 				actDraggedPoint = point;
 				return true;
 			}
 			else if(hitAndButtonPressed){
-				actDraggedPoint.setLocation(mouseposition.getX()/getScaleFactorOfTheDisplay(lastActualInfo), mouseposition.getY()/getScaleFactorOfTheDisplay(lastActualInfo));
+				actDraggedPoint.setLocation(mouseposition.getX()/getScaleFactorOfTheDisplay(), mouseposition.getY()/getScaleFactorOfTheDisplay());
 				return true;
 			}
 			
@@ -185,8 +186,8 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 	  
 		if(mouseposition != null && lastActualInfo != null){
 	  	
-		mouseposition = new Point2D.Double((mouseposition.getX()-lastActualInfo.clip.getMinX()+getDeltaX())/getScaleFactorOfTheDisplay(lastActualInfo),
-		                             (mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY())/getScaleFactorOfTheDisplay(lastActualInfo));
+		mouseposition = new Point2D.Double((mouseposition.getX()-lastActualInfo.clip.getMinX()+getDeltaX())/getScaleFactorOfTheDisplay(),
+		                             (mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY())/getScaleFactorOfTheDisplay());
 		
 	
 		
@@ -206,8 +207,8 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 
 
 
-	private double getScaleFactorOfTheDisplay(DrawInfo2D info){
-		return Math.rint((info.draw.getWidth()/ firstInfo.draw.getWidth())*100)/100;
+	private double getScaleFactorOfTheDisplay(){
+		return Scale.displayScale;
 	}
 
 	public void setHitAndButtonPressed(boolean hitAndButtonPressed) {

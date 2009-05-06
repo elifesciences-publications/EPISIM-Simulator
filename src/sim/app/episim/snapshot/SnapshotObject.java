@@ -5,7 +5,9 @@ public class SnapshotObject implements java.io.Serializable {
 	
 	
 	public static final String WOUND = "Wound";
-	public static final String EPIDERMIS = "Epidermis";
+	public static final String CELL = "Cell";
+	public static final String CELLCONTINUOUS = "CellContinuous";
+	public static final String TIMESTEPS = "TimeSteps";
 	public static final String CHARTS = "Charts";
 	public static final String MECHANICALMODELGLOBALPARAMETERS = "MechanicalModelGlobalParameters";
 	public static final String MISCALLENEOUSGLOBALPARAMETERS = "MiscalenneousGlobalParameters";

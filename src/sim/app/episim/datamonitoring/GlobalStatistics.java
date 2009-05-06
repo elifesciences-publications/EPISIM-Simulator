@@ -1,11 +1,15 @@
 package sim.app.episim.datamonitoring;
 
+import java.util.List;
+
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import sim.app.episim.CellType;
 import sim.app.episim.KCyte;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.snapshot.SnapshotListener;
+import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EnhancedSteppable;
@@ -388,5 +392,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
    public double getBarrier_ExtCalcium_Statistics() {	return barrier_ExtCalcium_Statistics; }
    public double getBarrier_Lamella_Statistics() { return barrier_Lamella_Statistics; }	
    public double getBarrier_Lipids_Statistics() {return barrier_Lipids_Statistics; }
+
+	
    
 }

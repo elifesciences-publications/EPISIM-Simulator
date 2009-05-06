@@ -4,6 +4,7 @@ import ec.util.MersenneTwisterFast;
 
 
 public class SimStateHack extends SimState implements java.io.Serializable{
+	
 	 /**
 	 * 
 	 */
@@ -24,6 +25,7 @@ public SimStateHack(MersenneTwisterFast random)
 /** Creates a SimState with the provided random number generator and schedule. */
 public SimStateHack(MersenneTwisterFast random, Schedule schedule)
    {
+	
    super(random, schedule);
    
    }
@@ -31,12 +33,31 @@ public SimStateHack(MersenneTwisterFast random, Schedule schedule)
 simulation runs.  This gives you a chance to set up initially,
 or reset from the last simulation run. The default version simply
 replaces the Schedule with a completely new one.  */
-public void start(boolean reloadSnapshot)
+public void start(TimeSteps timesteps)
 {
 	// just in case
 	cleanupAsynchronous();
 	
 	// reset schedule
-	if(!reloadSnapshot)schedule.reset();
+	//if(!reloadSnapshot)
+	
+	schedule.reset();
+	if(timesteps != null){
+		schedule.steps = timesteps.steps;
+		schedule.time = timesteps.time;
+	}
+	
+}
+public class TimeSteps implements java.io.Serializable{
+	public double time;
+	public long steps;
+	
+	public TimeSteps(double t, long st){
+		this.time = t;
+		this.steps = st;
+	}
+	
+	
+	
 }
 }

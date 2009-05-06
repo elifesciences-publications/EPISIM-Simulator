@@ -41,10 +41,15 @@ public class KCyte extends CellType
    
    private final String NAME = "Keratinocyte";
    
-   public final int GOPTIMALKERATINODISTANCE=4; // Default: 4
-   public final int GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
-   public final int GINITIALKERATINOHEIGHT=5; // Default: 5
-   public final int GINITIALKERATINOWIDTH=5; // Default: 5
+   public static final int GOPTIMALKERATINODISTANCE=4; // Default: 4
+   public static final int GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
+   public static final int GINITIALKERATINOHEIGHT=5; // Default: 5
+   public static final int GINITIALKERATINOWIDTH=5; // Default: 5
+   
+   public final int NEXTTOOUTERCELL=7;
+   private double MINDIST=0.1;
+   
+   private static final double CONSISTENCY=0.0;
 
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
 // VARIABLES
@@ -56,7 +61,7 @@ public class KCyte extends CellType
                 
    private Double2D lastd = new Double2D(0,0);
  
-   private Epidermis epidermis;    
+    
    
    
    
@@ -101,24 +106,26 @@ public class KCyte extends CellType
    
    private EpisimCellDiffModel cellDiffModelObjekt;
    
+   
+   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
    public KCyte(){
-   this(-1, -1, null, null);
+   this(-1, -1,  null);
    }
-    public KCyte(long identity, long motherIdentity, Epidermis epidermis, EpisimCellDiffModel cellDiffModel)
+    public KCyte(long identity, long motherIdentity, EpisimCellDiffModel cellDiffModel)
     {
    	 super(identity, motherIdentity);
    	 
    	
-       this.epidermis=epidermis;
+       
     	 this.cellDiffModelObjekt = cellDiffModel;
     	 if(cellDiffModel == null) this.cellDiffModelObjekt = ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject();
        extForce=new Vector2D(0,0);
        cellDeathListeners = new LinkedList<CellDeathListener>();
        
-       if(epidermis != null) cellDeathListeners.add(epidermis);
+       cellDeathListeners.add(TissueServer.getInstance().getActEpidermalTissue());
        
        cellDeathListeners.add(GlobalStatistics.getInstance());
        
@@ -130,10 +137,10 @@ public class KCyte extends CellType
        voronoiStable=0;
                           
        lastd=new Double2D(0.0,-3);
-       if(epidermis != null){ 
-           epidermis.checkMemory();
-	        epidermis.getAllCells().add(this); // register this as additional one in Bag
-       }
+       
+       	  TissueServer.getInstance().getActEpidermalTissue().checkMemory();
+       	 TissueServer.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag
+       
     }
 
    
@@ -155,7 +162,13 @@ public class KCyte extends CellType
         }
 
   
+    public void removeCellDeathListener(){
+   	 this.cellDeathListeners.clear();
+    }
     
+    public void addCellDeathListener(CellDeathListener listener){
+   	 this.cellDeathListeners.add(listener);
+    }
     
     public final Double2D forceFromBound(Continuous2D pC2dHerd, double x) // Calculate the Force orthogonal to lower bound
     {        
@@ -259,7 +272,7 @@ public class KCyte extends CellType
                                             }
                         
                         
-                        if (optDist-actdist>epidermis.getMinDist()) // ist die kollision signifikant ?
+                        if (optDist-actdist>MINDIST) // ist die kollision signifikant ?
                                     {
                                             double fx=(actdist>0)?(optDist+0.1)/actdist*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
                                             double fy=(actdist>0)?(optDist+0.1)/actdist*dy-dy:0;                                            
@@ -384,34 +397,37 @@ public class KCyte extends CellType
     public KCyte makeChild(EpisimCellDiffModel cellDiffModel)
     {       
         
-   	 Continuous2D cellContinous2D = epidermis.getCellContinous2D();
+   	 Continuous2D cellContinous2D = TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D();
    	 
    	 // Either we get use a currently unused cell oder we allocate a new one
         KCyte kcyte;        
        
-            kcyte= new KCyte(CellType.getNextCellId(), getIdentity(), epidermis, cellDiffModel); 
-            epidermis.inkrementNumberOfKCytes();
+            kcyte= new KCyte(CellType.getNextCellId(), getIdentity(), cellDiffModel); 
+            
             
             cellDiffModel.setId((int)kcyte.getIdentity());
-            Stoppable stoppable = epidermis.schedule.scheduleRepeating(kcyte, 1, 1);   // schedule only if not already running
+           
+            
+            Stoppable stoppable = TissueServer.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, 1, 1);   // schedule only if not already running
             kcyte.setStoppable(stoppable);
 
         Double2D newloc=cellContinous2D.getObjectLocation(this);
-        newloc=new Double2D(newloc.x +epidermis.random.nextDouble()*0.5-0.25, newloc.y-epidermis.random.nextDouble()*0.5-0.1);
+        newloc=new Double2D(newloc.x +TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25, newloc.y-TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1);
         
        
-        kcyte.ownColor=this.epidermis.random.nextInt(200);
-        kcyte.epidermis = this.epidermis;        // the herd
+        kcyte.ownColor= TissueServer.getInstance().getActEpidermalTissue().random.nextInt(200);
+               // the herd
              
         kcyte.local_maxAge= ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getMaxAge();
-        long pSimTime=(long) epidermis.schedule.time();
+        long pSimTime=(long) TissueServer.getInstance().getActEpidermalTissue().schedule.time();
         if (pSimTime<(kcyte.local_maxAge)){ 
       	  kcyte.local_maxAge=pSimTime;
       	  cellDiffModel.setMaxAge((int)kcyte.local_maxAge);
         }
 
         
-        cellContinous2D.setObjectLocation(kcyte, newloc);        
+        cellContinous2D.setObjectLocation(kcyte, newloc);
+        
        
         return kcyte;
     }
@@ -423,14 +439,11 @@ public class KCyte extends CellType
         KCyte taCell=makeChild(cellDiffModel);
                     
         taCell.getEpisimCellDiffModelObject()
-        	.setAge(this.epidermis.random.nextInt(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
+        	.setAge(TissueServer.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
         // erben der signal concentrationen
-        if(this.getIdentity() == 2 && !epidermis.alreadyfollow){
-      	  taCell.follow = true;
-      	  epidermis.alreadyfollow = true;
-        }
+       
     }
-    public boolean follow = false;
+   
     public void makeSpiCell(EpisimCellDiffModel cellDiffModel)
     {
        
@@ -503,8 +516,8 @@ public class KCyte extends CellType
    	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL) this.cellDiffModelObjekt.setAge(0);
    	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
    	 	  	 
-   	 long timeBefore = System.currentTimeMillis();
-		
+   	
+		System.out.println("Nachbarn: "+ realNeighbours.length);
    	 EpisimCellDiffModel[] children = this.cellDiffModelObjekt.oneStep(realNeighbours);
 		/*	long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
@@ -531,7 +544,7 @@ public class KCyte extends CellType
 				 deltaTime = 0;
 			}
 			deltaTime +=deltaTimeTmp;		*/
-   	 
+   	
    	 makeChildren(children);
    	 	
    	 	
@@ -611,8 +624,8 @@ public class KCyte extends CellType
 			// to
 			// process
 			Double2D randi = new Double2D(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getRandomness()
-					* (epidermis.random.nextDouble() - 0.5), ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getRandomness()
-					* (epidermis.random.nextDouble() - 0.5));
+					* (epiderm.random.nextDouble() - 0.5), ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getRandomness()
+					* (epiderm.random.nextDouble() - 0.5));
 			Vector2D actionForce = new Vector2D(gravi.x + extForce.x * ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getExternalPush()
 					+ randi.x, gravi.y + extForce.y * ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getExternalPush());
 			Double2D potentialLoc = null;
@@ -629,14 +642,14 @@ public class KCyte extends CellType
 			Bag b = epiderm.getCellContinous2D().getObjectsWithinDistance(potentialLoc,
 					ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
 			HitResultClass hitResult1;
-			hitResult1 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, epidermis.NextToOuterCell);
+			hitResult1 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
 			// ////////////////////////////////////////////////
 			// estimate optimised POS from REACTION force
 			// ////////////////////////////////////////////////
 			// optimise my own position by giving way to the calculated pressures
 			Vector2D reactionForce = extForce;
-			reactionForce = reactionForce.add(hitResult1.otherMomentum.amplify(epidermis.getConsistency()));
+			reactionForce = reactionForce.add(hitResult1.otherMomentum.amplify(CONSISTENCY));
 			reactionForce = reactionForce.add(hitResult1.adhForce.amplify(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getCohesion()));
 
 			// restrict movement if direction changes to quickly (momentum of a
@@ -679,7 +692,7 @@ public class KCyte extends CellType
 			b = epiderm.getCellContinous2D().getObjectsWithinDistance(potentialLoc,
 					ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
 			HitResultClass hitResult2;
-			hitResult2 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, epidermis.NextToOuterCell);
+			hitResult2 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
 			// move only on pressure when not stem cell
 			if(this.cellDiffModelObjekt.getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL){
@@ -715,7 +728,7 @@ public class KCyte extends CellType
 			// ///////////////////////////////////////////////////////
 			// Differentiation: Calling the loaded Cell-Diff-Model
 			// //////////////////////////////////////////////////////
-
+			
 			differentiate(state, b,epiderm.getCellContinous2D(), newLoc, hitResult2.nextToOuterCell, hitResult2.numhits != 0);
 			
 /*			long timeAfter = System.currentTimeMillis();
@@ -786,7 +799,7 @@ public class KCyte extends CellType
 // GETTER-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	public Epidermis getEpidermis() {	return epidermis;	}
+	
 	
 	public double getExtForceX () { return extForce.x; }   // for inspector 
    public double getExtForceY () { return extForce.y; }   // for inspector
@@ -831,12 +844,12 @@ public class KCyte extends CellType
 	
 	public boolean isLastDrawInfoAssigned() {	return lastDrawInfoAssigned; }
 
-        
+    
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 // SETTER-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	public void setEpidermis(Epidermis epidermis) { this.epidermis = epidermis; }
+	
 	
 	public void setFormCount(int formCount) {	this.formCount = formCount; }
 	

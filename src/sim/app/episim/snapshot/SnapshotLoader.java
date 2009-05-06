@@ -1,40 +1,53 @@
 package sim.app.episim.snapshot;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
+import sim.app.episim.CellType;
 import sim.app.episim.Epidermis;
+
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
+import sim.engine.SimStateHack.TimeSteps;
+import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
 
 
 public class SnapshotLoader {
 	
 	private List<Double2D> woundRegionCoordinates = null;
-	private Epidermis epidermis = null;
-	private DefaultCharts charts = null;
+	private List<CellType> loadedCells;
+	
 	private java.awt.geom.Rectangle2D.Double[] deltaInfo = null;
 	private EpisimCellDiffModelGlobalParameters diffModelGlobalParameters = null;
 	private EpisimMechanicalModelGlobalParameters mechModelGlobalParameters = null;
+	
+	private TimeSteps timeSteps;
+	private Continuous2D cellContinuous= null;
 	
 	public SnapshotLoader(File snapshotFile, File jarFile) throws IllegalArgumentException{
 		
 		if(snapshotFile != null && jarFile != null){
 			
 			List<SnapshotObject> snapshotobjects = SnapshotReader.getInstance().loadSnapshot(snapshotFile, jarFile);
+			loadedCells = new LinkedList<CellType>();
 			for(SnapshotObject sObj : snapshotobjects){
-				if(sObj.getIdentifier().equals(SnapshotObject.EPIDERMIS)){
-					epidermis = (Epidermis) sObj.getSnapshotObject();
-					epidermis.setReloadedSnapshot(true);
+				if(sObj.getIdentifier().equals(SnapshotObject.CELL)){
+					loadedCells.add((CellType) sObj.getSnapshotObject());
+					
 				}
-				else if(sObj.getIdentifier().equals(SnapshotObject.CHARTS)){
-				//	charts = (DefaultCharts) sObj.getSnapshotObject();
-				
+				else if(sObj.getIdentifier().equals(SnapshotObject.CELLCONTINUOUS)){
+					this.cellContinuous = (Continuous2D) sObj.getSnapshotObject();
+					
+				}
+				else if(sObj.getIdentifier().equals(SnapshotObject.TIMESTEPS)){
+					this.timeSteps = (TimeSteps) sObj.getSnapshotObject();
+					
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.CELLDIFFMODELGLOBALPARAMETERS)){
 					diffModelGlobalParameters = (EpisimCellDiffModelGlobalParameters) sObj.getSnapshotObject();
@@ -57,8 +70,7 @@ public class SnapshotLoader {
 				}
 				
 			}
-		//	if(charts != null) SnapshotWriter.getInstance().addSnapshotListener(charts);
-			if(epidermis != null) SnapshotWriter.getInstance().addSnapshotListener(epidermis);
+		
 			SnapshotWriter.getInstance().addSnapshotListener(MiscalleneousGlobalParameters.instance());
 	}
 		else throw new IllegalArgumentException("Snapshot-Path and/or Model-File-Path is null");	
@@ -73,19 +85,14 @@ public class SnapshotLoader {
 
 
 	
-   public Epidermis getEpidermis() {
+   public List<CellType> getLoadedCells() {
    
-   	return epidermis;
+   	return loadedCells;
    }
 
 
 	
-   public DefaultCharts getCharts() {
    
-   	return charts;
-   }
-
-
 	
    public java.awt.geom.Rectangle2D.Double[] getDeltaInfo() {
    
@@ -102,5 +109,12 @@ public class SnapshotLoader {
    public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {
       
    	return mechModelGlobalParameters;
+   }
+   
+   public Continuous2D getCellContinous2D(){
+   	return this.cellContinuous;
+   }
+   public TimeSteps getTimeSteps(){
+   	return this.timeSteps;
    }
 }

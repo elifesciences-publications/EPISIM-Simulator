@@ -37,6 +37,7 @@ import sim.app.episim.CompileWizard;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.TissueServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
@@ -121,7 +122,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		//--------------------------------------------------------------------------------------------------------------
 		this.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
 		fileMenu = new JMenu("File");
-		menuItemOpen = new JMenuItem("Open Episim-Cell-Diff-Model");
+		menuItemOpen = new JMenuItem("Open Episim-Cell-Model");
 		menuItemOpen.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -139,7 +140,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			
 		});
 		
-		menuItemClose = new JMenuItem("Close Episim-Cell-Diff-Model");
+		menuItemClose = new JMenuItem("Close Episim-Cell-Model");
 		menuItemClose.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
@@ -395,13 +396,18 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		this.getContentPane().add(statusbar, BorderLayout.SOUTH);
 		
 		jarFileChoose= new ExtendedFileChooser("jar");
-		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model");
+		jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 		tssFileChoose = new ExtendedFileChooser("tss");
 		
 		this.setTitle("Epidermis Simulator");
 		
-		this.setPreferredSize(new Dimension((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-				(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 30));
+		
+		//TODO: to be reactivated after video recording
+		
+	/*	this.setPreferredSize(new Dimension((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+				(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 30));*/
+		
+		this.setPreferredSize(new Dimension(1280, 932));
 		
 		
 		this.addWindowListener(new WindowAdapter() {
@@ -433,7 +439,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		File file = null;
 		File standartDir =new File("d:/");
-		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model");
+		jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 		if(standartDir.exists())jarFileChoose.setCurrentDirectory(standartDir);
 		if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			file = jarFileChoose.getSelectedFile();
@@ -544,7 +550,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		File snapshotFile = null;
 		File jarFile = null;
 				
-		jarFileChoose.setDialogTitle("Open Episim Cell Differentiation Model of the selected Snapshot");
+		jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model of the selected Snapshot");
 		tssFileChoose.setDialogTitle("Load Snapshot");
 		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION && jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
 			snapshotFile = tssFileChoose.getSelectedFile();
@@ -572,10 +578,13 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			ExceptionDisplayer.getInstance().displayException(ex);
 		}
 		List<Double2D> woundRegionCoordinates = snapshotLoader.getWoundRegionCoordinates();		
-		Epidermis epidermis = snapshotLoader.getEpidermis();
+		Epidermis epidermis = new Epidermis(System.currentTimeMillis());
+		epidermis.addSnapshotLoadedCells(snapshotLoader.getLoadedCells());
+		epidermis.setReloadedSnapshot(true);
+		epidermis.setCellContinous2D(snapshotLoader.getCellContinous2D());
+		epidermis.setSnapshotTimeSteps(snapshotLoader.getTimeSteps());
 		
-		//TODO: implement Reload Charts from Snapshot
-		//DefaultCharts.setInstance(snapshotLoader.getCharts());
+		TissueServer.getInstance().registerTissue(epidermis);		
 		java.awt.geom.Rectangle2D.Double[] deltaInfo = snapshotLoader.getDeltaInfo();
 				if(SnapshotWriter.getInstance().getSnapshotPath() == null){
 					JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info",
@@ -586,7 +595,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				
 				if(success){
 				
-					// EpiSimCharts.rebuildCharts();
+					ChartController.getInstance().rebuildDefaultCharts();
 					ModelController.getInstance().getBioChemicalModelController().
 					                                          reloadCellDiffModelGlobalParametersObject(snapshotLoader.getEpisimCellDiffModelGlobalParameters());
 					ModelController.getInstance().getBioMechanicalModelController().

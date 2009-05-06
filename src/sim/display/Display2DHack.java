@@ -3,6 +3,7 @@ package sim.display;
 import java.awt.Component;
 
 import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.util.Scale;
 import sim.util.gui.NumberTextField;
 
 
@@ -32,6 +33,7 @@ public class Display2DHack extends Display2D {
               if (newValue <= 0.0) newValue = currentValue;
               epiSimulation.workaroundConsolePause();
               setScale(newValue);
+              Scale.displayScale = getScale();
               port.setView(insideDisplay);
               //optionPane.xOffsetField.add *= (newValue / currentValue);
               optionPane.xOffsetField.setValue(insideDisplay.xOffset * newValue);

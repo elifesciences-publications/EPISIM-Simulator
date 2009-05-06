@@ -6,6 +6,7 @@
 
 package sim.display;
 import sim.portrayal.*;
+import sim.app.episim.util.Scale;
 import sim.engine.*;
 import java.awt.*;
 import java.awt.geom.*;
@@ -1045,7 +1046,7 @@ public class Display2D extends JComponent implements Steppable
             public double newValue(double newValue)
                 {
                 if (newValue <= 0.0) newValue = currentValue;
-                setScale(newValue);
+                setScale(newValue);               
                 port.setView(insideDisplay);
                 optionPane.xOffsetField.setValue(insideDisplay.xOffset * newValue);
                 optionPane.yOffsetField.setValue(insideDisplay.yOffset * newValue);

@@ -5,6 +5,7 @@ import sim.app.episim.Epidermis;
 import sim.app.episim.KCyte;
 import sim.app.episim.KCyteInspector;
 import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.TissueServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
@@ -16,6 +17,7 @@ import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissue.TissueType;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.KeratinocytePortrayal2D;
@@ -116,7 +118,8 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	ContinuousPortrayal2D gridPortrayal = new ContinuousPortrayal2D();
 	
 	
-	public EpidermisGUIState(JFrame mainFrame) {
+	public EpidermisGUIState(JFrame mainFrame) {		
+		
 		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
 	}
 
@@ -125,6 +128,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	public EpidermisGUIState(SimState state, JFrame mainFrame, boolean reloadSnapshot) {
 		
 		super(state);
+		if(state instanceof TissueType) TissueServer.getInstance().registerTissue(((TissueType) state));
 		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();
 		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainFrame = mainFrame;
@@ -384,17 +388,20 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		
 		desktop.putClientProperty("JDesktopPane.dragMode", "outline");
 		
-		//desktop.setPreferredSize(new Dimension((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-			//	(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 30));
+		
 		
 	
 		final JScrollPane desktopScroll = new JScrollPane(desktop);
 		
-		desktop.setPreferredSize(new Dimension(
+		
+		
+	desktop.setPreferredSize(new Dimension(
 				(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
 				(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight()-STATUSBARHEIGHT)));
-	   desktop.setSize(desktop.getPreferredSize());
+	   
+	  
 		
+		desktop.setSize(desktop.getPreferredSize());
 		
 		arrangeElements(desktop, true);
 		
@@ -412,8 +419,10 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 				if(comp.getSource() instanceof JFrame){
 					
 					if(desktop != null){ 
+					
 						
-						desktop.setPreferredSize(new Dimension(
+					
+					desktop.setPreferredSize(new Dimension(
 								(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
 								(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight())));
 						arrangeElements(desktop, false);

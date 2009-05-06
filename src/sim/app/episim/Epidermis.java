@@ -59,25 +59,14 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 // CONSTANTS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 		
-	public final int InitialKeratinoSize=5;
-	public final int NextToOuterCell=7;
 	public final String NAME ="Epidermis";
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 // VARIABLES
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
-	
-
-	
-	
-	public boolean alreadyfollow = false;
-	
-	
-	
-
 	private boolean reloadedSnapshot = false;
 
-	private  String graphicsDirectory="pdf_png_simres/";
+	
 
 	private Continuous2D cellContinous2D;
 	private Continuous2D basementContinous2D;
@@ -85,38 +74,14 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 	private Continuous2D gridContinous2D;
    
 	private GenericBag<CellType> allCells=new GenericBag<CellType>(3000); //all cells will be stored in this bag
-	private int allocatedKCytes=0;   // allocated memory
 	
-	
-	private  int PDF_ChartWidth_Large=600;
-	private  int PDF_ChartHeight_Large=400;
-	 
-	private int gCorneumY=20;    // gCorneum would start at this ..
-	 
-	private long timeInSimulationSteps = 0;
-		
-	private int individualColor=1;
-	 
-	
-	 
-   private double consistency=0.0;
-   private double minDist=0.1;    
-	private boolean developGranulosum=true;
-	
-	    
-	
-	private double gStatistics_KCytes_MeanAge=0;
-	
-	
-	
-	
-	
-	private int    gStatistics_GrowthFraction=0;             // Percentage
-	private double gStatistics_TurnoverTime=0;             // Percentage
+	// Percentage
 	
 	private transient List<EnhancedSteppable> chartSteppables = null;
 	
 	private transient List<EnhancedSteppable> dataExportSteppables = null;
+	
+	private TimeSteps timeStepsAfterSnapshotReload = null;
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -158,7 +123,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 
  
 
- public final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu retezapfen tiefe
+ public final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu rete tiefe
  {
      return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
  }
@@ -167,7 +132,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
  
  public void checkMemory(){
 	 // Memory Management
-    if (getNumberOfKCytes()>getAllCells().size()-2) // for safety -2
+    if (GlobalStatistics.getInstance().getActualNumberKCytes()>getAllCells().size()-50) // for safety -50
         getAllCells().resize(getAllCells().size()+500); // alloc 500 in advance
  }
  
@@ -213,7 +178,7 @@ private void seedStemCells(){
 			if(distance > ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
 
 				// TODO: Check creation of Stem Cells
-				KCyte stemCell = new KCyte(CellType.getNextCellId(),-1,this, ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject());
+				KCyte stemCell = new KCyte(CellType.getNextCellId(),-1, ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject());
 				// stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
 				stemCell.setOwnColor(10);
 				int cellCyclePos = random.nextInt(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleStem());
@@ -222,8 +187,7 @@ private void seedStemCells(){
 				stemCell.getEpisimCellDiffModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
 				TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellDiffModelObject(), cellCyclePos);																																		// on
 																																						
-				stemCell.getEpisimCellDiffModelObject().setDifferentiation(
-						EpisimCellDiffModelGlobalParameters.STEMCELL);
+				stemCell.getEpisimCellDiffModelObject().setDifferentiation(EpisimCellDiffModelGlobalParameters.STEMCELL);
 				stemCell.getEpisimCellDiffModelObject().setSpecies(EpisimCellDiffModelGlobalParameters.KERATINOCYTE);
 				stemCell.getEpisimCellDiffModelObject().setIsAlive(true);
 	
@@ -246,7 +210,7 @@ private void seedStemCells(){
  
  public void start() {
 
-		super.start(reloadedSnapshot);
+		super.start(timeStepsAfterSnapshotReload);
 		ChartController.getInstance().clearAllSeries();
 		DataExportController.getInstance().newSimulationRun();
 		
@@ -262,19 +226,14 @@ private void seedStemCells(){
 		   	schedule.scheduleRepeating(steppable, 4, steppable.getInterval());
 		   }
 		}
-
-		if(!reloadedSnapshot){
-			allCells.clear();
+		GlobalStatistics.getInstance().reset(true);
+		EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(this.allCells);
+		schedule.scheduleRepeating(globalStatisticsSteppable, 3, globalStatisticsSteppable.getInterval());
+		
 			
 			
-			// set up the C2dHerd field. It looks like a discretization
-			// of about neighborhood / 1.5 is close to optimal for us. Hmph,
-			// that's 16 hash lookups! I would have guessed that
-			// neighborhood * 2 (which is about 4 lookups on average)
-			// would be optimal. Go figure.
 			
-			//TODO: plus 2 Korrektur überprüfen
-			cellContinous2D.clear();
+			
 			basementContinous2D.clear();
 			rulerContinous2D.clear();
 		   gridContinous2D.clear();
@@ -282,82 +241,35 @@ private void seedStemCells(){
 	     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
 	     rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
 	     gridContinous2D.setObjectLocation("DummyObjektForDrawingTheGrid", new Double2D(50, 50));
-						
-			allocatedKCytes = 0; // allocated memory
-			GlobalStatistics.getInstance().reset(true);
-	
-			// seeding the stem cells
-			seedStemCells();
 			
-		
-			
-			
-			EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(this.allCells);
-			schedule.scheduleRepeating(globalStatisticsSteppable, 3, globalStatisticsSteppable.getInterval());
-			
-			
-			
-			// BackImageClass backImage=new BackImageClass(this);
-			// schedule.scheduleOnce(backImage);
+     
+   
 
-			gStatistics_KCytes_MeanAge = 0;
-			
-			
-			
-		
-     // ///////////////////////////////
-     // charts
-     // ///////////////////////////////
-     
-    
-    /* 
-     
-     
-    
-
-     //////////////////////////////////////        
-     // CHART Updating Logfile
-     //////////////////////////////////////
-      
-               
-     Steppable logfileUpdater = new Steppable()
-    {
-         public void step(SimState state)
-         {   
-             int timestamp=(int) (state.schedule.time()*gTimefactor+0.5);
-             if (timestamp>=100)
-                    {
-                    try {
-                     BufferedWriter out = new BufferedWriter(new FileWriter("C:\\simresults.csv", true));
-                     out.write((int) (state.schedule.time()) + ";");
-                     out.write(timestamp + ";");
-                     out.write(actualStem+ ";" +actualTA + ";" + actualSpi+";" +actualLateSpi+";"+actualGranu+";"+(actualKCytes-actualNoNucleus)+";");
-                     out.write((int)0.5+100*(actualStem+actualTA) + ";");
-                     out.write((int)0.5+100*(actualLateSpi+actualSpi+actualGranu)+ ";");
-                                 out.write((int)0.5+100*(actualStem+actualTA)/(actualKCytes-actualNoNucleus) + ";");
-                     out.write((int)0.5+100*(actualLateSpi+actualSpi+actualGranu)/(actualKCytes-actualNoNucleus)+ ";");
-                     //System.out.print(gStatistics_Apoptosis_EarlySpi + ";" + gStatistics_Apoptosis_LateSpi + ";" + gStatistics_Apoptosis_Granu+";");
-                     out.write((int) (gStatistics_TurnoverTime*gTimefactor+0.5) + ";" + (int)(0.5+gStatistics_GrowthFraction) + ";");
-                     out.write("\n");
-                     out.close();
-                      } catch (IOException e) {}         
-                    }
-             else { 
-                 }
-        }
-     };
-     // Schedule the agent to update the chart
-     schedule.scheduleRepeating(logfileUpdater, 200);
-     try {
-         BufferedWriter out = new BufferedWriter(new FileWriter("C:\\simresults.csv", false));
-         out.write("SimTicks; (h)Time; #Stem; #TA; #EarlySpi; #LateSpi; #Granu; #TotalNum; #NumProl; #NumDiff; %PropProl; %PropDiff; Turnover; %GrowthFrac;\n");
-         //logfilestat.write ("SimTicks; (h)SimTime; Stem; TA; EarlySpi; LateSpi; Granu; TotalNum; PropProl; PropDiff; Turnover; Growth;");
-         out.close();
-         } catch (IOException e) {}  
-        
-     
-    */ 
- 
+	     
+	     
+	     if(!reloadedSnapshot){
+	   	  cellContinous2D.clear();
+	   	  allCells.clear();
+	   	  seedStemCells();
+	     }
+		  else{
+							 
+			     for(CellType cell: this.allCells){		   	  
+			   		
+			   		schedule.scheduleRepeating(cell, 1, 1);
+			   		if(cell instanceof KCyte){
+			   			KCyte kcyte = (KCyte) cell;
+			   			
+			   			kcyte.removeCellDeathListener();
+			   			kcyte.addCellDeathListener(this);
+			   			kcyte.addCellDeathListener(GlobalStatistics.getInstance());
+			   		}
+			   		
+			     }
+			}
+	     
+	     
+	     
         
  //////////////////////////////////////        
  // CELL STATISTICS & Updating OUTER SURFACE CELLS
@@ -377,7 +289,7 @@ private void seedStemCells(){
                      yLookUp[k]=9999.9; // deepest value, all coming are above
                      xLookUp[k]=null;
                  }
-                 gStatistics_KCytes_MeanAge=0;
+                 
                 
                                      
                                  
@@ -395,7 +307,8 @@ private void seedStemCells(){
                      
                      //act.isOuterCell=false; // set new default 
                      Double2D loc=cellContinous2D.getObjectLocation(act);
-                     int xbin=(int)loc.x/InitialKeratinoSize;
+                     
+                     int xbin=(int)loc.x/ KCyte.GINITIALKERATINOWIDTH;
                      if (xLookUp[xbin]==null) 
                      {
                          xLookUp[xbin]=act;                            
@@ -407,6 +320,8 @@ private void seedStemCells(){
                              xLookUp[xbin]=act;
                              yLookUp[xbin]=loc.y;
                          }
+                     
+                     
                      /*
                      // other statistics
                      if ((act.getKeratinoType()!=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM")) 
@@ -434,18 +349,7 @@ private void seedStemCells(){
      };
      // Schedule the agent to update is Outer Flag     
      schedule.scheduleRepeating(airSurface,2,1);
-		}
-		else{
-			 SnapshotWriter.getInstance().addSnapshotListener(this);
-		     
-		     
-		     ChartController.getInstance().setChartMonitoredTissue(this);
-		     DataExportController.getInstance().setDataExportMonitoredTissue(this);
-		     ChartController.getInstance().registerChartSetChangeListener(this);
-		     DataExportController.getInstance().registerDataExportChangeListener(this);
-
-			
-		}
+    
  	}
 
 	public void removeCells(GeneralPath path){
@@ -485,8 +389,7 @@ private void seedStemCells(){
 //INKREMENT-DEKREMENT-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	 
- 	public void inkrementNumberOfKCytes(){allocatedKCytes +=1;}
-	public void dekrementAllocatedKCytes(){allocatedKCytes -=1;}
+ 	
 	
 	
 	
@@ -497,70 +400,72 @@ private void seedStemCells(){
 
 	
 	public GenericBag<CellType> getAllCells() {	return allCells; }
-	public int getNumberOfKCytes() { return allocatedKCytes; }
+	
 	public static List <Class<? extends CellType>> getAvailableCellTypes; 
 	
 	public Continuous2D getBasementContinous2D() { return basementContinous2D; }
 	
 	public Continuous2D getCellContinous2D() { return cellContinous2D; }
-	public double getConsistency() { return consistency; }
 	
-	public int getGCorneumY() { return gCorneumY; }
+	
+	
 	public Continuous2D getGridContinous2D() { return gridContinous2D; }
-	public String getGraphicsDirectory() {	return graphicsDirectory; }
-		
-	public int getIndividualColor() { return individualColor; }
 	
-	public double getMinDist() { return minDist; }
+		
+	
+	
+	
 	
 	public Continuous2D getRulerContinous2D() { return rulerContinous2D; }
 	
-	public long getTimeInSimulationSteps(){ return schedule.getSteps();}
+	
 
 	public String getTissueName() {return NAME;}
 	
-	public boolean isDevelopGranulosum() {	return developGranulosum; }
+	
 	
 	//complex-Methods------------------------------------------------------------------------------------------------------------------
 	
 	public List<SnapshotObject> collectSnapshotObjects() {
 		
 		List<SnapshotObject> list = new LinkedList<SnapshotObject>();
-		/*Iterator iter = allCells.iterator();
+		Iterator<CellType> iter = allCells.iterator();
 		
 		while(iter.hasNext()){
-			list.add(new SnapshotObject(SnapshotObject.KCYTE, iter.next()));
-		}*/
-		list.add(new SnapshotObject(SnapshotObject.EPIDERMIS, this));
-
+			list.add(new SnapshotObject(SnapshotObject.CELL, iter.next()));
+		}
+		
+		list.add(new SnapshotObject(SnapshotObject.CELLCONTINUOUS, this.cellContinous2D));
+		list.add(new SnapshotObject(SnapshotObject.TIMESTEPS, new TimeSteps(schedule.getTime(), schedule.getSteps())));
 		return list;
 	}  
 	
+	public void addSnapshotLoadedCells(List<CellType> cells) { this.allCells.addAll(cells); }
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //SETTER-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	
-	public void setAllCells(GenericBag<CellType> allCells) { this.allCells = allCells; }
-	public void setAllocatedKCytes(int allocatedKCytes) {	this.allocatedKCytes = allocatedKCytes; }
+	
+	
 	
 	public void setBasementContinous2D(Continuous2D basementContinous2D) { this.basementContinous2D = basementContinous2D; }
 	
 	public void setCellContinous2D(Continuous2D cellContinous2D) { this.cellContinous2D = cellContinous2D; }
-	public void setConsistency(double consistency) { this.consistency = consistency; }
 	
-	public void setDevelopGranulosum(boolean developGranulosum) { this.developGranulosum = developGranulosum; }
-
-	public void setGCorneumY(int corneumY) { gCorneumY = corneumY; }
-	public void setGraphicsDirectory(String graphicsDirectory) { this.graphicsDirectory = graphicsDirectory; }
-
-	public void setIndividualColor(int individualColor) {	this.individualColor = individualColor; }
 	
-	public void setMinDist(double minDist) { this.minDist = minDist; }
+	
+
+	
+	
+
+	
+	
+	
 	
 	public void setReloadedSnapshot(boolean reloadedSnapshot) {	this.reloadedSnapshot = reloadedSnapshot; }
 	
-	public void setTimeInSimulationSteps(long time){ if(time >= 0) this.timeInSimulationSteps = time;}
+	
 	
 	
 	//	complex-Methods------------------------------------------------------------------------------------------------------------------
@@ -602,7 +507,10 @@ private void seedStemCells(){
 		
 		
 	}
-
+	
+	public void setSnapshotTimeSteps(TimeSteps timeSteps){
+		this.timeStepsAfterSnapshotReload = timeSteps;
+	}
 
 
 	public void dataExportHasChanged() {
@@ -634,6 +542,9 @@ private void seedStemCells(){
 //	---------------------------------------------------------------------------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------------------------------------------------------------------------- 
 
+	
+	
+	
  }
 
 

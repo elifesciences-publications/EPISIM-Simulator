@@ -48,9 +48,7 @@ import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import sim.app.episim.KCyte;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.ModelController;
-import sim.app.episim.snapshot.SnapshotListener;
-import sim.app.episim.snapshot.SnapshotObject;
-import sim.app.episim.snapshot.SnapshotWriter;
+
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -103,9 +101,7 @@ public class DefaultCharts implements java.io.Serializable{
 		initChartActivationMap();
 		addDefaultSteppables();
 		
-		//Registration for Snapshots
 		
-		//SnapshotWriter.getInstance().addSnapshotListener(this);
 		
 		
 		
@@ -623,9 +619,7 @@ public class DefaultCharts implements java.io.Serializable{
 	}
 	
 	
-	protected static void setInstance(DefaultCharts charts){
-		instance = charts;
-	}
+	
 	
 	
 	protected List<EnhancedSteppable> getSteppablesOfActivatedDefaultCharts(){

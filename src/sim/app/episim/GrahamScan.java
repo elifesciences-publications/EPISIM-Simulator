@@ -24,7 +24,7 @@ public class GrahamScan
         n=numberfields;
         if (numberfields>p.length)
         {
-            System.out.println("Grahamscan: numberfields too large:"+numberfields+">"+p.length);
+           // System.out.println("Grahamscan: numberfields too large:"+numberfields+">"+p.length);
         }
         else
             grahamScan();

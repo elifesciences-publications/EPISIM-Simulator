@@ -68,7 +68,7 @@ class Grafik extends JPanel{
 	                if(Math.round(d[0]) == xOLD && Math.round(d[1]) == yOLD){
 	                    iP[i++] = (int) xOLD;
 	                    iP[i++] = (int) yOLD;
-	                    System.out.println("Intersection Point found");
+	                    
 	                    numberOfIntersectionPoints++;
 	                }
 	                xOLD = Math.round(d[4]);
@@ -80,7 +80,7 @@ class Grafik extends JPanel{
 	            	if(i % 2 != 0){
 	            		iP[i++] = (int) Math.round(d[4]);
 	            		iP[i++] = (int) Math.round(d[5]);
-	            		System.out.println("Intersection Point found");
+	            		
 	            	}
 	            	newIteration=false;
 	            }

@@ -246,7 +246,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		epiPortrayal.setPortrayalForClass(KCyte.class, new KeratinocytePortrayal2D(myColor) {
 
 			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
-
+				System.out.println("Hallo Inspector");
 				// make the inspector
 				return new KCyteInspector(super.getInspector(wrapper, state), wrapper, state);
 			}

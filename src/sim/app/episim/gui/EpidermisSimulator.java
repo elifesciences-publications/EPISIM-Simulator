@@ -498,7 +498,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			setSnapshotPath(snapshotPath);
 			
 			
-			System.out.println("Already Data Export Loaded: " + DataExportController.getInstance().isAlreadyDataExportSetLoaded());
+		//	System.out.println("Already Data Export Loaded: " + DataExportController.getInstance().isAlreadyDataExportSetLoaded());
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
 			epiUI = new EpidermisGUIState(this);

@@ -974,7 +974,7 @@ public class DefaultCharts implements java.io.Serializable{
 		         {          
 		         	
 		         	if(GlobalStatistics.getInstance().getBarrier_ExtCalcium_Statistics() < 10){
-		         		System.out.println("CA Warnung");
+		         		//System.out.println("CA Warnung");
 		         	}
 		         	
 		         	getXYSeries("ChartSeries_Barrier_Calcium").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getBarrier_ExtCalcium_Statistics());

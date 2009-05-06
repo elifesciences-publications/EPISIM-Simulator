@@ -63,7 +63,7 @@ public class GlobalClassLoader extends URLClassLoader{
 		instance.notifyAllListeners();
 		
 		for(String str : registryCopy){
-			System.out.println(str);
+		//	System.out.println(str);
 			instance.urlRegistry.add(str);	
 		}
 		
@@ -101,7 +101,7 @@ public class GlobalClassLoader extends URLClassLoader{
 				
 			}
 			else if(url.getPath().endsWith(Names.MODELFILETYPE)){
-				System.out.println( (orderCounter++) + ".) Neues Modell wird geladen ");
+				//System.out.println( (orderCounter++) + ".) Neues Modell wird geladen ");
 			}
 			
 			

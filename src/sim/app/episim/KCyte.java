@@ -8,6 +8,7 @@ import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
+
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
@@ -16,6 +17,8 @@ import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -517,7 +520,7 @@ public class KCyte extends CellType
    	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
    	 	  	 
    	
-		System.out.println("Nachbarn: "+ realNeighbours.length);
+		
    	 EpisimCellDiffModel[] children = this.cellDiffModelObjekt.oneStep(realNeighbours);
 		/*	long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
@@ -777,7 +780,7 @@ public class KCyte extends CellType
 	
 	
 	public void stop(){	
-	 System.out.println("Ich bin die Stopp-Methode, ja ja die Stopp-Methode");
+	
 	}
 	public void removeFromSchedule(){
 		if(stoppable != null) stoppable.stop();			
@@ -895,6 +898,10 @@ public class KCyte extends CellType
 		           
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 }
 
 

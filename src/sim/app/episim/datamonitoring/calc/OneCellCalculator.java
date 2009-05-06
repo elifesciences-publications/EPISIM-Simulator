@@ -93,7 +93,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 			
 			do{
 				counter++;
-				System.out.println("Suche zufällige Zelle für Tracking passend zur Klasse: "+  requiredClass.getCanonicalName());
+			//	System.out.println("Suche zufällige Zelle für Tracking passend zur Klasse: "+  requiredClass.getCanonicalName());
 				result = this.allCells.getRandomItemOfClass(requiredClass);
 			}
 			while(result != null && result.getEpisimCellDiffModelObject().getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL && counter < this.allCells.size());

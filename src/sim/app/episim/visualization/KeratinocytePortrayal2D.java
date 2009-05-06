@@ -144,7 +144,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             } else 
             { 
                 graphics.setPaint(paint);  
-                System.out.println("NOFLO");
+             
             }
         }
 
@@ -427,7 +427,25 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
       return drawVoronoi;
    }
    
-   
+
+   public boolean hitObject(Object object, DrawInfo2D range)
+   {
+       int w=1;
+       int h=1;
+       if (object instanceof KCyte)
+       {
+           KCyte kc=((KCyte)object);
+                        
+           w=5;
+           h=5-(int)kc.getEpisimCellDiffModelObject().getAge()/60;
+           h=(h<1 ? 1:h);
+       };                    
+       
+   GeneralPath generalPath = createGeneralPath( range, w, h );
+   Area area = new Area( generalPath );
+   return ( area.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height ) );
+   }
+
    
    
 }

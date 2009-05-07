@@ -2,6 +2,7 @@ package sim.app.episim.gui;
 
 import sim.engine.*;
 import sim.app.episim.Epidermis;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.KCyte;
 import sim.app.episim.KCyteInspector;
 import sim.app.episim.SimulationStateChangeListener;
@@ -39,10 +40,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -90,6 +97,8 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	private final double MAXHEIGHTFACTOR = 1;
 	
 	private boolean workaroundPauseWasPressed = false;
+	
+	private boolean pausedBecauseOfMainFrameResize = false;
 	
 	private final int STATUSBARHEIGHT = 15;
 	
@@ -365,15 +374,60 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 		displayFrame = display.createInternalFrame();
 		maximizeWorkaround(displayFrame);
+		
+	
+		
+	//-----------------------------------------------------------------------------------------------------------------	
+	//	Necessary for Maximize Workaround
+	//-----------------------------------------------------------------------------------------------------------------	
+		
+		mainFrame.addComponentListener(new ComponentAdapter(){
+			public void componentResized(ComponentEvent e) {
+	       if(console != null && console.getPlayState() == Console.PS_PLAYING){		      
+		      	 console.pressPause();
+		      	 pausedBecauseOfMainFrameResize = true;
+		      	Thread t = new Thread(new Runnable(){
+
+						public void run() {
+	                  try{
+	                     Thread.sleep(500);
+	                     checkForRestartAfterMainFrameResize();
+                     }
+                     catch (InterruptedException e){
+	                    ExceptionDisplayer.getInstance().displayException(e);
+                     }	                  
+                  }});
+		      	t.start();
+	       }
+         }
+		});
+
+		mainFrame.addMouseMotionListener(new MouseMotionAdapter(){ public void mouseMoved(MouseEvent e) {checkForRestartAfterMainFrameResize();}});
+		desktop.addMouseMotionListener(new MouseMotionAdapter(){	public void mouseMoved(MouseEvent e) {checkForRestartAfterMainFrameResize(); }});
+		mainFrame.addMouseListener(new MouseAdapter(){
+			public void mouseEntered(MouseEvent e) { checkForRestartAfterMainFrameResize(); }
+			public void mouseExited(MouseEvent e) { checkForRestartAfterMainFrameResize(); }
+		});
+		desktop.addMouseListener(new MouseAdapter(){
+			public void mouseEntered(MouseEvent e) { checkForRestartAfterMainFrameResize(); }
+			public void mouseExited(MouseEvent e) { checkForRestartAfterMainFrameResize(); }
+		});
+		
+		
+		
+		
 		displayFrame.addComponentListener(new ComponentAdapter(){
 			 public void componentResized (ComponentEvent e) 
           {
-    	      
-				 if(console != null && console.getPlayState() == console.PS_PAUSED && resizeButtonIsActionSource)console.pressPause();
-				 resizeButtonIsActionSource = false;
-          }
+    	      if(console != null && console.getPlayState() == console.PS_PAUSED && resizeButtonIsActionSource){
+					 console.pressPause();
+					 resizeButtonIsActionSource = false;
+				 }
+		    }
 		});
-		displayFrame.setTitle("Epidermis Simulation v 1.1");
+		
+		//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+		displayFrame.setTitle("Epidermis Simulation v. 1.1");
 		displayFrame.setName(SIMULATIONFRAME);
 		displayFrame.setMaximizable(true);
 		displayFrame.setIconifiable(true);
@@ -403,7 +457,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		
 		desktop.setSize(desktop.getPreferredSize());
 		
-		arrangeElements(desktop, true);
+		arrangeElements(desktop, false);
 		
 		mainFrame.getContentPane().add(desktopScroll, BorderLayout.CENTER);
 		
@@ -425,7 +479,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 					desktop.setPreferredSize(new Dimension(
 								(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
 								(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight())));
-						arrangeElements(desktop, false);
+						arrangeElements(desktop, true);
 					}
 			
 
@@ -435,9 +489,19 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 			}
 		});
 		
+		
+		
 		registerInternalFrames(desktop, ((EpiConsole)c));
 		
 		
+	}
+	
+	private void checkForRestartAfterMainFrameResize(){
+		if(console != null && console.getPlayState() == Console.PS_PAUSED && pausedBecauseOfMainFrameResize){
+		     
+     	 console.pressPause();
+     	 pausedBecauseOfMainFrameResize = false;
+		 }
 	}
 	
 	private void registerInternalFrames(JDesktopPane desktop, EpiConsole c){
@@ -501,12 +565,15 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	 * @param comp
 	 *           Komponente in der die Fenster angeordnet werden sollen
 	 */
-	private void arrangeElements(JComponent comp, boolean firstArrangement) {
+	private void arrangeElements(JComponent comp, boolean resizeArrangement) {
 			
 		Dimension mainFrameDim; 
 		mainFrameDim= comp.getPreferredSize();
-		if(!firstArrangement)mainFrameDim.height = mainFrameDim.height - STATUSBARHEIGHT;
-		comp.setPreferredSize(mainFrameDim);
+		if(resizeArrangement){
+			mainFrameDim.height = mainFrameDim.height - STATUSBARHEIGHT;
+			comp.setPreferredSize(mainFrameDim);
+		}
+		
 		
 		comp.getComponentCount();
 		int corrNumber = comp.getComponentCount() - 2;
@@ -576,6 +643,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	}
 
 	private void maximizeWorkaround(JInternalFrame frame){
+		
 		 JComponent title = ((BasicInternalFrameUI)frame.getUI()).getNorthPane();
 	    final Component[] comps =title.getComponents();
 	     
@@ -598,6 +666,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	    	 }
 	    }
 	}
+	
 	
 	
 	public void workaroundConsolePause(){

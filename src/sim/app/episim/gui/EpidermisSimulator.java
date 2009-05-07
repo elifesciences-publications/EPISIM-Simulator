@@ -404,7 +404,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		
 		//TODO: to be reactivated after video recording
 		
-	/*	this.setPreferredSize(new Dimension((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+		/*this.setPreferredSize(new Dimension((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
 				(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 30));*/
 		
 		this.setPreferredSize(new Dimension(1280, 932));

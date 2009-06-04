@@ -360,7 +360,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		dataExportMenu.add(menuItemEditDataExport);
 		dataExportMenu.addSeparator();
 		dataExportMenu.add(menuItemCloseDataExport);
-	//	menuBar.add(dataExportMenu);
+		menuBar.add(dataExportMenu);
 		
 		
 		//--------------------------------------------------------------------------------------------------------------
@@ -402,12 +402,12 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		this.setTitle("Epidermis Simulator");
 		
 		
-		//TODO: to be reactivated after video recording
+		//TODO: to be changed for video recording
 		
-		/*this.setPreferredSize(new Dimension((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-				(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 30));*/
+		this.setPreferredSize(new Dimension((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+				(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 30));
 		
-		this.setPreferredSize(new Dimension(1280, 932));
+	//	this.setPreferredSize(new Dimension(1280, 932));
 		
 		
 		this.addWindowListener(new WindowAdapter() {

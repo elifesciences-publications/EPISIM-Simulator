@@ -17,17 +17,18 @@ public abstract class Names {
 	public static final String EPISIMCHARTSETFACTORYNAME ="EpisimChartSetFactory";
 	public static final String EPISIMDATAEXPORTFACTORYNAME ="EpisimDataExportFactory";
 	
+	
+	public static final String NUMBERPREFIX = "n_";
+	public static final String BOOLEANPREFIX = "b_";
+	public static final int PREFIXLENGTH = 2;
+	
+	
 	public static final String BUILDGRADIENTHANDLER = "buildGradientHandler_";
 	public static final String BUILDACMVHANDLER = "buildAllCellsMeanValueHandler_";
 	public static final String BUILDCELLHANDLER = "buildOneCellTrackingHandler_";
 	
 	public static final String GENERATEDGRADIENTFUNCTIONNAME = "gradients";
 	
-	public static final String GRADBASELINE = "GRADBASELINE";
-	
-	public static final String CHARTBASELINEEXPRESSIONEDITORROLE = "ChartBaselineExpressionEditorRole";
-	public static final String CHARTSERIESEXPRESSIONEDITORROLE = "ChartSeriesExpressionEditorRole";
-	public static final String DATAEXPORTEXPRESSIONEDITORROLE = "DataExportExpressionEditorRole";
 	
 	public static final String DATAEXPORTFILETYPE = ".ede";
 	public static final String CHARTSETFILETYPE = ".ecs";

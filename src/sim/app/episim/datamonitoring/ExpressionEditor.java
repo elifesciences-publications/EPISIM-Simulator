@@ -11,6 +11,8 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -42,31 +44,54 @@ import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
+import sim.app.episim.util.TissueCellDataFieldsInspector.ParameterSelectionListener;
 
 
-public class ExpressionEditor extends JDialog {
+public class ExpressionEditor extends JDialog implements ParameterSelectionListener{
+	
+	public static final int CHARTBASELINEROLE = 1;
+	public static final int CHARTSERIESROLE = 2;
+	public static final int DATAEXPORTROLE = 3;
 	
 	
-
-	private JTextArea chartExpressionTextArea;
 	
 	
-	private JPanel textAreaPanel;
-	private JPanel formulaPanel;
+	private static final int MATHEMATICALEXPRESSIONTEXTAREA = 1;
+	private static final int BOOLEANEXPRESSIONTEXTAREA = 2;
+	
+	private JTextArea arithmeticExpressionTextArea;
+	private JTextArea booleanExpressionTextArea;
+	
+	
+	private JPanel arithmeticMessagePanel;
+	private JPanel arithmeticExpressionPanel;
+	private JPanel booleanMessagePanel;
+	private JPanel booleanExpressionPanel;
 	private JPanel buttonPanel;
 	private TissueCellDataFieldsInspector dataFieldsInspector;
 	
-	private JTextArea messageTextArea;
+	private JTextArea arithmeticMessageTextArea;
+	private JTextArea booleanMessageTextArea;
 	
-	private String role;
+	private int role;
 	
 	private JDialog dialog;
 	//index 0: expression not compiled; index 1: expression compiled
-	private String [] expression = new String[2];
+	private String [] arithmeticExpression = new String[2];
+	private String [] booleanExpression = new String[2];
 	
-	public ExpressionEditor(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector, String role){
+	private int activatedTextArea = 0;
+	private boolean booleanCondition = false;
+	
+	public ExpressionEditor(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector, int role){
+		this(owner, title, modal, _dataFieldsInspector, role, false);
+	}
+	
+	
+	public ExpressionEditor(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector, int role, boolean _booleanCondition){
 		super(owner, title, modal);
-		this.role = role;	
+		this.role = role;
+		this.booleanCondition = _booleanCondition;
 	   getContentPane().setLayout(new GridBagLayout());
 	   GridBagConstraints c = new GridBagConstraints();
 	   
@@ -85,18 +110,42 @@ public class ExpressionEditor extends JDialog {
 	   c.fill = GridBagConstraints.BOTH;
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   c.weighty =0.7;
-	   formulaPanel = buildFormulaPanel();
-	   getContentPane().add(formulaPanel, c);
+	   arithmeticExpressionPanel = buildArithmeticExpressionPanel();
+	   getContentPane().add(arithmeticExpressionPanel, c);
 	  	  
 	   c.anchor =GridBagConstraints.WEST;
 	   c.gridwidth=GridBagConstraints.REMAINDER; 
 	   c.fill = GridBagConstraints.BOTH;
 	   c.weightx = 1;
-	   c.weighty =0.7;
+	   c.weighty =0.4;
 	   c.insets = new Insets(10,10,10,10);
-	   this.textAreaPanel=buildMessageTextAreaPanel();
+	   this.arithmeticMessageTextArea = new JTextArea();
+	   this.arithmeticMessagePanel=buildMessageTextAreaPanel(arithmeticMessageTextArea);
+	   getContentPane().add(arithmeticMessagePanel, c);
+	   this.arithmeticMessagePanel.setVisible(false);
 	   
-	   getContentPane().add(textAreaPanel, c);
+	   
+	   c.fill = GridBagConstraints.BOTH;
+	   c.gridwidth = GridBagConstraints.REMAINDER;
+	   c.weighty =0.7;
+	   booleanExpressionPanel = buildBooleanExpressionPanel();
+	   getContentPane().add(booleanExpressionPanel, c);
+	  	this.booleanExpressionPanel.setVisible(booleanCondition);  
+	   
+	   
+	   c.anchor =GridBagConstraints.WEST;
+	   c.gridwidth=GridBagConstraints.REMAINDER; 
+	   c.fill = GridBagConstraints.BOTH;
+	   c.weightx = 1;
+	   c.weighty =0.4;
+	   c.insets = new Insets(10,10,10,10);
+	   this.booleanMessageTextArea = new JTextArea();
+	   this.booleanMessagePanel=buildMessageTextAreaPanel(booleanMessageTextArea);
+	   getContentPane().add(booleanMessagePanel, c);
+	   this.booleanMessagePanel.setVisible(false);
+	   
+	   
+	   
 	   
 	   c.anchor =GridBagConstraints.WEST;
 	   c.gridwidth=GridBagConstraints.REMAINDER; 
@@ -107,48 +156,44 @@ public class ExpressionEditor extends JDialog {
 	   this.buttonPanel = buildButtonPanel();
 	   getContentPane().add(buttonPanel, c);
 	   
+	   this.dataFieldsInspector.addParameterSelectionListener(this);
 	   
-	   this.dataFieldsInspector.getCellParameterList().addMouseListener(new MouseAdapter() {
-
-			public void mouseClicked(MouseEvent e) {
-
-				if((dataFieldsInspector.getCellParameterList().getSelectedIndex() != -1) && e.getClickCount() == 2){
-					String name = dataFieldsInspector.getCellTypeList().getSelectedValue() + "."  + dataFieldsInspector.getCellParameterList().getSelectedValue();
-					String alternName = dataFieldsInspector.getCellTypeList().getSelectedValue()+Names.CELLDIFFMODEL + "."  + dataFieldsInspector.getCellParameterList().getSelectedValue();
-					if(!dataFieldsInspector.getOverallVarNameSet().contains(name) &&dataFieldsInspector.getOverallVarNameSet().contains(alternName)) name = alternName;
-					insertStringInChartExpressionAtCursor(name);
-				}
-			}
-		});
-	   
-	   this.dataFieldsInspector.getTissueParameterList().addMouseListener(new MouseAdapter() {
-
-			public void mouseClicked(MouseEvent e) {
-
-				if((dataFieldsInspector.getTissueParameterList().getSelectedIndex() != -1) && e.getClickCount() == 2){
-					insertStringInChartExpressionAtCursor(dataFieldsInspector.getTissueTypeList().getSelectedValue() +"."
-					      + dataFieldsInspector.getTissueParameterList().getSelectedValue());
-				}
-			}
-		});
 	   
 	   this.addWindowListener(new WindowAdapter() {
 	   	public void windowActivated(WindowEvent e) {
-	   		chartExpressionTextArea.requestFocusInWindow();
+	   		arithmeticExpressionTextArea.requestFocusInWindow();
 	   	}
 	   	});
 	   
-	   setSize(750, 600);
+	   setSize(750, 800);
 		validate();
 		dialog = this;
 	}
+	public void parameterWasSelected() {
+
+		if(this.activatedTextArea == MATHEMATICALEXPRESSIONTEXTAREA) insertStringInChartExpressionAtCursor(dataFieldsInspector.getActualSelectedParameter(), this.arithmeticExpressionTextArea);
+		else if(this.activatedTextArea == BOOLEANEXPRESSIONTEXTAREA) insertStringInChartExpressionAtCursor(dataFieldsInspector.getActualSelectedParameter(), this.booleanExpressionTextArea);
+      
+   }
 	
-	public String[] getExpression(String[] oldExpression){
+	public String[][] getExpressions(String[] oldArithmeticExpression, String[] oldBooleanExpression){
 					
-			if(oldExpression != null && oldExpression.length >=2){
-				expression = oldExpression;
-				if(expression[0] != null) chartExpressionTextArea.setText(expression[0]);
-				if(expression[1] != null) messageTextArea.setText(expression[1]);
+			if(oldArithmeticExpression != null && oldArithmeticExpression.length >=2){
+				arithmeticExpression = oldArithmeticExpression;
+				if(arithmeticExpression[0] != null) arithmeticExpressionTextArea.setText(arithmeticExpression[0]);
+				if(arithmeticExpression[1] != null && !arithmeticExpression[1].equals("")){
+					arithmeticMessageTextArea.setText(arithmeticExpression[1]);
+					arithmeticMessagePanel.setVisible(true);
+				}
+				
+			}
+			if(booleanCondition && oldBooleanExpression != null && oldBooleanExpression.length >=2){
+				booleanExpression = oldBooleanExpression;
+				if(booleanExpression[0] != null) booleanExpressionTextArea.setText(booleanExpression[0]);
+				if(booleanExpression[1] != null && !booleanExpression[1].equals("")){
+					booleanMessageTextArea.setText(booleanExpression[1]);
+					booleanMessagePanel.setVisible(true);
+				}
 				
 			}
 									
@@ -156,55 +201,47 @@ public class ExpressionEditor extends JDialog {
 			centerMe();
 			setVisible(true);
 			
-		return expression;
+		return new String[][]{arithmeticExpression, booleanExpression};
 	}
-	
-	
 	
 	private void centerMe(){
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation(((int)(screenDim.getWidth() /2) - (this.getWidth()/2)), 
 		((int)(screenDim.getHeight() /2) - (this.getHeight()/2)));
-	}
+	}	
 	
-	
-	
-	
-	
-	
-	
-	
-	private void insertStringInChartExpressionAtCursor(String str){
-		int curPos = chartExpressionTextArea.getCaretPosition();
-		int selStart = chartExpressionTextArea.getSelectionStart();
-		int selEnd = chartExpressionTextArea.getSelectionEnd(); 
-		
-		if(chartExpressionTextArea.getSelectedText() == null)
-			
-		chartExpressionTextArea.setText(
-				chartExpressionTextArea.getText().trim().substring(0,curPos)
+	private void insertStringInChartExpressionAtCursor(String str, JTextArea area){
+		int curPos = area.getCaretPosition();
+		int selStart = area.getSelectionStart();
+		int selEnd = area.getSelectionEnd(); 
+		if(curPos > area.getText().trim().length()) curPos = area.getText().trim().length();
+		if(selEnd > area.getText().trim().length()) selEnd = area.getText().trim().length();
+		if(selStart > area.getText().trim().length()) selStart = area.getText().trim().length();	
+		if(area.getSelectedText() == null)		
+			area.setText(
+					area.getText().trim().substring(0,curPos)
 				+str
-				+chartExpressionTextArea.getText().trim().substring(curPos));
+				+area.getText().trim().substring(curPos));
 		else{
-			chartExpressionTextArea.setText(
-					chartExpressionTextArea.getText().trim().substring(0,selStart)
+			area.setText(
+					area.getText().trim().substring(0,selStart)
 					+str
-					+chartExpressionTextArea.getText().trim().substring(selEnd));
+					+area.getText().trim().substring(selEnd));
 		}
 	}
 	
 	
-	private JPanel buildMessageTextAreaPanel(){
+	private JPanel buildMessageTextAreaPanel(JTextArea area){
 		
 		JPanel areaPanel = new JPanel(new BorderLayout(5,5));
 		
 		
-		this.messageTextArea = new JTextArea();
+		area = new JTextArea();
 		
-		messageTextArea.setEditable(false);
-		messageTextArea.setLineWrap(true);
+		area.setEditable(false);
+		area.setLineWrap(true);
 		
-		JScrollPane scroll = new JScrollPane(messageTextArea);
+		JScrollPane scroll = new JScrollPane(area);
 		
 		 areaPanel.setBorder(BorderFactory.createCompoundBorder(
 					BorderFactory.createTitledBorder("Messages"), 
@@ -214,38 +251,67 @@ public class ExpressionEditor extends JDialog {
 		
 	}
 	
-   private JPanel buildFormulaPanel() {
+   private JPanel buildArithmeticExpressionPanel() {
 
-		JPanel formPanel = new JPanel(new BorderLayout(5, 5));
+		JPanel formPanel = new JPanel(new BorderLayout(5, 5));	
 
-	
-
-		chartExpressionTextArea = new JTextArea();
-		JScrollPane scroll = new JScrollPane(chartExpressionTextArea);
-		chartExpressionTextArea.setFocusCycleRoot(true);
-		chartExpressionTextArea.setFocusable(true);
-		chartExpressionTextArea.setInputVerifier(new InputVerifier() {
-
-			public boolean verify(JComponent input) {
-
-				return false;
-			}
-
-			public boolean shouldYieldFocus(JComponent input) {
-
-				return verify(input);
-			}
-
+		arithmeticExpressionTextArea = new JTextArea();
+		arithmeticExpressionTextArea.setVerifyInputWhenFocusTarget(false);
+		JScrollPane scroll = new JScrollPane(arithmeticExpressionTextArea);
+		arithmeticExpressionTextArea.setFocusCycleRoot(true);
+		arithmeticExpressionTextArea.setFocusable(true);
+		arithmeticExpressionTextArea.setInputVerifier(new InputVerifier() {			
+			public boolean verify(JComponent input) { return false; }
+			public boolean shouldYieldFocus(JComponent input) { return verify(input); }
 		});
+		arithmeticExpressionTextArea.addFocusListener(new FocusListener(){
 
+			public void focusGained(FocusEvent e) {activatedTextArea = MATHEMATICALEXPRESSIONTEXTAREA; }
+
+			public void focusLost(FocusEvent e) {}});
+		
 		formPanel.setBorder(BorderFactory.createCompoundBorder(
-					BorderFactory.createTitledBorder("Calculation Formula"), 
+					BorderFactory.createTitledBorder("Mathematical Expression"), 
 					BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 		formPanel.add(scroll, BorderLayout.CENTER);
 
 		return formPanel;
 
 	}
+   
+   
+   private JPanel buildBooleanExpressionPanel() {
+
+		JPanel formPanel = new JPanel(new BorderLayout(5, 5));	
+
+		booleanExpressionTextArea = new JTextArea();
+		booleanExpressionTextArea.setVerifyInputWhenFocusTarget(false);
+		JScrollPane scroll = new JScrollPane(booleanExpressionTextArea);
+		booleanExpressionTextArea.setFocusCycleRoot(true);
+		booleanExpressionTextArea.setFocusable(true);
+		booleanExpressionTextArea.setInputVerifier(new InputVerifier() {
+			public boolean verify(JComponent input) { return false; }
+			public boolean shouldYieldFocus(JComponent input) { return verify(input); }
+		});
+		
+		booleanExpressionTextArea.addFocusListener(new FocusListener(){
+
+			public void focusGained(FocusEvent e) {activatedTextArea = BOOLEANEXPRESSIONTEXTAREA;   }
+
+			public void focusLost(FocusEvent e) {}});
+
+		formPanel.setBorder(BorderFactory.createCompoundBorder(
+					BorderFactory.createTitledBorder("Boolean Expression"), 
+					BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		formPanel.add(scroll, BorderLayout.CENTER);
+
+		return formPanel;
+
+	}
+   
+   
+   
+   
    private JPanel buildButtonPanel() {
 
 		JPanel bPanel = new JPanel(new GridBagLayout());
@@ -264,43 +330,56 @@ public class ExpressionEditor extends JDialog {
 		JButton okButton = new JButton("  OK  ");
 		okButton.addActionListener(new ActionListener() {
 			
-			private boolean checkAlternative(){
-				if(chartExpressionTextArea.getText().trim() != null 
-						&& chartExpressionTextArea.getText().trim().equals(Names.GRADBASELINE) 
-						&& role.equals(Names.CHARTBASELINEEXPRESSIONEDITORROLE)){
-					expression[0]=Names.GRADBASELINE;
-					expression[1]=Names.GRADBASELINE;
-					
-					return true;
-				}
-				return false;
-			}
+			
 
 			public void actionPerformed(ActionEvent e) {
 
 				try{
-					String result = ExpressionCheckerController.getInstance().checkDataMonitoringExpression(chartExpressionTextArea.getText().trim(), dataFieldsInspector);
-					messageTextArea.setText(result);
-					expression[0]=chartExpressionTextArea.getText().trim();
-					expression[1]=result;
+					String result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
+					arithmeticExpression[0]=arithmeticExpressionTextArea.getText().trim();
+					if(result != null && !result.trim().equals("")){ 
+						arithmeticMessageTextArea.setText(result);
+						arithmeticMessageTextArea.setVisible(true);
+						arithmeticExpression[1]=result.trim();
+					}
+
 					
-					dialog.setVisible(false);
-					dialog.dispose();
-					
+					if(!booleanCondition){
+						dialog.setVisible(false);
+						dialog.dispose();
+					}
 				}
 				catch (ParseException e1){
-					if(checkAlternative()){
-						dialog.setVisible(false);
-						dialog.dispose();
-					}
-					else messageTextArea.setText(e1.getMessage());
+					arithmeticMessageTextArea.setText(e1.getMessage());
+					arithmeticMessageTextArea.setVisible(true);
 				}
 				catch (TokenMgrError e1){
-					if(checkAlternative()){
-						dialog.setVisible(false);
-						dialog.dispose();
+					arithmeticMessageTextArea.setText(e1.getMessage());
+					arithmeticMessageTextArea.setVisible(true);
+				}
+				
+				if(booleanCondition){
+					try{
+						String result = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(booleanExpressionTextArea.getText().trim(), dataFieldsInspector);
+						booleanExpression[0]=booleanExpressionTextArea.getText().trim();
+						if(result != null && !result.trim().equals("")){ 
+							booleanMessageTextArea.setText(result);
+							booleanMessageTextArea.setVisible(true);
+							booleanExpression[1]=result.trim();
+						}
+	
+							dialog.setVisible(false);
+							dialog.dispose();
+						
 					}
-					else messageTextArea.setText(e1.getMessage());
+					catch (ParseException e1){
+						booleanMessageTextArea.setText(e1.getMessage());
+						booleanMessageTextArea.setVisible(true);
+					}
+					catch (TokenMgrError e1){
+						booleanMessageTextArea.setText(e1.getMessage());
+						booleanMessageTextArea.setVisible(true);
+					}
 				}
 
 			}

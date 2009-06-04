@@ -136,7 +136,8 @@ public class ChartCreationWizard extends JDialog {
    private final int HEIGHT = 650;
    
    
-   private String[] baselineExpression;
+   private String[] baselineArithmeticExpression;
+   private String[] baselineBooleanExpression;
    
    private boolean isDirty = false;
    
@@ -498,7 +499,7 @@ public class ChartCreationWizard extends JDialog {
 			this.chartYLabel.setText(chart.getYLabel());
 			this.setRangeAxisLabel(chart.getYLabel());
 			
-			this.baselineExpression = chart.getBaselineExpression();
+			this.baselineArithmeticExpression = chart.getBaselineExpression();
 			if(chart.getBaselineExpression() != null && chart.getBaselineExpression()[0] != null){
 				this.baselineField.setText(chart.getBaselineExpression()[0]);
 				this.baselineButton.setText("Edit Baseline Expression");
@@ -619,7 +620,7 @@ public class ChartCreationWizard extends JDialog {
 		}
 		else{
 			try{
-				if(!episimChart.getBaselineExpression()[0].trim().equals(Names.GRADBASELINE))
+				
 					ExpressionCheckerController.getInstance().checkDataMonitoringExpression(episimChart.getBaselineExpression()[0], this.cellDataFieldsInspector);
 			}
 			catch (Exception e1){
@@ -754,7 +755,7 @@ public class ChartCreationWizard extends JDialog {
 		});
 		list.add(new JLabel("Y Label"), chartYLabel);
 
-		baselineExpression = new String[2];
+		baselineArithmeticExpression = new String[2];
 		baselineButton = new JButton("Add Baseline Expression");
       baselineField = new JTextField("");
       baselineButton.addActionListener(new ActionListener(){
@@ -762,12 +763,12 @@ public class ChartCreationWizard extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				isDirty = true;
 	         ExpressionEditor editor = new ExpressionEditor(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector, Names.CHARTBASELINEEXPRESSIONEDITORROLE);
-	         baselineExpression =editor.getExpression(baselineExpression);
-	         if(baselineExpression != null && baselineExpression[0] != null && baselineExpression[1] != null){
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector, ExpressionEditor.CHARTBASELINEROLE);
+	         baselineArithmeticExpression =editor.getExpression(baselineArithmeticExpression)[0];
+	         if(baselineArithmeticExpression != null && baselineArithmeticExpression[0] != null && baselineArithmeticExpression[1] != null){
 	         	baselineButton.setText("Edit Baseline Expression");
-	         	baselineField.setText(baselineExpression[0]);
-	         	episimChart.setBaselineExpression(baselineExpression);
+	         	baselineField.setText(baselineArithmeticExpression[0]);
+	         	episimChart.setBaselineExpression(baselineArithmeticExpression);
 	         }
 	         
         }
@@ -1051,7 +1052,8 @@ public class ChartCreationWizard extends JDialog {
    static final float SPACE = 3;
    static final float SKIP = DASH;
    
-   private String[] expression = new String[2];
+   private String[] arithmeticExpression = new String[2];
+   private String[] booleanExpression = new String[2];
    
    public final float[][] dashes = 
        { 
@@ -1267,13 +1269,13 @@ public class ChartCreationWizard extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				isDirty = true;
 	         ExpressionEditor editor = new ExpressionEditor(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector, Names.CHARTSERIESEXPRESSIONEDITORROLE);
-	         expression =editor.getExpression(expression);
-	         if(expression != null && expression[0] != null && expression[1] != null){
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector, ExpressionEditor.CHARTSERIESROLE);
+	         arithmeticExpression =editor.getExpression(arithmeticExpression);
+	         if(arithmeticExpression != null && arithmeticExpression[0] != null && arithmeticExpression[1] != null){
 	         	formulaButton.setText("Edit Expression");
-	         	formulaField.setText(expression[0]);
+	         	formulaField.setText(arithmeticExpression[0]);
 	         	int index = seriesCombo.getSelectedIndex();
-               episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setExpression(expression);
+               episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setExpression(arithmeticExpression);
 	         }
 	         
          }
@@ -1297,13 +1299,13 @@ public class ChartCreationWizard extends JDialog {
 	
    public String[] getExpression() {
    
-   	return expression;
+   	return arithmeticExpression;
    }
 
 	
    public void setExpression(String[] expression) {
    	if(expression != null &&expression.length >= 2 && expression[0] != null && expression[1] != null){
-   		this.expression = expression;
+   		this.arithmeticExpression = expression;
    		this.formulaField.setText(expression[0]);
    	}
    	

@@ -14,6 +14,7 @@ import sim.app.episim.util.*;
 import sim.app.episim.datamonitoring.steppables.*;
 
 public class DataMonitoringExpressionChecker {
+	
 	private Set<String> varNameSet = new HashSet<String>();
 	private Set<String> recognizedVarNames;
 	private Set<Character> booleanCharacterSet = new HashSet<Character>();
@@ -41,7 +42,7 @@ PARSER_END(DataMonitoringExpressionChecker)
 //All possible Tokens
 
 SKIP : { " " | "\n" | "\r" | "\r\n" }
-
+TOKEN : { < BOOLEAN : ["T", "F"]> }
 TOKEN : { < ADD_SUBT_OP : ["+", "-"]> }
 TOKEN : { < MULT_DIV_OP : ["*", "/"]> }
 TOKEN : { < OPEN_PAR : "(" > } 
@@ -50,17 +51,21 @@ TOKEN : { < REL_OP : <BIG_SMALL>| <BIG_SMALL><EQUAL> | <EQUAL><EQUAL> | <NOT><EQ
 	| <#BIG_SMALL:["<", ">"]>
 	| <#EQUAL:["="]>}
 TOKEN : { <NOT:["!"]>}	
-TOKEN:{<IDENTIFIER:<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*>
+TOKEN:{<NUMBERIDENTIFIER:"n_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*>
  | <#LETTER:["A"-"Z", "a"-"z"]>
  | <#SIGN:["_"]>
  | <#DIGIT:["0"-"9"]>
+ }
+ 
+TOKEN:{<BOOLIDENTIFIER:"b_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*>
+ 
  }
 
 TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> > } 
 
 TOKEN : { < #DIGITS : (["0"-"9"])+ > }
 
-String check(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
+String checkExpression(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
 {
 	this.varNameSet = tissueDataFieldsInspector.getOverallVarNameSet();
 	this.tissueDataFieldsInspector = tissueDataFieldsInspector;
@@ -69,27 +74,38 @@ String partialResult = "";
 String[] partResultArray = null;
 String totalResult = "";}
 {
-  (partResultArray =Start()
+  (partResultArray =Expression()
   
   {
   	partialResult = partResultArray[1];
-  	totalResult = totalResult.concat(partialResult);}
+  	totalResult = totalResult.concat(partialResult);
+  	if(this.token.next != null && !token.next.image.equals("")) throw new ParseException("Please remove the \""+ token.next.image+"\" after \""+token.image+"\" in line " +token.next.beginLine+" at position " + token.next.beginColumn +".");
+  	
+  	}
   
-  )*
+  )
 {return totalResult;}
 }
 
-String[] Start():{
-String[] result =null;
-
-
-}
+String checkBooleanExpression(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
 {
-  	(result = GradientFunction()
-  	 | result = CellFunction()
-  	 | result = BooleanExpression()) 
-
-{return result;}
+	this.varNameSet = tissueDataFieldsInspector.getOverallVarNameSet();
+	this.tissueDataFieldsInspector = tissueDataFieldsInspector;
+	this.recognizedVarNames = new HashSet<String>();
+String partialResult = "";
+String[] partResultArray = null;
+String totalResult = "";}
+{
+  (partResultArray =BooleanExpression()
+  
+  {
+  	partialResult = partResultArray[1];
+  	totalResult = totalResult.concat(partialResult);
+  	if(this.token.next != null && !token.next.image.equals("")) throw new ParseException("Please remove the \""+ token.next.image+"\" after \""+token.image+"\" in line " +token.next.beginLine+" at position " + token.next.beginColumn +".");
+  	}
+  
+  )
+{return totalResult;}
 }
 
 
@@ -106,13 +122,13 @@ Token t;
 }
 {
   	(t =<NUMBER> { result = t.image; totalResult[0] = result; totalResult[1]= result;}
-   	| LOOKAHEAD(5)(t =<IDENTIFIER> 
+   	| LOOKAHEAD(5)(t =<NUMBERIDENTIFIER> 
    		{if(!this.varNameSet.contains(t.image))
    			throw new ParseException("Unknown Identifier: " + t.image);
-   		if(!instructionOpened){
+   	/*	if(!instructionOpened){
    			if(!this.tissueDataFieldsInspector.checkIfIdentifierIsGlobalParameter(t.image))
    			throw new ParseException("Global Simulation Parameter Expected! Found: " + t.image);
-   		} 
+   		} */
    				totalResult[0]=t.image;
    				
    				this.recognizedVarNames.add(t.image);
@@ -125,11 +141,45 @@ Token t;
    	| totalResult = SqrtFunction() 
     | totalResult = PowFunction()
    // | result = AllCellsWhere() 
-    | totalResult = AllCellsMeanValueFunction()
-    | <OPEN_PAR> totalResult = BooleanExpression() <CLOSE_PAR> {totalResult[0] = "(" + totalResult[0] +")";totalResult[1] = "(" + totalResult[1] +")";})
+   // | totalResult = AllCellsMeanValueFunction()
+    | <OPEN_PAR> totalResult = Expression() <CLOSE_PAR> {totalResult[0] = "(" + totalResult[0] +")";totalResult[1] = "(" + totalResult[1] +")";})
 
 {return totalResult;}
 }
+ 
+
+String[] BooleanFactor() throws NumberFormatException :{
+String result ="";
+String[] totalResult = new String[2];
+Token t;
+}
+{
+  		(LOOKAHEAD(2) t =<BOOLEAN> { result = t.image; totalResult[0] = result; if(result.equals("T")) totalResult[1]= "true"; if(result.equals("F")) totalResult[1]= "false";}
+   	| LOOKAHEAD(3) t =<BOOLIDENTIFIER> 
+   		{if(!this.varNameSet.contains(t.image))
+   			throw new ParseException("Unknown Identifier: " + t.image);
+   
+   			if(!this.tissueDataFieldsInspector.checkIfIdentifierHasBooleanType(t.image))
+   			throw new ParseException("Parameter of Type Boolean Expected! Found: " + t.image);   		
+   				totalResult[0]=t.image;   				
+   				this.recognizedVarNames.add(t.image);
+   				this.tissueDataFieldsInspector.addRequiredClassForIdentifier(t.image);
+   				result = this.tissueDataFieldsInspector.getMethodCallStrForVarName(t.image);
+   				totalResult[1]= result;   			
+   		}
+   			
+      | <OPEN_PAR> totalResult = BooleanExpression() <CLOSE_PAR> {totalResult[0] = "(" + totalResult[0] +")";totalResult[1] = "(" + totalResult[1] +")";})
+
+{return totalResult;}
+}
+
+
+
+ 
+ 
+ 
+ 
+ 
  
 String[] Expression():
 {
@@ -139,8 +189,7 @@ String[] Expression():
 	String[] totalResult = new String[2];
 }
 {
-  exp1 = Term()[t= <ADD_SUBT_OP> exp2 =Term(){checkIfStringArithExpr(exp2[0]);}  	
-  	]
+  exp1 = Term()[t= <ADD_SUBT_OP> exp2 =Term(){checkIfStringArithExpr(exp2[0]);}]
 {
    if (t !=null && exp2 != null){
    	totalResult[0] = exp1[0] + t.image + exp2[0];
@@ -231,7 +280,142 @@ String[] totalResult = new String[2];
  }
  }
 
- String[] AllCellsMeanValueFunction():
+ 
+ 
+
+ 
+ 
+
+ String[] SqrtFunction():
+ {
+ 	String[] exp = null;
+ 	String[] totalResult = new String[2];
+ }
+ {
+ ("Sqrt("exp =Expression()")")
+ {
+ 	checkIfStringArithExpr(exp[0]);
+ 	totalResult[0]= "Sqrt("+exp[0]+")";
+ 	totalResult[1]="java.lang.Math.sqrt("+exp[1]+")";
+ 	
+ 	return totalResult;	
+ }
+ }
+ 
+String[] BooleanExpression():{
+ 	String[] exp1 = null;
+ 	String[] exp2 = null;
+ 	String[] totalResult = new String[2]; 	
+ }
+ { 
+    exp1 =BooleanTerm()  ("||" {exp1[0] += "||"; exp1[1] += "||";} exp2=BooleanTerm())*
+    
+	
+	{
+		if(exp2 != null){
+			totalResult[0] =exp1[0]+ exp2[0];
+			totalResult[1] =exp1[1]+ exp2[1];
+		}
+		else{
+			totalResult[0] =exp1[0];
+			totalResult[1] =exp1[1];
+		}
+		return totalResult;
+	}
+}
+
+String[] BooleanTerm():{
+ 	String[] exp1 = null;
+ 	String[] exp2 = null;
+ 	String[] totalResult = new String[2]; 	
+ }
+ { 
+    exp1 = NotFactor()("&&"{exp1[0] += "&&"; exp1[1] += "&&";} exp2 =NotFactor())*
+    
+	
+	{
+		if(exp2 != null){
+			totalResult[0] =exp1[0]+ exp2[0];
+			totalResult[1] =exp1[1]+ exp2[1];
+		}
+		else{
+			totalResult[0] =exp1[0];
+			totalResult[1] =exp1[1];
+		}
+		return totalResult;
+	}
+}
+
+String[] NotFactor():{
+ 	String[] exp1 = null;
+ 	Token t = null; 
+ 	String[] totalResult = new String[2]; 	
+ }
+ { 
+ (  LOOKAHEAD(4)exp1=RelationalExpression() |  LOOKAHEAD(4)([t=<NOT>]exp1=BooleanFactor()))
+    
+	
+	{
+		if(t != null){
+			 totalResult[0]= t.image + exp1[0];
+			 totalResult[1]= t.image + exp1[1];
+		}
+		else{
+			 totalResult[0]= exp1[0];
+			 totalResult[1]= exp1[1];
+		}
+		return totalResult;
+   }
+}
+
+String[] RelationalExpression():{
+ 	String[] exp1 = null;
+ 	String[] exp2 = null;
+ 	Token t = null;
+ 	String[] totalResult = new String[2]; 	
+ }
+ {
+ exp1 =Expression()t=<REL_OP> exp2 =Expression()
+ 
+ {
+ 	
+ 	if (t !=null && exp2 != null){
+   	totalResult[0] = exp1[0] + t.image + exp2[0];
+    totalResult[1] = exp1[1] + t.image + exp2[1];
+   }
+   else if(exp2 != null){
+   	 totalResult[0] = exp1[0] + exp2[0];
+     totalResult[1] = exp1[1] + exp2[1];
+   }
+   else{
+   	 totalResult[0] = exp1[0];
+     totalResult[1] = exp1[1];
+   }	
+   return totalResult;
+ 	
+ }
+}
+
+
+/*
+String[] AllCellsWhere():
+ {
+ 	String[] exp1 = null;
+ 	String[] exp2 = null;
+ 	String[] totalResult = new String[2];
+ }
+ {
+ ("ACW("exp1 =Expression() "," exp2=BooleanExpression()")")
+ {
+ 	checkIfStringArithExpr(exp1[0]);
+ 	totalResult[0]= "ACW("+exp1[0]+"," +exp2[0]+")";
+ 	totalResult[1]="getAllCellsWhere("+exp1[1]+","+exp2[1]+")";
+ 	return totalResult;
+ }
+ }
+
+
+String[] AllCellsMeanValueFunction():
  {
  	String[] exp1 = null; 
  	boolean instructOpenedLocal = instructionOpened;
@@ -296,145 +480,7 @@ String[] totalResult = new String[2];
  	                          getCalculationHandlerAndMethodCallForExpression(Names.BUILDCELLHANDLER+exp1[1], this.tissueDataFieldsInspector.getRequiredClasses());
  	return totalResult;
  }
- }
- 
-
- 
- 
-
- String[] SqrtFunction():
- {
- 	String[] exp = null;
- 	String[] totalResult = new String[2];
- }
- {
- ("Sqrt("exp =Expression()")")
- {
- 	checkIfStringArithExpr(exp[0]);
- 	totalResult[0]= "Sqrt("+exp[0]+")";
- 	totalResult[1]="java.lang.Math.sqrt("+exp[1]+")";
- 	
- 	return totalResult;	
- }
- }
- 
- 
- 
- 
-
-String[] AllCellsWhere():
- {
- 	String[] exp1 = null;
- 	String[] exp2 = null;
- 	String[] totalResult = new String[2];
- }
- {
- ("ACW("exp1 =Expression() "," exp2=BooleanExpression()")")
- {
- 	checkIfStringArithExpr(exp1[0]);
- 	totalResult[0]= "ACW("+exp1[0]+"," +exp2[0]+")";
- 	totalResult[1]="getAllCellsWhere("+exp1[1]+","+exp2[1]+")";
- 	return totalResult;
- }
- }
-
-String[] BooleanExpression():{
- 	String[] exp1 = null;
- 	String[] exp2 = null;
- 	String[] totalResult = new String[2]; 	
- }
- { 
-    exp1 =BooleanTerm()  ("||" {exp1[0] += "||"; exp1[1] += "||";} exp2=BooleanTerm())*
-    
-	
-	{
-		if(exp2 != null){
-			totalResult[0] =exp1[0]+ exp2[0];
-			totalResult[1] =exp1[1]+ exp2[1];
-		}
-		else{
-			totalResult[0] =exp1[0];
-			totalResult[1] =exp1[1];
-		}
-		return totalResult;
-	}
-}
-
-
-
-String[] BooleanTerm():{
- 	String[] exp1 = null;
- 	String[] exp2 = null;
- 	String[] totalResult = new String[2]; 	
- }
- { 
-    exp1 = NotFactor()("&&"{exp1[0] += "&&"; exp1[1] += "&&";} exp2 =NotFactor())*
-    
-	
-	{
-		if(exp2 != null){
-			totalResult[0] =exp1[0]+ exp2[0];
-			totalResult[1] =exp1[1]+ exp2[1];
-		}
-		else{
-			totalResult[0] =exp1[0];
-			totalResult[1] =exp1[1];
-		}
-		return totalResult;
-	}
-}
-
-String[] NotFactor():{
- 	String[] exp1 = null;
- 	Token t = null; 
- 	String[] totalResult = new String[2]; 	
- }
- { 
-    [t=<NOT>]exp1=RelationalExpression()
-    
-	
-	{
-		if(t != null){
-			 totalResult[0]= t.image + exp1[0];
-			 totalResult[1]= t.image + exp1[1];
-		}
-		else{
-			 totalResult[0]= exp1[0];
-			 totalResult[1]= exp1[1];
-		}
-		return totalResult;
-   }
-}
-
-String[] RelationalExpression():{
- 	String[] exp1 = null;
- 	String[] exp2 = null;
- 	Token t = null;
- 	String[] totalResult = new String[2]; 	
- }
- {
- exp1 =Expression()[t=<REL_OP> exp2 =Expression()]
- 
- {
- 	
- 	if (t !=null && exp2 != null){
-   	totalResult[0] = exp1[0] + t.image + exp2[0];
-    totalResult[1] = exp1[1] + t.image + exp2[1];
-   }
-   else if(exp2 != null){
-   	 totalResult[0] = exp1[0] + exp2[0];
-     totalResult[1] = exp1[1] + exp2[1];
-   }
-   else{
-   	 totalResult[0] = exp1[0];
-     totalResult[1] = exp1[1];
-   }	
-   return totalResult;
- 	
- }
-}
-
-
+ }*/
 
 
 

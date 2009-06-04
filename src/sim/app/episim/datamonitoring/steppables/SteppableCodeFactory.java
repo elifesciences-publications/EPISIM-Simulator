@@ -32,8 +32,7 @@ public abstract class SteppableCodeFactory {
 		
 		steppableCode.append("public void step(SimState state){\n");
 		steppableCode.append("double baseLineResult = 0;\n");
-		if(!chart.getBaselineExpression()[1].equals(Names.GRADBASELINE)
-				&&!chart.getBaselineExpression() [1].startsWith(Names.BUILDGRADIENTHANDLER)
+		if(!chart.getBaselineExpression() [1].startsWith(Names.BUILDGRADIENTHANDLER)
 				&&!chart.getBaselineExpression() [1].startsWith(Names.BUILDCELLHANDLER)){
 			steppableCode.append("baseLineResult = " + chart.getBaselineExpression() [1]+";\n");
 		}

@@ -29,14 +29,20 @@ import episiminterfaces.*;
 
 public class TissueCellDataFieldsInspector {
 	
+	public interface ParameterSelectionListener{
+		void parameterWasSelected();
+	}
+	
+	
 	private Set<String> nameRedundancyCheckSet;
+	private Set<ParameterSelectionListener> parameterSelectionListener;
 	
 	private Set<String> overallVarNameSet;
 	private Map<String, CellType> cellTypesMap;
 	private Map<String, TissueType> tissueTypesMap;
 	private Map<String, String> overallMethodCallMap;
 	private Map<String, Method> overallMethodMap;
-	
+	private Map<String, String> prefixMap;
 	private SortedJList cellTypeList;
 	private SortedJList tissueTypeList;
 	private SortedJList cellParameterList;
@@ -49,6 +55,7 @@ public class TissueCellDataFieldsInspector {
 	
 	private TissueType inspectedTissue;
 	
+	private String actualSelectedParameter = "";
 	
 	
 	public TissueCellDataFieldsInspector(TissueType tissue, Set<String> markerPrefixes, Set<Class<?>> validTypes) {
@@ -66,7 +73,52 @@ public class TissueCellDataFieldsInspector {
 			cellParameterList = new SortedJList(stringComparator);
 			tissueParameterList = new SortedJList(stringComparator);
 			
+			this.cellParameterList.addMouseListener(new MouseAdapter() {
+
+				public void mouseClicked(MouseEvent e) {
+
+					if((cellParameterList.getSelectedIndex() != -1) && e.getClickCount() == 2){
+						
+						String name = cellTypeList.getSelectedValue() + "."  + cellParameterList.getSelectedValue();
+						String alternName = cellTypeList.getSelectedValue()+Names.CELLDIFFMODEL + "."  + cellParameterList.getSelectedValue();
+						
+						if(!prefixMap.keySet().contains(name) &&prefixMap.keySet().contains(alternName)){
+							
+							actualSelectedParameter = prefixMap.get(alternName) + alternName;
+							
+						}
+						else if(prefixMap.keySet().contains(name) &&!prefixMap.keySet().contains(alternName)){
+							
+							actualSelectedParameter = prefixMap.get(name) + name;
+							
+						}
+						
+						notifyAllParameterSelectionListener();
+					}
+				}
+			});
+		   
+			this.tissueParameterList.addMouseListener(new MouseAdapter() {
+
+				public void mouseClicked(MouseEvent e) {
+
+					if((tissueParameterList.getSelectedIndex() != -1) && e.getClickCount() == 2){
+						
+						String name = tissueTypeList.getSelectedValue() + "."  + tissueParameterList.getSelectedValue();
+						actualSelectedParameter = prefixMap.get(name) + name;
+						notifyAllParameterSelectionListener();
+					}
+				}
+			});
+			
+			
+			
+			
+			
 			parametersPanel = new JPanel(new BorderLayout(0,0));
+			
+			parameterSelectionListener = new HashSet<ParameterSelectionListener>();
+			
 			if(tissue == null) throw new IllegalArgumentException("Tissue was null!");
 			buildCellTypesMap();
 			buildTissueTypesMap();
@@ -104,6 +156,7 @@ public class TissueCellDataFieldsInspector {
 		this.requiredClasses = new HashSet<Class<?>>();
 		this.overallMethodCallMap = new HashMap<String, String>();
 		this.overallMethodMap = new HashMap<String, Method>();
+		this.prefixMap = new HashMap<String, String>();
 		Set<String> cellTypeNames = cellTypes.keySet();
 		for(String actCellTypeName : cellTypeNames){
 			CellType actClass = cellTypes.get(actCellTypeName);
@@ -125,14 +178,29 @@ public class TissueCellDataFieldsInspector {
 		if(isValidReturnType(actMethod.getReturnType())){
 			parameterName=getParameterName(actMethod.getName());
 			
+			if(actMethod.getReturnType() != null){ 
+				if(Double.TYPE.isAssignableFrom(actMethod.getReturnType()) || Integer.TYPE.isAssignableFrom(actMethod.getReturnType()) || Long.TYPE.isAssignableFrom(actMethod.getReturnType())){ 
+					firstName = Names.NUMBERPREFIX + firstName;
+				}
+				else if(Boolean.TYPE.isAssignableFrom(actMethod.getReturnType())){ 
+					firstName = Names.BOOLEANPREFIX + firstName;
+				}
+			}
+			
 			if(parameterName != null){
 				String finalName = getRedundancyCheckedName(firstName + "." + parameterName);
+				
 				String methodCallName = Names.convertClassToVariable(actMethod.getDeclaringClass().getSimpleName()) + "."+ actMethod.getName()+"()";
+				this.prefixMap.put(finalName.substring(Names.PREFIXLENGTH), finalName.substring(0, Names.PREFIXLENGTH));
 				this.overallMethodCallMap.put(finalName,methodCallName);
 				this.overallMethodMap.put(finalName,actMethod);
 				this.overallVarNameSet.add(finalName);
 			}
 		}
+	}
+	
+	public void addParameterSelectionListener(ParameterSelectionListener listener){
+		this.parameterSelectionListener.add(listener);
 	}
 	
 	public void addRequiredClassForIdentifier(String identifier){
@@ -146,6 +214,17 @@ public class TissueCellDataFieldsInspector {
 				|| EpisimMechanicalModel.class.isAssignableFrom(identifiersClass)
 				|| CellType.class.isAssignableFrom(identifiersClass)) return false;
 		return true;		
+	}
+	
+	public boolean checkIfIdentifierHasBooleanType(String identifier){
+		return Boolean.TYPE.isAssignableFrom(overallMethodMap.get(identifier).getReturnType());
+		
+				
+	}
+	
+	public boolean isIdentifier(String str){
+		if(overallMethodMap.get(str) == null) return false;
+		else return true;
 	}
 	
 	public Set<Class<?>> getRequiredClasses(){ return this.requiredClasses;}
@@ -172,10 +251,10 @@ public class TissueCellDataFieldsInspector {
 		list.removeAll();
 		for(String actName : overallVarNameSet){
 				String[] subNames = actName.split("\\.");
-				if(subNames.length >= 2 && subNames[0].equals(cellOrTissueTypeName)){
+				if(subNames.length >= 2 && subNames[0].substring(Names.PREFIXLENGTH).equals(cellOrTissueTypeName)){
 					list.add(subNames[1]);
 				}
-				else if(subNames.length >= 2 && subNames[0].equals(cellOrTissueTypeName+Names.CELLDIFFMODEL)){
+				else if(subNames.length >= 2 && subNames[0].substring(Names.PREFIXLENGTH).equals(cellOrTissueTypeName+Names.CELLDIFFMODEL)){
 					list.add(subNames[1]);
 				}
 		}
@@ -186,11 +265,8 @@ public class TissueCellDataFieldsInspector {
 	private void buildTissueList() {
 		
 		tissueTypeList.removeAll();
-		for(String actTissueName : this.tissueTypesMap.keySet()){
-
-			
+		for(String actTissueName : this.tissueTypesMap.keySet()){			
 			tissueTypeList.add(actTissueName);
-
 		}
 		
 		
@@ -328,8 +404,10 @@ public class TissueCellDataFieldsInspector {
 		return listPanel1;
 
 	}
-
 	
+	public String getActualSelectedParameter(){ return this.actualSelectedParameter; }
+
+	/*
    public JList getCellParameterList() {
    
    	return cellParameterList;
@@ -346,7 +424,7 @@ public class TissueCellDataFieldsInspector {
       
    	return tissueParameterList;
    }
-
+*/
 	
    public Map<String, CellType> getCellTypesMap() {
    
@@ -358,5 +436,9 @@ public class TissueCellDataFieldsInspector {
    
    	return tissueTypesMap;
    }
-
+   
+   private void notifyAllParameterSelectionListener(){
+   	for(ParameterSelectionListener listener : this.parameterSelectionListener) listener.parameterWasSelected();
+   }
+   
 }

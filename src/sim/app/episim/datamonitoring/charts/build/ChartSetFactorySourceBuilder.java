@@ -4,8 +4,8 @@ import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSet;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSet;
 
 public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBuilder{
 	

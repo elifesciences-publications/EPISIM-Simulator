@@ -16,8 +16,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSet;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSet;
 
 
 import sim.app.episim.ExceptionDisplayer;

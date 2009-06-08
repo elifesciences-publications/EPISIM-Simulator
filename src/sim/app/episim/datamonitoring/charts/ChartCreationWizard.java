@@ -66,8 +66,8 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSeries;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;

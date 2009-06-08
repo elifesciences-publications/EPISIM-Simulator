@@ -11,8 +11,8 @@ import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractDataExportFactory;
-import episiminterfaces.EpisimDataExportDefinitionSet;
-import episiminterfaces.GeneratedDataExport;
+import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.GeneratedDataExport;
 
 public class EDEFileReader{
 

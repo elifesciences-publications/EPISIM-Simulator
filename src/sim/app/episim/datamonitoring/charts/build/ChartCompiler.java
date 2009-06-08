@@ -12,8 +12,8 @@ import binloc.ProjectLocator;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonCompiler;
 import sim.app.episim.util.Names;
-import episiminterfaces.EpisimChartSet;
-import episiminterfaces.EpisimChart;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSet;
 
 public class ChartCompiler extends AbstractCommonCompiler {
 	private ChartSourceBuilder chartSourceBuilder;

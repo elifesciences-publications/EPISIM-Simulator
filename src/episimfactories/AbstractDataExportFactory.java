@@ -18,9 +18,9 @@ import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 
-import episiminterfaces.EpisimDataExportDefinition;
-import episiminterfaces.EpisimDataExportDefinitionSet;
-import episiminterfaces.GeneratedDataExport;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.GeneratedDataExport;
 
 
 public abstract class AbstractDataExportFactory {

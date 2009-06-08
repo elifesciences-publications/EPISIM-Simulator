@@ -1,4 +1,4 @@
-package episiminterfaces;
+package episiminterfaces.monitoring;
 
 import org.jfree.chart.ChartPanel;
 

@@ -9,6 +9,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 
 import episiminterfaces.*;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSeries;
 
 
 
@@ -58,6 +60,8 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import org.jfree.data.xy.*;\n");
 		generatedSourceCode.append("import org.jfree.chart.axis.*;\n");
 		generatedSourceCode.append("import org.jfree.ui.*;\n");
+		generatedSourceCode.append("import episiminterfaces.calc.*;\n");
+		generatedSourceCode.append("import episiminterfaces.monitoring.*;\n");
 		generatedSourceCode.append("import episiminterfaces.*;\n");
 		generatedSourceCode.append("import episimexceptions.*;\n");
 		generatedSourceCode.append("import episimfactories.*;\n");

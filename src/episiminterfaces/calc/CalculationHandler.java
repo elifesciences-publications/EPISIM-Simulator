@@ -1,4 +1,4 @@
-package episiminterfaces;
+package episiminterfaces.calc;
 
 import sim.app.episim.CellType;
 import episimexceptions.CellNotValidException;

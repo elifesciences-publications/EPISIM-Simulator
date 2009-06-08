@@ -1,7 +1,7 @@
 package calculationalgorithms;
 
-import episiminterfaces.CalculationAlgorithm;
-import episiminterfaces.CalculationAlgorithmDescriptor;
+import episiminterfaces.calc.CalculationAlgorithm;
+import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 
 
 public class Dummy3 implements CalculationAlgorithm{

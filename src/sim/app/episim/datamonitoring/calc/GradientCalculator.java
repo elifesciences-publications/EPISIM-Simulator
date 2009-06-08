@@ -7,8 +7,8 @@ import java.util.Map;
 import org.jfree.data.xy.XYSeries;
 
 import episimexceptions.CellNotValidException;
-import episiminterfaces.CalculationHandler;
 import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.calc.CalculationHandler;
 import sim.app.episim.*;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.util.Sorting;

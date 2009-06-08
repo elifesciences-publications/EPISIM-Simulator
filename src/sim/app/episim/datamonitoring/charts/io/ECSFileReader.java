@@ -20,7 +20,7 @@ import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractChartSetFactory;
 import episimfactories.AbstractEpisimCellDiffModelFactory;
 import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimChartSet;
+import episiminterfaces.monitoring.EpisimChartSet;
 
 
 public class ECSFileReader{

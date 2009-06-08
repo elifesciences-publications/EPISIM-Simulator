@@ -10,8 +10,8 @@ import java.util.Map;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
-import episiminterfaces.CalculationAlgorithm;
-import episiminterfaces.CalculationAlgorithmDescriptor;
+import episiminterfaces.calc.CalculationAlgorithm;
+import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 
 public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	

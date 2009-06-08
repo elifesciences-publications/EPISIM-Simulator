@@ -1,4 +1,4 @@
-package episiminterfaces;
+package episiminterfaces.monitoring;
 
 import java.awt.Color;
 

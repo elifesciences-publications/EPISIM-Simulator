@@ -13,8 +13,8 @@ import org.jfree.chart.ChartPanel;
 
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSet;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSet;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;

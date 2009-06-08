@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSeries;
 import sim.app.episim.CellType;
 import sim.app.episim.tissue.TissueType;
 

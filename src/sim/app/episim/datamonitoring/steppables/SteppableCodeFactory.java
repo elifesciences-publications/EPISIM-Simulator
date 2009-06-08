@@ -10,10 +10,10 @@ import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
 import sim.app.episim.util.Names;
 import sim.engine.SimState;
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSeries;
-import episiminterfaces.EpisimDataExportColumn;
-import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimDataExportColumn;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
 
 
 public abstract class SteppableCodeFactory {

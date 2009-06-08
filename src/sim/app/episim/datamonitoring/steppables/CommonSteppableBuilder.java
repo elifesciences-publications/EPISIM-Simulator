@@ -5,12 +5,12 @@ import java.util.Set;
 import sim.app.episim.CellType;
 import sim.app.episim.util.Names;
 import episimexceptions.CellNotValidException;
-import episiminterfaces.CalculationHandler;
 import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSeries;
-import episiminterfaces.EpisimDataExportDefinition;
-import episiminterfaces.EpisimDataExportColumn;
+import episiminterfaces.calc.CalculationHandler;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimDataExportColumn;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
 
 
 public class CommonSteppableBuilder {

@@ -1,6 +1,6 @@
 package sim.app.episim.datamonitoring.dataexport;
 
-import episiminterfaces.EpisimDataExportColumn;
+import episiminterfaces.monitoring.EpisimDataExportColumn;
 
 
 public class EpisimDataExportColumnImpl implements EpisimDataExportColumn{

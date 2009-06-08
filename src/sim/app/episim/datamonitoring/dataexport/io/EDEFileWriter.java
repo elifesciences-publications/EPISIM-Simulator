@@ -15,8 +15,8 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.dataexport.build.DataExportCompiler;
 import sim.app.episim.util.Names;
-import episiminterfaces.EpisimDataExportDefinition;
-import episiminterfaces.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
 
 public class EDEFileWriter {

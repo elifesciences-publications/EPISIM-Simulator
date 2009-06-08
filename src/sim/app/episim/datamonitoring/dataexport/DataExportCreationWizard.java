@@ -77,9 +77,9 @@ import sim.util.gui.NumberTextField;
 
 
 
-import episiminterfaces.EpisimChartSeries;
-import episiminterfaces.EpisimDataExportDefinition;
-import episiminterfaces.EpisimDataExportColumn;
+import episiminterfaces.monitoring.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimDataExportColumn;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
 
 
 

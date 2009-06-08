@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-import episiminterfaces.CalculationAlgorithm;
+import episiminterfaces.calc.CalculationAlgorithm;
 
 import binloc.ProjectLocator;
 import sim.app.episim.ExceptionDisplayer;

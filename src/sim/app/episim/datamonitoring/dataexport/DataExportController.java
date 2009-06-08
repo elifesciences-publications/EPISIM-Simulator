@@ -35,8 +35,8 @@ import sim.field.continuous.Continuous2D;
 
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
-import episiminterfaces.EpisimDataExportDefinition;
-import episiminterfaces.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
 
 

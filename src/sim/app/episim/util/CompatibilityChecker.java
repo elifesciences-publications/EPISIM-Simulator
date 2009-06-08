@@ -11,10 +11,10 @@ import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueType;
 
 import episimexceptions.ModelCompatibilityException;
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSet;
-import episiminterfaces.EpisimDataExportDefinition;
-import episiminterfaces.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSet;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
 
 public class CompatibilityChecker {

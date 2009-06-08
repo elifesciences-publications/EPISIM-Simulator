@@ -8,8 +8,8 @@ import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 
 import episimexceptions.CellNotValidException;
-import episiminterfaces.CalculationHandler;
 import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.calc.CalculationHandler;
 
 
 public class ACMVCalculator extends AbstractCommonCalculator{

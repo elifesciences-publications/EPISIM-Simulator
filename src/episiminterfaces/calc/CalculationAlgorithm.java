@@ -1,4 +1,5 @@
-package episiminterfaces;
+package episiminterfaces.calc;
+
 
 public interface CalculationAlgorithm extends java.io.Serializable{
 

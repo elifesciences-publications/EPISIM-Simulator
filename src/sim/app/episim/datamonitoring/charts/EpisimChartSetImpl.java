@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSet;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSet;
 
 
 public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable {

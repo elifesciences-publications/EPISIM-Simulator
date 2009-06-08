@@ -13,8 +13,8 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonCompiler;
 import sim.app.episim.util.Names;
 import binloc.ProjectLocator;
-import episiminterfaces.EpisimDataExportDefinition;
-import episiminterfaces.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
 public class DataExportCompiler extends AbstractCommonCompiler {
 	private DataExportSourceBuilder dataExportSourceBuilder;

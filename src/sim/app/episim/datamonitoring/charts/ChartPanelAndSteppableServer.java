@@ -9,7 +9,7 @@ import org.jfree.chart.ChartPanel;
 
 import episimexceptions.MissingObjectsException;
 import episimfactories.AbstractChartSetFactory;
-import episiminterfaces.GeneratedChart;
+import episiminterfaces.monitoring.GeneratedChart;
 
 import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.calc.CalculationController;

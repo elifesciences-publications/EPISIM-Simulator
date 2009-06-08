@@ -1,4 +1,6 @@
-package episiminterfaces;
+package episiminterfaces.calc;
+
+import java.util.Map;
 
 
 public interface CalculationAlgorithmDescriptor {
@@ -7,6 +9,7 @@ public interface CalculationAlgorithmDescriptor {
 	int getType();
 	String getName();
 	String getDescription();
+	Map<String, Class<?>> getParameters();
 	boolean hasCondition();
 	
 

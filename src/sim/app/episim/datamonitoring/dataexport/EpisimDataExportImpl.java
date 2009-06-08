@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import episiminterfaces.EpisimChartSeries;
-import episiminterfaces.EpisimDataExportDefinition;
-import episiminterfaces.EpisimDataExportColumn;
+import episiminterfaces.monitoring.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimDataExportColumn;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
 
 
 public class EpisimDataExportImpl implements EpisimDataExportDefinition {

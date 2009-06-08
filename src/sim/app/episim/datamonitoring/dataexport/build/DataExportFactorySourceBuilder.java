@@ -7,10 +7,10 @@ import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimDataExportDefinitionSet;
-import episiminterfaces.GeneratedDataExport;
 
-import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.GeneratedDataExport;
 
 public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySourceBuilder{
 	

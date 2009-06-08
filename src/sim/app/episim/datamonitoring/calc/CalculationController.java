@@ -3,7 +3,8 @@ package sim.app.episim.datamonitoring.calc;
 
 import java.util.Map;
 import org.jfree.data.xy.XYSeries;
-import episiminterfaces.CalculationHandler;
+
+import episiminterfaces.calc.CalculationHandler;
 import sim.app.episim.*;
 import sim.app.episim.util.GenericBag;
 

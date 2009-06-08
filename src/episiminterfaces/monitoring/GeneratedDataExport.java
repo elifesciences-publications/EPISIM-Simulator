@@ -1,4 +1,4 @@
-package episiminterfaces;
+package episiminterfaces.monitoring;
 
 import sim.app.episim.datamonitoring.dataexport.io.DataExportCSVWriter;
 import sim.app.episim.util.EnhancedSteppable;

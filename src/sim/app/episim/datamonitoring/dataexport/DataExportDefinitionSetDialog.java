@@ -41,10 +41,10 @@ import sim.app.episim.datamonitoring.charts.ChartSetDialog;
 import sim.app.episim.datamonitoring.charts.EpisimChartSetImpl;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.util.ObjectManipulations;
-import episiminterfaces.EpisimChart;
-import episiminterfaces.EpisimChartSet;
-import episiminterfaces.EpisimDataExportDefinition;
-import episiminterfaces.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSet;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
 
 public class DataExportDefinitionSetDialog extends JDialog {

@@ -9,7 +9,7 @@ import sim.app.episim.util.Names;
 import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
 import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimChart;
+import episiminterfaces.monitoring.EpisimChart;
 
 
 public abstract class AbstractCommonFactorySourceBuilder {
@@ -30,6 +30,8 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		
 		this.factorySource.append("import java.util.*;\n");
 		this.factorySource.append("import episiminterfaces.*;\n");
+		this.factorySource.append("import episiminterfaces.calc.*;\n");
+		this.factorySource.append("import episiminterfaces.monitoring.*;\n");
 		this.factorySource.append("import episimexceptions.*;\n");
 		this.factorySource.append("import episimfactories.*;\n");
 		this.factorySource.append("import sim.field.continuous.*;\n");

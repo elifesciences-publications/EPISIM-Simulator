@@ -5,7 +5,7 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 
-import episiminterfaces.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimChartSeries;
 
 
 

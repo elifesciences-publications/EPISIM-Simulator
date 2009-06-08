@@ -1,6 +1,6 @@
 package sim.app.episim.util;
 
-import episiminterfaces.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimChartSeries;
 
 
 public abstract class Names {

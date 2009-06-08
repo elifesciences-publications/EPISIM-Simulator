@@ -5,7 +5,7 @@ import java.util.Set;
 import sim.app.episim.CellType;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimChartSeries;
 
 
 public abstract class  AbstractCommonSourceBuilder {

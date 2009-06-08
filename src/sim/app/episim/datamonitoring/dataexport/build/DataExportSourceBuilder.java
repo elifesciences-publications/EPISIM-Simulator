@@ -10,9 +10,9 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory;
 import sim.app.episim.util.Names;
-import episiminterfaces.EpisimChartSeries;
-import episiminterfaces.EpisimDataExportColumn;
-import episiminterfaces.EpisimDataExportDefinition;
+import episiminterfaces.monitoring.EpisimChartSeries;
+import episiminterfaces.monitoring.EpisimDataExportColumn;
+import episiminterfaces.monitoring.EpisimDataExportDefinition;
 
 
 
@@ -46,6 +46,8 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		
 		generatedSourceCode.append("package "+ Names.GENERATEDDATAEXPORTPACKAGENAME +";\n");
 		generatedSourceCode.append("import episiminterfaces.*;\n");
+		generatedSourceCode.append("import episiminterfaces.calc.*;\n");
+		generatedSourceCode.append("import episiminterfaces.monitoring.*;\n");
 		generatedSourceCode.append("import episimexceptions.*;\n");
 		generatedSourceCode.append("import episimfactories.*;\n");
 		generatedSourceCode.append("import sim.app.episim.util.EnhancedSteppable;\n");

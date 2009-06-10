@@ -60,7 +60,7 @@ import org.jfree.data.xy.XYSeries;
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
-import sim.app.episim.datamonitoring.ExpressionEditor;
+import sim.app.episim.datamonitoring.DataEvaluationWizard;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartCreationWizard;
 import sim.app.episim.datamonitoring.charts.EpisimChartImpl;
@@ -459,9 +459,9 @@ public class DataExportCreationWizard extends JDialog {
 
 		GridBagConstraints c = new GridBagConstraints();
 
-		c.anchor = GridBagConstraints.EAST;
+		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.NONE;
-		c.gridx = 0;
+		c.gridx = 1;
 		c.gridy = 0;
 		c.weightx = 1;
 		c.weighty = 1;
@@ -477,9 +477,9 @@ public class DataExportCreationWizard extends JDialog {
 		});
 		bPanel.add(okButton, c);
 
-		c.anchor = GridBagConstraints.WEST;
+		c.anchor = GridBagConstraints.EAST;
 		c.fill = GridBagConstraints.NONE;
-		c.gridx = 1;
+		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 1;
 		c.weighty = 1;
@@ -755,9 +755,9 @@ public class DataExportCreationWizard extends JDialog {
 
 				public void actionPerformed(ActionEvent e) {
 					isDirty = true;
-					ExpressionEditor editor = new ExpressionEditor(((Frame) DataExportCreationWizard.this.getOwner()),
+					DataEvaluationWizard editor = new DataEvaluationWizard(((Frame) DataExportCreationWizard.this.getOwner()),
 					      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
-					      cellDataFieldsInspector, ExpressionEditor.DATAEXPORTROLE);
+					      cellDataFieldsInspector, DataEvaluationWizard.DATAEXPORTROLE);
 					expression = editor.getExpression(expression);
 					if(expression != null && expression[0] != null && expression[1] != null){
 						formulaButton.setText("Edit");

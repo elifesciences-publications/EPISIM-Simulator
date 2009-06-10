@@ -400,10 +400,33 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			JPanel bPanel = new JPanel(new GridBagLayout());
 
 			GridBagConstraints c = new GridBagConstraints();
-
+			
+			
 			c.anchor = GridBagConstraints.EAST;
 			c.fill = GridBagConstraints.NONE;
 			c.gridx = 0;
+			c.gridy = 0;
+			c.weightx = 1;
+			c.weighty = 1;
+			c.insets = new Insets(10, 10, 10, 10);
+			c.gridwidth = 1;
+			c.gridwidth = 1;
+
+			JButton cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					okButtonPressed = false;
+					dialog.setVisible(false);
+					dialog.dispose();
+				}
+			});
+			bPanel.add(cancelButton, c);
+			
+
+			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.NONE;
+			c.gridx = 1;
 			c.gridy = 0;
 			c.weightx = 1;
 			c.weighty = 1;
@@ -438,27 +461,6 @@ public class DataExportDefinitionSetDialog extends JDialog {
 				}
 			});
 			bPanel.add(okButton, c);
-
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.NONE;
-			c.gridx = 1;
-			c.gridy = 0;
-			c.weightx = 1;
-			c.weighty = 1;
-			c.insets = new Insets(10, 10, 10, 10);
-			c.gridwidth = 1;
-			c.gridwidth = 1;
-
-			JButton cancelButton = new JButton("Cancel");
-			cancelButton.addActionListener(new ActionListener() {
-
-				public void actionPerformed(ActionEvent e) {
-					okButtonPressed = false;
-					dialog.setVisible(false);
-					dialog.dispose();
-				}
-			});
-			bPanel.add(cancelButton, c);
 
 			return bPanel;
 

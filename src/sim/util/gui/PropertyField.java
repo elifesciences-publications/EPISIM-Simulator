@@ -277,7 +277,8 @@ public class PropertyField extends JComponent
         <li>If show is SHOW_LIST, a list will be shown; the initialValue must be an integer specifying the number in the list, and domain must be an array of Objects (strings, whatnot) or a java.util.List providing the objects in the list.
         In this case, newValue(...) will be passed a String holding a number; that number is the index in the list
         which the user has checked.  newValue(...) must also return a String with the desired index for the list to be
-        set to.  */
+        set to.  
+       */
     public PropertyField(String label, String initialValue, boolean isReadWrite, Object domain, int show)
         {
         // create object

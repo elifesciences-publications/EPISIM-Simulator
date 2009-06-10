@@ -71,7 +71,7 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.datamonitoring.ExpressionEditor;
+import sim.app.episim.datamonitoring.DataEvaluationWizard;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
@@ -567,9 +567,9 @@ public class ChartCreationWizard extends JDialog {
 
 		GridBagConstraints c = new GridBagConstraints();
 
-		c.anchor = GridBagConstraints.EAST;
+		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.NONE;
-		c.gridx = 0;
+		c.gridx = 1;
 		c.gridy = 0;
 		c.weightx = 1;
 		c.weighty = 1;
@@ -585,9 +585,9 @@ public class ChartCreationWizard extends JDialog {
 		});
 		bPanel.add(okButton, c);
 
-		c.anchor = GridBagConstraints.WEST;
+		c.anchor = GridBagConstraints.EAST;
 		c.fill = GridBagConstraints.NONE;
-		c.gridx = 1;
+		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 1;
 		c.weighty = 1;
@@ -762,9 +762,9 @@ public class ChartCreationWizard extends JDialog {
 
 			public void actionPerformed(ActionEvent e) {
 				isDirty = true;
-	         ExpressionEditor editor = new ExpressionEditor(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector, ExpressionEditor.CHARTBASELINEROLE);
-	         baselineArithmeticExpression =editor.getExpression(baselineArithmeticExpression)[0];
+	         DataEvaluationWizard editor = new DataEvaluationWizard(
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector, DataEvaluationWizard.CHARTBASELINEROLE);
+	         baselineArithmeticExpression =editor.getExpression(baselineArithmeticExpression);
 	         if(baselineArithmeticExpression != null && baselineArithmeticExpression[0] != null && baselineArithmeticExpression[1] != null){
 	         	baselineButton.setText("Edit Baseline Expression");
 	         	baselineField.setText(baselineArithmeticExpression[0]);
@@ -1268,8 +1268,8 @@ public class ChartCreationWizard extends JDialog {
 
 			public void actionPerformed(ActionEvent e) {
 				isDirty = true;
-	         ExpressionEditor editor = new ExpressionEditor(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector, ExpressionEditor.CHARTSERIESROLE);
+	         DataEvaluationWizard editor = new DataEvaluationWizard(
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector, DataEvaluationWizard.CHARTSERIESROLE);
 	         arithmeticExpression =editor.getExpression(arithmeticExpression);
 	         if(arithmeticExpression != null && arithmeticExpression[0] != null && arithmeticExpression[1] != null){
 	         	formulaButton.setText("Edit Expression");

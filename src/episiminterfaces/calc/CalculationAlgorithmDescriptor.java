@@ -5,7 +5,7 @@ import java.util.Map;
 
 public interface CalculationAlgorithmDescriptor {
 	
-	long getID();
+	int getID();
 	int getType();
 	String getName();
 	String getDescription();

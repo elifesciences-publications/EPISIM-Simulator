@@ -1,13 +1,15 @@
 package episiminterfaces.monitoring;
 
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
+
 
 
 public interface EpisimDataExportColumn extends java.io.Serializable{
 	
 	long getId();
 	String getName();
-	String[] getCalculationExpression();	
+	CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator();	
 	
 	void setName(String val);
-	void setCalculationExpression(String[] exp);
+	void setCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator exp);
 }

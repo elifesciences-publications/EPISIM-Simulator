@@ -1,5 +1,6 @@
 package sim.app.episim.datamonitoring.dataexport;
 
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
 
 
@@ -7,25 +8,25 @@ public class EpisimDataExportColumnImpl implements EpisimDataExportColumn{
 	
 	private final long id;
 	private String name = null;
-	private String[] calculationExpression;
+	private CalculationAlgorithmConfigurator calculationAlgorithmConfigurator;
 	
 	public EpisimDataExportColumnImpl(long id){
 		this.id = id;
 	}
 	
 
-	public String[] getCalculationExpression() { return this.calculationExpression; }
+	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator() { return this.calculationAlgorithmConfigurator; }
 
 	public long getId() { return id; }
 
 	public String getName(){ return this.name; }
    
-	public void setCalculationExpression(String[] exp) {
+	public void setCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator config) {
 
-	   if(exp == null || exp.length < 2 || exp[0] == null  || exp[1] == null) 
-	   	throw new IllegalArgumentException("This Calculation expression is null or does not contain proper caluculation expressions!");
+	   if(config == null) 
+	   	throw new IllegalArgumentException("This Calculation Algorithm Configurator is null or does not contain proper caluculation expressions!");
 	   else{
-	   	this.calculationExpression = exp;
+	   	this.calculationAlgorithmConfigurator = config;
 	   }
 	}
 

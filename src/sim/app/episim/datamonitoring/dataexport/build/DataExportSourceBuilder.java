@@ -100,7 +100,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 			for(EpisimDataExportColumn column: actDataExportDefinition.getEpisimDataExportColumns()){
 				
 				//TODO: id für andere Chart Modalitäten erweitern
-				if(column.getCalculationExpression()[1].startsWith(Names.BUILDCELLHANDLER)) columnCalculationHandlerIDs.put(column.getId(), (System.currentTimeMillis()+ counter));
+			//	if(column.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)) columnCalculationHandlerIDs.put(column.getId(), (System.currentTimeMillis()+ counter));
 				counter++;
 			}
 	      

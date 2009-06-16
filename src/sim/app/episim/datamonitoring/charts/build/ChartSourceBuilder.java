@@ -140,7 +140,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		for(EpisimChartSeries series: actChart.getEpisimChartSeries()){
 			
 			//TODO: id für andere Chart Modalitäten erweitern
-			if(series.getExpression()[1].startsWith(Names.BUILDCELLHANDLER)) seriesCalculationHandlerIDs.put(series.getId(), (System.currentTimeMillis()+ counter));
+			//if(series.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)) seriesCalculationHandlerIDs.put(series.getId(), (System.currentTimeMillis()+ counter));
 			counter++;
 		}
 		

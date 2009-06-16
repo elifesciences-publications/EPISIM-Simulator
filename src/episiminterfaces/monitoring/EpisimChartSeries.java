@@ -2,8 +2,10 @@ package episiminterfaces.monitoring;
 
 import java.awt.Color;
 
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 
-public interface EpisimChartSeries extends Cloneable{
+
+public interface EpisimChartSeries{
 	
 	long getId();
 	
@@ -12,7 +14,7 @@ public interface EpisimChartSeries extends Cloneable{
 	double getThickness();
 	double getStretch();
 	float[] getDash();
-	String[] getExpression();
+	CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator();
 	
 	
 	void setName(String name);
@@ -20,6 +22,6 @@ public interface EpisimChartSeries extends Cloneable{
 	void setThickness(double width);
 	void setDash(float[] dash);
 	void setStretch(double val);
-	void setExpression(String[] expression);
-	EpisimChartSeries clone();
+	void setCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator config);
+	
 }

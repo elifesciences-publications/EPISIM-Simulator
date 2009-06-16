@@ -137,49 +137,30 @@ public class DataEvaluationWizard {
 	
 	private void buildWizardPanel(){
 		 wizardPanel = new JPanel(new CardLayout());
-		 algorithmSelectionPanel = new CalculationAlgorithmSelectionPanel();
-		 
+		 if(this.role == CHARTBASELINEROLE){
+			 algorithmSelectionPanel = new CalculationAlgorithmSelectionPanel(CalculationAlgorithmSelectionPanel.ONLYONEDIMALGORITHMS);
+		 }
+		 else algorithmSelectionPanel = new CalculationAlgorithmSelectionPanel(CalculationAlgorithmSelectionPanel.ALLALGORITHMS);
 		 algorithmSelectionPanel.addAlgorithmSelectionListener(new AlgorithmSelectionListener(){
 				public void algorithmWasSelected() { nextBackButton.setEnabled(true); }
 				public void noAlgorithmIsSelected() { nextBackButton.setEnabled(false); }
-			});
-		 
+			});		 
 		 visibleWizardCard = SELECTIONCARD;
-		 wizardPanel.add(algorithmSelectionPanel.getCalculationAlgorithmSelectionPanel(), SELECTIONCARD);
-		 
-		 
-		
+		 wizardPanel.add(algorithmSelectionPanel.getCalculationAlgorithmSelectionPanel(), SELECTIONCARD);	
 		 
 	}
 	
 	
 	
-	public String[] getExpression(String[] oldArithmeticExpression){
+	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator oldConfigurator){
 					
-	/*		if(oldArithmeticExpression != null && oldArithmeticExpression.length >=2){
-				arithmeticExpression = oldArithmeticExpression;
-				if(arithmeticExpression[0] != null) arithmeticExpressionTextArea.setText(arithmeticExpression[0]);
-				if(arithmeticExpression[1] != null && !arithmeticExpression[1].equals("")){
-					arithmeticMessageTextArea.setText(arithmeticExpression[1]);
-					arithmeticMessagePanel.setVisible(true);
-				}
-				
-			}
-			if(booleanCondition && oldBooleanExpression != null && oldBooleanExpression.length >=2){
-				booleanExpression = oldBooleanExpression;
-				if(booleanExpression[0] != null) booleanExpressionTextArea.setText(booleanExpression[0]);
-				if(booleanExpression[1] != null && !booleanExpression[1].equals("")){
-					booleanMessageTextArea.setText(booleanExpression[1]);
-					booleanMessagePanel.setVisible(true);
-				}
-				
-			}*/
+	
 									
 			dialog.repaint();
 			centerMe();
 			dialog.setVisible(true);
 			
-		return new String[]{"", ""};
+		return this.actualConfigurator;
 	}
 	
 	private void centerMe(){
@@ -220,9 +201,15 @@ public class DataEvaluationWizard {
 			
 
 			public void actionPerformed(ActionEvent e) {
-
-				dialog.setVisible(false);
-				dialog.dispose();
+				CalculationAlgorithmConfigurator configurator = null;
+				if(actualExpressionEditorPanel != null){
+					configurator = actualExpressionEditorPanel.getCalculationAlgorithmConfigurator();
+				}
+				if(configurator != null){
+					actualConfigurator = configurator;
+					dialog.setVisible(false);
+					dialog.dispose();
+				}
 
 			}
 		});
@@ -305,6 +292,7 @@ public class DataEvaluationWizard {
 				cl.show(wizardPanel, EXPRESSIONCARD);
 				this.visibleWizardCard = EXPRESSIONCARD;
 				this.nextBackButton.setText("<<Back");
+				okButton.setEnabled(true);
 				dialog.setSize(this.dialogSizes[1]);
 				
 			}			
@@ -315,7 +303,7 @@ public class DataEvaluationWizard {
 			this.visibleWizardCard = SELECTIONCARD;
 			this.nextBackButton.setText("Next>>");
 			dialog.setSize(this.dialogSizes[0]);
-			
+			okButton.setEnabled(false);
    	}
    	dialog.repaint();
 		centerMe();

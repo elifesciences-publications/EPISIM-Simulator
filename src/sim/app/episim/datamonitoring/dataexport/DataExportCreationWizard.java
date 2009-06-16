@@ -61,6 +61,8 @@ import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.DataEvaluationWizard;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmConfiguratorChecker;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartCreationWizard;
 import sim.app.episim.datamonitoring.charts.EpisimChartImpl;
@@ -77,6 +79,7 @@ import sim.util.gui.NumberTextField;
 
 
 
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
@@ -278,7 +281,7 @@ public class DataExportCreationWizard extends JDialog {
 
 			ColumnAttributes columnAttr = new ColumnAttributes(previewPanel, index);
 			columnAttr.setName(column.getName());
-			columnAttr.setExpression(column.getCalculationExpression());
+			columnAttr.setCalculationAlgorithmConfigurator(column.getCalculationAlgorithmConfigurator());
 			columnAttr.getFormulaButton().setText("Edit");
 			columnsPanel.add(columnAttr, "" + index);
 			attributesList.add(columnAttr);
@@ -504,17 +507,7 @@ public class DataExportCreationWizard extends JDialog {
 	
 	private void okButtonPressed(){
 		boolean errorFound = false;
-		
-		try{
-			for(EpisimDataExportColumn col : this.episimDataExportDefinition.getEpisimDataExportColumns()){
-				ExpressionCheckerController.getInstance().checkDataMonitoringExpression(col.getCalculationExpression()[0], this.cellDataFieldsInspector);
-			}
-		}
-		catch (Exception e1){
-			ExceptionDisplayer.getInstance().displayException(e1);
-		}
-		
-		
+			
 		if(this.episimDataExportDefinition.getName() == null || this.episimDataExportDefinition.getName().trim().equals("") ){
 			errorFound = true;
 			JOptionPane.showMessageDialog(DataExportCreationWizard.this, "Please enter a Name for the Data Export!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -547,20 +540,7 @@ public class DataExportCreationWizard extends JDialog {
 	
 	private boolean hasEveryColumnAnExpression(){
 		for(EpisimDataExportColumn col : this.episimDataExportDefinition.getEpisimDataExportColumns()){
-			if(col.getCalculationExpression() == null
-			 || col.getCalculationExpression().length < 2
-			 || col.getCalculationExpression()[0] == null
-			 || col.getCalculationExpression()[1] == null
-			 || col.getCalculationExpression()[0].trim().equals("")
-			 || col.getCalculationExpression()[1].trim().equals("")) return false;
-			else{
-				try{
-					ExpressionCheckerController.getInstance().checkDataMonitoringExpression(col.getCalculationExpression()[0], this.cellDataFieldsInspector);
-				}
-				catch (Exception e1){
-					ExceptionDisplayer.getInstance().displayException(e1);
-				}
-			}
+			if(!CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(col.getCalculationAlgorithmConfigurator(), true, this.cellDataFieldsInspector)) return false;
 		}
 		
 		return true;
@@ -688,7 +668,7 @@ public class DataExportCreationWizard extends JDialog {
 	
    private class ColumnAttributes extends LabelledList {
 
-		private String[] expression = new String[2];
+		private CalculationAlgorithmConfigurator calculationConfig = null;
 
 		//Color fillColor = CLEAR;
 
@@ -758,13 +738,13 @@ public class DataExportCreationWizard extends JDialog {
 					DataEvaluationWizard editor = new DataEvaluationWizard(((Frame) DataExportCreationWizard.this.getOwner()),
 					      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
 					      cellDataFieldsInspector, DataEvaluationWizard.DATAEXPORTROLE);
-					expression = editor.getExpression(expression);
-					if(expression != null && expression[0] != null && expression[1] != null){
+					calculationConfig = editor.getCalculationAlgorithmConfigurator(calculationConfig);
+					if(CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(calculationConfig, false, cellDataFieldsInspector)){
 						formulaButton.setText("Edit");
-						formulaField.setText(expression[0]);
+						formulaField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(calculationConfig.getCalculationAlgorithmID()).getName());
 						int index = columnCombo.getSelectedIndex();
-						episimDataExportDefinition.getEpisimDataExportColumn(columnsIdMap.get(index)).setCalculationExpression(
-						      expression);
+						episimDataExportDefinition.getEpisimDataExportColumn(columnsIdMap.get(index)).setCalculationAlgorithmConfigurator(
+						      calculationConfig);
 					}
 
 				}
@@ -784,16 +764,16 @@ public class DataExportCreationWizard extends JDialog {
 
 		}
 
-		public String[] getExpression() {
+		public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator() {
 
-			return expression;
+			return calculationConfig;
 		}
 
-		public void setExpression(String[] expression) {
+		public void setCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator config) {
 
-			if(expression != null && expression.length >= 2 && expression[0] != null && expression[1] != null){
-				this.expression = expression;
-				this.formulaField.setText(expression[0]);
+			if(CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(config, false, cellDataFieldsInspector)){
+				this.calculationConfig = config;
+				this.formulaField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).getName());
 			}
 
 		}

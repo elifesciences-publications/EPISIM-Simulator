@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
+
 
 
 
@@ -13,7 +15,7 @@ public interface EpisimChart{
 	String getTitle();
 	String getXLabel();
 	String getYLabel();
-	String[] getBaselineExpression();
+	CalculationAlgorithmConfigurator getBaselineCalculationAlgorithmConfigurator();
 	boolean isLegendVisible();
 	boolean isXAxisLogarithmic();
 	boolean isYAxisLogarithmic();
@@ -34,7 +36,7 @@ public interface EpisimChart{
 	void setPNGPrintingEnabled(boolean val);
 	void setPNGPrintingFrequency(int frequency);
 	void setChartUpdatingFrequency(int frequency);
-	void setBaselineExpression(String[] val);
+	void setBaselineCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator val);
 	void addEpisimChartSeries(EpisimChartSeries chartSeries);
 	void addRequiredClass(Class<?> requiredClass);
 	void setPNGPrintingPath(File path);

@@ -56,6 +56,10 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 		return descriptors;
 	}
 	
+	public CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id){
+		return this.calculationAlgorithmsMap.get(id).getCalculationAlgorithmDescriptor(id);
+	}
+	
 	
 	public void classLoaderHasChanged() {
 		

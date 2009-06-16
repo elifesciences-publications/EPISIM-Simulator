@@ -2,9 +2,11 @@ package sim.app.episim.datamonitoring.charts;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.Map;
 
 import javax.swing.JFileChooser;
 
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChartSeries;
 
 
@@ -18,7 +20,7 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries, java.io.Seriali
 	private double thickness = 0;
 	private double stretch = 0;
 	private float[] dash= null;
-	private String[] expression = null;
+	private CalculationAlgorithmConfigurator calculationAlgorithmConfigurator = null;
 	
 	public EpisimChartSeriesImpl(long id){
 		this.id = id;
@@ -88,29 +90,17 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries, java.io.Seriali
 	}
 
 	
-	public String[] getExpression() {
+	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator() {
 	
-		return expression;
+		return calculationAlgorithmConfigurator;
 	}
 
 	
-	public void setExpression(String[] expression) {
+	public void setCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator config) {
 	
-		this.expression = expression;
+		this.calculationAlgorithmConfigurator = config;
 	}
 
-	
-	public EpisimChartSeries clone(){
-		EpisimChartSeries clone = new EpisimChartSeriesImpl(this.id);
-		clone.setColor(new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue()));
-		clone.setDash(this.dash.clone());
-		clone.setExpression(this.expression.clone());
-		clone.setName(this.name);
-		clone.setStretch(this.stretch);
-		clone.setThickness(this.thickness);
-		
-		return clone;
-	}
 	
 	
 }

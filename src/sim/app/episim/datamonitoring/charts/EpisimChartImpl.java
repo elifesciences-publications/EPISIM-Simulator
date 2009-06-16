@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import sim.app.episim.CellType;
@@ -33,7 +34,7 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	
 	private File pngPrintingPath = null;
 	
-	private String[] baselineExpression = null;
+	private CalculationAlgorithmConfigurator baselineCalculationAlgorithmConfigurator = null;
 	
 	private boolean isDirty = false;
 	
@@ -130,14 +131,14 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 		
 	}
 	
-	public String[] getBaselineExpression() {
+	public CalculationAlgorithmConfigurator getBaselineCalculationAlgorithmConfigurator() {
 	
-		return baselineExpression;
+		return baselineCalculationAlgorithmConfigurator;
 	}
 	
-	public void setBaselineExpression(String[] val) {
+	public void setBaselineCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator val) {
 	
-		this.baselineExpression = val;
+		this.baselineCalculationAlgorithmConfigurator = val;
 	}
 
 	

@@ -22,13 +22,7 @@ public class ExpressionCheckerController {
 		if(instance == null) instance = new ExpressionCheckerController();
 		return instance;
 	}
-	//TODO: remove this method stub
-	public String checkDataMonitoringExpression(String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException, NumberFormatException{
 		
-		return "";
-	}
-	
-	
 	public String checkBooleanDataMonitoringExpression(String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException, NumberFormatException{
 				
 		return checkExpression(expression, tissueDataFieldsInspector, BOOLEANTYPE);

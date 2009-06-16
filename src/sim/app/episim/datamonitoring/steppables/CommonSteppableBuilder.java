@@ -91,28 +91,28 @@ public class CommonSteppableBuilder {
 	
 	public void appendCalucationHandlerRegistration(EpisimChart chart, StringBuffer source, long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
 		
-		
-		if(chart.getBaselineExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)){
+		/*
+		if(chart.getBaselineCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDGRADIENTHANDLER)){
 			source.append("CalculationController.getInstance().registerForChartCalculationGradient(");
-			source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(chart.getBaselineExpression()[1], -1l)+", ((XYSeries) null), "+ chart.isXAxisLogarithmic()+");\n");
+			source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(chart.getBaselineCalculationAlgorithmConfigurator()[1], -1l)+", ((XYSeries) null), "+ chart.isXAxisLogarithmic()+");\n");
 		}
-		else if(chart.getBaselineExpression()[1].startsWith(Names.BUILDCELLHANDLER)){
+		else if(chart.getBaselineCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)){
 			source.append("CalculationController.getInstance().registerForOneCellCalculation(");
-			source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(chart.getBaselineExpression()[1], baselineCalculationHandlerID)+", ((XYSeries) null), "+ chart.isXAxisLogarithmic() + ", " + chart.isYAxisLogarithmic()+");\n");
+			source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(chart.getBaselineCalculationAlgorithmConfigurator()[1], baselineCalculationHandlerID)+", ((XYSeries) null), "+ chart.isXAxisLogarithmic() + ", " + chart.isYAxisLogarithmic()+");\n");
 		}
 		for(EpisimChartSeries actSeries: chart.getEpisimChartSeries()){
-			if(actSeries.getExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)){
+			if(actSeries.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDGRADIENTHANDLER)){
 				source.append("CalculationController.getInstance().registerForChartCalculationGradient(");
-				source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(actSeries.getExpression()[1], -1l)+", ");
+				source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(actSeries.getCalculationAlgorithmConfigurator()[1], -1l)+", ");
 				source.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+", ");
 				source.append((chart.isYAxisLogarithmic()|| chart.isXAxisLogarithmic())+");\n");
 			}
-			if(actSeries.getExpression()[1].startsWith(Names.BUILDCELLHANDLER)){
+			if(actSeries.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)){
 				source.append("CalculationController.getInstance().registerForOneCellCalculation(");
-				source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(actSeries.getExpression()[1], seriesCalculationHandlerIDs.get(actSeries.getId()))+", ");
+				source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(actSeries.getCalculationAlgorithmConfigurator()[1], seriesCalculationHandlerIDs.get(actSeries.getId()))+", ");
 				source.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+", "+ chart.isXAxisLogarithmic() + ", " + chart.isYAxisLogarithmic()+");\n");
 			}
-		}
+		}*/
 	}
 	
 	public void appendCalucationHandlerRegistration(EpisimDataExportDefinition dataExportDef, StringBuffer source,  Map<Long, Long> columnCalculationHandlerIDs){
@@ -124,12 +124,12 @@ public class CommonSteppableBuilder {
 				source.append("CalculationController.getInstance().registerForChartCalculationGradient(");
 				source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(actColumn.getCalculationExpression()[1], -1l)+", ");
 				source.append(Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+");\n");
-			}*/
-			if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDCELLHANDLER)) {
-				source.append("CalculationController.getInstance().registerForOneCellCalculation(");
-				source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(actColumn.getCalculationExpression()[1], columnCalculationHandlerIDs.get(actColumn.getId()))+", ");
-				source.append(Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+");\n");
 			}
+			if(actColumn.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)) {
+				source.append("CalculationController.getInstance().registerForOneCellCalculation(");
+				source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(actColumn.getCalculationAlgorithmConfigurator()[1], columnCalculationHandlerIDs.get(actColumn.getId()))+", ");
+				source.append(Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+");\n");
+			}*/
 		}
 	}
 

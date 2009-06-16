@@ -22,13 +22,18 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
+import sim.app.episim.util.Names;
 import sim.app.episim.util.SortedJList;
 
 
 public class CalculationAlgorithmSelectionPanel {
+	
+	public static final int ONLYONEDIMALGORITHMS = 1;
+	public static final int ALLALGORITHMS = 2;
 	
 	
 	public interface AlgorithmSelectionListener{
@@ -39,6 +44,7 @@ public class CalculationAlgorithmSelectionPanel {
 	
 	private SortedJList algorithmList;
 	private JTextField algorithmName;
+	private JTextField algorithmType;
 	private JTextPane algorithmDescription;
 	private JPanel algorithmSelectionPanel;
 	private JPanel algorithmDescriptionPanel;
@@ -48,7 +54,11 @@ public class CalculationAlgorithmSelectionPanel {
 	private Map<Integer, CalculationAlgorithmDescriptor>calculationAlgorithmMap;
 	private Map<String, Integer> calculationAlgorithmNameIDMap;
 	
-	public CalculationAlgorithmSelectionPanel(){
+	
+	private int role;
+	
+	public CalculationAlgorithmSelectionPanel(int role){
+		this.role = role;
 		listeners = new HashSet<AlgorithmSelectionListener>();
 		algorithmSelectionPanel= new JPanel(new GridBagLayout());
 		
@@ -90,8 +100,16 @@ public class CalculationAlgorithmSelectionPanel {
 		calculationAlgorithmMap = new HashMap<Integer, CalculationAlgorithmDescriptor>();
 		calculationAlgorithmNameIDMap = new HashMap<String, Integer>();
 		for(CalculationAlgorithmDescriptor descriptor : descriptors){
-			calculationAlgorithmMap.put(descriptor.getID(), descriptor);
-			calculationAlgorithmNameIDMap.put(getUniqueCalculationAlgorithmName(descriptor.getName()), descriptor.getID());
+			if(this.role == ONLYONEDIMALGORITHMS){
+				if(descriptor.getType() == CalculationAlgorithm.ONEDIMRESULT){
+					calculationAlgorithmMap.put(descriptor.getID(), descriptor);
+					calculationAlgorithmNameIDMap.put(getUniqueCalculationAlgorithmName(descriptor.getName()), descriptor.getID());
+				}
+			}
+			else{
+				calculationAlgorithmMap.put(descriptor.getID(), descriptor);
+				calculationAlgorithmNameIDMap.put(getUniqueCalculationAlgorithmName(descriptor.getName()), descriptor.getID());
+			}
 		}
 	}
 	
@@ -145,6 +163,7 @@ public class CalculationAlgorithmSelectionPanel {
 		CalculationAlgorithmDescriptor descriptor = this.calculationAlgorithmMap.get(this.calculationAlgorithmNameIDMap.get(name));
 		if(descriptor != null){
 			this.algorithmName.setText(descriptor.getName());
+			this.algorithmType.setText(Names.getCalculationAlgorithmTypeDescriptionForID(descriptor.getType()));
 			this.algorithmDescription.setText(descriptor.getDescription());
 		}
 	}
@@ -192,6 +211,31 @@ public class CalculationAlgorithmSelectionPanel {
 	   c.insets = new Insets(10,10,10,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   algorithmDescriptionPanel.add(this.algorithmName, c);
+	   
+	   
+	   c.anchor =GridBagConstraints.NORTHWEST;
+	   c.fill = GridBagConstraints.HORIZONTAL;
+	   c.weightx = 0;
+	   c.weighty = 0;
+	   c.insets = new Insets(10,10,10,10);
+	   c.gridwidth = GridBagConstraints.RELATIVE;
+	   algorithmDescriptionPanel.add(new JLabel("Type:"), c);
+	   
+	   
+	   this.algorithmType = new JTextField();
+	   this.algorithmType.setEditable(false);
+	   this.algorithmType.setEnabled(true);
+	   this.algorithmType.setOpaque(false);
+	   this.algorithmType.setBorder(null);
+	   c.anchor =GridBagConstraints.NORTHWEST;
+	   c.fill = GridBagConstraints.HORIZONTAL;
+	   c.weightx = 1;
+	   c.weighty = 0;
+	   c.insets = new Insets(10,10,10,10);
+	   c.gridwidth = GridBagConstraints.REMAINDER;
+	   algorithmDescriptionPanel.add(this.algorithmType, c);
+	   
+	   
 	   
 	   
 	   c.anchor =GridBagConstraints.NORTHWEST;

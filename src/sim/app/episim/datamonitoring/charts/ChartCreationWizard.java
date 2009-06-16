@@ -66,6 +66,7 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 
@@ -73,6 +74,8 @@ import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.DataEvaluationWizard;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmConfiguratorChecker;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
@@ -136,9 +139,8 @@ public class ChartCreationWizard extends JDialog {
    private final int HEIGHT = 650;
    
    
-   private String[] baselineArithmeticExpression;
-   private String[] baselineBooleanExpression;
-   
+   private CalculationAlgorithmConfigurator baselineCalculationAlgorithmConfigurator = null;
+      
    private boolean isDirty = false;
    
    
@@ -275,7 +277,7 @@ public class ChartCreationWizard extends JDialog {
        previewChart.getXYPlot().getRenderer().setSeriesPaint(i, Color.BLACK);
        ChartSeriesAttributes csa = new ChartSeriesAttributes(previewChartPanel,i);
        episimChartSeries.setDash(csa.dash);
-       episimChartSeries.setExpression(null);
+       episimChartSeries.setCalculationAlgorithmConfigurator(null);
        episimChartSeries.setStretch(csa.stretch);
        episimChartSeries.setThickness(csa.thickness);
        seriesPanel.add(csa, ""+i);
@@ -307,7 +309,7 @@ public class ChartCreationWizard extends JDialog {
       previewChart.getXYPlot().getRenderer().setSeriesPaint(index, chartSeries.getColor());
       ChartSeriesAttributes csa = new ChartSeriesAttributes(previewChartPanel, index);
       csa.setDash(chartSeries.getDash());
-      csa.setExpression(chartSeries.getExpression());
+      csa.setCalculationAlgorithmConfigurator(chartSeries.getCalculationAlgorithmConfigurator());
       csa.getFormulaButton().setText("Edit Expression");
       csa.setStretch((float)chartSeries.getStretch());
       csa.setThickness((float)chartSeries.getThickness());
@@ -499,9 +501,9 @@ public class ChartCreationWizard extends JDialog {
 			this.chartYLabel.setText(chart.getYLabel());
 			this.setRangeAxisLabel(chart.getYLabel());
 			
-			this.baselineArithmeticExpression = chart.getBaselineExpression();
-			if(chart.getBaselineExpression() != null && chart.getBaselineExpression()[0] != null){
-				this.baselineField.setText(chart.getBaselineExpression()[0]);
+			this.baselineCalculationAlgorithmConfigurator = chart.getBaselineCalculationAlgorithmConfigurator();
+			if(chart.getBaselineCalculationAlgorithmConfigurator() != null){
+				this.baselineField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(this.baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getName());
 				this.baselineButton.setText("Edit Baseline Expression");
 			}
 			this.legendCheck.setSelected(chart.isLegendVisible());
@@ -613,22 +615,11 @@ public class ChartCreationWizard extends JDialog {
 	private void okButtonPressed(){
 		
 		boolean errorFound = false;
-		if(episimChart.getBaselineExpression() == null || episimChart.getBaselineExpression()[0] == null || episimChart.getBaselineExpression()[1] == null
-				|| episimChart.getBaselineExpression()[0].trim().equals("") || episimChart.getBaselineExpression()[1].trim().equals("")){
+		if(CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(episimChart.getBaselineCalculationAlgorithmConfigurator(), true, this.cellDataFieldsInspector)){
 			errorFound = true;
 			JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please enter valid Baseline-Expression!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
-		else{
-			try{
-				
-					ExpressionCheckerController.getInstance().checkDataMonitoringExpression(episimChart.getBaselineExpression()[0], this.cellDataFieldsInspector);
-			}
-			catch (Exception e1){
-				
-			   ExceptionDisplayer.getInstance().displayException(e1);
-			}
-			
-		}
+		
 		if(episimChart.getTitle() == null || episimChart.getTitle().trim().equals("")){
 			errorFound = true;
 			JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please enter valid Title!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -639,7 +630,7 @@ public class ChartCreationWizard extends JDialog {
 			JOptionPane.showMessageDialog(ChartCreationWizard.this, "Please add at least one Chart-Series!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 		if(!errorFound){ 
-			errorFound = !hasEverySeriesAnExpression();
+			errorFound = !hasEverySeriesAnConfigurator();
 			if(errorFound)
 				JOptionPane.showMessageDialog(ChartCreationWizard.this, "Not every Chart-Series has an Expression!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
@@ -651,22 +642,10 @@ public class ChartCreationWizard extends JDialog {
 		}
 	}
 	
-	private boolean hasEverySeriesAnExpression(){
+	private boolean hasEverySeriesAnConfigurator(){
 		for(EpisimChartSeries chartSeries:this.episimChart.getEpisimChartSeries()){
-			if(chartSeries.getExpression() == null
-			 || chartSeries.getExpression().length < 2
-			 || chartSeries.getExpression()[0] == null
-			 || chartSeries.getExpression()[1] == null
-			 || chartSeries.getExpression()[0].trim().equals("")
-			 || chartSeries.getExpression()[1].trim().equals("")) return false;
-			else{
-				try{
-					ExpressionCheckerController.getInstance().checkDataMonitoringExpression(chartSeries.getExpression()[0], this.cellDataFieldsInspector);
-				}
-				catch (Exception e1){
-					ExceptionDisplayer.getInstance().displayException(e1);
-				}
-			}
+			if(CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(chartSeries.getCalculationAlgorithmConfigurator(), true, this.cellDataFieldsInspector)) return false;
+					
 		}
 		
 		return true;
@@ -755,7 +734,7 @@ public class ChartCreationWizard extends JDialog {
 		});
 		list.add(new JLabel("Y Label"), chartYLabel);
 
-		baselineArithmeticExpression = new String[2];
+		baselineCalculationAlgorithmConfigurator = null;
 		baselineButton = new JButton("Add Baseline Expression");
       baselineField = new JTextField("");
       baselineButton.addActionListener(new ActionListener(){
@@ -764,11 +743,11 @@ public class ChartCreationWizard extends JDialog {
 				isDirty = true;
 	         DataEvaluationWizard editor = new DataEvaluationWizard(
 	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector, DataEvaluationWizard.CHARTBASELINEROLE);
-	         baselineArithmeticExpression =editor.getExpression(baselineArithmeticExpression);
-	         if(baselineArithmeticExpression != null && baselineArithmeticExpression[0] != null && baselineArithmeticExpression[1] != null){
+	         baselineCalculationAlgorithmConfigurator =editor.getCalculationAlgorithmConfigurator(baselineCalculationAlgorithmConfigurator);
+	         if(baselineCalculationAlgorithmConfigurator != null){
 	         	baselineButton.setText("Edit Baseline Expression");
-	         	baselineField.setText(baselineArithmeticExpression[0]);
-	         	episimChart.setBaselineExpression(baselineArithmeticExpression);
+	         	baselineField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getName());
+	         	episimChart.setBaselineCalculationAlgorithmConfigurator(baselineCalculationAlgorithmConfigurator);
 	         }
 	         
         }
@@ -845,17 +824,7 @@ public class ChartCreationWizard extends JDialog {
 				setChartLegendVisible(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
-		list.add(new JLabel("Legend"), legendCheck);
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		list.add(new JLabel("Legend"), legendCheck);		
 
 		aliasCheck = new JCheckBox();
 		aliasCheck.setSelected(previewChart.getAntiAlias());
@@ -1044,7 +1013,19 @@ public class ChartCreationWizard extends JDialog {
 	}
 	
 	
-     
+   private void deaktivateBaseLine(){
+   	baselineButton.setText("Add Baseline Expression");
+   	this.baselineButton.setEnabled(false);
+   	this.baselineField.setText("");
+   	episimChart.setBaselineCalculationAlgorithmConfigurator(null);
+   	this.baselineCalculationAlgorithmConfigurator = null;
+   }
+   
+   private void aktivateBaseLine(){
+   	this.baselineButton.setEnabled(true);
+   }
+	
+	
    private class ChartSeriesAttributes extends LabelledList
    {
    static final float DASH = 6;
@@ -1052,8 +1033,8 @@ public class ChartCreationWizard extends JDialog {
    static final float SPACE = 3;
    static final float SKIP = DASH;
    
-   private String[] arithmeticExpression = new String[2];
-   private String[] booleanExpression = new String[2];
+   private CalculationAlgorithmConfigurator calculationConfig = null;
+  
    
    public final float[][] dashes = 
        { 
@@ -1269,13 +1250,13 @@ public class ChartCreationWizard extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				isDirty = true;
 	         DataEvaluationWizard editor = new DataEvaluationWizard(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Expression Editor: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector, DataEvaluationWizard.CHARTSERIESROLE);
-	         arithmeticExpression =editor.getExpression(arithmeticExpression);
-	         if(arithmeticExpression != null && arithmeticExpression[0] != null && arithmeticExpression[1] != null){
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Calculation Algorithm Wizard: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector, DataEvaluationWizard.CHARTSERIESROLE);
+	         calculationConfig =editor.getCalculationAlgorithmConfigurator(calculationConfig);
+	         if(CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(calculationConfig, false, cellDataFieldsInspector)){
 	         	formulaButton.setText("Edit Expression");
-	         	formulaField.setText(arithmeticExpression[0]);
+	         	formulaField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(calculationConfig.getCalculationAlgorithmID()).getName());
 	         	int index = seriesCombo.getSelectedIndex();
-               episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setExpression(arithmeticExpression);
+               episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setCalculationAlgorithmConfigurator(calculationConfig);
 	         }
 	         
          }
@@ -1297,16 +1278,16 @@ public class ChartCreationWizard extends JDialog {
        }
 
 	
-   public String[] getExpression() {
+   public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator() {
    
-   	return arithmeticExpression;
+   	return calculationConfig;
    }
 
 	
-   public void setExpression(String[] expression) {
-   	if(expression != null &&expression.length >= 2 && expression[0] != null && expression[1] != null){
-   		this.arithmeticExpression = expression;
-   		this.formulaField.setText(expression[0]);
+   public void setCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator configurator) {
+   	if(CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(configurator, false, cellDataFieldsInspector)){
+   		this.calculationConfig = configurator;
+   		this.formulaField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(configurator.getCalculationAlgorithmID()).getName());
    	}
    	
    }

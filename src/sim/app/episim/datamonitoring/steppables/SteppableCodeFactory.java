@@ -32,17 +32,17 @@ public abstract class SteppableCodeFactory {
 		
 		steppableCode.append("public void step(SimState state){\n");
 		steppableCode.append("double baseLineResult = 0;\n");
-		if(!chart.getBaselineExpression() [1].startsWith(Names.BUILDGRADIENTHANDLER)
-				&&!chart.getBaselineExpression() [1].startsWith(Names.BUILDCELLHANDLER)){
-			steppableCode.append("baseLineResult = " + chart.getBaselineExpression() [1]+";\n");
+	/*	if(!chart.getBaselineCalculationAlgorithmConfigurator() [1].startsWith(Names.BUILDGRADIENTHANDLER)
+				&&!chart.getBaselineCalculationAlgorithmConfigurator() [1].startsWith(Names.BUILDCELLHANDLER)){
+			steppableCode.append("baseLineResult = " + chart.getBaselineCalculationAlgorithmConfigurator() [1]+";\n");
 		}
-		else if(chart.getBaselineExpression() [1].startsWith(Names.BUILDCELLHANDLER)){
+		else if(chart.getBaselineCalculationAlgorithmConfigurator() [1].startsWith(Names.BUILDCELLHANDLER)){
 			steppableCode.append("baseLineResult = CalculationController.getInstance().calculateOneCellBaseline("
 					+ baselineCalculationHandlerID + "l);\n");
 		}
 		for(EpisimChartSeries actSeries: chart.getEpisimChartSeries()){
-			if(actSeries.getExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)) gradientSeriesFound = true;
-			else if(actSeries.getExpression()[1].startsWith(Names.BUILDCELLHANDLER)){
+			if(actSeries.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDGRADIENTHANDLER)) gradientSeriesFound = true;
+			else if(actSeries.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)){
 						
 				steppableCode.append("CalculationController.getInstance().calculateOneCell(baseLineResult, "
 						+ seriesCalculationHandlerIDs.get(actSeries.getId()) + "l);\n");
@@ -51,23 +51,23 @@ public abstract class SteppableCodeFactory {
 			else{
 				if(chart.isXAxisLogarithmic() && !chart.isYAxisLogarithmic()){ 
 					steppableCode.append("if(baseLineResult > 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-							".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");         
+							".add(baseLineResult, "+ actSeries.getCalculationAlgorithmConfigurator()[1]+");\n");         
 				}
 				else if(!chart.isXAxisLogarithmic() && chart.isYAxisLogarithmic()){ 
-					steppableCode.append("if(("+ actSeries.getExpression()[1]+ ")> 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-							".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");           
+					steppableCode.append("if(("+ actSeries.getCalculationAlgorithmConfigurator()[1]+ ")> 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
+							".add(baseLineResult, "+ actSeries.getCalculationAlgorithmConfigurator()[1]+");\n");           
 				}
 				else if(chart.isXAxisLogarithmic() && chart.isYAxisLogarithmic()){
-					steppableCode.append("if(("+ actSeries.getExpression()[1]+ ")> 0 && baseLineResult > 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-							".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");
+					steppableCode.append("if(("+ actSeries.getCalculationAlgorithmConfigurator()[1]+ ")> 0 && baseLineResult > 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
+							".add(baseLineResult, "+ actSeries.getCalculationAlgorithmConfigurator()[1]+");\n");
 				}
 				else{
 					steppableCode.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-							".add(baseLineResult, "+ actSeries.getExpression()[1]+");\n");
+							".add(baseLineResult, "+ actSeries.getCalculationAlgorithmConfigurator()[1]+");\n");
 				}
 				
 			}
-		}
+		}*/
 		if(gradientSeriesFound) steppableCode.append("CalculationController.getInstance().calculateGradients();\n");
 		
 		steppableCode.append("}\n");
@@ -91,8 +91,8 @@ public abstract class SteppableCodeFactory {
 		
 		
 		for(EpisimDataExportColumn actColumn: exportDefinition.getEpisimDataExportColumns()){
-			if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDGRADIENTHANDLER)) gradientColumnFound = true;
-			else if(actColumn.getCalculationExpression()[1].startsWith(Names.BUILDCELLHANDLER)){
+		/*	if(actColumn.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDGRADIENTHANDLER)) gradientColumnFound = true;
+			else if(actColumn.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)){
 				
 				steppableCode.append("CalculationController.getInstance().calculateOneCell("
 						+ columnCalculationHandlerIDs.get(actColumn.getId()) + "l);\n");
@@ -101,8 +101,8 @@ public abstract class SteppableCodeFactory {
 			
 			else{ 
 				steppableCode.append(Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
-						".put(new Double(Double.NEGATIVE_INFINITY), new Double("+ actColumn.getCalculationExpression()[1]+"));\n");
-			}
+						".put(new Double(Double.NEGATIVE_INFINITY), new Double("+ actColumn.getCalculationAlgorithmConfigurator()[1]+"));\n");
+			}*/
 		}
 	
 		//________________________________________________________

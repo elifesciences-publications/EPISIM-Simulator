@@ -220,12 +220,14 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			}
 		}
 		catch (ParseException e1){
+			arithmeticMessagePanel.setVisible(true);
+			this.panel.validate();
 			arithmeticMessageTextArea.setText(e1.getMessage());
-			arithmeticMessageTextArea.setVisible(true);
 		}
 		catch (TokenMgrError e1){
+			arithmeticMessagePanel.setVisible(true);
+			this.panel.validate();
 			arithmeticMessageTextArea.setText(e1.getMessage());
-			arithmeticMessageTextArea.setVisible(true);
 		}
 		
 		if(booleanCondition){
@@ -247,12 +249,14 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				
 			}
 			catch (ParseException e1){
+				booleanMessagePanel.setVisible(true);
+				this.panel.validate();
 				booleanMessageTextArea.setText(e1.getMessage());
-				booleanMessageTextArea.setVisible(true);
 			}
 			catch (TokenMgrError e1){
+				booleanMessagePanel.setVisible(true);
+				this.panel.validate();
 				booleanMessageTextArea.setText(e1.getMessage());
-				booleanMessageTextArea.setVisible(true);
 			}
 		}
 		return null;
@@ -287,7 +291,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 		JPanel areaPanel = new JPanel(new BorderLayout(5,5));
 		
 		
-		area = new JTextArea();
+		
 		
 		area.setEditable(false);
 		area.setLineWrap(true);
@@ -353,23 +357,39 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 						|| Byte.TYPE.isAssignableFrom(descriptor.getParameters().get(name))
 						|| Short.TYPE.isAssignableFrom(descriptor.getParameters().get(name))){
 					propField = new NumberTextField(name, 0, false){
-						 public double newValue(double newValue)
-				        {
-				        return (int)newValue;
-				        }
-						 verify überschreiben
+						 public double newValue(double newValue){	return (int)newValue; }
+						  public void setVerifyInputWhenFocusTarget(boolean
+							      verifyInputWhenFocusTarget) {							  
+							  super.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
+							  valField.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
+							  if(!verifyInputWhenFocusTarget)valField.setInputVerifier( new InputVerifier() {			
+									public boolean verify(JComponent input) { return false; }
+									public boolean shouldYieldFocus(JComponent input) { return verify(input); 
+									}
+							  });
+						  }
 					};
 					((NumberTextField) propField).setFocusable(true);
 				}
 				else if(Double.TYPE.isAssignableFrom(descriptor.getParameters().get(name)) 
 						|| Float.TYPE.isAssignableFrom(descriptor.getParameters().get(name))){
-					propField = new NumberTextField(name, 0, false);
+					propField = new NumberTextField(name, 0, false){
+						 public void setVerifyInputWhenFocusTarget(boolean
+							      verifyInputWhenFocusTarget) {							  
+							  super.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
+							  valField.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
+							  if(!verifyInputWhenFocusTarget)valField.setInputVerifier( new InputVerifier() {			
+									public boolean verify(JComponent input) { return false; }
+									public boolean shouldYieldFocus(JComponent input) { return verify(input); 
+									}
+							  });
+						  }
+					};
 				}
 				if(propField != null){
 					
-					propField.addFocusListener(new FocusListener(){
-					
-					public void focusGained(FocusEvent e) {}
+					propField.addFocusListener(new FocusListener(){					
+						public void focusGained(FocusEvent e) {}
 		
 					public void focusLost(FocusEvent e) {
 						if(e.getSource() instanceof PropertyField){
@@ -382,6 +402,10 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 						}
 					}});
 					propField.setVerifyInputWhenFocusTarget(false);
+					propField.setInputVerifier(new InputVerifier() {			
+						public boolean verify(JComponent input) { return false; }
+						public boolean shouldYieldFocus(JComponent input) { return verify(input); }
+					});
 					formPanel.add(propField, c);
 				}
 			}

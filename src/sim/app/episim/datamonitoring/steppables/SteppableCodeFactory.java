@@ -109,9 +109,7 @@ public abstract class SteppableCodeFactory {
 		
 		// TODO: Vervollständigen
 		//__________________________________________________________
-		
-		
-		
+				
 		if(gradientColumnFound) steppableCode.append("CalculationController.getInstance().calculateGradients();\n");
 		steppableCode.append("}\n");
 		steppableCode.append("public double getInterval(){\n");

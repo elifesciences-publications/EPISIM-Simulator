@@ -16,7 +16,7 @@ import java.util.List;
 import sim.app.episim.ExceptionDisplayer;
 
 
-public abstract class ObjectManipulations<T> {
+public abstract class ObjectManipulations {
 	public static final String GETPREFIX = "get";
 	public static final String SETPREFIX = "set";
 	public ObjectManipulations(){}

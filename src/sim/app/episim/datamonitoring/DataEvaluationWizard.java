@@ -43,6 +43,7 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 
 import sim.app.episim.datamonitoring.CalculationAlgorithmSelectionPanel.AlgorithmSelectionListener;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartCreationWizard;
 import sim.app.episim.datamonitoring.parser.ParseException;
@@ -71,7 +72,7 @@ public class DataEvaluationWizard {
 	private JButton okButton;
 	private String visibleWizardCard = "";
 	
-	private CalculationAlgorithmSelectionPanel algorithmSelectionPanel;
+	private CalculationAlgorithmSelectionPanel algorithmSelectionPanel = null;
 	private ExpressionEditorPanel actualExpressionEditorPanel = null;
 	private TissueCellDataFieldsInspector dataFieldsInspector;
 	
@@ -109,12 +110,8 @@ public class DataEvaluationWizard {
 	   c.weighty =1;
 	   c.insets = new Insets(10,10,10,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
-	  
-	   
 	   dialog.getContentPane().add(wizardPanel, c);
-	  	   
-	   
-	   
+	  		   
 	   
 	   c.anchor =GridBagConstraints.WEST;
 	   c.gridwidth=GridBagConstraints.REMAINDER; 
@@ -124,11 +121,6 @@ public class DataEvaluationWizard {
 	   c.insets = new Insets(10,10,10,10);
 	   this.buttonPanel = buildButtonPanel();
 	   dialog.getContentPane().add(buttonPanel, c);
-	   
-	   
-	   
-	   
-	   
 	   
 	   dialog.setSize(dialogSizes[0]);
 	   dialog.validate();
@@ -153,14 +145,25 @@ public class DataEvaluationWizard {
 	
 	
 	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator oldConfigurator){
-					
-	
+			this.actualConfigurator = null;		
+			if(oldConfigurator != null) restoreCalculationAlgorithmValues(oldConfigurator);
 									
 			dialog.repaint();
 			centerMe();
 			dialog.setVisible(true);
 			
 		return this.actualConfigurator;
+	}
+	
+	private void restoreCalculationAlgorithmValues(CalculationAlgorithmConfigurator configurator){
+		this.actualDescriptor = CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(configurator.getCalculationAlgorithmID());
+		this.actualConfigurator = configurator;
+		if(this.algorithmSelectionPanel != null){
+			this.algorithmSelectionPanel.setSelectedAlgorithm(configurator.getCalculationAlgorithmID());
+		}
+		if(this.actualExpressionEditorPanel != null){
+			this.actualExpressionEditorPanel.setExpressionEditorPanelData(configurator);
+		}
 	}
 	
 	private void centerMe(){
@@ -284,6 +287,9 @@ public class DataEvaluationWizard {
 				
 					actualExpressionEditorPanel = new ExpressionEditorPanel(dataFieldsInspector, actualDescriptor);
 					wizardPanel.add(actualExpressionEditorPanel.getExpressionEditorPanel(), EXPRESSIONCARD);
+					if(actualConfigurator != null && actualDescriptor!= null && actualDescriptor.getID() == actualConfigurator.getCalculationAlgorithmID()){
+						actualExpressionEditorPanel.setExpressionEditorPanelData(actualConfigurator);
+					}
 					
 				}
 				else if(actualConfigurator != null && actualExpressionEditorPanel != null){

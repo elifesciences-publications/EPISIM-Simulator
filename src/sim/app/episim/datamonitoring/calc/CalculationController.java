@@ -4,9 +4,11 @@ package sim.app.episim.datamonitoring.calc;
 import java.util.Map;
 import org.jfree.data.xy.XYSeries;
 
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationHandler;
 import sim.app.episim.*;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.TissueCellDataFieldsInspector;
 
 public class CalculationController {
 	
@@ -138,6 +140,10 @@ public class CalculationController {
 		}
 	}
 	
+	
+	public boolean isValidCalculationAlgorithmConfiguration(CalculationAlgorithmConfigurator config, boolean validateExpression, TissueCellDataFieldsInspector inspector){
+		return CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(config, validateExpression, inspector);
+	}
 	
 	public void resetChart(){
 		chartGradientCalculator = new GradientCalculator();

@@ -6,7 +6,7 @@ import sim.app.episim.util.TissueCellDataFieldsInspector;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 
 
-public class CalculationAlgorithmConfiguratorChecker {
+class CalculationAlgorithmConfiguratorChecker {
 	
 	
 	public static boolean isValidCalculationAlgorithmConfiguration(CalculationAlgorithmConfigurator config, boolean validateExpression, TissueCellDataFieldsInspector cellDataFieldsInspector){

@@ -182,6 +182,20 @@ public class CalculationAlgorithmSelectionPanel {
 		return null;
 	}
 	
+	public void setSelectedAlgorithm(int id){
+		String name = this.calculationAlgorithmMap.get(id).getName();
+		updateDescription(name);
+		for(int i = 0; i < this.algorithmList.getModel().getSize(); i++){
+			Object obj = this.algorithmList.getModel().getElementAt(i);
+			String listElem = null;
+			if(obj instanceof String) listElem = (String) obj;
+			if(listElem.equals(name)){
+				this.algorithmList.setSelectedIndex(i);
+				break;
+			}
+		}
+		
+	}
 	
 	private JPanel buildAlgorithmDescriptionPanel(){
 		JPanel algorithmDescriptionPanel = new JPanel(new GridBagLayout());

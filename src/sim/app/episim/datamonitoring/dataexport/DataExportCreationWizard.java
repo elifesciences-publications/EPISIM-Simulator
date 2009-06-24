@@ -61,8 +61,8 @@ import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.DataEvaluationWizard;
-import sim.app.episim.datamonitoring.calc.CalculationAlgorithmConfiguratorChecker;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
+import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartCreationWizard;
 import sim.app.episim.datamonitoring.charts.EpisimChartImpl;
@@ -540,7 +540,7 @@ public class DataExportCreationWizard extends JDialog {
 	
 	private boolean hasEveryColumnAnExpression(){
 		for(EpisimDataExportColumn col : this.episimDataExportDefinition.getEpisimDataExportColumns()){
-			if(!CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(col.getCalculationAlgorithmConfigurator(), true, this.cellDataFieldsInspector)) return false;
+			if(!CalculationController.getInstance().isValidCalculationAlgorithmConfiguration(col.getCalculationAlgorithmConfigurator(), true, this.cellDataFieldsInspector)) return false;
 		}
 		
 		return true;
@@ -739,7 +739,7 @@ public class DataExportCreationWizard extends JDialog {
 					      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
 					      cellDataFieldsInspector, DataEvaluationWizard.DATAEXPORTROLE);
 					calculationConfig = editor.getCalculationAlgorithmConfigurator(calculationConfig);
-					if(CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(calculationConfig, false, cellDataFieldsInspector)){
+					if(CalculationController.getInstance().isValidCalculationAlgorithmConfiguration(calculationConfig, false, cellDataFieldsInspector)){
 						formulaButton.setText("Edit");
 						formulaField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(calculationConfig.getCalculationAlgorithmID()).getName());
 						int index = columnCombo.getSelectedIndex();
@@ -771,7 +771,7 @@ public class DataExportCreationWizard extends JDialog {
 
 		public void setCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator config) {
 
-			if(CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(config, false, cellDataFieldsInspector)){
+			if(CalculationController.getInstance().isValidCalculationAlgorithmConfiguration(config, false, cellDataFieldsInspector)){
 				this.calculationConfig = config;
 				this.formulaField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).getName());
 			}

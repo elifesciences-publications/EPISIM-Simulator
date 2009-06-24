@@ -3,7 +3,7 @@ package episiminterfaces.calc;
 import java.util.Map;
 
 
-public interface CalculationAlgorithmDescriptor {
+public interface CalculationAlgorithmDescriptor extends java.io.Serializable{
 	
 	int getID();
 	int getType();

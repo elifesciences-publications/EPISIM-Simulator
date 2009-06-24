@@ -22,8 +22,10 @@ import javax.swing.*;
 
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmConfiguratorFactory;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
+import sim.app.episim.util.ObjectManipulations;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.app.episim.util.TissueCellDataFieldsInspector.ParameterSelectionListener;
 import sim.util.gui.NumberTextField;
@@ -54,7 +56,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	//index 0: expression not compiled; index 1: expression compiled
 	private String [] arithmeticExpression = new String[2];
 	private String [] booleanExpression = new String[2];
-	private Map<String, Object> parameterValues;
+	private Map<String, Object> parameterValues = new HashMap<String, Object>();
 	private int calculationAlgorithmID;
 	
 	private int activatedTextArea = 0;
@@ -191,7 +193,9 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			if(comp instanceof PropertyField){
 				PropertyField p = (PropertyField) comp;
 				parameterValues.put(p.getName(), map.get(p.getName()));
-				p.setValue((String) map.get(p.getName()));
+				
+				
+				if(Boolean.class.isAssignableFrom(map.get(p.getName()).getClass())) p.setValue(Boolean.toString((Boolean) map.get(p.getName())));
 			}
 			else if(comp instanceof NumberTextField){
 				NumberTextField n = (NumberTextField) comp;
@@ -203,6 +207,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	
 	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator(){
 		try{
+			fetchParameterValues();
 			String result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
 			arithmeticExpression[0]=arithmeticExpressionTextArea.getText().trim();
 			if(result != null && !result.trim().equals("")){ 
@@ -211,12 +216,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				arithmeticExpression[1]=result.trim();
 			}					
 			if(!booleanCondition){
-				return new CalculationAlgorithmConfigurator(){
-					public String[] getArithmeticExpression() { return arithmeticExpression; }
-					public String[] getBooleanExpression() { return new String[]{null, null}; }
-					public int getCalculationAlgorithmID() { return calculationAlgorithmID; }
-					public Map<String, Object> getParameters() { return parameterValues; }					
-				};
+				return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, new String[]{null, null}, parameterValues);
+					
 			}
 		}
 		catch (ParseException e1){
@@ -240,12 +241,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 					booleanExpression[1]=result.trim();
 				}
 
-				return new CalculationAlgorithmConfigurator(){
-					public String[] getArithmeticExpression() { return arithmeticExpression; }
-					public String[] getBooleanExpression() { return booleanExpression; }
-					public int getCalculationAlgorithmID() { return calculationAlgorithmID; }
-					public Map<String, Object> getParameters() { return parameterValues; }					
-				};
+				return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, booleanExpression, parameterValues);
 				
 			}
 			catch (ParseException e1){
@@ -351,7 +347,18 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			   c.gridwidth = GridBagConstraints.REMAINDER;
 				JComponent propField = null;
 				if(Boolean.TYPE.isAssignableFrom(descriptor.getParameters().get(name))){
-					propField = new PropertyField(name, "false", true, null, PropertyField.SHOW_CHECKBOX); 
+					propField = new PropertyField(name, "false", true, null, PropertyField.SHOW_CHECKBOX){
+						public void setVerifyInputWhenFocusTarget(boolean
+						      verifyInputWhenFocusTarget) {							  
+						  super.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
+						  checkField.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
+						  if(!verifyInputWhenFocusTarget)checkField.setInputVerifier( new InputVerifier() {			
+								public boolean verify(JComponent input) { return false; }
+								public boolean shouldYieldFocus(JComponent input) { return verify(input); 
+								}
+						  });
+					  }
+					}; 
 				}
 				else if(Integer.TYPE.isAssignableFrom(descriptor.getParameters().get(name)) 
 						|| Byte.TYPE.isAssignableFrom(descriptor.getParameters().get(name))
@@ -387,20 +394,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 					};
 				}
 				if(propField != null){
+					propField.setName(name);
 					
-					propField.addFocusListener(new FocusListener(){					
-						public void focusGained(FocusEvent e) {}
-		
-					public void focusLost(FocusEvent e) {
-						if(e.getSource() instanceof PropertyField){
-							PropertyField p = (PropertyField) e.getSource();
-							parameterValues.put(p.getName(), Boolean.parseBoolean(p.getValue()));
-						}
-						else if(e.getSource() instanceof NumberTextField){
-							NumberTextField n = (NumberTextField) e.getSource();
-							parameterValues.put(n.getName(),n.getValue());
-						}
-					}});
 					propField.setVerifyInputWhenFocusTarget(false);
 					propField.setInputVerifier(new InputVerifier() {			
 						public boolean verify(JComponent input) { return false; }
@@ -448,7 +443,18 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 
 	}
    
-   
+   private void fetchParameterValues(){
+   	for(Component comp: this.parametersPanel.getComponents()){
+   		if(comp instanceof PropertyField){
+   			PropertyField p = (PropertyField) comp;
+   			this.parameterValues.put(p.getName(), Boolean.parseBoolean(p.getValue()));
+   		}
+   		else if(comp instanceof NumberTextField){
+   			NumberTextField n = (NumberTextField) comp;
+				parameterValues.put(n.getName(),n.getValue());
+   		}
+   	}
+   }
    
    
    

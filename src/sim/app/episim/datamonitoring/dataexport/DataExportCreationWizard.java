@@ -778,6 +778,9 @@ public class DataExportCreationWizard extends JDialog {
 
 		}
 		
+		an //geeigneter Stelle Überprüfung einfügen, ob in Abhängigkeit vom Algorithmus mehr als eine Spalte in csv datei erlaubt ist oder nicht.
+		
+		
 		public JButton getFormulaButton(){ return this.formulaButton;}
 		
 		public int getColumnIndex() {

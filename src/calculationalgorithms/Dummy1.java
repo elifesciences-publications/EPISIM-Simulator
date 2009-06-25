@@ -25,7 +25,7 @@ public class Dummy1 implements CalculationAlgorithm{
 
 			public String getName() { return "Dummy 1"; }
 
-			public int getType(){ return CalculationAlgorithm.ONEDIMRESULT; }
+			public CalculationAlgorithmType getType(){ return CalculationAlgorithmType.ONEDIMRESULT; }
 
 			public boolean hasCondition() { return true; }
 

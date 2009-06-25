@@ -737,7 +737,7 @@ public class DataExportCreationWizard extends JDialog {
 					isDirty = true;
 					DataEvaluationWizard editor = new DataEvaluationWizard(((Frame) DataExportCreationWizard.this.getOwner()),
 					      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
-					      cellDataFieldsInspector, DataEvaluationWizard.DATAEXPORTROLE);
+					      cellDataFieldsInspector);
 					calculationConfig = editor.getCalculationAlgorithmConfigurator(calculationConfig);
 					if(CalculationController.getInstance().isValidCalculationAlgorithmConfiguration(calculationConfig, false, cellDataFieldsInspector)){
 						formulaButton.setText("Edit");

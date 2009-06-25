@@ -41,6 +41,7 @@ import javax.swing.event.ListSelectionListener;
 
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
+import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 import sim.app.episim.datamonitoring.CalculationAlgorithmSelectionPanel.AlgorithmSelectionListener;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
@@ -55,16 +56,13 @@ import sim.app.episim.util.TissueCellDataFieldsInspector.ParameterSelectionListe
 
 public class DataEvaluationWizard {
 	
-	public static final int CHARTBASELINEROLE = 1;
-	public static final int CHARTSERIESROLE = 2;
-	public static final int DATAEXPORTROLE = 3;
 	
 	private static final String SELECTIONCARD = "SelectionCard";
 	private static final String EXPRESSIONCARD = "ExpressionCard";
 	
 	private JPanel buttonPanel;
 	private JPanel wizardPanel;
-	private int role;
+	
 	
 	private JDialog dialog;
 	
@@ -85,17 +83,22 @@ public class DataEvaluationWizard {
 	
 	//index 0: expression not compiled; index 1: expression compiled
 	
+	private Set<CalculationAlgorithmType> allowedTypes;
 	
 	
-	
-	public DataEvaluationWizard(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector, int role){
-		this(owner, title, modal, _dataFieldsInspector, role, false);
+	public DataEvaluationWizard(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector){
+		this(owner, title, modal, _dataFieldsInspector, null);
 	}
 	
 	
-	public DataEvaluationWizard(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector, int role, boolean _booleanCondition){
+	public DataEvaluationWizard(Frame owner, String title, boolean modal, TissueCellDataFieldsInspector _dataFieldsInspector, Set<CalculationAlgorithmType> _allowedTypes){
 		dialog = new JDialog(owner, title, modal);
-		this.role = role;
+		
+		if(_allowedTypes == null){
+			this.allowedTypes = new HashSet<CalculationAlgorithmType>();
+			for(CalculationAlgorithmType type: CalculationAlgorithmType.values()) allowedTypes.add(type);
+		}
+		else this.allowedTypes = _allowedTypes;
 	   
 	   if(_dataFieldsInspector == null) throw new IllegalArgumentException("Datafield Inspector is null!");
 	   dataFieldsInspector = _dataFieldsInspector;
@@ -129,10 +132,9 @@ public class DataEvaluationWizard {
 	
 	private void buildWizardPanel(){
 		 wizardPanel = new JPanel(new CardLayout());
-		 if(this.role == CHARTBASELINEROLE){
-			 algorithmSelectionPanel = new CalculationAlgorithmSelectionPanel(CalculationAlgorithmSelectionPanel.ONLYONEDIMALGORITHMS);
-		 }
-		 else algorithmSelectionPanel = new CalculationAlgorithmSelectionPanel(CalculationAlgorithmSelectionPanel.ALLALGORITHMS);
+		 
+		 algorithmSelectionPanel = new CalculationAlgorithmSelectionPanel(allowedTypes);
+		 
 		 algorithmSelectionPanel.addAlgorithmSelectionListener(new AlgorithmSelectionListener(){
 				public void algorithmWasSelected() { nextBackButton.setEnabled(true); }
 				public void noAlgorithmIsSelected() { nextBackButton.setEnabled(false); }

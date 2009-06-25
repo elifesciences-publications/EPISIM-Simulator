@@ -28,12 +28,11 @@ import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.SortedJList;
-
+import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 public class CalculationAlgorithmSelectionPanel {
 	
-	public static final int ONLYONEDIMALGORITHMS = 1;
-	public static final int ALLALGORITHMS = 2;
+	
 	
 	
 	public interface AlgorithmSelectionListener{
@@ -54,11 +53,17 @@ public class CalculationAlgorithmSelectionPanel {
 	private Map<Integer, CalculationAlgorithmDescriptor>calculationAlgorithmMap;
 	private Map<String, Integer> calculationAlgorithmNameIDMap;
 	
+	private Set<CalculationAlgorithmType> allowedTypes;
 	
 	private int role;
 	
-	public CalculationAlgorithmSelectionPanel(int role){
-		this.role = role;
+	public CalculationAlgorithmSelectionPanel(){
+		this(null);
+	}
+	
+	
+	public CalculationAlgorithmSelectionPanel(Set<CalculationAlgorithmType> allowedTypes){
+		this.allowedTypes = allowedTypes;
 		listeners = new HashSet<AlgorithmSelectionListener>();
 		algorithmSelectionPanel= new JPanel(new GridBagLayout());
 		
@@ -100,8 +105,8 @@ public class CalculationAlgorithmSelectionPanel {
 		calculationAlgorithmMap = new HashMap<Integer, CalculationAlgorithmDescriptor>();
 		calculationAlgorithmNameIDMap = new HashMap<String, Integer>();
 		for(CalculationAlgorithmDescriptor descriptor : descriptors){
-			if(this.role == ONLYONEDIMALGORITHMS){
-				if(descriptor.getType() == CalculationAlgorithm.ONEDIMRESULT){
+			if(this.allowedTypes != null){
+				if(this.allowedTypes.contains(descriptor.getType())){
 					calculationAlgorithmMap.put(descriptor.getID(), descriptor);
 					calculationAlgorithmNameIDMap.put(getUniqueCalculationAlgorithmName(descriptor.getName()), descriptor.getID());
 				}
@@ -163,7 +168,7 @@ public class CalculationAlgorithmSelectionPanel {
 		CalculationAlgorithmDescriptor descriptor = this.calculationAlgorithmMap.get(this.calculationAlgorithmNameIDMap.get(name));
 		if(descriptor != null){
 			this.algorithmName.setText(descriptor.getName());
-			this.algorithmType.setText(Names.getCalculationAlgorithmTypeDescriptionForID(descriptor.getType()));
+			this.algorithmType.setText(descriptor.getType().toString());
 			this.algorithmDescription.setText(descriptor.getDescription());
 		}
 	}

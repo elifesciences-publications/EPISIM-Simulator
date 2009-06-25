@@ -75,14 +75,7 @@ public abstract class Names {
 		return convertClassToVariable(cleanString(series.getName()+series.getId()));
 	}
 	
-	public static String getCalculationAlgorithmTypeDescriptionForID(int id){
-		if(id == CalculationAlgorithm.HISTOGRAMRESULT) return "Histogramm";
-		else if(id == CalculationAlgorithm.ONEDIMRESULT) return "1 dimensional result";
-		else if(id == CalculationAlgorithm.TWODIMRESULT) return "2 dimensional result";
-		else if(id == CalculationAlgorithm.TWODIMDATASERIESRESULT) return "2 dimensional data series (gradient etc.)";
-		
-		return "no type description available";
-	}
+	
 	
 	
 }

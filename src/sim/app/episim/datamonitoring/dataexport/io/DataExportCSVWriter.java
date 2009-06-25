@@ -138,7 +138,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	
 	public void simulationWasStopped(){
 		try{
-	      csvWriter.close();
+	     if(csvWriter != null) csvWriter.close();
       }
       catch (IOException e){
       	ExceptionDisplayer.getInstance().displayException(e);

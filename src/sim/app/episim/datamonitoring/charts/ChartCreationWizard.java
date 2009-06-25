@@ -78,6 +78,8 @@ import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.util.gui.ColorWell;
 import sim.util.gui.LabelledList;
 import sim.util.gui.NumberTextField;
+import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
+
 
 public class ChartCreationWizard extends JDialog {
 	
@@ -731,15 +733,22 @@ public class ChartCreationWizard extends JDialog {
 
 			public void actionPerformed(ActionEvent e) {
 				isDirty = true;
-	         DataEvaluationWizard editor = new DataEvaluationWizard(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector, DataEvaluationWizard.CHARTBASELINEROLE);
-	         baselineCalculationAlgorithmConfigurator =editor.getCalculationAlgorithmConfigurator(baselineCalculationAlgorithmConfigurator);
-	         if(baselineCalculationAlgorithmConfigurator != null){
-	         	baselineButton.setText("Edit Baseline Expression");
-	         	baselineField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getName());
-	         	episimChart.setBaselineCalculationAlgorithmConfigurator(baselineCalculationAlgorithmConfigurator);
-	         }
-	         
+				
+				
+				Set<CalculationAlgorithmType> allowedTypes = new HashSet<CalculationAlgorithmType>();
+				if(areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMDATASERIESRESULT)) allowedTypes.add(CalculationAlgorithmType.ONEDIMDATASERIESRESULT);
+				if(areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMRESULT)) allowedTypes.add(CalculationAlgorithmType.ONEDIMRESULT);
+				
+				
+		         DataEvaluationWizard editor = new DataEvaluationWizard(
+		         		((Frame)ChartCreationWizard.this.getOwner()), "Baseline Expression Editor", true, cellDataFieldsInspector, allowedTypes);
+		         baselineCalculationAlgorithmConfigurator =editor.getCalculationAlgorithmConfigurator(baselineCalculationAlgorithmConfigurator);
+		         if(baselineCalculationAlgorithmConfigurator != null){
+		         	baselineButton.setText("Edit Baseline Expression");
+		         	baselineField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getName());
+		         	episimChart.setBaselineCalculationAlgorithmConfigurator(baselineCalculationAlgorithmConfigurator);
+		         }
+				
         }
      	 
       });
@@ -1019,18 +1028,27 @@ public class ChartCreationWizard extends JDialog {
 	
    private boolean checkSeriesCalculationConfiguratorCompatibility(long seriesID, CalculationAlgorithmConfigurator config){
    	boolean deactivateBaseLine = false;
-   	Set<Integer> typesToLookFor = new HashSet<Integer>();
-   	typesToLookFor.add(CalculationAlgorithm.ONEDIMRESULT);
-   	typesToLookFor.add(CalculationAlgorithm.HISTOGRAMRESULT);
-		typesToLookFor.add(CalculationAlgorithm.TWODIMDATASERIESRESULT);
-		typesToLookFor.add(CalculationAlgorithm.TWODIMRESULT);
+   	Set<CalculationAlgorithmType> typesToLookFor = new HashSet<CalculationAlgorithmType>();
+   	for(CalculationAlgorithmType type : CalculationAlgorithmType.values()) typesToLookFor.add(type);
    	
    	CalculationAlgorithmDescriptor descr = CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID());
    	typesToLookFor.remove(descr.getType());
    	
    	Set<EpisimChartSeries> incompatibleSeries = lookForAlgorithmTypeInSeries(typesToLookFor);
    	
-   	deactivateBaseLine = (descr.getType() != CalculationAlgorithm.ONEDIMRESULT);
+   
+   	
+   	if(descr.getType() == CalculationAlgorithmType.ONEDIMDATASERIESRESULT){
+   		if(this.baselineCalculationAlgorithmConfigurator != null 
+   				&& CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(this.baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getType() == CalculationAlgorithmType.ONEDIMRESULT)
+   				deactivateBaseLine = true;
+   	}
+   	else if(descr.getType() == CalculationAlgorithmType.ONEDIMRESULT){
+      		if(this.baselineCalculationAlgorithmConfigurator != null 
+      				&& CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(this.baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getType() == CalculationAlgorithmType.ONEDIMDATASERIESRESULT)
+      				deactivateBaseLine = true;
+      }
+   	else deactivateBaseLine = true;
    	
    	for(EpisimChartSeries series: incompatibleSeries){
    		if(series.getId() == seriesID) incompatibleSeries.remove(series);
@@ -1043,13 +1061,13 @@ public class ChartCreationWizard extends JDialog {
    			 
    			message.append(series.getName());
    			message.append(" (Type: ");
-   			message.append(Names.getCalculationAlgorithmTypeDescriptionForID(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(series.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType()));
+   			message.append(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(series.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType().toString());
    			message.append(")\n");
    		}
    		if(deactivateBaseLine && this.baselineCalculationAlgorithmConfigurator != null){
    			message.append("Baseline ");
    			message.append(" (Type: ");
-   			message.append(Names.getCalculationAlgorithmTypeDescriptionForID(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(this.baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getType()));
+   			message.append(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(this.baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getType().toString());
    			message.append(")\n");
    		}
    		
@@ -1077,20 +1095,25 @@ public class ChartCreationWizard extends JDialog {
    }
    
    private boolean checkIfBaseLineShouldBeEnabled(){
-   	boolean areAllOneDimesional = true;
+   		
+   	
+   	return (areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMDATASERIESRESULT) || areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMRESULT));
+   }
+   
+   private boolean areAllChartSeriesOfType(CalculationAlgorithmType type){
+   	boolean areAllOfType = true;
    	for(EpisimChartSeries series: this.episimChart.getEpisimChartSeries()){
    		if(series.getCalculationAlgorithmConfigurator() != null){
-   			if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(series.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType() != CalculationAlgorithm.ONEDIMRESULT){
-   				areAllOneDimesional = false;
+   			if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(series.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType() != type){
+   				areAllOfType = false;
    				break;
    			}
    		}
    	}
-   	
-   	return areAllOneDimesional;
+   	return areAllOfType;
    }
    
-   private Set<EpisimChartSeries> lookForAlgorithmTypeInSeries(Set<Integer> typesToLookFor){
+   private Set<EpisimChartSeries> lookForAlgorithmTypeInSeries(Set<CalculationAlgorithmType> typesToLookFor){
    	Set<EpisimChartSeries> foundSeries = new HashSet<EpisimChartSeries>();
    	
    	for(EpisimChartSeries series: this.episimChart.getEpisimChartSeries()){
@@ -1335,7 +1358,7 @@ public class ChartCreationWizard extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				isDirty = true;
 	         DataEvaluationWizard editor = new DataEvaluationWizard(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Calculation Algorithm Wizard: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector, DataEvaluationWizard.CHARTSERIESROLE);
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Calculation Algorithm Wizard: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector);
 	         calculationConfig =editor.getCalculationAlgorithmConfigurator(calculationConfig);
 	         
 	         

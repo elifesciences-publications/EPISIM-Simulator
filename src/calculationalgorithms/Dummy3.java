@@ -22,7 +22,7 @@ public class Dummy3 implements CalculationAlgorithm{
 
 			public String getName() { return "Dummy 2"; }
 
-			public int getType() { return CalculationAlgorithm.TWODIMRESULT; }
+			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.TWODIMRESULT; }
 
 			public boolean hasCondition() { return false; }
 			

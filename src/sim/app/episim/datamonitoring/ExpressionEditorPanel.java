@@ -62,7 +62,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	private int activatedTextArea = 0;
 	private boolean booleanCondition = false;
 	
-	
+	private boolean hasParameters = false;
 	
 	public ExpressionEditorPanel(TissueCellDataFieldsInspector _dataFieldsInspector, CalculationAlgorithmDescriptor descriptor){
 		if(_dataFieldsInspector == null) throw new IllegalArgumentException(this.getClass().getName() + "One of the Constructor Parameters was null!");
@@ -85,20 +85,22 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   panel.add(this.dataFieldsInspector.getVariableListPanel(), c);
 	   
-	   c.fill = GridBagConstraints.BOTH;
-	   c.gridwidth = GridBagConstraints.REMAINDER;
-	   c.weighty =0.7;
-	   parametersPanel = buildParameterPanel(descriptor);
-	   JScrollPane scroll = new JScrollPane(parametersPanel);
-	   scroll.setBorder(null);
-	   
-	   JPanel framePanel = new JPanel(new BorderLayout());
-	   framePanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createTitledBorder("Parameters"), 
-				BorderFactory.createEmptyBorder(5, 5, 5, 5)));		
-	   framePanel.add(scroll, BorderLayout.CENTER);
-	   panel.add(framePanel, c);
-	  	   
+	   if(descriptor != null && descriptor.getParameters() != null && descriptor.getParameters().size() > 0){
+	   	hasParameters = true;
+		   c.fill = GridBagConstraints.BOTH;
+		   c.gridwidth = GridBagConstraints.REMAINDER;
+		   c.weighty =0.7;
+		   parametersPanel = buildParameterPanel(descriptor);
+		   JScrollPane scroll = new JScrollPane(parametersPanel);
+		   scroll.setBorder(null);
+		   
+		   JPanel framePanel = new JPanel(new BorderLayout());
+		   framePanel.setBorder(BorderFactory.createCompoundBorder(
+					BorderFactory.createTitledBorder("Parameters"), 
+					BorderFactory.createEmptyBorder(5, 5, 5, 5)));		
+		   framePanel.add(scroll, BorderLayout.CENTER);
+		   panel.add(framePanel, c);
+		} 
 	   c.fill = GridBagConstraints.BOTH;
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   c.weighty =0.7;
@@ -207,7 +209,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	
 	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator(){
 		try{
-			fetchParameterValues();
+			 if(hasParameters)fetchParameterValues();
 			String result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
 			arithmeticExpression[0]=arithmeticExpressionTextArea.getText().trim();
 			if(result != null && !result.trim().equals("")){ 

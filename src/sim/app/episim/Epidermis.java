@@ -1,7 +1,7 @@
 package sim.app.episim;
 
 
-import sim.Dummy;
+import sim.DummyCellType;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
@@ -94,7 +94,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
      
      SnapshotWriter.getInstance().addSnapshotListener(this);
      this.registerCellType(KCyte.class);
-     this.registerCellType(Dummy.class);
+     //this.registerCellType(Dummy.class);
      
      ChartController.getInstance().setChartMonitoredTissue(this);
      DataExportController.getInstance().setDataExportMonitoredTissue(this);

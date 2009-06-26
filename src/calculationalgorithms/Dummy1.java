@@ -2,14 +2,11 @@ package calculationalgorithms;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 
 
-public class Dummy1 implements CalculationAlgorithm{
-	
-	
+public class Dummy1 implements CalculationAlgorithm{	
 
 	public CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id) {
 		final int _id = id;

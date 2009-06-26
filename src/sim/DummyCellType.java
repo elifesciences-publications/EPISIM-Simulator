@@ -9,9 +9,9 @@ import sim.app.episim.CellType;
 import sim.engine.SimState;
 import java.util.*;
 
-public class Dummy extends CellType{
+public class DummyCellType extends CellType{
 	
-	public Dummy(){
+	public DummyCellType(){
 		super(-1, -1);
 	}
 

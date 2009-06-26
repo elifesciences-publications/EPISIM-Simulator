@@ -68,6 +68,7 @@ public class DataExportController {
 		validDataTypes.add(Long.TYPE);
 		validDataTypes.add(Float.TYPE);
 		validDataTypes.add(Double.TYPE);
+		validDataTypes.add(Boolean.TYPE);
 		
 	}
 	

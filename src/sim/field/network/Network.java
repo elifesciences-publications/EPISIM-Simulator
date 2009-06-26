@@ -691,7 +691,7 @@ public class Network implements java.io.Serializable
             ioiArray[k]=oldIOI;
             }
         //so far I avoided any resizing.
-        //TODO now I could work around addEdge, too.
+       
         //for instance I already now "IndexOutIn oldIOI", no need to hash-table look-up it. 
         for(int k=0;k<n;k++)
             {

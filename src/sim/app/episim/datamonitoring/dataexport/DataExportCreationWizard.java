@@ -28,9 +28,11 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -80,6 +82,8 @@ import sim.util.gui.NumberTextField;
 
 
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
+import episiminterfaces.calc.CalculationAlgorithmDescriptor;
+import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
@@ -109,7 +113,7 @@ public class DataExportCreationWizard extends JDialog {
    private JComboBox columnCombo;
    private NumberTextField dataExportFrequencyInSimulationSteps;
    private DefaultComboBoxModel comboModel;
-  
+   private JButton addColumnButton;
    private JTextField csvPathField;
 
    
@@ -177,18 +181,20 @@ public class DataExportCreationWizard extends JDialog {
 				c.gridwidth = GridBagConstraints.REMAINDER;
 				c.fill = GridBagConstraints.NONE;
 				c.weightx = 0.0;
-				JButton addSeriesButton = new JButton("Add Data Export Column");
-				addSeriesButton.addActionListener(new ActionListener(){
-
+				addColumnButton = new JButton("Add Data Export Column");
+				addColumnButton.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent e) {
-						isDirty = true;	
-						int index = addDataExportColumn();
+						isDirty = true;
+						if(hasNoColumnsWithoutExpression()){
+							int index = addDataExportColumn();
 	               	comboModel.addElement(DEFAULTCOLUMNNAME + (index+1));
 	               	columnCombo.setSelectedIndex(index);
+						}
+						if(!areAllDataExportColumnsOfType(CalculationAlgorithmType.ONEDIMRESULT)) addColumnButton.setEnabled(false);
                }
 					
 				});
-				columnsMainPanel.add(addSeriesButton, c);
+				columnsMainPanel.add(addColumnButton, c);
 				
 				c.anchor =GridBagConstraints.CENTER;
 				c.fill = GridBagConstraints.BOTH;
@@ -231,9 +237,9 @@ public class DataExportCreationWizard extends JDialog {
  		validate();
    }
      
-  
-   
-   
+   	
+   	
+   	
    private int addDataExportColumn()
    {
    	 int i = this.episimDataExportDefinition.getEpisimDataExportColumns().size();
@@ -524,7 +530,7 @@ public class DataExportCreationWizard extends JDialog {
 		
 		}
 		if(!errorFound){ 
-			errorFound = !hasEveryColumnAnExpression();
+			errorFound = !hasEveryColumnValidExpression();
 			if(errorFound)
 				JOptionPane.showMessageDialog(DataExportCreationWizard.this, "Not every Column has an Calculation Expression!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
@@ -538,7 +544,7 @@ public class DataExportCreationWizard extends JDialog {
 		}
 	}
 	
-	private boolean hasEveryColumnAnExpression(){
+	private boolean hasEveryColumnValidExpression(){
 		for(EpisimDataExportColumn col : this.episimDataExportDefinition.getEpisimDataExportColumns()){
 			if(!CalculationController.getInstance().isValidCalculationAlgorithmConfiguration(col.getCalculationAlgorithmConfigurator(), true, this.cellDataFieldsInspector)) return false;
 		}
@@ -666,6 +672,40 @@ public class DataExportCreationWizard extends JDialog {
 	}
 	
 	
+	private boolean areAllDataExportColumnsOfType(CalculationAlgorithmType type){
+   	boolean areAllOfType = true;
+   	for(EpisimDataExportColumn column: this.episimDataExportDefinition.getEpisimDataExportColumns()){
+   		if(column.getCalculationAlgorithmConfigurator() != null){
+   			if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(column.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType() != type){
+   				areAllOfType = false;
+   				break;
+   			}
+   		}
+   	}
+   	return areAllOfType;
+   }
+	
+	
+	private boolean hasNoColumnsWithoutExpression(){
+		Set<EpisimDataExportColumn> foundColumns = new HashSet<EpisimDataExportColumn>();
+		for(EpisimDataExportColumn column : this.episimDataExportDefinition.getEpisimDataExportColumns()){
+			if(column.getCalculationAlgorithmConfigurator() == null) foundColumns.add(column);
+		}
+		if(!foundColumns.isEmpty()){
+			StringBuffer message = new StringBuffer();
+			message.append("Data export columns without an assigned calculation algorithm found: \n");
+			for(EpisimDataExportColumn column : foundColumns){
+				message.append(column.getName() + "\n");   			
+			}
+			message.append("\n\nYou have to define a calculation algorithm for these column(s) first.\n");
+			JOptionPane.showMessageDialog(this, message.toString(), "Error found", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
+	}
+	
+	
+	
    private class ColumnAttributes extends LabelledList {
 
 		private CalculationAlgorithmConfigurator calculationConfig = null;
@@ -735,9 +775,21 @@ public class DataExportCreationWizard extends JDialog {
 
 				public void actionPerformed(ActionEvent e) {
 					isDirty = true;
-					DataEvaluationWizard editor = new DataEvaluationWizard(((Frame) DataExportCreationWizard.this.getOwner()),
+					DataEvaluationWizard editor = null;
+					
+					if(episimDataExportDefinition.getEpisimDataExportColumns().size() <= 1){
+					editor = new DataEvaluationWizard(((Frame) DataExportCreationWizard.this.getOwner()),
 					      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
 					      cellDataFieldsInspector);
+					}
+					else{
+						Set<CalculationAlgorithmType> allowedTypes = new HashSet<CalculationAlgorithmType>();
+						allowedTypes.add(CalculationAlgorithmType.ONEDIMRESULT);
+						editor = new DataEvaluationWizard(((Frame) DataExportCreationWizard.this.getOwner()),
+						      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
+						      cellDataFieldsInspector, allowedTypes);
+					}
+					
 					calculationConfig = editor.getCalculationAlgorithmConfigurator(calculationConfig);
 					if(CalculationController.getInstance().isValidCalculationAlgorithmConfiguration(calculationConfig, false, cellDataFieldsInspector)){
 						formulaButton.setText("Edit");
@@ -746,7 +798,8 @@ public class DataExportCreationWizard extends JDialog {
 						episimDataExportDefinition.getEpisimDataExportColumn(columnsIdMap.get(index)).setCalculationAlgorithmConfigurator(
 						      calculationConfig);
 					}
-
+					addColumnButton.setEnabled(areAllDataExportColumnsOfType(CalculationAlgorithmType.ONEDIMRESULT));
+					
 				}
 
 			});
@@ -777,10 +830,7 @@ public class DataExportCreationWizard extends JDialog {
 			}
 
 		}
-		
-		an //geeigneter Stelle Überprüfung einfügen, ob in Abhängigkeit vom Algorithmus mehr als eine Spalte in csv datei erlaubt ist oder nicht.
-		
-		
+				
 		public JButton getFormulaButton(){ return this.formulaButton;}
 		
 		public int getColumnIndex() {

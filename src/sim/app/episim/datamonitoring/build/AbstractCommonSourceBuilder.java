@@ -1,5 +1,7 @@
 package sim.app.episim.datamonitoring.build;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import sim.app.episim.CellType;
@@ -28,13 +30,24 @@ public abstract class  AbstractCommonSourceBuilder {
 					this.generatedSourceCode.append("    this." + Names.convertClassToVariable(actClass.getSimpleName())+" = "
 							+ Names.convertClassToVariable(actClass.getSimpleName())+";\n");
 				}
-			}
-			
-			
-			this.generatedSourceCode.append("  }\n");
+			}	
+			this.generatedSourceCode.append(" }\n");
 		}
 		
 	}
+	
+	protected void appendParameterMapReproduction(String parameterMapDataFieldName, Map<String, Object> parameterValueMap){
+		generatedSourceCode.append(parameterMapDataFieldName+ " = new HashMap<String, Object>();\n");
+		
+		for(String key: parameterValueMap.keySet()){
+			Object val = parameterValueMap.get(key);
+			if(val!= null && (val instanceof Number || val instanceof Boolean)){				
+				generatedSourceCode.append(parameterMapDataFieldName+".put(\""+ key+"\", "+val+");\n"); 
+			}
+		}
+		
+	}
+		
 	protected void appendDataFields(){
 	   generatedSourceCode.append("  private EnhancedSteppable steppable;\n");
 	}

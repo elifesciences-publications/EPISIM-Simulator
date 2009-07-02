@@ -14,27 +14,27 @@ import episiminterfaces.calc.CalculationHandler;
 public class OneCellCalculator extends AbstractCommonCalculator{
 	
 	private Map<Long, CalculationHandler> calculationHandlers;
-   private Map<Long, OneCellTrackingDataManager<Double,Double>> dataManagers;
+   private Map<Long, CalculationDataManager<Double,Double>> dataManagers;
 	
 	private final int MINCELLAGE = 2;
 	private Map<Long, CellType> trackedCells;
 		
 	protected OneCellCalculator(){
 		this.calculationHandlers = new HashMap<Long, CalculationHandler>();
-		this.dataManagers = new HashMap<Long, OneCellTrackingDataManager<Double,Double>>();
+		this.dataManagers = new HashMap<Long, CalculationDataManager<Double,Double>>();
 		this.trackedCells = new HashMap<Long, CellType>();
 	}
 	
 	public void restartSimulation(){
 		this.trackedCells.clear();
-		for(OneCellTrackingDataManager<Double,Double> manager : dataManagers.values()){ 
+		for(CalculationDataManager<Double,Double> manager : dataManagers.values()){ 
 			
 			if(manager != null) manager.restartSimulation();
 			
 		}
 	}
 	
-	public void registerForOneCellCalculation(CalculationHandler handler, OneCellTrackingDataManager<Double,Double> datamanager){
+	public void registerForOneCellCalculation(CalculationHandler handler, CalculationDataManager<Double,Double> datamanager){
 		if(handler == null) throw new IllegalArgumentException("OneCellCalculator: CalculationHandler must not be null!");
 		this.calculationHandlers.put(handler.getID(),handler);
 		this.dataManagers.put(handler.getID(),datamanager);
@@ -54,7 +54,7 @@ public class OneCellCalculator extends AbstractCommonCalculator{
 				
 				
 				if(actTrackedCell != null){
-					if(dataManagers.get(handler.getID())!= null)dataManagers.get(handler.getID()).cellHasChanged();
+					if(dataManagers.get(handler.getID())!= null)dataManagers.get(handler.getID()).observedEntityHasChanged();
 					actTrackedCell.setTracked(false);
 				}
 

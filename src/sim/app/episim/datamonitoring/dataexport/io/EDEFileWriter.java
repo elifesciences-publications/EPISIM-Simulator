@@ -97,8 +97,8 @@ public class EDEFileWriter {
 		
 							jarOut.finish();
 							jarOut.close();
-							
-							dataExportCompiler.deleteTempData();
+							//TODO: Enable / Disable deletion of tempory data
+						//	dataExportCompiler.deleteTempData();
 							
 						} catch (Exception e) {
 							ExceptionDisplayer.getInstance()

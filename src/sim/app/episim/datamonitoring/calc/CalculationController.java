@@ -14,13 +14,9 @@ public class CalculationController {
 	
 	private static CalculationController instance;
 	
-	private GradientCalculator chartGradientCalculator;
-	private ACMVCalculator acmvCalculator;
-	private OneCellCalculator oneCellCalculator;
+	
 	private CalculationController(){
-		chartGradientCalculator = new GradientCalculator();
-		acmvCalculator = new ACMVCalculator();
-		oneCellCalculator = new OneCellCalculator();
+		
 	}
 	
 	
@@ -31,112 +27,27 @@ public class CalculationController {
 	
 	public void registerCells(GenericBag<CellType> allCells){
 		if(allCells == null) throw new IllegalArgumentException("CalculationController: the cells bag must not be null!");
-		chartGradientCalculator.registerCells(allCells);
+	/*	chartGradientCalculator.registerCells(allCells);
 		acmvCalculator.registerCells(allCells);
-		oneCellCalculator.registerCells(allCells);
-	}
-	
-	public void registerForChartCalculationGradient(CalculationHandler handler, XYSeries series, boolean isLogarithmic){
-		chartGradientCalculator.registerForChartGradientCalculation(handler, series, isLogarithmic);
-	}
-	
-	public double calculateACMV(CalculationHandler handler){
-		return acmvCalculator.calculateMeanValue(handler);
-	}
-	public void calculateGradients(){
-		chartGradientCalculator.calculateGradients();
+		oneCellCalculator.registerCells(allCells);*/
 	}
 		
-	public void calculateOneCell(double baselineResult, long valueHandlerID){
-		oneCellCalculator.calculateOneCell(baselineResult, valueHandlerID);
+	public void registerAtCalculationAlgorithm(CalculationHandler handler, final XYSeries series, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
+		CalculationDataManager manager = CalculationDataManagerFactory.createCalculationDataManager(getIDForCalculationHandler(), handler, series, xAxisLogarithmic, yAxisLogarithmic);
+		writeParameters(handler);
 	}
 	
-	public double calculateOneCellBaseline(long valueHandlerID){
-		return oneCellCalculator.calculateOneCellBaseline(valueHandlerID);
+	public void registerAtCalculationalgorithm(CalculationHandler handler, final Map<Double, Double> resultMap){
+		CalculationDataManager manager = CalculationDataManagerFactory.createCalculationDataManager(getIDForCalculationHandler(), handler, resultMap);
+		writeParameters(handler);
 	}
 	
-	public void calculateOneCell(long valueHandlerID){
-		oneCellCalculator.calculateOneCell(valueHandlerID);
-	}
-	
-	public void registerForOneCellCalculation(CalculationHandler handler, final XYSeries series, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
-		if(series != null){
-			oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
-				
-				private int counter = 0;
-				private boolean firstCellEver = true;
-			
-				
-				public void addNewValue(Double key, Double value) {
-					if(xAxisLogarithmic && !yAxisLogarithmic){ 
-						if(key > 0)series.add(key, value);	         
-					}
-					else if(!xAxisLogarithmic && yAxisLogarithmic){ 
-						if(value > 0)series.add(key, value);	         
-					}
-					else if(xAxisLogarithmic && yAxisLogarithmic){
-						if(value > 0 && key > 0)series.add(key, value);
-					}
-					else{
-						series.add(key, value);
-					}
-	         }
-	
-				public void cellHasChanged() {
-					series.clear();
-					if(firstCellEver){
-						series.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
-						firstCellEver = false;					
-					}
-					else
-						series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
-					counter++;	         
-	         }
-	
-				public void restartSimulation() {
-		        counter = 0;
-		        series.clear();
-	         }			
-			});
-		}
-		else{
-			oneCellCalculator.registerForOneCellCalculation(handler, null);
-		}
-	}
-	
-	public void registerForOneCellCalculation(CalculationHandler handler, final Map<Double, Double> resultMap){
-		
-		if(resultMap != null){
-			oneCellCalculator.registerForOneCellCalculation(handler, new OneCellTrackingDataManager<Double, Double>(){
-				
-				private int counter = 0;
-				private boolean firstCellEver = true;
-			
-				
-				public void addNewValue(Double key, Double value) {
-					
-					resultMap.put(key, value);	         
-	         }
-	
-				public void cellHasChanged() {
-					//resultMap.clear();
-					/*if(firstCellEver){
-						//resultMap.setKey(((String)series.getKey()) + (" (Cell " + (counter +1)+ ")"));
-						firstCellEver = false;
-					}
-					else
-						//series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
-					counter++;	 */
-					resultMap.put(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
-	         }
-	
-				public void restartSimulation() {
-		        counter = 0;	         
-	         }			
-			});
-		}
-		else{
-			oneCellCalculator.registerForOneCellCalculation(handler, null);
+	private void writeParameters(CalculationHandler handler){
+		if(handler.getParameters() != null){
+			System.out.println("The parameter values are:");
+			for(String key: handler.getParameters().keySet()){
+				System.out.println("Key: " + key + "Value: " + handler.getParameters().get(key));
+			}
 		}
 	}
 	
@@ -146,14 +57,16 @@ public class CalculationController {
 	}
 	
 	public void resetChart(){
-		chartGradientCalculator = new GradientCalculator();
-		oneCellCalculator = new OneCellCalculator();
+		/*chartGradientCalculator = new GradientCalculator();
+		oneCellCalculator = new OneCellCalculator();*/
 	}
 	
 	public void restartSimulation(){
-		chartGradientCalculator.restartSimulation();
-		oneCellCalculator.restartSimulation();
+		/*chartGradientCalculator.restartSimulation();
+		oneCellCalculator.restartSimulation();*/
 	}
+	
+	public int getIDForCalculationHandler(){ return CalculationHandlerRegistry.getInstance().getNextCalculationHandlerID(); }
 	
 	public void resetDataExport(){
 		

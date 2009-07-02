@@ -27,6 +27,8 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	public static final String CHARTDATAFIELDNAME = "chart";
 	public static final String PNGDIRECTORYDATAFIELDNAME = "pngPrintingDirectory";
 	
+	public static final String PARAMETERSNAME = "calculationAlgorithmParameterValues";
+	
 	private EpisimChart actChart;
 	public ChartSourceBuilder(){
 	
@@ -103,6 +105,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		   for(Class<?> actClass : this.actChart.getRequiredClasses())
 				this.generatedSourceCode.append("  private "+ Names.convertVariableToClass(actClass.getSimpleName())+ " "
 						+Names.convertClassToVariable(actClass.getSimpleName())+ ";\n");
+		   
 	}
 	
 	private void appendConstructor(){
@@ -138,10 +141,10 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		Map <Long, Long> seriesCalculationHandlerIDs = new HashMap<Long, Long>();
 		
 		for(EpisimChartSeries series: actChart.getEpisimChartSeries()){
-			
+		/*	
 			//TODO: id für andere Chart Modalitäten erweitern
-			//if(series.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)) seriesCalculationHandlerIDs.put(series.getId(), (System.currentTimeMillis()+ counter));
-			counter++;
+			if(series.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)) seriesCalculationHandlerIDs.put(series.getId(), (System.currentTimeMillis()+ counter));
+			counter++;*/
 		}
 		
 		appendHandlerRegistration(baselineCalculationHandlerID, seriesCalculationHandlerIDs);

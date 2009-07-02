@@ -91,7 +91,7 @@ public class CommonSteppableBuilder {
 	
 	public void appendCalucationHandlerRegistration(EpisimChart chart, StringBuffer source, long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
 		
-		/*
+	/*	
 		if(chart.getBaselineCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDGRADIENTHANDLER)){
 			source.append("CalculationController.getInstance().registerForChartCalculationGradient(");
 			source.append(Names.insertIDIntoCalculationHandlerAndRemovePrefix(chart.getBaselineCalculationAlgorithmConfigurator()[1], -1l)+", ((XYSeries) null), "+ chart.isXAxisLogarithmic()+");\n");

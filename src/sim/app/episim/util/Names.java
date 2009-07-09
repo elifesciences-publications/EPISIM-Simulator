@@ -37,6 +37,9 @@ public abstract class Names {
 	
 	public static final String CONSOLEMAINCONTAINER = "ConsoleMainContainer";
 	
+	
+	public static final String CALCULATIONCALLBACKLIST = "calculationCallbacks";
+	
 	public static String cleanString(String str){
 		
 		str = str.trim();

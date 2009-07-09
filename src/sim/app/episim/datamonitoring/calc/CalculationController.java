@@ -5,6 +5,7 @@ import java.util.Map;
 import org.jfree.data.xy.XYSeries;
 
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
+import episiminterfaces.calc.CalculationCallBack;
 import episiminterfaces.calc.CalculationHandler;
 import sim.app.episim.*;
 import sim.app.episim.util.GenericBag;
@@ -27,31 +28,21 @@ public class CalculationController {
 	
 	public void registerCells(GenericBag<CellType> allCells){
 		if(allCells == null) throw new IllegalArgumentException("CalculationController: the cells bag must not be null!");
-	/*	chartGradientCalculator.registerCells(allCells);
-		acmvCalculator.registerCells(allCells);
-		oneCellCalculator.registerCells(allCells);*/
+		System.out.println("register all cells was called");
 	}
 		
-	public void registerAtCalculationAlgorithm(CalculationHandler handler, final XYSeries series, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
-		CalculationDataManager manager = CalculationDataManagerFactory.createCalculationDataManager(getIDForCalculationHandler(), handler, series, xAxisLogarithmic, yAxisLogarithmic);
-		writeParameters(handler);
+	public CalculationCallBack registerAtCalculationAlgorithm(CalculationHandler handler, final XYSeries series, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
+		CalculationDataManager<Double, Double> manager = null;
+		if(series != null) manager = CalculationDataManagerFactory.createCalculationDataManager(handler, series, xAxisLogarithmic, yAxisLogarithmic);
+			
+		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, manager);
 	}
 	
-	public void registerAtCalculationalgorithm(CalculationHandler handler, final Map<Double, Double> resultMap){
-		CalculationDataManager manager = CalculationDataManagerFactory.createCalculationDataManager(getIDForCalculationHandler(), handler, resultMap);
-		writeParameters(handler);
+	public CalculationCallBack registerAtCalculationalgorithm(CalculationHandler handler, final Map<Double, Double> resultMap){
+			
+		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, CalculationDataManagerFactory.createCalculationDataManager(handler, resultMap));
 	}
-	
-	private void writeParameters(CalculationHandler handler){
-		if(handler.getParameters() != null){
-			System.out.println("The parameter values are:");
-			for(String key: handler.getParameters().keySet()){
-				System.out.println("Key: " + key + "Value: " + handler.getParameters().get(key));
-			}
-		}
-	}
-	
-	
+		
 	public boolean isValidCalculationAlgorithmConfiguration(CalculationAlgorithmConfigurator config, boolean validateExpression, TissueCellDataFieldsInspector inspector){
 		return CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(config, validateExpression, inspector);
 	}
@@ -66,7 +57,7 @@ public class CalculationController {
 		oneCellCalculator.restartSimulation();*/
 	}
 	
-	public int getIDForCalculationHandler(){ return CalculationHandlerRegistry.getInstance().getNextCalculationHandlerID(); }
+	
 	
 	public void resetDataExport(){
 		

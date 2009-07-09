@@ -2,9 +2,13 @@ package sim.app.episim.datamonitoring.charts;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFileChooser;
+
+import sim.app.episim.util.ObjectManipulations;
 
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChartSeries;
@@ -21,9 +25,11 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries, java.io.Seriali
 	private double stretch = 0;
 	private float[] dash= null;
 	private CalculationAlgorithmConfigurator calculationAlgorithmConfigurator = null;
+	private Set<Class<?>> requiredClasses;
 	
 	public EpisimChartSeriesImpl(long id){
 		this.id = id;
+		requiredClasses = new HashSet<Class<?>>();
 	}
 
 	public long getId(){
@@ -100,6 +106,18 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries, java.io.Seriali
 	
 		this.calculationAlgorithmConfigurator = config;
 	}
+
+	public Set<Class<?>> getRequiredClasses() {
+
+	  
+	   return ObjectManipulations.cloneObject(requiredClasses);
+   }
+
+	public void setRequiredClasses(Set<Class<?>> classes) {
+
+	   requiredClasses = classes;
+	   
+   }
 
 	
 	

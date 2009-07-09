@@ -60,7 +60,7 @@ public class ExpressionCheckerController {
 	
 	public boolean hasVarNameConflict(int sessionId, TissueCellDataFieldsInspector tissueDataFieldsInspector){
 		if(varNameRegistry.containsKey(sessionId)){
-			return tissueDataFieldsInspector.checkForCellTypeConflict(varNameRegistry.get(sessionId));
+			return tissueDataFieldsInspector.hasCellTypeConflict(varNameRegistry.get(sessionId));
 		}
 		return false;
 	}

@@ -26,7 +26,8 @@ public interface EpisimChart{
 	List<EpisimChartSeries> getEpisimChartSeries();
 	EpisimChartSeries getEpisimChartSeries(long no);
 	File getPNGPrintingPath();
-	Set<Class<?>> getRequiredClasses();
+	Set<Class<?>> getRequiredClassesForBaseline();
+	Set<Class<?>> getAllRequiredClasses();
 	
 	void setTitle(String title);
 	void setXLabel(String xLabel);
@@ -38,7 +39,7 @@ public interface EpisimChart{
 	void setChartUpdatingFrequency(int frequency);
 	void setBaselineCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator val);
 	void addEpisimChartSeries(EpisimChartSeries chartSeries);
-	void addRequiredClass(Class<?> requiredClass);
+	void setRequiredClassesForBaseline(Set<Class<?>> requiredClasses);
 	void setPNGPrintingPath(File path);
 	void setXAxisLogarithmic(boolean val);
 	void setYAxisLogarithmic(boolean val);

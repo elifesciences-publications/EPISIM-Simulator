@@ -10,6 +10,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory;
 import sim.app.episim.util.Names;
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
@@ -36,7 +37,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		appendConstructor();
 		appendStandardMethods();
 		appendGetCSVWriter();
-		appendRegisterObjectsMethod(episimDataExportDefinition.getRequiredClasses());
+		appendRegisterObjectsMethod(episimDataExportDefinition.getAllRequiredClasses());
 		appendEnd();
 		
 		return generatedSourceCode.toString();
@@ -60,7 +61,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		generatedSourceCode.append("import sim.engine.SimState;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.dataexport.io.*;\n");
 		generatedSourceCode.append("import java.io.*;\n");
-		for(Class<?> actClass: this.actDataExportDefinition.getRequiredClasses()){
+		for(Class<?> actClass: this.actDataExportDefinition.getAllRequiredClasses()){
 			generatedSourceCode.append("import " + actClass.getCanonicalName()+";\n");	
 		}
 		
@@ -81,7 +82,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		   			" = new ObservedHashMap<Double, Double>();\n");
 		   }
 		  
-		   for(Class<?> actClass : this.actDataExportDefinition.getRequiredClasses())
+		   for(Class<?> actClass : this.actDataExportDefinition.getAllRequiredClasses())
 				this.generatedSourceCode.append("  private "+ Names.convertVariableToClass(actClass.getSimpleName())+ " "
 						+Names.convertClassToVariable(actClass.getSimpleName())+ ";\n");
 	}
@@ -99,14 +100,13 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 			
 			for(EpisimDataExportColumn column: actDataExportDefinition.getEpisimDataExportColumns()){
 				
-				//TODO: id für andere Chart Modalitäten erweitern
-			//	if(column.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)) columnCalculationHandlerIDs.put(column.getId(), (System.currentTimeMillis()+ counter));
+				columnCalculationHandlerIDs.put(column.getId(), (System.currentTimeMillis()+ counter));
 				counter++;
 			}
 	      
 		
 		appendHandlerRegistration(columnCalculationHandlerIDs);			
-		appendSteppable(columnCalculationHandlerIDs);
+		appendSteppable();
 		appendDataMapsRegistration();
 		
 		generatedSourceCode.append("}\n");
@@ -129,14 +129,22 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		generatedSourceCode.append("}\n");
 	}
 	
-	private void appendSteppable(Map <Long, Long> columnCalculationHandlerIDs){
+	private void appendSteppable(){
 		
-		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforDataExport(actDataExportDefinition, columnCalculationHandlerIDs)+";\n");
+		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATIONCALLBACKLIST, this.actDataExportDefinition.getDataExportFrequncyInSimulationSteps())+";\n");
 	
 	}
 	
 	private void appendHandlerRegistration(Map<Long, Long> calculationHandlerIDs){
-		SteppableCodeFactory.appendCalucationHandlerRegistration(actDataExportDefinition, generatedSourceCode, calculationHandlerIDs);
+		
+		for(EpisimDataExportColumn actColumn: this.actDataExportDefinition.getEpisimDataExportColumns()){			
+			generatedSourceCode.append(Names.CALCULATIONCALLBACKLIST+".add(");
+			generatedSourceCode.append("CalculationController.getInstance().registerAtCalculationAlgorithm(");
+			generatedSourceCode.append(buildCalculationHandler(calculationHandlerIDs.get(actColumn.getId()), 
+					                                             Long.MIN_VALUE, false, actColumn.getCalculationAlgorithmConfigurator(), 
+					                                             actColumn.getRequiredClasses()));
+			generatedSourceCode.append(", "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+"));\n");				
+		}
 	}
 	
 	private void appendDataMapsRegistration(){

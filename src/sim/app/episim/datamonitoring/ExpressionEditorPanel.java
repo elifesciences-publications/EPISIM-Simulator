@@ -208,9 +208,10 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	}
 	
 	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator(){
+		int actSessionId = ExpressionCheckerController.getInstance().getCheckSessionId();
 		try{
 			 if(hasParameters)fetchParameterValues();
-			String result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
+			String result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(actSessionId, arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
 			arithmeticExpression[0]=arithmeticExpressionTextArea.getText().trim();
 			if(result != null && !result.trim().equals("")){ 
 				arithmeticMessageTextArea.setText(result);
@@ -218,8 +219,14 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				arithmeticExpression[1]=result.trim();
 			}					
 			if(!booleanCondition){
-				return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, new String[]{null, null}, parameterValues);
-					
+				if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
+					return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, new String[]{null, null}, parameterValues);
+				}
+				else{
+					arithmeticMessagePanel.setVisible(true);
+					this.panel.validate();
+					arithmeticMessageTextArea.setText("Usage of paramters belonging to different cell types in a single calculation algorithm is not allowed.");
+				}
 			}
 		}
 		catch (ParseException e1){
@@ -235,15 +242,21 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 		
 		if(booleanCondition){
 			try{
-				String result = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(booleanExpressionTextArea.getText().trim(), dataFieldsInspector);
+				String result = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(actSessionId, booleanExpressionTextArea.getText().trim(), dataFieldsInspector);
 				booleanExpression[0]=booleanExpressionTextArea.getText().trim();
 				if(result != null && !result.trim().equals("")){ 
 					booleanMessageTextArea.setText(result);
 					booleanMessageTextArea.setVisible(true);
 					booleanExpression[1]=result.trim();
 				}
-
-				return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, booleanExpression, parameterValues);
+				if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
+					return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, booleanExpression, parameterValues);
+				}
+				else{
+					arithmeticMessagePanel.setVisible(true);
+					this.panel.validate();
+					arithmeticMessageTextArea.setText("Usage of paramters belonging to different cell types in a single calculation algorithm is not allowed.");
+				}
 				
 			}
 			catch (ParseException e1){

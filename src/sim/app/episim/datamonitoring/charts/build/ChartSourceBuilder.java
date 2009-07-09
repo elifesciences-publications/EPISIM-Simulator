@@ -9,6 +9,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 
 import episiminterfaces.*;
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 
@@ -43,7 +44,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		appendDataFields();
 		appendConstructor();
 		appendStandardMethods();
-		appendRegisterObjectsMethod(episimChart.getRequiredClasses());
+		appendRegisterObjectsMethod(episimChart.getAllRequiredClasses());
 		appendClearSeriesMethod();
 		appendEnd();
 		return generatedSourceCode.toString();
@@ -80,7 +81,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import sim.app.episim.CellType;\n");
 		generatedSourceCode.append("import sim.engine.SimState;\n");
 		generatedSourceCode.append("import sim.field.continuous.*;\n");
-		for(Class<?> actClass: this.actChart.getRequiredClasses()){
+		for(Class<?> actClass: this.actChart.getAllRequiredClasses()){
 			generatedSourceCode.append("import " + actClass.getCanonicalName()+";\n");	
 		}
 		
@@ -102,7 +103,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		   	generatedSourceCode.append("  private XYSeries "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
 		   			" = new XYSeries(\""+Names.cleanString(actSeries.getName())+"\", false);\n");
 		   }
-		   for(Class<?> actClass : this.actChart.getRequiredClasses())
+		   for(Class<?> actClass : this.actChart.getAllRequiredClasses())
 				this.generatedSourceCode.append("  private "+ Names.convertVariableToClass(actClass.getSimpleName())+ " "
 						+Names.convertClassToVariable(actClass.getSimpleName())+ ";\n");
 		   
@@ -139,12 +140,11 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		long counter = 1;
 		long baselineCalculationHandlerID = System.currentTimeMillis();
 		Map <Long, Long> seriesCalculationHandlerIDs = new HashMap<Long, Long>();
-		
+		if(this.actChart.getBaselineCalculationAlgorithmConfigurator() == null)  baselineCalculationHandlerID = Long.MIN_VALUE;
 		for(EpisimChartSeries series: actChart.getEpisimChartSeries()){
-		/*	
-			//TODO: id für andere Chart Modalitäten erweitern
-			if(series.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)) seriesCalculationHandlerIDs.put(series.getId(), (System.currentTimeMillis()+ counter));
-			counter++;*/
+		
+			seriesCalculationHandlerIDs.put(series.getId(), (System.currentTimeMillis()+ counter));
+			counter++;
 		}
 		
 		appendHandlerRegistration(baselineCalculationHandlerID, seriesCalculationHandlerIDs);
@@ -179,7 +179,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	
 	private void appendSteppable(long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
 		
-		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCodeforChart(actChart, baselineCalculationHandlerID, seriesCalculationHandlerIDs)+";\n");
+		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATIONCALLBACKLIST, this.actChart.getChartUpdatingFrequency())+";\n");
 	}
 	
 	private void appendPNGSteppable(){
@@ -216,7 +216,24 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	}
 	
 	private void appendHandlerRegistration(long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
-		SteppableCodeFactory.appendCalucationHandlerRegistration(actChart, generatedSourceCode, baselineCalculationHandlerID, seriesCalculationHandlerIDs);
+		CalculationAlgorithmConfigurator config = this.actChart.getBaselineCalculationAlgorithmConfigurator();
+		if(config != null){
+			generatedSourceCode.append(Names.CALCULATIONCALLBACKLIST+".add(");
+			generatedSourceCode.append("CalculationController.getInstance().registerAtCalculationAlgorithm(");
+			generatedSourceCode.append(buildCalculationHandler(baselineCalculationHandlerID, baselineCalculationHandlerID, true, config, this.actChart.getRequiredClassesForBaseline())
+					+", ((XYSeries) null), "+ this.actChart.isXAxisLogarithmic() + ", " + this.actChart.isYAxisLogarithmic()+"));\n");
+		}
+		for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
+			
+			generatedSourceCode.append(Names.CALCULATIONCALLBACKLIST+".add(");
+			generatedSourceCode.append("CalculationController.getInstance().registerAtCalculationAlgorithm(");
+			generatedSourceCode.append(buildCalculationHandler(seriesCalculationHandlerIDs.get(actSeries.getId()), 
+					                                             baselineCalculationHandlerID, false, actSeries.getCalculationAlgorithmConfigurator(), 
+					                                             actSeries.getRequiredClasses()));
+			generatedSourceCode.append(", "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId()));
+			generatedSourceCode.append(", "+ this.actChart.isXAxisLogarithmic() + ", " + this.actChart.isYAxisLogarithmic()+"));\n");
+				
+		}
 	}
 
 }

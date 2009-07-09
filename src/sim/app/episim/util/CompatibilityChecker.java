@@ -30,7 +30,7 @@ public class CompatibilityChecker {
 		classNameHashValueMap.clear();
 		if(chartSet == null) throw new IllegalArgumentException("Chart-Set for Compatibility-Check must not be null!");
 		for(EpisimChart actChart: chartSet.getEpisimCharts()){
-			for(Class<?> actClass : actChart.getRequiredClasses()){
+			for(Class<?> actClass : actChart.getAllRequiredClasses()){
 				classNameHashValueMap.put(actClass.getCanonicalName(), 
 						ObjectStreamClass.lookup(actClass).getSerialVersionUID());
 			}
@@ -47,7 +47,7 @@ public class CompatibilityChecker {
 		Set<Class<?>> requiredClasses = new HashSet<Class<?>>();
 		
 		for(EpisimDataExportDefinition exp : exportDefinitionSet.getEpisimDataExportDefinitions()){
-			requiredClasses.addAll(exp.getRequiredClasses());
+			requiredClasses.addAll(exp.getAllRequiredClasses());
 		}
 		
 		for(Class<?> actClass : requiredClasses){

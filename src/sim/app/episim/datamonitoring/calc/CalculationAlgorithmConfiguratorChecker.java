@@ -27,8 +27,13 @@ class CalculationAlgorithmConfiguratorChecker {
 				 || config.getBooleanExpression()[1].trim().equals("")))) return false;
 		else if(validateExpression){
 			try{
-				ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(config.getArithmeticExpression()[0], cellDataFieldsInspector);
-				if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasCondition()) ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(config.getBooleanExpression()[0], cellDataFieldsInspector);
+				int  actSessionId= ExpressionCheckerController.getInstance().getCheckSessionId();
+				ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(actSessionId, config.getArithmeticExpression()[0], cellDataFieldsInspector);
+				if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasCondition()) ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(actSessionId, config.getBooleanExpression()[0], cellDataFieldsInspector);
+				if(ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, cellDataFieldsInspector)){
+					return false;
+				}
+			
 			}
 			catch (Exception e1){
 				ExceptionDisplayer.getInstance().displayException(e1);

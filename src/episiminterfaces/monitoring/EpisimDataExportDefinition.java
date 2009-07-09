@@ -13,11 +13,11 @@ public interface EpisimDataExportDefinition extends java.io.Serializable{
 	int getDataExportFrequncyInSimulationSteps();
 	List<EpisimDataExportColumn> getEpisimDataExportColumns();
 	EpisimDataExportColumn getEpisimDataExportColumn(long id);
-	Set<Class<?>> getRequiredClasses();
+	Set<Class<?>> getAllRequiredClasses();
 	
 	File getCSVFilePath();
 	
-	void addRequiredClass(Class<?> requiredClass);
+	
 	void addEpisimDataExportColumn(EpisimDataExportColumn column);
 	void setName(String val);
 	void setDataExportFrequncyInSimulationSteps(int val);

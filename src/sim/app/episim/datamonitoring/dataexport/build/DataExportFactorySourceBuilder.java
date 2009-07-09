@@ -28,7 +28,7 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 		this.actdataExportDefinitionSet = dataExportDefinitionSet;
 		
 		for(EpisimDataExportDefinition dataExportDefinition: dataExportDefinitionSet.getEpisimDataExportDefinitions()){
-			for(Class<?> actClass:dataExportDefinition.getRequiredClasses()) this.requiredClasses.add(actClass);
+			for(Class<?> actClass:dataExportDefinition.getAllRequiredClasses()) this.requiredClasses.add(actClass);
 		}
 		
 		
@@ -94,7 +94,7 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 		for(EpisimDataExportDefinition actdataExportDefinition: actdataExportDefinitionSet.getEpisimDataExportDefinitions()){
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actdataExportDefinition.getName())+ actdataExportDefinition.getId()) +
 						".registerRequiredObjects(");
-			for(Class<?> actClass: actdataExportDefinition.getRequiredClasses()){
+			for(Class<?> actClass: actdataExportDefinition.getAllRequiredClasses()){
 					if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
 						this.factorySource.append(Names.convertClassToVariable(actClass.getSimpleName())+", ");
 					}

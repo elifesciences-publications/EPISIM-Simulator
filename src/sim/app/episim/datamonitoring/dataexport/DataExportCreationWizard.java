@@ -453,11 +453,7 @@ public class DataExportCreationWizard extends JDialog {
 	}
 	
 	public EpisimDataExportDefinition getEpisimDataExport(){
-		if(this.okButtonPressed){
-			this.episimDataExportDefinition.getRequiredClasses().clear();
-			for(Class<?> actClass: this.cellDataFieldsInspector.getRequiredClasses()){
-				this.episimDataExportDefinition.addRequiredClass(actClass);
-			}
+		if(this.okButtonPressed){			
 			return this.episimDataExportDefinition;
 		}
 		return null;
@@ -795,8 +791,9 @@ public class DataExportCreationWizard extends JDialog {
 						formulaButton.setText("Edit");
 						formulaField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(calculationConfig.getCalculationAlgorithmID()).getName());
 						int index = columnCombo.getSelectedIndex();
-						episimDataExportDefinition.getEpisimDataExportColumn(columnsIdMap.get(index)).setCalculationAlgorithmConfigurator(
-						      calculationConfig);
+						EpisimDataExportColumn col = episimDataExportDefinition.getEpisimDataExportColumn(columnsIdMap.get(index));
+						col.setCalculationAlgorithmConfigurator(calculationConfig);
+						col.setRequiredClasses(cellDataFieldsInspector.getRequiredClasses());
 					}
 					addColumnButton.setEnabled(areAllDataExportColumnsOfType(CalculationAlgorithmType.ONEDIMRESULT));
 					

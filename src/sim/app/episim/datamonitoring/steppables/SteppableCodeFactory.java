@@ -21,109 +21,26 @@ public abstract class SteppableCodeFactory {
 	private static StringBuffer steppableCode;
 	
 	
-	private static CommonSteppableBuilder commonBuilder = new CommonSteppableBuilder(); 
 	
 	//returns something like new EnhancedSteppable(){...}
-	public synchronized static String getEnhancedSteppableSourceCodeforChart(EpisimChart chart, long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
-		boolean gradientSeriesFound = false;
-		
+	public synchronized static String getEnhancedSteppableSourceCode(String nameOfCallBackList, double updatingFrequency){
+				
 		steppableCode = new StringBuffer();
 		steppableCode.append("new EnhancedSteppable(){\n");
 		
 		steppableCode.append("public void step(SimState state){\n");
-		steppableCode.append("double baseLineResult = 0;\n");
-	/*	if(!chart.getBaselineCalculationAlgorithmConfigurator() [1].startsWith(Names.BUILDGRADIENTHANDLER)
-				&&!chart.getBaselineCalculationAlgorithmConfigurator() [1].startsWith(Names.BUILDCELLHANDLER)){
-			steppableCode.append("baseLineResult = " + chart.getBaselineCalculationAlgorithmConfigurator() [1]+";\n");
-		}
-		else if(chart.getBaselineCalculationAlgorithmConfigurator() [1].startsWith(Names.BUILDCELLHANDLER)){
-			steppableCode.append("baseLineResult = CalculationController.getInstance().calculateOneCellBaseline("
-					+ baselineCalculationHandlerID + "l);\n");
-		}
-		for(EpisimChartSeries actSeries: chart.getEpisimChartSeries()){
-			if(actSeries.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDGRADIENTHANDLER)) gradientSeriesFound = true;
-			else if(actSeries.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)){
-						
-				steppableCode.append("CalculationController.getInstance().calculateOneCell(baseLineResult, "
-						+ seriesCalculationHandlerIDs.get(actSeries.getId()) + "l);\n");
-				
-			}
-			else{
-				if(chart.isXAxisLogarithmic() && !chart.isYAxisLogarithmic()){ 
-					steppableCode.append("if(baseLineResult > 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-							".add(baseLineResult, "+ actSeries.getCalculationAlgorithmConfigurator()[1]+");\n");         
-				}
-				else if(!chart.isXAxisLogarithmic() && chart.isYAxisLogarithmic()){ 
-					steppableCode.append("if(("+ actSeries.getCalculationAlgorithmConfigurator()[1]+ ")> 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-							".add(baseLineResult, "+ actSeries.getCalculationAlgorithmConfigurator()[1]+");\n");           
-				}
-				else if(chart.isXAxisLogarithmic() && chart.isYAxisLogarithmic()){
-					steppableCode.append("if(("+ actSeries.getCalculationAlgorithmConfigurator()[1]+ ")> 0 && baseLineResult > 0) " + Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-							".add(baseLineResult, "+ actSeries.getCalculationAlgorithmConfigurator()[1]+");\n");
-				}
-				else{
-					steppableCode.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-							".add(baseLineResult, "+ actSeries.getCalculationAlgorithmConfigurator()[1]+");\n");
-				}
-				
-			}
-		}*/
-		if(gradientSeriesFound) steppableCode.append("CalculationController.getInstance().calculateGradients();\n");
+		
+		steppableCode.append("for(CalculationCallBack callBack: "+ nameOfCallBackList + ") callBack.calculate();");		
 		
 		steppableCode.append("}\n");
 		steppableCode.append("public double getInterval(){\n");
-		steppableCode.append("return " + chart.getChartUpdatingFrequency() + ";\n");
+		steppableCode.append("return " + updatingFrequency + ";\n");
 		steppableCode.append("}\n");
 		steppableCode.append("}\n");
 		
 		return steppableCode.toString();
 	}
-	
-	
-	public synchronized static String getEnhancedSteppableSourceCodeforDataExport(EpisimDataExportDefinition exportDefinition, Map <Long, Long> columnCalculationHandlerIDs){
-		boolean gradientColumnFound = false;
-		boolean oneCellColumnFound = false;
-		steppableCode = new StringBuffer();
-		steppableCode.append("new EnhancedSteppable(){\n");
-		
-		steppableCode.append("public void step(SimState state){\n");
-		
-		
-		
-		for(EpisimDataExportColumn actColumn: exportDefinition.getEpisimDataExportColumns()){
-		/*	if(actColumn.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDGRADIENTHANDLER)) gradientColumnFound = true;
-			else if(actColumn.getCalculationAlgorithmConfigurator()[1].startsWith(Names.BUILDCELLHANDLER)){
-				
-				steppableCode.append("CalculationController.getInstance().calculateOneCell("
-						+ columnCalculationHandlerIDs.get(actColumn.getId()) + "l);\n");
-				
-			}
 			
-			else{ 
-				steppableCode.append(Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
-						".put(new Double(Double.NEGATIVE_INFINITY), new Double("+ actColumn.getCalculationAlgorithmConfigurator()[1]+"));\n");
-			}*/
-		}
-	
-		//________________________________________________________
-		
-		// TODO: Vervollständigen
-		//__________________________________________________________
-				
-		if(gradientColumnFound) steppableCode.append("CalculationController.getInstance().calculateGradients();\n");
-		steppableCode.append("}\n");
-		steppableCode.append("public double getInterval(){\n");
-		steppableCode.append("return " + exportDefinition.getDataExportFrequncyInSimulationSteps()+ ";\n");
-		steppableCode.append("}\n");
-		steppableCode.append("}\n");
-		
-		return steppableCode.toString();
-	}
-	
-	
-	
-	
-	
 	public synchronized static String getEnhancedSteppableForPNGPrinting(EpisimChart chart){
 		
 		steppableCode = new StringBuffer();
@@ -143,29 +60,8 @@ public abstract class SteppableCodeFactory {
 		
 	}
 	
-	public static String getCalculationHandlerAndMethodCallForExpression(String expression, Set<Class<?>> requiredClasses){
-		
-		if(expression.startsWith(Names.BUILDGRADIENTHANDLER)){
-			return commonBuilder.buildCalculationHandler(expression.substring(Names.BUILDGRADIENTHANDLER.length()), requiredClasses);
-		}
-		else if(expression.startsWith(Names.BUILDACMVHANDLER)){
-			return "CalculationController.getInstance().calculateACMV("+commonBuilder.buildCalculationHandler(expression.substring(Names.BUILDACMVHANDLER.length()), requiredClasses)+")";
-		}
-		else if(expression.startsWith(Names.BUILDCELLHANDLER)){
-			return commonBuilder.buildCalculationHandler(expression.substring(Names.BUILDCELLHANDLER.length()), requiredClasses);
-		}
-		
-		
-		return "";
-	}
 	
-	public static void appendCalucationHandlerRegistration(EpisimChart chart, StringBuffer source, long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
-		commonBuilder.appendCalucationHandlerRegistration(chart, source, baselineCalculationHandlerID, seriesCalculationHandlerIDs);
-	}
-	
-	public static void appendCalucationHandlerRegistration(EpisimDataExportDefinition dataExport, StringBuffer source, Map<Long, Long> seriesCalculationHandlerIDs){
-		commonBuilder.appendCalucationHandlerRegistration(dataExport, source, seriesCalculationHandlerIDs);
-	}
+		
 	
 	
 

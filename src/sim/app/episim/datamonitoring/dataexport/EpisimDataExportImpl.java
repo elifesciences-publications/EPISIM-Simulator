@@ -26,12 +26,12 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	
 	private boolean isDirty = false;
 	
-	private Set<Class<?>> requiredClasses;
+	
 	
 	public EpisimDataExportImpl(long id){
 		this.id = id;
 		this.columnMap = new HashMap<Long, EpisimDataExportColumn>();
-		requiredClasses = new HashSet<Class<?>>();
+		
 	}
 
 	public void addEpisimDataExportColumn(EpisimDataExportColumn column) {
@@ -75,10 +75,6 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 
 	public void setName(String val) {if(val != null && !val.trim().equals("")) this.name = val; }
 
-	public void addRequiredClass(Class<?> requiredClass) { this.requiredClasses.add(requiredClass); }
-
-	public Set<Class<?>> getRequiredClasses() { return this.requiredClasses; }
-
 	public File getCSVFilePath() { return this.csvFilePath; }
 
 	public void setCSVFilePath(File path) { this.csvFilePath = path; }
@@ -93,7 +89,12 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	   isDirty = value;
 	   
    }
-
-
-
+	
+	public Set<Class<?>> getAllRequiredClasses() {
+		Set<Class<?>> allRequiredClasses = new HashSet<Class<?>>();
+		for(EpisimDataExportColumn col : this.columnMap.values()){
+			allRequiredClasses.addAll(col.getRequiredClasses());
+		}
+	   return allRequiredClasses;
+   }
 }

@@ -547,10 +547,6 @@ public class ChartCreationWizard extends JDialog {
 	
 	public EpisimChart getEpisimChart(){
 		if(this.okButtonPressed){
-			this.episimChart.getRequiredClasses().clear();
-			for(Class<?> actClass: this.cellDataFieldsInspector.getRequiredClasses()){
-				this.episimChart.addRequiredClass(actClass);
-			}
 			return this.episimChart;
 		}
 		return null;
@@ -657,7 +653,6 @@ public class ChartCreationWizard extends JDialog {
 		chartTitleField.setText(previewChart.getTitle().getText());
 		episimChart.setTitle(chartTitleField.getText());
 		chartTitleField.addKeyListener(new KeyAdapter() {
-
 			public void keyPressed(KeyEvent keyEvent) {
 				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
@@ -747,6 +742,7 @@ public class ChartCreationWizard extends JDialog {
 		         	baselineButton.setText("Edit Baseline Expression");
 		         	baselineField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getName());
 		         	episimChart.setBaselineCalculationAlgorithmConfigurator(baselineCalculationAlgorithmConfigurator);
+		         	episimChart.setRequiredClassesForBaseline(cellDataFieldsInspector.getRequiredClasses());
 		         }
 				
         }
@@ -761,7 +757,7 @@ public class ChartCreationWizard extends JDialog {
 			public double newValue(double newValue)
 	      {
 				isDirty = true; 
-				newValue = Math.round(newValue);;
+				newValue = Math.round(newValue);
 				episimChart.setChartUpdatingFrequency((int) newValue);
 	        return newValue;
 	      }
@@ -928,7 +924,7 @@ public class ChartCreationWizard extends JDialog {
 		
 		
 		ExtendedFileChooser fileChooser = new ExtendedFileChooser(".png");
-		fileChooser.setDialogTitle("Choose ONG Printing Path");
+		fileChooser.setDialogTitle("Choose PNG Printing Path");
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
       fileChooser.setCurrentDirectory(episimChart.getPNGPrintingPath());
@@ -1018,6 +1014,7 @@ public class ChartCreationWizard extends JDialog {
    	this.baselineButton.setEnabled(false);
    	this.baselineField.setText("");
    	episimChart.setBaselineCalculationAlgorithmConfigurator(null);
+   	episimChart.setRequiredClassesForBaseline(new HashSet<Class<?>>());
    	this.baselineCalculationAlgorithmConfigurator = null;
    }
    
@@ -1365,10 +1362,15 @@ public class ChartCreationWizard extends JDialog {
 	         
 	         if(CalculationController.getInstance().isValidCalculationAlgorithmConfiguration(calculationConfig, false, cellDataFieldsInspector)){
 	         	if(checkSeriesCalculationConfiguratorCompatibility(seriesIdMap.get(seriesCombo.getSelectedIndex()), calculationConfig)){
+	         		
 		         	formulaButton.setText("Edit Expression");
 		         	formulaField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(calculationConfig.getCalculationAlgorithmID()).getName());
 		         	int index = seriesCombo.getSelectedIndex();
-	               if(episimChart.getEpisimChartSeries(seriesIdMap.get(index)) != null)episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setCalculationAlgorithmConfigurator(calculationConfig);
+	               if(episimChart.getEpisimChartSeries(seriesIdMap.get(index)) != null){
+	               	EpisimChartSeries series = episimChart.getEpisimChartSeries(seriesIdMap.get(index));
+	               	series.setCalculationAlgorithmConfigurator(calculationConfig);
+	               	series.setRequiredClasses(cellDataFieldsInspector.getRequiredClasses());
+	               }
 	               if(checkIfBaseLineShouldBeEnabled()) activateBaseline();
 	               else deactivateBaseLine();
 	         	}

@@ -1,6 +1,7 @@
 package episiminterfaces.monitoring;
 
 import java.awt.Color;
+import java.util.Set;
 
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 
@@ -15,7 +16,7 @@ public interface EpisimChartSeries{
 	double getStretch();
 	float[] getDash();
 	CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator();
-	
+	Set<Class<?>> getRequiredClasses();
 	
 	void setName(String name);
 	void setColor(Color color);
@@ -23,5 +24,5 @@ public interface EpisimChartSeries{
 	void setDash(float[] dash);
 	void setStretch(double val);
 	void setCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator config);
-	
+	void setRequiredClasses(Set<Class<?>> classes);
 }

@@ -16,6 +16,7 @@ import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import sim.app.episim.CellType;
 import sim.app.episim.tissue.TissueType;
+import sim.app.episim.util.ObjectManipulations;
 
 public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	
@@ -40,23 +41,21 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	
 	private Map<Long, EpisimChartSeries> seriesMap;
 	
-	private Set<Class<?>> requiredClasses;
+	
+	private Set<Class<?>> requiredClassesForBaseline;
 	
 	public EpisimChartImpl(long id){
 		this.id = id;
 		
-		this.seriesMap = new HashMap<Long, EpisimChartSeries>();		
-		this.requiredClasses = new HashSet<Class<?>>();
+		this.seriesMap = new HashMap<Long, EpisimChartSeries>();			
+		this.requiredClassesForBaseline = new HashSet<Class<?>>();
 	}
 	
 	public long getId(){
 		return this.id;
 	}
-	
-	public void addRequiredClass(Class<?> requiredClass){ requiredClasses.add(requiredClass);}
-	
-	public Set<Class<?>> getRequiredClasses(){ return this.requiredClasses; }
-	
+		
+		
 	public int getPNGPrintingFrequency() {
 		
 		return pngPrintingFrequency;
@@ -227,6 +226,21 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 		this.yAxisLogarithmic = val;
 		
 	}
+
+	public Set<Class<?>> getAllRequiredClasses() {
+		 Set<Class<?>> allRequiredClasses = new HashSet<Class<?>>();
+		 if(this.requiredClassesForBaseline != null) allRequiredClasses.addAll(requiredClassesForBaseline);
+		 for(EpisimChartSeries series : this.seriesMap.values()) allRequiredClasses.addAll(series.getRequiredClasses());
+	    return allRequiredClasses;
+   }
+
+	public Set<Class<?>> getRequiredClassesForBaseline(){	   
+	   return ObjectManipulations.cloneObject(this.requiredClassesForBaseline);
+   }
+
+	public void setRequiredClassesForBaseline(Set<Class<?>> requiredClasses) {
+		this.requiredClassesForBaseline = requiredClasses;
+   }
 	
 	
 }

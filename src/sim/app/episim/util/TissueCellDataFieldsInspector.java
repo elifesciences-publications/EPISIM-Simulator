@@ -172,6 +172,11 @@ public class TissueCellDataFieldsInspector {
 		}
 	}
 	
+	public void resetRequiredClasses(){ 
+		
+		this.requiredClasses.clear(); 
+	}
+	
 	private void processMethodForVarNameSetAndMethodCallMap(String firstName, Method actMethod){
 		String parameterName="";
 		if(EpisimCellDiffModel.class.isAssignableFrom(actMethod.getDeclaringClass())) firstName += Names.CELLDIFFMODEL;
@@ -227,7 +232,7 @@ public class TissueCellDataFieldsInspector {
 		else return true;
 	}
 	
-	public Set<Class<?>> getRequiredClasses(){ return this.requiredClasses;}
+	public Set<Class<?>> getRequiredClasses(){ return ObjectManipulations.cloneObject(this.requiredClasses);}
 	
 	private String getRedundancyCheckedName(String name){
 		
@@ -301,18 +306,39 @@ public class TissueCellDataFieldsInspector {
 	public Set<String> getOverallVarNameSet(){ return this.overallVarNameSet;}
 	
 	
-	public boolean checkForCellTypeConflict(Set<String> varNames){
+	public boolean hasCellTypeConflict(Set<String> varNames){
 		String foundCellTypeName = null;
 		Set<String> cellTypeClassNames = new HashSet<String>();
+		//Class-Based Check
 		for(CellType actType: this.cellTypesMap.values()) cellTypeClassNames.add(actType.getClass().getSimpleName().toLowerCase());
 		for(String actVarName:varNames){
 			if(cellTypeClassNames.contains(getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase())){ 
-				if(foundCellTypeName== null)foundCellTypeName =getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase();
+				if(foundCellTypeName== null)foundCellTypeName=getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase();
 				else if(foundCellTypeName.equals(getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase()))continue;
-				else return false;
+				else return true;
 			}
 		}
-		return true;
+		
+		//Celltypename-Based Check
+		HashSet<String> cellTypeNameSet = new HashSet<String>();  
+		for(String actVarName : varNames){
+			String cellTypeName = removeCellDiffModel(actVarName.split("\\.")[0].toLowerCase().substring(Names.PREFIXLENGTH));
+			if(!cellTypeNameSet.contains(cellTypeName)){ 
+				if(cellTypeNameSet.size() > 0){
+					return true;
+				}
+				else cellTypeNameSet.add(cellTypeName);
+			}
+			
+		}
+		return false;
+	}
+	
+	private String removeCellDiffModel(String name){
+		if(name.endsWith(Names.CELLDIFFMODEL.toLowerCase())){
+			return name.substring(0, name.length()- Names.CELLDIFFMODEL.length());
+		}
+		return name;
 	}
 
 	public String getMethodCallStrForVarName(String varName){ return this.overallMethodCallMap.get(varName);}
@@ -329,9 +355,8 @@ public class TissueCellDataFieldsInspector {
 		tissueParameterList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		tissueTypeList.addListSelectionListener(new ListSelectionListener() {
-
-			public void valueChanged(ListSelectionEvent e) {
-
+			
+			public void valueChanged(ListSelectionEvent e){				
 				if((e.getValueIsAdjusting() != false) && tissueTypeList.getSelectedIndex() != -1){
 					buildCellTypeList();
 					cellTypeList.validate();
@@ -341,9 +366,8 @@ public class TissueCellDataFieldsInspector {
 					parametersPanel.add(tissueParameterList, BorderLayout.CENTER);
 					listPanel1.validate();
 					listPanel1.repaint();
-				}
+				}				
 			}
-
 		});
 		tissueTypeList.addMouseListener(new MouseAdapter() {
 

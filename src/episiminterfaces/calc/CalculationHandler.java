@@ -10,7 +10,7 @@ import episimexceptions.MissingObjectsException;
 public interface CalculationHandler {
 	
 	long getID();
-	
+	long getCorrespondingBaselineCalculationHandlerID();
 	int getCalculationAlgorithmID();
 	Map<String, Object> getParameters();
 	

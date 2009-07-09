@@ -17,6 +17,7 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 		public String toString(){ return description;}
 	};
 	
+	
 	CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id);
 	
 	

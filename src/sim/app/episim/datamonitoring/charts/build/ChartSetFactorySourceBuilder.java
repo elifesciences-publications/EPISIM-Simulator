@@ -23,7 +23,7 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 		this.actChartSet = episimChartSet;
 		
 		for(EpisimChart actChart: episimChartSet.getEpisimCharts()){
-			for(Class<?> actClass:actChart.getRequiredClasses()) this.requiredClasses.add(actClass);
+			for(Class<?> actClass:actChart.getAllRequiredClasses()) this.requiredClasses.add(actClass);
 		}
 		
 		appendHeader();
@@ -98,7 +98,7 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 		for(EpisimChart actChart:actChartSet.getEpisimCharts()){
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
 					".registerRequiredObjects(");
-			for(Class<?> actClass: actChart.getRequiredClasses()){
+			for(Class<?> actClass: actChart.getAllRequiredClasses()){
 				if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
 					this.factorySource.append(Names.convertClassToVariable(actClass.getSimpleName())+", ");
 				}

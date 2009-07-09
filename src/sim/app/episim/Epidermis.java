@@ -94,7 +94,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
      
      SnapshotWriter.getInstance().addSnapshotListener(this);
      this.registerCellType(KCyte.class);
-     //this.registerCellType(Dummy.class);
+     this.registerCellType(DummyCell.class);
      
      ChartController.getInstance().setChartMonitoredTissue(this);
      DataExportController.getInstance().setDataExportMonitoredTissue(this);

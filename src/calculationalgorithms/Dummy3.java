@@ -3,8 +3,14 @@ package calculationalgorithms;
 import java.util.HashMap;
 import java.util.Map;
 
+import sim.app.episim.CellType;
+import sim.app.episim.datamonitoring.calc.CalculationDataManager;
+import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.ResultSet;
+
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
+import episiminterfaces.calc.CalculationHandler;
 
 
 public class Dummy3 implements CalculationAlgorithm{
@@ -35,4 +41,28 @@ public class Dummy3 implements CalculationAlgorithm{
          }
 	   };
 	}
+
+	public void registerCells(GenericBag<CellType> allCells) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+
+	public void reset() {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+
+	public void restartSimulation() {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+
+	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
 }

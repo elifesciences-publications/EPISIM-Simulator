@@ -12,6 +12,8 @@ import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
+import episiminterfaces.calc.SingleCellObserver;
+import episiminterfaces.calc.SingleCellObserverAlgorithm;
 
 public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	
@@ -43,6 +45,7 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
             }
             int id = actClass.getCanonicalName().hashCode();  
             if(alg != null) calculationAlgorithmsMap.put(id, alg);
+            alg = null;
 			}
 		}
 		
@@ -59,6 +62,31 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	public CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id){
 		return this.calculationAlgorithmsMap.get(id).getCalculationAlgorithmDescriptor(id);
 	}
+	
+	public boolean isDataManagerRegistrationAtCalculationAlgorithmRequired(int algorithmID){
+		if(this.calculationAlgorithmsMap.containsKey(algorithmID)){
+			if(this.calculationAlgorithmsMap.get(algorithmID) instanceof SingleCellObserverAlgorithm){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void registerDataManagerAtCalculationAlgorithm(int calculationAlgorithmID, final CalculationDataManager<Double, Double> dataManager){
+		if(this.calculationAlgorithmsMap.containsKey(calculationAlgorithmID)){
+			if(this.calculationAlgorithmsMap.get(calculationAlgorithmID) instanceof SingleCellObserverAlgorithm){
+				SingleCellObserverAlgorithm alg = (SingleCellObserverAlgorithm)this.calculationAlgorithmsMap.get(calculationAlgorithmID);
+				alg.addSingleCellObserver(dataManager.getID(), new SingleCellObserver(){
+					public void observedCellHasChanged() {      
+	               dataManager.observedEntityHasChanged();
+               }
+				});
+			}
+		}
+	}
+	
+	
+	
 	
 	
 	public void classLoaderHasChanged() {

@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.jfree.data.xy.XYSeries;
 
+import calculationalgorithms.common.AbstractCommonCalculator;
+
 import episimexceptions.CellNotValidException;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.calc.CalculationHandler;

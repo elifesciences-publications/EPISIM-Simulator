@@ -1,4 +1,4 @@
-package sim.app.episim.datamonitoring.calc;
+package calculationalgorithms.common;
 
 import sim.app.episim.CellType;
 import sim.app.episim.util.GenericBag;

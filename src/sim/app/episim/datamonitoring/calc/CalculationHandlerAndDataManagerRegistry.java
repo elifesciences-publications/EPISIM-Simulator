@@ -10,7 +10,7 @@ public class CalculationHandlerAndDataManagerRegistry {
 	private CalculationHandlerAndDataManagerRegistry(){}	
 	protected static CalculationHandlerAndDataManagerRegistry getInstance(){ return instance;}
 	
-	public CalculationCallBack registerCalculationHanderAndDataManager(CalculationHandler handler, CalculationDataManager manager){
+	public CalculationCallBack registerCalculationHanderAndDataManager(CalculationHandler handler, CalculationDataManager<Double, Double> manager){
 		
 		return null;
 	}

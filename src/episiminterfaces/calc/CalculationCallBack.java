@@ -3,6 +3,6 @@ package episiminterfaces.calc;
 
 public interface CalculationCallBack {
 	
-	void calculate();
+	void calculate(long simStep);
 
 }

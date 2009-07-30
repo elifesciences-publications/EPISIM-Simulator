@@ -30,7 +30,7 @@ public abstract class SteppableCodeFactory {
 		
 		steppableCode.append("public void step(SimState state){\n");
 		
-		steppableCode.append("for(CalculationCallBack callBack: "+ nameOfCallBackList + ") callBack.calculate();");		
+		steppableCode.append("for(CalculationCallBack callBack: "+ nameOfCallBackList + ") callBack.calculate(state.schedule.getSteps());");		
 		
 		steppableCode.append("}\n");
 		steppableCode.append("public double getInterval(){\n");

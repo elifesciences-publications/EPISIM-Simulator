@@ -9,6 +9,8 @@ public class ResultSet <T>{
 	
 	private ArrayList <Vector<T>> results;
 	
+	private long timpStep;
+	
 	public ResultSet(ResultSetType type){
 		resultType = type;
 		results = new ArrayList<Vector<T>>();
@@ -41,6 +43,13 @@ public class ResultSet <T>{
 	 
 	 public boolean isEmpty(){
 		 return results.isEmpty();
+	 }
+	 
+	 public void setTimeStep(long timeStep){
+		 this.timpStep = timeStep;
+	 }
+	 public long getTimpeStep(long timeStep){
+		 return timeStep;
 	 }
 	 
 	 public int size(){

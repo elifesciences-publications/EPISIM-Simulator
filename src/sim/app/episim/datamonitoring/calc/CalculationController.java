@@ -16,6 +16,7 @@ public class CalculationController {
 	private static CalculationController instance;
 	
 	
+	
 	private CalculationController(){
 		
 	}
@@ -47,7 +48,11 @@ public class CalculationController {
 		return CalculationAlgorithmConfiguratorChecker.isValidCalculationAlgorithmConfiguration(config, validateExpression, inspector);
 	}
 	
+	
+	
+	
 	public void resetChart(){
+	
 		/*chartGradientCalculator = new GradientCalculator();
 		oneCellCalculator = new OneCellCalculator();*/
 	}

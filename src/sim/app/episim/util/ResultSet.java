@@ -3,13 +3,13 @@ package sim.app.episim.util;
 import java.util.*;
 public class ResultSet <T>{
 	
-	enum ResultSetType { ONEDIMRESULTS, TWODIMRESULTS };
+	public enum ResultSetType { ONEDIMRESULTS, TWODIMRESULTS };
 	
 	private ResultSetType resultType;
 	
 	private ArrayList <Vector<T>> results;
 	
-	private long timpStep;
+	private long timeStep;
 	
 	public ResultSet(ResultSetType type){
 		resultType = type;
@@ -46,10 +46,10 @@ public class ResultSet <T>{
 	 }
 	 
 	 public void setTimeStep(long timeStep){
-		 this.timpStep = timeStep;
+		 this.timeStep = timeStep;
 	 }
-	 public long getTimpeStep(long timeStep){
-		 return timeStep;
+	 public long getTimeStep(){
+		 return this.timeStep;
 	 }
 	 
 	 public int size(){

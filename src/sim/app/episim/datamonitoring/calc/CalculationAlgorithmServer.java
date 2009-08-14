@@ -10,8 +10,10 @@ import java.util.Map;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
+import sim.app.episim.util.ResultSet;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
+import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.SingleCellObserver;
 import episiminterfaces.calc.SingleCellObserverAlgorithm;
 
@@ -85,7 +87,17 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 		}
 	}
 	
-	
+	public void calculateValues(CalculationHandler handler, ResultSet<Double> results){
+		if(handler != null && calculationAlgorithmsMap.containsKey(handler.getCalculationAlgorithmID()) && results != null){
+			CalculationAlgorithm algorithm = this.calculationAlgorithmsMap.get(handler.getCalculationAlgorithmID());
+			algorithm.calculate(handler, results);
+		}
+		else{
+			if(handler == null) throw new IllegalArgumentException("CalculationHandler was null!");
+			else if(!calculationAlgorithmsMap.containsKey(handler.getCalculationAlgorithmID())) throw new IllegalArgumentException("CalculationAlgorithm with ID " + handler.getCalculationAlgorithmID() + " is not available!");
+			else if(results == null) throw new IllegalArgumentException("ResultSet was null!");
+		}
+	}
 	
 	
 	

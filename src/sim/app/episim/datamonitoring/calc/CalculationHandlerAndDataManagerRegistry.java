@@ -5,19 +5,20 @@ import java.util.Map;
 import sim.app.episim.util.ResultSet;
 import episiminterfaces.calc.CalculationCallBack;
 import episiminterfaces.calc.CalculationHandler;
+import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 public class CalculationHandlerAndDataManagerRegistry implements java.io.Serializable{
 	
 	private transient Map<Long, CalculationHandler> calculationHandlerRegistry;
 	private transient Map<Long, CalculationDataManager<Double, Double>> dataManagerRegistry;
-	private transient Map<Long, ResultSet<? extends Number>> baselineResultTempRegistry;
+	private transient Map<Long, ResultSet<Double>> baselineResultTempRegistry;
 	
 		
 	private static CalculationHandlerAndDataManagerRegistry instance = new CalculationHandlerAndDataManagerRegistry();	
 	private CalculationHandlerAndDataManagerRegistry(){		
 		calculationHandlerRegistry = new HashMap<Long, CalculationHandler>();
 		dataManagerRegistry = new HashMap<Long, CalculationDataManager<Double, Double>>();
-		baselineResultTempRegistry = new HashMap<Long, ResultSet<? extends Number>>();
+		baselineResultTempRegistry = new HashMap<Long, ResultSet<Double>>();
 		
 	}	
 	protected static CalculationHandlerAndDataManagerRegistry getInstance(){ return instance;}
@@ -48,12 +49,35 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 	}
 	
 	private void calculateValues(long timeStep, long handlerID, long managerID){
+		if(calculationHandlerRegistry.containsKey(handlerID)){
+			CalculationHandler handler = calculationHandlerRegistry.get(handlerID);
+			if(handler.isBaselineValue()){
+				if((baselineResultTempRegistry.containsKey(handler.getID()) && baselineResultTempRegistry.get(handler.getID()).getTimeStep() != timeStep)
+						|| !baselineResultTempRegistry.containsKey(handler.getID())){	
+					
+					this.baselineResultTempRegistry.put(handler.getID(), calculate(timeStep, handler));
+				}
+			}
+			else{
+				CalculationAlgorithmType type = CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(handler.getCalculationAlgorithmID()).getType();
+				if(type == CalculationAlgorithmType.ONEDIMDATASERIESRESULT || type == CalculationAlgorithmType.ONEDIMRESULT){
+					if((baselineResultTempRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID()) 
+							&& baselineResultTempRegistry.get(handler.getCorrespondingBaselineCalculationHandlerID()).getTimeStep() != timeStep)
+							|| !baselineResultTempRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID())){
+						calculateValues(timeStep, handler.getCorrespondingBaselineCalculationHandlerID(), Long.MIN_VALUE);
+					}
+				}
+			}
+			
+		}
 		 System.out.println("timestep: " + timeStep + " handlerID: " + handlerID + " managerID: " + managerID);
 	}
 	
+	private ResultSet<Double> calculate(long timeStep, CalculationHandler handler){
+		ResultSet<Double> results = ResultSetManager.createResultSetForCalculationAlgorithm(handler.getCalculationAlgorithmID());
+		CalculationAlgorithmServer.getInstance().calculateValues(handler, results);
+		results.setTimeStep(timeStep);
+		return results;
+	}
 	
-	
-	
-	
-
 }

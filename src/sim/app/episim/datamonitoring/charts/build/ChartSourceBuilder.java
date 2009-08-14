@@ -31,9 +31,14 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	public static final String PARAMETERSNAME = "calculationAlgorithmParameterValues";
 	
 	private EpisimChart actChart;
-	public ChartSourceBuilder(){
 	
+	
+	
+	public ChartSourceBuilder(){
+		
 	}
+	
+	
 	
 	public String buildEpisimChartSource(EpisimChart episimChart){
 		if(episimChart ==  null) throw new IllegalArgumentException("Episim-Chart was null!");
@@ -100,6 +105,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 		   
 		   for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
+		   	actSeries.getCalculationAlgorithmConfigurator().
 		   	generatedSourceCode.append("  private XYSeries "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
 		   			" = new XYSeries(\""+Names.cleanString(actSeries.getName())+"\", false);\n");
 		   }

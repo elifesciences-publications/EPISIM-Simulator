@@ -20,7 +20,7 @@ public abstract class ResultSetManager {
 		
 	}
 	
-	public static void copyResultSetToDataManager(ResultSet<? extends Number> results, ResultSet<? extends Number> results2, CalculationDataManager<? extends Number, ? extends Number> dataManager){
+	public static void copyResultSetToDataManager(ResultSet<? extends Number> results,  CalculationDataManager<? extends Number, ? extends Number> dataManager){
 		
 	}
 

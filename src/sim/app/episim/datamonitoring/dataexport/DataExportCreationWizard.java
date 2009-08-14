@@ -774,9 +774,15 @@ public class DataExportCreationWizard extends JDialog {
 					DataEvaluationWizard editor = null;
 					
 					if(episimDataExportDefinition.getEpisimDataExportColumns().size() <= 1){
+						Set<CalculationAlgorithmType> allowedTypes = new HashSet<CalculationAlgorithmType>();
+						allowedTypes.add(CalculationAlgorithmType.ONEDIMDATASERIESRESULT);
+						allowedTypes.add(CalculationAlgorithmType.TWODIMDATASERIESRESULT);
+						allowedTypes.add(CalculationAlgorithmType.TWODIMRESULT);
+						allowedTypes.add(CalculationAlgorithmType.ONEDIMRESULT);
+						
 					editor = new DataEvaluationWizard(((Frame) DataExportCreationWizard.this.getOwner()),
 					      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
-					      cellDataFieldsInspector);
+					      cellDataFieldsInspector, allowedTypes);
 					}
 					else{
 						Set<CalculationAlgorithmType> allowedTypes = new HashSet<CalculationAlgorithmType>();

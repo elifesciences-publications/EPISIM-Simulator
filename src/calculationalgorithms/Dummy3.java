@@ -21,14 +21,14 @@ public class Dummy3 implements CalculationAlgorithm{
 	   return new CalculationAlgorithmDescriptor(){
 
 			public String getDescription() {	         
-	         return "This is our second Dummy Algorithm. It's designed solely for testing purpose. \n Dummy Dummy Dummy, jummy, jummy jummy";
+	         return "This is our second Dummy Algorithm. It's designed solely for testing histogram purpose. \n Dummy Dummy Dummy, jummy, jummy jummy";
          }
 
 			public int getID() { return _id; }
 
 			public String getName() { return "Dummy 2"; }
 
-			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.TWODIMRESULT; }
+			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.HISTOGRAMRESULT; }
 
 			public boolean hasCondition() { return false; }
 			

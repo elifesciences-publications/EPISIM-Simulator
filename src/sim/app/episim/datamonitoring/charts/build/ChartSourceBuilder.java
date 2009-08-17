@@ -6,10 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.xy.XYSeries;
 
 import episiminterfaces.*;
+import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
+import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 
@@ -17,6 +22,7 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory;
 import sim.app.episim.util.Names;
 import sim.engine.Steppable;
@@ -33,10 +39,14 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	private EpisimChart actChart;
 	
 	
+	protected enum ChartSourceBuilderMode {XYSERIESMODE, HISTOGRAMMODE};
+	
+	private ChartSourceBuilderMode mode = ChartSourceBuilderMode.XYSERIESMODE;
 	
 	public ChartSourceBuilder(){
 		
 	}
+	
 	
 	
 	
@@ -45,12 +55,18 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		this.actChart = episimChart;
 		generatedSourceCode = new StringBuffer();
 		
+		if(this.actChart.getEpisimChartSeries().size() >= 1){
+			CalculationAlgorithmType type = CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(this.actChart.getEpisimChartSeries().get(0).getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType();
+			if(type == CalculationAlgorithmType.HISTOGRAMRESULT) this.mode = ChartSourceBuilderMode.HISTOGRAMMODE;
+			else this.mode = ChartSourceBuilderMode.XYSERIESMODE;
+		}		
 		appendHeader();
 		appendDataFields();
 		appendConstructor();
 		appendStandardMethods();
 		appendRegisterObjectsMethod(episimChart.getAllRequiredClasses());
 		appendClearSeriesMethod();
+		if(mode == ChartSourceBuilderMode.HISTOGRAMMODE) appendBuildBinsMethod();
 		appendEnd();
 		return generatedSourceCode.toString();
 	}
@@ -68,6 +84,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import org.jfree.data.xy.*;\n");
 		generatedSourceCode.append("import org.jfree.chart.axis.*;\n");
 		generatedSourceCode.append("import org.jfree.ui.*;\n");
+		generatedSourceCode.append("import org.jfree.data.statistics.*;\n");
 		generatedSourceCode.append("import episiminterfaces.calc.*;\n");
 		generatedSourceCode.append("import episiminterfaces.monitoring.*;\n");
 		generatedSourceCode.append("import episiminterfaces.*;\n");
@@ -101,14 +118,26 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		   generatedSourceCode.append("  private Continuous2D cellContinuous;\n");
 		   generatedSourceCode.append("  private GenericBag<CellType> allCells;\n");
 		   generatedSourceCode.append("  private ChartPanel chartPanel;\n");
-		   generatedSourceCode.append("  private XYSeriesCollection dataset = new XYSeriesCollection();\n");
-		
-		   
-		   for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
-		   	actSeries.getCalculationAlgorithmConfigurator().
-		   	generatedSourceCode.append("  private XYSeries "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-		   			" = new XYSeries(\""+Names.cleanString(actSeries.getName())+"\", false);\n");
-		   }
+		  if(mode == ChartSourceBuilderMode.XYSERIESMODE){ 
+			  	generatedSourceCode.append("  private XYSeriesCollection dataset = new XYSeriesCollection();\n");
+		  				   
+			   for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
+			   	
+			   	generatedSourceCode.append("  private XYSeries "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
+			   			" = new XYSeries(\""+Names.cleanString(actSeries.getName())+"\", false);\n");
+			   }
+		  }
+		  if(mode == ChartSourceBuilderMode.HISTOGRAMMODE){ 
+			  
+		  				   
+			   for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
+			   	
+			   	generatedSourceCode.append("  private SimpleHistogramDataset "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
+			   			" = new SimpleHistogramDataset(\""+Names.cleanString(actSeries.getName())+"\");\n");
+			   }
+		  }
+		  
+		  
 		   for(Class<?> actClass : this.actChart.getAllRequiredClasses())
 				this.generatedSourceCode.append("  private "+ Names.convertVariableToClass(actClass.getSimpleName())+ " "
 						+Names.convertClassToVariable(actClass.getSimpleName())+ ";\n");
@@ -117,10 +146,18 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	
 	private void appendConstructor(){
 		generatedSourceCode.append("public " +Names.convertVariableToClass(Names.cleanString(this.actChart.getTitle())+ this.actChart.getId())+"(){\n");
-		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createXYLineChart(\""+actChart.getTitle()+"\",\""+actChart.getXLabel()+"\",\""+
-				actChart.getYLabel()+"\",dataset,"+"PlotOrientation.VERTICAL, "+actChart.isLegendVisible()+", true, false);\n");
+		
+		if(mode == ChartSourceBuilderMode.XYSERIESMODE){
+			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createXYLineChart(\""+actChart.getTitle()+"\",\""+actChart.getXLabel()+"\",\""+
+					actChart.getYLabel()+"\",dataset,"+"PlotOrientation.VERTICAL, "+actChart.isLegendVisible()+", true, false);\n");
+			generatedSourceCode.append("  ((XYLineAndShapeRenderer)(((XYPlot)("+CHARTDATAFIELDNAME+".getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);\n");
+		}
+		if(mode == ChartSourceBuilderMode.HISTOGRAMMODE){
+			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+" = ChartFactory.createHistogram(\""+actChart.getTitle()+"\",\""+actChart.getXLabel()+"\",\""+
+					actChart.getYLabel()+"\", null,"+"PlotOrientation.VERTICAL, "+actChart.isLegendVisible()+", true, false);\n");
+		}	
+		
 		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".setBackgroundPaint(Color.white);\n");
-		generatedSourceCode.append("  ((XYLineAndShapeRenderer)(((XYPlot)("+CHARTDATAFIELDNAME+".getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);\n");
 		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".setAntiAlias("+actChart.isAntialiasingEnabled()+");\n");
 		if(actChart.isXAxisLogarithmic()){
 			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".getXYPlot().setDomainAxis(new LogarithmicAxis(\""+ actChart.getXLabel()+"\"));\n");
@@ -140,7 +177,9 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 		
 		if(actChart.isLegendVisible()) appendLegend();
-		appendChartSeriesInit();
+		
+		if(mode == ChartSourceBuilderMode.XYSERIESMODE) appendChartSeriesInit();
+		if(mode == ChartSourceBuilderMode.HISTOGRAMMODE) appendHistogramDatasetInit();
 		
 		
 		long counter = 1;
@@ -183,6 +222,35 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		}
 	}
 	
+	private void appendHistogramDatasetInit(){
+		
+		
+		
+		generatedSourceCode.append("  XYPlot plot = "+CHARTDATAFIELDNAME+".getXYPlot();\n");
+		generatedSourceCode.append("  XYBarRenderer renderer = null;\n");
+		int i = 0;
+		for(EpisimChartSeries actSeries: actChart.getEpisimChartSeries()){
+			
+			generatedSourceCode.append("  plot.setDataset("+ i + ", "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+ ");\n");
+			generatedSourceCode.append("  renderer = new XYBarRenderer();\n");
+			generatedSourceCode.append("  renderer.setSeriesPaint(0, new Color("+actSeries.getColor().getRed()+", "+
+					actSeries.getColor().getGreen()+", "+actSeries.getColor().getBlue()+"));\n");
+		
+			generatedSourceCode.append("  for(SimpleHistogramBin bin: buildBins("+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER)
+					+", "+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER)
+					+","+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER)+")) "
+					+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+"dataSet.addBin(bin);\n");
+			
+			generatedSourceCode.append("  plot.setRenderer("+i+", renderer);\n");	
+			
+			i++;
+		}
+		if(actChart.getEpisimChartSeries().size() > 1) 	generatedSourceCode.append("  plot.setForegroundAlpha(0.6F);\n");
+	}
+	
+	
+	
+	
 	private void appendSteppable(long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
 		
 		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATIONCALLBACKLIST, this.actChart.getChartUpdatingFrequency())+";\n");
@@ -190,7 +258,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	
 	private void appendPNGSteppable(){
 		
-		generatedSourceCode.append("pngSteppable = "+SteppableCodeFactory.getEnhancedSteppableForPNGPrinting(actChart)+";\n");
+		generatedSourceCode.append("pngSteppable = "+ SteppableCodeFactory.getEnhancedSteppableForPNGPrinting(actChart)+";\n");
 	}
 	
 	private void appendLegend(){
@@ -204,6 +272,9 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	}
 	
 	private void appendClearSeriesMethod(){
+		dsfdsfsdf
+		
+		
 		generatedSourceCode.append("  public void clearAllSeries(){\n");
 		for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
 	   	generatedSourceCode.append("    "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".clear();\n");
@@ -240,6 +311,23 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			generatedSourceCode.append(", "+ this.actChart.isXAxisLogarithmic() + ", " + this.actChart.isYAxisLogarithmic()+"));\n");
 				
 		}
+	}
+	
+	private void appendBuildBinsMethod(){
+		generatedSourceCode.append("private SimpleHistogramBin[] buildBins(double minValue, double maxValue, int numberOfBins){\n");
+	   generatedSourceCode.append("  if(minValue > maxValue){\n");
+	   generatedSourceCode.append("    double tmp = minValue;\n");
+	   generatedSourceCode.append("    minValue = maxValue;\n");
+	   generatedSourceCode.append("    maxValue = tmp;\n");
+	   generatedSourceCode.append("  }\n");		
+	   generatedSourceCode.append("  double binSize = Math.abs(maxValue - minValue) / numberOfBins;\n");
+	   generatedSourceCode.append("  SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins];\n");				
+	   generatedSourceCode.append("  for(int i = 0; i < numberOfBins; i ++){\n");
+	   generatedSourceCode.append("    if(i == 0) bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, true);\n");
+	   generatedSourceCode.append("    else bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), false, true);\n");
+	   generatedSourceCode.append("  }\n");		
+	   generatedSourceCode.append("  return bins;\n");
+	   generatedSourceCode.append("}\n");
 	}
 
 }

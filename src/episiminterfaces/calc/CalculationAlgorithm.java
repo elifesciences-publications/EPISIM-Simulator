@@ -6,7 +6,10 @@ import sim.app.episim.util.ResultSet;
 
 public interface CalculationAlgorithm extends java.io.Serializable{
 
-	
+	/*
+	 * An Calculation Algorithm of type HISTOGRAMRESULT must define the double parameters minvalue, maxvalue and the int value numberofbins
+	 * in the CalculatoinAlgorithmDescriptor in the aforementioned order
+	 */
 	enum CalculationAlgorithmType {
 		
 		ONEDIMRESULT("one dimensional result"), 
@@ -20,6 +23,11 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 		public String toString(){ return description;}
 	};
 	
+	
+	
+	public static final String HISTOGRAMMINVALUEPARAMETER = "min value";
+	public static final String HISTOGRAMMAXVALUEPARAMETER = "max value";
+	public static final String HISTOGRAMNUMBEROFBINSPARAMETER = "number of bins";
 	
 	CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id);
 	void registerCells(GenericBag<CellType> allCells);

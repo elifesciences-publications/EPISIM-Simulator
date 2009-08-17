@@ -10,7 +10,7 @@ import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChartSeries;
-
+import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 public abstract class  AbstractCommonSourceBuilder {
 	

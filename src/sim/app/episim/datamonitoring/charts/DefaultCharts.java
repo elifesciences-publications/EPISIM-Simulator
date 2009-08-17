@@ -454,8 +454,8 @@ public class DefaultCharts implements java.io.Serializable{
       // Line Renderer for First Dataset
       XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
       
-      renderer.setSeriesPaint(0, Color.blue);    // 0 = Ext Calcium
-      renderer.setSeriesPaint(1, Color.green);      // 1 = Lamelle
+      renderer.setSeriesPaint(0, Color.blue);     // 0 = Ext Calcium
+      renderer.setSeriesPaint(1, Color.green);   // 1 = Lamelle
       renderer.setSeriesPaint(2, Color.red);    // 2 = Lipids        
  
       // Second Vertical Axis

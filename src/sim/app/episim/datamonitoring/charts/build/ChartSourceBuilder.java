@@ -272,12 +272,14 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	}
 	
 	private void appendClearSeriesMethod(){
-		dsfdsfsdf
+		
 		
 		
 		generatedSourceCode.append("  public void clearAllSeries(){\n");
+		
 		for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
-	   	generatedSourceCode.append("    "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".clear();\n");
+			if(mode == ChartSourceBuilderMode.XYSERIESMODE) generatedSourceCode.append("    "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".clear();\n");
+			if(mode == ChartSourceBuilderMode.HISTOGRAMMODE) generatedSourceCode.append("    "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".clearObservations();\n");
 	   }
 		generatedSourceCode.append("  }\n");
 	}
@@ -298,7 +300,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			generatedSourceCode.append(Names.CALCULATIONCALLBACKLIST+".add(");
 			generatedSourceCode.append("CalculationController.getInstance().registerAtCalculationAlgorithm(");
 			generatedSourceCode.append(buildCalculationHandler(baselineCalculationHandlerID, baselineCalculationHandlerID, true, config, this.actChart.getRequiredClassesForBaseline())
-					+", ((XYSeries) null), "+ this.actChart.isXAxisLogarithmic() + ", " + this.actChart.isYAxisLogarithmic()+"));\n");
+					+", (null), "+ this.actChart.isXAxisLogarithmic() + ", " + this.actChart.isYAxisLogarithmic()+"));\n");
 		}
 		for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
 			

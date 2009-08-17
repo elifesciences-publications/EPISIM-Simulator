@@ -2,6 +2,8 @@ package sim.app.episim.datamonitoring.calc;
 
 
 import java.util.Map;
+
+import org.jfree.data.statistics.SimpleHistogramDataset;
 import org.jfree.data.xy.XYSeries;
 
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
@@ -35,6 +37,13 @@ public class CalculationController {
 	public CalculationCallBack registerAtCalculationAlgorithm(CalculationHandler handler, final XYSeries series, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
 		CalculationDataManager<Double, Double> manager = null;
 		if(series != null) manager = CalculationDataManagerFactory.createCalculationDataManager(handler, series, xAxisLogarithmic, yAxisLogarithmic);
+			
+		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, manager);
+	}
+	
+	public CalculationCallBack registerAtCalculationAlgorithm(CalculationHandler handler, final SimpleHistogramDataset dataset, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
+		CalculationDataManager<Double, Double> manager = null;
+		if(dataset != null) manager = CalculationDataManagerFactory.createCalculationDataManager(handler, dataset, xAxisLogarithmic, yAxisLogarithmic);
 			
 		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, manager);
 	}

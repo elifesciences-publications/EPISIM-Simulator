@@ -64,9 +64,12 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	
 	private boolean hasParameters = false;
 	
+	private CalculationAlgorithmDescriptor currentCalculationAlgorithmDescriptor;
+	
 	public ExpressionEditorPanel(TissueCellDataFieldsInspector _dataFieldsInspector, CalculationAlgorithmDescriptor descriptor){
 		if(_dataFieldsInspector == null) throw new IllegalArgumentException(this.getClass().getName() + "One of the Constructor Parameters was null!");
 		this.calculationAlgorithmID = descriptor.getID();
+		this.currentCalculationAlgorithmDescriptor = descriptor;
 		
 		panel = new JPanel();
 		this.booleanCondition = descriptor.hasCondition();
@@ -202,7 +205,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			else if(comp instanceof NumberTextField){
 				NumberTextField n = (NumberTextField) comp;
 				parameterValues.put(n.getName(),map.get(n.getName()));
-				n.setValue((Double) map.get(n.getName()));
+				n.setValue(getDoubleValue(map.get(n.getName())));
 			}		
 		}	
 	}
@@ -380,6 +383,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 						|| Short.TYPE.isAssignableFrom(descriptor.getParameters().get(name))){
 					propField = new NumberTextField(name, 0, false){
 						 public double newValue(double newValue){	return (int)newValue; }
+						 public double getValue(){submit(); return super.getValue();}
 						  public void setVerifyInputWhenFocusTarget(boolean
 							      verifyInputWhenFocusTarget) {							  
 							  super.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
@@ -396,6 +400,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				else if(Double.TYPE.isAssignableFrom(descriptor.getParameters().get(name)) 
 						|| Float.TYPE.isAssignableFrom(descriptor.getParameters().get(name))){
 					propField = new NumberTextField(name, 0, false){
+						 public double getValue(){submit(); return super.getValue();}
 						 public void setVerifyInputWhenFocusTarget(boolean
 							      verifyInputWhenFocusTarget) {							  
 							  super.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
@@ -466,13 +471,28 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
    		}
    		else if(comp instanceof NumberTextField){
    			NumberTextField n = (NumberTextField) comp;
-				parameterValues.put(n.getName(),n.getValue());
+   			if(Integer.TYPE.isAssignableFrom(currentCalculationAlgorithmDescriptor.getParameters().get(n.getName()))) parameterValues.put(n.getName(),(int) n.getValue());
+   			else if(Byte.TYPE.isAssignableFrom(currentCalculationAlgorithmDescriptor.getParameters().get(n.getName()))) parameterValues.put(n.getName(),(byte) n.getValue());
+   			else if(Short.TYPE.isAssignableFrom(currentCalculationAlgorithmDescriptor.getParameters().get(n.getName()))) parameterValues.put(n.getName(),(short) n.getValue());
+   			
+   			else if(Float.TYPE.isAssignableFrom(currentCalculationAlgorithmDescriptor.getParameters().get(n.getName()))) parameterValues.put(n.getName(),(float) n.getValue());
+   			else parameterValues.put(n.getName(),n.getValue());
+						
+				
    		}
    	}
    }
    
-   
-   
+   private double getDoubleValue(Object obj){
+   	if(Integer.TYPE.isAssignableFrom(obj.getClass()) || obj instanceof Integer) return (((Integer) obj)+ 0.0d);
+		else if(Byte.TYPE.isAssignableFrom(obj.getClass()) || obj instanceof Byte) return (((Byte) obj)+ 0.0d);
+		else if(Short.TYPE.isAssignableFrom(obj.getClass()) || obj instanceof Short) return (((Short) obj)+ 0.0d);
+		
+		else if(Float.TYPE.isAssignableFrom(obj.getClass()) || obj instanceof Float) return (((Float) obj)+ 0.0d);
+		else if(Double.TYPE.isAssignableFrom(obj.getClass()) || obj instanceof Double)return (((Double) obj)+ 0.0d);
+   	
+   	return 0.0d;
+   }
 
 
 }

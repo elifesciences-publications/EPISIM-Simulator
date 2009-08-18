@@ -10,20 +10,20 @@ import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 public class CalculationHandlerAndDataManagerRegistry implements java.io.Serializable{
 	
 	private transient Map<Long, CalculationHandler> calculationHandlerRegistry;
-	private transient Map<Long, CalculationDataManager<Double, Double>> dataManagerRegistry;
+	private transient Map<Long, CalculationDataManager<Double>> dataManagerRegistry;
 	private transient Map<Long, ResultSet<Double>> baselineResultTempRegistry;
 	
 		
 	private static CalculationHandlerAndDataManagerRegistry instance = new CalculationHandlerAndDataManagerRegistry();	
 	private CalculationHandlerAndDataManagerRegistry(){		
 		calculationHandlerRegistry = new HashMap<Long, CalculationHandler>();
-		dataManagerRegistry = new HashMap<Long, CalculationDataManager<Double, Double>>();
+		dataManagerRegistry = new HashMap<Long, CalculationDataManager<Double>>();
 		baselineResultTempRegistry = new HashMap<Long, ResultSet<Double>>();
 		
 	}	
 	protected static CalculationHandlerAndDataManagerRegistry getInstance(){ return instance;}
 	
-	public CalculationCallBack registerCalculationHanderAndDataManager(CalculationHandler handler, CalculationDataManager<Double, Double> manager){
+	public CalculationCallBack registerCalculationHanderAndDataManager(CalculationHandler handler, CalculationDataManager<Double> manager){
 		if(handler == null || (!handler.isBaselineValue() && manager == null)) throw new IllegalArgumentException("Parameter value null is not allowed!");
 		if(handler != null && manager != null && handler.getID() != manager.getID()) throw new IllegalArgumentException("CalculationHandlerID: " + handler.getID() + " and DataManagerID: " + manager.getID() + " don't match. They should be equal.");
 		 if(manager != null) CalculationAlgorithmServer.getInstance().registerDataManagerAtCalculationAlgorithm(handler.getCalculationAlgorithmID(), manager);
@@ -66,6 +66,7 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 							|| !baselineResultTempRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID())){
 						calculateValues(timeStep, handler.getCorrespondingBaselineCalculationHandlerID(), Long.MIN_VALUE);
 					}
+					
 				}
 			}
 			
@@ -79,5 +80,7 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 		results.setTimeStep(timeStep);
 		return results;
 	}
+	
+	
 	
 }

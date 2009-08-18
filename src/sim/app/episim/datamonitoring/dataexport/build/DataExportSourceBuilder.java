@@ -8,9 +8,11 @@ import java.util.Map;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory;
 import sim.app.episim.util.Names;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
+import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
@@ -57,7 +59,8 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		generatedSourceCode.append("import sim.app.episim.CellType;\n");
 		generatedSourceCode.append("import sim.field.continuous.*;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.calc.*;\n");
-		generatedSourceCode.append("import sim.app.episim.datamonitoring.dataexport.ObservedHashMap;\n");
+		generatedSourceCode.append("import sim.app.episim.datamonitoring.dataexport.ObservedDataCollection;\n");
+		generatedSourceCode.append("import sim.app.episim.datamonitoring.dataexport.ObservedDataCollection.ObservedDataCollectionType;\n");
 		generatedSourceCode.append("import sim.engine.SimState;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.dataexport.io.*;\n");
 		generatedSourceCode.append("import java.io.*;\n");
@@ -78,8 +81,15 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		   generatedSourceCode.append("  private DataExportCSVWriter dataExportCSVWriter;\n");
 		   
 		   for(EpisimDataExportColumn actColumn: this.actDataExportDefinition.getEpisimDataExportColumns()){
-		   	generatedSourceCode.append("  private ObservedHashMap<Double, Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
-		   			" = new ObservedHashMap<Double, Double>();\n");
+		   	CalculationAlgorithmType type = CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(actColumn.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType();
+		   	if(type == CalculationAlgorithmType.ONEDIMDATASERIESRESULT || type == CalculationAlgorithmType.ONEDIMRESULT ||type == CalculationAlgorithmType.HISTOGRAMRESULT){
+			   	generatedSourceCode.append("  private ObservedDataCollection<Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
+			   			" = new ObservedDataCollection<Double>(ObservedDataCollectionType.ONEDIMTYPE);\n");
+		   	}
+		   	else{
+		   		generatedSourceCode.append("  private ObservedDataCollection<Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
+	   			" = new ObservedDataCollection<Double>(ObservedDataCollectionType.TWODIMTYPE);\n");
+		   	}
 		   }
 		  
 		   for(Class<?> actClass : this.actDataExportDefinition.getAllRequiredClasses())
@@ -149,7 +159,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	
 	private void appendDataMapsRegistration(){
 		for(EpisimDataExportColumn actColumn : this.actDataExportDefinition.getEpisimDataExportColumns()){
-			generatedSourceCode.append("dataExportCSVWriter.registerObservedHashMap(" + actColumn.getId()+"l, "+
+			generatedSourceCode.append("dataExportCSVWriter.registerObservedDataCollection(" + actColumn.getId()+"l, "+
 					Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+");\n");
 		}
 		

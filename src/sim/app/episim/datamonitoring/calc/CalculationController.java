@@ -10,6 +10,7 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationCallBack;
 import episiminterfaces.calc.CalculationHandler;
 import sim.app.episim.*;
+import sim.app.episim.datamonitoring.dataexport.ObservedDataCollection;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 
@@ -35,20 +36,20 @@ public class CalculationController {
 	}
 		
 	public CalculationCallBack registerAtCalculationAlgorithm(CalculationHandler handler, final XYSeries series, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
-		CalculationDataManager<Double, Double> manager = null;
+		CalculationDataManager<Double> manager = null;
 		if(series != null) manager = CalculationDataManagerFactory.createCalculationDataManager(handler, series, xAxisLogarithmic, yAxisLogarithmic);
 			
 		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, manager);
 	}
 	
 	public CalculationCallBack registerAtCalculationAlgorithm(CalculationHandler handler, final SimpleHistogramDataset dataset, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
-		CalculationDataManager<Double, Double> manager = null;
+		CalculationDataManager<Double> manager = null;
 		if(dataset != null) manager = CalculationDataManagerFactory.createCalculationDataManager(handler, dataset, xAxisLogarithmic, yAxisLogarithmic);
 			
 		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, manager);
 	}
 	
-	public CalculationCallBack registerAtCalculationalgorithm(CalculationHandler handler, final Map<Double, Double> resultMap){
+	public CalculationCallBack registerAtCalculationalgorithm(CalculationHandler handler, final ObservedDataCollection<Double> resultMap){
 			
 		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, CalculationDataManagerFactory.createCalculationDataManager(handler, resultMap));
 	}

@@ -9,6 +9,8 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 	/*
 	 * An Calculation Algorithm of type HISTOGRAMRESULT must define the double parameters minvalue, maxvalue and the int value numberofbins
 	 * in the CalculatoinAlgorithmDescriptor in the aforementioned order
+	 * 
+	 * 
 	 */
 	enum CalculationAlgorithmType {
 		

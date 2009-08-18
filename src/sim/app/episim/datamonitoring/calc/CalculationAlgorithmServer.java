@@ -14,6 +14,7 @@ import sim.app.episim.util.ResultSet;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
+import episiminterfaces.calc.EntityChangeEvent;
 import episiminterfaces.calc.SingleCellObserver;
 import episiminterfaces.calc.SingleCellObserverAlgorithm;
 
@@ -74,13 +75,13 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 		return false;
 	}
 	
-	public void registerDataManagerAtCalculationAlgorithm(int calculationAlgorithmID, final CalculationDataManager<Double, Double> dataManager){
+	public void registerDataManagerAtCalculationAlgorithm(int calculationAlgorithmID, final CalculationDataManager<Double> dataManager){
 		if(this.calculationAlgorithmsMap.containsKey(calculationAlgorithmID)){
 			if(this.calculationAlgorithmsMap.get(calculationAlgorithmID) instanceof SingleCellObserverAlgorithm){
 				SingleCellObserverAlgorithm alg = (SingleCellObserverAlgorithm)this.calculationAlgorithmsMap.get(calculationAlgorithmID);
 				alg.addSingleCellObserver(dataManager.getID(), new SingleCellObserver(){
 					public void observedCellHasChanged() {      
-	               dataManager.observedEntityHasChanged();
+	               dataManager.observedEntityHasChanged(new EntityChangeEvent(){public EntityChangeEventType getEventType() { return EntityChangeEventType.CELLCHANGE; }});
                }
 				});
 			}

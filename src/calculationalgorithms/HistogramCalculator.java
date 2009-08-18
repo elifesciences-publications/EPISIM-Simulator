@@ -1,6 +1,7 @@
 package calculationalgorithms;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import sim.app.episim.CellType;
@@ -25,17 +26,21 @@ public class HistogramCalculator implements CalculationAlgorithm{
 
 			public int getID() { return _id; }
 
-			public String getName() { return "Unconditioned Histogramm"; }
+			public String getName() { return "Unconditioned Histogram"; }
 
 			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.HISTOGRAMRESULT; }
 
 			public boolean hasCondition() { return false; }
 			
 			public Map<String, Class<?>> getParameters() {
-				Map<String, Class<?>> params = new HashMap<String, Class<?>>();
+				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
+				
+				
 				params.put(CalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER, Double.TYPE);
 				params.put(CalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER, Double.TYPE);
-	         params.put(CalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER, Integer.TYPE);
+				params.put(CalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER, Integer.TYPE);
+				
+	         
 	        
 	         return params;
          }

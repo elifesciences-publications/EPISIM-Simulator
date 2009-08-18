@@ -239,7 +239,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			generatedSourceCode.append("  for(SimpleHistogramBin bin: buildBins("+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER)
 					+", "+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER)
 					+","+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER)+")) "
-					+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+"dataSet.addBin(bin);\n");
+					+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".addBin(bin);\n");
 			
 			generatedSourceCode.append("  plot.setRenderer("+i+", renderer);\n");	
 			
@@ -321,7 +321,10 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	   generatedSourceCode.append("    double tmp = minValue;\n");
 	   generatedSourceCode.append("    minValue = maxValue;\n");
 	   generatedSourceCode.append("    maxValue = tmp;\n");
-	   generatedSourceCode.append("  }\n");		
+	   generatedSourceCode.append("  }\n");	
+	   generatedSourceCode.append("  if(minValue == maxValue)maxValue = (minValue + 1);\n");
+	   generatedSourceCode.append("  if(numberOfBins < 0)numberOfBins = Math.abs(numberOfBins);\n");
+	   generatedSourceCode.append("  if(numberOfBins == 0)numberOfBins = 1;\n");
 	   generatedSourceCode.append("  double binSize = Math.abs(maxValue - minValue) / numberOfBins;\n");
 	   generatedSourceCode.append("  SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins];\n");				
 	   generatedSourceCode.append("  for(int i = 0; i < numberOfBins; i ++){\n");

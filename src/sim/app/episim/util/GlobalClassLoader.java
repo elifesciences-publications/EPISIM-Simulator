@@ -124,11 +124,13 @@ public class GlobalClassLoader extends URLClassLoader{
 	}
 	
 	public void notifyAllListeners(){
-		for(ClassLoaderChangeListener listener: changeListener) listener.classLoaderHasChanged();
+	   Set<ClassLoaderChangeListener> listenerCopy = new HashSet<ClassLoaderChangeListener>();
+	   listenerCopy.addAll(this.changeListener);
+		for(ClassLoaderChangeListener listener: listenerCopy) listener.classLoaderHasChanged();
 	}
 	
 	private void cleanListeners(String className){
-		
+	
 		for(ClassLoaderChangeListener actListener: changeListener){
 			if(actListener.getClass().getName().equals(className)){
 				

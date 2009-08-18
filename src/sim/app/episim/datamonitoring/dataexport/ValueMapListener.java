@@ -1,8 +1,9 @@
 package sim.app.episim.datamonitoring.dataexport;
 
 
-public interface ValueMapListener <K, V>{
+public interface ValueMapListener <T>{
 	
-	public void valueAdded(K key, V value);	
+	public void valueAdded(T value1, T value2);
+	public void valueAdded(T value);
 	
 }

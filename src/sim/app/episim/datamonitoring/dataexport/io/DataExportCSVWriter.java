@@ -19,7 +19,7 @@ import java.util.Set;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
-import sim.app.episim.datamonitoring.dataexport.ObservedHashMap;
+import sim.app.episim.datamonitoring.dataexport.ObservedDataCollection;
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
 import episiminterfaces.*;
 
@@ -56,10 +56,10 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	
 	
 	
-	public void registerObservedHashMap(final long columnId, ObservedHashMap<Double, Double> map){
+	public void registerObservedDataCollection(final long columnId, ObservedDataCollection<Double> map){
 		indexLookUp.put(columnId, actIndex);
 		actIndex++;
-		map.addValueMapListener(new ValueMapListener<Double, Double>(){
+		map.addValueMapListener(new ValueMapListener<Double>(){
 			public void valueAdded(Double key, Double value) {
 				if(key == Double.NEGATIVE_INFINITY && value == Double.NEGATIVE_INFINITY) aCellHasBeenChanged = true;
 				else{
@@ -68,6 +68,18 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		         alreadyCalculatedColumnsIds.add(columnId);
 		         checkIfDataWriteToDisk();
 				}
+         }
+
+			public void valueAdded(Double value) {
+
+				if(value == Double.NEGATIVE_INFINITY) aCellHasBeenChanged = true;
+				else{
+		         values[indexLookUp.get(columnId)][0] = Double.NEGATIVE_INFINITY;
+		         values[indexLookUp.get(columnId)][1] = value;
+		         alreadyCalculatedColumnsIds.add(columnId);
+		         checkIfDataWriteToDisk();
+				}
+	         
          }
 		});
 		values = new Double[actIndex][2];

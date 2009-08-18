@@ -56,7 +56,7 @@ public class ResultSet <T>{
 		 return results.size();
 	 }
 	
-	
+	 public ResultSetType getResultSetType(){ return this.resultType;}
 	
 
 }

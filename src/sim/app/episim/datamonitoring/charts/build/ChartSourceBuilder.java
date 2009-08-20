@@ -299,8 +299,14 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		if(config != null){
 			generatedSourceCode.append(Names.CALCULATIONCALLBACKLIST+".add(");
 			generatedSourceCode.append("CalculationController.getInstance().registerAtCalculationAlgorithm(");
-			generatedSourceCode.append(buildCalculationHandler(baselineCalculationHandlerID, baselineCalculationHandlerID, true, config, this.actChart.getRequiredClassesForBaseline())
-					+", (null), "+ this.actChart.isXAxisLogarithmic() + ", " + this.actChart.isYAxisLogarithmic()+"));\n");
+			if(mode == ChartSourceBuilderMode.XYSERIESMODE){
+				generatedSourceCode.append(buildCalculationHandler(baselineCalculationHandlerID, baselineCalculationHandlerID, true, config, this.actChart.getRequiredClassesForBaseline())
+						+", ((XYSeries)null), "+ this.actChart.isXAxisLogarithmic() + ", " + this.actChart.isYAxisLogarithmic()+"));\n");
+			}
+			else if(mode == ChartSourceBuilderMode.HISTOGRAMMODE){
+				generatedSourceCode.append(buildCalculationHandler(baselineCalculationHandlerID, baselineCalculationHandlerID, true, config, this.actChart.getRequiredClassesForBaseline())
+						+", ((SimpleHistogramDataset) null), "+ this.actChart.isXAxisLogarithmic() + ", " + this.actChart.isYAxisLogarithmic()+"));\n");
+			}
 		}
 		for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
 			

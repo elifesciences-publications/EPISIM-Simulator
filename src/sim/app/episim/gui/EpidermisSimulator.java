@@ -63,6 +63,8 @@ import sim.util.Double2D;
 
 public class EpidermisSimulator extends JFrame implements SimulationStateChangeListener, ClassLoaderChangeListener, SnapshotRestartListener{
 	
+	public static final String versionID = "1.1.1";
+	
 	private ExtendedFileChooser jarFileChoose;
 	private ExtendedFileChooser tssFileChoose;
 	

@@ -24,6 +24,7 @@ import javax.swing.JScrollPane;
 
 import sim.app.episim.devBasalLayer.EpidermisUIDev;
 import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.gui.EpisimTextOut;
 import sim.app.episim.util.Names;
 import sim.engine.SimState;
 import sim.portrayal.Inspector;
@@ -33,7 +34,7 @@ public class ConsoleHack extends Console {
 	JScrollPane biochemicalModelInspectorScrollPane;
 	JScrollPane biomechanicalModelInspectorScrollPane;
 	JScrollPane miscalleneousInspectorScrollPane;
-	
+	JScrollPane episimTextOutInspectorScrollPane;
 	
 	
 	public ConsoleHack(final GUIState simulation){
@@ -211,6 +212,7 @@ public class ConsoleHack extends Console {
 		
 			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECHMODEL);
 			deployInspector(epiGUIState.getMiscalleneousInspector(), this.miscalleneousInspectorScrollPane, Names.MISCALLENEOUS);
+			deployInspector(EpisimTextOut.getEpisimTextOut().getEpisimTextOutPanel(), this.episimTextOutInspectorScrollPane, Names.EPISIMTEXTOUT);
 			
 		}
 		else
@@ -224,6 +226,27 @@ public class ConsoleHack extends Console {
 			String name = inspector.getName();
 			if(name == null || name.length() == 0)	name = alternativeName;
 			pane = new JScrollPane(inspector) {
+
+				Insets insets = new Insets(0, 0, 0, 0); // MacOS X adds a border
+
+				public Insets getInsets() {
+
+					return insets;
+				}
+			};
+			pane.getViewport().setBackground(new JPanel().getBackground()); // UIManager.getColor("window"));  // make nice stripes on MacOS X
+			tabPane.addTab(name, pane);
+		}
+		tabPane.revalidate();
+		
+	}
+	private void deployInspector(JPanel panel, JScrollPane pane, String alternativeName){
+		// remove existing tab if it's there
+		if(pane != null) tabPane.remove(pane);
+		if(panel != null){
+			String name = panel.getName();
+			if(name == null || name.length() == 0)	name = alternativeName;
+			pane = new JScrollPane(panel) {
 
 				Insets insets = new Insets(0, 0, 0, 0); // MacOS X adds a border
 

@@ -13,7 +13,7 @@ import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 
-public class HistogramCalculator implements CalculationAlgorithm{
+public class HistogramCalculationAlgorithm implements CalculationAlgorithm{
 	
 	public CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id) {
 		final int _id = id;

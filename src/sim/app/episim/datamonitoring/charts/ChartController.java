@@ -209,7 +209,7 @@ public class ChartController {
 	private boolean loadEpisimChartSet(URL url, Frame parent){
 		try{
 			PNGPrinter.getInstance().reset();
-			CalculationController.getInstance().resetChart();
+			CalculationController.getInstance().reset();
 			ECSFileReader ecsReader = new ECSFileReader(url);
 			this.actLoadedChartSet = ecsReader.getEpisimChartSet();
 			ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());
@@ -247,8 +247,8 @@ public class ChartController {
 	
 	
 	
-	public void clearAllSeries(){
+	public void newSimulationRun(){
 		CalculationController.getInstance().restartSimulation();
-		ChartPanelAndSteppableServer.getInstance().clearAllSeries();
+		ChartPanelAndSteppableServer.getInstance().clearAllDefaultChartSeries();
 	}
 }

@@ -64,6 +64,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		generatedSourceCode.append("import sim.engine.SimState;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.dataexport.io.*;\n");
 		generatedSourceCode.append("import java.io.*;\n");
+		generatedSourceCode.append("import java.util.*;\n");
 		for(Class<?> actClass: this.actDataExportDefinition.getAllRequiredClasses()){
 			generatedSourceCode.append("import " + actClass.getCanonicalName()+";\n");	
 		}

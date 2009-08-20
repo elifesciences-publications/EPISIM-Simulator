@@ -188,7 +188,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				}
 				
 			}
-			setParameterValues(config.getParameters());
+			if(hasParameters)setParameterValues(config.getParameters());
 		}						
 	}
 	

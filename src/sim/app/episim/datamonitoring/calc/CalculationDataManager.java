@@ -4,6 +4,7 @@ import episiminterfaces.calc.EntityChangeEvent;
 
 
 public interface CalculationDataManager<X> {	
+	public enum CalculationDataManagerType {ONEDIMTYPE, TWODIMTYPE};
 	
 	long getID();
 	boolean isXScaleLogarithmic();
@@ -11,5 +12,6 @@ public interface CalculationDataManager<X> {
 	void addNewValue(X xValue, X yValue);
 	void addNewValue(X xValue);
 	void observedEntityHasChanged(EntityChangeEvent event);
-	void restartSimulation();
+	void reset();
+	CalculationDataManagerType getCalculationDataManagerType();
 }

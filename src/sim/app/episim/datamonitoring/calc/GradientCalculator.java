@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.jfree.data.xy.XYSeries;
 
-import calculationalgorithms.common.AbstractCommonCalculator;
+import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 
 import episimexceptions.CellNotValidException;
 import episiminterfaces.EpisimCellDiffModel;
@@ -15,7 +15,7 @@ import sim.app.episim.*;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.util.Sorting;
 
-public class GradientCalculator extends AbstractCommonCalculator {
+public class GradientCalculator extends AbstractCommonCalculationAlgorithm {
 	
 	private ArrayList<CalculationHandler> calculationHandlers;
 	private ArrayList<Map<Double, Double>> resultMaps;

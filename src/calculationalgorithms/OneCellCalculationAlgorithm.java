@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import calculationalgorithms.common.AbstractCommonCalculator;
+import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.calc.CalculationDataManager;
 import sim.app.episim.util.ResultSet;
@@ -21,7 +21,7 @@ import episiminterfaces.calc.SingleCellObserverAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 
-public class OneCellCalculator extends AbstractCommonCalculator implements SingleCellObserverAlgorithm, CalculationAlgorithm{
+public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements SingleCellObserverAlgorithm, CalculationAlgorithm{
 		
 	private final int MINCELLAGE = 2;
 	private Map<Long, CellType> trackedCells;
@@ -29,7 +29,7 @@ public class OneCellCalculator extends AbstractCommonCalculator implements Singl
 	private Map<Long, SingleCellObserver> observers;
 	
 		
-	public OneCellCalculator(){		
+	public OneCellCalculationAlgorithm(){		
 		this.trackedCells = new HashMap<Long, CellType>();
 		observers = new HashMap<Long, SingleCellObserver>();
 	}
@@ -52,23 +52,21 @@ public class OneCellCalculator extends AbstractCommonCalculator implements Singl
 			if(actTrackedCell == null || actTrackedCell.getEpisimCellDiffModelObject().getIsAlive() == false){			
 				
 				if(actTrackedCell != null){
-					notifySingleCellObserver(handler.getCorrespondingBaselineCalculationHandlerID());
+					notifySingleCellObserver(handler.getID());
 					actTrackedCell.setTracked(false);
 				}
 				
 				newTrackedCell = getNewCellForTracking(handler);
-				if(newTrackedCell != null &&(handler.getRequiredCellType() == null
-				      || handler.getRequiredCellType().isAssignableFrom(newTrackedCell.getClass()))){
+				if(newTrackedCell != null){
 					
 					newTrackedCell.setTracked(true);
 				}
 				this.trackedCells.put(handler.getID(), newTrackedCell);
-			}
-		
+			}		
 	}
 		
 	
-	private CellType getNewCellForTracking(CalculationHandler handler){
+	protected CellType getNewCellForTracking(CalculationHandler handler){
 		Class<? extends CellType> requiredClass = handler.getRequiredCellType();
 		if(requiredClass == null){
 			for(CellType actCell : this.allCells){
@@ -91,7 +89,8 @@ public class OneCellCalculator extends AbstractCommonCalculator implements Singl
 			
 			do{
 				counter++;
-			//	System.out.println("Suche zufällige Zelle für Tracking passend zur Klasse: "+  requiredClass.getCanonicalName());
+				
+			System.out.println("Suche zufällige Zelle für Tracking passend zur Klasse: "+  requiredClass.getCanonicalName());
 				result = this.allCells.getRandomItemOfClass(requiredClass);
 			}
 			while(result != null && result.getEpisimCellDiffModelObject().getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL && counter < this.allCells.size());
@@ -149,7 +148,11 @@ public class OneCellCalculator extends AbstractCommonCalculator implements Singl
 		}
 	}
 	
-	public void addSingleCellObserver(long CalculationHandlerId, SingleCellObserver observer) {
-		this.observers.put(null, observer);
+	public void addSingleCellObserver(long[] calculationHandlerIds, SingleCellObserver observer) {
+		if(calculationHandlerIds != null && calculationHandlerIds.length >0){
+			for(long id : calculationHandlerIds){
+				this.observers.put(id, observer);
+			}
+		}
    }
 }

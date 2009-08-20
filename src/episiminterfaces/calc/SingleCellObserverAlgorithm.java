@@ -3,7 +3,7 @@ package episiminterfaces.calc;
 
 public interface SingleCellObserverAlgorithm {
 	
-	void addSingleCellObserver(long calculationHandlerId, SingleCellObserver observer);
+	void addSingleCellObserver(long[] associatedCalculationHandlerIds, SingleCellObserver observer);
 	//void removeSingleCellObserver(SingleCellObserver observer);
 
 }

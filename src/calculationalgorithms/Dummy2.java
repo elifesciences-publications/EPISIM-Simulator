@@ -8,6 +8,7 @@ import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.ResultSet;
 
 import episiminterfaces.calc.CalculationAlgorithm;
+import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
 

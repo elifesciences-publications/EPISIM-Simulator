@@ -13,6 +13,8 @@ import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.EntityChangeEvent;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 import episiminterfaces.calc.EntityChangeEvent.EntityChangeEventType;
+import sim.app.episim.datamonitoring.calc.CalculationDataManager.CalculationDataManagerType;
+
 
 public abstract class CalculationDataManagerFactory {
 	
@@ -23,7 +25,8 @@ public abstract class CalculationDataManagerFactory {
 			final long id = handler.getID();
 			CalculationAlgorithmType calType = getAlgorithmType(handler);
 			if(calType != null){//TODO: hier Unterscheidung für die verschiedenen CalculationAlgorithms einfügen
-				return new CalculationDataManager<Double>(){					
+				return new CalculationDataManager<Double>(){
+					private CalculationDataManagerType type = CalculationDataManagerType.TWODIMTYPE;
 					private int counter = 0;
 					private boolean firstCellEver = true;					
 					
@@ -40,7 +43,8 @@ public abstract class CalculationDataManagerFactory {
 						else{ series.add(key, value); }
 		         }
 		
-					public void observedEntityHasChanged(EntityChangeEvent event) {
+					public void observedEntityHasChanged(EntityChangeEvent event) {						
+						
 						if(event.getEventType() == EntityChangeEventType.CELLCHANGE){
 							series.clear();
 							if(firstCellEver){
@@ -53,11 +57,13 @@ public abstract class CalculationDataManagerFactory {
 						}
 		         }
 		
-					public void restartSimulation() {
+					public void reset() {
 			        counter = 0;
 			        series.clear();
 		         }
-	
+					
+					public CalculationDataManagerType getCalculationDataManagerType(){ return type; } 
+					
 					public long getID() { return id; }
 	
 					public boolean isXScaleLogarithmic() { return xAxisLogarithmic; }
@@ -79,7 +85,8 @@ public abstract class CalculationDataManagerFactory {
 			final long id = handler.getID();
 			CalculationAlgorithmType calType = getAlgorithmType(handler);
 			if(calType != null){//TODO: hier Unterscheidung für die verschiedenen CalculationAlgorithms einfügen
-				return new CalculationDataManager<Double>(){					
+				return new CalculationDataManager<Double>(){
+					private CalculationDataManagerType type = CalculationDataManagerType.ONEDIMTYPE;
 					private int counter = 0;
 					private boolean firstCellEver = true;					
 					
@@ -94,7 +101,7 @@ public abstract class CalculationDataManagerFactory {
 						}
 		         }
 		
-					public void restartSimulation() {
+					public void reset() {
 			        counter = 0;
 			        dataSet.clearObservations();
 		         }
@@ -103,7 +110,8 @@ public abstract class CalculationDataManagerFactory {
 	
 					public boolean isXScaleLogarithmic() { return xAxisLogarithmic; }
 					public boolean isYScaleLogarithmic() { return yAxisLogarithmic; }
-
+					public CalculationDataManagerType getCalculationDataManagerType(){ return type; } 
+					
 					public void addNewValue(Double xValue) {
 
 						if(yAxisLogarithmic){ 
@@ -128,6 +136,12 @@ public abstract class CalculationDataManagerFactory {
 			if(calType != null){//TODO: hier Unterscheidung für die verschiedenen CalculationAlgorithms einfügen
 			return new CalculationDataManager<Double>(){
 								
+				private CalculationDataManagerType type;
+				
+				{
+					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE) type = CalculationDataManagerType.ONEDIMTYPE;
+					else if(data.getType() == ObservedDataCollectionType.TWODIMTYPE) type = CalculationDataManagerType.TWODIMTYPE;
+				}
 				
 				public void addNewValue(Double value1, Double value2) {
 					if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)	data.add(value1, value2);
@@ -143,12 +157,13 @@ public abstract class CalculationDataManagerFactory {
 					
 	         }
 	
-				public void restartSimulation() {}
+				public void reset() { data.clear();}
 
 				public long getID(){ return id;}
 				public boolean isXScaleLogarithmic() { return false;}
 				public boolean isYScaleLogarithmic() { return false;}
-
+				public CalculationDataManagerType getCalculationDataManagerType(){ return type; } 
+				
 				public void addNewValue(Double value) {
 					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)	data.add(value);
 					else if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)

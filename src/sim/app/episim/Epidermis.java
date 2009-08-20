@@ -211,7 +211,7 @@ private void seedStemCells(){
  public void start() {
 
 		super.start(timeStepsAfterSnapshotReload);
-		ChartController.getInstance().clearAllSeries();
+		ChartController.getInstance().newSimulationRun();
 		DataExportController.getInstance().newSimulationRun();
 		
 		if(this.chartSteppables != null){

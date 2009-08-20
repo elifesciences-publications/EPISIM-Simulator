@@ -28,6 +28,7 @@ public class ChartPanelAndSteppableServer {
 	private List<EnhancedSteppable> defaultSteppables;
 	private static ChartPanelAndSteppableServer instance = null;
 	private AbstractChartSetFactory factory = null;
+	GenericBag<CellType> alreadyRegisteredVersionAllCells = null;
 	private ChartPanelAndSteppableServer(){
 		listeners = new HashSet<ChartSetChangeListener>();
 	}
@@ -66,7 +67,8 @@ public class ChartPanelAndSteppableServer {
 	}
 	
 	public List<EnhancedSteppable> getChartSteppables(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
-		if(factory != null){
+		if(factory != null || alreadyRegisteredVersionAllCells != allCells){
+			alreadyRegisteredVersionAllCells = allCells;
 			factory.registerNecessaryObjects(allCells, continuous, objects);
 			CalculationController.getInstance().registerCells(allCells);
 		}
@@ -110,13 +112,8 @@ public class ChartPanelAndSteppableServer {
 		if(this.defaultSteppables != null)this.defaultSteppables.clear();
 	}
 	
-	public void clearAllSeries(){
+	public void clearAllDefaultChartSeries(){
 		DefaultCharts.getInstance().clearSeries();
-		if(this.customChartPanels != null){
-			for(ChartPanel pan: this.customChartPanels){
-				if(pan.getChart() instanceof GeneratedChart) ((GeneratedChart) pan.getChart()).clearAllSeries();
-			}
-		}
 	}
 	
 	

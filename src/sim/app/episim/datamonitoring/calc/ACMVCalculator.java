@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.jfree.data.xy.XYSeries;
 
-import calculationalgorithms.common.AbstractCommonCalculator;
+import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 
 import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.GlobalStatistics;
@@ -14,7 +14,7 @@ import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.calc.CalculationHandler;
 
 
-public class ACMVCalculator extends AbstractCommonCalculator{
+public class ACMVCalculator extends AbstractCommonCalculationAlgorithm{
 	
 	public ACMVCalculator(){}
 	

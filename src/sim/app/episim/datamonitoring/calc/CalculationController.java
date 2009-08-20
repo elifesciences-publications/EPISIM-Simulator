@@ -22,8 +22,7 @@ public class CalculationController {
 	
 	private CalculationController(){
 		
-	}
-	
+	}	
 	
 	public static synchronized CalculationController getInstance(){
 		if(instance==null) instance = new CalculationController();
@@ -32,26 +31,26 @@ public class CalculationController {
 	
 	public void registerCells(GenericBag<CellType> allCells){
 		if(allCells == null) throw new IllegalArgumentException("CalculationController: the cells bag must not be null!");
-		System.out.println("register all cells was called");
+		CalculationAlgorithmServer.getInstance().registerCellsAtCalculationAlgorithms(allCells);
 	}
 		
 	public CalculationCallBack registerAtCalculationAlgorithm(CalculationHandler handler, final XYSeries series, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
 		CalculationDataManager<Double> manager = null;
 		if(series != null) manager = CalculationDataManagerFactory.createCalculationDataManager(handler, series, xAxisLogarithmic, yAxisLogarithmic);
 			
-		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, manager);
+		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHandlerAndDataManager(handler, manager);
 	}
 	
 	public CalculationCallBack registerAtCalculationAlgorithm(CalculationHandler handler, final SimpleHistogramDataset dataset, final boolean xAxisLogarithmic, final boolean yAxisLogarithmic){
 		CalculationDataManager<Double> manager = null;
 		if(dataset != null) manager = CalculationDataManagerFactory.createCalculationDataManager(handler, dataset, xAxisLogarithmic, yAxisLogarithmic);
 			
-		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, manager);
+		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHandlerAndDataManager(handler, manager);
 	}
 	
-	public CalculationCallBack registerAtCalculationalgorithm(CalculationHandler handler, final ObservedDataCollection<Double> resultMap){
+	public CalculationCallBack registerAtCalculationAlgorithm(CalculationHandler handler, final ObservedDataCollection<Double> resultMap){
 			
-		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHanderAndDataManager(handler, CalculationDataManagerFactory.createCalculationDataManager(handler, resultMap));
+		return CalculationHandlerAndDataManagerRegistry.getInstance().registerCalculationHandlerAndDataManager(handler, CalculationDataManagerFactory.createCalculationDataManager(handler, resultMap));
 	}
 		
 	public boolean isValidCalculationAlgorithmConfiguration(CalculationAlgorithmConfigurator config, boolean validateExpression, TissueCellDataFieldsInspector inspector){
@@ -61,25 +60,13 @@ public class CalculationController {
 	
 	
 	
-	public void resetChart(){
+	public void reset(){
 	
-		/*chartGradientCalculator = new GradientCalculator();
-		oneCellCalculator = new OneCellCalculator();*/
+		CalculationAlgorithmServer.getInstance().sendResetMessageToCalculationAlgorithms();
 	}
 	
 	public void restartSimulation(){
-		/*chartGradientCalculator.restartSimulation();
-		oneCellCalculator.restartSimulation();*/
+		CalculationAlgorithmServer.getInstance().sendRestartSimulationMessageToCalculationAlgorithms();
+		CalculationHandlerAndDataManagerRegistry.getInstance().resetDataManager();
 	}
-	
-	
-	
-	public void resetDataExport(){
-		
-	}
-	
-
-	
-	
-
 }

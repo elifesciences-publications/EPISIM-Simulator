@@ -456,7 +456,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    public synchronized void pressPlay(){
    	if(!reloadedSnapshot){
    		
-   		
+   		EpisimTextOut.getEpisimTextOut().clear();
       	
    		((EpidermisGUIState)this.simulation).clearWoundPortrayalDraw();
    		
@@ -469,6 +469,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    	wasStartedOnce = true;  
    	((EpidermisGUIState)this.simulation).simulationWasStarted();
    	   	super.pressPlay(reloadedSnapshot);
+   	   	
    	 	   	
    }
    

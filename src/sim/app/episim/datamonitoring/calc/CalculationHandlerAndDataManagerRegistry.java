@@ -23,10 +23,20 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 	}	
 	protected static CalculationHandlerAndDataManagerRegistry getInstance(){ return instance;}
 	
-	public CalculationCallBack registerCalculationHanderAndDataManager(CalculationHandler handler, CalculationDataManager<Double> manager){
+	public void resetDataManager(){
+		this.baselineResultTempRegistry.clear();
+		for(CalculationDataManager<Double> manager:this.dataManagerRegistry.values()){
+			manager.reset();
+		}
+	}
+	
+	public CalculationCallBack registerCalculationHandlerAndDataManager(CalculationHandler handler, CalculationDataManager<Double> manager){
 		if(handler == null || (!handler.isBaselineValue() && manager == null)) throw new IllegalArgumentException("Parameter value null is not allowed!");
 		if(handler != null && manager != null && handler.getID() != manager.getID()) throw new IllegalArgumentException("CalculationHandlerID: " + handler.getID() + " and DataManagerID: " + manager.getID() + " don't match. They should be equal.");
-		 if(manager != null) CalculationAlgorithmServer.getInstance().registerDataManagerAtCalculationAlgorithm(handler.getCalculationAlgorithmID(), manager);
+		 if(manager != null 
+				 &&  CalculationAlgorithmServer.getInstance().isDataManagerRegistrationAtCalculationAlgorithmRequired(handler.getCalculationAlgorithmID())
+				 && !handler.isBaselineValue()) 
+			 CalculationAlgorithmServer.getInstance().registerDataManagerAtCalculationAlgorithm(handler.getCalculationAlgorithmID(), new long[]{handler.getID(), handler.getCorrespondingBaselineCalculationHandlerID()}, manager);
 		 calculationHandlerRegistry.put(handler.getID(), handler);
 		 if(manager != null) dataManagerRegistry.put(manager.getID(), manager);
 		 
@@ -63,15 +73,28 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 				if(type == CalculationAlgorithmType.ONEDIMDATASERIESRESULT || type == CalculationAlgorithmType.ONEDIMRESULT){
 					if((baselineResultTempRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID()) 
 							&& baselineResultTempRegistry.get(handler.getCorrespondingBaselineCalculationHandlerID()).getTimeStep() != timeStep)
-							|| !baselineResultTempRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID())){
+							|| (!baselineResultTempRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID())
+									&& calculationHandlerRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID()))){
 						calculateValues(timeStep, handler.getCorrespondingBaselineCalculationHandlerID(), Long.MIN_VALUE);
 					}
-					
+					if(this.baselineResultTempRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID())){
+						ResultSetManager.copyResultSetToDataManager(this.baselineResultTempRegistry.get(handler.getCorrespondingBaselineCalculationHandlerID()), 
+								calculate(timeStep, handler), this.dataManagerRegistry.get(managerID));
+					}
+					else{
+						ResultSetManager.copyResultSetToDataManager(calculate(timeStep, handler), this.dataManagerRegistry.get(managerID));
+					}
 				}
+				else if(type == CalculationAlgorithmType.HISTOGRAMRESULT
+						  || type == CalculationAlgorithmType.TWODIMDATASERIESRESULT 
+						  || type == CalculationAlgorithmType.TWODIMRESULT){
+					ResultSetManager.copyResultSetToDataManager(calculate(timeStep, handler), this.dataManagerRegistry.get(managerID));
+				}
+				
 			}
 			
 		}
-		 System.out.println("timestep: " + timeStep + " handlerID: " + handlerID + " managerID: " + managerID);
+		 
 	}
 	
 	private ResultSet<Double> calculate(long timeStep, CalculationHandler handler){

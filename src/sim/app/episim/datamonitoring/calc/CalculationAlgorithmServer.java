@@ -7,8 +7,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ResultSet;
 import episiminterfaces.calc.CalculationAlgorithm;
@@ -74,12 +76,17 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 		}
 		return false;
 	}
+
+
+	public void registerCellsAtCalculationAlgorithms(GenericBag<CellType> allCells){
+		for(CalculationAlgorithm alg: this.calculationAlgorithmsMap.values()) alg.registerCells(allCells);
+	}
 	
-	public void registerDataManagerAtCalculationAlgorithm(int calculationAlgorithmID, final CalculationDataManager<Double> dataManager){
+	public void registerDataManagerAtCalculationAlgorithm(int calculationAlgorithmID, long[] associatedCalculationHandlerIds, final CalculationDataManager<Double> dataManager){
 		if(this.calculationAlgorithmsMap.containsKey(calculationAlgorithmID)){
 			if(this.calculationAlgorithmsMap.get(calculationAlgorithmID) instanceof SingleCellObserverAlgorithm){
 				SingleCellObserverAlgorithm alg = (SingleCellObserverAlgorithm)this.calculationAlgorithmsMap.get(calculationAlgorithmID);
-				alg.addSingleCellObserver(dataManager.getID(), new SingleCellObserver(){
+				alg.addSingleCellObserver(associatedCalculationHandlerIds, new SingleCellObserver(){
 					public void observedCellHasChanged() {      
 	               dataManager.observedEntityHasChanged(new EntityChangeEvent(){public EntityChangeEventType getEventType() { return EntityChangeEventType.CELLCHANGE; }});
                }
@@ -108,6 +115,14 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	   
 	   
    }
+	
+	public void sendRestartSimulationMessageToCalculationAlgorithms(){
+		for(CalculationAlgorithm alg : this.calculationAlgorithmsMap.values()) alg.restartSimulation();
+	}
+	
+	public void sendResetMessageToCalculationAlgorithms(){
+		for(CalculationAlgorithm alg : this.calculationAlgorithmsMap.values()) alg.reset();
+	}
 	
 	
 

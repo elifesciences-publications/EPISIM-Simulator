@@ -226,7 +226,7 @@ public class DataExportController {
 
 	private boolean loadDataExportDefinition(URL url, Frame parent){
 		try{
-			CalculationController.getInstance().resetDataExport();
+			CalculationController.getInstance().reset();
 			EDEFileReader edeReader = new EDEFileReader(url);
 			this.actLoadedDataExportSet = edeReader.getEpisimDataExportDefinitionSet();
 			DataExportSteppableServer.getInstance().registerCustomDataExportSteppables(edeReader.getDataExports(), edeReader.getDataExportSteppables(), edeReader.getDataExportFactory());

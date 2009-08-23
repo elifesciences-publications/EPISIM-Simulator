@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,17 +38,20 @@ public class TissueCellDataFieldsInspector {
 	private Set<String> nameRedundancyCheckSet;
 	private Set<ParameterSelectionListener> parameterSelectionListener;
 	
-	private Set<String> overallVarNameSet;
+	private Set<String> overallVarOrConstantNameSet;
 	private Map<String, CellType> cellTypesMap;
 	private Map<String, TissueType> tissueTypesMap;
 	private Map<String, String> overallMethodCallMap;
+	private Map<String, String> overallFieldCallMap;
 	private Map<String, Method> overallMethodMap;
+	private Map<String, Field> overallFieldMap;
 	private Map<String, String> prefixMap;
 	private SortedJList cellTypeList;
 	private SortedJList tissueTypeList;
 	private SortedJList cellParameterList;
 	private SortedJList tissueParameterList;
-	private JPanel parametersPanel;
+	private SortedJList tissueConstantList;
+	
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validTypes;
 	
@@ -55,76 +59,22 @@ public class TissueCellDataFieldsInspector {
 	
 	private TissueType inspectedTissue;
 	
-	private String actualSelectedParameter = "";
+	private String actualSelectedParameterOrConstant = "";
 	
 	
 	public TissueCellDataFieldsInspector(TissueType tissue, Set<String> markerPrefixes, Set<Class<?>> validTypes) {
 			this.markerPrefixes = markerPrefixes;
 			this.validTypes = validTypes;
 			this.inspectedTissue = tissue;
-			Comparator<String> stringComparator = new Comparator<String>(){
-
-				public int compare(String o1, String o2) {
-	           
-	            return o1.compareTo(o2);
-            }};
-			tissueTypeList = new SortedJList(stringComparator);
-			cellTypeList = new SortedJList(stringComparator);
-			cellParameterList = new SortedJList(stringComparator);
-			tissueParameterList = new SortedJList(stringComparator);
-			
-			this.cellParameterList.addMouseListener(new MouseAdapter() {
-
-				public void mouseClicked(MouseEvent e) {
-
-					if((cellParameterList.getSelectedIndex() != -1) && e.getClickCount() == 2){
-						
-						String name = cellTypeList.getSelectedValue() + "."  + cellParameterList.getSelectedValue();
-						String alternName = cellTypeList.getSelectedValue()+Names.CELLDIFFMODEL + "."  + cellParameterList.getSelectedValue();
-						
-						if(!prefixMap.keySet().contains(name) &&prefixMap.keySet().contains(alternName)){
-							
-							actualSelectedParameter = prefixMap.get(alternName) + alternName;
-							
-						}
-						else if(prefixMap.keySet().contains(name) &&!prefixMap.keySet().contains(alternName)){
-							
-							actualSelectedParameter = prefixMap.get(name) + name;
-							
-						}
-						
-						notifyAllParameterSelectionListener();
-					}
-				}
-			});
-		   
-			this.tissueParameterList.addMouseListener(new MouseAdapter() {
-
-				public void mouseClicked(MouseEvent e) {
-
-					if((tissueParameterList.getSelectedIndex() != -1) && e.getClickCount() == 2){
-						
-						String name = tissueTypeList.getSelectedValue() + "."  + tissueParameterList.getSelectedValue();
-						actualSelectedParameter = prefixMap.get(name) + name;
-						notifyAllParameterSelectionListener();
-					}
-				}
-			});
-			
-			
-			
-			
-			
-			parametersPanel = new JPanel(new BorderLayout(0,0));
-			
+					
 			parameterSelectionListener = new HashSet<ParameterSelectionListener>();
 			
 			if(tissue == null) throw new IllegalArgumentException("Tissue was null!");
 			buildCellTypesMap();
 			buildTissueTypesMap();
-			buildOverallVarNameSetAndMethodCallMap(this.cellTypesMap);
-			buildTissueList();
-			buildCellTypeList();
+			buildOverallVarNameSetMethodCallMapConstantNameSetAndFieldCallMap(this.cellTypesMap);
+			
+			
 			
 	}
 	
@@ -150,12 +100,14 @@ public class TissueCellDataFieldsInspector {
 
 	}
 	
-	private void buildOverallVarNameSetAndMethodCallMap(Map<String, CellType> cellTypes) {
+	private void buildOverallVarNameSetMethodCallMapConstantNameSetAndFieldCallMap(Map<String, CellType> cellTypes) {
 		String parameterName = "";
-		this.overallVarNameSet = new HashSet<String>();
+		this.overallVarOrConstantNameSet = new HashSet<String>();
 		this.requiredClasses = new HashSet<Class<?>>();
 		this.overallMethodCallMap = new HashMap<String, String>();
+		this.overallFieldCallMap = new HashMap<String, String>();
 		this.overallMethodMap = new HashMap<String, Method>();
+		this.overallFieldMap = new HashMap<String, Field>();
 		this.prefixMap = new HashMap<String, String>();
 		Set<String> cellTypeNames = cellTypes.keySet();
 		for(String actCellTypeName : cellTypeNames){
@@ -169,8 +121,14 @@ public class TissueCellDataFieldsInspector {
 			for(Method actMethod : inspectedTissue.getParameters()){
 				processMethodForVarNameSetAndMethodCallMap(this.inspectedTissue.getTissueName(), actMethod);
 			}
+			for(Field actField : inspectedTissue.getContants()){
+				processFieldForConstantNameSetAndFieldCallMap(this.inspectedTissue.getTissueName(), actField);
+			}
 		}
 	}
+	
+	
+	
 	
 	public void resetRequiredClasses(){ 
 		
@@ -193,13 +151,40 @@ public class TissueCellDataFieldsInspector {
 			}
 			
 			if(parameterName != null){
-				String finalName = getRedundancyCheckedName(firstName + "." + parameterName);
+				String finalName = getRedundancyCheckedName(firstName + "." + parameterName, this.overallVarOrConstantNameSet);
 				
 				String methodCallName = Names.convertClassToVariable(actMethod.getDeclaringClass().getSimpleName()) + "."+ actMethod.getName()+"()";
 				this.prefixMap.put(finalName.substring(Names.PREFIXLENGTH), finalName.substring(0, Names.PREFIXLENGTH));
 				this.overallMethodCallMap.put(finalName,methodCallName);
 				this.overallMethodMap.put(finalName,actMethod);
-				this.overallVarNameSet.add(finalName);
+				this.overallVarOrConstantNameSet.add(finalName);
+			}
+		}
+	}
+	
+	private void processFieldForConstantNameSetAndFieldCallMap(String firstName, Field actField){
+		String constantName="";
+		if(EpisimCellDiffModelGlobalParameters.class.isAssignableFrom(actField.getDeclaringClass())) firstName += Names.CELLDIFFMODEL;
+		if(isValidReturnType(actField.getType())){
+			constantName=actField.getName();
+			
+			if(actField.getType() != null){ 
+				if(Double.TYPE.isAssignableFrom(actField.getType()) || Integer.TYPE.isAssignableFrom(actField.getType()) || Long.TYPE.isAssignableFrom(actField.getType())){ 
+					firstName = Names.NUMBERPREFIX + firstName;
+				}
+				else if(Boolean.TYPE.isAssignableFrom(actField.getType())){ 
+					firstName = Names.BOOLEANPREFIX + firstName;
+				}
+			}
+			
+			if(constantName != null){
+				String finalName = getRedundancyCheckedName(firstName + "." + constantName, this.overallVarOrConstantNameSet);
+				
+				String fieldCallName = Names.convertClassToVariable(actField.getDeclaringClass().getSimpleName()) + "."+ actField.getName();
+				this.prefixMap.put(finalName.substring(Names.PREFIXLENGTH), finalName.substring(0, Names.PREFIXLENGTH));
+				this.overallFieldCallMap.put(finalName,fieldCallName);
+				this.overallFieldMap.put(finalName,actField);
+				this.overallVarOrConstantNameSet.add(finalName);
 			}
 		}
 	}
@@ -211,6 +196,10 @@ public class TissueCellDataFieldsInspector {
 	public void addRequiredClassForIdentifier(String identifier){
 		Method method = overallMethodMap.get(identifier);
 		if(method != null) this.requiredClasses.add(method.getDeclaringClass());
+		else{
+			Field field = overallFieldMap.get(identifier);
+			if(field != null) this.requiredClasses.add(field.getDeclaringClass());
+		}
 	}
 	
 	public boolean checkIfIdentifierIsGlobalParameter(String identifier){
@@ -228,17 +217,17 @@ public class TissueCellDataFieldsInspector {
 	}
 	
 	public boolean isIdentifier(String str){
-		if(overallMethodMap.get(str) == null) return false;
+		if(overallMethodMap.get(str) == null && overallFieldMap.get(str)==null) return false;
 		else return true;
 	}
 	
 	public Set<Class<?>> getRequiredClasses(){ return ObjectManipulations.cloneObject(this.requiredClasses);}
 	
-	private String getRedundancyCheckedName(String name){
+	private String getRedundancyCheckedName(String name, Set<String> nameSet){
 		
 		String newName = name;
-		if(overallVarNameSet.contains(newName)){
-			for(int i = 2; overallVarNameSet.contains(newName); i++) newName = name.concat(""+i);
+		if(nameSet.contains(newName)){
+			for(int i = 2; nameSet.contains(newName); i++) newName = name.concat(""+i);
 		}
 		return newName;
 	}
@@ -251,10 +240,12 @@ public class TissueCellDataFieldsInspector {
 			return null;
 	}
 
-	private void buildParametersList(SortedJList list, String cellOrTissueTypeName) {
-
+	private void buildParametersOrConstantsList(SortedJList list, String cellOrTissueTypeName) {
+		
 		list.removeAll();
-		for(String actName : overallVarNameSet){
+		for(String actName : overallVarOrConstantNameSet){
+			if(((list == this.cellParameterList || list == this.tissueParameterList) && this.overallMethodMap.containsKey(actName))
+					|| (list == this.tissueConstantList && this.overallFieldMap.containsKey(actName))){
 				String[] subNames = actName.split("\\.");
 				if(subNames.length >= 2 && subNames[0].substring(Names.PREFIXLENGTH).equals(cellOrTissueTypeName)){
 					list.add(subNames[1]);
@@ -262,19 +253,18 @@ public class TissueCellDataFieldsInspector {
 				else if(subNames.length >= 2 && subNames[0].substring(Names.PREFIXLENGTH).equals(cellOrTissueTypeName+Names.CELLDIFFMODEL)){
 					list.add(subNames[1]);
 				}
+			}
 		}
 		
 
 	}
 	
-	private void buildTissueList() {
+	private void buildTissueTypeList() {
 		
 		tissueTypeList.removeAll();
 		for(String actTissueName : this.tissueTypesMap.keySet()){			
 			tissueTypeList.add(actTissueName);
-		}
-		
-		
+		}		
 
 	}
 	
@@ -303,27 +293,31 @@ public class TissueCellDataFieldsInspector {
 	
 	public JPanel getVariableListPanel(){ return buildVariableListPanel();}
 	
-	public Set<String> getOverallVarNameSet(){ return this.overallVarNameSet;}
+	public Set<String> getOverallVarOrConstantNameSet(){ 		
+		
+		return this.overallVarOrConstantNameSet;}
 	
 	
 	public boolean hasCellTypeConflict(Set<String> varNames){
 		String foundCellTypeName = null;
 		Set<String> cellTypeClassNames = new HashSet<String>();
 		//Class-Based Check
-		for(CellType actType: this.cellTypesMap.values()) cellTypeClassNames.add(actType.getClass().getSimpleName().toLowerCase());
+		for(CellType actType: this.cellTypesMap.values()) cellTypeClassNames.add(actType.getClass().getSimpleName());
 		for(String actVarName:varNames){
-			if(cellTypeClassNames.contains(getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase())){ 
-				if(foundCellTypeName== null)foundCellTypeName=getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase();
-				else if(foundCellTypeName.equals(getMethodCallStrForVarName(actVarName).split("\\.")[0].toLowerCase()))continue;
+			if(cellTypeClassNames.contains(firstLetterToUpperCase(getMethodOrFieldCallStrForVarOrConstantName(actVarName).split("\\.")[0]))){ 
+				if(foundCellTypeName== null)foundCellTypeName=getMethodOrFieldCallStrForVarOrConstantName(actVarName).split("\\.")[0];
+				else if(foundCellTypeName.equals(getMethodOrFieldCallStrForVarOrConstantName(actVarName).split("\\.")[0]))continue;
 				else return true;
 			}
 		}
 		
+		
+		
 		//Celltypename-Based Check
 		HashSet<String> cellTypeNameSet = new HashSet<String>();  
 		for(String actVarName : varNames){
-			String cellTypeName = removeCellDiffModel(actVarName.split("\\.")[0].toLowerCase().substring(Names.PREFIXLENGTH));
-			if(!cellTypeNameSet.contains(cellTypeName)){ 
+			String cellTypeName = removeCellDiffModel(actVarName.split("\\.")[0].substring(Names.PREFIXLENGTH));
+			if(!cellTypeNameSet.contains(cellTypeName) && !this.tissueTypesMap.keySet().contains(cellTypeName)){ 
 				if(cellTypeNameSet.size() > 0){
 					return true;
 				}
@@ -334,25 +328,125 @@ public class TissueCellDataFieldsInspector {
 		return false;
 	}
 	
+	private String firstLetterToUpperCase(String text){
+		if(text != null && text.length()>0){
+			text = text.substring(0, 1).toUpperCase() + text.substring(1);
+		}
+		return text;
+	}
+	
 	private String removeCellDiffModel(String name){
-		if(name.endsWith(Names.CELLDIFFMODEL.toLowerCase())){
+		if(name.endsWith(Names.CELLDIFFMODEL)){
 			return name.substring(0, name.length()- Names.CELLDIFFMODEL.length());
 		}
 		return name;
 	}
 
-	public String getMethodCallStrForVarName(String varName){ return this.overallMethodCallMap.get(varName);}
+	public String getMethodOrFieldCallStrForVarOrConstantName(String varName){ 
+		
+		if(this.overallMethodCallMap.containsKey(varName))  return this.overallMethodCallMap.get(varName);
+		else if(this.overallFieldCallMap.containsKey(varName))  return this.overallFieldCallMap.get(varName);
+		return "";
+	}
 	
 	private JPanel buildVariableListPanel() {
+		
+		Comparator<String> stringComparator = new Comparator<String>(){
 
+			public int compare(String o1, String o2) {
+           
+            return o1.compareTo(o2);
+         }};
+		tissueTypeList = new SortedJList(stringComparator);
+		cellTypeList = new SortedJList(stringComparator);
+		cellParameterList = new SortedJList(stringComparator);
+		tissueParameterList = new SortedJList(stringComparator);
+		tissueConstantList = new SortedJList(stringComparator);
+		
+		this.cellParameterList.addMouseListener(new MouseAdapter() {
+
+			public void mouseClicked(MouseEvent e) {
+
+				if((cellParameterList.getSelectedIndex() != -1) && e.getClickCount() == 2){
+					
+					String name = cellTypeList.getSelectedValue() + "."  + cellParameterList.getSelectedValue();
+					String alternName = cellTypeList.getSelectedValue()+Names.CELLDIFFMODEL + "."  + cellParameterList.getSelectedValue();
+					
+					if(!prefixMap.keySet().contains(name) &&prefixMap.keySet().contains(alternName)){
+						
+						actualSelectedParameterOrConstant = prefixMap.get(alternName) + alternName;
+						
+					}
+					else if(prefixMap.keySet().contains(name) &&!prefixMap.keySet().contains(alternName)){
+						
+						actualSelectedParameterOrConstant = prefixMap.get(name) + name;
+						
+					}
+					
+					notifyAllParameterSelectionListener();
+				}
+			}
+		});
+	   
+		this.tissueParameterList.addMouseListener(new MouseAdapter() {
+
+			public void mouseClicked(MouseEvent e) {
+
+				if((tissueParameterList.getSelectedIndex() != -1) && e.getClickCount() == 2){
+					
+					String name = tissueTypeList.getSelectedValue() + "."  + tissueParameterList.getSelectedValue();
+					actualSelectedParameterOrConstant = prefixMap.get(name) + name;
+					notifyAllParameterSelectionListener();
+				}
+			}
+		});
+		
+		this.tissueConstantList.addMouseListener(new MouseAdapter() {
+
+			public void mouseClicked(MouseEvent e) {
+
+				if((tissueConstantList.getSelectedIndex() != -1) && e.getClickCount() == 2){
+					
+					String name = tissueTypeList.getSelectedValue() + "."  + tissueConstantList.getSelectedValue();
+					String alternName = tissueTypeList.getSelectedValue()+Names.CELLDIFFMODEL + "."  + tissueConstantList.getSelectedValue();
+					
+					if(!prefixMap.keySet().contains(name) &&prefixMap.keySet().contains(alternName)){
+						
+						actualSelectedParameterOrConstant = prefixMap.get(alternName) + alternName;
+						
+					}
+					else if(prefixMap.keySet().contains(name) &&!prefixMap.keySet().contains(alternName)){
+						
+						actualSelectedParameterOrConstant = prefixMap.get(name) + name;
+						
+					}
+					
+					notifyAllParameterSelectionListener();
+				}
+			}
+		});
+	   
+		
+		
+		buildTissueTypeList();
+		buildCellTypeList();
+		
+		
 		final JPanel listPanel1 = new JPanel(new GridLayout(1, 2, 5, 5));
 		final JPanel listPanel2 = new JPanel(new GridLayout(1, 2, 5, 5));
+		final JPanel parametersAndConstantsPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+		final JPanel parametersPanel = new JPanel(new BorderLayout(0,0));
 		
+		JScrollPane tissueListScroll = new JScrollPane(tissueTypeList);
+		JScrollPane cellListScroll = new JScrollPane(cellTypeList);
+		JScrollPane parameterListScroll = new JScrollPane(parametersPanel);
+		final JScrollPane constantListScroll = new JScrollPane(tissueConstantList);
 
 		cellTypeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tissueTypeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		cellParameterList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tissueParameterList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tissueConstantList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		tissueTypeList.addListSelectionListener(new ListSelectionListener() {
 			
@@ -361,9 +455,13 @@ public class TissueCellDataFieldsInspector {
 					buildCellTypeList();
 					cellTypeList.validate();
 					cellTypeList.repaint();
-					buildParametersList(tissueParameterList, inspectedTissue.getTissueName());
+					buildParametersOrConstantsList(tissueParameterList, inspectedTissue.getTissueName());
+					buildParametersOrConstantsList(tissueConstantList, inspectedTissue.getTissueName());
 					parametersPanel.removeAll();
 					parametersPanel.add(tissueParameterList, BorderLayout.CENTER);
+					parametersAndConstantsPanel.remove(constantListScroll);
+					parametersAndConstantsPanel.add(constantListScroll);
+					parametersAndConstantsPanel.validate();
 					listPanel1.validate();
 					listPanel1.repaint();
 				}				
@@ -377,9 +475,13 @@ public class TissueCellDataFieldsInspector {
 					buildCellTypeList();
 					cellTypeList.validate();
 					cellTypeList.repaint();
-					buildParametersList(tissueParameterList, inspectedTissue.getTissueName());
+					buildParametersOrConstantsList(tissueParameterList, inspectedTissue.getTissueName());
+					buildParametersOrConstantsList(tissueConstantList, inspectedTissue.getTissueName());
 					parametersPanel.removeAll();
 					parametersPanel.add(tissueParameterList, BorderLayout.CENTER);
+					parametersAndConstantsPanel.remove(constantListScroll);
+					parametersAndConstantsPanel.add(constantListScroll);
+					parametersAndConstantsPanel.validate();
 					listPanel1.validate();
 					listPanel1.repaint();
 				}
@@ -390,12 +492,34 @@ public class TissueCellDataFieldsInspector {
 			public void valueChanged(ListSelectionEvent e) {
 
 				if((e.getValueIsAdjusting() != false) && cellTypeList.getSelectedIndex() != -1){
-
-					buildParametersList(cellParameterList, cellTypesMap.get(((String) cellTypeList.getSelectedValue())).getCellName());
+					buildParametersOrConstantsList(cellParameterList, cellTypesMap.get(((String) cellTypeList.getSelectedValue())).getCellName());
 					parametersPanel.removeAll();
 					parametersPanel.add(cellParameterList, BorderLayout.CENTER);
+					parametersAndConstantsPanel.remove(constantListScroll);
+					parametersAndConstantsPanel.validate();
 					listPanel1.validate();
 					listPanel1.repaint();
+				}
+			}
+
+		});
+		
+		tissueParameterList.addListSelectionListener(new ListSelectionListener() {
+
+			public void valueChanged(ListSelectionEvent e) {
+
+				if((e.getValueIsAdjusting() != false) && tissueParameterList.getSelectedIndex() != -1){
+					tissueConstantList.clearSelection();
+				}
+			}
+
+		});
+		tissueConstantList.addListSelectionListener(new ListSelectionListener() {
+
+			public void valueChanged(ListSelectionEvent e) {
+
+				if((e.getValueIsAdjusting() != false) && tissueConstantList.getSelectedIndex() != -1){
+					tissueParameterList.clearSelection();
 				}
 			}
 
@@ -405,10 +529,10 @@ public class TissueCellDataFieldsInspector {
 
 		cellParameterList.setToolTipText("double-click to select!");
 		tissueParameterList.setToolTipText("double-click to select!");
+		tissueConstantList.setToolTipText("double-click to select!");
 
-		JScrollPane tissueListScroll = new JScrollPane(tissueTypeList);
-		JScrollPane cellListScroll = new JScrollPane(cellTypeList);
-		JScrollPane parameterListScroll = new JScrollPane(parametersPanel);
+		
+		
 
 		tissueListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Tissue Types"),
 		      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -416,11 +540,15 @@ public class TissueCellDataFieldsInspector {
 		      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 		parameterListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Parameters"),
 		      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+		constantListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Tissue Constants"),
+		      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 		
 		listPanel2.add(tissueListScroll);
 		listPanel2.add(cellListScroll);
 		listPanel1.add(listPanel2);
-		listPanel1.add(parameterListScroll);
+		parametersAndConstantsPanel.add(parameterListScroll);
+		
+		listPanel1.add(parametersAndConstantsPanel);
 
 		listPanel1.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Variables"),
 		      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -429,7 +557,7 @@ public class TissueCellDataFieldsInspector {
 
 	}
 	
-	public String getActualSelectedParameter(){ return this.actualSelectedParameter; }
+	public String getActualSelectedParameter(){ return this.actualSelectedParameterOrConstant; }
 
 	/*
    public JList getCellParameterList() {
@@ -449,17 +577,7 @@ public class TissueCellDataFieldsInspector {
    	return tissueParameterList;
    }
 */
-	
-   public Map<String, CellType> getCellTypesMap() {
-   
-   	return cellTypesMap;
-   }
-
-	
-   public Map<String, TissueType> getTissueTypesMap() {
-   
-   	return tissueTypesMap;
-   }
+	 
    
    private void notifyAllParameterSelectionListener(){
    	for(ParameterSelectionListener listener : this.parameterSelectionListener) listener.parameterWasSelected();

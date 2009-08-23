@@ -53,7 +53,7 @@ public class ExpressionCheckerController {
 		    DataMonitoringExpressionChecker parser = new DataMonitoringExpressionChecker(r);
 		    if(expressionType == ARITHMETICTYPE) result = parser.checkExpression(tissueDataFieldsInspector);
 		    else if(expressionType == BOOLEANTYPE) result = parser.checkBooleanExpression(tissueDataFieldsInspector);
-		    addRecognizedVarNames(sessionId, parser.getRecognizedVarNames());
+		    addRecognizedVarNames(sessionId, parser.getRecognizedVarOrConstantNames());
 		}
 		return result;
 	}

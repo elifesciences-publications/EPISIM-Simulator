@@ -77,24 +77,26 @@ public abstract class  AbstractCommonSourceBuilder {
 		
       StringBuffer handlerSource = new StringBuffer();
       handlerSource.append("new CalculationHandler(){\n");
-      handlerSource.append("  private Map<String, Object> parameters;\n");
+      handlerSource.append("  private Map<String, Object> params;\n");
       handlerSource.append("  {\n");
-      appendParameterMapReproduction(handlerSource, "parameters", config.getParameters());
+      appendParameterMapReproduction(handlerSource, "params", config.getParameters());
       handlerSource.append("  }\n");
       
       
       handlerSource.append("  public long getID(){ return "+id+"l; }\n");
       handlerSource.append("  public long getCorrespondingBaselineCalculationHandlerID(){ return "+baselineHandlerId+"l; }\n");
       handlerSource.append("  public int getCalculationAlgorithmID(){ return "+config.getCalculationAlgorithmID()+"; }\n");
-      handlerSource.append("  public Map<String, Object> getParameters(){ return parameters; }\n");
+      handlerSource.append("  public Map<String, Object> getParameters(){ return params; }\n");
       handlerSource.append("  public boolean isBaselineValue(){ return "+ isBaselineHandler+"; }\n");
           
       handlerSource.append("  public Class<? extends CellType> getRequiredCellType(){\n");
       boolean classFound = false;
       for(Class<?> actClass: requiredClasses){
 			if(CellType.class.isAssignableFrom(actClass)){
-				handlerSource.append("    return "+ actClass.getSimpleName()+ ".class));\n");
+				handlerSource.append("    return "+ actClass.getSimpleName()+ ".class;\n}\n");
 				classFound = true;
+				
+				break;
 			}
 		}
       if(!classFound) handlerSource.append("    return null;\n}\n");

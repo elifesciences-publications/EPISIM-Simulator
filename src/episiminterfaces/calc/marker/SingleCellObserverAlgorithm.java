@@ -1,4 +1,5 @@
-package episiminterfaces.calc;
+package episiminterfaces.calc.marker;
+
 
 
 public interface SingleCellObserverAlgorithm {

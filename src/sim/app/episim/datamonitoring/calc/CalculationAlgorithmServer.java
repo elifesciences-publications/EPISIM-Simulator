@@ -17,8 +17,10 @@ import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.EntityChangeEvent;
-import episiminterfaces.calc.SingleCellObserver;
-import episiminterfaces.calc.SingleCellObserverAlgorithm;
+import episiminterfaces.calc.marker.SingleCellObserver;
+import episiminterfaces.calc.marker.SingleCellObserverAlgorithm;
+import episiminterfaces.calc.marker.TissueObserver;
+import episiminterfaces.calc.marker.TissueObserverAlgorithm;
 
 public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	
@@ -70,7 +72,8 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	
 	public boolean isDataManagerRegistrationAtCalculationAlgorithmRequired(int algorithmID){
 		if(this.calculationAlgorithmsMap.containsKey(algorithmID)){
-			if(this.calculationAlgorithmsMap.get(algorithmID) instanceof SingleCellObserverAlgorithm){
+			if(this.calculationAlgorithmsMap.get(algorithmID) instanceof SingleCellObserverAlgorithm
+					|| this.calculationAlgorithmsMap.get(algorithmID) instanceof TissueObserverAlgorithm){
 				return true;
 			}
 		}
@@ -89,6 +92,14 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 				alg.addSingleCellObserver(associatedCalculationHandlerIds, new SingleCellObserver(){
 					public void observedCellHasChanged() {      
 	               dataManager.observedEntityHasChanged(new EntityChangeEvent(){public EntityChangeEventType getEventType() { return EntityChangeEventType.CELLCHANGE; }});
+               }
+				});
+			}
+			if(this.calculationAlgorithmsMap.get(calculationAlgorithmID) instanceof TissueObserverAlgorithm){
+				TissueObserverAlgorithm alg = (TissueObserverAlgorithm)this.calculationAlgorithmsMap.get(calculationAlgorithmID);
+				alg.addTissueObserver(associatedCalculationHandlerIds, new TissueObserver(){
+					public void observedTissueHasChanged() {      
+	               dataManager.observedEntityHasChanged(new EntityChangeEvent(){public EntityChangeEventType getEventType() { return EntityChangeEventType.SIMULATIONSTEPCHANGE; }});
                }
 				});
 			}

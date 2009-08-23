@@ -4,16 +4,29 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
+
 import sim.app.episim.CellType;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.ResultSet;
+import episimexceptions.CellNotValidException;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
+import episiminterfaces.calc.marker.SingleCellObserver;
+import episiminterfaces.calc.marker.TissueObserver;
+import episiminterfaces.calc.marker.TissueObserverAlgorithm;
 
 
-public class HistogramCalculationAlgorithm implements CalculationAlgorithm{
+public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm, TissueObserverAlgorithm{
+	
+	private Map<Long, TissueObserver> observers;
+	public  HistogramCalculationAlgorithm(){
+		observers = new HashMap<Long, TissueObserver>();
+	}
+	
 	
 	public CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id) {
 		final int _id = id;
@@ -21,7 +34,7 @@ public class HistogramCalculationAlgorithm implements CalculationAlgorithm{
 	   return new CalculationAlgorithmDescriptor(){
 
 			public String getDescription() {	         
-	         return "This algorithms calculates a histogram on the basis of the defined mathematical expression for all cells.";
+	         return "This algorithms calculates a histogram on the basis of the defined mathematical expression for all cells. Only results within the specified interval [min value, max value] are included.";
          }
 
 			public int getID() { return _id; }
@@ -47,12 +60,6 @@ public class HistogramCalculationAlgorithm implements CalculationAlgorithm{
 	   };
 	}
 
-	public void registerCells(GenericBag<CellType> allCells) {
-
-	   // TODO Auto-generated method stub
-	   
-   }
-
 	public void reset() {
 
 	   // TODO Auto-generated method stub
@@ -66,8 +73,44 @@ public class HistogramCalculationAlgorithm implements CalculationAlgorithm{
    }
 
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
-
-	   // TODO Auto-generated method stub
+		try{
+		
+			notifyTissueObserver(handler.getID());
+		
+			 for(CellType cell: allCells){ 
+				 if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(cell.getClass())){
+					 double result = handler.calculate(cell);
+					 if(checkCondition(result, handler, cell)) results.add1DValue(result);
+				 }
+				 
+			 }
+			
+		}
+		catch(CellNotValidException ex){
+			ExceptionDisplayer.getInstance().displayException(ex);
+		}
 	   
    }
+	
+	protected boolean checkCondition(double result, CalculationHandler handler, CellType cell){
+		double min = (Double) handler.getParameters().get(HISTOGRAMMINVALUEPARAMETER);
+		double max = (Double) handler.getParameters().get(HISTOGRAMMAXVALUEPARAMETER);
+		
+		return result >= min && result <= max;
+	}
+
+	private void notifyTissueObserver(long id){
+		if(this.observers.containsKey(id)){
+			this.observers.get(id).observedTissueHasChanged();
+		}
+	}
+	
+	public void addTissueObserver(long[] calculationHandlerIds, TissueObserver observer) {
+		if(calculationHandlerIds != null && calculationHandlerIds.length >0){
+			for(long id : calculationHandlerIds){
+				this.observers.put(id, observer);
+			}
+		}
+   }
+	
 }

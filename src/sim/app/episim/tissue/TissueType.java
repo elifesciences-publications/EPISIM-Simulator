@@ -1,5 +1,6 @@
 package sim.app.episim.tissue;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,8 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	
 	
 	public abstract List<Method> getParameters();
+	
+	public abstract List<Field> getContants();
 	
 	public List <Class<? extends CellType>> getRegisteredCellTypes(){
 		return this.registeredCellTypes;

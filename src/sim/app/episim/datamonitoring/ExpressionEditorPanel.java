@@ -228,7 +228,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				else{
 					arithmeticMessagePanel.setVisible(true);
 					this.panel.validate();
-					arithmeticMessageTextArea.setText("Usage of paramters belonging to different cell types in a single calculation algorithm is not allowed.");
+					arithmeticMessageTextArea.setText("Usage of parameters belonging to different cell types in a single calculation algorithm is not allowed.");
 				}
 			}
 		}
@@ -258,7 +258,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				else{
 					arithmeticMessagePanel.setVisible(true);
 					this.panel.validate();
-					arithmeticMessageTextArea.setText("Usage of paramters belonging to different cell types in a single calculation algorithm is not allowed.");
+					arithmeticMessageTextArea.setText("Usage of parameters belonging to different cell types in a single calculation algorithm is not allowed.");
 				}
 				
 			}

@@ -33,6 +33,7 @@ import java.awt.geom.*;
 //PDF Writer
 import java.io.*;       
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
@@ -477,6 +478,15 @@ private void seedStemCells(){
 	    methods.addAll(Arrays.asList(this.getClass().getMethods()));
 	   
 		return methods;
+	}
+	
+	public List<Field> getContants() {	
+		List<Field> fields = new ArrayList<Field>();
+		for(Field field : ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass().getFields()){
+	   		if(!field.getDeclaringClass().isInterface()) fields.add(field);
+		}
+		
+		return fields;
 	}
 
 

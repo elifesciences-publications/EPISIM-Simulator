@@ -15,10 +15,10 @@ import episiminterfaces.*;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
-import episiminterfaces.calc.SingleCellObserver;
 import episiminterfaces.CellDeathListener;
-import episiminterfaces.calc.SingleCellObserverAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
+import episiminterfaces.calc.marker.SingleCellObserver;
+import episiminterfaces.calc.marker.SingleCellObserverAlgorithm;
 
 
 public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements SingleCellObserverAlgorithm, CalculationAlgorithm{

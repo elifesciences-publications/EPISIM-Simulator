@@ -16,8 +16,8 @@ import sim.app.episim.datamonitoring.steppables.*;
 
 public class DataMonitoringExpressionChecker {
 	
-	private Set<String> varNameSet = new HashSet<String>();
-	private Set<String> recognizedVarNames;
+	private Set<String> varOrConstantNameSet = new HashSet<String>();
+	private Set<String> recognizedVarOrConstantNames;
 	private Set<Character> booleanCharacterSet = new HashSet<Character>();
 	private TissueCellDataFieldsInspector tissueDataFieldsInspector;
 	
@@ -37,8 +37,8 @@ public class DataMonitoringExpressionChecker {
   		
   	}
 
-  	public Set<String> getRecognizedVarNames()  	{
-  	  if(recognizedVarNames != null) return ObjectManipulations.cloneObject(recognizedVarNames);
+  	public Set<String> getRecognizedVarOrConstantNames()  	{
+  	  if(recognizedVarOrConstantNames != null) return ObjectManipulations.cloneObject(recognizedVarOrConstantNames);
   	  return null;  	}
    
 }
@@ -72,9 +72,9 @@ TOKEN : { < #DIGITS : (["0"-"9"])+ > }
 
 String checkExpression(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
 {
-	this.varNameSet = tissueDataFieldsInspector.getOverallVarNameSet();
+	this.varOrConstantNameSet = tissueDataFieldsInspector.getOverallVarOrConstantNameSet();
 	this.tissueDataFieldsInspector = tissueDataFieldsInspector;
-	this.recognizedVarNames = new HashSet<String>();
+	this.recognizedVarOrConstantNames = new HashSet<String>();
 String partialResult = "";
 String[] partResultArray = null;
 String totalResult = "";}
@@ -94,9 +94,9 @@ String totalResult = "";}
 
 String checkBooleanExpression(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
 {
-	this.varNameSet = tissueDataFieldsInspector.getOverallVarNameSet();
+	this.varOrConstantNameSet = tissueDataFieldsInspector.getOverallVarOrConstantNameSet();
 	this.tissueDataFieldsInspector = tissueDataFieldsInspector;
-	this.recognizedVarNames = new HashSet<String>();
+	this.recognizedVarOrConstantNames = new HashSet<String>();
 String partialResult = "";
 String[] partResultArray = null;
 String totalResult = "";}
@@ -128,7 +128,7 @@ Token t;
 {
   	(t =<NUMBER> { result = t.image; totalResult[0] = result; totalResult[1]= result;}
    	| LOOKAHEAD(5)(t =<NUMBERIDENTIFIER> 
-   		{if(!this.varNameSet.contains(t.image))
+   		{if(!this.varOrConstantNameSet.contains(t.image))
    			throw new ParseException("Unknown Identifier: " + t.image);
    	/*	if(!instructionOpened){
    			if(!this.tissueDataFieldsInspector.checkIfIdentifierIsGlobalParameter(t.image))
@@ -136,9 +136,9 @@ Token t;
    		} */
    				totalResult[0]=t.image;
    				
-   				this.recognizedVarNames.add(t.image);
+   				this.recognizedVarOrConstantNames.add(t.image);
    				this.tissueDataFieldsInspector.addRequiredClassForIdentifier(t.image);
-   				result = this.tissueDataFieldsInspector.getMethodCallStrForVarName(t.image);
+   				result = this.tissueDataFieldsInspector.getMethodOrFieldCallStrForVarOrConstantName(t.image);
    				totalResult[1]= result;
    			
    		})
@@ -161,15 +161,15 @@ Token t;
 {
   		(LOOKAHEAD(2) t =<BOOLEAN> { result = t.image; totalResult[0] = result; if(result.equals("T")) totalResult[1]= "true"; if(result.equals("F")) totalResult[1]= "false";}
    	| LOOKAHEAD(3) t =<BOOLIDENTIFIER> 
-   		{if(!this.varNameSet.contains(t.image))
+   		{if(!this.varOrConstantNameSet.contains(t.image))
    			throw new ParseException("Unknown Identifier: " + t.image);
    
    			if(!this.tissueDataFieldsInspector.checkIfIdentifierHasBooleanType(t.image))
    			throw new ParseException("Parameter of Type Boolean Expected! Found: " + t.image);   		
    				totalResult[0]=t.image;   				
-   				this.recognizedVarNames.add(t.image);
+   				this.recognizedVarOrConstantNames.add(t.image);
    				this.tissueDataFieldsInspector.addRequiredClassForIdentifier(t.image);
-   				result = this.tissueDataFieldsInspector.getMethodCallStrForVarName(t.image);
+   				result = this.tissueDataFieldsInspector.getMethodOrFieldCallStrForVarOrConstantName(t.image);
    				totalResult[1]= result;   			
    		}
    			

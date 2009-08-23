@@ -241,6 +241,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 					+","+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER)+")) "
 					+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".addBin(bin);\n");
 			
+			generatedSourceCode.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".setAdjustForBinSize(false);");
 			generatedSourceCode.append("  plot.setRenderer("+i+", renderer);\n");	
 			
 			i++;

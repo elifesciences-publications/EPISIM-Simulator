@@ -30,10 +30,10 @@ public class Test {
 		SimpleHistogramDataset dataSet2 = new SimpleHistogramDataset("Bert");
 		SimpleHistogramDataset dataSet3 = new SimpleHistogramDataset("Lilo");
 		
-		
-		for(SimpleHistogramBin bin: buildBins(0, 100, 100)) dataSet.addBin(bin);
-		for(SimpleHistogramBin bin: buildBins(0, 100, 100)) dataSet2.addBin(bin);
-		for(SimpleHistogramBin bin: buildBins(0, 100, 100)) dataSet3.addBin(bin);
+		SimpleHistogramBin[] bins = buildBins(0, 3, 100);
+		for(SimpleHistogramBin bin: bins) dataSet.addBin(bin);
+		//for(SimpleHistogramBin bin: buildBins(0, 100, 100)) dataSet2.addBin(bin);
+		//for(SimpleHistogramBin bin: buildBins(0, 100, 100)) dataSet3.addBin(bin);
 		
 		
 		
@@ -41,17 +41,17 @@ public class Test {
 		
 		XYPlot plot = chart.getXYPlot();
 		plot.setDataset(0, dataSet);
-		plot.setDataset(1, dataSet2);
-		plot.setDataset(2, dataSet3);
+		//plot.setDataset(1, dataSet2);
+		//plot.setDataset(2, dataSet3);
 		XYBarRenderer renderer = new XYBarRenderer();
-		XYBarRenderer renderer2 = new XYBarRenderer();
-		XYBarRenderer renderer3 = new XYBarRenderer();
+	//	XYBarRenderer renderer2 = new XYBarRenderer();
+	//	XYBarRenderer renderer3 = new XYBarRenderer();
 		renderer.setSeriesPaint(0, Color.BLUE);
-		renderer2.setSeriesPaint(0, Color.RED);
-		renderer3.setSeriesPaint(0, Color.YELLOW);
+	//	renderer2.setSeriesPaint(0, Color.RED);
+		//renderer3.setSeriesPaint(0, Color.YELLOW);
 		plot.setRenderer(0, renderer);
-		plot.setRenderer(1, renderer2);
-		plot.setRenderer(2, renderer3);
+	//	plot.setRenderer(1, renderer2);
+	//	plot.setRenderer(2, renderer3);
 		
 		plot.setForegroundAlpha(0.6F);
 frame.getContentPane().add(new ChartPanel(chart), BorderLayout.CENTER);
@@ -63,15 +63,40 @@ frame.getContentPane().add(new ChartPanel(chart), BorderLayout.CENTER);
 		
 	//	XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
 		
-		System.out.println(plot.getRenderer().getClass());
+		
 		
 		Random rand = new Random();
 		
-		double[] vals = new double[100];
-		
-		for(int i = 0; i< 100; i++) dataSet.addObservation(rand.nextInt(100));
+	
 		frame.repaint();
 		try{
+	      Thread.sleep(5000);
+      }
+      catch (InterruptedException e){
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+      }
+		for(int i = 0; i< 100; i++) dataSet.addObservation(i*0.03);
+		frame.repaint();
+		
+		int totalItems = 0;
+		for(int i = 0; i < bins.length; i++){
+			System.out.println("Bins number "+i+" contains "+ bins[i].getItemCount()+ "items");
+			totalItems += bins[i].getItemCount();
+		}
+		System.out.println("Total number of items " + totalItems);
+		
+		try{
+	      Thread.sleep(3000);
+      }
+      catch (InterruptedException e){
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+      }
+		
+		dataSet.setAdjustForBinSize(false);
+		frame.repaint();
+	/*	try{
 	      Thread.sleep(3000);
       }
       catch (InterruptedException e){
@@ -101,7 +126,7 @@ frame.getContentPane().add(new ChartPanel(chart), BorderLayout.CENTER);
 	      e.printStackTrace();
       }
       dataSet.clearObservations();
-      frame.repaint(); 
+      frame.repaint(); */
           
 	}
 	

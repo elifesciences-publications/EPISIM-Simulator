@@ -97,11 +97,13 @@ public abstract class CalculationDataManagerFactory {
 		
 					public void observedEntityHasChanged(EntityChangeEvent event) {
 						if(event.getEventType() == EntityChangeEventType.SIMULATIONSTEPCHANGE){
+							
 							dataSet.clearObservations();
 						}
 		         }
 		
 					public void reset() {
+						
 			        counter = 0;
 			        dataSet.clearObservations();
 		         }
@@ -113,7 +115,7 @@ public abstract class CalculationDataManagerFactory {
 					public CalculationDataManagerType getCalculationDataManagerType(){ return type; } 
 					
 					public void addNewValue(Double xValue) {
-
+						counter++;
 						if(yAxisLogarithmic){ 
 							if(xValue > 0)dataSet.addObservation(xValue);	         
 						}

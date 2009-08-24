@@ -3,6 +3,7 @@ package sim.app.episim.datamonitoring;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -43,6 +44,7 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.CalculationAlgorithmSelectionPanel.AlgorithmSelectionListener;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
@@ -50,6 +52,7 @@ import sim.app.episim.datamonitoring.charts.ChartCreationWizard;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.util.Names;
+import sim.app.episim.util.ObjectManipulations;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.app.episim.util.TissueCellDataFieldsInspector.ParameterSelectionListener;
 
@@ -77,6 +80,7 @@ public class DataEvaluationWizard {
 	
 	private CalculationAlgorithmDescriptor actualDescriptor = null;
 	private CalculationAlgorithmConfigurator actualConfigurator = null;
+	private CalculationAlgorithmConfigurator oldConfigurator = null;
 	
 	private Dimension[] dialogSizes = new Dimension[]{new Dimension(750,500), new Dimension(750, 800)};
 	
@@ -148,7 +152,10 @@ public class DataEvaluationWizard {
 	
 	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator oldConfigurator){
 			this.actualConfigurator = null;		
-			if(oldConfigurator != null) restoreCalculationAlgorithmValues(oldConfigurator);
+			if(oldConfigurator != null){ 
+				this.oldConfigurator = ObjectManipulations.cloneObject(oldConfigurator);
+				restoreCalculationAlgorithmValues(oldConfigurator);
+			}
 									
 			dialog.repaint();
 			centerMe();
@@ -187,23 +194,36 @@ public class DataEvaluationWizard {
    private JPanel buildButtonPanel() {
 
 		JPanel bPanel = new JPanel(new GridBagLayout());
-
+		JPanel bInnerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 		GridBagConstraints c = new GridBagConstraints();
 
-		c.anchor = GridBagConstraints.WEST;
-		c.fill = GridBagConstraints.NONE;
-		c.gridx = 2;
-		c.gridy = 0;
-		c.weightx = 1;
-		c.weighty = 1;
-		c.insets = new Insets(10, 10, 10, 10);
-		c.gridwidth = 1;
+		
+		
+		
+		
+		
+
+		nextBackButton = new JButton("Next>>");
+		
+		nextBackButton.setEnabled(false);
+		nextBackButton.addActionListener(new ActionListener() {			
+			
+			public void actionPerformed(ActionEvent e) {
+					
+			   nextBackButtonPressed();
+			}
+			
+		});
+		JPanel nextBackBPanel = new JPanel(new BorderLayout());
+		nextBackBPanel.add(nextBackButton, BorderLayout.EAST);
+		nextBackBPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+		bInnerPanel.add(nextBackBPanel);
+		
+		
 
 		okButton = new JButton("  OK  ");
 		okButton.setEnabled(false);
-		okButton.addActionListener(new ActionListener() {
-			
-			
+		okButton.addActionListener(new ActionListener() {			
 
 			public void actionPerformed(ActionEvent e) {
 				CalculationAlgorithmConfigurator configurator = null;
@@ -218,54 +238,49 @@ public class DataEvaluationWizard {
 
 			}
 		});
-		bPanel.add(okButton, c);
-		
-		
-		
-		c.anchor = GridBagConstraints.WEST;
-		c.fill = GridBagConstraints.NONE;
-		c.gridx = 1;
-		c.gridy = 0;
-		c.weightx = 0;
-		c.weighty = 1;
-		c.insets = new Insets(10, 10, 10, 10);
-		c.gridwidth = 1;
+		bInnerPanel.add(okButton);
 
-		nextBackButton = new JButton("Next>>");
-		nextBackButton.setEnabled(false);
-		nextBackButton.addActionListener(new ActionListener() {			
-			
-			public void actionPerformed(ActionEvent e) {
-					
-			   nextBackButtonPressed();
-			}
-			
-		});
-		bPanel.add(nextBackButton, c);
 		
-		
-		
-
-		c.anchor = GridBagConstraints.EAST;
-		c.fill = GridBagConstraints.NONE;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 1;
-		c.weighty = 1;
-		c.insets = new Insets(10, 10, 10, 10);
-		c.gridwidth = 1;
-		c.gridwidth = 1;
 
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-
+				actualConfigurator = oldConfigurator;
+				
+				if(actualConfigurator != null){
+					int sessionID =  ExpressionCheckerController.getInstance().getCheckSessionId();
+					try{
+	               ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, actualConfigurator.getArithmeticExpression()[0], dataFieldsInspector);
+               
+	               if(actualDescriptor.hasCondition()) ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, actualConfigurator.getBooleanExpression()[0], dataFieldsInspector);
+                 }
+                  catch (NumberFormatException e1){
+                  	ExceptionDisplayer.getInstance().displayException(e1);
+                  }
+                  catch (ParseException e1){
+                  	ExceptionDisplayer.getInstance().displayException(e1);
+                  }
+						
+				}
+				
 				dialog.setVisible(false);
 				dialog.dispose();
 			}
 		});
-		bPanel.add(cancelButton, c);
+		
+		bInnerPanel.add(cancelButton);
+		
+		c.anchor = GridBagConstraints.WEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		
+		c.weightx = 0;
+		c.weighty = 1;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.gridwidth = 1;
+		c.gridwidth = 1;
+		
+		bPanel.add(bInnerPanel, c);
 
 		return bPanel;
 

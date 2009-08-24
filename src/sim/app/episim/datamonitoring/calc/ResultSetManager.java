@@ -20,30 +20,31 @@ public abstract class ResultSetManager {
 	public static void copyResultSetToDataManager(ResultSet<Double> results1, ResultSet<Double> results2, CalculationDataManager<Double> dataManager){
 		if(dataManager != null && dataManager.getCalculationDataManagerType()==CalculationDataManagerType.ONEDIMTYPE) throw new IllegalArgumentException("CalculationDataManager is of ONEDIMTYPE. TWODIMTYPE is required.");
 		if(results1.getResultSetType() == ResultSetType.ONEDIMRESULTS && results2.getResultSetType() == ResultSetType.ONEDIMRESULTS){
-			if((results1.size() != results2.size()) && !(results1.size()==1 || results2.size()==1)) throw new IllegalArgumentException("The two resultsets don't match. The resulsets must either have the same size or one of the two resultsets must have size 1.");
-			else{
-				if(results1.size() == 1 && results2.size() > 1){
-					for(int i = 0; i < results2.size(); i++){
-						dataManager.addNewValue(results1.get(0).get(0), results2.get(i).get(0));
+			if(results1.size() >0 && results2.size() >0){
+				if((results1.size() != results2.size()) && !(results1.size()==1 || results2.size()==1)) throw new IllegalArgumentException("The two resultsets don't match. The resulsets must either have the same size or one of the two resultsets must have size 1.");
+				else{
+					if(results1.size() == 1 && results2.size() > 1){
+						for(int i = 0; i < results2.size(); i++){
+							dataManager.addNewValue(results1.get(0).get(0), results2.get(i).get(0));
+						}
 					}
-				}
-				else if(results2.size() == 1 && results1.size() > 1){
-					for(int i = 0; i < results1.size(); i++){
-						dataManager.addNewValue(results1.get(i).get(0), results2.get(0).get(0));
+					else if(results2.size() == 1 && results1.size() > 1){
+						for(int i = 0; i < results1.size(); i++){
+							dataManager.addNewValue(results1.get(i).get(0), results2.get(0).get(0));
+						}
 					}
-				}
-				else if(results2.size() > 1 && results1.size() > 1){
-					for(int i = 0; i < results1.size(); i++){
-						dataManager.addNewValue(results1.get(i).get(0), results2.get(i).get(0));
+					else if(results2.size() > 1 && results1.size() > 1){
+						for(int i = 0; i < results1.size(); i++){
+							dataManager.addNewValue(results1.get(i).get(0), results2.get(i).get(0));
+						}
 					}
-				}
-				else if(results2.size() == 1 && results1.size() == 1){
-					
-						dataManager.addNewValue(results1.get(0).get(0), results2.get(0).get(0));
-					
+					else if(results2.size() == 1 && results1.size() == 1){
+						
+							dataManager.addNewValue(results1.get(0).get(0), results2.get(0).get(0));
+						
+					}
 				}
 			}
-		
 		}
 		else throw new IllegalArgumentException("Cannot handle ResultSets of type TWODIMRESULTS");
 	}

@@ -39,7 +39,7 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
 
 			public int getID() { return _id; }
 
-			public String getName() { return "Unconditioned Histogram"; }
+			public String getName() { return "Histogram Unconditioned"; }
 
 			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.HISTOGRAMRESULT; }
 
@@ -62,7 +62,7 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
 
 	public void reset() {
 
-	   // TODO Auto-generated method stub
+		observers.clear();
 	   
    }
 

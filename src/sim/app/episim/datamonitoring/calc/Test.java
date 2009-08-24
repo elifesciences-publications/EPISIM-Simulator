@@ -23,6 +23,8 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		
 
 		JFrame frame = new JFrame("Test");
 		JFreeChart chart;
@@ -131,21 +133,23 @@ frame.getContentPane().add(new ChartPanel(chart), BorderLayout.CENTER);
 	}
 	
 	private static SimpleHistogramBin[] buildBins(double minValue, double maxValue, int numberOfBins){
-				
-		if(minValue > maxValue){
-			double tmp = minValue;
-			minValue = maxValue;
-			maxValue = tmp;
-		}		
-		double binSize = Math.abs(maxValue - minValue) / numberOfBins;
-		SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins];		
-		
-		for(int i = 0; i < numberOfBins; i ++){
-			if(i == 0) bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, true);
-			else bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), false, true);
-		}
-		
-		return bins;
+	     if(minValue > maxValue){
+	       double tmp = minValue;
+	       minValue = maxValue;
+	       maxValue = tmp;
+	     }	
+	     if(minValue == maxValue)maxValue = (minValue + 1);
+	     if(numberOfBins < 0)numberOfBins = Math.abs(numberOfBins);
+	     if(numberOfBins == 0)numberOfBins = 1;
+	     double binSize = Math.abs(maxValue - minValue) / numberOfBins;
+	     SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins];				
+	     for(int i = 0; i < numberOfBins; i ++){
+	       if(i == 0) bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, true);
+	       else bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), false, true);
+	     }		
+	     return bins;
 	}
+	
+	
 
 }

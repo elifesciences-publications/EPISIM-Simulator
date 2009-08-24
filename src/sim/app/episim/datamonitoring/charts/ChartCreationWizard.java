@@ -557,9 +557,9 @@ public class ChartCreationWizard extends JDialog {
 
 		GridBagConstraints c = new GridBagConstraints();
 
-		c.anchor = GridBagConstraints.WEST;
+		c.anchor = GridBagConstraints.EAST;
 		c.fill = GridBagConstraints.NONE;
-		c.gridx = 1;
+		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 1;
 		c.weighty = 1;
@@ -575,9 +575,9 @@ public class ChartCreationWizard extends JDialog {
 		});
 		bPanel.add(okButton, c);
 
-		c.anchor = GridBagConstraints.EAST;
+		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.NONE;
-		c.gridx = 0;
+		c.gridx = 1;
 		c.gridy = 0;
 		c.weightx = 1;
 		c.weighty = 1;

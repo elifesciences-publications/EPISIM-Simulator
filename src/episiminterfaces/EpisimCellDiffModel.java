@@ -10,11 +10,11 @@ public interface EpisimCellDiffModel {
 	void setStringProperty(int propertycode, String val);
 	void setBooleanProperty(int propertycode, boolean val);
 	
-	double getNumberProperty(int propertycode);
-	double getMinNumberProperty(int propertycode);
-	double getMaxNumberProperty(int propertycode);
-	String getStringProperty(int propertycode);
-	boolean getBooleanProperty(int propertycode);
+	double returnNumberProperty(int propertycode);
+	double returnMinNumberProperty(int propertycode);
+	double returnMaxNumberProperty(int propertycode);
+	String returnStringProperty(int propertycode);
+	boolean returnBooleanProperty(int propertycode);
 	
 
 	double getMaxCa();

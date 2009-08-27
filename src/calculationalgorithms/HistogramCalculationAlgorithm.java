@@ -34,7 +34,7 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
 	   return new CalculationAlgorithmDescriptor(){
 
 			public String getDescription() {	         
-	         return "This algorithms calculates a histogram on the basis of the defined mathematical expression for all cells. Only results within the specified interval [min value, max value] are included.";
+	         return "This algorithm calculates a histogram on the basis of the defined mathematical expression for all cells. Only results within the specified interval [min value, max value] are included.";
          }
 
 			public int getID() { return _id; }

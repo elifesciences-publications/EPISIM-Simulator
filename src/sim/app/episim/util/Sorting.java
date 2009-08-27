@@ -12,7 +12,7 @@ import org.jfree.data.xy.XYSeries;
 public class Sorting {
 
 	
-	public static void sortMapValuesIntoXYSeries(Map<Double, Double> values, XYSeries series){
+	public static void sort2DMapValuesIntoResultSet(Map<Double, Double> values, ResultSet<Double> results){
 		List<Double> resultListY = new LinkedList<Double>();
 		resultListY.addAll(values.keySet());
 		Collections.sort(resultListY, new Comparator<Double>(){
@@ -20,8 +20,7 @@ public class Sorting {
 				return o1.compareTo(o2);
 				}
 			});
-		for(double actY: resultListY)
-		series.add(actY, values.get(actY));
+		for(double actY: resultListY) results.add2DValue(actY, values.get(actY));
  		
 	}
 }

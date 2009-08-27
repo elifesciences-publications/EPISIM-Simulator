@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import episiminterfaces.EpisimCellDiffModel;
+import sim.app.episim.visualization.CellEllipse;
+import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.engine.Stoppable;
 
@@ -16,18 +18,22 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    private boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
    private boolean isMembraneCell=false;    // cells directly sitting on membrane, very strict
    private boolean inNirvana=false; // unvisible and without action: only ageing is active
-   private final long identity;
-   private final long motherIdentity;   // -1 means not yet set
+   private final long id;
+   private final long motherId;   // -1 means not yet set
    
    private static int cellCounter = 0;
    
    private boolean tracked = false;
    
+   private CellType[] neighbouringCells;
+   
+   private CellEllipse cellEllipseObject;
+   
    public CellType(long identity, long motherIdentity){
    	inNirvana=false;
    	isOuterCell=false;
-   	this.identity = identity;
-   	this.motherIdentity = motherIdentity;
+   	this.id = identity;
+   	this.motherId = motherIdentity;
    }
 	
    public synchronized static  final long getNextCellId(){
@@ -47,6 +53,8 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
 	
 	public abstract void killCell();
 	
+	public abstract SimState getActSimState();
+	
 	public double getLastDrawInfoX() { return lastDrawInfoX;	}
 	public double getLastDrawInfoY() { return lastDrawInfoY; }
 	public void setLastDrawInfoX(double lastDrawInfoX) { this.lastDrawInfoX = lastDrawInfoX; }
@@ -56,7 +64,7 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
 	public boolean isInNirvana() { return inNirvana; }
 	public void setInNirvana(boolean inNirvana) { this.inNirvana = inNirvana; }
 	
-	public long getIdentity() { return identity; }   
+	public long getIdentity() { return id; }   
 	
 	public boolean isBasalStatisticsCell() { return isBasalStatisticsCell; }
 	public void setIsBasalStatisticsCell(boolean val){ this.isBasalStatisticsCell = val; }
@@ -68,7 +76,7 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell;}
 	
 	
-	protected long getMotherIdentity(){ return this.motherIdentity;}
+	protected long getMotherIdentity(){ return this.motherId;}
 
 	
    public boolean isTracked() {
@@ -82,5 +90,20 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    	this.tracked = tracked;
    }
 	
+   protected void setNeighbouringCells(CellType[] neighbours){
+   	this.neighbouringCells = neighbours;
+   }
+   
+   protected void setCellEllipseObject(CellEllipse cellEllipseObject){
+   	this.cellEllipseObject = cellEllipseObject;
+   }
+   
+   public CellType[] getNeighbouringCells(){
+   	return this.neighbouringCells;
+   }
+   
+   public CellEllipse getCellEllipseObject(){
+   	return this.cellEllipseObject;
+   }
 	
 }

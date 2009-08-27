@@ -71,4 +71,11 @@ public class DummyCellType extends CellType{
 	   
    }
 
+	@Override
+   public SimState getActSimState() {
+
+	   // TODO Auto-generated method stub
+	   return null;
+   }
+
 }

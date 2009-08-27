@@ -13,7 +13,7 @@ import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
 
 
-public class Dummy2 implements CalculationAlgorithm{
+public class Dummy2{
 	
 	public CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id) {
 		final int _id = id;

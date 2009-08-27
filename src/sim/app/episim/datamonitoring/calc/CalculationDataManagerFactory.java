@@ -55,6 +55,9 @@ public abstract class CalculationDataManagerFactory {
 								series.setKey(((String)series.getKey()).substring(0, ((String)series.getKey()).length()-(" (Cell " + counter +")").length()) + (" (Cell " + (counter +1)+ ")"));
 							counter++;	  
 						}
+						else if(event.getEventType() == EntityChangeEventType.SIMULATIONSTEPCHANGE){							
+							series.clear();							
+						}
 		         }
 		
 					public void reset() {

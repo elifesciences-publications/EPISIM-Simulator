@@ -125,7 +125,7 @@ public class DataEvaluationWizard {
 	   c.fill = GridBagConstraints.HORIZONTAL;
 	   c.weightx = 1;
 	   c.weighty =0;
-	   c.insets = new Insets(10,10,10,10);
+	   c.insets = new Insets(5,10,10,10);
 	   this.buttonPanel = buildButtonPanel();
 	   dialog.getContentPane().add(buttonPanel, c);
 	   
@@ -179,52 +179,32 @@ public class DataEvaluationWizard {
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
 		dialog.setLocation(((int)(screenDim.getWidth() /2) - (dialog.getWidth()/2)), 
 		((int)(screenDim.getHeight() /2) - (dialog.getHeight()/2)));
-	}	
-	
-	
-	
-	
-	
-	
-   
-   
+	}	 
    
    
    
    private JPanel buildButtonPanel() {
 
 		JPanel bPanel = new JPanel(new GridBagLayout());
-		JPanel bInnerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+		JPanel bInnerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
 		GridBagConstraints c = new GridBagConstraints();
 
-		
-		
-		
-		
-		
-
-		nextBackButton = new JButton("Next>>");
-		
+		nextBackButton = new JButton("Next>>");		
 		nextBackButton.setEnabled(false);
-		nextBackButton.addActionListener(new ActionListener() {			
-			
-			public void actionPerformed(ActionEvent e) {
-					
+		nextBackButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {					
 			   nextBackButtonPressed();
-			}
-			
+			}			
 		});
+		
 		JPanel nextBackBPanel = new JPanel(new BorderLayout());
 		nextBackBPanel.add(nextBackButton, BorderLayout.EAST);
 		nextBackBPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
-		bInnerPanel.add(nextBackBPanel);
-		
-		
+		bInnerPanel.add(nextBackBPanel);		
 
 		okButton = new JButton("  OK  ");
 		okButton.setEnabled(false);
-		okButton.addActionListener(new ActionListener() {			
-
+		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				CalculationAlgorithmConfigurator configurator = null;
 				if(actualExpressionEditorPanel != null){
@@ -235,7 +215,6 @@ public class DataEvaluationWizard {
 					dialog.setVisible(false);
 					dialog.dispose();
 				}
-
 			}
 		});
 		bInnerPanel.add(okButton);
@@ -276,7 +255,7 @@ public class DataEvaluationWizard {
 		
 		c.weightx = 0;
 		c.weighty = 1;
-		c.insets = new Insets(10, 10, 10, 10);
+		//c.insets = new Insets(10, 10, 10, 10);
 		c.gridwidth = 1;
 		c.gridwidth = 1;
 		

@@ -15,7 +15,7 @@ public class CellEllipse {
 		private Shape clippedEllipse;
 		private Shape ellipseAsArea;
 		
-		private int id;
+		private long id;
 		private int x;
 		private int y;
 		private int majorAxis;
@@ -33,11 +33,11 @@ public class CellEllipse {
 		
 		private Nucleus nucleus = null;
 		
-		public CellEllipse(int id, int x, int y, int majorAxis, int minorAxis, Color c){
+		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, Color c){
 			this(id, x, y, majorAxis, minorAxis, 0, 0, 0, 0, 0, 0, c);
 		}
 		
-		public CellEllipse(int id, int x, int y, int majorAxis, int minorAxis, int height, int width, int orientationInDegrees, double area, double solidity, double distanceToBL, Color c){
+		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, int height, int width, int orientationInDegrees, double area, double solidity, double distanceToBL, Color c){
 			this.id = id;
 			
 			clippedEllipse = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
@@ -103,9 +103,9 @@ public class CellEllipse {
       	((Area)this.clippedEllipse).subtract(area); 
       }
       
-      public Shape getClippedEllipse(){ return this.clippedEllipse; }
+      public Shape getClippedEllipse(){ return getClone(this.clippedEllipse); }
      		
-		public int getId() { return id; }
+		public long getId() { return id; }
 		
 		public void rotateCellEllipseInDegrees(double degrees){
 			

@@ -8,6 +8,7 @@ import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.visualization.CellEllipse;
 
 import sim.engine.*;
 import sim.field.continuous.*;
@@ -17,6 +18,7 @@ import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
+import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.io.BufferedWriter;
@@ -27,9 +29,11 @@ import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
@@ -109,6 +113,16 @@ public class KCyte extends CellType
    
    private EpisimCellDiffModel cellDiffModelObjekt;
    
+   private SimState actSimState;
+   
+   private static Set<String> methodsNamesBlockedForParameterInspector;
+   
+   {
+   	methodsNamesBlockedForParameterInspector = new HashSet<String>();
+   	methodsNamesBlockedForParameterInspector.add("getParameter");
+   	methodsNamesBlockedForParameterInspector.add("getVoronoihullvertexes");
+   }
+   
    
    
 //-----------------------------------------------------------------------------------------------------------------------------------------   
@@ -117,12 +131,11 @@ public class KCyte extends CellType
    public KCyte(){
    this(-1, -1,  null);
    }
-    public KCyte(long identity, long motherIdentity, EpisimCellDiffModel cellDiffModel)
-    {
-   	 super(identity, motherIdentity);
+    public KCyte(long id, long motherId, EpisimCellDiffModel cellDiffModel)
+    {   	 
    	 
-   	
-       
+   	 super(id, motherId);
+   	        
     	 this.cellDiffModelObjekt = cellDiffModel;
     	 if(cellDiffModel == null) this.cellDiffModelObjekt = ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject();
        extForce=new Vector2D(0,0);
@@ -140,7 +153,8 @@ public class KCyte extends CellType
        voronoiStable=0;
                           
        lastd=new Double2D(0.0,-3);
-       
+       CellEllipse ellipse = new CellEllipse(id, ((int)this.cellDiffModelObjekt.getX()), ((int)this.cellDiffModelObjekt.getY()), keratinoWidth, keratinoHeight, Color.BLUE);
+       this.setCellEllipseObject(ellipse);
        	  TissueServer.getInstance().getActEpidermalTissue().checkMemory();
        	 TissueServer.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag
        
@@ -431,7 +445,9 @@ public class KCyte extends CellType
         
         cellContinous2D.setObjectLocation(kcyte, newloc);
         
-       
+        this.getCellEllipseObject().setX((int)newloc.x);
+        this.getCellEllipseObject().setY((int)newloc.y);
+        
         return kcyte;
     }
 
@@ -459,8 +475,8 @@ public class KCyte extends CellType
     }
 
     
-    private EpisimCellDiffModel[] getRealNeighbours(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc){
-   	 List<EpisimCellDiffModel> neighbourCells = new ArrayList<EpisimCellDiffModel>();
+    private KCyte[] getRealNeighbours(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc){
+   	 List<KCyte> neighbourCells = new ArrayList<KCyte>();
    	 for(int i=0;i<neighbours.numObjs;i++)
        {
    		 KCyte actNeighbour = (KCyte)(neighbours.objs[i]);
@@ -476,11 +492,17 @@ public class KCyte extends CellType
                
              //  if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
                
-               	neighbourCells.add(actNeighbour.getEpisimCellDiffModelObject());
+               	neighbourCells.add(actNeighbour);
                	
              //}
         }
-   	 return neighbourCells.toArray(new EpisimCellDiffModel[neighbourCells.size()]);
+   	 return neighbourCells.toArray(new KCyte[neighbourCells.size()]);
+    }
+    
+    private EpisimCellDiffModel[] getCellDiffModelArray(KCyte[] neighbours){
+   	 List<EpisimCellDiffModel> neighbourCellsDiffModel = new ArrayList<EpisimCellDiffModel>();
+   	 for(KCyte actNeighbour: neighbours) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellDiffModelObject());
+   	 return neighbourCellsDiffModel.toArray(new EpisimCellDiffModel[neighbourCellsDiffModel.size()]);
     }
    
     private boolean isSurfaceCell(EpisimCellDiffModel[] neighbours){
@@ -509,7 +531,10 @@ public class KCyte extends CellType
     static  long deltaTime = 0;
     public void differentiate(SimState state, Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean nextToOuterCell, boolean hasCollision)
     {
-     	 EpisimCellDiffModel[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
+     	 KCyte[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
+     	 
+     	 this.setNeighbouringCells(realNeighbours);
+     	 EpisimCellDiffModel[] realNeighboursDiffModel = getCellDiffModelArray(realNeighbours);
    	// setIsOuterCell(isSurfaceCell(realNeighbours));
    	 this.cellDiffModelObjekt.setX(thisloc.getX());
    	 this.cellDiffModelObjekt.setY(TissueController.getInstance().getTissueBorder().getHeight()- thisloc.getY());
@@ -521,7 +546,7 @@ public class KCyte extends CellType
    	 	  	 
    	
 		
-   	 EpisimCellDiffModel[] children = this.cellDiffModelObjekt.oneStep(realNeighbours);
+   	 EpisimCellDiffModel[] children = this.cellDiffModelObjekt.oneStep(realNeighboursDiffModel);
 		/*	long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
 			long deltaTimeTmp = timeAfter-timeBefore;
@@ -589,6 +614,8 @@ public class KCyte extends CellType
 //    static  long actNumberSteps = 0;
  // static  long deltaTime = 0;
 	public void step(SimState state) {
+		
+		this.actSimState = state;
 
 		final Epidermis epiderm = (Epidermis) state;
 		
@@ -732,6 +759,9 @@ public class KCyte extends CellType
 			// Differentiation: Calling the loaded Cell-Diff-Model
 			// //////////////////////////////////////////////////////
 			
+			this.getCellEllipseObject().setX((int) newLoc.x);
+			this.getCellEllipseObject().setX((int) newLoc.y);
+			
 			differentiate(state, b,epiderm.getCellContinous2D(), newLoc, hitResult2.nextToOuterCell, hitResult2.numhits != 0);
 			
 /*			long timeAfter = System.currentTimeMillis();
@@ -770,7 +800,7 @@ public class KCyte extends CellType
 		List<Method> methods = new ArrayList<Method>();
 		
 		for(Method m : this.getClass().getMethods()){
-			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
+			if((m.getName().startsWith("get") && !methodsNamesBlockedForParameterInspector.contains(m.getName())) || m.getName().startsWith("is")) methods.add(m);
 		}
 		for(Method m : this.cellDiffModelObjekt.getClass().getMethods()){
 			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
@@ -813,17 +843,10 @@ public class KCyte extends CellType
    public int getGKeratinoWidthGranu() { return gKeratinoWidthGranu;	}
    
    public int getHasGivenIons() { return hasGivenIons; }
-   
-   
-   
-   
   
    public int getKeratinoHeight() {	return keratinoHeight; }
 	
-	public int getKeratinoWidth() {return keratinoWidth;}
-	
-	
-	
+	public int getKeratinoWidth() {return keratinoWidth;}	
 
 	public long getLocal_maxAge() {return local_maxAge;}
 	
@@ -895,7 +918,17 @@ public class KCyte extends CellType
 	   return this.cellDiffModelObjekt.getClass();
    }
 	
-		           
+   public SimState getActSimState() {
+
+	   
+	   return this.actSimState;
+   }
+	
+   
+   
+  // public KCyte 
+   
+   
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 

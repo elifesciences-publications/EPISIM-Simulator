@@ -72,8 +72,8 @@ public class CalculationAlgorithmSelectionPanel {
 	   c.anchor =GridBagConstraints.NORTHWEST;
 	   c.fill = GridBagConstraints.BOTH;
 	   c.weightx = 0.3;
-	   c.weighty = 0.4;
-	   c.insets = new Insets(10,10,10,10);
+	   c.weighty = 0.75;
+	   c.insets = new Insets(10,10,5,10);
 	   c.gridwidth = GridBagConstraints.RELATIVE;
 	   algorithmSelectionPanel.add(buildAlgorithmSelectionPanel(), c);
 	 
@@ -81,18 +81,17 @@ public class CalculationAlgorithmSelectionPanel {
 	   c.anchor =GridBagConstraints.NORTHWEST;
 	   c.fill = GridBagConstraints.BOTH;
 	   c.weightx = 0.7;
-	   c.weighty = 0.4;
-	   c.insets = new Insets(10,10,10,10);
+	   c.weighty = 0.75;
+	   c.insets = new Insets(10,10,5,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   algorithmSelectionPanel.add(new JPanel(), c);
-	   
 	   
 	   
 	   c.anchor =GridBagConstraints.NORTHWEST;
 	   c.fill = GridBagConstraints.BOTH;
 	   c.weightx = 1;
-	   c.weighty = 0.6;
-	   c.insets = new Insets(10,10,10,10);
+	   c.weighty = 0.25;
+	   c.insets = new Insets(5,10,5,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   algorithmDescriptionPanel = buildAlgorithmDescriptionPanel();
 	   algorithmSelectionPanel.add(algorithmDescriptionPanel, c);
@@ -213,7 +212,7 @@ public class CalculationAlgorithmSelectionPanel {
 	   c.fill = GridBagConstraints.HORIZONTAL;
 	   c.weightx = 0;
 	   c.weighty = 0;
-	   c.insets = new Insets(10,10,10,10);
+	   c.insets = new Insets(10,10,5,10);
 	   c.gridwidth = GridBagConstraints.RELATIVE;
 	   algorithmDescriptionPanel.add(new JLabel("Name:"), c);
 	   
@@ -227,7 +226,7 @@ public class CalculationAlgorithmSelectionPanel {
 	   c.fill = GridBagConstraints.HORIZONTAL;
 	   c.weightx = 1;
 	   c.weighty = 0;
-	   c.insets = new Insets(10,10,10,10);
+	   c.insets = new Insets(10,10,5,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   algorithmDescriptionPanel.add(this.algorithmName, c);
 	   
@@ -236,7 +235,7 @@ public class CalculationAlgorithmSelectionPanel {
 	   c.fill = GridBagConstraints.HORIZONTAL;
 	   c.weightx = 0;
 	   c.weighty = 0;
-	   c.insets = new Insets(10,10,10,10);
+	   c.insets = new Insets(5,10,5,10);
 	   c.gridwidth = GridBagConstraints.RELATIVE;
 	   algorithmDescriptionPanel.add(new JLabel("Type:"), c);
 	   
@@ -250,7 +249,7 @@ public class CalculationAlgorithmSelectionPanel {
 	   c.fill = GridBagConstraints.HORIZONTAL;
 	   c.weightx = 1;
 	   c.weighty = 0;
-	   c.insets = new Insets(10,10,10,10);
+	   c.insets = new Insets(5,10,5,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   algorithmDescriptionPanel.add(this.algorithmType, c);
 	   
@@ -261,7 +260,7 @@ public class CalculationAlgorithmSelectionPanel {
 	   c.fill = GridBagConstraints.HORIZONTAL;
 	   c.weightx = 0;
 	   c.weighty = 1;
-	   c.insets = new Insets(10,10,10,10);
+	   c.insets = new Insets(5,10,10,10);
 	   c.gridwidth = GridBagConstraints.RELATIVE;
 	   algorithmDescriptionPanel.add(new JLabel("Description:"), c);
 	   
@@ -278,7 +277,7 @@ public class CalculationAlgorithmSelectionPanel {
 	   c.fill = GridBagConstraints.BOTH;
 	   c.weightx = 1;
 	   c.weighty = 1;
-	   c.insets = new Insets(10,10,10,10);
+	   c.insets = new Insets(5,10,10,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   algorithmDescriptionPanel.add(scroll, c);
 		

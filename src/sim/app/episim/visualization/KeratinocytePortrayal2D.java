@@ -1,11 +1,15 @@
 package sim.app.episim.visualization;
+import sim.app.episim.CellType;
 import sim.app.episim.GrahamPoint;
 import sim.app.episim.GrahamScan;
 import sim.app.episim.KCyte;
+import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.util.CellEllipseIntersectionCalculculationRegistry;
+import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.portrayal.*;
 import sim.util.*;
 import java.util.Comparator;
@@ -81,7 +85,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 kcyte.setLastDrawInfoY(info.draw.y);
                 int keratinoType=kcyte.getEpisimCellDiffModelObject().getDifferentiation();                                
                 int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();              
-                
+              if(colorType != 10){
                 drawVoronoi=((colorType==8) || (colorType==9));
                 showNucleus=(colorType!=9);
                 if (drawVoronoi)
@@ -141,14 +145,57 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                     graphics.setPaint(nucleusColor);  
                     graphics.fill(nucleusPath);
                 }
-            } else 
-            { 
-                graphics.setPaint(paint);  
-             
+                
+              }
+              else{
+            	  calculateClippedCell(kcyte);
+            	  graphics.setPaint(kcyte.getCellEllipseObject().getColor());
+            	  //System.out.println("Ellipse-X: "+ kcyte.getCellEllipseObject().getX()+ "   Info-X: " +info.draw.x);
+            	  
+            	  //System.out.println("Scale X:" + info.draw.width / kcyte.getCellEllipseObject().getMajorAxis());
+            	  
+            	 
+            	  Area cell = ((Area)kcyte.getCellEllipseObject().getClippedEllipse());
+            	  AffineTransform trans = new AffineTransform();
+            	  trans.translate(info.draw.x - kcyte.getCellEllipseObject().getX(), info.draw.y - kcyte.getCellEllipseObject().getY());
+            	  cell.transform(trans);
+            	  
+            	/*  
+            	  trans = new AffineTransform();
+            	  cell.transform(trans);
+            	  trans.scale(5, 5);
+            	       	 
+            	 */
+            	  
+            	  graphics.fill(cell);
+            	  graphics.setPaint(Color.WHITE);
+            	  graphics.draw(cell);
+              }
+                
+            } else { 
+                graphics.setPaint(paint);          
             }
         }
 
     protected GeneralPath generalPath = new GeneralPath();
+    
+    
+    private void calculateClippedCell(CellType cell){
+   	 
+   	 CellEllipse cellEllipseCell = cell.getCellEllipseObject();
+   	 cellEllipseCell.resetClippedEllipse();
+   	 if(cell.getNeighbouringCells() != null && cell.getNeighbouringCells().length > 0){
+	   	 for(CellType neighbouringCell : cell.getNeighbouringCells()){
+	   		 if(!CellEllipseIntersectionCalculculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), cell.getActSimState().schedule.getSteps())){
+	   			 CellEllipseIntersectionCalculculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());
+	   			 neighbouringCell.getCellEllipseObject().resetClippedEllipse();
+	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, neighbouringCell.getCellEllipseObject());
+	   		 }
+	   	 }
+   	 }
+    }
+    
+    
 
     /** 
      * Creates a general path for the bounding hexagon 

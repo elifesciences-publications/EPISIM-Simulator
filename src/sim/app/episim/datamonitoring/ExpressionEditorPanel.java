@@ -38,6 +38,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	private JTextArea arithmeticExpressionTextArea;
 	private JTextArea booleanExpressionTextArea;
 	
+	public static boolean SHOWMESSAGEFIELDS = true;
+	
 	
 	private JPanel parametersPanel;
 	private JPanel arithmeticMessagePanel;
@@ -60,8 +62,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	private int calculationAlgorithmID;
 	
 	private int activatedTextArea = 0;
-	private boolean booleanCondition = false;
-	
+	private boolean booleanCondition = false;	
 	private boolean hasParameters = false;
 	
 	private CalculationAlgorithmDescriptor currentCalculationAlgorithmDescriptor;
@@ -173,7 +174,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			if(config.getArithmeticExpression() != null && config.getArithmeticExpression().length >=2){
 				arithmeticExpression = config.getArithmeticExpression();
 				if(arithmeticExpression[0] != null) arithmeticExpressionTextArea.setText(arithmeticExpression[0]);
-				if(arithmeticExpression[1] != null && !arithmeticExpression[1].equals("")){
+				if(arithmeticExpression[1] != null && !arithmeticExpression[1].equals("") && SHOWMESSAGEFIELDS){
 					arithmeticMessageTextArea.setText(arithmeticExpression[1]);
 					arithmeticMessagePanel.setVisible(true);
 				}
@@ -182,7 +183,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			if(booleanCondition && config.getBooleanExpression() != null && config.getBooleanExpression().length >=2){
 				booleanExpression = config.getBooleanExpression();
 				if(booleanExpression[0] != null) booleanExpressionTextArea.setText(booleanExpression[0]);
-				if(booleanExpression[1] != null && !booleanExpression[1].equals("")){
+				if(booleanExpression[1] != null && !booleanExpression[1].equals("")&& SHOWMESSAGEFIELDS){
 					booleanMessageTextArea.setText(booleanExpression[1]);
 					booleanMessagePanel.setVisible(true);
 				}
@@ -218,7 +219,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			arithmeticExpression[0]=arithmeticExpressionTextArea.getText().trim();
 			if(result != null && !result.trim().equals("")){ 
 				arithmeticMessageTextArea.setText(result);
-				arithmeticMessageTextArea.setVisible(true);
+				if(SHOWMESSAGEFIELDS)arithmeticMessageTextArea.setVisible(true);
 				arithmeticExpression[1]=result.trim();
 			}					
 			if(!booleanCondition){
@@ -249,7 +250,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				booleanExpression[0]=booleanExpressionTextArea.getText().trim();
 				if(result != null && !result.trim().equals("")){ 
 					booleanMessageTextArea.setText(result);
-					booleanMessageTextArea.setVisible(true);
+					if(SHOWMESSAGEFIELDS)booleanMessageTextArea.setVisible(true);
 					booleanExpression[1]=result.trim();
 				}
 				if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){

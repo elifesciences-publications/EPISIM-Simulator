@@ -107,8 +107,7 @@ public class CellEllipse {
      		
 		public long getId() { return id; }
 		
-		public void rotateCellEllipseInDegrees(double degrees){
-			
+		public void rotateCellEllipseInDegrees(double degrees){			
 		
 			rotateCellEllipseInRadians(Math.toRadians(degrees));
 		}
@@ -120,8 +119,6 @@ public class CellEllipse {
 			ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));
 			if(this.clippedEllipse != null) this.clippedEllipse = new Area(trans.createTransformedShape(clippedEllipse));
 		}
-		
-		
 		
       public double getOrientationInRadians() { return orientationInRadians; }
       

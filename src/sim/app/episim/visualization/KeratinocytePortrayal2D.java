@@ -182,7 +182,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
     
     private void calculateClippedCell(CellType cell){
    	 
-   	 CellEllipse cellEllipseCell = cell.getCellEllipseObject();
+   	CellEllipse cellEllipseCell = cell.getCellEllipseObject();
    	 cellEllipseCell.resetClippedEllipse();
    	 if(cell.getNeighbouringCells() != null && cell.getNeighbouringCells().length > 0){
 	   	 for(CellType neighbouringCell : cell.getNeighbouringCells()){

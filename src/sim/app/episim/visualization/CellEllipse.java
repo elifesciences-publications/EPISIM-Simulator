@@ -7,6 +7,8 @@ import java.awt.geom.Path2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 
+import sim.portrayal.DrawInfo2D;
+
 
 public class CellEllipse {
 	
@@ -29,8 +31,11 @@ public class CellEllipse {
 			
 		private Color color;
 		
+		private DrawInfo2D lastDrawInfo2D = null;
 		
 		
+     
+
 		private Nucleus nucleus = null;
 		
 		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, Color c){
@@ -61,40 +66,56 @@ public class CellEllipse {
 		
       public int getX() { return x; }
 		
-      public void setX(int x) {
-      	
-      	AffineTransform trans = new AffineTransform();
-      	trans.translate((x-this.x), 0);
-      	ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));
-      	this.x = x;
-      }
+     
 		
       public int getY() { return y; }
 		
-      public void setY(int y) {
-      	
-      	AffineTransform trans = new AffineTransform();
-      	trans.translate(0, (y-this.y));
-      	ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));
-      	this.y = y;
-      }
+      
+     
 		
       public int getMajorAxis() { return majorAxis; }
 		
-      public void setMajorAxis(int majorAxis) {
-      	
-      	ellipseAsArea = new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis);
+      public void setMajorAxis(int majorAxis) {     
       	this.majorAxis = majorAxis;
-      	this.rotateCellEllipseInRadians(this.orientationInRadians);
+      	resetEllipseAsArea();
       }
 		
+      public void setXY(int x, int y){
+      	this.x = x;
+      	this.y = y;
+      	resetEllipseAsArea();
+      }
+      
+      public void setMajorAxisAndMinorAxis(int majorAxis, int minorAxis){
+      	
+      	this.majorAxis = majorAxis;
+      	this.minorAxis = minorAxis;
+      	resetEllipseAsArea();
+      }
+      
       public int getMinorAxis() { return minorAxis; }
 		
       public void setMinorAxis(int minorAxis) {
       	
-      	ellipseAsArea = new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis);
+      	
       	this.minorAxis = minorAxis;
-      	this.rotateCellEllipseInRadians(this.orientationInRadians);
+      	resetEllipseAsArea();
+      }
+      
+      private void resetEllipseAsArea(){
+      	if(lastDrawInfo2D != null){
+      		double majorAxisScaled = majorAxis * lastDrawInfo2D.draw.width;
+      		double minorAxisScaled = minorAxis * lastDrawInfo2D.draw.height;
+      		ellipseAsArea = new Area(new Ellipse2D.Double(lastDrawInfo2D.draw.x- (majorAxisScaled/2),lastDrawInfo2D.draw.y-(minorAxisScaled/2),majorAxisScaled,minorAxisScaled));
+      	}
+	      else{
+	      	      	
+	      	ellipseAsArea = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
+	      }	
+	      	
+	      	this.rotateCellEllipseInRadians(this.orientationInRadians);
+	      	resetClippedEllipse();
+	      
       }
 		
       public Shape getEllipse() { return ellipseAsArea;}
@@ -157,6 +178,16 @@ public class CellEllipse {
       	else if(shape instanceof Area) return (Shape)((Area)shape).clone();
       	else throw new ClassCastException("Cannot Clone: "+ shape.getClass().getName());
       }
+      
+      public DrawInfo2D getLastDrawInfo2D() { return lastDrawInfo2D; }
+		
+      public void setLastDrawInfo2D(DrawInfo2D lastDrawInfo2D){
+      	if(lastDrawInfo2D != null){
+      		this.lastDrawInfo2D = lastDrawInfo2D;
+      		resetEllipseAsArea();
+      	}
+      }
+      
       
       //-------------------------------------------------------------------------------------------------------
       // Nested Class Nucleus

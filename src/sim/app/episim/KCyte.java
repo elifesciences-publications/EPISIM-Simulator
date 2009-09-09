@@ -21,6 +21,7 @@ import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -74,14 +75,12 @@ public class KCyte extends CellType
    
    
    
-   private boolean lastDrawInfoAssigned=false;
-   private double neighborDrawInfoX[]=new double[50];
-   private double neighborDrawInfoY[]=new double[50];  
-   private int voronoiStable=0; // count if a voroni is displayable, only display when at least several times stable, so avoid permanent switching back to standardform
-   private GrahamPoint voronoihull[]=new GrahamPoint[50];
-   private int voronoihullvertexes=0;
    
-   private int formCount=0; // Number of neighbors
+   
+  
+  
+   
+   
 
    private int keratinoWidth=-11; // breite keratino
    private int keratinoHeight=-1; // höhe keratino
@@ -90,7 +89,7 @@ public class KCyte extends CellType
   
    
    
-   private int spinosum_counter=0;
+   
   
    // public boolean dead = false;
    private Vector2D extForce = new Vector2D(0,0);
@@ -149,12 +148,11 @@ public class KCyte extends CellType
        keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
          
                
-       voronoihullvertexes=0;
-       voronoiStable=0;
+       CellEllipse ellipse = new CellEllipse(this.getID(), ((int)this.cellDiffModelObjekt.getX()), ((int)this.cellDiffModelObjekt.getY()), keratinoWidth, keratinoHeight, Color.BLUE);
+       this.setCellEllipseObject(ellipse);
                           
        lastd=new Double2D(0.0,-3);
-       CellEllipse ellipse = new CellEllipse(id, ((int)this.cellDiffModelObjekt.getX()), ((int)this.cellDiffModelObjekt.getY()), keratinoWidth, keratinoHeight, Color.BLUE);
-       this.setCellEllipseObject(ellipse);
+      
        	  TissueServer.getInstance().getActEpidermalTissue().checkMemory();
        	 TissueServer.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag
        
@@ -252,7 +250,7 @@ public class KCyte extends CellType
             double optDist=Math.sqrt(optDistSq);
             //double outerCircleSq = (neigh_p*adxOpt)*(neigh_p*adxOpt)+(neigh_p*adyOpt)*(neigh_p*adyOpt);
             int neighbors=0;
-            formCount=0;
+            
 
             for(i=0;i<b.numObjs;i++)
                 {
@@ -271,22 +269,7 @@ public class KCyte extends CellType
                        
                         double actdistsq = dx*dx+dy*dy;                        
                         double actdist=Math.sqrt(actdistsq);
-                        
-                                            // Voronoi collision with other cells
-                                            if (formCount<49) // enter all, also those which are only linked through left or right border
-                                            {
-                                                //double notorus_dx=thisloc.x-otherloc.x;
-                                                //double notorus_dy=thisloc.y-otherloc.y;
-                                                //if ((notorus_dx<(double)gOptimalKeratinoDistance*1.5) &&
-//                                                    (notorus_dy<(double)gOptimalKeratinoDistance*1.5))
-                                                if (actdist < (optDist*1.7))
-                                                {
-                                                    if (other.lastDrawInfoAssigned==true)
-                                                        neighborDrawInfoX[formCount]=other.getLastDrawInfoX();
-                                                        neighborDrawInfoY[formCount]=other.getLastDrawInfoY();
-                                                    ++formCount;
-                                                }
-                                            }
+                                 
                         
                         
                         if (optDist-actdist>MINDIST) // ist die kollision signifikant ?
@@ -298,10 +281,10 @@ public class KCyte extends CellType
                                             //fx=elastic(fx);
                                             //fy=elastic(fy);
                                             hitResult.numhits++;
-                                            hitResult.otherId=other.getIdentity();
-                                            hitResult.otherMotherId=other.getMotherIdentity();
+                                            hitResult.otherId=other.getID();
+                                            hitResult.otherMotherId=other.getMotherID();
                                             
-                                            if ((other.getMotherIdentity()==getIdentity()) || (other.getIdentity()==getMotherIdentity()))
+                                            if ((other.getMotherID()==getID()) || (other.getID()==getMotherID()))
                                             {
                                                 //fx*=1.5;// birth pressure is greater than normal pressure
                                                 //fy*=1.5;
@@ -419,19 +402,25 @@ public class KCyte extends CellType
    	 // Either we get use a currently unused cell oder we allocate a new one
         KCyte kcyte;        
        
-            kcyte= new KCyte(CellType.getNextCellId(), getIdentity(), cellDiffModel); 
-            
-            
-            cellDiffModel.setId((int)kcyte.getIdentity());
+            kcyte= new KCyte(CellType.getNextCellId(), getID(), cellDiffModel); 
+            cellDiffModel.setId((int)kcyte.getID());
            
             
             Stoppable stoppable = TissueServer.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, 1, 1);   // schedule only if not already running
             kcyte.setStoppable(stoppable);
 
-        Double2D newloc=cellContinous2D.getObjectLocation(this);
-        newloc=new Double2D(newloc.x +TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25, newloc.y-TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1);
         
-       
+            
+        double deltaX = TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25;
+        double deltaY = TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1; 
+        
+        
+        Double2D oldLoc=cellContinous2D.getObjectLocation(this);
+        
+     //   double deltaDrawX = newloc.
+         
+        Double2D newloc=new Double2D(oldLoc.x + deltaX, oldLoc.y-deltaY);   
+        
         kcyte.ownColor= TissueServer.getInstance().getActEpidermalTissue().random.nextInt(200);
                // the herd
              
@@ -445,9 +434,19 @@ public class KCyte extends CellType
         
         cellContinous2D.setObjectLocation(kcyte, newloc);
         
-        this.getCellEllipseObject().setX((int)newloc.x);
-        this.getCellEllipseObject().setY((int)newloc.y);
+        DrawInfo2D info = this.getCellEllipseObject().getLastDrawInfo2D();
+			DrawInfo2D newInfo = null;
+			if( info != null){
+				newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
+				newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*oldLoc.x) + newInfo.draw.width*newloc.x);
+				newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*oldLoc.y) + newInfo.draw.height*newloc.y);
+				kcyte.getCellEllipseObject().setLastDrawInfo2D(newInfo);
+			}
         
+        
+        
+        
+                
         return kcyte;
     }
 
@@ -457,21 +456,15 @@ public class KCyte extends CellType
         GlobalStatistics.getInstance().inkrementActualNumberKCytes();
         KCyte taCell=makeChild(cellDiffModel);
                     
-        taCell.getEpisimCellDiffModelObject()
-        	.setAge(TissueServer.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
-        // erben der signal concentrationen
+        taCell.getEpisimCellDiffModelObject().setAge(TissueServer.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
+       
        
     }
    
     public void makeSpiCell(EpisimCellDiffModel cellDiffModel)
-    {
-       
+    {       
    	 GlobalStatistics.getInstance().inkrementActualNumberKCytes();
-        KCyte spiCell=makeChild(cellDiffModel);
-        
-        
-       
-
+       makeChild(cellDiffModel);
     }
 
     
@@ -582,6 +575,7 @@ public class KCyte extends CellType
    	 	if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.GRANUCELL){
    	 		setKeratinoWidth(getGKeratinoWidthGranu());
    			setKeratinoHeight(getGKeratinoHeightGranu());
+   			this.getCellEllipseObject().setMajorAxisAndMinorAxis(getGKeratinoWidthGranu(), getGKeratinoHeightGranu());
    	 	}
         if (!this.cellDiffModelObjekt.getIsAlive()) // && (isOuterCell))
         {
@@ -727,7 +721,7 @@ public class KCyte extends CellType
 			// move only on pressure when not stem cell
 			if(this.cellDiffModelObjekt.getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL){
 				if((hitResult2.numhits == 0)
-						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.getMotherIdentity()) || (hitResult2.otherMotherId == this.getIdentity())))){
+						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.getMotherID()) || (hitResult2.otherMotherId == this.getID())))){
 					double dx = potentialLoc.x - oldLoc.x;
 					lastd = new Double2D(potentialLoc.x - oldLoc.x, potentialLoc.y - oldLoc.y);
 					setPositionRespectingBounds(epiderm.getCellContinous2D(), potentialLoc);
@@ -759,8 +753,15 @@ public class KCyte extends CellType
 			// Differentiation: Calling the loaded Cell-Diff-Model
 			// //////////////////////////////////////////////////////
 			
-			this.getCellEllipseObject().setX((int) newLoc.x);
-			this.getCellEllipseObject().setX((int) newLoc.y);
+			
+			DrawInfo2D info = this.getCellEllipseObject().getLastDrawInfo2D();
+			DrawInfo2D newInfo = null;
+			if( info != null){
+				newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
+				newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*oldLoc.x) + newInfo.draw.width*newLoc.x);
+				newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*oldLoc.y) + newInfo.draw.height*newLoc.y);
+				this.getCellEllipseObject().setLastDrawInfo2D(newInfo);
+			}
 			
 			differentiate(state, b,epiderm.getCellContinous2D(), newLoc, hitResult2.nextToOuterCell, hitResult2.numhits != 0);
 			
@@ -815,20 +816,7 @@ public class KCyte extends CellType
 	public void removeFromSchedule(){
 		if(stoppable != null) stoppable.stop();			
 	}
-
-//	--------------------------------------------------------------------------------------------------------------------------------------------------------------
-// INCREMENT-DECREMENT-METHODS
-//	--------------------------------------------------------------------------------------------------------------------------------------------------------------
-		
-	
-
-	public void incrementVoronoiStable(){ voronoiStable +=1; }
-	
-
-	public void decrementVoronoiStable(){ voronoiStable -= 1; }
-		
-	
-//	--------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
 // GETTER-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
@@ -837,7 +825,7 @@ public class KCyte extends CellType
 	public double getExtForceX () { return extForce.x; }   // for inspector 
    public double getExtForceY () { return extForce.y; }   // for inspector
  
-   public int getFormCount() { return formCount; }
+   
    
    public int getGKeratinoHeightGranu() {	return gKeratinoHeightGranu;}
    public int getGKeratinoWidthGranu() { return gKeratinoWidthGranu;	}
@@ -851,16 +839,13 @@ public class KCyte extends CellType
 	public long getLocal_maxAge() {return local_maxAge;}
 	
 	public String getCellName() { return NAME; }
-	public double[] getNeighborDrawInfoX() { return neighborDrawInfoX; }
-	public double[] getNeighborDrawInfoY() { return neighborDrawInfoY; }
 	
 	public int getOwnColor() {	return ownColor; }
 
 	
-	public int getSpinosumCounter(){ return spinosum_counter;}
 	
-	public GrahamPoint[] getVoronoihull() { return voronoihull;	}
-	public int getVoronoihullvertexes() { return voronoihullvertexes; }
+	
+	
    
 	
 	
@@ -868,7 +853,7 @@ public class KCyte extends CellType
 	public boolean isBirthWish() { return birthWish; }   // for inspector
 	
 	
-	public boolean isLastDrawInfoAssigned() {	return lastDrawInfoAssigned; }
+	
 
     
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -877,38 +862,22 @@ public class KCyte extends CellType
 	
 	
 	
-	public void setFormCount(int formCount) {	this.formCount = formCount; }
-	
-	public void setGKeratinoHeightGranu(int keratinoHeightGranu) {	gKeratinoHeightGranu = keratinoHeightGranu; }
-	public void setGKeratinoWidthGranu(int keratinoWidthGranu) { gKeratinoWidthGranu = keratinoWidthGranu; }
-	
-	public void setHasGivenIons(int hasGivenIons) {	this.hasGivenIons = hasGivenIons; }
 	
 	
 	
+	
+	public void setHasGivenIons(int hasGivenIons) {	this.hasGivenIons = hasGivenIons; }	
 	
 	public void setKeratinoHeight(int keratinoHeight) { this.keratinoHeight = keratinoHeight;	}
 	
-	public void setKeratinoWidth(int keratinoWidth) { this.keratinoWidth = keratinoWidth; }
+	public void setKeratinoWidth(int keratinoWidth) { this.keratinoWidth = keratinoWidth; }	
 	
-	public void setLastDrawInfoAssigned(boolean lastDrawInfoAssigned) { this.lastDrawInfoAssigned = lastDrawInfoAssigned; }
-	
-	public void setLocal_maxAge(long local_maxAge) { this.local_maxAge = local_maxAge; }
-	
+	public void setLocal_maxAge(long local_maxAge) { this.local_maxAge = local_maxAge; }	
 		
-	
-	public void setNeighborDrawInfoX(double[] neighborDrawInfoX) { this.neighborDrawInfoX = neighborDrawInfoX; }
-   public void setNeighborDrawInfoY(double[] neighborDrawInfoY) { this.neighborDrawInfoY = neighborDrawInfoY; }
-	
-	
-	public void setOwnColor(int ownColor) { this.ownColor = ownColor; }
-	
+	public void setOwnColor(int ownColor) { this.ownColor = ownColor; }	
 	
 	public void setStoppable(Stoppable stopperparam)   { this.stoppable = stopperparam;}
-        
-	public void setVoronoihull(GrahamPoint[] voronoihull) { this.voronoihull = voronoihull; }
-	public void setVoronoihullvertexes(int voronoihullvertexes) { this.voronoihullvertexes = voronoihullvertexes; }
-
+   	
 	public EpisimCellDiffModel getEpisimCellDiffModelObject(){
 		return this.cellDiffModelObjekt;
 	}
@@ -918,11 +887,7 @@ public class KCyte extends CellType
 	   return this.cellDiffModelObjekt.getClass();
    }
 	
-   public SimState getActSimState() {
-
-	   
-	   return this.actSimState;
-   }
+   public SimState getActSimState() { return this.actSimState; }
 	
    
    

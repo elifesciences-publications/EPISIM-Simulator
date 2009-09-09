@@ -5,8 +5,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import sim.app.episim.SimulationStateChangeListener;
 
-public class CellEllipseIntersectionCalculculationRegistry {
+
+public class CellEllipseIntersectionCalculculationRegistry implements SimulationStateChangeListener {
 	
 	private long actSimulationStep = 0;
 	
@@ -42,8 +44,21 @@ public class CellEllipseIntersectionCalculculationRegistry {
 		return cellId1+";"+cellId2; 	
 	}
 	
-	public void clear(){
-		
+	public void reset(){
+		actSimulationStep = 0;
+		this.alreadyCalculatedCells.clear();
 	}
+
+	public void simulationWasStarted() {
+
+	   reset();
+	   
+   }
+
+	public void simulationWasStopped() {
+
+	   reset();
+	   
+   }
 
 }

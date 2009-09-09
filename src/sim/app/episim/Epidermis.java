@@ -192,7 +192,7 @@ private void seedStemCells(){
 				stemCell.getEpisimCellDiffModelObject().setSpecies(EpisimCellDiffModelGlobalParameters.KERATINOCYTE);
 				stemCell.getEpisimCellDiffModelObject().setIsAlive(true);
 	
-
+				stemCell.getCellEllipseObject().setXY(((int)newloc.x), ((int)newloc.y));
 				cellContinous2D.setObjectLocation(stemCell, newloc);
 
 				lastloc = newloc;
@@ -361,7 +361,7 @@ private void seedStemCells(){
 		while(iter.hasNext()){
 			CellType cell = iter.next();
 	
-			if(path.contains(cell.getLastDrawInfoX(), cell.getLastDrawInfoY())&&
+			if(path.contains(cell.getCellEllipseObject().getLastDrawInfo2D().draw.x, cell.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
 					cell.getEpisimCellDiffModelObject().getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL){  
 				cell.killCell();
 				 
@@ -369,7 +369,7 @@ private void seedStemCells(){
 			}
 			else{
 				 livingCells.add(cell);
-				 map.put(cell.getIdentity(), this.cellContinous2D.getObjectLocation(cell));
+				 map.put(cell.getID(), this.cellContinous2D.getObjectLocation(cell));
 			}
 		}
 		
@@ -377,7 +377,7 @@ private void seedStemCells(){
 	this.cellContinous2D.clear();
 		for(CellType cell: livingCells){
 			this.allCells.add(cell);
-			this.cellContinous2D.setObjectLocation(cell, map.get(cell.getIdentity()));
+			this.cellContinous2D.setObjectLocation(cell, map.get(cell.getID()));
 		}
 		
 	}

@@ -22,8 +22,11 @@ public class TestCalculator {
 				
 				
 				drawEllipse(g2D, 200, 200, 100, 50, 0);
-				drawEllipse(g2D, 250, 200, 100, 50, 0);
-					
+				drawEllipse(g2D, 275, 200, 100, 50, 0);
+				
+				
+			int[][] foci= calculateFoci(275, 200, 100, 50);
+			bruteForceIntersectionCalculation(200, 200, 100, 100, 50, foci[0], foci[1]);
 				
 				//drawEllipseCustom(g2D, 300, 300, 50, 25, 45);
 				//drawEllipseCustom(g2D, 325, 300, 50, 25, 67);
@@ -35,20 +38,50 @@ public class TestCalculator {
 		frame.getContentPane().add(canvas);
 		
 		
-		
+		System.out.println("Test-Result: "+ ((-2*Math.sin(1)*Math.cos(1))));
+		System.out.println("Test-Result: "+ (-1*Math.sin(2)));
 		frame.setSize(500, 500);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	private int[][] calculateFoci(int x, int y, int majorAxis, int minorAxis){
+				
 		int[][] result = new int[2][2];
 		int distance = (int)Math.sqrt(Math.pow(majorAxis/2, 2) - Math.pow(minorAxis/2, 2));
-		
-		result[0] = new int[]{x - distance, y};
-		result[1] = new int[]{x + distance, y};
-		
+			result[0] = new int[]{x - distance, y};
+			result[1] = new int[]{x + distance, y};
 		return result;
+	}
+	
+	
+	private void bruteForceIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22){
+		double u1_x = Math.pow(x1, 2) + Math.pow(f21[0], 2) - 2*f21[0]*x1;
+		double v1_x = 2*x1*a1-2*f21[0]*a1;
+		
+		double u2_x = Math.pow(x1, 2) + Math.pow(f22[0], 2) - 2*f22[0]*x1;
+		double v2_x = 2*x1*a1-2*f22[0]*a1;
+		
+		double u1_y = Math.pow(y1, 2) + Math.pow(f21[1], 2) - 2*f21[1]*y1;
+		double v1_y = 2*y1*b1-2*f21[1]*b1;
+		
+		double u2_y = Math.pow(y1, 2) + Math.pow(f22[1], 2) - 2*f22[1]*y1;
+		double v2_y = 2*y1*b1-2*f22[1]*b1;
+		
+		double sin = 0; 
+		double cos = 0;
+		
+		for(double i = 0; i <= 2*Math.PI; i+=0.0001){
+			sin = Math.sin(i);
+			cos = Math.cos(i);
+			double result = (Math.sqrt(u1_x+ v1_x*cos+Math.pow(a1,2 )*Math.pow(cos, 2)+u1_y+v1_y*sin+Math.pow(b1, 2)*Math.pow(sin, 2)) + Math.sqrt(u2_x+ v2_x*cos+Math.pow(a1, 2)*Math.pow(cos, 2)+u2_y+v2_y*sin+Math.pow(b1, 2)*Math.pow(sin, 2)) -2*a2);	
+				
+			if(result >=0 && result < 0.00001) System.out.println(result);
+			
+		}
+		
+		
+		
 	}
 	
 	private int[] rotatePoint(int[] point, int[] center, double angleInDegrees){

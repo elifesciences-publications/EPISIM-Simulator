@@ -1,7 +1,5 @@
 package sim.app.episim.visualization;
 import sim.app.episim.CellType;
-import sim.app.episim.GrahamPoint;
-import sim.app.episim.GrahamScan;
 import sim.app.episim.KCyte;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.BioChemicalModelController;
@@ -10,6 +8,7 @@ import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.util.CellEllipseIntersectionCalculculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
+import sim.app.episim.util.ObjectManipulations;
 import sim.portrayal.*;
 import sim.util.*;
 import java.util.Comparator;
@@ -18,16 +17,8 @@ import java.awt.geom.*;
 
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
 
-//import sim.app.ngflock.*;
-//import sim.app.episim1.*;
-/**
-   A simple portrayal for 2D visualization of hexagons. It extends the SimplePortrayal2D and
-   it manages the drawing and hit-testing for hexagonal shapes. If the DrawInfo2D parameter
-   received by draw and hitObject functions is an instance of HexaDrawInfo2D, better information
-   is extracted and used to make everthing look better. Otherwise, hexagons may be created from
-   information stored in simple DrawInfo2D objects, but overlapping or extra empty spaces may be
-   observed (especially when increasing the scale).
-*/
+
+
 
 public class KeratinocytePortrayal2D extends SimplePortrayal2D
     {
@@ -75,25 +66,21 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
     {                         
             //boolean rahmen=false;            
-            boolean drawVoronoi=false;
-            boolean showNucleus=false;
+          
+            boolean showNucleus=true;
             if (object instanceof KCyte)
             {                
                 final KCyte kcyte=((KCyte)object);
-                kcyte.setLastDrawInfoAssigned(true);
-                kcyte.setLastDrawInfoX(info.draw.x);
-                kcyte.setLastDrawInfoY(info.draw.y);
+                
+               
+                
+               
                 int keratinoType=kcyte.getEpisimCellDiffModelObject().getDifferentiation();                                
                 int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();              
-              if(colorType != 10){
-                drawVoronoi=((colorType==8) || (colorType==9));
-                showNucleus=(colorType!=9);
-                if (drawVoronoi)
-                {
-                   drawVoronoi= calculateVoronoi(kcyte, info);
-                } // Voronoi should be drawn
-                // Determine color
-                
+              if(colorType < 8){
+               
+               
+               
                 //
                 // set shape
                 //
@@ -107,32 +94,25 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 } 
                 else if(keratinoType == EpisimCellDiffModelGlobalParameters.GRANUCELL){ 
                	 drawFrame=false; 
-               	 drawVoronoi=false; 
+               	
                	 showNucleus=false; 
                }
                 else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS){ 
                	 drawFrame=true; 
-               	 drawVoronoi=false; 
+               	 
                	 showNucleus=false;
                 }
                         
-                if ((kcyte.isMembraneCell()) || (kcyte.isOuterCell())) drawVoronoi=false;
-                
+                                
                 //getColors
                 Color fillColor = getFillColor(kcyte);
                 GeneralPath cellPath;
                 GeneralPath nucleusPath;
-                if (drawVoronoi) // it was possible to draw it five times then it may be stable
-                {                   
-                    cellPath = createVoronoiPath( info, kcyte.getKeratinoWidth(), kcyte.getKeratinoHeight(), kcyte.getVoronoihull(), kcyte.getVoronoihullvertexes());
-                    graphics.setPaint(fillColor);
-                    graphics.fill(cellPath);                
-                }
-                else {
+               
                     cellPath = createGeneralPath(info, kcyte.getKeratinoWidth(), kcyte.getKeratinoHeight());
                     graphics.setPaint(fillColor);
                     graphics.fill(cellPath);
-                }
+                
                 if(drawFrame)
                 {
                     graphics.setColor(getContourColor(kcyte));
@@ -147,31 +127,20 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 }
                 
               }
-              else{
+              else if(colorType == 8){
             	  calculateClippedCell(kcyte);
             	  graphics.setPaint(kcyte.getCellEllipseObject().getColor());
-            	  //System.out.println("Ellipse-X: "+ kcyte.getCellEllipseObject().getX()+ "   Info-X: " +info.draw.x);
-            	  
-            	  //System.out.println("Scale X:" + info.draw.width / kcyte.getCellEllipseObject().getMajorAxis());
-            	  
-            	 
-            	  Area cell = ((Area)kcyte.getCellEllipseObject().getClippedEllipse());
-            	  AffineTransform trans = new AffineTransform();
-            	  trans.translate(info.draw.x - kcyte.getCellEllipseObject().getX(), info.draw.y - kcyte.getCellEllipseObject().getY());
-            	  cell.transform(trans);
-            	  
-            	/*  
-            	  trans = new AffineTransform();
-            	  cell.transform(trans);
-            	  trans.scale(5, 5);
-            	       	 
-            	 */
-            	  
-            	  graphics.fill(cell);
+            	     	  
+            	  graphics.fill(kcyte.getCellEllipseObject().getClippedEllipse());
             	  graphics.setPaint(Color.WHITE);
-            	  graphics.draw(cell);
+            	  graphics.draw(kcyte.getCellEllipseObject().getClippedEllipse());
               }
-                
+              
+              
+             //must be set at the very end of the paint method
+              kcyte.getCellEllipseObject().setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
+             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
+              
             } else { 
                 graphics.setPaint(paint);          
             }
@@ -184,8 +153,10 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    	 
    	CellEllipse cellEllipseCell = cell.getCellEllipseObject();
    	 cellEllipseCell.resetClippedEllipse();
-   	 if(cell.getNeighbouringCells() != null && cell.getNeighbouringCells().length > 0){
+   	 
+   	 if(cell.getNeighbouringCells() != null && cell.getNeighbouringCells().length > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
 	   	 for(CellType neighbouringCell : cell.getNeighbouringCells()){
+	   		 if(neighbouringCell.getCellEllipseObject().getLastDrawInfo2D() == null) System.out.println("no Draw");
 	   		 if(!CellEllipseIntersectionCalculculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), cell.getActSimState().schedule.getSteps())){
 	   			 CellEllipseIntersectionCalculculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());
 	   			 neighbouringCell.getCellEllipseObject().resetClippedEllipse();
@@ -226,68 +197,10 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
         return generalPath;
         }
 
-        /** Creates a general path for the bounding hexagon */
-   private GeneralPath createVoronoiPath( DrawInfo2D info, int w, int h, GrahamPoint[] pL, int formCount )
-        {
-        generalPath.reset();
-        // we are doing a simple draw, so we ignore the info.clip
-        if( info instanceof HexaDrawInfo2D )
-            {
-            final HexaDrawInfo2D temp = (HexaDrawInfo2D)info;
-            generalPath.moveTo( temp.xPoints[0], temp.yPoints[0] );
-            for( int i = 1 ; i < 6 ; i++ )
-                generalPath.lineTo( temp.xPoints[i], temp.yPoints[i] );
-            generalPath.closePath();
-        }
-        else
-            {
-                if (formCount>4)
-                {
-                    xPoints[0]=(int) pL[0].x;
-                    yPoints[0]=(int) pL[0].y;
-                    generalPath.moveTo( xPoints[0], yPoints[0] );
-                    for (int i=1; ((i<formCount) && (formCount<=19)); ++i)
-                    {
-                        xPoints[i]=(int) pL[i].x;
-                        yPoints[i]=(int) pL[i].y;
-                        generalPath.lineTo( xPoints[i], yPoints[i] );
-                    }
-                    generalPath.closePath();
-                }
-                else
-                {
-                                   
-               	 calculateHexagonPoints(info,w,h);
-                                 
-                    generalPath.moveTo( xPoints[0], yPoints[0] );
-                    for( int i = 1 ; i < 6 ; i++)
-                        generalPath.lineTo(xPoints[i], yPoints[i]);
-                    generalPath.closePath();
-                }
-            }
-        return generalPath;
-        }
+     
     
     /** If drawing area intersects selected area, add last portrayed object to the bag */
-    /*   public boolean hitObject(Object object, DrawInfo2D range)
-        {
-            int w=1;
-            int h=1;
-            if (object instanceof KCyte)
-            {
-                KCyte kcyte=((KCyte)object);
-                int keratinoAge=kcyte.getEpisimCellDiffModelObject().getAge();                
-                w=5;
-                h=5-(int)keratinoAge/60;
-                h=(h<1 ? 1:h);
-            };                    
-            
-        GeneralPath generalPath = createGeneralPath( range, w, h );
-        Area area = new Area( generalPath );
-        return ( area.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height ) );
-        }
-    */
-   
+       
    private void calculateHexagonPoints(DrawInfo2D info, int w, int h){
    	 xPoints[0] = (int)(info.draw.x+info.draw.width/2.0*w);
        yPoints[0] = (int)(info.draw.y);
@@ -316,12 +229,8 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
       int red=255;         
       int green=0;
       int blue=0;
-      if ((coloringType<1) || (coloringType>10)) { 
-     	 coloringType=1; 
-     	 MiscalleneousGlobalParameters.instance().setTypeColor(1);
-      }
-      
-      if ((coloringType==1) || (coloringType==2) || (coloringType==8))  // Cell type coloring
+            
+      if ((coloringType==1) || (coloringType==2))  // Cell type coloring
       {              
         	   if(keratinoType == EpisimCellDiffModelGlobalParameters.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
         	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.TACELL){red=148; green=167; blue=214;}                             
@@ -341,7 +250,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
               blue=calculatedColorValue;
               if (keratinoType== EpisimCellDiffModelGlobalParameters.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
        }
-       if ((coloringType==4) || (coloringType==9))  // Calcium coloring
+       if ((coloringType==4))  // Calcium coloring
        {
               calculatedColorValue= (int) (255* (1-((kcyte.getEpisimCellDiffModelObject().getCa()) / kcyte.getEpisimCellDiffModelObject().getMaxCa())));
               red=calculatedColorValue;         
@@ -370,7 +279,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
               green=255;
               blue=calculatedColorValue;
         }
-        if(coloringType==10){ //Colors are calculated in the biochemical model
+        if(coloringType==9){ //Colors are calculated in the biochemical model
         	  red=kcyte.getEpisimCellDiffModelObject().getColorR();
            green=kcyte.getEpisimCellDiffModelObject().getColorG();
            blue=kcyte.getEpisimCellDiffModelObject().getColorB();
@@ -397,82 +306,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    	return myFrameColor;      
    }
    
-   private boolean calculateVoronoi(KCyte kcyte, DrawInfo2D info){
-   	GrahamPoint convexhull[]=new GrahamPoint[50];            
-      
-      int resNumPoints=0;
-      int formCount=0;
-   	boolean drawVoronoi=false; // until here to draw a voronoi is only a wish, not test, if it can be done
-      formCount=0;
-      int i=0;
-      if (kcyte.getFormCount()>0) // any neighbors counted in KCyteClass
-      {
-          for (i=0; i<kcyte.getFormCount(); ++i)
-          {
-              if ((kcyte.getNeighborDrawInfoX()[i]==0) || (kcyte.getNeighborDrawInfoY()[i]==0)) continue;
-              int dx=(int) kcyte.getNeighborDrawInfoX()[i] - (int) info.draw.x;
-              int dy=(int) kcyte.getNeighborDrawInfoY()[i] - (int) info.draw.y;
-              if ((dx>-80) && (dx<80) && (dy>-80) && (dy<80))                            
-              {
-              double xconvex= (int)info.draw.x +(int)(dx/2); //+(int)dx/2;
-              double yconvex= (int)info.draw.y +(int)(dy/2); //+(int)dy/2;
-              convexhull[formCount]=new GrahamPoint(i,xconvex,yconvex); // i statt 0
-              ++formCount;                            
-              }
-          }
-
-          if (formCount>4)
-          {
-              resNumPoints=GrahamScan.computeHull(convexhull, formCount);
-              for (i=0;i<resNumPoints;i++)
-              {
-                  // last tringle connects last and first point of convexhull
-                  int p1,p2; // index of points
-                  if (i==resNumPoints-1){p1=i; p2=0;}
-                  else {p1=i; p2=i+1; }
-                  double xnewleft=(convexhull[p1].x-info.draw.x)*2+info.draw.x;    // point of tringle in upper left corner
-                  double ynewleft=(convexhull[p1].y-info.draw.y)*2+info.draw.y;
-                  double xnewright=(convexhull[p2].x-info.draw.x)*2+info.draw.x; // point of tringle in upper right corner
-                  double ynewright=(convexhull[p2].y-info.draw.y)*2+info.draw.y;
-                  double xcenter=(xnewleft+xnewright+info.draw.x)/3;  // center of triangle
-                  double ycenter=(ynewleft+ynewright+info.draw.y)/3;
-                  double dx=xcenter-info.draw.x;  // distance is in pixels not in KCyte Dimensions ! Pixels are much more
-                  double dy=ycenter-info.draw.y;
-                  double actdist=Math.sqrt(dx*dx+dy*dy);
-                  double optDist=kcyte.GINITIALKERATINOHEIGHT*2; // factor 3 is much more 
-                  if (actdist<optDist)
-                  {
-                      dx=(actdist>0)?(optDist+0.1)/actdist*dx:0;    // increase dx by factor optDist/actdist
-                      dy=(actdist>0)?(optDist+0.1)/actdist*dy:0;    // increase dy by factor optDist/actdist            
-                  }
-                  double newx=info.draw.x+dx;
-                  double newy=info.draw.y+dy;
-                  // Build Average of new and old shape when both have the same number of vertexes, i.e. nodes
-                  if (resNumPoints==kcyte.getVoronoihullvertexes())
-                  {
-                      newx=(newx*0.05+kcyte.getVoronoihull()[i].x*0.95);
-                      newy=(newy*0.05+kcyte.getVoronoihull()[i].y*0.95);
-                      kcyte.getVoronoihull()[i]=new GrahamPoint(i, newx, newy);
-                  }
-                  else
-                      kcyte.getVoronoihull()[i]=new GrahamPoint(i, newx, newy);
-              }                            
-              kcyte.setVoronoihullvertexes(resNumPoints);
-              if (kcyte.getVoronoihullvertexes()>4) 
-              {
-                  drawVoronoi=true;
-                 kcyte.incrementVoronoiStable();  // Voronoi was possible
-              }
-
-          } // not enough points for Voronoi
-          else
-              {
-                  kcyte.decrementVoronoiStable();  // Voronoi was not possible
-                  drawVoronoi=false;
-              }
-      } // any neighbors counted in KCyteClass   
-      return drawVoronoi;
-   }
+   
    
 
    public boolean hitObject(Object object, DrawInfo2D range)

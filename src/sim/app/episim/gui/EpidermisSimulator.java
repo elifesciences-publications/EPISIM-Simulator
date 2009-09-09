@@ -51,6 +51,7 @@ import sim.app.episim.snapshot.SnapshotReader;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.CellEllipseIntersectionCalculculationRegistry;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.visualization.WoundPortrayal2D;
@@ -467,6 +468,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				cleanUpContentPane();
 				epiUI = new EpidermisGUIState(this);
 				epiUI.addSimulationStateChangeListener(this);
+				epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculculationRegistry.getInstance());
 				this.validate();
 				this.repaint();
 				ModelController.getInstance().setModelOpened(true);
@@ -505,6 +507,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			cleanUpContentPane();
 			epiUI = new EpidermisGUIState(this);
 			epiUI.addSimulationStateChangeListener(this);
+			epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculculationRegistry.getInstance());
 			if(ChartController.getInstance().isAlreadyChartSetLoaded() && GlobalClassLoader.getInstance().getMode().equals(GlobalClassLoader.IGNORECHARTSETMODE)){
 				ChartController.getInstance().reloadCurrentlyLoadedChartSet();
 				GlobalClassLoader.getInstance().resetMode();
@@ -606,6 +609,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 					
 					epiUI = new EpidermisGUIState(epidermis, this, true);
 					epiUI.addSimulationStateChangeListener(this);
+					epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculculationRegistry.getInstance());
 					epiUI.addSnapshotRestartListener(this);
 					epiUI.setReloadedSnapshot(true);
 					if(epiUI.getWoundPortrayalDraw() !=null){

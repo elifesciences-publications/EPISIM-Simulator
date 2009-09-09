@@ -98,8 +98,8 @@ public class TestCanvas extends JPanel {
 	
 	public void dragCellEllipse(int x, int y){
 		if(draggedCellEllipse != null){
-			draggedCellEllipse.setX(x);
-			draggedCellEllipse.setY(y);
+			draggedCellEllipse.setXY(x, y);
+			
 			repaint();
 		}
 	}

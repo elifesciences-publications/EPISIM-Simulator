@@ -17,8 +17,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Snap
 	private int typeColor = 1;
 	
 	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age",
-	      "Color by calcium", "Color by lamella", "Enough lipids for barrier", "Color by ion transports", "Voronoi",
-	      "Calcium Voronoi" , "Epsim-Modeller Custom Coloring"};
+	      "Color by calcium", "Color by lamella", "Enough lipids for barrier", "Color by ion transports", "Ellipse Morphology", "Epsim-Modeller Custom Coloring"};
 	
 	private MiscalleneousGlobalParameters(){
 		
@@ -27,7 +26,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Snap
 	
 	public String getTypeColorName() {
 
-		if((typeColor < 1) || (typeColor > 10))
+		if((typeColor < 1) || (typeColor >= typeString.length))
 			typeColor = 1;
 		return typeString[typeColor];
 	}
@@ -58,8 +57,8 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Snap
 
 	public void setTypeColor(int val) {
 
-		if(val >= 0.0)
-			typeColor = val;
+		if((val < 1) || (val >= typeString.length)) this.typeColor = 1;
+		else this.typeColor = val;
 	}
 
 

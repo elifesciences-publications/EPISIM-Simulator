@@ -26,8 +26,8 @@ public class TissueRotator {
               int newX = (int) (+a * cos - b * sin + i0);
               int newY = (int) (+a * sin + b * cos + j0);
               cell.rotateCellEllipseInRadians(angle);
-              cell.setX(newX);
-              cell.setY(newY);
+              cell.setXY(newX, newY);
+             
               
      }
      
@@ -73,8 +73,8 @@ public class TissueRotator {
 		System.out.println("yShift: "+ yShift);
 		System.out.println("MarginYShift: "+ marginYShift);*/
 		for(CellEllipse cell : tissue.getCells()){
-			cell.setX((int)(cell.getX()-minX+ (maxRadius/2)));
-			cell.setY((int)(cell.getY()-minY+(maxRadius/2)));
+			cell.setXY((int)(cell.getX()-minX+ (maxRadius/2)), (int)(cell.getY()-minY+(maxRadius/2)));
+			
 		}
 		
 		double calculatedHeight = (maxY - minY)+maxRadius*2;

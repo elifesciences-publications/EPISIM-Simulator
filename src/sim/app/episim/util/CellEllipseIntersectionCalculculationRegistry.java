@@ -60,5 +60,7 @@ public class CellEllipseIntersectionCalculculationRegistry implements Simulation
 	   reset();
 	   
    }
+	
+	public void simulationWasPaused(){}
 
 }

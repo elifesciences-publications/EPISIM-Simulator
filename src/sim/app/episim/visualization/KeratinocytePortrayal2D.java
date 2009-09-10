@@ -1,4 +1,6 @@
 package sim.app.episim.visualization;
+import sim.SimStateServer;
+import sim.SimStateServer.SimState;
 import sim.app.episim.CellType;
 import sim.app.episim.KCyte;
 import sim.app.episim.datamonitoring.GlobalStatistics;
@@ -72,11 +74,36 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             {                
                 final KCyte kcyte=((KCyte)object);
                 
-               
+                if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
+    		         kcyte.getCellEllipseObject().translateCell(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
+    		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
+    		        
+                }
                 
                
                 int keratinoType=kcyte.getEpisimCellDiffModelObject().getDifferentiation();                                
-                int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();              
+                int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();
+                
+                
+                if(keratinoType == EpisimCellDiffModelGlobalParameters.STEMCELL
+                  	 || keratinoType == EpisimCellDiffModelGlobalParameters.TACELL
+                  	 || keratinoType == EpisimCellDiffModelGlobalParameters.EARLYSPICELL
+                  	 || keratinoType == EpisimCellDiffModelGlobalParameters.LATESPICELL){ 
+                  	 showNucleus=true; 
+                  	 drawFrame=true;
+                   } 
+                   else if(keratinoType == EpisimCellDiffModelGlobalParameters.GRANUCELL){ 
+                  	 drawFrame=false; 
+                  	
+                  	 showNucleus=false; 
+                  }
+                   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS){ 
+                  	 drawFrame=true; 
+                  	 
+                  	 showNucleus=false;
+                   }
+                
+                
               if(colorType < 8){
                
                
@@ -85,23 +112,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 // set shape
                 //
                 
-                if(keratinoType == EpisimCellDiffModelGlobalParameters.STEMCELL
-               	 || keratinoType == EpisimCellDiffModelGlobalParameters.TACELL
-               	 || keratinoType == EpisimCellDiffModelGlobalParameters.EARLYSPICELL
-               	 || keratinoType == EpisimCellDiffModelGlobalParameters.LATESPICELL){ 
-               	 showNucleus=true; 
-               	 drawFrame=true;
-                } 
-                else if(keratinoType == EpisimCellDiffModelGlobalParameters.GRANUCELL){ 
-               	 drawFrame=false; 
-               	
-               	 showNucleus=false; 
-               }
-                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS){ 
-               	 drawFrame=true; 
-               	 
-               	 showNucleus=false;
-                }
+                
                         
                                 
                 //getColors
@@ -129,17 +140,29 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
               }
               else if(colorType == 8){
             	  calculateClippedCell(kcyte);
-            	  graphics.setPaint(kcyte.getCellEllipseObject().getColor());
-            	     	  
+            	  
+            	  graphics.setPaint(getFillColor(kcyte));            	     	  
             	  graphics.fill(kcyte.getCellEllipseObject().getClippedEllipse());
-            	  graphics.setPaint(Color.WHITE);
-            	  graphics.draw(kcyte.getCellEllipseObject().getClippedEllipse());
+            	  if(drawFrame){
+	            	  graphics.setPaint(getContourColor(kcyte));
+	            	  graphics.draw(kcyte.getCellEllipseObject().getClippedEllipse());
+            	  
+            	  }
+            	 if(showNucleus){
+            		  Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
+	                 graphics.setPaint(nucleusColor);
+	            	  final double NUCLEUSRAD = 0.75;
+	                 graphics.fill(new Ellipse2D.Double(kcyte.getCellEllipseObject().getX()-NUCLEUSRAD*info.draw.width, kcyte.getCellEllipseObject().getY()- NUCLEUSRAD*info.draw.height,2*NUCLEUSRAD*info.draw.width, 2*NUCLEUSRAD*info.draw.height));
+            	 }
               }
               
               
              //must be set at the very end of the paint method
-              kcyte.getCellEllipseObject().setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
-             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
+              
+            if(SimStateServer.getInstance().getSimState() == SimState.PLAY){ 
+		         kcyte.getCellEllipseObject().setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
+		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)), false);
+            }
               
             } else { 
                 graphics.setPaint(paint);          
@@ -152,16 +175,17 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
     private void calculateClippedCell(CellType cell){
    	 
    	CellEllipse cellEllipseCell = cell.getCellEllipseObject();
-   	 cellEllipseCell.resetClippedEllipse();
+   	 
    	 
    	 if(cell.getNeighbouringCells() != null && cell.getNeighbouringCells().length > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
 	   	 for(CellType neighbouringCell : cell.getNeighbouringCells()){
-	   		 if(neighbouringCell.getCellEllipseObject().getLastDrawInfo2D() == null) System.out.println("no Draw");
+	   		 
 	   		 if(!CellEllipseIntersectionCalculculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), cell.getActSimState().schedule.getSteps())){
 	   			 CellEllipseIntersectionCalculculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());
-	   			 neighbouringCell.getCellEllipseObject().resetClippedEllipse();
+	   			
 	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, neighbouringCell.getCellEllipseObject());
 	   		 }
+	   		 
 	   	 }
    	 }
     }
@@ -230,7 +254,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
       int green=0;
       int blue=0;
             
-      if ((coloringType==1) || (coloringType==2))  // Cell type coloring
+      if ((coloringType==1) || (coloringType==2) || (coloringType==8))  // Cell type coloring
       {              
         	   if(keratinoType == EpisimCellDiffModelGlobalParameters.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
         	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.TACELL){red=148; green=167; blue=214;}                             
@@ -306,6 +330,15 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    	return myFrameColor;      
    }
    
+   private void drawPoint(Graphics2D g, int x, int y, int size, Color c){
+		if(x> 0 || y > 0){
+			if(size % 2 != 0) size -= 1;
+			Color oldColor = g.getColor();
+			g.setColor(c);
+			g.fillRect(x-(size/2), y-(size/2), size+1, size+1);
+			g.setColor(oldColor);
+		}
+	}
    
    
 

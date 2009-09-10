@@ -481,7 +481,15 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    	
       	
       	super.pressStop();
-      }
+   }
+   
+   public synchronized void pressPause(){
+      
+   	((EpidermisGUIState)this.simulation).simulationWasPaused();
+   	
+      	
+      	super.pressPause();
+   }
    
    private void addSnapshotButton(){
    	if(getContentPane().getLayout() instanceof BorderLayout){

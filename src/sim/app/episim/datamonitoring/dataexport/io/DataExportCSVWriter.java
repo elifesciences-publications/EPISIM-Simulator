@@ -173,4 +173,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		else return ""+ value;
 	}
 
+
+
+	public void simulationWasPaused() {}
+
 }

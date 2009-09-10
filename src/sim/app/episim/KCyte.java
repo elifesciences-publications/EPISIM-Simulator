@@ -440,7 +440,7 @@ public class KCyte extends CellType
 				newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
 				newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*oldLoc.x) + newInfo.draw.width*newloc.x);
 				newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*oldLoc.y) + newInfo.draw.height*newloc.y);
-				kcyte.getCellEllipseObject().setLastDrawInfo2D(newInfo);
+				kcyte.getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
 			}
         
         
@@ -748,10 +748,10 @@ public class KCyte extends CellType
 				}
 			}*/
 
-		//	long timeBefore = System.currentTimeMillis();
-			// ///////////////////////////////////////////////////////
-			// Differentiation: Calling the loaded Cell-Diff-Model
-			// //////////////////////////////////////////////////////
+			//	long timeBefore = System.currentTimeMillis();
+			/////////////////////////////////////////////////////////
+			//   Differentiation: Calling the loaded Cell-Diff-Model
+			/////////////////////////////////////////////////////////
 			
 			
 			DrawInfo2D info = this.getCellEllipseObject().getLastDrawInfo2D();
@@ -760,7 +760,7 @@ public class KCyte extends CellType
 				newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
 				newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*oldLoc.x) + newInfo.draw.width*newLoc.x);
 				newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*oldLoc.y) + newInfo.draw.height*newLoc.y);
-				this.getCellEllipseObject().setLastDrawInfo2D(newInfo);
+				this.getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
 			}
 			
 			differentiate(state, b,epiderm.getCellContinous2D(), newLoc, hitResult2.nextToOuterCell, hitResult2.numhits != 0);
@@ -790,6 +790,7 @@ public class KCyte extends CellType
 				 deltaTime = 0;
 			}
 			deltaTime +=deltaTimeTmp;		*/	
+			
 			
                  
 			}

@@ -64,16 +64,34 @@ public class CellEllipse {
 		
 		public void resetClippedEllipse(){ clippedEllipse = getClone(this.ellipseAsArea);}
 		
-      public int getX() { return x; }
+      public int getX() { 
+      	
+      	if(lastDrawInfo2D != null){
+      		return (int) lastDrawInfo2D.draw.x;
+      	}      	
+      	else return x; 
+      	
+      }
 		
      
 		
-      public int getY() { return y; }
+      public int getY() { 
+      	if(lastDrawInfo2D != null){
+      		return (int) lastDrawInfo2D.draw.y;
+      	}      	
+      	else return y;      	
+      }
 		
       
      
 		
-      public int getMajorAxis() { return majorAxis; }
+      public int getMajorAxis() { 
+      	
+      	 if(lastDrawInfo2D != null){
+ 	      	return (int)(majorAxis * lastDrawInfo2D.draw.width);
+ 	      }
+ 	      else return majorAxis;  	
+      }
 		
       public void setMajorAxis(int majorAxis) {     
       	this.majorAxis = majorAxis;
@@ -93,7 +111,14 @@ public class CellEllipse {
       	resetEllipseAsArea();
       }
       
-      public int getMinorAxis() { return minorAxis; }
+      public int getMinorAxis() { 
+	      if(lastDrawInfo2D != null){
+	      	return (int)(minorAxis * lastDrawInfo2D.draw.height);
+	      }
+	      else return minorAxis; 
+      	
+      
+      }
 		
       public void setMinorAxis(int minorAxis) {
       	
@@ -124,7 +149,7 @@ public class CellEllipse {
       	((Area)this.clippedEllipse).subtract(area); 
       }
       
-      public Shape getClippedEllipse(){ return getClone(this.clippedEllipse); }
+      public Shape getClippedEllipse(){ return this.clippedEllipse; }
      		
 		public long getId() { return id; }
 		
@@ -181,10 +206,23 @@ public class CellEllipse {
       
       public DrawInfo2D getLastDrawInfo2D() { return lastDrawInfo2D; }
 		
-      public void setLastDrawInfo2D(DrawInfo2D lastDrawInfo2D){
+      public void setLastDrawInfo2D(DrawInfo2D lastDrawInfo2D, boolean resetRequired){
       	if(lastDrawInfo2D != null){
       		this.lastDrawInfo2D = lastDrawInfo2D;
-      		resetEllipseAsArea();
+      		if(resetRequired) resetEllipseAsArea();
+      	}
+      }
+      
+      public void translateCell(DrawInfo2D newLastDrawInfo2D){
+      	if(newLastDrawInfo2D != null && this.lastDrawInfo2D != null){
+      		
+      		AffineTransform trans = new AffineTransform();
+      		trans.translate(newLastDrawInfo2D.draw.x - this.lastDrawInfo2D.draw.x, newLastDrawInfo2D.draw.y-this.lastDrawInfo2D.draw.y);
+      		ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));
+   			if(this.clippedEllipse != null) this.clippedEllipse = new Area(trans.createTransformedShape(clippedEllipse));
+      		
+      		this.lastDrawInfo2D = newLastDrawInfo2D;
+      		
       	}
       }
       

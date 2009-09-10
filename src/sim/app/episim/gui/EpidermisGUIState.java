@@ -1,5 +1,6 @@
 package sim.app.episim.gui;
 
+import sim.SimStateServer;
 import sim.engine.*;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
@@ -399,6 +400,14 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
                   }});
 		      	t.start();
 	       }
+	       else if(console != null && console.getPlayState() == console.PS_PAUSED){
+	      	 if(SimStateServer.getInstance().getSimState() == SimStateServer.SimState.STEPWISE){
+	      		 SimStateServer.getInstance().setSimStatetoPause();
+	      		 mainFrame.validate();
+	      		 mainFrame.repaint();
+					
+	      	 }
+			 }
          }
 		});
 
@@ -423,6 +432,14 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 					 console.pressPause();
 					 resizeButtonIsActionSource = false;
 				 }
+    	     else if(console != null && console.getPlayState() == console.PS_PAUSED){
+    	   	 if(SimStateServer.getInstance().getSimState() == SimStateServer.SimState.STEPWISE){
+    	   		SimStateServer.getInstance().setSimStatetoPause();
+    	   		 displayFrame.validate();
+    	   		displayFrame.repaint();
+					
+	      	 }
+				}
 		    }
 		});
 		
@@ -659,7 +676,9 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	 						resizeButtonIsActionSource = true;
 	 						
 	 					}
-	 					
+	 					else if(console.getPlayState() == console.PS_PAUSED){
+	 						SimStateServer.getInstance().setSimStatetoPause();
+	 					}
 	 				}
 	    			 
 	    		 });
@@ -711,6 +730,10 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	public void simulationWasStopped(){
 		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStopped();
+	}
+	
+	public void simulationWasPaused(){
+		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasPaused();
 	}
 	
 	public void addSimulationStateChangeListener(SimulationStateChangeListener listener){

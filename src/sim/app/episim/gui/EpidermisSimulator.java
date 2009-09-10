@@ -33,6 +33,7 @@ import binloc.ProjectLocator;
 
 import episimexceptions.ModelCompatibilityException;
 
+import sim.SimStateServer;
 import sim.app.episim.CompileWizard;
 import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
@@ -467,8 +468,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				ChartController.getInstance().rebuildDefaultCharts();
 				cleanUpContentPane();
 				epiUI = new EpidermisGUIState(this);
-				epiUI.addSimulationStateChangeListener(this);
-				epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculculationRegistry.getInstance());
+				registerSimulationStateListeners(epiUI);
 				this.validate();
 				this.repaint();
 				ModelController.getInstance().setModelOpened(true);
@@ -506,8 +506,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
 			epiUI = new EpidermisGUIState(this);
-			epiUI.addSimulationStateChangeListener(this);
-			epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculculationRegistry.getInstance());
+			registerSimulationStateListeners(epiUI);
 			if(ChartController.getInstance().isAlreadyChartSetLoaded() && GlobalClassLoader.getInstance().getMode().equals(GlobalClassLoader.IGNORECHARTSETMODE)){
 				ChartController.getInstance().reloadCurrentlyLoadedChartSet();
 				GlobalClassLoader.getInstance().resetMode();
@@ -608,8 +607,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 					cleanUpContentPane();
 					
 					epiUI = new EpidermisGUIState(epidermis, this, true);
-					epiUI.addSimulationStateChangeListener(this);
-					epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculculationRegistry.getInstance());
+					registerSimulationStateListeners(epiUI);
 					epiUI.addSnapshotRestartListener(this);
 					epiUI.setReloadedSnapshot(true);
 					if(epiUI.getWoundPortrayalDraw() !=null){
@@ -633,6 +631,12 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				}
 	}
 	
+	
+	private void registerSimulationStateListeners(EpidermisGUIState guiState){
+		epiUI.addSimulationStateChangeListener(this);
+		epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculculationRegistry.getInstance());
+		epiUI.addSimulationStateChangeListener(SimStateServer.getInstance());
+	}
 	private void buildModelArchive(){
 		CompileWizard wizard = new CompileWizard(this);
 		
@@ -712,5 +716,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		  }
 		}
    }
+
+	public void simulationWasPaused() {}
 
 }

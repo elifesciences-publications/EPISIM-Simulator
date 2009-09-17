@@ -8,19 +8,21 @@ import java.util.Set;
 import sim.app.episim.SimulationStateChangeListener;
 
 
-public class CellEllipseIntersectionCalculculationRegistry implements SimulationStateChangeListener {
+public class CellEllipseIntersectionCalculationRegistry implements SimulationStateChangeListener {
 	
 	private long actSimulationStep = 0;
 	
 	private Set<String> alreadyCalculatedCells;
 	
-	private CellEllipseIntersectionCalculculationRegistry(){
+	
+	
+	private CellEllipseIntersectionCalculationRegistry(){
 		alreadyCalculatedCells = new HashSet<String>();		
 	}
 	
-	private static CellEllipseIntersectionCalculculationRegistry instance = new CellEllipseIntersectionCalculculationRegistry();
+	private static CellEllipseIntersectionCalculationRegistry instance = new CellEllipseIntersectionCalculationRegistry();
 	
-	public static CellEllipseIntersectionCalculculationRegistry getInstance(){ return instance; }
+	public static CellEllipseIntersectionCalculationRegistry getInstance(){ return instance; }
 	
 	public void addCellEllipseIntersectionCalculation(long idCell1, long idCell2){
 		this.alreadyCalculatedCells.add(buildStringId(idCell1, idCell2));
@@ -41,7 +43,12 @@ public class CellEllipseIntersectionCalculculationRegistry implements Simulation
 	}
 	
 	private String buildStringId(long cellId1, long cellId2){
-		return cellId1+";"+cellId2; 	
+		StringBuffer stringBuilder = new StringBuffer();
+		stringBuilder.append(cellId1);
+		stringBuilder.append(";");
+		stringBuilder.append(cellId2);
+		
+		return stringBuilder.toString(); 	
 	}
 	
 	public void reset(){

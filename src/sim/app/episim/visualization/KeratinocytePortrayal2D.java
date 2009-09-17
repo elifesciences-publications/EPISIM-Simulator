@@ -8,7 +8,7 @@ import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
-import sim.app.episim.util.CellEllipseIntersectionCalculculationRegistry;
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.ObjectManipulations;
 import sim.portrayal.*;
@@ -180,8 +180,8 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    	 if(cell.getNeighbouringCells() != null && cell.getNeighbouringCells().length > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
 	   	 for(CellType neighbouringCell : cell.getNeighbouringCells()){
 	   		 
-	   		 if(!CellEllipseIntersectionCalculculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), cell.getActSimState().schedule.getSteps())){
-	   			 CellEllipseIntersectionCalculculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());
+	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), cell.getActSimState().schedule.getSteps())){
+	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());
 	   			
 	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, neighbouringCell.getCellEllipseObject());
 	   		 }

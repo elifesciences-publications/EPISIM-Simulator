@@ -14,8 +14,8 @@ public class CellEllipse {
 	
 		
 		
-		private Shape clippedEllipse;
-		private Shape ellipseAsArea;
+		private Area clippedEllipse;
+		private Area ellipseAsArea;
 		
 		private long id;
 		private int x;
@@ -143,13 +143,15 @@ public class CellEllipse {
 	      
       }
 		
-      public Shape getEllipse() { return ellipseAsArea;}
+      public Area getEllipse() { return ellipseAsArea;}
+      
+      public Area getEllipseClone() { return getClone(ellipseAsArea);}
 
       public void clipAreaFromEllipse(Area area){
-      	((Area)this.clippedEllipse).subtract(area); 
+      	this.clippedEllipse.subtract(area); 
       }
       
-      public Shape getClippedEllipse(){ return this.clippedEllipse; }
+      public Area getClippedEllipse(){ return this.clippedEllipse; }
      		
 		public long getId() { return id; }
 		
@@ -198,10 +200,10 @@ public class CellEllipse {
 		
       public void setDistanceToBL(double distanceToBL) { this.distanceToBL = distanceToBL; }
       
-      public Shape getClone(Shape shape){
-      	if(shape instanceof Path2D) return (Shape)((Path2D)shape).clone();
-      	else if(shape instanceof Area) return (Shape)((Area)shape).clone();
-      	else throw new ClassCastException("Cannot Clone: "+ shape.getClass().getName());
+      public Area getClone(Area shape){
+      	
+      	return (Area) shape.clone();
+      	
       }
       
       public DrawInfo2D getLastDrawInfo2D() { return lastDrawInfo2D; }

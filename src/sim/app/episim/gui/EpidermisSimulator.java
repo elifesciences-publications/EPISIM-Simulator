@@ -52,7 +52,7 @@ import sim.app.episim.snapshot.SnapshotReader;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
-import sim.app.episim.util.CellEllipseIntersectionCalculculationRegistry;
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.visualization.WoundPortrayal2D;
@@ -634,7 +634,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	private void registerSimulationStateListeners(EpidermisGUIState guiState){
 		epiUI.addSimulationStateChangeListener(this);
-		epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculculationRegistry.getInstance());
+		epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculationRegistry.getInstance());
 		epiUI.addSimulationStateChangeListener(SimStateServer.getInstance());
 	}
 	private void buildModelArchive(){

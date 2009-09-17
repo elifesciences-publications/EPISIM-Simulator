@@ -5,6 +5,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,22 +27,31 @@ public class TestCalculator {
 				drawEllipse(g2D, 200, 200, 100, 50, 0);
 				drawEllipse(g2D, 275, 200, 100, 50, 0);
 				
+				int[][] foci= calculateFoci(275, 200, 100, 50);
+				double[] results = newtonIntersectionCalculation(200, 200, 50, 50, 25, foci[0], foci[1]);
 				
-			int[][] foci= calculateFoci(275, 200, 100, 50);
-			bruteForceIntersectionCalculation(200, 200, 100, 100, 50, foci[0], foci[1]);
+				for(Double alpha : results){
+					double[] point = calculatePointOnEllipse(200, 200, 50, 25, alpha);
+					drawPoint(g2D, ((int)point[0]), ((int)point[1]), 4, Color.GREEN);
+				}		
 				
 				//drawEllipseCustom(g2D, 300, 300, 50, 25, 45);
 				//drawEllipseCustom(g2D, 325, 300, 50, 25, 67);
 			}
 		};
 		
+		
+		int  alpha = 30;
+		
+		System.out.println((Math.cos(alpha)*Math.sin(alpha)));
+		System.out.println((0.5*Math.sin(2*alpha)));
+		
 		canvas.setBackground(Color.WHITE);
 		
 		frame.getContentPane().add(canvas);
 		
 		
-		System.out.println("Test-Result: "+ ((-2*Math.sin(1)*Math.cos(1))));
-		System.out.println("Test-Result: "+ (-1*Math.sin(2)));
+		
 		frame.setSize(500, 500);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -55,7 +67,10 @@ public class TestCalculator {
 	}
 	
 	
-	private void bruteForceIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22){
+	
+	
+	
+	private double[] newtonIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22){
 		double u1_x = Math.pow(x1, 2) + Math.pow(f21[0], 2) - 2*f21[0]*x1;
 		double v1_x = 2*x1*a1-2*f21[0]*a1;
 		
@@ -68,21 +83,64 @@ public class TestCalculator {
 		double u2_y = Math.pow(y1, 2) + Math.pow(f22[1], 2) - 2*f22[1]*y1;
 		double v2_y = 2*y1*b1-2*f22[1]*b1;
 		
+		
+		double a1_square = Math.pow(a1, 2);
+		double b1_square = Math.pow(b1, 2);
+		
+		
 		double sin = 0; 
 		double cos = 0;
+		double sin_2alpha = 0;
+		double sin_square = 0;
+		double cos_square = 0;
 		
-		for(double i = 0; i <= 2*Math.PI; i+=0.0001){
-			sin = Math.sin(i);
-			cos = Math.cos(i);
-			double result = (Math.sqrt(u1_x+ v1_x*cos+Math.pow(a1,2 )*Math.pow(cos, 2)+u1_y+v1_y*sin+Math.pow(b1, 2)*Math.pow(sin, 2)) + Math.sqrt(u2_x+ v2_x*cos+Math.pow(a1, 2)*Math.pow(cos, 2)+u2_y+v2_y*sin+Math.pow(b1, 2)*Math.pow(sin, 2)) -2*a2);	
+		double first_sqroot = 0;
+		double second_sqroot = 0;
+		
+		double result1 = 0;
+		double result2 = 0;
+		
+		double alpha =0;
+		double[] results = new double[4];
+		int numberResults = 0;
+		double border = 2* Math.PI;
+		double i = (Math.PI/2);
+	   for(; i < border; i += Math.PI){
+			alpha = i;
+			do{
+				sin = Math.sin(alpha);
+				cos = Math.cos(alpha);
 				
-			if(result >=0 && result < 0.00001) System.out.println(result);
+				sin_2alpha = Math.sin(2*alpha);
+				
+				sin_square = Math.pow(sin, 2);
+				cos_square = Math.pow(cos, 2);
+				
+				first_sqroot = Math.sqrt(u1_x + v1_x*cos + a1_square*cos_square + u1_y + v1_y*sin + b1_square*sin_square);
+				second_sqroot = Math.sqrt(u2_x + v2_x*cos+ a1_square*cos_square + u2_y + v2_y*sin + b1_square*sin_square);
+				
+				result1 = (first_sqroot + second_sqroot - 2*a2);	
+				
+				if( result1 !=  0){
+					result2 = 0.5*(1 / first_sqroot)*(-1*v1_x*sin-a1_square*sin_2alpha+v1_y*cos+b1_square*sin_2alpha)
+					                 + 0.5*(1 / second_sqroot)*(-1*v2_x*sin-a1_square*sin_2alpha+v2_y*cos+b1_square*sin_2alpha);
+					
+					alpha = alpha - (result1 / result2);
+				}
+				else{
+					results[numberResults++]= alpha;
+					//System.out.println("Added Result " + alpha);
+				}
+				
+			}while(Math.abs(result1) > 0);
 			
 		}
-		
-		
-		
+		return results;
 	}
+	
+	
+	
+	
 	
 	private int[] rotatePoint(int[] point, int[] center, double angleInDegrees){
 		double angle = Math.toRadians(angleInDegrees);
@@ -128,7 +186,12 @@ public class TestCalculator {
 		
 	}
 	
-	
+	private double[] calculatePointOnEllipse(double x, double y, double majorAxis, double minorAxis, double alpha){
+		double point_x = x + majorAxis * Math.cos(alpha);
+		double point_y = y + minorAxis * Math.sin(alpha);
+		
+		return new double[]{point_x, point_y};
+	}
 	
 	private void drawEllipseCustom(Graphics2D g, int x1, int y1, int a , int b, int angleInDegrees){
 		double sin, cos;

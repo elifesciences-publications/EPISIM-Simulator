@@ -49,7 +49,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 	}
 	
 	private XYPoints calculateClippedEllipses(CellEllipse actEllipse, CellEllipse otherEllipse){		
-			int [][] intersectionPoints = getIntersectionPoints(actEllipse.getEllipse(), otherEllipse.getEllipse());
+			int [][] intersectionPoints = getIntersectionPoints(actEllipse.getEllipseClone(), otherEllipse.getEllipseClone());
 			if(intersectionPoints != null){
 				intersectionPoints = select2InterSectionPointsWithMinDistance(intersectionPoints, new int[]{actEllipse.getX(), actEllipse.getY()},new int[]{otherEllipse.getX(), otherEllipse.getY()});
 				XYPoints xyPoints = calculateXYPoints(intersectionPoints[0], intersectionPoints[1], actEllipse, otherEllipse);
@@ -72,7 +72,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 	
 	
 	
-	private int[][] getIntersectionPoints(Shape shape1, Shape shape2){
+	private int[][] getIntersectionPoints(Area a1, Area a2){
 		
 		ArrayList<Double> protocollXPoints = new ArrayList<Double>();
 		ArrayList<Double> protocollYPoints = new ArrayList<Double>();
@@ -80,12 +80,10 @@ public class EllipseIntersectionCalculatorAndClipper {
 		//maximum of 4 intersection points for two ellipses
 		int [][] intersectionPoints = new int[4][2];
 					
-			 	Area a1 = getIntersection(shape1, shape2);
+			 	a1.intersect(a2);
 	        
 	        //return if the ellipses don't overlap
-	        if(a1.isEmpty()) return null;
-	        
-	        
+	        if(a1.isEmpty()) return null;        
 	        
 	        PathIterator it = a1.getPathIterator(null);
 	        double[] d = new double[6];
@@ -302,12 +300,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 		
 	}
 	
-	private Area getIntersection(Shape shape1, Shape shape2){
-		 Area a1 = new Area(shape1);
-       Area a2 = new Area(shape2);
-       a1.intersect(a2);
-       return a1;
-	}
+	
 	
 	private int[][] select2InterSectionPointsWithMinDistance(int[][] intersectionPoints, int[] actEll, int[] otherEll){
 		//if there are only two intersection points no changes are necessary

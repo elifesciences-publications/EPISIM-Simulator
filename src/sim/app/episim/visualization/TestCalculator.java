@@ -23,19 +23,26 @@ public class TestCalculator {
 			  super.paint(g);
 				Graphics2D g2D = (Graphics2D) g;
 				
+				final int rotationInDegrees = 20;
 				
-				drawEllipse(g2D, 200, 200, 100, 50, 0);
-				drawEllipse(g2D, 275, 200, 100, 50, 0);
+				drawEllipse(g2D, 200, 200, 100, 50, rotationInDegrees);
+				drawEllipse(g2D, 275, 200, 100, 50, rotationInDegrees);
 				
 				int[][] foci= calculateFoci(275, 200, 100, 50);
-				double[] results = newtonIntersectionCalculation(200, 200, 50, 50, 25, foci[0], foci[1]);
+				foci[0] = rotatePoint(foci[0], new int[]{275, 200}, rotationInDegrees);
+				foci[1] = rotatePoint(foci[1], new int[]{275, 200}, rotationInDegrees);
+				
+				
+				double[] results = newtonIntersectionCalculation(200, 200, 50, 50, 25, foci[0], foci[1], Math.toRadians(rotationInDegrees));
 				
 				for(Double alpha : results){
-					double[] point = calculatePointOnEllipse(200, 200, 50, 25, alpha);
+					double[] point = calculatePointOnEllipse(200, 200, 50, 25, alpha, Math.toRadians(rotationInDegrees));
 					drawPoint(g2D, ((int)point[0]), ((int)point[1]), 4, Color.GREEN);
-				}		
+				}	
 				
-				//drawEllipseCustom(g2D, 300, 300, 50, 25, 45);
+			
+				
+				//drawEllipseCustom(g2D, 200, 200, 50, 25, 20);
 				//drawEllipseCustom(g2D, 325, 300, 50, 25, 67);
 			}
 		};
@@ -43,8 +50,7 @@ public class TestCalculator {
 		
 		int  alpha = 30;
 		
-		System.out.println((Math.cos(alpha)*Math.sin(alpha)));
-		System.out.println((0.5*Math.sin(2*alpha)));
+		
 		
 		canvas.setBackground(Color.WHITE);
 		
@@ -139,8 +145,120 @@ public class TestCalculator {
 	}
 	
 	
+	private double[] newtonIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22, double phi){
+		
+		double x1_square = Math.pow(x1, 2);
+		double y1_square = Math.pow(y1, 2);
+		double a1_square = Math.pow(a1, 2);
+		double b1_square = Math.pow(b1, 2);
+		double quarter_a1_square = 0.25*a1_square;
+		double quarter_b1_square = 0.25*b1_square;
+		double cos_phi = Math.cos(phi);
+		double sin_phi = Math.sin(phi);
+		double cos_2phi = Math.cos(2*phi);
+		double sin_2phi = Math.sin(2*phi);
 	
-	
+		double a1_cos_phi = a1* cos_phi;
+		double b1_cos_phi = b1* cos_phi;
+		
+		double a1_sin_phi = a1* sin_phi;
+		double b1_sin_phi = b1* sin_phi;
+		
+		double quarter_b1_square_cos_2phi = quarter_b1_square*cos_2phi;
+		double quarter_a1_square_cos_2phi = quarter_a1_square*cos_2phi;
+		
+		double u11 = x1_square - 2 * f21[0] * x1 + Math.pow(f21[0], 2) + quarter_a1_square + quarter_a1_square_cos_2phi + quarter_b1_square - quarter_b1_square_cos_2phi;
+		double u12 = 2*x1*a1_cos_phi-2*f21[0]*a1_cos_phi;
+		double u13 = -1*2*x1*b1_sin_phi + 2*f21[0]*b1_sin_phi;
+		double u14 = -1*0.5*a1*b1*sin_2phi;
+		double u15 = quarter_a1_square + quarter_a1_square_cos_2phi-quarter_b1_square+quarter_b1_square_cos_2phi;
+		
+		double u21 = x1_square - 2*f22[0]*x1 + Math.pow(f22[0], 2)+quarter_a1_square+quarter_a1_square_cos_2phi+quarter_b1_square-quarter_b1_square_cos_2phi;
+		double u22 = 2*x1*a1_cos_phi-2*f22[0]*a1_cos_phi;
+		double u23 = -1*2*x1*b1_sin_phi+2*f22[0]*b1_sin_phi;
+		double u24 = u14;
+		double u25 = u15;
+		
+		double v11 = y1_square - 2 * y1 * f21[1] + Math.pow(f21[1], 2) + quarter_b1_square + quarter_b1_square_cos_2phi + quarter_a1_square - quarter_a1_square_cos_2phi;
+		double v12 = 2*y1*b1_cos_phi - 2*f21[1]*b1_cos_phi;
+		double v13 = -1*2*f21[1]*a1_sin_phi+2*y1*a1_sin_phi;
+		double v14 = -1*u14;
+		double v15 = quarter_a1_square - quarter_a1_square_cos_2phi -quarter_b1_square-quarter_b1_square_cos_2phi;
+		
+		double v21 = y1_square - 2*y1*f22[1] + Math.pow(f22[1], 2) + quarter_b1_square +quarter_b1_square_cos_2phi + quarter_a1_square-quarter_a1_square_cos_2phi;
+		double v22 = 2*y1*b1_cos_phi - 2*f22[1]*b1_cos_phi;
+		double v23 = -1*2*f22[1]*a1_sin_phi+2*y1*a1_sin_phi;
+		double v24 = v14;
+		double v25 = v15;
+		
+		double u11_v11 = u11 + v11;
+		double u12_v13 = u12 + v13;
+		double u13_v12 = u13 + v12;
+		double u14_v14 = u14 + v14;
+		double u15_v15 = u15 + v15;
+		
+		double u21_v21 = u21 + v21;
+		double u22_v23 = u22 + v23;
+		double u23_v22 = u23 + v22;
+		double u24_v24 = u24 + v24;
+		double u25_v25 = u25 + v25;
+		
+		
+		
+		double sin_alpha = 0; 
+		double cos_alpha = 0;
+		double sin_2alpha = 0;
+		double cos_2alpha = 0;
+		
+		
+		double alpha =0;
+		double f_alpha = 0;
+		double f_alpha_partone = 0;
+		double f_alpha_parttwo = 0;
+		double df_dalpha = 0;
+		double[] results = new double[4];
+		int numberResults = 0;
+		double border = 2* Math.PI;
+		double i = 0;
+		
+		
+		int counter = 0;
+		double stepsize = 0.001;
+		
+	   for(; i < border; i += stepsize){
+			alpha = i;
+			do{
+				counter++;
+				sin_alpha = Math.sin(alpha);
+				cos_alpha = Math.cos(alpha);
+				
+				sin_2alpha = Math.sin(2*alpha);
+				cos_2alpha = Math.cos(2*alpha);
+				
+				f_alpha_partone = Math.sqrt(u11_v11 + u12_v13*cos_alpha + u13_v12*sin_alpha + u14_v14*sin_2alpha + u15_v15*cos_2alpha);
+				f_alpha_parttwo = Math.sqrt(u21_v21 + u22_v23*cos_alpha + u23_v22*sin_alpha + u24_v24*sin_2alpha + u25_v25*cos_2alpha);
+				
+				f_alpha = f_alpha_partone + f_alpha_parttwo -2*a2;
+				
+				
+				if( f_alpha !=  0){
+					df_dalpha = 0.5*(1/f_alpha_partone)*(-1*u12_v13*sin_alpha + u13_v12*cos_alpha + 2*u14_v14*cos_2alpha - 2*u15_v15*sin_2alpha)
+					          + 0.5*(1/f_alpha_parttwo)*(-1*u22_v23*sin_alpha + u23_v22*cos_alpha + 2*u24_v24*cos_2alpha - 2*u25_v25*cos_2alpha); 
+						
+						
+						
+					alpha = alpha - (f_alpha / df_dalpha);
+				}
+				else{
+					//results[numberResults++]= alpha;
+					System.out.println("Added Result " + alpha + " Counter: " + counter + " alpha_start: " + i);
+				}
+				
+			}while(Math.abs(f_alpha) > 0 && counter <=25);
+			counter=0;
+		}
+		return new double[]{0.3733974957530237, -1.0109616355539215};
+	}	
 	
 	private int[] rotatePoint(int[] point, int[] center, double angleInDegrees){
 		double angle = Math.toRadians(angleInDegrees);
@@ -186,9 +304,14 @@ public class TestCalculator {
 		
 	}
 	
-	private double[] calculatePointOnEllipse(double x, double y, double majorAxis, double minorAxis, double alpha){
-		double point_x = x + majorAxis * Math.cos(alpha);
-		double point_y = y + minorAxis * Math.sin(alpha);
+	private double[] calculatePointOnEllipse(double x, double y, double majorAxis, double minorAxis, double alpha, double phi){
+		double cos_alpha = Math.cos(alpha);
+		double sin_alpha = Math.sin(alpha);
+		double cos_phi = Math.cos(phi);
+		double sin_phi = Math.sin(phi);
+		
+		double point_x = x + majorAxis * cos_phi*cos_alpha -  minorAxis*sin_phi*sin_alpha;
+		double point_y = y + minorAxis*cos_phi*sin_alpha + majorAxis*sin_phi*cos_alpha;
 		
 		return new double[]{point_x, point_y};
 	}
@@ -203,8 +326,8 @@ public class TestCalculator {
 		for (double i = 0; i < 2*Math.PI; i+=0.01){
 			sin = Math.sin(i);
 			cos = Math.cos(i);
-			x = (int)(x1 + a*cosAngle*cos + b*sinAngle*sin);
-			y = (int)(y1 + b*cosAngle*sin - a*sinAngle*cos);
+			x = (int)(x1 + a*cosAngle*cos - b*sinAngle*sin);
+			y = (int)(y1 + b*cosAngle*sin + a*sinAngle*cos);
 			g.drawLine(x, y, x, y);
 		}
 		

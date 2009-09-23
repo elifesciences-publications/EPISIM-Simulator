@@ -223,7 +223,7 @@ public class TestCalculator {
 		
 		
 		int counter = 0;
-		double stepsize = 0.001;
+		double stepsize = 0.5;
 		
 	   for(; i < border; i += stepsize){
 			alpha = i;
@@ -241,7 +241,7 @@ public class TestCalculator {
 				f_alpha = f_alpha_partone + f_alpha_parttwo -2*a2;
 				
 				
-				if( f_alpha !=  0){
+				if(Math.abs(f_alpha) >=  0.00000000001){
 					df_dalpha = 0.5*(1/f_alpha_partone)*(-1*u12_v13*sin_alpha + u13_v12*cos_alpha + 2*u14_v14*cos_2alpha - 2*u15_v15*sin_2alpha)
 					          + 0.5*(1/f_alpha_parttwo)*(-1*u22_v23*sin_alpha + u23_v22*cos_alpha + 2*u24_v24*cos_2alpha - 2*u25_v25*cos_2alpha); 
 						
@@ -251,10 +251,10 @@ public class TestCalculator {
 				}
 				else{
 					//results[numberResults++]= alpha;
-					System.out.println("Added Result " + alpha + " Counter: " + counter + " alpha_start: " + i);
+					System.out.println("Added Result " + alpha + " Counter: " + counter + " alpha_start: " + i + "f_alpha: " + f_alpha);
 				}
 				
-			}while(Math.abs(f_alpha) > 0 && counter <=25);
+			}while(Math.abs(f_alpha) > 0.00000000001 && counter <=50);
 			counter=0;
 		}
 		return new double[]{0.3733974957530237, -1.0109616355539215};

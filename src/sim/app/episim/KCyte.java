@@ -17,7 +17,7 @@ import ec.util.*;
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
-
+import sim.app.episim.util.*;
 import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;

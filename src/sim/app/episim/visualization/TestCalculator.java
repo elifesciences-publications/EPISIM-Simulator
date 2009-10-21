@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 
 
 public class TestCalculator {
-	
+	private boolean firstCall = true;
 	public TestCalculator(){
 		JFrame frame = new JFrame("Test Ellipse");
 		
@@ -23,20 +23,20 @@ public class TestCalculator {
 			  super.paint(g);
 				Graphics2D g2D = (Graphics2D) g;
 				
-				final int rotationInDegrees = 20;
+				final int rotationInDegrees = 90;
 				
+				drawEllipse(g2D, 200, 200, 100, 50, 0);
 				drawEllipse(g2D, 200, 200, 100, 50, rotationInDegrees);
-				drawEllipse(g2D, 275, 200, 100, 50, rotationInDegrees);
 				
-				int[][] foci= calculateFoci(275, 200, 100, 50);
-				foci[0] = rotatePoint(foci[0], new int[]{275, 200}, rotationInDegrees);
-				foci[1] = rotatePoint(foci[1], new int[]{275, 200}, rotationInDegrees);
+				int[][] foci= calculateFoci(200, 200, 100, 50);
+				foci[0] = rotatePoint(foci[0], new int[]{200, 200}, rotationInDegrees);
+				foci[1] = rotatePoint(foci[1], new int[]{200, 200}, rotationInDegrees);
 				
 				
-				double[] results = newtonIntersectionCalculation(200, 200, 50, 50, 25, foci[0], foci[1], Math.toRadians(rotationInDegrees));
+				double[] results = newtonIntersectionCalculation(200, 200, 50, 50, 25, foci[0], foci[1], Math.toRadians(0));
 				
 				for(Double alpha : results){
-					double[] point = calculatePointOnEllipse(200, 200, 50, 25, alpha, Math.toRadians(rotationInDegrees));
+					double[] point = calculatePointOnEllipse(200, 200, 50, 25, alpha, Math.toRadians(0));
 					drawPoint(g2D, ((int)point[0]), ((int)point[1]), 4, Color.GREEN);
 				}	
 				
@@ -147,6 +147,9 @@ public class TestCalculator {
 	
 	private double[] newtonIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22, double phi){
 		
+		
+		
+		
 		double x1_square = Math.pow(x1, 2);
 		double y1_square = Math.pow(y1, 2);
 		double a1_square = Math.pow(a1, 2);
@@ -241,23 +244,28 @@ public class TestCalculator {
 				f_alpha = f_alpha_partone + f_alpha_parttwo -2*a2;
 				
 				
-				if(Math.abs(f_alpha) >=  0.00000000001){
+				if(Math.abs(f_alpha) >=  0.0000000000001){
 					df_dalpha = 0.5*(1/f_alpha_partone)*(-1*u12_v13*sin_alpha + u13_v12*cos_alpha + 2*u14_v14*cos_2alpha - 2*u15_v15*sin_2alpha)
 					          + 0.5*(1/f_alpha_parttwo)*(-1*u22_v23*sin_alpha + u23_v22*cos_alpha + 2*u24_v24*cos_2alpha - 2*u25_v25*cos_2alpha); 
 						
 						
 						
 					alpha = alpha - (f_alpha / df_dalpha);
+					//alpha = alpha*Math.pow(Math.E, (-1*(f_alpha / df_dalpha)));
+					
 				}
 				else{
 					//results[numberResults++]= alpha;
-					System.out.println("Added Result " + alpha + " Counter: " + counter + " alpha_start: " + i + "f_alpha: " + f_alpha);
+					if(firstCall) System.out.println("Added Result " + alpha + " Counter: " + counter + " alpha_start: " + i + " f_alpha: " + f_alpha);
 				}
 				
-			}while(Math.abs(f_alpha) > 0.00000000001 && counter <=50);
+			}while(Math.abs(f_alpha) > 0.0000000000001 && counter <=50);
+			
+			
 			counter=0;
-		}
-		return new double[]{0.3733974957530237, -1.0109616355539215};
+	   }
+	   firstCall = false;
+		return new double[]{2.0454777112652835, 8.32866301844487,4.2377075959143,5.187070364855076};
 	}	
 	
 	private int[] rotatePoint(int[] point, int[] center, double angleInDegrees){

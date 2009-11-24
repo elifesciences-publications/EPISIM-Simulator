@@ -37,6 +37,7 @@ import episimexceptions.ModelCompatibilityException;
 import sim.SimStateServer;
 import sim.app.episim.CompileWizard;
 import sim.app.episim.Epidermis;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.TissueServer;
@@ -434,6 +435,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	public static void main(String[] args){
 		EpidermisSimulator episim = new EpidermisSimulator();
+		System.out.println(EpisimProperties.getProperty("exception.displaymode"));
 		System.setErr(new PrintStream(errorOutputStream));
 	}
 	

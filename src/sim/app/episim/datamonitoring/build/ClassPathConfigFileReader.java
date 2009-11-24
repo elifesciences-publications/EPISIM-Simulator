@@ -118,22 +118,14 @@ public class ClassPathConfigFileReader {
 	}
 	
 	public File getBinPath() throws URISyntaxException{
-		return new File(ProjectLocator.class.getResource("../").toURI());
+		return ProjectLocator.getBinPath();
 	}
 	
 	public File getLibPath() throws URISyntaxException{
-		return convertBinPathToLibPath((new File(ProjectLocator.class.getResource("../").toURI()).getAbsolutePath()));
+		return ProjectLocator.getPathOf(LIB);
 	}
 	
-	private File convertBinPathToLibPath(String path){
-		
-		
-		if(path.endsWith(System.getProperty("file.separator"))) path = path.substring(0, path.length()-1);
-		int i = path.length()-1;
-		for(;path.charAt(i)!= System.getProperty("file.separator").charAt(0); i--);
-		
-		return (new File((path.substring(0, i)+System.getProperty("file.separator")+LIB)));
-	}
+	
 
 
 

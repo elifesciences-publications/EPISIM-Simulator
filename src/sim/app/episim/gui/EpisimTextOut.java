@@ -8,6 +8,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -15,8 +18,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import sim.app.episim.util.ByteArrayWriteListener;
+import sim.app.episim.util.WriteEvent;
 
-public class EpisimTextOut {
+
+public class EpisimTextOut{
 	
 	private static EpisimTextOut instance = new EpisimTextOut();
 	private String standardText;
@@ -25,11 +31,30 @@ public class EpisimTextOut {
 	JTextArea textOutput;
 	StringBuffer currentTextOnTextOut;
 	private EpisimTextOut(){
+		
 		buildTextOutPanel();
 		standardText="Episim Simulator version " + EpidermisSimulator.versionID + "\nSimulation Text Output:\n\n";
 		currentTextOnTextOut = new StringBuffer();
 		this.currentTextOnTextOut.append(standardText);
 		textOutput.setText(this.currentTextOnTextOut.toString());
+		EpidermisSimulator.errorOutputStream.addWriteListener(new ByteArrayWriteListener()
+	    {
+	       
+	       public void textWasWritten(WriteEvent event)
+	       {
+	          
+	          Object source = event.getSource();
+	          if(source instanceof ByteArrayOutputStream){
+	         	 ByteArrayOutputStream stream = (ByteArrayOutputStream) source;
+		      	 StringBuffer buffer = new StringBuffer();
+		      	 buffer.append(new String(stream.toByteArray()));
+		          print(buffer.toString());
+		          stream.reset(); 
+	          }
+	       }
+
+			
+	    });
 	
 	}
 	

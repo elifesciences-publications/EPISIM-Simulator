@@ -12,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -55,6 +56,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
+import sim.app.episim.util.ObservedByteArrayOutputStream;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.Console;
 import sim.display.ConsoleHack;
@@ -74,7 +76,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	private EpidermisGUIState epiUI;
 	
-	
+	public static final ObservedByteArrayOutputStream errorOutputStream = new ObservedByteArrayOutputStream();
 	
 	private JMenu fileMenu;
 	private JMenuItem menuItemSetSnapshotPath;
@@ -431,7 +433,8 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	}
 	
 	public static void main(String[] args){
-		EpidermisSimulator episim = new EpidermisSimulator();		
+		EpidermisSimulator episim = new EpidermisSimulator();
+		System.setErr(new PrintStream(errorOutputStream));
 	}
 	
 	

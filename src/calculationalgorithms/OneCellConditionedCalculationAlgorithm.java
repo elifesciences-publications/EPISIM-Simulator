@@ -1,5 +1,6 @@
 package calculationalgorithms;
 
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 		catch(CellNotValidException e){
 			ExceptionDisplayer.getInstance().displayException(e);
 		}
-		EpisimTextOut.getEpisimTextOut().println("No Cell found which matches the specified oberservation requirements.");
+		EpisimTextOut.getEpisimTextOut().println("No Cell found which matches the specified oberservation requirements.", Color.BLACK);
 		return null;
 	}
 	

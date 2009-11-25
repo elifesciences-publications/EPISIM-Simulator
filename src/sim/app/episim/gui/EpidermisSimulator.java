@@ -435,8 +435,10 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	public static void main(String[] args){
 		EpidermisSimulator episim = new EpidermisSimulator();
-		System.out.println(EpisimProperties.getProperty("exception.displaymode"));
-		System.setErr(new PrintStream(errorOutputStream));
+		
+		String mode;
+		if((mode=EpisimProperties.getProperty("exception.displaymode")) != null 
+				&& mode.equals("simulator"))  System.setErr(new PrintStream(errorOutputStream));
 	}
 	
 	

@@ -1,6 +1,7 @@
 package sim.app.episim.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -17,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 
 import sim.app.episim.util.ByteArrayWriteListener;
 import sim.app.episim.util.WriteEvent;
@@ -28,13 +30,14 @@ public class EpisimTextOut{
 	private String standardText;
 	
 	private JPanel simTextOutPanel;
-	JTextArea textOutput;
+	JTextPane textOutput;
 	StringBuffer currentTextOnTextOut;
 	private EpisimTextOut(){
 		
 		buildTextOutPanel();
-		standardText="Episim Simulator version " + EpidermisSimulator.versionID + "\nSimulation Text Output:\n\n";
+		standardText="Episim Simulator version " + EpidermisSimulator.versionID + "<br>Simulation Text Output:<br><br>";
 		currentTextOnTextOut = new StringBuffer();
+		appendHTMLStartTags();
 		this.currentTextOnTextOut.append(standardText);
 		textOutput.setText(this.currentTextOnTextOut.toString());
 		EpidermisSimulator.errorOutputStream.addWriteListener(new ByteArrayWriteListener()
@@ -48,7 +51,7 @@ public class EpisimTextOut{
 	         	 ByteArrayOutputStream stream = (ByteArrayOutputStream) source;
 		      	 StringBuffer buffer = new StringBuffer();
 		      	 buffer.append(new String(stream.toByteArray()));
-		          print(buffer.toString());
+		          print(buffer.toString(), Color.RED);
 		          stream.reset(); 
 	          }
 	       }
@@ -62,18 +65,23 @@ public class EpisimTextOut{
 		return instance;
 	}
 	
-	public void print(String text){
-		currentTextOnTextOut.append(text);
-		textOutput.setText(currentTextOnTextOut.toString());
+	public void print(String text, Color c){
+		System.out.println(Integer.toHexString(c.getRGB()));
+		currentTextOnTextOut.append("<span style=\"color:#"+Integer.toHexString(c.getRGB()).substring(2)+";\">" +formatText(text)+"</span>");
+		textOutput.setText(currentTextOnTextOut.toString()+getHTMLClosingTags());
 	}
 	
-	public void println(String text){
-		currentTextOnTextOut.append(text +"\n");
-		textOutput.setText(currentTextOnTextOut.toString());
+	public void println(String text, Color c){
+		print(text.concat("\n"), c);
 	}
+	
+	
+	
+	
 	
 	public void clear(){
 		this.currentTextOnTextOut = new StringBuffer();
+		appendHTMLStartTags();
 		this.currentTextOnTextOut.append(standardText);
 		textOutput.setText(this.currentTextOnTextOut.toString());
 	}
@@ -81,12 +89,17 @@ public class EpisimTextOut{
 		return this.simTextOutPanel;
 	}
 	
+	private String formatText(String text){
+		return text.replace(" ", "&nbsp;").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;").replace("\n", "<br>");
+	}
+	
 	private void buildTextOutPanel(){
 		simTextOutPanel = new JPanel(new BorderLayout());
 		
-		textOutput = new JTextArea();
+		textOutput = new JTextPane();
+		textOutput.setContentType("text/html");
 		//textOutput.setBorder(BorderFactory.createLoweredBevelBorder());
-		textOutput.setFont(new Font("Arial", Font.PLAIN, 12));
+		textOutput.setFont(new Font("Courier", Font.PLAIN, 11));
 		textOutput.setEditable(false);
 		textOutput.setMargin(new Insets(3,3,3,3));
 		JScrollPane areaScrollPane = new JScrollPane(textOutput);
@@ -112,5 +125,10 @@ public class EpisimTextOut{
 		buttonPanel.add(clearButton, BorderLayout.EAST);
 		simTextOutPanel.add(buttonPanel, BorderLayout.SOUTH);
 	}
-
+	private String getHTMLClosingTags(){
+		return "</body></html>";
+	}
+	private void appendHTMLStartTags(){
+		this.currentTextOnTextOut.append("<html><body style=\"font-family:'Courier New',Courier,monospace;\">");
+	}
 }

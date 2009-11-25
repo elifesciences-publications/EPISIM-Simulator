@@ -66,7 +66,6 @@ public class EpisimTextOut{
 	}
 	
 	public void print(String text, Color c){
-		System.out.println(Integer.toHexString(c.getRGB()));
 		currentTextOnTextOut.append("<span style=\"color:#"+Integer.toHexString(c.getRGB()).substring(2)+";\">" +formatText(text)+"</span>");
 		textOutput.setText(currentTextOnTextOut.toString()+getHTMLClosingTags());
 	}

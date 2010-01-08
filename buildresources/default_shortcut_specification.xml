@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<shortcuts>
+<programGroup defaultName="Episim Simulator" location="startMenu"/>
+<shortcut desktop="yes" programGroup="yes" startMenu="yes" applications="yes" name="Episim Simulator" target="$INSTALL_PATH\EpisimSimulator.exe" iconFile="$INSTALL_PATH\doc\start.ico"/>
+<shortcut programGroup="yes" startMenu="yes" applications="yes" name="Uninstall Episim Simulator" target="$INSTALL_PATH\Uninstaller\Uninstaller.exe" iconFile="$INSTALL_PATH\doc\uninstall.ico"/>
+</shortcuts>

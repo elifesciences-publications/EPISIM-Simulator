@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<installation version="1.0">
+<!-- The info section. -->
+<info>
+<appname>Episim Simulator</appname>
+<appversion>1.1.0
+</appversion>
+ <authors>
+<author name="Thomas Suetterlin" email="thomas.suetterlin@med.uni-heidelberg.de"/>
+</authors>
+<url>http://www.tiga.uni-hd.de/</url>
+</info>
+
+<native type="izpack" name="ShellLink.dll"/>
+
+<variables>
+<variable name="app-version" value="1.1.0"/>
+<variable name="released-on" value="24/02/2009"/>
+</variables>
+
+ <!-- The gui preferences indication. -->
+
+<guiprefs width="640" height="480" resizable="no">
+ </guiprefs>
+
+<!-- The locale section. -->
+
+<locale>
+<langpack iso3="deu"/>
+<langpack iso3="eng"/>
+</locale>
+
+<!-- The resources section. -->
+<resources>
+<res id="LicencePanel.licence" src="EpisimSimulator\doc\Licence.txt"/>
+<res id="StartIcon.ico" src="EpisimSimulator\doc\start.ico" />
+<res id="InfoPanel.info_deu" src="EpisimSimulator\doc\Readme_deu.txt"/>
+<res id="InfoPanel.info_eng" src="EpisimSimulator\doc\Readme_eng.txt"/>
+<res id="shortcutSpec.xml" src="default_shortcut_specification.xml" />
+</resources>
+<!-- The panels section. -->
+<panels>
+<panel classname="HelloPanel"/>
+<panel classname="InfoPanel"/>
+<panel classname="LicencePanel"/>
+<panel classname="TargetPanel"/>
+<panel classname="PacksPanel"/>
+<panel classname="InstallPanel"/>
+<panel classname="ShortcutPanel"/>
+<panel classname="FinishPanel"/>
+</panels>
+<!-- The packs section. -->
+<packs>
+<pack name="Base" required="yes">
+<description>The base files</description>
+<file src="EpisimSimulator\doc\Readme_deu.txt" targetdir="$INSTALL_PATH\doc"/>
+<file src="EpisimSimulator\doc\Readme_eng.txt" targetdir="$INSTALL_PATH\doc"/>
+<file src="EpisimSimulator\doc\Licence.txt" targetdir="$INSTALL_PATH\doc"/>
+<file src="EpisimSimulator\EpisimSimulator.exe" targetdir="$INSTALL_PATH"/>
+<file src="EpisimSimulator\bin" targetdir="$INSTALL_PATH"/>
+<file src="EpisimSimulator\jre" targetdir="$INSTALL_PATH"/>
+<file src="EpisimSimulator\lib" targetdir="$INSTALL_PATH"/>
+<file src="EpisimSimulator\config" targetdir="$INSTALL_PATH"/>
+<file src="EpisimSimulator\doc\start.ico" targetdir="$INSTALL_PATH\doc"/>
+<file src="EpisimSimulator\doc\uninstall.ico" targetdir="$INSTALL_PATH\doc"/>
+<file src="EpisimSimulator\doc\Uninstaller.exe" targetdir="$INSTALL_PATH\Uninstaller"/>
+</pack>
+<pack name="JMF" required="no">
+<description>Java Media Framework</description>
+<file src="EpisimSimulator\jmf\jmf-2_1_1e-windows-i586.exe" targetdir="$INSTALL_PATH"/>
+<executable targetfile="$INSTALL_PATH\jmf-2_1_1e-windows-i586.exe" stage="postinstall"/>
+</pack>
+<!--<pack name="Docs" required="no">
+<description>The documentation </description>
+<file src="doc" targetdir="%INSTALL_PATH"/>
+</pack>-->
+</packs>
+</installation>

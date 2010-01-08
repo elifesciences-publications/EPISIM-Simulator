@@ -1,0 +1,22 @@
+<launch4jConfig>
+  <dontWrapJar>true</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>.\bin\Simulator.jar</jar>
+  <outfile>EpisimSimulator.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <customProcName>false</customProcName>
+  <stayAlive>false</stayAlive>
+  <manifest></manifest>
+  <icon>D:\Simulator Deployment\EpisimSimulator\doc\start.ico</icon>
+  <jre>
+    <path>.\jre</path>
+    <minVersion>1.6.0_01</minVersion>
+    <maxVersion>1.6.0_13</maxVersion>
+    <jdkPreference>jdkOnly</jdkPreference>
+  </jre>
+</launch4jConfig>

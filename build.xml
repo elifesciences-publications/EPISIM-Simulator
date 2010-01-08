@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Episim-Simulator" default="all" basedir=".">
+	<property name="launch4j.dir" location="C:/Program Files/Launch4j"/>
+	<property environment="env"/>
+	<property name="buildirectoryname" value="EpisimDist"/>	
+	<property name="src" value="./src"/>
+	<property name="buildres" value="./buildresources"/>
+	<property name="build" value="EpisimSimulator"/>
+	
+	<property name="lib" value="./lib"/>
+	<property name="config" value="./config"/>
+	
+	<property name="destjarfile" value="Simulator.jar"/>
+	<property name="builddirectory" value="../${buildirectoryname}"/>
+	<property name="currentbuild" value="../${buildirectoryname}/EpisimBuild_Temp"/>
+	
+	<property name="launch4JEpisimConfig" value="launch4jconfig_simulator.xml"/>
+
+	
+	<!-- properties of the manifest file -->
+	<property name="author" value="Thomas Suetterlin"/>
+	<property name="version" value="1.1.1"/>
+	<property name="vendor" value="Hamamatsu TIGA Center"/>
+	<property name="title" value="Episim Simulator"/>
+	<property name="main" value="sim.app.episim.gui.EpidermisSimulator"/>
+	<property name="splash" value="splash.jpg"/>
+	<property name="classpath" value="."/>
+	
+	<taskdef name="launch4j"
+	    classname="net.sf.launch4j.ant.Launch4jTask"
+	    classpath="${launch4j.dir}/launch4j.jar
+	        :${launch4j.dir}/lib/xstream.jar" />
+
+
+	<!-- ================================= 
+          target: init              
+         ================================= -->
+	<target name="init" description="doing initialization stuff">
+		<tstamp/>
+		
+	</target>
+	
+	<!-- ================================= 
+	          target: makedirs              
+	         ================================= -->
+		<target name="makedirs" depends="init" description="creating all necessary dirs">
+			<mkdir dir="${currentbuild}"/>
+			<mkdir dir="${currentbuild}/${build}"/>
+			<mkdir dir="${currentbuild}/${build}/bin"/>
+			<mkdir dir="${currentbuild}/${build}/bin/calculationalgorithms"/>
+			<mkdir dir="${currentbuild}/${build}/config"/>
+			<mkdir dir="${currentbuild}/${build}/lib"/>
+			<mkdir dir="${currentbuild}/${build}/log"/>
+			<mkdir dir="${currentbuild}/${build}/jre"/>
+		</target>
+	<!-- ================================= 
+          target: all              
+         ================================= -->
+	<target name="all" description="The whole Episim Simulator is build">
+		<antcall target="buildEpisimExecutable"/>
+		<antcall target="cleanup"/>		
+	</target>
+
+	<!-- ================================= 
+          target: compile              
+         ================================= -->
+	<target name="compile" depends="makedirs" description="compiles the simulator">
+		<echo>Compiling Episim Simulator</echo>
+		<javac  encoding="8859_1"
+    	         srcdir="${src}"
+    	         destdir="${currentbuild}/${build}/bin"
+    	 		 source="1.5"
+    	         target="1.5"
+    	 		 nowarn="on"	
+    	  >
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar"/>
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- ================================= 
+          target: copyLibsAndOtherFiles              
+         ================================= -->
+	<target name="copyLibsAndOtherFiles" depends="compile" description="All necessary libraries and other files are copied">
+		<copy todir="${currentbuild}/${build}/bin">
+			<fileset dir="${src}">
+				<include name="**/*"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+		<copy todir="${currentbuild}/${build}/lib">
+			<fileset dir="${lib}">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+		<copy todir="${currentbuild}/${build}/config">
+			<fileset dir="${config}">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+		<copy todir="${currentbuild}/${build}">
+			<fileset dir="${buildres}">
+				<include name="doc/*"/>
+				<include name="jmf/*"/>
+			</fileset>
+		</copy>
+		<copy todir="${currentbuild}">
+			<fileset dir="${buildres}">
+				<include name="*.*"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<!-- ================================= 
+          target: createJar              
+         ================================= -->
+    <target name="createJar" depends="copyLibsAndOtherFiles" description="The JarFile is created">
+    	<jar destfile="${currentbuild}/${build}/bin/${destjarfile}"  filesetmanifest="mergewithoutmain">
+    	    <manifest>
+    	      <attribute name="Main-Class" value="sim.app.episim.gui.EpidermisSimulator"/>
+    	      <attribute name="Class-Path" value="${classpath}"/>
+    	      <attribute name="SplashScreen-Image" value="${splash}"/>
+    	      <attribute name="Built-By" value="${user.name}"/>    	      
+    	      
+    	      <!-- Information about the program itself -->
+	    	    <section name="Episim Modeller">
+	    	      <attribute name="Author" value="${author}"/>
+	    	      <attribute name="Implementation-Vendor" value="${vendor}"/>
+	    	      <attribute name="Implementation-Title" value="${title}"/>
+	    	      <attribute name="Implementation-Version" value="${version}"/>
+	    	    </section>
+    	   </manifest>
+    	   	<fileset dir="${currentbuild}/${build}/bin"/>
+    		<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/junit.jar"/>
+    		<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/servlet.jar"/>
+    		<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/swtgraphics2d.jar"/>
+    		<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/itext-2.0.2.jar"/>
+    		<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/jcommon-1.0.12.jar"/>
+    		<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/jfreechart-1.0.9.jar"/>
+    		<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/jfreechart-1.0.9-experimental.jar"/>
+		</jar>
+    </target>
+	<!-- ================================= 
+          target: buildEpisimExecutable              
+         ================================= -->
+    <target name="buildEpisimExecutable" depends="createJar" description="runs launch4J to build the Simulator Windows Executuable">
+    	<launch4j configFile="${currentbuild}/${launch4JEpisimConfig}" outfile="${currentbuild}/${build}/EpisimSimulator.exe"/>
+    </target>
+
+	
+	
+	<!-- ================================= 
+          target: copyJDK              
+         ================================= -->
+    <target name="copyJDK" description="copies the most recent JDK to the jre folder">
+    	<echo message="${env.JAVA_HOME}"/>    	
+    	<copy todir="${currentbuild}/${build}/jre">    		
+    		<fileset dir="${env.JAVA_HOME}">
+    			<include name="**/*"/>
+    		</fileset>
+    	</copy>
+    </target>
+
+	
+	<!-- ================================= 
+          target: copySetupBuildFiles              
+         ================================= -->
+    <target name="copySetupBuildFiles" depends="createJar" description="the files necessary for the build of the setup file are copied">
+        
+    </target>
+
+
+
+	<!-- ================================= 
+          target: cleanup              
+         ================================= -->
+	<target name="cleanup" description="deletes the temporary stuff">
+		<delete includeemptydirs="true" verbose="false">
+			<fileset dir="${currentbuild}/${build}/bin" defaultexcludes="no">
+				<include name="**/*"/>
+				<exclude name="calculationalgorithms/**/*"/>
+				<exclude name="**/${destjarfile}"/>
+			</fileset>
+		</delete>
+	</target>
+
+
+
+</project>

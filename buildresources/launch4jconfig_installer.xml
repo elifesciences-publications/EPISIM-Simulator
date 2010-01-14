@@ -1,8 +1,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>D:\Simulator Deployment\install.jar</jar>
-  <outfile>D:\Simulator Deployment\Install.exe</outfile>
+  <jar>.\install.jar</jar>
+  <outfile>.\EpisimSimulatorSetup.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -16,7 +16,7 @@
   <jre>
     <path></path>
     <minVersion>1.4.0_01</minVersion>
-    <maxVersion>1.6.0_12</maxVersion>
+    <maxVersion>1.6.0_17</maxVersion>
     <jdkPreference>preferJre</jdkPreference>
   </jre>
 </launch4jConfig>

@@ -12,11 +12,11 @@
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon>D:\Simulator Deployment\EpisimSimulator\doc\start.ico</icon>
+  <icon>.\EpisimSimulator\doc\start.ico</icon>
   <jre>
     <path>.\jre</path>
     <minVersion>1.6.0_01</minVersion>
-    <maxVersion>1.6.0_13</maxVersion>
+    <maxVersion>1.6.0_17</maxVersion>
     <jdkPreference>jdkOnly</jdkPreference>
   </jre>
 </launch4jConfig>

@@ -57,8 +57,14 @@ public class TestCanvas extends JPanel {
 	
 	
 	public void drawCellEllipse(int x, int y, Color c){
-		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), x, y, RADIUS, RADIUS, c);
-		//cellEll.rotateCellEllipseInDegrees(rand.nextInt(180));
+		int radius1 = 0;
+		int radius2 = 0;
+		
+		while(radius1 < RADIUS) radius1 = rand.nextInt(2*RADIUS);
+		while(radius2 < RADIUS || radius2 > radius1) radius2 = rand.nextInt(2*RADIUS);
+		
+		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), x, y, radius1, radius2, c);
+		cellEll.rotateCellEllipseInDegrees(rand.nextInt(180));
 		drawCellEllipse(null,cellEll, true);
 		
 	}

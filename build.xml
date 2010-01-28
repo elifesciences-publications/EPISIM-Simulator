@@ -69,7 +69,7 @@
           target: all              
          ================================= -->
 	<target name="all" description="The whole Episim Simulator is build">
-		<antcall target="buildLinuxArchive"/>
+		<antcall target="finalCleanup"/>
 		<!--<antcall target="cleanup"/>		-->
 	</target>
 
@@ -178,7 +178,7 @@
 	<!-- ================================= 
           target: copyJDK_Windows              
          ================================= -->
-	<target name="copyJDK_Windows" description="copies the most recent JDK to the jre folder">
+	<target name="copyJDK_Windows" depends="cleanupBinFolder" description="copies the most recent JDK to the jre folder">
 		<echo message="${env.JAVA_HOME}"/>
 		<copy todir="${currentbuild}/${build}/jre">
 			<fileset dir="${env.JAVA_HOME}">
@@ -190,7 +190,7 @@
 	<!-- ================================= 
           target: buildInstallerJar              
          ================================= -->
-	<target name="buildInstallerJar" depends="cleanupBinFolder" description="builds the installer jar">
+	<target name="buildInstallerJar" depends="copyJDK_Windows" description="builds the installer jar">
 		<exec dir="." executable="cmd">
 			<arg line="/c compile ${basedir}\${buildirectoryname}\${tempdirectoryname}\install-skript.xml -b ${basedir}\${buildirectoryname}\${tempdirectoryname} -o ${basedir}\${buildirectoryname}\${tempdirectoryname}\install.jar -k standard"/>
 		</exec>
@@ -255,11 +255,37 @@
 
 
 	<!-- ================================= 
-          target: copyWindowsSetupBuildFiles              
+          target: copyBuildFiles              
          ================================= -->
-	<target name="copySetupBuildFiles" depends="createJar" description="the files necessary for the build of the setup file are copied">
-
+	<target name="copySetupFiles" depends="buildLinuxArchive" description="the final setup files are copied into a directory with a timestamp">
+		<tstamp/>
+		<mkdir dir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/windows"/>
+		<mkdir dir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/linux"/>
+		<copy todir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/windows">
+			<fileset dir="${currentbuild}">
+				<include name="${EpisimSimulatorSetupExe}"/>
+			</fileset>
+		</copy>
+		<copy todir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/linux">
+			<fileset dir="${currentbuild}">
+				<include name="${linuxTarGz}"/>
+			</fileset>
+		</copy>
 	</target>
+	
+	<!-- ================================= 
+          target: final cleanup              
+         ================================= -->
+    <target name="finalCleanup" depends="copySetupFiles" description="final cleap after everything was successfully done">
+    	<delete includeemptydirs="true" verbose="false">
+    		<fileset dir="${currentbuild}" defaultexcludes="no">
+    			<include name="**/*" />
+    		</fileset>
+    		<fileset dir="${builddirectory}" defaultexcludes="no">
+    		    <include name="tmp" />
+    		</fileset>
+    	</delete>
+    </target>
 
 
 

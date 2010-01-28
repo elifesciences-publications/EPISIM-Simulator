@@ -1,5 +1,6 @@
 package sim.app.episim.datamonitoring.build;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.URISyntaxException;
@@ -15,7 +16,9 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.gui.EpisimTextOut;
 import sim.app.episim.model.ModelController;
 import binloc.ProjectLocator;
 
@@ -56,10 +59,19 @@ public abstract class AbstractCommonCompiler {
 		fileManager = compiler.getStandardFileManager(null, null, null);
 		compilationUnits = fileManager.getJavaFileObjectsFromFiles(javaFiles);
 		try {
+			String simulatorJarName =	EpisimProperties.getProperty("episimbuild.jarname");
+			String pathToEpisimSimulatorBinaries = null;
+			if(simulatorJarName != null && new File(configReader.getBinPath().getAbsolutePath()+System.getProperty("file.separator")+ simulatorJarName).exists()) 
+				pathToEpisimSimulatorBinaries = configReader.getBinPath().getAbsolutePath()+ System.getProperty("file.separator")+ simulatorJarName;
+			else pathToEpisimSimulatorBinaries = configReader.getBinPath().getAbsolutePath();
 			
-			options = Arrays.asList(new String[] { "-cp", 
+			EpisimTextOut.getEpisimTextOut().println(ModelController.getInstance().getBioChemicalModelController().getActLoadedModelFile().getAbsolutePath()+configReader.getClasspathSeparatorChar()+
+					pathToEpisimSimulatorBinaries+configReader.getClasspathSeparatorChar()+ configReader.getBinClasspath()+configReader.getLibClasspath(),Color.BLUE);
+			
+			
+				options = Arrays.asList(new String[] { "-cp", 
 					ModelController.getInstance().getBioChemicalModelController().getActLoadedModelFile().getAbsolutePath()+configReader.getClasspathSeparatorChar()+
-					configReader.getBinPath().getAbsolutePath()+configReader.getClasspathSeparatorChar()+ configReader.getBinClasspath()+configReader.getLibClasspath()});
+					pathToEpisimSimulatorBinaries+configReader.getClasspathSeparatorChar()+ configReader.getBinClasspath()+configReader.getLibClasspath()});
 			compiler.getTask(null, fileManager, null, options, null, compilationUnits).call();
 			fileManager.close();
 		} catch (Exception e) {

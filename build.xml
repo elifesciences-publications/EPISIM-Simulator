@@ -246,7 +246,20 @@
           target: buildLinuxArchive              
          ================================= -->
     <target name="buildLinuxArchive" depends="copyLinuxFiles" description="buildsTheLinuxArchive">
-    	<tar longfile="gnu" destfile="${currentbuild}/${linuxTar}" basedir="${currentbuild}" excludes="*.*"/>	
+    	<tar longfile="gnu" destfile="${currentbuild}/${linuxTar}">
+    		<tarfileset filemode="755" dir="${currentbuild}">
+    			<include name="${build}/jre/bin/java"/>
+    			<include name="${build}/jre/bin/javac"/>
+    			<include name="${build}/EpisimSimulatorStart.sh"/>
+    		</tarfileset>
+    		<tarfileset dir="${currentbuild}">
+    			<include name= "**/*"/>
+    		  	<exclude name="${build}/jre/bin/java"/>
+    		    <exclude name="${build}/jre/bin/javac"/>
+    		    <exclude name="${build}/EpisimSimulatorStart.sh"/>
+    			<exclude name="*.*"/>
+    		</tarfileset>
+    	</tar>
     	
     	<gzip destfile="${currentbuild}/${linuxTarGz}" src="${currentbuild}/${linuxTar}"/>
     </target>

@@ -1,5 +1,6 @@
 package sim.app.episim.datamonitoring.build;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -16,6 +17,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.gui.EpisimTextOut;
 import binloc.ProjectLocator;
 
 
@@ -144,8 +146,10 @@ public class ClassPathConfigFileReader {
    }
 	
 	public String getClasspathSeparatorChar(){
+		
 		if(System.getProperty("os.name").toLowerCase().contains("windows")) return ";";
 		if(System.getProperty("os.name").toLowerCase().contains("linux")) return ":";
+		
 		return ";";
 	}
 

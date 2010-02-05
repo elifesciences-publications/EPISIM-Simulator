@@ -25,18 +25,20 @@ public class TestCalculator {
 				
 				final int rotationInDegrees = 90;
 				
-				drawEllipse(g2D, 200, 200, 100, 50, 0);
-				drawEllipse(g2D, 200, 200, 100, 50, rotationInDegrees);
+				final int majorAxisA2 = 350;
 				
-				int[][] foci= calculateFoci(200, 200, 100, 50);
-				foci[0] = rotatePoint(foci[0], new int[]{200, 200}, rotationInDegrees);
-				foci[1] = rotatePoint(foci[1], new int[]{200, 200}, rotationInDegrees);
+				drawEllipse(g2D, 200, 200, 100, 50, 23);
+				drawEllipse(g2D, 220, 175, majorAxisA2, 50, rotationInDegrees);
+				
+				int[][] foci= calculateFoci(220, 175, majorAxisA2, 50);
+				foci[0] = rotatePoint(foci[0], new int[]{220, 175}, rotationInDegrees);
+				foci[1] = rotatePoint(foci[1], new int[]{220, 175}, rotationInDegrees);
 				
 				
-				double[] results = newtonIntersectionCalculation(200, 200, 50, 50, 25, foci[0], foci[1], Math.toRadians(0));
+				Double[] results = newtonIntersectionCalculation(200, 200, 50, majorAxisA2/2, 25, foci[0], foci[1], Math.toRadians(23));
 				
 				for(Double alpha : results){
-					double[] point = calculatePointOnEllipse(200, 200, 50, 25, alpha, Math.toRadians(0));
+					double[] point = calculatePointOnEllipse(200, 200, 50, 25, alpha, Math.toRadians(23));
 					drawPoint(g2D, ((int)point[0]), ((int)point[1]), 4, Color.GREEN);
 				}	
 				
@@ -145,7 +147,7 @@ public class TestCalculator {
 	}
 	
 	
-	private double[] newtonIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22, double phi){
+	private Double[] newtonIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22, double phi){
 		
 		
 		
@@ -220,17 +222,19 @@ public class TestCalculator {
 		double f_alpha_parttwo = 0;
 		double df_dalpha = 0;
 		double[] results = new double[4];
+		Set<Double> resultSet = new HashSet<Double>();
 		int numberResults = 0;
 		double border = 2* Math.PI;
 		double i = 0;
 		
 		
 		int counter = 0;
-		double stepsize = 0.5;
+		double stepsize = Math.PI/8d;
+		System.out.println("The stepsize: " +stepsize);
 		
-	   for(; i < border; i += stepsize){
+		while( i < border){
 			alpha = i;
-			do{
+		 	do{
 				counter++;
 				sin_alpha = Math.sin(alpha);
 				cos_alpha = Math.cos(alpha);
@@ -243,30 +247,83 @@ public class TestCalculator {
 				
 				f_alpha = f_alpha_partone + f_alpha_parttwo -2*a2;
 				
+			//	System.out.println("Mein alpha: " + f_alpha + "   anderes alpha:"+ alpha(x1, y1, a1, a2, b1, f21, f22, phi, alpha));
 				
-				if(Math.abs(f_alpha) >=  0.0000000000001){
-					df_dalpha = 0.5*(1/f_alpha_partone)*(-1*u12_v13*sin_alpha + u13_v12*cos_alpha + 2*u14_v14*cos_2alpha - 2*u15_v15*sin_2alpha)
-					          + 0.5*(1/f_alpha_parttwo)*(-1*u22_v23*sin_alpha + u23_v22*cos_alpha + 2*u24_v24*cos_2alpha - 2*u25_v25*cos_2alpha); 
+				
+				if(Math.abs(f_alpha) > 0.000000001){
+			 	df_dalpha = 0.5*(1/f_alpha_partone)*(-1*u12_v13*sin_alpha + u13_v12*cos_alpha + 2*u14_v14*cos_2alpha - 2*u15_v15*sin_2alpha)
+			 		           + 0.5*(1/f_alpha_parttwo)*(-1*u22_v23*sin_alpha + u23_v22*cos_alpha + 2*u24_v24*cos_2alpha - 2*u25_v25*sin_2alpha); 
 						
+					//System.out.println("Mein d_alpha: " + df_dalpha + "   anderes d_alpha:"+ d_alpha(x1, y1, a1, a2, b1, f21, f22, phi, alpha));	
 						
-						
-					alpha = alpha - (f_alpha / df_dalpha);
-					//alpha = alpha*Math.pow(Math.E, (-1*(f_alpha / df_dalpha)));
+					alpha = alpha - (f_alpha / d_alpha(x1, y1, a1, a2, b1, f21, f22, phi, alpha));
+					
+				//	alpha = alpha*Math.pow(Math.E, (-1*(f_alpha / df_dalpha)));
 					
 				}
 				else{
-					//results[numberResults++]= alpha;
-					if(firstCall) System.out.println("Added Result " + alpha + " Counter: " + counter + " alpha_start: " + i + " f_alpha: " + f_alpha);
+					if(!Double.isInfinite(alpha)){
+						double finalResult = (Math.round((alpha%(Math.PI*2))*10000000d)/10000000d);
+						resultSet.add(finalResult);
+						System.out.println("Added Result " + finalResult + " Counter: " + counter + " alpha_start: " + i + " f_alpha: " + f_alpha);
+					}
 				}
 				
-			}while(Math.abs(f_alpha) > 0.0000000000001 && counter <=50);
+		 }while(Math.abs(f_alpha) > 0.00000001 && counter <=30 && alpha >= 0);
 			
-			
+			i += stepsize;
 			counter=0;
 	   }
-	   firstCall = false;
-		return new double[]{2.0454777112652835, 8.32866301844487,4.2377075959143,5.187070364855076};
-	}	
+	
+	   System.out.println("Anzahl gefundene Ergebnisse: " + resultSet.size());
+		return resultSet.toArray(new Double[resultSet.size()]);
+	}
+	
+	
+	
+	private double alpha(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22, double phi, double alpha){
+	
+		double partOne = Math.pow((x1 - f21[0] + a1*Math.cos(phi)*Math.cos(alpha)-b1*Math.sin(phi)*Math.sin(alpha)), 2);
+		double partTwo = Math.pow((y1 - f21[1] + b1*Math.cos(phi)*Math.sin(alpha)+a1*Math.sin(phi)*Math.cos(alpha)), 2);
+		
+		double partThree = Math.pow((x1 - f22[0] + a1*Math.cos(phi)*Math.cos(alpha)-b1*Math.sin(phi)*Math.sin(alpha)), 2);
+		double partFour = Math.pow((y1 - f22[1] + b1*Math.cos(phi)*Math.sin(alpha)+a1*Math.sin(phi)*Math.cos(alpha)), 2);
+		
+		return (Math.sqrt(partOne+partTwo)+ Math.sqrt(partThree + partFour)-2*a2);
+	}
+	
+	private double d_alpha(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22, double phi, double alpha){
+	
+		double result1 = 
+			Math.cos(alpha)*((b1*Math.cos(phi)*(a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f21[1]+y1))/
+			(Math.sqrt((Math.pow((a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f21[0]+ x1),2)+
+			Math.pow((a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f21[1]+y1),2))))-
+			(b1*Math.sin(phi)*(a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f21[0]+x1))/
+			(Math.sqrt((Math.pow((a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f21[0]+x1),2)+
+					Math.pow((a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f21[1]+y1), 2)))))-
+					Math.sin(alpha)*((a1*Math.cos(phi)*(a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f21[0]+x1))/
+					(Math.sqrt((Math.pow((a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f21[0]+x1),2)+
+					Math.pow((a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f21[1]+y1),2))))+
+					(a1*Math.sin(phi)*(a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f21[1]+y1))/
+					(Math.sqrt((Math.pow((a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f21[0]+x1),2)+
+					Math.pow((a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f21[1]+y1),2)))));
+		
+		double result2 = 
+			Math.cos(alpha)*((b1*Math.cos(phi)*(a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f22[1]+y1))/
+			(Math.sqrt((Math.pow((a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f22[0]+ x1),2)+
+			Math.pow((a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f22[1]+y1),2))))-
+			(b1*Math.sin(phi)*(a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f22[0]+x1))/
+			(Math.sqrt((Math.pow((a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f22[0]+x1),2)+
+					Math.pow((a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f22[1]+y1), 2)))))-
+					Math.sin(alpha)*((a1*Math.cos(phi)*(a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f22[0]+x1))/
+					(Math.sqrt((Math.pow((a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f22[0]+x1),2)+
+					Math.pow((a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f22[1]+y1),2))))+
+					(a1*Math.sin(phi)*(a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f22[1]+y1))/
+					(Math.sqrt((Math.pow((a1*Math.cos(alpha)*Math.cos(phi)-b1*Math.sin(alpha)*Math.sin(phi)-f22[0]+x1),2)+
+					Math.pow((a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f22[1]+y1),2)))));
+		
+		return result1 + result2;
+	}
 	
 	private int[] rotatePoint(int[] point, int[] center, double angleInDegrees){
 		double angle = Math.toRadians(angleInDegrees);

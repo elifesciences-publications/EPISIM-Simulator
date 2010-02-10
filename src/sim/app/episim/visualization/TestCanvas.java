@@ -36,38 +36,38 @@ public class TestCanvas extends JPanel {
 	private Set<String> ellipseKeySet;
 	
 	private int nextId = 0;
-	private Random rand;
+	
 	public TestCanvas(){
 		ellipseKeySet = new HashSet<String>();
 		this.setBackground(Color.white);
 		
 		 
-		//CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 99, 290, RADIUS*5, RADIUS, Color.BLUE);
-		//cellEll.rotateCellEllipseInDegrees(10);
-		//this.drawCellEllipse(null,cellEll, true);
+		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 99, 290, RADIUS*5, RADIUS, Color.BLUE);
+		cellEll.rotateCellEllipseInDegrees(10);
+		this.drawCellEllipse(null,cellEll, true);
 		
-		//	cellEll = new CellEllipse(getNextCellEllipseId(), 129, 280, RADIUS*5, RADIUS, Color.BLUE);
-		// cellEll.rotateCellEllipseInDegrees(90);
-		//	this.drawCellEllipse(null,cellEll, true);
+			cellEll = new CellEllipse(getNextCellEllipseId(), 129, 280, RADIUS*5, RADIUS, Color.BLUE);
+		 cellEll.rotateCellEllipseInDegrees(90);
+			this.drawCellEllipse(null,cellEll, true);
 		
-		rand = new Random();
+		
 	}
 	
 	
 	
-	
+	/*
 	public void drawCellEllipse(int x, int y, Color c){
 		int radius1 = 0;
 		int radius2 = 0;
 		
-		while(radius1 < RADIUS) radius1 = rand.nextInt(2*RADIUS);
-		while(radius2 < RADIUS || radius2 > radius1) radius2 = rand.nextInt(2*RADIUS);
+		//while(radius1 < RADIUS) radius1 = rand.nextInt(2*RADIUS);
+		//while(radius2 < RADIUS || radius2 > radius1) radius2 = rand.nextInt(2*RADIUS);
 		
-		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), x, y, radius1, radius2, c);
-		cellEll.rotateCellEllipseInDegrees(rand.nextInt(180));
+		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), x, y, 2*RADIUS, RADIUS, c);
+		//cellEll.rotateCellEllipseInDegrees(rand.nextInt(180));
 		drawCellEllipse(null,cellEll, true);
 		
-	}
+	}*/
 	
 	public void addImportedCells(List<CellEllipse> importedCells){
 		this.cellEllipses.clear();
@@ -180,8 +180,8 @@ public class TestCanvas extends JPanel {
 								this.ellipseKeySet.add(otherEll.getId()+","+actEll.getId());
 								
 								
-								XYPoints xyPoints = EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(actEll, otherEll);
-								//if(xyPoints != null) drawSquares(g, xyPoints);
+								XYPoints xyPoints = EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(g ,actEll, otherEll);
+								if(xyPoints != null) drawSquares(g, xyPoints);
 							}
 							//maxiumum of two intersection points for cells in later simulation
 							
@@ -208,16 +208,16 @@ public class TestCanvas extends JPanel {
 	private void drawSquares(Graphics2D g, XYPoints xyPoints){
 				
 		//System.out.println(newVector[0]+","+newVector[1]);
-		g.drawLine(xyPoints.xPointsEllipse1[0], xyPoints.yPointsEllipse1[0], xyPoints.xPointsEllipse1[1], xyPoints.yPointsEllipse1[1]);
-		g.drawLine(xyPoints.xPointsEllipse1[1], xyPoints.yPointsEllipse1[1], xyPoints.xPointsEllipse1[2], xyPoints.yPointsEllipse1[2]);
-		g.drawLine(xyPoints.xPointsEllipse1[2], xyPoints.yPointsEllipse1[2], xyPoints.xPointsEllipse1[3], xyPoints.yPointsEllipse1[3]);
-		g.drawLine(xyPoints.xPointsEllipse1[3], xyPoints.yPointsEllipse1[3], xyPoints.xPointsEllipse1[0], xyPoints.yPointsEllipse1[0]);
-		
-		g.drawLine(xyPoints.xPointsEllipse2[0], xyPoints.yPointsEllipse2[0], xyPoints.xPointsEllipse2[1], xyPoints.yPointsEllipse2[1]);
-		g.drawLine(xyPoints.xPointsEllipse2[1], xyPoints.yPointsEllipse2[1], xyPoints.xPointsEllipse2[2], xyPoints.yPointsEllipse2[2]);
-		g.drawLine(xyPoints.xPointsEllipse2[2], xyPoints.yPointsEllipse2[2], xyPoints.xPointsEllipse2[3], xyPoints.yPointsEllipse2[3]);
-		g.drawLine(xyPoints.xPointsEllipse2[3], xyPoints.yPointsEllipse2[3], xyPoints.xPointsEllipse2[0], xyPoints.yPointsEllipse2[0]);
-		
+		g.drawLine(xyPoints.xPointsQuaderEllipse1[0], xyPoints.yPointsQuaderEllipse1[0], xyPoints.xPointsQuaderEllipse1[1], xyPoints.yPointsQuaderEllipse1[1]);
+		g.drawLine(xyPoints.xPointsQuaderEllipse1[1], xyPoints.yPointsQuaderEllipse1[1], xyPoints.xPointsQuaderEllipse1[2], xyPoints.yPointsQuaderEllipse1[2]);
+		g.drawLine(xyPoints.xPointsQuaderEllipse1[2], xyPoints.yPointsQuaderEllipse1[2], xyPoints.xPointsQuaderEllipse1[3], xyPoints.yPointsQuaderEllipse1[3]);
+		g.drawLine(xyPoints.xPointsQuaderEllipse1[3], xyPoints.yPointsQuaderEllipse1[3], xyPoints.xPointsQuaderEllipse1[0], xyPoints.yPointsQuaderEllipse1[0]);
+	/*	
+		g.drawLine(xyPoints.xPointsQuaderEllipse2[0], xyPoints.yPointsQuaderEllipse2[0], xyPoints.xPointsQuaderEllipse2[1], xyPoints.yPointsQuaderEllipse2[1]);
+		g.drawLine(xyPoints.xPointsQuaderEllipse2[1], xyPoints.yPointsQuaderEllipse2[1], xyPoints.xPointsQuaderEllipse2[2], xyPoints.yPointsQuaderEllipse2[2]);
+		g.drawLine(xyPoints.xPointsQuaderEllipse2[2], xyPoints.yPointsQuaderEllipse2[2], xyPoints.xPointsQuaderEllipse2[3], xyPoints.yPointsQuaderEllipse2[3]);
+		g.drawLine(xyPoints.xPointsQuaderEllipse2[3], xyPoints.yPointsQuaderEllipse2[3], xyPoints.xPointsQuaderEllipse2[0], xyPoints.yPointsQuaderEllipse2[0]);
+		*/
 	}
 	
 	

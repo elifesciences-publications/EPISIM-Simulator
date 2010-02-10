@@ -6,11 +6,12 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.io.Serializable;
 
 import sim.portrayal.DrawInfo2D;
 
 
-public class CellEllipse {
+public class CellEllipse  implements Serializable{
 	
 		
 		
@@ -138,7 +139,7 @@ public class CellEllipse {
 	      	ellipseAsArea = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
 	      }	
 	      	
-	      	this.rotateCellEllipseInRadians(this.orientationInRadians);
+	     this.rotateCellEllipseInRadians(this.orientationInRadians);
 	      	resetClippedEllipse();
 	      
       }
@@ -161,7 +162,7 @@ public class CellEllipse {
 		}
 		
 		public void rotateCellEllipseInRadians(double radians){
-			this.orientationInRadians = (orientationInRadians+radians)%(2*Math.PI);
+			this.orientationInRadians = radians%(2*Math.PI);
 			AffineTransform trans = new AffineTransform();
 			trans.rotate(radians, x, y);
 			ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));

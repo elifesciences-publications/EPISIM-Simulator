@@ -114,8 +114,9 @@ public class TestVisualizationMain {
 		canvas.addMouseListener(new MouseAdapter(){
 			
 			 public void mouseClicked(MouseEvent e){
-				if(e.getButton() == MouseEvent.BUTTON1)canvas.drawCellEllipse(e.getX(), e.getY(), Color.BLUE);
-				else if(e.getButton() == MouseEvent.BUTTON3){
+				//if(e.getButton() == MouseEvent.BUTTON1)canvas.drawCellEllipse(e.getX(), e.getY(), Color.BLUE);
+				//else 
+				 if(e.getButton() == MouseEvent.BUTTON3){
 					CellEllipse cell = canvas.pickCellEllipse(e.getX(), e.getY());
 					if(cell != null){
 						JOptionPane.showMessageDialog(mainFrame, "The RGB value of the selected Cell is: ("+ cell.getColor().getRed()+ ", " + cell.getColor().getGreen() + ", " + cell.getColor().getBlue()+")", "Cell-Info", JOptionPane.INFORMATION_MESSAGE);

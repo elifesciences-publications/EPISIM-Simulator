@@ -23,25 +23,39 @@ public class TestCalculator {
 			  super.paint(g);
 				Graphics2D g2D = (Graphics2D) g;
 				
-				final int rotationInDegrees = 90;
+				final int rotationInDegrees = 73;
 				
-				final int majorAxisA2 = 350;
+				final double majorAxisA2 = 1050;
+				final double minorAxisB2 = 20;
 				
-				drawEllipse(g2D, 200, 200, 100, 50, 23);
-				drawEllipse(g2D, 220, 175, majorAxisA2, 50, rotationInDegrees);
+				drawEllipse(g2D, 200, 200, 100, 50, 20);
+				drawEllipse(g2D, 220, 175, majorAxisA2, minorAxisB2, rotationInDegrees);
 				
-				int[][] foci= calculateFoci(220, 175, majorAxisA2, 50);
-				foci[0] = rotatePoint(foci[0], new int[]{220, 175}, rotationInDegrees);
-				foci[1] = rotatePoint(foci[1], new int[]{220, 175}, rotationInDegrees);
+			/*	
+				Set<EllipsePoint> ell1 = calculateEllipse(200d,200d, 50d, 25d);
+				Set<EllipsePoint> ell2 = calculateEllipse(220d,175d, majorAxisA2/2, minorAxisB2/2);
+				 ell1.retainAll(ell2);
+				 
+				 */
 				
 				
-				Double[] results = newtonIntersectionCalculation(200, 200, 50, majorAxisA2/2, 25, foci[0], foci[1], Math.toRadians(23));
+				double[][] foci= calculateFoci(220d, 175d, majorAxisA2, minorAxisB2, Math.toRadians(rotationInDegrees));
+				
+				
+				
+				Double[] results = newtonIntersectionCalculation(200d, 200d, 50d, majorAxisA2/2, 25d, foci[0], foci[1], Math.toRadians(20));
 				
 				for(Double alpha : results){
-					double[] point = calculatePointOnEllipse(200, 200, 50, 25, alpha, Math.toRadians(23));
+					double[] point = calculatePointOnEllipse(200d, 200d, 50d, 25d, alpha, Math.toRadians(20));
+					
 					drawPoint(g2D, ((int)point[0]), ((int)point[1]), 4, Color.GREEN);
 				}	
-				
+				/*for(EllipsePoint p: ell1){
+					System.out.println("x: "+p.x+ "  y:"+p.y+"  alpha: " + p.alpha
+							
+					+ "  f_alpha: "+ f_alpha_NotOriented(200d, 200d, 50d, majorAxisA2/2, 25d, foci[0], foci[1], p.alpha));
+					//drawPoint(g2D, p.x, p.y, 4, Color.GREEN);
+				}*/
 			
 				
 				//drawEllipseCustom(g2D, 200, 200, 50, 25, 20);
@@ -65,20 +79,113 @@ public class TestCalculator {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
-	private int[][] calculateFoci(int x, int y, int majorAxis, int minorAxis){
-				
-		int[][] result = new int[2][2];
-		int distance = (int)Math.sqrt(Math.pow(majorAxis/2, 2) - Math.pow(minorAxis/2, 2));
-			result[0] = new int[]{x - distance, y};
-			result[1] = new int[]{x + distance, y};
-		return result;
+	
+	
+	private class EllipsePoint{
+		
+		public int x;
+		public int y;
+		public double alpha;
+		
+		@Override
+      public int hashCode() {
+
+	      final int prime = 31;
+	      int result = 1;
+	      result = prime * result + getOuterType().hashCode();
+	      result = prime * result + x;
+	      result = prime * result + y;
+	      return result;
+      }
+
+		@Override
+      public boolean equals(Object obj) {
+
+	      if(this == obj)
+		      return true;
+	      if(obj == null)
+		      return false;
+	      if(getClass() != obj.getClass())
+		      return false;
+	      EllipsePoint other = (EllipsePoint) obj;
+	      if(!getOuterType().equals(other.getOuterType()))
+		      return false;
+	      if(x != other.x)
+		      return false;
+	      if(y != other.y)
+		      return false;
+	      return true;
+      }
+
+		private TestCalculator getOuterType() {
+
+	      return TestCalculator.this;
+      }
+		
+	}
+	
+	private Set<EllipsePoint> calculateEllipse(double x1, double y1, double majorAxis, double minorAxis){
+		double sin, cos;
+		
+		HashSet<EllipsePoint> points = new HashSet<EllipsePoint>();
+		int x, y;
+		EllipsePoint ellP;
+		for (double i = 0; i < 2*Math.PI; i+=0.01){
+			sin = Math.sin(i);
+			cos = Math.cos(i);
+			ellP = new EllipsePoint();
+			
+			ellP.x = (int)(x1 + majorAxis*cos);
+			ellP.y = (int)(y1 + minorAxis*sin);
+			ellP.alpha = i;
+			points.add(ellP);
+			
+		}
+		return points;
+		
 	}
 	
 	
 	
+	private double[][] calculateFoci(double x, double y, double majorAxis, double minorAxis, double angleInRadians){				
+		double[][] result = new double[2][2];
+		double distance = Math.sqrt(Math.pow(majorAxis/2, 2) - Math.pow(minorAxis/2, 2));
+			result[0] = new double[]{x - distance, y};
+			result[1] = new double[]{x + distance, y};
+			result [0] = rotatePoint(result[0], new double[]{x, y}, angleInRadians);
+			result [1] = rotatePoint(result[1], new double[]{x, y}, angleInRadians);
+		return result;
+	}
+	
+	private double[] rotatePoint(double[] point, double[] center, double angleInRadians){		
+	   double sin = Math.sin(angleInRadians);
+	   double cos = Math.cos(angleInRadians);
+	   double x = point[0] - center[0];
+	   double y = point[1] - center[1];
+	   double[][] rm = new double[][]{{cos, -1*sin},{sin, cos}};
+	  return new double[]{(x *rm[0][0] + y *rm[0][1])+center[0], (x *rm[1][0] + y *rm[1][1])+center[1]};	   
+	}
 	
 	
-	private double[] newtonIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22){
+	private double df_alpha_NotOriented(double x1, double y1, double a1, double a2, double b1, double[] f21, double[] f22, double alpha){
+		double result1 = ((2*b1*Math.cos(alpha)*(b1*Math.sin(alpha)-f21[1]+y1)-2*a1*Math.sin(alpha)*(a1*Math.cos(alpha)-f21[0]+x1))/
+		                   (2*Math.sqrt(Math.pow((a1*Math.cos(alpha)-f21[0]+x1),2) + Math.pow((b1*Math.sin(alpha)-f21[1]+y1), 2))));
+		double result2 = ((2*b1*Math.cos(alpha)*(b1*Math.sin(alpha)-f22[1]+y1)-2*a1*Math.sin(alpha)*(a1*Math.cos(alpha)-f22[0]+x1))/
+      (2*Math.sqrt(Math.pow((a1*Math.cos(alpha)-f22[0]+x1),2) + Math.pow((b1*Math.sin(alpha)-f22[1]+y1), 2))));
+		
+		return (result1+result2);
+		
+	}
+	
+	private double f_alpha_NotOriented(double x1, double y1, double a1, double a2, double b1, double[] f21, double[] f22, double alpha){
+		double result1 = Math.sqrt(Math.pow((a1*Math.cos(alpha)-f21[0]+x1),2) + Math.pow((b1*Math.sin(alpha)-f21[1]+y1), 2));
+		double result2 = Math.sqrt(Math.pow((a1*Math.cos(alpha)-f22[0]+x1),2) + Math.pow((b1*Math.sin(alpha)-f22[1]+y1), 2));
+		
+		return (result1+result2 -2*a2);
+		
+	}
+	
+	private Double[] newtonIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, double[] f21, double[] f22){
 		double u1_x = Math.pow(x1, 2) + Math.pow(f21[0], 2) - 2*f21[0]*x1;
 		double v1_x = 2*x1*a1-2*f21[0]*a1;
 		
@@ -109,11 +216,12 @@ public class TestCalculator {
 		double result2 = 0;
 		
 		double alpha =0;
-		double[] results = new double[4];
+		Set<Double> resultSet = new HashSet<Double>();
 		int numberResults = 0;
+		int counter = 0;
 		double border = 2* Math.PI;
-		double i = (Math.PI/2);
-	   for(; i < border; i += Math.PI){
+		double i = 0;
+	   for(; i < border; i += Math.PI/8){
 			alpha = i;
 			do{
 				sin = Math.sin(alpha);
@@ -129,29 +237,32 @@ public class TestCalculator {
 				
 				result1 = (first_sqroot + second_sqroot - 2*a2);	
 				
-				if( result1 !=  0){
+				if( Math.abs(result1) >  0.0000001){
 					result2 = 0.5*(1 / first_sqroot)*(-1*v1_x*sin-a1_square*sin_2alpha+v1_y*cos+b1_square*sin_2alpha)
 					                 + 0.5*(1 / second_sqroot)*(-1*v2_x*sin-a1_square*sin_2alpha+v2_y*cos+b1_square*sin_2alpha);
+					//System.out.println("My deriviation: " + result2 + "  Other deriviation: " + df_alpha_NotOriented(x1, y1, a1, a2, b1, f21, f22, alpha));
+					//System.out.println("My f_alpha: " + result1 + "  Other f_alpha: " + f_alpha_NotOriented(x1, y1, a1, a2, b1, f21, f22, alpha));
 					
 					alpha = alpha - (result1 / result2);
+					
 				}
 				else{
-					results[numberResults++]= alpha;
-					//System.out.println("Added Result " + alpha);
+					double finalResult = (Math.round((alpha%(Math.PI*2))*10000000d)/10000000d);
+					if(!resultSet.contains(finalResult)) System.out.println("Added Result " + finalResult +"  f_alpha: "+ result1);
+					resultSet.add(finalResult);
+					
 				}
-				
-			}while(Math.abs(result1) > 0);
-			
+				counter++;
+			}while(Math.abs(result1) > 0.0000001 && counter < 30 && result1>=0);
+			counter = 0;
 		}
-		return results;
+		return resultSet.toArray(new Double[resultSet.size()]);
 	}
 	
 	
-	private Double[] newtonIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22, double phi){
-		
-		
-		
-		
+	
+	private Double[] newtonIntersectionCalculation(double x1, double y1, double a1, double a2, double b1, double[] f21, double[] f22, double phi){
+			
 		double x1_square = Math.pow(x1, 2);
 		double y1_square = Math.pow(y1, 2);
 		double a1_square = Math.pow(a1, 2);
@@ -229,7 +340,7 @@ public class TestCalculator {
 		
 		
 		int counter = 0;
-		double stepsize = Math.PI/8d;
+		double stepsize = Math.PI/8;
 		System.out.println("The stepsize: " +stepsize);
 		
 		while( i < border){
@@ -247,14 +358,14 @@ public class TestCalculator {
 				
 				f_alpha = f_alpha_partone + f_alpha_parttwo -2*a2;
 				
-			//	System.out.println("Mein alpha: " + f_alpha + "   anderes alpha:"+ alpha(x1, y1, a1, a2, b1, f21, f22, phi, alpha));
+	
 				
 				
-				if(Math.abs(f_alpha) > 0.000000001){
-			 	df_dalpha = 0.5*(1/f_alpha_partone)*(-1*u12_v13*sin_alpha + u13_v12*cos_alpha + 2*u14_v14*cos_2alpha - 2*u15_v15*sin_2alpha)
+				if(Math.abs(f_alpha) > 0.00000000001){
+					df_dalpha = 0.5*(1/f_alpha_partone)*(-1*u12_v13*sin_alpha + u13_v12*cos_alpha + 2*u14_v14*cos_2alpha - 2*u15_v15*sin_2alpha)
 			 		           + 0.5*(1/f_alpha_parttwo)*(-1*u22_v23*sin_alpha + u23_v22*cos_alpha + 2*u24_v24*cos_2alpha - 2*u25_v25*sin_2alpha); 
 						
-					//System.out.println("Mein d_alpha: " + df_dalpha + "   anderes d_alpha:"+ d_alpha(x1, y1, a1, a2, b1, f21, f22, phi, alpha));	
+					
 						
 					alpha = alpha - (f_alpha / d_alpha(x1, y1, a1, a2, b1, f21, f22, phi, alpha));
 					
@@ -269,7 +380,7 @@ public class TestCalculator {
 					}
 				}
 				
-		 }while(Math.abs(f_alpha) > 0.00000001 && counter <=30 && alpha >= 0);
+		 }while(Math.abs(f_alpha) > 0.00000000001 && counter <=25 && alpha >= 0);
 			
 			i += stepsize;
 			counter=0;
@@ -281,7 +392,7 @@ public class TestCalculator {
 	
 	
 	
-	private double alpha(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22, double phi, double alpha){
+	private double alpha(double x1, double y1, double a1, double a2, double b1, double[] f21, double[] f22, double phi, double alpha){
 	
 		double partOne = Math.pow((x1 - f21[0] + a1*Math.cos(phi)*Math.cos(alpha)-b1*Math.sin(phi)*Math.sin(alpha)), 2);
 		double partTwo = Math.pow((y1 - f21[1] + b1*Math.cos(phi)*Math.sin(alpha)+a1*Math.sin(phi)*Math.cos(alpha)), 2);
@@ -292,7 +403,7 @@ public class TestCalculator {
 		return (Math.sqrt(partOne+partTwo)+ Math.sqrt(partThree + partFour)-2*a2);
 	}
 	
-	private double d_alpha(double x1, double y1, double a1, double a2, double b1, int[] f21, int[] f22, double phi, double alpha){
+	private double d_alpha(double x1, double y1, double a1, double a2, double b1, double[] f21, double[] f22, double phi, double alpha){
 	
 		double result1 = 
 			Math.cos(alpha)*((b1*Math.cos(phi)*(a1*Math.cos(alpha)*Math.sin(phi)+b1*Math.sin(alpha)*Math.cos(phi)-f21[1]+y1))/
@@ -325,32 +436,23 @@ public class TestCalculator {
 		return result1 + result2;
 	}
 	
-	private int[] rotatePoint(int[] point, int[] center, double angleInDegrees){
-		double angle = Math.toRadians(angleInDegrees);
-	   double sin = Math.sin(angle);
-	   double cos = Math.cos(angle);
-	   int x = point[0] - center[0];
-	   int y = point[1] - center[1];
-	   double[][] rm = new double[][]{{cos, -1*sin},{sin, cos}};
-	  return new int[]{(int)(x *rm[0][0] + y *rm[0][1])+center[0], (int)(x *rm[1][0] + y *rm[1][1])+center[1]};
-	   
-	}
 	
-	private void drawPoint(Graphics2D g, int x, int y, int size, Color c){
+	
+	private void drawPoint(Graphics2D g, double x, double y, double size, Color c){
 		if(x> 0 || y > 0){
 			if(size % 2 != 0) size -= 1;
 			Color oldColor = g.getColor();
 			g.setColor(c);
-			g.fillRect(x-(size/2), y-(size/2), size+1, size+1);
+			g.fillRect((int)(x-(size/2)), (int)(y-(size/2)), (int)(size+1), (int)(size+1));
 			g.setColor(oldColor);
 		}
 	}
 	
-	private void drawEllipse(Graphics2D g2D, int x, int y, int majorAxis , int minorAxis, int angleInDegrees){
-	   int[] s1 = rotatePoint(new int[]{(x + majorAxis/2),y}, new int[]{x, y}, angleInDegrees);
-	   int[] s2 = rotatePoint(new int[]{(x - majorAxis/2),y}, new int[]{x, y}, angleInDegrees);
-	   int[] s3 = rotatePoint(new int[]{x, (y - minorAxis/2)}, new int[]{x, y}, angleInDegrees);
-	   int[] s4 = rotatePoint(new int[]{x, (y + minorAxis/2)}, new int[]{x, y}, angleInDegrees);
+	private void drawEllipse(Graphics2D g2D, double x, double y, double majorAxis , double minorAxis, double angleInDegrees){
+		double[] s1 = rotatePoint(new double[]{(x + majorAxis/2),y}, new double[]{x, y}, Math.toRadians(angleInDegrees));
+		double[] s2 = rotatePoint(new double[]{(x - majorAxis/2),y}, new double[]{x, y}, Math.toRadians(angleInDegrees));
+		double[] s3 = rotatePoint(new double[]{x, (y - minorAxis/2)}, new double[]{x, y}, Math.toRadians(angleInDegrees));
+		double[] s4 = rotatePoint(new double[]{x, (y + minorAxis/2)}, new double[]{x, y}, Math.toRadians(angleInDegrees));
 	      
 	  	
 		Ellipse2D ell = new Ellipse2D.Double(x-majorAxis/2, y-minorAxis/2, majorAxis, minorAxis);
@@ -359,13 +461,13 @@ public class TestCalculator {
 		g2D.setPaint(Color.blue);
 		g2D.draw(trans.createTransformedShape(ell));
 		
-		g2D.drawLine(s2[0], s2[1], s1[0], s1[1]);
-		g2D.drawLine(s3[0], s3[1], s4[0], s4[1]);
-		int[][] result =calculateFoci(x, y, majorAxis, minorAxis);
-		int[][] rotatedResult = new int[][]{rotatePoint(result[0], new int[]{x,y}, angleInDegrees), rotatePoint(result[1], new int[]{x,y}, angleInDegrees)};
+		g2D.drawLine((int)s2[0], (int)s2[1], (int)s1[0], (int)s1[1]);
+		g2D.drawLine((int)s3[0], (int)s3[1], (int)s4[0], (int)s4[1]);
+		double[][] result =calculateFoci(x, y, majorAxis, minorAxis, Math.toRadians(angleInDegrees));
 		
-		drawPoint(g2D, rotatedResult[0][0], rotatedResult[0][1], 5, Color.RED);
-		drawPoint(g2D, rotatedResult[1][0], rotatedResult[1][1], 5, Color.RED);
+		
+		drawPoint(g2D, result[0][0], result[0][1], 5, Color.RED);
+		drawPoint(g2D, result[1][0], result[1][1], 5, Color.RED);
 		
 	}
 	
@@ -380,7 +482,7 @@ public class TestCalculator {
 		
 		return new double[]{point_x, point_y};
 	}
-	
+	/*
 	private void drawEllipseCustom(Graphics2D g, int x1, int y1, int a , int b, int angleInDegrees){
 		double sin, cos;
 		
@@ -398,6 +500,8 @@ public class TestCalculator {
 		
 		
 	}
+	*/
+	
 	
 	
 	public static void main(String[] args){

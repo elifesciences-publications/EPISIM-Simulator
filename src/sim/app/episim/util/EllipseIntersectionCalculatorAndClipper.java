@@ -3,7 +3,6 @@ package sim.app.episim.util;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
 import java.util.ArrayList;
@@ -23,6 +22,9 @@ public class EllipseIntersectionCalculatorAndClipper {
 	private static long noOfCalls =0;
 	private static double cumulativeTimeInMillis;
 	private static long noOfSwaps = 0;
+	
+	private static int noOfRuns = 0;
+	private static int maxNoOfRuns = 0;
 	
 	public static class XYPoints{
 		
@@ -79,13 +81,15 @@ public class EllipseIntersectionCalculatorAndClipper {
 		return instance.calculateClippedEllipses(g, actEllipse, otherEllipse);
 	}
 	
-	private XYPoints calculateClippedEllipses(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){		
+	private XYPoints calculateClippedEllipses(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
+		double distanceEllipses =distance(actEllipse.getX(), actEllipse.getY(), otherEllipse.getX(), otherEllipse.getY());
+		//System.out.println("Ellipsen Distanz: "+ distanceEllipses);
+		if(distanceEllipses > 0 && distanceEllipses < ((actEllipse.getMajorAxis()/2)+(otherEllipse.getMajorAxis()/2))){
 		double [][] intersectionPoints = newtonIntersectionCalculation(actEllipse, otherEllipse);
-			if(distance(actEllipse.getX(), actEllipse.getY(), otherEllipse.getX(), otherEllipse.getY()) <
-					Math.sqrt(Math.pow((actEllipse.getMajorAxis()/2), 2)+Math.pow((otherEllipse.getMajorAxis()/2), 2))){
+			
 			if(intersectionPoints != null){
 				if(g!= null){
-					for(int i = 0; i < 4; i++){
+					for(int i = 0; i < intersectionPoints.length; i++){
 						drawPoint(g, intersectionPoints[i][0],intersectionPoints[i][1], 5, Color.GREEN);
 					}
 				}
@@ -213,20 +217,25 @@ public class EllipseIntersectionCalculatorAndClipper {
 				}
 				else{
 					if(!Double.isInfinite(alpha)){
+						//noOfCalls++;
+					//	noOfRuns += counter;
+					//	if(counter > maxNoOfRuns) maxNoOfRuns = counter;
+				//		if((noOfCalls % 100000) ==0) System.out.println("Durchschn. Berechnungsschritte(No. of Calls "+noOfCalls+"): " + (noOfRuns/noOfCalls)+ "   Max No. Schritte: "+ maxNoOfRuns);
 						double finalResult = (Math.round((alpha%(Math.PI*2))*100d)/100d);
 						resultSet.add(finalResult);
-						System.out.println("Added Result " + finalResult + " Counter: " + counter + " alpha_start: " + i + " f_alpha: " + f_alpha);
+			//	if(counter > 6)System.out.println("Added Result " + finalResult + " Counter: " + counter + " alpha_start: " + i + " f_alpha: " + f_alpha);
 					}
 				}
 				
-		 }while(Math.abs(f_alpha) > 0.00000000001 && counter <=20 && alpha >= 0);
+		 }while(Math.abs(f_alpha) > 0.00000000001 && counter <=6 && alpha >= 0);
 			
 			i += stepsize;
 			counter=0;
 	   }
 	
-	System.out.println("Anzahl gefundene Ergebnisse: " + resultSet.size());
-	   double [][] intersectionPoints = new double[resultSet.size()][2];
+	
+	   double [][] intersectionPoints = new double[4][2]; 
+	   if(resultSet.size() > 4) intersectionPoints= new double[resultSet.size()][2];
 	   int index = 0;
 	   for(double angle : resultSet){
 	   	intersectionPoints[index++] = calculatePointOnEllipse(x1, y1, a1, b1,angle, phi);

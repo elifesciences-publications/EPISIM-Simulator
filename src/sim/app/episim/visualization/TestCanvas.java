@@ -25,7 +25,7 @@ import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
 
 public class TestCanvas extends JPanel {
 	
-	private final int RADIUS = 45;
+	private final int RADIUS = 30;
 	
 	private ArrayList<CellEllipse>  cellEllipses = new ArrayList<CellEllipse>();
 	
@@ -42,11 +42,11 @@ public class TestCanvas extends JPanel {
 		this.setBackground(Color.white);
 		
 		 
-		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 99, 290, RADIUS*5, RADIUS, Color.BLUE);
-		cellEll.rotateCellEllipseInDegrees(10);
+		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290, 3*RADIUS, RADIUS, Color.BLUE);
+		cellEll.rotateCellEllipseInDegrees(0);
 		this.drawCellEllipse(null,cellEll, true);
 		
-			cellEll = new CellEllipse(getNextCellEllipseId(), 129, 280, RADIUS*5, RADIUS, Color.BLUE);
+			cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290,  3*RADIUS, RADIUS, Color.BLUE);
 		 cellEll.rotateCellEllipseInDegrees(90);
 			this.drawCellEllipse(null,cellEll, true);
 		

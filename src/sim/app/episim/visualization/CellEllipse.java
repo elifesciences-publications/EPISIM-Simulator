@@ -29,6 +29,9 @@ public class CellEllipse  implements Serializable{
 		private double solidity;
 		private double distanceToBL;
 		private double orientationInRadians;
+		private double scaleFactorWidth = 1;
+		private double scaleFactorHeight = 1;
+		
 			
 		private Color color;
 		
@@ -86,10 +89,10 @@ public class CellEllipse  implements Serializable{
       
      
 		
-      public int getMajorAxis() { 
+      public double getMajorAxis() { 
       	
       	 if(lastDrawInfo2D != null){
- 	      	return (int)(majorAxis * lastDrawInfo2D.draw.width);
+ 	      	return (majorAxis * scaleFactorWidth);
  	      }
  	      else return majorAxis;  	
       }
@@ -97,6 +100,7 @@ public class CellEllipse  implements Serializable{
       public void setMajorAxis(int majorAxis) {     
       	this.majorAxis = majorAxis;
       	resetEllipseAsArea();
+      	testMajorMinorAxisSwap();
       }
 		
       public void setXY(int x, int y){
@@ -110,11 +114,12 @@ public class CellEllipse  implements Serializable{
       	this.majorAxis = majorAxis;
       	this.minorAxis = minorAxis;
       	resetEllipseAsArea();
+      	testMajorMinorAxisSwap();
       }
       
-      public int getMinorAxis() { 
+      public double getMinorAxis() { 
 	      if(lastDrawInfo2D != null){
-	      	return (int)(minorAxis * lastDrawInfo2D.draw.height);
+	      	return (minorAxis * scaleFactorHeight);
 	      }
 	      else return minorAxis; 
       	
@@ -126,13 +131,14 @@ public class CellEllipse  implements Serializable{
       	
       	this.minorAxis = minorAxis;
       	resetEllipseAsArea();
+      	testMajorMinorAxisSwap();
       }
       
       private void resetEllipseAsArea(){
       	if(lastDrawInfo2D != null){
-      		double majorAxisScaled = majorAxis * lastDrawInfo2D.draw.width;
-      		double minorAxisScaled = minorAxis * lastDrawInfo2D.draw.height;
-      		ellipseAsArea = new Area(new Ellipse2D.Double(lastDrawInfo2D.draw.x- (majorAxisScaled/2),lastDrawInfo2D.draw.y-(minorAxisScaled/2),majorAxisScaled,minorAxisScaled));
+      		
+      		
+      		ellipseAsArea = new Area(new Ellipse2D.Double(lastDrawInfo2D.draw.x- (getMajorAxis()/2),lastDrawInfo2D.draw.y-(getMinorAxis()/2),getMajorAxis(),getMinorAxis()));
       	}
 	      else{
 	      	      	
@@ -212,7 +218,13 @@ public class CellEllipse  implements Serializable{
       public void setLastDrawInfo2D(DrawInfo2D lastDrawInfo2D, boolean resetRequired){
       	if(lastDrawInfo2D != null){
       		this.lastDrawInfo2D = lastDrawInfo2D;
-      		if(resetRequired) resetEllipseAsArea();
+      		this.scaleFactorHeight = lastDrawInfo2D.draw.height;
+      		this.scaleFactorWidth = lastDrawInfo2D.draw.width;
+      		testMajorMinorAxisSwap();
+      		if(resetRequired){ 
+      			resetEllipseAsArea();
+      			
+      		}
       	}
       }
       
@@ -225,10 +237,25 @@ public class CellEllipse  implements Serializable{
    			if(this.clippedEllipse != null) this.clippedEllipse = new Area(trans.createTransformedShape(clippedEllipse));
       		
       		this.lastDrawInfo2D = newLastDrawInfo2D;
+      		this.scaleFactorHeight = lastDrawInfo2D.draw.height;
+      		this.scaleFactorWidth = lastDrawInfo2D.draw.width;
+      		testMajorMinorAxisSwap();
       		
       	}
       }
       
+      private void testMajorMinorAxisSwap(){
+      	if(getMinorAxis() > getMajorAxis()) {
+      		int tmp = minorAxis;
+      		minorAxis = majorAxis;
+      		majorAxis = tmp;
+      		
+      		double t = 	scaleFactorHeight;
+      		this.scaleFactorHeight = scaleFactorWidth;
+      		scaleFactorWidth = t;
+      		
+      	}
+      }
       
       //-------------------------------------------------------------------------------------------------------
       // Nested Class Nucleus

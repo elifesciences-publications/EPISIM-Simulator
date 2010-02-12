@@ -51,6 +51,7 @@ public class KCyte extends CellType
    
    public static final int GOPTIMALKERATINODISTANCE=4; // Default: 4
    public static final int GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
+   //The width of the keratinocyte must be bigger or equals the hight
    public static final int GINITIALKERATINOHEIGHT=5; // Default: 5
    public static final int GINITIALKERATINOWIDTH=5; // Default: 5
    

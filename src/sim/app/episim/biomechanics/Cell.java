@@ -1,21 +1,25 @@
 package sim.app.episim.biomechanics;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-
-import sim.app.episim.biomechanics.VertexChangeEvent.VertexChangeEventType;
-
 
 public class Cell implements VertexChangeListener{
 	
  private static int nextId = 1;
  private final int id;
+ private int x = 0;
+ private int y = 0;
 	
 private ArrayList<Vertex> vertices;
 
-public Cell(){
+public Cell(int x, int y){
 	id = nextId++;
 	vertices = new ArrayList<Vertex>();
+	this.x = x;
+	this.y = y;
+}
+
+public Cell(){
+	this(0, 0);
 }
 
 public void addVertex(Vertex v){
@@ -39,7 +43,17 @@ public int hashCode() {
 	return result;
 }
 
+public Vertex[] getVertices(){ return vertices.toArray(new Vertex[vertices.size()]); }
 
+public void sortVertices(){
+	GrahamScan scan = new GrahamScan();
+	Vertex[] v =  vertices.toArray(new Vertex[vertices.size()]);
+	int h = scan.computeHull(v);
+	vertices.clear();
+	for(Vertex ver : v) vertices.add(ver);	
+	
+	//System.out.println("No of vertices: " + v.length + "    No of Hull Points: " + h);
+}
 
 public void handleVertexChangeEvent(VertexChangeEvent event) {
 
@@ -62,7 +76,9 @@ public boolean equals(Object obj) {
 	return true;
 }
 
-
-	
+public int getX() { return x; }
+public void setX(int x) { this.x = x; }
+public int getY() { return y; }
+public void setY(int y){ this.y = y; }
 
 }

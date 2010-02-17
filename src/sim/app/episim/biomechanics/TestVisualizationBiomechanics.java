@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
@@ -50,8 +51,36 @@ public class TestVisualizationBiomechanics {
 	
 	
 	
-	public void drawVisualization(Graphics2D g ){
-		
+	public void drawVisualization(Graphics2D g){		
+		for(Cell cell :Calculators.getStandardCellArray(1, 3)) drawCell(g, cell);						
+	}
+	
+	private void drawCell(Graphics2D g, Cell cell){
+		if(cell != null){
+			//drawPoint(g, cell.getX(), cell.getY(), 2, Color.BLUE);
+			Polygon p = new Polygon();
+			
+		/*	System.out.print("Vertex-Ids bevor: ");
+			for(Vertex v : cell.getVertices()) System.out.print(v.getId()+ " ");
+			System.out.println();*/
+			cell.sortVertices();
+		/*	System.out.print("Vertex-Ids nach: ");
+			for(Vertex v : cell.getVertices()) System.out.print(v.getId()+ " ");
+			System.out.println();*/
+			for(Vertex v : cell.getVertices()){ 
+				drawVertex(g, v);
+				p.addPoint(v.getIntX(), v.getIntY());
+			}
+			//g.drawPolygon(p);
+		}
+	}
+	
+	private void drawVertex(Graphics2D g, Vertex vertex){
+		if(vertex != null){
+			g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);
+			System.out.println(vertex.getId());
+			drawPoint(g, vertex.getIntX(), vertex.getIntY(), 2, Color.BLUE);
+		}
 	}
 	
 	private void centerMe(JFrame frame){
@@ -60,7 +89,17 @@ public class TestVisualizationBiomechanics {
 			frame.setLocation(((int)((screenDim.getWidth() /2) - (frame.getPreferredSize().getWidth()/2))), 
 			((int)((screenDim.getHeight() /2) - (frame.getPreferredSize().getHeight()/2))));
 		}
-	}	
+	}
+	
+	private void drawPoint(Graphics2D g, double x, double y, double size, Color c){
+		if(x> 0 || y > 0){
+			if(size % 2 != 0) size -= 1;
+			Color oldColor = g.getColor();
+			g.setColor(c);
+			g.fillRect((int)(x-(size/2)), (int)(y-(size/2)), (int)(size+1), (int)(size+1));
+			g.setColor(oldColor);
+		}
+	}
 
 	
 	public static void main(String[] args) {

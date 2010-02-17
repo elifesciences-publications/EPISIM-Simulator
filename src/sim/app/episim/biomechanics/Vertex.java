@@ -25,9 +25,112 @@ public class Vertex implements java.io.Serializable{
 	
 	public Vertex(int x, int y){
 		this((double) x, (double)y);
-	}	
+	}
+	
+	public Vertex(Vertex v)
+   {
+       this(v.x, v.y);
+   }
 	
 	public int getId(){ return this.id; }
+	
+	public Vertex relTo(Vertex v)
+   {
+        return new Vertex(x-v.x, y-v.y);
+   }
+
+
+    public void makeRelTo(Vertex v)
+    {
+        x-=v.x;
+        y-=v.y;
+    }
+
+
+    public Vertex moved(double x0, double y0)
+    {
+        return new Vertex(x+x0, y+y0);
+    }
+
+
+    public Vertex reversed()
+    {
+        return new Vertex(-x, -y);
+    }
+
+
+    public boolean isLower(Vertex v)
+    {
+        return y<v.y || y==v.y && x<v.x;
+    }
+
+
+    public double mdist()   // Manhattan-Distanz
+    {
+        return Math.abs(x)+Math.abs(y);
+    }
+
+    public double mdist(Vertex v)
+    {
+        return relTo(v).mdist();
+    }
+
+
+    public boolean isFurther(Vertex v)
+    {
+        return mdist()>v.mdist();
+    }
+
+
+    public boolean isBetween(Vertex v0, Vertex v1)
+    {
+        return v0.mdist(v1)>=mdist(v0)+mdist(v1);
+    }
+
+
+    public double cross(Vertex v)
+    {
+        return x*v.y-v.x*y;
+    }
+
+
+    public boolean isLess(Vertex v)
+    {
+        double f=cross(v);
+        return f>0 || f==0 && isFurther(v);
+    }
+
+
+    public double area2(Vertex v0, Vertex v1)
+    {
+        return v0.relTo(this).cross(v1.relTo(this));
+    }
+
+    public boolean isConvex(Vertex v0, Vertex v1)
+    {
+        double f=area2(v0, v1);
+        return f<0 || f==0 && !isBetween(v0, v1);
+    }
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	public void addVertexChangeListener(VertexChangeListener listener){
 		changeListener.add(listener);

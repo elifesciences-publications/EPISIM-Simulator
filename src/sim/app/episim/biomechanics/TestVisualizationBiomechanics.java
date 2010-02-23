@@ -3,11 +3,16 @@ package sim.app.episim.biomechanics;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -15,8 +20,12 @@ import javax.swing.UIManager;
 
 public class TestVisualizationBiomechanics {
 	
-	JFrame frame;
-	JPanel visualizationPanel;
+	private enum SimState{SIMSTART, SIMSTOP;}
+	private JFrame frame;
+	private JPanel visualizationPanel;
+	private Cell[] cells;
+	private Thread simulationThread;
+	private SimState simulationState = null;
 	
 	public TestVisualizationBiomechanics(){
 		try{
@@ -24,7 +33,12 @@ public class TestVisualizationBiomechanics {
 		}
 		catch (Exception e){			
 			e.printStackTrace();
-		}		 
+		}
+		//testCellAreaCalculation();
+		cells = Calculators.getStandardCellArray(10, 10);
+	
+		
+		
 		
 		frame = new JFrame("Biomechanics Testvisualization");
 		frame.setSize(500, 500);
@@ -43,43 +57,123 @@ public class TestVisualizationBiomechanics {
 		visualizationPanel.setSize(new Dimension(500, 500));
 		visualizationPanel.setPreferredSize(new Dimension(500, 500));
 		frame.getContentPane().add(visualizationPanel, BorderLayout.CENTER);
+		
+		visualizationPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+		((JPanel)frame.getContentPane()).setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+		
+		JPanel buttonPanel = new JPanel(new FlowLayout());
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(2,5,2,5));
+		final JButton startStopButton = new JButton("start");
+		startStopButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+
+	        if(simulationState== null || simulationState == SimState.SIMSTOP){
+	      	  startStopButton.setText("stop");
+	      	  setSimulationState(SimState.SIMSTART);
+	        }
+	        else{
+	      	  startStopButton.setText("start");
+	      	  setSimulationState(SimState.SIMSTOP);
+	        }
+	         
+         }});
+		buttonPanel.add(startStopButton);
+		frame.getContentPane().add(buttonPanel, BorderLayout.NORTH);
+		
 		centerMe(frame);
 		frame.pack();
 		frame.setVisible(true);
+	
+		
+		
+		
+		
+	}
+	private void setSimulationState(SimState state){
+		if(state == SimState.SIMSTART){
+		simulationState = SimState.SIMSTART;
+		simulationThread = new Thread(new Runnable(){ public void run() { 
+			while(simulationState == SimState.SIMSTART){
+				try{
+	            Thread.sleep(1000);
+            }
+            catch (InterruptedException e){
+	            // TODO Auto-generated catch block
+	            e.printStackTrace();
+            }
+				Calculators.randomlySelectCell(cells); 
+				visualizationPanel.repaint(); 
+			}
+			
+		
+			} });
+		
+	   	simulationThread.start();
+		}
+		else if(state == SimState.SIMSTOP){
+			simulationState = SimState.SIMSTOP;
+			
+		}
+	        
+        
+			
+		
 	}
 	
-	
-	
-	
-	public void drawVisualization(Graphics2D g){		
-		for(Cell cell :Calculators.getStandardCellArray(1, 3)) drawCell(g, cell);						
+	private void testCellAreaCalculation(){
+		Cell c = new Cell(100, 100);
+		c.addVertex(new Vertex(90, 90));
+		c.addVertex(new Vertex(110, 90));
+		c.addVertex(new Vertex(110, 110));
+		c.addVertex(new Vertex(90, 110));
+		System.out.println("Fläche Quadradt soll 400 ist: " +Calculators.getCellArea(c));
+		System.out.println("Umfang Quadradt soll 80 ist: " +Calculators.getCellPerimeter(c));
 	}
 	
-	private void drawCell(Graphics2D g, Cell cell){
+	private void drawVisualization(Graphics2D g){		
+		if(cells!= null) for(Cell cell : cells) drawCell(g, cell, true);						
+	}
+	
+	private void drawCell(Graphics2D g, Cell cell, boolean showCellAreaAndPerimeter){
 		if(cell != null){
 			//drawPoint(g, cell.getX(), cell.getY(), 2, Color.BLUE);
 			Polygon p = new Polygon();
 			
-		/*	System.out.print("Vertex-Ids bevor: ");
-			for(Vertex v : cell.getVertices()) System.out.print(v.getId()+ " ");
-			System.out.println();*/
+		
 			cell.sortVertices();
-		/*	System.out.print("Vertex-Ids nach: ");
-			for(Vertex v : cell.getVertices()) System.out.print(v.getId()+ " ");
-			System.out.println();*/
-			for(Vertex v : cell.getVertices()){ 
-				drawVertex(g, v);
-				p.addPoint(v.getIntX(), v.getIntY());
+			Vertex[] newVertices = new Vertex[2];
+			int newVertexIndex = 0;
+			for(Vertex v : cell.getVertices()){	
+				if(!v.isNew)p.addPoint(v.getIntX(), v.getIntY());
+				else newVertices[newVertexIndex++] = v;
 			}
-			//g.drawPolygon(p);
+		//	g.drawString(""+ Math.round(Calculators.getCellArea(cell))*0.2 + ", " + Math.round(Calculators.getCellPerimeter(cell))*0.2, cell.getX()-10, cell.getY());
+			
+			
+			if(cell.isSelected()){
+				Color oldColor = g.getColor();
+				g.setColor(Color.RED);
+				g.fillPolygon(p);
+				g.setColor(oldColor);
+			}
+			g.drawPolygon(p);
+			
+			
+			if(newVertices[0] !=null && newVertices[1] !=null)g.drawLine(newVertices[0].getIntX(), newVertices[0].getIntY(), newVertices[1].getIntX(), newVertices[1].getIntY());
+			for(Vertex v : cell.getVertices()){	
+				drawVertex(g, v, false);				
+			}
+			
+			drawVertex(g,Calculators.getCellCenter(cell),false);
 		}
 	}
 	
-	private void drawVertex(Graphics2D g, Vertex vertex){
+	private void drawVertex(Graphics2D g, Vertex vertex, boolean showVertexId){
 		if(vertex != null){
-			g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);
-			System.out.println(vertex.getId());
-			drawPoint(g, vertex.getIntX(), vertex.getIntY(), 2, Color.BLUE);
+			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);
+			
+			if(vertex.isNew) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 2, Color.YELLOW);
+			else drawPoint(g, vertex.getIntX(), vertex.getIntY(), 2, Color.BLUE);
 		}
 	}
 	

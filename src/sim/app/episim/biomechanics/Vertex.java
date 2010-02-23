@@ -16,6 +16,8 @@ public class Vertex implements java.io.Serializable{
 	
 	private ArrayList<VertexChangeListener> changeListener;
 	
+	public boolean isNew = false;
+	
 	public Vertex(double x, double y){
 		id = nextid++;
 		this.x = x;
@@ -64,18 +66,39 @@ public class Vertex implements java.io.Serializable{
         return y<v.y || y==v.y && x<v.x;
     }
 
-
+    /**
+     * Manhattan Distanz
+     * @return
+     */
     public double mdist()   // Manhattan-Distanz
     {
         return Math.abs(x)+Math.abs(y);
     }
-
+    
+    /**
+     * Euclidean Distance
+     * @return
+     */
+    public double edist(){ //Euklidische-Distanz
+   	 return Math.sqrt((Math.pow(x, 2)+ Math.pow(y, 2)));
+    }
+    /**
+     * Manhattan Distanz
+     * @return
+     */
     public double mdist(Vertex v)
     {
         return relTo(v).mdist();
     }
 
-
+    /**
+     * Euclidean Distance
+     * @return
+     */
+    public double edist(Vertex v){ //Euklidische-Distanz
+   	 return relTo(v).edist();
+    }
+    
     public boolean isFurther(Vertex v)
     {
         return mdist()>v.mdist();
@@ -146,9 +169,9 @@ public class Vertex implements java.io.Serializable{
 	public double getDoubleY(){ return y; }
 	
 	public void setIntX(int x){ setDoubleX((double)x); }
-	public int getIntX(){ return (int) getDoubleX(); }
+	public int getIntX(){ return (int)Math.round(getDoubleX()); }
 	public void setIntY(int y){ setDoubleY((double)y); }
-	public int getIntY(){ return (int)getDoubleY(); }
+	public int getIntY(){ return (int)Math.round(getDoubleY()); }
 
 	
 	private void notifyAllListeners(VertexChangeEventType type){
@@ -156,6 +179,9 @@ public class Vertex implements java.io.Serializable{
 		for(VertexChangeListener listener : changeListener) listener.handleVertexChangeEvent(event);
 	}
 	
+	public String toString(){
+		return "("+ x+", "+y+")";
+	}
 	
 
    public int hashCode() {

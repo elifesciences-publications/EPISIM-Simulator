@@ -1,6 +1,7 @@
 package sim.app.episim.biomechanics;
 
 import java.awt.geom.Line2D;
+import java.util.HashSet;
 import java.util.Random;
 
 public abstract class Calculators {
@@ -145,7 +146,22 @@ public abstract class Calculators {
 			Vertex v_s =getIntersectionOfLines(cellVertices[i], cellVertices[(i+1)%cellVertices.length], center, vOnCircle);
 			if(v_s != null){ 
 				v_s.isNew = true;
-				cell.addVertex(v_s);
+				
+				HashSet<Integer> foundCellIdsFirstVertex = new HashSet<Integer>();
+				for(VertexChangeListener listener: cellVertices[i].getVertexChangeListener()){
+					if(listener instanceof Cell){
+						foundCellIdsFirstVertex.add(((Cell) listener).getId());
+					}
+				}
+				for(VertexChangeListener listener: cellVertices[(i+1)%cellVertices.length].getVertexChangeListener()){
+					if(listener instanceof Cell){
+						Cell actCell = (Cell) listener;
+						if(foundCellIdsFirstVertex.contains(actCell.getId())){ 
+							actCell.addVertex(v_s);
+							actCell.sortVertices();
+						}
+					}
+				}
 			}
 		}
 		

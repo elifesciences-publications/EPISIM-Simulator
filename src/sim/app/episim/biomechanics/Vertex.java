@@ -135,25 +135,9 @@ public class Vertex implements java.io.Serializable{
         return f<0 || f==0 && !isBetween(v0, v1);
     }
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	public VertexChangeListener[] getVertexChangeListener(){
+		return this.changeListener.toArray(new VertexChangeListener[changeListener.size()]);
+	}
 	
 	public void addVertexChangeListener(VertexChangeListener listener){
 		changeListener.add(listener);

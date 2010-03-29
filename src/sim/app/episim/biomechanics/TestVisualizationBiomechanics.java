@@ -35,7 +35,7 @@ public class TestVisualizationBiomechanics {
 			e.printStackTrace();
 		}
 		//testCellAreaCalculation();
-		cells = Calculators.getStandardCellArray(10, 10);
+		cells = Calculators.getStandardCellArray(1, 4);
 	
 		
 		

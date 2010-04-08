@@ -6,7 +6,6 @@ import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.util.List;
 
-import org.jfree.chart.ChartPanel;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
@@ -18,7 +17,6 @@ import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 
-import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 import episiminterfaces.monitoring.GeneratedDataExport;
 

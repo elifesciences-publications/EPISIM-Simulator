@@ -18,6 +18,8 @@ public class TestConjugateGradient {
 		CompRowMatrix A = new CompRowMatrix(new DenseMatrix(new double[]{}));
 		DenseVector x, b;
 
+		
+		
 		b = new DenseVector(new double[]{1,2});
 		x = new DenseVector(new double[]{2,1});
 		// Allocate storage for Conjugate Gradients

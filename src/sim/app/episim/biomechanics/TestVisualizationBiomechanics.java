@@ -131,7 +131,39 @@ public class TestVisualizationBiomechanics {
 	}
 	
 	private void drawVisualization(Graphics2D g){		
-		if(cells!= null) for(Cell cell : cells) drawCell(g, cell, true);						
+		//if(cells!= null) for(Cell cell : cells) drawCell(g, cell, true);
+		drawErrorManhattanVersusEuclideanDistance(g);
+	}
+	
+	private void drawErrorManhattanVersusEuclideanDistance(Graphics2D g){
+		double radius = 100;
+		double x = 200, y = 200;
+		drawPoint(g, x, y, 3, Color.red);		
+		
+		double y1_new = 0, y2_new = 0;
+		//Euclidean Distance of 100 around x, y;
+		for(double i = x-radius; i <= x+radius; i+=0.01){
+			y1_new = y + Math.sqrt(Math.pow(radius, 2) - Math.pow((i-x),2));
+			y2_new = y - Math.sqrt(Math.pow(radius, 2) - Math.pow((i-x),2));
+			drawPoint(g, i, y1_new, 1, Color.blue);
+			drawPoint(g, i, y2_new, 1, Color.blue);
+		}
+		
+		//Projection of the Error of the Manhattan Distance
+		y1_new = 0;
+		y2_new = 0;
+		double x_new_circle = 0, y_new_circle = 0;
+		double radius_new = 0;
+		for(double alpha=0; alpha < 2*Math.PI; alpha += 0.001){
+			x_new_circle = x + radius*Math.cos(alpha);
+			y_new_circle = y + radius*Math.sin(alpha);		
+			
+			radius_new = Math.abs(x_new_circle-x) + Math.abs(y_new_circle - y);
+		
+			
+			drawPoint(g, (x + radius_new*Math.cos(alpha)), (y + radius_new*Math.sin(alpha)), 1, Color.red);
+			
+		}
 	}
 	
 	private void drawCell(Graphics2D g, Cell cell, boolean showCellAreaAndPerimeter){
@@ -170,8 +202,7 @@ public class TestVisualizationBiomechanics {
 	
 	private void drawVertex(Graphics2D g, Vertex vertex, boolean showVertexId){
 		if(vertex != null){
-			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);
-			
+			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);			
 			if(vertex.isNew) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 2, Color.YELLOW);
 			else drawPoint(g, vertex.getIntX(), vertex.getIntY(), 2, Color.BLUE);
 		}

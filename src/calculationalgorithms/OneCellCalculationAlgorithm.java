@@ -24,14 +24,15 @@ import episiminterfaces.calc.marker.SingleCellObserverAlgorithm;
 public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements SingleCellObserverAlgorithm, CalculationAlgorithm{
 		
 	private final int MINCELLAGE = 2;
-	private Map<Long, CellType> trackedCells;
+	private Map<String, CellType> trackedCells;
 	
-	private Map<Long, SingleCellObserver> observers;
-	
+	private Map<String, SingleCellObserver> observers;
+	private Map<Long, String> handlerIdStringIdMap;
 		
 	public OneCellCalculationAlgorithm(){		
-		this.trackedCells = new HashMap<Long, CellType>();
-		observers = new HashMap<Long, SingleCellObserver>();
+		this.trackedCells = new HashMap<String, CellType>();
+		observers = new HashMap<String, SingleCellObserver>();
+		handlerIdStringIdMap = new HashMap<Long, String>();
 	}
 	
 	public void restartSimulation(){
@@ -41,6 +42,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 	public void reset(){
 		restartSimulation();
 		observers.clear();
+		handlerIdStringIdMap.clear();
 	}
 		
 	private void checkTrackedCells(CalculationHandler handler) {
@@ -48,11 +50,11 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 		CellType actTrackedCell = null;
 		CellType newTrackedCell = null;		
 
-			actTrackedCell = this.trackedCells.get(handler.getID());
+			actTrackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
 			if(actTrackedCell == null || actTrackedCell.getEpisimCellDiffModelObject().getIsAlive() == false){			
 				
 				if(actTrackedCell != null){
-					notifySingleCellObserver(handler.getID());
+					notifySingleCellObserver(handlerIdStringIdMap.get(handler.getID()));
 					actTrackedCell.setTracked(false);
 				}
 				
@@ -61,7 +63,8 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 					
 					newTrackedCell.setTracked(true);
 				}
-				this.trackedCells.put(handler.getID(), newTrackedCell);
+				if(newTrackedCell == null) this.trackedCells.remove(handlerIdStringIdMap.get(handler.getID()));
+				else this.trackedCells.put(handlerIdStringIdMap.get(handler.getID()), newTrackedCell);
 			}		
 	}
 		
@@ -106,7 +109,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 			
 			try{
 				
-				trackedCell = this.trackedCells.get(handler.getID());
+				trackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
 				if(trackedCell != null){
 					results.add1DValue(handler.calculate(trackedCell));
 				}	
@@ -142,7 +145,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 	   };
    }
 
-	private void notifySingleCellObserver(long id){
+	private void notifySingleCellObserver(String id){
 		if(this.observers.containsKey(id)){
 			this.observers.get(id).observedCellHasChanged();
 		}
@@ -150,9 +153,12 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 	
 	public void addSingleCellObserver(long[] calculationHandlerIds, SingleCellObserver observer) {
 		if(calculationHandlerIds != null && calculationHandlerIds.length >0){
-			for(long id : calculationHandlerIds){
-				this.observers.put(id, observer);
-			}
+			String stringId = "";
+			for(long id : calculationHandlerIds)stringId+=id;
+			for(long id : calculationHandlerIds) this.handlerIdStringIdMap.put(id, stringId);
+				
+			
+			this.observers.put(stringId, observer);
 		}
    }
 }

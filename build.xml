@@ -106,6 +106,10 @@
 		<copy todir="${currentbuild}/${build}/lib">
 			<fileset dir="${lib}">
 				<include name="**/*"/>
+				<exclude name="**/classpathconfig.xml"/>
+			</fileset>
+			<fileset dir="${buildres}">
+				<include name="classpathconfig.xml"/>
 			</fileset>
 		</copy>
 		<copy todir="${currentbuild}/${build}/config">

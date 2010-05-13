@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modelparameters>
+<modelid id ="2010-05-13"/>
+<parameter name="lamda" datatype="double" default="0"/>
+<parameter name="gamma" datatype="double" default="0"/>
+<parameter name="kappa" datatype="double" default="0"/>
+</modelparameters>

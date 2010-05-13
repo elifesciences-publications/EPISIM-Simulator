@@ -1,8 +1,10 @@
 package episiminterfaces;
 
+import episimbiomechanics.EpisimModelIntegrator;
 
 public interface EpisimCellDiffModel {
 	
+	void setEpisimModelIntegrator(EpisimModelIntegrator _modelIntegrator);
 	
 	void setNumberProperty(int propertycode, double val);
 	void setMinNumberProperty(int propertycode, double val);

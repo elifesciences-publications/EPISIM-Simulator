@@ -180,6 +180,7 @@ public class MatrixCalculator {
 	public static void main(String[] args){
 		double [][] testPolygon = new double[][]{{1,1},{1,2},{2,2},{2,1}};
 		MatrixCalculator calculator = new MatrixCalculator();
+					
 		calculator.calculatePerimeterMatrixForPolygon(testPolygon, 0);
 		calculator.calculatePerimeterResultVector(testPolygon, 0);
 		calculator.calculateLineTensionResultVector(testPolygon, 0);

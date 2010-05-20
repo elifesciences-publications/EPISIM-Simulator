@@ -1,20 +1,13 @@
 package sim.app.episim.model;
 
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
-import sim.app.episim.Epidermis;
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.KCyte;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
@@ -24,11 +17,11 @@ import sim.app.episim.util.ObjectManipulations;
 
 
 public class BiomechanicalModel implements java.io.Serializable, SnapshotListener{
-	
-	
-
-	
-	
+		
+	/**
+    * 
+    */
+   private static final long serialVersionUID = 512640154196012852L;
 	private MechanicalModelGlobalParameters actParametersObject;
 	private EpisimMechanicalModelGlobalParameters resetParametersObject;
 	

@@ -5,9 +5,9 @@ public class EpisimModelIntegrator {
 	
 	private static final String VERSION = "2010-05-13";
 	
-	private double lamda =0;
-	private double kappa =0;
-	private double gamma =0;
+	private double contractility =0;
+	private double adhesion =0;
+	private double elasticity =0;
 	
 	
 	public String getBiomechanicalModelId(){
@@ -16,34 +16,34 @@ public class EpisimModelIntegrator {
 	
 	public EpisimModelIntegrator(){}
 	
-	public double getLamda() {
+	public double getContractility() {
 	
-		return lamda;
+		return contractility;
 	}
 	
-	public void setLamda(double lamda) {
+	public void setContractility(double contractility) {
 	
-		this.lamda = lamda;
+		this.contractility = contractility;
 	}
 	
-	public double getKappa() {
+	public double getAdhesion() {
 	
-		return kappa;
+		return adhesion;
 	}
 	
-	public void setKappa(double kappa) {
+	public void setAdhesion(double adhesion) {
 	
-		this.kappa = kappa;
+		this.adhesion = adhesion;
 	}
 	
-	public double getGamma() {
+	public double getElasicity() {
 	
-		return gamma;
+		return elasticity;
 	}
 	
-	public void setGamma(double gamma) {
+	public void setElasticity(double elasticity) {
 	
-		this.gamma = gamma;
+		this.elasticity = elasticity;
 	}
 	
 	

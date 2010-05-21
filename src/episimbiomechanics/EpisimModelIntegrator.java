@@ -1,7 +1,9 @@
 package episimbiomechanics;
 
+import episiminterfaces.EpisimMechanicalModel;
 
-public class EpisimModelIntegrator {
+
+public class EpisimModelIntegrator implements EpisimMechanicalModel{
 	
 	private static final String VERSION = "2010-05-13";
 	

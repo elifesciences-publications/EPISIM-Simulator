@@ -14,10 +14,13 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	
 	private Set<String> alreadyCalculatedCells;
 	
+	private Set<String> intersectingCells;
 	
+	private static final char SEPARATORCHAR = ';';
 	
 	private CellEllipseIntersectionCalculationRegistry(){
-		alreadyCalculatedCells = new HashSet<String>();		
+		alreadyCalculatedCells = new HashSet<String>();
+		intersectingCells = new HashSet<String>();
 	}
 	
 	private static CellEllipseIntersectionCalculationRegistry instance = new CellEllipseIntersectionCalculationRegistry();
@@ -29,25 +32,46 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 		this.alreadyCalculatedCells.add(buildStringId(idCell2, idCell1));
 	}
 	
+	public void addIntersectionCellEllipses(long idCell1, long idCell2){
+		this.intersectingCells.add(buildStringId(idCell1, idCell2));
+		this.intersectingCells.add(buildStringId(idCell2, idCell1));
+	}
+	
 	public boolean isAreadyCalculated(long idCell1, long idCell2, long actSimStep){
+		 return checkCondition(idCell1, idCell2, actSimStep, alreadyCalculatedCells);			
+	}
+	
+	public boolean doCellIntersect(long idCell1, long idCell2, long actSimStep){
+		 return checkCondition(idCell1, idCell2, actSimStep, intersectingCells);			
+	}
+	
+	private boolean checkCondition(long idCell1, long idCell2, long actSimStep, Set<String> conditionSet){
 		if(actSimStep > actSimulationStep){
 			actSimulationStep = actSimStep;
-			alreadyCalculatedCells.clear();
+			conditionSet.clear();
 		}
 		else if(actSimStep < actSimulationStep){
 			throw new IllegalStateException("The current Sim Step is: " + actSimulationStep + " The submitted Sim Step to calculate was: " + actSimStep);
 		}
 		
-		return alreadyCalculatedCells.contains(buildStringId(idCell1, idCell2)) || alreadyCalculatedCells.contains(buildStringId(idCell2, idCell1));
-				
+		return conditionSet.contains(buildStringId(idCell1, idCell2)) || conditionSet.contains(buildStringId(idCell2, idCell1));		
+	}
+	
+	public int getNeighbourNumber(long cellId){
+		String id = ""+cellId+SEPARATORCHAR;
+		int neighbourNo = 0;
+		for(String idString : intersectingCells){
+			if(idString.startsWith(id)) neighbourNo++;
+		}
+			
+		return neighbourNo;	
 	}
 	
 	private String buildStringId(long cellId1, long cellId2){
 		StringBuffer stringBuilder = new StringBuffer();
 		stringBuilder.append(cellId1);
-		stringBuilder.append(";");
-		stringBuilder.append(cellId2);
-		
+		stringBuilder.append(SEPARATORCHAR);
+		stringBuilder.append(cellId2);		
 		return stringBuilder.toString(); 	
 	}
 	

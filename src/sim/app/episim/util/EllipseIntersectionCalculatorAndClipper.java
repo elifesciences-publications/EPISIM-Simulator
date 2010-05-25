@@ -88,6 +88,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 		double [][] intersectionPoints = newtonIntersectionCalculation(actEllipse, otherEllipse);
 			
 			if(intersectionPoints != null){
+				
 				if(g!= null){
 					for(int i = 0; i < intersectionPoints.length; i++){
 						drawPoint(g, intersectionPoints[i][0],intersectionPoints[i][1], 5, Color.GREEN);
@@ -233,14 +234,16 @@ public class EllipseIntersectionCalculatorAndClipper {
 			counter=0;
 	   }
 	
-	
-	   double [][] intersectionPoints = new double[4][2]; 
-	   if(resultSet.size() > 4) intersectionPoints= new double[resultSet.size()][2];
-	   int index = 0;
-	   for(double angle : resultSet){
-	   	intersectionPoints[index++] = calculatePointOnEllipse(x1, y1, a1, b1,angle, phi);
-	   }
-		return intersectionPoints;
+		if(!resultSet.isEmpty()){
+		   double [][] intersectionPoints = new double[4][2]; 
+		   if(resultSet.size() > 4) intersectionPoints= new double[resultSet.size()][2];
+		   int index = 0;
+		   for(double angle : resultSet){
+		   	intersectionPoints[index++] = calculatePointOnEllipse(x1, y1, a1, b1,angle, phi);
+		   }
+			return intersectionPoints;
+		}
+		return null;
 	}
 	
 	private double distance(double x1, double y1, double x2, double y2){	

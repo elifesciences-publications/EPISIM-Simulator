@@ -8,6 +8,7 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.io.Serializable;
 
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.portrayal.DrawInfo2D;
 
 
@@ -34,6 +35,7 @@ public class CellEllipse  implements Serializable{
 		
 			
 		private Color color;
+		private Color fillColor = null;
 		
 		private DrawInfo2D lastDrawInfo2D = null;
 		
@@ -190,6 +192,24 @@ public class CellEllipse  implements Serializable{
       public Color getColor() { return color; }
 		
       public void setColor(Color color) { this.color = color; }
+      
+      public Color getFillColor() { 
+      	int neighbourNo = CellEllipseIntersectionCalculationRegistry.getInstance().getNeighbourNumber(this.id);
+      	if(fillColor == null){
+      		if(neighbourNo <= 3) return Color.BLACK;
+      		else if(neighbourNo == 4) return Color.GREEN;
+      		else if(neighbourNo == 5) return Color.YELLOW;
+      		else if(neighbourNo == 6) return Color.GRAY;
+      		else if(neighbourNo == 7) return Color.BLUE;
+      		else if(neighbourNo == 8) return Color.RED;
+      		else if(neighbourNo >= 9) return Color.PINK;
+      	}
+      	else return fillColor; 
+      	
+      	return null;
+      }
+		
+      public void setFillColor(Color fillColor) { this.fillColor = fillColor; }
       
       public Nucleus getNucleus() { return nucleus; }
 

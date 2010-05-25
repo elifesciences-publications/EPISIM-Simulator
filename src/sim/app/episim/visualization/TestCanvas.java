@@ -19,6 +19,7 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
 
@@ -35,7 +36,9 @@ public class TestCanvas extends JPanel {
 	
 	private Set<String> ellipseKeySet;
 	
-	private int nextId = 0;
+	private long nextId = 0;
+	
+	private int visualizationStep = 0;
 	
 	public TestCanvas(){
 		ellipseKeySet = new HashSet<String>();
@@ -85,6 +88,8 @@ public class TestCanvas extends JPanel {
 		if(g != null){
 			g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 			Color oldColor = g.getColor();
+			g.setColor(cellEllipse.getFillColor());
+			g.fill(cellEllipse.getClippedEllipse());
 			g.setColor(cellEllipse.getColor());
 			g.draw(cellEllipse.getClippedEllipse());
 			g.setColor(oldColor);
@@ -157,7 +162,7 @@ public class TestCanvas extends JPanel {
 	
 	private void calculateIntersectionPointsForCellEllipses(Graphics2D g){
 		int numberOfCells = cellEllipses.size();
-		
+		visualizationStep++;
 		for(int n = 0; n < numberOfCells; n++){
 			CellEllipse actEll = cellEllipses.get(n);
 			
@@ -167,9 +172,10 @@ public class TestCanvas extends JPanel {
 						CellEllipse otherEll = cellEllipses.get(m);
 						
 							
-							if(!this.ellipseKeySet.contains(actEll.getId()+","+otherEll.getId())){
-									
-								
+						if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(actEll.getId(), otherEll.getId(), visualizationStep)){
+					   	CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(actEll.getId(), otherEll.getId());
+					   	
+					   	
 							
 								//maximum of 4 intersection points for two ellipses
 							/*	for(int i = 0; i < 4; i++){
@@ -181,7 +187,10 @@ public class TestCanvas extends JPanel {
 								
 								
 								XYPoints xyPoints = EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(g ,actEll, otherEll);
-								if(xyPoints != null) drawSquares(g, xyPoints);
+								if(xyPoints != null){ 
+									drawIntersectionLine(g, xyPoints);
+									//drawSquares(g, xyPoints);
+								}
 							}
 							//maxiumum of two intersection points for cells in later simulation
 							
@@ -205,6 +214,10 @@ public class TestCanvas extends JPanel {
 		}
 	}
 	
+	private void drawIntersectionLine(Graphics2D g, XYPoints xyPoints){
+		g.drawLine(xyPoints.xPointsQuaderEllipse1[0], xyPoints.yPointsQuaderEllipse1[0], xyPoints.xPointsQuaderEllipse1[1], xyPoints.yPointsQuaderEllipse1[1]);
+	}
+	
 	private void drawSquares(Graphics2D g, XYPoints xyPoints){
 				
 		//System.out.println(newVector[0]+","+newVector[1]);
@@ -222,7 +235,7 @@ public class TestCanvas extends JPanel {
 	
 	
 	
-	private int getNextCellEllipseId(){
+	private long getNextCellEllipseId(){
 		return this.nextId++;
 	}
 

@@ -123,7 +123,7 @@ public class TestCanvas extends JPanel {
 	public void paint(Graphics g){
 		super.paint(g);
 		this.ellipseKeySet.clear();
-		
+		CellEllipseIntersectionCalculationRegistry.getInstance().reset();
 		for(CellEllipse ell : cellEllipses){
 			ell.resetClippedEllipse();
 		}

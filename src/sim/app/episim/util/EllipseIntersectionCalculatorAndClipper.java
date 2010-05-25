@@ -75,10 +75,18 @@ public class EllipseIntersectionCalculatorAndClipper {
 		return p;
 	}
 	
-	public static XYPoints getClippedEllipsesAndXYPoints(Graphics2D g ,CellEllipse actEllipse, CellEllipse otherEllipse){
+	public static XYPoints getClippedEllipsesAndXYPoints(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
 		if(instance == null) instance = new EllipseIntersectionCalculatorAndClipper();
 		
-		return instance.calculateClippedEllipses(g, actEllipse, otherEllipse);
+		XYPoints p = instance.calculateClippedEllipses(g, actEllipse, otherEllipse);
+		
+		if(p != null){
+			actEllipse.addXYPoints(p, otherEllipse.getId());
+			otherEllipse.addXYPoints(p, actEllipse.getId());
+		}
+		
+		
+		return p;
 	}
 	
 	private XYPoints calculateClippedEllipses(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
@@ -88,7 +96,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 		double [][] intersectionPoints = newtonIntersectionCalculation(actEllipse, otherEllipse);
 			
 			if(intersectionPoints != null){
-				
+				CellEllipseIntersectionCalculationRegistry.getInstance().addIntersectionCellEllipses(actEllipse.getId(), otherEllipse.getId());
 				if(g!= null){
 					for(int i = 0; i < intersectionPoints.length; i++){
 						drawPoint(g, intersectionPoints[i][0],intersectionPoints[i][1], 5, Color.GREEN);
@@ -311,8 +319,9 @@ public class EllipseIntersectionCalculatorAndClipper {
 		xyPoints.xPointsQuaderEllipse2 = new int[]{(int)theFinalPoints[0][0], (int)theFinalPoints[1][0],(int)theFinalPoints[2][0],(int)theFinalPoints[3][0]};/*x-Points*/
 		xyPoints.yPointsQuaderEllipse2 = new int[]{(int)theFinalPoints[0][1], (int)theFinalPoints[1][1],(int)theFinalPoints[2][1],(int)theFinalPoints[3][1]};/*y-Points*/
 		
-	
-	
+		xyPoints.intersectionPoints = new double[2][2];
+		xyPoints.intersectionPoints[0] = sp1;
+		xyPoints.intersectionPoints[1] = sp2;
 	
 		
 		//Look if swap is necessary using the distance between centroid of actEllipse and the 

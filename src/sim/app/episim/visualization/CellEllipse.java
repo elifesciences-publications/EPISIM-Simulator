@@ -7,8 +7,10 @@ import java.awt.geom.Path2D;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.io.Serializable;
+import java.util.HashMap;
 
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
+import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
 import sim.portrayal.DrawInfo2D;
 
 
@@ -39,10 +41,12 @@ public class CellEllipse  implements Serializable{
 		
 		private DrawInfo2D lastDrawInfo2D = null;
 		
-		
+		private HashMap<String, XYPoints> xyPointsOfEllipse;
      
 
 		private Nucleus nucleus = null;
+		
+		private static final char  SEPARATORCHAR = ';';
 		
 		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, Color c){
 			this(id, x, y, majorAxis, minorAxis, 0, 0, 0, 0, 0, 0, c);
@@ -64,11 +68,31 @@ public class CellEllipse  implements Serializable{
 			this.solidity = solidity;
 			this.distanceToBL = distanceToBL;
 			this.rotateCellEllipseInDegrees(orientationInDegrees);
+			this.xyPointsOfEllipse = new HashMap<String, XYPoints>();
 		}
 	
 		
 		
-		public void resetClippedEllipse(){ clippedEllipse = getClone(this.ellipseAsArea);}
+		public void resetClippedEllipse(){ 
+			clippedEllipse = getClone(this.ellipseAsArea);
+			this.xyPointsOfEllipse.clear();
+		}
+		
+		public void addXYPoints(XYPoints points, long idOtherEllipse){
+			this.xyPointsOfEllipse.put(getIDString(idOtherEllipse), points);
+		}
+		
+		public double[][] getIntersectionPoints(long idOtherEllipse){
+			String idString = getIDString(idOtherEllipse);
+			if(this.xyPointsOfEllipse.containsKey(idString)){
+				return xyPointsOfEllipse.get(idString).intersectionPoints;
+			}
+			return null;
+		}
+		
+		private String getIDString(long idOtherEllipse){
+			return ""+this.id + this.SEPARATORCHAR + idOtherEllipse;
+		}
 		
       public int getX() { 
       	

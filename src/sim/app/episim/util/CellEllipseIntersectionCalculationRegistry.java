@@ -78,6 +78,7 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	public void reset(){
 		actSimulationStep = 0;
 		this.alreadyCalculatedCells.clear();
+		this.intersectingCells.clear();
 	}
 
 	public void simulationWasStarted() {

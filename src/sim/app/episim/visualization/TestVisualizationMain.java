@@ -114,7 +114,7 @@ public class TestVisualizationMain {
 		canvas.addMouseListener(new MouseAdapter(){
 			
 			 public void mouseClicked(MouseEvent e){
-				if(e.getButton() == MouseEvent.BUTTON1)canvas.drawCellEllipse(e.getX(), e.getY(), 50, 25, Color.BLUE);
+				if(e.getButton() == MouseEvent.BUTTON1)canvas.drawCellEllipse(e.getX(), e.getY(), 100, 45, Color.BLUE);
 				else 
 				 if(e.getButton() == MouseEvent.BUTTON3){
 					CellEllipse cell = canvas.pickCellEllipse(e.getX(), e.getY());

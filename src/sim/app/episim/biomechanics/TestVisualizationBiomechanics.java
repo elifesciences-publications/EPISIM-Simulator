@@ -23,7 +23,7 @@ public class TestVisualizationBiomechanics {
 	private enum SimState{SIMSTART, SIMSTOP;}
 	private JFrame frame;
 	private JPanel visualizationPanel;
-	private Cell[] cells;
+	private CellPolygon[] cells;
 	private Thread simulationThread;
 	private SimState simulationState = null;
 	
@@ -121,7 +121,7 @@ public class TestVisualizationBiomechanics {
 	}
 	
 	private void testCellAreaCalculation(){
-		Cell c = new Cell(100, 100);
+		CellPolygon c = new CellPolygon(100, 100);
 		c.addVertex(new Vertex(90, 90));
 		c.addVertex(new Vertex(110, 90));
 		c.addVertex(new Vertex(110, 110));
@@ -166,7 +166,7 @@ public class TestVisualizationBiomechanics {
 		}
 	}
 	
-	private void drawCell(Graphics2D g, Cell cell, boolean showCellAreaAndPerimeter){
+	private void drawCell(Graphics2D g, CellPolygon cell, boolean showCellAreaAndPerimeter){
 		if(cell != null){
 			//drawPoint(g, cell.getX(), cell.getY(), 2, Color.BLUE);
 			Polygon p = new Polygon();

@@ -8,7 +8,9 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
+import sim.app.episim.biomechanics.Vertex;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
 import sim.portrayal.DrawInfo2D;
@@ -82,7 +84,7 @@ public class CellEllipse  implements Serializable{
 			this.xyPointsOfEllipse.put(getIDString(idOtherEllipse), points);
 		}
 		
-		public double[][] getIntersectionPoints(long idOtherEllipse){
+		public Vertex[] getIntersectionPoints(long idOtherEllipse){
 			String idString = getIDString(idOtherEllipse);
 			if(this.xyPointsOfEllipse.containsKey(idString)){
 				return xyPointsOfEllipse.get(idString).intersectionPoints;
@@ -91,7 +93,7 @@ public class CellEllipse  implements Serializable{
 		}
 		
 		private String getIDString(long idOtherEllipse){
-			return ""+this.id + this.SEPARATORCHAR + idOtherEllipse;
+			return ""+this.id + SEPARATORCHAR + idOtherEllipse;
 		}
 		
       public int getX() { 
@@ -103,7 +105,9 @@ public class CellEllipse  implements Serializable{
       	
       }
 		
-     
+     public Map<String, XYPoints> getAllXYPointsOfEllipse(){
+   	  return this.xyPointsOfEllipse;
+     }
 		
       public int getY() { 
       	if(lastDrawInfo2D != null){
@@ -220,7 +224,7 @@ public class CellEllipse  implements Serializable{
       public Color getFillColor() { 
       	int neighbourNo = CellEllipseIntersectionCalculationRegistry.getInstance().getNeighbourNumber(this.id);
       	if(fillColor == null){
-      		if(neighbourNo <= 3) return Color.BLACK;
+      		if(neighbourNo <= 3) return Color.WHITE;
       		else if(neighbourNo == 4) return Color.GREEN;
       		else if(neighbourNo == 5) return Color.YELLOW;
       		else if(neighbourNo == 6) return Color.GRAY;

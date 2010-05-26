@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import sim.app.episim.biomechanics.Vertex;
 import sim.app.episim.visualization.CellEllipse;
 
 
@@ -32,7 +33,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 		public int[] yPointsQuaderEllipse1;
 		public int[] xPointsQuaderEllipse2;
 		public int[] yPointsQuaderEllipse2;
-		public double[][] intersectionPoints;
+		public Vertex[] intersectionPoints;
 		
 		protected void swapEllipse1And2(){
 			int[] tmpX = xPointsQuaderEllipse1;
@@ -319,9 +320,9 @@ public class EllipseIntersectionCalculatorAndClipper {
 		xyPoints.xPointsQuaderEllipse2 = new int[]{(int)theFinalPoints[0][0], (int)theFinalPoints[1][0],(int)theFinalPoints[2][0],(int)theFinalPoints[3][0]};/*x-Points*/
 		xyPoints.yPointsQuaderEllipse2 = new int[]{(int)theFinalPoints[0][1], (int)theFinalPoints[1][1],(int)theFinalPoints[2][1],(int)theFinalPoints[3][1]};/*y-Points*/
 		
-		xyPoints.intersectionPoints = new double[2][2];
-		xyPoints.intersectionPoints[0] = sp1;
-		xyPoints.intersectionPoints[1] = sp2;
+		xyPoints.intersectionPoints = new Vertex[2];
+		xyPoints.intersectionPoints[0] = new Vertex(sp1[0], sp1[1]);
+		xyPoints.intersectionPoints[1] = new Vertex(sp2[0], sp2[1]);
 	
 		
 		//Look if swap is necessary using the distance between centroid of actEllipse and the 

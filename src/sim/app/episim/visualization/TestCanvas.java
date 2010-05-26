@@ -19,6 +19,9 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
+import sim.app.episim.biomechanics.Calculators;
+import sim.app.episim.biomechanics.CellPolygon;
+import sim.app.episim.biomechanics.Vertex;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
@@ -94,6 +97,13 @@ public class TestCanvas extends JPanel {
 			g.draw(cellEllipse.getClippedEllipse());
 			g.setColor(oldColor);
 			drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellEllipse.getColor());
+			CellPolygon cellPol = Calculators.getCellPolygon(cellEllipse);
+			Vertex[] vertices = null;
+			if(cellPol != null && (vertices = cellPol.getVertices()) != null){
+				for(Vertex v : vertices){
+					if(v != null)drawPoint(g, v.getIntX(), v.getIntY(), 5, Color.RED);
+				}
+			}
 		}
 		if(newCellEllipse) cellEllipses.add(cellEllipse);
 	}

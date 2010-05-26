@@ -2,24 +2,24 @@ package sim.app.episim.biomechanics;
 
 import java.util.ArrayList;
 
-public class Cell implements VertexChangeListener{
+public class CellPolygon implements VertexChangeListener{
 	
  private static int nextId = 1;
  private final int id;
- private int x = 0;
- private int y = 0;
+ private double x = 0;
+ private double y = 0;
  private boolean selected = false;
 	
 private ArrayList<Vertex> vertices;
 
-public Cell(int x, int y){
+public CellPolygon(double x, double y){
 	id = nextId++;
 	vertices = new ArrayList<Vertex>();
 	this.x = x;
 	this.y = y;
 }
 
-public Cell(){
+public CellPolygon(){
 	this(0, 0);
 }
 
@@ -57,9 +57,7 @@ public void sortVertices(){
 }
 
 public void handleVertexChangeEvent(VertexChangeEvent event) {
-
-	// TODO Auto-generated method stub
-	
+	// TODO Auto-generated method stub	
 }
 
 
@@ -67,30 +65,33 @@ public boolean equals(Object obj) {
 
 	if(this == obj)
 		return true;
+	
 	if(obj == null)
 		return false;
+	
 	if(getClass() != obj.getClass())
 		return false;
-	Cell other = (Cell) obj;
+	
+	CellPolygon other = (CellPolygon) obj;
+	
 	if(id != other.id)
-		return false;
+		return false;	
+	
 	return true;
 }
 
-public int getX() { return x; }
-public void setX(int x) { this.x = x; }
-public int getY() { return y; }
-public void setY(int y){ this.y = y; }
+public double getX() { return x; }
+public void setX(double x) { this.x = x; }
+public double getY() { return y; }
+public void setY(double y){ this.y = y; }
 
 
 public boolean isSelected() {
-
 	return selected;
 }
 
 
 public void setSelected(boolean selected) {
-
 	this.selected = selected;
 }
 

@@ -7,6 +7,11 @@ import sim.app.episim.biomechanics.VertexChangeEvent.VertexChangeEventType;
 
 public class Vertex implements java.io.Serializable{
 	
+	/**
+    * 
+    */
+   private static final long serialVersionUID = 5030387288513842644L;
+
 	private static int nextid=1;
 	
 	private final int id;
@@ -17,6 +22,10 @@ public class Vertex implements java.io.Serializable{
 	private ArrayList<VertexChangeListener> changeListener;
 	
 	public boolean isNew = false;
+	
+	private String cellEllipseIdString="";
+	
+	private boolean mergeVertex = false;
 	
 	public Vertex(double x, double y){
 		id = nextid++;
@@ -189,6 +198,30 @@ public class Vertex implements java.io.Serializable{
 	   if(id != other.id)
 		   return false;
 	   return true;
+   }
+
+	
+   public String getCellEllipseIdString() {
+   
+   	return cellEllipseIdString;
+   }
+
+	
+   public void setCellEllipseIdString(String cellEllipseIdString) {
+   
+   	this.cellEllipseIdString = cellEllipseIdString;
+   }
+
+	
+   public boolean isMergeVertex() {
+   
+   	return mergeVertex;
+   }
+
+	
+   public void setMergeVertex(boolean mergeVertex) {
+   
+   	this.mergeVertex = mergeVertex;
    }
 	
 	

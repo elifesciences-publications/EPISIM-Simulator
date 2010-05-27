@@ -133,12 +133,17 @@ public class TestCanvas extends JPanel {
 		calculateIntersectionPointsForCellEllipses((Graphics2D)g);
 		for(CellEllipse ell : cellEllipses){
 			
-			drawCellEllipse((Graphics2D) g,ell, false);
+		//	drawCellEllipse((Graphics2D) g,ell, false);
 			Calculators.calculateCellPolygons(ell);
 		}
-		Calculators.cleanVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices());
+		Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices());
 		CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices();
 		System.out.println("-----------------------------------------");
+		
+		for(CellEllipse ell : cellEllipses) Calculators.calculateEstimatedVertices(ell);
+		
+		
+		
 		CellPolygon cellPol = null;
 		Vertex[] vertices = null;
 		int i = 0;
@@ -148,10 +153,12 @@ public class TestCanvas extends JPanel {
 			if(cellPol != null && (vertices = cellPol.getVertices()) != null){
 				for(Vertex v : vertices){
 					if(v != null){
-						if(!v.isWasDeleted())drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.RED);
-						else drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.BLACK);
+						if(v.isWasDeleted())drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.BLACK);
+						else if(v.isEstimatedVertex()) drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.MAGENTA);
+						else drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.RED);
 					}
 				}
+				drawCellPolygon((Graphics2D)g, cellPol, false);
 			}
 		
 			
@@ -212,7 +219,7 @@ public class TestCanvas extends JPanel {
 								
 								XYPoints xyPoints = EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(g ,actEll, otherEll);
 								if(xyPoints != null){ 
-									drawIntersectionLine(g, xyPoints);
+								//	drawIntersectionLine(g, xyPoints);
 									//drawSquares(g, xyPoints);
 								}
 							}
@@ -263,6 +270,34 @@ public class TestCanvas extends JPanel {
 		return this.nextId++;
 	}
 
+	
+	private void drawCellPolygon(Graphics2D g, CellPolygon cell, boolean showCellAreaAndPerimeter){
+		if(cell != null){
+			//drawPoint(g, cell.getX(), cell.getY(), 2, Color.BLUE);
+			Polygon p = new Polygon();
+			
+		
+			
+		
+			for(Vertex v : cell.getSortedVertices()){	
+				p.addPoint(v.getIntX(), v.getIntY());
+				
+			}
+		//	g.drawString(""+ Math.round(Calculators.getCellArea(cell))*0.2 + ", " + Math.round(Calculators.getCellPerimeter(cell))*0.2, cell.getX()-10, cell.getY());
+			
+			
+			
+			g.drawPolygon(p);
+			
+			
+			
+		//	for(Vertex v : cell.getVertices()){	
+			//	drawVertex(g, v, false);				
+		//	}
+			
+			//drawVertex(g,Calculators.getCellCenter(cell),false);
+		}
+	}
 	
 	
 

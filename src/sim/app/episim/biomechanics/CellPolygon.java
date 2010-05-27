@@ -63,6 +63,13 @@ public void sortVertices(){
 	//System.out.println("No of vertices: " + v.length + "    No of Hull Points: " + h);
 }
 
+public Vertex[] getSortedVertices(){
+	GrahamScan scan = new GrahamScan();
+	Vertex[] v =  vertices.toArray(new Vertex[vertices.size()]);
+	int h = scan.computeHull(v);
+	return v;
+}
+
 public void handleVertexChangeEvent(VertexChangeEvent event) {
 	if(event.getType() == VertexChangeEventType.VERTEXDELETED){ 
 		removeVertex(event.getSource());	

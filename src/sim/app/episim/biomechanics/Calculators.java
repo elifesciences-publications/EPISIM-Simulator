@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Set;
 
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
+import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
 import sim.app.episim.visualization.CellEllipse;
 
@@ -17,11 +18,14 @@ public abstract class Calculators {
 	public static final int STARTY = 100;
 	public static final int SIDELENGTH = 20;
 	public static final int SIDELENGTHHALF = SIDELENGTH/2;
+	public static final double ALLOWED_DELTA = 1;
+	
+	
 	private static Random rand = new Random(100);
 	
 	private static final double MAX_MERGE_VERTEX_DISTANCE = 10;
 	private static final double MAX_CLEAN_VERTEX_DISTANCE = 10;
-	
+	private static final double MAX_CLEAN_ESTIMATED_VERTEX_DISTANCE = 10;
 	
 	public static CellPolygon[] getStandardCellArray(int rows, int columns){
 		int height = Math.round((float) Math.sqrt(Math.pow(SIDELENGTH, 2)-Math.pow(SIDELENGTH/2, 2)));
@@ -259,25 +263,25 @@ public abstract class Calculators {
 							cellPol_3 = new CellPolygon();
 							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll2, cellPol_3);
 						}
-						else cellPol_3 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll2);
+						else cellPol_3 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll2);					
 					
-					
+						if(contains(cellEll, isps1[0].getDoubleX(), isps1[0].getDoubleY())){
 							cellPol_1.addVertex(isps1[0]);
-							cellPol_2.addVertex(isps1[0]);
-						
-						
+							cellPol_2.addVertex(isps1[0]);						
+						}
+						if(contains(cellEll, isps1[1].getDoubleX(), isps1[1].getDoubleY())){
 							cellPol_1.addVertex(isps1[1]);
 							cellPol_2.addVertex(isps1[1]);
-						
-						
+						}
+						if(contains(cellEll, isps2[0].getDoubleX(), isps2[0].getDoubleY())){
 							cellPol_1.addVertex(isps2[0]);
 							cellPol_3.addVertex(isps2[0]);
-						
-						
+						}
+						if(contains(cellEll, isps2[1].getDoubleX(), isps2[1].getDoubleY())){
 							cellPol_1.addVertex(isps2[1]);
 							cellPol_3.addVertex(isps2[1]);
-						
-			
+						}
+									
 						Vertex polygonVertex = getIntersectionOfLines(isps1[0], isps1[1], isps2[0], isps2[1]);
 							
 						if(polygonVertex != null){
@@ -286,8 +290,7 @@ public abstract class Calculators {
 								cellPol_1.addVertex(polygonVertex);
 								cellPol_2.addVertex(polygonVertex);
 								cellPol_3.addVertex(polygonVertex);
-							}
-						
+							}						
 						}					
 					}					
 				}
@@ -321,11 +324,43 @@ public abstract class Calculators {
 		
 	}
 	
+	public static void calculateEstimatedVertices(CellEllipse ellipse){
+		double stepsize = Math.PI / 4;
+		double two_pi = 2 * Math.PI;
+	
+		CellPolygon cellPol = null;
+		if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ellipse.getId()) == null){
+			cellPol = new CellPolygon();
+			CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(ellipse.getId(), cellPol);
+		}
+		else cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ellipse.getId());
+		double[] newPoint = null;
+		for(double i = 0; i < two_pi; i += stepsize){
+			 newPoint = EllipseIntersectionCalculatorAndClipper.calculatePointOnEllipse(ellipse.getX(), ellipse.getY(), ellipse.getMajorAxis()/2, ellipse.getMinorAxis()/2, i, ellipse.getOrientationInRadians());
+			 
+			 if(contains(ellipse, newPoint[0], newPoint[1])){
+				
+				 Vertex v = new Vertex(newPoint[0], newPoint[1]);
+				 v.setEstimatedVertex(true);
+				 cellPol.addVertex(v);
+			 }
+		}
+		cleanEstimatedVertices(ellipse);
+	}
+	
+	private static boolean contains(CellEllipse ellipse, double x, double y){
+		if(ellipse.getClippedEllipse().getBounds().contains(x-ALLOWED_DELTA, y-ALLOWED_DELTA)
+				 || ellipse.getClippedEllipse().getBounds().contains(x-ALLOWED_DELTA, y+ALLOWED_DELTA)
+				 || ellipse.getClippedEllipse().getBounds().contains(x+ALLOWED_DELTA, y-ALLOWED_DELTA)
+				 || ellipse.getClippedEllipse().getBounds().contains(x+ALLOWED_DELTA, y+ALLOWED_DELTA)){
+			return true;
+		}
+		return false;
+	}
 	
 	
 	
-	
-	public static void cleanVertices(Vertex[] vertices){
+	public static void cleanCalculatedVertices(Vertex[] vertices){
 		
 		for(int i = 0; i < vertices.length; i++){
 			for(int n = 0; n < vertices.length; n++){
@@ -350,12 +385,33 @@ public abstract class Calculators {
 	}
 	
 	
+	private static void cleanEstimatedVertices(CellEllipse ell){
+		
+		CellPolygon pol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId());
+		Vertex[] vertices = pol.getVertices();
+		double cleanDistance = ell.getMinorAxis()*0.6;
+		for(int i = 0; i < vertices.length; i++){
+			if(vertices[i] != null && !vertices[i].isEstimatedVertex()){
+				for(int n = 0; n < vertices.length; n++){
+					if(n != i){
+						if(vertices[i] != null && vertices[n] != null && !vertices[i].isWasDeleted() && !vertices[n].isWasDeleted() && vertices[n].isEstimatedVertex()){
+							if(vertices[i].edist(vertices[n])<= cleanDistance){								
+									vertices[n].delete();
+									vertices[n]=null;								
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
 	private static boolean checkMergeCondition(Vertex[] isps1, Vertex[] isps2, Vertex mergePoint, double maxDistance){
 		double minDistance1 = Double.POSITIVE_INFINITY;
 		double minDistance2 = Double.POSITIVE_INFINITY;
 		Vertex minVertex1 = null;
 		Vertex minVertex2 = null;
-		
 		
 		Vertex[] allIsps = new Vertex[4];
 		allIsps[0] = isps1[0];

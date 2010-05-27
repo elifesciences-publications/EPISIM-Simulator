@@ -66,6 +66,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 	
 	
 	public static XYPoints getClippedEllipsesAndXYPoints(CellEllipse actEllipse, CellEllipse otherEllipse){
+		if(instance == null) instance = new EllipseIntersectionCalculatorAndClipper();
 		noOfCalls++;
 		long timeStart = (new Date()).getTime();
 		
@@ -269,14 +270,15 @@ public class EllipseIntersectionCalculatorAndClipper {
 		}
 	}	
 	
-	private double[] calculatePointOnEllipse(double x, double y, double a, double b, double alpha, double phi){
+	public static double[] calculatePointOnEllipse(double x, double y, double major_axis, double minor_axis, double alpha, double orientation){
+		
 		double cos_alpha = Math.cos(alpha);
 		double sin_alpha = Math.sin(alpha);
-		double cos_phi = Math.cos(phi);
-		double sin_phi = Math.sin(phi);
+		double cos_phi = Math.cos(orientation);
+		double sin_phi = Math.sin(orientation);
 		
-		double point_x = x + a * cos_phi*cos_alpha -  b*sin_phi*sin_alpha;
-		double point_y = y + b*cos_phi*sin_alpha + a*sin_phi*cos_alpha;
+		double point_x = x + major_axis * cos_phi*cos_alpha -  minor_axis*sin_phi*sin_alpha;
+		double point_y = y + minor_axis*cos_phi*sin_alpha + major_axis*sin_phi*cos_alpha;
 		
 		return new double[]{point_x, point_y};
 	}

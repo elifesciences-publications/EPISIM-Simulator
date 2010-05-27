@@ -25,6 +25,8 @@ public class Vertex implements java.io.Serializable{
 		
 	private boolean mergeVertex = false;
 	
+	private boolean estimatedVertex = false;
+	
 	private boolean wasDeleted = false;
 	
 	
@@ -244,5 +246,17 @@ public class Vertex implements java.io.Serializable{
 	
 		return wasDeleted;
 	}
+
+	
+   public boolean isEstimatedVertex() {
+   
+   	return estimatedVertex;
+   }
+
+	
+   public void setEstimatedVertex(boolean estimatedVertex) {
+   
+   	this.estimatedVertex = estimatedVertex;
+   }
 
 }

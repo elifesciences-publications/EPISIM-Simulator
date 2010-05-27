@@ -27,7 +27,7 @@ public CellPolygon(){
 }
 
 public void addVertex(Vertex v){
-	if(v != null &&  !vertices.contains(v)){
+	if(v != null &&  !vertices.contains(v) && !v.isWasDeleted()){
 		vertices.add(v);
 		v.addVertexChangeListener(this);
 	}

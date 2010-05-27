@@ -415,7 +415,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 		if(intersectionPoints[2][0] == 0 && intersectionPoints[2][1] == 0 && intersectionPoints[3][0] == 0 && intersectionPoints[3][1] == 0) return intersectionPoints;
 		else{
 			double [] distances = new double[4];
-			for(int i = 0; i < intersectionPoints.length; i++){
+			for(int i = 0; i < intersectionPoints.length && i<4; i++){
 				distances[i]+= distance(actEll[0], actEll[1], intersectionPoints[i][0], intersectionPoints[i][1]);
 				distances[i]+= distance(otherEll[0], otherEll[1], intersectionPoints[i][0], intersectionPoints[i][1]);
 			}

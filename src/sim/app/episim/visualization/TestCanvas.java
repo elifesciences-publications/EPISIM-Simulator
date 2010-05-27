@@ -96,8 +96,7 @@ public class TestCanvas extends JPanel {
 			g.setColor(cellEllipse.getColor());
 			g.draw(cellEllipse.getClippedEllipse());
 			g.setColor(oldColor);
-			drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellEllipse.getColor());
-			
+			drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellEllipse.getColor());			
 		}
 		if(newCellEllipse) cellEllipses.add(cellEllipse);
 	}

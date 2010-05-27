@@ -245,7 +245,7 @@ public abstract class Calculators {
 					alreadyCalculatedCouples.add(ellId2+ellId1);
 					Vertex[] isps1 = xyPoints.get(ellId1).intersectionPoints;
 					Vertex[] isps2 = xyPoints.get(ellId2).intersectionPoints;
-					if(!isps1[0].isWasDeleted() && !isps1[1].isWasDeleted() && !isps2[0].isWasDeleted() && !isps2[1].isWasDeleted()){
+					
 						long idOtherEll1 = Long.parseLong(ellId1.split(""+CellEllipse.SEPARATORCHAR)[1]);
 						long idOtherEll2 = Long.parseLong(ellId2.split(""+CellEllipse.SEPARATORCHAR)[1]);
 						
@@ -261,23 +261,23 @@ public abstract class Calculators {
 						}
 						else cellPol_3 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll2);
 					
-						if(clippedEll.getBounds().contains(isps1[0].getDoubleX(), isps1[0].getDoubleY())){ 
+					
 							cellPol_1.addVertex(isps1[0]);
 							cellPol_2.addVertex(isps1[0]);
-						}
-						if(clippedEll.getBounds().contains(isps1[1].getDoubleX(), isps1[1].getDoubleY())){
+						
+						
 							cellPol_1.addVertex(isps1[1]);
 							cellPol_2.addVertex(isps1[1]);
-						}
-						if(clippedEll.getBounds().contains(isps2[0].getDoubleX(), isps2[0].getDoubleY())){
+						
+						
 							cellPol_1.addVertex(isps2[0]);
 							cellPol_3.addVertex(isps2[0]);
-						}
-						if(clippedEll.getBounds().contains(isps2[1].getDoubleX(), isps2[1].getDoubleY())){
+						
+						
 							cellPol_1.addVertex(isps2[1]);
 							cellPol_3.addVertex(isps2[1]);
-						}
 						
+			
 						Vertex polygonVertex = getIntersectionOfLines(isps1[0], isps1[1], isps2[0], isps2[1]);
 							
 						if(polygonVertex != null){
@@ -287,14 +287,9 @@ public abstract class Calculators {
 								cellPol_2.addVertex(polygonVertex);
 								cellPol_3.addVertex(polygonVertex);
 							}
-						}
-								
-								
-							
-							
 						
-					}
-					
+						}					
+					}					
 				}
 				
 			}
@@ -303,7 +298,7 @@ public abstract class Calculators {
 				for(String id : xyPoints.keySet()){
 					
 					Vertex[] isps = xyPoints.get(id).intersectionPoints;
-					if(!isps[0].isWasDeleted() && !isps[0].isWasDeleted()){
+					if(!isps[0].isWasDeleted() && !isps[1].isWasDeleted()){
 						cellPol_1.addVertex(isps[0]);
 						cellPol_1.addVertex(isps[1]);
 						long idOtherEll1 = Long.parseLong(id.split(""+CellEllipse.SEPARATORCHAR)[1]);
@@ -320,11 +315,15 @@ public abstract class Calculators {
 			}
 			//cleanCellPolygonVertices(cellPol_1);
 			
-		}
+		
 		
 		
 		
 	}
+	
+	
+	
+	
 	
 	public static void cleanVertices(Vertex[] vertices){
 		

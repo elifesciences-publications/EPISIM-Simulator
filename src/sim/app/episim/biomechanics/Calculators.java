@@ -1,11 +1,13 @@
 package sim.app.episim.biomechanics;
 
+import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
 import sim.app.episim.visualization.CellEllipse;
 
@@ -16,6 +18,9 @@ public abstract class Calculators {
 	public static final int SIDELENGTH = 20;
 	public static final int SIDELENGTHHALF = SIDELENGTH/2;
 	private static Random rand = new Random(100);
+	
+	private static final double MAX_MERGE_VERTEX_DISTANCE = 10;
+	private static final double MAX_CLEAN_VERTEX_DISTANCE = 10;
 	
 	
 	public static CellPolygon[] getStandardCellArray(int rows, int columns){
@@ -219,58 +224,138 @@ public abstract class Calculators {
 		return null;
 	}
 	
-	public static CellPolygon getCellPolygon(CellEllipse cellEll){
-		CellPolygon cellPol = new CellPolygon();
+	public static void calculateCellPolygons(CellEllipse cellEll){
+		CellPolygon cellPol_1 = null, cellPol_2 = null, cellPol_3 = null;
+		if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cellEll.getId()) == null){
+			cellPol_1 = new CellPolygon();
+			CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(cellEll.getId(), cellPol_1);
+		}
+		else cellPol_1 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cellEll.getId());
 		Map<String, XYPoints> xyPoints = cellEll.getAllXYPointsOfEllipse();
 		Set<String> alreadyCalculatedCouples = new HashSet<String>();
+		
+		Area clippedEll =cellEll.getClippedEllipse();
 		if(xyPoints != null && !xyPoints.isEmpty()){
 			for(String ellId1 : xyPoints.keySet()){
 				for(String ellId2: xyPoints.keySet()){
-					if(!ellId1.equals(ellId2) && !alreadyCalculatedCouples.contains(ellId1+ellId2)){
-						alreadyCalculatedCouples.add(ellId1+ellId2);
-						alreadyCalculatedCouples.add(ellId2+ellId1);
-						Vertex[] isps1 = xyPoints.get(ellId1).intersectionPoints;
-						Vertex[] isps2 = xyPoints.get(ellId2).intersectionPoints;
+					
+				if(!ellId1.equals(ellId2) && !alreadyCalculatedCouples.contains(ellId1+ellId2)){
+					
+					alreadyCalculatedCouples.add(ellId1+ellId2);
+					alreadyCalculatedCouples.add(ellId2+ellId1);
+					Vertex[] isps1 = xyPoints.get(ellId1).intersectionPoints;
+					Vertex[] isps2 = xyPoints.get(ellId2).intersectionPoints;
+					if(!isps1[0].isWasDeleted() && !isps1[1].isWasDeleted() && !isps2[0].isWasDeleted() && !isps2[1].isWasDeleted()){
+						long idOtherEll1 = Long.parseLong(ellId1.split(""+CellEllipse.SEPARATORCHAR)[1]);
+						long idOtherEll2 = Long.parseLong(ellId2.split(""+CellEllipse.SEPARATORCHAR)[1]);
 						
-						isps1[0].setCellEllipseIdString(ellId1);
-						isps1[1].setCellEllipseIdString(ellId1);
-						isps2[0].setCellEllipseIdString(ellId2);
-						isps2[1].setCellEllipseIdString(ellId2);
+						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1) == null){
+							cellPol_2 = new CellPolygon();
+							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll1, cellPol_2);
+						}
+						else cellPol_2 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1);
+						
+						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll2) == null){
+							cellPol_3 = new CellPolygon();
+							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll2, cellPol_3);
+						}
+						else cellPol_3 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll2);
+					
+						if(clippedEll.getBounds().contains(isps1[0].getDoubleX(), isps1[0].getDoubleY())){ 
+							cellPol_1.addVertex(isps1[0]);
+							cellPol_2.addVertex(isps1[0]);
+						}
+						if(clippedEll.getBounds().contains(isps1[1].getDoubleX(), isps1[1].getDoubleY())){
+							cellPol_1.addVertex(isps1[1]);
+							cellPol_2.addVertex(isps1[1]);
+						}
+						if(clippedEll.getBounds().contains(isps2[0].getDoubleX(), isps2[0].getDoubleY())){
+							cellPol_1.addVertex(isps2[0]);
+							cellPol_3.addVertex(isps2[0]);
+						}
+						if(clippedEll.getBounds().contains(isps2[1].getDoubleX(), isps2[1].getDoubleY())){
+							cellPol_1.addVertex(isps2[1]);
+							cellPol_3.addVertex(isps2[1]);
+						}
 						
 						Vertex polygonVertex = getIntersectionOfLines(isps1[0], isps1[1], isps2[0], isps2[1]);
-						polygonVertex.setCellEllipseIdString(ellId1);
-						
-						if(polygonVertex != null){ 
-							if(checkMergeCondition(isps1, isps2, polygonVertex, 10)){
+							
+						if(polygonVertex != null){
+							if(checkMergeCondition(isps1, isps2, polygonVertex, MAX_MERGE_VERTEX_DISTANCE)){
 								polygonVertex.setMergeVertex(true);
-								cellPol.addVertex(polygonVertex);
-								for(Vertex v : getVerticesWithMaxDistance(isps1, isps2, polygonVertex)){
-									cellPol.addVertex(v);
-								}
+								cellPol_1.addVertex(polygonVertex);
+								cellPol_2.addVertex(polygonVertex);
+								cellPol_3.addVertex(polygonVertex);
 							}
-							else{
+						}
 								
-								cellPol.addVertex(isps1[0]);
-								cellPol.addVertex(isps1[1]);
-								cellPol.addVertex(isps2[0]);
-								cellPol.addVertex(isps2[1]);
+								
+							
+							
+						
+					}
+					
+				}
+				
+			}
+			}
+			if(xyPoints.keySet().size() == 1){
+				for(String id : xyPoints.keySet()){
+					
+					Vertex[] isps = xyPoints.get(id).intersectionPoints;
+					if(!isps[0].isWasDeleted() && !isps[0].isWasDeleted()){
+						cellPol_1.addVertex(isps[0]);
+						cellPol_1.addVertex(isps[1]);
+						long idOtherEll1 = Long.parseLong(id.split(""+CellEllipse.SEPARATORCHAR)[1]);
+						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1) == null){
+							cellPol_2 = new CellPolygon();
+							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll1, cellPol_2);
+						}
+						else cellPol_2 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1);
+						
+						cellPol_2.addVertex(isps[0]);
+						cellPol_2.addVertex(isps[1]);
+					}
+				}
+			}
+			//cleanCellPolygonVertices(cellPol_1);
+			
+		}
+		
+		
+		
+	}
+	
+	public static void cleanVertices(Vertex[] vertices){
+		
+		for(int i = 0; i < vertices.length; i++){
+			for(int n = 0; n < vertices.length; n++){
+				if(n != i){
+					if(vertices[i] != null && vertices[n] != null && !vertices[i].isWasDeleted() && !vertices[n].isWasDeleted()){
+						if(vertices[i].edist(vertices[n])<= MAX_CLEAN_VERTEX_DISTANCE){
+							if((vertices[i].isMergeVertex() && !vertices[n].isMergeVertex())
+									|| (!vertices[i].isMergeVertex() && !vertices[n].isMergeVertex())
+									|| (vertices[i].isMergeVertex() && vertices[n].isMergeVertex())){
+								vertices[n].replaceVertex(vertices[i]);
+								vertices[n]=null;
+							}
+							else if(!vertices[i].isMergeVertex() && vertices[n].isMergeVertex()){
+								vertices[i].replaceVertex(vertices[n]);
+								vertices[i]=null;
 							}
 						}
 					}
 				}
 			}
-		
 		}
-		Vertex v_center = getCellCenter(cellPol);
-		cellPol.setX(v_center.getDoubleX());
-		cellPol.setY(v_center.getDoubleY());
-		return cellPol;
 	}
+	
 	
 	private static boolean checkMergeCondition(Vertex[] isps1, Vertex[] isps2, Vertex mergePoint, double maxDistance){
 		double minDistance1 = Double.POSITIVE_INFINITY;
 		double minDistance2 = Double.POSITIVE_INFINITY;
-		
+		Vertex minVertex1 = null;
+		Vertex minVertex2 = null;
 		
 		
 		Vertex[] allIsps = new Vertex[4];
@@ -283,11 +368,22 @@ public abstract class Calculators {
 			actDist = allIsps[i].edist(mergePoint);
 			if(actDist < minDistance1){
 				minDistance2 = minDistance1;
+				minVertex2 = minVertex1;
 				minDistance1 = actDist;
+				minVertex1 = allIsps[i];
 			}
-			else if(actDist < minDistance2) minDistance2 = actDist;
+			else if(actDist < minDistance2){ 
+				minDistance2 = actDist;
+				minVertex2 = allIsps[i];
+			}
 		}
-		return minDistance1 <= maxDistance && minDistance2 <= maxDistance;
+		if(minDistance1 <= maxDistance && minDistance2 <= maxDistance){
+			minVertex1.delete();
+			minVertex2.delete();
+			return true;
+		}
+		
+		return false;
 	}
 	
 	private static Vertex[] getVerticesWithMaxDistance(Vertex[] isps1, Vertex[] isps2, Vertex mergePoint){

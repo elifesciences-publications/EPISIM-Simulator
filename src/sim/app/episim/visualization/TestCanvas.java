@@ -97,13 +97,7 @@ public class TestCanvas extends JPanel {
 			g.draw(cellEllipse.getClippedEllipse());
 			g.setColor(oldColor);
 			drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellEllipse.getColor());
-			CellPolygon cellPol = Calculators.getCellPolygon(cellEllipse);
-			Vertex[] vertices = null;
-			if(cellPol != null && (vertices = cellPol.getVertices()) != null){
-				for(Vertex v : vertices){
-					if(v != null)drawPoint(g, v.getIntX(), v.getIntY(), 5, Color.RED);
-				}
-			}
+			
 		}
 		if(newCellEllipse) cellEllipses.add(cellEllipse);
 	}
@@ -133,7 +127,7 @@ public class TestCanvas extends JPanel {
 	public void paint(Graphics g){
 		super.paint(g);
 		this.ellipseKeySet.clear();
-		CellEllipseIntersectionCalculationRegistry.getInstance().reset();
+		CellEllipseIntersectionCalculationRegistry.getInstance().simulationWasStopped();
 		for(CellEllipse ell : cellEllipses){
 			ell.resetClippedEllipse();
 		}
@@ -141,6 +135,27 @@ public class TestCanvas extends JPanel {
 		for(CellEllipse ell : cellEllipses){
 			
 			drawCellEllipse((Graphics2D) g,ell, false);
+			Calculators.calculateCellPolygons(ell);
+		}
+		Calculators.cleanVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices());
+		CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices();
+		System.out.println("-----------------------------------------");
+		CellPolygon cellPol = null;
+		Vertex[] vertices = null;
+		int i = 0;
+		for(CellEllipse ell : cellEllipses){
+			
+			cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId());
+			if(cellPol != null && (vertices = cellPol.getVertices()) != null){
+				for(Vertex v : vertices){
+					if(v != null){
+						if(!v.isWasDeleted())drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.RED);
+						else drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.BLACK);
+					}
+				}
+			}
+		
+			
 		}
 	}
 	

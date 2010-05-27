@@ -48,15 +48,14 @@ public class CellEllipse  implements Serializable{
 
 		private Nucleus nucleus = null;
 		
-		private static final char  SEPARATORCHAR = ';';
+		public static final char  SEPARATORCHAR = ';';
 		
 		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, Color c){
 			this(id, x, y, majorAxis, minorAxis, 0, 0, 0, 0, 0, 0, c);
 		}
 		
 		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, int height, int width, int orientationInDegrees, double area, double solidity, double distanceToBL, Color c){
-			this.id = id;
-			
+			this.id = id;			
 			clippedEllipse = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
 			ellipseAsArea = getClone(clippedEllipse);
 			this.x = x;
@@ -71,6 +70,7 @@ public class CellEllipse  implements Serializable{
 			this.distanceToBL = distanceToBL;
 			this.rotateCellEllipseInDegrees(orientationInDegrees);
 			this.xyPointsOfEllipse = new HashMap<String, XYPoints>();
+			CellEllipseIntersectionCalculationRegistry.getInstance().registerCellEllipse(this);
 		}
 	
 		

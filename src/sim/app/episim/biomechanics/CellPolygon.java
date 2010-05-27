@@ -1,6 +1,9 @@
 package sim.app.episim.biomechanics;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+
+import sim.app.episim.biomechanics.VertexChangeEvent.VertexChangeEventType;
 
 public class CellPolygon implements VertexChangeListener{
 	
@@ -10,11 +13,11 @@ public class CellPolygon implements VertexChangeListener{
  private double y = 0;
  private boolean selected = false;
 	
-private ArrayList<Vertex> vertices;
+private HashSet<Vertex> vertices;
 
 public CellPolygon(double x, double y){
 	id = nextId++;
-	vertices = new ArrayList<Vertex>();
+	vertices = new HashSet<Vertex>();
 	this.x = x;
 	this.y = y;
 }
@@ -24,13 +27,17 @@ public CellPolygon(){
 }
 
 public void addVertex(Vertex v){
-	vertices.add(v);
-	v.addVertexChangeListener(this);
+	if(v != null &&  !vertices.contains(v)){
+		vertices.add(v);
+		v.addVertexChangeListener(this);
+	}
 }
 
 public void removeVertex(Vertex v){
-	vertices.remove(v);
-	v.removeVertexChangeListener(this);
+	if(vertices.contains(v)){
+		vertices.remove(v);
+		v.removeVertexChangeListener(this);
+	}
 }
 
 public int getId(){ return id;}
@@ -57,7 +64,13 @@ public void sortVertices(){
 }
 
 public void handleVertexChangeEvent(VertexChangeEvent event) {
-	// TODO Auto-generated method stub	
+	if(event.getType() == VertexChangeEventType.VERTEXDELETED){ 
+		removeVertex(event.getSource());	
+	}
+	else if(event.getType() == VertexChangeEventType.VERTEXREPLACED){
+		removeVertex(event.getSource());
+		addVertex(event.getNewVertex());
+	}
 }
 
 

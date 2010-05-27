@@ -22,11 +22,13 @@ public class Vertex implements java.io.Serializable{
 	private ArrayList<VertexChangeListener> changeListener;
 	
 	public boolean isNew = false;
-	
-	private String cellEllipseIdString="";
-	
+		
 	private boolean mergeVertex = false;
 	
+	private boolean wasDeleted = false;
+	
+	
+
 	public Vertex(double x, double y){
 		id = nextid++;
 		this.x = x;
@@ -169,7 +171,29 @@ public class Vertex implements java.io.Serializable{
 	
 	private void notifyAllListeners(VertexChangeEventType type){
 		VertexChangeEvent event = new VertexChangeEvent(this, type);
-		for(VertexChangeListener listener : changeListener) listener.handleVertexChangeEvent(event);
+		ArrayList<VertexChangeListener> changeListenerCopy = new ArrayList<VertexChangeListener>();
+		changeListenerCopy.addAll(changeListener);
+		for(VertexChangeListener listener : changeListenerCopy) listener.handleVertexChangeEvent(event);
+	}
+	
+	private void notifyAllListeners(VertexChangeEventType type, Vertex newVertex){
+		VertexChangeEvent event = new VertexChangeEvent(this, newVertex, type);
+		ArrayList<VertexChangeListener> changeListenerCopy = new ArrayList<VertexChangeListener>();
+		changeListenerCopy.addAll(changeListener);
+		for(VertexChangeListener listener : changeListenerCopy) listener.handleVertexChangeEvent(event);
+	}
+	
+	/*
+	 * Vertex will be removed from all Listening Polygons
+	 */
+	public void delete(){
+		this.wasDeleted = true;
+		notifyAllListeners(VertexChangeEventType.VERTEXDELETED);
+	}
+	
+	public void replaceVertex(Vertex newVertex){
+		this.wasDeleted = true;
+		notifyAllListeners(VertexChangeEventType.VERTEXREPLACED, newVertex);
 	}
 	
 	public String toString(){
@@ -184,7 +208,7 @@ public class Vertex implements java.io.Serializable{
 	   result = prime * result + id;
 	   return result;
    }
-
+   
 
    public boolean equals(Object obj) {
 
@@ -201,16 +225,7 @@ public class Vertex implements java.io.Serializable{
    }
 
 	
-   public String getCellEllipseIdString() {
    
-   	return cellEllipseIdString;
-   }
-
-	
-   public void setCellEllipseIdString(String cellEllipseIdString) {
-   
-   	this.cellEllipseIdString = cellEllipseIdString;
-   }
 
 	
    public boolean isMergeVertex() {
@@ -224,6 +239,10 @@ public class Vertex implements java.io.Serializable{
    	this.mergeVertex = mergeVertex;
    }
 	
+
+	public boolean isWasDeleted() {
 	
+		return wasDeleted;
+	}
 
 }

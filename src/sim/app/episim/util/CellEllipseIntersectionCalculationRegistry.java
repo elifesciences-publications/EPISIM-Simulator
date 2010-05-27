@@ -1,11 +1,15 @@
 package sim.app.episim.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.biomechanics.CellPolygon;
+import sim.app.episim.biomechanics.Vertex;
+import sim.app.episim.visualization.CellEllipse;
 
 
 public class CellEllipseIntersectionCalculationRegistry implements SimulationStateChangeListener {
@@ -18,9 +22,14 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	
 	private static final char SEPARATORCHAR = ';';
 	
+	private Map<Long, CellEllipse> cellEllipseRegistry;
+	private Map<Long, CellPolygon> cellPolygonRegistry;
+	
 	private CellEllipseIntersectionCalculationRegistry(){
 		alreadyCalculatedCells = new HashSet<String>();
 		intersectingCells = new HashSet<String>();
+		cellEllipseRegistry = new HashMap<Long, CellEllipse>();
+		cellPolygonRegistry = new HashMap<Long, CellPolygon>();
 	}
 	
 	private static CellEllipseIntersectionCalculationRegistry instance = new CellEllipseIntersectionCalculationRegistry();
@@ -31,6 +40,23 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 		this.alreadyCalculatedCells.add(buildStringId(idCell1, idCell2));
 		this.alreadyCalculatedCells.add(buildStringId(idCell2, idCell1));
 	}
+	
+	public void registerCellEllipse(CellEllipse ellipse){
+		cellEllipseRegistry.put(ellipse.getId(), ellipse);
+	}
+	
+	public CellEllipse getCellEllipse(long id){
+		return cellEllipseRegistry.get(id);
+	}
+	
+	public void registerCellPolygonByCellEllipseId(long cellEllipseId, CellPolygon polygon){
+		cellPolygonRegistry.put(cellEllipseId, polygon);
+	}
+	
+	public CellPolygon getCellPolygonByCellEllipseId(long id){
+		return cellPolygonRegistry.get(id);
+	}
+	
 	
 	public void addIntersectionCellEllipses(long idCell1, long idCell2){
 		this.intersectingCells.add(buildStringId(idCell1, idCell2));
@@ -84,13 +110,26 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	public void simulationWasStarted() {
 
 	   reset();
-	   
+	  
    }
-
+	
+	public Vertex[] getAllCellEllipseVertices(){
+		HashSet<Vertex> vertices = new HashSet<Vertex>();
+		for(CellPolygon pol: this.cellPolygonRegistry.values()){
+			vertices.addAll(Arrays.asList(pol.getVertices())); 
+		}
+		Vertex[] verticesArray = new Vertex[vertices.size()];
+		System.out.println("There are " + vertices.size() + "Vertices");
+		return vertices.toArray(verticesArray);
+		
+	}
+	
+	
 	public void simulationWasStopped() {
 
 	   reset();
-	   
+	   cellEllipseRegistry.clear();
+	   cellPolygonRegistry.clear();
    }
 	
 	public void simulationWasPaused(){}

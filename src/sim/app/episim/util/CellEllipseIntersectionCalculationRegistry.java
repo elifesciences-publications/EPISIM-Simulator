@@ -119,7 +119,7 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 			vertices.addAll(Arrays.asList(pol.getVertices())); 
 		}
 		Vertex[] verticesArray = new Vertex[vertices.size()];
-		System.out.println("There are " + vertices.size() + "Vertices");
+		//System.out.println("There are " + vertices.size() + "Vertices");
 		return vertices.toArray(verticesArray);
 		
 	}

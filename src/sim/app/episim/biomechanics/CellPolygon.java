@@ -53,7 +53,7 @@ public int hashCode() {
 
 public Vertex[] getVertices(){ return vertices.toArray(new Vertex[vertices.size()]); }
 
-public void sortVertices(){
+public void sortVerticesWithGrahamScan(){
 	GrahamScan scan = new GrahamScan();
 	Vertex[] v =  vertices.toArray(new Vertex[vertices.size()]);
 	int h = scan.computeHull(v);
@@ -63,11 +63,16 @@ public void sortVertices(){
 	//System.out.println("No of vertices: " + v.length + "    No of Hull Points: " + h);
 }
 
-public Vertex[] getSortedVertices(){
+public Vertex[] getSortedVerticesUsingGrahamScan(){
 	GrahamScan scan = new GrahamScan();
 	Vertex[] v =  vertices.toArray(new Vertex[vertices.size()]);
 	int h = scan.computeHull(v);
 	return v;
+}
+
+public Vertex[] getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing(){
+	SimulatedAnnealing sim = new SimulatedAnnealing(getVertices());
+	return sim.sortVertices();
 }
 
 public void handleVertexChangeEvent(VertexChangeEvent event) {
@@ -114,5 +119,38 @@ public boolean isSelected() {
 public void setSelected(boolean selected) {
 	this.selected = selected;
 }
+
+
+/*------------------------------------------------------------------------------------------------------
+ START SIMULATED ANNEALING CLIENT METHODS
+ -------------------------------------------------------------------------------------------------------*/
+
+public int getCount() {	return this.vertices.size();}
+
+
+
+public double getError(double i, double j) {
+
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+public double getStartingTemperature() { return 10; }
+
+public void setStatus(String status) {
+
+	System.out.println(status);
+	
+}
+
+public void update() {
+
+	// TODO Auto-generated method stub
+	
+}
+
+/*------------------------------------------------------------------------------------------------------
+	END SIMULATED ANNEALING CLIENT METHODS
+-------------------------------------------------------------------------------------------------------*/
 
 }

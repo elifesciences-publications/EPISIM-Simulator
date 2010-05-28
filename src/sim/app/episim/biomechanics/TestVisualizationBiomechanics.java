@@ -172,7 +172,7 @@ public class TestVisualizationBiomechanics {
 			Polygon p = new Polygon();
 			
 		
-			cell.sortVertices();
+			cell.sortVerticesWithGrahamScan();
 			Vertex[] newVertices = new Vertex[2];
 			int newVertexIndex = 0;
 			for(Vertex v : cell.getVertices()){	

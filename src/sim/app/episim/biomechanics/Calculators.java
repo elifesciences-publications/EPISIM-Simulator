@@ -172,7 +172,7 @@ public abstract class Calculators {
 						CellPolygon actCell = (CellPolygon) listener;
 						if(foundCellIdsFirstVertex.contains(actCell.getId())){ 
 							actCell.addVertex(v_s);
-							actCell.sortVertices();
+							actCell.sortVerticesWithGrahamScan();
 						}
 					}
 				}
@@ -269,7 +269,7 @@ public abstract class Calculators {
 							cellPol_1.addVertex(isps1[0]);
 							cellPol_2.addVertex(isps1[0]);						
 						}
-						if(contains(cellEll, isps1[1].getDoubleX(), isps1[1].getDoubleY())){
+						if(contains(cellEll, isps1[1].getDoubleX(), isps1[1].getDoubleY()) && !isZeroVertex(isps1[1])){
 							cellPol_1.addVertex(isps1[1]);
 							cellPol_2.addVertex(isps1[1]);
 						}
@@ -277,7 +277,7 @@ public abstract class Calculators {
 							cellPol_1.addVertex(isps2[0]);
 							cellPol_3.addVertex(isps2[0]);
 						}
-						if(contains(cellEll, isps2[1].getDoubleX(), isps2[1].getDoubleY())){
+						if(contains(cellEll, isps2[1].getDoubleX(), isps2[1].getDoubleY())&& !isZeroVertex(isps2[1])){
 							cellPol_1.addVertex(isps2[1]);
 							cellPol_3.addVertex(isps2[1]);
 						}
@@ -303,7 +303,8 @@ public abstract class Calculators {
 					Vertex[] isps = xyPoints.get(id).intersectionPoints;
 					if(!isps[0].isWasDeleted() && !isps[1].isWasDeleted()){
 						cellPol_1.addVertex(isps[0]);
-						cellPol_1.addVertex(isps[1]);
+						if(!isZeroVertex(isps[1]))cellPol_1.addVertex(isps[1]);
+						else System.out.println("Hallo");
 						long idOtherEll1 = Long.parseLong(id.split(""+CellEllipse.SEPARATORCHAR)[1]);
 						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1) == null){
 							cellPol_2 = new CellPolygon();
@@ -312,7 +313,7 @@ public abstract class Calculators {
 						else cellPol_2 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1);
 						
 						cellPol_2.addVertex(isps[0]);
-						cellPol_2.addVertex(isps[1]);
+						if(!isZeroVertex(isps[1]))	cellPol_2.addVertex(isps[1]);
 					}
 				}
 			}
@@ -322,6 +323,11 @@ public abstract class Calculators {
 		
 		
 		
+	}
+	
+	
+	private static boolean isZeroVertex(Vertex v){
+		return v.getDoubleX() == 0 && v.getDoubleY() == 0;
 	}
 	
 	public static void calculateEstimatedVertices(CellEllipse ellipse){

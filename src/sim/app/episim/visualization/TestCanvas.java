@@ -151,14 +151,17 @@ public class TestCanvas extends JPanel {
 			
 			cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId());
 			if(cellPol != null && (vertices = cellPol.getVertices()) != null){
+				drawCellPolygon((Graphics2D)g, cellPol, false);
+				
 				for(Vertex v : vertices){
 					if(v != null){
 						if(v.isWasDeleted())drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.BLACK);
 						else if(v.isEstimatedVertex()) drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.MAGENTA);
+						else if(v.isMergeVertex()) drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.YELLOW);
 						else drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.RED);
 					}
 				}
-				drawCellPolygon((Graphics2D)g, cellPol, false);
+				
 			}
 		
 			
@@ -276,17 +279,20 @@ public class TestCanvas extends JPanel {
 			//drawPoint(g, cell.getX(), cell.getY(), 2, Color.BLUE);
 			Polygon p = new Polygon();
 			
+			//Vertex[] sortedVertices = cell.getSortedVerticesUsingGrahamScan();
+			Vertex[] sortedVertices = cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
 		
-			
-		
-			for(Vertex v : cell.getSortedVertices()){	
+			for(Vertex v : sortedVertices){	
 				p.addPoint(v.getIntX(), v.getIntY());
 				
 			}
 		//	g.drawString(""+ Math.round(Calculators.getCellArea(cell))*0.2 + ", " + Math.round(Calculators.getCellPerimeter(cell))*0.2, cell.getX()-10, cell.getY());
 			
 			
-			
+			Color oldColor = g.getColor();
+			g.setColor(Color.LIGHT_GRAY);
+			g.fillPolygon(p);
+			g.setColor(oldColor);
 			g.drawPolygon(p);
 			
 			

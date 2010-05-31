@@ -8,6 +8,7 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import sim.app.episim.biomechanics.Vertex;
@@ -49,6 +50,8 @@ public class CellEllipse  implements Serializable{
 		private Nucleus nucleus = null;
 		
 		public static final char  SEPARATORCHAR = ';';
+		
+
 		
 		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, Color c){
 			this(id, x, y, majorAxis, minorAxis, 0, 0, 0, 0, 0, 0, c);

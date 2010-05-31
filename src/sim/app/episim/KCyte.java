@@ -14,6 +14,7 @@ import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
 import ec.util.*;
+import episimbiomechanics.EpisimModelIntegrator;
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
@@ -49,11 +50,11 @@ public class KCyte extends CellType
    
    private final String NAME = "Keratinocyte";
    
-   public static final int GOPTIMALKERATINODISTANCE=4; // Default: 4
-   public static final int GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
+   public static final double GOPTIMALKERATINODISTANCE=4.2; // Default: 4
+   public static final double GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
    //The width of the keratinocyte must be bigger or equals the hight
    public static final int GINITIALKERATINOHEIGHT=5; // Default: 5
-   public static final int GINITIALKERATINOWIDTH=5; // Default: 5
+   public static final int GINITIALKERATINOWIDTH=6; // Default: 5
    
    public final int NEXTTOOUTERCELL=7;
    private double MINDIST=0.1;
@@ -65,8 +66,8 @@ public class KCyte extends CellType
 //	-----------------------------------------------------------------------------------------------------------------------------------------          
    
    
-   private int gKeratinoWidthGranu=9; // default: 10
-   private int gKeratinoHeightGranu=4;
+   private int gKeratinoWidthGranu=14; // default: 10
+   private int gKeratinoHeightGranu=5;
                 
    private Double2D lastd = new Double2D(0,0);
  
@@ -138,7 +139,8 @@ public class KCyte extends CellType
    	        
     	 this.cellDiffModelObjekt = cellDiffModel;
     	 if(cellDiffModel == null) this.cellDiffModelObjekt = ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject();
-       extForce=new Vector2D(0,0);
+    	 else cellDiffModel.setEpisimModelIntegrator((EpisimModelIntegrator)ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel());
+    	 extForce=new Vector2D(0,0);
        cellDeathListeners = new LinkedList<CellDeathListener>();
        
        cellDeathListeners.add(TissueServer.getInstance().getActEpidermalTissue());
@@ -588,6 +590,7 @@ public class KCyte extends CellType
     private void makeChildren(EpisimCellDiffModel[] children){
    	 if(children!=null){
    		 for(EpisimCellDiffModel actChild: children){
+   			 
    			 if(actChild.getDifferentiation() == EpisimCellDiffModelGlobalParameters.TACELL) makeTACell(actChild);
    			 else if(actChild.getDifferentiation() == EpisimCellDiffModelGlobalParameters.EARLYSPICELL) makeSpiCell(actChild);
    		 }

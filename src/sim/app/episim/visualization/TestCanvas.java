@@ -136,13 +136,14 @@ public class TestCanvas extends JPanel {
 		//	drawCellEllipse((Graphics2D) g,ell, false);
 			Calculators.calculateCellPolygons(ell);
 		}
-		Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices());
+	 	
 		CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices();
 		System.out.println("-----------------------------------------");
 		
-		for(CellEllipse ell : cellEllipses) Calculators.calculateEstimatedVertices(ell);
-		
-		
+		for(CellEllipse ell : cellEllipses){
+			Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId()));
+			Calculators.calculateEstimatedVertices(ell);		
+		}
 		
 		CellPolygon cellPol = null;
 		Vertex[] vertices = null;
@@ -290,7 +291,7 @@ public class TestCanvas extends JPanel {
 			
 			
 			Color oldColor = g.getColor();
-			g.setColor(Color.LIGHT_GRAY);
+			g.setColor(cell.getFillColor());
 			g.fillPolygon(p);
 			g.setColor(oldColor);
 			g.drawPolygon(p);

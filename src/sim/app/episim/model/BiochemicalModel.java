@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import episimbiomechanics.EpisimModelIntegrator;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellDiffModel;
 import episiminterfaces.EpisimCellDiffModelGlobalParameters;
@@ -58,9 +59,12 @@ public class BiochemicalModel implements java.io.Serializable, SnapshotListener{
 	}
 		
 	public EpisimCellDiffModel getNewEpisimCellDiffModelObject() {
+		EpisimCellDiffModel cellDiffModel = null;
 		if(this.cellDiffModelClass !=null)
 	      try{
-	         return this.cellDiffModelClass.newInstance();
+	         cellDiffModel = this.cellDiffModelClass.newInstance();
+	         cellDiffModel.setEpisimModelIntegrator((EpisimModelIntegrator)ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel());
+	         return cellDiffModel;
          }
          catch (InstantiationException e){
          	ExceptionDisplayer.getInstance().displayException(e);

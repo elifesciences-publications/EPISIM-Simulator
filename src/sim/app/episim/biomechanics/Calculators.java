@@ -1,5 +1,6 @@
 package sim.app.episim.biomechanics;
 
+import java.awt.Polygon;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.util.HashSet;
@@ -23,9 +24,40 @@ public abstract class Calculators {
 	
 	private static Random rand = new Random(100);
 	
-	private static final double MAX_MERGE_VERTEX_DISTANCE = 10;
-	private static final double MAX_CLEAN_VERTEX_DISTANCE = 10;
-	private static final double MAX_CLEAN_ESTIMATED_VERTEX_DISTANCE = 10;
+	private static final double MAX_MERGE_VERTEX_DISTANCE = 2;
+	private static final double MAX_CLEAN_VERTEX_DISTANCE = 4;
+	private static final double MAX_CLEAN_ESTIMATED_VERTEX_FACTOR = 0.5;
+	
+	
+	public static CellPolygon[] getSquareVertex(int xStart, int yStart, int sidelength, int size){
+		Vertex[][] vertexNetwork = new Vertex[size][size];
+		for(int i = 0; i < size; i++){
+			Vertex[] vertices = new Vertex[size];
+			for(int n = 0; n < size; n++){
+				vertices[n] = new Vertex((xStart+n*sidelength),(yStart+i*sidelength));
+			}
+			vertexNetwork[i] = vertices;
+		}
+		
+		CellPolygon[] polygons = new CellPolygon[(int)Math.pow(size-1, 2)];
+		
+		int polygonNumber = 0;
+		for(int i = 0; i < (size-1); i++){
+			for(int n = 0; n < (size-1); n++){
+				CellPolygon p = new CellPolygon();
+				p.addVertex(vertexNetwork[i][n]);
+				p.addVertex(vertexNetwork[i][n+1]);
+				p.addVertex(vertexNetwork[i+1][n]);
+				p.addVertex(vertexNetwork[i+1][n+1]);
+				polygons[polygonNumber++] = p;
+				p.setPreferredArea(Math.pow(sidelength, 2));
+			}
+		}
+		
+		return polygons;
+	}
+
+	
 	
 	public static CellPolygon[] getStandardCellArray(int rows, int columns){
 		int height = Math.round((float) Math.sqrt(Math.pow(SIDELENGTH, 2)-Math.pow(SIDELENGTH/2, 2)));
@@ -46,9 +78,7 @@ public abstract class Calculators {
 		return cells;		
 	}
 	
-	private static double distance(int x1, int y1, int x2, int y2){	
-		return distance((double) x1, (double) y1, (double) x2, (double) y2);		
-	}
+	
 	
 	private static double distance(double x1, double y1, double x2, double y2){	
 		return Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2));		
@@ -99,7 +129,7 @@ public abstract class Calculators {
 	public static double getCellArea(CellPolygon cell){
 		double areaTrapeze = 0;
 		int n = cell.getVertices().length;
-		Vertex[] vertices = cell.getVertices();
+		Vertex[] vertices = cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
 		for(int i = 0; i < n; i++){
 			areaTrapeze += ((vertices[(i%n)].getDoubleX() - vertices[((i+1)%n)].getDoubleX())*(vertices[(i%n)].getDoubleY() + vertices[((i+1)%n)].getDoubleY()));
 		}
@@ -304,7 +334,7 @@ public abstract class Calculators {
 					if(!isps[0].isWasDeleted() && !isps[1].isWasDeleted()){
 						cellPol_1.addVertex(isps[0]);
 						if(!isZeroVertex(isps[1]))cellPol_1.addVertex(isps[1]);
-						else System.out.println("Hallo");
+						
 						long idOtherEll1 = Long.parseLong(id.split(""+CellEllipse.SEPARATORCHAR)[1]);
 						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1) == null){
 							cellPol_2 = new CellPolygon();
@@ -366,7 +396,12 @@ public abstract class Calculators {
 	
 	
 	
-	public static void cleanCalculatedVertices(Vertex[] vertices){
+	public static void cleanCalculatedVertices(CellPolygon polygon){
+		
+		
+	
+		
+		Vertex[] vertices = polygon.getVertices();
 		
 		for(int i = 0; i < vertices.length; i++){
 			for(int n = 0; n < vertices.length; n++){
@@ -374,16 +409,24 @@ public abstract class Calculators {
 					if(vertices[i] != null && vertices[n] != null && !vertices[i].isWasDeleted() && !vertices[n].isWasDeleted()){
 						if(vertices[i].edist(vertices[n])<= MAX_CLEAN_VERTEX_DISTANCE){
 							if((vertices[i].isMergeVertex() && !vertices[n].isMergeVertex())
-									|| (!vertices[i].isMergeVertex() && !vertices[n].isMergeVertex())
-									|| (vertices[i].isMergeVertex() && vertices[n].isMergeVertex())){
+									|| (!vertices[i].isMergeVertex() == !vertices[n].isMergeVertex())){
+								
+							if(((vertices[i].isMergeVertex() == vertices[n].isMergeVertex())&&vertices[i].getId()< vertices[n].getId()) 
+									||(vertices[i].isMergeVertex() && !vertices[n].isMergeVertex())){
 								vertices[n].replaceVertex(vertices[i]);
 								vertices[n]=null;
+							}
+							else{
+									vertices[i].replaceVertex(vertices[n]);
+									vertices[i]=null;
+							}
 							}
 							else if(!vertices[i].isMergeVertex() && vertices[n].isMergeVertex()){
 								vertices[i].replaceVertex(vertices[n]);
 								vertices[i]=null;
 							}
 						}
+						
 					}
 				}
 			}
@@ -394,8 +437,10 @@ public abstract class Calculators {
 	private static void cleanEstimatedVertices(CellEllipse ell){
 		
 		CellPolygon pol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId());
+		
 		Vertex[] vertices = pol.getVertices();
-		double cleanDistance = ell.getMinorAxis()*0.6;
+		double cleanDistance = ell.getMinorAxis()*MAX_CLEAN_ESTIMATED_VERTEX_FACTOR;
+		Polygon[] neighbourPolygons = getNeighbourPolygons(pol);
 		for(int i = 0; i < vertices.length; i++){
 			if(vertices[i] != null && !vertices[i].isEstimatedVertex()){
 				for(int n = 0; n < vertices.length; n++){
@@ -404,12 +449,38 @@ public abstract class Calculators {
 							if(vertices[i].edist(vertices[n])<= cleanDistance){								
 									vertices[n].delete();
 									vertices[n]=null;								
-							}
+							}			
 						}
 					}
 				}
 			}
+			else if(neighbourPolygons != null &&vertices[i] != null && vertices[i].isEstimatedVertex()){
+				for(int m = 0; m < neighbourPolygons.length; m++){
+					if(neighbourPolygons[m] != null && neighbourPolygons[m].contains(vertices[i].getDoubleX(), vertices[i].getDoubleY())){
+						vertices[i].delete();
+						vertices[i]=null;
+						
+						break;
+						
+					}
+				}
+			}
 		}
+	}
+	
+	private static Polygon[] getNeighbourPolygons(CellPolygon cellPol){
+		CellPolygon[] neighbourCellPols = cellPol.getNeighbourPolygons();	
+		Polygon[] pols = new Polygon[neighbourCellPols.length];
+		for(int i = 0; i< neighbourCellPols.length; i++){
+			pols[i] = new Polygon();			
+			Vertex[] sortedVertices = neighbourCellPols[i].getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+		
+			for(Vertex v : sortedVertices){	
+				pols[i].addPoint(v.getIntX(), v.getIntY());
+				
+			}
+		}
+		return pols;
 	}
 	
 	

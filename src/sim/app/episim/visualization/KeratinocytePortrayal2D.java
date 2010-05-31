@@ -3,6 +3,9 @@ import sim.SimStateServer;
 import sim.SimStateServer.SimState;
 import sim.app.episim.CellType;
 import sim.app.episim.KCyte;
+import sim.app.episim.biomechanics.Calculators;
+import sim.app.episim.biomechanics.CellPolygon;
+import sim.app.episim.biomechanics.Vertex;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
@@ -105,15 +108,11 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 
                 
               if(colorType < 8){
-               
-               
-               
+                     
                 //
                 // set shape
                 //
                 
-                
-                        
                                 
                 //getColors
                 Color fillColor = getFillColor(kcyte);
@@ -154,6 +153,30 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
 	            	  final double NUCLEUSRAD = 0.75;
 	                 graphics.fill(new Ellipse2D.Double(kcyte.getCellEllipseObject().getX()-NUCLEUSRAD*info.draw.width, kcyte.getCellEllipseObject().getY()- NUCLEUSRAD*info.draw.height,2*NUCLEUSRAD*info.draw.width, 2*NUCLEUSRAD*info.draw.height));
             	 }
+              }
+              
+              else if(colorType == 10){
+            	  calculateClippedCell(kcyte);
+            	  Calculators.calculateCellPolygons(kcyte.getCellEllipseObject());
+            	  Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(kcyte.getCellEllipseObject().getId()));
+            	  Calculators.calculateEstimatedVertices(kcyte.getCellEllipseObject());
+            	CellPolygon  cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(kcyte.getCellEllipseObject().getId());
+            	Vertex[] vertices = null;
+        			if(cellPol != null && (vertices = cellPol.getVertices()) != null){
+        				drawCellPolygon(graphics, cellPol);
+        				
+        				for(Vertex v : vertices){
+        					/*if(v != null){
+        						if(v.isWasDeleted())drawPoint(graphics, v.getIntX(), v.getIntY(), 5, Color.BLACK);
+        						else if(v.isEstimatedVertex()) drawPoint(graphics, v.getIntX(), v.getIntY(), 5, Color.MAGENTA);
+        						else if(v.isMergeVertex()) drawPoint(graphics, v.getIntX(), v.getIntY(), 5, Color.YELLOW);
+        						else drawPoint(graphics, v.getIntX(), v.getIntY(), 5, Color.RED);
+        					}*/
+        					
+        					drawPoint(graphics, v.getIntX(), v.getIntY(), 3, new Color(99,37,35));
+        				}
+        				
+        			}
               }
               
               
@@ -254,7 +277,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
       int green=0;
       int blue=0;
             
-      if ((coloringType==1) || (coloringType==2) || (coloringType==8))  // Cell type coloring
+      if ((coloringType==1) || (coloringType==2) || (coloringType==8) || (coloringType ==10))  // Cell type coloring
       {              
         	   if(keratinoType == EpisimCellDiffModelGlobalParameters.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
         	   else if(keratinoType == EpisimCellDiffModelGlobalParameters.TACELL){red=148; green=167; blue=214;}                             
@@ -360,6 +383,27 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    return ( area.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height ) );
    }
 
-   
+   private void drawCellPolygon(Graphics2D g, CellPolygon cell){
+		if(cell != null){
+			
+			Polygon p = new Polygon();			
+			Vertex[] sortedVertices = cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+		
+			for(Vertex v : sortedVertices){	
+				p.addPoint(v.getIntX(), v.getIntY());
+				
+			}
+					
+			Color oldColor = g.getColor();
+			//g.setColor(cell.getFillColor());
+			g.setColor(Color.PINK);
+			g.fillPolygon(p);
+			g.setColor(new Color(99,37,35));
+			g.drawPolygon(p);
+			g.setColor(oldColor);
+			
+			//drawVertex(g,Calculators.getCellCenter(cell),false);
+		}
+	}
    
 }

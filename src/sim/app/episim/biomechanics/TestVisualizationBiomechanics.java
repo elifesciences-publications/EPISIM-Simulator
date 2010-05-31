@@ -35,7 +35,7 @@ public class TestVisualizationBiomechanics {
 			e.printStackTrace();
 		}
 		//testCellAreaCalculation();
-		cells = Calculators.getStandardCellArray(1, 4);
+		cells = Calculators.getSquareVertex(100, 100, 100, 4);
 	
 		
 		
@@ -91,18 +91,36 @@ public class TestVisualizationBiomechanics {
 	}
 	private void setSimulationState(SimState state){
 		if(state == SimState.SIMSTART){
+		final MatrixCalculator calc = new MatrixCalculator();
 		simulationState = SimState.SIMSTART;
 		simulationThread = new Thread(new Runnable(){ public void run() { 
+			cells[4].setPreferredArea(cells[4].getPreferredArea()*2);
 			while(simulationState == SimState.SIMSTART){
 				try{
-	            Thread.sleep(1000);
+					
+					for(CellPolygon polygon: cells){
+					for(Vertex v: polygon.getVertices()){
+						if(!v.isWasAlreadyCalculated() && v.getNumberOfCellsJoiningThisVertex() > 2){
+							calc.relaxVertex(v);
+							v.setWasAlreadyCalculated(true);
+						}
+					}
+					}
+					
+					
+					for(CellPolygon polygon: cells){
+						polygon.resetCalculationStatusOfAllVertices();
+						polygon.commitNewVertexValues();
+					}
+					visualizationPanel.repaint(); 
+	            Thread.sleep(5000);
             }
             catch (InterruptedException e){
 	            // TODO Auto-generated catch block
 	            e.printStackTrace();
             }
-				Calculators.randomlySelectCell(cells); 
-				visualizationPanel.repaint(); 
+			//	Calculators.randomlySelectCell(cells); 
+				
 			}
 			
 		
@@ -131,8 +149,8 @@ public class TestVisualizationBiomechanics {
 	}
 	
 	private void drawVisualization(Graphics2D g){		
-		//if(cells!= null) for(Cell cell : cells) drawCell(g, cell, true);
-		drawErrorManhattanVersusEuclideanDistance(g);
+		if(cells!= null) for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
+		//drawErrorManhattanVersusEuclideanDistance(g);
 	}
 	
 	private void drawErrorManhattanVersusEuclideanDistance(Graphics2D g){
@@ -166,7 +184,7 @@ public class TestVisualizationBiomechanics {
 		}
 	}
 	
-	private void drawCell(Graphics2D g, CellPolygon cell, boolean showCellAreaAndPerimeter){
+	private void drawCellPolygon(Graphics2D g, CellPolygon cell, boolean showCellAreaAndPerimeter){
 		if(cell != null){
 			//drawPoint(g, cell.getX(), cell.getY(), 2, Color.BLUE);
 			Polygon p = new Polygon();
@@ -175,7 +193,7 @@ public class TestVisualizationBiomechanics {
 			cell.sortVerticesWithGrahamScan();
 			Vertex[] newVertices = new Vertex[2];
 			int newVertexIndex = 0;
-			for(Vertex v : cell.getVertices()){	
+			for(Vertex v : cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing()){	
 				if(!v.isNew)p.addPoint(v.getIntX(), v.getIntY());
 				else newVertices[newVertexIndex++] = v;
 			}
@@ -196,15 +214,15 @@ public class TestVisualizationBiomechanics {
 				drawVertex(g, v, false);				
 			}
 			
-			drawVertex(g,Calculators.getCellCenter(cell),false);
+			//drawVertex(g,Calculators.getCellCenter(cell),false);
 		}
 	}
 	
 	private void drawVertex(Graphics2D g, Vertex vertex, boolean showVertexId){
 		if(vertex != null){
 			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);			
-			if(vertex.isNew) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 2, Color.YELLOW);
-			else drawPoint(g, vertex.getIntX(), vertex.getIntY(), 2, Color.BLUE);
+			if(vertex.isNew) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.YELLOW);
+			else drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.BLUE);
 		}
 	}
 	

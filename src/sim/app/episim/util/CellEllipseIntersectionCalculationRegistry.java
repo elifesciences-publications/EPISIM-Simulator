@@ -75,6 +75,7 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 		if(actSimStep > actSimulationStep){
 			actSimulationStep = actSimStep;
 			conditionSet.clear();
+			cellPolygonRegistry.clear();
 		}
 		else if(actSimStep < actSimulationStep){
 			throw new IllegalStateException("The current Sim Step is: " + actSimulationStep + " The submitted Sim Step to calculate was: " + actSimStep);

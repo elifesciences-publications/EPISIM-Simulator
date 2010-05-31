@@ -2,6 +2,7 @@ package sim.app.episim;
 
 
 import sim.DummyCellType;
+import sim.app.episim.biomechanics.CellPolygon;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
@@ -9,6 +10,7 @@ import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
+import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
@@ -16,6 +18,7 @@ import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueType;
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.TysonRungeCuttaCalculator;
@@ -232,7 +235,38 @@ private void seedStemCells(){
 		schedule.scheduleRepeating(globalStatisticsSteppable, 3, globalStatisticsSteppable.getInterval());
 		
 			
-			
+		schedule.scheduleRepeating(new Steppable(){
+
+			public void step(SimState state) {
+
+				if(MiscalleneousGlobalParameters.instance().getTypeColor() == 10){
+					int[] neighbourHistogram = new int[9];
+					for(CellType cell: allCells){
+						CellPolygon pol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cell.getCellEllipseObject().getId());
+						if(pol != null){
+							int neighbours = pol.getNumberOfNeighbourPolygons();
+							if(neighbours < 1) neighbours = 1;
+							if(neighbours > 9) neighbours = 9;
+							neighbours -= 1;
+							neighbourHistogram[neighbours]++;
+						}
+					}
+					 try {
+			           BufferedWriter out = new BufferedWriter(new FileWriter("d:\\cellNeighbourEvaluation.csv", true));
+			       
+			           out.write("Zellanzahl;1 Nachbar;2 Nachbarn;3 Nachbarn;4 Nachbarn;5 Nachbarn;6 Nachbarn;7 Nachbarn;8 Nachbarn;9 Nachbarn;\n");
+			           out.write(""+allCells.size()+";");
+			           for(int i= 0; i< neighbourHistogram.length; i++){
+			         	  out.write(""+ neighbourHistogram[i]+";");
+			           }
+			                   
+			           out.write("\n");
+			           out.flush();
+			           out.close();
+			            } catch (IOException e) {e.printStackTrace();}
+				}
+				
+			}}, 5, 1);	
 			
 			
 			basementContinous2D.clear();

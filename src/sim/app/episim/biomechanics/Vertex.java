@@ -1,6 +1,7 @@
 package sim.app.episim.biomechanics;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import sim.app.episim.biomechanics.VertexChangeEvent.VertexChangeEventType;
 
@@ -19,6 +20,9 @@ public class Vertex implements java.io.Serializable{
 	private double x;
 	private double y;
 	
+	private double x_new;
+	private double y_new;
+	
 	private ArrayList<VertexChangeListener> changeListener;
 	
 	public boolean isNew = false;
@@ -29,12 +33,15 @@ public class Vertex implements java.io.Serializable{
 	
 	private boolean wasDeleted = false;
 	
-	
+	private boolean wasAlreadyCalculated = false;
 
+	
 	public Vertex(double x, double y){
 		id = nextid++;
 		this.x = x;
 		this.y = y;
+		this.x_new = x;
+		this.y_new = y;
 		changeListener = new ArrayList<VertexChangeListener>();
 	}
 	
@@ -160,9 +167,15 @@ public class Vertex implements java.io.Serializable{
 		changeListener.remove(listener);
 	}
 	
-	public void setDoubleX(double x){ this.x = x; }
+	public void setDoubleX(double x){
+		
+		this.x = x; 
+	}
 	public double getDoubleX(){ return x; }
-	public void setDoubleY(double y){ this.y = y; }
+	public void setDoubleY(double y){ 
+		
+		this.y = y; 
+	}
 	public double getDoubleY(){ return y; }
 	
 	public void setIntX(int x){ setDoubleX((double)x); }
@@ -227,6 +240,22 @@ public class Vertex implements java.io.Serializable{
    }
 
 	
+   public int getNumberOfCellsJoiningThisVertex(){
+   	int numberOfCellPolygons = 0;
+   	for(VertexChangeListener listener :changeListener){
+   		if(listener instanceof CellPolygon) numberOfCellPolygons++;
+   	}
+   	return numberOfCellPolygons;
+   }
+   
+   public CellPolygon[] getCellsJoiningThisVertex(){
+   	HashSet<CellPolygon> polygons = new HashSet<CellPolygon>();
+   	for(VertexChangeListener listener :changeListener){
+   		if(listener instanceof CellPolygon) polygons.add((CellPolygon) listener);
+   	}
+   	CellPolygon[] polArray = new CellPolygon[polygons.size()];
+   	return polygons.toArray(polArray);
+   }
    
 
 	
@@ -258,5 +287,39 @@ public class Vertex implements java.io.Serializable{
    
    	this.estimatedVertex = estimatedVertex;
    }
+   
+
+	public boolean isWasAlreadyCalculated() {
+	
+		return wasAlreadyCalculated;
+	}
+
+	
+	public void setWasAlreadyCalculated(boolean wasAlreadyCalculated) {
+	
+		this.wasAlreadyCalculated = wasAlreadyCalculated;
+	}
+
+	
+	public void setNewX(double x_new) {
+	
+		this.x_new = x_new;
+	}
+
+	
+	public void setNewY(double y_new) {
+	
+		this.y_new = y_new;
+	}
+	
+	public void resetCalculationStatus(){
+		this.wasAlreadyCalculated = false;
+	}
+	
+	public void commitNewValues(){
+		this.x = this.x_new;
+		this.y = this.y_new;
+	}
+
 
 }

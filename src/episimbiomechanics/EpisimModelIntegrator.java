@@ -25,6 +25,7 @@ public class EpisimModelIntegrator implements EpisimMechanicalModel{
 	
 	public void setContractility(double contractility) {
 	
+		//System.out.println("Contracility was set to "+ contractility);
 		this.contractility = contractility;
 	}
 	
@@ -38,7 +39,7 @@ public class EpisimModelIntegrator implements EpisimMechanicalModel{
 		this.adhesion = adhesion;
 	}
 	
-	public double getElasicity() {
+	public double getElasticity() {
 	
 		return elasticity;
 	}

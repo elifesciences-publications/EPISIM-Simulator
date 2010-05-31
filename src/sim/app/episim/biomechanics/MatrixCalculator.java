@@ -16,12 +16,17 @@ import no.uib.cipr.matrix.sparse.Preconditioner;
 public class MatrixCalculator {
 	
 	
+	private static final double K = 0.25;
+	private static final double LAMBDA = 1;
+	private static final double GAMMA = 30;
+	
 	private boolean testIfSignumChangeForAreaCalculation(double polygon[][], int vertexNumber){
 		double area = 0;
 		int noOfVertices = polygon.length;
-		for(int i = vertexNumber, n = 0; n < polygon.length; n++, i++ ){
-			area += (polygon[i%noOfVertices][0]*polygon[(i+1)%noOfVertices][1]- polygon[(i+1)%noOfVertices][0]*polygon[i%noOfVertices][1]);
+		for(int n = 0; n < polygon.length; n++){
+			area += (polygon[n%noOfVertices][0]*polygon[(n+1)%noOfVertices][1]- polygon[(n+1)%noOfVertices][0]*polygon[n%noOfVertices][1]);
 		}
+		area /= 2;
 		return area < 0;
 	}
 	
@@ -44,7 +49,7 @@ public class MatrixCalculator {
 				((sign*polygon[mod((vertexNumber-1), noOfVertices)][0])-(sign*polygon[mod((vertexNumber+1), noOfVertices)][0]));
 			
 		Matrix m = new DenseMatrix(areaMatrix);
-		System.out.println(m.toString());
+		m = m.scale((K/2));
 		return m;
 	}
 	
@@ -56,7 +61,7 @@ public class MatrixCalculator {
 		
 		Matrix m = new DenseMatrix(resultMatrix);
 		
-		printMatrix(resultMatrix);
+		m = m.scale(GAMMA);
 		
 		return m;
 	}
@@ -105,8 +110,10 @@ public class MatrixCalculator {
 		resultVector[0] *= (-1*coeffizients[0]);
 		resultVector[1] *= (-1*coeffizients[1]);
 	
-		printVector(resultVector);
+		
 		Vector v = new DenseVector(resultVector);
+		
+		v= v.scale(GAMMA);
 		
 		return v;
 	}
@@ -138,13 +145,13 @@ public class MatrixCalculator {
 				provisionalResult += ((sign*polygon[i][0]*polygon[mod((i+1), noOfVertices)][1] - sign*polygon[mod((i+1), noOfVertices)][0]*polygon[i][1]));
 			}
 		}
-		provisionalResult -= A0;
+		provisionalResult -= (2*A0);
 		
 		resultVector[0] = ((sign*polygon[mod((vertexNumber+1), noOfVertices)][1])-(sign*polygon[mod((vertexNumber-1), noOfVertices)][1]))*provisionalResult*-1;
 		resultVector[1] = ((sign*polygon[mod((vertexNumber-1), noOfVertices)][0])-(sign*polygon[mod((vertexNumber+1), noOfVertices)][0]))*provisionalResult*-1;
 		
-		Vector v = new DenseVector(resultVector); 
-		System.out.println(v.toString());
+		Vector v = new DenseVector(resultVector);
+		v = v.scale(K/2);
 		return v;
 	}
 	
@@ -161,9 +168,10 @@ public class MatrixCalculator {
 		sign = signManhattan(polygon[vertexNumber][1], polygon[mod((vertexNumber-1), noOfVertices)][1]);
 		coeffizient_2 += sign;
 		
-		double[] resultVector = new double[]{coeffizient_1, coeffizient_2};
-		printVector(resultVector);
-		return new DenseVector(resultVector);
+		double[] resultVector = new double[]{coeffizient_1*-1, coeffizient_2*-1};
+		Vector v = new DenseVector(resultVector);
+		 v = v.scale(LAMBDA);
+		return v;
 	}
 	
 	
@@ -176,22 +184,72 @@ public class MatrixCalculator {
 	
 	
 	
+public void relaxVertex(Vertex vertex){
+		
+		Matrix totalResultMatrix = new DenseMatrix(2,2);
+		Vector totalResultVector = new DenseVector(2);
+		
+		
+		double [][] calculationPolygon;
+		Vertex[] polygonVertices;
+		int vertexNumber = 0; 
+		for(CellPolygon pol : vertex.getCellsJoiningThisVertex()){
+			polygonVertices = pol.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+			boolean orderedCorrect = checkIfClockWise(polygonVertices);
+			if(!orderedCorrect){
+			
+			polygonVertices = invertVertexOrdering(polygonVertices);
+			
+			}
+			calculationPolygon = new double[polygonVertices.length][2];
+			for(int i = 0; i < polygonVertices.length; i++){
+				if(polygonVertices[i].equals(vertex)) vertexNumber = i;
+				calculationPolygon[i] = new double[]{polygonVertices[i].getDoubleX(), polygonVertices[i].getDoubleY()};
+			}			
+			totalResultMatrix = totalResultMatrix.add(calculateAreaMatrixForPolygon(calculationPolygon, vertexNumber));
+			totalResultMatrix = totalResultMatrix.add(calculatePerimeterMatrixForPolygon(calculationPolygon, vertexNumber));
+			
+			totalResultVector = totalResultVector.add(calculateAreaResultVector(calculationPolygon, vertexNumber, pol.getPreferredArea()));
+			totalResultVector = totalResultVector.add(calculatePerimeterResultVector(calculationPolygon, vertexNumber));
+			totalResultVector = totalResultVector.add(calculateLineTensionResultVector(calculationPolygon, vertexNumber));
+		}
+		
+		
+		Vector v = calculateOptimalResult(totalResultMatrix, totalResultVector, vertex);
+		vertex.setNewX(Math.round(v.get(0)));
+		vertex.setNewY(Math.round(v.get(1)));
+		
+	//	System.out.println(x.toString());
+		
+		
+		
+	}
 	
-	public static void main(String[] args){
-		double [][] testPolygon = new double[][]{{1,1},{1,2},{2,2},{2,1}};
-		MatrixCalculator calculator = new MatrixCalculator();
-					
-		calculator.calculatePerimeterMatrixForPolygon(testPolygon, 0);
-		calculator.calculatePerimeterResultVector(testPolygon, 0);
-		calculator.calculateLineTensionResultVector(testPolygon, 0);
+	private boolean checkIfClockWise(Vertex[] vertices){
+		double areaTrapeze = 0;
+		int n = vertices.length;
 		
-	/*	CompRowMatrix A = new CompRowMatrix(new DenseMatrix(new double[][]{{1,1},{1,5}}));
-		DenseVector x, b;
-
+		for(int i = 0; i < n; i++){
+			areaTrapeze += ((vertices[((i+1)%n)].getDoubleX() - vertices[(i%n)].getDoubleX())*(vertices[((i+1)%n)].getDoubleY() + vertices[(i%n)].getDoubleY()));
+		}
 		
-		
-		b = new DenseVector(new double[]{3,15});
-		x = new DenseVector(new double[]{0.8,0.8});
+		return areaTrapeze < 0;
+	}
+	
+	private Vertex[] invertVertexOrdering(Vertex[] vertices){
+		Vertex[] verticesNew = new Vertex[vertices.length];
+		for(int i = 0, n= (vertices.length-1); i< verticesNew.length && n >=0; i++, n--){
+			verticesNew[i] = vertices[n];
+		}
+		return verticesNew;
+	}
+	
+	private Vector calculateOptimalResult(Matrix matrix, Vector resultVector, Vertex vertex){
+		CompRowMatrix A = new CompRowMatrix(matrix);
+		Vector x, b;
+	
+		b = resultVector;
+		x = new DenseVector(new double[]{vertex.getDoubleX(), vertex.getDoubleY()});
 		// Allocate storage for Conjugate Gradients
 		IterativeSolver solver = new CG(x);
 
@@ -208,14 +266,21 @@ public class MatrixCalculator {
 
 		// Start the solver, and check for problems
 		try {
-		  solver.solve(A, b, x);
+			
+			 Vector result= solver.solve(A, b, x);
+			 System.out.println("---------And the result is------------------");
+			 System.out.println("("+Math.round(result.get(0))+" , "+ Math.round(result.get(1))+")");
+			 return result;
 		  
 		} catch (IterativeSolverNotConvergedException e) {
 		  System.err.println("Iterative solver failed to converge");
 		}
-		
-		System.out.println(x.toString());*/
-		
+		return null;
+	}
+	
+	public static void main(String[] args){
+		MatrixCalculator cal = new MatrixCalculator();
+		//cal.relaxVertex(null);
 		
 		
 	}

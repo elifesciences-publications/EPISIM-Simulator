@@ -1,9 +1,10 @@
 package sim.app.episim.biomechanics;
 
-import java.util.ArrayList;
+import java.awt.Color;
 import java.util.HashSet;
 
 import sim.app.episim.biomechanics.VertexChangeEvent.VertexChangeEventType;
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 
 public class CellPolygon implements VertexChangeListener{
 	
@@ -12,8 +13,10 @@ public class CellPolygon implements VertexChangeListener{
  private double x = 0;
  private double y = 0;
  private boolean selected = false;
+ 
+ private double preferredArea;
 	
-private HashSet<Vertex> vertices;
+ private HashSet<Vertex> vertices;
 
 public CellPolygon(double x, double y){
 	id = nextId++;
@@ -86,6 +89,54 @@ public void handleVertexChangeEvent(VertexChangeEvent event) {
 }
 
 
+public int getNumberOfNeighbourPolygons(){
+	return getNeighbourPolygons().length;
+}
+
+
+public CellPolygon[] getNeighbourPolygons(){
+	HashSet<Integer> alreadyCheckedIds = new HashSet<Integer>();
+	HashSet<CellPolygon> neighbourPolygonsSet = new HashSet<CellPolygon>();
+	for(Vertex v: this.getVertices()){
+		if(v.getNumberOfCellsJoiningThisVertex() > 0){
+			for(CellPolygon pol :v.getCellsJoiningThisVertex()){
+				if(!alreadyCheckedIds.contains(pol.getId()) && pol.getId() != this.getId()){ 
+					alreadyCheckedIds.add(pol.getId());
+					neighbourPolygonsSet.add(pol);
+				}
+			}
+		}
+	}
+	
+	CellPolygon[] neighbourPolygonsArray = new CellPolygon[neighbourPolygonsSet.size()];
+	
+	return neighbourPolygonsSet.toArray(neighbourPolygonsArray);	
+}
+
+
+public double getCurrentArea(){
+	return Calculators.getCellArea(this);
+}
+
+
+public Color getFillColor() { 
+	int neighbourNo = getNumberOfNeighbourPolygons();
+	
+		if(neighbourNo <= 3) return Color.WHITE;
+		else if(neighbourNo == 4) return Color.GREEN;
+		else if(neighbourNo == 5) return Color.YELLOW;
+		else if(neighbourNo == 6) return Color.GRAY;
+		else if(neighbourNo == 7) return Color.BLUE;
+		else if(neighbourNo == 8) return Color.RED;
+		else if(neighbourNo >= 9) return Color.PINK;
+	
+	 
+	
+	return Color.WHITE;
+}
+
+
+
 public boolean equals(Object obj) {
 
 	if(this == obj)
@@ -121,36 +172,23 @@ public void setSelected(boolean selected) {
 }
 
 
-/*------------------------------------------------------------------------------------------------------
- START SIMULATED ANNEALING CLIENT METHODS
- -------------------------------------------------------------------------------------------------------*/
-
-public int getCount() {	return this.vertices.size();}
-
-
-
-public double getError(double i, double j) {
-
-	// TODO Auto-generated method stub
-	return 0;
+public void resetCalculationStatusOfAllVertices(){
+	for(Vertex v : this.getVertices()){ 
+		v.resetCalculationStatus();
+	}
+}
+public void commitNewVertexValues(){
+	for(Vertex v : this.getVertices()){ 
+		v.commitNewValues();
+	}
 }
 
-public double getStartingTemperature() { return 10; }
-
-public void setStatus(String status) {
-
-	System.out.println(status);
-	
+public double getPreferredArea() {
+	return preferredArea;
 }
 
-public void update() {
-
-	// TODO Auto-generated method stub
-	
+public void setPreferredArea(double preferredArea) {
+	this.preferredArea = preferredArea;
 }
-
-/*------------------------------------------------------------------------------------------------------
-	END SIMULATED ANNEALING CLIENT METHODS
--------------------------------------------------------------------------------------------------------*/
 
 }

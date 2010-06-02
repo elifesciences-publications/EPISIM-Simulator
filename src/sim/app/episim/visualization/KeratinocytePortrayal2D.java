@@ -76,7 +76,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             if (object instanceof KCyte)
             {                
                 final KCyte kcyte=((KCyte)object);
-                
+                System.out.println("Draw was called at cell: "+ kcyte.getID());
                 if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
     		         kcyte.getCellEllipseObject().translateCell(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
     		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
@@ -95,16 +95,11 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                   	 showNucleus=true; 
                   	 drawFrame=true;
                    } 
-                   else if(keratinoType == EpisimCellDiffModelGlobalParameters.GRANUCELL){ 
-                  	 drawFrame=false; 
-                  	
-                  	 showNucleus=false; 
-                  }
-                   else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS){ 
-                  	 drawFrame=true; 
-                  	 
+                else if(keratinoType == EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS 
+                  		 || keratinoType == EpisimCellDiffModelGlobalParameters.GRANUCELL){ 
+                  	 drawFrame=true;                  	 
                   	 showNucleus=false;
-                   }
+                }
                 
                 
               if(colorType < 8){

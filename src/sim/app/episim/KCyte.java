@@ -231,7 +231,7 @@ public class KCyte extends CellType
         }
     }
         
-    public HitResultClass hitsOther(Bag b, Continuous2D pC2dHerd, Double2D thisloc, boolean pressothers, double pBarrierMemberDist)
+    public HitResultClass hitsOther(Bag b, Continuous2D continousCellField, Double2D thisloc, boolean pressothers, double pBarrierMemberDist)
         {
             // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
             // for each collision calc a pressure vector and add it to the other's existing one
@@ -263,9 +263,9 @@ public class KCyte extends CellType
                 KCyte other = (KCyte)(b.objs[i]);
                 if (other != this )
                     {
-                        Double2D otherloc=pC2dHerd.getObjectLocation(other);
-                        double dx = pC2dHerd.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
-                        double dy = pC2dHerd.tdy(thisloc.y,otherloc.y);
+                        Double2D otherloc=continousCellField.getObjectLocation(other);
+                        double dx = continousCellField.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
+                        double dy = continousCellField.tdy(thisloc.y,otherloc.y);
                                             //dx=Math.rint(dx*1000)/1000;
                                             //dy=Math.rint(dy*1000)/1000;
                         
@@ -276,31 +276,26 @@ public class KCyte extends CellType
                         
                         
                         if (optDist-actdist>MINDIST) // ist die kollision signifikant ?
-                                    {
-                                            double fx=(actdist>0)?(optDist+0.1)/actdist*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
-                                            double fy=(actdist>0)?(optDist+0.1)/actdist*dy-dy:0;                                            
+                        {
+                            double fx=(actdist>0)?(optDist+0.1)/actdist*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
+                            double fy=(actdist>0)?(optDist+0.1)/actdist*dy-dy:0;                                            
                                             
-                                            // berechneten Vektor anwenden
-                                            //fx=elastic(fx);
-                                            //fy=elastic(fy);
-                                            hitResult.numhits++;
-                                            hitResult.otherId=other.getID();
-                                            hitResult.otherMotherId=other.getMotherID();
+                            // berechneten Vektor anwenden
+                           //fx=elastic(fx);
+                           //fy=elastic(fy);
+                          hitResult.numhits++;
+                          hitResult.otherId=other.getID();
+                          hitResult.otherMotherId=other.getMotherID();
                                             
-                                            if ((other.getMotherID()==getID()) || (other.getID()==getMotherID()))
-                                            {
-                                                //fx*=1.5;// birth pressure is greater than normal pressure
-                                                //fy*=1.5;
-                                            }
-                                            
-                                            if (pressothers)
-                                                other.extForce=other.extForce.add(new Vector2D(-fx,-fy)); //von mir wegzeigende kraefte addieren
-                                            extForce=extForce.add(new Vector2D(fx,fy));
-
-                                            
-                                           
-                                    }
-
+                          if ((other.getMotherID()==getID()) || (other.getID()==getMotherID()))
+                          {
+                        	  //fx*=1.5;// birth pressure is greater than normal pressure
+                             //fy*=1.5;
+                          }
+                          if (pressothers)
+                        	  other.extForce=other.extForce.add(new Vector2D(-fx,-fy)); //von mir wegzeigende kraefte addieren
+                             extForce=extForce.add(new Vector2D(fx,fy));
+                          }
                         else // attraction forces 
                         {
                             double adhfac=ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellDiffModelObjekt.getDifferentiation(), other.getEpisimCellDiffModelObject().getDifferentiation());                           
@@ -405,19 +400,16 @@ public class KCyte extends CellType
    	 // Either we get use a currently unused cell oder we allocate a new one
         KCyte kcyte;        
        
-            kcyte= new KCyte(CellType.getNextCellId(), getID(), cellDiffModel); 
-            cellDiffModel.setId((int)kcyte.getID());
+        kcyte= new KCyte(CellType.getNextCellId(), getID(), cellDiffModel); 
+        cellDiffModel.setId((int)kcyte.getID());
            
             
-            Stoppable stoppable = TissueServer.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, 1, 1);   // schedule only if not already running
-            kcyte.setStoppable(stoppable);
-
-        
-            
+        Stoppable stoppable = TissueServer.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, 1, 1);   // schedule only if not already running
+        kcyte.setStoppable(stoppable);
+          
         double deltaX = TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25;
         double deltaY = TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1; 
-        
-        
+               
         Double2D oldLoc=cellContinous2D.getObjectLocation(this);
         
      //   double deltaDrawX = newloc.
@@ -444,12 +436,7 @@ public class KCyte extends CellType
 				newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*oldLoc.x) + newInfo.draw.width*newloc.x);
 				newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*oldLoc.y) + newInfo.draw.height*newloc.y);
 				kcyte.getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
-			}
-        
-        
-        
-        
-                
+			}                
         return kcyte;
     }
 
@@ -570,20 +557,15 @@ public class KCyte extends CellType
 			deltaTime +=deltaTimeTmp;		*/
    	
    	 makeChildren(children);
-   	 	
-   	 	
-   	 	
-   	 	
-   	 	
-   	 	if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.GRANUCELL){
-   	 		setKeratinoWidth(getGKeratinoWidthGranu());
-   			setKeratinoHeight(getGKeratinoHeightGranu());
-   			this.getCellEllipseObject().setMajorAxisAndMinorAxis(getGKeratinoWidthGranu(), getGKeratinoHeightGranu());
-   	 	}
-        if (!this.cellDiffModelObjekt.getIsAlive()) // && (isOuterCell))
-        {
+   	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.GRANUCELL){
+   	 	setKeratinoWidth(getGKeratinoWidthGranu());
+   		setKeratinoHeight(getGKeratinoHeightGranu());
+   		this.getCellEllipseObject().setMajorAxisAndMinorAxis(getGKeratinoWidthGranu(), getGKeratinoHeightGranu());
+   	}
+      if (!this.cellDiffModelObjekt.getIsAlive()) // && (isOuterCell))
+      {
             killCell();
-        }
+      }
   
    }
     
@@ -617,7 +599,7 @@ public class KCyte extends CellType
 
 		final Epidermis epiderm = (Epidermis) state;
 		
-	
+		System.out.println("Step was called at Cell: "+ this.getID());
 		if(isInNirvana() || !this.cellDiffModelObjekt.getIsAlive()){
 			
 

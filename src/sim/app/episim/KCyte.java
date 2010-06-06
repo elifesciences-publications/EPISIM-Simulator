@@ -1,12 +1,16 @@
 package sim.app.episim;
+import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
 
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
+import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
+import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.visualization.CellEllipse;
 
@@ -51,7 +55,7 @@ public class KCyte extends CellType
    private final String NAME = "Keratinocyte";
    
    public static final double GOPTIMALKERATINODISTANCE=4.2; // Default: 4
-   public static final double GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
+   public static final double GOPTIMALKERATINODISTANCEGRANU=6; // Default: 3
    //The width of the keratinocyte must be bigger or equals the hight
    public static final int GINITIALKERATINOHEIGHT=5; // Default: 5
    public static final int GINITIALKERATINOWIDTH=6; // Default: 5
@@ -71,28 +75,11 @@ public class KCyte extends CellType
                 
    private Double2D lastd = new Double2D(0,0);
  
-    
-   
-   
-   
-   
-   
-   
-   
-  
-  
-   
-   
-
    private int keratinoWidth=-11; // breite keratino
    private int keratinoHeight=-1; // höhe keratino
    
    private int ownColor=0;
-  
    
-   
-   
-  
    // public boolean dead = false;
    private Vector2D extForce = new Vector2D(0,0);
    
@@ -590,6 +577,31 @@ public class KCyte extends CellType
    	 removeFromSchedule();
    	
     }
+    
+    private void calculatePolygons(){
+   	 
+    }
+    
+    private void calculateClippedCell(){
+   	 
+    	CellEllipse cellEllipseCell = this.getCellEllipseObject();
+    	 
+    	 
+    	 if(this.getNeighbouringCells() != null && this.getNeighbouringCells().length > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
+ 	   	 for(CellType neighbouringCell : this.getNeighbouringCells()){
+ 	   		 
+ 	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), getActSimState().schedule.getSteps())){
+ 	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());
+ 	   			
+ 	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, neighbouringCell.getCellEllipseObject());
+ 	   		 }
+ 	   		 
+ 	   	 }
+    	 }
+     }
+    
+    
+    
 
 //    static  long actNumberSteps = 0;
  // static  long deltaTime = 0;
@@ -599,7 +611,7 @@ public class KCyte extends CellType
 
 		final Epidermis epiderm = (Epidermis) state;
 		
-		System.out.println("Step was called at Cell: "+ this.getID());
+		
 		if(isInNirvana() || !this.cellDiffModelObjekt.getIsAlive()){
 			
 
@@ -750,6 +762,21 @@ public class KCyte extends CellType
 			}
 			
 			differentiate(state, b,epiderm.getCellContinous2D(), newLoc, hitResult2.nextToOuterCell, hitResult2.numhits != 0);
+			
+			
+			//Ellipse Visualization is activated
+			if(MiscalleneousGlobalParameters.instance().getTypeColor() ==8){
+				calculateClippedCell();
+			}
+			
+			//Polygon Visualization is activated
+			if(MiscalleneousGlobalParameters.instance().getTypeColor() ==10){
+				 calculateClippedCell();
+        	  Calculators.calculateCellPolygons(getCellEllipseObject());
+        	  Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(getCellEllipseObject().getId()));
+        	  Calculators.calculateEstimatedVertices(getCellEllipseObject());
+			}
+			
 			
 /*			long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();

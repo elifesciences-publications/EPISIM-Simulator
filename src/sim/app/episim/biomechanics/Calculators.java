@@ -440,7 +440,7 @@ public abstract class Calculators {
 		
 		Vertex[] vertices = pol.getVertices();
 		double cleanDistance = ell.getMinorAxis()*MAX_CLEAN_ESTIMATED_VERTEX_FACTOR;
-		Polygon[] neighbourPolygons = getNeighbourPolygons(pol);
+		
 		for(int i = 0; i < vertices.length; i++){
 			if(vertices[i] != null && !vertices[i].isEstimatedVertex()){
 				for(int n = 0; n < vertices.length; n++){
@@ -454,26 +454,15 @@ public abstract class Calculators {
 					}
 				}
 			}
-			else if(neighbourPolygons != null &&vertices[i] != null && vertices[i].isEstimatedVertex()){
-				for(int m = 0; m < neighbourPolygons.length; m++){
-					if(neighbourPolygons[m] != null && neighbourPolygons[m].contains(vertices[i].getDoubleX(), vertices[i].getDoubleY())){
-						vertices[i].delete();
-						vertices[i]=null;
-						
-						break;
-						
-					}
-				}
-			}
 		}
 	}
 	
-	private static Polygon[] getNeighbourPolygons(CellPolygon cellPol){
-		CellPolygon[] neighbourCellPols = cellPol.getNeighbourPolygons();	
-		Polygon[] pols = new Polygon[neighbourCellPols.length];
-		for(int i = 0; i< neighbourCellPols.length; i++){
+	private static Polygon[] getAllPolygonObjects(CellPolygon[] cellPols){
+			
+		Polygon[] pols = new Polygon[cellPols.length];
+		for(int i = 0; i< cellPols.length; i++){
 			pols[i] = new Polygon();			
-			Vertex[] sortedVertices = neighbourCellPols[i].getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+			Vertex[] sortedVertices = cellPols[i].getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
 		
 			for(Vertex v : sortedVertices){	
 				pols[i].addPoint(v.getIntX(), v.getIntY());
@@ -481,6 +470,29 @@ public abstract class Calculators {
 			}
 		}
 		return pols;
+	}
+	
+	public static void globallyCleanAllPolygonsEstimatedVertices(CellPolygon[] cellPolygons){
+		Polygon[] allPolygons = getAllPolygonObjects(cellPolygons);
+		
+		for(int  i = 0; i < cellPolygons.length; i++){
+			Vertex[] actPolygonsVertices = cellPolygons[i].getVertices();
+			for(int n = 0; n < actPolygonsVertices.length; n++){
+				Vertex actVertex = actPolygonsVertices[n];
+				if(actVertex != null){
+					for(int m = 0; m < allPolygons.length; m++){
+						if(m !=i && allPolygons[m].contains(actVertex.getDoubleX(), actVertex.getDoubleY())){
+							if(!actVertex.isVertexOfCellPolygon(cellPolygons[m])){
+								actVertex.delete();
+								System.out.println("Global Clean Delete");
+								break;
+							}
+							
+						}
+					}
+				}
+			}
+		}		
 	}
 	
 	

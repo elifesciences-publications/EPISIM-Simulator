@@ -6,17 +6,13 @@ import sim.app.episim.KCyte;
 import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.biomechanics.CellPolygon;
 import sim.app.episim.biomechanics.Vertex;
-import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
-import sim.app.episim.util.ObjectManipulations;
 import sim.portrayal.*;
-import sim.util.*;
-import java.util.Comparator;
 import java.awt.*;
 import java.awt.geom.*;
 
@@ -76,8 +72,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             if (object instanceof KCyte)
             {                
                 final KCyte kcyte=((KCyte)object);
-                System.out.println("Draw was called at cell: "+ kcyte.getID());
-                if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
+               if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
     		         kcyte.getCellEllipseObject().translateCell(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
     		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
     		        
@@ -133,8 +128,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 
               }
               else if(colorType == 8){
-            	  calculateClippedCell(kcyte);
-            	  
+            	              	  
             	  graphics.setPaint(getFillColor(kcyte));            	     	  
             	  graphics.fill(kcyte.getCellEllipseObject().getClippedEllipse());
             	  if(drawFrame){
@@ -151,10 +145,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
               }
               
               else if(colorType == 10){
-            	  calculateClippedCell(kcyte);
-            	  Calculators.calculateCellPolygons(kcyte.getCellEllipseObject());
-            	  Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(kcyte.getCellEllipseObject().getId()));
-            	  Calculators.calculateEstimatedVertices(kcyte.getCellEllipseObject());
+            	 
             	CellPolygon  cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(kcyte.getCellEllipseObject().getId());
             	Vertex[] vertices = null;
         			if(cellPol != null && (vertices = cellPol.getVertices()) != null){
@@ -190,23 +181,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
     protected GeneralPath generalPath = new GeneralPath();
     
     
-    private void calculateClippedCell(CellType cell){
-   	 
-   	CellEllipse cellEllipseCell = cell.getCellEllipseObject();
-   	 
-   	 
-   	 if(cell.getNeighbouringCells() != null && cell.getNeighbouringCells().length > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
-	   	 for(CellType neighbouringCell : cell.getNeighbouringCells()){
-	   		 
-	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), cell.getActSimState().schedule.getSteps())){
-	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());
-	   			
-	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, neighbouringCell.getCellEllipseObject());
-	   		 }
-	   		 
-	   	 }
-   	 }
-    }
+   
     
     
 
@@ -372,10 +347,10 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
            h=5-(int)kc.getEpisimCellDiffModelObject().getAge()/60;
            h=(h<1 ? 1:h);
        };                    
-       
-   GeneralPath generalPath = createGeneralPath( range, w, h );
-   Area area = new Area( generalPath );
-   return ( area.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height ) );
+	       
+	   GeneralPath generalPath = createGeneralPath( range, w, h );
+	   Area area = new Area( generalPath );
+	   return ( area.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height ) );
    }
 
    private void drawCellPolygon(Graphics2D g, CellPolygon cell){

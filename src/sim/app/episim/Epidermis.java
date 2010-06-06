@@ -2,6 +2,7 @@ package sim.app.episim;
 
 
 import sim.DummyCellType;
+import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.biomechanics.CellPolygon;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
@@ -240,6 +241,11 @@ private void seedStemCells(){
 			public void step(SimState state) {
 				
 				if(MiscalleneousGlobalParameters.instance().getTypeColor() == 10){
+					
+					Calculators.globallyCleanAllPolygonsEstimatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellPolygons());
+					
+					
+					
 				/*	int[] neighbourHistogram = new int[9];
 					for(CellType cell: allCells){
 						CellPolygon pol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cell.getCellEllipseObject().getId());

@@ -125,6 +125,11 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 		
 	}
 	
+	public CellPolygon[] getAllCellPolygons(){
+	  CellPolygon[] cellPols = new CellPolygon[this.cellPolygonRegistry.values().size()];
+	  return this.cellPolygonRegistry.values().toArray(cellPols);
+	}
+	
 	
 	public void simulationWasStopped() {
 

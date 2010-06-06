@@ -163,6 +163,16 @@ public class Vertex implements java.io.Serializable{
 		changeListener.add(listener);
 	}
 	
+	public boolean isVertexOfCellPolygon(CellPolygon pol){
+		for(VertexChangeListener listener: this.changeListener){
+			if(listener instanceof CellPolygon){
+				CellPolygon otherPol = (CellPolygon) listener;
+				if(pol.getId() == otherPol.getId()) return  true;
+			}
+		}
+		return false;
+	}
+	
 	public void removeVertexChangeListener(VertexChangeListener listener){
 		changeListener.remove(listener);
 	}

@@ -60,7 +60,16 @@ public class Vertex implements java.io.Serializable{
    {
         return new Vertex(x-v.x, y-v.y);
    }
-
+	
+	public Vertex relToNormalized(Vertex v)
+   {
+      double x_new = x-v.x;
+      double y_new = y-v.y;
+      
+      double normFactor = Math.sqrt(Math.pow(x_new, 2)+Math.pow(y_new, 2));
+		
+		return new Vertex(x_new/normFactor, y_new/normFactor);
+   }
 
     public void makeRelTo(Vertex v)
     {
@@ -73,7 +82,11 @@ public class Vertex implements java.io.Serializable{
     {
         return new Vertex(x+x0, y+y0);
     }
-
+    
+    public void scalarMult(double scalar){
+   	 x *= scalar;
+   	 y *= scalar;
+    }
 
     public Vertex reversed()
     {

@@ -17,6 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import ec.util.MersenneTwisterFast;
+
 
 public class TestVisualizationBiomechanics {
 	
@@ -93,24 +95,42 @@ public class TestVisualizationBiomechanics {
 		if(state == SimState.SIMSTART){
 		final MatrixCalculator calc = new MatrixCalculator();
 		simulationState = SimState.SIMSTART;
-		simulationThread = new Thread(new Runnable(){ public void run() { 
+		simulationThread = new Thread(new Runnable(){ 
+			private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
+			
+			
+			public void run() { 
 			cells[4].setPreferredArea(cells[4].getPreferredArea()*2);
 			while(simulationState == SimState.SIMSTART){
 				try{
-					
-					for(CellPolygon polygon: cells){
-					for(Vertex v: polygon.getVertices()){
+					int randomStartIndexCells =  rand.nextInt(cells.length);
+					CellPolygon polygon = null;
+					for(int n = 0; n < cells.length; n++){
+						polygon = cells[((n+randomStartIndexCells)% cells.length)];
+						System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
+					 Vertex[] cellVertices =	polygon.getVertices();
+					 int randomStartIndexVertices = rand.nextInt(cellVertices.length);
+					 System.out.println("Choosen Start Index: "+ randomStartIndexVertices);
+					for(int i = 0; i < cellVertices.length; i++){
+						Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
 						if(!v.isWasAlreadyCalculated() && v.getNumberOfCellsJoiningThisVertex() > 2){
 							calc.relaxVertex(v);
+							
 							v.setWasAlreadyCalculated(true);
 						}
+						else if(!v.isWasAlreadyCalculated()){
+							Calculators.relaxVertexEstimated(v);
+							//v.setWasAlreadyCalculated(true);
+						}
 					}
-					}
-					
-					
-					for(CellPolygon polygon: cells){
-						polygon.resetCalculationStatusOfAllVertices();
 						polygon.commitNewVertexValues();
+					}
+					
+					
+					for(CellPolygon actPolygon: cells){
+						actPolygon.resetCalculationStatusOfAllVertices();
+						//polygon.commitNewVertexValues();
+						System.out.println("Cell No. "+ actPolygon.getId() + " Size after: " +actPolygon.getCurrentArea());
 					}
 					visualizationPanel.repaint(); 
 	            Thread.sleep(5000);

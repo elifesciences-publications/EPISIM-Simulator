@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import ec.util.MersenneTwisterFast;
+
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
@@ -22,7 +24,7 @@ public abstract class Calculators {
 	public static final double ALLOWED_DELTA = 1;
 	
 	
-	private static Random rand = new Random(100);
+	private static MersenneTwisterFast rand = new MersenneTwisterFast(System.currentTimeMillis());
 	
 	private static final double MAX_MERGE_VERTEX_DISTANCE = 2;
 	private static final double MAX_CLEAN_VERTEX_DISTANCE = 4;
@@ -559,5 +561,31 @@ public abstract class Calculators {
 		return new Vertex[]{maxVertex1, maxVertex2};
 	}
 	
+	
+	public static void relaxVertexEstimated(Vertex v){
+		if(v.getNumberOfCellsJoiningThisVertex() <= 2){
+			double newX = v.getDoubleX();		
+			double newY = v.getDoubleY();
+			
+			for(int i = 0; i < v.getNumberOfCellsJoiningThisVertex(); i++){
+				CellPolygon cell = v.getCellsJoiningThisVertex()[i];
+				Vertex center = getCellCenter(cell);
+				Vertex directionVectorNorm =  center.relToNormalized(v);
+				double currentArea = cell.getCurrentArea();
+				boolean resultShouldBeBigger = currentArea-cell.getPreferredArea()<0;
+				double percentage = Math.abs((currentArea-cell.getPreferredArea())/cell.getPreferredArea());
+				double oldDistance = center.mdist(v);
+				directionVectorNorm.scalarMult(percentage*oldDistance/(cell.getVertices().length-1));
+				double newDistance = center.mdist(new Vertex(v.getDoubleX()+directionVectorNorm.getDoubleX(), v.getDoubleY()+directionVectorNorm.getDoubleY()));
+				if((resultShouldBeBigger && newDistance < oldDistance) || (!resultShouldBeBigger && newDistance > oldDistance)) directionVectorNorm.scalarMult(-1);
+				
+				newX += directionVectorNorm.getDoubleX();
+				newY += directionVectorNorm.getDoubleY();
+			}
+			v.setNewX(newX);
+			v.setNewY(newY);
+			
+		}
+	}
 	
 }

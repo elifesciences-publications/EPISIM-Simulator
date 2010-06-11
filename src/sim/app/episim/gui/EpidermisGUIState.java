@@ -73,7 +73,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 	private JFrame mainFrame;
 
-	private final int INTERNALFRAMECOLS = 2;
+	private final int INTERNALFRAMECOLS = 3;
 
 	private final String SIMULATIONFRAME = "Simframe";
 	private final String CONTROLLERFRAME = "controllerFrame";
@@ -101,12 +101,16 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	private boolean pausedBecauseOfMainFrameResize = false;
 	
-	private final int STATUSBARHEIGHT = 15;
+	private final int STATUSBARHEIGHT = 25;
 	
 	/*
 	private final double EPIDISPLAYWIDTH = 750;
 	private final double EPIDISPLAYHEIGHT = 700;
 	*/
+	
+	private final int DEFAULTCHARTWIDTH = 400;
+	private final int DEFAULTCHARTHEIGHT = 350;
+	
 	private final BasementMembranePortrayal2D basementPortrayalDraw;
 	private  RulerPortrayal2D rulerPortrayalDraw;
 	private  GridPortrayal2D gridPortrayalDraw;
@@ -118,6 +122,8 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	private boolean activateDrawing = false;
 	
 	private ArrayList<SimulationStateChangeListener> simulationStateListeners;
+	
+	private boolean autoArrangeWindows = true;
 	
 	
 	
@@ -496,7 +502,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 					desktop.setPreferredSize(new Dimension(
 								(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
 								(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight())));
-						arrangeElements(desktop, true);
+						if(autoArrangeWindows)arrangeElements(desktop, true);
 					}
 			
 
@@ -592,19 +598,28 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		}
 		
 		
-		comp.getComponentCount();
+		
 		int corrNumber = comp.getComponentCount() - 2;
 		int remainder = 0;
-		if((remainder = corrNumber % INTERNALFRAMECOLS) != 0)
-			corrNumber += (INTERNALFRAMECOLS - remainder);
-		int framesPerCol = corrNumber / INTERNALFRAMECOLS;
+		
+		int numberOfColumns =1;
+		
+		if(corrNumber > 0 && corrNumber <= 2) numberOfColumns = 2;
+		else if(corrNumber > 2) numberOfColumns = INTERNALFRAMECOLS;
+		if((remainder = corrNumber % numberOfColumns) != 0)
+			corrNumber += (numberOfColumns - remainder);
+		int framesPerCol =2; 
+		if(numberOfColumns >= 2)framesPerCol =  corrNumber / (numberOfColumns - 1);
 
-		int xDeltaSim = ((int) mainFrameDim.getWidth()) / 2;
+		int xDeltaSim = 0; 
+		if(numberOfColumns == 1)xDeltaSim= ((int) mainFrameDim.getWidth());
+		if(numberOfColumns == 2)xDeltaSim= ((int) (mainFrameDim.getWidth()*2) / 3);
+		if(numberOfColumns > 2)xDeltaSim= ((int) mainFrameDim.getWidth()) / 2;
 
-		int yDeltaSim = ((int) mainFrameDim.getHeight())*2 / 3;
+		int yDeltaSim = ((int) mainFrameDim.getHeight())*3 / 4;
 		int xDeltaChart = 0;
-		if(((int) mainFrameDim.getWidth()  - xDeltaSim) > 0 && INTERNALFRAMECOLS >0)
-			xDeltaChart= ((int) mainFrameDim.getWidth() - xDeltaSim) / INTERNALFRAMECOLS;
+		if(((int) mainFrameDim.getWidth()  - xDeltaSim) > 0 && numberOfColumns >1)
+			xDeltaChart= ((int) mainFrameDim.getWidth() - xDeltaSim) / (numberOfColumns-1);
 		int yDeltaChart = 0; 
 		if(framesPerCol > 0 && ((int) mainFrameDim.getHeight())>0) yDeltaChart =((int) mainFrameDim.getHeight()) / framesPerCol;
 		
@@ -624,7 +639,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 					((JInternalFrame) actComp).setPreferredSize(new Dimension(xDeltaChart, yDeltaChart));
 					((JInternalFrame) actComp).setLocation(xDeltaSim + xCompCount * xDeltaChart,  yCompCount
 							* yDeltaChart);
-					if(xCompCount < INTERNALFRAMECOLS-1) xCompCount ++;
+					if(xCompCount < numberOfColumns-2) xCompCount ++;
 					else{
 						xCompCount = 0;
 						yCompCount++;
@@ -748,14 +763,33 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		if(console != null){ 
 			console.deregisterAllFrames();
 			removeAllChartInternalFrames(desktop);
-			
+			int offset = 10;
+			int index = 2;
 			for(ChartPanel actPanel : ChartController.getInstance().getChartPanelsofActLoadedChartSet()){
-				desktop.add(getChartInternalFrame(actPanel, actPanel.getChart().getTitle().getText()));
+				JInternalFrame  frame = getChartInternalFrame(actPanel, actPanel.getChart().getTitle().getText());
+				
+				if(!autoArrangeWindows){
+					desktop.add(frame, index++);
+					frame.setLocation(offset, offset);
+					frame.setPreferredSize(new Dimension(DEFAULTCHARTWIDTH, DEFAULTCHARTHEIGHT));
+					frame.pack();
+					frame.toFront();
+					offset+=10;
+				}
+				else desktop.add(frame);
+				
 			}
-		   arrangeElements(desktop, false);
+		   if(autoArrangeWindows)
+		   	arrangeElements(desktop, false);
+		   else desktop.validate();
 		   registerInternalFrames(desktop, console);
 		}
    }
+	
+	public void setAutoArrangeWindows(boolean autoArrangeWindows){
+		this.autoArrangeWindows = autoArrangeWindows;
+		if(autoArrangeWindows) arrangeElements(desktop, false);
+	}
 
 	
 

@@ -450,11 +450,13 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		
 		this.chartMenu.setEnabled(false);
 		this.dataExportMenu.setEnabled(false);
+		this.windowsMenu.setEnabled(false);
 	}
 	
 	public void simulationWasStopped(){
 		this.chartMenu.setEnabled(true);
 		this.dataExportMenu.setEnabled(true);
+		this.windowsMenu.setEnabled(true);
 		DataExportController.getInstance().simulationWasStopped();
 	}
 	

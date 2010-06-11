@@ -203,7 +203,7 @@ public class DefaultChartSelectDialog extends JDialog {
 
 			}
 		});
-		bInnerPanel.add(cancelButton, BorderLayout.WEST);
+		bInnerPanel.add(cancelButton, BorderLayout.EAST);
 		
 
 		okButton = new JButton("  OK  ");
@@ -220,7 +220,7 @@ public class DefaultChartSelectDialog extends JDialog {
 		});
 		
 		
-		bInnerPanel.add(okButton, BorderLayout.EAST);
+		bInnerPanel.add(okButton, BorderLayout.WEST);
 		
 
 		c.anchor = GridBagConstraints.CENTER;

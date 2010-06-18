@@ -54,8 +54,9 @@ public class KCyte extends CellType
    
    private final String NAME = "Keratinocyte";
    
-   public static final double GOPTIMALKERATINODISTANCE=4.2; // Default: 4
-   public static final double GOPTIMALKERATINODISTANCEGRANU=6; // Default: 3
+   public static final double GOPTIMALKERATINODISTANCE_X=4.2; // Default: 4
+   public static final double GOPTIMALKERATINODISTANCE_Y=4.2;
+   public static final double GOPTIMALKERATINODISTANCEGRANU_X=6; // Default: 3
    //The width of the keratinocyte must be bigger or equals the hight
    public static final int GINITIALKERATINOHEIGHT=5; // Default: 5
    public static final int GINITIALKERATINOWIDTH=6; // Default: 5
@@ -151,47 +152,38 @@ public class KCyte extends CellType
    
     
     public double orientation2D()
-        {
+    {
         if (lastd.x == 0 && lastd.y == 0) return 0;
         return Math.atan2(lastd.y, lastd.x);
-        }
+    }
     public double orientation2D(double p_dx, double p_dy)
-        {
+    {
         if (p_dx == 0 && p_dy == 0) return 0;
         return Math.atan2(p_dy, p_dx);
-        }
-    
+    }    
     public Double2D momentum()
-        {
+    {
         return lastd;
-        }
-
-  
+    }  
     public void removeCellDeathListener(){
    	 this.cellDeathListeners.clear();
-    }
-    
+    }    
     public void addCellDeathListener(CellDeathListener listener){
    	 this.cellDeathListeners.add(listener);
-    }
-    
+    }    
     public final Double2D forceFromBound(Continuous2D pC2dHerd, double x) // Calculate the Force orthogonal to lower bound
     {        
         double yleft=TissueController.getInstance().getTissueBorder().lowerBound(pC2dHerd.stx(x-5));
         double yright=TissueController.getInstance().getTissueBorder().lowerBound(pC2dHerd.stx(x+5));
         return new Double2D(-(yright-yleft),10);
-    }   
- 
-       
- 
+    }    
     public Double2D randomness(MersenneTwisterFast r)
-        {
+    {
         double x = r.nextDouble() * 2 - 1.0;
         double y = r.nextDouble() * 2 - 1.0;
         double l = Math.sqrt(x * x + y * y);
         return new Double2D(0.05*x/l,0.05*y/l);
-        }
-    
+    }
     public final double elastic(double x)
     {        
         if ((x>0.3) || (x<-0.3)) return x;
@@ -219,24 +211,20 @@ public class KCyte extends CellType
     }
         
     public HitResultClass hitsOther(Bag b, Continuous2D continousCellField, Double2D thisloc, boolean pressothers, double pBarrierMemberDist)
-        {
-            // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
-            // for each collision calc a pressure vector and add it to the other's existing one
-            HitResultClass hitResult=new HitResultClass();            
-            if (b==null || b.numObjs == 0 || this.isInNirvana()) return hitResult;
+    {
+        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
+       // for each collision calc a pressure vector and add it to the other's existing one
+       HitResultClass hitResult=new HitResultClass();            
+       if (b==null || b.numObjs == 0 || this.isInNirvana()) return hitResult;
+                        
+       int i=0;
+       double adxOpt = GOPTIMALKERATINODISTANCE_X; //KeratinoWidth-2+theEpidermis.cellSpace;                         was 4 originally then 5
+       //double adxOpt = KeratinoWidth; //KeratinoWidth-2+theEpidermis.cellSpace;                        
+       double adyOpt = GOPTIMALKERATINODISTANCE_Y; // 3+theEpidermis.cellSpace;
+                  
+            if (this.cellDiffModelObjekt.getDifferentiation()==EpisimCellDiffModelGlobalParameters.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU_X; // was 3 // 4 in modified version
             
-            
-            
-                   
-            int i=0;
-            double adxOpt = GOPTIMALKERATINODISTANCE; //KeratinoWidth-2+theEpidermis.cellSpace;                         was 4 originally then 5
-            //double adxOpt = KeratinoWidth; //KeratinoWidth-2+theEpidermis.cellSpace;                        
-            //double adyOpt = 5; // 3+theEpidermis.cellSpace;
-            
-            
-            if (this.cellDiffModelObjekt.getDifferentiation()==EpisimCellDiffModelGlobalParameters.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
-            
-            double optDistSq = adxOpt*adxOpt; //+adyOpt*adyOpt;
+            double optDistSq = adxOpt*adxOpt;//+adyOpt*adyOpt;
             double optDist=Math.sqrt(optDistSq);
             //double outerCircleSq = (neigh_p*adxOpt)*(neigh_p*adxOpt)+(neigh_p*adyOpt)*(neigh_p*adyOpt);
             int neighbors=0;

@@ -1,8 +1,6 @@
 package sim.app.episim;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Properties;
@@ -18,6 +16,23 @@ public class EpisimProperties {
 	
 	private static final String CONFIG = "config";
 	private static final String FILENAME = "episimconfig.properties";
+	
+	public static final String EXCEPTION_LOGGING_PROP = "exception.logging";
+	public static final String EPISIMBUILD_JARNAME_PROP = "episimbuild.jarname";
+	public static final String EXCEPTION_DISPLAYMODE_PROP = "exception.displaymode";
+	public static final String SIMULATOR_GUI_PROP = "simulator.gui";
+	
+	
+	public static final String ON_EXCEPTION_LOGGING_VAL = "on";
+	public static final String OFF_EXCEPTION_LOGGING_VAL = "off";
+	
+	public static final String ON_SIMULATOR_VAL = "on";
+	public static final String OFF_SIMULATOR_VAL = "off";
+	
+	public static final String ECLIPSE_EXCEPTION_DISPLAYMODE_VAL = "eclipse";
+	public static final String SIMULATOR_EXCEPTION_DISPLAYMODE_VAL = "simulator";
+	
+	
 	
 	private EpisimProperties(){
 		properties = new Properties();

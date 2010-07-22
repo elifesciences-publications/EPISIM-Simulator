@@ -37,7 +37,7 @@ public class TestVisualizationBiomechanics {
 			e.printStackTrace();
 		}
 		//testCellAreaCalculation();
-		cells = Calculators.getSquareVertex(100, 100, 100, 4);
+		cells = Calculators.getSquareVertex(100, 100, 50, 6);
 	
 		
 		
@@ -100,7 +100,8 @@ public class TestVisualizationBiomechanics {
 			
 			
 			public void run() { 
-			cells[4].setPreferredArea(cells[4].getPreferredArea()*2);
+			cells[12].setPreferredArea(cells[12].getPreferredArea()*1.5);
+			cells[12].setSelected(true);
 			while(simulationState == SimState.SIMSTART){
 				try{
 					int randomStartIndexCells =  rand.nextInt(cells.length);

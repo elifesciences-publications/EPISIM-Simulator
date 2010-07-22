@@ -2,10 +2,8 @@ package sim.app.episim.biomechanics;
 
 import java.awt.Polygon;
 import java.awt.geom.Area;
-import java.awt.geom.Line2D;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import ec.util.MersenneTwisterFast;
@@ -26,7 +24,7 @@ public abstract class Calculators {
 	
 	private static MersenneTwisterFast rand = new MersenneTwisterFast(System.currentTimeMillis());
 	
-	private static final double MAX_MERGE_VERTEX_DISTANCE = 2;
+	private static final double MAX_MERGE_VERTEX_DISTANCE_FACTOR = 0.3;
 	private static final double MAX_CLEAN_VERTEX_DISTANCE = 4;
 	private static final double MAX_CLEAN_ESTIMATED_VERTEX_FACTOR = 0.5;
 	
@@ -317,7 +315,7 @@ public abstract class Calculators {
 						Vertex polygonVertex = getIntersectionOfLines(isps1[0], isps1[1], isps2[0], isps2[1]);
 							
 						if(polygonVertex != null){
-							if(checkMergeCondition(isps1, isps2, polygonVertex, MAX_MERGE_VERTEX_DISTANCE)){
+							if(checkMergeCondition(isps1, isps2, polygonVertex, MAX_MERGE_VERTEX_DISTANCE_FACTOR*cellEll.getMinorAxis())){
 								polygonVertex.setMergeVertex(true);
 								cellPol_1.addVertex(polygonVertex);
 								cellPol_2.addVertex(polygonVertex);
@@ -569,22 +567,23 @@ public abstract class Calculators {
 			
 			for(int i = 0; i < v.getNumberOfCellsJoiningThisVertex(); i++){
 				CellPolygon cell = v.getCellsJoiningThisVertex()[i];
-				Vertex center = getCellCenter(cell);
-				Vertex directionVectorNorm =  center.relToNormalized(v);
 				double currentArea = cell.getCurrentArea();
-				boolean resultShouldBeBigger = currentArea-cell.getPreferredArea()<0;
-				double percentage = Math.abs((currentArea-cell.getPreferredArea())/cell.getPreferredArea());
-				double oldDistance = center.mdist(v);
-				directionVectorNorm.scalarMult(percentage*oldDistance/(cell.getVertices().length-1));
-				double newDistance = center.mdist(new Vertex(v.getDoubleX()+directionVectorNorm.getDoubleX(), v.getDoubleY()+directionVectorNorm.getDoubleY()));
-				if((resultShouldBeBigger && newDistance < oldDistance) || (!resultShouldBeBigger && newDistance > oldDistance)) directionVectorNorm.scalarMult(-1);
-				
-				newX += directionVectorNorm.getDoubleX();
-				newY += directionVectorNorm.getDoubleY();
+				if(currentArea-cell.getPreferredArea() != 0){
+					Vertex center = getCellCenter(cell);
+					Vertex directionVectorNorm =  center.relToNormalized(v);
+					
+					boolean resultShouldBeBigger = currentArea-cell.getPreferredArea()<0;
+					double percentage = Math.abs((currentArea-cell.getPreferredArea())/cell.getPreferredArea());
+					double oldDistance = center.mdist(v);
+					directionVectorNorm.scalarMult(percentage*oldDistance/(cell.getVertices().length-1));
+					double newDistance = center.mdist(new Vertex(v.getDoubleX()+directionVectorNorm.getDoubleX(), v.getDoubleY()+directionVectorNorm.getDoubleY()));
+					if((resultShouldBeBigger && newDistance < oldDistance) || (!resultShouldBeBigger && newDistance > oldDistance)) directionVectorNorm.scalarMult(-1);					
+					newX += directionVectorNorm.getDoubleX();
+					newY += directionVectorNorm.getDoubleY();
+				}
 			}
 			v.setNewX(newX);
-			v.setNewY(newY);
-			
+			v.setNewY(newY);			
 		}
 	}
 	

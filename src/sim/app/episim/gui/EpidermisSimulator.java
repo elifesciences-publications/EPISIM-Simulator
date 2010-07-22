@@ -46,6 +46,8 @@ import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
+import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
+import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
 
 import sim.app.episim.model.BioChemicalModelController;
 import sim.app.episim.model.ModelController;
@@ -80,38 +82,22 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	public static final ObservedByteArrayOutputStream errorOutputStream = new ObservedByteArrayOutputStream();
 	
-	private JMenu fileMenu;
-	private JMenuItem menuItemSetSnapshotPath;
-	private JMenuItem menuItemLoadSnapshot;
-	private JMenuItem menuItemOpen;
-	private JMenuItem menuItemClose;
-	private JMenuItem menuItemBuild;
 	
-	private JMenu chartMenu;
-	private JMenuItem menuItemEditChartSet;
-	private JMenuItem menuItemLoadChartSet;
-	private JMenuItem menuItemNewChartSet;
-	private JMenuItem menuItemCloseChartSet;
-	private JMenuItem menuItemSelectDefaultCharts;
-	
-	private JMenu dataExportMenu;
-	private JMenuItem menuItemEditDataExport;
-	private JMenuItem menuItemLoadDataExport;
-	private JMenuItem menuItemNewDataExport;
-	private JMenuItem menuItemCloseDataExport;
-	
-	private JMenu infoMenu;
-	private JMenuItem menuItemAboutMason;
-	
-	private JMenu windowsMenu;
-	private JCheckBoxMenuItem menuItemAutoArrangeWindows;
 	
 	private StatusBar statusbar;
 	
 	private File actLoadedJarFile = null;
 	private File actLoadedSnapshotFile = null;
 	
+	private boolean guiMode = true;
+	
+	private EpisimMenuBarFactory menuBarFactory;
+	
 	public EpidermisSimulator() {
+
+		this.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
+		
+		
 		ExceptionDisplayer.getInstance().registerParentComp(this);
 		
 		statusbar = new StatusBar();
@@ -127,17 +113,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		//--------------------------------------------------------------------------------------------------------------
 		//Menü
 		//--------------------------------------------------------------------------------------------------------------
-		JMenuBar  menuBar = new JMenuBar();
-		
-		buildFileMenu(menuBar);
-		
-		buildChartsMenu(menuBar);
-		
-		buildDataExportMenu(menuBar);
-		
-		buildWindowsMenu(menuBar);
-		
-		buildInfoMenu(menuBar);
+		this.menuBarFactory = new EpisimMenuBarFactory(this);
 		
 		
 	
@@ -146,7 +122,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().setBackground(Color.LIGHT_GRAY);
-		this.setJMenuBar(menuBar);
+		
 		
 		
 		this.getContentPane().add(statusbar, BorderLayout.SOUTH);
@@ -188,27 +164,27 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		EpidermisSimulator episim = new EpidermisSimulator();
 		
 		String mode;
-		if((mode=EpisimProperties.getProperty("exception.displaymode")) != null 
-				&& mode.equals("simulator"))  System.setErr(new PrintStream(errorOutputStream));
+		if((mode=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_DISPLAYMODE_PROP)) != null 
+				&& mode.equals(EpisimProperties.SIMULATOR_EXCEPTION_DISPLAYMODE_VAL))  System.setErr(new PrintStream(errorOutputStream));
 	}
 	
 	
 	
 	
-	private void openModel(){
+	protected void openModel(File modelFile){
 		ModelController.getInstance().setSimulationStartedOnce(false);
 		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
-		File file = null;
+		
 		File standartDir =new File("d:/");
 		jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 		if(standartDir.exists())jarFileChoose.setCurrentDirectory(standartDir);
-		if(jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
-			file = jarFileChoose.getSelectedFile();
+		if(modelFile != null || jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+			if(modelFile == null) modelFile = jarFileChoose.getSelectedFile();
 
 			boolean success = false; 
 			try{
-	         success= ModelController.getInstance().getBioChemicalModelController().loadModelFile(file);
+	         success= ModelController.getInstance().getBioChemicalModelController().loadModelFile(modelFile);
          }
          catch (ModelCompatibilityException e){
 	        ExceptionDisplayer.getInstance().displayException(e);
@@ -227,23 +203,29 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				cleanUpContentPane();
 				epiUI = new EpidermisGUIState(this);
 				registerSimulationStateListeners(epiUI);
-				epiUI.setAutoArrangeWindows(menuItemAutoArrangeWindows.isSelected());
+				epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
 				this.validate();
 				this.repaint();
 				ModelController.getInstance().setModelOpened(true);
-				menuItemSetSnapshotPath.setEnabled(true);
-				menuItemLoadSnapshot.setEnabled(false);
-				menuItemBuild.setEnabled(false);
-				menuItemClose.setEnabled(true);
-				chartMenu.setEnabled(true);
-				dataExportMenu.setEnabled(true);
-				this.actLoadedJarFile = file;
+				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH).setEnabled(true);
+				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_SNAPSHOT).setEnabled(false);
+				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(false);
+				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(true);
+				menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
+				menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
+				this.actLoadedJarFile = modelFile;
 			}
 
 		}
 		
 	}
-	private void reloadModel(File modelFile, File snapshotPath){
+	
+	protected void openModel(){
+		openModel(null);
+	}
+	
+	
+	protected void reloadModel(File modelFile, File snapshotPath){
 		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		boolean success = false; 
@@ -266,7 +248,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			cleanUpContentPane();
 			epiUI = new EpidermisGUIState(this);
 			registerSimulationStateListeners(epiUI);
-			epiUI.setAutoArrangeWindows(menuItemAutoArrangeWindows.isSelected());
+			epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
 			if(ChartController.getInstance().isAlreadyChartSetLoaded() && GlobalClassLoader.getInstance().getMode().equals(GlobalClassLoader.IGNORECHARTSETMODE)){
 				ChartController.getInstance().reloadCurrentlyLoadedChartSet();
 				GlobalClassLoader.getInstance().resetMode();
@@ -292,11 +274,11 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	   }
 	   
    }
-	private void setSnapshotPath(){
+	protected void setSnapshotPath(){
 		setSnapshotPath(null);
 		
 	}
-	private void setSnapshotPath(File file){
+	protected void setSnapshotPath(File file){
 		if(file == null){
 			tssFileChoose.setDialogTitle("Set Snaphot-Path");
 			if(tssFileChoose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) file = tssFileChoose.getSelectedFile();
@@ -324,7 +306,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		
 	}
 	
-	private void loadSnapshot(File snapshotFile, File jarFile, boolean snapshotRestart){
+	protected void loadSnapshot(File snapshotFile, File jarFile, boolean snapshotRestart){
 		boolean success = false;
 		try{
          success = ModelController.getInstance().getBioChemicalModelController().loadModelFile(jarFile);
@@ -377,35 +359,35 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 						  epiUI.getWoundPortrayalDraw().setDeltaInfo(new DrawInfo2D(deltaInfo[0], deltaInfo[1]) );
 					  SnapshotWriter.getInstance().addSnapshotListener(epiUI.getWoundPortrayalDraw());
 					}
-					epiUI.setAutoArrangeWindows(menuItemAutoArrangeWindows.isSelected());
+					epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
 					this.validate();
 					this.repaint();
 					ModelController.getInstance().setModelOpened(success);
-					menuItemSetSnapshotPath.setEnabled(true);
-					menuItemClose.setEnabled(true);
-					menuItemLoadSnapshot.setEnabled(false);
-					menuItemBuild.setEnabled(false);
-					chartMenu.setEnabled(true);
-					dataExportMenu.setEnabled(true);
+					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH).setEnabled(true);
+					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(true);
+					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_SNAPSHOT).setEnabled(false);
+					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(false);
+					menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
+					menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
 					this.actLoadedJarFile = jarFile;
 					this.actLoadedSnapshotFile = snapshotFile;
 				}
 	}
 	
 	
-	private void registerSimulationStateListeners(EpidermisGUIState guiState){
+	protected void registerSimulationStateListeners(EpidermisGUIState guiState){
 		epiUI.addSimulationStateChangeListener(this);
 		epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculationRegistry.getInstance());
 		epiUI.addSimulationStateChangeListener(SimStateServer.getInstance());
 	}
-	private void buildModelArchive(){
+	protected void buildModelArchive(){
 		CompileWizard wizard = new CompileWizard(this);
 		
 			wizard.showSelectFilesDialogs();
 		
 	}
 	
-	private void closeModel(){
+	protected void closeModel(){
 		if(epiUI != null){
 			
 			epiUI.quit();
@@ -414,27 +396,27 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		System.gc();
 		this.repaint();
 		ModelController.getInstance().setModelOpened(false);
-		menuItemLoadSnapshot.setEnabled(true);
-		menuItemClose.setEnabled(false);
-		menuItemBuild.setEnabled(true);
-		chartMenu.setEnabled(false);
-		dataExportMenu.setEnabled(false);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_SNAPSHOT).setEnabled(true);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(false);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(true);
+		menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
+		menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
 		statusbar.setMessage("");
 		ChartController.getInstance().modelWasClosed();
 		DataExportController.getInstance().modelWasClosed();
 		
 		
 		//Menu-Items ChartSet
-		this.menuItemEditChartSet.setEnabled(false);
-		this.menuItemLoadChartSet.setEnabled(true);
-		this.menuItemCloseChartSet.setEnabled(false);
-		this.menuItemNewChartSet.setEnabled(true);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(false);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_CHART_SET).setEnabled(true);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(false);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_CHART_SET).setEnabled(true);
 		
 		//Menu-Items DataExport
-		this.menuItemEditDataExport.setEnabled(false);
-		this.menuItemLoadDataExport.setEnabled(true);
-		this.menuItemCloseDataExport.setEnabled(false);
-		this.menuItemNewDataExport.setEnabled(true);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(false);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT).setEnabled(true);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(false);
+		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(true);
 		
 		
 		GlobalClassLoader.getInstance().destroyClassLoader();
@@ -448,15 +430,15 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 	public void simulationWasStarted(){
 		
-		this.chartMenu.setEnabled(false);
-		this.dataExportMenu.setEnabled(false);
-		this.windowsMenu.setEnabled(false);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.WINDOWS_MENU).setEnabled(false);
 	}
 	
 	public void simulationWasStopped(){
-		this.chartMenu.setEnabled(true);
-		this.dataExportMenu.setEnabled(true);
-		this.windowsMenu.setEnabled(true);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.WINDOWS_MENU).setEnabled(true);
 		DataExportController.getInstance().simulationWasStopped();
 	}
 	
@@ -483,6 +465,14 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	public void simulationWasPaused() {}
 	
 
+	protected void removeAllChartInternalFrames(){
+		if(guiMode && epiUI != null)epiUI.removeAllChartInternalFrames();
+	}
+	
+	protected void setAutoArrangeWindows(boolean autoArrange){
+		if(guiMode && epiUI != null) epiUI.setAutoArrangeWindows(autoArrange);
+	}
+	
 	private void centerMe(JFrame frame){
 		if(frame != null){
 			Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -490,296 +480,13 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			((int)((screenDim.getHeight() /2) - (frame.getPreferredSize().getHeight()/2))));
 		}
 	}
+
+	
+   public StatusBar getStatusbar() {   
+   	return statusbar;
+   }
 	
 	
-	private void buildFileMenu(JMenuBar menuBar){
-		//--------------------------------------------------------------------------------------------------------------
-		//Menü File
-		//--------------------------------------------------------------------------------------------------------------
-		this.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
-		fileMenu = new JMenu("File");
-		menuItemOpen = new JMenuItem("Open Episim-Cell-Model");
-		menuItemOpen.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-
-				if(ModelController.getInstance().isModelOpened()){
-					int choice = JOptionPane.showConfirmDialog(EpidermisSimulator.this, "Do you really want to close the opened model?", "Close Model?", JOptionPane.YES_NO_OPTION);
-					if(choice == JOptionPane.OK_OPTION){
-						closeModel();
-						openModel();
-					}
-				}
-				else openModel();
-				
-			}
-			
-		});
-		
-		menuItemClose = new JMenuItem("Close Episim-Cell-Model");
-		menuItemClose.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-
-				if(ModelController.getInstance().isModelOpened()) closeModel();
-				
-			}
-			
-		});
-		menuItemClose.setEnabled(false);
-		menuItemSetSnapshotPath = new JMenuItem("Set Tissue-Snaphot-Path");
-		menuItemSetSnapshotPath.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-
-				setSnapshotPath();
-				
-			}
-			
-		});
-		menuItemLoadSnapshot = new JMenuItem("Load Tissue-Snaphot");
-		menuItemLoadSnapshot.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-
-				loadSnapshot();
-				
-			}
-			
-		});
-		menuItemBuild = new JMenuItem("Build Episim-Model-Archive");
-		menuItemBuild.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-
-				buildModelArchive();
-				
-			}
-			
-		});
-		
-		menuItemLoadSnapshot.setEnabled(true);
-		
-		fileMenu.add(menuItemOpen);
-		fileMenu.add(menuItemSetSnapshotPath);
-		fileMenu.add(menuItemLoadSnapshot);
-		//fileMenu.addSeparator();
-		//fileMenu.add(menuItemBuild);
-		fileMenu.addSeparator();
-		fileMenu.add(menuItemClose);
-		
-		menuBar.add(fileMenu);
-	}
 	
-	
-	private void buildChartsMenu(JMenuBar menuBar){
-		//--------------------------------------------------------------------------------------------------------------
-		// Menü Charts
-		//--------------------------------------------------------------------------------------------------------------
-		
-		chartMenu = new JMenu("Charting");
-		chartMenu.setEnabled(false);
-		
-		menuItemNewChartSet = new JMenuItem("New Chart-Set");
-		menuItemNewChartSet.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				boolean success = ChartController.getInstance().showNewChartSetDialog(EpidermisSimulator.this);
-				if(success){
-					menuItemEditChartSet.setEnabled(true);
-					menuItemCloseChartSet.setEnabled(true);
-					menuItemNewChartSet.setEnabled(false);
-					menuItemLoadChartSet.setEnabled(false);
-				}
-				
-			}
-			
-		});
-		
-		menuItemLoadChartSet = new JMenuItem("Load Chart-Set");
-		menuItemLoadChartSet.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				boolean success = ChartController.getInstance().loadChartSet(EpidermisSimulator.this);
-				
-				if(success){ 
-					ChartController.getInstance().showEditChartSetDialog(EpidermisSimulator.this);
-					menuItemEditChartSet.setEnabled(true);
-					menuItemCloseChartSet.setEnabled(true);
-					menuItemNewChartSet.setEnabled(false);
-					menuItemLoadChartSet.setEnabled(false);
-				}
-				else{ 
-					if(!ChartController.getInstance().isAlreadyChartSetLoaded()) menuItemEditChartSet.setEnabled(false);
-				}
-			}
-			
-		});
-		
-		menuItemEditChartSet = new JMenuItem("Edit Chart-Set");
-		menuItemEditChartSet.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				ChartController.getInstance().showEditChartSetDialog(EpidermisSimulator.this);
-			}
-			
-		});
-		menuItemEditChartSet.setEnabled(false);
-		
-		menuItemCloseChartSet = new JMenuItem("Close Chart-Set");
-		menuItemCloseChartSet.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				menuItemNewChartSet.setEnabled(true);
-				menuItemLoadChartSet.setEnabled(true);
-				menuItemCloseChartSet.setEnabled(false);
-				menuItemEditChartSet.setEnabled(false);
-				ChartController.getInstance().closeActLoadedChartSet();
-				epiUI.removeAllChartInternalFrames();
-			}
-			
-		});
-		menuItemCloseChartSet.setEnabled(false);
-		
-		menuItemSelectDefaultCharts = new JMenuItem("Select Episim Default-Charts");
-		menuItemSelectDefaultCharts.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				
-				ChartController.getInstance().showDefaultChartsSelectionDialog(EpidermisSimulator.this);
-				
-			}
-			
-		});
-		menuItemSelectDefaultCharts.setEnabled(true);
-		
-		chartMenu.add(menuItemNewChartSet);
-		chartMenu.add(menuItemLoadChartSet);
-		chartMenu.add(menuItemEditChartSet);
-		chartMenu.addSeparator();
-		chartMenu.add(menuItemCloseChartSet);
-		chartMenu.addSeparator();
-		chartMenu.add(menuItemSelectDefaultCharts);
-		menuBar.add(chartMenu);
-	}
-	
-	private void buildDataExportMenu(JMenuBar menuBar){
-		//--------------------------------------------------------------------------------------------------------------
-		// Menü DataExport
-		//--------------------------------------------------------------------------------------------------------------
-		
-		dataExportMenu = new JMenu("Data Export");
-		dataExportMenu.setEnabled(false);
-		
-		menuItemNewDataExport = new JMenuItem("New Data-Export-Definition-Set");
-		menuItemNewDataExport.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				boolean success = true;
-				success = DataExportController.getInstance().showNewDataExportDefinitionSetDialog(EpidermisSimulator.this);
-				if(success){
-					menuItemEditDataExport.setEnabled(true);
-					menuItemCloseDataExport.setEnabled(true);
-					menuItemNewDataExport.setEnabled(false);
-					menuItemLoadDataExport.setEnabled(false);
-					statusbar.setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
-				}
-				
-			}
-			
-		});
-		
-		menuItemLoadDataExport = new JMenuItem("Load Data-Export-Definition-Set");
-		menuItemLoadDataExport.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				boolean success = DataExportController.getInstance().loadDataExportDefinition(EpidermisSimulator.this);
-				
-				if(success){ 
-					DataExportController.getInstance().showEditDataExportDefinitionDialog(EpidermisSimulator.this);
-					menuItemEditDataExport.setEnabled(true);
-					menuItemCloseDataExport.setEnabled(true);
-					menuItemNewDataExport.setEnabled(false);
-					menuItemLoadDataExport.setEnabled(false);
-					statusbar.setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
-				}
-				else{ 
-					if(!DataExportController.getInstance().isAlreadyDataExportSetLoaded()) menuItemEditDataExport.setEnabled(false);
-				}
-			}
-			
-		});
-		
-		menuItemEditDataExport = new JMenuItem("Edit Loaded Data-Export-Definition-Set");
-		menuItemEditDataExport.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				DataExportController.getInstance().showEditDataExportDefinitionDialog(EpidermisSimulator.this);
-				statusbar.setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
-			}
-			
-		});
-		menuItemEditDataExport.setEnabled(false);
-		
-		menuItemCloseDataExport = new JMenuItem("Close Loaded Data-Export-Definition-Set");
-		menuItemCloseDataExport.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				menuItemNewDataExport.setEnabled(true);
-				menuItemLoadDataExport.setEnabled(true);
-				menuItemCloseDataExport.setEnabled(false);
-				menuItemEditDataExport.setEnabled(false);
-				DataExportController.getInstance().closeActLoadedDataExportDefinitonSet();
-				statusbar.setMessage("");
-			}
-			
-		});
-		menuItemCloseDataExport.setEnabled(false);
-		
-		dataExportMenu.add(menuItemNewDataExport);
-		dataExportMenu.add(menuItemLoadDataExport);
-		dataExportMenu.add(menuItemEditDataExport);
-		dataExportMenu.addSeparator();
-		dataExportMenu.add(menuItemCloseDataExport);
-		menuBar.add(dataExportMenu);
-	}
-	
-	private void buildInfoMenu(JMenuBar menuBar){
-		//--------------------------------------------------------------------------------------------------------------
-		// Menü Info
-		//--------------------------------------------------------------------------------------------------------------
-		
-		infoMenu = new JMenu("Info");
-		
-		menuItemAboutMason = new JMenuItem("About MASON");
-		
-		menuItemAboutMason.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				ConsoleHack.showAbout();
-			}
-			
-		});
-		
-		infoMenu.add(menuItemAboutMason);
-		menuBar.add(infoMenu);
-		
-		
-	}
-	
-	private void buildWindowsMenu(JMenuBar menuBar)
-	{
-		windowsMenu = new JMenu("Windows");
-		
-		menuItemAutoArrangeWindows = new JCheckBoxMenuItem("Auto-Arrange Windows");
-		menuItemAutoArrangeWindows.setSelected(true);
-		menuItemAutoArrangeWindows.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				if(epiUI != null)epiUI.setAutoArrangeWindows(menuItemAutoArrangeWindows.isSelected());
-         }
-		});
-		windowsMenu.add(menuItemAutoArrangeWindows);
-		menuBar.add(windowsMenu);
-	}
 	
 }

@@ -59,7 +59,7 @@ public abstract class AbstractCommonCompiler {
 		fileManager = compiler.getStandardFileManager(null, null, null);
 		compilationUnits = fileManager.getJavaFileObjectsFromFiles(javaFiles);
 		try {
-			String simulatorJarName =	EpisimProperties.getProperty("episimbuild.jarname");
+			String simulatorJarName =	EpisimProperties.getProperty(EpisimProperties.EPISIMBUILD_JARNAME_PROP);
 			String pathToEpisimSimulatorBinaries = null;
 			if(simulatorJarName != null && new File(configReader.getBinPath().getAbsolutePath()+System.getProperty("file.separator")+ simulatorJarName).exists()) 
 				pathToEpisimSimulatorBinaries = configReader.getBinPath().getAbsolutePath()+ System.getProperty("file.separator")+ simulatorJarName;

@@ -8,7 +8,10 @@ public class ProjectLocator {
 	
 	
 	public static File getBinPath() throws URISyntaxException{
-		return new File(ProjectLocator.class.getResource("../").toURI());
+		
+		//return new File(ProjectLocator.class.getResource("../").toURI());
+		
+		return new File(Thread.currentThread().getContextClassLoader().getResource("./").toURI());
 	}
 	
 	

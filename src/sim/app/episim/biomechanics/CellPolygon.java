@@ -17,7 +17,7 @@ public class CellPolygon implements VertexChangeListener{
  private double preferredArea;
 	
  private HashSet<Vertex> vertices;
-
+ private boolean isAlreadyCalculated;
 public CellPolygon(double x, double y){
 	id = nextId++;
 	vertices = new HashSet<Vertex>();
@@ -190,5 +190,9 @@ public double getPreferredArea() {
 public void setPreferredArea(double preferredArea) {
 	this.preferredArea = preferredArea;
 }
+
+public void setIsAlreadyCalculated(boolean val){this.isAlreadyCalculated = val;}
+public boolean isAlreadyCalculated(){ return this.isAlreadyCalculated;}
+
 
 }

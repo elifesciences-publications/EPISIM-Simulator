@@ -20,8 +20,8 @@ public class ExceptionDisplayer {
 	private Component rootComp;
 	private ExceptionDisplayer(){
 		
-		if((loggingState=EpisimProperties.getProperty("exception.logging")) != null 
-				&& loggingState.equals("on")){
+		if((loggingState=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_LOGGING_PROP)) != null 
+				&& loggingState.equals(EpisimProperties.ON_EXCEPTION_LOGGING_VAL)){
 			 logger = Logger.getLogger("Episim Exceptions");
 			 try{
 	         fh = new FileHandler(ProjectLocator.getPathOf("log").getAbsolutePath()+System.getProperty("file.separator")+"episimlog.log");
@@ -52,7 +52,7 @@ public class ExceptionDisplayer {
 		/*
 		if(rootComp != null)
 			*/
-		if(loggingState.equals("on")) logger.log(Level.WARNING, "An error occurred during runtime of Episim-Simulator", ex);
+		if(loggingState.equals(EpisimProperties.ON_EXCEPTION_LOGGING_VAL)) logger.log(Level.WARNING, "An error occurred during runtime of Episim-Simulator", ex);
 
 		else ex.printStackTrace();
 	}

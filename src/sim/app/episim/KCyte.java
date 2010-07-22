@@ -62,8 +62,7 @@ public class KCyte extends CellType
    public static final int GINITIALKERATINOWIDTH=6; // Default: 5
    
    public final int NEXTTOOUTERCELL=7;
-   private double MINDIST=0.1;
-   
+   private double MINDIST=0.1;   
    private static final double CONSISTENCY=0.0;
 
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
@@ -115,6 +114,7 @@ public class KCyte extends CellType
    
    
 //-----------------------------------------------------------------------------------------------------------------------------------------   
+  
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
    public KCyte(){
@@ -144,8 +144,8 @@ public class KCyte extends CellType
                           
        lastd=new Double2D(0.0,-3);
       
-       	  TissueServer.getInstance().getActEpidermalTissue().checkMemory();
-       	 TissueServer.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag
+       TissueServer.getInstance().getActEpidermalTissue().checkMemory();
+       TissueServer.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag
        
     }
 
@@ -218,14 +218,14 @@ public class KCyte extends CellType
        if (b==null || b.numObjs == 0 || this.isInNirvana()) return hitResult;
                         
        int i=0;
-       double adxOpt = GOPTIMALKERATINODISTANCE_X; //KeratinoWidth-2+theEpidermis.cellSpace;                         was 4 originally then 5
+       double optDist_x = GOPTIMALKERATINODISTANCE_X; //KeratinoWidth-2+theEpidermis.cellSpace;                         was 4 originally then 5
        //double adxOpt = KeratinoWidth; //KeratinoWidth-2+theEpidermis.cellSpace;                        
-       double adyOpt = GOPTIMALKERATINODISTANCE_Y; // 3+theEpidermis.cellSpace;
+       double optDist_y = GOPTIMALKERATINODISTANCE_Y; // 3+theEpidermis.cellSpace;
                   
-            if (this.cellDiffModelObjekt.getDifferentiation()==EpisimCellDiffModelGlobalParameters.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU_X; // was 3 // 4 in modified version
+            if (this.cellDiffModelObjekt.getDifferentiation()==EpisimCellDiffModelGlobalParameters.GRANUCELL) optDist_x=GOPTIMALKERATINODISTANCEGRANU_X; // was 3 // 4 in modified version
             
-            double optDistSq = adxOpt*adxOpt;//+adyOpt*adyOpt;
-            double optDist=Math.sqrt(optDistSq);
+           // double optDistSq = optDist_x*optDist_x;//+adyOpt*adyOpt;
+           // double optDist=Math.sqrt(optDistSq);
             //double outerCircleSq = (neigh_p*adxOpt)*(neigh_p*adxOpt)+(neigh_p*adyOpt)*(neigh_p*adyOpt);
             int neighbors=0;
             
@@ -250,10 +250,10 @@ public class KCyte extends CellType
                                  
                         
                         
-                        if (optDist-actdist>MINDIST) // ist die kollision signifikant ?
+                        if (optDist_x -actdist>MINDIST || optDist_y -actdist>MINDIST) // ist die kollision signifikant ?
                         {
-                            double fx=(actdist>0)?(optDist+0.1)/actdist*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
-                            double fy=(actdist>0)?(optDist+0.1)/actdist*dy-dy:0;                                            
+                            double fx=(actdist>0)?(optDist_x+0.1)/actdist*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
+                            double fy=(actdist>0)?(optDist_y+0.1)/actdist*dy-dy:0;                                            
                                             
                             // berechneten Vektor anwenden
                            //fx=elastic(fx);
@@ -274,14 +274,15 @@ public class KCyte extends CellType
                         else // attraction forces 
                         {
                             double adhfac=ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellDiffModelObjekt.getDifferentiation(), other.getEpisimCellDiffModelObject().getDifferentiation());                           
-                            if (actdist-optDist<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
-                                        {                                                   
-                                                double sx=dx-dx*optDist/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
-                                                double sy=dy-dy*optDist/actdist;
+                            if (actdist-optDist_x<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist()
+                           		 || actdist-optDist_y<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
+                             {                                                   
+                                                double sx=dx-dx*optDist_x/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
+                                                double sy=dy-dy*optDist_y/actdist;
                                                 //if (pressothers)
                                                 //    other.extForce=other.extForce.add(new Vector2D(sx,sy)); //von mir wegzeigende kraefte addieren                                                                                      
                                                 hitResult.adhForce=hitResult.adhForce.add(new Vector2D(-sx*adhfac,-sy*adhfac/5.0)); // minus, cause: dx,dy is way from other to this: minus=way to other
-                                        }                                               
+                             }                                               
                         }
 
                         // all the shit that happens in the neighborhood
@@ -350,9 +351,7 @@ public class KCyte extends CellType
             {
                 newy=pC2dHerd.height; 
                 setInNirvana(true);
-               
             }
-
             else            
                 newy=maxy;       
         }

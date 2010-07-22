@@ -5,8 +5,8 @@ import episiminterfaces.EpisimMechanicalModel;
 
 public class EpisimModelIntegrator implements EpisimMechanicalModel{
 	
-	private static final String VERSION = "2010-05-13";
-	
+	private static final String VERSION = "2010-01-01";
+	               
 	private double contractility =0;
 	private double adhesion =0;
 	private double elasticity =0;

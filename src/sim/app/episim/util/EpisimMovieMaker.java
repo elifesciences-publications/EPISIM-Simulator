@@ -23,17 +23,25 @@ import sim.util.WordWrap;
 import sim.util.gui.MovieMaker;
 
 
-public class EpisimMovieMaker extends MovieMaker {
+public class EpisimMovieMaker{
 	
 	Frame parentForDialogs;
    Object encoder;
    Class encoderClass;
    boolean isRunning;
+   
+   private MovieMaker movieMaker;
 
 	private boolean consoleMode = false;
 	
 	public EpisimMovieMaker(Frame parent) {
-	   super(parent);
+		 movieMaker = new MovieMaker(parent);	
+		 this.parentForDialogs = parent;
+       try
+           {
+           encoderClass = Class.forName("sim.util.media.MovieEncoder");
+           }
+       catch (Throwable e) { encoderClass = null; }  // JMF's not installed
 	   
 	   consoleMode = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLEMODE_PROP).equals(EpisimProperties.ON_CONSOLEMODE_VAL);
 	   
@@ -48,7 +56,7 @@ public class EpisimMovieMaker extends MovieMaker {
        
    
    public synchronized boolean start(BufferedImage typicalImage, float fps){
-   	if(!consoleMode) return super.start(typicalImage, fps);
+   	if(!consoleMode) return movieMaker.start(typicalImage, fps);
    	else{
    		if (isRunning) return false;
    	   
@@ -61,24 +69,7 @@ public class EpisimMovieMaker extends MovieMaker {
                  getMethod("getEncodingFormats", new Class[] {Float.TYPE, BufferedImage.class}).
                  invoke(null, new Object[] { new Float(fps), typicalImage });
              if (f==null) return false;
-             
-                      
-             
-            
-            
-                      
-             // now choose the same one as before but with the fps
-             // And we hope that the same encoding formats show up with the different framerate's query--
-             // this should always be true
-             
-             // end dan mods
-             
-            
-                 //                encoder = new sim.util.media.MovieEncoder(fps,  // frames per second
-                 //                                        new File(fd.getDirectory(), ensureFileEndsWith(fd.getFile(),".mov")),
-                 //                                        typicalImage,
-                 //                                        (javax.media.Format)f[encodeFormatIndex]);
-                 encoder = encoderClass.getConstructor(new Class[]{
+             encoder = encoderClass.getConstructor(new Class[]{
                          Float.TYPE, 
                          File.class, 
                          BufferedImage.class, 
@@ -103,6 +94,54 @@ public class EpisimMovieMaker extends MovieMaker {
     
    	}
    }
+   
+   
+   /** Add an image to the movie stream.  Do this only after starting. */
+   public synchronized boolean add(BufferedImage image)
+   {
+   	if(!consoleMode) return movieMaker.add(image);
+   	else{
+	       if (!isRunning) return false;
+	       //              ((sim.util.media.MovieEncoder)encoder).add(image);
+	               {
+	               try  // NOT LIKELY TO HAPPEN
+	                   {
+	                   encoderClass.getMethod("add", new Class[]{BufferedImage.class}).
+	                       invoke(encoder, new Object[]{image});
+	                   }
+	               catch(Exception ex)
+	                   {
+	                   ex.printStackTrace();
+	                   return false;
+	                   }
+	               }
+	       return true;
+   	}
+      }
+   
+   /** End the movie stream, finish up writing to disk, and clean up. */
+   public synchronized boolean stop()
+   {
+   	if(!consoleMode) return movieMaker.stop();
+   	else{
+	       boolean success = true;
+	       if (!isRunning) return false;  // not running -- why stop?
+	       try
+	           {
+	           //            ((sim.util.media.MovieEncoder)encoder).stop();
+	           success = ((Boolean)(encoderClass.getMethod("stop", new Class[0]).invoke(encoder, new Object[0]))).booleanValue();
+	           }
+	       catch(Exception ex)  // NOT LIKELY TO HAPPEN
+	           {
+	           ex.printStackTrace();
+	           return false;
+	           }
+	       isRunning = false;
+	       return success;
+   	}
+   }
+   
+   
    
    private File getMovieFile(){
    	String path = EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP);

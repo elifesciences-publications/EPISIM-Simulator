@@ -1,16 +1,34 @@
 package sim.display;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
+import javax.swing.UIManager;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpidermisGUIState;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Scale;
+import sim.display.Display2D.InnerDisplay2D;
 import sim.engine.Schedule;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -30,9 +48,62 @@ public class Display2DHack extends Display2D {
 		super(width, height, simulation, interval);
 		
 		moviePathSet = EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP) != null;
-		consoleMode = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLEMODE_PROP).equals(EpisimProperties.OFF_CONSOLEMODE_VAL);
+		consoleMode = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLEMODE_PROP).equals(EpisimProperties.ON_CONSOLEMODE_VAL);
 		
-		if(moviePathSet && consoleMode) movieButton.setEnabled(false);
+		if(moviePathSet && consoleMode){ 
+			movieButton.setEnabled(false);
+			 insideDisplay = new EpisimInnerDisplay2D(width,height); 	
+			 display = new JScrollPane(insideDisplay,
+		            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+		            JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		        display.setMinimumSize(new Dimension(0,0));
+		        display.setBorder(null);
+		        display.getHorizontalScrollBar().setBorder(null);
+		        display.getVerticalScrollBar().setBorder(null);
+		        port = display.getViewport();
+		        insideDisplay.setViewRect(port.getViewRect());
+		        insideDisplay.setOpaque(true);  // radically increases speed in OS X, maybe others
+		        // Bug in Panther causes this color to be wrong, ARGH
+//		        port.setBackground(UIManager.getColor("window"));  // make the nice stripes on MacOS X
+		        insideDisplay.setBackground(UIManager.getColor("Panel.background"));
+		        display.setBackground(UIManager.getColor("Panel.background")); // this is the one that has any affect
+		        port.setBackground(UIManager.getColor("Panel.background"));
+		        
+		       
+		        // add mouse listener for the inspectors
+		        insideDisplay.addMouseListener(new MouseAdapter()
+		            {
+		            public void mouseClicked(MouseEvent e) 
+		                {
+		                final Point point = e.getPoint();
+		                if( e.getClickCount() == 2 )
+		                    createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
+		                        Display2DHack.this.simulation );
+		                if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
+		                    performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
+		                repaint();
+		                }
+		            
+		            // clear tool-tip updates
+		            public void mouseExited(MouseEvent event)
+		                {
+		                insideDisplay.lastToolTipEvent = null;
+		                }
+		            });
+		            
+		        insideDisplay.setToolTipText("Display");  // sacrificial		      
+
+		         // so it gets repainted first hopefully
+		        add(display,BorderLayout.CENTER);
+
+		        
+		     // set ourselves up to quit when stopped
+		        simulation.scheduleAtStart(new Steppable()   // to stop movie when simulation is stopped
+		            {
+		            public void step(SimState state) { startMovie(); }
+		            });
+			
+		}
 		
 		
 		if(simulation instanceof EpidermisGUIState) epiSimulation = (EpidermisGUIState) simulation;
@@ -85,11 +156,7 @@ public class Display2DHack extends Display2D {
       skipField.setToolTipText("Specify the number of steps between screen updates");
       header.add(skipField);
       
-   // set ourselves up to quit when stopped
-      simulation.scheduleAtStart(new Steppable()   // to stop movie when simulation is stopped
-          {
-          public void step(SimState state) { startMovie(); }
-          });
+   
       
 		
 	}
@@ -205,24 +272,35 @@ public class Display2DHack extends Display2D {
    }
 	
 	
-	 public void paintToMovie(Graphics g)
-    {
-		 if(consoleMode && moviePathSet){
-			 synchronized(Display2DHack.this.simulation.state.schedule)
-	        {
-	        // only paint if it's appropriate
-	        long steps = Display2DHack.this.simulation.state.schedule.getSteps();
-	        if (steps > lastEncodedSteps &&
-	            steps % getInterval() == 0 &&
-	            Display2DHack.this.simulation.state.schedule.time() < Schedule.AFTER_SIMULATION)
-	            {
-	      	  Display2DHack.this.movieMaker.add(paint(g,true,false));
-	            lastEncodedSteps = steps;
-	            }
-	        else paint(g,false,false);
-	        }
-		 }
-		 else super.paintToMovie(g);
-    }
+	public class EpisimInnerDisplay2D extends InnerDisplay2D{
+		public EpisimInnerDisplay2D(double width, double height){
+			super(width, height);
+		}
+		public void paintToMovie(Graphics g)
+      {
+      synchronized(Display2DHack.this.simulation.state.schedule)
+          {
+          // only paint if it's appropriate
+          long steps = Display2DHack.this.simulation.state.schedule.getSteps();
+          if (steps > lastEncodedSteps &&
+              steps % getInterval() == 0 &&
+              Display2DHack.this.simulation.state.schedule.time() < Schedule.AFTER_SIMULATION)
+              {
+         	 Display2DHack.this.episimMovieMaker.add(paint(g,true,false));
+              lastEncodedSteps = steps;
+              }
+          else paint(g,false,false);
+          }
+      }
+		 public void paintComponent(Graphics g, boolean buffer)
+       {
+       synchronized(Display2DHack.this.simulation.state.schedule)  // for time()
+           {
+           if (episimMovieMaker!=null)  // we're writing a movie
+               insideDisplay.paintToMovie(g);
+           else paint(g,buffer,true);
+           }
+       }
+	}
 
 }

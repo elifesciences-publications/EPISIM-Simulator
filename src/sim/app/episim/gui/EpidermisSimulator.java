@@ -69,9 +69,11 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public class EpidermisSimulator extends JFrame implements SimulationStateChangeListener, ClassLoaderChangeListener, SnapshotRestartListener{
+public class EpidermisSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener, SnapshotRestartListener{
 	
 	public static final String versionID = "1.1.1";
+	
+	private JFrame mainFrame;
 	
 	private ExtendedFileChooser jarFileChoose;
 	private ExtendedFileChooser tssFileChoose;
@@ -94,11 +96,11 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	private EpisimMenuBarFactory menuBarFactory;
 	
 	public EpidermisSimulator() {
-
-		this.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
+		mainFrame = new JFrame();
+		mainFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
 		
 		
-		ExceptionDisplayer.getInstance().registerParentComp(this);
+		ExceptionDisplayer.getInstance().registerParentComp(mainFrame);
 		
 		statusbar = new StatusBar();
 		
@@ -120,30 +122,30 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	
 		//--------------------------------------------------------------------------------------------------------------
 		
-		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().setBackground(Color.LIGHT_GRAY);
+		mainFrame.getContentPane().setLayout(new BorderLayout());
+		mainFrame.getContentPane().setBackground(Color.LIGHT_GRAY);
 		
 		
 		
-		this.getContentPane().add(statusbar, BorderLayout.SOUTH);
+		mainFrame.getContentPane().add(statusbar, BorderLayout.SOUTH);
 		
 		jarFileChoose= new ExtendedFileChooser("jar");
 		jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 		tssFileChoose = new ExtendedFileChooser("tss");
 		
-		this.setTitle("Epidermis Simulator");
+		mainFrame.setTitle("Episim Simulator");
 		
 		
 		//TODO: to be changed for video recording
 		
-		this.setPreferredSize(new Dimension((int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()*0.95),
+		mainFrame.setPreferredSize(new Dimension((int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()*0.95),
 				(int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight()*0.9)));
 		
 		
 	//	this.setPreferredSize(new Dimension(1280, 932));
 		
 		
-		this.addWindowListener(new WindowAdapter() {
+		mainFrame.addWindowListener(new WindowAdapter() {
 
 			public void windowClosing(WindowEvent e) {
 
@@ -155,9 +157,9 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 
 			}
 		});
-		this.pack();
-		centerMe(this);
-		this.setVisible(true);
+		mainFrame.pack();
+		centerMe(mainFrame);
+		mainFrame.setVisible(true);
 	}
 	
 	public static void main(String[] args){
@@ -179,7 +181,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		File standartDir =new File("d:/");
 		jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 		if(standartDir.exists())jarFileChoose.setCurrentDirectory(standartDir);
-		if(modelFile != null || jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+		if(modelFile != null || jarFileChoose.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION){
 			if(modelFile == null) modelFile = jarFileChoose.getSelectedFile();
 
 			boolean success = false; 
@@ -188,12 +190,12 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
          }
          catch (ModelCompatibilityException e){
 	        ExceptionDisplayer.getInstance().displayException(e);
-	        JOptionPane.showMessageDialog(this, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+	        JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
 	        success = false;
          }
 			
 			if(success && SnapshotWriter.getInstance().getSnapshotPath() == null){
-				JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(mainFrame, "Please specify snapshot path.", "Info", JOptionPane.INFORMATION_MESSAGE);
 				setSnapshotPath();
 				if(SnapshotWriter.getInstance().getSnapshotPath() == null)success = false;
 			}
@@ -201,11 +203,11 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 			if(success){
 				ChartController.getInstance().rebuildDefaultCharts();
 				cleanUpContentPane();
-				epiUI = new EpidermisGUIState(this);
+				epiUI = new EpidermisGUIState(mainFrame);
 				registerSimulationStateListeners(epiUI);
 				epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
-				this.validate();
-				this.repaint();
+				mainFrame.validate();
+				mainFrame.repaint();
 				ModelController.getInstance().setModelOpened(true);
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH).setEnabled(true);
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_SNAPSHOT).setEnabled(false);
@@ -234,7 +236,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
       }
       catch(ModelCompatibilityException e){
         ExceptionDisplayer.getInstance().displayException(e);
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
         success = false;
       }
 		
@@ -246,7 +248,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		//	System.out.println("Already Data Export Loaded: " + DataExportController.getInstance().isAlreadyDataExportSetLoaded());
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
-			epiUI = new EpidermisGUIState(this);
+			epiUI = new EpidermisGUIState(mainFrame);
 			registerSimulationStateListeners(epiUI);
 			epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
 			if(ChartController.getInstance().isAlreadyChartSetLoaded() && GlobalClassLoader.getInstance().getMode().equals(GlobalClassLoader.IGNORECHARTSETMODE)){
@@ -258,8 +260,8 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				GlobalClassLoader.getInstance().resetMode();
 			}
 			this.actLoadedJarFile = modelFile;
-			this.validate();
-			this.repaint();
+			mainFrame.validate();
+			mainFrame.repaint();
 			ModelController.getInstance().setModelOpened(true);
 			
 		}
@@ -281,11 +283,11 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	protected void setSnapshotPath(File file){
 		if(file == null){
 			tssFileChoose.setDialogTitle("Set Snaphot-Path");
-			if(tssFileChoose.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) file = tssFileChoose.getSelectedFile();
+			if(tssFileChoose.showSaveDialog(mainFrame) == JFileChooser.APPROVE_OPTION) file = tssFileChoose.getSelectedFile();
 			
 		}
 		if(file != null){
-			  this.setTitle("Epidermis Simulator"+ " - Snapshot-Path: "+file.getAbsolutePath());
+			mainFrame.setTitle("Episim Simulator"+ " - Snapshot-Path: "+file.getAbsolutePath());
 			  SnapshotWriter.getInstance().setSnapshotPath(file);
 			  SnapshotWriter.getInstance().resetCounter();
 		}	
@@ -298,7 +300,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 				
 		jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model of the selected Snapshot");
 		tssFileChoose.setDialogTitle("Load Snapshot");
-		if(tssFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION && jarFileChoose.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+		if(tssFileChoose.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION && jarFileChoose.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION){
 			snapshotFile = tssFileChoose.getSelectedFile();
 			jarFile = jarFileChoose.getSelectedFile();
 			loadSnapshot(snapshotFile, jarFile, false);
@@ -313,7 +315,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
       }
       catch (ModelCompatibilityException e){
       	 ExceptionDisplayer.getInstance().displayException(e);
-      	 JOptionPane.showMessageDialog(this, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+      	 JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
       	 success = false;
       }
 		SnapshotLoader snapshotLoader = null;
@@ -333,7 +335,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		TissueServer.getInstance().registerTissue(epidermis);		
 		java.awt.geom.Rectangle2D.Double[] deltaInfo = snapshotLoader.getDeltaInfo();
 				if(SnapshotWriter.getInstance().getSnapshotPath() == null){
-					JOptionPane.showMessageDialog(this, "Please specify snapshot path.", "Info",
+					JOptionPane.showMessageDialog(mainFrame, "Please specify snapshot path.", "Info",
 							JOptionPane.INFORMATION_MESSAGE);
 					setSnapshotPath();
 					if(SnapshotWriter.getInstance().getSnapshotPath() == null)success = false;
@@ -348,7 +350,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 							reloadMechanicalModelGlobalParametersObject(snapshotLoader.getEpisimMechanicalModelGlobalParameters());
 					cleanUpContentPane();
 					
-					epiUI = new EpidermisGUIState(epidermis, this, true);
+					epiUI = new EpidermisGUIState(epidermis, mainFrame, true);
 					registerSimulationStateListeners(epiUI);
 					epiUI.addSnapshotRestartListener(this);
 					epiUI.setReloadedSnapshot(true);
@@ -360,8 +362,8 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 					  SnapshotWriter.getInstance().addSnapshotListener(epiUI.getWoundPortrayalDraw());
 					}
 					epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
-					this.validate();
-					this.repaint();
+					mainFrame.validate();
+					mainFrame.repaint();
 					ModelController.getInstance().setModelOpened(success);
 					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH).setEnabled(true);
 					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(true);
@@ -381,7 +383,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		epiUI.addSimulationStateChangeListener(SimStateServer.getInstance());
 	}
 	protected void buildModelArchive(){
-		CompileWizard wizard = new CompileWizard(this);
+		CompileWizard wizard = new CompileWizard(mainFrame);
 		
 			wizard.showSelectFilesDialogs();
 		
@@ -394,7 +396,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		}
 		epiUI = null;
 		System.gc();
-		this.repaint();
+		mainFrame.repaint();
 		ModelController.getInstance().setModelOpened(false);
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_SNAPSHOT).setEnabled(true);
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(false);
@@ -422,7 +424,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 		GlobalClassLoader.getInstance().destroyClassLoader();
 		SnapshotWriter.getInstance().clearListeners();
 		SnapshotWriter.getInstance().resetCounter();
-		this.setTitle("Epidermis Simulator");
+		mainFrame.setTitle("Episim Simulator");
 		SnapshotWriter.getInstance().setSnapshotPath(null);
 		this.actLoadedJarFile = null;
 		this.actLoadedSnapshotFile = null;
@@ -443,15 +445,15 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
 	}
 	
 	private void cleanUpContentPane(){
-		Component[] comps = this.getContentPane().getComponents();
+		Component[] comps = mainFrame.getContentPane().getComponents();
 		for(int i = 0; i < comps.length; i++){
-			if(!(comps[i] instanceof JMenuBar) && !(comps[i] instanceof StatusBar)) this.getContentPane().remove(i);
+			if(!(comps[i] instanceof JMenuBar) && !(comps[i] instanceof StatusBar)) mainFrame.getContentPane().remove(i);
 		}
 			
 	}
 
 	public void snapShotRestart() {
-		int option = JOptionPane.showConfirmDialog(this, "For restarting a Snapshot a full reload of the respective file is necessary. All charts will be closed! Continue?", "Snapshot Restart", JOptionPane.YES_NO_OPTION);
+		int option = JOptionPane.showConfirmDialog(mainFrame, "For restarting a Snapshot a full reload of the respective file is necessary. All charts will be closed! Continue?", "Snapshot Restart", JOptionPane.YES_NO_OPTION);
 		if(option == JOptionPane.YES_OPTION){
 			File jar = this.actLoadedJarFile;
 			File snap = this.actLoadedSnapshotFile;
@@ -486,6 +488,7 @@ public class EpidermisSimulator extends JFrame implements SimulationStateChangeL
    	return statusbar;
    }
 	
+   public JFrame getMainFrame(){ return mainFrame; }
 	
 	
 	

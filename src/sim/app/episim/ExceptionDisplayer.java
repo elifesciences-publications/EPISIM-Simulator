@@ -49,12 +49,17 @@ public class ExceptionDisplayer {
 	
 	public synchronized void displayException(Exception ex){
 		
+		displayException(((Throwable) ex));
+	}
+	
+	public synchronized void displayException(Throwable t){
+		
 		/*
 		if(rootComp != null)
 			*/
-		if(loggingState.equals(EpisimProperties.ON_EXCEPTION_LOGGING_VAL)) logger.log(Level.WARNING, "An error occurred during runtime of Episim-Simulator", ex);
+		if(loggingState.equals(EpisimProperties.ON_EXCEPTION_LOGGING_VAL)) logger.log(Level.WARNING, "An error occurred during runtime of Episim-Simulator", t);
 
-		else ex.printStackTrace();
+		else t.printStackTrace();
 	}
 	
 	public void registerParentComp(Component comp){ this.rootComp = comp; }

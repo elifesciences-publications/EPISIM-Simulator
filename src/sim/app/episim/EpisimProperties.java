@@ -21,6 +21,8 @@ public class EpisimProperties {
 	public static final String EPISIMBUILD_JARNAME_PROP = "episimbuild.jarname";
 	public static final String EXCEPTION_DISPLAYMODE_PROP = "exception.displaymode";
 	public static final String SIMULATOR_GUI_PROP = "simulator.gui";
+	public static final String SIMULATOR_CONSOLEMODE_PROP = "simulator.consolemode";
+	public static final String MOVIE_PATH_PROP = "moviepath";
 	
 	
 	public static final String ON_EXCEPTION_LOGGING_VAL = "on";
@@ -28,6 +30,9 @@ public class EpisimProperties {
 	
 	public static final String ON_SIMULATOR_VAL = "on";
 	public static final String OFF_SIMULATOR_VAL = "off";
+		
+	public static final String ON_CONSOLEMODE_VAL = "on";
+	public static final String OFF_CONSOLEMODE_VAL = "off";
 	
 	public static final String ECLIPSE_EXCEPTION_DISPLAYMODE_VAL = "eclipse";
 	public static final String SIMULATOR_EXCEPTION_DISPLAYMODE_VAL = "simulator";

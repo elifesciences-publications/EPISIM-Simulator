@@ -13,7 +13,7 @@ import sim.app.episim.util.ResultSet;
 import sim.app.episim.util.Sorting;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import episimexceptions.CellNotValidException;
-import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
@@ -75,13 +75,13 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				
 				for(CellType actCell: allCells){
 					if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){
-						EpisimCellDiffModel cellDiff = actCell.getEpisimCellDiffModelObject();
-						if(cellDiff.getX() >= GlobalStatistics.getInstance().getGradientMinX()
-								&& cellDiff.getX() <= GlobalStatistics.getInstance().getGradientMaxX()
-								&& cellDiff.getY() >= GlobalStatistics.getInstance().getGradientMinY()
-								&& cellDiff.getY() <= GlobalStatistics.getInstance().getGradientMaxY()){						
+						EpisimCellBehavioralModel cellBehaviour = actCell.getEpisimCellBehavioralModelObject();
+						if(cellBehaviour.getX() >= GlobalStatistics.getInstance().getGradientMinX()
+								&& cellBehaviour.getX() <= GlobalStatistics.getInstance().getGradientMaxX()
+								&& cellBehaviour.getY() >= GlobalStatistics.getInstance().getGradientMinY()
+								&& cellBehaviour.getY() <= GlobalStatistics.getInstance().getGradientMaxY()){						
 								
-								resultMap.put(actCell.getEpisimCellDiffModelObject().getY(), handler.calculate(actCell));						
+								resultMap.put(actCell.getEpisimCellBehavioralModelObject().getY(), handler.calculate(actCell));						
 						}
 					}
 				}

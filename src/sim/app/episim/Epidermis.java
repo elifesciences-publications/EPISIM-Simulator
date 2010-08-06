@@ -9,7 +9,7 @@ import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
-import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
@@ -55,7 +55,7 @@ import com.lowagie.text.pdf.*;
 
 import episimexceptions.MissingObjectsException;
 import episiminterfaces.CellDeathListener;
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 public class Epidermis extends TissueType implements SnapshotListener, CellDeathListener
 {
@@ -183,18 +183,18 @@ private void seedStemCells(){
 			if(distance > ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
 
 				// TODO: Check creation of Stem Cells
-				KCyte stemCell = new KCyte(CellType.getNextCellId(),-1, ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject());
-				// stemCell.setKeratinoType(modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM"));
+				KCyte stemCell = new KCyte(CellType.getNextCellId(),-1, ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject());
+				// stemCell.setKeratinoType(modelController.getCellBehavioralModelController().getGlobalIntConstant("KTYPE_STEM"));
 				stemCell.setOwnColor(10);
-				int cellCyclePos = random.nextInt(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleStem());
+				int cellCyclePos = random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem());
 				
 				//assign random age
-				stemCell.getEpisimCellDiffModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
-				TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellDiffModelObject(), cellCyclePos);																																		// on
+				stemCell.getEpisimCellBehavioralModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
+				TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellBehavioralModelObject(), cellCyclePos);																																		// on
 																																						
-				stemCell.getEpisimCellDiffModelObject().setDifferentiation(EpisimCellDiffModelGlobalParameters.STEMCELL);
-				stemCell.getEpisimCellDiffModelObject().setSpecies(EpisimCellDiffModelGlobalParameters.KERATINOCYTE);
-				stemCell.getEpisimCellDiffModelObject().setIsAlive(true);
+				stemCell.getEpisimCellBehavioralModelObject().setDifferentiation(EpisimCellBehavioralModelGlobalParameters.STEMCELL);
+				stemCell.getEpisimCellBehavioralModelObject().setSpecies(EpisimCellBehavioralModelGlobalParameters.KERATINOCYTE);
+				stemCell.getEpisimCellBehavioralModelObject().setIsAlive(true);
 	
 				stemCell.getCellEllipseObject().setXY(((int)newloc.x), ((int)newloc.y));
 				cellContinous2D.setObjectLocation(stemCell, newloc);
@@ -366,11 +366,11 @@ private void seedStemCells(){
                      
                      /*
                      // other statistics
-                     if ((act.getKeratinoType()!=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_STEM")) 
-                     		  && (act.getKeratinoType()!=modelController.getBioChemicalModelController().getGlobalIntConstant("KTYPE_NONUCLEUS")))
+                     if ((act.getKeratinoType()!=modelController.getCellBehavioralModelController().getGlobalIntConstant("KTYPE_STEM")) 
+                     		  && (act.getKeratinoType()!=modelController.getCellBehavioralModelController().getGlobalIntConstant("KTYPE_NONUCLEUS")))
                      {
                          gStatistics_KCytes_MeanAge+=act.getKeratinoAge();  
-                         if (act.getKeratinoAge()>modelController.getBioChemicalModelController().getIntField("maxCellAge_t"))
+                         if (act.getKeratinoAge()>modelController.getCellBehavioralModelController().getIntField("maxCellAge_t"))
                              {
                                  System.out.println("Age Error");
                              }
@@ -379,7 +379,7 @@ private void seedStemCells(){
 
                  for (int k=0; k< MAX_XBINS; k++)
                  {
-                     if ((xLookUp[k]==null) || (xLookUp[k].getEpisimCellDiffModelObject().getDifferentiation()==EpisimCellDiffModelGlobalParameters.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+                     if ((xLookUp[k]==null) || (xLookUp[k].getEpisimCellBehavioralModelObject().getDifferentiation()==EpisimCellBehavioralModelGlobalParameters.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
                      xLookUp[k].setIsOuterCell(true);
                  }
                  // other statistics
@@ -403,7 +403,7 @@ private void seedStemCells(){
 			CellType cell = iter.next();
 	
 			if(path.contains(cell.getCellEllipseObject().getLastDrawInfo2D().draw.x, cell.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
-					cell.getEpisimCellDiffModelObject().getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL){  
+					cell.getEpisimCellBehavioralModelObject().getDifferentiation() != EpisimCellBehavioralModelGlobalParameters.STEMCELL){  
 				cell.killCell();
 				 
 				  i++;
@@ -515,7 +515,7 @@ private void seedStemCells(){
 	
 	public List<Method> getParameters() {
 		List<Method> methods = new ArrayList<Method>();
-		 methods.addAll(Arrays.asList(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass().getMethods()));
+		 methods.addAll(Arrays.asList(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethods()));
 	    methods.addAll(Arrays.asList(this.getClass().getMethods()));
 	   
 		return methods;
@@ -523,7 +523,7 @@ private void seedStemCells(){
 	
 	public List<Field> getContants() {	
 		List<Field> fields = new ArrayList<Field>();
-		for(Field field : ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass().getFields()){
+		for(Field field : ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getFields()){
 	   		if(!field.getDeclaringClass().isInterface()) fields.add(field);
 		}
 		
@@ -535,11 +535,11 @@ private void seedStemCells(){
 	public void chartSetHasChanged() {
 
 		try{
-			if(allCells != null && this.cellContinous2D != null && ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters() != null
+			if(allCells != null && this.cellContinous2D != null && ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters() != null
 					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters() != null
 					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel() != null){
 		      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(allCells, this.cellContinous2D, new Object[]{
-		      		ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters(), 
+		      		ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters(), 
 		      		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(), 
 		      		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel(),
 		      	this});
@@ -568,7 +568,7 @@ private void seedStemCells(){
 
 	   try{
 	      this.dataExportSteppables = DataExportController.getInstance().getDataExportSteppablesOfActLoadedChartSet(getAllCells(), getBasementContinous2D(), new Object[]{
-	      	ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters(), 
+	      	ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters(), 
 	      	ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(), 
 	      	ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel(),
 	         	this});

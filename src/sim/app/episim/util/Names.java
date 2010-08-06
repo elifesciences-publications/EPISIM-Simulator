@@ -12,10 +12,10 @@ public abstract class Names {
 	public static final String MISCALLENEOUS = "Miscalleneous";
 	public static final String EPISIMCHARTSETFILENAME ="EpisimChartSet.dat";
 	public static final String EPISIMDATAEXPORTFILENAME ="EpisimDataExport.dat";
-	public static final String EPISIMCELLDIFFMODELVALUE ="celldiffmodel";
+	public static final String EPISIMCELLBEHAVIORALMODELVALUE ="cellbehavioralmodel";
 	public static final String GENERATEDCHARTSPACKAGENAME = "generatedcharts";
 	public static final String GENERATEDDATAEXPORTPACKAGENAME = "generateddataexports";
-	public static final String CELLDIFFMODEL ="_CellDiffModel";
+	public static final String CELLBEHAVIORALMODEL ="_CellBehavioralModel";
 	public static final String EPISIMCHARTSETFACTORYNAME ="EpisimChartSetFactory";
 	public static final String EPISIMDATAEXPORTFACTORYNAME ="EpisimDataExportFactory";
 	

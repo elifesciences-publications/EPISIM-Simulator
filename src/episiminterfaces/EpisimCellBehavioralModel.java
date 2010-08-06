@@ -2,7 +2,7 @@ package episiminterfaces;
 
 import episimbiomechanics.EpisimModelIntegrator;
 
-public interface EpisimCellDiffModel {
+public interface EpisimCellBehavioralModel {
 	
 	void setEpisimModelIntegrator(EpisimModelIntegrator _modelIntegrator);
 	
@@ -87,7 +87,7 @@ public interface EpisimCellDiffModel {
 	
 	void setNumberOfNeighbours(int val);
 	
-	EpisimCellDiffModel[] oneStep(EpisimCellDiffModel[] neighbours);
+	EpisimCellBehavioralModel[] oneStep(EpisimCellBehavioralModel[] neighbours);
 	
 	
 

@@ -51,7 +51,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 		CellType newTrackedCell = null;		
 
 			actTrackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
-			if(actTrackedCell == null || actTrackedCell.getEpisimCellDiffModelObject().getIsAlive() == false){			
+			if(actTrackedCell == null || actTrackedCell.getEpisimCellBehavioralModelObject().getIsAlive() == false){			
 				
 				if(actTrackedCell != null){
 					notifySingleCellObserver(handlerIdStringIdMap.get(handler.getID()));
@@ -77,8 +77,8 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 			}
 			
 			for(CellType actCell : this.allCells){
-				if(actCell.getEpisimCellDiffModelObject().getAge() < MINCELLAGE && actCell.getEpisimCellDiffModelObject().getIsAlive() == true && 
-						actCell.getEpisimCellDiffModelObject().getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL) return actCell;
+				if(actCell.getEpisimCellBehavioralModelObject().getAge() < MINCELLAGE && actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true && 
+						actCell.getEpisimCellBehavioralModelObject().getDifferentiation() != EpisimCellBehavioralModelGlobalParameters.STEMCELL) return actCell;
 			}
 		}
 		else{
@@ -96,7 +96,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 			System.out.println("Suche zufällige Zelle für Tracking passend zur Klasse: "+  requiredClass.getCanonicalName());
 				result = this.allCells.getRandomItemOfClass(requiredClass);
 			}
-			while(result != null && result.getEpisimCellDiffModelObject().getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL && counter < this.allCells.size());
+			while(result != null && result.getEpisimCellBehavioralModelObject().getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.STEMCELL && counter < this.allCells.size());
 			return result;
 		}
 		return null;

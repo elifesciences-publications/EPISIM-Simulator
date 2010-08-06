@@ -3,7 +3,7 @@ package sim.app.episim;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellBehavioralModel;
 import sim.app.episim.visualization.CellEllipse;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -42,10 +42,10 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    
 	public abstract String getCellName();
 	
-	public abstract Class<? extends EpisimCellDiffModel> getEpisimCellDiffModelClass();
+	public abstract Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass();
 	
 	
-	public abstract EpisimCellDiffModel getEpisimCellDiffModelObject();
+	public abstract EpisimCellBehavioralModel getEpisimCellBehavioralModelObject();
 	
 	
 	public abstract List<Method> getParameters();

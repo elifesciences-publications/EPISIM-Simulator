@@ -31,7 +31,7 @@ import sim.portrayal.Inspector;
 
 
 public class ConsoleHack extends Console {
-	JScrollPane biochemicalModelInspectorScrollPane;
+	JScrollPane cellbehavioralModelInspectorScrollPane;
 	JScrollPane biomechanicalModelInspectorScrollPane;
 	JScrollPane miscalleneousInspectorScrollPane;
 	JScrollPane episimTextOutInspectorScrollPane;
@@ -209,7 +209,7 @@ public class ConsoleHack extends Console {
 			epiGUIState = (EpidermisGUIState) simulation;
 		
 			
-			deployInspector(epiGUIState.getBiochemicalModelInspector(), this.biochemicalModelInspectorScrollPane, Names.BIOCHEMMODEL);
+			deployInspector(epiGUIState.getCellBehavioralModelInspector(), this.cellbehavioralModelInspectorScrollPane, Names.BIOCHEMMODEL);
 		
 			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECHMODEL);
 			deployInspector(epiGUIState.getMiscalleneousInspector(), this.miscalleneousInspectorScrollPane, Names.MISCALLENEOUS);

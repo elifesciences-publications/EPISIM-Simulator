@@ -1,25 +1,25 @@
 package sim.app.episim.model;
 
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlobalParameters, java.io.Serializable {
 
-	public static final int KTYPE_UNASSIGNED = EpisimCellDiffModelGlobalParameters.KTYPE_UNASSIGNED;
+	public static final int KTYPE_UNASSIGNED = EpisimCellBehavioralModelGlobalParameters.KTYPE_UNASSIGNED;
 
-	public static final int KTYPE_STEM = EpisimCellDiffModelGlobalParameters.STEMCELL;
+	public static final int KTYPE_STEM = EpisimCellBehavioralModelGlobalParameters.STEMCELL;
 	
-	public static final int KTYPE_TA = EpisimCellDiffModelGlobalParameters.TACELL;
+	public static final int KTYPE_TA = EpisimCellBehavioralModelGlobalParameters.TACELL;
 
-	public static final int KTYPE_SPINOSUM = EpisimCellDiffModelGlobalParameters.EARLYSPICELL;
+	public static final int KTYPE_SPINOSUM = EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL;
 
-	public static final int KTYPE_LATESPINOSUM = EpisimCellDiffModelGlobalParameters.LATESPICELL;
+	public static final int KTYPE_LATESPINOSUM = EpisimCellBehavioralModelGlobalParameters.LATESPICELL;
 
-	public static final int KTYPE_GRANULOSUM = EpisimCellDiffModelGlobalParameters.GRANUCELL;
+	public static final int KTYPE_GRANULOSUM = EpisimCellBehavioralModelGlobalParameters.GRANUCELL;
 
-	public static final int KTYPE_NONUCLEUS = EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS;
+	public static final int KTYPE_NONUCLEUS = EpisimCellBehavioralModelGlobalParameters.KTYPE_NONUCLEUS;
 
-	public static final int KTYPE_NIRVANA = EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA;
+	public static final int KTYPE_NIRVANA = EpisimCellBehavioralModelGlobalParameters.KTYPE_NIRVANA;
 	
 	
 

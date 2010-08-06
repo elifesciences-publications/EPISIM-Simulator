@@ -11,7 +11,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.model.ModelController;
 
 
@@ -20,10 +20,10 @@ public abstract class ObjectStreamFactory {
 	
 	public static ObjectInputStream getObjectInputStreamForInputStream(InputStream inputStream){
 		
-		final File cellDiffModelJarFile = ModelController.getInstance().getBioChemicalModelController().getActLoadedModelFile();
+		final File cellBehavioralModelJarFile = ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile();
 		ObjectInputStream objIn = null;
 		try{
-			if(cellDiffModelJarFile != null){
+			if(cellBehavioralModelJarFile != null){
 				objIn = new ObjectInputStream(inputStream){
 		
 					protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {

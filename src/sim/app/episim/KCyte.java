@@ -3,7 +3,7 @@ import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
 
-import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
@@ -20,8 +20,8 @@ import sim.util.*;
 import ec.util.*;
 import episimbiomechanics.EpisimModelIntegrator;
 import episiminterfaces.CellDeathListener;
-import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.app.episim.util.*;
 import java.awt.Color;
 import java.awt.geom.Area;
@@ -99,7 +99,7 @@ public class KCyte extends CellType
    // THE CELL DIFFERENTIATION MODEL
    ///////////////////////////////////////////////////////////
    
-   private EpisimCellDiffModel cellDiffModelObjekt;
+   private EpisimCellBehavioralModel cellBehavioralModelObjekt;
    
    private SimState actSimState;
    
@@ -120,14 +120,14 @@ public class KCyte extends CellType
    public KCyte(){
    this(-1, -1,  null);
    }
-    public KCyte(long id, long motherId, EpisimCellDiffModel cellDiffModel)
+    public KCyte(long id, long motherId, EpisimCellBehavioralModel cellBehavioralModel)
     {   	 
    	 
    	 super(id, motherId);
    	        
-    	 this.cellDiffModelObjekt = cellDiffModel;
-    	 if(cellDiffModel == null) this.cellDiffModelObjekt = ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject();
-    	 else cellDiffModel.setEpisimModelIntegrator((EpisimModelIntegrator)ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel());
+    	 this.cellBehavioralModelObjekt = cellBehavioralModel;
+    	 if(cellBehavioralModel == null) this.cellBehavioralModelObjekt = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
+    	 else cellBehavioralModel.setEpisimModelIntegrator((EpisimModelIntegrator)ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel());
     	 extForce=new Vector2D(0,0);
        cellDeathListeners = new LinkedList<CellDeathListener>();
        
@@ -139,7 +139,7 @@ public class KCyte extends CellType
        keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
          
                
-       CellEllipse ellipse = new CellEllipse(this.getID(), ((int)this.cellDiffModelObjekt.getX()), ((int)this.cellDiffModelObjekt.getY()), keratinoWidth, keratinoHeight, Color.BLUE);
+       CellEllipse ellipse = new CellEllipse(this.getID(), ((int)this.cellBehavioralModelObjekt.getX()), ((int)this.cellBehavioralModelObjekt.getY()), keratinoWidth, keratinoHeight, Color.BLUE);
        this.setCellEllipseObject(ellipse);
                           
        lastd=new Double2D(0.0,-3);
@@ -222,7 +222,7 @@ public class KCyte extends CellType
        //double adxOpt = KeratinoWidth; //KeratinoWidth-2+theEpidermis.cellSpace;                        
        double optDist_y = GOPTIMALKERATINODISTANCE_Y; // 3+theEpidermis.cellSpace;
                   
-            if (this.cellDiffModelObjekt.getDifferentiation()==EpisimCellDiffModelGlobalParameters.GRANUCELL) optDist_x=GOPTIMALKERATINODISTANCEGRANU_X; // was 3 // 4 in modified version
+            if (this.cellBehavioralModelObjekt.getDifferentiation()==EpisimCellBehavioralModelGlobalParameters.GRANUCELL) optDist_x=GOPTIMALKERATINODISTANCEGRANU_X; // was 3 // 4 in modified version
             
            // double optDistSq = optDist_x*optDist_x;//+adyOpt*adyOpt;
            // double optDist=Math.sqrt(optDistSq);
@@ -273,7 +273,7 @@ public class KCyte extends CellType
                           }
                         else // attraction forces 
                         {
-                            double adhfac=ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellDiffModelObjekt.getDifferentiation(), other.getEpisimCellDiffModelObject().getDifferentiation());                           
+                            double adhfac=ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellBehavioralModelObjekt.getDifferentiation(), other.getEpisimCellBehavioralModelObject().getDifferentiation());                           
                             if (actdist-optDist_x<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist()
                            		 || actdist-optDist_y<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
                              {                                                   
@@ -366,7 +366,7 @@ public class KCyte extends CellType
         return 4/(1+0.1*Math.exp((-x-4)/1));
     }
     
-    public KCyte makeChild(EpisimCellDiffModel cellDiffModel)
+    public KCyte makeChild(EpisimCellBehavioralModel cellBehavioralModel)
     {       
         
    	 Continuous2D cellContinous2D = TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D();
@@ -374,8 +374,8 @@ public class KCyte extends CellType
    	 // Either we get use a currently unused cell oder we allocate a new one
         KCyte kcyte;        
        
-        kcyte= new KCyte(CellType.getNextCellId(), getID(), cellDiffModel); 
-        cellDiffModel.setId((int)kcyte.getID());
+        kcyte= new KCyte(CellType.getNextCellId(), getID(), cellBehavioralModel); 
+        cellBehavioralModel.setId((int)kcyte.getID());
            
             
         Stoppable stoppable = TissueServer.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, 1, 1);   // schedule only if not already running
@@ -393,11 +393,11 @@ public class KCyte extends CellType
         kcyte.ownColor= TissueServer.getInstance().getActEpidermalTissue().random.nextInt(200);
                // the herd
              
-        kcyte.local_maxAge= ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getMaxAge();
+        kcyte.local_maxAge= ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getMaxAge();
         long pSimTime=(long) TissueServer.getInstance().getActEpidermalTissue().schedule.time();
         if (pSimTime<(kcyte.local_maxAge)){ 
       	  kcyte.local_maxAge=pSimTime;
-      	  cellDiffModel.setMaxAge((int)kcyte.local_maxAge);
+      	  cellBehavioralModel.setMaxAge((int)kcyte.local_maxAge);
         }
 
         
@@ -414,21 +414,21 @@ public class KCyte extends CellType
         return kcyte;
     }
 
-    public void makeTACell(EpisimCellDiffModel cellDiffModel)
+    public void makeTACell(EpisimCellBehavioralModel cellBehavioralModel)
     {
         
         GlobalStatistics.getInstance().inkrementActualNumberKCytes();
-        KCyte taCell=makeChild(cellDiffModel);
+        KCyte taCell=makeChild(cellBehavioralModel);
                     
-        taCell.getEpisimCellDiffModelObject().setAge(TissueServer.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
+        taCell.getEpisimCellBehavioralModelObject().setAge(TissueServer.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
        
        
     }
    
-    public void makeSpiCell(EpisimCellDiffModel cellDiffModel)
+    public void makeSpiCell(EpisimCellBehavioralModel cellBehavioralModel)
     {       
    	 GlobalStatistics.getInstance().inkrementActualNumberKCytes();
-       makeChild(cellDiffModel);
+       makeChild(cellBehavioralModel);
     }
 
     
@@ -442,8 +442,8 @@ public class KCyte extends CellType
                double dx = cellContinous2D.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
                double dy = cellContinous2D.tdy(thisloc.y,otherloc.y);
                
-               actNeighbour.getEpisimCellDiffModelObject().setDy(-1*dy);
-               actNeighbour.getEpisimCellDiffModelObject().setDx(dx);
+               actNeighbour.getEpisimCellBehavioralModelObject().setDy(-1*dy);
+               actNeighbour.getEpisimCellBehavioralModelObject().setDx(dx);
                
              //  double distance = Math.sqrt(dx*dx + dy*dy);
                
@@ -456,14 +456,14 @@ public class KCyte extends CellType
    	 return neighbourCells.toArray(new KCyte[neighbourCells.size()]);
     }
     
-    private EpisimCellDiffModel[] getCellDiffModelArray(KCyte[] neighbours){
-   	 List<EpisimCellDiffModel> neighbourCellsDiffModel = new ArrayList<EpisimCellDiffModel>();
-   	 for(KCyte actNeighbour: neighbours) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellDiffModelObject());
-   	 return neighbourCellsDiffModel.toArray(new EpisimCellDiffModel[neighbourCellsDiffModel.size()]);
+    private EpisimCellBehavioralModel[] getCellBehavioralModelArray(KCyte[] neighbours){
+   	 List<EpisimCellBehavioralModel> neighbourCellsDiffModel = new ArrayList<EpisimCellBehavioralModel>();
+   	 for(KCyte actNeighbour: neighbours) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellBehavioralModelObject());
+   	 return neighbourCellsDiffModel.toArray(new EpisimCellBehavioralModel[neighbourCellsDiffModel.size()]);
     }
    
-    private boolean isSurfaceCell(EpisimCellDiffModel[] neighbours){
-   	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL) return false;
+    private boolean isSurfaceCell(EpisimCellBehavioralModel[] neighbours){
+   	 if(this.cellBehavioralModelObjekt.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.STEMCELL) return false;
    	 else{
    		
    		 int leftSideNeighbours = 0;
@@ -471,7 +471,7 @@ public class KCyte extends CellType
    		 int upperNeighbours = 0;
    		 double height = (double) this.getKeratinoHeight();
    		 double width = (double) this.getKeratinoWidth();
-   		  for(EpisimCellDiffModel actNeighbour :neighbours){
+   		  for(EpisimCellBehavioralModel actNeighbour :neighbours){
    			  double dx =actNeighbour.getDx();
    			  double dy =actNeighbour.getDy();
    			  if(dy <=0 && dx == 0) upperNeighbours++;
@@ -491,19 +491,19 @@ public class KCyte extends CellType
      	 KCyte[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
      	 
      	 this.setNeighbouringCells(realNeighbours);
-     	 EpisimCellDiffModel[] realNeighboursDiffModel = getCellDiffModelArray(realNeighbours);
+     	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(realNeighbours);
    	// setIsOuterCell(isSurfaceCell(realNeighbours));
-   	 this.cellDiffModelObjekt.setX(thisloc.getX());
-   	 this.cellDiffModelObjekt.setY(TissueController.getInstance().getTissueBorder().getHeight()- thisloc.getY());
-   	 this.cellDiffModelObjekt.setIsMembrane(isMembraneCell());
-   	 this.cellDiffModelObjekt.setIsSurface(isOuterCell() || nextToOuterCell);
-   	 this.cellDiffModelObjekt.setHasCollision(hasCollision);
-   	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL) this.cellDiffModelObjekt.setAge(0);
-   	 else this.cellDiffModelObjekt.setAge(this.cellDiffModelObjekt.getAge()+1);
+   	 this.cellBehavioralModelObjekt.setX(thisloc.getX());
+   	 this.cellBehavioralModelObjekt.setY(TissueController.getInstance().getTissueBorder().getHeight()- thisloc.getY());
+   	 this.cellBehavioralModelObjekt.setIsMembrane(isMembraneCell());
+   	 this.cellBehavioralModelObjekt.setIsSurface(isOuterCell() || nextToOuterCell);
+   	 this.cellBehavioralModelObjekt.setHasCollision(hasCollision);
+   	 if(this.cellBehavioralModelObjekt.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.STEMCELL) this.cellBehavioralModelObjekt.setAge(0);
+   	 else this.cellBehavioralModelObjekt.setAge(this.cellBehavioralModelObjekt.getAge()+1);
    	 	  	 
    	
 		
-   	 EpisimCellDiffModel[] children = this.cellDiffModelObjekt.oneStep(realNeighboursDiffModel);
+   	 EpisimCellBehavioralModel[] children = this.cellBehavioralModelObjekt.oneStep(realNeighboursDiffModel);
 		/*	long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
 			long deltaTimeTmp = timeAfter-timeBefore;
@@ -531,24 +531,24 @@ public class KCyte extends CellType
 			deltaTime +=deltaTimeTmp;		*/
    	
    	 makeChildren(children);
-   	 if(this.cellDiffModelObjekt.getDifferentiation() == EpisimCellDiffModelGlobalParameters.GRANUCELL){
+   	 if(this.cellBehavioralModelObjekt.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.GRANUCELL){
    	 	setKeratinoWidth(getGKeratinoWidthGranu());
    		setKeratinoHeight(getGKeratinoHeightGranu());
    		this.getCellEllipseObject().setMajorAxisAndMinorAxis(getGKeratinoWidthGranu(), getGKeratinoHeightGranu());
    	}
-      if (!this.cellDiffModelObjekt.getIsAlive()) // && (isOuterCell))
+      if (!this.cellBehavioralModelObjekt.getIsAlive()) // && (isOuterCell))
       {
             killCell();
       }
   
    }
     
-    private void makeChildren(EpisimCellDiffModel[] children){
+    private void makeChildren(EpisimCellBehavioralModel[] children){
    	 if(children!=null){
-   		 for(EpisimCellDiffModel actChild: children){
+   		 for(EpisimCellBehavioralModel actChild: children){
    			 
-   			 if(actChild.getDifferentiation() == EpisimCellDiffModelGlobalParameters.TACELL) makeTACell(actChild);
-   			 else if(actChild.getDifferentiation() == EpisimCellDiffModelGlobalParameters.EARLYSPICELL) makeSpiCell(actChild);
+   			 if(actChild.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.TACELL) makeTACell(actChild);
+   			 else if(actChild.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL) makeSpiCell(actChild);
    		 }
    	 }
     }
@@ -557,10 +557,10 @@ public class KCyte extends CellType
     public void killCell(){
    	    	 
    	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
-   	 this.cellDiffModelObjekt.setDifferentiation(EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA);
+   	 this.cellBehavioralModelObjekt.setDifferentiation(EpisimCellBehavioralModelGlobalParameters.KTYPE_NIRVANA);
    	 
    	 setInNirvana(true);
-   	 this.cellDiffModelObjekt.setIsAlive(false);
+   	 this.cellBehavioralModelObjekt.setIsAlive(false);
    	 removeFromSchedule();
    	
     }
@@ -599,7 +599,7 @@ public class KCyte extends CellType
 		final Epidermis epiderm = (Epidermis) state;
 		
 		
-		if(isInNirvana() || !this.cellDiffModelObjekt.getIsAlive()){
+		if(isInNirvana() || !this.cellBehavioralModelObjekt.getIsAlive()){
 			
 
 			removeFromSchedule();
@@ -704,7 +704,7 @@ public class KCyte extends CellType
 			hitResult2 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
 			// move only on pressure when not stem cell
-			if(this.cellDiffModelObjekt.getDifferentiation() != EpisimCellDiffModelGlobalParameters.STEMCELL){
+			if(this.cellBehavioralModelObjekt.getDifferentiation() != EpisimCellBehavioralModelGlobalParameters.STEMCELL){
 				if((hitResult2.numhits == 0)
 						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.getMotherID()) || (hitResult2.otherMotherId == this.getID())))){
 					double dx = potentialLoc.x - oldLoc.x;
@@ -725,11 +725,11 @@ public class KCyte extends CellType
 			else
 				setIsMembraneCell(false); // ABSOLUTE DISTANZ KONSTANTE
 			
-		/*	EpisimCellDiffModel[] neighbours = new EpisimCellDiffModel[b.size()];
+		/*	EpisimCellBehavioralModel[] neighbours = new EpisimCellBehavioralModel[b.size()];
 			Object[] cytes = b.toArray();
 			for(int i=0; i < b.size(); i++){ 
 				if(cytes[i] instanceof CellType){
-					neighbours[i] = ((CellType) cytes[i]).getEpisimCellDiffModelObject();
+					neighbours[i] = ((CellType) cytes[i]).getEpisimCellBehavioralModelObject();
 				}
 			}*/
 
@@ -804,7 +804,7 @@ public class KCyte extends CellType
 		for(Method m : this.getClass().getMethods()){
 			if((m.getName().startsWith("get") && !methodsNamesBlockedForParameterInspector.contains(m.getName())) || m.getName().startsWith("is")) methods.add(m);
 		}
-		for(Method m : this.cellDiffModelObjekt.getClass().getMethods()){
+		for(Method m : this.cellBehavioralModelObjekt.getClass().getMethods()){
 			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
 		}
 		return methods;
@@ -879,13 +879,13 @@ public class KCyte extends CellType
 	
 	public void setStoppable(Stoppable stopperparam)   { this.stoppable = stopperparam;}
    	
-	public EpisimCellDiffModel getEpisimCellDiffModelObject(){
-		return this.cellDiffModelObjekt;
+	public EpisimCellBehavioralModel getEpisimCellBehavioralModelObject(){
+		return this.cellBehavioralModelObjekt;
 	}
 	
-   public Class<? extends EpisimCellDiffModel> getEpisimCellDiffModelClass() {
+   public Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass() {
 	  
-	   return this.cellDiffModelObjekt.getClass();
+	   return this.cellBehavioralModelObjekt.getClass();
    }
 	
    public SimState getActSimState() { return this.actSimState; }

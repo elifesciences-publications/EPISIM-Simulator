@@ -36,7 +36,7 @@ public class CompatibilityChecker {
 			}
 		}
 		
-		checkCellDiffAndMechanicalModelClasses();
+		checkCellBehavioralAndMechanicalModelClasses();
 		checkTissueAndCellTypes(actTissue);			
 	}
 	
@@ -55,7 +55,7 @@ public class CompatibilityChecker {
 						ObjectStreamClass.lookup(actClass).getSerialVersionUID());
 		}
 				
-		checkCellDiffAndMechanicalModelClasses();
+		checkCellBehavioralAndMechanicalModelClasses();
 		checkTissueAndCellTypes(actTissue);
 	}
 	
@@ -71,10 +71,10 @@ public class CompatibilityChecker {
 		}
 	}
 	
-	private void checkCellDiffAndMechanicalModelClasses() throws ModelCompatibilityException{
+	private void checkCellBehavioralAndMechanicalModelClasses() throws ModelCompatibilityException{
 		
-		checkForCompatibility(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass());
-		checkForCompatibility(ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject().getClass());
+		checkForCompatibility(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass());
+		checkForCompatibility(ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass());
 		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel().getClass());
 		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getClass());
 	}

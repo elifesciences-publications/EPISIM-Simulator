@@ -65,12 +65,12 @@ public abstract class AbstractCommonCompiler {
 				pathToEpisimSimulatorBinaries = configReader.getBinPath().getAbsolutePath()+ System.getProperty("file.separator")+ simulatorJarName;
 			else pathToEpisimSimulatorBinaries = configReader.getBinPath().getAbsolutePath();
 			
-			EpisimTextOut.getEpisimTextOut().println(ModelController.getInstance().getBioChemicalModelController().getActLoadedModelFile().getAbsolutePath()+configReader.getClasspathSeparatorChar()+
+			EpisimTextOut.getEpisimTextOut().println(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile().getAbsolutePath()+configReader.getClasspathSeparatorChar()+
 					pathToEpisimSimulatorBinaries+configReader.getClasspathSeparatorChar()+ configReader.getBinClasspath()+configReader.getLibClasspath(),Color.BLUE);
 			
 			
 				options = Arrays.asList(new String[] { "-cp", 
-					ModelController.getInstance().getBioChemicalModelController().getActLoadedModelFile().getAbsolutePath()+configReader.getClasspathSeparatorChar()+
+					ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile().getAbsolutePath()+configReader.getClasspathSeparatorChar()+
 					pathToEpisimSimulatorBinaries+configReader.getClasspathSeparatorChar()+ configReader.getBinClasspath()+configReader.getLibClasspath()});
 			compiler.getTask(null, fileManager, null, options, null, compilationUnits).call();
 			fileManager.close();

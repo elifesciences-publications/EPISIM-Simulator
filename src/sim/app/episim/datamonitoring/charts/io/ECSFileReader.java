@@ -18,8 +18,8 @@ import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractChartSetFactory;
-import episimfactories.AbstractEpisimCellDiffModelFactory;
-import episiminterfaces.EpisimCellDiffModel;
+import episimfactories.AbstractEpisimCellBehavioralModelFactory;
+import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.monitoring.EpisimChartSet;
 
 

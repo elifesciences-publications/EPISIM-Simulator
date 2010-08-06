@@ -14,7 +14,7 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 
 import sim.app.episim.devBasalLayer.BasementMembranePortrayal2DDev;
 import sim.app.episim.devBasalLayer.EpidermisDev;
-import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
@@ -61,7 +61,7 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 import org.jfree.chart.*; // ChartPanel;
 
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 
@@ -158,9 +158,9 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	
 	
-	public Inspector getBiochemicalModelInspector() {
+	public Inspector getCellBehavioralModelInspector() {
 
-		EpisimCellDiffModelGlobalParameters chemModel = ModelController.getInstance().getEpisimCellDiffModelGlobalParameters();
+		EpisimCellBehavioralModelGlobalParameters chemModel = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 		if(chemModel == null)
 			return null;
 		Inspector i = new SimpleInspector(chemModel, this);
@@ -227,6 +227,14 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		setupPortrayals();
 		
 
+	}
+	
+	public void setMaxSimulationSteps(long steps){
+		if(console != null) console.setWhenShouldEnd(steps);
+	}
+	
+	public void startSimulation(){
+		if(console != null) console.pressPlay();
 	}
 
 	public void load(SimState state) {

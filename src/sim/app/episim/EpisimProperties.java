@@ -1,9 +1,15 @@
 package sim.app.episim;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Properties;
+
+import episimexceptions.PropertyException;
 
 import binloc.ProjectLocator;
 
@@ -21,18 +27,30 @@ public class EpisimProperties {
 	public static final String EPISIMBUILD_JARNAME_PROP = "episimbuild.jarname";
 	public static final String EXCEPTION_DISPLAYMODE_PROP = "exception.displaymode";
 	public static final String SIMULATOR_GUI_PROP = "simulator.gui";
-	public static final String SIMULATOR_CONSOLEMODE_PROP = "simulator.consolemode";
+	public static final String SIMULATOR_CONSOLE_INPUT_PROP = "simulator.consoleinput";
 	public static final String MOVIE_PATH_PROP = "moviepath";
+	public static final String FRAMES_PER_SECOND_PROP = "framespersecond";
+	public static final String SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP = "simulator.cellbehavioralmodelpath";
+	public static final String SIMULATOR_SNAPSHOT_PATH_PROP = "simulator.snapshotpath";
+	public static final String SIMULATOR_AUTOSTART_PROP = "simulator.autostart";
+	public static final String SIMULATOR_MAX_SIMULATION_STEPS_PROP = "simulator.maxsimulationsteps";
+	
+	
+	public static final String SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP = "simulator.cellbehavioralmodel.globalparametersfile";
+	public static final String SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP = "simulator.biomechanicalmodel.globalparametersfile";
 	
 	
 	public static final String ON_EXCEPTION_LOGGING_VAL = "on";
 	public static final String OFF_EXCEPTION_LOGGING_VAL = "off";
 	
-	public static final String ON_SIMULATOR_VAL = "on";
-	public static final String OFF_SIMULATOR_VAL = "off";
+	public static final String ON_SIMULATOR_GUI_VAL = "on";
+	public static final String OFF_SIMULATOR_GUI_VAL = "off";
 		
-	public static final String ON_CONSOLEMODE_VAL = "on";
-	public static final String OFF_CONSOLEMODE_VAL = "off";
+	public static final String ON_CONSOLE_INPUT_VAL = "on";
+	public static final String OFF_CONSOLE_INPUT_VAL = "off";
+	
+	public static final String ON_SIMULATOR_AUTOSTART_VAL = "on";
+	public static final String OFF_SIMULATOR_AUTOSTART_VAL = "off";
 	
 	public static final String ECLIPSE_EXCEPTION_DISPLAYMODE_VAL = "eclipse";
 	public static final String SIMULATOR_EXCEPTION_DISPLAYMODE_VAL = "simulator";
@@ -60,8 +78,40 @@ public class EpisimProperties {
 		return instance.getProperties().getProperty(name);
 	}
 	
+	public static void setProperty(String name, String val){
+		 instance.getProperties().setProperty(name, val);
+	}
+	
 	private Properties getProperties(){ return properties;}
 	
+	public static File getFileForPathOfAProperty(final String property, final String filename, final String fileExtension){
 	
+	   	String path = EpisimProperties.getProperty(property);
+	   	File f = new File(path);
+	   	if(!f.exists() || !f.isDirectory() || !f.canWrite()) throw new PropertyException("Property -  " + property +": " + f.getAbsolutePath() + " is not an (existing or accessable) directory!");
+	   	GregorianCalendar cal = new GregorianCalendar();
+	   	cal.setTime(new Date());
+	   	File file = new File(f.getAbsolutePath()+System.getProperty("file.separator")
+	   										+ cal.get(Calendar.YEAR)+"_"
+	   										+ cal.get(Calendar.MONTH)+ "_"
+	   										+ cal.get(Calendar.DAY_OF_MONTH)+ "_"
+	   										+ cal.get(Calendar.HOUR_OF_DAY)+ "_"
+	   										+ cal.get(Calendar.MINUTE)+ "_"
+	   										+ cal.get(Calendar.SECOND)+ "_"
+	   										+ filename +"."+fileExtension);
+	   	int index = 1;
+	   	while(file.exists()){
+	   		file = new File(f.getAbsolutePath()+System.getProperty("file.separator")
+						+ cal.get(Calendar.YEAR)+"_"
+						+ cal.get(Calendar.MONTH)+ "_"
+						+ cal.get(Calendar.DAY_OF_MONTH)+ "_"
+						+ cal.get(Calendar.HOUR_OF_DAY)+ "_"
+						+ cal.get(Calendar.MINUTE)+ "_"
+						+ cal.get(Calendar.SECOND)+ "_"
+						+ filename  +"_"+(index++)+"."+fileExtension);
+	   	}
+	   	return file;
+	   
+	}
 
 }

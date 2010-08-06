@@ -7,18 +7,12 @@ import java.util.Set;
 import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.util.Names;
-import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
-public abstract class  AbstractCommonSourceBuilder {
-	
-	
-	
-	
-	
-	
+public abstract class  AbstractCommonSourceBuilder {	
 	
 	
 	
@@ -28,7 +22,7 @@ public abstract class  AbstractCommonSourceBuilder {
 		if(requiredClasses != null){
 			this.generatedSourceCode.append("  public void registerRequiredObjects(");
 			for(Class<?> actClass: requiredClasses){
-				if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
 					generatedSourceCode.append(actClass.getSimpleName() + " " + Names.convertClassToVariable(actClass.getSimpleName())+", ");
 				}
 			}
@@ -36,7 +30,7 @@ public abstract class  AbstractCommonSourceBuilder {
 			this.generatedSourceCode.append("    this.allCells = allCells;\n");
 			this.generatedSourceCode.append("    this.cellContinuous = cellContinuous;\n");
 			for(Class<?> actClass: requiredClasses){
-				if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
 					this.generatedSourceCode.append("    this." + Names.convertClassToVariable(actClass.getSimpleName())+" = "
 							+ Names.convertClassToVariable(actClass.getSimpleName())+";\n");
 				}
@@ -103,10 +97,10 @@ public abstract class  AbstractCommonSourceBuilder {
       appendCellValidCheck(handlerSource, requiredClasses);
      
       handlerSource.append("  public double calculate(CellType cellTypeLocal) throws CellNotValidException{\n");
-      handlerSource.append("    EpisimCellDiffModel cellDiff = cellTypeLocal.getEpisimCellDiffModelObject();\n");
+      handlerSource.append("    EpisimCellBehavioralModel cellBehaviour = cellTypeLocal.getEpisimCellBehavioralModelObject();\n");
       handlerSource.append("    Object cellTypeLocalObj = cellTypeLocal;\n");
       appendLocalVars(requiredClasses, handlerSource);
-      appendAssignmentCheck("cellDiff", requiredClasses, handlerSource);
+      appendAssignmentCheck("cellBehaviour", requiredClasses, handlerSource);
       appendAssignmentCheck("cellTypeLocalObj", requiredClasses, handlerSource);
       handlerSource.append("if(isValidCell(cellTypeLocal))");
       handlerSource.append("    return (double)("+ config.getArithmeticExpression()[1]+");\n");
@@ -115,10 +109,10 @@ public abstract class  AbstractCommonSourceBuilder {
          
       handlerSource.append("  public boolean conditionFulfilled(CellType cellTypeLocal) throws CellNotValidException{\n");
       if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasCondition()){
-	      handlerSource.append("    EpisimCellDiffModel cellDiff = cellTypeLocal.getEpisimCellDiffModelObject();\n");
+	      handlerSource.append("    EpisimCellBehavioralModel cellBehaviour = cellTypeLocal.getEpisimCellBehavioralModelObject();\n");
 	      handlerSource.append("    Object cellTypeLocalObj = cellTypeLocal;\n");
 	      appendLocalVars(requiredClasses, handlerSource);
-	      appendAssignmentCheck("cellDiff", requiredClasses, handlerSource);
+	      appendAssignmentCheck("cellBehaviour", requiredClasses, handlerSource);
 	      appendAssignmentCheck("cellTypeLocalObj", requiredClasses, handlerSource);
 	      handlerSource.append("if(isValidCell(cellTypeLocal))");
 	      handlerSource.append("    return (boolean)("+ config.getBooleanExpression()[1]+");\n");
@@ -154,7 +148,7 @@ public abstract class  AbstractCommonSourceBuilder {
 	
 	private void appendLocalVars(Set<Class<?>> requiredClasses, StringBuffer source){
 		for(Class<?> actClass: requiredClasses){
-			if(EpisimCellDiffModel.class.isAssignableFrom(actClass) || CellType.class.isAssignableFrom(actClass))				
+			if(EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || CellType.class.isAssignableFrom(actClass))				
 				source.append(actClass.getSimpleName()+ " " + Names.convertClassToVariable(actClass.getSimpleName())+" = null;\n");
 		}
 	}
@@ -162,7 +156,7 @@ public abstract class  AbstractCommonSourceBuilder {
 		boolean firstLoop = true;
 		
 		for(Class<?> actClass: requiredClasses){
-			if(EpisimCellDiffModel.class.isAssignableFrom(actClass) || CellType.class.isAssignableFrom(actClass)){				
+			if(EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || CellType.class.isAssignableFrom(actClass)){				
 				
 				if(firstLoop){
 					source.append("if("+varName+ ".getClass().isAssignableFrom("+ actClass.getSimpleName()+ ".class)) " + 

@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellBehavioralModel;
 import sim.app.episim.CellType;
 import sim.engine.SimState;
 import java.util.*;
@@ -23,7 +23,7 @@ public class DummyCellType extends CellType{
    }
 
 	@Override
-   public Class<? extends EpisimCellDiffModel> getEpisimCellDiffModelClass() {
+   public Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass() {
 
 
 	   return null;
@@ -58,7 +58,7 @@ public class DummyCellType extends CellType{
    }
 
 	@Override
-   public EpisimCellDiffModel getEpisimCellDiffModelObject() {
+   public EpisimCellBehavioralModel getEpisimCellBehavioralModelObject() {
 
 	   // TODO Auto-generated method stub
 	   return null;

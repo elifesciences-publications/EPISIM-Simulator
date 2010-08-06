@@ -3,8 +3,8 @@ package sim.app.episim.datamonitoring;
 import java.util.List;
 
 import episiminterfaces.CellDeathListener;
-import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.app.episim.CellType;
 import sim.app.episim.KCyte;
 import sim.app.episim.model.ModelController;
@@ -121,36 +121,36 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 		
 		for(CellType actCell: allCells){
-			int diffLevel =  actCell.getEpisimCellDiffModelObject().getDifferentiation();
+			int diffLevel =  actCell.getEpisimCellBehavioralModelObject().getDifferentiation();
 			  switch(diffLevel){
-				  case EpisimCellDiffModelGlobalParameters.EARLYSPICELL:{
+				  case EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL:{
 					  this.actualNumberEarlySpiCells++;
 				  }
 				  break;
-				  case EpisimCellDiffModelGlobalParameters.GRANUCELL:{
+				  case EpisimCellBehavioralModelGlobalParameters.GRANUCELL:{
 					  this.actualNumberGranuCells++;
 				  }
 				  break;
-				  case EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA:{
+				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_NIRVANA:{
 					  
 				  }
 				  break;
-				  case EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS:{
+				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_NONUCLEUS:{
 					  this.actualNumberOfNoNucleus++;
 				  }
 				  break;
-				  case EpisimCellDiffModelGlobalParameters.KTYPE_UNASSIGNED:{
+				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_UNASSIGNED:{
 				  }
 				  break;
-				  case EpisimCellDiffModelGlobalParameters.LATESPICELL:{
+				  case EpisimCellBehavioralModelGlobalParameters.LATESPICELL:{
 					  this.actualNumberLateSpi++;
 				  }
 				  break;
-				  case EpisimCellDiffModelGlobalParameters.STEMCELL:{
+				  case EpisimCellBehavioralModelGlobalParameters.STEMCELL:{
 					  this.actualNumberStemCells++;
 				  }
 				  break;
-				  case EpisimCellDiffModelGlobalParameters.TACELL:{
+				  case EpisimCellBehavioralModelGlobalParameters.TACELL:{
 					  this.actualNumberTACells++;
 				  }
 				  break;
@@ -158,14 +158,14 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 			  
 			  if (actCell.isOuterCell()) // statistics from last time evaluation (so we are always lacking behind one calling period !)
            {
-               barrier_ExtCalcium_Statistics_temp += actCell.getEpisimCellDiffModelObject().getCa();
-               barrier_Lamella_Statistics_temp +=actCell.getEpisimCellDiffModelObject().getLam();
-               barrier_Lipids_Statistics_temp +=actCell.getEpisimCellDiffModelObject().getLip();                            
+               barrier_ExtCalcium_Statistics_temp += actCell.getEpisimCellBehavioralModelObject().getCa();
+               barrier_Lamella_Statistics_temp +=actCell.getEpisimCellBehavioralModelObject().getLam();
+               barrier_Lipids_Statistics_temp +=actCell.getEpisimCellBehavioralModelObject().getLip();                            
                oldNumOuterCells++;
            }
 			  
 			  if(actCell instanceof KCyte && ((KCyte) actCell).isBasalStatisticsCell()) this.actualBasalStatisticsCells++;
-			  sumOfAllAges += actCell.getEpisimCellDiffModelObject().getAge();
+			  sumOfAllAges += actCell.getEpisimCellBehavioralModelObject().getAge();
 		}
 			if(counter == 10){
 				
@@ -204,9 +204,9 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 		
 		for(CellType actCell : allCells){
-			if(actCell.getEpisimCellDiffModelObject().getDifferentiation() == EpisimCellDiffModelGlobalParameters.TACELL ||
-					actCell.getEpisimCellDiffModelObject().getDifferentiation() == EpisimCellDiffModelGlobalParameters.STEMCELL){
-				double dnaContent = actCell.getEpisimCellDiffModelObject().getDnaContent();
+			if(actCell.getEpisimCellBehavioralModelObject().getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.TACELL ||
+					actCell.getEpisimCellBehavioralModelObject().getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.STEMCELL){
+				double dnaContent = actCell.getEpisimCellBehavioralModelObject().getDnaContent();
 				for(int i = 0; i < dnaContents.length; i++){
 					if(dnaContent <= (FIRSTBUCKETAMOUNT + i * intervalSize)){ 
 						dnaContents[i] += 1;
@@ -352,19 +352,19 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	   		this.apoptosis_BasalCounter++;
 	   		
 	   	}
-	   	int diffLevel =  kcyte.getEpisimCellDiffModelObject().getDifferentiation();
+	   	int diffLevel =  kcyte.getEpisimCellBehavioralModelObject().getDifferentiation();
 	   	  switch(diffLevel){
- 			    case EpisimCellDiffModelGlobalParameters.EARLYSPICELL:{
+ 			    case EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL:{
  					  this.apoptosis_EarlySpiCounter++;
  					 
  				 }
  				 break;
- 				 case EpisimCellDiffModelGlobalParameters.GRANUCELL:{
+ 				 case EpisimCellBehavioralModelGlobalParameters.GRANUCELL:{
  					  	this.apoptosis_GranuCounter++;
  					  
  				 }
  				 break;
- 				 case EpisimCellDiffModelGlobalParameters.LATESPICELL:{
+ 				 case EpisimCellBehavioralModelGlobalParameters.LATESPICELL:{
  					  	this.apoptosis_LateSpiCounter++;
  					  
  				 }

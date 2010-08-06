@@ -5,7 +5,7 @@ import sim.engine.*;
 import sim.app.episim.Epidermis;
 
 import sim.app.episim.gui.EpiDisplay2D;
-import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;

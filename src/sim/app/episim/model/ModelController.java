@@ -2,8 +2,8 @@ package sim.app.episim.model;
 
 import java.util.concurrent.Semaphore;
 
-import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
@@ -33,18 +33,18 @@ public class ModelController implements java.io.Serializable{
 		return instance;
 	}
 	
-	public EpisimCellDiffModelGlobalParameters getEpisimCellDiffModelGlobalParameters(){
+	public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){
 	
-		return BioChemicalModelController.getInstance().getEpisimCellDiffModelGlobalParameters();
+		return CellBehavioralModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 	}
 	public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters(){
 		
 		return BioMechanicalModelController.getInstance().getEpisimMechanicalModelGlobalParameters();
 	}
 	
-	public EpisimCellDiffModel getNewEpisimStateModelObject(){
+	public EpisimCellBehavioralModel getNewEpisimStateModelObject(){
 		
-		return BioChemicalModelController.getInstance().getNewEpisimCellDiffModelObject();
+		return CellBehavioralModelController.getInstance().getNewEpisimCellBehavioralModelObject();
 	}
 
 	public EpisimMechanicalModel getMechanicalModel(){
@@ -53,7 +53,7 @@ public class ModelController implements java.io.Serializable{
 	}
 	
 	public BioMechanicalModelController getBioMechanicalModelController(){ return BioMechanicalModelController.getInstance();}
-	public BioChemicalModelController getBioChemicalModelController() { return BioChemicalModelController.getInstance();}
+	public CellBehavioralModelController getCellBehavioralModelController() { return CellBehavioralModelController.getInstance();}
 
 	
    public boolean isModelOpened() {

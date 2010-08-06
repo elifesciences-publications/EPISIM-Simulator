@@ -14,9 +14,9 @@ import java.util.jar.Attributes;
 import java.io.IOException;
 
 import episimexceptions.ModelCompatibilityException;
-import episimfactories.AbstractEpisimCellDiffModelFactory;
-import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episimfactories.AbstractEpisimCellBehavioralModelFactory;
+import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 import sim.app.episim.model.*;
@@ -32,7 +32,7 @@ class ModelJarClassLoader{
 
    
     private Class factoryClass;
-    private AbstractEpisimCellDiffModelFactory factory;
+    private AbstractEpisimCellBehavioralModelFactory factory;
     
     /**
      * Creates a new JarClassLoader for the specified url.
@@ -54,7 +54,7 @@ class ModelJarClassLoader{
          }
          catch (ClassNotFoundException e){
          	
-         	throw new ModelCompatibilityException("No compatible EpisimCellDiffModelFactory found!");
+         	throw new ModelCompatibilityException("No compatible EpisimCellBehavioralModelFactory found!");
          }
         
          catch (SecurityException e){
@@ -64,9 +64,9 @@ class ModelJarClassLoader{
          	throw new ModelCompatibilityException("Error while reading the Model Archive found!");
          }
 	     
-	      if(factoryClass != null && AbstractEpisimCellDiffModelFactory.class.isAssignableFrom(this.factoryClass)){
+	      if(factoryClass != null && AbstractEpisimCellBehavioralModelFactory.class.isAssignableFrom(this.factoryClass)){
 	      	try{
-	            factory = (AbstractEpisimCellDiffModelFactory) factoryClass.newInstance();
+	            factory = (AbstractEpisimCellBehavioralModelFactory) factoryClass.newInstance();
             }
             catch (InstantiationException e){
             	throw new ModelCompatibilityException("Cannot instantiate Model-Factory!");
@@ -75,7 +75,7 @@ class ModelJarClassLoader{
             	throw new ModelCompatibilityException("Cannot access Model-Factory!");
             }
 	      }
-	      else throw new ModelCompatibilityException("No compatible EpisimCellDiffModelFactory found!");
+	      else throw new ModelCompatibilityException("No compatible EpisimCellBehavioralModelFactory found!");
               
        
     }
@@ -83,8 +83,8 @@ class ModelJarClassLoader{
     public boolean isDiffModel(){
    	 
    	 
-   	if(factory != null && EpisimCellDiffModel.class.isAssignableFrom(factory.getEpisimCellDiffModelClass())
-   			&& factory.getEpisimCellDiffModelGlobalParametersObject() != null) return true;
+   	if(factory != null && EpisimCellBehavioralModel.class.isAssignableFrom(factory.getEpisimCellBehavioralModelClass())
+   			&& factory.getEpisimCellBehavioralModelGlobalParametersObject() != null) return true;
    				
    	return false;
     }
@@ -105,11 +105,11 @@ class ModelJarClassLoader{
     }
     
     public <T extends Object> Class<T> getModelClass(Class<T> modelInterface){
-   	if(modelInterface.isAssignableFrom(factory.getEpisimCellDiffModelClass())) return factory.getEpisimCellDiffModelClass();
+   	if(modelInterface.isAssignableFrom(factory.getEpisimCellBehavioralModelClass())) return factory.getEpisimCellBehavioralModelClass();
    	else return null;
     }
     public Object getGlobalParametersObject(){
-   	 return factory.getEpisimCellDiffModelGlobalParametersObject();
+   	 return factory.getEpisimCellBehavioralModelGlobalParametersObject();
     }
 
    

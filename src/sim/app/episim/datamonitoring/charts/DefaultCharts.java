@@ -43,7 +43,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import org.jfree.chart.*;
 
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 import sim.app.episim.KCyte;
 import sim.app.episim.datamonitoring.GlobalStatistics;
@@ -689,8 +689,8 @@ public class DefaultCharts implements java.io.Serializable{
              //double growthFraction=0; // instead globally defined
              if (GlobalStatistics.getInstance().getActualNumberKCytes()>0)
              {
-                 meanCycleTime=(GlobalStatistics.getInstance().getActualNumberStemCells()*ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleStem()
-               		             +GlobalStatistics.getInstance().getActualNumberTACells()*ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getCellCycleTA())
+                 meanCycleTime=(GlobalStatistics.getInstance().getActualNumberStemCells()*ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem()
+               		             +GlobalStatistics.getInstance().getActualNumberTACells()*ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA())
                		             /(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTACells());
                  getXYSeries("ChartSeries_Kinetics_MeanCycleTime").add((double)(state.schedule.time()*TIMEFACTOR), meanCycleTime*TIMEFACTOR);
                  if (GlobalStatistics.getInstance().getActualBasalStatisticsCells()>0)
@@ -767,16 +767,16 @@ public class DefaultCharts implements java.io.Serializable{
 		                     KCyte act=(KCyte)GlobalStatistics.getInstance().getCells().get(i);
 		                     if (act.isInNirvana()) continue;
 		                     // is a living cell..
-		                     int histobin=(int)(act.getEpisimCellDiffModelObject().getY()/7);
+		                     int histobin=(int)(act.getEpisimCellBehavioralModelObject().getY()/7);
 		                     HistoNum[histobin]++;
-		                     HistoExtCalConc[histobin]+=act.getEpisimCellDiffModelObject().getCa();
-		                     HistoLamellaConc[histobin]+=act.getEpisimCellDiffModelObject().getLam();
-		                     HistoLipidsConc[histobin]+=act.getEpisimCellDiffModelObject().getLip();
+		                     HistoExtCalConc[histobin]+=act.getEpisimCellBehavioralModelObject().getCa();
+		                     HistoLamellaConc[histobin]+=act.getEpisimCellBehavioralModelObject().getLam();
+		                     HistoLipidsConc[histobin]+=act.getEpisimCellBehavioralModelObject().getLip();
 		                     
-		                     int diffLevel =  act.getEpisimCellDiffModelObject().getDifferentiation();
+		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDifferentiation();
 		          			  
-		          				  if(diffLevel == EpisimCellDiffModelGlobalParameters.STEMCELL){
-		          					 HistoAgeAvg[histobin]+=act.getEpisimCellDiffModelObject().getAge();
+		          				  if(diffLevel == EpisimCellBehavioralModelGlobalParameters.STEMCELL){
+		          					 HistoAgeAvg[histobin]+=act.getEpisimCellBehavioralModelObject().getAge();
 		          				  }
 		          		  }
 		                 
@@ -848,43 +848,43 @@ public class DefaultCharts implements java.io.Serializable{
 		                     // is a living cell..
 		                    
 		                     
-		                     int diffLevel =  act.getEpisimCellDiffModelObject().getDifferentiation();
+		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDifferentiation();
 		          			  switch(diffLevel){
-		          				  case EpisimCellDiffModelGlobalParameters.EARLYSPICELL:{
-		          					  	ExtCal_Spi+=act.getEpisimCellDiffModelObject().getCa(); 
-			                     	Lam_Spi+=act.getEpisimCellDiffModelObject().getLam(); 
-			                     	Lip_Spi+=act.getEpisimCellDiffModelObject().getLip(); 
+		          				  case EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL:{
+		          					  	ExtCal_Spi+=act.getEpisimCellBehavioralModelObject().getCa(); 
+			                     	Lam_Spi+=act.getEpisimCellBehavioralModelObject().getLam(); 
+			                     	Lip_Spi+=act.getEpisimCellBehavioralModelObject().getLip(); 
 		          				  }
 		          				  break;
-		          				  case EpisimCellDiffModelGlobalParameters.GRANUCELL:{
-		          					  	ExtCal_Granu+=act.getEpisimCellDiffModelObject().getCa(); 
-			                     	Lam_Granu+=act.getEpisimCellDiffModelObject().getLam(); 
-			                     	Lip_Granu+=act.getEpisimCellDiffModelObject().getLip();
+		          				  case EpisimCellBehavioralModelGlobalParameters.GRANUCELL:{
+		          					  	ExtCal_Granu+=act.getEpisimCellBehavioralModelObject().getCa(); 
+			                     	Lam_Granu+=act.getEpisimCellBehavioralModelObject().getLam(); 
+			                     	Lip_Granu+=act.getEpisimCellBehavioralModelObject().getLip();
 		          				  }
 		          				  break;
-		          				  case EpisimCellDiffModelGlobalParameters.KTYPE_NIRVANA:{
+		          				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_NIRVANA:{
 		          					  
 		          				  }
 		          				  break;
-		          				  case EpisimCellDiffModelGlobalParameters.KTYPE_NONUCLEUS:{
-		          					  	ExtCal_NoNuc+=act.getEpisimCellDiffModelObject().getCa(); 
-			                     	Lam_NoNuc+=act.getEpisimCellDiffModelObject().getLam(); 
-			                     	Lip_NoNuc+=act.getEpisimCellDiffModelObject().getLip(); 
+		          				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_NONUCLEUS:{
+		          					  	ExtCal_NoNuc+=act.getEpisimCellBehavioralModelObject().getCa(); 
+			                     	Lam_NoNuc+=act.getEpisimCellBehavioralModelObject().getLam(); 
+			                     	Lip_NoNuc+=act.getEpisimCellBehavioralModelObject().getLip(); 
 		          				  }
 		          				  break;
-		          				  case EpisimCellDiffModelGlobalParameters.KTYPE_UNASSIGNED:{
+		          				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_UNASSIGNED:{
 		          				  }
 		          				  break;
-		          				  case EpisimCellDiffModelGlobalParameters.LATESPICELL:{
-		          					  	ExtCal_LateSpi+=act.getEpisimCellDiffModelObject().getCa(); 
-			                     	Lam_LateSpi+=act.getEpisimCellDiffModelObject().getLam(); 
-			                     	Lip_LateSpi+=act.getEpisimCellDiffModelObject().getLip(); 
+		          				  case EpisimCellBehavioralModelGlobalParameters.LATESPICELL:{
+		          					  	ExtCal_LateSpi+=act.getEpisimCellBehavioralModelObject().getCa(); 
+			                     	Lam_LateSpi+=act.getEpisimCellBehavioralModelObject().getLam(); 
+			                     	Lip_LateSpi+=act.getEpisimCellBehavioralModelObject().getLip(); 
 		          				  }
 		          				  break;
-		          				  case EpisimCellDiffModelGlobalParameters.TACELL:{
-		          					  ExtCal_TA+=act.getEpisimCellDiffModelObject().getCa(); 
-			                       Lam_TA+=act.getEpisimCellDiffModelObject().getLam(); 
-			                       Lip_TA+=act.getEpisimCellDiffModelObject().getLip();  
+		          				  case EpisimCellBehavioralModelGlobalParameters.TACELL:{
+		          					  ExtCal_TA+=act.getEpisimCellBehavioralModelObject().getCa(); 
+			                       Lam_TA+=act.getEpisimCellBehavioralModelObject().getLam(); 
+			                       Lip_TA+=act.getEpisimCellBehavioralModelObject().getLip();  
 		          				  }
 		          				  break;
 		          			  }		                                     

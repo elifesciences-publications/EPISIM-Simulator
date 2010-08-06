@@ -92,9 +92,9 @@ public class ECSFileWriter {
 							
 							//insert biochem model class files------------------------------------------------------------------------------
 							
-							InputStream in = ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject().getClass().getResourceAsStream(
-									ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject().getClass().getSimpleName()+".class");
-							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getBioChemicalModelController().getNewEpisimCellDiffModelObject()
+							InputStream in = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass().getResourceAsStream(
+									ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass().getSimpleName()+".class");
+							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject()
 									                            .getClass().getName().replace(".", "/") + ".class"));
 							
 							 bytes = new byte[1024];
@@ -106,9 +106,9 @@ public class ECSFileWriter {
 							in.close();
 							jarOut.flush();
 							
-							in = ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass().getResourceAsStream(
-									ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters().getClass().getSimpleName()+".class");
-							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters()
+							in = ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getResourceAsStream(
+									ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getSimpleName()+".class");
+							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters()
 									                            .getClass().getName().replace(".", "/") + ".class"));
 							
 							 bytes = new byte[1024];

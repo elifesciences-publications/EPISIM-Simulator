@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import sim.app.episim.model.ModelController;
-import episiminterfaces.EpisimCellDiffModel;
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 
 public class TysonRungeCuttaCalculator {
@@ -31,14 +31,14 @@ public class TysonRungeCuttaCalculator {
 	
 	
 	
-	public static void assignRandomCellcyleState(EpisimCellDiffModel cellDiff, int numberOfSteps){
+	public static void assignRandomCellcyleState(EpisimCellBehavioralModel cellBehavior, int numberOfSteps){
 		double [] u_temp = new double[3];
 		double [] z_temp = new double[3];
 				
 		double [] du_temp = new double[3];
 		double [] dz_temp = new double[3];
 		
-		EpisimCellDiffModelGlobalParameters globalParameters = ModelController.getInstance().getBioChemicalModelController().getEpisimCellDiffModelGlobalParameters();
+		EpisimCellBehavioralModelGlobalParameters globalParameters = ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters();
 		try{
 		
 		 Method m = globalParameters.getClass().getMethod("getK6", null);
@@ -97,16 +97,16 @@ public class TysonRungeCuttaCalculator {
 		}
 	
 	
-	   m = cellDiff.getClass().getMethod("setU", new Class[]{Double.TYPE});
+	   m = cellBehavior.getClass().getMethod("setU", new Class[]{Double.TYPE});
      
 		if(m != null) {
-			m.invoke(cellDiff, new Object[]{u});
+			m.invoke(cellBehavior, new Object[]{u});
         	
 		}
 		
-		m = cellDiff.getClass().getMethod("setZ", new Class[]{Double.TYPE});
+		m = cellBehavior.getClass().getMethod("setZ", new Class[]{Double.TYPE});
 		if(m != null) {
-			m.invoke(cellDiff, new Object[]{z});
+			m.invoke(cellBehavior, new Object[]{z});
 			
 		}
 		

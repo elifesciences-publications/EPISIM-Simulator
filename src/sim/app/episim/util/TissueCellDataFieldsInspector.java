@@ -137,7 +137,7 @@ public class TissueCellDataFieldsInspector {
 	
 	private void processMethodForVarNameSetAndMethodCallMap(String firstName, Method actMethod){
 		String parameterName="";
-		if(EpisimCellDiffModel.class.isAssignableFrom(actMethod.getDeclaringClass())) firstName += Names.CELLDIFFMODEL;
+		if(EpisimCellBehavioralModel.class.isAssignableFrom(actMethod.getDeclaringClass())) firstName += Names.CELLBEHAVIORALMODEL;
 		if(isValidReturnType(actMethod.getReturnType())){
 			parameterName=getParameterName(actMethod.getName());
 			
@@ -164,7 +164,7 @@ public class TissueCellDataFieldsInspector {
 	
 	private void processFieldForConstantNameSetAndFieldCallMap(String firstName, Field actField){
 		String constantName="";
-		if(EpisimCellDiffModelGlobalParameters.class.isAssignableFrom(actField.getDeclaringClass())) firstName += Names.CELLDIFFMODEL;
+		if(EpisimCellBehavioralModelGlobalParameters.class.isAssignableFrom(actField.getDeclaringClass())) firstName += Names.CELLBEHAVIORALMODEL;
 		if(isValidReturnType(actField.getType())){
 			constantName=actField.getName();
 			
@@ -204,7 +204,7 @@ public class TissueCellDataFieldsInspector {
 	
 	public boolean checkIfIdentifierIsGlobalParameter(String identifier){
 		Class<?> identifiersClass = overallMethodMap.get(identifier).getDeclaringClass();
-		if(EpisimCellDiffModel.class.isAssignableFrom(identifiersClass)
+		if(EpisimCellBehavioralModel.class.isAssignableFrom(identifiersClass)
 				|| EpisimMechanicalModel.class.isAssignableFrom(identifiersClass)
 				|| CellType.class.isAssignableFrom(identifiersClass)) return false;
 		return true;		
@@ -250,7 +250,7 @@ public class TissueCellDataFieldsInspector {
 				if(subNames.length >= 2 && subNames[0].substring(Names.PREFIXLENGTH).equals(cellOrTissueTypeName)){
 					list.add(subNames[1]);
 				}
-				else if(subNames.length >= 2 && subNames[0].substring(Names.PREFIXLENGTH).equals(cellOrTissueTypeName+Names.CELLDIFFMODEL)){
+				else if(subNames.length >= 2 && subNames[0].substring(Names.PREFIXLENGTH).equals(cellOrTissueTypeName+Names.CELLBEHAVIORALMODEL)){
 					list.add(subNames[1]);
 				}
 			}
@@ -316,7 +316,7 @@ public class TissueCellDataFieldsInspector {
 		//Celltypename-Based Check
 		HashSet<String> cellTypeNameSet = new HashSet<String>();  
 		for(String actVarName : varNames){
-			String cellTypeName = removeCellDiffModel(actVarName.split("\\.")[0].substring(Names.PREFIXLENGTH));
+			String cellTypeName = removeCellBehavioralModel(actVarName.split("\\.")[0].substring(Names.PREFIXLENGTH));
 			if(!cellTypeNameSet.contains(cellTypeName) && !this.tissueTypesMap.keySet().contains(cellTypeName)){ 
 				if(cellTypeNameSet.size() > 0){
 					return true;
@@ -335,9 +335,9 @@ public class TissueCellDataFieldsInspector {
 		return text;
 	}
 	
-	private String removeCellDiffModel(String name){
-		if(name.endsWith(Names.CELLDIFFMODEL)){
-			return name.substring(0, name.length()- Names.CELLDIFFMODEL.length());
+	private String removeCellBehavioralModel(String name){
+		if(name.endsWith(Names.CELLBEHAVIORALMODEL)){
+			return name.substring(0, name.length()- Names.CELLBEHAVIORALMODEL.length());
 		}
 		return name;
 	}
@@ -370,7 +370,7 @@ public class TissueCellDataFieldsInspector {
 				if((cellParameterList.getSelectedIndex() != -1) && e.getClickCount() == 2){
 					
 					String name = cellTypeList.getSelectedValue() + "."  + cellParameterList.getSelectedValue();
-					String alternName = cellTypeList.getSelectedValue()+Names.CELLDIFFMODEL + "."  + cellParameterList.getSelectedValue();
+					String alternName = cellTypeList.getSelectedValue()+Names.CELLBEHAVIORALMODEL + "."  + cellParameterList.getSelectedValue();
 					
 					if(!prefixMap.keySet().contains(name) &&prefixMap.keySet().contains(alternName)){
 						
@@ -408,7 +408,7 @@ public class TissueCellDataFieldsInspector {
 				if((tissueConstantList.getSelectedIndex() != -1) && e.getClickCount() == 2){
 					
 					String name = tissueTypeList.getSelectedValue() + "."  + tissueConstantList.getSelectedValue();
-					String alternName = tissueTypeList.getSelectedValue()+Names.CELLDIFFMODEL + "."  + tissueConstantList.getSelectedValue();
+					String alternName = tissueTypeList.getSelectedValue()+Names.CELLBEHAVIORALMODEL + "."  + tissueConstantList.getSelectedValue();
 					
 					if(!prefixMap.keySet().contains(name) &&prefixMap.keySet().contains(alternName)){
 						

@@ -3,7 +3,7 @@ package sim.app.episim.datamonitoring.charts.build;
 import sim.app.episim.CellType;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
 import sim.app.episim.util.Names;
-import episiminterfaces.EpisimCellDiffModel;
+import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
@@ -99,7 +99,7 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
 					".registerRequiredObjects(");
 			for(Class<?> actClass: actChart.getAllRequiredClasses()){
-				if(!EpisimCellDiffModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
 					this.factorySource.append(Names.convertClassToVariable(actClass.getSimpleName())+", ");
 				}
 			}

@@ -11,7 +11,7 @@ public class SnapshotObject implements java.io.Serializable {
 	public static final String CHARTS = "Charts";
 	public static final String MECHANICALMODELGLOBALPARAMETERS = "MechanicalModelGlobalParameters";
 	public static final String MISCALLENEOUSGLOBALPARAMETERS = "MiscalenneousGlobalParameters";
-	public static final String CELLDIFFMODELGLOBALPARAMETERS = "CellDiffModelGlobalParameters";
+	public static final String CELLBEHAVIORALMODELGLOBALPARAMETERS = "CellBehavioralModelGlobalParameters";
 	
 	
 	private static final long serialVersionUID = -4796696464984805544L;

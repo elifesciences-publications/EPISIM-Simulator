@@ -16,7 +16,7 @@ import java.util.TreeSet;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 
-import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.model.ModelController;
 public class TissueBorder {
 	

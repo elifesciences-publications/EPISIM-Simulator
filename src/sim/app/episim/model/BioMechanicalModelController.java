@@ -12,7 +12,7 @@ package sim.app.episim.model;
 	import java.util.Map;
 	import java.util.concurrent.ConcurrentHashMap;
 
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 

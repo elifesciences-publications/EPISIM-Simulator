@@ -2,7 +2,7 @@ package episiminterfaces;
 
 
 
-public interface EpisimCellDiffModelGlobalParameters{
+public interface EpisimCellBehavioralModelGlobalParameters{
 	public static final int KTYPE_UNASSIGNED=0;
 	public static final int KTYPE_NONUCLEUS=1;
 	public static final int KTYPE_NIRVANA=2;
@@ -29,6 +29,6 @@ public interface EpisimCellDiffModelGlobalParameters{
  	
 	void resetInitialGlobalValues();
 	
-	void setSnapshotValues(EpisimCellDiffModelGlobalParameters parametersObj);
+	void setSnapshotValues(EpisimCellBehavioralModelGlobalParameters parametersObj);
 	
 }

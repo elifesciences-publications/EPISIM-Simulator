@@ -43,7 +43,7 @@ public class EpisimMovieMaker{
            }
        catch (Throwable e) { encoderClass = null; }  // JMF's not installed
 	   
-	   consoleMode = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLEMODE_PROP).equals(EpisimProperties.ON_CONSOLEMODE_VAL);
+	   consoleMode = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL);
 	   
 	   // TODO Auto-generated constructor stub
    }
@@ -64,6 +64,9 @@ public class EpisimMovieMaker{
          
          try
              {
+         	
+         	 if(EpisimProperties.getProperty(EpisimProperties.FRAMES_PER_SECOND_PROP)!= null) fps = Float.parseFloat(EpisimProperties.getProperty(EpisimProperties.FRAMES_PER_SECOND_PROP));	
+         	
              // get the list of supported formats
              Object[] f = (Object[]) encoderClass.
                  getMethod("getEncodingFormats", new Class[] {Float.TYPE, BufferedImage.class}).
@@ -76,7 +79,7 @@ public class EpisimMovieMaker{
                          Class.forName("javax.media.Format")
                          }).
                      newInstance(new Object[]{new Float(fps), 
-                                              getMovieFile(),
+                                              EpisimProperties.getFileForPathOfAProperty(EpisimProperties.MOVIE_PATH_PROP, "EpisimMovie", "mov"),
                                               typicalImage,
                                               f[encodeFormatIndex]});
                  
@@ -143,32 +146,6 @@ public class EpisimMovieMaker{
    
    
    
-   private File getMovieFile(){
-   	String path = EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP);
-   	File f = new File(path);
-   	if(!f.exists() || !f.isDirectory()) throw new PropertyException("Property -  " + EpisimProperties.MOVIE_PATH_PROP +": " + f.getAbsolutePath() + " is not an (existing) directory!");
-   	GregorianCalendar cal = new GregorianCalendar();
-   	cal.setTime(new Date());
-   	File moviefile = new File(f.getAbsolutePath()+System.getProperty("file.separator")
-   										+ cal.get(Calendar.YEAR)+"_"
-   										+ cal.get(Calendar.MONTH)+ "_"
-   										+ cal.get(Calendar.DAY_OF_MONTH)+ "_"
-   										+ cal.get(Calendar.HOUR_OF_DAY)+ "_"
-   										+ cal.get(Calendar.MINUTE)+ "_"
-   										+ cal.get(Calendar.SECOND)+ "_"
-   										+ "EpisimMovie.mov");
-   	int index = 1;
-   	while(moviefile.exists()){
-   		moviefile = new File(f.getAbsolutePath()+System.getProperty("file.separator")
-					+ cal.get(Calendar.YEAR)+"_"
-					+ cal.get(Calendar.MONTH)+ "_"
-					+ cal.get(Calendar.DAY_OF_MONTH)+ "_"
-					+ cal.get(Calendar.HOUR_OF_DAY)+ "_"
-					+ cal.get(Calendar.MINUTE)+ "_"
-					+ cal.get(Calendar.SECOND)+ "_"
-					+ "EpisimMovie_"+(index++)+".mov");
-   	}
-   	return moviefile;
-   }
+   
 
 }

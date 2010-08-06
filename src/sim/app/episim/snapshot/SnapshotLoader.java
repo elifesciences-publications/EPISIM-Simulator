@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import episiminterfaces.EpisimCellDiffModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 import sim.app.episim.CellType;
@@ -24,7 +24,7 @@ public class SnapshotLoader {
 	private List<CellType> loadedCells;
 	
 	private java.awt.geom.Rectangle2D.Double[] deltaInfo = null;
-	private EpisimCellDiffModelGlobalParameters diffModelGlobalParameters = null;
+	private EpisimCellBehavioralModelGlobalParameters behavioralModelGlobalParameters = null;
 	private EpisimMechanicalModelGlobalParameters mechModelGlobalParameters = null;
 	
 	private TimeSteps timeSteps;
@@ -49,8 +49,8 @@ public class SnapshotLoader {
 					this.timeSteps = (TimeSteps) sObj.getSnapshotObject();
 					
 				}
-				else if(sObj.getIdentifier().equals(SnapshotObject.CELLDIFFMODELGLOBALPARAMETERS)){
-					diffModelGlobalParameters = (EpisimCellDiffModelGlobalParameters) sObj.getSnapshotObject();
+				else if(sObj.getIdentifier().equals(SnapshotObject.CELLBEHAVIORALMODELGLOBALPARAMETERS)){
+					behavioralModelGlobalParameters = (EpisimCellBehavioralModelGlobalParameters) sObj.getSnapshotObject();
 					
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.MECHANICALMODELGLOBALPARAMETERS)){
@@ -102,9 +102,9 @@ public class SnapshotLoader {
 
 
 	
-   public EpisimCellDiffModelGlobalParameters getEpisimCellDiffModelGlobalParameters() {
+   public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters() {
    
-   	return diffModelGlobalParameters;
+   	return behavioralModelGlobalParameters;
    }
    public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {
       

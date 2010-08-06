@@ -45,7 +45,7 @@ import javax.swing.event.DocumentListener;
 
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
-import sim.app.episim.model.BioChemicalModelController;
+import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotWriter;
@@ -93,7 +93,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
         	  
               if(keyEvent.getSource() instanceof JTextField){
               String name =((JTextField) keyEvent.getSource()).getName();
-              //	ModelController.getInstance().getBioChemicalModelController().reloadValue(());
+              //	ModelController.getInstance().getCellBehavioralModelController().reloadValue(());
               	if(name.equals("TypeColor")) clickRefreshButtons();
               }
               }
@@ -106,7 +106,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
           {
      	 if(e.getSource() instanceof JTextField){
      		 String name =((JTextField) e.getSource()).getName();
-     		// ModelController.getInstance().getBioChemicalModelController().reloadValue((name=));
+     		// ModelController.getInstance().getCellBehavioralModelController().reloadValue((name=));
          	if(name.equals("TypeColor")) clickRefreshButtons();
          }
           }
@@ -377,7 +377,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 				
 				if(getPlayState() == PS_PLAYING) super.pressPause();
 				if(pressedButton.getActionCommand() != null){
-					if(pressedButton.getActionCommand().equals(Names.BIOCHEMMODEL))ModelController.getInstance().getBioChemicalModelController().resetInitialGlobalValues();
+					if(pressedButton.getActionCommand().equals(Names.BIOCHEMMODEL))ModelController.getInstance().getCellBehavioralModelController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MECHMODEL))ModelController.getInstance().getBioMechanicalModelController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MISCALLENEOUS))MiscalleneousGlobalParameters.instance().resetInitialGlobalValues();
 				}

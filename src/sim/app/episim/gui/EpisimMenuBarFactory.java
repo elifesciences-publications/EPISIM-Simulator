@@ -37,6 +37,7 @@ public class EpisimMenuBarFactory {
 		OPEN_MODEL_FILE("Open Episim-Cell-Model"),
 		CLOSE_MODEL_FILE("Close Episim-Cell-Model"),
 		BUILD_MODEL_ARCHIVE("Build Episim-Model-Archive"),
+		CLOSE_SIMULATOR("Close Episim Simulator"),
 		
 		EDIT_CHART_SET("Edit Chart-Set"),
 		LOAD_CHART_SET("Load Chart-Set"),
@@ -115,6 +116,23 @@ public class EpisimMenuBarFactory {
 			
 		});
 		menuItemClose.setEnabled(false);
+		
+		JMenuItem menuItemCloseSimulator = new JMenuItem(EpisimMenuItem.CLOSE_SIMULATOR.toString());
+		menuItemCloseSimulator.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				
+				if(ModelController.getInstance().isModelOpened()){
+					int choice = JOptionPane.showConfirmDialog(simulator.getMainFrame(), "Do you really want to close the opened model?", "Close Model?", JOptionPane.YES_NO_OPTION);
+					if(choice == JOptionPane.OK_OPTION){
+						simulator.closeModel();	
+						simulator.close();
+					}
+				}
+			}
+			
+		});
+		menuItemClose.setEnabled(true);
 		JMenuItem menuItemSetSnapshotPath = new JMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH.toString());
 		menuItemSetSnapshotPath.addActionListener(new ActionListener(){
 
@@ -151,6 +169,8 @@ public class EpisimMenuBarFactory {
 		fileMenu.add(menuItemBuild);
 		fileMenu.addSeparator();
 		fileMenu.add(menuItemClose);
+		fileMenu.addSeparator();
+		fileMenu.add(menuItemCloseSimulator);
 		
 		menuBar.add(fileMenu);
 	}

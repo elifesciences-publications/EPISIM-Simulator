@@ -129,12 +129,15 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
               }
               else if(colorType == 8){
             	              	  
-            	  graphics.setPaint(getFillColor(kcyte));            	     	  
-            	  graphics.fill(kcyte.getCellEllipseObject().getClippedEllipse());
-            	  if(drawFrame){
-	            	  graphics.setPaint(getContourColor(kcyte));
-	            	  graphics.draw(kcyte.getCellEllipseObject().getClippedEllipse());
-            	  
+            	  graphics.setPaint(getFillColor(kcyte));    
+            	  Area clippedEllipse = kcyte.getCellEllipseObject().getClippedEllipse();
+            	  if(clippedEllipse != null){
+            		  graphics.fill(clippedEllipse);
+	            	  if(drawFrame){
+		            	  graphics.setPaint(getContourColor(kcyte));
+		            	  graphics.draw(clippedEllipse);
+	            	  
+	            	  }
             	  }
             	 if(showNucleus){
             		  Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 

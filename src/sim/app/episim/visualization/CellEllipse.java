@@ -21,8 +21,8 @@ public class CellEllipse  implements Serializable{
 	
 		
 		
-		private Area clippedEllipse;
-		private Area ellipseAsArea;
+		private transient Area clippedEllipse;
+		private transient Area ellipseAsArea;
 		
 		private long id;
 		private int x;
@@ -42,7 +42,7 @@ public class CellEllipse  implements Serializable{
 		private Color color;
 		private Color fillColor = null;
 		
-		private DrawInfo2D lastDrawInfo2D = null;
+		private transient DrawInfo2D lastDrawInfo2D = null;
 		
 		private HashMap<String, XYPoints> xyPointsOfEllipse;
      
@@ -79,6 +79,7 @@ public class CellEllipse  implements Serializable{
 		
 		
 		public void resetClippedEllipse(){ 
+			if(ellipseAsArea== null) ellipseAsArea = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
 			clippedEllipse = getClone(this.ellipseAsArea);
 			this.xyPointsOfEllipse.clear();
 		}
@@ -183,7 +184,11 @@ public class CellEllipse  implements Serializable{
 	      
       }
 		
-      public Area getEllipse() { return ellipseAsArea;}
+      public Area getEllipse() {
+      	if(ellipseAsArea== null) ellipseAsArea = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
+			
+      	return ellipseAsArea;
+      }
       
       public Area getEllipseClone() { return getClone(ellipseAsArea);}
 
@@ -191,7 +196,10 @@ public class CellEllipse  implements Serializable{
       	this.clippedEllipse.subtract(area); 
       }
       
-      public Area getClippedEllipse(){ return this.clippedEllipse; }
+      public Area getClippedEllipse(){ 
+      	if(clippedEllipse== null) clippedEllipse = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
+      	return this.clippedEllipse; 
+      }
      		
 		public long getId() { return id; }
 		
@@ -246,7 +254,7 @@ public class CellEllipse  implements Serializable{
 
       public void setNucleus(Nucleus nucleus) { this.nucleus = nucleus; }
       
-      public double getArea() { return area; }
+      public double getArea() {	return area; }
 		
       public void setArea(double area) { this.area = area; }
 		

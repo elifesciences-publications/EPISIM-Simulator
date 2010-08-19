@@ -27,7 +27,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 	private static int noOfRuns = 0;
 	private static int maxNoOfRuns = 0;
 	
-	public static class XYPoints{
+	public static class XYPoints implements java.io.Serializable{
 		
 		public int[] xPointsQuaderEllipse1;
 		public int[] yPointsQuaderEllipse1;

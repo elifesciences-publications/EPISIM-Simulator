@@ -3,7 +3,7 @@ package episimbiomechanics;
 import episiminterfaces.EpisimMechanicalModel;
 
 
-public class EpisimModelIntegrator implements EpisimMechanicalModel{
+public class EpisimModelIntegrator implements EpisimMechanicalModel, java.io.Serializable{
 	
 	private static final String VERSION = "2010-01-01";
 	               

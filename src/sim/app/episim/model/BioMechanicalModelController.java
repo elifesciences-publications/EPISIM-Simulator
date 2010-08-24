@@ -75,6 +75,8 @@ import sim.app.episim.KCyte;
 		if(parametersObject != null) biomechanicalModel.reloadMechanicalModelGlobalParametersObject(parametersObject);
 	}
 	
+	
+	
 	public void resetInitialGlobalValues(){
 		
 			biomechanicalModel.resetInitialGlobalValues();

@@ -35,6 +35,7 @@ import sim.field.continuous.Continuous2D;
 
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
+import episimexceptions.PropertyException;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
@@ -146,6 +147,15 @@ public class DataExportController {
 			}
 		}
 		return false;
+	}
+	
+	public void loadDataExportDefinition(File file){		
+		try{
+			loadDataExportDefinition(file.toURI().toURL(), null);	
+		}
+		catch (MalformedURLException e){
+			ExceptionDisplayer.getInstance().displayException(new PropertyException("The Data-Export-Definition " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
+		}		
 	}
 	
 	

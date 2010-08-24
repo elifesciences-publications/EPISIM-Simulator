@@ -83,6 +83,8 @@ public class CellBehavioralModel implements java.io.Serializable, SnapshotListen
 		return this.globalParametersObject;
 	}
 	
+	
+	
    
 	public void reloadCellBehavioralModelGlobalParametersObject(EpisimCellBehavioralModelGlobalParameters parametersObject){
 		if(this.globalParametersObject != null)this.globalParametersObject.setSnapshotValues(parametersObject);

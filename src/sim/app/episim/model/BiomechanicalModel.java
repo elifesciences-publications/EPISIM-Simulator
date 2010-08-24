@@ -43,6 +43,9 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 	}
 	
 	
+	public void setParameterValue(String parameterIdentifier, Object value){
+		
+	}
 	
 	public EpisimMechanicalModel getEpisimMechanicalModel() {
 		return new EpisimModelIntegrator();

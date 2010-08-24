@@ -1,23 +1,28 @@
 package sim.app.episim.model;
 
+import java.io.File;
 import java.util.concurrent.Semaphore;
 
+import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 public class ModelController implements java.io.Serializable{
 	
-	private static Semaphore sem = new Semaphore (1);
+	private static Semaphore sem = new Semaphore(1);
 	
 	private boolean modelOpened = false;
 	
 	private boolean simulationStartedOnce = false;
 	
 	private static ModelController instance;
-	private ModelController(){}
+	private ModelController(){
+	
+	}
 	
 	
 	public static ModelController getInstance(){
@@ -60,7 +65,31 @@ public class ModelController implements java.io.Serializable{
    
    	return modelOpened;
    }
-
+   
+   public boolean loadCellBehavioralModelFile(File modelFile) throws ModelCompatibilityException{
+   	boolean success = CellBehavioralModelController.getInstance().loadModelFile(modelFile);
+   	
+   	if(success){
+   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP)!= null &&
+   				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL)){
+   			ModelParameterModifier parameterModifier = new ModelParameterModifier();
+   			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
+   				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(BioMechanicalModelController.getInstance().getEpisimMechanicalModelGlobalParameters()
+   						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP)));
+   			}
+   			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
+   				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(CellBehavioralModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
+   						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP)));
+   			}
+   			
+   		}
+   	}
+   	
+   	return success;
+   }
+   	
+   
+   
 	
    public void setModelOpened(boolean modelOpened) {
    

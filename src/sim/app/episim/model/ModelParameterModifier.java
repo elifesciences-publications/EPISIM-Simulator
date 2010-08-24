@@ -1,0 +1,117 @@
+package sim.app.episim.model;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import episimexceptions.GlobalParameterException;
+
+import sim.app.episim.ExceptionDisplayer;
+
+public class ModelParameterModifier {
+	
+	
+	
+	protected ModelParameterModifier(){}
+	
+	public void setGlobalModelPropertiesToValuesInPropertiesFile(Object globalModelPropertiesObj, File propertiesFile){
+		
+		Properties props = getPropertiesFromFile(propertiesFile);
+		Map<String, Method> methodMap = buildMethodMapWithoutSetterPrefix(globalModelPropertiesObj);
+		setAllProperties(globalModelPropertiesObj, methodMap, props);		
+	}	
+	
+	private Properties getPropertiesFromFile(File propertiesFile){
+		Properties properties = new Properties();
+		FileInputStream stream;
+      try{
+	      stream = new FileInputStream(propertiesFile);
+         properties.load(stream);
+         stream.close();
+      }
+      catch (IOException e1){
+	      ExceptionDisplayer.getInstance().displayException(new GlobalParameterException("Could not read Global Properties File: "+ propertiesFile.getAbsolutePath() + "Detailed Exception: "+e1.getMessage()));
+      }
+      return properties;
+	}
+	
+	private void setAllProperties(Object globalModelPropertiesObj, Map<String, Method> methodMap, Properties properties){
+		Map<String, String> lowerCasePropertiesKeyMap = new HashMap<String, String>();
+		for(Object obj: properties.keySet()){ 
+			String str = null;
+			if(obj instanceof String){
+				str = (String) obj;
+				lowerCasePropertiesKeyMap.put(str.toLowerCase(), str);
+			}
+		}
+		for(String propName : methodMap.keySet()){
+			if(lowerCasePropertiesKeyMap.containsKey(propName)){
+				String val = properties.getProperty(lowerCasePropertiesKeyMap.get(propName));
+				callSetterMethod(methodMap.get(propName), val, globalModelPropertiesObj);
+			}
+		}
+		
+	}
+	
+	
+	
+	
+	
+	private void callSetterMethod(Method m, String val, Object globalModelPropertiesObj){
+		Class<?>[] paramType = m.getParameterTypes();
+		
+		try{
+			if(Byte.TYPE.isAssignableFrom(paramType[0])){
+				 m.invoke(globalModelPropertiesObj, new Object[]{Byte.parseByte(val)}); 
+			}
+			else if(Double.TYPE.isAssignableFrom(paramType[0])){				
+		       m.invoke(globalModelPropertiesObj, new Object[]{Double.parseDouble(val)});   
+			}
+			else if(Float.TYPE.isAssignableFrom(paramType[0])){
+				 m.invoke(globalModelPropertiesObj, new Object[]{Float.parseFloat(val)}); 
+			}
+			else if(Integer.TYPE.isAssignableFrom(paramType[0])){
+				 m.invoke(globalModelPropertiesObj, new Object[]{Integer.parseInt(val)}); 
+			}
+			else if(Long.TYPE.isAssignableFrom(paramType[0])){
+				 m.invoke(globalModelPropertiesObj, new Object[]{Long.parseLong(val)}); 
+			}
+			else if(Short.TYPE.isAssignableFrom(paramType[0])){
+				 m.invoke(globalModelPropertiesObj, new Object[]{Short.parseShort(val)}); 
+			}
+			else if(Boolean.TYPE.isAssignableFrom(paramType[0])){
+				 m.invoke(globalModelPropertiesObj, new Object[]{Boolean.parseBoolean(val)}); 
+			}
+			else if(String.class.isAssignableFrom(paramType[0])){
+				 m.invoke(globalModelPropertiesObj, new Object[]{val}); 
+			}
+		}
+		catch(Exception e){
+			ExceptionDisplayer.getInstance().displayException(new GlobalParameterException("The Value of a Global Parameter could not be set! Method-Name: " +m.getName() + " Value: "+ val + "Detailed Error Message: " + e.getMessage()));
+		}
+	}
+	
+	
+	private Map<String, Method> buildMethodMapWithoutSetterPrefix(Object globalModelPropertiesObj){
+		List<Method> methods = getAllSetterMethods(globalModelPropertiesObj);
+		Map<String, Method> methodMap = new HashMap<String, Method>();
+		for(Method m : methods) methodMap.put(m.getName().toLowerCase().substring(3), m);
+		return methodMap;
+	}
+	
+	private List<Method> getAllSetterMethods(Object globalModelPropertiesObj){
+		Method[] methods = globalModelPropertiesObj.getClass().getMethods();
+		List<Method> setterMethods = new ArrayList<Method>();
+		for(Method m : methods){
+			if(m.getName().toLowerCase().startsWith("set")) setterMethods.add(m);
+		}		
+		return setterMethods;
+	}
+
+}

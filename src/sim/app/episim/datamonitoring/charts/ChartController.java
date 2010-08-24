@@ -15,6 +15,7 @@ import org.jfree.chart.ChartPanel;
 
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
+import episimexceptions.PropertyException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
@@ -116,6 +117,15 @@ public class ChartController {
 			}
 		}
 		return false;
+	}
+	
+	public void loadChartSet(File file){
+		try{
+			loadEpisimChartSet(file.toURI().toURL(), null);	
+		}
+		catch (MalformedURLException e){
+			ExceptionDisplayer.getInstance().displayException(new PropertyException("The Chart-Set " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
+		}
 	}
 	
 	

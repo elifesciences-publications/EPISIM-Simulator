@@ -31,6 +31,7 @@ public class CellBehavioralModelController implements java.io.Serializable{
 		
 		
 	}
+	
 	protected synchronized static CellBehavioralModelController getInstance(){
 		if(instance == null) instance = new CellBehavioralModelController();
 		return instance;
@@ -41,7 +42,7 @@ public class CellBehavioralModelController implements java.io.Serializable{
 	}
 	
 	
-	public boolean loadModelFile(File modelFile) throws ModelCompatibilityException{
+	protected boolean loadModelFile(File modelFile) throws ModelCompatibilityException{
 		
 			ModelJarClassLoader jarLoader = null;
          try{
@@ -77,6 +78,8 @@ public class CellBehavioralModelController implements java.io.Serializable{
 	public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){
 		return cellBehavioralModel.getEpisimCellBehavioralModelGlobalParameters();
 	}
+	
+	
 	
 	public void resetInitialGlobalValues(){
 		try{

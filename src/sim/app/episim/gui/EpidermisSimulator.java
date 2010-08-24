@@ -140,13 +140,29 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				if(!cellbehavioralModelFile.exists() || !cellbehavioralModelFile.isFile()) throw new PropertyException("No existing Cell Behavioral Model File specified: "+cellbehavioralModelFile.getAbsolutePath());
 				else{
 					openModel(cellbehavioralModelFile);
+					
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTSETPATH) != null){
+						File chartSetFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTSETPATH));
+						if(!chartSetFile.exists() || !chartSetFile.isFile()) throw new PropertyException("No existing Chart-Set File specified: "+chartSetFile.getAbsolutePath());
+						else{
+							ChartController.getInstance().loadChartSet(chartSetFile);
+						}
+					}
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTPATH) != null){
+						File dataExportDefinitionFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTPATH));
+						if(!dataExportDefinitionFile.exists() || !dataExportDefinitionFile.isFile()) throw new PropertyException("No existing Data Export Definition File specified: "+dataExportDefinitionFile.getAbsolutePath());
+						else{
+							DataExportController.getInstance().loadDataExportDefinition(dataExportDefinitionFile);
+						}
+					}
+					
 				}
 			}
 			
 		}
 		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		
-		//TODO: to be changed for video recording
+		//        TODO: to be changed for video recording
+		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		mainFrame.setPreferredSize(new Dimension((int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()*0.95),
 				(int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight()*0.9)));
@@ -170,14 +186,11 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		mainFrame.pack();
 		centerMe(mainFrame);
 		mainFrame.setVisible(true);
-		if(consoleInput){
-			
+		if(consoleInput){			
 			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP) != null){
 				long steps = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP));
 				if(epiUI != null && steps > 0) epiUI.setMaxSimulationSteps(steps);
-			}
-			
-			
+			}			
 			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_PROP) != null && 
 					EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_PROP).equals(EpisimProperties.ON_SIMULATOR_AUTOSTART_VAL)){
 				if(epiUI != null){ 
@@ -195,7 +208,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	}
 	
 	public static void main(String[] args){
-		EpidermisSimulator episim = new EpidermisSimulator();
+		
 		
 		for(int i = 0; i < args.length; i++){
 			if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX) 
@@ -212,15 +225,13 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				else if(args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)){
 					EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
 				}
-			}
-			
-		}
-		
+			}			
+		}		
 		String mode;
 		if((mode=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_DISPLAYMODE_PROP)) != null 
 				&& mode.equals(EpisimProperties.SIMULATOR_EXCEPTION_DISPLAYMODE_VAL))  System.setErr(new PrintStream(errorOutputStream));
 		
-	
+		EpidermisSimulator episim = new EpidermisSimulator();
 	}
 	
 	
@@ -238,7 +249,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			if(modelFile == null) modelFile = jarFileChoose.getSelectedFile();
 			boolean success = false; 
 			try{
-	         success= ModelController.getInstance().getCellBehavioralModelController().loadModelFile(modelFile);
+	         success= ModelController.getInstance().loadCellBehavioralModelFile(modelFile);
          }
          catch (ModelCompatibilityException e){
 	        ExceptionDisplayer.getInstance().displayException(e);
@@ -284,7 +295,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		boolean success = false; 
 		try{
-         success= ModelController.getInstance().getCellBehavioralModelController().loadModelFile(modelFile);
+         success= ModelController.getInstance().loadCellBehavioralModelFile(modelFile);
       }
       catch(ModelCompatibilityException e){
         ExceptionDisplayer.getInstance().displayException(e);
@@ -369,7 +380,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	protected void loadSnapshot(File snapshotFile, File jarFile, boolean snapshotRestart){
 		boolean success = false;
 		try{
-         success = ModelController.getInstance().getCellBehavioralModelController().loadModelFile(jarFile);
+         success = ModelController.getInstance().loadCellBehavioralModelFile(jarFile);
       }
       catch (ModelCompatibilityException e){
       	 ExceptionDisplayer.getInstance().displayException(e);

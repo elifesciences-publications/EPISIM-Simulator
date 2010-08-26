@@ -21,6 +21,7 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 
 import sim.app.episim.CellType;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory;
@@ -101,6 +102,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.calc.*;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.charts.io.*;\n");
 		generatedSourceCode.append("import sim.app.episim.CellType;\n");
+		generatedSourceCode.append("import sim.app.episim.EpisimProperties;\n");
 		generatedSourceCode.append("import sim.engine.SimState;\n");
 		generatedSourceCode.append("import sim.field.continuous.*;\n");
 		for(Class<?> actClass: this.actChart.getAllRequiredClasses()){
@@ -194,7 +196,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 		appendHandlerRegistration(baselineCalculationHandlerID, seriesCalculationHandlerIDs);
 		appendSteppable(baselineCalculationHandlerID, seriesCalculationHandlerIDs);
-		if(actChart.isPNGPrintingEnabled())appendPNGSteppable();
+		appendPNGSteppable();
 		generatedSourceCode.append("}\n");
 	}
 	

@@ -40,7 +40,10 @@ public class EpisimProperties {
 	public static final String SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP = "simulator.biomechanicalmodel.globalparametersfile";
 	public static final String SIMULATOR_CHARTSETPATH = "simulator.chartsetpath";
 	public static final String SIMULATOR_DATAEXPORTPATH = "simulator.dataexportpath";
+	public static final String SIMULATOR_CHARTPNGPRINTPATH = "simulator.chartpngprintpath";	
+	public static final String SIMULATOR_CHARTPNGPRINTFREQ = "simluator.chartpngprintfreq";
 	
+	public static final String SIMULATOR_SIMULATION_RUN_ID = "simulator.simulationrun.id";
 	
 	
 	public static final String ON_EXCEPTION_LOGGING_VAL = "on";
@@ -101,7 +104,9 @@ public class EpisimProperties {
 	   										+ cal.get(Calendar.HOUR_OF_DAY)+ "_"
 	   										+ cal.get(Calendar.MINUTE)+ "_"
 	   										+ cal.get(Calendar.SECOND)+ "_"
-	   										+ filename +"."+fileExtension);
+	   										+ (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID) != null ? (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID).trim() +"_"):"")
+	   										+ filename 
+	   										+(fileExtension.startsWith(".") ? fileExtension : ("."+fileExtension)));
 	   	int index = 1;
 	   	while(file.exists()){
 	   		file = new File(f.getAbsolutePath()+System.getProperty("file.separator")
@@ -111,7 +116,8 @@ public class EpisimProperties {
 						+ cal.get(Calendar.HOUR_OF_DAY)+ "_"
 						+ cal.get(Calendar.MINUTE)+ "_"
 						+ cal.get(Calendar.SECOND)+ "_"
-						+ filename  +"_"+(index++)+"."+fileExtension);
+						+ (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID) != null ? (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID).trim() +"_"):"")
+						+ filename  +"_"+(index++)+ (fileExtension.startsWith(".") ? fileExtension : ("."+fileExtension)));
 	   	}
 	   	return file;
 	   

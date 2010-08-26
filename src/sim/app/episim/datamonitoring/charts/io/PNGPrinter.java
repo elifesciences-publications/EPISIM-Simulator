@@ -10,6 +10,7 @@ import java.util.Set;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.engine.SimState;
 
@@ -41,7 +42,24 @@ public class PNGPrinter {
 	public void printChartAsPng(long chartId, File directory, String fileName, JFreeChart chart, SimState state){
 		if(!this.fileNameMap.keySet().contains(chartId)) this.fileNameMap.put(chartId, findFileName(fileName));
 		
-		if(directory.isDirectory() && chart != null && state != null){
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL)
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null
+				&& chart != null  && state != null){
+			
+			fileName = fileName.replace(' ', '_');
+			
+			File pngFile = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH, fileName, FILEEXTENSION);
+			pngFile = new File(pngFile.getAbsolutePath().substring(0, (pngFile.getAbsolutePath().length()-FILEEXTENSION.length()))+"(SimulationStep " +state.schedule.getSteps()+ ")"+FILEEXTENSION);
+			
+			try{
+            ChartUtilities.saveChartAsPNG(pngFile, chart, PNG_CHARTWIDTH, PNG_CHARTHEIGHT);
+         }
+         catch (IOException e){
+           ExceptionDisplayer.getInstance().displayException(e);
+         }
+		}		
+		else if(directory != null && directory.isDirectory() && chart != null && state != null){
 			
 			File pngFile = new File(directory.getAbsolutePath()+File.separatorChar + this.fileNameMap.get(chartId) + 
          		"(SimulationStep " +state.schedule.getSteps()+ ")"+FILEEXTENSION);	
@@ -55,6 +73,7 @@ public class PNGPrinter {
 	           ExceptionDisplayer.getInstance().displayException(e);
             }
 		}
+		
 	}
 	
 	private File checkFile(File file){

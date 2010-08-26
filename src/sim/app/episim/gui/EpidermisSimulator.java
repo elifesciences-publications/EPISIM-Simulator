@@ -56,6 +56,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	private static final String CB_FILE_PARAM_PREFIX = "-cb";
 	private static final String BM_FILE_PARAM_PREFIX = "-bm";
+	private static final String SIM_ID_PARAM_PREFIX = "-id";
 	
 	private JFrame mainFrame;
 	
@@ -111,9 +112,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		//--------------------------------------------------------------------------------------------------------------
 		
 		mainFrame.getContentPane().setLayout(new BorderLayout());
-		mainFrame.getContentPane().setBackground(Color.LIGHT_GRAY);
-		
-		
+		mainFrame.getContentPane().setBackground(Color.LIGHT_GRAY);		
 		
 		mainFrame.getContentPane().add(statusbar, BorderLayout.SOUTH);
 		
@@ -126,6 +125,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		
 		
 		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
 		if(consoleInput){
 			
 			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP) != null){
@@ -212,18 +212,25 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		
 		for(int i = 0; i < args.length; i++){
 			if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX) 
+					|| args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)
+					|| args[i].equals(EpidermisSimulator.SIM_ID_PARAM_PREFIX)){
+				
+				if((i+1) >= args.length) throw new PropertyException("Missing value after parameter: "+ args[i]);
+				if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX) 
 					|| args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)){
-				
-				if((i+1) >= args.length) throw new PropertyException("Missing path after path parameter: "+ args[i]);
-				File path = new File(args[i+1]);
-				
-				if(!path.exists() || !path.isDirectory()) new PropertyException("Path: " + args[i+1] + " doesn't point to a property file for parameter " + args[i]);
-				
-				if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX)){
-					EpisimProperties.setProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
+					File path = new File(args[i+1]);
+					
+					if(!path.exists() || !path.isDirectory()) new PropertyException("Path: " + args[i+1] + " doesn't point to a property file for parameter " + args[i]);
+					
+					if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX)){
+						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
+					}
+					else if(args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)){
+						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
+					}
 				}
-				else if(args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)){
-					EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
+				else if(args[i].equals(EpidermisSimulator.SIM_ID_PARAM_PREFIX)){
+					EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1].trim());
 				}
 			}			
 		}		

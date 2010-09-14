@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -78,7 +79,7 @@ public class EpisimMenuBarFactory {
 		buildWindowsMenu(menuBar);		
 		buildInfoMenu(menuBar);
 		
-		simulator.getMainFrame().setJMenuBar(menuBar);
+		if(simulator.getMainFrame() instanceof JFrame)((JFrame)simulator.getMainFrame()).setJMenuBar(menuBar);
 	}
 	
 	
@@ -188,7 +189,8 @@ public class EpisimMenuBarFactory {
 		menuItemNewChartSet.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				boolean success = ChartController.getInstance().showNewChartSetDialog(simulator.getMainFrame());
+				boolean success = true;
+				if(simulator.getMainFrame() instanceof JFrame)ChartController.getInstance().showNewChartSetDialog((JFrame)simulator.getMainFrame());
 				if(success){
 					getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(true);
 					getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(true);
@@ -207,7 +209,7 @@ public class EpisimMenuBarFactory {
 				boolean success = ChartController.getInstance().loadChartSet(simulator.getMainFrame());
 				
 				if(success){ 
-					ChartController.getInstance().showEditChartSetDialog(simulator.getMainFrame());
+					if(simulator.getMainFrame() instanceof JFrame)ChartController.getInstance().showEditChartSetDialog((JFrame)simulator.getMainFrame());
 					getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(true);
 					getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(true);
 					getEpisimMenuItem(EpisimMenuItem.NEW_CHART_SET).setEnabled(false);
@@ -224,7 +226,7 @@ public class EpisimMenuBarFactory {
 		menuItemEditChartSet.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				ChartController.getInstance().showEditChartSetDialog(simulator.getMainFrame());
+				if(simulator.getMainFrame() instanceof JFrame) ChartController.getInstance().showEditChartSetDialog((JFrame)simulator.getMainFrame());
 			}
 			
 		});
@@ -250,7 +252,7 @@ public class EpisimMenuBarFactory {
 
 			public void actionPerformed(ActionEvent e) {
 				
-				ChartController.getInstance().showDefaultChartsSelectionDialog(simulator.getMainFrame());
+				if(simulator.getMainFrame() instanceof JFrame) ChartController.getInstance().showDefaultChartsSelectionDialog((JFrame)simulator.getMainFrame());
 				
 			}
 			
@@ -280,7 +282,7 @@ public class EpisimMenuBarFactory {
 
 			public void actionPerformed(ActionEvent e) {
 				boolean success = true;
-				success = DataExportController.getInstance().showNewDataExportDefinitionSetDialog(simulator.getMainFrame());
+				if(simulator.getMainFrame() instanceof JFrame) success = DataExportController.getInstance().showNewDataExportDefinitionSetDialog((JFrame)simulator.getMainFrame());
 				if(success){
 					getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(true);
 					getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(true);
@@ -297,10 +299,11 @@ public class EpisimMenuBarFactory {
 		menuItemLoadDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				boolean success = DataExportController.getInstance().loadDataExportDefinition(simulator.getMainFrame());
+				boolean success = true;
+				if(simulator.getMainFrame() instanceof JFrame) success = DataExportController.getInstance().loadDataExportDefinition((JFrame)simulator.getMainFrame());
 				
 				if(success){ 
-					DataExportController.getInstance().showEditDataExportDefinitionDialog(simulator.getMainFrame());
+					if(simulator.getMainFrame() instanceof JFrame) DataExportController.getInstance().showEditDataExportDefinitionDialog((JFrame)simulator.getMainFrame());
 					getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(true);
 					getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(true);
 					getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(false);
@@ -318,7 +321,7 @@ public class EpisimMenuBarFactory {
 		menuItemEditDataExport.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				DataExportController.getInstance().showEditDataExportDefinitionDialog(simulator.getMainFrame());
+				if(simulator.getMainFrame() instanceof JFrame) DataExportController.getInstance().showEditDataExportDefinitionDialog((JFrame)simulator.getMainFrame());
 				simulator.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
 			}
 			

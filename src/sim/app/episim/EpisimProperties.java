@@ -58,7 +58,7 @@ public class EpisimProperties {
 	public static final String ON_SIMULATOR_AUTOSTART_VAL = "on";
 	public static final String OFF_SIMULATOR_AUTOSTART_VAL = "off";
 	
-	public static final String ECLIPSE_EXCEPTION_DISPLAYMODE_VAL = "eclipse";
+	public static final String CONSOLE_EXCEPTION_DISPLAYMODE_VAL = "console";
 	public static final String SIMULATOR_EXCEPTION_DISPLAYMODE_VAL = "simulator";
 	
 	

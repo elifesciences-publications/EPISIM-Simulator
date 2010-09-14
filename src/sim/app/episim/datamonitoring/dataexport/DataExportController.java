@@ -14,6 +14,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import sim.app.episim.CellType;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 
 
@@ -54,9 +55,12 @@ public class DataExportController {
 	private EpisimDataExportDefinitionSet actLoadedDataExportSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
-	private ExtendedFileChooser edeChooser = new ExtendedFileChooser("ede");
+	private ExtendedFileChooser edeChooser = null;
+	private boolean guiMode = true;
 	private DataExportController(){
-		
+		guiMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL));
+		if(guiMode) edeChooser = new ExtendedFileChooser("ede");
 		markerPrefixes = new HashSet<String>();
 		validDataTypes = new HashSet<Class<?>>();
 		

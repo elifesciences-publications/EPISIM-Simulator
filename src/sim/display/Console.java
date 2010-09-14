@@ -233,7 +233,7 @@ public class Console extends JFrame implements Controller
         Sets the simulation's controller to point to this Console.    */
     public Console(final GUIState simulation)
         {
-        super(GUIState.getName(simulation.getClass()));
+        //super(GUIState.getName(simulation.getClass()));
 
         final Color transparentBackground = new JPanel().getBackground();  // sacrificial JPanel
 

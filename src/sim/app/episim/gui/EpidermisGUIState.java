@@ -71,7 +71,8 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 	public JInternalFrame displayFrame;
 
-	private JFrame mainFrame;
+	private Component mainComponent;
+	
 
 	private final int INTERNALFRAMECOLS = 3;
 
@@ -138,16 +139,22 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		
 		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
 	}
+	public EpidermisGUIState(JPanel mainPanel) {	
+		this(new Epidermis(System.currentTimeMillis()), (Component)mainPanel, false);
+	}
 
+	public EpidermisGUIState(SimState state, JPanel mainPanel, boolean reloadSnapshot) {
+		this(new Epidermis(System.currentTimeMillis()), (Component)mainPanel, reloadSnapshot);
+	}
 	
-	
-	public EpidermisGUIState(SimState state, JFrame mainFrame, boolean reloadSnapshot) {
+	public EpidermisGUIState(SimState state, Component mainComp, boolean reloadSnapshot) {
 		
 		super(state);
 		if(state instanceof TissueType) TissueServer.getInstance().registerTissue(((TissueType) state));
 		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();
 		ChartController.getInstance().registerChartSetChangeListener(this);
-		this.mainFrame = mainFrame;
+		this.mainComponent = mainComp;
+		
 		this.setConsole(new EpiConsole(this, reloadSnapshot));
 		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), DISPLAYBORDER);
 		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER));
@@ -210,7 +217,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	public void closeConsole(){
 		console.doClose();
-		controller.unregisterFrame(mainFrame); // unregister previous frame
+		if(mainComponent instanceof JFrame)controller.unregisterFrame((JFrame)mainComponent); // unregister previous frame
 	}
 	
 	
@@ -396,7 +403,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	//	Necessary for Maximize Workaround
 	//-----------------------------------------------------------------------------------------------------------------	
 		
-		mainFrame.addComponentListener(new ComponentAdapter(){
+		mainComponent.addComponentListener(new ComponentAdapter(){
 			public void componentResized(ComponentEvent e) {
 	       if(console != null && console.getPlayState() == Console.PS_PLAYING){		      
 		      	 console.pressPause();
@@ -417,17 +424,17 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	       else if(console != null && console.getPlayState() == console.PS_PAUSED){
 	      	 if(SimStateServer.getInstance().getSimState() == SimStateServer.SimState.STEPWISE){
 	      		 SimStateServer.getInstance().setSimStatetoPause();
-	      		 mainFrame.validate();
-	      		 mainFrame.repaint();
+	      		 mainComponent.validate();
+	      		 mainComponent.repaint();
 					
 	      	 }
 			 }
          }
 		});
 
-		mainFrame.addMouseMotionListener(new MouseMotionAdapter(){ public void mouseMoved(MouseEvent e) {checkForRestartAfterMainFrameResize();}});
+		mainComponent.addMouseMotionListener(new MouseMotionAdapter(){ public void mouseMoved(MouseEvent e) {checkForRestartAfterMainFrameResize();}});
 		desktop.addMouseMotionListener(new MouseMotionAdapter(){	public void mouseMoved(MouseEvent e) {checkForRestartAfterMainFrameResize(); }});
-		mainFrame.addMouseListener(new MouseAdapter(){
+		mainComponent.addMouseListener(new MouseAdapter(){
 			public void mouseEntered(MouseEvent e) { checkForRestartAfterMainFrameResize(); }
 			public void mouseExited(MouseEvent e) { checkForRestartAfterMainFrameResize(); }
 		});
@@ -479,25 +486,32 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		final JScrollPane desktopScroll = new JScrollPane(desktop);
 		
 		
-		
-	desktop.setPreferredSize(new Dimension(
-				(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
-				(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight()-STATUSBARHEIGHT)));
+		if(mainComponent instanceof JFrame){
+			desktop.setPreferredSize(new Dimension(
+				(int)(((JFrame)mainComponent).getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
+				(int)(((JFrame)mainComponent).getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight()-STATUSBARHEIGHT)));
 	   
-	  
+		}
+		else if(mainComponent instanceof JPanel){
+			desktop.setPreferredSize(new Dimension(
+					(int)(((JPanel)mainComponent).getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
+					(int)(((JPanel)mainComponent).getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight()-STATUSBARHEIGHT)));
+		}
 		
 		desktop.setSize(desktop.getPreferredSize());
 		
 		arrangeElements(desktop, false);
+		if(mainComponent instanceof JFrame){
+			((JFrame)mainComponent).getContentPane().add(desktopScroll, BorderLayout.CENTER);		
+		}
+		else if(mainComponent instanceof JPanel){
+			((JPanel)mainComponent).add(desktopScroll, BorderLayout.CENTER);
+		}
 		
-		mainFrame.getContentPane().add(desktopScroll, BorderLayout.CENTER);
 		
+		if(mainComponent instanceof JFrame) ((JFrame)mainComponent).pack();
 		
-		
-		
-		mainFrame.pack();
-		
-		mainFrame.addComponentListener(new ComponentAdapter(){
+		mainComponent.addComponentListener(new ComponentAdapter(){
 			public void componentResized(ComponentEvent comp) {
 				
 							
@@ -506,10 +520,16 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 					if(desktop != null){ 
 					
 						
-					
-					desktop.setPreferredSize(new Dimension(
-								(int)(mainFrame.getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
-								(int)(mainFrame.getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight())));
+						if(mainComponent instanceof JFrame){
+							desktop.setPreferredSize(new Dimension(
+										(int)(((JFrame)mainComponent).getContentPane().getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
+										(int)(((JFrame)mainComponent).getContentPane().getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight())));
+						}
+						else if(mainComponent instanceof JPanel){
+							desktop.setPreferredSize(new Dimension(
+									(int)(((JPanel)mainComponent).getWidth()-desktopScroll.getVerticalScrollBar().getPreferredSize().getWidth()),
+									(int)(((JPanel)mainComponent).getHeight()-desktopScroll.getHorizontalScrollBar().getPreferredSize().getHeight())));
+					}
 						if(autoArrangeWindows)arrangeElements(desktop, true);
 					}
 			
@@ -518,13 +538,9 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 				
 				
 			}
-		});
-		
-		
-		
+		});		
 		registerInternalFrames(desktop, ((EpiConsole)c));
-		
-		
+	
 	}
 	
 	private void checkForRestartAfterMainFrameResize(){

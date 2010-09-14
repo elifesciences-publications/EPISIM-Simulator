@@ -1,5 +1,6 @@
 package sim.app.episim.datamonitoring.charts;
 
+import java.awt.Component;
 import java.awt.Frame;
 import java.util.*;
 
@@ -20,6 +21,7 @@ import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
 import sim.app.episim.CellType;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 
 import sim.app.episim.datamonitoring.parser.*;
@@ -49,9 +51,14 @@ public class ChartController {
 	private EpisimChartSet actLoadedChartSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
-	private ExtendedFileChooser ecsChooser = new ExtendedFileChooser("ecs");
+	private ExtendedFileChooser ecsChooser = null;
+	private boolean guiMode = true;
 	private ChartController(){
 		
+		guiMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL));
+		
+		if(guiMode) ecsChooser = new ExtendedFileChooser("ecs");
 		markerPrefixes = new HashSet<String>();
 		validDataTypes = new HashSet<Class<?>>();
 		
@@ -106,7 +113,7 @@ public class ChartController {
 		return wizard.getEpisimChart();
 	}
 	
-	public boolean loadChartSet(Frame parent){
+	public boolean loadChartSet(Component parent){
 		ecsChooser.setDialogTitle("Load Episim-Chartset");
 		if(ecsChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION){
 			try{
@@ -216,7 +223,7 @@ public class ChartController {
 	}
 	
 	
-	private boolean loadEpisimChartSet(URL url, Frame parent){
+	private boolean loadEpisimChartSet(URL url, Component parent){
 		try{
 			PNGPrinter.getInstance().reset();
 			CalculationController.getInstance().reset();

@@ -43,11 +43,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import episiminterfaces.SimulationConsole;
+
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.nogui.NoGUIConsole;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.util.Names;
 import sim.display.Console;
@@ -57,7 +61,7 @@ import sim.portrayal.SimpleInspector;
 import sim.util.gui.NumberTextField;
 import sim.util.gui.PropertyField;
 
-public class EpiConsole extends ConsoleHack implements ActionListener{
+public class EpisimConsole implements ActionListener{
 	private Container controllerContainer;
 	
 	private KeyListener keyListener;
@@ -72,10 +76,25 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 	
 	private boolean wasStartedOnce = false;
 	
-	public EpiConsole(final GUIState simulation, boolean reloadSnapshot){
-		super(simulation);
+	private SimulationConsole console = null;
+	private boolean guiMode;
+	
+	public EpisimConsole(final GUIState simulation, boolean reloadSnapshot){
+		
+		guiMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL));	
+		
+		
+		 if(guiMode){
+			 console = new ConsoleHack(simulation);
+			 controllerContainer = getControllerContainer(((ConsoleHack)console).getContentPane());
+		 }
+		 else{ 
+			 console = new NoGUIConsole(simulation);
+			 controllerContainer = getControllerContainer((NoGUIConsole) console);
+		 }
 		 
-		 controllerContainer = getControllerContainer(super.getContentPane());
+		
 		 refreshButtons = new ArrayList<JButton>();
 		 snapshotRestartListener = new ArrayList<SnapshotRestartListener>();
 		 
@@ -114,7 +133,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 		
       //Liste der Frames überschreiben
       
-      getFrameListDisplay().setCellRenderer(new ListCellRenderer()
+      console.getFrameListDisplay().setCellRenderer(new ListCellRenderer()
           {
           // this ListCellRenderer will show the frame titles in black if they're
           // visible, and show them as gray if they're hidden.  You can add frames
@@ -191,15 +210,15 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    /** Simulations can call this to add a frame to be listed in the "Display list" of the console */
    public synchronized boolean registerFrame(JInternalFrame frame)
    {
-   	getFrameList().add(frame);
-   	getFrameListDisplay().setListData(getFrameList());
+   	console.getFrameList().add(frame);
+   	console.getFrameListDisplay().setListData(console.getFrameList());
    	return true;
    }
    
    public synchronized boolean deregisterAllFrames()
    {
-   	getFrameList().clear();
-   	getFrameListDisplay().setListData(getFrameList());
+   	console.getFrameList().clear();
+   	console.getFrameListDisplay().setListData(console.getFrameList());
    	return true;
    }
 	
@@ -375,14 +394,14 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 			}
 			else if(pressedButton.getText().equalsIgnoreCase(RESETTEXT)){
 				
-				if(getPlayState() == PS_PLAYING) super.pressPause();
+				if(console.getPlayState() == ConsoleHack.PS_PLAYING) console.pressPause();
 				if(pressedButton.getActionCommand() != null){
 					if(pressedButton.getActionCommand().equals(Names.BIOCHEMMODEL))ModelController.getInstance().getCellBehavioralModelController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MECHMODEL))ModelController.getInstance().getBioMechanicalModelController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MISCALLENEOUS))MiscalleneousGlobalParameters.instance().resetInitialGlobalValues();
 				}
 				this.clickRefreshButtons();
-				if(getPlayState() == PS_PAUSED)super.pressPause();
+				if(console.getPlayState() == ConsoleHack.PS_PAUSED)console.pressPause();
 				
 			}
 			else{
@@ -407,49 +426,49 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
 
    /** Called when the "show" button is pressed in the Displays window */
    synchronized void pressShow()
-       {
-       Object[] vals = (Object[]) (getFrameListDisplay().getSelectedValues());
+   {
+       Object[] vals = (Object[]) (console.getFrameListDisplay().getSelectedValues());
        for (int x = 0; x < vals.length; x++)
            {
            ((JInternalFrame) (vals[x])).toFront();
            ((JInternalFrame) (vals[x])).setVisible(true);
            }
-       getFrameListDisplay().repaint();
-       }
+       console.getFrameListDisplay().repaint();
+   }
 
    /** Called when the "show all" button is pressed in the Displays window */
    synchronized void pressShowAll()
-       {
-       Object[] vals = (Object[]) (getFrameList().toArray());
+   {
+       Object[] vals = (Object[]) (console.getFrameList().toArray());
        for (int x = 0; x < vals.length; x++)
            {
            ((JInternalFrame) (vals[x])).toFront();
            ((JInternalFrame) (vals[x])).setVisible(true);
            }
-       getFrameListDisplay().repaint();
-       }
+       console.getFrameListDisplay().repaint();
+   }
 
    /** Called when the "hide" button is pressed in the Displays window */
    synchronized void pressHide()
-       {
-       Object[] vals = (Object[]) (getFrameListDisplay().getSelectedValues());
+   {
+       Object[] vals = (Object[]) (console.getFrameListDisplay().getSelectedValues());
        for (int x = 0; x < vals.length; x++)
            {
            ((JInternalFrame) (vals[x])).setVisible(false);
            }
-       	getFrameListDisplay().repaint();
-       }
+       console.getFrameListDisplay().repaint();
+   }
 
    /** Called when the "hide all" button is pressed in the Displays window */
    synchronized void pressHideAll()
-       {
-       Object[] vals = (Object[]) (getFrameList().toArray());
+   {
+       Object[] vals = (Object[]) (console.getFrameList().toArray());
        for (int x = 0; x < vals.length; x++)
            {
            ((JInternalFrame) (vals[x])).setVisible(false);
            }
-       getFrameListDisplay().repaint();
-       }
+       console.getFrameListDisplay().repaint();
+   }
 	
  
    
@@ -458,7 +477,7 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    		
    		EpisimTextOut.getEpisimTextOut().clear();
       	
-   		((EpidermisGUIState)this.simulation).clearWoundPortrayalDraw();
+   		((EpidermisGUIState)console.getSimulation()).clearWoundPortrayalDraw();
    		
    	}
    	else if(wasStartedOnce && this.reloadedSnapshot){
@@ -467,8 +486,8 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    	}
    	
    	wasStartedOnce = true;  
-   	((EpidermisGUIState)this.simulation).simulationWasStarted();
-   	   	super.pressPlay(reloadedSnapshot);
+   	((EpidermisGUIState)console.getSimulation()).simulationWasStarted();
+   	 console.pressPlay(reloadedSnapshot);
    	   	
    	 	   	
    }
@@ -477,23 +496,38 @@ public class EpiConsole extends ConsoleHack implements ActionListener{
    
    public synchronized void pressStop(){
    
-   	((EpidermisGUIState)this.simulation).simulationWasStopped();
+   	((EpidermisGUIState)console.getSimulation()).simulationWasStopped();
    	
       	
-      	super.pressStop();
+   	console.pressStop();
    }
    
    public synchronized void pressPause(){
       
-   	((EpidermisGUIState)this.simulation).simulationWasPaused();
+   	((EpidermisGUIState)console.getSimulation()).simulationWasPaused();
    	
       	
-      	super.pressPause();
+   	console.pressPause();
+   }
+   
+   public int getPlayState(){ return console.getPlayState(); }
+   
+   public void doClose(){
+   	console.doClose();
+   }
+   
+   public void setWhenShouldEnd(long val){
+   	console.setWhenShouldEnd(val);
    }
    
    private void addSnapshotButton(){
-   	if(getContentPane().getLayout() instanceof BorderLayout){
-   		final Component comp =((BorderLayout) getContentPane().getLayout()).getLayoutComponent(BorderLayout.SOUTH);
+   	Container mainContainer = null;
+   	if(guiMode) mainContainer = ((ConsoleHack)console).getContentPane();
+   	else mainContainer = (NoGUIConsole) console;
+   	
+   	
+   	if(mainContainer.getLayout() instanceof BorderLayout){
+   		final Component comp =((BorderLayout) mainContainer.getLayout()).getLayoutComponent(BorderLayout.SOUTH);
    		if(comp != null && comp instanceof Box){
    			((Box) comp).add(snapshotButton, 3);
    			((JButton)((Box) comp).getComponent(0)).addMouseListener(new MouseAdapter(){

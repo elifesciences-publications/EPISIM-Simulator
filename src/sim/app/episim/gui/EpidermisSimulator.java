@@ -102,13 +102,14 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		}
 			
 		statusbar = new StatusBar();
-		
-		try{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (Exception e){
-			
-			ExceptionDisplayer.getInstance().displayException(e);
+		if(guiMode){
+			try{
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			}
+			catch (Exception e){
+				
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
 		}
 		
 		//--------------------------------------------------------------------------------------------------------------

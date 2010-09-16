@@ -271,6 +271,10 @@ public class Display2DHack extends Display2D {
 		else super.step(state);
    }
 	
+	public static boolean isMacOSX(){
+		return Display2D.isMacOSX();
+	}
+	
 	
 	public class EpisimInnerDisplay2D extends InnerDisplay2D{
 		public EpisimInnerDisplay2D(double width, double height){

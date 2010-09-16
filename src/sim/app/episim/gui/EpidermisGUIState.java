@@ -88,7 +88,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 	private JDesktopPane desktop;
 
-	private EpiConsole console;
+	private EpisimConsole console;
 
 	private static final double INITIALZOOMFACTOR = 5;
 	private final double EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidth() * INITIALZOOMFACTOR;
@@ -155,7 +155,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainComponent = mainComp;
 		
-		this.setConsole(new EpiConsole(this, reloadSnapshot));
+		this.setConsole(new EpisimConsole(this, reloadSnapshot));
 		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), DISPLAYBORDER);
 		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER));
 		rulerPortrayalDraw =new RulerPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
@@ -196,7 +196,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	}
 	
 
-	public void setConsole(EpiConsole cons) {
+	public void setConsole(EpisimConsole cons) {
 
 		console = cons;
 
@@ -325,14 +325,14 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 			
 				public void mouseClicked(MouseEvent e){
 					if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2){
-						if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
+						if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING)console.pressPause();
 					}
 				}
 			
 				public void mousePressed(MouseEvent e) {
 	
 					if(e.getButton() == MouseEvent.BUTTON3){
-						if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING)console.pressPause();
+						if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING)console.pressPause();
 						if(woundPortrayalDraw != null){
 							woundPortrayalDraw.clearWoundRegionCoordinates();
 							woundPortrayalDraw.closeWoundRegionPath(false);
@@ -344,7 +344,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 				public void mouseReleased(MouseEvent e) {
 	
 					if(e.getButton() == MouseEvent.BUTTON3){
-						if(console.getPlayState() == console.PS_PAUSED)console.pressPause();
+						if(console.getPlayState() == Console.PS_PAUSED)console.pressPause();
 						if(woundPortrayalDraw != null){
 							woundPortrayalDraw.closeWoundRegionPath(true);
 							((Epidermis) state).removeCells(woundPortrayalDraw.getWoundRegion());
@@ -421,7 +421,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
                   }});
 		      	t.start();
 	       }
-	       else if(console != null && console.getPlayState() == console.PS_PAUSED){
+	       else if(console != null && console.getPlayState() == Console.PS_PAUSED){
 	      	 if(SimStateServer.getInstance().getSimState() == SimStateServer.SimState.STEPWISE){
 	      		 SimStateServer.getInstance().setSimStatetoPause();
 	      		 mainComponent.validate();
@@ -449,11 +449,11 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		displayFrame.addComponentListener(new ComponentAdapter(){
 			 public void componentResized (ComponentEvent e) 
           {
-    	      if(console != null && console.getPlayState() == console.PS_PAUSED && resizeButtonIsActionSource){
+    	      if(console != null && console.getPlayState() == Console.PS_PAUSED && resizeButtonIsActionSource){
 					 console.pressPause();
 					 resizeButtonIsActionSource = false;
 				 }
-    	     else if(console != null && console.getPlayState() == console.PS_PAUSED){
+    	     else if(console != null && console.getPlayState() == Console.PS_PAUSED){
     	   	 if(SimStateServer.getInstance().getSimState() == SimStateServer.SimState.STEPWISE){
     	   		SimStateServer.getInstance().setSimStatetoPause();
     	   		 displayFrame.validate();
@@ -539,7 +539,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 				
 			}
 		});		
-		registerInternalFrames(desktop, ((EpiConsole)c));
+		registerInternalFrames(desktop, ((EpisimConsole)c));
 	
 	}
 	
@@ -551,7 +551,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		 }
 	}
 	
-	private void registerInternalFrames(JDesktopPane desktop, EpiConsole c){
+	private void registerInternalFrames(JDesktopPane desktop, EpisimConsole c){
 		Component[] comps = desktop.getComponents();
 		for(Component comp: comps){
 			if(comp instanceof JInternalFrame &&
@@ -710,12 +710,12 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 	 				public void actionPerformed(ActionEvent e) {
 
-	 					if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING){
+	 					if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING){
 	 						console.pressPause();
 	 						resizeButtonIsActionSource = true;
 	 						
 	 					}
-	 					else if(console.getPlayState() == console.PS_PAUSED){
+	 					else if(console.getPlayState() == Console.PS_PAUSED){
 	 						SimStateServer.getInstance().setSimStatetoPause();
 	 					}
 	 				}
@@ -728,14 +728,14 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	
 	public void workaroundConsolePause(){
-		if(console.getPlayState() != console.PS_PAUSED && console.getPlayState() == console.PS_PLAYING){
+		if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING){
 				console.pressPause();
 				workaroundPauseWasPressed = true;
 		}
 	}
 	
 	public void workaroundConsolePlay(){
-		if(console.getPlayState() == console.PS_PAUSED && console.getPlayState() != console.PS_STOPPED){
+		if(console.getPlayState() == Console.PS_PAUSED && console.getPlayState() != Console.PS_STOPPED){
 			console.pressPause();
 			workaroundPauseWasPressed = false;
 		}

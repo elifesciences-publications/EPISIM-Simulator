@@ -22,6 +22,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import episiminterfaces.SimulationConsole;
+
 import sim.app.episim.devBasalLayer.EpidermisUIDev;
 import sim.app.episim.gui.EpidermisGUIState;
 import sim.app.episim.gui.EpisimTextOut;
@@ -30,7 +32,7 @@ import sim.engine.SimState;
 import sim.portrayal.Inspector;
 
 
-public class ConsoleHack extends Console {
+public class ConsoleHack extends Console implements SimulationConsole{
 	JScrollPane cellbehavioralModelInspectorScrollPane;
 	JScrollPane biomechanicalModelInspectorScrollPane;
 	JScrollPane miscalleneousInspectorScrollPane;
@@ -264,6 +266,8 @@ public class ConsoleHack extends Console {
 	}
    
    
-   
+	public GUIState getSimulation(){
+		 return simulation;
+	}
    
 }

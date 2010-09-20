@@ -80,6 +80,10 @@ public class ModelController implements java.io.Serializable{
    			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
    				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(CellBehavioralModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
    						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP)));
+   			}   			
+   			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP) != null){   				
+   				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(MiscalleneousGlobalParameters.instance()
+   						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP)));
    			}
    			
    		}

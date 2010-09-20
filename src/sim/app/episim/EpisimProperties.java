@@ -38,6 +38,7 @@ public class EpisimProperties {
 	
 	public static final String SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP = "simulator.cellbehavioralmodel.globalparametersfile";
 	public static final String SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP = "simulator.biomechanicalmodel.globalparametersfile";
+	public static final String SIMULATOR_MISCPARAMETERSFILE_PROP = "simulator.miscparametersfile";
 	public static final String SIMULATOR_CHARTSETPATH = "simulator.chartsetpath";
 	public static final String SIMULATOR_DATAEXPORTPATH = "simulator.dataexportpath";
 	public static final String SIMULATOR_CHARTPNGPRINTPATH = "simulator.chartpngprintpath";	

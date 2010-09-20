@@ -68,4 +68,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Snap
 		list.add(new SnapshotObject(SnapshotObject.MISCALLENEOUSGLOBALPARAMETERS, instance));
 		return list;
    }
+	
+	
+	
 }

@@ -58,7 +58,9 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	private static final String CB_FILE_PARAM_PREFIX = "-cb";
 	private static final String BM_FILE_PARAM_PREFIX = "-bm";
+	private static final String M_FILE_PARAM_PREFIX = "-mp";
 	private static final String SIM_ID_PARAM_PREFIX = "-id";
+	private static final String HELP = "-help";
 	
 	private JFrame mainFrame;
 	private JPanel noGUIModeMainPanel;
@@ -227,42 +229,63 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	}
 	
 	public static void main(String[] args){
+		boolean onlyHelpWanted = false;
 		
+		if(args.length >= 1 && args[0].equals(EpidermisSimulator.HELP)) onlyHelpWanted = true;
+		else{
 		
-		for(int i = 0; i < args.length; i++){
-			if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX) 
-					|| args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)
-					|| args[i].equals(EpidermisSimulator.SIM_ID_PARAM_PREFIX)){
-				
-				if((i+1) >= args.length) throw new PropertyException("Missing value after parameter: "+ args[i]);
+			for(int i = 0; i < args.length; i++){
 				if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX) 
-					|| args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)){
-					File path = new File(args[i+1]);
+						|| args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)
+						|| args[i].equals(EpidermisSimulator.SIM_ID_PARAM_PREFIX)
+						|| args[i].equals(EpidermisSimulator.M_FILE_PARAM_PREFIX)){
 					
-					if(!path.exists() || !path.isDirectory()) new PropertyException("Path: " + args[i+1] + " doesn't point to a property file for parameter " + args[i]);
-					
-					if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX)){
-						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
+					if((i+1) >= args.length) throw new PropertyException("Missing value after parameter: "+ args[i]);
+					if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX) 
+						|| args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)
+						|| args[i].equals(EpidermisSimulator.M_FILE_PARAM_PREFIX)){
+						File path = new File(args[i+1]);
+						
+						if(!path.exists() || !path.isDirectory()) new PropertyException("Path: " + args[i+1] + " doesn't point to a property file for parameter " + args[i]);
+						
+						if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX)){
+							EpisimProperties.setProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
+						}
+						else if(args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)){
+							EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
+						}
+						else if(args[i].equals(EpidermisSimulator.M_FILE_PARAM_PREFIX)){
+							EpisimProperties.setProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP, path.getAbsolutePath());
+						}
 					}
-					else if(args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)){
-						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
+					else if(args[i].equals(EpidermisSimulator.SIM_ID_PARAM_PREFIX)){
+						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1].trim());
 					}
-				}
-				else if(args[i].equals(EpidermisSimulator.SIM_ID_PARAM_PREFIX)){
-					EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1].trim());
-				}
-			}			
-		}		
+				}			
+			}
+		}
 		String mode;
 		if((mode=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_DISPLAYMODE_PROP)) != null 
 				&& mode.equals(EpisimProperties.SIMULATOR_EXCEPTION_DISPLAYMODE_VAL))  System.setErr(new PrintStream(errorOutputStream));
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
-			System.setProperty("java.awt.headless", "true"); 
-		EpidermisSimulator episim = new EpidermisSimulator();
+		if(!onlyHelpWanted){
+			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+					&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
+				System.setProperty("java.awt.headless", "true"); 
+			EpidermisSimulator episim = new EpidermisSimulator();
+		}
+		else printHelpTextOnConsole();
 	}
 	
-	
+	public static void printHelpTextOnConsole(){
+		StringBuffer sb = new StringBuffer();
+		sb.append("------------------------- EPISIM Simulator Help -------------------------\n\n");
+		sb.append("The EPISIM Simulator supports the following input parameters:\n");
+		sb.append("\t[-bm path] to the biomedical model parameters file\n");
+		sb.append("\t[-cb path] to the cell behavioral model parameters file\n");
+		sb.append("\t[-mp path] to the miscellaneous parameters file\n");
+		sb.append("\t[-id identifier] of the current simulation run\n");
+		System.out.println(sb.toString());
+	}
 	
 	
 	protected void openModel(File modelFile){

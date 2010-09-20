@@ -6,6 +6,7 @@ import javax.swing.JList;
 
 import sim.display.Controller;
 import sim.display.GUIState;
+import sim.display.Display2D.InnerDisplay2D;
 
 /**
  * 
@@ -26,5 +27,6 @@ public interface SimulationConsole extends Controller{
 	void pressPlay(boolean reloadSnapshot);
 	void doClose();
 	void setWhenShouldEnd(long val);
+	
 
 }

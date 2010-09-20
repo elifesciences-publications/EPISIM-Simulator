@@ -31,6 +31,7 @@ import sim.display.Display2DHack;
 import sim.display.GUIState;
 import sim.display.IconLoaderHack;
 import sim.display.SimApplet;
+import sim.display.Display2D.InnerDisplay2D;
 
 /**
  * 
@@ -848,9 +849,6 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 
 		        JMenu fileMenu = new JMenu("File");
 		        menuBar.add(fileMenu);
-		        
-		        
-
 		        JMenuItem _new = new JMenuItem("New Simulation...");
 		        if (!allowOtherClassNames && classNames.size() == 0)  // nothing permitted
 		            _new.setEnabled(false);
@@ -965,8 +963,7 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		        Point loc = getLocation();
 		        if (loc.x == -10000 && loc.y == -10000)  // user didn't set me I think
 		            {
-		            Rectangle screen = GraphicsEnvironment.getLocalGraphicsEnvironment().
-		                getDefaultScreenDevice().getDefaultConfiguration().getBounds();
+		            Rectangle screen = new Rectangle(1900, 1200);
 		            // If there is room, put us to the far right of all the displays
 		            // which have been attached so far.
 		            Rectangle bounds = new Rectangle(0,0,0,0);
@@ -977,6 +974,7 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		                setLocation(bounds.width + DEFAULT_GUTTER,defLoc.y);
 		            else setLocation(defLoc);
 		            }
+		         this.setName(Names.CONSOLEMAINCONTAINER);
 		        }
 
 		   
@@ -1808,12 +1806,6 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		        }
 
 
-
-
-
-
-
-
 		    /////////////////////// PLAY/STOP/PAUSE BUTTON FUNCTIONS
 
 
@@ -2333,16 +2325,7 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		        playThread = new Thread(run);
 		        playThread.setPriority(getThreadPriority());
 		        playThread.start();
-		        }
-
-
-
-
-
-
-
-
-
+		        }    
 		    /////////////////////// METHODS FOR IMPLEMENTING THE CONTROLLER INTERFACE
 
 
@@ -2720,7 +2703,9 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		 	}
 		 					 	public GUIState getSimulation(){
 		 		 return simulation;
-		 	}    
+		 	}
+
+			   
 
 }
 

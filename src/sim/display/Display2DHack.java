@@ -23,6 +23,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 
+import episiminterfaces.SimulationDisplay;
+
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpidermisGUIState;
@@ -36,7 +38,7 @@ import sim.util.gui.MovieMaker;
 import sim.util.gui.NumberTextField;
 
 
-public class Display2DHack extends Display2D {
+public class Display2DHack extends Display2D implements SimulationDisplay{
 	private EpidermisGUIState epiSimulation = null;
 	
 	private boolean consoleMode = false;
@@ -306,5 +308,7 @@ public class Display2DHack extends Display2D {
            }
        }
 	}
-
+	public InnerDisplay2D getInsideDisplay() {
+      return insideDisplay;
+   } 
 }

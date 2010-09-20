@@ -212,7 +212,7 @@ public class EpidermisUIDev extends GUIState{
 		
 		
 		
-		display.insideDisplay.addMouseListener(new MouseAdapter(){			
+		display.getInsideDisplay().addMouseListener(new MouseAdapter(){			
 
 			public void mousePressed(MouseEvent e) {
 
@@ -260,7 +260,7 @@ public class EpidermisUIDev extends GUIState{
 			}
 
 			});
-		display.insideDisplay.addMouseMotionListener(new MouseMotionAdapter(){
+		display.getInsideDisplay().addMouseMotionListener(new MouseMotionAdapter(){
 			public void mouseDragged(MouseEvent e){
 				
 				if(movingCellPoint){
@@ -348,8 +348,8 @@ public class EpidermisUIDev extends GUIState{
 	
 	public void redrawDisplay(){
 		
-   	 Graphics g = display.insideDisplay.getGraphics();
-   	 display.insideDisplay.paintComponent(g,true);
+   	 Graphics g = display.getInsideDisplay().getGraphics();
+   	 display.paintComponentInInnerDisplay(g,true);
    	 g.dispose();
    	 
 	}

@@ -320,7 +320,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		display.attach(gridPortrayal, GRIDNAME, new Rectangle2D.Double(0,0,EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER)), true);
 		
 		
-		display.insideDisplay.addMouseListener(new MouseAdapter(){			
+		display.getInsideDisplay().addMouseListener(new MouseAdapter(){			
 			
 			
 				public void mouseClicked(MouseEvent e){
@@ -367,7 +367,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 				}
 
 			});
-		display.insideDisplay.addMouseMotionListener(new MouseMotionAdapter(){
+		display.getInsideDisplay().addMouseMotionListener(new MouseMotionAdapter(){
 			public void mouseDragged(MouseEvent e){
 				
 				if(activateDrawing){
@@ -539,7 +539,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 				
 			}
 		});		
-		registerInternalFrames(desktop, ((EpisimConsole)c));
+		registerInternalFrames(desktop, console);
 	
 	}
 	
@@ -555,14 +555,16 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		Component[] comps = desktop.getComponents();
 		for(Component comp: comps){
 			if(comp instanceof JInternalFrame &&
-					((JInternalFrame) comp).getName().equals(CHARTFRAME))c.registerFrame(((JInternalFrame)comp));
+					((JInternalFrame) comp).getName().equals(CHARTFRAME)){
+				c.registerFrame(((JInternalFrame)comp));
+			}
 		}
 	}
 	
 	public void redrawDisplay(){
-	if(display.insideDisplay.getWidth() > 0 && display.insideDisplay.getHeight() > 0){	
-  	 Graphics g = display.insideDisplay.getGraphics();
-  	 display.insideDisplay.paintComponent(g,true);
+	if(display.getInsideDisplay().getWidth() > 0 && display.getInsideDisplay().getHeight() > 0){	
+  	 Graphics g = display.getInsideDisplay().getGraphics();
+  	 display.paintComponentInInnerDisplay(g,true);
   	 g.dispose();
 	}
 	}

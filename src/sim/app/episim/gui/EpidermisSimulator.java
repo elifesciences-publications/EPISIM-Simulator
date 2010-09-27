@@ -48,6 +48,8 @@ import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ObservedByteArrayOutputStream;
+import sim.engine.SimState;
+import sim.engine.Steppable;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
@@ -212,14 +214,32 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				long steps = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP));
 				if(epiUI != null && steps > 0) epiUI.setMaxSimulationSteps(steps);
 			}			
-			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_PROP) != null && 
-					EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_PROP).equals(EpisimProperties.ON_SIMULATOR_AUTOSTART_VAL)){
+			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_AND_STOP_PROP) != null && 
+					EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_AND_STOP_PROP).equals(EpisimProperties.ON_SIMULATOR_AUTOSTART_AND_STOP_VAL)){
 				if(epiUI != null){ 
 					Runnable r  = new Runnable(){
 
 						public void run() {
 
 							epiUI.startSimulation();
+							if(!guiMode){
+								System.out.println(" ----------------------------------------");
+								System.out.println("|              EPISIM SIMULATOR          |");
+								System.out.println(" ----------------------------------------\n");
+								System.out.println("------------Simulation Started------------");
+							}
+							epiUI.scheduleAtEnd(new Steppable(){
+
+								public void step(SimState state) {
+
+	                        System.out.println("\n======================= Shutting down EPISIM Simulator =======================");
+	                        if(epiUI != null){
+	         						epiUI.closeConsole();
+	         						System.exit(0);
+	         					}
+	         					else System.exit(0);
+	                        
+                        }});
 	                  
                   }};
                   SwingUtilities.invokeLater(r);
@@ -268,9 +288,9 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		if((mode=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_DISPLAYMODE_PROP)) != null 
 				&& mode.equals(EpisimProperties.SIMULATOR_EXCEPTION_DISPLAYMODE_VAL))  System.setErr(new PrintStream(errorOutputStream));
 		if(!onlyHelpWanted){
-			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-					&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
-				System.setProperty("java.awt.headless", "true"); 
+			//if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+				//	&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
+				//System.setProperty("java.awt.headless", "true"); 
 			EpidermisSimulator episim = new EpidermisSimulator();
 		}
 		else printHelpTextOnConsole();

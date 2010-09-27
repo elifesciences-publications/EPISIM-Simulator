@@ -50,7 +50,8 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 		super(width, height, simulation, interval);
 		
 		moviePathSet = EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP) != null;
-		consoleMode = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL);
+		consoleMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP)!= null &&
+				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
 		
 		if(moviePathSet && consoleMode){ 
 			movieButton.setEnabled(false);

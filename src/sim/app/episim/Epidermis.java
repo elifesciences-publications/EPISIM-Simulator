@@ -88,6 +88,8 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 	
 	private TimeSteps timeStepsAfterSnapshotReload = null;
 	
+	private boolean guiMode = true;
+	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	 
@@ -96,6 +98,8 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
  {
      super(seed);
      
+     guiMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL));
      
      SnapshotWriter.getInstance().addSnapshotListener(this);
      this.registerCellType(KCyte.class);
@@ -391,6 +395,28 @@ private void seedStemCells(){
      };
      // Schedule the agent to update is Outer Flag     
      schedule.scheduleRepeating(airSurface,2,1);
+     
+     
+     if(!guiMode){
+   	  Steppable consoleOutputSteppable = new Steppable(){
+
+			public void step(SimState state) {
+
+	         System.out.print("\r");	         
+	         System.out.print("Simulation Step " + (state.schedule.getSteps()+1));
+	         if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP) != null){
+					long steps = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP));
+					System.out.print(" of " + steps);
+					if((state.schedule.getSteps()+1) == steps){
+						System.out.println("\n------------Simulation Stopped------------");
+					}
+	         }
+         }
+   		  
+   	  };
+   	  schedule.scheduleRepeating(consoleOutputSteppable, 5, 1);
+     }
+    
     
  	}
 

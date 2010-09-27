@@ -32,7 +32,7 @@ public class EpisimProperties {
 	public static final String FRAMES_PER_SECOND_PROP = "framespersecond";
 	public static final String SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP = "simulator.cellbehavioralmodelpath";
 	public static final String SIMULATOR_SNAPSHOT_PATH_PROP = "simulator.snapshotpath";
-	public static final String SIMULATOR_AUTOSTART_PROP = "simulator.autostart";
+	public static final String SIMULATOR_AUTOSTART_AND_STOP_PROP = "simulator.autostartandstop";
 	public static final String SIMULATOR_MAX_SIMULATION_STEPS_PROP = "simulator.maxsimulationsteps";
 	
 	
@@ -56,8 +56,8 @@ public class EpisimProperties {
 	public static final String ON_CONSOLE_INPUT_VAL = "on";
 	public static final String OFF_CONSOLE_INPUT_VAL = "off";
 	
-	public static final String ON_SIMULATOR_AUTOSTART_VAL = "on";
-	public static final String OFF_SIMULATOR_AUTOSTART_VAL = "off";
+	public static final String ON_SIMULATOR_AUTOSTART_AND_STOP_VAL = "on";
+	public static final String OFF_SIMULATOR_AUTOSTART_AND_STOP_VAL = "off";
 	
 	public static final String CONSOLE_EXCEPTION_DISPLAYMODE_VAL = "console";
 	public static final String SIMULATOR_EXCEPTION_DISPLAYMODE_VAL = "simulator";

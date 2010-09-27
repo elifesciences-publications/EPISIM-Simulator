@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 
 import binloc.ProjectLocator;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.logging.*;
@@ -24,7 +25,9 @@ public class ExceptionDisplayer {
 				&& loggingState.equals(EpisimProperties.ON_EXCEPTION_LOGGING_VAL)){
 			 logger = Logger.getLogger("Episim Exceptions");
 			 try{
-	         fh = new FileHandler(ProjectLocator.getPathOf("log").getAbsolutePath()+System.getProperty("file.separator")+"episimlog.log");
+				File logPath = ProjectLocator.getPathOf("log");
+				if(!logPath.exists() && logPath.isDirectory()) logPath.mkdir();
+	         fh = new FileHandler(logPath.getAbsolutePath()+System.getProperty("file.separator")+"episimlog.log");
 	         fh.setFormatter(new SimpleFormatter());
 	         logger.addHandler(fh);
 	         logger.setLevel(Level.ALL);

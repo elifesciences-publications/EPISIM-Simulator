@@ -43,7 +43,8 @@ public class EpisimMovieMaker{
            }
        catch (Throwable e) { encoderClass = null; }  // JMF's not installed
 	   
-	   consoleMode = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL);
+	   consoleMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP)!= null &&
+				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
 	   
 	   // TODO Auto-generated constructor stub
    }

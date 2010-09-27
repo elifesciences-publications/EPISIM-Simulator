@@ -460,7 +460,8 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
                // it would create incorrect-sized images for snapshots,
                // and it's more memory wasteful anyway
                {
-               buffer = getGraphicsConfiguration().createCompatibleImage((int)ww,(int)hh);
+              // buffer = getGraphicsConfiguration().createCompatibleImage((int)ww,(int)hh);
+               buffer =  new BufferedImage((int)ww,(int)hh, BufferedImage.TYPE_INT_RGB);
                }
            
            // draw into the buffer
@@ -963,12 +964,13 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        display = new JScrollPane(insideDisplay,
            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
            JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+       display.setPreferredSize(new Dimension((int)width, (int) height));
        display.setMinimumSize(new Dimension(0,0));
        display.setBorder(null);
        display.getHorizontalScrollBar().setBorder(null);
        display.getVerticalScrollBar().setBorder(null);
        port = display.getViewport();
-       insideDisplay.setViewRect(port.getViewRect());
+       insideDisplay.setViewRect(new Rectangle(0,0, (int)width, (int)height));
        insideDisplay.setOpaque(true);  // radically increases speed in OS X, maybe others
        // Bug in Panther causes this color to be wrong, ARGH
 //       port.setBackground(UIManager.getColor("window"));  // make the nice stripes on MacOS X
@@ -1156,11 +1158,14 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
        
     	moviePathSet = EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP) != null;
-		consoleMode = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL);
+    	
+		consoleMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP)!= null &&
+				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
 		
 		if(moviePathSet && consoleMode){ 
 			movieButton.setEnabled(false);
-			 insideDisplay = new EpisimInnerDisplay2D(width,height); 	
+			 insideDisplay = new EpisimInnerDisplay2D(width,height);
+			 insideDisplay.setViewRect(new Rectangle(0,0, (int)width, (int)height));
 			 display = new JScrollPane(insideDisplay,
 		            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 		            JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -1169,7 +1174,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 		        display.getHorizontalScrollBar().setBorder(null);
 		        display.getVerticalScrollBar().setBorder(null);
 		        port = display.getViewport();
-		        insideDisplay.setViewRect(port.getViewRect());
+		        //insideDisplay.setViewRect(port.getViewRect());
 		        insideDisplay.setOpaque(true);  // radically increases speed in OS X, maybe others
 		        // Bug in Panther causes this color to be wrong, ARGH
 //		        port.setBackground(UIManager.getColor("window"));  // make the nice stripes on MacOS X
@@ -1474,7 +1479,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        Component c = this;
        while(c.getParent() != null)
            c = c.getParent();
-       return (Frame)c;
+       return c instanceof Frame ? (Frame)c : null;
        }
 
    /** Takes a snapshot of the Display2D's currently displayed simulation.
@@ -1728,7 +1733,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 	       episimMovieMaker = new EpisimMovieMaker(getFrame());
 	       Graphics g = insideDisplay.getGraphics();
 	       final BufferedImage typicalImage = insideDisplay.paint(g,true,false);
-	       g.dispose();
+	       if(g != null)g.dispose();
 	               
 	       if (!episimMovieMaker.start(typicalImage))
 	      	 episimMovieMaker = null;  // failed
@@ -1736,7 +1741,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 	           {
 	         	
 	           // start up simulation paused if necessary
-	           final Console console = (Console)(simulation.controller);
+	           final NoGUIConsole console = (NoGUIConsole)(simulation.controller);
 	           if (console.getPlayState() == Console.PS_STOPPED)  // either after simulation or we just started the program
 	               console.pressPause();
 	           
@@ -1867,7 +1872,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 	              {
 	              Graphics g = insideDisplay.getGraphics();
 	              insideDisplay.paintComponent(g,true);
-	              g.dispose();
+	              if(g!= null)g.dispose();
 	              }
 	          }
 	      insideDisplay.updateToolTips();
@@ -1899,6 +1904,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 	public class EpisimInnerDisplay2D extends InnerDisplay2D{
 		public EpisimInnerDisplay2D(double width, double height){
 			super(width, height);
+			viewRect = new Rectangle(0,0,(int)width, (int) height);
 		}
 		public void paintToMovie(Graphics g)
       {

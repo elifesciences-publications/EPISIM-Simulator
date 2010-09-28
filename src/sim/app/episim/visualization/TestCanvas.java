@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Shape;
 import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,6 +23,8 @@ import javax.swing.JPanel;
 import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.biomechanics.CellPolygon;
 import sim.app.episim.biomechanics.Vertex;
+import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
@@ -33,7 +36,7 @@ public class TestCanvas extends JPanel {
 	
 	private ArrayList<CellEllipse>  cellEllipses = new ArrayList<CellEllipse>();
 	
-
+	private GeneralPath fullContour = null;
 	
 	private CellEllipse draggedCellEllipse = null;
 	
@@ -42,6 +45,8 @@ public class TestCanvas extends JPanel {
 	private long nextId = 0;
 	
 	private int visualizationStep = 0;
+	
+	private boolean importedTissueVisualizationMode = false;
 	
 	public TestCanvas(){
 		ellipseKeySet = new HashSet<String>();
@@ -78,6 +83,7 @@ public class TestCanvas extends JPanel {
 	public void addImportedCells(List<CellEllipse> importedCells){
 		this.cellEllipses.clear();
 		this.cellEllipses.addAll(importedCells);
+		fullContour = TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon();
 		this.repaint();
 		
 	}
@@ -89,14 +95,26 @@ public class TestCanvas extends JPanel {
 	private void drawCellEllipse(Graphics2D g,CellEllipse cellEllipse, boolean newCellEllipse){
 		if(g==null)g = (Graphics2D) this.getGraphics();
 		if(g != null){
-			g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-			Color oldColor = g.getColor();
-			g.setColor(cellEllipse.getFillColor());
-			g.fill(cellEllipse.getClippedEllipse());
-			g.setColor(cellEllipse.getColor());
-			g.draw(cellEllipse.getClippedEllipse());
-			g.setColor(oldColor);
-			drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellEllipse.getColor());			
+			if(importedTissueVisualizationMode){
+				g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+				Color oldColor = g.getColor();
+				g.setColor(Color.RED.brighter().brighter());
+				g.fill(cellEllipse.getClippedEllipse());
+				g.setColor(Color.WHITE);
+				g.draw(cellEllipse.getClippedEllipse());
+				g.setColor(oldColor);
+				drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, Color.WHITE);
+			}
+			else{
+				g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+				Color oldColor = g.getColor();
+				g.setColor(cellEllipse.getFillColor());
+				g.fill(cellEllipse.getClippedEllipse());
+				g.setColor(cellEllipse.getColor());
+				g.draw(cellEllipse.getClippedEllipse());
+				g.setColor(oldColor);
+				drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellEllipse.getColor());
+			}
 		}
 		if(newCellEllipse) cellEllipses.add(cellEllipse);
 	}
@@ -126,46 +144,65 @@ public class TestCanvas extends JPanel {
 	public void paint(Graphics g){
 		super.paint(g);
 		this.ellipseKeySet.clear();
-		CellEllipseIntersectionCalculationRegistry.getInstance().simulationWasStopped();
 		for(CellEllipse ell : cellEllipses){
 			ell.resetClippedEllipse();
 		}
-		calculateIntersectionPointsForCellEllipses((Graphics2D)g);
-		for(CellEllipse ell : cellEllipses){
-			
-		//	drawCellEllipse((Graphics2D) g,ell, false);
-			Calculators.calculateCellPolygons(ell);
+		//calculateIntersectionPointsForCellEllipses((Graphics2D)g);
+		if(importedTissueVisualizationMode){ 
+			this.setBackground(Color.black);
+			for(CellEllipse ell : cellEllipses){				
+				drawCellEllipse((Graphics2D) g,ell, false);
+					
+			}
+			if(fullContour != null){
+				Graphics2D graphics = (Graphics2D) g;
+				graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+				Color oldColor = graphics.getColor();
+				graphics.setColor(Color.WHITE);
+				graphics.draw(fullContour);
+				graphics.setColor(oldColor);
+			}
 		}
-	 	
-		CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices();
-		System.out.println("-----------------------------------------");
-		
-		for(CellEllipse ell : cellEllipses){
-			Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId()));
-			Calculators.calculateEstimatedVertices(ell);		
-		}
-		
-		CellPolygon cellPol = null;
-		Vertex[] vertices = null;
-		int i = 0;
-		for(CellEllipse ell : cellEllipses){
+		else{
 			
-			cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId());
-			if(cellPol != null && (vertices = cellPol.getVertices()) != null){
-				drawCellPolygon((Graphics2D)g, cellPol, false);
+			CellEllipseIntersectionCalculationRegistry.getInstance().simulationWasStopped();
+			
+			for(CellEllipse ell : cellEllipses){
 				
-				for(Vertex v : vertices){
-					if(v != null){
-						if(v.isWasDeleted())drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.BLACK);
-						else if(v.isEstimatedVertex()) drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.MAGENTA);
-						else if(v.isMergeVertex()) drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.YELLOW);
-						else drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.RED);
+			//	drawCellEllipse((Graphics2D) g,ell, false);
+				Calculators.calculateCellPolygons(ell);
+			}
+		 	
+			CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices();
+			
+			
+			for(CellEllipse ell : cellEllipses){
+				Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId()));
+				Calculators.calculateEstimatedVertices(ell);		
+			}
+			
+			CellPolygon cellPol = null;
+			Vertex[] vertices = null;
+			int i = 0;
+			for(CellEllipse ell : cellEllipses){
+				
+				cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId());
+				if(cellPol != null && (vertices = cellPol.getVertices()) != null){
+					drawCellPolygon((Graphics2D)g, cellPol, false);
+					
+					for(Vertex v : vertices){
+						if(v != null){
+							if(v.isWasDeleted())drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.BLACK);
+							else if(v.isEstimatedVertex()) drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.MAGENTA);
+							else if(v.isMergeVertex()) drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.YELLOW);
+							else drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 5, Color.RED);
+						}
 					}
+					
 				}
+			
 				
 			}
-		
-			
 		}
 	}
 	
@@ -305,6 +342,14 @@ public class TestCanvas extends JPanel {
 			//drawVertex(g,Calculators.getCellCenter(cell),false);
 		}
 	}
+
+
+
+	
+   public void setImportedTissueVisualizationMode(boolean importedTissueVisualizationMode) {
+   
+   	this.importedTissueVisualizationMode = importedTissueVisualizationMode;
+   }
 	
 	
 

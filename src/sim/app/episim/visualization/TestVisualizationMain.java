@@ -12,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -21,6 +22,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.tissue.TissueController;
 
 
@@ -30,12 +32,15 @@ public class TestVisualizationMain {
 	
 	private TestCanvas canvas;
 	
+	private boolean tissueImportMode = false;
 	
 	public TestVisualizationMain(){
 		
 		
 		try{
+			
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			
 		}
 		catch (Exception e){
 			
@@ -48,7 +53,8 @@ public class TestVisualizationMain {
 				
 		initCanvas();
 				
-		mainFrame.setTitle("Episim Tissue / Cell Visualization");
+		mainFrame.setTitle("EPISIM Simulator - Tissue Visualization");
+		mainFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
 		
 		//Menü
 		JMenuBar menuBar = new JMenuBar();
@@ -72,7 +78,9 @@ public class TestVisualizationMain {
 	         
 	         if(JFileChooser.APPROVE_OPTION== xmlChooser.showOpenDialog(mainFrame)){
 	         	TissueController.getInstance().loadTissue(xmlChooser.getSelectedFile());
+	         	tissueImportMode = true;
 	         	canvas.addImportedCells(TissueController.getInstance().getImportedCells());
+	         	canvas.setImportedTissueVisualizationMode(true);
 	         	mainFrame.setSize(new Dimension(TissueController.getInstance().getTissueWidth()+30, TissueController.getInstance().getTissueHeight()+30));
 	         	mainFrame.repaint();
 	         }
@@ -114,12 +122,14 @@ public class TestVisualizationMain {
 		canvas.addMouseListener(new MouseAdapter(){
 			
 			 public void mouseClicked(MouseEvent e){
-				if(e.getButton() == MouseEvent.BUTTON1)canvas.drawCellEllipse(e.getX(), e.getY(), 100, 45, Color.BLUE);
+				if(e.getButton() == MouseEvent.BUTTON1 && !tissueImportMode){
+					canvas.drawCellEllipse(e.getX(), e.getY(), 100, 45, Color.BLUE);
+				}
 				else 
 				 if(e.getButton() == MouseEvent.BUTTON3){
 					CellEllipse cell = canvas.pickCellEllipse(e.getX(), e.getY());
 					if(cell != null){
-						JOptionPane.showMessageDialog(mainFrame, "The RGB value of the selected Cell is: ("+ cell.getColor().getRed()+ ", " + cell.getColor().getGreen() + ", " + cell.getColor().getBlue()+")", "Cell-Info", JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(mainFrame, "The ID of the selected Cell is: "+ cell.getId(), "Cell-Info", JOptionPane.INFORMATION_MESSAGE);
 					}
 				}
 			 }

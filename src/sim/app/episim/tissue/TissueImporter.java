@@ -37,6 +37,8 @@ import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
 import sim.app.episim.util.TissueRotator;
 import sim.app.episim.visualization.CellEllipse;
+import sim.app.episim.visualization.NucleusEllipse;
+
 
 
 public class TissueImporter {
@@ -49,10 +51,10 @@ public class TissueImporter {
 	private static final String AREA = "Area";
 	private static final String BASALLAMINA = "BasalLamina";
 	private static final String CELL = "Cell";  
-	private static final String CELLID = "CellID";
+	private static final String NUCLEUSID = "nucleiID";
 	private static final String CELLS = "Cells";
-	private static final String CENTROID  = "Centroid";
-	private static final String DIST2BL = "Dist2BL";
+	private static final String CENTER  = "Center";
+	private static final String DIST2BL = "Dist2BlAbs";
 	private static final String EPIDERMIS  = "Epidermis";
 	private static final String IMAGE = "Image";
 	private static final String HEIGHT = "Height";
@@ -62,12 +64,17 @@ public class TissueImporter {
 	private static final String MINORAXISLENGTH = "MinorAxisLength";
 	private static final String NUCLEI = "Nuclei";
 	private static final String NUCLEUS = "Nucleus";
+	private static final String N_NEIGHBOUR = "nNeighbour";
+	private static final String NEIGHBOUR_IDS = "neighbourID";
 	private static final String ORIENTATION  = "Orientation";
+	private static final String ORIENTATION_X  = "OrientationX";
+	private static final String PERIMETER  = "Perimeter";
 	private static final String PIXEL = "Pixel";
-	private static final String RESOLUTION = "Resolution";
+	private static final String RESOLUTION_IN_NM = "ResolutionNM";
 	private static final String SOLIDITY = "Solidity";
 	private static final String SURFACE = "Surface";
 	private static final String TISSUE = "TissueParams";
+	private static final String TISSUE_IMAGE_ID = "TissueID";
 	private static final String WIDTH = "Width";
 	private static final String X = "X";
 	private static final String Y = "Y";
@@ -83,9 +90,10 @@ public class TissueImporter {
 
 	private double scalingFactor = 1;
 	
-	private Node nuclei = null;
+	private Node cellsNode = null;
 	
-	private ArrayList<CellEllipse> importedCells;
+	private ArrayList<NucleusEllipse> importedNuclei;
+	private ArrayList<CellEllipse> importedCellEllipses;
 	
 	private double surfaceOrientation = 0;
 	
@@ -97,9 +105,10 @@ public class TissueImporter {
 	private void reset(){
 		scalingFactor = 1;
 		surfaceOrientation = 0;
-		nuclei = null;
+		cellsNode = null;
 		actImportedTissue = new ImportedTissue();
-		importedCells = new ArrayList<CellEllipse>();
+		importedNuclei = new ArrayList<NucleusEllipse>();
+		importedCellEllipses = new ArrayList<CellEllipse>();
 	}
 	
 	public ImportedTissue loadTissue(File path){
@@ -110,7 +119,7 @@ public class TissueImporter {
 			
 			loadXML(path);
 		   TissueRotator rotator = new TissueRotator();
-		   rotator.rotateTissue(actImportedTissue, surfaceOrientation);
+		   //rotator.rotateTissue(actImportedTissue, surfaceOrientation);
 			return actImportedTissue;
 			
 		}
@@ -211,9 +220,9 @@ public class TissueImporter {
 		NodeList imageChildren = node.getChildNodes();
 		for(int i = 0; i < imageChildren.getLength(); i++){
 			Node actNode = imageChildren.item(i);
-			if(actNode.getNodeName().equals(RESOLUTION)){
+			if(actNode.getNodeName().equals(RESOLUTION_IN_NM)){
 				NamedNodeMap attr = actNode.getAttributes();
-			   this.actImportedTissue.setResolutionInMicrometerPerPixel(Double.parseDouble(attr.getNamedItem("value").getNodeValue()));
+			   this.actImportedTissue.setResolutionInMicrometerPerPixel(Double.parseDouble(attr.getNamedItem("value").getNodeValue())/1000);
 			}
 			else if(actNode.getNodeName().equals(HEIGHT)){
 				NamedNodeMap attr = actNode.getAttributes();
@@ -243,6 +252,13 @@ public class TissueImporter {
 				NamedNodeMap attr = actNode.getAttributes();
 				this.actImportedTissue.setMaximumEpidermalThickness(Double.parseDouble(attr.getNamedItem("value").getNodeValue())*this.scalingFactor);
 			}
+			else if(actNode.getNodeName().equals(TISSUE_IMAGE_ID)){
+				NamedNodeMap attr = actNode.getAttributes();
+				this.actImportedTissue.setTissueImageID(attr.getNamedItem("value").getNodeValue());
+			}
+			else if(actNode.getNodeName().equals(ORIENTATION)){				
+				surfaceOrientation = Double.parseDouble(actNode.getAttributes().getNamedItem("value").getNodeValue());
+			}
 		}
 	}
 	
@@ -259,31 +275,40 @@ public class TissueImporter {
 	}
 	
 	private void processCellsElement(Node node){
-		processCellOrNucleiData(node.getChildNodes(), true);
-		if(this.nuclei != null) processCellOrNucleiData(this.nuclei.getChildNodes(), false);
-		this.actImportedTissue.setCells(importedCells);
+		if(this.importedNuclei.size() > 0){ 
+			processCellOrNucleiData(node.getChildNodes(), true);
+			this.actImportedTissue.setCells(importedCellEllipses);
+		}
+		else this.cellsNode = node;
+		
 	}
 	
 	
 	private void processCellOrNucleiData(NodeList cellsOrNuclei, boolean isCells){
-		double majorAxis=0, minorAxis=0, height=0, width=0, solidity=0, distanceToBL=0,centroidX=0, centroidY=0;
-		int cellID = 0, area=0, orientation=0;
+		double majorAxis=0, minorAxis=0, height=0, width=0, solidity=0, distanceToBL=0,centerX=0, centerY=0, perimeter=0;
+		int ID = 0, area=0, orientation=0, nucleusID = 0;
 		
 		for(int i = 0; i < cellsOrNuclei.getLength(); i++){
+			int numberOfNeighbours = 0;
 			Node actNode = cellsOrNuclei.item(i);
+			Node neighboursNode = null;
+			int[] neighbourCellIds = null;
+			nucleusID = 0;
 			if(actNode.getNodeName() != null && (actNode.getNodeName().equals(CELL)||actNode.getNodeName().equals(NUCLEUS))){
-				if(isCells){
-					cellID = Integer.parseInt(actNode.getAttributes().getNamedItem("id").getNodeValue());
-				}
+				
+				ID = Integer.parseInt(actNode.getAttributes().getNamedItem("id").getNodeValue());
+					
+				
 				
 				NodeList children = actNode.getChildNodes();
 				for(int n = 0; n < children.getLength(); n++){
 					Node actChildNode = children.item(n);
 					if(actChildNode.getNodeName().equals(AREA)) area= Integer.parseInt(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
-					else if(actChildNode.getNodeName().equals(ORIENTATION)) orientation= Integer.parseInt(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
-					else if(actChildNode.getNodeName().equals(CENTROID)){ 
-						centroidX = Double.parseDouble(actChildNode.getAttributes().getNamedItem("value1").getNodeValue())*this.scalingFactor;
-						centroidY = Double.parseDouble(actChildNode.getAttributes().getNamedItem("value2").getNodeValue())*this.scalingFactor;
+					else if(actChildNode.getNodeName().equals(ORIENTATION_X)) orientation= Integer.parseInt(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
+					else if(actChildNode.getNodeName().equals(PERIMETER)) perimeter= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
+					else if(actChildNode.getNodeName().equals(CENTER)){ 
+						centerX = Double.parseDouble(actChildNode.getAttributes().getNamedItem("value1").getNodeValue())*this.scalingFactor;
+						centerY = Double.parseDouble(actChildNode.getAttributes().getNamedItem("value2").getNodeValue())*this.scalingFactor;
 					}
 					else if(actChildNode.getNodeName().equals(MAJORAXISLENGTH)) majorAxis= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
 					else if(actChildNode.getNodeName().equals(MINORAXISLENGTH)) minorAxis= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
@@ -291,31 +316,50 @@ public class TissueImporter {
 					else if(actChildNode.getNodeName().equals(WIDTH)) width= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
 					else if(actChildNode.getNodeName().equals(SOLIDITY)) solidity= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
 					else if(actChildNode.getNodeName().equals(DIST2BL)) distanceToBL= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
-					else if(!isCells && actChildNode.getNodeName().equals(CELLID)) cellID= Integer.parseInt(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
+					else if(actChildNode.getNodeName().equals(N_NEIGHBOUR)){ 
+						numberOfNeighbours = Integer.parseInt(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
+						if(neighboursNode != null) neighbourCellIds =processNeighboursNode(neighboursNode, numberOfNeighbours);
+					}
+					else if(actChildNode.getNodeName().equals(NEIGHBOUR_IDS)){
+						neighboursNode = actChildNode;
+						if(numberOfNeighbours > 0) neighbourCellIds = processNeighboursNode(neighboursNode, numberOfNeighbours);
+					}
+					else if(isCells && actChildNode.getNodeName().equals(NUCLEUSID) && actChildNode.getAttributes().getNamedItem("value") != null){ 
+						nucleusID= Integer.parseInt(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
+					}
 				}
 				
 				if(isCells){
-					this.importedCells.add(new CellEllipse(cellID, (int) centroidX, (int) centroidY, (int) majorAxis, (int)minorAxis, (int)height, (int)width, orientation,area, solidity, distanceToBL, new Color(cellID, cellID, cellID)));
+					CellEllipse actCell =new CellEllipse(ID, (int) centerX, (int) centerY, (int) majorAxis, (int)minorAxis, (int)height, (int)width, orientation,area, perimeter, solidity, distanceToBL, neighbourCellIds, Color.WHITE);
+					NucleusEllipse nucleus =  null;
+					if(nucleusID > 0) nucleus = this.importedNuclei.get(nucleusID -1);
+					if(nucleus != null) actCell.setNucleus(nucleus);
+					this.importedCellEllipses.add(actCell);
 				}
-				else{
-					CellEllipse cell =this.importedCells.get(cellID-1);
-					if(cell!= null)cell.setNucleus(
-							cell.new Nucleus(cellID, (int) centroidX, (int) centroidY,(int) majorAxis, (int)minorAxis,(int) height, (int)width, orientation, area, solidity, distanceToBL, Color.RED));
+				else{					
+				this.importedNuclei.add(new NucleusEllipse(ID, (int) centerX, (int) centerY,(int) majorAxis, (int)minorAxis,(int) height, (int)width, orientation, area, perimeter, solidity, distanceToBL, Color.RED));
 				}
 			}
-		}
-		
-		
-		
+		}	
 	}
 	
-	
-	
-	
+	private int[] processNeighboursNode(Node node, int numberOfNeighbours){
+		int[] neighbouringCellIDs = new int[numberOfNeighbours];
+		if(numberOfNeighbours > 1){
+			for(int i = 1; i <= numberOfNeighbours; i++){
+				neighbouringCellIDs[i-1] = Integer.parseInt(node.getAttributes().getNamedItem("value"+i).getNodeValue());
+			}
+		}
+		else if(numberOfNeighbours == 1)neighbouringCellIDs[0] = Integer.parseInt(node.getAttributes().getNamedItem("value").getNodeValue());
+		return neighbouringCellIDs;
+	}
 	
 	private void processNucleiElement(Node node){
-		if(this.importedCells.size() > 0) processCellOrNucleiData(node.getChildNodes(), false);
-		else this.nuclei = node;
+		processCellOrNucleiData(node.getChildNodes(), false);
+		if(this.cellsNode != null){ 
+			processCellOrNucleiData(this.cellsNode.getChildNodes(), true);
+			this.actImportedTissue.setCells(importedCellEllipses);
+		}
 	}
 	
 	private void addAllPointsXY(NodeList pointNodes, List<Point2D> pointList){
@@ -330,21 +374,21 @@ public class TissueImporter {
 				}
 				pointList.add(new Point2D.Double(x, y));
 			}
-			else if(actNode.getNodeName().equals(ORIENTATION)){				
-				surfaceOrientation = Double.parseDouble(actNode.getAttributes().getNamedItem("value").getNodeValue());
-			}
+		
 		}
 	}
 		
 	private double calculateScalingFactor(double height, double width){
-		final double WIDTHFACT = 0.5;
-		final double HEIGHTFACT = 0.7;
+		final double WIDTHFACT = 0.6;
+		final double HEIGHTFACT = 0.8;
+		return 1;
+		/*
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
 		if(height > width) return (screenDim.getHeight()*HEIGHTFACT)/height;
 		else if(height < width) return (screenDim.getWidth()*WIDTHFACT)/width;
 		else{
 			if((screenDim.getHeight()*HEIGHTFACT) > (screenDim.getWidth()*WIDTHFACT)) return (screenDim.getWidth()*WIDTHFACT)/width;
 			else return (screenDim.getHeight()*HEIGHTFACT)/height;
-		}
+		}*/
 	}
 }

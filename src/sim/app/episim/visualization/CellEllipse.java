@@ -31,12 +31,14 @@ public class CellEllipse  implements Serializable{
 		private int minorAxis;
 		private int heightExp;
 		private int widthExp;
-		private double area;
+		private double area_IV;
+		private double perimeter_IV;
 		private double solidity;
 		private double distanceToBL;
 		private double orientationInRadians;
 		private double scaleFactorWidth = 1;
 		private double scaleFactorHeight = 1;
+		private int[] neighbouringCellIDs = null;
 		
 			
 		private Color color;
@@ -47,17 +49,17 @@ public class CellEllipse  implements Serializable{
 		private HashMap<String, XYPoints> xyPointsOfEllipse;
      
 
-		private Nucleus nucleus = null;
+		private NucleusEllipse nucleus = null;
 		
 		public static final char  SEPARATORCHAR = ';';
 		
 
 		
 		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, Color c){
-			this(id, x, y, majorAxis, minorAxis, 0, 0, 0, 0, 0, 0, c);
+			this(id, x, y, majorAxis, minorAxis, 0, 0, 0, 0, 0, 0, 0, null, c);
 		}
 		
-		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, int height, int width, int orientationInDegrees, double area, double solidity, double distanceToBL, Color c){
+		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, int height, int width, int orientationInDegrees, double area, double perimeter, double solidity, double distanceToBL, int[] neighbouringCellIDs, Color c){
 			this.id = id;			
 			clippedEllipse = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
 			ellipseAsArea = getClone(clippedEllipse);
@@ -68,11 +70,13 @@ public class CellEllipse  implements Serializable{
 			this.color = c;
 			this.heightExp = height;
 			this.widthExp = width;
-			this.area = area;
+			this.area_IV = area;
+			this.perimeter_IV = perimeter;
 			this.solidity = solidity;
 			this.distanceToBL = distanceToBL;
 			this.rotateCellEllipseInDegrees(orientationInDegrees);
 			this.xyPointsOfEllipse = new HashMap<String, XYPoints>();
+			this.neighbouringCellIDs = neighbouringCellIDs;
 			CellEllipseIntersectionCalculationRegistry.getInstance().registerCellEllipse(this);
 		}
 	
@@ -250,13 +254,17 @@ public class CellEllipse  implements Serializable{
 		
       public void setFillColor(Color fillColor) { this.fillColor = fillColor; }
       
-      public Nucleus getNucleus() { return nucleus; }
+      public NucleusEllipse getNucleus() { return nucleus; }
 
-      public void setNucleus(Nucleus nucleus) { this.nucleus = nucleus; }
+      public void setNucleus(NucleusEllipse nucleus) { this.nucleus = nucleus; }
       
-      public double getArea() {	return area; }
+      public double getArea_IV() {	return area_IV; }
 		
-      public void setArea(double area) { this.area = area; }
+      public void setArea_IV(double area) { this.area_IV = area; }
+      
+      public double getPerimeter_IV() {	return perimeter_IV; }
+		
+      public void setPerimeter_IV(double perimeter) { this.perimeter_IV = perimeter; }
 		
       public double getSolidity() { return solidity; }
 
@@ -266,11 +274,11 @@ public class CellEllipse  implements Serializable{
 		
       public void setDistanceToBL(double distanceToBL) { this.distanceToBL = distanceToBL; }
       
-      public Area getClone(Area shape){
-      	
-      	return (Area) shape.clone();
-      	
-      }
+      public Area getClone(Area shape){ return (Area) shape.clone(); }
+      
+      private int[] getNeighbouringCellIDs(){return this.neighbouringCellIDs; }
+      
+      private int getNumberOfNeighbours(){ return this.neighbouringCellIDs != null ? this.neighbouringCellIDs.length :0; }
       
       public DrawInfo2D getLastDrawInfo2D() { return lastDrawInfo2D; }
 		
@@ -316,17 +324,8 @@ public class CellEllipse  implements Serializable{
       	}
       }
       
-      //-------------------------------------------------------------------------------------------------------
-      // Nested Class Nucleus
-      //-------------------------------------------------------------------------------------------------------
-		public class Nucleus extends CellEllipse{
-						
-			public Nucleus(int id, int x, int y, int majorAxis, int minorAxis, int height, int width, int orientationInDegrees, double area, double solidity, double distanceToBL, Color c){
-				super(id,  x,  y,  majorAxis,  minorAxis,  height,  width,  orientationInDegrees,  area,  solidity,  distanceToBL,  c);
-				
-			}
-	
-		}
+      
+		
 		
 }
 

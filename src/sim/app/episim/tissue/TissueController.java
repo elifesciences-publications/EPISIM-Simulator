@@ -58,7 +58,7 @@ public class TissueController {
 		if(file == null) throw new IllegalArgumentException(this.getClass().getName()+": File must not be null");
 		else{
 			actImportedTissue = importer.loadTissue(file);
-			if(this.actImportedTissue != null) TissueBorder.getInstance().setImportedBasementMembrane(actImportedTissue);
+			if(this.actImportedTissue != null) TissueBorder.getInstance().setImportedTissueBorder(actImportedTissue);
 		}
 		
 	}

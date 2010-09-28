@@ -83,7 +83,7 @@ public class TissueBorder {
 			return "";
 		}
 		else{
-			return tissue.getImageid();
+			return tissue.getTissueImageID();
 		}
 	}
 	
@@ -119,7 +119,7 @@ public class TissueBorder {
 	 }
 	
 	
-	public void setImportedBasementMembrane(ImportedTissue _tissue) {
+	public void setImportedTissueBorder(ImportedTissue _tissue) {
 		standardMembraneLoaded = false;
 		if(_tissue != null){
 			
@@ -162,16 +162,14 @@ public class TissueBorder {
 	 		}
 	 		this.polygon = polygon;
 	 		drawPolygon = (GeneralPath)polygon.clone();
-	}
-
-	
+	}	
 	
 	protected static synchronized TissueBorder getInstance(){
 		if(instance == null) instance =  new TissueBorder();
 		return instance;
 	}
 	
-	public GeneralPath getBasementMembraneDrawPolygon(){
+	public GeneralPath getFullContourDrawPolygon(){
 		return (GeneralPath)drawPolygon.clone();
 		
 	}

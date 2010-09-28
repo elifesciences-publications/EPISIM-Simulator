@@ -12,7 +12,7 @@ public class ImportedTissue implements java.io.Serializable {
 	private ArrayList<Point2D> surfacePoints;
 	private ArrayList<CellEllipse> cells;
 	private double resolution;
-	private String imageid = "no ID";
+	private String tissueImageid = "";
 	private String tissueDescription = "no description";
 	private double epidermalWidth;
 	private double epidermalHeight;
@@ -37,9 +37,9 @@ public class ImportedTissue implements java.io.Serializable {
 	
 	public void setResolutionInMicrometerPerPixel(double resolution) { this.resolution = resolution; }
 	
-	public String getImageid() { return imageid; }
+	public String getTissueImageID() { return tissueImageid; }
 	
-	public void setImageid(String imageid) { this.imageid = imageid; }
+	public void setTissueImageID(String tissueImageid) { this.tissueImageid = tissueImageid; }
 	
 	public String getTissueDescription() { return tissueDescription; }
 	

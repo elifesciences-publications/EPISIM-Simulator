@@ -62,7 +62,7 @@ public class BasementMembranePortrayal2DDev extends SimplePortrayal2D{
 	    // assumes the graphics already has its color set
 	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 
-		GeneralPath polygon = TissueController.getInstance().getTissueBorder().getBasementMembraneDrawPolygon();
+		GeneralPath polygon = TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon();
 		if(info != null && polygon.getBounds().getWidth() > 0){
 			if(firstInfo == null)
 				firstInfo = info; // wird beim ersten Aufruf gesetzt.

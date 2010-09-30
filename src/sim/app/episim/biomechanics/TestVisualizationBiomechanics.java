@@ -104,14 +104,15 @@ public class TestVisualizationBiomechanics {
 			cells[12].setSelected(true);
 			while(simulationState == SimState.SIMSTART){
 				try{
+					//cells[12].setPreferredArea(cells[12].getPreferredArea()+10);
 					int randomStartIndexCells =  rand.nextInt(cells.length);
 					CellPolygon polygon = null;
 					for(int n = 0; n < cells.length; n++){
 						polygon = cells[((n+randomStartIndexCells)% cells.length)];
-						System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
+					//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
 					 Vertex[] cellVertices =	polygon.getVertices();
 					 int randomStartIndexVertices = rand.nextInt(cellVertices.length);
-					 System.out.println("Choosen Start Index: "+ randomStartIndexVertices);
+					 //System.out.println("Choosen Start Index: "+ randomStartIndexVertices);
 					for(int i = 0; i < cellVertices.length; i++){
 						Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
 						if(!v.isWasAlreadyCalculated() && v.getNumberOfCellsJoiningThisVertex() > 2){
@@ -131,10 +132,11 @@ public class TestVisualizationBiomechanics {
 					for(CellPolygon actPolygon: cells){
 						actPolygon.resetCalculationStatusOfAllVertices();
 						//polygon.commitNewVertexValues();
-						System.out.println("Cell No. "+ actPolygon.getId() + " Size after: " +actPolygon.getCurrentArea());
+						if(actPolygon.isSelected())System.out.println("Cell No. "+ actPolygon.getId() + " Size after: " +actPolygon.getCurrentArea() + "(selected) Difference: " + (actPolygon.getCurrentArea() - actPolygon.getPreferredArea()));
+						else System.out.println("Cell No. "+ actPolygon.getId() + " Size after: " +actPolygon.getCurrentArea() + "Difference: " + (actPolygon.getCurrentArea() - actPolygon.getPreferredArea()));
 					}
 					visualizationPanel.repaint(); 
-	            Thread.sleep(5000);
+	            Thread.sleep(500);
             }
             catch (InterruptedException e){
 	            // TODO Auto-generated catch block
@@ -197,9 +199,7 @@ public class TestVisualizationBiomechanics {
 			x_new_circle = x + radius*Math.cos(alpha);
 			y_new_circle = y + radius*Math.sin(alpha);		
 			
-			radius_new = Math.abs(x_new_circle-x) + Math.abs(y_new_circle - y);
-		
-			
+			radius_new = Math.abs(x_new_circle-x) + Math.abs(y_new_circle - y);			
 			drawPoint(g, (x + radius_new*Math.cos(alpha)), (y + radius_new*Math.sin(alpha)), 1, Color.red);
 			
 		}

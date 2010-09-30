@@ -4,12 +4,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.geom.Point2D;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -96,6 +99,9 @@ public class TissueImporter {
 	private ArrayList<CellEllipse> importedCellEllipses;
 	
 	private double surfaceOrientation = 0;
+	
+	
+	public static final double ELLIPSE_AXIS_LENGHT_CORR_FACTOR =1.2;
 	
 	protected TissueImporter(){
 		
@@ -287,6 +293,19 @@ public class TissueImporter {
 	private void processCellOrNucleiData(NodeList cellsOrNuclei, boolean isCells){
 		double majorAxis=0, minorAxis=0, height=0, width=0, solidity=0, distanceToBL=0,centerX=0, centerY=0, perimeter=0;
 		int ID = 0, area=0, orientation=0, nucleusID = 0;
+		BufferedWriter bout = null;
+		if(isCells){
+		/*	try{
+	         bout = new BufferedWriter(new FileWriter(new File("d:/cellAreaAxis.csv")));
+	         bout.write("major; minor; area;\n");
+         }
+         catch (IOException e){
+	         // TODO Auto-generated catch block
+	         e.printStackTrace();
+         }*/
+			
+		}
+		
 		
 		for(int i = 0; i < cellsOrNuclei.getLength(); i++){
 			int numberOfNeighbours = 0;
@@ -310,8 +329,14 @@ public class TissueImporter {
 						centerX = Double.parseDouble(actChildNode.getAttributes().getNamedItem("value1").getNodeValue())*this.scalingFactor;
 						centerY = Double.parseDouble(actChildNode.getAttributes().getNamedItem("value2").getNodeValue())*this.scalingFactor;
 					}
-					else if(actChildNode.getNodeName().equals(MAJORAXISLENGTH)) majorAxis= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
-					else if(actChildNode.getNodeName().equals(MINORAXISLENGTH)) minorAxis= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
+					else if(actChildNode.getNodeName().equals(MAJORAXISLENGTH)){ 
+						majorAxis= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
+						if(isCells) majorAxis *= ELLIPSE_AXIS_LENGHT_CORR_FACTOR;
+					}
+					else if(actChildNode.getNodeName().equals(MINORAXISLENGTH)){ 
+						minorAxis= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
+						if(isCells) minorAxis *= ELLIPSE_AXIS_LENGHT_CORR_FACTOR;
+					}
 					else if(actChildNode.getNodeName().equals(HEIGHT)) height= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
 					else if(actChildNode.getNodeName().equals(WIDTH)) width= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
 					else if(actChildNode.getNodeName().equals(SOLIDITY)) solidity= Double.parseDouble(actChildNode.getAttributes().getNamedItem("value").getNodeValue());
@@ -330,6 +355,20 @@ public class TissueImporter {
 				}
 				
 				if(isCells){
+					/*if(height > width){
+						double tmp = height;
+						height = width;
+						width = tmp;
+					}*/
+					
+				/*	try{
+	            //   bout.write(majorAxis+"; "+minorAxis+"; "+area+";\n");
+               }
+               catch (IOException e){
+	               // TODO Auto-generated catch block
+	               e.printStackTrace();
+               }*/
+					
 					CellEllipse actCell =new CellEllipse(ID, (int) centerX, (int) centerY, (int) majorAxis, (int)minorAxis, (int)height, (int)width, orientation,area, perimeter, solidity, distanceToBL, neighbourCellIds, Color.WHITE);
 					NucleusEllipse nucleus =  null;
 					if(nucleusID > 0) nucleus = this.importedNuclei.get(nucleusID -1);
@@ -337,10 +376,19 @@ public class TissueImporter {
 					this.importedCellEllipses.add(actCell);
 				}
 				else{					
-				this.importedNuclei.add(new NucleusEllipse(ID, (int) centerX, (int) centerY,(int) majorAxis, (int)minorAxis,(int) height, (int)width, orientation, area, perimeter, solidity, distanceToBL, Color.RED));
+				this.importedNuclei.add(new NucleusEllipse(ID, (int) centerX, (int) centerY,(int) majorAxis, (int)minorAxis,(int) height, (int)width, orientation, area, perimeter, distanceToBL, Color.RED));
 				}
 			}
-		}	
+		}
+		if(bout != null){
+		/*	try{
+	        bout.close();
+         }
+         catch (IOException e){
+	         // TODO Auto-generated catch block
+	         e.printStackTrace();
+         }*/
+		}
 	}
 	
 	private int[] processNeighboursNode(Node node, int numberOfNeighbours){

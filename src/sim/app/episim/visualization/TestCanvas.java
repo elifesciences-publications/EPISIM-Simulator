@@ -98,9 +98,15 @@ public class TestCanvas extends JPanel {
 			if(importedTissueVisualizationMode){
 				g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				Color oldColor = g.getColor();
-				g.setColor(Color.RED.brighter().brighter());
+				g.setColor(new Color(246, 123, 123));
 				g.fill(cellEllipse.getClippedEllipse());
-				g.setColor(Color.WHITE);
+			/*	if(cellEllipse.getNucleus() != null){
+					g.setColor(new Color(110, 110, 228));
+					g.fill(cellEllipse.getNucleus().getClippedEllipse());
+					g.setColor(new Color(0,0, 156));
+					g.draw(cellEllipse.getNucleus().getClippedEllipse());
+				}*/
+				g.setColor(new Color(218,7,0));
 				g.draw(cellEllipse.getClippedEllipse());
 				g.setColor(oldColor);
 				drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, Color.WHITE);
@@ -123,7 +129,7 @@ public class TestCanvas extends JPanel {
 	public CellEllipse pickCellEllipse(int x, int y){
 		CellEllipse cellEllipse = findCellEllipse(x, y);
 		if(cellEllipse != null){
-			draggedCellEllipse	=cellEllipse;
+			draggedCellEllipse = cellEllipse;
 		}
 		return cellEllipse;
 	}
@@ -147,7 +153,7 @@ public class TestCanvas extends JPanel {
 		for(CellEllipse ell : cellEllipses){
 			ell.resetClippedEllipse();
 		}
-		//calculateIntersectionPointsForCellEllipses((Graphics2D)g);
+		calculateIntersectionPointsForCellEllipses((Graphics2D)g);
 		if(importedTissueVisualizationMode){ 
 			this.setBackground(Color.black);
 			for(CellEllipse ell : cellEllipses){				
@@ -156,9 +162,10 @@ public class TestCanvas extends JPanel {
 			}
 			if(fullContour != null){
 				Graphics2D graphics = (Graphics2D) g;
-				graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+				graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				Color oldColor = graphics.getColor();
-				graphics.setColor(Color.WHITE);
+				fullContour.closePath();
+				graphics.setColor(new Color(1, 255, 0));
 				graphics.draw(fullContour);
 				graphics.setColor(oldColor);
 			}
@@ -258,7 +265,8 @@ public class TestCanvas extends JPanel {
 								this.ellipseKeySet.add(otherEll.getId()+","+actEll.getId());
 								
 								
-								XYPoints xyPoints = EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(g ,actEll, otherEll);
+								XYPoints xyPoints = EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(null ,actEll, otherEll);
+								//EllipseIntersectionCalculatorAndClipper.getClippedNucleus(actEll);
 								if(xyPoints != null){ 
 								//	drawIntersectionLine(g, xyPoints);
 									//drawSquares(g, xyPoints);

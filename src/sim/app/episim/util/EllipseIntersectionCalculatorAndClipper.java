@@ -11,7 +11,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import sim.app.episim.biomechanics.Vertex;
+import sim.app.episim.visualization.AbstractCellEllipse;
 import sim.app.episim.visualization.CellEllipse;
+import sim.app.episim.visualization.NucleusEllipse;
 
 
 
@@ -91,6 +93,12 @@ public class EllipseIntersectionCalculatorAndClipper {
 		return p;
 	}
 	
+	public static void getClippedNucleus(CellEllipse actEllipse){
+		if(actEllipse != null && actEllipse.getNucleus() != null){
+			instance.calculateClippedNucleus(actEllipse);
+		}
+	}
+	
 	private XYPoints calculateClippedEllipses(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
 		double distanceEllipses =distance(actEllipse.getX(), actEllipse.getY(), otherEllipse.getX(), otherEllipse.getY());
 		//System.out.println("Ellipsen Distanz: "+ distanceEllipses);
@@ -114,7 +122,20 @@ public class EllipseIntersectionCalculatorAndClipper {
 		return null;
 	}
 	
-	private double[][] newtonIntersectionCalculation(CellEllipse actEllipse, CellEllipse otherEllipse){//double x1, double y1, double a1, double a2, double b1, double[] f21, double[] f22, double phi){
+	private void calculateClippedNucleus(CellEllipse actEllipse){
+	
+		double [][] intersectionPoints = newtonIntersectionCalculation(actEllipse, actEllipse.getNucleus());
+			
+			if(intersectionPoints != null){
+				intersectionPoints = select2InterSectionPointsWithMinDistance(intersectionPoints, new double[]{actEllipse.getX(), actEllipse.getY()},new double[]{actEllipse.getNucleus().getX(), actEllipse.getNucleus().getY()});
+				XYPoints xyPoints = calculateXYPoints(intersectionPoints[0], intersectionPoints[1], actEllipse, actEllipse.getNucleus());
+				clipNucleus(actEllipse, actEllipse.getNucleus(), xyPoints);
+				
+			}
+		
+	}
+	
+	private double[][] newtonIntersectionCalculation(AbstractCellEllipse actEllipse, AbstractCellEllipse otherEllipse){//double x1, double y1, double a1, double a2, double b1, double[] f21, double[] f22, double phi){
 		
 		double x1 = actEllipse.getX();
 		double y1 = actEllipse.getY();
@@ -285,7 +306,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 	
 	
 	
-	private XYPoints calculateXYPoints(double[] sp1, double[] sp2, CellEllipse actEllipse, CellEllipse otherEllipse){
+	private XYPoints calculateXYPoints(double[] sp1, double[] sp2, AbstractCellEllipse actEllipse, AbstractCellEllipse otherEllipse){
 		double [] directionVector = new double[]{sp1[0]-sp2[0], sp1[1]-sp2[1]};
 		double[] normalVector; 
 		
@@ -386,6 +407,31 @@ public class EllipseIntersectionCalculatorAndClipper {
 			otherEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4)));
 			
 		}
+		
+	}
+	private void clipNucleus(CellEllipse actEllipse, NucleusEllipse nucleusEllipse, XYPoints xyPoints){
+		
+		Polygon polygon = new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4);
+		
+		if(polygon.contains(actEllipse.getX(), actEllipse.getY())){
+			xyPoints.swapEllipse1And2();
+			polygon = new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4);
+		}
+		nucleusEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4)));
+	
+	  // double areaOther = areaEllipse(nucleusEllipse.getClippedEllipse());
+		//double areaAct = areaEllipse(actEllipse.getClippedEllipse());
+		//System.out.println("actEllipse / otherEllipse: "+ areaAct / areaOther);
+		//System.out.println("otherEllipse / actEllipse: "+ areaOther / areaAct);
+		/*if((areaAct / areaOther) < 0.03 || (areaOther / areaAct) < 0.03){
+			//System.out.println("Swap");
+			
+			
+			nucleusEllipse.resetClippedEllipse();
+			xyPoints.swapEllipse1And2();
+			nucleusEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4)));
+			
+		}*/
 		
 	}
 	

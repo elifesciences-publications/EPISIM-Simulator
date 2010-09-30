@@ -293,6 +293,7 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
               steps % getInterval() == 0 &&
               Display2DHack.this.simulation.state.schedule.time() < Schedule.AFTER_SIMULATION)
               {
+         	
          	 Display2DHack.this.episimMovieMaker.add(paint(g,true,false));
               lastEncodedSteps = steps;
               }

@@ -9,6 +9,7 @@ import java.util.Set;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.biomechanics.CellPolygon;
 import sim.app.episim.biomechanics.Vertex;
+import sim.app.episim.visualization.AbstractCellEllipse;
 import sim.app.episim.visualization.CellEllipse;
 
 
@@ -22,13 +23,13 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	
 	private static final char SEPARATORCHAR = ';';
 	
-	private Map<Long, CellEllipse> cellEllipseRegistry;
+	private Map<Long, AbstractCellEllipse> cellEllipseRegistry;
 	private Map<Long, CellPolygon> cellPolygonRegistry;
 	
 	private CellEllipseIntersectionCalculationRegistry(){
 		alreadyCalculatedCells = new HashSet<String>();
 		intersectingCells = new HashSet<String>();
-		cellEllipseRegistry = new HashMap<Long, CellEllipse>();
+		cellEllipseRegistry = new HashMap<Long, AbstractCellEllipse>();
 		cellPolygonRegistry = new HashMap<Long, CellPolygon>();
 	}
 	
@@ -41,11 +42,11 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 		this.alreadyCalculatedCells.add(buildStringId(idCell2, idCell1));
 	}
 	
-	public void registerCellEllipse(CellEllipse ellipse){
+	public void registerCellEllipse(AbstractCellEllipse ellipse){
 		cellEllipseRegistry.put(ellipse.getId(), ellipse);
 	}
 	
-	public CellEllipse getCellEllipse(long id){
+	public AbstractCellEllipse getCellEllipse(long id){
 		return cellEllipseRegistry.get(id);
 	}
 	

@@ -231,13 +231,27 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 							epiUI.scheduleAtEnd(new Steppable(){
 
 								public void step(SimState state) {
+									 Runnable runnable = new Runnable(){
 
-	                        System.out.println("\n======================= Shutting down EPISIM Simulator =======================");
-	                        if(epiUI != null){
-	         						epiUI.closeConsole();
-	         						System.exit(0);
-	         					}
-	         					else System.exit(0);
+										public void run() {
+											try{
+	                                 Thread.sleep(30000);
+	                                 System.out.println("\n======================= Shutting down EPISIM Simulator =======================");
+	      	                        if(epiUI != null){
+	      	         						epiUI.closeConsole();
+	      	         						System.exit(0);
+	      	         					}
+	      	         					else System.exit(0);
+                                 }
+                                 catch (InterruptedException e){
+	                                 ExceptionDisplayer.getInstance().displayException(e);
+                                 }                              
+	                              
+                              }										
+									};
+
+									Thread t = new Thread(runnable);
+									t.start();
 	                        
                         }});
 	                  

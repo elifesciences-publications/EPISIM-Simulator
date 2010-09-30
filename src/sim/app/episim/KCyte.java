@@ -54,12 +54,11 @@ public class KCyte extends CellType
    
    private final String NAME = "Keratinocyte";
    
-   public static final double GOPTIMALKERATINODISTANCE_X=4.2; // Default: 4
-   public static final double GOPTIMALKERATINODISTANCE_Y=4.2;
-   public static final double GOPTIMALKERATINODISTANCEGRANU_X=6; // Default: 3
+   public static final double GOPTIMALKERATINODISTANCE=4; // Default: 4
+     public static final double GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
    //The width of the keratinocyte must be bigger or equals the hight
    public static final int GINITIALKERATINOHEIGHT=5; // Default: 5
-   public static final int GINITIALKERATINOWIDTH=6; // Default: 5
+   public static final int GINITIALKERATINOWIDTH=5; // Default: 5
    
    public final int NEXTTOOUTERCELL=7;
    private double MINDIST=0.1;   
@@ -70,11 +69,16 @@ public class KCyte extends CellType
 //	-----------------------------------------------------------------------------------------------------------------------------------------          
    
    
-   private int gKeratinoWidthGranu=14; // default: 10
-   private int gKeratinoHeightGranu=5;
+   private int gKeratinoWidthGranu=9; // default: 10
+   private int gKeratinoHeightGranu=4;
                 
    private Double2D lastd = new Double2D(0,0);
- 
+   
+
+   
+  
+
+   
    private int keratinoWidth=-11; // breite keratino
    private int keratinoHeight=-1; // höhe keratino
    
@@ -210,154 +214,165 @@ public class KCyte extends CellType
         }
     }
         
-    public HitResultClass hitsOther(Bag b, Continuous2D continousCellField, Double2D thisloc, boolean pressothers, double pBarrierMemberDist)
+    public HitResultClass hitsOther(Bag b, Continuous2D pC2dHerd, Double2D thisloc, boolean pressothers, double pBarrierMemberDist)
     {
         // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
-       // for each collision calc a pressure vector and add it to the other's existing one
-       HitResultClass hitResult=new HitResultClass();            
-       if (b==null || b.numObjs == 0 || this.isInNirvana()) return hitResult;
-                        
-       int i=0;
-       double optDist_x = GOPTIMALKERATINODISTANCE_X; //KeratinoWidth-2+theEpidermis.cellSpace;                         was 4 originally then 5
-       //double adxOpt = KeratinoWidth; //KeratinoWidth-2+theEpidermis.cellSpace;                        
-       double optDist_y = GOPTIMALKERATINODISTANCE_Y; // 3+theEpidermis.cellSpace;
-                  
-            if (this.cellBehavioralModelObjekt.getDifferentiation()==EpisimCellBehavioralModelGlobalParameters.GRANUCELL) optDist_x=GOPTIMALKERATINODISTANCEGRANU_X; // was 3 // 4 in modified version
-            
-           // double optDistSq = optDist_x*optDist_x;//+adyOpt*adyOpt;
-           // double optDist=Math.sqrt(optDistSq);
-            //double outerCircleSq = (neigh_p*adxOpt)*(neigh_p*adxOpt)+(neigh_p*adyOpt)*(neigh_p*adyOpt);
-            int neighbors=0;
-            
-
-            for(i=0;i<b.numObjs;i++)
-                {
-                    if (!(b.objs[i] instanceof KCyte))
-                        continue;
-            
-                KCyte other = (KCyte)(b.objs[i]);
-                if (other != this )
-                    {
-                        Double2D otherloc=continousCellField.getObjectLocation(other);
-                        double dx = continousCellField.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
-                        double dy = continousCellField.tdy(thisloc.y,otherloc.y);
-                                            //dx=Math.rint(dx*1000)/1000;
-                                            //dy=Math.rint(dy*1000)/1000;
-                        
-                       
-                        double actdistsq = dx*dx+dy*dy;                        
-                        double actdist=Math.sqrt(actdistsq);
-                                 
-                        
-                        
-                        if (optDist_x -actdist>MINDIST || optDist_y -actdist>MINDIST) // ist die kollision signifikant ?
-                        {
-                            double fx=(actdist>0)?(optDist_x+0.1)/actdist*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
-                            double fy=(actdist>0)?(optDist_y+0.1)/actdist*dy-dy:0;                                            
-                                            
-                            // berechneten Vektor anwenden
-                           //fx=elastic(fx);
-                           //fy=elastic(fy);
-                          hitResult.numhits++;
-                          hitResult.otherId=other.getID();
-                          hitResult.otherMotherId=other.getMotherID();
-                                            
-                          if ((other.getMotherID()==getID()) || (other.getID()==getMotherID()))
-                          {
-                        	  //fx*=1.5;// birth pressure is greater than normal pressure
-                             //fy*=1.5;
-                          }
-                          if (pressothers)
-                        	  other.extForce=other.extForce.add(new Vector2D(-fx,-fy)); //von mir wegzeigende kraefte addieren
-                             extForce=extForce.add(new Vector2D(fx,fy));
-                          }
-                        else // attraction forces 
-                        {
-                            double adhfac=ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellBehavioralModelObjekt.getDifferentiation(), other.getEpisimCellBehavioralModelObject().getDifferentiation());                           
-                            if (actdist-optDist_x<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist()
-                           		 || actdist-optDist_y<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
-                             {                                                   
-                                                double sx=dx-dx*optDist_x/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
-                                                double sy=dy-dy*optDist_y/actdist;
-                                                //if (pressothers)
-                                                //    other.extForce=other.extForce.add(new Vector2D(sx,sy)); //von mir wegzeigende kraefte addieren                                                                                      
-                                                hitResult.adhForce=hitResult.adhForce.add(new Vector2D(-sx*adhfac,-sy*adhfac/5.0)); // minus, cause: dx,dy is way from other to this: minus=way to other
-                             }                                               
-                        }
-
-                        // all the shit that happens in the neighborhood
-                        // consistency = neighborhood momentum
-                        if (actdistsq <= pBarrierMemberDist * pBarrierMemberDist)
-                        {
-                                            
-                          Double2D m = ((KCyte)b.objs[i]).momentum();
-                          hitResult.otherMomentum.x+=m.x;
-                          hitResult.otherMomentum.y+=m.y;
-                          neighbors++;                         
-                          
-                          // lipids do not diffuse
-                          if ((dy>0) && (other.isOuterCell())) hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
-                        }
-                    }
-                }    
-
-            //hitResult.envSigCalcium=theEpidermis.staticCalciumGradient(thisloc.y);  // noch auf collecten aus umgebund umbauen
-
-            if (neighbors>0)    // average the signals to per cell
-            {
-                hitResult.otherMomentum.amplify(1/neighbors); 
-            }
-            return hitResult;
-        }    
-
-    public void setPositionRespectingBounds(Continuous2D pC2dHerd, Double2D p_potentialLoc)
-    {
-        // modelling a hole in the wall at position hole holeX with width  holeHalfWidth
-        if (isInNirvana()) 
-                return;
-        double newx=p_potentialLoc.x;
-        double newy=p_potentialLoc.y;               
-        double maxy=TissueController.getInstance().getTissueBorder().lowerBound(p_potentialLoc.x);  
+        // for each collision calc a pressure vector and add it to the other's existing one
+        HitResultClass hitResult=new HitResultClass();            
+        if (b==null || b.numObjs == 0 || this.isInNirvana()) return hitResult;
         
+        
+        
+               
+        int i=0;
+        double adxOpt = GOPTIMALKERATINODISTANCE; //KeratinoWidth-2+theEpidermis.cellSpace;                         was 4 originally then 5
+        //double adxOpt = KeratinoWidth; //KeratinoWidth-2+theEpidermis.cellSpace;                        
+        //double adyOpt = 5; // 3+theEpidermis.cellSpace;
+        
+        
+        if (this.cellBehavioralModelObjekt.getDifferentiation()==EpisimCellBehavioralModelGlobalParameters.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
+        
+        double optDistSq = adxOpt*adxOpt; //+adyOpt*adyOpt;
+        double optDist=Math.sqrt(optDistSq);
+        //double outerCircleSq = (neigh_p*adxOpt)*(neigh_p*adxOpt)+(neigh_p*adyOpt)*(neigh_p*adyOpt);
+        int neighbors=0;
        
-        if (newy>maxy)
-        {
-            newy=maxy;          
+
+        for(i=0;i<b.numObjs;i++)
+            {
+                if (!(b.objs[i] instanceof KCyte))
+                    continue;
         
+            KCyte other = (KCyte)(b.objs[i]);
+            if (other != this )
+                {
+                    Double2D otherloc=pC2dHerd.getObjectLocation(other);
+                    double dx = pC2dHerd.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
+                    double dy = pC2dHerd.tdy(thisloc.y,otherloc.y);
+                                        //dx=Math.rint(dx*1000)/1000;
+                                        //dy=Math.rint(dy*1000)/1000;
+                    
+                   
+                    double actdistsq = dx*dx+dy*dy;                        
+                    double actdist=Math.sqrt(actdistsq);
+                    
+                                       
+                    
+                    
+                    if (optDist-actdist>MINDIST) // ist die kollision signifikant ?
+                                {
+                                        double fx=(actdist>0)?(optDist+0.1)/actdist*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
+                                        double fy=(actdist>0)?(optDist+0.1)/actdist*dy-dy:0;                                            
+                                        
+                                        // berechneten Vektor anwenden
+                                        //fx=elastic(fx);
+                                        //fy=elastic(fy);
+                                        hitResult.numhits++;
+                                        hitResult.otherId=other.getID();
+                                        hitResult.otherMotherId=other.getMotherID();
+                                        
+                                        if ((other.getMotherID()==getID()) || (other.getID()==getMotherID()))
+                                        {
+                                            //fx*=1.5;// birth pressure is greater than normal pressure
+                                            //fy*=1.5;
+                                        }
+                                        
+                                        if (pressothers)
+                                            other.extForce=other.extForce.add(new Vector2D(-fx,-fy)); //von mir wegzeigende kraefte addieren
+                                        extForce=extForce.add(new Vector2D(fx,fy));
+
+                                        
+                                       
+                                }
+
+                    else // attraction forces 
+                    {
+                        double adhfac=ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellBehavioralModelObjekt.getDifferentiation(), other.getEpisimCellBehavioralModelObject().getDifferentiation());                           
+                        if (actdist-optDist<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
+                                    {                                                   
+                                            double sx=dx-dx*optDist/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
+                                            double sy=dy-dy*optDist/actdist;
+                                            //if (pressothers)
+                                            //    other.extForce=other.extForce.add(new Vector2D(sx,sy)); //von mir wegzeigende kraefte addieren                                                                                      
+                                            hitResult.adhForce=hitResult.adhForce.add(new Vector2D(-sx*adhfac,-sy*adhfac/5.0)); // minus, cause: dx,dy is way from other to this: minus=way to other
+                                    }                                               
+                    }
+
+                    // all the shit that happens in the neighborhood
+                    // consistency = neighborhood momentum
+                    if (actdistsq <= pBarrierMemberDist * pBarrierMemberDist)
+                    {
+                                        
+                      Double2D m = ((KCyte)b.objs[i]).momentum();
+                      hitResult.otherMomentum.x+=m.x;
+                      hitResult.otherMomentum.y+=m.y;
+                      neighbors++;                         
+                      
+                      // lipids do not diffuse
+                      if ((dy>0) && (other.isOuterCell())) hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
+                    }
+                }
+            }    
+
+        //hitResult.envSigCalcium=theEpidermis.staticCalciumGradient(thisloc.y);  // noch auf collecten aus umgebund umbauen
+
+        if (neighbors>0)    // average the signals to per cell
+        {
+            hitResult.otherMomentum.amplify(1/neighbors); 
+        }
+        return hitResult;
+    }    
+
+public void setPositionRespectingBounds(Continuous2D pC2dHerd, Double2D p_potentialLoc)
+{
+    // modelling a hole in the wall at position hole holeX with width  holeHalfWidth
+    if (isInNirvana()) 
+            return;
+    double newx=p_potentialLoc.x;
+    double newy=p_potentialLoc.y;               
+    double maxy=TissueController.getInstance().getTissueBorder().lowerBound(p_potentialLoc.x);  
+    
+   
+    if (newy>maxy)
+    {
+        newy=maxy;          
+    
+       
+    }
+    else if (newy<10) newy=10;
+
+    Double2D newloc = new Double2D(newx,newy);
+    pC2dHerd.setObjectLocation(this, newloc);
+}
+
+
+public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
+{
+
+    double newx=0, newy=0;
+    
+    
+    newx=xPos;
+    
+    
+    newy=yPos;
+    double maxy=TissueController.getInstance().getTissueBorder().lowerBound(newx);        
+            
+    if (newy>maxy)  // border crossed
+    {
+        if (newy>pC2dHerd.height) // unterste Auffangebene
+        {
+            newy=pC2dHerd.height; 
+            setInNirvana(true);
            
         }
-        else if (newy<10) newy=10;
 
-        Double2D newloc = new Double2D(newx,newy);
-        pC2dHerd.setObjectLocation(this, newloc);
+        else            
+            newy=maxy;       
     }
-
-    
-    public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
-    {
-
-        double newx=0, newy=0;
-        
-        
-        newx=xPos;
-        
-        
-        newy=yPos;
-        double maxy=TissueController.getInstance().getTissueBorder().lowerBound(newx);        
-                
-        if (newy>maxy)  // border crossed
-        {
-            if (newy>pC2dHerd.height) // unterste Auffangebene
-            {
-                newy=pC2dHerd.height; 
-                setInNirvana(true);
-            }
-            else            
-                newy=maxy;       
-        }
-        else if (newy<10) newy=10;        
-        return new Double2D(newx, newy);        
-    }
+    else if (newy<10) newy=10;        
+    return new Double2D(newx, newy);        
+}
 
     public final double sigmoid(double x)
     {

@@ -268,8 +268,8 @@ public void relaxVertex(Vertex vertex){
 		try {
 			
 			 Vector result= solver.solve(A, b, x);
-			 System.out.println("---------And the result is------------------");
-			 System.out.println("("+Math.round(result.get(0))+" , "+ Math.round(result.get(1))+")");
+			// System.out.println("---------And the result is------------------");
+			// System.out.println("("+Math.round(result.get(0))+" , "+ Math.round(result.get(1))+")");
 			 return result;
 		  
 		} catch (IterativeSolverNotConvergedException e) {

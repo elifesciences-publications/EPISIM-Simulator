@@ -78,11 +78,14 @@ public class EpisimConsole implements ActionListener{
 	
 	private SimulationConsole console = null;
 	private boolean guiMode;
+	private boolean consoleInput = false;
 	
 	public EpisimConsole(final GUIState simulation, boolean reloadSnapshot){
-		
-		guiMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL));	
+		consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
+		guiMode = ((EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
+				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));	
 		
 		
 		 if(guiMode){

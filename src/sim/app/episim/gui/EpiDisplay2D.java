@@ -34,9 +34,13 @@ public class EpiDisplay2D {
 	protected GUIState simulation;
 	private SimulationDisplay simulationDisplay;
 	private boolean guiMode = true;
+	private boolean consoleInput = false;
 	public EpiDisplay2D(final double width, final double height, GUIState simulation, long interval){
-		guiMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL));
+		consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
+		guiMode = ((EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
+				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));
 		
 		if(guiMode)simulationDisplay = new Display2DHack(width, height, simulation, interval);
 		else simulationDisplay = new NoGUIDisplay2D(width, height, simulation, interval);
@@ -87,7 +91,7 @@ public class EpiDisplay2D {
 	}
 	
 	public void reset(){
-		simulationDisplay.repaint();
+		simulationDisplay.reset();
 	}
 	public void repaint(){
 		simulationDisplay.repaint();

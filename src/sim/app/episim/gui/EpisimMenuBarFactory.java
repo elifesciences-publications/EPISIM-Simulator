@@ -130,10 +130,11 @@ public class EpisimMenuBarFactory {
 						simulator.close();
 					}
 				}
+				else simulator.close();
 			}
 			
 		});
-		menuItemClose.setEnabled(true);
+		menuItemCloseSimulator.setEnabled(true);
 		JMenuItem menuItemSetSnapshotPath = new JMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH.toString());
 		menuItemSetSnapshotPath.addActionListener(new ActionListener(){
 

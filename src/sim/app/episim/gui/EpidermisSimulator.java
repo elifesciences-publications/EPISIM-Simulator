@@ -89,11 +89,12 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	private EpisimMenuBarFactory menuBarFactory;
 	
 	public EpidermisSimulator() {
-		
-		guiMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL));
 		consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
 				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
+		guiMode = ((EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
+				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));
+		
 		
 		if(guiMode){
 			mainFrame = new JFrame();

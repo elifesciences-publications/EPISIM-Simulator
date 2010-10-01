@@ -89,6 +89,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
 	private TimeSteps timeStepsAfterSnapshotReload = null;
 	
 	private boolean guiMode = true;
+	private boolean consoleInput = false;
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -98,8 +99,12 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
  {
      super(seed);
      
-     guiMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL));
+     consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
+     
+     guiMode = ((EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
+				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));
      
      SnapshotWriter.getInstance().addSnapshotListener(this);
      this.registerCellType(KCyte.class);
@@ -109,11 +114,7 @@ public class Epidermis extends TissueType implements SnapshotListener, CellDeath
      DataExportController.getInstance().setDataExportMonitoredTissue(this);
      ChartController.getInstance().registerChartSetChangeListener(this);
      DataExportController.getInstance().registerDataExportChangeListener(this);
-  	// set up the C2dHerd field. It looks like a discretization
-		// of about neighborhood / 1.5 is close to optimal for us. Hmph,
-		// that's 16 hash lookups! I would have guessed that
-		// neighborhood * 2 (which is about 4 lookups on average)
-		// would be optimal. Go figure.
+ 
 		
 		//TODO: plus 2 Korrektur überprüfen
 		cellContinous2D = new Continuous2D(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 

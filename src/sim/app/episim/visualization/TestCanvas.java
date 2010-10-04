@@ -36,7 +36,8 @@ public class TestCanvas extends JPanel {
 	
 	private ArrayList<CellEllipse>  cellEllipses = new ArrayList<CellEllipse>();
 	
-	private GeneralPath fullContour = null;
+	private GeneralPath surface = null;
+	private GeneralPath basalLayer = null;
 	
 	private CellEllipse draggedCellEllipse = null;
 	
@@ -83,7 +84,8 @@ public class TestCanvas extends JPanel {
 	public void addImportedCells(List<CellEllipse> importedCells){
 		this.cellEllipses.clear();
 		this.cellEllipses.addAll(importedCells);
-		fullContour = TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon();
+		basalLayer = TissueController.getInstance().getTissueBorder().getBasalLayerDrawPolygon();
+		surface = TissueController.getInstance().getTissueBorder().getSurfaceDrawPolygon();
 		this.repaint();
 		
 	}
@@ -160,13 +162,15 @@ public class TestCanvas extends JPanel {
 				drawCellEllipse((Graphics2D) g,ell, false);
 					
 			}
-			if(fullContour != null){
+			if(basalLayer != null&& surface != null){
 				Graphics2D graphics = (Graphics2D) g;
 				graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				Color oldColor = graphics.getColor();
-				fullContour.closePath();
+				
 				graphics.setColor(new Color(1, 255, 0));
-				graphics.draw(fullContour);
+				graphics.draw(surface);
+				graphics.draw(basalLayer);
+				
 				graphics.setColor(oldColor);
 			}
 		}

@@ -89,7 +89,45 @@ public class EpisimConsole implements ActionListener{
 		
 		
 		 if(guiMode){
-			 console = new ConsoleHack(simulation);
+			 console = new ConsoleHack(simulation){
+				 public synchronized void pressPlay(){
+				   	if(!reloadedSnapshot){
+				   		
+				   		EpisimTextOut.getEpisimTextOut().clear();
+				      	
+				   		((EpidermisGUIState)console.getSimulation()).clearWoundPortrayalDraw();
+				   		
+				   	}
+				   	else if(wasStartedOnce && reloadedSnapshot){
+				   		notifyAllSnapshotRestartListeners();
+				   		return;
+				   	}
+				   	
+				   	wasStartedOnce = true;  
+				   	((EpidermisGUIState)console.getSimulation()).simulationWasStarted();
+				   	 super.pressPlay(reloadedSnapshot);
+				   	   	
+				   	 	   	
+				   }
+				   
+				   
+				   
+				   public synchronized void pressStop(){
+				   
+				   	((EpidermisGUIState)console.getSimulation()).simulationWasStopped();
+				   	
+				      	
+				   	super.pressStop();
+				   }
+				   
+				   public synchronized void pressPause(){
+				      
+				   	((EpidermisGUIState)console.getSimulation()).simulationWasPaused();
+				   	
+				      	
+				   	super.pressPause();
+				   }
+			 };
 			 controllerContainer = getControllerContainer(((ConsoleHack)console).getContentPane());
 		 }
 		 else{ 
@@ -476,20 +514,22 @@ public class EpisimConsole implements ActionListener{
  
    
    public synchronized void pressPlay(){
-   	if(!reloadedSnapshot){
-   		
-   		EpisimTextOut.getEpisimTextOut().clear();
-      	
-   		((EpidermisGUIState)console.getSimulation()).clearWoundPortrayalDraw();
-   		
-   	}
-   	else if(wasStartedOnce && this.reloadedSnapshot){
-   		notifyAllSnapshotRestartListeners();
-   		return;
-   	}
    	
-   	wasStartedOnce = true;  
-   	((EpidermisGUIState)console.getSimulation()).simulationWasStarted();
+	   	if(!reloadedSnapshot){
+	   		
+	   		EpisimTextOut.getEpisimTextOut().clear();
+	      	
+	   		((EpidermisGUIState)console.getSimulation()).clearWoundPortrayalDraw();
+	   		
+	   	}
+	   	else if(wasStartedOnce && this.reloadedSnapshot){
+	   		notifyAllSnapshotRestartListeners();
+	   		return;
+	   	}
+	   	
+	   	wasStartedOnce = true;  
+	   	((EpidermisGUIState)console.getSimulation()).simulationWasStarted();
+   
    	 console.pressPlay(reloadedSnapshot);
    	   	
    	 	   	
@@ -498,18 +538,19 @@ public class EpisimConsole implements ActionListener{
    
    
    public synchronized void pressStop(){
-   
-   	((EpidermisGUIState)console.getSimulation()).simulationWasStopped();
+   	if(console instanceof NoGUIConsole){
+   		((EpidermisGUIState)console.getSimulation()).simulationWasStopped();
+   	}
    	
       	
    	console.pressStop();
    }
    
    public synchronized void pressPause(){
-      
-   	((EpidermisGUIState)console.getSimulation()).simulationWasPaused();
+   	if(console instanceof NoGUIConsole){
+   		((EpidermisGUIState)console.getSimulation()).simulationWasPaused();
    	
-      	
+   	}
    	console.pressPause();
    }
    

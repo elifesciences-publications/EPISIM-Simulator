@@ -484,7 +484,7 @@ public abstract class Calculators {
 						if(m !=i && allPolygons[m].contains(actVertex.getDoubleX(), actVertex.getDoubleY())){
 							if(!actVertex.isVertexOfCellPolygon(cellPolygons[m])){
 								actVertex.delete();
-								System.out.println("Global Clean Delete");
+								
 								break;
 							}
 							

@@ -25,8 +25,12 @@ public class TissueBorder {
 	private HashMap<Double, TreeSet<Double>> organizedXPoints;
 	
 	private GeneralPath polygon;
+	private GeneralPath surface;
+	private GeneralPath basalLayer;
 	
-	private GeneralPath drawPolygon;
+	private GeneralPath drawPolygon;	
+	private GeneralPath drawSurface;
+	private GeneralPath drawBasalLayer;
 	
 	private static final int THRESHHOLD = 5;
 	
@@ -130,7 +134,8 @@ public class TissueBorder {
 				ArrayList<Point2D> surface = tissue.getSurfacePoints();
 				
 				for(int i = surface.size()-1; i >= 0 ; i--) fullcontour.add(surface.get(i));
-			
+				
+				
 			}
 			
 			if(this.fullcontour.size() > 0){
@@ -142,10 +147,24 @@ public class TissueBorder {
 					polygon.lineTo(this.fullcontour.get(i).getX(), this.fullcontour.get(i).getY());
 
 				}
+				
+				//polygon.closePath();
 				drawPolygon = (GeneralPath)polygon.clone();
 				drawPolygon.closePath();
 				polygon.lineTo(polygon.getBounds().getMinX(), polygon.getBounds().getMinY());
-				polygon.closePath();
+				
+				basalLayer = new GeneralPath();
+				basalLayer.moveTo(tissue.getBasalLayerPoints().get(0).getX(), tissue.getBasalLayerPoints().get(0).getY());
+				for(Point2D p : tissue.getBasalLayerPoints())basalLayer.lineTo(p.getX(), p.getY());
+				drawBasalLayer = (GeneralPath)basalLayer.clone();
+				
+				surface = new GeneralPath();
+				surface.moveTo(tissue.getSurfacePoints().get(0).getX(), tissue.getSurfacePoints().get(0).getY());
+				for(Point2D p : tissue.getSurfacePoints())surface.lineTo(p.getX(), p.getY());
+				drawSurface = (GeneralPath)surface.clone();
+				
+				
+				//polygon.closePath();
 				
 				organizeBasalLayerPoints();
 			}
@@ -170,8 +189,15 @@ public class TissueBorder {
 	}
 	
 	public GeneralPath getFullContourDrawPolygon(){
-		return (GeneralPath)drawPolygon.clone();
-		
+		return (GeneralPath)drawPolygon.clone();		
+	}
+	
+	public GeneralPath getSurfaceDrawPolygon(){
+		return (GeneralPath)drawSurface.clone();		
+	}
+	
+	public GeneralPath getBasalLayerDrawPolygon(){
+		return (GeneralPath)drawBasalLayer.clone();		
 	}
 	Point2D previousPoint = null;
 	

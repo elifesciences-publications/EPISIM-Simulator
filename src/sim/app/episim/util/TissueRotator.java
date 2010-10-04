@@ -1,5 +1,7 @@
 package sim.app.episim.util;
 
+import java.awt.geom.Point2D;
+
 import sim.app.episim.tissue.ImportedTissue;
 import sim.app.episim.visualization.CellEllipse;;
 
@@ -9,7 +11,7 @@ public class TissueRotator {
 	public void rotateTissue(ImportedTissue tissue, double angleInDegrees) {
      
      
-      int width  = (int)tissue.getEpidermalWidth();
+/*      int width  = (int)tissue.getEpidermalWidth();
       int height = (int)tissue.getEpidermalHeight();
 
       double angle = Math.toRadians(360-angleInDegrees);
@@ -37,7 +39,7 @@ public class TissueRotator {
      double heightB = Math.abs(Math.sin(angle) * height);
      
     tissue.setEpidermalWidth((int)(widthA + heightB));
-    tissue.setEpidermalHeight((int)(widthB + heightA));
+    tissue.setEpidermalHeight((int)(widthB + heightA));*/
     
     xyShift(tissue);
   }
@@ -76,6 +78,14 @@ public class TissueRotator {
 			cell.setXY((int)(cell.getX()-minX+ (maxRadius/2)), (int)(cell.getY()-minY+(maxRadius/2)));
 			
 		}
+		
+		for(Point2D p : tissue.getSurfacePoints()){
+			p.setLocation((p.getX()-minX+ (maxRadius/2)), (p.getY()-minY+(maxRadius/2)));
+		}
+		for(Point2D p : tissue.getBasalLayerPoints()){
+			p.setLocation((p.getX()-minX+ (maxRadius/2)), (p.getY()-minY+(maxRadius/2)));
+		}
+		
 		
 		double calculatedHeight = (maxY - minY)+maxRadius*2;
 		if(tissue.getEpidermalHeight() > calculatedHeight) tissue.setEpidermalHeight(calculatedHeight);

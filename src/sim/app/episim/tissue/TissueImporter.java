@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
@@ -125,7 +126,7 @@ public class TissueImporter {
 			
 			loadXML(path);
 		   TissueRotator rotator = new TissueRotator();
-		   //rotator.rotateTissue(actImportedTissue, surfaceOrientation);
+		   rotator.rotateTissue(actImportedTissue, surfaceOrientation);
 			return actImportedTissue;
 			
 		}
@@ -412,6 +413,8 @@ public class TissueImporter {
 	
 	private void addAllPointsXY(NodeList pointNodes, List<Point2D> pointList){
 		double x=0,y=0;
+		HashSet<String> alreadyAddedCoordinates = new HashSet<String>();
+		
 		for(int i = 0; i < pointNodes.getLength(); i++){
 			Node actNode = pointNodes.item(i);
 			if(actNode.getNodeName().equals(PIXEL)){
@@ -420,7 +423,11 @@ public class TissueImporter {
 					if(points.item(n).getNodeName().equals(X)) x = Double.parseDouble(points.item(n).getAttributes().getNamedItem("value").getNodeValue());
 					else if(points.item(n).getNodeName().equals(Y)) y = Double.parseDouble(points.item(n).getAttributes().getNamedItem("value").getNodeValue());
 				}
-				pointList.add(new Point2D.Double(x, y));
+				String keyString = x+";"+y;
+				if(!alreadyAddedCoordinates.contains(keyString)){
+					pointList.add(new Point2D.Double(x, y));
+					alreadyAddedCoordinates.add(keyString);
+				}
 			}
 		
 		}

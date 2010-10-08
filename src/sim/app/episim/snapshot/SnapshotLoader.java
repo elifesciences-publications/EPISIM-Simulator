@@ -58,7 +58,7 @@ public class SnapshotLoader {
 					
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.MISCALLENEOUSGLOBALPARAMETERS)){
-					MiscalleneousGlobalParameters.instance().reloadMiscalleneousGlobalParametersObject((MiscalleneousGlobalParameters) sObj.getSnapshotObject());
+					MiscalleneousGlobalParameters.getInstance().reloadMiscalleneousGlobalParametersObject((MiscalleneousGlobalParameters) sObj.getSnapshotObject());
 					
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.WOUND)){
@@ -71,7 +71,7 @@ public class SnapshotLoader {
 				
 			}
 		
-			SnapshotWriter.getInstance().addSnapshotListener(MiscalleneousGlobalParameters.instance());
+			SnapshotWriter.getInstance().addSnapshotListener(MiscalleneousGlobalParameters.getInstance());
 	}
 		else throw new IllegalArgumentException("Snapshot-Path and/or Model-File-Path is null");	
 }

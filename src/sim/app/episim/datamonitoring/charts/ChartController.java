@@ -249,15 +249,12 @@ public class ChartController {
 	public boolean showNewChartSetDialog(Frame parent){
 		ChartSetDialog dialog = new ChartSetDialog(parent, "Episim-Chart-Set", true);
 		
-		if(this.chartMonitoredTissue != null){ 
-			
+		if(this.chartMonitoredTissue != null){			
 			EpisimChartSet updatedChartSet =dialog.showNewChartSet();
-			if(updatedChartSet != null){ 
-				
+			if(updatedChartSet != null){ 				
 				this.actLoadedChartSet = updatedChartSet;
 				return true;
-			}
-					
+			}					
 		}
 		return false;
 	}

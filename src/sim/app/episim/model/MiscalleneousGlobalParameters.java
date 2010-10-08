@@ -31,7 +31,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Snap
 		return typeString[typeColor];
 	}
 	
-	public static synchronized MiscalleneousGlobalParameters instance(){
+	public static synchronized MiscalleneousGlobalParameters getInstance(){
 		if(instance == null){ 
 			instance = new MiscalleneousGlobalParameters();
 			resetinstance = new MiscalleneousGlobalParameters();

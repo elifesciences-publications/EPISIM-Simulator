@@ -373,6 +373,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(false);
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(true);
 				menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
+				menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(true);
 				menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
 				this.actLoadedJarFile = modelFile;
 			}
@@ -553,6 +554,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_SNAPSHOT).setEnabled(false);
 					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(false);
 					menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
+					menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(true);
 					menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
 					this.actLoadedJarFile = jarFile;
 					this.actLoadedSnapshotFile = snapshotFile;
@@ -587,6 +589,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(false);
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(true);
 		menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
+		menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(false);
 		menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
 		statusbar.setMessage("");
 		ChartController.getInstance().modelWasClosed();
@@ -620,12 +623,14 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.WINDOWS_MENU).setEnabled(false);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(false);
 	}
 	
 	public void simulationWasStopped(){
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.WINDOWS_MENU).setEnabled(true);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(true);
 		DataExportController.getInstance().simulationWasStopped();
 	}
 	

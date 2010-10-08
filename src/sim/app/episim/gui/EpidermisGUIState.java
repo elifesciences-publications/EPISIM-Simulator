@@ -187,7 +187,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	public Inspector getMiscalleneousInspector() {
 
-		Object miscalleneous = MiscalleneousGlobalParameters.instance();
+		Object miscalleneous = MiscalleneousGlobalParameters.getInstance();
 		if(miscalleneous == null)
 			return null;
 		Inspector i = new SimpleInspector(miscalleneous, this);

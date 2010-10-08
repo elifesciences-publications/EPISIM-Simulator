@@ -80,7 +80,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 
                
                 int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDifferentiation();                                
-                int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();
+                int colorType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
                 
                 
                 if(keratinoType == EpisimCellBehavioralModelGlobalParameters.STEMCELL
@@ -239,7 +239,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    
    private Color getFillColor(KCyte kcyte){
    	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDifferentiation();                                
-      int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
+      int coloringType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
    	//
       // set colors
       //
@@ -317,7 +317,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    private Color getContourColor(KCyte kcyte){
    	Color myFrameColor = Color.white; //new Color(Red, Green, Blue);
    	                               
-      int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
+      int coloringType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
    	myFrameColor=new Color(200, 165, 200);                
    	if (coloringType==3 || coloringType==4 || coloringType==5 || coloringType==6 || coloringType==7 || coloringType==9) // Age coloring
    	{

@@ -233,11 +233,10 @@ public class TissueCellDataFieldsInspector {
 	}
 
 	private String getParameterName(String paramName) {
-		
 		for(String actPrefix : markerPrefixes){
 			if(paramName.startsWith(actPrefix)) return paramName.substring(actPrefix.length());
 		}
-			return null;
+		return null;
 	}
 
 	private void buildParametersOrConstantsList(SortedJList list, String cellOrTissueTypeName) {
@@ -255,8 +254,6 @@ public class TissueCellDataFieldsInspector {
 				}
 			}
 		}
-		
-
 	}
 	
 	private void buildTissueTypeList() {
@@ -284,9 +281,6 @@ public class TissueCellDataFieldsInspector {
 	
 
 	private boolean isValidReturnType(Class<?> cls) {
-
-		
-
 		return validTypes.contains(cls);
 	}
 

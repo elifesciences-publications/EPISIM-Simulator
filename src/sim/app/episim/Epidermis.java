@@ -245,7 +245,7 @@ private void seedStemCells(){
 
 			public void step(SimState state) {
 				
-				if(MiscalleneousGlobalParameters.instance().getTypeColor() == 10){
+				if(MiscalleneousGlobalParameters.getInstance().getTypeColor() == 10){
 					
 					Calculators.globallyCleanAllPolygonsEstimatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellPolygons());
 					

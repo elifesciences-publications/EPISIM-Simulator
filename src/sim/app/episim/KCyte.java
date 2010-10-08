@@ -767,12 +767,12 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 			
 			
 			//Ellipse Visualization is activated
-			if(MiscalleneousGlobalParameters.instance().getTypeColor() ==8){
+			if(MiscalleneousGlobalParameters.getInstance().getTypeColor() ==8){
 				calculateClippedCell();
 			}
 			
 			//Polygon Visualization is activated
-			if(MiscalleneousGlobalParameters.instance().getTypeColor() ==10){
+			if(MiscalleneousGlobalParameters.getInstance().getTypeColor() ==10){
 				 calculateClippedCell();
         	  Calculators.calculateCellPolygons(getCellEllipseObject());
         	  Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(getCellEllipseObject().getId()));

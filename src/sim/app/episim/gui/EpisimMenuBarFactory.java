@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.propfilegenerator.PropertyFileGeneratorWizard;
 import sim.display.ConsoleHack;
 
 
@@ -24,7 +25,8 @@ public class EpisimMenuBarFactory {
 		CHART_MENU("Charting"), 
 		DATAEXPORT_MENU("Data Export"), 
 		INFO_MENU("Info"),
-		WINDOWS_MENU("Windows");
+		WINDOWS_MENU("Windows"),
+		PARAMETERS_SCAN("Parameter Scan");
 		
 		private String name;
 		private EpisimMenu(String _name){ this.name = _name;}
@@ -53,6 +55,8 @@ public class EpisimMenuBarFactory {
 		
 		ABOUT_MASON("About MASON"),
 		
+		GENERATE_PARAMETER_FILES("Param-Scan File-Generator"),
+		
 		AUTO_ARRANGE_WINDOWS("Auto-Arrange Windows");
 		
 		private String name;
@@ -76,6 +80,7 @@ public class EpisimMenuBarFactory {
 		buildFileMenu(menuBar);		
 		buildChartsMenu(menuBar);		
 		buildDataExportMenu(menuBar);		
+		buildParamScanMenu(menuBar);
 		buildWindowsMenu(menuBar);		
 		buildInfoMenu(menuBar);
 		
@@ -389,6 +394,26 @@ public class EpisimMenuBarFactory {
 		menuBar.add(windowsMenu);
 	}
 	
+	private void buildParamScanMenu(JMenuBar menuBar)
+	{
+		JMenu paramScanMenu = new JMenu(EpisimMenu.PARAMETERS_SCAN.toString());
+		
+		final JMenuItem menuItemParamFileGen = new JMenuItem(EpisimMenuItem.GENERATE_PARAMETER_FILES.toString());
+		menuItemParamFileGen.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if(simulator.getMainFrame() instanceof JFrame){
+					if(simulator.getMainFrame() instanceof JFrame){
+						new PropertyFileGeneratorWizard((JFrame)simulator.getMainFrame(), "Parameter Scan File Generator", false);
+					}
+				}
+				
+         }
+		});
+		
+		paramScanMenu.add(menuItemParamFileGen);
+		paramScanMenu.setEnabled(false);
+		menuBar.add(paramScanMenu);
+	}
 	
 	public JMenu getEpisimMenu(EpisimMenu menu){
 		

@@ -593,8 +593,8 @@ public class DataExportCreationWizard extends JDialog {
 			public double newValue(double newValue)
 	      {
 				isDirty = true;
-				 newValue = Math.round(newValue);
-				 episimDataExportDefinition.setDataExportFrequncyInSimulationSteps((int) newValue);
+				newValue = Math.round(newValue);
+			  episimDataExportDefinition.setDataExportFrequncyInSimulationSteps((int) newValue);
 	        return newValue;
 	      }
 		};

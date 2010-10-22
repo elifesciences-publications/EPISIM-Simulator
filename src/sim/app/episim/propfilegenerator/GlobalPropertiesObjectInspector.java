@@ -4,6 +4,7 @@ package sim.app.episim.propfilegenerator;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,6 +14,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.SortedJList;
 
 public class GlobalPropertiesObjectInspector {
@@ -31,6 +34,7 @@ public class GlobalPropertiesObjectInspector {
 		
 		private String actualSelectedParameter = "";		
 		private HashMap<String, Class<?>> globalParametersMap;
+		private HashMap<String, String> globalParameterDefaultValuesMap;
 		private Object globalParametersObject;
 		
 		
@@ -92,6 +96,7 @@ public class GlobalPropertiesObjectInspector {
 		
 		public String getActualSelectedGlobalParameter(){ return this.actualSelectedParameter; }
 		public Class<?> getActualSelectedGlobalParameterType(){ return this.globalParametersMap.get(this.actualSelectedParameter); }
+		public String getActualSelectedGlobalParametersDefaultValue(){ return this.globalParameterDefaultValuesMap.get(this.actualSelectedParameter); }
    
 	   private void notifyAllParameterSelectionListener(){
 	   	for(GlobalParameterSelectionListener listener : this.parameterSelectionListener) listener.parameterWasSelected();
@@ -99,12 +104,20 @@ public class GlobalPropertiesObjectInspector {
 	   
 	   private void buildGlobalParametersMap(){
 	   	this.globalParametersMap = new HashMap<String, Class<?>>();
+	   	this.globalParameterDefaultValuesMap = new HashMap<String, String>();
 	   	for(Method actMethod : this.globalParametersObject.getClass().getMethods()){
 	   		if(actMethod.getReturnType() != null){ 
 	   			if(isValidReturnType(actMethod.getReturnType())){
 	   				String paramName = null;
 	   				if((paramName = getParameterName(actMethod.getName())) != null){
 	   					globalParametersMap.put(paramName, actMethod.getReturnType());
+	   					try{
+	                     globalParameterDefaultValuesMap.put(paramName, ""+ actMethod.invoke(globalParametersObject, null));
+                     }
+                     catch (Exception e){
+	                   ExceptionDisplayer.getInstance().displayException(e);
+                     }
+                    
 	   				}
 	   			}
 	   		}

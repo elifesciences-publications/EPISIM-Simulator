@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -19,7 +20,10 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
 
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
@@ -31,9 +35,16 @@ public class PropertyFileGeneratorWizard {
 	
 	private JDialog dialog;
 	private JButton okButton;
+	private JComboBox paramTypeCombo;
 	private JPanel propertiesListPanel;
+	private JPanel selectedParametersPanel;
 	private HashSet<String> markerPrefixes;
 	private HashSet<Class<?>> validDataTypes;	
+	private HashSet<String> alreadyAddedParameterNames;
+	private JScrollPane selectedParametersPanelScroll;
+	
+	
+	private PropertyFileType actSelectedParameterType = null;
 	
 	private enum PropertyFileType{
 		CELL_BEHAVIORAL_MODEL_PROPERTIES("Global Cell Behavioral Model Properties"),
@@ -49,6 +60,7 @@ public class PropertyFileGeneratorWizard {
 		
 		markerPrefixes = new HashSet<String>();
 		validDataTypes = new HashSet<Class<?>>();
+		alreadyAddedParameterNames = new HashSet<String>();
 		
 		markerPrefixes.add("get");
 		
@@ -84,11 +96,28 @@ public class PropertyFileGeneratorWizard {
 	   c.anchor =GridBagConstraints.CENTER;
 	   c.fill = GridBagConstraints.BOTH;
 	   c.weightx = 1;
-	   c.weighty =1;
+	   c.weighty =0.4;
 	   c.insets = new Insets(10,10,10,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
 	   propertiesListPanel = new JPanel(new BorderLayout());
-	   dialog.getContentPane().add(propertiesListPanel, c);	  		   
+	   dialog.getContentPane().add(propertiesListPanel, c);
+	   
+	   c.anchor =GridBagConstraints.CENTER;
+	   c.fill = GridBagConstraints.BOTH;
+	   c.weightx = 1;
+	   c.weighty =0.6;
+	   c.insets = new Insets(10,10,10,10);
+	   c.gridwidth = GridBagConstraints.REMAINDER;
+	   selectedParametersPanel = new JPanel(new GridLayout(1,1,5,5));
+	  
+	   JPanel wrapperPanelBorder = new JPanel(new BorderLayout());
+	   wrapperPanelBorder.add(selectedParametersPanel, BorderLayout.NORTH);
+	  
+	   selectedParametersPanelScroll =new JScrollPane(wrapperPanelBorder);
+	   selectedParametersPanelScroll.setViewportBorder(new EmptyBorder(10,10,10,10));
+	   selectedParametersPanelScroll.setBorder(null);
+	   dialog.getContentPane().add(selectedParametersPanelScroll, c);	  	
+	   
 	   
 	   c.anchor =GridBagConstraints.WEST;
 	   c.gridwidth=GridBagConstraints.REMAINDER; 
@@ -109,16 +138,32 @@ public class PropertyFileGeneratorWizard {
 		JPanel comboMenuPanel = new JPanel(new BorderLayout(10, 10));
 		comboMenuPanel.add(new JLabel("Select Properties Filetype: "), BorderLayout.WEST);
 		
-		final JComboBox paramTypeCombo = new JComboBox();
+		paramTypeCombo = new JComboBox();
 		((DefaultComboBoxModel) paramTypeCombo.getModel()).addElement(PropertyFileType.CELL_BEHAVIORAL_MODEL_PROPERTIES);
 		((DefaultComboBoxModel) paramTypeCombo.getModel()).addElement(PropertyFileType.BIOMECHANICAL_MODEL_PROPERTIES);
 		((DefaultComboBoxModel) paramTypeCombo.getModel()).addElement(PropertyFileType.MISC_PROPERTIES);
 		paramTypeCombo.setSelectedIndex(-1);
 		paramTypeCombo.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {				
+				parameterTypeWasChanged();
+			}	
+		});
+		
+		comboMenuPanel.add(paramTypeCombo, BorderLayout.EAST);
+		return comboMenuPanel;
+	}
+	
+	private void parameterTypeWasChanged(){
+		boolean changeParameterType = true;
+		if(!alreadyAddedParameterNames.isEmpty()){
+			changeParameterType = JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(dialog, "Do you really want to discard all already selected Parameters?", "Discard Parameters", JOptionPane.OK_CANCEL_OPTION);
+		}
+		if(changeParameterType){
+			if(paramTypeCombo.getSelectedItem() != null && paramTypeCombo.getSelectedItem() instanceof PropertyFileType){
+				actSelectedParameterType = (PropertyFileType)paramTypeCombo.getSelectedItem();
 				propertiesListPanel.removeAll();
-				
+				selectedParametersPanel.removeAll();
+				alreadyAddedParameterNames = new HashSet<String>();
 				Object selObj = paramTypeCombo.getSelectedItem();
 				Object paramObject = null;
 				if(selObj != null){
@@ -135,26 +180,27 @@ public class PropertyFileGeneratorWizard {
 					if(paramObject != null){
 						final GlobalPropertiesObjectInspector inspector = new GlobalPropertiesObjectInspector(paramObject, markerPrefixes, validDataTypes);
 						inspector.addGlobalParameterSelectionListener(new GlobalParameterSelectionListener(){
-
+		
 							public void parameterWasSelected() {
-								addParameter(inspector.getActualSelectedGlobalParameter(), inspector.getActualSelectedGlobalParameterType());
-	                     
-                     }});
+								addParameter(inspector.getActualSelectedGlobalParameter(), inspector.getActualSelectedGlobalParameterType(), inspector.getActualSelectedGlobalParametersDefaultValue());                  
+		               }});
 						propertiesListPanel.add(inspector.getGlobalParameterListPanel(), BorderLayout.CENTER);
 						dialog.getContentPane().validate();
 						dialog.getContentPane().repaint();
 					}
-				}				
-				
-				
-	         
-         }
-			
-		});
-		
-		comboMenuPanel.add(paramTypeCombo, BorderLayout.EAST);
-		return comboMenuPanel;
+				}
+			}
+		}
+		else{
+			this.paramTypeCombo.setSelectedItem(actSelectedParameterType);
+		}
 	}
+	
+	
+	
+	
+	
+	
 	
 	private JPanel buildButtonPanel() {
 
@@ -174,7 +220,6 @@ public class PropertyFileGeneratorWizard {
 
 			JButton cancelButton = new JButton("Cancel");
 			cancelButton.addActionListener(new ActionListener() {
-
 				public void actionPerformed(ActionEvent e) {										
 					dialog.setVisible(false);
 					dialog.dispose();
@@ -202,8 +247,13 @@ public class PropertyFileGeneratorWizard {
 		((int)(screenDim.getHeight() /2) - (dialog.getHeight()/2)));
 	}	
 	
-	private void addParameter(String parameterName, Class<?> type){
-		
+	private void addParameter(String parameterName, Class<?> type, String defaultValue){
+		if(!this.alreadyAddedParameterNames.contains(parameterName)){			
+			this.alreadyAddedParameterNames.add(parameterName);
+			if(this.selectedParametersPanel.getLayout() instanceof GridLayout) ((GridLayout)this.selectedParametersPanel.getLayout()).setRows(this.alreadyAddedParameterNames.size());
+			this.selectedParametersPanel.add(new PropertyPanel(parameterName, type, defaultValue));
+			dialog.validate();			
+		}
 	}
 
 }

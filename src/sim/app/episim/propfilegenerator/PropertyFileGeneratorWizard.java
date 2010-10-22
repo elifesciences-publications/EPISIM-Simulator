@@ -102,7 +102,8 @@ public class PropertyFileGeneratorWizard {
 	   propertiesListPanel = new JPanel(new BorderLayout());
 	   dialog.getContentPane().add(propertiesListPanel, c);
 	   
-	   c.anchor =GridBagConstraints.CENTER;
+	   c.anchor =GridBagConstraints.CENTER; 
+	   
 	   c.fill = GridBagConstraints.BOTH;
 	   c.weightx = 1;
 	   c.weighty =0.6;

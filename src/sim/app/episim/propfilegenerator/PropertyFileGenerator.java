@@ -134,5 +134,13 @@ public class PropertyFileGenerator {
 		return false;
 	}
 	
+	public static void main(String[] args){
+		double i = 2.3;
+		double step = 0.1;
+		while(true){
+			i += step;
+		}
+	}
+	
 
 }

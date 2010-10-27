@@ -23,7 +23,6 @@ public class SnapshotWriter {
 	
 	public synchronized static SnapshotWriter getInstance(){
 		if(instance == null) instance = new SnapshotWriter();
-		
 		return instance;
 		
 	}

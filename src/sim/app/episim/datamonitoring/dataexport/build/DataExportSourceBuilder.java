@@ -106,14 +106,14 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	      generatedSourceCode.append("  dataExportCSVWriter = new DataExportCSVWriter(new File(\""+ this.actDataExportDefinition.getCSVFilePath().getPath().replace(File.separatorChar, '/')+"\"), \""+ getColumnNamesString()+"\");\n");
    
 	      
-	      long counter = 1;
+	      
 			
 			Map <Long, Long> columnCalculationHandlerIDs = new HashMap<Long, Long>();
 			
 			for(EpisimDataExportColumn column: actDataExportDefinition.getEpisimDataExportColumns()){
 				
-				columnCalculationHandlerIDs.put(column.getId(), (System.currentTimeMillis()+ counter));
-				counter++;
+				columnCalculationHandlerIDs.put(column.getId(), AbstractCommonSourceBuilder.getNextCalculationHandlerId());
+				
 			}
 	      
 		

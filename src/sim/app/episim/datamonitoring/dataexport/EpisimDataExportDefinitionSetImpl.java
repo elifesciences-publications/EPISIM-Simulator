@@ -10,7 +10,7 @@ import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
 public class EpisimDataExportDefinitionSetImpl implements EpisimDataExportDefinitionSet, java.io.Serializable{
 	
-	private List<EpisimDataExportDefinition> episimDataExportDefinitions;
+	private ArrayList<EpisimDataExportDefinition> episimDataExportDefinitions;
 	
 	private String name;
 	
@@ -53,8 +53,10 @@ public class EpisimDataExportDefinitionSetImpl implements EpisimDataExportDefini
 
 	public void updateDataExportDefinition(EpisimDataExportDefinition dataExportDefinition) {
 
-		removeEpisimDataExportDefinition(dataExportDefinition.getId());
-		addEpisimDataExportDefinition(dataExportDefinition);
+		EpisimDataExportDefinition episimDefOld =  getEpisimDataExportDefinition(dataExportDefinition.getId());
+		int index = episimDataExportDefinitions.indexOf(episimDefOld);
+		episimDataExportDefinitions.remove(index);
+		episimDataExportDefinitions.add(index, dataExportDefinition);
 		
 	}
 

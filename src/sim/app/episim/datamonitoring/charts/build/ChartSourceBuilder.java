@@ -184,14 +184,14 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		if(mode == ChartSourceBuilderMode.HISTOGRAMMODE) appendHistogramDatasetInit();
 		
 		
-		long counter = 1;
-		long baselineCalculationHandlerID = System.currentTimeMillis();
+		
+		long baselineCalculationHandlerID = AbstractCommonSourceBuilder.getNextCalculationHandlerId();
 		Map <Long, Long> seriesCalculationHandlerIDs = new HashMap<Long, Long>();
 		if(this.actChart.getBaselineCalculationAlgorithmConfigurator() == null)  baselineCalculationHandlerID = Long.MIN_VALUE;
 		for(EpisimChartSeries series: actChart.getEpisimChartSeries()){
 		
-			seriesCalculationHandlerIDs.put(series.getId(), (System.currentTimeMillis()+ counter));
-			counter++;
+			seriesCalculationHandlerIDs.put(series.getId(), AbstractCommonSourceBuilder.getNextCalculationHandlerId());
+			
 		}
 		
 		appendHandlerRegistration(baselineCalculationHandlerID, seriesCalculationHandlerIDs);

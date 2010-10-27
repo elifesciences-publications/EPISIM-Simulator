@@ -18,6 +18,18 @@ public abstract class  AbstractCommonSourceBuilder {
 	
 	protected StringBuffer generatedSourceCode;
 	
+	private static int counter = 1;
+	
+	
+	protected static synchronized long getNextCalculationHandlerId(){
+		long id = System.currentTimeMillis();
+		id += counter;
+		counter++;
+		return id;
+	}
+	
+	
+	
 	protected void appendRegisterObjectsMethod(Set<Class<?>> requiredClasses){
 		if(requiredClasses != null){
 			this.generatedSourceCode.append("  public void registerRequiredObjects(");

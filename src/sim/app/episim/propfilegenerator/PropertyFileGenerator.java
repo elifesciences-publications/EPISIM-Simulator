@@ -132,17 +132,6 @@ public class PropertyFileGenerator {
 		}
 		return false;
 	}
-<<<<<<< .mine
-=======
-	
-	public static void main(String[] args){
-		double i = 2.3;
-		double step = 0.1;
-		while(true){
-			i += step;
-		}
-	}
-	
 
->>>>>>> .r259
+
 }

@@ -155,7 +155,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				if(snapshotPath.isDirectory()){
 					snapshotPath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP, "EpisimSnapshot", "tss");
 				}
-				setSnapshotPath(snapshotPath);
+				setSnapshotPath(snapshotPath, false);
 			}
 			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP) != null){
 				File cellbehavioralModelFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP));
@@ -401,7 +401,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		
 		if(success){
 			
-			setSnapshotPath(snapshotPath);
+			setSnapshotPath(snapshotPath, true);
 			
 			
 		//	System.out.println("Already Data Export Loaded: " + DataExportController.getInstance().isAlreadyDataExportSetLoaded());
@@ -445,11 +445,11 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	   
    }
 	public void setSnapshotPath(){
-		setSnapshotPath(null);
+		setSnapshotPath(null, false);
 		
 	}
-	protected void setSnapshotPath(File file){
-		if(file == null){
+	protected void setSnapshotPath(File file, boolean modelReload){
+		if(file == null && !modelReload){
 			tssFileChoose.setDialogTitle("Set Snaphot-Path");
 			if(guiMode){
 				if(tssFileChoose.showSaveDialog(mainFrame) == JFileChooser.APPROVE_OPTION) file = tssFileChoose.getSelectedFile();

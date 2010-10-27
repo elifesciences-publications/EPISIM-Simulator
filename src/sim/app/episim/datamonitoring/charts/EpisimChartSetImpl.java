@@ -12,7 +12,7 @@ import episiminterfaces.monitoring.EpisimChartSet;
 
 public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable {
 	
-	private List<EpisimChart> episimCharts;
+	private ArrayList<EpisimChart> episimCharts;
 	
 	private String name;
 	
@@ -45,8 +45,11 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
    }
 
 	public void updateChart(EpisimChart chart){
-		removeEpisimChart(chart.getId());
-		addEpisimChart(chart);
+		
+		EpisimChart oldChart = getEpisimChart(chart.getId());		
+		int index = episimCharts.indexOf(oldChart);
+		episimCharts.remove(index);
+		episimCharts.add(index, chart);
 	}
 	
 	

@@ -24,6 +24,7 @@ public abstract class CalculationDataManagerFactory {
 		if(series != null){
 			final long id = handler.getID();
 			CalculationAlgorithmType calType = getAlgorithmType(handler);
+			
 			if(calType != null){//TODO: hier Unterscheidung für die verschiedenen CalculationAlgorithms einfügen
 				return new CalculationDataManager<Double>(){
 					private CalculationDataManagerType type = CalculationDataManagerType.TWODIMTYPE;

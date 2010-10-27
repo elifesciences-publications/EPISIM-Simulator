@@ -10,6 +10,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -41,7 +42,9 @@ import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
 
 import sim.app.episim.model.ModelController;
+import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotLoader;
+import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
@@ -54,7 +57,7 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public class EpidermisSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener, SnapshotRestartListener{
+public class EpidermisSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener, SnapshotRestartListener, SnapshotListener{
 	
 	public static final String versionID = "1.1.1";
 	
@@ -95,7 +98,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
 				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));
 		
-		
+		 SnapshotWriter.getInstance().addSnapshotListener(this);
 		if(guiMode){
 			mainFrame = new JFrame();
 			mainFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
@@ -345,11 +348,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	        success = false;
          }
 			
-			if(success && SnapshotWriter.getInstance().getSnapshotPath() == null){
-				if(guiMode)JOptionPane.showMessageDialog(mainFrame, "Please specify snapshot path.", "Info", JOptionPane.INFORMATION_MESSAGE);
-				setSnapshotPath();
-				if(SnapshotWriter.getInstance().getSnapshotPath() == null)success = false;
-			}
+			
 			//System.out.println(success);
 			if(success){
 				ChartController.getInstance().rebuildDefaultCharts();
@@ -445,7 +444,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	   }
 	   
    }
-	protected void setSnapshotPath(){
+	public void setSnapshotPath(){
 		setSnapshotPath(null);
 		
 	}
@@ -511,12 +510,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		
 		TissueServer.getInstance().registerTissue(epidermis);		
 		java.awt.geom.Rectangle2D.Double[] deltaInfo = snapshotLoader.getDeltaInfo();
-				if(SnapshotWriter.getInstance().getSnapshotPath() == null){
-					JOptionPane.showMessageDialog(mainFrame, "Please specify snapshot path.", "Info",
-							JOptionPane.INFORMATION_MESSAGE);
-					setSnapshotPath();
-					if(SnapshotWriter.getInstance().getSnapshotPath() == null)success = false;
-				}
+				
 				
 				if(success){
 				
@@ -693,4 +687,9 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
    public Component getMainFrame(){ 
    	return guiMode ? mainFrame : noGUIModeMainPanel; }
+
+	public List<SnapshotObject> collectSnapshotObjects() {
+			//does nothing, is required to Connect the Episim Simulator class to SnapshotWriter, if snapshot-path is not set
+		return new ArrayList<SnapshotObject>();
+   }
 }

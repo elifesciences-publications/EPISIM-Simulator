@@ -45,7 +45,9 @@ import javax.swing.event.DocumentListener;
 
 import episiminterfaces.SimulationConsole;
 
+import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
+import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.model.CellBehavioralModelController;
@@ -61,7 +63,7 @@ import sim.portrayal.SimpleInspector;
 import sim.util.gui.NumberTextField;
 import sim.util.gui.PropertyField;
 
-public class EpisimConsole implements ActionListener{
+public class EpisimConsole implements ActionListener, SimulationStateChangeListener{
 	private Container controllerContainer;
 	
 	private KeyListener keyListener;
@@ -87,7 +89,7 @@ public class EpisimConsole implements ActionListener{
 				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
 				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));	
 		
-		
+		if(simulation instanceof EpidermisGUIState)((EpidermisGUIState)simulation).addSimulationStateChangeListener(this);
 		 if(guiMode){
 			 console = new ConsoleHack(simulation){
 				 public synchronized void pressPlay(){
@@ -217,16 +219,18 @@ public class EpisimConsole implements ActionListener{
       snapshotButton.setIcon(new ImageIcon(ImageLoader.class.getResource("Camera.png")));
       snapshotButton.setPressedIcon(new ImageIcon(ImageLoader.class.getResource("CameraPressed.png")));
       snapshotButton.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
-      if(SnapshotWriter.getInstance().getSnapshotPath() == null){ 
-     	 snapshotButton.setEnabled(false);
-      }
+     
+      snapshotButton.setEnabled(false);
+      
       snapshotButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
 				simulation.state.preCheckpoint();
-				//if(getPlayState() != PS_PAUSED && getPlayState() == PS_PLAYING) pressPause();  
+				boolean snapshotPathWasNull = false;
+				if(getPlayState() != ConsoleHack.PS_PAUSED && getPlayState() == ConsoleHack.PS_PLAYING) pressPause();
+							 
 				SnapshotWriter.getInstance().writeSnapshot();
-				//if(getPlayState() == PS_PAUSED && getPlayState() != PS_PLAYING)pressPause(); 
+				if(getPlayState() == ConsoleHack.PS_PAUSED && getPlayState() != ConsoleHack.PS_PLAYING)pressPause(); 
 				simulation.state.postCheckpoint();
 			}
      	 
@@ -529,7 +533,7 @@ public class EpisimConsole implements ActionListener{
 	   	
 	   	wasStartedOnce = true;  
 	   	((EpidermisGUIState)console.getSimulation()).simulationWasStarted();
-   
+	    snapshotButton.setEnabled(true);	
    	 console.pressPlay(reloadedSnapshot);
    	   	
    	 	   	
@@ -541,7 +545,7 @@ public class EpisimConsole implements ActionListener{
    	if(console instanceof NoGUIConsole){
    		((EpidermisGUIState)console.getSimulation()).simulationWasStopped();
    	}
-   	
+   	snapshotButton.setEnabled(false);
       	
    	console.pressStop();
    }
@@ -633,4 +637,25 @@ public class EpisimConsole implements ActionListener{
 			listener.snapShotRestart();
 		}
 	}
+
+
+	public void simulationWasStarted() {
+
+	   snapshotButton.setEnabled(true);
+	   
+   }
+
+
+	public void simulationWasPaused() {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+
+
+	public void simulationWasStopped() {
+
+	  snapshotButton.setEnabled(false);
+	   
+   }
 }

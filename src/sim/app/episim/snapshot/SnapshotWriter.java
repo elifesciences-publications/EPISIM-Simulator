@@ -7,6 +7,7 @@ import java.io.*;
 import javax.swing.JOptionPane;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.util.ObjectStreamFactory;
 
 
@@ -38,41 +39,51 @@ public class SnapshotWriter {
 	
 	
 	public void writeSnapshot(){
-		File actualSnapshotPath = snapshotPath;
-		if(snapshotPath != null && !snapshotPath.isDirectory()){
-		  try{
-			  if(snapshotPath.exists() && counter <= 1){ 
-				 
-				  snapshotPath.delete();
-				  counter++;
-				}
-			  if(counter > 1 && snapshotPath.exists()){
-				  
-				  actualSnapshotPath = new File(getNewPath(snapshotPath.getAbsolutePath()));
-				  counter++;
-			  }
-			  else if(snapshotPath.exists())counter++;
-			FileOutputStream fOut = new FileOutputStream(actualSnapshotPath);
-			ObjectOutputStream oOut = ObjectStreamFactory.getObjectOutputStreamForInputStream(fOut);
-			
-			for(SnapshotListener listener : listeners){
-				for(SnapshotObject object : listener.collectSnapshotObjects()){
-					
-					oOut.writeObject(object);
+		if(snapshotPath == null){
+			for(SnapshotListener sl : listeners){
+				if(sl instanceof EpidermisSimulator){
+					EpidermisSimulator epiSim = (EpidermisSimulator)sl;
+					epiSim.setSnapshotPath();
 				}
 			}
-			oOut.flush();
-			oOut.close();
 		}
-		catch (Exception e){
-			
-			ExceptionDisplayer.getInstance().displayException(e);
-		}
-		}
-		else{
-			ExceptionDisplayer.getInstance().displayException(new NullPointerException("SnapshotWriter: Filepath was null!"));
-		}
+		if(snapshotPath!=null){
+			File actualSnapshotPath = snapshotPath;
+			if(snapshotPath != null && !snapshotPath.isDirectory()){
+			  try{
+				  if(snapshotPath.exists() && counter <= 1){ 
+					 
+					  snapshotPath.delete();
+					  counter++;
+					}
+				  if(counter > 1 && snapshotPath.exists()){
+					  
+					  actualSnapshotPath = new File(getNewPath(snapshotPath.getAbsolutePath()));
+					  counter++;
+				  }
+				  else if(snapshotPath.exists())counter++;
+				FileOutputStream fOut = new FileOutputStream(actualSnapshotPath);
+				ObjectOutputStream oOut = ObjectStreamFactory.getObjectOutputStreamForInputStream(fOut);
+				
+				for(SnapshotListener listener : listeners){
+					for(SnapshotObject object : listener.collectSnapshotObjects()){
+						
+						oOut.writeObject(object);
+					}
+				}
+				oOut.flush();
+				oOut.close();
+			}
+			catch (Exception e){
+				
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
+			}
+			else{
+				ExceptionDisplayer.getInstance().displayException(new NullPointerException("SnapshotWriter: Filepath was null!"));
+			}
 		
+		}
 	}
 
 	private String getNewPath(String oldPath){

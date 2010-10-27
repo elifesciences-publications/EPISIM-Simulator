@@ -127,12 +127,13 @@ public class PropertyFileGenerator {
 		
 		if(Integer.TYPE.isAssignableFrom(type)
 				|| Short.TYPE.isAssignableFrom(type)
-				|| Byte.TYPE.isAssignableFrom(type)){
-			
+				|| Byte.TYPE.isAssignableFrom(type)){			
 			return true;
 		}
 		return false;
 	}
+<<<<<<< .mine
+=======
 	
 	public static void main(String[] args){
 		double i = 2.3;
@@ -143,4 +144,5 @@ public class PropertyFileGenerator {
 	}
 	
 
+>>>>>>> .r259
 }

@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 import java.util.logging.*;
 
 public class ExceptionDisplayer {
-	private static ExceptionDisplayer instance = new ExceptionDisplayer();;
+	private static ExceptionDisplayer instance;
 	
 	private static Logger logger;
 	private static FileHandler fh;
@@ -26,7 +26,10 @@ public class ExceptionDisplayer {
 			 
 			 try{
 				File logPath = ProjectLocator.getPathOf("log");
-				if(!logPath.exists() && logPath.isDirectory()) logPath.mkdir();
+				
+				if(!logPath.exists()){ 
+					logPath.mkdir();
+				}
 	         fh = new FileHandler(logPath.getAbsolutePath()+System.getProperty("file.separator")+"episimlog.log");
 	         fh.setFormatter(new SimpleFormatter());
 	         logger = Logger.getLogger("Episim Exceptions");
@@ -61,7 +64,7 @@ public class ExceptionDisplayer {
 		/*
 		if(rootComp != null)
 			*/
-		if(loggingState.equals(EpisimProperties.ON_EXCEPTION_LOGGING_VAL)) logger.log(Level.WARNING, "An error occurred during runtime of Episim-Simulator", t);
+		if(loggingState != null && loggingState.equals(EpisimProperties.ON_EXCEPTION_LOGGING_VAL)) logger.log(Level.WARNING, "An error occurred during runtime of Episim-Simulator", t);
 
 		else t.printStackTrace();
 	}

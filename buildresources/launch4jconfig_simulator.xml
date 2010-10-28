@@ -18,5 +18,6 @@
     <minVersion>1.6.0_01</minVersion>
     <maxVersion>1.6.0_17</maxVersion>
     <jdkPreference>jdkOnly</jdkPreference>
+    <opt>-Xss1024k</opt>
   </jre>
 </launch4jConfig>

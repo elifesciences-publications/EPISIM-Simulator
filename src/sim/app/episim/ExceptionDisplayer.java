@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 import java.util.logging.*;
 
 public class ExceptionDisplayer {
-	private static ExceptionDisplayer instance;
+	private static ExceptionDisplayer instance = new ExceptionDisplayer();;
 	
 	private static Logger logger;
 	private static FileHandler fh;
@@ -23,12 +23,13 @@ public class ExceptionDisplayer {
 		
 		if((loggingState=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_LOGGING_PROP)) != null 
 				&& loggingState.equals(EpisimProperties.ON_EXCEPTION_LOGGING_VAL)){
-			 logger = Logger.getLogger("Episim Exceptions");
+			 
 			 try{
 				File logPath = ProjectLocator.getPathOf("log");
 				if(!logPath.exists() && logPath.isDirectory()) logPath.mkdir();
 	         fh = new FileHandler(logPath.getAbsolutePath()+System.getProperty("file.separator")+"episimlog.log");
 	         fh.setFormatter(new SimpleFormatter());
+	         logger = Logger.getLogger("Episim Exceptions");
 	         logger.addHandler(fh);
 	         logger.setLevel(Level.ALL);
 

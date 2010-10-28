@@ -1,1 +1,1 @@
-./jre/bin/java -jar ./bin/Simulator.jar
+./jre/bin/java -Xss1024k -jar ./bin/Simulator.jar

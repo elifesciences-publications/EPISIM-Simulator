@@ -40,6 +40,7 @@
 	<property name="linuxTarGz64bit" value="EpisimSimulator_Linux_64-bit.tar.gz"/>
 	<property name="macTar" value="EpisimSimulator.tar"/>
 	<property name="macTarGz64bit" value="EpisimSimulator_Mac_OSX_64-bit.tar.gz"/>
+	<property name="macApp" value="EpisimSimulator.zip"/>
 
 	<taskdef name="launch4j"
 	    classname="net.sf.launch4j.ant.Launch4jTask"
@@ -330,11 +331,7 @@
 		     target: copyMacFiles64bit              
 		 ================================= -->
 		<target name="copyMacFiles64bit" depends="cleanUpAfter64bitLinuxBuild" description="All necessary files for the 64 bit Mac build">					
-			<copy todir="${currentbuild}/${build}">
-				<fileset dir="${buildres}/mac">
-					<include name="**/*"/>
-				</fileset>
-			</copy>
+			<unzip src="${buildres}/mac/${macApp}" dest="${currentbuild}/${build}"/>
 		</target>
 	<!-- ================================= 
 		          target: build64bitMacArchive              

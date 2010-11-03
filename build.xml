@@ -22,7 +22,7 @@
 
 	<!-- properties of the manifest file -->
 	<property name="author" value="Thomas Suetterlin"/>
-	<property name="version" value="1.1.1"/>
+	<property name="version" value="1.3.0"/>
 	<property name="vendor" value="Hamamatsu TIGA Center"/>
 	<property name="title" value="Episim Simulator"/>
 	<property name="main" value="sim.app.episim.gui.EpidermisSimulator"/>
@@ -31,11 +31,15 @@
 
 	<property name="iconname" value="start.ico"/>
 	<property name="EpisimSimulatorExe" value="EpisimSimulator.exe"/>
-	<property name="EpisimSimulatorSetupExe" value="EpisimSimulatorSetup.exe"/>
+	<property name="EpisimSimulatorSetupExe" value="EpisimSimulatorSetup_Windows_32-bit.exe"/>
 	
-	<property name="linuxJRE" value="jre.zip"/>
+	<property name="linuxJRE32bit" value="jre_32bit.zip"/>
+	<property name="linuxJRE64bit" value="jre_64bit.zip"/>
 	<property name="linuxTar" value="EpisimSimulator.tar"/>
-	<property name="linuxTarGz" value="EpisimSimulator.tar.gz"/>
+	<property name="linuxTarGz32bit" value="EpisimSimulator_Linux_32-bit.tar.gz"/>
+	<property name="linuxTarGz64bit" value="EpisimSimulator_Linux_64-bit.tar.gz"/>
+	<property name="macTar" value="EpisimSimulator.tar"/>
+	<property name="macTarGz64bit" value="EpisimSimulator_Mac_OSX_64-bit.tar.gz"/>
 
 	<taskdef name="launch4j"
 	    classname="net.sf.launch4j.ant.Launch4jTask"
@@ -234,22 +238,21 @@
 	</target>
 	
 	<!-- ================================= 
-	     target: copyLinux              
+	     target: copyLinuxFiles32bit              
 	     ================================= -->
-		<target name="copyLinuxFiles" depends="cleanUpAfterWindowsBuild" description="All necessary files for the Linux build">
-					
+		<target name="copyLinuxFiles32bit" depends="cleanUpAfterWindowsBuild" description="All necessary files for the 32 bit Linux build">					
 			<copy todir="${currentbuild}/${build}">
 				<fileset dir="${buildres}/linux">
 					<include name="*.*"/>
 					<exclude name="*.zip"/>
 				</fileset>
 			</copy>
-			<unzip src="${buildres}/linux/${linuxJRE}" dest="${currentbuild}/${build}/jre"/>
+			<unzip src="${buildres}/linux/${linuxJRE32bit}" dest="${currentbuild}/${build}/jre"/>
 		</target>
 	<!-- ================================= 
-          target: buildLinuxArchive              
+          target: build32bitLinuxArchive              
          ================================= -->
-    <target name="buildLinuxArchive" depends="copyLinuxFiles" description="buildsTheLinuxArchive">
+    <target name="build32bitLinuxArchive" depends="copyLinuxFiles32bit" description="buildsTheLinuxArchive">
     	<tar longfile="gnu" destfile="${currentbuild}/${linuxTar}">
     		<tarfileset filemode="755" dir="${currentbuild}">
     			<include name="${build}/jre/bin/java"/>
@@ -265,19 +268,97 @@
     		</tarfileset>
     	</tar>
     	
-    	<gzip destfile="${currentbuild}/${linuxTarGz}" src="${currentbuild}/${linuxTar}"/>
+    	<gzip destfile="${currentbuild}/${linuxTarGz32bit}" src="${currentbuild}/${linuxTar}"/>
     </target>
-
-
+	
+	
+	<!-- ==================================== 
+	     target: cleanUpAfter32bitLinuxBuild              
+	     ==================================== -->
+	
+	<target name="cleanUpAfter32bitLinuxBuild" depends="build32bitLinuxArchive" description="clean up after building the 32 bit Linux version">
+			<delete includeemptydirs="true" verbose="false">
+				<fileset dir="${currentbuild}/${build}/jre" defaultexcludes="no">
+					<include name="**/*" />
+				</fileset>				
+			</delete>		
+	</target>
+	<!-- ================================= 
+			     target: copyLinuxFiles64bit              
+			     ================================= -->
+		<target name="copyLinuxFiles64bit" depends="cleanUpAfter32bitLinuxBuild" description="All necessary files for the 64 bit Linux build">					
+			
+			<unzip src="${buildres}/linux/${linuxJRE64bit}" dest="${currentbuild}/${build}/jre"/>
+		</target>
+	<!-- ================================= 
+	          target: build64bitLinuxArchive              
+	     ================================= -->
+	    <target name="build64bitLinuxArchive" depends="copyLinuxFiles64bit" description="builds the 64 bit Linux archive">
+	    	<tar longfile="gnu" destfile="${currentbuild}/${linuxTar}">
+	    		<tarfileset filemode="755" dir="${currentbuild}">
+	    			<include name="${build}/jre/bin/java"/>
+	    			<include name="${build}/jre/bin/javac"/>
+	    			<include name="${build}/EpisimSimulatorStart.sh"/>
+	    		</tarfileset>
+	    		<tarfileset dir="${currentbuild}">
+	    			<include name= "**/*"/>
+	    		  	<exclude name="${build}/jre/bin/java"/>
+	    		    <exclude name="${build}/jre/bin/javac"/>
+	    		    <exclude name="${build}/EpisimSimulatorStart.sh"/>
+	    			<exclude name="*.*"/>
+	    		</tarfileset>
+	    	</tar>	    	
+	    	<gzip destfile="${currentbuild}/${linuxTarGz64bit}" src="${currentbuild}/${linuxTar}"/>
+	    </target>
+	
+	<!-- ==================================== 
+		     target: cleanUpAfter64bitLinuxBuild              
+		 ==================================== -->
+		
+		<target name="cleanUpAfter64bitLinuxBuild" depends="build64bitLinuxArchive" description="clean up after building the 64 bit Linux version">
+			<delete includeemptydirs="true" verbose="false">
+				<fileset dir="${currentbuild}/${build}/jre" defaultexcludes="no">
+					<include name="**/*" />
+				</fileset>
+				<fileset dir="${currentbuild}/${build}" defaultexcludes="no">
+					<include name="jre" />
+					<include name="*.*" />
+				</fileset>
+			</delete>
+		</target>
+	<!-- ================================= 
+		     target: copyMacFiles64bit              
+		 ================================= -->
+		<target name="copyMacFiles64bit" depends="cleanUpAfter64bitLinuxBuild" description="All necessary files for the 64 bit Mac build">					
+			<copy todir="${currentbuild}/${build}">
+				<fileset dir="${buildres}/mac">
+					<include name="**/*"/>
+				</fileset>
+			</copy>
+		</target>
+	<!-- ================================= 
+		          target: build64bitMacArchive              
+		 ================================= -->
+		<target name="build64bitMacArchive" depends="copyMacFiles64bit" description="builds the 64 bit Mac archive">
+		    	<tar longfile="gnu" destfile="${currentbuild}/${macTar}">
+		    		<tarfileset dir="${currentbuild}">
+		    			<include name= "**/*"/>
+		    			<exclude name="*.*"/>
+		    		</tarfileset>
+		    	</tar>	    	
+		    	<gzip destfile="${currentbuild}/${macTarGz64bit}" src="${currentbuild}/${macTar}"/>
+		    </target>
+	
 
 
 	<!-- ================================= 
           target: copyBuildFiles              
          ================================= -->
-	<target name="copySetupFiles" depends="buildLinuxArchive" description="the final setup files are copied into a directory with a timestamp">
+	<target name="copySetupFiles" depends="build64bitMacArchive" description="the final setup files are copied into a directory with a timestamp">
 		<tstamp/>
 		<mkdir dir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/windows"/>
 		<mkdir dir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/linux"/>
+		<mkdir dir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/mac"/>
 		<copy todir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/windows">
 			<fileset dir="${currentbuild}">
 				<include name="${EpisimSimulatorSetupExe}"/>
@@ -285,7 +366,13 @@
 		</copy>
 		<copy todir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/linux">
 			<fileset dir="${currentbuild}">
-				<include name="${linuxTarGz}"/>
+				<include name="${linuxTarGz32bit}"/>
+				<include name="${linuxTarGz64bit}"/>
+			</fileset>
+		</copy>
+		<copy todir="${builddirectory}/${DSTAMP}-${TSTAMP}-EpisimBuild/mac">
+			<fileset dir="${currentbuild}">
+				<include name="${macTarGz64bit}"/>
 			</fileset>
 		</copy>
 	</target>

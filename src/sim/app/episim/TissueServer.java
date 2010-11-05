@@ -1,6 +1,7 @@
 package sim.app.episim;
 
 import episimexceptions.NoEpidermalTissueAvailableException;
+import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueType;
 
 

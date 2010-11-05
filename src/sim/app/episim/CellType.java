@@ -1,9 +1,15 @@
 package sim.app.episim;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 import java.util.List;
 
+import episimbiomechanics.EpisimModelIntegrator;
+import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.ModelController;
 import sim.app.episim.visualization.CellEllipse;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -28,11 +34,27 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    
    private CellEllipse cellEllipseObject;
    
-   public CellType(long identity, long motherIdentity){
+   private Stoppable stoppable = null;
+   
+   private List<CellDeathListener> cellDeathListeners;
+      
+   private EpisimCellBehavioralModel cellBehavioralModelObjekt;
+   
+   private SimState actSimState;
+   
+   public CellType(long identity, long motherIdentity, EpisimCellBehavioralModel cellBehavioralModel){
    	inNirvana=false;
    	isOuterCell=false;
    	this.id = identity;
    	this.motherId = motherIdentity;
+   	
+   	this.cellBehavioralModelObjekt = cellBehavioralModel;
+   	if(cellBehavioralModel == null) this.cellBehavioralModelObjekt = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
+   	else cellBehavioralModel.setEpisimModelIntegrator((EpisimModelIntegrator)ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel());
+   	
+   	cellDeathListeners = new LinkedList<CellDeathListener>();      
+      cellDeathListeners.add(TissueServer.getInstance().getActEpidermalTissue());      
+      cellDeathListeners.add(GlobalStatistics.getInstance());
    }
 	
    public synchronized static  final long getNextCellId(){
@@ -42,20 +64,7 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    
 	public abstract String getCellName();
 	
-	public abstract Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass();
-	
-	
-	public abstract EpisimCellBehavioralModel getEpisimCellBehavioralModelObject();
-	
-	
 	public abstract List<Method> getParameters();
-	
-	public abstract void killCell();
-	
-	public abstract SimState getActSimState();
-	
-	
-	
 	
 	public boolean isInNirvana() { return inNirvana; }
 	public void setInNirvana(boolean inNirvana) { this.inNirvana = inNirvana; }
@@ -85,6 +94,8 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    
    	this.tracked = tracked;
    }
+   
+   public void setStoppable(Stoppable stopperparam)   { this.stoppable = stopperparam;}
 	
    protected void setNeighbouringCells(CellType[] neighbours){
    	this.neighbouringCells = neighbours;
@@ -100,6 +111,44 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    
    public CellEllipse getCellEllipseObject(){
    	return this.cellEllipseObject;
+   }
+   public void stop(){	
+   	
+	}
+	public void removeFromSchedule(){
+		if(stoppable != null) stoppable.stop();			
+	}
+	
+	public EpisimCellBehavioralModel getEpisimCellBehavioralModelObject(){
+		return this.cellBehavioralModelObjekt;
+	}
+	
+   public Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass() {
+	  
+	   return this.cellBehavioralModelObjekt.getClass();
+   }
+	
+   public SimState getActSimState() { return this.actSimState; }
+   
+   public void removeCellDeathListener(){
+  	 this.cellDeathListeners.clear();
+   }    
+   public void addCellDeathListener(CellDeathListener listener){
+  	 this.cellDeathListeners.add(listener);
+   }
+   public void killCell(){
+   	 
+  	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
+  	 
+  	 setInNirvana(true);
+  	 this.getEpisimCellBehavioralModelObject().setIsAlive(false);
+  	 removeFromSchedule();  	
+   }
+   
+   
+   public void step(SimState state) {
+		
+		this.actSimState = state;
    }
 	
 }

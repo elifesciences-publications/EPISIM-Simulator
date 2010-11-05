@@ -62,7 +62,7 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 
 		public void restartSimulation() {
 
-		   // TODO Auto-generated method stub
+		   // do nothing
 		   
 	   }
 

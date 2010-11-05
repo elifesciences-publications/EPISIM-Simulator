@@ -7,8 +7,10 @@ import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.model.BioMechanicalModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissue.TissueType.SchedulePriority;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
@@ -22,6 +24,7 @@ import episimbiomechanics.EpisimModelIntegrator;
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimDifferentiationLevel;
 import sim.app.episim.util.*;
 import java.awt.Color;
 import java.awt.geom.Area;
@@ -94,21 +97,14 @@ public class KCyte extends CellType
    private int hasGivenIons=0;
 
   
-   private List<CellDeathListener> cellDeathListeners;
+   
   
    
-   private Stoppable stoppable = null;
    
-   ///////////////////////////////////////////////////////////
-   // THE CELL DIFFERENTIATION MODEL
-   ///////////////////////////////////////////////////////////
    
-   private EpisimCellBehavioralModel cellBehavioralModelObjekt;
+  
    
-   private SimState actSimState;
-   
-   private static Set<String> methodsNamesBlockedForParameterInspector;
-   
+   private static Set<String> methodsNamesBlockedForParameterInspector;   
    {
    	methodsNamesBlockedForParameterInspector = new HashSet<String>();
    	methodsNamesBlockedForParameterInspector.add("getParameter");
@@ -127,23 +123,17 @@ public class KCyte extends CellType
     public KCyte(long id, long motherId, EpisimCellBehavioralModel cellBehavioralModel)
     {   	 
    	 
-   	 super(id, motherId);
-   	        
-    	 this.cellBehavioralModelObjekt = cellBehavioralModel;
-    	 if(cellBehavioralModel == null) this.cellBehavioralModelObjekt = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
-    	 else cellBehavioralModel.setEpisimModelIntegrator((EpisimModelIntegrator)ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel());
+   	 super(id, motherId, cellBehavioralModel);   	
+    	 
+    	 
     	 extForce=new Vector2D(0,0);
-       cellDeathListeners = new LinkedList<CellDeathListener>();
        
-       cellDeathListeners.add(TissueServer.getInstance().getActEpidermalTissue());
-       
-       cellDeathListeners.add(GlobalStatistics.getInstance());
        
        keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
        keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize; 
          
                
-       CellEllipse ellipse = new CellEllipse(this.getID(), ((int)this.cellBehavioralModelObjekt.getX()), ((int)this.cellBehavioralModelObjekt.getY()), keratinoWidth, keratinoHeight, Color.BLUE);
+       CellEllipse ellipse = new CellEllipse(this.getID(), ((int)this.getEpisimCellBehavioralModelObject().getX()), ((int)this.getEpisimCellBehavioralModelObject().getY()), keratinoWidth, keratinoHeight, Color.BLUE);
        this.setCellEllipseObject(ellipse);
                           
        lastd=new Double2D(0.0,-3);
@@ -169,12 +159,7 @@ public class KCyte extends CellType
     {
         return lastd;
     }  
-    public void removeCellDeathListener(){
-   	 this.cellDeathListeners.clear();
-    }    
-    public void addCellDeathListener(CellDeathListener listener){
-   	 this.cellDeathListeners.add(listener);
-    }    
+    
     public final Double2D forceFromBound(Continuous2D pC2dHerd, double x) // Calculate the Force orthogonal to lower bound
     {        
         double yleft=TissueController.getInstance().getTissueBorder().lowerBound(pC2dHerd.stx(x-5));
@@ -230,7 +215,7 @@ public class KCyte extends CellType
         //double adyOpt = 5; // 3+theEpidermis.cellSpace;
         
         
-        if (this.cellBehavioralModelObjekt.getDifferentiation()==EpisimCellBehavioralModelGlobalParameters.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
+        if (this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal()==EpisimDifferentiationLevel.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
         
         double optDistSq = adxOpt*adxOpt; //+adyOpt*adyOpt;
         double optDist=Math.sqrt(optDistSq);
@@ -285,18 +270,7 @@ public class KCyte extends CellType
                                        
                                 }
 
-                    else // attraction forces 
-                    {
-                        double adhfac=ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().gibAdh_array(this.cellBehavioralModelObjekt.getDifferentiation(), other.getEpisimCellBehavioralModelObject().getDifferentiation());                           
-                        if (actdist-optDist<ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getAdhesionDist())
-                                    {                                                   
-                                            double sx=dx-dx*optDist/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
-                                            double sy=dy-dy*optDist/actdist;
-                                            //if (pressothers)
-                                            //    other.extForce=other.extForce.add(new Vector2D(sx,sy)); //von mir wegzeigende kraefte addieren                                                                                      
-                                            hitResult.adhForce=hitResult.adhForce.add(new Vector2D(-sx*adhfac,-sy*adhfac/5.0)); // minus, cause: dx,dy is way from other to this: minus=way to other
-                                    }                                               
-                    }
+                   
 
                     // all the shit that happens in the neighborhood
                     // consistency = neighborhood momentum
@@ -393,7 +367,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
         cellBehavioralModel.setId((int)kcyte.getID());
            
             
-        Stoppable stoppable = TissueServer.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, 1, 1);   // schedule only if not already running
+        Stoppable stoppable = TissueServer.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
         kcyte.setStoppable(stoppable);
           
         double deltaX = TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25;
@@ -478,7 +452,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
     }
    
     private boolean isSurfaceCell(EpisimCellBehavioralModel[] neighbours){
-   	 if(this.cellBehavioralModelObjekt.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.STEMCELL) return false;
+   	 if(this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.STEMCELL) return false;
    	 else{
    		
    		 int leftSideNeighbours = 0;
@@ -508,17 +482,17 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
      	 this.setNeighbouringCells(realNeighbours);
      	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(realNeighbours);
    	// setIsOuterCell(isSurfaceCell(realNeighbours));
-   	 this.cellBehavioralModelObjekt.setX(thisloc.getX());
-   	 this.cellBehavioralModelObjekt.setY(TissueController.getInstance().getTissueBorder().getHeight()- thisloc.getY());
-   	 this.cellBehavioralModelObjekt.setIsMembrane(isMembraneCell());
-   	 this.cellBehavioralModelObjekt.setIsSurface(isOuterCell() || nextToOuterCell);
-   	 this.cellBehavioralModelObjekt.setHasCollision(hasCollision);
-   	 if(this.cellBehavioralModelObjekt.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.STEMCELL) this.cellBehavioralModelObjekt.setAge(0);
-   	 else this.cellBehavioralModelObjekt.setAge(this.cellBehavioralModelObjekt.getAge()+1);
+   	 this.getEpisimCellBehavioralModelObject().setX(thisloc.getX());
+   	 this.getEpisimCellBehavioralModelObject().setY(TissueController.getInstance().getTissueBorder().getHeight()- thisloc.getY());
+   	 this.getEpisimCellBehavioralModelObject().setIsMembrane(isMembraneCell());
+   	 this.getEpisimCellBehavioralModelObject().setIsSurface(isOuterCell() || nextToOuterCell);
+   	 this.getEpisimCellBehavioralModelObject().setHasCollision(hasCollision);
+   	 if(this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
+   	 else this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);
    	 	  	 
    	
 		
-   	 EpisimCellBehavioralModel[] children = this.cellBehavioralModelObjekt.oneStep(realNeighboursDiffModel);
+   	 EpisimCellBehavioralModel[] children = this.getEpisimCellBehavioralModelObject().oneStep(realNeighboursDiffModel);
 		/*	long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
 			long deltaTimeTmp = timeAfter-timeBefore;
@@ -546,12 +520,12 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 			deltaTime +=deltaTimeTmp;		*/
    	
    	 makeChildren(children);
-   	 if(this.cellBehavioralModelObjekt.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.GRANUCELL){
+   	 if(this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.GRANUCELL){
    	 	setKeratinoWidth(getGKeratinoWidthGranu());
    		setKeratinoHeight(getGKeratinoHeightGranu());
    		this.getCellEllipseObject().setMajorAxisAndMinorAxis(getGKeratinoWidthGranu(), getGKeratinoHeightGranu());
    	}
-      if (!this.cellBehavioralModelObjekt.getIsAlive()) // && (isOuterCell))
+      if (!this.getEpisimCellBehavioralModelObject().getIsAlive()) // && (isOuterCell))
       {
             killCell();
       }
@@ -562,23 +536,14 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
    	 if(children!=null){
    		 for(EpisimCellBehavioralModel actChild: children){
    			 
-   			 if(actChild.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.TACELL) makeTACell(actChild);
-   			 else if(actChild.getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL) makeSpiCell(actChild);
+   			 if(actChild.getDifferentiation().ordinal() == EpisimDifferentiationLevel.TACELL) makeTACell(actChild);
+   			 else if(actChild.getDifferentiation().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL) makeSpiCell(actChild);
    		 }
    	 }
     }
 
     
-    public void killCell(){
-   	    	 
-   	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
-   	 this.cellBehavioralModelObjekt.setDifferentiation(EpisimCellBehavioralModelGlobalParameters.KTYPE_NIRVANA);
-   	 
-   	 setInNirvana(true);
-   	 this.cellBehavioralModelObjekt.setIsAlive(false);
-   	 removeFromSchedule();
-   	
-    }
+   
     
     private void calculatePolygons(){
    	 
@@ -609,12 +574,10 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
  // static  long deltaTime = 0;
 	public void step(SimState state) {
 		
-		this.actSimState = state;
-
-		final Epidermis epiderm = (Epidermis) state;
+		super.step(state);
+		final Epidermis epiderm = (Epidermis) state;		
 		
-		
-		if(isInNirvana() || !this.cellBehavioralModelObjekt.getIsAlive()){
+		if(isInNirvana() || !this.getEpisimCellBehavioralModelObject().getIsAlive()){
 			
 
 			removeFromSchedule();
@@ -626,8 +589,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 			// ////////////////////////////////////////////////
 			// calculate ACTION force
 			// ////////////////////////////////////////////////
-			int ministep = 1;
-			int maxmini = 1;
+			
 			
 			// Double2D rand = randomness(flock.random);
 			// Double2D mome = momentum();
@@ -660,17 +622,17 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 			extForce.x = 0; // alles einberechnet
 			extForce.y = 0;
 
-			// ////////////////////////////////////////////////
+			//////////////////////////////////////////////////
 			// try ACTION force
-			// ////////////////////////////////////////////////
+			//////////////////////////////////////////////////
 			Bag b = epiderm.getCellContinous2D().getObjectsWithinDistance(potentialLoc,
 					ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
 			HitResultClass hitResult1;
 			hitResult1 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
-			// ////////////////////////////////////////////////
+			//////////////////////////////////////////////////
 			// estimate optimised POS from REACTION force
-			// ////////////////////////////////////////////////
+			//////////////////////////////////////////////////
 			// optimise my own position by giving way to the calculated pressures
 			Vector2D reactionForce = extForce;
 			reactionForce = reactionForce.add(hitResult1.otherMomentum.amplify(CONSISTENCY));
@@ -719,7 +681,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 			hitResult2 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
 			// move only on pressure when not stem cell
-			if(this.cellBehavioralModelObjekt.getDifferentiation() != EpisimCellBehavioralModelGlobalParameters.STEMCELL){
+			if(this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() != EpisimDifferentiationLevel.STEMCELL){
 				if((hitResult2.numhits == 0)
 						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.getMotherID()) || (hitResult2.otherMotherId == this.getID())))){
 					double dx = potentialLoc.x - oldLoc.x;
@@ -767,12 +729,12 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 			
 			
 			//Ellipse Visualization is activated
-			if(MiscalleneousGlobalParameters.getInstance().getTypeColor() ==8){
+			if(MiscalleneousGlobalParameters.instance().getTypeColor() ==8){
 				calculateClippedCell();
 			}
 			
 			//Polygon Visualization is activated
-			if(MiscalleneousGlobalParameters.getInstance().getTypeColor() ==10){
+			if(MiscalleneousGlobalParameters.instance().getTypeColor() ==10){
 				 calculateClippedCell();
         	  Calculators.calculateCellPolygons(getCellEllipseObject());
         	  Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(getCellEllipseObject().getId()));
@@ -819,19 +781,14 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 		for(Method m : this.getClass().getMethods()){
 			if((m.getName().startsWith("get") && !methodsNamesBlockedForParameterInspector.contains(m.getName())) || m.getName().startsWith("is")) methods.add(m);
 		}
-		for(Method m : this.cellBehavioralModelObjekt.getClass().getMethods()){
+		for(Method m : this.getEpisimCellBehavioralModelClass().getMethods()){
 			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
 		}
 		return methods;
 	}
 	
 	
-	public void stop(){	
 	
-	}
-	public void removeFromSchedule(){
-		if(stoppable != null) stoppable.stop();			
-	}
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 // GETTER-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -857,18 +814,8 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 	public String getCellName() { return NAME; }
 	
 	public int getOwnColor() {	return ownColor; }
-
-	
-	
-	
-	
-   
-	
-	
 	
 	public boolean isBirthWish() { return birthWish; }   // for inspector
-	
-	
 	
 
     
@@ -876,13 +823,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 // SETTER-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	
-	
-	
-	
-	
-	
-	public void setHasGivenIons(int hasGivenIons) {	this.hasGivenIons = hasGivenIons; }	
+		public void setHasGivenIons(int hasGivenIons) {	this.hasGivenIons = hasGivenIons; }	
 	
 	public void setKeratinoHeight(int keratinoHeight) { this.keratinoHeight = keratinoHeight;	}
 	
@@ -891,25 +832,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 	public void setLocal_maxAge(long local_maxAge) { this.local_maxAge = local_maxAge; }	
 		
 	public void setOwnColor(int ownColor) { this.ownColor = ownColor; }	
-	
-	public void setStoppable(Stoppable stopperparam)   { this.stoppable = stopperparam;}
-   	
-	public EpisimCellBehavioralModel getEpisimCellBehavioralModelObject(){
-		return this.cellBehavioralModelObjekt;
-	}
-	
-   public Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass() {
-	  
-	   return this.cellBehavioralModelObjekt.getClass();
-   }
-	
-   public SimState getActSimState() { return this.actSimState; }
-	
-   
-   
-  // public KCyte 
-   
-   
+	   
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 

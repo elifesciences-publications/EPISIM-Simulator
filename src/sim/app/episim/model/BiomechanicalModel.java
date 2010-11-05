@@ -5,6 +5,7 @@ package sim.app.episim.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import episimbiomechanics.EpisimDefaultModelIntegrator;
 import episimbiomechanics.EpisimModelIntegrator;
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
@@ -48,7 +49,7 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 	}
 	
 	public EpisimMechanicalModel getEpisimMechanicalModel() {
-		return new EpisimModelIntegrator();
+		return new EpisimDefaultModelIntegrator();
 	}
 	
 	public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {

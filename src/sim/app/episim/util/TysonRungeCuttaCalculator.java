@@ -3,6 +3,7 @@ package sim.app.episim.util;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.ModelController;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
@@ -112,23 +113,20 @@ public class TysonRungeCuttaCalculator {
 		
 		 }
       catch (SecurityException e){
-	      // TODO Auto-generated catch block
-	      e.printStackTrace();
+      	ExceptionDisplayer.getInstance().displayException(e);
       }
       catch (NoSuchMethodException e){
-	      System.out.println("Tyson Cellcycle is not available!");
+      	ExceptionDisplayer.getInstance().displayException(e); 
+      	System.out.println("Tyson Cellcycle is not available!");
       }
       catch (IllegalArgumentException e){
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+      	ExceptionDisplayer.getInstance().displayException(e);
       }
       catch (IllegalAccessException e){
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+      	ExceptionDisplayer.getInstance().displayException(e);
       }
       catch (InvocationTargetException e){
-         // TODO Auto-generated catch block
-         e.printStackTrace();
+      	ExceptionDisplayer.getInstance().displayException(e);
       }
 		
 		

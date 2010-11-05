@@ -8,11 +8,11 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 import sim.app.episim.CellType;
-import sim.app.episim.Epidermis;
 
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.tissue.Epidermis;
 import sim.engine.SimStateHack.TimeSteps;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
@@ -58,7 +58,7 @@ public class SnapshotLoader {
 					
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.MISCALLENEOUSGLOBALPARAMETERS)){
-					MiscalleneousGlobalParameters.getInstance().reloadMiscalleneousGlobalParametersObject((MiscalleneousGlobalParameters) sObj.getSnapshotObject());
+					MiscalleneousGlobalParameters.instance().reloadMiscalleneousGlobalParametersObject((MiscalleneousGlobalParameters) sObj.getSnapshotObject());
 					
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.WOUND)){
@@ -71,7 +71,7 @@ public class SnapshotLoader {
 				
 			}
 		
-			SnapshotWriter.getInstance().addSnapshotListener(MiscalleneousGlobalParameters.getInstance());
+			SnapshotWriter.getInstance().addSnapshotListener(MiscalleneousGlobalParameters.instance());
 	}
 		else throw new IllegalArgumentException("Snapshot-Path and/or Model-File-Path is null");	
 }

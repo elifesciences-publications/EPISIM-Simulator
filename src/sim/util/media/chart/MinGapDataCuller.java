@@ -253,12 +253,12 @@ public class MinGapDataCuller implements DataCuller
                 if(rightRecord!=null)
                     {
                     if(rightRecord.leftGap!=result.rightGap)
-                        throw new RuntimeException("BUG");//TODO delete these checks
+                        throw new RuntimeException("BUG");
                     }
                 if(leftRecord!=null)
                     {
                     if(leftRecord.rightGap!=result.leftGap)
-                        throw new RuntimeException("BUG");//TODO delete these checks
+                        throw new RuntimeException("BUG");
                     //leftRecord.rightGap+=result.rightGap;
                     leftRecord.setRightGap(result.key);
                     leftRecord.rightRecord = result.rightRecord;

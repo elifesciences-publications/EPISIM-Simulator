@@ -6,6 +6,8 @@ import java.net.MalformedURLException;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimCellType;
+import episiminterfaces.EpisimDifferentiationLevel;
 
 
 import sim.app.episim.ExceptionDisplayer;
@@ -79,6 +81,11 @@ public class CellBehavioralModelController implements java.io.Serializable{
 		return cellBehavioralModel.getEpisimCellBehavioralModelGlobalParameters();
 	}
 	
+	public EpisimCellType[] getAvailableCellTypes(){ return getNewEpisimCellBehavioralModelObject().getAvailableCellTypes(); }
+	public EpisimCellType getCellTypeForOrdinal(int ordinal){ return getNewEpisimCellBehavioralModelObject().getCellTypeForOrdinal(ordinal); }
+	
+	public EpisimDifferentiationLevel[] getAvailableDifferentiationLevels(){ return getNewEpisimCellBehavioralModelObject().getAvailableDifferentiationLevels(); }
+	public EpisimDifferentiationLevel getDifferentiationLevelForOrdinal(int ordinal){ return getNewEpisimCellBehavioralModelObject().getDifferentiationLevelForOrdinal(ordinal); }
 	
 	
 	public void resetInitialGlobalValues(){

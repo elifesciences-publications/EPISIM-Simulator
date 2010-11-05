@@ -58,6 +58,24 @@ public class EpisimTextOut{
 
 			
 	    });
+		
+		EpidermisSimulator.standardOutputStream.addWriteListener(new ByteArrayWriteListener()
+	    {
+	       
+	       public void textWasWritten(WriteEvent event)
+	       {	          
+	          Object source = event.getSource();
+	          if(source instanceof ByteArrayOutputStream){
+	         	 ByteArrayOutputStream stream = (ByteArrayOutputStream) source;
+		      	 StringBuffer buffer = new StringBuffer();
+		      	 buffer.append(new String(stream.toByteArray()));
+		          print(buffer.toString(), Color.BLUE);
+		          stream.reset(); 
+	          }
+	       }
+
+			
+	    });
 	
 	}
 	

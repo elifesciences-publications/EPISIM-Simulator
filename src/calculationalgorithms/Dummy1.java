@@ -48,26 +48,26 @@ public class Dummy1{
 
 	public void registerCells(GenericBag<CellType> allCells) {
 
-	   // TODO Auto-generated method stub
+	  
 	   
    }
 
 	
 	public void reset() {
 
-	   // TODO Auto-generated method stub
+	  
 	   
    }
 
 	public void restartSimulation() {
 
-	   // TODO Auto-generated method stub
+	   
 	   
    }
 
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
 
-	   // TODO Auto-generated method stub
+	  
 	   
    }
 

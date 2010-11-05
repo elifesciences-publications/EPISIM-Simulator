@@ -2,7 +2,6 @@ package sim.app.episim.gui;
 
 import sim.SimStateServer;
 import sim.engine.*;
-import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.KCyte;
 import sim.app.episim.KCyteInspector;
@@ -17,6 +16,7 @@ import sim.app.episim.devBasalLayer.EpidermisDev;
 import sim.app.episim.model.CellBehavioralModelController;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
 import sim.app.episim.model.ModelController;
+import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueType;
@@ -187,7 +187,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	public Inspector getMiscalleneousInspector() {
 
-		Object miscalleneous = MiscalleneousGlobalParameters.getInstance();
+		Object miscalleneous = MiscalleneousGlobalParameters.instance();
 		if(miscalleneous == null)
 			return null;
 		Inspector i = new SimpleInspector(miscalleneous, this);

@@ -7,7 +7,7 @@ import java.util.Vector;
 public class ObservedByteArrayOutputStream extends ByteArrayOutputStream
 {
   
-  Vector<ByteArrayWriteListener> listeners;
+  Vector<ByteArrayWriteListener> listeners = new Vector<ByteArrayWriteListener>();
  
  
   

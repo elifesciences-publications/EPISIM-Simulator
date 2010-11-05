@@ -17,6 +17,7 @@ import java.awt.*;
 import java.awt.geom.*;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimDifferentiationLevel;
 
 
 
@@ -79,19 +80,18 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 }
                 
                
-                int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDifferentiation();                                
-                int colorType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
+                int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();                                
+                int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();
                 
                 
-                if(keratinoType == EpisimCellBehavioralModelGlobalParameters.STEMCELL
-                  	 || keratinoType == EpisimCellBehavioralModelGlobalParameters.TACELL
-                  	 || keratinoType == EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL
-                  	 || keratinoType == EpisimCellBehavioralModelGlobalParameters.LATESPICELL){ 
+                if(keratinoType == EpisimDifferentiationLevel.STEMCELL
+                  	 || keratinoType == EpisimDifferentiationLevel.TACELL
+                  	 || keratinoType == EpisimDifferentiationLevel.EARLYSPICELL
+                  	 || keratinoType == EpisimDifferentiationLevel.LATESPICELL){ 
                   	 showNucleus=true; 
                   	 drawFrame=true;
                    } 
-                else if(keratinoType == EpisimCellBehavioralModelGlobalParameters.KTYPE_NONUCLEUS 
-                  		 || keratinoType == EpisimCellBehavioralModelGlobalParameters.GRANUCELL){ 
+                else if(keratinoType == EpisimDifferentiationLevel.GRANUCELL){ 
                   	 drawFrame=true;                  	 
                   	 showNucleus=false;
                 }
@@ -238,8 +238,8 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    
    
    private Color getFillColor(KCyte kcyte){
-   	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDifferentiation();                                
-      int coloringType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
+   	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();                                
+      int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
    	//
       // set colors
       //
@@ -252,12 +252,12 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             
       if ((coloringType==1) || (coloringType==2) || (coloringType==8) || (coloringType ==10))  // Cell type coloring
       {              
-        	   if(keratinoType == EpisimCellBehavioralModelGlobalParameters.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
-        	   else if(keratinoType == EpisimCellBehavioralModelGlobalParameters.TACELL){red=148; green=167; blue=214;}                             
-        	   else if(keratinoType == EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL){red=0xE1; green=0x6B; blue=0xF6;}
-        	   else if(keratinoType == EpisimCellBehavioralModelGlobalParameters.LATESPICELL){red=0xC1; green=0x4B; blue=0xE6;}
-        	   else if(keratinoType == EpisimCellBehavioralModelGlobalParameters.GRANUCELL){red=204; green=0; blue=102;}
-        	   else if(keratinoType == EpisimCellBehavioralModelGlobalParameters.KTYPE_NONUCLEUS){red=198; green=148; blue=60;}
+        	   if(keratinoType == EpisimDifferentiationLevel.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
+        	   else if(keratinoType == EpisimDifferentiationLevel.TACELL){red=148; green=167; blue=214;}                             
+        	   else if(keratinoType == EpisimDifferentiationLevel.EARLYSPICELL){red=0xE1; green=0x6B; blue=0xF6;}
+        	   else if(keratinoType == EpisimDifferentiationLevel.LATESPICELL){red=0xC1; green=0x4B; blue=0xE6;}
+        	   else if(keratinoType == EpisimDifferentiationLevel.GRANUCELL){red=204; green=0; blue=102;}
+        	  
               
             if((kcyte.isOuterCell()) && (coloringType==2)){red=0xF3; green=0xBE; blue=0x4E;}        
             if((kcyte.isMembraneCell()) && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
@@ -268,7 +268,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
               red=255;
               green=calculatedColorValue;                        
               blue=calculatedColorValue;
-              if (keratinoType== EpisimCellBehavioralModelGlobalParameters.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
+              if (keratinoType== EpisimDifferentiationLevel.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
        }
        if ((coloringType==4))  // Calcium coloring
        {
@@ -317,7 +317,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    private Color getContourColor(KCyte kcyte){
    	Color myFrameColor = Color.white; //new Color(Red, Green, Blue);
    	                               
-      int coloringType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
+      int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
    	myFrameColor=new Color(200, 165, 200);                
    	if (coloringType==3 || coloringType==4 || coloringType==5 || coloringType==6 || coloringType==7 || coloringType==9) // Age coloring
    	{

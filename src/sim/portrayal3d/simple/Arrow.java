@@ -84,7 +84,7 @@ public class Arrow extends TransformGroup
         //if v lies ofn Oy, then axis =[0,0,0]. No rotation is needed
         if(axis.length()!=0)
             {
-            //TODO I should use rodrigues formula here
+            
             caTransform.setRotation(new AxisAngle4d(axis, Math.asin(axis.length()
                         / v.length())));
             // axis.length() must be v.length() both doubles or floats, otherwise

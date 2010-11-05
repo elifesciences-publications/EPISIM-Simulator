@@ -68,7 +68,7 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
 
 	public void restartSimulation() {
 
-	   // TODO Auto-generated method stub
+	   // do nothing
 	   
    }
 

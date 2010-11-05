@@ -266,7 +266,7 @@ public class PropertyFileGeneratorWizard {
 						paramObject = ModelController.getInstance().getEpisimMechanicalModelGlobalParameters();
 					}
 					else if(selObj == PropertyFileType.MISC_PROPERTIES){
-						paramObject = MiscalleneousGlobalParameters.getInstance();
+						paramObject = MiscalleneousGlobalParameters.instance();
 					}
 					
 					if(paramObject != null){

@@ -24,14 +24,13 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Snap
 	}
 	
 	
-	public String getTypeColorName() {
-
+	public String getTypeColorName(){
 		if((typeColor < 1) || (typeColor >= typeString.length))
 			typeColor = 1;
 		return typeString[typeColor];
 	}
 	
-	public static synchronized MiscalleneousGlobalParameters getInstance(){
+	public static synchronized MiscalleneousGlobalParameters instance(){
 		if(instance == null){ 
 			instance = new MiscalleneousGlobalParameters();
 			resetinstance = new MiscalleneousGlobalParameters();

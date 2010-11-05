@@ -16,9 +16,9 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
-	import sim.app.episim.Epidermis;
 	import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.KCyte;
+import sim.app.episim.tissue.Epidermis;
 
 
 	public class BioMechanicalModelController implements java.io.Serializable{

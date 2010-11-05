@@ -3,6 +3,6 @@ package episiminterfaces;
 
 public interface EpisimMechanicalModel {
 	
-	public static final String DUMMYVERSION = "2010-01-01";
+	public static final String DUMMYVERSION = "2010-05-13";
 
 }

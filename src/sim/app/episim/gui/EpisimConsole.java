@@ -443,7 +443,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				if(pressedButton.getActionCommand() != null){
 					if(pressedButton.getActionCommand().equals(Names.BIOCHEMMODEL))ModelController.getInstance().getCellBehavioralModelController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MECHMODEL))ModelController.getInstance().getBioMechanicalModelController().resetInitialGlobalValues();
-					else if(pressedButton.getActionCommand().equals(Names.MISCALLENEOUS))MiscalleneousGlobalParameters.getInstance().resetInitialGlobalValues();
+					else if(pressedButton.getActionCommand().equals(Names.MISCALLENEOUS))MiscalleneousGlobalParameters.instance().resetInitialGlobalValues();
 				}
 				this.clickRefreshButtons();
 				if(console.getPlayState() == ConsoleHack.PS_PAUSED)console.pressPause();
@@ -648,7 +648,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 
 	public void simulationWasPaused() {
 
-	   // TODO Auto-generated method stub
+	   // Do nothing
 	   
    }
 

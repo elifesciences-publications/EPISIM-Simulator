@@ -17,6 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import sim.app.episim.ExceptionDisplayer;
+
 import ec.util.MersenneTwisterFast;
 
 
@@ -139,8 +141,7 @@ public class TestVisualizationBiomechanics {
 	            Thread.sleep(500);
             }
             catch (InterruptedException e){
-	            // TODO Auto-generated catch block
-	            e.printStackTrace();
+	            ExceptionDisplayer.getInstance().displayException(e);
             }
 			//	Calculators.randomlySelectCell(cells); 
 				

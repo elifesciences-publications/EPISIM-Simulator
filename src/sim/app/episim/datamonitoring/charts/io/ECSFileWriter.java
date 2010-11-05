@@ -79,26 +79,27 @@ public class ECSFileWriter {
 								fileIn.close();
 							}							
 						
-							
-							jarOut.putNextEntry(new JarEntry(chartCompiler.getFactoryFile().getName()));
-							fileIn = new FileInputStream(chartCompiler.getFactoryFile());
-							byte[] bytes = new byte[1024];
-							int available = 0;
-							while ((available = fileIn.read(bytes)) > 0) {
-								jarOut.write(bytes, 0, available);
+							for(File factoryFile : chartCompiler.getFactoryFiles()){
+								jarOut.putNextEntry(new JarEntry(factoryFile.getName()));
+								fileIn = new FileInputStream(factoryFile);
+								byte[] bytes = new byte[1024];
+								int available = 0;
+								while ((available = fileIn.read(bytes)) > 0) {
+									jarOut.write(bytes, 0, available);
+								}
+								fileIn.close();
+								jarOut.flush();
 							}
-							fileIn.close();
-							jarOut.flush();	
 							
-							//insert biochem model class files------------------------------------------------------------------------------
+							//insert cell model class files------------------------------------------------------------------------------
 							
 							InputStream in = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass().getResourceAsStream(
 									ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass().getSimpleName()+".class");
 							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject()
 									                            .getClass().getName().replace(".", "/") + ".class"));
 							
-							 bytes = new byte[1024];
-							 available = 0;
+							byte[]  bytes = new byte[1024];
+							int  available = 0;
 							
 							while ((available = in.read(bytes)) > 0) {
 								jarOut.write(bytes, 0, available);
@@ -136,7 +137,7 @@ public class ECSFileWriter {
 							jarOut.finish();
 							jarOut.close();
 						//TODO: Enable / Disable erasure of temp data	
-						//	chartCompiler.deleteTempData();
+							chartCompiler.deleteTempData();
 							
 						} catch (Exception e) {
 							ExceptionDisplayer.getInstance()

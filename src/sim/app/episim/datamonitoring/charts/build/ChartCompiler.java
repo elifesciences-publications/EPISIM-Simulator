@@ -19,7 +19,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 	private ChartSourceBuilder chartSourceBuilder;
 	private ChartSetFactorySourceBuilder factorySourceBuilder;
 	private final String TMPPATH;
-	private File factoryFile = null;
+	private List<File> factoryFiles = null;
 	private List<File> chartFiles = null;
 	public ChartCompiler(){
 		String userTmpDir = System.getProperty("java.io.tmpdir", "temp");
@@ -42,16 +42,17 @@ public class ChartCompiler extends AbstractCommonCompiler {
 		
 		List<File> javaFiles = buildChartJavaFiles(chartSet);
 		javaFiles.add(buildFactoryJavaFile(chartSet));
-		javaFiles =compileJavaFiles(javaFiles);
-		
-		for(File actFile:javaFiles){
+		javaFiles.addAll(compileJavaFiles(javaFiles));
+		this.factoryFiles = new ArrayList<File>();
+		List<File> listCopy = new ArrayList<File>();
+		listCopy.addAll(javaFiles);
+		for(File actFile:listCopy){
 			if(actFile.getName().startsWith(Names.EPISIMCHARTSETFACTORYNAME)){
-				javaFiles.remove(actFile);
-				this.chartFiles = javaFiles;
-				this.factoryFile = actFile;
-				break;
+				javaFiles.remove(actFile);				
+				this.factoryFiles.add(actFile);
 			}
 		}
+		this.chartFiles = javaFiles;
 		
 	}
 	
@@ -110,7 +111,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
          return javaFile;
 	}
 	
-	public File getFactoryFile(){ return this.factoryFile; }
+	public List<File> getFactoryFiles(){ return this.factoryFiles; }
 	
 	public List<File> getChartFiles(){ return this.chartFiles; }
 	

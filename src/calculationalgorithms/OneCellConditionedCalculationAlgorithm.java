@@ -10,6 +10,7 @@ import sim.app.episim.gui.EpisimTextOut;
 
 import episimexceptions.CellNotValidException;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
@@ -33,7 +34,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 				
 				for(CellType actCell : this.allCells){
 					if(actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true 
-							&& actCell.getEpisimCellBehavioralModelObject().getDifferentiation() != EpisimCellBehavioralModelGlobalParameters.STEMCELL 
+							&& actCell.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() != EpisimDifferentiationLevel.STEMCELL 
 							&& handler.conditionFulfilled(actCell)) return actCell;
 				}
 			}
@@ -45,7 +46,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 				
 				for(CellType actCell : this.allCells){
 					if(actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true && requiredClass.isAssignableFrom(actCell.getClass())
-							&& actCell.getEpisimCellBehavioralModelObject().getDifferentiation() != EpisimCellBehavioralModelGlobalParameters.STEMCELL 
+							&& actCell.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() != EpisimDifferentiationLevel.STEMCELL 
 							&& handler.conditionFulfilled(actCell)) return actCell;
 				}
 			}

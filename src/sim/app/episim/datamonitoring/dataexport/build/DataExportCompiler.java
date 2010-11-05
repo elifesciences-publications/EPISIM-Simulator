@@ -20,7 +20,7 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 	private DataExportSourceBuilder dataExportSourceBuilder;
 	private DataExportFactorySourceBuilder factorySourceBuilder;
 	private final String TMPPATH = System.getProperty("java.io.tmpdir", "temp")+ "episimdataexport"+ System.getProperty("file.separator");
-	private File factoryFile = null;
+	private List<File> factoryFiles = null;
 	private List<File> dataExportFiles = null;
 	
 	public DataExportCompiler(){
@@ -44,16 +44,17 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 		
 		javaFiles = buildDataExportJavaFiles(dataExportDefinitionSet);
 		javaFiles.add(buildFactoryJavaFile(dataExportDefinitionSet));
-		javaFiles =compileJavaFiles(javaFiles);
-		
-		for(File actFile:javaFiles){
+		javaFiles.addAll(compileJavaFiles(javaFiles));
+		this.factoryFiles = new ArrayList<File>();
+		List<File> listCopy = new ArrayList<File>();
+		listCopy.addAll(javaFiles);
+		for(File actFile:listCopy){
 			if(actFile.getName().startsWith(Names.EPISIMDATAEXPORTFACTORYNAME)){
-				javaFiles.remove(actFile);
-				this.dataExportFiles = javaFiles;
-				this.factoryFile = actFile;
-				break;
+				javaFiles.remove(actFile);				
+				this.factoryFiles.add(actFile);				
 			}
 		}
+		this.dataExportFiles = javaFiles;
 		
 	}
 	
@@ -113,7 +114,7 @@ public class DataExportCompiler extends AbstractCommonCompiler {
          return javaFile;
 	}
 	
-	public File getFactoryFile(){ return this.factoryFile; }
+	public List<File> getFactoryFiles(){ return this.factoryFiles; }
 	
 	public List<File> getDataExportSetFiles(){ return this.dataExportFiles; }
 	

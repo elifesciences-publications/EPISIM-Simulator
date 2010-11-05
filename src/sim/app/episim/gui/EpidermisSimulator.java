@@ -31,7 +31,6 @@ import episimexceptions.PropertyException;
 
 import sim.SimStateServer;
 import sim.app.episim.CompileWizard;
-import sim.app.episim.Epidermis;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
@@ -46,6 +45,7 @@ import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotLoader;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.ClassLoaderChangeListener;
@@ -78,6 +78,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	private EpidermisGUIState epiUI;
 	
 	public static final ObservedByteArrayOutputStream errorOutputStream = new ObservedByteArrayOutputStream();
+	public static final ObservedByteArrayOutputStream standardOutputStream = new ObservedByteArrayOutputStream();
 	
 	
 	
@@ -305,6 +306,10 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		String mode;
 		if((mode=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_DISPLAYMODE_PROP)) != null 
 				&& mode.equals(EpisimProperties.SIMULATOR_EXCEPTION_DISPLAYMODE_VAL))  System.setErr(new PrintStream(errorOutputStream));
+		
+		if((mode=EpisimProperties.getProperty(EpisimProperties.STANDARD_OUTPUT)) != null 
+				&& mode.equals(EpisimProperties.SIMULATOR_STANDARD_OUTPUT_VAL))  System.setOut(new PrintStream(standardOutputStream));
+		
 		if(!onlyHelpWanted){
 			//if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
 				//	&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
@@ -312,6 +317,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			EpidermisSimulator episim = new EpidermisSimulator();
 		}
 		else printHelpTextOnConsole();
+		
 	}
 	
 	public static void printHelpTextOnConsole(){

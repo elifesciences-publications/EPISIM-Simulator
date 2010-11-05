@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<modelparameters>
-<modelid id ="2010-05-13"/>
-<parameter name="adhesion" datatype="double" default="0"/>
-<parameter name="contractility" datatype="double" default="0"/>
-<parameter name="elasticity" datatype="double" default="0"/>
-</modelparameters>
+<modeldescriptor>
+	<modelid id ="2010-05-13"/>
+	<modelintegratorclass name ="episimbiomechanics.EpisimDefaultModelIntegrator"/>
+	<modelparameters>
+		<parameter name="adhesion" datatype="double" default="0"/>
+		<parameter name="contractility" datatype="double" default="0"/>
+		<parameter name="elasticity" datatype="double" default="0"/>
+	</modelparameters>
+</modeldescriptor>

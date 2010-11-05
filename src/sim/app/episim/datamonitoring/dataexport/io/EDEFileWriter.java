@@ -73,17 +73,17 @@ public class EDEFileWriter {
 								fileIn.close();
 							}							
 						
-							
-							jarOut.putNextEntry(new JarEntry(dataExportCompiler.getFactoryFile().getName()));
-							fileIn = new FileInputStream(dataExportCompiler.getFactoryFile());
-							byte[] bytes = new byte[1024];
-							int available = 0;
-							while ((available = fileIn.read(bytes)) > 0) {
-								jarOut.write(bytes, 0, available);
+							for(File factoryFile : dataExportCompiler.getFactoryFiles()){
+								jarOut.putNextEntry(new JarEntry(factoryFile.getName()));
+								fileIn = new FileInputStream(factoryFile);
+								byte[] bytes = new byte[1024];
+								int available = 0;
+								while ((available = fileIn.read(bytes)) > 0) {
+									jarOut.write(bytes, 0, available);
+								}
+								fileIn.close();
+								jarOut.flush();	
 							}
-							fileIn.close();
-							jarOut.flush();	
-							
 														
 							ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 							ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
@@ -98,7 +98,7 @@ public class EDEFileWriter {
 							jarOut.finish();
 							jarOut.close();
 							//TODO: Enable / Disable deletion of tempory data
-						//	dataExportCompiler.deleteTempData();
+							dataExportCompiler.deleteTempData();
 							
 						} catch (Exception e) {
 							ExceptionDisplayer.getInstance()

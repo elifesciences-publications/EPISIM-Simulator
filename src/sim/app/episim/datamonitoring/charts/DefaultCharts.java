@@ -44,6 +44,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.chart.*;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimDifferentiationLevel;
 
 import sim.app.episim.KCyte;
 import sim.app.episim.datamonitoring.GlobalStatistics;
@@ -671,7 +672,7 @@ public class DefaultCharts implements java.io.Serializable{
 
 			public double getInterval() {
 
-	         // TODO Auto-generated method stub
+	         
 	         return 100;
          }
 	     });
@@ -773,9 +774,9 @@ public class DefaultCharts implements java.io.Serializable{
 		                     HistoLamellaConc[histobin]+=act.getEpisimCellBehavioralModelObject().getLam();
 		                     HistoLipidsConc[histobin]+=act.getEpisimCellBehavioralModelObject().getLip();
 		                     
-		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDifferentiation();
+		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();
 		          			  
-		          				  if(diffLevel == EpisimCellBehavioralModelGlobalParameters.STEMCELL){
+		          				  if(diffLevel == EpisimDifferentiationLevel.STEMCELL){
 		          					 HistoAgeAvg[histobin]+=act.getEpisimCellBehavioralModelObject().getAge();
 		          				  }
 		          		  }
@@ -828,17 +829,17 @@ public class DefaultCharts implements java.io.Serializable{
 		                 double ExtCal_Spi=0;
 		                 double ExtCal_LateSpi=0;
 		                 double ExtCal_Granu=0; 
-		                 double ExtCal_NoNuc=0;
+		                 
 		                 double Lam_TA=0;                    
 		                 double Lam_Spi=0;
 		                 double Lam_LateSpi=0;
 		                 double Lam_Granu=0;                    
-		                 double Lam_NoNuc=0;
+		                 
 		                 double Lip_TA=0;                    
 		                 double Lip_Spi=0;
 		                 double Lip_LateSpi=0;
 		                 double Lip_Granu=0;
-		                 double Lip_NoNuc=0;
+		                 
 		                            
 		                 for (int i=0; i< GlobalStatistics.getInstance().getCells().size(); i++)
 		                 {
@@ -848,40 +849,27 @@ public class DefaultCharts implements java.io.Serializable{
 		                     // is a living cell..
 		                    
 		                     
-		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDifferentiation();
+		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();
 		          			  switch(diffLevel){
-		          				  case EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL:{
+		          				  case EpisimDifferentiationLevel.EARLYSPICELL:{
 		          					  	ExtCal_Spi+=act.getEpisimCellBehavioralModelObject().getCa(); 
 			                     	Lam_Spi+=act.getEpisimCellBehavioralModelObject().getLam(); 
 			                     	Lip_Spi+=act.getEpisimCellBehavioralModelObject().getLip(); 
 		          				  }
 		          				  break;
-		          				  case EpisimCellBehavioralModelGlobalParameters.GRANUCELL:{
+		          				  case EpisimDifferentiationLevel.GRANUCELL:{
 		          					  	ExtCal_Granu+=act.getEpisimCellBehavioralModelObject().getCa(); 
 			                     	Lam_Granu+=act.getEpisimCellBehavioralModelObject().getLam(); 
 			                     	Lip_Granu+=act.getEpisimCellBehavioralModelObject().getLip();
 		          				  }
 		          				  break;
-		          				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_NIRVANA:{
-		          					  
-		          				  }
-		          				  break;
-		          				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_NONUCLEUS:{
-		          					  	ExtCal_NoNuc+=act.getEpisimCellBehavioralModelObject().getCa(); 
-			                     	Lam_NoNuc+=act.getEpisimCellBehavioralModelObject().getLam(); 
-			                     	Lip_NoNuc+=act.getEpisimCellBehavioralModelObject().getLip(); 
-		          				  }
-		          				  break;
-		          				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_UNASSIGNED:{
-		          				  }
-		          				  break;
-		          				  case EpisimCellBehavioralModelGlobalParameters.LATESPICELL:{
+		          				  case EpisimDifferentiationLevel.LATESPICELL:{
 		          					  	ExtCal_LateSpi+=act.getEpisimCellBehavioralModelObject().getCa(); 
 			                     	Lam_LateSpi+=act.getEpisimCellBehavioralModelObject().getLam(); 
 			                     	Lip_LateSpi+=act.getEpisimCellBehavioralModelObject().getLip(); 
 		          				  }
 		          				  break;
-		          				  case EpisimCellBehavioralModelGlobalParameters.TACELL:{
+		          				  case EpisimDifferentiationLevel.TACELL:{
 		          					  ExtCal_TA+=act.getEpisimCellBehavioralModelObject().getCa(); 
 			                       Lam_TA+=act.getEpisimCellBehavioralModelObject().getLam(); 
 			                       Lip_TA+=act.getEpisimCellBehavioralModelObject().getLip();  
@@ -898,20 +886,20 @@ public class DefaultCharts implements java.io.Serializable{
 		                 if (GlobalStatistics.getInstance().getActualNumberEarlySpiCells()>3) ExtCal_Spi/=GlobalStatistics.getInstance().getActualNumberEarlySpiCells();
 		                 if (GlobalStatistics.getInstance().getActualNumberLateSpi()>3) ExtCal_LateSpi/=GlobalStatistics.getInstance().getActualNumberLateSpi();
 		                 if (GlobalStatistics.getInstance().getActualGranuCells()>3) ExtCal_Granu/=GlobalStatistics.getInstance().getActualGranuCells();                    
-		                 if (GlobalStatistics.getInstance().getActualNumberOfNoNucleus()>3) ExtCal_NoNuc/=GlobalStatistics.getInstance().getActualNumberOfNoNucleus();                    
+		                                     
                      
 
 		                 if (GlobalStatistics.getInstance().getActualNumberTACells()>3) Lam_TA/=GlobalStatistics.getInstance().getActualNumberTACells();
 		                 if (GlobalStatistics.getInstance().getActualNumberEarlySpiCells()>3) Lam_Spi/=GlobalStatistics.getInstance().getActualNumberEarlySpiCells();
 		                 if (GlobalStatistics.getInstance().getActualNumberLateSpi()>3) Lam_LateSpi/=GlobalStatistics.getInstance().getActualNumberLateSpi();
 		                 if (GlobalStatistics.getInstance().getActualGranuCells()>3) Lam_Granu/=GlobalStatistics.getInstance().getActualGranuCells();
-		                 if (GlobalStatistics.getInstance().getActualNumberOfNoNucleus()>3) Lam_NoNuc/=GlobalStatistics.getInstance().getActualNumberOfNoNucleus();                    
+		                                     
 		                 
 		                 if (GlobalStatistics.getInstance().getActualNumberTACells()>3) Lip_TA/=GlobalStatistics.getInstance().getActualNumberTACells();
 		                 if (GlobalStatistics.getInstance().getActualNumberEarlySpiCells()>3) Lip_Spi/=GlobalStatistics.getInstance().getActualNumberEarlySpiCells();
 		                 if (GlobalStatistics.getInstance().getActualNumberLateSpi()>3) Lip_LateSpi/=GlobalStatistics.getInstance().getActualNumberLateSpi();
 		                 if (GlobalStatistics.getInstance().getActualGranuCells()>3) Lip_Granu/=GlobalStatistics.getInstance().getActualGranuCells();
-		                 if (GlobalStatistics.getInstance().getActualNumberOfNoNucleus()>3) Lip_NoNuc/=GlobalStatistics.getInstance().getActualNumberOfNoNucleus();                    
+		                                     
 		                 
 		                 // row keys...
 		                 String sExtCal = "Ext Cal (mg/kg)";

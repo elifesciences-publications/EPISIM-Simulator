@@ -5,6 +5,7 @@ import java.util.List;
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimDifferentiationLevel;
 import sim.app.episim.CellType;
 import sim.app.episim.KCyte;
 import sim.app.episim.model.ModelController;
@@ -29,7 +30,6 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	private int actualNumberTACells=0;          // TA Cells
 	private int actualNumberLateSpi=0;     // Late Spinosum
 	private int actualNumberGranuCells=0;       // num of Granulosum KCytes
-	private int actualNumberOfNoNucleus=0;   // Cells after lifetime but not shed from the surface
 	private int actualBasalStatisticsCells=0;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
 	
 	private double apoptosis_Basal_Statistics=0;    // apoptosis events during 100 ticks, is calculated from  ..Counter   
@@ -121,36 +121,25 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 		
 		for(CellType actCell: allCells){
-			int diffLevel =  actCell.getEpisimCellBehavioralModelObject().getDifferentiation();
+			int diffLevel =  actCell.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();
 			  switch(diffLevel){
-				  case EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL:{
+				  case EpisimDifferentiationLevel.EARLYSPICELL:{
 					  this.actualNumberEarlySpiCells++;
 				  }
 				  break;
-				  case EpisimCellBehavioralModelGlobalParameters.GRANUCELL:{
+				  case EpisimDifferentiationLevel.GRANUCELL:{
 					  this.actualNumberGranuCells++;
 				  }
 				  break;
-				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_NIRVANA:{
-					  
-				  }
-				  break;
-				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_NONUCLEUS:{
-					  this.actualNumberOfNoNucleus++;
-				  }
-				  break;
-				  case EpisimCellBehavioralModelGlobalParameters.KTYPE_UNASSIGNED:{
-				  }
-				  break;
-				  case EpisimCellBehavioralModelGlobalParameters.LATESPICELL:{
+				  case EpisimDifferentiationLevel.LATESPICELL:{
 					  this.actualNumberLateSpi++;
 				  }
 				  break;
-				  case EpisimCellBehavioralModelGlobalParameters.STEMCELL:{
+				  case EpisimDifferentiationLevel.STEMCELL:{
 					  this.actualNumberStemCells++;
 				  }
 				  break;
-				  case EpisimCellBehavioralModelGlobalParameters.TACELL:{
+				  case EpisimDifferentiationLevel.TACELL:{
 					  this.actualNumberTACells++;
 				  }
 				  break;
@@ -204,8 +193,8 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 		
 		for(CellType actCell : allCells){
-			if(actCell.getEpisimCellBehavioralModelObject().getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.TACELL ||
-					actCell.getEpisimCellBehavioralModelObject().getDifferentiation() == EpisimCellBehavioralModelGlobalParameters.STEMCELL){
+			if(actCell.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.TACELL ||
+					actCell.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.STEMCELL){
 				double dnaContent = actCell.getEpisimCellBehavioralModelObject().getDnaContent();
 				for(int i = 0; i < dnaContents.length; i++){
 					if(dnaContent <= (FIRSTBUCKETAMOUNT + i * intervalSize)){ 
@@ -249,9 +238,6 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	public void inkrementActualGranuCells(){
 		actualNumberGranuCells++;       // num of Granulosum KCytes
 	}
-	public void inkrementActualNumberOfNoNucleus(){
-		actualNumberOfNoNucleus++;   // Cells after lifetime but not shed from the surface
-	}
 	public void inkrementActualBasalStatisticsCells(){
 		actualBasalStatisticsCells++;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
 	}
@@ -286,9 +272,6 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	public void dekrementActualGranuCells(){
 		actualNumberGranuCells--;       // num of Granulosum KCytes
 	}
-	public void dekrementActualNumberOfNoNucleus(){
-		actualNumberOfNoNucleus--;   // Cells after lifetime but not shed from the surface
-	}
 	public void dekrementActualBasalStatisticsCells(){
 		actualBasalStatisticsCells--;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
 	}
@@ -304,7 +287,6 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		actualNumberTACells=0;          
 		actualNumberLateSpi=0;     
 		actualNumberGranuCells=0;      
-		actualNumberOfNoNucleus=0;   
 		actualBasalStatisticsCells=0;		
 		actualNumberOfBasalStatisticsCells = 0;
 		sumOfAllAges = 0;
@@ -345,26 +327,25 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 
 	   if(cell instanceof KCyte){
 	   	KCyte kcyte = (KCyte) cell;
-	   	dekrementActualNumberOfNoNucleus();
 	   	dekrementActualNumberKCytes();
 	   	
 	   	if(kcyte.isBasalStatisticsCell()){ 
 	   		this.apoptosis_BasalCounter++;
 	   		
 	   	}
-	   	int diffLevel =  kcyte.getEpisimCellBehavioralModelObject().getDifferentiation();
+	   	int diffLevel =  kcyte.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();
 	   	  switch(diffLevel){
- 			    case EpisimCellBehavioralModelGlobalParameters.EARLYSPICELL:{
+ 			    case EpisimDifferentiationLevel.EARLYSPICELL:{
  					  this.apoptosis_EarlySpiCounter++;
  					 
  				 }
  				 break;
- 				 case EpisimCellBehavioralModelGlobalParameters.GRANUCELL:{
+ 				 case EpisimDifferentiationLevel.GRANUCELL:{
  					  	this.apoptosis_GranuCounter++;
  					  
  				 }
  				 break;
- 				 case EpisimCellBehavioralModelGlobalParameters.LATESPICELL:{
+ 				 case EpisimDifferentiationLevel.LATESPICELL:{
  					  	this.apoptosis_LateSpiCounter++;
  					  
  				 }
@@ -381,7 +362,6 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
    public int getActualNumberTACells(){ return actualNumberTACells; }
    public int getActualNumberLateSpi(){ return actualNumberLateSpi; }
    public int getActualGranuCells(){ return actualNumberGranuCells; }
-   public int getActualNumberOfNoNucleus(){ return actualNumberOfNoNucleus; }
    public int getActualBasalStatisticsCells(){ return actualBasalStatisticsCells; }
    public int getActualNumberOfBasalStatisticsCells() { return actualNumberOfBasalStatisticsCells; }
    public double getMeanAgeOfAllCells(){ return (this.sumOfAllAges / this.actualNumberKCytes); }

@@ -13,13 +13,15 @@ import episimbiomechanics.EpisimModelIntegrator;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimCellType;
+import episiminterfaces.EpisimDifferentiationLevel;
 
-import sim.app.episim.Epidermis;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.KCyte;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.tissue.Epidermis;
 
 
 
@@ -84,18 +86,12 @@ public class CellBehavioralModel implements java.io.Serializable, SnapshotListen
 	}
 	
 	
-	
+		
    
 	public void reloadCellBehavioralModelGlobalParametersObject(EpisimCellBehavioralModelGlobalParameters parametersObject){
 		if(this.globalParametersObject != null)this.globalParametersObject.setSnapshotValues(parametersObject);
 	}
-  
-   
-  
-   
-  
-   
-   
+     
   
   public void resetInitialGlobalValues(){
 	  if(globalParametersObject !=null) globalParametersObject.resetInitialGlobalValues();

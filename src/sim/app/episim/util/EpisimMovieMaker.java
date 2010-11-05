@@ -56,7 +56,7 @@ public class EpisimMovieMaker{
 	   consoleMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP)!= null &&
 				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
 	   
-	   // TODO Auto-generated constructor stub
+	  
    }
 	
   

@@ -40,8 +40,8 @@ public interface EpisimCellBehavioralModel {
 	EpisimDifferentiationLevel getDifferentiation();
 	void setDifferentiation(EpisimDifferentiationLevel val);
 	
-	EpisimCellType getSpecies();
-	void setSpecies(EpisimCellType val);
+	EpisimCellType getCellType();
+	void setCellType(EpisimCellType val);
 	
 	double getAge();
 	void setAge(double val);

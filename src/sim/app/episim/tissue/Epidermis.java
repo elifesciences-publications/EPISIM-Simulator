@@ -195,7 +195,7 @@ private void seedStemCells(){
 				TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellBehavioralModelObject(), cellCyclePos);																																		// on
 																																						
 				stemCell.getEpisimCellBehavioralModelObject().setDifferentiation(ModelController.getInstance().getCellBehavioralModelController().getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
-				stemCell.getEpisimCellBehavioralModelObject().setSpecies(ModelController.getInstance().getCellBehavioralModelController().getCellTypeForOrdinal(EpisimCellType.KERATINOCYTE));
+				stemCell.getEpisimCellBehavioralModelObject().setCellType(ModelController.getInstance().getCellBehavioralModelController().getCellTypeForOrdinal(EpisimCellType.KERATINOCYTE));
 				stemCell.getEpisimCellBehavioralModelObject().setIsAlive(true);
 	
 				stemCell.getCellEllipseObject().setXY(((int)newloc.x), ((int)newloc.y));

@@ -20,4 +20,10 @@ public interface EpisimCellBehavioralModelGlobalParameters{
 	
 	void setSnapshotValues(EpisimCellBehavioralModelGlobalParameters parametersObj);
 	
+	EpisimCellType[] getAvailableCellTypes();
+	EpisimCellType getCellTypeForOrdinal(int ordinal);
+	
+	EpisimDifferentiationLevel[] getAvailableDifferentiationLevels();
+	EpisimDifferentiationLevel getDifferentiationLevelForOrdinal(int ordinal);
+	
 }

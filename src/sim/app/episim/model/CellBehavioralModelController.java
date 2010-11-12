@@ -81,11 +81,11 @@ public class CellBehavioralModelController implements java.io.Serializable{
 		return cellBehavioralModel.getEpisimCellBehavioralModelGlobalParameters();
 	}
 	
-	public EpisimCellType[] getAvailableCellTypes(){ return getNewEpisimCellBehavioralModelObject().getAvailableCellTypes(); }
-	public EpisimCellType getCellTypeForOrdinal(int ordinal){ return getNewEpisimCellBehavioralModelObject().getCellTypeForOrdinal(ordinal); }
+	public EpisimCellType[] getAvailableCellTypes(){ return getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes(); }
+	public EpisimCellType getCellTypeForOrdinal(int ordinal){ return getEpisimCellBehavioralModelGlobalParameters().getCellTypeForOrdinal(ordinal); }
 	
-	public EpisimDifferentiationLevel[] getAvailableDifferentiationLevels(){ return getNewEpisimCellBehavioralModelObject().getAvailableDifferentiationLevels(); }
-	public EpisimDifferentiationLevel getDifferentiationLevelForOrdinal(int ordinal){ return getNewEpisimCellBehavioralModelObject().getDifferentiationLevelForOrdinal(ordinal); }
+	public EpisimDifferentiationLevel[] getAvailableDifferentiationLevels(){ return getEpisimCellBehavioralModelGlobalParameters().getAvailableDifferentiationLevels(); }
+	public EpisimDifferentiationLevel getDifferentiationLevelForOrdinal(int ordinal){ return getEpisimCellBehavioralModelGlobalParameters().getDifferentiationLevelForOrdinal(ordinal); }
 	
 	
 	public void resetInitialGlobalValues(){

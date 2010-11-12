@@ -59,7 +59,7 @@ import sim.util.Double2D;
 
 public class EpidermisSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener, SnapshotRestartListener, SnapshotListener{
 	
-	public static final String versionID = "1.1.1";
+	public static final String versionID = "1.3";
 	
 	private static final String CB_FILE_PARAM_PREFIX = "-cb";
 	private static final String BM_FILE_PARAM_PREFIX = "-bm";

@@ -37,8 +37,8 @@ public interface EpisimCellBehavioralModel {
 	double getLip();
 	void setLip(double val);
 	
-	EpisimDifferentiationLevel getDifferentiation();
-	void setDifferentiation(EpisimDifferentiationLevel val);
+	EpisimDifferentiationLevel getDiffLevel();
+	void setDiffLevel(EpisimDifferentiationLevel val);
 	
 	EpisimCellType getCellType();
 	void setCellType(EpisimCellType val);
@@ -89,11 +89,5 @@ public interface EpisimCellBehavioralModel {
 	
 	EpisimCellBehavioralModel[] oneStep(EpisimCellBehavioralModel[] neighbours);
 	
-	EpisimCellType[] getAvailableCellTypes();
-	EpisimCellType getCellTypeForOrdinal(int ordinal);
-	
-	EpisimDifferentiationLevel[] getAvailableDifferentiationLevels();
-	EpisimDifferentiationLevel getDifferentiationLevelForOrdinal(int ordinal);
-
 }
 

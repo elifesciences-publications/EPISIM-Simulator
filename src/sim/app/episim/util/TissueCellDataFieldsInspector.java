@@ -25,6 +25,7 @@ import javax.swing.event.ListSelectionListener;
 
 import sim.app.episim.CellType;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueType;
 import episiminterfaces.*;
 
@@ -39,7 +40,8 @@ public class TissueCellDataFieldsInspector {
 	private Set<ParameterSelectionListener> parameterSelectionListener;
 	
 	private Set<String> overallVarOrConstantNameSet;
-	private Map<String, CellType> cellTypesMap;
+	private Map<String, EpisimCellType> cellTypesEnumMap;
+	private Map<String, CellType> cellTypesClassesMap;
 	private Map<String, TissueType> tissueTypesMap;
 	private Map<String, String> overallMethodCallMap;
 	private Map<String, String> overallFieldCallMap;
@@ -70,27 +72,33 @@ public class TissueCellDataFieldsInspector {
 			parameterSelectionListener = new HashSet<ParameterSelectionListener>();
 			
 			if(tissue == null) throw new IllegalArgumentException("Tissue was null!");
-			buildCellTypesMap();
+			buildCellTypesMaps();
 			buildTissueTypesMap();
-			buildOverallVarNameSetMethodCallMapConstantNameSetAndFieldCallMap(this.cellTypesMap);
+			buildOverallVarNameSetMethodCallMapConstantNameSetAndFieldCallMap(this.cellTypesClassesMap);
 			
 			
 			
 	}
 	
-	private void buildCellTypesMap(){
-		this.cellTypesMap = new HashMap<String, CellType>();
-		for(Class<?extends CellType> actCellType : this.inspectedTissue.getRegisteredCellTypes()){
-			try{
-	        CellType cellType =  actCellType.newInstance();
-	        cellTypesMap.put(cellType.getCellName(), cellType);
+	private void buildCellTypesMaps(){
+		this.cellTypesEnumMap = new HashMap<String, EpisimCellType>();
+		this.cellTypesClassesMap = new HashMap<String, CellType>();
+		for(EpisimCellType actCellType : ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes()){	        
+	        cellTypesEnumMap.put(actCellType.name(), actCellType);        
+		}
+		for(Class<? extends CellType> actType : this.inspectedTissue.getRegisteredCellTypes()){
+	        CellType cellType  = null;
+         try{
+	         cellType = actType.newInstance();
+	         cellTypesClassesMap.put(cellType.getCellName(), cellType);
          }
          catch (InstantiationException e){
-	         ExceptionDisplayer.getInstance().displayException(e);
+	        ExceptionDisplayer.getInstance().displayException(e);
          }
          catch (IllegalAccessException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	 ExceptionDisplayer.getInstance().displayException(e);
          }
+	        
 		}
 	}
 	
@@ -268,11 +276,8 @@ public class TissueCellDataFieldsInspector {
 	private void buildCellTypeList() {
 	
 		this.cellTypeList.removeAll();
-		for(String actTissueName : this.cellTypesMap.keySet()){
-
-			
+		for(String actTissueName : this.cellTypesEnumMap.keySet()){			
 			this.cellTypeList.add(actTissueName);
-
 		}
 		
 
@@ -296,7 +301,7 @@ public class TissueCellDataFieldsInspector {
 		String foundCellTypeName = null;
 		Set<String> cellTypeClassNames = new HashSet<String>();
 		//Class-Based Check
-		for(CellType actType: this.cellTypesMap.values()) cellTypeClassNames.add(actType.getClass().getSimpleName());
+		for(CellType actType: this.cellTypesEnumMap.values()) cellTypeClassNames.add(actType.getClass().getSimpleName());
 		for(String actVarName:varNames){
 			if(cellTypeClassNames.contains(firstLetterToUpperCase(getMethodOrFieldCallStrForVarOrConstantName(actVarName).split("\\.")[0]))){ 
 				if(foundCellTypeName== null)foundCellTypeName=getMethodOrFieldCallStrForVarOrConstantName(actVarName).split("\\.")[0];
@@ -486,7 +491,7 @@ public class TissueCellDataFieldsInspector {
 			public void valueChanged(ListSelectionEvent e) {
 
 				if((e.getValueIsAdjusting() != false) && cellTypeList.getSelectedIndex() != -1){
-					buildParametersOrConstantsList(cellParameterList, cellTypesMap.get(((String) cellTypeList.getSelectedValue())).getCellName());
+					buildParametersOrConstantsList(cellParameterList, cellTypesEnumMap.get(((String) cellTypeList.getSelectedValue())).getCellName());
 					parametersPanel.removeAll();
 					parametersPanel.add(cellParameterList, BorderLayout.CENTER);
 					parametersAndConstantsPanel.remove(constantListScroll);

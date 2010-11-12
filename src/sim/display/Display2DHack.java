@@ -10,12 +10,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -28,6 +31,7 @@ import episiminterfaces.SimulationDisplay;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Scale;
 import sim.display.Display2D.InnerDisplay2D;
@@ -110,6 +114,18 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 		
 		
 		if(simulation instanceof EpidermisGUIState) epiSimulation = (EpidermisGUIState) simulation;
+		
+		optionPane.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
+		optionPane.addWindowListener(new WindowAdapter(){
+			 public void windowOpened(WindowEvent e){
+				 optionPane.setLocation(
+						 ((int)(display.getLocation().x + (display.getWidth()/2) -(optionPane.getWidth()/2))),
+						 ((int)(display.getLocation().y + (display.getHeight()/2) -(optionPane.getHeight()/2)))
+				 );			 
+				 }
+		});
+			
+		
 		
 		//no unnecessary Entry: Show Console in the popup
 		if(popup != null && popup.getComponentCount()>1){

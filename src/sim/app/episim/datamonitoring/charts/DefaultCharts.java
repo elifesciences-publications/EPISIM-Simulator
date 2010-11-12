@@ -774,7 +774,7 @@ public class DefaultCharts implements java.io.Serializable{
 		                     HistoLamellaConc[histobin]+=act.getEpisimCellBehavioralModelObject().getLam();
 		                     HistoLipidsConc[histobin]+=act.getEpisimCellBehavioralModelObject().getLip();
 		                     
-		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();
+		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();
 		          			  
 		          				  if(diffLevel == EpisimDifferentiationLevel.STEMCELL){
 		          					 HistoAgeAvg[histobin]+=act.getEpisimCellBehavioralModelObject().getAge();
@@ -849,7 +849,7 @@ public class DefaultCharts implements java.io.Serializable{
 		                     // is a living cell..
 		                    
 		                     
-		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();
+		                     int diffLevel =  act.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();
 		          			  switch(diffLevel){
 		          				  case EpisimDifferentiationLevel.EARLYSPICELL:{
 		          					  	ExtCal_Spi+=act.getEpisimCellBehavioralModelObject().getCa(); 

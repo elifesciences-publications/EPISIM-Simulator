@@ -121,7 +121,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 		
 		for(CellType actCell: allCells){
-			int diffLevel =  actCell.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();
+			int diffLevel =  actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();
 			  switch(diffLevel){
 				  case EpisimDifferentiationLevel.EARLYSPICELL:{
 					  this.actualNumberEarlySpiCells++;
@@ -193,8 +193,8 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 		
 		for(CellType actCell : allCells){
-			if(actCell.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.TACELL ||
-					actCell.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.STEMCELL){
+			if(actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.TACELL ||
+					actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL){
 				double dnaContent = actCell.getEpisimCellBehavioralModelObject().getDnaContent();
 				for(int i = 0; i < dnaContents.length; i++){
 					if(dnaContent <= (FIRSTBUCKETAMOUNT + i * intervalSize)){ 
@@ -333,7 +333,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	   		this.apoptosis_BasalCounter++;
 	   		
 	   	}
-	   	int diffLevel =  kcyte.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();
+	   	int diffLevel =  kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();
 	   	  switch(diffLevel){
  			    case EpisimDifferentiationLevel.EARLYSPICELL:{
  					  this.apoptosis_EarlySpiCounter++;

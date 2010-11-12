@@ -215,7 +215,7 @@ public class KCyte extends CellType
         //double adyOpt = 5; // 3+theEpidermis.cellSpace;
         
         
-        if (this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal()==EpisimDifferentiationLevel.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
+        if (this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
         
         double optDistSq = adxOpt*adxOpt; //+adyOpt*adyOpt;
         double optDist=Math.sqrt(optDistSq);
@@ -452,7 +452,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
     }
    
     private boolean isSurfaceCell(EpisimCellBehavioralModel[] neighbours){
-   	 if(this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.STEMCELL) return false;
+   	 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) return false;
    	 else{
    		
    		 int leftSideNeighbours = 0;
@@ -487,7 +487,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
    	 this.getEpisimCellBehavioralModelObject().setIsMembrane(isMembraneCell());
    	 this.getEpisimCellBehavioralModelObject().setIsSurface(isOuterCell() || nextToOuterCell);
    	 this.getEpisimCellBehavioralModelObject().setHasCollision(hasCollision);
-   	 if(this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
+   	 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
    	 else this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);
    	 	  	 
    	
@@ -520,7 +520,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 			deltaTime +=deltaTimeTmp;		*/
    	
    	 makeChildren(children);
-   	 if(this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() == EpisimDifferentiationLevel.GRANUCELL){
+   	 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.GRANUCELL){
    	 	setKeratinoWidth(getGKeratinoWidthGranu());
    		setKeratinoHeight(getGKeratinoHeightGranu());
    		this.getCellEllipseObject().setMajorAxisAndMinorAxis(getGKeratinoWidthGranu(), getGKeratinoHeightGranu());
@@ -536,8 +536,8 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
    	 if(children!=null){
    		 for(EpisimCellBehavioralModel actChild: children){
    			 
-   			 if(actChild.getDifferentiation().ordinal() == EpisimDifferentiationLevel.TACELL) makeTACell(actChild);
-   			 else if(actChild.getDifferentiation().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL) makeSpiCell(actChild);
+   			 if(actChild.getDiffLevel().ordinal() == EpisimDifferentiationLevel.TACELL) makeTACell(actChild);
+   			 else if(actChild.getDiffLevel().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL) makeSpiCell(actChild);
    		 }
    	 }
     }
@@ -681,7 +681,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 			hitResult2 = hitsOther(b, epiderm.getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
 			// move only on pressure when not stem cell
-			if(this.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() != EpisimDifferentiationLevel.STEMCELL){
+			if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
 				if((hitResult2.numhits == 0)
 						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == this.getMotherID()) || (hitResult2.otherMotherId == this.getID())))){
 					double dx = potentialLoc.x - oldLoc.x;

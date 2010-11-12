@@ -149,6 +149,22 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    public void step(SimState state) {
 		
 		this.actSimState = state;
+		Test2 aber = Test2.c;
+		
+		switch(aber){
+		case c:{}
+		break;
+		default:{}
+		}
+   }
+   public enum Test2{
+   	c,d,f,;
+   }
+   	public enum Test {
+   
+   	a(new Test2[]{Test2.c,Test2.d,}),;
+   	private Test2[] test2s;
+   	private Test(Test2[] test2s){this.test2s = test2s;}
    }
 	
 }

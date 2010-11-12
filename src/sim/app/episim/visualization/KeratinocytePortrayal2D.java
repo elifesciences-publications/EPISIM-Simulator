@@ -80,7 +80,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
                 }
                 
                
-                int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();                                
+                int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
                 int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();
                 
                 
@@ -238,7 +238,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    
    
    private Color getFillColor(KCyte kcyte){
-   	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal();                                
+   	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
       int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
    	//
       // set colors

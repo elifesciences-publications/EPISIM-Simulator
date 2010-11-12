@@ -465,7 +465,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		});
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------
-		displayFrame.setTitle("Epidermis Simulation v. 1.1");
+		displayFrame.setTitle("Epidermis Simulation v. "+EpidermisSimulator.versionID);
 		displayFrame.setName(SIMULATIONFRAME);
 		displayFrame.setMaximizable(true);
 		displayFrame.setIconifiable(true);

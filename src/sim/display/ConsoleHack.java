@@ -14,6 +14,7 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -27,6 +28,7 @@ import episiminterfaces.SimulationConsole;
 import sim.app.episim.devBasalLayer.EpidermisUIDev;
 import sim.app.episim.gui.EpidermisGUIState;
 import sim.app.episim.gui.EpisimTextOut;
+import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.util.Names;
 import sim.engine.SimState;
 import sim.portrayal.Inspector;
@@ -104,6 +106,7 @@ public class ConsoleHack extends Console implements SimulationConsole{
       // construct the frame
       
       aboutFrame = new JFrame("About MASON");
+      aboutFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
       JPanel p = new JPanel();  // 1.3.1 only has borders for JComponents, not Boxes
       p.setBorder(BorderFactory.createEmptyBorder(25,30,30,30));
       Box b = new Box(BoxLayout.Y_AXIS);

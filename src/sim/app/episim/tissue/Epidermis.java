@@ -194,7 +194,7 @@ private void seedStemCells(){
 				stemCell.getEpisimCellBehavioralModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
 				TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellBehavioralModelObject(), cellCyclePos);																																		// on
 																																						
-				stemCell.getEpisimCellBehavioralModelObject().setDifferentiation(ModelController.getInstance().getCellBehavioralModelController().getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
+				stemCell.getEpisimCellBehavioralModelObject().setDiffLevel(ModelController.getInstance().getCellBehavioralModelController().getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
 				stemCell.getEpisimCellBehavioralModelObject().setCellType(ModelController.getInstance().getCellBehavioralModelController().getCellTypeForOrdinal(EpisimCellType.KERATINOCYTE));
 				stemCell.getEpisimCellBehavioralModelObject().setIsAlive(true);
 	
@@ -371,7 +371,7 @@ private void seedStemCells(){
 
                  for (int k=0; k< MAX_XBINS; k++)
                  {
-                     if ((xLookUp[k]==null) || (xLookUp[k].getEpisimCellBehavioralModelObject().getDifferentiation().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+                     if ((xLookUp[k]==null) || (xLookUp[k].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
                      xLookUp[k].setIsOuterCell(true);
                  }
                  
@@ -400,7 +400,7 @@ private void seedStemCells(){
 			CellType cell = iter.next();
 	
 			if(path.contains(cell.getCellEllipseObject().getLastDrawInfo2D().draw.x, cell.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
-					cell.getEpisimCellBehavioralModelObject().getDifferentiation().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
+					cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
 				cell.killCell();
 				 
 				  i++;

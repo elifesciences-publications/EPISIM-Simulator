@@ -282,7 +282,7 @@ public class TissueCellDataFieldsInspector {
 		
 		diffLevelsList.removeAll();
 		for(EpisimDifferentiationLevel diffLevel : this.diffLevelsMap.get(cellType.name())){			
-		//	diffLevelsList.add(diffLevel.name());
+			diffLevelsList.add(diffLevel.name());
 		}		
 
 	}

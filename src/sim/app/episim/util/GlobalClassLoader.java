@@ -78,7 +78,7 @@ public class GlobalClassLoader extends URLClassLoader{
 	public void registerURL(URL url){
 		if(urlRegistry.contains(url.getPath())){
 			
-			if(url.getPath().endsWith(Names.DATAEXPORTFILETYPE)){
+			if(url.getPath().endsWith(Names.DATAEXPORT_FILETYPE)){
 				
 				if(ChartController.getInstance().isAlreadyChartSetLoaded() && mode.equals(NOMODE)){
 					this.mode = IGNORECHARTSETMODE;
@@ -90,7 +90,7 @@ public class GlobalClassLoader extends URLClassLoader{
 				}
 				
 			}
-			else if(url.getPath().endsWith(Names.CHARTSETFILETYPE)){
+			else if(url.getPath().endsWith(Names.CHARTSET_FILETYPE)){
 				if(DataExportController.getInstance().isAlreadyDataExportSetLoaded() && mode.equals(NOMODE)){
 					this.mode = IGNOREDATAEXPORTMODE;
 					refresh();
@@ -100,7 +100,7 @@ public class GlobalClassLoader extends URLClassLoader{
 				}
 				
 			}
-			else if(url.getPath().endsWith(Names.MODELFILETYPE)){
+			else if(url.getPath().endsWith(Names.MODEL_FILETYPE)){
 				//System.out.println( (orderCounter++) + ".) Neues Modell wird geladen ");
 			}
 			

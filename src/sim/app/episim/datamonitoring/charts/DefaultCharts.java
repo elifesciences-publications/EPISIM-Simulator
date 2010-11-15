@@ -46,7 +46,7 @@ import org.jfree.chart.*;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
 
-import sim.app.episim.KCyte;
+import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.ModelController;
 
@@ -765,7 +765,7 @@ public class DefaultCharts implements java.io.Serializable{
 		                 for (int i=0; i< GlobalStatistics.getInstance().getCells().size(); i++)
 		                 {
 		                     // iterate through all cells
-		                     KCyte act=(KCyte)GlobalStatistics.getInstance().getCells().get(i);
+		                     UniversalCell act=(UniversalCell)GlobalStatistics.getInstance().getCells().get(i);
 		                     if (act.isInNirvana()) continue;
 		                     // is a living cell..
 		                     int histobin=(int)(act.getEpisimCellBehavioralModelObject().getY()/7);
@@ -844,7 +844,7 @@ public class DefaultCharts implements java.io.Serializable{
 		                 for (int i=0; i< GlobalStatistics.getInstance().getCells().size(); i++)
 		                 {
 		                     // iterate through all cells
-		                     KCyte act=(KCyte)GlobalStatistics.getInstance().getCells().get(i);
+		                     UniversalCell act=(UniversalCell)GlobalStatistics.getInstance().getCells().get(i);
 		                     if (act.isInNirvana()) continue;
 		                     // is a living cell..
 		                    

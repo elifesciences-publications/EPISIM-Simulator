@@ -52,9 +52,13 @@ TOKEN : { < ADD_SUBT_OP : ["+", "-"]> }
 TOKEN : { < MULT_DIV_OP : ["*", "/"]> }
 TOKEN : { < OPEN_PAR : "(" > } 
 TOKEN : { < CLOSE_PAR : ")" > }
-TOKEN : { < REL_OP : <BIG_SMALL>| <BIG_SMALL><EQUAL> | <EQUAL><EQUAL> | <NOT><EQUAL>>
+
+
+TOKEN : { < BIGGER_SMALLER : <BIG_SMALL>| <BIG_SMALL><EQUAL>>
 	| <#BIG_SMALL:["<", ">"]>
 	| <#EQUAL:["="]>}
+TOKEN : { < EQUAL_OR_NOT : <EQUAL><EQUAL> | <NOT><EQUAL>>
+		}
 TOKEN : { <NOT:["!"]>}	
 TOKEN:{<NUMBERIDENTIFIER:"n_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*>
  | <#LETTER:["A"-"Z", "a"-"z"]>
@@ -62,9 +66,19 @@ TOKEN:{<NUMBERIDENTIFIER:"n_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN
  | <#DIGIT:["0"-"9"]>
  }
  
-TOKEN:{<BOOLIDENTIFIER:"b_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*>
- 
- }
+TOKEN:{<BOOLIDENTIFIER:"b_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*> 
+}
+
+TOKEN:{<DIFFLEVELIDENTIFIER:"d_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*> 
+}
+
+TOKEN:{<CELLTYPEIDENTIFIER:"c_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*"."<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*> 
+}
+TOKEN:{<CELLTYPE:"CT_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*> 
+}
+TOKEN:{<DIFFLEVEL:"DL_"<LETTER>(<SIGN>|<LETTER>|<DIGIT>)*> 
+}
+
 
 TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> > } 
 
@@ -151,6 +165,80 @@ Token t;
 
 {return totalResult;}
 }
+
+
+String[] DiffLevel():{
+String result ="";
+String[] totalResult = new String[2];
+Token t;
+}
+{
+  	(LOOKAHEAD(5)(t =<DIFFLEVEL> 
+   		{if(!this.varOrConstantNameSet.contains(t.image))
+   			throw new ParseException("Unknown Differentiation Level: " + t.image);
+  
+   				totalResult[0]=t.image;
+   				
+   				
+   				this.tissueDataFieldsInspector.addRequiredClassForIdentifier(t.image);
+   				result = this.tissueDataFieldsInspector.getMethodOrFieldCallStrForVarOrConstantName(t.image);
+   				totalResult[1]= result;
+   			
+   		})
+ | 	LOOKAHEAD(5)(t =<DIFFLEVELIDENTIFIER> 
+   		{if(!this.varOrConstantNameSet.contains(t.image))
+   			throw new ParseException("Unknown Differentiation Level Identifier: " + t.image);
+  
+   				totalResult[0]=t.image;
+   				
+   				this.recognizedVarOrConstantNames.add(t.image);
+   				this.tissueDataFieldsInspector.addRequiredClassForIdentifier(t.image);
+   				result = this.tissueDataFieldsInspector.getMethodOrFieldCallStrForVarOrConstantName(t.image);
+   				totalResult[1]= result;
+   			
+   		})
+    )
+
+{return totalResult;}
+}
+
+String[] CellType():{
+String result ="";
+String[] totalResult = new String[2];
+Token t;
+}
+{
+  	(LOOKAHEAD(5)(t =<CELLTYPE> 
+   		{if(!this.varOrConstantNameSet.contains(t.image))
+   			throw new ParseException("Unknown Cell Type: " + t.image);
+  
+   				totalResult[0]=t.image;
+   				
+   				
+   				this.tissueDataFieldsInspector.addRequiredClassForIdentifier(t.image);
+   				result = this.tissueDataFieldsInspector.getMethodOrFieldCallStrForVarOrConstantName(t.image);
+   				totalResult[1]= result;
+   			
+   		})
+ | 	LOOKAHEAD(5)(t =<CELLTYPEIDENTIFIER> 
+   		{if(!this.varOrConstantNameSet.contains(t.image))
+   			throw new ParseException("Unknown Cell Type Identifier: " + t.image);
+  
+   				totalResult[0]=t.image;
+   				
+   				this.recognizedVarOrConstantNames.add(t.image);
+   				this.tissueDataFieldsInspector.addRequiredClassForIdentifier(t.image);
+   				result = this.tissueDataFieldsInspector.getMethodOrFieldCallStrForVarOrConstantName(t.image);
+   				totalResult[1]= result;
+   			
+   		})
+    )
+
+{return totalResult;}
+}
+
+
+
  
 
 String[] BooleanFactor() throws NumberFormatException :{
@@ -380,11 +468,12 @@ String[] RelationalExpression():{
  	String[] totalResult = new String[2]; 	
  }
  {
- exp1 =Expression()t=<REL_OP> exp2 =Expression()
- 
+ LOOKAHEAD(5)(exp1 =Expression()(t=<EQUAL_OR_NOT>|t=<BIGGER_SMALLER>) exp2 =Expression())
+ | LOOKAHEAD(5)(exp1 =DiffLevel() t=<EQUAL_OR_NOT> exp2 =DiffLevel())
+ | LOOKAHEAD(5)(exp1 =CellType() t=<EQUAL_OR_NOT> exp2 =CellType())  
  {
  	
- 	if (t !=null && exp2 != null){
+   if(t !=null && exp2 != null){
    	totalResult[0] = exp1[0] + t.image + exp2[0];
     totalResult[1] = exp1[1] + t.image + exp2[1];
    }
@@ -399,6 +488,7 @@ String[] RelationalExpression():{
    return totalResult;
  	
  }
+
 }
 
 

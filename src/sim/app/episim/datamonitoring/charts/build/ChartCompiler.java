@@ -32,7 +32,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 	
 	private void makeTempDir(){
 		File dataDirectory = new File(TMPPATH);
-		File packageDirectory = new File(TMPPATH+Names.GENERATEDCHARTSPACKAGENAME+ System.getProperty("file.separator"));
+		File packageDirectory = new File(TMPPATH+Names.GENERATED_CHARTS_PACKAGENAME+ System.getProperty("file.separator"));
 		if(!dataDirectory.exists()) dataDirectory.mkdir();
 		if(!packageDirectory.exists()) packageDirectory.mkdir();
 	}
@@ -47,7 +47,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 		List<File> listCopy = new ArrayList<File>();
 		listCopy.addAll(javaFiles);
 		for(File actFile:listCopy){
-			if(actFile.getName().startsWith(Names.EPISIMCHARTSETFACTORYNAME)){
+			if(actFile.getName().startsWith(Names.EPISIM_CHARTSET_FACTORYNAME)){
 				javaFiles.remove(actFile);				
 				this.factoryFiles.add(actFile);
 			}
@@ -62,7 +62,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 		File javaFile = null;
 		for(EpisimChart actChart: chartSet.getEpisimCharts()){
 			try{
-				javaFile = new File(TMPPATH+Names.GENERATEDCHARTSPACKAGENAME+ System.getProperty("file.separator")+
+				javaFile = new File(TMPPATH+Names.GENERATED_CHARTS_PACKAGENAME+ System.getProperty("file.separator")+
 						Names.convertVariableToClass(Names.cleanString(actChart.getTitle())+actChart.getId())+".java");
 	         fileOut = new FileOutputStream(javaFile);
          }
@@ -91,7 +91,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 		File javaFile = null;
 		
 			try{
-				javaFile = new File(TMPPATH+Names.cleanString(Names.EPISIMCHARTSETFACTORYNAME)+".java");
+				javaFile = new File(TMPPATH+Names.cleanString(Names.EPISIM_CHARTSET_FACTORYNAME)+".java");
 	         fileOut = new FileOutputStream(javaFile);
          }
          catch (FileNotFoundException e){

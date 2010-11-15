@@ -3,7 +3,7 @@ package sim.app.episim.datamonitoring.dataexport.build;
 
 import java.util.List;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -47,9 +47,9 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 	
 	public void appendHeader(){
 		super.appendHeader();
-		this.factorySource.append("import "+Names.GENERATEDDATAEXPORTPACKAGENAME+".*;\n");
+		this.factorySource.append("import "+Names.GENERATED_DATAEXPORT_PACKAGENAME+".*;\n");
 
-		this.factorySource.append("public class "+ Names.EPISIMDATAEXPORTFACTORYNAME+" extends AbstractDataExportFactory{\n");
+		this.factorySource.append("public class "+ Names.EPISIM_DATAEXPORT_FACTORYNAME+" extends AbstractDataExportFactory{\n");
 	}
 	
 	public void appendDataFields(){
@@ -64,7 +64,7 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 	}
 	
 	public void appendConstructor(){
-		this.factorySource.append("public "+ Names.EPISIMDATAEXPORTFACTORYNAME+"(){\n");
+		this.factorySource.append("public "+ Names.EPISIM_DATAEXPORT_FACTORYNAME+"(){\n");
 		this.factorySource.append("  this.allDataExports = new ArrayList<GeneratedDataExport>();\n");
 		for(EpisimDataExportDefinition actdataExportDefinition: actdataExportDefinitionSet.getEpisimDataExportDefinitions()){
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actdataExportDefinition.getName())+ actdataExportDefinition.getId()) +
@@ -95,7 +95,7 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actdataExportDefinition.getName())+ actdataExportDefinition.getId()) +
 						".registerRequiredObjects(");
 			for(Class<?> actClass: actdataExportDefinition.getAllRequiredClasses()){
-					if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+					if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
 						this.factorySource.append(Names.convertClassToVariable(actClass.getSimpleName())+", ");
 					}
 			}

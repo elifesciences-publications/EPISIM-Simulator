@@ -974,7 +974,7 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		                setLocation(bounds.width + DEFAULT_GUTTER,defLoc.y);
 		            else setLocation(defLoc);
 		            }
-		         this.setName(Names.CONSOLEMAINCONTAINER);
+		         this.setName(Names.CONSOLE_MAIN_CONTAINER);
 		        }
 
 		   
@@ -2649,11 +2649,11 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		 			epiGUIState = (EpidermisGUIState) simulation;
 		 		
 		 			
-		 			deployInspector(epiGUIState.getCellBehavioralModelInspector(), this.cellbehavioralModelInspectorScrollPane, Names.BIOCHEMMODEL);
+		 			deployInspector(epiGUIState.getCellBehavioralModelInspector(), this.cellbehavioralModelInspectorScrollPane, Names.BIOCHEM_MODEL);
 		 		
-		 			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECHMODEL);
+		 			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECH_MODEL);
 		 			deployInspector(epiGUIState.getMiscalleneousInspector(), this.miscalleneousInspectorScrollPane, Names.MISCALLENEOUS);
-		 			deployInspector(EpisimTextOut.getEpisimTextOut().getEpisimTextOutPanel(), this.episimTextOutInspectorScrollPane, Names.EPISIMTEXTOUT);
+		 			deployInspector(EpisimTextOut.getEpisimTextOut().getEpisimTextOutPanel(), this.episimTextOutInspectorScrollPane, Names.EPISIM_TEXTOUT);
 		 			
 		 		}
 		 		

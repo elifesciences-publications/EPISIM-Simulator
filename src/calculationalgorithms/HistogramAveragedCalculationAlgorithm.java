@@ -10,7 +10,7 @@ import org.jfree.data.statistics.SimpleHistogramDataset;
 
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.ResultSet;
@@ -95,7 +95,7 @@ public class HistogramAveragedCalculationAlgorithm extends AbstractCommonCalcula
 			
 			if(!this.datasetMap.containsKey(handler.getID())) buildHistogramDataset(handler);
 			
-			for(CellType cell: allCells){ 
+			for(AbstractCellType cell: allCells){ 
 				 if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(cell.getClass())){
 					 double result = handler.calculate(cell);
 					 if(checkCondition(result, handler, cell)) this.datasetMap.get(handler.getID()).addObservation(result);
@@ -142,7 +142,7 @@ public class HistogramAveragedCalculationAlgorithm extends AbstractCommonCalcula
 		
 	}
 	
-	protected boolean checkCondition(double result, CalculationHandler handler, CellType cell){
+	protected boolean checkCondition(double result, CalculationHandler handler, AbstractCellType cell){
 		double min = (Double) handler.getParameters().get(HISTOGRAMMINVALUEPARAMETER);
 		double max = (Double) handler.getParameters().get(HISTOGRAMMAXVALUEPARAMETER);
 		

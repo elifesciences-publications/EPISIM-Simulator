@@ -51,7 +51,7 @@ public class ECSFileWriter {
 
 							sBuffer.append("Manifest-Version: 1.0\n");
 							sBuffer.append("Created-By: 1.1 (Episim - Uni Heidelberg)\n");
-							sBuffer.append("Factory-Class: "+ Names.EPISIMCHARTSETFACTORYNAME +"\n");
+							sBuffer.append("Factory-Class: "+ Names.EPISIM_CHARTSET_FACTORYNAME +"\n");
 							
 							
 		
@@ -68,7 +68,7 @@ public class ECSFileWriter {
 							
 							FileInputStream fileIn;
 							for(File actChartFile: chartCompiler.getChartFiles()){
-								jarOut.putNextEntry(new JarEntry(Names.GENERATEDCHARTSPACKAGENAME+ "/"+actChartFile.getName()));
+								jarOut.putNextEntry(new JarEntry(Names.GENERATED_CHARTS_PACKAGENAME+ "/"+actChartFile.getName()));
 								fileIn = new FileInputStream(actChartFile);
 								byte[] bytes = new byte[1024];
 								int available = 0;
@@ -130,7 +130,7 @@ public class ECSFileWriter {
 							objOut.flush();
 							objOut.close();
 							byteOut.close();
-							jarOut.putNextEntry(new JarEntry(Names.EPISIMCHARTSETFILENAME));
+							jarOut.putNextEntry(new JarEntry(Names.EPISIM_CHARTSET_FILENAME));
 							jarOut.write(byteOut.toByteArray());
 							jarOut.flush();
 		

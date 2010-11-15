@@ -281,7 +281,7 @@ public class DataEvaluationWizard {
 				if((actualExpressionEditorPanel == null) || (isNewDescriptor)){
 					if(actualExpressionEditorPanel != null) cl.removeLayoutComponent(actualExpressionEditorPanel.getExpressionEditorPanel());	
 					dataFieldsInspector.resetRequiredClasses();
-					actualExpressionEditorPanel = new ExpressionEditorPanel(dataFieldsInspector, actualDescriptor);
+					actualExpressionEditorPanel = new ExpressionEditorPanel(dialog, dataFieldsInspector, actualDescriptor);
 					wizardPanel.add(actualExpressionEditorPanel.getExpressionEditorPanel(), EXPRESSIONCARD);
 					if(actualConfigurator != null && actualDescriptor!= null && actualDescriptor.getID() == actualConfigurator.getCalculationAlgorithmID()){
 						actualExpressionEditorPanel.setExpressionEditorPanelData(actualConfigurator);

@@ -29,7 +29,7 @@ public class CalculationController {
 		return instance;
 	}
 	
-	public void registerCells(GenericBag<CellType> allCells){
+	public void registerCells(GenericBag<AbstractCellType> allCells){
 		if(allCells == null) throw new IllegalArgumentException("CalculationController: the cells bag must not be null!");
 		CalculationAlgorithmServer.getInstance().registerCellsAtCalculationAlgorithms(allCells);
 	}

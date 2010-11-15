@@ -32,7 +32,7 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 	
 	private void makeTempDir(){
 		File dataDirectory = new File(TMPPATH);
-		File packageDirectory = new File(TMPPATH+Names.GENERATEDDATAEXPORTPACKAGENAME+ System.getProperty("file.separator"));
+		File packageDirectory = new File(TMPPATH+Names.GENERATED_DATAEXPORT_PACKAGENAME+ System.getProperty("file.separator"));
 		if(!dataDirectory.exists()) dataDirectory.mkdir();
 		if(!packageDirectory.exists()) packageDirectory.mkdir();
 	}
@@ -49,7 +49,7 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 		List<File> listCopy = new ArrayList<File>();
 		listCopy.addAll(javaFiles);
 		for(File actFile:listCopy){
-			if(actFile.getName().startsWith(Names.EPISIMDATAEXPORTFACTORYNAME)){
+			if(actFile.getName().startsWith(Names.EPISIM_DATAEXPORT_FACTORYNAME)){
 				javaFiles.remove(actFile);				
 				this.factoryFiles.add(actFile);				
 			}
@@ -65,7 +65,7 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 		List<File> javaFiles = new ArrayList<File>();
 		for(EpisimDataExportDefinition dataExportDefinition:dataExportDefinitionSet.getEpisimDataExportDefinitions()){
 			try{
-				javaFile = new File(TMPPATH + Names.GENERATEDDATAEXPORTPACKAGENAME + System.getProperty("file.separator")
+				javaFile = new File(TMPPATH + Names.GENERATED_DATAEXPORT_PACKAGENAME + System.getProperty("file.separator")
 				      + Names.convertVariableToClass(Names.cleanString(dataExportDefinition.getName())
 				      + dataExportDefinition.getId()) + ".java");
 				fileOut = new FileOutputStream(javaFile);
@@ -94,7 +94,7 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 		File javaFile = null;
 		
 			try{
-				javaFile = new File(TMPPATH+Names.cleanString(Names.EPISIMDATAEXPORTFACTORYNAME)+".java");
+				javaFile = new File(TMPPATH+Names.cleanString(Names.EPISIM_DATAEXPORT_FACTORYNAME)+".java");
 	         fileOut = new FileOutputStream(javaFile);
          }
          catch (FileNotFoundException e){

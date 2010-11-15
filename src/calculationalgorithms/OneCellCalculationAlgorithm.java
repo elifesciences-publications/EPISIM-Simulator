@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.datamonitoring.calc.CalculationDataManager;
 import sim.app.episim.util.ResultSet;
 import episimexceptions.CellNotValidException;
@@ -24,13 +24,13 @@ import episiminterfaces.calc.marker.SingleCellObserverAlgorithm;
 public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements SingleCellObserverAlgorithm, CalculationAlgorithm{
 		
 	private final int MINCELLAGE = 2;
-	private Map<String, CellType> trackedCells;
+	private Map<String, AbstractCellType> trackedCells;
 	
 	private Map<String, SingleCellObserver> observers;
 	private Map<Long, String> handlerIdStringIdMap;
 		
 	public OneCellCalculationAlgorithm(){		
-		this.trackedCells = new HashMap<String, CellType>();
+		this.trackedCells = new HashMap<String, AbstractCellType>();
 		observers = new HashMap<String, SingleCellObserver>();
 		handlerIdStringIdMap = new HashMap<Long, String>();
 	}
@@ -47,8 +47,8 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 		
 	private void checkTrackedCells(CalculationHandler handler) {
 
-		CellType actTrackedCell = null;
-		CellType newTrackedCell = null;		
+		AbstractCellType actTrackedCell = null;
+		AbstractCellType newTrackedCell = null;		
 
 			actTrackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
 			if(actTrackedCell == null || actTrackedCell.getEpisimCellBehavioralModelObject().getIsAlive() == false){			
@@ -69,23 +69,23 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 	}
 		
 	
-	protected CellType getNewCellForTracking(CalculationHandler handler){
-		Class<? extends CellType> requiredClass = handler.getRequiredCellType();
+	protected AbstractCellType getNewCellForTracking(CalculationHandler handler){
+		Class<? extends AbstractCellType> requiredClass = handler.getRequiredCellType();
 		if(requiredClass == null){
-			for(CellType actCell : this.allCells){
+			for(AbstractCellType actCell : this.allCells){
 				if(actCell.isTracked()) return actCell;
 			}
 			
-			for(CellType actCell : this.allCells){
+			for(AbstractCellType actCell : this.allCells){
 				if(actCell.getEpisimCellBehavioralModelObject().getAge() < MINCELLAGE && actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true && 
 						actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL) return actCell;
 			}
 		}
 		else{
-			CellType result = null;
+			AbstractCellType result = null;
 			int counter = 0;
 			
-			for(CellType actCell : this.allCells){
+			for(AbstractCellType actCell : this.allCells){
 				if(actCell.isTracked() && requiredClass.isAssignableFrom(actCell.getClass())) return actCell;
 			}
 			
@@ -105,7 +105,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
 
 		checkTrackedCells(handler);
-		CellType trackedCell=null;
+		AbstractCellType trackedCell=null;
 			
 			try{
 				

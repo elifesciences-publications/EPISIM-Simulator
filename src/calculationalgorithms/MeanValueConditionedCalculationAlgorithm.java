@@ -3,7 +3,7 @@ package calculationalgorithms;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ResultSet;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
@@ -51,7 +51,7 @@ public class MeanValueConditionedCalculationAlgorithm  extends AbstractCommonCal
 		double sum = 0;
 		int counter = 0;
 		double result = 0;
-		for(CellType actCell : allCells){
+		for(AbstractCellType actCell : allCells){
 
 			try{
 				if(handler.conditionFulfilled(actCell)){

@@ -241,10 +241,10 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	
 	
 	private Container getControllerContainer(Container con){
-		if(con.getName() != null && con.getName().equals(Names.CONSOLEMAINCONTAINER)) return con;
+		if(con.getName() != null && con.getName().equals(Names.CONSOLE_MAIN_CONTAINER)) return con;
 		else{
 		 for(Component comp : con.getComponents()){
-			 if(comp.getName() != null && comp.getName().equals(Names.CONSOLEMAINCONTAINER) && comp instanceof Container) return (Container)comp;
+			 if(comp.getName() != null && comp.getName().equals(Names.CONSOLE_MAIN_CONTAINER) && comp instanceof Container) return (Container)comp;
 			 else if(comp instanceof Container) return getControllerContainer(((Container)comp));
 		 }
 		 return null;
@@ -313,10 +313,10 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 			
 		}
 		for(int i=0; i< (tabPane= ((JTabbedPane) obj)).getTabCount(); i++){
-			if (tabPane.getTitleAt(i).equals(Names.BIOCHEMMODEL) || tabPane.getTitleAt(i).equals(Names.MECHMODEL) || tabPane.getTitleAt(i).equals(Names.MISCALLENEOUS)){
+			if (tabPane.getTitleAt(i).equals(Names.BIOCHEM_MODEL) || tabPane.getTitleAt(i).equals(Names.MECH_MODEL) || tabPane.getTitleAt(i).equals(Names.MISCALLENEOUS)){
 				String actionString = null;
-				if (tabPane.getTitleAt(i).equals(Names.BIOCHEMMODEL)) actionString = Names.BIOCHEMMODEL;
-				else if (tabPane.getTitleAt(i).equals(Names.MECHMODEL)) actionString = Names.MECHMODEL;
+				if (tabPane.getTitleAt(i).equals(Names.BIOCHEM_MODEL)) actionString = Names.BIOCHEM_MODEL;
+				else if (tabPane.getTitleAt(i).equals(Names.MECH_MODEL)) actionString = Names.MECH_MODEL;
 				else if (tabPane.getTitleAt(i).equals(Names.MISCALLENEOUS)) actionString = Names.MISCALLENEOUS;
 				Component comp = tabPane.getComponentAt(i); 
 				if(comp instanceof Container){ 
@@ -441,8 +441,8 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				
 				if(console.getPlayState() == ConsoleHack.PS_PLAYING) console.pressPause();
 				if(pressedButton.getActionCommand() != null){
-					if(pressedButton.getActionCommand().equals(Names.BIOCHEMMODEL))ModelController.getInstance().getCellBehavioralModelController().resetInitialGlobalValues();
-					else if(pressedButton.getActionCommand().equals(Names.MECHMODEL))ModelController.getInstance().getBioMechanicalModelController().resetInitialGlobalValues();
+					if(pressedButton.getActionCommand().equals(Names.BIOCHEM_MODEL))ModelController.getInstance().getCellBehavioralModelController().resetInitialGlobalValues();
+					else if(pressedButton.getActionCommand().equals(Names.MECH_MODEL))ModelController.getInstance().getBioMechanicalModelController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MISCALLENEOUS))MiscalleneousGlobalParameters.instance().resetInitialGlobalValues();
 				}
 				this.clickRefreshButtons();

@@ -1,8 +1,8 @@
 package sim.app.episim.visualization;
 import sim.SimStateServer;
 import sim.SimStateServer.SimState;
-import sim.app.episim.CellType;
-import sim.app.episim.KCyte;
+import sim.app.episim.AbstractCellType;
+import sim.app.episim.UniversalCell;
 import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.biomechanics.CellPolygon;
 import sim.app.episim.biomechanics.Vertex;
@@ -22,7 +22,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 
 
 
-public class KeratinocytePortrayal2D extends SimplePortrayal2D
+public class UniversalCellPortrayal2D extends SimplePortrayal2D
     {
     private Paint paint;
 
@@ -37,23 +37,23 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
     
    
     
-    public KeratinocytePortrayal2D() {
+    public UniversalCellPortrayal2D() {
    	 
    	 this(Color.gray,false); 
    	
    	 
     }
-    public KeratinocytePortrayal2D(Paint paint)  { 
+    public UniversalCellPortrayal2D(Paint paint)  { 
    	 
    	 this(paint,true); 
    	 
    	 
     }
-    public KeratinocytePortrayal2D(boolean drawFrame) { 
+    public UniversalCellPortrayal2D(boolean drawFrame) { 
    	 this(Color.gray,drawFrame); 
    	
    	 }
-    public KeratinocytePortrayal2D(Paint paint, boolean drawFrame)  { 
+    public UniversalCellPortrayal2D(Paint paint, boolean drawFrame)  { 
    	 modelController = ModelController.getInstance();
    	 biomechModelController = modelController.getBioMechanicalModelController();
    	 biochemModelController = modelController.getCellBehavioralModelController();
@@ -70,9 +70,9 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
             //boolean rahmen=false;            
           
             boolean showNucleus=true;
-            if (object instanceof KCyte)
+            if (object instanceof UniversalCell)
             {                
-                final KCyte kcyte=((KCyte)object);
+                final UniversalCell kcyte=((UniversalCell)object);
                if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
     		         kcyte.getCellEllipseObject().translateCell(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
     		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
@@ -237,7 +237,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    }
    
    
-   private Color getFillColor(KCyte kcyte){
+   private Color getFillColor(UniversalCell kcyte){
    	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
       int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
    	//
@@ -314,7 +314,7 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
       return new Color(red, green, blue);
    }
    
-   private Color getContourColor(KCyte kcyte){
+   private Color getContourColor(UniversalCell kcyte){
    	Color myFrameColor = Color.white; //new Color(Red, Green, Blue);
    	                               
       int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
@@ -342,9 +342,9 @@ public class KeratinocytePortrayal2D extends SimplePortrayal2D
    {
        int w=1;
        int h=1;
-       if (object instanceof KCyte)
+       if (object instanceof UniversalCell)
        {
-           KCyte kc=((KCyte)object);
+           UniversalCell kc=((UniversalCell)object);
                         
            w=5;
            h=5-(int)kc.getEpisimCellBehavioralModelObject().getAge()/60;

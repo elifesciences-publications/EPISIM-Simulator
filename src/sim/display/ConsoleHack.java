@@ -44,7 +44,7 @@ public class ConsoleHack extends Console implements SimulationConsole{
 	public ConsoleHack(final GUIState simulation){
 		super(simulation);
 		
-		super.getContentPane().setName(Names.CONSOLEMAINCONTAINER);
+		super.getContentPane().setName(Names.CONSOLE_MAIN_CONTAINER);
 		
 	}
 	
@@ -214,11 +214,11 @@ public class ConsoleHack extends Console implements SimulationConsole{
 			epiGUIState = (EpidermisGUIState) simulation;
 		
 			
-			deployInspector(epiGUIState.getCellBehavioralModelInspector(), this.cellbehavioralModelInspectorScrollPane, Names.BIOCHEMMODEL);
+			deployInspector(epiGUIState.getCellBehavioralModelInspector(), this.cellbehavioralModelInspectorScrollPane, Names.BIOCHEM_MODEL);
 		
-			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECHMODEL);
+			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECH_MODEL);
 			deployInspector(epiGUIState.getMiscalleneousInspector(), this.miscalleneousInspectorScrollPane, Names.MISCALLENEOUS);
-			deployInspector(EpisimTextOut.getEpisimTextOut().getEpisimTextOutPanel(), this.episimTextOutInspectorScrollPane, Names.EPISIMTEXTOUT);
+			deployInspector(EpisimTextOut.getEpisimTextOut().getEpisimTextOutPanel(), this.episimTextOutInspectorScrollPane, Names.EPISIM_TEXTOUT);
 			
 		}
 		else

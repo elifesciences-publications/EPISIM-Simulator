@@ -20,7 +20,7 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
@@ -74,7 +74,8 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	
 	private void appendHeader(){
 		
-		generatedSourceCode.append("package "+ Names.GENERATEDCHARTSPACKAGENAME +";\n");
+		generatedSourceCode.append("package "+ Names.GENERATED_CHARTS_PACKAGENAME +";\n");		
+		
 		generatedSourceCode.append("import org.jfree.chart.*;\n");
 		generatedSourceCode.append("import org.jfree.chart.block.*;\n");
 		generatedSourceCode.append("import org.jfree.chart.event.*;\n");
@@ -256,7 +257,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	
 	private void appendSteppable(long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
 		
-		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATIONCALLBACKLIST, this.actChart.getChartUpdatingFrequency())+";\n");
+		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATION_CALLBACK_LIST, this.actChart.getChartUpdatingFrequency())+";\n");
 	}
 	
 	private void appendPNGSteppable(){
@@ -300,7 +301,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	private void appendHandlerRegistration(long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
 		CalculationAlgorithmConfigurator config = this.actChart.getBaselineCalculationAlgorithmConfigurator();
 		if(config != null){
-			generatedSourceCode.append(Names.CALCULATIONCALLBACKLIST+".add(");
+			generatedSourceCode.append(Names.CALCULATION_CALLBACK_LIST+".add(");
 			generatedSourceCode.append("CalculationController.getInstance().registerAtCalculationAlgorithm(");
 			if(mode == ChartSourceBuilderMode.XYSERIESMODE){
 				generatedSourceCode.append(buildCalculationHandler(baselineCalculationHandlerID, baselineCalculationHandlerID, true, config, this.actChart.getRequiredClassesForBaseline())
@@ -313,7 +314,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		}
 		for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
 			
-			generatedSourceCode.append(Names.CALCULATIONCALLBACKLIST+".add(");
+			generatedSourceCode.append(Names.CALCULATION_CALLBACK_LIST+".add(");
 			generatedSourceCode.append("CalculationController.getInstance().registerAtCalculationAlgorithm(");
 			generatedSourceCode.append(buildCalculationHandler(seriesCalculationHandlerIDs.get(actSeries.getId()), 
 					                                             baselineCalculationHandlerID, false, actSeries.getCalculationAlgorithmConfigurator(), 

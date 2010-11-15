@@ -47,7 +47,7 @@ import java.util.Set;
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
 
-public class KCyte extends CellType
+public class UniversalCell extends AbstractCellType
 {
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
 // CONSTANTS
@@ -117,10 +117,10 @@ public class KCyte extends CellType
   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
-   public KCyte(){
+   public UniversalCell(){
    this(-1, -1,  null);
    }
-    public KCyte(long id, long motherId, EpisimCellBehavioralModel cellBehavioralModel)
+    public UniversalCell(long id, long motherId, EpisimCellBehavioralModel cellBehavioralModel)
     {   	 
    	 
    	 super(id, motherId, cellBehavioralModel);   	
@@ -225,10 +225,10 @@ public class KCyte extends CellType
 
         for(i=0;i<b.numObjs;i++)
             {
-                if (!(b.objs[i] instanceof KCyte))
+                if (!(b.objs[i] instanceof UniversalCell))
                     continue;
         
-            KCyte other = (KCyte)(b.objs[i]);
+            UniversalCell other = (UniversalCell)(b.objs[i]);
             if (other != this )
                 {
                     Double2D otherloc=pC2dHerd.getObjectLocation(other);
@@ -277,7 +277,7 @@ public class KCyte extends CellType
                     if (actdistsq <= pBarrierMemberDist * pBarrierMemberDist)
                     {
                                         
-                      Double2D m = ((KCyte)b.objs[i]).momentum();
+                      Double2D m = ((UniversalCell)b.objs[i]).momentum();
                       hitResult.otherMomentum.x+=m.x;
                       hitResult.otherMomentum.y+=m.y;
                       neighbors++;                         
@@ -355,15 +355,15 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
         return 4/(1+0.1*Math.exp((-x-4)/1));
     }
     
-    public KCyte makeChild(EpisimCellBehavioralModel cellBehavioralModel)
+    public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
     {       
         
    	 Continuous2D cellContinous2D = TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D();
    	 
    	 // Either we get use a currently unused cell oder we allocate a new one
-        KCyte kcyte;        
+        UniversalCell kcyte;        
        
-        kcyte= new KCyte(CellType.getNextCellId(), getID(), cellBehavioralModel); 
+        kcyte= new UniversalCell(AbstractCellType.getNextCellId(), getID(), cellBehavioralModel); 
         cellBehavioralModel.setId((int)kcyte.getID());
            
             
@@ -407,7 +407,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
     {
         
         GlobalStatistics.getInstance().inkrementActualNumberKCytes();
-        KCyte taCell=makeChild(cellBehavioralModel);
+        UniversalCell taCell=makeChild(cellBehavioralModel);
                     
         taCell.getEpisimCellBehavioralModelObject().setAge(TissueServer.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
        
@@ -421,11 +421,11 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
     }
 
     
-    private KCyte[] getRealNeighbours(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc){
-   	 List<KCyte> neighbourCells = new ArrayList<KCyte>();
+    private UniversalCell[] getRealNeighbours(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc){
+   	 List<UniversalCell> neighbourCells = new ArrayList<UniversalCell>();
    	 for(int i=0;i<neighbours.numObjs;i++)
        {
-   		 KCyte actNeighbour = (KCyte)(neighbours.objs[i]);
+   		 UniversalCell actNeighbour = (UniversalCell)(neighbours.objs[i]);
      
                Double2D otherloc=cellContinous2D.getObjectLocation(actNeighbour);
                double dx = cellContinous2D.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
@@ -442,12 +442,12 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
                	
              //}
         }
-   	 return neighbourCells.toArray(new KCyte[neighbourCells.size()]);
+   	 return neighbourCells.toArray(new UniversalCell[neighbourCells.size()]);
     }
     
-    private EpisimCellBehavioralModel[] getCellBehavioralModelArray(KCyte[] neighbours){
+    private EpisimCellBehavioralModel[] getCellBehavioralModelArray(UniversalCell[] neighbours){
    	 List<EpisimCellBehavioralModel> neighbourCellsDiffModel = new ArrayList<EpisimCellBehavioralModel>();
-   	 for(KCyte actNeighbour: neighbours) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellBehavioralModelObject());
+   	 for(UniversalCell actNeighbour: neighbours) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellBehavioralModelObject());
    	 return neighbourCellsDiffModel.toArray(new EpisimCellBehavioralModel[neighbourCellsDiffModel.size()]);
     }
    
@@ -477,7 +477,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
     static  long deltaTime = 0;
     public void differentiate(SimState state, Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean nextToOuterCell, boolean hasCollision)
     {
-     	 KCyte[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
+     	 UniversalCell[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
      	 
      	 this.setNeighbouringCells(realNeighbours);
      	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(realNeighbours);
@@ -555,7 +555,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
     	 
     	 
     	 if(this.getNeighbouringCells() != null && this.getNeighbouringCells().length > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
- 	   	 for(CellType neighbouringCell : this.getNeighbouringCells()){
+ 	   	 for(AbstractCellType neighbouringCell : this.getNeighbouringCells()){
  	   		 
  	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), getActSimState().schedule.getSteps())){
  	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());

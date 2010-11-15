@@ -17,7 +17,7 @@ import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 	import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.KCyte;
+import sim.app.episim.UniversalCell;
 import sim.app.episim.tissue.Epidermis;
 
 

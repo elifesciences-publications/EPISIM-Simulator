@@ -31,10 +31,13 @@ import sim.app.episim.util.TissueCellDataFieldsInspector.ParameterSelectionListe
 import sim.util.gui.NumberTextField;
 import sim.util.gui.PropertyField;
 
-public class ExpressionEditorPanel implements ParameterSelectionListener{	
+public class ExpressionEditorPanel implements ParameterSelectionListener{
 	
-	private static final int MATHEMATICALEXPRESSIONTEXTAREA = 1;
-	private static final int BOOLEANEXPRESSIONTEXTAREA = 2;
+	
+	public enum ExpressionType {BOOLEAN_EXPRESSION, MATHEMATICAL_EXPRESSION}
+	
+	
+	
 	private JTextArea arithmeticExpressionTextArea;
 	private JTextArea booleanExpressionTextArea;
 	
@@ -60,14 +63,17 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	private String [] booleanExpression = new String[2];
 	private Map<String, Object> parameterValues = new HashMap<String, Object>();
 	private int calculationAlgorithmID;
-	
-	private int activatedTextArea = 0;
+
 	private boolean booleanCondition = false;	
 	private boolean hasParameters = false;
 	
 	private CalculationAlgorithmDescriptor currentCalculationAlgorithmDescriptor;
+	private Component parentComponent;
 	
-	public ExpressionEditorPanel(TissueCellDataFieldsInspector _dataFieldsInspector, CalculationAlgorithmDescriptor descriptor){
+	private ExpressionType expressionType = ExpressionType.MATHEMATICAL_EXPRESSION;
+	
+	public ExpressionEditorPanel(Component parent, TissueCellDataFieldsInspector _dataFieldsInspector, CalculationAlgorithmDescriptor descriptor){
+		this.parentComponent = parent;
 		if(_dataFieldsInspector == null) throw new IllegalArgumentException(this.getClass().getName() + "One of the Constructor Parameters was null!");
 		this.calculationAlgorithmID = descriptor.getID();
 		this.currentCalculationAlgorithmDescriptor = descriptor;
@@ -87,7 +93,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	   c.weighty =1;
 	   c.insets = new Insets(10,10,10,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
-	   panel.add(this.dataFieldsInspector.getVariableListPanel(), c);
+	   panel.add(this.dataFieldsInspector.getVariableListPanel(parentComponent), c);
 	   
 	   if(descriptor != null && descriptor.getParameters() != null && descriptor.getParameters().size() > 0){
 	   	hasParameters = true;
@@ -159,8 +165,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	}
 	public void parameterWasSelected() {
 
-		if(this.activatedTextArea == MATHEMATICALEXPRESSIONTEXTAREA) insertStringInChartExpressionAtCursor(dataFieldsInspector.getActualSelectedParameter(), this.arithmeticExpressionTextArea);
-		else if(this.activatedTextArea == BOOLEANEXPRESSIONTEXTAREA) insertStringInChartExpressionAtCursor(dataFieldsInspector.getActualSelectedParameter(), this.booleanExpressionTextArea);
+		if(this.expressionType == ExpressionType.MATHEMATICAL_EXPRESSION) insertStringInChartExpressionAtCursor(dataFieldsInspector.getActualSelectedParameter(), this.arithmeticExpressionTextArea);
+		else if(this.expressionType == ExpressionType.BOOLEAN_EXPRESSION) insertStringInChartExpressionAtCursor(dataFieldsInspector.getActualSelectedParameter(), this.booleanExpressionTextArea);
       
    }
 	
@@ -336,7 +342,10 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 		});
 		arithmeticExpressionTextArea.addFocusListener(new FocusListener(){
 
-			public void focusGained(FocusEvent e) {activatedTextArea = MATHEMATICALEXPRESSIONTEXTAREA; }
+			public void focusGained(FocusEvent e) {
+				expressionType = ExpressionType.MATHEMATICAL_EXPRESSION;
+				dataFieldsInspector.setExpressionType(expressionType);
+			}
 
 			public void focusLost(FocusEvent e) {}});
 		
@@ -451,7 +460,10 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 		
 		booleanExpressionTextArea.addFocusListener(new FocusListener(){
 
-			public void focusGained(FocusEvent e) {activatedTextArea = BOOLEANEXPRESSIONTEXTAREA;   }
+			public void focusGained(FocusEvent e) {   
+				expressionType = ExpressionType.BOOLEAN_EXPRESSION;
+				dataFieldsInspector.setExpressionType(expressionType);
+			}
 
 			public void focusLost(FocusEvent e) {}});
 

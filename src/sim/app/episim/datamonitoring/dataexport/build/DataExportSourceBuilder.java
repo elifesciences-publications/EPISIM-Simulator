@@ -47,7 +47,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	
 	private void appendHeader(){
 		
-		generatedSourceCode.append("package "+ Names.GENERATEDDATAEXPORTPACKAGENAME +";\n");
+		generatedSourceCode.append("package "+ Names.GENERATED_DATAEXPORT_PACKAGENAME +";\n");
 		generatedSourceCode.append("import episiminterfaces.*;\n");
 		generatedSourceCode.append("import episiminterfaces.calc.*;\n");
 		generatedSourceCode.append("import episiminterfaces.monitoring.*;\n");
@@ -143,14 +143,14 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	
 	private void appendSteppable(){
 		
-		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATIONCALLBACKLIST, this.actDataExportDefinition.getDataExportFrequncyInSimulationSteps())+";\n");
+		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATION_CALLBACK_LIST, this.actDataExportDefinition.getDataExportFrequncyInSimulationSteps())+";\n");
 	
 	}
 	
 	private void appendHandlerRegistration(Map<Long, Long> calculationHandlerIDs){
 		
 		for(EpisimDataExportColumn actColumn: this.actDataExportDefinition.getEpisimDataExportColumns()){			
-			generatedSourceCode.append(Names.CALCULATIONCALLBACKLIST+".add(");
+			generatedSourceCode.append(Names.CALCULATION_CALLBACK_LIST+".add(");
 			generatedSourceCode.append("CalculationController.getInstance().registerAtCalculationAlgorithm(");
 			generatedSourceCode.append(buildCalculationHandler(calculationHandlerIDs.get(actColumn.getId()), 
 					                                             Long.MIN_VALUE, false, actColumn.getCalculationAlgorithmConfigurator(), 

@@ -16,7 +16,7 @@ import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -64,10 +64,10 @@ public abstract class AbstractChartSetFactory {
 	public String getEpisimChartSetBinaryName() {
 
 		
-		return Names.EPISIMCHARTSETFILENAME;
+		return Names.EPISIM_CHARTSET_FILENAME;
 	}
 	public abstract List<ChartPanel> getChartPanels();
    public abstract List<EnhancedSteppable> getSteppablesOfCharts();
    
-   public abstract void registerNecessaryObjects(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
+   public abstract void registerNecessaryObjects(GenericBag<AbstractCellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
 }

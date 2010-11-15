@@ -17,10 +17,12 @@ import org.jfree.chart.ChartPanel;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
+import episiminterfaces.EpisimCellType;
+import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 
@@ -77,6 +79,8 @@ public class ChartController {
 		validDataTypes.add(Float.TYPE);
 		validDataTypes.add(Double.TYPE);
 		validDataTypes.add(Boolean.TYPE);
+		validDataTypes.add(EpisimCellType.class);
+		validDataTypes.add(EpisimDifferentiationLevel.class);
 	}
 	
 	public boolean isAlreadyChartSetLoaded(){
@@ -223,7 +227,7 @@ public class ChartController {
 		return loadEpisimChartSet(url, null);
 	}
 	
-	public List<EnhancedSteppable> getChartSteppablesOfActLoadedChartSet(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+	public List<EnhancedSteppable> getChartSteppablesOfActLoadedChartSet(GenericBag<AbstractCellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
 		return ChartPanelAndSteppableServer.getInstance().getChartSteppables(allCells, continuous, objects );
 	}
 	

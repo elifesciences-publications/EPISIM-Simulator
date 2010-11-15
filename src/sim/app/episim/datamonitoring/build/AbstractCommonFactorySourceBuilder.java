@@ -3,7 +3,7 @@ package sim.app.episim.datamonitoring.build;
 import java.util.HashSet;
 import java.util.Set;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Names;
 import sim.field.continuous.Continuous2D;
@@ -44,7 +44,7 @@ public abstract class AbstractCommonFactorySourceBuilder {
 	
 	protected void appendDataFields(){
 		for(Class<?> actClass : this.requiredClasses){
-			if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+			if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
 				this.factorySource.append("  private "+ actClass.getSimpleName()+ " "+Names.convertClassToVariable(actClass.getSimpleName())+ ";\n");
 			}
 		}
@@ -59,7 +59,7 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("    this.allCells = allCells;\n");
 		this.factorySource.append("  for(Object actObject: objects){\n");
 		for(Class<?> actClass : this.requiredClasses){
-			if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+			if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
 				this.factorySource.append("    if(actObject instanceof "+actClass.getSimpleName()+") this."+Names.convertClassToVariable(actClass.getSimpleName())+" = ("+actClass.getSimpleName()+") actObject;\n"); 
 			}
 		}
@@ -75,7 +75,7 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("  if(this.cellContinuous == null) objectsMissing = true;\n");
 		this.factorySource.append("  if(this.allCells == null) objectsMissing = true;\n");
 		for(Class<?> actClass : this.requiredClasses){
-			if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+			if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
 				this.factorySource.append("  if(this."+Names.convertClassToVariable(actClass.getSimpleName())+" == null) objectsMissing = true;\n"); 
 			}
 		}

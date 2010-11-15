@@ -1,6 +1,6 @@
 package episiminterfaces.calc;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.ResultSet;
 
@@ -32,7 +32,7 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 	public static final String HISTOGRAMNUMBEROFBINSPARAMETER = "number of bins";
 	
 	CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id);
-	void registerCells(GenericBag<CellType> allCells);
+	void registerCells(GenericBag<AbstractCellType> allCells);
 	void reset();
 	void restartSimulation();	
 	void calculate(CalculationHandler handler, ResultSet<Double> results);

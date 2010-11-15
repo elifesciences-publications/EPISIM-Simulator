@@ -44,7 +44,7 @@ public class EDEFileWriter {
 
 							sBuffer.append("Manifest-Version: 1.0\n");
 							sBuffer.append("Created-By: 1.1 (Episim - Uni Heidelberg)\n");
-							sBuffer.append("Factory-Class: "+ Names.EPISIMDATAEXPORTFACTORYNAME +"\n");
+							sBuffer.append("Factory-Class: "+ Names.EPISIM_DATAEXPORT_FACTORYNAME +"\n");
 							
 							
 		
@@ -62,7 +62,7 @@ public class EDEFileWriter {
 							FileInputStream fileIn;
 							List<File> dataExportFiles = dataExportCompiler.getDataExportSetFiles();
 							for(File dataExportFile : dataExportFiles){
-								jarOut.putNextEntry(new JarEntry(Names.GENERATEDDATAEXPORTPACKAGENAME+ "/"+dataExportFile.getName()));
+								jarOut.putNextEntry(new JarEntry(Names.GENERATED_DATAEXPORT_PACKAGENAME+ "/"+dataExportFile.getName()));
 								fileIn = new FileInputStream(dataExportFile);
 								byte[] bytes = new byte[1024];
 								int available = 0;
@@ -91,7 +91,7 @@ public class EDEFileWriter {
 							objOut.flush();
 							objOut.close();
 							byteOut.close();
-							jarOut.putNextEntry(new JarEntry(Names.EPISIMDATAEXPORTFILENAME));
+							jarOut.putNextEntry(new JarEntry(Names.EPISIM_DATAEXPORT_FILENAME));
 							jarOut.write(byteOut.toByteArray());
 							jarOut.flush();
 		

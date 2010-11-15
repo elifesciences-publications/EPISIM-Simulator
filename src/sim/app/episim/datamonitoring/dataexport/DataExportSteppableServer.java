@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.jfree.chart.ChartPanel;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
@@ -30,7 +30,7 @@ public class DataExportSteppableServer {
 	private List<EnhancedSteppable> customSteppables;
 	private static DataExportSteppableServer instance = null;
 	private AbstractDataExportFactory factory = null;
-	GenericBag<CellType> alreadyRegisteredVersionAllCells = null;
+	GenericBag<AbstractCellType> alreadyRegisteredVersionAllCells = null;
 	private DataExportSteppableServer(){
 		listeners = new HashSet<DataExportChangeListener>();
 	}
@@ -56,7 +56,7 @@ public class DataExportSteppableServer {
 		return customDataExportDefinitions;
 	}	
 	
-	public List<EnhancedSteppable> getDataExportSteppables(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+	public List<EnhancedSteppable> getDataExportSteppables(GenericBag<AbstractCellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
 		if(factory != null || alreadyRegisteredVersionAllCells != allCells){
 			alreadyRegisteredVersionAllCells = allCells;
 			factory.registerNecessaryObjects(allCells, continuous, objects);

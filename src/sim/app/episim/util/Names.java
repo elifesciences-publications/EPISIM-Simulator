@@ -6,40 +6,42 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 public abstract class Names {
 	private static String [] charactersToRemove = new String[]{";", "/", "\\", ",", ".", ":", "?", "!", "_", "-", "<", ">", "&", "%", "+", "*", " " ,"}","{",")","(", "|","´","`","°","~","§","ß", "\""};
-	public static final String BIOCHEMMODEL ="Cell-Behavioral-Model";
-	public static final String EPISIMTEXTOUT ="Episim Text Output";
-	public static final String MECHMODEL ="Biomechanical-Model";
+	public static final String BIOCHEM_MODEL ="Cell-Behavioral-Model";
+	public static final String EPISIM_TEXTOUT ="Episim Text Output";
+	public static final String MECH_MODEL ="Biomechanical-Model";
 	public static final String MISCALLENEOUS = "Miscalleneous";
-	public static final String EPISIMCHARTSETFILENAME ="EpisimChartSet.dat";
-	public static final String EPISIMDATAEXPORTFILENAME ="EpisimDataExport.dat";
-	public static final String EPISIMCELLBEHAVIORALMODELVALUE ="cellbehavioralmodel";
-	public static final String GENERATEDCHARTSPACKAGENAME = "generatedcharts";
-	public static final String GENERATEDDATAEXPORTPACKAGENAME = "generateddataexports";
-	public static final String CELLBEHAVIORALMODEL ="_CellBehavioralModel";
-	public static final String EPISIMCHARTSETFACTORYNAME ="EpisimChartSetFactory";
-	public static final String EPISIMDATAEXPORTFACTORYNAME ="EpisimDataExportFactory";
+	public static final String EPISIM_CHARTSET_FILENAME ="EpisimChartSet.dat";
+	public static final String EPISIM_DATAEXPORT_FILENAME ="EpisimDataExport.dat";
+	public static final String EPISIM_CELLBEHAVIORAL_MODEL_VALUE ="cellbehavioralmodel";
+	public static final String GENERATED_CHARTS_PACKAGENAME = "generatedcharts";
+	public static final String GENERATED_DATAEXPORT_PACKAGENAME = "generateddataexports";
+	public static final String CELLBEHAVIORAL_MODEL ="_CellBehavioralModel";
+	public static final String EPISIM_CHARTSET_FACTORYNAME ="EpisimChartSetFactory";
+	public static final String EPISIM_DATAEXPORT_FACTORYNAME ="EpisimDataExportFactory";
 	
 	
-	public static final String NUMBERPREFIX = "n_";
-	public static final String BOOLEANPREFIX = "b_";
-	public static final int PREFIXLENGTH = 2;
+	public static final String NUMBER_PREFIX = "n_";
+	public static final String BOOLEAN_PREFIX = "b_";
+	public static final String CELLTYPE_PREFIX = "c_";
+	public static final String DIFFLEVEL_PREFIX = "d_";
+	public static final int PREFIX_LENGTH = 2;
 	
 	
-	public static final String BUILDGRADIENTHANDLER = "buildGradientHandler_";
-	public static final String BUILDACMVHANDLER = "buildAllCellsMeanValueHandler_";
-	public static final String BUILDCELLHANDLER = "buildOneCellTrackingHandler_";
+	public static final String BUILD_GRADIENT_HANDLER = "buildGradientHandler_";
+	public static final String BUILD_ACMV_HANDLER = "buildAllCellsMeanValueHandler_";
+	public static final String BUILD_CELL_HANDLER = "buildOneCellTrackingHandler_";
 	
-	public static final String GENERATEDGRADIENTFUNCTIONNAME = "gradients";
-	
-	
-	public static final String DATAEXPORTFILETYPE = ".ede";
-	public static final String CHARTSETFILETYPE = ".ecs";
-	public static final String MODELFILETYPE = ".jar";
-	
-	public static final String CONSOLEMAINCONTAINER = "ConsoleMainContainer";
+	public static final String GENERATED_GRADIENT_FUNCTIONNAME = "gradients";
 	
 	
-	public static final String CALCULATIONCALLBACKLIST = "calculationCallbacks";
+	public static final String DATAEXPORT_FILETYPE = ".ede";
+	public static final String CHARTSET_FILETYPE = ".ecs";
+	public static final String MODEL_FILETYPE = ".jar";
+	
+	public static final String CONSOLE_MAIN_CONTAINER = "ConsoleMainContainer";
+	
+	
+	public static final String CALCULATION_CALLBACK_LIST = "calculationCallbacks";
 	
 	public static String cleanString(String str){
 		

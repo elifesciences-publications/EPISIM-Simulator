@@ -2,9 +2,9 @@ package sim.app.episim.tissue;
 
 
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.KCyte;
+import sim.app.episim.UniversalCell;
 import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.biomechanics.CellPolygon;
 import sim.app.episim.datamonitoring.GlobalStatistics;
@@ -104,8 +104,10 @@ public class Epidermis extends TissueType implements CellDeathListener
     
      
      SnapshotWriter.getInstance().addSnapshotListener(this);
-     this.registerCellType(KCyte.class);
-     
+     EpisimCellType[] cellTypes = ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes();
+     if(cellTypes!= null){
+   	  for(EpisimCellType epiType : cellTypes) this.registerCellType(epiType, UniversalCell.class); // Currently the same class is used for all modeled cell types
+     }
      
      ChartController.getInstance().setChartMonitoredTissue(this);
      DataExportController.getInstance().setDataExportMonitoredTissue(this);
@@ -185,7 +187,7 @@ private void seedStemCells(){
 			if(distance > ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
 
 				// TODO: Check creation of Stem Cells
-				KCyte stemCell = new KCyte(CellType.getNextCellId(),-1, ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject());
+				UniversalCell stemCell = new UniversalCell(AbstractCellType.getNextCellId(),-1, ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject());
 				// stemCell.setKeratinoType(modelController.getCellBehavioralModelController().getGlobalIntConstant("KTYPE_STEM"));
 				stemCell.setOwnColor(10);
 				int cellCyclePos = random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem());
@@ -298,11 +300,11 @@ private void seedStemCells(){
 	     }
 		  else{
 							 
-			     for(CellType cell: getAllCells()){		   	  
+			     for(AbstractCellType cell: getAllCells()){		   	  
 			   		
 			   		schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
-			   		if(cell instanceof KCyte){
-			   			KCyte kcyte = (KCyte) cell;
+			   		if(cell instanceof UniversalCell){
+			   			UniversalCell kcyte = (UniversalCell) cell;
 			   			
 			   			kcyte.removeCellDeathListener();
 			   			kcyte.addCellDeathListener(this);
@@ -325,7 +327,7 @@ private void seedStemCells(){
              public void step(SimState state)
              {
                  int MAX_XBINS=300; // for every 3 x coordinates one bin
-                 CellType[] xLookUp=new CellType[MAX_XBINS];                                         
+                 AbstractCellType[] xLookUp=new AbstractCellType[MAX_XBINS];                                         
                  double [] yLookUp=new double[MAX_XBINS]; // Concentrations *10 = 0 to 200
                  boolean [] LookUpUsed=new boolean[MAX_XBINS]; 
                  for (int k=0; k< MAX_XBINS; k++)
@@ -341,7 +343,7 @@ private void seedStemCells(){
                  for (int i=0; i<getAllCells().size(); i++)
                  {
                      // iterate through all cells and determine the KCyte with lowest Y at bin
-                     CellType act=(CellType)getAllCells().get(i);
+                     AbstractCellType act=(AbstractCellType)getAllCells().get(i);
                      if (act.isInNirvana()) continue;
                      // is a living cell..
                      
@@ -352,7 +354,7 @@ private void seedStemCells(){
                      //act.isOuterCell=false; // set new default 
                      Double2D loc=cellContinous2D.getObjectLocation(act);
                      
-                     int xbin=(int)loc.x/ KCyte.GINITIALKERATINOWIDTH;
+                     int xbin=(int)loc.x/ UniversalCell.GINITIALKERATINOWIDTH;
                      if (xLookUp[xbin]==null) 
                      {
                          xLookUp[xbin]=act;                            
@@ -392,12 +394,12 @@ private void seedStemCells(){
  
 
 	public void removeCells(GeneralPath path){
-	Iterator<CellType> iter = getAllCells().iterator();
+	Iterator<AbstractCellType> iter = getAllCells().iterator();
 	Map<Long, Double2D> map = new HashMap<Long, Double2D>();
-	List<CellType> livingCells = new LinkedList<CellType>();
+	List<AbstractCellType> livingCells = new LinkedList<AbstractCellType>();
 		int i = 0;
 		while(iter.hasNext()){
-			CellType cell = iter.next();
+			AbstractCellType cell = iter.next();
 	
 			if(path.contains(cell.getCellEllipseObject().getLastDrawInfo2D().draw.x, cell.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
 					cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
@@ -413,7 +415,7 @@ private void seedStemCells(){
 		
 	this.getAllCells().clear();
 	this.cellContinous2D.clear();
-		for(CellType cell: livingCells){
+		for(AbstractCellType cell: livingCells){
 			this.getAllCells().add(cell);
 			this.cellContinous2D.setObjectLocation(cell, map.get(cell.getID()));
 		}
@@ -504,7 +506,7 @@ private void seedStemCells(){
 
 
 
-	public void cellIsDead(CellType cell) {
+	public void cellIsDead(AbstractCellType cell) {
 		super.cellIsDead(cell);
 		this.cellContinous2D.remove(cell);		
 	}

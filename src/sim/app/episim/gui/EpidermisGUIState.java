@@ -3,8 +3,8 @@ package sim.app.episim.gui;
 import sim.SimStateServer;
 import sim.engine.*;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.KCyte;
-import sim.app.episim.KCyteInspector;
+import sim.app.episim.UniversalCell;
+import sim.app.episim.CellInspector;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.TissueServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
@@ -22,7 +22,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.GridPortrayal2D;
-import sim.app.episim.visualization.KeratinocytePortrayal2D;
+import sim.app.episim.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.*;
@@ -274,12 +274,12 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		java.awt.Color myColor = java.awt.Color.lightGray;
 
 		
-		epiPortrayal.setPortrayalForClass(KCyte.class, new KeratinocytePortrayal2D(myColor) {
+		epiPortrayal.setPortrayalForClass(UniversalCell.class, new UniversalCellPortrayal2D(myColor) {
 
 			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
 				System.out.println("Hallo Inspector");
 				// make the inspector
-				return new KCyteInspector(super.getInspector(wrapper, state), wrapper, state);
+				return new CellInspector(super.getInspector(wrapper, state), wrapper, state);
 			}
 		});
 		

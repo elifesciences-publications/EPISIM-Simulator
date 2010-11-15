@@ -17,7 +17,7 @@ import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.KCyte;
+import sim.app.episim.UniversalCell;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;

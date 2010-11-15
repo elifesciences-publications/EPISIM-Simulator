@@ -196,7 +196,7 @@ public class EpisimMenuBarFactory {
 
 			public void actionPerformed(ActionEvent e) {
 				boolean success = true;
-				if(simulator.getMainFrame() instanceof JFrame)ChartController.getInstance().showNewChartSetDialog((JFrame)simulator.getMainFrame());
+				if(simulator.getMainFrame() instanceof JFrame) success = ChartController.getInstance().showNewChartSetDialog((JFrame)simulator.getMainFrame());
 				if(success){
 					getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(true);
 					getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(true);

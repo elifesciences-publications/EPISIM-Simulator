@@ -13,7 +13,7 @@ import java.util.Set;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 
@@ -37,6 +37,8 @@ import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
+import episiminterfaces.EpisimCellType;
+import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
@@ -78,6 +80,8 @@ public class DataExportController {
 		validDataTypes.add(Float.TYPE);
 		validDataTypes.add(Double.TYPE);
 		validDataTypes.add(Boolean.TYPE);
+		validDataTypes.add(EpisimCellType.class);
+		validDataTypes.add(EpisimDifferentiationLevel.class);
 		
 	}
 	
@@ -202,7 +206,7 @@ public class DataExportController {
 	}
 	
 	
-	public List<EnhancedSteppable> getDataExportSteppablesOfActLoadedChartSet(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+	public List<EnhancedSteppable> getDataExportSteppablesOfActLoadedChartSet(GenericBag<AbstractCellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
 		return DataExportSteppableServer.getInstance().getDataExportSteppables(allCells, continuous, objects );
 	}
 	

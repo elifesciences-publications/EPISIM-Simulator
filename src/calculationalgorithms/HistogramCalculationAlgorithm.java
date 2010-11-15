@@ -6,7 +6,7 @@ import java.util.Map;
 
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.ResultSet;
@@ -77,7 +77,7 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
 		
 			notifyTissueObserver(handler.getID());
 		
-			 for(CellType cell: allCells){ 
+			 for(AbstractCellType cell: allCells){ 
 				 if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(cell.getClass())){
 					 double result = handler.calculate(cell);
 					 if(checkCondition(result, handler, cell)) results.add1DValue(result);
@@ -92,7 +92,7 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
 	   
    }
 	
-	protected boolean checkCondition(double result, CalculationHandler handler, CellType cell){
+	protected boolean checkCondition(double result, CalculationHandler handler, AbstractCellType cell){
 		double min = (Double) handler.getParameters().get(HISTOGRAMMINVALUEPARAMETER);
 		double max = (Double) handler.getParameters().get(HISTOGRAMMAXVALUEPARAMETER);
 		

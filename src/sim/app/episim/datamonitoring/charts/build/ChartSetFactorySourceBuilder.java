@@ -1,6 +1,6 @@
 package sim.app.episim.datamonitoring.charts.build;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -41,9 +41,9 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 	
 	public void appendHeader(){
 		super.appendHeader();
-		this.factorySource.append("import "+Names.GENERATEDCHARTSPACKAGENAME+".*;\n");
+		this.factorySource.append("import "+Names.GENERATED_CHARTS_PACKAGENAME+".*;\n");
 		this.factorySource.append("import org.jfree.chart.ChartPanel;\n");
-		this.factorySource.append("public class "+ Names.EPISIMCHARTSETFACTORYNAME+" extends AbstractChartSetFactory{\n");
+		this.factorySource.append("public class "+ Names.EPISIM_CHARTSET_FACTORYNAME+" extends AbstractChartSetFactory{\n");
 	}
 	
 	public void appendDataFields(){
@@ -58,7 +58,7 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 	}
 	
 	public void appendConstructor(){
-		this.factorySource.append("public "+ Names.EPISIMCHARTSETFACTORYNAME+"(){\n");
+		this.factorySource.append("public "+ Names.EPISIM_CHARTSET_FACTORYNAME+"(){\n");
 		this.factorySource.append("  this.allChartsOfTheSet = new ArrayList<GeneratedChart>();\n");
 		for(EpisimChart actChart:actChartSet.getEpisimCharts()){
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
@@ -99,7 +99,7 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
 					".registerRequiredObjects(");
 			for(Class<?> actClass: actChart.getAllRequiredClasses()){
-				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
 					this.factorySource.append(Names.convertClassToVariable(actClass.getSimpleName())+", ");
 				}
 			}

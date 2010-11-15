@@ -6,8 +6,8 @@ import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
-import sim.app.episim.CellType;
-import sim.app.episim.KCyte;
+import sim.app.episim.AbstractCellType;
+import sim.app.episim.UniversalCell;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
@@ -54,7 +54,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	
 	private int actualNumberOfBasalStatisticsCells = 0;
 	
-	private GenericBag<CellType> allCells;
+	private GenericBag<AbstractCellType> allCells;
 	
 	private double sumOfAllAges = 0;
 	
@@ -69,7 +69,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 	}
 	
-	public GenericBag<CellType> getCells(){
+	public GenericBag<AbstractCellType> getCells(){
 		return this.allCells;		
 	}
 	public double getGradientMinX(){
@@ -91,7 +91,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	}
 	
 	
-	public EnhancedSteppable getUpdateSteppable(GenericBag<CellType> cells){
+	public EnhancedSteppable getUpdateSteppable(GenericBag<AbstractCellType> cells){
 		if(cells == null) throw new IllegalArgumentException("Global Statistic Bag containing all cells must not be null!");
 		this.allCells = cells;
 		return new EnhancedSteppable(){
@@ -120,7 +120,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		calculateDnaAmountHistogramm(allCells);
 		
 		
-		for(CellType actCell: allCells){
+		for(AbstractCellType actCell: allCells){
 			int diffLevel =  actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();
 			  switch(diffLevel){
 				  case EpisimDifferentiationLevel.EARLYSPICELL:{
@@ -153,7 +153,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
                oldNumOuterCells++;
            }
 			  
-			  if(actCell instanceof KCyte && ((KCyte) actCell).isBasalStatisticsCell()) this.actualBasalStatisticsCells++;
+			  if(actCell instanceof UniversalCell && ((UniversalCell) actCell).isBasalStatisticsCell()) this.actualBasalStatisticsCells++;
 			  sumOfAllAges += actCell.getEpisimCellBehavioralModelObject().getAge();
 		}
 			if(counter == 10){
@@ -185,14 +185,14 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	}
 	public double [] getDNAContents(){ return this.dnaContents; }
 	
-	private void calculateDnaAmountHistogramm(GenericBag<CellType> allCells)
+	private void calculateDnaAmountHistogramm(GenericBag<AbstractCellType> allCells)
 	{
 		double intervalSize = getBucketIntervalSize();
 		//System.out.println(intervalSize);
 		
 		
 		
-		for(CellType actCell : allCells){
+		for(AbstractCellType actCell : allCells){
 			if(actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.TACELL ||
 					actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL){
 				double dnaContent = actCell.getEpisimCellBehavioralModelObject().getDnaContent();
@@ -323,10 +323,10 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	}
 
 
-	public void cellIsDead(CellType cell) {
+	public void cellIsDead(AbstractCellType cell) {
 
-	   if(cell instanceof KCyte){
-	   	KCyte kcyte = (KCyte) cell;
+	   if(cell instanceof UniversalCell){
+	   	UniversalCell kcyte = (UniversalCell) cell;
 	   	dekrementActualNumberKCytes();
 	   	
 	   	if(kcyte.isBasalStatisticsCell()){ 

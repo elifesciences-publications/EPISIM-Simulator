@@ -16,7 +16,7 @@ import sim.engine.Steppable;
 import sim.engine.Stoppable;
 
 
-public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable{
+public abstract class AbstractCellType implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable{
 	
 	
    private boolean isOuterCell=false;
@@ -30,7 +30,7 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    
    private boolean tracked = false;
    
-   private CellType[] neighbouringCells;
+   private AbstractCellType[] neighbouringCells;
    
    private CellEllipse cellEllipseObject;
    
@@ -42,7 +42,7 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    
    private SimState actSimState;
    
-   public CellType(long identity, long motherIdentity, EpisimCellBehavioralModel cellBehavioralModel){
+   public AbstractCellType(long identity, long motherIdentity, EpisimCellBehavioralModel cellBehavioralModel){
    	inNirvana=false;
    	isOuterCell=false;
    	this.id = identity;
@@ -97,7 +97,7 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    
    public void setStoppable(Stoppable stopperparam)   { this.stoppable = stopperparam;}
 	
-   protected void setNeighbouringCells(CellType[] neighbours){
+   protected void setNeighbouringCells(AbstractCellType[] neighbours){
    	this.neighbouringCells = neighbours;
    }
    
@@ -105,7 +105,7 @@ public abstract class CellType implements Steppable, Stoppable, sim.portrayal.Or
    	this.cellEllipseObject = cellEllipseObject;
    }
    
-   public CellType[] getNeighbouringCells(){
+   public AbstractCellType[] getNeighbouringCells(){
    	return this.neighbouringCells;
    }
    

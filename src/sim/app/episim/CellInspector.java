@@ -15,11 +15,11 @@ import javax.swing.JButton;
 import sim.display.*;
 import sim.engine.SimState;
 
-public class KCyteInspector extends Inspector
-    {
+public class CellInspector extends Inspector
+{
     public Inspector originalInspector;
     
-    public KCyteInspector(Inspector originalInspector,
+    public CellInspector(Inspector originalInspector,
                                 LocationWrapper wrapper,
                                 GUIState guiState)
         {
@@ -31,7 +31,7 @@ public class KCyteInspector extends Inspector
         }
         
     public void updateInspector()
-        {
+    {
         originalInspector.updateInspector();
-        }
     }
+}

@@ -2,7 +2,7 @@ package episiminterfaces.calc;
 
 import java.util.Map;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import episimexceptions.CellNotValidException;
 import episimexceptions.MissingObjectsException;
 
@@ -14,10 +14,10 @@ public interface CalculationHandler {
 	int getCalculationAlgorithmID();
 	Map<String, Object> getParameters();
 	
-	Class<? extends CellType> getRequiredCellType();
+	Class<? extends AbstractCellType> getRequiredCellType();
 	
 	boolean isBaselineValue();
-	boolean conditionFulfilled(CellType cell) throws CellNotValidException;
-	double calculate(CellType cell) throws CellNotValidException;
+	boolean conditionFulfilled(AbstractCellType cell) throws CellNotValidException;
+	double calculate(AbstractCellType cell) throws CellNotValidException;
 
 }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import sim.app.episim.CellType;
+import sim.app.episim.AbstractCellType;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -34,7 +34,7 @@ public abstract class  AbstractCommonSourceBuilder {
 		if(requiredClasses != null){
 			this.generatedSourceCode.append("  public void registerRequiredObjects(");
 			for(Class<?> actClass: requiredClasses){
-				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
 					generatedSourceCode.append(actClass.getSimpleName() + " " + Names.convertClassToVariable(actClass.getSimpleName())+", ");
 				}
 			}
@@ -42,7 +42,7 @@ public abstract class  AbstractCommonSourceBuilder {
 			this.generatedSourceCode.append("    this.allCells = allCells;\n");
 			this.generatedSourceCode.append("    this.cellContinuous = cellContinuous;\n");
 			for(Class<?> actClass: requiredClasses){
-				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !CellType.class.isAssignableFrom(actClass)){
+				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
 					this.generatedSourceCode.append("    this." + Names.convertClassToVariable(actClass.getSimpleName())+" = "
 							+ Names.convertClassToVariable(actClass.getSimpleName())+";\n");
 				}
@@ -66,7 +66,7 @@ public abstract class  AbstractCommonSourceBuilder {
 		
 	protected void appendDataFields(){
 	   generatedSourceCode.append("  private EnhancedSteppable steppable;\n");
-	   generatedSourceCode.append("  private ArrayList<CalculationCallBack> "+Names.CALCULATIONCALLBACKLIST+" = new ArrayList<CalculationCallBack>();\n");
+	   generatedSourceCode.append("  private ArrayList<CalculationCallBack> "+Names.CALCULATION_CALLBACK_LIST+" = new ArrayList<CalculationCallBack>();\n");
 	}
 	
 	protected void appendStandardMethods(){
@@ -98,7 +98,7 @@ public abstract class  AbstractCommonSourceBuilder {
       handlerSource.append("  public Class<? extends CellType> getRequiredCellType(){\n");
       boolean classFound = false;
       for(Class<?> actClass: requiredClasses){
-			if(CellType.class.isAssignableFrom(actClass)){
+			if(AbstractCellType.class.isAssignableFrom(actClass)){
 				handlerSource.append("    return "+ actClass.getSimpleName()+ ".class;\n}\n");
 				classFound = true;
 				
@@ -148,7 +148,7 @@ public abstract class  AbstractCommonSourceBuilder {
 		boolean classFound = false;
 		source.append("  private boolean isValidCell(CellType cellType){\n");
 		for(Class<?> actClass: requiredClasses){
-			if(CellType.class.isAssignableFrom(actClass)){
+			if(AbstractCellType.class.isAssignableFrom(actClass)){
 				source.append("    if(cellType.getClass().isAssignableFrom("+ actClass.getSimpleName()+ ".class)) return true;\n");
 				classFound = true;
 			}
@@ -160,7 +160,7 @@ public abstract class  AbstractCommonSourceBuilder {
 	
 	private void appendLocalVars(Set<Class<?>> requiredClasses, StringBuffer source){
 		for(Class<?> actClass: requiredClasses){
-			if(EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || CellType.class.isAssignableFrom(actClass))				
+			if(EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || AbstractCellType.class.isAssignableFrom(actClass))				
 				source.append(actClass.getSimpleName()+ " " + Names.convertClassToVariable(actClass.getSimpleName())+" = null;\n");
 		}
 	}
@@ -168,7 +168,7 @@ public abstract class  AbstractCommonSourceBuilder {
 		boolean firstLoop = true;
 		
 		for(Class<?> actClass: requiredClasses){
-			if(EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || CellType.class.isAssignableFrom(actClass)){				
+			if(EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || AbstractCellType.class.isAssignableFrom(actClass)){				
 				
 				if(firstLoop){
 					source.append("if("+varName+ ".getClass().isAssignableFrom("+ actClass.getSimpleName()+ ".class)) " + 

@@ -31,7 +31,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.ExpressionEditorPanel.ExpressionType;
 import sim.app.episim.model.ModelController;
@@ -60,7 +60,7 @@ public class TissueCellDataFieldsInspector {
 	private Set<String> overallVarOrConstantNameSet;
 	private Map<String, EpisimCellType> cellTypesEnumMap;
 	private Map<String, EpisimDifferentiationLevel> diffLevelsEnumMap;
-	private Map<String, AbstractCellType> cellTypesClassesMap;
+	private Map<String, AbstractCell> cellTypesClassesMap;
 	private Map<String, String> cellTypesEnumClassesMap;
 	private Map<String, EpisimDifferentiationLevel[]> diffLevelsMap;
 	private Map<String, String> overallMethodCallMap;
@@ -108,7 +108,7 @@ public class TissueCellDataFieldsInspector {
 	
 	private void buildCellTypesMaps(){
 		this.cellTypesEnumMap = new HashMap<String, EpisimCellType>();
-		this.cellTypesClassesMap = new HashMap<String, AbstractCellType>();
+		this.cellTypesClassesMap = new HashMap<String, AbstractCell>();
 		this.cellTypesEnumClassesMap = new HashMap<String, String>();
 		this.overallCellTypeCallMap = new HashMap<String, String>();
 		for(EpisimCellType actCellType : ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes()){	        
@@ -116,7 +116,7 @@ public class TissueCellDataFieldsInspector {
 	        overallCellTypeCallMap.put(actCellType.name(), actCellType.getClass().getSimpleName()+"."+actCellType.name());
 		}
 		for(EpisimCellType actType : this.inspectedTissue.getRegisteredCellTypes().keySet()){
-	        AbstractCellType cellType  = null;
+	        AbstractCell cellType  = null;
          try{
 	         cellType = this.inspectedTissue.getRegisteredCellTypes().get(actType).newInstance();
 	         cellTypesClassesMap.put(actType.name(), cellType);
@@ -146,7 +146,7 @@ public class TissueCellDataFieldsInspector {
 		}
 	}
 	
-	private void buildOverallVarNameSetMethodCallMapConstantNameSetAndFieldCallMap(Map<String, AbstractCellType> cellTypes) {
+	private void buildOverallVarNameSetMethodCallMapConstantNameSetAndFieldCallMap(Map<String, AbstractCell> cellTypes) {
 		String parameterName = "";
 		this.overallVarOrConstantNameSet = new HashSet<String>();
 		this.requiredClasses = new HashSet<Class<?>>();
@@ -157,7 +157,7 @@ public class TissueCellDataFieldsInspector {
 		this.prefixMap = new HashMap<String, String>();
 		Set<String> cellTypeNames = cellTypes.keySet();
 		for(String actCellTypeName : cellTypeNames){
-			AbstractCellType actClass = cellTypes.get(actCellTypeName);
+			AbstractCell actClass = cellTypes.get(actCellTypeName);
 
 			for(Method actMethod : actClass.getParameters()){
 				processMethodForVarNameSetAndMethodCallMap(actCellTypeName, actMethod);
@@ -265,7 +265,7 @@ public class TissueCellDataFieldsInspector {
 		Class<?> identifiersClass = overallMethodMap.get(identifier).getDeclaringClass();
 		if(EpisimCellBehavioralModel.class.isAssignableFrom(identifiersClass)
 				|| EpisimMechanicalModel.class.isAssignableFrom(identifiersClass)
-				|| AbstractCellType.class.isAssignableFrom(identifiersClass)) return false;
+				|| AbstractCell.class.isAssignableFrom(identifiersClass)) return false;
 		return true;		
 	}
 	
@@ -379,7 +379,7 @@ public class TissueCellDataFieldsInspector {
 		String foundCellTypeName = null;
 		Set<String> cellTypeClassNames = new HashSet<String>();
 		//Class-Based Check
-		for(AbstractCellType actType: this.cellTypesClassesMap.values()) cellTypeClassNames.add(actType.getClass().getSimpleName());
+		for(AbstractCell actType: this.cellTypesClassesMap.values()) cellTypeClassNames.add(actType.getClass().getSimpleName());
 		for(String actVarName:varNames){
 			if(cellTypeClassNames.contains(firstLetterToUpperCase(getMethodOrFieldCallStrForVarOrConstantName(actVarName).split("\\.")[0]))){ 
 				if(foundCellTypeName== null)foundCellTypeName=getMethodOrFieldCallStrForVarOrConstantName(actVarName).split("\\.")[0];

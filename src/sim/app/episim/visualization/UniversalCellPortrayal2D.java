@@ -1,7 +1,7 @@
 package sim.app.episim.visualization;
 import sim.SimStateServer;
 import sim.SimStateServer.SimState;
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.biomechanics.CellPolygon;

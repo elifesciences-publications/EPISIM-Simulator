@@ -15,7 +15,7 @@ public abstract class Names {
 	public static final String EPISIM_CELLBEHAVIORAL_MODEL_VALUE ="cellbehavioralmodel";
 	public static final String GENERATED_CHARTS_PACKAGENAME = "generatedcharts";
 	public static final String GENERATED_DATAEXPORT_PACKAGENAME = "generateddataexports";
-	public static final String CELLBEHAVIORAL_MODEL ="_CellBehavioralModel";
+	public static final String CELLBEHAVIORAL_MODEL ="_CBM";
 	public static final String EPISIM_CHARTSET_FACTORYNAME ="EpisimChartSetFactory";
 	public static final String EPISIM_DATAEXPORT_FACTORYNAME ="EpisimDataExportFactory";
 	

@@ -3,7 +3,7 @@ package calculationalgorithms;
 import java.util.HashMap;
 import java.util.Map;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.ResultSet;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
@@ -46,7 +46,7 @@ public class Dummy1{
 	
    }
 
-	public void registerCells(GenericBag<AbstractCellType> allCells) {
+	public void registerCells(GenericBag<AbstractCell> allCells) {
 
 	  
 	   

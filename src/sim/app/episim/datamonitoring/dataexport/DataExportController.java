@@ -13,7 +13,7 @@ import java.util.Set;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 
@@ -206,7 +206,7 @@ public class DataExportController {
 	}
 	
 	
-	public List<EnhancedSteppable> getDataExportSteppablesOfActLoadedChartSet(GenericBag<AbstractCellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+	public List<EnhancedSteppable> getDataExportSteppablesOfActLoadedChartSet(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
 		return DataExportSteppableServer.getInstance().getDataExportSteppables(allCells, continuous, objects );
 	}
 	

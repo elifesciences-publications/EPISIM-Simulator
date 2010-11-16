@@ -3,7 +3,7 @@ package sim.app.episim.datamonitoring.dataexport.build;
 
 import java.util.List;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -95,7 +95,7 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actdataExportDefinition.getName())+ actdataExportDefinition.getId()) +
 						".registerRequiredObjects(");
 			for(Class<?> actClass: actdataExportDefinition.getAllRequiredClasses()){
-					if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
+					if(isRequiredClassNecessary(actClass)){
 						this.factorySource.append(Names.convertClassToVariable(actClass.getSimpleName())+", ");
 					}
 			}

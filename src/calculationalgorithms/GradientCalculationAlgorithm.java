@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.jfree.data.xy.XYSeries;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.util.ResultSet;
@@ -73,7 +73,7 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				
 				Map<Double, Double> resultMap = new LinkedHashMap<Double, Double>();
 				
-				for(AbstractCellType actCell: allCells){
+				for(AbstractCell actCell: allCells){
 					if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){
 						EpisimCellBehavioralModel cellBehaviour = actCell.getEpisimCellBehavioralModelObject();
 						if(cellBehaviour.getX() >= GlobalStatistics.getInstance().getGradientMinX()

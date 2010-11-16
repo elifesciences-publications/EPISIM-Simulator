@@ -47,7 +47,7 @@ import java.util.Set;
 import org.jfree.data.xy.XYSeries;
 import sim.portrayal.*;
 
-public class UniversalCell extends AbstractCellType
+public class UniversalCell extends AbstractCell
 {
 //	-----------------------------------------------------------------------------------------------------------------------------------------   
 // CONSTANTS
@@ -363,7 +363,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
    	 // Either we get use a currently unused cell oder we allocate a new one
         UniversalCell kcyte;        
        
-        kcyte= new UniversalCell(AbstractCellType.getNextCellId(), getID(), cellBehavioralModel); 
+        kcyte= new UniversalCell(AbstractCell.getNextCellId(), getID(), cellBehavioralModel); 
         cellBehavioralModel.setId((int)kcyte.getID());
            
             
@@ -555,7 +555,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
     	 
     	 
     	 if(this.getNeighbouringCells() != null && this.getNeighbouringCells().length > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
- 	   	 for(AbstractCellType neighbouringCell : this.getNeighbouringCells()){
+ 	   	 for(AbstractCell neighbouringCell : this.getNeighbouringCells()){
  	   		 
  	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), getActSimState().schedule.getSteps())){
  	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());
@@ -702,14 +702,7 @@ public Double2D calcBoundedPos(Continuous2D pC2dHerd, double xPos, double yPos)
 			else
 				setIsMembraneCell(false); // ABSOLUTE DISTANZ KONSTANTE
 			
-		/*	EpisimCellBehavioralModel[] neighbours = new EpisimCellBehavioralModel[b.size()];
-			Object[] cytes = b.toArray();
-			for(int i=0; i < b.size(); i++){ 
-				if(cytes[i] instanceof CellType){
-					neighbours[i] = ((CellType) cytes[i]).getEpisimCellBehavioralModelObject();
-				}
-			}*/
-
+	
 			//	long timeBefore = System.currentTimeMillis();
 			/////////////////////////////////////////////////////////
 			//   Differentiation: Calling the loaded Cell-Diff-Model

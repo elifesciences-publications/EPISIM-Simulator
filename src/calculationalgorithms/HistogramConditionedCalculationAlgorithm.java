@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ResultSet;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
@@ -57,7 +57,7 @@ public class HistogramConditionedCalculationAlgorithm extends HistogramCalculati
 	}
 
 	
-	protected boolean checkCondition(double result, CalculationHandler handler, AbstractCellType cell){
+	protected boolean checkCondition(double result, CalculationHandler handler, AbstractCell cell){
 		double min = (Double) handler.getParameters().get(HISTOGRAMMINVALUEPARAMETER);
 		double max = (Double) handler.getParameters().get(HISTOGRAMMAXVALUEPARAMETER);
 		

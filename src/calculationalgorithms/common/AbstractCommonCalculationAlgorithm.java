@@ -1,13 +1,13 @@
 package calculationalgorithms.common;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.util.GenericBag;
 
 
 
 public abstract class AbstractCommonCalculationAlgorithm {
-	protected GenericBag<AbstractCellType> allCells;
-	public void registerCells(GenericBag<AbstractCellType> allCells){
+	protected GenericBag<AbstractCell> allCells;
+	public void registerCells(GenericBag<AbstractCell> allCells){
 		this.allCells = allCells;		
 	}
 	

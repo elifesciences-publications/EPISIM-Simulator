@@ -3,12 +3,14 @@ package sim.app.episim.datamonitoring.build;
 import java.util.HashSet;
 import java.util.Set;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Names;
 import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
 import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellType;
+import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.EpisimChart;
 
 
@@ -39,27 +41,27 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("import sim.field.continuous.*;\n");
 		this.factorySource.append("import sim.app.episim.util.EnhancedSteppable;\n");
 		this.factorySource.append("import sim.app.episim.util.GenericBag;\n");
-		this.factorySource.append("import sim.app.episim.CellType;\n");
+		this.factorySource.append("import sim.app.episim.AbstractCell;\n");
 	}
 	
 	protected void appendDataFields(){
 		for(Class<?> actClass : this.requiredClasses){
-			if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
+			if(isRequiredClassNecessary(actClass)){
 				this.factorySource.append("  private "+ actClass.getSimpleName()+ " "+Names.convertClassToVariable(actClass.getSimpleName())+ ";\n");
 			}
 		}
 		this.factorySource.append("  private Continuous2D cellContinuous;\n");
-		this.factorySource.append("  private GenericBag<CellType> allCells;\n");		
+		this.factorySource.append("  private GenericBag<AbstractCell> allCells;\n");		
 	}
 	
 	protected void appendRegisterMethod(){
-		this.factorySource.append("public void registerNecessaryObjects(GenericBag<CellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{\n");
+		this.factorySource.append("public void registerNecessaryObjects(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{\n");
 		this.factorySource.append("  if(objects == null || allCells == null || continuous == null) throw new IllegalArgumentException(\"Objects to be registered for charting must not be null\");\n");
 		this.factorySource.append("    this.cellContinuous = continuous;\n");
 		this.factorySource.append("    this.allCells = allCells;\n");
 		this.factorySource.append("  for(Object actObject: objects){\n");
 		for(Class<?> actClass : this.requiredClasses){
-			if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
+			if(isRequiredClassNecessary(actClass)){
 				this.factorySource.append("    if(actObject instanceof "+actClass.getSimpleName()+") this."+Names.convertClassToVariable(actClass.getSimpleName())+" = ("+actClass.getSimpleName()+") actObject;\n"); 
 			}
 		}
@@ -75,7 +77,7 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("  if(this.cellContinuous == null) objectsMissing = true;\n");
 		this.factorySource.append("  if(this.allCells == null) objectsMissing = true;\n");
 		for(Class<?> actClass : this.requiredClasses){
-			if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCellType.class.isAssignableFrom(actClass)){
+			if(isRequiredClassNecessary(actClass)){
 				this.factorySource.append("  if(this."+Names.convertClassToVariable(actClass.getSimpleName())+" == null) objectsMissing = true;\n"); 
 			}
 		}
@@ -88,6 +90,12 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		
 		this.factorySource.append("}\n");
 	}
-
+	
+	protected boolean isRequiredClassNecessary(Class<?> actClass){
+		return !EpisimCellBehavioralModel.class.isAssignableFrom(actClass) 
+		  		&& !AbstractCell.class.isAssignableFrom(actClass) 
+		  		&& !EpisimCellType.class.isAssignableFrom(actClass)
+		  		&& !EpisimDifferentiationLevel.class.isAssignableFrom(actClass);
+	}
 
 }

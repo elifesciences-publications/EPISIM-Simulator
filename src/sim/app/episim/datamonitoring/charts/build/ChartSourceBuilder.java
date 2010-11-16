@@ -20,7 +20,7 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
@@ -102,7 +102,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.GlobalStatistics;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.calc.*;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.charts.io.*;\n");
-		generatedSourceCode.append("import sim.app.episim.CellType;\n");
+		generatedSourceCode.append("import sim.app.episim.AbstractCell;\n");
 		generatedSourceCode.append("import sim.app.episim.EpisimProperties;\n");
 		generatedSourceCode.append("import sim.engine.SimState;\n");
 		generatedSourceCode.append("import sim.field.continuous.*;\n");
@@ -119,7 +119,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			generatedSourceCode.append("  private EnhancedSteppable pngSteppable = null;\n");
 		   generatedSourceCode.append("  private JFreeChart "+CHARTDATAFIELDNAME+";\n");
 		   generatedSourceCode.append("  private Continuous2D cellContinuous;\n");
-		   generatedSourceCode.append("  private GenericBag<CellType> allCells;\n");
+		   generatedSourceCode.append("  private GenericBag<AbstractCell> allCells;\n");
 		   generatedSourceCode.append("  private ChartPanel chartPanel;\n");
 		  if(mode == ChartSourceBuilderMode.XYSERIESMODE){ 
 			  	generatedSourceCode.append("  private XYSeriesCollection dataset = new XYSeriesCollection();\n");

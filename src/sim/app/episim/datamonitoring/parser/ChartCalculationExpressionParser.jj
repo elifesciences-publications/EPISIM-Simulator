@@ -468,9 +468,41 @@ String[] RelationalExpression():{
  	String[] totalResult = new String[2]; 	
  }
  {
- LOOKAHEAD(5)(exp1 =Expression()(t=<EQUAL_OR_NOT>|t=<BIGGER_SMALLER>) exp2 =Expression())
- | LOOKAHEAD(5)(exp1 =DiffLevel() t=<EQUAL_OR_NOT> exp2 =DiffLevel())
- | LOOKAHEAD(5)(exp1 =CellType() t=<EQUAL_OR_NOT> exp2 =CellType())  
+ LOOKAHEAD(5)((exp1 =Expression()(t=<EQUAL_OR_NOT>|t=<BIGGER_SMALLER>) exp2 =Expression())
+	{
+ 	
+	   if(t !=null && exp2 != null){
+	   	totalResult[0] = exp1[0] + t.image + exp2[0];
+	    totalResult[1] = exp1[1] + t.image + exp2[1];
+	   }
+	   else if(exp2 != null){
+	   	 totalResult[0] = exp1[0] + exp2[0];
+	     totalResult[1] = exp1[1] + exp2[1];
+	   }
+	   else{
+	   	 totalResult[0] = exp1[0];
+	     totalResult[1] = exp1[1];
+	   }	
+	   return totalResult; 	
+ 	})
+ | LOOKAHEAD(5)((exp1 =DiffLevel() t=<EQUAL_OR_NOT> exp2 =DiffLevel())
+	{
+ 	
+	   if(t !=null && exp2 != null){
+	   	totalResult[0] = exp1[0] + t.image + exp2[0];
+	    totalResult[1] = exp1[1] + t.image + exp2[1];
+	   }
+	   else if(exp2 != null){
+	   	 totalResult[0] = exp1[0] + exp2[0];
+	     totalResult[1] = exp1[1] + exp2[1];
+	   }
+	   else{
+	   	 totalResult[0] = exp1[0];
+	     totalResult[1] = exp1[1];
+	   }	
+	   return totalResult; 	
+ 	})
+ | LOOKAHEAD(5)((exp1 =CellType() t=<EQUAL_OR_NOT> exp2 =CellType())  
  {
  	
    if(t !=null && exp2 != null){
@@ -487,7 +519,7 @@ String[] RelationalExpression():{
    }	
    return totalResult;
  	
- }
+ })
 
 }
 

@@ -7,7 +7,7 @@ import java.util.List;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.model.MiscalleneousGlobalParameters;
@@ -21,7 +21,7 @@ import sim.util.Double2D;
 public class SnapshotLoader {
 	
 	private List<Double2D> woundRegionCoordinates = null;
-	private List<AbstractCellType> loadedCells;
+	private List<AbstractCell> loadedCells;
 	
 	private java.awt.geom.Rectangle2D.Double[] deltaInfo = null;
 	private EpisimCellBehavioralModelGlobalParameters behavioralModelGlobalParameters = null;
@@ -35,10 +35,10 @@ public class SnapshotLoader {
 		if(snapshotFile != null && jarFile != null){
 			
 			List<SnapshotObject> snapshotobjects = SnapshotReader.getInstance().loadSnapshot(snapshotFile, jarFile);
-			loadedCells = new LinkedList<AbstractCellType>();
+			loadedCells = new LinkedList<AbstractCell>();
 			for(SnapshotObject sObj : snapshotobjects){
 				if(sObj.getIdentifier().equals(SnapshotObject.CELL)){
-					loadedCells.add((AbstractCellType) sObj.getSnapshotObject());
+					loadedCells.add((AbstractCell) sObj.getSnapshotObject());
 					
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.CELLCONTINUOUS)){
@@ -85,7 +85,7 @@ public class SnapshotLoader {
 
 
 	
-   public List<AbstractCellType> getLoadedCells() {
+   public List<AbstractCell> getLoadedCells() {
    
    	return loadedCells;
    }

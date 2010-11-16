@@ -22,7 +22,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 
@@ -227,7 +227,7 @@ public class ChartController {
 		return loadEpisimChartSet(url, null);
 	}
 	
-	public List<EnhancedSteppable> getChartSteppablesOfActLoadedChartSet(GenericBag<AbstractCellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+	public List<EnhancedSteppable> getChartSteppablesOfActLoadedChartSet(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
 		return ChartPanelAndSteppableServer.getInstance().getChartSteppables(allCells, continuous, objects );
 	}
 	

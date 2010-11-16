@@ -14,7 +14,7 @@ import java.util.Set;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.ObjectManipulations;
 

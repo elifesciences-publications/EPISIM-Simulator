@@ -11,7 +11,7 @@ import java.util.Map;
 
 import episiminterfaces.EpisimCellType;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
@@ -39,16 +39,16 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	}
 	
 	
-	private Map<EpisimCellType, Class<? extends AbstractCellType>> registeredCellTypes;
+	private Map<EpisimCellType, Class<? extends AbstractCell>> registeredCellTypes;
 	private boolean guiMode = true;
 	private boolean consoleInput = false;
-	private GenericBag<AbstractCellType> allCells=new GenericBag<AbstractCellType>(3000); //all cells will be stored in this bag
+	private GenericBag<AbstractCell> allCells=new GenericBag<AbstractCell>(3000); //all cells will be stored in this bag
 	private boolean reloadedSnapshot = false;
 	private TimeSteps timeStepsAfterSnapshotReload = null;
 	
 	public TissueType(long seed){ 
 		super(new ec.util.MersenneTwisterFast(seed), new Schedule());
-		registeredCellTypes = new HashMap<EpisimCellType, Class<? extends AbstractCellType>>();
+		registeredCellTypes = new HashMap<EpisimCellType, Class<? extends AbstractCell>>();
 		consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
 					&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
 	     
@@ -68,20 +68,20 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	
 	public abstract List<Field> getContants();
 	
-	public Map <EpisimCellType, Class<? extends AbstractCellType>> getRegisteredCellTypes(){
+	public Map <EpisimCellType, Class<? extends AbstractCell>> getRegisteredCellTypes(){
 		return this.registeredCellTypes;
 	}
 	
-	public void registerCellType(EpisimCellType epiCellType, Class<? extends AbstractCellType> celltype){
+	public void registerCellType(EpisimCellType epiCellType, Class<? extends AbstractCell> celltype){
 		this.registeredCellTypes.put(epiCellType, celltype);
 	}
 	
-	public GenericBag<AbstractCellType> getAllCells() {	return allCells; }
+	public GenericBag<AbstractCell> getAllCells() {	return allCells; }
 	
 	public List<SnapshotObject> collectSnapshotObjects() {
 		
 		List<SnapshotObject> list = new LinkedList<SnapshotObject>();
-		Iterator<AbstractCellType> iter = getAllCells().iterator();
+		Iterator<AbstractCell> iter = getAllCells().iterator();
 		
 		while(iter.hasNext()){
 			list.add(new SnapshotObject(SnapshotObject.CELL, iter.next()));
@@ -91,7 +91,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 		return list;
 	}  
 	
-	public void addSnapshotLoadedCells(List<AbstractCellType> cells) { this.allCells.addAll(cells); }
+	public void addSnapshotLoadedCells(List<AbstractCell> cells) { this.allCells.addAll(cells); }
 	
 	public void setReloadedSnapshot(boolean reloadedSnapshot) {	this.reloadedSnapshot = reloadedSnapshot; }
 	
@@ -101,7 +101,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 		this.timeStepsAfterSnapshotReload = timeSteps;
 	}
 	
-	public void cellIsDead(AbstractCellType cell) {
+	public void cellIsDead(AbstractCell cell) {
 		this.allCells.remove(cell);		
 	}
 	

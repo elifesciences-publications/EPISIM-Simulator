@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import java.util.List;
 
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -65,5 +65,5 @@ public abstract class AbstractDataExportFactory {
    
    public abstract List<GeneratedDataExport> getDataExports();
    
-   public abstract void registerNecessaryObjects(GenericBag<AbstractCellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
+   public abstract void registerNecessaryObjects(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
 }

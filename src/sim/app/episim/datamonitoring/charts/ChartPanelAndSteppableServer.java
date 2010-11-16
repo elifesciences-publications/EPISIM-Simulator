@@ -11,7 +11,7 @@ import episimexceptions.MissingObjectsException;
 import episimfactories.AbstractChartSetFactory;
 import episiminterfaces.monitoring.GeneratedChart;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -28,7 +28,7 @@ public class ChartPanelAndSteppableServer {
 	private List<EnhancedSteppable> defaultSteppables;
 	private static ChartPanelAndSteppableServer instance = null;
 	private AbstractChartSetFactory factory = null;
-	GenericBag<AbstractCellType> alreadyRegisteredVersionAllCells = null;
+	GenericBag<AbstractCell> alreadyRegisteredVersionAllCells = null;
 	private ChartPanelAndSteppableServer(){
 		listeners = new HashSet<ChartSetChangeListener>();
 	}
@@ -66,7 +66,7 @@ public class ChartPanelAndSteppableServer {
 		return allPanels;
 	}
 	
-	public List<EnhancedSteppable> getChartSteppables(GenericBag<AbstractCellType> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+	public List<EnhancedSteppable> getChartSteppables(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
 		if(factory != null && alreadyRegisteredVersionAllCells != allCells){
 			alreadyRegisteredVersionAllCells = allCells;
 			factory.registerNecessaryObjects(allCells, continuous, objects);

@@ -59,7 +59,7 @@ import javax.swing.table.TableColumn;
 
 import org.jfree.data.xy.XYSeries;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.DataEvaluationWizard;
@@ -98,7 +98,7 @@ public class DataExportCreationWizard extends JDialog {
    private EpisimDataExportDefinition episimDataExportDefinition;
    private boolean okButtonPressed = false;
    
-   private Map<String, AbstractCellType> cellTypesMap;
+   private Map<String, AbstractCell> cellTypesMap;
    private Map<Integer, Long> columnsIdMap;
    private JTextField dataExportNameField;
   

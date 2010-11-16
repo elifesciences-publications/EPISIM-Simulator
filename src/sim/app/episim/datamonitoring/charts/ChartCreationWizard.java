@@ -63,7 +63,7 @@ import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 
-import sim.app.episim.AbstractCellType;
+import sim.app.episim.AbstractCell;
 
 import sim.app.episim.datamonitoring.DataEvaluationWizard;
 
@@ -97,7 +97,7 @@ public class ChartCreationWizard extends JDialog {
    private  DatasetChangeEvent updateEvent;
    
  
-   private Map<String, AbstractCellType> cellTypesMap;
+   private Map<String, AbstractCell> cellTypesMap;
    private Map<Integer, Long> seriesIdMap;
    private JTextField chartTitleField;
    private JTextField chartXLabel;

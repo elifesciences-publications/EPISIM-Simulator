@@ -12,6 +12,8 @@ public interface CalculationDataManager<X> {
 	void addNewValue(X xValue, X yValue);
 	void addNewValue(X xValue);
 	void observedEntityHasChanged(EntityChangeEvent event);
+	long getSimStep();
+	void setSimStep(long step);
 	void reset();
 	CalculationDataManagerType getCalculationDataManagerType();
 }

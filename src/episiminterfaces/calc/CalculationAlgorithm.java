@@ -17,7 +17,7 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 		ONEDIMRESULT("one dimensional result"), 
 		TWODIMRESULT("two dimensional result"), 
 		ONEDIMDATASERIESRESULT("one dimensional data series"), 
-		TWODIMDATASERIESRESULT("one dimensional data series (gradient etc.)"), 
+		TWODIMDATASERIESRESULT("two dimensional data series (gradient etc.)"), 
 		HISTOGRAMRESULT("histogram");
 		
 		private String description;

@@ -7,6 +7,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.biomechanics.CellPolygon;
+import sim.app.episim.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
@@ -187,9 +188,9 @@ private void seedStemCells(){
 			if(distance > ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
 
 				// TODO: Check creation of Stem Cells
-				UniversalCell stemCell = new UniversalCell(AbstractCell.getNextCellId(),-1, ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject());
+				UniversalCell stemCell = new UniversalCell(AbstractCell.getNextCellId(),-1, null);
 				// stemCell.setKeratinoType(modelController.getCellBehavioralModelController().getGlobalIntConstant("KTYPE_STEM"));
-				stemCell.setOwnColor(10);
+				
 				int cellCyclePos = random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem());
 				
 				//assign random age
@@ -354,7 +355,7 @@ private void seedStemCells(){
                      //act.isOuterCell=false; // set new default 
                      Double2D loc=cellContinous2D.getObjectLocation(act);
                      
-                     int xbin=(int)loc.x/ UniversalCell.GINITIALKERATINOWIDTH;
+                     int xbin=(int)loc.x / CenterBasedMechanicalModel.GINITIALKERATINOWIDTH;
                      if (xLookUp[xbin]==null) 
                      {
                          xLookUp[xbin]=act;                            
@@ -491,11 +492,11 @@ private void seedStemCells(){
 		try{
 			if(getAllCells() != null && this.cellContinous2D != null && ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters() != null
 					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters() != null
-					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel() != null){
+					&& ModelController.getInstance().getBioMechanicalModelController().getNewEpisimMechanicalModelObject() != null){
 		      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(getAllCells(), this.cellContinous2D, new Object[]{
 		      		ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters(), 
 		      		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(), 
-		      		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel(),
+		      		ModelController.getInstance().getBioMechanicalModelController().getNewEpisimMechanicalModelObject(),
 		      	this});
 		   }
       }
@@ -520,7 +521,7 @@ private void seedStemCells(){
 	      this.dataExportSteppables = DataExportController.getInstance().getDataExportSteppablesOfActLoadedChartSet(getAllCells(), getBasementContinous2D(), new Object[]{
 	      	ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters(), 
 	      	ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(), 
-	      	ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel(),
+	      	ModelController.getInstance().getBioMechanicalModelController().getNewEpisimMechanicalModelObject(),
 	         	this});
       }
       catch (MissingObjectsException e){

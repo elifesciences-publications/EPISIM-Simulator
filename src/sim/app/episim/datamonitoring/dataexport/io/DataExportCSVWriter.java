@@ -22,6 +22,8 @@ import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.dataexport.ObservedDataCollection;
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
 import episiminterfaces.*;
+import episiminterfaces.calc.EntityChangeEvent;
+import episiminterfaces.calc.EntityChangeEvent.EntityChangeEventType;
 
 public class DataExportCSVWriter implements SimulationStateChangeListener{
 	
@@ -45,6 +47,10 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	
 	private boolean aCellHasBeenChanged = false;
 	
+	private long simStepCounter = 0;
+	
+	private long lastSimStepCounterWritten = -1;
+	
 	public DataExportCSVWriter(File csvFile, String columnNames) {
 		
 		this.csvFile = csvFile;
@@ -60,27 +66,29 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		indexLookUp.put(columnId, actIndex);
 		actIndex++;
 		map.addValueMapListener(new ValueMapListener<Double>(){
-			public void valueAdded(Double key, Double value) {
-				if(key == Double.NEGATIVE_INFINITY && value == Double.NEGATIVE_INFINITY) aCellHasBeenChanged = true;
-				else{
+			public void valueAdded(Double key, Double value) {				
 		         values[indexLookUp.get(columnId)][0] = key;
 		         values[indexLookUp.get(columnId)][1] = value;
 		         alreadyCalculatedColumnsIds.add(columnId);
 		         checkIfDataWriteToDisk();
-				}
-         }
+		   }
 
-			public void valueAdded(Double value) {
-
-				if(value == Double.NEGATIVE_INFINITY) aCellHasBeenChanged = true;
-				else{
+			public void valueAdded(Double value) {				
 		         values[indexLookUp.get(columnId)][0] = Double.NEGATIVE_INFINITY;
 		         values[indexLookUp.get(columnId)][1] = value;
 		         alreadyCalculatedColumnsIds.add(columnId);
 		         checkIfDataWriteToDisk();
-				}
-	         
          }
+			
+			public void observedDataSourceChanged(EntityChangeEvent event){
+				if(event.getEventType() == EntityChangeEventType.CELLCHANGE) aCellHasBeenChanged = true;
+				//if(event.getEventType() == EntityChangeEventType.SIMULATIONSTEPCHANGE) simStepCounter++;
+			}
+			public void simStepChanged(long simStep){
+				if(simStep > simStepCounter){
+					simStepCounter = simStep;
+				}
+			}
 		});
 		values = new Double[actIndex][2];
 	}
@@ -94,11 +102,13 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		}
 		if(this.alreadyCalculatedColumnsIds.size() == values.length){
 			try{
-				for(int i = 0; i < values.length; i++){
-						
-					
-						if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(getFormattedValue(values[i][0]) + ";");
-											 
+				if(simStepCounter > lastSimStepCounterWritten){
+					csvWriter.write(simStepCounter+";");
+					lastSimStepCounterWritten = simStepCounter;
+				}
+				else csvWriter.write(";");
+				for(int i = 0; i < values.length; i++){					
+						if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(getFormattedValue(values[i][0]) + ";");											 
 						csvWriter.write(getFormattedValue(values[i][1]) + ";");													
 				}
 				if(aCellHasBeenChanged){
@@ -120,6 +130,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 			
 				if(csvWriter != null){
 					
+					csvWriter.write("sim step no;");
 					csvWriter.write(columnNames);
 					csvWriter.flush();
 	         }
@@ -151,6 +162,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	public void simulationWasStopped(){
 		try{
 	     if(csvWriter != null) csvWriter.close();
+	     aCellHasBeenChanged = false;
+	     simStepCounter = 0;
       }
       catch (IOException e){
       	ExceptionDisplayer.getInstance().displayException(e);
@@ -169,8 +182,11 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
    }
 	
 	private String getFormattedValue(double value){
-		if(Locale.getDefault() == Locale.GERMAN || Locale.getDefault() == Locale.GERMANY) return (new Double (value)).toString().replace('.', ',');
-		else return ""+ value;
+		//localisation leads to unnecessary errors
+	//	if(Locale.getDefault() == Locale.GERMAN || Locale.getDefault() == Locale.GERMANY) return (new Double (value)).toString().replace('.', ',');
+	//	else return ""+ value;
+		
+		return "" +value;
 	}
 
 

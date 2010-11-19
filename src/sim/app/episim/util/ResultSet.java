@@ -14,8 +14,7 @@ public class ResultSet <T>{
 	public ResultSet(ResultSetType type){
 		resultType = type;
 		results = new ArrayList<Vector<T>>();
-	}
-	
+	}	
 	public void add2DValue(T x, T y){
 		if(resultType == ResultSetType.TWODIMRESULTS){
 			Vector<T> v = new Vector<T>();
@@ -31,19 +30,17 @@ public class ResultSet <T>{
 			v.add(val);
 			results.add(v);
 		}
-	}
-	
+	}	
 	public Vector<T> get(int index){
 		return ObjectManipulations.cloneObject(results.get(index));
-	}
-	
-	 public void clear(){
+	}	
+	public void clear(){
 		 results.clear();		 
-	 }
+	}
 	 
-	 public boolean isEmpty(){
+	public boolean isEmpty(){
 		 return results.isEmpty();
-	 }
+	}
 	 
 	 public void setTimeStep(long timeStep){
 		 this.timeStep = timeStep;

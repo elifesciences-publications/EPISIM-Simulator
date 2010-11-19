@@ -1,5 +1,6 @@
 package sim.app.episim.datamonitoring.calc;
 
+import episimexceptions.DataMonitoringException;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 import sim.app.episim.datamonitoring.calc.CalculationDataManager.CalculationDataManagerType;
 import sim.app.episim.util.ResultSet;
@@ -17,7 +18,8 @@ public abstract class ResultSetManager {
 		else return new ResultSet<T>(ResultSetType.TWODIMRESULTS);
 	}
 	
-	public static void copyResultSetToDataManager(ResultSet<Double> results1, ResultSet<Double> results2, CalculationDataManager<Double> dataManager){
+	public static void copyResultSetToDataManager(ResultSet<Double> results1, ResultSet<Double> results2, CalculationDataManager<Double> dataManager) throws DataMonitoringException{
+	if(results1.getTimeStep() != results2.getTimeStep()) throw new DataMonitoringException("In compatible data: the time step of the two resultSets are not equal.");
 		if(dataManager != null && dataManager.getCalculationDataManagerType()==CalculationDataManagerType.ONEDIMTYPE) throw new IllegalArgumentException("CalculationDataManager is of ONEDIMTYPE. TWODIMTYPE is required.");
 		if(results1.getResultSetType() == ResultSetType.ONEDIMRESULTS && results2.getResultSetType() == ResultSetType.ONEDIMRESULTS){
 			if(results1.size() >0 && results2.size() >0){
@@ -44,6 +46,7 @@ public abstract class ResultSetManager {
 						
 					}
 				}
+				dataManager.setSimStep(results1.getTimeStep());
 			}
 		}
 		else throw new IllegalArgumentException("Cannot handle ResultSets of type TWODIMRESULTS");
@@ -66,6 +69,7 @@ public abstract class ResultSetManager {
 				}
 			}
 		}
+		dataManager.setSimStep(results.getTimeStep());
 	}
 
 }

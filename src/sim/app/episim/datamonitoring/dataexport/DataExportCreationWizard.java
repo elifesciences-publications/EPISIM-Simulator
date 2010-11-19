@@ -447,6 +447,7 @@ public class DataExportCreationWizard extends JDialog {
 		isDirty = false;
 		if(dataExport != null) restoreDataExportValues(dataExport);
 		rebuildColumnsIdMap();
+		if(dataExport != null) addColumnButton.setEnabled(areAllDataExportColumnsOfType(CalculationAlgorithmType.ONEDIMRESULT));
 		repaint();
 		centerMe();
 		setVisible(true);

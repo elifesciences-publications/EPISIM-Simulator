@@ -109,7 +109,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
                 GeneralPath cellPath;
                 GeneralPath nucleusPath;
                
-                    cellPath = createGeneralPath(info, kcyte.getKeratinoWidth(), kcyte.getKeratinoHeight());
+                    cellPath = createGeneralPath(info, kcyte.getEpisimMechanicalModelObject().getKeratinoWidth(), kcyte.getEpisimMechanicalModelObject().getKeratinoHeight());
                     graphics.setPaint(fillColor);
                     graphics.fill(cellPath);
                 

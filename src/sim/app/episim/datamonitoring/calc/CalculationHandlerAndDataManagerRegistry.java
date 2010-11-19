@@ -36,7 +36,7 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 		 if(manager != null 
 				 &&  CalculationAlgorithmServer.getInstance().isDataManagerRegistrationAtCalculationAlgorithmRequired(handler.getCalculationAlgorithmID())
 				 && !handler.isBaselineValue()) 
-			 CalculationAlgorithmServer.getInstance().registerDataManagerAtCalculationAlgorithm(handler.getCalculationAlgorithmID(), new long[]{handler.getID(), handler.getCorrespondingBaselineCalculationHandlerID()}, manager);
+		 CalculationAlgorithmServer.getInstance().registerDataManagerAtCalculationAlgorithm(handler.getCalculationAlgorithmID(), new long[]{handler.getID(), handler.getCorrespondingBaselineCalculationHandlerID()}, manager);
 		 calculationHandlerRegistry.put(handler.getID(), handler);
 		 if(manager != null) dataManagerRegistry.put(manager.getID(), manager);
 		 

@@ -48,46 +48,34 @@ public class CompatibilityChecker {
 		
 		for(EpisimDataExportDefinition exp : exportDefinitionSet.getEpisimDataExportDefinitions()){
 			requiredClasses.addAll(exp.getAllRequiredClasses());
-		}
-		
+		}		
 		for(Class<?> actClass : requiredClasses){
-			classNameHashValueMap.put(actClass.getCanonicalName(), 
-						ObjectStreamClass.lookup(actClass).getSerialVersionUID());
-		}
-				
+			classNameHashValueMap.put(actClass.getCanonicalName(), ObjectStreamClass.lookup(actClass).getSerialVersionUID());
+		}				
 		checkCellBehavioralAndMechanicalModelClasses();
 		checkTissueAndCellTypes(actTissue);
 	}
 	
-	 
-	
-	
 	private void checkTissueAndCellTypes(TissueType actTissue) throws ModelCompatibilityException{
-		
 		checkForCompatibility(actTissue.getClass());
-		
 		for(Class<? extends AbstractCell> actCellTypeClass: actTissue.getRegisteredCellTypes().values()){
 			checkForCompatibility(actCellTypeClass);
 		}
 	}
 	
 	private void checkCellBehavioralAndMechanicalModelClasses() throws ModelCompatibilityException{
-		
 		checkForCompatibility(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass());
 		checkForCompatibility(ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass());
-		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel().getClass());
+		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getNewEpisimMechanicalModelObject().getClass());
 		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getClass());
 	}
 	
-	private void checkForCompatibility(Class<?> actClass) throws ModelCompatibilityException{
-		
+	private void checkForCompatibility(Class<?> actClass) throws ModelCompatibilityException{		
 		if(classNameHashValueMap.keySet().contains(actClass.getCanonicalName())){
 			long registeredValue = classNameHashValueMap.get(actClass.getCanonicalName());
 			long actualValue = ObjectStreamClass.lookup(actClass).getSerialVersionUID();
 			//System.out.print("Soll: "+ registeredValue + "  Ist: "+ actualValue);
 			if(registeredValue != actualValue) throw new ModelCompatibilityException("Class " + actClass.getCanonicalName() + " is not compatible!");
-		}
-		
+		}		
 	}
-
 }

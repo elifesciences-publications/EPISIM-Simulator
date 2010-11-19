@@ -81,7 +81,7 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 								&& cellBehaviour.getY() >= GlobalStatistics.getInstance().getGradientMinY()
 								&& cellBehaviour.getY() <= GlobalStatistics.getInstance().getGradientMaxY()){						
 								
-								resultMap.put(actCell.getEpisimCellBehavioralModelObject().getY(), handler.calculate(actCell));						
+								resultMap.put(actCell.getEpisimCellBehavioralModelObject().getY(), handler.calculate(actCell));
 						}
 					}
 				}

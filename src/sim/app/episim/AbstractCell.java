@@ -8,6 +8,7 @@ import episimbiomechanics.EpisimModelIntegrator;
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimMechanicalModel;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.visualization.CellEllipse;
@@ -39,6 +40,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    private List<CellDeathListener> cellDeathListeners;
       
    private EpisimCellBehavioralModel cellBehavioralModelObjekt;
+   private EpisimMechanicalModel mechanicalModelObject;
    
    private SimState actSimState;
    
@@ -46,12 +48,11 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    	inNirvana=false;
    	isOuterCell=false;
    	this.id = identity;
-   	this.motherId = motherIdentity;
-   	
+   	this.motherId = motherIdentity;   	
    	this.cellBehavioralModelObjekt = cellBehavioralModel;
    	if(cellBehavioralModel == null) this.cellBehavioralModelObjekt = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
-   	else cellBehavioralModel.setEpisimModelIntegrator((EpisimModelIntegrator)ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModel());
-   	
+   	else cellBehavioralModel.setEpisimModelIntegrator((EpisimModelIntegrator)ModelController.getInstance().getBioMechanicalModelController().getEpisimModelIntegrator());
+   	mechanicalModelObject =  ModelController.getInstance().getNewMechanicalModelObject(this);
    	cellDeathListeners = new LinkedList<CellDeathListener>();      
       cellDeathListeners.add(TissueServer.getInstance().getActEpidermalTissue());      
       cellDeathListeners.add(GlobalStatistics.getInstance());
@@ -81,7 +82,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell;}
 	
 	
-	protected long getMotherID(){ return this.motherId;}
+	public long getMotherID(){ return this.motherId;}
 
 	
    public boolean isTracked() {
@@ -101,7 +102,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    	this.neighbouringCells = neighbours;
    }
    
-   protected void setCellEllipseObject(CellEllipse cellEllipseObject){
+   public void setCellEllipseObject(CellEllipse cellEllipseObject){
    	this.cellEllipseObject = cellEllipseObject;
    }
    
@@ -132,10 +133,12 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    
    public void removeCellDeathListener(){
   	 this.cellDeathListeners.clear();
-   }    
+   } 
+   
    public void addCellDeathListener(CellDeathListener listener){
   	 this.cellDeathListeners.add(listener);
    }
+   
    public void killCell(){
    	 
   	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
@@ -145,26 +148,15 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
   	 removeFromSchedule();  	
    }
    
+   public EpisimMechanicalModel getEpisimMechanicalModelObject(){ return this.mechanicalModelObject; }
    
-   public void step(SimState state) {
-		
-		this.actSimState = state;
-		Test2 aber = Test2.c;
-		
-		switch(aber){
-		case c:{}
-		break;
-		default:{}
-		}
+   public void step(SimState state) {		
+		this.actSimState = state;		
    }
-   public enum Test2{
-   	c,d,f,;
-   }
-   	public enum Test {
    
-   	a(new Test2[]{Test2.c,Test2.d,}),;
-   	private Test2[] test2s;
-   	private Test(Test2[] test2s){this.test2s = test2s;}
-   }
+   public double orientation2D(){	   
+	   return mechanicalModelObject.orientation2D();
+   }	
+   
 	
 }

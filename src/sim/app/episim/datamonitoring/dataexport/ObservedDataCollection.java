@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import episimexceptions.MethodNotImplementedException;
+import episiminterfaces.calc.EntityChangeEvent;
 
 
 public class ObservedDataCollection<T>{
@@ -22,6 +23,7 @@ public class ObservedDataCollection<T>{
 	
 	private Set<ValueMapListener<T>> valueMapListenerSet;
 	private ObservedDataCollectionType type;
+	private long simStep = 0;
 	
 	public ObservedDataCollection(ObservedDataCollectionType _type){
 		this.type = _type;
@@ -33,7 +35,8 @@ public class ObservedDataCollection<T>{
 	public ObservedDataCollectionType getType(){ return this.type;}
 	
 	public void clear() {
-	   map.clear();
+		if(this.type == ObservedDataCollectionType.ONEDIMTYPE && list != null) list.clear();
+		else if(this.type == ObservedDataCollectionType.TWODIMTYPE && map != null) map.clear();
    }
 
 	
@@ -69,7 +72,9 @@ public class ObservedDataCollection<T>{
 		else throw new MethodNotImplementedException("Oberserved Data Collection is of 2 dim type. Please use method add(final T value1, final T value2) instead!");
    }
 	
-
+	public void observedDataSourceHasChanged(EntityChangeEvent event){
+		for(ValueMapListener<T> actListener : valueMapListenerSet) actListener.observedDataSourceChanged(event);
+	}
 
 	public int size() {   
 		if(this.type == ObservedDataCollectionType.ONEDIMTYPE) return list.size();
@@ -90,8 +95,14 @@ public class ObservedDataCollection<T>{
 	}
 
 
-	 
-	
-	
+	 public long getSimStep(){ return simStep; }
+	 public void setSimStep(long step){
+		 if(step > this.simStep){
+			 for(ValueMapListener<T> actListener : valueMapListenerSet){ 
+				 actListener.simStepChanged(step);
+			 }
+			 this.simStep = step;
+		 }
+	 } //hierListenerBenachrichtigungEinfügen
 
 }

@@ -29,7 +29,8 @@ public abstract class CalculationDataManagerFactory {
 				return new CalculationDataManager<Double>(){
 					private CalculationDataManagerType type = CalculationDataManagerType.TWODIMTYPE;
 					private int counter = 0;
-					private boolean firstCellEver = true;					
+					private boolean firstCellEver = true;
+					private long simStep = 0;
 					
 					public void addNewValue(Double key, Double value) {
 						if(xAxisLogarithmic && !yAxisLogarithmic){ 
@@ -66,6 +67,8 @@ public abstract class CalculationDataManagerFactory {
 			        series.clear();
 		         }
 					
+					public void setSimStep(long step){ simStep = step; }
+					public long getSimStep(){ return simStep; }
 					public CalculationDataManagerType getCalculationDataManagerType(){ return type; } 
 					
 					public long getID() { return id; }
@@ -93,6 +96,7 @@ public abstract class CalculationDataManagerFactory {
 					private CalculationDataManagerType type = CalculationDataManagerType.ONEDIMTYPE;
 					private int counter = 0;
 					private boolean firstCellEver = true;					
+					private long simStep = 0;
 					
 					public void addNewValue(Double key, Double value) {
 						throw new MethodNotImplementedException("Method: addNewValue(Double key, Double value) is not implemented. Please use the method addNewValue(Double xValue) instead!");
@@ -113,6 +117,8 @@ public abstract class CalculationDataManagerFactory {
 		         }
 	
 					public long getID() { return id; }
+					public void setSimStep(long step){ simStep = step; }
+					public long getSimStep(){ return simStep; }
 	
 					public boolean isXScaleLogarithmic() { return xAxisLogarithmic; }
 					public boolean isYScaleLogarithmic() { return yAxisLogarithmic; }
@@ -143,6 +149,7 @@ public abstract class CalculationDataManagerFactory {
 			return new CalculationDataManager<Double>(){
 								
 				private CalculationDataManagerType type;
+				private long simStep = 0;
 				
 				{
 					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE) type = CalculationDataManagerType.ONEDIMTYPE;
@@ -156,11 +163,7 @@ public abstract class CalculationDataManagerFactory {
 	         }
 	
 				public void observedEntityHasChanged(EntityChangeEvent event) {
-					if(event.getEventType() == EntityChangeEventType.CELLCHANGE){
-						if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)	data.add(Double.NEGATIVE_INFINITY);
-						else if(data.getType() == ObservedDataCollectionType.TWODIMTYPE) data.add(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
-					}
-					
+					data.observedDataSourceHasChanged(event);				
 	         }
 	
 				public void reset() { data.clear();}
@@ -169,7 +172,11 @@ public abstract class CalculationDataManagerFactory {
 				public boolean isXScaleLogarithmic() { return false;}
 				public boolean isYScaleLogarithmic() { return false;}
 				public CalculationDataManagerType getCalculationDataManagerType(){ return type; } 
-				
+				public void setSimStep(long step){ 
+					simStep = step; 
+					data.setSimStep(step);
+				}
+				public long getSimStep(){ return simStep; }
 				public void addNewValue(Double value) {
 					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)	data.add(value);
 					else if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)

@@ -1,27 +1,17 @@
 package sim.app.episim.model;
+	
+import java.util.concurrent.ConcurrentHashMap;
 
+import episimbiomechanics.EpisimModelIntegrator;
 
-
-
-	import java.io.File;
-	import java.io.IOException;
-	import java.lang.reflect.InvocationTargetException;
-	import java.net.MalformedURLException;
-	import java.util.HashMap;
-	import java.util.Iterator;
-	import java.util.Map;
-	import java.util.concurrent.ConcurrentHashMap;
-
-import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
-	import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
-import sim.app.episim.tissue.Epidermis;
+import sim.app.episim.AbstractCell;
+import sim.app.episim.ExceptionDisplayer;
 
 
-	public class BioMechanicalModelController implements java.io.Serializable{
+public class BioMechanicalModelController implements java.io.Serializable{
 		
 		/**
 		 * 
@@ -30,60 +20,61 @@ import sim.app.episim.tissue.Epidermis;
 		private static BioMechanicalModelController instance;
 		private BiomechanicalModel biomechanicalModel;
 		
-		private ConcurrentHashMap<String, Object> cache;
-		private boolean caching = true;
 		
-		private double[][] adhesionValues = null;
-		private double[][] resetAdhesionValues = null;
-		private ConcurrentHashMap<String, Object> resetCache;
 		private BioMechanicalModelController(){
-			cache = new ConcurrentHashMap<String, Object>();
-			biomechanicalModel = new BiomechanicalModel();
-			
+				biomechanicalModel = new BiomechanicalModel();			
 		}
-		protected synchronized static BioMechanicalModelController getInstance(){
-			if(instance == null) instance = new BioMechanicalModelController();
-			return instance;
-		}
+	protected synchronized static BioMechanicalModelController getInstance(){
+		if(instance == null) instance = new BioMechanicalModelController();
+		return instance;
+	}
 		
-	public EpisimMechanicalModel getEpisimMechanicalModel() {
-
+	public EpisimMechanicalModel getNewEpisimMechanicalModelObject(){
 		try{
-			return biomechanicalModel.getEpisimMechanicalModel();
+			return biomechanicalModel.getEpisimNewMechanicalModelObject();
 		}
 		catch (Exception e){
-
 			ExceptionDisplayer.getInstance().displayException(e);
 			return null;
 		}
-
 	}
+	
+	
+	public EpisimMechanicalModel getNewEpisimMechanicalModelObject(AbstractCell cell) {
+		try{
+			return biomechanicalModel.getNewEpisimMechanicalModelObject(cell);
+		}
+		catch (Exception e){
+			ExceptionDisplayer.getInstance().displayException(e);
+			return null;
+		}
+	}
+	
+	public EpisimModelIntegrator getEpisimModelIntegrator() {
+		try{
+			return biomechanicalModel.getEpisimModelIntegrator();
+		}
+		catch (Exception e){
+			ExceptionDisplayer.getInstance().displayException(e);
+			return null;
+		}
+	}
+	
 	public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {
-
 		try{
 			return biomechanicalModel.getEpisimMechanicalModelGlobalParameters();
 		}
 		catch (Exception e){
-
 			ExceptionDisplayer.getInstance().displayException(e);
 			return null;
 		}
-
 	}
 	
 	public void reloadMechanicalModelGlobalParametersObject(EpisimMechanicalModelGlobalParameters parametersObject){
 		if(parametersObject != null) biomechanicalModel.reloadMechanicalModelGlobalParametersObject(parametersObject);
 	}
 	
-	
-	
-	public void resetInitialGlobalValues(){
-		
-			biomechanicalModel.resetInitialGlobalValues();
-		
+	public void resetInitialGlobalValues(){		
+			biomechanicalModel.resetInitialGlobalValues();		
 	}
-	
-		
-
-		
-	}
+}

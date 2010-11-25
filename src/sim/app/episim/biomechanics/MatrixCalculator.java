@@ -5,6 +5,7 @@ import no.uib.cipr.matrix.DenseVector;
 import no.uib.cipr.matrix.Matrix;
 import no.uib.cipr.matrix.Vector;
 import no.uib.cipr.matrix.sparse.CG;
+import no.uib.cipr.matrix.sparse.CGS;
 import no.uib.cipr.matrix.sparse.CompRowMatrix;
 import no.uib.cipr.matrix.sparse.ICC;
 import no.uib.cipr.matrix.sparse.IterativeSolver;
@@ -16,9 +17,9 @@ import no.uib.cipr.matrix.sparse.Preconditioner;
 public class MatrixCalculator {
 	
 	
-	private static final double K = 0.25;
-	private static final double LAMBDA = 1;
-	private static final double GAMMA = 30;
+	private static final double K = 40;
+	private static final double LAMBDA = 15000;
+	private static final double GAMMA = 100;
 	
 	private boolean testIfSignumChangeForAreaCalculation(double polygon[][], int vertexNumber){
 		double area = 0;
@@ -62,6 +63,18 @@ public class MatrixCalculator {
 		Matrix m = new DenseMatrix(resultMatrix);
 		
 		m = m.scale(GAMMA);
+		
+		return m;
+	}
+	
+	//Based on euclidean distance squared
+	public Matrix calculateLineTensionMatrixForPolygon(int numberOfConnectedVertices){	
+		
+		double[][] resultMatrix = new double[][]{{2*numberOfConnectedVertices, 0},{0, 2*numberOfConnectedVertices}};
+		
+		Matrix m = new DenseMatrix(resultMatrix);
+		
+		m = m.scale(LAMBDA);
 		
 		return m;
 	}
@@ -156,7 +169,7 @@ public class MatrixCalculator {
 	}
 	
 	
-	public Vector calculateLineTensionResultVector(double[][] polygon, int vertexNumber){
+	/*public Vector calculateLineTensionResultVector(double[][] polygon, int vertexNumber){
 		double noOfVertices = polygon.length;
 		int coeffizient_1 = 0, coeffizient_2 = 0;
 		int sign = signManhattan(polygon[vertexNumber][0], polygon[mod((vertexNumber+1), noOfVertices)][0]);
@@ -172,9 +185,21 @@ public class MatrixCalculator {
 		Vector v = new DenseVector(resultVector);
 		 v = v.scale(LAMBDA);
 		return v;
+	}*/
+	
+	public Vector calculateLineTensionResultVector(Vertex[] connectedVertices){
+		double result_x =0, result_y = 0;
+		
+		for(Vertex v : connectedVertices){
+			result_x -= 2*v.getDoubleX();
+			result_y -= 2*v.getDoubleY();
+		}
+		
+		double[] resultVector = new double[]{result_x*-1, result_y*-1};
+		Vector v = new DenseVector(resultVector);
+		 v = v.scale(LAMBDA);
+		return v;
 	}
-	
-	
 	
 	
 	public int mod(double value, double base){
@@ -211,8 +236,13 @@ public void relaxVertex(Vertex vertex){
 			
 			totalResultVector = totalResultVector.add(calculateAreaResultVector(calculationPolygon, vertexNumber, pol.getPreferredArea()));
 			totalResultVector = totalResultVector.add(calculatePerimeterResultVector(calculationPolygon, vertexNumber));
-			totalResultVector = totalResultVector.add(calculateLineTensionResultVector(calculationPolygon, vertexNumber));
+		//
 		}
+		
+		Vertex[] connectedVertices = vertex.getAllOtherVerticesConnectedToThisVertex();
+		
+		totalResultMatrix=totalResultMatrix.add(calculateLineTensionMatrixForPolygon(connectedVertices.length)); 
+		totalResultVector = totalResultVector.add(calculateLineTensionResultVector(connectedVertices));
 		
 		
 		Vector v = calculateOptimalResult(totalResultMatrix, totalResultVector, vertex);

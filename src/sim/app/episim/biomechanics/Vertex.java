@@ -280,6 +280,31 @@ public class Vertex implements java.io.Serializable{
    	return polygons.toArray(polArray);
    }
    
+   
+   public Vertex[] getAllOtherVerticesConnectedToThisVertex(){
+   	HashSet<Vertex> connectedVertices = new HashSet<Vertex>();
+   	CellPolygon[] cellPolygons = getCellsJoiningThisVertex();
+   	for(CellPolygon pol :cellPolygons){
+   		Vertex[] vertices = pol.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+   		int index = getIndexOfThisVertexInVertexArray(vertices);
+   		if(index >= 0){
+   			connectedVertices.add(vertices[mod(index-1, vertices.length)]);
+   			connectedVertices.add(vertices[mod(index+1, vertices.length)]);
+   		}
+   	}
+   	return connectedVertices.toArray(new Vertex[connectedVertices.size()]);   	
+   }
+   private int getIndexOfThisVertexInVertexArray(Vertex[] vertices){
+   	for(int i = 0; i < vertices.length; i++){
+   		if(vertices[i] != null && vertices[i].getId() == this.getId()) return i;
+   	}
+   	return -1;
+   }
+   
+   private int mod(double value, double base){
+		return value%base < 0 ? (int)((value%base)+base) : (int)(value%base);
+	}
+   
 
 	
    public boolean isMergeVertex() {

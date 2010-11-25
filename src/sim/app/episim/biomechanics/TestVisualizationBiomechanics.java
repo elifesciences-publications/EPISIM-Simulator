@@ -39,7 +39,7 @@ public class TestVisualizationBiomechanics {
 			e.printStackTrace();
 		}
 		//testCellAreaCalculation();
-		cells = Calculators.getSquareVertex(100, 100, 50, 6);
+		cells = Calculators.getSquareVertex(100, 100, 50, 2);
 	
 		
 		
@@ -102,8 +102,8 @@ public class TestVisualizationBiomechanics {
 			
 			
 			public void run() { 
-			cells[12].setPreferredArea(cells[12].getPreferredArea()*1.5);
-			cells[12].setSelected(true);
+		//	cells[0].setPreferredArea(cells[0].getPreferredArea()*1.3);
+			cells[0].setSelected(true);
 			while(simulationState == SimState.SIMSTART){
 				try{
 					//cells[12].setPreferredArea(cells[12].getPreferredArea()+10);
@@ -113,21 +113,22 @@ public class TestVisualizationBiomechanics {
 						polygon = cells[((n+randomStartIndexCells)% cells.length)];
 					//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
 					 Vertex[] cellVertices =	polygon.getVertices();
-					 int randomStartIndexVertices = rand.nextInt(cellVertices.length);
+					 int randomStartIndexVertices = 1;// rand.nextInt(cellVertices.length);
 					 //System.out.println("Choosen Start Index: "+ randomStartIndexVertices);
 					for(int i = 0; i < cellVertices.length; i++){
 						Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
-						if(!v.isWasAlreadyCalculated() && v.getNumberOfCellsJoiningThisVertex() > 2){
+						if(!v.isWasAlreadyCalculated()){ //&& v.getNumberOfCellsJoiningThisVertex() > 2){
 							calc.relaxVertex(v);
-							
+								
 							v.setWasAlreadyCalculated(true);
 						}
-						else if(!v.isWasAlreadyCalculated()){
+						/*else 
+							if(!v.isWasAlreadyCalculated()){
 							Calculators.relaxVertexEstimated(v);
 							//v.setWasAlreadyCalculated(true);
-						}
+						}*/
 					}
-						polygon.commitNewVertexValues();
+					polygon.commitNewVertexValues();		
 					}
 					
 					
@@ -212,7 +213,7 @@ public class TestVisualizationBiomechanics {
 			Polygon p = new Polygon();
 			
 		
-			cell.sortVerticesWithGrahamScan();
+		//	cell.sortVerticesWithGrahamScan();
 			Vertex[] newVertices = new Vertex[2];
 			int newVertexIndex = 0;
 			for(Vertex v : cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing()){	

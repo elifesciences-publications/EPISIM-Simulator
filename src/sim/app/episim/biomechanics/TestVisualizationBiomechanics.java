@@ -95,7 +95,7 @@ public class TestVisualizationBiomechanics {
 	}
 	private void setSimulationState(SimState state){
 		if(state == SimState.SIMSTART){
-		final MatrixCalculator calc = new MatrixCalculator();
+		final ConjugateGradientOptimizer calc = new ConjugateGradientOptimizer();
 		simulationState = SimState.SIMSTART;
 		simulationThread = new Thread(new Runnable(){ 
 			private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());

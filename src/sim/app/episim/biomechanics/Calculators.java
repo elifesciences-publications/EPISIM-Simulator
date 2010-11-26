@@ -202,7 +202,7 @@ public abstract class Calculators {
 						CellPolygon actCell = (CellPolygon) listener;
 						if(foundCellIdsFirstVertex.contains(actCell.getId())){ 
 							actCell.addVertex(v_s);
-							actCell.sortVerticesWithGrahamScan();
+							actCell.sortVerticesUsingTravellingSalesmanSimulatedAnnealing();
 						}
 					}
 				}

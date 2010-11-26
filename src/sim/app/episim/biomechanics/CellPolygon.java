@@ -56,7 +56,7 @@ public int hashCode() {
 
 public Vertex[] getVertices(){ return vertices.toArray(new Vertex[vertices.size()]); }
 
-public void sortVerticesWithGrahamScan(){
+/*public void sortVerticesWithGrahamScan(){
 	GrahamScan scan = new GrahamScan();
 	Vertex[] v =  vertices.toArray(new Vertex[vertices.size()]);
 	int h = scan.computeHull(v);
@@ -71,11 +71,18 @@ public Vertex[] getSortedVerticesUsingGrahamScan(){
 	Vertex[] v =  vertices.toArray(new Vertex[vertices.size()]);
 	int h = scan.computeHull(v);
 	return v;
-}
+}*/
 
 public Vertex[] getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing(){
-	SimulatedAnnealing sim = new SimulatedAnnealing(getVertices());
+	SimulatedAnnealingForOrderingVertices sim = new SimulatedAnnealingForOrderingVertices(getVertices());
 	return sim.sortVertices();
+}
+
+public void sortVerticesUsingTravellingSalesmanSimulatedAnnealing(){
+	SimulatedAnnealingForOrderingVertices sim = new SimulatedAnnealingForOrderingVertices(getVertices());
+	Vertex[] v = sim.sortVertices();
+	vertices.clear();
+	for(Vertex ver : v) vertices.add(ver);	
 }
 
 public void handleVertexChangeEvent(VertexChangeEvent event) {

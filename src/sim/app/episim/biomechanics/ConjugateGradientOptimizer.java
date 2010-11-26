@@ -14,7 +14,7 @@ import no.uib.cipr.matrix.sparse.OutputIterationReporter;
 import no.uib.cipr.matrix.sparse.Preconditioner;
 
 
-public class MatrixCalculator {
+public class ConjugateGradientOptimizer {
 	
 	
 	private static final double K = 40;
@@ -209,6 +209,10 @@ public class MatrixCalculator {
 	
 	
 	
+	
+	
+	
+	
 public void relaxVertex(Vertex vertex){
 		
 		Matrix totalResultMatrix = new DenseMatrix(2,2);
@@ -245,7 +249,7 @@ public void relaxVertex(Vertex vertex){
 		totalResultVector = totalResultVector.add(calculateLineTensionResultVector(connectedVertices));
 		
 		
-		Vector v = calculateOptimalResult(totalResultMatrix, totalResultVector, vertex);
+		Vector v = calculateOptimalResultWithConjugateGradient(totalResultMatrix, totalResultVector, vertex);
 		vertex.setNewX(Math.round(v.get(0)));
 		vertex.setNewY(Math.round(v.get(1)));
 		
@@ -274,7 +278,7 @@ public void relaxVertex(Vertex vertex){
 		return verticesNew;
 	}
 	
-	private Vector calculateOptimalResult(Matrix matrix, Vector resultVector, Vertex vertex){
+	private Vector calculateOptimalResultWithConjugateGradient(Matrix matrix, Vector resultVector, Vertex vertex){
 		CompRowMatrix A = new CompRowMatrix(matrix);
 		Vector x, b;
 	
@@ -308,10 +312,5 @@ public void relaxVertex(Vertex vertex){
 		return null;
 	}
 	
-	public static void main(String[] args){
-		MatrixCalculator cal = new MatrixCalculator();
-		//cal.relaxVertex(null);
-		
-		
-	}
+	
 }

@@ -1,7 +1,7 @@
 package sim.app.episim.biomechanics;
 
 
-public class SimulatedAnnealing {
+public class SimulatedAnnealingForOrderingVertices {
 
 	 public static final double DELTA = 0.99;
 	 public static final double STARTING_TEMPERATURE = 10;
@@ -38,7 +38,7 @@ public class SimulatedAnnealing {
 	   *
 	   * @param the vertices to be optimized
 	   */
-	  SimulatedAnnealing(Vertex[] vertices)
+	  SimulatedAnnealingForOrderingVertices(Vertex[] vertices)
 	  {
 	    this.vertices = vertices;
 	    order = new int[vertices.length];

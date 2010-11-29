@@ -17,7 +17,7 @@ import no.uib.cipr.matrix.sparse.Preconditioner;
 public class ConjugateGradientOptimizer {
 	
 	
-	private static final double K = 40;
+	private static final double K = 650;
 	private static final double LAMBDA = 15000;
 	private static final double GAMMA = 100;
 	
@@ -296,12 +296,13 @@ public void relaxVertex(Vertex vertex){
 		solver.setPreconditioner(M);
 
 		// Add a convergence monitor
-		solver.getIterationMonitor().setIterationReporter(new OutputIterationReporter());
+		//solver.getIterationMonitor().setIterationReporter(new OutputIterationReporter());
 
 		// Start the solver, and check for problems
 		try {
 			
 			 Vector result= solver.solve(A, b, x);
+			 
 			// System.out.println("---------And the result is------------------");
 			// System.out.println("("+Math.round(result.get(0))+" , "+ Math.round(result.get(1))+")");
 			 return result;

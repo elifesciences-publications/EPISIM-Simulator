@@ -70,11 +70,11 @@ public abstract class Calculators {
 				for(int cellNo = 0; cellNo <  cells.length; cellNo++){
 					if(vertices[rowNo][columnNo] != null && cells[cellNo] != null
 						&&	distance(cells[cellNo].getX(), cells[cellNo].getY(), vertices[rowNo][columnNo].getIntX(), vertices[rowNo][columnNo].getIntY()) <= SIDELENGTH)
-						cells[cellNo].addVertex(vertices[rowNo][columnNo]);
+						cells[cellNo].addVertex(vertices[rowNo][columnNo]);					
 				}
 			}
 		}	
-		
+		for(CellPolygon pol : cells) pol.setPreferredArea(Calculators.getCellArea(pol));
 		return cells;		
 	}
 	
@@ -133,14 +133,14 @@ public abstract class Calculators {
 		for(int i = 0; i < n; i++){
 			areaTrapeze += ((vertices[(i%n)].getDoubleX() - vertices[((i+1)%n)].getDoubleX())*(vertices[(i%n)].getDoubleY() + vertices[((i+1)%n)].getDoubleY()));
 		}
-		
+		System.out.println(Calculators.getCellPerimeter(cell));
 		return (Math.abs(areaTrapeze) / 2);
 	}
 	
 	public static double getCellPerimeter(CellPolygon cell){
 		double cellPerimeter = 0;
 		int n = cell.getVertices().length;
-		Vertex[] vertices = cell.getVertices();
+		Vertex[] vertices = cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
 		for(int i = 0; i < n; i++){
 			cellPerimeter += distance(vertices[(i%n)].getDoubleX(), vertices[(i%n)].getDoubleY(), vertices[((i+1)%n)].getDoubleX(), vertices[((i+1)%n)].getDoubleY());
 		}

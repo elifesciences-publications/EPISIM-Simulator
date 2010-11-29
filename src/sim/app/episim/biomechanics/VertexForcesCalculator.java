@@ -9,10 +9,12 @@ import no.uib.cipr.matrix.Vector;
 
 public class VertexForcesCalculator {
 	
-	private static final double K = 2;
-	private static final double LAMBDA = 1;
-	private static final double GAMMA = 1;
-	
+//	private static final double K = 0.01;
+	//private static final double LAMBDA = 150;
+//	private static final double GAMMA = 1;
+	private static final double K = 650;
+	private static final double LAMBDA = 15000;
+	private static final double GAMMA = 100;
 
 	
 	private Vector calculateDynamicAreaForPolygon(double[][] polygon, int vertexNumber){
@@ -184,7 +186,7 @@ public class VertexForcesCalculator {
 		totalResult.add(calculateLineTensionsForConnectedVertices(toDoubleArray(connectedVertices), new double[]{vertex.getDoubleX(), vertex.getDoubleY()}));
 		
 		
-		return null;
+		return new double[]{totalResult.get(0), totalResult.get(1)};
 	}
 	
 	public static void main(String[] args){

@@ -25,7 +25,7 @@ public class Vertex implements java.io.Serializable{
 	
 	private ArrayList<VertexChangeListener> changeListener;
 	
-	public boolean isNew = false;
+	private boolean isNew = false;
 		
 	private boolean mergeVertex = false;
 	
@@ -55,6 +55,9 @@ public class Vertex implements java.io.Serializable{
    }
 	
 	public int getId(){ return this.id; }
+	
+	public boolean isNew(){ return isNew;}
+	public void setIsNew(boolean isNew){this.isNew = isNew;}
 	
 	public Vertex relTo(Vertex v)
    {

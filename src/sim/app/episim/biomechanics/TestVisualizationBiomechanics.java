@@ -35,7 +35,7 @@ public class TestVisualizationBiomechanics {
 	private Thread simulationThread;
 	private SimState simulationState = null;
 	
-	private int indexOfSelectedCell = 0;
+	private int indexOfSelectedCell = 4;
 	
 	private ConjugateGradientOptimizer conGradientOptimizer;
    private VertexForcesMinimizerSimAnneal simAnnealOptimizer;
@@ -51,7 +51,7 @@ public class TestVisualizationBiomechanics {
 		//testCellAreaCalculation();
 		cells = Calculators.getSquareVertex(100, 100, 50, 6);
 		
-		cells = Calculators.getStandardCellArray(1, 1);
+		cells = Calculators.getStandardCellArray(3, 3);
 		
 		
 		conGradientOptimizer = new ConjugateGradientOptimizer();
@@ -151,10 +151,14 @@ public class TestVisualizationBiomechanics {
 	private void checkCellDivision(){
 		if(cells[indexOfSelectedCell].canDivide()){
 			CellPolygon daughterCell = cells[indexOfSelectedCell].cellDivision();
-		/*	CellPolygon[] newCellArray = new CellPolygon[cells.length+1];
-			System.arraycopy(cells, 0, newCellArray, 0, cells.length);
-			newCellArray[cells.length] = daughterCell;
-			cells= newCellArray;*/
+			if(daughterCell != null){
+				CellPolygon[] newCellArray = new CellPolygon[cells.length+1];
+				System.arraycopy(cells, 0, newCellArray, 0, cells.length);
+				newCellArray[cells.length] = daughterCell;
+				cells= newCellArray;
+				cells[indexOfSelectedCell].setSelected(false);
+				indexOfSelectedCell =Calculators.randomlySelectCell(cells);
+			}
 		}
 		else cells[indexOfSelectedCell].grow(10);
 	}
@@ -243,11 +247,11 @@ public class TestVisualizationBiomechanics {
 			
 		
 		//	cell.sortVerticesWithGrahamScan();
-			Vertex[] newVertices = new Vertex[2];
-			int newVertexIndex = 0;
+		
+			
 			for(Vertex v : cell.getSortedVertices()){	
-				if(!v.isNew)p.addPoint(v.getIntX(), v.getIntY());
-				else newVertices[newVertexIndex++] = v;
+				p.addPoint(v.getIntX(), v.getIntY());
+				
 			}
 		//	g.drawString(""+ Math.round(Calculators.getCellArea(cell))*0.2 + ", " + Math.round(Calculators.getCellPerimeter(cell))*0.2, cell.getX()-10, cell.getY());
 			
@@ -261,7 +265,7 @@ public class TestVisualizationBiomechanics {
 			g.drawPolygon(p);
 			
 			
-			if(newVertices[0] !=null && newVertices[1] !=null)g.drawLine(newVertices[0].getIntX(), newVertices[0].getIntY(), newVertices[1].getIntX(), newVertices[1].getIntY());
+			
 			for(Vertex v : cell.getUnsortedVertices()){	
 				drawVertex(g, v, false);				
 			}
@@ -273,7 +277,7 @@ public class TestVisualizationBiomechanics {
 	private void drawVertex(Graphics2D g, Vertex vertex, boolean showVertexId){
 		if(vertex != null){
 			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);			
-			if(vertex.isNew) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.YELLOW);
+			if(vertex.isNew()) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.YELLOW);
 			else drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.BLUE);
 		}
 	}

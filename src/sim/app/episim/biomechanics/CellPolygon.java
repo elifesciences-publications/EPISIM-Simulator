@@ -23,7 +23,7 @@ public class CellPolygon implements VertexChangeListener{
  private boolean isAlreadyCalculated;
  
  private boolean isVertexSortingDirty = true;
-public CellPolygon(double x, double y){
+protected CellPolygon(double x, double y){
 	id = nextId++;
 	vertices = new HashSet<Vertex>();
 	this.x = x;
@@ -46,6 +46,7 @@ public void removeVertex(Vertex v){
 	if(vertices.contains(v)){
 		vertices.remove(v);
 		v.removeVertexChangeListener(this);
+		isVertexSortingDirty = true;
 	}
 }
 
@@ -89,9 +90,15 @@ public boolean canDivide(){
 }
 
 public CellPolygon cellDivision(){
+	sortedVertices = null;
 	this.preferredArea = this.originalPreferredArea;
 	this.originalPreferredArea = Double.NEGATIVE_INFINITY;
-	return Calculators.divideCellPolygon(this);
+	CellPolygon daughterCell =Calculators.divideCellPolygon(this);
+	if(daughterCell != null){
+		daughterCell.setPreferredArea(this.preferredArea);
+		
+	}
+	return daughterCell;
 }
 
 
@@ -189,10 +196,10 @@ public boolean equals(Object obj) {
 	return true;
 }
 
-public double getX() { return x; }
-public void setX(double x) { this.x = x; }
-public double getY() { return y; }
-public void setY(double y){ this.y = y; }
+protected double getX() { return x; }
+protected void setX(double x) { this.x = x; }
+protected double getY() { return y; }
+protected void setY(double y){ this.y = y; }
 
 
 public boolean isSelected() {

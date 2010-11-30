@@ -184,15 +184,21 @@ public abstract class Calculators {
 		//calculate point with random angle on the circle with cell center as center and maxDistance as radius
 		double randAngleInRadians = Math.toRadians(rand.nextInt(180));
 		
+		while(!isRandomAngleConventientForCellDivision(cell, center, randAngleInRadians, maxDistance)){
+			randAngleInRadians = Math.toRadians(rand.nextInt(180));
+		}
+		
 		Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(randAngleInRadians)), (center.getDoubleY()+maxDistance*Math.sin(randAngleInRadians)));
 		
 		//Calculate Intersection between the line cellcenter-vOnCircle and all sides of cell
-		Vertex[] cellVertices = cell.getUnsortedVertices();
+		Vertex[] cellVertices = cell.getSortedVertices();
+		int newVerticesCounter = 0;
 		for(int i = 0; i < cellVertices.length; i++){
 			Vertex v_s =getIntersectionOfLinesInLineSegment(cellVertices[i], cellVertices[(i+1)%cellVertices.length], center, vOnCircle);
-			if(v_s != null){ 
-				v_s.isNew = true;
-				
+			if(v_s != null){
+				newVerticesCounter++;
+				v_s.setIsNew(true);
+				if(newVerticesCounter > 2)System.out.println("Error: Found more than two new Vertices during Cell Division!");
 				HashSet<Integer> foundCellIdsFirstVertex = new HashSet<Integer>();
 				for(VertexChangeListener listener: cellVertices[i].getVertexChangeListener()){
 					if(listener instanceof CellPolygon){
@@ -203,15 +209,72 @@ public abstract class Calculators {
 					if(listener instanceof CellPolygon){
 						CellPolygon actCell = (CellPolygon) listener;
 						if(foundCellIdsFirstVertex.contains(actCell.getId())){ 
-							actCell.addVertex(v_s);
-							
+							actCell.addVertex(v_s);							
 						}
 					}
 				}
 			}
+		}	
+		
+		cellVertices = cell.getSortedVertices();
+		int startIndex = getIndexOfFirstNewVertex(cellVertices);
+		boolean stop = false;
+		CellPolygon newCell = null;
+		if(startIndex >= 0){
+			newCell = new CellPolygon();
+			for(int i = startIndex; !stop; i++){
+				newCell.addVertex(cellVertices[i]);
+				if(!cellVertices[i].isNew())cell.removeVertex(cellVertices[i]);
+				if(cellVertices[i].isNew() && i != startIndex){ 
+					stop = true;
+					break;
+				}
+			}
 		}
-		return cell;
+		resetIsNewStatusOfAllVertices(cellVertices);
+		return newCell;
 	}
+	
+	/**
+	 * This methods checks whether or not the new vertices introduced in cell division are too close to an already existing vertex
+	 * @return
+	 */
+	private static boolean isRandomAngleConventientForCellDivision(CellPolygon cell, Vertex center, double angle, double maxDistance){
+		final double minDistance = 5;
+		
+		Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(angle)), (center.getDoubleY()+maxDistance*Math.sin(angle)));
+		
+		//Calculate Intersection between the line cellcenter-vOnCircle and all sides of cell
+		Vertex[] cellVertices = cell.getSortedVertices();
+		for(int i = 0; i < cellVertices.length; i++){
+			Vertex v_s =getIntersectionOfLinesInLineSegment(cellVertices[i], cellVertices[(i+1)%cellVertices.length], center, vOnCircle);
+			if(v_s != null){
+				if(v_s.edist(cellVertices[i]) < minDistance ||v_s.edist(cellVertices[(i+1)%cellVertices.length]) < minDistance){ 
+					System.out.println("Angle is not convenient for CellDivision");        
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+
+	private static void resetIsNewStatusOfAllVertices(Vertex[] vertices){ for(Vertex v : vertices) v.setIsNew(false);}
+	
+	
+	private static int getIndexOfFirstNewVertex(Vertex[] vertices){
+		
+		for(int i = 0; i < vertices.length; i++){
+			if(vertices[i].isNew()) return i;
+		}
+		
+		return -1;
+	}
+	
+	
+	
+	
+	
 	/**
 	 * @param v1 first point line one (first cell vertex)
 	 * @param v2 second point line one (second cellvertex)

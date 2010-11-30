@@ -128,38 +128,40 @@ public abstract class Calculators {
 	
 	public static double getCellArea(CellPolygon cell){
 		double areaTrapeze = 0;
-		int n = cell.getVertices().length;
-		Vertex[] vertices = cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+		int n = cell.getUnsortedVertices().length;
+		Vertex[] vertices = cell.getSortedVertices();
 		for(int i = 0; i < n; i++){
 			areaTrapeze += ((vertices[(i%n)].getDoubleX() - vertices[((i+1)%n)].getDoubleX())*(vertices[(i%n)].getDoubleY() + vertices[((i+1)%n)].getDoubleY()));
 		}
-		System.out.println(Calculators.getCellPerimeter(cell));
 		return (Math.abs(areaTrapeze) / 2);
 	}
 	
 	public static double getCellPerimeter(CellPolygon cell){
 		double cellPerimeter = 0;
-		int n = cell.getVertices().length;
-		Vertex[] vertices = cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+		int n = cell.getUnsortedVertices().length;
+		Vertex[] vertices = cell.getSortedVertices();
 		for(int i = 0; i < n; i++){
 			cellPerimeter += distance(vertices[(i%n)].getDoubleX(), vertices[(i%n)].getDoubleY(), vertices[((i+1)%n)].getDoubleX(), vertices[((i+1)%n)].getDoubleY());
 		}
 		return cellPerimeter;
 	}
 
-	public static void randomlySelectCell(CellPolygon[] cells){
+	public static int randomlySelectCell(CellPolygon[] cells){
 		//for(Cell c :cells) c.setSelected(false);
 		
-		int cellIndex =rand.nextInt(cells.length);
-		if(!cells[cellIndex].isSelected()){
-			addNewVertices(cells[cellIndex]);
-			cells[cellIndex].setSelected(true);
+		for(int i = 0; i < cells.length; i++){
+			int cellIndex =rand.nextInt(cells.length);
+	
+			if(!cells[cellIndex].isSelected()){
+				cells[cellIndex].setSelected(true);
+				return cellIndex;
+			}
 		}
-		
+		return -1;
 	}
 	
 	public static Vertex getCellCenter(CellPolygon cell){
-		Vertex[] vertices = cell.getVertices();
+		Vertex[] vertices = cell.getUnsortedVertices();
 		double cumulativeX = 0, cumulativeY = 0;
 		for(Vertex v : vertices){
 			cumulativeX += v.getDoubleX();
@@ -169,12 +171,12 @@ public abstract class Calculators {
 	}
 	
 	
-	public static void addNewVertices(CellPolygon cell){
+	public static CellPolygon divideCellPolygon(CellPolygon cell){
 		//calculate the maximum distance of a cell's vertex to the cell's center vertex
 		Vertex center = getCellCenter(cell);
 		double maxDistance = 0;
 		double actDist = 0;
-		for(Vertex v: cell.getVertices()){
+		for(Vertex v: cell.getUnsortedVertices()){
 			actDist= center.edist(v);
 			if(actDist > maxDistance) maxDistance = actDist;
 		}
@@ -185,7 +187,7 @@ public abstract class Calculators {
 		Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(randAngleInRadians)), (center.getDoubleY()+maxDistance*Math.sin(randAngleInRadians)));
 		
 		//Calculate Intersection between the line cellcenter-vOnCircle and all sides of cell
-		Vertex[] cellVertices = cell.getVertices();
+		Vertex[] cellVertices = cell.getUnsortedVertices();
 		for(int i = 0; i < cellVertices.length; i++){
 			Vertex v_s =getIntersectionOfLinesInLineSegment(cellVertices[i], cellVertices[(i+1)%cellVertices.length], center, vOnCircle);
 			if(v_s != null){ 
@@ -202,13 +204,13 @@ public abstract class Calculators {
 						CellPolygon actCell = (CellPolygon) listener;
 						if(foundCellIdsFirstVertex.contains(actCell.getId())){ 
 							actCell.addVertex(v_s);
-							actCell.sortVerticesUsingTravellingSalesmanSimulatedAnnealing();
+							
 						}
 					}
 				}
 			}
 		}
-		
+		return cell;
 	}
 	/**
 	 * @param v1 first point line one (first cell vertex)
@@ -401,7 +403,7 @@ public abstract class Calculators {
 		
 	
 		
-		Vertex[] vertices = polygon.getVertices();
+		Vertex[] vertices = polygon.getUnsortedVertices();
 		
 		for(int i = 0; i < vertices.length; i++){
 			for(int n = 0; n < vertices.length; n++){
@@ -438,7 +440,7 @@ public abstract class Calculators {
 		
 		CellPolygon pol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId());
 		
-		Vertex[] vertices = pol.getVertices();
+		Vertex[] vertices = pol.getUnsortedVertices();
 		double cleanDistance = ell.getMinorAxis()*MAX_CLEAN_ESTIMATED_VERTEX_FACTOR;
 		
 		for(int i = 0; i < vertices.length; i++){
@@ -462,7 +464,7 @@ public abstract class Calculators {
 		Polygon[] pols = new Polygon[cellPols.length];
 		for(int i = 0; i< cellPols.length; i++){
 			pols[i] = new Polygon();			
-			Vertex[] sortedVertices = cellPols[i].getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+			Vertex[] sortedVertices = cellPols[i].getSortedVertices();
 		
 			for(Vertex v : sortedVertices){	
 				pols[i].addPoint(v.getIntX(), v.getIntY());
@@ -476,7 +478,7 @@ public abstract class Calculators {
 		Polygon[] allPolygons = getAllPolygonObjects(cellPolygons);
 		
 		for(int  i = 0; i < cellPolygons.length; i++){
-			Vertex[] actPolygonsVertices = cellPolygons[i].getVertices();
+			Vertex[] actPolygonsVertices = cellPolygons[i].getUnsortedVertices();
 			for(int n = 0; n < actPolygonsVertices.length; n++){
 				Vertex actVertex = actPolygonsVertices[n];
 				if(actVertex != null){
@@ -575,7 +577,7 @@ public abstract class Calculators {
 					boolean resultShouldBeBigger = currentArea-cell.getPreferredArea()<0;
 					double percentage = Math.abs((currentArea-cell.getPreferredArea())/cell.getPreferredArea());
 					double oldDistance = center.mdist(v);
-					directionVectorNorm.scalarMult(percentage*oldDistance/(cell.getVertices().length-1));
+					directionVectorNorm.scalarMult(percentage*oldDistance/(cell.getUnsortedVertices().length-1));
 					double newDistance = center.mdist(new Vertex(v.getDoubleX()+directionVectorNorm.getDoubleX(), v.getDoubleY()+directionVectorNorm.getDoubleY()));
 					if((resultShouldBeBigger && newDistance < oldDistance) || (!resultShouldBeBigger && newDistance > oldDistance)) directionVectorNorm.scalarMult(-1);					
 					newX += directionVectorNorm.getDoubleX();

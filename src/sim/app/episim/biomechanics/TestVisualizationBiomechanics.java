@@ -10,12 +10,15 @@ import java.awt.Polygon;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+
+import com.lowagie.tools.plugins.SelectedPages;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.biomechanics.simanneal.VertexForcesMinimizerSimAnneal;
@@ -32,6 +35,12 @@ public class TestVisualizationBiomechanics {
 	private Thread simulationThread;
 	private SimState simulationState = null;
 	
+	private int indexOfSelectedCell = 0;
+	
+	private ConjugateGradientOptimizer conGradientOptimizer;
+   private VertexForcesMinimizerSimAnneal simAnnealOptimizer;
+   private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
+	
 	public TestVisualizationBiomechanics(){
 		try{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -43,6 +52,13 @@ public class TestVisualizationBiomechanics {
 		cells = Calculators.getSquareVertex(100, 100, 50, 6);
 		
 		cells = Calculators.getStandardCellArray(1, 1);
+		
+		
+		conGradientOptimizer = new ConjugateGradientOptimizer();
+	   simAnnealOptimizer = new VertexForcesMinimizerSimAnneal();
+		
+		
+		
 		
 		frame = new JFrame("Biomechanics Testvisualization");
 		frame.setSize(500, 500);
@@ -95,60 +111,25 @@ public class TestVisualizationBiomechanics {
 	}
 	private void setSimulationState(SimState state){
 		if(state == SimState.SIMSTART){
-		final ConjugateGradientOptimizer calc = new ConjugateGradientOptimizer();
-	   final VertexForcesMinimizerSimAnneal minimizer = new VertexForcesMinimizerSimAnneal();
+		
 		simulationState = SimState.SIMSTART;
 		simulationThread = new Thread(new Runnable(){ 
-			private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
+			
 			
 			
 			public void run() { 
-		//	cells[0].setPreferredArea(cells[0].getPreferredArea()*1.3);
-			cells[0].setSelected(true);
+	
+			cells[indexOfSelectedCell].setSelected(true);
 			while(simulationState == SimState.SIMSTART){
 				try{
-					cells[0].setPreferredArea(cells[0].getPreferredArea()+10);
-					int randomStartIndexCells =  rand.nextInt(cells.length);
-					CellPolygon polygon = null;
-					for(int n = 0; n < cells.length; n++){
-						polygon = cells[((n+randomStartIndexCells)% cells.length)];
-					//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
-					 Vertex[] cellVertices =	polygon.getVertices();
-					 int randomStartIndexVertices = 1;// rand.nextInt(cellVertices.length);
-					 //System.out.println("Choosen Start Index: "+ randomStartIndexVertices);
-					for(int i = 0; i < cellVertices.length; i++){
-						Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
-						if(!v.isWasAlreadyCalculated()){ //&& v.getNumberOfCellsJoiningThisVertex() > 2){
-							
-							calc.relaxVertex(v);
-							v.commitNewValues();
-				//			minimizer.relaxForcesActingOnVertex(v);
-							v.setWasAlreadyCalculated(true);
-						}
-						/*else 
-							if(!v.isWasAlreadyCalculated()){
-							Calculators.relaxVertexEstimated(v);
-							//v.setWasAlreadyCalculated(true);
-						}*/
-					}
-					polygon.commitNewVertexValues();
-					//System.out.println("One CalculationRun");
-					}
-					
-					
-					for(CellPolygon actPolygon: cells){
-						actPolygon.resetCalculationStatusOfAllVertices();
-						//polygon.commitNewVertexValues();
-						if(actPolygon.isSelected())System.out.println("Cell No. "+ actPolygon.getId() + " Size after: " +actPolygon.getCurrentArea() + "(selected) Difference: " + (actPolygon.getCurrentArea() - actPolygon.getPreferredArea()));
-					//	else System.out.println("Cell No. "+ actPolygon.getId() + " Size after: " +actPolygon.getCurrentArea() + "Difference: " + (actPolygon.getCurrentArea() - actPolygon.getPreferredArea()));
-					}
+					checkCellDivision();
+					relaxAllVertices();					
 					visualizationPanel.repaint(); 
-	            Thread.sleep(10);
+	            Thread.sleep(1);
             }
             catch (InterruptedException e){
 	            ExceptionDisplayer.getInstance().displayException(e);
-            }
-			//	Calculators.randomlySelectCell(cells); 
+            }	
 				
 			}
 			
@@ -166,6 +147,50 @@ public class TestVisualizationBiomechanics {
 			
 		
 	}
+	
+	private void checkCellDivision(){
+		if(cells[indexOfSelectedCell].canDivide()){
+			CellPolygon daughterCell = cells[indexOfSelectedCell].cellDivision();
+		/*	CellPolygon[] newCellArray = new CellPolygon[cells.length+1];
+			System.arraycopy(cells, 0, newCellArray, 0, cells.length);
+			newCellArray[cells.length] = daughterCell;
+			cells= newCellArray;*/
+		}
+		else cells[indexOfSelectedCell].grow(10);
+	}
+	
+	private void relaxAllVertices(){
+		
+		int randomStartIndexCells =  rand.nextInt(cells.length);
+		CellPolygon polygon = null;
+		for(int n = 0; n < cells.length; n++){
+			polygon = cells[((n+randomStartIndexCells)% cells.length)];
+			//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
+			 Vertex[] cellVertices =	polygon.getSortedVertices();
+			 int randomStartIndexVertices = rand.nextInt(cellVertices.length);
+			
+			for(int i = 0; i < cellVertices.length; i++){
+				Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
+				if(!v.isWasAlreadyCalculated()){					
+					conGradientOptimizer.relaxVertex(v);
+					v.commitNewValues();
+					//	minimizer.relaxForcesActingOnVertex(v);
+					v.setWasAlreadyCalculated(true);
+				}				
+			}
+			polygon.commitNewVertexValues();			
+		}
+		
+		resetCalculationStatusOfAllCells();		
+	}
+	
+	private void resetCalculationStatusOfAllCells(){
+		for(CellPolygon actPolygon: cells){
+			actPolygon.resetCalculationStatusOfAllVertices();			
+			//if(actPolygon.isSelected())System.out.println("Cell No. "+ actPolygon.getId() + " Size after: " +actPolygon.getCurrentArea() + "(selected) Difference: " + (actPolygon.getCurrentArea() - actPolygon.getPreferredArea()));
+		}
+	}
+	
 	
 	private void testCellAreaCalculation(){
 		CellPolygon c = new CellPolygon(100, 100);
@@ -220,7 +245,7 @@ public class TestVisualizationBiomechanics {
 		//	cell.sortVerticesWithGrahamScan();
 			Vertex[] newVertices = new Vertex[2];
 			int newVertexIndex = 0;
-			for(Vertex v : cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing()){	
+			for(Vertex v : cell.getSortedVertices()){	
 				if(!v.isNew)p.addPoint(v.getIntX(), v.getIntY());
 				else newVertices[newVertexIndex++] = v;
 			}
@@ -237,7 +262,7 @@ public class TestVisualizationBiomechanics {
 			
 			
 			if(newVertices[0] !=null && newVertices[1] !=null)g.drawLine(newVertices[0].getIntX(), newVertices[0].getIntY(), newVertices[1].getIntX(), newVertices[1].getIntY());
-			for(Vertex v : cell.getVertices()){	
+			for(Vertex v : cell.getUnsortedVertices()){	
 				drawVertex(g, v, false);				
 			}
 			

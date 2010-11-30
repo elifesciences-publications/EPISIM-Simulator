@@ -75,6 +75,7 @@ public class Vertex implements java.io.Serializable{
     {
         x-=v.x;
         y-=v.y;
+        notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
     }
 
 
@@ -86,6 +87,7 @@ public class Vertex implements java.io.Serializable{
     public void scalarMult(double scalar){
    	 x *= scalar;
    	 y *= scalar;
+   	 notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
     }
 
     public Vertex reversed()
@@ -191,13 +193,18 @@ public class Vertex implements java.io.Serializable{
 	}
 	
 	public void setDoubleX(double x){
-		
-		this.x = x; 
+		if(x != this.x){
+			this.x = x;
+			notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
+		}
 	}
 	public double getDoubleX(){ return x; }
 	public void setDoubleY(double y){ 
+		if(y != this.y){
+			this.y = y;
+			notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
+		}
 		
-		this.y = y; 
 	}
 	public double getDoubleY(){ return y; }
 	
@@ -285,7 +292,7 @@ public class Vertex implements java.io.Serializable{
    	HashSet<Vertex> connectedVertices = new HashSet<Vertex>();
    	CellPolygon[] cellPolygons = getCellsJoiningThisVertex();
    	for(CellPolygon pol :cellPolygons){
-   		Vertex[] vertices = pol.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+   		Vertex[] vertices = pol.getSortedVertices();
    		int index = getIndexOfThisVertexInVertexArray(vertices);
    		if(index >= 0){
    			connectedVertices.add(vertices[mod(index-1, vertices.length)]);
@@ -367,6 +374,7 @@ public class Vertex implements java.io.Serializable{
 	public void commitNewValues(){
 		this.x = this.x_new;
 		this.y = this.y_new;
+		notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
 	}
 
 

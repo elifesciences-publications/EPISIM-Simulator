@@ -151,7 +151,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
             	 
             	CellPolygon  cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(kcyte.getCellEllipseObject().getId());
             	Vertex[] vertices = null;
-        			if(cellPol != null && (vertices = cellPol.getVertices()) != null){
+        			if(cellPol != null && (vertices = cellPol.getUnsortedVertices()) != null){
         				drawCellPolygon(graphics, cellPol);
         				
         				for(Vertex v : vertices){
@@ -360,7 +360,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 		if(cell != null){
 			
 			Polygon p = new Polygon();			
-			Vertex[] sortedVertices = cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+			Vertex[] sortedVertices = cell.getSortedVertices();
 		
 			for(Vertex v : sortedVertices){	
 				p.addPoint(v.getIntX(), v.getIntY());

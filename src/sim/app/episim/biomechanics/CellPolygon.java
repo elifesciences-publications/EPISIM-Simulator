@@ -15,9 +15,14 @@ public class CellPolygon implements VertexChangeListener{
  private boolean selected = false;
  
  private double preferredArea;
+ 
+ private double originalPreferredArea = Double.NEGATIVE_INFINITY;
 	
  private HashSet<Vertex> vertices;
+ private Vertex[] sortedVertices;
  private boolean isAlreadyCalculated;
+ 
+ private boolean isVertexSortingDirty = true;
 public CellPolygon(double x, double y){
 	id = nextId++;
 	vertices = new HashSet<Vertex>();
@@ -33,6 +38,7 @@ public void addVertex(Vertex v){
 	if(v != null &&  !vertices.contains(v) && !v.isWasDeleted()){
 		vertices.add(v);
 		v.addVertexChangeListener(this);
+		isVertexSortingDirty = true;
 	}
 }
 
@@ -54,7 +60,7 @@ public int hashCode() {
 	return result;
 }
 
-public Vertex[] getVertices(){ return vertices.toArray(new Vertex[vertices.size()]); }
+public Vertex[] getUnsortedVertices(){ return vertices.toArray(new Vertex[vertices.size()]); }
 
 /*public void sortVerticesWithGrahamScan(){
 	GrahamScan scan = new GrahamScan();
@@ -73,25 +79,45 @@ public Vertex[] getSortedVerticesUsingGrahamScan(){
 	return v;
 }*/
 
-public Vertex[] getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing(){
-	SimulatedAnnealingForOrderingVertices sim = new SimulatedAnnealingForOrderingVertices(getVertices());
-	return sim.sortVertices();
+public void grow(double areaToGrow){
+	if(this.originalPreferredArea == Double.NEGATIVE_INFINITY) this.originalPreferredArea = this.preferredArea;
+	this.preferredArea += areaToGrow;
 }
 
-public void sortVerticesUsingTravellingSalesmanSimulatedAnnealing(){
-	SimulatedAnnealingForOrderingVertices sim = new SimulatedAnnealingForOrderingVertices(getVertices());
-	Vertex[] v = sim.sortVertices();
-	vertices.clear();
-	for(Vertex ver : v) vertices.add(ver);	
+public boolean canDivide(){
+	return getCurrentArea() > (2*originalPreferredArea) && originalPreferredArea > 0;
+}
+
+public CellPolygon cellDivision(){
+	this.preferredArea = this.originalPreferredArea;
+	this.originalPreferredArea = Double.NEGATIVE_INFINITY;
+	return Calculators.divideCellPolygon(this);
+}
+
+
+public Vertex[] getSortedVertices(){
+	if(isVertexSortingDirty || sortedVertices == null) sortVerticesUsingTravellingSalesmanSimulatedAnnealing();
+	return sortedVertices;
+}
+
+private void sortVerticesUsingTravellingSalesmanSimulatedAnnealing(){
+	SimulatedAnnealingForOrderingVertices sim = new SimulatedAnnealingForOrderingVertices(getUnsortedVertices());
+	sortedVertices = sim.sortVertices();	
+	isVertexSortingDirty = false;
 }
 
 public void handleVertexChangeEvent(VertexChangeEvent event) {
 	if(event.getType() == VertexChangeEventType.VERTEXDELETED){ 
-		removeVertex(event.getSource());	
+		removeVertex(event.getSource());
+		isVertexSortingDirty = true;
 	}
 	else if(event.getType() == VertexChangeEventType.VERTEXREPLACED){
 		removeVertex(event.getSource());
 		addVertex(event.getNewVertex());
+		isVertexSortingDirty = true;
+	}
+	else if (event.getType() == VertexChangeEventType.VERTEXMOVED){
+		isVertexSortingDirty = true;
 	}
 }
 
@@ -104,7 +130,7 @@ public int getNumberOfNeighbourPolygons(){
 public CellPolygon[] getNeighbourPolygons(){
 	HashSet<Integer> alreadyCheckedIds = new HashSet<Integer>();
 	HashSet<CellPolygon> neighbourPolygonsSet = new HashSet<CellPolygon>();
-	for(Vertex v: this.getVertices()){
+	for(Vertex v: this.getUnsortedVertices()){
 		if(v.getNumberOfCellsJoiningThisVertex() > 0){
 			for(CellPolygon pol :v.getCellsJoiningThisVertex()){
 				if(!alreadyCheckedIds.contains(pol.getId()) && pol.getId() != this.getId()){ 
@@ -180,12 +206,12 @@ public void setSelected(boolean selected) {
 
 
 public void resetCalculationStatusOfAllVertices(){
-	for(Vertex v : this.getVertices()){ 
+	for(Vertex v : this.getUnsortedVertices()){ 
 		v.resetCalculationStatus();
 	}
 }
 public void commitNewVertexValues(){
-	for(Vertex v : this.getVertices()){ 
+	for(Vertex v : this.getUnsortedVertices()){ 
 		v.commitNewValues();
 	}
 }

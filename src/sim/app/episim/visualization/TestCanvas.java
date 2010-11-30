@@ -198,7 +198,7 @@ public class TestCanvas extends JPanel {
 			for(CellEllipse ell : cellEllipses){
 				
 				cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId());
-				if(cellPol != null && (vertices = cellPol.getVertices()) != null){
+				if(cellPol != null && (vertices = cellPol.getUnsortedVertices()) != null){
 					drawCellPolygon((Graphics2D)g, cellPol, false);
 					
 					for(Vertex v : vertices){
@@ -330,7 +330,7 @@ public class TestCanvas extends JPanel {
 			Polygon p = new Polygon();
 			
 			//Vertex[] sortedVertices = cell.getSortedVerticesUsingGrahamScan();
-			Vertex[] sortedVertices = cell.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+			Vertex[] sortedVertices = cell.getSortedVertices();
 		
 			for(Vertex v : sortedVertices){	
 				p.addPoint(v.getIntX(), v.getIntY());

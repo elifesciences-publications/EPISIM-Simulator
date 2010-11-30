@@ -165,7 +165,7 @@ public class VertexForcesCalculator {
 		Vector totalResult = new DenseVector(2);
 		
 		for(CellPolygon pol : vertex.getCellsJoiningThisVertex()){
-			polygonVertices = pol.getSortedVerticesUsingTravellingSalesmanSimulatedAnnealing();
+			polygonVertices = pol.getSortedVertices();
 			boolean orderedCorrect = checkIfClockWise(polygonVertices);
 			if(!orderedCorrect){
 			

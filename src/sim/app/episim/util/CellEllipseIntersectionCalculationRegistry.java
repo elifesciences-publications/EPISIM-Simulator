@@ -118,7 +118,7 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	public Vertex[] getAllCellEllipseVertices(){
 		HashSet<Vertex> vertices = new HashSet<Vertex>();
 		for(CellPolygon pol: this.cellPolygonRegistry.values()){
-			vertices.addAll(Arrays.asList(pol.getVertices())); 
+			vertices.addAll(Arrays.asList(pol.getUnsortedVertices())); 
 		}
 		Vertex[] verticesArray = new Vertex[vertices.size()];
 		//System.out.println("There are " + vertices.size() + "Vertices");

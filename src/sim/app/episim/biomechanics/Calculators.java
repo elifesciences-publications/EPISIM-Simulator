@@ -22,6 +22,8 @@ public abstract class Calculators {
 	public static final double ALLOWED_DELTA = 1;
 	
 	
+	public static final double SHORTEST_EDGE_LENGTH = 4;
+	
 	private static MersenneTwisterFast rand = new MersenneTwisterFast(System.currentTimeMillis());
 	
 	private static final double MAX_MERGE_VERTEX_DISTANCE_FACTOR = 0.3;
@@ -235,13 +237,71 @@ public abstract class Calculators {
 		return newCell;
 	}
 	
+	public static void checkForT1Transitions(CellPolygon cell){
+		Vertex[] cellVertices = cell.getSortedVertices();
+		for(int i = 0; i < cellVertices.length; i++){
+			if(cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < Calculators.SHORTEST_EDGE_LENGTH){
+				doT1Transition(cellVertices[i], cellVertices[(i+1)%cellVertices.length]);
+			}
+		}
+	}
+	
+	private static void doT1Transition(Vertex v1, Vertex v2){
+		Vertex center = new Vertex((v1.getDoubleX()+ v2.getDoubleX())/2,(v1.getDoubleY()+ v2.getDoubleY())/2);
+		
+		double ninetyDegreesInRadians = Math.toRadians(90);
+		
+		
+		v1.setDoubleX((center.getDoubleX()+(Calculators.SHORTEST_EDGE_LENGTH/2)*Math.cos(Math.toRadians(90))));
+		v1.setDoubleY((center.getDoubleY()+(Calculators.SHORTEST_EDGE_LENGTH/2)*Math.sin(Math.toRadians(90))));
+		
+		v2.setDoubleX((center.getDoubleX()-(Calculators.SHORTEST_EDGE_LENGTH/2)*Math.cos(Math.toRadians(90))));
+		v2.setDoubleY((center.getDoubleY()-(Calculators.SHORTEST_EDGE_LENGTH/2)*Math.sin(Math.toRadians(90))));
+		
+		
+		
+		HashSet<CellPolygon> cellsAssociatedWithV1 = new HashSet<CellPolygon>();
+		HashSet<CellPolygon> cellsAssociatedWithV2 = new HashSet<CellPolygon>();
+			
+		for(VertexChangeListener listener : v1.getVertexChangeListener()){ if(listener instanceof CellPolygon) cellsAssociatedWithV1.add((CellPolygon)listener); }
+		for(VertexChangeListener listener : v2.getVertexChangeListener()){ if(listener instanceof CellPolygon) cellsAssociatedWithV2.add((CellPolygon)listener); }
+		
+		HashSet<CellPolygon> cellsConnectedToBothVertices = new HashSet<CellPolygon>();
+		
+		for(CellPolygon cellPol : cellsAssociatedWithV1.toArray(new CellPolygon[cellsAssociatedWithV1.size()])){
+			if(cellsAssociatedWithV2.contains(cellPol)){
+				//Afterwards we want to have in these sets only those cells that are connected with only one of the two vertices
+				cellsAssociatedWithV1.remove(cellPol);
+				cellsAssociatedWithV2.remove(cellPol);
+				cellsConnectedToBothVertices.add(cellPol);
+			}
+		}
+		
+		//add vertex v1 and v2 respectively to those cells that were formerly connected with only one of the vertices
+		for(CellPolygon pol :cellsAssociatedWithV1) pol.addVertex(v2);
+		for(CellPolygon pol :cellsAssociatedWithV2) pol.addVertex(v1);
+		
+		//remove the vertex that is more far from the center of the polygon; 
+		//afterwards the cells that were formerly connected to both vertices are only connected to one of the two vertices
+		for(CellPolygon pol : cellsConnectedToBothVertices){
+			Vertex cellCenter = Calculators.getCellCenter(pol);
+			if(cellCenter.edist(v1) < cellCenter.edist(v2)) pol.removeVertex(v2);
+			else pol.removeVertex(v1);
+		}
+		
+	}
+	
+	
+	
+	
+	
+	
 	/**
 	 * This methods checks whether or not the new vertices introduced in cell division are too close to an already existing vertex
 	 * @return
 	 */
 	private static boolean isRandomAngleConventientForCellDivision(CellPolygon cell, Vertex center, double angle, double maxDistance){
-		final double minDistance = 5;
-		
+				
 		Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(angle)), (center.getDoubleY()+maxDistance*Math.sin(angle)));
 		
 		//Calculate Intersection between the line cellcenter-vOnCircle and all sides of cell
@@ -249,7 +309,7 @@ public abstract class Calculators {
 		for(int i = 0; i < cellVertices.length; i++){
 			Vertex v_s =getIntersectionOfLinesInLineSegment(cellVertices[i], cellVertices[(i+1)%cellVertices.length], center, vOnCircle);
 			if(v_s != null){
-				if(v_s.edist(cellVertices[i]) < minDistance ||v_s.edist(cellVertices[(i+1)%cellVertices.length]) < minDistance){ 
+				if(v_s.edist(cellVertices[i]) < Calculators.SHORTEST_EDGE_LENGTH ||v_s.edist(cellVertices[(i+1)%cellVertices.length]) < Calculators.SHORTEST_EDGE_LENGTH){ 
 					System.out.println("Angle is not convenient for CellDivision");        
 					return false;
 				}

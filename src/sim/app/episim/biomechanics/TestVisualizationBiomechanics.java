@@ -182,7 +182,8 @@ public class TestVisualizationBiomechanics {
 					v.setWasAlreadyCalculated(true);
 				}				
 			}
-			polygon.commitNewVertexValues();			
+			polygon.commitNewVertexValues();
+			polygon.checkForT1Transition();
 		}
 		
 		resetCalculationStatusOfAllCells();		

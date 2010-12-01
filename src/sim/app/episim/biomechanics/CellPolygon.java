@@ -158,6 +158,10 @@ public double getCurrentArea(){
 	return Calculators.getCellArea(this);
 }
 
+public void checkForT1Transition(){
+	Calculators.checkForT1Transitions(this);
+}
+
 
 public Color getFillColor() { 
 	int neighbourNo = getNumberOfNeighbourPolygons();

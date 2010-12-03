@@ -22,11 +22,15 @@ import com.lowagie.tools.plugins.SelectedPages;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.biomechanics.simanneal.VertexForcesMinimizerSimAnneal;
+import sim.app.episim.model.ModelController;
+import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 
 import ec.util.MersenneTwisterFast;
+import episiminterfaces.CellPolygonProliferationSuccessListener;
 
 
-public class TestVisualizationBiomechanics {
+public class TestVisualizationBiomechanics implements CellPolygonProliferationSuccessListener{
 	
 	private enum SimState{SIMSTART, SIMSTOP;}
 	private JFrame frame;
@@ -35,10 +39,9 @@ public class TestVisualizationBiomechanics {
 	private Thread simulationThread;
 	private SimState simulationState = null;
 	
-	private int indexOfSelectedCell = 4;
 	
-	private ConjugateGradientOptimizer conGradientOptimizer;
-   private VertexForcesMinimizerSimAnneal simAnnealOptimizer;
+	
+	
    private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
 	
 	public TestVisualizationBiomechanics(){
@@ -51,18 +54,24 @@ public class TestVisualizationBiomechanics {
 		//testCellAreaCalculation();
 		cells = Calculators.getSquareVertex(100, 100, 50, 6);
 		
-		cells = Calculators.getStandardCellArray(3, 3);
+		cells = Calculators.getStandardCellArray(1, 1);
 		
+		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setBasalAmplitude_µm(250);
+		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setWidth(500);
+		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setBasalOpening_µm(12000);
+		TissueController.getInstance().getTissueBorder().setBasalPeriod(550);
+		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(30);
+		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(200);
+		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
+		for(CellPolygon pol: cells) pol.addProliferationSuccessListener(this);
 		
-		conGradientOptimizer = new ConjugateGradientOptimizer();
-	   simAnnealOptimizer = new VertexForcesMinimizerSimAnneal();
 		
 		
 		
 		
 		frame = new JFrame("Biomechanics Testvisualization");
-		frame.setSize(500, 500);
-		frame.setPreferredSize(new Dimension(500, 500));
+		frame.setSize(600, 600);
+		frame.setPreferredSize(new Dimension(600, 600));
 		frame.getContentPane().setLayout(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -119,11 +128,22 @@ public class TestVisualizationBiomechanics {
 			
 			public void run() { 
 	
-			cells[indexOfSelectedCell].setSelected(true);
+			cells[cells.length/2].proliferate();
 			while(simulationState == SimState.SIMSTART){
 				try{
-					checkCellDivision();
-					relaxAllVertices();					
+					int randomStartIndexCells =  rand.nextInt(cells.length);
+					CellPolygon polygon = null;
+					for(int n = 0; n < cells.length; n++){
+						polygon = cells[((n+randomStartIndexCells)% cells.length)];
+						//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
+						polygon.step(null);
+						 
+					}
+					
+					resetCalculationStatusOfAllCells();	
+					
+					
+					
 					visualizationPanel.repaint(); 
 	            Thread.sleep(1);
             }
@@ -137,6 +157,7 @@ public class TestVisualizationBiomechanics {
 			} });
 		
 	   	simulationThread.start();
+			
 		}
 		else if(state == SimState.SIMSTOP){
 			simulationState = SimState.SIMSTOP;
@@ -148,46 +169,8 @@ public class TestVisualizationBiomechanics {
 		
 	}
 	
-	private void checkCellDivision(){
-		if(cells[indexOfSelectedCell].canDivide()){
-			CellPolygon daughterCell = cells[indexOfSelectedCell].cellDivision();
-			if(daughterCell != null){
-				CellPolygon[] newCellArray = new CellPolygon[cells.length+1];
-				System.arraycopy(cells, 0, newCellArray, 0, cells.length);
-				newCellArray[cells.length] = daughterCell;
-				cells= newCellArray;
-				cells[indexOfSelectedCell].setSelected(false);
-				indexOfSelectedCell =Calculators.randomlySelectCell(cells);
-			}
-		}
-		else cells[indexOfSelectedCell].grow(10);
-	}
 	
-	private void relaxAllVertices(){
-		
-		int randomStartIndexCells =  rand.nextInt(cells.length);
-		CellPolygon polygon = null;
-		for(int n = 0; n < cells.length; n++){
-			polygon = cells[((n+randomStartIndexCells)% cells.length)];
-			//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
-			 Vertex[] cellVertices =	polygon.getSortedVertices();
-			 int randomStartIndexVertices = rand.nextInt(cellVertices.length);
-			
-			for(int i = 0; i < cellVertices.length; i++){
-				Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
-				if(!v.isWasAlreadyCalculated()){					
-					conGradientOptimizer.relaxVertex(v);
-					v.commitNewValues();
-					//	minimizer.relaxForcesActingOnVertex(v);
-					v.setWasAlreadyCalculated(true);
-				}				
-			}
-			polygon.commitNewVertexValues();
-			polygon.checkForT1Transition();
-		}
-		
-		resetCalculationStatusOfAllCells();		
-	}
+	
 	
 	private void resetCalculationStatusOfAllCells(){
 		for(CellPolygon actPolygon: cells){
@@ -209,6 +192,10 @@ public class TestVisualizationBiomechanics {
 	
 	private void drawVisualization(Graphics2D g){		
 		if(cells!= null) for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
+		
+		
+		g.draw(TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon());
+		
 		//drawErrorManhattanVersusEuclideanDistance(g);
 	}
 	
@@ -257,7 +244,7 @@ public class TestVisualizationBiomechanics {
 		//	g.drawString(""+ Math.round(Calculators.getCellArea(cell))*0.2 + ", " + Math.round(Calculators.getCellPerimeter(cell))*0.2, cell.getX()-10, cell.getY());
 			
 			
-			if(cell.isSelected()){
+			if(cell.isProliferating()){
 				Color oldColor = g.getColor();
 				g.setColor(Color.RED);
 				g.fillPolygon(p);
@@ -305,6 +292,18 @@ public class TestVisualizationBiomechanics {
 	public static void main(String[] args) {
 		new TestVisualizationBiomechanics();
 	}
+	public void proliferationCompleted(CellPolygon pol) {
+
+		if(pol != null){
+			CellPolygon[] newCellArray = new CellPolygon[cells.length+1];
+			System.arraycopy(cells, 0, newCellArray, 0, cells.length);
+			newCellArray[cells.length] = pol;
+			cells= newCellArray;
+			pol.addProliferationSuccessListener(this);
+			Calculators.randomlySelectCellForProliferation(cells);
+		}
+	   
+   }
 	
 
 }

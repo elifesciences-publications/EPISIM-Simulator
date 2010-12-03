@@ -38,6 +38,7 @@ public class TissueBorder {
 	
 	private static int basalY=58;          // y coordinate at which undulations start, the base line    
 	private static int basalPeriod=70;      // width of an undulation at the foot
+	private static int startXOfStandardMembrane = 0;
 	
 	private static  EpisimMechanicalModelGlobalParameters globalParameters;  
 	
@@ -56,6 +57,16 @@ public class TissueBorder {
 	public int getUndulationBaseLine(){
 		return basalY;
 	}
+	
+	public void setUndulationBaseLine(int _basalY){
+		basalY = _basalY;
+	}
+	
+	public void setBasalPeriod(int period){
+		basalPeriod = period;
+	}
+	
+	public void setStartXOfStandardMembrane(int start){ startXOfStandardMembrane = start; }
 	
 	public boolean isStandardMembraneLoaded() { return this.standardMembraneLoaded;}
 	
@@ -175,8 +186,8 @@ public class TissueBorder {
 		standardMembraneLoaded = true;
 		GeneralPath polygon = new GeneralPath();
 	 		final int STEPSIZE = 1;
-	 		((GeneralPath)polygon).moveTo(0, lowerBound(0));
-	 		for(double i = 0; i <= getWidth(); i += STEPSIZE){
+	 		((GeneralPath)polygon).moveTo(startXOfStandardMembrane, lowerBound(startXOfStandardMembrane));
+	 		for(double i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+getWidth()); i += STEPSIZE){
 	 		((GeneralPath)polygon).lineTo(i, lowerBound(i));
 	 		}
 	 		this.polygon = polygon;

@@ -59,6 +59,8 @@ public class Vertex implements java.io.Serializable{
 	public boolean isNew(){ return isNew;}
 	public void setIsNew(boolean isNew){this.isNew = isNew;}
 	
+	
+	
 	public Vertex relTo(Vertex v)
    {
         return new Vertex(x-v.x, y-v.y);
@@ -368,6 +370,18 @@ public class Vertex implements java.io.Serializable{
 	public void setNewY(double y_new) {
 	
 		this.y_new = y_new;
+	}
+	
+	
+	public double getNewX() {
+		
+		return this.x_new; 
+	}
+
+	
+	public double getNewY() {
+	
+		return this.y_new;
 	}
 	
 	public void resetCalculationStatus(){

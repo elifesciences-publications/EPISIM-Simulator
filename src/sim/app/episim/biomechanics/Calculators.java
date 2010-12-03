@@ -8,6 +8,8 @@ import java.util.Set;
 
 import ec.util.MersenneTwisterFast;
 
+import sim.app.episim.tissue.TissueBorder;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
@@ -15,14 +17,14 @@ import sim.app.episim.visualization.CellEllipse;
 
 public abstract class Calculators {
 	
-	public static final int STARTX = 100;
-	public static final int STARTY = 100;
-	public static final int SIDELENGTH = 20;
+	public static final int STARTX=100; //= 275;
+	public static final int STARTY=100; //= 428;
+	public static final int SIDELENGTH = 30;
 	public static final int SIDELENGTHHALF = SIDELENGTH/2;
 	public static final double ALLOWED_DELTA = 1;
 	
 	
-	public static final double SHORTEST_EDGE_LENGTH = 4;
+	public static final double MIN_EDGE_LENGTH =6;
 	
 	private static MersenneTwisterFast rand = new MersenneTwisterFast(System.currentTimeMillis());
 	
@@ -148,18 +150,18 @@ public abstract class Calculators {
 		return cellPerimeter;
 	}
 
-	public static int randomlySelectCell(CellPolygon[] cells){
+	public static void randomlySelectCellForProliferation(CellPolygon[] cells){
 		//for(Cell c :cells) c.setSelected(false);
 		
 		for(int i = 0; i < cells.length; i++){
 			int cellIndex =rand.nextInt(cells.length);
 	
-			if(!cells[cellIndex].isSelected()){
-				cells[cellIndex].setSelected(true);
-				return cellIndex;
+			if(!cells[cellIndex].isProliferating()){
+				cells[cellIndex].proliferate();
+				return;
 			}
 		}
-		return -1;
+		
 	}
 	
 	public static Vertex getCellCenter(CellPolygon cell){
@@ -240,23 +242,33 @@ public abstract class Calculators {
 	public static void checkForT1Transitions(CellPolygon cell){
 		Vertex[] cellVertices = cell.getSortedVertices();
 		for(int i = 0; i < cellVertices.length; i++){
-			if(cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < Calculators.SHORTEST_EDGE_LENGTH){
+			if(cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < Calculators.MIN_EDGE_LENGTH){
 				doT1Transition(cellVertices[i], cellVertices[(i+1)%cellVertices.length]);
+				System.out.println("Performed T1 Transition");
 			}
 		}
+		
 	}
 	
 	private static void doT1Transition(Vertex v1, Vertex v2){
 		Vertex center = new Vertex((v1.getDoubleX()+ v2.getDoubleX())/2,(v1.getDoubleY()+ v2.getDoubleY())/2);
 		
-		double ninetyDegreesInRadians = Math.toRadians(90);
+		
+		//calculate direction Vector, then the Vector orthogonal to the direction Vector, then normalize this vector then, add SHORTEST_EDGE_LENGTH/2 * vector to cell center
+		
+		double[] vectorOthogonalToDirectionVector = new double[]{(-1*(center.getDoubleY() - v1.getDoubleY())),(center.getDoubleX() - v1.getDoubleX())};
 		
 		
-		v1.setDoubleX((center.getDoubleX()+(Calculators.SHORTEST_EDGE_LENGTH/2)*Math.cos(Math.toRadians(90))));
-		v1.setDoubleY((center.getDoubleY()+(Calculators.SHORTEST_EDGE_LENGTH/2)*Math.sin(Math.toRadians(90))));
+		//normalize the vector
+		double lengthOfVector = Math.sqrt((Math.pow(vectorOthogonalToDirectionVector[0],2)+Math.pow(vectorOthogonalToDirectionVector[1],2)));
+		vectorOthogonalToDirectionVector[0] /=lengthOfVector;
+		vectorOthogonalToDirectionVector[1] /=lengthOfVector;
+				
+		v1.setDoubleX((center.getDoubleX()+(Calculators.MIN_EDGE_LENGTH/2)*vectorOthogonalToDirectionVector[0]));
+		v1.setDoubleY((center.getDoubleY()+(Calculators.MIN_EDGE_LENGTH/2)*vectorOthogonalToDirectionVector[1]));
 		
-		v2.setDoubleX((center.getDoubleX()-(Calculators.SHORTEST_EDGE_LENGTH/2)*Math.cos(Math.toRadians(90))));
-		v2.setDoubleY((center.getDoubleY()-(Calculators.SHORTEST_EDGE_LENGTH/2)*Math.sin(Math.toRadians(90))));
+		v2.setDoubleX((center.getDoubleX()-(Calculators.MIN_EDGE_LENGTH/2)*vectorOthogonalToDirectionVector[0]));
+		v2.setDoubleY((center.getDoubleY()-(Calculators.MIN_EDGE_LENGTH/2)*vectorOthogonalToDirectionVector[1]));
 		
 		
 		
@@ -309,7 +321,7 @@ public abstract class Calculators {
 		for(int i = 0; i < cellVertices.length; i++){
 			Vertex v_s =getIntersectionOfLinesInLineSegment(cellVertices[i], cellVertices[(i+1)%cellVertices.length], center, vOnCircle);
 			if(v_s != null){
-				if(v_s.edist(cellVertices[i]) < Calculators.SHORTEST_EDGE_LENGTH ||v_s.edist(cellVertices[(i+1)%cellVertices.length]) < Calculators.SHORTEST_EDGE_LENGTH){ 
+				if(v_s.edist(cellVertices[i]) < Calculators.MIN_EDGE_LENGTH ||v_s.edist(cellVertices[(i+1)%cellVertices.length]) < Calculators.MIN_EDGE_LENGTH){ 
 					System.out.println("Angle is not convenient for CellDivision");        
 					return false;
 				}
@@ -520,11 +532,43 @@ public abstract class Calculators {
 	}
 	
 	
-	
-	public static void cleanCalculatedVertices(CellPolygon polygon){
+	public static void checkNewVertexValuesForComplianceWithStandardBorders(Vertex vertex){
+		TissueBorder tissueBorder = TissueController.getInstance().getTissueBorder();
 		
-		
+		double minYDelta = Double.POSITIVE_INFINITY;
+		double minX = Double.POSITIVE_INFINITY;
+				
+		if(tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY()){
+			double deltaX = Math.abs(vertex.getNewX()-vertex.getDoubleX());
+			double stepSize = deltaX/10d;
+			if(vertex.getNewX() > vertex.getDoubleX() && stepSize>0.1){
+				for(double newX = vertex.getNewX(); newX >=vertex.getDoubleX(); newX -= stepSize){
+					double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
+					if(yDelta < minYDelta){
+						minYDelta = yDelta;
+						minX = newX;
+					}
+				}
+			}
+			else if(vertex.getNewX() < vertex.getDoubleX() && stepSize>0.1){
+				for(double newX = vertex.getNewX(); newX <=vertex.getDoubleX(); newX += stepSize){
+					double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
+					if(yDelta < minYDelta){
+						minYDelta = yDelta;
+						minX = newX;
+					}
+				}
+			}
+			else minX = vertex.getNewX();
+			if(minX < Double.POSITIVE_INFINITY){
+				vertex.setNewX(minX);
+				vertex.setNewY(tissueBorder.lowerBound(minX));
+			}
+		}
+	}
 	
+	
+	public static void cleanCalculatedVertices(CellPolygon polygon){	
 		
 		Vertex[] vertices = polygon.getUnsortedVertices();
 		

@@ -19,6 +19,8 @@ public class ConjugateGradientOptimizer {
 	
 	private static final double K = 650;
 	private static final double LAMBDA = 15000;
+	private static final double LAMBDA_HIGH_FACTOR = 1;//2;
+	private static final double LAMBDA_LOW_FACTOR = 1;//0.4;
 	private static final double GAMMA = 100;
 	
 	private boolean testIfSignumChangeForAreaCalculation(double polygon[][], int vertexNumber){
@@ -68,9 +70,16 @@ public class ConjugateGradientOptimizer {
 	}
 	
 	//Based on euclidean distance squared
-	public Matrix calculateLineTensionMatrixForPolygon(int numberOfConnectedVertices){	
+	public Matrix calculateLineTensionMatrixForPolygon(int numberOfConnectedVertices, boolean[] higherLambdaArray){	
 		
-		double[][] resultMatrix = new double[][]{{2*numberOfConnectedVertices, 0},{0, 2*numberOfConnectedVertices}};
+		double resultFactor = 0;
+		for(int i=0; i < higherLambdaArray.length; i++){
+			if(higherLambdaArray[i]) resultFactor += 2*LAMBDA_HIGH_FACTOR;
+			else resultFactor += 2*LAMBDA_LOW_FACTOR;
+		}	
+		
+		double[][] resultMatrix = new double[][]{{resultFactor, 0},
+				                                   {0, resultFactor}};
 		
 		Matrix m = new DenseMatrix(resultMatrix);
 		
@@ -126,9 +135,25 @@ public class ConjugateGradientOptimizer {
 		
 		Vector v = new DenseVector(resultVector);
 		
-		v= v.scale(GAMMA);
+		v = v.scale(GAMMA);
 		
 		return v;
+	}
+	
+	
+	private boolean[] calculateHigherLambdaArray(Vertex[] otherVertices, Vertex vertex){
+		boolean[] result =  new boolean[otherVertices.length];
+		for(int i = 0; i < otherVertices.length; i++) result[i] = shouldHaveAHigherLambda(vertex, otherVertices[i]);
+			
+		return result;
+	}
+	
+	private boolean shouldHaveAHigherLambda(Vertex v1, Vertex v2){
+		if(v1 != v2){
+			return Math.abs(v1.getDoubleX()-v2.getDoubleX())< 7;
+		}
+		
+		return false;
 	}
 	
 	private void printVector(double[] v){
@@ -187,12 +212,18 @@ public class ConjugateGradientOptimizer {
 		return v;
 	}*/
 	
-	public Vector calculateLineTensionResultVector(Vertex[] connectedVertices){
+	public Vector calculateLineTensionResultVector(Vertex[] connectedVertices, boolean[] higherLambdaArray){
 		double result_x =0, result_y = 0;
 		
-		for(Vertex v : connectedVertices){
-			result_x -= 2*v.getDoubleX();
-			result_y -= 2*v.getDoubleY();
+		for(int i = 0; i< connectedVertices.length; i++){
+			if(higherLambdaArray[i]){
+				result_x -= 2*LAMBDA_HIGH_FACTOR*connectedVertices[i].getDoubleX();
+				result_y -= 2*LAMBDA_HIGH_FACTOR*connectedVertices[i].getDoubleY();
+			}
+			else{
+				result_x -= 2*LAMBDA_LOW_FACTOR*connectedVertices[i].getDoubleX();
+				result_y -= 2*LAMBDA_LOW_FACTOR*connectedVertices[i].getDoubleY();
+			}
 		}
 		
 		double[] resultVector = new double[]{result_x*-1, result_y*-1};
@@ -247,8 +278,10 @@ public void relaxVertex(Vertex vertex){
 		
 		Vertex[] connectedVertices = vertex.getAllOtherVerticesConnectedToThisVertex();
 		
-		totalResultMatrix=totalResultMatrix.add(calculateLineTensionMatrixForPolygon(connectedVertices.length)); 
-		totalResultVector = totalResultVector.add(calculateLineTensionResultVector(connectedVertices));
+		boolean[] higherLambdaArray = calculateHigherLambdaArray(connectedVertices, vertex);
+		
+		totalResultMatrix=totalResultMatrix.add(calculateLineTensionMatrixForPolygon(connectedVertices.length, higherLambdaArray)); 
+		totalResultVector = totalResultVector.add(calculateLineTensionResultVector(connectedVertices, higherLambdaArray));
 		
 		
 		Vector v = calculateOptimalResultWithConjugateGradient(totalResultMatrix, totalResultVector, vertex);

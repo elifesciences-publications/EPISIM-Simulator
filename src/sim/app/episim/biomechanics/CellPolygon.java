@@ -3,36 +3,68 @@ package sim.app.episim.biomechanics;
 import java.awt.Color;
 import java.util.HashSet;
 
-import sim.app.episim.biomechanics.VertexChangeEvent.VertexChangeEventType;
-import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
+import ec.util.MersenneTwisterFast;
+import episiminterfaces.CellPolygonProliferationSuccessListener;
 
-public class CellPolygon implements VertexChangeListener{
+import sim.app.episim.biomechanics.VertexChangeEvent.VertexChangeEventType;
+import sim.app.episim.biomechanics.simanneal.VertexForcesMinimizerSimAnneal;
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
+import sim.app.episim.util.EnhancedSteppable;
+import sim.engine.SimState;
+
+public class CellPolygon implements VertexChangeListener, EnhancedSteppable{
 	
  private static int nextId = 1;
  private final int id;
  private double x = 0;
  private double y = 0;
- private boolean selected = false;
+ private boolean isProliferating = false;
  
  private double preferredArea;
  
  private double originalPreferredArea = Double.NEGATIVE_INFINITY;
 	
  private HashSet<Vertex> vertices;
+ private HashSet<CellPolygonProliferationSuccessListener> cellProliferationSuccessListener;
  private Vertex[] sortedVertices;
  private boolean isAlreadyCalculated;
  
  private boolean isVertexSortingDirty = true;
+ 
+ private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
+ private ConjugateGradientOptimizer conGradientOptimizer;
+ private VertexForcesMinimizerSimAnneal simAnnealOptimizer;
+ 
 protected CellPolygon(double x, double y){
 	id = nextId++;
 	vertices = new HashSet<Vertex>();
+	cellProliferationSuccessListener = new HashSet<CellPolygonProliferationSuccessListener>();
 	this.x = x;
 	this.y = y;
+	
+	conGradientOptimizer = new ConjugateGradientOptimizer();
+   simAnnealOptimizer = new VertexForcesMinimizerSimAnneal();
 }
 
 public CellPolygon(){
 	this(0, 0);
 }
+
+
+public void addProliferationSuccessListener(CellPolygonProliferationSuccessListener listener){
+	cellProliferationSuccessListener.add(listener);
+}
+
+public void removeProliferationSuccessListener(CellPolygonProliferationSuccessListener listener){
+	cellProliferationSuccessListener.remove(listener);
+}
+
+private void notifyAllCellProliferationSuccessListener(CellPolygon daughterCell){
+	for(CellPolygonProliferationSuccessListener listener :cellProliferationSuccessListener){
+		listener.proliferationCompleted(daughterCell);
+	}
+}
+
 
 public void addVertex(Vertex v){
 	if(v != null &&  !vertices.contains(v) && !v.isWasDeleted()){
@@ -80,16 +112,21 @@ public Vertex[] getSortedVerticesUsingGrahamScan(){
 	return v;
 }*/
 
-public void grow(double areaToGrow){
+
+
+
+
+private void growForProliferation(double areaToGrow){
 	if(this.originalPreferredArea == Double.NEGATIVE_INFINITY) this.originalPreferredArea = this.preferredArea;
 	this.preferredArea += areaToGrow;
+	
 }
 
 public boolean canDivide(){
-	return getCurrentArea() > (2*originalPreferredArea) && originalPreferredArea > 0;
+	return getCurrentArea() >= (2*originalPreferredArea) && originalPreferredArea > 0;
 }
 
-public CellPolygon cellDivision(){
+private CellPolygon cellDivision(){
 	sortedVertices = null;
 	this.preferredArea = this.originalPreferredArea;
 	this.originalPreferredArea = Double.NEGATIVE_INFINITY;
@@ -206,13 +243,13 @@ protected double getY() { return y; }
 protected void setY(double y){ this.y = y; }
 
 
-public boolean isSelected() {
-	return selected;
+public boolean isProliferating() {
+	return isProliferating;
 }
 
 
-public void setSelected(boolean selected) {
-	this.selected = selected;
+public void proliferate() {
+	this.isProliferating = true;
 }
 
 
@@ -221,11 +258,7 @@ public void resetCalculationStatusOfAllVertices(){
 		v.resetCalculationStatus();
 	}
 }
-public void commitNewVertexValues(){
-	for(Vertex v : this.getUnsortedVertices()){ 
-		v.commitNewValues();
-	}
-}
+
 
 public double getPreferredArea() {
 	return preferredArea;
@@ -237,6 +270,37 @@ public void setPreferredArea(double preferredArea) {
 
 public void setIsAlreadyCalculated(boolean val){this.isAlreadyCalculated = val;}
 public boolean isAlreadyCalculated(){ return this.isAlreadyCalculated;}
+
+public void step(SimState state) {
+
+	if(isProliferating && canDivide()){
+		CellPolygon daughterCell = cellDivision();
+		notifyAllCellProliferationSuccessListener(daughterCell);
+		isProliferating = false;
+	}
+	else if(isProliferating) growForProliferation(10);
+	
+	
+	Vertex[] cellVertices =	getSortedVertices();
+	 int randomStartIndexVertices = rand.nextInt(cellVertices.length);
+	
+	for(int i = 0; i < cellVertices.length; i++){
+		Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
+		if(!v.isWasAlreadyCalculated()){					
+			conGradientOptimizer.relaxVertex(v);
+			Calculators.checkNewVertexValuesForComplianceWithStandardBorders(v);
+			v.commitNewValues();
+			//	minimizer.relaxForcesActingOnVertex(v);
+			v.setWasAlreadyCalculated(true);
+		}				
+	}
+	checkForT1Transition();
+	
+}
+
+public double getInterval() {	
+	return 1;
+}
 
 
 }

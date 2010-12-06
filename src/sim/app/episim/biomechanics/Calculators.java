@@ -17,9 +17,9 @@ import sim.app.episim.visualization.CellEllipse;
 
 public abstract class Calculators {
 	
-	public static final int STARTX=100; //= 275;
-	public static final int STARTY=100; //= 428;
-	public static final int SIDELENGTH = 30;
+	public static final int STARTX= 275;
+	public static final int STARTY= 428;
+	public static final int SIDELENGTH = 20;
 	public static final int SIDELENGTHHALF = SIDELENGTH/2;
 	public static final double ALLOWED_DELTA = 1;
 	

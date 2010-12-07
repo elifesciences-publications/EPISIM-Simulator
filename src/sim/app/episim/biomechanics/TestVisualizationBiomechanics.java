@@ -18,51 +18,78 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import com.lowagie.tools.plugins.SelectedPages;
 
+
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.biomechanics.TestVisualizationPanel.TestVisualizationPanelPaintListener;
 import sim.app.episim.biomechanics.simanneal.VertexForcesMinimizerSimAnneal;
 import sim.app.episim.model.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.EpisimMovieMaker;
 
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 
 
-public class TestVisualizationBiomechanics implements CellPolygonProliferationSuccessListener{
+public class TestVisualizationBiomechanics implements CellPolygonProliferationSuccessListener, TestVisualizationPanelPaintListener{
 	
 	private enum SimState{SIMSTART, SIMSTOP;}
 	private JFrame frame;
-	private JPanel visualizationPanel;
+	private TestVisualizationPanel visualizationPanel;
 	private CellPolygon[] cells;
 	private Thread simulationThread;
 	private SimState simulationState = null;
-	
+	private JButton startStopButton;
 	
 	
 	
    private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
 	
-	public TestVisualizationBiomechanics(){
+   private int numberOfCellDivisions = 0;
+   
+   private final int maxNumberOfCellDivisions;
+   
+   private final boolean autostart;
+   
+   public TestVisualizationBiomechanics(boolean autoStart){
+   	this(autoStart, null, Integer.MAX_VALUE);
+   }
+   
+   
+   public TestVisualizationBiomechanics(boolean autoStart, int numberOfCellDivisions){
+   	this(autoStart, null, numberOfCellDivisions);
+   }
+   
+   
+	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, int numberOfCellDivisions){
+		
+		
+		this.maxNumberOfCellDivisions = numberOfCellDivisions;
+		this.autostart = autoStart;
+		
+		
+		if(moviePath != null){
+			EpisimProperties.setProperty(EpisimProperties.MOVIE_PATH_PROP, moviePath);
+			
+			EpisimMovieMaker movieMaker = new EpisimMovieMaker(frame);
+			
+		}		
+		
 		try{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
 		catch (Exception e){			
 			e.printStackTrace();
 		}
-		//testCellAreaCalculation();
+		
 		cells = Calculators.getSquareVertex(100, 100, 50, 6);
 		
 		cells = Calculators.getStandardCellArray(1, 1);
 		
-		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setBasalAmplitude_µm(250);
-		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setWidth(500);
-		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setBasalOpening_µm(12000);
-		TissueController.getInstance().getTissueBorder().setBasalPeriod(550);
-		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(30);
-		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(200);
-		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
+		configureStandardMembrane();
+		
 		for(CellPolygon pol: cells) pol.addProliferationSuccessListener(this);
 		
 		
@@ -75,11 +102,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		frame.getContentPane().setLayout(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		visualizationPanel = new JPanel(){
-			public void paint(Graphics g){ 
-				super.paint(g);
-				drawVisualization((Graphics2D) g );}
-		};
+		visualizationPanel = new TestVisualizationPanel();
+		visualizationPanel.addTestVisualizationPanelPaintListener(this);
 		visualizationPanel.setDoubleBuffered(true);
 		visualizationPanel.setBackground(Color.WHITE);
 		visualizationPanel.setMinimumSize(new Dimension(500, 500));
@@ -92,7 +116,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(2,5,2,5));
-		final JButton startStopButton = new JButton("start");
+		startStopButton = new JButton("start");
 		startStopButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 
@@ -106,18 +130,34 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	        }
 	         
          }});
+		
+		if(autostart){
+			startStopButton.setText("stop");
+    	  setSimulationState(SimState.SIMSTART);
+		}
+		
 		buttonPanel.add(startStopButton);
 		frame.getContentPane().add(buttonPanel, BorderLayout.NORTH);
 		
 		centerMe(frame);
 		frame.pack();
-		frame.setVisible(true);
-	
-		
-		
+		frame.setVisible(true);	
 		
 		
 	}
+	
+	private void configureStandardMembrane(){
+		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setBasalAmplitude_µm(250);
+		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setWidth(500);
+		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setBasalOpening_µm(12000);
+		TissueController.getInstance().getTissueBorder().setBasalPeriod(550);
+		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(30);
+		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(200);
+		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
+	}
+	
+	
+	
 	private void setSimulationState(SimState state){
 		if(state == SimState.SIMSTART){
 		
@@ -180,15 +220,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	}
 	
 	
-	private void testCellAreaCalculation(){
-		CellPolygon c = new CellPolygon(100, 100);
-		c.addVertex(new Vertex(90, 90));
-		c.addVertex(new Vertex(110, 90));
-		c.addVertex(new Vertex(110, 110));
-		c.addVertex(new Vertex(90, 110));
-		System.out.println("Fläche Quadradt soll 400 ist: " +Calculators.getCellArea(c));
-		System.out.println("Umfang Quadradt soll 80 ist: " +Calculators.getCellPerimeter(c));
-	}
+	
 	
 	private void drawVisualization(Graphics2D g){		
 		if(cells!= null) for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
@@ -289,9 +321,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	}
 
 	
-	public static void main(String[] args) {
-		new TestVisualizationBiomechanics();
-	}
+	
 	public void proliferationCompleted(CellPolygon pol) {
 
 		if(pol != null){
@@ -301,8 +331,40 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			cells= newCellArray;
 			pol.addProliferationSuccessListener(this);
 			Calculators.randomlySelectCellForProliferation(cells);
+			this.numberOfCellDivisions++;
+			if(numberOfCellDivisions >= this.maxNumberOfCellDivisions){
+				startStopButton.setText("start");
+				setSimulationState(SimState.SIMSTOP);
+			}
+    	  
 		}
 	   
+   }
+	
+	
+	
+	public static void main(String[] args) {
+		String moviePath = null;
+		int maxNumberOfProliferation = Integer.MAX_VALUE;
+		if(args != null && args.length >= 0){
+			EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP, EpisimProperties.ON_CONSOLE_INPUT_VAL);
+			
+			for(int i = 0; i < args.length; i++){
+				if(args[i] != null && (i+1)<args.length){					
+					if(args[i].equals("-mp")) moviePath = args[i+1];
+					else if(args[i].equals("-fps")) EpisimProperties.setProperty(EpisimProperties.FRAMES_PER_SECOND_PROP, args[i+1]);
+					else if(args[i].equals("-mnp")) maxNumberOfProliferation = Integer.parseInt(args[i+1]);
+				}
+			}
+						
+		}
+		
+		new TestVisualizationBiomechanics(true, moviePath, maxNumberOfProliferation);
+	}
+
+
+	public void paintWasCalled(Graphics2D graphics) {
+		drawVisualization(graphics);	   
    }
 	
 

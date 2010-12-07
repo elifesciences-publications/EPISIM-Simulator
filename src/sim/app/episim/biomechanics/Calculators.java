@@ -19,7 +19,7 @@ public abstract class Calculators {
 	
 	public static final int STARTX= 275;
 	public static final int STARTY= 428;
-	public static final int SIDELENGTH = 20;
+	public static final int SIDELENGTH = 30;
 	public static final int SIDELENGTHHALF = SIDELENGTH/2;
 	public static final double ALLOWED_DELTA = 1;
 	
@@ -73,8 +73,9 @@ public abstract class Calculators {
 			for(int columnNo = 0; columnNo < vertices[rowNo].length; columnNo++){
 				for(int cellNo = 0; cellNo <  cells.length; cellNo++){
 					if(vertices[rowNo][columnNo] != null && cells[cellNo] != null
-						&&	distance(cells[cellNo].getX(), cells[cellNo].getY(), vertices[rowNo][columnNo].getIntX(), vertices[rowNo][columnNo].getIntY()) <= SIDELENGTH)
-						cells[cellNo].addVertex(vertices[rowNo][columnNo]);					
+						&&	((int)distance(cells[cellNo].getX(), cells[cellNo].getY(), vertices[rowNo][columnNo].getIntX(), vertices[rowNo][columnNo].getIntY())) <= SIDELENGTH)
+						cells[cellNo].addVertex(vertices[rowNo][columnNo]);
+					
 				}
 			}
 		}	
@@ -153,7 +154,7 @@ public abstract class Calculators {
 	public static void randomlySelectCellForProliferation(CellPolygon[] cells){
 		//for(Cell c :cells) c.setSelected(false);
 		
-		for(int i = 0; i < cells.length; i++){
+		while(true){
 			int cellIndex =rand.nextInt(cells.length);
 	
 			if(!cells[cellIndex].isProliferating()){

@@ -13,9 +13,9 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 
 import sim.app.episim.devBasalLayer.BasementMembranePortrayal2DDev;
 import sim.app.episim.devBasalLayer.EpidermisDev;
-import sim.app.episim.model.CellBehavioralModelController;
-import sim.app.episim.model.MiscalleneousGlobalParameters;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.CellBehavioralModelController;
+import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;

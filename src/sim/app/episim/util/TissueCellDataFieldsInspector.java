@@ -34,7 +34,7 @@ import javax.swing.event.ListSelectionListener;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.ExpressionEditorPanel.ExpressionType;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueType;
 import episiminterfaces.*;
 

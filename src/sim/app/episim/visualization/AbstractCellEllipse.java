@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import sim.app.episim.biomechanics.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased.Vertex;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
 import sim.portrayal.DrawInfo2D;

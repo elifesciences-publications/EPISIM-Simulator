@@ -1,4 +1,4 @@
-package sim.app.episim.model;
+package sim.app.episim.model.controller;
 
 
 
@@ -11,7 +11,8 @@ import episiminterfaces.EpisimMechanicalModel;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 import sim.app.episim.AbstractCell;
-import sim.app.episim.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
@@ -23,14 +24,14 @@ import sim.app.episim.util.ObjectManipulations;
 public class BiomechanicalModel implements java.io.Serializable, SnapshotListener{
 		
 	private static final long serialVersionUID = 512640154196012852L;
-	private MechanicalModelGlobalParameters actParametersObject;
+	private CenterBasedMechanicalModelGlobalParameters actParametersObject;
 	private EpisimMechanicalModelGlobalParameters resetParametersObject;
 	
 	
 	
 	public BiomechanicalModel(){		
-		actParametersObject = new MechanicalModelGlobalParameters();
-		resetParametersObject = new MechanicalModelGlobalParameters();
+		actParametersObject = new CenterBasedMechanicalModelGlobalParameters();
+		resetParametersObject = new CenterBasedMechanicalModelGlobalParameters();
 		SnapshotWriter.getInstance().addSnapshotListener(this);		
 	}	
 	

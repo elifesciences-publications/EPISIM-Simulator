@@ -1,4 +1,4 @@
-package sim.app.episim.model;
+package sim.app.episim.model.controller;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,7 +18,7 @@ public class ModelParameterModifier {
 	
 	
 	
-	protected ModelParameterModifier(){}
+	public ModelParameterModifier(){}
 	
 	public void setGlobalModelPropertiesToValuesInPropertiesFile(Object globalModelPropertiesObj, File propertiesFile){
 		

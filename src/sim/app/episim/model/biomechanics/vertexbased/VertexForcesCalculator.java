@@ -1,4 +1,4 @@
-package sim.app.episim.biomechanics;
+package sim.app.episim.model.biomechanics.vertexbased;
 
 import sim.util.Double2D;
 import no.uib.cipr.matrix.DenseMatrix;

@@ -1,9 +1,10 @@
-package sim.app.episim.biomechanics.centerbased;
+package sim.app.episim.model.biomechanics.centerbased;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 
 import ec.util.MersenneTwisterFast;
+import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.EpisimMechanicalModel;
@@ -11,7 +12,7 @@ import episiminterfaces.EpisimMechanicalModel;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.TissueServer;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Vector2D;
 import sim.app.episim.visualization.CellEllipse;
@@ -280,6 +281,20 @@ public class CenterBasedMechanicalModel implements EpisimMechanicalModel {
    }
    
    public void newSimStep(){
+   	
+   	CenterBasedMechanicalModelGlobalParameters globalParameters = null;
+   	
+   	if(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters() 
+   			instanceof CenterBasedMechanicalModelGlobalParameters){
+   		globalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters();
+   	}
+   	
+   	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
+   			ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getClass().getName());
+   	
+   	
+   	
+   	
    // ////////////////////////////////////////////////
 		// calculate ACTION force
 		// ////////////////////////////////////////////////
@@ -311,17 +326,17 @@ public class CenterBasedMechanicalModel implements EpisimMechanicalModel {
 		// extForce=extForce.setLength(sigmoid(extForce.length())-sigmoid(0));
 		// //
 		// die funktion muss 0 bei 0 liefern, daher absenkung auf sigmoid(0)
-		Double2D gravi = new Double2D(0, ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getGravitation()); // Vector
+		Double2D gravi = new Double2D(0, globalParameters.getGravitation()); // Vector
 		// which
 		// avoidance
 		// has
 		// to
 		// process
-		Double2D randi = new Double2D(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getRandomness()
-				* (TissueServer.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getRandomness()
+		Double2D randi = new Double2D(globalParameters.getRandomness()
+				* (TissueServer.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), globalParameters.getRandomness()
 				* (TissueServer.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
-		Vector2D actionForce = new Vector2D(gravi.x + extForce.x * ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getExternalPush()
-				+ randi.x, gravi.y + extForce.y * ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getExternalPush());
+		Vector2D actionForce = new Vector2D(gravi.x + extForce.x * globalParameters.getExternalPush()
+				+ randi.x, gravi.y + extForce.y * globalParameters.getExternalPush());
 		Double2D potentialLoc = null;
 		
 			potentialLoc = new Double2D(TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D().stx(actionForce.x + oldLoc.x), 
@@ -333,8 +348,7 @@ public class CenterBasedMechanicalModel implements EpisimMechanicalModel {
 		//////////////////////////////////////////////////
 		// try ACTION force
 		//////////////////////////////////////////////////
-		Bag b = TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectsWithinDistance(potentialLoc,
-				ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
+		Bag b = TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_µm(), false); // theEpidermis.neighborhood
 		HitResultClass hitResult1;
 		hitResult1 = hitsOther(b, TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
@@ -344,7 +358,7 @@ public class CenterBasedMechanicalModel implements EpisimMechanicalModel {
 		// optimise my own position by giving way to the calculated pressures
 		Vector2D reactionForce = extForce;
 		reactionForce = reactionForce.add(hitResult1.otherMomentum.amplify(CONSISTENCY));
-		reactionForce = reactionForce.add(hitResult1.adhForce.amplify(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getCohesion()));
+		reactionForce = reactionForce.add(hitResult1.adhForce.amplify(globalParameters.getCohesion()));
 
 		// restrict movement if direction changes to quickly (momentum of a
 		// cell
@@ -383,8 +397,7 @@ public class CenterBasedMechanicalModel implements EpisimMechanicalModel {
 		// nicht
 		// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
 
-		b = TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectsWithinDistance(potentialLoc,
-				ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm(), false); // theEpidermis.neighborhood
+		b = TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_µm(), false); // theEpidermis.neighborhood
 		HitResultClass hitResult2;
 		hitResult2 = hitsOther(b, TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
@@ -400,12 +413,12 @@ public class CenterBasedMechanicalModel implements EpisimMechanicalModel {
 
 		newLoc = TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell);
 		double maxy = TissueController.getInstance().getTissueBorder().lowerBound(newLoc.x);
-		if((maxy - newLoc.y) < ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalLayerWidth())
+		if((maxy - newLoc.y) < globalParameters.getBasalLayerWidth())
 			cell.setIsBasalStatisticsCell(true);
 		else
 			cell.setIsBasalStatisticsCell(false); // ABSOLUTE DISTANZ KONSTANTE
 
-		if((maxy - newLoc.y) < ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getMembraneCellsWidth())
+		if((maxy - newLoc.y) < globalParameters.getMembraneCellsWidth())
 			cell.setIsMembraneCell(true);
 		else
 			cell.setIsMembraneCell(false); // ABSOLUTE DISTANZ KONSTANTE  

@@ -48,7 +48,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;

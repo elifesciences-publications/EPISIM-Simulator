@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import sim.app.episim.AbstractCell;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueType;
 
 import episimexceptions.ModelCompatibilityException;

@@ -1,8 +1,8 @@
-package sim.app.episim.model;
+package sim.app.episim.model.biomechanics.centerbased;
 
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
-public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlobalParameters, java.io.Serializable {
+public class CenterBasedMechanicalModelGlobalParameters implements EpisimMechanicalModelGlobalParameters, java.io.Serializable {
 	
 	private int basalAmplitude_µm = 40; // depth of an undulation
 
@@ -29,7 +29,7 @@ public class MechanicalModelGlobalParameters implements EpisimMechanicalModelGlo
 	private double basalLayerWidth=15;  // For Statistics of Basal Layer: Cell Definition (for GrowthFraction): distance to membrane not more than gBasalLayerWidth
 	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
 
-	public MechanicalModelGlobalParameters() {}	
+	public CenterBasedMechanicalModelGlobalParameters() {}	
 	
 	public int getBasalAmplitude_µm() {
 

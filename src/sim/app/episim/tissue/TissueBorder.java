@@ -16,8 +16,8 @@ import java.util.TreeSet;
 import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 
 
-import sim.app.episim.model.CellBehavioralModelController;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.CellBehavioralModelController;
+import sim.app.episim.model.controller.ModelController;
 public class TissueBorder {
 	
 	private ArrayList<Point2D> fullcontour;

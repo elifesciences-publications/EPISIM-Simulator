@@ -1,4 +1,4 @@
-package sim.app.episim.biomechanics;
+package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Color;
 import java.util.HashSet;
@@ -6,8 +6,8 @@ import java.util.HashSet;
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 
-import sim.app.episim.biomechanics.VertexChangeEvent.VertexChangeEventType;
-import sim.app.episim.biomechanics.simanneal.VertexForcesMinimizerSimAnneal;
+import sim.app.episim.model.biomechanics.vertexbased.VertexChangeEvent.VertexChangeEventType;
+import sim.app.episim.model.biomechanics.vertexbased.simanneal.VertexForcesMinimizerSimAnneal;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;

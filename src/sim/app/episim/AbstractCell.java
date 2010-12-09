@@ -10,7 +10,7 @@ import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimMechanicalModel;
 import sim.app.episim.datamonitoring.GlobalStatistics;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.visualization.CellEllipse;
 import sim.engine.SimState;
 import sim.engine.Steppable;

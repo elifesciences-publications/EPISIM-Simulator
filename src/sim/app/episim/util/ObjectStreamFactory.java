@@ -11,8 +11,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.model.CellBehavioralModelController;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.CellBehavioralModelController;
+import sim.app.episim.model.controller.ModelController;
 
 
 public abstract class ObjectStreamFactory {

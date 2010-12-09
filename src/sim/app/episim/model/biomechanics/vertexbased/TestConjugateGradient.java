@@ -1,4 +1,4 @@
-package sim.app.episim.biomechanics;
+package sim.app.episim.model.biomechanics.vertexbased;
 
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;

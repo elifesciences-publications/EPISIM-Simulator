@@ -4,7 +4,7 @@ package sim.app.episim.devBasalLayer;
 import sim.engine.*;
 
 import sim.app.episim.gui.EpiDisplay2D;
-import sim.app.episim.model.CellBehavioralModelController;
+import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;

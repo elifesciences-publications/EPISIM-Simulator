@@ -1,4 +1,4 @@
-package sim.app.episim.biomechanics;
+package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -10,6 +10,11 @@ import java.awt.Polygon;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
@@ -18,16 +23,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-
-
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.biomechanics.TestVisualizationPanel.TestVisualizationPanelPaintListener;
-import sim.app.episim.biomechanics.simanneal.VertexForcesMinimizerSimAnneal;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.biomechanics.vertexbased.TestVisualizationPanel.TestVisualizationPanelPaintListener;
+import sim.app.episim.model.biomechanics.vertexbased.simanneal.VertexForcesMinimizerSimAnneal;
+import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.ModelParameterModifier;
+import sim.app.episim.nogui.NoGUIDisplay2D;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EpisimMovieMaker;
+import sim.engine.Schedule;
 
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
@@ -43,7 +49,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	private SimState simulationState = null;
 	private JButton startStopButton;
 	
-	
+	private BufferedWriter csvWriter;
 	
    private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
 	
@@ -53,36 +59,32 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    
    private final boolean autostart;
    
+   
+   private int actNumberSimSteps = 0;
+   private int lastSimStepNumberVideoFrameWasWritten = 0;
+   private EpisimMovieMaker episimMovieMaker = null;
+   private boolean headlessMode = false;
+   
    public TestVisualizationBiomechanics(boolean autoStart){
-   	this(autoStart, null, Integer.MAX_VALUE);
+   	this(autoStart, null, null, Integer.MAX_VALUE, false);
    }
    
    
    public TestVisualizationBiomechanics(boolean autoStart, int numberOfCellDivisions){
-   	this(autoStart, null, numberOfCellDivisions);
+   	this(autoStart, null, null, numberOfCellDivisions, false);
    }
    
    
-	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, int numberOfCellDivisions){
+	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, String csvPath, int numberOfCellDivisions, boolean headlessMode){
 		
 		
 		this.maxNumberOfCellDivisions = numberOfCellDivisions;
 		this.autostart = autoStart;
+		this.headlessMode = headlessMode;
 		
-		
-		if(moviePath != null){
-			EpisimProperties.setProperty(EpisimProperties.MOVIE_PATH_PROP, moviePath);
-			
-			EpisimMovieMaker movieMaker = new EpisimMovieMaker(frame);
-			
-		}		
-		
-		try{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (Exception e){			
-			e.printStackTrace();
-		}
+		if(moviePath != null) EpisimProperties.setProperty(EpisimProperties.MOVIE_PATH_PROP, moviePath);
+		if(csvPath != null) createCsvWriter(csvPath);	
+	
 		
 		cells = Calculators.getSquareVertex(100, 100, 50, 6);
 		
@@ -92,16 +94,6 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 		for(CellPolygon pol: cells) pol.addProliferationSuccessListener(this);
 		
-		
-		
-		
-		
-		frame = new JFrame("Biomechanics Testvisualization");
-		frame.setSize(600, 600);
-		frame.setPreferredSize(new Dimension(600, 600));
-		frame.getContentPane().setLayout(new BorderLayout());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
 		visualizationPanel = new TestVisualizationPanel();
 		visualizationPanel.addTestVisualizationPanelPaintListener(this);
 		visualizationPanel.setDoubleBuffered(true);
@@ -109,11 +101,24 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		visualizationPanel.setMinimumSize(new Dimension(500, 500));
 		visualizationPanel.setSize(new Dimension(500, 500));
 		visualizationPanel.setPreferredSize(new Dimension(500, 500));
-		frame.getContentPane().add(visualizationPanel, BorderLayout.CENTER);
-		
-		visualizationPanel.setBorder(BorderFactory.createLoweredBevelBorder());
-		((JPanel)frame.getContentPane()).setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
-		
+		if(!headlessMode){
+			try{
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			}
+			catch (Exception e){			
+				e.printStackTrace();
+			}
+			
+			
+			frame = new JFrame("Biomechanics Testvisualization");
+			frame.setSize(600, 600);
+			frame.setPreferredSize(new Dimension(600, 600));
+			frame.getContentPane().setLayout(new BorderLayout());
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.getContentPane().add(visualizationPanel, BorderLayout.CENTER);			
+			visualizationPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+			((JPanel)frame.getContentPane()).setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+		}
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(2,5,2,5));
 		startStopButton = new JButton("start");
@@ -137,12 +142,13 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		}
 		
 		buttonPanel.add(startStopButton);
-		frame.getContentPane().add(buttonPanel, BorderLayout.NORTH);
-		
-		centerMe(frame);
-		frame.pack();
-		frame.setVisible(true);	
-		
+		if(!headlessMode){
+			frame.getContentPane().add(buttonPanel, BorderLayout.NORTH);
+			
+			centerMe(frame);
+			frame.pack();
+			frame.setVisible(true);	
+		}
 		
 	}
 	
@@ -160,48 +166,83 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	private void setSimulationState(SimState state){
 		if(state == SimState.SIMSTART){
-		
-		simulationState = SimState.SIMSTART;
-		simulationThread = new Thread(new Runnable(){ 
 			
-			
-			
-			public void run() { 
-	
-			cells[cells.length/2].proliferate();
-			while(simulationState == SimState.SIMSTART){
-				try{
-					int randomStartIndexCells =  rand.nextInt(cells.length);
-					CellPolygon polygon = null;
-					for(int n = 0; n < cells.length; n++){
-						polygon = cells[((n+randomStartIndexCells)% cells.length)];
-						//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
-						polygon.step(null);
-						 
-					}
-					
-					resetCalculationStatusOfAllCells();	
-					
-					
-					
-					visualizationPanel.repaint(); 
-	            Thread.sleep(1);
-            }
-            catch (InterruptedException e){
-	            ExceptionDisplayer.getInstance().displayException(e);
-            }	
 				
-			}
+				if(EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP) != null){
+					this.episimMovieMaker = new EpisimMovieMaker(null);
+					 Graphics g = visualizationPanel.getGraphics();
+			       final BufferedImage typicalImage = visualizationPanel.paint(true,false);
+			       if(g != null)g.dispose();
+			               
+			       if (!episimMovieMaker.start(typicalImage)){
+			      	 episimMovieMaker = null;  // failed
+			       }
+			       else episimMovieMaker.add(typicalImage);
+				}
+				
+				
+			simulationState = SimState.SIMSTART;
+			simulationThread = new Thread(new Runnable(){ 
+				
+				
+				
+				public void run() { 
+		
+				cells[cells.length/2].proliferate();
+				while(simulationState == SimState.SIMSTART){
+					actNumberSimSteps++;
+				//	try{
+						int randomStartIndexCells =  rand.nextInt(cells.length);
+						CellPolygon polygon = null;
+						for(int n = 0; n < cells.length; n++){
+							polygon = cells[((n+randomStartIndexCells)% cells.length)];
+							//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
+							polygon.step(null);
+							 
+						}
+						
+						resetCalculationStatusOfAllCells();	
+						
+						
+						
+						if(!headlessMode) visualizationPanel.repaint();
+						else paintToMovie();
+		      /*      Thread.sleep(1);
+	            }
+	            catch (InterruptedException e){
+		            ExceptionDisplayer.getInstance().displayException(e);
+	            }*/	
+					
+				}
+				
 			
-		
-			} });
-		
-	   	simulationThread.start();
+				} });
+			
+		   	simulationThread.start();
 			
 		}
 		else if(state == SimState.SIMSTOP){
 			simulationState = SimState.SIMSTOP;
-			
+			if(episimMovieMaker != null){
+				if (!episimMovieMaker.stop())
+		       {
+		           
+		           ExceptionDisplayer.getInstance().displayException(new Exception("Your movie did not write to disk\ndue to a spurious JMF movie generation bug."));
+		             
+		       }
+		       episimMovieMaker = null;
+			}
+			if(headlessMode){ 
+				System.exit(0);
+				if(csvWriter != null){
+					try{
+	               csvWriter.close();
+               }
+               catch (IOException e){
+	               ExceptionDisplayer.getInstance().displayException(e);
+               }
+				}
+			}
 		}
 	        
         
@@ -222,7 +263,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	
 	
-	private void drawVisualization(Graphics2D g){		
+	private void drawVisualization(Graphics2D g){
+		g.setColor(Color.BLACK);
 		if(cells!= null) for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
 		
 		
@@ -263,18 +305,12 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	private void drawCellPolygon(Graphics2D g, CellPolygon cell, boolean showCellAreaAndPerimeter){
 		if(cell != null){
 			//drawPoint(g, cell.getX(), cell.getY(), 2, Color.BLUE);
-			Polygon p = new Polygon();
-			
-		
-		//	cell.sortVerticesWithGrahamScan();
-		
+			Polygon p = new Polygon();		
 			
 			for(Vertex v : cell.getSortedVertices()){	
 				p.addPoint(v.getIntX(), v.getIntY());
 				
-			}
-		//	g.drawString(""+ Math.round(Calculators.getCellArea(cell))*0.2 + ", " + Math.round(Calculators.getCellPerimeter(cell))*0.2, cell.getX()-10, cell.getY());
-			
+			}			
 			
 			if(cell.isProliferating()){
 				Color oldColor = g.getColor();
@@ -284,12 +320,9 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			}
 			g.drawPolygon(p);
 			
-			
-			
 			for(Vertex v : cell.getUnsortedVertices()){	
 				drawVertex(g, v, false);				
-			}
-			
+			}			
 			//drawVertex(g,Calculators.getCellCenter(cell),false);
 		}
 	}
@@ -331,41 +364,98 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			cells= newCellArray;
 			pol.addProliferationSuccessListener(this);
 			Calculators.randomlySelectCellForProliferation(cells);
+			
+			
+			if(csvWriter != null){
+				double counter = 0;
+				double cummulativeDifferenceInPercent = 0;
+				for(CellPolygon cell : cells){
+					if(!cell.isProliferating()){
+						counter++;
+						cummulativeDifferenceInPercent += ((Math.abs(cell.getCurrentArea()-cell.getPreferredArea())/cell.getCurrentArea())*100);
+					}
+				}
+				
+	    	  	try{
+	            csvWriter.write("Mittl. Abw. Fläche (in %);" + (cummulativeDifferenceInPercent/counter)+";\n");
+	            csvWriter.flush();
+            }
+            catch (IOException e){
+	          ExceptionDisplayer.getInstance().displayException(e);
+            }
+			}
+			
+			
 			this.numberOfCellDivisions++;
 			if(numberOfCellDivisions >= this.maxNumberOfCellDivisions){
 				startStopButton.setText("start");
 				setSimulationState(SimState.SIMSTOP);
-			}
-    	  
+			}			
 		}
 	   
    }
+	
+	private void createCsvWriter(String path){
+		try{
+			csvWriter = new BufferedWriter(new FileWriter(path, true));
+		}
+		catch (IOException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+	}
 	
 	
 	
 	public static void main(String[] args) {
 		String moviePath = null;
+		String csvPath = null;
 		int maxNumberOfProliferation = Integer.MAX_VALUE;
+		boolean headless = false;
+		
 		if(args != null && args.length >= 0){
 			EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP, EpisimProperties.ON_CONSOLE_INPUT_VAL);
-			
+			ModelParameterModifier modifier = new ModelParameterModifier();
 			for(int i = 0; i < args.length; i++){
 				if(args[i] != null && (i+1)<args.length){					
 					if(args[i].equals("-mp")) moviePath = args[i+1];
 					else if(args[i].equals("-fps")) EpisimProperties.setProperty(EpisimProperties.FRAMES_PER_SECOND_PROP, args[i+1]);
+					else if(args[i].equals("-id")) EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1]);
 					else if(args[i].equals("-mnp")) maxNumberOfProliferation = Integer.parseInt(args[i+1]);
+					else if(args[i].equals("-p")) modifier.setGlobalModelPropertiesToValuesInPropertiesFile(VertexBasedMechanicalModelGlobalParameters.getInstance(), new File(args[i+1]));
+					else if(args[i].equals("-csv")) csvPath = args[i+1];
+				
 				}
+				if(args[i] != null && args[i].equals("-headless")) headless=true; 
 			}
 						
 		}
 		
-		new TestVisualizationBiomechanics(true, moviePath, maxNumberOfProliferation);
+		new TestVisualizationBiomechanics(true, moviePath, csvPath, maxNumberOfProliferation, headless);
 	}
 
 
 	public void paintWasCalled(Graphics2D graphics) {
-		drawVisualization(graphics);	   
+		drawVisualization(graphics);
+		paintToMovie();
    }
+	public void paintToMovieBufferWasCalled(Graphics2D graphics) {
+		drawVisualization(graphics);		
+   }
+	
+	
+	public void paintToMovie()
+   {
+   
+       if(episimMovieMaker != null)
+       if (actNumberSimSteps > lastSimStepNumberVideoFrameWasWritten)
+       {
+      	  episimMovieMaker.add(visualizationPanel.paint(true,false));
+           lastSimStepNumberVideoFrameWasWritten = actNumberSimSteps;
+       }       
+       
+   }
+	
+	
 	
 
 }

@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import sim.app.episim.SimulationStateChangeListener;
-import sim.app.episim.biomechanics.CellPolygon;
-import sim.app.episim.biomechanics.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.Vertex;
 import sim.app.episim.visualization.AbstractCellEllipse;
 import sim.app.episim.visualization.CellEllipse;
 

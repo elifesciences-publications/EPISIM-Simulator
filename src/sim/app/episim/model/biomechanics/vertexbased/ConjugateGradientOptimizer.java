@@ -1,4 +1,4 @@
-package sim.app.episim.biomechanics;
+package sim.app.episim.model.biomechanics.vertexbased;
 
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;
@@ -15,13 +15,11 @@ import no.uib.cipr.matrix.sparse.Preconditioner;
 
 
 public class ConjugateGradientOptimizer {
+	private VertexBasedMechanicalModelGlobalParameters globalParameters;
+	public ConjugateGradientOptimizer(){
+		this.globalParameters = VertexBasedMechanicalModelGlobalParameters.getInstance();
+	}
 	
-	
-	private static final double K = 650;
-	private static final double LAMBDA = 15000;
-	private static final double LAMBDA_HIGH_FACTOR = 1;//2;
-	private static final double LAMBDA_LOW_FACTOR = 1;//0.4;
-	private static final double GAMMA = 100;
 	
 	private boolean testIfSignumChangeForAreaCalculation(double polygon[][], int vertexNumber){
 		double area = 0;
@@ -52,7 +50,7 @@ public class ConjugateGradientOptimizer {
 				((sign*polygon[mod((vertexNumber-1), noOfVertices)][0])-(sign*polygon[mod((vertexNumber+1), noOfVertices)][0]));
 			
 		Matrix m = new DenseMatrix(areaMatrix);
-		m = m.scale((K/2));
+		m = m.scale((globalParameters.getKappa()/2));
 		return m;
 	}
 	
@@ -64,7 +62,7 @@ public class ConjugateGradientOptimizer {
 		
 		Matrix m = new DenseMatrix(resultMatrix);
 		
-		m = m.scale(GAMMA);
+		m = m.scale(globalParameters.getGamma());
 		
 		return m;
 	}
@@ -74,8 +72,8 @@ public class ConjugateGradientOptimizer {
 		
 		double resultFactor = 0;
 		for(int i=0; i < higherLambdaArray.length; i++){
-			if(higherLambdaArray[i]) resultFactor += 2*LAMBDA_HIGH_FACTOR;
-			else resultFactor += 2*LAMBDA_LOW_FACTOR;
+			if(higherLambdaArray[i]) resultFactor += 2*globalParameters.getLambda_high_factor();
+			else resultFactor += 2*globalParameters.getLambda_low_factor();
 		}	
 		
 		double[][] resultMatrix = new double[][]{{resultFactor, 0},
@@ -83,7 +81,7 @@ public class ConjugateGradientOptimizer {
 		
 		Matrix m = new DenseMatrix(resultMatrix);
 		
-		m = m.scale(LAMBDA);
+		m = m.scale(globalParameters.getLambda());
 		
 		return m;
 	}
@@ -135,7 +133,7 @@ public class ConjugateGradientOptimizer {
 		
 		Vector v = new DenseVector(resultVector);
 		
-		v = v.scale(GAMMA);
+		v = v.scale(globalParameters.getGamma());
 		
 		return v;
 	}
@@ -189,7 +187,7 @@ public class ConjugateGradientOptimizer {
 		resultVector[1] = ((sign*polygon[mod((vertexNumber-1), noOfVertices)][0])-(sign*polygon[mod((vertexNumber+1), noOfVertices)][0]))*provisionalResult*-1;
 		
 		Vector v = new DenseVector(resultVector);
-		v = v.scale(K/2);
+		v = v.scale(globalParameters.getKappa()/2);
 		return v;
 	}
 	
@@ -217,18 +215,18 @@ public class ConjugateGradientOptimizer {
 		
 		for(int i = 0; i< connectedVertices.length; i++){
 			if(higherLambdaArray[i]){
-				result_x -= 2*LAMBDA_HIGH_FACTOR*connectedVertices[i].getDoubleX();
-				result_y -= 2*LAMBDA_HIGH_FACTOR*connectedVertices[i].getDoubleY();
+				result_x -= 2*globalParameters.getLambda_high_factor()*connectedVertices[i].getDoubleX();
+				result_y -= 2*globalParameters.getLambda_high_factor()*connectedVertices[i].getDoubleY();
 			}
 			else{
-				result_x -= 2*LAMBDA_LOW_FACTOR*connectedVertices[i].getDoubleX();
-				result_y -= 2*LAMBDA_LOW_FACTOR*connectedVertices[i].getDoubleY();
+				result_x -= 2*globalParameters.getLambda_low_factor()*connectedVertices[i].getDoubleX();
+				result_y -= 2*globalParameters.getLambda_low_factor()*connectedVertices[i].getDoubleY();
 			}
 		}
 		
 		double[] resultVector = new double[]{result_x*-1, result_y*-1};
 		Vector v = new DenseVector(resultVector);
-		 v = v.scale(LAMBDA);
+		 v = v.scale(globalParameters.getLambda());
 		return v;
 	}
 	

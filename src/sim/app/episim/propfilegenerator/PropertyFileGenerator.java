@@ -22,9 +22,9 @@ public class PropertyFileGenerator {
 	private String[] stepSizes;
 	private String[] currentValues;
 	
-	public interface GenerationProgressCallback{
-		public void progressHasChanged(double percentage);
-	}
+	
+	
+	public PropertyFileGenerator(){}
 	
 	public PropertyFileGenerator(char fileNumberSeparatorChar, String fileExtension){
 		this.fileNumberSeparatorChar = fileNumberSeparatorChar;

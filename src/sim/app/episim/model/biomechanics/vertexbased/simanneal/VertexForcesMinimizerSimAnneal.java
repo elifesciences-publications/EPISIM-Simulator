@@ -1,6 +1,6 @@
-package sim.app.episim.biomechanics.simanneal;
+package sim.app.episim.model.biomechanics.vertexbased.simanneal;
 
-import sim.app.episim.biomechanics.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased.Vertex;
 import net.sourceforge.jannealer.AnnealingScheme;
 
 

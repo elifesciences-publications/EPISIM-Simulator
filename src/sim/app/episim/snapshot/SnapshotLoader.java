@@ -10,8 +10,8 @@ import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 import sim.app.episim.AbstractCell;
 
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
-import sim.app.episim.model.MiscalleneousGlobalParameters;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.Epidermis;
 import sim.engine.SimStateHack.TimeSteps;
 import sim.field.continuous.Continuous2D;

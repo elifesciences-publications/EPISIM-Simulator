@@ -38,18 +38,15 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JWindow;
-import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.ExtendedFileChooser;
-import sim.app.episim.model.MiscalleneousGlobalParameters;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.propfilegenerator.GlobalPropertiesObjectInspector.GlobalParameterSelectionListener;
 
-import sim.app.episim.propfilegenerator.PropertyFileGenerator.GenerationProgressCallback;
 
 public class PropertyFileGeneratorWizard {
 	

@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 

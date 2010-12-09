@@ -1,9 +1,9 @@
-package sim.app.episim.biomechanics;
+package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import sim.app.episim.biomechanics.VertexChangeEvent.VertexChangeEventType;
+import sim.app.episim.model.biomechanics.vertexbased.VertexChangeEvent.VertexChangeEventType;
 
 
 public class Vertex implements java.io.Serializable{

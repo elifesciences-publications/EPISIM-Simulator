@@ -1,10 +1,10 @@
 package sim.app.episim;
-import sim.app.episim.biomechanics.Calculators;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 
 
-import sim.app.episim.model.MiscalleneousGlobalParameters;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.biomechanics.vertexbased.Calculators;
+import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.Epidermis;
 
 import sim.app.episim.tissue.TissueController;

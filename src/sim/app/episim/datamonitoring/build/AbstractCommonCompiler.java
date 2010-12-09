@@ -19,7 +19,7 @@ import javax.tools.ToolProvider;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpisimTextOut;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 import binloc.ProjectLocator;
 
 

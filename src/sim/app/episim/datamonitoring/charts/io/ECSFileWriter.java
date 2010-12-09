@@ -24,7 +24,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.build.ChartSetFactorySourceBuilder;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.Names;
 
 

@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.propfilegenerator.PropertyFileGeneratorWizard;
 import sim.display.ConsoleHack;
 

@@ -1,6 +1,6 @@
 package episiminterfaces;
 
-import sim.app.episim.biomechanics.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 
 
 public interface CellPolygonProliferationSuccessListener {

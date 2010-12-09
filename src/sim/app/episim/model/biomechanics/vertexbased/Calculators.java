@@ -1,4 +1,4 @@
-package sim.app.episim.biomechanics;
+package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Polygon;
 import java.awt.geom.Area;
@@ -18,13 +18,13 @@ import sim.app.episim.visualization.CellEllipse;
 public abstract class Calculators {
 	
 	public static final int STARTX= 275;
-	public static final int STARTY= 428;
+	public static final int STARTY= 420;
 	public static final int SIDELENGTH = 30;
 	public static final int SIDELENGTHHALF = SIDELENGTH/2;
 	public static final double ALLOWED_DELTA = 1;
 	
 	
-	public static final double MIN_EDGE_LENGTH =6;
+	public static final double MIN_EDGE_LENGTH =SIDELENGTH/4;
 	
 	private static MersenneTwisterFast rand = new MersenneTwisterFast(System.currentTimeMillis());
 	

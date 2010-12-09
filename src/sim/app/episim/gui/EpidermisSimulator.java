@@ -40,7 +40,7 @@ import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
 
-import sim.app.episim.model.ModelController;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotLoader;
 import sim.app.episim.snapshot.SnapshotObject;

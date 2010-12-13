@@ -20,8 +20,9 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
-import sim.app.episim.model.biomechanics.vertexbased.Calculators;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
@@ -49,6 +50,8 @@ public class TestCanvas extends JPanel {
 	
 	private boolean importedTissueVisualizationMode = false;
 	
+	private CellPolygonCalculator calculator;
+	
 	public TestCanvas(){
 		ellipseKeySet = new HashSet<String>();
 		this.setBackground(Color.white);
@@ -61,7 +64,7 @@ public class TestCanvas extends JPanel {
 			cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290,  3*RADIUS, RADIUS, Color.BLUE);
 		 cellEll.rotateCellEllipseInDegrees(90);
 			this.drawCellEllipse(null,cellEll, true);
-		
+		calculator = new CellPolygonCalculator(new CellPolygon[]{});
 		
 	}
 	
@@ -181,15 +184,15 @@ public class TestCanvas extends JPanel {
 			for(CellEllipse ell : cellEllipses){
 				
 			//	drawCellEllipse((Graphics2D) g,ell, false);
-				Calculators.calculateCellPolygons(ell);
+				CellPolygonNetworkBuilder.calculateCellPolygons(ell, calculator);
 			}
 		 	
 			CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellEllipseVertices();
 			
 			
 			for(CellEllipse ell : cellEllipses){
-				Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId()));
-				Calculators.calculateEstimatedVertices(ell);		
+				CellPolygonNetworkBuilder.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ell.getId()));
+				CellPolygonNetworkBuilder.calculateEstimatedVertices(ell, calculator);		
 			}
 			
 			CellPolygon cellPol = null;

@@ -3,7 +3,7 @@ import sim.SimStateServer;
 import sim.SimStateServer.SimState;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.biomechanics.vertexbased.Calculators;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
 import sim.app.episim.model.controller.BioMechanicalModelController;

@@ -11,8 +11,9 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.vertexbased.Calculators;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
 import sim.app.episim.model.controller.BioMechanicalModelController;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
@@ -247,7 +248,7 @@ private void seedStemCells(){
 				
 				if(MiscalleneousGlobalParameters.instance().getTypeColor() == 10){
 					
-					Calculators.globallyCleanAllPolygonsEstimatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellPolygons());
+					CellPolygonNetworkBuilder.globallyCleanAllPolygonsEstimatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellPolygons());
 					
 					
 					

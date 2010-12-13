@@ -14,9 +14,9 @@ public class QuickParameterFileGenerator {
 	public static void main(String[] args) {
 		List<PropertyDescriptor> propertyDescriptors = new ArrayList<PropertyDescriptor>();
 		
-		propertyDescriptors.add(new PropertyDescriptor("kappa",Double.TYPE, 750, 50, 100));
+		propertyDescriptors.add(new PropertyDescriptor("kappa",Double.TYPE, 150, 50, 10));
 		PropertyFileGenerator generator = new PropertyFileGenerator();
-		generator.generatePropertyFiles(new File("d:/vmwareshare/propertyfiles/siminput.properties"), propertyDescriptors);
+		generator.generatePropertyFiles(new File("z:/simulation-input/siminput_2.properties"), propertyDescriptors);
 
 	}
 

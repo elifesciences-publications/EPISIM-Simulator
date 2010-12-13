@@ -2,7 +2,9 @@ package sim.app.episim;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 
 
-import sim.app.episim.model.biomechanics.vertexbased.Calculators;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
 import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.Epidermis;
@@ -322,9 +324,9 @@ public class UniversalCell extends AbstractCell
 			//Polygon Visualization is activated
 			if(MiscalleneousGlobalParameters.instance().getTypeColor() ==10){
 				 calculateClippedCell();
-        	  Calculators.calculateCellPolygons(getCellEllipseObject());
-        	  Calculators.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(getCellEllipseObject().getId()));
-        	  Calculators.calculateEstimatedVertices(getCellEllipseObject());
+				 CellPolygonNetworkBuilder.calculateCellPolygons(getCellEllipseObject(), new CellPolygonCalculator(new CellPolygon[]{}));
+				 CellPolygonNetworkBuilder.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(getCellEllipseObject().getId()));
+				 CellPolygonNetworkBuilder.calculateEstimatedVertices(getCellEllipseObject(), new CellPolygonCalculator(new CellPolygon[]{}));
 			}
 			
 			

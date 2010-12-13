@@ -64,7 +64,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    private int lastSimStepNumberVideoFrameWasWritten = 0;
    private EpisimMovieMaker episimMovieMaker = null;
    private boolean headlessMode = false;
-   
+   private CellPolygonCalculator cellPolygonCalculator;
    public TestVisualizationBiomechanics(boolean autoStart){
    	this(autoStart, null, null, Integer.MAX_VALUE, false);
    }
@@ -86,13 +86,15 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		if(csvPath != null) createCsvWriter(csvPath);	
 	
 		
-		cells = Calculators.getSquareVertex(100, 100, 50, 6);
-		
-		cells = Calculators.getStandardCellArray(1, 1);
+		//cells = CellPolygonNetworkBuilder.getSquareVertex(100, 100, 50, 6);
+		cellPolygonCalculator = new CellPolygonCalculator(new CellPolygon[]{});
+		cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
 		
 		configureStandardMembrane();
 		
-		for(CellPolygon pol: cells) pol.addProliferationSuccessListener(this);
+		for(CellPolygon pol: cells){ 
+			pol.addProliferationSuccessListener(this);
+		}
 		
 		visualizationPanel = new TestVisualizationPanel();
 		visualizationPanel.addTestVisualizationPanelPaintListener(this);
@@ -362,8 +364,9 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			System.arraycopy(cells, 0, newCellArray, 0, cells.length);
 			newCellArray[cells.length] = pol;
 			cells= newCellArray;
+			cellPolygonCalculator.setCellPolygons(cells);
 			pol.addProliferationSuccessListener(this);
-			Calculators.randomlySelectCellForProliferation(cells);
+			cellPolygonCalculator.randomlySelectCellForProliferation();
 			
 			
 			if(csvWriter != null){

@@ -34,6 +34,7 @@ public class CellPolygon implements VertexChangeListener, EnhancedSteppable{
  private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
  private ConjugateGradientOptimizer conGradientOptimizer;
  private VertexForcesMinimizerSimAnneal simAnnealOptimizer;
+ private CellPolygonCalculator calculator;
  
 protected CellPolygon(double x, double y){
 	id = nextId++;
@@ -46,8 +47,15 @@ protected CellPolygon(double x, double y){
    simAnnealOptimizer = new VertexForcesMinimizerSimAnneal();
 }
 
-public CellPolygon(){
+public CellPolygon(CellPolygonCalculator calculator){
 	this(0, 0);
+	if(calculator == null) throw new IllegalArgumentException("Cell Polygon Calculator must not be null");
+	this.calculator = calculator;
+	
+}
+
+public void setCellPolygonCalculator(CellPolygonCalculator calculator){
+	if(calculator != null) this.calculator = calculator;
 }
 
 
@@ -130,7 +138,7 @@ private CellPolygon cellDivision(){
 	sortedVertices = null;
 	this.preferredArea = this.originalPreferredArea;
 	this.originalPreferredArea = Double.NEGATIVE_INFINITY;
-	CellPolygon daughterCell =Calculators.divideCellPolygon(this);
+	CellPolygon daughterCell =calculator.divideCellPolygon(this);
 	if(daughterCell != null){
 		daughterCell.setPreferredArea(this.preferredArea);
 		
@@ -192,11 +200,11 @@ public CellPolygon[] getNeighbourPolygons(){
 
 
 public double getCurrentArea(){
-	return Calculators.getCellArea(this);
+	return calculator.getCellArea(this);
 }
 
 public void checkForT1Transition(){
-	Calculators.checkForT1Transitions(this);
+	calculator.checkForT1Transitions(this);
 }
 
 
@@ -288,7 +296,9 @@ public void step(SimState state) {
 		Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
 		if(!v.isWasAlreadyCalculated()){					
 			conGradientOptimizer.relaxVertex(v);
-			Calculators.checkNewVertexValuesForComplianceWithStandardBorders(v);
+			calculator.checkNewVertexValuesForComplianceWithStandardBorders(v);
+			boolean tooClose = calculator.isVertexTooCloseToAnotherCellBoundary(v);
+			if(tooClose)System.out.println("Vertex is too close to another Cell Boundary");
 			v.commitNewValues();
 			//	minimizer.relaxForcesActingOnVertex(v);
 			v.setWasAlreadyCalculated(true);

@@ -3,6 +3,7 @@ package sim.app.episim.model.biomechanics.vertexbased.simanneal;
 import java.util.Date;
 
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
 
 import net.sourceforge.jannealer.AnnealingScheme;
@@ -15,7 +16,7 @@ public class ConfigureAnnealing
 	{
 		AnnealingScheme configure = new AnnealingScheme();
 		
-		final CellPolygon pol = new CellPolygon();
+		final CellPolygon pol = new CellPolygon(new CellPolygonCalculator(new CellPolygon[]{}));
 		
 		final Vertex testVertex = new Vertex(100, 100);
 		

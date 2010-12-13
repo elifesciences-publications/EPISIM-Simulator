@@ -87,6 +87,16 @@ public class EpisimMovieMaker{
                  invoke(null, new Object[] { new Float(fps), typicalImage });
              if (encodingFormats==null) return false;
              
+             //handle the case that there are only three available formats under linux conditions
+             else{
+            	 if(encodingFormats.length >=2){
+            		 
+            			 encodeFormatIndex=1;
+            		
+            	 }
+            	 
+             }
+             
              moviePath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.MOVIE_PATH_PROP, "EpisimMovie", "mov");
              
              encoder = encoderClass.getConstructor(new Class[]{

@@ -189,7 +189,7 @@ public class VertexForcesCalculator {
 		return new double[]{totalResult.get(0), totalResult.get(1)};
 	}
 	
-	public static void main(String[] args){
+	/*public static void main(String[] args){
 		VertexForcesCalculator calc  = new VertexForcesCalculator();
 		CellPolygon pol = new CellPolygon();
 		pol.setPreferredArea(1.0d);
@@ -200,6 +200,6 @@ public class VertexForcesCalculator {
 		pol.addVertex(new Vertex(1,2));
 			
 		calc.calculatedForcesActingOnVertex(testVertex);
-	}
+	}*/
 
 }

@@ -77,7 +77,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    
 	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, String csvPath, int numberOfCellDivisions, boolean headlessMode){
 		
-		
+		GlobalBiomechanicalStatistics.getInstance();
 		this.maxNumberOfCellDivisions = numberOfCellDivisions;
 		this.autostart = autoStart;
 		this.headlessMode = headlessMode;

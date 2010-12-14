@@ -41,8 +41,7 @@ protected CellPolygon(double x, double y){
 	vertices = new HashSet<Vertex>();
 	cellProliferationSuccessListener = new HashSet<CellPolygonProliferationSuccessListener>();
 	this.x = x;
-	this.y = y;
-	
+	this.y = y;	
 	conGradientOptimizer = new ConjugateGradientOptimizer();
    simAnnealOptimizer = new VertexForcesMinimizerSimAnneal();
 }

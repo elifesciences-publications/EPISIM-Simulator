@@ -283,22 +283,23 @@ public void relaxVertex(Vertex vertex){
 		
 		
 		Vector v = calculateOptimalResultWithConjugateGradient(totalResultMatrix, totalResultVector, vertex);
-		vertex.setNewX(Math.round(v.get(0)));
-		vertex.setNewY(Math.round(v.get(1)));
-		
-	//	System.out.println(x.toString());
-		
-		
-		
+		if(v != null){
+			vertex.setNewX(Math.round(v.get(0)));
+			vertex.setNewY(Math.round(v.get(1)));
+		}
+		else{
+			vertex.setNewX(vertex.getDoubleX());
+			vertex.setNewY(vertex.getDoubleY());
+		}	
 	}
 	
 	private boolean checkIfClockWise(Vertex[] vertices){
 		double areaTrapeze = 0;
-		int n = vertices.length;
+		int n = vertices.length;		
 		
 		for(int i = 0; i < n; i++){
 			areaTrapeze += ((vertices[((i+1)%n)].getDoubleX() - vertices[(i%n)].getDoubleX())*(vertices[((i+1)%n)].getDoubleY() + vertices[(i%n)].getDoubleY()));
-		}
+		}		
 		
 		return areaTrapeze < 0;
 	}

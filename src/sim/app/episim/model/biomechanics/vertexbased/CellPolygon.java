@@ -6,6 +6,7 @@ import java.util.HashSet;
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 
+import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.model.biomechanics.vertexbased.VertexChangeEvent.VertexChangeEventType;
 import sim.app.episim.model.biomechanics.vertexbased.simanneal.VertexForcesMinimizerSimAnneal;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
@@ -296,8 +297,9 @@ public void step(SimState state) {
 		if(!v.isWasAlreadyCalculated()){					
 			conGradientOptimizer.relaxVertex(v);
 			calculator.checkNewVertexValuesForComplianceWithStandardBorders(v);
-			boolean tooClose = calculator.isVertexTooCloseToAnotherCellBoundary(v);
-			if(tooClose)System.out.println("Vertex is too close to another Cell Boundary");
+			if(calculator.isVertexTooCloseToAnotherCellBoundary(v)){
+				GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE) +1));
+			}
 			v.commitNewValues();
 			//	minimizer.relaxForcesActingOnVertex(v);
 			v.setWasAlreadyCalculated(true);

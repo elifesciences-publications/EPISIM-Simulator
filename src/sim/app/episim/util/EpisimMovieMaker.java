@@ -141,6 +141,11 @@ public class EpisimMovieMaker{
              {
          	       
              if (encodingFormats==null) return false;
+             if(encodingFormats.length >=2){
+         		 
+      			 encodeFormatIndex=1;
+      		
+             }
              encoder = encoderClass.getConstructor(new Class[]{
                          Float.TYPE, 
                          File.class, 

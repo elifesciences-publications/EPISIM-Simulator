@@ -9,6 +9,7 @@ import java.util.Set;
 
 import ec.util.MersenneTwisterFast;
 
+import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
@@ -154,7 +155,7 @@ public class CellPolygonCalculator {
 		for(int i = 0; i < cellVertices.length; i++){
 			if(cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < CellPolygonCalculator.MIN_EDGE_LENGTH){
 				doT1Transition(cellVertices[i], cellVertices[(i+1)%cellVertices.length]);
-				System.out.println("Performed T1 Transition");
+				GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T1_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T1_TRANSITION_NUMBER) +1));
 			}
 		}
 		

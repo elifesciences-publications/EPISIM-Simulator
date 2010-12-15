@@ -25,6 +25,8 @@ import javax.swing.UIManager;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.model.biomechanics.vertexbased.TestVisualizationPanel.TestVisualizationPanelPaintListener;
 import sim.app.episim.model.biomechanics.vertexbased.simanneal.VertexForcesMinimizerSimAnneal;
 import sim.app.episim.model.controller.ModelController;
@@ -60,7 +62,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    private final boolean autostart;
    
    
-   private int actNumberSimSteps = 0;
+
    private int lastSimStepNumberVideoFrameWasWritten = 0;
    private EpisimMovieMaker episimMovieMaker = null;
    private boolean headlessMode = false;
@@ -77,7 +79,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    
 	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, String csvPath, int numberOfCellDivisions, boolean headlessMode){
 		
-		GlobalBiomechanicalStatistics.getInstance();
+		
 		this.maxNumberOfCellDivisions = numberOfCellDivisions;
 		this.autostart = autoStart;
 		this.headlessMode = headlessMode;
@@ -167,9 +169,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	
 	private void setSimulationState(SimState state){
-		if(state == SimState.SIMSTART){
-			
-				
+		if(state == SimState.SIMSTART){				
 				if(EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP) != null){
 					this.episimMovieMaker = new EpisimMovieMaker(null);
 					 Graphics g = visualizationPanel.getGraphics();
@@ -184,15 +184,14 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				
 				
 			simulationState = SimState.SIMSTART;
-			simulationThread = new Thread(new Runnable(){ 
-				
+			simulationThread = new Thread(new Runnable(){	
 				
 				
 				public void run() { 
 		
 				cells[cells.length/2].proliferate();
 				while(simulationState == SimState.SIMSTART){
-					actNumberSimSteps++;
+					
 				//	try{
 						int randomStartIndexCells =  rand.nextInt(cells.length);
 						CellPolygon polygon = null;
@@ -200,7 +199,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 							polygon = cells[((n+randomStartIndexCells)% cells.length)];
 							//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
 							polygon.step(null);
-							 
+							GlobalBiomechanicalStatistics.getInstance().step(null); 
 						}
 						
 						resetCalculationStatusOfAllCells();	
@@ -370,17 +369,10 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			
 			
 			if(csvWriter != null){
-				double counter = 0;
-				double cummulativeDifferenceInPercent = 0;
-				for(CellPolygon cell : cells){
-					if(!cell.isProliferating()){
-						counter++;
-						cummulativeDifferenceInPercent += ((Math.abs(cell.getCurrentArea()-cell.getPreferredArea())/cell.getCurrentArea())*100);
-					}
-				}
+				
 				
 	    	  	try{
-	            csvWriter.write("Mittl. Abw. Fläche (in %);" + (cummulativeDifferenceInPercent/counter)+";\n");
+	            csvWriter.write(GlobalBiomechanicalStatistics.getInstance().getCSVFileData(cells));
 	            csvWriter.flush();
             }
             catch (IOException e){
@@ -401,7 +393,9 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	private void createCsvWriter(String path){
 		try{
 			csvWriter = new BufferedWriter(new FileWriter(path, true));
-		}
+			csvWriter.write(GlobalBiomechanicalStatistics.getInstance().getCSVFileColumnHeader());
+         csvWriter.flush();
+      }
 		catch (IOException e){
 			ExceptionDisplayer.getInstance().displayException(e);
 		}
@@ -447,18 +441,11 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	
 	public void paintToMovie()
-   {
-   
-       if(episimMovieMaker != null)
-       if (actNumberSimSteps > lastSimStepNumberVideoFrameWasWritten)
+   {       
+       if (episimMovieMaker != null && GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER) > lastSimStepNumberVideoFrameWasWritten)
        {
       	  episimMovieMaker.add(visualizationPanel.paint(true,false));
-           lastSimStepNumberVideoFrameWasWritten = actNumberSimSteps;
-       }       
-       
-   }
-	
-	
-	
-
+           lastSimStepNumberVideoFrameWasWritten = (int)GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER);
+       }     
+   }	
 }

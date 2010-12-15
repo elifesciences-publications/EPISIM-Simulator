@@ -2,6 +2,7 @@ package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -10,83 +11,103 @@ import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;
 
 
-public class GlobalBiomechanicalStatistics implements EnhancedSteppable{
-	
+public class GlobalBiomechanicalStatistics implements EnhancedSteppable{	
 	
 	/**
     * 
     */
    private static final long serialVersionUID = 6206654878533414475L;
    
-	public static final String SIM_STEP_NUMBER_INT = "Sim Step No.";
-	public static final String T1_TRANSITION_NUMBER_INT = "T1 Transition No.";
-	public static final String T2_TRANSITION_NUMBER_INT = "T2 Transition No.";
-	public static final String T3_TRANSITION_NUMBER_INT = "T3 Transition No.";
-	
-	
-	private HashSet<String> intValueFields;
-	private HashMap<String, Double> globalStatistics;
+   
+   public enum GBSValue{
+   	
+   	SIM_STEP_NUMBER("Sim Step No.", Integer.TYPE, true),
+   	T1_TRANSITION_NUMBER("T1 Transition No.", Integer.TYPE, true),
+   	T2_TRANSITION_NUMBER("T2 Transition No.", Integer.TYPE, true),
+   	T3_TRANSITION_NUMBER("T3 Transition No.", Integer.TYPE, true),
+   	VERTEX_TOO_CLOSE_TO_EDGE("Vertex too close to edge", Integer.TYPE, true),
+   	AVG_CELL_REL_AREA_DEVIATION("Avg. rel. Cell Area Deviation", Double.TYPE, true);
+   	
+   	private String name;
+   	private Class<?> type;
+   	private boolean cycleValue;
+   	
+   	private GBSValue(String name, Class<?> type, boolean cycleValue){
+   		this.name = name;
+   		this.type = type;
+   		this.cycleValue = cycleValue;
+   	}
+   	
+   	public String toString(){ return name; }
+   	public boolean isCycleValue(){ return cycleValue; }
+   	public boolean isIntValue(){ return Integer.TYPE.isAssignableFrom(type); }
+   	public boolean isDoubleValue(){ return Double.TYPE.isAssignableFrom(type); }
+   }
+   
+   private HashMap<GBSValue, Double> globalStatistics;
+
 	
 	private static final GlobalBiomechanicalStatistics instance = new GlobalBiomechanicalStatistics();
 	
-	private GlobalBiomechanicalStatistics(){
+	private GlobalBiomechanicalStatistics(){		
 		
-		intValueFields = new HashSet<String>();
-		globalStatistics = new HashMap<String, Double>();
-		buildIntValueFieldSet();		
+		globalStatistics = new HashMap<GBSValue, Double>();
 		initializeGlobalStatisticsMap();
-	}
+	}	
 	
-	private void buildIntValueFieldSet(){
-		Field [] fields = this.getClass().getDeclaredFields();
-		for(Field actField : fields){
-			if(actField.getName().endsWith("_INT")){
-				try{
-	            intValueFields.add((String)actField.get(this));
-            }
-            catch (IllegalArgumentException e){
-	           ExceptionDisplayer.getInstance().displayException(e);
-            }
-            catch (IllegalAccessException e){
-            	ExceptionDisplayer.getInstance().displayException(e);
-            }
-			}
-		}
-	}
-	private void initializeGlobalStatisticsMap(){
-		Field [] fields = this.getClass().getDeclaredFields();
-		try{
-			for(Field actField : fields){
-				if(Modifier.isFinal(actField.getModifiers()) && actField.get(this) instanceof String){
-					
-						globalStatistics.put((String)actField.get(this), 0d);	           
-	            
-				}
-			}
-		}
-      catch (IllegalArgumentException e){
-        ExceptionDisplayer.getInstance().displayException(e);
-      }
-      catch (IllegalAccessException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
-      }
+	private void initializeGlobalStatisticsMap(){		
+		for(GBSValue actValue : GBSValue.values()){								
+			globalStatistics.put(actValue, 0d);			
+		}		
 	}
 	
 	public static GlobalBiomechanicalStatistics getInstance(){ return instance; }
 	
 
 	public void step(SimState state) {	   
-	   
+	   this.globalStatistics.put(GBSValue.SIM_STEP_NUMBER, (this.globalStatistics.get(GBSValue.SIM_STEP_NUMBER)+1));	   
    }
 	
 	public String getCSVFileColumnHeader(){
 		StringBuffer buffer = new StringBuffer();
-		
-		return "";
+		for(GBSValue actValue : GBSValue.values()) buffer.append(actValue.toString()+";");
+		buffer.append("\n");
+		return buffer.toString();
 	}
 	
+	private void calculateAverageRelativeAreaDeviation(CellPolygon[] cells){
+		double counter = 0;
+		double cummulativeDifferenceInPercent = 0;
+		for(CellPolygon cell : cells){
+			if(!cell.isProliferating()){
+				counter++;
+				cummulativeDifferenceInPercent += ((Math.abs(cell.getCurrentArea()-cell.getPreferredArea())/cell.getCurrentArea())*100);
+			}
+		}	
+ 	   this.globalStatistics.put(GBSValue.AVG_CELL_REL_AREA_DEVIATION,(cummulativeDifferenceInPercent/counter));
+	}
+	
+	private void resetCycleValues(){
+		for(GBSValue actValue : GBSValue.values()){ 
+			if(actValue.isCycleValue()){
+				this.globalStatistics.put(actValue, 0d);
+			}
+		}
+	}
+	
+	public double get(GBSValue gbsValue){ return this.globalStatistics.get(gbsValue); }
+	public void set(GBSValue gbsValue, double value){ this.globalStatistics.put(gbsValue, value); }
+	
 	public String getCSVFileData(CellPolygon[] cells){
-		return "";
+		calculateAverageRelativeAreaDeviation(cells);		
+		StringBuffer buffer = new StringBuffer();
+		for(GBSValue actValue : GBSValue.values()){ 
+			if(actValue.isDoubleValue())buffer.append(this.globalStatistics.get(actValue)+";");
+			else if(actValue.isIntValue())buffer.append(((int)this.globalStatistics.get(actValue).doubleValue())+";");
+		}
+		buffer.append("\n");
+		resetCycleValues();
+		return buffer.toString();
 	}
 	
 

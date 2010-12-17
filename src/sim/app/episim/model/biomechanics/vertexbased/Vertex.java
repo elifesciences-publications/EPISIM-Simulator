@@ -250,6 +250,11 @@ public class Vertex implements java.io.Serializable{
 		return "("+ x+", "+y+")";
 	}
 	
+	
+	public double eDistOldAndNewValue(){
+		return Math.sqrt(Math.pow((x_new - x),2)+Math.pow((y_new - y),2));
+	}
+	
 
    public int hashCode() {
 

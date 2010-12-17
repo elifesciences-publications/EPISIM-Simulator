@@ -203,9 +203,7 @@ public double getCurrentArea(){
 	return calculator.getCellArea(this);
 }
 
-public void checkForT1Transition(){
-	calculator.checkForT1Transitions(this);
-}
+
 
 
 public Color getFillColor() { 
@@ -282,11 +280,12 @@ public boolean isAlreadyCalculated(){ return this.isAlreadyCalculated;}
 public void step(SimState state) {
 
 	if(isProliferating && canDivide()){
+		GlobalBiomechanicalStatistics.getInstance().set(GBSValue.PREF_AREA_OVERHEAD, preferredArea - originalPreferredArea);
 		CellPolygon daughterCell = cellDivision();
 		notifyAllCellProliferationSuccessListener(daughterCell);
 		isProliferating = false;
 	}
-	else if(isProliferating) growForProliferation(10);
+	else if(isProliferating) growForProliferation(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
 	
 	
 	Vertex[] cellVertices =	getSortedVertices();
@@ -295,17 +294,13 @@ public void step(SimState state) {
 	for(int i = 0; i < cellVertices.length; i++){
 		Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
 		if(!v.isWasAlreadyCalculated()){					
-			conGradientOptimizer.relaxVertex(v);
-			calculator.checkNewVertexValuesForComplianceWithStandardBorders(v);
-			if(calculator.isVertexTooCloseToAnotherCellBoundary(v)){
-				GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE) +1));
-			}
+			conGradientOptimizer.relaxVertex(v);			
+			calculator.applyVertexPositionCheckPipeline(v);			
 			v.commitNewValues();
-			//	minimizer.relaxForcesActingOnVertex(v);
 			v.setWasAlreadyCalculated(true);
 		}				
 	}
-	checkForT1Transition();
+	calculator.applyCellPolygonCheckPipeline(this);
 	
 }
 

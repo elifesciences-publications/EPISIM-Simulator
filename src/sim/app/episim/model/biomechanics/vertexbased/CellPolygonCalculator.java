@@ -25,8 +25,10 @@ public class CellPolygonCalculator {
 	
 	
 	
-	public static final double MIN_EDGE_LENGTH =SIDELENGTH/4;
+	public static final double MIN_EDGE_LENGTH =SIDELENGTH/3;
 	public static final double MIN_VERTEX_EDGE_DISTANCE = MIN_EDGE_LENGTH;
+	
+
 	
 	private MersenneTwisterFast rand = new MersenneTwisterFast(System.currentTimeMillis());
 	
@@ -248,10 +250,10 @@ public class CellPolygonCalculator {
 		return -1;
 	}
 	
-	public boolean isVertexTooCloseToAnotherCellBoundary(Vertex vertex){
+	private boolean isVertexTooCloseToAnotherCellBoundary(Vertex vertex, boolean takeNewValues){
 		Line[] linesToTest =getLineArrayToTestVertexDistance(vertex);
 		for(Line actLine : linesToTest){
-			if(actLine.getDistanceOfVertex(vertex) <= MIN_VERTEX_EDGE_DISTANCE) return true;
+			if(actLine.getDistanceOfVertex(vertex, takeNewValues) <= MIN_VERTEX_EDGE_DISTANCE) return true;
 		}
 		return false;
 	}
@@ -269,8 +271,27 @@ public class CellPolygonCalculator {
 		return lines.toArray(new Line[lines.size()]);
 	}
 	
+	private void checkCloseToOtherEdge(Vertex v){
+		if(isVertexTooCloseToAnotherCellBoundary(v, true)){
+			resetToOldValueWithRadomizedDelta(v);
+			GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE) +1));
+		}
+	}
 	
-	public void checkNewVertexValuesForComplianceWithStandardBorders(Vertex vertex){
+	
+	
+	public void applyVertexPositionCheckPipeline(Vertex v){
+		checkNewVertexValuesForComplianceWithStandardBorders(v);
+		checkCloseToOtherEdge(v);
+	}
+	
+	public void applyCellPolygonCheckPipeline(CellPolygon cell){
+		checkForT1Transitions(cell);
+	}
+	
+	
+	
+	private void checkNewVertexValuesForComplianceWithStandardBorders(Vertex vertex){
 		TissueBorder tissueBorder = TissueController.getInstance().getTissueBorder();
 		
 		double minYDelta = Double.POSITIVE_INFINITY;
@@ -305,10 +326,27 @@ public class CellPolygonCalculator {
 				vertex.setNewX(minX);
 				vertex.setNewY(tissueBorder.lowerBound(minX));
 			}*/
-			vertex.setNewX(vertex.getDoubleX());
-			vertex.setNewY(vertex.getDoubleY());
+			resetToOldValueWithRadomizedDelta(vertex);			
 		}
-	}	
+	}
+	
+	
+	private void resetToOldValueWithRadomizedDelta(Vertex v){
+		double delta =  0;//v.eDistOldAndNewValue();
+		
+		double[] directionVector = new double[]{v.getDoubleX()-v.getNewX(), v.getDoubleY()-v.getNewY()};
+		
+		double normFactor = Math.sqrt(Math.pow(directionVector[0],2)+Math.pow(directionVector[1],2));
+		directionVector[0]*=normFactor;
+		directionVector[1]*=normFactor;
+		
+		
+		
+		v.setNewX(v.getDoubleX() + directionVector[0]*delta);
+		v.setNewY(v.getDoubleY() + directionVector[1]*delta);
+	
+	}
+	
 	
 	public void relaxVertexEstimated(Vertex v){
 		if(v.getNumberOfCellsJoiningThisVertex() <= 2){

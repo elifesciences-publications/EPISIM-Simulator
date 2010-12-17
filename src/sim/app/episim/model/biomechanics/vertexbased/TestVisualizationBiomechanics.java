@@ -198,10 +198,9 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 						for(int n = 0; n < cells.length; n++){
 							polygon = cells[((n+randomStartIndexCells)% cells.length)];
 							//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
-							polygon.step(null);
-							GlobalBiomechanicalStatistics.getInstance().step(null); 
+							polygon.step(null);							
 						}
-						
+						GlobalBiomechanicalStatistics.getInstance().step(null); 
 						resetCalculationStatusOfAllCells();	
 						
 						
@@ -425,8 +424,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				if(args[i] != null && args[i].equals("-headless")) headless=true; 
 			}
 						
-		}
-		
+		}		
 		new TestVisualizationBiomechanics(true, moviePath, csvPath, maxNumberOfProliferation, headless);
 	}
 

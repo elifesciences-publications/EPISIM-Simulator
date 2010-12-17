@@ -59,8 +59,11 @@ public class VertexForcesCalculator {
 		
 	}
 	
-	private Vector calculatePerimeterForPolygon(double[][] polygon, int vertexNumber){
+	private Vector calculatePerimeterForPolygon(double[][] polygon, int vertexNumber, double A0){
 		double noOfVertices = polygon.length;
+		
+		double C0 = 2*Math.sqrt(Math.PI*A0)*VertexBasedMechanicalModelGlobalParameters.getInstance().getPref_perimeter_factor();
+		
 		double dynamicSquareRoots_1 = (Math.sqrt(
 																Math.pow((polygon[vertexNumber][0]-polygon[mod((vertexNumber+1), noOfVertices)][0]),2)
 															 + Math.pow((polygon[vertexNumber][1]-polygon[mod((vertexNumber+1), noOfVertices)][1]),2)
@@ -92,8 +95,8 @@ public class VertexForcesCalculator {
 		
 		double[] result = new double[2];
 		
-		result[0] =((staticSquareRootsPerimeter + dynamicSquareRoots_1 + dynamicSquareRoots_2)*(fraction_1_1 - fraction_1_2));
-		result[1] =((staticSquareRootsPerimeter + dynamicSquareRoots_1 + dynamicSquareRoots_2)*(fraction_2_1 - fraction_2_2));
+		result[0] =((staticSquareRootsPerimeter + dynamicSquareRoots_1 + dynamicSquareRoots_2 - C0)*(fraction_1_1 - fraction_1_2));
+		result[1] =((staticSquareRootsPerimeter + dynamicSquareRoots_1 + dynamicSquareRoots_2 - C0)*(fraction_2_1 - fraction_2_2));
 		result[0] *= GAMMA;
 		result[1] *= GAMMA;
 		
@@ -179,7 +182,7 @@ public class VertexForcesCalculator {
 			}			
 			totalResult.add(calculateDynamicAreaForPolygon(calculationPolygon, vertexNumber));
 			totalResult.add(calculateStaticAreaForPolygon(calculationPolygon, vertexNumber, pol.getPreferredArea()));
-			totalResult.add(calculatePerimeterForPolygon(calculationPolygon, vertexNumber));		
+			totalResult.add(calculatePerimeterForPolygon(calculationPolygon, vertexNumber, pol.getPreferredArea()));		
 		}
 		
 		Vertex[] connectedVertices = vertex.getAllOtherVerticesConnectedToThisVertex();

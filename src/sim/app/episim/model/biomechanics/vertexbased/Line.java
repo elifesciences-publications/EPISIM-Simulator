@@ -1,5 +1,7 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
+import ec.util.MersenneTwisterFast;
+
 
 public class Line {
 	
@@ -27,8 +29,24 @@ public class Line {
 		this.v2 = v2;
 	}
 	
-	
-	
+	public double getDistanceOfVertex(Vertex v, boolean takeNewValues){
+		double[] directionVectorOfLine = new double[]{x2-x1, y2-y1};
+		double[] directionVectorOfOrthogonalLine = new double[]{directionVectorOfLine[1],-1*directionVectorOfLine[0]};
+		
+		double x_Vertex = takeNewValues ? v.getNewX() : v.getDoubleX();
+		double y_Vertex = takeNewValues ? v.getNewY() : v.getDoubleY();
+				
+		Line intersectionLine = new Line(x_Vertex, y_Vertex, x_Vertex+directionVectorOfOrthogonalLine[0], y_Vertex+directionVectorOfOrthogonalLine[1]);
+		Vertex isp = this.getIntersectionOfLinesInLineSegment(intersectionLine);
+		if(isp!=null)return isp.edist(new Vertex(x_Vertex, y_Vertex));
+		else return Double.POSITIVE_INFINITY;
+	}
+	/*
+	 * 
+	 * This method could be easily extended to three dimensions but is slower than the one we use for two dimensions
+	 * 
+	 */
+/*	
 	public double getDistanceOfVertex(Vertex v){
 		
 		double[] directionVectorOfLine = new double[]{x2-x1, y2-y1};
@@ -52,7 +70,7 @@ public class Line {
 		}
 		
 		return Double.POSITIVE_INFINITY;
-	}
+	}*/
 	
 	public boolean belongsVertexToLine(Vertex vertexToTest){
 		if(v1 != null && v2 != null){
@@ -66,9 +84,10 @@ public class Line {
 	/**
 	 * @param v1 first point line one (first cell vertex)
 	 * @param v2 second point line one (second cellvertex)
+	 * 
 	 * @param v3 first point line two (cell center)
 	 * @param v4 second point line two( point with max distance on circle)
-	 * @return intersection point, returns null if there is no intersection
+	 * @return intersection point, returns null if there is no intersection or if the intersection point is not on the line segment of described by the coordinates of this line
 	 */
 	public Vertex getIntersectionOfLinesInLineSegment(Line otherLine){
 		
@@ -77,7 +96,7 @@ public class Line {
 		if(denominator != 0){
 			double u_a = (((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(y1-otherLine.getDoubleY1()))-((otherLine.getDoubleY2()-otherLine.getDoubleY1())*(x1-otherLine.getDoubleX1()))) / denominator;			
 			
-			//only if u_a is between 0 and 1  the intersection point lies on the line segment described by the two cell vertices v1 and v2
+			//only if u_a is between 0 and 1  the intersection point lies on the line segment described by the two line vertices v1 and v2
 			if(u_a >= 0 && u_a <= 1){
 				double x_s = x1 + u_a*(x2-x1);
 				double y_s = y1 + u_a*(y2-y1);
@@ -113,28 +132,7 @@ public class Line {
 		}
 		
 		return null;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	}	
 	
 	public void setIntX1(int x1){ setDoubleX1((double)x1); }
 	public int getIntX1(){ return (int)Math.round(getDoubleX1()); }

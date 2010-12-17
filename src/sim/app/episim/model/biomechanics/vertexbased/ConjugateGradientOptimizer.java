@@ -101,8 +101,9 @@ public class ConjugateGradientOptimizer {
 		return new double[]{coeffizient_1, coeffizient_2};
 	}
 	
-	public Vector calculatePerimeterResultVector(double[][] polygon, int vertexNumber){
+	public Vector calculatePerimeterResultVector(double[][] polygon, int vertexNumber, double A0){
 		double noOfVertices = polygon.length;
+		double C0 = 2*Math.sqrt(Math.PI*A0)*globalParameters.getPref_perimeter_factor();
 		double[] coeffizients = getPerimeterCoeffizients(polygon, vertexNumber);
 		double[] resultVector = new double[2];
 		int sign = 1;
@@ -126,6 +127,7 @@ public class ConjugateGradientOptimizer {
 			}
 			
 		}
+		resultVector[0] -= C0;
 		resultVector[1] = resultVector[0];
 		resultVector[0] *= (-1*coeffizients[0]);
 		resultVector[1] *= (-1*coeffizients[1]);
@@ -270,7 +272,7 @@ public void relaxVertex(Vertex vertex){
 			totalResultMatrix = totalResultMatrix.add(calculatePerimeterMatrixForPolygon(calculationPolygon, vertexNumber));
 			
 			totalResultVector = totalResultVector.add(calculateAreaResultVector(calculationPolygon, vertexNumber, pol.getPreferredArea()));
-			totalResultVector = totalResultVector.add(calculatePerimeterResultVector(calculationPolygon, vertexNumber));
+			totalResultVector = totalResultVector.add(calculatePerimeterResultVector(calculationPolygon, vertexNumber, pol.getPreferredArea()));
 		//
 		}
 		

@@ -21,11 +21,12 @@ public class GlobalBiomechanicalStatistics implements EnhancedSteppable{
    
    public enum GBSValue{
    	
-   	SIM_STEP_NUMBER("Sim Step No.", Integer.TYPE, true),
+   	SIM_STEP_NUMBER("Sim Step No.", Integer.TYPE, false),
    	T1_TRANSITION_NUMBER("T1 Transition No.", Integer.TYPE, true),
    	T2_TRANSITION_NUMBER("T2 Transition No.", Integer.TYPE, true),
    	T3_TRANSITION_NUMBER("T3 Transition No.", Integer.TYPE, true),
    	VERTEX_TOO_CLOSE_TO_EDGE("Vertex too close to edge", Integer.TYPE, true),
+   	PREF_AREA_OVERHEAD("Pref. Area Overhead", Double.TYPE, true),
    	AVG_CELL_REL_AREA_DEVIATION("Avg. rel. Cell Area Deviation", Double.TYPE, true);
    	
    	private String name;
@@ -70,6 +71,9 @@ public class GlobalBiomechanicalStatistics implements EnhancedSteppable{
 	
 	public String getCSVFileColumnHeader(){
 		StringBuffer buffer = new StringBuffer();
+		buffer.append("Used Model Parameters:\n");
+		buffer.append(VertexBasedMechanicalModelGlobalParameters.getInstance().getStatisticsHeaderString());
+		buffer.append("\n");
 		for(GBSValue actValue : GBSValue.values()) buffer.append(actValue.toString()+";");
 		buffer.append("\n");
 		return buffer.toString();

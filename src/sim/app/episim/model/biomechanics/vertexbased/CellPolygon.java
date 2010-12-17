@@ -54,6 +54,8 @@ public CellPolygon(CellPolygonCalculator calculator){
 	
 }
 
+
+
 public void setCellPolygonCalculator(CellPolygonCalculator calculator){
 	if(calculator != null) this.calculator = calculator;
 }
@@ -130,18 +132,26 @@ private void growForProliferation(double areaToGrow){
 	
 }
 
+private void growToBecomeMature(double areaToGrow){
+	
+	this.preferredArea += areaToGrow;
+	
+}
+
+
 public boolean canDivide(){
-	return getCurrentArea() >= (2*originalPreferredArea) && originalPreferredArea > 0;
+	return getCurrentArea() >= ((2*originalPreferredArea)* VertexBasedMechanicalModelGlobalParameters.getInstance().getSize_percentage_cell_division()) 
+	 									&& originalPreferredArea > 0;
 }
 
 private CellPolygon cellDivision(){
 	sortedVertices = null;
-	this.preferredArea = this.originalPreferredArea;
-	this.originalPreferredArea = Double.NEGATIVE_INFINITY;
+	this.preferredArea /= 2;
+	
 	CellPolygon daughterCell =calculator.divideCellPolygon(this);
 	if(daughterCell != null){
-		daughterCell.setPreferredArea(this.preferredArea);
-		
+		daughterCell.preferredArea = this.preferredArea;
+		daughterCell.originalPreferredArea = this.originalPreferredArea;
 	}
 	return daughterCell;
 }
@@ -285,7 +295,17 @@ public void step(SimState state) {
 		notifyAllCellProliferationSuccessListener(daughterCell);
 		isProliferating = false;
 	}
-	else if(isProliferating) growForProliferation(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
+	else{ 
+		if(isProliferating){ 
+			growForProliferation(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
+		}
+		else{
+			if(this.preferredArea < this.originalPreferredArea){
+				growToBecomeMature(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
+			}
+			else this.originalPreferredArea = Double.NEGATIVE_INFINITY; 
+		}
+	}
 	
 	
 	Vertex[] cellVertices =	getSortedVertices();

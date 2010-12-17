@@ -1,5 +1,6 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -35,6 +36,8 @@ public class Vertex implements java.io.Serializable{
 	
 	private boolean wasAlreadyCalculated = false;
 
+	private Color vertexColor;
+	
 	
 	public Vertex(double x, double y){
 		id = nextid++;
@@ -43,6 +46,7 @@ public class Vertex implements java.io.Serializable{
 		this.x_new = x;
 		this.y_new = y;
 		changeListener = new ArrayList<VertexChangeListener>();
+		vertexColor = Color.BLUE;
 	}
 	
 	public Vertex(int x, int y){
@@ -398,6 +402,18 @@ public class Vertex implements java.io.Serializable{
 		this.y = this.y_new;
 		notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
 	}
+
+	
+   public Color getVertexColor() {
+   
+   	return vertexColor;
+   }
+
+	
+   public void setVertexColor(Color vertexColor) {
+   
+   	this.vertexColor = vertexColor;
+   }
 
 
 }

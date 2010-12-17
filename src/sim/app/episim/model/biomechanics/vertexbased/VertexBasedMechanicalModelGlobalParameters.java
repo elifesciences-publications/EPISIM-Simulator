@@ -1,6 +1,5 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,10 +27,10 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimMechani
 	private double lambda = 15000;
 	private double lambda_high_factor = 1;//2;
 	private double lambda_low_factor = 1;//0.4;
-	private double gamma = 1000;
+	private double gamma = 1500;
 	private double pref_perimeter_factor = 1; //could be 1 or zero to take the preferred perimeter of a cell into account or not
 	private double size_percentage_cell_division = 0.7;
-	private double growth_rate_per_sim_step = 20;
+	private double growth_rate_per_sim_step = 10;
 	
 	//----------------------------------------------------------------------------------------------------------------------
 	// Other required Parameters

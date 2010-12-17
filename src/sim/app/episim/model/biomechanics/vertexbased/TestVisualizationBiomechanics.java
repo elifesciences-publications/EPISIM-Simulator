@@ -331,7 +331,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		if(vertex != null){
 			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);			
 			if(vertex.isNew()) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.YELLOW);
-			else drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.BLUE);
+			else drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, vertex.getVertexColor());
 		}
 	}
 	

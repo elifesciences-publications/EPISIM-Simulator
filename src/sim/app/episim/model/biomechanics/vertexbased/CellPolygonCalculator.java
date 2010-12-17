@@ -1,5 +1,6 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
+import java.awt.Color;
 import java.awt.Polygon;
 import java.awt.geom.Area;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class CellPolygonCalculator {
 	
 	
 	
-	public static final double MIN_EDGE_LENGTH =SIDELENGTH/3;
+	public static final double MIN_EDGE_LENGTH =SIDELENGTH/4;
 	public static final double MIN_VERTEX_EDGE_DISTANCE = MIN_EDGE_LENGTH;
 	
 
@@ -273,9 +274,11 @@ public class CellPolygonCalculator {
 	
 	private void checkCloseToOtherEdge(Vertex v){
 		if(isVertexTooCloseToAnotherCellBoundary(v, true)){
+			v.setVertexColor(Color.YELLOW);
 			resetToOldValueWithRadomizedDelta(v);
 			GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE) +1));
 		}
+		else v.setVertexColor(Color.BLUE);
 	}
 	
 	

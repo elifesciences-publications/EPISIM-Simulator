@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Polygon;
 import java.awt.geom.Area;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,12 +22,12 @@ import sim.app.episim.visualization.CellEllipse;
 public class CellPolygonCalculator {
 	
 	
-	public static final int SIDELENGTH = 30;
+	public static final int SIDELENGTH = 75;//30;
 	public static final int SIDELENGTHHALF = SIDELENGTH/2;
 	
 	
 	
-	public static final double MIN_EDGE_LENGTH =SIDELENGTH/4;
+	public static final double MIN_EDGE_LENGTH =SIDELENGTH * VertexBasedMechanicalModelGlobalParameters.getInstance().getMin_edge_length_percentage();
 	public static final double MIN_VERTEX_EDGE_DISTANCE = MIN_EDGE_LENGTH;
 	
 
@@ -72,6 +73,19 @@ public class CellPolygonCalculator {
 	
 			if(!this.cellPolygons[cellIndex].isProliferating()){
 				this.cellPolygons[cellIndex].proliferate();
+				return;
+			}
+		}
+		
+	}
+	public void randomlySelectCellForApoptosis(){
+		//for(Cell c :cells) c.setSelected(false);
+		
+		while(true){
+			int cellIndex =rand.nextInt(this.cellPolygons.length);
+	
+			if(!this.cellPolygons[cellIndex].isDying()){
+				this.cellPolygons[cellIndex].initializeApoptosis();
 				return;
 			}
 		}
@@ -158,11 +172,170 @@ public class CellPolygonCalculator {
 		for(int i = 0; i < cellVertices.length; i++){
 			if(cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < CellPolygonCalculator.MIN_EDGE_LENGTH){
 				doT1Transition(cellVertices[i], cellVertices[(i+1)%cellVertices.length]);
-				GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T1_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T1_TRANSITION_NUMBER) +1));
+				GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T1_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T1_TRANSITION_NUMBER)+1));
 			}
 		}
 		
 	}
+	
+	public void checkForT2Transition(CellPolygon cell){
+		Vertex[] cellVertices = cell.getSortedVertices();
+		if(cellVertices.length<=3 || cell.isDying()){
+			for(int i = 0; i < cellVertices.length; i++){
+				if(cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < CellPolygonCalculator.MIN_EDGE_LENGTH || cell.getPreferredArea() <= 0){
+					doT2Transition(cell);
+					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T2_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T2_TRANSITION_NUMBER)+1));
+					cell.apoptosis();
+					break;
+				}
+			}
+			
+		}
+	}
+	
+	public void checkForT3Transitions(CellPolygon cell){
+		if(cell != null){
+			Vertex[] vertices = cell.getSortedVertices();
+			for(Vertex v : vertices){
+				if(v.getCellsJoiningThisVertex().length <=2){
+					Line line = null;
+					if((line=isCloseEnoughToOtherBoundaryForAdhesion(v, false)) != null){
+						Vertex isp = line.getIntersectionPointOfLineThroughVertex(v, false, true);
+						if(isp != null){
+							v.setDoubleX(isp.getDoubleX());
+							v.setDoubleY(isp.getDoubleY());
+						}
+						doT3Transition(v, line);
+						GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3_TRANSITION_NUMBER)+1));
+						System.out.println("T3 Transition performed");
+					}
+				}
+			}
+		}
+	}
+	
+	
+	private void doT3Transition(Vertex adhVertex, Line line){
+		Line[] linesConnectedToVertex = selectRelevantLinesConnectedToVertex(adhVertex);
+		System.out.println("rö5");
+		if(linesConnectedToVertex != null && linesConnectedToVertex.length >0){
+			if(linesConnectedToVertex.length >2){ 
+				System.err.print("ERROR: Method do T3 Transition: More than two relevant lines connected to Vertex found!");
+			}
+			else{
+				Vertex newVertex1 = calculateNewVertex(adhVertex, linesConnectedToVertex[0], line);
+				Vertex newVertex2 = calculateNewVertex(adhVertex, linesConnectedToVertex[1], line);
+				
+				CellPolygon adhCell = line.getCellPolygonOfLine();
+				adhCell.addVertex(newVertex1);
+				adhCell.addVertex(newVertex2);
+				adhCell.addVertex(adhVertex);
+				linesConnectedToVertex[0].getCellPolygonOfLine().addVertex(newVertex1);
+				linesConnectedToVertex[1].getCellPolygonOfLine().addVertex(newVertex2);
+			}
+		}
+		
+	}	
+	
+	private  Line[] selectRelevantLinesConnectedToVertex(Vertex adhVertex){
+		ArrayList<Line> linesConnectedToVertex = new ArrayList<Line>();
+		Vertex[] connectedVertices = adhVertex.getAllOtherVerticesConnectedToThisVertex();
+		HashSet<CellPolygon> cellsConnectedToVertex = new HashSet<CellPolygon>();
+		cellsConnectedToVertex.addAll(Arrays.asList(adhVertex.getCellsJoiningThisVertex()));
+		
+		//here the relevant to line connected to the Vertex v are selected, this should result in two relevant lines
+		if(cellsConnectedToVertex.size() >= 2){
+			for(Vertex actV: connectedVertices){
+				int foundCells = 0;
+				for(CellPolygon cellPol: actV.getCellsJoiningThisVertex()){
+					if(cellsConnectedToVertex.contains(cellPol)) foundCells++;
+				}
+				if(foundCells < 2){
+					linesConnectedToVertex.add(new Line(adhVertex, actV));
+				}
+			}
+		}
+		else{
+			for(Vertex actV : connectedVertices){
+				linesConnectedToVertex.add(new Line(adhVertex, actV));
+			}
+		}
+		return linesConnectedToVertex.toArray(new Line[linesConnectedToVertex.size()]);
+	}
+	
+	private Vertex calculateNewVertex(Vertex adhVertex, Line alreadyConnectedLine, Line adhLine){
+		
+		double intersectionAngleInDegrees = adhLine.getIntersectionAngleInDegreesWithOtherLine(alreadyConnectedLine);
+		
+		if(intersectionAngleInDegrees > 90){
+			intersectionAngleInDegrees = 180 - intersectionAngleInDegrees;
+		}
+		
+		Vertex vertexToRotate = adhVertex.equals(alreadyConnectedLine.getV1())? alreadyConnectedLine.getV2(): alreadyConnectedLine.getV1();
+		
+		double distanceVertexToRotate = adhLine.getDistanceOfVertex(vertexToRotate, false, false);
+		
+		Vertex newVertex = getNewRotatedVertex(adhVertex, vertexToRotate, intersectionAngleInDegrees/2);
+		
+		if(adhLine.getDistanceOfVertex(newVertex, false, false) > distanceVertexToRotate){
+			double new_intersectionAngleInDegrees = 360 - (intersectionAngleInDegrees/2);
+			newVertex = getNewRotatedVertex(adhVertex, vertexToRotate, new_intersectionAngleInDegrees);
+		}
+		
+		double[] directionVector = new double[]{newVertex.getDoubleX()-adhVertex.getDoubleX(), newVertex.getDoubleY()-adhVertex.getDoubleY()};
+		double normFact = Math.sqrt(Math.pow(directionVector[0], 2)+Math.pow(directionVector[1], 2));
+		directionVector[0] /= normFact;
+		directionVector[1] /= normFact;
+		double lengthFactor = MIN_VERTEX_EDGE_DISTANCE / (2*Math.tan(Math.toRadians(intersectionAngleInDegrees/2)));
+		newVertex= new Vertex(adhVertex.getDoubleX() + lengthFactor*directionVector[0], adhVertex.getDoubleY() + lengthFactor*directionVector[1]);
+		return newVertex;
+	}
+	
+	public static void main(String[] args){
+		Line line1 = new Line(0,0,10,0);
+		Line line2 = new Line(5,0,-20,10);
+		System.out.println("Der Winkel: "+ line1.getIntersectionAngleInDegreesWithOtherLine(line2));
+	}
+	
+	public void rotateVertex(Vertex centerVertex, Vertex vertexToRotate, double angleInDegrees){
+		Vertex v = getNewRotatedVertex(centerVertex, vertexToRotate, angleInDegrees);
+      vertexToRotate.setDoubleX(v.getDoubleX());
+      vertexToRotate.setDoubleY(v.getDoubleY());        
+	}
+	
+	
+	private Vertex getNewRotatedVertex(Vertex centerVertex, Vertex vertexToRotate, double angleInDegrees){
+		double angle = Math.toRadians(angleInDegrees);
+      double sin = Math.sin(angle);
+      double cos = Math.cos(angle);
+           	      
+      // rotation
+      double a = vertexToRotate.getDoubleX() - centerVertex.getDoubleX();
+      double b = vertexToRotate.getDoubleY() - centerVertex.getDoubleY();
+      double newX = (+a * cos - b * sin + centerVertex.getDoubleX());
+      double newY = (+a * sin + b * cos + centerVertex.getDoubleY());
+      return new Vertex(newX, newY);
+	}
+		
+	private void doT2Transition(CellPolygon cell){
+		
+		double new_X = 0;
+		double new_Y = 0;
+		Vertex[] vertices = cell.getUnsortedVertices();
+		for(Vertex v : vertices){
+			new_X += v.getDoubleX();
+			new_Y += v.getDoubleY();
+			v.removeVertexChangeListener(cell);
+		}
+		
+		new_X /= vertices.length;
+		new_Y /= vertices.length;
+		Vertex newVertex = new Vertex(new_X, new_Y);		
+		for(Vertex v : vertices){
+			v.replaceVertex(newVertex);
+		}
+	}
+	
 	
 	private void doT1Transition(Vertex v1, Vertex v2){
 		Vertex center = new Vertex((v1.getDoubleX()+ v2.getDoubleX())/2,(v1.getDoubleY()+ v2.getDoubleY())/2);
@@ -203,9 +376,14 @@ public class CellPolygonCalculator {
 			}
 		}
 		
+		
+		
+		
 		//add vertex v1 and v2 respectively to those cells that were formerly connected with only one of the vertices
 		for(CellPolygon pol :cellsAssociatedWithV1) pol.addVertex(v2);
 		for(CellPolygon pol :cellsAssociatedWithV2) pol.addVertex(v1);
+		
+		
 		
 		//remove the vertex that is more far from the center of the polygon; 
 		//afterwards the cells that were formerly connected to both vertices are only connected to one of the two vertices
@@ -251,12 +429,20 @@ public class CellPolygonCalculator {
 		return -1;
 	}
 	
-	private boolean isVertexTooCloseToAnotherCellBoundary(Vertex vertex, boolean takeNewValues){
+	private Line isVertexTooCloseToAnotherCellBoundary(Vertex vertex, boolean takeNewValues){
 		Line[] linesToTest =getLineArrayToTestVertexDistance(vertex);
 		for(Line actLine : linesToTest){
-			if(actLine.getDistanceOfVertex(vertex, takeNewValues) <= MIN_VERTEX_EDGE_DISTANCE) return true;
+			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= (MIN_VERTEX_EDGE_DISTANCE*0.8)) return actLine;
 		}
-		return false;
+		return null;
+	}
+	
+	private Line isCloseEnoughToOtherBoundaryForAdhesion(Vertex vertex, boolean takeNewValues){
+		Line[] linesToTest =getLineArrayToTestVertexDistance(vertex);
+		for(Line actLine : linesToTest){
+			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= MIN_VERTEX_EDGE_DISTANCE) return actLine;
+		}
+		return null;
 	}
 	
 	private Line[] getLineArrayToTestVertexDistance(Vertex vertex){
@@ -273,9 +459,12 @@ public class CellPolygonCalculator {
 	}
 	
 	private void checkCloseToOtherEdge(Vertex v){
-		if(isVertexTooCloseToAnotherCellBoundary(v, true)){
+		Line line = null;
+		if((line=isVertexTooCloseToAnotherCellBoundary(v, true)) !=null){
 			v.setVertexColor(Color.YELLOW);
-			resetToOldValueWithRadomizedDelta(v);
+			
+			line.setNewValuesOfVertexToDistance(v, (MIN_VERTEX_EDGE_DISTANCE*1.05));
+			checkNewVertexValuesForComplianceWithStandardBorders(v, true);
 			GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE) +1));
 		}
 		else v.setVertexColor(Color.BLUE);
@@ -284,52 +473,54 @@ public class CellPolygonCalculator {
 	
 	
 	public void applyVertexPositionCheckPipeline(Vertex v){
-		checkNewVertexValuesForComplianceWithStandardBorders(v);
+		checkNewVertexValuesForComplianceWithStandardBorders(v, false);
 		checkCloseToOtherEdge(v);
 	}
 	
 	public void applyCellPolygonCheckPipeline(CellPolygon cell){
 		checkForT1Transitions(cell);
+		checkForT2Transition(cell);
 	}
 	
 	
 	
-	private void checkNewVertexValuesForComplianceWithStandardBorders(Vertex vertex){
+	private void checkNewVertexValuesForComplianceWithStandardBorders(Vertex vertex, boolean estimateNewValue){
 		TissueBorder tissueBorder = TissueController.getInstance().getTissueBorder();
 		
 		double minYDelta = Double.POSITIVE_INFINITY;
 		double minX = Double.POSITIVE_INFINITY;
 				
 		if(tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY()){
-			/*
-			 //the method implemented below induces in some cases an upward movement out of the undulation of the basement membrane
-			 //for this reason this method is not used; the new values are simply set to the old values
-			double deltaX = Math.abs(vertex.getNewX()-vertex.getDoubleX());
-			double stepSize = deltaX/10d;
-			if(vertex.getNewX() > vertex.getDoubleX() && stepSize>0.1){
-				for(double newX = vertex.getNewX(); newX >=vertex.getDoubleX(); newX -= stepSize){
-					double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
-					if(yDelta < minYDelta){
-						minYDelta = yDelta;
-						minX = newX;
+			if(estimateNewValue){
+				 //the method implemented below induces in some cases an upward movement out of the undulation of the basement membrane
+				 //for this reason this method is not used; the new values are simply set to the old values
+				double deltaX = Math.abs(vertex.getNewX()-vertex.getDoubleX());
+				double stepSize = deltaX/10d;
+				if(vertex.getNewX() > vertex.getDoubleX() && stepSize>0.1){
+					for(double newX = vertex.getNewX(); newX >=vertex.getDoubleX(); newX -= stepSize){
+						double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
+						if(yDelta < minYDelta){
+							minYDelta = yDelta;
+							minX = newX;
+						}
 					}
 				}
-			}
-			else if(vertex.getNewX() < vertex.getDoubleX() && stepSize>0.1){
-				for(double newX = vertex.getNewX(); newX <=vertex.getDoubleX(); newX += stepSize){
-					double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
-					if(yDelta < minYDelta){
-						minYDelta = yDelta;
-						minX = newX;
+				else if(vertex.getNewX() < vertex.getDoubleX() && stepSize>0.1){
+					for(double newX = vertex.getNewX(); newX <=vertex.getDoubleX(); newX += stepSize){
+						double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
+						if(yDelta < minYDelta){
+							minYDelta = yDelta;
+							minX = newX;
+						}
 					}
 				}
+				else minX = vertex.getNewX();
+				if(minX < Double.POSITIVE_INFINITY){
+					vertex.setNewX(minX);
+					vertex.setNewY(tissueBorder.lowerBound(minX));
+				}
 			}
-			else minX = vertex.getNewX();
-			if(minX < Double.POSITIVE_INFINITY){
-				vertex.setNewX(minX);
-				vertex.setNewY(tissueBorder.lowerBound(minX));
-			}*/
-			resetToOldValueWithRadomizedDelta(vertex);			
+			else resetToOldValue(vertex);			
 		}
 	}
 	
@@ -340,14 +531,17 @@ public class CellPolygonCalculator {
 		double[] directionVector = new double[]{v.getDoubleX()-v.getNewX(), v.getDoubleY()-v.getNewY()};
 		
 		double normFactor = Math.sqrt(Math.pow(directionVector[0],2)+Math.pow(directionVector[1],2));
-		directionVector[0]*=normFactor;
-		directionVector[1]*=normFactor;
-		
-		
+		directionVector[0]/=normFactor;
+		directionVector[1]/=normFactor;
 		
 		v.setNewX(v.getDoubleX() + directionVector[0]*delta);
-		v.setNewY(v.getDoubleY() + directionVector[1]*delta);
+		v.setNewY(v.getDoubleY() + directionVector[1]*delta);	
+	}
 	
+	
+	private void resetToOldValue(Vertex v){		
+		v.setNewX(v.getDoubleX());
+		v.setNewY(v.getDoubleY());	
 	}
 	
 	

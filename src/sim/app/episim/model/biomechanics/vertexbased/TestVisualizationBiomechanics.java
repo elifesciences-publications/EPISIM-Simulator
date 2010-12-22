@@ -15,7 +15,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -42,6 +45,8 @@ import episiminterfaces.CellPolygonProliferationSuccessListener;
 
 
 public class TestVisualizationBiomechanics implements CellPolygonProliferationSuccessListener, TestVisualizationPanelPaintListener{
+	
+	public static final int ASSUMED_PROLIFERATION_CYCLE = 120;
 	
 	private enum SimState{SIMSTART, SIMSTOP;}
 	private JFrame frame;
@@ -95,7 +100,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		configureStandardMembrane();
 		
 		for(CellPolygon pol: cells){ 
-			pol.addProliferationSuccessListener(this);
+			pol.addProliferationAndApoptosisListener(this);
 		}
 		
 		visualizationPanel = new TestVisualizationPanel();
@@ -195,6 +200,10 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				//	try{
 						int randomStartIndexCells =  rand.nextInt(cells.length);
 						CellPolygon polygon = null;
+						
+						List<CellPolygon> cellsList = Arrays.asList(cells);
+						Collections.shuffle(cellsList);
+						cells = cellsList.toArray(new CellPolygon[cellsList.size()]);
 						for(int n = 0; n < cells.length; n++){
 							polygon = cells[((n+randomStartIndexCells)% cells.length)];
 							//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
@@ -314,10 +323,18 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			
 			if(cell.isProliferating()){
 				Color oldColor = g.getColor();
+				g.setColor(Color.GREEN);
+				g.fillPolygon(p);
+				g.setColor(oldColor);
+			}
+			else if(cell.isDying()){
+				Color oldColor = g.getColor();
 				g.setColor(Color.RED);
 				g.fillPolygon(p);
 				g.setColor(oldColor);
 			}
+				
+			
 			g.drawPolygon(p);
 			
 			for(Vertex v : cell.getUnsortedVertices()){	
@@ -363,8 +380,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			newCellArray[cells.length] = pol;
 			cells= newCellArray;
 			cellPolygonCalculator.setCellPolygons(cells);
-			pol.addProliferationSuccessListener(this);
-			cellPolygonCalculator.randomlySelectCellForProliferation();
+			pol.addProliferationAndApoptosisListener(this);
+			
 			
 			
 			if(csvWriter != null){
@@ -381,13 +398,36 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			
 			
 			this.numberOfCellDivisions++;
-			if(numberOfCellDivisions >= this.maxNumberOfCellDivisions){
+			
+	//		if(this.numberOfCellDivisions<=6) 
+				cellPolygonCalculator.randomlySelectCellForProliferation();
+/*			else{ 
+				cellPolygonCalculator.randomlySelectCellForApoptosis();
+			}*/
+			
+			
+			if(numberOfCellDivisions >= this.maxNumberOfCellDivisions 
+					|| GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER) > ((((double)ASSUMED_PROLIFERATION_CYCLE)+10)*((double)maxNumberOfCellDivisions))){
 				startStopButton.setText("start");
 				setSimulationState(SimState.SIMSTOP);
 			}			
 		}
 	   
    }
+	
+	public void apoptosisCompleted(CellPolygon pol) {
+
+	   if(pol!= null){
+	   	ArrayList<CellPolygon> cellList = new ArrayList<CellPolygon>();
+	   	for(int i = 0; i < cells.length; i++) cellList.add(cells[i]);
+	   	cellList.remove(pol);
+	   	cells = new CellPolygon[cellList.size()];
+	   	cellList.toArray(cells);
+	   	pol.removeProliferationAndApoptosisListener(this);
+	   	cellPolygonCalculator.setCellPolygons(cells);
+	   }
+	   
+   }	
 	
 	private void createCsvWriter(String path){
 		try{
@@ -445,5 +485,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
       	  episimMovieMaker.add(visualizationPanel.paint(true,false));
            lastSimStepNumberVideoFrameWasWritten = (int)GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER);
        }     
-   }	
+   }
+
+
+	
 }

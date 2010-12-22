@@ -19,8 +19,8 @@ import java.util.Set;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
-import sim.app.episim.datamonitoring.dataexport.ObservedDataCollection;
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
+import sim.app.episim.util.ObservedDataCollection;
 import episiminterfaces.*;
 import episiminterfaces.calc.EntityChangeEvent;
 import episiminterfaces.calc.EntityChangeEvent.EntityChangeEventType;

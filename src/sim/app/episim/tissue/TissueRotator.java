@@ -1,8 +1,7 @@
-package sim.app.episim.util;
+package sim.app.episim.tissue;
 
 import java.awt.geom.Point2D;
 
-import sim.app.episim.tissue.ImportedTissue;
 import sim.app.episim.visualization.CellEllipse;;
 
 public class TissueRotator {

@@ -39,7 +39,6 @@ import org.xml.sax.SAXException;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotReader;
-import sim.app.episim.util.TissueRotator;
 import sim.app.episim.visualization.CellEllipse;
 import sim.app.episim.visualization.NucleusEllipse;
 

@@ -123,7 +123,8 @@ public class TestVisualizationMain {
 			
 			 public void mouseClicked(MouseEvent e){
 				if(e.getButton() == MouseEvent.BUTTON1 && !tissueImportMode){
-					canvas.drawCellEllipse(e.getX(), e.getY(), 100, 45, Color.BLUE);
+				//	canvas.drawCellEllipse(e.getX(), e.getY(), 100, 45, Color.BLUE);
+					canvas.drawCellPolygon(e.getX(), e.getY());
 				}
 				else 
 				 if(e.getButton() == MouseEvent.BUTTON3){
@@ -136,11 +137,13 @@ public class TestVisualizationMain {
 			 
 			 public void mousePressed(MouseEvent e){
 				 
-				 canvas.pickCellEllipse(e.getX(), e.getY());
+				 //canvas.pickCellEllipse(e.getX(), e.getY());
+				 canvas.pickCellPolygon(e.getX(), e.getY());
 			 }
 			 
 			 public void mouseReleased(MouseEvent e){
-				 canvas.releaseCellEllipse();
+				 //canvas.releaseCellEllipse();
+				 canvas.releaseCellPolygon();
 			 }
 		});
 		
@@ -148,7 +151,8 @@ public class TestVisualizationMain {
 				 
 			 public void mouseDragged(MouseEvent e){
 				 
-				 canvas.dragCellEllipse(e.getX(), e.getY());
+				// canvas.dragCellEllipse(e.getX(), e.getY());
+				 canvas.dragCellPolygon(e.getX(), e.getY());
 			 }
 					 
 		});

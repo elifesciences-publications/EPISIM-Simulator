@@ -1,7 +1,10 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Color;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
@@ -11,6 +14,7 @@ import sim.app.episim.model.biomechanics.vertexbased.VertexChangeEvent.VertexCha
 import sim.app.episim.model.biomechanics.vertexbased.simanneal.VertexForcesMinimizerSimAnneal;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.ListenerAction;
 import sim.engine.SimState;
 
 public class CellPolygon implements VertexChangeListener, EnhancedSteppable{
@@ -20,13 +24,13 @@ public class CellPolygon implements VertexChangeListener, EnhancedSteppable{
  private double x = 0;
  private double y = 0;
  private boolean isProliferating = false;
- 
+ private boolean isDying = false;
  private double preferredArea;
  
  private double originalPreferredArea = Double.NEGATIVE_INFINITY;
 	
  private HashSet<Vertex> vertices;
- private HashSet<CellPolygonProliferationSuccessListener> cellProliferationSuccessListener;
+ private HashSet<CellPolygonProliferationSuccessListener> cellProliferationAndApoptosisListener;
  private Vertex[] sortedVertices;
  private boolean isAlreadyCalculated;
  
@@ -40,7 +44,7 @@ public class CellPolygon implements VertexChangeListener, EnhancedSteppable{
 protected CellPolygon(double x, double y){
 	id = nextId++;
 	vertices = new HashSet<Vertex>();
-	cellProliferationSuccessListener = new HashSet<CellPolygonProliferationSuccessListener>();
+	cellProliferationAndApoptosisListener = new HashSet<CellPolygonProliferationSuccessListener>();
 	this.x = x;
 	this.y = y;	
 	conGradientOptimizer = new ConjugateGradientOptimizer();
@@ -61,17 +65,17 @@ public void setCellPolygonCalculator(CellPolygonCalculator calculator){
 }
 
 
-public void addProliferationSuccessListener(CellPolygonProliferationSuccessListener listener){
-	cellProliferationSuccessListener.add(listener);
+public void addProliferationAndApoptosisListener(CellPolygonProliferationSuccessListener listener){
+	cellProliferationAndApoptosisListener.add(listener);
 }
 
-public void removeProliferationSuccessListener(CellPolygonProliferationSuccessListener listener){
-	cellProliferationSuccessListener.remove(listener);
+public void removeProliferationAndApoptosisListener(CellPolygonProliferationSuccessListener listener){
+	cellProliferationAndApoptosisListener.remove(listener);
 }
 
-private void notifyAllCellProliferationSuccessListener(CellPolygon daughterCell){
-	for(CellPolygonProliferationSuccessListener listener :cellProliferationSuccessListener){
-		listener.proliferationCompleted(daughterCell);
+private void notifyAllCellProliferationAndApoptosisListener(ListenerAction<CellPolygonProliferationSuccessListener> action){
+	for(CellPolygonProliferationSuccessListener listener :cellProliferationAndApoptosisListener){
+		action.performAction(listener);
 	}
 }
 
@@ -138,6 +142,26 @@ private void growToBecomeMature(double areaToGrow){
 	
 }
 
+private void relaxVertices(){
+	if(this.preferredArea >0){
+		Vertex[] cellVertices =	this.getUnsortedVertices();
+		List<Vertex> verticesList = Arrays.asList(cellVertices);
+		Collections.shuffle(verticesList);
+		cellVertices = verticesList.toArray(new Vertex[verticesList.size()]);
+		int randomStartIndexVertices = rand.nextInt(cellVertices.length);
+		
+		for(int i = 0; i < cellVertices.length; i++){
+			Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
+			if(!v.isWasAlreadyCalculated()){					
+				conGradientOptimizer.relaxVertex(v);			
+				calculator.applyVertexPositionCheckPipeline(v);			
+				v.commitNewValues();
+				v.setWasAlreadyCalculated(true);
+			}				
+		}
+	}
+}
+
 
 public boolean canDivide(){
 	return getCurrentArea() >= ((2*originalPreferredArea)* VertexBasedMechanicalModelGlobalParameters.getInstance().getSize_percentage_cell_division()) 
@@ -156,6 +180,37 @@ private CellPolygon cellDivision(){
 	return daughterCell;
 }
 
+
+private void checkProliferation(){
+	if(isProliferating && canDivide()){
+		GlobalBiomechanicalStatistics.getInstance().set(GBSValue.PREF_AREA_OVERHEAD, preferredArea - originalPreferredArea);
+		final CellPolygon daughterCell = cellDivision();
+		notifyAllCellProliferationAndApoptosisListener(new ListenerAction<CellPolygonProliferationSuccessListener>(){
+					public void performAction(CellPolygonProliferationSuccessListener listener){
+						listener.proliferationCompleted(daughterCell);
+					}
+				});
+		isProliferating = false;
+	}
+	else{ 
+		if(isProliferating){ 
+			growForProliferation(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
+		}
+		else{
+			if(this.preferredArea < this.originalPreferredArea){
+				growToBecomeMature(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
+			}
+			else this.originalPreferredArea = Double.NEGATIVE_INFINITY; 
+		}
+	}	
+}
+
+private void checkApoptosis(){
+	if(isDying && this.preferredArea > 0){
+		this.originalPreferredArea = Double.NEGATIVE_INFINITY;
+		this.preferredArea -= VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step();
+	}
+}
 
 public Vertex[] getSortedVertices(){
 	if(isVertexSortingDirty || sortedVertices == null) sortVerticesUsingTravellingSalesmanSimulatedAnnealing();
@@ -183,11 +238,9 @@ public void handleVertexChangeEvent(VertexChangeEvent event) {
 	}
 }
 
-
 public int getNumberOfNeighbourPolygons(){
 	return getNeighbourPolygons().length;
 }
-
 
 public CellPolygon[] getNeighbourPolygons(){
 	HashSet<Integer> alreadyCheckedIds = new HashSet<Integer>();
@@ -268,6 +321,16 @@ public void proliferate() {
 	this.isProliferating = true;
 }
 
+public boolean isDying() {
+	return isDying;
+}
+
+
+public void initializeApoptosis() {
+	this.isDying = true;
+}
+
+
 
 public void resetCalculationStatusOfAllVertices(){
 	for(Vertex v : this.getUnsortedVertices()){ 
@@ -284,42 +347,24 @@ public void setPreferredArea(double preferredArea) {
 	this.preferredArea = preferredArea;
 }
 
+protected void apoptosis(){
+	notifyAllCellProliferationAndApoptosisListener(new ListenerAction<CellPolygonProliferationSuccessListener>(){
+		public void performAction(CellPolygonProliferationSuccessListener listener){
+			listener.apoptosisCompleted(CellPolygon.this);
+		}
+	});
+}
+
+
+
 public void setIsAlreadyCalculated(boolean val){this.isAlreadyCalculated = val;}
 public boolean isAlreadyCalculated(){ return this.isAlreadyCalculated;}
 
 public void step(SimState state) {
 
-	if(isProliferating && canDivide()){
-		GlobalBiomechanicalStatistics.getInstance().set(GBSValue.PREF_AREA_OVERHEAD, preferredArea - originalPreferredArea);
-		CellPolygon daughterCell = cellDivision();
-		notifyAllCellProliferationSuccessListener(daughterCell);
-		isProliferating = false;
-	}
-	else{ 
-		if(isProliferating){ 
-			growForProliferation(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
-		}
-		else{
-			if(this.preferredArea < this.originalPreferredArea){
-				growToBecomeMature(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
-			}
-			else this.originalPreferredArea = Double.NEGATIVE_INFINITY; 
-		}
-	}
-	
-	
-	Vertex[] cellVertices =	getSortedVertices();
-	 int randomStartIndexVertices = rand.nextInt(cellVertices.length);
-	
-	for(int i = 0; i < cellVertices.length; i++){
-		Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
-		if(!v.isWasAlreadyCalculated()){					
-			conGradientOptimizer.relaxVertex(v);			
-			calculator.applyVertexPositionCheckPipeline(v);			
-			v.commitNewValues();
-			v.setWasAlreadyCalculated(true);
-		}				
-	}
+	checkProliferation();
+	checkApoptosis();
+	relaxVertices();
 	calculator.applyCellPolygonCheckPipeline(this);
 	
 }

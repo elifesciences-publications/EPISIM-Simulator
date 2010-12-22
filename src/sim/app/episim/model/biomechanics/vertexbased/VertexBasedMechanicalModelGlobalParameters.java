@@ -30,6 +30,7 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimMechani
 	private double gamma = 1500;
 	private double pref_perimeter_factor = 1; //could be 1 or zero to take the preferred perimeter of a cell into account or not
 	private double size_percentage_cell_division = 0.7;
+	private double min_edge_length_percentage = 0.25;
 	private double growth_rate_per_sim_step = 10;
 	
 	//----------------------------------------------------------------------------------------------------------------------
@@ -225,5 +226,17 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimMechani
    public void setSize_percentage_cell_division(double size_percentage_cell_division) {
    
    	this.size_percentage_cell_division = size_percentage_cell_division;
+   }
+
+	
+   public double getMin_edge_length_percentage() {
+   
+   	return min_edge_length_percentage;
+   }
+
+	
+   public void setMin_edge_length_percentage(double min_edge_length_percentage) {
+   
+   	this.min_edge_length_percentage = min_edge_length_percentage;
    }
 }

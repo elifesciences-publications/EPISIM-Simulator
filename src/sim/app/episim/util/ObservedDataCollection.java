@@ -1,4 +1,4 @@
-package sim.app.episim.datamonitoring.dataexport;
+package sim.app.episim.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
 
 import episimexceptions.MethodNotImplementedException;
 import episiminterfaces.calc.EntityChangeEvent;

@@ -10,8 +10,8 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationCallBack;
 import episiminterfaces.calc.CalculationHandler;
 import sim.app.episim.*;
-import sim.app.episim.datamonitoring.dataexport.ObservedDataCollection;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.ObservedDataCollection;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 
 public class CalculationController {

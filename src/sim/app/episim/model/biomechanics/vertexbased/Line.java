@@ -1,5 +1,8 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import ec.util.MersenneTwisterFast;
 
 
@@ -29,7 +32,16 @@ public class Line {
 		this.v2 = v2;
 	}
 	
-	public double getDistanceOfVertex(Vertex v, boolean takeNewValues){
+	public double getDistanceOfVertex(Vertex v, boolean takeNewValues, boolean withinLineSegment){
+
+		double x_Vertex = takeNewValues ? v.getNewX() : v.getDoubleX();
+		double y_Vertex = takeNewValues ? v.getNewY() : v.getDoubleY();
+		Vertex isp = getIntersectionPointOfLineThroughVertex(v, takeNewValues, withinLineSegment);
+		if(isp!=null)return isp.edist(new Vertex(x_Vertex, y_Vertex));
+		else return Double.POSITIVE_INFINITY;
+	}
+	
+	public Vertex getIntersectionPointOfLineThroughVertex(Vertex v, boolean takeNewValues, boolean withinLineSegment){
 		double[] directionVectorOfLine = new double[]{x2-x1, y2-y1};
 		double[] directionVectorOfOrthogonalLine = new double[]{directionVectorOfLine[1],-1*directionVectorOfLine[0]};
 		
@@ -37,10 +49,23 @@ public class Line {
 		double y_Vertex = takeNewValues ? v.getNewY() : v.getDoubleY();
 				
 		Line intersectionLine = new Line(x_Vertex, y_Vertex, x_Vertex+directionVectorOfOrthogonalLine[0], y_Vertex+directionVectorOfOrthogonalLine[1]);
-		Vertex isp = this.getIntersectionOfLinesInLineSegment(intersectionLine);
-		if(isp!=null)return isp.edist(new Vertex(x_Vertex, y_Vertex));
-		else return Double.POSITIVE_INFINITY;
+		return withinLineSegment ? this.getIntersectionOfLinesInLineSegment(intersectionLine): this.getIntersectionOfLines(intersectionLine);
 	}
+	
+	
+	
+	public void setNewValuesOfVertexToDistance(Vertex v, double distance){
+		Vertex isp = getIntersectionPointOfLineThroughVertex(v, true, true);
+		if(isp != null){
+			double[] directionVector = new double[]{v.getDoubleX() - isp.getDoubleX(), v.getDoubleY() - isp.getDoubleY()};
+			double normFactor = Math.sqrt(Math.pow(directionVector[0],2)+Math.pow(directionVector[1],2));
+			directionVector[0]/=normFactor;
+			directionVector[1]/=normFactor;
+			v.setNewX((v.getNewX() + (directionVector[0]*distance)));
+			v.setNewY((v.getNewY() + (directionVector[1]*distance)));
+		}
+	}	
+	
 	/*
 	 * 
 	 * This method could be easily extended to three dimensions but is slower than the one we use for two dimensions
@@ -111,6 +136,18 @@ public class Line {
 		return getIntersectionOfLinesInLineSegment(otherLine) != null;
 	}
 	
+	public double getIntersectionAngleInDegreesWithOtherLine(Line otherLine){
+		double[] directionVector1 = new double[]{x2-x1, y2-y1};
+		double[] directionVector2 = new double[]{otherLine.getDoubleX2()-otherLine.getDoubleX1(), otherLine.getDoubleY2()-otherLine.getDoubleY1()};
+		
+		double denominator = Math.sqrt(Math.pow(directionVector1[0], 2)+Math.pow(directionVector1[1], 2))*Math.sqrt(Math.pow(directionVector2[0], 2)+Math.pow(directionVector2[1], 2));
+		if(denominator != 0){
+			double enumerator = directionVector1[0]*directionVector2[0] + directionVector1[1]*directionVector2[1];
+			return Math.toDegrees(Math.acos(enumerator/denominator));
+		}
+		return Double.NEGATIVE_INFINITY;
+	}
+	
 	
 	/**
 	 * @param v1 first point line one (first cell vertex)
@@ -132,7 +169,21 @@ public class Line {
 		}
 		
 		return null;
-	}	
+	}
+	
+	public CellPolygon getCellPolygonOfLine(){
+		if(v1 != null && v2 != null){
+			HashSet<CellPolygon> cellsV1 = new HashSet<CellPolygon>();
+			HashSet<CellPolygon> cellsV2 = new HashSet<CellPolygon>();
+			cellsV1.addAll(Arrays.asList(v1.getCellsJoiningThisVertex()));
+			cellsV2.addAll(Arrays.asList(v2.getCellsJoiningThisVertex()));
+			for(CellPolygon pol : cellsV1){
+				if(cellsV2.contains(pol)) return pol;
+			}
+		}
+		
+		return null;
+	}
 	
 	public void setIntX1(int x1){ setDoubleX1((double)x1); }
 	public int getIntX1(){ return (int)Math.round(getDoubleX1()); }
@@ -153,6 +204,11 @@ public class Line {
    public void setDoubleX2(double x2) { this.x2 = x2; }	
    public double getDoubleY2() { return y2; }	
    public void setDoubleY2(double y2){ this.y2 = y2; }
+   
+   public Vertex getV1() {	return v1; }	
+   public void setV1(Vertex v1) { this.v1 = v1; }	
+   public Vertex getV2(){ return v2; }	
+   public void setV2(Vertex v2) { this.v2 = v2; }
 	
    public int hashCode() {
 
@@ -189,5 +245,9 @@ public class Line {
 		   return false;
 	   return true;
    }
+   
+   
+	
+   
 
 }

@@ -5,8 +5,6 @@ import java.util.Map;
 import org.jfree.data.statistics.SimpleHistogramDataset;
 import org.jfree.data.xy.XYSeries;
 
-import sim.app.episim.datamonitoring.dataexport.ObservedDataCollection;
-import sim.app.episim.datamonitoring.dataexport.ObservedDataCollection.ObservedDataCollectionType;
 
 import episimexceptions.MethodNotImplementedException;
 import episiminterfaces.calc.CalculationHandler;
@@ -14,6 +12,8 @@ import episiminterfaces.calc.EntityChangeEvent;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 import episiminterfaces.calc.EntityChangeEvent.EntityChangeEventType;
 import sim.app.episim.datamonitoring.calc.CalculationDataManager.CalculationDataManagerType;
+import sim.app.episim.util.ObservedDataCollection;
+import sim.app.episim.util.ObservedDataCollection.ObservedDataCollectionType;
 
 
 public abstract class CalculationDataManagerFactory {

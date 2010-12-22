@@ -13,6 +13,7 @@ import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -36,11 +37,13 @@ public class TestCanvas extends JPanel {
 	private final int RADIUS = 30;
 	
 	private ArrayList<CellEllipse>  cellEllipses = new ArrayList<CellEllipse>();
+	private ArrayList<CellPolygon>  cellPolygons = new ArrayList<CellPolygon>();
 	
 	private GeneralPath surface = null;
 	private GeneralPath basalLayer = null;
 	
 	private CellEllipse draggedCellEllipse = null;
+	private CellPolygon draggedCellPolygon = null;
 	
 	private Set<String> ellipseKeySet;
 	
@@ -57,14 +60,22 @@ public class TestCanvas extends JPanel {
 		this.setBackground(Color.white);
 		
 		 
-		CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290, 3*RADIUS, RADIUS, Color.BLUE);
+	/*	CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290, 3*RADIUS, RADIUS, Color.BLUE);
 		cellEll.rotateCellEllipseInDegrees(0);
 		this.drawCellEllipse(null,cellEll, true);
 		
 			cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290,  3*RADIUS, RADIUS, Color.BLUE);
 		 cellEll.rotateCellEllipseInDegrees(90);
-			this.drawCellEllipse(null,cellEll, true);
+			this.drawCellEllipse(null,cellEll, true);*/
+			
+			
+			
+			
 		calculator = new CellPolygonCalculator(new CellPolygon[]{});
+		
+		cellPolygons.addAll(Arrays.asList(CellPolygonNetworkBuilder.getStandardCellArray(1, 1, calculator)));
+		calculator.setCellPolygons(cellPolygons.toArray(new CellPolygon[cellPolygons.size()]));
+		rotateCellPolygon(cellPolygons.get(0), 90);
 		
 	}
 	
@@ -131,6 +142,29 @@ public class TestCanvas extends JPanel {
 	}
 	
 	
+	private void translateCellPolygon(CellPolygon polygon, double new_X, double new_Y){
+		Vertex[] vertices = polygon.getSortedVertices();
+		Vertex cellCenter = calculator.getCellCenter(polygon);
+		double deltaX =new_X - cellCenter.getDoubleX();
+		double deltaY =new_Y - cellCenter.getDoubleY();
+		for(Vertex v : vertices){
+			v.setDoubleX(v.getDoubleX()+deltaX);
+			v.setDoubleY(v.getDoubleY()+deltaY);
+			v.setNewX(v.getDoubleX()+deltaX);
+			v.setNewY(v.getDoubleY()+deltaY);
+		}
+	}
+	public void drawCellPolygon(double x, double y){
+		CellPolygon pol = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, calculator)[0];
+		cellPolygons.add(pol);
+		calculator.setCellPolygons(cellPolygons.toArray(new CellPolygon[cellPolygons.size()]));
+		translateCellPolygon(pol, x, y);
+		repaint();
+	}
+	
+	
+	
+	
 	public CellEllipse pickCellEllipse(int x, int y){
 		CellEllipse cellEllipse = findCellEllipse(x, y);
 		if(cellEllipse != null){
@@ -139,6 +173,15 @@ public class TestCanvas extends JPanel {
 		return cellEllipse;
 	}
 	
+	public CellPolygon pickCellPolygon(int x, int y){
+		CellPolygon cellPolygon = findCellPolygon(x, y);
+		if(cellPolygon != null){
+			draggedCellPolygon = cellPolygon;
+		}
+		return cellPolygon;
+	}
+	
+	
 	public void dragCellEllipse(int x, int y){
 		if(draggedCellEllipse != null){
 			draggedCellEllipse.setXY(x, y);
@@ -146,9 +189,21 @@ public class TestCanvas extends JPanel {
 			repaint();
 		}
 	}
+	public void dragCellPolygon(int x, int y){
+		if(draggedCellPolygon != null){
+			translateCellPolygon(draggedCellPolygon, x, y);
+			
+			repaint();
+		}
+	}
 	
 	public void releaseCellEllipse(){
 		draggedCellEllipse = null;
+	}
+	
+	public void releaseCellPolygon(){
+		calculator.checkForT3Transitions(draggedCellPolygon);
+		draggedCellPolygon = null;
 	}
 	
 	
@@ -217,6 +272,16 @@ public class TestCanvas extends JPanel {
 			
 				
 			}
+			
+			for(CellPolygon pol : cellPolygons){ 
+				drawCellPolygon((Graphics2D)g, pol, false);
+				vertices = pol.getUnsortedVertices();
+				for(Vertex v : vertices){
+					if(v != null){
+						drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 3, Color.BLUE);
+					}
+				}
+			}
 		}
 	}
 	
@@ -239,10 +304,50 @@ public class TestCanvas extends JPanel {
 		return cellEllipseWithMinimalDistance;
 	}
 	
+	private CellPolygon findCellPolygon(double x, double y){
+		CellPolygon cellPolygonWithMinimalDistance = null;
+		double minimalDistance = Double.POSITIVE_INFINITY;
+		Vertex position = new Vertex(x, y);
+		CellPolygon polygon;
+		Vertex[] vertices = null;
+		for(CellPolygon cellPol: cellPolygons){
+			vertices = cellPol.getSortedVertices();
+			Polygon pol = new Polygon();
+			for(Vertex v : vertices){
+				pol.addPoint(v.getIntX(), v.getIntY());
+			}			
+			if(pol.contains(x, y)){
+				Vertex cellCenter = calculator.getCellCenter(cellPol);
+				if(cellCenter.edist(position)< minimalDistance){
+					minimalDistance =cellCenter.edist(position);
+					cellPolygonWithMinimalDistance = cellPol;
+				}
+			}				
+		}
+		return cellPolygonWithMinimalDistance;
+	}
+	
 	private double distance(int x1, int y1, int x2, int y2){	
 		return Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2));		
 	}
 	
+	private void rotateCellPolygon(CellPolygon cellPol, double angleInDegrees){
+		 	double angle = Math.toRadians(angleInDegrees);
+	      double sin = Math.sin(angle);
+	      double cos = Math.cos(angle);
+	      Vertex cellCenter = calculator.getCellCenter(cellPol);
+	     	      
+	      // rotation
+	     Vertex[] vertices = cellPol.getSortedVertices();
+	     for(Vertex v: vertices){
+	              double a = v.getDoubleX() - cellCenter.getDoubleX();
+	              double b = v.getDoubleY() - cellCenter.getDoubleY();
+	              int newX = (int) (+a * cos - b * sin + cellCenter.getDoubleX());
+	              int newY = (int) (+a * sin + b * cos + cellCenter.getDoubleY());
+	             v.setDoubleX(newX);
+	             v.setDoubleY(newY);        
+	     }
+	}
 	
 	
 	

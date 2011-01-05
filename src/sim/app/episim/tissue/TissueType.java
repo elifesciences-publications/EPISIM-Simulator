@@ -13,6 +13,7 @@ import episiminterfaces.EpisimCellType;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
+import sim.app.episim.ModeServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
 import sim.app.episim.snapshot.SnapshotListener;
@@ -40,8 +41,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	
 	
 	private Map<EpisimCellType, Class<? extends AbstractCell>> registeredCellTypes;
-	private boolean guiMode = true;
-	private boolean consoleInput = false;
+
 	private GenericBag<AbstractCell> allCells=new GenericBag<AbstractCell>(3000); //all cells will be stored in this bag
 	private boolean reloadedSnapshot = false;
 	private TimeSteps timeStepsAfterSnapshotReload = null;
@@ -49,16 +49,11 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	public TissueType(long seed){ 
 		super(new ec.util.MersenneTwisterFast(seed), new Schedule());
 		registeredCellTypes = new HashMap<EpisimCellType, Class<? extends AbstractCell>>();
-		consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
-					&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
-	     
-	   guiMode = ((EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-					&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
-					|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));
+		
 	   
 	}
 	
-	protected boolean isGUIMode(){ return guiMode;}
+	
 	
 	
 	public abstract String getTissueName();
@@ -109,7 +104,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 
 			super.start(timeStepsAfterSnapshotReload);
 			
-			if(!isGUIMode()){
+			if(!ModeServer.guiMode()){
 		   	  Steppable consoleOutputSteppable = new Steppable(){
 
 					public void step(SimState state) {

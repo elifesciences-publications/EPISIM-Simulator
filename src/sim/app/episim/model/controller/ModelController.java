@@ -12,6 +12,7 @@ import episiminterfaces.EpisimMechanicalModelGlobalParameters;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 public class ModelController implements java.io.Serializable{
 	
 	private static Semaphore sem = new Semaphore(1);
@@ -69,8 +70,7 @@ public class ModelController implements java.io.Serializable{
    	boolean success = CellBehavioralModelController.getInstance().loadModelFile(modelFile);
    	
    	if(success){
-   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP)!= null &&
-   				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL)){
+   		if(ModeServer.consoleInput()){
    			ModelParameterModifier parameterModifier = new ModelParameterModifier();
    			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
    				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(BioMechanicalModelController.getInstance().getEpisimMechanicalModelGlobalParameters()

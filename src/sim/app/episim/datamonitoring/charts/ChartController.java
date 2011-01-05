@@ -25,6 +25,7 @@ import episiminterfaces.monitoring.EpisimChartSet;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 
 import sim.app.episim.datamonitoring.parser.*;
 import sim.app.episim.datamonitoring.calc.CalculationController;
@@ -54,18 +55,11 @@ public class ChartController {
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
 	private ExtendedFileChooser ecsChooser = null;
-	private boolean guiMode = true;
-	private boolean consoleInput = false;
 	
 	private ChartController(){
-		consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
 		
-		guiMode = ((EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
-				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));
 		
-		if(guiMode) ecsChooser = new ExtendedFileChooser("ecs");
+		if(ModeServer.guiMode()) ecsChooser = new ExtendedFileChooser("ecs");
 		markerPrefixes = new HashSet<String>();
 		validDataTypes = new HashSet<Class<?>>();
 		

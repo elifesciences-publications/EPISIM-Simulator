@@ -22,6 +22,7 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 import episiminterfaces.SimulationDisplay;
 
 import sim.app.episim.EpisimProperties;
+import sim.app.episim.ModeServer;
 import sim.app.episim.nogui.NoGUIDisplay2D;
 import sim.display.Console;
 import sim.display.Display2D;
@@ -33,16 +34,11 @@ import sim.portrayal.FieldPortrayal2D;
 public class EpiDisplay2D {
 	protected GUIState simulation;
 	private SimulationDisplay simulationDisplay;
-	private boolean guiMode = true;
-	private boolean consoleInput = false;
+	
 	public EpiDisplay2D(final double width, final double height, GUIState simulation, long interval){
-		consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
-		guiMode = ((EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
-				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));
 		
-		if(guiMode)simulationDisplay = new Display2DHack(width, height, simulation, interval);
+		
+		if(ModeServer.guiMode())simulationDisplay = new Display2DHack(width, height, simulation, interval);
 		else simulationDisplay = new NoGUIDisplay2D(width, height, simulation, interval);
 		this.simulation = simulation;
 		
@@ -102,12 +98,12 @@ public class EpiDisplay2D {
 	}
 	
 	public JComponent getInsideDisplay(){
-		if(guiMode) return ((Display2DHack) simulationDisplay).insideDisplay;
+		if(ModeServer.guiMode()) return ((Display2DHack) simulationDisplay).insideDisplay;
 		else return ((NoGUIDisplay2D) simulationDisplay).insideDisplay;
 	}
 	
 	 public void paintComponentInInnerDisplay(Graphics g, boolean buffer){
-		 if(guiMode) ((Display2DHack) simulationDisplay).insideDisplay.paintComponent(g, buffer);
+		 if(ModeServer.guiMode()) ((Display2DHack) simulationDisplay).insideDisplay.paintComponent(g, buffer);
 		 else ((NoGUIDisplay2D) simulationDisplay).insideDisplay.paintComponent(g, buffer);
 		 
 	 }

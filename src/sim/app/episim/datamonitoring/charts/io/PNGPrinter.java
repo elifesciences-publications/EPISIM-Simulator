@@ -12,6 +12,7 @@ import org.jfree.chart.JFreeChart;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 import sim.engine.SimState;
 
 
@@ -42,8 +43,7 @@ public class PNGPrinter {
 	public void printChartAsPng(long chartId, File directory, String fileName, JFreeChart chart, SimState state){
 		if(!this.fileNameMap.keySet().contains(chartId)) this.fileNameMap.put(chartId, findFileName(fileName));
 		
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL)
+		if(ModeServer.consoleInput()
 				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null
 				&& chart != null  && state != null){
 			

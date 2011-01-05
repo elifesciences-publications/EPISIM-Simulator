@@ -18,6 +18,7 @@ import episimexceptions.PropertyException;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 import sim.util.Utilities;
 import sim.util.WordWrap;
 import sim.util.gui.MovieMaker;
@@ -35,7 +36,7 @@ public class EpisimMovieMaker{
    private MovieMaker movieMaker;
    
 
-	private boolean consoleMode = false;
+	
 	
 	public int frameCounter = 0;
 	private int partCounter = 1;
@@ -53,8 +54,7 @@ public class EpisimMovieMaker{
            }
        catch (Throwable e) { encoderClass = null; }  // JMF's not installed
 	   
-	   consoleMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP)!= null &&
-				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
+	  
 	   
 	  
    }
@@ -67,7 +67,7 @@ public class EpisimMovieMaker{
        
    
    public synchronized boolean start(BufferedImage typicalImage, float fps){
-   	if(!consoleMode) return movieMaker.start(typicalImage, fps);
+   	if(!ModeServer.consoleInput()) return movieMaker.start(typicalImage, fps);
    	else{
    		if (isRunning) return false;
    	   
@@ -128,7 +128,7 @@ public class EpisimMovieMaker{
    private synchronized boolean changeFile(BufferedImage typicalImage){
    	
    	
-   	if(consoleMode){
+   	if(ModeServer.consoleInput()){
    		
    	
    		if (!isRunning) return false;
@@ -183,9 +183,9 @@ public class EpisimMovieMaker{
    public synchronized boolean add(BufferedImage image)
    {
    	frameCounter++;
-   	if((frameCounter % EpisimMovieMaker.FRAMES_PER_FILE) == 0 && consoleMode) changeFile(image);
+   	if((frameCounter % EpisimMovieMaker.FRAMES_PER_FILE) == 0 && ModeServer.consoleInput()) changeFile(image);
    	
-   	if(!consoleMode) return movieMaker.add(image);
+   	if(!ModeServer.consoleInput()) return movieMaker.add(image);
    	else{
 	       if (!isRunning) return false;
 	       //              ((sim.util.media.MovieEncoder)encoder).add(image);
@@ -208,7 +208,7 @@ public class EpisimMovieMaker{
    /** End the movie stream, finish up writing to disk, and clean up. */
    public synchronized boolean stop()
    {
-   	if(!consoleMode) return movieMaker.stop();
+   	if(!ModeServer.consoleInput()) return movieMaker.stop();
    	else{
 	       boolean success = true;
 	       if (!isRunning) return false;  // not running -- why stop?

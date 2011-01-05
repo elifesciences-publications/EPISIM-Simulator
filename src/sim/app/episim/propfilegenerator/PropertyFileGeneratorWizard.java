@@ -42,6 +42,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
 import sim.app.episim.EpisimProperties;
+import sim.app.episim.ModeServer;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
@@ -73,8 +74,6 @@ public class PropertyFileGeneratorWizard {
 	private JWindow progressWindow;
 	private JProgressBar progressBar;
 	
-	private boolean guiMode = true;
-	private boolean consoleInput = false;
 	
 	private File propertyFileGenerationPath = null;
 	
@@ -91,16 +90,11 @@ public class PropertyFileGeneratorWizard {
 	
 	public PropertyFileGeneratorWizard(Frame owner, String title, boolean modal){
 		
-		consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
 		
-		guiMode = ((EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
-				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));
 		
 		deleteIcon = new ImageIcon(PropertyFileGeneratorWizard.class.getResource("delete_icon.png").getPath());
 		
-		if(guiMode){ 
+		if(ModeServer.guiMode()){ 
 			propertyInputFileChooser = new ExtendedFileChooser(".properties");
 			
 			progressWindow = new JWindow(owner);

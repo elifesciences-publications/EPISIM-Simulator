@@ -55,6 +55,7 @@ import episiminterfaces.SimulationDisplay;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpidermisGUIState;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Scale;
@@ -83,7 +84,7 @@ import sim.util.media.PngEncoder;
 public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationDisplay{
    private EpidermisGUIState epiSimulation = null;
 	
-	private boolean consoleMode = false;
+	
 	private boolean moviePathSet = false;
 	private EpisimMovieMaker episimMovieMaker;
 	
@@ -1159,10 +1160,9 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        
     	moviePathSet = EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP) != null;
     	
-		consoleMode = (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP)!= null &&
-				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
 		
-		if(moviePathSet && consoleMode){ 
+		
+		if(moviePathSet){ 
 			movieButton.setEnabled(false);
 			 insideDisplay = new EpisimInnerDisplay2D(width,height);
 			 insideDisplay.setViewRect(new Rectangle(0,0, (int)width, (int)height));
@@ -1725,7 +1725,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 	
 	public void startMovie()
    {
-		if(consoleMode && moviePathSet){
+		if(ModeServer.consoleInput() && moviePathSet){
 			synchronized(NoGUIDisplay2D.this.simulation.state.schedule)
 	       {
 	       
@@ -1814,7 +1814,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 	
 	public void stopMovie()
    {
-		if(consoleMode && moviePathSet){
+		if(ModeServer.consoleInput() && moviePathSet){
 		   synchronized(NoGUIDisplay2D.this.simulation.state.schedule)
 		   {
 		       if (episimMovieMaker == null) return;  // already stopped
@@ -1857,7 +1857,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 	
 	public void step(final SimState state)
    {
-		if(consoleMode && moviePathSet){
+		if(ModeServer.consoleInput() && moviePathSet){
 			long steps = simulation.state.schedule.getSteps();
 	      
 	      if (steps % getInterval() == 0   // time to update!

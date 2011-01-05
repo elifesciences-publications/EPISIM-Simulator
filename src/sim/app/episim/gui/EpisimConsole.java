@@ -47,6 +47,7 @@ import episiminterfaces.SimulationConsole;
 
 import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
+import sim.app.episim.ModeServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
@@ -79,18 +80,12 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	private boolean wasStartedOnce = false;
 	
 	private SimulationConsole console = null;
-	private boolean guiMode;
-	private boolean consoleInput = false;
+	
 	
 	public EpisimConsole(final GUIState simulation, boolean reloadSnapshot){
-		consoleInput =  (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON_CONSOLE_INPUT_VAL));
-		guiMode = ((EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.ON_SIMULATOR_GUI_VAL) && consoleInput) 
-				|| (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP)== null));	
 		
 		if(simulation instanceof EpidermisGUIState)((EpidermisGUIState)simulation).addSimulationStateChangeListener(this);
-		 if(guiMode){
+		 if(ModeServer.guiMode()){
 			 console = new ConsoleHack(simulation){
 				 public synchronized void pressPlay(){
 				   	if(!reloadedSnapshot){
@@ -570,7 +565,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    
    private void addSnapshotButton(){
    	Container mainContainer = null;
-   	if(guiMode) mainContainer = ((ConsoleHack)console).getContentPane();
+   	if(ModeServer.guiMode()) mainContainer = ((ConsoleHack)console).getContentPane();
    	else mainContainer = (NoGUIConsole) console;
    	
    	

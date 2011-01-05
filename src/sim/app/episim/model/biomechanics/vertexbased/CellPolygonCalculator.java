@@ -217,7 +217,8 @@ public class CellPolygonCalculator {
 	
 	private void doT3Transition(Vertex adhVertex, Line line){
 		Line[] linesConnectedToVertex = selectRelevantLinesConnectedToVertex(adhVertex);
-		System.out.println("rö5");
+		
+		
 		if(linesConnectedToVertex != null && linesConnectedToVertex.length >0){
 			if(linesConnectedToVertex.length >2){ 
 				System.err.print("ERROR: Method do T3 Transition: More than two relevant lines connected to Vertex found!");

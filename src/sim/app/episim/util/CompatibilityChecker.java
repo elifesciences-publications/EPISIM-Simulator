@@ -66,8 +66,8 @@ public class CompatibilityChecker {
 	private void checkCellBehavioralAndMechanicalModelClasses() throws ModelCompatibilityException{
 		checkForCompatibility(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass());
 		checkForCompatibility(ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass());
-		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getNewEpisimMechanicalModelObject().getClass());
-		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getClass());
+		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getNewEpisimBioMechanicalModelObject().getClass());
+		checkForCompatibility(ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getClass());
 	}
 	
 	private void checkForCompatibility(Class<?> actClass) throws ModelCompatibilityException{		

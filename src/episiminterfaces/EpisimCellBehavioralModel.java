@@ -1,10 +1,10 @@
 package episiminterfaces;
 
-import episimbiomechanics.EpisimModelIntegrator;
+import episimbiomechanics.EpisimModelConnector;
 
 public interface EpisimCellBehavioralModel {
 	
-	void setEpisimModelIntegrator(EpisimModelIntegrator _modelIntegrator);
+	void setEpisimModelConnector(EpisimModelConnector _modelConnector);
 	
 	void setNumberProperty(int propertycode, double val);
 	void setMinNumberProperty(int propertycode, double val);
@@ -44,31 +44,10 @@ public interface EpisimCellBehavioralModel {
 	void setCellType(EpisimCellType val);
 	
 	double getAge();
-	void setAge(double val);
+	void setAge(double val);		
 		
-	double getX();
-	void setX(double val);
-	
-	double getY();
-	void setY(double val);
-	
-	double getDx();
-	void setDx(double val);
-	
-	double getDy();
-	void setDy(double val);
-	
 	boolean getIsAlive();
 	void setIsAlive(boolean val);
-	
-	boolean getIsSurface();
-	void setIsSurface(boolean val);
-	
-	boolean getIsMembrane();
-	void setIsMembrane(boolean val);
-	
-	boolean getHasCollision();
-	void setHasCollision(boolean val);
 	
 	int getColorR();
 	void setColorR(int val);

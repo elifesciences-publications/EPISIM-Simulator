@@ -2,10 +2,10 @@ package sim.app.episim.model.controller;
 	
 import java.util.concurrent.ConcurrentHashMap;
 
-import episimbiomechanics.EpisimModelIntegrator;
+import episimbiomechanics.EpisimModelConnector;
 
-import episiminterfaces.EpisimMechanicalModel;
-import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
@@ -29,7 +29,7 @@ public class BioMechanicalModelController implements java.io.Serializable{
 		return instance;
 	}
 		
-	public EpisimMechanicalModel getNewEpisimMechanicalModelObject(){
+	public EpisimBioMechanicalModel getNewEpisimBioMechanicalModelObject(){
 		try{
 			return biomechanicalModel.getEpisimNewMechanicalModelObject();
 		}
@@ -40,7 +40,7 @@ public class BioMechanicalModelController implements java.io.Serializable{
 	}
 	
 	
-	public EpisimMechanicalModel getNewEpisimMechanicalModelObject(AbstractCell cell) {
+	public EpisimBioMechanicalModel getNewEpisimBioMechanicalModelObject(AbstractCell cell) {
 		try{
 			return biomechanicalModel.getNewEpisimMechanicalModelObject(cell);
 		}
@@ -50,9 +50,9 @@ public class BioMechanicalModelController implements java.io.Serializable{
 		}
 	}
 	
-	public EpisimModelIntegrator getEpisimModelIntegrator() {
+	public EpisimModelConnector getEpisimModelConnector() {
 		try{
-			return biomechanicalModel.getEpisimModelIntegrator();
+			return biomechanicalModel.getEpisimModelConnector();
 		}
 		catch (Exception e){
 			ExceptionDisplayer.getInstance().displayException(e);
@@ -60,7 +60,7 @@ public class BioMechanicalModelController implements java.io.Serializable{
 		}
 	}
 	
-	public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {
+	public EpisimBioMechanicalModelGlobalParameters getEpisimBioMechanicalModelGlobalParameters() {
 		try{
 			return biomechanicalModel.getEpisimMechanicalModelGlobalParameters();
 		}
@@ -70,7 +70,7 @@ public class BioMechanicalModelController implements java.io.Serializable{
 		}
 	}
 	
-	public void reloadMechanicalModelGlobalParametersObject(EpisimMechanicalModelGlobalParameters parametersObject){
+	public void reloadMechanicalModelGlobalParametersObject(EpisimBioMechanicalModelGlobalParameters parametersObject){
 		if(parametersObject != null) biomechanicalModel.reloadMechanicalModelGlobalParametersObject(parametersObject);
 	}
 	

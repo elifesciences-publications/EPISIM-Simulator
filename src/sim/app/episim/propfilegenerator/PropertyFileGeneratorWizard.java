@@ -254,7 +254,7 @@ public class PropertyFileGeneratorWizard {
 						paramObject = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 					}
 					else if(selObj == PropertyFileType.BIOMECHANICAL_MODEL_PROPERTIES){
-						paramObject = ModelController.getInstance().getEpisimMechanicalModelGlobalParameters();
+						paramObject = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 					}
 					else if(selObj == PropertyFileType.MISC_PROPERTIES){
 						paramObject = MiscalleneousGlobalParameters.instance();

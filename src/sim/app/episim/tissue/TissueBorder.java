@@ -13,7 +13,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
 
 
 import sim.app.episim.model.controller.CellBehavioralModelController;
@@ -40,7 +40,7 @@ public class TissueBorder {
 	private static int basalPeriod=70;      // width of an undulation at the foot
 	private static int startXOfStandardMembrane = 0;
 	
-	private static  EpisimMechanicalModelGlobalParameters globalParameters;  
+	private static  EpisimBioMechanicalModelGlobalParameters globalParameters;  
 	
 	private ImportedTissue tissue;
 	
@@ -73,7 +73,7 @@ public class TissueBorder {
 	
 	public  double getWidth(){
 		if(standardMembraneLoaded){
-			if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(); 
+			if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters(); 
 			return globalParameters.getWidth();
 		}
 		else{
@@ -123,7 +123,7 @@ public class TissueBorder {
 	public double lowerBound(double x)
 	 {
 	
-		if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(); 
+		if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters(); 
 		// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
 	     double p=basalPeriod; 
 	     

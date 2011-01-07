@@ -8,11 +8,13 @@ import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
 import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.Epidermis;
+import sim.app.episim.tissue.TissueServer;
 
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueType.SchedulePriority;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.visualization.CellEllipse;
 
 import sim.engine.*;
@@ -75,28 +77,28 @@ public class UniversalCell extends AbstractCell
     {   	 
    	 
    	 super(id, motherId, cellBehavioralModel);      
-       TissueServer.getInstance().getActEpidermalTissue().checkMemory();
-       TissueServer.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag
+   	 TissueController.getInstance().getActEpidermalTissue().checkMemory();
+   	 TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag
        
     }  
     
     public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
     {       
         
-   	 Continuous2D cellContinous2D = TissueServer.getInstance().getActEpidermalTissue().getCellContinous2D();
+   	 Continuous2D cellContinous2D = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D();
    	 
    	 // Either we get use a currently unused cell oder we allocate a new one
         UniversalCell kcyte;        
        
         kcyte= new UniversalCell(AbstractCell.getNextCellId(), getID(), cellBehavioralModel); 
         cellBehavioralModel.setId((int)kcyte.getID());
-           
+         
             
-        Stoppable stoppable = TissueServer.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
+        Stoppable stoppable = TissueController.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
         kcyte.setStoppable(stoppable);
           
-        double deltaX = TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25;
-        double deltaY = TissueServer.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1; 
+        double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25;
+        double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1; 
                
         Double2D oldLoc=cellContinous2D.getObjectLocation(this);
         
@@ -107,7 +109,7 @@ public class UniversalCell extends AbstractCell
        
          //in the first two thousand sim steps homeostasis has to be achieved, cells max age is set to the sim step time to have more variation  
         kcyte.local_maxAge= ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getMaxAge();
-        long pSimTime=(long) TissueServer.getInstance().getActEpidermalTissue().schedule.time();
+        long pSimTime=(long) TissueController.getInstance().getActEpidermalTissue().schedule.time();
         if (pSimTime<(kcyte.local_maxAge)){ 
       	  kcyte.local_maxAge=pSimTime;
       	  cellBehavioralModel.setMaxAge((int)kcyte.local_maxAge);
@@ -132,7 +134,7 @@ public class UniversalCell extends AbstractCell
         GlobalStatistics.getInstance().inkrementActualNumberKCytes();
         UniversalCell taCell=makeChild(cellBehavioralModel);
                     
-        taCell.getEpisimCellBehavioralModelObject().setAge(TissueServer.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
+        taCell.getEpisimCellBehavioralModelObject().setAge(TissueController.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
        
        
     }
@@ -142,40 +144,16 @@ public class UniversalCell extends AbstractCell
    	 GlobalStatistics.getInstance().inkrementActualNumberKCytes();
        makeChild(cellBehavioralModel);
     }
-
+ 
     
-    private UniversalCell[] getRealNeighbours(Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc){
-   	 List<UniversalCell> neighbourCells = new ArrayList<UniversalCell>();
-   	 for(int i=0;i<neighbours.numObjs;i++)
-       {
-   		 UniversalCell actNeighbour = (UniversalCell)(neighbours.objs[i]);
-     
-               Double2D otherloc=cellContinous2D.getObjectLocation(actNeighbour);
-               double dx = cellContinous2D.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
-               double dy = cellContinous2D.tdy(thisloc.y,otherloc.y);
-               
-               actNeighbour.getEpisimCellBehavioralModelObject().setDy(-1*dy);
-               actNeighbour.getEpisimCellBehavioralModelObject().setDx(dx);
-               
-             //  double distance = Math.sqrt(dx*dx + dy*dy);
-               
-             //  if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
-               
-               	neighbourCells.add(actNeighbour);
-               	
-             //}
-        }
-   	 return neighbourCells.toArray(new UniversalCell[neighbourCells.size()]);
-    }
-    
-    private EpisimCellBehavioralModel[] getCellBehavioralModelArray(UniversalCell[] neighbours){
+    private EpisimCellBehavioralModel[] getCellBehavioralModelArray(AbstractCell[] neighbours){
    	 List<EpisimCellBehavioralModel> neighbourCellsDiffModel = new ArrayList<EpisimCellBehavioralModel>();
-   	 for(UniversalCell actNeighbour: neighbours) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellBehavioralModelObject());
+   	 for(AbstractCell actNeighbour: neighbours) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellBehavioralModelObject());
    	 return neighbourCellsDiffModel.toArray(new EpisimCellBehavioralModel[neighbourCellsDiffModel.size()]);
     }
    
     private boolean isSurfaceCell(EpisimCellBehavioralModel[] neighbours){
-   	 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) return false;
+   	/* if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) return false;
    	 else{
    		
    		 int leftSideNeighbours = 0;
@@ -191,22 +169,22 @@ public class UniversalCell extends AbstractCell
    		 
    		 if(upperNeighbours == 0 || rightSideNeighbours == 0 || leftSideNeighbours == 0) return true;   		 
    	 }
+   	 return false;*/
    	 return false;
     }
+    
+    
     static  long actNumberSteps = 0;
     static  long deltaTime = 0;
-    public void differentiate(SimState state, Bag neighbours, Continuous2D cellContinous2D, Double2D thisloc, boolean nextToOuterCell, boolean hasCollision)
+    public void newSimStepCellBehavioralModel()
     {
-     	 UniversalCell[] realNeighbours = getRealNeighbours(neighbours, cellContinous2D, thisloc);
+     	 AbstractCell[] realNeighbours =  getEpisimBioMechanicalModelObject().getRealNeighbours();
      	 
      	 this.setNeighbouringCells(realNeighbours);
      	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(realNeighbours);
-   	// setIsOuterCell(isSurfaceCell(realNeighbours));
-   	 this.getEpisimCellBehavioralModelObject().setX(thisloc.getX());
-   	 this.getEpisimCellBehavioralModelObject().setY(TissueController.getInstance().getTissueBorder().getHeight()- thisloc.getY());
-   	 this.getEpisimCellBehavioralModelObject().setIsMembrane(isMembraneCell());
-   	 this.getEpisimCellBehavioralModelObject().setIsSurface(isOuterCell() || nextToOuterCell);
-   	 this.getEpisimCellBehavioralModelObject().setHasCollision(hasCollision);
+   	
+   	 
+  
    	 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
    	 else this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);
    	 	  	 
@@ -295,7 +273,7 @@ public class UniversalCell extends AbstractCell
 		}
 		else{
 			hasGivenIons = 0;
-			getEpisimMechanicalModelObject().newSimStep();
+			getEpisimBioMechanicalModelObject().newSimStep();
 			
 //			long timeBefore = System.currentTimeMillis();
 			/////////////////////////////////////////////////////////
@@ -307,13 +285,13 @@ public class UniversalCell extends AbstractCell
 			DrawInfo2D newInfo = null;
 			if( info != null){
 				newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
-				newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*getEpisimMechanicalModelObject().getOldPosition().x) + newInfo.draw.width* getEpisimMechanicalModelObject().getNewPosition().x);
-				newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*getEpisimMechanicalModelObject().getOldPosition().y) + newInfo.draw.height*getEpisimMechanicalModelObject().getNewPosition().y);
+				newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*getEpisimBioMechanicalModelObject().getOldPosition().x) + newInfo.draw.width* getEpisimBioMechanicalModelObject().getNewPosition().x);
+				newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*getEpisimBioMechanicalModelObject().getOldPosition().y) + newInfo.draw.height*getEpisimBioMechanicalModelObject().getNewPosition().y);
 				this.getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
 			}
 			
-			differentiate(state, getEpisimMechanicalModelObject().getNeighbouringCells(),epiderm.getCellContinous2D(), getEpisimMechanicalModelObject().getNewPosition(), 
-					getEpisimMechanicalModelObject().nextToOuterCell(), getEpisimMechanicalModelObject().hitsOtherCell() != 0);
+			
+			newSimStepCellBehavioralModel();
 			
 			
 			//Ellipse Visualization is activated

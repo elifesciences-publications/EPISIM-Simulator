@@ -6,7 +6,6 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.CellInspector;
 import sim.app.episim.SimulationStateChangeListener;
-import sim.app.episim.TissueServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
@@ -19,6 +18,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissue.TissueServer;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.GridPortrayal2D;
@@ -62,7 +62,7 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 import org.jfree.chart.*; // ChartPanel;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
 
 
 public class EpidermisGUIState extends GUIState implements ChartSetChangeListener{
@@ -150,7 +150,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	public EpidermisGUIState(SimState state, Component mainComp, boolean reloadSnapshot) {
 		
 		super(state);
-		if(state instanceof TissueType) TissueServer.getInstance().registerTissue(((TissueType) state));
+		if(state instanceof TissueType) TissueController.getInstance().registerTissue(((TissueType) state));
 		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();
 		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainComponent = mainComp;
@@ -177,7 +177,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 	public Inspector getBiomechnicalModelInspector() {
 
-		EpisimMechanicalModelGlobalParameters mechModel = ModelController.getInstance().getEpisimMechanicalModelGlobalParameters();
+		EpisimBioMechanicalModelGlobalParameters mechModel = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		if(mechModel == null)
 			return null;
 		Inspector i = new SimpleInspector(mechModel, this);

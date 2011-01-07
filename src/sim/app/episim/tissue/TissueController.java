@@ -3,6 +3,8 @@ package sim.app.episim.tissue;
 import java.io.File;
 import java.util.ArrayList;
 
+import episimexceptions.NoEpidermalTissueAvailableException;
+
 import sim.app.episim.visualization.*;
 
 
@@ -22,6 +24,13 @@ public class TissueController {
 		importer = new TissueImporter();
 	}
 	
+	public Epidermis getActEpidermalTissue() throws NoEpidermalTissueAvailableException{
+		return TissueServer.getInstance().getActEpidermalTissue();
+	}
+	
+	public void registerTissue(TissueType tissue){
+		TissueServer.getInstance().registerTissue(tissue);
+	}
 	
 	public static synchronized TissueController getInstance(){
 		if(instance == null) instance = new TissueController();

@@ -202,7 +202,7 @@ public class DataExportController {
 	}
 	
 	
-	public List<EnhancedSteppable> getDataExportSteppablesOfActLoadedChartSet(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+	public List<EnhancedSteppable> getDataExportSteppablesOfActLoadedDataExport(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
 		return DataExportSteppableServer.getInstance().getDataExportSteppables(allCells, continuous, objects );
 	}
 	

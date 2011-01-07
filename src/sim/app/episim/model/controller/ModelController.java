@@ -6,8 +6,8 @@ import java.util.concurrent.Semaphore;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import episiminterfaces.EpisimMechanicalModel;
-import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
@@ -44,9 +44,9 @@ public class ModelController implements java.io.Serializable{
 	
 		return CellBehavioralModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 	}
-	public EpisimMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters(){
+	public EpisimBioMechanicalModelGlobalParameters getEpisimBioMechanicalModelGlobalParameters(){
 		
-		return BioMechanicalModelController.getInstance().getEpisimMechanicalModelGlobalParameters();
+		return BioMechanicalModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	}
 	
 	public EpisimCellBehavioralModel getNewEpisimCellBehavioralModelObject(){
@@ -54,12 +54,12 @@ public class ModelController implements java.io.Serializable{
 		return CellBehavioralModelController.getInstance().getNewEpisimCellBehavioralModelObject();
 	}
 
-	public EpisimMechanicalModel getNewMechanicalModelObject(){		
-		return BioMechanicalModelController.getInstance().getNewEpisimMechanicalModelObject();
+	public EpisimBioMechanicalModel getNewBioMechanicalModelObject(){		
+		return BioMechanicalModelController.getInstance().getNewEpisimBioMechanicalModelObject();
 	}
 	
-	public EpisimMechanicalModel getNewMechanicalModelObject(AbstractCell cell){		
-		return BioMechanicalModelController.getInstance().getNewEpisimMechanicalModelObject(cell);
+	public EpisimBioMechanicalModel getNewBioMechanicalModelObject(AbstractCell cell){		
+		return BioMechanicalModelController.getInstance().getNewEpisimBioMechanicalModelObject(cell);
 	}
 	
 	public BioMechanicalModelController getBioMechanicalModelController(){ return BioMechanicalModelController.getInstance();}
@@ -73,7 +73,7 @@ public class ModelController implements java.io.Serializable{
    		if(ModeServer.consoleInput()){
    			ModelParameterModifier parameterModifier = new ModelParameterModifier();
    			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
-   				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(BioMechanicalModelController.getInstance().getEpisimMechanicalModelGlobalParameters()
+   				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(BioMechanicalModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()
    						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP)));
    			}
    			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP) != null){

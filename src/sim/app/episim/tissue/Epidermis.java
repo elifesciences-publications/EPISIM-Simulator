@@ -118,7 +118,7 @@ public class Epidermis extends TissueType implements CellDeathListener
  
 		
 		//TODO: plus 2 Korrektur überprüfen
-		cellContinous2D = new Continuous2D(ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
+		cellContinous2D = new Continuous2D(ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
 				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
 				TissueController.getInstance().getTissueBorder().getHeight());
 		basementContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth() + 2, 
@@ -136,7 +136,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 
  public final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu rete tiefe
  {
-     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
+     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
  }
 
  
@@ -180,13 +180,13 @@ private void seedStemCells(){
 		Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBound(x));
 		double distance = newloc.distance(lastloc);
 
-		if((depthFrac(newloc.y) > ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters()
-				.getSeedMinDepth_frac() && (!ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters()
+		if((depthFrac(newloc.y) > ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()
+				.getSeedMinDepth_frac() && (!ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()
 				.getSeedReverse()))
-				|| (depthFrac(newloc.y) < ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters()
-						.getSeedMinDepth_frac() && ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters()
+				|| (depthFrac(newloc.y) < ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()
+						.getSeedMinDepth_frac() && ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()
 						.getSeedReverse()))
-			if(distance > ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().getBasalDensity_µm()){
+			if(distance > ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getBasalDensity_µm()){
 
 				// TODO: Check creation of Stem Cells
 				UniversalCell stemCell = new UniversalCell(AbstractCell.getNextCellId(),-1, null);
@@ -491,14 +491,13 @@ private void seedStemCells(){
 	public void chartSetHasChanged() {
 
 		try{
-			if(getAllCells() != null && this.cellContinous2D != null && ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters() != null
-					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters() != null
-					&& ModelController.getInstance().getBioMechanicalModelController().getNewEpisimMechanicalModelObject() != null){
+			if(getAllCells() != null && this.cellContinous2D != null 
+					&& ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters() != null
+					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters() != null){
 		      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(getAllCells(), this.cellContinous2D, new Object[]{
 		      		ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters(), 
-		      		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(), 
-		      		ModelController.getInstance().getBioMechanicalModelController().getNewEpisimMechanicalModelObject(),
-		      	this});
+		      		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters(), 
+		      		this});
 		   }
       }
       catch (MissingObjectsException e){
@@ -519,11 +518,14 @@ private void seedStemCells(){
 	public void dataExportHasChanged() {
 
 	   try{
-	      this.dataExportSteppables = DataExportController.getInstance().getDataExportSteppablesOfActLoadedChartSet(getAllCells(), getBasementContinous2D(), new Object[]{
+	   	if(getAllCells() != null && this.cellContinous2D != null 
+					&& ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters() != null
+					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters() != null){
+	      this.dataExportSteppables = DataExportController.getInstance().getDataExportSteppablesOfActLoadedDataExport(getAllCells(), this.cellContinous2D, new Object[]{
 	      	ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters(), 
-	      	ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters(), 
-	      	ModelController.getInstance().getBioMechanicalModelController().getNewEpisimMechanicalModelObject(),
-	         	this});
+	      	ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters(), 
+	      	  	this});
+	   	}
       }
       catch (MissingObjectsException e){
       	 ExceptionDisplayer.getInstance().displayException(e);

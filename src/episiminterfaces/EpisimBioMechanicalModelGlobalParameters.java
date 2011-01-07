@@ -1,7 +1,7 @@
 package episiminterfaces;
 
 
-public interface EpisimMechanicalModelGlobalParameters { 	
+public interface EpisimBioMechanicalModelGlobalParameters { 	
 	
 	double getNeighborhood_µm();
  	void setNeighborhood_µm(double val);

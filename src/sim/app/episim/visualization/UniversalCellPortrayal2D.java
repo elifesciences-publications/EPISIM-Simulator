@@ -109,7 +109,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
                 GeneralPath cellPath;
                 GeneralPath nucleusPath;
                
-                    cellPath = createGeneralPath(info, kcyte.getEpisimMechanicalModelObject().getKeratinoWidth(), kcyte.getEpisimMechanicalModelObject().getKeratinoHeight());
+                    cellPath = createGeneralPath(info, kcyte.getEpisimBioMechanicalModelObject().getKeratinoWidth(), kcyte.getEpisimBioMechanicalModelObject().getKeratinoHeight());
                     graphics.setPaint(fillColor);
                     graphics.fill(cellPath);
                 
@@ -260,7 +260,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
         	  
               
             if((kcyte.isOuterCell()) && (coloringType==2)){red=0xF3; green=0xBE; blue=0x4E;}        
-            if((kcyte.isMembraneCell()) && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
+            if((kcyte.getEpisimBioMechanicalModelObject().isMembraneCell()) && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
        }
        if (coloringType==3) // Age coloring
        {

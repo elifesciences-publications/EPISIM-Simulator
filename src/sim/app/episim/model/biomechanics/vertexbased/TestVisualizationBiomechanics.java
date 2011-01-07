@@ -162,9 +162,9 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	}
 	
 	private void configureStandardMembrane(){
-		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setBasalAmplitude_µm(250);
-		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setWidth(500);
-		ModelController.getInstance().getBioMechanicalModelController().getEpisimMechanicalModelGlobalParameters().setBasalOpening_µm(12000);
+		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().setBasalAmplitude_µm(250);
+		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().setWidth(500);
+		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().setBasalOpening_µm(12000);
 		TissueController.getInstance().getTissueBorder().setBasalPeriod(550);
 		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(30);
 		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(200);

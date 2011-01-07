@@ -768,7 +768,7 @@ public class DefaultCharts implements java.io.Serializable{
 		                     UniversalCell act=(UniversalCell)GlobalStatistics.getInstance().getCells().get(i);
 		                     if (act.isInNirvana()) continue;
 		                     // is a living cell..
-		                     int histobin=(int)(act.getEpisimCellBehavioralModelObject().getY()/7);
+		                     int histobin=(int)(act.getEpisimBioMechanicalModelObject().getY()/7);
 		                     HistoNum[histobin]++;
 		                     HistoExtCalConc[histobin]+=act.getEpisimCellBehavioralModelObject().getCa();
 		                     HistoLamellaConc[histobin]+=act.getEpisimCellBehavioralModelObject().getLam();

@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import episimbiomechanics.EpisimModelIntegrator;
+import episimbiomechanics.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
@@ -65,7 +65,7 @@ public class CellBehavioralModel implements java.io.Serializable, SnapshotListen
 		if(this.cellBehavioralModelClass !=null)
 	      try{
 	         cellBehavioralModel = this.cellBehavioralModelClass.newInstance();
-	         cellBehavioralModel.setEpisimModelIntegrator(ModelController.getInstance().getBioMechanicalModelController().getEpisimModelIntegrator());
+	         cellBehavioralModel.setEpisimModelConnector(ModelController.getInstance().getBioMechanicalModelController().getEpisimModelConnector());
 	         return cellBehavioralModel;
          }
          catch (InstantiationException e){

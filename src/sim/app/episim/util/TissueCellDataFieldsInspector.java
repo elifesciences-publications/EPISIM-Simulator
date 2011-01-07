@@ -264,7 +264,7 @@ public class TissueCellDataFieldsInspector {
 	public boolean checkIfIdentifierIsGlobalParameter(String identifier){
 		Class<?> identifiersClass = overallMethodMap.get(identifier).getDeclaringClass();
 		if(EpisimCellBehavioralModel.class.isAssignableFrom(identifiersClass)
-				|| EpisimMechanicalModel.class.isAssignableFrom(identifiersClass)
+				|| EpisimBioMechanicalModel.class.isAssignableFrom(identifiersClass)
 				|| AbstractCell.class.isAssignableFrom(identifiersClass)) return false;
 		return true;		
 	}

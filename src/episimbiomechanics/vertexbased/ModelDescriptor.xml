@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2011-01-07"/>
+  <modelname name="Vertex Based Biomechanical Model"/>
+  <modelconnectorclass name="episimbiomechanics.vertexbased.EpisimVertexModelConnector"/>
+  <modelparameters>
+    <parameter datatype="double" default="1.0" name="contractility" readonly="false"/>
+    <parameter datatype="double" default="2.0" name="adhesion" readonly="false"/>
+    <parameter datatype="double" default="3.0" name="elasticity" readonly="false"/>
+  </modelparameters>
+</modeldescriptor>

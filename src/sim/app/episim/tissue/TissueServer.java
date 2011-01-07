@@ -1,8 +1,6 @@
-package sim.app.episim;
+package sim.app.episim.tissue;
 
 import episimexceptions.NoEpidermalTissueAvailableException;
-import sim.app.episim.tissue.Epidermis;
-import sim.app.episim.tissue.TissueType;
 
 
 public class TissueServer {
@@ -15,7 +13,7 @@ public class TissueServer {
 		
 	}
 	
-	public static synchronized TissueServer getInstance(){
+	protected static synchronized TissueServer getInstance(){
 				if(instance == null) instance = new TissueServer();
 				return instance;
 	}

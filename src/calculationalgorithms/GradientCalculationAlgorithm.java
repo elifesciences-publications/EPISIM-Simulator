@@ -14,6 +14,7 @@ import sim.app.episim.util.Sorting;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import episimexceptions.CellNotValidException;
 import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimBioMechanicalModel;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
@@ -75,13 +76,13 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				
 				for(AbstractCell actCell: allCells){
 					if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){
-						EpisimCellBehavioralModel cellBehaviour = actCell.getEpisimCellBehavioralModelObject();
-						if(cellBehaviour.getX() >= GlobalStatistics.getInstance().getGradientMinX()
-								&& cellBehaviour.getX() <= GlobalStatistics.getInstance().getGradientMaxX()
-								&& cellBehaviour.getY() >= GlobalStatistics.getInstance().getGradientMinY()
-								&& cellBehaviour.getY() <= GlobalStatistics.getInstance().getGradientMaxY()){						
+						EpisimBioMechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
+						if(biomech.getX() >= GlobalStatistics.getInstance().getGradientMinX()
+								&& biomech.getX() <= GlobalStatistics.getInstance().getGradientMaxX()
+								&& biomech.getY() >= GlobalStatistics.getInstance().getGradientMinY()
+								&& biomech.getY() <= GlobalStatistics.getInstance().getGradientMaxY()){						
 								
-								resultMap.put(actCell.getEpisimCellBehavioralModelObject().getY(), handler.calculate(actCell));
+								resultMap.put(biomech.getY(), handler.calculate(actCell));
 						}
 					}
 				}

@@ -1,20 +1,27 @@
-package episimbiomechanics;
+package episimbiomechanics.vertexbased;
+
+import episimbiomechanics.EpisimModelConnector;
 
 
-public class EpisimDefaultModelIntegrator extends EpisimModelIntegrator {
-	
-	private static final String VERSION = "2010-05-13";
+public class EpisimVertexModelConnector extends EpisimModelConnector {
+
+	private static final String VERSION = "2011-01-07";
+	private static final String NAME = "Vertex Based Biomechanical Model";
    
-	private double contractility =0;
-	private double adhesion =0;
-	private double elasticity =0;
+	private double contractility =1;
+	private double adhesion =2;
+	private double elasticity =3;
 	
 	
 	public String getBiomechanicalModelId(){
 		return VERSION;
 	}
 	
-	public EpisimDefaultModelIntegrator(){}
+	public String getBiomechanicalModelName(){
+		return NAME;
+	}
+	
+	public EpisimVertexModelConnector(){}
 	
 	public double getContractility() {
 	
@@ -47,5 +54,6 @@ public class EpisimDefaultModelIntegrator extends EpisimModelIntegrator {
 		this.elasticity = elasticity;
 	}
 	
+
 
 }

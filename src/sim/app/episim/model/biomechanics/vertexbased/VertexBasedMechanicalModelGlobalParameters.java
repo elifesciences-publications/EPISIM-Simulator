@@ -8,10 +8,10 @@ import java.lang.reflect.Field;
 
 import sim.app.episim.ExceptionDisplayer;
 
-import episiminterfaces.EpisimMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
 
 
-public class VertexBasedMechanicalModelGlobalParameters implements EpisimMechanicalModelGlobalParameters, java.io.Serializable {
+public class VertexBasedMechanicalModelGlobalParameters implements EpisimBioMechanicalModelGlobalParameters, java.io.Serializable {
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

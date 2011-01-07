@@ -4,13 +4,15 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
-import episimbiomechanics.EpisimModelIntegrator;
+import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import episiminterfaces.EpisimMechanicalModel;
+import episiminterfaces.EpisimBioMechanicalModel;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissue.TissueServer;
 import sim.app.episim.visualization.CellEllipse;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -22,7 +24,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
 	
    private boolean isOuterCell=false;
    private boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
-   private boolean isMembraneCell=false;    // cells directly sitting on membrane, very strict
+  
    private boolean inNirvana=false; // unvisible and without action: only ageing is active
    private final long id;
    private final long motherId;   // -1 means not yet set
@@ -40,7 +42,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    private List<CellDeathListener> cellDeathListeners;
       
    private EpisimCellBehavioralModel cellBehavioralModelObjekt;
-   private EpisimMechanicalModel mechanicalModelObject;
+   private EpisimBioMechanicalModel mechanicalModelObject;
    
    private SimState actSimState;
    
@@ -50,11 +52,13 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    	this.id = identity;
    	this.motherId = motherIdentity;   	
    	this.cellBehavioralModelObjekt = cellBehavioralModel;
+   	EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getEpisimModelConnector();
    	if(cellBehavioralModel == null) this.cellBehavioralModelObjekt = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
-   	else cellBehavioralModel.setEpisimModelIntegrator((EpisimModelIntegrator)ModelController.getInstance().getBioMechanicalModelController().getEpisimModelIntegrator());
-   	mechanicalModelObject =  ModelController.getInstance().getNewMechanicalModelObject(this);
+   	else cellBehavioralModel.setEpisimModelConnector(modelConnector);
+   	mechanicalModelObject =  ModelController.getInstance().getNewBioMechanicalModelObject(this);
+   	if(mechanicalModelObject != null) mechanicalModelObject.setEpisimModelConnector(modelConnector);
    	cellDeathListeners = new LinkedList<CellDeathListener>();      
-      cellDeathListeners.add(TissueServer.getInstance().getActEpidermalTissue());      
+      cellDeathListeners.add(TissueController.getInstance().getActEpidermalTissue());      
       cellDeathListeners.add(GlobalStatistics.getInstance());
    }
 	
@@ -74,11 +78,8 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
 	
 	public boolean isBasalStatisticsCell() { return isBasalStatisticsCell; }
 	public void setIsBasalStatisticsCell(boolean val){ this.isBasalStatisticsCell = val; }
-	
-	public boolean isMembraneCell() { return isMembraneCell; }  
-	
 	public boolean isOuterCell() { return isOuterCell; } 
-	public void setIsMembraneCell(boolean isMembraneCell) {	this.isMembraneCell = isMembraneCell; }
+	
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell;}
 	
 	
@@ -148,7 +149,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
   	 removeFromSchedule();  	
    }
    
-   public EpisimMechanicalModel getEpisimMechanicalModelObject(){ return this.mechanicalModelObject; }
+   public EpisimBioMechanicalModel getEpisimBioMechanicalModelObject(){ return this.mechanicalModelObject; }
    
    public void step(SimState state) {		
 		this.actSimState = state;		

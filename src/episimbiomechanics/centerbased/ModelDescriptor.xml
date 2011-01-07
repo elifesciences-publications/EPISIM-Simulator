@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2010-05-13"/>
+  <modelname name="Center Based Biomechanical Model"/>
+  <modelconnectorclass name="episimbiomechanics.centerbased.EpisimCenterBasedModelConnector"/>
+  <modelparameters>
+    <parameter datatype="boolean" default="false" name="isMembrane" readonly="true"/>
+    <parameter datatype="boolean" default="false" name="isSurface" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="y" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="x" readonly="true"/>
+    <parameter datatype="boolean" default="false" name="hasCollision" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="dx" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="dy" readonly="true"/>
+  </modelparameters>
+</modeldescriptor>

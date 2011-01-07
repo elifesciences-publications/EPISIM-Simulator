@@ -35,7 +35,6 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimulationStateChangeListener;
-import sim.app.episim.TissueServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
@@ -48,6 +47,7 @@ import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissue.TissueServer;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
@@ -510,7 +510,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		epidermis.setCellContinous2D(snapshotLoader.getCellContinous2D());
 		epidermis.setSnapshotTimeSteps(snapshotLoader.getTimeSteps());
 		
-		TissueServer.getInstance().registerTissue(epidermis);		
+		TissueController.getInstance().registerTissue(epidermis);		
 		java.awt.geom.Rectangle2D.Double[] deltaInfo = snapshotLoader.getDeltaInfo();
 				
 				

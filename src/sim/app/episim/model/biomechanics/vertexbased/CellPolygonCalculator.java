@@ -234,8 +234,7 @@ public class CellPolygonCalculator {
 				linesConnectedToVertex[0].getCellPolygonOfLine().addVertex(newVertex1);
 				linesConnectedToVertex[1].getCellPolygonOfLine().addVertex(newVertex2);
 			}
-		}
-		
+		}		
 	}	
 	
 	private  Line[] selectRelevantLinesConnectedToVertex(Vertex adhVertex){

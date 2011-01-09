@@ -4,8 +4,16 @@
   <modelname name="Vertex Based Biomechanical Model"/>
   <modelconnectorclass name="episimbiomechanics.vertexbased.EpisimVertexModelConnector"/>
   <modelparameters>
-    <parameter datatype="double" default="1.0" name="contractility" readonly="false"/>
-    <parameter datatype="double" default="2.0" name="adhesion" readonly="false"/>
-    <parameter datatype="double" default="3.0" name="elasticity" readonly="false"/>
+    <parameter datatype="double" default="15000.0"
+      name="basalCellBondTension" readonly="false"/>
+    <parameter datatype="boolean" default="false"
+      name="cellDivisionPossible" readonly="true"/>
+    <parameter datatype="double" default="15000.0"
+      name="apicalCellBondTension" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
+    <parameter datatype="double" default="15000.0"
+      name="lateralCellBondTension" readonly="false"/>
+    <parameter datatype="double" default="1500.0" name="contractility" readonly="false"/>
+    <parameter datatype="double" default="650.0" name="elasticity" readonly="false"/>
   </modelparameters>
 </modeldescriptor>

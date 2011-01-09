@@ -65,7 +65,6 @@ public class CellBehavioralModel implements java.io.Serializable, SnapshotListen
 		if(this.cellBehavioralModelClass !=null)
 	      try{
 	         cellBehavioralModel = this.cellBehavioralModelClass.newInstance();
-	         cellBehavioralModel.setEpisimModelConnector(ModelController.getInstance().getBioMechanicalModelController().getEpisimModelConnector());
 	         return cellBehavioralModel;
          }
          catch (InstantiationException e){

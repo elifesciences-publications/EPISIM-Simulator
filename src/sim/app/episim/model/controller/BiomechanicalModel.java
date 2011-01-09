@@ -49,7 +49,7 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 		return new CenterBasedMechanicalModel(cell);
 	}
 	
-	public EpisimModelConnector getEpisimModelConnector() {
+	public EpisimModelConnector getNewEpisimModelConnector() {
 		return new EpisimCenterBasedModelConnector();
 	}
 	

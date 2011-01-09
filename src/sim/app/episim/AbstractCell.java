@@ -41,7 +41,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    
    private List<CellDeathListener> cellDeathListeners;
       
-   private EpisimCellBehavioralModel cellBehavioralModelObjekt;
+   private EpisimCellBehavioralModel cellBehavioralModelObject;
    private EpisimBioMechanicalModel mechanicalModelObject;
    
    private SimState actSimState;
@@ -51,12 +51,12 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    	isOuterCell=false;
    	this.id = identity;
    	this.motherId = motherIdentity;   	
-   	this.cellBehavioralModelObjekt = cellBehavioralModel;
-   	EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getEpisimModelConnector();
-   	if(cellBehavioralModel == null) this.cellBehavioralModelObjekt = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
-   	else cellBehavioralModel.setEpisimModelConnector(modelConnector);
+   	this.cellBehavioralModelObject = cellBehavioralModel;
+   	final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
+   	if(cellBehavioralModel == null) this.cellBehavioralModelObject = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
    	mechanicalModelObject =  ModelController.getInstance().getNewBioMechanicalModelObject(this);
-   	if(mechanicalModelObject != null) mechanicalModelObject.setEpisimModelConnector(modelConnector);
+   	this.mechanicalModelObject.setEpisimModelConnector(modelConnector);
+   	this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);
    	cellDeathListeners = new LinkedList<CellDeathListener>();      
       cellDeathListeners.add(TissueController.getInstance().getActEpidermalTissue());      
       cellDeathListeners.add(GlobalStatistics.getInstance());
@@ -122,12 +122,12 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
 	}
 	
 	public EpisimCellBehavioralModel getEpisimCellBehavioralModelObject(){
-		return this.cellBehavioralModelObjekt;
+		return this.cellBehavioralModelObject;
 	}
 	
    public Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass() {
 	  
-	   return this.cellBehavioralModelObjekt.getClass();
+	   return this.cellBehavioralModelObject.getClass();
    }
 	
    public SimState getActSimState() { return this.actSimState; }

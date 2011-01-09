@@ -239,7 +239,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
        return hitResult;
    }    
 
-	public void setPositionRespectingBounds(Continuous2D pC2dHerd, Double2D p_potentialLoc)
+	public void setPositionRespectingBounds(Double2D p_potentialLoc)
 	{
 	   // modelling a hole in the wall at position hole holeX with width  holeHalfWidth
 	   if (cell.isInNirvana()) 
@@ -258,7 +258,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 	   else if (newy<10) newy=10;
 	
 	   Double2D newloc = new Double2D(newx,newy);
-	   pC2dHerd.setObjectLocation(cell, newloc);
+	   TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().setObjectLocation(cell, newloc);
 	}
 
 
@@ -425,7 +425,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 					|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == cell.getMotherID()) || (hitResult2.otherMotherId == cell.getID())))){
 				double dx = potentialLoc.x - oldLoc.x;
 				lastd = new Double2D(potentialLoc.x - oldLoc.x, potentialLoc.y - oldLoc.y);
-				setPositionRespectingBounds(TissueController.getInstance().getActEpidermalTissue().getCellContinous2D(), potentialLoc);
+				setPositionRespectingBounds(potentialLoc);
 			}
 		}
 
@@ -481,8 +481,8 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
          double dy = cellContinous2D.tdy(getNewPosition().getY(),otherloc.y);
          if(actNeighbour.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
             	CenterBasedMechanicalModel neighbourBiomechModel = (CenterBasedMechanicalModel) actNeighbour.getEpisimBioMechanicalModelObject();
-            	neighbourBiomechModel.modelConnector.setDx(-1*dy);
-            	neighbourBiomechModel.modelConnector.setDy(dx);
+            	neighbourBiomechModel.modelConnector.setDy(-1*dy);
+            	neighbourBiomechModel.modelConnector.setDx(dx);
             	
             }
             //  double distance = Math.sqrt(dx*dx + dy*dy);
@@ -500,9 +500,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
    
    public double getExtForceX () { return extForce.x; }   // for inspector 
    public double getExtForceY () { return extForce.y; }   // for inspector
-   public void setCell(AbstractCell cell){
-   	this.cell = cell;
-   }
+   
    
    
    public int getGKeratinoHeightGranu() {	return gKeratinoHeightGranu;}
@@ -527,11 +525,11 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 	public GenericBag<AbstractCell> getNeighbouringCells() {return neighbouringCells;}
 	
 	public double getX(){return modelConnector == null ? 
-			TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getX()
+			0//TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getX()
  				: modelConnector.getX();
 	}
 	public double getY(){return modelConnector == null ? 
-			 				TissueController.getInstance().getTissueBorder().getHeight()- TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getY()
+			 		0	//	TissueController.getInstance().getTissueBorder().getHeight()- TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getY()
 			 				: modelConnector.getY();
 	}
 	public double getZ(){ return 0;}

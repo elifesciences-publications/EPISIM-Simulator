@@ -50,9 +50,9 @@ public class BioMechanicalModelController implements java.io.Serializable{
 		}
 	}
 	
-	public EpisimModelConnector getEpisimModelConnector() {
+	public synchronized EpisimModelConnector getNewEpisimModelConnector() {
 		try{
-			return biomechanicalModel.getEpisimModelConnector();
+			return biomechanicalModel.getNewEpisimModelConnector();
 		}
 		catch (Exception e){
 			ExceptionDisplayer.getInstance().displayException(e);

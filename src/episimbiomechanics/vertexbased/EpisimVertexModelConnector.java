@@ -15,6 +15,12 @@ public class EpisimVertexModelConnector extends EpisimModelConnector {
 	private double elasticity =650;
 	private boolean isProliferating = false;
 	private boolean cellDivisionPossible = false;
+	private double prefCellArea=2340;
+	
+	private double standardApicalCellBondTension=15000;
+	private double standardLateralCellBondTension=15000;
+	private double standardBasalCellBondTension=15000;
+	private double standardPrefCellArea=2340;
 	
 	private boolean isMembrane =false;
 	private boolean isSurface = false;
@@ -187,6 +193,67 @@ public class EpisimVertexModelConnector extends EpisimModelConnector {
 	public void setDy(double dy) {
 	
 		this.dy = dy;
+	}
+
+	
+	public double getPrefCellArea() {
+	
+		return prefCellArea;
+	}
+
+	
+	public void setPrefCellArea(double prefCellArea) {
+	
+		this.prefCellArea = prefCellArea;
+	}
+
+	
+	public double getStandardApicalCellBondTension() {
+	
+		return standardApicalCellBondTension;
+	}
+
+	@Hidden
+	public void setStandardApicalCellBondTension(double standardApicalCellBondTension) {
+	
+		this.standardApicalCellBondTension = standardApicalCellBondTension;
+	}
+
+	
+	public double getStandardLateralCellBondTension() {
+	
+		return standardLateralCellBondTension;
+	}
+
+	@Hidden
+	public void setStandardLateralCellBondTension(double standardLateralCellBondTension) {
+	
+		this.standardLateralCellBondTension = standardLateralCellBondTension;
+	}
+
+	
+	public double getStandardBasalCellBondTension() {
+	
+		return standardBasalCellBondTension;
+	}
+
+	@Hidden
+	public void setStandardBasalCellBondTension(double standardBasalCellBondTension) {
+	
+		this.standardBasalCellBondTension = standardBasalCellBondTension;
+	}
+
+	
+	public double getStandardPrefCellArea() {
+	
+		return standardPrefCellArea;
+	}
+
+	
+	@Hidden
+	public void setStandardPrefCellArea(double standardPrefCellArea) {
+	
+		this.standardPrefCellArea = standardPrefCellArea;
 	}
 
 }

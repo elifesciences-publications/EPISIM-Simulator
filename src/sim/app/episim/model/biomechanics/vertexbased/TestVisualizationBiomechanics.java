@@ -95,8 +95,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 		//cells = CellPolygonNetworkBuilder.getSquareVertex(100, 100, 50, 6);
 		cellPolygonCalculator = new CellPolygonCalculator(new CellPolygon[]{});
-		cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
-		
+		//cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
+		cells = CellPolygonNetworkBuilder.getStandardThreeCellArray(cellPolygonCalculator);
 		configureStandardMembrane();
 		
 		for(CellPolygon pol: cells){ 
@@ -465,7 +465,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			}
 						
 		}		
-		new TestVisualizationBiomechanics(true, moviePath, csvPath, maxNumberOfProliferation, headless);
+		new TestVisualizationBiomechanics(false, moviePath, csvPath, maxNumberOfProliferation, headless);
 	}
 
 

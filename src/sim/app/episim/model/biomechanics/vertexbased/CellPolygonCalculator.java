@@ -22,7 +22,7 @@ import sim.app.episim.visualization.CellEllipse;
 public class CellPolygonCalculator {
 	
 	
-	public static final int SIDELENGTH = 75;//30;
+	public static final int SIDELENGTH = 30;//75;//30;
 	public static final int SIDELENGTHHALF = SIDELENGTH/2;
 	
 	
@@ -206,8 +206,7 @@ public class CellPolygonCalculator {
 							v.setDoubleY(isp.getDoubleY());
 						}
 						doT3Transition(v, line);
-						GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3_TRANSITION_NUMBER)+1));
-						System.out.println("T3 Transition performed");
+						
 					}
 				}
 			}
@@ -228,14 +227,74 @@ public class CellPolygonCalculator {
 				Vertex newVertex2 = calculateNewVertex(adhVertex, linesConnectedToVertex[1], line);
 				
 				CellPolygon adhCell = line.getCellPolygonOfLine();
-				adhCell.addVertex(newVertex1);
-				adhCell.addVertex(newVertex2);
+				
+				
+				double distanceToAdhesionLineNewVertex1 = line.getDistanceOfVertex(newVertex1, false, true);
+				double distanceToAdhesionLineNewVertex2 = line.getDistanceOfVertex(newVertex2, false, true);
+				
+				
+				if(distanceToAdhesionLineNewVertex1 < Double.POSITIVE_INFINITY && distanceToAdhesionLineNewVertex2 < Double.POSITIVE_INFINITY){
+					
+					adhCell.addVertex(newVertex1);
+					adhCell.addVertex(newVertex2);
+					doT3TransitionLineVertexReplacementCheck(line, newVertex1);
+					doT3TransitionLineVertexReplacementCheck(line, newVertex2);
+					
+					linesConnectedToVertex[0].getCellPolygonOfLine().addVertex(newVertex1);
+					linesConnectedToVertex[1].getCellPolygonOfLine().addVertex(newVertex2);
+					doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[0], newVertex1);
+					doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[1], newVertex2);
+					
+					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3_TRANSITION_NUMBER)+1));
+					System.out.println("T3 Transition performed");
+				}
+				else if(distanceToAdhesionLineNewVertex1 < Double.POSITIVE_INFINITY){
+					adhCell.addVertex(newVertex1);
+					doT3TransitionLineVertexReplacementCheck(line, newVertex1);
+					
+					linesConnectedToVertex[0].getCellPolygonOfLine().addVertex(newVertex1);
+					doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[0], newVertex1);
+					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3A_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3A_TRANSITION_NUMBER)+1));
+					System.out.println("T3A Transition performed");
+				}
+				else if(distanceToAdhesionLineNewVertex2 < Double.POSITIVE_INFINITY){
+					adhCell.addVertex(newVertex2);
+					doT3TransitionLineVertexReplacementCheck(line, newVertex2);
+					
+					linesConnectedToVertex[1].getCellPolygonOfLine().addVertex(newVertex2);
+					doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[1], newVertex2);
+					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3B_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3B_TRANSITION_NUMBER)+1));
+					System.out.println("T3B Transition performed");
+				}
+				else{
+					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3C_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3C_TRANSITION_NUMBER)+1));
+					System.out.println("T3C Transition performed");
+				}				
+				
 				adhCell.addVertex(adhVertex);
-				linesConnectedToVertex[0].getCellPolygonOfLine().addVertex(newVertex1);
-				linesConnectedToVertex[1].getCellPolygonOfLine().addVertex(newVertex2);
+				doT3TransitionLineVertexReplacementCheck(line, adhVertex);
 			}
 		}		
-	}	
+	}
+	
+	private boolean doT3TransitionLineVertexReplacementCheck(Line line, Vertex newVertex){
+		if(line.getV1().edist(newVertex) < MIN_EDGE_LENGTH/2){
+			line.getV1().replaceVertex(newVertex);
+			System.out.println("T3 Transition Vertex replacement performed");
+			return true;
+		}
+		else if(line.getV2().edist(newVertex) < MIN_EDGE_LENGTH/2){
+			line.getV2().replaceVertex(newVertex);
+			System.out.println("T3 Transition Vertex replacement performed");
+			return true;
+		}
+		return false;
+	}
+	
+	
+	
+	
+	
 	
 	private  Line[] selectRelevantLinesConnectedToVertex(Vertex adhVertex){
 		ArrayList<Line> linesConnectedToVertex = new ArrayList<Line>();
@@ -480,6 +539,7 @@ public class CellPolygonCalculator {
 	public void applyCellPolygonCheckPipeline(CellPolygon cell){
 		checkForT1Transitions(cell);
 		checkForT2Transition(cell);
+		checkForT3Transitions(cell);
 	}
 	
 	

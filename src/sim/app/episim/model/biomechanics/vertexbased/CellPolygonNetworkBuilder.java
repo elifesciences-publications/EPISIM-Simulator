@@ -346,12 +346,12 @@ public abstract class CellPolygonNetworkBuilder {
 		return v.getDoubleX() == 0 && v.getDoubleY() == 0;
 	}
 
-	private static Vertex[][] getVertices(int rows, int columns, int height){
+	private static Vertex[][] getVertices(int startX, int startY, int rows, int columns, int height){
 		
 		Vertex[][] vertices = new Vertex[2*(rows+1)][(columns+1)];
 		
-		int startX = STARTX;
-		int startY = STARTY - CellPolygonCalculator.SIDELENGTH;
+		
+		startY = startY - CellPolygonCalculator.SIDELENGTH;
 		
 		//first row Vertices
 		for(int i = 0; i < columns; i++) vertices[0][i] = new Vertex(startX + i*2*height, startY);
@@ -374,13 +374,28 @@ public abstract class CellPolygonNetworkBuilder {
 		for(int i = 0; i < columns; i++) vertices[vertices.length-1][i] = new Vertex(startX + i*2*height, startY);
 		
 		return vertices;
-	}	
+	}
 	
 	public static CellPolygon[] getStandardCellArray(int rows, int columns, CellPolygonCalculator calculator){
+		return getStandardCellArray(STARTX, STARTY, rows, columns, calculator);
+	}
+	
+	public static CellPolygon[] getStandardThreeCellArray(CellPolygonCalculator calculator){
+		int startX1= 175;
+		int startX2= 375;
+		int startY= 250;
+		return new CellPolygon[]{
+				getStandardCellArray(startX1, startY, 1, 1, calculator)[0],
+				getStandardCellArray(startX2, startY, 1, 1, calculator)[0],
+				getStandardCellArray(STARTX, STARTY, 1, 1, calculator)[0]
+		};
+	}
+	
+	private static CellPolygon[] getStandardCellArray(int startX, int startY, int rows, int columns, CellPolygonCalculator calculator){
 		int height = Math.round((float) Math.sqrt(Math.pow(CellPolygonCalculator.SIDELENGTH, 2)-Math.pow(CellPolygonCalculator.SIDELENGTH/2, 2)));
 		
-		CellPolygon[] cells = getCells(rows, columns, height);
-		Vertex[][] vertices = getVertices(rows, columns, height);
+		CellPolygon[] cells = getCells(startX, startY, rows, columns, height);
+		Vertex[][] vertices = getVertices(startX, startY, rows, columns, height);
 		
 		for(int rowNo = 0; rowNo < vertices.length; rowNo++){
 			for(int columnNo = 0; columnNo < vertices[rowNo].length; columnNo++){
@@ -405,13 +420,13 @@ public abstract class CellPolygonNetworkBuilder {
 		return Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2));		
 	}
 	
-	private static CellPolygon[] getCells(int rows, int columns, int height){
+	private static CellPolygon[] getCells(int startX, int startY,int rows, int columns, int height){
 		CellPolygon[] cells = new CellPolygon[rows*columns];
 		int cellIndex = 0;
 		for(int i = 0; i < rows; i++){
 			for(int n = 0; n < columns; n++){
-				if(((i+1)%2) == 1)cells[cellIndex++] = new CellPolygon(STARTX + 2*n*height, STARTY + i*(CellPolygonCalculator.SIDELENGTH+CellPolygonCalculator.SIDELENGTHHALF));
-				else cells[cellIndex++] = new CellPolygon(STARTX + (2*n + 1)*height, STARTY + i*(CellPolygonCalculator.SIDELENGTH+CellPolygonCalculator.SIDELENGTHHALF));
+				if(((i+1)%2) == 1)cells[cellIndex++] = new CellPolygon(startX + 2*n*height, startY + i*(CellPolygonCalculator.SIDELENGTH+CellPolygonCalculator.SIDELENGTHHALF));
+				else cells[cellIndex++] = new CellPolygon(startX + (2*n + 1)*height, startY + i*(CellPolygonCalculator.SIDELENGTH+CellPolygonCalculator.SIDELENGTHHALF));
 			}
 		}
 		return cells;

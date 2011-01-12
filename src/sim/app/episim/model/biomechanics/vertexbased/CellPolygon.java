@@ -185,12 +185,13 @@ private void checkProliferation(){
 	if(isProliferating && canDivide()){
 		GlobalBiomechanicalStatistics.getInstance().set(GBSValue.PREF_AREA_OVERHEAD, preferredArea - originalPreferredArea);
 		final CellPolygon daughterCell = cellDivision();
+		isProliferating = false;
 		notifyAllCellProliferationAndApoptosisListener(new ListenerAction<CellPolygonProliferationSuccessListener>(){
 					public void performAction(CellPolygonProliferationSuccessListener listener){
-						listener.proliferationCompleted(daughterCell);
+						listener.proliferationCompleted(CellPolygon.this, daughterCell);
 					}
 				});
-		isProliferating = false;
+		
 	}
 	else{ 
 		if(isProliferating){ 

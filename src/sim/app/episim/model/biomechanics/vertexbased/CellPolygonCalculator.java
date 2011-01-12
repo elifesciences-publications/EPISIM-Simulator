@@ -197,7 +197,8 @@ public class CellPolygonCalculator {
 		if(cell != null){
 			Vertex[] vertices = cell.getSortedVertices();
 			for(Vertex v : vertices){
-				if(v.getCellsJoiningThisVertex().length <=2){
+				CellPolygon[] joiningCells = v.getCellsJoiningThisVertex();
+				if(joiningCells.length <=2 && joiningCells.length >=1){
 					Line line = null;
 					if((line=isCloseEnoughToOtherBoundaryForAdhesion(v, false)) != null){
 						Vertex isp = line.getIntersectionPointOfLineThroughVertex(v, false, true);
@@ -215,66 +216,85 @@ public class CellPolygonCalculator {
 	
 	
 	private void doT3Transition(Vertex adhVertex, Line line){
-		Line[] linesConnectedToVertex = selectRelevantLinesConnectedToVertex(adhVertex);
-		
-		
-		if(linesConnectedToVertex != null && linesConnectedToVertex.length >0){
-			if(linesConnectedToVertex.length >2){ 
-				System.err.print("ERROR: Method do T3 Transition: More than two relevant lines connected to Vertex found!");
-			}
-			else{
-				Vertex newVertex1 = calculateNewVertex(adhVertex, linesConnectedToVertex[0], line);
-				Vertex newVertex2 = calculateNewVertex(adhVertex, linesConnectedToVertex[1], line);
-				
-				CellPolygon adhCell = line.getCellPolygonOfLine();
-				
-				
-				double distanceToAdhesionLineNewVertex1 = line.getDistanceOfVertex(newVertex1, false, true);
-				double distanceToAdhesionLineNewVertex2 = line.getDistanceOfVertex(newVertex2, false, true);
-				
-				
-				if(distanceToAdhesionLineNewVertex1 < Double.POSITIVE_INFINITY && distanceToAdhesionLineNewVertex2 < Double.POSITIVE_INFINITY){
-					
-					adhCell.addVertex(newVertex1);
-					adhCell.addVertex(newVertex2);
-					doT3TransitionLineVertexReplacementCheck(line, newVertex1);
-					doT3TransitionLineVertexReplacementCheck(line, newVertex2);
-					
-					linesConnectedToVertex[0].getCellPolygonOfLine().addVertex(newVertex1);
-					linesConnectedToVertex[1].getCellPolygonOfLine().addVertex(newVertex2);
-					doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[0], newVertex1);
-					doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[1], newVertex2);
-					
-					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3_TRANSITION_NUMBER)+1));
-					System.out.println("T3 Transition performed");
-				}
-				else if(distanceToAdhesionLineNewVertex1 < Double.POSITIVE_INFINITY){
-					adhCell.addVertex(newVertex1);
-					doT3TransitionLineVertexReplacementCheck(line, newVertex1);
-					
-					linesConnectedToVertex[0].getCellPolygonOfLine().addVertex(newVertex1);
-					doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[0], newVertex1);
-					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3A_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3A_TRANSITION_NUMBER)+1));
-					System.out.println("T3A Transition performed");
-				}
-				else if(distanceToAdhesionLineNewVertex2 < Double.POSITIVE_INFINITY){
-					adhCell.addVertex(newVertex2);
-					doT3TransitionLineVertexReplacementCheck(line, newVertex2);
-					
-					linesConnectedToVertex[1].getCellPolygonOfLine().addVertex(newVertex2);
-					doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[1], newVertex2);
-					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3B_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3B_TRANSITION_NUMBER)+1));
-					System.out.println("T3B Transition performed");
+		if(isNotSelfAdhesion(adhVertex, line)){
+		Line[] linesConnectedToVertex = selectRelevantLinesConnectedToVertex(adhVertex);		
+			if(linesConnectedToVertex != null && linesConnectedToVertex.length >0){
+				if(linesConnectedToVertex.length >2){ 
+					System.err.print("ERROR: Method do T3 Transition: More than two relevant lines connected to Vertex found!");
 				}
 				else{
-					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3C_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3C_TRANSITION_NUMBER)+1));
-					System.out.println("T3C Transition performed");
-				}				
+					CellPolygon[] adhCells = line.getCellPolygonsOfLine();
+					CellPolygon[] line1Cells = linesConnectedToVertex[0].getCellPolygonsOfLine();
+					CellPolygon[] line2Cells = linesConnectedToVertex[1].getCellPolygonsOfLine();
+					if(adhCells.length == 1 && line1Cells.length == 1 && line2Cells.length == 1){
+						Vertex newVertex1 = calculateNewVertex(adhVertex, linesConnectedToVertex[0], line);
+						Vertex newVertex2 = calculateNewVertex(adhVertex, linesConnectedToVertex[1], line);	
 				
-				adhCell.addVertex(adhVertex);
-				doT3TransitionLineVertexReplacementCheck(line, adhVertex);
+						CellPolygon adhCell = adhCells[0];
+						double distanceToAdhesionLineNewVertex1 = line.getDistanceOfVertex(newVertex1, false, true);
+						double distanceToAdhesionLineNewVertex2 = line.getDistanceOfVertex(newVertex2, false, true);
+						
+						
+						if(distanceToAdhesionLineNewVertex1 < Double.POSITIVE_INFINITY && distanceToAdhesionLineNewVertex2 < Double.POSITIVE_INFINITY){
+							
+							adhCell.addVertex(newVertex1);
+							adhCell.addVertex(newVertex2);
+							doT3TransitionLineVertexReplacementCheck(line, newVertex1);
+							doT3TransitionLineVertexReplacementCheck(line, newVertex2);
+							
+							line1Cells[0].addVertex(newVertex1);
+							line2Cells[0].addVertex(newVertex2);
+							doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[0], newVertex1);
+							doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[1], newVertex2);
+							
+							GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3_TRANSITION_NUMBER)+1));
+							System.out.println("T3 Transition performed");
+						}
+						else if(distanceToAdhesionLineNewVertex1 < Double.POSITIVE_INFINITY){
+							adhCell.addVertex(newVertex1);
+							doT3TransitionLineVertexReplacementCheck(line, newVertex1);
+							
+							line1Cells[0].addVertex(newVertex1);
+							doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[0], newVertex1);
+							GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3A_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3A_TRANSITION_NUMBER)+1));
+							System.out.println("T3A Transition performed");
+						}
+						else if(distanceToAdhesionLineNewVertex2 < Double.POSITIVE_INFINITY){
+							adhCell.addVertex(newVertex2);
+							doT3TransitionLineVertexReplacementCheck(line, newVertex2);
+							
+							line2Cells[0].addVertex(newVertex2);
+							doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[1], newVertex2);
+							GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3B_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3B_TRANSITION_NUMBER)+1));
+							System.out.println("T3B Transition performed");
+						}
+						else{
+							GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3C_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3C_TRANSITION_NUMBER)+1));
+							System.out.println("T3C Transition performed");
+						}				
+						
+						adhCell.addVertex(adhVertex);
+						doT3TransitionLineVertexReplacementCheck(line, adhVertex);
+					}
+				}
 			}
-		}		
+		}
+	}
+	
+	private boolean isNotSelfAdhesion(Vertex adhVertex, Line adhLine){
+		
+		CellPolygon[] adhLineCellPolygons  = adhLine.getCellPolygonsOfLine();
+		HashSet<CellPolygon> adhVertexCellPolygons = new HashSet<CellPolygon>();
+		adhVertexCellPolygons.addAll(Arrays.asList(adhVertex.getCellsJoiningThisVertex()));
+		
+		for(CellPolygon adhLineCellPol : adhLineCellPolygons){
+			if(adhVertexCellPolygons.contains(adhLineCellPol)){ 
+				System.out.println("Self Adhesion Detected");
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	private boolean doT3TransitionLineVertexReplacementCheck(Line line, Vertex newVertex){
@@ -303,22 +323,31 @@ public class CellPolygonCalculator {
 		cellsConnectedToVertex.addAll(Arrays.asList(adhVertex.getCellsJoiningThisVertex()));
 		
 		//here the relevant to line connected to the Vertex v are selected, this should result in two relevant lines
-		if(cellsConnectedToVertex.size() >= 2){
-			for(Vertex actV: connectedVertices){
-				int foundCells = 0;
-				for(CellPolygon cellPol: actV.getCellsJoiningThisVertex()){
-					if(cellsConnectedToVertex.contains(cellPol)) foundCells++;
-				}
-				if(foundCells < 2){
-					linesConnectedToVertex.add(new Line(adhVertex, actV));
+		if(cellsConnectedToVertex.size() > 1){
+			if(connectedVertices.length == 3){
+				for(Vertex actV: connectedVertices){
+					int foundCells = 0;
+					for(CellPolygon cellPol: actV.getCellsJoiningThisVertex()){
+						if(cellsConnectedToVertex.contains(cellPol)) foundCells++;
+					}
+					if(foundCells == 1){
+						linesConnectedToVertex.add(new Line(adhVertex, actV));
+					}
 				}
 			}
+			else{ 
+				System.out.println("Found not two connected Vertices");
+			
+			}
+			System.out.println("Komplizierter Fall");
 		}
 		else{
 			for(Vertex actV : connectedVertices){
 				linesConnectedToVertex.add(new Line(adhVertex, actV));
 			}
+			System.out.println("EinfacherFall");
 		}
+		
 		return linesConnectedToVertex.toArray(new Line[linesConnectedToVertex.size()]);
 	}
 	
@@ -488,12 +517,14 @@ public class CellPolygonCalculator {
 		return -1;
 	}
 	
-	private Line isVertexTooCloseToAnotherCellBoundary(Vertex vertex, boolean takeNewValues){
+	private Line[] isVertexTooCloseToAnotherCellBoundary(Vertex vertex, boolean takeNewValues){
 		Line[] linesToTest =getLineArrayToTestVertexDistance(vertex);
+		HashSet<Line> foundLines = new HashSet<Line>();
 		for(Line actLine : linesToTest){
-			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= (MIN_VERTEX_EDGE_DISTANCE*0.8)) return actLine;
+			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= MIN_VERTEX_EDGE_DISTANCE
+					&&!isNotSelfAdhesion(vertex, actLine)) foundLines.add(actLine);
 		}
-		return null;
+		return foundLines.toArray(new Line[foundLines.size()]);
 	}
 	
 	private Line isCloseEnoughToOtherBoundaryForAdhesion(Vertex vertex, boolean takeNewValues){
@@ -505,7 +536,7 @@ public class CellPolygonCalculator {
 	}
 	
 	private Line[] getLineArrayToTestVertexDistance(Vertex vertex){
-		ArrayList<Line> lines = new ArrayList<Line>();
+		HashSet<Line> lines = new HashSet<Line>();
 		for(CellPolygon cell : cellPolygons){
 			Vertex[] cellVertices = cell.getSortedVertices();
 			Line actLine = null;
@@ -518,11 +549,11 @@ public class CellPolygonCalculator {
 	}
 	
 	private void checkCloseToOtherEdge(Vertex v){
-		Line line = null;
-		if((line=isVertexTooCloseToAnotherCellBoundary(v, true)) !=null){
+		Line[] lines = null;
+		if((lines=isVertexTooCloseToAnotherCellBoundary(v, true)) !=null && lines.length > 0){
 			v.setVertexColor(Color.YELLOW);
 			
-			line.setNewValuesOfVertexToDistance(v, (MIN_VERTEX_EDGE_DISTANCE*1.05));
+			for(Line actLine: lines)actLine.setNewValuesOfVertexToDistance(v, (MIN_VERTEX_EDGE_DISTANCE*1.1));
 			checkNewVertexValuesForComplianceWithStandardBorders(v, true);
 			GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE) +1));
 		}

@@ -10,6 +10,8 @@ import java.awt.Polygon;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,6 +25,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
@@ -154,6 +157,18 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		if(!headlessMode){
 			frame.getContentPane().add(buttonPanel, BorderLayout.NORTH);
 			
+			JPanel mousePositionPanel = new JPanel(new FlowLayout());
+			final JLabel positionLabel= new JLabel("mouse position: ");
+			mousePositionPanel.add(positionLabel);
+			visualizationPanel.addMouseMotionListener(new MouseMotionListener(){
+
+				public void mouseDragged(MouseEvent e) {
+					mouseMoved(e);
+            }
+				public void mouseMoved(MouseEvent e) {           
+	            positionLabel.setText("mouse position: ("+ e.getX() + ", " + e.getY()+")");
+            }});
+			frame.getContentPane().add(mousePositionPanel, BorderLayout.SOUTH);
 			centerMe(frame);
 			frame.pack();
 			frame.setVisible(true);	
@@ -194,7 +209,10 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				
 				public void run() { 
 		
-				cells[cells.length/2].proliferate();
+				//cells[cells.length/2].proliferate();
+					cells[0].proliferate();
+					cells[1].proliferate();
+					cells[2].proliferate();
 				while(simulationState == SimState.SIMSTART){
 					
 				//	try{
@@ -274,11 +292,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	private void drawVisualization(Graphics2D g){
 		g.setColor(Color.BLACK);
-		if(cells!= null) for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
-		
-		
-		g.draw(TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon());
-		
+		if(cells!= null) for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);		
+		g.draw(TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon());		
 		//drawErrorManhattanVersusEuclideanDistance(g);
 	}
 	
@@ -372,15 +387,15 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 
 	
 	
-	public void proliferationCompleted(CellPolygon pol) {
+	public void proliferationCompleted(CellPolygon oldCell, CellPolygon newCell) {
 
-		if(pol != null){
+		if(newCell != null){
 			CellPolygon[] newCellArray = new CellPolygon[cells.length+1];
 			System.arraycopy(cells, 0, newCellArray, 0, cells.length);
-			newCellArray[cells.length] = pol;
+			newCellArray[cells.length] = newCell;
 			cells= newCellArray;
 			cellPolygonCalculator.setCellPolygons(cells);
-			pol.addProliferationAndApoptosisListener(this);
+			newCell.addProliferationAndApoptosisListener(this);
 			
 			
 			
@@ -399,11 +414,13 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			
 			this.numberOfCellDivisions++;
 			
-	//		if(this.numberOfCellDivisions<=6) 
-				cellPolygonCalculator.randomlySelectCellForProliferation();
-/*			else{ 
+		//	if(this.numberOfCellDivisions<=6) 
+			//	cellPolygonCalculator.randomlySelectCellForProliferation();
+			if(rand.nextBoolean()) newCell.proliferate();
+			else oldCell.proliferate();
+		/*	else{ 
 				cellPolygonCalculator.randomlySelectCellForApoptosis();
-			}*/
+		}*/
 			
 			
 			if(numberOfCellDivisions >= this.maxNumberOfCellDivisions 

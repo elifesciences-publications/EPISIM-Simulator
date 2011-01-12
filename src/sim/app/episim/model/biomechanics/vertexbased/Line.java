@@ -1,5 +1,6 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -171,18 +172,18 @@ public class Line {
 		return null;
 	}
 	
-	public CellPolygon getCellPolygonOfLine(){
+	public CellPolygon[] getCellPolygonsOfLine(){
+		HashSet<CellPolygon> cellPolygonsAssociatedWithLine = new HashSet<CellPolygon>();
 		if(v1 != null && v2 != null){
 			HashSet<CellPolygon> cellsV1 = new HashSet<CellPolygon>();
 			HashSet<CellPolygon> cellsV2 = new HashSet<CellPolygon>();
 			cellsV1.addAll(Arrays.asList(v1.getCellsJoiningThisVertex()));
 			cellsV2.addAll(Arrays.asList(v2.getCellsJoiningThisVertex()));
 			for(CellPolygon pol : cellsV1){
-				if(cellsV2.contains(pol)) return pol;
+				if(cellsV2.contains(pol)) cellPolygonsAssociatedWithLine.add(pol);
 			}
-		}
-		
-		return null;
+		}		
+		return cellPolygonsAssociatedWithLine.toArray(new CellPolygon[cellPolygonsAssociatedWithLine.size()]);
 	}
 	
 	public void setIntX1(int x1){ setDoubleX1((double)x1); }
@@ -206,9 +207,17 @@ public class Line {
    public void setDoubleY2(double y2){ this.y2 = y2; }
    
    public Vertex getV1() {	return v1; }	
-   public void setV1(Vertex v1) { this.v1 = v1; }	
+   public void setV1(Vertex v1) { 
+   	this.v1 = v1; 
+   	this.x1 = v1.getDoubleX();
+   	this.y1 = v1.getDoubleY();
+   }	
    public Vertex getV2(){ return v2; }	
-   public void setV2(Vertex v2) { this.v2 = v2; }
+   public void setV2(Vertex v2) { 
+   	this.v2 = v2;
+   	this.x2 = v2.getDoubleX();
+   	this.y2 = v2.getDoubleY();
+   }
 	
    public int hashCode() {
 

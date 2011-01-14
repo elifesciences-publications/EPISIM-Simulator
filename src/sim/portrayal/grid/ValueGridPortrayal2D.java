@@ -41,6 +41,10 @@ import sim.util.gui.*;
    <p>You can also provide your own custom SimplePortrayal2D (use setPortrayalForAll(...) ) to draw elements as you
    see fit rather than as rectangles.  Your SimplePortrayal2D should expect objects passed to its draw method
    to be of type MutableDouble.  Do not hold onto this array -- it will be reused.
+   
+   The 'location' passed
+   into the DrawInfo2D handed to the SimplePortryal2D is a MutableInt2D.
+
 */
 
 public class ValueGridPortrayal2D extends FieldPortrayal2D
@@ -94,13 +98,82 @@ public class ValueGridPortrayal2D extends FieldPortrayal2D
         else return map.defaultValue();
         }
 
+    public Double2D getScale(DrawInfo2D info)
+        {
+        final Grid2D field = (Grid2D) this.field;
+        if (field==null) return null;
+
+        int maxX = field.getWidth(); 
+        int maxY = field.getHeight();
+
+        final double xScale = info.draw.width / maxX;
+        final double yScale = info.draw.height / maxY;
+        return new Double2D(xScale, yScale);
+        }
+
+    public Object getClipLocation(DrawInfo2D fieldPortrayalInfo)
+        {
+        return getPositionLocation(new Point2D.Double(fieldPortrayalInfo.clip.x, fieldPortrayalInfo.clip.y), fieldPortrayalInfo);
+        }
+                
+    public Object getPositionLocation(Point2D.Double position, DrawInfo2D info)
+        {
+        Double2D scale = getScale(info);
+        double xScale = scale.x;
+        double yScale = scale.y;
+                
+        final int startx = (int)((position.getX() - info.draw.x) / xScale);
+        final int starty = (int)((position.getY() - info.draw.y) / yScale); // assume that the X coordinate is proportional -- and yes, it's _width_
+        return new Int2D(startx, starty);
+        }
+
+// there is no getObjectLocation.
+
+    public Point2D.Double getLocationPosition(Object location, DrawInfo2D info)
+        {
+        final Grid2D field = (Grid2D) this.field;
+        if (field==null) return null;
+        
+        final int maxX = field.getWidth(); 
+        final int maxY = field.getHeight();
+        if (maxX == 0 || maxY == 0) return null;
+        
+        final double xScale = info.draw.width / maxX;
+        final double yScale = info.draw.height / maxY;
+
+        DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale),
+            info.clip);  // we don't do further clipping 
+
+        Int2D loc = (Int2D) location;
+        if (location == null) return null;
+                
+        int x = loc.x;
+        int y = loc.y;
+
+        // translate --- the   + newinfo.width/2.0  etc. moves us to the center of the object
+        newinfo.draw.x = (int)(info.draw.x + (xScale) * x);
+        newinfo.draw.y = (int)(info.draw.y + (yScale) * y);
+        newinfo.draw.width = (int)(info.draw.x + (xScale) * (x+1)) - newinfo.draw.x;
+        newinfo.draw.height = (int)(info.draw.y + (yScale) * (y+1)) - newinfo.draw.y;
+        
+        // adjust drawX and drawY to center
+        newinfo.draw.x += newinfo.draw.width / 2.0;
+        newinfo.draw.y += newinfo.draw.height / 2.0;
+
+        return new Point2D.Double(newinfo.draw.x, newinfo.draw.y);
+        }
+
+
     public Portrayal getDefaultPortrayal()
         {
         return defaultPortrayal;
         }
 
     // our object to pass to the portrayal
-    final MutableDouble valueToPass = new MutableDouble(0);
+    protected final MutableDouble valueToPass = new MutableDouble(0);
+
+    // our location to pass to the portrayal
+    protected final MutableInt2D locationToPass = new MutableInt2D(0,0);
         
     protected void hitOrDraw(Graphics2D graphics, DrawInfo2D info, Bag putInHere)
         {
@@ -136,6 +209,7 @@ public class ValueGridPortrayal2D extends FieldPortrayal2D
 
         // the drawinfo that the object's portrayal will use -- we fill in the blanks later
         DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale), info.clip);
+        newinfo.location = locationToPass;
 
         Portrayal p = getPortrayalForObject(valueToPass);
         if (!(p instanceof SimplePortrayal2D))
@@ -162,6 +236,9 @@ public class ValueGridPortrayal2D extends FieldPortrayal2D
                 // adjust drawX and drawY to center
                 newinfo.draw.x += newinfo.draw.width / 2.0;
                 newinfo.draw.y += newinfo.draw.height / 2.0;
+
+                locationToPass.x = x;
+                locationToPass.y = y;
                 
                 if (graphics == null)
                     {

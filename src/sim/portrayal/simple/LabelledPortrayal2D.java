@@ -90,7 +90,7 @@ public class LabelledPortrayal2D extends SimplePortrayal2D
     
     public boolean onlyLabelWhenSelected;
     
-    boolean isSelected = false;
+    // boolean isSelected = false;
         
     public boolean isLabelShowing() { return showLabel; }
     public void setLabelShowing(boolean val) { showLabel = val; }
@@ -161,7 +161,7 @@ public class LabelledPortrayal2D extends SimplePortrayal2D
         {
         getChild(object).draw(object,graphics,info);
 
-        if (showLabel && (isSelected || !onlyLabelWhenSelected))
+        if (showLabel && (info.selected || !onlyLabelWhenSelected))
             {
             // some locals
             Font labelFont = this.font;
@@ -179,20 +179,23 @@ public class LabelledPortrayal2D extends SimplePortrayal2D
                 scaledFont = this.scaledFont = labelFont.deriveFont(size);
 
             String s = getLabel(object,info);
-            int x = (int)(info.draw.x + scalex * info.draw.width + offsetx);
-            int y = (int)(info.draw.y + scaley * info.draw.height + offsety);
-            graphics.setPaint(paint);
-            graphics.setFont(scaledFont);
-    
-            if (align == ALIGN_CENTER)
+            if (s != null && !s.equals(""))         // don't bother drawing if the string is empty!
                 {
-                x -= graphics.getFontMetrics().stringWidth(s)/2;
+                int x = (int)(info.draw.x + scalex * info.draw.width + offsetx);
+                int y = (int)(info.draw.y + scaley * info.draw.height + offsety);
+                graphics.setPaint(paint);
+                graphics.setFont(scaledFont);
+                
+                if (align == ALIGN_CENTER)
+                    {
+                    x -= graphics.getFontMetrics().stringWidth(s)/2;
+                    }
+                else if (align == ALIGN_RIGHT)
+                    {
+                    x -= graphics.getFontMetrics().stringWidth(s);
+                    }
+                graphics.drawString(s,x,y);
                 }
-            else if (align == ALIGN_RIGHT)
-                {
-                x -= graphics.getFontMetrics().stringWidth(s);
-                }
-            graphics.drawString(s,x,y);
             }
         }
         
@@ -203,7 +206,7 @@ public class LabelledPortrayal2D extends SimplePortrayal2D
 
     public boolean setSelected(LocationWrapper wrapper, boolean selected)
         {
-        isSelected = selected;
+        // isSelected = selected;
         return getChild(wrapper.getObject()).setSelected(wrapper, selected);
         }
 

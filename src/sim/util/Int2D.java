@@ -26,10 +26,11 @@ public final class Int2D implements java.io.Serializable
     public Int2D(final int x, final int y) { this.x = x; this.y = y; }
     public final int getX() { return x; }
     public final int getY() { return y; }
-    /* public final java.awt.Point getPoint() { return new java.awt.Point(x,y); } */
-    public final java.awt.Point toPoint() { return new java.awt.Point(x,y); }
+    public java.awt.geom.Point2D.Double toPoint2D() { return new java.awt.geom.Point2D.Double(x,y); }
+    public java.awt.Point toPoint() { return new java.awt.Point(x,y); }
     public String toString() { return "Int2D["+x+","+y+"]"; }
     public String toCoordinates() { return "(" + x + ", " + y + ")"; }
+
 
     public final int hashCode()
         {
@@ -104,7 +105,7 @@ public final class Int2D implements java.io.Serializable
         }
 
 
-    /** Returns the distance FROM this MutableInt2D TO the specified point */
+    /** Returns the distance FROM this Int2D TO the specified point */
     public double distance(final double x, final double y)
         {
         final double dx = (double)this.x - x;
@@ -112,7 +113,7 @@ public final class Int2D implements java.io.Serializable
         return Math.sqrt(dx*dx+dy*dy);
         }
 
-    /** Returns the distance FROM this MutableInt2D TO the specified point.   */
+    /** Returns the distance FROM this Int2D TO the specified point.   */
     public double distance(final Double2D p)
         {
         final double dx = (double)this.x - p.x;
@@ -120,7 +121,7 @@ public final class Int2D implements java.io.Serializable
         return Math.sqrt(dx*dx+dy*dy);
         }
 
-    /** Returns the distance FROM this MutableInt2D TO the specified point.    */
+    /** Returns the distance FROM this Int2D TO the specified point.    */
     public double distance(final MutableInt2D p)
         {
         final double dx = (double)this.x - p.x;
@@ -128,7 +129,7 @@ public final class Int2D implements java.io.Serializable
         return Math.sqrt(dx*dx+dy*dy);
         }
 
-    /** Returns the distance FROM this MutableInt2D TO the specified point.    */
+    /** Returns the distance FROM this Int2D TO the specified point.    */
     public double distance(final Int2D p)
         {
         final double dx = (double)this.x - p.x;
@@ -136,7 +137,7 @@ public final class Int2D implements java.io.Serializable
         return Math.sqrt(dx*dx+dy*dy);
         }
 
-    /** Returns the distance FROM this MutableInt2D TO the specified point.    */
+    /** Returns the distance FROM this Int2D TO the specified point.    */
     public double distance(final java.awt.geom.Point2D p)
         {
         final double dx = (double)this.x - p.getX();
@@ -144,7 +145,7 @@ public final class Int2D implements java.io.Serializable
         return Math.sqrt(dx*dx+dy*dy);
         }
 
-    /** Returns the squared distance FROM this MutableInt2D TO the specified point */
+    /** Returns the squared distance FROM this Int2D TO the specified point */
     public double distanceSq(final double x, final double y)
         {
         final double dx = (double)this.x - x;
@@ -152,7 +153,7 @@ public final class Int2D implements java.io.Serializable
         return (dx*dx+dy*dy);
         }
 
-    /** Returns the squared distance FROM this MutableInt2D TO the specified point.    */
+    /** Returns the squared distance FROM this Int2D TO the specified point.    */
     public double distanceSq(final Double2D p)
         {
         final double dx = (double)this.x - p.x;
@@ -160,7 +161,7 @@ public final class Int2D implements java.io.Serializable
         return (dx*dx+dy*dy);
         }
 
-    /** Returns the squared distance FROM this MutableInt2D TO the specified point */
+    /** Returns the squared distance FROM this Int2D TO the specified point */
     public double distanceSq(final java.awt.geom.Point2D p)
         {
         final double dx = (double)this.x - p.getX();
@@ -168,7 +169,7 @@ public final class Int2D implements java.io.Serializable
         return (dx*dx+dy*dy);
         }
 
-    /** Returns the squared distance FROM this MutableInt2D TO the specified point.    */
+    /** Returns the squared distance FROM this Int2D TO the specified point.    */
     public double distanceSq(final MutableInt2D p)
         {
         final double dx = (double)this.x - p.x;
@@ -176,7 +177,7 @@ public final class Int2D implements java.io.Serializable
         return (dx*dx+dy*dy);
         }
 
-    /** Returns the squared distance FROM this MutableInt2D TO the specified point.    */
+    /** Returns the squared distance FROM this Int2D TO the specified point.    */
     public double distanceSq(final Int2D p)
         {
         final double dx = (double)this.x - p.x;
@@ -184,19 +185,19 @@ public final class Int2D implements java.io.Serializable
         return (dx*dx+dy*dy);
         }
 
-    /** Returns the manhattan distance FROM this MutableInt2D TO the specified point.    */
+    /** Returns the manhattan distance FROM this Int2D TO the specified point.    */
     public long manhattanDistance(final int x, final int y)
         {
         return Math.abs((long)this.x-x) + Math.abs((long)this.y-y);
         }
 
-    /** Returns the manhattan distance FROM this MutableInt2D TO the specified point.    */
+    /** Returns the manhattan distance FROM this Int2D TO the specified point.    */
     public long manhattanDistance(final MutableInt2D p)
         {
         return Math.abs((long)this.x-p.x) + Math.abs((long)this.y-p.y);
         }
         
-    /** Returns the manhattan distance FROM this MutableInt2D TO the specified point.    */
+    /** Returns the manhattan distance FROM this Int2D TO the specified point.    */
     public long manhattanDistance(final Int2D p)
         {
         return Math.abs((long)this.x-p.x) + Math.abs((long)this.y-p.y);

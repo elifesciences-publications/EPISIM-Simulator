@@ -18,6 +18,8 @@ import sim.util.*;
 import sim.util.gui.*;
 import sim.portrayal.*;
 import java.lang.ref.*;
+import java.lang.reflect.*;
+import java.util.prefs.*;
 
 /**
    Console is an elaborate Controller which provides a variety of GUI niceties to control the basics
@@ -216,7 +218,7 @@ public class Console extends JFrame implements Controller
     JComboBox timeBox;
 
     /** Random number generator seed */
-    int randomSeed = (int) System.currentTimeMillis();
+    long randomSeed = 0; // it'll change.... /* (long) System.currentTimeMillis(); */
 
     /** how many steps we should take on one press of the "step" button.  As this is only relevant
         when there is NO underlying play thread (stepping happens inside the event loop, with the
@@ -233,12 +235,12 @@ public class Console extends JFrame implements Controller
         Sets the simulation's controller to point to this Console.    */
     public Console(final GUIState simulation)
         {
-        //super(GUIState.getName(simulation.getClass()));
+        super(GUIState.getName(simulation.getClass()));
 
         final Color transparentBackground = new JPanel().getBackground();  // sacrificial JPanel
 
-
         this.simulation = simulation;
+        randomSeed = simulation.state.seed();
 
         rateFormat = NumberFormat.getInstance();
         rateFormat.setMaximumFractionDigits(3);
@@ -294,7 +296,7 @@ public class Console extends JFrame implements Controller
             {
             public void actionPerformed(ActionEvent e)
                 {
-                pressStop();
+                pressStopMaybe();
                 }
             });
         stopButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -347,6 +349,22 @@ public class Console extends JFrame implements Controller
 
         frameList = new Vector();
         frameListDisplay = new JList(frameList);
+                
+        frameListDisplay.addMouseListener(new MouseAdapter()
+            {
+            public void mouseClicked(MouseEvent e)
+                {
+                if (e.getClickCount() == 2)
+                    {
+                    int index = frameListDisplay.locationToIndex(e.getPoint());
+                    JFrame frame = (JFrame)(frameListDisplay.getModel().getElementAt(index));
+                    /* list.ensureIndexIsVisible(index); */
+                    frame.setVisible(!frame.isVisible());
+                    frameListDisplay.repaint();
+                    }
+                }
+            });
+                
         frameListDisplay.setCellRenderer(new ListCellRenderer()
             {
             // this ListCellRenderer will show the frame titles in black if they're
@@ -433,13 +451,13 @@ public class Console extends JFrame implements Controller
         // create speed slider
         // Slider:  0   1     2    3   4  5  6 7  8  9
         // speed:   0   1/4  1/2   1   2  4  8 16 32 64 (speed is in seconds per tick, higher is slower)
-        slider = new JSlider(0, 100, 0); // ranges from 0 to 100
+        slider = new JSlider(0, 1000, 0); // ranges from 0 to 1000
         slider.addChangeListener(new ChangeListener()
             {
             public void stateChanged(ChangeEvent e)
                 {
                 int val = slider.getValue();
-                long speed = (long)( 64000.0 / (Math.pow(4,5)-1) * ( Math.pow(4,val/20.0) - 1 ) );
+                long speed = (long)( 512000.0 / (Math.pow(4,5)-1) * ( Math.pow(4,val/1000.0) - 1 ) );
                 if (!slider.getValueIsAdjusting())
                     setPlaySleep(speed); // convert to milliseconds
                 sliderText.setText("" + ((double) (speed)) / 1000);
@@ -539,7 +557,7 @@ public class Console extends JFrame implements Controller
                 }
             };
         // need space for 9218868437227405312
-        endField.valField.setColumns(19);  // make enough space
+        endField.valField.setColumns(20);  // make enough space
         endField.setMaximumSize(endField.valField.getPreferredSize());
         endField.setPreferredSize(endField.valField.getPreferredSize());
 
@@ -577,7 +595,7 @@ public class Console extends JFrame implements Controller
                 }
             };
         // need space for 9218868437227405312
-        timeEndField.valField.setColumns(19);  // make enough space
+        timeEndField.valField.setColumns(20);  // make enough space
         timeEndField.setMaximumSize(endField.valField.getPreferredSize());
         timeEndField.setPreferredSize(endField.valField.getPreferredSize());
 
@@ -590,7 +608,7 @@ public class Console extends JFrame implements Controller
                 }
             };
         b.add(timeEndField);
-        controlPanel.addLabelled("Automatically Stop After Time ", b);
+        controlPanel.addLabelled("Automatically Stop after Time ", b);
 
 
         // Create the Pause text field
@@ -617,7 +635,7 @@ public class Console extends JFrame implements Controller
                 }
             };
         // need space for 9218868437227405312
-        pauseField.valField.setColumns(19);  // make enough space
+        pauseField.valField.setColumns(20);  // make enough space
         pauseField.setMaximumSize(pauseField.valField.getPreferredSize());
         pauseField.setPreferredSize(pauseField.valField.getPreferredSize());
 
@@ -657,7 +675,7 @@ public class Console extends JFrame implements Controller
                 }
             };
         // need space for 9218868437227405312
-        timePauseField.valField.setColumns(19);  // make enough space
+        timePauseField.valField.setColumns(20);  // make enough space
         timePauseField.setMaximumSize(pauseField.valField.getPreferredSize());
         timePauseField.setPreferredSize(pauseField.valField.getPreferredSize());
 
@@ -675,22 +693,33 @@ public class Console extends JFrame implements Controller
         // Create the Random text field
         randomField = new PropertyField("")
             {
+            boolean lock = false;  // repaints will cause this to be called recursively.  It's tickled by Utilities.inform below, so we just block it out here.
             public String newValue(String value)
                 {
+                if (lock) return value;  // blocked out
+                lock = true;
                 try
                     {
-                    int l = Integer.parseInt(value);
+                    long l = Long.parseLong(value);
+                    if (l > Integer.MAX_VALUE || l < Integer.MIN_VALUE)  // outside of int range
+                        Utilities.inform("Seed Will Be Truncated",
+                            "The random number generator only uses 32 bits of a given seed.  You've specified a longer seed than this." + 
+                            "Not all the bits of this seed will be used.", Console.this);           
                     randomSeed = l;
                     setRandomNumberGenerator(randomSeed);
+                    lock = false;
                     return "" + l;
                     } 
                 catch (NumberFormatException num)
-                    { 
+                    {
+                    lock = false;
                     return getValue();
                     }
                 }
             };
-        randomField.valField.setColumns(10);  // make enough space
+                        
+        // need space for -9223372036854775808
+        randomField.valField.setColumns(20);  // make enough space
         randomField.setMaximumSize(randomField.valField.getPreferredSize());
         randomField.setPreferredSize(randomField.valField.getPreferredSize());
         randomField.setValue("" + randomSeed);  // so the user can see the initial seed value
@@ -721,7 +750,6 @@ public class Console extends JFrame implements Controller
         b.add(incrementSeedOnPlay);
         controlPanel.addLabelled("Increment Seed on Stop ", b);
 
-        
         // Create the repeatButton checkbox
         b = new Box(BoxLayout.X_AXIS)
             {
@@ -744,9 +772,39 @@ public class Console extends JFrame implements Controller
         b.add(repeatButton);
         controlPanel.addLabelled("Repeat Play on Stop ", b);
         
-
-
-
+                
+        ///////// Create the Save as Defaults buttons
+                
+        Box defaults = new Box(BoxLayout.X_AXIS);
+        defaults.add(new JLabel(" Save as Defaults for "));
+        JButton appPreferences = new JButton("Simulation");
+        JButton systemPreferences = new JButton("MASON");
+        defaults.add(appPreferences);
+        defaults.add(systemPreferences);
+        defaults.add(Box.createGlue());
+                
+        systemPreferences.putClientProperty( "JComponent.sizeVariant", "mini" );
+        systemPreferences.putClientProperty( "JButton.buttonType", "bevel" );
+        systemPreferences.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                savePreferences(Prefs.getGlobalPreferences(DEFAULT_PREFERENCES_KEY));
+                                
+                // if we're setting the system preferences, remove the local preferences to avoid confusion
+                Prefs.removeAppPreferences(simulation, DEFAULT_PREFERENCES_KEY);
+                }
+            });
+                
+        appPreferences.putClientProperty( "JComponent.sizeVariant", "mini" );
+        appPreferences.putClientProperty( "JButton.buttonType", "bevel" );
+        appPreferences.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                savePreferences(Prefs.getAppPreferences(simulation, DEFAULT_PREFERENCES_KEY));
+                }
+            });
 
 
         //////// Create the "Inspectors" tab panel  
@@ -841,8 +899,17 @@ public class Console extends JFrame implements Controller
                 }
             };
         controlScroll.getViewport().setBackground(transparentBackground);//UIManager.getColor("window"));  // make nice stripes on MacOS X
-            
-        tabPane.addTab("Console", controlScroll);
+                
+        JPanel upperPane = new JPanel();
+        upperPane.setLayout(new BorderLayout());
+        upperPane.setBorder(BorderFactory.createMatteBorder(0,0,1,0, new Color(0,0,0,64)));  // new Color(0,0,0,255)));
+        upperPane.add(controlScroll, BorderLayout.CENTER);
+        JPanel outerPane = new JPanel();
+        outerPane.setLayout(new BorderLayout());
+        outerPane.add(upperPane, BorderLayout.CENTER);
+        outerPane.add(defaults, BorderLayout.SOUTH);
+                
+        tabPane.addTab("Console", outerPane);
         tabPane.addTab("Displays", frameListPanel);
         tabPane.addTab("Inspectors", inspectorPanel);
         // add an optional pane if the GUIState has an inspector
@@ -974,12 +1041,14 @@ public class Console extends JFrame implements Controller
         //////// Prepare the simulation
         
         // add me to the console list
-        allConsoles.put(this,this);
-        numConsoles++;
+        allControllers.put(this,this);
         
-        // Fire up the simulation displays
-        simulation.init(this);
-
+        // Fire up the simulation displays.
+        // We force this to be in the Swing event thread because the user's
+        // init method often has all sorts of non-threadsafe swing setup
+        // gizmos.  This SHOULD be fine to force.  {I hope!}  This fixes
+        // some ConcurrentModificationException bugs we were seeing.
+        invokeInSwing(new Runnable() { public void run() { try { simulation.init(Console.this); } catch (Exception e) { e.printStackTrace(); } } });
 
         // Set the location of the console if it hasn't already
         // been set by the user
@@ -998,7 +1067,23 @@ public class Console extends JFrame implements Controller
                 setLocation(bounds.width + DEFAULT_GUTTER,defLoc.y);
             else setLocation(defLoc);
             }
+
+        // update preferences
+        invokeInSwing(new Runnable() { public void run() { resetToPreferences(); }});
         }
+
+    /** If I'm already in the Swing dispatch thread, just run this.  Otherwise call SwingUtilities.invokeAndWait on it. */
+    void invokeInSwing(Runnable runnable)
+        {
+        if (SwingUtilities.isEventDispatchThread()) runnable.run();
+        else try
+                 {
+                 SwingUtilities.invokeAndWait(runnable);
+                 }
+            catch (InterruptedException e) { }
+            catch (InvocationTargetException e) { }
+        }
+
 
     /** Throws out the old model inspector, if any, and creates a new model inspector, if any. */
     void buildModelInspector()
@@ -1024,6 +1109,62 @@ public class Console extends JFrame implements Controller
             tabPane.addTab(name,modelInspectorScrollPane);
             }
         tabPane.revalidate();
+        }
+
+
+    /////////////////////// PREFERENCES MANIPULATION
+        
+    public String DEFAULT_PREFERENCES_KEY = "Console";
+    public String DELAY_KEY = "Delay";
+    public String THREAD_PRIORITY_KEY = "Thread Priority";
+    public String STEPS_KEY = "Steps";
+    public String AUTOMATIC_STOP_STEPS_KEY = "Automatically Stop at Step";
+    public String AUTOMATIC_STOP_TIME_KEY = "Automatically Stop after Time";
+    public String AUTOMATIC_PAUSE_STEPS_KEY = "Automatically Pause at Step";
+    public String AUTOMATIC_PAUSE_TIME_KEY = "Automatically Pause after Time";
+//              public String SEED_KEY = "Seed";
+    public String INCREMENT_KEY = "Increment";
+    public String REPEAT_KEY = "Repeat";
+                
+    public void savePreferences(Preferences prefs)
+        {
+        try
+            {
+            prefs.putInt(DELAY_KEY,slider.getValue());
+            prefs.putInt(THREAD_PRIORITY_KEY, prioritySlider.getValue());
+            prefs.putInt(STEPS_KEY, stepSlider.getValue());
+            prefs.put(AUTOMATIC_STOP_STEPS_KEY, endField.getValue());
+            prefs.put(AUTOMATIC_STOP_TIME_KEY, timeEndField.getValue());
+            prefs.put(AUTOMATIC_PAUSE_STEPS_KEY, pauseField.getValue());
+            prefs.put(AUTOMATIC_PAUSE_TIME_KEY, timePauseField.getValue());
+//                                                      prefs.put(SEED_KEY, randomField.getValue());
+            prefs.putBoolean(INCREMENT_KEY, incrementSeedOnPlay.isSelected());
+            prefs.putBoolean(REPEAT_KEY, repeatButton.isSelected());
+                        
+            if (!Prefs.save(prefs))
+                Utilities.inform ("Preferences Cannot be Saved", "Your Java system can't save preferences.  Perhaps this is an applet?", this);
+            }
+        catch (java.security.AccessControlException e) { } // it must be an applet
+        }
+                                        
+    public void resetToPreferences()
+        {
+        try
+            {
+            Preferences systemPrefs = Prefs.getGlobalPreferences(DEFAULT_PREFERENCES_KEY);
+            Preferences appPrefs = Prefs.getAppPreferences(simulation, DEFAULT_PREFERENCES_KEY);
+            slider.setValue(appPrefs.getInt(DELAY_KEY, systemPrefs.getInt(DELAY_KEY, slider.getValue())));
+            prioritySlider.setValue(appPrefs.getInt(THREAD_PRIORITY_KEY, systemPrefs.getInt(THREAD_PRIORITY_KEY, prioritySlider.getValue())));
+            stepSlider.setValue(appPrefs.getInt(STEPS_KEY, systemPrefs.getInt(STEPS_KEY, stepSlider.getValue())));
+            endField.setValue(endField.newValue(appPrefs.get(AUTOMATIC_STOP_STEPS_KEY, systemPrefs.get(AUTOMATIC_STOP_STEPS_KEY, endField.getValue()))));
+            timeEndField.setValue(timeEndField.newValue(appPrefs.get(AUTOMATIC_STOP_TIME_KEY, systemPrefs.get(AUTOMATIC_STOP_TIME_KEY, timeEndField.getValue()))));
+            pauseField.setValue(pauseField.newValue(appPrefs.get(AUTOMATIC_PAUSE_STEPS_KEY, systemPrefs.get(AUTOMATIC_PAUSE_STEPS_KEY, pauseField.getValue()))));
+            timePauseField.setValue(timePauseField.newValue(appPrefs.get(AUTOMATIC_PAUSE_TIME_KEY, systemPrefs.get(AUTOMATIC_PAUSE_TIME_KEY, timePauseField.getValue()))));
+            //                      randomField.setValue(randomField.newValue(appPrefs.get(SEED_KEY, systemPrefs.get(SEED_KEY, randomField.getValue()))));
+            incrementSeedOnPlay.setSelected(appPrefs.getBoolean(INCREMENT_KEY, systemPrefs.getBoolean(INCREMENT_KEY, incrementSeedOnPlay.isSelected())));
+            repeatButton.setSelected(appPrefs.getBoolean(REPEAT_KEY, systemPrefs.getBoolean(REPEAT_KEY, repeatButton.isSelected())));
+            }
+        catch (java.security.AccessControlException e) { } // it must be an applet
         }
 
 
@@ -1258,7 +1399,7 @@ public class Console extends JFrame implements Controller
     void startSimulation()
         {
         removeAllInspectors(true);      // clear inspectors
-        setRandomNumberGenerator(randomSeed);
+        // setRandomNumberGenerator(randomSeed);
         simulation.start();
         updateTime(simulation.state.schedule.getSteps(), simulation.state.schedule.time(), -1.0);
         //setTime(simulation.state.schedule.time());
@@ -1292,7 +1433,7 @@ public class Console extends JFrame implements Controller
                     }
                 };
             if (modelInspector.isVolatile())  // should we update the inspector each time -- expensive
-                simulation.scheduleImmediateRepeat(true, stepper);
+                simulation.scheduleRepeatingImmediatelyAfter(stepper);
             // stepper.step(simulation.state);  // update the model inspector one time at the beginning at any rate
             }
         }
@@ -1313,9 +1454,10 @@ public class Console extends JFrame implements Controller
         return tabPane;
         }
     
+        
     /** Sets the random number generator of the underlying model, pausing it first, then unpausing it after. 
         Updates the randomField. */ 
-    void setRandomNumberGenerator(final int val)
+    void setRandomNumberGenerator(final long val)
         {
         doChangeCode(new Runnable()
             {
@@ -1362,7 +1504,7 @@ public class Console extends JFrame implements Controller
     final static Object isQuittingLock = new Object();
     
     /** Quits the program.  Called by the Quit menu option. */
-    public void doQuit()
+    public static void doQuit()
         {
         synchronized(isQuittingLock)  // quitting causes closing, which in turn causes quitting...
             {
@@ -1370,10 +1512,12 @@ public class Console extends JFrame implements Controller
             else isQuitting = true;
         
             // close all consoles.  We dump into an array because they'll try to remove themselves
-            Object[] entries = allConsoles.entrySet().toArray();
+            Object[] entries = allControllers.entrySet().toArray();
             for(int x=0;x<entries.length;x++)
-                if (entries[x] != null)  // might occur if weak?  dunno
+                if (entries[x] != null && entries[x] instanceof Console)  // might occur if weak?  dunno
                     ((Console)(((Map.Entry)(entries[x])).getKey())).doClose();
+                else if (entries[x] != null && entries[x] instanceof SimpleController)  // might occur if weak?  dunno
+                    ((SimpleController)(((Map.Entry)(entries[x])).getKey())).doClose();
 
             if(!(SimApplet.isApplet))
                 try { System.exit(0); } catch (Exception e) { }
@@ -1384,10 +1528,8 @@ public class Console extends JFrame implements Controller
     // This stuff allows us to fire up multiple consoles (multiple simulations) in the same process,
     // but when we close one of them, it doesn't quit everything. 
     
-    /** A weak container for all current consoles. */
-    static WeakHashMap allConsoles = new WeakHashMap();
-    /** A reference count of open (unclosed) Consoles.  When this reaches 0, the program ends. */
-    static int numConsoles;
+    /** A weak container for all current consoles and other controllers which wish to be there. */
+    public static WeakHashMap allControllers = new WeakHashMap();
     /** Private internal flag which indicates if the program is already in the process of quitting. */    
     boolean isClosing = false;
     /** Private lock used by doClose() to avoid synchronizing on Console. */
@@ -1406,8 +1548,8 @@ public class Console extends JFrame implements Controller
         pressStop();  // stop threads
         simulation.quit();  // clean up simulation
         dispose();
-        allConsoles.remove(this);
-        if (--numConsoles <= 0)  // try to quit if we're all gone
+        allControllers.remove(this);
+        if (allControllers.size() == 0)  // try to quit if we're all gone
             doQuit();
         }
 
@@ -1422,7 +1564,7 @@ public class Console extends JFrame implements Controller
                 
         // Okay here we go with the real code.
         if (!doNew(null, true) && !SimApplet.isApplet) System.exit(0); // just a dummy JFrame
-        }
+        }               
     
     /** Pops up the about box */
     static JFrame aboutFrame = null;
@@ -1485,7 +1627,7 @@ public class Console extends JFrame implements Controller
             spacer.setFont(new Font("Dialog",0,6));
             b.add(spacer);
                         
-            j = new JLabel("MASON is (c) 2005 Sean Luke and George Mason University,");
+            j = new JLabel("MASON is (c) 2005-2009 Sean Luke and George Mason University,");
             j.setFont(small);
             b.add(j);
 
@@ -1713,20 +1855,31 @@ public class Console extends JFrame implements Controller
             p.add(pane,BorderLayout.WEST);
             p.add(fieldp, BorderLayout.SOUTH);
                         
-            int reply = showOptionDialog(null,p, "New Simulation", new Object[] {"Select", 
-                                                                                 startingUp ? "Quit" : "Cancel"}, true);
+            int reply = showOptionDialog(null, p, "New Simulation", new Object[] {"Select", 
+                                                                                  startingUp ? "Quit" : "Cancel"}, true);
             if (reply == 1)  // not -1 -- caused by disposing the window, and not 0 -- caused by "Select"
+                {
                 return false;
-                                
+                }
+                                                
             String className = field.getText(); // (String)cb.getEditor().getItem();
             try
                 {
                 // check first for a default constructor
                 java.lang.reflect.Constructor cons = Class.forName(className).getConstructor(new Class[] {});
                 // okay, we're past that.  Now try to build the instance
-                GUIState state = (GUIState)(Class.forName(className).newInstance());
-                Console c = new Console(state);
-                c.setVisible(true);
+                final GUIState state = (GUIState)(Class.forName(className).newInstance());
+                                
+                // Now we create the controller, which calls init on the state.  If we were just started up,
+                // doNew() is being called from main(), and thus from the main thread rather than the dispatch
+                // thread.  This creates weird bugs if mouse events get tangled up when adding new portrayals
+                // because the mouse events try to check to see how many portrayals there are (for hitObjects()),
+                // creating race conditions.  So we'll check for that condition and call invokeAndWait if so.
+                // Otherwise we'll just call it directly.
+                                
+                if (SwingUtilities.isEventDispatchThread())
+                    state.createController();
+                else SwingUtilities.invokeAndWait(new Runnable() { public void run() { state.createController(); } });
                 return true;
                 }
             catch (NoSuchMethodException e)
@@ -1915,10 +2068,49 @@ public class Console extends JFrame implements Controller
 
 
 
-
+    boolean requiresConfirmationToStop = false;
+    public synchronized void setRequiresConfirmationToStop(boolean val)
+        {
+        requiresConfirmationToStop = val;
+        }
 
     /////////////////////// PLAY/STOP/PAUSE BUTTON FUNCTIONS
 
+
+
+    /** Called when the user pressed the stop button.  This optionally throws up a dialog box to double-check if we
+        really should stop.  */
+    synchronized void pressStopMaybe()
+        {
+        if (requiresConfirmationToStop)
+            {
+            if (getPlayState() != PS_STOPPED)
+                {
+                boolean result = false;
+                // pause the simulation by locking on the schedule
+                synchronized(simulation.state.schedule)
+                    {
+                    // now get the request from the user
+                    result = (JOptionPane.showConfirmDialog(this, "The simulation is running.  Really stop it?", 
+                            "Stop the simulation?", JOptionPane.OK_CANCEL_OPTION) 
+                        == JOptionPane.OK_OPTION);
+                    }
+                // release the lock, else pressStop() won't work right
+                if (result) pressStop();
+                }
+            }
+        else pressStop();
+        }
+
+    public void setIncrementSeedOnPlay(boolean val)
+        {
+        incrementSeedOnPlay.setSelected(val);
+        }
+        
+    public boolean getIncrementSeedOnPlay()
+        {
+        return incrementSeedOnPlay.isSelected();
+        }
 
     /** Called when the user presses the stop button.  You can call this as well to simulate the same. */
     public synchronized void pressStop()
@@ -1941,19 +2133,17 @@ public class Console extends JFrame implements Controller
 
             // increment the random number seed if the user had said to do so
             if (incrementSeedOnPlay.isSelected())
-                {
                 randomSeed++;
-                setRandomNumberGenerator(randomSeed);
-                }
-            }
+            setRandomNumberGenerator(randomSeed);
         
-        // now let's start again if the user had stated a desire to repeat the simulation automatically
-        if (getShouldRepeat())
-            {
-            // do this later -- don't just call pressPlay() here because it could
-            // get us in an infinite loop if the user calls pressStop() for some reason
-            // in his start() method.
-            SwingUtilities.invokeLater(new Runnable() { public void run() { pressPlay(); }});
+            // now let's start again if the user had stated a desire to repeat the simulation automatically
+            if (getShouldRepeat())
+                {
+                // do this later -- don't just call pressPlay() here because it could
+                // get us in an infinite loop if the user calls pressStop() for some reason
+                // in his start() method.
+                SwingUtilities.invokeLater(new Runnable() { public void run() { pressPlay(); }});
+                }
             }
         }
         
@@ -2278,6 +2468,10 @@ public class Console extends JFrame implements Controller
                             {
                             e.printStackTrace();
                             }
+
+                    // name the current thread
+                    simulation.state.nameThread(simulation.state);
+
                     // start the main loop
 
 //                    int numSteps = 1;
@@ -2422,6 +2616,7 @@ public class Console extends JFrame implements Controller
                                     pauseField.setValue("");
                                     timePauseField.setValue("");
                                     setWhenShouldPause(Long.MAX_VALUE);
+                                    setWhenShouldPauseTime(Schedule.AFTER_SIMULATION);
                                     }                        
                                 catch (Exception e)
                                     {  
@@ -2601,7 +2796,7 @@ public class Console extends JFrame implements Controller
         if (currentInspector == -1) return;
         
         inspectorNames.remove(currentInspector);
-        final Stoppable stoppable = (Stoppable)(inspectorStoppables.remove(currentInspector));
+        Stoppable stoppable = (Stoppable)(inspectorStoppables.remove(currentInspector));
         JScrollPane oldInspector = (JScrollPane)(inspectorToolbars.remove(currentInspector));
         Point oldInspectorLocation = oldInspector.getLocationOnScreen();  // set here before inspector goes away
 
@@ -2647,6 +2842,7 @@ public class Console extends JFrame implements Controller
                     {
                     public void step(final SimState state)
                         {
+                        final Steppable foo = this;
                         SwingUtilities.invokeLater(new Runnable()
                             {
                             Inspector inspector = (Inspector)(inspectors.objs[xx]);
@@ -2670,7 +2866,7 @@ public class Console extends JFrame implements Controller
                 Stoppable stopper = null;
                 try
                     {
-                    stopper = ((Inspector)(inspectors.objs[x])).reviseStopper(simulation.scheduleImmediateRepeat(true,stepper));
+                    stopper = ((Inspector)(inspectors.objs[x])).reviseStopper(simulation.scheduleRepeatingImmediatelyAfter(stepper));
                     inspectorStoppables.addElement(stopper);
                     }
                 catch (IllegalArgumentException ex) { /* do nothing -- it's thrown if the user tries to pop up an inspector when the time is over. */ }
@@ -2702,7 +2898,7 @@ public class Console extends JFrame implements Controller
     */
     public void registerInspector(Inspector inspector, Stoppable stopper)
         {
-        allInspectors.put(inspector, new WeakReference(stopper));  // warning: if no one else refers to stopper, it gets GCed!
+        allInspectors.put(inspector, stopper);  //new WeakReference(stopper));  // warning: if no one else refers to stopper, it gets GCed!
         }
 
     /** Stops all inspectors.  If killDraggedOutWindowsToo is true, then the detatched inspectors are stopped as well. */
@@ -2720,7 +2916,7 @@ public class Console extends JFrame implements Controller
             Iterator i = allInspectors.keySet().iterator();
             while(i.hasNext())
                 {
-                Stoppable stopper = (Stoppable)(((WeakReference)allInspectors.get(i.next())).get());
+                Stoppable stopper = (Stoppable)(allInspectors.get(i.next())); //(Stoppable)(((WeakReference)allInspectors.get(i.next())).get());
                 if (stopper != null) stopper.stop();
                 }
             }
@@ -2747,6 +2943,7 @@ public class Console extends JFrame implements Controller
                 }
             allInspectors = new WeakHashMap();
             }
+        inspectorStoppables = new Vector();
         inspectorNames = new Vector();
         inspectorToolbars = new Vector();
         resetInspectors(-1);

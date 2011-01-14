@@ -18,6 +18,7 @@ import java.io.*;
 import sim.util.gui.*;
 import sim.util.media.*;
 import sim.util.*;
+import java.util.prefs.*;
 
 /**
    Display2D holds, displays, and manipulates 2D Portrayal objects, allowing the user to scale them,
@@ -46,8 +47,24 @@ import sim.util.*;
    SwingUtilities.invokeLater().
 */
 
-public class Display2D extends JComponent implements Steppable
+public class Display2D extends JComponent implements Steppable, Manipulating2D
     {
+    protected boolean precise = false;
+        
+    public String DEFAULT_PREFERENCES_KEY = "Display2D";
+    String preferencesKey = DEFAULT_PREFERENCES_KEY;  // default 
+    /** If you have more than one Display2D in your simulation and you want them to have
+        different preferences, set each to a different key value.    The default value is DEFAULT_PREFERENCES_KEY.
+        You may not have a key which ends in a forward slash (/) when trimmed  
+        Key may be set to null (the default).   */
+    public void setPreferencesKey(String s)
+        {
+        if (s.trim().endsWith("/"))
+            throw new RuntimeException("Key ends with '/', which is not allowed");
+        else preferencesKey = s;
+        }
+    public String getPreferencesKey() { return preferencesKey; }
+
     /** Option pane */
     public class OptionPane extends JFrame
         {
@@ -64,6 +81,9 @@ public class Display2D extends JComponent implements Steppable
         public JCheckBox interpolation = new JCheckBox("Bilinear Interpolation of Images");
         public JCheckBox tooltips = new JCheckBox("Tool Tips");
         
+        public JButton systemPreferences = new JButton("MASON");
+        public JButton appPreferences = new JButton("Simulation");
+                
         public NumberTextField xOffsetField = new NumberTextField(0,1,50)
             {
             public double newValue(final double val)
@@ -86,6 +106,8 @@ public class Display2D extends JComponent implements Steppable
                 }
             };
 
+        ActionListener listener = null;
+                
         public OptionPane(String title)
             {
             super(title);
@@ -126,7 +148,7 @@ public class Display2D extends JComponent implements Steppable
             p.add(b,BorderLayout.CENTER);
             getContentPane().add(p,BorderLayout.CENTER);
             
-            ActionListener listener = new ActionListener()
+            listener = new ActionListener()
                 {
                 public void actionPerformed(ActionEvent e)
                     {
@@ -147,9 +169,110 @@ public class Display2D extends JComponent implements Steppable
             alphaInterpolation.addActionListener(listener);
             interpolation.addActionListener(listener);
             tooltips.addActionListener(listener);
+
+            // add preferences
+                        
+            b = new Box(BoxLayout.X_AXIS);
+            b.add(new JLabel(" Save as Defaults for "));
+            b.add(appPreferences);
+            b.add(systemPreferences);
+            getContentPane().add(b, BorderLayout.SOUTH);
+
+            systemPreferences.putClientProperty( "JComponent.sizeVariant", "mini" );
+            systemPreferences.putClientProperty( "JButton.buttonType", "bevel" );
+            systemPreferences.addActionListener(new ActionListener()
+                {
+                public void actionPerformed(ActionEvent e)
+                    {
+                    String key = getPreferencesKey();
+                    savePreferences(Prefs.getGlobalPreferences(key));
+                                        
+                    // if we're setting the system preferences, remove the local preferences to avoid confusion
+                    Prefs.removeAppPreferences(simulation, key);
+                    }
+                });
+                        
+            appPreferences.putClientProperty( "JComponent.sizeVariant", "mini" );
+            appPreferences.putClientProperty( "JButton.buttonType", "bevel" );
+            appPreferences.addActionListener(new ActionListener()
+                {
+                public void actionPerformed(ActionEvent e)
+                    {
+                    String key = getPreferencesKey();
+                    savePreferences(Prefs.getAppPreferences(simulation, key));
+                    }
+                });
+
+            setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            setResizable(false);
             pack();
+
+            }
+                
+        /** Saves the Option Pane Preferences to a given Preferences Node */
+        public void savePreferences(Preferences prefs)
+            {
+            try
+                {
+                prefs.putInt(DRAW_GRIDS_KEY,
+                    useNoBuffer.isSelected() ? 0 : 
+                    useBuffer.isSelected() ? 1 : 2);
+                prefs.putDouble(X_OFFSET_KEY, xOffsetField.getValue());
+                prefs.putDouble(Y_OFFSET_KEY, yOffsetField.getValue());
+                prefs.putBoolean(ANTIALIAS_KEY, antialias.isSelected());
+                prefs.putBoolean(BETTER_TRANSPARENCY_KEY, alphaInterpolation.isSelected());
+                prefs.putBoolean(INTERPOLATION_KEY, interpolation.isSelected());
+                prefs.putBoolean(TOOLTIPS_KEY, tooltips.isSelected());
+                                                        
+                if (!Prefs.save(prefs))
+                    Utilities.inform ("Preferences Cannot be Saved", "Your Java system can't save preferences.  Perhaps this is an applet?", this);
+                }
+            catch (java.security.AccessControlException e) { } // it must be an applet
+            }
+                        
+                        
+        static final String DRAW_GRIDS_KEY = "Draw Grids";
+        static final String X_OFFSET_KEY = "X Offset";
+        static final String Y_OFFSET_KEY = "Y Offset";
+        static final String ANTIALIAS_KEY = "Antialias";
+        static final String BETTER_TRANSPARENCY_KEY = "Better Transparency";
+        static final String INTERPOLATION_KEY = "Bilinear Interpolation";
+        static final String TOOLTIPS_KEY = "Tool Tips";
+                
+        /** Resets the Option Pane Preferences by loading from the preference database */
+        public void resetToPreferences()
+            {
+            try
+                {
+                Preferences systemPrefs = Prefs.getGlobalPreferences(getPreferencesKey());
+                Preferences appPrefs = Prefs.getAppPreferences(simulation, getPreferencesKey());
+                int val = appPrefs.getInt(DRAW_GRIDS_KEY, 
+                    systemPrefs.getInt(DRAW_GRIDS_KEY,
+                        useNoBuffer.isSelected() ? 0 : 
+                        useBuffer.isSelected() ? 1 : 2));
+                if (val == 0) useNoBuffer.setSelected(true);
+                else if (val == 1) useBuffer.setSelected(true);
+                else // (val == 0) 
+                    useDefault.setSelected(true);
+                xOffsetField.setValue(xOffsetField.newValue(appPrefs.getDouble(X_OFFSET_KEY,
+                            systemPrefs.getDouble(X_OFFSET_KEY, 0))));
+                yOffsetField.setValue(yOffsetField.newValue(appPrefs.getDouble(Y_OFFSET_KEY,
+                            systemPrefs.getDouble(Y_OFFSET_KEY, 0))));
+                antialias.setSelected(appPrefs.getBoolean(ANTIALIAS_KEY,
+                        systemPrefs.getBoolean(ANTIALIAS_KEY, false)));
+                alphaInterpolation.setSelected(appPrefs.getBoolean(BETTER_TRANSPARENCY_KEY,
+                        systemPrefs.getBoolean(BETTER_TRANSPARENCY_KEY, false)));
+                interpolation.setSelected(appPrefs.getBoolean(INTERPOLATION_KEY,
+                        systemPrefs.getBoolean(INTERPOLATION_KEY, false)));
+                tooltips.setSelected(appPrefs.getBoolean(TOOLTIPS_KEY,
+                        systemPrefs.getBoolean(TOOLTIPS_KEY, false)));
+                // trigger resets by calling the listener.  Don't bother with an event
+                listener.actionPerformed(null);
+                }
+            catch (java.security.AccessControlException e) { } // it must be an applet
             }
         }
+                
     
     /** The object which actually does all the drawing.  Perhaps we should move this out. */
     public class InnerDisplay2D extends JComponent
@@ -165,6 +288,20 @@ public class Display2D extends JComponent implements Steppable
         public double xOffset;
         /** y offset */
         public double yOffset;
+                
+        /** Removes all mouse listeners, mouse motion listeners, and Key listeners from this component.  Mostly used for kiosk mode stuff -- see the Howto */
+        public void removeListeners()
+            {
+            MouseListener[] mls = (MouseListener[])(getListeners(MouseListener.class));
+            for(int x = 0 ; x < mls.length; x++)
+                { removeMouseListener(mls[x]); }
+            MouseMotionListener[] mmls = (MouseMotionListener[])(getListeners(MouseMotionListener.class));
+            for(int x = 0 ; x < mmls.length; x++)
+                { removeMouseMotionListener(mmls[x]); }
+            KeyListener[] kls = (KeyListener[])(getListeners(KeyListener.class));
+            for(int x = 0 ; x < kls.length; x++)
+                { removeKeyListener(kls[x]); }
+            }
                         
         /** Creates an InnerDisplay2D with the provided width and height. */
         public InnerDisplay2D(double width, double height)
@@ -206,7 +343,7 @@ public class Display2D extends JComponent implements Steppable
                 // only paint if it's appropriate
                 long steps = Display2D.this.simulation.state.schedule.getSteps();
                 if (steps > lastEncodedSteps &&
-                    steps % getInterval() == 0 &&
+                    shouldUpdate() &&
                     Display2D.this.simulation.state.schedule.time() < Schedule.AFTER_SIMULATION)
                     {
                     Display2D.this.movieMaker.add(paint(g,true,false));
@@ -460,40 +597,12 @@ public class Display2D extends JComponent implements Steppable
                     g.fillRect((int)clip.getX(),(int)clip.getY(),(int)clip.getWidth(),(int)clip.getHeight());
                     }
                 
-                /*
-                // get scale
-                final double scale = getScale();
-                // compute WHERE we need to draw
-                int origindx = 0;
-                int origindy = 0;
-
-                // for information on why we use getViewRect, see computeClip()
-                Rectangle2D fullComponent = getViewRect();
-                if (fullComponent.getWidth() > (width * scale))
-                origindx = (int)((fullComponent.getWidth() - width*scale)/2);
-                if (fullComponent.getHeight() > (height*scale))
-                origindy = (int)((fullComponent.getHeight() - height*scale)/2);
-                    
-                // offset origin as user had requested
-                origindx += (int)(xOffset*scale);
-                origindy += (int)(yOffset*scale);
-                */
-                
                 Iterator iter = portrayals.iterator();
                 while (iter.hasNext())
                     {
                     FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(iter.next());
                     if (p.visible)
                         {
-/*
-  Rectangle2D rdraw = new Rectangle2D.Double(
-  // we floor to an integer because we're dealing with exact pixels at this point
-  (int)(p.bounds.x * scale) + origindx,
-  (int)(p.bounds.y * scale) + origindy,
-  (int)(p.bounds.width * scale),
-  (int)(p.bounds.height * scale));
-*/
-
                         // set buffering if necessary
                         int buf = p.portrayal.getBuffering();
                         p.portrayal.setBuffering(optionPane.buffering);
@@ -502,10 +611,6 @@ public class Display2D extends JComponent implements Steppable
                         g.setClip(g.getClip());
                         
                         // do the drawing
-/*
-  p.portrayal.draw(p.portrayal.getField(), // I could have passed null in here too
-  g, new DrawInfo2D(rdraw,clip));
-*/
                         p.portrayal.draw(p.portrayal.getField(), // I could have passed null in here too
                             g, getDrawInfo2D(p, clip));
                         
@@ -686,6 +791,8 @@ public class Display2D extends JComponent implements Steppable
     public static final ImageIcon OPTIONS_ICON = iconFor("Options.png");
     public static final ImageIcon OPTIONS_ICON_P = iconFor("OptionsPressed.png");
     
+    public static final Object[] REDRAW_OPTIONS = new Object[] { "Steps/Redraw", "Model Secs/Redraw", "Real Secs/Redraw", "Always Redraw", "Never Redraw" };
+
     /** Use tool tips? */
     public boolean useTooltips;
 
@@ -705,7 +812,7 @@ public class Display2D extends JComponent implements Steppable
     /** The list of portrayals the insideDisplay draws.  Each element in this list is a Portrayal2DHolder. */
     ArrayList portrayals = new ArrayList();
     /** The scroll view which holds the insideDisplay. */
-    JScrollPane display;
+    public JScrollPane display;
     /** The scroll view's viewport. */
     JViewport port;
     /** The stoppable for the repeat object which redraws the Display2D in the schedule. */
@@ -728,6 +835,8 @@ public class Display2D extends JComponent implements Steppable
     public NumberTextField scaleField;
     /** The field for skipping frames */
     public NumberTextField skipField;
+    /** The combo box for skipping frames */
+    public JComboBox skipBox;
         
     /** Scale (zoom value).  1.0 is 1:1.  2.0 is zoomed in 2 times.  Etc. */
     double scale = 1.0;
@@ -741,9 +850,9 @@ public class Display2D extends JComponent implements Steppable
     long interval = 1;
     Object intervalLock = new Object();  // interval lock
     /** Sets how many steps are skipped before the display updates itself. */
-    public void setInterval(long i) { synchronized(intervalLock) { if (i > 0) interval = i; } }
+    // public void setInterval(long i) { synchronized(intervalLock) { if (i > 0) interval = i; } }
     /** Gets how many steps are skipped before the display updates itself. */
-    public long getInterval() { synchronized(intervalLock) { return interval; } }
+    // public long getInterval() { synchronized(intervalLock) { return interval; } }
     
     /** Whether or not we're clipping */
     boolean clipping = true;
@@ -788,15 +897,10 @@ public class Display2D extends JComponent implements Steppable
         {
         // now reschedule myself
         if (stopper!=null) stopper.stop();
-        stopper = simulation.scheduleImmediateRepeat(true,this);
-                
-        // deselect existing objects
-        for(int x=0;x<selectedWrappers.size();x++)
-            {
-            LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
-            wrapper.getFieldPortrayal().setSelected(wrapper,false);
-            }
-        selectedWrappers.clear();
+        try { stopper = simulation.scheduleRepeatingImmediatelyAfter(this); }
+        catch (IllegalArgumentException e) { } // if the simulation is over, we can't schedule.  Don't worry about it.
+
+        clearSelections();
         }
     
     /** Attaches a portrayal to the Display2D, along with the provided human-readable name for the portrayal.
@@ -911,7 +1015,7 @@ public class Display2D extends JComponent implements Steppable
         attached to the provided simulation, and displaying itself with the given interval (which must be > 0). */
     public Display2D(final double width, final double height, GUIState simulation, long interval)
         {
-        setInterval(interval);
+        // setInterval(interval);
         this.simulation = simulation;
         
         reset();  // must happen AFTER simulation and interval are assigned
@@ -937,7 +1041,15 @@ public class Display2D extends JComponent implements Steppable
         port.setBackground(UIManager.getColor("Panel.background"));
         
         // create the button bar at the top.
-        header = new Box(BoxLayout.X_AXIS);
+        header = new Box(BoxLayout.X_AXIS)
+            {
+            public Dimension getPreferredSize()  // we want to be as compressible as necessary
+                {
+                Dimension d = super.getPreferredSize();
+                d.width = 0;
+                return d;
+                }
+            };
 
         //Create the popup menu.
         togglebutton = new JToggleButton(LAYERS_ICON);
@@ -971,22 +1083,73 @@ public class Display2D extends JComponent implements Steppable
             {
             public void mouseClicked(MouseEvent e) 
                 {
-                final Point point = e.getPoint();
-                if( e.getClickCount() == 2 )
-                    createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
-                        Display2D.this.simulation );
-                if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
-                    performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
-                repaint();
+                if (handleMouseEvent(e)) { repaint(); return; }
+                else
+                    {
+                    // we only care about mouse button 1.  Perhaps in the future we may eliminate some key modifiers as well
+                    int modifiers = e.getModifiers();
+                    if ((modifiers & e.BUTTON1_MASK) == e.BUTTON1_MASK)
+                        {
+                        final Point point = e.getPoint();
+                        if( e.getClickCount() == 2 )
+                            createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
+                                Display2D.this.simulation );
+                        if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
+                            performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
+                        repaint();
+                        }
+                    }
                 }
             
             // clear tool-tip updates
-            public void mouseExited(MouseEvent event)
+            public void mouseExited(MouseEvent e)
                 {
-                insideDisplay.lastToolTipEvent = null;
+                insideDisplay.lastToolTipEvent = null;  // do this no matter what
+           //     if (handleMouseEvent(e)) { repaint(); return; }
+                }
+
+         public void mouseEntered(MouseEvent e)
+                {
+                if (handleMouseEvent(e)) { repaint(); return; }
+                }
+ 
+            public void mousePressed(MouseEvent e)
+                {
+                if (handleMouseEvent(e)) { repaint(); return; }
+                }
+
+            public void mouseReleased(MouseEvent e)
+                {
+                if (handleMouseEvent(e)) { repaint(); return; }
                 }
             });
-            
+                
+        insideDisplay.addMouseMotionListener(new MouseMotionAdapter()
+            {
+            public void mouseDragged(MouseEvent e)
+                {
+                if (handleMouseEvent(e)) { repaint(); return; }
+                }
+
+            public void mouseMoved(MouseEvent e)
+                {
+                if (handleMouseEvent(e)) { repaint(); return; }
+                }
+            });
+                
+                
+        // can't add this because Java thinks I no longer want to scroll
+        // the window via the scroll wheel, oops.  
+        /*
+          insideDisplay.addMouseWheelListener(new MouseWheelListener()
+          {
+          public void mouseWheelMoved(MouseWheelEvent e)
+          {
+          if (handleMouseEvent(e)) { repaint(); return; }
+          }
+          });
+        */
+
         insideDisplay.setToolTipText("Display");  // sacrificial
                 
         // add the movie button
@@ -1086,22 +1249,90 @@ public class Display2D extends JComponent implements Steppable
         header.add(scaleField);
         
         // add the interval (skip) field
-        skipField = new NumberTextField("  Skip: ", 1, false)
+        skipBox = new JComboBox(REDRAW_OPTIONS);
+        skipBox.setSelectedIndex(updateRule);
+        ActionListener skipListener = new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = skipBox.getSelectedIndex();
+                if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)
+                    {
+                    skipField.valField.setText("");
+                    skipField.setEnabled(false);
+                    }
+                else if (updateRule == UPDATE_RULE_STEPS)
+                    {
+                    skipField.setValue(stepInterval);
+                    skipField.setEnabled(true);
+                    }
+                else if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+                    {
+                    skipField.setValue(timeInterval);
+                    skipField.setEnabled(true);
+                    }
+                else // UPDATE_RULE_WALLCLOCK_TIME
+                    {
+                    skipField.setValue((long)(wallInterval / 1000));
+                    skipField.setEnabled(true);
+                    }
+                }
+            };
+        skipBox.addActionListener(skipListener);
+                
+        // I want right justified text.  This is an ugly way to do it
+        skipBox.setRenderer(new DefaultListCellRenderer()
+            {
+            public Component getListCellRendererComponent(JList list, Object value, int index,  boolean isSelected,  boolean cellHasFocus)
+                {
+                // JLabel is the default
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                label.setHorizontalAlignment(SwingConstants.RIGHT);
+                return label;
+                }
+            });
+                        
+        header.add(skipBox);
+
+
+        skipField = new NumberTextField(null, 1, false)
             {
             public double newValue(double newValue)
                 {
-                int val = (int) newValue;
-                if (val < 1) val = (int)currentValue;
+                double val;
+                if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)  // shouldn't have happened
+                    {
+                    val = 0;
+                    }
+                else if (updateRule == UPDATE_RULE_STEPS)
+                    {
+                    val = (long) newValue;
+                    if (val < 1) val = stepInterval;
+                    stepInterval = (long) val;
+                    }
+                else if (updateRule == UPDATE_RULE_WALLCLOCK_TIME)
+                    {
+                    val = newValue;
+                    if (val < 0) val = wallInterval / 1000;
+                    wallInterval = (long) (newValue * 1000);
+                    }
+                else // if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+                    {
+                    val = newValue;
+                    if (newValue < 0) newValue = timeInterval;
+                    timeInterval = val;
+                    }
                         
                 // reset with a new interval
-                setInterval(val);
                 reset();
                         
                 return val;
                 }
             };
-        skipField.setToolTipText("Specify the number of steps between screen updates");
+        skipField.setToolTipText("Specify the interval between screen updates");
         header.add(skipField);
+
+        skipListener.actionPerformed(null);  // have it update the text field accordingly
 
         // put everything together
         setLayout(new BorderLayout());
@@ -1109,6 +1340,9 @@ public class Display2D extends JComponent implements Steppable
         add(display,BorderLayout.CENTER);
 
         createConsoleMenu();
+                
+        // update preferences
+        optionPane.resetToPreferences();
         }
 
     /** Returns LocationWrappers for all the objects which fall within the coordinate rectangle specified by rect.  This 
@@ -1138,13 +1372,26 @@ public class Display2D extends JComponent implements Steppable
         return hitObjs;
         }
         
-    /** Constructs a DrawInfo2D for the given portrayal, or null if failed.  O(num portrayals). */
+    /** Returns LocationWrappers for all the objects which overlap with the point specified by 'point'.  This 
+        point is in the coordinate system of the (InnerDisplay2D) component inside the scroll
+        view of the Display2D class.  The return value is an array of Bags.  For each FieldPortrayal
+        attached to the Display2D, one Bag is returned holding all the LocationWrappers for objects overlapping with the point
+        which are associated with that FieldPortrayal's portrayed field.  The order of
+        the Bags in the array is the same as the order of the FieldPortrayals in the Display2D's
+        <code>portrayals</code> list.
+    */
+    public Bag[] objectsHitBy( final Point2D point )
+        {
+        return objectsHitBy(new Rectangle2D.Double(point.getX(), point.getY(), 1, 1));
+        }
+
+    /** Constructs a DrawInfo2D for the given portrayal, or null if failed.  O(num portrayals).  Uses the given point as a clip. */
     public DrawInfo2D getDrawInfo2D(FieldPortrayal2D portrayal, Point2D point)
         {
         return getDrawInfo2D(portrayal, new java.awt.geom.Rectangle2D.Double( point.getX(), point.getY(), 1, 1 )); 
         }
 
-    /** Constructs a DrawInfo2D for the given portrayal, or null if failed.  O(num portrayals). */
+    /** Constructs a DrawInfo2D for the given portrayal, or null if failed.  O(num portrayals).   Uses the given clip.*/
     public DrawInfo2D getDrawInfo2D(FieldPortrayal2D portrayal, Rectangle2D clip)
         {
         Iterator iter = portrayals.iterator();
@@ -1183,7 +1430,9 @@ public class Display2D extends JComponent implements Steppable
             (int)(holder.bounds.y * scale) + origindy,
             (int)(holder.bounds.width * scale),
             (int)(holder.bounds.height * scale));
-        return new DrawInfo2D(region, clip);
+        DrawInfo2D d2d = new DrawInfo2D(region, clip);
+        d2d.precise = precise;
+        return d2d;
         }
 
     static final int MAX_TOOLTIP_LINES = 10;
@@ -1220,16 +1469,20 @@ public class Display2D extends JComponent implements Steppable
         performSelection(b);
         }
     
-    public void performSelection( final Bag locationWrappers )
+    public void clearSelections()
         {
-        // deselect existing objects
         for(int x=0;x<selectedWrappers.size();x++)
             {
             LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
             wrapper.getFieldPortrayal().setSelected(wrapper,false);
             }
         selectedWrappers.clear();
+        }
         
+    public void performSelection( final Bag locationWrappers )
+        {
+        clearSelections();
+                
         if (locationWrappers == null) return;  // deselect everything
         
         // add new wrappers
@@ -1336,6 +1589,30 @@ public class Display2D extends JComponent implements Steppable
 
     private Object sacrificialObj = null;
     
+    public static int TYPE_PDF = 1;
+    public static int TYPE_PNG = 2;
+        
+    public void takeSnapshot(File file, int type) throws IOException
+        {
+        if (type == TYPE_PNG)
+            {
+            Graphics g = insideDisplay.getGraphics();
+            BufferedImage img = insideDisplay.paint(g,true,false);
+            g.dispose();
+            OutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
+            PngEncoder tmpEncoder = new PngEncoder(img, false,PngEncoder.FILTER_NONE,9);
+            stream.write(tmpEncoder.pngEncode());
+            stream.close();
+            }
+        else // type == TYPE_PDF
+            {
+            boolean oldprecise = precise;
+            precise = true;
+            PDFEncoder.generatePDF(port, file);
+            precise = oldprecise;
+            }
+        }
+        
     public void takeSnapshot()
         {
         synchronized(Display2D.this.simulation.state.schedule)
@@ -1371,16 +1648,20 @@ public class Display2D extends JComponent implements Steppable
             g.dispose();  // because we got it with getGraphics(), we're responsible for it
                         
             // Ask what kind of thing we want to save?
-            int result = 2;  // PNG by default
+            final int CANCEL_BUTTON = 0;
+            final int PNG_BUTTON = 1;
+            final int PDF_BUTTON = 2;
+            final int PDF_NO_BACKDROP_BUTTON = 3;
+            int result = PNG_BUTTON;  //  default
             if (havePDF) 
                 {
-                Object[] options = { "Cancel", "Save to PDF", "Save to PNG Bitmap" };
+                Object[] options = { "Cancel", "Save to PNG Bitmap", "Save to PDF", "Save to PDF with no Backdrop" };
                 result = JOptionPane.showOptionDialog(getFrame(), "Save window snapshot to what kind of file format?", "Save Format", 
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
                     null, options, options[0]);
                 }
                         
-            if (result == 2)  // PNG
+            if (result == PNG_BUTTON) 
                 {
                 // NOW pop up the save window
                 FileDialog fd = new FileDialog(getFrame(), 
@@ -1398,7 +1679,7 @@ public class Display2D extends JComponent implements Steppable
                                             }
                     catch (Exception e) { e.printStackTrace(); }
                 }
-            else if (result == 1)  // PDF
+            else if (result == PDF_BUTTON || result == PDF_NO_BACKDROP_BUTTON)
                 {
                 FileDialog fd = new FileDialog(getFrame(), 
                     "Save Snapshot as PDF...", FileDialog.SAVE);
@@ -1406,7 +1687,15 @@ public class Display2D extends JComponent implements Steppable
                 fd.setVisible(true);
                 if (fd.getFile()!=null) try
                                             {
+                                            boolean oldprecise = precise;
+                                            precise = true;
+                                            Paint b = getBackdrop();
+                                            if (result == PDF_NO_BACKDROP_BUTTON)  // temporarily remove backdrop
+                                                setBackdrop(null);
                                             PDFEncoder.generatePDF(port, new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".pdf")));
+                                            precise = oldprecise;
+                                            if (result == PDF_NO_BACKDROP_BUTTON)
+                                                setBackdrop(b);
                                             }
                     catch (Exception e) { e.printStackTrace(); }
                 }
@@ -1505,31 +1794,112 @@ public class Display2D extends JComponent implements Steppable
                 }
             }
         }
+        
+    public final static int UPDATE_RULE_STEPS = 0;
+    public final static int UPDATE_RULE_INTERNAL_TIME = 1;
+    public final static int UPDATE_RULE_WALLCLOCK_TIME = 2;
+    public final static int UPDATE_RULE_ALWAYS = 3;
+    public final static int UPDATE_RULE_NEVER = 4;
+    int updateRule = UPDATE_RULE_ALWAYS;
+    long stepInterval = 1;
+    double timeInterval = 0;
+    long wallInterval = 0;
+    long lastStep = -1;
+    double lastTime = Schedule.BEFORE_SIMULATION;
+    long lastWall = -1;  // the current time is around 1266514720569 so this should be fine (knock on wood)
+        
+    /** Returns whether it's time to update. */
+    public boolean shouldUpdate()
+        {
+        boolean val = false;
+                
+        if (updateRule == UPDATE_RULE_ALWAYS)
+            val = true;
+        else if (updateRule == UPDATE_RULE_STEPS)
+            {
+            long step = simulation.state.schedule.getSteps();
+            val = (lastStep < 0 || stepInterval == 0 || step - lastStep >= stepInterval || // clearly need to update
+                lastStep % stepInterval >= step % stepInterval);  // on opposite sides of a tick
+            if (val) lastStep = step;
+            }
+        else if (updateRule == UPDATE_RULE_WALLCLOCK_TIME)
+            {
+            long wall = System.currentTimeMillis();
+            val = (lastWall == 0 || wallInterval == 0 || wall - lastWall >= wallInterval || // clearly need to update
+                lastWall % wallInterval >= wall % wallInterval);  // on opposite sides of a tick
+            if (val) lastWall = wall;
+            }
+        else if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+            {
+            double time = simulation.state.schedule.getTime();
+            val = (lastTime == 0 || timeInterval == 0 || time - lastTime >= timeInterval || // clearly need to update
+                lastTime % timeInterval >= time % timeInterval);  // on opposite sides of a tick
+            if (val) lastTime = time;
+            }
+        // else val = false;
+                
+        return val;
+        }
+
+    public boolean handleMouseEvent(MouseEvent event)
+        {
+        // first, let's propagate the event to selected objects
+                
+        Point2D.Double p = new Point2D.Double(event.getX(), event.getY());
+        for(int x=0;x<selectedWrappers.size();x++)
+            {
+            LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
+            FieldPortrayal2D f = (FieldPortrayal2D)(wrapper.getFieldPortrayal());
+            Object obj = wrapper.getObject();
+            SimplePortrayal2D portrayal = (SimplePortrayal2D)(f.getPortrayalForObject(obj));
+            if (portrayal.handleMouseEvent(this, wrapper, event, getDrawInfo2D(f, p), SimplePortrayal2D.TYPE_SELECTED_OBJECT))
+                {
+                simulation.controller.refresh();
+                return true;
+                }
+            }
+                        
+        // next, let' propagate the event to any objects which have been hit.
+        // We go backwards through the bag list so top elements are selected first
+                
+        Bag[] hitObjects = objectsHitBy(p);
+        for(int x=hitObjects.length - 1; x >= 0; x--)
+            for(int i = 0; i < hitObjects[x].numObjs; i++)
+                {
+                LocationWrapper wrapper = (LocationWrapper)(hitObjects[x].objs[i]);
+                FieldPortrayal2D f = (FieldPortrayal2D)(wrapper.getFieldPortrayal());
+                Object obj = wrapper.getObject();
+                SimplePortrayal2D portrayal = (SimplePortrayal2D)(f.getPortrayalForObject(obj));
+                if (portrayal.handleMouseEvent(this, wrapper, event, getDrawInfo2D(f, p), SimplePortrayal2D.TYPE_HIT_OBJECT))
+                    {
+                    simulation.controller.refresh();
+                    return true;
+                    }
+                }
+                        
+        // at this point, nobody consumed the event so we ignore it
+
+        return false;
+        }
 
     /** Steps the Display2D in the GUIState schedule.  If we're in MacOS X, this results in a repaint()
         request generated.  If we're in Windows or X Windows, this results in a direct call to
         paintComponent on the insideDisplay.  It's OS-dependent because different operating systems
         draw faster in different ways. */
     public void step(final SimState state)
-    {
-   	 long steps = simulation.state.schedule.getSteps();
-       
-       if (steps % getInterval() == 0   // time to update!
-           && (insideDisplay.isShowing()    // only draw if we can be seen
-               || movieMaker !=null ))      // OR draw to a movie even if we can't be seen
-           {
-           if (isMacOSX && movieMaker == null) 
-               {   // macos x should use other method for movie maker and off-screen buffers
-               insideDisplay.repaint();
-               }
-           else  // Windows or X Windows
-               {
-               Graphics g = insideDisplay.getGraphics();
-               insideDisplay.paintComponent(g,true);
-               g.dispose();
-               }
-           }
-       insideDisplay.updateToolTips();
-       }
-    
-}
+        {
+        if (shouldUpdate())       // time to update!
+            {
+            if (insideDisplay.isShowing() && 
+                (getFrame().getExtendedState() & java.awt.Frame.ICONIFIED) == 0)   // not minimized on the Mac
+                {
+                insideDisplay.repaint();            	
+                }
+            else if (movieMaker != null)  // we're not being displayed but we still need to output to a movie
+                {
+                insideDisplay.paintToMovie(null);
+                }
+            insideDisplay.updateToolTips();
+            }
+        }
+    }

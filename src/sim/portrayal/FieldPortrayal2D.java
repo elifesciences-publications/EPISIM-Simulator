@@ -43,6 +43,36 @@ import sim.util.*;
 
 public abstract class FieldPortrayal2D extends FieldPortrayal implements Portrayal2D
     {
+    /** Returns the position on-screen of an object at a given location in the field,
+        using another object's location and DrawInfo2D to perform the computation. 
+        Returns null if we can't compute it -- this happens by default if the
+        two locations are neither Int2D nor Double2D.  This method is largely used by TrailPortrayal2D. */
+    public Point2D.Double getRelativeObjectPosition(Object location, Object otherObjectLocation, DrawInfo2D otherObjectInfo)
+        {
+        double dx = 0;
+        double dy = 0;
+                
+        if (location instanceof Int2D)
+            { 
+            Int2D loc = (Int2D) location;
+            Int2D oloc = (Int2D) otherObjectLocation;
+            dx = loc.x - oloc.x;
+            dy = loc.y - oloc.y;
+            }
+        else
+            {
+            Double2D loc = (Double2D) location;
+            Double2D oloc = (Double2D) otherObjectLocation;
+            dx = loc.x - oloc.x;
+            dy = loc.y - oloc.y;
+            }
+        double xScale = otherObjectInfo.draw.width;
+        double yScale = otherObjectInfo.draw.height;
+        return new Point2D.Double(dx * xScale + otherObjectInfo.draw.x,
+            dy * yScale + otherObjectInfo.draw.y);
+        }
+
+
     /** Draws the field with its origin at [info.draw.x,info.draw.y], relative to the 
         scaled coordinate system defined by [info.draw.width,info.draw.height].  The
         only parts that need be drawn are those which fall within the [info.clip] rectangle.
@@ -65,7 +95,6 @@ public abstract class FieldPortrayal2D extends FieldPortrayal implements Portray
         hitOrDraw(null, range, putInHere);
         }
 
-    
     /** Instead of overriding the draw and hitObjects methods, you can optionally override
         this method to provide <i>both</i> the draw(...) and hitObjects(...)
         functionality in a single method, as it's common that these two methods have nearly
@@ -83,30 +112,66 @@ public abstract class FieldPortrayal2D extends FieldPortrayal implements Portray
         
     public void setField(Object field) { this.field = field; dirtyField = true; }
     
-    /** Returns the location of the given object were it to be drawn on the screen.  Negative locations are acceptable.
-        If null is returned, then the portrayal is unable to determine the location of the object.  The default implementation
-        returns null. */
-    public Point2D.Double getPositionInFieldPortrayal(Object object, DrawInfo2D fieldPortrayalInfo)
+    /** Moves (or tries to move) the object to an internal location equivalent to the given position on-screen of the
+        provided object, assuming that the object exists within the underlying field and that this
+        location is acceptable.  <b>Optionally overridable</b>.  The default implementation does nothing.  */
+    public void setObjectPosition(Object object, Point2D.Double position, DrawInfo2D fieldPortrayalInfo)
+        {
+        return;
+        }
+        
+    /** Returns the width and height, in pixels, of 1.0 x 1.0 units in the underlying field.
+        <b>Optionally overridable</b>.  The default version thows an error if called. */
+    public Double2D getScale(DrawInfo2D fieldPortrayalInfo)
+        {
+        throw new RuntimeException("getScale not implemented in " + this.getClass());
+        }
+                
+    /** Returns the Location, in the parlance of the underlying Field, of the given position.
+        If there is no such Location, then null is returned.   <b>Optionally overridable</b>.
+        By default null is returned.
+    */
+    public Object getPositionLocation(Point2D.Double position, DrawInfo2D fieldPortrayalInfo)
+        {
+        return null;
+        }
+
+    /** Returns the first location in the underlying field of the given object, if such a thing
+        is reasonable.  Largely used for getPositionOfObject(...).     
+        If null is returned, then the portrayal is unable to determine the position of the field location.
+        <b>Optionally overridable</b>.  The default implementation returns null. */
+    public Object getObjectLocation(Object object)
         {
         return null;
         }
         
-    /**
-       Moves the Bag of LocationWrappers by the provided amount.
-    */
-    // Hmmm, Point2D has a Point, Point2D.Float, and Point2D.Double.
-    // Rectangle2D has a Rectangle, Rectangle2D.Float, and Rectangle2D.Double.
-    // But Dimension2D *only* has a Dimension (int).  You have to make your
-    // own Dimension2D double subclass!!
-    public void move(Bag locationWrappers, Dimension2D distance)
+    /** Returns the position on-screen of the provided location in the underlying field.  Negative positions are acceptable.
+        If null is returned, then the portrayal is unable to perform the requested action on the given location.
+        <b>Optionally overridable</b>.  The default implementation returns null. */
+    public Point2D.Double getLocationPosition(Object location, DrawInfo2D fieldPortrayalInfo)
         {
-        for(int x=0;x<locationWrappers.numObjs;x++)
-            {
-            LocationWrapper wrapper = (LocationWrapper)(locationWrappers.objs[x]);
-            ((SimplePortrayal2D)(getPortrayalForObject(wrapper.getObject()))).move(wrapper, distance);
-            }
+        return null;
+        }
+        
+    /** Returns an object representing the location in the field of the origin of the clip of the DrawInfo2D. 
+        This method calls getPositionLocation, which may or may not be implemented by the FieldPortrayal2D.  
+        @deprecated
+    */
+    public Object getClipLocation(DrawInfo2D info)
+        {
+        return getPositionLocation(new Point2D.Double(info.clip.x, info.clip.y), info);
         }
 
+    /** Returns the position-onscreen of the provided object, assuming that the object exists within the underlying field.
+        Negative locations are acceptable.  If null is returned, then the portrayal is unable to perform the requested 
+        action on the given object.  */
+    public Point2D.Double getObjectPosition(Object object, DrawInfo2D fieldPortrayalInfo)
+        {
+        Object location = getObjectLocation(object);
+        if (location == null) return null;
+        return getLocationPosition(location, fieldPortrayalInfo);
+        }
+        
     /** Default buffering: let the program decide on its own (typically in a platform-dependent fashion) */
     public static final int DEFAULT = 0;
     /** Use a buffer */

@@ -85,15 +85,15 @@ import java.util.*;
    
    <p><b>Warning about getObjectsAtLocation() and numObjectsAtLocation()</b>  
    Because this class uses its superclass (the SparseField) to store the <i>discretized region</i>,
-   getObjectsAtLocation(...) and numObjectsAtLocation(...) will not work as you might expect.  The Sparse
-   Field is storing Int2Ds (the discretized grid locations), not Double2Ds.  While you could get all the
+   getObjectsAtLocation(...) and numObjectsAtLocation(...) will not work as you might expect.  The Continuous2D
+   is storing Int2Ds (the discretized grid locations), not Double2Ds.  While you could get all the
    objects in the same discretization cell as a given Double2D location with
    getObjectsAtLocation(discretize(theDouble2D)), almost certainly you're going to retain sanity better
    by using the neighborhood functions (getObjectsWithinDistance(...)).  
    The same goes for getObjectsAtLocationOfObject() and numObjectsAtLocationOfObject().
 */
 
-public /*strictfp*/ class Continuous2D extends SparseField
+public /*strictfp*/ class Continuous2D extends SparseField implements SparseField2D
     {
     /** Where we store the Double2D values hashed by object */
     public HashMap doubleLocationHash = new HashMap();
@@ -116,6 +116,14 @@ public /*strictfp*/ class Continuous2D extends SparseField
         return (Double2D) doubleLocationHash.get(obj);
         }
     
+    /** Synonymous with getObjectLocation, which you should generally use instead. */
+    public final Double2D getObjectLocationAsDouble2D(Object obj)
+        {
+        return (Double2D) doubleLocationHash.get(obj);
+        }
+        
+    public final Double2D getDimensions() { return new Double2D(width, height); }
+        
     public final Int2D discretize(final Double2D location)
         {
         return new Int2D((int)(location.x / discretization), (int)(location.y / discretization));

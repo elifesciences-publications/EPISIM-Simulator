@@ -10,6 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
@@ -18,12 +21,17 @@ import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 import episiminterfaces.SimulationDisplay;
@@ -54,6 +62,43 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 
 		super(width, height, simulation, interval);
 		
+		for(MouseMotionListener listener :insideDisplay.getMouseMotionListeners())insideDisplay.removeMouseMotionListener(listener);
+		for(MouseListener listener :insideDisplay.getMouseListeners())insideDisplay.removeMouseListener(listener);
+		
+		insideDisplay.addMouseListener(new MouseAdapter()
+      {
+      public void mouseClicked(MouseEvent e) 
+          {
+          if (handleMouseEvent(e)) { repaint(); return; }
+          else
+              {
+              // we only care about mouse button 1.  Perhaps in the future we may eliminate some key modifiers as well
+              int modifiers = e.getModifiers();
+              if ((modifiers & e.BUTTON1_MASK) == e.BUTTON1_MASK)
+                  {
+                  final Point point = e.getPoint();
+                  if( e.getClickCount() == 2 )
+                      createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
+                          Display2DHack.this.simulation );
+                  if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
+                      performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
+                  repaint();
+                  }
+              }
+          }
+      
+      // clear tool-tip updates
+      public void mouseExited(MouseEvent e)
+          {
+          insideDisplay.lastToolTipEvent = null;  // do this no matter what
+     //     if (handleMouseEvent(e)) { repaint(); return; }
+          }
+      });
+		
+		
+		
+		
+		
 		moviePathSet = EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP) != null;
 		
 		
@@ -77,28 +122,54 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 		        port.setBackground(UIManager.getColor("Panel.background"));
 		        
 		       
-		        // add mouse listener for the inspectors
 		        insideDisplay.addMouseListener(new MouseAdapter()
-		            {
-		            public void mouseClicked(MouseEvent e) 
-		                {
-		                final Point point = e.getPoint();
-		                if( e.getClickCount() == 2 )
-		                    createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
-		                        Display2DHack.this.simulation );
-		                if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
-		                    performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
-		                repaint();
-		                }
-		            
-		            // clear tool-tip updates
-		            public void mouseExited(MouseEvent event)
-		                {
-		                insideDisplay.lastToolTipEvent = null;
-		                }
-		            });
-		            
-		        insideDisplay.setToolTipText("Display");  // sacrificial		      
+	            {
+	            public void mouseClicked(MouseEvent e) 
+	                {
+	                if (handleMouseEvent(e)) { repaint(); return; }
+	                else
+	                    {
+	                    // we only care about mouse button 1.  Perhaps in the future we may eliminate some key modifiers as well
+	                    int modifiers = e.getModifiers();
+	                    if ((modifiers & e.BUTTON1_MASK) == e.BUTTON1_MASK)
+	                        {
+	                        final Point point = e.getPoint();
+	                        if( e.getClickCount() == 2 )
+	                            createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
+	                                Display2DHack.this.simulation );
+	                        if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
+	                            performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
+	                        repaint();
+	                        }
+	                    }
+	                }
+	            
+	            // clear tool-tip updates
+	            public void mouseExited(MouseEvent e)
+	                {
+	                insideDisplay.lastToolTipEvent = null;  // do this no matter what
+	             //   if (handleMouseEvent(e)) { repaint(); return; }
+	                }
+
+	           
+	            });
+	                
+	        
+	                
+	                
+	        // can't add this because Java thinks I no longer want to scroll
+	        // the window via the scroll wheel, oops.  
+	        /*
+	          insideDisplay.addMouseWheelListener(new MouseWheelListener()
+	          {
+	          public void mouseWheelMoved(MouseWheelEvent e)
+	          {
+	          if (handleMouseEvent(e)) { repaint(); return; }
+	          }
+	          });
+	        */
+
+	        insideDisplay.setToolTipText("Display");  // sacrificial	      
 
 		         // so it gets repainted first hopefully
 		        add(display,BorderLayout.CENTER);
@@ -134,7 +205,8 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 		}
 		
 		for(Component comp :header.getComponents()){
-			if(comp instanceof NumberTextField) header.remove(comp);
+			if(comp instanceof NumberTextField
+				|| comp instanceof JComboBox) header.remove(comp);
 		} 
 	    // add the scale field
       NumberTextField scaleField = new NumberTextField("  Scale: ", 1.0, true)
@@ -157,23 +229,90 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
       scaleField.setToolTipText("Zoom in and out");
       header.add(scaleField);
       
-      // add the interval (skip) field
-      NumberTextField skipField = new NumberTextField("  Skip: ", 1, false)
+      skipBox = new JComboBox(REDRAW_OPTIONS);
+      skipBox.setSelectedIndex(updateRule);
+      ActionListener skipListener = new ActionListener()
+          {
+          public void actionPerformed(ActionEvent e)
+              {
+              updateRule = skipBox.getSelectedIndex();
+              if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)
+                  {
+                  skipField.valField.setText("");
+                  skipField.setEnabled(false);
+                  }
+              else if (updateRule == UPDATE_RULE_STEPS)
+                  {
+                  skipField.setValue(stepInterval);
+                  skipField.setEnabled(true);
+                  }
+              else if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+                  {
+                  skipField.setValue(timeInterval);
+                  skipField.setEnabled(true);
+                  }
+              else // UPDATE_RULE_WALLCLOCK_TIME
+                  {
+                  skipField.setValue((long)(wallInterval / 1000));
+                  skipField.setEnabled(true);
+                  }
+              }
+          };
+      skipBox.addActionListener(skipListener);
+              
+      // I want right justified text.  This is an ugly way to do it
+      skipBox.setRenderer(new DefaultListCellRenderer()
+          {
+          public Component getListCellRendererComponent(JList list, Object value, int index,  boolean isSelected,  boolean cellHasFocus)
+              {
+              // JLabel is the default
+              JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+              label.setHorizontalAlignment(SwingConstants.RIGHT);
+              return label;
+              }
+          });
+                      
+      header.add(skipBox);
+
+
+      skipField = new NumberTextField(null, 1, false)
           {
           public double newValue(double newValue)
               {
-              int val = (int) newValue;
-              if (val < 1) val = (int)currentValue;
+              double val;
+              if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)  // shouldn't have happened
+                  {
+                  val = 0;
+                  }
+              else if (updateRule == UPDATE_RULE_STEPS)
+                  {
+                  val = (long) newValue;
+                  if (val < 1) val = stepInterval;
+                  stepInterval = (long) val;
+                  }
+              else if (updateRule == UPDATE_RULE_WALLCLOCK_TIME)
+                  {
+                  val = newValue;
+                  if (val < 0) val = wallInterval / 1000;
+                  wallInterval = (long) (newValue * 1000);
+                  }
+              else // if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+                  {
+                  val = newValue;
+                  if (newValue < 0) newValue = timeInterval;
+                  timeInterval = val;
+                  }
                       
               // reset with a new interval
-              setInterval(val);
               reset();
                       
               return val;
               }
           };
-      skipField.setToolTipText("Specify the number of steps between screen updates");
+      skipField.setToolTipText("Specify the interval between screen updates");
       header.add(skipField);
+
+      skipListener.actionPerformed(null);  // have it update the text field accordingly
       
    
       
@@ -268,26 +407,53 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 	public void step(final SimState state)
    {
 		if(ModeServer.consoleInput() && moviePathSet){
-			long steps = simulation.state.schedule.getSteps();
+			
 	      
-	      if (steps % getInterval() == 0   // time to update!
-	          && (insideDisplay.isShowing()    // only draw if we can be seen
-	              || episimMovieMaker !=null ))      // OR draw to a movie even if we can't be seen
-	          {
-	          if (isMacOSX && episimMovieMaker == null) 
-	              {   // macos x should use other method for movie maker and off-screen buffers
-	              insideDisplay.repaint();
-	              }
-	          else  // Windows or X Windows
-	              {
-	              Graphics g = insideDisplay.getGraphics();
-	              insideDisplay.paintComponent(g,true);
-	              g.dispose();
-	              }
-	          }
-	      insideDisplay.updateToolTips();
-		}
-		else super.step(state);
+			if (shouldUpdate())       // time to update!
+         {
+	         if (insideDisplay.isShowing() && 
+	             (getFrame().getExtendedState() & java.awt.Frame.ICONIFIED) == 0)   // not minimized on the Mac
+	             {
+	         	if(isMacOSX){
+	         		insideDisplay.repaint();
+	         	}
+	         	else{
+		         	Graphics g = insideDisplay.getGraphics();
+		            insideDisplay.paintComponent(g,true);
+		            g.dispose();
+	         	}
+	             }
+	         else if (episimMovieMaker != null)  // we're not being displayed but we still need to output to a movie
+	             {
+	             insideDisplay.paintToMovie(null);
+	             }
+	         insideDisplay.updateToolTips();
+        }
+     }
+		//TODO: update this super class method copy when updating to a new version of mason
+		else{
+			if (shouldUpdate())       // time to update!
+         {
+         if (insideDisplay.isShowing() && 
+             (getFrame().getExtendedState() & java.awt.Frame.ICONIFIED) == 0)   // not minimized on the Mac
+             {
+         	if(isMacOSX){
+         		insideDisplay.repaint();
+         	}
+         	else{
+	         	Graphics g = insideDisplay.getGraphics();
+	            insideDisplay.paintComponent(g,true);
+	            g.dispose();
+         	}
+          }
+         else if (movieMaker != null)  // we're not being displayed but we still need to output to a movie
+             {
+             insideDisplay.paintToMovie(null);
+             }
+         insideDisplay.updateToolTips();
+         }
+     }
+		
    }
 	
 	public static boolean isMacOSX(){
@@ -306,7 +472,7 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
           // only paint if it's appropriate
           long steps = Display2DHack.this.simulation.state.schedule.getSteps();
           if (steps > lastEncodedSteps &&
-              steps % getInterval() == 0 &&
+         		 shouldUpdate() &&
               Display2DHack.this.simulation.state.schedule.time() < Schedule.AFTER_SIMULATION)
               {
          	

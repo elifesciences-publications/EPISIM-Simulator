@@ -13,7 +13,10 @@ import java.awt.*;
 import java.awt.geom.*;
 
 /**
-   Portrays network fields.   Only draws the edges.  To draw the nodes, use a ContinuousPortrayal2D or SparseGridPortrayal2D.
+   Portrays network fields.   Only draws the edges.  To draw the nodes, use a 
+   ContinuousPortrayal2D or SparseGridPortrayal2D.  The 'location' passed
+   into the DrawInfo2D handed to the SimplePortryal2D is the Edge itself,
+   while the 'object' passed to the SimplePortryal2D is the Edge's info object. 
 */
 
 public class NetworkPortrayal2D extends FieldPortrayal2D
@@ -34,8 +37,9 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
         final SpatialNetwork2D field = (SpatialNetwork2D)this.field;
         if( field == null ) return;
 
-        double xScale = info.draw.width / field.getWidth();
-        double yScale = info.draw.height / field.getHeight();
+        Double2D dimensions = field.getDimensions();
+        double xScale = info.draw.width / dimensions.x;
+        double yScale = info.draw.height / dimensions.y;
 
 //        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
 
@@ -62,10 +66,10 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
                 }
             else        // it's a grid
                 {
-                newinfo.draw.x = (int)(info.draw.x + (xScale) * locStart.x);
-                newinfo.draw.y = (int)(info.draw.y + (yScale) * locStart.y);
-                double width = (int)(info.draw.x + (xScale) * (locStart.x+1)) - newinfo.draw.x;
-                double height = (int)(info.draw.y + (yScale) * (locStart.y+1)) - newinfo.draw.y;
+                newinfo.draw.x = (int)Math.floor(info.draw.x + (xScale) * locStart.x);
+                newinfo.draw.y = (int)Math.floor(info.draw.y + (yScale) * locStart.y);
+                double width = (int)Math.floor(info.draw.x + (xScale) * (locStart.x+1)) - newinfo.draw.x;
+                double height = (int)Math.floor(info.draw.y + (yScale) * (locStart.y+1)) - newinfo.draw.y;
 
                 // adjust drawX and drawY to center
                 newinfo.draw.x += width / 2.0;
@@ -86,10 +90,10 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
                     }
                 else    // it's a grid
                     {
-                    newinfo.secondPoint.x = (int)(info.draw.x + (xScale) * locStop.x);
-                    newinfo.secondPoint.y = (int)(info.draw.y + (yScale) * locStop.y);
-                    double width = (int)(info.draw.x + (xScale) * (locStop.x+1)) - newinfo.secondPoint.x;
-                    double height = (int)(info.draw.y + (yScale) * (locStop.y+1)) - newinfo.secondPoint.y;
+                    newinfo.secondPoint.x = (int)Math.floor(info.draw.x + (xScale) * locStop.x);
+                    newinfo.secondPoint.y = (int)Math.floor(info.draw.y + (yScale) * locStop.y);
+                    double width = (int)Math.floor(info.draw.x + (xScale) * (locStop.x+1)) - newinfo.secondPoint.x;
+                    double height = (int)Math.floor(info.draw.y + (yScale) * (locStop.y+1)) - newinfo.secondPoint.y;
     
                     // adjust drawX and drawY to center
                     newinfo.secondPoint.x += width / 2.0;
@@ -106,6 +110,8 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
                                 edge + " -- expected a SimpleEdgePortrayal2D");
                         SimpleEdgePortrayal2D portrayal = (SimpleEdgePortrayal2D) p;
                     
+                        newinfo.location = edge;
+
                         if (graphics == null)
                             {
                             if (portrayal.hitObject(edge, newinfo))

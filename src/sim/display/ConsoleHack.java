@@ -106,7 +106,6 @@ public class ConsoleHack extends Console implements SimulationConsole{
       // construct the frame
       
       aboutFrame = new JFrame("About MASON");
-      aboutFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
       JPanel p = new JPanel();  // 1.3.1 only has borders for JComponents, not Boxes
       p.setBorder(BorderFactory.createEmptyBorder(25,30,30,30));
       Box b = new Box(BoxLayout.Y_AXIS);
@@ -159,7 +158,7 @@ public class ConsoleHack extends Console implements SimulationConsole{
       spacer.setFont(new Font("Dialog",0,6));
       b.add(spacer);
                   
-      j = new JLabel("MASON is (c) 2005 Sean Luke and George Mason University,");
+      j = new JLabel("MASON is (c) 2005-2009 Sean Luke and George Mason University,");
       j.setFont(small);
       b.add(j);
 
@@ -187,11 +186,10 @@ public class ConsoleHack extends Console implements SimulationConsole{
       j.setFont(small);
       b.add(j);
       aboutFrame.pack();
-
-   }
+      }
       
-   // if not on screen right now, move to center of screen
-   if (!aboutFrame.isVisible())
+  // if not on screen right now, move to center of screen
+  if (!aboutFrame.isVisible())
       {
       Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
       d.width -= aboutFrame.getWidth();
@@ -203,8 +201,8 @@ public class ConsoleHack extends Console implements SimulationConsole{
       aboutFrame.setLocation(d.width,d.height);
       }
   
-  		// show it!
-  		aboutFrame.setVisible(true);
+  // show it!
+  aboutFrame.setVisible(true);
    }
    
    //Override to be able to deploy multiple model Inspectors

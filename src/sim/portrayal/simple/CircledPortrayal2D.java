@@ -32,8 +32,8 @@ import sim.display.*;
    y diameter:     (int)(scale * info.draw.height + offset);
    </tt></pre>
 
-   <p>... that is, or is a value which scales when you zoom in, and dr adds 
-   additional fixed pixels.  The default is or = 1.0, dr = 0.  This draws the circle 
+   <p>... that is, scale is a value which scales when you zoom in, and offset adds 
+   additional fixed pixels.  The default is scale = 2.0, offset = 0.  This draws the circle 
    at twice the expected width and height of the object.
 
    <p><b>Note:  </b> One oddity of CircledPortrayal2D is due to the fact that the circle is only
@@ -53,7 +53,7 @@ public class CircledPortrayal2D extends OvalPortrayal2D
     /** Overrides all drawing. */
     boolean showCircle = true;
     boolean onlyCircleWhenSelected;
-    boolean isSelected = false;
+    // boolean isSelected = false;
     
     public void setOnlyCircleWhenSelected(boolean val) { onlyCircleWhenSelected = val; }
     public boolean getOnlyCircleWhenSelected() { return onlyCircleWhenSelected; }
@@ -99,7 +99,7 @@ public class CircledPortrayal2D extends OvalPortrayal2D
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
         {
         getChild(object).draw(object,graphics,info);
-        if (showCircle && (isSelected || !onlyCircleWhenSelected))
+        if (showCircle && (info.selected || !onlyCircleWhenSelected))
             super.draw(object, graphics, info);
         }
         
@@ -110,7 +110,7 @@ public class CircledPortrayal2D extends OvalPortrayal2D
 
     public boolean setSelected(LocationWrapper wrapper, boolean selected)
         {
-        isSelected = selected;
+        // isSelected = selected;
         return getChild(wrapper.getObject()).setSelected(wrapper, selected);
         }
 

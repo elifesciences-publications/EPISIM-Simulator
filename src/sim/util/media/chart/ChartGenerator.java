@@ -81,6 +81,7 @@ public abstract class ChartGenerator extends JPanel
     protected JScrollPane chartHolder = new JScrollPane();
     /** The JFrame which stores the whole chart.  Set in createFrame(), else null. */
     protected JFrame frame;
+    public JFrame getFrame() { return frame; }
     /** The global attributes chart title field. */
     protected PropertyField titleField;
     /** The global attributes domain axis field. */
@@ -204,6 +205,12 @@ public abstract class ChartGenerator extends JPanel
     public String getDomainAxisLabel()
         {
         return ((XYPlot)(chart.getPlot())).getDomainAxis().getLabel();
+        }
+    
+    /** Returns the underlying chart. **/
+    final public JFreeChart getChart()
+        {
+        return chart;
         }
 
     /** Generates a new ChartGenerator with a blank chart.  Before anything else, buildChart() is called.  */
@@ -491,9 +498,9 @@ public abstract class ChartGenerator extends JPanel
         return frame;
         }
     
-    /* Generates PDF from the chart, saving ou to the given file.  width and height are the
+    /* Generates PDF from the chart, saving out to the given file.  width and height are the
        desired width and height of the chart in points. */
-    void generatePDF( JFreeChart chart, int width, int height, String fileName )
+    public void generatePDF( JFreeChart chart, int width, int height, String fileName )
         {
         try
             {
@@ -536,5 +543,30 @@ public abstract class ChartGenerator extends JPanel
             }
         catch (Exception e) { }
         }
+    
+    /** Add a legend to the chart unless the chart already has one. **/
+    public void addLegend() 
+        {
+        if (chart.getLegend() != null)  // don't do anything if there already is one
+            return;
+
+        LegendTitle title = new LegendTitle(chart.getXYPlot());
+        title.setLegendItemGraphicPadding(new org.jfree.ui.RectangleInsets(0,8,0,4));
+        chart.addLegend(title);
+        }
+
+    public void setRangeAxisRange(double lower, double upper)
+        {
+        XYPlot xyplot = (XYPlot)(chart.getPlot());
+        xyplot.getRangeAxis().setRange(lower, upper);
+        }
+
+    public void setDomainAxisRange(double lower, double upper)
+        {
+        XYPlot xyplot = (XYPlot)(chart.getPlot());
+        xyplot.getDomainAxis().setRange(lower, upper);
+        }
 
     }
+
+        

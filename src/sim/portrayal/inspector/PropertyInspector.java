@@ -59,7 +59,7 @@ public abstract class PropertyInspector extends Inspector
     
     static Bag classes = null;
     protected boolean validInspector = false;
-    Stoppable stopper;
+    protected Stoppable stopper;
         
     public void setStopper(Stoppable stopper)
         {
@@ -226,8 +226,7 @@ public abstract class PropertyInspector extends Inspector
                         {
                         try
                             {
-                            inspector.setStopper(inspector.reviseStopper(state.scheduleImmediateRepeat(
-                                        true, inspector.getUpdateSteppable())));
+                            inspector.setStopper(inspector.reviseStopper(state.scheduleRepeatingImmediatelyAfter(inspector.getUpdateSteppable())));
                             }
                         catch (IllegalArgumentException ex)
                             {

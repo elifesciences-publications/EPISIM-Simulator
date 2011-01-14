@@ -36,7 +36,10 @@ import ec.util.*;
    No event may be scheduled for a time earlier than getTime().  If at time getTime() you schedule a new
    event for time getTime(), then actually this event will occur at time getTime()+epsilon, that is, the
    smallest possible slice of time greater than getTime().
-   
+
+   <p><b>IMPORTANT NOTE:</b> we have disabled the setShuffling() procedure by making the methods private.  The reason for this is that although turning off shuffling causes the Steppables to be stepped in a <i>predictable order</i>, they will note necessarily be stepped in <i>the order in which they were submitted</i>, which was the whole point of the methods.  The reason for this is that a binary heap is not "stable": it doesn't break ties by returning elements in the same order in which they appeared.  This potentially could cause bugs in simulations and we want to make it very clear.
+  
+   <!-- 
    <p>Events at a step are further subdivided and scheduled according to their <i>ordering</i>, an integer.
    Objects for scheduled for lower orderings for a given time will be executed before objects with
    higher orderings for the same time.  If objects are scheduled for the same time and
@@ -44,6 +47,7 @@ import ec.util.*;
    unless (in the very rare case) you have called setShuffling(false);.  Generally speaking, most experiments with
    good model methodologies will want random shuffling left on, and if you need an explicit ordering, it may be
    better to rely on Steppable's orderings or to use a Sequence.
+   -->
    
    <p>You might be wondering: why bother with using orderings?  After all, can't you achieve the same thing by just
    stretching elements out in time?  There are two reasons to use orderings.  First, it allows you to use the getTime()
@@ -52,8 +56,8 @@ import ec.util.*;
    given timestamp have completed, and so orderings give you a way of subdividing the interval of time between
    GUI updates.
    
-   <p>You can clear out the entire Schedule by calling reset(), including about-to-be executed Steppables in the
-   current timestep.  However, this does not prevent AsynchronousSteppables from suddenly rescheduling themselves
+   <p>You can clear out the entire Schedule by calling reset().
+   However, this does not prevent AsynchronousSteppables from suddenly rescheduling themselves
    in the queue.  Stopping the simulation from within a Steppable object's step() method is best done by
    calling SimState.kill().  From the main thread, the most straightforward way to stop a simulation is to just
    stop calling schedule.step(...), and proceed directly to SimState.finish().
@@ -121,7 +125,7 @@ public class Schedule implements java.io.Serializable
         orderings.  You should set this to
         FALSE only under unusual circumstances when you know what you're doing -- in the vast majority of cases you
         will want it to be TRUE (the default).  */
-    public void setShuffling(boolean val)
+    private void setShuffling(boolean val)
         {
         synchronized(lock)
             {
@@ -132,7 +136,7 @@ public class Schedule implements java.io.Serializable
     /** Returns true (the default) if the Steppables' order is randomly shuffled when they have identical orderings
         and are scheduled for the same time; else returns false, indicating that Steppables with identical orderings
         will be executed in the order in which they were inserted into the schedule. */
-    public boolean isShuffling()
+    private boolean isShuffling()
         {
         synchronized(lock)
             {
@@ -183,6 +187,18 @@ public class Schedule implements java.io.Serializable
         synchronized(lock)
             {
             time = AFTER_SIMULATION;
+            queue = createHeap();  // let 'em GC  -- must be inside the lock so scheduleOnce doesn't try to add more
+            }
+        }
+
+    /** Empties out the schedule but does not reset the time or steps.  If you're
+        looking for a way to kill your simulation from a Steppable, use SimState.kill() instead.  Note that
+        any agents presently at THIS TIME STEP will STILL be stepped -- including possibly reinserting themselves
+        in the schedule.  */
+    public void clear()
+        {
+        synchronized(lock)
+            {
             queue = createHeap();  // let 'em GC  -- must be inside the lock so scheduleOnce doesn't try to add more
             }
         }
@@ -255,7 +271,7 @@ public class Schedule implements java.io.Serializable
                     if (shuffling) substeps.shuffle(random);  // no need to flip -- we're randomizing
                     else substeps.reverse();  // they came out in reverse order; we need to flip 'em
                     }
-                    
+                                                                
                 // dump
                 if (topSubstep < substeps.numObjs) topSubstep = substeps.numObjs;  // remember index of largest substep since we're violating clear()
                 currentSteps.addAll(substeps);
@@ -434,9 +450,8 @@ public class Schedule implements java.io.Serializable
         }
 
     /** Schedules the event to recur at the specified interval starting at getTime() + interval, and at 0 ordering.
-        If this is a valid interval (must be >= 0)
+        If this is a valid interval (must be > 0)
         and event, schedules the event and returns a Stoppable, else returns null.
-        If interval is 0, then the recurrence will be scheduled at the current time + epsilon.
         The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
 
@@ -455,9 +470,8 @@ public class Schedule implements java.io.Serializable
         }
 
     /** Schedules the event to recur at the specified interval starting at getTime() + interval, and at the provided ordering.
-        If this is a valid interval (must be >=> 0)
+        If this is a valid interval (must be > 0)
         and event, schedules the event and returns a Stoppable, else returns null.
-        If interval is 0, then the recurrence will be scheduled at the current time + epsilon.
         The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
 
@@ -497,9 +511,8 @@ public class Schedule implements java.io.Serializable
     /** Schedules the event to recur at the specified interval starting at the provided time, 
         in ordering 0.  If the getTime() == the provided
         time, then the first event is instead scheduled to occur at getTime() + epsilon (the minimum possible next
-        timestamp). If this is a valid time, interval (must be >=0), 
+        timestamp). If this is a valid time, interval (must be > 0), 
         and event, schedules the event and returns a Stoppable, else returns null.
-        If interval is 0, then the recurrence will be scheduled at the current time + epsilon.
         The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
     
@@ -536,9 +549,8 @@ public class Schedule implements java.io.Serializable
     /** Schedules the event to recur at the specified interval starting at the provided time, 
         and in the ordering provided.  If the getTime() == the provided
         time, then the first event is instead scheduled to occur at getTime() + epsilon (the minimum possible next
-        timestamp). If this is a valid time, ordering, interval (must be >= 0), 
+        timestamp). If this is a valid time, ordering, interval (must be > 0), 
         and event, schedules the event and returns a Stoppable, else returns null.
-        If interval is 0, then the recurrence will be scheduled at the current time + epsilon.
         The recurrence will continue until getTime() >= AFTER_SIMULATION, the Schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
     
@@ -549,6 +561,7 @@ public class Schedule implements java.io.Serializable
 
     public Stoppable scheduleRepeating(final double time, final int ordering, final Steppable event, final double interval)
         {
+        if (interval <= 0) throw new IllegalArgumentException("The steppable " +  event + " was scheduled repeating with an impossible interval ("+interval+")");
         Schedule.Key k = new Schedule.Key(time,ordering);
         Repeat r = new Repeat(event,interval,k);
 
@@ -569,6 +582,35 @@ public class Schedule implements java.io.Serializable
             {
             this.time = time;
             this.ordering = ordering;
+            }
+                
+        public boolean equals(Object obj)
+            {
+            Key o = (Key)obj;
+            return (o.time == time && o.ordering == ordering);
+            }
+                        
+        public int hashCode()
+            {
+            int y = ordering;
+            y += ~(y << 15);
+            y ^=  (y >>> 10);
+            y +=  (y << 3);
+            y ^=  (y >>> 6);
+            y += ~(y << 11);
+            y ^=  (y >>> 16);
+
+            long key = Double.doubleToRawLongBits(time);  // we can't ever be NaN or infinity, so this is okay
+            key += ~(key << 32);
+            key ^= (key >>> 22);
+            key += ~(key << 13);
+            key ^= (key >>> 8);
+            key += (key << 3);
+            key ^= (key >>> 15);
+            key     += ~(key << 27);
+            key ^= (key >>> 31);
+
+            return (int)(key ^ (key >> 32)) ^ y;
             }
                     
         public int compareTo(Object obj)
@@ -629,7 +671,7 @@ class Repeat implements Steppable, Stoppable
                 {
                 // reuse the Key to save some gc perhaps -- it's been pulled out and discarded at this point
                 key.time += interval;
-                state.schedule.scheduleOnce(key,this);
+                if (key.time < Schedule.AFTER_SIMULATION) state.schedule.scheduleOnce(key,this);
                 }
             catch (IllegalArgumentException e) { } // occurs if time has run out
             step.step(state);
@@ -640,5 +682,7 @@ class Repeat implements Steppable, Stoppable
         {
         step = null;
         }
+        
+    public String toString() { return "Repeat[" + step + "]"; }
     }
 

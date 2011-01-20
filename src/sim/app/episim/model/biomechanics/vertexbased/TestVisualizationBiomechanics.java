@@ -1,5 +1,6 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -109,7 +111,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		visualizationPanel = new TestVisualizationPanel();
 		visualizationPanel.addTestVisualizationPanelPaintListener(this);
 		visualizationPanel.setDoubleBuffered(true);
-		visualizationPanel.setBackground(Color.WHITE);
+		visualizationPanel.setBackground(ColorRegistry.BACKGROUND_COLOR);
 		visualizationPanel.setMinimumSize(new Dimension(500, 500));
 		visualizationPanel.setSize(new Dimension(500, 500));
 		visualizationPanel.setPreferredSize(new Dimension(500, 500));
@@ -171,6 +173,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			frame.getContentPane().add(mousePositionPanel, BorderLayout.SOUTH);
 			centerMe(frame);
 			frame.pack();
+			frame.setResizable(false);
 			frame.setVisible(true);	
 		}
 		
@@ -181,7 +184,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().setWidth(500);
 		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().setBasalOpening_µm(12000);
 		TissueController.getInstance().getTissueBorder().setBasalPeriod(550);
-		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(30);
+		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(40);
 		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(200);
 		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
 	}
@@ -292,8 +295,14 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	private void drawVisualization(Graphics2D g){
 		g.setColor(Color.BLACK);
-		if(cells!= null) for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);		
-		g.draw(TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon());		
+		Color oldColor = g.getColor();
+		Stroke oldStroke = g.getStroke();
+		g.setColor(ColorRegistry.BASAL_LAYER_COLOR);
+		g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		g.draw(TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon());
+		g.setColor(oldColor);
+		g.setStroke(oldStroke);
+		if(cells!= null) for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
 		//drawErrorManhattanVersusEuclideanDistance(g);
 	}
 	
@@ -336,7 +345,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				
 			}			
 			
-			if(cell.isProliferating()){
+		/*	if(cell.isProliferating()){
 				Color oldColor = g.getColor();
 				g.setColor(Color.GREEN);
 				g.fillPolygon(p);
@@ -347,10 +356,17 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				g.setColor(Color.RED);
 				g.fillPolygon(p);
 				g.setColor(oldColor);
-			}
-				
-			
+			}*/
+			Color oldColor = g.getColor();
+			g.setColor(ColorRegistry.CELL_FILL_COLOR);
+			g.fillPolygon(p);
+			g.setColor(oldColor);
+		
+			g.setColor(ColorRegistry.CELL_BORDER_COLOR);
 			g.drawPolygon(p);
+			g.setColor(oldColor);
+			
+			
 			
 			for(Vertex v : cell.getUnsortedVertices()){	
 				drawVertex(g, v, false);				

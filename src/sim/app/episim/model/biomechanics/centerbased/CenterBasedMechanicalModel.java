@@ -12,6 +12,7 @@ import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.monitoring.CannotBeMonitored;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
@@ -195,9 +196,9 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
                                        //fy=elastic(fy);
                                        hitResult.numhits++;
                                        hitResult.otherId=other.getID();
-                                       hitResult.otherMotherId=other.getMotherID();
+                                       hitResult.otherMotherId=other.getMotherId();
                                        
-                                       if ((other.getMotherID()==cell.getID()) || (other.getID()==cell.getMotherID()))
+                                       if ((other.getMotherId()==cell.getID()) || (other.getID()==cell.getMotherId()))
                                        {
                                            //fx*=1.5;// birth pressure is greater than normal pressure
                                            //fy*=1.5;
@@ -422,7 +423,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 		// move only on pressure when not stem cell
 		if(cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
 			if((hitResult2.numhits == 0)
-					|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == cell.getMotherID()) || (hitResult2.otherMotherId == cell.getID())))){
+					|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == cell.getMotherId()) || (hitResult2.otherMotherId == cell.getID())))){
 				double dx = potentialLoc.x - oldLoc.x;
 				lastd = new Double2D(potentialLoc.x - oldLoc.x, potentialLoc.y - oldLoc.y);
 				setPositionRespectingBounds(potentialLoc);
@@ -524,14 +525,17 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 
 	public GenericBag<AbstractCell> getNeighbouringCells() {return neighbouringCells;}
 	
+	@CannotBeMonitored
 	public double getX(){return modelConnector == null ? 
 			0//TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getX()
  				: modelConnector.getX();
 	}
+	@CannotBeMonitored
 	public double getY(){return modelConnector == null ? 
 			 		0	//	TissueController.getInstance().getTissueBorder().getHeight()- TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getY()
 			 				: modelConnector.getY();
 	}
+	@CannotBeMonitored
 	public double getZ(){ return 0;}
 	 
 }

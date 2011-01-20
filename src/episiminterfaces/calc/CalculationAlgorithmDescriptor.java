@@ -16,6 +16,7 @@ public interface CalculationAlgorithmDescriptor extends java.io.Serializable{
 	 */
 	Map<String, Class<?>> getParameters();
 	boolean hasCondition();
+	boolean hasMathematicalExpression();
 	
 
 }

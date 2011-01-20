@@ -82,6 +82,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 			public CalculationAlgorithmType getType(){ return CalculationAlgorithmType.ONEDIMRESULT; }
 
 			public boolean hasCondition() { return true; }
+			public boolean hasMathematicalExpression() { return true; }
 
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new HashMap<String, Class<?>>();

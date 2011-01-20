@@ -12,12 +12,12 @@ class CalculationAlgorithmConfiguratorChecker {
 	public static boolean isValidCalculationAlgorithmConfiguration(CalculationAlgorithmConfigurator config, boolean validateExpression, TissueCellDataFieldsInspector cellDataFieldsInspector){
 		
 		if(config == null
-				 || config.getArithmeticExpression().length < 2
+				||(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasMathematicalExpression()
+				&&(config.getArithmeticExpression().length < 2
 				 || config.getArithmeticExpression()[0] == null
-				 || config.getArithmeticExpression()[1] == null
-				 
+				 || config.getArithmeticExpression()[1] == null				 
 				 || config.getArithmeticExpression()[0].trim().equals("")
-				 || config.getArithmeticExpression()[1].trim().equals("")
+				 || config.getArithmeticExpression()[1].trim().equals("")))
 				
 				 ||(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasCondition()
 				 &&(config.getBooleanExpression().length < 2
@@ -28,7 +28,7 @@ class CalculationAlgorithmConfiguratorChecker {
 		else if(validateExpression){
 			try{
 				int  actSessionId= ExpressionCheckerController.getInstance().getCheckSessionId();
-				ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(actSessionId, config.getArithmeticExpression()[0], cellDataFieldsInspector);
+				if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasMathematicalExpression()) ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(actSessionId, config.getArithmeticExpression()[0], cellDataFieldsInspector);
 				if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasCondition()) ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(actSessionId, config.getBooleanExpression()[0], cellDataFieldsInspector);
 				if(ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, cellDataFieldsInspector)){
 					return false;

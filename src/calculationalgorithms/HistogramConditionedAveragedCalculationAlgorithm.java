@@ -41,6 +41,7 @@ public class HistogramConditionedAveragedCalculationAlgorithm extends HistogramA
 			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.HISTOGRAMRESULT; }
 
 			public boolean hasCondition() { return true; }
+			public boolean hasMathematicalExpression() { return true; }
 			
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();

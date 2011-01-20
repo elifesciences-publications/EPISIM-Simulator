@@ -9,6 +9,7 @@ import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
@@ -62,6 +63,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
       cellDeathListeners.add(GlobalStatistics.getInstance());
    }
 	
+   @CannotBeMonitored
    public synchronized static  final long getNextCellId(){
    	cellCounter++;
    	return (System.currentTimeMillis() + cellCounter);
@@ -74,6 +76,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
 	public boolean isInNirvana() { return inNirvana; }
 	public void setInNirvana(boolean inNirvana) { this.inNirvana = inNirvana; }
 	
+	@CannotBeMonitored
 	public long getID() { return id; }   
 	
 	public boolean isBasalStatisticsCell() { return isBasalStatisticsCell; }
@@ -83,9 +86,9 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell;}
 	
 	
-	public long getMotherID(){ return this.motherId;}
+	public long getMotherId(){ return this.motherId;}
 
-	
+	@CannotBeMonitored
    public boolean isTracked() {
    
    	return tracked;
@@ -107,10 +110,12 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    	this.cellEllipseObject = cellEllipseObject;
    }
    
+   @CannotBeMonitored
    public AbstractCell[] getNeighbouringCells(){
    	return this.neighbouringCells;
    }
    
+   @CannotBeMonitored
    public CellEllipse getCellEllipseObject(){
    	return this.cellEllipseObject;
    }
@@ -121,10 +126,12 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
 		if(stoppable != null) stoppable.stop();			
 	}
 	
+	@CannotBeMonitored
 	public EpisimCellBehavioralModel getEpisimCellBehavioralModelObject(){
 		return this.cellBehavioralModelObject;
 	}
 	
+	@CannotBeMonitored
    public Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass() {
 	  
 	   return this.cellBehavioralModelObject.getClass();
@@ -149,6 +156,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
   	 removeFromSchedule();  	
    }
    
+   @CannotBeMonitored
    public EpisimBioMechanicalModel getEpisimBioMechanicalModelObject(){ return this.mechanicalModelObject; }
    
    public void step(SimState state) {		

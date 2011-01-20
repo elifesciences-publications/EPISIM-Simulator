@@ -20,9 +20,11 @@ import sim.app.episim.visualization.CellEllipse;
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
+import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimCellBehavioralModel;
 
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.monitoring.CannotBeMonitored;
 
 import java.awt.geom.Rectangle2D;
 
@@ -58,12 +60,7 @@ public class UniversalCell extends AbstractCell
    private boolean birthWish=false;   
    private int hasGivenIons=0;  
    
-   private static Set<String> methodsNamesBlockedForParameterInspector;   
-   {
-   	methodsNamesBlockedForParameterInspector = new HashSet<String>();
-   	methodsNamesBlockedForParameterInspector.add("getParameter");
-   	methodsNamesBlockedForParameterInspector.add("getVoronoihullvertexes");
-   }
+   
    
    
 //-----------------------------------------------------------------------------------------------------------------------------------------   
@@ -339,10 +336,13 @@ public class UniversalCell extends AbstractCell
 	public List<Method> getParameters() {
 		List<Method> methods = new ArrayList<Method>();		
 		for(Method m : this.getClass().getMethods()){
-			if((m.getName().startsWith("get") && !methodsNamesBlockedForParameterInspector.contains(m.getName())) || m.getName().startsWith("is")) methods.add(m);
+			if((m.getName().startsWith("get") || m.getName().startsWith("is"))&& m.getAnnotation(CannotBeMonitored.class)==null) methods.add(m);
 		}
 		for(Method m : this.getEpisimCellBehavioralModelClass().getMethods()){
 			if((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) methods.add(m);
+		}
+		for(Method m : this.getEpisimBioMechanicalModelObject().getClass().getMethods()){
+			if(((m.getName().startsWith("get") && ! m.getName().equals("getParameters")) || m.getName().startsWith("is")) && m.getAnnotation(CannotBeMonitored.class)==null) methods.add(m);
 		}
 		return methods;
 	}
@@ -355,6 +355,7 @@ public class UniversalCell extends AbstractCell
 	
    public int getHasGivenIons() { return hasGivenIons; }
    
+   @CannotBeMonitored
    public long getLocal_maxAge() {return local_maxAge;}
 	
 	public String getCellName() { return NAME; }	

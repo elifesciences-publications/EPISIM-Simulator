@@ -595,6 +595,7 @@ public class DataExportCreationWizard extends JDialog {
 	      {
 				isDirty = true;
 				newValue = Math.round(newValue);
+				if(newValue <= 0) newValue=1;
 			  episimDataExportDefinition.setDataExportFrequncyInSimulationSteps((int) newValue);
 	        return newValue;
 	      }
@@ -604,17 +605,18 @@ public class DataExportCreationWizard extends JDialog {
 			public void keyPressed(KeyEvent keyEvent) {
 				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
-					episimDataExportDefinition.setDataExportFrequncyInSimulationSteps((int)dataExportFrequencyInSimulationSteps.getValue());
+					
+					dataExportFrequencyInSimulationSteps.newValue(dataExportFrequencyInSimulationSteps.getValue());
 				}
 				else if(keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
-					dataExportFrequencyInSimulationSteps.setValue(dataExportFrequencyInSimulationSteps.getValue());
+					dataExportFrequencyInSimulationSteps.newValue(dataExportFrequencyInSimulationSteps.getValue());
 			}
 		});
 		dataExportFrequencyInSimulationSteps.addFocusListener(new FocusAdapter() {
 
 			public void focusLost(FocusEvent e) {
 
-				episimDataExportDefinition.setDataExportFrequncyInSimulationSteps((int)dataExportFrequencyInSimulationSteps.getValue());
+				dataExportFrequencyInSimulationSteps.newValue(dataExportFrequencyInSimulationSteps.getValue());
 			}
 		});
 		

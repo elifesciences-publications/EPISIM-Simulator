@@ -82,7 +82,7 @@ public class CellEllipse extends AbstractCellEllipse{
 		public void setSolidity(double solidity) { this.solidity = solidity; }		
      
       
-      private int[] getNeighbouringCellIDs(){return this.neighbouringCellIDs; }
+      private int[] getNeighbouringCellIDs(){ return this.neighbouringCellIDs; }
       
       private int getNumberOfNeighbours(){ return this.neighbouringCellIDs != null ? this.neighbouringCellIDs.length :0; }
       

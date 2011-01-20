@@ -7,38 +7,23 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.lang.reflect.Method;
+
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.InputVerifier;
+
 import javax.swing.JButton;
-import javax.swing.JComponent;
+
 import javax.swing.JDialog;
-import javax.swing.JList;
+
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+
 
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
@@ -46,16 +31,16 @@ import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.CalculationAlgorithmSelectionPanel.AlgorithmSelectionListener;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmConfiguratorFactory;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
-import sim.app.episim.datamonitoring.charts.ChartController;
-import sim.app.episim.datamonitoring.charts.ChartCreationWizard;
+
 import sim.app.episim.datamonitoring.parser.ParseException;
-import sim.app.episim.datamonitoring.parser.TokenMgrError;
-import sim.app.episim.util.Names;
+
 import sim.app.episim.util.ObjectManipulations;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
-import sim.app.episim.util.TissueCellDataFieldsInspector.ParameterSelectionListener;
 
+
+import java.util.HashMap;
 
 public class DataEvaluationWizard {
 	
@@ -140,8 +125,21 @@ public class DataEvaluationWizard {
 		 algorithmSelectionPanel = new CalculationAlgorithmSelectionPanel(allowedTypes);
 		 
 		 algorithmSelectionPanel.addAlgorithmSelectionListener(new AlgorithmSelectionListener(){
-				public void algorithmWasSelected() { nextBackButton.setEnabled(true); }
-				public void noAlgorithmIsSelected() { nextBackButton.setEnabled(false); }
+				public void algorithmWasSelected() {
+					if(!algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasCondition()
+							&& !algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasMathematicalExpression()){
+						okButton.setEnabled(true);
+						nextBackButton.setEnabled(false);
+					}
+					else{ 
+						nextBackButton.setEnabled(true);
+						okButton.setEnabled(false);
+					}
+				}
+				public void noAlgorithmIsSelected() { 
+					nextBackButton.setEnabled(false); 
+					okButton.setEnabled(false); 
+				}
 			});		 
 		 visibleWizardCard = SELECTIONCARD;
 		 wizardPanel.add(algorithmSelectionPanel.getCalculationAlgorithmSelectionPanel(), SELECTIONCARD);	
@@ -207,9 +205,13 @@ public class DataEvaluationWizard {
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				CalculationAlgorithmConfigurator configurator = null;
-				if(actualExpressionEditorPanel != null){
-					configurator = actualExpressionEditorPanel.getCalculationAlgorithmConfigurator();
-				}
+				
+					if(!algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasCondition()
+							&& !algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasMathematicalExpression()){
+						configurator = CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(algorithmSelectionPanel.getCalculationAlgorithmDescriptor().getID(), 
+								new String[]{null, null}, new String[]{null, null}, new HashMap<String, Object>());
+					}
+					else if(actualExpressionEditorPanel != null) configurator = actualExpressionEditorPanel.getCalculationAlgorithmConfigurator();
 				if(configurator != null){
 					actualConfigurator = configurator;
 					dialog.setVisible(false);
@@ -230,7 +232,7 @@ public class DataEvaluationWizard {
 				if(actualConfigurator != null){
 					int sessionID =  ExpressionCheckerController.getInstance().getCheckSessionId();
 					try{
-	               ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, actualConfigurator.getArithmeticExpression()[0], dataFieldsInspector);
+						if(actualDescriptor.hasMathematicalExpression()) ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, actualConfigurator.getArithmeticExpression()[0], dataFieldsInspector);
                
 	               if(actualDescriptor.hasCondition()) ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, actualConfigurator.getBooleanExpression()[0], dataFieldsInspector);
                  }

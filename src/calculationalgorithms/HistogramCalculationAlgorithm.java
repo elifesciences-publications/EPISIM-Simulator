@@ -44,6 +44,7 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
 			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.HISTOGRAMRESULT; }
 
 			public boolean hasCondition() { return false; }
+			public boolean hasMathematicalExpression() { return true; }
 			
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();

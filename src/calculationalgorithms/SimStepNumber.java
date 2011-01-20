@@ -17,10 +17,14 @@ import episiminterfaces.calc.marker.TissueObserver;
 import episiminterfaces.calc.marker.TissueObserverAlgorithm;
 
 
-public class MeanValueCalculationAlgorithm  extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm{
+public class SimStepNumber extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm{
 	
-	public MeanValueCalculationAlgorithm(){}
+	private Map<Long, TissueObserver> observers;
+	public  SimStepNumber(){
+		observers = new HashMap<Long, TissueObserver>();
+	}
 	
+	private double simStepCounter = 0;
 	
 	public CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id) {
 		final int _id = id;
@@ -28,50 +32,50 @@ public class MeanValueCalculationAlgorithm  extends AbstractCommonCalculationAlg
 	   return new CalculationAlgorithmDescriptor(){
 
 			public String getDescription() {	         
-	         return "This algorithms calculates the mean result of the defined mathematical expression for all Cells.";
+	         return "This algorithm provides a sim step number. This number depends on the chart updating frequency (simStepNumber = realSimStepNumber / chartUpdatingFrequency).";
          }
 
 			public int getID() { return _id; }
 
-			public String getName() { return "Mean Value Calculator"; }
+			public String getName() { return "Simulation Step Number"; }
 
 			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.ONEDIMRESULT; }
 
 			public boolean hasCondition() { return false; }
-			public boolean hasMathematicalExpression() { return true; }
+			
+			public boolean hasMathematicalExpression() { return false; }
 			
 			public Map<String, Class<?>> getParameters() {
-				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();	
-	         
-	        
+				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
+						        
 	         return params;
          }
 	   };
 	}
 
-	public void reset() {}
+	public void reset() {
 
-	public void restartSimulation() {}
+		observers.clear();
+		simStepCounter = 0;
+   }
+
+	public void restartSimulation() {
+
+	   
+		simStepCounter = 0;
+   }
 
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
-		double sum = 0;
-		int counter = 0;
-		double result = 0;
-		for(AbstractCell actCell : allCells){
-
-			try{
-				result = handler.calculate(actCell);
-				sum += result;
-				counter++;
-			}
-			catch (CellNotValidException e){
-				ExceptionDisplayer.getInstance().displayException(e);
-			}
-		}
 		
-		if(sum != 0 && counter != 0) results.add1DValue((sum / counter));
-		else results.add1DValue(0d);
-	   result = 0;
-   }	
+		
+			
+			
+			simStepCounter++;
+			
+			results.add1DValue(simStepCounter);				
+			
+   }
+	
+	
 	
 }

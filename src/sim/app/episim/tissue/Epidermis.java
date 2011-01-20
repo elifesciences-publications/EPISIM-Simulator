@@ -61,6 +61,7 @@ import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.monitoring.CannotBeMonitored;
 
 public class Epidermis extends TissueType implements CellDeathListener
 {
@@ -196,7 +197,7 @@ private void seedStemCells(){
 				
 				//assign random age
 				stemCell.getEpisimCellBehavioralModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
-				TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellBehavioralModelObject(), cellCyclePos);																																		// on
+			//	TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellBehavioralModelObject(), cellCyclePos);																																		// on
 																																						
 				stemCell.getEpisimCellBehavioralModelObject().setDiffLevel(ModelController.getInstance().getCellBehavioralModelController().getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
 				stemCell.getEpisimCellBehavioralModelObject().setCellType(ModelController.getInstance().getCellBehavioralModelController().getCellTypeForOrdinal(EpisimCellType.KERATINOCYTE));
@@ -434,13 +435,16 @@ private void seedStemCells(){
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //GETTER-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
-	
+	@CannotBeMonitored
 	public Continuous2D getBasementContinous2D() { return basementContinous2D; }
+	@CannotBeMonitored
 	public Continuous2D getCellContinous2D() { return cellContinous2D; }
+	@CannotBeMonitored
 	public Continuous2D getGridContinous2D() { return gridContinous2D; }
+	@CannotBeMonitored
 	public Continuous2D getRulerContinous2D() { return rulerContinous2D; }
 
-
+	@CannotBeMonitored
 	public String getTissueName() {return NAME;}
 	
 	
@@ -471,8 +475,16 @@ private void seedStemCells(){
 	
 	public List<Method> getParameters() {
 		List<Method> methods = new ArrayList<Method>();
-		 methods.addAll(Arrays.asList(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethods()));
-	    methods.addAll(Arrays.asList(this.getClass().getMethods()));
+		 
+		 for(Method m : ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethods()){
+				if((m.getName().startsWith("get") || m.getName().startsWith("is"))&& m.getAnnotation(CannotBeMonitored.class)==null) methods.add(m);
+		 }
+		 for(Method m : ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getClass().getMethods()){
+				if((m.getName().startsWith("get") || m.getName().startsWith("is"))&& m.getAnnotation(CannotBeMonitored.class)==null) methods.add(m);
+		 }
+		 for(Method m : this.getClass().getMethods()){
+				if((m.getName().startsWith("get") || m.getName().startsWith("is"))&& m.getAnnotation(CannotBeMonitored.class)==null) methods.add(m);
+		 }
 	   
 		return methods;
 	}
@@ -481,6 +493,9 @@ private void seedStemCells(){
 		List<Field> fields = new ArrayList<Field>();
 		for(Field field : ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getFields()){
 	   		if(!field.getDeclaringClass().isInterface()) fields.add(field);
+		}
+		for(Field field : ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getClass().getFields()){
+   		if(!field.getDeclaringClass().isInterface()) fields.add(field);
 		}
 		
 		return fields;

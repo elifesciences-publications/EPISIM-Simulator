@@ -1,5 +1,7 @@
 package episiminterfaces;
 
+import episiminterfaces.monitoring.CannotBeMonitored;
+
 
 
 public interface EpisimCellBehavioralModelGlobalParameters{
@@ -20,10 +22,14 @@ public interface EpisimCellBehavioralModelGlobalParameters{
 	
 	void setSnapshotValues(EpisimCellBehavioralModelGlobalParameters parametersObj);
 	
+	@CannotBeMonitored
 	EpisimCellType[] getAvailableCellTypes();
+	@CannotBeMonitored
 	EpisimCellType getCellTypeForOrdinal(int ordinal);
 	
+	@CannotBeMonitored
 	EpisimDifferentiationLevel[] getAvailableDifferentiationLevels();
+	@CannotBeMonitored
 	EpisimDifferentiationLevel getDifferentiationLevelForOrdinal(int ordinal);
 	
 }

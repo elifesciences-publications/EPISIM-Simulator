@@ -24,6 +24,9 @@ public interface EpisimCellBehavioralModel {
 	 
  	double getMaxLam();
  	void setMaxLam(double val);
+ 	
+ 	double getMaxLip();
+ 	void setMaxLip(double val);
 
  	double getMaxAge();
 	void setMaxAge(double val);

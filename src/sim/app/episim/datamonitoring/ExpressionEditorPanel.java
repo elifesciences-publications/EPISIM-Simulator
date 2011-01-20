@@ -64,7 +64,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	private Map<String, Object> parameterValues = new HashMap<String, Object>();
 	private int calculationAlgorithmID;
 
-	private boolean booleanCondition = false;	
+	private boolean hasBooleanCondition = false;
+	private boolean hasMathematicalExpression = false;
 	private boolean hasParameters = false;
 	
 	private CalculationAlgorithmDescriptor currentCalculationAlgorithmDescriptor;
@@ -79,8 +80,11 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 		this.currentCalculationAlgorithmDescriptor = descriptor;
 		
 		panel = new JPanel();
-		this.booleanCondition = descriptor.hasCondition();
-	   panel.setLayout(new GridBagLayout());
+		
+		this.hasBooleanCondition = descriptor.hasCondition();
+		this.hasMathematicalExpression = descriptor.hasMathematicalExpression();
+		
+		panel.setLayout(new GridBagLayout());
 	   GridBagConstraints c = new GridBagConstraints();
 	   
 	   if(_dataFieldsInspector != null)this.dataFieldsInspector = _dataFieldsInspector;
@@ -116,7 +120,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	   c.weighty =0.7;
 	   arithmeticExpressionPanel = buildArithmeticExpressionPanel();
 	   panel.add(arithmeticExpressionPanel, c);
-	  	  
+	  	this.arithmeticExpressionPanel.setVisible(hasMathematicalExpression);  
+	   
 	   c.anchor =GridBagConstraints.WEST;
 	   c.gridwidth=GridBagConstraints.REMAINDER; 
 	   c.fill = GridBagConstraints.BOTH;
@@ -134,7 +139,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	   c.weighty =0.7;
 	   booleanExpressionPanel = buildBooleanExpressionPanel();
 	   panel.add(booleanExpressionPanel, c);
-	  	this.booleanExpressionPanel.setVisible(booleanCondition);  
+	  	this.booleanExpressionPanel.setVisible(hasBooleanCondition);  
 	   
 	   
 	   c.anchor =GridBagConstraints.WEST;
@@ -156,7 +161,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 
 			public void componentShown(ComponentEvent e) {
 
-				arithmeticExpressionTextArea.requestFocusInWindow();
+				if(hasMathematicalExpression)arithmeticExpressionTextArea.requestFocusInWindow();
+				else booleanExpressionTextArea.requestFocusInWindow();
 	         
          }});
 	  
@@ -177,7 +183,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 		if(config.getCalculationAlgorithmID() != this.calculationAlgorithmID) throw new IllegalArgumentException("The CalculationAlgorithmConfigurator does not match the selected calculation algorithm. ID found:  " + config.getCalculationAlgorithmID() + " ID required: " + this.calculationAlgorithmID);
 		this.parameterValues = new HashMap<String, Object>();
 			if(config !=null){			
-			if(config.getArithmeticExpression() != null && config.getArithmeticExpression().length >=2){
+			if(hasMathematicalExpression && config.getArithmeticExpression() != null && config.getArithmeticExpression().length >=2){
 				arithmeticExpression = config.getArithmeticExpression();
 				if(arithmeticExpression[0] != null) arithmeticExpressionTextArea.setText(arithmeticExpression[0]);
 				if(arithmeticExpression[1] != null && !arithmeticExpression[1].equals("") && SHOWMESSAGEFIELDS){
@@ -186,7 +192,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				}
 				
 			}
-			if(booleanCondition && config.getBooleanExpression() != null && config.getBooleanExpression().length >=2){
+			if(hasBooleanCondition && config.getBooleanExpression() != null && config.getBooleanExpression().length >=2){
 				booleanExpression = config.getBooleanExpression();
 				if(booleanExpression[0] != null) booleanExpressionTextArea.setText(booleanExpression[0]);
 				if(booleanExpression[1] != null && !booleanExpression[1].equals("")&& SHOWMESSAGEFIELDS){
@@ -221,23 +227,25 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 		int actSessionId = ExpressionCheckerController.getInstance().getCheckSessionId();
 		try{
 			 if(hasParameters)fetchParameterValues();
-			String result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(actSessionId, arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
-			arithmeticExpression[0]=arithmeticExpressionTextArea.getText().trim();
-			if(result != null && !result.trim().equals("")){ 
-				arithmeticMessageTextArea.setText(result);
-				if(SHOWMESSAGEFIELDS)arithmeticMessageTextArea.setVisible(true);
-				arithmeticExpression[1]=result.trim();
-			}					
-			if(!booleanCondition){
-				if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
-					return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, new String[]{null, null}, parameterValues);
+			 if(hasMathematicalExpression){
+				String result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(actSessionId, arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
+				arithmeticExpression[0]=arithmeticExpressionTextArea.getText().trim();
+				if(result != null && !result.trim().equals("")){ 
+					arithmeticMessageTextArea.setText(result);
+					if(SHOWMESSAGEFIELDS)arithmeticMessageTextArea.setVisible(true);
+					arithmeticExpression[1]=result.trim();
+				}					
+				if(!hasBooleanCondition){
+					if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
+						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, new String[]{null, null}, parameterValues);
+					}
+					else{
+						arithmeticMessagePanel.setVisible(true);
+						this.panel.validate();
+						arithmeticMessageTextArea.setText("Usage of parameters belonging to different cell types in a single calculation algorithm is not allowed.");
+					}
 				}
-				else{
-					arithmeticMessagePanel.setVisible(true);
-					this.panel.validate();
-					arithmeticMessageTextArea.setText("Usage of parameters belonging to different cell types in a single calculation algorithm is not allowed.");
-				}
-			}
+			 }
 		}
 		catch (ParseException e1){
 			arithmeticMessagePanel.setVisible(true);
@@ -250,7 +258,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			arithmeticMessageTextArea.setText(e1.getMessage());
 		}
 		
-		if(booleanCondition){
+		if(hasBooleanCondition){
 			try{
 				String result = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(actSessionId, booleanExpressionTextArea.getText().trim(), dataFieldsInspector);
 				booleanExpression[0]=booleanExpressionTextArea.getText().trim();
@@ -260,12 +268,24 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 					booleanExpression[1]=result.trim();
 				}
 				if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
-					return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, booleanExpression, parameterValues);
+					if(hasMathematicalExpression){
+						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, booleanExpression, parameterValues);
+					}
+					else{
+						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, new String[]{null, null}, booleanExpression, parameterValues);
+					}
 				}
 				else{
-					arithmeticMessagePanel.setVisible(true);
-					this.panel.validate();
-					arithmeticMessageTextArea.setText("Usage of parameters belonging to different cell types in a single calculation algorithm is not allowed.");
+					if(hasMathematicalExpression){
+						arithmeticMessagePanel.setVisible(true);
+						this.panel.validate();
+						arithmeticMessageTextArea.setText("Usage of parameters belonging to different cell types in a single calculation algorithm is not allowed.");
+					}
+					else{
+						booleanMessageTextArea.setVisible(true);
+						this.panel.validate();
+						booleanMessageTextArea.setText("Usage of parameters belonging to different cell types in a single calculation algorithm is not allowed.");
+					}
 				}
 				
 			}

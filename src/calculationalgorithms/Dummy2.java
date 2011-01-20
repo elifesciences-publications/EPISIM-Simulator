@@ -31,6 +31,7 @@ public class Dummy2{
 			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.ONEDIMDATASERIESRESULT; }
 
 			public boolean hasCondition() { return false; }
+			public boolean hasMathematicalExpression() { return true; }
 			
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new HashMap<String, Class<?>>();

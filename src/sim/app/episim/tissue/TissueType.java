@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import episiminterfaces.EpisimCellType;
+import episiminterfaces.monitoring.CannotBeMonitored;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
@@ -90,6 +91,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	
 	public void setReloadedSnapshot(boolean reloadedSnapshot) {	this.reloadedSnapshot = reloadedSnapshot; }
 	
+	@CannotBeMonitored
 	protected boolean isReloadedSnapshot(){ return this.reloadedSnapshot; }
 	
 	public void setSnapshotTimeSteps(TimeSteps timeSteps){

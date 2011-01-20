@@ -111,14 +111,17 @@ public abstract class  AbstractCommonSourceBuilder {
       appendCellValidCheck(handlerSource, requiredClasses);
      
       handlerSource.append("  public double calculate(AbstractCell cellTypeLocal) throws CellNotValidException{\n");
-      handlerSource.append("    EpisimCellBehavioralModel cellBehaviour = cellTypeLocal.getEpisimCellBehavioralModelObject();\n");
-      handlerSource.append("    Object cellTypeLocalObj = cellTypeLocal;\n");
-      appendLocalVars(requiredClasses, handlerSource);
-      appendAssignmentCheck("cellBehaviour", requiredClasses, handlerSource);
-      appendAssignmentCheck("cellTypeLocalObj", requiredClasses, handlerSource);
-      handlerSource.append("if(isValidCell(cellTypeLocal))");
-      handlerSource.append("    return (double)("+ config.getArithmeticExpression()[1]+");\n");
-      handlerSource.append("else throw new CellNotValidException(\"Cell is not Valid: \"+ cellTypeLocal.getCellName());\n");
+      if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasMathematicalExpression()){
+	      handlerSource.append("    EpisimCellBehavioralModel cellBehaviour = cellTypeLocal.getEpisimCellBehavioralModelObject();\n");
+	      handlerSource.append("    Object cellTypeLocalObj = cellTypeLocal;\n");
+	      appendLocalVars(requiredClasses, handlerSource);
+	      appendAssignmentCheck("cellBehaviour", requiredClasses, handlerSource);
+	      appendAssignmentCheck("cellTypeLocalObj", requiredClasses, handlerSource);
+	      handlerSource.append("if(isValidCell(cellTypeLocal))");
+	      handlerSource.append("    return (double)("+ config.getArithmeticExpression()[1]+");\n");
+	      handlerSource.append("else throw new CellNotValidException(\"Cell is not Valid: \"+ cellTypeLocal.getCellName());\n");
+      }
+      else handlerSource.append("return Double.NEGATIVE_INFINITY;");
       handlerSource.append("  }\n");
          
       handlerSource.append("  public boolean conditionFulfilled(AbstractCell cellTypeLocal) throws CellNotValidException{\n");

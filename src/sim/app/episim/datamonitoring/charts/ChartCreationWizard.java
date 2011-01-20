@@ -758,6 +758,7 @@ public class ChartCreationWizard extends JDialog {
 	      {
 				isDirty = true; 
 				newValue = Math.round(newValue);
+				if(newValue <= 0) newValue=1;
 				episimChart.setChartUpdatingFrequency((int) newValue);
 	        return newValue;
 	      }
@@ -767,17 +768,17 @@ public class ChartCreationWizard extends JDialog {
 			public void keyPressed(KeyEvent keyEvent) {
 				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
-					episimChart.setChartUpdatingFrequency((int)chartFrequencyInSimulationSteps.getValue());
+					chartFrequencyInSimulationSteps.newValue(chartFrequencyInSimulationSteps.getValue());
 				}
 				else if(keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
-					chartFrequencyInSimulationSteps.setValue(chartFrequencyInSimulationSteps.getValue());
+					chartFrequencyInSimulationSteps.newValue(chartFrequencyInSimulationSteps.getValue());
 			}
 		});
 		chartFrequencyInSimulationSteps.addFocusListener(new FocusAdapter() {
 
 			public void focusLost(FocusEvent e) {
 
-				episimChart.setChartUpdatingFrequency((int)chartFrequencyInSimulationSteps.getValue());
+				chartFrequencyInSimulationSteps.newValue(chartFrequencyInSimulationSteps.getValue());
 			}
 		});
 		
@@ -878,7 +879,8 @@ public class ChartCreationWizard extends JDialog {
 			public double newValue(double newValue)
 	      {
 				isDirty = true;
-				newValue = Math.round(newValue);;
+				newValue = Math.round(newValue);
+				if(newValue <= 0) newValue=1;
 				episimChart.setPNGPrintingFrequency((int) newValue);
 	        return newValue;
 	      }
@@ -888,17 +890,18 @@ public class ChartCreationWizard extends JDialog {
 			public void keyPressed(KeyEvent keyEvent) {
 				isDirty = true;
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER){
-					episimChart.setPNGPrintingFrequency((int)pngFrequencyInSimulationSteps.getValue());
+					
+					pngFrequencyInSimulationSteps.newValue(pngFrequencyInSimulationSteps.getValue());
 				}
 				else if(keyEvent.getKeyCode() == KeyEvent.VK_ESCAPE)
-					pngFrequencyInSimulationSteps.setValue(pngFrequencyInSimulationSteps.getValue());
+					pngFrequencyInSimulationSteps.newValue(pngFrequencyInSimulationSteps.getValue());
 			}
 		});
 		pngFrequencyInSimulationSteps.addFocusListener(new FocusAdapter() {
 
 			public void focusLost(FocusEvent e) {
 
-				episimChart.setPNGPrintingFrequency((int)pngFrequencyInSimulationSteps.getValue());
+				pngFrequencyInSimulationSteps.newValue(pngFrequencyInSimulationSteps.getValue());
 			}
 		});
 		pngFrequencyInSimulationSteps.setEnabled(false);

@@ -136,6 +136,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 			public CalculationAlgorithmType getType(){ return CalculationAlgorithmType.ONEDIMRESULT; }
 
 			public boolean hasCondition() { return false; }
+			public boolean hasMathematicalExpression() { return true; }
 
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new HashMap<String, Class<?>>();

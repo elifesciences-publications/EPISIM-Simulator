@@ -86,7 +86,7 @@ public class TestVisualizationPanel extends JPanel {
 	    
 	    // draw into the buffer
 	    Graphics2D g = (Graphics2D)(buffer.getGraphics());
-	    g.setColor(this.getBackground());
+	    g.setColor(ColorRegistry.BACKGROUND_COLOR);
 	    g.fillRect(0,0,buffer.getWidth(null),buffer.getHeight(null));
 	    notifyAllPaintToMovieBufferListeners(g);
 	    

@@ -102,6 +102,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		cellPolygonCalculator = new CellPolygonCalculator(new CellPolygon[]{});
 		//cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
 		cells = CellPolygonNetworkBuilder.getStandardThreeCellArray(cellPolygonCalculator);
+		cellPolygonCalculator.setCellPolygons(cells);
 		configureStandardMembrane();
 		
 		for(CellPolygon pol: cells){ 
@@ -302,9 +303,28 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		g.draw(TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon());
 		g.setColor(oldColor);
 		g.setStroke(oldStroke);
-		if(cells!= null) for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
+		if(cells!= null){
+			for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
+			//	for(Line corrLine : cellPolygonCalculator.getAllCorruptLinesOfVertexNetwork()) highlightLine(g, corrLine, Color.MAGENTA);
+				for(Line outerLine : cellPolygonCalculator.getAllOuterLinesOfVertexNetwork()) highlightLine(g, outerLine, ColorRegistry.CELL_BORDER_COLOR);
+			//	for(Line line : cellPolygonCalculator.getAllLinesBelongingToOnlyTwoCellsOfVertexNetwork()) highlightLine(g, line, Color.YELLOW);
+			
+		}
+		
+		
 		//drawErrorManhattanVersusEuclideanDistance(g);
 	}
+	
+	private void highlightLine(Graphics2D g, Line line, Color c){
+		Color oldColor = g.getColor();
+		Stroke oldStroke = g.getStroke();
+		g.setColor(c);
+		g.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		g.drawLine(line.getV1().getIntX(), line.getV1().getIntY(), line.getV2().getIntX(), line.getV2().getIntY());
+		g.setColor(oldColor);
+		g.setStroke(oldStroke);
+	}
+	
 	
 	private void drawErrorManhattanVersusEuclideanDistance(Graphics2D g){
 		double radius = 100;
@@ -368,9 +388,9 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			
 			
 			
-			for(Vertex v : cell.getUnsortedVertices()){	
+		/*	for(Vertex v : cell.getUnsortedVertices()){	
 				drawVertex(g, v, false);				
-			}			
+			}	*/		
 			//drawVertex(g,Calculators.getCellCenter(cell),false);
 		}
 	}

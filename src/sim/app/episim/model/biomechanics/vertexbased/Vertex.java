@@ -38,6 +38,7 @@ public class Vertex implements java.io.Serializable{
 
 	private Color vertexColor;
 	
+	private boolean isAttachedToBasalLayer = false;
 	
 	public Vertex(double x, double y){
 		id = nextid++;
@@ -63,7 +64,8 @@ public class Vertex implements java.io.Serializable{
 	public boolean isNew(){ return isNew;}
 	public void setIsNew(boolean isNew){this.isNew = isNew;}
 	
-	
+	public boolean isAttachedToBasalLayer(){ return isAttachedToBasalLayer; }
+	public void setIsAttachedToBasalLayer(boolean val){ this.isAttachedToBasalLayer = val; }
 	
 	public Vertex relTo(Vertex v)
    {

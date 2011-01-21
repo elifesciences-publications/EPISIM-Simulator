@@ -99,8 +99,8 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 	
 	private ResultSet<Double> calculate(long timeStep, CalculationHandler handler){
 		ResultSet<Double> results = ResultSetManager.createResultSetForCalculationAlgorithm(handler.getCalculationAlgorithmID());
-		CalculationAlgorithmServer.getInstance().calculateValues(handler, results);
 		results.setTimeStep(timeStep);
+		CalculationAlgorithmServer.getInstance().calculateValues(handler, results);		
 		return results;
 	}
 	

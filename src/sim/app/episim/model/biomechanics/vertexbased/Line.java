@@ -42,6 +42,10 @@ public class Line {
 		else return Double.POSITIVE_INFINITY;
 	}
 	
+	public double getLength(){
+		return (v1 != null && v2!= null)? v1.edist(v2) : Math.sqrt(Math.pow((x1-x2), 2)+Math.pow((y1-y2), 2));
+	}
+	
 	public Vertex getIntersectionPointOfLineThroughVertex(Vertex v, boolean takeNewValues, boolean withinLineSegment){
 		double[] directionVectorOfLine = new double[]{x2-x1, y2-y1};
 		double[] directionVectorOfOrthogonalLine = new double[]{directionVectorOfLine[1],-1*directionVectorOfLine[0]};
@@ -244,6 +248,10 @@ public class Line {
 	   if(getClass() != obj.getClass())
 		   return false;
 	   Line other = (Line) obj;
+	   if(this.v1!=null &&this.v2!=null && other.getV1() != null && other.getV2()!=null){
+	   	if(this.v1.equals(other.getV1()) && this.v2.equals(other.getV2())) return true;
+	   	else if(this.v2.equals(other.getV1()) && this.v1.equals(other.getV2())) return true;
+	   }
 	   if(Double.doubleToLongBits(x1) != Double.doubleToLongBits(other.x1))
 		   return false;
 	   if(Double.doubleToLongBits(x2) != Double.doubleToLongBits(other.x2))

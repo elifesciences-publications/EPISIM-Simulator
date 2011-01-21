@@ -27,7 +27,7 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBioMech
 	private double lambda = 15000;
 	private double lambda_high_factor = 1;//2;
 	private double lambda_low_factor = 1;//0.4;
-	private double gamma = 1500;
+	private double gamma = 2500;
 	private double pref_perimeter_factor = 1; //could be 1 or zero to take the preferred perimeter of a cell into account or not
 	private double size_percentage_cell_division = 0.7;
 	private double min_edge_length_percentage = 0.25;

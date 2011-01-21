@@ -24,7 +24,7 @@ public class SimStepNumber extends AbstractCommonCalculationAlgorithm implements
 		observers = new HashMap<Long, TissueObserver>();
 	}
 	
-	private double simStepCounter = 0;
+	
 	
 	public CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id) {
 		final int _id = id;
@@ -32,7 +32,7 @@ public class SimStepNumber extends AbstractCommonCalculationAlgorithm implements
 	   return new CalculationAlgorithmDescriptor(){
 
 			public String getDescription() {	         
-	         return "This algorithm provides a sim step number. This number depends on the chart updating frequency (simStepNumber = realSimStepNumber / chartUpdatingFrequency).";
+	         return "This algorithm provides the sim step number.";
          }
 
 			public int getID() { return _id; }
@@ -56,23 +56,19 @@ public class SimStepNumber extends AbstractCommonCalculationAlgorithm implements
 	public void reset() {
 
 		observers.clear();
-		simStepCounter = 0;
+		
    }
 
 	public void restartSimulation() {
 
 	   
-		simStepCounter = 0;
+	
    }
 
-	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
-		
-		
+	public void calculate(CalculationHandler handler, ResultSet<Double> results) {		
 			
 			
-			simStepCounter++;
-			
-			results.add1DValue(simStepCounter);				
+			results.add1DValue((double)results.getTimeStep());				
 			
    }
 	

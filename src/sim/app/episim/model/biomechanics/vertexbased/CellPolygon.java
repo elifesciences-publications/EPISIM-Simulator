@@ -180,6 +180,16 @@ private CellPolygon cellDivision(){
 	return daughterCell;
 }
 
+public Line[] getLinesOfCellPolygon(){
+	int size = vertices.size();
+	Vertex[] vSorted = getSortedVertices();
+	Line[] cellPolLines = new Line[vSorted.length];
+	if(vSorted.length != size) System.out.println("Array und HashSet der Vertices im Cell Polygon stimmen nicht überein.");
+	for(int i = 0; i < vSorted.length;i++){
+		cellPolLines[i] = new Line(vSorted[i], vSorted[((i+1)%vSorted.length)]);
+	}
+	return cellPolLines;
+}
 
 private void checkProliferation(){
 	if(isProliferating && canDivide()){
@@ -360,6 +370,24 @@ protected void apoptosis(){
 
 public void setIsAlreadyCalculated(boolean val){this.isAlreadyCalculated = val;}
 public boolean isAlreadyCalculated(){ return this.isAlreadyCalculated;}
+
+
+public boolean hasContactToBasalLayer(){
+	for(Vertex v :this.vertices){ 
+		if(v.isAttachedToBasalLayer()) return true;
+	}
+	
+	return false;
+}
+
+public boolean hasContactToCellThatIsAttachedToBasalLayer(){
+	for(Vertex v :this.vertices){ 
+		for(CellPolygon cell : v.getCellsJoiningThisVertex()){
+			if(!cell.equals(this) && cell.hasContactToBasalLayer()) return true;
+		}
+	}
+	return false;
+}
 
 public void step(SimState state) {
 

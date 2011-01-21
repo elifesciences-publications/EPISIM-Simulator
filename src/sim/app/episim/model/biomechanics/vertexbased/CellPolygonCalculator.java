@@ -71,7 +71,7 @@ public class CellPolygonCalculator {
 		while(true){
 			int cellIndex =rand.nextInt(this.cellPolygons.length);
 	
-			if(!this.cellPolygons[cellIndex].isProliferating()){
+			if(!this.cellPolygons[cellIndex].isProliferating() && (this.cellPolygons[cellIndex].hasContactToBasalLayer() || this.cellPolygons[cellIndex].hasContactToCellThatIsAttachedToBasalLayer())){
 				this.cellPolygons[cellIndex].proliferate();
 				return;
 			}
@@ -132,18 +132,17 @@ public class CellPolygonCalculator {
 				v_s.setIsNew(true);
 				if(newVerticesCounter > 2)System.out.println("Error: Found more than two new Vertices during Cell Division!");
 				HashSet<Integer> foundCellIdsFirstVertex = new HashSet<Integer>();
-				for(VertexChangeListener listener: cellVertices[i].getVertexChangeListener()){
-					if(listener instanceof CellPolygon){
-						foundCellIdsFirstVertex.add(((CellPolygon) listener).getId());
-					}
+				for(CellPolygon cellPol: cellVertices[i].getCellsJoiningThisVertex()){
+				
+						foundCellIdsFirstVertex.add(((CellPolygon) cellPol).getId());
+					
 				}
-				for(VertexChangeListener listener: cellVertices[(i+1)%cellVertices.length].getVertexChangeListener()){
-					if(listener instanceof CellPolygon){
-						CellPolygon actCell = (CellPolygon) listener;
-						if(foundCellIdsFirstVertex.contains(actCell.getId())){ 
-							actCell.addVertex(v_s);							
+				for(CellPolygon cellPol: cellVertices[(i+1)%cellVertices.length].getCellsJoiningThisVertex()){
+				
+						if(foundCellIdsFirstVertex.contains(cellPol.getId())){ 
+							cellPol.addVertex(v_s);							
 						}
-					}
+				
 				}
 			}
 		}	
@@ -222,7 +221,7 @@ public class CellPolygonCalculator {
 				if(linesConnectedToVertex.length >2){ 
 					System.err.print("ERROR: Method do T3 Transition: More than two relevant lines connected to Vertex found!");
 				}
-				else{
+				else if(linesConnectedToVertex.length == 2 && isOuterLine(linesConnectedToVertex[0]) && isOuterLine(linesConnectedToVertex[1])) {
 					CellPolygon[] adhCells = line.getCellPolygonsOfLine();
 					CellPolygon[] line1Cells = linesConnectedToVertex[0].getCellPolygonsOfLine();
 					CellPolygon[] line2Cells = linesConnectedToVertex[1].getCellPolygonsOfLine();
@@ -289,7 +288,7 @@ public class CellPolygonCalculator {
 		
 		for(CellPolygon adhLineCellPol : adhLineCellPolygons){
 			if(adhVertexCellPolygons.contains(adhLineCellPol)){ 
-				System.out.println("Self Adhesion Detected");
+				
 				return false;
 			}
 		}
@@ -521,16 +520,16 @@ public class CellPolygonCalculator {
 		Line[] linesToTest =getLineArrayToTestVertexDistance(vertex);
 		HashSet<Line> foundLines = new HashSet<Line>();
 		for(Line actLine : linesToTest){
-			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= MIN_VERTEX_EDGE_DISTANCE
-					&&!isNotSelfAdhesion(vertex, actLine)) foundLines.add(actLine);
-		}
+			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= (MIN_VERTEX_EDGE_DISTANCE)
+					&&!isNotSelfAdhesion(vertex, actLine)) foundLines.add(actLine);		
+			}
 		return foundLines.toArray(new Line[foundLines.size()]);
 	}
 	
 	private Line isCloseEnoughToOtherBoundaryForAdhesion(Vertex vertex, boolean takeNewValues){
 		Line[] linesToTest =getLineArrayToTestVertexDistance(vertex);
 		for(Line actLine : linesToTest){
-			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= MIN_VERTEX_EDGE_DISTANCE) return actLine;
+			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= MIN_VERTEX_EDGE_DISTANCE && isOuterLine(actLine)) return actLine;
 		}
 		return null;
 	}
@@ -538,15 +537,111 @@ public class CellPolygonCalculator {
 	private Line[] getLineArrayToTestVertexDistance(Vertex vertex){
 		HashSet<Line> lines = new HashSet<Line>();
 		for(CellPolygon cell : cellPolygons){
-			Vertex[] cellVertices = cell.getSortedVertices();
-			Line actLine = null;
-			for(int i = 0; i < cellVertices.length;i++){
-				actLine = new Line(cellVertices[i], cellVertices[((i+1)%cellVertices.length)]);
+			Line[] cellLines = cell.getLinesOfCellPolygon();
+			for(Line actLine : cellLines){
 				if(!actLine.belongsVertexToLine(vertex)) lines.add(actLine);
 			}
 		}
 		return lines.toArray(new Line[lines.size()]);
 	}
+	
+	public Line[] getAllLinesOfVertexNetwork(){
+		HashSet<Line> lines = new HashSet<Line>();
+		for(CellPolygon cell : cellPolygons){
+			lines.addAll(Arrays.asList(cell.getLinesOfCellPolygon()));
+		}
+		return lines.toArray(new Line[lines.size()]);
+	}
+	
+	public Line[] getAllOuterLinesOfVertexNetwork(){
+		HashSet<Line> outerLines = new HashSet<Line>();
+		for(Line actLine : getAllLinesOfVertexNetwork()){
+			if(isOuterLine(actLine)) outerLines.add(actLine);
+		}
+		return outerLines.toArray(new Line[outerLines.size()]);
+	}
+	public Line[] getAllLinesBelongingToOnlyTwoCellsOfVertexNetwork(){
+		HashSet<Line> lines = new HashSet<Line>();
+		for(Line actLine : getAllLinesOfVertexNetwork()){
+			if(isLineOfTwoCellsOnly(actLine)) lines.add(actLine);
+		}
+		return lines.toArray(new Line[lines.size()]);
+	}
+	
+	public Line[] getAllCorruptLinesOfVertexNetwork(){
+		HashSet<Line> corruptLines = new HashSet<Line>();
+		for(Line actLine : getAllLinesOfVertexNetwork()){
+			if(isCorruptLine(actLine)) corruptLines.add(actLine);
+		}
+		return corruptLines.toArray(new Line[corruptLines.size()]);
+	}
+	
+	public void checkForVerticesToMerge(CellPolygon cellPolygon){
+		Line[] cellLines = cellPolygon.getLinesOfCellPolygon();
+		for(Line actLine : cellLines){
+			if((isOuterLine(actLine) || isLineOfTwoCellsOnly(actLine)) && actLine.getLength() < (MIN_EDGE_LENGTH*1)){
+				mergeVerticesOfLine(actLine);
+				System.out.println("Vertices merged");
+				GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTICES_MERGED, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTICES_MERGED)+1));
+			}
+		}
+	}
+	
+	private void mergeVerticesOfLine(Line line){
+		int noConnectedCellsV1 = line.getV1().getNumberOfCellsJoiningThisVertex();
+		int noConnectedCellsV2 = line.getV2().getNumberOfCellsJoiningThisVertex();		
+		double newX = (line.getV1().getDoubleX() +line.getV2().getDoubleX())/2;
+		double newY = (line.getV1().getDoubleY() +line.getV2().getDoubleY())/2;
+		Vertex remainingVertex, vertexToReplace; 
+		if(noConnectedCellsV1 < noConnectedCellsV2){
+			remainingVertex = line.getV2();
+			vertexToReplace = line.getV1();	
+		}
+		else{
+			remainingVertex = line.getV1();
+			vertexToReplace = line.getV2();
+		}
+		
+		remainingVertex.setDoubleX(newX);
+		remainingVertex.setDoubleY(newY);
+		remainingVertex.setNewX(newX);
+		remainingVertex.setNewY(newY);
+		vertexToReplace.replaceVertex(remainingVertex);
+	}
+	
+	private boolean isOuterLine(Line line){
+		int noOfCommonCells = 0;
+		HashSet<CellPolygon> cellsVertex1 = new HashSet<CellPolygon>();
+		cellsVertex1.addAll(Arrays.asList(line.getV1().getCellsJoiningThisVertex()));
+		for(CellPolygon actCell : line.getV2().getCellsJoiningThisVertex()){
+			if(cellsVertex1.contains(actCell)) noOfCommonCells++;
+		}
+		//if(noOfCommonCells > 2) System.out.println("Komische Sache: Bei einer Kante haben die beiden Vertices mehr als zwei gemeinsame Zellen...");
+		return noOfCommonCells < 2;
+	}
+	
+	private boolean isCorruptLine(Line line){
+		int noOfCommonCells = 0;
+		HashSet<CellPolygon> cellsVertex1 = new HashSet<CellPolygon>();
+		cellsVertex1.addAll(Arrays.asList(line.getV1().getCellsJoiningThisVertex()));
+		for(CellPolygon actCell : line.getV2().getCellsJoiningThisVertex()){
+			if(cellsVertex1.contains(actCell)) noOfCommonCells++;
+		}
+		
+		return noOfCommonCells > 2;
+	}
+	
+	private boolean isLineOfTwoCellsOnly(Line line){
+		if(line.getV1().getNumberOfCellsJoiningThisVertex() == 2 && line.getV2().getNumberOfCellsJoiningThisVertex()==2){
+			HashSet<CellPolygon> cellsV1 = new HashSet<CellPolygon>();
+			cellsV1.addAll(Arrays.asList(line.getV1().getCellsJoiningThisVertex()));
+			CellPolygon[] cellsV2 = line.getV2().getCellsJoiningThisVertex();
+			if(cellsV1.contains(cellsV2[0]) && cellsV1.contains(cellsV2[1])) return true;
+		}
+		
+		return false;
+	}
+	
 	
 	private void checkCloseToOtherEdge(Vertex v){
 		Line[] lines = null;
@@ -554,7 +649,7 @@ public class CellPolygonCalculator {
 			v.setVertexColor(Color.YELLOW);
 			
 			for(Line actLine: lines)actLine.setNewValuesOfVertexToDistance(v, (MIN_VERTEX_EDGE_DISTANCE*1.1));
-			checkNewVertexValuesForComplianceWithStandardBorders(v, true);
+			checkNewVertexValuesForBasalLayerAdhesion(v, true);
 			GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE) +1));
 		}
 		else v.setVertexColor(Color.BLUE);
@@ -563,7 +658,7 @@ public class CellPolygonCalculator {
 	
 	
 	public void applyVertexPositionCheckPipeline(Vertex v){
-		checkNewVertexValuesForComplianceWithStandardBorders(v, false);
+		checkNewVertexValuesForBasalLayerAdhesion(v, false);
 		checkCloseToOtherEdge(v);
 	}
 	
@@ -571,47 +666,72 @@ public class CellPolygonCalculator {
 		checkForT1Transitions(cell);
 		checkForT2Transition(cell);
 		checkForT3Transitions(cell);
+		checkForVerticesToMerge(cell);
 	}
 	
 	
 	
-	private void checkNewVertexValuesForComplianceWithStandardBorders(Vertex vertex, boolean estimateNewValue){
+	private void checkNewVertexValuesForBasalLayerAdhesion(Vertex vertex, boolean estimateNewValue){
 		TissueBorder tissueBorder = TissueController.getInstance().getTissueBorder();
 		
-		double minYDelta = Double.POSITIVE_INFINITY;
-		double minX = Double.POSITIVE_INFINITY;
+		
 				
 		if(tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY()){
+			vertex.setIsAttachedToBasalLayer(true);
 			if(estimateNewValue){
 				 //the method implemented below induces in some cases an upward movement out of the undulation of the basement membrane
 				 //for this reason this method is not used; the new values are simply set to the old values
-				double deltaX = Math.abs(vertex.getNewX()-vertex.getDoubleX());
-				double stepSize = deltaX/10d;
-				if(vertex.getNewX() > vertex.getDoubleX() && stepSize>0.1){
-					for(double newX = vertex.getNewX(); newX >=vertex.getDoubleX(); newX -= stepSize){
-						double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
-						if(yDelta < minYDelta){
-							minYDelta = yDelta;
-							minX = newX;
-						}
-					}
-				}
-				else if(vertex.getNewX() < vertex.getDoubleX() && stepSize>0.1){
-					for(double newX = vertex.getNewX(); newX <=vertex.getDoubleX(); newX += stepSize){
-						double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
-						if(yDelta < minYDelta){
-							minYDelta = yDelta;
-							minX = newX;
-						}
-					}
-				}
-				else minX = vertex.getNewX();
-				if(minX < Double.POSITIVE_INFINITY){
-					vertex.setNewX(minX);
-					vertex.setNewY(tissueBorder.lowerBound(minX));
-				}
+				setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
 			}
 			else resetToOldValue(vertex);			
+		}
+		else if(vertex.isAttachedToBasalLayer()){
+		//	double distanceToOldValue = Math.sqrt(Math.pow((vertex.getDoubleX()-vertex.getNewX()), 2)+Math.pow((vertex.getDoubleY()-vertex.getNewY()), 2));
+		//	if(distanceToOldValue < (MIN_VERTEX_EDGE_DISTANCE*1.5)){
+			//setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
+			resetToOldValue(vertex);
+			//	}
+			//else vertex.setIsAttachedToBasalLayer(false);
+		}
+	}
+	
+	private void setToNewEstimatedValueOnBasalLayer(TissueBorder tissueBorder, Vertex vertex){
+		double minYDelta = Double.POSITIVE_INFINITY;
+		double minX = Double.POSITIVE_INFINITY;
+		final double interval = 3;
+		double deltaX = Math.abs(vertex.getNewX()-vertex.getDoubleX());
+		double stepSize = deltaX/10d;
+	/*	if(vertex.getNewX() > vertex.getDoubleX() && stepSize>0.1){
+			for(double newX = vertex.getNewX(); newX >=vertex.getDoubleX(); newX -= stepSize){
+				double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
+				if(yDelta < minYDelta){
+					minYDelta = yDelta;
+					minX = newX;
+				}
+			}
+		}
+		else if(vertex.getNewX() < vertex.getDoubleX() && stepSize>0.1){
+			for(double newX = vertex.getNewX(); newX <=vertex.getDoubleX(); newX += stepSize){
+				double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
+				if(yDelta < minYDelta){
+					minYDelta = yDelta;
+					minX = newX;
+				}
+			}
+		}
+		else minX = vertex.getNewX();*/
+		if(stepSize > 0.1){
+			for(double newX = vertex.getNewX()-interval; newX <=vertex.getNewX()+interval; newX += stepSize){
+				double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
+				if(yDelta < minYDelta){
+					minYDelta = yDelta;
+					minX = newX;
+				}
+			}
+		}
+		if(minX < Double.POSITIVE_INFINITY){
+			vertex.setNewX(minX);
+			vertex.setNewY(tissueBorder.lowerBound(minX));
 		}
 	}
 	

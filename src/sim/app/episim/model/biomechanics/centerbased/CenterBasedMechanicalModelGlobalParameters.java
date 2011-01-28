@@ -29,7 +29,16 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBioMech
 	private double basalLayerWidth=15;  // For Statistics of Basal Layer: Cell Definition (for GrowthFraction): distance to membrane not more than gBasalLayerWidth
 	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
 
-	public CenterBasedMechanicalModelGlobalParameters() {}	
+	private boolean drawCellsAsEllipses = false;
+	
+	public CenterBasedMechanicalModelGlobalParameters() {}
+	
+	public boolean isDrawCellsAsEllipses() {
+		return drawCellsAsEllipses;
+	}
+	public void setDrawCellsAsEllipses(boolean drawCellsAsEllipses) {
+	  	this.drawCellsAsEllipses = drawCellsAsEllipses;
+	}
 	
 	public int getBasalAmplitude_µm() {
 
@@ -167,6 +176,9 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBioMech
 
 		return width;
 	}
+
+	
+  
 	
 
 }

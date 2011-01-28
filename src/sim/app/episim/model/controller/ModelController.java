@@ -1,6 +1,7 @@
 package sim.app.episim.model.controller;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import episimexceptions.ModelCompatibilityException;
@@ -13,6 +14,8 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
+import sim.app.episim.UniversalCell;
+import sim.app.episim.model.initialization.ModelInitialization;
 public class ModelController implements java.io.Serializable{
 	
 	private static Semaphore sem = new Semaphore(1);
@@ -54,9 +57,18 @@ public class ModelController implements java.io.Serializable{
 		return CellBehavioralModelController.getInstance().getNewEpisimCellBehavioralModelObject();
 	}
 
-	public EpisimBioMechanicalModel getNewBioMechanicalModelObject(){		
-		return BioMechanicalModelController.getInstance().getNewEpisimBioMechanicalModelObject();
+	
+	public ArrayList<UniversalCell> getStandardInitialCellEnsemble(){
+		ModelInitialization initializer = new ModelInitialization();
+		return initializer.getCells();
 	}
+
+	public ArrayList<UniversalCell> getInitialCellEnsemble(File modelInitializationFile){
+		ModelInitialization initializer = new ModelInitialization(modelInitializationFile);
+		return initializer.getCells();
+	}
+	
+	
 	
 	public EpisimBioMechanicalModel getNewBioMechanicalModelObject(AbstractCell cell){		
 		return BioMechanicalModelController.getInstance().getNewEpisimBioMechanicalModelObject(cell);
@@ -72,10 +84,6 @@ public class ModelController implements java.io.Serializable{
    	if(success){
    		if(ModeServer.consoleInput()){
    			ModelParameterModifier parameterModifier = new ModelParameterModifier();
-   			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
-   				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(BioMechanicalModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()
-   						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP)));
-   			}
    			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
    				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(CellBehavioralModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
    						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP)));
@@ -86,6 +94,7 @@ public class ModelController implements java.io.Serializable{
    			}
    			
    		}
+   		success = BioMechanicalModelController.getInstance().loadModelFile(CellBehavioralModelController.getInstance().getNewEpisimCellBehavioralModelObject().getIdOfRequiredEpisimModelConnector());
    	}
    	
    	return success;

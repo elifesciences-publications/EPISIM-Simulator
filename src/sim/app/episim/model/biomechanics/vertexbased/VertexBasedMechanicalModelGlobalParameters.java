@@ -36,29 +36,21 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBioMech
 	//----------------------------------------------------------------------------------------------------------------------
 	// Other required Parameters
 	//----------------------------------------------------------------------------------------------------------------------
-	@NotInStatisticsHeaderString
-	private int basalAmplitude_µm = 40; // depth of an undulation
-	@NotInStatisticsHeaderString
-	private int basalOpening_µm = 250; // width of undulation at the middle
-	@NotInStatisticsHeaderString
-	private double width = 140;
-	@NotInStatisticsHeaderString
-	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
-	@NotInStatisticsHeaderString
-	private boolean seedReverse = false;	
-	@NotInStatisticsHeaderString
-	private int basalDensity_µm = 8; // width of undulation at the middle	
-	@NotInStatisticsHeaderString
-	private double neighborhood_µm= 10.0;
-	
-	
+		@NotInStatisticsHeaderString
+		private int basalAmplitude_µm = 40; // depth of an undulation
+		@NotInStatisticsHeaderString
+		private int basalOpening_µm = 250; // width of undulation at the middle
+		@NotInStatisticsHeaderString
+		private double width = 140;
+		@NotInStatisticsHeaderString
+		private double neighborhood_µm= 10.0;
 	//----------------------------------------------------------------------------------------------------------------------
 	
 	
 	@NotInStatisticsHeaderString
 	private static VertexBasedMechanicalModelGlobalParameters instance = new VertexBasedMechanicalModelGlobalParameters();
 	
-	private VertexBasedMechanicalModelGlobalParameters() {
+	public VertexBasedMechanicalModelGlobalParameters() {
 	}
 	
 	public String getStatisticsHeaderString(){ return buildStatisticsHeaderString(); }
@@ -102,15 +94,6 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBioMech
 	
    public double getWidth() {	return width; }	
    public void setWidth(double width) { this.width = width; }
-	
-   public double getSeedMinDepth_frac() { return seedMinDepth_frac; }   
-   public void setSeedMinDepth_frac(double seedMinDepth_frac) { this.seedMinDepth_frac = seedMinDepth_frac; }   
-   
-   public boolean getSeedReverse() { return seedReverse; }	
-   public void setSeedReverse(boolean seedReverse) { this.seedReverse = seedReverse; }
-   
-   public int getBasalDensity_µm() { return basalDensity_µm; }	
-   public void setBasalDensity_µm(int basalDensity_µm) { this.basalDensity_µm = basalDensity_µm; }
 	
    public double getNeighborhood_µm() { return neighborhood_µm; }
    public void setNeighborhood_µm(double neighborhood_µm) { this.neighborhood_µm = neighborhood_µm; }

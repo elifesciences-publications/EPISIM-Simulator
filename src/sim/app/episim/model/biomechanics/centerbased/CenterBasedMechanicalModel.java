@@ -1,34 +1,44 @@
 package sim.app.episim.model.biomechanics.centerbased;
 
 import java.awt.Color;
+import java.awt.Polygon;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+
 
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.centerbased.EpisimCenterBasedModelConnector;
 import episimexceptions.GlobalParameterException;
-import episiminterfaces.EpisimCellBehavioralModel;
+
 import episiminterfaces.EpisimDifferentiationLevel;
-import episiminterfaces.EpisimBioMechanicalModel;
+
 import episiminterfaces.monitoring.CannotBeMonitored;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
+
+import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
+import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.initialization.AbstractBiomechanicalModelInitializer;
+import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
+
 import sim.app.episim.tissue.TissueController;
-import sim.app.episim.tissue.TissueServer;
+
+import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
+import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Vector2D;
 import sim.app.episim.visualization.CellEllipse;
+
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
 import sim.util.Double2D;
 
 
-public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
+public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	
 	public static final double GOPTIMALKERATINODISTANCE=4; // Default: 4
    public static final double GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
@@ -48,7 +58,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
    
    private Vector2D extForce = new Vector2D(0,0);
    private Double2D lastd = new Double2D(0,0);
-   private AbstractCell cell;
+   
    
    private Double2D oldLoc;
    private Double2D newLoc;
@@ -61,19 +71,18 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
    
    private boolean isMembraneCell = false;
    
-   public CenterBasedMechanicalModel(){
-   	this(null);   	
-   }
+   private CellEllipse cellEllipseObject;
    
+  
    public CenterBasedMechanicalModel(AbstractCell cell){
+   	super(cell);
    	extForce=new Vector2D(0,0);      
       keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
       keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize;
       lastd=new Double2D(0.0,-3);
-      this.cell = cell;
-      if(cell != null && cell.getCellEllipseObject() == null && cell.getEpisimCellBehavioralModelObject() != null){
-			CellEllipse ellipse = new CellEllipse(cell.getID(), (int)getX(), (int)getY(), keratinoWidth, keratinoHeight, Color.BLUE);
-	      cell.setCellEllipseObject(ellipse);
+      if(cell != null && getCellEllipseObject() == null && cell.getEpisimCellBehavioralModelObject() != null){
+			cellEllipseObject = new CellEllipse(cell.getID(), (int)getX(), (int)getY(), keratinoWidth, keratinoHeight, Color.BLUE);
+	     
 		}
    }
    
@@ -85,16 +94,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
    }
    
    
-   public double orientation2D()
-   {
-       if (lastd.x == 0 && lastd.y == 0) return 0;
-       return Math.atan2(lastd.y, lastd.x);
-   }
-   public double orientation2D(double p_dx, double p_dy)
-   {
-       if (p_dx == 0 && p_dy == 0) return 0;
-       return Math.atan2(p_dy, p_dx);
-   }    
+  
    public Double2D momentum()
    {
        return lastd;
@@ -144,7 +144,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
        // for each collision calc a pressure vector and add it to the other's existing one
        HitResultClass hitResult=new HitResultClass();            
-       if (b==null || b.numObjs == 0 || cell.isInNirvana()) return hitResult;
+       if (b==null || b.numObjs == 0 || getCell().isInNirvana()) return hitResult;
        
        
        
@@ -155,7 +155,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
        //double adyOpt = 5; // 3+theEpidermis.cellSpace;
        
        
-       if (cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
+       if (getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.GRANUCELL) adxOpt=GOPTIMALKERATINODISTANCEGRANU; // was 3 // 4 in modified version
        
        double optDistSq = adxOpt*adxOpt; //+adyOpt*adyOpt;
        double optDist=Math.sqrt(optDistSq);
@@ -171,7 +171,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
                if(!(((UniversalCell) b.objs[i]).getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel)) continue;
        
            UniversalCell other = (UniversalCell)(b.objs[i]);
-           if (other != cell)
+           if (other != getCell())
                {
                    Double2D otherloc=pC2dHerd.getObjectLocation(other);
                    double dx = pC2dHerd.tdx(thisloc.x,otherloc.x); // dx, dy is what we add to other to get to this
@@ -198,7 +198,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
                                        hitResult.otherId=other.getID();
                                        hitResult.otherMotherId=other.getMotherId();
                                        
-                                       if ((other.getMotherId()==cell.getID()) || (other.getID()==cell.getMotherId()))
+                                       if ((other.getMotherId()==getCell().getID()) || (other.getID()==getCell().getMotherId()))
                                        {
                                            //fx*=1.5;// birth pressure is greater than normal pressure
                                            //fy*=1.5;
@@ -243,7 +243,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 	public void setPositionRespectingBounds(Double2D p_potentialLoc)
 	{
 	   // modelling a hole in the wall at position hole holeX with width  holeHalfWidth
-	   if (cell.isInNirvana()) 
+	   if (getCell().isInNirvana()) 
 	           return;
 	   double newx=p_potentialLoc.x;
 	   double newy=p_potentialLoc.y;               
@@ -259,7 +259,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 	   else if (newy<10) newy=10;
 	
 	   Double2D newloc = new Double2D(newx,newy);
-	   TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().setObjectLocation(cell, newloc);
+	   TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().setObjectLocation(getCell(), newloc);
 	}
 
 
@@ -280,7 +280,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 	       if (newy>pC2dHerd.height) // unterste Auffangebene
 	       {
 	           newy=pC2dHerd.height; 
-	           cell.setInNirvana(true);
+	           getCell().setInNirvana(true);
 	          
 	       }
 	
@@ -298,7 +298,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
        return 4/(1+0.1*Math.exp((-x-4)/1));
    }
    
-   public void newSimStep(){
+   public void newSimStep(long simstepNumber){
    	
    	CenterBasedMechanicalModelGlobalParameters globalParameters = null;
    	
@@ -316,41 +316,29 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
    // ////////////////////////////////////////////////
 		// calculate ACTION force
 		// ////////////////////////////////////////////////
-		if(!(cell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel)) return;
+		if(!(getCell().getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel)) return;
 		
-		if(cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.GRANUCELL){
+		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.GRANUCELL){
    	 	setKeratinoWidth(getGKeratinoWidthGranu());
    		setKeratinoHeight(getGKeratinoHeightGranu());
-   		cell.getCellEllipseObject().setMajorAxisAndMinorAxis(getGKeratinoWidthGranu(), getGKeratinoHeightGranu());
+   		getCellEllipseObject().setMajorAxisAndMinorAxis(getGKeratinoWidthGranu(), getGKeratinoHeightGranu());
    	}
-		if(cell.getCellEllipseObject() == null){
+		if(getCellEllipseObject() == null){
 			//CellEllipse ellipse = new CellEllipse(cell.getID(), ((int)modelConnector.getX()), ((int)modelConnector.getY()), keratinoWidth, keratinoHeight, Color.BLUE);
 	      //cell.setCellEllipseObject(ellipse);
-			System.out.println("Scheiße keine Ellipse da!");
+			System.out.println("Field cellEllipseObject is not set to a value different from null!");
 		}
 		
 		
-		
-		
-		
-		// Double2D rand = randomness(flock.random);
-		// Double2D mome = momentum();
 
 		// calc potential location from gravitation and external pressures
-		oldLoc = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell);
+		oldLoc = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(getCell());
 		if(oldLoc != null){
 		if(extForce.length() > 0.6)
 			extForce = extForce.setLength(0.6);
-		// extForce=extForce.setLength(2*(1-Math.exp(-0.5*extForce.length())));
-		// extForce=extForce.setLength(sigmoid(extForce.length())-sigmoid(0));
-		// //
+		
 		// die funktion muss 0 bei 0 liefern, daher absenkung auf sigmoid(0)
-		Double2D gravi = new Double2D(0, globalParameters.getGravitation()); // Vector
-		// which
-		// avoidance
-		// has
-		// to
-		// process
+		Double2D gravi = new Double2D(0, globalParameters.getGravitation()); // Vector which avoidance has to process
 		Double2D randi = new Double2D(globalParameters.getRandomness()
 				* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), globalParameters.getRandomness()
 				* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
@@ -421,21 +409,21 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 		hitResult2 = hitsOther(b, TissueController.getInstance().getActEpidermalTissue().getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
 		// move only on pressure when not stem cell
-		if(cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
+		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
 			if((hitResult2.numhits == 0)
-					|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == cell.getMotherId()) || (hitResult2.otherMotherId == cell.getID())))){
+					|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == getCell().getMotherId()) || (hitResult2.otherMotherId == getCell().getID())))){
 				double dx = potentialLoc.x - oldLoc.x;
 				lastd = new Double2D(potentialLoc.x - oldLoc.x, potentialLoc.y - oldLoc.y);
 				setPositionRespectingBounds(potentialLoc);
 			}
 		}
 
-		newLoc = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell);
+		newLoc = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(getCell());
 		double maxy = TissueController.getInstance().getTissueBorder().lowerBound(newLoc.x);
 		if((maxy - newLoc.y) < globalParameters.getBasalLayerWidth())
-			cell.setIsBasalStatisticsCell(true);
+			getCell().setIsBasalStatisticsCell(true);
 		else
-			cell.setIsBasalStatisticsCell(false); // ABSOLUTE DISTANZ KONSTANTE
+			getCell().setIsBasalStatisticsCell(false); // ABSOLUTE DISTANZ KONSTANTE
 
 		if((maxy - newLoc.y) < globalParameters.getMembraneCellsWidth()){
 			modelConnector.setIsMembrane(true);
@@ -461,17 +449,40 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 		
 		modelConnector.setX(getNewPosition().getX());
   	 	modelConnector.setY(TissueController.getInstance().getTissueBorder().getHeight()- getNewPosition().getY());
-  	   modelConnector.setIsSurface(this.cell.isOuterCell() || nextToOuterCell());
+  	   modelConnector.setIsSurface(this.getCell().isOuterCell() || nextToOuterCell());
+  	   
+  	   calculateCellEllipse(simstepNumber);
+  	   
 		
    }
    
    }
    
+   private void calculateCellEllipse(long simstepNumber){
+   	DrawInfo2D info = this.getCellEllipseObject().getLastDrawInfo2D();
+		DrawInfo2D newInfo = null;
+		if( info != null){
+			newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
+			newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*getOldPosition().x) + newInfo.draw.width* getNewPosition().x);
+			newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*getOldPosition().y) + newInfo.draw.height*getNewPosition().y);
+			this.getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
+		}  	   
+  	   
+  	   //Ellipse Visualization is activated
+		if(((CenterBasedMechanicalModelGlobalParameters)ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses()){
+			calculateClippedCell(simstepNumber);
+		}
+   }
+   
+   
+   
+   
+   
    public boolean isMembraneCell(){ return isMembraneCell;}
    
-   public AbstractCell[] getRealNeighbours(){
+   public GenericBag<AbstractCell> getRealNeighbours(){
    	GenericBag<AbstractCell> neighbours = getNeighbouringCells();
-   	List<AbstractCell> neighbourCells = new ArrayList<AbstractCell>();
+   	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
    	Continuous2D cellContinous2D = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D();
   	 	for(int i=0;i<neighbours.size();i++)
       {
@@ -494,7 +505,7 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
               	
             //}
       }
-  	 	return neighbourCells.toArray(new AbstractCell[neighbourCells.size()]);
+  	 	return neighbourCells;
    }
    
    
@@ -537,5 +548,94 @@ public class CenterBasedMechanicalModel implements EpisimBioMechanicalModel {
 	}
 	@CannotBeMonitored
 	public double getZ(){ return 0;}
-	 
+	
+	@CannotBeMonitored
+	public Polygon getPolygonCell(){
+		return getPolygonCell(null);
+	}
+	
+	@CannotBeMonitored
+	public Polygon getPolygonNucleus(){
+		return getPolygonNucleus(null);
+	}
+	
+	@CannotBeMonitored
+	public Polygon getPolygonCell(DrawInfo2D info){
+		return createHexagonalPolygon(info, getKeratinoWidth(), getKeratinoHeight());
+	}
+	
+	@CannotBeMonitored
+	public Polygon getPolygonNucleus(DrawInfo2D info){
+		return createHexagonalPolygon(info, 2, 2);
+	}
+	
+	@CannotBeMonitored
+   public CellEllipse getCellEllipseObject(){
+   	return this.cellEllipseObject;
+   }
+	
+	private Polygon createHexagonalPolygon(DrawInfo2D info, double width, double height){
+		
+		
+		double infoX=getX();
+		double infoY=getY();
+		double infoWidth = 1;
+		double infoHeight = 1;
+		
+		if(info != null){
+			infoX = info.draw.x;
+			infoY = info.draw.y;
+			infoWidth = info.draw.width;
+			infoHeight = info.draw.height;
+		}
+		
+		Polygon polygon = new Polygon(); 
+		polygon.addPoint((int)(infoX+infoWidth/2.0*width), (int)(infoY));
+		polygon.addPoint((int)(infoX+infoWidth/4.0*width), (int)(infoY-infoHeight/2.0*height));
+		polygon.addPoint((int)(infoX-infoWidth/4.0*width), (int)(infoY-infoHeight/2.0*height));
+		polygon.addPoint((int)(infoX-infoWidth/2.0*width), (int)(infoY));
+		polygon.addPoint((int)(infoX-infoWidth/4.0*width), (int)(infoY+infoHeight/2.0*height));
+		polygon.addPoint((int)(infoX+infoWidth/4.0*width), (int)(infoY+infoHeight/2.0*height)); 
+     
+      
+      return polygon;
+	}
+	
+	public void setLastDrawInfo2DForNewCellEllipse(DrawInfo2D info, Double2D newloc, Double2D oldLoc){
+		DrawInfo2D newInfo = null;
+		if(info != null){
+			newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
+			newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*oldLoc.x) + newInfo.draw.width*newloc.x);
+			newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*oldLoc.y) + newInfo.draw.height*newloc.y);
+			getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
+		}  
+	}
+	
+	
+	private void calculateClippedCell(long simstepNumber){
+  	 
+    	CellEllipse cellEllipseCell = this.getCellEllipseObject();
+    	 
+    	 
+    	 if(this.getNeighbouringCells() != null && this.getNeighbouringCells().size() > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
+ 	   	 for(AbstractCell neighbouringCell : this.getNeighbouringCells()){
+ 	   		 if(neighbouringCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+ 	   			 CenterBasedMechanicalModel biomechModelNeighbour = (CenterBasedMechanicalModel) neighbouringCell.getEpisimBioMechanicalModelObject();
+	 	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), biomechModelNeighbour.getCellEllipseObject().getId(), simstepNumber)){
+	 	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(),biomechModelNeighbour.getCellEllipseObject().getId());
+	 	   			
+	 	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, biomechModelNeighbour.getCellEllipseObject());
+	 	   		 }
+ 	   		 }
+ 	   	 }
+    	 }
+   }
+	
+	public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(){
+		return new CenterBasedMechanicalModelInitializer();
+	}
+	
+   public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile) {	  
+	   return new CenterBasedMechanicalModelInitializer(modelInitializationFile);
+   }
 }

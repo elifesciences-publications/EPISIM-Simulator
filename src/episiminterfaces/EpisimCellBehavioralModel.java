@@ -5,6 +5,7 @@ import episimbiomechanics.EpisimModelConnector;
 public interface EpisimCellBehavioralModel {
 	
 	void setEpisimModelConnector(EpisimModelConnector _modelConnector);
+	String getIdOfRequiredEpisimModelConnector();
 	
 	void setNumberProperty(int propertycode, double val);
 	void setMinNumberProperty(int propertycode, double val);

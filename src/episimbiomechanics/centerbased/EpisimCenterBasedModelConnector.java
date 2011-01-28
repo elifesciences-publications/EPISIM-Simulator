@@ -1,12 +1,16 @@
 package episimbiomechanics.centerbased;
 
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import episimbiomechanics.EpisimModelConnector;
+import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
 
 
 
 public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	
-	private static final String VERSION = "2010-05-13";
+	private static final String ID = "2010-05-13";
 	private static final String NAME = "Center Based Biomechanical Model";
    
 	private boolean hasCollision =false;
@@ -17,16 +21,23 @@ public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	private double dx;
 	private double dy;
 	
+	public EpisimCenterBasedModelConnector(){}
 	
-	public String getBiomechanicalModelId(){
-		return VERSION;
+	protected String getIdForInternalUse(){
+		return ID;
 	}
 	
 	public String getBiomechanicalModelName(){
 		return NAME;
 	}
 	
-	public EpisimCenterBasedModelConnector(){}
+	public Class<? extends EpisimBioMechanicalModel> getEpisimBioMechanicalModelClass(){
+		return CenterBasedMechanicalModel.class;
+	}
+	
+	public Class<? extends EpisimBioMechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
+		return CenterBasedMechanicalModelGlobalParameters.class;
+	}	
 	
 	public boolean getHasCollision() {
 	

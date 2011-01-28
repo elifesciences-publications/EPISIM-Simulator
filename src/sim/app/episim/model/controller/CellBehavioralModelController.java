@@ -3,6 +3,8 @@ package sim.app.episim.model.controller;
 import java.io.File;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
@@ -11,6 +13,8 @@ import episiminterfaces.EpisimDifferentiationLevel;
 
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.UniversalCell;
+import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
 
 
 
@@ -44,11 +48,14 @@ public class CellBehavioralModelController implements java.io.Serializable{
 	}
 	
 	
+	
+	
+	
 	protected boolean loadModelFile(File modelFile) throws ModelCompatibilityException{
 		
-			ModelJarClassLoader jarLoader = null;
+			CellBehavioralModelJarClassLoader jarLoader = null;
          try{
-	         jarLoader = new ModelJarClassLoader(modelFile.toURI().toURL());
+	         jarLoader = new CellBehavioralModelJarClassLoader(modelFile.toURI().toURL());
          }
          catch (MalformedURLException e){
 	        ExceptionDisplayer.getInstance().displayException(e);
@@ -79,6 +86,14 @@ public class CellBehavioralModelController implements java.io.Serializable{
 	
 	public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){
 		return cellBehavioralModel.getEpisimCellBehavioralModelGlobalParameters();
+	}
+	
+	public CellBehavioralModelInitializer getCellBehavioralModelInitializer(){
+		return this.cellBehavioralModel.getCellBehavioralModelInitializer();
+	}
+	
+	public CellBehavioralModelInitializer getCellBehavioralModelInitializer(File modelInitializationFile){
+		return this.cellBehavioralModel.getCellBehavioralModelInitializer(modelInitializationFile);
 	}
 	
 	public EpisimCellType[] getAvailableCellTypes(){ return getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes(); }

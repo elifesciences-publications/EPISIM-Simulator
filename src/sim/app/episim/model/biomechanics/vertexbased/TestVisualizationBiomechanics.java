@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Polygon;
 import java.awt.Stroke;
 import java.awt.Toolkit;
@@ -22,14 +23,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
@@ -52,6 +57,25 @@ import episiminterfaces.CellPolygonProliferationSuccessListener;
 public class TestVisualizationBiomechanics implements CellPolygonProliferationSuccessListener, TestVisualizationPanelPaintListener{
 	
 	public static final int ASSUMED_PROLIFERATION_CYCLE = 120;
+	
+	
+	public enum VisualizationUnit{
+		PROLIFERATINGCELLS("Proliferation Cells"),
+		VERTICES("Vertices"),
+		ATTACHED_VERTICES("Attached Vertices"),
+		CORRUPTLINES("Corrupt Lines"),
+		TWOCELLLINES("Two Cell Lines"),
+		OUTERLINES("Outer Lines"),
+		CONTACTBASALLAYER("Contact Basallayer"),
+		NEIGHBOURCONTACTBASALLAYER("Neighbour Contact Basal Layer");
+		
+		private String name;
+		private VisualizationUnit(String name){
+			this.name = name;
+		}
+		public String toString(){ return name; }
+	}
+	
 	
 	private enum SimState{SIMSTART, SIMSTOP;}
 	private JFrame frame;
@@ -77,6 +101,10 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    private EpisimMovieMaker episimMovieMaker = null;
    private boolean headlessMode = false;
    private CellPolygonCalculator cellPolygonCalculator;
+   
+   
+   private HashMap<VisualizationUnit, Boolean> visualizationConfigurationMap;
+   
    public TestVisualizationBiomechanics(boolean autoStart){
    	this(autoStart, null, null, Integer.MAX_VALUE, false);
    }
@@ -88,6 +116,12 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    
    
 	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, String csvPath, int numberOfCellDivisions, boolean headlessMode){
+		
+		
+		visualizationConfigurationMap = new HashMap<VisualizationUnit, Boolean>();
+		
+		for(VisualizationUnit unit  : VisualizationUnit.values()) visualizationConfigurationMap.put(unit, false);
+		
 		
 		
 		this.maxNumberOfCellDivisions = numberOfCellDivisions;
@@ -126,13 +160,14 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			
 			
 			frame = new JFrame("Biomechanics Testvisualization");
-			frame.setSize(600, 600);
-			frame.setPreferredSize(new Dimension(600, 600));
+			frame.setSize(850, 600);
+			frame.setPreferredSize(new Dimension(850, 600));
 			frame.getContentPane().setLayout(new BorderLayout());
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.getContentPane().add(visualizationPanel, BorderLayout.CENTER);			
 			visualizationPanel.setBorder(BorderFactory.createLoweredBevelBorder());
 			((JPanel)frame.getContentPane()).setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+			frame.add(buildVisualizationConfigPanel(), BorderLayout.EAST);
 		}
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(2,5,2,5));
@@ -180,6 +215,28 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 	}
 	
+	
+	private JPanel buildVisualizationConfigPanel(){
+		JPanel configPanel = new JPanel(new GridLayout(VisualizationUnit.values().length, 1, 5, 5));
+		for(VisualizationUnit unit : VisualizationUnit.values()){
+			final VisualizationUnit actUnit = unit;
+			final JCheckBox check =  new JCheckBox(actUnit.toString());
+			check.setSelected(visualizationConfigurationMap.get(actUnit));
+			check.addChangeListener(new ChangeListener(){
+
+				public void stateChanged(ChangeEvent e) {
+					visualizationConfigurationMap.put(actUnit, check.isSelected());         
+            }});
+			configPanel.add(check);
+		}
+		
+		JPanel configWrapperPanel = new JPanel();
+		configWrapperPanel.setPreferredSize(new Dimension(250, 500));
+		configWrapperPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Visualization Configuration"), BorderFactory.createEmptyBorder(5,5,5,5)));
+		configWrapperPanel.add(configPanel);
+		return configWrapperPanel;
+	}
+	
 	private void configureStandardMembrane(){
 		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().setBasalAmplitude_µm(250);
 		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().setWidth(500);
@@ -187,7 +244,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		TissueController.getInstance().getTissueBorder().setBasalPeriod(550);
 		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(40);
 		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(200);
-		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
+		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 	}
 	
 	
@@ -214,9 +271,9 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				public void run() { 
 		
 				//cells[cells.length/2].proliferate();
-					cells[0].proliferate();
-					cells[1].proliferate();
-					cells[2].proliferate();
+				  cells[0].proliferate();
+				  cells[1].proliferate();
+				  cells[2].proliferate();
 				while(simulationState == SimState.SIMSTART){
 					
 				//	try{
@@ -305,9 +362,21 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		g.setStroke(oldStroke);
 		if(cells!= null){
 			for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
-			//	for(Line corrLine : cellPolygonCalculator.getAllCorruptLinesOfVertexNetwork()) highlightLine(g, corrLine, Color.MAGENTA);
+			if(visualizationConfigurationMap.get(VisualizationUnit.CORRUPTLINES)){
+				for(Line corrLine : cellPolygonCalculator.getAllCorruptLinesOfVertexNetwork()) highlightLine(g, corrLine, Color.MAGENTA);
+			}
+			if(visualizationConfigurationMap.get(VisualizationUnit.OUTERLINES)){
 				for(Line outerLine : cellPolygonCalculator.getAllOuterLinesOfVertexNetwork()) highlightLine(g, outerLine, ColorRegistry.CELL_BORDER_COLOR);
-			//	for(Line line : cellPolygonCalculator.getAllLinesBelongingToOnlyTwoCellsOfVertexNetwork()) highlightLine(g, line, Color.YELLOW);
+			}				
+			if(visualizationConfigurationMap.get(VisualizationUnit.TWOCELLLINES)){
+				for(Line line : cellPolygonCalculator.getAllLinesBelongingToOnlyTwoCellsOfVertexNetwork()) highlightLine(g, line, Color.YELLOW);
+			}	
+			
+			for(CellPolygon cellPol : cells){
+				for(Vertex v : cellPol.getUnsortedVertices()){	
+					drawVertex(g, v, false);				
+				}
+			}
 			
 		}
 		
@@ -358,28 +427,42 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	private void drawCellPolygon(Graphics2D g, CellPolygon cell, boolean showCellAreaAndPerimeter){
 		if(cell != null){
 			//drawPoint(g, cell.getX(), cell.getY(), 2, Color.BLUE);
-			Polygon p = new Polygon();		
-			
-			for(Vertex v : cell.getSortedVertices()){	
-				p.addPoint(v.getIntX(), v.getIntY());
-				
-			}			
-			
-		/*	if(cell.isProliferating()){
-				Color oldColor = g.getColor();
-				g.setColor(Color.GREEN);
-				g.fillPolygon(p);
-				g.setColor(oldColor);
+			Polygon p = cell.getPolygon();
+			if(visualizationConfigurationMap.get(VisualizationUnit.PROLIFERATINGCELLS)){
+				if(cell.isProliferating()){
+					Color oldColor = g.getColor();
+					g.setColor(ColorRegistry.CELL_FILL_COLOR_PROLIFERATING);
+					g.fillPolygon(p);
+					g.setColor(oldColor);
+				}
 			}
-			else if(cell.isDying()){
+			if(visualizationConfigurationMap.get(VisualizationUnit.CONTACTBASALLAYER)){
+				if(cell.hasContactToBasalLayer()){
+					Color oldColor = g.getColor();
+					g.setColor(ColorRegistry.CELL_FILL_COLOR_ATTACHED_BASALLAYER);
+					g.fillPolygon(p);
+					g.setColor(oldColor);
+				}
+			}
+			if(visualizationConfigurationMap.get(VisualizationUnit.NEIGHBOURCONTACTBASALLAYER)){
+				if(cell.hasContactToCellThatIsAttachedToBasalLayer()){
+					Color oldColor = g.getColor();
+					g.setColor(ColorRegistry.CELL_FILL_COLOR_NEIGHBOUR_ATTACHED_BASALLAYER);
+					g.fillPolygon(p);
+					g.setColor(oldColor);
+				}
+			}
+			
+			
+			if(cell.isDying()){
 				Color oldColor = g.getColor();
 				g.setColor(Color.RED);
 				g.fillPolygon(p);
 				g.setColor(oldColor);
-			}*/
+			}
 			Color oldColor = g.getColor();
 			g.setColor(ColorRegistry.CELL_FILL_COLOR);
-			g.fillPolygon(p);
+		//	g.fillPolygon(p);
 			g.setColor(oldColor);
 		
 			g.setColor(ColorRegistry.CELL_BORDER_COLOR);
@@ -388,9 +471,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			
 			
 			
-		/*	for(Vertex v : cell.getUnsortedVertices()){	
-				drawVertex(g, v, false);				
-			}	*/		
+				
 			//drawVertex(g,Calculators.getCellCenter(cell),false);
 		}
 	}
@@ -399,7 +480,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		if(vertex != null){
 			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);			
 			if(vertex.isNew()) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.YELLOW);
-			else drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, vertex.getVertexColor());
+			if(visualizationConfigurationMap.get(VisualizationUnit.ATTACHED_VERTICES) && vertex.isAttachedToBasalLayer()) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, ColorRegistry.VERTEX_ATTACHED_TO_BASALLAYER);
+			if(visualizationConfigurationMap.get(VisualizationUnit.VERTICES)) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, vertex.getVertexColor());
 		}
 	}
 	
@@ -451,9 +533,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			this.numberOfCellDivisions++;
 			
 		//	if(this.numberOfCellDivisions<=6) 
-			//	cellPolygonCalculator.randomlySelectCellForProliferation();
-			if(rand.nextBoolean()) newCell.proliferate();
-			else oldCell.proliferate();
+			cellPolygonCalculator.randomlySelectCellForProliferation();
+		
 		/*	else{ 
 				cellPolygonCalculator.randomlySelectCellForApoptosis();
 		}*/

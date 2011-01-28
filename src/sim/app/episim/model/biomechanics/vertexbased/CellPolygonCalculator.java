@@ -28,7 +28,7 @@ public class CellPolygonCalculator {
 	
 	
 	public static final double MIN_EDGE_LENGTH =SIDELENGTH * VertexBasedMechanicalModelGlobalParameters.getInstance().getMin_edge_length_percentage();
-	public static final double MIN_VERTEX_EDGE_DISTANCE = MIN_EDGE_LENGTH;
+	public static final double MIN_VERTEX_EDGE_DISTANCE = MIN_EDGE_LENGTH*0.8;
 	
 
 	
@@ -676,31 +676,48 @@ public class CellPolygonCalculator {
 		
 		
 				
-		if(tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY()){
-			vertex.setIsAttachedToBasalLayer(true);
-			if(estimateNewValue){
+		if((tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY() || getDistanceToBasalLayer(tissueBorder, vertex, true) <= MIN_VERTEX_EDGE_DISTANCE)
+				&& !vertex.isAttachedToBasalLayer()){
+			
+			//if(estimateNewValue){
 				 //the method implemented below induces in some cases an upward movement out of the undulation of the basement membrane
 				 //for this reason this method is not used; the new values are simply set to the old values
+		//	if(!vertex.isAttachedToBasalLayer() || estimateNewValue) 
 				setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
-			}
-			else resetToOldValue(vertex);			
+			//}
+		//	else resetToOldValue(vertex);	
+			vertex.setIsAttachedToBasalLayer(true);
 		}
 		else if(vertex.isAttachedToBasalLayer()){
-		//	double distanceToOldValue = Math.sqrt(Math.pow((vertex.getDoubleX()-vertex.getNewX()), 2)+Math.pow((vertex.getDoubleY()-vertex.getNewY()), 2));
-		//	if(distanceToOldValue < (MIN_VERTEX_EDGE_DISTANCE*1.5)){
-			//setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
-			resetToOldValue(vertex);
-			//	}
+			double distanceToOldValue = Math.sqrt(Math.pow((vertex.getDoubleX()-vertex.getNewX()), 2)+Math.pow((vertex.getDoubleY()-vertex.getNewY()), 2));
+			if(distanceToOldValue < (MIN_VERTEX_EDGE_DISTANCE*2)){
+				//setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
+				resetToOldValue(vertex);
+			}
+			else vertex.setIsAttachedToBasalLayer(false);
 			//else vertex.setIsAttachedToBasalLayer(false);
 		}
 	}
 	
+	private double getDistanceToBasalLayer(TissueBorder tissueBorder, Vertex vertex, boolean takeNewValues){
+		double startX = takeNewValues ? (vertex.getNewX() - MIN_EDGE_LENGTH):(vertex.getDoubleX() - MIN_EDGE_LENGTH);
+		double stopX = takeNewValues ? (vertex.getNewX() + MIN_EDGE_LENGTH):(vertex.getDoubleX() + MIN_EDGE_LENGTH); 
+		double minDistance = Double.POSITIVE_INFINITY;
+		
+		for(double newX = startX; newX <=stopX; newX++){
+			double distance = Math.sqrt(Math.pow((newX-(takeNewValues ?vertex.getNewX():vertex.getDoubleX())),2)
+					                     + Math.pow((tissueBorder.lowerBound(newX)-(takeNewValues ?vertex.getNewY():vertex.getDoubleY())), 2));
+			if(distance < minDistance) minDistance = distance;
+		}
+		return minDistance;
+	}
+	
 	private void setToNewEstimatedValueOnBasalLayer(TissueBorder tissueBorder, Vertex vertex){
-		double minYDelta = Double.POSITIVE_INFINITY;
+		double minY = Double.POSITIVE_INFINITY;
 		double minX = Double.POSITIVE_INFINITY;
-		final double interval = 3;
-		double deltaX = Math.abs(vertex.getNewX()-vertex.getDoubleX());
-		double stepSize = deltaX/10d;
+		double minDistance = Double.POSITIVE_INFINITY;
+		final double interval = Math.abs(vertex.getNewX()-vertex.getDoubleX());
+		double stepSize = interval /10d;
 	/*	if(vertex.getNewX() > vertex.getDoubleX() && stepSize>0.1){
 			for(double newX = vertex.getNewX(); newX >=vertex.getDoubleX(); newX -= stepSize){
 				double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
@@ -720,19 +737,33 @@ public class CellPolygonCalculator {
 			}
 		}
 		else minX = vertex.getNewX();*/
-		if(stepSize > 0.1){
-			for(double newX = vertex.getNewX()-interval; newX <=vertex.getNewX()+interval; newX += stepSize){
-				double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
-				if(yDelta < minYDelta){
-					minYDelta = yDelta;
-					minX = newX;
+		if(interval >=1){
+			if(vertex.getNewX() < vertex.getDoubleX()){
+			
+			for(double newX = vertex.getDoubleX(); newX >=vertex.getNewX(); newX -= stepSize){
+					double distance = Math.sqrt(Math.pow((newX-vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getNewY()), 2));
+					distance += Math.sqrt(Math.pow((newX-vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getDoubleY()), 2));
+					if(distance < minDistance){
+						minY = tissueBorder.lowerBound(newX);
+						minX = newX;
+					}
+				}
+			} else if(vertex.getNewX() > vertex.getDoubleX()){
+				for(double newX = vertex.getDoubleX(); newX <=vertex.getNewX(); newX += stepSize){
+					double distance = Math.sqrt(Math.pow((newX-vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getNewY()), 2));
+					distance += Math.sqrt(Math.pow((newX-vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getDoubleY()), 2));
+					if(distance < minDistance){
+						minY = tissueBorder.lowerBound(newX);
+						minX = newX;
+					}
 				}
 			}
 		}
-		if(minX < Double.POSITIVE_INFINITY){
+		if(minX < Double.POSITIVE_INFINITY && minY < Double.POSITIVE_INFINITY){
 			vertex.setNewX(minX);
-			vertex.setNewY(tissueBorder.lowerBound(minX));
+			vertex.setNewY(minY);
 		}
+		else resetToOldValue(vertex);
 	}
 	
 	

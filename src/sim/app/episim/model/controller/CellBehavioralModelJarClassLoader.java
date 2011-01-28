@@ -27,7 +27,7 @@ import sim.app.episim.ExceptionDisplayer;
 /**
  * A class loader for loading jar files, both local and remote.
  */
-class ModelJarClassLoader{
+class CellBehavioralModelJarClassLoader{
     private URL url;
 
    
@@ -40,7 +40,7 @@ class ModelJarClassLoader{
      * @param url the url of the jar file
     * @throws ModelCompatibilityException 
      */
-    public ModelJarClassLoader(URL url) throws ModelCompatibilityException {
+    public CellBehavioralModelJarClassLoader(URL url) throws ModelCompatibilityException {
         
         this.url = url;
         

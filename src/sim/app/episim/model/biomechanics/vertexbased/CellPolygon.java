@@ -1,6 +1,7 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Color;
+import java.awt.Polygon;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -108,25 +109,6 @@ public int hashCode() {
 }
 
 public Vertex[] getUnsortedVertices(){ return vertices.toArray(new Vertex[vertices.size()]); }
-
-/*public void sortVerticesWithGrahamScan(){
-	GrahamScan scan = new GrahamScan();
-	Vertex[] v =  vertices.toArray(new Vertex[vertices.size()]);
-	int h = scan.computeHull(v);
-	vertices.clear();
-	for(Vertex ver : v) vertices.add(ver);	
-	
-	//System.out.println("No of vertices: " + v.length + "    No of Hull Points: " + h);
-}
-
-public Vertex[] getSortedVerticesUsingGrahamScan(){
-	GrahamScan scan = new GrahamScan();
-	Vertex[] v =  vertices.toArray(new Vertex[vertices.size()]);
-	int h = scan.computeHull(v);
-	return v;
-}*/
-
-
 
 
 
@@ -381,9 +363,11 @@ public boolean hasContactToBasalLayer(){
 }
 
 public boolean hasContactToCellThatIsAttachedToBasalLayer(){
-	for(Vertex v :this.vertices){ 
-		for(CellPolygon cell : v.getCellsJoiningThisVertex()){
-			if(!cell.equals(this) && cell.hasContactToBasalLayer()) return true;
+	if(!this.hasContactToBasalLayer()){
+		for(Vertex v :this.vertices){ 
+			for(CellPolygon cell : v.getCellsJoiningThisVertex()){
+				if(!cell.equals(this) && cell.hasContactToBasalLayer()) return true;
+			}
 		}
 	}
 	return false;
@@ -402,5 +386,14 @@ public double getInterval() {
 	return 1;
 }
 
+public Polygon getPolygon(){
+	Polygon p = new Polygon();		
+	
+	for(Vertex v : getSortedVertices()){	
+		p.addPoint(v.getIntX(), v.getIntY());
+		
+	}
+	return p;
+}
 
 }

@@ -34,96 +34,11 @@ import binloc.ProjectLocator;
 
 public class ModelDescriptorFileGenerator {
 	
-	private static final String PACKAGENAME = "episimbiomechanics";
-	private File packagePath = null;
+	
 	public ModelDescriptorFileGenerator(){}
 	
-	private ArrayList<Class<? extends EpisimModelConnector>> getAvailableModelConnectors(){
-		
-		try{
-	      packagePath = new File(ProjectLocator.class.getResource("../"+PACKAGENAME+"/").toURI());
-      }
-      catch (URISyntaxException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
-      }
-      if(packagePath != null){
-      	
-      	try{
-	         GlobalClassLoader.getInstance().registerURL(packagePath.toURI().toURL());
-            List<File> classFiles = new ArrayList<File>();
-            ArrayList<Class<? extends EpisimModelConnector>> resultList = new ArrayList<Class<? extends EpisimModelConnector>>();
-            getClassFiles(packagePath, classFiles);  
-				for(File file: classFiles){
-					  String fullFileName = getFullClassName(file);
-					  if(fullFileName !=null){
-			           Class<?> loadedClass = GlobalClassLoader.getInstance().loadClass(fullFileName.substring(0, (fullFileName.length()-".class".length())));
-			           if(EpisimModelConnector.class.isAssignableFrom(loadedClass) && loadedClass!= EpisimModelConnector.class){
-			         	   resultList.add((Class<? extends EpisimModelConnector>)loadedClass);
-			           }
-					  }
-				}
-				return resultList;
-			}
-         catch (ClassNotFoundException e){
-            ExceptionDisplayer.getInstance().displayException(e);
-         }
-         catch (MalformedURLException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
-         }
-      	
-      	
-      }      
-      return null;
-	}
-	
-	private String getFullClassName(File file){
-		if(file != null){
-			String resultString ="";
-			
-			try{
-				String path = file.getCanonicalPath();
-				path = path.replace(System.getProperty("file.separator"),"/");
-				String[] nameParts = path.split("/");
-				boolean concatenationStarted = false;
-				for(String namePart: nameParts){
-					if(namePart!= null && namePart.length()>0){
-						if(namePart.equals(PACKAGENAME)){
-							concatenationStarted = true;
-							resultString = resultString.concat(namePart);
-						}
-						else if(concatenationStarted){
-							resultString = resultString.concat(".");
-							resultString = resultString.concat(namePart);
-						}
-					}
-				}
-				return resultString;				
-			}
-			catch (IOException e){
-				ExceptionDisplayer.getInstance().displayException(e);
-			}
-			
-			
-		}			
-		return null;
-	}
-	
-	private void getClassFiles(File rootPath, List<File> classFiles){		
-      if(rootPath != null && rootPath.isDirectory()){
-      	for(File file : rootPath.listFiles()){
-      		if(file != null && file.isFile() && file.getName() != null && file.getName().endsWith(".class")){
-      			classFiles.add(file);
-      		}
-      		else if(file != null && file.isDirectory()) getClassFiles(file, classFiles);
-      	}
-      }      
-	}
-	
-	
-	
-	
 	public void start(){
-		ArrayList<Class<? extends EpisimModelConnector>> modelConnector = getAvailableModelConnectors();
+		ArrayList<Class<? extends EpisimModelConnector>> modelConnector = EpisimModelConnector.getAvailableModelConnectors();
 		Class<? extends EpisimModelConnector> selectedModelConnector = null;
 		if(modelConnector != null){
 			selectedModelConnector = (Class<? extends EpisimModelConnector>)JOptionPane.showInputDialog(null, "Please select the Episim Model Connector Class", "Model Descriptor File Generator", JOptionPane.PLAIN_MESSAGE, null, modelConnector.toArray(), modelConnector.toArray()[0]);

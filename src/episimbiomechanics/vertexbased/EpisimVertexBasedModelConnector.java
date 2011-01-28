@@ -1,11 +1,16 @@
 package episimbiomechanics.vertexbased;
 
+
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
 import episimbiomechanics.EpisimModelConnector;
+import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
 
 
-public class EpisimVertexModelConnector extends EpisimModelConnector {
+public class EpisimVertexBasedModelConnector extends EpisimModelConnector {
 
-	private static final String VERSION = "2011-01-07";
+	private static final String ID = "2011-01-07";
 	private static final String NAME = "Vertex Based Biomechanical Model";
    
 	private double contractility =1500;
@@ -27,18 +32,25 @@ public class EpisimVertexModelConnector extends EpisimModelConnector {
 	private double x;
 	private double y;
 	private double dx;
-	private double dy;	
+	private double dy;
 	
-	public String getBiomechanicalModelId(){
-		return VERSION;
+	public EpisimVertexBasedModelConnector(){}
+	
+	protected String getIdForInternalUse(){
+		return ID;
 	}
 	
 	public String getBiomechanicalModelName(){
 		return NAME;
 	}
 	
-	public EpisimVertexModelConnector(){}
-
+	public Class<? extends EpisimBioMechanicalModel> getEpisimBioMechanicalModelClass(){
+		return VertexBasedMechanicalModel.class;
+	}
+	
+	public Class<? extends EpisimBioMechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
+		return VertexBasedMechanicalModelGlobalParameters.class;
+	}
 	
 	public double getContractility() {
 	

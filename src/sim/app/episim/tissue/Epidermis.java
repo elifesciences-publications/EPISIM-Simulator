@@ -132,15 +132,6 @@ public class Epidermis extends TissueType implements CellDeathListener
 	   		TissueController.getInstance().getTissueBorder().getWidth()+2,
 	   		TissueController.getInstance().getTissueBorder().getHeight());
  }
-
- 
-
- public final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu rete tiefe
- {
-     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
- }
-
- 
  
  public void checkMemory(){
 	 // Memory Management
@@ -156,7 +147,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 	     {
 	     Document document = new Document(new com.lowagie.text.Rectangle(width,height));
 	     PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
-	     document.addAuthor("Thomas Sütterlin");
+	     document.addAuthor("EPISIM Simulator");
 	     document.open();
 	     PdfContentByte cb = writer.getDirectContent();
 	     PdfTemplate tp = cb.createTemplate(width, height); 
@@ -175,48 +166,12 @@ public class Epidermis extends TissueType implements CellDeathListener
  }
  
  
-private void seedStemCells(){
-	Double2D lastloc = new Double2D(2, TissueController.getInstance().getTissueBorder().lowerBound(2));
-	for(double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidth(); x += 2){
-		Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBound(x));
-		double distance = newloc.distance(lastloc);
-
-		if((depthFrac(newloc.y) > ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()
-				.getSeedMinDepth_frac() && (!ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()
-				.getSeedReverse()))
-				|| (depthFrac(newloc.y) < ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()
-						.getSeedMinDepth_frac() && ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()
-						.getSeedReverse()))
-			if(distance > ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getBasalDensity_µm()){
-
-				// TODO: Check creation of Stem Cells
-				UniversalCell stemCell = new UniversalCell(AbstractCell.getNextCellId(),-1, null);
-				// stemCell.setKeratinoType(modelController.getCellBehavioralModelController().getGlobalIntConstant("KTYPE_STEM"));
-				
-				int cellCyclePos = random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem());
-				
-				//assign random age
-				stemCell.getEpisimCellBehavioralModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
-			//	TysonRungeCuttaCalculator.assignRandomCellcyleState(stemCell.getEpisimCellBehavioralModelObject(), cellCyclePos);																																		// on
-																																						
-				stemCell.getEpisimCellBehavioralModelObject().setDiffLevel(ModelController.getInstance().getCellBehavioralModelController().getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
-				stemCell.getEpisimCellBehavioralModelObject().setCellType(ModelController.getInstance().getCellBehavioralModelController().getCellTypeForOrdinal(EpisimCellType.KERATINOCYTE));
-				stemCell.getEpisimCellBehavioralModelObject().setIsAlive(true);
-	
-				stemCell.getCellEllipseObject().setXY(((int)newloc.x), ((int)newloc.y));
-				cellContinous2D.setObjectLocation(stemCell, newloc);
-
-				lastloc = newloc;
-				Stoppable stoppable = schedule.scheduleRepeating(stemCell, SchedulePriority.CELLS.getPriority(), 1);
-				stemCell.setStoppable(stoppable);
-				// x+=basalDensity; // in any case jump a step to the right to
-				// avoid overlay of stem cells
-				GlobalStatistics.getInstance().inkrementActualNumberStemCells();
-				GlobalStatistics.getInstance().inkrementActualNumberKCytes();
-			}
+	private void seedInitiallyAvailableCells(){
+		 for(UniversalCell cell : ModelController.getInstance().getStandardInitialCellEnsemble()){
+					Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
+					cell.setStoppable(stoppable);
+		 }	
 	}
-	
-}
  
  
  
@@ -243,53 +198,16 @@ private void seedStemCells(){
 		schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());
 		
 			
-		schedule.scheduleRepeating(new Steppable(){
-
-			public void step(SimState state) {
-				
-				if(MiscalleneousGlobalParameters.instance().getTypeColor() == 10){
-					
-					CellPolygonNetworkBuilder.globallyCleanAllPolygonsEstimatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getAllCellPolygons());
-					
-					
-					
-				/*	int[] neighbourHistogram = new int[9];
-					for(CellType cell: allCells){
-						CellPolygon pol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cell.getCellEllipseObject().getId());
-						if(pol != null){
-							int neighbours = pol.getNumberOfNeighbourPolygons();
-							if(neighbours < 1) neighbours = 1;
-							if(neighbours > 9) neighbours = 9;
-							neighbours -= 1;
-							neighbourHistogram[neighbours]++;
-						}
-					}
-					 try {
-			           BufferedWriter out = new BufferedWriter(new FileWriter("d:\\cellNeighbourEvaluation.csv", true));			       
-			           out.write("Zellanzahl;1 Nachbar;2 Nachbarn;3 Nachbarn;4 Nachbarn;5 Nachbarn;6 Nachbarn;7 Nachbarn;8 Nachbarn;9 Nachbarn;\n");
-			           out.write(""+allCells.size()+";");
-			           for(int i= 0; i< neighbourHistogram.length; i++){
-			         	  out.write(""+ neighbourHistogram[i]+";");
-			           }
-			                   
-			           out.write("\n");
-			           out.flush();
-			           out.close();
-			            } catch (IOException e) {e.printStackTrace();}
-			            */
-					
-				}
-				
-			}}, SchedulePriority.OTHER.getPriority(), 1);	
+		
 			
 			
-			basementContinous2D.clear();
-			rulerContinous2D.clear();
-		   gridContinous2D.clear();
+		 basementContinous2D.clear();
+		 rulerContinous2D.clear();
+		 gridContinous2D.clear();
 						
-	     basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
-	     rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
-	     gridContinous2D.setObjectLocation("DummyObjektForDrawingTheGrid", new Double2D(50, 50));
+	    basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
+	    rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
+	    gridContinous2D.setObjectLocation("DummyObjektForDrawingTheGrid", new Double2D(50, 50));
 			
      
    
@@ -299,7 +217,7 @@ private void seedStemCells(){
 	     if(!isReloadedSnapshot()){
 	   	  cellContinous2D.clear();
 	   	  getAllCells().clear();
-	   	  seedStemCells();
+	   	  seedInitiallyAvailableCells();
 	     }
 		  else{
 							 
@@ -403,16 +321,20 @@ private void seedStemCells(){
 		int i = 0;
 		while(iter.hasNext()){
 			AbstractCell cell = iter.next();
-	
-			if(path.contains(cell.getCellEllipseObject().getLastDrawInfo2D().draw.x, cell.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
-					cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
-				cell.killCell();
-				 
-				  i++;
-			}
-			else{
-				 livingCells.add(cell);
-				 map.put(cell.getID(), this.cellContinous2D.getObjectLocation(cell));
+			if(cell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+				
+				//TODO: Diese Ausnahme eleminieren und verallgemeinern
+				CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+				if(path.contains(mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.x, mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
+						cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
+					cell.killCell();
+					 
+					  i++;
+				}
+				else{
+					 livingCells.add(cell);
+					 map.put(cell.getID(), this.cellContinous2D.getObjectLocation(cell));
+				}
 			}
 		}
 		

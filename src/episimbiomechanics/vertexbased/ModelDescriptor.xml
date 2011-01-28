@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2011-01-07"/>
+  <modelid id="2011-01-07_episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector"/>
   <modelname name="Vertex Based Biomechanical Model"/>
-  <modelconnectorclass name="episimbiomechanics.vertexbased.EpisimVertexModelConnector"/>
+  <modelconnectorclass name="episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector"/>
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isMembrane" readonly="true"/>
     <parameter datatype="boolean" default="false" name="isSurface" readonly="true"/>

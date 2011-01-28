@@ -2,6 +2,7 @@ package sim.app.episim;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 
 
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
@@ -71,8 +72,7 @@ public class UniversalCell extends AbstractCell
    this(-1, -1,  null);
    }
     public UniversalCell(long id, long motherId, EpisimCellBehavioralModel cellBehavioralModel)
-    {   	 
-   	 
+    {   
    	 super(id, motherId, cellBehavioralModel);      
    	 TissueController.getInstance().getActEpidermalTissue().checkMemory();
    	 TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag
@@ -114,14 +114,13 @@ public class UniversalCell extends AbstractCell
         
         cellContinous2D.setObjectLocation(kcyte, newloc);
         
-        DrawInfo2D info = this.getCellEllipseObject().getLastDrawInfo2D();
-			DrawInfo2D newInfo = null;
-			if( info != null){
-				newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
-				newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*oldLoc.x) + newInfo.draw.width*newloc.x);
-				newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*oldLoc.y) + newInfo.draw.height*newloc.y);
-				kcyte.getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
-			}                
+        
+        
+        if(this.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+      	  DrawInfo2D info = ((CenterBasedMechanicalModel)this.getEpisimBioMechanicalModelObject()).getCellEllipseObject().getLastDrawInfo2D();
+      	  ((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).setLastDrawInfo2DForNewCellEllipse(info, newloc, oldLoc);
+        }
+		              
         return kcyte;
     }
 
@@ -143,7 +142,7 @@ public class UniversalCell extends AbstractCell
     }
  
     
-    private EpisimCellBehavioralModel[] getCellBehavioralModelArray(AbstractCell[] neighbours){
+    private EpisimCellBehavioralModel[] getCellBehavioralModelArray(GenericBag<AbstractCell> neighbours){
    	 List<EpisimCellBehavioralModel> neighbourCellsDiffModel = new ArrayList<EpisimCellBehavioralModel>();
    	 for(AbstractCell actNeighbour: neighbours) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellBehavioralModelObject());
    	 return neighbourCellsDiffModel.toArray(new EpisimCellBehavioralModel[neighbourCellsDiffModel.size()]);
@@ -175,10 +174,9 @@ public class UniversalCell extends AbstractCell
     static  long deltaTime = 0;
     public void newSimStepCellBehavioralModel()
     {
-     	 AbstractCell[] realNeighbours =  getEpisimBioMechanicalModelObject().getRealNeighbours();
+     	
      	 
-     	 this.setNeighbouringCells(realNeighbours);
-     	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(realNeighbours);
+     	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(this.getNeighbouringCells());
    	
    	 
   
@@ -231,32 +229,10 @@ public class UniversalCell extends AbstractCell
    			 else if(actChild.getDiffLevel().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL) makeSpiCell(actChild);
    		 }
    	 }
-    }
-  
-    
-    private void calculateClippedCell(){
-   	 
-    	CellEllipse cellEllipseCell = this.getCellEllipseObject();
-    	 
-    	 
-    	 if(this.getNeighbouringCells() != null && this.getNeighbouringCells().length > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
- 	   	 for(AbstractCell neighbouringCell : this.getNeighbouringCells()){
- 	   		 
- 	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId(), getActSimState().schedule.getSteps())){
- 	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(), neighbouringCell.getCellEllipseObject().getId());
- 	   			
- 	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, neighbouringCell.getCellEllipseObject());
- 	   		 }
- 	   		 
- 	   	 }
-    	 }
-     }
-    
-    
-    
+    }    
 
-//    static  long actNumberSteps = 0;
- // static  long deltaTime = 0;
+    // static  long actNumberSteps = 0;
+    // static  long deltaTime = 0;
 	public void step(SimState state) {
 		
 		super.step(state);
@@ -270,7 +246,7 @@ public class UniversalCell extends AbstractCell
 		}
 		else{
 			hasGivenIons = 0;
-			getEpisimBioMechanicalModelObject().newSimStep();
+			getEpisimBioMechanicalModelObject().newSimStep(state.schedule.getSteps());
 			
 //			long timeBefore = System.currentTimeMillis();
 			/////////////////////////////////////////////////////////
@@ -278,32 +254,11 @@ public class UniversalCell extends AbstractCell
 			/////////////////////////////////////////////////////////
 			
 			
-			DrawInfo2D info = this.getCellEllipseObject().getLastDrawInfo2D();
-			DrawInfo2D newInfo = null;
-			if( info != null){
-				newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
-				newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*getEpisimBioMechanicalModelObject().getOldPosition().x) + newInfo.draw.width* getEpisimBioMechanicalModelObject().getNewPosition().x);
-				newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*getEpisimBioMechanicalModelObject().getOldPosition().y) + newInfo.draw.height*getEpisimBioMechanicalModelObject().getNewPosition().y);
-				this.getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
-			}
+			
 			
 			
 			newSimStepCellBehavioralModel();
-			
-			
-			//Ellipse Visualization is activated
-			if(MiscalleneousGlobalParameters.instance().getTypeColor() ==8){
-				calculateClippedCell();
-			}
-			
-			//Polygon Visualization is activated
-			if(MiscalleneousGlobalParameters.instance().getTypeColor() ==10){
-				 calculateClippedCell();
-				 CellPolygonNetworkBuilder.calculateCellPolygons(getCellEllipseObject(), new CellPolygonCalculator(new CellPolygon[]{}));
-				 CellPolygonNetworkBuilder.cleanCalculatedVertices(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(getCellEllipseObject().getId()));
-				 CellPolygonNetworkBuilder.calculateEstimatedVertices(getCellEllipseObject(), new CellPolygonCalculator(new CellPolygon[]{}));
-			}
-			
+				
 			
 /*			long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();

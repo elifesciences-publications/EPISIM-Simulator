@@ -330,7 +330,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	protected void openModel(File modelFile){
 		ModelController.getInstance().setSimulationStartedOnce(false);
-		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
+		
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		
 		File standardDir =new File("d:/");
@@ -353,6 +353,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			
 			//System.out.println(success);
 			if(success){
+				TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 				ChartController.getInstance().rebuildDefaultCharts();
 				cleanUpContentPane();
 				if(ModeServer.guiMode())epiUI = new EpidermisGUIState(mainFrame);
@@ -389,7 +390,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	
 	protected void reloadModel(File modelFile, File snapshotPath){
-		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
+		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		boolean success = false; 
 		try{
@@ -472,7 +473,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	}
 	
 	public void loadSnapshot() {
-		TissueController.getInstance().getTissueBorder().loadStandardMebrane();
+		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 		File snapshotFile = null;
 		File jarFile = null;
 				

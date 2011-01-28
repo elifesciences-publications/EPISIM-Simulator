@@ -182,7 +182,7 @@ public class TissueBorder {
 			
 		}
 	
-	public void loadStandardMebrane(){
+	public void loadStandardMembrane(){
 		standardMembraneLoaded = true;
 		GeneralPath polygon = new GeneralPath();
 	 		final int STEPSIZE = 1;

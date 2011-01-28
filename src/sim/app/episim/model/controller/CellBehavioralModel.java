@@ -1,5 +1,6 @@
 package sim.app.episim.model.controller;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,6 +19,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
@@ -97,15 +99,21 @@ public class CellBehavioralModel implements java.io.Serializable, SnapshotListen
   }
 
 
-public List<SnapshotObject> collectSnapshotObjects() {
-	List<SnapshotObject> list = new ArrayList<SnapshotObject>();
-	list.add(new SnapshotObject(SnapshotObject.CELLBEHAVIORALMODELGLOBALPARAMETERS, this.globalParametersObject));
-	return list;
+	public List<SnapshotObject> collectSnapshotObjects() {
+		List<SnapshotObject> list = new ArrayList<SnapshotObject>();
+		list.add(new SnapshotObject(SnapshotObject.CELLBEHAVIORALMODELGLOBALPARAMETERS, this.globalParametersObject));
+		return list;
+	}
+   
+   public CellBehavioralModelInitializer getCellBehavioralModelInitializer(){
+   	return new CellBehavioralModelInitializer();
+   }
+   
+   public CellBehavioralModelInitializer getCellBehavioralModelInitializer(File modelInitializationFile){
+   	return new CellBehavioralModelInitializer(modelInitializationFile);
+   }
+   
 }
-   
-   
-   
-  }
    
    
    

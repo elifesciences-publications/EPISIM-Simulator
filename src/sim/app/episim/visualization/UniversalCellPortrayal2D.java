@@ -3,6 +3,8 @@ import sim.SimStateServer;
 import sim.SimStateServer.SimState;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
@@ -23,16 +25,11 @@ import episiminterfaces.EpisimDifferentiationLevel;
 
 
 public class UniversalCellPortrayal2D extends SimplePortrayal2D
-    {
+{
     private Paint paint;
-
-    private int[] xPoints = new int[20];
-    private int[] yPoints = new int[20];
+  
+    private CellBehavioralModelController cBModelController;
    
-      
-    private ModelController modelController;
-    private CellBehavioralModelController biochemModelController;
-    private BioMechanicalModelController biomechModelController;
     private boolean drawFrame = true;
     
    
@@ -54,9 +51,8 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
    	
    	 }
     public UniversalCellPortrayal2D(Paint paint, boolean drawFrame)  { 
-   	 modelController = ModelController.getInstance();
-   	 biomechModelController = modelController.getBioMechanicalModelController();
-   	 biochemModelController = modelController.getCellBehavioralModelController();
+   	
+   	 cBModelController = ModelController.getInstance().getCellBehavioralModelController();
    	 this.paint = paint; 
    	 this.drawFrame = drawFrame;
    	 
@@ -67,20 +63,18 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
     // assumes the graphics already has its color set
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
     {                         
-            //boolean rahmen=false;            
+                      
           
             boolean showNucleus=true;
+            boolean drawCellEllipses = false;
             if (object instanceof UniversalCell)
             {                
-                final UniversalCell kcyte=((UniversalCell)object);
-               if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
-    		         kcyte.getCellEllipseObject().translateCell(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
-    		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
-    		        
-                }
+                final UniversalCell universalCell=((UniversalCell)object);
                 
-               
-                int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
+                if(ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGlobalParameters){
+               	 drawCellEllipses = ((CenterBasedMechanicalModelGlobalParameters)ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
+                }
+                int keratinoType=universalCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
                 int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();
                 
                 
@@ -94,148 +88,83 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
                 else if(keratinoType == EpisimDifferentiationLevel.GRANUCELL){ 
                   	 drawFrame=true;                  	 
                   	 showNucleus=false;
-                }
+                }          
                 
-                
-              if(colorType < 8){
-                     
-                //
-                // set shape
-                //
-                
-                                
-                //getColors
-                Color fillColor = getFillColor(kcyte);
-                GeneralPath cellPath;
-                GeneralPath nucleusPath;
-               
-                    cellPath = createGeneralPath(info, kcyte.getEpisimBioMechanicalModelObject().getKeratinoWidth(), kcyte.getEpisimBioMechanicalModelObject().getKeratinoHeight());
-                    graphics.setPaint(fillColor);
-                    graphics.fill(cellPath);
-                
-                if(drawFrame)
-                {
-                    graphics.setColor(getContourColor(kcyte));
-                    graphics.draw(cellPath);
-                }
-                if (showNucleus)
-                {
-                    java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
-                    nucleusPath= createGeneralPath( info, 2, 2);
-                    graphics.setPaint(nucleusColor);  
-                    graphics.fill(nucleusPath);
-                }
-                
+               if(!drawCellEllipses){	                      
+	                
+		                if(colorType < 9){                     
+		                                               
+		                //getColors
+		                Color fillColor = getFillColor(universalCell);
+		                Polygon cellPolygon;
+		                Polygon nucleusPolygon;               
+		                    cellPolygon = universalCell.getEpisimBioMechanicalModelObject().getPolygonCell(info);
+		                    graphics.setPaint(fillColor);
+		                    graphics.fillPolygon(cellPolygon);
+		                
+		                if(drawFrame)
+		                {
+		                    graphics.setColor(getContourColor(universalCell));
+		                    graphics.drawPolygon(cellPolygon);
+		                }
+		                if (showNucleus)
+		                {
+		                    java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
+		                    nucleusPolygon= universalCell.getEpisimBioMechanicalModelObject().getPolygonNucleus(info);
+		                    graphics.setPaint(nucleusColor);  
+		                    graphics.fillPolygon(nucleusPolygon);
+		                }
+		                
+		              } 
+               }
+               else{
+               	doCenterBasedModelEllipseDrawing(graphics, info, universalCell, showNucleus);
+               }
+              
               }
-              else if(colorType == 8){
-            	              	  
-            	  graphics.setPaint(getFillColor(kcyte));    
-            	  Area clippedEllipse = kcyte.getCellEllipseObject().getClippedEllipse();
-            	  if(clippedEllipse != null){
-            		  graphics.fill(clippedEllipse);
-	            	  if(drawFrame){
-		            	  graphics.setPaint(getContourColor(kcyte));
-		            	  graphics.draw(clippedEllipse);
-	            	  
-	            	  }
-            	  }
-            	 if(showNucleus){
-            		  Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
-	                 graphics.setPaint(nucleusColor);
-	            	  final double NUCLEUSRAD = 0.75;
-	                 graphics.fill(new Ellipse2D.Double(kcyte.getCellEllipseObject().getX()-NUCLEUSRAD*info.draw.width, kcyte.getCellEllipseObject().getY()- NUCLEUSRAD*info.draw.height,2*NUCLEUSRAD*info.draw.width, 2*NUCLEUSRAD*info.draw.height));
-            	 }
-              }
-              
-              else if(colorType == 10){
-            	 
-            	CellPolygon  cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(kcyte.getCellEllipseObject().getId());
-            	Vertex[] vertices = null;
-        			if(cellPol != null && (vertices = cellPol.getUnsortedVertices()) != null){
-        				drawCellPolygon(graphics, cellPol);
-        				
-        				for(Vertex v : vertices){
-        					/*if(v != null){
-        						if(v.isWasDeleted())drawPoint(graphics, v.getIntX(), v.getIntY(), 5, Color.BLACK);
-        						else if(v.isEstimatedVertex()) drawPoint(graphics, v.getIntX(), v.getIntY(), 5, Color.MAGENTA);
-        						else if(v.isMergeVertex()) drawPoint(graphics, v.getIntX(), v.getIntY(), 5, Color.YELLOW);
-        						else drawPoint(graphics, v.getIntX(), v.getIntY(), 5, Color.RED);
-        					}*/
-        					
-        					drawPoint(graphics, v.getIntX(), v.getIntY(), 3, new Color(99,37,35));
-        				}
-        				
-        			}
-              }
-              
-              
-             //must be set at the very end of the paint method
-              
-            if(SimStateServer.getInstance().getSimState() == SimState.PLAY){ 
-		         kcyte.getCellEllipseObject().setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
+              else { 
+               graphics.setPaint(paint);          
+              }       
+        }
+
+
+	private void doCenterBasedModelEllipseDrawing(Graphics2D graphics, DrawInfo2D info, UniversalCell universalCell, boolean showNucleus){
+		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+			CellEllipse cellEllipseObject = ((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
+			
+			if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
+				cellEllipseObject.translateCell(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
+		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
+		        
+	      }
+			
+	      	  
+	    	graphics.setPaint(getFillColor(universalCell));    
+	    	Area clippedEllipse = cellEllipseObject.getClippedEllipse();
+	    	if(clippedEllipse != null){
+	    		  graphics.fill(clippedEllipse);
+	       	  if(drawFrame){
+	          	  graphics.setPaint(getContourColor(universalCell));
+	          	  graphics.draw(clippedEllipse);
+	       	  
+	       	  }
+	    	  }
+	    	 if(showNucleus){
+	    		  Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
+	            graphics.setPaint(nucleusColor);
+	       	  final double NUCLEUSRAD = 0.75;
+	            graphics.fill(new Ellipse2D.Double(cellEllipseObject.getX()-NUCLEUSRAD*info.draw.width, cellEllipseObject.getY()- NUCLEUSRAD*info.draw.height,2*NUCLEUSRAD*info.draw.width, 2*NUCLEUSRAD*info.draw.height));
+	    	 }
+	    	//must be set at the very end of the paint method
+	       
+	       if(SimStateServer.getInstance().getSimState() == SimState.PLAY){ 
+	      	 cellEllipseObject.setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
 		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)), false);
-            }
-              
-            } else { 
-                graphics.setPaint(paint);          
-            }
-        }
+	       }         
+		}
+	}
+		
 
-    protected GeneralPath generalPath = new GeneralPath();
-    
-    
-   
-    
-    
-
-    /** 
-     * Creates a general path for the bounding hexagon 
-     */
-    private GeneralPath createGeneralPath( DrawInfo2D info, int w, int h )
-        {
-        generalPath.reset();
-        
-   	  
-        // we are doing a simple draw, so we ignore the info.clip
-        if( info instanceof HexaDrawInfo2D )
-         {
-      	  
-            final HexaDrawInfo2D temp = (HexaDrawInfo2D)info;
-            generalPath.moveTo( temp.xPoints[0], temp.yPoints[0] );
-            
-            for( int i = 1 ; i < 6 ; i++ )
-                generalPath.lineTo( temp.xPoints[i], temp.yPoints[i] );
-            generalPath.closePath();
-        }
-        else
-            {
-      	  	calculateHexagonPoints(info,w,h);
-            generalPath.moveTo(xPoints[0], yPoints[0] );
-            for( int i = 1 ; i < 6 ; i++ ) generalPath.lineTo( xPoints[i], yPoints[i] );
-            generalPath.closePath();
-            }
-        return generalPath;
-        }
-
-     
-    
-    /** If drawing area intersects selected area, add last portrayed object to the bag */
-       
-   private void calculateHexagonPoints(DrawInfo2D info, int w, int h){
-   	 xPoints[0] = (int)(info.draw.x+info.draw.width/2.0*w);
-       yPoints[0] = (int)(info.draw.y);
-       xPoints[1] = (int)(info.draw.x+info.draw.width/4.0*w);
-       yPoints[1] = (int)(info.draw.y-info.draw.height/2.0*h);
-       xPoints[2] = (int)(info.draw.x-info.draw.width/4.0*w);
-       yPoints[2] = (int)(info.draw.y-info.draw.height/2.0*h);
-       xPoints[3] = (int)(info.draw.x-info.draw.width/2.0*w);
-       yPoints[3] = (int)(info.draw.y);
-       xPoints[4] = (int)(info.draw.x-info.draw.width/4.0*w);
-       yPoints[4] = (int)(info.draw.y+info.draw.height/2.0*h);
-       xPoints[5] = (int)(info.draw.x+info.draw.width/4.0*w);
-       yPoints[5] = (int)(info.draw.y+info.draw.height/2.0*h);
-   }
-   
    
    private Color getFillColor(UniversalCell kcyte){
    	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
@@ -250,7 +179,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
       int green=0;
       int blue=0;
             
-      if ((coloringType==1) || (coloringType==2) || (coloringType==8) || (coloringType ==10))  // Cell type coloring
+      if ((coloringType==1) || (coloringType==2))  // Cell type coloring
       {              
         	   if(keratinoType == EpisimDifferentiationLevel.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
         	   else if(keratinoType == EpisimDifferentiationLevel.TACELL){red=148; green=167; blue=214;}                             
@@ -289,7 +218,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
         }
         if (coloringType==6)  // Lipid coloring
         {
-              if (kcyte.getEpisimCellBehavioralModelObject().getLip()>=biochemModelController.getEpisimCellBehavioralModelGlobalParameters().getMinSigLipidsBarrier()){red=0xCB; green=0x2F; blue=0x9F; }
+              if (kcyte.getEpisimCellBehavioralModelObject().getLip()>=cBModelController.getEpisimCellBehavioralModelGlobalParameters().getMinSigLipidsBarrier()){red=0xCB; green=0x2F; blue=0x9F; }
               else{ red=0xAF; green=0xCB; blue=0x97; }
         }
         if (coloringType==7)  // ion transport activitiy
@@ -299,7 +228,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
               green=255;
               blue=calculatedColorValue;
         }
-        if(coloringType==9){ //Colors are calculated in the cellbehavioral model
+        if(coloringType==8){ //Colors are calculated in the cellbehavioral model
         	  red=kcyte.getEpisimCellBehavioralModelObject().getColorR();
            green=kcyte.getEpisimCellBehavioralModelObject().getColorG();
            blue=kcyte.getEpisimCellBehavioralModelObject().getColorB();
@@ -339,21 +268,14 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
    
 
    public boolean hitObject(Object object, DrawInfo2D range)
-   {
-       int w=1;
-       int h=1;
+   {       
        if (object instanceof UniversalCell)
        {
-           UniversalCell kc=((UniversalCell)object);
-                        
-           w=5;
-           h=5-(int)kc.getEpisimCellBehavioralModelObject().getAge()/60;
-           h=(h<1 ? 1:h);
-       };                    
-	       
-	   GeneralPath generalPath = createGeneralPath( range, w, h );
-	   Area area = new Area( generalPath );
-	   return ( area.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height ) );
+      	 Polygon pol = ((UniversalCell)object).getEpisimBioMechanicalModelObject().getPolygonCell();
+      	 
+      	 return ( pol.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height) );
+       }
+	   return false; 
    }
 
    private void drawCellPolygon(Graphics2D g, CellPolygon cell){
@@ -374,7 +296,6 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 			g.setColor(new Color(99,37,35));
 			g.drawPolygon(p);
 			g.setColor(oldColor);
-			
 			//drawVertex(g,Calculators.getCellCenter(cell),false);
 		}
 	}

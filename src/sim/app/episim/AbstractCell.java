@@ -14,13 +14,14 @@ import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueServer;
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.visualization.CellEllipse;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.engine.Stoppable;
 
 
-public abstract class AbstractCell implements Steppable, Stoppable, sim.portrayal.Oriented2D, java.io.Serializable{
+public abstract class AbstractCell implements Steppable, Stoppable, java.io.Serializable{
 	
 	
    private boolean isOuterCell=false;
@@ -33,11 +34,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    private static int cellCounter = 0;
    
    private boolean tracked = false;
-   
-   private AbstractCell[] neighbouringCells;
-   
-   private CellEllipse cellEllipseObject;
-   
+      
    private Stoppable stoppable = null;
    
    private List<CellDeathListener> cellDeathListeners;
@@ -101,24 +98,13 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
    }
    
    public void setStoppable(Stoppable stopperparam)   { this.stoppable = stopperparam;}
-	
-   protected void setNeighbouringCells(AbstractCell[] neighbours){
-   	this.neighbouringCells = neighbours;
-   }
-   
-   public void setCellEllipseObject(CellEllipse cellEllipseObject){
-   	this.cellEllipseObject = cellEllipseObject;
-   }
-   
+	   
    @CannotBeMonitored
-   public AbstractCell[] getNeighbouringCells(){
-   	return this.neighbouringCells;
+   public GenericBag<AbstractCell> getNeighbouringCells(){
+   	return this.mechanicalModelObject.getRealNeighbours();
    }
    
-   @CannotBeMonitored
-   public CellEllipse getCellEllipseObject(){
-   	return this.cellEllipseObject;
-   }
+   
    public void stop(){	
    	
 	}
@@ -163,9 +149,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, sim.portraya
 		this.actSimState = state;		
    }
    
-   public double orientation2D(){	   
-	   return mechanicalModelObject.orientation2D();
-   }	
+  
    
 	
 }

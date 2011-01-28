@@ -6,15 +6,15 @@ import sim.app.episim.ExceptionDisplayer;
 
 import episimbiomechanics.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
-import episiminterfaces.EpisimBioMechanicalModel;
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModel;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
 public class BiomechanicalModelLoader{
 	
 	private Class<? extends EpisimModelConnector> episimModelConnectorClass;
-	private Class<? extends EpisimBioMechanicalModel> episimBiomechanicalModelClass;
-	private EpisimBioMechanicalModelGlobalParameters episimBiomechnicalModelGlobalParametersObject;
+	private Class<? extends EpisimBiomechanicalModel> episimBiomechanicalModelClass;
+	private EpisimBiomechanicalModelGlobalParameters episimBiomechnicalModelGlobalParametersObject;
 	private String episimBiomechanicalModelName = "";
 	private String episimBiomechanicalModelId = "";
 	
@@ -65,7 +65,7 @@ public class BiomechanicalModelLoader{
    }
 
 	
-   public Class<? extends EpisimBioMechanicalModel> getEpisimBiomechanicalModelClass() {
+   public Class<? extends EpisimBiomechanicalModel> getEpisimBiomechanicalModelClass() {
    
    	return episimBiomechanicalModelClass;
    }
@@ -83,7 +83,7 @@ public class BiomechanicalModelLoader{
    }
 
 	
-   public EpisimBioMechanicalModelGlobalParameters getEpisimBiomechnicalModelGlobalParametersObject() {
+   public EpisimBiomechanicalModelGlobalParameters getEpisimBiomechnicalModelGlobalParametersObject() {
    
    	return episimBiomechnicalModelGlobalParametersObject;
    }

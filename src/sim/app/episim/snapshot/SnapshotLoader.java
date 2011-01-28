@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 import sim.app.episim.AbstractCell;
 
@@ -25,7 +25,7 @@ public class SnapshotLoader {
 	
 	private java.awt.geom.Rectangle2D.Double[] deltaInfo = null;
 	private EpisimCellBehavioralModelGlobalParameters behavioralModelGlobalParameters = null;
-	private EpisimBioMechanicalModelGlobalParameters mechModelGlobalParameters = null;
+	private EpisimBiomechanicalModelGlobalParameters mechModelGlobalParameters = null;
 	
 	private TimeSteps timeSteps;
 	private Continuous2D cellContinuous= null;
@@ -54,7 +54,7 @@ public class SnapshotLoader {
 					
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.MECHANICALMODELGLOBALPARAMETERS)){
-					mechModelGlobalParameters = (EpisimBioMechanicalModelGlobalParameters) sObj.getSnapshotObject();
+					mechModelGlobalParameters = (EpisimBiomechanicalModelGlobalParameters) sObj.getSnapshotObject();
 					
 				}
 				else if(sObj.getIdentifier().equals(SnapshotObject.MISCALLENEOUSGLOBALPARAMETERS)){
@@ -106,7 +106,7 @@ public class SnapshotLoader {
    
    	return behavioralModelGlobalParameters;
    }
-   public EpisimBioMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {
+   public EpisimBiomechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {
       
    	return mechModelGlobalParameters;
    }

@@ -7,37 +7,37 @@ import java.util.concurrent.ConcurrentHashMap;
 import episimbiomechanics.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
 
-import episiminterfaces.EpisimBioMechanicalModel;
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModel;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.initialization.AbstractBiomechanicalModelInitializer;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 
 
-public class BioMechanicalModelController implements java.io.Serializable{
+public class BiomechanicalModelController implements java.io.Serializable{
 		
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 2406025736169916469L;
-		private static BioMechanicalModelController instance;
+		private static BiomechanicalModelController instance;
 		private BiomechanicalModel biomechanicalModel;
 		private String actLoadedBiomechanicalModelName = "";
 		private String actLoadedBiomechanicalModelId = "";
 		
 		
-	private BioMechanicalModelController(){}
+	private BiomechanicalModelController(){}
 	
-	protected synchronized static BioMechanicalModelController getInstance(){
-		if(instance == null) instance = new BioMechanicalModelController();
+	protected synchronized static BiomechanicalModelController getInstance(){
+		if(instance == null) instance = new BiomechanicalModelController();
 		return instance;
 	}
 		
-	public EpisimBioMechanicalModel getNewEpisimBioMechanicalModelObject(AbstractCell cell) {
+	public EpisimBiomechanicalModel getNewEpisimBioMechanicalModelObject(AbstractCell cell) {
 		try{
 			return biomechanicalModel.getNewEpisimBiomechanicalModelObject(cell);
 		}
@@ -57,7 +57,7 @@ public class BioMechanicalModelController implements java.io.Serializable{
 		}
 	}
 	
-	public EpisimBioMechanicalModelGlobalParameters getEpisimBioMechanicalModelGlobalParameters() {
+	public EpisimBiomechanicalModelGlobalParameters getEpisimBioMechanicalModelGlobalParameters() {
 		try{
 			return biomechanicalModel.getEpisimMechanicalModelGlobalParameters();
 		}
@@ -67,11 +67,11 @@ public class BioMechanicalModelController implements java.io.Serializable{
 		}
 	}	
 	
-	public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(){
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){
 		return this.biomechanicalModel.getBiomechanicalModelInitializer();
 	}
 	
-	public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){
 		return this.biomechanicalModel.getBiomechanicalModelInitializer(modelInitializationFile);
 	}
 	
@@ -88,7 +88,7 @@ public class BioMechanicalModelController implements java.io.Serializable{
 			if(ModeServer.consoleInput()){
 				ModelParameterModifier parameterModifier = new ModelParameterModifier();
 				if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
-					parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(BioMechanicalModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()
+					parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(BiomechanicalModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()
 							, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP)));
 				}
 			}
@@ -98,7 +98,7 @@ public class BioMechanicalModelController implements java.io.Serializable{
 	}
 	
 	
-	public void reloadMechanicalModelGlobalParametersObject(EpisimBioMechanicalModelGlobalParameters parametersObject){
+	public void reloadMechanicalModelGlobalParametersObject(EpisimBiomechanicalModelGlobalParameters parametersObject){
 		if(parametersObject != null) biomechanicalModel.reloadMechanicalModelGlobalParametersObject(parametersObject);
 	}
 	

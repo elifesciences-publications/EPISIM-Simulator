@@ -62,7 +62,7 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 import org.jfree.chart.*; // ChartPanel;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
 public class EpidermisGUIState extends GUIState implements ChartSetChangeListener{
@@ -177,7 +177,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 	public Inspector getBiomechnicalModelInspector() {
 
-		EpisimBioMechanicalModelGlobalParameters mechModel = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		EpisimBiomechanicalModelGlobalParameters mechModel = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		if(mechModel == null)
 			return null;
 		Inspector i = new SimpleInspector(mechModel, this);

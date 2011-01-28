@@ -2,12 +2,12 @@ package sim.app.episim.model.biomechanics;
 
 import java.io.File;
 
-import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.EpisimBiomechanicalModel;
 import sim.app.episim.AbstractCell;
-import sim.app.episim.model.initialization.AbstractBiomechanicalModelInitializer;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 
 
-public abstract class AbstractMechanicalModel implements EpisimBioMechanicalModel{
+public abstract class AbstractMechanicalModel implements EpisimBiomechanicalModel{
 	
 	private AbstractCell cell;
 	
@@ -17,9 +17,9 @@ public abstract class AbstractMechanicalModel implements EpisimBioMechanicalMode
 	
 	protected AbstractCell getCell(){ return this.cell; }
 	
-	public abstract AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer();
+	public abstract BiomechanicalModelInitializer getBiomechanicalModelInitializer();
 	
-	public abstract AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile);
+	public abstract BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile);
 	
 	
 		

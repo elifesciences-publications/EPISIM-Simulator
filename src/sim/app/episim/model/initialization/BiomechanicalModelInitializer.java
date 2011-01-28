@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import sim.app.episim.UniversalCell;
 
 
-public abstract class AbstractBiomechanicalModelInitializer {
+public abstract class BiomechanicalModelInitializer {
 	
 	private File modelInitializationFile;
 	
-	public AbstractBiomechanicalModelInitializer(){
+	public BiomechanicalModelInitializer(){
 		this(null);
 	}
 	
-	public AbstractBiomechanicalModelInitializer(File file){
+	public BiomechanicalModelInitializer(File file){
 		this.modelInitializationFile = file;
 	}
 	

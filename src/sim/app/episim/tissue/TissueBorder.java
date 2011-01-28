@@ -13,7 +13,7 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
 import sim.app.episim.model.controller.CellBehavioralModelController;
@@ -40,7 +40,7 @@ public class TissueBorder {
 	private static int basalPeriod=70;      // width of an undulation at the foot
 	private static int startXOfStandardMembrane = 0;
 	
-	private static  EpisimBioMechanicalModelGlobalParameters globalParameters;  
+	private static  EpisimBiomechanicalModelGlobalParameters globalParameters;  
 	
 	private ImportedTissue tissue;
 	

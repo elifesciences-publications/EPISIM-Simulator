@@ -5,7 +5,7 @@ import java.io.File;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
-import sim.app.episim.model.initialization.AbstractBiomechanicalModelInitializer;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.VertexBasedMechanicalModelInitializer;
 import sim.app.episim.util.GenericBag;
 import sim.portrayal.DrawInfo2D;
@@ -112,11 +112,11 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel{
 	   return 0;
    }
 	
-	public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(){
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){
 		return new VertexBasedMechanicalModelInitializer();
 	}
 	
-   public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile) {	  
+   public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile) {	  
 	   return new VertexBasedMechanicalModelInitializer(modelInitializationFile);
    }
 

@@ -21,7 +21,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.initialization.AbstractBiomechanicalModelInitializer;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
 
 import sim.app.episim.tissue.TissueController;
@@ -631,11 +631,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
     	 }
    }
 	
-	public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(){
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){
 		return new CenterBasedMechanicalModelInitializer();
 	}
 	
-   public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile) {	  
+   public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile) {	  
 	   return new CenterBasedMechanicalModelInitializer(modelInitializationFile);
    }
 }

@@ -1,8 +1,8 @@
 package sim.app.episim.model.biomechanics.centerbased;
 
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
-public class CenterBasedMechanicalModelGlobalParameters implements EpisimBioMechanicalModelGlobalParameters, java.io.Serializable {
+public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
 	private int basalAmplitude_µm = 40; // depth of an undulation
 

@@ -11,7 +11,7 @@ public class ModelInitialization {
 	
 	private File modelInitializationFile;
 	
-	private AbstractBiomechanicalModelInitializer biomechanicalModelInitializer;
+	private BiomechanicalModelInitializer biomechanicalModelInitializer;
 	private CellBehavioralModelInitializer cellbehavioralModelInitializer;
 	
 	

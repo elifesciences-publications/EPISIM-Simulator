@@ -13,7 +13,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.util.Double2D;
 
 
-public class CenterBasedMechanicalModelInitializer extends AbstractBiomechanicalModelInitializer {
+public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelInitializer {
 	
 	
 	public CenterBasedMechanicalModelInitializer(){

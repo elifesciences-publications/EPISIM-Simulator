@@ -6,17 +6,17 @@ import java.io.File;
 import episimbiomechanics.EpisimModelConnector;
 import sim.app.episim.AbstractCell;
 
-import sim.app.episim.model.initialization.AbstractBiomechanicalModelInitializer;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.util.GenericBag;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public interface EpisimBioMechanicalModel {
+public interface EpisimBiomechanicalModel {
 	
 	void setEpisimModelConnector(EpisimModelConnector modelConnector);
-	AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer();
-	AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile);
+	BiomechanicalModelInitializer getBiomechanicalModelInitializer();
+	BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile);
 	GenericBag<AbstractCell> getRealNeighbours();
 	Double2D getNewPosition();
 	Double2D getOldPosition();

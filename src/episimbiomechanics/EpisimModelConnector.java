@@ -11,8 +11,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import episiminterfaces.EpisimBioMechanicalModel;
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModel;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.GlobalClassLoader;
@@ -41,10 +41,10 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 	public abstract String getBiomechanicalModelName();
 	
 	@Hidden
-	public abstract Class<? extends EpisimBioMechanicalModel> getEpisimBioMechanicalModelClass();
+	public abstract Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass();
 	
 	@Hidden
-	public abstract Class<? extends EpisimBioMechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass();
+	public abstract Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass();
 	
 	@Hidden
 	public static ArrayList<Class<? extends EpisimModelConnector>> getAvailableModelConnectors(){

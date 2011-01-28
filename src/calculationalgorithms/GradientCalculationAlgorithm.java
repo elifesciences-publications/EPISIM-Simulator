@@ -14,7 +14,7 @@ import sim.app.episim.util.Sorting;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import episimexceptions.CellNotValidException;
 import episiminterfaces.EpisimCellBehavioralModel;
-import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
@@ -78,7 +78,7 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				
 				for(AbstractCell actCell: allCells){
 					if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){
-						EpisimBioMechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
+						EpisimBiomechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
 						if(biomech.getX() >= GlobalStatistics.getInstance().getGradientMinX()
 								&& biomech.getX() <= GlobalStatistics.getInstance().getGradientMaxX()
 								&& biomech.getY() >= GlobalStatistics.getInstance().getGradientMinY()

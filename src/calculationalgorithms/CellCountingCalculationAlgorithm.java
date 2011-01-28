@@ -11,7 +11,7 @@ import sim.app.episim.util.ResultSet;
 import sim.app.episim.util.Sorting;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import episimexceptions.CellNotValidException;
-import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;

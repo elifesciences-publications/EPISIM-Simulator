@@ -14,7 +14,7 @@ import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
-import sim.app.episim.model.controller.BioMechanicalModelController;
+import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;

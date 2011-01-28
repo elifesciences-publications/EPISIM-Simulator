@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import sim.app.episim.UniversalCell;
 
 
-public class VertexBasedMechanicalModelInitializer extends AbstractBiomechanicalModelInitializer {
+public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelInitializer {
 	
 	public VertexBasedMechanicalModelInitializer(){
 		super();

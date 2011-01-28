@@ -17,8 +17,8 @@ import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractEpisimCellBehavioralModelFactory;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import episiminterfaces.EpisimBioMechanicalModel;
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModel;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import sim.app.episim.model.*;
 import sim.app.episim.util.GlobalClassLoader;
 

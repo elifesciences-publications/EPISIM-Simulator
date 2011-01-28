@@ -10,14 +10,14 @@ import java.util.List;
 
 import episimbiomechanics.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
-import episiminterfaces.EpisimBioMechanicalModel;
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModel;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.initialization.AbstractBiomechanicalModelInitializer;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
@@ -29,14 +29,14 @@ import sim.app.episim.util.ObjectManipulations;
 public class BiomechanicalModel implements java.io.Serializable, SnapshotListener{
 		
 	private static final long serialVersionUID = 512640154196012852L;
-	private EpisimBioMechanicalModelGlobalParameters actParametersObject;
-	private EpisimBioMechanicalModelGlobalParameters resetParametersObject;
-	private Class<? extends EpisimBioMechanicalModel> biomechanicalModelClass;
+	private EpisimBiomechanicalModelGlobalParameters actParametersObject;
+	private EpisimBiomechanicalModelGlobalParameters resetParametersObject;
+	private Class<? extends EpisimBiomechanicalModel> biomechanicalModelClass;
 	private Class<? extends EpisimModelConnector> modelConnectorClass;	
 	
 	
-	public BiomechanicalModel(Class<? extends EpisimBioMechanicalModel> biomechanicalModelClass, Class<? extends EpisimModelConnector> modelConnectorClass,
-			EpisimBioMechanicalModelGlobalParameters actParametersObject) throws ModelCompatibilityException{
+	public BiomechanicalModel(Class<? extends EpisimBiomechanicalModel> biomechanicalModelClass, Class<? extends EpisimModelConnector> modelConnectorClass,
+			EpisimBiomechanicalModelGlobalParameters actParametersObject) throws ModelCompatibilityException{
 		this.biomechanicalModelClass = biomechanicalModelClass;
 		this.modelConnectorClass = modelConnectorClass;
 		
@@ -50,13 +50,13 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 		else throw new ModelCompatibilityException("No compatible EpisimCellBehavioralModelGlobalParameters-Object!");	
 	}	
 	
-	public void reloadMechanicalModelGlobalParametersObject(EpisimBioMechanicalModelGlobalParameters parametersObject){
+	public void reloadMechanicalModelGlobalParametersObject(EpisimBiomechanicalModelGlobalParameters parametersObject){
 		this.resetParametersObject = parametersObject;
 		ObjectManipulations.resetInitialGlobalValues(actParametersObject, resetParametersObject);
 	}
 	
 	
-	public EpisimBioMechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {
+	public EpisimBiomechanicalModelGlobalParameters getEpisimMechanicalModelGlobalParameters() {
 		return actParametersObject;
 	}
 	
@@ -74,11 +74,11 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 		
 	}
 	
-	public EpisimBioMechanicalModel getNewEpisimBiomechanicalModelObject(AbstractCell cell) {
-		EpisimBioMechanicalModel biomechanicalModel = null;
+	public EpisimBiomechanicalModel getNewEpisimBiomechanicalModelObject(AbstractCell cell) {
+		EpisimBiomechanicalModel biomechanicalModel = null;
 		if(this.biomechanicalModelClass !=null)
 	      try{
-	      	Constructor<? extends EpisimBioMechanicalModel> constructor = this.biomechanicalModelClass.getConstructor(new Class[]{AbstractCell.class});
+	      	Constructor<? extends EpisimBiomechanicalModel> constructor = this.biomechanicalModelClass.getConstructor(new Class[]{AbstractCell.class});
 	      	biomechanicalModel = constructor.newInstance(new Object[]{cell});
 	         return biomechanicalModel;
          }
@@ -131,11 +131,11 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 	
 	
 	
-	public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(){		
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){		
 		return getNewEpisimBiomechanicalModelObject(null).getBiomechanicalModelInitializer();
 	}
 	
-	public AbstractBiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){		
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){		
 		return getNewEpisimBiomechanicalModelObject(null).getBiomechanicalModelInitializer(modelInitializationFile);
 	}
 }

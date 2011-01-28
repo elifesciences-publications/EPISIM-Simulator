@@ -1,6 +1,6 @@
 package episiminterfaces;
 
-public interface EpisimBioMechanicalModelGlobalParameters extends java.io.Serializable{ 	
+public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serializable{ 	
 	
 	double getNeighborhood_µm();
  	void setNeighborhood_µm(double val);

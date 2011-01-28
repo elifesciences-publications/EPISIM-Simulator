@@ -6,7 +6,7 @@ import java.util.List;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.util.ObjectManipulations;
-import episiminterfaces.EpisimBioMechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
 public class MiscalleneousGlobalParameters implements java.io.Serializable, SnapshotListener{

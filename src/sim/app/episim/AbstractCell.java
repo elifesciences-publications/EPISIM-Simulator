@@ -8,7 +8,7 @@ import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import episiminterfaces.EpisimBioMechanicalModel;
+import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.controller.ModelController;
@@ -40,7 +40,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    private List<CellDeathListener> cellDeathListeners;
       
    private EpisimCellBehavioralModel cellBehavioralModelObject;
-   private EpisimBioMechanicalModel mechanicalModelObject;
+   private EpisimBiomechanicalModel mechanicalModelObject;
    
    private SimState actSimState;
    
@@ -143,7 +143,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    }
    
    @CannotBeMonitored
-   public EpisimBioMechanicalModel getEpisimBioMechanicalModelObject(){ return this.mechanicalModelObject; }
+   public EpisimBiomechanicalModel getEpisimBioMechanicalModelObject(){ return this.mechanicalModelObject; }
    
    public void step(SimState state) {		
 		this.actSimState = state;		

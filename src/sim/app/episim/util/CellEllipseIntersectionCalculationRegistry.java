@@ -26,11 +26,13 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	private Map<Long, AbstractCellEllipse> cellEllipseRegistry;
 	private Map<Long, CellPolygon> cellPolygonRegistry;
 	
+	
 	private CellEllipseIntersectionCalculationRegistry(){
 		alreadyCalculatedCells = new HashSet<String>();
 		intersectingCells = new HashSet<String>();
 		cellEllipseRegistry = new HashMap<Long, AbstractCellEllipse>();
 		cellPolygonRegistry = new HashMap<Long, CellPolygon>();
+		
 	}
 	
 	private static CellEllipseIntersectionCalculationRegistry instance = new CellEllipseIntersectionCalculationRegistry();
@@ -63,6 +65,8 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 		this.intersectingCells.add(buildStringId(idCell1, idCell2));
 		this.intersectingCells.add(buildStringId(idCell2, idCell1));
 	}
+	
+	
 	
 	public boolean isAreadyCalculated(long idCell1, long idCell2, long actSimStep){
 		 return checkCondition(idCell1, idCell2, actSimStep, alreadyCalculatedCells);			
@@ -107,6 +111,7 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 		actSimulationStep = 0;
 		this.alreadyCalculatedCells.clear();
 		this.intersectingCells.clear();
+		
 	}
 
 	public void simulationWasStarted() {

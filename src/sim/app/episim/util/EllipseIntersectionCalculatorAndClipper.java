@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -352,8 +353,14 @@ public class EllipseIntersectionCalculatorAndClipper {
 		//one of the resulting points of the trapeze (different from the intersection points sp)
 		//we're looking for maximal distance
 		
-	if(distance(actEllipse.getX(), actEllipse.getY(), xyPoints.xPointsQuaderEllipse1[2], xyPoints.yPointsQuaderEllipse1[2]) < 
-			distance(actEllipse.getX(), actEllipse.getY(), xyPoints.xPointsQuaderEllipse2[2], xyPoints.yPointsQuaderEllipse2[2])) xyPoints.swapEllipse1And2();
+	//if(distance(actEllipse.getX(), actEllipse.getY(), xyPoints.xPointsQuaderEllipse1[2], xyPoints.yPointsQuaderEllipse1[2]) < 
+	//		distance(actEllipse.getX(), actEllipse.getY(), xyPoints.xPointsQuaderEllipse2[2], xyPoints.yPointsQuaderEllipse2[2])) xyPoints.swapEllipse1And2();
+		
+		if(!(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4).contains(new Point2D.Double(actEllipse.getX(), actEllipse.getY())))
+				||!(new Polygon(xyPoints.xPointsQuaderEllipse1, xyPoints.yPointsQuaderEllipse1, 4).contains(new Point2D.Double(otherEllipse.getX(), otherEllipse.getY())))){
+			 xyPoints.swapEllipse1And2();
+		}
+		
 		
 		return xyPoints;
 	}
@@ -393,7 +400,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 		
 		otherEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4)));
 	
-	   double areaOther = areaEllipse(otherEllipse.getClippedEllipse());
+	/*   double areaOther = areaEllipse(otherEllipse.getClippedEllipse());
 		double areaAct = areaEllipse(actEllipse.getClippedEllipse());
 		//System.out.println("actEllipse / otherEllipse: "+ areaAct / areaOther);
 		//System.out.println("otherEllipse / actEllipse: "+ areaOther / areaAct);
@@ -406,7 +413,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 			actEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse1, xyPoints.yPointsQuaderEllipse1, 4)));			
 			otherEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4)));
 			
-		}
+		}*/
 		
 	}
 	private void clipNucleus(CellEllipse actEllipse, NucleusEllipse nucleusEllipse, XYPoints xyPoints){

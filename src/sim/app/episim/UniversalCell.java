@@ -246,18 +246,18 @@ public class UniversalCell extends AbstractCell
 		}
 		else{
 			hasGivenIons = 0;
+			
 			getEpisimBioMechanicalModelObject().newSimStep(state.schedule.getSteps());
 			
 //			long timeBefore = System.currentTimeMillis();
 			/////////////////////////////////////////////////////////
 			//   Differentiation: Calling the loaded Cell-Diff-Model
 			/////////////////////////////////////////////////////////
-			
-			
-			
-			
-			
 			newSimStepCellBehavioralModel();
+			
+			
+			
+			//newSimStepCellBehavioralModel();
 				
 			
 /*			long timeAfter = System.currentTimeMillis();

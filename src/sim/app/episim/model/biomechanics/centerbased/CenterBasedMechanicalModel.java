@@ -439,7 +439,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		
 		neighbouringCells = new GenericBag<AbstractCell>();
 		for(int i = 0; i < b.size(); i++){
-			if(b.get(i) instanceof AbstractCell){
+			if(b.get(i) instanceof AbstractCell && ((AbstractCell) b.get(i)).getID() != this.getCell().getID()){
 				neighbouringCells.add((AbstractCell)b.get(i));
 			}
 		}
@@ -468,10 +468,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 			this.getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
 		}  	   
   	   
-  	   //Ellipse Visualization is activated
-		if(((CenterBasedMechanicalModelGlobalParameters)ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses()){
-			calculateClippedCell(simstepNumber);
-		}
+  	  
    }
    
    
@@ -612,23 +609,23 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	}
 	
 	
-	private void calculateClippedCell(long simstepNumber){
+	public void calculateClippedCell(long simstepNumber){
   	 
     	CellEllipse cellEllipseCell = this.getCellEllipseObject();
+    	GenericBag<AbstractCell> realNeighbours = this.getNeighbouringCells();
     	 
-    	 
-    	 if(this.getNeighbouringCells() != null && this.getNeighbouringCells().size() > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
- 	   	 for(AbstractCell neighbouringCell : this.getNeighbouringCells()){
+    	 if(realNeighbours != null && realNeighbours.size() > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
+ 	   	 for(AbstractCell neighbouringCell : realNeighbours){
  	   		 if(neighbouringCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
  	   			 CenterBasedMechanicalModel biomechModelNeighbour = (CenterBasedMechanicalModel) neighbouringCell.getEpisimBioMechanicalModelObject();
 	 	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), biomechModelNeighbour.getCellEllipseObject().getId(), simstepNumber)){
 	 	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(),biomechModelNeighbour.getCellEllipseObject().getId());
-	 	   			
 	 	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, biomechModelNeighbour.getCellEllipseObject());
 	 	   		 }
  	   		 }
  	   	 }
     	 }
+    	
    }
 	
 	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){

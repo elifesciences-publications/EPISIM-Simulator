@@ -129,7 +129,8 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 
 
 	private void doCenterBasedModelEllipseDrawing(Graphics2D graphics, DrawInfo2D info, UniversalCell universalCell, boolean showNucleus){
-		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel && universalCell.getActSimState()!= null){
+			((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(universalCell.getActSimState().schedule.getSteps());
 			CellEllipse cellEllipseObject = ((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
 			
 			if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 

@@ -46,6 +46,8 @@ public abstract class AbstractCellEllipse implements Serializable{
 	public static final char  SEPARATORCHAR = ';';
 	
 	
+	
+	
 	public AbstractCellEllipse(long id, int x, int y, int majorAxis, int minorAxis, int height, int width, int orientationInDegrees, double area, double perimeter, double distanceToBL,  Color c){
 		this.id = id;			
 		clippedEllipse = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
@@ -128,6 +130,7 @@ public abstract class AbstractCellEllipse implements Serializable{
    	this.x = x;
    	this.y = y;
    	resetEllipseAsArea();
+   	
    }
    
    public void setMajorAxisAndMinorAxis(int majorAxis, int minorAxis){
@@ -135,6 +138,7 @@ public abstract class AbstractCellEllipse implements Serializable{
    	this.majorAxis = majorAxis;
    	this.minorAxis = minorAxis;
    	resetEllipseAsArea();
+   	
    	testMajorMinorAxisSwap();
    }
    
@@ -167,7 +171,7 @@ public abstract class AbstractCellEllipse implements Serializable{
       }	
       	
      this.rotateCellEllipseInRadians(this.orientationInRadians);
-      	resetClippedEllipse();
+     resetClippedEllipse(); 
       
    }
 	
@@ -184,7 +188,9 @@ public abstract class AbstractCellEllipse implements Serializable{
    }
    
    public Area getClippedEllipse(){ 
-   	if(clippedEllipse== null) clippedEllipse = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
+   	if(clippedEllipse== null){ 
+   		clippedEllipse = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
+   	}
    	return this.clippedEllipse; 
    }
   		
@@ -234,6 +240,8 @@ public abstract class AbstractCellEllipse implements Serializable{
    public Area getClone(Area shape){ return (Area) shape.clone(); }
    
    public DrawInfo2D getLastDrawInfo2D() { return lastDrawInfo2D; }
+   
+   
 	
    public void setLastDrawInfo2D(DrawInfo2D lastDrawInfo2D, boolean resetRequired){
    	if(lastDrawInfo2D != null){
@@ -241,9 +249,8 @@ public abstract class AbstractCellEllipse implements Serializable{
    		this.scaleFactorHeight = lastDrawInfo2D.draw.height;
    		this.scaleFactorWidth = lastDrawInfo2D.draw.width;
    		testMajorMinorAxisSwap();
-   		if(resetRequired){ 
-   			resetEllipseAsArea();
-   			
+   		if(resetRequired){
+   			resetEllipseAsArea();   			
    		}
    	}
    }

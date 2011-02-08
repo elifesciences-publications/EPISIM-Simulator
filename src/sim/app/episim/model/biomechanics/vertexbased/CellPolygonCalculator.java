@@ -690,7 +690,7 @@ public class CellPolygonCalculator {
 		}
 		else if(vertex.isAttachedToBasalLayer()){
 			double distanceToOldValue = Math.sqrt(Math.pow((vertex.getDoubleX()-vertex.getNewX()), 2)+Math.pow((vertex.getDoubleY()-vertex.getNewY()), 2));
-			if(distanceToOldValue < (MIN_VERTEX_EDGE_DISTANCE*2)){
+			if(distanceToOldValue < (MIN_VERTEX_EDGE_DISTANCE)){
 				//setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
 				resetToOldValue(vertex);
 			}
@@ -716,8 +716,9 @@ public class CellPolygonCalculator {
 		double minY = Double.POSITIVE_INFINITY;
 		double minX = Double.POSITIVE_INFINITY;
 		double minDistance = Double.POSITIVE_INFINITY;
-		final double interval = Math.abs(vertex.getNewX()-vertex.getDoubleX());
-		double stepSize = interval /10d;
+		final double intervalX = Math.abs(vertex.getNewX()-vertex.getDoubleX());
+		final double intervalY = Math.abs(vertex.getNewY()-vertex.getDoubleY());
+		double stepSize = intervalX /10d;
 	/*	if(vertex.getNewX() > vertex.getDoubleX() && stepSize>0.1){
 			for(double newX = vertex.getNewX(); newX >=vertex.getDoubleX(); newX -= stepSize){
 				double yDelta = Math.abs(tissueBorder.lowerBound(newX) - vertex.getDoubleY());
@@ -737,7 +738,8 @@ public class CellPolygonCalculator {
 			}
 		}
 		else minX = vertex.getNewX();*/
-		if(interval >=1){
+		if((intervalX+intervalY) >=1){
+			
 			if(vertex.getNewX() < vertex.getDoubleX()){
 			
 			for(double newX = vertex.getDoubleX(); newX >=vertex.getNewX(); newX -= stepSize){
@@ -757,6 +759,10 @@ public class CellPolygonCalculator {
 						minX = newX;
 					}
 				}
+			}
+			else{
+				minX = vertex.getNewX();
+				minY = tissueBorder.lowerBound(minX);
 			}
 		}
 		if(minX < Double.POSITIVE_INFINITY && minY < Double.POSITIVE_INFINITY){

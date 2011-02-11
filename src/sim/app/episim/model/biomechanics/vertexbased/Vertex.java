@@ -9,10 +9,7 @@ import sim.app.episim.model.biomechanics.vertexbased.VertexChangeEvent.VertexCha
 
 public class Vertex implements java.io.Serializable{
 	
-	/**
-    * 
-    */
-   private static final long serialVersionUID = 5030387288513842644L;
+	private static final long serialVersionUID = 5030387288513842644L;
 
 	private static int nextid=1;
 	
@@ -40,6 +37,8 @@ public class Vertex implements java.io.Serializable{
 	
 	private boolean isAttachedToBasalLayer = false;
 	
+	private boolean isIntruderVertex = false;
+	
 	public Vertex(double x, double y){
 		id = nextid++;
 		this.x = x;
@@ -53,12 +52,7 @@ public class Vertex implements java.io.Serializable{
 	public Vertex(int x, int y){
 		this((double) x, (double)y);
 	}
-	
-	public Vertex(Vertex v)
-   {
-       this(v.x, v.y);
-   }
-	
+		
 	public int getId(){ return this.id; }
 	
 	public boolean isNew(){ return isNew;}
@@ -67,58 +61,18 @@ public class Vertex implements java.io.Serializable{
 	public boolean isAttachedToBasalLayer(){ return isAttachedToBasalLayer; }
 	public void setIsAttachedToBasalLayer(boolean val){ this.isAttachedToBasalLayer = val; }
 	
-	public Vertex relTo(Vertex v)
+	private Vertex relTo(Vertex v)
    {
-        return new Vertex(x-v.x, y-v.y);
+        return new Vertex(getDoubleX()-v.getDoubleX(), getDoubleY()-v.getDoubleY());
    }
-	
-	public Vertex relToNormalized(Vertex v)
-   {
-      double x_new = x-v.x;
-      double y_new = y-v.y;
-      
-      double normFactor = Math.sqrt(Math.pow(x_new, 2)+Math.pow(y_new, 2));
-		
-		return new Vertex(x_new/normFactor, y_new/normFactor);
-   }
-
-    public void makeRelTo(Vertex v)
-    {
-        x-=v.x;
-        y-=v.y;
-        notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
-    }
-
-
-    public Vertex moved(double x0, double y0)
-    {
-        return new Vertex(x+x0, y+y0);
-    }
     
-    public void scalarMult(double scalar){
-   	 x *= scalar;
-   	 y *= scalar;
-   	 notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
-    }
-
-    public Vertex reversed()
-    {
-        return new Vertex(-x, -y);
-    }
-
-
-    public boolean isLower(Vertex v)
-    {
-        return y<v.y || y==v.y && x<v.x;
-    }
-
     /**
      * Manhattan Distanz
      * @return
      */
     public double mdist()   // Manhattan-Distanz
     {
-        return Math.abs(x)+Math.abs(y);
+        return Math.abs(getDoubleX())+Math.abs(getDoubleY());
     }
     
     /**
@@ -126,7 +80,7 @@ public class Vertex implements java.io.Serializable{
      * @return
      */
     public double edist(){ //Euklidische-Distanz
-   	 return Math.sqrt((Math.pow(x, 2)+ Math.pow(y, 2)));
+   	 return Math.sqrt((Math.pow(getDoubleX(), 2)+ Math.pow(getDoubleY(), 2)));
     }
     /**
      * Manhattan Distanz
@@ -134,8 +88,7 @@ public class Vertex implements java.io.Serializable{
      */
     public double mdist(Vertex v)
     {
-        return relTo(v).mdist();
-    }
+        return relTo(v).mdist();    }
 
     /**
      * Euclidean Distance
@@ -145,41 +98,10 @@ public class Vertex implements java.io.Serializable{
    	 return relTo(v).edist();
     }
     
-    public boolean isFurther(Vertex v)
+    public double crossProduct(Vertex v)
     {
-        return mdist()>v.mdist();
-    }
-
-
-    public boolean isBetween(Vertex v0, Vertex v1)
-    {
-        return v0.mdist(v1)>=mdist(v0)+mdist(v1);
-    }
-
-
-    public double cross(Vertex v)
-    {
-        return x*v.y-v.x*y;
-    }
-
-
-    public boolean isLess(Vertex v)
-    {
-        double f=cross(v);
-        return f>0 || f==0 && isFurther(v);
-    }
-
-
-    public double area2(Vertex v0, Vertex v1)
-    {
-        return v0.relTo(this).cross(v1.relTo(this));
-    }
-
-    public boolean isConvex(Vertex v0, Vertex v1)
-    {
-        double f=area2(v0, v1);
-        return f<0 || f==0 && !isBetween(v0, v1);
-    }
+        return getDoubleX()*v.getDoubleY()-v.getDoubleX()*getDoubleY();
+    }   
 
 	public VertexChangeListener[] getVertexChangeListener(){
 		return this.changeListener.toArray(new VertexChangeListener[changeListener.size()]);
@@ -217,6 +139,7 @@ public class Vertex implements java.io.Serializable{
 		}
 		
 	}
+	
 	public double getDoubleY(){ return y; }
 	
 	public void setIntX(int x){ setDoubleX((double)x); }
@@ -253,14 +176,8 @@ public class Vertex implements java.io.Serializable{
 	}
 	
 	public String toString(){
-		return "("+ x+", "+y+")";
+		return "(" + getDoubleX() + ", " + getDoubleY() +")";
 	}
-	
-	
-	public double eDistOldAndNewValue(){
-		return Math.sqrt(Math.pow((x_new - x),2)+Math.pow((y_new - y),2));
-	}
-	
 
    public int hashCode() {
 
@@ -415,6 +332,18 @@ public class Vertex implements java.io.Serializable{
    public void setVertexColor(Color vertexColor) {
    
    	this.vertexColor = vertexColor;
+   }
+
+	
+   public boolean isIntruderVertex() {
+   
+   	return isIntruderVertex;
+   }
+
+	
+   public void setIntruderVertex(boolean isIntruderVertex) {
+   
+   	this.isIntruderVertex = isIntruderVertex;
    }
 
 

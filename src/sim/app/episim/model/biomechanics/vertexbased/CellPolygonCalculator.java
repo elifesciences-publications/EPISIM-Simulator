@@ -5,6 +5,7 @@ import java.awt.Polygon;
 import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,9 @@ public class CellPolygonCalculator {
 	
 	
 	public static final double MIN_EDGE_LENGTH =SIDELENGTH * VertexBasedMechanicalModelGlobalParameters.getInstance().getMin_edge_length_percentage();
+	
+	public static final double MIN_BASALLAYER_DISTANCE =SIDELENGTH * VertexBasedMechanicalModelGlobalParameters.getInstance().getMin_dist_percentage_basal_adhesion();
+	
 	public static final double MIN_VERTEX_EDGE_DISTANCE = MIN_EDGE_LENGTH*0.8;
 	
 
@@ -116,9 +120,45 @@ public class CellPolygonCalculator {
 		//calculate point with random angle on the circle with cell center as center and maxDistance as radius
 		double randAngleInRadians = Math.toRadians(rand.nextInt(180));
 		
-		while(!isRandomAngleConventientForCellDivision(cell, center, randAngleInRadians, maxDistance)){
-			randAngleInRadians = Math.toRadians(rand.nextInt(180));
+		//Look for new Cell Border for Cell division with minimal length 
+		HashMap<Integer, Vertex[]> angleVertexMap = new HashMap<Integer, Vertex[]>();
+		for(int n = 0; n < 180; n++){
+			randAngleInRadians = Math.toRadians(n);
+			Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(randAngleInRadians)), (center.getDoubleY()+maxDistance*Math.sin(randAngleInRadians)));
+			int newVerticesCounter = 0;
+			Vertex[] cellVertices = cell.getSortedVertices();
+			Vertex[] newVertices = new Vertex[2];
+			for(int i = 0; i < cellVertices.length; i++){
+				Vertex v_s =(new Line(cellVertices[i], cellVertices[(i+1)%cellVertices.length])).getIntersectionOfLinesInLineSegment(new Line(center, vOnCircle));
+				if(v_s != null){
+					if(newVerticesCounter < 2){
+						newVertices[newVerticesCounter] = v_s;
+						newVerticesCounter++;
+					}					
+				}
+			}
+			angleVertexMap.put(n, newVertices);
 		}
+		
+		double minDistance = Double.POSITIVE_INFINITY;
+		int minAngle = 0;
+		for(int actAngle : angleVertexMap.keySet()){
+			if(isRandomAngleConventientForCellDivision(cell, center, Math.toRadians(actAngle), maxDistance)){
+				double actDistance = angleVertexMap.get(actAngle)[0].edist(angleVertexMap.get(actAngle)[1]);
+				if(actDistance < minDistance){
+					minDistance = actDistance;
+					minAngle = actAngle;
+				}
+			}
+		}
+		
+		
+		
+		
+		/*while(!isRandomAngleConventientForCellDivision(cell, center, randAngleInRadians, maxDistance)){
+			randAngleInRadians = Math.toRadians(rand.nextInt(180));
+		}*/
+		randAngleInRadians = Math.toRadians(minAngle);
 		
 		Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(randAngleInRadians)), (center.getDoubleY()+maxDistance*Math.sin(randAngleInRadians)));
 		
@@ -132,17 +172,13 @@ public class CellPolygonCalculator {
 				v_s.setIsNew(true);
 				if(newVerticesCounter > 2)System.out.println("Error: Found more than two new Vertices during Cell Division!");
 				HashSet<Integer> foundCellIdsFirstVertex = new HashSet<Integer>();
-				for(CellPolygon cellPol: cellVertices[i].getCellsJoiningThisVertex()){
-				
-						foundCellIdsFirstVertex.add(((CellPolygon) cellPol).getId());
-					
+				for(CellPolygon cellPol: cellVertices[i].getCellsJoiningThisVertex()){				
+						foundCellIdsFirstVertex.add(((CellPolygon) cellPol).getId());					
 				}
 				for(CellPolygon cellPol: cellVertices[(i+1)%cellVertices.length].getCellsJoiningThisVertex()){
-				
-						if(foundCellIdsFirstVertex.contains(cellPol.getId())){ 
-							cellPol.addVertex(v_s);							
-						}
-				
+					if(foundCellIdsFirstVertex.contains(cellPol.getId())){ 
+						cellPol.addVertex(v_s);							
+					}				
 				}
 			}
 		}	
@@ -169,9 +205,32 @@ public class CellPolygonCalculator {
 	public void checkForT1Transitions(CellPolygon cell){
 		Vertex[] cellVertices = cell.getSortedVertices();
 		for(int i = 0; i < cellVertices.length; i++){
-			if(cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < CellPolygonCalculator.MIN_EDGE_LENGTH){
-				doT1Transition(cellVertices[i], cellVertices[(i+1)%cellVertices.length]);
-				GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T1_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T1_TRANSITION_NUMBER)+1));
+			if(!cellVertices[i].isAttachedToBasalLayer() && !cellVertices[(i+1)%cellVertices.length].isAttachedToBasalLayer()&& cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < CellPolygonCalculator.MIN_EDGE_LENGTH){
+				Vertex v1 = cellVertices[i];
+				Vertex v2 = cellVertices[(i+1)%cellVertices.length];
+				
+				HashSet<CellPolygon> cellsConnectedWithV1 = new HashSet<CellPolygon>();
+				HashSet<CellPolygon> cellsConnectedWithV2 = new HashSet<CellPolygon>();
+				cellsConnectedWithV1.addAll(Arrays.asList(v1.getCellsJoiningThisVertex()));
+				cellsConnectedWithV2.addAll(Arrays.asList(v2.getCellsJoiningThisVertex()));
+				
+				
+				HashSet<CellPolygon> cellsConnectedToBothVertices = new HashSet<CellPolygon>();
+				
+				for(CellPolygon cellPol : cellsConnectedWithV1.toArray(new CellPolygon[cellsConnectedWithV1.size()])){
+					if(cellsConnectedWithV2.contains(cellPol)){
+						//Afterwards we want to have in these sets only those cells that are connected with only one of the two vertices
+						cellsConnectedWithV1.remove(cellPol);
+						cellsConnectedWithV2.remove(cellPol);
+						cellsConnectedToBothVertices.add(cellPol);
+					}
+				}
+				
+				if(cellsConnectedToBothVertices.size() == 2){// && cellsConnectedWithV1.size() == 1 && cellsConnectedWithV2.size() == 1){
+					doT1Transition(v1, v2, cellsConnectedWithV1, cellsConnectedWithV2, cellsConnectedToBothVertices.toArray(new CellPolygon[cellsConnectedToBothVertices.size()]));
+					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T1_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T1_TRANSITION_NUMBER)+1));
+					System.out.println("T1 Transition performed ------------");
+				}
 			}
 		}
 		
@@ -378,11 +437,7 @@ public class CellPolygonCalculator {
 		return newVertex;
 	}
 	
-	public static void main(String[] args){
-		Line line1 = new Line(0,0,10,0);
-		Line line2 = new Line(5,0,-20,10);
-		System.out.println("Der Winkel: "+ line1.getIntersectionAngleInDegreesWithOtherLine(line2));
-	}
+	
 	
 	public void rotateVertex(Vertex centerVertex, Vertex vertexToRotate, double angleInDegrees){
 		Vertex v = getNewRotatedVertex(centerVertex, vertexToRotate, angleInDegrees);
@@ -424,62 +479,62 @@ public class CellPolygonCalculator {
 	}
 	
 	
-	private void doT1Transition(Vertex v1, Vertex v2){
-		Vertex center = new Vertex((v1.getDoubleX()+ v2.getDoubleX())/2,(v1.getDoubleY()+ v2.getDoubleY())/2);
-		
+	private void doT1Transition(Vertex v1, Vertex v2, HashSet<CellPolygon> cellsConnectedOnlyWithV1, HashSet<CellPolygon> cellsConnectedOnlyWithV2, CellPolygon[] cellsConnectedToBothVertices){
+		Vertex center = new Vertex((v1.getDoubleX()+ v2.getDoubleX())/2,(v1.getDoubleY()+ v2.getDoubleY())/2);		
 		
 		//calculate direction Vector, then the Vector orthogonal to the direction Vector, then normalize this vector then, add SHORTEST_EDGE_LENGTH/2 * vector to cell center
 		
-		double[] vectorOthogonalToDirectionVector = new double[]{(-1*(center.getDoubleY() - v1.getDoubleY())),(center.getDoubleX() - v1.getDoubleX())};
+		double[] directionVectorV1 = new double[]{(v1.getDoubleX() - center.getDoubleX()),(v1.getDoubleY() - center.getDoubleY())};
+		double[] directionVectorV2 = new double[]{(v2.getDoubleX() - center.getDoubleX()),(v2.getDoubleY() - center.getDoubleY())};
 		
 		
 		//normalize the vector
-		double lengthOfVector = Math.sqrt((Math.pow(vectorOthogonalToDirectionVector[0],2)+Math.pow(vectorOthogonalToDirectionVector[1],2)));
-		vectorOthogonalToDirectionVector[0] /=lengthOfVector;
-		vectorOthogonalToDirectionVector[1] /=lengthOfVector;
+		double lengthOfVector = Math.sqrt((Math.pow(directionVectorV1[0],2)+Math.pow(directionVectorV1[1],2)));
+		directionVectorV1[0] /=lengthOfVector;
+		directionVectorV1[1] /=lengthOfVector;
+		
+		
+		lengthOfVector = Math.sqrt((Math.pow(directionVectorV2[0],2)+Math.pow(directionVectorV2[1],2)));
+		directionVectorV2[0] /=lengthOfVector;
+		directionVectorV2[1] /=lengthOfVector;
 				
-		v1.setDoubleX((center.getDoubleX()+(CellPolygonCalculator.MIN_EDGE_LENGTH/2)*vectorOthogonalToDirectionVector[0]));
-		v1.setDoubleY((center.getDoubleY()+(CellPolygonCalculator.MIN_EDGE_LENGTH/2)*vectorOthogonalToDirectionVector[1]));
+		v1.setDoubleX((center.getDoubleX()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV1[0]));
+		v1.setDoubleY((center.getDoubleY()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV1[1]));
 		
-		v2.setDoubleX((center.getDoubleX()-(CellPolygonCalculator.MIN_EDGE_LENGTH/2)*vectorOthogonalToDirectionVector[0]));
-		v2.setDoubleY((center.getDoubleY()-(CellPolygonCalculator.MIN_EDGE_LENGTH/2)*vectorOthogonalToDirectionVector[1]));
-		
-		
-		
-		HashSet<CellPolygon> cellsAssociatedWithV1 = new HashSet<CellPolygon>();
-		HashSet<CellPolygon> cellsAssociatedWithV2 = new HashSet<CellPolygon>();
-			
-		for(VertexChangeListener listener : v1.getVertexChangeListener()){ if(listener instanceof CellPolygon) cellsAssociatedWithV1.add((CellPolygon)listener); }
-		for(VertexChangeListener listener : v2.getVertexChangeListener()){ if(listener instanceof CellPolygon) cellsAssociatedWithV2.add((CellPolygon)listener); }
-		
-		HashSet<CellPolygon> cellsConnectedToBothVertices = new HashSet<CellPolygon>();
-		
-		for(CellPolygon cellPol : cellsAssociatedWithV1.toArray(new CellPolygon[cellsAssociatedWithV1.size()])){
-			if(cellsAssociatedWithV2.contains(cellPol)){
-				//Afterwards we want to have in these sets only those cells that are connected with only one of the two vertices
-				cellsAssociatedWithV1.remove(cellPol);
-				cellsAssociatedWithV2.remove(cellPol);
-				cellsConnectedToBothVertices.add(cellPol);
-			}
-		}
+		v2.setDoubleX((center.getDoubleX()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV2[0]));
+		v2.setDoubleY((center.getDoubleY()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV2[1]));
 		
 		
-		
+		rotateVertex(center, v1, -90);
+		rotateVertex(center, v2, -90);
 		
 		//add vertex v1 and v2 respectively to those cells that were formerly connected with only one of the vertices
-		for(CellPolygon pol :cellsAssociatedWithV1) pol.addVertex(v2);
-		for(CellPolygon pol :cellsAssociatedWithV2) pol.addVertex(v1);
+		for(CellPolygon pol :cellsConnectedOnlyWithV1) pol.addVertex(v2);
+		for(CellPolygon pol :cellsConnectedOnlyWithV2) pol.addVertex(v1);		
 		
 		
+		Vertex[] sortedVerticesCell1  = cellsConnectedToBothVertices[0].getSortedVertices();
+		int indexV1 = findVertexIndexInArray(sortedVerticesCell1, v1);
 		
-		//remove the vertex that is more far from the center of the polygon; 
-		//afterwards the cells that were formerly connected to both vertices are only connected to one of the two vertices
-		for(CellPolygon pol : cellsConnectedToBothVertices){
-			Vertex cellCenter = getCellCenter(pol);
-			if(cellCenter.edist(v1) < cellCenter.edist(v2)) pol.removeVertex(v2);
-			else pol.removeVertex(v1);
+		Vertex neighbour1 = sortedVerticesCell1[modIndex(indexV1-1, sortedVerticesCell1.length)].equals(v2) 
+									? sortedVerticesCell1[modIndex(indexV1-2, sortedVerticesCell1.length)]
+									: sortedVerticesCell1[modIndex(indexV1-1, sortedVerticesCell1.length)];
+									
+		Vertex neighbour2 = sortedVerticesCell1[modIndex(indexV1+1, sortedVerticesCell1.length)].equals(v2) 
+									? sortedVerticesCell1[modIndex(indexV1+2, sortedVerticesCell1.length)]
+									: sortedVerticesCell1[modIndex(indexV1+1, sortedVerticesCell1.length)];
+									
+		double distanceV1 = neighbour1.edist(v1) + neighbour2.edist(v1);
+		double distanceV2 = neighbour1.edist(v2) + neighbour2.edist(v2);
+		
+		if(distanceV1 < distanceV2){
+			cellsConnectedToBothVertices[0].removeVertex(v2);
+			cellsConnectedToBothVertices[1].removeVertex(v1);
 		}
-		
+		else{
+			cellsConnectedToBothVertices[0].removeVertex(v1);
+			cellsConnectedToBothVertices[1].removeVertex(v2);
+		}
 	}	
 	
 	/**
@@ -560,6 +615,14 @@ public class CellPolygonCalculator {
 		}
 		return outerLines.toArray(new Line[outerLines.size()]);
 	}
+	public Line[] getAllIntersectingLines(){
+		HashSet<Line> intersectingLines = new HashSet<Line>();
+		for(Line actLine : getAllLinesOfVertexNetwork()){
+			if(checkIfIntersectionLineAndCurate(actLine)) intersectingLines.add(actLine);
+		}
+		return intersectingLines.toArray(new Line[intersectingLines.size()]);
+	}
+		
 	public Line[] getAllLinesBelongingToOnlyTwoCellsOfVertexNetwork(){
 		HashSet<Line> lines = new HashSet<Line>();
 		for(Line actLine : getAllLinesOfVertexNetwork()){
@@ -579,7 +642,7 @@ public class CellPolygonCalculator {
 	public void checkForVerticesToMerge(CellPolygon cellPolygon){
 		Line[] cellLines = cellPolygon.getLinesOfCellPolygon();
 		for(Line actLine : cellLines){
-			if((isOuterLine(actLine) || isLineOfTwoCellsOnly(actLine)) && actLine.getLength() < (MIN_EDGE_LENGTH*1)){
+			if((isOuterLine(actLine) || isLineOfTwoCellsOnly(actLine)) && actLine.getLength() < (MIN_EDGE_LENGTH*0.5)){
 				mergeVerticesOfLine(actLine);
 				System.out.println("Vertices merged");
 				GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTICES_MERGED, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTICES_MERGED)+1));
@@ -631,14 +694,105 @@ public class CellPolygonCalculator {
 		return noOfCommonCells > 2;
 	}
 	
+	private void checkIfIntruderVertexAndCurate(Vertex vertex){
+		if(vertex.getNumberOfCellsJoiningThisVertex() ==1){
+			Vertex[] joiningVertices = vertex.getAllOtherVerticesConnectedToThisVertex();
+			HashSet<CellPolygon> cellPolygons = new HashSet<CellPolygon>();
+			for(Vertex v : joiningVertices){
+				cellPolygons.addAll(Arrays.asList(v.getCellsJoiningThisVertex()));
+			}
+			for(CellPolygon cell : cellPolygons){
+				Vertex[] sortedVertices = cell.getSortedVertices();
+				int index =  findVertexIndexInArray(sortedVertices, vertex);
+				if(index >= 0){
+					Vertex lowerBorderVertex = sortedVertices[modIndex(index-1, sortedVertices.length)];
+					Vertex upperBorderVertex = sortedVertices[modIndex(index+1, sortedVertices.length)];
+					
+					for(CellPolygon cell2: cellPolygons){
+						if(!cell.equals(cell2)){
+							sortedVertices = cell2.getSortedVertices();
+							int indexLowerBorder = findVertexIndexInArray(sortedVertices, lowerBorderVertex);
+							int indexUpperBorder = findVertexIndexInArray(sortedVertices, upperBorderVertex);
+							if(indexLowerBorder >= 0 && indexUpperBorder >= 0 && indexLowerBorder != indexUpperBorder){
+								if(indexLowerBorder > indexUpperBorder){
+									int tmp = indexLowerBorder;
+									indexLowerBorder = indexUpperBorder;
+									indexUpperBorder = tmp;
+								}
+								if((indexUpperBorder - indexLowerBorder) == 1 ||
+										((indexUpperBorder - indexLowerBorder) == indexUpperBorder &&(indexUpperBorder==1 || indexUpperBorder== (sortedVertices.length-1)))){
+									if(findVertexIndexInArray(sortedVertices, vertex)<0){
+										GlobalBiomechanicalStatistics.getInstance().set(GBSValue.INTRUDER_VERTEX_NO, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.INTRUDER_VERTEX_NO)+1));
+										System.out.println("Intruder Vertex Curated");
+										vertex.setIntruderVertex(true);
+										cell2.addVertex(vertex);
+									}
+								}
+							}
+						}
+					}					
+				}
+			}
+		}		
+	}
+	
+	private int modIndex(int value, int base){
+		return value%base < 0 ? (int)((value%base)+base) : (int)(value%base);
+	}
+	
+	private int findVertexIndexInArray(Vertex[] vertexArray, Vertex v){
+		for(int i = 0; i < vertexArray.length; i++){
+			if(vertexArray[i]!= null && vertexArray[i].equals(v)) return i;
+		}
+		return -1;
+	}
+	
+	
+	
+	
+	private boolean checkIfIntersectionLineAndCurate(Line line){
+		ArrayList<Line[]> intersectionLinePairs = new ArrayList<Line[]>();
+		for(CellPolygon cell : this.cellPolygons){
+			for(Line actLine :cell.getLinesOfCellPolygon()){
+				if(!line.equals(actLine)){
+					boolean intersectionFound = actLine.isIntersectionOfLinesInLineSegment(line, MIN_EDGE_LENGTH) && line.isIntersectionOfLinesInLineSegment(actLine, MIN_EDGE_LENGTH);
+					if(intersectionFound){
+						intersectionLinePairs.add(new Line[]{line, actLine});
+						Vertex isp = line.getIntersectionOfLinesInLineSegment(actLine);
+						if(line.getV1().edist(isp) < line.getV2().edist(isp)){
+							line.getV1().replaceVertex(isp);
+							line.setV1(isp);
+						}
+						else{
+							line.getV2().replaceVertex(isp);
+							line.setV2(isp);
+						}
+						if(actLine.getV1().edist(isp) < actLine.getV2().edist(isp)){
+							actLine.getV1().replaceVertex(isp);
+							actLine.setV1(isp);
+						}
+						else{
+							actLine.getV2().replaceVertex(isp);
+							actLine.setV2(isp);
+						}
+						isp.setIntruderVertex(true);
+						System.out.println("Intersection Curated!");
+					}
+				}
+			}
+		}
+		return !intersectionLinePairs.isEmpty();
+	}
+	
+	
+	
 	private boolean isLineOfTwoCellsOnly(Line line){
 		if(line.getV1().getNumberOfCellsJoiningThisVertex() == 2 && line.getV2().getNumberOfCellsJoiningThisVertex()==2){
 			HashSet<CellPolygon> cellsV1 = new HashSet<CellPolygon>();
 			cellsV1.addAll(Arrays.asList(line.getV1().getCellsJoiningThisVertex()));
 			CellPolygon[] cellsV2 = line.getV2().getCellsJoiningThisVertex();
 			if(cellsV1.contains(cellsV2[0]) && cellsV1.contains(cellsV2[1])) return true;
-		}
-		
+		}		
 		return false;
 	}
 	
@@ -649,7 +803,7 @@ public class CellPolygonCalculator {
 			v.setVertexColor(Color.YELLOW);
 			
 			for(Line actLine: lines)actLine.setNewValuesOfVertexToDistance(v, (MIN_VERTEX_EDGE_DISTANCE*1.1));
-			checkNewVertexValuesForBasalLayerAdhesion(v, true);
+			checkNewVertexValuesForBasalLayerAdhesion(v);
 			GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE) +1));
 		}
 		else v.setVertexColor(Color.BLUE);
@@ -658,25 +812,26 @@ public class CellPolygonCalculator {
 	
 	
 	public void applyVertexPositionCheckPipeline(Vertex v){
-		checkNewVertexValuesForBasalLayerAdhesion(v, false);
-		checkCloseToOtherEdge(v);
+		checkNewVertexValuesForBasalLayerAdhesion(v);
+		checkIfIntruderVertexAndCurate(v);
+	//	checkCloseToOtherEdge(v);
 	}
 	
 	public void applyCellPolygonCheckPipeline(CellPolygon cell){
 		checkForT1Transitions(cell);
 		checkForT2Transition(cell);
-		checkForT3Transitions(cell);
+	//	checkForT3Transitions(cell);
 		checkForVerticesToMerge(cell);
 	}
 	
 	
 	
-	private void checkNewVertexValuesForBasalLayerAdhesion(Vertex vertex, boolean estimateNewValue){
+	private void checkNewVertexValuesForBasalLayerAdhesion(Vertex vertex){
 		TissueBorder tissueBorder = TissueController.getInstance().getTissueBorder();
 		
 		
 				
-		if((tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY() || getDistanceToBasalLayer(tissueBorder, vertex, true) <= MIN_VERTEX_EDGE_DISTANCE)
+		if((tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY() || getDistanceToBasalLayer(tissueBorder, vertex, true) <= MIN_BASALLAYER_DISTANCE)
 				&& !vertex.isAttachedToBasalLayer()){
 			
 			//if(estimateNewValue){
@@ -690,12 +845,16 @@ public class CellPolygonCalculator {
 		}
 		else if(vertex.isAttachedToBasalLayer()){
 			double distanceToOldValue = Math.sqrt(Math.pow((vertex.getDoubleX()-vertex.getNewX()), 2)+Math.pow((vertex.getDoubleY()-vertex.getNewY()), 2));
-			if(distanceToOldValue < (MIN_VERTEX_EDGE_DISTANCE)){
+			if(distanceToOldValue < (3*MIN_BASALLAYER_DISTANCE)){
 				//setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
+				if(tissueBorder.lowerBound(vertex.getDoubleX()) != vertex.getDoubleY())
+					vertex.setDoubleY(tissueBorder.lowerBound(vertex.getDoubleX()));
 				resetToOldValue(vertex);
 			}
-			else vertex.setIsAttachedToBasalLayer(false);
-			//else vertex.setIsAttachedToBasalLayer(false);
+			else if( !(tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY())){
+					vertex.setIsAttachedToBasalLayer(false);
+			}
+			
 		}
 	}
 	
@@ -790,34 +949,6 @@ public class CellPolygonCalculator {
 	private void resetToOldValue(Vertex v){		
 		v.setNewX(v.getDoubleX());
 		v.setNewY(v.getDoubleY());	
-	}
-	
-	
-	public void relaxVertexEstimated(Vertex v){
-		if(v.getNumberOfCellsJoiningThisVertex() <= 2){
-			double newX = v.getDoubleX();		
-			double newY = v.getDoubleY();
-			
-			for(int i = 0; i < v.getNumberOfCellsJoiningThisVertex(); i++){
-				CellPolygon cell = v.getCellsJoiningThisVertex()[i];
-				double currentArea = cell.getCurrentArea();
-				if(currentArea-cell.getPreferredArea() != 0){
-					Vertex center = getCellCenter(cell);
-					Vertex directionVectorNorm =  center.relToNormalized(v);
-					
-					boolean resultShouldBeBigger = currentArea-cell.getPreferredArea()<0;
-					double percentage = Math.abs((currentArea-cell.getPreferredArea())/cell.getPreferredArea());
-					double oldDistance = center.mdist(v);
-					directionVectorNorm.scalarMult(percentage*oldDistance/(cell.getUnsortedVertices().length-1));
-					double newDistance = center.mdist(new Vertex(v.getDoubleX()+directionVectorNorm.getDoubleX(), v.getDoubleY()+directionVectorNorm.getDoubleY()));
-					if((resultShouldBeBigger && newDistance < oldDistance) || (!resultShouldBeBigger && newDistance > oldDistance)) directionVectorNorm.scalarMult(-1);					
-					newX += directionVectorNorm.getDoubleX();
-					newY += directionVectorNorm.getDoubleY();
-				}
-			}
-			v.setNewX(newX);
-			v.setNewY(newY);			
-		}
-	}
+	}	
 	
 }

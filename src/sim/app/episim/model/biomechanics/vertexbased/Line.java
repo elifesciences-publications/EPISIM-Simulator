@@ -31,6 +31,9 @@ public class Line {
 		this.y2 = v2.getDoubleY();
 		this.v1 = v1;
 		this.v2 = v2;
+		
+		if(!ContinuousVertexField.getInstance().isRegisteredInField(v1)) ContinuousVertexField.getInstance().addVertexToField(v1);
+		if(!ContinuousVertexField.getInstance().isRegisteredInField(v2)) ContinuousVertexField.getInstance().addVertexToField(v2);
 	}
 	
 	public double getDistanceOfVertex(Vertex v, boolean takeNewValues, boolean withinLineSegment){
@@ -139,6 +142,15 @@ public class Line {
 	
 	public boolean isIntersectionOfLinesInLineSegment(Line otherLine){
 		return getIntersectionOfLinesInLineSegment(otherLine) != null;
+	}
+	
+	public boolean isIntersectionOfLinesInLineSegment(Line otherLine, double deltaOfISP){
+		Vertex intersectionPoint = getIntersectionOfLinesInLineSegment(otherLine);
+		if(intersectionPoint != null){
+			return intersectionPoint.edist(v1) > deltaOfISP && intersectionPoint.edist(v2) > deltaOfISP;
+		}
+			
+		return false;
 	}
 	
 	public double getIntersectionAngleInDegreesWithOtherLine(Line otherLine){

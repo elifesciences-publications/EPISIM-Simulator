@@ -29,6 +29,7 @@ public class GlobalBiomechanicalStatistics implements EnhancedSteppable{
    	T3B_TRANSITION_NUMBER("T3B Transition No.", Integer.TYPE, true),
    	T3C_TRANSITION_NUMBER("T3C Transition No.", Integer.TYPE, true),
    	VERTEX_TOO_CLOSE_TO_EDGE("Vertex too close to edge", Integer.TYPE, true),
+   	INTRUDER_VERTEX_NO("No. Intruder Vertices", Integer.TYPE, true),
    	VERTICES_MERGED("Vertices Merged", Integer.TYPE, true),
    	PREF_AREA_OVERHEAD("Pref. Area Overhead", Double.TYPE, true),
    	AVG_CELL_REL_AREA_DEVIATION("Avg. rel. Cell Area Deviation", Double.TYPE, true);

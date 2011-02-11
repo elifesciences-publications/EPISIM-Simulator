@@ -31,6 +31,7 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	private double pref_perimeter_factor = 1; //could be 1 or zero to take the preferred perimeter of a cell into account or not
 	private double size_percentage_cell_division = 0.7;
 	private double min_edge_length_percentage = 0.25;
+	private double min_dist_percentage_basal_adhesion = 0.2;
 	private double growth_rate_per_sim_step = 10;
 	
 	//----------------------------------------------------------------------------------------------------------------------
@@ -221,5 +222,17 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
    public void setMin_edge_length_percentage(double min_edge_length_percentage) {
    
    	this.min_edge_length_percentage = min_edge_length_percentage;
+   }
+
+	
+   public double getMin_dist_percentage_basal_adhesion() {
+   
+   	return min_dist_percentage_basal_adhesion;
+   }
+
+	
+   public void setMin_dist_percentage_basal_adhesion(double min_dist_percentage_basal_adhesion) {
+   
+   	this.min_dist_percentage_basal_adhesion = min_dist_percentage_basal_adhesion;
    }
 }

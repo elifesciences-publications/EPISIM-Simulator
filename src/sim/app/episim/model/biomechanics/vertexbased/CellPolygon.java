@@ -166,7 +166,7 @@ public Line[] getLinesOfCellPolygon(){
 	int size = vertices.size();
 	Vertex[] vSorted = getSortedVertices();
 	Line[] cellPolLines = new Line[vSorted.length];
-	if(vSorted.length != size) System.out.println("Array und HashSet der Vertices im Cell Polygon stimmen nicht überein.");
+	//if(vSorted.length != size) System.out.println("Array und HashSet der Vertices im Cell Polygon stimmen nicht überein.");
 	for(int i = 0; i < vSorted.length;i++){
 		cellPolLines[i] = new Line(vSorted[i], vSorted[((i+1)%vSorted.length)]);
 	}

@@ -63,9 +63,11 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		PROLIFERATINGCELLS("Proliferation Cells"),
 		VERTICES("Vertices"),
 		ATTACHED_VERTICES("Attached Vertices"),
+		INTRUDER_VERTICES("Intruder Vertices"),
 		CORRUPTLINES("Corrupt Lines"),
 		TWOCELLLINES("Two Cell Lines"),
 		OUTERLINES("Outer Lines"),
+		INTERSECTINGCELLLINES("Intersecting Cell Lines"),
 		CONTACTBASALLAYER("Contact Basallayer"),
 		NEIGHBOURCONTACTBASALLAYER("Neighbour Contact Basal Layer");
 		
@@ -134,8 +136,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 		//cells = CellPolygonNetworkBuilder.getSquareVertex(100, 100, 50, 6);
 		cellPolygonCalculator = new CellPolygonCalculator(new CellPolygon[]{});
-		//cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
-		cells = CellPolygonNetworkBuilder.getStandardThreeCellArray(cellPolygonCalculator);
+		cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
+		//cells = CellPolygonNetworkBuilder.getStandardThreeCellArray(cellPolygonCalculator);
 		cellPolygonCalculator.setCellPolygons(cells);
 		configureStandardMembrane();
 		
@@ -272,8 +274,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 				//cells[cells.length/2].proliferate();
 				  cells[0].proliferate();
-				  cells[1].proliferate();
-				  cells[2].proliferate();
+				//  cells[1].proliferate();
+				//  cells[2].proliferate();
 				while(simulationState == SimState.SIMSTART){
 					
 				//	try{
@@ -370,18 +372,21 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			}				
 			if(visualizationConfigurationMap.get(VisualizationUnit.TWOCELLLINES)){
 				for(Line line : cellPolygonCalculator.getAllLinesBelongingToOnlyTwoCellsOfVertexNetwork()) highlightLine(g, line, Color.YELLOW);
-			}	
+			}
+			if(visualizationConfigurationMap.get(VisualizationUnit.INTERSECTINGCELLLINES)){
 			
+				for(Line line : cellPolygonCalculator.getAllIntersectingLines()){ 
+					
+					highlightLine(g, line, Color.GREEN);
+				}
+			}			
 			for(CellPolygon cellPol : cells){
 				for(Vertex v : cellPol.getUnsortedVertices()){	
 					drawVertex(g, v, false);				
 				}
-			}
-			
-		}
+			}			
+		}	
 		
-		
-		//drawErrorManhattanVersusEuclideanDistance(g);
 	}
 	
 	private void highlightLine(Graphics2D g, Line line, Color c){
@@ -477,11 +482,20 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	}
 	
 	private void drawVertex(Graphics2D g, Vertex vertex, boolean showVertexId){
+		drawVertex(g, vertex, showVertexId, null);
+	}
+	
+	private void drawVertex(Graphics2D g, Vertex vertex, boolean showVertexId, Color color){
 		if(vertex != null){
-			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);			
-			if(vertex.isNew()) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.YELLOW);
-			if(visualizationConfigurationMap.get(VisualizationUnit.ATTACHED_VERTICES) && vertex.isAttachedToBasalLayer()) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, ColorRegistry.VERTEX_ATTACHED_TO_BASALLAYER);
-			if(visualizationConfigurationMap.get(VisualizationUnit.VERTICES)) drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, vertex.getVertexColor());
+			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);
+			if(visualizationConfigurationMap.get(VisualizationUnit.VERTICES)) 
+				drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, color==null? vertex.getVertexColor():color);
+			if(vertex.isNew()) 
+				drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.YELLOW);
+			if(visualizationConfigurationMap.get(VisualizationUnit.ATTACHED_VERTICES) && vertex.isAttachedToBasalLayer()) 
+				drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, ColorRegistry.VERTEX_ATTACHED_TO_BASALLAYER);
+			if(vertex.isIntruderVertex()) 
+				drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.MAGENTA);			
 		}
 	}
 	
@@ -513,19 +527,18 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			newCellArray[cells.length] = newCell;
 			cells= newCellArray;
 			cellPolygonCalculator.setCellPolygons(cells);
+			
 			newCell.addProliferationAndApoptosisListener(this);
 			
 			
 			
-			if(csvWriter != null){
-				
-				
+			if(csvWriter != null){				
 	    	  	try{
 	            csvWriter.write(GlobalBiomechanicalStatistics.getInstance().getCSVFileData(cells));
 	            csvWriter.flush();
             }
-            catch (IOException e){
-	          ExceptionDisplayer.getInstance().displayException(e);
+            catch(IOException e){
+            	ExceptionDisplayer.getInstance().displayException(e);
             }
 			}
 			

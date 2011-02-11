@@ -9,7 +9,7 @@ public class TestRandom {
 
 	
 	public static void main(String[] args){
-		long seed = System.currentTimeMillis();
+	/*	long seed = System.currentTimeMillis();
 		MersenneTwisterFast rand = new MersenneTwisterFast(seed);
 		Random rand2 = new Random(seed);
 		
@@ -25,7 +25,8 @@ public class TestRandom {
 		for(int i : histo){
 			System.out.print(i+";");
 		}
-		
+		*/	
+		System.out.println(14);
 	}
 	
 }

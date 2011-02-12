@@ -16,7 +16,7 @@ public class Line {
 	private Vertex v1;
 	private Vertex v2;
 	
-	public Line(double x1, double y1, double x2, double y2){
+	private Line(double x1, double y1, double x2, double y2){
 		this.x1 = x1;
 		this.x2 = x2;
 		this.y1 = y1;
@@ -37,7 +37,6 @@ public class Line {
 	}
 	
 	public double getDistanceOfVertex(Vertex v, boolean takeNewValues, boolean withinLineSegment){
-
 		double x_Vertex = takeNewValues ? v.getNewX() : v.getDoubleX();
 		double y_Vertex = takeNewValues ? v.getNewY() : v.getDoubleY();
 		Vertex isp = getIntersectionPointOfLineThroughVertex(v, takeNewValues, withinLineSegment);
@@ -173,18 +172,14 @@ public class Line {
 	 * @param v4 second point line two(point with max distance on circle)
 	 * @return intersection point, returns null if there is no intersection
 	 */
-	public Vertex getIntersectionOfLines(Line otherLine){
-		
+	public Vertex getIntersectionOfLines(Line otherLine){		
 		double denominator =  ((otherLine.getDoubleY2() - otherLine.getDoubleY1())*(x2-x1)) - ((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(y2-y1));
-		
 		if(denominator != 0){
 			double u_a = (((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(y1-otherLine.getDoubleY1()))-((otherLine.getDoubleY2()-otherLine.getDoubleY1())*(x1-otherLine.getDoubleX1()))) / denominator;		
 			double x_s = x1 + u_a*(x2-x1);
 			double y_s = y1 + u_a*(y2-y1);
-			return new Vertex(x_s, y_s);
-			
-		}
-		
+			return new Vertex(x_s, y_s);			
+		}		
 		return null;
 	}
 	
@@ -202,37 +197,30 @@ public class Line {
 		return cellPolygonsAssociatedWithLine.toArray(new CellPolygon[cellPolygonsAssociatedWithLine.size()]);
 	}
 	
-	public void setIntX1(int x1){ setDoubleX1((double)x1); }
+
 	public int getIntX1(){ return (int)Math.round(getDoubleX1()); }
-	public void setIntY1(int y1){ setDoubleY1((double)y1); }
 	public int getIntY1(){ return (int)Math.round(getDoubleY1()); }
-	public void setIntX2(int x2){ setDoubleX2((double)x2); }
 	public int getIntX2(){ return (int)Math.round(getDoubleX2()); }
-	public void setIntY2(int y2){ setDoubleY2((double)y2); }
 	public int getIntY2(){ return (int)Math.round(getDoubleY2()); }
 	
    public double getDoubleX1() { return x1; }	
-   public void setDoubleX1(double x1) { this.x1 = x1; }	
    public double getDoubleY1() { return y1; }
-	
-   public void setDoubleY1(double y1) { this.y1 = y1; }	
    public double getDoubleX2() {	return x2; }
-	
-   public void setDoubleX2(double x2) { this.x2 = x2; }	
    public double getDoubleY2() { return y2; }	
-   public void setDoubleY2(double y2){ this.y2 = y2; }
    
    public Vertex getV1() {	return v1; }	
    public void setV1(Vertex v1) { 
    	this.v1 = v1; 
    	this.x1 = v1.getDoubleX();
    	this.y1 = v1.getDoubleY();
+   	if(!ContinuousVertexField.getInstance().isRegisteredInField(v1)) ContinuousVertexField.getInstance().addVertexToField(v1);
    }	
    public Vertex getV2(){ return v2; }	
    public void setV2(Vertex v2) { 
    	this.v2 = v2;
    	this.x2 = v2.getDoubleX();
    	this.y2 = v2.getDoubleY();
+   	if(!ContinuousVertexField.getInstance().isRegisteredInField(v2)) ContinuousVertexField.getInstance().addVertexToField(v2);
    }
 	
    public int hashCode() {

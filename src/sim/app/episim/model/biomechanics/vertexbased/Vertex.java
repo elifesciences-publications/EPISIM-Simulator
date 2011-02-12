@@ -60,17 +60,12 @@ public class Vertex implements java.io.Serializable{
 	
 	public boolean isAttachedToBasalLayer(){ return isAttachedToBasalLayer; }
 	public void setIsAttachedToBasalLayer(boolean val){ this.isAttachedToBasalLayer = val; }
-	
-	private Vertex relTo(Vertex v)
-   {
-        return new Vertex(getDoubleX()-v.getDoubleX(), getDoubleY()-v.getDoubleY());
-   }
-    
+		   
     /**
      * Manhattan Distanz
      * @return
      */
-    public double mdist()   // Manhattan-Distanz
+    public double mdist(Vertex v)   // Manhattan-Distanz
     {
         return Math.abs(getDoubleX())+Math.abs(getDoubleY());
     }
@@ -79,24 +74,10 @@ public class Vertex implements java.io.Serializable{
      * Euclidean Distance
      * @return
      */
-    public double edist(){ //Euklidische-Distanz
-   	 return Math.sqrt((Math.pow(getDoubleX(), 2)+ Math.pow(getDoubleY(), 2)));
-    }
-    /**
-     * Manhattan Distanz
-     * @return
-     */
-    public double mdist(Vertex v)
-    {
-        return relTo(v).mdist();    }
-
-    /**
-     * Euclidean Distance
-     * @return
-     */
     public double edist(Vertex v){ //Euklidische-Distanz
-   	 return relTo(v).edist();
-    }
+   	 return Math.sqrt((Math.pow((getDoubleX()-v.getDoubleX()), 2)+ Math.pow((getDoubleY()-v.getDoubleY()), 2)));
+    }   
+   
     
     public double crossProduct(Vertex v)
     {

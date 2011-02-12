@@ -1,24 +1,24 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
-import sim.app.episim.model.biomechanics.vertexbased.VertexChangeEvent.VertexChangeEventType;
-import sim.field.continuous.Continuous2D;
+
 import sim.util.Double2D;
 
 
-public class ContinuousVertexField implements VertexChangeListener{
+public class ContinuousVertexField{
 	
 	private static ContinuousVertexField instance = new ContinuousVertexField();
 	
 	
-	private Continuous2D vertexField;
-	private ContinuousVertexField(){}
-	private ContinuousVertexField(int width, int height){
-		vertexField = new Continuous2D(CellPolygonCalculator.MIN_EDGE_LENGTH, width, height);
-	}
+	private double height = Double.POSITIVE_INFINITY;
+	private double width = Double.POSITIVE_INFINITY;
 	
-	public void addVertexToField(Vertex vertex){
-		if(vertexField != null && vertex != null) vertexField.setObjectLocation(vertex, new Double2D(vertex.getDoubleX(), vertex.getDoubleY()));
-	}
+	
+	
+	private ContinuousVertexField(){}
+	private ContinuousVertexField(double width, double height){
+		this.width = width;
+		this.height = height;
+	}	
 	
 	public static synchronized ContinuousVertexField getInstance(){
 		return instance;
@@ -27,27 +27,59 @@ public class ContinuousVertexField implements VertexChangeListener{
 	public static void initializeCondinousVertexField(int width, int height){
 		instance = new ContinuousVertexField(width, height);
 	}
-	public void handleVertexChangeEvent(VertexChangeEvent event) {
-		Vertex source = event.getSource();
-		VertexChangeEventType eventType = event.getType();
-	   if(eventType == VertexChangeEventType.VERTEXDELETED){
-	   	if(vertexField != null) vertexField.remove(source);
-	   }
-	   else if(eventType == VertexChangeEventType.VERTEXREPLACED){
-	   	if(vertexField != null && source != null && event.getNewVertex() != null){ 
-	   		vertexField.remove(source);
-	   		vertexField.setObjectLocation(event.getNewVertex(), new Double2D(event.getNewVertex().getDoubleX(), event.getNewVertex().getDoubleY()));
-	   	}
-	   }
-	   else if(eventType == VertexChangeEventType.VERTEXMOVED){
-	   	if(vertexField != null){
-	   		vertexField.setObjectLocation(source, new Double2D(source.getDoubleX(), source.getDoubleY()));
-	   	}
-	   }	   
-   }
 	
-	public boolean isRegisteredInField(Vertex vertex){
-		return vertexField == null || !vertexField.exists(vertex) ? false : true;
+	
+	public double getXLocationInField(Vertex v){
+		return getXLocationInField(v, false);
 	}
+	public double getXLocationInField(Vertex v, boolean takeNewValues){
+		return takeNewValues ? v.getNewX() % width: v.getDoubleX() % width;
+	}
+	
+	public double getYLocationInField(Vertex v){
+		return getYLocationInField(v, false);
+	}
+	public double getYLocationInField(Vertex v, boolean takeNewValues){
+		return takeNewValues ? v.getNewY() % height: v.getDoubleY() % height;
+	}
+	
+	public Double2D getLocationInField(Vertex v){
+		return getLocationInField( v, false);
+	}
+	public Double2D getLocationInField(Vertex v, boolean takeNewValues){
+		double x = takeNewValues ? v.getNewX() : v.getDoubleX();
+		double y = takeNewValues ? v.getNewY() : v.getDoubleY();
+		return new Double2D(x%width, y%height);
+	}
+	
+	public double getMinEuclideanDistance(Vertex v1, Vertex v2){
+		return getMinEuclideanDistance(v1, v2, false);
+	}
+	public double getMinEuclideanDistance(Vertex v1, Vertex v2, boolean takeNewValues){
+		double x1 = takeNewValues ? v1.getNewX(): v1.getDoubleX();
+		double x2 = takeNewValues ? v2.getNewX(): v2.getDoubleX();
+		
+		double y1 = takeNewValues ? v1.getNewY(): v1.getDoubleY();
+		double y2 = takeNewValues ? v2.getNewY(): v2.getDoubleY();
+		
+		if(x1 > x2){
+			double tmp = x1;
+			x1=x2;
+			x2=tmp;
+		}
+		if(y1 > y2){
+			double tmp = y1;
+			y1=y2;
+			y2=tmp;
+		}
+		
+		double xDifference = (x2-x1) > ((x1+width)-x2) ? ((x1+width)-x2) : (x2-x1);
+		double yDifference = (y2-y1) > ((y1+height)-y2) ? ((x1+height)-y2) : (y2-y1);
+		
+		return Math.sqrt(Math.pow(xDifference, 2)+ Math.pow(yDifference, 2));
+	}
+	
+	
+	
 
 }

@@ -930,22 +930,7 @@ public class CellPolygonCalculator {
 		}
 		else resetToOldValue(vertex);
 	}
-	
-	
-	private void resetToOldValueWithRadomizedDelta(Vertex v){
-		double delta =  0;//v.eDistOldAndNewValue();
 		
-		double[] directionVector = new double[]{v.getDoubleX()-v.getNewX(), v.getDoubleY()-v.getNewY()};
-		
-		double normFactor = Math.sqrt(Math.pow(directionVector[0],2)+Math.pow(directionVector[1],2));
-		directionVector[0]/=normFactor;
-		directionVector[1]/=normFactor;
-		
-		v.setNewX(v.getDoubleX() + directionVector[0]*delta);
-		v.setNewY(v.getDoubleY() + directionVector[1]*delta);	
-	}
-	
-	
 	private void resetToOldValue(Vertex v){		
 		v.setNewX(v.getDoubleX());
 		v.setNewY(v.getDoubleY());	

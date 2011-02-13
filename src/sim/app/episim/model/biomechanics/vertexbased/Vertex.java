@@ -41,10 +41,10 @@ public class Vertex implements java.io.Serializable{
 	
 	public Vertex(double x, double y){
 		id = nextid++;
-		this.x = x;
-		this.y = y;
-		this.x_new = x;
-		this.y_new = y;
+		this.x = ContinuousVertexField.getInstance().getXLocationInField(x);
+		this.y = ContinuousVertexField.getInstance().getYLocationInField(y);
+		this.x_new = this.x;
+		this.y_new = this.y;
 		changeListener = new ArrayList<VertexChangeListener>();
 		vertexColor = Color.BLUE;
 	}
@@ -55,11 +55,7 @@ public class Vertex implements java.io.Serializable{
 		
 	public int getId(){ return this.id; }
 	
-	public boolean isNew(){ return isNew;}
-	public void setIsNew(boolean isNew){this.isNew = isNew;}
 	
-	public boolean isAttachedToBasalLayer(){ return isAttachedToBasalLayer; }
-	public void setIsAttachedToBasalLayer(boolean val){ this.isAttachedToBasalLayer = val; }
 		   
     /**
      * Manhattan Distanz
@@ -67,7 +63,7 @@ public class Vertex implements java.io.Serializable{
      */
     public double mdist(Vertex v)   // Manhattan-Distanz
     {
-        return Math.abs(getDoubleX())+Math.abs(getDoubleY());
+        return Math.abs(ContinuousVertexField.getInstance().dxMinAbs(this, v))+Math.abs(ContinuousVertexField.getInstance().dyMinAbs(this, v));
     }
     
     /**
@@ -75,15 +71,10 @@ public class Vertex implements java.io.Serializable{
      * @return
      */
     public double edist(Vertex v){ //Euklidische-Distanz
-   	 return Math.sqrt((Math.pow((getDoubleX()-v.getDoubleX()), 2)+ Math.pow((getDoubleY()-v.getDoubleY()), 2)));
+   	 return ContinuousVertexField.getInstance().getMinEuclideanDistance(this, v);
     }   
    
-    
-    public double crossProduct(Vertex v)
-    {
-        return getDoubleX()*v.getDoubleY()-v.getDoubleX()*getDoubleY();
-    }   
-
+   
 	public VertexChangeListener[] getVertexChangeListener(){
 		return this.changeListener.toArray(new VertexChangeListener[changeListener.size()]);
 	}
@@ -108,14 +99,14 @@ public class Vertex implements java.io.Serializable{
 	
 	public void setDoubleX(double x){
 		if(x != this.x){
-			this.x = x;
+			this.x = ContinuousVertexField.getInstance().getXLocationInField(x);
 			notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
 		}
 	}
 	public double getDoubleX(){ return x; }
 	public void setDoubleY(double y){ 
 		if(y != this.y){
-			this.y = y;
+			this.y = ContinuousVertexField.getInstance().getYLocationInField(y);
 			notifyAllListeners(VertexChangeEventType.VERTEXMOVED);
 		}
 		
@@ -272,13 +263,13 @@ public class Vertex implements java.io.Serializable{
 	
 	public void setNewX(double x_new) {
 	
-		this.x_new = x_new;
+		this.x_new = ContinuousVertexField.getInstance().getXLocationInField(x_new);
 	}
 
 	
 	public void setNewY(double y_new) {
 	
-		this.y_new = y_new;
+		this.y_new = ContinuousVertexField.getInstance().getYLocationInField(y_new);
 	}
 	
 	
@@ -326,6 +317,11 @@ public class Vertex implements java.io.Serializable{
    
    	this.isIntruderVertex = isIntruderVertex;
    }
+   public boolean isNew(){ return isNew;}
+	public void setIsNew(boolean isNew){this.isNew = isNew;}
+	
+	public boolean isAttachedToBasalLayer(){ return isAttachedToBasalLayer; }
+	public void setIsAttachedToBasalLayer(boolean val){ this.isAttachedToBasalLayer = val; }
 
 
 }

@@ -16,11 +16,11 @@ public class Line {
 	private Vertex v1;
 	private Vertex v2;
 	
-	private Line(double x1, double y1, double x2, double y2){
-		this.x1 = x1;
-		this.x2 = x2;
-		this.y1 = y1;
-		this.y2 = y2;
+	protected Line(double x1, double y1, double x2, double y2, boolean coordinatesInField){
+		this.x1 = coordinatesInField ? ContinuousVertexField.getInstance().getXLocationInField(x1) : x1;
+		this.x2 = coordinatesInField ? ContinuousVertexField.getInstance().getXLocationInField(x2) : x2;
+		this.y1 = coordinatesInField ? ContinuousVertexField.getInstance().getYLocationInField(y1) : y1;
+		this.y2 = coordinatesInField ? ContinuousVertexField.getInstance().getYLocationInField(y2) : y2;
 	}
 	
 	public Line(Vertex v1, Vertex v2){
@@ -31,9 +31,16 @@ public class Line {
 		this.y2 = v2.getDoubleY();
 		this.v1 = v1;
 		this.v2 = v2;
+	}
 		
-		if(!ContinuousVertexField.getInstance().isRegisteredInField(v1)) ContinuousVertexField.getInstance().addVertexToField(v1);
-		if(!ContinuousVertexField.getInstance().isRegisteredInField(v2)) ContinuousVertexField.getInstance().addVertexToField(v2);
+	public double getLength(){
+		return (v1 != null && v2!= null)? v1.edist(v2) 
+				 : Math.sqrt(Math.pow((ContinuousVertexField.getInstance().dxMinAbs(x1, x2)), 2)+Math.pow((ContinuousVertexField.getInstance().dyMinAbs(y1, y2)), 2));
+	}
+	
+	public double getLengthDependingOnSetXYValues(boolean adjustValuesToContinuousVertexField){
+		return adjustValuesToContinuousVertexField? Math.sqrt(Math.pow((ContinuousVertexField.getInstance().dxMinAbs(x1, x2)), 2)+Math.pow((ContinuousVertexField.getInstance().dyMinAbs(y1, y2)), 2))
+				                                    : Math.sqrt(Math.pow((x1 - x2), 2)+Math.pow((y1 - y2), 2));
 	}
 	
 	public double getDistanceOfVertex(Vertex v, boolean takeNewValues, boolean withinLineSegment){
@@ -44,32 +51,90 @@ public class Line {
 		else return Double.POSITIVE_INFINITY;
 	}
 	
-	public double getLength(){
-		return (v1 != null && v2!= null)? v1.edist(v2) : Math.sqrt(Math.pow((x1-x2), 2)+Math.pow((y1-y2), 2));
-	}
-	
 	public Vertex getIntersectionPointOfLineThroughVertex(Vertex v, boolean takeNewValues, boolean withinLineSegment){
-		double[] directionVectorOfLine = new double[]{x2-x1, y2-y1};
+		
+		Line thisLine = ContinuousVertexField.getInstance().getNewLineWithMinLength(this);
+		
+		double[] directionVectorOfLine = new double[]{thisLine.getDoubleX2()- thisLine.getDoubleX1(), thisLine.getDoubleY2() - thisLine.getDoubleY1()};
 		double[] directionVectorOfOrthogonalLine = new double[]{directionVectorOfLine[1],-1*directionVectorOfLine[0]};
 		
 		double x_Vertex = takeNewValues ? v.getNewX() : v.getDoubleX();
 		double y_Vertex = takeNewValues ? v.getNewY() : v.getDoubleY();
+		
+		x_Vertex += (Math.abs(x1 -thisLine.getDoubleX1())+Math.abs(x2-thisLine.getDoubleX2()));
+		y_Vertex += (Math.abs(y1 -thisLine.getDoubleY1())+Math.abs(y2-thisLine.getDoubleY2()));
 				
-		Line intersectionLine = new Line(x_Vertex, y_Vertex, x_Vertex+directionVectorOfOrthogonalLine[0], y_Vertex+directionVectorOfOrthogonalLine[1]);
+		Line intersectionLine = new Line(x_Vertex, y_Vertex, x_Vertex+directionVectorOfOrthogonalLine[0], y_Vertex+directionVectorOfOrthogonalLine[1], false);
 		return withinLineSegment ? this.getIntersectionOfLinesInLineSegment(intersectionLine): this.getIntersectionOfLines(intersectionLine);
 	}
 	
+	/**
+	 * @param v1 first point line one (first cell vertex)
+	 * @param v2 second point line one (second cell vertex)
+	 * @param v3 first point line two (cell center)
+	 * @param v4 second point line two(point with max distance on circle)
+	 * @return intersection point, returns null if there is no intersection
+	 */
+	public Vertex getIntersectionOfLines(Line otherLine){
+		Line thisLine = ContinuousVertexField.getInstance().getNewLineWithMinLength(this);
+		otherLine = ContinuousVertexField.getInstance().getNewLineWithMinLength(otherLine);
+		
+		double denominator =  ((otherLine.getDoubleY2() - otherLine.getDoubleY1())*(thisLine.getDoubleX2()-thisLine.getDoubleX1())) - ((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(thisLine.getDoubleY2()-thisLine.getDoubleY1()));
+		if(denominator != 0){
+			double u_a = (((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(thisLine.getDoubleY1()-otherLine.getDoubleY1()))-((otherLine.getDoubleY2()-otherLine.getDoubleY1())*(thisLine.getDoubleX1()-otherLine.getDoubleX1()))) / denominator;		
+			double x_s = thisLine.getDoubleX1() + u_a*(thisLine.getDoubleX2()-thisLine.getDoubleX1());
+			double y_s = thisLine.getDoubleY1() + u_a*(thisLine.getDoubleY2()-thisLine.getDoubleY1());
+			return new Vertex(x_s, y_s);			
+		}		
+		return null;
+	}
+	
+	/**
+	 * @param v1 first point line one (first cell vertex)
+	 * @param v2 second point line one (second cellvertex)
+	 * 
+	 * @param v3 first point line two (cell center)
+	 * @param v4 second point line two( point with max distance on circle)
+	 * @return intersection point, returns null if there is no intersection or if the intersection point is not on the line segment of described by the coordinates of this line
+	 */
+	public Vertex getIntersectionOfLinesInLineSegment(Line otherLine){
+		Line thisLine = ContinuousVertexField.getInstance().getNewLineWithMinLength(this);
+		otherLine = ContinuousVertexField.getInstance().getNewLineWithMinLength(otherLine);
+		
+		double denominator =  ((otherLine.getDoubleY2() -otherLine.getDoubleY1())*(thisLine.getDoubleX2()-thisLine.getDoubleX1())) - ((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(thisLine.getDoubleY2()-thisLine.getDoubleY1()));
+		
+		if(denominator != 0){
+			double u_a = (((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(thisLine.getDoubleY1()-otherLine.getDoubleY1()))-((otherLine.getDoubleY2()-otherLine.getDoubleY1())*(thisLine.getDoubleX1()-otherLine.getDoubleX1()))) / denominator;			
+			
+			//only if u_a is between 0 and 1  the intersection point lies on the line segment described by the two line vertices v1 and v2
+			if(u_a >= 0 && u_a <= 1){
+				double x_s = thisLine.getDoubleX1() + u_a*(thisLine.getDoubleX2()-thisLine.getDoubleX1());
+				double y_s = thisLine.getDoubleY1() + u_a*(thisLine.getDoubleY2()-thisLine.getDoubleY1());
+				return new Vertex(x_s, y_s);
+			}
+		}		
+		return null;
+	}
+	
+	public double getIntersectionAngleInDegreesWithOtherLine(Line otherLine){
+		double[] directionVector1 = ContinuousVertexField.getInstance().getDirectionVector(this.getDoubleX1(), this.getDoubleY1(), this.getDoubleX2(), this.getDoubleY2());
+		double[] directionVector2 = ContinuousVertexField.getInstance().getDirectionVector(otherLine.getDoubleX1(), otherLine.getDoubleY1(), otherLine.getDoubleX2(), otherLine.getDoubleY2());
+		
+		double denominator = Math.sqrt(Math.pow(directionVector1[0], 2)+Math.pow(directionVector1[1], 2))*Math.sqrt(Math.pow(directionVector2[0], 2)+Math.pow(directionVector2[1], 2));
+		if(denominator != 0){
+			double enumerator = directionVector1[0]*directionVector2[0] + directionVector1[1]*directionVector2[1];
+			return Math.toDegrees(Math.acos(enumerator/denominator));
+		}
+		return Double.NEGATIVE_INFINITY;
+	}
 	
 	
 	public void setNewValuesOfVertexToDistance(Vertex v, double distance){
 		Vertex isp = getIntersectionPointOfLineThroughVertex(v, true, true);
 		if(isp != null){
-			double[] directionVector = new double[]{v.getDoubleX() - isp.getDoubleX(), v.getDoubleY() - isp.getDoubleY()};
-			double normFactor = Math.sqrt(Math.pow(directionVector[0],2)+Math.pow(directionVector[1],2));
-			directionVector[0]/=normFactor;
-			directionVector[1]/=normFactor;
-			v.setNewX((v.getNewX() + (directionVector[0]*distance)));
-			v.setNewY((v.getNewY() + (directionVector[1]*distance)));
+			double[] directionVector = ContinuousVertexField.getInstance().getNormDirectionVector(v, isp);
+			v.setNewX((isp.getDoubleX() + (directionVector[0]*distance)));
+			v.setNewY((isp.getDoubleY() + (directionVector[1]*distance)));
 		}
 	}	
 	
@@ -110,34 +175,7 @@ public class Line {
 		}
 		
 		return false;
-	}
-	
-	
-	/**
-	 * @param v1 first point line one (first cell vertex)
-	 * @param v2 second point line one (second cellvertex)
-	 * 
-	 * @param v3 first point line two (cell center)
-	 * @param v4 second point line two( point with max distance on circle)
-	 * @return intersection point, returns null if there is no intersection or if the intersection point is not on the line segment of described by the coordinates of this line
-	 */
-	public Vertex getIntersectionOfLinesInLineSegment(Line otherLine){
-		
-		double denominator =  ((otherLine.getDoubleY2() -otherLine.getDoubleY1())*(x2-x1)) - ((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(y2-y1));
-		
-		if(denominator != 0){
-			double u_a = (((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(y1-otherLine.getDoubleY1()))-((otherLine.getDoubleY2()-otherLine.getDoubleY1())*(x1-otherLine.getDoubleX1()))) / denominator;			
-			
-			//only if u_a is between 0 and 1  the intersection point lies on the line segment described by the two line vertices v1 and v2
-			if(u_a >= 0 && u_a <= 1){
-				double x_s = x1 + u_a*(x2-x1);
-				double y_s = y1 + u_a*(y2-y1);
-				return new Vertex(x_s, y_s);
-			}
-		}
-		
-		return null;
-	}
+	}	
 	
 	public boolean isIntersectionOfLinesInLineSegment(Line otherLine){
 		return getIntersectionOfLinesInLineSegment(otherLine) != null;
@@ -150,38 +188,7 @@ public class Line {
 		}
 			
 		return false;
-	}
-	
-	public double getIntersectionAngleInDegreesWithOtherLine(Line otherLine){
-		double[] directionVector1 = new double[]{x2-x1, y2-y1};
-		double[] directionVector2 = new double[]{otherLine.getDoubleX2()-otherLine.getDoubleX1(), otherLine.getDoubleY2()-otherLine.getDoubleY1()};
-		
-		double denominator = Math.sqrt(Math.pow(directionVector1[0], 2)+Math.pow(directionVector1[1], 2))*Math.sqrt(Math.pow(directionVector2[0], 2)+Math.pow(directionVector2[1], 2));
-		if(denominator != 0){
-			double enumerator = directionVector1[0]*directionVector2[0] + directionVector1[1]*directionVector2[1];
-			return Math.toDegrees(Math.acos(enumerator/denominator));
-		}
-		return Double.NEGATIVE_INFINITY;
-	}
-	
-	
-	/**
-	 * @param v1 first point line one (first cell vertex)
-	 * @param v2 second point line one (second cell vertex)
-	 * @param v3 first point line two (cell center)
-	 * @param v4 second point line two(point with max distance on circle)
-	 * @return intersection point, returns null if there is no intersection
-	 */
-	public Vertex getIntersectionOfLines(Line otherLine){		
-		double denominator =  ((otherLine.getDoubleY2() - otherLine.getDoubleY1())*(x2-x1)) - ((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(y2-y1));
-		if(denominator != 0){
-			double u_a = (((otherLine.getDoubleX2()-otherLine.getDoubleX1())*(y1-otherLine.getDoubleY1()))-((otherLine.getDoubleY2()-otherLine.getDoubleY1())*(x1-otherLine.getDoubleX1()))) / denominator;		
-			double x_s = x1 + u_a*(x2-x1);
-			double y_s = y1 + u_a*(y2-y1);
-			return new Vertex(x_s, y_s);			
-		}		
-		return null;
-	}
+	}	
 	
 	public CellPolygon[] getCellPolygonsOfLine(){
 		HashSet<CellPolygon> cellPolygonsAssociatedWithLine = new HashSet<CellPolygon>();
@@ -213,14 +220,12 @@ public class Line {
    	this.v1 = v1; 
    	this.x1 = v1.getDoubleX();
    	this.y1 = v1.getDoubleY();
-   	if(!ContinuousVertexField.getInstance().isRegisteredInField(v1)) ContinuousVertexField.getInstance().addVertexToField(v1);
    }	
    public Vertex getV2(){ return v2; }	
    public void setV2(Vertex v2) { 
    	this.v2 = v2;
    	this.x2 = v2.getDoubleX();
    	this.y2 = v2.getDoubleY();
-   	if(!ContinuousVertexField.getInstance().isRegisteredInField(v2)) ContinuousVertexField.getInstance().addVertexToField(v2);
    }
 	
    public int hashCode() {

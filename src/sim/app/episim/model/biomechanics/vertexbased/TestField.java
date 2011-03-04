@@ -14,17 +14,26 @@ public class TestField {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ContinuousVertexField.initializeCondinousVertexField(100, 100);
-		Vertex v1 = new Vertex(10, 0);
-		Vertex v2 = new Vertex(10, 10);
 		
-		Line testLine1 = new Line(v1, v2);
+		ContinuousVertexField.initializeContinousVertexField(100, 100);
+				
+		Vertex[] vertices = new Vertex[]{new Vertex(90, 30), new Vertex(90, 70), new Vertex(10, 30), new Vertex(10, 70)};
 		
-		Vertex v3 = new Vertex(0, 5);
+		CellPolygon[] cellPolArray = new CellPolygon[1];		
 		
-		testLine1.setNewValuesOfVertexToDistance(v3, 20);
+		CellPolygonCalculator calculator = new CellPolygonCalculator(cellPolArray);
 		
-		System.out.println("New Coordinates: ("+ v3.getNewX()+", "+ v3.getNewY()+")");		
+		cellPolArray[0] = new CellPolygon(calculator);
+		
+		for(Vertex v : vertices)cellPolArray[0].addVertex(v);
+		
+		System.out.println("----------------------");
+		Vertex v1 = new Vertex(10, 30);
+		Vertex v2 = new Vertex(90, 30);
+		
+		
+		
+		
 		
 		
 

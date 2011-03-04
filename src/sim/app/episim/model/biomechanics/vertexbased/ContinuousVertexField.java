@@ -1,6 +1,10 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
 
+import java.util.ArrayList;
+
+import ec.util.MersenneTwisterFast;
+
 import sim.util.Double2D;
 
 /*
@@ -11,25 +15,62 @@ import sim.util.Double2D;
  */
 public class ContinuousVertexField{
 	
-	private static ContinuousVertexField instance = new ContinuousVertexField();
+	private class Quadrant{
+		
+		private double x1;
+		private double x2;
+		private double y1;
+		private double y2;
+		
+		protected Quadrant(double x1, double y1, double x2, double y2){
+			this.x1 = x1;
+			this.x2 = x2;
+			this.y1 = y1;
+			this.y2 = y2;
+		}
+		protected boolean isVertexInQuadrant(Vertex v, boolean takeNewValues){
+			double x = takeNewValues ? v.getNewX() : v.getDoubleX();
+			double y = takeNewValues ? v.getNewY() : v.getDoubleY();
+			
+			return x >= x1 && x < x2 && y >= y1 && y < y2;
+		}
+	}
 	
+	private static ContinuousVertexField instance = new ContinuousVertexField();	
 	
 	private double height = Double.POSITIVE_INFINITY;
-	private double width = Double.POSITIVE_INFINITY;
+	private double width = Double.POSITIVE_INFINITY;	
 	
+	private ArrayList<Quadrant> quadrants = new ArrayList<Quadrant>();
 	
-	
-	private ContinuousVertexField(){}
+	private ContinuousVertexField(){
+		this(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+	}
 	private ContinuousVertexField(double width, double height){
 		this.width = width;
 		this.height = height;
+		if(width > Double.NEGATIVE_INFINITY && width < Double.POSITIVE_INFINITY 
+				&&  height > Double.NEGATIVE_INFINITY && height < Double.POSITIVE_INFINITY){
+			quadrants.add(new Quadrant(0,0,(width/2),(height/2)));
+			quadrants.add(new Quadrant((width/2), 0, width, (height/2)));
+			quadrants.add(new Quadrant(0,(height/2),(width/2),height));
+			quadrants.add(new Quadrant((width/2),(height/2), width, height));
+		}
+		else if(width > Double.NEGATIVE_INFINITY && width < Double.POSITIVE_INFINITY){
+			quadrants.add(new Quadrant(0,Double.NEGATIVE_INFINITY,(width/2),Double.POSITIVE_INFINITY));
+			quadrants.add(new Quadrant((width/2), Double.NEGATIVE_INFINITY, width, Double.POSITIVE_INFINITY));
+		}
+		else if(height > Double.NEGATIVE_INFINITY && height < Double.POSITIVE_INFINITY){
+			quadrants.add(new Quadrant(Double.NEGATIVE_INFINITY,0,Double.POSITIVE_INFINITY,(height/2)));
+			quadrants.add(new Quadrant(Double.NEGATIVE_INFINITY, (height/2), Double.POSITIVE_INFINITY, height));
+		}
 	}	
 	
 	public static synchronized ContinuousVertexField getInstance(){
 		return instance;
 	}
 	
-	public static void initializeCondinousVertexField(int width, int height){
+	public static void initializeContinousVertexField(int width, int height){
 		instance = new ContinuousVertexField(width, height);
 	}	
 	
@@ -204,9 +245,11 @@ public class ContinuousVertexField{
 		}
 		return x1 - x2;
 	}
+	
 	public double dxMinSign(Vertex v1, Vertex v2){
 		return dxMinSign(v1, v2, false);
 	}
+	
 	public double dxMinSign(Vertex v1, Vertex v2, boolean takeNewValues){
 		double x1 = takeNewValues ? v1.getNewX(): v1.getDoubleX();
 		double x2 = takeNewValues ? v2.getNewX(): v2.getDoubleX();
@@ -227,9 +270,11 @@ public class ContinuousVertexField{
 			}
 			return y1 - y2;
 	}
+	
 	public double dyMinSign(Vertex v1, Vertex v2){
 		return dyMinSign(v1, v2, false);
 	}
+	
 	public double dyMinSign(Vertex v1, Vertex v2, boolean takeNewValues){
 		double y1 = takeNewValues ? v1.getNewY(): v1.getDoubleY();
 		double y2 = takeNewValues ? v2.getNewY(): v2.getDoubleY();
@@ -245,7 +290,7 @@ public class ContinuousVertexField{
 				
 		Line[] newLines = new Line[]{
 				new Line(x1, y1, x2, y2, false),
-				new Line(x1 + width, y1, x2, y2, false),
+				new Line(x1+width, y1, x2, y2, false),
 				new Line(x1, y1+height, x2, y2, false),
 				new Line(x1+width, y1+height, x2, y2, false),
 				new Line(x1, y1, x2+width, y2, false),
@@ -262,4 +307,97 @@ public class ContinuousVertexField{
 		}
 		return newLines[minIndex];
 	}
+	
+	public Vertex[] getMinDistanceTransformedVertexArrayFirstVertexReferenceUnsigned(Vertex[] vertices){
+		return getMinDistanceTransformedVertexArray(vertices[0], vertices, false, false);
+	}
+	
+	public Vertex[] getMinDistanceTransformedVertexArrayFirstVertexReferenceUnsigned(Vertex[] vertices, boolean takeNewValues){
+		return getMinDistanceTransformedVertexArray(vertices[0], vertices, takeNewValues, false);
+	}
+	
+	public Vertex[] getMinDistanceTransformedVertexArrayFirstVertexReferenceSigned(Vertex[] vertices){
+		return getMinDistanceTransformedVertexArray(vertices[0], vertices, false, true);
+	}
+	
+	public Vertex[] getMinDistanceTransformedVertexArrayFirstVertexReferenceSigned(Vertex[] vertices, boolean takeNewValues){
+		return getMinDistanceTransformedVertexArray(vertices[0], vertices, takeNewValues, true);
+	}	
+	
+	public Vertex[] getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceUnsigned(Vertex[] vertices){
+		return getMinDistanceTransformedVertexArray(getMajorityQuadrantReferenceVertex(vertices, false), vertices, false, false);
+	}
+	
+	public Vertex[] getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceUnsigned(Vertex[] vertices, boolean takeNewValues){
+		return getMinDistanceTransformedVertexArray(getMajorityQuadrantReferenceVertex(vertices, takeNewValues), vertices, takeNewValues, false);
+	}
+	
+	public Vertex[] getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(Vertex[] vertices){
+		return getMinDistanceTransformedVertexArray(getMajorityQuadrantReferenceVertex(vertices, false), vertices, false, true);
+	}
+	
+	public Vertex[] getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(Vertex[] vertices, boolean takeNewValues){
+		return getMinDistanceTransformedVertexArray(getMajorityQuadrantReferenceVertex(vertices, takeNewValues), vertices, takeNewValues, true);
+	}
+	
+	private Vertex[] getMinDistanceTransformedVertexArray(Vertex referenceVertex, Vertex[] vertices, boolean takeNewValues, boolean signed){
+		
+		double refX = takeNewValues ? referenceVertex.getNewX() : referenceVertex.getDoubleX();
+		double refY = takeNewValues ? referenceVertex.getNewY() : referenceVertex.getDoubleY();
+		Vertex[] transformedVertices = new Vertex[vertices.length];
+		
+		for(int i = 0; i < vertices.length; i++){
+			
+			double actX = takeNewValues ? vertices[i].getNewX() : vertices[i].getDoubleX();
+			double actY = takeNewValues ? vertices[i].getNewY() : vertices[i].getDoubleY();
+			
+			double transX = refX;
+			double transY = refY;
+			transX += signed ? dxMinSign(vertices[i], referenceVertex, takeNewValues) : dxMinAbs(vertices[i], referenceVertex, takeNewValues);
+			transY += signed ? dyMinSign(vertices[i], referenceVertex, takeNewValues) : dyMinAbs(vertices[i], referenceVertex, takeNewValues);
+						
+			double newX = (Math.abs(refX - transX) < Math.abs(refX - actX) && Math.abs(Math.abs(refX - transX)-Math.abs(refX - actX)) >= 0.0001) ? transX : actX;
+			double newY = (Math.abs(refY - transY) < Math.abs(refY - actY) && Math.abs(Math.abs(refY - transY)-Math.abs(refY - actY)) >= 0.0001) ? transY : actY;
+			
+			transformedVertices[i] = new Vertex(newX, newY, false);		
+		}
+		return transformedVertices;
+	}
+	
+	private Vertex getMajorityQuadrantReferenceVertex(Vertex[] vertices, boolean takeNewValues){
+		MersenneTwisterFast random = new MersenneTwisterFast(System.currentTimeMillis());
+		if(quadrants.isEmpty()){
+			return vertices[random.nextInt(vertices.length)];
+		}
+		else{
+			int[] noOfVerticesInQuadrant = new int[quadrants.size()];
+			ArrayList[] verticesInQuadrantsLists = new ArrayList[quadrants.size()];
+			
+			for(int i = 0; i < verticesInQuadrantsLists.length; i++) verticesInQuadrantsLists[i] = new ArrayList();
+			
+			for(int i = 0; i < vertices.length; i++){
+				for(int n = 0; n < quadrants.size(); n++){
+					if(quadrants.get(n).isVertexInQuadrant(vertices[i], takeNewValues)){ 
+						noOfVerticesInQuadrant[n]++;
+						verticesInQuadrantsLists[n].add(vertices[i]);
+						break;
+					}
+				}
+			}
+			
+			int maxNoOfVerticesInOneQuadrant =0;
+			int maxIndex = -1;
+			for(int i = 0; i < noOfVerticesInQuadrant.length; i++){
+				if(noOfVerticesInQuadrant[i] > maxNoOfVerticesInOneQuadrant){
+					maxNoOfVerticesInOneQuadrant = noOfVerticesInQuadrant[i];
+					maxIndex = i;
+				}
+			}
+			Object obj = verticesInQuadrantsLists[maxIndex].get(random.nextInt(maxNoOfVerticesInOneQuadrant));
+			if(obj instanceof Vertex) return (Vertex) obj;
+		}
+		return null;
+	}
+	
+	
 }

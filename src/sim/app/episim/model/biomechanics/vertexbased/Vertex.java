@@ -40,9 +40,13 @@ public class Vertex implements java.io.Serializable{
 	private boolean isIntruderVertex = false;
 	
 	public Vertex(double x, double y){
+		this(x, y, true);
+	}
+	
+	public Vertex(double x, double y, boolean transformContinuousFieldLocation){
 		id = nextid++;
-		this.x = ContinuousVertexField.getInstance().getXLocationInField(x);
-		this.y = ContinuousVertexField.getInstance().getYLocationInField(y);
+		this.x = transformContinuousFieldLocation ? ContinuousVertexField.getInstance().getXLocationInField(x) : x;
+		this.y = transformContinuousFieldLocation ? ContinuousVertexField.getInstance().getYLocationInField(y) : y;
 		this.x_new = this.x;
 		this.y_new = this.y;
 		changeListener = new ArrayList<VertexChangeListener>();

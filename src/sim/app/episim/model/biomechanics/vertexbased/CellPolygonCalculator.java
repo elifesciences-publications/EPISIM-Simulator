@@ -52,7 +52,7 @@ public class CellPolygonCalculator {
 	public double getCellArea(CellPolygon cell){
 		double areaTrapeze = 0;
 		int n = cell.getUnsortedVertices().length;
-		Vertex[] vertices = cell.getSortedVertices();
+		Vertex[] vertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayFirstVertexReferenceUnsigned(cell.getSortedVertices());
 		for(int i = 0; i < n; i++){
 			areaTrapeze += ((vertices[(i%n)].getDoubleX() - vertices[((i+1)%n)].getDoubleX())*(vertices[(i%n)].getDoubleY() + vertices[((i+1)%n)].getDoubleY()));
 		}
@@ -97,13 +97,13 @@ public class CellPolygonCalculator {
 	}
 	
 	public Vertex getCellCenter(CellPolygon cell){
-		Vertex[] vertices = cell.getUnsortedVertices();
+		Vertex[] vertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getUnsortedVertices());
 		double cumulativeX = 0, cumulativeY = 0;
 		for(Vertex v : vertices){
 			cumulativeX += v.getDoubleX();
 			cumulativeY += v.getDoubleY();
 		}
-		return new Vertex(cumulativeX/vertices.length, cumulativeY/vertices.length);
+		return new Vertex(cumulativeX/vertices.length, cumulativeY/vertices.length, false);
 	}
 	
 	
@@ -112,21 +112,21 @@ public class CellPolygonCalculator {
 		Vertex center = getCellCenter(cell);
 		double maxDistance = 0;
 		double actDist = 0;
-		for(Vertex v: cell.getUnsortedVertices()){
+		for(Vertex v:cell.getUnsortedVertices()){
 			actDist= center.edist(v);
 			if(actDist > maxDistance) maxDistance = actDist;
 		}
 		
 		//calculate point with random angle on the circle with cell center as center and maxDistance as radius
-		double randAngleInRadians = Math.toRadians(rand.nextInt(180));
+		double randAngleInRadians = 0;
 		
 		//Look for new Cell Border for Cell division with minimal length 
 		HashMap<Integer, Vertex[]> angleVertexMap = new HashMap<Integer, Vertex[]>();
 		for(int n = 0; n < 180; n++){
 			randAngleInRadians = Math.toRadians(n);
-			Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(randAngleInRadians)), (center.getDoubleY()+maxDistance*Math.sin(randAngleInRadians)));
+			Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(randAngleInRadians)), (center.getDoubleY()+maxDistance*Math.sin(randAngleInRadians)), false);
 			int newVerticesCounter = 0;
-			Vertex[] cellVertices = cell.getSortedVertices();
+			Vertex[] cellVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getSortedVertices());
 			Vertex[] newVertices = new Vertex[2];
 			for(int i = 0; i < cellVertices.length; i++){
 				Vertex v_s =(new Line(cellVertices[i], cellVertices[(i+1)%cellVertices.length])).getIntersectionOfLinesInLineSegment(new Line(center, vOnCircle));
@@ -143,7 +143,8 @@ public class CellPolygonCalculator {
 		double minDistance = Double.POSITIVE_INFINITY;
 		int minAngle = 0;
 		for(int actAngle : angleVertexMap.keySet()){
-			if(isRandomAngleConventientForCellDivision(cell, center, Math.toRadians(actAngle), maxDistance)){
+			if(isAngleConventientForCellDivision(cell, center, Math.toRadians(actAngle), maxDistance)){
+				Vertex[] v = angleVertexMap.get(actAngle);
 				double actDistance = angleVertexMap.get(actAngle)[0].edist(angleVertexMap.get(actAngle)[1]);
 				if(actDistance < minDistance){
 					minDistance = actDistance;
@@ -160,22 +161,23 @@ public class CellPolygonCalculator {
 		}*/
 		randAngleInRadians = Math.toRadians(minAngle);
 		
-		Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(randAngleInRadians)), (center.getDoubleY()+maxDistance*Math.sin(randAngleInRadians)));
+		Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(randAngleInRadians)), (center.getDoubleY()+maxDistance*Math.sin(randAngleInRadians)), false);
 		
 		//Calculate Intersection between the line cellcenter-vOnCircle and all sides of cell
-		Vertex[] cellVertices = cell.getSortedVertices();
+		Vertex[] cellVerticesTransformed = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getSortedVertices());
+		Vertex[] cellVerticesNotTransformed = cell.getSortedVertices();
 		int newVerticesCounter = 0;
-		for(int i = 0; i < cellVertices.length; i++){
-			Vertex v_s =(new Line(cellVertices[i], cellVertices[(i+1)%cellVertices.length])).getIntersectionOfLinesInLineSegment(new Line(center, vOnCircle));
+		for(int i = 0; i < cellVerticesTransformed.length; i++){
+			Vertex v_s =(new Line(cellVerticesTransformed[i], cellVerticesTransformed[(i+1)%cellVerticesTransformed.length])).getIntersectionOfLinesInLineSegment(new Line(center, vOnCircle));
 			if(v_s != null){
 				newVerticesCounter++;
 				v_s.setIsNew(true);
 				if(newVerticesCounter > 2)System.out.println("Error: Found more than two new Vertices during Cell Division!");
 				HashSet<Integer> foundCellIdsFirstVertex = new HashSet<Integer>();
-				for(CellPolygon cellPol: cellVertices[i].getCellsJoiningThisVertex()){				
+				for(CellPolygon cellPol: cellVerticesNotTransformed[i].getCellsJoiningThisVertex()){				
 						foundCellIdsFirstVertex.add(((CellPolygon) cellPol).getId());					
 				}
-				for(CellPolygon cellPol: cellVertices[(i+1)%cellVertices.length].getCellsJoiningThisVertex()){
+				for(CellPolygon cellPol: cellVerticesNotTransformed[(i+1)%cellVerticesTransformed.length].getCellsJoiningThisVertex()){
 					if(foundCellIdsFirstVertex.contains(cellPol.getId())){ 
 						cellPol.addVertex(v_s);							
 					}				
@@ -183,7 +185,7 @@ public class CellPolygonCalculator {
 			}
 		}	
 		
-		cellVertices = cell.getSortedVertices();
+		Vertex[] cellVertices = cell.getSortedVertices();
 		int startIndex = getIndexOfFirstNewVertex(cellVertices);
 		boolean stop = false;
 		CellPolygon newCell = null;
@@ -367,12 +369,7 @@ public class CellPolygonCalculator {
 			return true;
 		}
 		return false;
-	}
-	
-	
-	
-	
-	
+	}	
 	
 	private  Line[] selectRelevantLinesConnectedToVertex(Vertex adhVertex){
 		ArrayList<Line> linesConnectedToVertex = new ArrayList<Line>();
@@ -394,20 +391,17 @@ public class CellPolygonCalculator {
 				}
 			}
 			else{ 
-				System.out.println("Found not two connected Vertices");
-			
+				System.out.println("Found not two connected Vertices");			
 			}
-			System.out.println("Komplizierter Fall");
 		}
 		else{
 			for(Vertex actV : connectedVertices){
 				linesConnectedToVertex.add(new Line(adhVertex, actV));
 			}
-			System.out.println("EinfacherFall");
 		}
-		
 		return linesConnectedToVertex.toArray(new Line[linesConnectedToVertex.size()]);
 	}
+	
 	
 	private Vertex calculateNewVertex(Vertex adhVertex, Line alreadyConnectedLine, Line adhLine){
 		
@@ -428,17 +422,12 @@ public class CellPolygonCalculator {
 			newVertex = getNewRotatedVertex(adhVertex, vertexToRotate, new_intersectionAngleInDegrees);
 		}
 		
-		double[] directionVector = new double[]{newVertex.getDoubleX()-adhVertex.getDoubleX(), newVertex.getDoubleY()-adhVertex.getDoubleY()};
-		double normFact = Math.sqrt(Math.pow(directionVector[0], 2)+Math.pow(directionVector[1], 2));
-		directionVector[0] /= normFact;
-		directionVector[1] /= normFact;
+		double[] directionVector = ContinuousVertexField.getInstance().getNormDirectionVector(newVertex, adhVertex);
 		double lengthFactor = MIN_VERTEX_EDGE_DISTANCE / (2*Math.tan(Math.toRadians(intersectionAngleInDegrees/2)));
 		newVertex= new Vertex(adhVertex.getDoubleX() + lengthFactor*directionVector[0], adhVertex.getDoubleY() + lengthFactor*directionVector[1]);
 		return newVertex;
 	}
-	
-	
-	
+		
 	public void rotateVertex(Vertex centerVertex, Vertex vertexToRotate, double angleInDegrees){
 		Vertex v = getNewRotatedVertex(centerVertex, vertexToRotate, angleInDegrees);
       vertexToRotate.setDoubleX(v.getDoubleX());
@@ -463,50 +452,54 @@ public class CellPolygonCalculator {
 		
 		double new_X = 0;
 		double new_Y = 0;
-		Vertex[] vertices = cell.getUnsortedVertices();
-		for(Vertex v : vertices){
-			new_X += v.getDoubleX();
-			new_Y += v.getDoubleY();
-			v.removeVertexChangeListener(cell);
-		}
+		Vertex[] verticesNotTransformed = cell.getUnsortedVertices();
+		Vertex[] verticesTransformed = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getUnsortedVertices());
 		
-		new_X /= vertices.length;
-		new_Y /= vertices.length;
+		for(int i = 0; i < verticesNotTransformed.length; i++){
+			new_X += verticesTransformed[i].getDoubleX();
+			new_Y += verticesTransformed[i].getDoubleY();
+			verticesNotTransformed[i].removeVertexChangeListener(cell);
+		}
+				
+		new_X /= verticesNotTransformed.length;
+		new_Y /= verticesNotTransformed.length;
 		Vertex newVertex = new Vertex(new_X, new_Y);		
-		for(Vertex v : vertices){
+		for(Vertex v : verticesNotTransformed){
 			v.replaceVertex(newVertex);
 		}
 	}
 	
 	
 	private void doT1Transition(Vertex v1, Vertex v2, HashSet<CellPolygon> cellsConnectedOnlyWithV1, HashSet<CellPolygon> cellsConnectedOnlyWithV2, CellPolygon[] cellsConnectedToBothVertices){
-		Vertex center = new Vertex((v1.getDoubleX()+ v2.getDoubleX())/2,(v1.getDoubleY()+ v2.getDoubleY())/2);		
+		
+		Vertex[] verticesV1V2 = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(new Vertex[]{v1, v2});
+		
+		
+		
+		Vertex center = new Vertex((verticesV1V2[0].getDoubleX()+ verticesV1V2[1].getDoubleX())/2,(verticesV1V2[0].getDoubleY()+ verticesV1V2[1].getDoubleY())/2);		
 		
 		//calculate direction Vector, then the Vector orthogonal to the direction Vector, then normalize this vector then, add SHORTEST_EDGE_LENGTH/2 * vector to cell center
 		
-		double[] directionVectorV1 = new double[]{(v1.getDoubleX() - center.getDoubleX()),(v1.getDoubleY() - center.getDoubleY())};
-		double[] directionVectorV2 = new double[]{(v2.getDoubleX() - center.getDoubleX()),(v2.getDoubleY() - center.getDoubleY())};
+		double[] directionVectorV1 = ContinuousVertexField.getInstance().getNormDirectionVector(v1, center);
+		double[] directionVectorV2 = ContinuousVertexField.getInstance().getNormDirectionVector(v2, center);
 		
-		
-		//normalize the vector
-		double lengthOfVector = Math.sqrt((Math.pow(directionVectorV1[0],2)+Math.pow(directionVectorV1[1],2)));
-		directionVectorV1[0] /=lengthOfVector;
-		directionVectorV1[1] /=lengthOfVector;
-		
-		
-		lengthOfVector = Math.sqrt((Math.pow(directionVectorV2[0],2)+Math.pow(directionVectorV2[1],2)));
-		directionVectorV2[0] /=lengthOfVector;
-		directionVectorV2[1] /=lengthOfVector;
 				
-		v1.setDoubleX((center.getDoubleX()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV1[0]));
-		v1.setDoubleY((center.getDoubleY()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV1[1]));
+		verticesV1V2[0].setDoubleX((center.getDoubleX()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV1[0]));
+		verticesV1V2[0].setDoubleY((center.getDoubleY()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV1[1]));
 		
-		v2.setDoubleX((center.getDoubleX()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV2[0]));
-		v2.setDoubleY((center.getDoubleY()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV2[1]));
+		verticesV1V2[1].setDoubleX((center.getDoubleX()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV2[0]));
+		verticesV1V2[1].setDoubleY((center.getDoubleY()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV2[1]));
 		
 		
-		rotateVertex(center, v1, -90);
-		rotateVertex(center, v2, -90);
+		rotateVertex(center, verticesV1V2[0], -90);
+		rotateVertex(center, verticesV1V2[1], -90);
+		
+		v1.setDoubleX(verticesV1V2[0].getDoubleX());
+		v1.setDoubleY(verticesV1V2[0].getDoubleY());
+		v2.setDoubleX(verticesV1V2[1].getDoubleX());
+		v2.setDoubleY(verticesV1V2[1].getDoubleY());
+		
+		
 		
 		//add vertex v1 and v2 respectively to those cells that were formerly connected with only one of the vertices
 		for(CellPolygon pol :cellsConnectedOnlyWithV1) pol.addVertex(v2);
@@ -541,12 +534,12 @@ public class CellPolygonCalculator {
 	 * This methods checks whether or not the new vertices introduced in cell division are too close to an already existing vertex
 	 * @return
 	 */
-	private boolean isRandomAngleConventientForCellDivision(CellPolygon cell, Vertex center, double angle, double maxDistance){
+	private boolean isAngleConventientForCellDivision(CellPolygon cell, Vertex center, double angle, double maxDistance){
 				
-		Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(angle)), (center.getDoubleY()+maxDistance*Math.sin(angle)));
+		Vertex vOnCircle = new Vertex((center.getDoubleX() +maxDistance*Math.cos(angle)), (center.getDoubleY()+maxDistance*Math.sin(angle)), false);
 		
 		//Calculate Intersection between the line cellcenter-vOnCircle and all sides of cell
-		Vertex[] cellVertices = cell.getSortedVertices();
+		Vertex[] cellVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getSortedVertices());
 		for(int i = 0; i < cellVertices.length; i++){
 			Vertex v_s =(new Line(cellVertices[i], cellVertices[(i+1)%cellVertices.length])).getIntersectionOfLinesInLineSegment(new Line(center, vOnCircle));
 			if(v_s != null){
@@ -572,7 +565,7 @@ public class CellPolygonCalculator {
 	}
 	
 	private Line[] isVertexTooCloseToAnotherCellBoundary(Vertex vertex, boolean takeNewValues){
-		Line[] linesToTest =getLineArrayToTestVertexDistance(vertex);
+		Line[] linesToTest=getLineArrayToTestVertexDistance(vertex);
 		HashSet<Line> foundLines = new HashSet<Line>();
 		for(Line actLine : linesToTest){
 			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= (MIN_VERTEX_EDGE_DISTANCE)
@@ -582,7 +575,7 @@ public class CellPolygonCalculator {
 	}
 	
 	private Line isCloseEnoughToOtherBoundaryForAdhesion(Vertex vertex, boolean takeNewValues){
-		Line[] linesToTest =getLineArrayToTestVertexDistance(vertex);
+		Line[] linesToTest=getLineArrayToTestVertexDistance(vertex);
 		for(Line actLine : linesToTest){
 			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= MIN_VERTEX_EDGE_DISTANCE && isOuterLine(actLine)) return actLine;
 		}
@@ -615,6 +608,7 @@ public class CellPolygonCalculator {
 		}
 		return outerLines.toArray(new Line[outerLines.size()]);
 	}
+	
 	public Line[] getAllIntersectingLines(){
 		HashSet<Line> intersectingLines = new HashSet<Line>();
 		for(Line actLine : getAllLinesOfVertexNetwork()){
@@ -652,9 +646,10 @@ public class CellPolygonCalculator {
 	
 	private void mergeVerticesOfLine(Line line){
 		int noConnectedCellsV1 = line.getV1().getNumberOfCellsJoiningThisVertex();
-		int noConnectedCellsV2 = line.getV2().getNumberOfCellsJoiningThisVertex();		
-		double newX = (line.getV1().getDoubleX() +line.getV2().getDoubleX())/2;
-		double newY = (line.getV1().getDoubleY() +line.getV2().getDoubleY())/2;
+		int noConnectedCellsV2 = line.getV2().getNumberOfCellsJoiningThisVertex();
+		Vertex[] verticesV1V2 = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(new Vertex[]{line.getV1(), line.getV2()});
+		double newX = (verticesV1V2[0].getDoubleX() + verticesV1V2[1].getDoubleX())/2;
+		double newY = (verticesV1V2[0].getDoubleY() + verticesV1V2[1].getDoubleY())/2;
 		Vertex remainingVertex, vertexToReplace; 
 		if(noConnectedCellsV1 < noConnectedCellsV2){
 			remainingVertex = line.getV2();
@@ -820,7 +815,7 @@ public class CellPolygonCalculator {
 	public void applyCellPolygonCheckPipeline(CellPolygon cell){
 		checkForT1Transitions(cell);
 		checkForT2Transition(cell);
-	//	checkForT3Transitions(cell);
+		checkForT3Transitions(cell);
 		checkForVerticesToMerge(cell);
 	}
 	
@@ -844,14 +839,14 @@ public class CellPolygonCalculator {
 			vertex.setIsAttachedToBasalLayer(true);
 		}
 		else if(vertex.isAttachedToBasalLayer()){
-			double distanceToOldValue = Math.sqrt(Math.pow((vertex.getDoubleX()-vertex.getNewX()), 2)+Math.pow((vertex.getDoubleY()-vertex.getNewY()), 2));
+			double distanceToOldValue = vertex.edist(new Vertex(vertex.getNewX(), vertex.getNewY()));
 			if(distanceToOldValue < (3*MIN_BASALLAYER_DISTANCE)){
 				//setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
 				if(tissueBorder.lowerBound(vertex.getDoubleX()) != vertex.getDoubleY())
 					vertex.setDoubleY(tissueBorder.lowerBound(vertex.getDoubleX()));
 				resetToOldValue(vertex);
 			}
-			else if( !(tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY())){
+			else if( (tissueBorder.lowerBound(vertex.getNewX()) > vertex.getNewY())){
 					vertex.setIsAttachedToBasalLayer(false);
 			}
 			
@@ -864,7 +859,8 @@ public class CellPolygonCalculator {
 		double minDistance = Double.POSITIVE_INFINITY;
 		
 		for(double newX = startX; newX <=stopX; newX++){
-			double distance = Math.sqrt(Math.pow((newX-(takeNewValues ?vertex.getNewX():vertex.getDoubleX())),2)
+			newX = ContinuousVertexField.getInstance().getXLocationInField(newX);		
+			double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX, (takeNewValues ?vertex.getNewX():vertex.getDoubleX())),2)
 					                     + Math.pow((tissueBorder.lowerBound(newX)-(takeNewValues ?vertex.getNewY():vertex.getDoubleY())), 2));
 			if(distance < minDistance) minDistance = distance;
 		}
@@ -875,8 +871,8 @@ public class CellPolygonCalculator {
 		double minY = Double.POSITIVE_INFINITY;
 		double minX = Double.POSITIVE_INFINITY;
 		double minDistance = Double.POSITIVE_INFINITY;
-		final double intervalX = Math.abs(vertex.getNewX()-vertex.getDoubleX());
-		final double intervalY = Math.abs(vertex.getNewY()-vertex.getDoubleY());
+		final double intervalX =  ContinuousVertexField.getInstance().dxMinAbs(vertex.getNewX(), vertex.getDoubleX());
+		final double intervalY = ContinuousVertexField.getInstance().dyMinAbs(vertex.getNewY(), vertex.getDoubleY());
 		double stepSize = intervalX /10d;
 	/*	if(vertex.getNewX() > vertex.getDoubleX() && stepSize>0.1){
 			for(double newX = vertex.getNewX(); newX >=vertex.getDoubleX(); newX -= stepSize){
@@ -899,20 +895,22 @@ public class CellPolygonCalculator {
 		else minX = vertex.getNewX();*/
 		if((intervalX+intervalY) >=1){
 			
-			if(vertex.getNewX() < vertex.getDoubleX()){
+			if(ContinuousVertexField.getInstance().dxMinSign(vertex.getNewX(),vertex.getDoubleX())<0){
 			
 			for(double newX = vertex.getDoubleX(); newX >=vertex.getNewX(); newX -= stepSize){
-					double distance = Math.sqrt(Math.pow((newX-vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getNewY()), 2));
-					distance += Math.sqrt(Math.pow((newX-vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getDoubleY()), 2));
+				   newX = ContinuousVertexField.getInstance().getXLocationInField(newX);		
+					double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX, vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getNewY()), 2));
+					distance += Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX,vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getDoubleY()), 2));
 					if(distance < minDistance){
 						minY = tissueBorder.lowerBound(newX);
 						minX = newX;
 					}
 				}
-			} else if(vertex.getNewX() > vertex.getDoubleX()){
+			} else if(ContinuousVertexField.getInstance().dxMinSign(vertex.getNewX(),vertex.getDoubleX())>0){
 				for(double newX = vertex.getDoubleX(); newX <=vertex.getNewX(); newX += stepSize){
-					double distance = Math.sqrt(Math.pow((newX-vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getNewY()), 2));
-					distance += Math.sqrt(Math.pow((newX-vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getDoubleY()), 2));
+					newX = ContinuousVertexField.getInstance().getXLocationInField(newX);
+					double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX,vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getNewY()), 2));
+					distance += Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX,vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getDoubleY()), 2));
 					if(distance < minDistance){
 						minY = tissueBorder.lowerBound(newX);
 						minX = newX;

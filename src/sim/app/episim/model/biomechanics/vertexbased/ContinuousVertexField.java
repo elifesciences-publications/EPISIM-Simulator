@@ -305,6 +305,9 @@ public class ContinuousVertexField{
 				minIndex = i;
 			}
 		}
+ 		if(minIndex == -1){
+ 			System.out.println();
+ 		}
 		return newLines[minIndex];
 	}
 	

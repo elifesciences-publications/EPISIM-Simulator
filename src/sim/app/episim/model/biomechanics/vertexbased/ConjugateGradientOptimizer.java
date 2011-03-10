@@ -224,8 +224,7 @@ public class ConjugateGradientOptimizer {
 				result_x -= 2*globalParameters.getLambda_low_factor()*connectedVertices[i].getDoubleX();
 				result_y -= 2*globalParameters.getLambda_low_factor()*connectedVertices[i].getDoubleY();
 			}
-		}
-		
+		}		
 		double[] resultVector = new double[]{result_x*-1, result_y*-1};
 		Vector v = new DenseVector(resultVector);
 		 v = v.scale(globalParameters.getLambda());
@@ -236,51 +235,49 @@ public class ConjugateGradientOptimizer {
 	public int mod(double value, double base){
 		return value%base < 0 ? (int)((value%base)+base) : (int)(value%base);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-public void relaxVertex(Vertex vertex){
 		
+	public void relaxVertex(Vertex vertex){		
 		Matrix totalResultMatrix = new DenseMatrix(2,2);
 		Vector totalResultVector = new DenseVector(2);
-		
-		
+				
 		double [][] calculationPolygon;
 		Vertex[] polygonVertices;
-		int vertexNumber = 0; 
-		
+		Vertex[] polygonVerticesTransformed;
+		int vertexNumber = 0;		
+		int transformedVertexId = -1;
 		
 		for(CellPolygon pol : vertex.getCellsJoiningThisVertex()){
 			polygonVertices = pol.getSortedVertices();
-			boolean orderedCorrect = checkIfClockWise(polygonVertices);
-			if(!orderedCorrect){
-			
-			polygonVertices = invertVertexOrdering(polygonVertices);
-			
-			}
-			calculationPolygon = new double[polygonVertices.length][2];
 			for(int i = 0; i < polygonVertices.length; i++){
-				if(polygonVertices[i].equals(vertex)) vertexNumber = i;
-				calculationPolygon[i] = new double[]{polygonVertices[i].getDoubleX(), polygonVertices[i].getDoubleY()};
+				if(polygonVertices[i].equals(vertex)){ 
+					vertexNumber = i;
+					break;
+				}
+			}
+			polygonVerticesTransformed = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(pol.getSortedVertices());
+			transformedVertexId = polygonVerticesTransformed[vertexNumber].getId();
+			boolean orderedCorrect = checkIfClockWise(polygonVerticesTransformed);
+			if(!orderedCorrect){			
+				polygonVerticesTransformed = invertVertexOrdering(polygonVerticesTransformed);			
+			}
+			calculationPolygon = new double[polygonVerticesTransformed.length][2];
+			for(int i = 0; i < polygonVerticesTransformed.length; i++){
+				if(polygonVerticesTransformed[i].getId() == transformedVertexId) vertexNumber = i;
+				calculationPolygon[i] = new double[]{polygonVerticesTransformed[i].getDoubleX(), polygonVerticesTransformed[i].getDoubleY()};
 			}			
+			
 			totalResultMatrix = totalResultMatrix.add(calculateAreaMatrixForPolygon(calculationPolygon, vertexNumber));
 			totalResultMatrix = totalResultMatrix.add(calculatePerimeterMatrixForPolygon(calculationPolygon, vertexNumber));
 			
 			totalResultVector = totalResultVector.add(calculateAreaResultVector(calculationPolygon, vertexNumber, pol.getPreferredArea()));
 			totalResultVector = totalResultVector.add(calculatePerimeterResultVector(calculationPolygon, vertexNumber, pol.getPreferredArea()));
-		//
 		}
 		
 		Vertex[] connectedVertices = vertex.getAllOtherVerticesConnectedToThisVertex();
-		
+		connectedVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(connectedVertices);
 		boolean[] higherLambdaArray = calculateHigherLambdaArray(connectedVertices, vertex);
 		
-		totalResultMatrix=totalResultMatrix.add(calculateLineTensionMatrixForPolygon(connectedVertices.length, higherLambdaArray)); 
+		totalResultMatrix = totalResultMatrix.add(calculateLineTensionMatrixForPolygon(connectedVertices.length, higherLambdaArray)); 
 		totalResultVector = totalResultVector.add(calculateLineTensionResultVector(connectedVertices, higherLambdaArray));
 		
 		
@@ -298,11 +295,9 @@ public void relaxVertex(Vertex vertex){
 	private boolean checkIfClockWise(Vertex[] vertices){
 		double areaTrapeze = 0;
 		int n = vertices.length;		
-		
 		for(int i = 0; i < n; i++){
 			areaTrapeze += ((vertices[((i+1)%n)].getDoubleX() - vertices[(i%n)].getDoubleX())*(vertices[((i+1)%n)].getDoubleY() + vertices[(i%n)].getDoubleY()));
 		}		
-		
 		return areaTrapeze < 0;
 	}
 	
@@ -316,8 +311,7 @@ public void relaxVertex(Vertex vertex){
 	
 	private Vector calculateOptimalResultWithConjugateGradient(Matrix matrix, Vector resultVector, Vertex vertex){
 		CompRowMatrix A = new CompRowMatrix(matrix);
-		Vector x, b;
-	
+		Vector x, b;	
 		b = resultVector;
 		x = new DenseVector(new double[]{vertex.getDoubleX(), vertex.getDoubleY()});
 		// Allocate storage for Conjugate Gradients

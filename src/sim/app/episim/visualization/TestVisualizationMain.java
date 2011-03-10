@@ -23,6 +23,7 @@ import javax.swing.UIManager;
 
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;
+import sim.app.episim.model.biomechanics.vertexbased.CellCanvas;
 import sim.app.episim.tissue.TissueController;
 
 
@@ -31,6 +32,8 @@ public class TestVisualizationMain {
 	private JFrame mainFrame;
 	
 	private TestCanvas canvas;
+	
+	
 	
 	private boolean tissueImportMode = false;
 	

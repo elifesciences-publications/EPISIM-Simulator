@@ -21,6 +21,7 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
+import sim.app.episim.model.biomechanics.vertexbased.CellCanvas;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
@@ -55,6 +56,8 @@ public class TestCanvas extends JPanel {
 	
 	private CellPolygonCalculator calculator;
 	
+	private CellCanvas cellCanvas;
+	
 	public TestCanvas(){
 		ellipseKeySet = new HashSet<String>();
 		this.setBackground(Color.white);
@@ -76,6 +79,7 @@ public class TestCanvas extends JPanel {
 		cellPolygons.addAll(Arrays.asList(CellPolygonNetworkBuilder.getStandardCellArray(1, 1, calculator)));
 		calculator.setCellPolygons(cellPolygons.toArray(new CellPolygon[cellPolygons.size()]));
 		rotateCellPolygon(cellPolygons.get(0), 90);
+		cellCanvas = new CellCanvas(50,50,200,200);
 		
 	}
 	
@@ -235,7 +239,7 @@ public class TestCanvas extends JPanel {
 		else{
 			
 			CellEllipseIntersectionCalculationRegistry.getInstance().simulationWasStopped();
-			
+			cellCanvas.drawCanvasBorder((Graphics2D) g);
 			for(CellEllipse ell : cellEllipses){
 				
 			//	drawCellEllipse((Graphics2D) g,ell, false);

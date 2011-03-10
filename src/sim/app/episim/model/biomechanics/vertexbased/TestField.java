@@ -4,15 +4,9 @@ package sim.app.episim.model.biomechanics.vertexbased;
 
 
 public class TestField {
-
 	
 	
 	
-	
-	/**
-	 * 
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		
 		ContinuousVertexField.initializeContinousVertexField(100, 100);
@@ -30,13 +24,6 @@ public class TestField {
 		System.out.println("----------------------");
 		Vertex v1 = new Vertex(10, 30);
 		Vertex v2 = new Vertex(90, 30);
-		
-		
-		
-		
-		
-		
-
 	}
 
 }

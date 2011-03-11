@@ -25,6 +25,7 @@ import sim.app.episim.model.biomechanics.vertexbased.CellCanvas;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
+import sim.app.episim.model.biomechanics.vertexbased.ContinuousVertexField;
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
@@ -58,6 +59,9 @@ public class TestCanvas extends JPanel {
 	
 	private CellCanvas cellCanvas;
 	
+	private final int CANVAS_ANCHOR_X = 100;
+	private final int CANVAS_ANCHOR_Y = 100;
+	
 	public TestCanvas(){
 		ellipseKeySet = new HashSet<String>();
 		this.setBackground(Color.white);
@@ -71,7 +75,8 @@ public class TestCanvas extends JPanel {
 		 cellEll.rotateCellEllipseInDegrees(90);
 			this.drawCellEllipse(null,cellEll, true);*/
 			
-			
+		cellCanvas = new CellCanvas(CANVAS_ANCHOR_X,CANVAS_ANCHOR_Y,400,400);
+		ContinuousVertexField.initializeContinousVertexField(400, 400);	
 			
 			
 		calculator = new CellPolygonCalculator(new CellPolygon[]{});
@@ -79,7 +84,7 @@ public class TestCanvas extends JPanel {
 		cellPolygons.addAll(Arrays.asList(CellPolygonNetworkBuilder.getStandardCellArray(1, 1, calculator)));
 		calculator.setCellPolygons(cellPolygons.toArray(new CellPolygon[cellPolygons.size()]));
 		rotateCellPolygon(cellPolygons.get(0), 90);
-		cellCanvas = new CellCanvas(50,50,200,200);
+		
 		
 	}
 	
@@ -162,7 +167,7 @@ public class TestCanvas extends JPanel {
 		CellPolygon pol = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, calculator)[0];
 		cellPolygons.add(pol);
 		calculator.setCellPolygons(cellPolygons.toArray(new CellPolygon[cellPolygons.size()]));
-		translateCellPolygon(pol, x, y);
+		translateCellPolygon(pol, x - CANVAS_ANCHOR_X, y - CANVAS_ANCHOR_Y);
 		repaint();
 	}
 	
@@ -178,7 +183,7 @@ public class TestCanvas extends JPanel {
 	}
 	
 	public CellPolygon pickCellPolygon(int x, int y){
-		CellPolygon cellPolygon = findCellPolygon(x, y);
+		CellPolygon cellPolygon = findCellPolygon(x-CANVAS_ANCHOR_X, y-CANVAS_ANCHOR_Y);
 		if(cellPolygon != null){
 			draggedCellPolygon = cellPolygon;
 		}
@@ -195,7 +200,7 @@ public class TestCanvas extends JPanel {
 	}
 	public void dragCellPolygon(int x, int y){
 		if(draggedCellPolygon != null){
-			translateCellPolygon(draggedCellPolygon, x, y);
+			translateCellPolygon(draggedCellPolygon, x-CANVAS_ANCHOR_X, y-CANVAS_ANCHOR_Y);
 			
 			repaint();
 		}
@@ -278,13 +283,7 @@ public class TestCanvas extends JPanel {
 			}
 			
 			for(CellPolygon pol : cellPolygons){ 
-				drawCellPolygon((Graphics2D)g, pol, false);
-				vertices = pol.getUnsortedVertices();
-				for(Vertex v : vertices){
-					if(v != null){
-						drawPoint((Graphics2D)g, v.getIntX(), v.getIntY(), 3, Color.BLUE);
-					}
-				}
+				cellCanvas.drawCellPolygon((Graphics2D)g, pol);
 			}
 		}
 	}
@@ -315,7 +314,7 @@ public class TestCanvas extends JPanel {
 		CellPolygon polygon;
 		Vertex[] vertices = null;
 		for(CellPolygon cellPol: cellPolygons){
-			vertices = cellPol.getSortedVertices();
+			vertices =  ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cellPol.getSortedVertices());
 			Polygon pol = new Polygon();
 			for(Vertex v : vertices){
 				pol.addPoint(v.getIntX(), v.getIntY());

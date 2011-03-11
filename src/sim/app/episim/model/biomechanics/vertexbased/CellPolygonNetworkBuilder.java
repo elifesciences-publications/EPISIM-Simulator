@@ -354,7 +354,7 @@ public abstract class CellPolygonNetworkBuilder {
 		startY = startY - CellPolygonCalculator.SIDELENGTH;
 		
 		//first row Vertices
-		for(int i = 0; i < columns; i++) vertices[0][i] = new Vertex(startX + i*2*height, startY);
+		for(int i = 0; i < columns; i++) vertices[0][i] = new Vertex(startX + i*2*height, startY, false);
 		
 		// in between two rows of vertices with the same startX are calculated
 		for(int i = 1;  i <= rows; i++){
@@ -362,16 +362,16 @@ public abstract class CellPolygonNetworkBuilder {
 			else startX += height;
 			
 			startY += CellPolygonCalculator.SIDELENGTHHALF;
-			for(int n = 0; n <= columns; n++) vertices[((2*i)-1)][n] = new Vertex(startX+ n*2*height, startY);
+			for(int n = 0; n <= columns; n++) vertices[((2*i)-1)][n] = new Vertex(startX+ n*2*height, startY, false);
 			startY += CellPolygonCalculator.SIDELENGTH;
-			for(int n = 0; n <= columns; n++) vertices[(2*i)][n] = new Vertex(startX+ n*2*height, startY);
+			for(int n = 0; n <= columns; n++) vertices[(2*i)][n] = new Vertex(startX+ n*2*height, startY, false);
 		}
 		
 		
 		//last row Vertices
 		startY += CellPolygonCalculator.SIDELENGTHHALF;
 		startX += height;
-		for(int i = 0; i < columns; i++) vertices[vertices.length-1][i] = new Vertex(startX + i*2*height, startY);
+		for(int i = 0; i < columns; i++) vertices[vertices.length-1][i] = new Vertex(startX + i*2*height, startY, false);
 		
 		return vertices;
 	}

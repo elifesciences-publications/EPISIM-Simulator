@@ -306,7 +306,8 @@ public class ContinuousVertexField{
 			}
 		}
  		if(minIndex == -1){
- 			System.out.println();
+ 			System.out.println("Found no line with min length");
+ 			return newLines[0];
  		}
 		return newLines[minIndex];
 	}

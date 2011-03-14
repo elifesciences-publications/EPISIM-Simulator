@@ -213,6 +213,7 @@ public class TestCanvas extends JPanel {
 	public void releaseCellPolygon(){
 		calculator.checkForT3Transitions(draggedCellPolygon);
 		draggedCellPolygon = null;
+		repaint();
 	}
 	
 	

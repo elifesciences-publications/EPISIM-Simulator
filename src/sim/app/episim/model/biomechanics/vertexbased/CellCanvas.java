@@ -40,36 +40,47 @@ public class CellCanvas {
 		}
 	}
 	
-	public void drawCellPolygon(Graphics2D g, CellPolygon cell){
-		if(cell != null){
-			
-			Polygon p = new Polygon();
-			
-			
-			Vertex[] sortedVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getSortedVertices());
-		
+	public void highlightLine(Graphics2D g, Line line, Color c){
+		Color oldColor = g.getColor();
+		Stroke oldStroke = g.getStroke();
+		g.setColor(c);
+		g.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		g.drawLine(x + line.getV1().getIntX(), y + line.getV1().getIntY(), x + line.getV2().getIntX(), y + line.getV2().getIntY());
+		g.setColor(oldColor);
+		g.setStroke(oldStroke);
+	}
+	
+	public void drawCellPolygon(Graphics2D g, CellPolygon cell, Color borderColor, Color fillColor){
+		if(cell != null){			
+			Polygon p = new Polygon();			
+			Vertex[] sortedVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getSortedVertices());		
 			for(Vertex v : sortedVertices){	
 				p.addPoint(v.getIntX() + x, v.getIntY()+y);				
-			}
-		
-			
+			}			
 			
 			Color oldColor = g.getColor();
-			g.setColor(cell.getFillColor());
+			if(fillColor == null) fillColor = ColorRegistry.CELL_FILL_COLOR;
+			if(borderColor == null) borderColor = ColorRegistry.CELL_BORDER_COLOR;
+			g.setColor(fillColor);
 			g.fillPolygon(p);
-			g.setColor(oldColor);
+			g.setColor(borderColor);
 			g.drawPolygon(p);
-			
-			
-			
-		for(Vertex v : sortedVertices){	
-			drawPoint(g, v.getIntX()+x, v.getIntY()+y, 3, Color.BLUE);			
-		}
-			
-			
+			g.setColor(oldColor);		
+		/*	for(Vertex v : sortedVertices){	
+				drawPoint(g, v.getIntX()+x, v.getIntY()+y, 3, Color.BLUE);			
+			}			*/
 		}
 	}
 	
+	public void drawVertex(Graphics2D g, Vertex vertex, Color color){
+		if(vertex != null){
+			drawPoint(g, vertex.getIntX()+x, vertex.getIntY()+y, 3, color == null ? Color.BLUE : color);						
+		}
+	}
 	
-
+	public void drawBigVertex(Graphics2D g, Vertex vertex){
+		if(vertex != null){
+			drawPoint(g, vertex.getIntX()+x, vertex.getIntY()+y, 10, Color.BLUE);						
+		}
+	}
 }

@@ -5,7 +5,7 @@ import java.awt.Color;
 
 public class ColorRegistry {
 
-	public static final Color CELL_FILL_COLOR = new Color(246, 123, 123);
+	public static final Color CELL_FILL_COLOR = Color.WHITE;//new Color(246, 123, 123);
 	public static final Color CELL_FILL_COLOR_PROLIFERATING = new Color(200, 97, 97);
 	
 	public static final Color CELL_FILL_COLOR_ATTACHED_BASALLAYER = new Color(0, 30, 140);

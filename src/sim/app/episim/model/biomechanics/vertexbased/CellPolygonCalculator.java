@@ -1,24 +1,17 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Color;
-import java.awt.Polygon;
-import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import ec.util.MersenneTwisterFast;
 
 import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
-import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
-import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
-import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
-import sim.app.episim.visualization.CellEllipse;
+
 
 public class CellPolygonCalculator {
 	
@@ -75,7 +68,8 @@ public class CellPolygonCalculator {
 		while(true){
 			int cellIndex =rand.nextInt(this.cellPolygons.length);
 	
-			if(!this.cellPolygons[cellIndex].isProliferating() && (this.cellPolygons[cellIndex].hasContactToBasalLayer() || this.cellPolygons[cellIndex].hasContactToCellThatIsAttachedToBasalLayer())){
+			if(!this.cellPolygons[cellIndex].isProliferating() && 
+					((this.cellPolygons[cellIndex].hasContactToBasalLayer() || this.cellPolygons[cellIndex].hasContactToCellThatIsAttachedToBasalLayer())|| !TestVisualizationBiomechanics.LOAD_STANDARD_MEMBRANE)){
 				this.cellPolygons[cellIndex].proliferate();
 				return;
 			}
@@ -151,10 +145,7 @@ public class CellPolygonCalculator {
 					minAngle = actAngle;
 				}
 			}
-		}
-		
-		
-		
+		}	
 		
 		/*while(!isRandomAngleConventientForCellDivision(cell, center, randAngleInRadians, maxDistance)){
 			randAngleInRadians = Math.toRadians(rand.nextInt(180));
@@ -257,6 +248,7 @@ public class CellPolygonCalculator {
 		if(cell != null){
 			Vertex[] vertices = cell.getSortedVertices();
 			for(Vertex v : vertices){
+				
 				CellPolygon[] joiningCells = v.getCellsJoiningThisVertex();
 				if(joiningCells.length <=2 && joiningCells.length >=1){
 					Line line = null;
@@ -265,6 +257,8 @@ public class CellPolygonCalculator {
 						if(isp != null){
 							v.setDoubleX(isp.getDoubleX());
 							v.setDoubleY(isp.getDoubleY());
+							v.setNewX(isp.getDoubleX());
+							v.setNewY(isp.getDoubleY());
 						}
 						doT3Transition(v, line);
 						
@@ -272,8 +266,7 @@ public class CellPolygonCalculator {
 				}
 			}
 		}
-	}
-	
+	}	
 	
 	private void doT3Transition(Vertex adhVertex, Line line){
 		if(isNotSelfAdhesion(adhVertex, line)){
@@ -291,8 +284,10 @@ public class CellPolygonCalculator {
 						Vertex newVertex2 = calculateNewVertex(adhVertex, linesConnectedToVertex[1], line);	
 				
 						CellPolygon adhCell = adhCells[0];
-						double distanceToAdhesionLineNewVertex1 = line.getDistanceOfVertex(newVertex1, false, true);
-						double distanceToAdhesionLineNewVertex2 = line.getDistanceOfVertex(newVertex2, false, true);
+						double distanceToAdhesionLineNewVertex1 = (!Double.isNaN(newVertex1.getDoubleX()) && !Double.isNaN(newVertex1.getDoubleY())) 
+						                                           ? line.getDistanceOfVertex(newVertex1, false, true) : Double.POSITIVE_INFINITY;
+						double distanceToAdhesionLineNewVertex2 = (!Double.isNaN(newVertex2.getDoubleX()) && !Double.isNaN(newVertex2.getDoubleY())) 
+                  														? line.getDistanceOfVertex(newVertex2, false, true) : Double.POSITIVE_INFINITY;
 						
 						
 						if(distanceToAdhesionLineNewVertex1 < Double.POSITIVE_INFINITY && distanceToAdhesionLineNewVertex2 < Double.POSITIVE_INFINITY){
@@ -854,17 +849,20 @@ public class CellPolygonCalculator {
 	}
 	
 	private double getDistanceToBasalLayer(TissueBorder tissueBorder, Vertex vertex, boolean takeNewValues){
-		double startX = takeNewValues ? (vertex.getNewX() - MIN_EDGE_LENGTH):(vertex.getDoubleX() - MIN_EDGE_LENGTH);
-		double stopX = takeNewValues ? (vertex.getNewX() + MIN_EDGE_LENGTH):(vertex.getDoubleX() + MIN_EDGE_LENGTH); 
-		double minDistance = Double.POSITIVE_INFINITY;
-		
-		for(double newX = startX; newX <=stopX; newX++){
-			newX = ContinuousVertexField.getInstance().getXLocationInField(newX);		
-			double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX, (takeNewValues ?vertex.getNewX():vertex.getDoubleX())),2)
-					                     + Math.pow((tissueBorder.lowerBound(newX)-(takeNewValues ?vertex.getNewY():vertex.getDoubleY())), 2));
-			if(distance < minDistance) minDistance = distance;
+		if(tissueBorder.isStandardMembraneLoaded() || tissueBorder.lowerBound(0) != Double.POSITIVE_INFINITY){
+			double startX = takeNewValues ? (vertex.getNewX() - MIN_EDGE_LENGTH):(vertex.getDoubleX() - MIN_EDGE_LENGTH);
+			double stopX = takeNewValues ? (vertex.getNewX() + MIN_EDGE_LENGTH):(vertex.getDoubleX() + MIN_EDGE_LENGTH); 
+			double minDistance = Double.POSITIVE_INFINITY;
+			
+			for(double newX = startX; newX <=stopX; newX++){
+				newX = ContinuousVertexField.getInstance().getXLocationInField(newX);		
+				double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX, (takeNewValues ?vertex.getNewX():vertex.getDoubleX())),2)
+						                     + Math.pow((tissueBorder.lowerBound(newX)-(takeNewValues ?vertex.getNewY():vertex.getDoubleY())), 2));
+				if(distance < minDistance) minDistance = distance;
+			}
+			return minDistance;
 		}
-		return minDistance;
+		else return Double.POSITIVE_INFINITY;
 	}
 	
 	private void setToNewEstimatedValueOnBasalLayer(TissueBorder tissueBorder, Vertex vertex){

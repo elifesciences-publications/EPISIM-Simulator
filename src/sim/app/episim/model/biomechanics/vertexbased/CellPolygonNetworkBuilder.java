@@ -14,8 +14,8 @@ import sim.app.episim.visualization.CellEllipse;
 
 public abstract class CellPolygonNetworkBuilder {
 	
-	public static final int STARTX= 275;
-	public static final int STARTY= 420;
+	public static final int STARTX= 100;
+	public static final int STARTY= 100;
 	
 	public static final double ALLOWED_DELTA = 1;
 	

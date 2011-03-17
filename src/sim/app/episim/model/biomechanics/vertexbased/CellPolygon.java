@@ -42,6 +42,8 @@ public class CellPolygon implements VertexChangeListener, EnhancedSteppable{
  private VertexForcesMinimizerSimAnneal simAnnealOptimizer;
  private CellPolygonCalculator calculator;
  
+ 
+ 
 protected CellPolygon(double x, double y){
 	id = nextId++;
 	vertices = new HashSet<Vertex>();

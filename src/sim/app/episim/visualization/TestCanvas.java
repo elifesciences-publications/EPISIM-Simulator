@@ -40,12 +40,14 @@ public class TestCanvas extends JPanel {
 	
 	private ArrayList<CellEllipse>  cellEllipses = new ArrayList<CellEllipse>();
 	private ArrayList<CellPolygon>  cellPolygons = new ArrayList<CellPolygon>();
+	private ArrayList<Vertex>  vertices = new ArrayList<Vertex>();
 	
 	private GeneralPath surface = null;
 	private GeneralPath basalLayer = null;
 	
 	private CellEllipse draggedCellEllipse = null;
 	private CellPolygon draggedCellPolygon = null;
+	private Vertex draggedVertex = null;
 	
 	private Set<String> ellipseKeySet;
 	
@@ -67,28 +69,23 @@ public class TestCanvas extends JPanel {
 		this.setBackground(Color.white);
 		
 		 
-	/*	CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290, 3*RADIUS, RADIUS, Color.BLUE);
-		cellEll.rotateCellEllipseInDegrees(0);
-		this.drawCellEllipse(null,cellEll, true);
+	/*CellEllipse cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290, 3*RADIUS, RADIUS, Color.BLUE);
+	  cellEll.rotateCellEllipseInDegrees(0);
+	  this.drawCellEllipse(null,cellEll, true);
 		
-			cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290,  3*RADIUS, RADIUS, Color.BLUE);
-		 cellEll.rotateCellEllipseInDegrees(90);
-			this.drawCellEllipse(null,cellEll, true);*/
+	  cellEll = new CellEllipse(getNextCellEllipseId(), 100, 290,  3*RADIUS, RADIUS, Color.BLUE);
+	  cellEll.rotateCellEllipseInDegrees(90);
+	  this.drawCellEllipse(null,cellEll, true);*/
 			
-		cellCanvas = new CellCanvas(CANVAS_ANCHOR_X,CANVAS_ANCHOR_Y,400,400);
-		ContinuousVertexField.initializeContinousVertexField(400, 400);	
+	  cellCanvas = new CellCanvas(CANVAS_ANCHOR_X,CANVAS_ANCHOR_Y,400,400);
+	  ContinuousVertexField.initializeContinousVertexField(400, 400);			
 			
-			
-		calculator = new CellPolygonCalculator(new CellPolygon[]{});
+	  calculator = new CellPolygonCalculator(new CellPolygon[]{});
 		
-		cellPolygons.addAll(Arrays.asList(CellPolygonNetworkBuilder.getStandardCellArray(1, 1, calculator)));
-		calculator.setCellPolygons(cellPolygons.toArray(new CellPolygon[cellPolygons.size()]));
-		rotateCellPolygon(cellPolygons.get(0), 90);
-		
-		
-	}
-	
-	
+	  cellPolygons.addAll(Arrays.asList(CellPolygonNetworkBuilder.getStandardCellArray(1, 1, calculator)));
+	  calculator.setCellPolygons(cellPolygons.toArray(new CellPolygon[cellPolygons.size()]));
+	  rotateCellPolygon(cellPolygons.get(0), 90);
+	}	
 	
 	/*
 	public void drawCellEllipse(int x, int y, Color c){
@@ -109,8 +106,7 @@ public class TestCanvas extends JPanel {
 		this.cellEllipses.addAll(importedCells);
 		basalLayer = TissueController.getInstance().getTissueBorder().getBasalLayerDrawPolygon();
 		surface = TissueController.getInstance().getTissueBorder().getSurfaceDrawPolygon();
-		this.repaint();
-		
+		this.repaint();		
 	}
 	
 	public void drawCellEllipse(int x, int y, int r1, int r2, Color c){
@@ -171,8 +167,10 @@ public class TestCanvas extends JPanel {
 		repaint();
 	}
 	
-	
-	
+	public void drawBigVertex(double x, double y){
+		vertices.add(new Vertex(x-CANVAS_ANCHOR_X, y-CANVAS_ANCHOR_Y));
+		repaint();
+	}	
 	
 	public CellEllipse pickCellEllipse(int x, int y){
 		CellEllipse cellEllipse = findCellEllipse(x, y);
@@ -188,6 +186,14 @@ public class TestCanvas extends JPanel {
 			draggedCellPolygon = cellPolygon;
 		}
 		return cellPolygon;
+	}
+	
+	public Vertex pickBigVertex(int x, int y){
+		Vertex vertex = findBigVertex(x-CANVAS_ANCHOR_X, y-CANVAS_ANCHOR_Y);
+		if(vertex != null){
+			draggedVertex = vertex;
+		}
+		return vertex;
 	}
 	
 	
@@ -206,6 +212,14 @@ public class TestCanvas extends JPanel {
 		}
 	}
 	
+	public void dragBigVertex(int x, int y){
+		if(draggedVertex != null){			
+			draggedVertex.setDoubleX(x-CANVAS_ANCHOR_X); 
+			draggedVertex.setDoubleY(y-CANVAS_ANCHOR_Y);			
+			repaint();
+		}
+	}
+	
 	public void releaseCellEllipse(){
 		draggedCellEllipse = null;
 	}
@@ -216,6 +230,10 @@ public class TestCanvas extends JPanel {
 		repaint();
 	}
 	
+	public void releaseBigVertex(){		
+		draggedVertex = null;
+		repaint();
+	}
 	
 	public void paint(Graphics g){
 		super.paint(g);
@@ -246,8 +264,8 @@ public class TestCanvas extends JPanel {
 			
 			CellEllipseIntersectionCalculationRegistry.getInstance().simulationWasStopped();
 			cellCanvas.drawCanvasBorder((Graphics2D) g);
-			for(CellEllipse ell : cellEllipses){
-				
+			
+			for(CellEllipse ell : cellEllipses){				
 			//	drawCellEllipse((Graphics2D) g,ell, false);
 				CellPolygonNetworkBuilder.calculateCellPolygons(ell, calculator);
 			}
@@ -284,7 +302,10 @@ public class TestCanvas extends JPanel {
 			}
 			
 			for(CellPolygon pol : cellPolygons){ 
-				cellCanvas.drawCellPolygon((Graphics2D)g, pol);
+				cellCanvas.drawCellPolygon((Graphics2D)g, pol, null, null);
+			}
+			for(Vertex v : this.vertices){
+				cellCanvas.drawBigVertex((Graphics2D)g, v);
 			}
 		}
 	}
@@ -329,6 +350,21 @@ public class TestCanvas extends JPanel {
 			}				
 		}
 		return cellPolygonWithMinimalDistance;
+	}
+	
+	private Vertex findBigVertex(double x, double y){
+		Vertex vertexWithMinimalDistance = null;
+		double minimalDistance = Double.POSITIVE_INFINITY;
+		Vertex position = new Vertex(x, y);
+		
+		for(Vertex v: vertices){			
+				if(v.edist(position)< minimalDistance){
+					minimalDistance =v.edist(position);
+					vertexWithMinimalDistance = v;
+				}
+		}		
+		
+		return vertexWithMinimalDistance;
 	}
 	
 	private double distance(int x1, int y1, int x2, int y2){	
@@ -449,15 +485,12 @@ public class TestCanvas extends JPanel {
 				
 			}
 		//	g.drawString(""+ Math.round(Calculators.getCellArea(cell))*0.2 + ", " + Math.round(Calculators.getCellPerimeter(cell))*0.2, cell.getX()-10, cell.getY());
-			
-			
+						
 			Color oldColor = g.getColor();
 			g.setColor(cell.getFillColor());
 			g.fillPolygon(p);
 			g.setColor(oldColor);
-			g.drawPolygon(p);
-			
-			
+			g.drawPolygon(p);			
 			
 		//	for(Vertex v : cell.getVertices()){	
 			//	drawVertex(g, v, false);				
@@ -466,12 +499,8 @@ public class TestCanvas extends JPanel {
 			//drawVertex(g,Calculators.getCellCenter(cell),false);
 		}
 	}
-
-
-
 	
-   public void setImportedTissueVisualizationMode(boolean importedTissueVisualizationMode) {
-   
+   public void setImportedTissueVisualizationMode(boolean importedTissueVisualizationMode) {   
    	this.importedTissueVisualizationMode = importedTissueVisualizationMode;
    }
 	

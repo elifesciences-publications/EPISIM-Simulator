@@ -125,8 +125,7 @@ public class ContinuousVertexField{
 		double yDifference = dyMinAbs(v1, v2, takeNewValues);
 		
 		return Math.sqrt(Math.pow(xDifference, 2)+ Math.pow(yDifference, 2));
-	}
-	
+	}	
 	
 	public double dxMinAbs(double x1, double x2){
 		if(x1 > x2){
@@ -143,8 +142,7 @@ public class ContinuousVertexField{
 		double x1 = takeNewValues ? v1.getNewX(): v1.getDoubleX();
 		double x2 = takeNewValues ? v2.getNewX(): v2.getDoubleX();				
 		return dxMinAbs(x1, x2);	
-	}
-	
+	}	
 	public double dyMinAbs(double y1, double y2){
 		if(y1 > y2){
 			double tmp = y1;
@@ -161,9 +159,7 @@ public class ContinuousVertexField{
 		double y2 = takeNewValues ? v2.getNewY(): v2.getDoubleY();
 		
 		return dyMinAbs(y1, y2);
-	}
-	
-	
+	}	
 	public double dxCrossBorderAbs(double x1, double x2){
 		if(x1 > x2){
 			double tmp = x1;
@@ -179,9 +175,7 @@ public class ContinuousVertexField{
 		double x1 = takeNewValues ? v1.getNewX(): v1.getDoubleX();
 		double x2 = takeNewValues ? v2.getNewX(): v2.getDoubleX();				
 		return dxCrossBorderAbs(x1, x2);
-	}
-	
-	
+	}	
 	/**
 	 * 
 	 * Calculates the directionVector (v1.x - v2.x, v1.y - v2.y)
@@ -343,6 +337,19 @@ public class ContinuousVertexField{
 	public Vertex[] getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(Vertex[] vertices, boolean takeNewValues){
 		return getMinDistanceTransformedVertexArray(getMajorityQuadrantReferenceVertex(vertices, takeNewValues), vertices, takeNewValues, true);
 	}
+	
+	
+	public Vertex[][] getMinDistanceTransformedRelatedVertexArraysGivenVertexReferenceSigned(Vertex[][] vertexArrays, Vertex referenceVertex){
+		Vertex[][] transformedVertexArrays = new Vertex[vertexArrays.length][];
+		for(int i = 0; i < vertexArrays.length; i++){
+			transformedVertexArrays[i] = getMinDistanceTransformedVertexArray(referenceVertex, vertexArrays[i], false, true);
+		}
+		return transformedVertexArrays;
+	}
+	
+	public Vertex[] getMinDistanceTransformedRelatedVertexArrayGivenVertexReferenceSigned(Vertex[] vertices, Vertex referenceVertex){
+		return getMinDistanceTransformedVertexArray(referenceVertex, vertices, false, true);
+	}	
 	
 	private Vertex[] getMinDistanceTransformedVertexArray(Vertex referenceVertex, Vertex[] vertices, boolean takeNewValues, boolean signed){
 		

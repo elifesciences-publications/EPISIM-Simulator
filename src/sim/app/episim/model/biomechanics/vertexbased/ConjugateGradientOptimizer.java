@@ -1,5 +1,7 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
+import java.util.ArrayList;
+
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;
 import no.uib.cipr.matrix.Matrix;
@@ -238,59 +240,86 @@ public class ConjugateGradientOptimizer {
 		
 	public void relaxVertex(Vertex vertex){		
 		Matrix totalResultMatrix = new DenseMatrix(2,2);
-		Vector totalResultVector = new DenseVector(2);
-				
+		Vector totalResultVector = new DenseVector(2);				
 		double [][] calculationPolygon;
-		Vertex[] polygonVertices;
-		Vertex[] polygonVerticesTransformed;
+		
 		int vertexNumber = 0;		
 		int transformedVertexId = -1;
+		ArrayList<Double> preferredAreaList = new ArrayList<Double>();
+		Vertex[][] relatedVertexArrays = getAllRelatedCellPolygonVertexArrays(vertex, preferredAreaList);
 		
-		for(CellPolygon pol : vertex.getCellsJoiningThisVertex()){
-			polygonVertices = pol.getSortedVertices();
-			for(int i = 0; i < polygonVertices.length; i++){
-				if(polygonVertices[i].equals(vertex)){ 
-					vertexNumber = i;
-					break;
-				}
-			}
-			polygonVerticesTransformed = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(pol.getSortedVertices());
-			transformedVertexId = polygonVerticesTransformed[vertexNumber].getId();
-			boolean orderedCorrect = checkIfClockWise(polygonVerticesTransformed);
+		int[] vertexIndexArray = getVertexIndexArray(relatedVertexArrays, vertex.getId());
+		Vertex[][] transformedRelatedVertexArrays = ContinuousVertexField.getInstance().getMinDistanceTransformedRelatedVertexArraysGivenVertexReferenceSigned(relatedVertexArrays, vertex);
+				
+		for(int vertexArrayNumber = 0; vertexArrayNumber < transformedRelatedVertexArrays.length; vertexArrayNumber++){
+			
+			transformedVertexId = transformedRelatedVertexArrays[vertexArrayNumber][vertexIndexArray[vertexArrayNumber]].getId();
+			boolean orderedCorrect = checkIfClockWise(transformedRelatedVertexArrays[vertexArrayNumber]);
+			
 			if(!orderedCorrect){			
-				polygonVerticesTransformed = invertVertexOrdering(polygonVerticesTransformed);			
+				transformedRelatedVertexArrays[vertexArrayNumber] = invertVertexOrdering(transformedRelatedVertexArrays[vertexArrayNumber]);			
 			}
-			calculationPolygon = new double[polygonVerticesTransformed.length][2];
-			for(int i = 0; i < polygonVerticesTransformed.length; i++){
-				if(polygonVerticesTransformed[i].getId() == transformedVertexId) vertexNumber = i;
-				calculationPolygon[i] = new double[]{polygonVerticesTransformed[i].getDoubleX(), polygonVerticesTransformed[i].getDoubleY()};
+			
+			calculationPolygon = new double[transformedRelatedVertexArrays[vertexArrayNumber].length][2];
+			
+			for(int i = 0; i < transformedRelatedVertexArrays[vertexArrayNumber].length; i++){
+				if(transformedRelatedVertexArrays[vertexArrayNumber][i].getId() == transformedVertexId) vertexNumber = i;
+				calculationPolygon[i] = new double[]{transformedRelatedVertexArrays[vertexArrayNumber][i].getDoubleX(), transformedRelatedVertexArrays[vertexArrayNumber][i].getDoubleY()};
 			}			
 			
 			totalResultMatrix = totalResultMatrix.add(calculateAreaMatrixForPolygon(calculationPolygon, vertexNumber));
 			totalResultMatrix = totalResultMatrix.add(calculatePerimeterMatrixForPolygon(calculationPolygon, vertexNumber));
 			
-			totalResultVector = totalResultVector.add(calculateAreaResultVector(calculationPolygon, vertexNumber, pol.getPreferredArea()));
-			totalResultVector = totalResultVector.add(calculatePerimeterResultVector(calculationPolygon, vertexNumber, pol.getPreferredArea()));
+			totalResultVector = totalResultVector.add(calculateAreaResultVector(calculationPolygon, vertexNumber, preferredAreaList.get(vertexArrayNumber)));
+			totalResultVector = totalResultVector.add(calculatePerimeterResultVector(calculationPolygon, vertexNumber, preferredAreaList.get(vertexArrayNumber)));
 		}
 		
 		Vertex[] connectedVertices = vertex.getAllOtherVerticesConnectedToThisVertex();
-		connectedVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(connectedVertices);
-		boolean[] higherLambdaArray = calculateHigherLambdaArray(connectedVertices, vertex);
+			
+		Vertex[] transformedConnectedVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedRelatedVertexArrayGivenVertexReferenceSigned(connectedVertices, vertex);
+				
+		boolean[] higherLambdaArray = calculateHigherLambdaArray(transformedConnectedVertices, vertex);
 		
-		totalResultMatrix = totalResultMatrix.add(calculateLineTensionMatrixForPolygon(connectedVertices.length, higherLambdaArray)); 
-		totalResultVector = totalResultVector.add(calculateLineTensionResultVector(connectedVertices, higherLambdaArray));
+		totalResultMatrix = totalResultMatrix.add(calculateLineTensionMatrixForPolygon(transformedConnectedVertices.length, higherLambdaArray)); 
+		totalResultVector = totalResultVector.add(calculateLineTensionResultVector(transformedConnectedVertices, higherLambdaArray));
 		
 		
 		Vector v = calculateOptimalResultWithConjugateGradient(totalResultMatrix, totalResultVector, vertex);
+				
 		if(v != null){
-			vertex.setNewX(Math.round(v.get(0)));
-			vertex.setNewY(Math.round(v.get(1)));
+			vertex.setNewX(v.get(0));
+			vertex.setNewY(v.get(1));
 		}
 		else{
 			vertex.setNewX(vertex.getDoubleX());
 			vertex.setNewY(vertex.getDoubleY());
 		}	
 	}
+	
+	private Vertex[][] getAllRelatedCellPolygonVertexArrays(Vertex vertex, ArrayList<Double> preferredAreaList){
+		CellPolygon[] cells = vertex.getCellsJoiningThisVertex();
+		Vertex[][] relatedVertexArrays = new Vertex[cells.length][];
+		for(int i = 0; i < cells.length; i++){
+			relatedVertexArrays[i] = cells[i].getSortedVertices();
+			preferredAreaList.add(cells[i].getPreferredArea());
+		}
+		return relatedVertexArrays;
+	}
+	
+	private int[] getVertexIndexArray(Vertex[][] relatedVertexArrays, int vertexId){
+		int[] indexArray = new int[relatedVertexArrays.length];
+		for(int i = 0; i < relatedVertexArrays.length; i++){
+			for(int n = 0; n < relatedVertexArrays[i].length; n++){
+				if(relatedVertexArrays[i][n] != null && relatedVertexArrays[i][n].getId() == vertexId){
+					indexArray[i]= n;
+					break;
+				}
+			}
+		}
+		return indexArray;
+	}
+	
+	
 	
 	private boolean checkIfClockWise(Vertex[] vertices){
 		double areaTrapeze = 0;

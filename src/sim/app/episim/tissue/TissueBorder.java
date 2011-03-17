@@ -49,8 +49,17 @@ public class TissueBorder {
 	private final double STANDARDHEIGHT = 100;
 	
 	private TissueBorder(){
+		
 		fullcontour = new ArrayList<Point2D>();
+		
 		polygon = new GeneralPath();
+		surface = new GeneralPath();
+		basalLayer = new GeneralPath();
+		
+		drawPolygon = new GeneralPath();
+		drawSurface = new GeneralPath();
+		drawBasalLayer = new GeneralPath();
+		
 		organizedXPoints = new HashMap<Double, TreeSet<Double>>();
 	}
 	
@@ -122,15 +131,17 @@ public class TissueBorder {
 	
 	public double lowerBound(double x)
 	 {
-	
-		if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters(); 
-		// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
-	     double p=basalPeriod; 
-	     
-	     double partition=x-(int)(x/p)*p - p/2; // alle 10 einen buckel 5=10/2        
-	     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_µm());
-	     //System.out.println("x:"+x+" p:"+partition+" v:"+v+" Av:"+basalAmplitude*v);
-	     return basalY+globalParameters.getBasalAmplitude_µm()*v;        
+		if(standardMembraneLoaded){
+			if(globalParameters == null) globalParameters = ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters(); 
+			// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
+		     double p=basalPeriod; 
+		     
+		     double partition=x-(int)(x/p)*p - p/2; // alle 10 einen buckel 5=10/2        
+		     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_µm());
+		     //System.out.println("x:"+x+" p:"+partition+" v:"+v+" Av:"+basalAmplitude*v);
+		     return basalY+globalParameters.getBasalAmplitude_µm()*v;
+		}
+		else return Double.POSITIVE_INFINITY;
 	 }
 	
 	

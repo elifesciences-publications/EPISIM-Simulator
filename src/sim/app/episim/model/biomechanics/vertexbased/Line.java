@@ -52,7 +52,6 @@ public class Line {
 	}
 	
 	public Vertex getIntersectionPointOfLineThroughVertex(Vertex v, boolean takeNewValues, boolean withinLineSegment){
-		
 		Line thisLine = ContinuousVertexField.getInstance().getNewLineWithMinLength(this);
 		
 		double[] directionVectorOfLine = new double[]{thisLine.getDoubleX2()- thisLine.getDoubleX1(), thisLine.getDoubleY2() - thisLine.getDoubleY1()};
@@ -98,6 +97,7 @@ public class Line {
 	 * @return intersection point, returns null if there is no intersection or if the intersection point is not on the line segment of described by the coordinates of this line
 	 */
 	public Vertex getIntersectionOfLinesInLineSegment(Line otherLine){
+		
 		Line thisLine = ContinuousVertexField.getInstance().getNewLineWithMinLength(this);
 		otherLine = ContinuousVertexField.getInstance().getNewLineWithMinLength(otherLine);
 		

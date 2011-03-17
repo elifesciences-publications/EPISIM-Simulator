@@ -38,17 +38,13 @@ import javax.swing.event.ChangeListener;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.model.biomechanics.vertexbased.TestVisualizationPanel.TestVisualizationPanelPaintListener;
-import sim.app.episim.model.biomechanics.vertexbased.simanneal.VertexForcesMinimizerSimAnneal;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ModelParameterModifier;
-import sim.app.episim.nogui.NoGUIDisplay2D;
-import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EpisimMovieMaker;
-import sim.engine.Schedule;
+
 
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
@@ -58,6 +54,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	public static final int ASSUMED_PROLIFERATION_CYCLE = 120;
 	
+	private final int CANVAS_ANCHOR_X = 100;
+	private final int CANVAS_ANCHOR_Y = 100;
 	
 	public enum VisualizationUnit{
 		PROLIFERATINGCELLS("Proliferation Cells"),
@@ -102,29 +100,23 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    private int lastSimStepNumberVideoFrameWasWritten = 0;
    private EpisimMovieMaker episimMovieMaker = null;
    private boolean headlessMode = false;
-   private CellPolygonCalculator cellPolygonCalculator;
-   
-   
-   private HashMap<VisualizationUnit, Boolean> visualizationConfigurationMap;
+   private CellPolygonCalculator cellPolygonCalculator;   
+   private HashMap<VisualizationUnit, Boolean> visualizationConfigurationMap;   
+   public static final boolean LOAD_STANDARD_MEMBRANE = false;   
+   private CellCanvas cellCanvas;
    
    public TestVisualizationBiomechanics(boolean autoStart){
    	this(autoStart, null, null, Integer.MAX_VALUE, false);
    }
-   
-   
+      
    public TestVisualizationBiomechanics(boolean autoStart, int numberOfCellDivisions){
    	this(autoStart, null, null, numberOfCellDivisions, false);
-   }
+   }   
    
-   
-	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, String csvPath, int numberOfCellDivisions, boolean headlessMode){
+	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, String csvPath, int numberOfCellDivisions, boolean headlessMode){		
 		
-		
-		visualizationConfigurationMap = new HashMap<VisualizationUnit, Boolean>();
-		
-		for(VisualizationUnit unit  : VisualizationUnit.values()) visualizationConfigurationMap.put(unit, false);
-		
-		
+		visualizationConfigurationMap = new HashMap<VisualizationUnit, Boolean>();		
+		for(VisualizationUnit unit  : VisualizationUnit.values()) visualizationConfigurationMap.put(unit, false);		
 		
 		this.maxNumberOfCellDivisions = numberOfCellDivisions;
 		this.autostart = autoStart;
@@ -132,14 +124,16 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 		if(moviePath != null) EpisimProperties.setProperty(EpisimProperties.MOVIE_PATH_PROP, moviePath);
 		if(csvPath != null) createCsvWriter(csvPath);	
-	
 		
 		//cells = CellPolygonNetworkBuilder.getSquareVertex(100, 100, 50, 6);
 		cellPolygonCalculator = new CellPolygonCalculator(new CellPolygon[]{});
 		cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
 		//cells = CellPolygonNetworkBuilder.getStandardThreeCellArray(cellPolygonCalculator);
 		cellPolygonCalculator.setCellPolygons(cells);
-		configureStandardMembrane();
+		if(LOAD_STANDARD_MEMBRANE)configureStandardMembrane();
+		
+		ContinuousVertexField.initializeContinousVertexField(200, 200);
+		cellCanvas = new CellCanvas(CANVAS_ANCHOR_X, CANVAS_ANCHOR_Y, 200, 200);
 		
 		for(CellPolygon pol: cells){ 
 			pol.addProliferationAndApoptosisListener(this);
@@ -190,7 +184,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 		if(autostart){
 			startStopButton.setText("stop");
-    	  setSimulationState(SimState.SIMSTART);
+    	   setSimulationState(SimState.SIMSTART);
 		}
 		
 		buttonPanel.add(startStopButton);
@@ -278,7 +272,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				//  cells[2].proliferate();
 				while(simulationState == SimState.SIMSTART){
 					
-				//	try{
+					try{
 						int randomStartIndexCells =  rand.nextInt(cells.length);
 						CellPolygon polygon = null;
 						
@@ -291,17 +285,15 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 							polygon.step(null);							
 						}
 						GlobalBiomechanicalStatistics.getInstance().step(null); 
-						resetCalculationStatusOfAllCells();	
-						
-						
+						resetCalculationStatusOfAllCells();					
 						
 						if(!headlessMode) visualizationPanel.repaint();
 						else paintToMovie();
-		      /*      Thread.sleep(1);
+		            Thread.sleep(1);
 	            }
 	            catch (InterruptedException e){
 		            ExceptionDisplayer.getInstance().displayException(e);
-	            }*/	
+	            }
 					
 				}
 				
@@ -315,12 +307,10 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			simulationState = SimState.SIMSTOP;
 			if(episimMovieMaker != null){
 				if (!episimMovieMaker.stop())
-		       {
-		           
-		           ExceptionDisplayer.getInstance().displayException(new Exception("Your movie did not write to disk\ndue to a spurious JMF movie generation bug."));
-		             
-		       }
-		       episimMovieMaker = null;
+		      {		           
+		           ExceptionDisplayer.getInstance().displayException(new Exception("Your movie did not write to disk\ndue to a spurious JMF movie generation bug."));		             
+		      }
+		      episimMovieMaker = null;
 			}
 			if(headlessMode){ 
 				System.exit(0);
@@ -354,6 +344,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	
 	private void drawVisualization(Graphics2D g){
+		cellCanvas.drawCanvasBorder(g);
 		g.setColor(Color.BLACK);
 		Color oldColor = g.getColor();
 		Stroke oldStroke = g.getStroke();
@@ -363,45 +354,34 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		g.setColor(oldColor);
 		g.setStroke(oldStroke);
 		if(cells!= null){
-			for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol, true);
+			for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol);
 			if(visualizationConfigurationMap.get(VisualizationUnit.CORRUPTLINES)){
-				for(Line corrLine : cellPolygonCalculator.getAllCorruptLinesOfVertexNetwork()) highlightLine(g, corrLine, Color.MAGENTA);
+				for(Line corrLine : cellPolygonCalculator.getAllCorruptLinesOfVertexNetwork()) cellCanvas.highlightLine(g, corrLine, Color.MAGENTA);
 			}
 			if(visualizationConfigurationMap.get(VisualizationUnit.OUTERLINES)){
-				for(Line outerLine : cellPolygonCalculator.getAllOuterLinesOfVertexNetwork()) highlightLine(g, outerLine, ColorRegistry.CELL_BORDER_COLOR);
+				for(Line outerLine : cellPolygonCalculator.getAllOuterLinesOfVertexNetwork()) cellCanvas.highlightLine(g, outerLine, ColorRegistry.CELL_BORDER_COLOR);
 			}				
 			if(visualizationConfigurationMap.get(VisualizationUnit.TWOCELLLINES)){
-				for(Line line : cellPolygonCalculator.getAllLinesBelongingToOnlyTwoCellsOfVertexNetwork()) highlightLine(g, line, Color.YELLOW);
+				for(Line line : cellPolygonCalculator.getAllLinesBelongingToOnlyTwoCellsOfVertexNetwork()){ 
+					cellCanvas.highlightLine(g, line, Color.YELLOW);
+				}
 			}
-			if(visualizationConfigurationMap.get(VisualizationUnit.INTERSECTINGCELLLINES)){
-			
-				for(Line line : cellPolygonCalculator.getAllIntersectingLines()){ 
-					
-					highlightLine(g, line, Color.GREEN);
+			if(visualizationConfigurationMap.get(VisualizationUnit.INTERSECTINGCELLLINES)){			
+				for(Line line : cellPolygonCalculator.getAllIntersectingLines()){					
+					cellCanvas.highlightLine(g, line, Color.GREEN);
 				}
 			}			
 			for(CellPolygon cellPol : cells){
 				for(Vertex v : cellPol.getUnsortedVertices()){	
-					drawVertex(g, v, false);				
+					drawVertex(g, v, null);				
 				}
 			}			
-		}	
-		
-	}
-	
-	private void highlightLine(Graphics2D g, Line line, Color c){
-		Color oldColor = g.getColor();
-		Stroke oldStroke = g.getStroke();
-		g.setColor(c);
-		g.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		g.drawLine(line.getV1().getIntX(), line.getV1().getIntY(), line.getV2().getIntX(), line.getV2().getIntY());
-		g.setColor(oldColor);
-		g.setStroke(oldStroke);
-	}
+		}		
+	}	
 	
 	
 	private void drawErrorManhattanVersusEuclideanDistance(Graphics2D g){
-		double radius = 100;
+	/*	double radius = 100;
 		double x = 200, y = 200;
 		drawPoint(g, x, y, 3, Color.red);		
 		
@@ -421,81 +401,53 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		double radius_new = 0;
 		for(double alpha=0; alpha < 2*Math.PI; alpha += 0.001){
 			x_new_circle = x + radius*Math.cos(alpha);
-			y_new_circle = y + radius*Math.sin(alpha);		
-			
+			y_new_circle = y + radius*Math.sin(alpha);			
 			radius_new = Math.abs(x_new_circle-x) + Math.abs(y_new_circle - y);			
-			drawPoint(g, (x + radius_new*Math.cos(alpha)), (y + radius_new*Math.sin(alpha)), 1, Color.red);
-			
-		}
+			drawPoint(g, (x + radius_new*Math.cos(alpha)), (y + radius_new*Math.sin(alpha)), 1, Color.red);			
+		}*/
 	}
 	
-	private void drawCellPolygon(Graphics2D g, CellPolygon cell, boolean showCellAreaAndPerimeter){
+	private void drawCellPolygon(Graphics2D g, CellPolygon cell){
 		if(cell != null){
-			//drawPoint(g, cell.getX(), cell.getY(), 2, Color.BLUE);
-			Polygon p = cell.getPolygon();
+			
 			if(visualizationConfigurationMap.get(VisualizationUnit.PROLIFERATINGCELLS)){
 				if(cell.isProliferating()){
-					Color oldColor = g.getColor();
-					g.setColor(ColorRegistry.CELL_FILL_COLOR_PROLIFERATING);
-					g.fillPolygon(p);
-					g.setColor(oldColor);
+					cellCanvas.drawCellPolygon(g, cell, null, ColorRegistry.CELL_FILL_COLOR_PROLIFERATING);
+					return;
 				}
 			}
 			if(visualizationConfigurationMap.get(VisualizationUnit.CONTACTBASALLAYER)){
 				if(cell.hasContactToBasalLayer()){
-					Color oldColor = g.getColor();
-					g.setColor(ColorRegistry.CELL_FILL_COLOR_ATTACHED_BASALLAYER);
-					g.fillPolygon(p);
-					g.setColor(oldColor);
+					cellCanvas.drawCellPolygon(g, cell, null, ColorRegistry.CELL_FILL_COLOR_ATTACHED_BASALLAYER);
+					return;
 				}
 			}
 			if(visualizationConfigurationMap.get(VisualizationUnit.NEIGHBOURCONTACTBASALLAYER)){
 				if(cell.hasContactToCellThatIsAttachedToBasalLayer()){
-					Color oldColor = g.getColor();
-					g.setColor(ColorRegistry.CELL_FILL_COLOR_NEIGHBOUR_ATTACHED_BASALLAYER);
-					g.fillPolygon(p);
-					g.setColor(oldColor);
+					cellCanvas.drawCellPolygon(g, cell, null, ColorRegistry.CELL_FILL_COLOR_NEIGHBOUR_ATTACHED_BASALLAYER);
+					return;
 				}
-			}
-			
+			}			
 			
 			if(cell.isDying()){
-				Color oldColor = g.getColor();
-				g.setColor(Color.RED);
-				g.fillPolygon(p);
-				g.setColor(oldColor);
+				cellCanvas.drawCellPolygon(g, cell, null, Color.RED);
+				return;
 			}
-			Color oldColor = g.getColor();
-			g.setColor(ColorRegistry.CELL_FILL_COLOR);
-		//	g.fillPolygon(p);
-			g.setColor(oldColor);
-		
-			g.setColor(ColorRegistry.CELL_BORDER_COLOR);
-			g.drawPolygon(p);
-			g.setColor(oldColor);
 			
-			
-			
-				
-			//drawVertex(g,Calculators.getCellCenter(cell),false);
+			cellCanvas.drawCellPolygon(g, cell, null, null);
 		}
-	}
+	}	
 	
-	private void drawVertex(Graphics2D g, Vertex vertex, boolean showVertexId){
-		drawVertex(g, vertex, showVertexId, null);
-	}
-	
-	private void drawVertex(Graphics2D g, Vertex vertex, boolean showVertexId, Color color){
-		if(vertex != null){
-			if(showVertexId)g.drawString(""+ vertex.getId(), vertex.getIntX(), vertex.getIntY()-4);
+	private void drawVertex(Graphics2D g, Vertex vertex, Color color){
+		if(vertex != null){			
 			if(visualizationConfigurationMap.get(VisualizationUnit.VERTICES)) 
-				drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, color==null? vertex.getVertexColor():color);
+				cellCanvas.drawVertex(g, vertex, color==null? vertex.getVertexColor():color);
 			if(vertex.isNew()) 
-				drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.YELLOW);
+				cellCanvas.drawVertex(g, vertex, Color.YELLOW);
 			if(visualizationConfigurationMap.get(VisualizationUnit.ATTACHED_VERTICES) && vertex.isAttachedToBasalLayer()) 
-				drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, ColorRegistry.VERTEX_ATTACHED_TO_BASALLAYER);
+				cellCanvas.drawVertex(g, vertex, ColorRegistry.VERTEX_ATTACHED_TO_BASALLAYER);
 			if(vertex.isIntruderVertex()) 
-				drawPoint(g, vertex.getIntX(), vertex.getIntY(), 3, Color.MAGENTA);			
+				cellCanvas.drawVertex(g, vertex, Color.MAGENTA);			
 		}
 	}
 	
@@ -505,22 +457,9 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			frame.setLocation(((int)((screenDim.getWidth() /2) - (frame.getPreferredSize().getWidth()/2))), 
 			((int)((screenDim.getHeight() /2) - (frame.getPreferredSize().getHeight()/2))));
 		}
-	}
+	}	
 	
-	private void drawPoint(Graphics2D g, double x, double y, double size, Color c){
-		if(x> 0 || y > 0){
-			if(size % 2 != 0) size -= 1;
-			Color oldColor = g.getColor();
-			g.setColor(c);
-			g.fillRect((int)(x-(size/2)), (int)(y-(size/2)), (int)(size+1), (int)(size+1));
-			g.setColor(oldColor);
-		}
-	}
-
-	
-	
-	public void proliferationCompleted(CellPolygon oldCell, CellPolygon newCell) {
-
+	public void proliferationCompleted(CellPolygon oldCell, CellPolygon newCell){
 		if(newCell != null){
 			CellPolygon[] newCellArray = new CellPolygon[cells.length+1];
 			System.arraycopy(cells, 0, newCellArray, 0, cells.length);
@@ -528,9 +467,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			cells= newCellArray;
 			cellPolygonCalculator.setCellPolygons(cells);
 			
-			newCell.addProliferationAndApoptosisListener(this);
-			
-			
+			newCell.addProliferationAndApoptosisListener(this);			
 			
 			if(csvWriter != null){				
 	    	  	try{
@@ -540,19 +477,12 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
             catch(IOException e){
             	ExceptionDisplayer.getInstance().displayException(e);
             }
-			}
-			
+			}			
 			
 			this.numberOfCellDivisions++;
-			
-		//	if(this.numberOfCellDivisions<=6) 
+				 
 			cellPolygonCalculator.randomlySelectCellForProliferation();
 		
-		/*	else{ 
-				cellPolygonCalculator.randomlySelectCellForApoptosis();
-		}*/
-			
-			
 			if(numberOfCellDivisions >= this.maxNumberOfCellDivisions 
 					|| GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER) > ((((double)ASSUMED_PROLIFERATION_CYCLE)+10)*((double)maxNumberOfCellDivisions))){
 				startStopButton.setText("start");
@@ -605,12 +535,10 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 					else if(args[i].equals("-id")) EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1]);
 					else if(args[i].equals("-mnp")) maxNumberOfProliferation = Integer.parseInt(args[i+1]);
 					else if(args[i].equals("-p")) modifier.setGlobalModelPropertiesToValuesInPropertiesFile(VertexBasedMechanicalModelGlobalParameters.getInstance(), new File(args[i+1]));
-					else if(args[i].equals("-csv")) csvPath = args[i+1];
-				
+					else if(args[i].equals("-csv")) csvPath = args[i+1];				
 				}
 				if(args[i] != null && args[i].equals("-headless")) headless=true; 
-			}
-						
+			}						
 		}		
 		new TestVisualizationBiomechanics(false, moviePath, csvPath, maxNumberOfProliferation, headless);
 	}
@@ -622,18 +550,14 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    }
 	public void paintToMovieBufferWasCalled(Graphics2D graphics) {
 		drawVisualization(graphics);		
-   }
-	
+   }	
 	
 	public void paintToMovie()
    {       
        if (episimMovieMaker != null && GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER) > lastSimStepNumberVideoFrameWasWritten)
        {
-      	  episimMovieMaker.add(visualizationPanel.paint(true,false));
-           lastSimStepNumberVideoFrameWasWritten = (int)GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER);
+      	 episimMovieMaker.add(visualizationPanel.paint(true,false));
+          lastSimStepNumberVideoFrameWasWritten = (int)GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER);
        }     
-   }
-
-
-	
+   }	
 }

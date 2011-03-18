@@ -391,6 +391,32 @@ public abstract class CellPolygonNetworkBuilder {
 		};
 	}
 	
+	public static CellPolygon[] getStandardFiveCellArray(CellPolygonCalculator calculator){
+		
+		int startX_1 = 275;
+		int startY_1 = 380;
+		
+		int startX_2_1 = 195;
+		int startX_2_2 = 355;
+		int startY_2 = 240;
+		
+		int startX_3_1 = 50;
+		int startX_3_2 = 440;
+		int startY_3_1 = 130;
+		int startY_3_2 = 155;
+		
+		return new CellPolygon[]{
+				getStandardCellArray(startX_1, startY_1, 1, 1, calculator)[0],				
+				
+				getStandardCellArray(startX_2_1, startY_2, 1, 1, calculator)[0],
+				getStandardCellArray(startX_2_2, startY_2, 1, 1, calculator)[0],
+				
+				getStandardCellArray(startX_3_1, startY_3_1, 1, 1, calculator)[0],
+				getStandardCellArray(startX_3_2, startY_3_2, 1, 1, calculator)[0]
+		};
+	}
+	
+	
 	private static CellPolygon[] getStandardCellArray(int startX, int startY, int rows, int columns, CellPolygonCalculator calculator){
 		int height = Math.round((float) Math.sqrt(Math.pow(CellPolygonCalculator.SIDELENGTH, 2)-Math.pow(CellPolygonCalculator.SIDELENGTH/2, 2)));
 		

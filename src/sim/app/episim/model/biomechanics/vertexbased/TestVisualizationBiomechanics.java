@@ -15,6 +15,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -54,8 +56,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	public static final int ASSUMED_PROLIFERATION_CYCLE = 120;
 	
-	private final int CANVAS_ANCHOR_X = 100;
-	private final int CANVAS_ANCHOR_Y = 100;
+	private final int CANVAS_ANCHOR_X = 40;
+	private final int CANVAS_ANCHOR_Y = 40;
 	
 	public enum VisualizationUnit{
 		PROLIFERATINGCELLS("Proliferation Cells"),
@@ -102,7 +104,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    private boolean headlessMode = false;
    private CellPolygonCalculator cellPolygonCalculator;   
    private HashMap<VisualizationUnit, Boolean> visualizationConfigurationMap;   
-   public static final boolean LOAD_STANDARD_MEMBRANE = false;   
+   public static final boolean LOAD_STANDARD_MEMBRANE = true;   
    private CellCanvas cellCanvas;
    
    public TestVisualizationBiomechanics(boolean autoStart){
@@ -127,13 +129,14 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 		//cells = CellPolygonNetworkBuilder.getSquareVertex(100, 100, 50, 6);
 		cellPolygonCalculator = new CellPolygonCalculator(new CellPolygon[]{});
-		cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
+		//cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
 		//cells = CellPolygonNetworkBuilder.getStandardThreeCellArray(cellPolygonCalculator);
+		cells = CellPolygonNetworkBuilder.getStandardFiveCellArray(cellPolygonCalculator);
 		cellPolygonCalculator.setCellPolygons(cells);
 		if(LOAD_STANDARD_MEMBRANE)configureStandardMembrane();
 		
-		ContinuousVertexField.initializeContinousVertexField(200, 200);
-		cellCanvas = new CellCanvas(CANVAS_ANCHOR_X, CANVAS_ANCHOR_Y, 200, 200);
+		ContinuousVertexField.initializeContinousVertexField(500, 420);
+		cellCanvas = new CellCanvas(CANVAS_ANCHOR_X, CANVAS_ANCHOR_Y, 500, 420);
 		
 		for(CellPolygon pol: cells){ 
 			pol.addProliferationAndApoptosisListener(this);
@@ -207,8 +210,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			frame.pack();
 			frame.setResizable(false);
 			frame.setVisible(true);	
-		}
-		
+		}		
 	}
 	
 	
@@ -238,12 +240,10 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().setWidth(500);
 		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().setBasalOpening_µm(12000);
 		TissueController.getInstance().getTissueBorder().setBasalPeriod(550);
-		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(40);
-		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(200);
+		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(0);
+		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(160);
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
-	}
-	
-	
+	}	
 	
 	private void setSimulationState(SimState state){
 		if(state == SimState.SIMSTART){				
@@ -266,10 +266,12 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				
 				public void run() { 
 		
-				//cells[cells.length/2].proliferate();
-				  cells[0].proliferate();
-				//  cells[1].proliferate();
-				//  cells[2].proliferate();
+				//  cells[cells.length/2].proliferate();
+				    cells[0].proliferate();
+		          cells[1].proliferate();
+				    cells[2].proliferate();
+				    cells[3].proliferate();
+				    cells[4].proliferate();
 				while(simulationState == SimState.SIMSTART){
 					
 					try{
@@ -350,7 +352,11 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		Stroke oldStroke = g.getStroke();
 		g.setColor(ColorRegistry.BASAL_LAYER_COLOR);
 		g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		g.draw(TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon());
+		AffineTransform transform = new AffineTransform();
+		transform.translate(CANVAS_ANCHOR_X, CANVAS_ANCHOR_Y);
+		GeneralPath borderPath = TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon();
+		borderPath.transform(transform);
+		g.draw(borderPath);
 		g.setColor(oldColor);
 		g.setStroke(oldStroke);
 		if(cells!= null){

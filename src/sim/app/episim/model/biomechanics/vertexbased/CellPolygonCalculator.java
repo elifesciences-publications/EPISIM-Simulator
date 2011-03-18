@@ -45,7 +45,7 @@ public class CellPolygonCalculator {
 	public double getCellArea(CellPolygon cell){
 		double areaTrapeze = 0;
 		int n = cell.getUnsortedVertices().length;
-		Vertex[] vertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayFirstVertexReferenceUnsigned(cell.getSortedVertices());
+		Vertex[] vertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayFirstVertexReferenceSigned(cell.getSortedVertices());
 		for(int i = 0; i < n; i++){
 			areaTrapeze += ((vertices[(i%n)].getDoubleX() - vertices[((i+1)%n)].getDoubleX())*(vertices[(i%n)].getDoubleY() + vertices[((i+1)%n)].getDoubleY()));
 		}
@@ -851,10 +851,10 @@ public class CellPolygonCalculator {
 	private double getDistanceToBasalLayer(TissueBorder tissueBorder, Vertex vertex, boolean takeNewValues){
 		if(tissueBorder.isStandardMembraneLoaded() || tissueBorder.lowerBound(0) != Double.POSITIVE_INFINITY){
 			double startX = takeNewValues ? (vertex.getNewX() - MIN_EDGE_LENGTH):(vertex.getDoubleX() - MIN_EDGE_LENGTH);
-			double stopX = takeNewValues ? (vertex.getNewX() + MIN_EDGE_LENGTH):(vertex.getDoubleX() + MIN_EDGE_LENGTH); 
+			 
 			double minDistance = Double.POSITIVE_INFINITY;
-			
-			for(double newX = startX; newX <=stopX; newX++){
+			int maxNoSteps = (int) (2*MIN_EDGE_LENGTH);
+			for(double newX = startX, stepNo = 0; stepNo < maxNoSteps; newX++, stepNo++){
 				newX = ContinuousVertexField.getInstance().getXLocationInField(newX);		
 				double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX, (takeNewValues ?vertex.getNewX():vertex.getDoubleX())),2)
 						                     + Math.pow((tissueBorder.lowerBound(newX)-(takeNewValues ?vertex.getNewY():vertex.getDoubleY())), 2));

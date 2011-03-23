@@ -18,6 +18,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	
 	public CenterBasedMechanicalModelInitializer(){
 		super();
+		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 	}
 	
 	public CenterBasedMechanicalModelInitializer(File modelInitializationFile){

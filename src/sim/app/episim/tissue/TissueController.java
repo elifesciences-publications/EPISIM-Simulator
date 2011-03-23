@@ -2,6 +2,7 @@ package sim.app.episim.tissue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import episimexceptions.NoEpidermalTissueAvailableException;
 
@@ -18,7 +19,9 @@ public class TissueController {
 	
 	private ImportedTissue actImportedTissue;
 	
+	public interface TissueRegistrationListener{ public void newTissueWasRegistered();}
 	
+	private HashSet<TissueRegistrationListener> tissueRegistrationListener = new HashSet<TissueRegistrationListener>();
 	
 	private TissueController(){
 		importer = new TissueImporter();
@@ -28,8 +31,13 @@ public class TissueController {
 		return TissueServer.getInstance().getActEpidermalTissue();
 	}
 	
+	public TissueType getActTissue(){
+		return TissueServer.getInstance().getActTissue();
+	}
+	
 	public void registerTissue(TissueType tissue){
 		TissueServer.getInstance().registerTissue(tissue);
+		notifyAllTissueRegistrationListener();
 	}
 	
 	public static synchronized TissueController getInstance(){
@@ -38,14 +46,12 @@ public class TissueController {
 	}
 	
 	public int getTissueWidth(){
-		if(actImportedTissue != null) return (int) actImportedTissue.getEpidermalWidth();
-		
+		if(actImportedTissue != null) return (int) actImportedTissue.getEpidermalWidth();		
 		return 0;
 	}
 	
 	public int getTissueHeight(){
-		if(actImportedTissue != null) return (int) actImportedTissue.getEpidermalHeight();
-		
+		if(actImportedTissue != null) return (int) actImportedTissue.getEpidermalHeight();		
 		return 0;
 	}
 	
@@ -71,5 +77,20 @@ public class TissueController {
 		}
 		
 	}
+	
+	public void addTissueRegistrationListener(TissueRegistrationListener listener){
+		this.tissueRegistrationListener.add(listener);
+	}
+	
+	public void removeTissueRegistrationListener(TissueRegistrationListener listener){
+		this.tissueRegistrationListener.remove(listener);
+	}
+	
+	private void notifyAllTissueRegistrationListener(){
+		for(TissueRegistrationListener listener : this.tissueRegistrationListener){
+			listener.newTissueWasRegistered();
+		}
+	}
+	
 
 }

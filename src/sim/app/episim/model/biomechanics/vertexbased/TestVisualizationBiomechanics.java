@@ -102,7 +102,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    private int lastSimStepNumberVideoFrameWasWritten = 0;
    private EpisimMovieMaker episimMovieMaker = null;
    private boolean headlessMode = false;
-   private CellPolygonCalculator cellPolygonCalculator;   
+    
    private HashMap<VisualizationUnit, Boolean> visualizationConfigurationMap;   
    public static final boolean LOAD_STANDARD_MEMBRANE = true;   
    private CellCanvas cellCanvas;
@@ -128,13 +128,13 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		if(csvPath != null) createCsvWriter(csvPath);	
 		
 		//cells = CellPolygonNetworkBuilder.getSquareVertex(100, 100, 50, 6);
-		cellPolygonCalculator = new CellPolygonCalculator(new CellPolygon[]{});
+		
 		//cells = CellPolygonNetworkBuilder.getStandardCellArray(1, 1, cellPolygonCalculator);
 		//cells = CellPolygonNetworkBuilder.getStandardThreeCellArray(cellPolygonCalculator);
-		cells = CellPolygonNetworkBuilder.getStandardFiveCellArray(cellPolygonCalculator);
-		cellPolygonCalculator.setCellPolygons(cells);
-		if(LOAD_STANDARD_MEMBRANE)configureStandardMembrane();
 		
+		if(LOAD_STANDARD_MEMBRANE)configureStandardMembrane();
+		cells = CellPolygonNetworkBuilder.getStandardMembraneCellArray();
+		CellPolygonCalculationController.getInstance().setCellPolygonArrayInCalculator(cells);
 		ContinuousVertexField.initializeContinousVertexField(500, 420);
 		cellCanvas = new CellCanvas(CANVAS_ANCHOR_X, CANVAS_ANCHOR_Y, 500, 420);
 		
@@ -267,11 +267,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 				public void run() { 
 		
 				//  cells[cells.length/2].proliferate();
-				    cells[0].proliferate();
-		          cells[1].proliferate();
-				    cells[2].proliferate();
-				    cells[3].proliferate();
-				    cells[4].proliferate();
+					 for(CellPolygon cell : cells){cell.proliferate();}
+				  
 				while(simulationState == SimState.SIMSTART){
 					
 					try{
@@ -359,6 +356,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		g.draw(borderPath);
 		g.setColor(oldColor);
 		g.setStroke(oldStroke);
+		CellPolygonCalculator cellPolygonCalculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
 		if(cells!= null){
 			for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol);
 			if(visualizationConfigurationMap.get(VisualizationUnit.CORRUPTLINES)){
@@ -471,7 +469,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			System.arraycopy(cells, 0, newCellArray, 0, cells.length);
 			newCellArray[cells.length] = newCell;
 			cells= newCellArray;
-			cellPolygonCalculator.setCellPolygons(cells);
+			CellPolygonCalculationController.getInstance().setCellPolygonArrayInCalculator(cells);
 			
 			newCell.addProliferationAndApoptosisListener(this);			
 			
@@ -487,7 +485,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			
 			this.numberOfCellDivisions++;
 				 
-			cellPolygonCalculator.randomlySelectCellForProliferation();
+			CellPolygonCalculationController.getInstance().getCellPolygonCalculator().randomlySelectCellForProliferation();
 		
 			if(numberOfCellDivisions >= this.maxNumberOfCellDivisions 
 					|| GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER) > ((((double)ASSUMED_PROLIFERATION_CYCLE)+10)*((double)maxNumberOfCellDivisions))){
@@ -507,7 +505,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	   	cells = new CellPolygon[cellList.size()];
 	   	cellList.toArray(cells);
 	   	pol.removeProliferationAndApoptosisListener(this);
-	   	cellPolygonCalculator.setCellPolygons(cells);
+	   	CellPolygonCalculationController.getInstance().setCellPolygonArrayInCalculator(cells);
 	   }
 	   
    }	

@@ -22,6 +22,7 @@ import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
 import episimbiomechanics.EpisimModelConnector.Hidden;
+import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;
 
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -60,9 +61,6 @@ public class UniversalCell extends AbstractCell
    
    private boolean birthWish=false;   
    private int hasGivenIons=0;  
-   
-   
-   
    
 //-----------------------------------------------------------------------------------------------------------------------------------------   
   

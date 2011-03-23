@@ -40,7 +40,6 @@ public class CellPolygon implements VertexChangeListener, EnhancedSteppable{
  private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
  private ConjugateGradientOptimizer conGradientOptimizer;
  private VertexForcesMinimizerSimAnneal simAnnealOptimizer;
- private CellPolygonCalculator calculator;
  
  
  
@@ -54,19 +53,9 @@ protected CellPolygon(double x, double y){
    simAnnealOptimizer = new VertexForcesMinimizerSimAnneal();
 }
 
-public CellPolygon(CellPolygonCalculator calculator){
-	this(0, 0);
-	if(calculator == null) throw new IllegalArgumentException("Cell Polygon Calculator must not be null");
-	this.calculator = calculator;
-	
+public CellPolygon(){
+	this(0, 0);	
 }
-
-
-
-public void setCellPolygonCalculator(CellPolygonCalculator calculator){
-	if(calculator != null) this.calculator = calculator;
-}
-
 
 public void addProliferationAndApoptosisListener(CellPolygonProliferationSuccessListener listener){
 	cellProliferationAndApoptosisListener.add(listener);
@@ -126,6 +115,19 @@ private void growToBecomeMature(double areaToGrow){
 	
 }
 
+public void moveTo(double new_X, double new_Y){
+	Vertex[] vertices = this.getUnsortedVertices();
+	Vertex cellCenter = CellPolygonCalculationController.getInstance().getCellPolygonCalculator().getCellCenter(this);
+	double deltaX =new_X - cellCenter.getDoubleX();
+	double deltaY =new_Y - cellCenter.getDoubleY();
+	for(Vertex v : vertices){
+		v.setDoubleX(v.getDoubleX()+deltaX);
+		v.setDoubleY(v.getDoubleY()+deltaY);
+		v.setNewX(v.getDoubleX()+deltaX);
+		v.setNewY(v.getDoubleY()+deltaY);
+	}
+}
+
 private void relaxVertices(){
 	if(this.preferredArea >0){
 		Vertex[] cellVertices =	this.getUnsortedVertices();
@@ -138,7 +140,7 @@ private void relaxVertices(){
 			Vertex v = cellVertices[((i+randomStartIndexVertices)% cellVertices.length)];
 			if(!v.isWasAlreadyCalculated()){					
 				conGradientOptimizer.relaxVertex(v);			
-				calculator.applyVertexPositionCheckPipeline(v);			
+				CellPolygonCalculationController.getInstance().getCellPolygonCalculator().applyVertexPositionCheckPipeline(v);			
 				v.commitNewValues();
 				v.setWasAlreadyCalculated(true);
 			}				
@@ -156,7 +158,7 @@ private CellPolygon cellDivision(){
 	sortedVertices = null;
 	this.preferredArea /= 2;
 	
-	CellPolygon daughterCell =calculator.divideCellPolygon(this);
+	CellPolygon daughterCell = CellPolygonCalculationController.getInstance().getCellPolygonCalculator().divideCellPolygon(this);
 	if(daughterCell != null){
 		daughterCell.preferredArea = this.preferredArea;
 		daughterCell.originalPreferredArea = this.originalPreferredArea;
@@ -258,7 +260,7 @@ public CellPolygon[] getNeighbourPolygons(){
 
 
 public double getCurrentArea(){
-	return calculator.getCellArea(this);
+	return CellPolygonCalculationController.getInstance().getCellPolygonCalculator().getCellArea(this);
 }
 
 
@@ -301,11 +303,30 @@ public boolean equals(Object obj) {
 	return true;
 }
 
+/**
+ * do not use this method
+ * @return
+ */
 protected double getX() { return x; }
+/**
+ * do not use this method
+ * @return
+ */
 protected void setX(double x) { this.x = x; }
+/**
+ * do not use this method
+ * @return
+ */
 protected double getY() { return y; }
+/**
+ * do not use this method
+ * @return
+ */
 protected void setY(double y){ this.y = y; }
 
+public Vertex getCellCenter(){
+	return CellPolygonCalculationController.getInstance().getCellPolygonCalculator().getCellCenter(this);
+}
 
 public boolean isProliferating() {
 	return isProliferating;
@@ -376,12 +397,10 @@ public boolean hasContactToCellThatIsAttachedToBasalLayer(){
 }
 
 public void step(SimState state) {
-
 	checkProliferation();
 	checkApoptosis();
 	relaxVertices();
-	calculator.applyCellPolygonCheckPipeline(this);
-	
+	CellPolygonCalculationController.getInstance().getCellPolygonCalculator().applyCellPolygonCheckPipeline(this);	
 }
 
 public double getInterval() {	

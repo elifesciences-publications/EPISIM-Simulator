@@ -2,14 +2,21 @@ package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Polygon;
 import java.awt.geom.Area;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import sim.app.episim.AbstractCell;
+import sim.app.episim.UniversalCell;
+import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
 import sim.app.episim.visualization.CellEllipse;
+import sim.util.Double2D;
 
 
 public abstract class CellPolygonNetworkBuilder {
@@ -24,7 +31,9 @@ public abstract class CellPolygonNetworkBuilder {
 	private static final double MAX_CLEAN_VERTEX_DISTANCE = 4;
 	private static final double MAX_CLEAN_ESTIMATED_VERTEX_FACTOR = 0.5;
 	
-	public static CellPolygon[] getSquareVertex(int xStart, int yStart, int sidelength, int size, CellPolygonCalculator calculator){
+	public static CellPolygon[] getSquareVertex(int xStart, int yStart, int sidelength, int size)
+	{
+		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
 		Vertex[][] vertexNetwork = new Vertex[size][size];
 		for(int i = 0; i < size; i++){
 			Vertex[] vertices = new Vertex[size];
@@ -39,7 +48,7 @@ public abstract class CellPolygonNetworkBuilder {
 		int polygonNumber = 0;
 		for(int i = 0; i < (size-1); i++){
 			for(int n = 0; n < (size-1); n++){
-				CellPolygon p = new CellPolygon(calculator);
+				CellPolygon p = new CellPolygon();
 				p.addVertex(vertexNetwork[i][n]);
 				p.addVertex(vertexNetwork[i][n+1]);
 				p.addVertex(vertexNetwork[i+1][n]);
@@ -53,10 +62,11 @@ public abstract class CellPolygonNetworkBuilder {
 	}
 	
 	
-	public static void calculateCellPolygons(CellEllipse cellEll, CellPolygonCalculator calculator){
+	public static void calculateCellPolygons(CellEllipse cellEll){
+		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
 		CellPolygon cellPol_1 = null, cellPol_2 = null, cellPol_3 = null;
 		if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cellEll.getId()) == null){
-			cellPol_1 = new CellPolygon(calculator);
+			cellPol_1 = new CellPolygon();
 			CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(cellEll.getId(), cellPol_1);
 		}
 		else cellPol_1 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cellEll.getId());
@@ -79,13 +89,13 @@ public abstract class CellPolygonNetworkBuilder {
 						long idOtherEll2 = Long.parseLong(ellId2.split(""+CellEllipse.SEPARATORCHAR)[1]);
 						
 						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1) == null){
-							cellPol_2 = new CellPolygon(calculator);
+							cellPol_2 = new CellPolygon();
 							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll1, cellPol_2);
 						}
 						else cellPol_2 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1);
 						
 						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll2) == null){
-							cellPol_3 = new CellPolygon(calculator);
+							cellPol_3 = new CellPolygon();
 							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll2, cellPol_3);
 						}
 						else cellPol_3 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll2);					
@@ -132,7 +142,7 @@ public abstract class CellPolygonNetworkBuilder {
 						
 						long idOtherEll1 = Long.parseLong(id.split(""+CellEllipse.SEPARATORCHAR)[1]);
 						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1) == null){
-							cellPol_2 = new CellPolygon(calculator);
+							cellPol_2 = new CellPolygon();
 							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll1, cellPol_2);
 						}
 						else cellPol_2 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1);
@@ -146,13 +156,14 @@ public abstract class CellPolygonNetworkBuilder {
 		
 	}
 	
-	public static void calculateEstimatedVertices(CellEllipse ellipse, CellPolygonCalculator calculator){
+	public static void calculateEstimatedVertices(CellEllipse ellipse){
+		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
 		double stepsize = Math.PI / 4;
 		double two_pi = 2 * Math.PI;
 	
 		CellPolygon cellPol = null;
 		if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ellipse.getId()) == null){
-			cellPol = new CellPolygon(calculator);
+			cellPol = new CellPolygon();
 			CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(ellipse.getId(), cellPol);
 		}
 		else cellPol = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(ellipse.getId());
@@ -376,48 +387,64 @@ public abstract class CellPolygonNetworkBuilder {
 		return vertices;
 	}
 	
-	public static CellPolygon[] getStandardCellArray(int rows, int columns, CellPolygonCalculator calculator){
-		return getStandardCellArray(STARTX, STARTY, rows, columns, calculator);
+	public static CellPolygon[] getStandardCellArray(int rows, int columns){
+		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		return getStandardCellArray(STARTX, STARTY, rows, columns);
 	}
 	
-	public static CellPolygon[] getStandardThreeCellArray(CellPolygonCalculator calculator){
+	public static CellPolygon[] getStandardThreeCellArray(){
+		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
 		int startX1= 175;
 		int startX2= 375;
 		int startY= 250;
 		return new CellPolygon[]{
-				getStandardCellArray(startX1, startY, 1, 1, calculator)[0],
-				getStandardCellArray(startX2, startY, 1, 1, calculator)[0],
-				getStandardCellArray(STARTX, STARTY, 1, 1, calculator)[0]
+				getStandardCellArray(startX1, startY, 1, 1)[0],
+				getStandardCellArray(startX2, startY, 1, 1)[0],
+				getStandardCellArray(STARTX, STARTY, 1, 1)[0]
 		};
 	}
 	
-	public static CellPolygon[] getStandardFiveCellArray(CellPolygonCalculator calculator){
+	public static CellPolygon[] getStandardMembraneCellArray(){
+		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		ArrayList<CellPolygon> standardCellEnsemble = new ArrayList<CellPolygon>();
 		
-		int startX_1 = 275;
-		int startY_1 = 380;
-		
-		int startX_2_1 = 195;
-		int startX_2_2 = 355;
-		int startY_2 = 240;
-		
-		int startX_3_1 = 50;
-		int startX_3_2 = 440;
-		int startY_3_1 = 130;
-		int startY_3_2 = 155;
-		
-		return new CellPolygon[]{
-				getStandardCellArray(startX_1, startY_1, 1, 1, calculator)[0],				
+		Double2D lastloc = new Double2D(0, (int)TissueController.getInstance().getTissueBorder().lowerBound(CellPolygonCalculator.SIDELENGTH)-CellPolygonCalculator.SIDELENGTH);
+		Double2D newloc= null;
+		for(double x = CellPolygonCalculator.SIDELENGTH; x <= TissueController.getInstance().getTissueBorder().getWidth(); x += 1){		
+			//	if(newloc.distance(lastloc) > 3* CellPolygonCalculator.SIDELENGTH || x == CellPolygonCalculator.SIDELENGTH){
 				
-				getStandardCellArray(startX_2_1, startY_2, 1, 1, calculator)[0],
-				getStandardCellArray(startX_2_2, startY_2, 1, 1, calculator)[0],
-				
-				getStandardCellArray(startX_3_1, startY_3_1, 1, 1, calculator)[0],
-				getStandardCellArray(startX_3_2, startY_3_2, 1, 1, calculator)[0]
-		};
+			newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBound(x)-CellPolygonCalculator.SIDELENGTH);			
+			
+			if(newloc.distance(lastloc) > 3* CellPolygonCalculator.SIDELENGTH || x == CellPolygonCalculator.SIDELENGTH){
+				CellPolygon cell = getStandardCellArray((int)x, (int)(TissueController.getInstance().getTissueBorder().lowerBound(x)-CellPolygonCalculator.SIDELENGTH), 1, 1)[0];	
+				standardCellEnsemble.add(cell);
+				lastloc = newloc;		//	}	
+			}
+		}
+		for(CellPolygon cell: standardCellEnsemble){
+			double minBasalLayerDistance = calculator.getMinDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(),cell);
+			int sign = 1;
+			Vertex center = calculator.getCellCenter(cell);
+			if(minBasalLayerDistance < 0){
+				cell.moveTo(center.getDoubleX()+1, center.getDoubleY());
+				double newMinDistance = calculator.getMinDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(),cell);
+				if(newMinDistance < minBasalLayerDistance) sign = -1;
+			}
+			int delta = 0;
+			while(minBasalLayerDistance < 0){
+				cell.moveTo(center.getDoubleX()+(sign*delta), center.getDoubleY()-delta);
+				delta++;
+				minBasalLayerDistance = calculator.getMinDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(),cell);
+			}			
+		}
+		return standardCellEnsemble.toArray(new CellPolygon[standardCellEnsemble.size()]);
 	}
 	
 	
-	private static CellPolygon[] getStandardCellArray(int startX, int startY, int rows, int columns, CellPolygonCalculator calculator){
+	private static CellPolygon[] getStandardCellArray(int startX, int startY, int rows, int columns){
+		
+		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		
 		int height = Math.round((float) Math.sqrt(Math.pow(CellPolygonCalculator.SIDELENGTH, 2)-Math.pow(CellPolygonCalculator.SIDELENGTH/2, 2)));
 		
 		CellPolygon[] cells = getCells(startX, startY, rows, columns, height);
@@ -435,7 +462,6 @@ public abstract class CellPolygonNetworkBuilder {
 		}
 		calculator.setCellPolygons(cells);
 		for(CellPolygon pol : cells){
-			pol.setCellPolygonCalculator(calculator);
 			pol.setPreferredArea(pol.getCurrentArea());
 			
 		}

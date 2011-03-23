@@ -167,7 +167,7 @@ public class Epidermis extends TissueType implements CellDeathListener
  
  
 	private void seedInitiallyAvailableCells(){
-		 for(UniversalCell cell : ModelController.getInstance().getStandardInitialCellEnsemble()){
+		 for(UniversalCell cell : ModelController.getInstance().getInitialCellEnsemble()){
 					Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
 					cell.setStoppable(stoppable);
 		 }	
@@ -187,12 +187,12 @@ public class Epidermis extends TissueType implements CellDeathListener
 		   }
 		}
 		
-
 		if(this.dataExportSteppables != null){
 			for(EnhancedSteppable steppable: this.dataExportSteppables){
 		   	schedule.scheduleRepeating(steppable, SchedulePriority.DATAMONITORING.getPriority(), steppable.getInterval());
 		   }
 		}
+		
 		GlobalStatistics.getInstance().reset(true);
 		EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
 		schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());

@@ -16,7 +16,7 @@ public class ConfigureAnnealing
 	{
 		AnnealingScheme configure = new AnnealingScheme();
 		
-		final CellPolygon pol = new CellPolygon(new CellPolygonCalculator(new CellPolygon[]{}));
+		final CellPolygon pol = new CellPolygon();
 		
 		final Vertex testVertex = new Vertex(100, 100);
 		

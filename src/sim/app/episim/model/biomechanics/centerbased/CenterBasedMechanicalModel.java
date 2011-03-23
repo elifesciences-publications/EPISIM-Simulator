@@ -536,13 +536,15 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	@CannotBeMonitored
 	public double getX(){return modelConnector == null ? 
 			0//TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getX()
- 				: modelConnector.getX();
+ 		 : modelConnector.getX();
 	}
+	
 	@CannotBeMonitored
 	public double getY(){return modelConnector == null ? 
 			 		0	//	TissueController.getInstance().getTissueBorder().getHeight()- TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getY()
-			 				: modelConnector.getY();
+			 	 : modelConnector.getY();
 	}
+	
 	@CannotBeMonitored
 	public double getZ(){ return 0;}
 	
@@ -572,8 +574,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    }
 	
 	private Polygon createHexagonalPolygon(DrawInfo2D info, double width, double height){
-		
-		
+				
 		double infoX=getX();
 		double infoY=getY();
 		double infoWidth = 1;

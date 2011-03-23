@@ -38,13 +38,13 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	// Other required Parameters
 	//----------------------------------------------------------------------------------------------------------------------
 		@NotInStatisticsHeaderString
-		private int basalAmplitude_µm = 40; // depth of an undulation
+		private int basalAmplitude_µm = 250; // depth of an undulation
 		@NotInStatisticsHeaderString
-		private int basalOpening_µm = 250; // width of undulation at the middle
+		private int basalOpening_µm = 12000; // width of undulation at the middle
 		@NotInStatisticsHeaderString
-		private double width = 140;
+		private double width = 500;
 		@NotInStatisticsHeaderString
-		private double neighborhood_µm= 10.0;
+		private double neighborhood_µm= 50.0;
 	//----------------------------------------------------------------------------------------------------------------------
 	
 	

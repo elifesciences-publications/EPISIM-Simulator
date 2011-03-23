@@ -23,7 +23,7 @@ public class TissueServer {
 	}
 
 	public Epidermis getActEpidermalTissue() throws NoEpidermalTissueAvailableException{
-		if(actTissue instanceof Epidermis) return (Epidermis) actTissue;
+		if(actTissue != null && actTissue instanceof Epidermis) return (Epidermis) actTissue;
 		else throw new NoEpidermalTissueAvailableException("There is no epidermal tissue registered!");
 	}
 	

@@ -1,13 +1,16 @@
 package sim.app.episim.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.util.BagChangeEvent.BagChangeEventType;
 import sim.util.Bag;
 import sim.util.Indexed;
 
@@ -17,6 +20,7 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
    {
 	
 	private Bag bag;
+	private HashSet<BagChangeListener> changeListener = new HashSet<BagChangeListener>();
    
    public GenericBag() { 
    	bag = new Bag();
@@ -28,7 +32,7 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
    }
        
   
-   public GenericBag(final GenericBag other)
+   public GenericBag(final GenericBag<T> other)
    {
    	bag = new Bag(other.bag);
    }
@@ -39,29 +43,38 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
    { 
        if (other instanceof Bag) return bag.addAll((Bag)other);// avoid an array build
        else if (other instanceof GenericBag) return bag.addAll(((GenericBag)other).bag);// avoid an array build
-       return bag.addAll(bag.numObjs, other.toArray()); 
+       boolean result = bag.addAll(bag.numObjs, other.toArray()); 
+       notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, other));
+       return result;
    }
 
    public boolean addAll(final int index, final Collection<? extends T> other)
    {
    	 if (other instanceof Bag) return bag.addAll(index, (Bag)other);// avoid an array build
-       else if (other instanceof GenericBag) return bag.addAll(index, ((GenericBag)other).bag);// avoid an array build
+       else if (other instanceof GenericBag) return bag.addAll(index, ((GenericBag<T>)other).bag);// avoid an array build
        
-       return bag.addAll(index, other.toArray());
+       boolean result = bag.addAll(index, other.toArray());
+       notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, other));
+       return result;
    }
 
    public boolean addAll(final int index, final T[] other)
    {
-      return bag.addAll(index, other);
+      boolean result= bag.addAll(index, other);
+      notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, Arrays.asList(other)));
+      return result;
    }
    
-   public boolean addAll(final GenericBag<T> other) { return bag.addAll(bag.numObjs,other.bag); }
+   public boolean addAll(final GenericBag<T> other) { 
+   	boolean result = bag.addAll(bag.numObjs,other.bag);
+   	notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, other));
+   	return result;
+   }
 
-   public boolean addAll(final int index, final GenericBag<T> other)
-   {
-       
-   	
-   	return bag.addAll(index, other.bag);
+   public boolean addAll(final int index, final GenericBag<T> other) {
+   	boolean result = bag.addAll(index, other.bag);
+   	notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, other));
+   	return result;
    }
 
    public Object clone() throws CloneNotSupportedException
@@ -97,20 +110,31 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
    /** Returns null if the Bag is empty, else removes and returns the topmost object. */
    public T pop()
    {
-      
-       return (T) bag.pop();
+       ArrayList<T> objects = new ArrayList<T>();
+       objects.add(top());
+       T result = (T) bag.pop();
+       notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REMOVE_EVENT, objects));
+       return result;
    }
    
    /** Synonym for add(obj) -- stylistically, you should add instead unless you
        want to think of the Bag as a stack. */
    public boolean push(final T obj)
    {
-       return bag.push(obj);
+   	ArrayList<T> objects = new ArrayList<T>();
+      objects.add(obj);
+      boolean result = bag.push(obj);
+      notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, objects)); 
+   	return result;
    }
        
    public boolean add(final T obj)
    {
-       return bag.add(obj);
+   	ArrayList<T> objects = new ArrayList<T>();
+      objects.add(obj);
+      boolean result = bag.add(obj);
+      notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, objects)); 
+   	return result;
    }
        
    
@@ -147,28 +171,35 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
 
    /** identical to get(index) */
    public T getValue(final int index)
-   {
-    
+   {    
       return (T) bag.getValue(index) ;
    }
 
    public T set(final int index, final T element)
    {
-       
-       return (T) bag.set(index, element);
+   	ArrayList<T> objects = new ArrayList<T>();
+      objects.add(element);
+      T result = (T) bag.set(index, element);
+      notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, objects)); 
+   	
+      return result;
    }
 
    
    public T setValue(final int index, final T element)
    {
-   	
-       return (T) bag.setValue(index, element);
+   	ArrayList<T> objects = new ArrayList<T>();
+      objects.add(element);
+      T result = (T) bag.setValue(index, element);
+      notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, objects)); 
+      return result;
    }
 
    public boolean removeAll(final Collection<?> c)
-   {
-      
-       return bag.removeAll(c);
+   {   	
+      boolean result = bag.removeAll(c);
+      notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REMOVE_EVENT,(Collection<? extends T>) c)); 	
+      return result;
    }
    
    public Bag cloneToBag(){
@@ -183,36 +214,57 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
 
    public boolean retainAll(final Collection<?> c)
    {
-      return bag.retainAll(c);
+   	notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REMOVE_EVENT, bag));
+   	boolean result = bag.retainAll(c);
+   	notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.ADD_EVENT, (Collection<? extends T>)c));
+   	return result;
    }
 
    /** Removes the object at the given index, shifting the other objects down. */
    public Object removeNondestructively(final int index)
    {
-       return bag.removeNondestructively(index);
+       Object result = bag.removeNondestructively(index);
+       ArrayList<T> objects = new ArrayList<T>();
+       objects.add((T)result);
+       notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REMOVE_EVENT, objects)); 
+       return result;
    }
    
    /** Removes the object, moving the topmost object into its position. */
    public boolean remove(final Object o)
    {
-       return bag.remove(o);
+   	 ArrayList<T> objects = new ArrayList<T>();
+       objects.add((T)o);
+       boolean result = bag.remove(o);
+       notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REMOVE_EVENT, objects));  
+       return result;
    }
        
    /** Removes multiple instantiations of an object */
    public boolean removeMultiply(final Object o)
    {
-   	return bag.removeMultiply(o);
+   	 ArrayList<T> objects = new ArrayList<T>();
+       objects.add((T)o);
+       boolean result = bag.removeMultiply(o);
+       notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REMOVE_EVENT, objects));
+   	return result;
    }
 
    /** Removes the object at the given index, moving the topmost object into its position. */
    public T remove(final int index)
    {
-      return (T) bag.remove(index);
+   	ArrayList<T> objects = new ArrayList<T>();
+      T result = (T) bag.remove(index);
+      objects.add(result);
+      notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REMOVE_EVENT, objects));
+      return result;
     }
                               
    public void clear()
    {
-      bag.clear();
+   	T[] deletedObjects = (T[]) bag.toArray();
+   	bag.clear();
+   	notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REMOVE_EVENT, Arrays.asList(deletedObjects)));
    }
        
    public T[] toArray()
@@ -251,6 +303,9 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
    public void fill(T o)
    {
    	bag.fill(o);
+   	ArrayList<T> objects = new ArrayList<T>();
+      objects.add((T)o);
+      notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REPLACE_EVENT, objects));
    }   
 
    /** Shuffles (randomizes the order of) the Bag */
@@ -282,7 +337,20 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
 	public int size() {
 	   return bag.size();
    }
-
+	
+	public void addBagChangeListener(BagChangeListener listener){
+		this.changeListener.add(listener);
+	}
+	
+	public void removeBagChangeListener(BagChangeListener listener){
+		this.changeListener.remove(listener);
+	}
+	
+	private void notifyAllBagChangeListeners(BagChangeEvent<T> changeEvent){
+		for(BagChangeListener listener: this.changeListener){
+			listener.bagHasChanged(changeEvent);
+		}
+	}
   
 	
    }

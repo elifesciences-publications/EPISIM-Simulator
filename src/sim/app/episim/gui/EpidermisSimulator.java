@@ -353,7 +353,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			
 			//System.out.println(success);
 			if(success){
-				TissueController.getInstance().getTissueBorder().loadStandardMembrane();
+				ModelController.getInstance().standardInitializationOfModels();
 				ChartController.getInstance().rebuildDefaultCharts();
 				cleanUpContentPane();
 				if(ModeServer.guiMode())epiUI = new EpidermisGUIState(mainFrame);
@@ -390,7 +390,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	
 	protected void reloadModel(File modelFile, File snapshotPath){
-		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
+		
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		boolean success = false; 
 		try{
@@ -406,7 +406,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			
 			setSnapshotPath(snapshotPath, true);
 			
-			
+			//TODO: add consideration of initialization filepath if set
+			ModelController.getInstance().standardInitializationOfModels();
 		//	System.out.println("Already Data Export Loaded: " + DataExportController.getInstance().isAlreadyDataExportSetLoaded());
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
@@ -473,7 +474,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	}
 	
 	public void loadSnapshot() {
-		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
+		//TODO: Loading of standard membrane has to be considered here (eventually)
 		File snapshotFile = null;
 		File jarFile = null;
 				
@@ -516,7 +517,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				
 				
 				if(success){
-				
+					//TODO: add consideration of initialization filepath if set
+					ModelController.getInstance().standardInitializationOfModels();
 					ChartController.getInstance().rebuildDefaultCharts();
 					ModelController.getInstance().getCellBehavioralModelController().
 					                                          reloadCellBehavioralModelGlobalParametersObject(snapshotLoader.getEpisimCellBehavioralModelGlobalParameters());

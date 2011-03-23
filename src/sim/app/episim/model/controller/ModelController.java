@@ -25,6 +25,7 @@ public class ModelController implements java.io.Serializable{
 	private boolean simulationStartedOnce = false;
 	
 	private static ModelController instance;
+	private ModelInitialization initializer;
 	private ModelController(){
 	
 	}
@@ -56,15 +57,16 @@ public class ModelController implements java.io.Serializable{
 		
 		return CellBehavioralModelController.getInstance().getNewEpisimCellBehavioralModelObject();
 	}
-
 	
-	public ArrayList<UniversalCell> getStandardInitialCellEnsemble(){
-		ModelInitialization initializer = new ModelInitialization();
-		return initializer.getCells();
+	public void standardInitializationOfModels(){
+		 initializer = new ModelInitialization();
 	}
+	
+	public void initializeModels(File file){
+		 initializer = new ModelInitialization(file);
+	}	
 
-	public ArrayList<UniversalCell> getInitialCellEnsemble(File modelInitializationFile){
-		ModelInitialization initializer = new ModelInitialization(modelInitializationFile);
+	public ArrayList<UniversalCell> getInitialCellEnsemble(){
 		return initializer.getCells();
 	}
 	

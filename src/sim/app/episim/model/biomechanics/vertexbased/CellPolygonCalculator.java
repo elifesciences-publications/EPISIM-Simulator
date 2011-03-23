@@ -17,14 +17,9 @@ public class CellPolygonCalculator {
 	
 	
 	public static final int SIDELENGTH = 30;//75;//30;
-	public static final int SIDELENGTHHALF = SIDELENGTH/2;
-	
-	
-	
+	public static final int SIDELENGTHHALF = SIDELENGTH/2;	
 	public static final double MIN_EDGE_LENGTH =SIDELENGTH * VertexBasedMechanicalModelGlobalParameters.getInstance().getMin_edge_length_percentage();
-	
 	public static final double MIN_BASALLAYER_DISTANCE =SIDELENGTH * VertexBasedMechanicalModelGlobalParameters.getInstance().getMin_dist_percentage_basal_adhesion();
-	
 	public static final double MIN_VERTEX_EDGE_DISTANCE = MIN_EDGE_LENGTH*0.8;
 	
 
@@ -33,13 +28,12 @@ public class CellPolygonCalculator {
 	
 	private CellPolygon[] cellPolygons;
 	
-	public CellPolygonCalculator(CellPolygon[] cellPolygons){
-		if(cellPolygons == null) throw new IllegalArgumentException("Cell Polygon Array must not be null");
-		this.cellPolygons = cellPolygons;
+	protected CellPolygonCalculator(){
+		this.cellPolygons = new CellPolygon[0];
 	}
 	
-	public void setCellPolygons(CellPolygon[] cellPolygons){
-		if(cellPolygons != null) this.cellPolygons = cellPolygons;
+	protected void setCellPolygons(CellPolygon[] cellPolygons){
+		this.cellPolygons = cellPolygons;
 	}
 	
 	public double getCellArea(CellPolygon cell){
@@ -62,20 +56,20 @@ public class CellPolygonCalculator {
 		return cellPerimeter;
 	}
 
-	public void randomlySelectCellForProliferation(){
-		//for(Cell c :cells) c.setSelected(false);
-		
+	public void randomlySelectCellForProliferation(){				
 		while(true){
+			
 			int cellIndex =rand.nextInt(this.cellPolygons.length);
-	
+			
 			if(!this.cellPolygons[cellIndex].isProliferating() && 
 					((this.cellPolygons[cellIndex].hasContactToBasalLayer() || this.cellPolygons[cellIndex].hasContactToCellThatIsAttachedToBasalLayer())|| !TestVisualizationBiomechanics.LOAD_STANDARD_MEMBRANE)){
 				this.cellPolygons[cellIndex].proliferate();
 				return;
 			}
-		}
-		
+			
+		}		
 	}
+	
 	public void randomlySelectCellForApoptosis(){
 		//for(Cell c :cells) c.setSelected(false);
 		
@@ -181,7 +175,7 @@ public class CellPolygonCalculator {
 		boolean stop = false;
 		CellPolygon newCell = null;
 		if(startIndex >= 0){
-			newCell = new CellPolygon(this);
+			newCell = new CellPolygon();
 			for(int i = startIndex; !stop; i++){
 				newCell.addVertex(cellVertices[i]);
 				if(!cellVertices[i].isNew())cell.removeVertex(cellVertices[i]);
@@ -863,6 +857,17 @@ public class CellPolygonCalculator {
 			return minDistance;
 		}
 		else return Double.POSITIVE_INFINITY;
+	}
+	
+	public double getMinDistanceToBasalLayer(TissueBorder tissueBorder, CellPolygon cell){
+		double minDistance = Double.POSITIVE_INFINITY;
+		for(Vertex v : cell.getUnsortedVertices()){
+			double distance = getDistanceToBasalLayer(tissueBorder, v, false);
+			if(tissueBorder.lowerBound(v.getDoubleX())< v.getDoubleY()) distance*=-1;
+			if(distance < minDistance) minDistance = distance;
+			
+		}
+		return minDistance;
 	}
 	
 	private void setToNewEstimatedValueOnBasalLayer(TissueBorder tissueBorder, Vertex vertex){

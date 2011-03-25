@@ -21,9 +21,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
+import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
+import episimexceptions.ModelCompatibilityException;
+
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.model.biomechanics.vertexbased.CellCanvas;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 
 
@@ -38,7 +42,12 @@ public class TestVisualizationMain {
 	private boolean tissueImportMode = false;
 	
 	public TestVisualizationMain(){
-		
+		try{
+	      ModelController.getInstance().getBioMechanicalModelController().loadModelFile((new EpisimVertexBasedModelConnector()).getBiomechanicalModelId());
+      }
+      catch (ModelCompatibilityException e1){
+	     e1.printStackTrace();
+      }
 		
 		try{
 			

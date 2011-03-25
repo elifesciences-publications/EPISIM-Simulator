@@ -13,6 +13,7 @@ import episiminterfaces.CellPolygonProliferationSuccessListener;
 import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.model.biomechanics.vertexbased.VertexChangeEvent.VertexChangeEventType;
 import sim.app.episim.model.biomechanics.vertexbased.simanneal.VertexForcesMinimizerSimAnneal;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.ListenerAction;
@@ -39,33 +40,30 @@ public class CellPolygon implements VertexChangeListener, EnhancedSteppable{
  
  private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
  private ConjugateGradientOptimizer conGradientOptimizer;
- private VertexForcesMinimizerSimAnneal simAnnealOptimizer;
  
+ private VertexBasedMechanicalModelGlobalParameters globalParameters;
  
- 
-protected CellPolygon(double x, double y){
-	id = nextId++;
-	vertices = new HashSet<Vertex>();
-	cellProliferationAndApoptosisListener = new HashSet<CellPolygonProliferationSuccessListener>();
-	this.x = x;
-	this.y = y;	
-	conGradientOptimizer = new ConjugateGradientOptimizer();
-   simAnnealOptimizer = new VertexForcesMinimizerSimAnneal();
-}
+ protected CellPolygon(double x, double y){
+			id = nextId++;
+			vertices = new HashSet<Vertex>();
+			cellProliferationAndApoptosisListener = new HashSet<CellPolygonProliferationSuccessListener>();
+			this.x = x;
+			this.y = y;	
+			conGradientOptimizer = new ConjugateGradientOptimizer();
+ }
+ public CellPolygon(){
+	 this(0, 0);	
+ }
 
-public CellPolygon(){
-	this(0, 0);	
-}
+ public void addProliferationAndApoptosisListener(CellPolygonProliferationSuccessListener listener){
+	 cellProliferationAndApoptosisListener.add(listener);
+ }
 
-public void addProliferationAndApoptosisListener(CellPolygonProliferationSuccessListener listener){
-	cellProliferationAndApoptosisListener.add(listener);
-}
+ public void removeProliferationAndApoptosisListener(CellPolygonProliferationSuccessListener listener){
+	 cellProliferationAndApoptosisListener.remove(listener);
+ }
 
-public void removeProliferationAndApoptosisListener(CellPolygonProliferationSuccessListener listener){
-	cellProliferationAndApoptosisListener.remove(listener);
-}
-
-private void notifyAllCellProliferationAndApoptosisListener(ListenerAction<CellPolygonProliferationSuccessListener> action){
+ private void notifyAllCellProliferationAndApoptosisListener(ListenerAction<CellPolygonProliferationSuccessListener> action){
 	for(CellPolygonProliferationSuccessListener listener :cellProliferationAndApoptosisListener){
 		action.performAction(listener);
 	}
@@ -150,7 +148,7 @@ private void relaxVertices(){
 
 
 public boolean canDivide(){
-	return getCurrentArea() >= ((2*originalPreferredArea)* VertexBasedMechanicalModelGlobalParameters.getInstance().getSize_percentage_cell_division()) 
+	return getCurrentArea() >= ((2*originalPreferredArea)* globalParameters.getSize_percentage_cell_division()) 
 	 									&& originalPreferredArea > 0;
 }
 
@@ -191,11 +189,11 @@ private void checkProliferation(){
 	}
 	else{ 
 		if(isProliferating){ 
-			growForProliferation(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
+			growForProliferation(globalParameters.getGrowth_rate_per_sim_step());
 		}
 		else{
 			if(this.preferredArea < this.originalPreferredArea){
-				growToBecomeMature(VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step());
+				growToBecomeMature(globalParameters.getGrowth_rate_per_sim_step());
 			}
 			else this.originalPreferredArea = Double.NEGATIVE_INFINITY; 
 		}
@@ -205,7 +203,7 @@ private void checkProliferation(){
 private void checkApoptosis(){
 	if(isDying && this.preferredArea > 0){
 		this.originalPreferredArea = Double.NEGATIVE_INFINITY;
-		this.preferredArea -= VertexBasedMechanicalModelGlobalParameters.getInstance().getGrowth_rate_per_sim_step();
+		this.preferredArea -= globalParameters.getGrowth_rate_per_sim_step();
 	}
 }
 
@@ -397,6 +395,8 @@ public boolean hasContactToCellThatIsAttachedToBasalLayer(){
 }
 
 public void step(SimState state) {
+	globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters();
+	
 	checkProliferation();
 	checkApoptosis();
 	relaxVertices();

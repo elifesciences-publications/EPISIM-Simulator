@@ -42,6 +42,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.model.biomechanics.vertexbased.TestVisualizationPanel.TestVisualizationPanelPaintListener;
+import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ModelParameterModifier;
 import sim.app.episim.tissue.TissueController;
@@ -49,6 +50,8 @@ import sim.app.episim.util.EpisimMovieMaker;
 
 
 import ec.util.MersenneTwisterFast;
+import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
+import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 
 
@@ -107,6 +110,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    public static final boolean LOAD_STANDARD_MEMBRANE = true;   
    private CellCanvas cellCanvas;
    
+   
+   
    public TestVisualizationBiomechanics(boolean autoStart){
    	this(autoStart, null, null, Integer.MAX_VALUE, false);
    }
@@ -117,8 +122,10 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    
 	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, String csvPath, int numberOfCellDivisions, boolean headlessMode){		
 		
+		
+      
 		visualizationConfigurationMap = new HashMap<VisualizationUnit, Boolean>();		
-		for(VisualizationUnit unit  : VisualizationUnit.values()) visualizationConfigurationMap.put(unit, false);		
+		for(VisualizationUnit unit : VisualizationUnit.values()) visualizationConfigurationMap.put(unit, false);		
 		
 		this.maxNumberOfCellDivisions = numberOfCellDivisions;
 		this.autostart = autoStart;
@@ -385,7 +392,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	
 	private void drawErrorManhattanVersusEuclideanDistance(Graphics2D g){
-	/*	double radius = 100;
+		/*double radius = 100;
 		double x = 200, y = 200;
 		drawPoint(g, x, y, 3, Color.red);		
 		
@@ -529,6 +536,23 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		int maxNumberOfProliferation = Integer.MAX_VALUE;
 		boolean headless = false;
 		
+		try{
+	      ModelController.getInstance().getBioMechanicalModelController().loadModelFile((new EpisimVertexBasedModelConnector()).getBiomechanicalModelId());
+      }
+      catch (ModelCompatibilityException e1){
+	     e1.printStackTrace();
+      }
+      
+      VertexBasedMechanicalModelGlobalParameters globalParameters = null;
+      
+      if(ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters() != null
+      	&& ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters() instanceof VertexBasedMechanicalModelGlobalParameters){
+      	globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters();
+      }
+      
+      
+      
+		
 		if(args != null && args.length >= 0){
 			EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP, EpisimProperties.ON_CONSOLE_INPUT_VAL);
 			ModelParameterModifier modifier = new ModelParameterModifier();
@@ -538,7 +562,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 					else if(args[i].equals("-fps")) EpisimProperties.setProperty(EpisimProperties.FRAMES_PER_SECOND_PROP, args[i+1]);
 					else if(args[i].equals("-id")) EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1]);
 					else if(args[i].equals("-mnp")) maxNumberOfProliferation = Integer.parseInt(args[i+1]);
-					else if(args[i].equals("-p")) modifier.setGlobalModelPropertiesToValuesInPropertiesFile(VertexBasedMechanicalModelGlobalParameters.getInstance(), new File(args[i+1]));
+					else if(args[i].equals("-p")) modifier.setGlobalModelPropertiesToValuesInPropertiesFile(globalParameters, new File(args[i+1]));
 					else if(args[i].equals("-csv")) csvPath = args[i+1];				
 				}
 				if(args[i] != null && args[i].equals("-headless")) headless=true; 

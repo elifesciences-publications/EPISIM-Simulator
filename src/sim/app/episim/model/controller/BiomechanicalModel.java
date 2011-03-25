@@ -37,15 +37,14 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 	
 	public BiomechanicalModel(Class<? extends EpisimBiomechanicalModel> biomechanicalModelClass, Class<? extends EpisimModelConnector> modelConnectorClass,
 			EpisimBiomechanicalModelGlobalParameters actParametersObject) throws ModelCompatibilityException{
+		
 		this.biomechanicalModelClass = biomechanicalModelClass;
 		this.modelConnectorClass = modelConnectorClass;
 		
-
 		if(actParametersObject != null){
-	        this.actParametersObject= actParametersObject;
+	        this.actParametersObject = actParametersObject;
 	        this.resetParametersObject = ObjectManipulations.cloneObject(actParametersObject);
-	        SnapshotWriter.getInstance().addSnapshotListener(this);
-	        
+	        SnapshotWriter.getInstance().addSnapshotListener(this);	        
 		}      
 		else throw new ModelCompatibilityException("No compatible EpisimCellBehavioralModelGlobalParameters-Object!");	
 	}	

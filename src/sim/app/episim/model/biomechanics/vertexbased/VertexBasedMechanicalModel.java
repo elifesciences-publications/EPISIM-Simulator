@@ -6,40 +6,42 @@ import java.io.File;
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.VertexBasedMechanicalModelInitializer;
 import sim.app.episim.util.GenericBag;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 import episimbiomechanics.EpisimModelConnector;
+import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
+import episimexceptions.GlobalParameterException;
 import episiminterfaces.monitoring.CannotBeMonitored;
 
 
 public class VertexBasedMechanicalModel extends AbstractMechanicalModel{
 	
-	private CellPolygon cellPolygon;
+	private CellPolygon cellPolygon;	
+	private EpisimVertexBasedModelConnector modelConnector;	
 	
 	public VertexBasedMechanicalModel(AbstractCell cell){
 		super(cell);
 		cellPolygon = CellPolygonRegistry.getNewCellPolygon(cell.getMotherId(), cell.getActSimState().schedule.getSteps());		
-	}
-	
-	
+	}	
 
-	public void setEpisimModelConnector(EpisimModelConnector modelConnector) {
-
-	   // TODO Auto-generated method stub
-	   
+	public void setEpisimModelConnector(EpisimModelConnector modelConnector){
+		if(modelConnector instanceof EpisimVertexBasedModelConnector){
+   		this.modelConnector = (EpisimVertexBasedModelConnector) modelConnector;
+   	}
+   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimVertexBasedModelConnector");	   
    }
 
 	public GenericBag<AbstractCell> getRealNeighbours() {
-
-	   // TODO Auto-generated method stub
+	  
 	   return null;
    }
 
 	public Double2D getNewPosition() {
-
 	   // TODO Auto-generated method stub
 	   return null;
    }
@@ -84,14 +86,12 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel{
    }
 
 	public GenericBag<AbstractCell> getNeighbouringCells() {
-
-	   // TODO Auto-generated method stub
-	   return null;
+	  return getRealNeighbours();
    }
 
 	public void newSimStep(long simStepNumber) {
-
-	   // TODO Auto-generated method stub
+		
+	   
 	   
    }
 	

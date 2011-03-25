@@ -47,16 +47,11 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 		private double neighborhood_µm= 50.0;
 	//----------------------------------------------------------------------------------------------------------------------
 	
-	
-	@NotInStatisticsHeaderString
-	private static VertexBasedMechanicalModelGlobalParameters instance = new VertexBasedMechanicalModelGlobalParameters();
-	
+		
 	public VertexBasedMechanicalModelGlobalParameters() {
 	}
 	
 	public String getStatisticsHeaderString(){ return buildStatisticsHeaderString(); }
-
-	public static VertexBasedMechanicalModelGlobalParameters getInstance(){ return instance; }
 	
 	private String buildStatisticsHeaderString(){
 		StringBuffer headerStringBuffer = new StringBuffer();

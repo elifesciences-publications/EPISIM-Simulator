@@ -20,11 +20,12 @@ public class VertexForcesObjectiveFunction implements ObjectiveFunction{
 	public int getNdim() {return 2;}
 
 	public double distance(double[] params) {
-		vertex.setNewX(params[0]);
+	/*	vertex.setNewX(params[0]);
 		vertex.setNewY(params[1]);
 		vertex.commitNewValues();
 		double[] result = calculator.calculatedForcesActingOnVertex(vertex);
-		return (Math.abs(result[0])+ Math.abs(result[1]));
+		return (Math.abs(result[0])+ Math.abs(result[1]));*/
+		return 0;
 	}
 
 }

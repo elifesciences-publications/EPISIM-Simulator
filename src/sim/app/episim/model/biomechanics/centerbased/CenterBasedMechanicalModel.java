@@ -91,12 +91,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    		this.modelConnector = (EpisimCenterBasedModelConnector) modelConnector;
    	}
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimCenterBasedModelConnector");
-   }
-   
+   } 
    
   
-   public Double2D momentum()
-   {
+   public Double2D momentum(){
        return lastd;
    }  
    
@@ -313,9 +311,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    	
    	
    	
-   // ////////////////////////////////////////////////
+   	//////////////////////////////////////////////////
 		// calculate ACTION force
-		// ////////////////////////////////////////////////
+		//////////////////////////////////////////////////
 		if(!(getCell().getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel)) return;
 		
 		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.GRANUCELL){

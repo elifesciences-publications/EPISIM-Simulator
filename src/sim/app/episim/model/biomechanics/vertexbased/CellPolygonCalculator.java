@@ -9,6 +9,7 @@ import java.util.HashSet;
 import ec.util.MersenneTwisterFast;
 
 import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 
@@ -18,18 +19,22 @@ public class CellPolygonCalculator {
 	
 	public static final int SIDELENGTH = 30;//75;//30;
 	public static final int SIDELENGTHHALF = SIDELENGTH/2;	
-	public static final double MIN_EDGE_LENGTH =SIDELENGTH * VertexBasedMechanicalModelGlobalParameters.getInstance().getMin_edge_length_percentage();
-	public static final double MIN_BASALLAYER_DISTANCE =SIDELENGTH * VertexBasedMechanicalModelGlobalParameters.getInstance().getMin_dist_percentage_basal_adhesion();
-	public static final double MIN_VERTEX_EDGE_DISTANCE = MIN_EDGE_LENGTH*0.8;
+	private double min_edge_length;
+	private double min_basallayer_distance;
+	private double min_vertex_edge_distance;
 	
 
 	
 	private MersenneTwisterFast rand = new MersenneTwisterFast(System.currentTimeMillis());
 	
-	private CellPolygon[] cellPolygons;
+	private CellPolygon[] cellPolygons;	
 	
 	protected CellPolygonCalculator(){
 		this.cellPolygons = new CellPolygon[0];
+		VertexBasedMechanicalModelGlobalParameters globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters();
+		min_edge_length = SIDELENGTH * globalParameters.getMin_edge_length_percentage();
+		min_basallayer_distance = SIDELENGTH * globalParameters.getMin_dist_percentage_basal_adhesion();
+		min_vertex_edge_distance = min_edge_length * 0.8;
 	}
 	
 	protected void setCellPolygons(CellPolygon[] cellPolygons){
@@ -192,7 +197,7 @@ public class CellPolygonCalculator {
 	public void checkForT1Transitions(CellPolygon cell){
 		Vertex[] cellVertices = cell.getSortedVertices();
 		for(int i = 0; i < cellVertices.length; i++){
-			if(!cellVertices[i].isAttachedToBasalLayer() && !cellVertices[(i+1)%cellVertices.length].isAttachedToBasalLayer()&& cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < CellPolygonCalculator.MIN_EDGE_LENGTH){
+			if(!cellVertices[i].isAttachedToBasalLayer() && !cellVertices[(i+1)%cellVertices.length].isAttachedToBasalLayer()&& cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < min_edge_length){
 				Vertex v1 = cellVertices[i];
 				Vertex v2 = cellVertices[(i+1)%cellVertices.length];
 				
@@ -227,7 +232,7 @@ public class CellPolygonCalculator {
 		Vertex[] cellVertices = cell.getSortedVertices();
 		if(cellVertices.length<=3 || cell.isDying()){
 			for(int i = 0; i < cellVertices.length; i++){
-				if(cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < CellPolygonCalculator.MIN_EDGE_LENGTH || cell.getPreferredArea() <= 0){
+				if(cellVertices[i].edist(cellVertices[(i+1)%cellVertices.length]) < min_edge_length || cell.getPreferredArea() <= 0){
 					doT2Transition(cell);
 					GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T2_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T2_TRANSITION_NUMBER)+1));
 					cell.apoptosis();
@@ -347,12 +352,12 @@ public class CellPolygonCalculator {
 	}
 	
 	private boolean doT3TransitionLineVertexReplacementCheck(Line line, Vertex newVertex){
-		if(line.getV1().edist(newVertex) < MIN_EDGE_LENGTH/2){
+		if(line.getV1().edist(newVertex) < min_edge_length/2){
 			line.getV1().replaceVertex(newVertex);
 			System.out.println("T3 Transition Vertex replacement performed");
 			return true;
 		}
-		else if(line.getV2().edist(newVertex) < MIN_EDGE_LENGTH/2){
+		else if(line.getV2().edist(newVertex) < min_edge_length/2){
 			line.getV2().replaceVertex(newVertex);
 			System.out.println("T3 Transition Vertex replacement performed");
 			return true;
@@ -412,7 +417,7 @@ public class CellPolygonCalculator {
 		}
 		
 		double[] directionVector = ContinuousVertexField.getInstance().getNormDirectionVector(newVertex, adhVertex);
-		double lengthFactor = MIN_VERTEX_EDGE_DISTANCE / (2*Math.tan(Math.toRadians(intersectionAngleInDegrees/2)));
+		double lengthFactor = min_vertex_edge_distance / (2*Math.tan(Math.toRadians(intersectionAngleInDegrees/2)));
 		newVertex= new Vertex(adhVertex.getDoubleX() + lengthFactor*directionVector[0], adhVertex.getDoubleY() + lengthFactor*directionVector[1]);
 		return newVertex;
 	}
@@ -473,11 +478,11 @@ public class CellPolygonCalculator {
 		double[] directionVectorV2 = ContinuousVertexField.getInstance().getNormDirectionVector(v2, center);
 		
 				
-		verticesV1V2[0].setDoubleX((center.getDoubleX()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV1[0]));
-		verticesV1V2[0].setDoubleY((center.getDoubleY()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV1[1]));
+		verticesV1V2[0].setDoubleX((center.getDoubleX()+((1.05*min_edge_length)/2)*directionVectorV1[0]));
+		verticesV1V2[0].setDoubleY((center.getDoubleY()+((1.05*min_edge_length)/2)*directionVectorV1[1]));
 		
-		verticesV1V2[1].setDoubleX((center.getDoubleX()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV2[0]));
-		verticesV1V2[1].setDoubleY((center.getDoubleY()+((1.05*CellPolygonCalculator.MIN_EDGE_LENGTH)/2)*directionVectorV2[1]));
+		verticesV1V2[1].setDoubleX((center.getDoubleX()+((1.05*min_edge_length)/2)*directionVectorV2[0]));
+		verticesV1V2[1].setDoubleY((center.getDoubleY()+((1.05*min_edge_length)/2)*directionVectorV2[1]));
 		
 		
 		rotateVertex(center, verticesV1V2[0], -90);
@@ -532,7 +537,7 @@ public class CellPolygonCalculator {
 		for(int i = 0; i < cellVertices.length; i++){
 			Vertex v_s =(new Line(cellVertices[i], cellVertices[(i+1)%cellVertices.length])).getIntersectionOfLinesInLineSegment(new Line(center, vOnCircle));
 			if(v_s != null){
-				if(v_s.edist(cellVertices[i]) < CellPolygonCalculator.MIN_EDGE_LENGTH ||v_s.edist(cellVertices[(i+1)%cellVertices.length]) < CellPolygonCalculator.MIN_EDGE_LENGTH){ 
+				if(v_s.edist(cellVertices[i]) < min_edge_length ||v_s.edist(cellVertices[(i+1)%cellVertices.length]) < min_edge_length){ 
 					return false;
 				}
 			}
@@ -557,7 +562,7 @@ public class CellPolygonCalculator {
 		Line[] linesToTest=getLineArrayToTestVertexDistance(vertex);
 		HashSet<Line> foundLines = new HashSet<Line>();
 		for(Line actLine : linesToTest){
-			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= (MIN_VERTEX_EDGE_DISTANCE)
+			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= (min_vertex_edge_distance)
 					&&!isNotSelfAdhesion(vertex, actLine)) foundLines.add(actLine);		
 			}
 		return foundLines.toArray(new Line[foundLines.size()]);
@@ -566,7 +571,7 @@ public class CellPolygonCalculator {
 	private Line isCloseEnoughToOtherBoundaryForAdhesion(Vertex vertex, boolean takeNewValues){
 		Line[] linesToTest=getLineArrayToTestVertexDistance(vertex);
 		for(Line actLine : linesToTest){
-			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= MIN_VERTEX_EDGE_DISTANCE && isOuterLine(actLine)) return actLine;
+			if(actLine.getDistanceOfVertex(vertex, takeNewValues, true) <= min_vertex_edge_distance && isOuterLine(actLine)) return actLine;
 		}
 		return null;
 	}
@@ -625,7 +630,7 @@ public class CellPolygonCalculator {
 	public void checkForVerticesToMerge(CellPolygon cellPolygon){
 		Line[] cellLines = cellPolygon.getLinesOfCellPolygon();
 		for(Line actLine : cellLines){
-			if((isOuterLine(actLine) || isLineOfTwoCellsOnly(actLine)) && actLine.getLength() < (MIN_EDGE_LENGTH*0.5)){
+			if((isOuterLine(actLine) || isLineOfTwoCellsOnly(actLine)) && actLine.getLength() < (min_edge_length*0.5)){
 				mergeVerticesOfLine(actLine);
 				System.out.println("Vertices merged");
 				GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTICES_MERGED, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTICES_MERGED)+1));
@@ -739,7 +744,7 @@ public class CellPolygonCalculator {
 		for(CellPolygon cell : this.cellPolygons){
 			for(Line actLine :cell.getLinesOfCellPolygon()){
 				if(!line.equals(actLine)){
-					boolean intersectionFound = actLine.isIntersectionOfLinesInLineSegment(line, MIN_EDGE_LENGTH) && line.isIntersectionOfLinesInLineSegment(actLine, MIN_EDGE_LENGTH);
+					boolean intersectionFound = actLine.isIntersectionOfLinesInLineSegment(line, min_edge_length) && line.isIntersectionOfLinesInLineSegment(actLine, min_edge_length);
 					if(intersectionFound){
 						intersectionLinePairs.add(new Line[]{line, actLine});
 						Vertex isp = line.getIntersectionOfLinesInLineSegment(actLine);
@@ -786,7 +791,7 @@ public class CellPolygonCalculator {
 		if((lines=isVertexTooCloseToAnotherCellBoundary(v, true)) !=null && lines.length > 0){
 			v.setVertexColor(Color.YELLOW);
 			
-			for(Line actLine: lines)actLine.setNewValuesOfVertexToDistance(v, (MIN_VERTEX_EDGE_DISTANCE*1.1));
+			for(Line actLine: lines)actLine.setNewValuesOfVertexToDistance(v, (min_vertex_edge_distance*1.1));
 			checkNewVertexValuesForBasalLayerAdhesion(v);
 			GlobalBiomechanicalStatistics.getInstance().set(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.VERTEX_TOO_CLOSE_TO_EDGE) +1));
 		}
@@ -815,7 +820,7 @@ public class CellPolygonCalculator {
 		
 		
 				
-		if((tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY() || getDistanceToBasalLayer(tissueBorder, vertex, true) <= MIN_BASALLAYER_DISTANCE)
+		if((tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY() || getDistanceToBasalLayer(tissueBorder, vertex, true) <= min_basallayer_distance)
 				&& !vertex.isAttachedToBasalLayer()){
 			
 			//if(estimateNewValue){
@@ -829,7 +834,7 @@ public class CellPolygonCalculator {
 		}
 		else if(vertex.isAttachedToBasalLayer()){
 			double distanceToOldValue = vertex.edist(new Vertex(vertex.getNewX(), vertex.getNewY()));
-			if(distanceToOldValue < (3*MIN_BASALLAYER_DISTANCE)){
+			if(distanceToOldValue < (3*min_basallayer_distance)){
 				//setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
 				if(tissueBorder.lowerBound(vertex.getDoubleX()) != vertex.getDoubleY())
 					vertex.setDoubleY(tissueBorder.lowerBound(vertex.getDoubleX()));
@@ -844,10 +849,10 @@ public class CellPolygonCalculator {
 	
 	private double getDistanceToBasalLayer(TissueBorder tissueBorder, Vertex vertex, boolean takeNewValues){
 		if(tissueBorder.isStandardMembraneLoaded() || tissueBorder.lowerBound(0) != Double.POSITIVE_INFINITY){
-			double startX = takeNewValues ? (vertex.getNewX() - MIN_EDGE_LENGTH):(vertex.getDoubleX() - MIN_EDGE_LENGTH);
+			double startX = takeNewValues ? (vertex.getNewX() - min_edge_length):(vertex.getDoubleX() - min_edge_length);
 			 
 			double minDistance = Double.POSITIVE_INFINITY;
-			int maxNoSteps = (int) (2*MIN_EDGE_LENGTH);
+			int maxNoSteps = (int) (2*min_edge_length);
 			for(double newX = startX, stepNo = 0; stepNo < maxNoSteps; newX++, stepNo++){
 				newX = ContinuousVertexField.getInstance().getXLocationInField(newX);		
 				double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX, (takeNewValues ?vertex.getNewX():vertex.getDoubleX())),2)
@@ -935,6 +940,24 @@ public class CellPolygonCalculator {
 	private void resetToOldValue(Vertex v){		
 		v.setNewX(v.getDoubleX());
 		v.setNewY(v.getDoubleY());	
-	}	
+	}
+
+	
+   public double getMin_edge_length() {
+   
+   	return min_edge_length;
+   }
+
+	
+   public double getMin_basallayer_distance() {
+   
+   	return min_basallayer_distance;
+   }
+
+	
+   public double getMin_vertex_edge_distance() {
+   
+   	return min_vertex_edge_distance;
+   }	
 	
 }

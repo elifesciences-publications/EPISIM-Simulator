@@ -8,7 +8,7 @@ import no.uib.cipr.matrix.Vector;
 
 
 public class VertexForcesCalculator {
-	
+/*	
 //	private static final double K = 0.01;
 	//private static final double LAMBDA = 150;
 //	private static final double GAMMA = 1;

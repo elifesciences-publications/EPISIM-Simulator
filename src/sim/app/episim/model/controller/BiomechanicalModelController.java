@@ -80,7 +80,7 @@ public class BiomechanicalModelController implements java.io.Serializable{
 		return this.biomechanicalModel.getBiomechanicalModelInitializer(modelInitializationFile);
 	}
 	
-	protected boolean loadModelFile(String requiredModelConnectorID) throws ModelCompatibilityException{
+	public boolean loadModelFile(String requiredModelConnectorID) throws ModelCompatibilityException{
 		
 		BiomechanicalModelLoader modelLoader = new BiomechanicalModelLoader(requiredModelConnectorID);
 		

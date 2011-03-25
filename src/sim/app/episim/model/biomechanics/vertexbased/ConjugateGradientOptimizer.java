@@ -2,6 +2,8 @@ package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.util.ArrayList;
 
+import sim.app.episim.model.controller.ModelController;
+
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;
 import no.uib.cipr.matrix.Matrix;
@@ -19,7 +21,7 @@ import no.uib.cipr.matrix.sparse.Preconditioner;
 public class ConjugateGradientOptimizer {
 	private VertexBasedMechanicalModelGlobalParameters globalParameters;
 	public ConjugateGradientOptimizer(){
-		this.globalParameters = VertexBasedMechanicalModelGlobalParameters.getInstance();
+		
 	}
 	
 	
@@ -238,7 +240,9 @@ public class ConjugateGradientOptimizer {
 		return value%base < 0 ? (int)((value%base)+base) : (int)(value%base);
 	}
 		
-	public void relaxVertex(Vertex vertex){		
+	public void relaxVertex(Vertex vertex){
+		this.globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		
 		Matrix totalResultMatrix = new DenseMatrix(2,2);
 		Vector totalResultVector = new DenseVector(2);				
 		double [][] calculationPolygon;

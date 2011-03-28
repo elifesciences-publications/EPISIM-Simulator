@@ -300,13 +300,13 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    	
    	CenterBasedMechanicalModelGlobalParameters globalParameters = null;
    	
-   	if(ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters() 
+   	if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
    			instanceof CenterBasedMechanicalModelGlobalParameters){
-   		globalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters();
+   		globalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
    	}
    	
    	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
-   			ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
+   			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
    	
    	
    	

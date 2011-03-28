@@ -33,15 +33,15 @@ public class CellBehavioralModelInitializer {
 	private void initializeCellEnsembleWithStandardValues(ArrayList<UniversalCell> cellEnsemble){
 		MersenneTwisterFast random = new MersenneTwisterFast(System.currentTimeMillis());
 		for(UniversalCell actCell : cellEnsemble){
-			int cellCyclePos = random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem());
+			int cellCyclePos = random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem());
 			
 			//assign random age
 			actCell.getEpisimCellBehavioralModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
 			
 			boolean tysonCellCycleAvailable = false;
 			try{
-				 Method m = ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK6", (Class<?>)null);
-				 m = ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK4", (Class<?>)null);
+				 Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK6", (Class<?>)null);
+				 m = ModelController.getInstance().getCellBehavioralModelController().getClass().getMethod("getK4", (Class<?>)null);
 				 tysonCellCycleAvailable = true;
 			}
 			catch(NoSuchMethodException e){ tysonCellCycleAvailable = false; }

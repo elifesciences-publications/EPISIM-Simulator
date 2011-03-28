@@ -71,8 +71,8 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
             {                
                 final UniversalCell universalCell=((UniversalCell)object);
                 
-                if(ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGlobalParameters){
-               	 drawCellEllipses = ((CenterBasedMechanicalModelGlobalParameters)ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
+                if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGlobalParameters){
+               	 drawCellEllipses = ((CenterBasedMechanicalModelGlobalParameters)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
                 }
                 int keratinoType=universalCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
                 int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();
@@ -219,7 +219,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
         }
         if (coloringType==6)  // Lipid coloring
         {
-              if (kcyte.getEpisimCellBehavioralModelObject().getLip()>=cBModelController.getEpisimCellBehavioralModelGlobalParameters().getMinSigLipidsBarrier()){red=0xCB; green=0x2F; blue=0x9F; }
+              if (kcyte.getEpisimCellBehavioralModelObject().getLip()>=ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getMinSigLipidsBarrier()){red=0xCB; green=0x2F; blue=0x9F; }
               else{ red=0xAF; green=0xCB; blue=0x97; }
         }
         if (coloringType==7)  // ion transport activitiy

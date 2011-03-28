@@ -84,7 +84,7 @@ public class CellBehavioralModelController implements java.io.Serializable{
 				return cellBehavioralModel.getNewEpisimCellBehavioralModelObject();
 	}
 	
-	public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){
+	protected EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){
 		return cellBehavioralModel.getEpisimCellBehavioralModelGlobalParameters();
 	}
 	

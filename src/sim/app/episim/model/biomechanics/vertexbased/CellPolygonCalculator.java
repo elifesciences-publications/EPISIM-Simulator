@@ -31,7 +31,7 @@ public class CellPolygonCalculator {
 	
 	protected CellPolygonCalculator(){
 		this.cellPolygons = new CellPolygon[0];
-		VertexBasedMechanicalModelGlobalParameters globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters();
+		VertexBasedMechanicalModelGlobalParameters globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		min_edge_length = SIDELENGTH * globalParameters.getMin_edge_length_percentage();
 		min_basallayer_distance = SIDELENGTH * globalParameters.getMin_dist_percentage_basal_adhesion();
 		min_vertex_edge_distance = min_edge_length * 0.8;

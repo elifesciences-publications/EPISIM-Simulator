@@ -61,7 +61,7 @@ public class BiomechanicalModelController implements java.io.Serializable{
 		}
 	}
 	
-	public EpisimBiomechanicalModelGlobalParameters getEpisimBioMechanicalModelGlobalParameters() {
+	protected EpisimBiomechanicalModelGlobalParameters getEpisimBioMechanicalModelGlobalParameters() {
 		try{
 			if(biomechanicalModel!= null)return biomechanicalModel.getEpisimMechanicalModelGlobalParameters();
 			else return this.dummyGlobalParameters;

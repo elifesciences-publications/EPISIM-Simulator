@@ -119,7 +119,7 @@ public class Epidermis extends TissueType implements CellDeathListener
  
 		
 		//TODO: plus 2 Korrektur überprüfen
-		cellContinous2D = new Continuous2D(ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
+		cellContinous2D = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
 				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
 				TissueController.getInstance().getTissueBorder().getHeight());
 		basementContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth() + 2, 
@@ -398,10 +398,10 @@ public class Epidermis extends TissueType implements CellDeathListener
 	public List<Method> getParameters() {
 		List<Method> methods = new ArrayList<Method>();
 		 
-		 for(Method m : ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethods()){
+		 for(Method m : ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethods()){
 				if((m.getName().startsWith("get") || m.getName().startsWith("is"))&& m.getAnnotation(CannotBeMonitored.class)==null) methods.add(m);
 		 }
-		 for(Method m : ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getClass().getMethods()){
+		 for(Method m : ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getMethods()){
 				if((m.getName().startsWith("get") || m.getName().startsWith("is"))&& m.getAnnotation(CannotBeMonitored.class)==null) methods.add(m);
 		 }
 		 for(Method m : this.getClass().getMethods()){
@@ -413,10 +413,10 @@ public class Epidermis extends TissueType implements CellDeathListener
 	
 	public List<Field> getContants() {	
 		List<Field> fields = new ArrayList<Field>();
-		for(Field field : ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getFields()){
+		for(Field field : ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getFields()){
 	   		if(!field.getDeclaringClass().isInterface()) fields.add(field);
 		}
-		for(Field field : ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getClass().getFields()){
+		for(Field field : ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getFields()){
    		if(!field.getDeclaringClass().isInterface()) fields.add(field);
 		}
 		
@@ -429,11 +429,11 @@ public class Epidermis extends TissueType implements CellDeathListener
 
 		try{
 			if(getAllCells() != null && this.cellContinous2D != null 
-					&& ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters() != null
-					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters() != null){
+					&& ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters() != null
+					&& ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() != null){
 		      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(getAllCells(), this.cellContinous2D, new Object[]{
-		      		ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters(), 
-		      		ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters(), 
+		      		ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), 
+		      		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(), 
 		      		this});
 		   }
       }
@@ -456,11 +456,11 @@ public class Epidermis extends TissueType implements CellDeathListener
 
 	   try{
 	   	if(getAllCells() != null && this.cellContinous2D != null 
-					&& ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters() != null
-					&& ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters() != null){
+					&& ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters() != null
+					&& ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() != null){
 	      this.dataExportSteppables = DataExportController.getInstance().getDataExportSteppablesOfActLoadedDataExport(getAllCells(), this.cellContinous2D, new Object[]{
-	      	ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters(), 
-	      	ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters(), 
+	      	ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), 
+	      	ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(), 
 	      	  	this});
 	   	}
       }

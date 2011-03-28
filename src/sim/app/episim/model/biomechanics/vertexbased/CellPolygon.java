@@ -395,7 +395,7 @@ public boolean hasContactToCellThatIsAttachedToBasalLayer(){
 }
 
 public void step(SimState state) {
-	globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters();
+	globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	
 	checkProliferation();
 	checkApoptosis();

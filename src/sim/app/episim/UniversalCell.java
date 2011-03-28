@@ -103,7 +103,7 @@ public class UniversalCell extends AbstractCell
         
        
          //in the first two thousand sim steps homeostasis has to be achieved, cells max age is set to the sim step time to have more variation  
-        kcyte.local_maxAge= ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getMaxAge();
+        kcyte.local_maxAge= ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getMaxAge();
         long pSimTime=(long) TissueController.getInstance().getActEpidermalTissue().schedule.time();
         if (pSimTime<(kcyte.local_maxAge)){ 
       	  kcyte.local_maxAge=pSimTime;
@@ -128,7 +128,7 @@ public class UniversalCell extends AbstractCell
         GlobalStatistics.getInstance().inkrementActualNumberKCytes();
         UniversalCell taCell=makeChild(cellBehavioralModel);
                     
-        taCell.getEpisimCellBehavioralModelObject().setAge(TissueController.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
+        taCell.getEpisimCellBehavioralModelObject().setAge(TissueController.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
        
        
     }

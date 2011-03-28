@@ -79,7 +79,7 @@ public class GlobalBiomechanicalStatistics implements EnhancedSteppable{
 		
 		VertexBasedMechanicalModelGlobalParameters globalParameters=null;		
 		
-		globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters();
+		globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		
 		StringBuffer buffer = new StringBuffer();

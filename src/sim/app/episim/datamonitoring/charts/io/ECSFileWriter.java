@@ -107,9 +107,9 @@ public class ECSFileWriter {
 							in.close();
 							jarOut.flush();
 							
-							in = ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getResourceAsStream(
-									ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getClass().getSimpleName()+".class");
-							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters()
+							in = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getResourceAsStream(
+									ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getSimpleName()+".class");
+							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
 									                            .getClass().getName().replace(".", "/") + ".class"));
 							
 							 bytes = new byte[1024];

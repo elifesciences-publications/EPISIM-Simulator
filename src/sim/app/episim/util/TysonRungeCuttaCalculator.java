@@ -39,7 +39,7 @@ public class TysonRungeCuttaCalculator {
 		double [] du_temp = new double[3];
 		double [] dz_temp = new double[3];
 		
-		EpisimCellBehavioralModelGlobalParameters globalParameters = ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters();
+		EpisimCellBehavioralModelGlobalParameters globalParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 		try{
 		
 		 Method m = globalParameters.getClass().getMethod("getK6", null);

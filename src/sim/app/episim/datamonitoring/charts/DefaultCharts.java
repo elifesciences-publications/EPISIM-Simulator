@@ -690,8 +690,8 @@ public class DefaultCharts implements java.io.Serializable{
              //double growthFraction=0; // instead globally defined
              if (GlobalStatistics.getInstance().getActualNumberKCytes()>0)
              {
-                 meanCycleTime=(GlobalStatistics.getInstance().getActualNumberStemCells()*ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem()
-               		             +GlobalStatistics.getInstance().getActualNumberTACells()*ModelController.getInstance().getCellBehavioralModelController().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA())
+                 meanCycleTime=(GlobalStatistics.getInstance().getActualNumberStemCells()*ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem()
+               		             +GlobalStatistics.getInstance().getActualNumberTACells()*ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA())
                		             /(GlobalStatistics.getInstance().getActualNumberStemCells()+GlobalStatistics.getInstance().getActualNumberTACells());
                  getXYSeries("ChartSeries_Kinetics_MeanCycleTime").add((double)(state.schedule.time()*TIMEFACTOR), meanCycleTime*TIMEFACTOR);
                  if (GlobalStatistics.getInstance().getActualBasalStatisticsCells()>0)

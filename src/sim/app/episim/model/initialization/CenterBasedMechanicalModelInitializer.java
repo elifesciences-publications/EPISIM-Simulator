@@ -27,14 +27,14 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 
 	private final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu rete tiefe
 	{
-	     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
+	     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
 	}	
 	
    protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
    	
    	ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
    	
-   	CenterBasedMechanicalModelGlobalParameters biomechanicalModelGlobalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController.getInstance().getBioMechanicalModelController().getEpisimBioMechanicalModelGlobalParameters();   	
+   	CenterBasedMechanicalModelGlobalParameters biomechanicalModelGlobalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();   	
    	
    	Double2D lastloc = new Double2D(2, TissueController.getInstance().getTissueBorder().lowerBound(2));
 		for(double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidth(); x += 2){

@@ -40,13 +40,11 @@ public class TissueBorder {
 	private static int basalPeriod=70;      // width of an undulation at the foot
 	private static int startXOfStandardMembrane = 0;
 	
-	private static  EpisimBiomechanicalModelGlobalParameters globalParameters;  
+	private double numberOfPixelsPerMicrometer = 1;
 	
-	private ImportedTissue tissue;
-	
-	private boolean standardMembraneLoaded = false;
-	
-	private final double STANDARDHEIGHT = 100;
+	private static EpisimBiomechanicalModelGlobalParameters globalParameters;	
+	private ImportedTissue tissue;	
+	private boolean standardMembraneLoaded = false;	
 	
 	private TissueBorder(){
 		
@@ -90,9 +88,13 @@ public class TissueBorder {
 		}
 	}
 	
+	public void setNumberOfPixelsPerMicrometer(double numberOfPixelsPerMicrometer){
+		this.numberOfPixelsPerMicrometer = numberOfPixelsPerMicrometer;
+	}
+	
 	public double getNumberOfPixelsPerMicrometer(){
 		if(standardMembraneLoaded){
-			return 1;
+			return this.numberOfPixelsPerMicrometer;
 		}
 		else{
 			double resolutionMicoMPerPixel = tissue.getResolutionInMicrometerPerPixel();
@@ -121,7 +123,8 @@ public class TissueBorder {
 	}
 	public double getHeight(){
 		if(standardMembraneLoaded){
-			return this.STANDARDHEIGHT;
+			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
+			return globalParameters.getHeight();
 		}
 		else{
 			//Bei der Berechnung durch GeneralPath geht ein Pixel verloren

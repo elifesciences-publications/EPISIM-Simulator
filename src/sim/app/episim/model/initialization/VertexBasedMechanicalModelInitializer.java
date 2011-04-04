@@ -24,14 +24,14 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		super();
 		TissueController.getInstance().getTissueBorder().setBasalPeriod(550);
 		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(0);
-		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(160);
+		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(190);
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
+		TissueController.getInstance().getTissueBorder().setNumberOfPixelsPerMicrometer(2);
 	}
 	
 	public VertexBasedMechanicalModelInitializer(File modelInitializationFile){
 		super(modelInitializationFile);
 	}
-
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		
@@ -56,5 +56,4 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble(File file) {
 		return new ArrayList<UniversalCell>();
 	}
-
 }

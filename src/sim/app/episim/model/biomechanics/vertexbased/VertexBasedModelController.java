@@ -11,14 +11,16 @@ import sim.app.episim.util.BagChangeListener;
 import sim.app.episim.util.GenericBag;
 
 
-public class CellPolygonCalculationController implements TissueRegistrationListener, BagChangeListener<AbstractCell>{
+public class VertexBasedModelController implements TissueRegistrationListener, BagChangeListener<AbstractCell>{
 	
 	
-	private static CellPolygonCalculationController instance;
+	private static VertexBasedModelController instance;
 	
 	private CellPolygonCalculator calculator;
 	
-	private CellPolygonCalculationController(){
+	private CellCanvas cellCanvas;
+	
+	private VertexBasedModelController(){
 		calculator = new CellPolygonCalculator();
 		newTissueWasRegistered();
 	}
@@ -31,12 +33,13 @@ public class CellPolygonCalculationController implements TissueRegistrationListe
 	}
 	
 	
-	public static synchronized CellPolygonCalculationController getInstance(){
-		if(instance==null) instance = new CellPolygonCalculationController();
+	public static synchronized VertexBasedModelController getInstance(){
+		if(instance==null) instance = new VertexBasedModelController();
 		return instance;
 	}
 	
-	public CellPolygonCalculator getCellPolygonCalculator(){ return this.calculator; }
+	public CellPolygonCalculator getCellPolygonCalculator(){ return this.calculator; }	
+	public CellCanvas getCellCanvas(){ return this.cellCanvas; }
 	
 	private CellPolygon[] getAllCellPolygons(GenericBag<AbstractCell> allCells){
 		ArrayList<CellPolygon> cellPolygons = new ArrayList<CellPolygon>();		
@@ -60,10 +63,22 @@ public class CellPolygonCalculationController implements TissueRegistrationListe
 		if(tissue != null && tissue.getAllCells() != null){
 			tissue.getAllCells().addBagChangeListener(this);
 			refreshCellPolygonArrayInCalculator();
+			if(TissueController.getInstance().isTissueLoaded()){
+				cellCanvas = new CellCanvas(0, 0, TissueController.getInstance().getImportedTissueWidth(), 
+						TissueController.getInstance().getImportedTissueHeight());
+				ContinuousVertexField.initializeContinousVertexField(TissueController.getInstance().getImportedTissueWidth(), 
+						TissueController.getInstance().getImportedTissueHeight()); 
+			}
+			else{
+				cellCanvas = new CellCanvas(0, 0, (int)TissueController.getInstance().getTissueBorder().getWidth(), 
+						(int)TissueController.getInstance().getTissueBorder().getHeight());				
+				ContinuousVertexField.initializeContinousVertexField((int)TissueController.getInstance().getTissueBorder().getWidth(), 
+						(int)TissueController.getInstance().getTissueBorder().getHeight());
+			}			
 		}	   
    }
 
-	public void bagHasChanged(BagChangeEvent<AbstractCell> event) {
+	public void bagHasChanged(BagChangeEvent<AbstractCell> event){
 	   refreshCellPolygonArrayInCalculator();	   
    }
 }

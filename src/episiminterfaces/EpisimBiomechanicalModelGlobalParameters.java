@@ -12,5 +12,8 @@ public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serial
  	void setBasalAmplitude_µm(int val);
  	
 	void setWidth(double val);
-	double getWidth();	
+	double getWidth();
+	
+	void setHeight(double val);
+	double getHeight();
 }

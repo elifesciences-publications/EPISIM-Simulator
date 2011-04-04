@@ -33,7 +33,7 @@ public abstract class CellPolygonNetworkBuilder {
 	
 	public static CellPolygon[] getSquareVertex(int xStart, int yStart, int sidelength, int size)
 	{
-		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		Vertex[][] vertexNetwork = new Vertex[size][size];
 		for(int i = 0; i < size; i++){
 			Vertex[] vertices = new Vertex[size];
@@ -63,7 +63,7 @@ public abstract class CellPolygonNetworkBuilder {
 	
 	
 	public static void calculateCellPolygons(CellEllipse cellEll){
-		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		CellPolygon cellPol_1 = null, cellPol_2 = null, cellPol_3 = null;
 		if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cellEll.getId()) == null){
 			cellPol_1 = new CellPolygon();
@@ -157,7 +157,7 @@ public abstract class CellPolygonNetworkBuilder {
 	}
 	
 	public static void calculateEstimatedVertices(CellEllipse ellipse){
-		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		double stepsize = Math.PI / 4;
 		double two_pi = 2 * Math.PI;
 	
@@ -388,12 +388,12 @@ public abstract class CellPolygonNetworkBuilder {
 	}
 	
 	public static CellPolygon[] getStandardCellArray(int rows, int columns){
-		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		return getStandardCellArray(STARTX, STARTY, rows, columns);
 	}
 	
 	public static CellPolygon[] getStandardThreeCellArray(){
-		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		int startX1= 175;
 		int startX2= 375;
 		int startY= 250;
@@ -405,7 +405,7 @@ public abstract class CellPolygonNetworkBuilder {
 	}
 	
 	public static CellPolygon[] getStandardMembraneCellArray(){
-		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		ArrayList<CellPolygon> standardCellEnsemble = new ArrayList<CellPolygon>();
 		
 		Double2D lastloc = new Double2D(0, (int)TissueController.getInstance().getTissueBorder().lowerBound(CellPolygonCalculator.SIDELENGTH)-CellPolygonCalculator.SIDELENGTH);
@@ -443,7 +443,7 @@ public abstract class CellPolygonNetworkBuilder {
 	
 	private static CellPolygon[] getStandardCellArray(int startX, int startY, int rows, int columns){
 		
-		CellPolygonCalculator calculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		
 		int height = Math.round((float) Math.sqrt(Math.pow(CellPolygonCalculator.SIDELENGTH, 2)-Math.pow(CellPolygonCalculator.SIDELENGTH/2, 2)));
 		

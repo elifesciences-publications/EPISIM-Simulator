@@ -14,7 +14,7 @@ public class TestField {
 		Vertex[] vertices = new Vertex[]{new Vertex(90, 30), new Vertex(90, 70), new Vertex(10, 30), new Vertex(10, 70)};
 		
 		CellPolygon[] cellPolArray = new CellPolygon[1];		
-		CellPolygonCalculationController.getInstance().setCellPolygonArrayInCalculator(cellPolArray);
+		VertexBasedModelController.getInstance().setCellPolygonArrayInCalculator(cellPolArray);
 				
 		cellPolArray[0] = new CellPolygon();
 		

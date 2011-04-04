@@ -31,7 +31,7 @@ public class Vertex implements java.io.Serializable{
 	
 	private boolean wasDeleted = false;
 	
-	private boolean wasAlreadyCalculated = false;
+	private long lastCalculationSimStepNo = -1;
 
 	private Color vertexColor;
 	
@@ -253,15 +253,13 @@ public class Vertex implements java.io.Serializable{
    }
    
 
-	public boolean isWasAlreadyCalculated() {
-	
-		return wasAlreadyCalculated;
+	public boolean isWasAlreadyCalculated(long simStepNo){	
+		return this.lastCalculationSimStepNo == simStepNo;
 	}
 
 	
-	public void setWasAlreadyCalculated(boolean wasAlreadyCalculated) {
-	
-		this.wasAlreadyCalculated = wasAlreadyCalculated;
+	public void setWasAlreadyCalculated(long simStepNo){	
+		this.lastCalculationSimStepNo = simStepNo;
 	}
 
 	
@@ -288,10 +286,7 @@ public class Vertex implements java.io.Serializable{
 		return this.y_new;
 	}
 	
-	public void resetCalculationStatus(){
-		this.wasAlreadyCalculated = false;
-	}
-	
+		
 	public void commitNewValues(){
 		this.x = this.x_new;
 		this.y = this.y_new;

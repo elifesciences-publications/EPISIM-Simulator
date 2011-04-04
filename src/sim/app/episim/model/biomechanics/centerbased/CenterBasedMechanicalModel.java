@@ -71,8 +71,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    
    private boolean isMembraneCell = false;
    
-   private CellEllipse cellEllipseObject;
-   
+   private CellEllipse cellEllipseObject;   
   
    public CenterBasedMechanicalModel(AbstractCell cell){
    	super(cell);
@@ -81,8 +80,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
       keratinoHeight=GINITIALKERATINOHEIGHT; //theEpidermis.InitialKeratinoSize;
       lastd=new Double2D(0.0,-3);
       if(cell != null && getCellEllipseObject() == null && cell.getEpisimCellBehavioralModelObject() != null){
-			cellEllipseObject = new CellEllipse(cell.getID(), (int)getX(), (int)getY(), keratinoWidth, keratinoHeight, Color.BLUE);
-	     
+			cellEllipseObject = new CellEllipse(cell.getID(), (int)getX(), (int)getY(), keratinoWidth, keratinoHeight, Color.BLUE);    
 		}
    }
    
@@ -573,8 +571,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	
 	private Polygon createHexagonalPolygon(DrawInfo2D info, double width, double height){
 				
-		double infoX=getX();
-		double infoY=getY();
+		double infoX = getX();
+		double infoY = getY();
 		double infoWidth = 1;
 		double infoHeight = 1;
 		

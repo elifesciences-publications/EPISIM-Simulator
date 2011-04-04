@@ -25,7 +25,8 @@ public class TissueController {
 	
 	private TissueController(){
 		importer = new TissueImporter();
-	}
+	}	
+
 	
 	public Epidermis getActEpidermalTissue() throws NoEpidermalTissueAvailableException{
 		return TissueServer.getInstance().getActEpidermalTissue();
@@ -45,12 +46,12 @@ public class TissueController {
 		return instance;
 	}
 	
-	public int getTissueWidth(){
+	public int getImportedTissueWidth(){
 		if(actImportedTissue != null) return (int) actImportedTissue.getEpidermalWidth();		
 		return 0;
 	}
 	
-	public int getTissueHeight(){
+	public int getImportedTissueHeight(){
 		if(actImportedTissue != null) return (int) actImportedTissue.getEpidermalHeight();		
 		return 0;
 	}
@@ -91,6 +92,6 @@ public class TissueController {
 			listener.newTissueWasRegistered();
 		}
 	}
-	
+
 
 }

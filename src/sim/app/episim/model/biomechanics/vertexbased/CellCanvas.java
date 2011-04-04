@@ -72,6 +72,19 @@ public class CellCanvas {
 		}
 	}
 	
+	public Polygon getDrawablePolygon(CellPolygon cell){
+		return getDrawablePolygon(cell,0, 0);
+	}
+	
+	public Polygon getDrawablePolygon(CellPolygon cell, double deltaX, double deltaY){
+		Polygon p = new Polygon();			
+		Vertex[] sortedVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getSortedVertices());		
+		for(Vertex v : sortedVertices){	
+			p.addPoint(v.getIntX() + x + ((int)deltaX), v.getIntY() + y + ((int)deltaY));				
+		}
+		return p;
+	}	
+	
 	public void drawVertex(Graphics2D g, Vertex vertex, Color color){
 		if(vertex != null){
 			drawPoint(g, vertex.getIntX()+x, vertex.getIntY()+y, 3, color == null ? Color.BLUE : color);						

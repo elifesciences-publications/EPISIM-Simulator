@@ -90,24 +90,20 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 	private EpisimConsole console;
 
-	private static final double INITIALZOOMFACTOR = 5;
-	private final double EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidth() * INITIALZOOMFACTOR;
-	private final double EPIDISPLAYHEIGHT = TissueController.getInstance().getTissueBorder().getHeight()* INITIALZOOMFACTOR;
+	private final double INITIALZOOMFACTOR;
+	private final double EPIDISPLAYWIDTH;
+	private final double EPIDISPLAYHEIGHT;
 	
-	private static final int DISPLAYBORDER = 40;
-	
+	public static final int DISPLAYBORDER = 40;	
 	private final double MAXHEIGHTFACTOR = 1;
 	
-	private boolean workaroundPauseWasPressed = false;
-	
+	private boolean workaroundPauseWasPressed = false;	
 	private boolean pausedBecauseOfMainFrameResize = false;
 	
-	private final int STATUSBARHEIGHT = 25;
+	private final int STATUSBARHEIGHT = 25;	
+	private final double EPIDISPLAYSTANDARDWIDTH = 800;
+	private final double EPIDISPLAYSTANDARDHEIGHT = 500;
 	
-	/*
-	private final double EPIDISPLAYWIDTH = 750;
-	private final double EPIDISPLAYHEIGHT = 700;
-	*/
 	
 	private final int DEFAULTCHARTWIDTH = 400;
 	private final int DEFAULTCHARTHEIGHT = 350;
@@ -124,53 +120,53 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	private ArrayList<SimulationStateChangeListener> simulationStateListeners;
 	
-	private boolean autoArrangeWindows = true;
-	
-	
+	private boolean autoArrangeWindows = true;	
 	
 	ContinuousPortrayal2D epiPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D basementPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D woundPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D rulerPortrayal = new ContinuousPortrayal2D();
-	ContinuousPortrayal2D gridPortrayal = new ContinuousPortrayal2D();
+	ContinuousPortrayal2D gridPortrayal = new ContinuousPortrayal2D();	
 	
-	
-	public EpidermisGUIState(JFrame mainFrame) {		
-		
+	public EpidermisGUIState(JFrame mainFrame){			
 		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
 	}
-	public EpidermisGUIState(JPanel mainPanel) {	
+	public EpidermisGUIState(JPanel mainPanel){	
 		this(new Epidermis(System.currentTimeMillis()), (Component)mainPanel, false);
 	}
 
-	public EpidermisGUIState(SimState state, JPanel mainPanel, boolean reloadSnapshot) {
+	public EpidermisGUIState(SimState state, JPanel mainPanel, boolean reloadSnapshot){
 		this(new Epidermis(System.currentTimeMillis()), (Component)mainPanel, reloadSnapshot);
-	}
-	
-	public EpidermisGUIState(SimState state, Component mainComp, boolean reloadSnapshot) {
-		
+	}	
+	public EpidermisGUIState(SimState state, Component mainComp, boolean reloadSnapshot){		
 		super(state);
+		double zoomFactorHeight = EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeight();
+		double zoomFactorWidth = EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidth();
+		
+		INITIALZOOMFACTOR = zoomFactorWidth < zoomFactorHeight ? zoomFactorWidth : zoomFactorHeight;
+		
+		EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidth() * INITIALZOOMFACTOR;
+		EPIDISPLAYHEIGHT = TissueController.getInstance().getTissueBorder().getHeight() * INITIALZOOMFACTOR;
+		
 		if(state instanceof TissueType) TissueController.getInstance().registerTissue(((TissueType) state));
 		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();
 		ChartController.getInstance().registerChartSetChangeListener(this);
-		this.mainComponent = mainComp;
+		this.mainComponent = mainComp;		
+		this.setConsole(new EpisimConsole(this, reloadSnapshot));		
 		
-		this.setConsole(new EpisimConsole(this, reloadSnapshot));
-		basementPortrayalDraw =new BasementMembranePortrayal2D(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), DISPLAYBORDER);
-		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER));
-		rulerPortrayalDraw =new RulerPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
-		gridPortrayalDraw =new GridPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+ (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
-		
+		basementPortrayalDraw = new BasementMembranePortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER), DISPLAYBORDER);
+		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER));
+		rulerPortrayalDraw = new RulerPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
+		gridPortrayalDraw = new GridPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);		
 	}
 	
 	
 	
 	public Inspector getCellBehavioralModelInspector() {
-
-		EpisimCellBehavioralModelGlobalParameters chemModel = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
-		if(chemModel == null)
+		EpisimCellBehavioralModelGlobalParameters cbmModel = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
+		if(cbmModel == null)
 			return null;
-		Inspector i = new SimpleInspector(chemModel, this);
+		Inspector i = new SimpleInspector(cbmModel, this);
 		i.setVolatile(false);
 		return i;
 	}
@@ -274,7 +270,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		java.awt.Color myColor = java.awt.Color.lightGray;
 
 		
-		epiPortrayal.setPortrayalForClass(UniversalCell.class, new UniversalCellPortrayal2D(myColor) {
+		epiPortrayal.setPortrayalForClass(UniversalCell.class, new UniversalCellPortrayal2D(myColor, INITIALZOOMFACTOR){
 
 			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
 				System.out.println("Hallo Inspector");

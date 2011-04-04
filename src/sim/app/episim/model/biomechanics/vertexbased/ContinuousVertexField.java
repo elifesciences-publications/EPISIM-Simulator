@@ -30,8 +30,7 @@ public class ContinuousVertexField{
 		}
 		protected boolean isVertexInQuadrant(Vertex v, boolean takeNewValues){
 			double x = takeNewValues ? v.getNewX() : v.getDoubleX();
-			double y = takeNewValues ? v.getNewY() : v.getDoubleY();
-			
+			double y = takeNewValues ? v.getNewY() : v.getDoubleY();			
 			return x >= x1 && x < x2 && y >= y1 && y < y2;
 		}
 	}

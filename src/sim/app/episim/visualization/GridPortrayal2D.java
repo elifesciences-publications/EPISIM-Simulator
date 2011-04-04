@@ -60,8 +60,8 @@ public class GridPortrayal2D extends SimplePortrayal2D{
 	    public GridPortrayal2D(double width, double height, int border, double implicitScale) {
 	   	 this.width = width;
 	   	 this.height = height;
-	   	 this.INITIALWIDTH = width;
-	   	 this.INITIALHEIGHT = height;
+	   	 this.INITIALWIDTH = ((int)width);
+	   	 this.INITIALHEIGHT = ((int)height);
 	   	
 	   	 this.border = border;
 	   	 this.implicitScale = implicitScale;
@@ -114,7 +114,7 @@ public class GridPortrayal2D extends SimplePortrayal2D{
 		
 	    }
 	    private double getDeltaX(){
-	   	 if(lastActualInfo.clip.width< width){
+	   	 if((lastActualInfo.clip.width+1)< width){
 	   		 return lastActualInfo.clip.getMinX();
 
 	   		 
@@ -124,7 +124,7 @@ public class GridPortrayal2D extends SimplePortrayal2D{
 	    
 	    private double getDeltaY(){
 	   	 
-	   	 if(lastActualInfo.clip.height < height){
+	   	 if((lastActualInfo.clip.height+1) < height){
 	   		 return lastActualInfo.clip.getMinY();
 	   	 }
 	   	 else return 0;

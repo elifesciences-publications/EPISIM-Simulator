@@ -15,12 +15,9 @@ public abstract class AbstractMechanicalModel implements EpisimBiomechanicalMode
 		this.cell = cell;
 	}
 	
-	protected AbstractCell getCell(){ return this.cell; }
+	protected AbstractCell getCell(){ return this.cell; }	
 	
-	public abstract BiomechanicalModelInitializer getBiomechanicalModelInitializer();
-	
-	public abstract BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile);
-	
-	
-		
+	public abstract BiomechanicalModelInitializer getBiomechanicalModelInitializer();	
+	public abstract BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile);	
+
 }

@@ -51,35 +51,33 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 	    private static final float SPACE = 4;
 	    private int border;
 	    private int ruleroffset;
-	    private final int OFFSET = 0; //distance ruler <->tissue
+	    private final int OFFSET = 0; //distance ruler <-> tissue
 	    
-	    private double implicitScale;
-	    
+	    private double implicitScale;	    
 	    private double rulerResolution = 5;
 	    
-	    public RulerPortrayal2D(double width, double height, int border, double implicitScale) {
-	   	 this.width = width;
-	   	 this.height = height;
-	   	 this.INITIALWIDTH = width;
-	   	 this.INITIALHEIGHT = height;
+	public RulerPortrayal2D(double width, double height, int border, double implicitScale) {
+	 	 this.width = ((int)width);
+	  	 this.height = ((int)height);
+	  	 this.INITIALWIDTH = ((int)width);
+	  	 this.INITIALHEIGHT = ((int)height);
 	   	
-	   	 this.border = border;
-	   	 this.implicitScale = implicitScale;
-	   	 this.ruleroffset = border - OFFSET;
-	    }
-	    
-	        
-	    Rectangle2D.Double oldDraw = null;  
+	  	 this.border = border;
+	  	 this.implicitScale = implicitScale;
+	  	 this.ruleroffset = border - OFFSET;
+	}
+	Rectangle2D.Double oldDraw = null;  
 	    
 	    // assumes the graphics already has its color set
 	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 		if(firstInfo == null){
-			firstInfo = info; // is assigned during the first call of this method
-			
+			firstInfo = info; // is assigned during the first call of this method			
 		}
+		
 		lastActualInfo = info;
-		width = INITIALWIDTH *getScaleFactorOfTheDisplay();
-		height = INITIALHEIGHT *getScaleFactorOfTheDisplay();
+		
+		width = INITIALWIDTH * getScaleFactorOfTheDisplay();
+		height = INITIALHEIGHT * getScaleFactorOfTheDisplay();
 		
 		if(lastActualInfo != null &&lastActualInfo.clip !=null){ 
 			
@@ -204,20 +202,17 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 				graphics.draw(horizontalLine);
 				graphics.draw(verticalLine);
 	    }
-
 	    
 	    private double getDeltaX(){
-	   	 if(lastActualInfo.clip.width< width){
-	   		 return lastActualInfo.clip.getMinX();
-
-	   		 
+	   	 if((lastActualInfo.clip.width+1)< width){
+	   		 return lastActualInfo.clip.getMinX();	   		 
 	   	 }
 	   	 else return 0;
 	    }
 	    
 	    private double getDeltaY(){
 	   	 
-	   	 if(lastActualInfo.clip.height < height){
+	   	 if((lastActualInfo.clip.height+1) < height){
 	   		 return lastActualInfo.clip.getMinY();
 	   	 }
 	   	 else return 0;
@@ -240,8 +235,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 		this.crosshairsVisible = visible;
 	}
 	
-	public void setActMousePosition(Point2D mousePosition){
-		
+	public void setActMousePosition(Point2D mousePosition){		
 		if(mousePosition != null && lastActualInfo != null
 		   && mousePosition.getX() >= lastActualInfo.clip.getMinX()
 		   && mousePosition.getX() <= lastActualInfo.clip.getMaxX()
@@ -250,21 +244,16 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 				actMousePositionXY = mousePosition;
 		else actMousePositionXY = null;
 	}
-
-
+	
 	private double getScaledNumberOfPixelPerMicrometer(DrawInfo2D info){
 		return TissueController.getInstance().getTissueBorder().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay();
-	}
-
+	}	
 	
-	public boolean isHitAndButtonPressed() {
+	public boolean isHitAndButtonPressed(){
 			return hitAndButtonPressed;
 	}
 
-
-
 	private double getScaleFactorOfTheDisplay(){
-		
 		
 		return Scale.displayScale;
 	}

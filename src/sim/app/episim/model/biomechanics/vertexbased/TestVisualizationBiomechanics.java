@@ -62,6 +62,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	private final int CANVAS_ANCHOR_X = 40;
 	private final int CANVAS_ANCHOR_Y = 40;
 	
+	private long simStepNo = 0;
+	
 	public enum VisualizationUnit{
 		PROLIFERATINGCELLS("Proliferation Cells"),
 		VERTICES("Vertices"),
@@ -120,9 +122,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
    	this(autoStart, null, null, numberOfCellDivisions, false);
    }   
    
-	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, String csvPath, int numberOfCellDivisions, boolean headlessMode){		
-		
-		
+	public TestVisualizationBiomechanics(boolean autoStart, String moviePath, String csvPath, int numberOfCellDivisions, boolean headlessMode){	
       
 		visualizationConfigurationMap = new HashMap<VisualizationUnit, Boolean>();		
 		for(VisualizationUnit unit : VisualizationUnit.values()) visualizationConfigurationMap.put(unit, false);		
@@ -141,7 +141,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		
 		if(LOAD_STANDARD_MEMBRANE)configureStandardMembrane();
 		cells = CellPolygonNetworkBuilder.getStandardMembraneCellArray();
-		CellPolygonCalculationController.getInstance().setCellPolygonArrayInCalculator(cells);
+		VertexBasedModelController.getInstance().setCellPolygonArrayInCalculator(cells);
 		ContinuousVertexField.initializeContinousVertexField(500, 420);
 		cellCanvas = new CellCanvas(CANVAS_ANCHOR_X, CANVAS_ANCHOR_Y, 500, 420);
 		
@@ -288,10 +288,10 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 						for(int n = 0; n < cells.length; n++){
 							polygon = cells[((n+randomStartIndexCells)% cells.length)];
 							//	System.out.println("Cell No. "+ polygon.getId() + " Size before: " +polygon.getCurrentArea());
-							polygon.step(null);							
+							polygon.step(simStepNo);							
 						}
 						GlobalBiomechanicalStatistics.getInstance().step(null); 
-						resetCalculationStatusOfAllCells();					
+						simStepNo++;					
 						
 						if(!headlessMode) visualizationPanel.repaint();
 						else paintToMovie();
@@ -329,6 +329,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
                }
 				}
 			}
+			simStepNo = 0;
 		}
 	        
         
@@ -339,12 +340,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	
 	
 	
-	private void resetCalculationStatusOfAllCells(){
-		for(CellPolygon actPolygon: cells){
-			actPolygon.resetCalculationStatusOfAllVertices();			
-			//if(actPolygon.isSelected())System.out.println("Cell No. "+ actPolygon.getId() + " Size after: " +actPolygon.getCurrentArea() + "(selected) Difference: " + (actPolygon.getCurrentArea() - actPolygon.getPreferredArea()));
-		}
-	}
+	
 	
 	
 	
@@ -363,7 +359,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		g.draw(borderPath);
 		g.setColor(oldColor);
 		g.setStroke(oldStroke);
-		CellPolygonCalculator cellPolygonCalculator = CellPolygonCalculationController.getInstance().getCellPolygonCalculator();
+		CellPolygonCalculator cellPolygonCalculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		if(cells!= null){
 			for(CellPolygon cellPol : cells) drawCellPolygon(g, cellPol);
 			if(visualizationConfigurationMap.get(VisualizationUnit.CORRUPTLINES)){
@@ -476,7 +472,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			System.arraycopy(cells, 0, newCellArray, 0, cells.length);
 			newCellArray[cells.length] = newCell;
 			cells= newCellArray;
-			CellPolygonCalculationController.getInstance().setCellPolygonArrayInCalculator(cells);
+			VertexBasedModelController.getInstance().setCellPolygonArrayInCalculator(cells);
 			
 			newCell.addProliferationAndApoptosisListener(this);			
 			
@@ -492,7 +488,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			
 			this.numberOfCellDivisions++;
 				 
-			CellPolygonCalculationController.getInstance().getCellPolygonCalculator().randomlySelectCellForProliferation();
+			VertexBasedModelController.getInstance().getCellPolygonCalculator().randomlySelectCellForProliferation();
 		
 			if(numberOfCellDivisions >= this.maxNumberOfCellDivisions 
 					|| GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER) > ((((double)ASSUMED_PROLIFERATION_CYCLE)+10)*((double)maxNumberOfCellDivisions))){
@@ -512,7 +508,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	   	cells = new CellPolygon[cellList.size()];
 	   	cellList.toArray(cells);
 	   	pol.removeProliferationAndApoptosisListener(this);
-	   	CellPolygonCalculationController.getInstance().setCellPolygonArrayInCalculator(cells);
+	   	VertexBasedModelController.getInstance().setCellPolygonArrayInCalculator(cells);
 	   }
 	   
    }	

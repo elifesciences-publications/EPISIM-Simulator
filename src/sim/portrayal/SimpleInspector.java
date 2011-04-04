@@ -66,12 +66,12 @@ public class SimpleInspector extends Inspector
         }
         
     public SimpleInspector(Object object, GUIState state)
-        {
+    {
         this(object,state,null);
-        }
+    }
     
     public SimpleInspector(Object object, GUIState state, String name) 
-        { 
+    { 
         super();
         setLayout(new BorderLayout());
         this.object = object;
@@ -80,7 +80,7 @@ public class SimpleInspector extends Inspector
         header.setLayout(new BorderLayout());
         add(header,BorderLayout.NORTH);
         generateProperties(0);
-        }
+    }
     
     /* Creates a JPopupMenu that possibly includes "View" to
        view the object instead of using the ViewButton.  If not, returns null. */

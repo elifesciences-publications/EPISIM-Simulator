@@ -7,6 +7,7 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	private int basalAmplitude_µm = 40; // depth of an undulation
 	private int basalOpening_µm = 250; // width of undulation at the middle
 	private double width = 140;
+	private double height = 100;
 	private double randomness = 0.05;
 	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
 	private boolean seedReverse = false;	
@@ -115,23 +116,26 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 		return cohesion;
 	}
 	public void setCohesion(double val) {
-		if(val >= 0.0)
-			cohesion = val;
+		if(val >= 0.0) cohesion = val;
 	}
 	public double getGravitation() {
 		return gravitation;
 	}
 	public void setGravitation(double val) {
-		if(val >= 0.0)
-			gravitation = val;
+		if(val >= 0.0) gravitation = val;
 	}	
 	public void setWidth(double val) {
-		if(val > 0)
-			width = val;
+		if(val > 0)	width = val;
 	}	
 	public double getWidth() {
 		return width;
-	}
+	}	
+   public double getHeight() {   
+   	return height;
+   }	
+   public void setHeight(double val) {   
+   	if(val > 0) this.height = val;
+   }
 
 	
   

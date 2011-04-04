@@ -36,10 +36,10 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 
 	private boolean refreshInfo = true;
 
-	public WoundPortrayal2D(double width, double height) {
+ 	public WoundPortrayal2D(double width, double height) {
 
-		this.width = width;
-		this.height = height;
+		this.width = ((int)width);
+		this.height = ((int)height);
 		SnapshotWriter.getInstance().addSnapshotListener(this);
 
 	}
@@ -117,7 +117,7 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 
 	private double getDeltaX() {
 
-		if(lastActualInfo.clip.width < width){
+		if((lastActualInfo.clip.width+1) < width){
 			return lastActualInfo.clip.getMinX() - deltaInfo.clip.getMinX();
 		}
 		else
@@ -126,7 +126,7 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 
 	private double getDeltaY() {
 
-		if(lastActualInfo.clip.height < height){
+		if((lastActualInfo.clip.height+1) < height){
 			return lastActualInfo.clip.getMinY() - deltaInfo.clip.getMinY();
 		}
 		else

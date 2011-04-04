@@ -44,6 +44,8 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 		@NotInStatisticsHeaderString
 		private double width = 500;
 		@NotInStatisticsHeaderString
+		private double height = 450;		
+		@NotInStatisticsHeaderString
 		private double neighborhood_µm= 50.0;
 	//----------------------------------------------------------------------------------------------------------------------
 	
@@ -89,7 +91,14 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
    public void setBasalOpening_µm(int basalOpening_µm) { this.basalOpening_µm = basalOpening_µm; }
 	
    public double getWidth() {	return width; }	
-   public void setWidth(double width) { this.width = width; }
+   public void setWidth(double val) { if(val > 0)this.width = val; }
+   
+   public double getHeight() {   
+   	return height;
+   }	
+   public void setHeight(double val) {   
+   	if(val > 0) this.height = val;
+   }
 	
    public double getNeighborhood_µm() { return neighborhood_µm; }
    public void setNeighborhood_µm(double neighborhood_µm) { this.neighborhood_µm = neighborhood_µm; }

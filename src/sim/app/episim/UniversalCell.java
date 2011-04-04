@@ -174,14 +174,10 @@ public class UniversalCell extends AbstractCell
     {
      	
      	 
-     	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(this.getNeighbouringCells());
-   	
-   	 
+     	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(this.getNeighbouringCells());  	 
   
    	 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
-   	 else this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);
-   	 	  	 
-   	
+   	 else this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
 		
    	 EpisimCellBehavioralModel[] children = this.getEpisimCellBehavioralModelObject().oneStep(realNeighboursDiffModel);
 		/*	long timeAfter = System.currentTimeMillis();
@@ -235,16 +231,12 @@ public class UniversalCell extends AbstractCell
 		
 		super.step(state);
 		final Epidermis epiderm = (Epidermis) state;		
-		
-		if(isInNirvana() || !this.getEpisimCellBehavioralModelObject().getIsAlive()){
-			
-
-			removeFromSchedule();
-			
+		if(isInNirvana() || !this.getEpisimCellBehavioralModelObject().getIsAlive()){		
+			removeFromSchedule();			
 		}
 		else{
-			hasGivenIons = 0;
 			
+			hasGivenIons = 0;			
 			getEpisimBioMechanicalModelObject().newSimStep(state.schedule.getSteps());
 			
 //			long timeBefore = System.currentTimeMillis();

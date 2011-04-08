@@ -11,6 +11,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
@@ -405,9 +406,8 @@ public abstract class CellPolygonNetworkBuilder {
 	}
 	
 	public static CellPolygon[] getStandardMembraneCellArray(){
-		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
-		ArrayList<CellPolygon> standardCellEnsemble = new ArrayList<CellPolygon>();
 		
+		ArrayList<CellPolygon> standardCellEnsemble = new ArrayList<CellPolygon>();		
 		Double2D lastloc = new Double2D(0, (int)TissueController.getInstance().getTissueBorder().lowerBound(CellPolygonCalculator.SIDELENGTH)-CellPolygonCalculator.SIDELENGTH);
 		Double2D newloc= null;
 		for(double x = CellPolygonCalculator.SIDELENGTH; x <= TissueController.getInstance().getTissueBorder().getWidth(); x += 1){		
@@ -415,12 +415,19 @@ public abstract class CellPolygonNetworkBuilder {
 				
 			newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBound(x)-CellPolygonCalculator.SIDELENGTH);			
 			
-			if(newloc.distance(lastloc) > 3* CellPolygonCalculator.SIDELENGTH || x == CellPolygonCalculator.SIDELENGTH){
+			if(newloc.distance(lastloc) > 4 * CellPolygonCalculator.SIDELENGTH || x == CellPolygonCalculator.SIDELENGTH){
 				CellPolygon cell = getStandardCellArray((int)x, (int)(TissueController.getInstance().getTissueBorder().lowerBound(x)-CellPolygonCalculator.SIDELENGTH), 1, 1)[0];	
 				standardCellEnsemble.add(cell);
 				lastloc = newloc;		//	}	
 			}
-		}
+		}		
+		setCellEnsembleToMinBasalLayerDistance(standardCellEnsemble);
+		
+		return standardCellEnsemble.toArray(new CellPolygon[standardCellEnsemble.size()]);
+	}
+	
+	private static void setCellEnsembleToMinBasalLayerDistance(ArrayList<CellPolygon> standardCellEnsemble){
+		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		for(CellPolygon cell: standardCellEnsemble){
 			double minBasalLayerDistance = calculator.getMinDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(),cell);
 			int sign = 1;
@@ -437,15 +444,31 @@ public abstract class CellPolygonNetworkBuilder {
 				minBasalLayerDistance = calculator.getMinDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(),cell);
 			}			
 		}
-		return standardCellEnsemble.toArray(new CellPolygon[standardCellEnsemble.size()]);
 	}
 	
+	public static void setCellPolygonSizeAccordingToAge(double age, CellPolygon cellPolygon){
+		
+		double additionalArea =((VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).getGrowth_rate_per_sim_step()*age;
+		double totalArea = additionalArea + cellPolygon.getCurrentArea();
+		
+		Vertex cellCenter = cellPolygon.getCellCenter();		
+		double newSideLength = Math.sqrt(((2d/3d)*totalArea)/Math.sqrt(3d));
+		for(Vertex v : cellPolygon.getUnsortedVertices()){
+			double[] directionVector = ContinuousVertexField.getInstance().getNormDirectionVector(v, cellCenter);
+			v.setDoubleX(cellCenter.getDoubleX() + newSideLength*directionVector[0]);
+			v.setDoubleY(cellCenter.getDoubleY() + newSideLength*directionVector[1]);
+		}
+		
+		ArrayList<CellPolygon> cell = new ArrayList<CellPolygon>();
+		cell.add(cellPolygon);		
+		if(age>0) cellPolygon.activateInitialRandomStemCellProliferation();		
+	}	
 	
 	private static CellPolygon[] getStandardCellArray(int startX, int startY, int rows, int columns){
 		
 		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
 		
-		int height = Math.round((float) Math.sqrt(Math.pow(CellPolygonCalculator.SIDELENGTH, 2)-Math.pow(CellPolygonCalculator.SIDELENGTH/2, 2)));
+		int height = Math.round((float) Math.sqrt(Math.pow(CellPolygonCalculator.SIDELENGTH, 2) - Math.pow(CellPolygonCalculator.SIDELENGTH/2, 2)));
 		
 		CellPolygon[] cells = getCells(startX, startY, rows, columns, height);
 		Vertex[][] vertices = getVertices(startX, startY, rows, columns, height);
@@ -455,16 +478,14 @@ public abstract class CellPolygonNetworkBuilder {
 				for(int cellNo = 0; cellNo <  cells.length; cellNo++){
 					if(vertices[rowNo][columnNo] != null && cells[cellNo] != null
 						&&	((int)distance(cells[cellNo].getX(), cells[cellNo].getY(), vertices[rowNo][columnNo].getIntX(), vertices[rowNo][columnNo].getIntY())) <= CellPolygonCalculator.SIDELENGTH)
-						cells[cellNo].addVertex(vertices[rowNo][columnNo]);
-					
+						cells[cellNo].addVertex(vertices[rowNo][columnNo]);					
 				}
 			}
-		}
+		}		
 		calculator.setCellPolygons(cells);
 		for(CellPolygon pol : cells){
-			pol.setPreferredArea(pol.getCurrentArea());
-			
-		}
+			pol.setPreferredArea(pol.getCurrentArea());			
+		}		
 		return cells;		
 	}
 	

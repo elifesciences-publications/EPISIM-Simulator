@@ -43,7 +43,7 @@ public class EpisimProperties {
 	public static final String SIMULATOR_CHARTSETPATH = "simulator.chartsetpath";
 	public static final String SIMULATOR_DATAEXPORTPATH = "simulator.dataexportpath";
 	public static final String SIMULATOR_CHARTPNGPRINTPATH = "simulator.chartpngprintpath";	
-	public static final String SIMULATOR_CHARTPNGPRINTFREQ = "simluator.chartpngprintfreq";
+	public static final String SIMULATOR_CHARTPNGPRINTFREQ = "simulator.chartpngprintfreq";
 	
 	public static final String SIMULATOR_SIMULATION_RUN_ID = "simulator.simulationrun.id";
 	

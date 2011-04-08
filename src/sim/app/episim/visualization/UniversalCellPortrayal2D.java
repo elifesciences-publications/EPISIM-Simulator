@@ -32,22 +32,28 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
     private boolean drawFrame = true;
     private double implicitScale;
     
+    private static long actSimStep;
+    
+    private final double INITIALWIDTH;
+    private final double INITIALHEIGHT;
+    
+    private int border = 0;
+    
     public UniversalCellPortrayal2D(double implicitScale) {   	 
-   	 this(Color.gray,false, implicitScale);   	 
+   	 this(Color.gray, false, implicitScale, 0, 0, 0);   	 
     }    
-    public UniversalCellPortrayal2D(Paint paint, double implicitScale){   	 
-   	 this(paint, true, implicitScale);  	 
+    public UniversalCellPortrayal2D(Paint paint, double implicitScale, double width, double height, int border){   	 
+   	 this(paint, true, implicitScale, width, height, border);  	 
     }    
-    
-    public UniversalCellPortrayal2D(boolean drawFrame, double implicitScale) { 
-   	 this(Color.gray, drawFrame, implicitScale);   	
-    }    
-    
-    public UniversalCellPortrayal2D(Paint paint, boolean drawFrame, double implicitScale)  {   	
-   	 cBModelController = ModelController.getInstance().getCellBehavioralModelController();
-   	 this.paint = paint; 
-   	 this.drawFrame = drawFrame;  
-   	 this.implicitScale = implicitScale;
+      
+    public UniversalCellPortrayal2D(Paint paint, boolean drawFrame, double implicitScale, double width, double height, int border)  {   	
+   	cBModelController = ModelController.getInstance().getCellBehavioralModelController();
+   	this.paint = paint; 
+   	this.drawFrame = drawFrame;  
+   	this.implicitScale = implicitScale;
+   	 this.INITIALWIDTH = ((int)width);
+	  	 this.INITIALHEIGHT = ((int)height);
+	  	 this.border = border;
     }    
     
     // assumes the graphics already has its color set
@@ -98,10 +104,21 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 			               	 double yShift = (rectBefore.getCenterY()-rectAfter.getCenterY());
 			               	 
 			               	 transform = new AffineTransform();
-			               	 transform.translate(xShift, yShift);
+			               	 
+			               	 if((INITIALHEIGHT*getScaleFactorOfTheDisplay()) > (info.clip.height+1)){
+			               		 yShift -= info.clip.y;
+			               	 }
+			               	 
+			               	 if((INITIALWIDTH*getScaleFactorOfTheDisplay()) > (info.clip.width+1)){
+			               		 xShift -= info.clip.x;
+			               	 }
+			               	 
+			               	 transform.translate(xShift+(border*getScaleFactorOfTheDisplay()), yShift+(border*getScaleFactorOfTheDisplay()));
 			               	 path.transform(transform);
+			               	
 			               	 graphics.setPaint(fillColor);
-				                graphics.fill(path);
+				                graphics.fill(path);				                
+				              
 				                if(drawFrame){
 				                  graphics.setColor(getContourColor(universalCell));
 				                  graphics.draw(path);
@@ -109,8 +126,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 			                }
 			                else{
 				                graphics.setPaint(fillColor);
-				                graphics.fillPolygon(cellPolygon);
-				                
+				                graphics.fillPolygon(cellPolygon);				                
 				                if(drawFrame)
 				                {
 				                  graphics.setColor(getContourColor(universalCell));

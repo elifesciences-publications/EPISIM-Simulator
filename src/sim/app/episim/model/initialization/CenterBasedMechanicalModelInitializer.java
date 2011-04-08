@@ -45,7 +45,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 					|| (depthFrac(newloc.y) < biomechanicalModelGlobalParameters.getSeedMinDepth_frac() && biomechanicalModelGlobalParameters.getSeedReverse()))
 				if(distance > biomechanicalModelGlobalParameters.getBasalDensity_µm()){
 					
-					UniversalCell stemCell = new UniversalCell(AbstractCell.getNextCellId(),-1, null);					
+					UniversalCell stemCell = new UniversalCell(AbstractCell.getNextCellId(),-1, null, null);					
 					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject().setXY(((int)newloc.x), ((int)newloc.y));
 					TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().setObjectLocation(stemCell, newloc);
 					standardCellEnsemble.add(stemCell);
@@ -62,6 +62,13 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	//TODO: Initialisierungsmethode implementieren
    protected ArrayList<UniversalCell> buildInitialCellEnsemble(File file){	  
 	   return new ArrayList<UniversalCell>();
+   }
+
+	
+   protected void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble) {
+
+	   //This method has to be implemented but has nothing to do in this model
+	   
    }
 
 	

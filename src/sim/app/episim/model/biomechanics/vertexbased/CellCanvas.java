@@ -80,7 +80,7 @@ public class CellCanvas {
 		Polygon p = new Polygon();			
 		Vertex[] sortedVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getSortedVertices());		
 		for(Vertex v : sortedVertices){	
-			p.addPoint(v.getIntX() + x + ((int)deltaX), v.getIntY() + y + ((int)deltaY));				
+			p.addPoint(v.getIntX() + x + ((int)deltaX), v.getIntY() + y + ((int)deltaY));			
 		}
 		return p;
 	}	

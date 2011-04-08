@@ -67,14 +67,13 @@ public class UniversalCell extends AbstractCell
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
    public UniversalCell(){
-   this(-1, -1,  null);
+   	this(-1, -1,  null, null);
    }
-    public UniversalCell(long id, long motherId, EpisimCellBehavioralModel cellBehavioralModel)
-    {   
-   	 super(id, motherId, cellBehavioralModel);      
+   
+   public UniversalCell(long id, long motherId, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){   
+   	 super(id, motherId, cellBehavioralModel, simState);      
    	 TissueController.getInstance().getActEpidermalTissue().checkMemory();
-   	 TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag
-       
+   	 TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag       
     }  
     
     public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
@@ -85,21 +84,14 @@ public class UniversalCell extends AbstractCell
    	 // Either we get use a currently unused cell oder we allocate a new one
         UniversalCell kcyte;        
        
-        kcyte= new UniversalCell(AbstractCell.getNextCellId(), getID(), cellBehavioralModel); 
+        kcyte= new UniversalCell(AbstractCell.getNextCellId(), getID(), cellBehavioralModel, getActSimState()); 
         cellBehavioralModel.setId((int)kcyte.getID());
          
             
         Stoppable stoppable = TissueController.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
         kcyte.setStoppable(stoppable);
           
-        double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25;
-        double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1; 
-               
-        Double2D oldLoc=cellContinous2D.getObjectLocation(this);
-        
-     //   double deltaDrawX = newloc.
          
-        Double2D newloc=new Double2D(oldLoc.x + deltaX, oldLoc.y-deltaY);   
         
        
          //in the first two thousand sim steps homeostasis has to be achieved, cells max age is set to the sim step time to have more variation  
@@ -108,15 +100,26 @@ public class UniversalCell extends AbstractCell
         if (pSimTime<(kcyte.local_maxAge)){ 
       	  kcyte.local_maxAge=pSimTime;
       	  cellBehavioralModel.setMaxAge((int)kcyte.local_maxAge);
-        }
-        
-        cellContinous2D.setObjectLocation(kcyte, newloc);
-        
-        
+        }        
+              
         
         if(this.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+      	  double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25;
+           double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1; 
+                  
+           Double2D oldLoc=cellContinous2D.getObjectLocation(this);
+           
+        //   double deltaDrawX = newloc.
+            
+           Double2D newloc=new Double2D(oldLoc.x + deltaX, oldLoc.y-deltaY); 
+           
+           cellContinous2D.setObjectLocation(kcyte, newloc);
+           
       	  DrawInfo2D info = ((CenterBasedMechanicalModel)this.getEpisimBioMechanicalModelObject()).getCellEllipseObject().getLastDrawInfo2D();
       	  ((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).setLastDrawInfo2DForNewCellEllipse(info, newloc, oldLoc);
+        }
+        else{
+      	  cellContinous2D.setObjectLocation(kcyte, new Double2D(kcyte.getEpisimBioMechanicalModelObject().getX(), kcyte.getEpisimBioMechanicalModelObject().getY()));
         }
 		              
         return kcyte;
@@ -127,7 +130,8 @@ public class UniversalCell extends AbstractCell
         
         GlobalStatistics.getInstance().inkrementActualNumberKCytes();
         UniversalCell taCell=makeChild(cellBehavioralModel);
-                    
+         
+        //TODO enable / disable random age for TA Cells
         taCell.getEpisimCellBehavioralModelObject().setAge(TissueController.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
        
        
@@ -210,15 +214,14 @@ public class UniversalCell extends AbstractCell
    	 
       if (!this.getEpisimCellBehavioralModelObject().getIsAlive()) // && (isOuterCell))
       {
-            killCell();
+         killCell();
       }
   
    }
     
     private void makeChildren(EpisimCellBehavioralModel[] children){
    	 if(children!=null){
-   		 for(EpisimCellBehavioralModel actChild: children){
-   			 
+   		 for(EpisimCellBehavioralModel actChild: children){   			 
    			 if(actChild.getDiffLevel().ordinal() == EpisimDifferentiationLevel.TACELL) makeTACell(actChild);
    			 else if(actChild.getDiffLevel().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL) makeSpiCell(actChild);
    		 }
@@ -230,6 +233,7 @@ public class UniversalCell extends AbstractCell
 	public void step(SimState state) {
 		
 		super.step(state);
+		
 		final Epidermis epiderm = (Epidermis) state;		
 		if(isInNirvana() || !this.getEpisimCellBehavioralModelObject().getIsAlive()){		
 			removeFromSchedule();			
@@ -244,12 +248,8 @@ public class UniversalCell extends AbstractCell
 			//   Differentiation: Calling the loaded Cell-Diff-Model
 			/////////////////////////////////////////////////////////
 			newSimStepCellBehavioralModel();
-			
-			
-			
-			//newSimStepCellBehavioralModel();
-				
-			
+						
+			//newSimStepCellBehavioralModel();			
 /*			long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
 			long deltaTimeTmp = timeAfter-timeBefore;

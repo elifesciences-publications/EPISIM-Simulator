@@ -289,18 +289,15 @@ public class CellPolygonCalculator {
                   														? line.getDistanceOfVertex(newVertex2, false, true) : Double.POSITIVE_INFINITY;
 						
 						
-						if(distanceToAdhesionLineNewVertex1 < Double.POSITIVE_INFINITY && distanceToAdhesionLineNewVertex2 < Double.POSITIVE_INFINITY){
-							
+						if(distanceToAdhesionLineNewVertex1 < Double.POSITIVE_INFINITY && distanceToAdhesionLineNewVertex2 < Double.POSITIVE_INFINITY){							
 							adhCell.addVertex(newVertex1);
 							adhCell.addVertex(newVertex2);
 							doT3TransitionLineVertexReplacementCheck(line, newVertex1);
-							doT3TransitionLineVertexReplacementCheck(line, newVertex2);
-							
+							doT3TransitionLineVertexReplacementCheck(line, newVertex2);							
 							line1Cells[0].addVertex(newVertex1);
 							line2Cells[0].addVertex(newVertex2);
 							doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[0], newVertex1);
-							doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[1], newVertex2);
-							
+							doT3TransitionLineVertexReplacementCheck(linesConnectedToVertex[1], newVertex2);							
 							GlobalBiomechanicalStatistics.getInstance().set(GBSValue.T3_TRANSITION_NUMBER, (GlobalBiomechanicalStatistics.getInstance().get(GBSValue.T3_TRANSITION_NUMBER)+1));
 							System.out.println("T3 Transition performed");
 						}
@@ -335,19 +332,15 @@ public class CellPolygonCalculator {
 		}
 	}
 	
-	private boolean isNotSelfAdhesion(Vertex adhVertex, Line adhLine){
-		
+	private boolean isNotSelfAdhesion(Vertex adhVertex, Line adhLine){		
 		CellPolygon[] adhLineCellPolygons  = adhLine.getCellPolygonsOfLine();
 		HashSet<CellPolygon> adhVertexCellPolygons = new HashSet<CellPolygon>();
-		adhVertexCellPolygons.addAll(Arrays.asList(adhVertex.getCellsJoiningThisVertex()));
-		
+		adhVertexCellPolygons.addAll(Arrays.asList(adhVertex.getCellsJoiningThisVertex()));		
 		for(CellPolygon adhLineCellPol : adhLineCellPolygons){
 			if(adhVertexCellPolygons.contains(adhLineCellPol)){ 
-				
 				return false;
 			}
-		}
-		
+		}		
 		return true;
 	}
 	

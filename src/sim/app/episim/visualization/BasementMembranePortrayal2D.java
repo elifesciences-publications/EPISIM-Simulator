@@ -112,7 +112,7 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
    
    private double getDeltaY(){
   	 
-  	 if(lastActualInfo.clip.height < (INITIALHEIGHT *getScaleFactorOfTheDisplay())){
+  	 if((lastActualInfo.clip.height+1) < (INITIALHEIGHT *getScaleFactorOfTheDisplay())){
   		 return lastActualInfo.clip.getMinY();
   	 }
   	 else return 0;

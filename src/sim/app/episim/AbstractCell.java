@@ -44,12 +44,13 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    
    private SimState actSimState;
    
-   public AbstractCell(long identity, long motherIdentity, EpisimCellBehavioralModel cellBehavioralModel){
+   public AbstractCell(long identity, long motherIdentity, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){
    	inNirvana=false;
    	isOuterCell=false;
    	this.id = identity;
    	this.motherId = motherIdentity;   	
    	this.cellBehavioralModelObject = cellBehavioralModel;
+   	this.actSimState = simState;
    	final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
    	if(cellBehavioralModel == null) this.cellBehavioralModelObject = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
    	mechanicalModelObject =  ModelController.getInstance().getNewBioMechanicalModelObject(this);
@@ -135,11 +136,11 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    
    public void killCell(){
    	 
-  	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
-  	 
-  	 setInNirvana(true);
-  	 this.getEpisimCellBehavioralModelObject().setIsAlive(false);
-  	 removeFromSchedule();  	
+	  	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);
+	  	 
+	  	 setInNirvana(true);
+	  	 this.getEpisimCellBehavioralModelObject().setIsAlive(false);
+	  	 removeFromSchedule();  	
    }
    
    @CannotBeMonitored

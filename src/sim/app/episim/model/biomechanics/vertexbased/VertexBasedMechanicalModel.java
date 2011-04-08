@@ -19,6 +19,7 @@ import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
+import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.CannotBeMonitored;
 
 
@@ -30,29 +31,32 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	private Double2D newPosition;
 	private Double2D oldPosition;
 	
-	private DrawInfo2D lastDrawInfo = null;
+	private DrawInfo2D lastDrawInfo = null;	
 	
-	private long actSimStepNo = 0;
+	private long currentSimStepNo = 0;
 	
 	public VertexBasedMechanicalModel(AbstractCell cell){
 		super(cell);
 		if(cell!= null){
-			cellPolygon = CellPolygonRegistry.getNewCellPolygon(cell.getMotherId(), cell.getActSimState() != null ?cell.getActSimState().schedule.getSteps() : 0);
+			cellPolygon = CellPolygonRegistry.getNewCellPolygon(cell.getMotherId());
 			cellPolygon.addProliferationAndApoptosisListener(this);
 		}
 	}
 	
 	public void setEpisimModelConnector(EpisimModelConnector modelConnector){
+		
 		if(modelConnector instanceof EpisimVertexBasedModelConnector){
    		this.modelConnector = (EpisimVertexBasedModelConnector) modelConnector;
    	}
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimVertexBasedModelConnector");	   
-   }
+   
+	}
 
 	public GenericBag<AbstractCell> getRealNeighbours() {
-		GenericBag<AbstractCell> neighbours = new GenericBag<AbstractCell>();
 		
-		HashSet<Integer> cellPolygonIds = new HashSet<Integer>();		
+		GenericBag<AbstractCell> neighbours = new GenericBag<AbstractCell>();		
+		HashSet<Integer> cellPolygonIds = new HashSet<Integer>();
+		
 		for(CellPolygon cellPol : this.cellPolygon.getNeighbourPolygons()){
 			cellPolygonIds.add(cellPol.getId());
 		}
@@ -84,15 +88,15 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 		lastDrawInfo = info;
 		
 		Vertex cellCenter = this.cellPolygon.getCellCenter();
-		
-		double borderX = 0;
-		double borderY = 0;		
-		if(lastDrawInfo != null){			
-			borderX = info.draw.x + (info.draw.width/2) - cellCenter.getDoubleX();
-			borderY = info.draw.y + (info.draw.height/2) - cellCenter.getDoubleY();			
-		}
-		
-	   return VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, (borderX), (borderY));
+			
+			
+			if(lastDrawInfo != null){
+				double scale = info.draw.height > info.draw.width ? info.draw.height : info.draw.width ;
+				double deltaX = (info.clip.x)+(scale-1)*cellCenter.getDoubleX();
+				double deltaY = (info.clip.y)+(scale-1)*cellCenter.getDoubleY();
+				return VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, (deltaX), (deltaY));
+			}
+	   return VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, 0, 0);
    }
 	
 	@CannotBeMonitored
@@ -106,34 +110,42 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	   return null;
    }
 
-	public boolean nextToOuterCell() {
-
+	public boolean nextToOuterCell(){
 	   // TODO Auto-generated method stub
 	   return false;
    }
 
-	public boolean isMembraneCell() {
-	   // TODO Auto-generated method stub
+	public boolean isMembraneCell() {	   
+		// TODO Auto-generated method stub
 	   return false;
    }
 
-	public GenericBag<AbstractCell> getNeighbouringCells() {
+	public GenericBag<AbstractCell> getNeighbouringCells(){
 	  return getRealNeighbours();
    }
 
 	public void newSimStep(long simStepNumber){
+		currentSimStepNo = simStepNumber;
 		Vertex cellCenter = cellPolygon.getCellCenter();
 		oldPosition = new Double2D(cellCenter.getDoubleX(), cellCenter.getDoubleY());
 		
-		if(!modelConnector.getIsProliferating()) cellPolygon.setPreferredArea(modelConnector.getPrefCellArea());		
-		if(modelConnector.getIsProliferating() && !cellPolygon.isProliferating()) cellPolygon.proliferate();
+	//	if(!modelConnector.getIsProliferating()) cellPolygon.setPreferredArea(modelConnector.getPrefCellArea());		
+		if(modelConnector.getIsProliferating() && !cellPolygon.isProliferating()){ 
+			cellPolygon.proliferate();
+			if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL){
+				System.out.println("Ich sollte nicht proliferieren");
+			}
+		}
 		
 		cellPolygon.step(simStepNumber);
 		
 		cellCenter = cellPolygon.getCellCenter();
 		newPosition = new Double2D(cellCenter.getDoubleX(), cellCenter.getDoubleY());
 		
-		modelConnector.setCellDivisionPossible(cellPolygon.canDivide());
+		if(cellPolygon.canDivide() || CellPolygonRegistry.isWaitingForCellProliferation(getCell().getID())){
+			System.out.println("Hallo, ich kann mich teilen! ID: "+getCell().getID());
+		}		
+		modelConnector.setCellDivisionPossible(cellPolygon.canDivide() || CellPolygonRegistry.isWaitingForCellProliferation(getCell().getID()));
 		modelConnector.setX(cellCenter.getDoubleX());
 		modelConnector.setY(cellCenter.getDoubleY());
    }
@@ -150,14 +162,12 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
    public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){ return new VertexBasedMechanicalModelInitializer(modelInitializationFile); }
 
 	public void proliferationCompleted(CellPolygon oldCell, CellPolygon newCell) {
-		CellPolygonRegistry.registerNewCellPolygon(getCellPolygon().getId(), actSimStepNo, newCell);
+		CellPolygonRegistry.registerNewCellPolygon(getCell().getID(), newCell);		
 		System.out.println("Proliferation Completed!");	   
    }
 
 	public void apoptosisCompleted(CellPolygon pol) {
-
-	   // TODO Auto-generated method stub
-	   
+	   // TODO Auto-generated method stub	   
    }
 
 }

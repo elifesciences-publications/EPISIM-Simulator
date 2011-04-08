@@ -270,7 +270,8 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		java.awt.Color myColor = java.awt.Color.lightGray;
 
 		
-		epiPortrayal.setPortrayalForClass(UniversalCell.class, new UniversalCellPortrayal2D(myColor, INITIALZOOMFACTOR){
+		epiPortrayal.setPortrayalForClass(UniversalCell.class, new UniversalCellPortrayal2D(myColor, INITIALZOOMFACTOR, 
+				                                                        EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER), DISPLAYBORDER){
 
 			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
 				System.out.println("Hallo Inspector");

@@ -327,9 +327,8 @@ public class Epidermis extends TissueType implements CellDeathListener
 				CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
 				if(path.contains(mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.x, mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
 						cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
-					cell.killCell();
-					 
-					  i++;
+					cell.killCell();					 
+					i++;
 				}
 				else{
 					 livingCells.add(cell);
@@ -338,8 +337,8 @@ public class Epidermis extends TissueType implements CellDeathListener
 			}
 		}
 		
-	this.getAllCells().clear();
-	this.cellContinous2D.clear();
+		this.getAllCells().clear();
+		this.cellContinous2D.clear();
 		for(AbstractCell cell: livingCells){
 			this.getAllCells().add(cell);
 			this.cellContinous2D.setObjectLocation(cell, map.get(cell.getID()));

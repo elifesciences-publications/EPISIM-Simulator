@@ -25,6 +25,8 @@ public abstract class BiomechanicalModelInitializer {
 	
 	protected abstract ArrayList<UniversalCell> buildStandardInitialCellEnsemble();
 	
+	protected abstract void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble);
+	
 	protected abstract ArrayList<UniversalCell> buildInitialCellEnsemble(File file);
 
 	

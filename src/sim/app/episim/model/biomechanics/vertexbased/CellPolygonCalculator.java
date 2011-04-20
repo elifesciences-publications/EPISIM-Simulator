@@ -840,7 +840,7 @@ public class CellPolygonCalculator {
 		}
 	}
 	
-	private double getDistanceToBasalLayer(TissueBorder tissueBorder, Vertex vertex, boolean takeNewValues){
+	public double getDistanceToBasalLayer(TissueBorder tissueBorder, Vertex vertex, boolean takeNewValues){
 		if(tissueBorder.isStandardMembraneLoaded() || tissueBorder.lowerBound(0) != Double.POSITIVE_INFINITY){
 			double startX = takeNewValues ? (vertex.getNewX() - min_edge_length):(vertex.getDoubleX() - min_edge_length);
 			 
@@ -936,20 +936,16 @@ public class CellPolygonCalculator {
 	}
 
 	
-   public double getMin_edge_length() {
-   
+   public double getMin_edge_length() {   
    	return min_edge_length;
    }
 
 	
-   public double getMin_basallayer_distance() {
-   
+   public double getMin_basallayer_distance_before_adhesion(){   
    	return min_basallayer_distance;
    }
-
 	
-   public double getMin_vertex_edge_distance() {
-   
+   public double getMin_vertex_edge_distance() {   
    	return min_vertex_edge_distance;
    }	
 	

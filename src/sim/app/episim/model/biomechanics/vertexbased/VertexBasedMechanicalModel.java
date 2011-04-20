@@ -35,6 +35,8 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	
 	private long currentSimStepNo = 0;
 	
+	
+	
 	public VertexBasedMechanicalModel(AbstractCell cell){
 		super(cell);
 		if(cell!= null){
@@ -106,8 +108,8 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	
 	@CannotBeMonitored
 	public Polygon getPolygonNucleus(DrawInfo2D info) {
-	   // TODO Auto-generated method stub
-	   return null;
+	  //TODO Auto-generated method stub
+		return null;
    }
 
 	public boolean nextToOuterCell(){
@@ -146,6 +148,7 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 			System.out.println("Hallo, ich kann mich teilen! ID: "+getCell().getID());
 		}		
 		modelConnector.setCellDivisionPossible(cellPolygon.canDivide() || CellPolygonRegistry.isWaitingForCellProliferation(getCell().getID()));
+		
 		modelConnector.setX(cellCenter.getDoubleX());
 		modelConnector.setY(cellCenter.getDoubleY());
    }
@@ -162,7 +165,18 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
    public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){ return new VertexBasedMechanicalModelInitializer(modelInitializationFile); }
 
 	public void proliferationCompleted(CellPolygon oldCell, CellPolygon newCell) {
-		CellPolygonRegistry.registerNewCellPolygon(getCell().getID(), newCell);		
+		
+		EpisimDifferentiationLevel diffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
+		if(diffLevel.ordinal() == EpisimDifferentiationLevel.STEMCELL || diffLevel.ordinal() == EpisimDifferentiationLevel.TACELL){
+			double distanceOld = VertexBasedModelController.getInstance().getCellPolygonCalculator().getDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(), oldCell.getCellCenter(), false);
+			double distanceNew = VertexBasedModelController.getInstance().getCellPolygonCalculator().getDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(), newCell.getCellCenter(), false);
+			if(distanceOld > distanceNew){
+				CellPolygonRegistry.registerNewCellPolygon(getCell().getID(), this.cellPolygon);
+				this.cellPolygon = newCell;
+			}
+			else CellPolygonRegistry.registerNewCellPolygon(getCell().getID(), newCell);		
+		}		
+		else CellPolygonRegistry.registerNewCellPolygon(getCell().getID(), newCell);		
 		System.out.println("Proliferation Completed!");	   
    }
 

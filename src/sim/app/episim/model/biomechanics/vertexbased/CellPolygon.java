@@ -50,6 +50,7 @@ public class CellPolygon implements VertexChangeListener{
 		this.x = x;
 		this.y = y;	
 		conGradientOptimizer = new ConjugateGradientOptimizer();
+		globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();	
 	 }
 	 public CellPolygon(){
 		 this(0, 0);	

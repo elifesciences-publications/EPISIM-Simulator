@@ -133,13 +133,15 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 				                  graphics.drawPolygon(cellPolygon);
 				                }
 			                }
-			              /*if(showNucleus)
-			                {
+			                
+			                //TODO: Nucleus ein- und ausschalten
+			              if(showNucleus)
+			              {
 			                  java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
 			                  nucleusPolygon= universalCell.getEpisimBioMechanicalModelObject().getPolygonNucleus(info);
 			                  graphics.setPaint(nucleusColor);  
 			                  graphics.fillPolygon(nucleusPolygon);
-			                }*/
+			              }
 		                
 		              } 
                }

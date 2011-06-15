@@ -9,6 +9,7 @@ import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimSbmlModelConnector;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
@@ -114,4 +115,8 @@ public class ModelController implements java.io.Serializable{
    
    public boolean isSimulationStartedOnce(){ return this.simulationStartedOnce;}
 	
+   public EpisimSbmlModelConnector getNewEpisimSbmlModelConnector(){
+   	return SbmlModelController.getInstance().getNewEpisimSbmlModelConnector();
+   }
+   
 }

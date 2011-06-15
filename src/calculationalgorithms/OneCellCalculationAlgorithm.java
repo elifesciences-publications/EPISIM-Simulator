@@ -59,12 +59,14 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 				}
 				
 				newTrackedCell = getNewCellForTracking(handler);
-				if(newTrackedCell != null){
-					
+				
+				if(newTrackedCell != null){					
 					newTrackedCell.setTracked(true);
 				}
-				if(newTrackedCell == null) this.trackedCells.remove(handlerIdStringIdMap.get(handler.getID()));
+				
+				if(newTrackedCell == null) this.trackedCells.remove(handlerIdStringIdMap.get(handler.getID()));				
 				else this.trackedCells.put(handlerIdStringIdMap.get(handler.getID()), newTrackedCell);
+				
 			}		
 	}
 		
@@ -74,11 +76,11 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 		if(requiredClass == null){
 			for(AbstractCell actCell : this.allCells){
 				if(actCell.isTracked()) return actCell;
-			}
-			
+			}			
 			for(AbstractCell actCell : this.allCells){
-				if(actCell.getEpisimCellBehavioralModelObject().getAge() < MINCELLAGE && actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true && 
-						actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL) return actCell;
+				if(actCell.getEpisimCellBehavioralModelObject().getAge() < MINCELLAGE && actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true
+					&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL) 
+					return actCell;
 			}
 		}
 		else{
@@ -87,8 +89,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 			
 			for(AbstractCell actCell : this.allCells){
 				if(actCell.isTracked() && requiredClass.isAssignableFrom(actCell.getClass())) return actCell;
-			}
-			
+			}	
 			
 			do{
 				counter++;

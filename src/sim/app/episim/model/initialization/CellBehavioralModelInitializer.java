@@ -10,6 +10,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.sbml.SbmlModelConnector;
 import sim.app.episim.util.TysonRungeCuttaCalculator;
 
 
@@ -37,11 +38,14 @@ public class CellBehavioralModelInitializer {
 			
 			//assign random age
 			actCell.getEpisimCellBehavioralModelObject().setAge((double)(cellCyclePos));// somewhere in the stemcellcycle
-			
+			if(actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() != null 
+					&& actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector){
+				((SbmlModelConnector)actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(cellCyclePos);
+			}
 			boolean tysonCellCycleAvailable = false;
 			try{
-				 Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK6", (Class<?>)null);
-				 m = ModelController.getInstance().getCellBehavioralModelController().getClass().getMethod("getK4", (Class<?>)null);
+				 Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK6", new Class<?>[]{});
+				 m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK4", new Class<?>[]{});
 				 tysonCellCycleAvailable = true;
 			}
 			catch(NoSuchMethodException e){ tysonCellCycleAvailable = false; }

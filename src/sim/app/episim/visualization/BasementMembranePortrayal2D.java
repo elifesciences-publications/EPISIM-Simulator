@@ -73,7 +73,7 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
 					double scaleX = (width/polygon.getBounds2D().getWidth());
 					
 					if(TissueController.getInstance().getTissueBorder().isStandardMembraneLoaded()){
-						 graphics.setStroke(new BasicStroke((int)(10*scaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+						 graphics.setStroke(new BasicStroke((int)(1*scaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 						// scaleX *= 1.06;
 					}					
 					

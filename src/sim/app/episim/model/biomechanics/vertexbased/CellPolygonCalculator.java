@@ -596,6 +596,16 @@ public class CellPolygonCalculator {
 		return outerLines.toArray(new Line[outerLines.size()]);
 	}
 	
+	public int hasOuterLines(CellPolygon cell){
+		int noOfOuterLines = 0;
+		
+		for(Line actLine : cell.getLinesOfCellPolygon()){
+			if(isOuterLine(actLine))noOfOuterLines++;
+		}
+		
+		return noOfOuterLines;
+	}
+	
 	public Line[] getAllIntersectingLines(){
 		HashSet<Line> intersectingLines = new HashSet<Line>();
 		for(Line actLine : getAllLinesOfVertexNetwork()){

@@ -107,13 +107,11 @@ class CellBehavioralModelJarClassLoader{
     public <T extends Object> Class<T> getModelClass(Class<T> modelInterface){
    	if(modelInterface.isAssignableFrom(factory.getEpisimCellBehavioralModelClass())) return factory.getEpisimCellBehavioralModelClass();
    	else return null;
-    }
+    }    
+    
     public Object getGlobalParametersObject(){
    	 return factory.getEpisimCellBehavioralModelGlobalParametersObject();
-    }
-
-   
-    
+    }   
     
     private String getClassName(Attributes.Name attrName)throws IOException{
    	 URL u = new URL("jar", "", url + "!/");

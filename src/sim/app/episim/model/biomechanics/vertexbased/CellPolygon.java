@@ -331,9 +331,9 @@ public void proliferate() {
 	if(this.preferredArea >= this.originalPreferredArea){
 		this.isProliferating = true;
 	}
-	else{
+/*	else{
 		this.isProliferating = false;
-	}
+	}*/
 }
 
 public boolean isDying() {
@@ -361,10 +361,13 @@ protected void apoptosis(){
 	});
 }
 
-
-
 public void setIsAlreadyCalculated(boolean val){this.isAlreadyCalculated = val;}
 public boolean isAlreadyCalculated(){ return this.isAlreadyCalculated;}
+
+
+public boolean isSurfaceCell(){
+	return VertexBasedModelController.getInstance().getCellPolygonCalculator().hasOuterLines(this) >0;
+}
 
 
 public boolean hasContactToBasalLayer(){

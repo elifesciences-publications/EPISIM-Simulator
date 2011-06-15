@@ -11,6 +11,7 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
@@ -281,30 +282,27 @@ public class Epidermis extends TissueType implements CellDeathListener
                          xLookUp[xbin]=act;                            
                          yLookUp[xbin]=loc.y;
                      }
-                     else
-                         if (loc.y<yLookUp[xbin]) 
-                         {
-                             xLookUp[xbin]=act;
-                             yLookUp[xbin]=loc.y;
-                         }
+                     else if (loc.y<yLookUp[xbin]) 
+                     {
+                         xLookUp[xbin]=act;
+                         yLookUp[xbin]=loc.y;
+                     }
                      
                      
                      
-                 }            
-
+                 }
                  for (int k=0; k< MAX_XBINS; k++)
                  {
                      if ((xLookUp[k]==null) || (xLookUp[k].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
                      xLookUp[k].setIsOuterCell(true);
-                 }
-                 
-                 
-
-             }
+                 }          
+           }
      };
-     // Schedule the agent to update is Outer Flag     
-     schedule.scheduleRepeating(airSurface,SchedulePriority.TISSUE.getPriority(),1);
      
+     if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGlobalParameters){
+	     // Schedule the agent to update is Outer Flag     
+	     schedule.scheduleRepeating(airSurface,SchedulePriority.TISSUE.getPriority(),1);
+     }
      
      
      

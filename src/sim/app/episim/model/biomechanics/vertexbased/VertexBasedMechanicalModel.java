@@ -2,6 +2,7 @@ package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Polygon;
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import sim.SimStateServer;
@@ -64,11 +65,17 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 		}
 		
 		GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
+		
 		for(AbstractCell cell : allCells){
+			
 			if(cell.getEpisimBioMechanicalModelObject() != null && cell.getEpisimBioMechanicalModelObject() instanceof VertexBasedMechanicalModel){
+				
 				if(cellPolygonIds.contains(((VertexBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject()).cellPolygon.getId())) neighbours.add(cell);
+				
 			}
-		}	  
+			
+		}
+		
 	   return neighbours;
    }
 
@@ -87,17 +94,18 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	
 	@CannotBeMonitored
 	public Polygon getPolygonCell(DrawInfo2D info) {
-		lastDrawInfo = info;
-		
-		Vertex cellCenter = this.cellPolygon.getCellCenter();
+		lastDrawInfo = info;		
+		Vertex cellCenter = this.cellPolygon.getCellCenter();		
 			
+		if(lastDrawInfo != null){
 			
-			if(lastDrawInfo != null){
-				double scale = info.draw.height > info.draw.width ? info.draw.height : info.draw.width ;
-				double deltaX = (info.clip.x)+(scale-1)*cellCenter.getDoubleX();
-				double deltaY = (info.clip.y)+(scale-1)*cellCenter.getDoubleY();
-				return VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, (deltaX), (deltaY));
-			}
+			double scale = info.draw.height > info.draw.width ? info.draw.height : info.draw.width;
+			
+			double deltaX = (info.clip.x)+(scale-1)*cellCenter.getDoubleX();
+			double deltaY = (info.clip.y)+(scale-1)*cellCenter.getDoubleY();
+			
+			return VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, (deltaX), (deltaY));
+		}
 	   return VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, 0, 0);
    }
 	
@@ -118,45 +126,61 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
    }
 
 	public boolean isMembraneCell() {	   
-		// TODO Auto-generated method stub
-	   return false;
+		
+	   return cellPolygon.hasContactToBasalLayer();
    }
 
 	public GenericBag<AbstractCell> getNeighbouringCells(){
 	  return getRealNeighbours();
    }
-
+	
+	private HashMap<Long, Integer> waitingCellsMap = new HashMap<Long, Integer>();
+	
 	public void newSimStep(long simStepNumber){
 		currentSimStepNo = simStepNumber;
 		Vertex cellCenter = cellPolygon.getCellCenter();
 		oldPosition = new Double2D(cellCenter.getDoubleX(), cellCenter.getDoubleY());
 		
 	//	if(!modelConnector.getIsProliferating()) cellPolygon.setPreferredArea(modelConnector.getPrefCellArea());		
-		if(modelConnector.getIsProliferating() && !cellPolygon.isProliferating()){ 
+		if(modelConnector.getIsProliferating() && !cellPolygon.isProliferating()){			
 			cellPolygon.proliferate();
-			if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL){
-				System.out.println("Ich sollte nicht proliferieren");
-			}
+		}
+		if(cellPolygon.isProliferating() && getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL){
+			System.out.println(" --------------------------------- Ich sollte nicht proliferieren");
+		
 		}
 		
 		cellPolygon.step(simStepNumber);
 		
 		cellCenter = cellPolygon.getCellCenter();
 		newPosition = new Double2D(cellCenter.getDoubleX(), cellCenter.getDoubleY());
+		if(CellPolygonRegistry.isWaitingForCellProliferation(getCell().getID())){
+			if(!waitingCellsMap.containsKey(getCell().getID())) waitingCellsMap.put(getCell().getID(), 1);
+			else waitingCellsMap.put(getCell().getID(), (waitingCellsMap.get(getCell().getID())+1));
+		}
+		else{			
+			waitingCellsMap.put(getCell().getID(), 0);		
+		}
+		if(CellPolygonRegistry.isWaitingForCellProliferation(getCell().getID()) 
+				&& waitingCellsMap.containsKey(getCell().getID()) 
+				&& waitingCellsMap.get(getCell().getID()) >= 2){			
 		
-		if(cellPolygon.canDivide() || CellPolygonRegistry.isWaitingForCellProliferation(getCell().getID())){
-			System.out.println("Hallo, ich kann mich teilen! ID: "+getCell().getID());
+			System.out.println("Hallo, ich warte! ID: "+getCell().getID());
+		
 		}		
 		modelConnector.setCellDivisionPossible(cellPolygon.canDivide() || CellPolygonRegistry.isWaitingForCellProliferation(getCell().getID()));
-		
+		modelConnector.setIsMembrane(isMembraneCell());
+		modelConnector.setIsSurface(!isMembraneCell() && cellPolygon.isSurfaceCell());
 		modelConnector.setX(cellCenter.getDoubleX());
 		modelConnector.setY(cellCenter.getDoubleY());
    }
 	
 	@CannotBeMonitored
 	public double getX(){ return cellPolygon.getCellCenter().getDoubleX(); }	
+	
 	@CannotBeMonitored
 	public double getY(){ return cellPolygon.getCellCenter().getDoubleY(); }	
+	
 	@CannotBeMonitored
 	public double getZ(){ return 0; }
 	
@@ -164,22 +188,23 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){ return new VertexBasedMechanicalModelInitializer(); }	
    public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){ return new VertexBasedMechanicalModelInitializer(modelInitializationFile); }
 
-	public void proliferationCompleted(CellPolygon oldCell, CellPolygon newCell) {
-		
+	public void proliferationCompleted(CellPolygon oldCell, CellPolygon newCell){		
 		EpisimDifferentiationLevel diffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
 		if(diffLevel.ordinal() == EpisimDifferentiationLevel.STEMCELL || diffLevel.ordinal() == EpisimDifferentiationLevel.TACELL){
 			double distanceOld = VertexBasedModelController.getInstance().getCellPolygonCalculator().getDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(), oldCell.getCellCenter(), false);
 			double distanceNew = VertexBasedModelController.getInstance().getCellPolygonCalculator().getDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(), newCell.getCellCenter(), false);
 			if(distanceOld > distanceNew){
+				this.cellPolygon.removeProliferationAndApoptosisListener(this);
 				CellPolygonRegistry.registerNewCellPolygon(getCell().getID(), this.cellPolygon);
 				this.cellPolygon = newCell;
+				newCell.addProliferationAndApoptosisListener(this);
 			}
 			else CellPolygonRegistry.registerNewCellPolygon(getCell().getID(), newCell);		
 		}		
 		else CellPolygonRegistry.registerNewCellPolygon(getCell().getID(), newCell);		
+		
 		System.out.println("Proliferation Completed!");	   
    }
-
 	public void apoptosisCompleted(CellPolygon pol) {
 	   // TODO Auto-generated method stub	   
    }

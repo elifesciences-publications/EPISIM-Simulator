@@ -72,5 +72,11 @@ public interface EpisimCellBehavioralModel {
 	
 	EpisimCellBehavioralModel[] oneStep(EpisimCellBehavioralModel[] neighbours);
 	
+	EpisimSbmlModelConfiguration[] getAllEpisimSbmlModelConfigurations();
+	
+	void setEpisimSbmlModelConnector(EpisimSbmlModelConnector _modelConnector);
+	
+	EpisimSbmlModelConnector getEpisimSbmlModelConnector();
+	
 }
 

@@ -10,27 +10,39 @@ public class TissueRotator {
 	public void rotateTissue(ImportedTissue tissue, double angleInDegrees) {
      
      
-/*      int width  = (int)tissue.getEpidermalWidth();
-      int height = (int)tissue.getEpidermalHeight();
+     int width  = (int)tissue.getEpidermalWidth();
+     int height = (int)tissue.getEpidermalHeight();
 
-      double angle = Math.toRadians(360-angleInDegrees);
-      double sin = Math.sin(angle);
-      double cos = Math.cos(angle);
-      double i0 = 0.5 * (width  - 1);     // point to rotate about
-      double j0 = 0.5 * (height - 1);     // center of image
-
+     double angle = Math.toRadians(180-angleInDegrees);
+     double sin = Math.sin(angle);
+     double cos = Math.cos(angle);
+     double i0 = 0.5 * (width  - 1);     // point to rotate about
+     double j0 = 0.5 * (height - 1);     // center of image
       
-      // rotation
+     // rotation
      for(CellEllipse cell: tissue.getCells()){
-              double a = cell.getX() - i0;
-              double b = cell.getY() - j0;
-              int newX = (int) (+a * cos - b * sin + i0);
-              int newY = (int) (+a * sin + b * cos + j0);
-              cell.rotateCellEllipseInRadians(angle);
-              cell.setXY(newX, newY);
-             
-              
+       double a = cell.getX() - i0;
+       double b = cell.getY() - j0;
+       int newX = (int) (+a * cos - b * sin + i0);
+       int newY = (int) (+a * sin + b * cos + j0);
+       cell.rotateCellEllipseInRadians(cell.getOrientationInRadians()+ angle);
+       cell.setXY(newX, newY);         
      }
+     for(Point2D p : tissue.getSurfacePoints()){
+   	  double a = p.getX() - i0;
+        double b = p.getY() - j0;
+        int newX = (int) (+a * cos - b * sin + i0);
+        int newY = (int) (+a * sin + b * cos + j0);
+		  p.setLocation(newX, newY);
+		}
+		for(Point2D p : tissue.getBasalLayerPoints()){
+			double a = p.getX() - i0;
+         double b = p.getY() - j0;
+         int newX = (int) (+a * cos - b * sin + i0);
+         int newY = (int) (+a * sin + b * cos + j0);
+			p.setLocation(newX, newY);
+		}
+     
      
      double widthA = Math.abs(Math.cos(angle) * width);
      double widthB = Math.abs(Math.sin(angle) * width);
@@ -38,7 +50,7 @@ public class TissueRotator {
      double heightB = Math.abs(Math.sin(angle) * height);
      
     tissue.setEpidermalWidth((int)(widthA + heightB));
-    tissue.setEpidermalHeight((int)(widthB + heightA));*/
+    tissue.setEpidermalHeight((int)(widthB + heightA));
     
     xyShift(tissue);
   }

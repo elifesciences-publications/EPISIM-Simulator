@@ -57,6 +57,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    	this.mechanicalModelObject.setEpisimModelConnector(modelConnector);
    	this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);
    	this.cellBehavioralModelObject.setEpisimSbmlModelConnector(ModelController.getInstance().getNewEpisimSbmlModelConnector());
+   
    	cellDeathListeners = new LinkedList<CellDeathListener>();      
       cellDeathListeners.add(TissueController.getInstance().getActEpidermalTissue());      
       cellDeathListeners.add(GlobalStatistics.getInstance());

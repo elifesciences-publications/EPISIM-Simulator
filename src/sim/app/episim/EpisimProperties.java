@@ -16,7 +16,7 @@ import binloc.ProjectLocator;
 
 public class EpisimProperties {
 	
-	private static final EpisimProperties instance = new EpisimProperties();
+	private static EpisimProperties instance;
 	
 	private Properties properties;
 	
@@ -85,10 +85,12 @@ public class EpisimProperties {
 	}
 	
 	public static String getProperty(String name){
+		if(instance == null) instance = new EpisimProperties();
 		return instance.getProperties().getProperty(name);
 	}
 	
 	public static void setProperty(String name, String val){
+		 if(instance == null) instance = new EpisimProperties();	
 		 instance.getProperties().setProperty(name, val);
 	}
 	

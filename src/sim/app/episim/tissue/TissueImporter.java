@@ -417,8 +417,8 @@ public class TissueImporter {
 			if(actNode.getNodeName().equals(PIXEL)){
 				NodeList points =actNode.getChildNodes();
 				for(int n = 0; n < points.getLength(); n++){
-					if(points.item(n).getNodeName().equals(X)) x = Double.parseDouble(points.item(n).getAttributes().getNamedItem("value").getNodeValue());
-					else if(points.item(n).getNodeName().equals(Y)) y = Double.parseDouble(points.item(n).getAttributes().getNamedItem("value").getNodeValue());
+					if(points.item(n).getNodeName().equals(X)) x = Double.parseDouble(points.item(n).getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
+					else if(points.item(n).getNodeName().equals(Y)) y = Double.parseDouble(points.item(n).getAttributes().getNamedItem("value").getNodeValue())*this.scalingFactor;
 				}
 				String keyString = x+";"+y;
 				if(!alreadyAddedCoordinates.contains(keyString)){
@@ -431,16 +431,16 @@ public class TissueImporter {
 	}
 		
 	private double calculateScalingFactor(double height, double width){
-		final double WIDTHFACT = 0.6;
+		final double WIDTHFACT = 0.8;
 		final double HEIGHTFACT = 0.8;
-		return 1;
-		/*
+	//	return 1;
+		
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
 		if(height > width) return (screenDim.getHeight()*HEIGHTFACT)/height;
 		else if(height < width) return (screenDim.getWidth()*WIDTHFACT)/width;
 		else{
 			if((screenDim.getHeight()*HEIGHTFACT) > (screenDim.getWidth()*WIDTHFACT)) return (screenDim.getWidth()*WIDTHFACT)/width;
 			else return (screenDim.getHeight()*HEIGHTFACT)/height;
-		}*/
+		}
 	}
 }

@@ -25,20 +25,20 @@ import sim.util.Double2D;
 public class RulerPortrayal2D extends SimplePortrayal2D{
 	
 	   
-	    private double width;
-	    private double height;
+	   
 	    private final double INITIALWIDTH;
 	    private final double INITIALHEIGHT;
+	    private static final float DOT = 2;
+	    private static final float SPACE = 4;
 	   
 	    private DrawInfo2D lastActualInfo;
 	    private DrawInfo2D firstInfo;
 	    
 	   
 
-
-	    private boolean hitAndButtonPressed = false;
-	    
-	   
+	    private double width;
+	    private double height;
+	    private boolean hitAndButtonPressed = false;   
 	    
 	    private static final int EMPTYBORDER = 10;
 	    
@@ -47,8 +47,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 	    private boolean crosshairsVisible = false;
 	    
 	    
-	    private static final float DOT = 2;
-	    private static final float SPACE = 4;
+	    
 	    private int border;
 	    private int ruleroffset;
 	    private final int OFFSET = 0; //distance ruler <-> tissue
@@ -166,7 +165,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 				graphics.setFont(new Font("Arial", Font.PLAIN, 12));
 				
 			 text.append("    Tissue ID: " + TissueController.getInstance().getTissueBorder().getTissueID());
-			 text.append("    Tissue Decription: " + TissueController.getInstance().getTissueBorder().getTissueDescription());
+			 text.append("    Tissue Description: " + TissueController.getInstance().getTissueBorder().getTissueDescription());
 				
 				if(actMousePositionXY!= null){
 					

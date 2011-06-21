@@ -78,7 +78,8 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 				if(actCell.isTracked()) return actCell;
 			}			
 			for(AbstractCell actCell : this.allCells){
-				if(actCell.getEpisimCellBehavioralModelObject().getAge() < MINCELLAGE && actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true
+				if(//actCell.getEpisimCellBehavioralModelObject().getAge() < MINCELLAGE &&
+					actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true
 					&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL) 
 					return actCell;
 			}
@@ -93,8 +94,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 			
 			do{
 				counter++;
-				
-			System.out.println("Suche zufällige Zelle für Tracking passend zur Klasse: "+  requiredClass.getCanonicalName());
+				System.out.println("Suche zufällige Zelle für Tracking passend zur Klasse: "+  requiredClass.getCanonicalName());
 				result = this.allCells.getRandomItemOfClass(requiredClass);
 			}
 			while(result != null && result.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL && counter < this.allCells.size());

@@ -6,5 +6,5 @@ public interface EpisimSbmlModelConfiguration {
 	String getModelFilename();
 	String getSbmlId();
 	int getNoOfStepsPerCBMSimstep();
-	int getNoOfTimeUnitsPerCBMSimstep();
+	double getNoOfTimeUnitsPerCBMSimstep();
 }

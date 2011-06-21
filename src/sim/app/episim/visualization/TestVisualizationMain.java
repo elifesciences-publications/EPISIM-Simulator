@@ -150,14 +150,14 @@ public class TestVisualizationMain {
 			 
 			 public void mousePressed(MouseEvent e){
 				 
-				 //canvas.pickCellEllipse(e.getX(), e.getY());
-				 canvas.pickCellPolygon(e.getX(), e.getY());
+				 canvas.pickCellEllipse(e.getX(), e.getY());
+				// canvas.pickCellPolygon(e.getX(), e.getY());
 				// canvas.pickBigVertex(e.getX(), e.getY());
 			 }
 			 
 			 public void mouseReleased(MouseEvent e){
-				 //canvas.releaseCellEllipse();
-				 canvas.releaseCellPolygon();
+				 canvas.releaseCellEllipse();
+				// canvas.releaseCellPolygon();
 				 //canvas.releaseBigVertex();
 			 }
 		});
@@ -166,8 +166,8 @@ public class TestVisualizationMain {
 				 
 			 public void mouseDragged(MouseEvent e){
 				 
-				// canvas.dragCellEllipse(e.getX(), e.getY());
-				 canvas.dragCellPolygon(e.getX(), e.getY());
+				 canvas.dragCellEllipse(e.getX(), e.getY());
+				// canvas.dragCellPolygon(e.getX(), e.getY());
 				// canvas.dragBigVertex(e.getX(), e.getY());
 			 }
 					 

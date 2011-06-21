@@ -359,10 +359,10 @@ public class TestCanvas extends JPanel {
 		Vertex position = new Vertex(x, y);
 		
 		for(Vertex v: vertices){			
-				if(v.edist(position)< minimalDistance){
-					minimalDistance =v.edist(position);
-					vertexWithMinimalDistance = v;
-				}
+			if(v.edist(position)< minimalDistance){
+				minimalDistance =v.edist(position);
+				vertexWithMinimalDistance = v;
+			}
 		}		
 		
 		return vertexWithMinimalDistance;

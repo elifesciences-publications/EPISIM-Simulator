@@ -2,6 +2,7 @@ package sim.app.episim.tissue;
 
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -177,16 +178,22 @@ public class TissueBorder {
 				drawPolygon = (GeneralPath)polygon.clone();
 				drawPolygon.closePath();
 				polygon.lineTo(polygon.getBounds().getMinX(), polygon.getBounds().getMinY());
+					
 				
 				basalLayer = new GeneralPath();
 				basalLayer.moveTo(tissue.getBasalLayerPoints().get(0).getX(), tissue.getBasalLayerPoints().get(0).getY());
 				for(Point2D p : tissue.getBasalLayerPoints())basalLayer.lineTo(p.getX(), p.getY());
 				drawBasalLayer = (GeneralPath)basalLayer.clone();
 				
+				
+				
+				
+				
 				surface = new GeneralPath();
 				surface.moveTo(tissue.getSurfacePoints().get(0).getX(), tissue.getSurfacePoints().get(0).getY());
 				for(Point2D p : tissue.getSurfacePoints())surface.lineTo(p.getX(), p.getY());
 				drawSurface = (GeneralPath)surface.clone();
+				
 				
 				
 				//polygon.closePath();

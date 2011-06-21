@@ -8,6 +8,7 @@ import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
 import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.sbml.SbmlModelConnector;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueServer;
 
@@ -132,9 +133,14 @@ public class UniversalCell extends AbstractCell
         UniversalCell taCell=makeChild(cellBehavioralModel);
          
         //TODO enable / disable random age for TA Cells
-        taCell.getEpisimCellBehavioralModelObject().setAge(TissueController.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA()));  // somewhere on the TA Cycle
-       
-       
+        int randomAge = TissueController.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA());
+        
+        taCell.getEpisimCellBehavioralModelObject().setAge(randomAge);
+        if(taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()!= null
+      		  && taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector){
+      	  ((SbmlModelConnector)taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(randomAge);
+        }
+        // somewhere on the TA Cycle       
     }
    
     public void makeSpiCell(EpisimCellBehavioralModel cellBehavioralModel)
@@ -174,14 +180,16 @@ public class UniversalCell extends AbstractCell
     
     static  long actNumberSteps = 0;
     static  long deltaTime = 0;
+    int cellDivisionCounter = 0;
     public void newSimStepCellBehavioralModel()
     {
      	
      	 
      	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(this.getNeighbouringCells());  	 
   
-   	 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
-   	 else this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
+   	// if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
+   	// else 
+   		 this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
 		
    	 EpisimCellBehavioralModel[] children = this.getEpisimCellBehavioralModelObject().oneStep(realNeighboursDiffModel);
 		/*	long timeAfter = System.currentTimeMillis();
@@ -209,6 +217,13 @@ public class UniversalCell extends AbstractCell
 				 deltaTime = 0;
 			}
 			deltaTime +=deltaTimeTmp;		*/
+   	 
+   	 if(children != null && children.length >= 1){
+   		 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL){
+   			cellDivisionCounter++;
+   			System.out.println(cellDivisionCounter + ". Teilung im Alter von " + this.getEpisimCellBehavioralModelObject().getAge());
+   		 }
+   	 }
    	
    	 makeChildren(children);
    	 
@@ -243,7 +258,7 @@ public class UniversalCell extends AbstractCell
 			hasGivenIons = 0;			
 			getEpisimBioMechanicalModelObject().newSimStep(state.schedule.getSteps());
 			
-//			long timeBefore = System.currentTimeMillis();
+			//	long timeBefore = System.currentTimeMillis();
 			/////////////////////////////////////////////////////////
 			//   Differentiation: Calling the loaded Cell-Diff-Model
 			/////////////////////////////////////////////////////////

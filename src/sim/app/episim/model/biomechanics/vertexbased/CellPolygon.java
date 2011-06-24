@@ -180,11 +180,10 @@ public class CellPolygon implements VertexChangeListener{
 			final CellPolygon daughterCell = cellDivision();
 			isProliferating = false;
 			notifyAllCellProliferationAndApoptosisListener(new ListenerAction<CellPolygonProliferationSuccessListener>(){
-						public void performAction(CellPolygonProliferationSuccessListener listener){
-							listener.proliferationCompleted(CellPolygon.this, daughterCell);
-						}
-					});
-			
+				public void performAction(CellPolygonProliferationSuccessListener listener){
+					listener.proliferationCompleted(CellPolygon.this, daughterCell);
+				}
+			});			
 		}
 		else{ 
 			if(isProliferating){ 
@@ -194,7 +193,15 @@ public class CellPolygon implements VertexChangeListener{
 				if(this.preferredArea < this.originalPreferredArea){
 					growToBecomeMature(globalParameters.getGrowth_rate_per_sim_step());
 				}
-				else this.originalPreferredArea = Double.NEGATIVE_INFINITY; 
+				else
+				{ 					
+					this.originalPreferredArea = Double.NEGATIVE_INFINITY;
+					notifyAllCellProliferationAndApoptosisListener(new ListenerAction<CellPolygonProliferationSuccessListener>(){
+						public void performAction(CellPolygonProliferationSuccessListener listener){
+							listener.maturationCompleted(CellPolygon.this);
+						}
+					});
+				}
 			}
 		}	
 	}
@@ -331,9 +338,11 @@ public void proliferate() {
 	if(this.preferredArea >= this.originalPreferredArea){
 		this.isProliferating = true;
 	}
-/*	else{
+ /*
+   else{
 		this.isProliferating = false;
-	}*/
+	}
+	*/
 }
 
 public boolean isDying() {

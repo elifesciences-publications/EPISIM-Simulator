@@ -498,9 +498,15 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		}
 	   
    }
+	public void maturationCompleted(CellPolygon pol) {
+		int proliferatingCells = 0;
+		for(CellPolygon cellPol : this.cells){ 
+			if(cellPol.isProliferating()) proliferatingCells++;
+		}		
+		if(proliferatingCells < (this.cells.length / 3)) VertexBasedModelController.getInstance().getCellPolygonCalculator().randomlySelectCellForProliferation();	   
+   }	
 	
 	public void apoptosisCompleted(CellPolygon pol) {
-
 	   if(pol!= null){
 	   	ArrayList<CellPolygon> cellList = new ArrayList<CellPolygon>();
 	   	for(int i = 0; i < cells.length; i++) cellList.add(cells[i]);
@@ -509,8 +515,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	   	cellList.toArray(cells);
 	   	pol.removeProliferationAndApoptosisListener(this);
 	   	VertexBasedModelController.getInstance().setCellPolygonArrayInCalculator(cells);
-	   }
-	   
+	   }	   
    }	
 	
 	private void createCsvWriter(String path){
@@ -583,5 +588,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
       	 episimMovieMaker.add(visualizationPanel.paint(true,false));
           lastSimStepNumberVideoFrameWasWritten = (int)GlobalBiomechanicalStatistics.getInstance().get(GBSValue.SIM_STEP_NUMBER);
        }     
-   }	
+   }
+
+	
 }

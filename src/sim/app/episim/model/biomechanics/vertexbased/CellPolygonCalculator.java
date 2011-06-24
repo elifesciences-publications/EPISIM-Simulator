@@ -67,7 +67,7 @@ public class CellPolygonCalculator {
 			int cellIndex =rand.nextInt(this.cellPolygons.length);
 			
 			if(!this.cellPolygons[cellIndex].isProliferating() && 
-					((this.cellPolygons[cellIndex].hasContactToBasalLayer() || this.cellPolygons[cellIndex].hasContactToCellThatIsAttachedToBasalLayer())|| !TestVisualizationBiomechanics.LOAD_STANDARD_MEMBRANE)){
+					(this.cellPolygons[cellIndex].hasContactToBasalLayer() || this.cellPolygons[cellIndex].hasContactToCellThatIsAttachedToBasalLayer())){
 				this.cellPolygons[cellIndex].proliferate();
 				return;
 			}

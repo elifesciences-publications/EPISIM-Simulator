@@ -209,4 +209,8 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	   // TODO Auto-generated method stub	   
    }
 
+	public void maturationCompleted(CellPolygon pol) {
+		// TODO Auto-generated method stub	   
+   }
+
 }

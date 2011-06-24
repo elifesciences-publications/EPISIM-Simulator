@@ -14,7 +14,7 @@ public class ProjectLocator {
 		File f = new File("");
 		String path = f.getAbsolutePath();
 		path = path.endsWith(System.getProperty("file.separator")) ? path.substring(0, path.length()-1) : path;
-		return new File(path +System.getProperty("file.separator")+"bin");
+		return new File(path.endsWith("bin") ? path : path +System.getProperty("file.separator")+"bin");
 	}
 	
 	
@@ -29,6 +29,7 @@ public class ProjectLocator {
 		File f = new File("");
 		String path = f.getAbsolutePath();
 		path = path.endsWith(System.getProperty("file.separator")) ? path.substring(0, path.length()-1) : path;
+		path = path.endsWith("bin") ? path.substring(0, path.length()-(3+System.getProperty("file.separator").length())):path;		
 		return (new File(path+System.getProperty("file.separator")+directoryName));
 	}
 

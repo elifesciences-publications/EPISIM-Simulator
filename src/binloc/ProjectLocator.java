@@ -10,7 +10,7 @@ public class ProjectLocator {
 	public static File getBinPath() throws URISyntaxException{
 		
 		//return new File(ProjectLocator.class.getResource("../").toURI());
-	
+	//return new File(Thread.currentThread().getContextClassLoader().getResource("./").toURI())
 		File f = new File("");
 		String path = f.getAbsolutePath();
 		path = path.endsWith(System.getProperty("file.separator")) ? path.substring(0, path.length()-1) : path;

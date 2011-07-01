@@ -17,7 +17,7 @@ public class TissueEvaluator {
 	CellTable table = null;
 
 	@SuppressWarnings("unchecked")
-	public TissueEvaluator(String[] files) {
+	private TissueEvaluator(String[] files) {
 
 		table = new CellTable(getAllCells(files));
 		table.addColumn(CellMember.values());
@@ -26,11 +26,11 @@ public class TissueEvaluator {
 		// CellCSVWriter.writeTable("test_celltable.csv", table);
 	}
 
-	public ImportedTissue_ loadTissue(String file) {
+	private ImportedTissue_ loadTissue(String file) {
 		return TissueImporter_.getInstance().loadTissue(new File(file));
 	}
 
-	public ArrayList<CellEllipse_> getAllCells(String... file) {
+	private ArrayList<CellEllipse_> getAllCells(String... file) {
 		ArrayList<CellEllipse_> cells = new ArrayList<CellEllipse_>();
 		for (String s : file) {
 			System.out.println(s);
@@ -39,7 +39,7 @@ public class TissueEvaluator {
 		return cells;
 	}
 
-	public GroupedTable genTable1() {
+	private GroupedTable genTable1() {
 		GroupColumn col1 = new MeanOperation(CellMember.AREA);
 		GroupColumn col2 = new ErrorOperation(CellMember.AREA, 0.10d, false);
 		GroupColumn col3 = new ErrorOperation(CellMember.AREA, 0.10d, true);
@@ -60,7 +60,7 @@ public class TissueEvaluator {
 		return grTable;
 	}
 
-	public GroupedTable genTable2() {
+	private GroupedTable genTable2() {
 		GroupColumn col1 = new MeanOperation(CellMember.AREA);
 		GroupColumn col2 = new QuantilOperation(CellMember.AREA, 0.05d);
 		GroupColumn col3 = new QuantilOperation(CellMember.AREA, 0.5d);
@@ -81,7 +81,7 @@ public class TissueEvaluator {
 		return grTable;
 	}
 
-	public GroupedTable genTable3() {
+	private GroupedTable genTable3() {
 		GroupColumn col1 = new MeanOperation(CellMember.ORIENTATION_BL);
 		GroupColumn cold = new CountOperation();
 
@@ -90,7 +90,7 @@ public class TissueEvaluator {
 		return grTable;
 	}
 
-	public GroupedTable genTable8() {
+	private GroupedTable genTable8() {
 		GroupColumn col1 = new MeanOperation(CellMember.AREA);
 		GroupColumn col2 = new QuantilOperation(CellMember.AREA, 0.05d);
 		GroupColumn col3 = new QuantilOperation(CellMember.AREA, 0.5d);
@@ -102,7 +102,7 @@ public class TissueEvaluator {
 		return grTable;
 	}
 
-	public GroupedTable genTable4() {
+	private GroupedTable genTable4() {
 		GroupColumn col1 = new MeanOperation(CellMember.ORIENTATION_BL);
 
 		GroupedTable grTable = table
@@ -112,22 +112,8 @@ public class TissueEvaluator {
 
 	public static void main(String[] args) {
 
-		// hier werden alle Dateien gelistet die eingelesen werden sollen.
 		ArrayList<String> files = new ArrayList<String>();
-		File daten = new File("/home/chris/BioQuant/work-local/Thomas/Daten");
-		for (File f : daten.listFiles()) {
-			if (f.isDirectory()) {
-				for (File xml : f.listFiles(new FileFilter() {
 
-					@Override
-					public boolean accept(File pathname) {
-						return pathname.getName().endsWith("xml");
-					}
-				})) {
-					files.add(xml.getAbsolutePath());
-				}
-			}
-		}
 		TissueEvaluator te = new TissueEvaluator(files.toArray(new String[0]));
 
 		GroupedTable grTable = te.genTable8();
@@ -137,11 +123,6 @@ public class TissueEvaluator {
 		new BoxPlot("Test", grTable.getColumn()[0], grTable,
 				CellMember.ROUNDNESS);
 
-		//
-		// CellCSVWriter
-		// .writeTable(
-		// "/home/chris/BioQuant/work-local/Thomas/Daten/selectedFiles2.csv",
-		// grTable);
 
 	}
 }

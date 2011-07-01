@@ -4,10 +4,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import sim.app.episim.tissue.evaluation.tabledata.Cell;
-import sim.app.episim.tissue.evaluation.tabledata.Cell.CellMember;
 import sim.app.episim.tissue.evaluation.tabledata.AbstractTable;
 import sim.app.episim.tissue.evaluation.tabledata.Column;
+import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.CellEllipse_.CellMember;
 
 
 public class CellCSVWriter {
@@ -40,7 +40,7 @@ public class CellCSVWriter {
 		}
 	}
 
-	public static void writeCells(String path, Cell[] cells, CellMember... cellmembers) {
+	public static void writeCells(String path, CellEllipse_[] cells, CellMember... cellmembers) {
 		Writer fw = null;
 		try {
 			fw = new FileWriter(path, false);
@@ -49,7 +49,7 @@ public class CellCSVWriter {
 				fw.write(cellData+";");
 			}
 			fw.write("\r\n");
-			for (Cell cell : cells) {
+			for (CellEllipse_ cell : cells) {
 				for (CellMember member : cellmembers) {
 					double cellData = member.getColumnValue(cell);
 					fw.write(cellData+";");

@@ -4,10 +4,10 @@ import java.util.HashMap;
 
 import sim.app.episim.tissue.evaluation.filter.ConditionInterval;
 import sim.app.episim.tissue.evaluation.filter.Interval;
-import sim.app.episim.tissue.evaluation.tabledata.Cell;
 import sim.app.episim.tissue.evaluation.tabledata.CellGroup;
-import sim.app.episim.tissue.evaluation.tabledata.Cell.CellMember;
 import sim.app.episim.tissue.evaluation.tabledata.CellColumn;
+import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.CellEllipse_.CellMember;
 
 public class IntervalSortCalculation implements CellColumn{
 
@@ -25,7 +25,7 @@ public class IntervalSortCalculation implements CellColumn{
 		return header;
 	}
 	@Override
-	public double getColumnValue(Cell cell) {
+	public double getColumnValue(CellEllipse_ cell) {
 		return startInterval.nextMatching(column.getColumnValue(cell)).getMin();
 	}
 }

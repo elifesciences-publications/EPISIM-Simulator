@@ -1,7 +1,7 @@
 package sim.app.episim.tissue.evaluation.calculations;
 
-import sim.app.episim.tissue.evaluation.tabledata.Cell.CellMember;
 import sim.app.episim.tissue.evaluation.tabledata.CellGroup;
+import sim.app.episim.visualization.CellEllipse_.CellMember;
 
 public class QuantilOperation extends AbstractOperation{
 	

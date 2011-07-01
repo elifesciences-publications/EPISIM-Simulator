@@ -1,11 +1,11 @@
-package sim.app.episim.tissue.evaluation.tabledata;
+package sim.app.episim.visualization;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 
 import sim.app.episim.tissue.xmlread.AbstractImportedObjectData;
 
-public abstract class AbstractNC {
+public abstract class AbstractCellEllipse_ {
 	private transient Area clippedEllipse;
 	private transient Area ellipseAsArea;
 	private long id;
@@ -31,7 +31,7 @@ public abstract class AbstractNC {
 
 	public static final char SEPARATORCHAR = ';';
 
-	public AbstractNC(AbstractImportedObjectData objectData,
+	public AbstractCellEllipse_(AbstractImportedObjectData objectData,
 			double micrometerPerPixel) {
 		this.id = objectData.getId();
 		this.area = objectData.getArea() * micrometerPerPixel * micrometerPerPixel;

@@ -3,11 +3,11 @@ package sim.app.episim.tissue.evaluation.calculations;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import sim.app.episim.tissue.evaluation.tabledata.Cell;
 import sim.app.episim.tissue.evaluation.tabledata.CellColumn;
 import sim.app.episim.tissue.evaluation.tabledata.CellGroup;
-import sim.app.episim.tissue.evaluation.tabledata.Cell.CellMember;
 import sim.app.episim.tissue.evaluation.tabledata.GroupColumn;
+import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.CellEllipse_.CellMember;
 
 public abstract class AbstractOperation implements GroupColumn {
 
@@ -20,7 +20,7 @@ public abstract class AbstractOperation implements GroupColumn {
 	protected ArrayList<Double> getSortedList(CellGroup cellgroup) {
 		ArrayList<Double> values = new ArrayList<Double>();
 		if (cellMember != null && cellgroup != null) {
-			for (Cell c : cellgroup.getGroupedCells()) {
+			for (CellEllipse_ c : cellgroup.getGroupedCells()) {
 				values.add(cellMember.getColumnValue(c));
 			}
 			Collections.sort(values);

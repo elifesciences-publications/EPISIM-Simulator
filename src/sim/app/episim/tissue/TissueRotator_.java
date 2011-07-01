@@ -1,13 +1,14 @@
-package sim.app.episim.tissue.evaluation.tabledata;
+package sim.app.episim.tissue;
 
 import java.awt.geom.Point2D;
 
 import sim.app.episim.tissue.xmlread.ImportedTissueData;
+import sim.app.episim.visualization.CellEllipse_;
 
-public class TissueRotator {
+public class TissueRotator_ {
 	
 	
-	public void rotateTissue(Tissue tissue, double angleInDegrees) {
+	public void rotateTissue(ImportedTissue_ tissue, double angleInDegrees) {
      
      
 /*      int width  = (int)tissue.getEpidermalWidth();
@@ -43,7 +44,7 @@ public class TissueRotator {
     xyShift(tissue);
   }
 	
-	private void xyShift(Tissue tissue){
+	private void xyShift(ImportedTissue_ tissue){
 		double minX = Double.POSITIVE_INFINITY;
 		double minY = Double.POSITIVE_INFINITY;
 		double maxX = Double.NEGATIVE_INFINITY;
@@ -51,7 +52,7 @@ public class TissueRotator {
 		
 		double maxRadius = Double.NEGATIVE_INFINITY;
 		
-		for(Cell cell : tissue.getCells()){
+		for(CellEllipse_ cell : tissue.getCells()){
 			if(cell.getX() < minX) minX = cell.getX();
 			if(cell.getX()> maxX) maxX = cell.getX();
 			if(cell.getY() < minY) minY = cell.getY();
@@ -74,7 +75,7 @@ public class TissueRotator {
 		System.out.println("yShift: "+ yShift);
 		System.out.println("MarginYShift: "+ marginYShift);*/
 		
-		for(Cell cell : tissue.getCells()){
+		for(CellEllipse_ cell : tissue.getCells()){
 			cell.setXY((int)(cell.getX()-minX+ (maxRadius/2)), (int)(cell.getY()-minY+(maxRadius/2)));
 			
 		}

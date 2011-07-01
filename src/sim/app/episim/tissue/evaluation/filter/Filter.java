@@ -2,7 +2,7 @@ package sim.app.episim.tissue.evaluation.filter;
 
 import java.util.ArrayList;
 
-import sim.app.episim.tissue.evaluation.tabledata.Cell;
+import sim.app.episim.visualization.CellEllipse_;
 
 public class Filter {
 	
@@ -18,7 +18,7 @@ public class Filter {
 		conditions.add(c);
 	}
 	
-	public boolean match(Cell cell){
+	public boolean match(CellEllipse_ cell){
 		for(Condition c : conditions){
 			if(!c.match(cell)) return false;
 		} return true;

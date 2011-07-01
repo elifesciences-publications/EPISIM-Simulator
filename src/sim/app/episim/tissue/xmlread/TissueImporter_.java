@@ -22,10 +22,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.tissue.evaluation.tabledata.Tissue;
-import sim.app.episim.tissue.evaluation.tabledata.TissueRotator;
+import sim.app.episim.tissue.ImportedTissue_;
+import sim.app.episim.tissue.TissueRotator_;
 
-public class TissueImporter {
+public class TissueImporter_ {
 
 	// -------------------------------------------------------------------------------------------------------------------
 	// Available XML Elements in File
@@ -101,7 +101,7 @@ public class TissueImporter {
 	private static final String Y = "Y";
 	// -------------------------------------------------------------------------------------------------------------------
 
-	private static TissueImporter instance;
+	private static TissueImporter_ instance;
 
 	private ImportedTissueData actImportedTissue;
 
@@ -117,17 +117,17 @@ public class TissueImporter {
 	public static final double ELLIPSE_AXIS_LENGHT_CORR_FACTOR = 1.2;
 
 	public static void main(String[] args) {
-		TissueImporter ti = new TissueImporter();
+		TissueImporter_ ti = new TissueImporter_();
 		ti.loadTissue(new File("test.xml"));
 	}
 
-	protected TissueImporter() {
+	protected TissueImporter_() {
 
 	}
 
-	public static TissueImporter getInstance() {
+	public static TissueImporter_ getInstance() {
 		if (instance == null)
-			instance = new TissueImporter();
+			instance = new TissueImporter_();
 		return instance;
 	}
 
@@ -140,14 +140,14 @@ public class TissueImporter {
 		importedCells = new ArrayList<ImportedCellData>();
 	}
 
-	public Tissue loadTissue(File path) {
-		Tissue tissue;
+	public ImportedTissue_ loadTissue(File path) {
+		ImportedTissue_ tissue;
 		if (path != null) {
 			reset();
 
 			loadXML(path);
-			tissue = new Tissue(actImportedTissue);
-			TissueRotator rotator = new TissueRotator();
+			tissue = new ImportedTissue_(actImportedTissue);
+			TissueRotator_ rotator = new TissueRotator_();
 			rotator.rotateTissue(tissue, surfaceOrientation);
 			return tissue;
 
@@ -413,7 +413,7 @@ public class TissueImporter {
 
 		}
 	}
-
+	
 	private double calculateScalingFactor(double height, double width) {
 		final double WIDTHFACT = 0.6;
 		final double HEIGHTFACT = 0.8;

@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 
+import sim.app.episim.tissue.ImportedTissue_;
 import sim.app.episim.tissue.evaluation.calculations.*;
 import sim.app.episim.tissue.evaluation.gui.BoxPlot;
 import sim.app.episim.tissue.evaluation.gui.Chart;
 import sim.app.episim.tissue.evaluation.tabledata.*;
-import sim.app.episim.tissue.evaluation.tabledata.Cell.CellMember;
-import sim.app.episim.tissue.xmlread.TissueImporter;
+import sim.app.episim.tissue.xmlread.TissueImporter_;
+import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.CellEllipse_.CellMember;
 
 public class TissueEvaluator {
 	CellTable table = null;
@@ -24,12 +26,12 @@ public class TissueEvaluator {
 		// CellCSVWriter.writeTable("test_celltable.csv", table);
 	}
 
-	public Tissue loadTissue(String file) {
-		return TissueImporter.getInstance().loadTissue(new File(file));
+	public ImportedTissue_ loadTissue(String file) {
+		return TissueImporter_.getInstance().loadTissue(new File(file));
 	}
 
-	public ArrayList<Cell> getAllCells(String... file) {
-		ArrayList<Cell> cells = new ArrayList<Cell>();
+	public ArrayList<CellEllipse_> getAllCells(String... file) {
+		ArrayList<CellEllipse_> cells = new ArrayList<CellEllipse_>();
 		for (String s : file) {
 			System.out.println(s);
 			cells.addAll(loadTissue(s).getCells());

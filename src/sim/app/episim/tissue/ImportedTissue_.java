@@ -1,4 +1,4 @@
-package sim.app.episim.tissue.evaluation.tabledata;
+package sim.app.episim.tissue;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import sim.app.episim.tissue.xmlread.ImportedCellData;
 import sim.app.episim.tissue.xmlread.ImportedNucleusData;
 import sim.app.episim.tissue.xmlread.ImportedTissueData;
+import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.NucleusEllipse_;
 
-public class Tissue {
+public class ImportedTissue_ {
 	private ArrayList<Point2D> basalLayerPoints;
 	private ArrayList<Point2D> surfacePoints;
-	private ArrayList<Cell> cells;
-	private ArrayList<Nucleus> nuclei;
+	private ArrayList<CellEllipse_> cells;
+	private ArrayList<NucleusEllipse_> nuclei;
 	private double micrometerPerPixel;
 	private String tissueImageid = "";
 	private String tissueDescription = "no description";
@@ -21,7 +23,7 @@ public class Tissue {
 	private double maximumEpidermalThickness;
 	private double scalingFactor = 1;
 
-	public Tissue(ImportedTissueData tissueData) {
+	public ImportedTissue_(ImportedTissueData tissueData) {
 		this.basalLayerPoints = tissueData.getBasalLayerPoints();
 		this.surfacePoints = tissueData.getSurfacePoints();
 		this.micrometerPerPixel = tissueData.getResolutionInMicrometerPerPixel();
@@ -32,14 +34,14 @@ public class Tissue {
 		this.meanEpidermalThickness = tissueData.getMeanEpidermalThickness();
 		this.maximumEpidermalThickness = tissueData.getMaximumEpidermalThickness();
 		this.scalingFactor = tissueData.getScalingFactor();
-		this.nuclei = new ArrayList<Nucleus>();
+		this.nuclei = new ArrayList<NucleusEllipse_>();
 		for(ImportedNucleusData nucleiData : tissueData.getNuclei()){
-			this.nuclei.add(new Nucleus(nucleiData,micrometerPerPixel));
+			this.nuclei.add(new NucleusEllipse_(nucleiData,micrometerPerPixel));
 		}
 		
-		this.cells = new ArrayList<Cell>();
+		this.cells = new ArrayList<CellEllipse_>();
 		for(ImportedCellData cellData : tissueData.getCells()){
-			this.cells.add(new Cell(cellData,micrometerPerPixel, nuclei));
+			this.cells.add(new CellEllipse_(cellData,micrometerPerPixel, nuclei));
 		}
 	}
 
@@ -125,11 +127,11 @@ public class Tissue {
 		this.scalingFactor = scalingFactor;
 	}
 
-	public ArrayList<Cell> getCells() {
+	public ArrayList<CellEllipse_> getCells() {
 		return cells;
 	}
 
-	public void setCells(ArrayList<Cell> cells) {
+	public void setCells(ArrayList<CellEllipse_> cells) {
 		this.cells = cells;
 	}
 

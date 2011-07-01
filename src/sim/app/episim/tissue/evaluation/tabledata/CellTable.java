@@ -9,19 +9,20 @@ import sim.app.episim.tissue.evaluation.filter.ConditionInterval;
 import sim.app.episim.tissue.evaluation.filter.ConditionValue;
 import sim.app.episim.tissue.evaluation.filter.Filter;
 import sim.app.episim.tissue.evaluation.filter.Interval;
+import sim.app.episim.visualization.CellEllipse_;
 
 public class CellTable extends AbstractTable{
 
-	private Cell[] cellData;
+	private CellEllipse_[] cellData;
 	private Filter[] filter = new Filter[0];
 	private CellColumn[] column = new CellColumn[0];
 	
-	public CellTable(ArrayList<Cell>... initialCellData) {
-		ArrayList<Cell> cellData = new ArrayList<Cell>();
-		for (ArrayList<Cell> cells : initialCellData) {
+	public CellTable(ArrayList<CellEllipse_>... initialCellData) {
+		ArrayList<CellEllipse_> cellData = new ArrayList<CellEllipse_>();
+		for (ArrayList<CellEllipse_> cells : initialCellData) {
 			cellData.addAll(cells);
 		}
-		this.cellData = cellData.toArray(new Cell[0]);
+		this.cellData = cellData.toArray(new CellEllipse_[0]);
 	}
 	
 	private CellGroup[] sortCellGroups(HashMap<Double, CellGroup> cellgroups){
@@ -48,7 +49,7 @@ public class CellTable extends AbstractTable{
 			}
 
 			@Override
-			public double getColumnValue(Cell cell) {
+			public double getColumnValue(CellEllipse_ cell) {
 				// TODO Auto-generated method stub
 				return 0;
 			}
@@ -56,7 +57,7 @@ public class CellTable extends AbstractTable{
 		
 		HashMap<Double, CellGroup> cellGroups = new HashMap<Double, CellGroup>(); 
 		Interval start = new Interval(true, 0, false, intervalSize);
-		for(Cell c : cellData){
+		for(CellEllipse_ c : cellData){
 			double value = column.getColumnValue(c);
 			CellGroup cells;
 			cells = cellGroups.get(value);
@@ -76,7 +77,7 @@ public class CellTable extends AbstractTable{
 		GroupedTable groupedTable = null;
 		HashMap<Double, CellGroup> cellGroups = new HashMap<Double, CellGroup>(); 
 		Interval start = new Interval(true, 0, false, intervalSize);
-		for(Cell c : cellData){
+		for(CellEllipse_ c : cellData){
 			double value = column.getColumnValue(c);
 			Interval matching = start.nextMatching(value);
 			CellGroup cells;
@@ -130,24 +131,24 @@ public class CellTable extends AbstractTable{
 	}
 	
 	
-	private static Cell[] filter(Cell[] cellList, Filter filter) {
-		ArrayList<Cell> filteredCells = new ArrayList<Cell>();
-		for (Cell c : cellList) {
+	private static CellEllipse_[] filter(CellEllipse_[] cellList, Filter filter) {
+		ArrayList<CellEllipse_> filteredCells = new ArrayList<CellEllipse_>();
+		for (CellEllipse_ c : cellList) {
 			if (filter.match(c))
 				filteredCells.add(c);
 		}
-		return filteredCells.toArray(new Cell[0]);
+		return filteredCells.toArray(new CellEllipse_[0]);
 	}
 
-	public Cell[] filter(Filter... filter) {
-		Cell[] filteredCells = cellData;
+	public CellEllipse_[] filter(Filter... filter) {
+		CellEllipse_[] filteredCells = cellData;
 		for (Filter f : filter) {
 			filteredCells = filter(filteredCells, f);
 		}
 		return filteredCells;
 	}
 
-	private Cell[] filter() {
+	private CellEllipse_[] filter() {
 		return filter(getFilter());
 	}
 	
@@ -166,8 +167,8 @@ public class CellTable extends AbstractTable{
 	
 	public ArrayList<Double[]> getData() {
 		ArrayList<Double[]> tableData = new ArrayList<Double[]>();
-		Cell[] filteredCells = filter();
-		for (Cell cell : filteredCells) {
+		CellEllipse_[] filteredCells = filter();
+		for (CellEllipse_ cell : filteredCells) {
 			CellColumn[] column = getColumn();
 			Double[] row = new Double[column.length];
 			for (int i = 0; i < column.length; i++) {

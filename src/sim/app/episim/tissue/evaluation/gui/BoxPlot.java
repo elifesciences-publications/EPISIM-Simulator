@@ -62,11 +62,11 @@ import org.jfree.ui.RefineryUtilities;
 import org.jfree.util.Log;
 import org.jfree.util.LogContext;
 
-import sim.app.episim.tissue.evaluation.tabledata.Cell;
 import sim.app.episim.tissue.evaluation.tabledata.CellGroup;
 import sim.app.episim.tissue.evaluation.tabledata.GroupColumn;
 import sim.app.episim.tissue.evaluation.tabledata.GroupedTable;
-import sim.app.episim.tissue.evaluation.tabledata.Cell.CellMember;
+import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.CellEllipse_.CellMember;
 
 /**
  * 
@@ -110,7 +110,7 @@ public class BoxPlot extends ApplicationFrame {
 		for (CellMember gc : boxTypes) {
 			for (CellGroup group : tabledata.getCellGroupData()) {
 				List<Double> data = new ArrayList<Double>();
-				for (Cell c : group.getGroupedCells()) {
+				for (CellEllipse_ c : group.getGroupedCells()) {
 					data.add(gc.getColumnValue(c));
 				}
 				dataset.add(data, gc.getColumnName(),

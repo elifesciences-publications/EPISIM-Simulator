@@ -1,112 +1,113 @@
-package sim.app.episim.tissue.evaluation.tabledata;
+package sim.app.episim.visualization;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
+import sim.app.episim.tissue.evaluation.tabledata.CellColumn;
 import sim.app.episim.tissue.xmlread.ImportedCellData;
 
-public class Cell extends AbstractNC {
+public class CellEllipse_ extends AbstractCellEllipse_ {
 
 	public enum CellMember implements CellColumn{
 
 		ID("ID", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getId();
 			}
 		}), DIST_TO_BL_NORM("Distance to BL", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getDist2BlNorm();
 			}
 		}), DIST_TO_BL_ABS("Distance to BL Abs", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getDist2BlAbs();
 			}
 		}), AREA("Area", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getArea();
 			}
 		}), PERIMETER("Perimeter", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getPerimeter();
 			}
 		}), ORIENTATION_X("Orientation X", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getOrientationX();
 			}
 		}), ORIENTATION_BL("Orientation BL", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getOrientationBL();
 			}
 		}) ,CENTER_X("Center X", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getX();
 			}
 		}), CENTER_Y("Center Y", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getY();
 			}
 		}), MAJOR_AXIS("Major Axis", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getMajorAxis();
 			}
 		}), MINOR_AXIS("Minor Axis", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getMinorAxis();
 			}
 		}), HEIGHT("Height", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getHeight();
 			}
 		}), WIDTH("Width", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getWidth();
 			}
 		}), RATIO_N_LEN("Ratio n Len", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getRationLen();
 			}
 		}), ROUNDNESS("Roundness", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getRoundness();
 			}
 		}), RATIO_AXIS("Ratio Axis", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getRatioAxis();
 			}
 		}), ECCENTRICITY("Eccentricity", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getEccentricity();
 			}
 		}), SOLIDITY("Solodity", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getSolidity();
 			}
 		}), N_NUCLEI("n Nuclei", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getnNuclei();
 			}
 		}), N_NEIGHBOURS("n Neighbours", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getnNeighbour();
 			}
 		}), RATIO_NUC_TO_CP("Ratio Nuc to CP", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getRatioNuc2Cp();
 			}
 		}), NUC_DENSITY("Nuc Density", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getNucDensity();
 			}
 		}), MEAN_INT("Mean Int", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getMeanInt();
 			}
 		}), MEDIAN_INT("Median Int", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getMedianInt();
 			}
 		}), QUANT_75_INT("75Quantil Int", new MethodCallback() {
-			public double execute(Cell cell) {
+			public double execute(CellEllipse_ cell) {
 				return cell.getQuant75Int();
 			}
 		});
@@ -129,7 +130,7 @@ public class Cell extends AbstractNC {
 		}
 
 		@Override
-		public double getColumnValue(Cell cell) {
+		public double getColumnValue(CellEllipse_ cell) {
 			return callback.execute(cell);
 		}
 	}
@@ -138,7 +139,7 @@ public class Cell extends AbstractNC {
 	private double eccentricity;
 	private double solidity;
 	private double nNuclei;
-	private ArrayList<Nucleus> nuclei;
+	private ArrayList<NucleusEllipse_> nuclei;
 	private double nNeighbour;
 	private double ratioNuc2Cp;
 	private double nucDensity;
@@ -150,7 +151,7 @@ public class Cell extends AbstractNC {
 	private Color nucInt;
 	private Color cytInt;
 
-	public Cell(ImportedCellData cellData, double micrometerPerPixel, ArrayList<Nucleus> nucleiData) {
+	public CellEllipse_(ImportedCellData cellData, double micrometerPerPixel, ArrayList<NucleusEllipse_> nucleiData) {
 		super(cellData, micrometerPerPixel);
 		this.ratioAxis = cellData.getRatioAxis();
 		this.eccentricity = cellData.getEccentricity();
@@ -167,10 +168,10 @@ public class Cell extends AbstractNC {
 		this.nucInt = new Color((float)cellData.getNucIntR()/255, (float)cellData.getNucIntG()/255, (float)cellData.getNucIntB()/255);
 		this.cytInt = new Color((float)cellData.getCytIntR()/255, (float)cellData.getCytIntG()/255, (float)cellData.getCytIntB()/255);
 		
-		this.nuclei = new ArrayList<Nucleus>();
+		this.nuclei = new ArrayList<NucleusEllipse_>();
 		
 		for(long id : cellData.getNucleiID()){
-			for(Nucleus n : nucleiData)
+			for(NucleusEllipse_ n : nucleiData)
 				if(n.getId() == id) this.nuclei.add(n);
 		}
 	}
@@ -207,7 +208,7 @@ public class Cell extends AbstractNC {
 		this.nNuclei = nNuclei;
 	}
 
-	public ArrayList<Nucleus> getNucleiID() {
+	public ArrayList<NucleusEllipse_> getNucleiID() {
 		return nuclei;
 	}
 
@@ -306,7 +307,7 @@ public class Cell extends AbstractNC {
 	// }
 	
 	private interface MethodCallback {
-		double execute(Cell cell);
+		double execute(CellEllipse_ cell);
 	}
 
 }

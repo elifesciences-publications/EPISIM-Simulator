@@ -4,11 +4,12 @@ import java.util.ArrayList;
 
 import sim.app.episim.tissue.evaluation.filter.Condition;
 import sim.app.episim.tissue.evaluation.filter.Filter;
+import sim.app.episim.visualization.CellEllipse_;
 
 
 public class CellGroup {
 	
-	private Cell[] groupedCells;
+	private CellEllipse_[] groupedCells;
 	private CellColumn groupedBy;
 	private Condition groupCondition;
 	
@@ -22,7 +23,7 @@ public class CellGroup {
 		return groupedCells.length;
 	}
 
-	public Cell[] getGroupedCells() {
+	public CellEllipse_[] getGroupedCells() {
 		return groupedCells;
 	}
 	

@@ -1,0 +1,145 @@
+package sim.app.episim.tissue.evaluation;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.util.ArrayList;
+
+import sim.app.episim.tissue.evaluation.calculations.*;
+import sim.app.episim.tissue.evaluation.gui.BoxPlot;
+import sim.app.episim.tissue.evaluation.gui.Chart;
+import sim.app.episim.tissue.evaluation.tabledata.*;
+import sim.app.episim.tissue.evaluation.tabledata.Cell.CellMember;
+import sim.app.episim.tissue.xmlread.TissueImporter;
+
+public class TissueEvaluator {
+	CellTable table = null;
+
+	@SuppressWarnings("unchecked")
+	public TissueEvaluator(String[] files) {
+
+		table = new CellTable(getAllCells(files));
+		table.addColumn(CellMember.values());
+		table.addColumn(new IntervalSortCalculation(CellMember.DIST_TO_BL_ABS,
+				5));
+		// CellCSVWriter.writeTable("test_celltable.csv", table);
+	}
+
+	public Tissue loadTissue(String file) {
+		return TissueImporter.getInstance().loadTissue(new File(file));
+	}
+
+	public ArrayList<Cell> getAllCells(String... file) {
+		ArrayList<Cell> cells = new ArrayList<Cell>();
+		for (String s : file) {
+			System.out.println(s);
+			cells.addAll(loadTissue(s).getCells());
+		}
+		return cells;
+	}
+
+	public GroupedTable genTable1() {
+		GroupColumn col1 = new MeanOperation(CellMember.AREA);
+		GroupColumn col2 = new ErrorOperation(CellMember.AREA, 0.10d, false);
+		GroupColumn col3 = new ErrorOperation(CellMember.AREA, 0.10d, true);
+		GroupColumn col4 = new MeanOperation(CellMember.MAJOR_AXIS);
+		GroupColumn col5 = new ErrorOperation(CellMember.MAJOR_AXIS, 0.10d,
+				false);
+		GroupColumn col6 = new ErrorOperation(CellMember.MAJOR_AXIS, 0.10d,
+				true);
+		GroupColumn col7 = new MeanOperation(CellMember.MINOR_AXIS);
+		GroupColumn col8 = new ErrorOperation(CellMember.MINOR_AXIS, 0.10d,
+				false);
+		GroupColumn col9 = new ErrorOperation(CellMember.MINOR_AXIS, 0.10d,
+				true);
+		GroupColumn col0 = new CountOperation();
+
+		GroupedTable grTable = table.groupBy(CellMember.DIST_TO_BL_ABS, 2,
+				col1, col2, col3, col4, col5, col6, col7, col8, col9, col0);
+		return grTable;
+	}
+
+	public GroupedTable genTable2() {
+		GroupColumn col1 = new MeanOperation(CellMember.AREA);
+		GroupColumn col2 = new QuantilOperation(CellMember.AREA, 0.05d);
+		GroupColumn col3 = new QuantilOperation(CellMember.AREA, 0.5d);
+		GroupColumn col4 = new QuantilOperation(CellMember.AREA, 0.95d);
+		GroupColumn col5 = new MeanOperation(CellMember.MAJOR_AXIS);
+		GroupColumn col6 = new QuantilOperation(CellMember.MAJOR_AXIS, 0.05d);
+		GroupColumn col7 = new QuantilOperation(CellMember.MAJOR_AXIS, 0.5d);
+		GroupColumn col8 = new QuantilOperation(CellMember.MAJOR_AXIS, 0.95d);
+		GroupColumn col9 = new MeanOperation(CellMember.MINOR_AXIS);
+		GroupColumn cola = new QuantilOperation(CellMember.MINOR_AXIS, 0.05d);
+		GroupColumn colb = new QuantilOperation(CellMember.MINOR_AXIS, 0.5d);
+		GroupColumn colc = new QuantilOperation(CellMember.MINOR_AXIS, 0.95d);
+		GroupColumn cold = new CountOperation();
+
+		GroupedTable grTable = table.groupBy(CellMember.DIST_TO_BL_ABS, 2,
+				col1, col2, col3, col4, col5, col6, col7, col8, col9, cola,
+				colb, colc, cold);
+		return grTable;
+	}
+
+	public GroupedTable genTable3() {
+		GroupColumn col1 = new MeanOperation(CellMember.ORIENTATION_BL);
+		GroupColumn cold = new CountOperation();
+
+		GroupedTable grTable = table.groupBy(CellMember.DIST_TO_BL_ABS, 2,
+				col1, cold);
+		return grTable;
+	}
+
+	public GroupedTable genTable8() {
+		GroupColumn col1 = new MeanOperation(CellMember.AREA);
+		GroupColumn col2 = new QuantilOperation(CellMember.AREA, 0.05d);
+		GroupColumn col3 = new QuantilOperation(CellMember.AREA, 0.5d);
+		GroupColumn col4 = new QuantilOperation(CellMember.AREA, 0.95d);
+		GroupColumn cold = new CountOperation();
+
+		GroupedTable grTable = table.groupBy(CellMember.DIST_TO_BL_ABS, 5,
+				col1, col2, col3, col4, cold);
+		return grTable;
+	}
+
+	public GroupedTable genTable4() {
+		GroupColumn col1 = new MeanOperation(CellMember.ORIENTATION_BL);
+
+		GroupedTable grTable = table
+				.groupBy(CellMember.DIST_TO_BL_ABS, 5, col1);
+		return grTable;
+	}
+
+	public static void main(String[] args) {
+
+		// hier werden alle Dateien gelistet die eingelesen werden sollen.
+		ArrayList<String> files = new ArrayList<String>();
+		File daten = new File("/home/chris/BioQuant/work-local/Thomas/Daten");
+		for (File f : daten.listFiles()) {
+			if (f.isDirectory()) {
+				for (File xml : f.listFiles(new FileFilter() {
+
+					@Override
+					public boolean accept(File pathname) {
+						return pathname.getName().endsWith("xml");
+					}
+				})) {
+					files.add(xml.getAbsolutePath());
+				}
+			}
+		}
+		TissueEvaluator te = new TissueEvaluator(files.toArray(new String[0]));
+
+		GroupedTable grTable = te.genTable8();
+		CellCSVWriter.writeTable("test_groupTable.csv", grTable);
+
+		new Chart(grTable.getColumn()[0], grTable);
+		new BoxPlot("Test", grTable.getColumn()[0], grTable,
+				CellMember.ROUNDNESS);
+
+		//
+		// CellCSVWriter
+		// .writeTable(
+		// "/home/chris/BioQuant/work-local/Thomas/Daten/selectedFiles2.csv",
+		// grTable);
+
+	}
+}

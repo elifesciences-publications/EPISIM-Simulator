@@ -5,6 +5,7 @@ import episimbiomechanics.EpisimModelConnector;
 public interface EpisimCellBehavioralModel {
 	
 	void setEpisimModelConnector(EpisimModelConnector _modelConnector);
+	void setSendReceiveAlgorithm(SendReceiveAlgorithm _sendReceiveAlgorithm);
 	String getIdOfRequiredEpisimModelConnector();
 	
 	void setNumberProperty(int propertycode, double val);

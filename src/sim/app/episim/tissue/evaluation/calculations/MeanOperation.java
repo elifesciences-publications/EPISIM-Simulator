@@ -9,12 +9,12 @@ public class MeanOperation extends AbstractOperation {
 		super(cellMember);
 	}
 
-	@Override
+	
 	public double getColumnValue(CellGroup cellgroup) {
 		return mean(cellgroup);
 	}
 
-	@Override
+	
 	public String getColumnName() {
 		return getMembername()+"_Mean";
 	}

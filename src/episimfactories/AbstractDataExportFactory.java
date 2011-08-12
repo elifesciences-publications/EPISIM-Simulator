@@ -25,7 +25,6 @@ public abstract class AbstractDataExportFactory {
 	
 	/**
 	 * Override this Method if necessary 
-	 * 
 	 */
 	public EpisimDataExportDefinitionSet getEpisimDataExportDefinitionSet(InputStream stream) throws ModelCompatibilityException{
 		
@@ -34,17 +33,18 @@ public abstract class AbstractDataExportFactory {
 			try{
 				result = objIn.readObject();
 				stream.close();
-				objIn.close();
-				
+				objIn.close();				
 			}
-			catch (IOException e){
-				
+			catch (IOException e){				
 				if(e instanceof InvalidClassException) throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data-Export-Definiton-Set!");
 				else{
 					ExceptionDisplayer.getInstance().displayException(e);
 				}
 			}
-			catch (ClassNotFoundException e){
+			catch(ClassNotFoundException e){
+				throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data Export-Definiton-Set!");
+			}
+			catch(NoClassDefFoundError e){
 				throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data Export-Definiton-Set!");
 			}
 			if(result != null && result instanceof EpisimDataExportDefinitionSet) return (EpisimDataExportDefinitionSet) result;

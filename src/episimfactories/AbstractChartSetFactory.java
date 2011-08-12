@@ -41,14 +41,16 @@ public abstract class AbstractChartSetFactory {
 				objIn.close();
 				
 			}
-			catch (IOException e){
-				
+			catch (IOException e){				
 				if(e instanceof InvalidClassException) throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Chart-Set!");
 				else{
 					ExceptionDisplayer.getInstance().displayException(e);
 				}
 			}
-			catch (ClassNotFoundException e){
+			catch(ClassNotFoundException e){
+				throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Chart-Set!");
+			}
+			catch(NoClassDefFoundError e){
 				throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Chart-Set!");
 			}
 			if(result != null && result instanceof EpisimChartSet) return (EpisimChartSet) result;

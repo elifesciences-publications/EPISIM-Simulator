@@ -13,12 +13,12 @@ public class QuantilOperation extends AbstractOperation{
 			this.quantile = quantile;
 	}
 
-	@Override
+	
 	public String getColumnName() {
 		return getMembername()+"_"+quantile+"_Quantile";
 	}
 
-	@Override
+	
 	public double getColumnValue(CellGroup cellgroup) {
 		return quantile(cellgroup, quantile);
 	}

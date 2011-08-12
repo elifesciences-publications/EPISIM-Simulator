@@ -124,12 +124,12 @@ public class CellEllipse_ extends AbstractCellEllipse_ {
 			return name;
 		}
 
-		@Override
+		
 		public String getColumnName() {
 			return name;
 		}
 
-		@Override
+		
 		public double getColumnValue(CellEllipse_ cell) {
 			return callback.execute(cell);
 		}

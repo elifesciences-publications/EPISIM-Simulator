@@ -34,7 +34,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 				
 				for(AbstractCell actCell : this.allCells){
 					if(actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true 
-							&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL 
+							//&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL 
 							&& handler.conditionFulfilled(actCell)) return actCell;
 				}
 			}
@@ -46,7 +46,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 				
 				for(AbstractCell actCell : this.allCells){
 					if(actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true && requiredClass.isAssignableFrom(actCell.getClass())
-							&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL 
+							//&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL 
 							&& handler.conditionFulfilled(actCell)) return actCell;
 				}
 			}

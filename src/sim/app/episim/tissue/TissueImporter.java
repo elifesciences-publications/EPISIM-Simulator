@@ -45,9 +45,9 @@ import sim.app.episim.visualization.NucleusEllipse;
 public class TissueImporter {
 	
 	
-	//-------------------------------------------------------------------------------------------------------------------
-	// Available XML Elements in File
-	//-------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
+// Available XML Elements in File
+//-------------------------------------------------------------------------------------------------------------------
 	
 	private static final String AREA = "Area";
 	private static final String BASALLAMINA = "BasalLamina";
@@ -79,13 +79,12 @@ public class TissueImporter {
 	private static final String WIDTH = "Width";
 	private static final String X = "X";
 	private static final String Y = "Y";
-	//-------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
 	
 	
 	
 	
 	private static TissueImporter instance;
-	
 	
 	private ImportedTissue actImportedTissue;
 
@@ -99,7 +98,7 @@ public class TissueImporter {
 	private double surfaceOrientation = 0;
 	
 	
-	public static final double ELLIPSE_AXIS_LENGHT_CORR_FACTOR =1.2;
+	public static final double ELLIPSE_AXIS_LENGHT_CORR_FACTOR = 1.2;
 	
 	protected TissueImporter(){
 		

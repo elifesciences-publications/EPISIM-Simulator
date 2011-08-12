@@ -43,12 +43,12 @@ public class CellTable extends AbstractTable{
 		
 		CellColumn valueCol = new CellColumn() {
 			
-			@Override
+			
 			public String getColumnName() {
 				return column.getColumnName()+"_IntBegin";
 			}
 
-			@Override
+			
 			public double getColumnValue(CellEllipse_ cell) {
 				// TODO Auto-generated method stub
 				return 0;
@@ -91,17 +91,17 @@ public class CellTable extends AbstractTable{
 		groupedTable = new GroupedTable(sortCellGroups(cellGroups));
 		GroupColumn valueCol = new GroupColumn() {
 			
-			@Override
+			
 			public String getColumnName() {
 				return column.getColumnName()+"_IntBegin";
 			}
 			
-			@Override
+			
 			public double getColumnValue(CellGroup cellgroup) {
 				return cellgroup.getGroupCondition().getMin();
 			}
 
-			@Override
+			
 			public CellColumn getOriginal() {
 				// TODO Auto-generated method stub
 				return column;

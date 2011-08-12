@@ -181,8 +181,10 @@ public class TissueBorder {
 					
 				
 				basalLayer = new GeneralPath();
-				basalLayer.moveTo(tissue.getBasalLayerPoints().get(0).getX(), tissue.getBasalLayerPoints().get(0).getY());
-				for(Point2D p : tissue.getBasalLayerPoints())basalLayer.lineTo(p.getX(), p.getY());
+				if(!tissue.getBasalLayerPoints().isEmpty()){
+					basalLayer.moveTo(tissue.getBasalLayerPoints().get(0).getX(), tissue.getBasalLayerPoints().get(0).getY());
+					for(Point2D p : tissue.getBasalLayerPoints())basalLayer.lineTo(p.getX(), p.getY());
+				}
 				drawBasalLayer = (GeneralPath)basalLayer.clone();
 				
 				
@@ -190,8 +192,10 @@ public class TissueBorder {
 				
 				
 				surface = new GeneralPath();
-				surface.moveTo(tissue.getSurfacePoints().get(0).getX(), tissue.getSurfacePoints().get(0).getY());
-				for(Point2D p : tissue.getSurfacePoints())surface.lineTo(p.getX(), p.getY());
+				if(!tissue.getSurfacePoints().isEmpty()){
+					surface.moveTo(tissue.getSurfacePoints().get(0).getX(), tissue.getSurfacePoints().get(0).getY());
+					for(Point2D p : tissue.getSurfacePoints())surface.lineTo(p.getX(), p.getY());
+				}
 				drawSurface = (GeneralPath)surface.clone();
 				
 				

@@ -27,7 +27,7 @@
 	<property name="title" value="Episim Simulator"/>
 	<property name="main" value="sim.app.episim.gui.EpidermisSimulator"/>
 	<property name="splash" value="splash.jpg"/>
-	<property name="classpath" value="."/>
+	<property name="classpath" value=". ../lib/copasi.jar ../lib/copasi_gui.jar"/>
 
 	<property name="iconname" value="start.ico"/>
 	<property name="EpisimSimulatorExe" value="EpisimSimulator.exe"/>
@@ -41,6 +41,10 @@
 	<property name="macTar" value="EpisimSimulator.tar"/>
 	<property name="macTarGz64bit" value="EpisimSimulator_Mac_OSX_64-bit.tar.gz"/>
 	<property name="macApp" value="EpisimSimulator.zip"/>
+	
+	<property name="linuxCopasi" value="copasi_linux.zip"/>
+	<property name="winCopasi" value="copasi_windows.zip"/>
+	<property name="macCopasi" value="copasi_mac_64bit.zip"/>
 
 	<taskdef name="launch4j"
 	    classname="net.sf.launch4j.ant.Launch4jTask"
@@ -57,8 +61,8 @@
 	</target>
 
 	<!-- ================================= 
-	          target: makedirs              
-	         ================================= -->
+	      target: makedirs              
+	     ================================= -->
 	<target name="makedirs" depends="init" description="creating all necessary dirs">
 		<mkdir dir="${currentbuild}"/>
 		<mkdir dir="${currentbuild}/${build}"/>
@@ -112,6 +116,14 @@
 			<fileset dir="${lib}">
 				<include name="**/*"/>
 				<exclude name="**/classpathconfig.xml"/>
+				<exclude name="**/copasi_gui.jar"/>
+				<exclude name="**/copasi.jar"/>
+				<exclude name="**/CopasiJava.dll"/>
+				<exclude name="**/Microsoft.VC80.CRT"/>
+				<exclude name="**/Microsoft.VC80.CRT.manifest"/>
+				<exclude name="**/msvcm80.dll"/>
+				<exclude name="**/msvcp80.dll"/>
+				<exclude name="**/msvcr80.dll"/>
 			</fileset>
 			<fileset dir="${buildres}">
 				<include name="classpathconfig.xml"/>
@@ -171,23 +183,30 @@
 		<launch4j configFile="${currentbuild}/${launch4JEpisimConfig}" outfile="${currentbuild}/${build}/${EpisimSimulatorExe}"/>
 	</target>
 	<!-- ================================= 
-	     target: cleanupBinFolder              
+	      target: cleanupBinFolder              
 	     ================================= -->
 	<target name="cleanupBinFolder" depends ="buildEpisimExecutable" description="deletes the temporary stuff">
 		<delete includeemptydirs="true" verbose="false">
 			<fileset dir="${currentbuild}/${build}/bin" defaultexcludes="no">
 				<include name="**/*"/>
 				<exclude name="calculationalgorithms/**/*"/>
+				<exclude name="episimbiomechanics/**/*"/>
 				<exclude name="**/${destjarfile}"/>
 			</fileset>
 		</delete>
 	</target>
-
+	
+	<!-- ================================= 
+		  target: copyCOPASI_Windows              
+	 	 ================================= -->
+	<target name="copyCOPSASI_Windows" depends="cleanupBinFolder" description="copies the most recent COPASI to the lib folder">
+		<unzip src="${buildres}/win/${winCopasi}" dest="${currentbuild}/${build}/lib"/>
+	</target>
 
 	<!-- ================================= 
           target: copyJDK_Windows              
-         ================================= -->
-	<target name="copyJDK_Windows" depends="cleanupBinFolder" description="copies the most recent JDK to the jre folder">
+         =================================-->
+	<target name="copyJDK_Windows" depends="copyCOPSASI_Windows" description="copies the most recent JDK to the jre folder">
 		<echo message="${env.JAVA_HOME}"/>
 		<copy todir="${currentbuild}/${build}/jre">
 			<fileset dir="${env.JAVA_HOME}">
@@ -195,6 +214,7 @@
 			</fileset>
 		</copy>
 	</target>
+	
 
 	<!-- ================================= 
           target: buildInstallerJar              
@@ -224,6 +244,16 @@
 			<fileset dir="${currentbuild}/${build}/jre" defaultexcludes="no">
 				<include name="**/*" />
 			</fileset>
+			<fileset dir="${currentbuild}/${build}/lib" defaultexcludes="no">
+				<include name="**/copasi_gui.jar"/>
+				<include name="**/copasi.jar"/>
+				<include name="**/CopasiJava.dll"/>				
+				<include name="**/Microsoft.VC80.CRT.manifest"/>
+				<include name="**/msvcm80.dll"/>
+				<include name="**/msvcp80.dll"/>
+				<include name="**/msvcr80.dll"/>
+				<include name="**/Microsoft.VC80.CRT"/>
+			</fileset>
 			<fileset dir="${currentbuild}/${build}" defaultexcludes="no">
 					<include name="jmf/*.*" />
 					<include name="jmf" />
@@ -239,7 +269,7 @@
 	</target>
 	
 	<!-- ================================= 
-	     target: copyLinuxFiles32bit              
+	       target: copyLinuxFiles32bit              
 	     ================================= -->
 		<target name="copyLinuxFiles32bit" depends="cleanUpAfterWindowsBuild" description="All necessary files for the 32 bit Linux build">					
 			<copy todir="${currentbuild}/${build}">
@@ -249,7 +279,9 @@
 				</fileset>
 			</copy>
 			<unzip src="${buildres}/linux/${linuxJRE32bit}" dest="${currentbuild}/${build}/jre"/>
+			<unzip src="${buildres}/linux/${linuxCopasi}" dest="${currentbuild}/${build}/lib"/>
 		</target>
+	
 	<!-- ================================= 
           target: build32bitLinuxArchive              
          ================================= -->
@@ -267,32 +299,34 @@
     		    <exclude name="${build}/EpisimSimulatorStart.sh"/>
     			<exclude name="*.*"/>
     		</tarfileset>
-    	</tar>
-    	
+    	</tar>    	
     	<gzip destfile="${currentbuild}/${linuxTarGz32bit}" src="${currentbuild}/${linuxTar}"/>
     </target>
 	
 	
 	<!-- ==================================== 
 	     target: cleanUpAfter32bitLinuxBuild              
-	     ==================================== -->
-	
+	     ==================================== -->	
 	<target name="cleanUpAfter32bitLinuxBuild" depends="build32bitLinuxArchive" description="clean up after building the 32 bit Linux version">
-			<delete includeemptydirs="true" verbose="false">
-				<fileset dir="${currentbuild}/${build}/jre" defaultexcludes="no">
-					<include name="**/*" />
-				</fileset>				
-			</delete>		
+		<delete includeemptydirs="true" verbose="false">
+			<fileset dir="${currentbuild}/${build}/jre" defaultexcludes="no">
+				<include name="**/*" />
+			</fileset>	
+			<fileset dir="${currentbuild}" defaultexcludes="no">
+				<include name="${linuxTar}" />
+			</fileset>	
+		</delete>		
 	</target>
+	
 	<!-- ================================= 
-			     target: copyLinuxFiles64bit              
-			     ================================= -->
-		<target name="copyLinuxFiles64bit" depends="cleanUpAfter32bitLinuxBuild" description="All necessary files for the 64 bit Linux build">					
-			
+		  target: copyLinuxFiles64bit              
+		 ================================= -->
+		<target name="copyLinuxFiles64bit" depends="cleanUpAfter32bitLinuxBuild" description="All necessary files for the 64 bit Linux build">			
 			<unzip src="${buildres}/linux/${linuxJRE64bit}" dest="${currentbuild}/${build}/jre"/>
 		</target>
+	
 	<!-- ================================= 
-	          target: build64bitLinuxArchive              
+	     target: build64bitLinuxArchive              
 	     ================================= -->
 	    <target name="build64bitLinuxArchive" depends="copyLinuxFiles64bit" description="builds the 64 bit Linux archive">
 	    	<tar longfile="gnu" destfile="${currentbuild}/${linuxTar}">
@@ -313,7 +347,7 @@
 	    </target>
 	
 	<!-- ==================================== 
-		     target: cleanUpAfter64bitLinuxBuild              
+		 target: cleanUpAfter64bitLinuxBuild              
 		 ==================================== -->
 		
 		<target name="cleanUpAfter64bitLinuxBuild" depends="build64bitLinuxArchive" description="clean up after building the 64 bit Linux version">
@@ -321,30 +355,47 @@
 				<fileset dir="${currentbuild}/${build}/jre" defaultexcludes="no">
 					<include name="**/*" />
 				</fileset>
+				<fileset dir="${currentbuild}/${build}/lib" defaultexcludes="no">
+					<include name="copasi.jar" />
+					<include name="copasi_gui.jar" />
+					<include name="libCopasiJava.so" />
+					<include name="libCopasiJava.so.1" />
+					<include name="libCopasiJava.so.1.0" />
+					<include name="libCopasiJava.so.1.0.0" />
+					<include name="LicenseCOM.txt.h" />
+					<include name="LicenseDE.txt.h" />
+					<include name="LicenseUS.txt.h" />
+				</fileset>
+				<fileset dir="${currentbuild}" defaultexcludes="no">
+					<include name="${linuxTar}" />
+				</fileset>
 				<fileset dir="${currentbuild}/${build}" defaultexcludes="no">
 					<include name="jre" />
 					<include name="*.*" />
 				</fileset>
 			</delete>
 		</target>
+	
 	<!-- ================================= 
-		     target: copyMacFiles64bit              
+		  target: copyMacFiles64bit              
 		 ================================= -->
 		<target name="copyMacFiles64bit" depends="cleanUpAfter64bitLinuxBuild" description="All necessary files for the 64 bit Mac build">					
 			<unzip src="${buildres}/mac/${macApp}" dest="${currentbuild}/${build}"/>
+			<unzip src="${buildres}/mac/${macCopasi}" dest="${currentbuild}/${build}/lib"/>
 		</target>
-	<!-- ================================= 
-		          target: build64bitMacArchive              
-		 ================================= -->
+	
+	<!-- ====================================== 
+		  target: build64bitMacArchive              
+		 ====================================== -->
 		<target name="build64bitMacArchive" depends="copyMacFiles64bit" description="builds the 64 bit Mac archive">
-		    	<tar longfile="gnu" destfile="${currentbuild}/${macTar}">
-		    		<tarfileset dir="${currentbuild}">
-		    			<include name= "**/*"/>
-		    			<exclude name="*.*"/>
-		    		</tarfileset>
-		    	</tar>	    	
-		    	<gzip destfile="${currentbuild}/${macTarGz64bit}" src="${currentbuild}/${macTar}"/>
-		    </target>
+		   	<tar longfile="gnu" destfile="${currentbuild}/${macTar}">
+		   		<tarfileset dir="${currentbuild}">
+		   			<include name= "**/*"/>
+		   			<exclude name="*.*"/>
+		   		</tarfileset>
+		   	</tar>	    	
+		   	<gzip destfile="${currentbuild}/${macTarGz64bit}" src="${currentbuild}/${macTar}"/>
+		 </target>
 	
 
 

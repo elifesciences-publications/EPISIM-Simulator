@@ -218,16 +218,16 @@ public class UniversalCell extends AbstractCell
 			}
 			deltaTime +=deltaTimeTmp;		*/
    	 
-   	 if(children != null && children.length >= 1){
+   	 /*if(children != null && children.length >= 1){
    		 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL){
    			cellDivisionCounter++;
    			System.out.println(cellDivisionCounter + ". Teilung im Alter von " + this.getEpisimCellBehavioralModelObject().getAge());
    		 }
-   	 }
+   	 }*/
    	
    	 makeChildren(children);
    	 
-      if (!this.getEpisimCellBehavioralModelObject().getIsAlive()) // && (isOuterCell))
+      if(!this.getEpisimCellBehavioralModelObject().getIsAlive()) // && (isOuterCell))
       {
          killCell();
       }
@@ -294,6 +294,7 @@ public class UniversalCell extends AbstractCell
 	}
 
 	public List<Method> getParameters() {
+		
 		List<Method> methods = new ArrayList<Method>();		
 		for(Method m : this.getClass().getMethods()){
 			if((m.getName().startsWith("get") || m.getName().startsWith("is"))&& m.getAnnotation(CannotBeMonitored.class)==null) methods.add(m);

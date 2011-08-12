@@ -249,14 +249,22 @@ public class TestCanvas extends JPanel {
 				drawCellEllipse((Graphics2D) g,ell, false);
 					
 			}
-			if(basalLayer != null&& surface != null){
+			if(basalLayer != null){
+				Graphics2D graphics = (Graphics2D) g;
+				graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+				Color oldColor = graphics.getColor();
+				
+				graphics.setColor(new Color(1, 255, 0));
+				graphics.draw(basalLayer);				
+				graphics.setColor(oldColor);
+			}
+			if(surface != null){
 				Graphics2D graphics = (Graphics2D) g;
 				graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				Color oldColor = graphics.getColor();
 				
 				graphics.setColor(new Color(1, 255, 0));
 				graphics.draw(surface);
-				graphics.draw(basalLayer);
 				
 				graphics.setColor(oldColor);
 			}

@@ -20,11 +20,11 @@ public class IntervalSortCalculation implements CellColumn{
 		header = getColumnName()+"_IntBegin";
 		startInterval = new Interval(true, 0, false, intervalSize);
 	}
-	@Override
+	
 	public String getColumnName() {
 		return header;
 	}
-	@Override
+
 	public double getColumnValue(CellEllipse_ cell) {
 		return startInterval.nextMatching(column.getColumnValue(cell)).getMin();
 	}

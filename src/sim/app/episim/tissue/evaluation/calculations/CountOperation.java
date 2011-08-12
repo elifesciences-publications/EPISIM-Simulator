@@ -9,12 +9,12 @@ public class CountOperation extends AbstractOperation {
 		super(null);
 	}
 
-	@Override
+	
 	public double getColumnValue(CellGroup cellgroup) {
 		return cellgroup.getGroupedCellCount();
 	}
 
-	@Override
+	
 	public String getColumnName() {
 		return "nCells";
 	}

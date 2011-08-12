@@ -89,7 +89,7 @@ public abstract class AbstractOperation implements GroupColumn {
 		return cutList;
 	}
 	
-	@Override
+	
 	public CellColumn getOriginal() {
 		return cellMember;
 	}

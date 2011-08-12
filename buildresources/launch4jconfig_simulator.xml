@@ -16,8 +16,9 @@
   <jre>
     <path>.\jre</path>
     <minVersion>1.6.0_01</minVersion>
-    <maxVersion>1.6.0_17</maxVersion>
+    <maxVersion>1.6.0_23</maxVersion>
     <jdkPreference>jdkOnly</jdkPreference>
     <opt>-Xss1024k</opt>
+    <opt>-Djava.library.path=./lib</opt>
   </jre>
 </launch4jConfig>

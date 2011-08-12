@@ -10,10 +10,10 @@ public class TissueRotator {
 	public void rotateTissue(ImportedTissue tissue, double angleInDegrees) {
      
      
-     int width  = (int)tissue.getEpidermalWidth();
-     int height = (int)tissue.getEpidermalHeight();
+     double width  = tissue.getEpidermalWidth();
+     double height = tissue.getEpidermalHeight();
 
-     double angle = Math.toRadians(180-angleInDegrees);
+     double angle = Math.toRadians((180-angleInDegrees) < angleInDegrees ? (180-angleInDegrees) : angleInDegrees);
      double sin = Math.sin(angle);
      double cos = Math.cos(angle);
      double i0 = 0.5 * (width  - 1);     // point to rotate about
@@ -31,15 +31,15 @@ public class TissueRotator {
      for(Point2D p : tissue.getSurfacePoints()){
    	  double a = p.getX() - i0;
         double b = p.getY() - j0;
-        int newX = (int) (+a * cos - b * sin + i0);
-        int newY = (int) (+a * sin + b * cos + j0);
+        double newX = (+a * cos - b * sin + i0);
+        double newY = (+a * sin + b * cos + j0);
 		  p.setLocation(newX, newY);
 		}
 		for(Point2D p : tissue.getBasalLayerPoints()){
 			double a = p.getX() - i0;
          double b = p.getY() - j0;
-         int newX = (int) (+a * cos - b * sin + i0);
-         int newY = (int) (+a * sin + b * cos + j0);
+         double newX = (+a * cos - b * sin + i0);
+         double newY = (+a * sin + b * cos + j0);
 			p.setLocation(newX, newY);
 		}
      
@@ -85,12 +85,12 @@ public class TissueRotator {
 		System.out.println("MarginXShift: "+ marginXShift);
 		System.out.println("yShift: "+ yShift);
 		System.out.println("MarginYShift: "+ marginYShift);*/
-		for(CellEllipse cell : tissue.getCells()){
-			cell.setXY((int)(cell.getX()-minX+ (maxRadius/2)), (int)(cell.getY()-minY+(maxRadius/2)));
-			
+		for(CellEllipse cell : tissue.getCells()){			
+			cell.setXY((int)(cell.getX()-minX+ (maxRadius/2)), (int)(cell.getY()-minY+(maxRadius/2)));			
 		}
 		
 		for(Point2D p : tissue.getSurfacePoints()){
+			
 			p.setLocation((p.getX()-minX+ (maxRadius/2)), (p.getY()-minY+(maxRadius/2)));
 		}
 		for(Point2D p : tissue.getBasalLayerPoints()){

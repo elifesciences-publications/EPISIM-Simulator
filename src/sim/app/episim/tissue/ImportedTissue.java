@@ -25,7 +25,7 @@ public class ImportedTissue implements java.io.Serializable {
 	}
 	
 	
-	public ArrayList<Point2D> getBasalLayerPoints() { return basalLayerPoints; }
+	public ArrayList<Point2D> getBasalLayerPoints() { return  basalLayerPoints; }
 	
 	public void setBasalLayerPoints(ArrayList<Point2D> basalLayerPoints) { this.basalLayerPoints = basalLayerPoints; }
 	

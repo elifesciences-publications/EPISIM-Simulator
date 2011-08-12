@@ -29,7 +29,7 @@ public class ConditionInterval implements Condition {
 		this(Double.NEGATIVE_INFINITY, cellMember, max);
 	}
 
-	@Override
+	
 	public boolean match(CellEllipse_ cell) {
 		if (cellMember == null)
 			return true;
@@ -41,17 +41,17 @@ public class ConditionInterval implements Condition {
 			return matches;
 	}
 
-	@Override
+	
 	public double getMiddleValue() {
 		return condition.getMean();
 	}
 
-	@Override
+	
 	public double getMin() {
 		return condition.getMin();
 	}
 
-	@Override
+	
 	public double getMax() {
 		return condition.getMax();
 	}

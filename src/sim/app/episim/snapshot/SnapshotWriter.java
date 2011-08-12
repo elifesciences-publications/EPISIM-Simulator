@@ -5,9 +5,14 @@ import java.util.List;
 import java.io.*;
 
 import javax.swing.JOptionPane;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpidermisSimulator;
+import sim.app.episim.persistence.SimulationStateData;
+import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.util.ObjectStreamFactory;
 
 
@@ -29,15 +34,29 @@ public class SnapshotWriter {
 	
 	public void clearListeners(){
 		listeners.clear();
+		SimulationStateData.getInstance().clearListeners(); //TEMPORARY SOLUTION
 	}
 	
 	public void resetCounter(){ counter = 1;}
 	public void addSnapshotListener(SnapshotListener listener){
 		listeners.add(listener);
+		SimulationStateData.getInstance().addSnapshotListener(listener); //TEMPORARY SOLUTION
 	}
 	
 	
 	public void writeSnapshot(){
+		SimulationStateFile file;
+		try {
+			file = new SimulationStateFile();
+			file.saveData(new File("testcells.xml"));
+		} catch (ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SAXException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		if(snapshotPath == null){
 			for(SnapshotListener sl : listeners){
 				if(sl instanceof EpidermisSimulator){

@@ -1,5 +1,6 @@
 package sim.app.episim.persistence;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,13 +8,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import episiminterfaces.NoExport;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 
 public class SimulationStateData {
 
-	public ArrayList<HashMap<String, Object>> cells = new ArrayList<HashMap<String, Object>>();
+	public ArrayList<CellObjectData> cells = new ArrayList<CellObjectData>();
 
 	private static SimulationStateData instance = null;
 
@@ -44,47 +46,58 @@ public class SimulationStateData {
 				if (object.getIdentifier().equals(SnapshotObject.CELL)) {
 					UniversalCell cell = (UniversalCell) object
 							.getSnapshotObject();
-					HashMap<String, Object> cellParameters  = new HashMap<String, Object>();
-					for(Method m : getParameterMethodsFromCell(cell)){
-						Object returnValue = invokeGetMethod(cell,m);
-						if(returnValue != null)
-							cellParameters.put(m.getName(),returnValue);
-					}
-					cells.add(cellParameters);
+					CellObjectData cod = new CellObjectData();
+					cod.cellData = getParameterObjectsFromObject(cell);
+					cod.cellBehavioralModelObjectData = getParameterObjectsFromObject(cell.getEpisimCellBehavioralModelObject());
+					cod.bioMechanicalModelObjectData = getParameterObjectsFromObject(cell.getEpisimBioMechanicalModelObject());
+					cells.add(cod);
 				}
-				
+
 			}
 		}
 		// TODO snapshot listener
-		// TODO CellBehavioralModelController.getActLoadedModelFile (Pfad zum Modell)
+		// TODO CellBehavioralModelController.getActLoadedModelFile (Pfad zum
+		// Modell)
 	}
 
 	public void restoreData() {
 		// TODO ObjectManipulations.resetInitialGlobalValues
 	}
 
-	private List<Method> getParameterMethodsFromCell(UniversalCell cell) {
+	private String methodToName(String methodName) {
+		String parameterName = methodName;
+		if (methodName.startsWith("get"))
+			parameterName = parameterName.substring(3);
+		else if (methodName.startsWith("is"))
+			parameterName = parameterName.substring(2);
+		StringBuilder sb = new StringBuilder();
+		sb.append(Character.toLowerCase(parameterName.charAt(0)));
+		sb.append(parameterName.substring(1));
+		parameterName = sb.toString();
+		return parameterName;
+	}
 
-		List<Method> methods = new ArrayList<Method>();
-		for (Method m : cell.getClass().getMethods()) {
+	private HashMap<String, Object> getParameterObjectsFromObject(Object object) {
+
+		HashMap<String, Object> objects = new HashMap<String, Object>();
+		for (Method m : object.getClass().getMethods()) {
 			if ((m.getName().startsWith("get") || m.getName().startsWith("is"))
-					&& m.getAnnotation(NoExport.class) == null)
-				methods.add(m);
+					&& m.getAnnotation(NoExport.class) == null
+					&& !m.getName().equals("getClass"))
+
+				try {
+					if (m.getParameterTypes().length == 0)
+						objects.put(methodToName(m.getName()),
+								m.invoke(object, new Object[0]));
+				} catch (IllegalAccessException e) {
+					ExceptionDisplayer.getInstance().displayException(e);
+				} catch (IllegalArgumentException e) {
+					ExceptionDisplayer.getInstance().displayException(e);
+				} catch (InvocationTargetException e) {
+					ExceptionDisplayer.getInstance().displayException(e);
+				}
 		}
-		for (Method m : cell.getEpisimCellBehavioralModelClass().getMethods()) {
-			if ((m.getName().startsWith("get") && !m.getName().equals(
-					"getParameters"))
-					|| m.getName().startsWith("is"))
-				methods.add(m);
-		}
-		for (Method m : cell.getEpisimBioMechanicalModelObject().getClass()
-				.getMethods()) {
-			if (((m.getName().startsWith("get") && !m.getName().equals(
-					"getParameters")) || m.getName().startsWith("is"))
-					&& m.getAnnotation(NoExport.class) == null)
-				methods.add(m);
-		}
-		return methods;
+		return objects;
 	}
 
 	private Object invokeGetMethod(Object object, Method actMethod) {
@@ -97,5 +110,11 @@ public class SimulationStateData {
 			}
 		}
 		return obj;
+	}
+	
+	public class CellObjectData{
+		public HashMap<String, Object> cellData = new HashMap<String, Object>();
+		public HashMap<String, Object> cellBehavioralModelObjectData = new HashMap<String, Object>();
+		public HashMap<String, Object> bioMechanicalModelObjectData = new HashMap<String, Object>();
 	}
 }

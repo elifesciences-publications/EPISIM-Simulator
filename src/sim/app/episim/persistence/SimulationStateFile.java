@@ -2,9 +2,8 @@ package sim.app.episim.persistence;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -14,6 +13,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import sim.app.episim.AbstractCell;
+import sim.app.episim.persistence.SimulationStateData.CellObjectData;
 
 public class SimulationStateFile extends XmlFile {
 
@@ -91,17 +91,18 @@ public class SimulationStateFile extends XmlFile {
 		Element node = createElement(ElementName);
 		if (obj.getClass().isPrimitive()) {
 			node.setTextContent(obj + "");
-		} else if (obj.getClass().isAssignableFrom(java.util.List.class)) {
-			List listObj = (List) obj;
+		} else if (obj instanceof Collection) {
+			Collection listObj = (Collection) obj;
 			if (listObj.size() > 0) {
-				node.setAttribute("list", listObj.get(0).getClass().getName());
+				node.setAttribute("list", listObj.toArray()[0].getClass()
+						.getName());
 				for (Object listElement : listObj) {
 					node.appendChild(convertObjectToNode("listElement",
 							listElement));
 				}
 
 			}
-		} else if (obj.getClass().isAssignableFrom(AbstractCell.class)) {
+		} else if (obj instanceof AbstractCell) {
 			node.setAttribute("type", CELL_ID);
 			node.setTextContent(((AbstractCell) obj).getID() + "");
 		} else {
@@ -112,13 +113,33 @@ public class SimulationStateFile extends XmlFile {
 
 	public void saveData(File path) {
 		SimulationStateData.getInstance().updateData();
-		for (HashMap<String, Object> cellParameters : SimulationStateData
-				.getInstance().cells) {
-			Element cell = createElement("Cell");
-			for (String parameter : cellParameters.keySet()) {
-				cell.appendChild(convertObjectToNode(parameter,
-						cellParameters.get(parameter)));
+		for (CellObjectData cell : SimulationStateData.getInstance().cells) {
+			
+			Element cellElement = createElement("cell");
+			for (String parameter : cell.cellData.keySet()) {
+				Object o = cell.cellData.get(parameter);
+				if (o != null)
+					cellElement.appendChild(convertObjectToNode(parameter, o));
 			}
+			
+			Element bioMechanicalModelObjectDataElement = createElement("bioMechanicalModel");
+			for (String parameter : cell.bioMechanicalModelObjectData.keySet()) {
+				Object o = cell.cellData.get(parameter);
+				if (o != null)
+					bioMechanicalModelObjectDataElement.appendChild(convertObjectToNode(parameter, o));
+			}
+			
+			Element cellBehavioralModelObjectElement = createElement("cellBehavioralModel");
+			for (String parameter : cell.cellBehavioralModelObjectData.keySet()) {
+				Object o = cell.cellData.get(parameter);
+				if (o != null)
+					cellBehavioralModelObjectElement.appendChild(convertObjectToNode(parameter, o));
+			}
+			
+			cellElement.appendChild(cellBehavioralModelObjectElement);
+			cellElement.appendChild(bioMechanicalModelObjectDataElement);
+			
+			cell_list.appendChild(cellElement);
 
 		}
 		save(path);

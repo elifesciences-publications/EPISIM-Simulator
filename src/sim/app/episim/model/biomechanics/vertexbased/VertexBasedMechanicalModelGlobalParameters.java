@@ -38,15 +38,15 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	// Other required Parameters
 	//----------------------------------------------------------------------------------------------------------------------
 		@NotInStatisticsHeaderString
-		private int basalAmplitude_µm = 250; // depth of an undulation
+		private int basalAmplitude_mikron = 250; // depth of an undulation
 		@NotInStatisticsHeaderString
-		private int basalOpening_µm = 12000; // width of undulation at the middle
+		private int basalOpening_mikron = 12000; // width of undulation at the middle
 		@NotInStatisticsHeaderString
 		private double width = 500;
 		@NotInStatisticsHeaderString
 		private double height = 450;		
 		@NotInStatisticsHeaderString
-		private double neighborhood_µm= 50.0;
+		private double neighborhood_mikron= 50.0;
 	//----------------------------------------------------------------------------------------------------------------------
 	
 		
@@ -84,11 +84,11 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 		return headerStringBuffer.toString();
 	}
 	
-	public int getBasalAmplitude_µm() { return basalAmplitude_µm; }	
-   public void setBasalAmplitude_µm(int basalAmplitude_µm) { this.basalAmplitude_µm = basalAmplitude_µm; }
+	public int getBasalAmplitude_mikron() { return basalAmplitude_mikron; }	
+   public void setBasalAmplitude_mikron(int basalAmplitude_mikron) { this.basalAmplitude_mikron = basalAmplitude_mikron; }
 	
-   public int getBasalOpening_µm() { return basalOpening_µm; }	
-   public void setBasalOpening_µm(int basalOpening_µm) { this.basalOpening_µm = basalOpening_µm; }
+   public int getBasalOpening_mikron() { return basalOpening_mikron; }	
+   public void setBasalOpening_mikron(int basalOpening_mikron) { this.basalOpening_mikron = basalOpening_mikron; }
 	
    public double getWidth() {	return width; }	
    public void setWidth(double val) { if(val > 0)this.width = val; }
@@ -100,8 +100,8 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
    	if(val > 0) this.height = val;
    }
 	
-   public double getNeighborhood_µm() { return neighborhood_µm; }
-   public void setNeighborhood_µm(double neighborhood_µm) { this.neighborhood_µm = neighborhood_µm; }
+   public double getNeighborhood_mikron() { return neighborhood_mikron; }
+   public void setNeighborhood_mikron(double neighborhood_mikron) { this.neighborhood_mikron = neighborhood_mikron; }
 	
    public double getKappa() {
    

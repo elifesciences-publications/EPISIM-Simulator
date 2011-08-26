@@ -351,7 +351,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		//////////////////////////////////////////////////
 		// try ACTION force
 		//////////////////////////////////////////////////
-		Bag b = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_µm(), false); // theEpidermis.neighborhood
+		Bag b = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), false); // theEpidermis.neighborhood
 		HitResultClass hitResult1;
 		hitResult1 = hitsOther(b, TissueController.getInstance().getActEpidermalTissue().getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
@@ -400,7 +400,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		// nicht
 		// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
 
-		b = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_µm(), false); // theEpidermis.neighborhood
+		b = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), false); // theEpidermis.neighborhood
 		HitResultClass hitResult2;
 		hitResult2 = hitsOther(b, TissueController.getInstance().getActEpidermalTissue().getCellContinous2D(), potentialLoc, true, NEXTTOOUTERCELL);
 
@@ -611,18 +611,17 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
     	CellEllipse cellEllipseCell = this.getCellEllipseObject();
     	GenericBag<AbstractCell> realNeighbours = this.getNeighbouringCells();
     	 
-    	 if(realNeighbours != null && realNeighbours.size() > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
- 	   	 for(AbstractCell neighbouringCell : realNeighbours){
- 	   		 if(neighbouringCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
- 	   			 CenterBasedMechanicalModel biomechModelNeighbour = (CenterBasedMechanicalModel) neighbouringCell.getEpisimBioMechanicalModelObject();
+    	if(realNeighbours != null && realNeighbours.size() > 0 && cellEllipseCell.getLastDrawInfo2D()!= null){
+    		for(AbstractCell neighbouringCell : realNeighbours){
+    			if(neighbouringCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+    				CenterBasedMechanicalModel biomechModelNeighbour = (CenterBasedMechanicalModel) neighbouringCell.getEpisimBioMechanicalModelObject();
 	 	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), biomechModelNeighbour.getCellEllipseObject().getId(), simstepNumber)){
 	 	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(),biomechModelNeighbour.getCellEllipseObject().getId());
 	 	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, biomechModelNeighbour.getCellEllipseObject());
 	 	   		 }
  	   		 }
  	   	 }
-    	 }
-    	
+    	 }    	
    }
 	
 	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){

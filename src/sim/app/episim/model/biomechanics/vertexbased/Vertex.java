@@ -63,6 +63,7 @@ public class Vertex implements java.io.Serializable{
 		   
     /**
      * Manhattan Distanz
+     * 
      * @return
      */
     public double mdist(Vertex v)   // Manhattan-Distanz

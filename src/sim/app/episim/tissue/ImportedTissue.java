@@ -8,9 +8,9 @@ import sim.app.episim.visualization.CellEllipse;
 
 public class ImportedTissue implements java.io.Serializable {
 	
-	private ArrayList<Point2D> basalLayerPoints;
-	private ArrayList<Point2D> surfacePoints;
-	private ArrayList<CellEllipse> cells;
+	private ArrayList<Point2D> basalLayerPoints = new ArrayList<Point2D>();
+	private ArrayList<Point2D> surfacePoints = new ArrayList<Point2D>();
+	private ArrayList<CellEllipse> cells = new ArrayList<CellEllipse>();
 	private double resolution;
 	private String tissueImageid = "";
 	private String tissueDescription = "no description";
@@ -27,11 +27,11 @@ public class ImportedTissue implements java.io.Serializable {
 	
 	public ArrayList<Point2D> getBasalLayerPoints() { return  basalLayerPoints; }
 	
-	public void setBasalLayerPoints(ArrayList<Point2D> basalLayerPoints) { this.basalLayerPoints = basalLayerPoints; }
+	public void setBasalLayerPoints(ArrayList<Point2D> basalLayerPoints) { if(basalLayerPoints != null) this.basalLayerPoints = basalLayerPoints; }
 	
 	public ArrayList<Point2D> getSurfacePoints() { return surfacePoints; }
 	
-	public void setSurfacePoints(ArrayList<Point2D> surfacePoints){ this.surfacePoints = surfacePoints; }
+	public void setSurfacePoints(ArrayList<Point2D> surfacePoints){ if(surfacePoints != null)  this.surfacePoints = surfacePoints; }
 	
 	public double getResolutionInMicrometerPerPixel() { return resolution; }
 	

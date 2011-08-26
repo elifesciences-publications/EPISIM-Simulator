@@ -120,7 +120,7 @@ public class Epidermis extends TissueType implements CellDeathListener
  
 		
 		//TODO: plus 2 Korrektur überprüfen
-		cellContinous2D = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_µm() / 1.5, 
+		cellContinous2D = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
 				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
 				TissueController.getInstance().getTissueBorder().getHeight());
 		basementContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth() + 2, 

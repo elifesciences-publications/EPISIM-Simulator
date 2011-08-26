@@ -41,6 +41,7 @@ public class TissueRotator {
          double newX = (+a * cos - b * sin + i0);
          double newY = (+a * sin + b * cos + j0);
 			p.setLocation(newX, newY);
+			
 		}
      
      
@@ -52,7 +53,7 @@ public class TissueRotator {
     tissue.setEpidermalWidth((int)(widthA + heightB));
     tissue.setEpidermalHeight((int)(widthB + heightA));
     
-    xyShift(tissue);
+  //  xyShift(tissue);
   }
 	
 	private void xyShift(ImportedTissue tissue){

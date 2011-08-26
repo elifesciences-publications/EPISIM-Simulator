@@ -27,7 +27,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 
 	private final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu rete tiefe
 	{
-	     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_µm();                
+	     return (y-TissueController.getInstance().getTissueBorder().getUndulationBaseLine())/ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron();                
 	}	
 	
    protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
@@ -43,7 +43,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 
 			if((depthFrac(newloc.y) > biomechanicalModelGlobalParameters.getSeedMinDepth_frac() && (!biomechanicalModelGlobalParameters.getSeedReverse()))
 					|| (depthFrac(newloc.y) < biomechanicalModelGlobalParameters.getSeedMinDepth_frac() && biomechanicalModelGlobalParameters.getSeedReverse()))
-				if(distance > biomechanicalModelGlobalParameters.getBasalDensity_µm()){
+				if(distance > biomechanicalModelGlobalParameters.getBasalDensity_mikron()){
 					
 					UniversalCell stemCell = new UniversalCell(AbstractCell.getNextCellId(),-1, null, null);					
 					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject().setXY(((int)newloc.x), ((int)newloc.y));

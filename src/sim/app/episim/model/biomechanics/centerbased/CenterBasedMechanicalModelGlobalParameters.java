@@ -4,18 +4,18 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	private int basalAmplitude_µm = 40; // depth of an undulation
-	private int basalOpening_µm = 250; // width of undulation at the middle
+	private int basalAmplitude_mikron = 40; // depth of an undulation
+	private int basalOpening_mikron = 250; // width of undulation at the middle
 	private double width = 140;
 	private double height = 100;
 	private double randomness = 0.05;
 	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
 	private boolean seedReverse = false;	
-	private int basalDensity_µm = 8; // width of undulation at the middle
+	private int basalDensity_mikron = 8; // width of undulation at the middle
 	private double externalPush = 1.1; // y-offset
 	private double cohesion = 0.01;
 	private double gravitation = 0.0; // y-offset
-	private double neighborhood_µm= 10.0;
+	private double neighborhood_mikron= 10.0;
 	private double basalLayerWidth=15;  // For Statistics of Basal Layer: Cell Definition (for GrowthFraction): distance to membrane not more than gBasalLayerWidth
 	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
 	private boolean drawCellsAsEllipses = false;
@@ -30,22 +30,22 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	  	this.drawCellsAsEllipses = drawCellsAsEllipses;
 	}
 	
-	public int getBasalAmplitude_µm() {
-		return basalAmplitude_µm;
+	public int getBasalAmplitude_mikron() {
+		return basalAmplitude_mikron;
 	}
 
-	public void setBasalAmplitude_µm(int val) {
+	public void setBasalAmplitude_mikron(int val) {
 		if(val >= 0.0)
-			basalAmplitude_µm = val;
+			basalAmplitude_mikron = val;
 	}
 	
-	public int getBasalOpening_µm() {
-		return basalOpening_µm;
+	public int getBasalOpening_mikron() {
+		return basalOpening_mikron;
 	}
 
-	public void setBasalOpening_µm(int val) {
+	public void setBasalOpening_mikron(int val) {
 		if(val >= 0.0)
-			basalOpening_µm = val;
+			basalOpening_mikron = val;
 	}
 	
 	public double getBasalLayerWidth() {
@@ -76,9 +76,9 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	}
 	
 	
-	public double getNeighborhood_µm() { return neighborhood_µm; }
+	public double getNeighborhood_mikron() { return neighborhood_mikron; }
 	
- 	public void setNeighborhood_µm(double val) { if (val > 0) neighborhood_µm= val; }	
+ 	public void setNeighborhood_mikron(double val) { if (val > 0) neighborhood_mikron= val; }	
 
 	public double getSeedMinDepth_frac() {
 		return seedMinDepth_frac;
@@ -97,13 +97,13 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 		seedReverse = val;
 	}	
 
-	public int getBasalDensity_µm() {
-		return basalDensity_µm;
+	public int getBasalDensity_mikron() {
+		return basalDensity_mikron;
 	}
 
-	public void setBasalDensity_µm(int val) {
+	public void setBasalDensity_mikron(int val) {
 		if(val >= 0)
-			basalDensity_µm = val;
+			basalDensity_mikron = val;
 	}
 	public double getExternalPush() {
 		return externalPush;

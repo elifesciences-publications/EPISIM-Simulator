@@ -7,6 +7,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,6 +20,8 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.util.PointSorter;
+import sim.app.episim.util.SimulatedAnnealingForOrderingPoints;
 public class TissueBorder {
 	
 	private ArrayList<Point2D> fullcontour;
@@ -141,9 +144,9 @@ public class TissueBorder {
 		     double p=basalPeriod; 
 		     
 		     double partition=x-(int)(x/p)*p - p/2; // alle 10 einen buckel 5=10/2        
-		     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_µm());
+		     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_mikron());
 		     //System.out.println("x:"+x+" p:"+partition+" v:"+v+" Av:"+basalAmplitude*v);
-		     return basalY+globalParameters.getBasalAmplitude_µm()*v;
+		     return basalY+globalParameters.getBasalAmplitude_mikron()*v;
 		}
 		else return Double.POSITIVE_INFINITY;
 	 }
@@ -151,52 +154,66 @@ public class TissueBorder {
 	
 	public void setImportedTissueBorder(ImportedTissue _tissue) {
 		standardMembraneLoaded = false;
+		ArrayList<Point2D> surface = null, basalLayer = null;		
+		Point2D[] surfaceArray = null, basalLayerArray = null;
 		if(_tissue != null){
-			
-			   tissue = _tissue;
-			
-				fullcontour = new ArrayList<Point2D>();
-				fullcontour.addAll(tissue.getBasalLayerPoints());
-				ArrayList<Point2D> surface = tissue.getSurfacePoints();
-				
-				for(int i = surface.size()-1; i >= 0 ; i--) fullcontour.add(surface.get(i));
-				
-				
+			tissue = _tissue;	
+			surface = tissue.getSurfacePoints();
+			basalLayer = tissue.getBasalLayerPoints();
+			Collections.shuffle(surface);
+			Collections.shuffle(basalLayer);
+			surfaceArray = surface.toArray(new Point2D[surface.size()]);
+			basalLayerArray = basalLayer.toArray(new Point2D[basalLayer.size()]);
+		
+			//SimulatedAnnealingForOrderingPoints sorting = null;
+			PointSorter sorting = null;
+			if(!surface.isEmpty()){
+				//sorting = new SimulatedAnnealingForOrderingPoints(surfaceArray);
+				sorting = new PointSorter(surfaceArray);
+				surfaceArray = sorting.getSortedPoints();
+			}
+			if(!basalLayer.isEmpty()){
+				long start = System.currentTimeMillis();
+				//sorting = new SimulatedAnnealingForOrderingPoints(basalLayerArray);
+				sorting = new PointSorter(basalLayerArray);
+			   basalLayerArray = sorting.getSortedPoints();
+				long end = System.currentTimeMillis();
+				System.out.println("Time for Sorting: " + (end-start));
 			}
 			
-			if(this.fullcontour.size() > 0){
+			tissue = _tissue;
+			
+			fullcontour = new ArrayList<Point2D>();
+			for(Point2D point : basalLayerArray)fullcontour.add(point);
+			
+			for(int i = surfaceArray.length-1; i >= 0 ; i--) fullcontour.add(surfaceArray[i]);				
+		}			
+		if(this.fullcontour.size() > 0){
 
 				polygon = new GeneralPath();
 				polygon.moveTo(this.fullcontour.get(0).getX(), this.fullcontour.get(0).getY());
 				for(int i = 0; i < this.fullcontour.size(); i++){
-
 					polygon.lineTo(this.fullcontour.get(i).getX(), this.fullcontour.get(i).getY());
-
 				}
 				
 				//polygon.closePath();
 				drawPolygon = (GeneralPath)polygon.clone();
 				drawPolygon.closePath();
-				polygon.lineTo(polygon.getBounds().getMinX(), polygon.getBounds().getMinY());
-					
+				polygon.lineTo(polygon.getBounds().getMinX(), polygon.getBounds().getMinY());					
 				
-				basalLayer = new GeneralPath();
+				this.basalLayer = new GeneralPath();
 				if(!tissue.getBasalLayerPoints().isEmpty()){
-					basalLayer.moveTo(tissue.getBasalLayerPoints().get(0).getX(), tissue.getBasalLayerPoints().get(0).getY());
-					for(Point2D p : tissue.getBasalLayerPoints())basalLayer.lineTo(p.getX(), p.getY());
+					this.basalLayer.moveTo(basalLayerArray[0].getX(), basalLayerArray[0].getY());
+					for(Point2D p : basalLayerArray)this.basalLayer.lineTo(p.getX(), p.getY());
 				}
-				drawBasalLayer = (GeneralPath)basalLayer.clone();
+				drawBasalLayer = (GeneralPath)this.basalLayer.clone();		
 				
-				
-				
-				
-				
-				surface = new GeneralPath();
+				this.surface = new GeneralPath();
 				if(!tissue.getSurfacePoints().isEmpty()){
-					surface.moveTo(tissue.getSurfacePoints().get(0).getX(), tissue.getSurfacePoints().get(0).getY());
-					for(Point2D p : tissue.getSurfacePoints())surface.lineTo(p.getX(), p.getY());
+					this.surface.moveTo(surfaceArray[0].getX(), surfaceArray[0].getY());
+					for(Point2D p : tissue.getSurfacePoints())this.surface.lineTo(p.getX(), p.getY());
 				}
-				drawSurface = (GeneralPath)surface.clone();
+				drawSurface = (GeneralPath)this.surface.clone();
 				
 				
 				

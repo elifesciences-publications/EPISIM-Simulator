@@ -104,10 +104,6 @@ public class SimulationStateData {
 
 				} else if (object.getIdentifier().equals(
 						SnapshotObject.MISCALLENEOUSGLOBALPARAMETERS)) {
-					MiscalleneousGlobalParameters.instance()
-							.reloadMiscalleneousGlobalParametersObject(
-									(MiscalleneousGlobalParameters) object
-											.getSnapshotObject());
 					this.miscalleneousGlobalParameterss = getParameterObjectsFromObject(MiscalleneousGlobalParameters.instance());
 
 				} else if (object.getIdentifier().equals(SnapshotObject.WOUND)) {

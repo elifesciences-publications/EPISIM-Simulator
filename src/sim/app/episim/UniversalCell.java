@@ -25,6 +25,7 @@ import sim.util.*;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.NoExport;
 
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.CannotBeMonitored;
@@ -293,6 +294,7 @@ public class UniversalCell extends AbstractCell
 		}		
 	}
 
+	@NoExport
 	public List<Method> getParameters() {
 		
 		List<Method> methods = new ArrayList<Method>();		

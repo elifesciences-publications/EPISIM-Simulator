@@ -81,6 +81,7 @@ public class XmlFile {
 	}
 
 	protected Element createElement(String name){
+		name = name.replace('µ','m');
 		return document.createElement(name);
 	}
 

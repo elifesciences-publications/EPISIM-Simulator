@@ -9,6 +9,7 @@ import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModel;
+import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.controller.ModelController;
@@ -76,6 +77,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    
 	public abstract String getCellName();
 	
+	@NoExport
 	public abstract List<Method> getParameters();
 	
 	public boolean isInNirvana() { return inNirvana; }

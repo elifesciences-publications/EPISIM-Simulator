@@ -12,6 +12,7 @@ import episimbiomechanics.centerbased.EpisimCenterBasedModelConnector;
 import episimexceptions.GlobalParameterException;
 
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.NoExport;
 
 import episiminterfaces.monitoring.CannotBeMonitored;
 
@@ -473,6 +474,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    
    public boolean isMembraneCell(){ return isMembraneCell;}
    
+   @NoExport
    public GenericBag<AbstractCell> getRealNeighbours(){
    	GenericBag<AbstractCell> neighbours = getNeighbouringCells();
    	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();

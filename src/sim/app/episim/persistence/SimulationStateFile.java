@@ -1,9 +1,11 @@
 package sim.app.episim.persistence;
 
+import java.awt.geom.Rectangle2D.Double;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -12,8 +14,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+
 import sim.app.episim.AbstractCell;
 import sim.app.episim.persistence.SimulationStateData.CellObjectData;
+import sim.engine.SimStateHack.TimeSteps;
+import sim.field.continuous.Continuous2D;
+import sim.util.Double2D;
 
 public class SimulationStateFile extends XmlFile {
 
@@ -114,34 +122,106 @@ public class SimulationStateFile extends XmlFile {
 	public void saveData(File path) {
 		SimulationStateData.getInstance().updateData();
 		for (CellObjectData cell : SimulationStateData.getInstance().cells) {
-			
+
 			Element cellElement = createElement("cell");
 			for (String parameter : cell.cellData.keySet()) {
 				Object o = cell.cellData.get(parameter);
 				if (o != null)
 					cellElement.appendChild(convertObjectToNode(parameter, o));
 			}
-			
+
 			Element bioMechanicalModelObjectDataElement = createElement("bioMechanicalModel");
 			for (String parameter : cell.bioMechanicalModelObjectData.keySet()) {
-				Object o = cell.cellData.get(parameter);
+				Object o = cell.bioMechanicalModelObjectData.get(parameter);
 				if (o != null)
-					bioMechanicalModelObjectDataElement.appendChild(convertObjectToNode(parameter, o));
+					bioMechanicalModelObjectDataElement
+							.appendChild(convertObjectToNode(parameter, o));
 			}
-			
+
 			Element cellBehavioralModelObjectElement = createElement("cellBehavioralModel");
 			for (String parameter : cell.cellBehavioralModelObjectData.keySet()) {
-				Object o = cell.cellData.get(parameter);
+				Object o = cell.cellBehavioralModelObjectData.get(parameter);
 				if (o != null)
-					cellBehavioralModelObjectElement.appendChild(convertObjectToNode(parameter, o));
+					cellBehavioralModelObjectElement
+							.appendChild(convertObjectToNode(parameter, o));
 			}
-			
+
 			cellElement.appendChild(cellBehavioralModelObjectElement);
 			cellElement.appendChild(bioMechanicalModelObjectDataElement);
-			
+
 			cell_list.appendChild(cellElement);
 
 		}
+
+		Element cellContinuousElement = createElement("cellContinuouss");
+		for (String parameter : SimulationStateData.getInstance().cellContinuouss
+				.keySet()) {
+			Object o = SimulationStateData.getInstance().cellContinuouss
+					.get(parameter);
+			if (o != null)
+				cellContinuousElement.appendChild(convertObjectToNode(
+						parameter, o));
+		}
+		rootNode.appendChild(cellContinuousElement);
+
+		Element timeStepsElement = createElement("timeStepss");
+		for (String parameter : SimulationStateData.getInstance().timeStepss
+				.keySet()) {
+			Object o = SimulationStateData.getInstance().timeStepss
+					.get(parameter);
+			if (o != null)
+				timeStepsElement.appendChild(convertObjectToNode(parameter, o));
+		}
+		rootNode.appendChild(timeStepsElement);
+
+		Element behavioralModelGlobalParametersElement = createElement("behavioralModelGlobalParameterss");
+		for (String parameter : SimulationStateData.getInstance().behavioralModelGlobalParameterss
+				.keySet()) {
+			Object o = SimulationStateData.getInstance().behavioralModelGlobalParameterss
+					.get(parameter);
+			if (o != null)
+				behavioralModelGlobalParametersElement
+						.appendChild(convertObjectToNode(parameter, o));
+		}
+		rootNode.appendChild(behavioralModelGlobalParametersElement);
+
+		Element mechModelGlobalParametersElement = createElement("mechModelGlobalParameterss");
+		for (String parameter : SimulationStateData.getInstance().mechModelGlobalParameterss
+				.keySet()) {
+			Object o = SimulationStateData.getInstance().mechModelGlobalParameterss
+					.get(parameter);
+			if (o != null)
+				mechModelGlobalParametersElement
+						.appendChild(convertObjectToNode(parameter, o));
+		}
+		rootNode.appendChild(mechModelGlobalParametersElement);
+
+		Element woundRegionCoordinatesElement = createElement("woundRegionCoordinates");
+		if(SimulationStateData.getInstance().woundRegionCoordinates!=null)
+		for (Double2D parameter : SimulationStateData.getInstance().woundRegionCoordinates) {
+			woundRegionCoordinatesElement.appendChild(convertObjectToNode(
+					"value", parameter));
+		}
+		rootNode.appendChild(woundRegionCoordinatesElement);
+
+		Element deltaInfoElement = createElement("deltaInfo");
+		if(SimulationStateData.getInstance().deltaInfo!=null)
+		for (Double parameter : SimulationStateData.getInstance().deltaInfo) {
+			deltaInfoElement.appendChild(convertObjectToNode("value", parameter));
+		}
+		rootNode.appendChild(deltaInfoElement);
+
+		Element miscalleneousGlobalParametersElement = createElement("miscalleneousGlobalParameterss");
+		for (String parameter : SimulationStateData.getInstance().miscalleneousGlobalParameterss
+				.keySet()) {
+			Object o = SimulationStateData.getInstance().cellContinuouss
+					.get(parameter);
+			if (o != null)
+				miscalleneousGlobalParametersElement
+						.appendChild(convertObjectToNode(parameter, o));
+		}
+		rootNode.appendChild(miscalleneousGlobalParametersElement);
+
 		save(path);
 	}
 }

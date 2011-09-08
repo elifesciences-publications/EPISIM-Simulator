@@ -163,7 +163,6 @@ public class COPASIConnector {
    	
    	if(sbmlFileCache.containsKey(sbmlFile)) return sbmlFileCache.get(sbmlFile);
    	else{
-	  	 	System.out.println("Datei wird neu geladen");
    		URL u = new URL("jar", "", file.toURI().toURL() + "!/" + sbmlFile);
    		
 	      JarURLConnection uc = (JarURLConnection)u.openConnection();

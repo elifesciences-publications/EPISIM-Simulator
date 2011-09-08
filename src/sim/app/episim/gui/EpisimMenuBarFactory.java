@@ -11,6 +11,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.model.controller.ModelController;

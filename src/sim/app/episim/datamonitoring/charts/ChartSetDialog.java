@@ -43,9 +43,11 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
@@ -446,14 +448,19 @@ public class ChartSetDialog extends JDialog {
 					okButtonPressed = true;
 					dialog.setVisible(false);
 					dialog.dispose();
-					if(checkForDirtyCharts()){
+					if(episimChartSet.isOneOfTheChartsDirty()){
 						resetChartDirtyStatus(); 
 									
 						Runnable r = new Runnable(){
 	
 							public void run() {
 								progressWindow.setVisible(true);
-								ChartController.getInstance().storeEpisimChartSet(episimChartSet);
+								try{
+	                        ChartController.getInstance().storeEpisimChartSet(episimChartSet);
+                        }
+                        catch (CompilationFailedException e){
+	                        ExceptionDisplayer.getInstance().displayException(e);
+                        }
 								progressWindow.setVisible(false);
 	                  }
 					
@@ -482,12 +489,7 @@ public class ChartSetDialog extends JDialog {
 	}
 
    
-   private boolean checkForDirtyCharts(){
-   	for(EpisimChart actChart: this.episimChartSet.getEpisimCharts()) {
-   		if(actChart.isDirty()) return true;
-   	}
-   	return isDirty;
-   }
+  
    
    private void resetChartDirtyStatus(){
    	for(EpisimChart actChart: this.episimChartSet.getEpisimCharts()) {

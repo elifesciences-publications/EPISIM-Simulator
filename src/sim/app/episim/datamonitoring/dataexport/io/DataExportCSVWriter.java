@@ -51,6 +51,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	
 	private long lastSimStepCounterWritten = -1;
 	
+	
+	
 	public DataExportCSVWriter(File csvFile, String columnNames) {
 		
 		this.csvFile = csvFile;
@@ -160,14 +162,30 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	}
 	
 	public void simulationWasStopped(){
-		try{
-	     if(csvWriter != null) csvWriter.close();
+		
+		  
+	     if(csvWriter != null){
+	   	  Thread t = null;
+	   	  Runnable r = new Runnable(){
+
+				public void run() {
+					try{
+						Thread.sleep(500);
+	               csvWriter.close();
+               }
+               catch (IOException e){
+               	ExceptionDisplayer.getInstance().displayException(e);
+               }
+               catch (InterruptedException e){
+               	ExceptionDisplayer.getInstance().displayException(e);
+               }	            
+            }};
+            t = new Thread(r);
+            t.start();
+	     }
 	     aCellHasBeenChanged = false;
 	     simStepCounter = 0;
-      }
-      catch (IOException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
-      }
+      
 	}
 	
 	public void simulationWasStarted() {

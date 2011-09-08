@@ -18,6 +18,6 @@ public interface EpisimDataExportDefinitionSet {
 	void updateDataExportDefinition(EpisimDataExportDefinition dataExportDefinition);
 	EpisimDataExportDefinition getEpisimDataExportDefinition(long id);
 	void removeEpisimDataExportDefinition(long id);
-	
+	boolean isOneOfTheDataExportDefinitionsDirty();
 	
 }

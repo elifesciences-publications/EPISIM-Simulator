@@ -88,5 +88,12 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 	   this.path = path;
 	   
    }
+	
+	public boolean isOneOfTheChartsDirty(){
+		for(EpisimChart chart: episimCharts){
+			if(chart.isDirty()) return true;			
+		}
+		return false;
+	}
 
 }

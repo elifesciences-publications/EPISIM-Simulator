@@ -14,8 +14,6 @@ import java.util.Set;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.ObjectManipulations;
 
 public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
@@ -42,13 +40,15 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	private Map<Long, EpisimChartSeries> seriesMap;
 	
 	
-	private Set<Class<?>> requiredClassesForBaseline;
+	private transient Set<Class<?>> requiredClassesForBaseline;
+	private Set<String> requiredClassesForBaselineNameSet;
 	
 	public EpisimChartImpl(long id){
 		this.id = id;
 		
 		this.seriesMap = new HashMap<Long, EpisimChartSeries>();			
 		this.requiredClassesForBaseline = new HashSet<Class<?>>();
+		this.requiredClassesForBaselineNameSet = new HashSet<String>();
 	}
 	
 	public long getId(){
@@ -233,13 +233,41 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 		 for(EpisimChartSeries series : this.seriesMap.values()) allRequiredClasses.addAll(series.getRequiredClasses());
 	    return allRequiredClasses;
    }
+	
+	public Set<String> getAllRequiredClassesNameSet() {
+		 Set<String> allRequiredClasses = new HashSet<String>();
+		 if(this.requiredClassesForBaselineNameSet != null) allRequiredClasses.addAll(requiredClassesForBaselineNameSet);
+		 for(EpisimChartSeries series : this.seriesMap.values()){
+			 if(series instanceof EpisimChartSeriesImpl){
+				 allRequiredClasses.addAll(((EpisimChartSeriesImpl)series).getRequiredClassesNameSet());
+			 }
+		 }
+	    return allRequiredClasses;
+  }
 
-	public Set<Class<?>> getRequiredClassesForBaseline(){	   
-	   return ObjectManipulations.cloneObject(this.requiredClassesForBaseline);
+	public Set<Class<?>> getRequiredClassesForBaseline(){
+		if(this.requiredClassesForBaseline == null) this.requiredClassesForBaseline = new HashSet<Class<?>>();
+	   return ObjectManipulations.cloneObject(requiredClassesForBaseline);
+   }
+	
+	
+	
+	public Set<String> getRequiredClassesForBaselineNameSet(){	   
+	   return ObjectManipulations.cloneObject(this.requiredClassesForBaselineNameSet);
    }
 
 	public void setRequiredClassesForBaseline(Set<Class<?>> requiredClasses) {
-		this.requiredClassesForBaseline = requiredClasses;
+		if(requiredClasses != null){
+			this.requiredClassesForBaseline = requiredClasses;
+			this.requiredClassesForBaselineNameSet.clear();
+			for(Class<?> actClass : this.requiredClassesForBaseline){
+				this.requiredClassesForBaselineNameSet.add(actClass.getName());
+			}
+		}
+		else{
+			this.requiredClassesForBaseline = new HashSet<Class<?>>();
+			this.requiredClassesForBaselineNameSet = new HashSet<String>();
+		}
    }
 	
 	

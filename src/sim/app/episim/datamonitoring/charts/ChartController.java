@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.swing.JFileChooser;
@@ -14,12 +15,15 @@ import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartPanel;
 
+import episimexceptions.CompilationFailedException;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimChartSet;
 
 import sim.app.episim.AbstractCell;
@@ -27,6 +31,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 
+import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.parser.*;
 import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.charts.io.ECSFileReader;
@@ -196,7 +201,7 @@ public class ChartController {
 		ChartPanelAndSteppableServer.getInstance().registerDefaultChartPanelsAndSteppables(DefaultCharts.getInstance().getChartPanelsOfActivatedDefaultCharts(), DefaultCharts.getInstance().getSteppablesOfActivatedDefaultCharts());
 	}
 	
-	protected void storeEpisimChartSet(EpisimChartSet chartSet){
+	protected void storeEpisimChartSet(EpisimChartSet chartSet) throws CompilationFailedException{
 		ECSFileWriter fileWriter = new ECSFileWriter(chartSet.getPath());
 		fileWriter.createChartSetArchive(chartSet);
 		try{
@@ -232,16 +237,73 @@ public class ChartController {
 			CalculationController.getInstance().reset();
 			ECSFileReader ecsReader = new ECSFileReader(url);
 			this.actLoadedChartSet = ecsReader.getEpisimChartSet();
-			ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());
-			CompatibilityChecker checker = new CompatibilityChecker();
-			checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
-			return true;
+			if(this.actLoadedChartSet != null){
+				actLoadedChartSet.setPath(new File(url.toURI()));
+				if(!actLoadedChartSet.isOneOfTheChartsDirty()){
+					ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());
+					CompatibilityChecker checker = new CompatibilityChecker();			
+					checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
+				}
+				else{
+					for(EpisimChart chart : this.actLoadedChartSet.getEpisimCharts()) updateExpressionsInChart(chart);
+					resetChartDirtyStatus();
+					storeEpisimChartSet(actLoadedChartSet);
+					
+				}
+				return true;
+			}
 		}
 		catch (ModelCompatibilityException e){
 			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
 			ExceptionDisplayer.getInstance().displayException(e);
+			return false;
 		}
+      catch (URISyntaxException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+			return false;
+      }
+      catch (CompilationFailedException e){
+      	if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
+			ExceptionDisplayer.getInstance().displayException(e);
+			return false;
+      }
 		return false;
+	}
+	
+	private void updateExpressionsInChart(EpisimChart chart){
+		int sessionID = ExpressionCheckerController.getInstance().getCheckSessionId();
+		TissueCellDataFieldsInspector inspector = new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes);
+		CalculationAlgorithmConfigurator config =  chart.getBaselineCalculationAlgorithmConfigurator();
+		try{
+			if(config.getArithmeticExpression()!= null && config.getArithmeticExpression()[0] != null){
+				config.getArithmeticExpression()[1] = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
+			}
+			if(config.getBooleanExpression()!= null && config.getBooleanExpression()[0] != null){
+				config.getBooleanExpression()[1] = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
+			}
+			for(EpisimChartSeries series : chart.getEpisimChartSeries()){
+				sessionID = ExpressionCheckerController.getInstance().getCheckSessionId();
+				config = series.getCalculationAlgorithmConfigurator();
+				if(config.getArithmeticExpression()!= null && config.getArithmeticExpression()[0] != null){
+					config.getArithmeticExpression()[1] = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
+				}
+				if(config.getBooleanExpression()!= null && config.getBooleanExpression()[0] != null){
+					config.getBooleanExpression()[1] = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
+				}
+			}
+			
+		}
+		catch(ParseException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+	}
+	
+	private void resetChartDirtyStatus(){
+		 if(this.actLoadedChartSet != null){
+		   for(EpisimChart actChart: this.actLoadedChartSet.getEpisimCharts()) {
+		   	actChart.setIsDirty(false);
+		   }
+		 }
 	}
 	
 	public boolean showNewChartSetDialog(Frame parent){

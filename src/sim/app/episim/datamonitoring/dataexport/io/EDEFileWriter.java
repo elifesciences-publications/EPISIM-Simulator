@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -14,7 +15,9 @@ import java.util.jar.Manifest;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.dataexport.build.DataExportCompiler;
+import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.util.Names;
+import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
@@ -29,21 +32,22 @@ public class EDEFileWriter {
 		
 	}
 	
-	public void createDataExportDefinitionSetArchive(EpisimDataExportDefinitionSet dataExportSet) {
+	public void createDataExportDefinitionSetArchive(EpisimDataExportDefinitionSet dataExportSet) throws CompilationFailedException {
 				
 				JarOutputStream jarOut=null;
 				Manifest manifest;
 				
 								
 					try {
-																
+						DataExportCompiler dataExportCompiler = new DataExportCompiler();
+						dataExportCompiler.compileEpisimDataExportDefinitionSet(dataExportSet);									
 							
 							// Adding MANIFEST:MF
 
 							StringBuffer sBuffer = new StringBuffer();
 
 							sBuffer.append("Manifest-Version: 1.0\n");
-							sBuffer.append("Created-By: 1.1 (Episim - Uni Heidelberg)\n");
+							sBuffer.append("Created-By: "+EpidermisSimulator.versionID+" (Episim - Uni Heidelberg)\n");
 							sBuffer.append("Factory-Class: "+ Names.EPISIM_DATAEXPORT_FACTORYNAME +"\n");
 							
 							
@@ -55,8 +59,7 @@ public class EDEFileWriter {
 							jarOut = new JarOutputStream(new FileOutputStream(path), manifest);
 							jarOut.setLevel(1);
 						
-							DataExportCompiler dataExportCompiler = new DataExportCompiler();
-							dataExportCompiler.compileEpisimDataExportDefinitionSet(dataExportSet);
+							
 							
 							
 							FileInputStream fileIn;
@@ -100,7 +103,7 @@ public class EDEFileWriter {
 							//TODO: Enable / Disable deletion of tempory data
 							//dataExportCompiler.deleteTempData();
 							
-						} catch (Exception e) {
+						} catch (IOException e) {
 							ExceptionDisplayer.getInstance()
 									.displayException(e);
 

@@ -13,6 +13,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonCompiler;
 import sim.app.episim.util.Names;
 import binloc.ProjectLocator;
+import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
@@ -37,7 +38,7 @@ public class DataExportCompiler extends AbstractCommonCompiler {
 		if(!packageDirectory.exists()) packageDirectory.mkdir();
 	}
 	
-	public void compileEpisimDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportDefinitionSet){
+	public void compileEpisimDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportDefinitionSet) throws CompilationFailedException{
 		makeTempDir();
 		
 		List<File> javaFiles;

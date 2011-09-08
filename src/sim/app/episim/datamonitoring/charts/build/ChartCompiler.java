@@ -12,6 +12,7 @@ import binloc.ProjectLocator;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonCompiler;
 import sim.app.episim.util.Names;
+import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
@@ -37,7 +38,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 		if(!packageDirectory.exists()) packageDirectory.mkdir();
 	}
 	
-	public void compileEpisimChartSet(EpisimChartSet chartSet){
+	public void compileEpisimChartSet(EpisimChartSet chartSet) throws CompilationFailedException{
 		makeTempDir();
 		
 		List<File> javaFiles = buildChartJavaFiles(chartSet);

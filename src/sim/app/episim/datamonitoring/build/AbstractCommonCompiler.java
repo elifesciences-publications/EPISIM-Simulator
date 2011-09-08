@@ -3,6 +3,7 @@ package sim.app.episim.datamonitoring.build;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +17,8 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
+import episimexceptions.CompilationFailedException;
+
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpisimTextOut;
@@ -28,7 +31,7 @@ public abstract class AbstractCommonCompiler {
 	
 	
 	
-	protected File compileJavaFile(File javaFile){
+	protected File compileJavaFile(File javaFile) throws CompilationFailedException{
 		List<File> tmpList = new ArrayList<File>();
 		tmpList.add(javaFile);
 		tmpList = compileJavaFiles(tmpList);
@@ -36,7 +39,7 @@ public abstract class AbstractCommonCompiler {
 		return null;
 	}
 	
-	protected List<File> compileJavaFiles(List<File> javaFiles){
+	protected List<File> compileJavaFiles(List<File> javaFiles) throws CompilationFailedException{
 		ClassPathConfigFileReader configReader = new ClassPathConfigFileReader();
 		
 		List<File> classFiles = new ArrayList<File>();
@@ -72,12 +75,16 @@ public abstract class AbstractCommonCompiler {
 				options = Arrays.asList(new String[] { "-cp", 
 					ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile().getAbsolutePath()+configReader.getClasspathSeparatorChar()+
 					pathToEpisimSimulatorBinaries+configReader.getClasspathSeparatorChar()+ configReader.getBinClasspath()+configReader.getLibClasspath()});
-			compiler.getTask(null, fileManager, null, options, null, compilationUnits).call();
+			boolean success = compiler.getTask(null, fileManager, null, options, null, compilationUnits).call();
+			if(!success) throw new CompilationFailedException("The compilation of the generated Charts or Data Exports was not successful! Probably a required class is missing.");
 			fileManager.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			ExceptionDisplayer.getInstance().displayException(e);
 
 		}
+      catch (URISyntaxException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }
 		
 		checkForMissingClassFiles(classFiles);
 		

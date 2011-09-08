@@ -21,5 +21,5 @@ public interface EpisimChartSet {
 	void updateChart(EpisimChart chart);
 	EpisimChart getEpisimChart(long id);
 	void removeEpisimChart(long id);
-
+	boolean isOneOfTheChartsDirty();
 }

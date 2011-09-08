@@ -11,6 +11,8 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import sim.app.episim.ExceptionDisplayer;
+
 
 public class ExtendedFileChooser extends JFileChooser {
 	private String fileExtension = "";
@@ -29,6 +31,16 @@ public class ExtendedFileChooser extends JFileChooser {
     });
 		
 		
+	}
+	
+	public int showOpenDialog(Component mainFrame)throws HeadlessException{ 
+		try{
+	      Thread.sleep(100); //is needed because otherwise VM crashes since COPASI C++ Library has to be loaded...strange Error!
+      }
+      catch (InterruptedException e){
+	      ExceptionDisplayer.getInstance().displayException(e);
+      }
+		return super.showOpenDialog(mainFrame);	
 	}
 	
 	

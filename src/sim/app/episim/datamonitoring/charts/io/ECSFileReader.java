@@ -35,33 +35,37 @@ public class ECSFileReader{
 	     *
 	     * @param url the url of the jar file
 	     */
-	    public ECSFileReader(URL url) {
-	       
-	        this.url = url;
-	        
-	        try{
-	      	  GlobalClassLoader.getInstance().registerURL(url);
-		      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
-		     
-		      if(factoryClass != null && AbstractChartSetFactory.class.isAssignableFrom(this.factoryClass)){
-		      	factory = (AbstractChartSetFactory) factoryClass.newInstance();
-		      	
-		      }
-		      else throw new Exception("No compatible EpisimChartSetFactory found!");
-	        }
-	        catch (Exception e){
-	      	  ExceptionDisplayer.getInstance().displayException(e);
-	        }
-	       
+	    public ECSFileReader(URL url){	       
+	        this.url = url;      
 	    }
-	  public AbstractChartSetFactory getChartSetFactory(){ return this.factory;}
+	    
+	  public AbstractChartSetFactory getChartSetFactory(){
+		  if(this.factory == null) loadFactory();
+		  return this.factory;
+	  }
+	  
+	  private void loadFactory(){
+		  try{
+      	  GlobalClassLoader.getInstance().registerURL(url);
+	      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
+	     
+	      if(factoryClass != null && AbstractChartSetFactory.class.isAssignableFrom(this.factoryClass)){
+	      	factory = (AbstractChartSetFactory) factoryClass.newInstance();
+	      	
+	      }
+	      else throw new Exception("No compatible EpisimChartSetFactory found!");
+        }
+        catch (Exception e){
+      	  ExceptionDisplayer.getInstance().displayException(e);
+        }
+	  }
 	    
 	 public EpisimChartSet getEpisimChartSet() throws ModelCompatibilityException {
 
 		URL u = null;
 
 		try{
-			u = new URL("jar", "", url + "!/" + factory.getEpisimChartSetBinaryName());
+			u = new URL("jar", "", url + "!/" + AbstractChartSetFactory.getEpisimChartSetBinaryName());
 		}
 		catch (MalformedURLException e){
 			ExceptionDisplayer.getInstance().displayException(e);
@@ -77,7 +81,7 @@ public class ECSFileReader{
 		}
 
 		try{
-			return factory.getEpisimChartSet(uc.getInputStream());
+			return AbstractChartSetFactory.getEpisimChartSet(uc.getInputStream());
 		}
 		catch (IOException e){
 			ExceptionDisplayer.getInstance().displayException(e);
@@ -87,10 +91,12 @@ public class ECSFileReader{
 	}
 	    
 	public List<ChartPanel> getChartPanels(){
+		if(this.factory == null) loadFactory();
 		return this.factory.getChartPanels();
 	}
 	
 	public List<EnhancedSteppable> getChartSteppables(){
+		if(this.factory == null) loadFactory();
 		return this.factory.getSteppablesOfCharts();
 	}
 	   

@@ -28,11 +28,10 @@ public class EDEFileReader{
 	 * @param url
 	 *           the url of the jar file
 	 */
-	public EDEFileReader(URL url) {
-
-		
+	public EDEFileReader(URL url) {		
 		this.url = url;
-
+	}
+	private void loadFactory(){
 		try{
 			 GlobalClassLoader.getInstance().registerURL(url);
 		      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
@@ -48,7 +47,6 @@ public class EDEFileReader{
 		catch (Exception e){
 			ExceptionDisplayer.getInstance().displayException(e);
 		}
-
 	}
 
 	public EpisimDataExportDefinitionSet getEpisimDataExportDefinitionSet() throws ModelCompatibilityException {
@@ -56,7 +54,7 @@ public class EDEFileReader{
 		URL u = null;
 
 		try{
-			u = new URL("jar", "", url + "!/" + factory.getEpisimDataExportDefinitionSetBinaryName());
+			u = new URL("jar", "", url + "!/" + AbstractDataExportFactory.getEpisimDataExportDefinitionSetBinaryName());
 		}
 		catch (MalformedURLException e){
 			ExceptionDisplayer.getInstance().displayException(e);
@@ -72,7 +70,7 @@ public class EDEFileReader{
 		}
 
 		try{
-			return factory.getEpisimDataExportDefinitionSet(uc.getInputStream());
+			return AbstractDataExportFactory.getEpisimDataExportDefinitionSet(uc.getInputStream());
 		}
 		catch (IOException e){
 			ExceptionDisplayer.getInstance().displayException(e);
@@ -81,13 +79,18 @@ public class EDEFileReader{
 		return null;
 	}
 	
-	public AbstractDataExportFactory getDataExportFactory(){ return this.factory;}
+	public AbstractDataExportFactory getDataExportFactory(){
+		if(this.factory == null) loadFactory();
+		return this.factory;
+	}
 	
 	public List<GeneratedDataExport> getDataExports(){
+		if(this.factory == null) loadFactory();
 		return this.factory.getDataExports();
 	}
 	
 	public List<EnhancedSteppable> getDataExportSteppables(){
+		if(this.factory == null) loadFactory();
 		return this.factory.getSteppablesOfDataExports();
 	}
 

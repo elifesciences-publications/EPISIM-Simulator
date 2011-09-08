@@ -1,12 +1,10 @@
 package sim.app.episim.datamonitoring.charts;
 
 import java.awt.Color;
-import java.io.File;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JFileChooser;
+
 
 import sim.app.episim.util.ObjectManipulations;
 
@@ -25,11 +23,13 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries, java.io.Seriali
 	private double stretch = 0;
 	private float[] dash= null;
 	private CalculationAlgorithmConfigurator calculationAlgorithmConfigurator = null;
-	private Set<Class<?>> requiredClasses;
+	private transient Set<Class<?>> requiredClasses;
+	private Set<String> requiredClassesNameSet;
 	
 	public EpisimChartSeriesImpl(long id){
 		this.id = id;
 		requiredClasses = new HashSet<Class<?>>();
+		requiredClassesNameSet = new HashSet<String>();
 	}
 
 	public long getId(){
@@ -108,15 +108,26 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries, java.io.Seriali
 	}
 
 	public Set<Class<?>> getRequiredClasses() {
-
-	  
+		if(this.requiredClasses == null) this.requiredClasses = new HashSet<Class<?>>();
 	   return ObjectManipulations.cloneObject(requiredClasses);
    }
+	
+	public Set<String> getRequiredClassesNameSet() {		  
+	   return ObjectManipulations.cloneObject(requiredClassesNameSet);
+   }
 
-	public void setRequiredClasses(Set<Class<?>> classes) {
-
-	   requiredClasses = classes;
-	   
+	public void setRequiredClasses(Set<Class<?>> classes){
+	   if(classes != null){
+	   	requiredClasses = classes;
+	   	this.requiredClassesNameSet.clear();
+	   	for(Class<?> actClass : this.requiredClasses){
+	   		this.requiredClassesNameSet.add(actClass.getName());
+	   	}
+	   }
+	   else{
+	   	this.requiredClasses = new HashSet<Class<?>>();
+	   	this.requiredClassesNameSet = new HashSet<String>();
+	   }
    }
 
 	

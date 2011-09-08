@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -338,7 +339,10 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 			if(standardDir.exists())jarFileChoose.setCurrentDirectory(standardDir);
 		}
-		if((modelFile != null || (jarFileChoose.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION &&ModeServer.guiMode()))){
+		
+		
+		
+		if((modelFile != null || ( jarFileChoose.showOpenDialog(mainFrame)== JFileChooser.APPROVE_OPTION &&ModeServer.guiMode()))){
 			if(modelFile == null) modelFile = jarFileChoose.getSelectedFile();
 			boolean success = false; 
 			try{

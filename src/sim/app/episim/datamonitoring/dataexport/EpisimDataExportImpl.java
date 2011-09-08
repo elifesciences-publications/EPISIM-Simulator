@@ -97,4 +97,14 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 		}
 	   return allRequiredClasses;
    }
+	
+	public Set<String> getAllRequiredClassesNameSet() {
+		Set<String> allRequiredClasses = new HashSet<String>();
+		for(EpisimDataExportColumn col : this.columnMap.values()){
+			if(col instanceof EpisimDataExportColumnImpl){
+				allRequiredClasses.addAll(((EpisimDataExportColumnImpl) col).getRequiredClassesNameSet());
+			}
+		}
+		return allRequiredClasses;
+	}
 }

@@ -123,6 +123,12 @@ public class GlobalClassLoader extends URLClassLoader{
 		return super.loadClass(name);
 	}
 	
+	public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+		if(destroyed) throw new ClassNotFoundException("GlobalClassLoader: ClassLoader was destroyed. Please reload Global ClassLoader!");
+		return super.loadClass(name, resolve);
+	}
+	
+	
 	public void notifyAllListeners(){
 	   Set<ClassLoaderChangeListener> listenerCopy = new HashSet<ClassLoaderChangeListener>();
 	   listenerCopy.addAll(this.changeListener);

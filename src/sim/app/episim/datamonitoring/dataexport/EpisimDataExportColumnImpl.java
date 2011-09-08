@@ -14,11 +14,13 @@ public class EpisimDataExportColumnImpl implements EpisimDataExportColumn{
 	private final long id;
 	private String name = null;
 	private CalculationAlgorithmConfigurator calculationAlgorithmConfigurator;
-	private Set<Class<?>> requiredClasses;
+	private transient Set<Class<?>> requiredClasses;
+	private Set<String> requiredClassesNameSet;
 	
 	public EpisimDataExportColumnImpl(long id){
 		this.id = id;
 		requiredClasses = new HashSet<Class<?>>();
+		requiredClassesNameSet = new HashSet<String>();
 	}
 	
 
@@ -42,13 +44,28 @@ public class EpisimDataExportColumnImpl implements EpisimDataExportColumn{
    }
 
 
-	public Set<Class<?>> getRequiredClasses() {	  
+	public Set<Class<?>> getRequiredClasses() {
+		if(this.requiredClasses == null) this.requiredClasses = new HashSet<Class<?>>();
 	   return ObjectManipulations.cloneObject(requiredClasses);
+   }
+	
+	public Set<String> getRequiredClassesNameSet() {		  
+	   return ObjectManipulations.cloneObject(requiredClassesNameSet);
    }
 
 
-	public void setRequiredClasses(Set<Class<?>> requiredClasses) {
-	   this.requiredClasses = requiredClasses;  
+	public void setRequiredClasses(Set<Class<?>> classes) {
+		 if(classes != null){
+		   	requiredClasses = classes;
+		   	this.requiredClassesNameSet.clear();
+		   	for(Class<?> actClass : this.requiredClasses){
+		   		this.requiredClassesNameSet.add(actClass.getName());
+		   	}
+		   }
+		   else{
+		   	this.requiredClasses = new HashSet<Class<?>>();
+		   	this.requiredClassesNameSet = new HashSet<String>();
+		   }  
    }
 
 }

@@ -88,6 +88,13 @@ public class EpisimDataExportDefinitionSetImpl implements EpisimDataExportDefini
 	   
    }
 
+	public boolean isOneOfTheDataExportDefinitionsDirty() {
+		for(EpisimDataExportDefinition def : this.episimDataExportDefinitions){
+			if(def.isDirty()) return true;
+		}
+	   return false;
+   }
+
 
 	
 	

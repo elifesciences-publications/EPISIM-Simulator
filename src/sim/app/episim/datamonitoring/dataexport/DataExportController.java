@@ -4,6 +4,7 @@ import java.awt.Frame;
 import java.io.File;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
@@ -20,12 +21,14 @@ import sim.app.episim.ModeServer;
 
 
 
+import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileReader;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileWriter;
+import sim.app.episim.datamonitoring.parser.ParseException;
 
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
@@ -35,11 +38,14 @@ import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.field.continuous.Continuous2D;
 
+import episimexceptions.CompilationFailedException;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.calc.CalculationAlgorithmConfigurator;
+import episiminterfaces.monitoring.EpisimDataExportColumn;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
@@ -214,7 +220,7 @@ public class DataExportController {
 	
 	
 	
-	protected void storeDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportSet){
+	protected void storeDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportSet) throws CompilationFailedException{
 		EDEFileWriter fileWriter = new EDEFileWriter(dataExportSet.getPath());
 		fileWriter.createDataExportDefinitionSetArchive(dataExportSet);
 		try{
@@ -247,16 +253,62 @@ public class DataExportController {
 			CalculationController.getInstance().reset();
 			EDEFileReader edeReader = new EDEFileReader(url);
 			this.actLoadedDataExportSet = edeReader.getEpisimDataExportDefinitionSet();
-			DataExportSteppableServer.getInstance().registerCustomDataExportSteppables(edeReader.getDataExports(), edeReader.getDataExportSteppables(), edeReader.getDataExportFactory());
-			CompatibilityChecker checker = new CompatibilityChecker();
-			checker.checkEpisimDataExportDefinitionSetForCompatibility(actLoadedDataExportSet, this.dataExportMonitoredTissue);
-			return true;
+			if(this.actLoadedDataExportSet != null){
+				this.actLoadedDataExportSet.setPath(new File(url.toURI()));
+				if(!this.actLoadedDataExportSet.isOneOfTheDataExportDefinitionsDirty()){
+					DataExportSteppableServer.getInstance().registerCustomDataExportSteppables(edeReader.getDataExports(), edeReader.getDataExportSteppables(), edeReader.getDataExportFactory());
+					CompatibilityChecker checker = new CompatibilityChecker();
+					checker.checkEpisimDataExportDefinitionSetForCompatibility(actLoadedDataExportSet, this.dataExportMonitoredTissue);
+				}else{
+					for(EpisimDataExportDefinition def : this.actLoadedDataExportSet.getEpisimDataExportDefinitions()) updateExpressionsInDataExportDefinition(def);
+					resetChartDirtyDataExports();
+					storeDataExportDefinitionSet(actLoadedDataExportSet);
+				}
+				return true;
+			}
 		}
 		catch (ModelCompatibilityException e){
 			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Data-Export Definition!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
 			ExceptionDisplayer.getInstance().displayException(e);
+			return false;
 		}
+      catch (URISyntaxException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+			return false;
+      }
+      catch (CompilationFailedException e){
+      	if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Data-Export Definition!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
+			ExceptionDisplayer.getInstance().displayException(e);
+			return false;
+      }
 		return false;
+	}
+	private void updateExpressionsInDataExportDefinition(EpisimDataExportDefinition definition){
+		int sessionID = 0;
+		TissueCellDataFieldsInspector inspector = new TissueCellDataFieldsInspector(this.dataExportMonitoredTissue, this.markerPrefixes, this.validDataTypes);
+		CalculationAlgorithmConfigurator config =  null;
+		try{
+			for(EpisimDataExportColumn column : definition.getEpisimDataExportColumns()){
+				sessionID = ExpressionCheckerController.getInstance().getCheckSessionId();
+				config = column.getCalculationAlgorithmConfigurator();
+				if(config.getArithmeticExpression()!= null && config.getArithmeticExpression()[0] != null){
+					config.getArithmeticExpression()[1] = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
+				}
+				if(config.getBooleanExpression()!= null && config.getBooleanExpression()[0] != null){
+					config.getBooleanExpression()[1] = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
+				}
+			}
+			
+		}
+		catch(ParseException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+	}
+	
+	private void resetChartDirtyDataExports(){
+	  for(EpisimDataExportDefinition actDef: this.actLoadedDataExportSet.getEpisimDataExportDefinitions()) {
+		  actDef.setIsDirty(false);
+	  }	   	
 	}
 	
 	public void newSimulationRun(){

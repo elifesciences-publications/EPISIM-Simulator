@@ -36,11 +36,13 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetDialog;
 import sim.app.episim.datamonitoring.charts.EpisimChartSetImpl;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.util.ObjectManipulations;
+import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
@@ -442,13 +444,18 @@ public class DataExportDefinitionSetDialog extends JDialog {
 						dialog.setVisible(false);
 						dialog.dispose();
 						if(checkForDirtyDataExports()){
-								resetChartDirtyDataExports(); 
+								resetDirtyDataExports(); 
 							Runnable r = new Runnable(){
 	
 								public void run() {
 									progressWindow.setVisible(true);
 									
-									DataExportController.getInstance().storeDataExportDefinitionSet(episimDataExportDefinitionSet);
+									try{
+	                           DataExportController.getInstance().storeDataExportDefinitionSet(episimDataExportDefinitionSet);
+                           }
+                           catch (CompilationFailedException e){
+	                           ExceptionDisplayer.getInstance().displayException(e);
+                           }
 									
 									progressWindow.setVisible(false);
 		                  }
@@ -481,7 +488,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 	   	return isDirty;
 	   }
 	   
-	   private void resetChartDirtyDataExports(){
+	   private void resetDirtyDataExports(){
 	   	for(EpisimDataExportDefinition actDef: this.episimDataExportDefinitionSet.getEpisimDataExportDefinitions()) {
 	   		actDef.setIsDirty(false);
 	   	}

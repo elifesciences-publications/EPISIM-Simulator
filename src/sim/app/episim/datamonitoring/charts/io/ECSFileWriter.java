@@ -16,6 +16,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
@@ -24,6 +25,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.build.ChartSetFactorySourceBuilder;
+import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.Names;
 
@@ -38,19 +40,22 @@ public class ECSFileWriter {
 		
 	}
 	
-	public void createChartSetArchive(EpisimChartSet chartSet) {
+	public void createChartSetArchive(EpisimChartSet chartSet) throws CompilationFailedException {
 				
 				JarOutputStream jarOut=null;
 				Manifest manifest;
 				
 								
 					try {
-										
+									
+							ChartCompiler chartCompiler = new ChartCompiler();
+							chartCompiler.compileEpisimChartSet(chartSet);
+						
 							// Adding MANIFEST:MF
 							StringBuffer sBuffer = new StringBuffer();
 
 							sBuffer.append("Manifest-Version: 1.0\n");
-							sBuffer.append("Created-By: 1.1 (Episim - Uni Heidelberg)\n");
+							sBuffer.append("Created-By: "+EpidermisSimulator.versionID+" (Episim - Uni Heidelberg)\n");
 							sBuffer.append("Factory-Class: "+ Names.EPISIM_CHARTSET_FACTORYNAME +"\n");
 							
 							
@@ -62,8 +67,7 @@ public class ECSFileWriter {
 							jarOut = new JarOutputStream(new FileOutputStream(path), manifest);
 							jarOut.setLevel(1);
 							
-							ChartCompiler chartCompiler = new ChartCompiler();
-							chartCompiler.compileEpisimChartSet(chartSet);
+							
 							
 							
 							FileInputStream fileIn;
@@ -91,8 +95,8 @@ public class ECSFileWriter {
 								jarOut.flush();
 							}
 							
-							//insert cell model class files------------------------------------------------------------------------------
-							
+							//TODO: insert cell model class files in ecs File------------------------------------------------------------------------------
+						/*	
 							InputStream in = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass().getResourceAsStream(
 									ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass().getSimpleName()+".class");
 							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject()
@@ -119,7 +123,7 @@ public class ECSFileWriter {
 								jarOut.write(bytes, 0, available);
 							}
 							in.close();
-							jarOut.flush();	
+							jarOut.flush();	*/
 							//-------------------------------------------------------------------------------------------------------------------------
 							
 							
@@ -139,7 +143,7 @@ public class ECSFileWriter {
 						//TODO: Enable / Disable erasure of temp data	
 							chartCompiler.deleteTempData();
 							
-						} catch (Exception e) {
+						} catch (IOException e) {
 							ExceptionDisplayer.getInstance()
 									.displayException(e);
 

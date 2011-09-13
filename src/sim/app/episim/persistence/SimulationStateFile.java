@@ -91,7 +91,7 @@ public class SimulationStateFile extends XmlFile {
 		rootNode.appendChild(global_variables);
 	}
 
-	private void loadData() {
+	public void loadData(File file) {
 
 	}
 

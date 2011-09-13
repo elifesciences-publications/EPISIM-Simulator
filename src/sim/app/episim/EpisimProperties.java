@@ -48,25 +48,14 @@ public class EpisimProperties {
 	
 	public static final String SIMULATOR_SIMULATION_RUN_ID = "simulator.simulationrun.id";
 	
+	public static final String SIMULATOR_TESTMENU = "simulator.testmenu";
+
 	
-	public static final String ON_EXCEPTION_LOGGING_VAL = "on";
-	public static final String OFF_EXCEPTION_LOGGING_VAL = "off";
-	
-	public static final String ON_SIMULATOR_GUI_VAL = "on";
-	public static final String OFF_SIMULATOR_GUI_VAL = "off";
+	public static final String ON = "on";
+	public static final String OFF = "off";
 		
-	public static final String ON_CONSOLE_INPUT_VAL = "on";
-	public static final String OFF_CONSOLE_INPUT_VAL = "off";
-	
-	public static final String ON_SIMULATOR_AUTOSTART_AND_STOP_VAL = "on";
-	public static final String OFF_SIMULATOR_AUTOSTART_AND_STOP_VAL = "off";
-	
-	public static final String CONSOLE_EXCEPTION_DISPLAYMODE_VAL = "console";
-	public static final String SIMULATOR_EXCEPTION_DISPLAYMODE_VAL = "simulator";
-	
-	public static final String CONSOLE_STANDARD_OUTPUT_VAL = "console";
-	public static final String SIMULATOR_STANDARD_OUTPUT_VAL = "simulator";
-	
+	public static final String CONSOLE= "console";
+	public static final String SIMULATOR = "simulator";	
 	
 	private EpisimProperties(){
 		properties = new Properties();

@@ -217,7 +217,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				if(epiUI != null && steps > 0) epiUI.setMaxSimulationSteps(steps);
 			}			
 			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_AND_STOP_PROP) != null && 
-					EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_AND_STOP_PROP).equals(EpisimProperties.ON_SIMULATOR_AUTOSTART_AND_STOP_VAL)){
+					EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_AND_STOP_PROP).equals(EpisimProperties.ON)){
 				if(epiUI != null){ 
 					Runnable r  = new Runnable(){
 
@@ -302,10 +302,10 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		}
 		String mode;
 		if((mode=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_DISPLAYMODE_PROP)) != null 
-				&& mode.equals(EpisimProperties.SIMULATOR_EXCEPTION_DISPLAYMODE_VAL))  System.setErr(new PrintStream(errorOutputStream));
+				&& mode.equals(EpisimProperties.SIMULATOR))  System.setErr(new PrintStream(errorOutputStream));
 		
 		if((mode=EpisimProperties.getProperty(EpisimProperties.STANDARD_OUTPUT)) != null 
-				&& mode.equals(EpisimProperties.SIMULATOR_STANDARD_OUTPUT_VAL))  System.setOut(new PrintStream(standardOutputStream));
+				&& mode.equals(EpisimProperties.SIMULATOR))  System.setOut(new PrintStream(standardOutputStream));
 		
 		if(!onlyHelpWanted){
 			//if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 

@@ -555,7 +555,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
       
 		
 		if(args != null && args.length >= 0){
-			EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP, EpisimProperties.ON_CONSOLE_INPUT_VAL);
+			EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP, EpisimProperties.ON);
 			ModelParameterModifier modifier = new ModelParameterModifier();
 			for(int i = 0; i < args.length; i++){
 				if(args[i] != null && (i+1)<args.length){					

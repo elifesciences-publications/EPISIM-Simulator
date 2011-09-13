@@ -10,11 +10,16 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.xml.sax.SAXException;
+
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.propfilegenerator.PropertyFileGeneratorWizard;
 import sim.display.ConsoleHack;
 
@@ -27,7 +32,8 @@ public class EpisimMenuBarFactory {
 		DATAEXPORT_MENU("Data Export"), 
 		INFO_MENU("Info"),
 		WINDOWS_MENU("Windows"),
-		PARAMETERS_SCAN("Parameter Scan");
+		PARAMETERS_SCAN("Parameter Scan"),
+		TEST_MENU("Test");
 		
 		private String name;
 		private EpisimMenu(String _name){ this.name = _name;}
@@ -58,7 +64,10 @@ public class EpisimMenuBarFactory {
 		
 		GENERATE_PARAMETER_FILES("Param-Scan File-Generator"),
 		
-		AUTO_ARRANGE_WINDOWS("Auto-Arrange Windows");
+		AUTO_ARRANGE_WINDOWS("Auto-Arrange Windows"),
+		
+		TEST_SAVE_SNAPSHOT("Save Snapshot"),
+		TEST_LOAD_SNAPSHOT("Load Snapshot");
 		
 		private String name;
 		private EpisimMenuItem(String _name){ this.name = _name;}
@@ -84,6 +93,11 @@ public class EpisimMenuBarFactory {
 		buildParamScanMenu(menuBar);
 		buildWindowsMenu(menuBar);		
 		buildInfoMenu(menuBar);
+		
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_TESTMENU) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_TESTMENU).equals(EpisimProperties.ON)){
+			buildTestMenu(menuBar);
+		}
 		
 		if(simulator.getMainFrame() instanceof JFrame)((JFrame)simulator.getMainFrame()).setJMenuBar(menuBar);
 	}
@@ -403,9 +417,9 @@ public class EpisimMenuBarFactory {
 		menuItemParamFileGen.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				if(simulator.getMainFrame() instanceof JFrame){
-					if(simulator.getMainFrame() instanceof JFrame){
+				
 						new PropertyFileGeneratorWizard((JFrame)simulator.getMainFrame(), "Parameter Scan File Generator", false);
-					}
+					
 				}
 				
          }
@@ -414,6 +428,57 @@ public class EpisimMenuBarFactory {
 		paramScanMenu.add(menuItemParamFileGen);
 		paramScanMenu.setEnabled(false);
 		menuBar.add(paramScanMenu);
+	}
+	
+	private void buildTestMenu(JMenuBar menuBar)
+	{
+		JMenu testMenu = new JMenu(EpisimMenu.TEST_MENU.toString());
+		
+		final JMenuItem menuItemSaveSnapshot = new JMenuItem(EpisimMenuItem.TEST_SAVE_SNAPSHOT.toString());
+		menuItemSaveSnapshot.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if(simulator.getMainFrame() instanceof JFrame){					
+					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
+					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showSaveDialog((JFrame)simulator.getMainFrame())){
+						try{
+	                  (new SimulationStateFile()).saveData(chooser.getSelectedFile());
+                  }
+                  catch (ParserConfigurationException e1){
+	                 ExceptionDisplayer.getInstance().displayException(e1);
+                  }
+                  catch (SAXException e1){
+                  	ExceptionDisplayer.getInstance().displayException(e1);
+                  }
+					}
+				}				
+         }
+		});
+		
+		final JMenuItem menuItemLoadSnapshot = new JMenuItem(EpisimMenuItem.TEST_LOAD_SNAPSHOT.toString());
+		menuItemLoadSnapshot.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if(simulator.getMainFrame() instanceof JFrame){					
+					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
+					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showOpenDialog((JFrame)simulator.getMainFrame())){
+						try{
+	                  (new SimulationStateFile()).loadData(chooser.getSelectedFile());
+                  }
+                  catch (ParserConfigurationException e1){
+                  	ExceptionDisplayer.getInstance().displayException(e1);
+                  }
+                  catch (SAXException e1){
+                  	ExceptionDisplayer.getInstance().displayException(e1);
+                  }
+					}
+				}				
+         }
+		});
+		menuItemSaveSnapshot.setEnabled(true);
+		menuItemLoadSnapshot.setEnabled(true);
+		testMenu.add(menuItemSaveSnapshot);
+		testMenu.add(menuItemLoadSnapshot);
+		testMenu.setEnabled(true);
+		menuBar.add(testMenu);
 	}
 	
 	public JMenu getEpisimMenu(EpisimMenu menu){

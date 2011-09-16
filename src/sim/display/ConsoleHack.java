@@ -99,7 +99,7 @@ public class ConsoleHack extends Console implements SimulationConsole{
    }
    
    //this method is a copy
-   public static void showAbout()
+ /*  public static void showAbout()
    {
    	if (aboutFrame == null)
       {
@@ -158,7 +158,7 @@ public class ConsoleHack extends Console implements SimulationConsole{
       spacer.setFont(new Font("Dialog",0,6));
       b.add(spacer);
                   
-      j = new JLabel("MASON is (c) 2005-2009 Sean Luke and George Mason University,");
+      j = new JLabel("MASON is (c) 2005-2011 Sean Luke and George Mason University,");
       j.setFont(small);
       b.add(j);
 
@@ -203,7 +203,7 @@ public class ConsoleHack extends Console implements SimulationConsole{
   
   // show it!
   aboutFrame.setVisible(true);
-   }
+   }*/
    
    //Override to be able to deploy multiple model Inspectors
 	void buildModelInspector() {

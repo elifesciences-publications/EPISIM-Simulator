@@ -60,7 +60,7 @@ public class EpisimMenuBarFactory {
 		NEW_DATA_EXPORT("New Data-Export-Definition-Set"),
 		CLOSE_DATA_EXPORT("Close Loaded Data-Export-Definition-Set"),
 		
-		ABOUT_MASON("About MASON"),
+		ABOUT_EPISIM_SIMULATOR("About Episim Simulator"),
 		
 		GENERATE_PARAMETER_FILES("Param-Scan File-Generator"),
 		
@@ -80,6 +80,7 @@ public class EpisimMenuBarFactory {
 	
 	
 	private EpidermisSimulator simulator;
+	private EpisimAboutDialog aboutDialog;
 	
 	public EpisimMenuBarFactory(EpidermisSimulator simulator){
 		if(simulator == null) throw new IllegalArgumentException("Epidermis Simulator must not be null");
@@ -99,7 +100,10 @@ public class EpisimMenuBarFactory {
 			buildTestMenu(menuBar);
 		}
 		
-		if(simulator.getMainFrame() instanceof JFrame)((JFrame)simulator.getMainFrame()).setJMenuBar(menuBar);
+		if(simulator.getMainFrame() instanceof JFrame){
+			((JFrame)simulator.getMainFrame()).setJMenuBar(menuBar);
+			aboutDialog = new EpisimAboutDialog(((JFrame)simulator.getMainFrame()));
+		}
 	}
 	
 	
@@ -379,17 +383,20 @@ public class EpisimMenuBarFactory {
 		
 		JMenu infoMenu = new JMenu(EpisimMenu.INFO_MENU.toString());
 		
-		JMenuItem menuItemAboutMason = new JMenuItem(EpisimMenuItem.ABOUT_MASON.toString());
+		JMenuItem menuItemAboutEpisimSimulator = new JMenuItem(EpisimMenuItem.ABOUT_EPISIM_SIMULATOR.toString());
 		
-		menuItemAboutMason.addActionListener(new ActionListener(){
+		menuItemAboutEpisimSimulator.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				ConsoleHack.showAbout();
+				if(simulator.getMainFrame() instanceof JFrame){
+					aboutDialog.showAboutDialog();
+				}
+				
 			}
 			
 		});
 		
-		infoMenu.add(menuItemAboutMason);
+		infoMenu.add(menuItemAboutEpisimSimulator);
 		menuBar.add(infoMenu);		
 		
 	}

@@ -21,7 +21,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   super(cell);
 	   
 	   ObjectGrid2D grid2D = new ObjectGrid2D(100, 100);
-	   grid2D.
+	  
 	   
    }
 

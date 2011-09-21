@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.model.visualization;
 
 
 /*

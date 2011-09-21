@@ -24,6 +24,7 @@ import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
+import sim.app.episim.model.visualization.CellEllipse;
 
 import sim.app.episim.tissue.TissueController;
 
@@ -31,7 +32,6 @@ import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Vector2D;
-import sim.app.episim.visualization.CellEllipse;
 
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;

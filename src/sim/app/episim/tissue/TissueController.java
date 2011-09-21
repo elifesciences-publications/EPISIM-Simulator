@@ -6,6 +6,7 @@ import java.util.HashSet;
 
 import episimexceptions.NoEpidermalTissueAvailableException;
 
+import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.visualization.*;
 
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import sim.app.episim.UniversalCell;
+import sim.portrayal.Portrayal;
 
 
 public abstract class BiomechanicalModelInitializer {
@@ -29,6 +30,11 @@ public abstract class BiomechanicalModelInitializer {
 	
 	protected abstract ArrayList<UniversalCell> buildInitialCellEnsemble(File file);
 
+	/**
+	 * Get component for visualizing the cells
+	 * 
+	 */
+	protected abstract Portrayal getCellPortrayal();
 	
    protected File getModelInitializationFile(){   
    	return modelInitializationFile;

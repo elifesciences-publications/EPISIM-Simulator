@@ -9,8 +9,8 @@ import java.util.Set;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
-import sim.app.episim.visualization.AbstractCellEllipse;
-import sim.app.episim.visualization.CellEllipse;
+import sim.app.episim.model.visualization.AbstractCellEllipse;
+import sim.app.episim.model.visualization.CellEllipse;
 
 
 public class CellEllipseIntersectionCalculationRegistry implements SimulationStateChangeListener {

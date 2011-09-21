@@ -1,23 +1,15 @@
 package sim.display;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
+
 import java.awt.Insets;
-import java.awt.Toolkit;
+
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
+
 import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
@@ -25,12 +17,12 @@ import javax.swing.JScrollPane;
 
 import episiminterfaces.SimulationConsole;
 
-import sim.app.episim.devBasalLayer.EpidermisUIDev;
+
 import sim.app.episim.gui.EpidermisGUIState;
 import sim.app.episim.gui.EpisimTextOut;
-import sim.app.episim.gui.ImageLoader;
+
 import sim.app.episim.util.Names;
-import sim.engine.SimState;
+
 import sim.portrayal.Inspector;
 
 

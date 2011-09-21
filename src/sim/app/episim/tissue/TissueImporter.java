@@ -37,8 +37,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.visualization.CellEllipse;
-import sim.app.episim.visualization.NucleusEllipse;
+import sim.app.episim.model.visualization.CellEllipse;
+import sim.app.episim.model.visualization.NucleusEllipse;
 
 
 

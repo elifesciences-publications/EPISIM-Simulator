@@ -17,6 +17,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.initialization.ModelInitialization;
+import sim.portrayal.Portrayal;
 public class ModelController implements java.io.Serializable{
 	
 	private static Semaphore sem = new Semaphore(1);
@@ -71,6 +72,9 @@ public class ModelController implements java.io.Serializable{
 		return initializer.getCells();
 	}
 	
+	public Portrayal getCellPortrayal(){
+		return initializer.getCellPortrayal();
+	}
 	
 	
 	public EpisimBiomechanicalModel getNewBioMechanicalModelObject(AbstractCell cell){		

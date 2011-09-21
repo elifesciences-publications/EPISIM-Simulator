@@ -28,6 +28,7 @@ import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
 import sim.app.episim.model.biomechanics.vertexbased.ContinuousVertexField;
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
+import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;

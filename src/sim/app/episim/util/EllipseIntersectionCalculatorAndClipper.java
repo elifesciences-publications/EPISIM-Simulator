@@ -12,9 +12,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
-import sim.app.episim.visualization.AbstractCellEllipse;
-import sim.app.episim.visualization.CellEllipse;
-import sim.app.episim.visualization.NucleusEllipse;
+import sim.app.episim.model.visualization.AbstractCellEllipse;
+import sim.app.episim.model.visualization.CellEllipse;
+import sim.app.episim.model.visualization.NucleusEllipse;
 
 
 

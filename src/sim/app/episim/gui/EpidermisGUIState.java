@@ -10,11 +10,11 @@ import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 
-import sim.app.episim.devBasalLayer.BasementMembranePortrayal2DDev;
-import sim.app.episim.devBasalLayer.EpidermisDev;
+
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
@@ -22,7 +22,6 @@ import sim.app.episim.tissue.TissueServer;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.GridPortrayal2D;
-import sim.app.episim.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.*;
@@ -101,8 +100,8 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	private boolean pausedBecauseOfMainFrameResize = false;
 	
 	private final int STATUSBARHEIGHT = 25;	
-	private final double EPIDISPLAYSTANDARDWIDTH = 800;
-	private final double EPIDISPLAYSTANDARDHEIGHT = 500;
+	public static final double EPIDISPLAYSTANDARDWIDTH = 800;
+	public static final double EPIDISPLAYSTANDARDHEIGHT = 500;
 	
 	
 	private final int DEFAULTCHARTWIDTH = 400;
@@ -265,20 +264,11 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		woundPortrayal.setField(theEpidermis.getBasementContinous2D());
 		rulerPortrayal.setField(theEpidermis.getRulerContinous2D());
 		gridPortrayal.setField(theEpidermis.getGridContinous2D());
-		// make the flockers random colors and four times their normal size
-		// (prettier)
-		java.awt.Color myColor = java.awt.Color.lightGray;
+		
+		
 
 		
-		epiPortrayal.setPortrayalForClass(UniversalCell.class, new UniversalCellPortrayal2D(myColor, INITIALZOOMFACTOR, 
-				                                                        EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER), DISPLAYBORDER){
-
-			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
-				System.out.println("Hallo Inspector");
-				// make the inspector
-				return new CellInspector(super.getInspector(wrapper, state), wrapper, state);
-			}
-		});
+		epiPortrayal.setPortrayalForClass(UniversalCell.class, ModelController.getInstance().getCellPortrayal());
 		
 		basementPortrayal.setPortrayalForAll(basementPortrayalDraw);
 		woundPortrayal.setPortrayalForAll(woundPortrayalDraw);

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
+import sim.portrayal.Portrayal;
 
 
 public class ModelInitialization {
@@ -39,6 +40,10 @@ public class ModelInitialization {
 		
 		//TODO: Implement Alternative using an initialization file
 		return new ArrayList<UniversalCell>();
+	}
+	
+	public Portrayal getCellPortrayal(){
+		return biomechanicalModelInitializer.getCellPortrayal();
 	}
 	
 	private ArrayList<UniversalCell> buildStandardCellList(){

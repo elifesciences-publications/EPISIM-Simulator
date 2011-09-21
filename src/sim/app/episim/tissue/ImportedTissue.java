@@ -3,7 +3,7 @@ package sim.app.episim.tissue;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-import sim.app.episim.visualization.CellEllipse;
+import sim.app.episim.model.visualization.CellEllipse;
 
 
 public class ImportedTissue implements java.io.Serializable {

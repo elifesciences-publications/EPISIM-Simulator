@@ -9,6 +9,7 @@ import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
 import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.sbml.SbmlModelConnector;
+import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueServer;
 
@@ -17,7 +18,6 @@ import sim.app.episim.tissue.TissueType.SchedulePriority;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
-import sim.app.episim.visualization.CellEllipse;
 
 import sim.engine.*;
 import sim.field.continuous.*;

@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.model.visualization;
 import sim.SimStateServer;
 import sim.SimStateServer.SimState;
 import sim.app.episim.AbstractCell;

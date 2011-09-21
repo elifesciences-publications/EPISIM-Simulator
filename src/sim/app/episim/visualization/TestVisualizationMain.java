@@ -28,6 +28,7 @@ import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.model.biomechanics.vertexbased.CellCanvas;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.TissueController;
 
 

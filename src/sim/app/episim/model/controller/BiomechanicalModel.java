@@ -69,10 +69,7 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 		list.add(new SnapshotObject(SnapshotObject.MECHANICALMODELGLOBALPARAMETERS, this.actParametersObject));
 		return list;
 	}
-	public void test(String... strings){
 		
-	}
-	
 	public EpisimBiomechanicalModel getNewEpisimBiomechanicalModelObject(AbstractCell cell) {
 		EpisimBiomechanicalModel biomechanicalModel = null;
 		if(this.biomechanicalModelClass !=null)

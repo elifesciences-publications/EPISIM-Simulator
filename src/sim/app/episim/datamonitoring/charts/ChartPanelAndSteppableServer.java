@@ -66,10 +66,10 @@ public class ChartPanelAndSteppableServer {
 		return allPanels;
 	}
 	
-	public List<EnhancedSteppable> getChartSteppables(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+	public List<EnhancedSteppable> getChartSteppables(GenericBag<AbstractCell> allCells, Object[] objects) throws MissingObjectsException{
 		if(factory != null && alreadyRegisteredVersionAllCells != allCells){
 			alreadyRegisteredVersionAllCells = allCells;
-			factory.registerNecessaryObjects(allCells, continuous, objects);
+			factory.registerNecessaryObjects(allCells, objects);
 			CalculationController.getInstance().registerCells(allCells);
 		}
 		List<EnhancedSteppable> allSteppables = new LinkedList<EnhancedSteppable>();

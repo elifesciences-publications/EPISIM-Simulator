@@ -226,8 +226,8 @@ public class ChartController {
 		return loadEpisimChartSet(url, null);
 	}
 	
-	public List<EnhancedSteppable> getChartSteppablesOfActLoadedChartSet(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
-		return ChartPanelAndSteppableServer.getInstance().getChartSteppables(allCells, continuous, objects );
+	public List<EnhancedSteppable> getChartSteppablesOfActLoadedChartSet(GenericBag<AbstractCell> allCells, Object[] objects) throws MissingObjectsException{
+		return ChartPanelAndSteppableServer.getInstance().getChartSteppables(allCells, objects );
 	}
 	
 	

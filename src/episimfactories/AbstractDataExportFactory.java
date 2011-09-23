@@ -127,5 +127,5 @@ public abstract class AbstractDataExportFactory {
    
    public abstract List<GeneratedDataExport> getDataExports();
    
-   public abstract void registerNecessaryObjects(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
+   public abstract void registerNecessaryObjects(GenericBag<AbstractCell> allCells, Object[] objects) throws MissingObjectsException;
 }

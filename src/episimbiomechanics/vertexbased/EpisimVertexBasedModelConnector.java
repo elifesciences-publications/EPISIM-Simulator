@@ -3,6 +3,8 @@ package episimbiomechanics.vertexbased;
 
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
+import sim.app.episim.model.initialization.VertexBasedMechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
@@ -46,6 +48,10 @@ public class EpisimVertexBasedModelConnector extends EpisimModelConnector {
 	
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
 		return VertexBasedMechanicalModel.class;
+	}
+	
+	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
+		return VertexBasedMechanicalModelInitializer.class;
 	}
 	
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){

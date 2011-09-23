@@ -1,4 +1,4 @@
-package sim.app.episim.model.controller;
+package sim.app.episim.model.cellbehavior;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -28,7 +28,7 @@ import sim.app.episim.tissue.Epidermis;
 
 
 
-public class CellBehavioralModel implements java.io.Serializable, SnapshotListener{
+public class CellBehavioralModelFacade implements java.io.Serializable, SnapshotListener{
 	
 	/**
 	 * 
@@ -41,7 +41,7 @@ public class CellBehavioralModel implements java.io.Serializable, SnapshotListen
 
 		
 	
-	public CellBehavioralModel(Class<EpisimCellBehavioralModel> cellBehavioralModelClass, Object globalParametersObject) throws ModelCompatibilityException{
+	public CellBehavioralModelFacade(Class<EpisimCellBehavioralModel> cellBehavioralModelClass, Object globalParametersObject) throws ModelCompatibilityException{
 		this.cellBehavioralModelClass = cellBehavioralModelClass;
 		
 		

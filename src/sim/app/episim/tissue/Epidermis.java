@@ -10,6 +10,7 @@ import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
+import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
@@ -59,6 +60,7 @@ import com.lowagie.text.pdf.*;
 
 import episimexceptions.MissingObjectsException;
 import episiminterfaces.CellDeathListener;
+import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -80,7 +82,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 
 	
 
-	private Continuous2D cellContinous2D;
+	
 	private Continuous2D basementContinous2D;
 	private Continuous2D rulerContinous2D;
 	private Continuous2D gridContinous2D;
@@ -119,10 +121,7 @@ public class Epidermis extends TissueType implements CellDeathListener
      DataExportController.getInstance().registerDataExportChangeListener(this);
  
 		
-		//TODO: plus 2 Korrektur überprüfen
-		cellContinous2D = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
-				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
-				TissueController.getInstance().getTissueBorder().getHeight());
+		
 		basementContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth() + 2, 
 				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
 				TissueController.getInstance().getTissueBorder().getHeight());
@@ -216,7 +215,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 	     
 	     
 	     if(!isReloadedSnapshot()){
-	   	  cellContinous2D.clear();
+	   	  ModelController.getInstance().getBioMechanicalModelController().clearCellField();
 	   	  getAllCells().clear();
 	   	  seedInitiallyAvailableCells();
 	     }
@@ -273,23 +272,23 @@ public class Epidermis extends TissueType implements CellDeathListener
                      
                    //  if (act.isBasalStatisticsCell()) actualBasalStatisticsCells++;
                      
-                     //act.isOuterCell=false; // set new default 
-                     Double2D loc=cellContinous2D.getObjectLocation(act);
-                     
-                     int xbin=(int)loc.x / CenterBasedMechanicalModel.GINITIALKERATINOWIDTH;
-                     if (xLookUp[xbin]==null) 
-                     {
-                         xLookUp[xbin]=act;                            
-                         yLookUp[xbin]=loc.y;
+                     //act.isOuterCell=false; // set new default
+                     EpisimBiomechanicalModel biomechanicalModel = act.getEpisimBioMechanicalModelObject();
+                     if(biomechanicalModel instanceof AbstractMechanicalModel){
+	                     Double2D loc= ((AbstractMechanicalModel) biomechanicalModel).getCellLocationInCellField();
+	                     
+	                     int xbin=(int)loc.x / CenterBasedMechanicalModel.GINITIALKERATINOWIDTH;
+	                     if (xLookUp[xbin]==null) 
+	                     {
+	                         xLookUp[xbin]=act;                            
+	                         yLookUp[xbin]=loc.y;
+	                     }
+	                     else if (loc.y<yLookUp[xbin]) 
+	                     {
+	                         xLookUp[xbin]=act;
+	                         yLookUp[xbin]=loc.y;
+	                     }                     
                      }
-                     else if (loc.y<yLookUp[xbin]) 
-                     {
-                         xLookUp[xbin]=act;
-                         yLookUp[xbin]=loc.y;
-                     }
-                     
-                     
-                     
                  }
                  for (int k=0; k< MAX_XBINS; k++)
                  {
@@ -313,34 +312,40 @@ public class Epidermis extends TissueType implements CellDeathListener
  
 
 	public void removeCells(GeneralPath path){
-	Iterator<AbstractCell> iter = getAllCells().iterator();
-	Map<Long, Double2D> map = new HashMap<Long, Double2D>();
-	List<AbstractCell> livingCells = new LinkedList<AbstractCell>();
-		int i = 0;
-		while(iter.hasNext()){
-			AbstractCell cell = iter.next();
-			if(cell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
-				
-				//TODO: Diese Ausnahme eleminieren und verallgemeinern
-				CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
-				if(path.contains(mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.x, mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
-						cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
-					cell.killCell();					 
-					i++;
-				}
-				else{
-					 livingCells.add(cell);
-					 map.put(cell.getID(), this.cellContinous2D.getObjectLocation(cell));
+		Iterator<AbstractCell> iter = getAllCells().iterator();
+		Map<Long, Double2D> map = new HashMap<Long, Double2D>();
+		List<AbstractCell> livingCells = new LinkedList<AbstractCell>();
+			int i = 0;
+			while(iter.hasNext()){
+				AbstractCell cell = iter.next();
+				if(cell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+					
+					//TODO: Diese Ausnahme eleminieren und verallgemeinern
+					CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+					if(path.contains(mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.x, mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
+							cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
+						cell.killCell();					 
+						i++;
+					}
+					else{
+						 livingCells.add(cell);
+						 if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel){
+								AbstractMechanicalModel mechanicalModel = (AbstractMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+								map.put(cell.getID(), mechanicalModel.getCellLocationInCellField());
+						 }
+					}
 				}
 			}
-		}
-		
-		this.getAllCells().clear();
-		this.cellContinous2D.clear();
-		for(AbstractCell cell: livingCells){
-			this.getAllCells().add(cell);
-			this.cellContinous2D.setObjectLocation(cell, map.get(cell.getID()));
-		}
+			
+			this.getAllCells().clear();
+			ModelController.getInstance().getBioMechanicalModelController().clearCellField();
+			for(AbstractCell cell: livingCells){
+				if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel){
+					AbstractMechanicalModel mechanicalModel = (AbstractMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+					mechanicalModel.setCellLocationInCellField(map.get(cell.getID()));
+				}
+				this.getAllCells().add(cell);
+			}
 		
 	}
 
@@ -356,10 +361,10 @@ public class Epidermis extends TissueType implements CellDeathListener
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 	@CannotBeMonitored
 	public Continuous2D getBasementContinous2D() { return basementContinous2D; }
-	@CannotBeMonitored
-	public Continuous2D getCellContinous2D() { return cellContinous2D; }
+	
 	@CannotBeMonitored
 	public Continuous2D getGridContinous2D() { return gridContinous2D; }
+	
 	@CannotBeMonitored
 	public Continuous2D getRulerContinous2D() { return rulerContinous2D; }
 
@@ -371,22 +376,18 @@ public class Epidermis extends TissueType implements CellDeathListener
 	//complex-Methods------------------------------------------------------------------------------------------------------------------
 	public List<SnapshotObject> collectSnapshotObjects() {
 		
-		List<SnapshotObject> list = super.collectSnapshotObjects();		
-		list.add(new SnapshotObject(SnapshotObject.CELLCONTINUOUS, this.cellContinous2D));
-
+		List<SnapshotObject> list = super.collectSnapshotObjects();
+		list.add(new SnapshotObject(SnapshotObject.CELLFIELD, ModelController.getInstance().getBioMechanicalModelController().getCellField()));
+		
 		return list;
-	}  
-	
+	} 	
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //SETTER-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
-	
-	
-	
-	
+		
 	public void setBasementContinous2D(Continuous2D basementContinous2D) { this.basementContinous2D = basementContinous2D; }	
-	public void setCellContinous2D(Continuous2D cellContinous2D) { this.cellContinous2D = cellContinous2D; }	
+		
 	
 	
 	//	complex-Methods------------------------------------------------------------------------------------------------------------------
@@ -425,10 +426,10 @@ public class Epidermis extends TissueType implements CellDeathListener
 	public void chartSetHasChanged() {
 
 		try{
-			if(getAllCells() != null && this.cellContinous2D != null 
+			if(getAllCells() != null
 					&& ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters() != null
 					&& ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() != null){
-		      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(getAllCells(), this.cellContinous2D, new Object[]{
+		      this.chartSteppables = ChartController.getInstance().getChartSteppablesOfActLoadedChartSet(getAllCells(), new Object[]{
 		      		ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), 
 		      		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(), 
 		      		this});
@@ -443,7 +444,6 @@ public class Epidermis extends TissueType implements CellDeathListener
 
 	public void cellIsDead(AbstractCell cell) {
 		super.cellIsDead(cell);
-		this.cellContinous2D.remove(cell);		
 	}
 	
 	
@@ -452,10 +452,10 @@ public class Epidermis extends TissueType implements CellDeathListener
 	public void dataExportHasChanged() {
 
 	   try{
-	   	if(getAllCells() != null && this.cellContinous2D != null 
+	   	if(getAllCells() != null 
 					&& ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters() != null
 					&& ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() != null){
-	      this.dataExportSteppables = DataExportController.getInstance().getDataExportSteppablesOfActLoadedDataExport(getAllCells(), this.cellContinous2D, new Object[]{
+	      this.dataExportSteppables = DataExportController.getInstance().getDataExportSteppablesOfActLoadedDataExport(getAllCells(), new Object[]{
 	      	ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), 
 	      	ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(), 
 	      	  	this});

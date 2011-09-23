@@ -47,6 +47,7 @@ import sim.display.Display2D.InnerDisplay2D;
 import sim.engine.Schedule;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.portrayal.FieldPortrayal2D;
 import sim.util.gui.MovieMaker;
 import sim.util.gui.NumberTextField;
 
@@ -344,6 +345,12 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 			}
 		}
 		return null;
+	}
+	public void changePortrayal(String name, FieldPortrayal2D portrayal){
+		FieldPortrayal2DHolder holder = getPortrayalHolder(name);
+		if(holder != null){
+			holder.portrayal = portrayal;
+		}
 	}
 	
 	

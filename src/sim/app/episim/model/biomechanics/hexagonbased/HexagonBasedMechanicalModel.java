@@ -15,14 +15,14 @@ import sim.util.Double2D;
 
 
 public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
+	
+	public HexagonBasedMechanicalModel(){
+		this(null);	
+	}
 
 	public HexagonBasedMechanicalModel(AbstractCell cell) {
-
-	   super(cell);
-	   
-	   ObjectGrid2D grid2D = new ObjectGrid2D(100, 100);
-	  
-	   
+	   super(cell);	   
+	   ObjectGrid2D grid2D = new ObjectGrid2D(100, 100);   
    }
 
 	public void setEpisimModelConnector(EpisimModelConnector modelConnector) {
@@ -115,13 +115,46 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		return 0;
 	}
 
-	
-	public BiomechanicalModelInitializer getBiomechanicalModelInitializer() {
-		return new HexagonBasedMechanicalModelInitializer();
-	}
-	
-	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile) {
-		return new HexagonBasedMechanicalModelInitializer(modelInitializationFile);
-	}
+	@Override
+   protected void clearCellField() {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+
+	@Override
+   public void removeCellFromCellField() {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+
+	@Override
+   public void setCellLocationInCellField(Double2D location) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
+
+	@Override
+   public Double2D getCellLocationInCellField() {
+
+	   // TODO Auto-generated method stub
+	   return null;
+   }
+
+	@Override
+   protected Object getCellField() {
+
+	   // TODO Auto-generated method stub
+	   return null;
+   }
+
+	@Override
+   protected void setReloadedCellField(Object cellField) {
+
+	   // TODO Auto-generated method stub
+	   
+   }
 
 }

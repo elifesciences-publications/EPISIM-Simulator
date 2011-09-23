@@ -56,10 +56,10 @@ public class DataExportSteppableServer {
 		return customDataExportDefinitions;
 	}	
 	
-	public List<EnhancedSteppable> getDataExportSteppables(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
+	public List<EnhancedSteppable> getDataExportSteppables(GenericBag<AbstractCell> allCells, Object[] objects) throws MissingObjectsException{
 		if(factory != null || alreadyRegisteredVersionAllCells != allCells){
 			alreadyRegisteredVersionAllCells = allCells;
-			factory.registerNecessaryObjects(allCells, continuous, objects);
+			factory.registerNecessaryObjects(allCells, objects);
 			CalculationController.getInstance().registerCells(allCells);
 		}
 		return customSteppables;

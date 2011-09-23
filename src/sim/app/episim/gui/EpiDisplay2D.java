@@ -97,6 +97,11 @@ public class EpiDisplay2D {
 		simulationDisplay.setBackdrop(c);
 	}
 	
+	public void changePortrayal(String name, FieldPortrayal2D protrayal){
+		if(ModeServer.guiMode()) ((Display2DHack) simulationDisplay).changePortrayal(name, protrayal);
+		else ((NoGUIDisplay2D) simulationDisplay).changePortrayal(name, protrayal);
+	}
+	
 	public JComponent getInsideDisplay(){
 		if(ModeServer.guiMode()) return ((Display2DHack) simulationDisplay).insideDisplay;
 		else return ((NoGUIDisplay2D) simulationDisplay).insideDisplay;

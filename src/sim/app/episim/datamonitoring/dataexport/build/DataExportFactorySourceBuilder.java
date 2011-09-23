@@ -99,7 +99,7 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 						this.factorySource.append(Names.convertClassToVariable(actClass.getSimpleName())+", ");
 					}
 			}
-			this.factorySource.append("allCells, cellContinuous);\n");
+			this.factorySource.append("allCells);\n");
 		}
 		this.factorySource.append("}\n");
 	}

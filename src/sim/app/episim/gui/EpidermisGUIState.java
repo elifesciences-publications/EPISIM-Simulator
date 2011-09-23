@@ -26,6 +26,7 @@ import sim.app.episim.visualization.RulerPortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.*;
 import sim.portrayal.continuous.*;
+import sim.portrayal.grid.ObjectGridPortrayal2D;
 import sim.portrayal.*;
 import sim.util.Double2D;
 
@@ -121,7 +122,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	private boolean autoArrangeWindows = true;	
 	
-	ContinuousPortrayal2D epiPortrayal = new ContinuousPortrayal2D();
+	FieldPortrayal2D epiPortrayal = new ContinuousPortrayal2D();//Dummy-Portrayal
 	ContinuousPortrayal2D basementPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D woundPortrayal = new ContinuousPortrayal2D();
 	ContinuousPortrayal2D rulerPortrayal = new ContinuousPortrayal2D();
@@ -259,21 +260,30 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 
 		Epidermis theEpidermis = (Epidermis) state;
 		// obstacle portrayal needs no setup
-		epiPortrayal.setField(theEpidermis.getCellContinous2D());
+		
 		basementPortrayal.setField(theEpidermis.getBasementContinous2D());
 		woundPortrayal.setField(theEpidermis.getBasementContinous2D());
 		rulerPortrayal.setField(theEpidermis.getRulerContinous2D());
 		gridPortrayal.setField(theEpidermis.getGridContinous2D());
 		
 		
-
+		Portrayal cellPortrayal = ModelController.getInstance().getCellPortrayal();
+		if(cellPortrayal instanceof UniversalCellPortrayal2D){
+			epiPortrayal = new ContinuousPortrayal2D();
+			epiPortrayal.setPortrayalForClass(UniversalCell.class, (UniversalCellPortrayal2D)cellPortrayal);
+		}
+		else if(cellPortrayal instanceof ObjectGridPortrayal2D){
+			epiPortrayal = (FieldPortrayal2D) cellPortrayal;
+		}
+		epiPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		
-		epiPortrayal.setPortrayalForClass(UniversalCell.class, ModelController.getInstance().getCellPortrayal());
 		
 		basementPortrayal.setPortrayalForAll(basementPortrayalDraw);
 		woundPortrayal.setPortrayalForAll(woundPortrayalDraw);
 		rulerPortrayal.setPortrayalForAll(rulerPortrayalDraw);
 		gridPortrayal.setPortrayalForAll(gridPortrayalDraw);
+		
+		display.changePortrayal(EPIDERMISNAME, epiPortrayal);
 		
 		// reschedule the displayer
 		display.reset();

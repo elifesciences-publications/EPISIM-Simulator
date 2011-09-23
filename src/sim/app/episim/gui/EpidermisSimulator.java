@@ -513,7 +513,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		Epidermis epidermis = new Epidermis(System.currentTimeMillis());
 		epidermis.addSnapshotLoadedCells(snapshotLoader.getLoadedCells());
 		epidermis.setReloadedSnapshot(true);
-		epidermis.setCellContinous2D(snapshotLoader.getCellContinous2D());
+		
 		epidermis.setSnapshotTimeSteps(snapshotLoader.getTimeSteps());
 		
 		TissueController.getInstance().registerTissue(epidermis);		
@@ -521,6 +521,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				
 				
 				if(success){
+					
+					ModelController.getInstance().getBioMechanicalModelController().setReloadedCellField(snapshotLoader.getCellContinous2D());
 					//TODO: add consideration of initialization filepath if set
 					ModelController.getInstance().standardInitializationOfModels();
 					ChartController.getInstance().rebuildDefaultCharts();

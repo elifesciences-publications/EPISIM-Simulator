@@ -69,11 +69,11 @@ public class UniversalCell extends AbstractCell
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
    public UniversalCell(){
-   	this(-1, -1,  null, null);
+   	this(-1, null,  null, null);
    }
    
-   public UniversalCell(long id, long motherId, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){   
-   	 super(id, motherId, cellBehavioralModel, simState);      
+   public UniversalCell(long id, UniversalCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){   
+   	 super(id, motherCell, cellBehavioralModel, simState);      
    	 TissueController.getInstance().getActEpidermalTissue().checkMemory();
    	 TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag       
     }  
@@ -81,12 +81,12 @@ public class UniversalCell extends AbstractCell
     public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
     {       
         
-   	 Continuous2D cellContinous2D = TissueController.getInstance().getActEpidermalTissue().getCellContinous2D();
+  
    	 
    	 // Either we get use a currently unused cell oder we allocate a new one
         UniversalCell kcyte;        
        
-        kcyte= new UniversalCell(AbstractCell.getNextCellId(), getID(), cellBehavioralModel, getActSimState()); 
+        kcyte= new UniversalCell(AbstractCell.getNextCellId(), this, cellBehavioralModel, getActSimState()); 
         cellBehavioralModel.setId((int)kcyte.getID());
          
             
@@ -102,27 +102,10 @@ public class UniversalCell extends AbstractCell
         if (pSimTime<(kcyte.local_maxAge)){ 
       	  kcyte.local_maxAge=pSimTime;
       	  cellBehavioralModel.setMaxAge((int)kcyte.local_maxAge);
-        }        
+        }  
               
         
-        if(this.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
-      	  double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25;
-           double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1; 
-                  
-           Double2D oldLoc=cellContinous2D.getObjectLocation(this);
-           
-        //   double deltaDrawX = newloc.
-            
-           Double2D newloc=new Double2D(oldLoc.x + deltaX, oldLoc.y-deltaY); 
-           
-           cellContinous2D.setObjectLocation(kcyte, newloc);
-           
-      	  DrawInfo2D info = ((CenterBasedMechanicalModel)this.getEpisimBioMechanicalModelObject()).getCellEllipseObject().getLastDrawInfo2D();
-      	  ((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).setLastDrawInfo2DForNewCellEllipse(info, newloc, oldLoc);
-        }
-        else{
-      	  cellContinous2D.setObjectLocation(kcyte, new Double2D(kcyte.getEpisimBioMechanicalModelObject().getX(), kcyte.getEpisimBioMechanicalModelObject().getY()));
-        }
+        
 		              
         return kcyte;
     }

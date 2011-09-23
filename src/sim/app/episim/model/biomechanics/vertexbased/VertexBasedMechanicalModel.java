@@ -14,6 +14,7 @@ import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.VertexBasedMechanicalModelInitializer;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
+import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 import episimbiomechanics.EpisimModelConnector;
@@ -36,13 +37,19 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	
 	private long currentSimStepNo = 0;
 	
-	
-	
+	 //TODO: plus 2 Korrektur überprüfen
+   private static Continuous2D cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
+																				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
+																				TissueController.getInstance().getTissueBorder().getHeight());	
+   public VertexBasedMechanicalModel(){
+   	this(null);
+   }
 	public VertexBasedMechanicalModel(AbstractCell cell){
 		super(cell);
 		if(cell!= null){
 			cellPolygon = CellPolygonRegistry.getNewCellPolygon(cell.getMotherId());
 			cellPolygon.addProliferationAndApoptosisListener(this);
+			cellField.setObjectLocation(cell, new Double2D(this.getX(), this.getY()));
 		}
 	}
 	
@@ -185,9 +192,7 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	public double getZ(){ return 0; }
 	
 	public CellPolygon getCellPolygon(){ return cellPolygon; }		
-	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){ return new VertexBasedMechanicalModelInitializer(); }	
-   public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){ return new VertexBasedMechanicalModelInitializer(modelInitializationFile); }
-
+	
 	public void proliferationCompleted(CellPolygon oldCell, CellPolygon newCell){		
 		EpisimDifferentiationLevel diffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
 		if(diffLevel.ordinal() == EpisimDifferentiationLevel.STEMCELL || diffLevel.ordinal() == EpisimDifferentiationLevel.TACELL){
@@ -212,5 +217,33 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	public void maturationCompleted(CellPolygon pol) {
 		// TODO Auto-generated method stub	   
    }
+	
+	protected void clearCellField() {
+	   if(cellField.getAllObjects().isEmpty()){
+	   	cellField.clear();
+	   }
+   }
 
-}
+	
+   public void removeCellFromCellField() {
+	   cellField.remove(this.getCell());
+   }
+	
+   public void setCellLocationInCellField(Double2D location){
+	   cellField.setObjectLocation(this.getCell(), location);
+   }
+   
+   public Double2D getCellLocationInCellField() {	   
+	   return cellField.getObjectLocation(getCell());
+   }
+
+   protected Object getCellField() {	  
+	   return cellField;
+   }
+   
+   protected void setReloadedCellField(Object cellField) {
+   	if(cellField instanceof Continuous2D){
+   		VertexBasedMechanicalModel.cellField = (Continuous2D) cellField;
+   	}
+   }
+ }

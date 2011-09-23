@@ -3,6 +3,7 @@ package sim.app.episim.model.controller;
 import java.util.ArrayList;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 
 import episimbiomechanics.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
@@ -14,6 +15,7 @@ public class BiomechanicalModelLoader{
 	
 	private Class<? extends EpisimModelConnector> episimModelConnectorClass;
 	private Class<? extends EpisimBiomechanicalModel> episimBiomechanicalModelClass;
+	private Class<? extends BiomechanicalModelInitializer> biomechanicalModelInitializerClass;
 	private EpisimBiomechanicalModelGlobalParameters episimBiomechnicalModelGlobalParametersObject;
 	private String episimBiomechanicalModelName = "";
 	private String episimBiomechanicalModelId = "";
@@ -22,6 +24,7 @@ public class BiomechanicalModelLoader{
 		EpisimModelConnector modelConnector = findModelConnector(modelConnectorId);
 		this.episimModelConnectorClass = modelConnector.getClass();
 		this.episimBiomechanicalModelClass = modelConnector.getEpisimBioMechanicalModelClass();
+		this.biomechanicalModelInitializerClass = modelConnector.getEpisimBioMechanicalModelInitializerClass();
 		this.episimBiomechanicalModelName = modelConnector.getBiomechanicalModelName();
 		this.episimBiomechanicalModelId = modelConnector.getBiomechanicalModelId();
 		if(modelConnector.getEpisimBioMechanicalModelGlobalParametersClass() != null){
@@ -68,6 +71,10 @@ public class BiomechanicalModelLoader{
    public Class<? extends EpisimBiomechanicalModel> getEpisimBiomechanicalModelClass() {
    
    	return episimBiomechanicalModelClass;
+   }
+   
+   public Class<? extends BiomechanicalModelInitializer> getBiomechanicalModelInitializerClass(){
+   	return biomechanicalModelInitializerClass;
    }
 
 	

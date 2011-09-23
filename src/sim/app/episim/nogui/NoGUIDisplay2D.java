@@ -63,6 +63,7 @@ import sim.display.Console;
 import sim.display.GUIState;
 import sim.display.IconLoaderHack;
 import sim.display.SimApplet;
+
 import sim.display.Display2D.InnerDisplay2D;
 import sim.engine.Schedule;
 import sim.engine.SimState;
@@ -1931,6 +1932,18 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
            else paint(g,buffer,true);
            }
        }
+	}
+	
+	
+	//--------------------------------------------------------------------------------------------------------------------------------------------------------------
+	// ADDED METHODS
+	
+	
+	public void changePortrayal(String name, FieldPortrayal2D portrayal){
+		FieldPortrayal2DHolder holder = getPortrayalHolder(name);
+		if(holder != null){
+			holder.portrayal = portrayal;
+		}
 	}
 	
 	

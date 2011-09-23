@@ -36,9 +36,7 @@ public abstract class AbstractCommonFactorySourceBuilder {
 		this.factorySource.append("import episiminterfaces.monitoring.*;\n");
 		this.factorySource.append("import episimexceptions.*;\n");
 		this.factorySource.append("import episimfactories.*;\n");
-		this.factorySource.append("import sim.field.continuous.*;\n");
 		this.factorySource.append("import sim.engine.Steppable;\n");
-		this.factorySource.append("import sim.field.continuous.*;\n");
 		this.factorySource.append("import sim.app.episim.util.EnhancedSteppable;\n");
 		this.factorySource.append("import sim.app.episim.util.GenericBag;\n");
 		this.factorySource.append("import sim.app.episim.AbstractCell;\n");
@@ -50,14 +48,12 @@ public abstract class AbstractCommonFactorySourceBuilder {
 				this.factorySource.append("  private "+ actClass.getSimpleName()+ " "+Names.convertClassToVariable(actClass.getSimpleName())+ ";\n");
 			}
 		}
-		this.factorySource.append("  private Continuous2D cellContinuous;\n");
 		this.factorySource.append("  private GenericBag<AbstractCell> allCells;\n");		
 	}
 	
 	protected void appendRegisterMethod(){
-		this.factorySource.append("public void registerNecessaryObjects(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{\n");
-		this.factorySource.append("  if(objects == null || allCells == null || continuous == null) throw new IllegalArgumentException(\"Objects to be registered for charting must not be null\");\n");
-		this.factorySource.append("    this.cellContinuous = continuous;\n");
+		this.factorySource.append("public void registerNecessaryObjects(GenericBag<AbstractCell> allCells, Object[] objects) throws MissingObjectsException{\n");
+		this.factorySource.append("  if(objects == null || allCells == null) throw new IllegalArgumentException(\"Objects to be registered for charting must not be null\");\n");
 		this.factorySource.append("    this.allCells = allCells;\n");
 		this.factorySource.append("  for(Object actObject: objects){\n");
 		for(Class<?> actClass : this.requiredClasses){
@@ -74,7 +70,6 @@ public abstract class AbstractCommonFactorySourceBuilder {
 	protected void appendCheckForMissingObjectsMethod(){
 		this.factorySource.append("private void checkForMissingObjects() throws MissingObjectsException {\n");
 		this.factorySource.append("  boolean objectsMissing = false;\n");
-		this.factorySource.append("  if(this.cellContinuous == null) objectsMissing = true;\n");
 		this.factorySource.append("  if(this.allCells == null) objectsMissing = true;\n");
 		for(Class<?> actClass : this.requiredClasses){
 			if(isRequiredClassNecessary(actClass)){

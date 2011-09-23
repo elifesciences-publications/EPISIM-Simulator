@@ -1,4 +1,4 @@
-package sim.app.episim.model.controller;
+package sim.app.episim.model.biomechanics;
 
 
 
@@ -21,25 +21,29 @@ import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ObjectManipulations;
 
 
 
 
-public class BiomechanicalModel implements java.io.Serializable, SnapshotListener{
+public class BiomechanicalModelFacade implements java.io.Serializable, SnapshotListener{
 		
 	private static final long serialVersionUID = 512640154196012852L;
 	private EpisimBiomechanicalModelGlobalParameters actParametersObject;
 	private EpisimBiomechanicalModelGlobalParameters resetParametersObject;
 	private Class<? extends EpisimBiomechanicalModel> biomechanicalModelClass;
-	private Class<? extends EpisimModelConnector> modelConnectorClass;	
+	private Class<? extends EpisimModelConnector> modelConnectorClass;
+	private Class<? extends BiomechanicalModelInitializer> biomechanicalModelInitializerClass;	
 	
 	
-	public BiomechanicalModel(Class<? extends EpisimBiomechanicalModel> biomechanicalModelClass, Class<? extends EpisimModelConnector> modelConnectorClass,
-			EpisimBiomechanicalModelGlobalParameters actParametersObject) throws ModelCompatibilityException{
+	public BiomechanicalModelFacade(Class<? extends EpisimBiomechanicalModel> biomechanicalModelClass, Class<? extends EpisimModelConnector> modelConnectorClass,
+			EpisimBiomechanicalModelGlobalParameters actParametersObject, 
+			Class<? extends BiomechanicalModelInitializer> biomechanicalModelInitializerClass) throws ModelCompatibilityException{
 		
 		this.biomechanicalModelClass = biomechanicalModelClass;
 		this.modelConnectorClass = modelConnectorClass;
+		this.biomechanicalModelInitializerClass = biomechanicalModelInitializerClass;
 		
 		if(actParametersObject != null){
 	        this.actParametersObject = actParametersObject;
@@ -74,8 +78,13 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 		EpisimBiomechanicalModel biomechanicalModel = null;
 		if(this.biomechanicalModelClass !=null)
 	      try{
-	      	Constructor<? extends EpisimBiomechanicalModel> constructor = this.biomechanicalModelClass.getConstructor(new Class[]{AbstractCell.class});
-	      	biomechanicalModel = constructor.newInstance(new Object[]{cell});
+	      	if(cell != null){
+		      	Constructor<? extends EpisimBiomechanicalModel> constructor = this.biomechanicalModelClass.getConstructor(new Class[]{AbstractCell.class});
+		      	biomechanicalModel = constructor.newInstance(new Object[]{cell});
+	      	}
+	      	else{
+	      		biomechanicalModel = this.biomechanicalModelClass.newInstance();
+	      	}
 	         return biomechanicalModel;
          }
          catch (InstantiationException e){
@@ -125,13 +134,63 @@ public class BiomechanicalModel implements java.io.Serializable, SnapshotListene
 		return null;
 	}
 	
-	
-	
-	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){		
-		return getNewEpisimBiomechanicalModelObject(null).getBiomechanicalModelInitializer();
+	public void clearCellField(){
+		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
+		if(biomechanicalModel instanceof AbstractMechanicalModel) ((AbstractMechanicalModel) biomechanicalModel).clearCellField();
 	}
 	
-	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){		
-		return getNewEpisimBiomechanicalModelObject(null).getBiomechanicalModelInitializer(modelInitializationFile);
+	public void setReloadedCellField(Object cellField){
+		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
+		if(biomechanicalModel instanceof AbstractMechanicalModel) ((AbstractMechanicalModel) biomechanicalModel).setReloadedCellField(cellField);
+	}
+	
+	public Object getCellField(){
+		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
+		if(biomechanicalModel instanceof AbstractMechanicalModel){
+			return ((AbstractMechanicalModel) biomechanicalModel).getCellField();
+		}
+		return null;
+	}
+	
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(){
+		BiomechanicalModelInitializer modelInitializer = null;
+		try{
+	      modelInitializer = this.biomechanicalModelInitializerClass.newInstance();
+      }
+      catch (InstantiationException e){
+	     ExceptionDisplayer.getInstance().displayException(e);
+      }
+      catch (IllegalAccessException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }
+		return modelInitializer;
+	}
+	
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){
+		BiomechanicalModelInitializer modelInitializer = null;
+		Constructor<? extends BiomechanicalModelInitializer> constructor=null;
+      try{
+	      constructor = this.biomechanicalModelInitializerClass.getConstructor(new Class[]{File.class});
+	      modelInitializer = constructor.newInstance(new Object[]{modelInitializationFile});
+      }
+      catch (SecurityException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }
+      catch (NoSuchMethodException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }
+      catch (IllegalArgumentException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }
+      catch (InstantiationException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }
+      catch (IllegalAccessException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }
+      catch (InvocationTargetException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }		
+		return modelInitializer;
 	}
 }

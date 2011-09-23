@@ -2,6 +2,8 @@ package episimbiomechanics.centerbased;
 
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
+import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
@@ -37,7 +39,11 @@ public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
 		return CenterBasedMechanicalModelGlobalParameters.class;
-	}	
+	}
+	
+	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
+		return CenterBasedMechanicalModelInitializer.class;
+	}
 	
 	public boolean getHasCollision() {
 	

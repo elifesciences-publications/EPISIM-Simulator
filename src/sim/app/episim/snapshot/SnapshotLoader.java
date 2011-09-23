@@ -41,7 +41,7 @@ public class SnapshotLoader {
 					loadedCells.add((AbstractCell) sObj.getSnapshotObject());
 					
 				}
-				else if(sObj.getIdentifier().equals(SnapshotObject.CELLCONTINUOUS)){
+				else if(sObj.getIdentifier().equals(SnapshotObject.CELLFIELD)){
 					this.cellContinuous = (Continuous2D) sObj.getSnapshotObject();
 					
 				}

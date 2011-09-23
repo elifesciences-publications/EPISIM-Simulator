@@ -208,8 +208,8 @@ public class DataExportController {
 	}
 	
 	
-	public List<EnhancedSteppable> getDataExportSteppablesOfActLoadedDataExport(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException{
-		return DataExportSteppableServer.getInstance().getDataExportSteppables(allCells, continuous, objects );
+	public List<EnhancedSteppable> getDataExportSteppablesOfActLoadedDataExport(GenericBag<AbstractCell> allCells, Object[] objects) throws MissingObjectsException{
+		return DataExportSteppableServer.getInstance().getDataExportSteppables(allCells, objects );
 	}
 	
 	public void registerDataExportChangeListener(DataExportChangeListener changeListener){

@@ -40,9 +40,8 @@ public abstract class  AbstractCommonSourceBuilder {
 					generatedSourceCode.append(actClass.getSimpleName() + " " + Names.convertClassToVariable(actClass.getSimpleName())+", ");
 				}
 			}
-			this.generatedSourceCode.append("GenericBag<AbstractCell> allCells, Continuous2D cellContinuous){\n");
+			this.generatedSourceCode.append("GenericBag<AbstractCell> allCells){\n");
 			this.generatedSourceCode.append("    this.allCells = allCells;\n");
-			this.generatedSourceCode.append("    this.cellContinuous = cellContinuous;\n");
 			for(Class<?> actClass: requiredClasses){
 				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCell.class.isAssignableFrom(actClass)){
 					this.generatedSourceCode.append("    this." + Names.convertClassToVariable(actClass.getSimpleName())+" = "

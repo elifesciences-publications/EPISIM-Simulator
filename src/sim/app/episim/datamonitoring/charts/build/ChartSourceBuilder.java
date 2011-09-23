@@ -105,7 +105,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import sim.app.episim.AbstractCell;\n");
 		generatedSourceCode.append("import sim.app.episim.EpisimProperties;\n");
 		generatedSourceCode.append("import sim.engine.SimState;\n");
-		generatedSourceCode.append("import sim.field.continuous.*;\n");
+	
 		for(Class<?> actClass: this.actChart.getAllRequiredClasses()){
 			generatedSourceCode.append("import " + actClass.getCanonicalName()+";\n");	
 		}
@@ -118,7 +118,6 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			super.appendDataFields();	
 			generatedSourceCode.append("  private EnhancedSteppable pngSteppable = null;\n");
 		   generatedSourceCode.append("  private JFreeChart "+CHARTDATAFIELDNAME+";\n");
-		   generatedSourceCode.append("  private Continuous2D cellContinuous;\n");
 		   generatedSourceCode.append("  private GenericBag<AbstractCell> allCells;\n");
 		   generatedSourceCode.append("  private ChartPanel chartPanel;\n");
 		  if(mode == ChartSourceBuilderMode.XYSERIESMODE){ 

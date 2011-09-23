@@ -15,8 +15,6 @@ import sim.util.Double2D;
 public interface EpisimBiomechanicalModel {
 	
 	void setEpisimModelConnector(EpisimModelConnector modelConnector);
-	BiomechanicalModelInitializer getBiomechanicalModelInitializer();
-	BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile);
 	GenericBag<AbstractCell> getRealNeighbours();
 	Double2D getNewPosition();
 	Double2D getOldPosition();

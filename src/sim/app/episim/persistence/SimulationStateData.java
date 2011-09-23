@@ -80,7 +80,7 @@ public class SimulationStateData {
 							.getEpisimBioMechanicalModelObject());
 					cells.add(cod);
 				} else if (object.getIdentifier().equals(
-						SnapshotObject.CELLCONTINUOUS)) {
+						SnapshotObject.CELLFIELD)) {
 					this.cellContinuous = (Continuous2D) object
 							.getSnapshotObject();
 					this.cellContinuouss = getParameterObjectsFromObject(cellContinuous);

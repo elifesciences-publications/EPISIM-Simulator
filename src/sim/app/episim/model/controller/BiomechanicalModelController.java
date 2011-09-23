@@ -15,6 +15,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.model.biomechanics.BiomechanicalModelFacade;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 
@@ -26,7 +27,7 @@ public class BiomechanicalModelController implements java.io.Serializable{
 		 */
 		private static final long serialVersionUID = 2406025736169916469L;
 		private static BiomechanicalModelController instance;
-		private BiomechanicalModel biomechanicalModel;
+		private BiomechanicalModelFacade biomechanicalModel;
 		private String actLoadedBiomechanicalModelName = "";
 		private String actLoadedBiomechanicalModelId = "";
 		
@@ -84,10 +85,10 @@ public class BiomechanicalModelController implements java.io.Serializable{
 		
 		BiomechanicalModelLoader modelLoader = new BiomechanicalModelLoader(requiredModelConnectorID);
 		
-		boolean success =  modelLoader.getEpisimBiomechanicalModelClass() != null && modelLoader.getEpisimModelConnectorClass() != null && modelLoader.getEpisimBiomechnicalModelGlobalParametersObject()!= null;
+		boolean success =  modelLoader.getBiomechanicalModelInitializerClass() != null && modelLoader.getEpisimBiomechanicalModelClass() != null && modelLoader.getEpisimModelConnectorClass() != null && modelLoader.getEpisimBiomechnicalModelGlobalParametersObject()!= null;
 		if(success){
 			
-			this.biomechanicalModel = new BiomechanicalModel(modelLoader.getEpisimBiomechanicalModelClass(), modelLoader.getEpisimModelConnectorClass(), modelLoader.getEpisimBiomechnicalModelGlobalParametersObject());
+			this.biomechanicalModel = new BiomechanicalModelFacade(modelLoader.getEpisimBiomechanicalModelClass(), modelLoader.getEpisimModelConnectorClass(), modelLoader.getEpisimBiomechnicalModelGlobalParametersObject(), modelLoader.getBiomechanicalModelInitializerClass());
 			
 			
 			if(ModeServer.consoleInput()){
@@ -101,7 +102,16 @@ public class BiomechanicalModelController implements java.io.Serializable{
 		}
 		return false;
 	}
+	public void clearCellField(){
+		biomechanicalModel.clearCellField();
+	}
 	
+	public Object getCellField(){
+		return biomechanicalModel.getCellField();
+	}
+	public void setReloadedCellField(Object cellField){
+		biomechanicalModel.setReloadedCellField(cellField);
+	}
 	
 	public void reloadMechanicalModelGlobalParametersObject(EpisimBiomechanicalModelGlobalParameters parametersObject){
 		if(parametersObject != null) biomechanicalModel.reloadMechanicalModelGlobalParametersObject(parametersObject);

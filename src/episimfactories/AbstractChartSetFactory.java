@@ -139,5 +139,5 @@ public abstract class AbstractChartSetFactory {
 	public abstract List<ChartPanel> getChartPanels();
    public abstract List<EnhancedSteppable> getSteppablesOfCharts();
    
-   public abstract void registerNecessaryObjects(GenericBag<AbstractCell> allCells, Continuous2D continuous, Object[] objects) throws MissingObjectsException;
+   public abstract void registerNecessaryObjects(GenericBag<AbstractCell> allCells, Object[] objects) throws MissingObjectsException;
 }

@@ -15,6 +15,7 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.util.GlobalClassLoader;
 import binloc.ProjectLocator;
 
@@ -42,6 +43,9 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 	
 	@Hidden
 	public abstract Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass();
+	
+	@Hidden
+	public abstract Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass();
 	
 	@Hidden
 	public abstract Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass();

@@ -1,4 +1,4 @@
-package sim.app.episim.model.controller;
+package sim.app.episim.model.cellbehavior;
 
 
 import java.net.URL;
@@ -27,7 +27,7 @@ import sim.app.episim.ExceptionDisplayer;
 /**
  * A class loader for loading jar files, both local and remote.
  */
-class CellBehavioralModelJarClassLoader{
+public class CellBehavioralModelJarClassLoader{
     private URL url;
 
    

@@ -22,6 +22,8 @@ import sendreceive.StandardSendReceiveAlgorithm;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelJarClassLoader;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
 import sim.app.episim.util.GlobalClassLoader;
 
@@ -37,7 +39,7 @@ public class CellBehavioralModelController implements java.io.Serializable{
 	 */
 	private static final long serialVersionUID = 2406025736169916469L;
 	private static CellBehavioralModelController instance;
-	private CellBehavioralModel cellBehavioralModel;
+	private CellBehavioralModelFacade cellBehavioralModel;
 	
 	
 	private boolean caching = true;
@@ -113,7 +115,7 @@ public class CellBehavioralModelController implements java.io.Serializable{
 	        ExceptionDisplayer.getInstance().displayException(e);
          }
 			if(jarLoader.isDiffModel()){
-				cellBehavioralModel = new CellBehavioralModel(jarLoader.getModelClass(EpisimCellBehavioralModel.class), 
+				cellBehavioralModel = new CellBehavioralModelFacade(jarLoader.getModelClass(EpisimCellBehavioralModel.class), 
 																	jarLoader.getGlobalParametersObject());
 				this.actLoadedCellBehavioralFile = modelFile;
 				return true;

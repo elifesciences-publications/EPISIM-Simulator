@@ -12,6 +12,7 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.TissueController;
@@ -30,7 +31,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
   
    private boolean inNirvana=false; // unvisible and without action: only ageing is active
    private final long id;
-   private final long motherId;   // -1 means not yet set
+   private final AbstractCell motherCell;   // -1 means not yet set
    
    private static int cellCounter = 0;
    
@@ -45,11 +46,11 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    
    private SimState actSimState;
    
-   public AbstractCell(long identity, long motherIdentity, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){
+   public AbstractCell(long identity, AbstractCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){
    	inNirvana=false;
    	isOuterCell=false;
    	this.id = identity;
-   	this.motherId = motherIdentity;   	
+   	this.motherCell = motherCell;   	
    	this.cellBehavioralModelObject = cellBehavioralModel;
    	this.actSimState = simState;
    	final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
@@ -90,7 +91,8 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	public void setIsBasalStatisticsCell(boolean val){ this.isBasalStatisticsCell = val; }
 	public boolean isOuterCell() { return isOuterCell; } 	
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell; }	
-	public long getMotherId(){ return this.motherId; }
+	public long getMotherId(){ return this.motherCell != null ? this.motherCell.getID(): -1; }
+	public AbstractCell getMotherCell(){ return this.motherCell; }
 	@CannotBeMonitored
    public boolean isTracked(){ return tracked; }	
    public void setTracked(boolean tracked) {	this.tracked = tracked; }
@@ -113,7 +115,8 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	public void removeCellDeathListener(){ this.cellDeathListeners.clear(); }   
 	public void addCellDeathListener(CellDeathListener listener){ this.cellDeathListeners.add(listener); }   
    
-   public void killCell(){   	 
+   public void killCell(){
+   	 if(this.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel)((AbstractMechanicalModel)this.getEpisimBioMechanicalModelObject()).removeCellFromCellField();	
 	  	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);	  	 
 	  	 setInNirvana(true);
 	  	 this.getEpisimCellBehavioralModelObject().setIsAlive(false);

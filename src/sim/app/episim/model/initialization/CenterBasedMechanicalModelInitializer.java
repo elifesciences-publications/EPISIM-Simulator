@@ -52,9 +52,9 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 					|| (depthFrac(newloc.y) < biomechanicalModelGlobalParameters.getSeedMinDepth_frac() && biomechanicalModelGlobalParameters.getSeedReverse()))
 				if(distance > biomechanicalModelGlobalParameters.getBasalDensity_mikron()){
 					
-					UniversalCell stemCell = new UniversalCell(AbstractCell.getNextCellId(),-1, null, null);					
+					UniversalCell stemCell = new UniversalCell(AbstractCell.getNextCellId(),null, null, null);					
 					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject().setXY(((int)newloc.x), ((int)newloc.y));
-					TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().setObjectLocation(stemCell, newloc);
+					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(newloc);
 					standardCellEnsemble.add(stemCell);
 					
 					lastloc = newloc;

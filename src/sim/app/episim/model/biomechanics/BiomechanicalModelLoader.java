@@ -1,4 +1,4 @@
-package sim.app.episim.model.controller;
+package sim.app.episim.model.biomechanics;
 
 import java.util.ArrayList;
 

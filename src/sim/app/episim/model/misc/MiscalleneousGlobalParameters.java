@@ -1,4 +1,4 @@
-package sim.app.episim.model.controller;
+package sim.app.episim.model.misc;
 
 import java.util.ArrayList;
 import java.util.List;

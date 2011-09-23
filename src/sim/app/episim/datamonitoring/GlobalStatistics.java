@@ -82,7 +82,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		return 0;
 	}
 	public double getGradientMaxY(){
-		return TissueController.getInstance().getTissueBorder().getHeight();
+		return TissueController.getInstance().getTissueBorder().getHeightInMikron();
 	}
 	
 	public static synchronized GlobalStatistics getInstance(){

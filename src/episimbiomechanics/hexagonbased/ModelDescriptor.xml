@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2011-09-23_episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector"/>
+  <modelname name="Hexagon Grid Based Biomechanical Model"/>
+  <modelconnectorclass name="episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector"/>
+  <modelparameters>
+    <parameter datatype="boolean" default="false" name="isSpreading" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isRetracting" readonly="false"/>
+  </modelparameters>
+</modeldescriptor>

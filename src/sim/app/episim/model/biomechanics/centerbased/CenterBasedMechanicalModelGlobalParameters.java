@@ -19,6 +19,7 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	private double basalLayerWidth=15;  // For Statistics of Basal Layer: Cell Definition (for GrowthFraction): distance to membrane not more than gBasalLayerWidth
 	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
 	private boolean drawCellsAsEllipses = false;
+	private double numberOfPixelsPerMicrometer = 1;
 	
 	public CenterBasedMechanicalModelGlobalParameters() {}
 	
@@ -57,7 +58,7 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 			basalLayerWidth = val;
 	}
 
-	public double getMembraneCellsWidth() {
+	public double getMembraneCellsWidthInMikron() {
 		return membraneCellsWidth;
 	}
 
@@ -124,17 +125,25 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	public void setGravitation(double val) {
 		if(val >= 0.0) gravitation = val;
 	}	
-	public void setWidth(double val) {
+	public void setWidthInMikron(double val) {
 		if(val > 0)	width = val;
 	}	
-	public double getWidth() {
+	public double getWidthInMikron() {
 		return width;
 	}	
-   public double getHeight() {   
+   public double getHeightInMikron() {   
    	return height;
    }	
-   public void setHeight(double val) {   
+   public void setHeightInMikron(double val) {   
    	if(val > 0) this.height = val;
+   }
+
+	public void setNumberOfPixelsPerMicrometer(double val) {
+		this.numberOfPixelsPerMicrometer = val;
+   }
+
+	public double getNumberOfPixelsPerMicrometer() {
+		return this.numberOfPixelsPerMicrometer;
    }
 
 	

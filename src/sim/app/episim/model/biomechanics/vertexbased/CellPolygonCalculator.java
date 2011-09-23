@@ -823,7 +823,7 @@ public class CellPolygonCalculator {
 		
 		
 				
-		if((tissueBorder.lowerBound(vertex.getNewX()) < vertex.getNewY() || getDistanceToBasalLayer(tissueBorder, vertex, true) <= min_basallayer_distance)
+		if((tissueBorder.lowerBoundInMikron(vertex.getNewX()) < vertex.getNewY() || getDistanceToBasalLayer(tissueBorder, vertex, true) <= min_basallayer_distance)
 				&& !vertex.isAttachedToBasalLayer()){
 			
 			//if(estimateNewValue){
@@ -839,11 +839,11 @@ public class CellPolygonCalculator {
 			double distanceToOldValue = vertex.edist(new Vertex(vertex.getNewX(), vertex.getNewY()));
 			if(distanceToOldValue < (3*min_basallayer_distance)){
 				//setToNewEstimatedValueOnBasalLayer(tissueBorder, vertex);
-				if(tissueBorder.lowerBound(vertex.getDoubleX()) != vertex.getDoubleY())
-					vertex.setDoubleY(tissueBorder.lowerBound(vertex.getDoubleX()));
+				if(tissueBorder.lowerBoundInMikron(vertex.getDoubleX()) != vertex.getDoubleY())
+					vertex.setDoubleY(tissueBorder.lowerBoundInMikron(vertex.getDoubleX()));
 				resetToOldValue(vertex);
 			}
-			else if( (tissueBorder.lowerBound(vertex.getNewX()) > vertex.getNewY())){
+			else if( (tissueBorder.lowerBoundInMikron(vertex.getNewX()) > vertex.getNewY())){
 					vertex.setIsAttachedToBasalLayer(false);
 			}
 			
@@ -851,7 +851,7 @@ public class CellPolygonCalculator {
 	}
 	
 	public double getDistanceToBasalLayer(TissueBorder tissueBorder, Vertex vertex, boolean takeNewValues){
-		if(tissueBorder.isStandardMembraneLoaded() || tissueBorder.lowerBound(0) != Double.POSITIVE_INFINITY){
+		if(tissueBorder.isStandardMembraneLoaded() || tissueBorder.lowerBoundInMikron(0) != Double.POSITIVE_INFINITY){
 			double startX = takeNewValues ? (vertex.getNewX() - min_edge_length):(vertex.getDoubleX() - min_edge_length);
 			 
 			double minDistance = Double.POSITIVE_INFINITY;
@@ -859,7 +859,7 @@ public class CellPolygonCalculator {
 			for(double newX = startX, stepNo = 0; stepNo < maxNoSteps; newX++, stepNo++){
 				newX = ContinuousVertexField.getInstance().getXLocationInField(newX);		
 				double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX, (takeNewValues ?vertex.getNewX():vertex.getDoubleX())),2)
-						                     + Math.pow((tissueBorder.lowerBound(newX)-(takeNewValues ?vertex.getNewY():vertex.getDoubleY())), 2));
+						                     + Math.pow((tissueBorder.lowerBoundInMikron(newX)-(takeNewValues ?vertex.getNewY():vertex.getDoubleY())), 2));
 				if(distance < minDistance) minDistance = distance;
 			}
 			return minDistance;
@@ -871,7 +871,7 @@ public class CellPolygonCalculator {
 		double minDistance = Double.POSITIVE_INFINITY;
 		for(Vertex v : cell.getUnsortedVertices()){
 			double distance = getDistanceToBasalLayer(tissueBorder, v, false);
-			if(tissueBorder.lowerBound(v.getDoubleX())< v.getDoubleY()) distance*=-1;
+			if(tissueBorder.lowerBoundInMikron(v.getDoubleX())< v.getDoubleY()) distance*=-1;
 			if(distance < minDistance) minDistance = distance;
 			
 		}
@@ -910,27 +910,27 @@ public class CellPolygonCalculator {
 			
 			for(double newX = vertex.getDoubleX(); newX >=vertex.getNewX(); newX -= stepSize){
 				   newX = ContinuousVertexField.getInstance().getXLocationInField(newX);		
-					double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX, vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getNewY()), 2));
-					distance += Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX,vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getDoubleY()), 2));
+					double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX, vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBoundInMikron(newX)-vertex.getNewY()), 2));
+					distance += Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX,vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBoundInMikron(newX)-vertex.getDoubleY()), 2));
 					if(distance < minDistance){
-						minY = tissueBorder.lowerBound(newX);
+						minY = tissueBorder.lowerBoundInMikron(newX);
 						minX = newX;
 					}
 				}
 			} else if(ContinuousVertexField.getInstance().dxMinSign(vertex.getNewX(),vertex.getDoubleX())>0){
 				for(double newX = vertex.getDoubleX(); newX <=vertex.getNewX(); newX += stepSize){
 					newX = ContinuousVertexField.getInstance().getXLocationInField(newX);
-					double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX,vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getNewY()), 2));
-					distance += Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX,vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBound(newX)-vertex.getDoubleY()), 2));
+					double distance = Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX,vertex.getNewX()),2)+ Math.pow((tissueBorder.lowerBoundInMikron(newX)-vertex.getNewY()), 2));
+					distance += Math.sqrt(Math.pow(ContinuousVertexField.getInstance().dxMinAbs(newX,vertex.getDoubleX()),2)+ Math.pow((tissueBorder.lowerBoundInMikron(newX)-vertex.getDoubleY()), 2));
 					if(distance < minDistance){
-						minY = tissueBorder.lowerBound(newX);
+						minY = tissueBorder.lowerBoundInMikron(newX);
 						minX = newX;
 					}
 				}
 			}
 			else{
 				minX = vertex.getNewX();
-				minY = tissueBorder.lowerBound(minX);
+				minY = tissueBorder.lowerBoundInMikron(minX);
 			}
 		}
 		if(minX < Double.POSITIVE_INFINITY && minY < Double.POSITIVE_INFINITY){
@@ -944,12 +944,10 @@ public class CellPolygonCalculator {
 		v.setNewX(v.getDoubleX());
 		v.setNewY(v.getDoubleY());	
 	}
-
 	
    public double getMin_edge_length() {   
    	return min_edge_length;
    }
-
 	
    public double getMin_basallayer_distance_before_adhesion(){   
    	return min_basallayer_distance;

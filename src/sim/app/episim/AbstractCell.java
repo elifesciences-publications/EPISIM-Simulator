@@ -50,7 +50,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    	inNirvana=false;
    	isOuterCell=false;
    	this.id = identity;
-   	this.motherCell = motherCell;   	
+   	this.motherCell = motherCell == null ? this : motherCell;   	
    	this.cellBehavioralModelObject = cellBehavioralModel;
    	this.actSimState = simState;
    	final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
@@ -93,6 +93,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell; }	
 	public long getMotherId(){ return this.motherCell != null ? this.motherCell.getID(): -1; }
 	public AbstractCell getMotherCell(){ return this.motherCell; }
+	
 	@CannotBeMonitored
    public boolean isTracked(){ return tracked; }	
    public void setTracked(boolean tracked) {	this.tracked = tracked; }

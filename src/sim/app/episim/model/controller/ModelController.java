@@ -17,6 +17,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.initialization.ModelInitialization;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.portrayal.Portrayal;
 public class ModelController implements java.io.Serializable{
 	

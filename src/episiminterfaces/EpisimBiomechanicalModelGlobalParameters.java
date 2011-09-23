@@ -1,5 +1,7 @@
 package episiminterfaces;
 
+import sim.app.episim.util.NoUserModification;
+
 public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serializable{ 	
 	
 	double getNeighborhood_mikron();
@@ -11,9 +13,14 @@ public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serial
  	int getBasalAmplitude_mikron();
  	void setBasalAmplitude_mikron(int val);
  	
-	void setWidth(double val);
-	double getWidth();
+	void setWidthInMikron(double val);
+	double getWidthInMikron();
 	
-	void setHeight(double val);
-	double getHeight();
+	void setHeightInMikron(double val);
+	double getHeightInMikron();
+	
+	@NoUserModification
+	void setNumberOfPixelsPerMicrometer(double val);
+	@NoUserModification
+	double getNumberOfPixelsPerMicrometer();
 }

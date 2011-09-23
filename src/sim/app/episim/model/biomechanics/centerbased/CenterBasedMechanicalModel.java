@@ -20,10 +20,10 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
-import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.CellEllipse;
 
 import sim.app.episim.tissue.TissueController;
@@ -86,8 +86,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    	
    	if(cellField == null){
    		cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
-					TissueController.getInstance().getTissueBorder().getWidth() + 2, 
-					TissueController.getInstance().getTissueBorder().getHeight());
+					ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() + 2, 
+					ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron());
    	}
    	
    	
@@ -127,8 +127,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    
    public final Double2D forceFromBound(Continuous2D pC2dHerd, double x) // Calculate the Force orthogonal to lower bound
    {        
-       double yleft=TissueController.getInstance().getTissueBorder().lowerBound(pC2dHerd.stx(x-5));
-       double yright=TissueController.getInstance().getTissueBorder().lowerBound(pC2dHerd.stx(x+5));
+       double yleft=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(pC2dHerd.stx(x-5));
+       double yright=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(pC2dHerd.stx(x+5));
        return new Double2D(-(yright-yleft),10);
    }    
    public Double2D randomness(MersenneTwisterFast r)
@@ -223,11 +223,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
                                        hitResult.otherId=other.getID();
                                        hitResult.otherMotherId=other.getMotherId();
                                        
-                                       if ((other.getMotherId()==getCell().getID()) || (other.getID()==getCell().getMotherId()))
-                                       {
-                                           //fx*=1.5;// birth pressure is greater than normal pressure
-                                           //fy*=1.5;
-                                       }
+                                      
                                        
                                        if (pressothers){
                                            ((CenterBasedMechanicalModel) other.getEpisimBioMechanicalModelObject()).extForce=((CenterBasedMechanicalModel) other.getEpisimBioMechanicalModelObject()).extForce.add(new Vector2D(-fx,-fy)); //von mir wegzeigende kraefte addieren
@@ -272,7 +268,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	           return;
 	   double newx=p_potentialLoc.x;
 	   double newy=p_potentialLoc.y;               
-	   double maxy=TissueController.getInstance().getTissueBorder().lowerBound(p_potentialLoc.x);  
+	   double maxy=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(p_potentialLoc.x);  
 	   
 	  
 	   if (newy>maxy)
@@ -298,7 +294,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	   
 	   
 	   newy=yPos;
-	   double maxy=TissueController.getInstance().getTissueBorder().lowerBound(newx);        
+	   double maxy=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newx);        
 	           
 	   if (newy>maxy)  // border crossed
 	   {
@@ -443,13 +439,13 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		}
 
 		newLoc = cellField.getObjectLocation(getCell());
-		double maxy = TissueController.getInstance().getTissueBorder().lowerBound(newLoc.x);
+		double maxy = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newLoc.x);
 		if((maxy - newLoc.y) < globalParameters.getBasalLayerWidth())
 			getCell().setIsBasalStatisticsCell(true);
 		else
 			getCell().setIsBasalStatisticsCell(false); // ABSOLUTE DISTANZ KONSTANTE
 
-		if((maxy - newLoc.y) < globalParameters.getMembraneCellsWidth()){
+		if((maxy - newLoc.y) < globalParameters.getMembraneCellsWidthInMikron()){
 			modelConnector.setIsMembrane(true);
 			//cell.setIsMembraneCell(true);
 			this.isMembraneCell = true;
@@ -472,7 +468,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		
 		
 		modelConnector.setX(getNewPosition().getX());
-  	 	modelConnector.setY(TissueController.getInstance().getTissueBorder().getHeight()- getNewPosition().getY());
+  	 	modelConnector.setY(TissueController.getInstance().getTissueBorder().getHeightInMikron()- getNewPosition().getY());
   	   modelConnector.setIsSurface(this.getCell().isOuterCell() || nextToOuterCell());
   	   
   	   calculateCellEllipse(simstepNumber);

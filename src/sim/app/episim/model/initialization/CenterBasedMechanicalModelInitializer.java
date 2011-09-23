@@ -43,9 +43,9 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
    	
    	CenterBasedMechanicalModelGlobalParameters biomechanicalModelGlobalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();   	
    	
-   	Double2D lastloc = new Double2D(2, TissueController.getInstance().getTissueBorder().lowerBound(2));
-		for(double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidth(); x += 2){
-			Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBound(x));
+   	Double2D lastloc = new Double2D(2, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(2));
+		for(double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidthInPixels(); x += 2){
+			Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x));
 			double distance = newloc.distance(lastloc);
 
 			if((depthFrac(newloc.y) > biomechanicalModelGlobalParameters.getSeedMinDepth_frac() && (!biomechanicalModelGlobalParameters.getSeedReverse()))
@@ -79,13 +79,13 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
    }
 
 	protected Portrayal getCellPortrayal() {
-		double zoomFactorHeight = EpidermisGUIState.EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeight();
-		double zoomFactorWidth = EpidermisGUIState.EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidth();
+		double zoomFactorHeight = EpidermisGUIState.EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInPixels();
+		double zoomFactorWidth = EpidermisGUIState.EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidthInPixels();
 		
 		double initialZoomFactor = zoomFactorWidth < zoomFactorHeight ? zoomFactorWidth : zoomFactorHeight;
 		
-		double displayWidth = TissueController.getInstance().getTissueBorder().getWidth() * initialZoomFactor;
-		double displayHeight = TissueController.getInstance().getTissueBorder().getHeight() * initialZoomFactor;
+		double displayWidth = TissueController.getInstance().getTissueBorder().getWidthInPixels() * initialZoomFactor;
+		double displayHeight = TissueController.getInstance().getTissueBorder().getHeightInPixels() * initialZoomFactor;
 	   
 	   return new UniversalCellPortrayal2D(java.awt.Color.lightGray, initialZoomFactor, 
 	   		displayWidth + (2*EpidermisGUIState.DISPLAYBORDER), displayHeight + (2*EpidermisGUIState.DISPLAYBORDER), EpidermisGUIState.DISPLAYBORDER){

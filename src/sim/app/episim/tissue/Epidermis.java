@@ -18,8 +18,8 @@ import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
 import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.CellBehavioralModelController;
-import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
@@ -122,15 +122,15 @@ public class Epidermis extends TissueType implements CellDeathListener
  
 		
 		
-		basementContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth() + 2, 
-				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
-				TissueController.getInstance().getTissueBorder().getHeight());
-		rulerContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth()+2,
-				TissueController.getInstance().getTissueBorder().getWidth()+2,
-				TissueController.getInstance().getTissueBorder().getHeight());
-	   gridContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidth()+2,
-	   		TissueController.getInstance().getTissueBorder().getWidth()+2,
-	   		TissueController.getInstance().getTissueBorder().getHeight());
+		basementContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+				TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+				TissueController.getInstance().getTissueBorder().getHeightInMikron());
+		rulerContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron()+2,
+				TissueController.getInstance().getTissueBorder().getWidthInMikron()+2,
+				TissueController.getInstance().getTissueBorder().getHeightInMikron());
+	   gridContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron()+2,
+	   		TissueController.getInstance().getTissueBorder().getWidthInMikron()+2,
+	   		TissueController.getInstance().getTissueBorder().getHeightInMikron());
  }
  
  public void checkMemory(){

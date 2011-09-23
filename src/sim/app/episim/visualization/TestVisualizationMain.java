@@ -94,7 +94,8 @@ public class TestVisualizationMain {
 	         	tissueImportMode = true;
 	         	canvas.addImportedCells(TissueController.getInstance().getImportedCells());
 	         	canvas.setImportedTissueVisualizationMode(true);
-	         	mainFrame.setSize(new Dimension(TissueController.getInstance().getImportedTissueWidth()+30, TissueController.getInstance().getImportedTissueHeight()+30));
+	         	mainFrame.setSize(new Dimension((int)(TissueController.getInstance().getTissueBorder().getWidthInPixels()+30), 
+	         											  (int)(TissueController.getInstance().getTissueBorder().getHeightInPixels()+30)));
 	         	mainFrame.repaint();
 	         }
 	         	

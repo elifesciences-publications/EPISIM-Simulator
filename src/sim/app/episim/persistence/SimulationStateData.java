@@ -14,7 +14,7 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.NoExport;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.engine.SimStateHack.TimeSteps;

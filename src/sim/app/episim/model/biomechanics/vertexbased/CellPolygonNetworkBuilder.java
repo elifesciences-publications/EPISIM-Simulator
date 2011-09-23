@@ -408,15 +408,15 @@ public abstract class CellPolygonNetworkBuilder {
 	public static CellPolygon[] getStandardMembraneCellArray(){
 		
 		ArrayList<CellPolygon> standardCellEnsemble = new ArrayList<CellPolygon>();		
-		Double2D lastloc = new Double2D(0, (int)TissueController.getInstance().getTissueBorder().lowerBound(CellPolygonCalculator.SIDELENGTH)-CellPolygonCalculator.SIDELENGTH);
+		Double2D lastloc = new Double2D(0, (int)TissueController.getInstance().getTissueBorder().lowerBoundInMikron(CellPolygonCalculator.SIDELENGTH)-CellPolygonCalculator.SIDELENGTH);
 		Double2D newloc= null;
-		for(double x = CellPolygonCalculator.SIDELENGTH; x <= TissueController.getInstance().getTissueBorder().getWidth(); x += 1){		
+		for(double x = CellPolygonCalculator.SIDELENGTH; x <= TissueController.getInstance().getTissueBorder().getWidthInPixels(); x += 1){		
 			//	if(newloc.distance(lastloc) > 3* CellPolygonCalculator.SIDELENGTH || x == CellPolygonCalculator.SIDELENGTH){
 				
-			newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBound(x)-CellPolygonCalculator.SIDELENGTH);			
+			newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x)-CellPolygonCalculator.SIDELENGTH);			
 			
 			if(newloc.distance(lastloc) > 4 * CellPolygonCalculator.SIDELENGTH || x == CellPolygonCalculator.SIDELENGTH){
-				CellPolygon cell = getStandardCellArray((int)x, (int)(TissueController.getInstance().getTissueBorder().lowerBound(x)-CellPolygonCalculator.SIDELENGTH), 1, 1)[0];	
+				CellPolygon cell = getStandardCellArray((int)x, (int)(TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x)-CellPolygonCalculator.SIDELENGTH), 1, 1)[0];	
 				standardCellEnsemble.add(cell);
 				lastloc = newloc;		//	}	
 			}

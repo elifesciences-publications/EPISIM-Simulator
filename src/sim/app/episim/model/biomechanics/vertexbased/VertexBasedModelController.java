@@ -63,18 +63,12 @@ public class VertexBasedModelController implements TissueRegistrationListener, B
 		if(tissue != null && tissue.getAllCells() != null){
 			tissue.getAllCells().addBagChangeListener(this);
 			refreshCellPolygonArrayInCalculator();
-			if(TissueController.getInstance().isTissueLoaded()){
-				cellCanvas = new CellCanvas(0, 0, TissueController.getInstance().getImportedTissueWidth(), 
-						TissueController.getInstance().getImportedTissueHeight());
-				ContinuousVertexField.initializeContinousVertexField(TissueController.getInstance().getImportedTissueWidth(), 
-						TissueController.getInstance().getImportedTissueHeight()); 
-			}
-			else{
-				cellCanvas = new CellCanvas(0, 0, (int)TissueController.getInstance().getTissueBorder().getWidth(), 
-						(int)TissueController.getInstance().getTissueBorder().getHeight());				
-				ContinuousVertexField.initializeContinousVertexField((int)TissueController.getInstance().getTissueBorder().getWidth(), 
-						(int)TissueController.getInstance().getTissueBorder().getHeight());
-			}			
+			
+			cellCanvas = new CellCanvas(0, 0, (int)TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
+						(int)TissueController.getInstance().getTissueBorder().getWidthInMikron());
+			ContinuousVertexField.initializeContinousVertexField((int)TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
+						(int)TissueController.getInstance().getTissueBorder().getWidthInMikron()); 
+				
 		}	   
    }
 

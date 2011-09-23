@@ -39,8 +39,8 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	
 	 //TODO: plus 2 Korrektur überprüfen
    private static Continuous2D cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
-																				TissueController.getInstance().getTissueBorder().getWidth() + 2, 
-																				TissueController.getInstance().getTissueBorder().getHeight());	
+   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() + 2, 
+   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron());	
    public VertexBasedMechanicalModel(){
    	this(null);
    }

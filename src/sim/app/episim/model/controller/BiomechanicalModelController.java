@@ -16,6 +16,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.BiomechanicalModelFacade;
+import sim.app.episim.model.biomechanics.BiomechanicalModelLoader;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 

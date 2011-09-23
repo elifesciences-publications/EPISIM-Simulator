@@ -12,8 +12,8 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 
 
 import sim.app.episim.model.controller.CellBehavioralModelController;
-import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueBorder;
@@ -140,13 +140,13 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	}	
 	public EpidermisGUIState(SimState state, Component mainComp, boolean reloadSnapshot){		
 		super(state);
-		double zoomFactorHeight = EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeight();
-		double zoomFactorWidth = EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidth();
+		double zoomFactorHeight = EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInPixels();
+		double zoomFactorWidth = EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidthInPixels();
 		
 		INITIALZOOMFACTOR = zoomFactorWidth < zoomFactorHeight ? zoomFactorWidth : zoomFactorHeight;
 		
-		EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidth() * INITIALZOOMFACTOR;
-		EPIDISPLAYHEIGHT = TissueController.getInstance().getTissueBorder().getHeight() * INITIALZOOMFACTOR;
+		EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidthInPixels() * INITIALZOOMFACTOR;
+		EPIDISPLAYHEIGHT = TissueController.getInstance().getTissueBorder().getHeightInPixels() * INITIALZOOMFACTOR;
 		
 		if(state instanceof TissueType) TissueController.getInstance().registerTissue(((TissueType) state));
 		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();

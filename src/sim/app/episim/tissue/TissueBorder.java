@@ -1,11 +1,8 @@
 package sim.app.episim.tissue;
 
 
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,11 +14,9 @@ import java.util.TreeSet;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
-
-import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.PointSorter;
-import sim.app.episim.util.SimulatedAnnealingForOrderingPoints;
+
 public class TissueBorder {
 	
 	private ArrayList<Point2D> fullcontour;
@@ -36,7 +31,7 @@ public class TissueBorder {
 	private GeneralPath drawSurface;
 	private GeneralPath drawBasalLayer;
 	
-	private static final int THRESHHOLD = 5;
+	
 	
 	private static  TissueBorder instance;
 	
@@ -44,11 +39,12 @@ public class TissueBorder {
 	private static int basalPeriod=70;      // width of an undulation at the foot
 	private static int startXOfStandardMembrane = 0;
 	
-	private double numberOfPixelsPerMicrometer = 1;
+	
 	
 	private static EpisimBiomechanicalModelGlobalParameters globalParameters;	
 	private ImportedTissue tissue;	
 	private boolean standardMembraneLoaded = false;	
+	private boolean noMembraneLoaded = false;
 	
 	private TissueBorder(){
 		
@@ -69,36 +65,31 @@ public class TissueBorder {
 		return basalY;
 	}
 	
-	public void setUndulationBaseLine(int _basalY){
+	public void setUndulationBaseLineInMikron(int _basalY){
 		basalY = _basalY;
 	}
 	
-	public void setBasalPeriod(int period){
+	public void setBasalPeriodInMikron(int period){
 		basalPeriod = period;
 	}
 	
-	public void setStartXOfStandardMembrane(int start){ startXOfStandardMembrane = start; }
+	public void setStartXOfStandardMembraneInMikron(int start){ startXOfStandardMembrane = start; }
 	
 	public boolean isStandardMembraneLoaded() { return this.standardMembraneLoaded;}
 	
+	public boolean isNoMembraneLoaded() { return this.noMembraneLoaded;}
 	
-	public  double getWidth(){
-		if(standardMembraneLoaded){
-			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
-			return globalParameters.getWidth();
-		}
-		else{
-			return tissue.getEpidermalWidth();
-		}
-	}
+	public void loadNoMembrane() { this.noMembraneLoaded = true;}	
 	
 	public void setNumberOfPixelsPerMicrometer(double numberOfPixelsPerMicrometer){
-		this.numberOfPixelsPerMicrometer = numberOfPixelsPerMicrometer;
+		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNumberOfPixelsPerMicrometer() != numberOfPixelsPerMicrometer){
+			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setNumberOfPixelsPerMicrometer(numberOfPixelsPerMicrometer);
+		}
 	}
 	
 	public double getNumberOfPixelsPerMicrometer(){
-		if(standardMembraneLoaded){
-			return this.numberOfPixelsPerMicrometer;
+		if(standardMembraneLoaded || noMembraneLoaded){
+			return ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNumberOfPixelsPerMicrometer();
 		}
 		else{
 			double resolutionMicoMPerPixel = tissue.getResolutionInMicrometerPerPixel();
@@ -118,29 +109,54 @@ public class TissueBorder {
 	}
 	
 	public String getTissueDescription(){
-		if(standardMembraneLoaded){
+		if(standardMembraneLoaded || noMembraneLoaded){
 			return "";
 		}
 		else{
 			return tissue.getTissueDescription();
 		}
 	}
-	public double getHeight(){
-		if(standardMembraneLoaded){
+	public double getHeightInPixels(){
+		return getHeight(true);
+	}
+	public double getHeightInMikron(){
+		return getHeight(false);
+	}
+	public double getWidthInPixels(){
+		return getWidth(true);
+	}
+	public double getWidthInMikron(){
+		return getWidth(false);
+	}
+	
+	private double getHeight(boolean inPixels){
+		if(standardMembraneLoaded || noMembraneLoaded){
 			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
-			return globalParameters.getHeight();
+			return inPixels ? globalParameters.getHeightInMikron() : globalParameters.getHeightInMikron()*getNumberOfPixelsPerMicrometer();
 		}
 		else{
 			//Bei der Berechnung durch GeneralPath geht ein Pixel verloren
-			return polygon.getBounds().height + 1;
+			return inPixels ? (polygon.getBounds().height + 1):((polygon.getBounds().height + 1)/getNumberOfPixelsPerMicrometer());
 		}
-	}
+	}	
 	
-	public double lowerBound(double x)
+	private double getWidth(boolean inPixels){
+		if(standardMembraneLoaded || noMembraneLoaded){
+			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
+			return inPixels ? globalParameters.getWidthInMikron() : globalParameters.getWidthInMikron()*getNumberOfPixelsPerMicrometer();
+		}
+		else{
+			//Bei der Berechnung durch GeneralPath geht ein Pixel verloren
+			return inPixels ? (polygon.getBounds().width + 1):((polygon.getBounds().width + 1)/getNumberOfPixelsPerMicrometer());
+		}
+	}	
+	
+	
+	public double lowerBoundInMikron(double x)
 	 {
 		if(standardMembraneLoaded){
 			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
-			// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
+				// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
 		     double p=basalPeriod; 
 		     
 		     double partition=x-(int)(x/p)*p - p/2; // alle 10 einen buckel 5=10/2        
@@ -157,7 +173,8 @@ public class TissueBorder {
 		ArrayList<Point2D> surface = null, basalLayer = null;		
 		Point2D[] surfaceArray = null, basalLayerArray = null;
 		if(_tissue != null){
-			tissue = _tissue;	
+			tissue = _tissue;
+			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setNumberOfPixelsPerMicrometer((1/ tissue.getResolutionInMicrometerPerPixel()));
 			surface = tissue.getSurfacePoints();
 			basalLayer = tissue.getBasalLayerPoints();
 			Collections.shuffle(surface);
@@ -179,9 +196,7 @@ public class TissueBorder {
 			   basalLayerArray = sorting.getSortedPoints();
 				long end = System.currentTimeMillis();
 				System.out.println("Time for Sorting: " + (end-start));
-			}
-			
-			tissue = _tissue;
+			}		
 			
 			fullcontour = new ArrayList<Point2D>();
 			for(Point2D point : basalLayerArray)fullcontour.add(point);
@@ -228,9 +243,9 @@ public class TissueBorder {
 		standardMembraneLoaded = true;
 		GeneralPath polygon = new GeneralPath();
 	 		final int STEPSIZE = 1;
-	 		((GeneralPath)polygon).moveTo(startXOfStandardMembrane, lowerBound(startXOfStandardMembrane));
-	 		for(double i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+getWidth()); i += STEPSIZE){
-	 		((GeneralPath)polygon).lineTo(i, lowerBound(i));
+	 		((GeneralPath)polygon).moveTo(startXOfStandardMembrane, lowerBoundInMikron(startXOfStandardMembrane));
+	 		for(double i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+getWidthInPixels()); i += STEPSIZE){
+	 		((GeneralPath)polygon).lineTo(i, lowerBoundInMikron(i));
 	 		}
 	 		this.polygon = polygon;
 	 		drawPolygon = (GeneralPath)polygon.clone();

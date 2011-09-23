@@ -34,6 +34,7 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	private double min_dist_percentage_basal_adhesion = 0.2;
 	private double growth_rate_per_sim_step = 10;
 	
+	
 	//----------------------------------------------------------------------------------------------------------------------
 	// Other required Parameters
 	//----------------------------------------------------------------------------------------------------------------------
@@ -42,11 +43,13 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 		@NotInStatisticsHeaderString
 		private int basalOpening_mikron = 12000; // width of undulation at the middle
 		@NotInStatisticsHeaderString
-		private double width = 500;
+		private double width_mikron = 500;
 		@NotInStatisticsHeaderString
-		private double height = 450;		
+		private double height_mikron = 450;		
 		@NotInStatisticsHeaderString
 		private double neighborhood_mikron= 50.0;
+		@NotInStatisticsHeaderString
+		private double numberOfPixelsPerMicrometer = 2;
 	//----------------------------------------------------------------------------------------------------------------------
 	
 		
@@ -90,14 +93,14 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
    public int getBasalOpening_mikron() { return basalOpening_mikron; }	
    public void setBasalOpening_mikron(int basalOpening_mikron) { this.basalOpening_mikron = basalOpening_mikron; }
 	
-   public double getWidth() {	return width; }	
-   public void setWidth(double val) { if(val > 0)this.width = val; }
+   public double getWidthInMikron() {	return width_mikron; }	
+   public void setWidthInMikron(double val) { if(val > 0)this.width_mikron = val; }
    
-   public double getHeight() {   
-   	return height;
+   public double getHeightInMikron() {   
+   	return height_mikron;
    }	
-   public void setHeight(double val) {   
-   	if(val > 0) this.height = val;
+   public void setHeightInMikron(double val) {   
+   	if(val > 0) this.height_mikron = val;
    }
 	
    public double getNeighborhood_mikron() { return neighborhood_mikron; }
@@ -238,5 +241,13 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
    public void setMin_dist_percentage_basal_adhesion(double min_dist_percentage_basal_adhesion) {
    
    	this.min_dist_percentage_basal_adhesion = min_dist_percentage_basal_adhesion;
+   }
+
+	public void setNumberOfPixelsPerMicrometer(double val) {
+		this.numberOfPixelsPerMicrometer = val;
+   }
+
+	public double getNumberOfPixelsPerMicrometer() {
+		return this.numberOfPixelsPerMicrometer;
    }
 }

@@ -30,11 +30,11 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	
 	public VertexBasedMechanicalModelInitializer(){
 		super();
-		TissueController.getInstance().getTissueBorder().setBasalPeriod(550);
-		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembrane(0);
-		TissueController.getInstance().getTissueBorder().setUndulationBaseLine(190);
+		TissueController.getInstance().getTissueBorder().setBasalPeriodInMikron(275);
+		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembraneInMikron(0);
+		TissueController.getInstance().getTissueBorder().setUndulationBaseLineInMikron(95);
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
-		TissueController.getInstance().getTissueBorder().setNumberOfPixelsPerMicrometer(2);
+		TissueController.getInstance().getTissueBorder().setNumberOfPixelsPerMicrometer(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNumberOfPixelsPerMicrometer());
 		random = new MersenneTwisterFast(System.currentTimeMillis());
 	}
 	
@@ -49,7 +49,8 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
    	for(CellPolygon actCellPolygon : polygons){
    		long id  = AbstractCell.getNextCellId();
    		CellPolygonRegistry.registerNewCellPolygon(id, actCellPolygon);   		
-   		UniversalCell stemCell = new UniversalCell(id,null, null, null);  		
+   		UniversalCell stemCell = new UniversalCell(id,null, null, null);
+   		
    		Vertex cellCenter = actCellPolygon.getCellCenter();
 			Double2D cellLoc = new Double2D(cellCenter.getDoubleX(), cellCenter.getDoubleY());
 			((VertexBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(cellLoc);
@@ -76,13 +77,13 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	}
 	
 	protected Portrayal getCellPortrayal() {
-		double zoomFactorHeight = EpidermisGUIState.EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeight();
-		double zoomFactorWidth = EpidermisGUIState.EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidth();
+		double zoomFactorHeight = EpidermisGUIState.EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInPixels();
+		double zoomFactorWidth = EpidermisGUIState.EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidthInPixels();
 		
 		double initialZoomFactor = zoomFactorWidth < zoomFactorHeight ? zoomFactorWidth : zoomFactorHeight;
 		
-		double displayWidth = TissueController.getInstance().getTissueBorder().getWidth() * initialZoomFactor;
-		double displayHeight = TissueController.getInstance().getTissueBorder().getHeight() * initialZoomFactor;
+		double displayWidth = TissueController.getInstance().getTissueBorder().getWidthInPixels() * initialZoomFactor;
+		double displayHeight = TissueController.getInstance().getTissueBorder().getHeightInPixels() * initialZoomFactor;
 	   
 	   return new UniversalCellPortrayal2D(java.awt.Color.lightGray, initialZoomFactor, 
 	   		displayWidth + (2*EpidermisGUIState.DISPLAYBORDER), displayHeight + (2*EpidermisGUIState.DISPLAYBORDER), EpidermisGUIState.DISPLAYBORDER){

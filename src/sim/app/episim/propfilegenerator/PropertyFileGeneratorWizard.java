@@ -44,8 +44,8 @@ import javax.swing.border.EmptyBorder;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ModeServer;
 import sim.app.episim.gui.ExtendedFileChooser;
-import sim.app.episim.model.controller.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.propfilegenerator.GlobalPropertiesObjectInspector.GlobalParameterSelectionListener;
 
 

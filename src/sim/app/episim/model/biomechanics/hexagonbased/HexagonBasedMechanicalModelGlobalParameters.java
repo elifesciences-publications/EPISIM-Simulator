@@ -4,65 +4,65 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
 public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+	
+	private double height = 5000;
+	private double width = 5000;
+	private double cellDiameter_mikron = 50;
+	private double neighborhood_mikron = 50;
+	private double numberOfPixelsPerMicrometer = 0.1;
 
 	public double getNeighborhood_mikron() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
+	   return this.neighborhood_mikron;
    }
 
 	public void setNeighborhood_mikron(double val) {
-
-	   // TODO Auto-generated method stub
-	   
+	   this.neighborhood_mikron = val;	   
    }
 
 	public int getBasalOpening_mikron() {
-
-	   // TODO Auto-generated method stub
+		//not needed in first version
 	   return 0;
    }
-
 	public void setBasalOpening_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
+		//not needed in first version
    }
 
 	public int getBasalAmplitude_mikron() {
-
-	   // TODO Auto-generated method stub
+		//not needed in first version
 	   return 0;
    }
-
 	public void setBasalAmplitude_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
+		//not needed in first version
    }
 
-	public void setWidth(double val) {
-
-	   // TODO Auto-generated method stub
-	   
+	public void setWidthInMikron(double val) {
+		this.width = val;
    }
 
-	public double getWidth() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
+	public double getWidthInMikron() {
+		return this.width;
    }
 
-	public void setHeight(double val) {
-
-	   // TODO Auto-generated method stub
-	   
+	public void setHeightInMikron(double val) {
+		this.height = val;
    }
 
-	public double getHeight() {
+	public double getHeightInMikron(){
+		return this.height;
+   }	
+   public double getCellDiameter_mikron() {   
+   	return cellDiameter_mikron;
+   }	
+   public void setCellDiameter_mikron(double cellDiameter_mikron) {   
+   	this.cellDiameter_mikron = cellDiameter_mikron;
+   }
 
-	   // TODO Auto-generated method stub
-	   return 0;
+	public void setNumberOfPixelsPerMicrometer(double val) {
+	   this.numberOfPixelsPerMicrometer	= val;   
+   }
+
+	public double getNumberOfPixelsPerMicrometer() {
+	   return this.numberOfPixelsPerMicrometer;
    }
 
 }

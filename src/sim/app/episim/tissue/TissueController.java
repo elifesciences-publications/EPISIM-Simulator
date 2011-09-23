@@ -47,16 +47,7 @@ public class TissueController {
 		return instance;
 	}
 	
-	public int getImportedTissueWidth(){
-		if(actImportedTissue != null) return (int) actImportedTissue.getEpidermalWidth();		
-		return 0;
-	}
-	
-	public int getImportedTissueHeight(){
-		if(actImportedTissue != null) return (int) actImportedTissue.getEpidermalHeight();		
-		return 0;
-	}
-	
+		
 	public boolean isTissueLoaded(){
 		return (this.actImportedTissue != null);
 	}

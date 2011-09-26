@@ -19,7 +19,7 @@ public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serial
 	void setHeightInMikron(double val);
 	double getHeightInMikron();
 	
-	@NoUserModification
+	
 	void setNumberOfPixelsPerMicrometer(double val);
 	@NoUserModification
 	double getNumberOfPixelsPerMicrometer();

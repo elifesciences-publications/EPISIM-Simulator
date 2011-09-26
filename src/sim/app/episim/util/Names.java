@@ -43,6 +43,9 @@ public abstract class Names {
 	
 	public static final String CALCULATION_CALLBACK_LIST = "calculationCallbacks";
 	
+	
+	public static final String TRUE_RETURNING_METHOD = "getThisMethodReturnsAlwaysTrue";
+	
 	public static String cleanString(String str){
 		
 		str = str.trim();

@@ -1,5 +1,6 @@
 package sim.app.episim.model.biomechanics.centerbased;
 
+import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
@@ -141,7 +142,8 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	public void setNumberOfPixelsPerMicrometer(double val) {
 		this.numberOfPixelsPerMicrometer = val;
    }
-
+	
+	@NoUserModification
 	public double getNumberOfPixelsPerMicrometer() {
 		return this.numberOfPixelsPerMicrometer;
    }

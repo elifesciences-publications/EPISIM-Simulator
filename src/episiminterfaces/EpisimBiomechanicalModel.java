@@ -16,15 +16,12 @@ public interface EpisimBiomechanicalModel {
 	
 	void setEpisimModelConnector(EpisimModelConnector modelConnector);
 	GenericBag<AbstractCell> getRealNeighbours();
-	Double2D getNewPosition();
-	Double2D getOldPosition();
 	Polygon getPolygonCell();
 	Polygon getPolygonCell(DrawInfo2D info);
 	Polygon getPolygonNucleus();
 	Polygon getPolygonNucleus(DrawInfo2D info);
 	boolean nextToOuterCell();
 	boolean isMembraneCell();
-	GenericBag<AbstractCell> getNeighbouringCells();
 	void newSimStep(long simStepNumber);
 	double getX();
 	double getY();

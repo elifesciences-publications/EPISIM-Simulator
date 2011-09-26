@@ -166,7 +166,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		EpisimCellBehavioralModelGlobalParameters cbmModel = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 		if(cbmModel == null)
 			return null;
-		Inspector i = new SimpleInspector(cbmModel, this);
+		Inspector i = new EpisimSimpleInspector(cbmModel, this);
 		i.setVolatile(false);
 		return i;
 	}
@@ -176,7 +176,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		EpisimBiomechanicalModelGlobalParameters mechModel = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		if(mechModel == null)
 			return null;
-		Inspector i = new SimpleInspector(mechModel, this);
+		Inspector i = new EpisimSimpleInspector(mechModel, this);
 		i.setVolatile(false);
 		return i;
 	}
@@ -186,7 +186,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		Object miscalleneous = MiscalleneousGlobalParameters.instance();
 		if(miscalleneous == null)
 			return null;
-		Inspector i = new SimpleInspector(miscalleneous, this);
+		Inspector i = new EpisimSimpleInspector(miscalleneous, this);
 		i.setVolatile(false);
 		return i;
 	}

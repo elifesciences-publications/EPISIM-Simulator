@@ -139,8 +139,10 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 			              {
 			                  java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
 			                  nucleusPolygon= universalCell.getEpisimBioMechanicalModelObject().getPolygonNucleus(info);
-			                  graphics.setPaint(nucleusColor);  
-			                  graphics.fillPolygon(nucleusPolygon);
+			                  if(nucleusPolygon != null){
+				                  graphics.setPaint(nucleusColor);  
+				                  graphics.fillPolygon(nucleusPolygon);
+			                  }
 			              }
 		                
 		              } 
@@ -154,10 +156,10 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
             	  graphics.setPaint(paint);          
               }       
    }
+   
    private double getScaleFactorOfTheDisplay(){
  		return Scale.displayScale;
  	}
-
 
 	private void doCenterBasedModelEllipseDrawing(Graphics2D graphics, DrawInfo2D info, UniversalCell universalCell, boolean showNucleus){
 		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel && universalCell.getActSimState()!= null){

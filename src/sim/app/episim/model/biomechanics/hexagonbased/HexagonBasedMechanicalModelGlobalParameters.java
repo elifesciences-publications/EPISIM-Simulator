@@ -1,5 +1,6 @@
 package sim.app.episim.model.biomechanics.hexagonbased;
 
+import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
@@ -60,7 +61,8 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	public void setNumberOfPixelsPerMicrometer(double val) {
 	   this.numberOfPixelsPerMicrometer	= val;   
    }
-
+	
+	@NoUserModification
 	public double getNumberOfPixelsPerMicrometer() {
 	   return this.numberOfPixelsPerMicrometer;
    }

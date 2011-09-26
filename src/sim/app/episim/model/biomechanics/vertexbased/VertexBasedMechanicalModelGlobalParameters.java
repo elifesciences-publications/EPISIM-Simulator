@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.util.NoUserModification;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
@@ -246,7 +247,8 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	public void setNumberOfPixelsPerMicrometer(double val) {
 		this.numberOfPixelsPerMicrometer = val;
    }
-
+	
+	@NoUserModification
 	public double getNumberOfPixelsPerMicrometer() {
 		return this.numberOfPixelsPerMicrometer;
    }

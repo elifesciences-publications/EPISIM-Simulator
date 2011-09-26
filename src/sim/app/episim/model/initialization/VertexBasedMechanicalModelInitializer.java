@@ -30,9 +30,9 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	
 	public VertexBasedMechanicalModelInitializer(){
 		super();
-		TissueController.getInstance().getTissueBorder().setBasalPeriodInMikron(275);
+		TissueController.getInstance().getTissueBorder().setBasalPeriodInMikron(550);
 		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembraneInMikron(0);
-		TissueController.getInstance().getTissueBorder().setUndulationBaseLineInMikron(95);
+		TissueController.getInstance().getTissueBorder().setUndulationBaseLineInMikron(190);
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 		TissueController.getInstance().getTissueBorder().setNumberOfPixelsPerMicrometer(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNumberOfPixelsPerMicrometer());
 		random = new MersenneTwisterFast(System.currentTimeMillis());

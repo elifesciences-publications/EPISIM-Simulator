@@ -92,7 +92,7 @@ public class TissueBorder {
 			return ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNumberOfPixelsPerMicrometer();
 		}
 		else{
-			double resolutionMicoMPerPixel = tissue.getResolutionInMicrometerPerPixel();
+			double resolutionMicoMPerPixel = tissue != null ? tissue.getResolutionInMicrometerPerPixel() : 1;
 			
 			return  1 /resolutionMicoMPerPixel;
 		}

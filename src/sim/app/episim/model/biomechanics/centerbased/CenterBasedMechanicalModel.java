@@ -66,6 +66,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    
    private HitResultClass finalHitResult;
    
+   //maybe more neighbours than real neighbours included inside a circle
    private GenericBag<AbstractCell> neighbouringCells;
    
    private EpisimCenterBasedModelConnector modelConnector;
@@ -551,7 +552,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	
 	public boolean nextToOuterCell(){ return finalHitResult.nextToOuterCell; }
 
-	public GenericBag<AbstractCell> getNeighbouringCells() {return neighbouringCells;}
+	private GenericBag<AbstractCell> getNeighbouringCells() {return neighbouringCells;}
 	
 	@CannotBeMonitored
 	public double getX(){return modelConnector == null ? 

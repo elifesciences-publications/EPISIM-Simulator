@@ -6,8 +6,8 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	private double height = 5000;
-	private double width = 5000;
+	private double height_mikron = 1000;
+	private double width_mikron = 2000;
 	private double cellDiameter_mikron = 50;
 	private double neighborhood_mikron = 50;
 	private double numberOfPixelsPerMicrometer = 0.1;
@@ -37,19 +37,19 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
    }
 
 	public void setWidthInMikron(double val) {
-		this.width = val;
+		this.width_mikron = val;
    }
 
 	public double getWidthInMikron() {
-		return this.width;
+		return this.width_mikron;
    }
 
 	public void setHeightInMikron(double val) {
-		this.height = val;
+		this.height_mikron = val;
    }
 
 	public double getHeightInMikron(){
-		return this.height;
+		return this.height_mikron;
    }	
    public double getCellDiameter_mikron() {   
    	return cellDiameter_mikron;

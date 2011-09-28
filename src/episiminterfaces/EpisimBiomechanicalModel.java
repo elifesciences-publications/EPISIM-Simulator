@@ -20,8 +20,6 @@ public interface EpisimBiomechanicalModel {
 	Polygon getPolygonCell(DrawInfo2D info);
 	Polygon getPolygonNucleus();
 	Polygon getPolygonNucleus(DrawInfo2D info);
-	boolean nextToOuterCell();
-	boolean isMembraneCell();
 	void newSimStep(long simStepNumber);
 	double getX();
 	double getY();

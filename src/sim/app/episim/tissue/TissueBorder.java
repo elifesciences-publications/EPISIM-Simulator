@@ -81,11 +81,7 @@ public class TissueBorder {
 	
 	public void loadNoMembrane() { this.noMembraneLoaded = true;}	
 	
-	public void setNumberOfPixelsPerMicrometer(double numberOfPixelsPerMicrometer){
-		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNumberOfPixelsPerMicrometer() != numberOfPixelsPerMicrometer){
-			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setNumberOfPixelsPerMicrometer(numberOfPixelsPerMicrometer);
-		}
-	}
+	
 	
 	public double getNumberOfPixelsPerMicrometer(){
 		if(standardMembraneLoaded || noMembraneLoaded){
@@ -100,7 +96,7 @@ public class TissueBorder {
 	
 	
 	public String getTissueID(){
-		if(standardMembraneLoaded){
+		if(standardMembraneLoaded || noMembraneLoaded){
 			return "";
 		}
 		else{
@@ -132,7 +128,7 @@ public class TissueBorder {
 	private double getHeight(boolean inPixels){
 		if(standardMembraneLoaded || noMembraneLoaded){
 			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
-			return inPixels ? globalParameters.getHeightInMikron() : globalParameters.getHeightInMikron()*getNumberOfPixelsPerMicrometer();
+			return inPixels ? globalParameters.getHeightInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getHeightInMikron();
 		}
 		else{
 			//Bei der Berechnung durch GeneralPath geht ein Pixel verloren
@@ -143,7 +139,7 @@ public class TissueBorder {
 	private double getWidth(boolean inPixels){
 		if(standardMembraneLoaded || noMembraneLoaded){
 			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
-			return inPixels ? globalParameters.getWidthInMikron() : globalParameters.getWidthInMikron()*getNumberOfPixelsPerMicrometer();
+			return inPixels ? globalParameters.getWidthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getWidthInMikron();
 		}
 		else{
 			//Bei der Berechnung durch GeneralPath geht ein Pixel verloren

@@ -50,7 +50,7 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 		@NotInStatisticsHeaderString
 		private double neighborhood_mikron= 50.0;
 		@NotInStatisticsHeaderString
-		private double numberOfPixelsPerMicrometer = 2;
+		private double numberOfPixelsPerMicrometer = 1;
 	//----------------------------------------------------------------------------------------------------------------------
 	
 		

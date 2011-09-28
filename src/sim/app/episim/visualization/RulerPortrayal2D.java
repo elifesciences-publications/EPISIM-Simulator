@@ -2,6 +2,7 @@ package sim.app.episim.visualization;
 
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
@@ -22,63 +23,40 @@ import sim.util.Double2D;
 
 
 
-public class RulerPortrayal2D extends SimplePortrayal2D{
+public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D{
 	
 	   
 	   
-	    private final double INITIALWIDTH;
-	    private final double INITIALHEIGHT;
-	    private static final float DOT = 2;
-	    private static final float SPACE = 4;
+	    
+	 private static final float DOT = 2;
+	 private static final float SPACE = 4;
 	   
-	    private DrawInfo2D lastActualInfo;
-	    private DrawInfo2D firstInfo;
+	 private boolean hitAndButtonPressed = false;   
+	 private Point2D actMousePositionXY;
+	    
+	 private boolean crosshairsVisible = false;
+	    
+	 private Rectangle2D.Double oldDraw = null;  
 	    
 	   
-
-	    private double width;
-	    private double height;
-	    private boolean hitAndButtonPressed = false;   
 	    
-	    private static final int EMPTYBORDER = 10;
-	    
-	    private Point2D actMousePositionXY;
-	    
-	    private boolean crosshairsVisible = false;
-	    
-	    
-	    
-	    private int border;
-	    private int ruleroffset;
-	    private final int OFFSET = 0; //distance ruler <-> tissue
-	    
-	    private double implicitScale;	    
-	    private double rulerResolution = 5;
-	    
-	public RulerPortrayal2D(double width, double height, int border, double implicitScale) {
-	 	 this.width = ((int)width);
-	  	 this.height = ((int)height);
-	  	 this.INITIALWIDTH = ((int)width);
-	  	 this.INITIALHEIGHT = ((int)height);
-	   	
-	  	 this.border = border;
-	  	 this.implicitScale = implicitScale;
-	  	 this.ruleroffset = border - OFFSET;
+	public RulerPortrayal2D(double width, double height, int border, double implicitScale){
+		super(width, height, border, implicitScale);
 	}
-	Rectangle2D.Double oldDraw = null;  
+	
 	    
 	    // assumes the graphics already has its color set
 	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
-		if(firstInfo == null){
-			firstInfo = info; // is assigned during the first call of this method			
+		if(getFirstInfo() == null){
+			setFirstInfo(info); // is assigned during the first call of this method			
 		}
 		
-		lastActualInfo = info;
+		setLastActualInfo(info);
 		
-		width = INITIALWIDTH * getScaleFactorOfTheDisplay();
-		height = INITIALHEIGHT * getScaleFactorOfTheDisplay();
+		setWidth(INITIALWIDTH * getScaleFactorOfTheDisplay());
+		setHeight(INITIALHEIGHT * getScaleFactorOfTheDisplay());
 		
-		if(lastActualInfo != null &&lastActualInfo.clip !=null){ 
+		if(getLastActualInfo() != null && getLastActualInfo().clip !=null){ 
 			
 			drawRuler(graphics, info);
 			
@@ -109,7 +87,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 			   graphics.draw(horizontalAxis);
 				graphics.draw(verticalAxis);
 				
-				double spaceBetweenSmallLines = getScaledNumberOfPixelPerMicrometer(info)*rulerResolution;
+				double spaceBetweenSmallLines = getScaledNumberOfPixelPerMicrometer(info)*getResolutionInMikron();
 				
 				double smallLine = 3;
 				double mediumLine = 8;
@@ -123,7 +101,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 					else graphics.draw(new Line2D.Double(i, maxY, i, maxY+ smallLine));
 					
 					if((lineNumber%10) == 0 || (lineNumber%5) == 0){
-						String text = ""+((int)(lineNumber*rulerResolution));
+						String text = ""+((int)(lineNumber*getResolutionInMikron()));
 						Rectangle2D stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
 						graphics.drawString(text, (float)(i - (stringBounds.getWidth()/2)), (float)(maxY+ bigLine+stringBounds.getHeight()));
 					}
@@ -135,7 +113,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 					else graphics.draw(new Line2D.Double(minX, i, minX - smallLine, i));
 					
 					if((lineNumber%10) == 0 || (lineNumber%5) == 0){
-						String text = ""+((int)(lineNumber*rulerResolution));
+						String text = ""+((int)(lineNumber*getResolutionInMikron()));
 						Rectangle2D stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
 						graphics.drawString(text, (float)(minX- bigLine-stringBounds.getWidth()), (float)(i + (stringBounds.getHeight()/3)));
 					}
@@ -161,7 +139,7 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 			 double maxY = getMaxY(info);
 			 StringBuffer text = new StringBuffer();
 			 
-			 text.append("[Intervall: "+ rulerResolution+ "µm]");
+			 text.append("[Intervall: "+ getResolutionInMikron()+ " µm]");
 				graphics.setFont(new Font("Arial", Font.PLAIN, 12));
 				
 			 text.append("    Tissue ID: " + TissueController.getInstance().getTissueBorder().getTissueID());
@@ -194,67 +172,36 @@ public class RulerPortrayal2D extends SimplePortrayal2D{
 							
 				
 				
-				Line2D horizontalLine = new Line2D.Double(lastActualInfo.clip.getMinX(), actMousePositionXY.getY(), 
-						                                    lastActualInfo.clip.getMinX()+width,actMousePositionXY.getY());
-				Line2D verticalLine = new Line2D.Double(actMousePositionXY.getX(), lastActualInfo.clip.getMinY(), 
-						                               actMousePositionXY.getX(), lastActualInfo.clip.getMinY()+height);  
+				Line2D horizontalLine = new Line2D.Double(getLastActualInfo().clip.getMinX(), actMousePositionXY.getY(), 
+																		getLastActualInfo().clip.getMinX()+getWidth(),actMousePositionXY.getY());
+				Line2D verticalLine = new Line2D.Double(actMousePositionXY.getX(), getLastActualInfo().clip.getMinY(), 
+						                               actMousePositionXY.getX(), getLastActualInfo().clip.getMinY()+getHeight());  
 				graphics.draw(horizontalLine);
 				graphics.draw(verticalLine);
 	    }
 	    
-	    private double getDeltaX(){
-	   	 if((lastActualInfo.clip.width+1)< width){
-	   		 return lastActualInfo.clip.getMinX();	   		 
-	   	 }
-	   	 else return 0;
-	    }
-	    
-	    private double getDeltaY(){
-	   	 
-	   	 if((lastActualInfo.clip.height+1) < height){
-	   		 return lastActualInfo.clip.getMinY();
-	   	 }
-	   	 else return 0;
-	    }
-	 private double getMinX(DrawInfo2D info){
-		 return lastActualInfo.clip.getMinX() -getDeltaX() + (ruleroffset*getScaleFactorOfTheDisplay());
-	 }
-	 
-	 private double getMaxX(DrawInfo2D info){
-		 return lastActualInfo.clip.getMinX()+width-getDeltaX()- (ruleroffset*getScaleFactorOfTheDisplay());
-	 }
-	 private double getMinY(DrawInfo2D info){
-		 return lastActualInfo.clip.getMinY()-getDeltaY()+ (ruleroffset*getScaleFactorOfTheDisplay());
-	 }
-	 private double getMaxY(DrawInfo2D info){
-	  return lastActualInfo.clip.getMinY()+height-getDeltaY()-(ruleroffset*getScaleFactorOfTheDisplay());
-	}
+	   
 	
 	public void setCrosshairsVisible(boolean visible){
 		this.crosshairsVisible = visible;
 	}
 	
 	public void setActMousePosition(Point2D mousePosition){		
-		if(mousePosition != null && lastActualInfo != null
-		   && mousePosition.getX() >= lastActualInfo.clip.getMinX()
-		   && mousePosition.getX() <= lastActualInfo.clip.getMaxX()
-		   && mousePosition.getY() >= lastActualInfo.clip.getMinY()
-		   && mousePosition.getY() <= lastActualInfo.clip.getMaxY()) 
+		if(mousePosition != null && getLastActualInfo() != null
+		   && mousePosition.getX() >= getLastActualInfo().clip.getMinX()
+		   && mousePosition.getX() <= getLastActualInfo().clip.getMaxX()
+		   && mousePosition.getY() >= getLastActualInfo().clip.getMinY()
+		   && mousePosition.getY() <= getLastActualInfo().clip.getMaxY()) 
 				actMousePositionXY = mousePosition;
 		else actMousePositionXY = null;
 	}
 	
-	private double getScaledNumberOfPixelPerMicrometer(DrawInfo2D info){
-		return TissueController.getInstance().getTissueBorder().getNumberOfPixelsPerMicrometer()*implicitScale*getScaleFactorOfTheDisplay();
-	}	
+		
 	
 	public boolean isHitAndButtonPressed(){
 			return hitAndButtonPressed;
 	}
 
-	private double getScaleFactorOfTheDisplay(){
-		
-		return Scale.displayScale;
-	}
+	
 		
 }

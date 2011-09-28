@@ -7,9 +7,11 @@ import episimbiomechanics.EpisimModelConnector;
 
 
 import episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.HexagonBasedMechanicalModelInitializer;
 import sim.app.episim.util.GenericBag;
@@ -25,6 +27,9 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	
 	private static ObjectGrid2D cellField;
 	
+	private int fieldPosX;
+	private int fieldPosY;
+	
 	public HexagonBasedMechanicalModel(){
 		this(null);	
 	}
@@ -32,7 +37,10 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	public HexagonBasedMechanicalModel(AbstractCell cell) {
 	   super(cell);
 	   if(cellField == null){
-	   	cellField = new ObjectGrid2D(100, 100);
+	   	HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+	   	int width = (int)(globalParameters.getWidthInMikron() / globalParameters.getCellDiameter_mikron());
+	   	int height = (int)(globalParameters.getHeightInMikron() / globalParameters.getCellDiameter_mikron());
+	   	cellField = new ObjectGrid2D(width, height);
 	   }
    }
 
@@ -46,51 +54,38 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	public GenericBag<AbstractCell> getRealNeighbours() {
 
 		// TODO Auto-generated method stub
-		return null;
+		return new GenericBag<AbstractCell>();
 	}
 
 	
 
 	public Polygon getPolygonCell() {
 
-		// TODO Auto-generated method stub
-		return null;
+		//not yet needed
+		return new Polygon();
 	}
 
 	public Polygon getPolygonCell(DrawInfo2D info) {
 
-		// TODO Auto-generated method stub
-		return null;
+		//not yet needed
+		return new Polygon();
 	}
 
 	public Polygon getPolygonNucleus() {
 
-		// TODO Auto-generated method stub
-		return null;
+		//not yet needed
+		return new Polygon();
 	}
 
 	public Polygon getPolygonNucleus(DrawInfo2D info) {
 
-		// TODO Auto-generated method stub
-		return null;
+		//not yet needed
+		return new Polygon();
 	}
-
-	public boolean nextToOuterCell() {
-
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	
 	public boolean isMembraneCell() {
 
-		// TODO Auto-generated method stub
 		return false;
-	}
-
-	public GenericBag<AbstractCell> getNeighbouringCells() {
-
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public void newSimStep(long simStepNumber) {
@@ -100,20 +95,15 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	}
 
 	public double getX() {
-
-		// TODO Auto-generated method stub
-		return 0;
+		
+		return fieldPosX;
 	}
 
-	public double getY() {
-
-		// TODO Auto-generated method stub
-		return 0;
+	public double getY() {		
+		return fieldPosY;
 	}
 
 	public double getZ() {
-
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -123,16 +113,19 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   
    }
    public void removeCellFromCellField() {
-   	cellField.getNeighborsMaxDistance(0, 0, 0, isMembraneCell(), null, null)
-	   cellField.remove(this.getCell());
+   	cellField.field[fieldPosX][fieldPosY] = null;
    }
 	
+   /*
+    * Be Careful with this method, existing cells at the location will be overwritten...
+    */
    public void setCellLocationInCellField(Double2D location){
-	   cellField.setObjectLocation(this.getCell(), location);
+   	removeCellFromCellField();
+   	cellField.field[cellField.tx((int)location.x)][cellField.ty((int)location.y)] = getCell();
    }
 	
    public Double2D getCellLocationInCellField() {	   
-	   return cellField.getObjectLocation(getCell());
+	   return new Double2D((double) fieldPosX, (double) fieldPosY);
    }
 
    protected Object getCellField() {	  
@@ -140,8 +133,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
    }
    
    protected void setReloadedCellField(Object cellField) {
-   	if(cellField instanceof Continuous2D){
-   		CenterBasedMechanicalModel.cellField = (Continuous2D) cellField;
+   	if(cellField instanceof ObjectGrid2D){
+   		HexagonBasedMechanicalModel.cellField = (ObjectGrid2D) cellField;
    	}
    }
 

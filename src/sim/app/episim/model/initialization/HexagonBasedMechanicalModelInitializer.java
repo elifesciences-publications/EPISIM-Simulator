@@ -3,13 +3,18 @@ package sim.app.episim.model.initialization;
 import java.io.File;
 import java.util.ArrayList;
 
+import sim.app.episim.AbstractCell;
 import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.HexagonalCellGridPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.tissue.TissueController;
 import sim.display.GUIState;
+import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.Inspector;
 import sim.portrayal.LocationWrapper;
 import sim.portrayal.Portrayal;
@@ -21,22 +26,34 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 	}
+	
 	public HexagonBasedMechanicalModelInitializer(File modelInitializationFile){
-		super(modelInitializationFile);
-		
+		super(modelInitializationFile);		
 	}
 
-	@Override
+	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
-
+		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
+		HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
-		return new ArrayList<UniversalCell>();
+		
+		
+		int width = (int)((globalParameters.getWidthInMikron()/globalParameters.getCellDiameter_mikron())*0.2);
+		int height = (int)((globalParameters.getHeightInMikron()/globalParameters.getCellDiameter_mikron()));
+		for(int y = 0; y < height; y++){
+			for(int x = 0; x < width; x++){
+				UniversalCell cell = new UniversalCell(AbstractCell.getNextCellId(),null, null, null);
+				((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
+				standardCellEnsemble.add(cell);
+			}
+		}	
+		return standardCellEnsemble;
 	}
 
 	
 	protected void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble) {
 
-		// is not needed here
+		// is not needed int this model
 	}
 
 	@Override
@@ -55,8 +72,8 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		double displayWidth = TissueController.getInstance().getTissueBorder().getWidthInPixels() * initialZoomFactor;
 		double displayHeight = TissueController.getInstance().getTissueBorder().getHeightInPixels() * initialZoomFactor;
 	   
-		HexagonalCellGridPortrayal2D portrayal =  new HexagonalCellGridPortrayal2D(){
-
+		HexagonalCellGridPortrayal2D portrayal =  new HexagonalCellGridPortrayal2D(java.awt.Color.lightGray, initialZoomFactor, 
+	   		displayWidth + (2*EpidermisGUIState.DISPLAYBORDER), displayHeight + (2*EpidermisGUIState.DISPLAYBORDER), EpidermisGUIState.DISPLAYBORDER){
 			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
 			// make the inspector
 				return new CellInspector(super.getInspector(wrapper, state), wrapper, state);

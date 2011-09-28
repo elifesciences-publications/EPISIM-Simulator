@@ -8,6 +8,7 @@ import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelG
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
 import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
@@ -51,9 +52,9 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
    	this.paint = paint; 
    	this.drawFrame = drawFrame;  
    	this.implicitScale = implicitScale;
-   	 this.INITIALWIDTH = ((int)width);
-	  	 this.INITIALHEIGHT = ((int)height);
-	  	 this.border = border;
+   	this.INITIALWIDTH = ((int)width);
+	  	this.INITIALHEIGHT = ((int)height);
+	  	this.border = border;
     }    
     
     // assumes the graphics already has its color set
@@ -220,7 +221,10 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
         	  
               
             if((kcyte.isOuterCell()) && (coloringType==2)){red=0xF3; green=0xBE; blue=0x4E;}        
-            if((kcyte.getEpisimBioMechanicalModelObject().isMembraneCell()) && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
+            boolean isMembraneCell = false;
+            if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel) isMembraneCell=((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
+            if(kcyte.getEpisimBioMechanicalModelObject() instanceof VertexBasedMechanicalModel) isMembraneCell=((VertexBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
+            if(isMembraneCell && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
        }
        if (coloringType==3) // Age coloring
        {

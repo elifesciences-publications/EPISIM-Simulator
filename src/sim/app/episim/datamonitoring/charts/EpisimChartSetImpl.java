@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import sim.app.episim.util.ObjectManipulations;
+
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
@@ -94,6 +96,15 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 			if(chart.isDirty()) return true;			
 		}
 		return false;
+	}
+	
+	public EpisimChartSet clone(){
+		EpisimChartSet newChartSet = ObjectManipulations.cloneObject(this);
+		for(EpisimChart oldChart : this.getEpisimCharts()){
+			newChartSet.removeEpisimChart(oldChart.getId());
+			newChartSet.addEpisimChart(oldChart.clone());
+		}		
+		return newChartSet;
 	}
 
 }

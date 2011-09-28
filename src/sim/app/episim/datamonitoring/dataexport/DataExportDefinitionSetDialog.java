@@ -189,7 +189,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			okButtonPressed = false;
 			indexDataExportDefinitionIdMap = new HashMap<Integer, Long>();
 			this.episimDataExportDefinitionSet = dataExportDefinitonSet;
-			this.episimDataExportDefinitionSetOld = ObjectManipulations.cloneObject(dataExportDefinitonSet);
+			this.episimDataExportDefinitionSetOld = dataExportDefinitonSet.clone();
 			this.dataExportDefinitionSetName.setText(dataExportDefinitonSet.getName());
 			DefaultListModel listModel = new DefaultListModel();
 			int i = 0;

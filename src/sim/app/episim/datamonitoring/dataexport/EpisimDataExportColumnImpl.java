@@ -67,5 +67,13 @@ public class EpisimDataExportColumnImpl implements EpisimDataExportColumn{
 		   	this.requiredClassesNameSet = new HashSet<String>();
 		   }  
    }
+	
+	public EpisimDataExportColumn clone(){
+		EpisimDataExportColumn newColumn = ObjectManipulations.cloneObject(this);
+		HashSet<Class<?>> newRequiredClasses = new HashSet<Class<?>>();
+		newRequiredClasses.addAll(this.requiredClasses);
+		newColumn.setRequiredClasses(newRequiredClasses);
+		return newColumn;
+	}
 
 }

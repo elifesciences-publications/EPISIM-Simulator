@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import sim.app.episim.util.ObjectManipulations;
+
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 
@@ -95,7 +97,15 @@ public class EpisimDataExportDefinitionSetImpl implements EpisimDataExportDefini
 	   return false;
    }
 
-
+	public EpisimDataExportDefinitionSet clone(){
+		EpisimDataExportDefinitionSet newDefinitionSet = ObjectManipulations.cloneObject(this);
+		for(EpisimDataExportDefinition oldDefinition : this.getEpisimDataExportDefinitions()){
+			newDefinitionSet.removeEpisimDataExportDefinition(oldDefinition.getId());
+			newDefinitionSet.addEpisimDataExportDefinition(oldDefinition.clone());
+		}
+		
+		return newDefinitionSet;
+	}
 	
 	
 	

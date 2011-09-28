@@ -6,7 +6,7 @@ import java.util.Set;
 
 
 
-public interface EpisimDataExportDefinition extends java.io.Serializable{
+public interface EpisimDataExportDefinition extends java.io.Serializable, Cloneable{
 	
 	long getId();
 	String getName();
@@ -28,5 +28,7 @@ public interface EpisimDataExportDefinition extends java.io.Serializable{
 	
 	void setIsDirty(boolean value);
 	boolean isDirty();
+	
+	EpisimDataExportDefinition clone();
 
 }

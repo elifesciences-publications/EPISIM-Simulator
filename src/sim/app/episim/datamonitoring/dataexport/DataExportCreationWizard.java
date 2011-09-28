@@ -426,13 +426,13 @@ public class DataExportCreationWizard extends JDialog {
 		
 	private void restoreDataExportValues(EpisimDataExportDefinition dataExport){
 		if(dataExport != null){
-			this.episimDataExportDefinition = dataExport;
+			this.episimDataExportDefinition = dataExport.clone();
 			this.columnsIdMap = new HashMap<Integer, Long>();
-			this.dataExportNameField.setText(dataExport.getName());
-			this.csvPathField.setText(dataExport.getCSVFilePath().getAbsolutePath());
-			this.dataExportFrequencyInSimulationSteps.setValue(dataExport.getDataExportFrequncyInSimulationSteps());
+			this.dataExportNameField.setText(episimDataExportDefinition.getName());
+			this.csvPathField.setText(episimDataExportDefinition.getCSVFilePath().getAbsolutePath());
+			this.dataExportFrequencyInSimulationSteps.setValue(episimDataExportDefinition.getDataExportFrequncyInSimulationSteps());
 			int i = 0;
-			for(EpisimDataExportColumn col : dataExport.getEpisimDataExportColumns()){
+			for(EpisimDataExportColumn col : episimDataExportDefinition.getEpisimDataExportColumns()){
 				addDataExportColumn(i, col);
 				i++;
 			}

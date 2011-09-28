@@ -120,7 +120,7 @@ public abstract class AbstractChartSetFactory {
 			for(EpisimChartSeries series : chart.getEpisimChartSeries()){
 				if(series instanceof EpisimChartSeriesImpl){
 					EpisimChartSeriesImpl seriesImpl = (EpisimChartSeriesImpl) series;
-					requiredClassesSet.clear();
+					requiredClassesSet = new HashSet<Class<?>>();
 					for(String actClass : seriesImpl.getRequiredClassesNameSet()){
 						if(requiredClasses.containsKey(actClass))requiredClassesSet.add(requiredClasses.get(actClass));
 					}

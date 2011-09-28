@@ -130,6 +130,12 @@ public class EpisimChartSeriesImpl implements EpisimChartSeries, java.io.Seriali
 	   }
    }
 
-	
+	public EpisimChartSeries clone(){
+		EpisimChartSeries newSeries = ObjectManipulations.cloneObject(this);
+		HashSet<Class<?>> newRequiredClasses = new HashSet<Class<?>>();
+		newRequiredClasses.addAll(this.requiredClasses);
+		newSeries.setRequiredClasses(newRequiredClasses);
+		return newSeries;
+	}
 	
 }

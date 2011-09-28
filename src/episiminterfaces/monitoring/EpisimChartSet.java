@@ -7,7 +7,7 @@ import java.util.Set;
 
 
 
-public interface EpisimChartSet {
+public interface EpisimChartSet extends Cloneable{
 	
 	String getName();
 	File getPath();
@@ -22,4 +22,6 @@ public interface EpisimChartSet {
 	EpisimChart getEpisimChart(long id);
 	void removeEpisimChart(long id);
 	boolean isOneOfTheChartsDirty();
+	
+	EpisimChartSet clone();
 }

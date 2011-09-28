@@ -108,7 +108,7 @@ public abstract class AbstractDataExportFactory {
 			for(EpisimDataExportColumn column : definition.getEpisimDataExportColumns()){
 				if(column instanceof EpisimDataExportColumnImpl){
 					EpisimDataExportColumnImpl columnImpl = (EpisimDataExportColumnImpl)column;
-					requiredClassesSet.clear();
+					requiredClassesSet = new HashSet<Class<?>>();
 					for(String actClass : columnImpl.getRequiredClassesNameSet()){
 						if(requiredClasses.containsKey(actClass))requiredClassesSet.add(requiredClasses.get(actClass));
 					}

@@ -481,39 +481,39 @@ public class ChartCreationWizard extends JDialog {
 	private void restoreChartValues(EpisimChart chart){
 		if(chart != null){
 			chart.getEpisimChartSeries().size();
-			this.episimChart = ObjectManipulations.cloneObject(chart);
+			this.episimChart = chart.clone();
 			
-			this.chartTitleField.setText(chart.getTitle());
-			this.setTitle(chart.getTitle());
+			this.chartTitleField.setText(episimChart.getTitle());
+			this.setTitle(episimChart.getTitle());
 			
-			this.chartXLabel.setText(chart.getXLabel());
-			this.setDomainAxisLabel(chart.getXLabel());
+			this.chartXLabel.setText(episimChart.getXLabel());
+			this.setDomainAxisLabel(episimChart.getXLabel());
 			
-			this.chartYLabel.setText(chart.getYLabel());
-			this.setRangeAxisLabel(chart.getYLabel());
+			this.chartYLabel.setText(episimChart.getYLabel());
+			this.setRangeAxisLabel(episimChart.getYLabel());
 			
-			this.baselineCalculationAlgorithmConfigurator = chart.getBaselineCalculationAlgorithmConfigurator();
+			this.baselineCalculationAlgorithmConfigurator = episimChart.getBaselineCalculationAlgorithmConfigurator();
 			if(chart.getBaselineCalculationAlgorithmConfigurator() != null){
 				this.baselineField.setText(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(this.baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getName());
 				this.baselineButton.setText("Edit Baseline Expression");
 			}
-			this.legendCheck.setSelected(chart.isLegendVisible());
+			this.legendCheck.setSelected(episimChart.isLegendVisible());
 			
 			
-			this.xAxisLogarithmicCheck.setSelected(chart.isXAxisLogarithmic());
-			this.setXAxisLogarithmic(chart.isXAxisLogarithmic());
+			this.xAxisLogarithmicCheck.setSelected(episimChart.isXAxisLogarithmic());
+			this.setXAxisLogarithmic(episimChart.isXAxisLogarithmic());
 			
-			this.yAxisLogarithmicCheck.setSelected(chart.isYAxisLogarithmic());
-			this.setYAxisLogarithmic(chart.isYAxisLogarithmic());
+			this.yAxisLogarithmicCheck.setSelected(episimChart.isYAxisLogarithmic());
+			this.setYAxisLogarithmic(episimChart.isYAxisLogarithmic());
 			
-			this.aliasCheck.setSelected(chart.isAntialiasingEnabled());
-			this.setAntiAliasEnabled(chart.isAntialiasingEnabled());
+			this.aliasCheck.setSelected(episimChart.isAntialiasingEnabled());
+			this.setAntiAliasEnabled(episimChart.isAntialiasingEnabled());
 			
-			this.pngCheck.setSelected(chart.isPNGPrintingEnabled());
-			if(chart.isPNGPrintingEnabled()){
+			this.pngCheck.setSelected(episimChart.isPNGPrintingEnabled());
+			if(episimChart.isPNGPrintingEnabled()){
 				pngFrequencyInSimulationSteps.setEnabled(true);
 				this.changePngPathButton.setEnabled(true);
-				this.pngPathField.setText(chart.getPNGPrintingPath().getAbsolutePath());
+				this.pngPathField.setText(episimChart.getPNGPrintingPath().getAbsolutePath());
 				pngPathField.setEnabled(true);
 			}
 			else{
@@ -522,10 +522,10 @@ public class ChartCreationWizard extends JDialog {
 				pngPathField.setEnabled(false);
 			}
 			
-			this.pngFrequencyInSimulationSteps.setValue(chart.getPNGPrintingFrequency());
-			this.chartFrequencyInSimulationSteps.setValue(chart.getChartUpdatingFrequency());
+			this.pngFrequencyInSimulationSteps.setValue(episimChart.getPNGPrintingFrequency());
+			this.chartFrequencyInSimulationSteps.setValue(episimChart.getChartUpdatingFrequency());
 			int i = 0;
-			for(EpisimChartSeries chartSeries: chart.getEpisimChartSeries()){ 
+			for(EpisimChartSeries chartSeries: episimChart.getEpisimChartSeries()){ 
 				addSeries(i, chartSeries);
 				i++;
 			}
@@ -533,9 +533,7 @@ public class ChartCreationWizard extends JDialog {
 			this.isDirty = false;
 		}
 		
-	}
-	
-	
+	}	
 		
 	public void showWizard(EpisimChart chart){
 		isDirty = false;

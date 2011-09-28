@@ -6,7 +6,7 @@ import java.util.Set;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 
 
-public interface EpisimChartSeries{
+public interface EpisimChartSeries extends Cloneable{
 	
 	long getId();
 	
@@ -25,4 +25,6 @@ public interface EpisimChartSeries{
 	void setStretch(double val);
 	void setCalculationAlgorithmConfigurator(CalculationAlgorithmConfigurator config);
 	void setRequiredClasses(Set<Class<?>> classes);
+	
+	EpisimChartSeries clone();
 }

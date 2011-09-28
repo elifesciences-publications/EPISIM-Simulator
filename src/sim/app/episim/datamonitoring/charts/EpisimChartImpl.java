@@ -269,6 +269,17 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 			this.requiredClassesForBaselineNameSet = new HashSet<String>();
 		}
    }
-	
+	public EpisimChart clone(){
+		EpisimChart newChart = ObjectManipulations.cloneObject(this);
+		HashSet<Class<?>> newRequiredClasses = new HashSet<Class<?>>();
+		newRequiredClasses.addAll(this.requiredClassesForBaseline);
+		newChart.setRequiredClassesForBaseline(newRequiredClasses);		
+		for(EpisimChartSeries oldSeries : this.getEpisimChartSeries()){
+			newChart.removeChartSeries(oldSeries.getId());
+			newChart.addEpisimChartSeries(oldSeries.clone());
+		}		
+		
+		return newChart;
+	}
 	
 }

@@ -200,7 +200,7 @@ public class ChartSetDialog extends JDialog {
 		okButtonPressed = false;
 		indexChartIdMap = new HashMap<Integer, Long>();
 		this.episimChartSet = chartSet;
-		this.episimChartSetOld = ObjectManipulations.cloneObject(chartSet);
+		this.episimChartSetOld = chartSet.clone();
 		this.chartSetName.setText(chartSet.getName());
 		DefaultListModel listModel = new DefaultListModel();
 		int i = 0;

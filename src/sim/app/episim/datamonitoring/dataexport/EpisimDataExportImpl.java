@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import sim.app.episim.util.ObjectManipulations;
+
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
@@ -106,5 +108,14 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 			}
 		}
 		return allRequiredClasses;
+	}
+	
+	public EpisimDataExportDefinition clone(){
+		EpisimDataExportDefinition newExport = ObjectManipulations.cloneObject(this);
+		for(EpisimDataExportColumn oldColumn : this.getEpisimDataExportColumns()){
+			newExport.removeEpisimDataExportColumn(oldColumn.getId());
+			newExport.addEpisimDataExportColumn(oldColumn.clone());
+		}
+		return newExport;
 	}
 }

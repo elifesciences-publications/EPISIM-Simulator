@@ -9,7 +9,7 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 
 
 
-public interface EpisimChart{
+public interface EpisimChart extends Cloneable{
 	
 	long getId();
 	String getTitle();
@@ -49,5 +49,5 @@ public interface EpisimChart{
 	boolean isDirty();
 	void setIsDirty(boolean value);
 	
-	
+	EpisimChart clone();
 }

@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 
 
-public interface EpisimDataExportDefinitionSet {
+public interface EpisimDataExportDefinitionSet extends Cloneable{
 	
 	String getName();
 	File getPath();
@@ -19,5 +19,7 @@ public interface EpisimDataExportDefinitionSet {
 	EpisimDataExportDefinition getEpisimDataExportDefinition(long id);
 	void removeEpisimDataExportDefinition(long id);
 	boolean isOneOfTheDataExportDefinitionsDirty();
+	
+	EpisimDataExportDefinitionSet clone();
 	
 }

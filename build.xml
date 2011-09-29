@@ -133,6 +133,10 @@
 		<copy todir="${currentbuild}/${build}/config">
 			<fileset dir="${config}">
 				<include name="**/*"/>
+				<exclude name="**/episimconfig.properties"/>
+			</fileset>
+			<fileset dir="${buildres}">
+				<include name="episimconfig.properties"/>
 			</fileset>
 		</copy>
 		<copy todir="${currentbuild}/${build}">

@@ -173,11 +173,10 @@ public class HistogramAveragedCalculationAlgorithm extends AbstractCommonCalcula
 	     if(minValue == maxValue)maxValue = (minValue + 1);
 	     if(numberOfBins < 0)numberOfBins = Math.abs(numberOfBins);
 	     if(numberOfBins == 0)numberOfBins = 1;
-	     double binSize = Math.abs(maxValue - minValue) / numberOfBins;
+	     double binSize = (Math.abs(maxValue - minValue)+1) / ((double)numberOfBins);
 	     SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins];				
 	     for(int i = 0; i < numberOfBins; i ++){
-	       if(i == 0) bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, true);
-	       else bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), false, true);
+	       bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, false);
 	     }		
 	     return bins;
 	   }

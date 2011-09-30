@@ -18,6 +18,7 @@ import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.Inspector;
 import sim.portrayal.LocationWrapper;
 import sim.portrayal.Portrayal;
+import sim.util.Double2D;
 
 
 public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelInitializer {
@@ -43,6 +44,7 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
 				UniversalCell cell = new UniversalCell(AbstractCell.getNextCellId(),null, null, null);
+				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 				((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
 				standardCellEnsemble.add(cell);
 			}

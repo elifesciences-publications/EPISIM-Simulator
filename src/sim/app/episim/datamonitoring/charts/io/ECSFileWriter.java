@@ -141,7 +141,7 @@ public class ECSFileWriter {
 							jarOut.finish();
 							jarOut.close();
 						//TODO: Enable / Disable erasure of temp data	
-							chartCompiler.deleteTempData();
+						//	chartCompiler.deleteTempData();
 							
 						} catch (IOException e) {
 							ExceptionDisplayer.getInstance()

@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.statistics.SimpleHistogramBin;
@@ -229,6 +231,8 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 		
 		generatedSourceCode.append("  XYPlot plot = "+CHARTDATAFIELDNAME+".getXYPlot();\n");
+		
+		
 		generatedSourceCode.append("  XYBarRenderer renderer = null;\n");
 		int i = 0;
 		for(EpisimChartSeries actSeries: actChart.getEpisimChartSeries()){
@@ -334,11 +338,10 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	   generatedSourceCode.append("  if(minValue == maxValue)maxValue = (minValue + 1);\n");
 	   generatedSourceCode.append("  if(numberOfBins < 0)numberOfBins = Math.abs(numberOfBins);\n");
 	   generatedSourceCode.append("  if(numberOfBins == 0)numberOfBins = 1;\n");
-	   generatedSourceCode.append("  double binSize = Math.abs(maxValue - minValue) / numberOfBins;\n");
+	   generatedSourceCode.append("  double binSize = (Math.abs(maxValue - minValue)+1) / ((double)numberOfBins);\n");
 	   generatedSourceCode.append("  SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins];\n");				
 	   generatedSourceCode.append("  for(int i = 0; i < numberOfBins; i ++){\n");
-	   generatedSourceCode.append("    if(i == 0) bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, true);\n");
-	   generatedSourceCode.append("    else bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), false, true);\n");
+	   generatedSourceCode.append("    bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, false);\n");
 	   generatedSourceCode.append("  }\n");		
 	   generatedSourceCode.append("  return bins;\n");
 	   generatedSourceCode.append("}\n");

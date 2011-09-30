@@ -275,20 +275,24 @@ public class ChartController {
 		TissueCellDataFieldsInspector inspector = new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes);
 		CalculationAlgorithmConfigurator config =  chart.getBaselineCalculationAlgorithmConfigurator();
 		try{
-			if(config.getArithmeticExpression()!= null && config.getArithmeticExpression()[0] != null){
-				config.getArithmeticExpression()[1] = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
-			}
-			if(config.getBooleanExpression()!= null && config.getBooleanExpression()[0] != null){
-				config.getBooleanExpression()[1] = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
-			}
-			for(EpisimChartSeries series : chart.getEpisimChartSeries()){
-				sessionID = ExpressionCheckerController.getInstance().getCheckSessionId();
-				config = series.getCalculationAlgorithmConfigurator();
+			if(config != null){
 				if(config.getArithmeticExpression()!= null && config.getArithmeticExpression()[0] != null){
 					config.getArithmeticExpression()[1] = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
 				}
 				if(config.getBooleanExpression()!= null && config.getBooleanExpression()[0] != null){
 					config.getBooleanExpression()[1] = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
+				}
+			}
+			for(EpisimChartSeries series : chart.getEpisimChartSeries()){
+				sessionID = ExpressionCheckerController.getInstance().getCheckSessionId();
+				config = series.getCalculationAlgorithmConfigurator();
+				if(config != null){
+					if(config.getArithmeticExpression()!= null && config.getArithmeticExpression()[0] != null){
+						config.getArithmeticExpression()[1] = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
+					}
+					if(config.getBooleanExpression()!= null && config.getBooleanExpression()[0] != null){
+						config.getBooleanExpression()[1] = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
+					}
 				}
 			}
 			

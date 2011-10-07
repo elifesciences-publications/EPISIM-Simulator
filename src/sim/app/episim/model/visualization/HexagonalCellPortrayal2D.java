@@ -3,11 +3,13 @@ package sim.app.episim.model.visualization;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -64,21 +66,14 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
     
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
     {
-   	
-   	 
    	 if(object instanceof UniversalCell){   	 
-   		 UniversalCell cell = (UniversalCell) object;
-   		 
-   		 long simStepNo = -1;
-   		 if(cell.getActSimState() != null &&  cell.getActSimState().schedule != null) actSimStepNo = cell.getActSimState().schedule.getSteps();
-   		 
-   		  		 
+   		 UniversalCell cell = (UniversalCell) object;   		 
+   		
+   		 if(cell.getActSimState() != null &&  cell.getActSimState().schedule != null) actSimStepNo = cell.getActSimState().schedule.getSteps();  		  		 
    		 
    		 filled = true;
    		 double width = (info.draw.width+DELTA)*scale;
-	       double height = (info.draw.height+DELTA)*scale;
-	       double x = info.draw.x;
-		    double y = info.draw.y;
+	       double height = (info.draw.height+DELTA)*scale;	      
 	       
    		 HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
    		 mechModel.setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, width, height),
@@ -86,59 +81,10 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    		 
    		 if(mechModel.isSpreading()){
 	 	      	if(this.drawInfoRegistry.containsKey(cell.getID()) 
-	 	      			&& this.simStepTimeStampRegistry.get(cell.getID()) == actSimStepNo){
-	 	      		DrawInfo2D secondInfo = this.drawInfoRegistry.get(cell.getID());
-	 	      		
-	 	      		     		
-	 	      		
-	 	      		this.drawInfoRegistry.remove(cell.getID());
-	 	      		this.simStepTimeStampRegistry.remove(cell.getID());
-	 	      		
-	 	      		x = info.draw.x < secondInfo.draw.x ? (info.draw.x -(((info.draw.width+DELTA)*scale)/2)): (secondInfo.draw.x -(((secondInfo.draw.width+DELTA)*scale)/2));
-			      	y = info.draw.y < secondInfo.draw.y ? (info.draw.y -(((info.draw.height+DELTA)*scale)/2)): (secondInfo.draw.y -(((secondInfo.draw.height+DELTA)*scale)/2));
-			      		      	
-			      	height = (Math.abs(info.draw.y-secondInfo.draw.y)+info.draw.height+DELTA)*scale;
-			      	width = (Math.abs(info.draw.x-secondInfo.draw.x)+info.draw.width+DELTA)*scale;
-			      
-			      	double rotationInDegrees = 0;
-			      	
-			      	
-			      	boolean swap = false;
-			      	MutableInt2D location = (MutableInt2D)info.location;
-			      	if(mechModel.getSpreadingLocation().x == location.x && mechModel.getSpreadingLocation().y == location.y){
-			      		DrawInfo2D temp = secondInfo;
-			      		secondInfo = info;
-			      		info = temp;
-			      		swap = true;
-			      	} 	 			      	
-			      	if((info.draw.x <secondInfo.draw.x && info.draw.y >secondInfo.draw.y)
-			      			||(info.draw.x > secondInfo.draw.x && info.draw.y < secondInfo.draw.y)) rotationInDegrees = 155;
-			      	
-			      	if((info.draw.x <secondInfo.draw.x && info.draw.y <secondInfo.draw.y)
-			      			||(info.draw.x > secondInfo.draw.x && info.draw.y > secondInfo.draw.y)) rotationInDegrees = 25;
-			      	
-			      	if(swap){
-			      		DrawInfo2D temp = secondInfo;
-			      		secondInfo = info;
-			      		info = temp;
-			      	} 
-			      	
-			      	double ellipseHeight = ((info.draw.height+DELTA)*scale)*0.85;
-			      	if(rotationInDegrees != 0){
-			      		AffineTransform tansform = new AffineTransform();
-			      		double rotateX = x + (width/2);
-			      		double rotateY = y + (height/2);
-			      		
-			      		y += (height/2);
-				      	y -= (ellipseHeight/2);
-			      		tansform.setToRotation(Math.toRadians(rotationInDegrees), rotateX, rotateY);
-			      		//
-			      		shape = tansform.createTransformedShape(new Ellipse2D.Double(x, y, ((info.draw.height+DELTA)*scale)*2, ellipseHeight));
-			      	}
-			      	else shape = new Ellipse2D.Double(x+(Math.abs(ellipseHeight-width)/2), y, ellipseHeight, height);
+	 	      			&& this.simStepTimeStampRegistry.get(cell.getID()) == actSimStepNo){	      		
+	 	      		drawSpreadingCellInside(graphics, info, cell);
 	 	      	}
-	 	      	else{
-	 	      		
+	 	      	else{	 	      		
 	 	      		if((Math.abs(mechModel.getX()-mechModel.getSpreadingLocation().x) + Math.abs(mechModel.getY()-mechModel.getSpreadingLocation().y))<=2){   		
 	 	  		      		this.drawInfoRegistry.put(cell.getID(), new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),		      
 	 	  			          		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
@@ -147,36 +93,16 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	  		      		shape = null;
 	 	      		}
 	 	      		else{
-	 	      			shape = new Ellipse2D.Double(info.draw.x-(width/2), info.draw.y-(height/2), width, height);
-	 	      			MutableInt2D location = (MutableInt2D)info.location;
-	 	      			boolean isSpreadingLocation = (location.x == mechModel.getSpreadingLocation().x && location.y == mechModel.getSpreadingLocation().y);
-	 	      			
-	 	      			
-	 	      			
-	 	      			EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
-	 		   		 	graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
-	 					   if (filled)
-	 					   {	        
-	 					   	graphics.fill(shape);
-	 					   }
-	 					   graphics.setPaint(standardMembraneColor);
-	 					   graphics.setStroke(stroke);	      
-	 					   graphics.draw(shape);
-	 	      			
+	 	      			drawSpreadingCellsAtOutline(graphics, info, cell, width, height);	 	      			
 	 	      		}
 	 	      	}
  	      	}
 	 	      else{
-		   	 /*CellEllipse cellEllipse = mechModel.getCellEllipse();  			 
-	   			cellEllipse.setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, width, height),
-	             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)), true);*/
-	   			
-	   			 
-			       shape = new Ellipse2D.Double(info.draw.x-(width/2), info.draw.y-(height/2), width, height);	
+		   	  shape = new Ellipse2D.Double(info.draw.x-(width/2), info.draw.y-(height/2), width, height);	
 	 	      }
-   		 if(shape!=null){
-	   		 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
-	   		 	graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
+	   		if(shape!=null){
+		   	 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
+		   	 	graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
 				   if (filled)
 				   {	        
 				   	graphics.fill(shape);
@@ -184,9 +110,178 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 				   graphics.setPaint(standardMembraneColor);
 				   graphics.setStroke(stroke);	      
 				   graphics.draw(shape);
-   		 }
+	   		}
 	   	}	   	
     }
+    
+    private void drawSpreadingCellsAtOutline(Graphics2D graphics, DrawInfo2D info, AbstractCell cell, double width, double height){
+   		
+   	 
+   	   Area ellipseArea = new Area(new Ellipse2D.Double(info.draw.x-(width/2), info.draw.y-(height/2), width+2, height+2));
+   	 
+ 			MutableInt2D location = (MutableInt2D)info.location;
+ 			HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+ 			boolean isSpreadingLocation = (location.x == mechModel.getSpreadingLocation().x && location.y == mechModel.getSpreadingLocation().y);
+ 			
+ 			Double2D loc1 = isSpreadingLocation ? new Double2D(mechModel.getSpreadingLocation().x, mechModel.getSpreadingLocation().y): mechModel.getCellLocationInCellField();
+ 			Double2D loc2 = isSpreadingLocation ? mechModel.getCellLocationInCellField() : new Double2D(mechModel.getSpreadingLocation().x, mechModel.getSpreadingLocation().y);
+ 			
+ 			boolean upperLeftCorner = loc1.x==0 && loc1.y==0;
+ 			boolean lowerLeftCorner = loc1.x ==0 && loc1.y == (mechModel.getCellFieldDimensions().y-1);
+ 			boolean upperRightCorner = loc1.x ==(mechModel.getCellFieldDimensions().x-1) && loc1.y == 0;
+ 			boolean lowerRightCorner = loc1.x ==(mechModel.getCellFieldDimensions().x-1) && loc1.y ==(mechModel.getCellFieldDimensions().y-1);
+ 			
+ 			boolean left = loc1.x==0 && !upperLeftCorner && !lowerLeftCorner;
+ 			boolean right = loc1.x ==(mechModel.getCellFieldDimensions().x-1) && !upperRightCorner && !lowerRightCorner;
+ 			boolean bottom = loc1.y ==(mechModel.getCellFieldDimensions().y-1) && !lowerRightCorner && !lowerLeftCorner;
+ 			boolean top = loc1.y==0 && !upperLeftCorner && !upperRightCorner;
+ 			
+ 			boolean upperleftSide = (loc2.x > loc1.x && loc2.y > loc1.y && upperLeftCorner)
+ 									  		|| (loc2.x < loc1.x && loc2.y > loc1.y && top)
+ 									  		|| (loc2.x > loc1.x && loc2.y < loc1.y && left)
+ 									  		|| (loc2.x < loc1.x && loc2.y < loc1.y && !right && !bottom && !lowerRightCorner);
+ 			boolean upperrightSide = (loc2.x < loc1.x && loc2.y > loc1.y && upperRightCorner)
+ 			                     	 || (loc2.x > loc1.x && loc2.y > loc1.y && top)
+ 			                     	 || (loc2.x < loc1.x && loc2.y < loc1.y && right)
+ 			                     	 || (loc2.x > loc1.x && loc2.y < loc1.y && !left && !lowerLeftCorner && !bottom);
+ 			boolean lowerleftSide = (loc2.x > loc1.x && loc2.y < loc1.y && lowerLeftCorner)
+          								|| (loc2.x < loc1.x && loc2.y < loc1.y && bottom)
+          								|| (loc2.x > loc1.x && loc2.y > loc1.y && left)
+          								|| (loc2.x < loc1.x && loc2.y > loc1.y && !top && !upperRightCorner && !right); 			
+ 			boolean lowerrightSide = (loc2.x < loc1.x && loc2.y < loc1.y && lowerRightCorner)
+											 || (loc2.x > loc1.x && loc2.y < loc1.y && bottom)
+											 || (loc2.x < loc1.x && loc2.y > loc1.y && right)
+											 || (loc2.x > loc1.x && loc2.y > loc1.y && !upperLeftCorner && !top && !left);
+ 			
+ 			boolean rightSide = (loc2.x < loc1.x && loc2.y == loc1.y && (right || lowerRightCorner ||upperRightCorner))
+			  					 	  || (loc2.x > loc1.x && loc2.y == loc1.y && !(left || lowerLeftCorner ||upperLeftCorner));
+ 			boolean leftSide = (loc2.x > loc1.x && loc2.y == loc1.y && (left || lowerLeftCorner ||upperLeftCorner))
+		 	  						 || (loc2.x < loc1.x && loc2.y == loc1.y && !(right || lowerRightCorner ||upperRightCorner));
+ 			boolean upSide = (loc2.x == loc1.x && loc2.y > loc1.y && (top || upperLeftCorner || upperRightCorner))
+				 				  || (loc2.x == loc1.x && loc2.y < loc1.y && !(bottom || lowerLeftCorner || lowerRightCorner));
+ 			boolean downSide = (loc2.x == loc1.x && loc2.y < loc1.y && (bottom || lowerLeftCorner || lowerRightCorner))
+			  						 || (loc2.x == loc1.x && loc2.y > loc1.y && !(top || upperLeftCorner || upperRightCorner));
+ 			
+ 			Polygon pol =new Polygon();
+ 			double fact = !(rightSide || leftSide || upSide || downSide)?0.55:0.35;
+ 			double x = (info.draw.x -(width/2))-1;
+ 			double y = (info.draw.y -(height/2))-1;
+ 			width+=4;
+ 			height+=4;
+ 			
+ 			if(upSide){
+ 				pol.addPoint((int)x, (int)y);
+ 				pol.addPoint((int)(x + width), (int)(y));
+ 				pol.addPoint((int)(x + width), (int)(y + (height*fact)));
+ 				pol.addPoint((int)(x), (int)(y + (height*fact)));		
+ 			}
+ 			if(downSide){
+ 				pol.addPoint((int)x, (int)(y + (height*(1-fact))));
+ 				pol.addPoint((int)x, (int)(y + (height)));
+ 				pol.addPoint((int)(x+width), (int)(y + (height)));
+ 				pol.addPoint((int)(x+width), (int)(y + (height*(1-fact)))); 						
+ 			}
+ 			if(leftSide){
+ 				pol.addPoint((int)x, (int)(y));
+ 				pol.addPoint((int)(x +(width*fact)), (int)(y));
+ 				pol.addPoint((int)(x +(width*fact)), (int)(y+height));
+ 				pol.addPoint((int)(x), (int)(y+height));
+ 			}
+ 			if(rightSide){
+ 				pol.addPoint((int)(x +(width*(1-fact))), (int)(y));
+ 				pol.addPoint((int)(x +(width)), (int)(y));
+ 				pol.addPoint((int)(x +(width)), (int)(y+height));
+ 				pol.addPoint((int)(x +(width*(1-fact))), (int)(y+height));
+ 			}
+ 			if(upperleftSide){
+ 				pol.addPoint((int)x, (int)y);
+ 				pol.addPoint((int)x, (int)(y+(height*fact)));
+ 				pol.addPoint((int)(x+(width*fact)), (int)(y));
+ 			}
+ 			if(upperrightSide){
+ 				pol.addPoint((int)(x+(width*(1-fact))), (int)y);
+ 				pol.addPoint((int)(x+(width)), (int)y);
+ 				pol.addPoint((int)(x+(width)), (int)(y+(height*fact))); 			
+ 			}
+ 			if(lowerrightSide){
+ 				pol.addPoint((int)(x+(width)), (int)(y+(height*(1-fact))));
+ 				pol.addPoint((int)(x+(width)), (int)(y+height));
+ 				pol.addPoint((int)(x+(width*(1-fact))), (int)(y+height));
+ 			}
+ 			if(lowerleftSide){
+ 				pol.addPoint((int)(x), (int)(y+(height*(1-fact))));
+ 				pol.addPoint((int)(x), (int)(y+height));
+ 				pol.addPoint((int)(x+(width*fact)), (int)(y+height));
+ 			}
+ 			
+ 			ellipseArea.subtract(new Area(pol));
+ 			
+ 			EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
+ 		 	graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
+ 		 	
+			if (filled)
+			{	        
+				graphics.fill(ellipseArea);
+			}
+			graphics.setPaint(standardMembraneColor);
+			graphics.setStroke(stroke);	      
+			graphics.draw(ellipseArea);
+ 			shape = null;
+    }
+    
+    
+    
+    private void drawSpreadingCellInside(Graphics2D graphics, DrawInfo2D info, AbstractCell cell){
+   	HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+   	DrawInfo2D secondInfo = this.drawInfoRegistry.get(cell.getID());     		     		
+  		
+  		this.drawInfoRegistry.remove(cell.getID());
+  		this.simStepTimeStampRegistry.remove(cell.getID());
+  		
+  		double x = info.draw.x < secondInfo.draw.x ? (info.draw.x -(((info.draw.width+DELTA)*scale)/2)): (secondInfo.draw.x -(((secondInfo.draw.width+DELTA)*scale)/2));
+    	double y = info.draw.y < secondInfo.draw.y ? (info.draw.y -(((info.draw.height+DELTA)*scale)/2)): (secondInfo.draw.y -(((secondInfo.draw.height+DELTA)*scale)/2));
+    		      	
+    	double height = (Math.abs(info.draw.y-secondInfo.draw.y)+info.draw.height+DELTA)*scale;
+    	double width = (Math.abs(info.draw.x-secondInfo.draw.x)+info.draw.width+DELTA)*scale;
+    
+    	double rotationInDegrees = 0;
+    	
+    	
+    	boolean swap = false;
+    	MutableInt2D location = (MutableInt2D)info.location;
+    	if(mechModel.getSpreadingLocation().x == location.x && mechModel.getSpreadingLocation().y == location.y){
+    		DrawInfo2D temp = secondInfo;
+    		secondInfo = info;
+    		info = temp;
+    		swap = true;
+    	} 	 			      	
+    	if((info.draw.x <secondInfo.draw.x && info.draw.y >secondInfo.draw.y)
+    			||(info.draw.x > secondInfo.draw.x && info.draw.y < secondInfo.draw.y)) rotationInDegrees = 155;
+    	
+    	if((info.draw.x <secondInfo.draw.x && info.draw.y <secondInfo.draw.y)
+    			||(info.draw.x > secondInfo.draw.x && info.draw.y > secondInfo.draw.y)) rotationInDegrees = 25;
+    	
+    	if(swap){
+    		DrawInfo2D temp = secondInfo;
+    		secondInfo = info;
+    		info = temp;
+    	} 
+    	
+    	double ellipseHeight = ((info.draw.height+DELTA)*scale)*0.9;
+    	if(rotationInDegrees != 0){
+    		AffineTransform tansform = new AffineTransform();
+    		double rotateX = x + (width/2);
+    		double rotateY = y + (height/2);
+    		
+    		y += (height/2);
+	      	y -= (ellipseHeight/2);
+    		tansform.setToRotation(Math.toRadians(rotationInDegrees), rotateX, rotateY);
+    		//
+    		shape = tansform.createTransformedShape(new Ellipse2D.Double(x, y, ((info.draw.height+DELTA)*scale)*2, ellipseHeight));
+    	}
+    	else shape = new Ellipse2D.Double(x+(Math.abs(ellipseHeight-width)/2), y, ellipseHeight, height);
+    }
+    
     
     private boolean isSpreadingLocation(DrawInfo2D info, HexagonBasedMechanicalModel mechModel){
    	 if(mechModel.isSpreading()){

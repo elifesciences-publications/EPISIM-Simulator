@@ -57,6 +57,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	
 	private DrawInfo2D lastDrawInfo2D;
 	
+	private static final boolean IS_TOROIDAL = false;
+	
 	public HexagonBasedMechanicalModel(){
 		this(null);	
 	}
@@ -102,7 +104,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		IntBag xPos = new IntBag();
 		IntBag yPos = new IntBag();
 		Bag neighbouringCellsBag = new Bag();
-	   cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, true, neighbouringCellsBag, xPos, yPos);
+	   cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, IS_TOROIDAL, neighbouringCellsBag, xPos, yPos);
 		GenericBag<AbstractCell> neighbouringCells = new GenericBag<AbstractCell>();
 		HashSet<Long> neighbouringCellIDs = new HashSet<Long>();
 	   for(Object obj : neighbouringCellsBag.objs){
@@ -119,7 +121,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   	xPos.clear();
 	   	yPos.clear();
 	   	neighbouringCellsBag.clear();
-	   	cellField.getNeighborsHexagonalDistance(spreadingLocation.x, spreadingLocation.y, 1, true, neighbouringCellsBag, xPos, yPos);
+	   	cellField.getNeighborsHexagonalDistance(spreadingLocation.x, spreadingLocation.y, 1, IS_TOROIDAL, neighbouringCellsBag, xPos, yPos);
 	   	for(Object obj : neighbouringCellsBag.objs){
 				if(obj != null && obj instanceof AbstractCell && obj != this.getCell()){				
 					AbstractCell cell = (AbstractCell)obj;
@@ -221,6 +223,10 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   return cellField;
    }
    
+   public Int2D getCellFieldDimensions(){
+   	return new Int2D(cellField.getWidth(), cellField.getHeight());
+   }
+   
    protected void setReloadedCellField(Object cellField) {
    	if(cellField instanceof ObjectGrid2D){
    		HexagonBasedMechanicalModel.cellField = (ObjectGrid2D) cellField;
@@ -249,7 +255,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
    private ArrayList<Integer> getPossibleSpreadingLocationIndices(IntBag xPos, IntBag yPos){
    	
 		Bag neighbouringCellsBag = new Bag();
-	   if(fieldLocation != null)cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, true, neighbouringCellsBag, xPos, yPos);
+	   if(fieldLocation != null)cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, IS_TOROIDAL, neighbouringCellsBag, xPos, yPos);
 	   
 	   ArrayList<Integer> spreadingLocationIndices = new ArrayList<Integer>();
 	   for(int i = 0; i < neighbouringCellsBag.size(); i++){

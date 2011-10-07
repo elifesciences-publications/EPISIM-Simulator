@@ -49,7 +49,7 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
    	for(CellPolygon actCellPolygon : polygons){
    		long id  = AbstractCell.getNextCellId();
    		CellPolygonRegistry.registerNewCellPolygon(id, actCellPolygon);   		
-   		UniversalCell stemCell = new UniversalCell(id,null, null, null);
+   		UniversalCell stemCell = new UniversalCell(null, null, null);
    		
    		Vertex cellCenter = actCellPolygon.getCellCenter();
 			Double2D cellLoc = new Double2D(cellCenter.getDoubleX(), cellCenter.getDoubleY());

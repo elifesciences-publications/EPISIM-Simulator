@@ -1,5 +1,6 @@
 package sim.app.episim.model.controller;
 	
+import java.awt.geom.GeneralPath;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -105,6 +106,9 @@ public class BiomechanicalModelController implements java.io.Serializable{
 	}
 	public void clearCellField(){
 		biomechanicalModel.clearCellField();
+	}
+	public void removeCellsInWoundArea(GeneralPath woundArea){
+		biomechanicalModel.removeCellsInWoundArea(woundArea);
 	}
 	
 	public Object getCellField(){

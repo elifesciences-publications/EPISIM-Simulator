@@ -69,11 +69,11 @@ public class UniversalCell extends AbstractCell
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
    public UniversalCell(){
-   	this(-1, null,  null, null);
+   	this(null,  null, null);
    }
    
-   public UniversalCell(long id, UniversalCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){   
-   	 super(id, motherCell, cellBehavioralModel, simState);      
+   public UniversalCell(UniversalCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){   
+   	 super(motherCell, cellBehavioralModel, simState);      
    	 TissueController.getInstance().getActEpidermalTissue().checkMemory();
    	 TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag       
     }  
@@ -81,13 +81,13 @@ public class UniversalCell extends AbstractCell
     public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
     {       
         
-  
+   	 GlobalStatistics.getInstance().inkrementActualNumberKCytes();
    	 
    	 // Either we get use a currently unused cell oder we allocate a new one
         UniversalCell kcyte;        
        
-        kcyte= new UniversalCell(AbstractCell.getNextCellId(), this, cellBehavioralModel, getActSimState()); 
-        cellBehavioralModel.setId((int)kcyte.getID());
+        kcyte= new UniversalCell(this, cellBehavioralModel, getActSimState()); 
+       
          
             
         Stoppable stoppable = TissueController.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
@@ -102,18 +102,14 @@ public class UniversalCell extends AbstractCell
         if (pSimTime<(kcyte.local_maxAge)){ 
       	  kcyte.local_maxAge=pSimTime;
       	  cellBehavioralModel.setMaxAge((int)kcyte.local_maxAge);
-        }  
-              
-        
+        }     
         
 		              
         return kcyte;
     }
 
     public void makeTACell(EpisimCellBehavioralModel cellBehavioralModel)
-    {
-        
-        GlobalStatistics.getInstance().inkrementActualNumberKCytes();
+    {    
         UniversalCell taCell=makeChild(cellBehavioralModel);
          
         //TODO enable / disable random age for TA Cells
@@ -128,8 +124,7 @@ public class UniversalCell extends AbstractCell
     }
    
     public void makeSpiCell(EpisimCellBehavioralModel cellBehavioralModel)
-    {       
-   	 GlobalStatistics.getInstance().inkrementActualNumberKCytes();
+    {         	 
        makeChild(cellBehavioralModel);
     }
  
@@ -223,6 +218,9 @@ public class UniversalCell extends AbstractCell
    		 for(EpisimCellBehavioralModel actChild: children){   			 
    			 if(actChild.getDiffLevel().ordinal() == EpisimDifferentiationLevel.TACELL) makeTACell(actChild);
    			 else if(actChild.getDiffLevel().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL) makeSpiCell(actChild);
+   			 else{
+   				 makeChild(actChild);
+   			 }
    		 }
    	 }
     }    

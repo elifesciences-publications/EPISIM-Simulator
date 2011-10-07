@@ -2,8 +2,14 @@ package sim.app.episim.model.biomechanics.centerbased;
 
 import java.awt.Color;
 import java.awt.Polygon;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 
 import ec.util.MersenneTwisterFast;
@@ -75,6 +81,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    
    private CellEllipse cellEllipseObject;
    
+   private DrawInfo2D lastDrawInfo2D;
+   
    //TODO: plus 2 Korrektur überprüfen
    private static Continuous2D cellField;
   
@@ -112,6 +120,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		 	  	this.setLastDrawInfo2DForNewCellEllipse(info, newloc, oldLoc);
 	      }
       }
+      lastDrawInfo2D = new DrawInfo2D(new Rectangle2D.Double(0, 0, 0, 0),
+     		 new Rectangle2D.Double(0, 0, 0, 0));
+   }
+   
+   public void setLastDrawInfo2D(DrawInfo2D info){
+   	this.lastDrawInfo2D = info;
    }
    
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
@@ -674,5 +688,43 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    	if(cellField instanceof Continuous2D){
    		CenterBasedMechanicalModel.cellField = (Continuous2D) cellField;
    	}
+   }
+
+	protected void removeCellsInWoundArea(GeneralPath woundArea) {
+		Iterator<AbstractCell> iter = TissueController.getInstance().getActEpidermalTissue().getAllCells().iterator();
+		Map<Long, Double2D> map = new HashMap<Long, Double2D>();
+		List<AbstractCell> deadCells = new LinkedList<AbstractCell>();
+			int i = 0;
+			while(iter.hasNext()){
+				AbstractCell cell = iter.next();
+				if(cell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+					CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+					if(woundArea.contains(mechModel.lastDrawInfo2D.draw.x, mechModel.lastDrawInfo2D.draw.y)&&
+							cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
+						deadCells.add(cell);
+						i++;
+					}
+					else{
+						 if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel){
+								AbstractMechanicalModel mechanicalModel = (AbstractMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+								map.put(cell.getID(), mechanicalModel.getCellLocationInCellField());
+						 }
+					}
+				}
+			}
+			for(AbstractCell cell: deadCells){
+				cell.killCell();
+			}
+			
+			
+			ModelController.getInstance().getBioMechanicalModelController().clearCellField();
+			for(AbstractCell cell: TissueController.getInstance().getActEpidermalTissue().getAllCells()){
+				if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel){
+					AbstractMechanicalModel mechanicalModel = (AbstractMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+					mechanicalModel.setCellLocationInCellField(map.get(cell.getID()));
+				}
+			}
+			
+	   
    }
 }

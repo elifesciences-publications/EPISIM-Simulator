@@ -2,6 +2,7 @@ package sim.app.episim.model.biomechanics;
 
 
 
+import java.awt.geom.GeneralPath;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -137,6 +138,13 @@ public class BiomechanicalModelFacade implements java.io.Serializable, SnapshotL
 	public void clearCellField(){
 		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
 		if(biomechanicalModel instanceof AbstractMechanicalModel) ((AbstractMechanicalModel) biomechanicalModel).clearCellField();
+	}
+	
+	public void removeCellsInWoundArea(GeneralPath woundArea){
+		if(woundArea!=null){
+			EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
+			if(biomechanicalModel instanceof AbstractMechanicalModel) ((AbstractMechanicalModel) biomechanicalModel).removeCellsInWoundArea(woundArea);
+		}
 	}
 	
 	public void setReloadedCellField(Object cellField){

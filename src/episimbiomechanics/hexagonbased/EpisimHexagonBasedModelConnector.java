@@ -17,6 +17,7 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	private boolean isSpreading = false;
 	private boolean isProliferating = false;
 	private boolean isRetracting = false;
+	private boolean isSpreadingPossible = true;
 
 	protected String getIdForInternalUse() {
 		return ID;
@@ -50,6 +51,16 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	public void setIsProliferating(boolean isProliferating) {	
 		this.isProliferating = isProliferating;
 	}
+	
+	
+	public boolean getIsSpreadingPossible(){
+		return isSpreadingPossible;
+	}
+	
+	@Hidden
+	public void setIsSpreadingPossible(boolean isSpreadingPossible){
+		this.isSpreadingPossible = isSpreadingPossible;
+	}	
 
 	public boolean getIsRetracting(){		
 		return isRetracting;

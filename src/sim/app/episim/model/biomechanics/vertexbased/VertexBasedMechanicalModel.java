@@ -1,6 +1,7 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Polygon;
+import java.awt.geom.GeneralPath;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,8 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	
 	private long currentSimStepNo = 0;
 	
+	private DrawInfo2D lastDrawInfo2D;
+	
 	 //TODO: plus 2 Korrektur überprüfen
    private static Continuous2D cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
    		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() + 2, 
@@ -52,6 +55,10 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 			cellField.setObjectLocation(cell, new Double2D(this.getX(), this.getY()));
 		}
 	}
+	
+	public void setLastDrawInfo2D(DrawInfo2D info){
+   	this.lastDrawInfo2D = info;
+   }
 	
 	public void setEpisimModelConnector(EpisimModelConnector modelConnector){
 		
@@ -245,5 +252,10 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
    	if(cellField instanceof Continuous2D){
    		VertexBasedMechanicalModel.cellField = (Continuous2D) cellField;
    	}
+   }
+	protected void removeCellsInWoundArea(GeneralPath woundArea) {
+
+	   // TODO Wounding in Vertex Model is not yet supported
+	   
    }
  }

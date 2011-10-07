@@ -1,6 +1,7 @@
 package episiminterfaces;
 
 import java.awt.Polygon;
+import java.awt.geom.GeneralPath;
 import java.io.File;
 
 import episimbiomechanics.EpisimModelConnector;
@@ -16,6 +17,7 @@ public interface EpisimBiomechanicalModel {
 	
 	void setEpisimModelConnector(EpisimModelConnector modelConnector);
 	GenericBag<AbstractCell> getRealNeighbours();
+	
 	Polygon getPolygonCell();
 	Polygon getPolygonCell(DrawInfo2D info);
 	Polygon getPolygonNucleus();

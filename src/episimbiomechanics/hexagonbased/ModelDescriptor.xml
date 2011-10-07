@@ -6,6 +6,8 @@
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isSpreading" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
+    <parameter datatype="boolean" default="true"
+      name="isSpreadingPossible" readonly="true"/>
     <parameter datatype="boolean" default="false" name="isRetracting" readonly="false"/>
   </modelparameters>
 </modeldescriptor>

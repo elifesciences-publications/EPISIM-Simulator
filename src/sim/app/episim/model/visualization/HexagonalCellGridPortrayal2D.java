@@ -45,7 +45,7 @@ public class HexagonalCellGridPortrayal2D extends HexaObjectGridPortrayal2D {
    	this.INITIALWIDTH = width;
 	  	this.INITIALHEIGHT = height;
 	  	this.border = border;
-	  	defaultHexPortrayal = new HexagonalCellPortrayal2D(false);
+	  	defaultHexPortrayal = new HexagonalCellPortrayal2D(this, false);
     }    
 	
 	

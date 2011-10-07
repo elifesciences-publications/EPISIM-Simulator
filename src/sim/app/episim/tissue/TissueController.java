@@ -67,8 +67,7 @@ public class TissueController {
 		else{
 			actImportedTissue = importer.loadTissue(file);
 			if(this.actImportedTissue != null) TissueBorder.getInstance().setImportedTissueBorder(actImportedTissue);
-		}
-		
+		}		
 	}
 	
 	public void addTissueRegistrationListener(TissueRegistrationListener listener){
@@ -84,6 +83,11 @@ public class TissueController {
 			listener.newTissueWasRegistered();
 		}
 	}
-
-
+	
+	public void resetTissueSettings(){
+		tissueRegistrationListener.clear();
+		importer = new TissueImporter();
+		actImportedTissue = null;
+		TissueBorder.getInstance().resetTissueBorderSettings();
+	}
 }

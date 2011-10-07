@@ -3,6 +3,7 @@ import sim.SimStateServer;
 import sim.SimStateServer.SimState;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
@@ -17,6 +18,7 @@ import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.Scale;
 import sim.portrayal.*;
+
 import java.awt.*;
 import java.awt.geom.*;
 
@@ -66,7 +68,9 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
             if (object instanceof UniversalCell)
             {                
                 final UniversalCell universalCell=((UniversalCell)object);
-                
+                AbstractMechanicalModel mechModel = (AbstractMechanicalModel)universalCell.getEpisimBioMechanicalModelObject();
+         		 mechModel.setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
+                		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height))); 
                 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGlobalParameters){
                	 drawCellEllipses = ((CenterBasedMechanicalModelGlobalParameters)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
                	 centerBasedModel = true;
@@ -189,7 +193,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 	    	}
 	    	//must be set at the very end of the paint method
 	       
-	       if(SimStateServer.getInstance().getSimState() == SimState.PLAY){ 
+	       if(SimStateServer.getInstance().getSimState() == SimState.PLAY || SimStateServer.getInstance().getSimState() == SimState.STEPWISE){ 
 	      	 cellEllipseObject.setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
 		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)), false);
 	       }         

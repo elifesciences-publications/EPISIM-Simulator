@@ -341,7 +341,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 				public void mouseReleased(MouseEvent e) {
 	
 					if(e.getButton() == MouseEvent.BUTTON3){
-						if(console.getPlayState() == Console.PS_PAUSED)console.pressPause();
+					//	if(console.getPlayState() == Console.PS_PAUSED)console.pressPause();
 						if(woundPortrayalDraw != null){
 							woundPortrayalDraw.closeWoundRegionPath(true);
 							((Epidermis) state).removeCells(woundPortrayalDraw.getWoundRegion());

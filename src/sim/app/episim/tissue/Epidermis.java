@@ -306,47 +306,10 @@ public class Epidermis extends TissueType implements CellDeathListener
      
      
     
- 	}
- 	
- 	
- 
+ 	} 
 
 	public void removeCells(GeneralPath path){
-		Iterator<AbstractCell> iter = getAllCells().iterator();
-		Map<Long, Double2D> map = new HashMap<Long, Double2D>();
-		List<AbstractCell> livingCells = new LinkedList<AbstractCell>();
-			int i = 0;
-			while(iter.hasNext()){
-				AbstractCell cell = iter.next();
-				if(cell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
-					
-					//TODO: Diese Ausnahme eleminieren und verallgemeinern
-					CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
-					if(path.contains(mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.x, mechModel.getCellEllipseObject().getLastDrawInfo2D().draw.y)&&
-							cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
-						cell.killCell();					 
-						i++;
-					}
-					else{
-						 livingCells.add(cell);
-						 if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel){
-								AbstractMechanicalModel mechanicalModel = (AbstractMechanicalModel) cell.getEpisimBioMechanicalModelObject();
-								map.put(cell.getID(), mechanicalModel.getCellLocationInCellField());
-						 }
-					}
-				}
-			}
-			
-			this.getAllCells().clear();
-			ModelController.getInstance().getBioMechanicalModelController().clearCellField();
-			for(AbstractCell cell: livingCells){
-				if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel){
-					AbstractMechanicalModel mechanicalModel = (AbstractMechanicalModel) cell.getEpisimBioMechanicalModelObject();
-					mechanicalModel.setCellLocationInCellField(map.get(cell.getID()));
-				}
-				this.getAllCells().add(cell);
-			}
-		
+		ModelController.getInstance().getBioMechanicalModelController().removeCellsInWoundArea(path);		
 	}
 
 

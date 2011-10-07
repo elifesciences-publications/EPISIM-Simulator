@@ -41,6 +41,7 @@ import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
 
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotLoader;
@@ -580,9 +581,10 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	
 	protected void registerSimulationStateListeners(EpidermisGUIState guiState){
-		epiUI.addSimulationStateChangeListener(this);
-		epiUI.addSimulationStateChangeListener(CellEllipseIntersectionCalculationRegistry.getInstance());
 		epiUI.addSimulationStateChangeListener(SimStateServer.getInstance());
+		
+		SimStateServer.getInstance().addSimulationStateChangeListener(this);
+		SimStateServer.getInstance().addSimulationStateChangeListener(CellEllipseIntersectionCalculationRegistry.getInstance());
 	}
 	protected void buildModelArchive(){
 		if(ModeServer.guiMode()){
@@ -602,6 +604,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		if(ModeServer.guiMode())mainFrame.repaint();
 		else noGUIModeMainPanel.repaint();
 		ModelController.getInstance().setModelOpened(false);
+		TissueController.getInstance().resetTissueSettings();
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_SNAPSHOT).setEnabled(true);
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(false);
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(true);

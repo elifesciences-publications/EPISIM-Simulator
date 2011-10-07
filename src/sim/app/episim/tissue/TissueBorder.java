@@ -46,8 +46,11 @@ public class TissueBorder {
 	private boolean standardMembraneLoaded = false;	
 	private boolean noMembraneLoaded = false;
 	
-	private TissueBorder(){
-		
+	private TissueBorder(){		
+		resetTissueBorderSettings();
+	}
+	
+	public void resetTissueBorderSettings(){
 		fullcontour = new ArrayList<Point2D>();
 		
 		polygon = new GeneralPath();
@@ -59,6 +62,15 @@ public class TissueBorder {
 		drawBasalLayer = new GeneralPath();
 		
 		organizedXPoints = new HashMap<Double, TreeSet<Double>>();
+		
+		tissue = null;
+		globalParameters = null;
+		standardMembraneLoaded = false;	
+		noMembraneLoaded = false;
+		
+		basalY=58;
+		basalPeriod=70;
+		startXOfStandardMembrane = 0;
 	}
 	
 	public int getUndulationBaseLine(){

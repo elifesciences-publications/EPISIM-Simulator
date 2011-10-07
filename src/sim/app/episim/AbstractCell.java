@@ -46,11 +46,11 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    
    private SimState actSimState;
    
-   public AbstractCell(long identity, AbstractCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){
+   public AbstractCell(AbstractCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){
    	inNirvana=false;
    	isOuterCell=false;
-   	this.id = identity;
-   	this.motherCell = motherCell == null ? this : motherCell;   	
+   	this.id = getNextCellId();
+   	this.motherCell = ((motherCell == null) ? this : motherCell);   	
    	this.cellBehavioralModelObject = cellBehavioralModel;
    	this.actSimState = simState;
    	final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
@@ -58,6 +58,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    		this.cellBehavioralModelObject = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
    	}
    	else{
+   		this.cellBehavioralModelObject.setId((int)this.id);
    		this.cellBehavioralModelObject.setSendReceiveAlgorithm(ModelController.getInstance().getCellBehavioralModelController().getNewInstanceOfSendReceiveAlgorithm());
    	}
    	mechanicalModelObject =  ModelController.getInstance().getNewBioMechanicalModelObject(this);

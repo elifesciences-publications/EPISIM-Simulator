@@ -19,8 +19,7 @@ import episimexceptions.PropertyException;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
-import sim.util.Utilities;
-import sim.util.WordWrap;
+import sim.util.gui.Utilities;
 import sim.util.gui.MovieMaker;
 
 

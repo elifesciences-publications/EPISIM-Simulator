@@ -13,6 +13,8 @@ import sim.engine.*;
 import sim.util.media.chart.*;
 import org.jfree.data.xy.*;
 import org.jfree.data.general.*;
+import org.jfree.chart.plot.*;
+import org.jfree.chart.*;
 
 /** A property inspector which generates time series of data.  Time series are extended in real-time
     as requested by the user.  Data properties for which
@@ -47,21 +49,29 @@ public class TimeSeriesChartingPropertyInspector extends ChartingPropertyInspect
 
     public TimeSeriesChartingPropertyInspector(Properties properties, int index, Frame parent, final GUIState simulation)
         {
-        super(properties,index,parent,simulation);
-        setupSeriesAttributes();
+        super(properties,index,parent,simulation); 
+        setupSeriesAttributes(properties, index); 
         }
     
     public TimeSeriesChartingPropertyInspector(Properties properties, int index, final GUIState simulation, ChartGenerator generator)
         {
         super(properties, index, simulation, generator);
-        setupSeriesAttributes();
+        setupSeriesAttributes(properties, index);
         }
     
     //I isolated this code from the constructor into this method because I have two constructors now. 
-    private void setupSeriesAttributes()
-        {            
-        if (validInspector)
+    private void setupSeriesAttributes(Properties properties, int index)
+        {
+        if (isValidInspector())
             {
+            if (getGenerator().getNumSeriesAttributes() == 0)  // recall that we've not been added yet
+                {
+                // take control
+                getGenerator().setTitle("" + properties.getName(index) + " of " + properties.getObject());
+                getGenerator().setYAxisLabel("" + properties.getName(index));
+                getGenerator().setXAxisLabel("Time");
+                }
+                        
             chartSeries = new XYSeries( properties.getName(index), false );
 
             // add our series
@@ -82,9 +92,8 @@ public class TimeSeriesChartingPropertyInspector extends ChartingPropertyInspect
                 Stoppable stopper = getStopper();
                 if (stopper!=null) stopper.stop();
 
-                // remove the chart from the GUIState's guiObjects
-                if( simulation.guiObjects != null )
-                    simulation.guiObjects.remove(this);
+                // remove the chart from the GUIState's charts
+                getCharts(simulation).remove(this);
                 }
             };
         }
@@ -100,81 +109,22 @@ public class TimeSeriesChartingPropertyInspector extends ChartingPropertyInspect
         else return Double.NaN;  // unknown
         }
     
-//      public DataCuller dataCuller = null;    //null means no culling
-    public void addToMainSeries(double x, double y, boolean notify)
+    void addToMainSeries(double x, double y, boolean notify)
         {
         chartSeries.add(x, y, false);
-        //I postpone <code>fireSeriesChanged</code> till after  
-        //the culling decision to save a repaint.
-        
-        DataCuller dataCuller = ((TimeSeriesChartGenerator)generator).getDataCuller();
-        if(dataCuller!=null && dataCuller.tooManyPoints(chartSeries.getItemCount()))
-            deleteItems(dataCuller.cull(getXValues(), true));
-        else
-            //no chage to chartSeries other then the add(), so
-            if(notify)
-                chartSeries.fireSeriesChanged();
-        }
-//    public void setDataCuller(DataCuller dc)
-//    {
-//      dataCuller = dc;
-//    }
-    static Bag tmpBag = new Bag();
-    void deleteItems(IntBag items)
-        {
-        if(items.numObjs==0)
-            return;
-//      //I would sure hate to to do this (O(n^2), plus each remove causes a SeriesChangeEvent):
-//      for(int i=items.numObjs-1;i>=0;i--)
-//              chartSeries.remove(items.objs[i]);
-        //here's the O(n) version (and just 2 SeriesChangeEvents)
-
-        tmpBag.clear();
-        int currentTabooIndex = 0;
-        int currentTaboo = items.objs[0];
-        Iterator iter = chartSeries.getItems().iterator();
-        int index=0;
-        while(iter.hasNext())
+        TimeSeriesAttributes attributes = (TimeSeriesAttributes)(seriesAttributes);
+        if (!attributes.possiblyCull())
             {
-            Object o = iter.next();
-            if(index==currentTaboo)
-                {
-                //skip the copy, let's move on to next taboo index
-                if(currentTabooIndex<items.numObjs-1)
-                    {
-                    currentTabooIndex++;
-                    currentTaboo = items.objs[currentTabooIndex];
-                    }
-                else
-                    currentTaboo=-1;//no more taboos
-                }
-            else//save o
-                tmpBag.add(o);
-            index++;
+            if (notify)     // do a notification anyway
+                chartSeries.fireSeriesChanged();
             }
-        //now we clear the chartSeries and then put back the saved objects only.
-        chartSeries.clear();
-        //In my test this did not cause the chart to flicker.
-        //But if it does, one could do an update for the part the will be refill and 
-        //only clear the rest using delete(start, end).
-        for(int i=0;i<tmpBag.numObjs;i++)
-            chartSeries.add((XYDataItem)tmpBag.objs[i], false);//no notifying just yet.
-        tmpBag.clear();
-        //it doesn't matter that I clear this twice in a row 
-        //(once here, once at next time through this fn), the second time is O(1).
-        chartSeries.fireSeriesChanged();
-        }
-    double[] getXValues()
-        {
-        double[] xValues = new double[chartSeries.getItemCount()];
-        for(int i=0;i<xValues.length;i++)
-            xValues[i]=chartSeries.getX(i).doubleValue();
-        return xValues;
         }
 
     protected void updateSeries(double time, double lastTime)
         {
         double d = 0;
+                
+        GlobalAttributes globalAttributes = getGlobalAttributes();
                 
         // FIRST, load the aggregate series with the items
         aggregateSeries.add(time, d = valueFor(properties.getValue(index)), false);

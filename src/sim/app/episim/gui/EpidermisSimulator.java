@@ -554,7 +554,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 						
 					  if(woundRegionCoordinates!= null) epiUI.getWoundPortrayalDraw().setWoundRegionCoordinates(woundRegionCoordinates);
 					  if(deltaInfo!= null && deltaInfo.length >=2) 
-						  epiUI.getWoundPortrayalDraw().setDeltaInfo(new DrawInfo2D(deltaInfo[0], deltaInfo[1]) );
+						  epiUI.getWoundPortrayalDraw().setDeltaInfo(new DrawInfo2D(null, null, deltaInfo[0], deltaInfo[1]) );
 					  SnapshotWriter.getInstance().addSnapshotListener(epiUI.getWoundPortrayalDraw());
 					}
 					epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());

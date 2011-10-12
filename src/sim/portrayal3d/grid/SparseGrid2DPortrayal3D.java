@@ -41,7 +41,7 @@ public class SparseGrid2DPortrayal3D extends SparseGridPortrayal3D
     
     public void setField(Object field)
         {
-        if (field instanceof SparseGrid2D) this.field = (SparseGrid2D) field;
+        if (field instanceof SparseGrid2D) super.setField(field);
         else throw new RuntimeException("Invalid field for StackedSparse2DPortrayal3D: " + field);
         }
 
@@ -111,6 +111,7 @@ public class SparseGrid2DPortrayal3D extends SparseGridPortrayal3D
                     throw new RuntimeException("Unexpected Portrayal " + p + " for object " + 
                         fieldObj + " -- expecting a SimplePortrayal3D");
                 SimplePortrayal3D p3d = (SimplePortrayal3D)p;
+                p3d.setCurrentFieldPortrayal(this);
                 TransformGroup localTG2 = p3d.getModel(fieldObj, localTG);
         
                 // Vector3d locationV3d = getLocationOfObjectAsVector3d(fieldObj);

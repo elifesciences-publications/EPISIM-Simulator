@@ -42,7 +42,10 @@ public class RectanglePortrayal2D extends SimplePortrayal2D
         return( range.clip.intersects( range.draw.x-width/2, range.draw.y-height/2, width, height ) );
         }
 
-    Rectangle2D.Double preciseRectangle = new Rectangle2D.Double();
+    // we must be transient because Rectangle2D.Double is not serializable.
+    // We also check to see if it's null elsewhere (because it's transient).
+    transient Rectangle2D.Double preciseRectangle = new Rectangle2D.Double();
+        
     // assumes the graphics already has its color set
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
         {
@@ -50,17 +53,18 @@ public class RectanglePortrayal2D extends SimplePortrayal2D
         final double width = draw.width*scale;
         final double height = draw.height*scale;
 
+        graphics.setPaint(paint);
+        // we are doing a simple draw, so we ignore the info.clip
+
         if (info.precise)
             {
+            if (preciseRectangle == null) preciseRectangle= new Rectangle2D.Double();  // could get reset because it's transient
             preciseRectangle.setFrame(info.draw.x - width/2.0, info.draw.y - height/2.0, width, height);
             if (filled) graphics.fill(preciseRectangle);
             else graphics.draw(preciseRectangle);
             return;
             }
                 
-        graphics.setPaint(paint);
-        // we are doing a simple draw, so we ignore the info.clip
-
         final int x = (int)(draw.x - width / 2.0);
         final int y = (int)(draw.y - height / 2.0);
         final int w = (int)(width);

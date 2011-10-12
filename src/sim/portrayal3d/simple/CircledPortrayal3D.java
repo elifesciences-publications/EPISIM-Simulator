@@ -11,6 +11,8 @@ import sim.portrayal3d.*;
 import sim.display.*;
 import javax.media.j3d.*;
 import com.sun.j3d.utils.geometry.*;
+import sim.display3d.*;
+import java.awt.*;
 
 /**
    A wrapper for other Portrayal3Ds which also draws a big translucent sphere around them -- useful for
@@ -37,42 +39,43 @@ import com.sun.j3d.utils.geometry.*;
 
 public class CircledPortrayal3D extends SimplePortrayal3D
     {
-    public final static Appearance DEFAULT_CIRCLED_APPEARANCE = appearanceForColor(new java.awt.Color(255,255,255,63));
-    
-    public float scale;
-    public Appearance appearance;
-    
-    protected SimplePortrayal3D child;
+    public final static Appearance DEFAULT_CIRCLED_APPEARANCE = appearanceForColor(new Color(255,255,255,63));
+    public final static double DEFAULT_SCALE = 2.0;
+        
+    double scale;
+    Appearance appearance;
+    SimplePortrayal3D child;
     
     public CircledPortrayal3D(SimplePortrayal3D child)
         {
-        this(child, 2f);
+        this(child, DEFAULT_SCALE);
         }
     
-    public CircledPortrayal3D(SimplePortrayal3D child, float scale)
+    public CircledPortrayal3D(SimplePortrayal3D child, double scale)
         {
         this(child,scale, false);
         }
         
-    public CircledPortrayal3D(SimplePortrayal3D child, float scale, boolean onlyCircleWhenSelected)
+    public CircledPortrayal3D(SimplePortrayal3D child, double scale, boolean onlyCircleWhenSelected)
         {
         this(child,DEFAULT_CIRCLED_APPEARANCE,scale, onlyCircleWhenSelected);
         }
 
-    public CircledPortrayal3D(SimplePortrayal3D child, java.awt.Color color)
+    public CircledPortrayal3D(SimplePortrayal3D child, Color color)
         {
-        this(child,color, 2f ,false);
+        this(child,color, DEFAULT_SCALE ,false);
         }
 
-    public CircledPortrayal3D(SimplePortrayal3D child, java.awt.Color color, float scale, boolean onlyCircleWhenSelected)
+    public CircledPortrayal3D(SimplePortrayal3D child, Color color, double scale, boolean onlyCircleWhenSelected)
         {
         this(child,appearanceForColor(color),scale,onlyCircleWhenSelected);
         }
     
-    public CircledPortrayal3D(SimplePortrayal3D child, Appearance appearance, float scale, boolean onlyCircleWhenSelected)
+    public CircledPortrayal3D(SimplePortrayal3D child, Appearance appearance, double scale, boolean onlyCircleWhenSelected)
         {
         this.child = child;
-        this.appearance = appearance; this.scale = scale;
+        this.appearance = appearance; 
+        this.scale = scale;
         this.onlyCircleWhenSelected = onlyCircleWhenSelected;
         }
 
@@ -91,9 +94,18 @@ public class CircledPortrayal3D extends SimplePortrayal3D
         return child.getName(wrapper);
         }
     
-    public void setParentPortrayal(FieldPortrayal3D p)
+    /** Sets the current display both here and in the child. */
+    public void setCurrentDisplay(Display3D display)
         {
-        child.setParentPortrayal(p);
+        super.setCurrentDisplay(display);
+        child.setCurrentDisplay(display);
+        }
+                
+    /** Sets the current field portrayal both here and in the child. */
+    public void setCurrentFieldPortrayal(FieldPortrayal3D p)
+        {
+        super.setCurrentFieldPortrayal(p);
+        child.setCurrentFieldPortrayal(p);
         }
 
     public boolean setSelected(LocationWrapper wrapper, boolean selected)
@@ -124,7 +136,7 @@ public class CircledPortrayal3D extends SimplePortrayal3D
     public boolean isCircleShowing() { return showCircle; }
     public void setCircleShowing(boolean val) { showCircle = val;  }
 
-    public void updateSwitch(Switch jswitch, Object object)
+    void updateSwitch(Switch jswitch, Object object)
         {
         if (showCircle && (isSelected(object) || !onlyCircleWhenSelected))
             jswitch.setWhichChild( Switch.CHILD_ALL );
@@ -143,7 +155,7 @@ public class CircledPortrayal3D extends SimplePortrayal3D
             jswitch.setCapability(Switch.ALLOW_SWITCH_WRITE);
                         
             // make a sphere
-            Sphere sphere = new Sphere(scale/2,appearance);
+            Sphere sphere = new Sphere((float)(scale/2.0),appearance);
             
             // it's not pickable
             clearPickableFlags(sphere);

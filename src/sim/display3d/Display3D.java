@@ -136,8 +136,9 @@ public class Display3D extends JPanel implements Steppable
     ArrayList portrayals = new ArrayList();
     Stoppable stopper;
     GUIState simulation;
+        
     /** The component bar at the top of the Display3D. */
-    public JComponent header;
+    public Box header;
     /** The button which starts or stops a movie */
     public JButton movieButton;
     /** The button which snaps a screenshot */
@@ -145,19 +146,18 @@ public class Display3D extends JPanel implements Steppable
     /** The button which pops up the option pane */
     public JButton optionButton;
     /** The field for scaling values */
+    public JPopupMenu refreshPopup;
+    /** The button which pops up the refresh menu */
+    public JToggleButton refreshbutton;  // for popup
+    /** The button which starts or stops a movie */
     public NumberTextField scaleField;
     /** The field for skipping frames */
     public NumberTextField skipField;
     /** The combo box for skipping frames */
     public JComboBox skipBox;
+    /** The frame which holds the skip controls */
+    public JFrame skipFrame;
         
-    long interval = 1;
-    Object intervalLock = new Object();
-    /** Sets how many steps are skipped before the display updates itself. */
-    public void setInterval(long i) { synchronized(intervalLock) { interval = i; } }
-    /** Gets how many steps are skipped before the display updates itself. */
-    public long getInterval() { synchronized(intervalLock) { return interval; } }
-    
     /** The Java3D canvas holding the universe. A good time to fool around with this is
         in the sceneGraphCreated() hook. */
     public CapturingCanvas3D canvas = null;
@@ -168,6 +168,9 @@ public class Display3D extends JPanel implements Steppable
         This is a good place to hang things you don't want auto-rotated nor transformed by the Display3D.  Hang things off of here
         in the sceneGraphCreated() hook. */
     public BranchGroup root = null;
+    /** An additional root scene graph node which is attached to the viewing transform of the universe, and thus
+        stays in the same location regardless of the placement of the camera. */
+    public BranchGroup viewRoot = null;
 
     // these really don't need to be public...
 
@@ -191,21 +194,24 @@ public class Display3D extends JPanel implements Steppable
     /** Holds two lights located at the camera: in slot 0, a white PointLight, and in slot 1, a white AmbientLight.
         You may change these lights to different colored lights, but please keep them PointLights and AmbientLights
         respectively.  These lights are turned on and off by the Options pane. */
-    public Switch lightSwitch = null;
+    Switch lightSwitch = null;
     BitSet lightSwitchMask = new BitSet(NUM_LIGHT_ELEMENTS);
     final static int NUM_LIGHT_ELEMENTS = 2;
     final static int SPOTLIGHT_INDEX = 0;
     final static int AMBIENT_LIGHT_INDEX = 1;
 
-    /** The MovieMaker.  If null, we're not shooting a movie. */
-    public MovieMaker movieMaker = null;    
+    /* The MovieMaker.  If null, we're not shooting a movie. */
+    MovieMaker movieMaker = null;    
 
     /** The popup layers menu */
     public JPopupMenu popup;
     /** The button which pops up the layers menu */
-    public JToggleButton togglebutton;  // for popup
+    public JToggleButton layersbutton;  // for popup
 
-    /** Sets various MacOS X features */
+    /* Sets various MacOS X features.  This text is repeated in Console.java, Display2D.java, and Display3D.java
+       The reason for the repeat is that the UseQuartz property must be set a precise time -- for example, we can't
+       just use this static to call a common static method -- it doesn't work :-(  Otherwise we'd have made one
+       static method which did all this stuff, duh.  */
     static 
         {
         // use heavyweight tooltips -- otherwise they get obscured by the Canvas3D
@@ -215,6 +221,9 @@ public class Display3D extends JPanel implements Steppable
         // Use Quaqua if it exists
         try
             {
+            //Set includes = new HashSet();
+            //includes.add("ColorChooser");
+            //ch.randelshofer.quaqua.QuaquaManager.setIncludedUIs(includes);
             System.setProperty( "Quaqua.TabbedPane.design","auto" );  // UI Manager Properties docs differ
             System.setProperty( "Quaqua.visualMargin","1,1,1,1" );
             UIManager.put("Panel.opaque", Boolean.TRUE);
@@ -229,7 +238,7 @@ public class Display3D extends JPanel implements Steppable
             // turns this off by default, which makes 1.3.1 half the speed (and draws
             // objects wrong to boot).
             System.setProperty("com.apple.hwaccel","true");  // probably settable as an applet.  D'oh! Looks like it's ignored.
-            System.setProperty("apple.awt.graphics.UseQuartz","true");  // counter the awful effect in OS X's Sun Renderer
+            System.setProperty("apple.awt.graphics.UseQuartz","true");  // counter the awful effect in OS X's Sun Renderer (though it's a bit faster)
             // the following are likely not settable
             // macOS X 1.4.1 java doesn't show the grow box.  We force it here.
             System.setProperty("apple.awt.showGrowBox","true");
@@ -266,7 +275,7 @@ public class Display3D extends JPanel implements Steppable
             public void addWindowListener(WindowListener l) 
                 {
                 if ((new String("class javax.media.j3d.EventCatcher")).compareTo(l.getClass().toString()) == 0)
-                    l = new localWindowListener(); 
+                    l = new LocalWindowListener(); 
                                                 
                 super.addWindowListener(l); 
                 }
@@ -316,7 +325,7 @@ public class Display3D extends JPanel implements Steppable
         return frame;
         }
         
-    class localWindowListener extends java.awt.event.WindowAdapter 
+    class LocalWindowListener extends java.awt.event.WindowAdapter 
         {
         // empty class to replace the windowlistener spawned by Canvas3D        
         }
@@ -327,13 +336,13 @@ public class Display3D extends JPanel implements Steppable
     
     class Portrayal3DHolder
         {
-        public Portrayal3D portrayal;
-        public String name;
-        public JCheckBoxMenuItem menuItem;
-        public int subgraphIndex;
-        public boolean visible = true;  // added -- Sean
+        Portrayal3D portrayal;
+        String name;
+        JCheckBoxMenuItem menuItem;
+        int subgraphIndex;
+        boolean visible = true;  // added -- Sean
         public String toString() { return name; }
-        public Portrayal3DHolder(Portrayal3D p, String n, boolean visible)
+        Portrayal3DHolder(Portrayal3D p, String n, boolean visible)
             {
             portrayal=p; 
             name=n;
@@ -367,7 +376,7 @@ public class Display3D extends JPanel implements Steppable
 
     /** Returns the frame holding this Component.  If there is NO such frame, an error will
         be generated (probably a ClassCastException). */
-    Frame getFrame()
+    public Frame getFrame()
         {
         Component c = this;
         while(c.getParent() != null)
@@ -384,7 +393,7 @@ public class Display3D extends JPanel implements Steppable
             {
             // now reschedule myself
             if (stopper!=null) stopper.stop();
-            if (getInterval() < 1) setInterval(1);  // just in case...
+            //if (getInterval() < 1) setInterval(1);  // just in case...
             stopper = simulation.scheduleRepeatingImmediatelyAfter(this);
             }
             
@@ -402,7 +411,7 @@ public class Display3D extends JPanel implements Steppable
     // new portrayals have been attached/detatched?
     boolean dirty = false;
     
-    /** Attaches a portrayal to the Display3D, along with the provided human-readable name for the portrayal.�
+    /** Attaches a portrayal to the Display3D, along with the provided human-readable name for the portrayal.
         The portrayal will be transformed, along with similar attached portrayals,
         according to the Display3D's internal transform.  */
     public void attach(Portrayal3D portrayal, String name)
@@ -416,14 +425,15 @@ public class Display3D extends JPanel implements Steppable
         initially visible or not visible.  */
     public void attach(Portrayal3D portrayal, String name, boolean visible)
         {
-        /* In case our attached portrayal was done AFTER the display is live, let's recreate*/
+        /* In case our attached portrayal was done AFTER the display is live, let's recreate */
         destroySceneGraph();
         
         Portrayal3DHolder p = new Portrayal3DHolder(portrayal,name,visible);
         portrayals.add(p);
         popup.add(p.menuItem);
         dirty = true;
-        
+        portrayal.setCurrentDisplay(this);
+
         createSceneGraph();
         }
 
@@ -446,7 +456,7 @@ public class Display3D extends JPanel implements Steppable
             });
         }
     
-    public void createConsoleMenu()
+    void createConsoleMenu()
         {
         if (simulation != null && simulation.controller != null &&
             simulation.controller instanceof Console)
@@ -478,14 +488,27 @@ public class Display3D extends JPanel implements Steppable
         return old;
         }
     
+    public GUIState getSimulation() { return simulation; }
+        
     /**
        Creates a Display3D with the provided width and height for its portrayal region, 
-       attached to the provided simulation, and displaying itself with the given interval (which must be > 0).
+       attached to the provided simulation.  The interval is ignored.
+       @deprecated
     */
     // width and height are actually ints, but we're being consistent with Display2D
     public Display3D(final double width, final double height, GUIState simulation, long interval)
         {
-        setInterval(interval);
+        this(width, height, simulation);
+        }
+
+        
+    /**
+       Creates a Display3D with the provided width and height for its portrayal region, 
+       attached to the provided simulation.
+    */
+    public Display3D(final double width, final double height, GUIState simulation)
+        {
+        // setInterval(interval);
         this.simulation = simulation;
         reset();  // must happen AFTER state is assigned
         
@@ -513,33 +536,70 @@ public class Display3D extends JPanel implements Steppable
         setBackground(Color.black);  
 
 
-        togglebutton = new JToggleButton(Display2D.LAYERS_ICON);
-        togglebutton.setPressedIcon(Display2D.LAYERS_ICON_P);
-        togglebutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
-        togglebutton.setBorderPainted(false);
-        togglebutton.setContentAreaFilled(false);
-        togglebutton.setToolTipText("Show and hide different layers");
-        header.add(togglebutton);
+        layersbutton = new JToggleButton(Display2D.LAYERS_ICON);
+        layersbutton.setPressedIcon(Display2D.LAYERS_ICON_P);
+        layersbutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        layersbutton.setBorderPainted(false);
+        layersbutton.setContentAreaFilled(false);
+        layersbutton.setToolTipText("Show and hide different layers");
+        header.add(layersbutton);
         
         //Create the popup menu.
         popup = new JPopupMenu();
         popup.setLightWeightPopupEnabled(false);
 
         //Add listener to components that can bring up popup menus.
-        togglebutton.addMouseListener(new MouseAdapter()
+        layersbutton.addMouseListener(new MouseAdapter()
             {
             public void mousePressed(MouseEvent e)
                 {
                 popup.show(e.getComponent(),
-                    togglebutton.getLocation().x,
-                    //togglebutton.getLocation().y+
-                    togglebutton.getSize().height);
+                    layersbutton.getLocation().x,
+                    //layersbutton.getLocation().y+
+                    layersbutton.getSize().height);
                 }
             public void mouseReleased(MouseEvent e) 
                 {
-                togglebutton.setSelected(false);
+                layersbutton.setSelected(false);
                 }
             });
+
+
+
+
+        //Create the popup menu.
+        refreshbutton = new JToggleButton(Display2D.REFRESH_ICON);
+        refreshbutton.setPressedIcon(Display2D.REFRESH_ICON_P);
+        refreshbutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        refreshbutton.setBorderPainted(false);
+        refreshbutton.setContentAreaFilled(false);
+        refreshbutton.setToolTipText("Change How and When the Display Redraws Itself");
+        
+        header.add(refreshbutton);
+        refreshPopup = new JPopupMenu();
+        refreshPopup.setLightWeightPopupEnabled(false);
+
+        //Add listener to components that can bring up popup menus.
+        refreshbutton.addMouseListener(new MouseAdapter()
+            {
+            public void mousePressed(MouseEvent e)
+                {
+                rebuildRefreshPopup();
+                refreshPopup.show(e.getComponent(),
+                    0,
+                    //refreshbutton.getLocation().x,
+                    refreshbutton.getSize().height);
+                }
+            public void mouseReleased(MouseEvent e)
+                {
+                refreshbutton.setSelected(false);
+                rebuildRefreshPopup();
+                }
+            });
+
+
+
+
 
         
         movieButton = new JButton(Display2D.MOVIE_OFF_ICON);
@@ -574,7 +634,6 @@ public class Display3D extends JPanel implements Steppable
                         takeSnapshot();
                         }
                     });
-//                takeSnapshot();
                 }
             });
         header.add(snapshotButton);
@@ -605,109 +664,8 @@ public class Display3D extends JPanel implements Steppable
                 }
             };
         scaleField.setToolTipText("Magnifies the scene.  Not the same as zooming (see the options panel)");
+        scaleField.setBorder(BorderFactory.createEmptyBorder(0,0,0,2));
         header.add(scaleField);
-
-/*
-  skipField = new NumberTextField("  Skip: ", 1, false)
-  {
-  public double newValue(double newValue)
-  {
-  int val = (int) newValue;
-  if (val < 1) val = 1;
-  // reset with a new interval
-  setInterval(val);
-  reset();                        
-  return val;
-  }
-  };
-  header.add(skipField);
-*/
-        
-        // add the interval (skip) field
-        skipBox = new JComboBox(Display2D.REDRAW_OPTIONS);
-        skipBox.setSelectedIndex(updateRule);
-        ActionListener skipListener = new ActionListener()
-            {
-            public void actionPerformed(ActionEvent e)
-                {
-                updateRule = skipBox.getSelectedIndex();
-                if (updateRule == Display2D.UPDATE_RULE_ALWAYS || updateRule == Display2D.UPDATE_RULE_NEVER)
-                    {
-                    skipField.valField.setText("");
-                    skipField.setEnabled(false);
-                    }
-                else if (updateRule == Display2D.UPDATE_RULE_STEPS)
-                    {
-                    skipField.setValue(stepInterval);
-                    skipField.setEnabled(true);
-                    }
-                else if (updateRule == Display2D.UPDATE_RULE_INTERNAL_TIME)
-                    {
-                    skipField.setValue(timeInterval);
-                    skipField.setEnabled(true);
-                    }
-                else // Display2D.UPDATE_RULE_WALLCLOCK_TIME
-                    {
-                    skipField.setValue((long)(wallInterval / 1000));
-                    skipField.setEnabled(true);
-                    }
-                }
-            };
-        skipBox.addActionListener(skipListener);
-                
-        // I want right justified text.  This is an ugly way to do it
-        skipBox.setRenderer(new DefaultListCellRenderer()
-            {
-            public Component getListCellRendererComponent(JList list, Object value, int index,  boolean isSelected,  boolean cellHasFocus)
-                {
-                // JLabel is the default
-                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                label.setHorizontalAlignment(SwingConstants.RIGHT);
-                return label;
-                }
-            });
-                        
-        header.add(skipBox);
-
-
-        skipField = new NumberTextField(null, 1, false)
-            {
-            public double newValue(double newValue)
-                {
-                double val;
-                if (updateRule == Display2D.UPDATE_RULE_ALWAYS || updateRule == Display2D.UPDATE_RULE_NEVER)  // shouldn't have happened
-                    {
-                    val = 0;
-                    }
-                else if (updateRule == Display2D.UPDATE_RULE_STEPS)
-                    {
-                    val = (long) newValue;
-                    if (val < 1) val = stepInterval;
-                    stepInterval = (long) val;
-                    }
-                else if (updateRule == Display2D.UPDATE_RULE_WALLCLOCK_TIME)
-                    {
-                    val = newValue;
-                    if (val < 0) val = wallInterval / 1000;
-                    wallInterval = (long) (newValue * 1000);
-                    }
-                else // if (updateRule == Display2D.UPDATE_RULE_INTERNAL_TIME)
-                    {
-                    val = newValue;
-                    if (newValue < 0) newValue = timeInterval;
-                    timeInterval = val;
-                    }
-                        
-                // reset with a new interval
-                reset();
-                        
-                return val;
-                }
-            };
-        skipField.setToolTipText("Specify the interval between screen updates");
-        header.add(skipField);
-
-        skipListener.actionPerformed(null);  // have it update the text field accordingly
 
 
         setPreferredSize(new Dimension((int)width,(int)height));
@@ -771,16 +729,7 @@ public class Display3D extends JPanel implements Steppable
         setShowsBackdrop(true);
         }
         
-    /*
-      Appearance floorAppearance = null;
-      public void setFloor(Appearance appearance)
-      { floorAppearance = appearance; }
-    
-      public void setFloor(java.awt.Color color)
-      { floorAppearance = SimplePortrayal3D.appearanceForColor(color); }
-    */
-
-
+                
     void rebuildAuxillarySwitch()
         {
         auxillarySwitch = new Switch(Switch.CHILD_MASK);
@@ -790,7 +739,8 @@ public class Display3D extends JPanel implements Steppable
         auxillarySwitch.setChildMask(auxillarySwitchMask);
 
         // Add Axes to position 0 of switch
-        Axes x = new Axes(0.01f, true);
+        AxesPortrayal3D x = new AxesPortrayal3D(0.01f, true);
+        x.setCurrentDisplay(this);
         auxillarySwitch.insertChild(x.getModel(null, null), AXES_AUX_INDEX);
                 
         
@@ -858,7 +808,7 @@ public class Display3D extends JPanel implements Steppable
     // This ensures that something in the scene changes, which is important because for bizarre
     // reasons Java3D won't redraw otherwise -- so we can't write out a movie frame etc. if it so
     // happened that nothing in the scene changed in-between time steps.
-    private static final float[] bogusPosition = new float[]{0,0,0};
+    static final float[] bogusPosition = new float[]{0,0,0};
     PointArray bogusMover;
     void moveBogusMover()
         {
@@ -946,8 +896,7 @@ public class Display3D extends JPanel implements Steppable
         }
         
     
-    /** Sets the Display3D's global model transform.  This is a user-modifiable
-        transform which should be used primarily to adjust the location all of the models together.  */
+    /** Returns a copy of the current global model transform. */
     public Transform3D getTransform()
         {
         Transform3D trans = new Transform3D();
@@ -955,7 +904,8 @@ public class Display3D extends JPanel implements Steppable
         return trans;
         }
         
-    /** Returns a copy of the current global model transform. */
+    /** Sets the Display3D's global model transform.  This is a user-modifiable
+        transform which should be used primarily to adjust the location all of the models together.  */
     public void setTransform(Transform3D transform)
         {
         if (transform!=null) globalModelTransformGroup.setTransform(new Transform3D(transform));
@@ -1081,12 +1031,15 @@ public class Display3D extends JPanel implements Steppable
             al.setInfluencingBounds(new BoundingSphere(new Point3d(0,0,0), Double.POSITIVE_INFINITY));
             lightSwitch.addChild(al);
                         
-            BranchGroup bg = new BranchGroup();
-            bg.addChild(lightSwitch);
-            universe.getViewingPlatform().getViewPlatformTransform().addChild(bg);
+            viewRoot = new BranchGroup();
+            viewRoot.addChild(lightSwitch);
+            universe.getViewingPlatform().getViewPlatformTransform().addChild(viewRoot);
             }
         else // reset the canvas
             {
+            // detatches the root and the selection behavior from the universe.
+            // we'll need to reattach those.  Everything else: the canvas and lights etc.,
+            // will stay connected.
             destroySceneGraph();
             }
         
@@ -1125,6 +1078,7 @@ public class Display3D extends JPanel implements Steppable
             Portrayal3DHolder p3h = (Portrayal3DHolder)(iter.next());
             Portrayal3D p = p3h.portrayal;
             Object obj = (p instanceof FieldPortrayal3D)? ((FieldPortrayal3D)p).getField(): null;
+            p.setCurrentDisplay(this);
             portrayalSwitch.addChild(p.getModel(obj,null));
             if (p3h.visible)
                 portrayalSwitchMask.set(count);
@@ -1264,7 +1218,10 @@ public class Display3D extends JPanel implements Steppable
     TransformGroup autoSpinBackgroundTransformGroup = new TransformGroup();
 
     OrbitBehavior mOrbitBehavior = null;
-    public SelectionBehavior mSelectBehavior = null; 
+    SelectionBehavior mSelectBehavior = null; 
+        
+    public SelectionBehavior getSelectionBehavior() { return mSelectBehavior; }
+    public ToolTipBehavior getToolTipBehavior() { return toolTipBehavior; }
 
     boolean selectionAll = true;
     boolean inspectionAll = true;
@@ -1272,7 +1229,8 @@ public class Display3D extends JPanel implements Steppable
         This can be done independently of selection and inspection.  By default these values are both TRUE. */
     public void setSelectsAll(boolean selection, boolean inspection)
         {
-        selectionAll = selection; inspectionAll = inspection;
+        selectionAll = selection;
+        inspectionAll = inspection;
         mSelectBehavior.setSelectsAll(selectionAll, inspectionAll);
         }
 
@@ -1372,10 +1330,11 @@ public class Display3D extends JPanel implements Steppable
         moveBogusMover();
         while(iter.hasNext())
             {
-            Portrayal3DHolder ph =      (Portrayal3DHolder)iter.next();
+            Portrayal3DHolder ph = (Portrayal3DHolder)iter.next();
             if(portrayalSwitchMask.get(ph.subgraphIndex))
                 {
-                // update model ONLY on what is actully on screen. 
+                // update model ONLY on what is actually on screen. 
+                ph.portrayal.setCurrentDisplay(this);
                 ph.portrayal.getModel(
                     (ph.portrayal instanceof FieldPortrayal3D)? ((FieldPortrayal3D)ph.portrayal).getField(): null,
                     (TransformGroup)portrayalSwitch.getChild(ph.subgraphIndex));
@@ -1420,20 +1379,21 @@ public class Display3D extends JPanel implements Steppable
             {
             // if waitForRenderer is false, does the movie maker ever get updated?  -- Sean
             if(movieMaker!=null)
-                movieMaker.add(canvas.getFrameAsImage());
+                movieMaker.add(canvas.getLastImage());
             }
         }
     
-    Rectangle2D getImageSize()
+
+    /** Takes a snapshot of the Display3D's currently displayed simulation. */
+    public void takeSnapshot(File file) throws IOException
         {
-        Dimension s = canvas.getSize();
-        Rectangle2D clip =  new Rectangle2D.Double(0,0,s.width,s.height);
-        if(canvas == null)
-            return null;
-        Rectangle bounds = canvas.getGraphics().getClipBounds();
-        if(bounds != null)
-            clip = clip.createIntersection(bounds);
-        return clip;
+        canvas.beginCapturing(false);
+        BufferedImage image = canvas.getLastImage();
+        PNGEncoder tmpEncoder = new PNGEncoder(image, false,PNGEncoder.FILTER_NONE,9);
+        OutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
+        stream.write(tmpEncoder.pngEncode());
+        stream.close();
+        image.flush();  // just in case -- OS X bug?
         }
 
 
@@ -1452,8 +1412,8 @@ public class Display3D extends JPanel implements Steppable
             return;
             }
 
-        canvas.setWritingParams(getImageSize(), false);
-//              Image image = canvas.getFrameAsImage();
+        // start the image
+        canvas.beginCapturing(false);
         
         // NOW pop up the save window
         FileDialog fd = new FileDialog(getFrame(), 
@@ -1465,9 +1425,9 @@ public class Display3D extends JPanel implements Steppable
             try
                 {
                 File snapShotFile = new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"));
-//                PngEncoder tmpEncoder = new PngEncoder(image, false,PngEncoder.FILTER_NONE,9);
-                BufferedImage image = canvas.getFrameAsImage();
-                PngEncoder tmpEncoder = new PngEncoder(image, false,PngEncoder.FILTER_NONE,9);
+//                PNGEncoder tmpEncoder = new PNGEncoder(image, false,PNGEncoder.FILTER_NONE,9);
+                BufferedImage image = canvas.getLastImage();
+                PNGEncoder tmpEncoder = new PNGEncoder(image, false,PNGEncoder.FILTER_NONE,9);
                 OutputStream stream = new BufferedOutputStream(new FileOutputStream(snapShotFile));
                 stream.write(tmpEncoder.pngEncode());
                 stream.close();
@@ -1509,15 +1469,14 @@ public class Display3D extends JPanel implements Steppable
             {
             movieMaker = new MovieMaker(getFrame());
                     
-            Rectangle2D imgBounds = getImageSize();
-            canvas.setWritingParams(imgBounds, false);
-            final BufferedImage typicalImage = canvas.getFrameAsImage();
+            canvas.beginCapturing(false);  // emit a single picture to get the image sizes
+            final BufferedImage typicalImage = canvas.getLastImage();
                     
             if (!movieMaker.start(typicalImage))
                 movieMaker = null;  // fail
             else
                 {
-                canvas.setWritingParams(imgBounds, true);
+                canvas.beginCapturing(true);
                 movieButton.setIcon(Display2D.MOVIE_ON_ICON); 
                 movieButton.setPressedIcon(Display2D.MOVIE_ON_ICON_P);
                 simulation.scheduleAtEnd(new Steppable()   // to stop movie when simulation is stopped
@@ -1542,7 +1501,7 @@ public class Display3D extends JPanel implements Steppable
         synchronized(simulation.state.schedule)
             {
             if (movieMaker == null) return;  // already stopped
-            canvas.stopMovie();
+            canvas.stopCapturing();
             if (!movieMaker.stop())
                 {
                 Object[] options = {"Drat"};
@@ -1646,8 +1605,8 @@ public class Display3D extends JPanel implements Steppable
             autoSpin.setTransformAxis(getTransformForAxis(newValue, rotAxis_Y.getValue(), rotAxis_Z.getValue()));
             // spin background too
             autoSpinBackground.setTransformAxis(getTransformForAxis(newValue, rotAxis_Y.getValue(), rotAxis_Z.getValue()));
-            if (spinDuration.currentValue == 0 ||
-                (newValue == 0 && rotAxis_Y.currentValue == 0 && rotAxis_Z.currentValue==0))
+            if (spinDuration.getValue() == 0 ||
+                (newValue == 0 && rotAxis_Y.getValue() == 0 && rotAxis_Z.getValue()==0))
                 setSpinningEnabled(false);
             else setSpinningEnabled(true);
             return newValue;
@@ -1660,8 +1619,8 @@ public class Display3D extends JPanel implements Steppable
             autoSpin.setTransformAxis(getTransformForAxis(rotAxis_X.getValue(),newValue, rotAxis_Z.getValue()));
             // spin background too
             autoSpinBackground.setTransformAxis(getTransformForAxis(rotAxis_X.getValue(),newValue, rotAxis_Z.getValue()));
-            if (spinDuration.currentValue == 0 ||
-                (rotAxis_X.currentValue == 0 && newValue == 0 && rotAxis_Z.currentValue==0))
+            if (spinDuration.getValue() == 0 ||
+                (rotAxis_X.getValue() == 0 && newValue == 0 && rotAxis_Z.getValue()==0))
                 setSpinningEnabled(false);
             else setSpinningEnabled(true);
             return newValue;
@@ -1674,8 +1633,8 @@ public class Display3D extends JPanel implements Steppable
             autoSpin.setTransformAxis(getTransformForAxis(rotAxis_X.getValue(),rotAxis_Y.getValue(),newValue));
             // spin background too
             autoSpinBackground.setTransformAxis(getTransformForAxis(rotAxis_X.getValue(),rotAxis_Y.getValue(),newValue));
-            if (spinDuration.currentValue == 0 ||
-                (rotAxis_X.currentValue == 0 && rotAxis_Y.currentValue == 0 && newValue==0))
+            if (spinDuration.getValue() == 0 ||
+                (rotAxis_X.getValue() == 0 && rotAxis_Y.getValue() == 0 && newValue==0))
                 setSpinningEnabled(false);
             else setSpinningEnabled(true);
             return newValue;
@@ -1692,7 +1651,7 @@ public class Display3D extends JPanel implements Steppable
             // spin background too
             autoSpinBackground.getAlpha().setIncreasingAlphaDuration(mSecsPerRot);
             if (newValue == 0 ||
-                (rotAxis_X.currentValue == 0 && rotAxis_Y.currentValue == 0 && rotAxis_Z.currentValue==0))
+                (rotAxis_X.getValue() == 0 && rotAxis_Y.getValue() == 0 && rotAxis_Z.getValue()==0))
                 setSpinningEnabled(false);
             else setSpinningEnabled(true);
             return newValue;  // rounding errors ignored...
@@ -1757,15 +1716,21 @@ public class Display3D extends JPanel implements Steppable
         performSelection(b);
         }
     
-    public void performSelection( final Bag locationWrappers )
+    public void clearSelections()
         {
-        // deselect existing objects first before selecting new ones
         for(int x=0;x<selectedWrappers.size();x++)
             {
             LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
-            wrapper.getFieldPortrayal().setSelected(wrapper,false);
+            wrapper.getFieldPortrayal().setSelected(wrapper, false);
             }
         selectedWrappers.clear();
+        }
+        
+
+    public void performSelection( Bag locationWrappers )
+        {
+        // deselect existing objects first before selecting new ones
+        clearSelections();
         
         if (locationWrappers == null) return;  // deselect everything
         
@@ -1782,12 +1747,11 @@ public class Display3D extends JPanel implements Steppable
 
 
 
-
-    public JButton systemPreferences = new JButton("MASON");
-    public JButton appPreferences = new JButton("Simulation");
+    JButton systemPreferences = new JButton("MASON");
+    JButton appPreferences = new JButton("Simulation");
     public class OptionPane3D extends JFrame
         {
-        public OptionPane3D(String label)
+        OptionPane3D(String label)
             {
             super(label);
                         
@@ -1948,34 +1912,6 @@ public class Display3D extends JPanel implements Steppable
             polyCullbox.setBorder(new javax.swing.border.EmptyBorder(0,0,0,20));
             polyPanel.add(polyCullbox);
             polyPanel.add(Box.createGlue());
-            /*
-            // These aren't very helpful
-                        
-            Box viewPanel = new Box(BoxLayout.Y_AXIS);
-            viewPanel.setBorder(new javax.swing.border.TitledBorder("Viewing Attributes"));
-            antialiasCheckBox.setSelected(false);
-            antialiasCheckBox.addItemListener(new ItemListener()
-            {
-            public void itemStateChanged(ItemEvent e)
-            {       canvas.getView().setSceneAntialiasingEnable(antialiasCheckBox.isSelected());    }
-            });
-            viewPanel.add(antialiasCheckBox);
-            ButtonGroup viewProjectionGroup = new ButtonGroup();
-            viewProjectionGroup.add(viewPerspective);
-            viewProjectionGroup.add(viewParallel);
-            viewPerspective.addActionListener(new ActionListener()
-            { 
-            public void actionPerformed(ActionEvent e)
-            {       canvas.getView().setProjectionPolicy(canvas.getView().PERSPECTIVE_PROJECTION);}
-            });
-            viewParallel.addActionListener(new ActionListener()
-            { 
-            public void actionPerformed(ActionEvent e)
-            {       canvas.getView().setProjectionPolicy(canvas.getView().PARALLEL_PROJECTION);}
-            });
-            viewPanel.add(viewPerspective);
-            viewPanel.add(viewParallel);
-            */
                         
             Box auxillaryPanel = new Box(BoxLayout.Y_AXIS);
             Box box = new Box(BoxLayout.X_AXIS);
@@ -2141,7 +2077,7 @@ public class Display3D extends JPanel implements Steppable
         static final String DRAW_FACES_KEY = "Draw Faces";
                 
         /** Resets the Option Pane Preferences by loading from the preference database */
-        public void resetToPreferences()
+        void resetToPreferences()
             {
             try
                 {
@@ -2204,9 +2140,240 @@ public class Display3D extends JPanel implements Steppable
 
 // must be after all other declared widgets because its constructor relies on them existing
     public OptionPane3D optionPane = new OptionPane3D("3D Options");    
-    
+        
+        
+        
+        
+    void rebuildSkipFrame()
+        {
+        skipFrame.getContentPane().removeAll();
+        skipFrame.getContentPane().invalidate();
+        skipFrame.getContentPane().repaint();
+        skipFrame.getContentPane().setLayout(new BorderLayout());
+
+        JPanel skipHeader = new JPanel();
+        skipHeader.setLayout(new BorderLayout());
+        skipFrame.add(skipHeader, BorderLayout.CENTER);
+                
+        // add the interval (skip) field
+        skipBox = new JComboBox(Display2D.REDRAW_OPTIONS);
+        skipBox.setSelectedIndex(updateRule);
+        ActionListener skipListener = new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = skipBox.getSelectedIndex();
+                if (updateRule == Display2D.UPDATE_RULE_ALWAYS || updateRule == Display2D.UPDATE_RULE_NEVER)
+                    {
+                    skipField.getField().setText("");
+                    skipField.setEnabled(false);
+                    }
+                else if (updateRule == Display2D.UPDATE_RULE_STEPS)
+                    {
+                    skipField.setValue(stepInterval);
+                    skipField.setEnabled(true);
+                    }
+                else if (updateRule == Display2D.UPDATE_RULE_INTERNAL_TIME)
+                    {
+                    skipField.setValue(timeInterval);
+                    skipField.setEnabled(true);
+                    }
+                else // Display2D.UPDATE_RULE_WALLCLOCK_TIME
+                    {
+                    skipField.setValue((long)(wallInterval / 1000));
+                    skipField.setEnabled(true);
+                    }
+                }
+            };
+        skipBox.addActionListener(skipListener);
+                
+        // I want right justified text.  This is an ugly way to do it
+        skipBox.setRenderer(new DefaultListCellRenderer()
+            {
+            public Component getListCellRendererComponent(JList list, Object value, int index,  boolean isSelected,  boolean cellHasFocus)
+                {
+                // JLabel is the default
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                label.setHorizontalAlignment(SwingConstants.RIGHT);
+                return label;
+                }
+            });
+                        
+        skipHeader.add(skipBox, BorderLayout.WEST);
 
 
+        skipField = new NumberTextField(null, 1, false)
+            {
+            public double newValue(double newValue)
+                {
+                double val;
+                if (updateRule == Display2D.UPDATE_RULE_ALWAYS || updateRule == Display2D.UPDATE_RULE_NEVER)  // shouldn't have happened
+                    {
+                    val = 0;
+                    }
+                else if (updateRule == Display2D.UPDATE_RULE_STEPS)
+                    {
+                    val = (long) newValue;
+                    if (val < 1) val = stepInterval;
+                    stepInterval = (long) val;
+                    }
+                else if (updateRule == Display2D.UPDATE_RULE_WALLCLOCK_TIME)
+                    {
+                    val = newValue;
+                    if (val < 0) val = wallInterval / 1000;
+                    wallInterval = (long) (newValue * 1000);
+                    }
+                else // if (updateRule == Display2D.UPDATE_RULE_INTERNAL_TIME)
+                    {
+                    val = newValue;
+                    if (newValue < 0) newValue = timeInterval;
+                    timeInterval = val;
+                    }
+                        
+                // reset with a new interval
+                reset();
+                        
+                return val;
+                }
+            };
+        skipField.setToolTipText("Specify the interval between screen updates");
+        skipField.getField().setColumns(10);
+        skipHeader.add(skipField,BorderLayout.CENTER);
+        skipHeader.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        skipListener.actionPerformed(null);  // have it update the text field accordingly
+        }
 
+    void rebuildRefreshPopup()
+        {
+        refreshPopup.removeAll();
+        String s = "";
+        switch(updateRule)
+            {
+            case Display2D.UPDATE_RULE_STEPS:
+                s = (stepInterval == 1 ? "Currently redrawing each model iteration" :
+                    "Currently redrawing each " + stepInterval +  " model iterations");
+                break;
+            case Display2D.UPDATE_RULE_INTERNAL_TIME:
+                s = (timeInterval == 1 ? "Currently redrawing each unit of model time" :
+                    "Currently redrawing every " + (timeInterval) +  " units of model time");
+                break;
+            case Display2D.UPDATE_RULE_WALLCLOCK_TIME:
+                s = (wallInterval == 1000 ? "Currently redrawing each second of real time" :
+                    "Currently redrawing every " + (wallInterval / 1000.0) +  " seconds of real time");
+                break;
+            case Display2D.UPDATE_RULE_ALWAYS:
+                s = "Currently redrawing every model iteration";
+                break;
+            case Display2D.UPDATE_RULE_NEVER:
+                s = "Currently never redrawing except when the window is redrawn";
+                break;
+            }
+        JMenuItem m = new JMenuItem(s);
+        m.setEnabled(false);
+        refreshPopup.add(m);
+                
+        refreshPopup.addSeparator();
+
+        m = new JMenuItem("Always Redraw");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = Display2D.UPDATE_RULE_ALWAYS;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Never Redraw");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = Display2D.UPDATE_RULE_NEVER;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Redraw once every 2 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = Display2D.UPDATE_RULE_STEPS;
+                stepInterval = 2;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Redraw once every 4 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = Display2D.UPDATE_RULE_STEPS;
+                stepInterval = 4;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Redraw once every 8 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = Display2D.UPDATE_RULE_STEPS;
+                stepInterval = 8;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Redraw once every 16 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = Display2D.UPDATE_RULE_STEPS;
+                stepInterval = 16;
+                rebuildSkipFrame();
+                }
+            });
+                        
+        m = new JMenuItem("Redraw once every 32 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = Display2D.UPDATE_RULE_STEPS;
+                stepInterval = 16;
+                rebuildSkipFrame();
+                }
+            });
+                        
+        refreshPopup.addSeparator();
+
+        // add other menu items
+        m = new JMenuItem("More Options...");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                skipFrame.setTitle(getFrame().getTitle() + " Options");
+                skipFrame.setVisible(true);
+                }
+            });
+
+        refreshPopup.revalidate();
+        }
+
+        
+        
     }
     

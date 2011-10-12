@@ -40,14 +40,20 @@ import com.sun.j3d.utils.picking.*;
 public abstract class QuadPortrayal implements Portrayal 
     {
     /** How much we move the quad up or down for a given value. */
-    public float zScale;
+    double zScale;
     /** Our color map for values */
-    public ColorMap colorDispenser;
+    ColorMap colorDispenser;
+        
+    public ColorMap getMap() { return colorDispenser; }
+    public void setMap(ColorMap map) { colorDispenser = map; }
+        
+    public double getZScale() { return zScale; }
+    public void setZScale(double scale) { zScale = scale; }
 
     public abstract void setData(ValueGridCellInfo gridCell, float[] coordinates, float[] colors, int quadIndex,
         int gridWidth, int gridHeight);
     
-    public QuadPortrayal(ColorMap colorDispenser, float zScale)
+    public QuadPortrayal(ColorMap colorDispenser, double zScale)
         {
         this.colorDispenser = colorDispenser;
         this.zScale = zScale;
@@ -84,18 +90,25 @@ public abstract class QuadPortrayal implements Portrayal
             y = loc.y;
             }
         }
+
+    public static class ObjectFilter extends Filter
+        {
+        public ObjectFilter(LocationWrapper wrapper) { super(wrapper); }
+        public double getValue() { return fieldPortrayal.doubleValue(((ObjectGrid2D)fieldPortrayal.getField()).field[x][y]); }
+        }
+
     public static class DoubleFilter extends Filter
         {
         public DoubleFilter(LocationWrapper wrapper) { super(wrapper); }
-        public double getValue() { return ((DoubleGrid2D)fieldPortrayal.field).field[x][y]; }
-        public void setValue(double val) { ((DoubleGrid2D)fieldPortrayal.field).field[x][y] = fieldPortrayal.newValue(x,y,val); }
+        public double getValue() { return ((DoubleGrid2D)fieldPortrayal.getField()).field[x][y]; }
+        public void setValue(double val) { ((DoubleGrid2D)fieldPortrayal.getField()).field[x][y] = fieldPortrayal.newValue(x,y,val); }
         }
         
     public static class IntFilter extends Filter
         {
         public IntFilter(LocationWrapper wrapper) { super(wrapper); }
-        public int getValue() { return ((IntGrid2D)fieldPortrayal.field).field[x][y]; }
-        public void setValue(int val) { ((IntGrid2D)fieldPortrayal.field).field[x][y] = (int)fieldPortrayal.newValue(x,y,val); }
+        public int getValue() { return ((IntGrid2D)fieldPortrayal.getField()).field[x][y]; }
+        public void setValue(int val) { ((IntGrid2D)fieldPortrayal.getField()).field[x][y] = (int)fieldPortrayal.newValue(x,y,val); }
         }
 
     public Inspector getInspector(LocationWrapper wrapper, GUIState state)
@@ -104,8 +117,11 @@ public abstract class QuadPortrayal implements Portrayal
         Grid2D grid = (Grid2D)(((ValueGrid2DPortrayal3D)(wrapper.getFieldPortrayal())).getField());
         if (grid instanceof DoubleGrid2D)
             return new SimpleInspector(new DoubleFilter(wrapper), state, "Properties");
-        else
+        else if (grid instanceof IntGrid2D)
             return new SimpleInspector(new IntFilter(wrapper) ,state, "Properties");
+        else if (grid instanceof ObjectGrid2D)
+            return new SimpleInspector(new ObjectFilter(wrapper) ,state, "Properties");
+        else return null; // an error
         }
         
     public Int2D getCellForIntersection(PickIntersection pi, Grid2D field)

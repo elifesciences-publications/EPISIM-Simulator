@@ -14,6 +14,7 @@ import java.awt.*;
 import java.util.*;
 import java.awt.geom.*;
 import sim.portrayal.inspector.*;
+import sim.display.*;
 
 /**
    Can be used to draw both continuous and discrete sparse fields.
@@ -31,10 +32,21 @@ public class SparseGridPortrayal2D extends FieldPortrayal2D
         super();
         }
 
+    /** @deprecated Use setDrawPolicy. */
     public SparseGridPortrayal2D (DrawPolicy policy)
         {
         super();
         this.policy = policy;
+        }
+                
+    public void setDrawPolicy(DrawPolicy policy)
+        {
+        this.policy = policy;
+        }
+
+    public DrawPolicy getDrawPolicy()
+        {
+        return policy;
         }
 
     // a grey oval.  You should provide your own protrayals...
@@ -47,27 +59,24 @@ public class SparseGridPortrayal2D extends FieldPortrayal2D
 
     public void setField(Object field)
         {
-        dirtyField = true;
-        if (field instanceof SparseGrid2D ) this.field = field;
+        if (field instanceof SparseGrid2D ) super.setField(field);
         else throw new RuntimeException("Invalid field for Sparse2DPortrayal: " + field);
         }
     
-    public Object getClipLocation(DrawInfo2D fieldPortrayalInfo)
-        {
-        return getPositionLocation(new Point2D.Double(fieldPortrayalInfo.clip.x, fieldPortrayalInfo.clip.y), fieldPortrayalInfo);
-        }
-                
     public Double2D getScale(DrawInfo2D info)
         {
-        final Grid2D field = (Grid2D) this.field;
-        if (field==null) return null;
+        synchronized(info.gui.state.schedule)
+            {
+            final Grid2D field = (Grid2D) this.field;
+            if (field==null) return null;
 
-        int maxX = field.getWidth(); 
-        int maxY = field.getHeight();
+            int maxX = field.getWidth(); 
+            int maxY = field.getHeight();
 
-        final double xScale = info.draw.width / maxX;
-        final double yScale = info.draw.height / maxY;
-        return new Double2D(xScale, yScale);
+            final double xScale = info.draw.width / maxX;
+            final double yScale = info.draw.height / maxY;
+            return new Double2D(xScale, yScale);
+            }
         }
 
     public Object getPositionLocation(Point2D.Double position, DrawInfo2D info)
@@ -83,51 +92,64 @@ public class SparseGridPortrayal2D extends FieldPortrayal2D
 
     public void setObjectPosition(Object object, Point2D.Double position, DrawInfo2D fieldPortrayalInfo)
         {
-        final SparseGrid2D field = (SparseGrid2D)this.field;
-        if (field==null) return;
-        if (field.getObjectLocation(object) == null) return;
-        Int2D location = (Int2D)(getPositionLocation(position, fieldPortrayalInfo));
-        if (location != null)
+        synchronized(fieldPortrayalInfo.gui.state.schedule)
             {
-            if (object instanceof Fixed2D && !((Fixed2D)object).maySetLocation(field, location)) return;  // can't move him, or maybe he moved himself
-            field.setObjectLocation(object, location);
+            final SparseGrid2D field = (SparseGrid2D)this.field;
+            if (field==null) return;
+            if (field.getObjectLocation(object) == null) return;
+            Int2D location = (Int2D)(getPositionLocation(position, fieldPortrayalInfo));
+            if (location != null)
+                {
+                if (object instanceof Fixed2D && (!((Fixed2D)object).maySetLocation(field, location)))
+                    return;  // this is deprecated and will be deleted
+                //if (object instanceof Constrained)
+                //      location = (Int2D)((Constrained)object).constrainLocation(field, location);
+                if (location != null)
+                    field.setObjectLocation(object, location);
+                }
             }
         }
 
-    public Object getObjectLocation(Object object)
+    public Object getObjectLocation(Object object, GUIState gui)
         {
-        final SparseGrid2D field = (SparseGrid2D)this.field;
-        if (field==null) return null;
-        return field.getObjectLocation(object);
+        synchronized(gui.state.schedule)
+            {
+            final SparseGrid2D field = (SparseGrid2D)this.field;
+            if (field==null) return null;
+            return field.getObjectLocation(object);
+            }
         }
 
     public Point2D.Double getLocationPosition(Object location, DrawInfo2D info)
         {
-        final Grid2D field = (Grid2D) this.field;
-        if (field==null) return null;
+        synchronized(info.gui.state.schedule)
+            {
+            final Grid2D field = (Grid2D) this.field;
+            if (field==null) return null;
 
-        int maxX = field.getWidth(); 
-        int maxY = field.getHeight();
+            int maxX = field.getWidth(); 
+            int maxY = field.getHeight();
 
-        final double xScale = info.draw.width / maxX;
-        final double yScale = info.draw.height / maxY;
+            final double xScale = info.draw.width / maxX;
+            final double yScale = info.draw.height / maxY;
 
-        DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale), info.clip);  
+            DrawInfo2D newinfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(0,0, xScale, yScale), info.clip);
 
-        Int2D loc = (Int2D)location;
-        if (loc == null) return null;
+            Int2D loc = (Int2D)location;
+            if (loc == null) return null;
 
-        // translate --- the   + newinfo.width/2.0  etc. moves us to the center of the object
-        newinfo.draw.x = (int)Math.floor(info.draw.x + (xScale) * loc.x);
-        newinfo.draw.y = (int)Math.floor(info.draw.y + (yScale) * loc.y);
-        newinfo.draw.width = (int)Math.floor(info.draw.x + (xScale) * (loc.x+1)) - newinfo.draw.x;
-        newinfo.draw.height = (int)Math.floor(info.draw.y + (yScale) * (loc.y+1)) - newinfo.draw.y;
+            // translate --- the   + newinfo.width/2.0  etc. moves us to the center of the object
+            newinfo.draw.x = (int)Math.floor(info.draw.x + (xScale) * loc.x);
+            newinfo.draw.y = (int)Math.floor(info.draw.y + (yScale) * loc.y);
+            newinfo.draw.width = (int)Math.floor(info.draw.x + (xScale) * (loc.x+1)) - newinfo.draw.x;
+            newinfo.draw.height = (int)Math.floor(info.draw.y + (yScale) * (loc.y+1)) - newinfo.draw.y;
         
-        // adjust drawX and drawY to center
-        newinfo.draw.x += newinfo.draw.width / 2.0;
-        newinfo.draw.y += newinfo.draw.height / 2.0;
+            // adjust drawX and drawY to center
+            newinfo.draw.x += newinfo.draw.width / 2.0;
+            newinfo.draw.y += newinfo.draw.height / 2.0;
 
-        return new Point2D.Double(newinfo.draw.x, newinfo.draw.y);
+            return new Point2D.Double(newinfo.draw.x, newinfo.draw.y);
+            }
         }
         
         
@@ -150,8 +172,9 @@ public class SparseGridPortrayal2D extends FieldPortrayal2D
 
         final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
 
-        DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale),
+        DrawInfo2D newinfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(0,0, xScale, yScale),
             info.clip);  // we don't do further clipping 
+        newinfo.fieldPortrayal = this;
 
         // If the person has specified a policy, we have to iterate through the
         // bags.  At present we have to do this by using a hash table iterator
@@ -250,21 +273,23 @@ public class SparseGridPortrayal2D extends FieldPortrayal2D
                     if (graphics == null)
                         {
                         if (portrayal.hitObject(portrayedObject, newinfo))
+                            {
                             putInHere.add(getWrapper(portrayedObject));
+                            }
                         }
                     else
                         {
                         // MacOS X 10.3 Panther has a bug which resets the clip, YUCK
-                        // graphics.setClip(clip);
-                        if (objectSelected &&  // there's something there
-                            selectedWrappers.get(portrayedObject) != null)
-                            {
-                            LocationWrapper wrapper = (LocationWrapper)(selectedWrappers.get(portrayedObject));
-                            portrayal.setSelected(wrapper,true);
-                            portrayal.draw(portrayedObject, graphics, newinfo);
-                            portrayal.setSelected(wrapper,false);
-                            }
-                        else portrayal.draw(portrayedObject, graphics, newinfo);
+                        //                    graphics.setClip(clip);
+                        newinfo.selected = (objectSelected &&  // there's something there
+                            selectedWrappers.get(portrayedObject) != null); 
+                        /* {
+                           LocationWrapper wrapper = (LocationWrapper)(selectedWrappers.get(portrayedObject));
+                           portrayal.setSelected(wrapper,true);
+                           portrayal.draw(portrayedObject, graphics, newinfo);
+                           portrayal.setSelected(wrapper,false);
+                           }
+                           else */ portrayal.draw(portrayedObject, graphics, newinfo);
                         }
                     }
                 }
@@ -280,13 +305,13 @@ public class SparseGridPortrayal2D extends FieldPortrayal2D
             {
             public Object getLocation()
                 {
-                w.update();
+                //w.update();
                 return w;
                 }
                 
             public String getLocationName()
                 {
-                w.update();
+                //w.update();
                 return w.toString();
                 }
             };
@@ -299,15 +324,9 @@ public class SparseGridPortrayal2D extends FieldPortrayal2D
         if (wrapper.getFieldPortrayal() != this) return true;
 
         Object obj = wrapper.getObject();
+        boolean b = getPortrayalForObject(obj).setSelected(wrapper, selected);
         if (selected)
             {
-            // first let's determine if the object WANTs to be selected
-            boolean b = getPortrayalForObject(obj).setSelected(wrapper,selected);
-                        
-            // now we turn the selection back to regular
-            getPortrayalForObject(obj).setSelected(wrapper,!selected);
-                        
-            // Okay, now we can tell whether or not to add to the wrapper collection
             if (b==false) return false;
             selectedWrappers.put(obj, wrapper);
             }

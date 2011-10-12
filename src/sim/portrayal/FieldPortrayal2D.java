@@ -8,15 +8,14 @@ package sim.portrayal;
 import java.awt.*;
 import java.awt.geom.*;
 import sim.util.*;
+import sim.display.*;
 
 /** 
     Superclass of all Field Portrayals in 2D.  Implements default versions of the
     necessary methods, which you should feel free to override (especially portray,
     hit, and draw!).
     
-    <p>The default version of the setField(...) method sets the field without checking
-    to see if it's a valid field or not; you'll want to override this to check.  Also,
-    the default version of getDefaultPortrayal() returns an empty SimplePortrayal: you'll
+    <p>The default version of getDefaultPortrayal() returns an empty SimplePortrayal: you'll
     might want to override that as well.  These defaults enable you to use FieldPortrayal2D
     as an "empty field portrayal" to be attached to a Display2D and draw arbitrary things
     when its draw(...) method is called.  In that case, all you need to do is override
@@ -110,8 +109,6 @@ public abstract class FieldPortrayal2D extends FieldPortrayal implements Portray
         return simple;
         }
         
-    public void setField(Object field) { this.field = field; dirtyField = true; }
-    
     /** Moves (or tries to move) the object to an internal location equivalent to the given position on-screen of the
         provided object, assuming that the object exists within the underlying field and that this
         location is acceptable.  <b>Optionally overridable</b>.  The default implementation does nothing.  */
@@ -136,11 +133,13 @@ public abstract class FieldPortrayal2D extends FieldPortrayal implements Portray
         return null;
         }
 
+    private final Object getObjectLocation(Object object) { return ""; }
+        
     /** Returns the first location in the underlying field of the given object, if such a thing
-        is reasonable.  Largely used for getPositionOfObject(...).     
+        is reasonable.  Largely used for getObjectPosition(...).     
         If null is returned, then the portrayal is unable to determine the position of the field location.
         <b>Optionally overridable</b>.  The default implementation returns null. */
-    public Object getObjectLocation(Object object)
+    public Object getObjectLocation(Object object, GUIState gui)
         {
         return null;
         }
@@ -155,7 +154,7 @@ public abstract class FieldPortrayal2D extends FieldPortrayal implements Portray
         
     /** Returns an object representing the location in the field of the origin of the clip of the DrawInfo2D. 
         This method calls getPositionLocation, which may or may not be implemented by the FieldPortrayal2D.  
-        @deprecated
+        @deprecated use getPositionLocation
     */
     public Object getClipLocation(DrawInfo2D info)
         {
@@ -167,9 +166,12 @@ public abstract class FieldPortrayal2D extends FieldPortrayal implements Portray
         action on the given object.  */
     public Point2D.Double getObjectPosition(Object object, DrawInfo2D fieldPortrayalInfo)
         {
-        Object location = getObjectLocation(object);
-        if (location == null) return null;
-        return getLocationPosition(location, fieldPortrayalInfo);
+        synchronized(fieldPortrayalInfo.gui.state.schedule)
+            {
+            Object location = getObjectLocation(object, fieldPortrayalInfo.gui);
+            if (location == null) return null;
+            return getLocationPosition(location, fieldPortrayalInfo);
+            }
         }
         
     /** Default buffering: let the program decide on its own (typically in a platform-dependent fashion) */

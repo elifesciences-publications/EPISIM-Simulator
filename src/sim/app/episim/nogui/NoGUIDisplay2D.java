@@ -73,19 +73,20 @@ import sim.portrayal.DrawInfo2D;
 import sim.portrayal.FieldPortrayal2D;
 import sim.portrayal.LocationWrapper;
 import sim.util.Bag;
-import sim.util.Utilities;
+import sim.util.gui.Utilities;
 import sim.util.gui.LabelledList;
 import sim.util.gui.MovieMaker;
 import sim.util.gui.NumberTextField;
 import sim.util.media.PDFEncoder;
-import sim.util.media.PngEncoder;
+import sim.util.media.PNGEncoder;
+
 
 
 
 public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationDisplay{
    private EpidermisGUIState epiSimulation = null;
 	
-	
+   protected boolean precise = false;
 	private boolean moviePathSet = false;
 	private EpisimMovieMaker episimMovieMaker;
 	
@@ -1320,31 +1321,34 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        
    DrawInfo2D getDrawInfo2D(FieldPortrayal2DHolder holder, Rectangle2D clip)
        {
-       if (holder==null) return null;
-       
-       double scale = getScale();
-       // compute WHERE we need to draw
-       int origindx = 0;
-       int origindy = 0;
-
-       // offset according to user's specification
-       origindx += (int)(insideDisplay.xOffset*scale);
-       origindy += (int)(insideDisplay.yOffset*scale);
-
-       // for information on why we use getViewRect, see computeClip()
-       Rectangle2D fullComponent = insideDisplay.getViewRect();
-       if (fullComponent.getWidth() > (insideDisplay.width * scale))
-           origindx = (int)((fullComponent.getWidth() - insideDisplay.width*scale)/2);
-       if (fullComponent.getHeight() > (insideDisplay.height*scale))
-           origindy = (int)((fullComponent.getHeight() - insideDisplay.height*scale)/2);
-                               
-       Rectangle2D.Double region = new Rectangle2D.Double(
-           // we floor to an integer because we're dealing with exact pixels at this point
-           (int)(holder.bounds.x * scale) + origindx,
-           (int)(holder.bounds.y * scale) + origindy,
-           (int)(holder.bounds.width * scale),
-           (int)(holder.bounds.height * scale));
-       return new DrawInfo2D(region, clip);
+	  if (holder==null) return null;
+	        
+	        double scale = getScale();
+	        // compute WHERE we need to draw
+	        int origindx = 0;
+	        int origindy = 0;
+	
+	        // offset according to user's specification
+	        origindx += (int)(insideDisplay.xOffset*scale);
+	        origindy += (int)(insideDisplay.yOffset*scale);
+	
+	        // for information on why we use getViewRect, see computeClip()
+	        Rectangle2D fullComponent = insideDisplay.getViewRect();
+	        if (fullComponent.getWidth() > (insideDisplay.width * scale))
+	            origindx = (int)((fullComponent.getWidth() - insideDisplay.width*scale)/2);
+	        if (fullComponent.getHeight() > (insideDisplay.height*scale))
+	            origindy = (int)((fullComponent.getHeight() - insideDisplay.height*scale)/2);
+	                                
+	        Rectangle2D.Double region = new Rectangle2D.Double(
+	            // we floor to an integer because we're dealing with exact pixels at this point
+	            (int)(holder.bounds.x * scale) + origindx,
+	            (int)(holder.bounds.y * scale) + origindy,
+	            (int)(holder.bounds.width * scale),
+	            (int)(holder.bounds.height * scale));
+	        DrawInfo2D d2d = new DrawInfo2D(simulation, holder.portrayal, region, clip);
+	        d2d.gui = simulation;
+	        d2d.precise = precise;
+	        return d2d;
        }
 
    static final int MAX_TOOLTIP_LINES = 10;
@@ -1532,7 +1536,11 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
            g.dispose();  // because we got it with getGraphics(), we're responsible for it
                        
            // Ask what kind of thing we want to save?
-           int result = 2;  // PNG by default
+           final int CANCEL_BUTTON = 0;
+           final int PNG_BUTTON = 1;
+           final int PDF_BUTTON = 2;
+           final int PDF_NO_BACKDROP_BUTTON = 3;
+           int result = PNG_BUTTON;  //  default
            if (havePDF) 
                {
                Object[] options = { "Cancel", "Save to PDF", "Save to PNG Bitmap" };
@@ -1541,7 +1549,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
                    null, options, options[0]);
                }
                        
-           if (result == 2)  // PNG
+           if (result ==PNG_BUTTON)  // PNG
                {
                // NOW pop up the save window
                FileDialog fd = new FileDialog(getFrame(), 
@@ -1552,24 +1560,32 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
                                            {
                                            OutputStream stream = new BufferedOutputStream(new FileOutputStream(
                                                    new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
-                                           PngEncoder tmpEncoder = new
-                                               PngEncoder(img, false,PngEncoder.FILTER_NONE,9);
+                                           PNGEncoder tmpEncoder = new
+                                               PNGEncoder(img, false,PNGEncoder.FILTER_NONE,9);
                                            stream.write(tmpEncoder.pngEncode());
                                            stream.close();
                                            }
                    catch (Exception e) { e.printStackTrace(); }
                }
-           else if (result == 1)  // PDF
+           else if (result == PDF_BUTTON || result == PDF_NO_BACKDROP_BUTTON)  // PDF
                {
-               FileDialog fd = new FileDialog(getFrame(), 
-                   "Save Snapshot as PDF...", FileDialog.SAVE);
-               fd.setFile("Untitled.pdf");
-               fd.setVisible(true);
-               if (fd.getFile()!=null) try
-                                           {
-                                           PDFEncoder.generatePDF(port, new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".pdf")));
-                                           }
-                   catch (Exception e) { e.printStackTrace(); }
+         	  FileDialog fd = new FileDialog(getFrame(), 
+                    "Save Snapshot as PDF...", FileDialog.SAVE);
+                fd.setFile("Untitled.pdf");
+                fd.setVisible(true);
+                if (fd.getFile()!=null) try
+                                            {
+                                            boolean oldprecise = precise;
+                                            precise = true;
+                                            Paint b = getBackdrop();
+                                            if (result == PDF_NO_BACKDROP_BUTTON)  // temporarily remove backdrop
+                                                setBackdrop(null);
+                                            PDFEncoder.generatePDF(port, new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".pdf")));
+                                            precise = oldprecise;
+                                            if (result == PDF_NO_BACKDROP_BUTTON)
+                                                setBackdrop(b);
+                                            }
+                    catch (Exception e) { e.printStackTrace(); }
                }
            else // (result == 0)  // Cancel
                {

@@ -28,9 +28,8 @@ import java.awt.*;
     In this second case (and for good measure the first case), you should provide a button 
     which manually updates the inspector via updateInspector().  The easiest way to do get such
     a button is to call makeUpdateButton(), which will do it for you.  You can then stick the
-    button in your inspector.  When pressed this button will call updateButtonPressed(), which you can override
-    as you like (by default, updateButtonPressed() simply calls updateInspector() to update the inspector).
-    
+    button in your inspector.
+        
     <p><b>The Stopper.</b>  Most inspectors, particularly volatile ones, are scheduled repeating and so need
     to have a way to be stopped if the user closes the inspector's window or otherwise clears it out.  Normally
     the system gets this Stoppable after scheduling the inspector repeating.  Before it uses it, it first calls
@@ -44,11 +43,11 @@ import java.awt.*;
     <pre><tt>public Stoppable reviseStopper(Stoppable stopper)
     {
     final Stoppable newStopper = super.reviseStopper(stopper);
-    return new Stoppable()
+    return new Stoppable() { public void stop()
     {
     if (newStopper!=null) newStopper.stop();  // wraps the stopper
     System.out.println("Hey, I stopped!");  // do my thing
-    };
+    }};
     }</tt></pre>
                 
     <p>Beware that your stopper may and probably will have its stop() method called multiple times.
@@ -120,10 +119,11 @@ public abstract class Inspector extends JPanel
             };
         }
     
-    /** If you've added an UpdateButton with makeUpdateButton(), it will call updateButtonPressed
-        when it is pressed, which by default will call updateInspector().  Override this
-        method if that's not the behavior you want. */
-    protected void updateButtonPressed()
+    /* If you've added an UpdateButton with makeUpdateButton(), it will call updateButtonPressed
+       when it is pressed, which by default will call updateInspector().  Override this
+       method if that's not the behavior you want.
+    */
+    final protected void updateButtonPressed()
         {
         updateInspector();
         }
@@ -147,7 +147,7 @@ public abstract class Inspector extends JPanel
             {
             public void actionPerformed(ActionEvent e)
                 {
-                updateButtonPressed();
+                updateInspector();
                 }
             });
         return jb;
@@ -175,21 +175,41 @@ public abstract class Inspector extends JPanel
         return stopper;
         }
 
+    /** Disposes the Inspector's frame if it's not a Controller.  Override this
+        to change the disposal behavior of the Inspector. */
+    public void disposeFrame()
+        {
+        Component c = this;
+        while(c != null && !(c instanceof JFrame))
+            c = c.getParent();
+                
+        // At this point c is the JFrame.  By default we dispose it if it's not
+        // a Controller.
+                
+        if (c != null && !(c instanceof Controller))
+            ((JFrame)c).dispose();
+        }
+
     /** Creates a scrollable frame surrounding the inspector which calls stop()
         on the underlying stopper when closed.  stopper may be null, in which
         case stop() is not called.  */
-    public JFrame createFrame(final Stoppable stopper)
+    public JFrame createFrame(Stoppable stopper)
         {
         JScrollPane scroller = new JScrollPane(this);
         scroller.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 
-        // put in new frame which stops when closed
+        // put in new frame which stops when closed.
+        // The stopperHolder trick allows us to null out the stopper even though
+        // it's final, which might help in letting the WeakHashMap of inspectors
+        // in the Console clear itself.  Maybe.
+        final Stoppable[] stopperHolder = new Stoppable[] { stopper };
         JFrame frame = new JFrame()
             {
             public void dispose()
                 {
                 super.dispose();
-                if (stopper!=null) stopper.stop();
+                if (stopperHolder[0]!=null) stopperHolder[0].stop();
+                stopperHolder[0] = null;
                 }
             };
 

@@ -120,7 +120,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		 	  	this.setLastDrawInfo2DForNewCellEllipse(info, newloc, oldLoc);
 	      }
       }
-      lastDrawInfo2D = new DrawInfo2D(new Rectangle2D.Double(0, 0, 0, 0),
+      lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0),
      		 new Rectangle2D.Double(0, 0, 0, 0));
    }
    
@@ -497,7 +497,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    	DrawInfo2D info = this.getCellEllipseObject().getLastDrawInfo2D();
 		DrawInfo2D newInfo = null;
 		if( info != null){
-			newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
+			newInfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
 			newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*getOldPosition().x) + newInfo.draw.width* getNewPosition().x);
 			newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*getOldPosition().y) + newInfo.draw.height*getNewPosition().y);
 			this.getCellEllipseObject().setLastDrawInfo2D(newInfo, true);
@@ -637,7 +637,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	public void setLastDrawInfo2DForNewCellEllipse(DrawInfo2D info, Double2D newloc, Double2D oldLoc){
 		DrawInfo2D newInfo = null;
 		if(info != null){
-			newInfo = new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
+			newInfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width,info.draw.height), info.clip);
 			newInfo.draw.x = ((newInfo.draw.x - newInfo.draw.width*oldLoc.x) + newInfo.draw.width*newloc.x);
 			newInfo.draw.y = ((newInfo.draw.y - newInfo.draw.height*oldLoc.y) + newInfo.draw.height*newloc.y);
 			getCellEllipseObject().setLastDrawInfo2D(newInfo, true);

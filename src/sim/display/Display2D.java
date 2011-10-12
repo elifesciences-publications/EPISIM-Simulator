@@ -69,22 +69,22 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     public class OptionPane extends JFrame
         {
         // buffer stuff
-        public int buffering;
+        int buffering;
         
-        public JRadioButton useNoBuffer = new JRadioButton("By Drawing Separate Rectangles");
-        public JRadioButton useBuffer = new JRadioButton("Using a Stretched Image");
-        public JRadioButton useDefault = new JRadioButton("Let the Program Decide How");
-        public ButtonGroup usageGroup = new ButtonGroup();
+        JRadioButton useNoBuffer = new JRadioButton("By Drawing Separate Rectangles");
+        JRadioButton useBuffer = new JRadioButton("Using a Stretched Image");
+        JRadioButton useDefault = new JRadioButton("Let the Program Decide How");
+        ButtonGroup usageGroup = new ButtonGroup();
         
-        public JCheckBox antialias = new JCheckBox("Antialias Graphics");
-        public JCheckBox alphaInterpolation = new JCheckBox("Better Transparency");
-        public JCheckBox interpolation = new JCheckBox("Bilinear Interpolation of Images");
-        public JCheckBox tooltips = new JCheckBox("Tool Tips");
+        JCheckBox antialias = new JCheckBox("Antialias Graphics");
+        JCheckBox alphaInterpolation = new JCheckBox("Better Transparency");
+        JCheckBox interpolation = new JCheckBox("Bilinear Interpolation of Images");
+        JCheckBox tooltips = new JCheckBox("Tool Tips");
         
-        public JButton systemPreferences = new JButton("MASON");
-        public JButton appPreferences = new JButton("Simulation");
+        JButton systemPreferences = new JButton("MASON");
+        JButton appPreferences = new JButton("Simulation");
                 
-        public NumberTextField xOffsetField = new NumberTextField(0,1,50)
+        NumberTextField xOffsetField = new NumberTextField(0,1,50)
             {
             public double newValue(final double val)
                 {
@@ -95,7 +95,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 }
             };
             
-        public NumberTextField yOffsetField = new NumberTextField(0,1,50)
+        NumberTextField yOffsetField = new NumberTextField(0,1,50)
             {
             public double newValue(final double val)
                 {
@@ -108,7 +108,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
 
         ActionListener listener = null;
                 
-        public OptionPane(String title)
+        OptionPane(String title)
             {
             super(title);
             useDefault.setSelected(true);
@@ -210,7 +210,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             }
                 
         /** Saves the Option Pane Preferences to a given Preferences Node */
-        public void savePreferences(Preferences prefs)
+        void savePreferences(Preferences prefs)
             {
             try
                 {
@@ -240,7 +240,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         static final String TOOLTIPS_KEY = "Tool Tips";
                 
         /** Resets the Option Pane Preferences by loading from the preference database */
-        public void resetToPreferences()
+        void resetToPreferences()
             {
             try
                 {
@@ -273,7 +273,13 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             }
         }
                 
-    
+    /** Removes all mouse listeners, mouse motion listeners, and Key listeners from this component.  Mostly used for kiosk mode stuff -- see the Howto */
+    public void removeListeners()
+        {
+        // moved to the Display2D ot be at the same level as handleEvent
+        insideDisplay.removeListeners();
+        }
+        
     /** The object which actually does all the drawing.  Perhaps we should move this out. */
     public class InnerDisplay2D extends JComponent
         {
@@ -289,7 +295,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         /** y offset */
         public double yOffset;
                 
-        /** Removes all mouse listeners, mouse motion listeners, and Key listeners from this component.  Mostly used for kiosk mode stuff -- see the Howto */
+        /** @deprecated Use Display2D.removeListeners instead. */
         public void removeListeners()
             {
             MouseListener[] mls = (MouseListener[])(getListeners(MouseListener.class));
@@ -304,7 +310,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             }
                         
         /** Creates an InnerDisplay2D with the provided width and height. */
-        public InnerDisplay2D(double width, double height)
+        InnerDisplay2D(double width, double height)
             {
             this.width = width;
             this.height = height;
@@ -319,10 +325,6 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         public Dimension getMinimumSize() 
             { return getPreferredSize();  }
 
-        /** Overloaded to return (width * scale, height * scale) */
-        public Dimension getMaximumsize()
-            { return getPreferredSize(); }
-        
         /** Paints a movie, by drawing to a buffer, then
             encoding the buffer to disk, then optionally 
             writing the buffer to the provided Graphics2D. 
@@ -344,7 +346,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 long steps = Display2D.this.simulation.state.schedule.getSteps();
                 if (steps > lastEncodedSteps &&
                     shouldUpdate() &&
-                    Display2D.this.simulation.state.schedule.time() < Schedule.AFTER_SIMULATION)
+                    Display2D.this.simulation.state.schedule.getTime() < Schedule.AFTER_SIMULATION)
                     {
                     Display2D.this.movieMaker.add(paint(g,true,false));
                     lastEncodedSteps = steps;
@@ -442,6 +444,32 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                     }
                 }
             }
+
+
+        static final int MAX_TOOLTIP_LINES = 10;
+        public String createToolTipText( Rectangle2D.Double rect, final GUIState simulation )
+            {
+            String s = "<html><font face=\"" +
+                getFont().getFamily() + "\" size=\"-1\">";
+            Bag[] hitObjects = objectsHitBy(rect);
+            int count = 0;
+            for(int x=0;x<hitObjects.length;x++)
+                {
+                FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(portrayals.get(x));
+                for( int i = 0 ; i < hitObjects[x].numObjs ; i++ )
+                    {
+                    if (count > 0) s += "<br>";
+                    if (count >= MAX_TOOLTIP_LINES) { return s + "...<i>etc.</i></font></html>"; }
+                    count++;
+                    String status = p.portrayal.getStatus((LocationWrapper) (hitObjects[x].objs[i]));
+                    if (status != null) s += status;  // might return null, sort of meaning "leave me alone"
+                    }
+                }
+            if (count==0) return null;
+            s += "</font></html>";
+            return s;
+            }
+
         
         boolean paintLock = false;
         /** Swing's equivalent of paint(Graphics g).   Called by repaint().  In turn calls
@@ -459,10 +487,11 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         
         /** The top-level repainting method.  If we're writing to a movie, we do a paintToMovie
             (which also does a buffered paint to the screen) else we do an ordinary paint.
-            <tt>buffer</tt> determines if we do our ordinary paints buffered or not. */
+            <tt>buffer</tt> determines if we do our ordinary paints buffered or not.
+            @deprecated use paintComponent() or paint(...) */
         public void paintComponent(Graphics g, boolean buffer)
             {
-            synchronized(Display2D.this.simulation.state.schedule)  // for time()
+            synchronized(Display2D.this.simulation.state.schedule)  // for getTime()
                 {
                 if (movieMaker!=null)  // we're writing a movie
                     insideDisplay.paintToMovie(g);
@@ -662,19 +691,19 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         /** The translation and scale of the FieldPortrayal.  Presently this
             is always 0,0 translation and 1.0 scale, but we'll allow the
             user to change this soon. */
-        public Rectangle2D.Double bounds;
+        Rectangle2D.Double bounds;
         /** The portrayal proper */
-        public FieldPortrayal2D portrayal;
+        FieldPortrayal2D portrayal;
         /** The name of the portrayal, as shown in the Layers menu on the Display2D window */
-        public String name;
+        String name;
         /** The menu item of the portrayal, in the Layers menu. */
-        public JCheckBoxMenuItem menuItem;
+        JCheckBoxMenuItem menuItem;
         /** Whether we should draw the portrayal on updates */
-        public boolean visible;
+        boolean visible;
         /** Returns the portrayal's name in the Layers menu */
         public String toString() { return name; }
         /** Creates a menu item which selects or unselects the portrayal for drawing. */
-        public FieldPortrayal2DHolder(FieldPortrayal2D p, String n, Rectangle2D.Double bounds, boolean visible)
+        FieldPortrayal2DHolder(FieldPortrayal2D p, String n, Rectangle2D.Double bounds, boolean visible)
             {
             this.bounds = bounds;
             portrayal=p; 
@@ -735,7 +764,10 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         }
 
 
-    /** Sets various MacOS X features */
+    /* Sets various MacOS X features.  This text is repeated in Console.java, Display2D.java, and Display3D.java
+       The reason for the repeat is that the UseQuartz property must be set a precise time -- for example, we can't
+       just use this static to call a common static method -- it doesn't work :-(  Otherwise we'd have made one
+       static method which did all this stuff, duh.  */
     static 
         {
         // use heavyweight tooltips -- otherwise they get obscured by the Canvas3D
@@ -745,6 +777,9 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         // Use Quaqua if it exists
         try
             {
+            //Set includes = new HashSet();
+            //includes.add("ColorChooser");
+            //ch.randelshofer.quaqua.QuaquaManager.setIncludedUIs(includes);
             System.setProperty( "Quaqua.TabbedPane.design","auto" );  // UI Manager Properties docs differ
             System.setProperty( "Quaqua.visualMargin","1,1,1,1" );
             UIManager.put("Panel.opaque", Boolean.TRUE);
@@ -759,7 +794,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             // turns this off by default, which makes 1.3.1 half the speed (and draws
             // objects wrong to boot).
             System.setProperty("com.apple.hwaccel","true");  // probably settable as an applet.  D'oh! Looks like it's ignored.
-            System.setProperty("apple.awt.graphics.UseQuartz","true");  // counter the awful effect in OS X's Sun Renderer
+            System.setProperty("apple.awt.graphics.UseQuartz","true");  // counter the awful effect in OS X's Sun Renderer (though it's a bit faster)
             // the following are likely not settable
             // macOS X 1.4.1 java doesn't show the grow box.  We force it here.
             System.setProperty("apple.awt.showGrowBox","true");
@@ -782,6 +817,8 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     
     public static final ImageIcon LAYERS_ICON = iconFor("Layers.png");
     public static final ImageIcon LAYERS_ICON_P = iconFor("LayersPressed.png");
+    public static final ImageIcon REFRESH_ICON = iconFor("Reload.png");
+    public static final ImageIcon REFRESH_ICON_P = iconFor("ReloadPressed.png");
     public static final ImageIcon MOVIE_ON_ICON = iconFor("MovieOn.png");
     public static final ImageIcon MOVIE_ON_ICON_P = iconFor("MovieOnPressed.png");
     public static final ImageIcon MOVIE_OFF_ICON = iconFor("MovieOff.png");
@@ -794,14 +831,14 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     public static final Object[] REDRAW_OPTIONS = new Object[] { "Steps/Redraw", "Model Secs/Redraw", "Real Secs/Redraw", "Always Redraw", "Never Redraw" };
 
     /** Use tool tips? */
-    public boolean useTooltips;
+    boolean useTooltips;
 
     /** The last steps for a frame that was painted to the screen.  Keeping this
         variable around enables our movie maker to ensure that it doesn't write
         a frame twice to its movie stream. */
     long lastEncodedSteps = -1;  // because we want to encode the start of the simulation prior to any steps.  That's step 0.
     /** Our movie maker, if one is running, else null. */
-    public MovieMaker movieMaker;
+    MovieMaker movieMaker;
 
     /** The 2D display inside the scroll view.  Does the actual drawing of the simulation. */
     public InnerDisplay2D insideDisplay;
@@ -824,7 +861,11 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     /** The popup layers menu */
     public JPopupMenu popup;
     /** The button which pops up the layers menu */
-    public JToggleButton togglebutton;  // for popup
+    public JToggleButton layersbutton;  // for popup
+    /** The refresh menu */
+    public JPopupMenu refreshPopup;
+    /** The button which pops up the refresh menu */
+    public JToggleButton refreshbutton;  // for popup
     /** The button which starts or stops a movie */
     public JButton movieButton;
     /** The button which snaps a screenshot */
@@ -837,6 +878,8 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     public NumberTextField skipField;
     /** The combo box for skipping frames */
     public JComboBox skipBox;
+    /** The frame which holds the skip controls */
+    public JFrame skipFrame;
         
     /** Scale (zoom value).  1.0 is 1:1.  2.0 is zoomed in 2 times.  Etc. */
     double scale = 1.0;
@@ -846,12 +889,12 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     /** Returns the scale (the zoom value) of the Display2D */
     public double getScale() { synchronized (scaleLock) { return scale; } }
 
-    /** How many steps are skipped before the display updates itself.  */
-    long interval = 1;
-    Object intervalLock = new Object();  // interval lock
-    /** Sets how many steps are skipped before the display updates itself. */
+    /* How many steps are skipped before the display updates itself.  */
+    //long interval = 1;
+    // Object intervalLock = new Object();  // interval lock
+    /* Sets how many steps are skipped before the display updates itself. */
     // public void setInterval(long i) { synchronized(intervalLock) { if (i > 0) interval = i; } }
-    /** Gets how many steps are skipped before the display updates itself. */
+    /* Gets how many steps are skipped before the display updates itself. */
     // public long getInterval() { synchronized(intervalLock) { return interval; } }
     
     /** Whether or not we're clipping */
@@ -982,7 +1025,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             });
         }
     
-    public void createConsoleMenu()
+    void createConsoleMenu()
         {
         if (simulation != null && simulation.controller != null &&
             simulation.controller instanceof Console)
@@ -994,7 +1037,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 {
                 public void actionPerformed(ActionEvent e)
                     {
-                    c.setVisible(true);;
+                    c.setVisible(true);
                     }
                 });
             }
@@ -1010,10 +1053,21 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         portrayals = new ArrayList();
         return old;
         }
+
+
+    /** Creates a Display2D with the provided width and height for its portrayal region, 
+        attached to the provided simulation.   The interval is ignored.
+                
+        @deprecated
+    */
+    public Display2D(final double width, final double height, GUIState simulation, long interval)
+        {
+        this(width, height, simulation);
+        }
         
     /** Creates a Display2D with the provided width and height for its portrayal region, 
         attached to the provided simulation, and displaying itself with the given interval (which must be > 0). */
-    public Display2D(final double width, final double height, GUIState simulation, long interval)
+    public Display2D(final double width, final double height, GUIState simulation)
         {
         // setInterval(interval);
         this.simulation = simulation;
@@ -1052,31 +1106,67 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             };
 
         //Create the popup menu.
-        togglebutton = new JToggleButton(LAYERS_ICON);
-        togglebutton.setPressedIcon(LAYERS_ICON_P);
-        togglebutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
-        togglebutton.setBorderPainted(false);
-        togglebutton.setContentAreaFilled(false);
-        togglebutton.setToolTipText("Show and hide different layers");
+        layersbutton = new JToggleButton(LAYERS_ICON);
+        layersbutton.setPressedIcon(LAYERS_ICON_P);
+        layersbutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        layersbutton.setBorderPainted(false);
+        layersbutton.setContentAreaFilled(false);
+        layersbutton.setToolTipText("Show and hide different layers");
         
-        header.add(togglebutton);
+        header.add(layersbutton);
         popup = new JPopupMenu();
         popup.setLightWeightPopupEnabled(false);
 
         //Add listener to components that can bring up popup menus.
-        togglebutton.addMouseListener(new MouseAdapter()
+        layersbutton.addMouseListener(new MouseAdapter()
             {
             public void mousePressed(MouseEvent e)
                 {
                 popup.show(e.getComponent(),
-                    togglebutton.getLocation().x,
-                    togglebutton.getSize().height);
+                    0, //layersbutton.getLocation().x,
+                    layersbutton.getSize().height);
                 }
             public void mouseReleased(MouseEvent e)
                 {
-                togglebutton.setSelected(false);
+                layersbutton.setSelected(false);
                 }
             });
+
+
+        //Create the popup menu.
+        refreshbutton = new JToggleButton(REFRESH_ICON);
+        refreshbutton.setPressedIcon(REFRESH_ICON_P);
+        refreshbutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        refreshbutton.setBorderPainted(false);
+        refreshbutton.setContentAreaFilled(false);
+        refreshbutton.setToolTipText("Change How and When the Display Redraws Itself");
+        
+        header.add(refreshbutton);
+        refreshPopup = new JPopupMenu();
+        refreshPopup.setLightWeightPopupEnabled(false);
+
+        //Add listener to components that can bring up popup menus.
+        refreshbutton.addMouseListener(new MouseAdapter()
+            {
+            public void mousePressed(MouseEvent e)
+                {
+                rebuildRefreshPopup();
+                refreshPopup.show(e.getComponent(),
+                    0,
+                    //refreshbutton.getLocation().x,
+                    refreshbutton.getSize().height);
+                }
+            public void mouseReleased(MouseEvent e)
+                {
+                refreshbutton.setSelected(false);
+                rebuildRefreshPopup();
+                }
+            });
+
+                
+
+
+
 
         // add mouse listener for the inspectors
         insideDisplay.addMouseListener(new MouseAdapter()
@@ -1105,10 +1195,10 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             public void mouseExited(MouseEvent e)
                 {
                 insideDisplay.lastToolTipEvent = null;  // do this no matter what
-           //     if (handleMouseEvent(e)) { repaint(); return; }
+                if (handleMouseEvent(e)) { repaint(); return; }
                 }
 
-         public void mouseEntered(MouseEvent e)
+            public void mouseEntered(MouseEvent e)
                 {
                 if (handleMouseEvent(e)) { repaint(); return; }
                 }
@@ -1191,6 +1281,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             });
         header.add(snapshotButton);
         
+                
         // add the option button
         optionButton = new JButton(OPTIONS_ICON);
         optionButton.setPressedIcon(OPTIONS_ICON_P);
@@ -1204,7 +1295,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 {
                 optionPane.setTitle(getFrame().getTitle() + " Options");
                 optionPane.pack();
-                optionPane.setVisible(true);;
+                optionPane.setVisible(true);
                 }
             });
         header.add(optionButton);
@@ -1246,93 +1337,14 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 }
             };
         scaleField.setToolTipText("Zoom in and out");
+        scaleField.setBorder(BorderFactory.createEmptyBorder(0,0,0,2));
         header.add(scaleField);
         
-        // add the interval (skip) field
-        skipBox = new JComboBox(REDRAW_OPTIONS);
-        skipBox.setSelectedIndex(updateRule);
-        ActionListener skipListener = new ActionListener()
-            {
-            public void actionPerformed(ActionEvent e)
-                {
-                updateRule = skipBox.getSelectedIndex();
-                if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)
-                    {
-                    skipField.valField.setText("");
-                    skipField.setEnabled(false);
-                    }
-                else if (updateRule == UPDATE_RULE_STEPS)
-                    {
-                    skipField.setValue(stepInterval);
-                    skipField.setEnabled(true);
-                    }
-                else if (updateRule == UPDATE_RULE_INTERNAL_TIME)
-                    {
-                    skipField.setValue(timeInterval);
-                    skipField.setEnabled(true);
-                    }
-                else // UPDATE_RULE_WALLCLOCK_TIME
-                    {
-                    skipField.setValue((long)(wallInterval / 1000));
-                    skipField.setEnabled(true);
-                    }
-                }
-            };
-        skipBox.addActionListener(skipListener);
-                
-        // I want right justified text.  This is an ugly way to do it
-        skipBox.setRenderer(new DefaultListCellRenderer()
-            {
-            public Component getListCellRendererComponent(JList list, Object value, int index,  boolean isSelected,  boolean cellHasFocus)
-                {
-                // JLabel is the default
-                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                label.setHorizontalAlignment(SwingConstants.RIGHT);
-                return label;
-                }
-            });
-                        
-        header.add(skipBox);
+        skipFrame = new JFrame();
+        rebuildSkipFrame();
+        skipFrame.pack();
 
 
-        skipField = new NumberTextField(null, 1, false)
-            {
-            public double newValue(double newValue)
-                {
-                double val;
-                if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)  // shouldn't have happened
-                    {
-                    val = 0;
-                    }
-                else if (updateRule == UPDATE_RULE_STEPS)
-                    {
-                    val = (long) newValue;
-                    if (val < 1) val = stepInterval;
-                    stepInterval = (long) val;
-                    }
-                else if (updateRule == UPDATE_RULE_WALLCLOCK_TIME)
-                    {
-                    val = newValue;
-                    if (val < 0) val = wallInterval / 1000;
-                    wallInterval = (long) (newValue * 1000);
-                    }
-                else // if (updateRule == UPDATE_RULE_INTERNAL_TIME)
-                    {
-                    val = newValue;
-                    if (newValue < 0) newValue = timeInterval;
-                    timeInterval = val;
-                    }
-                        
-                // reset with a new interval
-                reset();
-                        
-                return val;
-                }
-            };
-        skipField.setToolTipText("Specify the interval between screen updates");
-        header.add(skipField);
-
-        skipListener.actionPerformed(null);  // have it update the text field accordingly
 
         // put everything together
         setLayout(new BorderLayout());
@@ -1430,38 +1442,16 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             (int)(holder.bounds.y * scale) + origindy,
             (int)(holder.bounds.width * scale),
             (int)(holder.bounds.height * scale));
-        DrawInfo2D d2d = new DrawInfo2D(region, clip);
+        DrawInfo2D d2d = new DrawInfo2D(simulation, holder.portrayal, region, clip);
+        d2d.gui = simulation;
         d2d.precise = precise;
         return d2d;
-        }
-
-    static final int MAX_TOOLTIP_LINES = 10;
-    public String createToolTipText( Rectangle2D.Double rect, final GUIState simulation )
-        {
-        String s = "<html><font face=\"" +
-            getFont().getFamily() + "\" size=\"-1\">";
-        Bag[] hitObjects = objectsHitBy(rect);
-        int count = 0;
-        for(int x=0;x<hitObjects.length;x++)
-            {
-            FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(portrayals.get(x));
-            for( int i = 0 ; i < hitObjects[x].numObjs ; i++ )
-                {
-                if (count > 0) s += "<br>";
-                if (count >= MAX_TOOLTIP_LINES) { return s + "...<i>etc.</i></font></html>"; }
-                count++;
-                String status = p.portrayal.getStatus((LocationWrapper) (hitObjects[x].objs[i]));
-                if (status != null) s += status;  // might return null, sort of meaning "leave me alone"
-                }
-            }
-        if (count==0) return null;
-        s += "</font></html>";
-        return s;
         }
                 
     /** */
     ArrayList selectedWrappers = new ArrayList();
     
+    /** Selects the following object, deselecting other objects if so asked. */
     public void performSelection( LocationWrapper wrapper)
         {
         Bag b = new Bag();
@@ -1474,12 +1464,12 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         for(int x=0;x<selectedWrappers.size();x++)
             {
             LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
-            wrapper.getFieldPortrayal().setSelected(wrapper,false);
+            wrapper.getFieldPortrayal().setSelected(wrapper, false);
             }
         selectedWrappers.clear();
         }
         
-    public void performSelection( final Bag locationWrappers )
+    public void performSelection( Bag locationWrappers )
         {
         clearSelections();
                 
@@ -1589,8 +1579,8 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
 
     private Object sacrificialObj = null;
     
-    public static int TYPE_PDF = 1;
-    public static int TYPE_PNG = 2;
+    public final static int TYPE_PDF = 1;
+    public final static int TYPE_PNG = 2;
         
     public void takeSnapshot(File file, int type) throws IOException
         {
@@ -1600,7 +1590,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             BufferedImage img = insideDisplay.paint(g,true,false);
             g.dispose();
             OutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
-            PngEncoder tmpEncoder = new PngEncoder(img, false,PngEncoder.FILTER_NONE,9);
+            PNGEncoder tmpEncoder = new PNGEncoder(img, false,PNGEncoder.FILTER_NONE,9);
             stream.write(tmpEncoder.pngEncode());
             stream.close();
             }
@@ -1672,8 +1662,8 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                                             {
                                             OutputStream stream = new BufferedOutputStream(new FileOutputStream(
                                                     new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
-                                            PngEncoder tmpEncoder = new
-                                                PngEncoder(img, false,PngEncoder.FILTER_NONE,9);
+                                            PNGEncoder tmpEncoder = new
+                                                PNGEncoder(img, false,PNGEncoder.FILTER_NONE,9);
                                             stream.write(tmpEncoder.pngEncode());
                                             stream.close();
                                             }
@@ -1795,6 +1785,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             }
         }
         
+    /** Used internally and by Display3D to indicate */
     public final static int UPDATE_RULE_STEPS = 0;
     public final static int UPDATE_RULE_INTERNAL_TIME = 1;
     public final static int UPDATE_RULE_WALLCLOCK_TIME = 2;
@@ -1852,7 +1843,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             FieldPortrayal2D f = (FieldPortrayal2D)(wrapper.getFieldPortrayal());
             Object obj = wrapper.getObject();
             SimplePortrayal2D portrayal = (SimplePortrayal2D)(f.getPortrayalForObject(obj));
-            if (portrayal.handleMouseEvent(this, wrapper, event, getDrawInfo2D(f, p), SimplePortrayal2D.TYPE_SELECTED_OBJECT))
+            if (portrayal.handleMouseEvent(simulation, this, wrapper, event, getDrawInfo2D(f, p), SimplePortrayal2D.TYPE_SELECTED_OBJECT))
                 {
                 simulation.controller.refresh();
                 return true;
@@ -1870,7 +1861,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 FieldPortrayal2D f = (FieldPortrayal2D)(wrapper.getFieldPortrayal());
                 Object obj = wrapper.getObject();
                 SimplePortrayal2D portrayal = (SimplePortrayal2D)(f.getPortrayalForObject(obj));
-                if (portrayal.handleMouseEvent(this, wrapper, event, getDrawInfo2D(f, p), SimplePortrayal2D.TYPE_HIT_OBJECT))
+                if (portrayal.handleMouseEvent(simulation, this, wrapper, event, getDrawInfo2D(f, p), SimplePortrayal2D.TYPE_HIT_OBJECT))
                     {
                     simulation.controller.refresh();
                     return true;
@@ -1882,10 +1873,240 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         return false;
         }
 
+    void rebuildSkipFrame()
+        {
+        skipFrame.getContentPane().removeAll();
+        skipFrame.getContentPane().invalidate();
+        skipFrame.getContentPane().repaint();
+        skipFrame.getContentPane().setLayout(new BorderLayout());
+
+        JPanel skipHeader = new JPanel();
+        skipHeader.setLayout(new BorderLayout());
+        skipFrame.add(skipHeader, BorderLayout.CENTER);
+                
+        // add the interval (skip) field
+        skipBox = new JComboBox(REDRAW_OPTIONS);
+        skipBox.setSelectedIndex(updateRule);
+        ActionListener skipListener = new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = skipBox.getSelectedIndex();
+                if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)
+                    {
+                    skipField.getField().setText("");
+                    skipField.setEnabled(false);
+                    }
+                else if (updateRule == UPDATE_RULE_STEPS)
+                    {
+                    skipField.setValue(stepInterval);
+                    skipField.setEnabled(true);
+                    }
+                else if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+                    {
+                    skipField.setValue(timeInterval);
+                    skipField.setEnabled(true);
+                    }
+                else // UPDATE_RULE_WALLCLOCK_TIME
+                    {
+                    skipField.setValue((long)(wallInterval / 1000));
+                    skipField.setEnabled(true);
+                    }
+                }
+            };
+        skipBox.addActionListener(skipListener);
+                
+        // I want right justified text.  This is an ugly way to do it
+        skipBox.setRenderer(new DefaultListCellRenderer()
+            {
+            public Component getListCellRendererComponent(JList list, Object value, int index,  boolean isSelected,  boolean cellHasFocus)
+                {
+                // JLabel is the default
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                label.setHorizontalAlignment(SwingConstants.RIGHT);
+                return label;
+                }
+            });
+                        
+        skipHeader.add(skipBox, BorderLayout.WEST);
+
+
+        skipField = new NumberTextField(null, 1, false)
+            {
+            public double newValue(double newValue)
+                {
+                double val;
+                if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)  // shouldn't have happened
+                    {
+                    val = 0;
+                    }
+                else if (updateRule == UPDATE_RULE_STEPS)
+                    {
+                    val = (long) newValue;
+                    if (val < 1) val = stepInterval;
+                    stepInterval = (long) val;
+                    }
+                else if (updateRule == UPDATE_RULE_WALLCLOCK_TIME)
+                    {
+                    val = newValue;
+                    if (val < 0) val = wallInterval / 1000;
+                    wallInterval = (long) (newValue * 1000);
+                    }
+                else // if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+                    {
+                    val = newValue;
+                    if (newValue < 0) newValue = timeInterval;
+                    timeInterval = val;
+                    }
+                        
+                // reset with a new interval
+                reset();
+                        
+                return val;
+                }
+            };
+        skipField.setToolTipText("Specify the interval between screen updates");
+        skipField.getField().setColumns(10);
+        skipHeader.add(skipField,BorderLayout.CENTER);
+        skipHeader.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        skipListener.actionPerformed(null);  // have it update the text field accordingly
+        }
+
+    void rebuildRefreshPopup()
+        {
+        refreshPopup.removeAll();
+        String s = "";
+        switch(updateRule)
+            {
+            case UPDATE_RULE_STEPS:
+                s = (stepInterval == 1 ? "Currently redrawing each model iteration" :
+                    "Currently redrawing every " + stepInterval +  " model iterations");
+                break;
+            case UPDATE_RULE_INTERNAL_TIME:
+                s = (timeInterval == 1 ? "Currently redrawing each unit of model time" :
+                    "Currently redrawing every " + (timeInterval) +  " units of model time");
+                break;
+            case UPDATE_RULE_WALLCLOCK_TIME:
+                s = (wallInterval == 1000 ? "Currently redrawing each second of real time" :
+                    "Currently redrawing every " + (wallInterval / 1000.0) +  " seconds of real time");
+                break;
+            case UPDATE_RULE_ALWAYS:
+                s = "Currently redrawing each model iteration";
+                break;
+            case UPDATE_RULE_NEVER:
+                s = "Currently never redrawing except when the window is redrawn";
+                break;
+            }
+        JMenuItem m = new JMenuItem(s);
+        m.setEnabled(false);
+        refreshPopup.add(m);
+                
+        refreshPopup.addSeparator();
+
+        m = new JMenuItem("Always Redraw");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = UPDATE_RULE_ALWAYS;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Never Redraw");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = UPDATE_RULE_NEVER;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Redraw once every 2 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = UPDATE_RULE_STEPS;
+                stepInterval = 2;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Redraw once every 4 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = UPDATE_RULE_STEPS;
+                stepInterval = 4;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Redraw once every 8 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = UPDATE_RULE_STEPS;
+                stepInterval = 8;
+                rebuildSkipFrame();
+                }
+            });
+
+        m = new JMenuItem("Redraw once every 16 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = UPDATE_RULE_STEPS;
+                stepInterval = 16;
+                rebuildSkipFrame();
+                }
+            });
+                        
+        m = new JMenuItem("Redraw once every 32 iterations");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                updateRule = UPDATE_RULE_STEPS;
+                stepInterval = 16;
+                rebuildSkipFrame();
+                }
+            });
+                        
+        refreshPopup.addSeparator();
+
+        // add other menu items
+        m = new JMenuItem("More Options...");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                skipFrame.setTitle(getFrame().getTitle() + " Options");
+                skipFrame.setVisible(true);
+                }
+            });
+
+        refreshPopup.revalidate();
+        }
+
+
+
     /** Steps the Display2D in the GUIState schedule.  If we're in MacOS X, this results in a repaint()
         request generated.  If we're in Windows or X Windows, this results in a direct call to
-        paintComponent on the insideDisplay.  It's OS-dependent because different operating systems
-        draw faster in different ways. */
+        paintComponent on the insideDisplay. */
     public void step(final SimState state)
         {
         if (shouldUpdate())       // time to update!
@@ -1893,7 +2114,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             if (insideDisplay.isShowing() && 
                 (getFrame().getExtendedState() & java.awt.Frame.ICONIFIED) == 0)   // not minimized on the Mac
                 {
-                insideDisplay.repaint();            	
+                insideDisplay.repaint();
                 }
             else if (movieMaker != null)  // we're not being displayed but we still need to output to a movie
                 {

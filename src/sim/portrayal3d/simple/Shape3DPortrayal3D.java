@@ -9,6 +9,7 @@ package sim.portrayal3d.simple;
 import sim.portrayal3d.*;
 import javax.media.j3d.*;
 import sim.portrayal.*;
+import java.awt.*;
 
 /**
    A simple portrayal for displaying Shape3D objects.  You can find Shape3D objects,
@@ -17,6 +18,14 @@ import sim.portrayal.*;
    
    <p><b>Important note: CompressedGeometry cannot have any appearances set: it ignores all of them
    and only uses what's defined in the geometry itself. That's Java3D for you.</b>
+   
+   <p>Some examples (be sure to <tt>import javax.media.j3d.*; import com.sun.j3d.utils.geometry.*; import java.awt.Font.*;</tt>)
+   
+   <ul>
+   <li>A seagull comes with MASON: <tt>new Shape3DPortrayal3D(new Shape3D(new sim.app.crowd3d.GullCG()));</tt>
+   <li>A box with six colored sides: <tt>new Shape3DPortrayal3D(new ColorCube());</tt>
+   <li>Some 3D text: <tt>new Shape3DPortrayal3D(new Shape3D(new Text3D(new Font3D(new Font("SansSerif", Font.PLAIN, 9), new FontExtrusion()), "Hello, World!")));</tt>
+   </ul>
 */
 
 public class Shape3DPortrayal3D extends PrimitivePortrayal3D
@@ -24,17 +33,17 @@ public class Shape3DPortrayal3D extends PrimitivePortrayal3D
     /** Constructs a Shape3DPortrayal3D with the given shape and a default (flat opaque white) appearance. */
     public Shape3DPortrayal3D(Shape3D shape)
         {
-        this(shape,java.awt.Color.white);
+        this(shape,Color.white);
         }
 
     /** Constructs a Shape3DPortrayal3D  with the given shape and a flat opaque appearance of the given color. */
-    public Shape3DPortrayal3D(Shape3D shape, java.awt.Color color)
+    public Shape3DPortrayal3D(Shape3D shape, Color color)
         {
         this(shape,appearanceForColor(color));
         }
 
     /** Constructs a Shape3DPortrayal3D with the given shape and (opaque) image. */
-    public Shape3DPortrayal3D(Shape3D shape, java.awt.Image image)
+    public Shape3DPortrayal3D(Shape3D shape, Image image)
         {
         this(shape,appearanceForImage(image,true));
         }
@@ -51,29 +60,23 @@ public class Shape3DPortrayal3D extends PrimitivePortrayal3D
 
         setShape3DFlags(shape);
         shape.setAppearance(appearance);
-/*
-  group = new TransformGroup();
-  group.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-  group.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-  group.addChild(shape);
-*/
         group = shape;
         }
 
     /** Constructs a Shape3DPortrayal3D with the given geometry and a default (flat opaque white) appearance. */
     public Shape3DPortrayal3D(Geometry geometry)
         {
-        this(geometry,java.awt.Color.white);
+        this(geometry,Color.white);
         }
 
     /** Constructs a Shape3DPortrayal3D  with the given geometry and a flat opaque appearance of the given color. */
-    public Shape3DPortrayal3D(Geometry geometry, java.awt.Color color)
+    public Shape3DPortrayal3D(Geometry geometry, Color color)
         {
         this(geometry,appearanceForColor(color));
         }
 
     /** Constructs a Shape3DPortrayal3D with the given geometry and (opaque) image. */
-    public Shape3DPortrayal3D(Geometry geometry, java.awt.Image image)
+    public Shape3DPortrayal3D(Geometry geometry, Image image)
         {
         this(geometry,appearanceForImage(image,true));
         }

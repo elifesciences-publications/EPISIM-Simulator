@@ -13,6 +13,7 @@ import com.sun.j3d.utils.image.*;
 import java.awt.*;
 import javax.vecmath.*;
 import java.util.*;
+import sim.display3d.*;
 
 /** The superclass of all 3D Simple Portrayals which by default adds nothing to the 3D
     scene.  Since nothing is added to the scene, nothing is shown and you cannot
@@ -23,10 +24,10 @@ import java.util.*;
     update requests by updating this same LabelledList.  No polygonAttributes are
     provided by default, and setSelected always true by default.
     
-    <p>SimplePortrayal3Ds have a <i>parentPortrayal</i>, which is the FieldPortrayal3D
+    <p>SimplePortrayal3Ds have a <i>getFieldPortrayal()</i>, which is the FieldPortrayal3D
     which houses them.  This value can be null if the SimplePortrayal3D was added directly
     into the Display3D's collection of portrayals rather than being used inside
-    a field portrayal.  The contract SimplePortrayal3Ds may assume is that the parentPortrayal,
+    a field portrayal.  The contract SimplePortrayal3Ds may assume is that the getFieldPortrayal(),
     if it exists, will have been set prior to getModel(...) being called.
     
     <P>Various utility functions are provided.  setPickableFlags makes a Java3D object
@@ -46,7 +47,7 @@ public class SimplePortrayal3D implements Portrayal3D
 
     /** Creates an Appearance equivalent to a flat opaque surface of the provided color, needing no lighting.
         Opacity is determined by the opacity of the unlit color.  */
-    public static Appearance appearanceForColor(java.awt.Color unlitColor)
+    public static Appearance appearanceForColor(Color unlitColor)
         {
         Appearance appearance = new Appearance();
 
@@ -72,9 +73,9 @@ public class SimplePortrayal3D implements Portrayal3D
         shininess and opacity both from 0.0 to 1.0.  If any color is null, it's assumed to be black.
         Note that even jet black ambient color will show up as a charcoal gray under the bright white
         ambient light in MASON.  That's Java3D for you, sorry. */
-    public static Appearance appearanceForColors(java.awt.Color ambientColor, 
-        java.awt.Color emissiveColor, java.awt.Color diffuseColor, 
-        java.awt.Color specularColor, float shininess, float opacity)
+    public static Appearance appearanceForColors(Color ambientColor, 
+        Color emissiveColor, Color diffuseColor, 
+        Color specularColor, double shininess, double opacity)
         {
         Appearance appearance = new Appearance();
 
@@ -106,11 +107,11 @@ public class SimplePortrayal3D implements Portrayal3D
         if (specularColor != null) m.setSpecularColor(new Color3f(specularColor));
         else m.setSpecularColor(BLACK);
 
-        m.setShininess(shininess);
+        m.setShininess((float)shininess);
         appearance.setMaterial(m);
         if (opacity < 1.0f)  // partially transparent
             {
-            TransparencyAttributes tta = new TransparencyAttributes(TransparencyAttributes.BLENDED, 1.0f - opacity); // duh, alpha's backwards
+            TransparencyAttributes tta = new TransparencyAttributes(TransparencyAttributes.BLENDED, 1.0f - (float)opacity); // duh, alpha's backwards
             tta.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
             tta.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
             appearance.setTransparencyAttributes(tta);
@@ -123,9 +124,9 @@ public class SimplePortrayal3D implements Portrayal3D
         you should set <tt>opaque</tt> to false.  Beware that there are bugs in Java3D's handling of transparent 
         textures: multiple such objects often will not draw in the correct order; thus objects in the back
         may appear to be in the front. */
-    public static Appearance appearanceForImage(java.awt.Image image, boolean opaque)
+    public static Appearance appearanceForImage(Image image, boolean opaque)
         {
-        Appearance appearance = appearanceForColor(java.awt.Color.black);
+        Appearance appearance = appearanceForColor(Color.black);
 
         if (!opaque)
             {
@@ -144,10 +145,6 @@ public class SimplePortrayal3D implements Portrayal3D
         return appearance;
         }
 
-    /** Used by the SimplePortrayal3D to add its parent to its pickInfo object
-        when the user picks the SimplePortrayal3D. */
-    protected FieldPortrayal3D parentPortrayal = null;
-        
     public PolygonAttributes polygonAttributes() { return null; } // default
 
     public TransformGroup getModel(Object object, TransformGroup prev)
@@ -172,12 +169,44 @@ public class SimplePortrayal3D implements Portrayal3D
         return "" + wrapper.getObject();
         }
     
-    /** Sets the parent portrayal (a FieldPortrayal3D). */
-    public void setParentPortrayal(FieldPortrayal3D p)
+    FieldPortrayal3D fieldPortrayal = null;        
+    public void setCurrentFieldPortrayal(FieldPortrayal3D p)
         {
-        parentPortrayal = p;
+        fieldPortrayal = p;
         }
                 
+    public FieldPortrayal3D getCurrentFieldPortrayal()
+        {
+        return fieldPortrayal;
+        }
+
+    Display3D display = null;       
+    public void setCurrentDisplay(Display3D display)
+        {
+        this.display = display;
+        }
+        
+    /** If the current display has been set, returns it.
+        Else if the field portrayal is null, returns null.
+        Else queries the field portrayal for its current
+        display and returns that. */
+    public Display3D getCurrentDisplay()            
+        {
+        if (display == null) 
+            {
+            FieldPortrayal3D f = getCurrentFieldPortrayal();
+            if (f == null) return null;
+            else return f.getCurrentDisplay();
+            }
+        else return display;
+        }
+                
+    public GUIState getCurrentGUIState()
+        {
+        Display3D d = getCurrentDisplay(); 
+        return (d == null ? null : d.getSimulation());
+        }
+
     public boolean isSelected(Object obj)
         {
         return selectedObjects != null && selectedObjects.containsKey(obj);
@@ -214,7 +243,11 @@ public class SimplePortrayal3D implements Portrayal3D
         if (selected)
             selectedObjects.put(wrapper.getObject(), wrapper);
         else
+            {
             selectedObjects.remove(wrapper.getObject());
+            if (selectedObjects.isEmpty())
+                selectedObjects = null;
+            }
         return true;
         }
         

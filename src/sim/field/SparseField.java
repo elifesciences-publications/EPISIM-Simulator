@@ -116,6 +116,17 @@ public abstract class SparseField implements java.io.Serializable
     /** All the objects in the sparse field.  For fast scans.  Do not rely on this bag always being the same object. */
     public Bag allObjects = new Bag();
     
+    protected SparseField() { }
+        
+    protected SparseField(SparseField other)
+        {
+        removeEmptyBags = other.removeEmptyBags;
+        replaceLargeBags = other.replaceLargeBags;
+        locationAndIndexHash = new HashMap(other.locationAndIndexHash);
+        objectHash = new HashMap(other.objectHash);
+        allObjects = new Bag(other.allObjects);
+        }
+        
     /** Returns the index of the object in the allObjects Bag, if the object exists, else returns -1. */
     public int getObjectIndex(final Object obj)
         {
@@ -137,7 +148,7 @@ public abstract class SparseField implements java.io.Serializable
         Subclasses should create a <b> getObjectLocation(</b><i>Object obj</i><b>) </b> method which 
         returns a location type appropriate for your kind of Sparse Field. */
 
-    public final Object getRawObjectLocation(final Object obj)
+    protected final Object getRawObjectLocation(final Object obj)
         {
         LocationAndIndex lai = ((LocationAndIndex)(locationAndIndexHash.get(obj)));
         if (lai == null) return null;
@@ -157,9 +168,24 @@ public abstract class SparseField implements java.io.Serializable
         the Sparse Field object.   If you want to modify the bag, make a copy and modify the copy instead,
         using something along the lines of <b> new Bag(<i>foo</i>.getObjectsAtLocation(<i>location</i>)) </b>.
         Furthermore, changing values in the Sparse Field may result in a different bag being used -- so you should
+        not rely on this bag staying valid.  The default implementation of this method simply calls getRawObjectsAtLocation(),
+        but you may need to override it for more custom functionality (which is rare).
+    */
+    public Bag getObjectsAtLocation(final Object location)
+        {
+        return getRawObjectsAtLocation(location);
+        }
+
+    /** This method is called by getObjectsAtLocation(location) so you can override getObjectsAtLocation() to
+        customize it in certain ways (which is rare).  All internal methods in SparseField instead call getRawObjectsAtLocation().
+        Returns a bag containing all the objects at a given location, or null when there are no objects at the location.
+        You should NOT MODIFY THIS BAG. This is the actual container bag, and modifying it will almost certainly break
+        the Sparse Field object.   If you want to modify the bag, make a copy and modify the copy instead,
+        using something along the lines of <b> new Bag(<i>foo</i>.getObjectsAtLocation(<i>location</i>)) </b>.
+        Furthermore, changing values in the Sparse Field may result in a different bag being used -- so you should
         not rely on this bag staying valid.
     */
-    public final Bag getObjectsAtLocation(final Object location)
+    protected final Bag getRawObjectsAtLocation(final Object location)
         {
         Bag b = (Bag)(objectHash.get(location));
         if (b==null) return null;
@@ -175,7 +201,7 @@ public abstract class SparseField implements java.io.Serializable
         Furthermore, changing values in the Sparse Field may result in a different bag being used -- so you should
         not rely on this bag staying valid.
     */
-    public final Bag getObjectsAtLocationOfObject(final Object obj)
+    public Bag getObjectsAtLocationOfObject(final Object obj)
         {
         LocationAndIndex lai = ((LocationAndIndex)(locationAndIndexHash.get(obj)));
         if (lai == null) return null;
@@ -184,13 +210,8 @@ public abstract class SparseField implements java.io.Serializable
                         
     /** Returns the number of objects at the same location as a given object, including the object itself, or 0 if the object
         is not in the SparseField.
-        You should NOT MODIFY THIS BAG. This is the actual container bag, and modifying it will almost certainly break
-        the Sparse Field object.   If you want to modify the bag, make a copy and modify the copy instead,
-        using something along the lines of <b> new Bag(<i>foo</i>.getObjectsAtLocation(<i>location</i>)) </b>.
-        Furthermore, changing values in the Sparse Field may result in a different bag being used -- so you should
-        not rely on this bag staying valid.
     */
-    public final int numObjectsAtLocationOfObject(final Object obj)
+    public int numObjectsAtLocationOfObject(final Object obj)
         {
         LocationAndIndex lai = ((LocationAndIndex)(locationAndIndexHash.get(obj)));
         if (lai == null) return 0;
@@ -363,11 +384,29 @@ public abstract class SparseField implements java.io.Serializable
         <p>... but do NOT modify the allObjects.objs array.
         
     */
-    public Iterator iterator() { return allObjects.iterator(); }
+    public Iterator iterator() 
+        {
+        final Iterator i = allObjects.iterator();
+        return new Iterator()
+            {
+            public boolean hasNext() { return i.hasNext(); }
+            public Object next() { return i.next(); }
+            public void remove() { throw new IllegalStateException("Remove not supported in SparseField.iterator()"); }
+            };
+        }
     
     /** Iterates [somewhat inefficiently] over all bags of objects grouped by location.
         Only used by SparseFieldPortrayal -- generally this should not be interesting to you. */
-    public Iterator locationBagIterator() { return objectHash.values().iterator(); }
+    public Iterator locationBagIterator()
+        {
+        final Iterator i = objectHash.values().iterator();
+        return new Iterator()
+            {
+            public boolean hasNext() { return i.hasNext(); }
+            public Object next() { return i.next(); }
+            public void remove() { throw new IllegalStateException("Remove not supported in SparseField.iterator()"); }
+            };
+        }
 
     /** Objects stored in SparseField's locationAndIndexHash table.  This class contains
         an Object <i>location</i> and an int <i>index</i>.  index is the position of

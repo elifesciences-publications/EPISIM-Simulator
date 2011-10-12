@@ -10,6 +10,7 @@ import sim.portrayal3d.*;
 import javax.vecmath.*;
 import sim.portrayal.*;
 import javax.media.j3d.*;
+import java.awt.*;
 
 /**
  * Portrays objects as a cube of the specified color or appearance (flat opaque white by default)
@@ -18,10 +19,10 @@ import javax.media.j3d.*;
  */
 public class CubePortrayal3D extends SimplePortrayal3D
     {
-    public float scale = 1f;
-    public Appearance appearance;
-    public boolean generateNormals;
-    public boolean generateTextureCoordinates;
+    double scale = 1f;
+    Appearance appearance;
+    boolean generateNormals;
+    boolean generateTextureCoordinates;
     
     /** Constructs a CubePortrayal3D with a default (flat opaque white) appearance and a scale of 1.0. */
     public CubePortrayal3D()
@@ -30,54 +31,44 @@ public class CubePortrayal3D extends SimplePortrayal3D
         }
         
     /** Constructs a CubePortrayal3D with a default (flat opaque white) appearance and the given scale. */
-    public CubePortrayal3D(float scale)
+    public CubePortrayal3D(double scale)
         {
-        this(java.awt.Color.white,scale);
+        this(Color.white,scale);
         }
         
     /** Constructs a CubePortrayal3D with a flat opaque appearance of the given color and a scale of 1.0. */
-    public CubePortrayal3D(java.awt.Color color)
+    public CubePortrayal3D(Color color)
         {
         this(color,1f);
         }
         
     /** Constructs a CubePortrayal3D with a flat opaque appearance of the given color and the given scale. */
-    public CubePortrayal3D(java.awt.Color color, float scale)
+    public CubePortrayal3D(Color color, double scale)
         {
-        this(appearanceForColor(color),scale);
+        this(appearanceForColor(color), false, false, scale);
         }
-    public CubePortrayal3D(Appearance appearence)
-        {
-        this(appearence,1f);
-        }
-
-    public CubePortrayal3D(Appearance appearence, float scale)
-        {
-        this(appearence,false,false,scale);
-        }
-
-
+                
     /** Constructs a CubePortrayal3D with the given (opaque) image and a scale of 1.0. */
-    public CubePortrayal3D(java.awt.Image image)
+    public CubePortrayal3D(Image image)
         {
         this(image,1f);
         }
 
     /** Constructs a CubePortrayal3D with the given (opaque) image and scale. */
-    public CubePortrayal3D(java.awt.Image image, float scale)
+    public CubePortrayal3D(Image image, double scale)
         {
         this(appearanceForImage(image,true),false,true,scale);
         }
 
     /** Constructs a CubePortrayal3D with the given appearance and scale, plus whether or not to generate normals or texture coordinates.  Without texture coordiantes, a texture will not be displayed */
-    public CubePortrayal3D(Appearance appearance, boolean generateNormals, boolean generateTextureCoordinates, float scale)
+    public CubePortrayal3D(Appearance appearance, boolean generateNormals, boolean generateTextureCoordinates, double scale)
         {
         this.generateNormals = generateNormals;
         this.generateTextureCoordinates = generateTextureCoordinates;
         this.appearance = appearance;  
         this.scale = scale;
         for(int i=0;i<scaledVerts.length;i++)
-            scaledVerts[i] = verts[i]*scale;
+            scaledVerts[i] = verts[i]*(float)scale;
         }
 
     final float[] scaledVerts = new float[verts.length];
@@ -140,7 +131,7 @@ public class CubePortrayal3D extends SimplePortrayal3D
             setPickableFlags(localShape);
                         
             // build a LocationWrapper for the object
-            LocationWrapper pickI = new LocationWrapper(obj, null, parentPortrayal);
+            LocationWrapper pickI = new LocationWrapper(obj, null, getCurrentFieldPortrayal());
             localShape.setUserData(pickI); 
                         
             j3dModel.addChild(localShape); 

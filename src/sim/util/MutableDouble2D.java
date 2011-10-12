@@ -14,7 +14,7 @@ package sim.util;
     objects in a hash table by passing in a MutableDouble2D instead.    
 */
 
-public final class MutableDouble2D implements java.io.Serializable
+public final class MutableDouble2D implements java.io.Serializable, Cloneable
     {
     public double x;
     public double y;
@@ -44,11 +44,28 @@ public final class MutableDouble2D implements java.io.Serializable
 
     public java.awt.geom.Point2D.Double toPoint2D() { return new java.awt.geom.Point2D.Double(x,y); }
 
+    public Object clone()
+        { 
+        try 
+            { 
+            return super.clone(); 
+            }
+        catch(CloneNotSupportedException e)
+            { 
+            return null; // never happens
+            } 
+        }
+
     // identical to Double2D
     public final int hashCode()
         {
         double x = this.x;
         double y = this.y;
+                
+        // push -0.0 to 0.0 for purposes of hashing.  Note that equals() has also been modified
+        // to consider -0.0 to be equal to 0.0.  Hopefully cute Java compilers won't try to optimize this out.
+        if (x == -0.0) x = 0.0;
+        if (y == -0.0) y = 0.0;
                 
         // so we hash to the same value as Int2D does, if we're ints.
         if ((((int)x) == x) && ((int)y) == y)
@@ -134,16 +151,24 @@ public final class MutableDouble2D implements java.io.Serializable
         else if (obj instanceof Double2D)  // do Double2D first
             {
             Double2D other = (Double2D) obj;
+            // Note: commented out because it can't handle 0.0 == -0.0, grrr
+            return ((x == other.x || (Double.isNaN(x) && Double.isNaN(other.x))) && // they're the same or they're both NaN
+                (y == other.y || (Double.isNaN(y) && Double.isNaN(other.y)))); // they're the same or they're both NaN
+
             // can't just do other.x == x && other.y == y because we need to check for NaN
-            return (Double.doubleToLongBits(other.x) == Double.doubleToLongBits(x) &&
-                Double.doubleToLongBits(other.y) == Double.doubleToLongBits(y));
+            // return (Double.doubleToLongBits(other.x) == Double.doubleToLongBits(x) &&
+            //    Double.doubleToLongBits(other.y) == Double.doubleToLongBits(y));
             }
         if (obj instanceof MutableDouble2D)
             {
             MutableDouble2D other = (MutableDouble2D) obj;
+            // Note: commented out because it can't handle 0.0 == -0.0, grrr
+            return ((x == other.x || (Double.isNaN(x) && Double.isNaN(other.x))) && // they're the same or they're both NaN
+                (y == other.y || (Double.isNaN(y) && Double.isNaN(other.y)))); // they're the same or they're both NaN
+
             // can't just do other.x == x && other.y == y because we need to check for NaN
-            return (Double.doubleToLongBits(other.x) == Double.doubleToLongBits(x) &&
-                Double.doubleToLongBits(other.y) == Double.doubleToLongBits(y));
+            // return (Double.doubleToLongBits(other.x) == Double.doubleToLongBits(x) &&
+            //     Double.doubleToLongBits(other.y) == Double.doubleToLongBits(y));
             }
         else if (obj instanceof Int2D)
             {
@@ -335,6 +360,22 @@ public final class MutableDouble2D implements java.io.Serializable
         return this;
         }
     
+    /** Sets me to the sum of other1 and other2, returning me. */
+    public final MutableDouble2D add(final Double2D other1, final MutableDouble2D other2)
+        {
+        x = other1.x + other2.x;
+        y = other1.y + other2.y;
+        return this;
+        }
+    
+    /** Sets me to the sum of other1 and other2, returning me. */
+    public final MutableDouble2D add(final MutableDouble2D other1, final Double2D other2)
+        {
+        x = other1.x + other2.x;
+        y = other1.y + other2.y;
+        return this;
+        }
+    
     /** Equivalent to <tt>(new MutableDouble2D(d))</tt>, but <tt>(d.dup())</tt> shorter of course, but perhaps not quite as fast. */
     public final MutableDouble2D dup()
         {
@@ -366,12 +407,34 @@ public final class MutableDouble2D implements java.io.Serializable
         return this;
         }
             
+    /** Subtracts other2 from other1, setting me to the result and returning me. */
+    public final MutableDouble2D subtract(Double2D other1, MutableDouble2D other2)
+        {
+        x = other1.x - other2.x;
+        y = other1.y - other2.y;
+        return this;
+        }
+            
+    /** Subtracts other2 from other1, setting me to the result and returning me. */
+    public final MutableDouble2D subtract(MutableDouble2D other1, Double2D other2)
+        {
+        x = other1.x - other2.x;
+        y = other1.y - other2.y;
+        return this;
+        }
+            
     /** Returns the length of the vector. */
     public final double length()
         {
         return Math.sqrt(x * x + y * y);
         }
         
+    /** Returns the square of the length of the MutableDouble2D. */
+    public final double lengthSq()                                                  
+        {
+        return x*x+y*y;
+        }
+
     /** Returns the length of the vector between -Pi and Pi. */
     public final double angle()
         {
@@ -388,6 +451,14 @@ public final class MutableDouble2D implements java.io.Serializable
 
     /** Multiplies other by val, setting me to the result and returning me. */
     public final MutableDouble2D multiply(MutableDouble2D other, final double val)
+        {
+        x = other.x * val;
+        y = other.y * val;
+        return this;
+        }
+
+    /** Multiplies other by val, setting me to the result and returning me. */
+    public final MutableDouble2D multiply(Double2D other, final double val)
         {
         x = other.x * val;
         y = other.y * val;
@@ -481,9 +552,4 @@ public final class MutableDouble2D implements java.io.Serializable
         return this;
         }
         
-    /** Returns the square of the length of the MutableDouble2D. */
-    public final double lengthSq()                                                  
-        {
-        return x*x+y*y;
-        }
     }

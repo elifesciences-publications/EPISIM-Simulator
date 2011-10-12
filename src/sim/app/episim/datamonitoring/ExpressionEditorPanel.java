@@ -30,6 +30,7 @@ import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.app.episim.util.TissueCellDataFieldsInspector.ParameterSelectionListener;
 import sim.util.gui.NumberTextField;
 import sim.util.gui.PropertyField;
+import sim.util.gui.PropertyFieldHack;
 
 public class ExpressionEditorPanel implements ParameterSelectionListener{
 	
@@ -395,12 +396,11 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			   c.gridwidth = GridBagConstraints.REMAINDER;
 				JComponent propField = null;
 				if(Boolean.TYPE.isAssignableFrom(descriptor.getParameters().get(name))){
-					propField = new PropertyField(name, "false", true, null, PropertyField.SHOW_CHECKBOX){
-						public void setVerifyInputWhenFocusTarget(boolean
-						      verifyInputWhenFocusTarget) {							  
+					propField = new PropertyFieldHack(name, "false", true, null, PropertyField.SHOW_CHECKBOX){
+						public void setVerifyInputWhenFocusTarget(boolean verifyInputWhenFocusTarget) {							  
 						  super.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
-						  checkField.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
-						  if(!verifyInputWhenFocusTarget)checkField.setInputVerifier( new InputVerifier() {			
+						  getCheckField().setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
+						  if(!verifyInputWhenFocusTarget)getCheckField().setInputVerifier( new InputVerifier() {			
 								public boolean verify(JComponent input) { return false; }
 								public boolean shouldYieldFocus(JComponent input) { return verify(input); 
 								}
@@ -417,8 +417,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 						  public void setVerifyInputWhenFocusTarget(boolean
 							      verifyInputWhenFocusTarget) {							  
 							  super.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
-							  valField.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
-							  if(!verifyInputWhenFocusTarget)valField.setInputVerifier( new InputVerifier() {			
+							  getField().setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
+							  if(!verifyInputWhenFocusTarget)getField().setInputVerifier( new InputVerifier() {			
 									public boolean verify(JComponent input) { return false; }
 									public boolean shouldYieldFocus(JComponent input) { return verify(input); 
 									}
@@ -434,8 +434,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 						 public void setVerifyInputWhenFocusTarget(boolean
 							      verifyInputWhenFocusTarget) {							  
 							  super.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
-							  valField.setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
-							  if(!verifyInputWhenFocusTarget)valField.setInputVerifier( new InputVerifier() {			
+							  getField().setVerifyInputWhenFocusTarget(verifyInputWhenFocusTarget);
+							  if(!verifyInputWhenFocusTarget)getField().setInputVerifier( new InputVerifier() {			
 									public boolean verify(JComponent input) { return false; }
 									public boolean shouldYieldFocus(JComponent input) { return verify(input); 
 									}

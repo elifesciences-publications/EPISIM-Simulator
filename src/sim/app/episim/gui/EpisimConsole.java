@@ -61,6 +61,7 @@ import sim.display.Console;
 import sim.display.ConsoleHack;
 import sim.display.GUIState;
 import sim.portrayal.SimpleInspector;
+import sim.portrayal.SimpleInspectorHack;
 import sim.util.gui.NumberTextField;
 import sim.util.gui.PropertyField;
 
@@ -315,12 +316,12 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				else if (tabPane.getTitleAt(i).equals(Names.MISCALLENEOUS)) actionString = Names.MISCALLENEOUS;
 				Component comp = tabPane.getComponentAt(i); 
 				if(comp instanceof Container){ 
-					SimpleInspector inspector = findSimpleInspector(((Container)comp));
+					SimpleInspectorHack inspector = findSimpleInspectorHack(((Container)comp));
 					if(inspector != null){
 					
 						addActionListenersToTextFields(inspector);
 						Component pan;
-						if((pan= inspector.header) instanceof JPanel){ 
+						if((pan= inspector.getHeader()) instanceof JPanel){ 
 						addResetButton(((JPanel) pan), actionString);								
 						}
 					}
@@ -329,15 +330,15 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 		}
 	}
 	
-	private SimpleInspector findSimpleInspector(Container cont){
+	private SimpleInspectorHack findSimpleInspectorHack(Container cont){
 		
 		for(int i = 0; i<cont.getComponentCount(); i++){
 		if(cont.getComponent(i) instanceof Container &&
-				!(cont.getComponent(i) instanceof SimpleInspector)){ 
-			return findSimpleInspector(((Container)cont.getComponent(i)));
+				!(cont.getComponent(i) instanceof SimpleInspectorHack)){ 
+			return findSimpleInspectorHack(((Container)cont.getComponent(i)));
 			
 		}
-		else if(cont.getComponent(i) instanceof SimpleInspector) return (SimpleInspector) cont.getComponent(i);
+		else if(cont.getComponent(i) instanceof SimpleInspectorHack) return (SimpleInspectorHack) cont.getComponent(i);
 		}
 		return null;
 	}
@@ -351,9 +352,10 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	}
 	
 	
-	private void addActionListenersToTextFields(SimpleInspector comp) {
-		if(comp.startField != null){
-			for(Component compo : comp.startField.getComponents()){
+	private void addActionListenersToTextFields(SimpleInspectorHack comp) {
+		
+		if(comp.getStartField() != null){
+			for(Component compo : comp.getStartField().getComponents()){
 	
 				if(compo instanceof NumberTextField){
 					((NumberTextField) compo).bellyButton.removeActionListener(this);
@@ -367,13 +369,13 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 			}
 		}
 		PropertyField field = null;
-		if(comp.members != null){
-			for(int n = 0; n < comp.members.length; n++){
-				field = comp.members[n];
-				if(field != null && field.valField != null){
-					field.valField.addKeyListener(keyListener);
-					field.valField.setName(comp.properties.getName(n));
-					field.valField.addFocusListener(focusAdapter);
+		if(comp.getMembers() != null){
+			for(int n = 0; n < comp.getMembers().length; n++){
+				field = comp.getMembers()[n];
+				if(field != null && field.getField() != null){
+					field.getField().addKeyListener(keyListener);
+					field.getField().setName(comp.getProperties().getName(n));
+					field.getField().addFocusListener(focusAdapter);
 				}
 			}
 		}

@@ -163,6 +163,11 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		
 		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".setBackgroundPaint(Color.white);\n");
 		generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".setAntiAlias("+actChart.isAntialiasingEnabled()+");\n");
+		generatedSourceCode.append("   XYPlot xyPlot = (XYPlot) "+CHARTDATAFIELDNAME+".getXYPlot();\n");
+		generatedSourceCode.append("   xyPlot.setBackgroundPaint(Color.WHITE);\n");
+		generatedSourceCode.append("   xyPlot.setDomainGridlinePaint(Color.LIGHT_GRAY);\n");
+		generatedSourceCode.append("   xyPlot.setRangeGridlinePaint(Color.LIGHT_GRAY);\n");
+		
 		if(actChart.isXAxisLogarithmic()){
 			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".getXYPlot().setDomainAxis(new LogarithmicAxis(\""+ actChart.getXLabel()+"\"));\n");
 		}

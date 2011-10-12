@@ -10,6 +10,7 @@ import com.sun.j3d.utils.geometry.*;
 import sim.portrayal3d.*;
 import sim.portrayal.*;
 import javax.media.j3d.*;
+import java.awt.*;
 
 /**
  * Portrays objects as a cylinder of the specified color or appearance (flat opaque white by default)
@@ -25,38 +26,38 @@ public class CylinderPortrayal3D extends PrimitivePortrayal3D
         }
         
     /** Constructs a CylinderPortrayal3D with a default (flat opaque white) appearance and the given scale. */
-    public CylinderPortrayal3D(float scale)
+    public CylinderPortrayal3D(double scale)
         {
-        this(java.awt.Color.white,scale);
+        this(Color.white,scale);
         }
         
     /** Constructs a CylinderPortrayal3D with a flat opaque appearance of the given color and a scale of 1.0. */
-    public CylinderPortrayal3D(java.awt.Color color)
+    public CylinderPortrayal3D(Color color)
         {
         this(color,1f);
         }
         
     /** Constructs a CylinderPortrayal3D with a flat opaque appearance of the given color and the given scale. */
-    public CylinderPortrayal3D(java.awt.Color color, float scale)
+    public CylinderPortrayal3D(Color color, double scale)
         {
         this(appearanceForColor(color),true,false,scale);
         }
 
     /** Constructs a CylinderPortrayal3D with the given (opaque) image and a scale of 1.0. */
-    public CylinderPortrayal3D(java.awt.Image image)
+    public CylinderPortrayal3D(Image image)
         {
         this(image,1f);
         }
 
     /** Constructs a CylinderPortrayal3D with the given (opaque) image and scale. */
-    public CylinderPortrayal3D(java.awt.Image image, float scale)
+    public CylinderPortrayal3D(Image image, double scale)
         {
         this(appearanceForImage(image,true),false,true,scale);
         }
 
 
     /** Constructs a CylinderPortrayal3D with the given appearance and scale, plus whether or not to generate normals or texture coordinates.  Without texture coordiantes, a texture will not be displayed. */
-    public CylinderPortrayal3D(Appearance appearance, boolean generateNormals, boolean generateTextureCoordinates, float scale)
+    public CylinderPortrayal3D(Appearance appearance, boolean generateNormals, boolean generateTextureCoordinates, double scale)
         {
         this.appearance = appearance;
         setScale(null, scale);
@@ -69,12 +70,7 @@ public class CylinderPortrayal3D extends PrimitivePortrayal3D
         setShape3DFlags(cylinder.getShape(Cylinder.BODY));
         setShape3DFlags(cylinder.getShape(Cylinder.TOP));
         setShape3DFlags(cylinder.getShape(Cylinder.BOTTOM));
-/*
-  group = new TransformGroup();
-  group.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-  group.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-  group.addChild(cylinder);
-*/
+
         group = cylinder;
         }
 

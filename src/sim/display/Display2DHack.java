@@ -239,7 +239,7 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
               updateRule = skipBox.getSelectedIndex();
               if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)
                   {
-                  skipField.valField.setText("");
+                  skipField.getField().setText("");
                   skipField.setEnabled(false);
                   }
               else if (updateRule == UPDATE_RULE_STEPS)

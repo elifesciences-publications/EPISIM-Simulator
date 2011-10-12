@@ -3,6 +3,7 @@ package sim.portrayal.simple;
 import java.awt.Color;
 import java.awt.Paint;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 
 
@@ -30,6 +31,8 @@ public class HexagonalPortrayal2DHack extends HexagonalPortrayal2D {
    
    	this.transform = transform;
    }
+   
+   public Stroke getDefaultStroke(){return defaultStroke; }
 	
    protected double[] getxPoints() {
    

@@ -14,6 +14,7 @@ import com.sun.j3d.utils.geometry.*;
 import javax.vecmath.*;
 import java.awt.*;
 import java.util.*;
+import sim.display3d.*;
 
 /**
    A wrapper for other Portrayal3Ds which also draws a textual label.  When you create this
@@ -35,38 +36,50 @@ import java.util.*;
    Additionally if you call the setLabelShowing(...) function, you can turn off or on label
    drawing entirely for this LabelledPortrayal2D.
    
-   <p>You may specify a color, or font for the label.  You can also provide a scale for the text relative
-   to the labelled object: a scale of 1.0f (the default) is fairly reasonable for small objects. 
+   <p>You may specify a color, or font for the label. 
    The label is drawn at the (0.5,0.5,0.5) corner of the object by default: you can change this offset
    in the constructor if you like.  
    
    <P>The label will always be drawn directly facing the viewer regardless of the rotation of the model.
-
-   <p>Labelled
 */
 
 public class LabelledPortrayal3D extends SimplePortrayal3D
     {
     public static final Transform3D DEFAULT_LABEL_OFFSET;
+        
+    // A larger font size makes the label bigger but also uses much more memory
+    static final int FONT_SIZE = 18;
+    // A smaller scaling factor reduces the label size
+    static final double SCALING_MODIFIER = 1.0 / 5.0; 
+        
+    double labelScale = 1.0;
+    public double getLabelScale() { return labelScale; }
+    public void setLabelScale(double s) { labelScale = Math.abs(s); }
+        
     static
         {
         DEFAULT_LABEL_OFFSET = transformForOffset(0.5f,0.5f,0.5f);
         }
     
-    static Transform3D transformForOffset(float x, float y, float z)
+    static Transform3D transformForOffset(double x, double y, double z)
         {
         Transform3D offset = new Transform3D();
-        offset.setTranslation(new Vector3f(x,y,z));
+        offset.setTranslation(new Vector3f((float)x,(float)y,(float)z));
         return offset;
         }
         
-    public float scale = 1.0f;
-    public Color color;
-    public Transform3D offset;
-    public Font font;
-    protected SimplePortrayal3D child;
-    public String label;
+    Color color;
+    Transform3D offset;
+    Font font;
+    Font3D font3D;  // only used if we're doing Text3D
+    SimplePortrayal3D child;
+    String label;
     
+    public LabelledPortrayal3D(SimplePortrayal3D child)
+        {
+        this(child,null,Color.white, false);
+        }
+
     public LabelledPortrayal3D(SimplePortrayal3D child, String label)
         {
         this(child,label,Color.white, false);
@@ -74,35 +87,33 @@ public class LabelledPortrayal3D extends SimplePortrayal3D
 
     public LabelledPortrayal3D(SimplePortrayal3D child, String label, Color color, boolean onlyLabelWhenSelected)
         {
-        this(child,DEFAULT_LABEL_OFFSET,new Font("SansSerif",Font.PLAIN, 24),
-            label,color,1.0f,onlyLabelWhenSelected);
+        this(child,DEFAULT_LABEL_OFFSET, null, label,color, onlyLabelWhenSelected);
         }
     
-    public LabelledPortrayal3D(SimplePortrayal3D child, float offsetx, float offsety, float offsetz, 
-        Font font, String label, Color color, float scale, boolean onlyLabelWhenSelected)
+    public LabelledPortrayal3D(SimplePortrayal3D child, double offset, 
+        Font font, String label, Color color, boolean onlyLabelWhenSelected)
         {
-        this(child,transformForOffset(offsetx,offsety,offsetz),font,label,color,scale,onlyLabelWhenSelected);
+        this(child,transformForOffset(offset,offset,offset),font,label,color,onlyLabelWhenSelected);
+        }        
+        
+    public LabelledPortrayal3D(SimplePortrayal3D child, double offsetx, double offsety, double offsetz, 
+        Font font, String label, Color color, boolean onlyLabelWhenSelected)
+        {
+        this(child,transformForOffset(offsetx,offsety,offsetz),font,label,color,onlyLabelWhenSelected);
         }        
         
     public LabelledPortrayal3D(SimplePortrayal3D child, Transform3D offset, Font font, String label, Color color,
-        float scale, boolean onlyLabelWhenSelected)
+        boolean onlyLabelWhenSelected)
         {
         this.child = child;
-        this.color = color; this.offset = offset;
+        this.color = color; 
+        this.offset = offset;
         this.onlyLabelWhenSelected = onlyLabelWhenSelected;
         this.label = label;
+        if (font == null) font = new Font("SansSerif",Font.PLAIN, FONT_SIZE);
         this.font = font;
-        this.scale = scale;
+        font3D = new Font3D(font, new FontExtrusion());
         }
-
-    /* Warning: does not work right now.  :-(  :-(  */
-    boolean labelGoesOnTop;
-    /*
-      public void setLabelGoesOnTop(boolean val)
-      {
-      labelGoesOnTop = val;
-      }
-    */
         
     public PolygonAttributes polygonAttributes()
         { 
@@ -119,11 +130,20 @@ public class LabelledPortrayal3D extends SimplePortrayal3D
         return child.getName(wrapper);
         }
     
-    public void setParentPortrayal(FieldPortrayal3D p)
+    /** Sets the current display both here and in the child. */
+    public void setCurrentDisplay(Display3D display)
         {
-        child.setParentPortrayal(p);
+        super.setCurrentDisplay(display);
+        child.setCurrentDisplay(display);
         }
-            
+                
+    /** Sets the current field portrayal both here and in the child. */
+    public void setCurrentFieldPortrayal(FieldPortrayal3D p)
+        {
+        super.setCurrentFieldPortrayal(p);
+        child.setCurrentFieldPortrayal(p);
+        }
+
     public boolean setSelected(LocationWrapper wrapper, boolean selected)
         {
         if (child.setSelected(wrapper,selected))
@@ -162,7 +182,7 @@ public class LabelledPortrayal3D extends SimplePortrayal3D
             }
         }
         
-    public void updateSwitch(Switch jswitch, Object object)
+    void updateSwitch(Switch jswitch, Object object)
         {
         // we do it this way rather than the obvious if/else
         // statement because it gets inlined this way (32 bytes vs. 36 bytes).
@@ -206,15 +226,15 @@ public class LabelledPortrayal3D extends SimplePortrayal3D
             jswitch.setUserData(l);
                         
             // make the text
-            //Text2D text = new Text2D(l, new Color3f(color), font.getFamily(), font.getSize(), font.getStyle());
-            //text.setRectangleScaleFactor(scale/16.0f);
+            Text2D text = new Text2D(l, new Color3f(color), font.getFamily(), font.getSize(), font.getStyle());
+            text.setRectangleScaleFactor((float)(labelScale * SCALING_MODIFIER));
             
             // Windows is acting weird with regard to Text2D.  The text is way
             // too small.  Or is it that MacOSX is weird with the font way too big?
             // dunno yet.  Anyway, an alternative to Text2D is to do Text3D, but it's
             // significantly more expensive in terms of polygons, so I'd prefer not to
             // do it if I can.
-            Shape3D text = new Shape3D(new Text3D(new Font3D(font,new FontExtrusion()), l));
+            // Shape3D text = new Shape3D(new Text3D(font3D, l));
             
             // We want the Text2D to always be facing forwards.  So we dump its
             // geometry and appearance into an OrientedShape3D and use that instead.
@@ -229,31 +249,15 @@ public class LabelledPortrayal3D extends SimplePortrayal3D
             TransformGroup o = new TransformGroup();
             o.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
             o.clearCapabilityIsFrequent(TransformGroup.ALLOW_CHILDREN_READ);
-            offset.setScale(scale/16.0f);
             o.setTransform(offset);
 
             // the label shouldn't be pickable -- we'll turn this off in the TransformGroup
             clearPickableFlags(o);
-
             o.addChild(o3d);         // Add label to the offset TransformGroup
             jswitch.addChild(o);    // Add offset TransformGroup to the Switch
             
-            // is there an explicit ordering?
-            if (labelGoesOnTop)
-                {
-                OrderedGroup g = new OrderedGroup();
-                g.setCapability(OrderedGroup.ALLOW_CHILDREN_READ);
-                g.clearCapabilityIsFrequent(OrderedGroup.ALLOW_CHILDREN_READ);
-                g.addChild(n);
-                g.addChild(jswitch);
-                g.setChildIndexOrder(new int[] { 0, 1 });
-                j3dModel.addChild(g);
-                }
-            else
-                {
-                j3dModel.addChild(n);   // Add the underlying model as child 0
-                j3dModel.addChild(jswitch);  // Add the switch as child 1
-                }
+            j3dModel.addChild(n);   // Add the underlying model as child 0
+            j3dModel.addChild(jswitch);  // Add the switch as child 1
             updateSwitch(jswitch, obj);       // turn the switch on/off
             }
         else
@@ -279,10 +283,10 @@ public class LabelledPortrayal3D extends SimplePortrayal3D
                 && showLabel)  // only rebuild if we're displaying.  If we're not selected, we still need to build.
                 {  
                 // make the text again
-                Shape3D text = new Shape3D(new Text3D(new Font3D(font,new FontExtrusion()), l));
+                //Shape3D text = new Shape3D(new Text3D(font3D, l));
 
-                //Text2D text = new Text2D(l, new Color3f(color), font.getFamily(), font.getSize(), font.getStyle());
-                //text.setRectangleScaleFactor(scale/16.0f);
+                Text2D text = new Text2D(l, new Color3f(color), font.getFamily(), font.getSize(), font.getStyle());
+                text.setRectangleScaleFactor((float)(labelScale * SCALING_MODIFIER));
                 
                 // Grab the OrientedShape3D
                 TransformGroup t2 = (TransformGroup)(s.getChild(0));

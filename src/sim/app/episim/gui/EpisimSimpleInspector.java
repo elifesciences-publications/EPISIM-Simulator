@@ -11,8 +11,7 @@ public class EpisimSimpleInspector extends SimpleInspectorHack {
 	public EpisimSimpleInspector(Object object, GUIState state) {
 
 	   super(object, state);
-	   this.properties = EpisimProperties.getProperties(object,true,true,false,true);
-	   setFixedProperties(true);
+	   setProperties(EpisimProperties.getProperties(object,true,true,false,true));	   
 	   generateProperties(0);
    }
 

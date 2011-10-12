@@ -15,7 +15,7 @@ package sim.util;
    (new MutableDouble(2)).equals(new MutableDouble(2)) is FALSE.
 */
 
-public class MutableDouble extends Number implements Valuable, Cloneable
+public class MutableDouble extends Number implements Valuable, Cloneable /* automatically java.io.Serializable */
     {
     public double val;
 

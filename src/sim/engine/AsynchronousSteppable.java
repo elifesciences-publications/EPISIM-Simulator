@@ -29,14 +29,14 @@ package sim.engine;
     Infinite loops can be paused and resumed (for checkpointing) and they can be stopped entirely.
     
     <p>AsynchronousSteppables automatically register themselves to be stopped at the end of the simulation
-    (and when stopped, they unregister themselves).
+    (and when stopped, they unregister themselves).  They're also paused and upaused for checkpoints.
     But if the task is an infinite loop, it's possible you may wish to stop the loop before the simulation
-    ends, perhaps at an agreed-upon point in the schedule.  The easiest way to do this is to get a stopper()
-    and schedule it on the schedule, along these lines:
-    
+    ends, perhaps at an agreed-upon point in the schedule.  The easiest way to do this is to post a steppable
+    on the Schedule which stops the AsynchronousSteppable, like this:
+        
     <pre><tt>
-    *   AsynchronousSteppable s = ...
-    *   Steppable stopper = s.stopper();
+    *   final AsynchronousSteppable s = ...
+    *   Steppable stopper = new Steppable() { public void step(SimState state) { s.stop(); } } 
     *   schedule.scheduleOnce(s....);
     *   schedule.scheduleOnce(stopper....);
     </tt></pre>
@@ -73,88 +73,121 @@ package sim.engine;
     *   AsynchronousSteppable s = new AsynchronousSteppable()
     *       {
     *       boolean shouldQuit = false;
-    *       double[] shouldQuitLock = new double[1]; // an array is a unique, serializable object
-    *
-    *       boolean shouldQuit()
-    *           {
-    *           synchronized(shouldQuitLock) { return shouldQuit; }
-    *           }
+    *       Object[] lock = new Object[0]; // an array is a unique, serializable object
     *
     *       protected void run(boolean resuming)
     *           {
-    *           while(!shouldQuit())
+    *           boolean quit = false;
+    *           
+    *           while(!quit)
     *               {
     *               // do your stuff here -- assuming it doesn't block...
+    *               
+    *               synchronized(lock) { quit = shouldQuit; shouldQuit = false; }
     *               }
     *           // we're quitting -- do cleanup here if you need to
-    *
-    *           // now reset our flag
-    *           shouldQuit = false;
     *           }
     *
     *       protected void halt(boolean pausing)
     *           {
-    *           synchronized(shouldQuitLock) { shouldQuit = val; }
+    *           synchronized(lock) { shouldQuit = val; }
     *           }
     *       };
     </tt></pre>
 
-    <p>Let's say the task needs to distinguish between being paused and being quit.  In this case
-    you need a custom way of handling pausing and knowing that you're resuming (perhaps to save state
-    away).  Here's some code for this situation:
+    <p>It's possible you may need to distinguish between being started or being restarted (but pausing
+    and quitting are considered the same).  For example, if you were writing to a log and needed to know
+    whether to open the log fresh or to append to it.  You could do something along these lines:
 
     <pre><tt>
     *   AsynchronousSteppable s = new AsynchronousSteppable()
     *       {
     *       boolean shouldQuit = false;
-    *       double[] shouldQuitLock = new boolean[1]; // an array is a unique, serializable object
-    *       boolean shouldPause = false;
-    *       double[] shouldPauseLock = new boolean[1]; // an array is a unique, serializable object
-    *
-    *       boolean shouldQuit()
-    *           {
-    *           synchronized(shouldQuitLock) { return shouldQuit; }
-    *           }
-    *
-    *       boolean shouldPause()
-    *           {
-    *           synchronized(shouldPauseLock) { return shouldPause; }
-    *           }
+    *       Object[] lock = new Object[0]; // an array is a unique, serializable object
     *
     *       protected void run(boolean resuming)
     *           {
-    *           if (resuming)
-    *               {
-    *               // we're resuming from a pause -- re-set up here if you have to
-    *               }
-    *           else // (!resuming)
+    *           boolean quit = false;
+    *           
+    *           if (!resuming)
     *               {
     *               // we're starting fresh -- set up here if you have to
     *               }
+    *           else
+    *               {
+    *               // we're resuming from a pause -- re-set up here if you have to
+    *               }
     *
-    *           while(!shouldQuit() && !shouldPause())
+    *           while(!quit)
     *               {
     *               // do your stuff here -- assuming it doesn't block...
+    *               
+    *               synchronized(lock) { quit = shouldQuit; shouldQuit = false; }
     *               }
-    *
-    *           if (shouldPause())
-    *               {
-    *               // we're pausing -- do cleanup here if you need to
-    *               }
-    *           else // if (shouldQuit())
-    *               {
-    *               // we're quitting -- do cleanup here if you need to
-    *               }
-    *
-    *           // now reset our flags
-    *           shouldPause = false;
-    *           shouldQuit = false;
+    *           // we're quitting -- do cleanup here if you need to
     *           }
     *
     *       protected void halt(boolean pausing)
     *           {
-    *           if (pausing) synchronized(shouldPauseLock) { shouldPause = val; }
-    *           else synchronized(shouldQuitLock) { shouldQuit = val; }
+    *           synchronized(lock) { shouldQuit = val; }
+    *           }
+    *       };
+    </tt></pre>
+
+    <p>Let's say the task also needs to distinguish between being paused and being quit as well.
+    Here's some code for this situation:
+
+    <pre><tt>
+    *   AsynchronousSteppable s = new AsynchronousSteppable()
+    *       {
+    *       boolean shouldQuit = false;
+    *       boolean shouldPause = false;
+    *       Object[] lock = new Object[0]; // an array is a unique, serializable object
+    *
+    *       protected void run(boolean resuming)
+    *           {
+    *           boolean quit = false;
+    *           boolean pause = false;
+    *           
+    *           if (!resuming)
+    *               {
+    *               // we're starting fresh -- set up here if you have to
+    *               }
+    *           else
+    *               {
+    *               // we're resuming from a pause -- re-set up here if you have to
+    *               }
+    *
+    *           while(!quit && !pause)
+    *               {
+    *               // do your stuff here -- assuming it doesn't block...
+    *               
+    *               synchronized(lock)
+    *                   {
+    *                   quit = shouldQuit;
+    *                   shouldQuit = false;
+    *                   pause = shouldPause;
+    *                   shouldPause = false;
+    *                   }
+    *               }
+    *
+    *           if (quit)
+    *               {
+    *               // we're quitting -- do cleanup here if you need to
+    *               }
+    *           else // if (pause)
+    *               {
+    *               // we're pausing -- do cleanup here if you need to
+    *               }
+    *           }
+    *
+    *       protected void halt(boolean pausing)
+    *           {
+    *           synchronized(lock) 
+    *               {
+    *               if (pausing) shouldPause = val;
+    *               else shouldQuit = val;
+    *               }
     *           }
     *       };
     </tt></pre>
@@ -162,8 +195,7 @@ package sim.engine;
 
 */
 
-public abstract class AsynchronousSteppable
-// implements Asynchronous
+public abstract class AsynchronousSteppable implements Stoppable
     {
     Thread thread;
     boolean running = false;
@@ -197,10 +229,18 @@ public abstract class AsynchronousSteppable
     /** Requests that the AsynchronousSteppable shut down its thread, and blocks until this occurs. If it's already stopped, nothing happens. */
     public final synchronized void stop()
         {
+        boolean joined = false;
         if (!running) return;
         halt(false);
-        try { thread.join(); }
-        catch (InterruptedException e) { System.err.println("AsynchronousSteppable interrupted while trying to stop its underlying thread.  Thread may never stop now."); }
+        while (!joined)         // force joining regardless of interruptedexceptions
+            {
+            try { thread.join(); joined = true; }
+            catch (InterruptedException e) 
+                {
+                // This could happen every 50ms if the Console tries to kill the play thread to stop or pause me.
+                // For model consistency, I will refuse to be interrupted.
+                }
+            }
         state.removeFromAsynchronousRegistry(this);
         running = false;
         }
@@ -208,10 +248,18 @@ public abstract class AsynchronousSteppable
     /** Requests that the AsynchronousSteppable shut down its thread (temporarily) and blocks until this occurs. If it's already paused or not running, nothing happens.  */
     public final synchronized void pause()
         {
+        boolean joined = false;
         if (paused || !running) return;
         halt(true);
-        try { thread.join(); }
-        catch (InterruptedException e) { System.err.println("AsynchronousSteppable interrupted while trying to stop its underlying thread.  Thread may never stop now."); }
+        while (!joined)         // force joining regardless of interruptedexceptions
+            {
+            try { thread.join(); joined = true; }
+            catch (InterruptedException e)
+                {
+                // This could happen every 50ms if the Console tries to kill the play thread to stop or pause me.
+                // For model consistency, I will refuse to be interrupted.
+                }
+            }
         paused = true;
         }
         
@@ -251,7 +299,9 @@ public abstract class AsynchronousSteppable
         }
         
     /** Call this method to get a Steppable, which when called, executes top() on the AsynchornousSteppable.
-        You can then schedule this Steppable to occur at some point in the future on a schedule. */
+        You can then schedule this Steppable to occur at some point in the future on a schedule. 
+        @deprecated Will be deleted in the future.
+    */
     public final Steppable stopper()
         {
         return new Steppable() { public void step(SimState state) { stop(); } };

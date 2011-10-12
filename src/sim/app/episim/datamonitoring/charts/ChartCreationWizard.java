@@ -393,7 +393,10 @@ public class ChartCreationWizard extends JDialog {
        previewChart = ChartFactory.createXYLineChart("Untitled Chart","Untitled X Axis","Untitled Y Axis",dataset,
                                               PlotOrientation.VERTICAL, false, true, false);
        ((XYLineAndShapeRenderer)(((XYPlot)(previewChart.getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);
-
+       XYPlot xyPlot =(XYPlot)previewChart.getPlot();
+       xyPlot.setBackgroundPaint(Color.WHITE);
+ 		xyPlot.setDomainGridlinePaint(Color.LIGHT_GRAY);
+ 		xyPlot.setRangeGridlinePaint(Color.LIGHT_GRAY);
        previewChart.setAntiAlias(false);
        ChartPanel chartPanel = new ChartPanel(previewChart, true);
        chartPanel.setPreferredSize(new java.awt.Dimension(640,480));

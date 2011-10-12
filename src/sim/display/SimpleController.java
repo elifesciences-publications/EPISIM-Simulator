@@ -45,7 +45,7 @@ import java.lang.reflect.*;
 public class SimpleController implements Controller
     {
     /** Our simulation */
-    public GUIState simulation;
+    GUIState simulation;
     
     static 
         {
@@ -73,11 +73,12 @@ public class SimpleController implements Controller
         }
 
     /** Random number generator seed */
-    int randomSeed = (int) System.currentTimeMillis();
-
+    long randomSeed = 0;  // it'll change
+        
     public SimpleController(final GUIState simulation)
         {
         this(simulation, true);
+        randomSeed = simulation.state.seed();
         }
 
     boolean displayInspectors;
@@ -174,7 +175,7 @@ public class SimpleController implements Controller
     void startSimulation()
         {
         removeAllInspectors(true);      // clear inspectors
-        setRandomNumberGenerator(randomSeed);
+        simulation.state.setSeed(randomSeed);   // reseed the generator
         simulation.start();
         }
 
@@ -187,21 +188,6 @@ public class SimpleController implements Controller
     /////////////////////// UTILITY FUNCTIONS
 
     
-    /** Sets the random number generator of the underlying model, pausing it first, then unpausing it after. 
-        Updates the randomField. */ 
-    void setRandomNumberGenerator(final int val)
-        {
-        doChangeCode(new Runnable()
-            {
-            public void run()
-                {
-                simulation.state.setRandom(new MersenneTwisterFast(val));
-                }
-            });
-        }
-
-
-
     /** Private internal flag which indicates if the program is already in the process of quitting. */    
     boolean isClosing = false;
     /** Private lock to avoid synchronizing on myself. */
@@ -223,15 +209,27 @@ public class SimpleController implements Controller
         if (Console.allControllers.size() == 0)  Console.doQuit();  // we run doQuit on the console to quit gracefully, as it maintains all the controller lists
         }
     
-    boolean incrementSeedOnPlay = true;
+    /** @deprecated renamed to setIncrementSeedOnStop */
     public void setIncrementSeedOnPlay(boolean val)
         {
-        incrementSeedOnPlay = val;
+        setIncrementSeedOnStop(val);
         }
         
+    /** @deprecated renamed to getIncrementSeedOnStop */
     public boolean getIncrementSeedOnPlay()
         {
-        return incrementSeedOnPlay;
+        return getIncrementSeedOnStop();
+        }
+
+    boolean incrementSeedOnStop = true;
+    public void setIncrementSeedOnStop(boolean val)
+        {
+        incrementSeedOnStop = val;
+        }
+        
+    public boolean getIncrementSeedOnStop()
+        {
+        return incrementSeedOnStop;
         }
 
 
@@ -249,10 +247,9 @@ public class SimpleController implements Controller
             setPlayState(PS_STOPPED);
 
             // increment the random number seed if the user had said to do so
-            if (incrementSeedOnPlay)
+            if (getIncrementSeedOnStop())
                 {
                 randomSeed++;
-                setRandomNumberGenerator(randomSeed);
                 }
             }
         }
@@ -432,7 +429,7 @@ public class SimpleController implements Controller
                             }
 
                     // name the current thread
-                    simulation.state.nameThread(simulation.state);
+                    simulation.state.nameThread();
 
                     // start the main loop
 
@@ -547,6 +544,9 @@ public class SimpleController implements Controller
         return true;
         }
 
+/**
+   @deprecated
+*/
     public synchronized void doChangeCode(Runnable r)
         {
         if (playThread != null)
@@ -686,19 +686,32 @@ public class SimpleController implements Controller
     /** Stops all inspectors.  If killDraggedOutWindowsToo is true, then the detatched inspectors are stopped as well. */
     public void stopAllInspectors(boolean killDraggedOutWindowsToo)
         {
+        // update all the inspectors before we delete some of them, so they get written out
+        // if necessary.
+        Iterator i = allInspectors.keySet().iterator();
+        while(i.hasNext())
+            {
+            Inspector insp = (Inspector)(i.next());
+            insp.updateInspector();  // one last time
+            insp.repaint();
+            }
+
+        // kill all the inspectors in the inspector window for sure
         // inspectors may get stop() called on them multiple times
         for(int x=0;x<inspectorStoppables.size();x++)
             {
-            Stoppable temp = ((Stoppable)(inspectorStoppables.elementAt(x)));
-            if (temp!=null) temp.stop();  // stop all inspectors
+            Stoppable stopper = ((Stoppable)(inspectorStoppables.elementAt(x)));
+            if (stopper!=null) stopper.stop();
             }
 
+        // possibly kill all inspectors detached in their own windows.
         if (killDraggedOutWindowsToo)
             {
-            Iterator i = allInspectors.keySet().iterator();
+            i = allInspectors.keySet().iterator();
             while(i.hasNext())
                 {
-                Stoppable stopper = (Stoppable)(((WeakReference)allInspectors.get(i.next())).get());
+                Inspector insp = (Inspector)(i.next());
+                Stoppable stopper = (Stoppable)(allInspectors.get(insp));
                 if (stopper != null) stopper.stop();
                 }
             }
@@ -731,6 +744,27 @@ public class SimpleController implements Controller
     public boolean doNew()
         {
         return Console.doNew(null, false);
+        }
+                
+
+    /** Returns a list of all current inspectors.  Some of these inspectors may be stored in
+        the SimpleController itself, and others may have been dragged out into their own JFrames.  You will
+        need to distinguish between these two on your own.  Note that some of these inspectors are stored as
+        weak keys in the SimpleController, so holding onto this list will prevent them from getting garbage
+        collected.  As a result, you should only use this list for temporary scans. */
+    public ArrayList getAllInspectors()
+        {
+        ArrayList list = new ArrayList();
+        Iterator i = allInspectors.keySet().iterator();
+        while(i.hasNext())
+            list.add((Inspector)(i.next()));
+        return list;
+        }
+
+    /** Returns a list of all displays.  You own the resulting list and can do what you like with it. */
+    public synchronized ArrayList getAllFrames()
+        {
+        return new ArrayList(frameList);
         }
 
     }

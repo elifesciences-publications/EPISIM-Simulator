@@ -1,3 +1,9 @@
+/*
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
+
 package sim.portrayal.inspector;
 import sim.util.*;
 import sim.field.*;
@@ -18,6 +24,7 @@ public class StableInt2D implements StableLocation
         
     public String toString()
         {
+        update();
         if (!exists) return "Gone";
         else return "(" + x + ", " + y + ")"; 
         }
@@ -26,10 +33,9 @@ public class StableInt2D implements StableLocation
         {
         this.field = field;
         this.object = object;
-        update();
         }
         
-    public void update()
+    void update()
         {
         Int2D pos = null;
         if (field != null) pos = field.getObjectLocation(object);
@@ -37,22 +43,22 @@ public class StableInt2D implements StableLocation
         else { x = pos.x; y = pos.y; exists = true; }
         }
             
-    public int getX() { return x; }
-    public int getY() { return y; }
-    public boolean getExists() { return exists; }  // what an ugly name
+    public int getX() { update(); return x; }
+    public int getY() { update(); return y; }
+    public boolean getExists() { update(); return exists; }  // what an ugly name
             
     public void setX(int val)
         {
+        if (field!=null) field.setObjectLocation(object, new Int2D(val,getY()));
         x = val;
         exists = true;
-        if (field!=null) field.setObjectLocation(object, new Int2D(x,y));
         }
 
     public void setY(int val)
         {
+        if (field!=null) field.setObjectLocation(object, new Int2D(getX(),val));
         y = val;
         exists = true;
-        if (field!=null) field.setObjectLocation(object, new Int2D(x,y));
         }
 
 // playing with too much fire

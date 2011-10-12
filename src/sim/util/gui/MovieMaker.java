@@ -7,10 +7,8 @@
 package sim.util.gui;
 import java.awt.*;
 import javax.swing.*;
-import sim.util.WordWrap;
 import java.io.*;
 import java.awt.image.*;
-import sim.util.Utilities;
 
 
 /**
@@ -32,6 +30,8 @@ public class MovieMaker
     Object encoder;
     Class encoderClass;
     boolean isRunning;
+        
+    static final float DEFAULT_FRAME_RATE = 10.0f;
     
     public MovieMaker(Frame parent)
         {
@@ -46,7 +46,7 @@ public class MovieMaker
     /** Create a dialog box allowing the user to specify where to save the file, and in what format and frame rate (default = 10 frames per second), and set up the movie encoding process ready to go, using typicalImage as an example image (for size purposes).  Return false if failed to start. */
     public synchronized boolean start(BufferedImage typicalImage)
         {
-        return start(typicalImage, 10f);
+        return start(typicalImage, DEFAULT_FRAME_RATE);
         }
         
     /** Create a dialog box allowing the user to specify where to save the file, and in what format and frame rate (default provided), and set up the movie encoding process ready to go, using typicalImage as an example image (for size purposes).  Return false if failed to start. */
@@ -98,9 +98,9 @@ public class MovieMaker
             int myNumberOfPixels = 600; // our word-wrap pixel length
             JLabel label = new JLabel();
             label.setText("<html><br><b>Note</b><br><font size='-2'>" + 
-                sim.util.WordWrap.toHTML(sim.util.WordWrap.wrap(text1, myNumberOfPixels, label.getFontMetrics(label.getFont()))) +
+                WordWrap.toHTML(WordWrap.wrap(text1, myNumberOfPixels, label.getFontMetrics(label.getFont()))) +
                 //"</font><br><br><b>Suggested Solution</b><br><font size='-2'>" + 
-                //sim.util.WordWrap.toHTML(sim.util.WordWrap.wrap(text2, myNumberOfPixels, label.getFontMetrics(label.getFont()))) +
+                //WordWrap.toHTML(WordWrap.wrap(text2, myNumberOfPixels, label.getFontMetrics(label.getFont()))) +
                 "</font></html>");
 
             JPanel panel3 = new JPanel();

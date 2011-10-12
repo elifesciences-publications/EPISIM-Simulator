@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import sim.util.*;
 
@@ -29,35 +30,40 @@ import sim.util.*;
 
 public class PropertyField extends JComponent
     {
-    public JComboBox list = new JComboBox();
-    public JTextField valField = new JTextField();
-    public JCheckBox checkField = new JCheckBox();
-    public JButton viewButton = new JButton("View");  // optionally displayed instead of valField (array or Object)
-    public JLabel viewLabel = new JLabel();
-    public JLabel optionalLabel = new JLabel();
-    static final int SLIDER_MAX = 800000;
+    JComboBox list = new JComboBox();
+    JTextField valField = new JTextField();
+    JCheckBox checkField = new JCheckBox();
+    JButton viewButton = new JButton("View");  // optionally displayed instead of valField (array or Object)
+    JLabel viewLabel = new JLabel();
+    JLabel optionalLabel = new JLabel();
+    static final int SLIDER_MAX = 1000;
     static final int SLIDER_WIDTH = 80;
-    public JSlider slider = new JSlider(0,SLIDER_MAX)
+    JSlider slider = new JSlider(0,SLIDER_MAX)
         {
         public Dimension getMaximumSize() { return new Dimension(SLIDER_WIDTH, super.getMaximumSize().height); }
         public Dimension getPreferredSize() { return getMaximumSize(); }
         };
+
+    DecimalFormat sliderFormatter = new DecimalFormat();        // to control the slider's number of decimal places
         
-    public Border valFieldBorder;
-    public Border emptyBorder;
-    public String currentValue;
-    public boolean isReadWrite;
-    public Object domain;
+    public JTextField getField() { return valField; }
+
+    Border valFieldBorder;
+    Border emptyBorder;
+    String currentValue;
+    boolean isReadWrite;
+    Object domain;
     
-    public int displayState;
+    int displayState;
     public static final int SHOW_CHECKBOX = 0;
     public static final int SHOW_TEXTFIELD = 1;
     public static final int SHOW_VIEWBUTTON = 2;
     public static final int SHOW_SLIDER = 3;
     public static final int SHOW_LIST = 4;
 
-    public Color defaultColor;
-    public Color editedColor = new Color(225,225,255);
+    Color defaultColor;
+    Color editedColor = new Color(225,225,255);
+        
     public void setEditedColor(Color c) { editedColor = c; }
     public Color getEditedColor() { return editedColor; }
     
@@ -87,7 +93,7 @@ public class PropertyField extends JComponent
             }
         }
     
-    public KeyListener listener = new KeyListener()
+    KeyListener listener = new KeyListener()
         {
         public void keyReleased(KeyEvent keyEvent) { }
         public void keyTyped(KeyEvent keyEvent) { }
@@ -108,7 +114,7 @@ public class PropertyField extends JComponent
             }
         };
         
-    public ActionListener checkListener = new ActionListener()
+    ActionListener checkListener = new ActionListener()
         {
         public void actionPerformed ( ActionEvent e )
             {
@@ -116,7 +122,7 @@ public class PropertyField extends JComponent
             }
         };
 
-    public ActionListener viewButtonListener = new ActionListener()
+    ActionListener viewButtonListener = new ActionListener()
         {
         public void actionPerformed ( ActionEvent e )
             {
@@ -124,7 +130,7 @@ public class PropertyField extends JComponent
             }
         };
         
-    public FocusAdapter focusAdapter = new FocusAdapter()
+    FocusAdapter focusAdapter = new FocusAdapter()
         {
         public void focusLost ( FocusEvent e )
             {
@@ -134,8 +140,22 @@ public class PropertyField extends JComponent
         
 
     boolean sliding = false;
+    
+    /*
+     * Calculate the number of decimal places needed to show the smallest possible change for a slider.
+     * @param low bottom of the range
+     * @param high top of the range
+     * @param ticks number of discrete stops within the range
+     * @return the number of decimal places to show
+     * @author jharrison
+     */
+    int calcDecimalPlacesForInterval(double low, double high, int ticks)
+        {
+        double epsilon = (high - low) / (double)ticks;
+        return (int)Math.ceil(Math.log10(1/epsilon));
+        }
       
-    public ChangeListener sliderListener = new ChangeListener()
+    ChangeListener sliderListener = new ChangeListener()
         {
         public void stateChanged (ChangeEvent e)
             {
@@ -144,26 +164,26 @@ public class PropertyField extends JComponent
                 double d = 0;
                 Interval domain = (Interval)(PropertyField.this.domain);
                 int i = slider.getValue();
+                String str;
                 if (domain.isDouble())
                     {
                     double min = domain.getMin().doubleValue();
                     double max = domain.getMax().doubleValue();
                     d = (i / (double)SLIDER_MAX) * (max - min) + min;
+                    sliderFormatter.setMinimumFractionDigits(calcDecimalPlacesForInterval(min, max, SLIDER_WIDTH));
+                    str = sliderFormatter.format(d);
                     }
-                else  // long
-                    {
-                    long min = domain.getMin().longValue();
-                    long max = domain.getMax().longValue();
-                    d = (double)((long)((i / (double)SLIDER_MAX) * (max - min) + min));  // floor to an integer value
-                    }
+                else  // integer
+                    str = Integer.toString(i);
+                    
                 sliding = true;
-                setValue(newValue("" + d));
+                setValue(newValue(str));
                 sliding = false;
                 }
             }
         };
     
-    public ActionListener listListener = new ActionListener()
+    ActionListener listListener = new ActionListener()
         {
         public void actionPerformed ( ActionEvent e )
             {
@@ -220,6 +240,8 @@ public class PropertyField extends JComponent
                 double min = domain.getMin().doubleValue();
                 double max = domain.getMax().doubleValue();
                 int i = (int)((d - min) / (max - min) * SLIDER_MAX);
+                if (!domain.isDouble())
+                    i = (int)d;
                 slider.setValue(i);
                 }
             }
@@ -299,10 +321,27 @@ public class PropertyField extends JComponent
         // quaquaify
         viewButton.putClientProperty("Quaqua.Button.style","square");
         
+        if ((domain != null) && (domain instanceof Interval)) 
+            {
+            Interval interval = (Interval)domain;
+            if (interval.isDouble())
+                { 
+                // nothing
+                }
+            else 
+                {
+
+                slider.setMinimum(interval.getMin().intValue());
+                slider.setMaximum(interval.getMax().intValue());
+                }
+            }
         
+        sliderFormatter.setGroupingUsed(false); // no commas
+                
         // set values
         setValues(label, initialValue, isReadWrite, domain, show);
         }
+
 
     /* Resets a PropertyField with an optional label, an initial value, a "writeable" flag, an optional domain
        (for the slider and list options), and a display form (checkboxes, view buttons, text fields, sliders, or lists).
@@ -321,7 +360,7 @@ public class PropertyField extends JComponent
        which the user has checked.  newValue(...) must also return a String with the desired index for the list to be
        set to.
     */
-    public void setValues(String label, String initialValue, boolean isReadWrite, Object domain, int show)
+    void setValues(String label, String initialValue, boolean isReadWrite, Object domain, int show)
         {
         this.domain = domain;
         removeAll();
@@ -420,5 +459,17 @@ public class PropertyField extends JComponent
         Dimension s = super.getPreferredSize();
         s.height = valField.getPreferredSize().height;
         return s;
+        }
+ 
+    public void setEnabled(boolean b)
+        {
+        super.setEnabled(b);
+        valField.setEnabled(b);
+        checkField.setEnabled(b);
+        optionalLabel.setEnabled(b);
+        viewButton.setEnabled(b);
+        viewLabel.setEnabled(b);
+        slider.setEnabled(b);
+        list.setEnabled(b);
         }
     }

@@ -72,7 +72,7 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
                         throw new RuntimeException("Unexpected Portrayal " + p + " for object " + 
                             o + " -- expecting a SimplePortrayal3D");
                     SimplePortrayal3D p3d = (SimplePortrayal3D)p;
-                    p3d.setParentPortrayal(this);
+                    p3d.setCurrentFieldPortrayal(this);
                     TransformGroup newTransformGroup = p3d.getModel(o, null);
                     newTransformGroup.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
                     newTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
@@ -112,7 +112,7 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
                             throw new RuntimeException("Unexpected Portrayal " + p + " for object " + 
                                 o + " -- expecting a SimplePortrayal3D");
                         SimplePortrayal3D p3d = (SimplePortrayal3D)p;
-                        p3d.setParentPortrayal(this);
+                        p3d.setCurrentFieldPortrayal(this);
                         TransformGroup newTransformGroup = p3d.getModel(o, null);
                         newTransformGroup.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
                         newTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
@@ -139,10 +139,6 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
         return globalTG;
         }
     
-        
-        
-        
-        
         
         
     protected void updateModel(TransformGroup globalTG)
@@ -175,14 +171,16 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
                         throw new RuntimeException("Unexpected Portrayal " + p + " for object " + 
                             o + " -- expecting a SimplePortrayal3D");
                     SimplePortrayal3D p3d = (SimplePortrayal3D)p;
-                    p3d.setParentPortrayal(this);
+                    p3d.setCurrentFieldPortrayal(this);
                     BranchGroup bg = (BranchGroup)(global.getChild(count++));
                     TransformGroup originalTransformGroup = null;
                     if (bg.numChildren() > 0) originalTransformGroup = (TransformGroup)(bg.getChild(0));  // could be null if we've stubbed
                     TransformGroup newTransformGroup = null;
                     Object originalData = bg.getUserData();
                     if (originalData == o)
+                        {
                         newTransformGroup = p3d.getModel(o, originalTransformGroup);
+                        }
                     else 
                         {
                         Bag b = (Bag)(models.get(o));
@@ -248,14 +246,16 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
                             throw new RuntimeException("Unexpected Portrayal " + p + " for object " + 
                                 o + " -- expecting a SimplePortrayal3D");
                         SimplePortrayal3D p3d = (SimplePortrayal3D)p;
-                        p3d.setParentPortrayal(this);
+                        p3d.setCurrentFieldPortrayal(this);
                         BranchGroup bg = (BranchGroup)(global.getChild(count++));
                         TransformGroup originalTransformGroup = null;
                         if (bg.numChildren() > 0) originalTransformGroup = (TransformGroup)(bg.getChild(0));  // could be null if we've stubbed
                         TransformGroup newTransformGroup = null;
                         Object originalData = bg.getUserData();
                         if (originalData == o)
+                            {
                             newTransformGroup = p3d.getModel(o, originalTransformGroup);
+                            }
                         else
                             {
                             Bag b = (Bag)(models.get(o));
@@ -269,8 +269,10 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
                                     global.setChild(replacementBranchGroup,count-1);
                                 }
                             else
+                                {
                                 // shoot, we have to create a new model.  Rebuild.
                                 newTransformGroup = p3d.getModel(o, null);
+                                }
                             }
                                                 
                         // is the new transformGroup different?
@@ -307,25 +309,19 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
         }
 
 
-
-
     public void setField(Object field)
         {
-        dirtyField = true;
-        if (field instanceof ObjectGrid3D || field instanceof ObjectGrid2D) this.field = field;
+        if (field instanceof ObjectGrid3D || field instanceof ObjectGrid2D) super.setField(field);
         else throw new RuntimeException("Invalid field for ObjectGridPortrayal3D: " + field);
         }
         
                 
-
-
-
-
     // searches for an object within a short distance of a location
     final int SEARCH_DISTANCE = 2;
-    IntBag xPos = new IntBag(49);
-    IntBag yPos = new IntBag(49);
-    IntBag zPos = new IntBag(49);
+    final int bagsize = (SEARCH_DISTANCE * 2 + 1) * (SEARCH_DISTANCE * 2 + 1) * (SEARCH_DISTANCE * 2 + 1);  // 125
+    IntBag xPos = new IntBag(bagsize);
+    IntBag yPos = new IntBag(bagsize);
+    IntBag zPos = new IntBag(bagsize);
         
     Int3D searchForObject(Object object, Int3D loc)
         {
@@ -395,31 +391,6 @@ public class ObjectGridPortrayal3D extends FieldPortrayal3D
                     return ((Int3D)this.location).toCoordinates();
                 else return "Location Unknown";
                 }
-
-
-            /*
-              public Object getObject()
-              { 
-              if (this.location instanceof Int3D)
-              {
-              Int3D loc = (Int3D)this.location;
-              return ((ObjectGrid3D)field).field[loc.x][loc.y][loc.z];
-              }
-              else
-              {
-              Int2D loc = (Int2D)this.location;
-              return ((ObjectGrid2D)field).field[loc.x][loc.y];
-              }
-              }
-            
-              public String getLocationName()
-              {
-              if (this.location == null) return null;
-              if (this.location instanceof Int3D)
-              return ((Int3D)this.location).toCoordinates();
-              else return ((Int2D)this.location).toCoordinates();
-              }
-            */
             };
         }
     }

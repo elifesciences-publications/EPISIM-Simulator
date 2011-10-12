@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;
 import sim.portrayal.inspector.*;
+import sim.display.*;
 
 /**
    Portrays Continuous2D fields.  When asked to portray objects, this field computes the buckets
@@ -28,10 +29,22 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
     // a grey oval.  You should provide your own protrayals...
     SimplePortrayal2D defaultPortrayal = new OvalPortrayal2D();
 
+    Paint frame = null;
+    /** If you provide a Paint, a thin frame of this paint will be drawn around the (0,0,width,height) space of
+        the field.  This is mostly useful for seeing the frame of the field when clipping is turned off and you're zoomed out. */ 
+    public void setFrame(Paint p)
+        {
+        frame = p;
+        }
+                
+    public Paint getFame()
+        {
+        return frame;
+        }
+
     public void setField(Object field)
         {
-        dirtyField = true;
-        if (field instanceof Continuous2D) this.field = field;
+        if (field instanceof Continuous2D) super.setField(field);
         else throw new RuntimeException("Invalid field for ContinuousPortrayal2D: " + field);
         }
         
@@ -51,23 +64,20 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
         double dy = loc.y - oloc.y;
         double xScale = otherObjectInfo.draw.width;
         double yScale = otherObjectInfo.draw.height;
-        return new Point2D.Double(dx * xScale + otherObjectInfo.draw.x,
-            dy * yScale + otherObjectInfo.draw.y);
+        return new Point2D.Double(dx * xScale + otherObjectInfo.draw.x, dy * yScale + otherObjectInfo.draw.y);
         }
         
-    public Object getClipLocation(DrawInfo2D fieldPortrayalInfo)
-        {
-        return getPositionLocation(new Point2D.Double(fieldPortrayalInfo.clip.x, fieldPortrayalInfo.clip.y), fieldPortrayalInfo);
-        }
-                
     public Double2D getScale(DrawInfo2D info)
         {
-        final Continuous2D field = (Continuous2D)this.field;
-        if (field==null) return null;
+        synchronized(info.gui.state.schedule)
+            {
+            final Continuous2D field = (Continuous2D)this.field;
+            if (field==null) return null;
                 
-        final double xScale = info.draw.width / field.width;
-        final double yScale = info.draw.height / field.height;
-        return new Double2D(xScale, yScale);
+            final double xScale = info.draw.width / field.width;
+            final double yScale = info.draw.height / field.height;
+            return new Double2D(xScale, yScale);
+            }
         }
                 
     public Object getPositionLocation(Point2D.Double position, DrawInfo2D fieldPortrayalInfo)
@@ -83,40 +93,53 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
 
     public void setObjectPosition(Object object, Point2D.Double position, DrawInfo2D fieldPortrayalInfo)
         {
-        final Continuous2D field = (Continuous2D)this.field;
-        if (field==null) return;
-        if (field.getObjectLocation(object) == null) return;
-        Double2D location = (Double2D)(getPositionLocation(position, fieldPortrayalInfo));
-        if (location != null)
+        synchronized(fieldPortrayalInfo.gui.state.schedule)
             {
-            if (object instanceof Fixed2D && !((Fixed2D)object).maySetLocation(field, location)) return;  // can't move him, or maybe he moved himself
-            field.setObjectLocation(object, location);
+            final Continuous2D field = (Continuous2D)this.field;
+            if (field==null) return;
+            if (field.getObjectLocation(object) == null) return;
+            Double2D location = (Double2D)(getPositionLocation(position, fieldPortrayalInfo));
+            if (location != null)
+                {
+                if (object instanceof Fixed2D && (!((Fixed2D)object).maySetLocation(field, location)))
+                    return;  // this is deprecated and will be deleted
+                //if (object instanceof Constrained)
+                //      location = (Double2D)((Constrained)object).constrainLocation(field, location);
+                if (location != null)
+                    field.setObjectLocation(object, location);
+                }
             }
         }
 
-    public Object getObjectLocation(Object object)
+    public Object getObjectLocation(Object object, GUIState gui)
         {
-        final Continuous2D field = (Continuous2D)this.field;
-        if (field==null) return null;
-        return field.getObjectLocation(object);
+        synchronized(gui.state.schedule)
+            {
+            final Continuous2D field = (Continuous2D)this.field;
+            if (field==null) return null;
+            return field.getObjectLocation(object);
+            }
         }
 
     public Point2D.Double getLocationPosition(Object location, DrawInfo2D fieldPortrayalInfo)
         {
-        final Continuous2D field = (Continuous2D)this.field;
-        if (field==null) return null;
+        synchronized(fieldPortrayalInfo.gui.state.schedule)
+            {
+            final Continuous2D field = (Continuous2D)this.field;
+            if (field==null) return null;
                 
-        final double xScale = fieldPortrayalInfo.draw.width / field.width;
-        final double yScale = fieldPortrayalInfo.draw.height / field.height;
-        DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale), fieldPortrayalInfo.clip);  // we don't do further clipping 
+            final double xScale = fieldPortrayalInfo.draw.width / field.width;
+            final double yScale = fieldPortrayalInfo.draw.height / field.height;
+            DrawInfo2D newinfo = new DrawInfo2D(fieldPortrayalInfo.gui, fieldPortrayalInfo.fieldPortrayal, new Rectangle2D.Double(0,0, xScale, yScale), fieldPortrayalInfo.clip);  // we don't do further clipping 
 
-        Double2D loc = (Double2D) location;
-        if (loc == null) return null;
+            Double2D loc = (Double2D) location;
+            if (loc == null) return null;
 
-        newinfo.draw.x = (fieldPortrayalInfo.draw.x + (xScale) * loc.x);
-        newinfo.draw.y = (fieldPortrayalInfo.draw.y + (yScale) * loc.y);
+            newinfo.draw.x = (fieldPortrayalInfo.draw.x + (xScale) * loc.x);
+            newinfo.draw.y = (fieldPortrayalInfo.draw.y + (yScale) * loc.y);
 
-        return new Point2D.Double(newinfo.draw.x, newinfo.draw.y);
+            return new Point2D.Double(newinfo.draw.x, newinfo.draw.y);
+            }
         }
 
     // values to multiply width or height by to add to a location to shift for toroidal drawing
@@ -152,8 +175,9 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
 
 //        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
 
-        DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale),
+        DrawInfo2D newinfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(0,0, xScale, yScale),
             info.clip);  // we don't do further clipping 
+        newinfo.fieldPortrayal = this;
 
         // hit/draw the objects one by one -- perhaps for large numbers of objects it would
         // be smarter to grab the objects out of the buckets that specifically are inside
@@ -220,6 +244,14 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
                     }
                 }
             }
+                        
+        // finally draw the frame
+        if (frame != null && graphics != null)
+            {
+            graphics.setPaint(frame);
+            Rectangle2D rect = new Rectangle2D.Double(info.draw.x - 1, info.draw.y - 1, info.draw.width + 1, info.draw.height + 1);
+            graphics.draw(rect);
+            }
         }
 
     public LocationWrapper getWrapper(final Object obj)
@@ -230,13 +262,13 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
             {
             public Object getLocation()
                 {
-                w.update();
+//                w.update();
                 return w;
                 }
                 
             public String getLocationName()
                 {
-                w.update();
+//                w.update();
                 return w.toString();
                 }
             };
@@ -250,17 +282,11 @@ public class ContinuousPortrayal2D extends FieldPortrayal2D
         if (wrapper.getFieldPortrayal() != this) return true;
 
         Object obj = wrapper.getObject();
+        boolean b = getPortrayalForObject(obj).setSelected(wrapper,selected);
         if (selected)
             {
-            // first let's determine if the object WANTs to be selected
-            boolean b = getPortrayalForObject(obj).setSelected(wrapper,selected);
-                        
-            // now we turn the selection back to regular
-            getPortrayalForObject(obj).setSelected(wrapper,!selected);
-                        
-            // Okay, now we can tell whether or not to add to the wrapper collection
             if (b==false) return false;
-            selectedWrappers.put(obj, wrapper);
+            else selectedWrappers.put(obj, wrapper);
             }
         else
             {

@@ -257,6 +257,8 @@ public class ConsoleHack extends Console implements SimulationConsole{
 		tabPane.revalidate();
 		
 	}
+	
+	
    
    
 	public GUIState getSimulation(){

@@ -1,55 +1,82 @@
 /*
- * Created on Nov 18, 2006
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
+  Copyright 2006 by Sean Luke and George Mason University
+  Licensed under the Academic Free License version 3.0
+  See the file "LICENSE" for more information
+*/
 package sim.portrayal3d.network;
 
-import java.awt.Color;
+import java.awt.*;
 import javax.media.j3d.*;
-import javax.vecmath.Vector3f;
-
+import javax.vecmath.*;
+import sim.util.*;
 import com.sun.j3d.utils.geometry.*;
-
 import sim.portrayal3d.simple.*;
+
 /**
- * This implementation of GenericEDgePortrayal3D uses Arrow, 
+ * This implementation of GenericEdgePortrayal3D uses Arrow, 
  * which aggregates two primitives.  This class provides 
  * to the super class with uniform/transparent access to all the shapes, 
  * regardless of the primitives they belong to.
  * 
  * @author Gabriel Balan
+ * In 2006
  */
-public class ArrowEdgePortrayal3D extends GenericEdgePortrayal3D
+ 
+public class ArrowEdgePortrayal3D extends PrimitiveEdgePortrayal3D
     {   
-    private static Vector3f dummyFrom = new Vector3f(0f,-1f,0f);
-    private static Vector3f dummyTo = new Vector3f(0f,1f,0f);
-    
+    static Double3D dummyFrom = new Double3D(0f,-1f,0f);
+    static Double3D dummyTo = new Double3D(0f,1f,0f);
+        
     public ArrowEdgePortrayal3D()
         {
-        this(0.5f);
+        this(null, Color.white, null, DEFAULT_RADIUS);
+        }
+
+    /** @deprecated */
+    public ArrowEdgePortrayal3D(double radius)
+        {
+        this(null, Color.white, null, radius);
         }
         
-    public ArrowEdgePortrayal3D(float radius)
+    /** @deprecated */
+    public ArrowEdgePortrayal3D(double radius, Appearance ap)
         {
-        this(radius, null);
+        this(ap, Color.white, null, radius);
         }
-        
-    public ArrowEdgePortrayal3D(float radius, Appearance ap)
-        {
-        super(new Arrow(radius, dummyFrom, dummyTo, null, null, ap));
-        }       
 
-
+    /** @deprecated */
     public ArrowEdgePortrayal3D(Color labelColor)
         {
-        super(new Arrow(1, dummyFrom, dummyTo, null, null, null), labelColor);
+        this(null, labelColor, null, DEFAULT_RADIUS);
         }
 
+    public ArrowEdgePortrayal3D(Appearance appearance, Color labelColor)
+        {
+        this(appearance, labelColor, null, DEFAULT_RADIUS);
+        }       
+
+    public ArrowEdgePortrayal3D(Color color, Color labelColor)
+        {
+        this(appearanceForColor(color), labelColor, null, DEFAULT_RADIUS);
+        }       
+
+    /** Assumes that the image is opaque */
+    public ArrowEdgePortrayal3D(Image image, Color labelColor)
+        {
+        this(appearanceForImage(image, true), labelColor, null, DEFAULT_RADIUS);
+        }       
+
+    public ArrowEdgePortrayal3D(Appearance appearance, Color labelColor, Font labelFont, double radius)
+        {
+        super(new Arrow(radius, dummyFrom, dummyTo, null, null, appearance), appearance, labelColor, labelFont);
+        }       
 
     /** the arrow body has 3 (body, top, bottom), arrow head has 2 (bottom and body) */ 
-    protected int numShapes(){return 5;}
+    protected int numShapes()
+        {
+        return 5;
+        }
+        
     /** 
      * Returns the shape by the given index.  Cylinder shapes come first
      * (BODY=0, TOP=1, BOTTOM=2), Cone chape come last (BODY=3, CAP=4) 
@@ -71,7 +98,7 @@ public class ArrowEdgePortrayal3D extends GenericEdgePortrayal3D
         TransformGroup edgeModelClone = (TransformGroup)(endPointTG.getChild(0));
         int coneOffset = 3;
         
-        if(shapeIndex<coneOffset)//it's the body
+        if(shapeIndex < coneOffset) //it's the body
             {       
             TransformGroup arrowBody = (TransformGroup)(edgeModelClone.getChild(0));
             Cylinder c = (Cylinder)arrowBody.getChild(0);
@@ -81,15 +108,6 @@ public class ArrowEdgePortrayal3D extends GenericEdgePortrayal3D
         Cone c = (Cone)arrowHead.getChild(0);
         return c.getShape(shapeIndex-coneOffset);        
         }
-    
-//    public TransformGroup getModel(Object object, TransformGroup j3dModel)
-//    {
-//      boolean j3dModelWasNull = j3dModel == null;
-//      j3dModel = super.getModel(object, j3dModel);
-//      if(j3dModelWasNull)
-//              j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
-//      return j3dModel;
-//    }
     
     protected void init(Node edgeModel)
         {
@@ -101,11 +119,11 @@ public class ArrowEdgePortrayal3D extends GenericEdgePortrayal3D
         //In the future I will want to read the cone out of its TransformGroup
         ((TransformGroup)arrow.getChild(1)).setCapability(Group.ALLOW_CHILDREN_READ);
                 
-        Cylinder body = arrow.arrowTail;
+        Cylinder body = arrow.getArrowTail();
         PrimitivePortrayal3D.setShape3DFlags(body.getShape(Cylinder.BODY));
         PrimitivePortrayal3D.setShape3DFlags(body.getShape(Cylinder.TOP));
         PrimitivePortrayal3D.setShape3DFlags(body.getShape(Cylinder.BOTTOM));
-        Cone head = arrow.arrowHead;
+        Cone head = arrow.getArrowHead();
         PrimitivePortrayal3D.setShape3DFlags(head.getShape(Cone.BODY));
         PrimitivePortrayal3D.setShape3DFlags(head.getShape(Cone.CAP));
         }

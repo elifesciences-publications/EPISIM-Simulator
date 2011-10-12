@@ -14,15 +14,15 @@ import sim.portrayal3d.grid.*;
  */
 public class TilePortrayal extends QuadPortrayal
     {
-    public float[] tmpCoords;
-    public float[] tmpColor;
+    float[] tmpCoords;
+    float[] tmpColor;
         
     public TilePortrayal(ColorMap colorDispenser)
         {
         this(colorDispenser,0);
         }
 
-    public TilePortrayal(ColorMap colorDispenser, float zScale)
+    public TilePortrayal(ColorMap colorDispenser, double zScale)
         {
         super(colorDispenser, zScale);
         tmpCoords = new float[12];
@@ -55,7 +55,6 @@ public class TilePortrayal extends QuadPortrayal
         coordinates[offset+9] = x - 0.5f;
         coordinates[offset+10]= y + 0.5f;
         coordinates[offset+11]= value;
-
         }
 
     }

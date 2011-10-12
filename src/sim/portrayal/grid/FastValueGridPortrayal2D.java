@@ -67,13 +67,15 @@ public class FastValueGridPortrayal2D extends ValueGridPortrayal2D
         this(false);
         }
 
-    public void reset()
-        {
-        synchronized(this)
-            {
-            buffer = null;
-            }
-        }
+/*
+  public void reset()
+  {
+  synchronized(this)
+  {
+  buffer = null;
+  }
+  }
+*/
 
     // Determines if we should buffer
     boolean shouldBuffer(Graphics2D graphics)
@@ -100,7 +102,7 @@ public class FastValueGridPortrayal2D extends ValueGridPortrayal2D
             return (graphics.getDeviceConfiguration().
                 getDevice().getType() != GraphicsDevice.TYPE_IMAGE_BUFFER);
         else if (sim.display.Display2D.isWindows)
-            return (immutableField && !dirtyField);
+            return (immutableField);
         else // it's Linux or Solaris
             return false;
         }
@@ -149,37 +151,37 @@ public class FastValueGridPortrayal2D extends ValueGridPortrayal2D
             boolean newBuffer = false;
             //BufferedImage _buffer = null;  // make compiler happy
             
-            synchronized(this)
+//            synchronized(this)
+//                {
+            if (buffer==null || buffer.getWidth() != maxX || buffer.getHeight() != maxY)
                 {
-                if (buffer==null || buffer.getWidth() != maxX || buffer.getHeight() != maxY)
-                    {
-                    // interestingly, this is not quite as fast as just making a BufferedImage directly!
-                    // at present, transparent images can't take advantage of new Sun efficiency improvements.
-                    // Perhaps we should have a new option for opaque images...
-                    //buffer = graphics.getDeviceConfiguration().createCompatibleImage(maxX,maxY,Transparency.TRANSLUCENT);
+                // interestingly, this is not quite as fast as just making a BufferedImage directly!
+                // at present, transparent images can't take advantage of new Sun efficiency improvements.
+                // Perhaps we should have a new option for opaque images...
+                //buffer = graphics.getDeviceConfiguration().createCompatibleImage(maxX,maxY,Transparency.TRANSLUCENT);
                     
-                    // oops, it looks like createCompatibleImage has big-time HILARIOUS bugs on OS X Java 1.3.1!
-                    // So for the time being we're sticking with the (very slightly faster) 
-                    // new BufferedImage(...)
-                    if (buffer != null) buffer.flush();  // in case Java forgets to clear memory -- bug in OS X
-                    buffer = new BufferedImage(maxX,maxY,BufferedImage.TYPE_INT_ARGB); // transparency allowed
+                // oops, it looks like createCompatibleImage has big-time HILARIOUS bugs on OS X Java 1.3.1!
+                // So for the time being we're sticking with the (very slightly faster) 
+                // new BufferedImage(...)
+                if (buffer != null) buffer.flush();  // in case Java forgets to clear memory -- bug in OS X
+                buffer = new BufferedImage(maxX,maxY,BufferedImage.TYPE_INT_ARGB); // transparency allowed
                     
-                    // I had thought that TYPE_INT_ARGB_PRE would be faster because
-                    // it's natively supported by MacOS X CoreGraphics so no optimization needs to be done
-                    // in 1.4.1 -- but in fact it is SLOWER on 1.3.1 by 2/3.  So for the time being we're
-                    // going to stay with the orgiginal.
-                    // see http://developer.apple.com/documentation/Java/Reference/Java14SysProperties/System_Properties/chapter_2_section_6.html
-                    //
-                    // UPDATE: Running with Quartz and Java 1.6, it doesn't seem that ARGB and ARGB_PRE have
-                    // any really significant difference in speed.  Maybe 5%.  Sticking with ARGB to be more compatible with
-                    // Windows.
-                    raster = buffer.getRaster();
-                    newBuffer = true;
-                    }
-                //_buffer = buffer;
+                // I had thought that TYPE_INT_ARGB_PRE would be faster because
+                // it's natively supported by MacOS X CoreGraphics so no optimization needs to be done
+                // in 1.4.1 -- but in fact it is SLOWER on 1.3.1 by 2/3.  So for the time being we're
+                // going to stay with the orgiginal.
+                // see http://developer.apple.com/documentation/Java/Reference/Java14SysProperties/System_Properties/chapter_2_section_6.html
+                //
+                // UPDATE: Running with Quartz and Java 1.6, it doesn't seem that ARGB and ARGB_PRE have
+                // any really significant difference in speed.  Maybe 5%.  Sticking with ARGB to be more compatible with
+                // Windows.
+                raster = buffer.getRaster();
+                newBuffer = true;
                 }
+            //_buffer = buffer;
+            //}
 
-            if (newBuffer || !immutableField || dirtyField)  // we have to load the buffer
+            if (newBuffer || !immutableField || isDirtyField())  // we have to load the buffer
                 {
                 if (endx > maxX) endx = maxX;
                 if (endy > maxY) endy = maxY;
@@ -299,10 +301,10 @@ public class FastValueGridPortrayal2D extends ValueGridPortrayal2D
             Rectangle2D.Double preciseRectangle = new Rectangle2D.Double();
             buffer = null;  // GC the buffer in case the user had changed his mind
             
-            if (endx > maxX) endx = maxX;
-            if (endy > maxY) endy = maxY;
-            if( startx < 0 ) startx = 0;
-            if( starty < 0 ) starty = 0;
+            if (endxd > maxX) endxd = maxX;
+            if (endyd > maxY) endyd = maxY;
+            if( startxd < 0 ) startxd = 0;
+            if( startyd < 0 ) startyd = 0;
 
             double _x = 0;
             double _y = 0;
@@ -352,7 +354,7 @@ public class FastValueGridPortrayal2D extends ValueGridPortrayal2D
             }
 
         // finally, clear dirty flag if we've just drawn (don't clear if we're doing hit testing)
-        if (graphics!=null) dirtyField = false;
+        if (graphics!=null) setDirtyField(false);
         }
                 
     }

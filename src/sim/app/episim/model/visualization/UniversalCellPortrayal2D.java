@@ -69,7 +69,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
             {                
                 final UniversalCell universalCell=((UniversalCell)object);
                 AbstractMechanicalModel mechModel = (AbstractMechanicalModel)universalCell.getEpisimBioMechanicalModelObject();
-         		 mechModel.setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
+         		 mechModel.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
                 		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height))); 
                 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGlobalParameters){
                	 drawCellEllipses = ((CenterBasedMechanicalModelGlobalParameters)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
@@ -173,7 +173,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 			CellEllipse cellEllipseObject = ((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
 			
 			if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
-				cellEllipseObject.translateCell(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
+				cellEllipseObject.translateCell(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
 		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));        
 	      }	      	  
 	    	graphics.setPaint(getFillColor(universalCell));    
@@ -194,7 +194,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 	    	//must be set at the very end of the paint method
 	       
 	       if(SimStateServer.getInstance().getSimState() == SimState.PLAY || SimStateServer.getInstance().getSimState() == SimState.STEPWISE){ 
-	      	 cellEllipseObject.setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
+	      	 cellEllipseObject.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
 		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)), false);
 	       }         
 		}

@@ -16,6 +16,7 @@ import sim.field.continuous.*;
 import sim.field.grid.*;
 import sim.engine.*;
 import sim.portrayal.network.*;
+import java.awt.event.*;
 
 /**
    <p>TrailedPortrayal2D is a special SimplePortrayal wrapper which enables you to draw "trails" or
@@ -49,7 +50,7 @@ import sim.portrayal.network.*;
    each will manage the trail for the various objects in the field (which is right, but memory expensive and a bit slow).
         
    <p>Alternatively you can provide a single TrailPortrayal2D via <b>FieldPortrayal.setPortrayalForAll</b> but 
-   set <b>growTrailOnlyWhenSelected</b> to FALSE.  This will cause the TrailPortrayal2D to *begin* growing the trail
+   set <b>onlyGrowTrailWhenSelected</b> to FALSE.  This will cause the TrailPortrayal2D to *begin* growing the trail
    each time a new object is selected.  It uses a lot less memory and is faster but may not produce the effect you desire.
         
    <p>You can also cause all the TrailPortrayal2Ds to draw trails regardless of selection: just set <b>onlyShowTrailWhenSelected</b> to FALSE 
@@ -87,7 +88,9 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
         {
         /** A value from 1.0 to 0.0 indicating how far "back in time" this segment is supposed to be. */
         public double value = 0.0;
-        public TrailDrawInfo2D(Rectangle2D.Double draw, Rectangle2D.Double clip, Point2D.Double secondPoint) { super(draw, clip, secondPoint); }
+        public TrailDrawInfo2D(GUIState gui, FieldPortrayal2D fieldPortrayal, RectangularShape draw, RectangularShape clip, Point2D.Double secondPoint) { super(gui, fieldPortrayal, draw, clip, secondPoint); }
+        public TrailDrawInfo2D(DrawInfo2D other, double translateX, double translateY, Point2D.Double secondPoint) { super(other, translateX, translateY, secondPoint); }
+        //public TrailDrawInfo2D(Rectangle2D.Double draw, Rectangle2D.Double clip, Point2D.Double secondPoint) { super(draw, clip, secondPoint); }
         public TrailDrawInfo2D(DrawInfo2D other, Point2D.Double secondPoint) { super(other, secondPoint); }
         public TrailDrawInfo2D(EdgeDrawInfo2D other) { super(other); }
         }
@@ -101,18 +104,23 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
         Place(Object location, double timestamp) { this.location = location; this.timestamp = timestamp; }
         }
         
-    // is the object selected?
-    // boolean isSelected = false;
+    // is the object selected?  We'll use this auxiliary variable in the case that we're using a MovablePortrayal2D
+    // and so we didn't get selected.
+    boolean isSelected = false;
 
-    boolean growTrailOnlyWhenSelected = false;
+    boolean onlyGrowTrailWhenSelected = false;
     /** Set this to grow the trail only after the objet has been selected, and delete it when the object has been deselected.  By default this is FALSE.
         If you set this to TRUE, you can use the same TrailedPortrayal2D repeatedly for all objects in your field rather than providing separate
         ones for separate objects; furthermore only one trail will exist at a time, reducing memory costs.*/
-    public void setGrowTrailOnlyWhenSelected(boolean val) { growTrailOnlyWhenSelected = val; }
+    public void setOnlyGrowTrailWhenSelected(boolean val) { onlyGrowTrailWhenSelected = val; }
+    /** @deprecated use setOnlyGrowTrailWhenSelected */
+    public void setGrowTrailOnlyWhenSelected(boolean val) { onlyGrowTrailWhenSelected = val; }
     /** Returns whether or not to grow the trail only after the objet has been selected, and delete it when the object has been deselected.  By default this is FALSE.
         If you set this to TRUE, you can use the same TrailedPortrayal2D repeatedly for all objects in your field rather than providing separate
         ones for separate objects; furthermore only one trail will exist at a time, reducing memory costs.*/
-    public boolean getGrowTrailOnlyWhenSelected() { return growTrailOnlyWhenSelected; }
+    public boolean getOnlyGrowTrailWhenSelected() { return onlyGrowTrailWhenSelected; }
+    /** @deprecated use getOnlyGrowTrailWhenSelected */
+    public boolean getGrowTrailOnlyWhenSelected() { return onlyGrowTrailWhenSelected; }
 
     boolean onlyShowTrailWhenSelected = true;
     /** Set this to draw the trail only when the object has been selected (or not).  By default this is TRUE. */
@@ -124,7 +132,7 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
     LinkedList places = new LinkedList();
 
     // The default color map used by the default trail SimplePortrayal2D
-    SimpleColorMap defaultMap; 
+    SimpleColorMap defaultMap;
 
     // The default Trail SimplePortrayal2D.  Draws line segements by drawing lines using the default color map.
     class DefaultTrail extends SimpleEdgePortrayal2D
@@ -161,7 +169,8 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
     // The current fieldPortrayal, duh
     FieldPortrayal2D fieldPortrayal;
         
-    public double maximumJump = .75;
+    public static final double DEFAULT_MAXIMUM_JUMP = 0.75;
+    public double maximumJump = DEFAULT_MAXIMUM_JUMP;
     /** Sets the maximum percentage of either the width or height of the field that can be 
         jumped between two successive object locations before it's considered to be a huge leap and that segment won't be drawn.  
         Huge leaps usually happen because of toroidal wrap-around.  By default the value is 0.75.  If you'd like all jumps to be drawn
@@ -174,9 +183,9 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
     public double getMaximumJump() { return maximumJump; }
 
     // Default "minimum" ("most recent in time") color is opaque gray
-    static final Color DEFAULT_MIN_COLOR = new Color(128,128,128,255);
+    public static final Color DEFAULT_MIN_COLOR = new Color(128,128,128,255);
     // Default "maximum" ("furthest back in time") color is transparent gray
-    static final Color DEFAULT_MAX_COLOR = new Color(128,128,128,0);
+    public static final Color DEFAULT_MAX_COLOR = new Color(128,128,128,0);
         
     /** Creates a TrailedPortrayal2D for a given child portrayal, field portrayal for the trail, trail portrayal, and length in time. */
     public TrailedPortrayal2D(GUIState state, SimplePortrayal2D child, FieldPortrayal2D fieldPortrayal, SimplePortrayal2D trail, double length)
@@ -229,19 +238,79 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
         return val;
         }
         
-    Object lastObj = null;
-    boolean firstTime = true;
+
+
+    final static Object NO_OBJ = new Object();  // for use in currentObjectLocation
+    final static Object NO_OBJ2 = new Object(); // for use in selectedObj
+
+    Object lastObj;  // what was the last object that was growing a trail
+    Object selectedObj;  // what was the object selected in the primary fieldPortrayal?
+    boolean locked = false;  // have we settled on a selected object?
         
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
-        {
-        double currentTime = state.state.schedule.time();
-        int size = places.size();
-                
-        Object currentObjectLocation = fieldPortrayal.getObjectLocation(object);
-                
-        // Add in new timestamp if appropriate
-        if (info.selected || !growTrailOnlyWhenSelected)
+        {               
+        // I am probably added to more than one field portrayal, but should only
+        // be drawing in one of them.  So let's first double check that.
+        if (info.fieldPortrayal != fieldPortrayal)
             {
+            if (info.selected && !locked)  // not settled on one yet
+                { 
+                selectedObj = object; 
+                if (selectedObj == lastObj)  // DEFINITELY want this one, lock it, no one else may be the selected object
+                    locked = true;
+                }
+            else if (selectedObj == object)  // deselected
+                selectedObj = NO_OBJ2;  // impossible to be in a field
+                         
+            getChild(object).draw(object, graphics, info);
+            return;  // don't draw me.
+            }
+                
+        // locals are faster
+        Object selectedObj = this.selectedObj;
+        Object lastObj = this.lastObj;
+        boolean onlyShowTrailWhenSelected = this.onlyShowTrailWhenSelected;
+        boolean onlyGrowTrailWhenSelected = this.onlyGrowTrailWhenSelected;
+                
+                
+        // unlock so next time around I have to search for an object again
+        locked = false;
+                
+        // am I a new object that's been selected?  If so, clear the trail
+        if (object == selectedObj || !onlyShowTrailWhenSelected)
+            {
+            if (object != lastObj && onlyGrowTrailWhenSelected)
+                { 
+                places.clear();
+                lastObj = object;
+                }
+            }
+                
+        Object currentObjectLocation = NO_OBJ;
+                
+        // should I update my location?
+        if (object == selectedObj || !onlyGrowTrailWhenSelected)
+            {
+            double currentTime = state.state.schedule.getTime();
+
+            // delete old stuff from front
+            ListIterator iterator = places.listIterator();
+            while(iterator.hasNext())
+                {
+                Place p = (Place)(iterator.next());
+
+                // First remove old stuff
+                if (p.timestamp <= currentTime - length)
+                    {
+                    iterator.remove();
+                    }
+                else break;
+                }
+                        
+            // add new stuff to back
+            int size = places.size();
+            currentObjectLocation = fieldPortrayal.getObjectLocation(object, info.gui);
+                
             if (size == 0 && currentTime > Schedule.BEFORE_SIMULATION && currentTime < Schedule.AFTER_SIMULATION)  // first time!
                 {
                 places.add(new Place(currentObjectLocation, currentTime));
@@ -255,33 +324,28 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
                     }
                 }
             }
-        else places.clear();
                 
-        ListIterator iterator = places.listIterator();
-        Place lastPlace = null;
-        Point2D.Double lastPosition = null;
-        TrailDrawInfo2D temp = new TrailDrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height), // make a copy, we'll modify it
-            info.clip, null);
-        while(iterator.hasNext())
+                
+        // am I being drawn?
+        if (object == selectedObj || !onlyShowTrailWhenSelected) 
             {
-            Place p = (Place)(iterator.next());
+            if (currentObjectLocation == NO_OBJ) // haven't determined this yet
+                currentObjectLocation = fieldPortrayal.getObjectLocation(object, info.gui);
 
-            // First remove old stuff
-            if (p.timestamp <= currentTime - length)
+            double currentTime = state.state.schedule.getTime();
+            ListIterator iterator = places.listIterator();
+            Place lastPlace = null;
+            Point2D.Double lastPosition = null;
+            TrailDrawInfo2D temp = new TrailDrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height), // make a copy, we'll modify it
+                info.clip, null);
+            while(iterator.hasNext())
                 {
-                iterator.remove();
-                lastPlace = null;
-                }
-            // now break out if we're not selected -- at this stage we've removed everything relevant anyway
-            else if (!info.selected && onlyShowTrailWhenSelected)
-                break;
-            // else draw if we see fit
-            else
-                {
+                Place p = (Place)(iterator.next());
+
                 // first figure out where to draw the first point.  We'll do this by computing the position relative to a known
                 // position of a known object (namely the object that was just passed in along with its DrawInfo).
                 Point2D.Double position = fieldPortrayal.getRelativeObjectPosition(p.location, currentObjectLocation, info);
-                                
+                                                                
                 // now determine whether or not to draw.
                 if (lastPosition != null)  // we had a previous position to use as our second point
                     {
@@ -310,7 +374,7 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
                         jump = Math.abs(loc1.x - loc2.x) > width * maximumJump ||
                             Math.abs(loc1.y - loc2.y) > height * maximumJump;
                         }
-                                        
+                                                                                
                     // don't draw if it's a jump
                     if (!jump)
                         {
@@ -321,7 +385,7 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
                         trail.draw(object, graphics, temp);
                         }
                     }
-                                
+                                                                
                 lastPlace = p;
                 lastPosition = position;
                 }
@@ -330,23 +394,41 @@ public class TrailedPortrayal2D extends SimplePortrayal2D
         
     public boolean hitObject(Object object, DrawInfo2D range)
         {
+        // always do a hit so I can receive a setSelected call
         return getChild(object).hitObject(object, range);
         }
 
     public boolean setSelected(LocationWrapper wrapper, boolean selected)
         {
-        // isSelected = selected;
-        return true;
+        // always do a setSelected if the child is cool with it.
+        Object object = wrapper.getObject();
+        boolean returnval = getChild(object).setSelected(wrapper, selected);
+        //isSelected = (selected && returnval);  // sometimes a child will return true regardless: we want to check for that.
+        return returnval;
         }
 
     public Inspector getInspector(LocationWrapper wrapper, GUIState state)
         {
-        return null;
+        // do not return the inspector unless it's not my field portrayal
+        Object object = wrapper.getObject();
+        if (wrapper.getFieldPortrayal() != fieldPortrayal)
+            return getChild(object).getInspector(wrapper, state);
+        else return null;
         }
     
     public String getName(LocationWrapper wrapper)
         {
-        return null;
+        // do not return a name unless it's not my field portrayal
+        Object object = wrapper.getObject();
+        if (wrapper.getFieldPortrayal() != fieldPortrayal)
+            return getChild(object).getName(wrapper);
+        else return null;
+        }
+
+    public boolean handleMouseEvent(GUIState guistate, Manipulating2D manipulating, LocationWrapper wrapper,
+        MouseEvent event, DrawInfo2D fieldPortrayalDrawInfo, int type)
+        {
+        return getChild(wrapper.getObject()).handleMouseEvent(guistate, manipulating, wrapper, event, fieldPortrayalDrawInfo, type);  // let someone else have it
         }
     }
     

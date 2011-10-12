@@ -45,13 +45,15 @@ public class FastHexaValueGridPortrayal2D extends HexaValueGridPortrayal2D
         this(false);
         }
 
-    public void reset()
-        {
-        synchronized(this)
-            {
-            buffer = null;
-            }
-        }
+/*
+  public void reset()
+  {
+  synchronized(this)
+  {
+  buffer = null;
+  }
+  }
+*/
 
     // Determines if we should buffer
     boolean shouldBuffer(Graphics2D graphics)
@@ -78,7 +80,7 @@ public class FastHexaValueGridPortrayal2D extends HexaValueGridPortrayal2D
             return (graphics.getDeviceConfiguration().
                 getDevice().getType() != GraphicsDevice.TYPE_IMAGE_BUFFER);
         else if (sim.display.Display2D.isWindows)
-            return (immutableField && !dirtyField);
+            return (immutableField);
         else // it's Linux or Solaris
             return false;
         }
@@ -129,36 +131,36 @@ public class FastHexaValueGridPortrayal2D extends HexaValueGridPortrayal2D
             // create new buffer if needed
             boolean newBuffer = false;
             
-            synchronized(this)
+            //synchronized(this)
+            //    {
+            if (buffer==null || buffer.getWidth() != maxX || buffer.getHeight() != (2*maxY+1))
                 {
-                if (buffer==null || buffer.getWidth() != maxX || buffer.getHeight() != (2*maxY+1))
-                    {
-                    // interestingly, this is not quite as fast as just making a BufferedImage directly!
-                    // at present, transparent images can't take advantage of new Sun efficiency improvements.
-                    // Perhaps we should have a new option for opaque images...
-                    //buffer = graphics.getDeviceConfiguration().createCompatibleImage(maxX,(2*maxY+1),Transparency.TRANSLUCENT);
+                // interestingly, this is not quite as fast as just making a BufferedImage directly!
+                // at present, transparent images can't take advantage of new Sun efficiency improvements.
+                // Perhaps we should have a new option for opaque images...
+                //buffer = graphics.getDeviceConfiguration().createCompatibleImage(maxX,(2*maxY+1),Transparency.TRANSLUCENT);
                     
-                    // oops, it looks like createCompatibleImage has big-time HILARIOUS bugs on OS X Java 1.3.1!
-                    // So for the time being we're sticking with the (very slightly faster) 
-                    // new BufferedImage(...)
-                    if (buffer != null) buffer.flush();  // in case Java forgets to clear memory -- bug in OS X
-                    buffer = new BufferedImage(maxX,(2*maxY+1),BufferedImage.TYPE_INT_ARGB); // transparency allowed
+                // oops, it looks like createCompatibleImage has big-time HILARIOUS bugs on OS X Java 1.3.1!
+                // So for the time being we're sticking with the (very slightly faster) 
+                // new BufferedImage(...)
+                if (buffer != null) buffer.flush();  // in case Java forgets to clear memory -- bug in OS X
+                buffer = new BufferedImage(maxX,(2*maxY+1),BufferedImage.TYPE_INT_ARGB); // transparency allowed
                     
-                    // I had thought that TYPE_INT_ARGB_PRE would be faster because
-                    // it's natively supported by MacOS X CoreGraphics so no optimization needs to be done
-                    // in 1.4.1 -- but in fact it is SLOWER on 1.3.1 by 2/3.  So for the time being we're
-                    // going to stay with the orgiginal.
-                    // see http://developer.apple.com/documentation/Java/Reference/Java14SysProperties/System_Properties/chapter_2_section_6.html
-                    newBuffer = true;
-                    raster = buffer.getRaster();
-                    dbuffer = (DataBufferInt)(raster.getDataBuffer());
-                    }
+                // I had thought that TYPE_INT_ARGB_PRE would be faster because
+                // it's natively supported by MacOS X CoreGraphics so no optimization needs to be done
+                // in 1.4.1 -- but in fact it is SLOWER on 1.3.1 by 2/3.  So for the time being we're
+                // going to stay with the orgiginal.
+                // see http://developer.apple.com/documentation/Java/Reference/Java14SysProperties/System_Properties/chapter_2_section_6.html
+                newBuffer = true;
+                raster = buffer.getRaster();
+                dbuffer = (DataBufferInt)(raster.getDataBuffer());
                 }
+            //    }
             //WritableRaster _raster = raster;
             DataBufferInt _dbuffer = dbuffer;
 
 
-            if (newBuffer || !immutableField || dirtyField)  // we have to load the buffer
+            if (newBuffer || !immutableField || isDirtyField())  // we have to load the buffer
                 {
                 if (endx > maxX) endx = maxX;
                 if (endy > maxY) endy = maxY;
@@ -308,7 +310,7 @@ public class FastHexaValueGridPortrayal2D extends HexaValueGridPortrayal2D
                         else
                             {
                             if( info.clip.intersects(_x,_y,_width,_height) )
-                                putInHere.add(getWrapper((doubleField[x][y]), x, y));
+                                putInHere.add(getWrapper((doubleField[x][y]), new Int2D(x, y)));
                             }
                         }
             else
@@ -334,7 +336,7 @@ public class FastHexaValueGridPortrayal2D extends HexaValueGridPortrayal2D
                         else
                             {
                             if( info.clip.intersects(_x,_y,_width,_height) )
-                                putInHere.add(getWrapper((intField[x][y]), x, y));
+                                putInHere.add(getWrapper((intField[x][y]), new Int2D(x, y)));
                             }
                         }
             }
@@ -366,6 +368,7 @@ public class FastHexaValueGridPortrayal2D extends HexaValueGridPortrayal2D
                         {
                         final Color c = map.getColor(doubleField[(int)x][(int)y]);
                         if (c.getAlpha() == 0) continue;
+                        graphics.setColor(c);
 
                         _x = (translateWidth + infodrawx + scaleWidth * x);
                         _y = (infodrawy + (yScale) * ((((int)x)&1)==0?2*y:2*y+1));
@@ -382,6 +385,7 @@ public class FastHexaValueGridPortrayal2D extends HexaValueGridPortrayal2D
                         {
                         final Color c = map.getColor(intField[(int)x][(int)y]);
                         if (c.getAlpha() == 0) continue;
+                        graphics.setColor(c);
 
                         _x = (translateWidth + infodrawx + scaleWidth * x);
                         _y = (infodrawy + (yScale) * ((((int)x)&1)==0?2*y:2*y+1));
@@ -394,6 +398,6 @@ public class FastHexaValueGridPortrayal2D extends HexaValueGridPortrayal2D
                         }
             }
         // finally, clear dirty flag if we've just drawn (don't clear if we're doing hit testing)
-        if (graphics!=null) dirtyField = false;
+        if (graphics!=null) setDirtyField(false);
         }
     }

@@ -13,6 +13,7 @@ import sim.engine.*;
 import sim.util.*;
 import java.io.*;
 import java.awt.event.*;
+import sim.util.gui.*;
 
 /** PropertyInspector is a subclass of Inspector which is intended for plug-in inspectors of a single property of an object.
     Plug-in inspectors may be associated with a Frame.  To create a PropertyInspector, you need to do several things:
@@ -28,8 +29,7 @@ import java.awt.event.*;
     <li>Override your constructor <code>public <i>Foo</i>(Properties properties, int index, Frame parent, GUIState simulation)</code>.
     Immediately after this constructor is called, the system will call <code>isValidInspector()</code> to test to see if the inspector created
     is valid and ready to be used, or should be thrown away.  Thus in your constructor you should query the user as appropriate,
-    and if the user wishes to go ahead with the inspector, then arrange for <code>isValidInspector()</code> to return true.  The
-    easiest way to do this is to simply set the protected variable <code>validInspector</code> to true.  By default <code>validInspector</code>
+    and if the user wishes to go ahead with the inspector, then <code>setValidInspector(true)</code>.  By default <code>isValidInspector()</code>
     returns false.
     <li>If we have a valid inspector, the system may then ask if it should construct a JFrame and put the inspector in it.  If
     you are handling your own frames etc., you may turn down this request by having 
@@ -58,7 +58,7 @@ public abstract class PropertyInspector extends Inspector
     public GUIState simulation;
     
     static Bag classes = null;
-    protected boolean validInspector = false;
+    boolean validInspector = false;
     protected Stoppable stopper;
         
     public void setStopper(Stoppable stopper)
@@ -71,8 +71,11 @@ public abstract class PropertyInspector extends Inspector
         return stopper;
         }
 
-    /** Returns true if the inspector is valid.  By default this just returns the validInspector variable. */
-    public boolean isValidInspector() { return  validInspector; }
+    /** Sets whether the inspector is valid or not. */
+    protected void setValidInspector(boolean val) { validInspector = val; }
+        
+    /** Returns true if the inspector is valid.  By default this returns false. */
+    public boolean isValidInspector() { return validInspector; }
         
     /** Returns a PropertyInspector ready to go, or null if the user cancelled or some
         other event or error occurred which prevented the PropertyIinspector from being constructed. */

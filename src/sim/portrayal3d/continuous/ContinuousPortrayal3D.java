@@ -50,9 +50,8 @@ public class ContinuousPortrayal3D extends SparseFieldPortrayal3D
 
     public void setField(Object field)
         {
-        dirtyField = true;
-        if (field instanceof Continuous3D || field instanceof Continuous2D) this.field = field;
-        else throw new RuntimeException("Invalid field for ContinuousPortrayal3D3D: " + field);
+        if (field instanceof Continuous3D || field instanceof Continuous2D) super.setField(field);
+        else throw new RuntimeException("Invalid field for ContinuousPortrayal3D: " + field);
         }
             
     public LocationWrapper completedWrapper(LocationWrapper w, PickIntersection pi, PickResult pr)
@@ -66,32 +65,13 @@ public class ContinuousPortrayal3D extends SparseFieldPortrayal3D
             {
             public Object getLocation()
                 {
-                /*
-                  if(field instanceof Continuous3D)
-                  return ((Continuous3D)field).getObjectLocation(object);
-                  else
-                  return ((Continuous2D)field).getObjectLocation(object);
-                */
-                loc.update();
+                //loc.update();
                 return loc;
                 }
                 
             public String getLocationName()
                 {
-                /*
-                  if(field instanceof Continuous3D)
-                  {
-                  Double3D loc = ((Continuous3D)field).getObjectLocation(object);
-                  if (loc!=null) return loc.toCoordinates();
-                  }
-                  else
-                  {
-                  Double2D loc = ((Continuous2D)field).getObjectLocation(object);
-                  if (loc!=null) return loc.toCoordinates();
-                  }
-                  return null;
-                */
-                loc.update();
+                //loc.update();
                 return loc.toString();
                 }
             };

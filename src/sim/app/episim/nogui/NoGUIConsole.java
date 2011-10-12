@@ -24,6 +24,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpidermisGUIState;
 import sim.app.episim.gui.EpisimTextOut;
 import sim.app.episim.util.Names;
+import sim.display.Console;
 import sim.display.ConsoleHack;
 import sim.display.Controller;
 import sim.display.Display2D;
@@ -201,7 +202,7 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		    JComboBox timeBox;
 
 		    /** Random number generator seed */
-		    int randomSeed = (int) System.currentTimeMillis();
+		    long randomSeed = 0;
 
 		    /** how many steps we should take on one press of the "step" button.  As this is only relevant
 		        when there is NO underlying play thread (stepping happens inside the event loop, with the
@@ -224,7 +225,7 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 
 
 		        this.simulation = simulation;
-
+		        randomSeed = simulation.state.seed();
 		        rateFormat = NumberFormat.getInstance();
 		        rateFormat.setMaximumFractionDigits(3);
 		        rateFormat.setMinimumIntegerDigits(1);
@@ -524,9 +525,9 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		                }
 		            };
 		        // need space for 9218868437227405312
-		        endField.valField.setColumns(19);  // make enough space
-		        endField.setMaximumSize(endField.valField.getPreferredSize());
-		        endField.setPreferredSize(endField.valField.getPreferredSize());
+		        endField.getField().setColumns(19);  // make enough space
+		        endField.setMaximumSize(endField.getField().getPreferredSize());
+		        endField.setPreferredSize(endField.getField().getPreferredSize());
 
 		        b = new Box(BoxLayout.X_AXIS)
 		            {
@@ -562,9 +563,9 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		                }
 		            };
 		        // need space for 9218868437227405312
-		        timeEndField.valField.setColumns(19);  // make enough space
-		        timeEndField.setMaximumSize(endField.valField.getPreferredSize());
-		        timeEndField.setPreferredSize(endField.valField.getPreferredSize());
+		        timeEndField.getField().setColumns(19);  // make enough space
+		        timeEndField.setMaximumSize(endField.getField().getPreferredSize());
+		        timeEndField.setPreferredSize(endField.getField().getPreferredSize());
 
 		        b = new Box(BoxLayout.X_AXIS)
 		            {
@@ -602,9 +603,9 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		                }
 		            };
 		        // need space for 9218868437227405312
-		        pauseField.valField.setColumns(19);  // make enough space
-		        pauseField.setMaximumSize(pauseField.valField.getPreferredSize());
-		        pauseField.setPreferredSize(pauseField.valField.getPreferredSize());
+		        pauseField.getField().setColumns(19);  // make enough space
+		        pauseField.setMaximumSize(pauseField.getField().getPreferredSize());
+		        pauseField.setPreferredSize(pauseField.getField().getPreferredSize());
 
 		        b = new Box(BoxLayout.X_AXIS)
 		            {
@@ -642,9 +643,9 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		                }
 		            };
 		        // need space for 9218868437227405312
-		        timePauseField.valField.setColumns(19);  // make enough space
-		        timePauseField.setMaximumSize(pauseField.valField.getPreferredSize());
-		        timePauseField.setPreferredSize(pauseField.valField.getPreferredSize());
+		        timePauseField.getField().setColumns(19);  // make enough space
+		        timePauseField.setMaximumSize(pauseField.getField().getPreferredSize());
+		        timePauseField.setPreferredSize(pauseField.getField().getPreferredSize());
 
 		        b = new Box(BoxLayout.X_AXIS)
 		            {
@@ -660,24 +661,33 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		        // Create the Random text field
 		        randomField = new PropertyField("")
 		            {
+		      	  
+		      	  boolean lock = false;  // repaints will cause this to be called recursively.  It's tickled by Utilities.inform below, so we just block it out here.
 		            public String newValue(String value)
 		                {
-		                try
-		                    {
-		                    int l = Integer.parseInt(value);
-		                    randomSeed = l;
-		                    setRandomNumberGenerator(randomSeed);
-		                    return "" + l;
-		                    } 
-		                catch (NumberFormatException num)
-		                    { 
-		                    return getValue();
-		                    }
-		                }
-		            };
-		        randomField.valField.setColumns(10);  // make enough space
-		        randomField.setMaximumSize(randomField.valField.getPreferredSize());
-		        randomField.setPreferredSize(randomField.valField.getPreferredSize());
+		               
+		               	 if (lock) return value;  // blocked out
+		                   lock = true;
+		                   try
+		                       {
+		                       long l = Long.parseLong(value);
+		                       if (l > Integer.MAX_VALUE || l < Integer.MIN_VALUE)  // outside of int range
+		                          
+		                       randomSeed = l;
+		                       // setRandomNumberGenerator(randomSeed);
+		                       lock = false;
+		                       return "" + l;
+		                       } 
+		                   catch (NumberFormatException num)
+		                       {
+		                       lock = false;
+		                       return getValue();
+		                       }
+		                   }
+		               };
+		        randomField.getField().setColumns(10);  // make enough space
+		        randomField.setMaximumSize(randomField.getField().getPreferredSize());
+		        randomField.setPreferredSize(randomField.getField().getPreferredSize());
 		        randomField.setValue("" + randomSeed);  // so the user can see the initial seed value
 
 		        b = new Box(BoxLayout.X_AXIS)
@@ -1211,7 +1221,7 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		    void startSimulation()
 		        {
 		        removeAllInspectors(true);      // clear inspectors
-		        setRandomNumberGenerator(randomSeed);
+		        simulation.state.setSeed(randomSeed);   // reseed the generator
 		        simulation.start();
 		        updateTime(simulation.state.schedule.getSteps(), simulation.state.schedule.time(), -1.0);
 		        //setTime(simulation.state.schedule.time());
@@ -1265,42 +1275,14 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		        {
 		        return tabPane;
 		        }
-		    
-		    /** Sets the random number generator of the underlying model, pausing it first, then unpausing it after. 
-		        Updates the randomField. */ 
-		    void setRandomNumberGenerator(final int val)
+		    /**
+		     * Return the model inspector so simulations can do things like updating the properties.
+		     */
+		    public synchronized Inspector getModelInspector()
 		        {
-		        doChangeCode(new Runnable()
-		            {
-		            public void run()
-		                {
-		                simulation.state.setRandom(new MersenneTwisterFast(val));
-		                }
-		            });
-		          
-		        // The following invokeLater wrapper is commented out because we've discovered that
-		        // it causes a hang bug.  We're not exactly
-		        // sure why, but setRandomNumberGenerator() is called from the Console's constructor,
-		        // and this is before Console is shown on-screen.  We think that for some reason the
-		        // invokeLater freaks out the text field perhaps when the Console is being put on-screen
-		        // with a setVisible(true); clearly some underlying Java conflict.  Anyway, without
-		        // the wrapper it seems to work fine, though I'm still concerned about the possibility
-		        // that setText() would be called from this method, which is in turn called from methods
-		        // like pressStop(), which can be called by underlying threads.  If we see any further
-		        // hangs as a result, I will revisit the issue.  -- Sean
-		  
-		        /*      
-		                SwingUtilities.invokeLater(new Runnable()   // just in case, to avoid possible deadlock, though I've not seen it
-		                {
-		                public void run()
-		                { 
-		        */
-		        randomField.setValue("" + val);
-		        /*
-		          }
-		          }); 
-		        */
+		        return modelInspector;
 		        }
+		   
 
 
 
@@ -1832,7 +1814,7 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		            if (incrementSeedOnPlay.isSelected())
 		                {
 		                randomSeed++;
-		                setRandomNumberGenerator(randomSeed);
+		                randomField.setValue("" + randomSeed);
 		                }
 		            }
 		        
@@ -2704,6 +2686,20 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		 					 	public GUIState getSimulation(){
 		 		 return simulation;
 		 	}
+
+								public ArrayList getAllFrames() {
+
+									return new ArrayList(frameList);
+								}
+
+								public ArrayList getAllInspectors() {
+
+									 ArrayList list = new ArrayList();
+							        Iterator i = allInspectors.keySet().iterator();
+							        while(i.hasNext())
+							            list.add((Inspector)(i.next()));
+							        return list;
+								}
 
 			   
 

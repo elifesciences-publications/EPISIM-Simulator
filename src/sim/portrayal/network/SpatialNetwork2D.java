@@ -25,9 +25,9 @@ import sim.util.*;
 
 public class SpatialNetwork2D
     {
-    public SparseField2D field;
-    public SparseField2D field2;
-    public Network network;
+    SparseField2D field;
+    SparseField2D field2;
+    Network network;
 
     public SpatialNetwork2D( final SparseField2D field, final Network network )
         {
@@ -39,13 +39,22 @@ public class SpatialNetwork2D
             throw new RuntimeException("Null Network.");
         }
     
-    public void setAuxillaryField( final SparseField2D f)
+    public void setAuxiliaryField( final SparseField2D f)
         {
         field2 = f;
-        if (field2 != null && field instanceof SparseGrid2D)
-            throw new RuntimeException("The auxillary field of a SpatialNetwork2D should be the same type as the primary field.");
+        }
+                
+    /**
+       @deprecated, misspelled name!  Use setAuxiliaryField instead.
+    */
+    public void setAuxillaryField( final SparseField2D f)
+        {
+        setAuxiliaryField(f);
         }
 
+    /**
+       @deprecated
+    */
     public Double2D getObjectLocation(Object node)
         {
         Double2D loc= field.getObjectLocationAsDouble2D(node);
@@ -55,16 +64,4 @@ public class SpatialNetwork2D
         }
 
     public Double2D getDimensions() { return field.getDimensions(); }
-
-    /** @deprecated use getDimensions() instead */
-    public double getWidth()
-        {
-        return getDimensions().x;
-        }
-        
-    /** @deprecated use getDimensions() instead */
-    public double getHeight()
-        {
-        return getDimensions().y;
-        }
     }

@@ -33,13 +33,16 @@ import org.jfree.data.general.*;
     the aggregated data over time), AGGREGATIONMETHOD_MAX (use the maximum), or AGGREGATIONMETHOD_MEAN (use
     the mean).   The aggregation interval -- how much time you should wait for before dumping the aggregated
     results into the time series -- will be stored in globalAttriutes.interval. 
+        
+    <p>The ChartingPropertyInspector maintains a Bag of global charts presently on-screen.  This isn't a static variable, but
+    rather is stored in GUIState.storage under the key chartKey ("sim.portrayal.inspector.ChartingPropertyInspector")
 */
 
 public abstract class ChartingPropertyInspector extends PropertyInspector
-    {
+    {   
     /** The ChartGenerator used by this ChartingPropertyInspector */
     protected ChartGenerator generator;
-    public ChartGenerator getGenerator(){return generator;}
+    public ChartGenerator getGenerator() { return generator; }
     double lastTime  = Schedule.BEFORE_SIMULATION;
     SeriesAttributes seriesAttributes;
 
@@ -75,21 +78,24 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
         {
         super(properties,index,parent,simulation);
         generator = chartToUse( properties.getName(index), parent, simulation );
-        globalAttributes = findGlobalAttributes();  // so we share timer information.  If null, we're in trouble.
-        validInspector = (generator!=null);
+        setValidInspector(generator!=null);
 
-        // make sure that when the window is closed, the stopper is stopped
-        WindowListener wl = new WindowListener()
+        if (isValidInspector())
             {
-            public void windowActivated(WindowEvent e) {}
-            public void windowClosed(WindowEvent e) { if (stopper!=null) stopper.stop(); }
-            public void windowClosing(WindowEvent e) {  }
-            public void windowDeactivated(WindowEvent e) {}
-            public void windowDeiconified(WindowEvent e) {}
-            public void windowIconified(WindowEvent e) {}
-            public void windowOpened(WindowEvent e) {}
-            };
-        generator.getFrame().addWindowListener(wl);
+            globalAttributes = findGlobalAttributes();  // so we share timer information.  If null, we're in trouble.
+            // make sure that when the window is closed, the stopper is stopped
+            WindowListener wl = new WindowListener()
+                {
+                public void windowActivated(WindowEvent e) {}
+                public void windowClosed(WindowEvent e) { if (stopper!=null) stopper.stop(); }
+                public void windowClosing(WindowEvent e) {  }
+                public void windowDeactivated(WindowEvent e) {}
+                public void windowDeiconified(WindowEvent e) {}
+                public void windowIconified(WindowEvent e) {}
+                public void windowOpened(WindowEvent e) {}
+                };
+            generator.getFrame().addWindowListener(wl);
+            }
         }
 
     /**
@@ -124,29 +130,54 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
         generator.getFrame().addWindowListener(wl);
 
         globalAttributes = findGlobalAttributes();  // so we share timer information.  If null, we're in trouble.
-        validInspector = (this.generator!=null);//this should always be true.
+        setValidInspector(this.generator!=null); //this should always be true.
         }
     
     /** Used to find the global attributes that another inspector has set so I can share it. */
     GlobalAttributes findGlobalAttributes()
         {
         if (generator == null) return null;  // got a problem
-        int len = generator.getGlobalAttributeCount();
+        int len = generator.getNumGlobalAttributes();
         for(int i = 0; i < len ; i ++)
-            if ((generator.getGlobalAttribute(i) instanceof GlobalAttributes))
-                return (GlobalAttributes) generator.getGlobalAttribute(i);
+            {
+            // Global Attributes are members of DisclosurePanels
+            if ((generator.getGlobalAttribute(i) instanceof DisclosurePanel))
+                {
+                DisclosurePanel pan = (DisclosurePanel)(generator.getGlobalAttribute(i));
+                if (pan.getDisclosedComponent() instanceof GlobalAttributes)
+                    return (GlobalAttributes) (pan.getDisclosedComponent());
+                }
+            }
         return null;
+        }
+        
+    public final static String chartKey = "sim.portrayal.inspector.ChartingPropertyInspector";
+
+    /** Returns the global charts Bag which holds all charts on-screen for this simulation instance. */
+    protected Bag getCharts(GUIState simulation)
+        {
+        Bag c = (Bag)(simulation.storage.get(chartKey));
+        if (c == null)
+            {
+            c = new Bag();
+            simulation.storage.put(chartKey, c);
+            }
+        return c;
         }
                 
     /** Used to find the global attributes that another inspector has set so I can share it. */
     ChartGenerator chartToUse( final String sName, Frame parent, final GUIState simulation )
         {
-        Bag charts = new Bag();
-        if( simulation.guiObjects != null )
-            for( int i = 0 ; i < simulation.guiObjects.numObjs ; i++ )
-                if( simulation.guiObjects.objs[i] instanceof ChartGenerator &&
-                    validChartGenerator((ChartGenerator)(simulation.guiObjects.objs[i])))
-                    charts.add( simulation.guiObjects.objs[i] );
+        Bag charts = new Bag(getCharts(simulation));            // make a copy so I can reduce it
+
+        // reduce the charts to ones I can use
+        for(int i = 0; i < charts.numObjs; i++)
+            {
+            ChartGenerator g = (ChartGenerator)(charts.objs[i]);
+            if (!validChartGenerator(g))  // I can't use this chart
+                { charts.remove(g); i--; }
+            }
+
         if( charts.numObjs == 0 )
             return createNewChart(simulation);
 
@@ -180,23 +211,24 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
         }
         
                                         
-    static final int AGGREGATIONMETHOD_CURRENT = 0;
-    static final int AGGREGATIONMETHOD_MAX = 1;
-    static final int AGGREGATIONMETHOD_MIN = 2;
-    static final int AGGREGATIONMETHOD_MEAN = 3;
+    protected static final int AGGREGATIONMETHOD_CURRENT = 0;
+    protected static final int AGGREGATIONMETHOD_MAX = 1;
+    protected static final int AGGREGATIONMETHOD_MIN = 2;
+    protected static final int AGGREGATIONMETHOD_MEAN = 3;
         
-    static final int REDRAW_ALWAYS = 0;
-    static final int REDRAW_TENTH_SEC = 1;
-    static final int REDRAW_HALF_SEC = 2;
-    static final int REDRAW_ONE_SEC = 3;
-    static final int REDRAW_TWO_SECS = 4;
-    static final int REDRAW_FIVE_SECS = 5;
-    static final int REDRAW_TEN_SECS = 6;
-    static final int REDRAW_DONT = 7;
+    protected static final int REDRAW_ALWAYS = 0;
+    protected static final int REDRAW_TENTH_SEC = 1;
+    protected static final int REDRAW_HALF_SEC = 2;
+    protected static final int REDRAW_ONE_SEC = 3;
+    protected static final int REDRAW_TWO_SECS = 4;
+    protected static final int REDRAW_FIVE_SECS = 5;
+    protected static final int REDRAW_TEN_SECS = 6;
+    protected static final int REDRAW_DONT = 7;
         
-    /** The Global Attributes panel (the top-left panel) of this ChartingPropertyInspector.  Note that this
-        panel is shared with other inspectors using the same chart. */
-    protected GlobalAttributes globalAttributes;
+    /* The Global Attributes panel (the top-left panel) of this ChartingPropertyInspector.  Note that this
+       panel is shared with other inspectors using the same chart. */
+    GlobalAttributes globalAttributes;
+    public GlobalAttributes getGlobalAttributes() { return globalAttributes; }
 
     /** The Global Attributes panel (the top-left panel) of ChartingPropertyInspectors. */
     protected class GlobalAttributes extends JPanel
@@ -204,12 +236,14 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
         public long interval = 1;
         public int aggregationMethod = AGGREGATIONMETHOD_CURRENT;
         public int redraw = REDRAW_HALF_SEC;
+        String title = "";
 
         public GlobalAttributes()
             {
             setLayout(new BorderLayout());
-            LabelledList list = new LabelledList(
-                includeAggregationMethodAttributes() ? "Add Data..." : "Redraw");
+                        
+            title = includeAggregationMethodAttributes() ? "Add Data..." : "Redraw";
+            LabelledList list = new LabelledList(title);
             add(list,BorderLayout.CENTER);
                         
             if (includeAggregationMethodAttributes())
@@ -255,7 +289,7 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
                     public void actionPerformed(ActionEvent e)
                         {
                         redraw = optionsBox2.getSelectedIndex();
-                        generator.update();  // keep up-to-date
+                        generator.update(ChartGenerator.FORCE_KEY, false);  // keep up-to-date
                         }
                     });
             if (includeAggregationMethodAttributes())
@@ -263,55 +297,31 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
             else list.add(optionsBox2);
             }
         }
-                
-    Thread timer = null;
-
-    /** Updates the inspector asynchronously after the given milliseconds have transpired. */
-    public void updateBefore(final long milliseconds)
-        {
-        if (timer == null)
-            {
-            timer= sim.util.Utilities.doLater(milliseconds, new Runnable()
-                {
-                public void run()
-                    {
-                    if (generator!=null)
-                        {
-                        generator.update();  // keep up-to-date
-                        }
-                    // this is in the Swing thread, so it's okay
-                    timer = null;
-                    }
-                });
-            }
-        }
-
-
+        
+    JFrame chartFrame = null;
+        
     ChartGenerator createNewChart( final GUIState simulation)
         {
         generator = createNewGenerator();
         globalAttributes = new GlobalAttributes();
-        generator.addGlobalAttribute(globalAttributes);  // it'll be added last
+        DisclosurePanel pan = new DisclosurePanel(globalAttributes.title, globalAttributes);
+        generator.addGlobalAttribute(pan);  // it'll be added last
                 
-        // set up the simulation -- need a new name other than guiObjects: and it should be
-        // a HashMap rather than a Bag.
-        if( simulation.guiObjects == null )
-            simulation.guiObjects = new Bag();
-        simulation.guiObjects.add( generator );
-        JFrame f = generator.createFrame(simulation);
+        getCharts(simulation).add( generator );                 // put me in the global charts list
+        chartFrame = generator.createFrame();
 
         WindowListener wl = new WindowListener()
             {
             public void windowActivated(WindowEvent e) {}
             public void windowClosed(WindowEvent e) {}
-            public void windowClosing(WindowEvent e) { generator.quit();}
+            public void windowClosing(WindowEvent e) { generator.quit(); }
             public void windowDeactivated(WindowEvent e) {}
             public void windowDeiconified(WindowEvent e) {}
             public void windowIconified(WindowEvent e) {}
             public void windowOpened(WindowEvent e) {}
             };
-        f.addWindowListener(wl);
-        f.setVisible(true);
+        chartFrame.addWindowListener(wl);
+        chartFrame.setVisible(true);
         return generator;
         }
 
@@ -328,7 +338,7 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
         
     public void updateInspector()
         {
-        double time = simulation.state.schedule.time();
+        double time = simulation.state.schedule.getTime();
         // we should only update if we're at a new time that we've not seen yet, or if
         // we're at the start of inspection and haven't done an update yet.  It's possible
         // for this second condition to be true while the first one is false: if we're at
@@ -338,32 +348,34 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
             (lastTime < time || !updatedOnceAlready))  // bug fix 
             {              
             updatedOnceAlready = true;
+
+            // update the data
             updateSeries(time, lastTime);
             lastTime = time;
                 
-            // now determine when to update
+            // now determine when to redraw
             switch(globalAttributes.redraw) 
                 {
                 case REDRAW_ALWAYS:  // do it now
-                    generator.update();
+                    generator.update(simulation.state.schedule.getSteps(), true);
                     break;
                 case REDRAW_TENTH_SEC:
-                    updateBefore(100);
+                    generator.updateChartWithin(simulation.state.schedule.getSteps(), 100);
                     break;
                 case REDRAW_HALF_SEC:
-                    updateBefore(500);
+                    generator.updateChartWithin(simulation.state.schedule.getSteps(), 500);
                     break;
                 case REDRAW_ONE_SEC:
-                    updateBefore(1000);
+                    generator.updateChartWithin(simulation.state.schedule.getSteps(), 1000);
                     break;
                 case REDRAW_TWO_SECS:
-                    updateBefore(2000);
+                    generator.updateChartWithin(simulation.state.schedule.getSteps(), 2000);
                     break;
                 case REDRAW_FIVE_SECS:
-                    updateBefore(5000);
+                    generator.updateChartWithin(simulation.state.schedule.getSteps(), 5000);
                     break;
                 case REDRAW_TEN_SECS:
-                    updateBefore(10000);
+                    generator.updateChartWithin(simulation.state.schedule.getSteps(), 10000);
                     break;
                 case REDRAW_DONT:  // do nothing
                     break;
@@ -378,4 +390,24 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
         return false;
         }
 
+    public Stoppable reviseStopper(Stoppable stopper)
+        {
+        final Stoppable newStopper = super.reviseStopper(stopper);
+        return new Stoppable()
+            {
+            public void stop()
+                {
+                if (newStopper!=null) newStopper.stop();  // wraps the stopper
+                // give the movie a chance to write out                         
+                generator.stopMovie();
+                }
+            };
+        }
+                
+    public void disposeFrame()
+        {
+        if (chartFrame != null)
+            chartFrame.dispose();
+        chartFrame = null;
+        }
     }

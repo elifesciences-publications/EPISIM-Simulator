@@ -15,7 +15,8 @@ package sim.engine;
     <p>For example, keep in mind that the random number generator is unsynchronized.
     You should not embed RandomSequences inside a ParallelSequence unless
     you've set their shouldSynchronize value to true, and elsewhere in your
-    embedded steppables you're synchronizing on the random number generator.
+    embedded steppables you're synchronizing on the Schedule first (the Schedule
+    is the basic lock point for MASON's models).
     
     <p>ParallelSequences are lightweight: they reuse the same threads
     if stepped repeatedly.  This means that you must never attach a ParallelSequence
@@ -104,10 +105,22 @@ public class ParallelSequence extends Sequence
         for(int x=0;x<steps.length;x++)
             workers[x].V();
         for(int x=0;x<steps.length;x++)
+            {
             try { threads[x].join(); }  
-            catch (InterruptedException e) { /* shouldn't happen */ }
+            catch (InterruptedException e) 
+                {
+                // This could happen every 50ms if the Console tries to kill the play thread to stop or pause me.
+                // For model consistency, I will refuse to be interrupted.
+                x--;  // retry joining
+                }
+            }
         pleaseDie = false;
         threads = null;
+        }
+        
+    public Steppable getCleaner()
+        {
+        return new Steppable() { public void step(SimState state) { gatherThreads(); } };
         }
                 
     /** Call this just before you get rid of a ParallelSequence: for example, one good place is the stop() method of
@@ -147,13 +160,15 @@ public class ParallelSequence extends Sequence
             this.steps = new Steppable[threads];
 
             int len = sequence.length / threads;  // num sequence elts per thread.  Note: integer division
-            for(int i = 0 ; i < this.steps.length; i++)
+            if (len * threads < sequence.length) len++; // make len a bit bigger
+                        
+            for(int i = 0 ; i < threads; i++)
                 {
                 int start = i * len;
                 if (len > sequence.length - start)  // the last thread may be short
                     len = sequence.length - start;
                 Steppable[] currentSteppable = new Steppable[len];
-                System.arraycopy(this.steps, start, currentSteppable, 0, len);
+                System.arraycopy(sequence, start, currentSteppable, 0, len);
                 this.steps[i] = new Sequence(currentSteppable);
                 }
             }
@@ -257,12 +272,13 @@ public class ParallelSequence extends Sequence
         // explicitly state a UID in order to be 'cross-platform' serializable 
         // because we ARE an inner class and compilers come up with all sorts
         // of different UIDs for inner classes and their parents.
-        static final long serialVersionUID = -7832866872102525417L;
+        static final long serialVersionUID = -7832866872102525417L;             // the actual value doesn't really matter -- it could be 1L and make no difference.  But it must be hard-set here.
         }
 
     // explicitly state a UID in order to be 'cross-platform' serializable
     // because we contain an inner class and compilers come up with all
     // sorts of different UIDs for inner classes and their parents.
-    static final long serialVersionUID = 2731888904476273479L;
+    static final long serialVersionUID = 2731888904476273479L;          // the actual value doesn't really matter -- it could be 1L and make no difference.  But it must be hard-set here.
+
     }
     

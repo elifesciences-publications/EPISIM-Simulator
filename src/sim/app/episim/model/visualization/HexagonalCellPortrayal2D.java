@@ -76,7 +76,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	       double height = (info.draw.height+DELTA)*scale;	      
 	       
    		 HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
-   		 mechModel.setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, width, height),
+   		 mechModel.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, width, height),
           		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
    		 
    		 if(mechModel.isSpreading()){
@@ -86,7 +86,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      	}
 	 	      	else{	 	      		
 	 	      		if((Math.abs(mechModel.getX()-mechModel.getSpreadingLocation().x) + Math.abs(mechModel.getY()-mechModel.getSpreadingLocation().y))<=2){   		
-	 	  		      		this.drawInfoRegistry.put(cell.getID(), new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),		      
+	 	  		      		this.drawInfoRegistry.put(cell.getID(), new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),		      
 	 	  			          		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
 	 	  		      	   this.drawInfoRegistry.get(cell.getID()).location = info.location;
 	 	  		      		this.simStepTimeStampRegistry.put(cell.getID(), actSimStepNo);
@@ -108,7 +108,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 				   	graphics.fill(shape);
 				   }
 				   graphics.setPaint(standardMembraneColor);
-				   graphics.setStroke(stroke);	      
+				   graphics.setStroke(stroke == null ? getDefaultStroke() : stroke);	      
 				   graphics.draw(shape);
 	   		}
 	   	}	   	
@@ -224,7 +224,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 				graphics.fill(ellipseArea);
 			}
 			graphics.setPaint(standardMembraneColor);
-			graphics.setStroke(stroke);	      
+			graphics.setStroke(stroke == null ? getDefaultStroke() : stroke);	      
 			graphics.draw(ellipseArea);
  			shape = null;
     }
@@ -353,11 +353,11 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	      	
 		      if(info != null){
 		      	if(translate || toroidalSpreading){
-		      		mechModel.getCellEllipse().translateCell(new DrawInfo2D(new Rectangle2D.Double(x, y, width, height),
+		      		mechModel.getCellEllipse().translateCell(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(x, y, width, height),
 		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height))); 
 		      	}
 		      	else{
-		      		mechModel.getCellEllipse().setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(x, y, width, height),		      
+		      		mechModel.getCellEllipse().setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(x, y, width, height),		      
 	          		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)), false);
 		      	}
 		      }
@@ -370,7 +370,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
  			
 	      
  			if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
- 				 mechModel.getCellEllipse().translateCell(new DrawInfo2D(new Rectangle2D.Double(x, y, width, height),
+ 				 mechModel.getCellEllipse().translateCell(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(x, y, width, height),
  		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));        
  	      }	    	  
  	    	

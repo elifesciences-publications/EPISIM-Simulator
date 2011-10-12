@@ -8,9 +8,11 @@ package sim.portrayal.network;
 import sim.portrayal.*;
 import sim.field.continuous.*;
 import sim.field.network.*;
+import sim.field.*;
 import sim.util.*;
 import java.awt.*;
 import java.awt.geom.*;
+import java.util.*;
 
 /**
    Portrays network fields.   Only draws the edges.  To draw the nodes, use a 
@@ -27,8 +29,7 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
 
     public void setField(Object field)
         {
-        dirtyField = true;
-        if (field instanceof SpatialNetwork2D ) this.field = field;
+        if (field instanceof SpatialNetwork2D ) super.setField(field);
         else throw new RuntimeException("Invalid field for FieldPortrayal2D: " + field);
         }
         
@@ -37,27 +38,33 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
         final SpatialNetwork2D field = (SpatialNetwork2D)this.field;
         if( field == null ) return;
 
+        // compute the field for the second endpoint
+        SparseField2D otherField = field.field2;  // do we have an auxiliary field?
+        if (otherField == null) otherField = field.field;  // I guess not, use the main field
+
         Double2D dimensions = field.getDimensions();
         double xScale = info.draw.width / dimensions.x;
         double yScale = info.draw.height / dimensions.y;
 
-//        final Rectangle clip = (graphics==null ? null : graphics.getClipBounds());
-
         EdgeDrawInfo2D newinfo = new EdgeDrawInfo2D(
+            info.gui, info.fieldPortrayal,
             new Rectangle2D.Double(0,0, xScale, yScale),  // the first two will get replaced
             info.clip, // we don't do further clipping
             new Point2D.Double(0,0));  // these will also get replaced  
+        newinfo.fieldPortrayal = this;
 
         // draw ALL the edges -- one never knows if an edge will cross into our boundary
         
         Bag nodes = field.network.getAllNodes();
+        HashMap edgemap = new HashMap();        
+                
         for(int x=0;x<nodes.numObjs;x++)
             {
-            Bag edges = field.network.getEdgesOut(nodes.objs[x]);
-            Double2D locStart = field.getObjectLocation(nodes.objs[x]);
+            Object node = nodes.objs[x];
+            Bag edges = field.network.getEdgesOut(node);
+            Double2D locStart = field.field.getObjectLocationAsDouble2D(node);
             if (locStart == null) continue;
-            // if (edges == null) continue;  // no longer necessary
-            
+                                    
             // coordinates of first endpoint
             if (field.field instanceof Continuous2D) // it's continuous
                 {
@@ -79,11 +86,19 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
             for(int y=0;y<edges.numObjs;y++)
                 {
                 Edge edge = (Edge)edges.objs[y];
-                Double2D locStop = field.getObjectLocation(edge.to());
+                                
+                Double2D locStop = otherField.getObjectLocationAsDouble2D(edge.getOtherNode(node));
                 if (locStop == null) continue;
-                
+
+                // only include the edge if we've not included it already.
+                if (!field.network.isDirected())
+                    {
+                    if (edgemap.containsKey(edge)) continue;
+                    edgemap.put(edge, edge);
+                    }
+                                
                 // coordinates of second endpoint
-                if (field.field instanceof Continuous2D) // it's continuous
+                if (otherField instanceof Continuous2D) // it's continuous
                     {
                     newinfo.secondPoint.x = (info.draw.x + (xScale) * locStop.x);
                     newinfo.secondPoint.y = (info.draw.y + (yScale) * locStop.y);
@@ -115,7 +130,9 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
                         if (graphics == null)
                             {
                             if (portrayal.hitObject(edge, newinfo))
+                                {
                                 putInHere.add(getWrapper(edge));
+                                }
                             }
                         else
                             {
@@ -128,6 +145,21 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
             }
         }
         
+    String edgeLocation(Edge edge)
+        {
+        // don't use toString, too much info
+                
+        if (edge == null)
+            return "(Null)";
+        else if (edge.owner() == null) 
+            return "(Unowned)" + edge.from() + " --> " + edge.to();
+        else if (edge.owner().isDirected())
+            return edge.from() + " --> " +edge.to();
+        else 
+            return edge.from() + " <-> " + edge.to();
+        }
+                
+                
     // The easiest way to make an inspector which gives the location of my objects
     public LocationWrapper getWrapper(Edge edge)
         {
@@ -144,9 +176,10 @@ public class NetworkPortrayal2D extends FieldPortrayal2D
                     // if (b != null)  // no longer necessary
                     for(int x=0;x<b.numObjs;x++)
                         if (b.objs[x] == edge)
-                            return "" + edge.from() + " --> " + edge.to();
+                                                
+                            return edgeLocation(edge);
                     }
-                return "Gone.  Was: " + edge.from() + " --> " + edge.to();
+                return "Gone.  Was: " + edgeLocation(edge);
                 }
             };
         }

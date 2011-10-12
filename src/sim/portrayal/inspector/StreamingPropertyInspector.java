@@ -45,7 +45,7 @@ public class StreamingPropertyInspector extends PropertyInspector
         add(new JLabel("Streaming to..."), BorderLayout.NORTH);
         add(new JLabel(streamName), BorderLayout.CENTER);
         streamingTo = CUSTOM;
-        validInspector = true;
+        setValidInspector(true);
         }
         
     public StreamingPropertyInspector(final Properties properties, final int index, final Frame parent, final GUIState simulation)
@@ -107,7 +107,7 @@ public class StreamingPropertyInspector extends PropertyInspector
                                             b.add(new JLabel("Format: \"timestamp: value\""));
                                             b.add(Box.createGlue());
                                             add(b,BorderLayout.NORTH);
-                                            validInspector = true;
+                                            setValidInspector(true);
                                             }
                     catch (IOException e)
                         {
@@ -154,7 +154,7 @@ public class StreamingPropertyInspector extends PropertyInspector
                 box.add(new JLabel("Format: \"timestamp: value\""));
                 box.add(Box.createGlue());
                 add(box, BorderLayout.SOUTH);
-                validInspector = true;
+                setValidInspector(true);
                 }
             else // s.equals(possibilities[3])
                 {
@@ -167,14 +167,14 @@ public class StreamingPropertyInspector extends PropertyInspector
                 b.add(new JLabel("Format: \"timestamp/object/property: value\""));
                 b.add(Box.createGlue());
                 add(b,BorderLayout.NORTH);
-                validInspector = true;
+                setValidInspector(true);
                 }
             }
         }
                 
     public void updateInspector()
         {
-        double time = simulation.state.schedule.time();
+        double time = simulation.state.schedule.getTime();
         if (time >= Schedule.EPOCH && time < Schedule.AFTER_SIMULATION &&
             lastTime <= time - interval)
             {

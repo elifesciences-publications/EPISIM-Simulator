@@ -10,6 +10,8 @@ import sim.portrayal3d.simple.*;
 import javax.media.j3d.*;
 import javax.vecmath.*;
 import com.sun.j3d.utils.picking.*;
+import sim.display3d.*;
+import sim.display.*;
 
 /** 
  * Superclass of all Field Portrayals in J3D.
@@ -47,7 +49,24 @@ public abstract class FieldPortrayal3D extends FieldPortrayal implements Portray
 
     Transform3D internalTransform;
     boolean updateInternalTransform = false;
+        
+    Display3D display = null;
+    public void setCurrentDisplay(Display3D display)
+        {
+        this.display = display;
+        }
+        
+    public Display3D getCurrentDisplay()            
+        {
+        return display;
+        }
     
+    public GUIState getCurrentGUIState()
+        {
+        Display3D d = getCurrentDisplay(); 
+        return (d == null ? null : d.getSimulation());
+        }
+        
     /** Sets the FieldPortrayal3D's internal Transform.  This is a user-modifiable
         transform which should be used primarily to adjust the location of the FieldPortrayal3D
         relative to <i>other FieldPortrayal3D</i> objects.  If null is provided, then
@@ -60,7 +79,7 @@ public abstract class FieldPortrayal3D extends FieldPortrayal implements Portray
         }
     
     /** Returns the default internal transform suggested for this FieldPortrayal3D. */
-    public Transform3D getDefaultTransform()
+    protected Transform3D getDefaultTransform()
         {
         return new Transform3D();
         }
@@ -138,7 +157,6 @@ public abstract class FieldPortrayal3D extends FieldPortrayal implements Portray
     
     public FieldPortrayal3D(Transform3D transform)
         {
-        defaultPortrayal = new SpherePortrayal3D();
         setTransform(transform);
         }
 
@@ -146,10 +164,10 @@ public abstract class FieldPortrayal3D extends FieldPortrayal implements Portray
      * White sphere as default portrayal
      * for objects that do not have any other specified to them
      * 
-     * Note that it is not final, so it can be replaced. It
-     * was chosen for its low triangle-count.
+     * Note that it is not final, so it can be replaced.
      */
-    protected SimplePortrayal3D defaultPortrayal;
+        
+    SimplePortrayal3D defaultPortrayal = new SpherePortrayal3D();
         
     public Portrayal getDefaultPortrayal()
         {
@@ -160,8 +178,8 @@ public abstract class FieldPortrayal3D extends FieldPortrayal implements Portray
         instead you should implement the createModel and updateModel methods. 
     
         <p>The TransformGroup tree structure should be of the form 
-        ModelTransform[InternalTransform[<i>model info</i>]].
-        <p>InternalTransform is a hook for transforming the FieldPortrayal3D.  ModelTransform
+        ModelTransformGroup[InternalTransformGroup[<i>model info</i>]].
+        <p>InternalTransform is a hook for transforming the FieldPortrayal3D.  The ModelTransformGroup
         should not be played with. */
     
     public TransformGroup getModel(Object obj, TransformGroup previousTransformGroup)
@@ -180,23 +198,23 @@ public abstract class FieldPortrayal3D extends FieldPortrayal implements Portray
         else 
             {
             internalTransformGroup = (TransformGroup)(previousTransformGroup.getChild(0));
-            if (!immutableField || dirtyField) updateModel(internalTransformGroup);
+            if (!immutableField || isDirtyField()) updateModel(internalTransformGroup);
             }
         if (updateInternalTransform)
             internalTransformGroup.setTransform(internalTransform);
-        dirtyField = false;
+        setDirtyField(false);
         return previousTransformGroup;
         }
 
     /** Returns a tree structure of the form
-        InternalTransform[<i>model info</i>].
-        <p>...where InternalTransform is an identity transformgroup whose transform will be
+        InternalTransformGroup[<i>model info</i>].
+        <p>...where InternalTransformGroup is an identity transformgroup whose transform will be
         modified elsewhere (create it but don't play with it). */
     protected abstract TransformGroup createModel();
     
     /** Returns a tree structure of the form
-        InternalTransform[<i>model info</i>].
-        <p>...where InternalTransform is an identity transformgroup whose transform will be
+        InternalTransformGroup[<i>model info</i>].
+        <p>...where InternalTransformGroup is an identity transformgroup whose transform will be
         modified elsewhere (don't play with it).  By default, this function does nothing.
         Override it to update the model when it's called. */
     protected void updateModel(TransformGroup previousTransformGroup) { }

@@ -33,7 +33,7 @@ import java.awt.event.*;
 
 public class MiniHistogram extends JComponent
     {
-    final static JLabel DEFAULT_SIZE_COMPARISON = new JLabel("X");
+    static JLabel DEFAULT_SIZE_COMPARISON = new JLabel("X");
     double[] buckets;
     String[] labels;
     
@@ -204,25 +204,27 @@ public class MiniHistogram extends JComponent
         return s;
         }
 
-    public static double[] makeBucketPositions(int numBuckets, double min, double max, boolean logScale)
-        {
-        double[] s = new double[numBuckets];
+/*
+  public static double[] makeBucketPositions(int numBuckets, double min, double max, boolean logScale)
+  {
+  double[] s = new double[numBuckets];
         
-        if (min>=max) { for(int x=0;x<s.length;x++) s[x] = max; return s;}  // duh, stupider user
-        else if (logScale)
-            {
-            min = Math.log(min);
-            max = Math.log(max);
-            for(int x=0;x<s.length;x++)
-                s[x] =  (Math.exp((x/(double)numBuckets)*(max-min) + min) + 
-                    Math.exp(((x+1)/(double)numBuckets)*(max-min) + min)) / 2;
-            }
-        else
-            for(int x=0;x<s.length;x++)
-                s[x] =  (((x/(double)numBuckets)*(max-min) + min) + 
-                    (((x+1)/(double)numBuckets)*(max-min) + min)) / 2;
-        return s;
-        }
+  if (min>=max) { for(int x=0;x<s.length;x++) s[x] = max; return s;}  // duh, stupider user
+  else if (logScale)
+  {
+  min = Math.log(min);
+  max = Math.log(max);
+  for(int x=0;x<s.length;x++)
+  s[x] =  (Math.exp((x/(double)numBuckets)*(max-min) + min) + 
+  Math.exp(((x+1)/(double)numBuckets)*(max-min) + min)) / 2;
+  }
+  else
+  for(int x=0;x<s.length;x++)
+  s[x] =  (((x/(double)numBuckets)*(max-min) + min) + 
+  (((x+1)/(double)numBuckets)*(max-min) + min)) / 2;
+  return s;
+  }
+*/
 
     /** Returns the minimum over the provided vals.  You might use this to set the minimum in makeBuckets
         if you don't have a prescribed minimum */

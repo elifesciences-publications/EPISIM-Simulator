@@ -139,6 +139,9 @@ public class DefaultCharts implements java.io.Serializable{
 		
 		
 		xyPlot = chart.getXYPlot();
+		xyPlot.setBackgroundPaint(Color.WHITE);
+		xyPlot.setDomainGridlinePaint(Color.BLACK);
+		xyPlot.setRangeGridlinePaint(Color.BLACK);
 	   yAxis = xyPlot.getRangeAxis();
 		//xyPlot.setRangeAxis(new LogarithmicAxis(yAxis.getLabel()));
 	   
@@ -165,6 +168,9 @@ public class DefaultCharts implements java.io.Serializable{
 		chart.setBackgroundPaint(Color.white);
 		
 		xyPlot = chart.getXYPlot();
+		xyPlot.setBackgroundPaint(Color.WHITE);
+		xyPlot.setDomainGridlinePaint(Color.BLACK);
+		xyPlot.setRangeGridlinePaint(Color.BLACK);
 	   yAxis = xyPlot.getRangeAxis();
 		
 	   lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
@@ -190,6 +196,9 @@ public class DefaultCharts implements java.io.Serializable{
 		chart.setBackgroundPaint(Color.white);
 		
 		xyPlot = chart.getXYPlot();
+		xyPlot.setBackgroundPaint(Color.WHITE);
+		xyPlot.setDomainGridlinePaint(Color.BLACK);
+		xyPlot.setRangeGridlinePaint(Color.BLACK);
 	   yAxis = xyPlot.getRangeAxis();
 		
 	   lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
@@ -235,6 +244,9 @@ public class DefaultCharts implements java.io.Serializable{
 		chart.setBackgroundPaint(Color.white);
 		
 		xyPlot = chart.getXYPlot();
+		xyPlot.setBackgroundPaint(Color.WHITE);
+		xyPlot.setDomainGridlinePaint(Color.BLACK);
+		xyPlot.setRangeGridlinePaint(Color.BLACK);
 	   yAxis = xyPlot.getRangeAxis();
 		
 	   lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
@@ -282,6 +294,9 @@ public class DefaultCharts implements java.io.Serializable{
       chart.setBackgroundPaint(Color.white);
               
       xyPlot = chart.getXYPlot();
+      xyPlot.setBackgroundPaint(Color.WHITE);
+		xyPlot.setDomainGridlinePaint(Color.BLACK);
+		xyPlot.setRangeGridlinePaint(Color.BLACK);
       yAxis = xyPlot.getRangeAxis();
       yAxis.setLabelPaint(Color.red);
       lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
@@ -445,7 +460,9 @@ public class DefaultCharts implements java.io.Serializable{
       chart.setBackgroundPaint(Color.white);
       
       xyPlot = chart.getXYPlot();
-      
+      xyPlot.setBackgroundPaint(Color.WHITE);
+		xyPlot.setDomainGridlinePaint(Color.BLACK);
+		xyPlot.setRangeGridlinePaint(Color.BLACK);
       xyPlot.setDomainGridlinesVisible(true);
       
       rangeAxis = (NumberAxis) xyPlot.getRangeAxis();
@@ -492,6 +509,9 @@ public class DefaultCharts implements java.io.Serializable{
       chart.setBackgroundPaint(Color.white);
       
       xyPlot = chart.getXYPlot();
+      xyPlot.setBackgroundPaint(Color.WHITE);
+		xyPlot.setDomainGridlinePaint(Color.BLACK);
+		xyPlot.setRangeGridlinePaint(Color.BLACK);
       xyPlot.setDomainGridlinesVisible(true);
       
       // First Vertical Axis

@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.geom.*;
 import sim.util.*;
 import java.util.*;
+import sim.display.*;
 
 /**
    A portrayal for grids containing objects, such as maybe agents or agent bodies.
@@ -37,8 +38,7 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
         
     public void setField(Object field)
         {
-        dirtyField = true;
-        if (field instanceof ObjectGrid2D ) this.field = field;
+        if (field instanceof ObjectGrid2D ) super.setField(field);
         else throw new RuntimeException("Invalid field for ObjectGridPortrayal2D: " + field);
         }
         
@@ -54,20 +54,18 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
 
     public Double2D getScale(DrawInfo2D info)
         {
-        final Grid2D field = (Grid2D) this.field;
-        if (field==null) return null;
+        synchronized(info.gui.state.schedule)
+            {
+            final Grid2D field = (Grid2D) this.field;
+            if (field==null) return null;
 
-        int maxX = field.getWidth(); 
-        int maxY = field.getHeight();
+            int maxX = field.getWidth(); 
+            int maxY = field.getHeight();
 
-        final double xScale = info.draw.width / maxX;
-        final double yScale = info.draw.height / maxY;
-        return new Double2D(xScale, yScale);
-        }
-
-    public Object getClipLocation(DrawInfo2D fieldPortrayalInfo)
-        {
-        return getPositionLocation(new Point2D.Double(fieldPortrayalInfo.clip.x, fieldPortrayalInfo.clip.y), fieldPortrayalInfo);
+            final double xScale = info.draw.width / maxX;
+            final double yScale = info.draw.height / maxY;
+            return new Double2D(xScale, yScale);
+            }
         }
                 
     public Object getPositionLocation(Point2D.Double position, DrawInfo2D info)
@@ -82,57 +80,63 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
         }
 
 
-    public Object getObjectLocation(Object object)
+    public Object getObjectLocation(Object object, GUIState gui)
         {
-        final ObjectGrid2D field = (ObjectGrid2D)this.field;
-        if (field==null) return null;
-
-        final int maxX = field.getWidth(); 
-        final int maxY = field.getHeight();
-
-        // find the object.
-        for(int x=0; x < maxX; x++)
+        synchronized(gui.state.schedule)
             {
-            Object[] fieldx = field.field[x];
-            for(int y = 0; y < maxY; y++)
-                if (object == fieldx[y])  // found it
-                    return new Int2D(x,y);
+            final ObjectGrid2D field = (ObjectGrid2D)this.field;
+            if (field==null) return null;
+
+            final int maxX = field.getWidth(); 
+            final int maxY = field.getHeight();
+
+            // find the object.
+            for(int x=0; x < maxX; x++)
+                {
+                Object[] fieldx = field.field[x];
+                for(int y = 0; y < maxY; y++)
+                    if (object == fieldx[y])  // found it
+                        return new Int2D(x,y);
+                }
+            return null;  // it wasn't there
             }
-        return null;  // it wasn't there
         }
 
     public Point2D.Double getLocationPosition(Object location, DrawInfo2D info)
         {
-        final Grid2D field = (Grid2D) this.field;
-        if (field==null) return null;
+        synchronized(info.gui.state.schedule)
+            {
+            final Grid2D field = (Grid2D) this.field;
+            if (field==null) return null;
         
-        final int maxX = field.getWidth(); 
-        final int maxY = field.getHeight();
-        if (maxX == 0 || maxY == 0) return null;
+            final int maxX = field.getWidth(); 
+            final int maxY = field.getHeight();
+            if (maxX == 0 || maxY == 0) return null;
         
-        final double xScale = info.draw.width / maxX;
-        final double yScale = info.draw.height / maxY;
+            final double xScale = info.draw.width / maxX;
+            final double yScale = info.draw.height / maxY;
 
-        DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale),
-            info.clip);  // we don't do further clipping 
+            DrawInfo2D newinfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(0,0, xScale, yScale),
+                info.clip);  // we don't do further clipping 
 
-        Int2D loc = (Int2D) location;
-        if (location == null) return null;
+            Int2D loc = (Int2D) location;
+            if (location == null) return null;
                 
-        int x = loc.x;
-        int y = loc.y;
+            int x = loc.x;
+            int y = loc.y;
 
-        // translate --- the   + newinfo.width/2.0  etc. moves us to the center of the object
-        newinfo.draw.x = (int)(info.draw.x + (xScale) * x);
-        newinfo.draw.y = (int)(info.draw.y + (yScale) * y);
-        newinfo.draw.width = (int)(info.draw.x + (xScale) * (x+1)) - newinfo.draw.x;
-        newinfo.draw.height = (int)(info.draw.y + (yScale) * (y+1)) - newinfo.draw.y;
+            // translate --- the   + newinfo.width/2.0  etc. moves us to the center of the object
+            newinfo.draw.x = (int)(info.draw.x + (xScale) * x);
+            newinfo.draw.y = (int)(info.draw.y + (yScale) * y);
+            newinfo.draw.width = (int)(info.draw.x + (xScale) * (x+1)) - newinfo.draw.x;
+            newinfo.draw.height = (int)(info.draw.y + (yScale) * (y+1)) - newinfo.draw.y;
         
-        // adjust drawX and drawY to center
-        newinfo.draw.x += newinfo.draw.width / 2.0;
-        newinfo.draw.y += newinfo.draw.height / 2.0;
+            // adjust drawX and drawY to center
+            newinfo.draw.x += newinfo.draw.width / 2.0;
+            newinfo.draw.y += newinfo.draw.height / 2.0;
 
-        return new Point2D.Double(newinfo.draw.x, newinfo.draw.y);
+            return new Point2D.Double(newinfo.draw.x, newinfo.draw.y);
+            }
         }
 
 
@@ -167,8 +171,9 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
         int endx = /*startx +*/ (int)((info.clip.x - info.draw.x + info.clip.width) / xScale) + /*2*/ 1;  // with rounding, width be as much as 1 off
         int endy = /*starty +*/ (int)((info.clip.y - info.draw.y + info.clip.height) / yScale) + /*2*/ 1;  // with rounding, height be as much as 1 off
 
-        DrawInfo2D newinfo = new DrawInfo2D(new Rectangle2D.Double(0,0, xScale, yScale), info.clip);  // we don't do further clipping 
+        DrawInfo2D newinfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(0,0, xScale, yScale), info.clip);  // we don't do further clipping 
         newinfo.location = locationToPass;
+        newinfo.fieldPortrayal = this;
 
         if (endx > maxX) endx = maxX;
         if (endy > maxY) endy = maxY;
@@ -206,39 +211,10 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
                     {
                     newinfo.selected = (objectSelected &&  // there's something there
                         (selectedObject==obj || selectedWrappers.get(obj) != null));
-                    /*{
-                      LocationWrapper wrapper = null;
-                      if (selectedObject == obj) 
-                      wrapper = selectedWrapper;
-                      else wrapper = (LocationWrapper)(selectedWrappers.get(obj));
-                      portrayal.setSelected(wrapper,true);
-                      portrayal.draw(obj, graphics, newinfo);
-                      portrayal.setSelected(wrapper,false);
-                      }
-                      else */ portrayal.draw(obj, graphics, newinfo);
+                    portrayal.draw(obj, graphics, newinfo);
                     }
                 }
         }
-
-/*
-  public LocationWrapper getWrapper(Int2D location)
-  {
-  final ObjectGrid2D field = (ObjectGrid2D)(this.field);
-  return new LocationWrapper(null, location, this)
-  {
-  Int2D loc = (Int2D) this.location;
-  public Object getObject()
-  { 
-  return field.field[loc.x][loc.y];
-  }
-            
-  public String getLocationName()
-  {
-  return ((Int2D)this.location).toCoordinates();
-  }
-  };
-  }
-*/
 
     // searches for an object within a short distance of a location
     final int SEARCH_DISTANCE = 3;
@@ -314,15 +290,9 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
         if (wrapper.getFieldPortrayal() != this) return true;
 
         Object obj = wrapper.getObject();
+        boolean b = getPortrayalForObject(obj).setSelected(wrapper, selected);
         if (selected)
             {
-            // first let's determine if the object WANTs to be selected
-            boolean b = getPortrayalForObject(obj).setSelected(wrapper,selected);
-                        
-            // now we turn the selection back to regular
-            getPortrayalForObject(obj).setSelected(wrapper,!selected);
-                        
-            // Okay, now we can tell whether or not to add to the wrapper collection
             if (b==false) return false;
             selectedWrappers.put(obj, wrapper);
             selectedWrapper = wrapper;

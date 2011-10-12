@@ -33,7 +33,8 @@ public class DoubleBag implements java.io.Serializable, Cloneable, Indexed
     public DoubleBag() { numObjs = 0; objs = new double[1]; }
     
     /** Adds the doubles from the other DoubleBag without copying them.  The size of the
-        new DoubleBag is the minimum necessary size to hold the doubles. */
+        new DoubleBag is the minimum necessary size to hold the doubles.  If the Other DoubleBag is
+        null, a new empty DoubleBag is created. */
     public DoubleBag(final DoubleBag other)
         {
         if (other==null) { numObjs = 0; objs = new double[1]; }
@@ -45,6 +46,10 @@ public class DoubleBag implements java.io.Serializable, Cloneable, Indexed
             }
         }
     
+    /** Creates a DoubleBag with the given elements. If the Other array is
+        null, a new empty DoubleBag is created. */
+    public DoubleBag(double[] other) { this(); if (other!=null) addAll(other); }
+
     public int size()
         {
         return numObjs;
@@ -55,6 +60,8 @@ public class DoubleBag implements java.io.Serializable, Cloneable, Indexed
         return (numObjs<=0);
         }
     
+    public boolean addAll(double[] other) { return addAll(numObjs, other); }
+
     public boolean addAll(final int index, final double[] other)
         {
         // throws NullPointerException if other == null,
@@ -65,8 +72,8 @@ public class DoubleBag implements java.io.Serializable, Cloneable, Indexed
         // make DoubleBag big enough
         if (numObjs+other.length > objs.length)
             resize(numObjs+other.length);
-        if (index != numObjs)   // make room
-            System.arraycopy(objs,index,objs,index+other.length,other.length);
+        if (index != numObjs)   // scoot over elements if we're inserting in the middle
+            System.arraycopy(objs,index,objs,index+other.length,numObjs - index);
         System.arraycopy(other,0,objs,index,other.length);
         numObjs += other.length;
         return true;
@@ -84,8 +91,8 @@ public class DoubleBag implements java.io.Serializable, Cloneable, Indexed
         // make DoubleBag big enough
         if (numObjs+other.numObjs > objs.length)
             resize(numObjs+other.numObjs);
-        if (index != numObjs)    // make room
-            System.arraycopy(objs,index,objs,index+other.numObjs,other.numObjs);
+        if (index != numObjs)   // scoot over elements if we're inserting in the middle
+            System.arraycopy(objs,index,objs,index+other.size(),numObjs - index);
         System.arraycopy(other.objs,0,objs,index,other.numObjs);
         numObjs += other.numObjs;
         return true;
@@ -147,22 +154,32 @@ public class DoubleBag implements java.io.Serializable, Cloneable, Indexed
         want to think of the DoubleBag as a stack. */
     public boolean push(final double obj)
         {
-        // this curious arrangement makes me small enough to be inlined (33 bytes)
+        if (numObjs >= objs.length) doubleCapacityPlusOne();
+        objs[numObjs++] = obj;
+        return true;
+        /*
+        // this curious arrangement makes me small enough to be inlined (35 bytes)
         int numObjs = this.numObjs;
         if (numObjs >= objs.length) doubleCapacityPlusOne();
         objs[numObjs] = obj;
-        this.numObjs = numObjs + 1;
+        this.numObjs = numObjs+1;
         return true;
+        */
         }
         
     public boolean add(final double obj)
         {
-        // this curious arrangement makes me small enough to be inlined (33 bytes)
-        int numObjs = this.numObjs;
-        if (objs.length <= numObjs) doubleCapacityPlusOne();
-        objs[numObjs] = obj;
-        this.numObjs = numObjs + 1;
+        if (numObjs >= objs.length) doubleCapacityPlusOne();
+        objs[numObjs++] = obj;
         return true;
+        /*
+        // this curious arrangement makes me small enough to be inlined (35 bytes)
+        int numObjs = this.numObjs;
+        if (numObjs >= objs.length) doubleCapacityPlusOne();
+        objs[numObjs] = obj;
+        this.numObjs = numObjs+1;
+        return true;
+        */
         }
     
     // private function used by add and push in order to get them below

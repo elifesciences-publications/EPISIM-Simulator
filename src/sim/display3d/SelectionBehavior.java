@@ -45,8 +45,9 @@ public class SelectionBehavior extends MouseBehavior
     boolean oneClick = true;
     boolean twoClicks = true;
     
-    public void setTolerance(float tolerance) { pickCanvas.setTolerance(tolerance); }
+    public void setTolerance(double tolerance) { pickCanvas.setTolerance((float)tolerance); }
     
+    /** Detaches the Selection Behavior from the Canvas properly, so leaks don't occur. */
     public void detach()
         {
         // the objective here is to remove me from the canvas so that I don't cause leaks
@@ -73,9 +74,9 @@ public class SelectionBehavior extends MouseBehavior
         oneClick = selection; twoClicks = inspection;
         }
 
-    public void processStimulus (Enumeration criteria) 
+    public void processStimulus(Enumeration criteria) 
         {
-        // do nothing -- we'll do it in mouseClicked
+        // do nothing at all -- we'll do it in mouseClicked
         }
     
     public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -166,7 +167,7 @@ public class SelectionBehavior extends MouseBehavior
                     // could be null for some reason
                     if (fPortrayal == null)
                         {
-                        System.err.println("Warning: The value of a LocationWrapper.getFieldPortrayal() is null.\nLikely the wrapper was created from a SimplePortrayal3D whose parentPortrayal\nwas not set before getModel(...) was called."); 
+                        System.err.println("Warning: The value of a LocationWrapper.getFieldPortrayal() is null.\nLikely the wrapper was created from a SimplePortrayal3D whose field portrayal was not set before getModel(...) was called."); 
                         }
                     else
                         {

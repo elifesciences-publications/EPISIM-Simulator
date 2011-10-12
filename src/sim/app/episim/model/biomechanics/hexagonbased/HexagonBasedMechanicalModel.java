@@ -88,7 +88,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   if(cell != null && getCellEllipse() == null && cell.getEpisimCellBehavioralModelObject() != null){
 			cellEllipse = new CellEllipse(cell.getID(), (int)getX(), (int)getY(), 1, 1, Color.BLUE);    
 		}
-	   lastDrawInfo2D = new DrawInfo2D(new Rectangle2D.Double(0, 0, 0, 0),
+	   lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0),
 		 new Rectangle2D.Double(0, 0, 0, 0));
    }
 

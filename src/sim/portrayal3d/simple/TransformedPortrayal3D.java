@@ -11,6 +11,7 @@ import sim.portrayal3d.*;
 import sim.display.*;
 import javax.media.j3d.*;
 import javax.vecmath.*;
+import sim.display3d.*;
 
 /**
    A wrapper for other Portrayal3Ds which transforms them with an underlying Transform3D: meaning
@@ -32,7 +33,7 @@ import javax.vecmath.*;
 
 public class TransformedPortrayal3D extends SimplePortrayal3D
     {
-    protected SimplePortrayal3D child;
+    SimplePortrayal3D child;
     
     public TransformedPortrayal3D(SimplePortrayal3D child, Transform3D transform)
         {
@@ -60,9 +61,18 @@ public class TransformedPortrayal3D extends SimplePortrayal3D
         return child.getName(wrapper);
         }
     
-    public void setParentPortrayal(FieldPortrayal3D p)
+    /** Sets the current display both here and in the child. */
+    public void setCurrentDisplay(Display3D display)
         {
-        child.setParentPortrayal(p);
+        super.setCurrentDisplay(display);
+        child.setCurrentDisplay(display);
+        }
+                
+    /** Sets the current field portrayal both here and in the child. */
+    public void setCurrentFieldPortrayal(FieldPortrayal3D p)
+        {
+        super.setCurrentFieldPortrayal(p);
+        child.setCurrentFieldPortrayal(p);
         }
 
     public boolean setSelected(LocationWrapper wrapper, boolean selected)

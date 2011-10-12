@@ -47,8 +47,9 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
     public Bag(int capacity) { numObjs = 0; objs = new Object[capacity]; }
         
     /** Adds the objects from the other Bag without copying them.  The size of the
-        new Bag is the minimum necessary size to hold the objects. */
-    public Bag(final Bag other)
+        new Bag is the minimum necessary size to hold the objects. If the Other Bag is
+        null, a new empty Bag is created. */
+    public Bag(Bag other)
         {
         if (other==null) { numObjs = 0; objs = new Object[1]; }
         else
@@ -59,6 +60,14 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
             }
         }
     
+    /** Creates a Bag with the given elements. If the Other array is
+        null, a new empty Bag is created. */
+    public Bag(Object[] other) { this(); if (other!=null) addAll(other); }
+        
+    /** Creates a Bag with the given elements. If the Other Collection is
+        null, a new empty Bag is created.*/
+    public Bag(Collection other) { this(); if (other!=null) addAll(other); }
+        
     public int size()
         {
         return numObjs;
@@ -69,49 +78,53 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         return (numObjs<= 0);
         }
     
-    public boolean addAll(final Collection other) 
-        { 
+    public boolean addAll(Collection other) 
+        {
         if (other instanceof Bag) return addAll((Bag)other);  // avoid an array build
         return addAll(numObjs, other.toArray()); 
         }
 
-    public boolean addAll(final int index, final Collection other)
+    public boolean addAll(int index, Collection other)
         {
         if (other instanceof Bag) return addAll(index, (Bag)other);  // avoid an array build
         return addAll(index, other.toArray());
         }
 
-    public boolean addAll(final int index, final Object[] other)
+    public boolean addAll(Object[] other) { return addAll(numObjs, other); }
+
+    public boolean addAll(int index, Object[] other)
         {
         // throws NullPointerException if other == null,
         // ArrayIndexOutOfBoundsException if index < 0,
         // and IndexOutOfBoundsException if index > numObjs
-        if (index > numObjs) { throwIndexOutOfBoundsException(index); }
+        if (index > numObjs)
+            throwIndexOutOfBoundsException(index);
         if (other.length == 0) return false;
         // make Bag big enough
         if (numObjs+other.length > objs.length)
             resize(numObjs+other.length);
-        if (index != numObjs)   // make room
-            System.arraycopy(objs,index,objs,index+other.length,other.length);
+        if (index != numObjs)   // scoot over elements if we're inserting in the middle
+            System.arraycopy(objs,index,objs,index+other.length,numObjs - index);
         System.arraycopy(other,0,objs,index,other.length);
         numObjs += other.length;
         return true;
         }
     
-    public boolean addAll(final Bag other) { return addAll(numObjs,other); }
+    public boolean addAll(Bag other) { return addAll(numObjs,other); }
 
-    public boolean addAll(final int index, final Bag other)
+    public boolean addAll(int index, Bag other)
         {
         // throws NullPointerException if other == null,
         // ArrayIndexOutOfBoundsException if index < 0,
         // and IndexOutOfBoundsException if index > numObjs
-        if (index > numObjs) { throwIndexOutOfBoundsException(index); }
+        if (index > numObjs) 
+            throwIndexOutOfBoundsException(index);
         if (other.numObjs <= 0) return false;
         // make Bag big enough
         if (numObjs+other.numObjs > objs.length)
             resize(numObjs+other.numObjs);
-        if (index != numObjs)    // make room
-            System.arraycopy(objs,index,objs,index+other.numObjs,other.numObjs);
+        if (index != numObjs)    // scoot over elements if we're inserting in the middle
+            System.arraycopy(objs,index,objs,index+other.size(),numObjs - index);
         System.arraycopy(other.objs,0,objs,index,other.numObjs);
         numObjs += other.numObjs;
         return true;
@@ -172,24 +185,34 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
     
     /** Synonym for add(obj) -- stylistically, you should add instead unless you
         want to think of the Bag as a stack. */
-    public boolean push(final Object obj)
+    public boolean push(Object obj)
         {
+        if (numObjs >= objs.length) doubleCapacityPlusOne();
+        objs[numObjs++] = obj;
+        return true;
+        /*
         // this curious arrangement makes me small enough to be inlined (35 bytes)
         int numObjs = this.numObjs;
         if (numObjs >= objs.length) doubleCapacityPlusOne();
         objs[numObjs] = obj;
         this.numObjs = numObjs+1;
         return true;
+        */
         }
         
-    public boolean add(final Object obj)
+    public boolean add(Object obj)
         {
+        if (numObjs >= objs.length) doubleCapacityPlusOne();
+        objs[numObjs++] = obj;
+        return true;
+        /*
         // this curious arrangement makes me small enough to be inlined (35 bytes)
         int numObjs = this.numObjs;
         if (numObjs >= objs.length) doubleCapacityPlusOne();
         objs[numObjs] = obj;
         this.numObjs = numObjs+1;
         return true;
+        */
         }
         
     // private function used by add and push in order to get them below
@@ -201,7 +224,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         objs=newobjs;
         }
 
-    public boolean contains(final Object o)
+    public boolean contains(Object o)
         {
         int numObjs = this.numObjs;
         Object[] objs = this.objs;
@@ -210,7 +233,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         return false;
         }
         
-    public boolean containsAll(final Collection c)
+    public boolean containsAll(Collection c)
         {
         Iterator iterator = c.iterator();
         while(iterator.hasNext())
@@ -218,7 +241,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         return true;
         }
 
-    public Object get(final int index)
+    public Object get(int index)
         {
         if (index>=numObjs) // || index < 0)
             throwIndexOutOfBoundsException(index);
@@ -226,14 +249,14 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         }
 
     /** identical to get(index) */
-    public Object getValue(final int index)
+    public Object getValue(int index)
         {
         if (index>=numObjs) // || index < 0)
             throwIndexOutOfBoundsException(index);
         return objs[index];
         }
 
-    public Object set(final int index, final Object element)
+    public Object set(int index, Object element)
         {
         if (index>=numObjs) // || index < 0)
             throwIndexOutOfBoundsException(index);
@@ -243,7 +266,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         }
 
     /** identical to set(index, element) */
-    public Object setValue(final int index, final Object element)
+    public Object setValue(int index, Object element)
         {
         if (index>=numObjs) // || index < 0)
             throwIndexOutOfBoundsException(index);
@@ -252,7 +275,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         return returnval;
         }
 
-    public boolean removeAll(final Collection c)
+    public boolean removeAll(Collection c)
         {
         boolean flag = false;
         Iterator iterator = c.iterator();
@@ -261,7 +284,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         return flag;
         }
 
-    public boolean retainAll(final Collection c)
+    public boolean retainAll(Collection c)
         {
         boolean flag = false;
         for(int x=0;x<numObjs;x++)
@@ -275,7 +298,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         }
 
     /** Removes the object at the given index, shifting the other objects down. */
-    public Object removeNondestructively(final int index)
+    public Object removeNondestructively(int index)
         {
         if (index>=numObjs) // || index < 0)
             throwIndexOutOfBoundsException(index);
@@ -288,7 +311,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         }
     
     /** Removes the object, moving the topmost object into its position. */
-    public boolean remove(final Object o)
+    public boolean remove(Object o)
         {
         int numObjs = this.numObjs;
         Object[] objs = this.objs;
@@ -302,7 +325,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         }
         
     /** Removes multiple instantiations of an object */
-    public boolean removeMultiply(final Object o)
+    public boolean removeMultiply(Object o)
         {
         int numObjs = this.numObjs;
         Object[] objs = this.objs;
@@ -318,7 +341,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         }
 
     /** Removes the object at the given index, moving the topmost object into its position. */
-    public Object remove(final int index)
+    public Object remove(int index)
         {
         int _numObjs = numObjs;
         if (index >= _numObjs) // || index < 0)
@@ -331,7 +354,7 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         return ret;
         }
         
-    protected void throwIndexOutOfBoundsException(final int index)
+    protected void throwIndexOutOfBoundsException(int index)
         {
         throw new IndexOutOfBoundsException(""+index);
         }
@@ -388,6 +411,12 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
     public void sort(Comparator c) 
         {
         Arrays.sort(objs, 0, numObjs, c);
+        }
+
+    /** Sorts the bag under the assumption that all objects stored within are Comparable. */
+    public void sort() 
+        {
+        Arrays.sort(objs, 0, numObjs);
         }
 
     /** Replaces all elements in the bag with the provided object. */

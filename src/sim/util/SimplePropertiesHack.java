@@ -16,9 +16,11 @@ public class SimplePropertiesHack extends SimpleProperties {
 		this(o,includeSuperclasses,includeGetClass,true);
    }
 	
-	public Method getHidden(Method m, Class c){ return super.getHidden(m, c);}
+	public Method getHidden(Method m, Class c, boolean includeExtensions){ return super.getHidden(m, c, includeExtensions);}
 	
 	protected Properties getAuxillary(){ return this.auxillary; }
 	protected ArrayList getHideMethods(){ return this.hideMethods; }
+	
+	
 
 }

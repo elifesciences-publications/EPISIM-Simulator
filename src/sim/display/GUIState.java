@@ -8,7 +8,9 @@ package sim.display;
 import sim.engine.*;
 import sim.portrayal.*;
 import java.io.*;
-import sim.util.Bag;
+import sim.util.*;
+import ec.util.*;
+import java.util.*;
 
 /** A wrapper for SimState and Schedule which provides additional functionality for
     GUI objects. This wrapper extends the functionality of SimState and
@@ -55,7 +57,7 @@ import sim.util.Bag;
     <p> Generally speaking, if you have access to a GUIState, you should use GUIstate methods
     start(), finish(), step(), reset(), and readNewStateFromCheckpoint() 
     instead of the underlying methods in the SimState and Controller.  Otherwise, feel free
-    to use the underlying methods (such as Schedule.time()).
+    to use the underlying methods (such as Schedule.getTime()).
     
     <p><b>Exception Handling</b>.  It's a common error to schedule a null event, or one with an invalid time.
     Like Schedule, GUIState previously returned false or null in such situations, 
@@ -68,6 +70,13 @@ import sim.util.Bag;
 
 public abstract class GUIState
     {
+    /** An additional random number generator available for GUI and drawing purposes,
+        separate from the one used in the model.  If you use this generator to do things
+        like specify the colors of agents on-screen, rather than use the model's generator,
+        you can guarantee identical simulation results with the model regardless of whether
+        it runs under the model or the GUI. */
+    public MersenneTwisterFast guirandom = new MersenneTwisterFast();
+        
     /** The underlying SimState */
     public SimState state;
     
@@ -75,8 +84,7 @@ public abstract class GUIState
         or no controller YET */
     public Controller controller;
 
-    /** A bag of objects containing objects that may be needed at various times */
-    public Bag guiObjects;
+    public HashMap storage = new HashMap();
 
     /** Override this constructor in your subclass to call <code>super(state)</code> where state is a
         properly constructed SimState appropriate to your problem -- do NOT call <code>super()</code>*/
@@ -86,7 +94,7 @@ public abstract class GUIState
     
     /** You may optionally override this constructor to call <code>super(state)</code> but you should
         be sure to override the no-argument GUIState() constructor as stipulated. */
-    protected GUIState(SimState state)
+    public GUIState(SimState state)
         {
         this.state = state;
         resetQueues();
@@ -216,6 +224,8 @@ public abstract class GUIState
         {
         return null;
         }
+        
+    public int getMaximumPropertiesForInspector() { return SimpleInspector.DEFAULT_MAX_PROPERTIES; }
 
     /** By default returns a non-volatile Inspector which wraps around
         getSimulationInspectedObject(); if getSimulationInspectedObject() returns null, then getInspector()
@@ -225,14 +235,14 @@ public abstract class GUIState
         Object object = getSimulationInspectedObject();
         if (object != null)
             {
-            Inspector i = new SimpleInspector(object, this);
+            Inspector i = new SimpleInspector(object, this, null, getMaximumPropertiesForInspector());
             i.setVolatile(false);
             return i;
             }
         sim.util.Properties prop = getSimulationProperties();
         if (prop != null)
             {
-            Inspector i = new SimpleInspector(prop, this, "");
+            Inspector i = new SimpleInspector(prop, this, null, getMaximumPropertiesForInspector());
             i.setVolatile(true);  // dynamic properties like this are likely volatile
             return i;
             }
@@ -338,8 +348,7 @@ public abstract class GUIState
         }
 
     /** Called by the Console when the user is loading in a new state from a checkpoint.  The
-        new state is passed in as an argument.  The default version simply calls finish(),
-        then sets this.state to the new state.  You should override this, calling super.load(state) first, 
+        new state is passed in as an argument.  You should override this, calling super.load(state) first, 
         to reset your portrayals etc. to reflect the new state.
         state.start() will NOT be called.  Thus anything you handled in start() that needs
         to be reset to accommodate the new state should be handled here.  We recommend that you 
@@ -419,8 +428,10 @@ public abstract class GUIState
         
     /** Empties out the schedule and resets it to a pristine state BEFORE_SIMULATION.
         If you're using a GUIState, you should call this version instead of Schedule's
-        version. */
-    public synchronized final void reset(SimState state)
+        version. 
+        @deprecated.  Do not use.
+    */
+    private synchronized final void reset(SimState state)
         {
         state.schedule.reset();
         resetQueues();
@@ -518,13 +529,13 @@ public abstract class GUIState
         {
         synchronized(state.schedule)
             {
-            if (event == null || state.schedule.time() >= Schedule.AFTER_SIMULATION)
+            if (event == null || state.schedule.getTime() >= Schedule.AFTER_SIMULATION)
                 {
                 if (event == null)
                     {
                     throw new IllegalArgumentException("The provided Steppable is null");
                     }
-                else if (state.schedule.time() >= Schedule.AFTER_SIMULATION)
+                else if (state.schedule.getTime() >= Schedule.AFTER_SIMULATION)
                     {
                     throw new IllegalArgumentException("The simulation is over and the item cannot be scheduled.");
                     }
@@ -556,7 +567,7 @@ public abstract class GUIState
         Pass in FALSE to indicate you want to be immediately BEFORE the next timestep;
         pass in TRUE if you want to be immediately AFTER the next time step (the more common
         situation).  Returns a Stoppable, or null if the current time is AFTER_SIMULATION or if the event is null.
-        The recurrence will continue until state.schedule.time() >= AFTER_SIMULATION, state.schedule is cleared out,
+        The recurrence will continue until state.schedule.getTime() >= AFTER_SIMULATION, state.schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
         
         <p>Why would you use this method?  Primarily to get things scheduled which aren't stored
@@ -574,7 +585,7 @@ public abstract class GUIState
         Pass in FALSE to indicate you want to be immediately BEFORE the next timestep;
         pass in TRUE if you want to be immediately AFTER the next time step (the more common
         situation).  Returns a Stoppable, or null if the current time is AFTER_SIMULATION or if the event is null.
-        The recurrence will continue until state.schedule.time() >= AFTER_SIMULATION, state.schedule is cleared out,
+        The recurrence will continue until state.schedule.getTime() >= AFTER_SIMULATION, state.schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
         
         <p>Why would you use this method?  Primarily to get things scheduled which aren't stored
@@ -591,7 +602,7 @@ public abstract class GUIState
         Pass in FALSE to indicate you want to be immediately BEFORE the next timestep;
         pass in TRUE if you want to be immediately AFTER the next time step (the more common
         situation).  Returns a Stoppable, or null if the current time is AFTER_SIMULATION or if the event is null.
-        The recurrence will continue until state.schedule.time() >= AFTER_SIMULATION, state.schedule is cleared out,
+        The recurrence will continue until state.schedule.getTime() >= AFTER_SIMULATION, state.schedule is cleared out,
         or the Stoppable's stop() method is called, whichever happens first.
         
         <p>Why would you use this method?  Primarily to get things scheduled which aren't stored
@@ -629,13 +640,13 @@ public abstract class GUIState
         {
         synchronized(state.schedule)
             {
-            if (event == null || state.schedule.time() >= Schedule.AFTER_SIMULATION)
+            if (event == null || state.schedule.getTime() >= Schedule.AFTER_SIMULATION)
                 {
                 if (event == null)
                     {
                     throw new IllegalArgumentException("The provided Steppable is null");
                     }
-                else if (state.schedule.time() >= Schedule.AFTER_SIMULATION)
+                else if (state.schedule.getTime() >= Schedule.AFTER_SIMULATION)
                     {
                     throw new IllegalArgumentException("The simulation is over and the item cannot be scheduled.");
                     }

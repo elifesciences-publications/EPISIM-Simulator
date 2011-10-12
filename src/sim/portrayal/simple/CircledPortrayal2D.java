@@ -8,6 +8,7 @@ package sim.portrayal.simple;
 import sim.portrayal.*;
 import java.awt.*;
 import sim.display.*;
+import java.awt.event.*;
 
 /**
    A wrapper for other Portrayal2Ds which also draws a big circle around them -- useful for
@@ -53,8 +54,7 @@ public class CircledPortrayal2D extends OvalPortrayal2D
     /** Overrides all drawing. */
     boolean showCircle = true;
     boolean onlyCircleWhenSelected;
-    // boolean isSelected = false;
-    
+            
     public void setOnlyCircleWhenSelected(boolean val) { onlyCircleWhenSelected = val; }
     public boolean getOnlyCircleWhenSelected() { return onlyCircleWhenSelected; }
     
@@ -67,8 +67,10 @@ public class CircledPortrayal2D extends OvalPortrayal2D
         Paint paint, boolean onlyCircleWhenSelected)
         {
         super(paint, scale, false);  // the scale will be twice what the user requests
-        this.offset = offset; this.child = child;
-        this.paint = paint;  this.onlyCircleWhenSelected = onlyCircleWhenSelected;
+        this.offset = offset; 
+        this.child = child;
+        this.paint = paint;  
+        this.onlyCircleWhenSelected = onlyCircleWhenSelected;
         }
     
     /** Draw a circle of radius scale = 2.0, dr = 0, in blue.  Draw the circle regardless of selection.
@@ -122,6 +124,12 @@ public class CircledPortrayal2D extends OvalPortrayal2D
     public String getName(LocationWrapper wrapper)
         {
         return getChild(wrapper.getObject()).getName(wrapper);
+        }
+
+    public boolean handleMouseEvent(GUIState guistate, Manipulating2D manipulating, LocationWrapper wrapper,
+        MouseEvent event, DrawInfo2D fieldPortrayalDrawInfo, int type)
+        {
+        return getChild(wrapper.getObject()).handleMouseEvent(guistate, manipulating, wrapper, event, fieldPortrayalDrawInfo, type);  // let someone else have it
         }
     }
     

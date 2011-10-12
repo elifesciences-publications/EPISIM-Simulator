@@ -12,6 +12,7 @@ import sim.portrayal3d.grid.*;
 import javax.media.j3d.*;
 import sim.portrayal.*;
 import sim.util.*;
+import java.awt.*;
 
 /** ValuePortrayal3D defines a cube or square whose color and transparency can be changed, 
     and is really intended solely for use in ValueGridPortrayal3D.  Note that although
@@ -61,7 +62,7 @@ public class ValuePortrayal3D extends Shape3DPortrayal3D
         }
 
     /** Returns false and does not set the transform (there's nothing to set). */
-    protected boolean setTransform(TransformGroup j3dModel, Transform3D transform)
+    public boolean setTransform(TransformGroup j3dModel, Transform3D transform)
         {
         return false;  // there's no transform for this class
         }
@@ -81,7 +82,8 @@ public class ValuePortrayal3D extends Shape3DPortrayal3D
         return p;
         }
 
-    static GeometryArray processArray(int shape)  // must be static or else we can't call super() below
+    // must be static or else we can't call super() below
+    static GeometryArray processArray(int shape) 
         {
         float[] verts = (shape == SHAPE_CUBE ? verts_cube : verts_square);
         GeometryArray ga = new QuadArray(verts.length/3, QuadArray.COORDINATES);
@@ -120,14 +122,16 @@ public class ValuePortrayal3D extends Shape3DPortrayal3D
     /* Builds a model, but obj is expected to be a ValuePortrayal3D.ValueWrapper. */
     public TransformGroup getModel(Object obj, TransformGroup j3dModel) 
         {
-        float[] c = ((ValueGridPortrayal3D)parentPortrayal).map.getColor(((ValueWrapper)obj).lastVal).getRGBComponents(null);
-
+        //float[] c = ((ValueGridPortrayal3D)getCurrentFieldPortrayal()).getMap().getColor(((ValueWrapper)obj).lastVal).getRGBComponents(null);
+        Color color = ((ValueGridPortrayal3D)getCurrentFieldPortrayal()).getColorFor(obj);
+                
         // make sure the polygon attributes are set
         if(j3dModel==null) 
             {
             j3dModel = super.getModel(obj, j3dModel);
                         
             /*
+            // [This may break things, so we don't do it.  Dunno about the speed really anyway.  Memory is our problem here, not speed.]
             // We dispense of our TransformGroup: it makes us about 20% faster.
                         
             Shape3D s = getShape(j3dModel, 0);
@@ -137,7 +141,7 @@ public class ValuePortrayal3D extends Shape3DPortrayal3D
             j3dModel.addChild(s);
             */
 
-            Appearance app = appearanceForColor(((ValueGridPortrayal3D)parentPortrayal).map.getColor(((ValueWrapper)obj).lastVal));
+            Appearance app = appearanceForColor(color);
             app.setPolygonAttributes(polygonAttributes());
 
 /*
@@ -169,58 +173,11 @@ app.setTransparencyAttributes(ta);
 
             // extract color to use
             Appearance appearance = getAppearance(j3dModel);        
+            float[] c = color.getRGBComponents(null);
             appearance.getColoringAttributes().setColor(c[0],c[1],c[2]);
             appearance.getTransparencyAttributes().setTransparency(1.0f - c[3]);  // duh, alpha's backwards
             }
         return j3dModel;
-        }
-
-
-
-    /** This special LocationWrapper contains a public double holding the last value used
-        to display the object. */
-    public static class ValueWrapper extends LocationWrapper
-        {
-        // we keep this around so we don't keep allocating MutableDoubles
-        // every time getObject is called -- that's wasteful, but more importantly,
-        // it causes the inspector to load its property inspector entirely again,
-        // which will cause some flashing...
-        MutableDouble val = null;  
-                        
-        public ValueWrapper(double lastVal, int x, int y, int z, FieldPortrayal fieldPortrayal)
-            {
-            super((Object)null, new Int3D(x,y,z), fieldPortrayal);
-            this.lastVal = lastVal;
-            }
-
-        public String getLocationName()
-            {
-            Int3D loc = (Int3D) location;
-            Object field = fieldPortrayal.getField();
-            if (field instanceof DoubleGrid3D || field instanceof IntGrid3D)
-                return loc.toCoordinates();
-            else return (new Int2D(loc.x,loc.y)).toCoordinates();
-            }
-
-        public Object getObject()
-            {
-            Object field = fieldPortrayal.getField();
-            Int3D loc = (Int3D)location;
-            if (val==null) val = new MutableDouble(0);
-
-            if (field instanceof DoubleGrid3D)
-                val.val = ((DoubleGrid3D)field).field[loc.x][loc.y][loc.z];
-            else if (field instanceof IntGrid3D)
-                val.val = ((IntGrid3D)field).field[loc.x][loc.y][loc.z];
-            else if (field instanceof DoubleGrid2D)
-                val.val = ((DoubleGrid2D)field).field[loc.x][loc.y];
-            else // if (field instanceof IntGrid2D)
-                val.val = ((IntGrid2D)field).field[loc.x][loc.y];
-            
-            return val;
-            }
-
-        public double lastVal;  // the last value used to display the object
         }
 
 
@@ -242,6 +199,8 @@ app.setTransparencyAttributes(ta);
             
         ValueGridPortrayal3D fieldPortrayal;
         Grid3D grid; 
+        String name;
+                
         public Filter(LocationWrapper wrapper)
             {
             fieldPortrayal = (ValueGridPortrayal3D)(wrapper.getFieldPortrayal());
@@ -250,7 +209,10 @@ app.setTransparencyAttributes(ta);
             x = loc.x;
             y = loc.y;
             z = loc.z; 
+            name = fieldPortrayal.getValueName() + " at " + wrapper.getLocationName();
             }
+                        
+        public String toString() { return name; }
         }
 
     public static class DoubleFilter extends Filter  // must be public so it can be accessed by SimpleInspector
@@ -266,9 +228,9 @@ app.setTransparencyAttributes(ta);
 
         public void setValue(double val) { 
             if (grid instanceof DoubleGrid3D)
-                ((DoubleGrid3D)grid).field[x][y][z] = val;
+                ((DoubleGrid3D)grid).field[x][y][z] = fieldPortrayal.newValue(x,y,z,val);
             else //if (field instanceof DoubleGrid2D)
-                ((DoubleGrid2D)grid).field[x][y] = val;
+                ((DoubleGrid2D)grid).field[x][y] = fieldPortrayal.newValue(x,y,z,val);
             }
         // static inner classes don't need serialVersionUIDs
         }
@@ -278,18 +240,20 @@ app.setTransparencyAttributes(ta);
         {
         public IntFilter(LocationWrapper wrapper) { super(wrapper); }
         
-        public int getValue() { 
+        public int getValue() 
+            { 
             if (grid instanceof IntGrid3D)
                 return ((IntGrid3D)grid).field[x][y][z];
             else //if (field instanceof IntGrid2D)
                 return ((IntGrid2D)grid).field[x][y];
             }
 
-        public void setValue(int val) { 
+        public void setValue(int val) 
+            { 
             if (grid instanceof IntGrid3D)
-                ((IntGrid3D)grid).field[x][y][z] = val;
+                ((IntGrid3D)grid).field[x][y][z] = (int)fieldPortrayal.newValue(x,y,z,val);
             else //if (field instanceof IntGrid2D)
-                ((IntGrid2D)grid).field[x][y] = val;
+                ((IntGrid2D)grid).field[x][y] = (int)fieldPortrayal.newValue(x,y,z,val);
             }
         }
 

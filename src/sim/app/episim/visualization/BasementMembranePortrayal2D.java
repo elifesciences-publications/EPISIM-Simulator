@@ -1,18 +1,25 @@
 package sim.app.episim.visualization;
 
+import sim.SimStateServer;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
 import sim.portrayal.*;
+import sim.portrayal.continuous.ContinuousPortrayal2D;
 
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasementMembranePortrayal2D extends SimplePortrayal2D{
+import episiminterfaces.EpisimPortrayal;
+
+public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implements EpisimPortrayal{
 	
    
+	private final String NAME = "Basement Membrane";
+	
    private double width;
    private double height;
    private final double INITIALWIDTH;
@@ -36,18 +43,29 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
    
    
    
-   public BasementMembranePortrayal2D(double width, double height, int border) {
-	    this.width = width;
-	  	 this.height = height;
-	  	 
-	  	 this.INITIALWIDTH = ((int)width);
-	  	 this.INITIALHEIGHT = ((int)height);
-	  	 this.border = border;
+   public BasementMembranePortrayal2D() {
+   	 EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+   		
+   	 if(guiState != null){   		 
+		    this.width = guiState.EPIDISPLAYWIDTH + (2*guiState.DISPLAYBORDER);
+		  	 this.height = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);		  	 
+		  	 this.INITIALWIDTH = ((int)width);
+		  	 this.INITIALHEIGHT = ((int)height);
+		  	 this.border = guiState.DISPLAYBORDER;	  	 
+   	 }
+   	 else{   		 
+		  	 this.INITIALWIDTH = 0;
+		  	 this.INITIALHEIGHT = 0;
+   	 }
 	  	 cellPoints = new ArrayList<Point2D>();  	 
    }
    
        
-   Rectangle2D.Double oldDraw = null;  
+   Rectangle2D.Double oldDraw = null; 
+   
+   public String getPortrayalName() {
+	   return NAME;
+   }
    
    // assumes the graphics already has its color set
 	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
@@ -229,6 +247,12 @@ public class BasementMembranePortrayal2D extends SimplePortrayal2D{
    		 return BIAS;
    	 }
    	 else return info.clip.getMinY()+BIAS;
+    }
+
+    public Rectangle2D.Double getViewPortRectangle() {
+ 		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
+ 	   if(guiState != null)return new Rectangle2D.Double(0,0,guiState.EPIDISPLAYWIDTH+(2*guiState.DISPLAYBORDER), guiState.EPIDISPLAYHEIGHT+(2*guiState.DISPLAYBORDER));
+ 	   else return new Rectangle2D.Double(0,0,0, 0);
     }
 	
 	

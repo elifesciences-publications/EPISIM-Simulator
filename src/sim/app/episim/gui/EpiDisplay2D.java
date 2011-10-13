@@ -43,6 +43,14 @@ public class EpiDisplay2D {
 		this.simulation = simulation;
 		
 	}
+	
+	
+	
+	public void detatchAll(){
+		if(simulationDisplay instanceof Display2DHack)((Display2DHack)simulationDisplay).detatchAll();
+		else if(simulationDisplay instanceof NoGUIDisplay2D)((NoGUIDisplay2D)simulationDisplay).detatchAll();
+	}
+	
 	/**
 	 * Creates Internalframe instead of a JFrame
 	 */

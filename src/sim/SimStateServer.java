@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.gui.EpisimGUIState;
 
 
 public class SimStateServer implements SimulationStateChangeListener{
@@ -14,8 +15,18 @@ public class SimStateServer implements SimulationStateChangeListener{
 	private HashSet<SimulationStateChangeListener> simulationStateListeners;
 	private static final SimStateServer instance = new SimStateServer();
 	
+	private EpisimGUIState episimGUIState;
+	
 	private SimStateServer(){
 		simulationStateListeners = new HashSet<SimulationStateChangeListener>();
+	}
+	
+	public EpisimGUIState getEpisimGUIState(){
+		return episimGUIState;
+	}
+	
+	public void setEpisimGUIState(EpisimGUIState guiState){
+		this.episimGUIState = guiState;
 	}
 	
 	public static SimStateServer getInstance(){ return instance; }

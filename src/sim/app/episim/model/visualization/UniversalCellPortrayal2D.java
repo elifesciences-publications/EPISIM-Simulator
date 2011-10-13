@@ -3,6 +3,7 @@ import sim.SimStateServer;
 import sim.SimStateServer.SimState;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
@@ -24,13 +25,16 @@ import java.awt.geom.*;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.EpisimPortrayal;
 
 
 
 
-public class UniversalCellPortrayal2D extends SimplePortrayal2D
+public class UniversalCellPortrayal2D extends SimplePortrayal2D implements EpisimPortrayal
 {
-    private Paint paint;  
+    
+		private final String NAME = "Epidermis";	
+	 private Paint paint;  
     private CellBehavioralModelController cBModelController;   
     private boolean drawFrame = true;
     private double implicitScale;
@@ -42,21 +46,34 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
     
     private int border = 0;
     
-    public UniversalCellPortrayal2D(double implicitScale) {   	 
-   	 this(Color.gray, false, implicitScale, 0, 0, 0);   	 
+    public UniversalCellPortrayal2D() {   	 
+   	 this(Color.gray, false);   	 
     }    
-    public UniversalCellPortrayal2D(Paint paint, double implicitScale, double width, double height, int border){   	 
-   	 this(paint, true, implicitScale, width, height, border);  	 
+    public UniversalCellPortrayal2D(Paint paint){   	 
+   	 this(paint, true);  	 
     }    
       
-    public UniversalCellPortrayal2D(Paint paint, boolean drawFrame, double implicitScale, double width, double height, int border)  {   	
+    public UniversalCellPortrayal2D(Paint paint, boolean drawFrame)  {   	
    	cBModelController = ModelController.getInstance().getCellBehavioralModelController();
+   	EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+   	
+   	if(guiState != null){
+   		this.implicitScale = guiState.INITIALZOOMFACTOR;
+      	this.INITIALWIDTH = guiState.EPIDISPLAYWIDTH + (2*guiState.DISPLAYBORDER);
+   	  	this.INITIALHEIGHT = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);
+   	  	this.border = guiState.DISPLAYBORDER;
+   	}
+   	else{
+   		this.INITIALHEIGHT=0;
+   		this.INITIALWIDTH=0;
+   	}
    	this.paint = paint; 
    	this.drawFrame = drawFrame;  
-   	this.implicitScale = implicitScale;
-   	this.INITIALWIDTH = ((int)width);
-	  	this.INITIALHEIGHT = ((int)height);
-	  	this.border = border;
+   	
+    }    
+    
+    public String getPortrayalName() {
+ 	   return NAME;
     }    
     
     // assumes the graphics already has its color set
@@ -312,5 +329,9 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D
 	   return false; 
    }
    
-   
+   public Rectangle2D.Double getViewPortRectangle() {
+ 		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
+ 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAYBORDER,guiState.DISPLAYBORDER,guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
+ 	   else return new Rectangle2D.Double(0,0,0, 0);
+    }
 }

@@ -2,7 +2,12 @@ package sim.app.episim.model.visualization;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.awt.geom.Rectangle2D;
 
+import episiminterfaces.EpisimPortrayal;
+
+import sim.SimStateServer;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.field.grid.Grid2D;
@@ -13,38 +18,31 @@ import sim.portrayal.simple.HexagonalPortrayal2D;
 import sim.util.Double2D;
 
 
-public class HexagonalCellGridPortrayal2D extends HexaObjectGridPortrayal2D {
+public class HexagonalCellGridPortrayal2D extends HexaObjectGridPortrayal2D implements EpisimPortrayal{
+	private static final String NAME = "Corneal Epithelial Cells";
 	private HexagonalCellPortrayal2D defaultHexPortrayal;
 	
 	 private Paint paint;  
        
     
-    private double implicitScale;
+   
     
     private static long actSimStep;
     
-    private final double INITIALWIDTH;
-    private final double INITIALHEIGHT;
-    
-    private int border = 0;
+
 	
 	
 	
 	public HexagonalCellGridPortrayal2D(){
-		this(Color.BLACK, 1, 0, 0, 0); 
+		this(Color.BLACK); 
 	}
 	
-	 public HexagonalCellGridPortrayal2D(double implicitScale) {   	 
-   	 this(Color.BLACK, implicitScale, 0, 0, 0);   	 
-    }  
+	 
       
-    public HexagonalCellGridPortrayal2D(Paint paint, double implicitScale, double width, double height, int border){ 
+    public HexagonalCellGridPortrayal2D(Paint paint){ 
    	super();   	
    	this.paint = paint;   
-   	this.implicitScale = implicitScale;
-   	this.INITIALWIDTH = width;
-	  	this.INITIALHEIGHT = height;
-	  	this.border = border;
+   	
 	  	defaultHexPortrayal = new HexagonalCellPortrayal2D(this, false);
     }    
 	
@@ -53,5 +51,17 @@ public class HexagonalCellGridPortrayal2D extends HexaObjectGridPortrayal2D {
     {
 		 return defaultHexPortrayal;
     }
+	 
+	 public String getPortrayalName() {
+	 	   return NAME;
+	 }
 
+
+
+	public Rectangle2D.Double getViewPortRectangle() {
+		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
+	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAYBORDER,guiState.DISPLAYBORDER,guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
+	   else return new Rectangle2D.Double(0,0,0, 0);
+   }
+	
 }

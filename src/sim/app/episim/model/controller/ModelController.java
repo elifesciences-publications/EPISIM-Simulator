@@ -9,6 +9,7 @@ import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimPortrayal;
 import episiminterfaces.EpisimSbmlModelConnector;
 
 import sim.app.episim.AbstractCell;
@@ -73,7 +74,7 @@ public class ModelController implements java.io.Serializable{
 		return initializer.getCells();
 	}
 	
-	public Portrayal getCellPortrayal(){
+	public EpisimPortrayal getCellPortrayal(){
 		return initializer.getCellPortrayal();
 	}
 	

@@ -1,13 +1,16 @@
 package sim.app.episim.visualization;
 
+import sim.SimStateServer;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.SimplePortrayal2D;
+import sim.portrayal.continuous.ContinuousPortrayal2D;
 
 
-public abstract class AbstractSpatialityScalePortrayal2D extends SimplePortrayal2D {
+public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortrayal2D {
 	
 	private double width;
    private double height;
@@ -25,15 +28,24 @@ public abstract class AbstractSpatialityScalePortrayal2D extends SimplePortrayal
    
    private double resolution = 5;
 	
-	 public AbstractSpatialityScalePortrayal2D(double width, double height, int border, double implicitScale) {
-   	 this.width = width;
-   	 this.height = height;
-   	 this.INITIALWIDTH = width;
-   	 this.INITIALHEIGHT = height;
-   	
-   	 this.border = border;
-   	 this.implicitScale = implicitScale;
-   	 this.specificOffset = border - OFFSET;
+	 public AbstractSpatialityScalePortrayal2D() {
+   	 
+		 EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+		 
+		 if(guiState != null){
+			 this.width =  guiState.EPIDISPLAYWIDTH + (2*guiState.DISPLAYBORDER);
+	   	 this.height = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);
+	   	 this.INITIALWIDTH = width;
+	   	 this.INITIALHEIGHT = height;
+	   	
+	   	 this.border = guiState.DISPLAYBORDER;
+	   	 this.implicitScale = guiState.INITIALZOOMFACTOR;
+		 }else{
+			 this.INITIALWIDTH=0;
+			 this.INITIALHEIGHT=0;
+		 }
+   	 
+   	 this.specificOffset = (border - OFFSET) < 0 ? 0 : (border - OFFSET);
    	 
    	 double heightResolution = Math.round(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron() * 0.02);
 	  	 double widthResolution = Math.round(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() * 0.02);

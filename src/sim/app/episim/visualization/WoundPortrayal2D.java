@@ -1,9 +1,12 @@
 package sim.app.episim.visualization;
 
+import sim.SimStateServer;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
 import sim.portrayal.*;
+import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.util.*;
 
 import java.util.*;
@@ -12,8 +15,12 @@ import java.util.List;
 import java.awt.*;
 import java.awt.geom.*;
 
+import episiminterfaces.EpisimPortrayal;
 
-public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListener {
+
+public class WoundPortrayal2D extends ContinuousPortrayal2D implements SnapshotListener, EpisimPortrayal {
+	
+	private final String NAME = "Wound Region";
 
 	/**
 	 * 
@@ -36,10 +43,13 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 
 	private boolean refreshInfo = true;
 
- 	public WoundPortrayal2D(double width, double height) {
-
-		this.width = ((int)width);
-		this.height = ((int)height);
+ 	public WoundPortrayal2D() {
+ 		 EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+ 		 
+ 		if(guiState != null){ 			
+			this.width = guiState.EPIDISPLAYWIDTH + (2*guiState.DISPLAYBORDER);
+			this.height = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);
+ 		}
 		SnapshotWriter.getInstance().addSnapshotListener(this);
 
 	}
@@ -52,9 +62,7 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 			((GeneralPath) polygon).moveTo(lastActualInfo.clip.getMinX() + woundRegionCoordinates.get(0).x - getDeltaX(),
 					lastActualInfo.clip.getMinY() + woundRegionCoordinates.get(0).y - getDeltaY());
 			for(Double2D coord : woundRegionCoordinates){
-				polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + coord.x, lastActualInfo.clip.getMinY()
-						- getDeltaY() + coord.y);
-
+				polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + coord.x, lastActualInfo.clip.getMinY() - getDeltaY() + coord.y);
 			}
 			if(closeWoundRegionPath)
 				polygon.closePath();
@@ -138,8 +146,7 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 		List<SnapshotObject> list = new ArrayList<SnapshotObject>();
 		if(woundRegionCoordinates.size() > 0){
 			list.add(new SnapshotObject(SnapshotObject.WOUND, woundRegionCoordinates));
-			list.add(new SnapshotObject(SnapshotObject.WOUND, new java.awt.geom.Rectangle2D.Double[] { deltaInfo.draw,
-					deltaInfo.clip }));
+			list.add(new SnapshotObject(SnapshotObject.WOUND, new java.awt.geom.Rectangle2D.Double[] { deltaInfo.draw, deltaInfo.clip }));
 		}
 		return list;
 	}
@@ -155,5 +162,15 @@ public class WoundPortrayal2D extends SimplePortrayal2D implements SnapshotListe
 
 		this.deltaInfo = deltaInfo;
 	}
+
+	public String getPortrayalName() {
+	   return NAME;
+   }
+	
+	public Rectangle2D.Double getViewPortRectangle() {
+ 		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
+ 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAYBORDER, guiState.DISPLAYBORDER, guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
+ 	   else return new Rectangle2D.Double(0,0,0, 0);
+    }
 
 }

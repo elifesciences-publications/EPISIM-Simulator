@@ -67,7 +67,7 @@ import episiminterfaces.SimulationDisplay;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
-import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Scale;
 import sim.display.Console;
@@ -99,7 +99,7 @@ import sim.util.media.PNGEncoder;
 
 
 public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationDisplay, Manipulating2D{
-   private EpidermisGUIState epiSimulation = null;
+   private EpisimGUIState epiSimulation = null;
 	
    protected boolean precise = false;
 	private boolean moviePathSet = false;
@@ -1479,7 +1479,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 		}
 		
 		
-		if(simulation instanceof EpidermisGUIState) epiSimulation = (EpidermisGUIState) simulation;
+		if(simulation instanceof EpisimGUIState) epiSimulation = (EpisimGUIState) simulation;
 		
 		//no unnecessary Entry: Show Console in the popup
 		if(popup != null && popup.getComponentCount()>1){

@@ -3,6 +3,8 @@ package sim.app.episim.model.initialization;
 import java.io.File;
 import java.util.ArrayList;
 
+import episiminterfaces.EpisimPortrayal;
+
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.portrayal.Portrayal;
@@ -42,7 +44,7 @@ public class ModelInitialization {
 		return new ArrayList<UniversalCell>();
 	}
 	
-	public Portrayal getCellPortrayal(){
+	public EpisimPortrayal getCellPortrayal(){
 		return biomechanicalModelInitializer.getCellPortrayal();
 	}
 	

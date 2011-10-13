@@ -17,6 +17,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -39,7 +40,7 @@ import episiminterfaces.SimulationDisplay;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
-import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Scale;
@@ -53,7 +54,7 @@ import sim.util.gui.NumberTextField;
 
 
 public class Display2DHack extends Display2D implements SimulationDisplay{
-	private EpidermisGUIState epiSimulation = null;
+	private EpisimGUIState epiSimulation = null;
 	
 	
 	private boolean moviePathSet = false;
@@ -185,7 +186,7 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 		}
 		
 		
-		if(simulation instanceof EpidermisGUIState) epiSimulation = (EpidermisGUIState) simulation;
+		if(simulation instanceof EpisimGUIState) epiSimulation = (EpisimGUIState) simulation;
 		
 		optionPane.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
 		optionPane.addWindowListener(new WindowAdapter(){
@@ -330,6 +331,15 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 		}
 		
 	}
+	 public ArrayList detatchAll()
+    {
+    ArrayList old = portrayals;
+    popup.removeAll();
+    
+    portrayals = new ArrayList();
+    return old;
+    }
+
 	
 	public boolean isPortrayalVisible(String name){
 		FieldPortrayal2DHolder holder =getPortrayalHolder(name);

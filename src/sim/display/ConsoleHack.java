@@ -18,7 +18,7 @@ import javax.swing.JScrollPane;
 import episiminterfaces.SimulationConsole;
 
 
-import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimTextOut;
 
 import sim.app.episim.util.Names;
@@ -199,9 +199,9 @@ public class ConsoleHack extends Console implements SimulationConsole{
    
    //Override to be able to deploy multiple model Inspectors
 	void buildModelInspector() {
-		EpidermisGUIState epiGUIState;
-		if(simulation != null && simulation instanceof EpidermisGUIState){
-			epiGUIState = (EpidermisGUIState) simulation;
+		EpisimGUIState epiGUIState;
+		if(simulation != null && simulation instanceof EpisimGUIState){
+			epiGUIState = (EpisimGUIState) simulation;
 		
 			
 			deployInspector(epiGUIState.getCellBehavioralModelInspector(), this.cellbehavioralModelInspectorScrollPane, Names.BIOCHEM_MODEL);

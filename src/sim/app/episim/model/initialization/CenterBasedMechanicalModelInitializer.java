@@ -3,6 +3,8 @@ package sim.app.episim.model.initialization;
 import java.io.File;
 import java.util.ArrayList;
 
+import episiminterfaces.EpisimPortrayal;
+
 import sim.app.episim.AbstractCell;
 import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
@@ -12,7 +14,7 @@ import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.tissue.TissueController;
-import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.display.GUIState;
 import sim.portrayal.Inspector;
 import sim.portrayal.LocationWrapper;
@@ -78,17 +80,10 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	   
    }
 
-	protected Portrayal getCellPortrayal() {
-		double zoomFactorHeight = EpidermisGUIState.EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInPixels();
-		double zoomFactorWidth = EpidermisGUIState.EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidthInPixels();
-		
-		double initialZoomFactor = zoomFactorWidth < zoomFactorHeight ? zoomFactorWidth : zoomFactorHeight;
-		
-		double displayWidth = TissueController.getInstance().getTissueBorder().getWidthInPixels() * initialZoomFactor;
-		double displayHeight = TissueController.getInstance().getTissueBorder().getHeightInPixels() * initialZoomFactor;
+	protected EpisimPortrayal getCellPortrayal() {
+	
 	   
-	   return new UniversalCellPortrayal2D(java.awt.Color.lightGray, initialZoomFactor, 
-	   		displayWidth + (2*EpidermisGUIState.DISPLAYBORDER), displayHeight + (2*EpidermisGUIState.DISPLAYBORDER), EpidermisGUIState.DISPLAYBORDER){
+	   return new UniversalCellPortrayal2D(java.awt.Color.lightGray){
 
 			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
 			// make the inspector

@@ -1,7 +1,9 @@
 package sim.app.episim.visualization;
 
 
+import sim.SimStateServer;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
@@ -19,13 +21,15 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+
+import episiminterfaces.EpisimPortrayal;
 import sim.util.Double2D;
 
 
 
-public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D{
+public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D implements EpisimPortrayal{
 	
-	   
+	 private final String NAME = "Ruler";  
 	   
 	    
 	 private static final float DOT = 2;
@@ -40,9 +44,13 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D{
 	    
 	   
 	    
-	public RulerPortrayal2D(double width, double height, int border, double implicitScale){
-		super(width, height, border, implicitScale);
+	public RulerPortrayal2D(){
+		super();
 	}
+	
+	public String getPortrayalName() {
+	   return NAME;
+   }
 	
 	    
 	    // assumes the graphics already has its color set
@@ -202,6 +210,10 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D{
 			return hitAndButtonPressed;
 	}
 
-	
+	public Rectangle2D.Double getViewPortRectangle() {
+ 		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
+ 	   if(guiState != null)return new Rectangle2D.Double(0,0,guiState.EPIDISPLAYWIDTH+(2*guiState.DISPLAYBORDER), guiState.EPIDISPLAYHEIGHT+(2*guiState.DISPLAYBORDER));
+ 	   else return new Rectangle2D.Double(0,0,0, 0);
+    }
 		
 }

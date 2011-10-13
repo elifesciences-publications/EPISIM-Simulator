@@ -78,7 +78,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	
 	
-	private EpidermisGUIState epiUI;
+	private EpisimGUIState epiUI;
 	
 	public static final ObservedByteArrayOutputStream errorOutputStream = new ObservedByteArrayOutputStream();
 	public static final ObservedByteArrayOutputStream standardOutputStream = new ObservedByteArrayOutputStream();
@@ -355,7 +355,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		
 		
 		
-		if((modelFile != null || ( jarFileChoose.showOpenDialog(mainFrame)== JFileChooser.APPROVE_OPTION &&ModeServer.guiMode()))){
+		if((modelFile != null || (jarFileChoose.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION && ModeServer.guiMode()))){
 			if(modelFile == null) modelFile = jarFileChoose.getSelectedFile();
 			boolean success = false; 
 			try{
@@ -373,8 +373,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				ModelController.getInstance().standardInitializationOfModels();
 				ChartController.getInstance().rebuildDefaultCharts();
 				cleanUpContentPane();
-				if(ModeServer.guiMode())epiUI = new EpidermisGUIState(mainFrame);
-				else epiUI = new EpidermisGUIState(noGUIModeMainPanel);
+				if(ModeServer.guiMode())epiUI = new EpisimGUIState(mainFrame);
+				else epiUI = new EpisimGUIState(noGUIModeMainPanel);
 				registerSimulationStateListeners(epiUI);
 				epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
 				if(ModeServer.guiMode()){
@@ -428,8 +428,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		//	System.out.println("Already Data Export Loaded: " + DataExportController.getInstance().isAlreadyDataExportSetLoaded());
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
-			if(ModeServer.guiMode())epiUI = new EpidermisGUIState(mainFrame);
-			else epiUI = new EpidermisGUIState(noGUIModeMainPanel);
+			if(ModeServer.guiMode())epiUI = new EpisimGUIState(mainFrame);
+			else epiUI = new EpisimGUIState(noGUIModeMainPanel);
 			
 			registerSimulationStateListeners(epiUI);
 			epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
@@ -545,8 +545,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 							reloadMechanicalModelGlobalParametersObject(snapshotLoader.getEpisimMechanicalModelGlobalParameters());
 					cleanUpContentPane();
 					
-					if(ModeServer.guiMode())epiUI = new EpidermisGUIState(epidermis, mainFrame, true);
-					else epiUI = new EpidermisGUIState(epidermis, noGUIModeMainPanel, true);
+					if(ModeServer.guiMode())epiUI = new EpisimGUIState(epidermis, mainFrame, true);
+					else epiUI = new EpisimGUIState(epidermis, noGUIModeMainPanel, true);
 					registerSimulationStateListeners(epiUI);
 					epiUI.addSnapshotRestartListener(this);
 					epiUI.setReloadedSnapshot(true);
@@ -580,7 +580,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	}
 	
 	
-	protected void registerSimulationStateListeners(EpidermisGUIState guiState){
+	protected void registerSimulationStateListeners(EpisimGUIState guiState){
 		epiUI.addSimulationStateChangeListener(SimStateServer.getInstance());
 		
 		SimStateServer.getInstance().addSimulationStateChangeListener(this);

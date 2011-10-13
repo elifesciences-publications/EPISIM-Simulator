@@ -63,9 +63,10 @@ import org.jfree.chart.*; // ChartPanel;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimPortrayal;
 
 
-public class EpidermisGUIState extends GUIState implements ChartSetChangeListener{
+public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 
 	public EpiDisplay2D display;
 
@@ -80,21 +81,21 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	private final String CONTROLLERFRAME = "controllerFrame";
 	private final String CHARTFRAME = "chartFrame";
 	
-	private final String EPIDERMISNAME = "Epidermis";
-	private final String BASEMENTMEMBRANENAME = "Basement Membrane";
-	private final String WOUNDNAME = "Wound Region";
-	private final String RULERNAME = "Ruler";
-	private final String GRIDNAME = "Grid";
+	
+	
+	
+	
+	
 
 	private JDesktopPane desktop;
 
 	private EpisimConsole console;
 
-	private final double INITIALZOOMFACTOR;
-	private final double EPIDISPLAYWIDTH;
-	private final double EPIDISPLAYHEIGHT;
+	public final double INITIALZOOMFACTOR;
+	public final double EPIDISPLAYWIDTH;
+	public final double EPIDISPLAYHEIGHT;
 	
-	public static final int DISPLAYBORDER = 40;	
+	public  final int DISPLAYBORDER = 40;	
 	private final double MAXHEIGHTFACTOR = 1;
 	
 	private boolean workaroundPauseWasPressed = false;	
@@ -108,13 +109,11 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	private final int DEFAULTCHARTWIDTH = 400;
 	private final int DEFAULTCHARTHEIGHT = 350;
 	
-	private final BasementMembranePortrayal2D basementPortrayalDraw;
-	private  RulerPortrayal2D rulerPortrayalDraw;
-	private  GridPortrayal2D gridPortrayalDraw;
+	
 	
 	private boolean resizeButtonIsActionSource = false;
 	
-	private final WoundPortrayal2D woundPortrayalDraw;
+	
 	
 	private boolean activateDrawing = false;
 	
@@ -122,24 +121,25 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	private boolean autoArrangeWindows = true;	
 	
-	FieldPortrayal2D epiPortrayal = new ContinuousPortrayal2D();//Dummy-Portrayal
-	ContinuousPortrayal2D basementPortrayal = new ContinuousPortrayal2D();
-	ContinuousPortrayal2D woundPortrayal = new ContinuousPortrayal2D();
-	ContinuousPortrayal2D rulerPortrayal = new ContinuousPortrayal2D();
-	ContinuousPortrayal2D gridPortrayal = new ContinuousPortrayal2D();	
+	FieldPortrayal2D epiPortrayal;
+	BasementMembranePortrayal2D basementPortrayal;
+	WoundPortrayal2D woundPortrayal;
+	RulerPortrayal2D rulerPortrayal;
+	GridPortrayal2D gridPortrayal;	
 	
-	public EpidermisGUIState(JFrame mainFrame){			
+	public EpisimGUIState(JFrame mainFrame){			
 		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
 	}
-	public EpidermisGUIState(JPanel mainPanel){	
+	public EpisimGUIState(JPanel mainPanel){	
 		this(new Epidermis(System.currentTimeMillis()), (Component)mainPanel, false);
 	}
 
-	public EpidermisGUIState(SimState state, JPanel mainPanel, boolean reloadSnapshot){
+	public EpisimGUIState(SimState state, JPanel mainPanel, boolean reloadSnapshot){
 		this(new Epidermis(System.currentTimeMillis()), (Component)mainPanel, reloadSnapshot);
 	}	
-	public EpidermisGUIState(SimState state, Component mainComp, boolean reloadSnapshot){		
+	public EpisimGUIState(SimState state, Component mainComp, boolean reloadSnapshot){		
 		super(state);
+		
 		double zoomFactorHeight = EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInPixels();
 		double zoomFactorWidth = EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidthInPixels();
 		
@@ -147,17 +147,14 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		
 		EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidthInPixels() * INITIALZOOMFACTOR;
 		EPIDISPLAYHEIGHT = TissueController.getInstance().getTissueBorder().getHeightInPixels() * INITIALZOOMFACTOR;
-		
+		SimStateServer.getInstance().setEpisimGUIState(this);
 		if(state instanceof TissueType) TissueController.getInstance().registerTissue(((TissueType) state));
 		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();
 		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainComponent = mainComp;		
 		this.setConsole(new EpisimConsole(this, reloadSnapshot));		
 		
-		basementPortrayalDraw = new BasementMembranePortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER), DISPLAYBORDER);
-		woundPortrayalDraw = new WoundPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER));
-		rulerPortrayalDraw = new RulerPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);
-		gridPortrayalDraw = new GridPortrayal2D(EPIDISPLAYWIDTH + (2*DISPLAYBORDER), EPIDISPLAYHEIGHT + (2*DISPLAYBORDER), DISPLAYBORDER, INITIALZOOMFACTOR);		
+		
 	}
 	
 	
@@ -261,13 +258,21 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		Epidermis theEpidermis = (Epidermis) state;
 		// obstacle portrayal needs no setup
 		
+		basementPortrayal = new BasementMembranePortrayal2D();
+		woundPortrayal = new WoundPortrayal2D();
+		rulerPortrayal = new RulerPortrayal2D();
+		gridPortrayal = new GridPortrayal2D();
+		
 		basementPortrayal.setField(theEpidermis.getBasementContinous2D());
 		woundPortrayal.setField(theEpidermis.getBasementContinous2D());
 		rulerPortrayal.setField(theEpidermis.getRulerContinous2D());
 		gridPortrayal.setField(theEpidermis.getGridContinous2D());
 		
 		
-		Portrayal cellPortrayal = ModelController.getInstance().getCellPortrayal();
+		EpisimPortrayal cellPortrayal = ModelController.getInstance().getCellPortrayal();
+		
+		
+		
 		if(cellPortrayal instanceof UniversalCellPortrayal2D){
 			epiPortrayal = new ContinuousPortrayal2D();
 			epiPortrayal.setPortrayalForClass(UniversalCell.class, (UniversalCellPortrayal2D)cellPortrayal);
@@ -277,13 +282,14 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		}
 		epiPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		
+		display.detatchAll();
 		
-		basementPortrayal.setPortrayalForAll(basementPortrayalDraw);
-		woundPortrayal.setPortrayalForAll(woundPortrayalDraw);
-		rulerPortrayal.setPortrayalForAll(rulerPortrayalDraw);
-		gridPortrayal.setPortrayalForAll(gridPortrayalDraw);
+		display.attach(basementPortrayal, basementPortrayal.getPortrayalName(), basementPortrayal.getViewPortRectangle(), true);
+		display.attach(epiPortrayal, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
+		display.attach(woundPortrayal, woundPortrayal.getPortrayalName(), woundPortrayal.getViewPortRectangle(), true);
+		display.attach(rulerPortrayal, rulerPortrayal.getPortrayalName(), rulerPortrayal.getViewPortRectangle(), true);
+		display.attach(gridPortrayal, gridPortrayal.getPortrayalName(), gridPortrayal.getViewPortRectangle(), true);
 		
-		display.changePortrayal(EPIDERMISNAME, epiPortrayal);
 		
 		// reschedule the displayer
 		display.reset();
@@ -310,11 +316,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 		
 		
-		display.attach(basementPortrayal, BASEMENTMEMBRANENAME, new Rectangle2D.Double(0,0,EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER)), true);
-		display.attach(epiPortrayal, EPIDERMISNAME, new Rectangle2D.Double(DISPLAYBORDER,DISPLAYBORDER,EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT), true);
-		display.attach(woundPortrayal, WOUNDNAME, new Rectangle2D.Double(DISPLAYBORDER,DISPLAYBORDER,EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT), true);
-		display.attach(rulerPortrayal, RULERNAME, new Rectangle2D.Double(0,0,EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER)), true);
-		display.attach(gridPortrayal, GRIDNAME, new Rectangle2D.Double(0,0,EPIDISPLAYWIDTH+(2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER)), true);
+	
 		
 		
 		display.getInsideDisplay().addMouseListener(new MouseAdapter(){			
@@ -330,9 +332,9 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 					if(e.getButton() == MouseEvent.BUTTON3){
 						if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING)console.pressPause();
-						if(woundPortrayalDraw != null){
-							woundPortrayalDraw.clearWoundRegionCoordinates();
-							woundPortrayalDraw.closeWoundRegionPath(false);
+						if(woundPortrayal != null){
+							woundPortrayal.clearWoundRegionCoordinates();
+							woundPortrayal.closeWoundRegionPath(false);
 						}
 						activateDrawing = true;
 					}
@@ -342,9 +344,9 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 					if(e.getButton() == MouseEvent.BUTTON3){
 					//	if(console.getPlayState() == Console.PS_PAUSED)console.pressPause();
-						if(woundPortrayalDraw != null){
-							woundPortrayalDraw.closeWoundRegionPath(true);
-							((Epidermis) state).removeCells(woundPortrayalDraw.getWoundRegion());
+						if(woundPortrayal != null){
+							woundPortrayal.closeWoundRegionPath(true);
+							((Epidermis) state).removeCells(woundPortrayal.getWoundRegion());
 							activateDrawing = false;
 						}
 					}
@@ -352,15 +354,15 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 				}
 	
 				public void mouseEntered(MouseEvent e){
-					if(display.isPortrayalVisible(RULERNAME)){
-						if(rulerPortrayalDraw != null){
-							rulerPortrayalDraw.setCrosshairsVisible(true);
-							rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-						}
+					if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())){
+						
+							rulerPortrayal.setCrosshairsVisible(true);
+							rulerPortrayal.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+						
 					}
 				}
 				public void mouseExited(MouseEvent e){
-					if(display.isPortrayalVisible(RULERNAME) && rulerPortrayalDraw != null) rulerPortrayalDraw.setCrosshairsVisible(false);
+					if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setCrosshairsVisible(false);
 				}
 
 			});
@@ -368,19 +370,19 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 			public void mouseDragged(MouseEvent e){
 				
 				if(activateDrawing){
-					if(woundPortrayalDraw != null){
-						woundPortrayalDraw.addMouseCoordinate(new Double2D(e.getX(), e.getY()));
+					if(woundPortrayal != null){
+						woundPortrayal.addMouseCoordinate(new Double2D(e.getX(), e.getY()));
 						redrawDisplay();
 					}
 				}
-				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-				if(display.isPortrayalVisible(RULERNAME)&& (console.getPlayState()==Console.PS_PAUSED
+				if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+				if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())&& (console.getPlayState()==Console.PS_PAUSED
 						||console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplay();	
 				
 			}
 			public void mouseMoved(MouseEvent e){
-				if(display.isPortrayalVisible(RULERNAME)) rulerPortrayalDraw.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-				if(display.isPortrayalVisible(RULERNAME)&&(console.getPlayState()==Console.PS_PAUSED
+				if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+				if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())&&(console.getPlayState()==Console.PS_PAUSED
 						|| console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplay();			
 			} 
 		});
@@ -572,6 +574,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 		
 		addInternalFrames(c);
 		
+		
 
 	}
 
@@ -741,9 +744,10 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	}
 	
 	public void clearWoundPortrayalDraw(){
-		
-		woundPortrayalDraw.clearWoundRegionCoordinates();
-		woundPortrayalDraw.closeWoundRegionPath(false);
+		if(woundPortrayal != null){
+			woundPortrayal.clearWoundRegionCoordinates();
+			woundPortrayal.closeWoundRegionPath(false);
+		}
 		
 	}
    
@@ -754,7 +758,7 @@ public class EpidermisGUIState extends GUIState implements ChartSetChangeListene
 	
 	public WoundPortrayal2D getWoundPortrayalDraw() {
 	
-		return woundPortrayalDraw;
+		return woundPortrayal;
 	}
 	public EpiDisplay2D getDisplay() {
 	   

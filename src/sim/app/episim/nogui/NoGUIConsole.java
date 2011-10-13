@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.gui.EpidermisGUIState;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimTextOut;
 import sim.app.episim.util.Names;
 import sim.display.Console;
@@ -2885,9 +2885,9 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		    
 				  //Override to be able to deploy multiple model Inspectors
 		 	void buildModelInspector() {
-		 		EpidermisGUIState epiGUIState;
-		 		if(simulation != null && simulation instanceof EpidermisGUIState){
-		 			epiGUIState = (EpidermisGUIState) simulation;
+		 		EpisimGUIState epiGUIState;
+		 		if(simulation != null && simulation instanceof EpisimGUIState){
+		 			epiGUIState = (EpisimGUIState) simulation;
 		 		
 		 			
 		 			deployInspector(epiGUIState.getCellBehavioralModelInspector(), this.cellbehavioralModelInspectorScrollPane, Names.BIOCHEM_MODEL);

@@ -3,6 +3,8 @@ package sim.app.episim.visualization;
 
 
 
+import sim.SimStateServer;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.portrayal.*;
 
 
@@ -10,13 +12,17 @@ import java.awt.*;
 
 import java.awt.geom.*;
 
+import episiminterfaces.EpisimPortrayal;
 
 
-public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D{  
+
+public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implements EpisimPortrayal{
+	
+		 private final String NAME = "Grid";	
 	    
 	    private double gridResolution = 5.0;
-	    public GridPortrayal2D(double width, double height, int border, double implicitScale) {
-	   	 super(width, height, border, implicitScale);
+	    public GridPortrayal2D() {
+	   	 super();
 	   	 	   	 
 	    }
 	    
@@ -37,6 +43,10 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D{
 			drawGrid(graphics, info);			
 		}
 	}
+	
+	public String getPortrayalName() {
+	   return NAME;
+   }
 	    
 	private void drawGrid(Graphics2D graphics, DrawInfo2D info){
 	   	 
@@ -60,5 +70,11 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D{
 		//draw horizontal lines
 		for(double i = (maxY-(spaceBetweenSmallLines*gridResolution)); i >= minY; i -= (spaceBetweenSmallLines*gridResolution))
 			graphics.draw(new Line2D.Double(minX, Math.round(i), maxX , Math.round(i)));		
-	}	 
+	}
+	
+	public Rectangle2D.Double getViewPortRectangle() {
+ 		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
+ 	   if(guiState != null)return new Rectangle2D.Double(0,0,guiState.EPIDISPLAYWIDTH+(2*guiState.DISPLAYBORDER), guiState.EPIDISPLAYHEIGHT+(2*guiState.DISPLAYBORDER));
+ 	   else return new Rectangle2D.Double(0,0,0, 0);
+    }
 }

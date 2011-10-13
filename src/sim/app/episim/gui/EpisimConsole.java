@@ -85,7 +85,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	
 	public EpisimConsole(final GUIState simulation, boolean reloadSnapshot){
 		
-		if(simulation instanceof EpidermisGUIState)((EpidermisGUIState)simulation).addSimulationStateChangeListener(this);
+		if(simulation instanceof EpisimGUIState)((EpisimGUIState)simulation).addSimulationStateChangeListener(this);
 		 if(ModeServer.guiMode()){
 			 console = new ConsoleHack(simulation){
 				 public synchronized void pressPlay(){
@@ -93,7 +93,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				   		
 				   		EpisimTextOut.getEpisimTextOut().clear();
 				      	
-				   		((EpidermisGUIState)console.getSimulation()).clearWoundPortrayalDraw();
+				   		((EpisimGUIState)console.getSimulation()).clearWoundPortrayalDraw();
 				   		
 				   	}
 				   	else if(wasStartedOnce && reloadedSnapshot){
@@ -102,7 +102,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				   	}
 				   	
 				   	wasStartedOnce = true;  
-				   	((EpidermisGUIState)console.getSimulation()).simulationWasStarted();
+				   	((EpisimGUIState)console.getSimulation()).simulationWasStarted();
 				   	 super.pressPlay(reloadedSnapshot);
 				   	   	
 				   	 	   	
@@ -112,7 +112,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				   
 				   public synchronized void pressStop(){
 				   
-				   	((EpidermisGUIState)console.getSimulation()).simulationWasStopped();
+				   	((EpisimGUIState)console.getSimulation()).simulationWasStopped();
 				   	
 				      	
 				   	super.pressStop();
@@ -120,7 +120,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				   
 				   public synchronized void pressPause(){
 				      
-				   	((EpidermisGUIState)console.getSimulation()).simulationWasPaused();
+				   	((EpisimGUIState)console.getSimulation()).simulationWasPaused();
 				   	
 				      	
 				   	super.pressPause();
@@ -520,7 +520,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	   		
 	   		EpisimTextOut.getEpisimTextOut().clear();
 	      	
-	   		((EpidermisGUIState)console.getSimulation()).clearWoundPortrayalDraw();
+	   		((EpisimGUIState)console.getSimulation()).clearWoundPortrayalDraw();
 	   		
 	   	}
 	   	else if(wasStartedOnce && this.reloadedSnapshot){
@@ -529,7 +529,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	   	}
 	   	
 	   	wasStartedOnce = true;  
-	   	((EpidermisGUIState)console.getSimulation()).simulationWasStarted();
+	   	((EpisimGUIState)console.getSimulation()).simulationWasStarted();
 	    snapshotButton.setEnabled(true);	
    	 console.pressPlay(reloadedSnapshot);
    	   	
@@ -540,7 +540,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    
    public synchronized void pressStop(){
    	if(console instanceof NoGUIConsole){
-   		((EpidermisGUIState)console.getSimulation()).simulationWasStopped();
+   		((EpisimGUIState)console.getSimulation()).simulationWasStopped();
    	}
    	snapshotButton.setEnabled(false);
       	
@@ -549,7 +549,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    
    public synchronized void pressPause(){
    	if(console instanceof NoGUIConsole){
-   		((EpidermisGUIState)console.getSimulation()).simulationWasPaused();
+   		((EpisimGUIState)console.getSimulation()).simulationWasPaused();
    	
    	}
    	console.pressPause();

@@ -35,6 +35,8 @@ import sim.util.MutableInt2D;
 
 public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implements SimulationStateChangeListener{
 	
+	   
+	
 	 private static Color standardCellColor = new Color(255,210,210);
 	 private static Color standardMembraneColor = new Color(150, 0, 0);
 	
@@ -62,7 +64,9 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    	 drawInfoRegistry = new HashMap<Long, DrawInfo2D>();
    	 simStepTimeStampRegistry = new HashMap<Long, Long>();
    	 SimStateServer.getInstance().addSimulationStateChangeListener(this);
-    }  
+    }
+    
+   
     
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info)
     {

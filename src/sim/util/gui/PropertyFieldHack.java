@@ -3,11 +3,9 @@ package sim.util.gui;
 import javax.swing.JCheckBox;
 
 
-public class PropertyFieldHack extends PropertyField {
+public class PropertyFieldHack extends PropertyField{
 	
-	public JCheckBox getCheckField(){ return this.checkField; }
-	
-	/** Constructs a PropertyField as just a writeable, empty text field. */
+	 /** Constructs a PropertyField as just a writeable, empty text field. */
    public PropertyFieldHack()
        {
        this(null,"",true);
@@ -54,8 +52,10 @@ public class PropertyFieldHack extends PropertyField {
        which the user has checked.  newValue(...) must also return a String with the desired index for the list to be
        set to.  */
    public PropertyFieldHack(String label, String initialValue, boolean isReadWrite, Object domain, int show)
-   {
-   	super(label, initialValue, isReadWrite, domain, show);
-   }
+       {
+        super(label, initialValue, isReadWrite, domain, show);
+       }
+	
+	public JCheckBox getCheckField(){ return this.checkField; }
 
 }

@@ -16,28 +16,38 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -47,6 +57,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolTip;
 import javax.swing.JViewport;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -60,11 +71,14 @@ import sim.app.episim.gui.EpidermisGUIState;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Scale;
 import sim.display.Console;
+import sim.display.Display2D;
 import sim.display.GUIState;
 import sim.display.IconLoaderHack;
+import sim.display.Manipulating2D;
+import sim.display.Prefs;
 import sim.display.SimApplet;
 
-import sim.display.Display2D.InnerDisplay2D;
+
 import sim.engine.Schedule;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -72,6 +86,7 @@ import sim.engine.Stoppable;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.FieldPortrayal2D;
 import sim.portrayal.LocationWrapper;
+import sim.portrayal.SimplePortrayal2D;
 import sim.util.Bag;
 import sim.util.gui.Utilities;
 import sim.util.gui.LabelledList;
@@ -83,115 +98,241 @@ import sim.util.media.PNGEncoder;
 
 
 
-public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationDisplay{
+public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationDisplay, Manipulating2D{
    private EpidermisGUIState epiSimulation = null;
 	
    protected boolean precise = false;
 	private boolean moviePathSet = false;
 	private EpisimMovieMaker episimMovieMaker;
 	
+   public String DEFAULT_PREFERENCES_KEY = "Display2D";
+   String preferencesKey = DEFAULT_PREFERENCES_KEY;  // default 
+   /** If you have more than one Display2D in your simulation and you want them to have
+       different preferences, set each to a different key value.    The default value is DEFAULT_PREFERENCES_KEY.
+       You may not have a key which ends in a forward slash (/) when trimmed  
+       Key may be set to null (the default).   */
+   public void setPreferencesKey(String s)
+       {
+       if (s.trim().endsWith("/"))
+           throw new RuntimeException("Key ends with '/', which is not allowed");
+       else preferencesKey = s;
+       }
+   public String getPreferencesKey() { return preferencesKey; }
+	
    /** Option pane */
    public class OptionPane extends JPanel
-       {
-       // buffer stuff
-       public int buffering;
-       
-       public JRadioButton useNoBuffer = new JRadioButton("By Drawing Separate Rectangles");
-       public JRadioButton useBuffer = new JRadioButton("Using a Stretched Image");
-       public JRadioButton useDefault = new JRadioButton("Let the Program Decide How");
-       public ButtonGroup usageGroup = new ButtonGroup();
-       
-       public JCheckBox antialias = new JCheckBox("Antialias Graphics");
-       public JCheckBox alphaInterpolation = new JCheckBox("Better Transparency");
-       public JCheckBox interpolation = new JCheckBox("Bilinear Interpolation of Images");
-       public JCheckBox tooltips = new JCheckBox("Tool Tips");
-       
-       public NumberTextField xOffsetField = new NumberTextField(0,1,50)
-           {
-           public double newValue(final double val)
-               {
-               double scale = getScale();
-               insideDisplay.xOffset = val / scale;
-               NoGUIDisplay2D.this.repaint();  // redraw the inside display
-               return insideDisplay.xOffset * scale;
-               }
-           };
-           
-       public NumberTextField yOffsetField = new NumberTextField(0,1,50)
-           {
-           public double newValue(final double val)
-               {
-               double scale = getScale();
-               insideDisplay.yOffset = val / scale;
-               NoGUIDisplay2D.this.repaint();  // redraw the inside display
-               return insideDisplay.yOffset * scale;
-               }
-           };
+   {
+      // buffer stuff
+      int buffering;
+      
+      JRadioButton useNoBuffer = new JRadioButton("By Drawing Separate Rectangles");
+      JRadioButton useBuffer = new JRadioButton("Using a Stretched Image");
+      JRadioButton useDefault = new JRadioButton("Let the Program Decide How");
+      ButtonGroup usageGroup = new ButtonGroup();
+      
+      JCheckBox antialias = new JCheckBox("Antialias Graphics");
+      JCheckBox alphaInterpolation = new JCheckBox("Better Transparency");
+      JCheckBox interpolation = new JCheckBox("Bilinear Interpolation of Images");
+      JCheckBox tooltips = new JCheckBox("Tool Tips");
+      
+      JButton systemPreferences = new JButton("MASON");
+      JButton appPreferences = new JButton("Simulation");
+              
+      NumberTextField xOffsetField = new NumberTextField(0,1,50)
+          {
+          public double newValue(final double val)
+              {
+              double scale = getScale();
+              insideDisplay.xOffset = val / scale;
+              NoGUIDisplay2D.this.repaint();  // redraw the inside display
+              return insideDisplay.xOffset * scale;
+              }
+          };
+          
+      NumberTextField yOffsetField = new NumberTextField(0,1,50)
+          {
+          public double newValue(final double val)
+              {
+              double scale = getScale();
+              insideDisplay.yOffset = val / scale;
+              NoGUIDisplay2D.this.repaint();  // redraw the inside display
+              return insideDisplay.yOffset * scale;
+              }
+          };
 
-       public OptionPane(String title)
-           {
-           this.setLayout(new BorderLayout());
-           useDefault.setSelected(true);
-           useNoBuffer.setToolTipText("<html>When not using transparency on Windows/XWindows,<br>this method is often (but not always) faster</html>");
-           usageGroup.add(useNoBuffer);
-           usageGroup.add(useBuffer);
-           useBuffer.setToolTipText("<html>When using transparency, <i>or</i> when on a Mac,<br>this method is usually faster, but may require more<br>memory (especially on Windows/XWindows) --<br>increasing heap size can help performance.</html>");
-           usageGroup.add(useDefault);
-           
-           JPanel p2 = new JPanel();
-           
-           Box b = new Box(BoxLayout.Y_AXIS);
-           b.add(useNoBuffer);
-           b.add(useBuffer);
-           b.add(useDefault);
-           JPanel p = new JPanel();
-           p.setLayout(new BorderLayout());
-           p.setBorder(new javax.swing.border.TitledBorder("Draw Grids of Rectangles..."));
-           p.add(b,BorderLayout.CENTER);
-           p2.setLayout(new BorderLayout());
-           p2.add(p,BorderLayout.NORTH);
+      ActionListener listener = null;
+              
+      OptionPane(String title)
+          {
+          this.setLayout(new BorderLayout());
+          useDefault.setSelected(true);
+          useNoBuffer.setToolTipText("<html>When not using transparency on Windows/XWindows,<br>this method is often (but not always) faster</html>");
+          usageGroup.add(useNoBuffer);
+          usageGroup.add(useBuffer);
+          useBuffer.setToolTipText("<html>When using transparency, <i>or</i> when on a Mac,<br>this method is usually faster, but may require more<br>memory (especially on Windows/XWindows) --<br>increasing heap size can help performance.</html>");
+          usageGroup.add(useDefault);
+          
+          JPanel p2 = new JPanel();
+          
+          Box b = new Box(BoxLayout.Y_AXIS);
+          b.add(useNoBuffer);
+          b.add(useBuffer);
+          b.add(useDefault);
+          JPanel p = new JPanel();
+          p.setLayout(new BorderLayout());
+          p.setBorder(new javax.swing.border.TitledBorder("Draw Grids of Rectangles..."));
+          p.add(b,BorderLayout.CENTER);
+          p2.setLayout(new BorderLayout());
+          p2.add(p,BorderLayout.NORTH);
 
-           LabelledList l = new LabelledList("Offset in Pixels");
-           l.addLabelled("X Offset", xOffsetField);
-           l.addLabelled("Y Offset", yOffsetField);
-           p2.add(l,BorderLayout.CENTER);
-           this.add(p2,BorderLayout.NORTH);
+          LabelledList l = new LabelledList("Offset in Pixels");
+          l.addLabelled("X Offset", xOffsetField);
+          l.addLabelled("Y Offset", yOffsetField);
+          p2.add(l,BorderLayout.CENTER);
+          this.add(p2,BorderLayout.NORTH);
 
-           b = new Box(BoxLayout.Y_AXIS);
-           b.add(antialias);
-           b.add(interpolation);
-           b.add(alphaInterpolation);
-           b.add(tooltips);
-           p = new JPanel();
-           p.setLayout(new BorderLayout());
-           p.setBorder(new javax.swing.border.TitledBorder("Graphics Features"));
-           p.add(b,BorderLayout.CENTER);
-           this.add(p,BorderLayout.CENTER);
-           
-           ActionListener listener = new ActionListener()
-               {
-               public void actionPerformed(ActionEvent e)
-                   {
-                   useTooltips = tooltips.isSelected();
-                   if (useDefault.isSelected())
-                       buffering = FieldPortrayal2D.DEFAULT;
-                   else if (useBuffer.isSelected())
-                       buffering = FieldPortrayal2D.USE_BUFFER;
-                   else buffering = FieldPortrayal2D.DONT_USE_BUFFER;
-                   insideDisplay.setupHints(antialias.isSelected(), alphaInterpolation.isSelected(), interpolation.isSelected());
-                   NoGUIDisplay2D.this.repaint();  // redraw the inside display
-                   }
-               };
-           useNoBuffer.addActionListener(listener);
-           useBuffer.addActionListener(listener);
-           useDefault.addActionListener(listener);
-           antialias.addActionListener(listener);
-           alphaInterpolation.addActionListener(listener);
-           interpolation.addActionListener(listener);
-           tooltips.addActionListener(listener);
-           
-           }
-       }
+          b = new Box(BoxLayout.Y_AXIS);
+          b.add(antialias);
+          b.add(interpolation);
+          b.add(alphaInterpolation);
+          b.add(tooltips);
+          p = new JPanel();
+          p.setLayout(new BorderLayout());
+          p.setBorder(new javax.swing.border.TitledBorder("Graphics Features"));
+          p.add(b,BorderLayout.CENTER);
+          this.add(p,BorderLayout.CENTER);
+          
+          listener = new ActionListener()
+              {
+              public void actionPerformed(ActionEvent e)
+                  {
+                  useTooltips = tooltips.isSelected();
+                  if (useDefault.isSelected())
+                      buffering = FieldPortrayal2D.DEFAULT;
+                  else if (useBuffer.isSelected())
+                      buffering = FieldPortrayal2D.USE_BUFFER;
+                  else buffering = FieldPortrayal2D.DONT_USE_BUFFER;
+                  insideDisplay.setupHints(antialias.isSelected(), alphaInterpolation.isSelected(), interpolation.isSelected());
+                  NoGUIDisplay2D.this.repaint();  // redraw the inside display
+                  }
+              };
+          useNoBuffer.addActionListener(listener);
+          useBuffer.addActionListener(listener);
+          useDefault.addActionListener(listener);
+          antialias.addActionListener(listener);
+          alphaInterpolation.addActionListener(listener);
+          interpolation.addActionListener(listener);
+          tooltips.addActionListener(listener);
+
+          // add preferences
+                      
+          b = new Box(BoxLayout.X_AXIS);
+          b.add(new JLabel(" Save as Defaults for "));
+          b.add(appPreferences);
+          b.add(systemPreferences);
+          this.add(b, BorderLayout.SOUTH);
+
+          systemPreferences.putClientProperty( "JComponent.sizeVariant", "mini" );
+          systemPreferences.putClientProperty( "JButton.buttonType", "bevel" );
+          systemPreferences.addActionListener(new ActionListener()
+              {
+              public void actionPerformed(ActionEvent e)
+                  {
+                  String key = getPreferencesKey();
+                  savePreferences(Prefs.getGlobalPreferences(key));
+                                      
+                  // if we're setting the system preferences, remove the local preferences to avoid confusion
+                  Prefs.removeAppPreferences(simulation, key);
+                  }
+              });
+                      
+          appPreferences.putClientProperty( "JComponent.sizeVariant", "mini" );
+          appPreferences.putClientProperty( "JButton.buttonType", "bevel" );
+          appPreferences.addActionListener(new ActionListener()
+              {
+              public void actionPerformed(ActionEvent e)
+                  {
+                  String key = getPreferencesKey();
+                  savePreferences(Prefs.getAppPreferences(simulation, key));
+                  }
+              });
+
+     /*     setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+          setResizable(false);
+          pack();*/
+
+          }
+              
+      /** Saves the Option Pane Preferences to a given Preferences Node */
+      void savePreferences(Preferences prefs)
+          {
+          try
+              {
+              prefs.putInt(DRAW_GRIDS_KEY,
+                  useNoBuffer.isSelected() ? 0 : 
+                  useBuffer.isSelected() ? 1 : 2);
+              prefs.putDouble(X_OFFSET_KEY, xOffsetField.getValue());
+              prefs.putDouble(Y_OFFSET_KEY, yOffsetField.getValue());
+              prefs.putBoolean(ANTIALIAS_KEY, antialias.isSelected());
+              prefs.putBoolean(BETTER_TRANSPARENCY_KEY, alphaInterpolation.isSelected());
+              prefs.putBoolean(INTERPOLATION_KEY, interpolation.isSelected());
+              prefs.putBoolean(TOOLTIPS_KEY, tooltips.isSelected());
+                                                      
+           //   if (!Prefs.save(prefs)) Utilities.inform ("Preferences Cannot be Saved", "Your Java system can't save preferences.  Perhaps this is an applet?", this);
+              }
+          catch (java.security.AccessControlException e) { } // it must be an applet
+          }
+                      
+                      
+      static final String DRAW_GRIDS_KEY = "Draw Grids";
+      static final String X_OFFSET_KEY = "X Offset";
+      static final String Y_OFFSET_KEY = "Y Offset";
+      static final String ANTIALIAS_KEY = "Antialias";
+      static final String BETTER_TRANSPARENCY_KEY = "Better Transparency";
+      static final String INTERPOLATION_KEY = "Bilinear Interpolation";
+      static final String TOOLTIPS_KEY = "Tool Tips";
+              
+      /** Resets the Option Pane Preferences by loading from the preference database */
+      void resetToPreferences()
+          {
+          try
+              {
+              Preferences systemPrefs = Prefs.getGlobalPreferences(getPreferencesKey());
+              Preferences appPrefs = Prefs.getAppPreferences(simulation, getPreferencesKey());
+              int val = appPrefs.getInt(DRAW_GRIDS_KEY, 
+                  systemPrefs.getInt(DRAW_GRIDS_KEY,
+                      useNoBuffer.isSelected() ? 0 : 
+                      useBuffer.isSelected() ? 1 : 2));
+              if (val == 0) useNoBuffer.setSelected(true);
+              else if (val == 1) useBuffer.setSelected(true);
+              else // (val == 0) 
+                  useDefault.setSelected(true);
+              xOffsetField.setValue(xOffsetField.newValue(appPrefs.getDouble(X_OFFSET_KEY,
+                          systemPrefs.getDouble(X_OFFSET_KEY, 0))));
+              yOffsetField.setValue(yOffsetField.newValue(appPrefs.getDouble(Y_OFFSET_KEY,
+                          systemPrefs.getDouble(Y_OFFSET_KEY, 0))));
+              antialias.setSelected(appPrefs.getBoolean(ANTIALIAS_KEY,
+                      systemPrefs.getBoolean(ANTIALIAS_KEY, false)));
+              alphaInterpolation.setSelected(appPrefs.getBoolean(BETTER_TRANSPARENCY_KEY,
+                      systemPrefs.getBoolean(BETTER_TRANSPARENCY_KEY, false)));
+              interpolation.setSelected(appPrefs.getBoolean(INTERPOLATION_KEY,
+                      systemPrefs.getBoolean(INTERPOLATION_KEY, false)));
+              tooltips.setSelected(appPrefs.getBoolean(TOOLTIPS_KEY,
+                      systemPrefs.getBoolean(TOOLTIPS_KEY, false)));
+              // trigger resets by calling the listener.  Don't bother with an event
+              listener.actionPerformed(null);
+              }
+          catch (java.security.AccessControlException e) { } // it must be an applet
+          }
+   }
+   
+   /** Removes all mouse listeners, mouse motion listeners, and Key listeners from this component.  Mostly used for kiosk mode stuff -- see the Howto */
+   public void removeListeners()
+   {
+       // moved to the Display2D ot be at the same level as handleEvent
+       insideDisplay.removeListeners();
+   }
+   
    
    /** The object which actually does all the drawing.  Perhaps we should move this out. */
    public class InnerDisplay2D extends JComponent
@@ -207,14 +348,28 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        public double xOffset;
        /** y offset */
        public double yOffset;
+       
+       /** @deprecated Use Display2D.removeListeners instead. */
+       public void removeListeners()
+           {
+           MouseListener[] mls = (MouseListener[])(getListeners(MouseListener.class));
+           for(int x = 0 ; x < mls.length; x++)
+               { removeMouseListener(mls[x]); }
+           MouseMotionListener[] mmls = (MouseMotionListener[])(getListeners(MouseMotionListener.class));
+           for(int x = 0 ; x < mmls.length; x++)
+               { removeMouseMotionListener(mmls[x]); }
+           KeyListener[] kls = (KeyListener[])(getListeners(KeyListener.class));
+           for(int x = 0 ; x < kls.length; x++)
+               { removeKeyListener(kls[x]); }
+           }
                        
        /** Creates an InnerDisplay2D with the provided width and height. */
        public InnerDisplay2D(double width, double height)
-           {
+       {
            this.width = width;
            this.height = height;
            setupHints(false,false,false);  // go for speed
-           }
+       }
        
        /** Overloaded to return (width * scale, height * scale) */
        public Dimension getPreferredSize() 
@@ -248,8 +403,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
                // only paint if it's appropriate
                long steps = NoGUIDisplay2D.this.simulation.state.schedule.getSteps();
                if (steps > lastEncodedSteps &&
-                   steps % getInterval() == 0 &&
-                   NoGUIDisplay2D.this.simulation.state.schedule.time() < Schedule.AFTER_SIMULATION)
+                   NoGUIDisplay2D.this.simulation.state.schedule.getTime() < Schedule.AFTER_SIMULATION)
                    {
                    NoGUIDisplay2D.this.movieMaker.add(paint(g,true,false));
                    lastEncodedSteps = steps;
@@ -264,44 +418,44 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        public RenderingHints bufferedHints;
        
        /** The default method for setting up the given hints.
-           By default they suggest that Java2D emphasize efficiency over prettiness.*/
-       public void setupHints(boolean antialias, boolean niceAlphaInterpolation, boolean niceInterpolation)
-           {
-           unbufferedHints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);  // in general
-           unbufferedHints.put(RenderingHints.KEY_INTERPOLATION,
-               niceInterpolation ? RenderingHints.VALUE_INTERPOLATION_BILINEAR :
-               RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-           // dunno what to do here about antialiasing on MacOS X
-           // -- if it's on, then circles can get drawn as squares (see woims demo at 1.5 scale)
-           // -- but if it's off, then stuff gets antialiased in pictures but not on a screenshot.
-           // My inclination is to leave it off. 
-           unbufferedHints.put(RenderingHints.KEY_ANTIALIASING, 
-               antialias ? RenderingHints.VALUE_ANTIALIAS_ON :
-               RenderingHints.VALUE_ANTIALIAS_OFF);
-           unbufferedHints.put(RenderingHints.KEY_TEXT_ANTIALIASING,
-               antialias ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
-               RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-           unbufferedHints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, 
-               niceAlphaInterpolation ? 
-               RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY :
-               RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+       By default they suggest that Java2D emphasize efficiency over prettiness.*/
+   public void setupHints(boolean antialias, boolean niceAlphaInterpolation, boolean niceInterpolation)
+       {
+       unbufferedHints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);  // in general
+       unbufferedHints.put(RenderingHints.KEY_INTERPOLATION,
+           niceInterpolation ? RenderingHints.VALUE_INTERPOLATION_BILINEAR :
+           RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+       // dunno what to do here about antialiasing on MacOS X
+       // -- if it's on, then circles can get drawn as squares (see woims demo at 1.5 scale)
+       // -- but if it's off, then stuff gets antialiased in pictures but not on a screenshot.
+       // My inclination is to leave it off. 
+       unbufferedHints.put(RenderingHints.KEY_ANTIALIASING, 
+           antialias ? RenderingHints.VALUE_ANTIALIAS_ON :
+           RenderingHints.VALUE_ANTIALIAS_OFF);
+       unbufferedHints.put(RenderingHints.KEY_TEXT_ANTIALIASING,
+           antialias ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
+           RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+       unbufferedHints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, 
+           niceAlphaInterpolation ? 
+           RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY :
+           RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
 
-           bufferedHints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);  // in general
-           bufferedHints.put(RenderingHints.KEY_INTERPOLATION,
-               niceInterpolation ? RenderingHints.VALUE_INTERPOLATION_BILINEAR :
-               RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-           // similarly
-           bufferedHints.put(RenderingHints.KEY_ANTIALIASING, 
-               antialias ? RenderingHints.VALUE_ANTIALIAS_ON :
-               RenderingHints.VALUE_ANTIALIAS_OFF);
-           bufferedHints.put(RenderingHints.KEY_TEXT_ANTIALIASING,
-               antialias ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
-               RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-           bufferedHints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, 
-               niceAlphaInterpolation ? 
-               RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY :
-               RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-           }
+       bufferedHints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);  // in general
+       bufferedHints.put(RenderingHints.KEY_INTERPOLATION,
+           niceInterpolation ? RenderingHints.VALUE_INTERPOLATION_BILINEAR :
+           RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+       // similarly
+       bufferedHints.put(RenderingHints.KEY_ANTIALIASING, 
+           antialias ? RenderingHints.VALUE_ANTIALIAS_ON :
+           RenderingHints.VALUE_ANTIALIAS_OFF);
+       bufferedHints.put(RenderingHints.KEY_TEXT_ANTIALIASING,
+           antialias ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
+           RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+       bufferedHints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, 
+           niceAlphaInterpolation ? 
+           RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY :
+           RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+       }
        
        java.lang.ref.WeakReference toolTip = new java.lang.ref.WeakReference(null);
        public JToolTip createToolTip()
@@ -347,6 +501,29 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
                    }
                }
            }
+       static final int MAX_TOOLTIP_LINES = 10;
+       public String createToolTipText( Rectangle2D.Double rect, final GUIState simulation )
+           {
+           String s = "<html><font face=\"" +
+               getFont().getFamily() + "\" size=\"-1\">";
+           Bag[] hitObjects = objectsHitBy(rect);
+           int count = 0;
+           for(int x=0;x<hitObjects.length;x++)
+               {
+               FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(portrayals.get(x));
+               for( int i = 0 ; i < hitObjects[x].numObjs ; i++ )
+                   {
+                   if (count > 0) s += "<br>";
+                   if (count >= MAX_TOOLTIP_LINES) { return s + "...<i>etc.</i></font></html>"; }
+                   count++;
+                   String status = p.portrayal.getStatus((LocationWrapper) (hitObjects[x].objs[i]));
+                   if (status != null) s += status;  // might return null, sort of meaning "leave me alone"
+                   }
+               }
+           if (count==0) return null;
+           s += "</font></html>";
+           return s;
+           }
        
        boolean paintLock = false;
        /** Swing's equivalent of paint(Graphics g).   Called by repaint().  In turn calls
@@ -363,8 +540,9 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
            }
        
        /** The top-level repainting method.  If we're writing to a movie, we do a paintToMovie
-           (which also does a buffered paint to the screen) else we do an ordinary paint.
-           <tt>buffer</tt> determines if we do our ordinary paints buffered or not. */
+       (which also does a buffered paint to the screen) else we do an ordinary paint.
+       <tt>buffer</tt> determines if we do our ordinary paints buffered or not.
+       @deprecated use paintComponent() or paint(...) */
        public void paintComponent(Graphics g, boolean buffer)
            {
            synchronized(NoGUIDisplay2D.this.simulation.state.schedule)  // for time()
@@ -503,59 +681,29 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
                    g.fillRect((int)clip.getX(),(int)clip.getY(),(int)clip.getWidth(),(int)clip.getHeight());
                    }
                
-               /*
-               // get scale
-               final double scale = getScale();
-               // compute WHERE we need to draw
-               int origindx = 0;
-               int origindy = 0;
-
-               // for information on why we use getViewRect, see computeClip()
-               Rectangle2D fullComponent = getViewRect();
-               if (fullComponent.getWidth() > (width * scale))
-               origindx = (int)((fullComponent.getWidth() - width*scale)/2);
-               if (fullComponent.getHeight() > (height*scale))
-               origindy = (int)((fullComponent.getHeight() - height*scale)/2);
-                   
-               // offset origin as user had requested
-               origindx += (int)(xOffset*scale);
-               origindy += (int)(yOffset*scale);
-               */
+              
                
                Iterator iter = portrayals.iterator();
                while (iter.hasNext())
+               {
+               FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(iter.next());
+               if (p.visible)
                    {
-                   FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(iter.next());
-                   if (p.visible)
-                       {
-/*
- Rectangle2D rdraw = new Rectangle2D.Double(
- // we floor to an integer because we're dealing with exact pixels at this point
- (int)(p.bounds.x * scale) + origindx,
- (int)(p.bounds.y * scale) + origindy,
- (int)(p.bounds.width * scale),
- (int)(p.bounds.height * scale));
-*/
-
-                       // set buffering if necessary
-                       int buf = p.portrayal.getBuffering();
-                       p.portrayal.setBuffering(optionPane.buffering);
-                       
-                       // MacOS X 10.3 Panther has a bug which resets the clip, YUCK
-                       g.setClip(g.getClip());
-                       
-                       // do the drawing
-/*
- p.portrayal.draw(p.portrayal.getField(), // I could have passed null in here too
- g, new DrawInfo2D(rdraw,clip));
-*/
-                       p.portrayal.draw(p.portrayal.getField(), // I could have passed null in here too
-                           g, getDrawInfo2D(p, clip));
-                       
-                       // reset the buffering if necessary
-                       p.portrayal.setBuffering(buf);
-                       }
+                   // set buffering if necessary
+                   int buf = p.portrayal.getBuffering();
+                   p.portrayal.setBuffering(optionPane.buffering);
+                   
+                   // MacOS X 10.3 Panther has a bug which resets the clip, YUCK
+                   g.setClip(g.getClip());
+                   
+                   // do the drawing
+                   p.portrayal.draw(p.portrayal.getField(), // I could have passed null in here too
+                       g, getDrawInfo2D(p, clip));
+                   
+                   // reset the buffering if necessary
+                   p.portrayal.setBuffering(buf);
                    }
+               }
                }
            }
 
@@ -720,6 +868,8 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
    
    public static final ImageIcon LAYERS_ICON = iconFor("Layers.png");
    public static final ImageIcon LAYERS_ICON_P = iconFor("LayersPressed.png");
+   public static final ImageIcon REFRESH_ICON = iconFor("Reload.png");
+   public static final ImageIcon REFRESH_ICON_P = iconFor("ReloadPressed.png");
    public static final ImageIcon MOVIE_ON_ICON = iconFor("MovieOn.png");
    public static final ImageIcon MOVIE_ON_ICON_P = iconFor("MovieOnPressed.png");
    public static final ImageIcon MOVIE_OFF_ICON = iconFor("MovieOff.png");
@@ -729,15 +879,18 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
    public static final ImageIcon OPTIONS_ICON = iconFor("Options.png");
    public static final ImageIcon OPTIONS_ICON_P = iconFor("OptionsPressed.png");
    
+   public static final Object[] REDRAW_OPTIONS = new Object[] { "Steps/Redraw", "Model Secs/Redraw", "Real Secs/Redraw", "Always Redraw", "Never Redraw" };
+
+   
    /** Use tool tips? */
-   public boolean useTooltips;
+   boolean useTooltips;
 
    /** The last steps for a frame that was painted to the screen.  Keeping this
        variable around enables our movie maker to ensure that it doesn't write
        a frame twice to its movie stream. */
    long lastEncodedSteps = -1;  // because we want to encode the start of the simulation prior to any steps.  That's step 0.
    /** Our movie maker, if one is running, else null. */
-   public MovieMaker movieMaker;
+   MovieMaker movieMaker;
 
    /** The 2D display inside the scroll view.  Does the actual drawing of the simulation. */
    public InnerDisplay2D insideDisplay;
@@ -748,7 +901,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
    /** The list of portrayals the insideDisplay draws.  Each element in this list is a Portrayal2DHolder. */
    ArrayList portrayals = new ArrayList();
    /** The scroll view which holds the insideDisplay. */
-   JScrollPane display;
+   public JScrollPane display;
    /** The scroll view's viewport. */
    JViewport port;
    /** The stoppable for the repeat object which redraws the Display2D in the schedule. */
@@ -760,7 +913,11 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
    /** The popup layers menu */
    public JPopupMenu popup;
    /** The button which pops up the layers menu */
-   public JToggleButton togglebutton;  // for popup
+   public JToggleButton layersbutton;  // for popup
+   /** The refresh menu */
+   public JPopupMenu refreshPopup;
+   /** The button which pops up the refresh menu */
+   public JToggleButton refreshbutton;  // for popup
    /** The button which starts or stops a movie */
    public JButton movieButton;
    /** The button which snaps a screenshot */
@@ -771,6 +928,10 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
    public NumberTextField scaleField;
    /** The field for skipping frames */
    public NumberTextField skipField;
+   /** The combo box for skipping frames */
+   public JComboBox skipBox;
+   /** The frame which holds the skip controls */
+   public JPanel skipFrame;
        
    /** Scale (zoom value).  1.0 is 1:1.  2.0 is zoomed in 2 times.  Etc. */
    double scale = 1.0;
@@ -781,12 +942,12 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
    public double getScale() { synchronized (scaleLock) { return scale; } }
 
    /** How many steps are skipped before the display updates itself.  */
-   long interval = 1;
-   Object intervalLock = new Object();  // interval lock
+ //  long interval = 1;
+   //Object intervalLock = new Object();  // interval lock
    /** Sets how many steps are skipped before the display updates itself. */
-   public void setInterval(long i) { synchronized(intervalLock) { if (i > 0) interval = i; } }
+  // public void setInterval(long i) { synchronized(intervalLock) { if (i > 0) interval = i; } }
    /** Gets how many steps are skipped before the display updates itself. */
-   public long getInterval() { synchronized(intervalLock) { return interval; } }
+  // public long getInterval() { synchronized(intervalLock) { return interval; } }
    
    /** Whether or not we're clipping */
    boolean clipping = true;
@@ -828,19 +989,14 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        
    /** Resets the Display2D so it reschedules itself and clears out all selections.  This is useful when reusing the Display2D. */
    public void reset()
-       {
-       // now reschedule myself
-       if (stopper!=null) stopper.stop();
-       stopper = simulation.scheduleImmediateRepeat(true,this);
-               
-       // deselect existing objects
-       for(int x=0;x<selectedWrappers.size();x++)
-           {
-           LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
-           wrapper.getFieldPortrayal().setSelected(wrapper,false);
-           }
-       selectedWrappers.clear();
-       }
+   {
+   // now reschedule myself
+   if (stopper!=null) stopper.stop();
+   try { stopper = simulation.scheduleRepeatingImmediatelyAfter(this); }
+   catch (IllegalArgumentException e) { } // if the simulation is over, we can't schedule.  Don't worry about it.
+
+   clearSelections();
+   }
    
    /** Attaches a portrayal to the Display2D, along with the provided human-readable name for the portrayal.
        The portrayal will be attached with an origin at (0,0) and a width and height equal to the Display2D's
@@ -933,7 +1089,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
                {
                public void actionPerformed(ActionEvent e)
                    {
-                   c.setVisible(true);;
+                   c.setVisible(true);
                    }
                });
            }
@@ -949,13 +1105,24 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        portrayals = new ArrayList();
        return old;
        }
+   
+   
+   /** Creates a Display2D with the provided width and height for its portrayal region, 
+   attached to the provided simulation.   The interval is ignored.
+           
+   @deprecated
+*/
+   public NoGUIDisplay2D(final double width, final double height, GUIState simulation, long interval)
+   {
+   this(width, height, simulation);
+   }
        
    /** Creates a Display2D with the provided width and height for its portrayal region, 
        attached to the provided simulation, and displaying itself with the given interval (which must be > 0). */
   
-   public NoGUIDisplay2D(final double width, final double height, GUIState simulation, long interval)
+   public NoGUIDisplay2D(final double width, final double height, GUIState simulation)
        {
-       setInterval(interval);
+       //setInterval(interval);
        this.simulation = simulation;
        
        reset();  // must happen AFTER simulation and interval are assigned
@@ -985,29 +1152,58 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        header = new Box(BoxLayout.X_AXIS);
 
        //Create the popup menu.
-       togglebutton = new JToggleButton(LAYERS_ICON);
-       togglebutton.setPressedIcon(LAYERS_ICON_P);
-       togglebutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
-       togglebutton.setBorderPainted(false);
-       togglebutton.setContentAreaFilled(false);
-       togglebutton.setToolTipText("Show and hide different layers");
+       layersbutton = new JToggleButton(LAYERS_ICON);
+       layersbutton.setPressedIcon(LAYERS_ICON_P);
+       layersbutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+       layersbutton.setBorderPainted(false);
+       layersbutton.setContentAreaFilled(false);
+       layersbutton.setToolTipText("Show and hide different layers");
        
-       header.add(togglebutton);
+       header.add(layersbutton);
        popup = new JPopupMenu();
        popup.setLightWeightPopupEnabled(false);
 
        //Add listener to components that can bring up popup menus.
-       togglebutton.addMouseListener(new MouseAdapter()
+       layersbutton.addMouseListener(new MouseAdapter()
            {
            public void mousePressed(MouseEvent e)
                {
                popup.show(e.getComponent(),
-                   togglebutton.getLocation().x,
-                   togglebutton.getSize().height);
+                   0, //layersbutton.getLocation().x,
+                   layersbutton.getSize().height);
                }
            public void mouseReleased(MouseEvent e)
                {
-               togglebutton.setSelected(false);
+               layersbutton.setSelected(false);
+               }
+           });
+       //Create the popup menu.
+       refreshbutton = new JToggleButton(REFRESH_ICON);
+       refreshbutton.setPressedIcon(REFRESH_ICON_P);
+       refreshbutton.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+       refreshbutton.setBorderPainted(false);
+       refreshbutton.setContentAreaFilled(false);
+       refreshbutton.setToolTipText("Change How and When the Display Redraws Itself");
+       
+       header.add(refreshbutton);
+       refreshPopup = new JPopupMenu();
+       refreshPopup.setLightWeightPopupEnabled(false);
+
+       //Add listener to components that can bring up popup menus.
+       refreshbutton.addMouseListener(new MouseAdapter()
+           {
+           public void mousePressed(MouseEvent e)
+               {
+               rebuildRefreshPopup();
+               refreshPopup.show(e.getComponent(),
+                   0,
+                   //refreshbutton.getLocation().x,
+                   refreshbutton.getSize().height);
+               }
+           public void mouseReleased(MouseEvent e)
+               {
+               refreshbutton.setSelected(false);
+               rebuildRefreshPopup();
                }
            });
 
@@ -1016,19 +1212,57 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
            {
            public void mouseClicked(MouseEvent e) 
                {
-               final Point point = e.getPoint();
-               if( e.getClickCount() == 2 )
-                   createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
-                       NoGUIDisplay2D.this.simulation );
-               if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
-                   performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
-               repaint();
+               if (handleMouseEvent(e)) { repaint(); return; }
+               else
+                   {
+                   // we only care about mouse button 1.  Perhaps in the future we may eliminate some key modifiers as well
+                   int modifiers = e.getModifiers();
+                   if ((modifiers & e.BUTTON1_MASK) == e.BUTTON1_MASK)
+                       {
+                       final Point point = e.getPoint();
+                       if( e.getClickCount() == 2 )
+                           createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
+                               NoGUIDisplay2D.this.simulation );
+                       if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
+                           performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
+                       repaint();
+                       }
+                   }
                }
            
            // clear tool-tip updates
-           public void mouseExited(MouseEvent event)
+           public void mouseExited(MouseEvent e)
                {
-               insideDisplay.lastToolTipEvent = null;
+               insideDisplay.lastToolTipEvent = null;  // do this no matter what
+               if (handleMouseEvent(e)) { repaint(); return; }
+               }
+
+           public void mouseEntered(MouseEvent e)
+               {
+               if (handleMouseEvent(e)) { repaint(); return; }
+               }
+
+           public void mousePressed(MouseEvent e)
+               {
+               if (handleMouseEvent(e)) { repaint(); return; }
+               }
+
+           public void mouseReleased(MouseEvent e)
+               {
+               if (handleMouseEvent(e)) { repaint(); return; }
+               }
+           });
+               
+       insideDisplay.addMouseMotionListener(new MouseMotionAdapter()
+           {
+           public void mouseDragged(MouseEvent e)
+               {
+               if (handleMouseEvent(e)) { repaint(); return; }
+               }
+
+           public void mouseMoved(MouseEvent e)
+               {
+               if (handleMouseEvent(e)) { repaint(); return; }
                }
            });
            
@@ -1091,7 +1325,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
            });
        header.add(optionButton);
        
-       // add the scale field
+    // add the scale field
        scaleField = new NumberTextField("  Scale: ", 1.0, true)
            {
            public double newValue(double newValue)
@@ -1130,23 +1364,8 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        scaleField.setToolTipText("Zoom in and out");
        header.add(scaleField);
        
-       // add the interval (skip) field
-       skipField = new NumberTextField("  Skip: ", 1, false)
-           {
-           public double newValue(double newValue)
-               {
-               int val = (int) newValue;
-               if (val < 1) val = (int)currentValue;
-                       
-               // reset with a new interval
-               setInterval(val);
-               reset();
-                       
-               return val;
-               }
-           };
-       skipField.setToolTipText("Specify the number of steps between screen updates");
-       header.add(skipField);
+       skipFrame = new JPanel();
+       rebuildSkipFrame();
 
        // put everything together
        setLayout(new BorderLayout());
@@ -1154,7 +1373,8 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        add(display,BorderLayout.CENTER);
 
        createConsoleMenu();
-       
+       // update preferences
+       optionPane.resetToPreferences();
        
        //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
        // Added from Display2DHack
@@ -1190,19 +1410,57 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 		            {
 		            public void mouseClicked(MouseEvent e) 
 		                {
-		                final Point point = e.getPoint();
-		                if( e.getClickCount() == 2 )
-		                    createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
-		                        NoGUIDisplay2D.this.simulation );
-		                if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
-		                    performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
-		                repaint();
+		                if (handleMouseEvent(e)) { repaint(); return; }
+		                else
+		                    {
+		                    // we only care about mouse button 1.  Perhaps in the future we may eliminate some key modifiers as well
+		                    int modifiers = e.getModifiers();
+		                    if ((modifiers & e.BUTTON1_MASK) == e.BUTTON1_MASK)
+		                        {
+		                        final Point point = e.getPoint();
+		                        if( e.getClickCount() == 2 )
+		                            createInspectors( new Rectangle2D.Double( point.x, point.y, 1, 1 ),
+		                                NoGUIDisplay2D.this.simulation );
+		                        if (e.getClickCount() == 1 || e.getClickCount() == 2)  // in both situations
+		                            performSelection( new Rectangle2D.Double( point.x, point.y, 1, 1 ));
+		                        repaint();
+		                        }
+		                    }
 		                }
 		            
 		            // clear tool-tip updates
-		            public void mouseExited(MouseEvent event)
+		            public void mouseExited(MouseEvent e)
 		                {
-		                insideDisplay.lastToolTipEvent = null;
+		                insideDisplay.lastToolTipEvent = null;  // do this no matter what
+		                if (handleMouseEvent(e)) { repaint(); return; }
+		                }
+
+		            public void mouseEntered(MouseEvent e)
+		                {
+		                if (handleMouseEvent(e)) { repaint(); return; }
+		                }
+
+		            public void mousePressed(MouseEvent e)
+		                {
+		                if (handleMouseEvent(e)) { repaint(); return; }
+		                }
+
+		            public void mouseReleased(MouseEvent e)
+		                {
+		                if (handleMouseEvent(e)) { repaint(); return; }
+		                }
+		            });
+		                
+		        insideDisplay.addMouseMotionListener(new MouseMotionAdapter()
+		            {
+		            public void mouseDragged(MouseEvent e)
+		                {
+		                if (handleMouseEvent(e)) { repaint(); return; }
+		                }
+
+		            public void mouseMoved(MouseEvent e)
+		                {
+		                if (handleMouseEvent(e)) { repaint(); return; }
 		                }
 		            });
 		            
@@ -1253,23 +1511,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
       scaleField.setToolTipText("Zoom in and out");
       header.add(scaleField);
       
-      // add the interval (skip) field
-      NumberTextField skipField = new NumberTextField("  Skip: ", 1, false)
-          {
-          public double newValue(double newValue)
-              {
-              int val = (int) newValue;
-              if (val < 1) val = (int)currentValue;
-                      
-              // reset with a new interval
-              setInterval(val);
-              reset();
-                      
-              return val;
-              }
-          };
-      skipField.setToolTipText("Specify the number of steps between screen updates");
-      header.add(skipField);
+     
        
        }
 
@@ -1299,6 +1541,18 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
            }
        return hitObjs;
        }
+	   /** Returns LocationWrappers for all the objects which overlap with the point specified by 'point'.  This 
+	   point is in the coordinate system of the (InnerDisplay2D) component inside the scroll
+	   view of the Display2D class.  The return value is an array of Bags.  For each FieldPortrayal
+	   attached to the Display2D, one Bag is returned holding all the LocationWrappers for objects overlapping with the point
+	   which are associated with that FieldPortrayal's portrayed field.  The order of
+	   the Bags in the array is the same as the order of the FieldPortrayals in the Display2D's
+	   <code>portrayals</code> list.
+	*/
+   public Bag[] objectsHitBy( final Point2D point )
+   {
+   return objectsHitBy(new Rectangle2D.Double(point.getX(), point.getY(), 1, 1));
+   }
        
    /** Constructs a DrawInfo2D for the given portrayal, or null if failed.  O(num portrayals). */
    public DrawInfo2D getDrawInfo2D(FieldPortrayal2D portrayal, Point2D point)
@@ -1320,64 +1574,41 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        
        
    DrawInfo2D getDrawInfo2D(FieldPortrayal2DHolder holder, Rectangle2D clip)
-       {
-	  if (holder==null) return null;
-	        
-	        double scale = getScale();
-	        // compute WHERE we need to draw
-	        int origindx = 0;
-	        int origindy = 0;
+   {
+	   if (holder==null) return null;
+	   
+	   double scale = getScale();
+	   // compute WHERE we need to draw
+	   int origindx = 0;
+	   int origindy = 0;
 	
-	        // offset according to user's specification
-	        origindx += (int)(insideDisplay.xOffset*scale);
-	        origindy += (int)(insideDisplay.yOffset*scale);
+	   // offset according to user's specification
+	   origindx += (int)(insideDisplay.xOffset*scale);
+	   origindy += (int)(insideDisplay.yOffset*scale);
 	
-	        // for information on why we use getViewRect, see computeClip()
-	        Rectangle2D fullComponent = insideDisplay.getViewRect();
-	        if (fullComponent.getWidth() > (insideDisplay.width * scale))
-	            origindx = (int)((fullComponent.getWidth() - insideDisplay.width*scale)/2);
-	        if (fullComponent.getHeight() > (insideDisplay.height*scale))
-	            origindy = (int)((fullComponent.getHeight() - insideDisplay.height*scale)/2);
-	                                
-	        Rectangle2D.Double region = new Rectangle2D.Double(
-	            // we floor to an integer because we're dealing with exact pixels at this point
-	            (int)(holder.bounds.x * scale) + origindx,
-	            (int)(holder.bounds.y * scale) + origindy,
-	            (int)(holder.bounds.width * scale),
-	            (int)(holder.bounds.height * scale));
-	        DrawInfo2D d2d = new DrawInfo2D(simulation, holder.portrayal, region, clip);
-	        d2d.gui = simulation;
-	        d2d.precise = precise;
-	        return d2d;
-       }
-
-   static final int MAX_TOOLTIP_LINES = 10;
-   public String createToolTipText( Rectangle2D.Double rect, final GUIState simulation )
-       {
-       String s = "<html><font face=\"" +
-           getFont().getFamily() + "\" size=\"-1\">";
-       Bag[] hitObjects = objectsHitBy(rect);
-       int count = 0;
-       for(int x=0;x<hitObjects.length;x++)
-           {
-           FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(portrayals.get(x));
-           for( int i = 0 ; i < hitObjects[x].numObjs ; i++ )
-               {
-               if (count > 0) s += "<br>";
-               if (count >= MAX_TOOLTIP_LINES) { return s + "...<i>etc.</i></font></html>"; }
-               count++;
-               String status = p.portrayal.getStatus((LocationWrapper) (hitObjects[x].objs[i]));
-               if (status != null) s += status;  // might return null, sort of meaning "leave me alone"
-               }
-           }
-       if (count==0) return null;
-       s += "</font></html>";
-       return s;
-       }
-               
+	   // for information on why we use getViewRect, see computeClip()
+	   Rectangle2D fullComponent = insideDisplay.getViewRect();
+	   if (fullComponent.getWidth() > (insideDisplay.width * scale))
+	       origindx = (int)((fullComponent.getWidth() - insideDisplay.width*scale)/2);
+	   if (fullComponent.getHeight() > (insideDisplay.height*scale))
+	       origindy = (int)((fullComponent.getHeight() - insideDisplay.height*scale)/2);
+	                           
+	   Rectangle2D.Double region = new Rectangle2D.Double(
+	       // we floor to an integer because we're dealing with exact pixels at this point
+	       (int)(holder.bounds.x * scale) + origindx,
+	       (int)(holder.bounds.y * scale) + origindy,
+	       (int)(holder.bounds.width * scale),
+	       (int)(holder.bounds.height * scale));
+	   DrawInfo2D d2d = new DrawInfo2D(simulation, holder.portrayal, region, clip);
+	   d2d.gui = simulation;
+	   d2d.precise = precise;
+	   return d2d;
+   }
+    
    /** */
    ArrayList selectedWrappers = new ArrayList();
    
+   /** Selects the following object, deselecting other objects if so asked. */
    public void performSelection( LocationWrapper wrapper)
        {
        Bag b = new Bag();
@@ -1385,16 +1616,20 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        performSelection(b);
        }
    
-   public void performSelection( final Bag locationWrappers )
+   public void clearSelections()
        {
-       // deselect existing objects
        for(int x=0;x<selectedWrappers.size();x++)
            {
            LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
-           wrapper.getFieldPortrayal().setSelected(wrapper,false);
+           wrapper.getFieldPortrayal().setSelected(wrapper, false);
            }
        selectedWrappers.clear();
+       }
        
+   public void performSelection( Bag locationWrappers )
+       {
+       clearSelections();
+               
        if (locationWrappers == null) return;  // deselect everything
        
        // add new wrappers
@@ -1417,25 +1652,25 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        }
 
    /** Determines the inspectors appropriate for the given selection region (rect), and sends
-       them on to the Controller. */
+   them on to the Controller. */
    public void createInspectors( final Rectangle2D.Double rect, final GUIState simulation )
-       {
-       Bag inspectors = new Bag();
-       Bag names = new Bag();
-       
-       Bag[] hitObjects = objectsHitBy(rect);
-       for(int x=0;x<hitObjects.length;x++)
-           {
-           FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(portrayals.get(x));
-           for( int i = 0 ; i < hitObjects[x].numObjs ; i++ )
-               {
-               LocationWrapper wrapper = (LocationWrapper) (hitObjects[x].objs[i]);
-               inspectors.add(p.portrayal.getInspector(wrapper,simulation));
-               names.add(p.portrayal.getName(wrapper));
-               }
-           }
-       simulation.controller.setInspectors(inspectors,names);
-       }
+   {
+	   Bag inspectors = new Bag();
+	   Bag names = new Bag();
+	   
+	   Bag[] hitObjects = objectsHitBy(rect);
+	   for(int x=0;x<hitObjects.length;x++)
+	       {
+	       FieldPortrayal2DHolder p = (FieldPortrayal2DHolder)(portrayals.get(x));
+	       for( int i = 0 ; i < hitObjects[x].numObjs ; i++ )
+	           {
+	           LocationWrapper wrapper = (LocationWrapper) (hitObjects[x].objs[i]);
+	           inspectors.add(p.portrayal.getInspector(wrapper,simulation));
+	           names.add(p.portrayal.getName(wrapper));
+	           }
+	       }
+	   simulation.controller.setInspectors(inspectors,names);
+   }
 
    final static int SCROLL_BAR_SCROLL_RATIO = 10;
 
@@ -1501,98 +1736,122 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 
    private Object sacrificialObj = null;
    
-   public void takeSnapshot()
+   public final static int TYPE_PDF = 1;
+   public final static int TYPE_PNG = 2;
+   
+   public void takeSnapshot(File file, int type) throws IOException
+   {
+   if (type == TYPE_PNG)
        {
-       synchronized(NoGUIDisplay2D.this.simulation.state.schedule)
+       Graphics g = insideDisplay.getGraphics();
+       BufferedImage img = insideDisplay.paint(g,true,false);
+       g.dispose();
+       OutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
+       PNGEncoder tmpEncoder = new PNGEncoder(img, false,PNGEncoder.FILTER_NONE,9);
+       stream.write(tmpEncoder.pngEncode());
+       stream.close();
+       }
+   else // type == TYPE_PDF
+       {
+       boolean oldprecise = precise;
+       precise = true;
+       PDFEncoder.generatePDF(port, file);
+       precise = oldprecise;
+       }
+   }
+   
+   public void takeSnapshot()
+   {
+   synchronized(NoGUIDisplay2D.this.simulation.state.schedule)
+       {
+       if (SimApplet.isApplet)
            {
-           if (SimApplet.isApplet)
-               {
-               Object[] options = {"Oops"};
-               JOptionPane.showOptionDialog(
-                   this, "You cannot save snapshots from an applet.",
-                   "MASON Applet Restriction",
-                   JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE,
-                   null, options, options[0]);
-               return;
-               }
+           Object[] options = {"Oops"};
+           JOptionPane.showOptionDialog(
+               this, "You cannot save snapshots from an applet.",
+               "MASON Applet Restriction",
+               JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE,
+               null, options, options[0]);
+           return;
+           }
 
-           // do we have the PDFEncoder?
-           boolean havePDF = false;
+       // do we have the PDFEncoder?
+       boolean havePDF = false;
 
-           // snap the shot FIRST
-           Graphics g = insideDisplay.getGraphics();
-           BufferedImage img = insideDisplay.paint(g,true,false);  // notice we're painting to a non-shared buffer
-           try
-               {
-               sacrificialObj = Class.forName("com.lowagie.text.Cell").newInstance(); // sacrificial
-               // if we survived that, then iText is installed and we're good.
-               havePDF = true; 
-               }
-           catch (Exception e)
-               {
-               // oh well...
-               }
-                               
-           g.dispose();  // because we got it with getGraphics(), we're responsible for it
-                       
-           // Ask what kind of thing we want to save?
-           final int CANCEL_BUTTON = 0;
-           final int PNG_BUTTON = 1;
-           final int PDF_BUTTON = 2;
-           final int PDF_NO_BACKDROP_BUTTON = 3;
-           int result = PNG_BUTTON;  //  default
-           if (havePDF) 
-               {
-               Object[] options = { "Cancel", "Save to PDF", "Save to PNG Bitmap" };
-               result = JOptionPane.showOptionDialog(getFrame(), "Save window snapshot to what kind of file format?", "Save Format", 
-                   JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-                   null, options, options[0]);
-               }
-                       
-           if (result ==PNG_BUTTON)  // PNG
-               {
-               // NOW pop up the save window
-               FileDialog fd = new FileDialog(getFrame(), 
-                   "Save Snapshot as 24-bit PNG...", FileDialog.SAVE);
-               fd.setFile("Untitled.png");
-               fd.setVisible(true);
-               if (fd.getFile()!=null) try
-                                           {
-                                           OutputStream stream = new BufferedOutputStream(new FileOutputStream(
-                                                   new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
-                                           PNGEncoder tmpEncoder = new
-                                               PNGEncoder(img, false,PNGEncoder.FILTER_NONE,9);
-                                           stream.write(tmpEncoder.pngEncode());
-                                           stream.close();
-                                           }
-                   catch (Exception e) { e.printStackTrace(); }
-               }
-           else if (result == PDF_BUTTON || result == PDF_NO_BACKDROP_BUTTON)  // PDF
-               {
-         	  FileDialog fd = new FileDialog(getFrame(), 
-                    "Save Snapshot as PDF...", FileDialog.SAVE);
-                fd.setFile("Untitled.pdf");
-                fd.setVisible(true);
-                if (fd.getFile()!=null) try
-                                            {
-                                            boolean oldprecise = precise;
-                                            precise = true;
-                                            Paint b = getBackdrop();
-                                            if (result == PDF_NO_BACKDROP_BUTTON)  // temporarily remove backdrop
-                                                setBackdrop(null);
-                                            PDFEncoder.generatePDF(port, new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".pdf")));
-                                            precise = oldprecise;
-                                            if (result == PDF_NO_BACKDROP_BUTTON)
-                                                setBackdrop(b);
-                                            }
-                    catch (Exception e) { e.printStackTrace(); }
-               }
-           else // (result == 0)  // Cancel
-               {
-               // don't bother
-               }
+       // snap the shot FIRST
+       Graphics g = insideDisplay.getGraphics();
+       BufferedImage img = insideDisplay.paint(g,true,false);  // notice we're painting to a non-shared buffer
+       try
+           {
+           sacrificialObj = Class.forName("com.lowagie.text.Cell").newInstance(); // sacrificial
+           // if we survived that, then iText is installed and we're good.
+           havePDF = true; 
+           }
+       catch (Exception e)
+           {
+           // oh well...
+           }
+                           
+       g.dispose();  // because we got it with getGraphics(), we're responsible for it
+                   
+       // Ask what kind of thing we want to save?
+       final int CANCEL_BUTTON = 0;
+       final int PNG_BUTTON = 1;
+       final int PDF_BUTTON = 2;
+       final int PDF_NO_BACKDROP_BUTTON = 3;
+       int result = PNG_BUTTON;  //  default
+       if (havePDF) 
+           {
+           Object[] options = { "Cancel", "Save to PNG Bitmap", "Save to PDF", "Save to PDF with no Backdrop" };
+           result = JOptionPane.showOptionDialog(getFrame(), "Save window snapshot to what kind of file format?", "Save Format", 
+               JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+               null, options, options[0]);
+           }
+                   
+       if (result == PNG_BUTTON) 
+           {
+           // NOW pop up the save window
+           FileDialog fd = new FileDialog(getFrame(), 
+               "Save Snapshot as 24-bit PNG...", FileDialog.SAVE);
+           fd.setFile("Untitled.png");
+           fd.setVisible(true);
+           if (fd.getFile()!=null) try
+                                       {
+                                       OutputStream stream = new BufferedOutputStream(new FileOutputStream(
+                                               new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
+                                       PNGEncoder tmpEncoder = new
+                                           PNGEncoder(img, false,PNGEncoder.FILTER_NONE,9);
+                                       stream.write(tmpEncoder.pngEncode());
+                                       stream.close();
+                                       }
+               catch (Exception e) { e.printStackTrace(); }
+           }
+       else if (result == PDF_BUTTON || result == PDF_NO_BACKDROP_BUTTON)
+           {
+           FileDialog fd = new FileDialog(getFrame(), 
+               "Save Snapshot as PDF...", FileDialog.SAVE);
+           fd.setFile("Untitled.pdf");
+           fd.setVisible(true);
+           if (fd.getFile()!=null) try
+                                       {
+                                       boolean oldprecise = precise;
+                                       precise = true;
+                                       Paint b = getBackdrop();
+                                       if (result == PDF_NO_BACKDROP_BUTTON)  // temporarily remove backdrop
+                                           setBackdrop(null);
+                                       PDFEncoder.generatePDF(port, new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".pdf")));
+                                       precise = oldprecise;
+                                       if (result == PDF_NO_BACKDROP_BUTTON)
+                                           setBackdrop(b);
+                                       }
+               catch (Exception e) { e.printStackTrace(); }
+           }
+       else // (result == 0)  // Cancel
+           {
+           // don't bother
            }
        }
+   }
 
    /** Starts a Quicktime movie on the given Display2D.  The size of the movie frame will be the size of
        the display at the time this method is called.  This method ought to be called from the main event loop.
@@ -1708,6 +1967,322 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
           }
       insideDisplay.updateToolTips();
       }*/
+   /** Used internally and by Display3D to indicate */
+   public final static int UPDATE_RULE_STEPS = 0;
+   public final static int UPDATE_RULE_INTERNAL_TIME = 1;
+   public final static int UPDATE_RULE_WALLCLOCK_TIME = 2;
+   public final static int UPDATE_RULE_ALWAYS = 3;
+   public final static int UPDATE_RULE_NEVER = 4;
+   int updateRule = UPDATE_RULE_ALWAYS;
+   long stepInterval = 1;
+   double timeInterval = 0;
+   long wallInterval = 0;
+   long lastStep = -1;
+   double lastTime = Schedule.BEFORE_SIMULATION;
+   long lastWall = -1;  // the current time is around 1266514720569 so this should be fine (knock on wood)
+       
+   /** Returns whether it's time to update. */
+   public boolean shouldUpdate()
+       {
+       boolean val = false;
+               
+       if (updateRule == UPDATE_RULE_ALWAYS)
+           val = true;
+       else if (updateRule == UPDATE_RULE_STEPS)
+           {
+           long step = simulation.state.schedule.getSteps();
+           val = (lastStep < 0 || stepInterval == 0 || step - lastStep >= stepInterval || // clearly need to update
+               lastStep % stepInterval >= step % stepInterval);  // on opposite sides of a tick
+           if (val) lastStep = step;
+           }
+       else if (updateRule == UPDATE_RULE_WALLCLOCK_TIME)
+           {
+           long wall = System.currentTimeMillis();
+           val = (lastWall == 0 || wallInterval == 0 || wall - lastWall >= wallInterval || // clearly need to update
+               lastWall % wallInterval >= wall % wallInterval);  // on opposite sides of a tick
+           if (val) lastWall = wall;
+           }
+       else if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+           {
+           double time = simulation.state.schedule.getTime();
+           val = (lastTime == 0 || timeInterval == 0 || time - lastTime >= timeInterval || // clearly need to update
+               lastTime % timeInterval >= time % timeInterval);  // on opposite sides of a tick
+           if (val) lastTime = time;
+           }
+       // else val = false;
+               
+       return val;
+       }
+   public boolean handleMouseEvent(MouseEvent event)
+   {
+   // first, let's propagate the event to selected objects
+           
+   Point2D.Double p = new Point2D.Double(event.getX(), event.getY());
+   for(int x=0;x<selectedWrappers.size();x++)
+       {
+       LocationWrapper wrapper = ((LocationWrapper)(selectedWrappers.get(x)));
+       FieldPortrayal2D f = (FieldPortrayal2D)(wrapper.getFieldPortrayal());
+       Object obj = wrapper.getObject();
+       SimplePortrayal2D portrayal = (SimplePortrayal2D)(f.getPortrayalForObject(obj));
+       if (portrayal.handleMouseEvent(simulation, this, wrapper, event, getDrawInfo2D(f, p), SimplePortrayal2D.TYPE_SELECTED_OBJECT))
+           {
+           simulation.controller.refresh();
+           return true;
+           }
+       }
+                   
+   // next, let' propagate the event to any objects which have been hit.
+   // We go backwards through the bag list so top elements are selected first
+           
+   Bag[] hitObjects = objectsHitBy(p);
+   for(int x=hitObjects.length - 1; x >= 0; x--)
+       for(int i = 0; i < hitObjects[x].numObjs; i++)
+           {
+           LocationWrapper wrapper = (LocationWrapper)(hitObjects[x].objs[i]);
+           FieldPortrayal2D f = (FieldPortrayal2D)(wrapper.getFieldPortrayal());
+           Object obj = wrapper.getObject();
+           SimplePortrayal2D portrayal = (SimplePortrayal2D)(f.getPortrayalForObject(obj));
+           if (portrayal.handleMouseEvent(simulation, this, wrapper, event, getDrawInfo2D(f, p), SimplePortrayal2D.TYPE_HIT_OBJECT))
+               {
+               simulation.controller.refresh();
+               return true;
+               }
+           }
+                   
+   // at this point, nobody consumed the event so we ignore it
+
+   return false;
+   }
+
+   void rebuildSkipFrame()
+   {
+   skipFrame.removeAll();
+   skipFrame.invalidate();
+   skipFrame.repaint();
+   skipFrame.setLayout(new BorderLayout());
+
+   JPanel skipHeader = new JPanel();
+   skipHeader.setLayout(new BorderLayout());
+   skipFrame.add(skipHeader, BorderLayout.CENTER);
+           
+   // add the interval (skip) field
+   skipBox = new JComboBox(REDRAW_OPTIONS);
+   skipBox.setSelectedIndex(updateRule);
+   ActionListener skipListener = new ActionListener()
+       {
+       public void actionPerformed(ActionEvent e)
+           {
+           updateRule = skipBox.getSelectedIndex();
+           if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)
+               {
+               skipField.getField().setText("");
+               skipField.setEnabled(false);
+               }
+           else if (updateRule == UPDATE_RULE_STEPS)
+               {
+               skipField.setValue(stepInterval);
+               skipField.setEnabled(true);
+               }
+           else if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+               {
+               skipField.setValue(timeInterval);
+               skipField.setEnabled(true);
+               }
+           else // UPDATE_RULE_WALLCLOCK_TIME
+               {
+               skipField.setValue((long)(wallInterval / 1000));
+               skipField.setEnabled(true);
+               }
+           }
+       };
+   skipBox.addActionListener(skipListener);
+           
+   // I want right justified text.  This is an ugly way to do it
+   skipBox.setRenderer(new DefaultListCellRenderer()
+       {
+       public Component getListCellRendererComponent(JList list, Object value, int index,  boolean isSelected,  boolean cellHasFocus)
+           {
+           // JLabel is the default
+           JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+           label.setHorizontalAlignment(SwingConstants.RIGHT);
+           return label;
+           }
+       });
+                   
+   skipHeader.add(skipBox, BorderLayout.WEST);
+
+
+   skipField = new NumberTextField(null, 1, false)
+       {
+       public double newValue(double newValue)
+           {
+           double val;
+           if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)  // shouldn't have happened
+               {
+               val = 0;
+               }
+           else if (updateRule == UPDATE_RULE_STEPS)
+               {
+               val = (long) newValue;
+               if (val < 1) val = stepInterval;
+               stepInterval = (long) val;
+               }
+           else if (updateRule == UPDATE_RULE_WALLCLOCK_TIME)
+               {
+               val = newValue;
+               if (val < 0) val = wallInterval / 1000;
+               wallInterval = (long) (newValue * 1000);
+               }
+           else // if (updateRule == UPDATE_RULE_INTERNAL_TIME)
+               {
+               val = newValue;
+               if (newValue < 0) newValue = timeInterval;
+               timeInterval = val;
+               }
+                   
+           // reset with a new interval
+           reset();
+                   
+           return val;
+           }
+       };
+   skipField.setToolTipText("Specify the interval between screen updates");
+   skipField.getField().setColumns(10);
+   skipHeader.add(skipField,BorderLayout.CENTER);
+   skipHeader.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+   skipListener.actionPerformed(null);  // have it update the text field accordingly
+   }
+
+void rebuildRefreshPopup()
+   {
+   refreshPopup.removeAll();
+   String s = "";
+   switch(updateRule)
+       {
+       case UPDATE_RULE_STEPS:
+           s = (stepInterval == 1 ? "Currently redrawing each model iteration" :
+               "Currently redrawing every " + stepInterval +  " model iterations");
+           break;
+       case UPDATE_RULE_INTERNAL_TIME:
+           s = (timeInterval == 1 ? "Currently redrawing each unit of model time" :
+               "Currently redrawing every " + (timeInterval) +  " units of model time");
+           break;
+       case UPDATE_RULE_WALLCLOCK_TIME:
+           s = (wallInterval == 1000 ? "Currently redrawing each second of real time" :
+               "Currently redrawing every " + (wallInterval / 1000.0) +  " seconds of real time");
+           break;
+       case UPDATE_RULE_ALWAYS:
+           s = "Currently redrawing each model iteration";
+           break;
+       case UPDATE_RULE_NEVER:
+           s = "Currently never redrawing except when the window is redrawn";
+           break;
+       }
+   JMenuItem m = new JMenuItem(s);
+   m.setEnabled(false);
+   refreshPopup.add(m);
+           
+   refreshPopup.addSeparator();
+
+   m = new JMenuItem("Always Redraw");
+   refreshPopup.add(m);
+   m.addActionListener(new ActionListener()
+       {
+       public void actionPerformed(ActionEvent e)
+           {
+           updateRule = UPDATE_RULE_ALWAYS;
+           rebuildSkipFrame();
+           }
+       });
+
+   m = new JMenuItem("Never Redraw");
+   refreshPopup.add(m);
+   m.addActionListener(new ActionListener()
+       {
+       public void actionPerformed(ActionEvent e)
+           {
+           updateRule = UPDATE_RULE_NEVER;
+           rebuildSkipFrame();
+           }
+       });
+
+   m = new JMenuItem("Redraw once every 2 iterations");
+   refreshPopup.add(m);
+   m.addActionListener(new ActionListener()
+       {
+       public void actionPerformed(ActionEvent e)
+           {
+           updateRule = UPDATE_RULE_STEPS;
+           stepInterval = 2;
+           rebuildSkipFrame();
+           }
+       });
+
+   m = new JMenuItem("Redraw once every 4 iterations");
+   refreshPopup.add(m);
+   m.addActionListener(new ActionListener()
+       {
+       public void actionPerformed(ActionEvent e)
+           {
+           updateRule = UPDATE_RULE_STEPS;
+           stepInterval = 4;
+           rebuildSkipFrame();
+           }
+       });
+
+   m = new JMenuItem("Redraw once every 8 iterations");
+   refreshPopup.add(m);
+   m.addActionListener(new ActionListener()
+       {
+       public void actionPerformed(ActionEvent e)
+           {
+           updateRule = UPDATE_RULE_STEPS;
+           stepInterval = 8;
+           rebuildSkipFrame();
+           }
+       });
+
+   m = new JMenuItem("Redraw once every 16 iterations");
+   refreshPopup.add(m);
+   m.addActionListener(new ActionListener()
+       {
+       public void actionPerformed(ActionEvent e)
+           {
+           updateRule = UPDATE_RULE_STEPS;
+           stepInterval = 16;
+           rebuildSkipFrame();
+           }
+       });
+                   
+   m = new JMenuItem("Redraw once every 32 iterations");
+   refreshPopup.add(m);
+   m.addActionListener(new ActionListener()
+       {
+       public void actionPerformed(ActionEvent e)
+           {
+           updateRule = UPDATE_RULE_STEPS;
+           stepInterval = 16;
+           rebuildSkipFrame();
+           }
+       });
+                   
+   refreshPopup.addSeparator();
+
+   // add other menu items
+   m = new JMenuItem("More Options...");
+   refreshPopup.add(m);
+   m.addActionListener(new ActionListener()
+       {
+       public void actionPerformed(ActionEvent e)
+           {
+           
+           skipFrame.setVisible(true);
+           }
+       });
+
+   refreshPopup.revalidate();
+   }
+
    
    
    
@@ -1877,8 +2452,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 		if(ModeServer.consoleInput() && moviePathSet){
 			long steps = simulation.state.schedule.getSteps();
 	      
-	      if (steps % getInterval() == 0   // time to update!
-	          && (insideDisplay.isShowing()    // only draw if we can be seen
+	      if ((insideDisplay.isShowing()    // only draw if we can be seen
 	              || episimMovieMaker !=null ))      // OR draw to a movie even if we can't be seen
 	          {
 	          if (isMacOSX && episimMovieMaker == null) 
@@ -1897,8 +2471,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
 		else{
 			long steps = simulation.state.schedule.getSteps();
 	      
-	      if (steps % getInterval() == 0   // time to update!
-	          && (insideDisplay.isShowing()    // only draw if we can be seen
+	      if ((insideDisplay.isShowing()    // only draw if we can be seen
 	              || movieMaker !=null ))      // OR draw to a movie even if we can't be seen
 	          {
 	          if (isMacOSX && movieMaker == null) 
@@ -1930,8 +2503,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
           // only paint if it's appropriate
           long steps = NoGUIDisplay2D.this.simulation.state.schedule.getSteps();
           if (steps > lastEncodedSteps &&
-              steps % getInterval() == 0 &&
-              NoGUIDisplay2D.this.simulation.state.schedule.time() < Schedule.AFTER_SIMULATION)
+                    NoGUIDisplay2D.this.simulation.state.schedule.getTime() < Schedule.AFTER_SIMULATION)
               {
          	 NoGUIDisplay2D.this.episimMovieMaker.add(paint(g,true,false));
               lastEncodedSteps = steps;

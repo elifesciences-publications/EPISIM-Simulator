@@ -78,6 +78,13 @@ public class ModelController implements java.io.Serializable{
 		return initializer.getCellPortrayal();
 	}
 	
+	public EpisimPortrayal[] getAdditionalPortrayalsCellBackground(){
+		return initializer.getAdditionalPortrayalsCellBackground();
+	}
+	
+	public EpisimPortrayal[] getAdditionalPortrayalsCellForeground(){
+		return initializer.getAdditionalPortrayalsCellForeground();
+	}
 	
 	public EpisimBiomechanicalModel getNewBioMechanicalModelObject(AbstractCell cell){		
 		return BiomechanicalModelController.getInstance().getNewEpisimBioMechanicalModelObject(cell);

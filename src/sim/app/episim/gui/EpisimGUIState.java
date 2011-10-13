@@ -263,10 +263,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		rulerPortrayal = new RulerPortrayal2D();
 		gridPortrayal = new GridPortrayal2D();
 		
-		basementPortrayal.setField(theEpidermis.getBasementContinous2D());
-		woundPortrayal.setField(theEpidermis.getBasementContinous2D());
-		rulerPortrayal.setField(theEpidermis.getRulerContinous2D());
-		gridPortrayal.setField(theEpidermis.getGridContinous2D());
+		
 		
 		
 		EpisimPortrayal cellPortrayal = ModelController.getInstance().getCellPortrayal();
@@ -285,7 +282,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		display.detatchAll();
 		
 		display.attach(basementPortrayal, basementPortrayal.getPortrayalName(), basementPortrayal.getViewPortRectangle(), true);
+		EpisimPortrayal[] portrayals = ModelController.getInstance().getAdditionalPortrayalsCellBackground();
+		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		display.attach(epiPortrayal, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
+		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
+		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		display.attach(woundPortrayal, woundPortrayal.getPortrayalName(), woundPortrayal.getViewPortRectangle(), true);
 		display.attach(rulerPortrayal, rulerPortrayal.getPortrayalName(), rulerPortrayal.getViewPortRectangle(), true);
 		display.attach(gridPortrayal, gridPortrayal.getPortrayalName(), gridPortrayal.getViewPortRectangle(), true);

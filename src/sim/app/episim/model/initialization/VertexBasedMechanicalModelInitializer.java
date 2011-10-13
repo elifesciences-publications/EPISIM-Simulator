@@ -88,7 +88,12 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		};
    }
 
-	
+	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {		
+		return new EpisimPortrayal[0];
+	}
+	protected EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {		
+		return new EpisimPortrayal[0];
+	}
 	
 	
 	

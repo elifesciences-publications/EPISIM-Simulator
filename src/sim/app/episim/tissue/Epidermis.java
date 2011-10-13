@@ -83,9 +83,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 	
 
 	
-	private Continuous2D basementContinous2D;
-	private Continuous2D rulerContinous2D;
-	private Continuous2D gridContinous2D;
+	
    
 
 	
@@ -122,15 +120,7 @@ public class Epidermis extends TissueType implements CellDeathListener
  
 		
 		
-		basementContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
-				TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
-				TissueController.getInstance().getTissueBorder().getHeightInMikron());
-		rulerContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron()+2,
-				TissueController.getInstance().getTissueBorder().getWidthInMikron()+2,
-				TissueController.getInstance().getTissueBorder().getHeightInMikron());
-	   gridContinous2D = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron()+2,
-	   		TissueController.getInstance().getTissueBorder().getWidthInMikron()+2,
-	   		TissueController.getInstance().getTissueBorder().getHeightInMikron());
+		
  }
  
  public void checkMemory(){
@@ -195,21 +185,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 		
 		GlobalStatistics.getInstance().reset(true);
 		EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
-		schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());
-		
-			
-		
-			
-			
-		 basementContinous2D.clear();
-		 rulerContinous2D.clear();
-		 gridContinous2D.clear();
-						
-	    basementContinous2D.setObjectLocation("DummyObjektForDrawingTheBasementMembrane", new Double2D(50, 50));
-	    rulerContinous2D.setObjectLocation("DummyObjektForDrawingTheRuler", new Double2D(50, 50));
-	    gridContinous2D.setObjectLocation("DummyObjektForDrawingTheGrid", new Double2D(50, 50));
-			
-     
+		schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());  
    
 
 	     
@@ -322,14 +298,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //GETTER-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
-	@CannotBeMonitored
-	public Continuous2D getBasementContinous2D() { return basementContinous2D; }
 	
-	@CannotBeMonitored
-	public Continuous2D getGridContinous2D() { return gridContinous2D; }
-	
-	@CannotBeMonitored
-	public Continuous2D getRulerContinous2D() { return rulerContinous2D; }
 
 	@CannotBeMonitored
 	public String getTissueName() {return NAME;}
@@ -349,7 +318,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 //SETTER-METHODS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 		
-	public void setBasementContinous2D(Continuous2D basementContinous2D) { this.basementContinous2D = basementContinous2D; }	
+		
 		
 	
 	

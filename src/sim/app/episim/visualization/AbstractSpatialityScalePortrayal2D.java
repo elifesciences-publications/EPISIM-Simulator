@@ -5,9 +5,11 @@ import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
+import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.SimplePortrayal2D;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
+import sim.util.Double2D;
 
 
 public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortrayal2D {
@@ -50,6 +52,13 @@ public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortr
    	 double heightResolution = Math.round(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron() * 0.02);
 	  	 double widthResolution = Math.round(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() * 0.02);
 	  	 this.resolution = heightResolution > widthResolution ? heightResolution : widthResolution;
+	  	 
+	  	 Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+					TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+					TissueController.getInstance().getTissueBorder().getHeightInMikron());
+	  	 
+	  	 field.setObjectLocation("DummyObject", new Double2D(50, 50));
+	  	 this.setField(field);
    	 
     }
 	 

@@ -38,6 +38,18 @@ public abstract class BiomechanicalModelInitializer {
 	 */
 	protected abstract EpisimPortrayal getCellPortrayal();
 	
+	/**
+	 * Other visualizing components
+	 * 
+	 */
+	protected abstract EpisimPortrayal[] getAdditionalPortrayalsCellForeground();
+	
+	/**
+	 * Other visualizing components
+	 * 
+	 */
+	protected abstract EpisimPortrayal[] getAdditionalPortrayalsCellBackground();
+	
    protected File getModelInitializationFile(){   
    	return modelInitializationFile;
    }

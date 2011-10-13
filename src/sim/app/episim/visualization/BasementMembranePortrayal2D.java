@@ -5,8 +5,10 @@ import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
+import sim.field.continuous.Continuous2D;
 import sim.portrayal.*;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
+import sim.util.Double2D;
 
 import java.awt.*;
 import java.awt.geom.*;
@@ -57,7 +59,13 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 		  	 this.INITIALWIDTH = 0;
 		  	 this.INITIALHEIGHT = 0;
    	 }
-	  	 cellPoints = new ArrayList<Point2D>();  	 
+	  	 cellPoints = new ArrayList<Point2D>();
+	  	 Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+					TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+					TissueController.getInstance().getTissueBorder().getHeightInMikron());
+	  	 
+	  	 field.setObjectLocation("DummyObject", new Double2D(50, 50));
+	  	 this.setField(field);
    }
    
        

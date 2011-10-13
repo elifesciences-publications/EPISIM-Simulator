@@ -48,6 +48,14 @@ public class ModelInitialization {
 		return biomechanicalModelInitializer.getCellPortrayal();
 	}
 	
+	public EpisimPortrayal[] getAdditionalPortrayalsCellBackground(){
+		return biomechanicalModelInitializer.getAdditionalPortrayalsCellBackground();
+	}
+	
+	public EpisimPortrayal[] getAdditionalPortrayalsCellForeground(){
+		return biomechanicalModelInitializer.getAdditionalPortrayalsCellForeground();
+	}
+	
 	private ArrayList<UniversalCell> buildStandardCellList(){
 		ArrayList<UniversalCell> initiallyExistingCells = this.biomechanicalModelInitializer.buildStandardInitialCellEnsemble();
 		

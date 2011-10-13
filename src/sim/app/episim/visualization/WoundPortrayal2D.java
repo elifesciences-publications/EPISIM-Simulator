@@ -5,6 +5,8 @@ import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
+import sim.app.episim.tissue.TissueController;
+import sim.field.continuous.Continuous2D;
 import sim.portrayal.*;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.util.*;
@@ -51,7 +53,12 @@ public class WoundPortrayal2D extends ContinuousPortrayal2D implements SnapshotL
 			this.height = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);
  		}
 		SnapshotWriter.getInstance().addSnapshotListener(this);
-
+		 Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+					TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+					TissueController.getInstance().getTissueBorder().getHeightInMikron());
+	  	 
+	  	 field.setObjectLocation("DummyObject", new Double2D(50, 50));
+	  	 this.setField(field);
 	}
 
 	private void createPolygon(DrawInfo2D info) {

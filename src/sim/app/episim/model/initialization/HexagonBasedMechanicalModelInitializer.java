@@ -1,5 +1,6 @@
 package sim.app.episim.model.initialization;
 
+import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -12,9 +13,11 @@ import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.visualization.BorderlinePortrayal;
 import sim.app.episim.model.visualization.HexagonalCellGridPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.visualization.SurfacePortrayal;
 import sim.display.GUIState;
 import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.Inspector;
@@ -77,5 +80,16 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		};		
 		return portrayal;
    }
+
+	
+	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {
+
+		return new EpisimPortrayal[]{new BorderlinePortrayal()};
+	}
+	
+	protected EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {		
+		return new EpisimPortrayal[]{new SurfacePortrayal("Surface A",Color.MAGENTA, 0, 0, 500, SurfacePortrayal.MAX_HEIGHT_FLAG),
+											  new SurfacePortrayal("Surface B",Color.ORANGE, 500, 0, TissueController.getInstance().getTissueBorder().getWidthInMikron()-500, SurfacePortrayal.MAX_HEIGHT_FLAG)};
+	}
 
 }

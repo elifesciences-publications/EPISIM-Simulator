@@ -333,11 +333,11 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 	}
 	 public ArrayList detatchAll()
     {
-    ArrayList old = portrayals;
-    popup.removeAll();
-    
-    portrayals = new ArrayList();
-    return old;
+	    ArrayList old = portrayals;
+	    popup.removeAll();
+	    
+	    portrayals = new ArrayList();
+	    return old;
     }
 
 	

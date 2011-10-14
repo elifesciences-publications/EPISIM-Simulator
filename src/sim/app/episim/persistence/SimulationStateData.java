@@ -1,51 +1,39 @@
 package sim.app.episim.persistence;
 
 import java.awt.geom.Rectangle2D.Double;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import episiminterfaces.NoExport;
-import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.engine.SimStateHack.TimeSteps;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
 
+/*
+ * update = Objekte sammeln
+ * restoreData = Objekte verteilen
+ */
 public class SimulationStateData {
 
 	private static SimulationStateData instance = null;
 
 	private List<SnapshotListener> listeners;
 
-	public ArrayList<CellObjectData> cells = new ArrayList<CellObjectData>();
-
-	public HashMap<String, Object> cellContinuouss = new HashMap<String, Object>();
-	private Continuous2D cellContinuous; // TODO
-
-	public HashMap<String, Object> timeStepss = new HashMap<String, Object>();
-	private TimeSteps timeSteps; // TODO
-
-	public HashMap<String, Object> behavioralModelGlobalParameterss = new HashMap<String, Object>();
-	private EpisimCellBehavioralModelGlobalParameters behavioralModelGlobalParameters; // TODO
-
-	public HashMap<String, Object> mechModelGlobalParameterss = new HashMap<String, Object>();
-	private EpisimBiomechanicalModelGlobalParameters mechModelGlobalParameters; // TODO
-
-	public List<Double2D> woundRegionCoordinates; // TODO
-
-	public Double[] deltaInfo; // TODO
-
-	public HashMap<String, Object> miscalleneousGlobalParameterss = new HashMap<String, Object>(); //TODO
+	private ArrayList<UniversalCell> cells = new ArrayList<UniversalCell>();
+	private Continuous2D cellContinuous;
+	private TimeSteps timeSteps;
+	private EpisimBiomechanicalModelGlobalParameters episimBioMechanicalModelGlobalParameters;
+	private EpisimCellBehavioralModelGlobalParameters episimCellBehavioralModelGlobalParameters;
+	private List<Double2D> woundRegionCoordinates;
+	private Double[] deltaInfo;
+	private MiscalleneousGlobalParameters miscalleneousGlobalParameters;
 
 	private SimulationStateData() {
 		listeners = new LinkedList<SnapshotListener>();
@@ -70,121 +58,100 @@ public class SimulationStateData {
 		for (SnapshotListener listener : listeners) {
 			for (SnapshotObject object : listener.collectSnapshotObjects()) {
 				if (object.getIdentifier().equals(SnapshotObject.CELL)) {
-					UniversalCell cell = (UniversalCell) object
-							.getSnapshotObject();
-					CellObjectData cod = new CellObjectData();
-					cod.cellData = getParameterObjectsFromObject(cell);
-					cod.cellBehavioralModelObjectData = getParameterObjectsFromObject(cell
-							.getEpisimCellBehavioralModelObject());
-					cod.bioMechanicalModelObjectData = getParameterObjectsFromObject(cell
-							.getEpisimBioMechanicalModelObject());
-					cells.add(cod);
-				} else if (object.getIdentifier().equals(
-						SnapshotObject.CELLFIELD)) {
-					this.cellContinuous = (Continuous2D) object
-							.getSnapshotObject();
-					this.cellContinuouss = getParameterObjectsFromObject(cellContinuous);
+					cells.add((UniversalCell) object.getSnapshotObject());
+				} else if (object.getIdentifier().equals(SnapshotObject.CELLFIELD)) {
+					this.cellContinuous = (Continuous2D) object.getSnapshotObject();
 
-				} else if (object.getIdentifier().equals(
-						SnapshotObject.TIMESTEPS)) {
+				} else if (object.getIdentifier().equals(SnapshotObject.TIMESTEPS)) {
 					this.timeSteps = (TimeSteps) object.getSnapshotObject();
-					this.timeStepss = getParameterObjectsFromObject(timeSteps);
 
-				} else if (object.getIdentifier().equals(
-						SnapshotObject.CELLBEHAVIORALMODELGLOBALPARAMETERS)) {
-					behavioralModelGlobalParameters = (EpisimCellBehavioralModelGlobalParameters) object
-							.getSnapshotObject();
-					this.behavioralModelGlobalParameterss = getParameterObjectsFromObject(behavioralModelGlobalParameters);
+				} else if (object.getIdentifier().equals(SnapshotObject.CELLBEHAVIORALMODELGLOBALPARAMETERS)) {
+					episimCellBehavioralModelGlobalParameters = (EpisimCellBehavioralModelGlobalParameters) object.getSnapshotObject();
 
-				} else if (object.getIdentifier().equals(
-						SnapshotObject.MECHANICALMODELGLOBALPARAMETERS)) {
-					mechModelGlobalParameters = (EpisimBiomechanicalModelGlobalParameters) object
-							.getSnapshotObject();
-					this.mechModelGlobalParameterss = getParameterObjectsFromObject(mechModelGlobalParameters);
-
-				} else if (object.getIdentifier().equals(
-						SnapshotObject.MISCALLENEOUSGLOBALPARAMETERS)) {
-					this.miscalleneousGlobalParameterss = getParameterObjectsFromObject(MiscalleneousGlobalParameters.instance());
+				} else if (object.getIdentifier().equals(SnapshotObject.MECHANICALMODELGLOBALPARAMETERS)) {
+					episimBioMechanicalModelGlobalParameters = (EpisimBiomechanicalModelGlobalParameters) object.getSnapshotObject();
 
 				} else if (object.getIdentifier().equals(SnapshotObject.WOUND)) {
 					Object obj = null;
 					if ((obj = object.getSnapshotObject()) instanceof List)
 						woundRegionCoordinates = (List<Double2D>) obj;
 					else
-						deltaInfo = (java.awt.geom.Rectangle2D.Double[]) object
-								.getSnapshotObject();
+						deltaInfo = (java.awt.geom.Rectangle2D.Double[]) object.getSnapshotObject();
 
 				}
+
 			}
 		}
-		// TODO snapshot listener
-		// TODO CellBehavioralModelController.getActLoadedModelFile (Pfad zum
-		// Modell)
+		this.miscalleneousGlobalParameters = MiscalleneousGlobalParameters.instance();
+		this.episimBioMechanicalModelGlobalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	}
 
 	public void restoreData() {
+//		SnapshotLoader bzw. EpidermisSimulator.loadSnapshot!
 		// TODO ObjectManipulations.resetInitialGlobalValues
 	}
 
-	private String methodToName(String methodName) {
-		String parameterName = methodName;
-		if (methodName.startsWith("get"))
-			parameterName = parameterName.substring(3);
-		else if (methodName.startsWith("is"))
-			parameterName = parameterName.substring(2);
-		StringBuilder sb = new StringBuilder();
-		sb.append(Character.toLowerCase(parameterName.charAt(0)));
-		sb.append(parameterName.substring(1));
-		parameterName = sb.toString();
-		return parameterName;
+	public ArrayList<UniversalCell> getCells() {
+		return cells;
 	}
 
-	private HashMap<String, Object> getParameterObjectsFromObject(Object object) {
-
-		HashMap<String, Object> objects = new HashMap<String, Object>();
-		for (Method m : object.getClass().getMethods()) {
-			if ((m.getName().startsWith("get") || m.getName().startsWith("is"))
-					&& m.getAnnotation(NoExport.class) == null
-					&& !m.getName().equals("getClass")) {
-
-				try {
-					if (m.getParameterTypes().length == 0) {
-
-						objects.put(methodToName(m.getName()),
-								m.invoke(object, new Object[] {}));
-						// System.out.println(object.getClass().getName() +
-						// " : "
-						// + m.getName() + " -> " +
-						// objects.get(methodToName(m.getName())));
-					}
-				} catch (IllegalAccessException e) {
-					ExceptionDisplayer.getInstance().displayException(e);
-				} catch (IllegalArgumentException e) {
-					ExceptionDisplayer.getInstance().displayException(e);
-				} catch (InvocationTargetException e) {
-					ExceptionDisplayer.getInstance().displayException(
-							e.getCause());
-				}
-			}
-		}
-		return objects;
+	public void setCells(ArrayList<UniversalCell> cells) {
+		this.cells = cells;
 	}
 
-	private Object invokeGetMethod(Object object, Method actMethod) {
-		Object obj = null;
-		if (actMethod.getParameterTypes().length == 0) {
-			try {
-				obj = actMethod.invoke(object, new Object[0]);
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		return obj;
+	public Continuous2D getCellContinuous() {
+		return cellContinuous;
 	}
 
-	public class CellObjectData {
-		public HashMap<String, Object> cellData = new HashMap<String, Object>();
-		public HashMap<String, Object> cellBehavioralModelObjectData = new HashMap<String, Object>();
-		public HashMap<String, Object> bioMechanicalModelObjectData = new HashMap<String, Object>();
+	public void setCellContinuous(Continuous2D cellContinuous) {
+		this.cellContinuous = cellContinuous;
+	}
+
+	public TimeSteps getTimeSteps() {
+		return timeSteps;
+	}
+
+	public void setTimeSteps(TimeSteps timeSteps) {
+		this.timeSteps = timeSteps;
+	}
+
+	public EpisimBiomechanicalModelGlobalParameters getEpisimBioMechanicalModelGlobalParameters() {
+		return episimBioMechanicalModelGlobalParameters;
+	}
+
+	public void setEpisimBioMechanicalModelGlobalParameters(EpisimBiomechanicalModelGlobalParameters episimBioMechanicalModelGlobalParameters) {
+		this.episimBioMechanicalModelGlobalParameters = episimBioMechanicalModelGlobalParameters;
+	}
+
+	public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters() {
+		return episimCellBehavioralModelGlobalParameters;
+	}
+
+	public void setEpisimCellBehavioralModelGlobalParameters(EpisimCellBehavioralModelGlobalParameters episimCellBehavioralModelGlobalParameters) {
+		this.episimCellBehavioralModelGlobalParameters = episimCellBehavioralModelGlobalParameters;
+	}
+
+	public List<Double2D> getWoundRegionCoordinates() {
+		return woundRegionCoordinates;
+	}
+
+	public void setWoundRegionCoordinates(List<Double2D> woundRegionCoordinates) {
+		this.woundRegionCoordinates = woundRegionCoordinates;
+	}
+
+	public Double[] getDeltaInfo() {
+		return deltaInfo;
+	}
+
+	public void setDeltaInfo(Double[] deltaInfo) {
+		this.deltaInfo = deltaInfo;
+	}
+
+	public MiscalleneousGlobalParameters getMiscalleneousGlobalParameters() {
+		return miscalleneousGlobalParameters;
+	}
+
+	public void setMiscalleneousGlobalParameters(MiscalleneousGlobalParameters miscalleneousGlobalParameters) {
+		this.miscalleneousGlobalParameters = miscalleneousGlobalParameters;
 	}
 }

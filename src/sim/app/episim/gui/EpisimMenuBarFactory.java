@@ -2,6 +2,7 @@ package sim.app.episim.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -468,15 +469,18 @@ public class EpisimMenuBarFactory {
 					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
 					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showOpenDialog((JFrame)simulator.getMainFrame())){
 						try{
-	                  (new SimulationStateFile()).loadData(chooser.getSelectedFile());
-                  }
+	                  (new SimulationStateFile(chooser.getSelectedFile())).loadData();
+                  } //TODO hier müssten eigentlich noch die daten wiederhergestellt werden.
                   catch (ParserConfigurationException e1){
                   	ExceptionDisplayer.getInstance().displayException(e1);
                   }
                   catch (SAXException e1){
                   	ExceptionDisplayer.getInstance().displayException(e1);
-                  }
-					}
+                  } 
+				  catch (IOException e1) {
+					ExceptionDisplayer.getInstance().displayException(e1);
+				  }
+				}
 				}				
          }
 		});

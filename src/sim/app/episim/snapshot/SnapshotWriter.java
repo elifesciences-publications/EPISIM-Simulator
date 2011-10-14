@@ -45,17 +45,6 @@ public class SnapshotWriter {
 	
 	
 	public void writeSnapshot(){
-		SimulationStateFile file;
-		try {
-			file = new SimulationStateFile();
-			file.saveData(new File("testcells.xml"));
-		} catch (ParserConfigurationException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SAXException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		
 		if(snapshotPath == null){
 			for(SnapshotListener sl : listeners){

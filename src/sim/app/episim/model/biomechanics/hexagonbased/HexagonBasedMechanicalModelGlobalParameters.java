@@ -11,6 +11,8 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	private double cellDiameter_mikron = 50;
 	private double neighborhood_mikron = 50;
 	private double numberOfPixelsPerMicrometer = 0.1;
+	
+	private boolean useContinuousSpace = false;
 
 	public double getNeighborhood_mikron() {
 	   return this.neighborhood_mikron;
@@ -61,6 +63,14 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	public void setNumberOfPixelsPerMicrometer(double val) {
 	   this.numberOfPixelsPerMicrometer	= val;   
    }
+	
+	public boolean getUseContinuousSpace(){
+		return this.useContinuousSpace;
+	}
+	
+	public void setUseContinuousSpace(boolean useContinuousSpace){
+		this.useContinuousSpace=useContinuousSpace;
+	}
 	
 	@NoUserModification
 	public double getNumberOfPixelsPerMicrometer() {

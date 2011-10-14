@@ -95,6 +95,7 @@ public class ModelController implements java.io.Serializable{
    public boolean isModelOpened(){ return modelOpened; }
    
    public boolean loadCellBehavioralModelFile(File modelFile) throws ModelCompatibilityException{
+   	this.initializer = null;
    	boolean success = CellBehavioralModelController.getInstance().loadModelFile(modelFile);
    	
    	if(success){

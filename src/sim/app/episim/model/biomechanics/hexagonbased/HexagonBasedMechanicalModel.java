@@ -59,14 +59,17 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	
 	private static final boolean IS_TOROIDAL = false;
 	
+	private HexagonBasedMechanicalModelGlobalParameters globalParameters;
+	
 	public HexagonBasedMechanicalModel(){
 		this(null);	
 	}
 
 	public HexagonBasedMechanicalModel(AbstractCell cell) {
 	   super(cell);
+	   globalParameters = (HexagonBasedMechanicalModelGlobalParameters)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	   if(cellField == null){
-	   	HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+	   	
 	   	int width = (int)(globalParameters.getWidthInMikron() / globalParameters.getCellDiameter_mikron());
 	   	int height = (int)(globalParameters.getHeightInMikron() / globalParameters.getCellDiameter_mikron());
 	   	cellField = new ObjectGrid2D(width, height);
@@ -104,7 +107,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		IntBag xPos = new IntBag();
 		IntBag yPos = new IntBag();
 		Bag neighbouringCellsBag = new Bag();
-	   cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, IS_TOROIDAL, neighbouringCellsBag, xPos, yPos);
+	   cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos);
 		GenericBag<AbstractCell> neighbouringCells = new GenericBag<AbstractCell>();
 		HashSet<Long> neighbouringCellIDs = new HashSet<Long>();
 	   for(Object obj : neighbouringCellsBag.objs){
@@ -121,7 +124,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   	xPos.clear();
 	   	yPos.clear();
 	   	neighbouringCellsBag.clear();
-	   	cellField.getNeighborsHexagonalDistance(spreadingLocation.x, spreadingLocation.y, 1, IS_TOROIDAL, neighbouringCellsBag, xPos, yPos);
+	   	cellField.getNeighborsHexagonalDistance(spreadingLocation.x, spreadingLocation.y, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos);
 	   	for(Object obj : neighbouringCellsBag.objs){
 				if(obj != null && obj instanceof AbstractCell && obj != this.getCell()){				
 					AbstractCell cell = (AbstractCell)obj;
@@ -255,7 +258,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
    private ArrayList<Integer> getPossibleSpreadingLocationIndices(IntBag xPos, IntBag yPos){
    	
 		Bag neighbouringCellsBag = new Bag();
-	   if(fieldLocation != null)cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, IS_TOROIDAL, neighbouringCellsBag, xPos, yPos);
+	   if(fieldLocation != null)cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos);
 	   
 	   ArrayList<Integer> spreadingLocationIndices = new ArrayList<Integer>();
 	   for(int i = 0; i < neighbouringCellsBag.size(); i++){

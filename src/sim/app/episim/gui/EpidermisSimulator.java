@@ -160,7 +160,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				File cellbehavioralModelFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP));
 				if(!cellbehavioralModelFile.exists() || !cellbehavioralModelFile.isFile()) throw new PropertyException("No existing Cell Behavioral Model File specified: "+cellbehavioralModelFile.getAbsolutePath());
 				else{
-					openModel(cellbehavioralModelFile);
+					openModel(cellbehavioralModelFile, true);
 					
 					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTSETPATH) != null){
 						File chartSetFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTSETPATH));
@@ -342,7 +342,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	}
 	
 	
-	protected void openModel(File modelFile){
+	protected void openModel(File modelFile, boolean standardInitialization){
 		ModelController.getInstance().setSimulationStartedOnce(false);
 		
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
@@ -370,7 +370,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			
 			//System.out.println(success);
 			if(success){
-				ModelController.getInstance().standardInitializationOfModels();
+				if(standardInitialization)ModelController.getInstance().standardInitializationOfModels();
 				ChartController.getInstance().rebuildDefaultCharts();
 				cleanUpContentPane();
 				if(ModeServer.guiMode())epiUI = new EpisimGUIState(mainFrame);
@@ -402,11 +402,11 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	}
 	
 	protected void openModel(){
-		openModel(null);
+		openModel(null, true);
 	}
 	
 	
-	protected void reloadModel(File modelFile, File snapshotPath){
+	protected void reloadModel(File modelFile, File snapshotPath, boolean standardInitialization){
 		
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		boolean success = false; 
@@ -424,7 +424,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			setSnapshotPath(snapshotPath, true);
 			
 			//TODO: add consideration of initialization filepath if set
-			ModelController.getInstance().standardInitializationOfModels();
+			if(standardInitialization)ModelController.getInstance().standardInitializationOfModels();
 		//	System.out.println("Already Data Export Loaded: " + DataExportController.getInstance().isAlreadyDataExportSetLoaded());
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
@@ -460,7 +460,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 
 	   if(ModelController.getInstance().isModelOpened()){
 	   	
-	         reloadModel(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile(), SnapshotWriter.getInstance().getSnapshotPath());
+	   		//TODO: Diese Stelle anpassen wenn das Laden von SimulationStateFile funktioniert
+	         reloadModel(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile(), SnapshotWriter.getInstance().getSnapshotPath(), true);
         
 	   }
 	   

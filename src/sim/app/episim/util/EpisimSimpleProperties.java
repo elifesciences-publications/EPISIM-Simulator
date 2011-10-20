@@ -11,9 +11,9 @@ import sim.util.SimplePropertiesHack;
 
 public class EpisimSimpleProperties extends SimplePropertiesHack {
 	
-	public EpisimSimpleProperties(Object o, boolean includeSuperclasses, boolean includeGetClass, boolean includeDomains) {
+	public EpisimSimpleProperties(Object o, boolean includeSuperclasses, boolean includeGetClass, boolean includeExtensions) {
 
-	   super(o, includeSuperclasses, includeGetClass, includeDomains);
+	   super(o, includeSuperclasses, includeGetClass, includeExtensions);
 	   
    }
 
@@ -24,8 +24,9 @@ public class EpisimSimpleProperties extends SimplePropertiesHack {
 	/* If it exists, returns a method of the form 'public boolean hideFoo() { ...}'.  In this method the developer can declare
    whether or not he wants to hide this property.  If there is no such method, we must assume that the property is to be
    shown. */
-	public Method getHidden(Method m, Class c)
+	public Method getHidden(Method m, Class c, boolean includeExtensions)
   {
+	 if (!includeExtensions) return null;
     try
     {     
    	 

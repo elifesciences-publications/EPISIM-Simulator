@@ -41,7 +41,8 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	public void setWidthInMikron(double val) {
 		this.width_mikron = val;
    }
-
+	
+	@NoUserModification
 	public double getWidthInMikron() {
 		return this.width_mikron;
    }
@@ -49,10 +50,12 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	public void setHeightInMikron(double val) {
 		this.height_mikron = val;
    }
-
+	
+	@NoUserModification
 	public double getHeightInMikron(){
 		return this.height_mikron;
-   }	
+   }
+	@NoUserModification
    public double getCellDiameter_mikron() {   
    	return cellDiameter_mikron;
    }	

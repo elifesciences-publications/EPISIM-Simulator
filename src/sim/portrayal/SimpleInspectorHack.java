@@ -1,5 +1,6 @@
 package sim.portrayal;
 
+
 import javax.swing.Box;
 import javax.swing.JPanel;
 
@@ -15,6 +16,8 @@ public class SimpleInspectorHack extends SimpleInspector {
    }
 	
 	public void setProperties(Properties properties){ this.properties = properties; }
+	
+	
 	
 	public void generateProperties(int start){ super.generateProperties(start); }
 	

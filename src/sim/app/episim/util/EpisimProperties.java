@@ -35,16 +35,19 @@ public abstract class EpisimProperties extends Properties {
 		   will be produced for properties according to the rules in the comments in getDomain(index)
 		   below. Otherwise all objects will return a null (infinite) domain.
 	*/
-	public static Properties getProperties(Object object, boolean expandCollections, boolean includeSuperclasses, boolean includeGetClass, boolean includeDomains)
+	public static Properties getProperties(Object object, boolean expandCollections, boolean includeSuperclasses, boolean includeGetClass, boolean includeExtensions)
    {
-	   if (object == null) return new EpisimSimpleProperties(object, includeSuperclasses, includeGetClass);
+	   if (object == null) return new EpisimSimpleProperties(object, includeSuperclasses, includeGetClass, includeExtensions);
 	   Class c = object.getClass();
 	   if (c.isArray()) return new CollectionProperties(object);
 	   else if (expandCollections && (Collection.class.isAssignableFrom(c) ||
 	           Indexed.class.isAssignableFrom(c) ||
 	           Map.class.isAssignableFrom(c)))
 	       return new CollectionProperties(object);
-	   else return new EpisimSimpleProperties(object, includeSuperclasses, includeGetClass, includeDomains);
+	   else return new EpisimSimpleProperties(object, includeSuperclasses, includeGetClass, includeExtensions);
    }
+	
+
+
 
 }

@@ -6,9 +6,9 @@ import java.util.ArrayList;
 
 public class SimplePropertiesHack extends SimpleProperties {
 	
-	public SimplePropertiesHack(Object o, boolean includeSuperclasses, boolean includeGetClass, boolean includeDomains) {
+	public SimplePropertiesHack(Object o, boolean includeSuperclasses, boolean includeGetClass, boolean includeExtensions) {
 
-	   super(o, includeSuperclasses, includeGetClass, includeDomains);
+	   super(o, includeSuperclasses, includeGetClass, includeExtensions);
 	   
    }
 

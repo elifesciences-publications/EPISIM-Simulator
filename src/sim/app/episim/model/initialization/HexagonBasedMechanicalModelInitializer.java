@@ -44,7 +44,7 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		
 		
 		
-		int width = (int)((globalParameters.getWidthInMikron()/globalParameters.getCellDiameter_mikron())*0.2);
+		int width = (int)((globalParameters.getWidthInMikron()/globalParameters.getCellDiameter_mikron())*0.1);
 		int height = (int)((globalParameters.getHeightInMikron()/globalParameters.getCellDiameter_mikron()));
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
@@ -88,8 +88,10 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 	}
 	
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {		
-		return new EpisimPortrayal[]{new SurfacePortrayal("Surface A",Color.MAGENTA, 0, 0, 500, SurfacePortrayal.MAX_HEIGHT_FLAG),
+		return  new EpisimPortrayal[0];
+		/*new EpisimPortrayal[]{new SurfacePortrayal("Surface A",Color.MAGENTA, 0, 0, 500, SurfacePortrayal.MAX_HEIGHT_FLAG),
 											  new SurfacePortrayal("Surface B",Color.ORANGE, 500, 0, TissueController.getInstance().getTissueBorder().getWidthInMikron()-500, SurfacePortrayal.MAX_HEIGHT_FLAG)};
+											  */
 	}
 
 }

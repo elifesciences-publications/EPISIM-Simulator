@@ -20,6 +20,7 @@ import sim.app.episim.model.biomechanics.BiomechanicalModelFacade;
 import sim.app.episim.model.biomechanics.BiomechanicalModelLoader;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
+import sim.app.episim.persistence.SimulationStateData;
 
 
 public class BiomechanicalModelController implements java.io.Serializable{
@@ -79,8 +80,8 @@ public class BiomechanicalModelController implements java.io.Serializable{
 		return this.biomechanicalModel.getBiomechanicalModelInitializer();
 	}
 	
-	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){
-		return this.biomechanicalModel.getBiomechanicalModelInitializer(modelInitializationFile);
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(SimulationStateData simStateData){
+		return this.biomechanicalModel.getBiomechanicalModelInitializer(simStateData);
 	}
 	
 	public boolean loadModelFile(String requiredModelConnectorID) throws ModelCompatibilityException{

@@ -740,9 +740,9 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	protected void loadSimulationStateFile(File f){
 		try{
-            new SimulationStateFile(f).loadData();
-            openModel(SimulationStateData.getInstance().getLoadedModelFile(), false);
-    		
+            SimulationStateData simStateData = new SimulationStateFile(f).loadData();
+            openModel(simStateData.getLoadedModelFile(), false);
+    		ModelController.getInstance().initializeModels(simStateData);
         }
         catch (ParserConfigurationException e1){
         	ExceptionDisplayer.getInstance().displayException(e1);

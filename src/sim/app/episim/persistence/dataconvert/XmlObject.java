@@ -19,7 +19,7 @@ import episiminterfaces.NoExport;
 public class XmlObject {
 	private HashMap<String, Object> parameters = new HashMap<String, Object>();
 	private Object obj;
-	private Class clazz;
+	private Class clazz = Object.class;
 	private Node objectNode;
 
 	public XmlObject(Object obj) {
@@ -140,9 +140,8 @@ public class XmlObject {
 			return false;
 	}
 
-	String get(String parameterName) {
-		// TODO Auto-generated method stub
-		return null;
+	public Object get(String parameterName) {
+		return parameters.get(parameterName);
 	}
 
 	boolean set(String parameterName, Object value) {
@@ -191,8 +190,8 @@ public class XmlObject {
 		}
 	}
 	
-	public void importParametersFromXml(Object obj){
-		this.clazz = obj.getClass();
+	public void importParametersFromXml(Class clazz){
+		this.clazz = clazz;
 		NodeList nl = objectNode.getChildNodes();
 		for(Method m : getGetters()){
 			for(int i = 0 ; i<nl.getLength(); i++){

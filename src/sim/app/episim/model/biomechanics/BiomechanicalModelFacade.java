@@ -19,6 +19,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
+import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
@@ -181,12 +182,12 @@ public class BiomechanicalModelFacade implements java.io.Serializable, SnapshotL
 		return modelInitializer;
 	}
 	
-	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(File modelInitializationFile){
+	public BiomechanicalModelInitializer getBiomechanicalModelInitializer(SimulationStateData simStateData){
 		BiomechanicalModelInitializer modelInitializer = null;
 		Constructor<? extends BiomechanicalModelInitializer> constructor=null;
       try{
 	      constructor = this.biomechanicalModelInitializerClass.getConstructor(new Class[]{File.class});
-	      modelInitializer = constructor.newInstance(new Object[]{modelInitializationFile});
+	      modelInitializer = constructor.newInstance(new Object[]{simStateData});
       }
       catch (SecurityException e){
       	ExceptionDisplayer.getInstance().displayException(e);

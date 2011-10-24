@@ -20,6 +20,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
+import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.snapshot.SnapshotWriter;
@@ -109,8 +110,8 @@ public class CellBehavioralModelFacade implements java.io.Serializable, Snapshot
    	return new CellBehavioralModelInitializer();
    }
    
-   public CellBehavioralModelInitializer getCellBehavioralModelInitializer(File modelInitializationFile){
-   	return new CellBehavioralModelInitializer(modelInitializationFile);
+   public CellBehavioralModelInitializer getCellBehavioralModelInitializer(SimulationStateData simStateData){
+   	return new CellBehavioralModelInitializer(simStateData);
    }
    
 }

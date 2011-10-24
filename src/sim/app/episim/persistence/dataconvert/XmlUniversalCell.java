@@ -1,5 +1,6 @@
 package sim.app.episim.persistence.dataconvert;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -13,16 +14,15 @@ public class XmlUniversalCell extends XmlObject{
 	XmlEpisimBiomechanicalModel episimBiomechanicalModel;
 	XmlEpisimCellBehavioralModel episimCellBehavioralModel;
 
-	public XmlUniversalCell(Object snapshotObject) {
-		super(snapshotObject);
-		UniversalCell uniCell = (UniversalCell)snapshotObject;
+	public XmlUniversalCell(Object cell) {
+		super(cell);
+		UniversalCell uniCell = (UniversalCell)cell;
 		episimBiomechanicalModel = new XmlEpisimBiomechanicalModel(uniCell.getEpisimBioMechanicalModelObject());
 		episimCellBehavioralModel = new XmlEpisimCellBehavioralModel(uniCell.getEpisimCellBehavioralModelObject());
 	}
 	
 	public XmlUniversalCell(Node universalCellNode) throws ClassNotFoundException {
 		super(universalCellNode);
-//		ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass(); //TODO
 		NodeList nl = universalCellNode.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node subNode = nl.item(i);
@@ -32,11 +32,6 @@ public class XmlUniversalCell extends XmlObject{
 					episimCellBehavioralModel = new XmlEpisimCellBehavioralModel(subNode);
 			}
 		}
-	}
-
-	String get(String parameterName) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	boolean set(String parameterName, Object value) {
@@ -52,11 +47,18 @@ public class XmlUniversalCell extends XmlObject{
 		return cellNode;
 	}
 	
-	@Override
-	public void importParametersFromXml(Object obj) {
-		super.importParametersFromXml(obj);
-		episimBiomechanicalModel.importParametersFromXml(obj);
-		episimCellBehavioralModel.importParametersFromXml(obj);
+	public void importParametersFromXml() throws ClassNotFoundException, DOMException {
+		super.importParametersFromXml(UniversalCell.class);
+		episimBiomechanicalModel.importParametersFromXml();
+		episimCellBehavioralModel.importParametersFromXml();
+	}
+
+	public XmlEpisimBiomechanicalModel getEpisimBiomechanicalModel() {
+		return episimBiomechanicalModel;
+	}
+
+	public XmlEpisimCellBehavioralModel getEpisimCellBehavioralModel() {
+		return episimCellBehavioralModel;
 	}
 	
 

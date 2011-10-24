@@ -1,5 +1,6 @@
 package sim.app.episim.persistence.dataconvert;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -8,6 +9,8 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import sim.app.episim.persistence.XmlFile;
 
 public class XmlEpisimBiomechanicalModel extends XmlObject {
+	
+	Node node;
 
 	public XmlEpisimBiomechanicalModel(EpisimBiomechanicalModel episimBiomechanicalModel) {
 		super(episimBiomechanicalModel);
@@ -15,11 +18,7 @@ public class XmlEpisimBiomechanicalModel extends XmlObject {
 
 	public XmlEpisimBiomechanicalModel(Node subNode){
 		super(subNode);
-	}
-
-	String get(String parameterName) {
-		// TODO Auto-generated method stub
-		return null;
+		this.node = subNode;
 	}
 
 	boolean set(String parameterName, Object value) {
@@ -27,16 +26,11 @@ public class XmlEpisimBiomechanicalModel extends XmlObject {
 		return false;
 	}
 
-//	@Override
-//	Node toXMLNode(XmlFile xmlFile) {
-//		Element modelNode = xmlFile.createElement("episimBiomechanicalModel");
-//		for(String s : getParameters().keySet()){
-//			Element parameterNode = xmlFile.createElement(s);
-//			System.out.println(s);
-//			parameterNode.setTextContent(getParameters().get(s).toString());
-//			modelNode.appendChild(parameterNode);
-//		}
-//		return modelNode;
-//	}
+	public void importParametersFromXml() throws ClassNotFoundException, DOMException {
+		Class clazz;
+		clazz = Class.forName(node.getAttributes().getNamedItem("class").getNodeValue());
+		super.importParametersFromXml(clazz);
+		
+	}
 
 }

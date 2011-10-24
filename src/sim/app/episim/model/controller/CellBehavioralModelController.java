@@ -25,6 +25,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelJarClassLoader;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
+import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.util.GlobalClassLoader;
 
 
@@ -160,8 +161,8 @@ public class CellBehavioralModelController implements java.io.Serializable{
 		return this.cellBehavioralModel.getCellBehavioralModelInitializer();
 	}
 	
-	public CellBehavioralModelInitializer getCellBehavioralModelInitializer(File modelInitializationFile){
-		return this.cellBehavioralModel.getCellBehavioralModelInitializer(modelInitializationFile);
+	public CellBehavioralModelInitializer getCellBehavioralModelInitializer(SimulationStateData simStateData){
+		return this.cellBehavioralModel.getCellBehavioralModelInitializer(simStateData);
 	}
 	
 	public EpisimCellType[] getAvailableCellTypes(){ return getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes(); }

@@ -34,13 +34,11 @@ public class SnapshotWriter {
 	
 	public void clearListeners(){
 		listeners.clear();
-		SimulationStateData.getInstance().clearListeners(); //TEMPORARY SOLUTION
 	}
 	
 	public void resetCounter(){ counter = 1;}
 	public void addSnapshotListener(SnapshotListener listener){
 		listeners.add(listener);
-		SimulationStateData.getInstance().addSnapshotListener(listener); //TEMPORARY SOLUTION
 	}
 	
 	

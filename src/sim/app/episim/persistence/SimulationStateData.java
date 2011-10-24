@@ -3,11 +3,13 @@ package sim.app.episim.persistence;
 import java.awt.geom.Rectangle2D.Double;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -15,6 +17,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
+import sim.app.episim.tissue.TissueController;
 import sim.engine.SimStateHack.TimeSteps;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
@@ -23,10 +26,6 @@ import sim.util.Double2D;
  * update = Objekte sammeln
  */
 public class SimulationStateData {
-
-	private static SimulationStateData instance = null;
-
-	private List<SnapshotListener> listeners;
 
 	private ArrayList<XmlUniversalCell> cells = new ArrayList<XmlUniversalCell>();
 	private Continuous2D cellContinuous;
@@ -37,24 +36,12 @@ public class SimulationStateData {
 	private Double[] deltaInfo;
 	private MiscalleneousGlobalParameters miscalleneousGlobalParameters;
 	private File loadedModelFile;
+	
+	public HashMap<Long, UniversalCell> alreadyLoadedCells = new HashMap<Long, UniversalCell>();
+	public HashMap<Long, XmlUniversalCell> cellsToBeLoaded = new HashMap<Long, XmlUniversalCell>();
 
-	private SimulationStateData() {
-		listeners = new LinkedList<SnapshotListener>();
-	}
-
-	public static synchronized SimulationStateData getInstance() {
-		if (instance == null) {
-			instance = new SimulationStateData();
-		}
-		return instance;
-	}
-
-	public void clearListeners() {
-		listeners.clear();
-	}
-
-	public void addSnapshotListener(SnapshotListener listener) {
-		listeners.add(listener);
+	public SimulationStateData() {
+		reset();
 	}
 
 	public void reset() {
@@ -70,36 +57,42 @@ public class SimulationStateData {
 	}
 
 	public void updateData() {
-		for (SnapshotListener listener : listeners) {
-			if (listener instanceof EpidermisSimulator) {
-				loadedModelFile = ((EpidermisSimulator) listener).getActLoadedJarFile();
-			}
-			for (SnapshotObject object : listener.collectSnapshotObjects()) {
-				if (object.getIdentifier().equals(SnapshotObject.CELL)) {
-					cells.add(new XmlUniversalCell(object.getSnapshotObject()));
-				} else if (object.getIdentifier().equals(SnapshotObject.CELLFIELD)) {
-					this.cellContinuous = (Continuous2D) object.getSnapshotObject();
-
-				} else if (object.getIdentifier().equals(SnapshotObject.TIMESTEPS)) {
-					this.timeSteps = (TimeSteps) object.getSnapshotObject();
-
-				} else if (object.getIdentifier().equals(SnapshotObject.CELLBEHAVIORALMODELGLOBALPARAMETERS)) {
-					episimCellBehavioralModelGlobalParameters = (EpisimCellBehavioralModelGlobalParameters) object.getSnapshotObject();
-
-				} else if (object.getIdentifier().equals(SnapshotObject.MECHANICALMODELGLOBALPARAMETERS)) {
-					episimBioMechanicalModelGlobalParameters = (EpisimBiomechanicalModelGlobalParameters) object.getSnapshotObject();
-
-				} else if (object.getIdentifier().equals(SnapshotObject.WOUND)) {
-					Object obj = null;
-					if ((obj = object.getSnapshotObject()) instanceof List)
-						woundRegionCoordinates = (List<Double2D>) obj;
-					else
-						deltaInfo = (java.awt.geom.Rectangle2D.Double[]) object.getSnapshotObject();
-
-				}
-
-			}
+//		for (SnapshotListener listener : listeners) {
+//			if (listener instanceof EpidermisSimulator) {
+//				loadedModelFile = ((EpidermisSimulator) listener).getActLoadedJarFile();
+//			}
+//			for (SnapshotObject object : listener.collectSnapshotObjects()) {
+//				if (object.getIdentifier().equals(SnapshotObject.CELL)) {
+//					cells.add(new XmlUniversalCell(object.getSnapshotObject()));
+//				} else if (object.getIdentifier().equals(SnapshotObject.CELLFIELD)) {
+//					this.cellContinuous = (Continuous2D) object.getSnapshotObject();
+//
+//				} else if (object.getIdentifier().equals(SnapshotObject.TIMESTEPS)) {
+//					this.timeSteps = (TimeSteps) object.getSnapshotObject();
+//
+//				} else if (object.getIdentifier().equals(SnapshotObject.CELLBEHAVIORALMODELGLOBALPARAMETERS)) {
+//					episimCellBehavioralModelGlobalParameters = (EpisimCellBehavioralModelGlobalParameters) object.getSnapshotObject();
+//
+//				} else if (object.getIdentifier().equals(SnapshotObject.MECHANICALMODELGLOBALPARAMETERS)) {
+//					episimBioMechanicalModelGlobalParameters = (EpisimBiomechanicalModelGlobalParameters) object.getSnapshotObject();
+//
+//				} else if (object.getIdentifier().equals(SnapshotObject.WOUND)) {
+//					Object obj = null;
+//					if ((obj = object.getSnapshotObject()) instanceof List)
+//						woundRegionCoordinates = (List<Double2D>) obj;
+//					else
+//						deltaInfo = (java.awt.geom.Rectangle2D.Double[]) object.getSnapshotObject();
+//
+//				}
+//
+//			}
+//		}
+		
+		this.loadedModelFile = ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile();
+		for(AbstractCell cell : TissueController.getInstance().getActEpidermalTissue().getAllCells()){
+			cells.add(new XmlUniversalCell(cell));
 		}
+
 		this.miscalleneousGlobalParameters = MiscalleneousGlobalParameters.instance();
 		this.episimBioMechanicalModelGlobalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	}

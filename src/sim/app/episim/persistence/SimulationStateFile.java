@@ -38,10 +38,10 @@ public class SimulationStateFile extends XmlFile {
 		rootNode.setAttribute(MultiCellXML_VERSION, "1.0");
 	}
 
-	public void loadData() {
+	public SimulationStateData loadData() {
 		Node behaviorFile = getRoot().getElementsByTagName(CELLBEHAVIORALMODEL_FILE).item(0);
-		SimulationStateData.getInstance().reset();
-		SimulationStateData.getInstance().setLoadedModelFile(behaviorFile.getTextContent());
+		SimulationStateData simStateData = new SimulationStateData();
+		simStateData.setLoadedModelFile(behaviorFile.getTextContent());
 
 		NodeList nodes = getRoot().getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -55,7 +55,7 @@ public class SimulationStateFile extends XmlFile {
 					if (cellNode.getNodeName().equalsIgnoreCase("cell"))
 						try {
 							xmlCell = new XmlUniversalCell(cellNode);
-							SimulationStateData.getInstance().addCell(xmlCell);
+							simStateData.addCell(xmlCell);
 						} catch (ClassNotFoundException e) {
 						}
 
@@ -64,23 +64,19 @@ public class SimulationStateFile extends XmlFile {
 			}
 
 		}
-		SimulationStateData ist = SimulationStateData.getInstance();
-		System.out.println(ist);
-	}
-
-	private Element createModelFileNode() {
-		Element modelFileElement = createElement(CELLBEHAVIORALMODEL_FILE);
-		modelFileElement.setTextContent(SimulationStateData.getInstance().getLoadedModelFile().getAbsolutePath());
-		return modelFileElement;
+		return simStateData;
 	}
 
 	public void saveData(File path) {
 
-		SimulationStateData.getInstance().updateData();
+		SimulationStateData simStateData = new SimulationStateData();
+		simStateData.updateData();
 
-		getRoot().appendChild(createModelFileNode());
+		Element modelFileElement = createElement(CELLBEHAVIORALMODEL_FILE);
+		modelFileElement.setTextContent(simStateData.getLoadedModelFile().getAbsolutePath());
+		getRoot().appendChild(modelFileElement);
 
-		getRoot().appendChild(cellListToXML(SimulationStateData.getInstance().getCells(), CELLS));
+		getRoot().appendChild(cellListToXML(simStateData.getCells(), CELLS));
 		//
 		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getCellContinuous(),CELLCONTINUOUS));
 		//

@@ -18,6 +18,7 @@ import sim.app.episim.model.biomechanics.vertexbased.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
+import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 import sim.display.GUIState;
 import sim.portrayal.Inspector;
@@ -39,8 +40,8 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		random = new MersenneTwisterFast(System.currentTimeMillis());
 	}
 	
-	public VertexBasedMechanicalModelInitializer(File modelInitializationFile){
-		super(modelInitializationFile);
+	public VertexBasedMechanicalModelInitializer(SimulationStateData simulationStateData){
+		super(simulationStateData);
 	}
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {

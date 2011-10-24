@@ -3,34 +3,81 @@ package sim.app.episim.model.initialization;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.w3c.dom.DOMException;
+
 import episiminterfaces.EpisimPortrayal;
 
 import sim.app.episim.UniversalCell;
+import sim.app.episim.persistence.SimulationStateData;
+import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.portrayal.Portrayal;
 
 
 public abstract class BiomechanicalModelInitializer {
 	
-	private File modelInitializationFile;
+	private SimulationStateData simulationStateData;
 	
 	public BiomechanicalModelInitializer(){
 		this(null);
 	}
 	
-	public BiomechanicalModelInitializer(File file){
-		this.modelInitializationFile = file;
+	public BiomechanicalModelInitializer(SimulationStateData simulationStateData){
+		this.simulationStateData = simulationStateData;
 	}
 	
 	protected ArrayList<UniversalCell> getInitialCellEnsemble(){
-		if(this.modelInitializationFile == null) return buildStandardInitialCellEnsemble();
-		else return buildInitialCellEnsemble(modelInitializationFile);
+		if(this.simulationStateData == null) return buildStandardInitialCellEnsemble();
+		else return buildInitialCellEnsemble();
 	}
 	
 	protected abstract ArrayList<UniversalCell> buildStandardInitialCellEnsemble();
 	
 	protected abstract void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble);
 	
-	protected abstract ArrayList<UniversalCell> buildInitialCellEnsemble(File file);
+	
+	protected ArrayList<UniversalCell> buildInitialCellEnsemble(){
+		ArrayList<UniversalCell> loadedCells = new ArrayList<UniversalCell>();
+
+		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
+		for (XmlUniversalCell xCell : xmlCells) {
+			try {
+				xCell.importParametersFromXml();
+				simulationStateData.cellsToBeLoaded.put((Long) xCell.get("iD"), xCell);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (DOMException e) {
+				e.printStackTrace();
+			}
+		}
+		for(XmlUniversalCell xCell : xmlCells){
+			buildCell(xCell);
+		}
+
+		return loadedCells;
+	}
+
+	private UniversalCell buildCell(XmlUniversalCell xCell) {
+		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
+		UniversalCell loadCell = null;
+		
+		long id = (Long) xCell.get("iD");
+		long motherID = (Long) xCell.get("motherId");
+		System.out.println(id + " - "+motherID);
+		if(id == motherID){
+			loadCell = new UniversalCell();
+			simulationStateData.alreadyLoadedCells.put(id, loadCell);
+		} else{
+			UniversalCell mother = simulationStateData.alreadyLoadedCells.get(id);
+			if(mother == null){
+				if(simulationStateData.cellsToBeLoaded.get(motherID) != null)
+				mother = buildCell(simulationStateData.cellsToBeLoaded.get(motherID));
+				else
+					System.out.println(); //TODO was tun wenn mutter gelöscht ist?
+			}
+			loadCell = new UniversalCell(mother, null, null);
+		}
+		return loadCell;
+	}
 
 	/**
 	 * Get component for visualizing the cells
@@ -50,8 +97,8 @@ public abstract class BiomechanicalModelInitializer {
 	 */
 	protected abstract EpisimPortrayal[] getAdditionalPortrayalsCellBackground();
 	
-   protected File getModelInitializationFile(){   
-   	return modelInitializationFile;
+   protected SimulationStateData getModelInitializationFile(){   
+   	return simulationStateData;
    }
 
 }

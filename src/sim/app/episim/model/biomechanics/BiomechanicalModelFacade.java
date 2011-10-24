@@ -186,7 +186,7 @@ public class BiomechanicalModelFacade implements java.io.Serializable, SnapshotL
 		BiomechanicalModelInitializer modelInitializer = null;
 		Constructor<? extends BiomechanicalModelInitializer> constructor=null;
       try{
-	      constructor = this.biomechanicalModelInitializerClass.getConstructor(new Class[]{File.class});
+	      constructor = this.biomechanicalModelInitializerClass.getConstructor(new Class[]{SimulationStateData.class});
 	      modelInitializer = constructor.newInstance(new Object[]{simStateData});
       }
       catch (SecurityException e){

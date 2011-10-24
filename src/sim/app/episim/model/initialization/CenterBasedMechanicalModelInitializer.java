@@ -13,6 +13,7 @@ import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelG
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
+import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.display.GUIState;
@@ -30,8 +31,8 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 	}
 	
-	public CenterBasedMechanicalModelInitializer(File modelInitializationFile){
-		super(modelInitializationFile);
+	public CenterBasedMechanicalModelInitializer(SimulationStateData simulationStateData){
+		super(simulationStateData);
 	}	
 
 	private final double depthFrac(double y) // wie tief ist in prozent die uebergebene y-position relativ zu rete tiefe

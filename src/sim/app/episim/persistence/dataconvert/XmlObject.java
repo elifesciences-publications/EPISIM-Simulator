@@ -128,10 +128,10 @@ public class XmlObject {
 		return obj;
 	}
 
-	protected boolean invokeSetMethod(Object object, Method actMethod, Object value) {
-		if (actMethod.getParameterTypes().length == 1) {
+	protected boolean invokeSetMethod(Object target, Method method, Object value) {
+		if (method.getParameterTypes().length == 1) {
 			try {
-				actMethod.invoke(object, value);
+				method.invoke(target, value);
 			} catch (Exception e) {
 				return false;
 			}
@@ -144,8 +144,13 @@ public class XmlObject {
 		return parameters.get(parameterName);
 	}
 
-	boolean set(String parameterName, Object value) {
-		// TODO Auto-generated method stub
+	boolean set(String parameterName, Object value, Object target) {
+		for(Method m : getSetters()){
+			String mName = m.getName().substring(3);
+			if(mName.equalsIgnoreCase(parameterName)){
+				return invokeSetMethod(target, m, value);
+			}
+		}
 		return false;
 	}
 
@@ -199,6 +204,12 @@ public class XmlObject {
 					parameters.put(nl.item(i).getNodeName(),parse(nl.item(i).getTextContent(),m.getReturnType()));
 				}
 			}
+		}
+	}
+	
+	public void copyValuesToTarget(Object target){
+		for(String parameterName : parameters.keySet()){
+			set(parameterName, parameters.get(parameterName), target);
 		}
 	}
 }

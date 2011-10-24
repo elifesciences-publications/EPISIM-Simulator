@@ -45,53 +45,10 @@ public class ModelInitialization {
 
 	public ArrayList<UniversalCell> getCells() {
 
-		if (this.simulationStateData == null)
 			return buildStandardCellList();
-
-		else {
-			return buildLoadedCellList();
-		}
 	}
 
-	private ArrayList<UniversalCell> buildLoadedCellList() {
-		ArrayList<UniversalCell> loadedCells = new ArrayList<UniversalCell>();
 
-		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
-		for (XmlUniversalCell xCell : xmlCells) {
-			try {
-				xCell.importParametersFromXml();
-				simulationStateData.cellsToBeLoaded.put((Long) xCell.get("iD"), xCell);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (DOMException e) {
-				e.printStackTrace();
-			}
-		}
-		for(XmlUniversalCell xCell : xmlCells){
-			buildCell(xCell);
-		}
-
-		this.cellbehavioralModelInitializer.initializeCellEnsemble(loadedCells);
-		this.biomechanicalModelInitializer.initializeCellEnsembleBasedOnRandomAgeDistribution(loadedCells);
-		return loadedCells;
-	}
-
-	private UniversalCell buildCell(XmlUniversalCell xCell) {
-		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
-		UniversalCell loadCell = null;
-		
-		if((Long) xCell.get("iD") == (Long) xCell.get("motherId")){
-			loadCell = new UniversalCell();
-			simulationStateData.alreadyLoadedCells.put((Long) xCell.get("iD"), loadCell);
-		} else{
-			UniversalCell mother = simulationStateData.alreadyLoadedCells.get((Long) xCell.get("iD"));
-			if(mother == null){
-				mother = buildCell(simulationStateData.cellsToBeLoaded.get((Long) xCell.get("motherId")));
-			}
-			loadCell = new UniversalCell(mother, null, null);
-		}
-		return loadCell;
-	}
 
 	public EpisimPortrayal getCellPortrayal() {
 		return biomechanicalModelInitializer.getCellPortrayal();
@@ -106,10 +63,10 @@ public class ModelInitialization {
 	}
 
 	private ArrayList<UniversalCell> buildStandardCellList() {
-		ArrayList<UniversalCell> initiallyExistingCells = this.biomechanicalModelInitializer.buildStandardInitialCellEnsemble();
+		ArrayList<UniversalCell> initiallyExistingCells = this.biomechanicalModelInitializer.getInitialCellEnsemble();
 
 		this.cellbehavioralModelInitializer.initializeCellEnsemble(initiallyExistingCells);
-		//this.biomechanicalModelInitializer.initializeCellEnsembleBasedOnRandomAgeDistribution(initiallyExistingCells);
+		this.biomechanicalModelInitializer.initializeCellEnsembleBasedOnRandomAgeDistribution(initiallyExistingCells);
 		return initiallyExistingCells;
 	}
 

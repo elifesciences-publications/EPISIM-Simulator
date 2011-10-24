@@ -16,6 +16,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.BorderlinePortrayal;
 import sim.app.episim.model.visualization.HexagonalCellGridPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
+import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.visualization.SurfacePortrayal;
 import sim.display.GUIState;
@@ -33,8 +34,8 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 	}
 	
-	public HexagonBasedMechanicalModelInitializer(File modelInitializationFile){
-		super(modelInitializationFile);		
+	public HexagonBasedMechanicalModelInitializer(SimulationStateData simulationStateData){
+		super(simulationStateData);		
 	}
 
 	
@@ -63,13 +64,6 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		// is not needed int this model
 	}
 
-	@Override
-	protected ArrayList<UniversalCell> buildInitialCellEnsemble(File file) {
-
-		// TODO Auto-generated method stub has to be implemented
-		return new ArrayList<UniversalCell>();
-	}
-
 	protected EpisimPortrayal getCellPortrayal() {
 			   
 		HexagonalCellGridPortrayal2D portrayal =  new HexagonalCellGridPortrayal2D(java.awt.Color.lightGray){
@@ -92,9 +86,14 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 	
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {		
 		return  new EpisimPortrayal[0];
-		/*new EpisimPortrayal[]{new SurfacePortrayal("Surface A",Color.MAGENTA, 0, 0, 500, SurfacePortrayal.MAX_HEIGHT_FLAG),
-											  new SurfacePortrayal("Surface B",Color.ORANGE, 500, 0, TissueController.getInstance().getTissueBorder().getWidthInMikron()-500, SurfacePortrayal.MAX_HEIGHT_FLAG)};
-											  */
+		/*
+		 * new EpisimPortrayal[]{new SurfacePortrayal("Surface A",Color.MAGENTA,
+		 * 0, 0, 500, SurfacePortrayal.MAX_HEIGHT_FLAG), new
+		 * SurfacePortrayal("Surface B",Color.ORANGE, 500, 0,
+		 * TissueController.getInstance
+		 * ().getTissueBorder().getWidthInMikron()-500,
+		 * SurfacePortrayal.MAX_HEIGHT_FLAG)};
+		 */
 	}
 
 }

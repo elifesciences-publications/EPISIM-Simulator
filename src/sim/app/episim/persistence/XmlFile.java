@@ -1,7 +1,6 @@
 package sim.app.episim.persistence;
 
 import java.io.*;
-import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -18,7 +17,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import sim.app.episim.ExceptionDisplayer;
@@ -80,7 +78,7 @@ public class XmlFile {
 		}
 	}
 
-	protected Element createElement(String name){
+	public Element createElement(String name){
 		return document.createElement(name);
 	}
 

@@ -448,15 +448,8 @@ public class EpisimMenuBarFactory {
 				if(simulator.getMainFrame() instanceof JFrame){					
 					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
 					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showSaveDialog((JFrame)simulator.getMainFrame())){
-						try{
-	                  (new SimulationStateFile()).saveData(chooser.getSelectedFile());
-                  }
-                  catch (ParserConfigurationException e1){
-	                 ExceptionDisplayer.getInstance().displayException(e1);
-                  }
-                  catch (SAXException e1){
-                  	ExceptionDisplayer.getInstance().displayException(e1);
-                  }
+						simulator.saveSimulationStateFile(chooser.getSelectedFile());
+						
 					}
 				}				
          }
@@ -468,19 +461,9 @@ public class EpisimMenuBarFactory {
 				if(simulator.getMainFrame() instanceof JFrame){					
 					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
 					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showOpenDialog((JFrame)simulator.getMainFrame())){
-						try{
-	                  (new SimulationStateFile(chooser.getSelectedFile())).loadData();
-                  } //TODO hier müssten eigentlich noch die daten wiederhergestellt werden.
-                  catch (ParserConfigurationException e1){
-                  	ExceptionDisplayer.getInstance().displayException(e1);
-                  }
-                  catch (SAXException e1){
-                  	ExceptionDisplayer.getInstance().displayException(e1);
-                  } 
-				  catch (IOException e1) {
-					ExceptionDisplayer.getInstance().displayException(e1);
-				  }
-				}
+						simulator.loadSimulationStateFile(chooser.getSelectedFile());
+						
+					}
 				}				
          }
 		});

@@ -26,6 +26,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
@@ -43,6 +46,8 @@ import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
 
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.persistence.SimulationStateData;
+import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotLoader;
 import sim.app.episim.snapshot.SnapshotObject;
@@ -719,4 +724,38 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			//does nothing, is required to Connect the Episim Simulator class to SnapshotWriter, if snapshot-path is not set
 		return new ArrayList<SnapshotObject>();
    }
+	
+	protected void saveSimulationStateFile(File f){
+		try{
+			
+            (new SimulationStateFile()).saveData(f);
+        }
+        catch (ParserConfigurationException e1){
+           ExceptionDisplayer.getInstance().displayException(e1);
+        }
+        catch (SAXException e1){
+        	ExceptionDisplayer.getInstance().displayException(e1);
+        }
+	}
+	
+	protected void loadSimulationStateFile(File f){
+		try{
+            new SimulationStateFile(f).loadData();
+            openModel(SimulationStateData.getInstance().getLoadedModelFile(), false);
+    		
+        }
+        catch (ParserConfigurationException e1){
+        	ExceptionDisplayer.getInstance().displayException(e1);
+        }
+        catch (SAXException e1){
+        	ExceptionDisplayer.getInstance().displayException(e1);
+        } 
+		  catch (IOException e1) {
+			ExceptionDisplayer.getInstance().displayException(e1);
+		} 
+	}
+
+	public File getActLoadedJarFile() {
+		return actLoadedJarFile;
+	}
 }

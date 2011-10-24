@@ -3,40 +3,33 @@ package sim.app.episim.persistence;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import sim.app.episim.UniversalCell;
+
+import sim.app.episim.AbstractCell;
+import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 
 public class SimulationStateFile extends XmlFile {
 
 	private static final String ROOT_NAME = "data_set";
-	private static final String DATA_SOURCE = "data_source";
-	private static final String GLOBALS = "globals";
-	private static final String CELL_LIST = "cell_list";
-	private static final String CELL_ID = "cell_id";
-	private static final String GLOBAL_VARIABLES = "global_variables";
+	private static final String CELLBEHAVIORALMODEL_FILE = "model_file";
 	private static final String MultiCellXML_VERSION = "MultiCellXML_version";
-	private static final String CELLCONTINUOUS = "cellContinuous";
 	private static final String CELLS = "cells";
-	private static final String DELTAINFO = "deltaInfo";
-	private static final String EPISIMBIOMECHANICALMODELGLOBALPARAMETERS = "episimBioMechanicalModelGlobalParameters";
-	private static final String EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS = "episimCellBehavioralModelGlobalParameters";
-	private static final String MISCALLENEOUSGLOBALPARAMETERS = "miscalleneousGlobalParameters";
-	private static final String TIMESTEPS = "timeSteps";
-	private static final String WOUNDREGIONCOORDINATES = "woundRegionCoordinates";
 
 	private Element rootNode = null;
-	private ConvertObjectXML converter = new ConvertObjectXML(this);
 
 	public SimulationStateFile(File path) throws SAXException, IOException, ParserConfigurationException {
 		super(path);
 		rootNode = getRoot();
 		if (!rootNode.getNodeName().equals(ROOT_NAME))
 			throw new IOException("Wrong file format: " + path.getAbsolutePath());
+
 	}
 
 	public SimulationStateFile() throws ParserConfigurationException, SAXException {
@@ -46,52 +39,93 @@ public class SimulationStateFile extends XmlFile {
 	}
 
 	public void loadData() {
+		Node behaviorFile = getRoot().getElementsByTagName(CELLBEHAVIORALMODEL_FILE).item(0);
+		SimulationStateData.getInstance().reset();
+		SimulationStateData.getInstance().setLoadedModelFile(behaviorFile.getTextContent());
+
 		NodeList nodes = getRoot().getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
-			Node actNode = nodes.item(i);
-			if (actNode.getNodeName().equals(CELLS)) {
-				ArrayList<UniversalCell> cells = null;
-				cells=converter.xMLToObject(actNode, ArrayList.class);
-				SimulationStateData.getInstance().setCells(cells);
-			} 
-//			else if (actNode.getNodeName().equals(CELLCONTINUOUS)) {
-//				SimulationStateData.getInstance().setCellContinuous((Continuous2D) unknown);
-//			} else if (actNode.getNodeName().equals(DELTAINFO)) {
-//				SimulationStateData.getInstance().setDeltaInfo((Rectangle2D.Double[]) unknown);
-//			} else if (actNode.getNodeName().equals(EPISIMBIOMECHANICALMODELGLOBALPARAMETERS)) {
-//				SimulationStateData.getInstance().setEpisimBioMechanicalModelGlobalParameters((EpisimBiomechanicalModelGlobalParameters) unknown);
-//			} else if (actNode.getNodeName().equals(EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS)) {
-//				SimulationStateData.getInstance().setEpisimCellBehavioralModelGlobalParameters((EpisimCellBehavioralModelGlobalParameters) unknown);
-//			} else if (actNode.getNodeName().equals(MISCALLENEOUSGLOBALPARAMETERS)) {
-//				SimulationStateData.getInstance().setMiscalleneousGlobalParameters((MiscalleneousGlobalParameters) unknown);
-//			} else if (actNode.getNodeName().equals(TIMESTEPS)) {
-//				SimulationStateData.getInstance().setTimeSteps((TimeSteps) unknown);
-//			} else if (actNode.getNodeName().equals(WOUNDREGIONCOORDINATES)) {
-//				SimulationStateData.getInstance().setWoundRegionCoordinates((List<Double2D>) unknown);
-//			}
+
+			if (nodes.item(i).getNodeName().equalsIgnoreCase(CELLS)) {
+				NodeList cellNodes = nodes.item(i).getChildNodes();
+
+				for (int j = 0; j < cellNodes.getLength(); j++) {
+					XmlUniversalCell xmlCell;
+					Node cellNode = cellNodes.item(j);
+					if (cellNode.getNodeName().equalsIgnoreCase("cell"))
+						try {
+							xmlCell = new XmlUniversalCell(cellNode);
+							SimulationStateData.getInstance().addCell(xmlCell);
+						} catch (ClassNotFoundException e) {
+						}
+
+				}
+
+			}
+
 		}
+		SimulationStateData ist = SimulationStateData.getInstance();
+		System.out.println(ist);
+	}
+
+	private Element createModelFileNode() {
+		Element modelFileElement = createElement(CELLBEHAVIORALMODEL_FILE);
+		modelFileElement.setTextContent(SimulationStateData.getInstance().getLoadedModelFile().getAbsolutePath());
+		return modelFileElement;
 	}
 
 	public void saveData(File path) {
+
 		SimulationStateData.getInstance().updateData();
-		getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getCells(),CELLS));
-		
-		getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getCellContinuous(),CELLCONTINUOUS));
-		
-		getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getDeltaInfo(),DELTAINFO));
-		
-		getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getEpisimBioMechanicalModelGlobalParameters(),EPISIMBIOMECHANICALMODELGLOBALPARAMETERS));
-		
-		getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getEpisimCellBehavioralModelGlobalParameters(),EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS));
-		
-		getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getMiscalleneousGlobalParameters(),MISCALLENEOUSGLOBALPARAMETERS));
-		
-		getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getTimeSteps(),TIMESTEPS));
-		
-		getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getWoundRegionCoordinates(),WOUNDREGIONCOORDINATES));
-		
+
+		getRoot().appendChild(createModelFileNode());
+
+		getRoot().appendChild(cellListToXML(SimulationStateData.getInstance().getCells(), CELLS));
+		//
+		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getCellContinuous(),CELLCONTINUOUS));
+		//
+		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getDeltaInfo(),DELTAINFO));
+		//
+		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getEpisimBioMechanicalModelGlobalParameters(),EPISIMBIOMECHANICALMODELGLOBALPARAMETERS));
+		//
+		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getEpisimCellBehavioralModelGlobalParameters(),EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS));
+		//
+		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getMiscalleneousGlobalParameters(),MISCALLENEOUSGLOBALPARAMETERS));
+		//
+		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getTimeSteps(),TIMESTEPS));
+		//
+		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getWoundRegionCoordinates(),WOUNDREGIONCOORDINATES));
 		save(path);
 	}
-	
+
+	public Node cellListToXML(ArrayList<XmlUniversalCell> cells, String nodeName) {
+		Element cellsNode = createElement(nodeName);
+		for (XmlUniversalCell xCell : cells) {
+			cellsNode.appendChild(xCell.toXMLNode("cell", this));
+		}
+		return cellsNode;
+	}
+
+	private Element convertObjectToNode(String ElementName, Object obj) {
+		Element node = createElement(ElementName);
+		if (obj.getClass().isPrimitive()) {
+			node.setTextContent(obj + "");
+		} else if (obj instanceof Collection) {
+			Collection listObj = (Collection) obj;
+			if (listObj.size() > 0) {
+				node.setAttribute("list", listObj.toArray()[0].getClass().getName());
+				for (Object listElement : listObj) {
+					node.appendChild(convertObjectToNode("listElement", listElement));
+				}
+
+			}
+		} else if (obj instanceof AbstractCell) {
+			node.setAttribute("type", CELLS);
+			node.setTextContent(((AbstractCell) obj).getID() + "");
+		} else {
+			node.setTextContent(obj.toString());
+		}
+		return node;
+	}
 
 }

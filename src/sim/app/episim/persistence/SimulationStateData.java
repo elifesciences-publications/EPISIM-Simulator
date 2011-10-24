@@ -1,6 +1,7 @@
 package sim.app.episim.persistence;
 
 import java.awt.geom.Rectangle2D.Double;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,8 +9,10 @@ import java.util.List;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.engine.SimStateHack.TimeSteps;
@@ -18,7 +21,6 @@ import sim.util.Double2D;
 
 /*
  * update = Objekte sammeln
- * restoreData = Objekte verteilen
  */
 public class SimulationStateData {
 
@@ -26,7 +28,7 @@ public class SimulationStateData {
 
 	private List<SnapshotListener> listeners;
 
-	private ArrayList<UniversalCell> cells = new ArrayList<UniversalCell>();
+	private ArrayList<XmlUniversalCell> cells = new ArrayList<XmlUniversalCell>();
 	private Continuous2D cellContinuous;
 	private TimeSteps timeSteps;
 	private EpisimBiomechanicalModelGlobalParameters episimBioMechanicalModelGlobalParameters;
@@ -34,6 +36,7 @@ public class SimulationStateData {
 	private List<Double2D> woundRegionCoordinates;
 	private Double[] deltaInfo;
 	private MiscalleneousGlobalParameters miscalleneousGlobalParameters;
+	private File loadedModelFile;
 
 	private SimulationStateData() {
 		listeners = new LinkedList<SnapshotListener>();
@@ -54,11 +57,26 @@ public class SimulationStateData {
 		listeners.add(listener);
 	}
 
+	public void reset() {
+		cells = new ArrayList<XmlUniversalCell>();
+		cellContinuous = null;
+		timeSteps = null;
+		episimBioMechanicalModelGlobalParameters = null;
+		episimCellBehavioralModelGlobalParameters = null;
+		woundRegionCoordinates = null;
+		deltaInfo = null;
+		miscalleneousGlobalParameters = null;
+		loadedModelFile = null;
+	}
+
 	public void updateData() {
 		for (SnapshotListener listener : listeners) {
+			if (listener instanceof EpidermisSimulator) {
+				loadedModelFile = ((EpidermisSimulator) listener).getActLoadedJarFile();
+			}
 			for (SnapshotObject object : listener.collectSnapshotObjects()) {
 				if (object.getIdentifier().equals(SnapshotObject.CELL)) {
-					cells.add((UniversalCell) object.getSnapshotObject());
+					cells.add(new XmlUniversalCell(object.getSnapshotObject()));
 				} else if (object.getIdentifier().equals(SnapshotObject.CELLFIELD)) {
 					this.cellContinuous = (Continuous2D) object.getSnapshotObject();
 
@@ -87,16 +105,20 @@ public class SimulationStateData {
 	}
 
 	public void restoreData() {
-//		SnapshotLoader bzw. EpidermisSimulator.loadSnapshot!
+		// SnapshotLoader bzw. EpidermisSimulator.loadSnapshot!
 		// TODO ObjectManipulations.resetInitialGlobalValues
 	}
 
-	public ArrayList<UniversalCell> getCells() {
+	public ArrayList<XmlUniversalCell> getCells() {
 		return cells;
 	}
 
-	public void setCells(ArrayList<UniversalCell> cells) {
+	public void setCells(ArrayList<XmlUniversalCell> cells) {
 		this.cells = cells;
+	}
+	
+	public void addCell(XmlUniversalCell cell) {
+		this.cells.add(cell);
 	}
 
 	public Continuous2D getCellContinuous() {
@@ -153,5 +175,13 @@ public class SimulationStateData {
 
 	public void setMiscalleneousGlobalParameters(MiscalleneousGlobalParameters miscalleneousGlobalParameters) {
 		this.miscalleneousGlobalParameters = miscalleneousGlobalParameters;
+	}
+
+	public File getLoadedModelFile() {
+		return loadedModelFile;
+	}
+
+	public void setLoadedModelFile(String file) {
+		this.loadedModelFile = new File(file);
 	}
 }

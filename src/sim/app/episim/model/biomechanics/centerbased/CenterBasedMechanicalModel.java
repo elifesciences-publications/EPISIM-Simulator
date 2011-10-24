@@ -583,17 +583,17 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	@CannotBeMonitored
 	public double getZ(){ return 0;}
 	
-	@CannotBeMonitored
+	@CannotBeMonitored @NoExport
 	public Polygon getPolygonCell(){
 		return getPolygonCell(null);
 	}
 	
-	@CannotBeMonitored
+	@CannotBeMonitored @NoExport
 	public Polygon getPolygonNucleus(){
 		return getPolygonNucleus(null);
 	}
 	
-	@CannotBeMonitored
+	@CannotBeMonitored @NoExport
 	public Polygon getPolygonCell(DrawInfo2D info){
 		return createHexagonalPolygon(info, getKeratinoWidth(), getKeratinoHeight());
 	}

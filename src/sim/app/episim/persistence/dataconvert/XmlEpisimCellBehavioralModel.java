@@ -18,11 +18,6 @@ public class XmlEpisimCellBehavioralModel extends XmlObject {
 		super(subNode);
 	}
 
-	boolean set(String parameterName, Object value) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	public void importParametersFromXml() {
 		super.importParametersFromXml(ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass());
 		

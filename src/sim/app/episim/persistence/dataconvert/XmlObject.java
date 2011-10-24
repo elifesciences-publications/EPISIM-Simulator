@@ -27,30 +27,42 @@ public class XmlObject {
 		this.clazz = obj.getClass();
 		exportParametersFromObject(obj);
 	}
-	
-	public XmlObject(Node objectNode){
+
+	public XmlObject(Node objectNode) {
 		this.objectNode = objectNode;
 	}
-	
-	protected Object parse(String objectString, Class objClass){
+
+	protected Object parse(String objectString, Class objClass) {
 		Object o = null;
 		objectString = objectString.trim();
-		if(objClass.equals(String.class)){
+		if (objClass.equals(String.class)) {
 			o = objectString;
-		} else if(Integer.TYPE.isAssignableFrom(objClass)){
+		} else if (Integer.TYPE.isAssignableFrom(objClass)) {
 			o = Integer.parseInt(objectString);
-		} else if(Double.TYPE.isAssignableFrom(objClass)){
+		} else if (Double.TYPE.isAssignableFrom(objClass)) {
 			o = Double.parseDouble(objectString);
-		} else if(Float.TYPE.isAssignableFrom(objClass)){
+		} else if (Float.TYPE.isAssignableFrom(objClass)) {
 			o = Float.parseFloat(objectString);
-		} else if(Boolean.TYPE.isAssignableFrom(objClass)){
+		} else if (Boolean.TYPE.isAssignableFrom(objClass)) {
 			o = Boolean.parseBoolean(objectString);
-		} else if(Short.TYPE.isAssignableFrom(objClass)){
+		} else if (Short.TYPE.isAssignableFrom(objClass)) {
 			o = Short.parseShort(objectString);
-		} else if(Long.TYPE.isAssignableFrom(objClass)){
+		} else if (Long.TYPE.isAssignableFrom(objClass)) {
 			o = Long.parseLong(objectString);
-		}		
+		} else if (Double2D.class.isAssignableFrom(objClass)) {
+			o = parseDouble2D(objectString);
+		}
 		return o;
+	}
+
+	private static Double2D parseDouble2D(String objString) {
+		if (!objString.startsWith("Double2D")) return null;
+		String sub = objString.substring(9,objString.length()-1);
+		String[] split = sub.split(",");
+		if (split.length != 2)	return null;
+		Double2D retDouble2D = new Double2D(Double.parseDouble(split[0]), Double.parseDouble(split[1]));
+		return retDouble2D;
+
 	}
 
 	protected ArrayList<Method> getGetters() {
@@ -145,9 +157,9 @@ public class XmlObject {
 	}
 
 	boolean set(String parameterName, Object value, Object target) {
-		for(Method m : getSetters()){
+		for (Method m : getSetters()) {
 			String mName = m.getName().substring(3);
-			if(mName.equalsIgnoreCase(parameterName)){
+			if (mName.equalsIgnoreCase(parameterName)) {
 				return invokeSetMethod(target, m, value);
 			}
 		}
@@ -194,21 +206,21 @@ public class XmlObject {
 			addParameter(methodToName(m.getName()), invokeGetMethod(obj, m));
 		}
 	}
-	
-	public void importParametersFromXml(Class clazz){
+
+	public void importParametersFromXml(Class clazz) {
 		this.clazz = clazz;
 		NodeList nl = objectNode.getChildNodes();
-		for(Method m : getGetters()){
-			for(int i = 0 ; i<nl.getLength(); i++){
-				if(nl.item(i).getNodeName().equalsIgnoreCase(methodToName(m.getName()))){
-					parameters.put(nl.item(i).getNodeName(),parse(nl.item(i).getTextContent(),m.getReturnType()));
+		for (Method m : getGetters()) {
+			for (int i = 0; i < nl.getLength(); i++) {
+				if (nl.item(i).getNodeName().equalsIgnoreCase(methodToName(m.getName()))) {
+					parameters.put(nl.item(i).getNodeName(), parse(nl.item(i).getTextContent(), m.getReturnType()));
 				}
 			}
 		}
 	}
-	
-	public void copyValuesToTarget(Object target){
-		for(String parameterName : parameters.keySet()){
+
+	public void copyValuesToTarget(Object target) {
+		for (String parameterName : parameters.keySet()) {
 			set(parameterName, parameters.get(parameterName), target);
 		}
 	}

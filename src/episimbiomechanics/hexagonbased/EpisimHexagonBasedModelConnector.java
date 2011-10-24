@@ -18,6 +18,7 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	private boolean isProliferating = false;
 	private boolean isRetracting = false;
 	private boolean isSpreadingPossible = true;
+	private boolean isOnTestSurface = false;
 
 	protected String getIdForInternalUse() {
 		return ID;
@@ -68,5 +69,16 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	public void setIsRetracting(boolean isRetracting) {	
 		this.isRetracting = isRetracting;
 	}
+	
+   public boolean getIsOnTestSurface() {
+   
+   	return isOnTestSurface;
+   }
+	
+	@Hidden
+   public void setIsOnTestSurface(boolean isOnTestSurface) {
+   
+   	this.isOnTestSurface = isOnTestSurface;
+   }
 	
 }

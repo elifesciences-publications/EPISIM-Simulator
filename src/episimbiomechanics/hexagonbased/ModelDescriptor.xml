@@ -4,10 +4,11 @@
   <modelname name="Hexagon Grid Based Biomechanical Model"/>
   <modelconnectorclass name="episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector"/>
   <modelparameters>
-    <parameter datatype="boolean" default="false" name="isSpreading" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
-    <parameter datatype="boolean" default="true"
-      name="isSpreadingPossible" readonly="true"/>
-    <parameter datatype="boolean" default="false" name="isRetracting" readonly="false"/>
+    <parameter name="isSpreading" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="isProliferating" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="isSpreadingPossible" datatype="boolean"
+      default="true" readonly="true"/>
+    <parameter name="isRetracting" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="isOnTestSurface" datatype="boolean" default="false" readonly="true"/>
   </modelparameters>
 </modeldescriptor>

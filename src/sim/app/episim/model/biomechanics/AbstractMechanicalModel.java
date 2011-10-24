@@ -32,5 +32,12 @@ public abstract class AbstractMechanicalModel implements EpisimBiomechanicalMode
 	public abstract Double2D getCellLocationInCellField();
 	protected abstract Object getCellField();
 	protected abstract void setReloadedCellField(Object cellField);
+	
+	/**
+	 * This pseudo-static Method is called ONLY ONE TIME after all cell's mechanical model's newSimStep Method has been called
+	 * The method is called at ONLY ONE arbitrary model instance and should implement global mechanical operations after a sim step has been calculated
+	 * 
+	 */
+	protected abstract void newSimStepGloballyFinished(long simStepNumber);
 
 }

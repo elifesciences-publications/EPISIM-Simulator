@@ -96,7 +96,7 @@ public class ModelDescriptorFileGenerator {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			
 			Document document = builder.newDocument();
-			document.setXmlVersion("1.0");
+			//document.setXmlVersion("1.0");
 			
 			Element rootElement = document.createElement("modeldescriptor");
 			document.appendChild(rootElement);

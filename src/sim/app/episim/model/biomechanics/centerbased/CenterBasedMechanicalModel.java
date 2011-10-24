@@ -727,4 +727,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 			
 	   
    }
+
+	
+   protected void newSimStepGloballyFinished(long simStepNumber){
+   	//not needed	   
+   }
 }

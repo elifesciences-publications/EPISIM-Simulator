@@ -44,7 +44,7 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		
 		
 		
-		int width = (int)((globalParameters.getWidthInMikron()/globalParameters.getCellDiameter_mikron())*0.1);
+		int width = (int)(((HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron)/globalParameters.getCellDiameter_mikron()));
 		int height = (int)((globalParameters.getHeightInMikron()/globalParameters.getCellDiameter_mikron()));
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
@@ -83,8 +83,11 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 
 	
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {
-
-		return new EpisimPortrayal[]{new BorderlinePortrayal()};
+		HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		BorderlinePortrayal initialWoundEdge = new BorderlinePortrayal("Initial Wound Edge", Color.WHITE, HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, 0, 
+            HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, globalParameters.getHeightInMikron());
+		globalParameters.setInitialWoundEdgeBorderlineConfig(initialWoundEdge.getBorderlineConfig());
+		return new EpisimPortrayal[]{initialWoundEdge};
 	}
 	
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {		

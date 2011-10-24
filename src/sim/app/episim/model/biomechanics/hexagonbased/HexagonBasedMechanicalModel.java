@@ -59,6 +59,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	
 	private static final boolean IS_TOROIDAL = false;
 	
+	private boolean isAtWoundEdge=false;
+	
 	private HexagonBasedMechanicalModelGlobalParameters globalParameters;
 	
 	public HexagonBasedMechanicalModel(){
@@ -317,5 +319,11 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 				}
 			}
 			for(AbstractCell cell :deathCellSet) cell.killCell();
+   }
+
+	
+   protected void newSimStepGloballyFinished(long simStepNumber) {
+   	globalParameters.getInitialWoundEdgeBorderlineConfig().x1_InMikron += 1;
+   	globalParameters.getInitialWoundEdgeBorderlineConfig().x2_InMikron += 1;	   
    }
 }

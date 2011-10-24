@@ -258,4 +258,10 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	   // TODO Wounding in Vertex Model is not yet supported
 	   
    }
+	
+   protected void newSimStepGloballyFinished(long simStepNumber) {
+
+	   //not needed
+	   
+   }
  }

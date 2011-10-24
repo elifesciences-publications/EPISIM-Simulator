@@ -114,6 +114,10 @@ public class BiomechanicalModelController implements java.io.Serializable{
 	public Object getCellField(){
 		return biomechanicalModel.getCellField();
 	}
+	
+	public void newSimStepGloballyFinished(long simStepNumber){
+		biomechanicalModel.newSimStepGloballyFinished(simStepNumber);
+	}
 	public void setReloadedCellField(Object cellField){
 		biomechanicalModel.setReloadedCellField(cellField);
 	}

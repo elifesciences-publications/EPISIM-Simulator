@@ -1,16 +1,21 @@
 package sim.app.episim.model.biomechanics.hexagonbased;
 
+import sim.app.episim.model.visualization.BorderlinePortrayal.BorderlineConfig;
 import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
 public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	private double height_mikron = 1000;
-	private double width_mikron = 2000;
+	private double height_mikron = 5000;
+	private double width_mikron = 5000;
 	private double cellDiameter_mikron = 50;
 	private double neighborhood_mikron = 50;
 	private double numberOfPixelsPerMicrometer = 0.1;
+	
+	public static final double initialPositionWoundEdge_Mikron = 500;
+	
+	private BorderlineConfig initialWoundEdgeBorderlineConfig;
 	
 	private boolean useContinuousSpace = false;
 
@@ -50,6 +55,15 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	public void setHeightInMikron(double val) {
 		this.height_mikron = val;
    }
+	
+	public void setInitialWoundEdgeBorderlineConfig(BorderlineConfig config){
+		this.initialWoundEdgeBorderlineConfig = config;
+	}
+	
+	public BorderlineConfig getInitialWoundEdgeBorderlineConfig(){
+		return this.initialWoundEdgeBorderlineConfig;
+	}
+	
 	
 	@NoUserModification
 	public double getHeightInMikron(){

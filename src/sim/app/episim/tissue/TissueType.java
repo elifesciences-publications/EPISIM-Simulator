@@ -17,6 +17,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.ModeServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.snapshot.SnapshotListener;
 import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.util.GenericBag;
@@ -105,6 +106,11 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	 public void start() {
 
 			super.start(timeStepsAfterSnapshotReload);
+			schedule.scheduleRepeating(new Steppable(){
+
+				public void step(SimState state) {
+	            ModelController.getInstance().getBioMechanicalModelController().newSimStepGloballyFinished(state.schedule.getSteps());
+            }}, SchedulePriority.TISSUE.getPriority(), 1);
 			
 			if(!ModeServer.guiMode()){
 		   	  Steppable consoleOutputSteppable = new Steppable(){

@@ -15,12 +15,32 @@ import episiminterfaces.EpisimPortrayal;
 
 public class BorderlinePortrayal  extends AbstractSpatialityScalePortrayal2D implements EpisimPortrayal{
 	
-	 private final String NAME = "Borderline";	
+	private final String NAME;	
+	private BorderlineConfig borderlineConfig;
+	private Color color;
+	
+	public class BorderlineConfig{
+		public double x1_InMikron;
+		public double y1_InMikron;
+		public double x2_InMikron;
+		public double y2_InMikron;
+	}
+	 
+	 
    
-   private double gridResolution = 5.0;
-   public BorderlinePortrayal() {
-  	 super();
-  	 	   	 
+   public BorderlinePortrayal(String name, Color color, double x1_InMikron, double y1_InMikron, double x2_InMikron, double y2_InMikron) {
+  	 	super();
+  	 	this.NAME = name;
+  	 	borderlineConfig = new BorderlineConfig();
+  	 	borderlineConfig.x1_InMikron = x1_InMikron;
+  	 	borderlineConfig.y1_InMikron = y1_InMikron;
+  	 	borderlineConfig.x2_InMikron = x2_InMikron;
+  	 	borderlineConfig.y2_InMikron = y2_InMikron;
+  	 	this.color = color;
+   }
+   
+   public BorderlineConfig getBorderlineConfig(){
+   	return this.borderlineConfig;
    }
    
        
@@ -29,12 +49,12 @@ public class BorderlinePortrayal  extends AbstractSpatialityScalePortrayal2D imp
    // assumes the graphics already has its color set
    public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
    	graphics.setStroke(new BasicStroke((int)(2*this.getScaleFactorOfTheDisplay()), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-   	graphics.setPaint(Color.BLUE);
+   	graphics.setPaint(this.color);
    	
-   	graphics.drawLine((int)(info.draw.x+(this.getScaledNumberOfPixelPerMicrometer(info)*500)),
-   			(int)(info.draw.y),
-   			(int)(info.draw.x+(this.getScaledNumberOfPixelPerMicrometer(info)*500)),
-   			(int)(info.draw.y + info.draw.getHeight()));
+   	graphics.drawLine((int)(info.draw.x+(this.getScaledNumberOfPixelPerMicrometer(info)*borderlineConfig.x1_InMikron)),
+   			(int)(info.draw.y+(this.getScaledNumberOfPixelPerMicrometer(info)*borderlineConfig.y1_InMikron)),
+   			(int)(info.draw.x+(this.getScaledNumberOfPixelPerMicrometer(info)*borderlineConfig.x2_InMikron)),
+   			(int)(info.draw.y+(this.getScaledNumberOfPixelPerMicrometer(info)*borderlineConfig.y2_InMikron)));
    }
 
 	public String getPortrayalName() {

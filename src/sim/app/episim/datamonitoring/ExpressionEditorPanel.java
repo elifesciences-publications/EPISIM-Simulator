@@ -98,7 +98,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	   c.weighty =1;
 	   c.insets = new Insets(10,10,10,10);
 	   c.gridwidth = GridBagConstraints.REMAINDER;
-	   panel.add(this.dataFieldsInspector.getVariableListPanel(parentComponent), c);
+	   if(this.hasBooleanCondition || this.hasMathematicalExpression)panel.add(this.dataFieldsInspector.getVariableListPanel(parentComponent), c);
 	   
 	   if(descriptor != null && descriptor.getParameters() != null && descriptor.getParameters().size() > 0){
 	   	hasParameters = true;
@@ -226,8 +226,9 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	
 	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator(){
 		int actSessionId = ExpressionCheckerController.getInstance().getCheckSessionId();
+		if(hasParameters)fetchParameterValues();
 		try{
-			 if(hasParameters)fetchParameterValues();
+			 
 			 if(hasMathematicalExpression){
 				String result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(actSessionId, arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
 				arithmeticExpression[0]=arithmeticExpressionTextArea.getText().trim();
@@ -300,6 +301,9 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				this.panel.validate();
 				booleanMessageTextArea.setText(e1.getMessage());
 			}
+		}
+		if(!hasBooleanCondition && !hasMathematicalExpression && !parameterValues.isEmpty()){
+			return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, new String[]{null, null}, new String[]{null, null}, parameterValues);
 		}
 		return null;
 	}
@@ -509,6 +513,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
    			else if(Short.TYPE.isAssignableFrom(currentCalculationAlgorithmDescriptor.getParameters().get(n.getName()))) parameterValues.put(n.getName(),(short) n.getValue());
    			
    			else if(Float.TYPE.isAssignableFrom(currentCalculationAlgorithmDescriptor.getParameters().get(n.getName()))) parameterValues.put(n.getName(),(float) n.getValue());
+   			else if(Double.TYPE.isAssignableFrom(currentCalculationAlgorithmDescriptor.getParameters().get(n.getName()))) parameterValues.put(n.getName(),(double) n.getValue());
    			else parameterValues.put(n.getName(),n.getValue());
 						
 				

@@ -15,7 +15,10 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	
 	public static final double initialPositionWoundEdge_Mikron = 500;
 	
+	private double positionXWoundEdge_Mikron = 500;
+	
 	private BorderlineConfig initialWoundEdgeBorderlineConfig;
+	private BorderlineConfig actualWoundEdgeBorderlineConfig;
 	
 	private boolean useContinuousSpace = false;
 
@@ -60,8 +63,18 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 		this.initialWoundEdgeBorderlineConfig = config;
 	}
 	
+	@NoUserModification
 	public BorderlineConfig getInitialWoundEdgeBorderlineConfig(){
 		return this.initialWoundEdgeBorderlineConfig;
+	}
+	
+	public void setActualWoundEdgeBorderlineConfig(BorderlineConfig config){
+		this.actualWoundEdgeBorderlineConfig = config;
+	}
+	
+	@NoUserModification
+	public BorderlineConfig getActualWoundEdgeBorderlineConfig(){
+		return this.actualWoundEdgeBorderlineConfig;
 	}
 	
 	
@@ -92,6 +105,16 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	@NoUserModification
 	public double getNumberOfPixelsPerMicrometer() {
 	   return this.numberOfPixelsPerMicrometer;
+   }
+
+	@NoUserModification
+   public double getPositionXWoundEdge_Mikron() {
+   
+   	return positionXWoundEdge_Mikron;
+   }	
+   public void setPositionXWoundEdge_Mikron(double positionXWoundEdge_Mikron) {
+   
+   	this.positionXWoundEdge_Mikron = positionXWoundEdge_Mikron;
    }
 
 }

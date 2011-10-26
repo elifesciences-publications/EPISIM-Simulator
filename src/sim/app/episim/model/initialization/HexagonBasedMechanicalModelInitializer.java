@@ -81,7 +81,10 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		BorderlinePortrayal initialWoundEdge = new BorderlinePortrayal("Initial Wound Edge", Color.WHITE, HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, 0, 
             HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, globalParameters.getHeightInMikron());
 		globalParameters.setInitialWoundEdgeBorderlineConfig(initialWoundEdge.getBorderlineConfig());
-		return new EpisimPortrayal[]{initialWoundEdge};
+		BorderlinePortrayal actualWoundEdge = new BorderlinePortrayal("Actual Averaged Wound Edge", Color.RED, HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, 0, 
+            HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, globalParameters.getHeightInMikron());
+		globalParameters.setActualWoundEdgeBorderlineConfig(actualWoundEdge.getBorderlineConfig());
+		return new EpisimPortrayal[]{initialWoundEdge, actualWoundEdge};
 	}
 	
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {		

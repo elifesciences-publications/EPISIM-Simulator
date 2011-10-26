@@ -23,6 +23,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
@@ -106,7 +107,12 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      }
 	   		if(shape!=null){
 		   	 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
-		   	 	graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
+		   	 	if(mechModel.getIsAtWoundEdge()){
+		   	 		graphics.setPaint(Color.YELLOW);
+		   	 	}
+		   	 	else{
+		   	 		graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
+		   	 	}
 				   if (filled)
 				   {	        
 				   	graphics.fill(shape);
@@ -114,6 +120,8 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 				   graphics.setPaint(standardMembraneColor);
 				   graphics.setStroke(stroke == null ? getDefaultStroke() : stroke);	      
 				   graphics.draw(shape);
+				   
+				   ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile();
 	   		}
 	   	}	   	
     }

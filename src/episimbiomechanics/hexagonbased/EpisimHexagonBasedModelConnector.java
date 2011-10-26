@@ -19,6 +19,8 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	private boolean isRetracting = false;
 	private boolean isSpreadingPossible = true;
 	private boolean isOnTestSurface = false;
+	private boolean isAtLeftSideSurfaceBorder = false;
+	private boolean isAtRightSideSurfaceBorder = false;
 
 	protected String getIdForInternalUse() {
 		return ID;
@@ -79,6 +81,27 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
    public void setIsOnTestSurface(boolean isOnTestSurface) {
    
    	this.isOnTestSurface = isOnTestSurface;
+   }
+	
+   public boolean getIsAtLeftSideSurfaceBorder() {
+   
+   	return isAtLeftSideSurfaceBorder;
+   }
+	
+   @Hidden
+   public void setIsAtLeftSideSurfaceBorder(boolean isAtLeftSideSurfaceBorder) {
+   
+   	this.isAtLeftSideSurfaceBorder = isAtLeftSideSurfaceBorder;
+   }
+	
+   public boolean getIsAtRightSideSurfaceBorder() {
+   
+   	return isAtRightSideSurfaceBorder;
+   }
+   @Hidden
+   public void setIsAtRightSideSurfaceBorder(boolean isTheRightSideSurfaceBorder) {
+   
+   	this.isAtRightSideSurfaceBorder = isTheRightSideSurfaceBorder;
    }
 	
 }

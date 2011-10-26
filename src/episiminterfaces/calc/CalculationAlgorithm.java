@@ -30,6 +30,7 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 	public static final String HISTOGRAMMINVALUEPARAMETER = "min value";
 	public static final String HISTOGRAMMAXVALUEPARAMETER = "max value";
 	public static final String HISTOGRAMNUMBEROFBINSPARAMETER = "number of bins";
+	public static final String SIMSTEPTIMESCALINGFACTOR = "time scaling factor";
 	
 	CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id);
 	void registerCells(GenericBag<AbstractCell> allCells);

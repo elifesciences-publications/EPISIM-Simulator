@@ -127,7 +127,8 @@ public class DataEvaluationWizard {
 		 algorithmSelectionPanel.addAlgorithmSelectionListener(new AlgorithmSelectionListener(){
 				public void algorithmWasSelected() {
 					if(!algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasCondition()
-							&& !algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasMathematicalExpression()){
+							&& !algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasMathematicalExpression()
+							&& algorithmSelectionPanel.getCalculationAlgorithmDescriptor().getParameters().isEmpty()){
 						okButton.setEnabled(true);
 						nextBackButton.setEnabled(false);
 					}
@@ -207,7 +208,8 @@ public class DataEvaluationWizard {
 				CalculationAlgorithmConfigurator configurator = null;
 				
 					if(!algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasCondition()
-							&& !algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasMathematicalExpression()){
+							&& !algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasMathematicalExpression()
+							&& algorithmSelectionPanel.getCalculationAlgorithmDescriptor().getParameters().isEmpty()){
 						configurator = CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(algorithmSelectionPanel.getCalculationAlgorithmDescriptor().getID(), 
 								new String[]{null, null}, new String[]{null, null}, new HashMap<String, Object>());
 					}
@@ -290,7 +292,7 @@ public class DataEvaluationWizard {
 					}
 					
 				}
-				else if(actualConfigurator != null && actualExpressionEditorPanel != null){
+				else if(actualConfigurator != null && actualExpressionEditorPanel != null && actualDescriptor!= null && actualDescriptor.getID() == actualConfigurator.getCalculationAlgorithmID()){
 					actualExpressionEditorPanel.setExpressionEditorPanelData(actualConfigurator);
 				}
 				cl.show(wizardPanel, EXPRESSIONCARD);

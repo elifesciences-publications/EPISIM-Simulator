@@ -92,7 +92,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	private StatusBar statusbar;
 	
-	private File actLoadedJarFile = null;
+	
 	private File actLoadedSnapshotFile = null;
 	
 	
@@ -399,7 +399,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
 				menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(true);
 				menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
-				this.actLoadedJarFile = modelFile;
+				
 			}
 
 		}
@@ -446,7 +446,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				DataExportController.getInstance().reloadCurrentlyLoadedDataExportDefinitionSet();
 				GlobalClassLoader.getInstance().resetMode();
 			}
-			this.actLoadedJarFile = modelFile;
+			
 			if(ModeServer.guiMode()){
 				mainFrame.validate();
 				mainFrame.repaint();
@@ -580,7 +580,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 					menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
 					menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(true);
 					menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
-					this.actLoadedJarFile = jarFile;
+					
 					this.actLoadedSnapshotFile = snapshotFile;
 				}
 	}
@@ -640,7 +640,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		SnapshotWriter.getInstance().resetCounter();
 		if(ModeServer.guiMode())mainFrame.setTitle("Episim Simulator");
 		SnapshotWriter.getInstance().setSnapshotPath(null);
-		this.actLoadedJarFile = null;
+		
 		this.actLoadedSnapshotFile = null;
 	}
 	
@@ -684,7 +684,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		else option = JOptionPane.YES_OPTION;
 		
 		if(option == JOptionPane.YES_OPTION){
-			File jar = this.actLoadedJarFile;
+			File jar = ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile();
 			File snap = this.actLoadedSnapshotFile;
 			closeModel();
 		  if(jar != null && snap != null){
@@ -755,7 +755,5 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		} 
 	}
 
-	public File getActLoadedJarFile() {
-		return actLoadedJarFile;
-	}
+	
 }

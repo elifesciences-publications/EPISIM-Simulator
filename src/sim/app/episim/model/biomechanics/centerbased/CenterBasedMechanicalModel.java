@@ -120,8 +120,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		 	  	this.setLastDrawInfo2DForNewCellEllipse(info, newloc, oldLoc);
 	      }
       }
-      lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0),
-     		 new Rectangle2D.Double(0, 0, 0, 0));
+      lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0), new Rectangle2D.Double(0, 0, 0, 0));
    }
    
    public void setLastDrawInfo2D(DrawInfo2D info){

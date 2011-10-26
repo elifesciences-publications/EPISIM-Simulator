@@ -7,6 +7,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,8 +47,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	
 	private static ObjectGrid2D cellField;
 	
-	private Int2D fieldLocation = null;
-	
+	private Int2D fieldLocation = null;	
 	
 	private Int2D spreadingLocation = null;
 	
@@ -172,15 +172,24 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 			fieldLocation = spreadingLocation;
 			spreadingLocation = null;
 		}
-		if(modelConnector.getIsRetracting() && spreadingLocation==null){
-			System.out.println("Retracting but no location");
-		}
+		
 		if(modelConnector.getIsProliferating()){
 			modelConnector.setIsSpreading(false);
 			modelConnector.setIsProliferating(false);
 		}		
 		this.getCellEllipse().setLastDrawInfo2D(getCellEllipse().getLastDrawInfo2D(), true);
 		modelConnector.setIsSpreadingPossible(isSpreadingPossible());
+		
+		checkIfCellIsAtWoundEdge();
+	}
+	
+	
+	private void checkIfCellIsAtWoundEdge(){
+		double xPosInMikron = (fieldLocation.x+1) *(globalParameters.getWidthInMikron()/ cellField.field.length);
+		
+		isAtWoundEdge = (getRealNeighbours().size() <5 && 
+				(xPosInMikron >= globalParameters.initialPositionWoundEdge_Mikron|| 
+						(xPosInMikron + (1*globalParameters.getCellDiameter_mikron()))>= globalParameters.initialPositionWoundEdge_Mikron));
 	}
 	
 	public boolean isSpreading(){ return this.spreadingLocation != null; }
@@ -314,16 +323,41 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 					HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
 					if(woundArea.contains(mechModel.getLastDrawInfo2D().draw.x, mechModel.getLastDrawInfo2D().draw.y)){  
 						deathCellSet.add(cell);
-					}
-					
+					}					
 				}
 			}
 			for(AbstractCell cell :deathCellSet) cell.killCell();
    }
+	
+	public boolean getIsAtWoundEdge(){ return this.isAtWoundEdge; }
 
 	
    protected void newSimStepGloballyFinished(long simStepNumber) {
-   	globalParameters.getInitialWoundEdgeBorderlineConfig().x1_InMikron += 1;
-   	globalParameters.getInitialWoundEdgeBorderlineConfig().x2_InMikron += 1;	   
+   	
+   	Iterator<AbstractCell> iter = TissueController.getInstance().getActEpidermalTissue().getAllCells().iterator();
+   	double kumulativeXPositionWoundEdge=0;
+   	double woundEdgeCellCounter=0;
+		ArrayList<Double> xPositions = new ArrayList<Double>();
+		while(iter.hasNext()){
+			AbstractCell cell = iter.next();
+			if(cell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModel){
+				HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+				if(mechModel.isAtWoundEdge){
+					double xPos = (mechModel.fieldLocation.x+1) *(globalParameters.getWidthInMikron()/ cellField.field.length);
+					xPositions.add(xPos);
+					kumulativeXPositionWoundEdge += xPos;
+					woundEdgeCellCounter++;
+				}					
+			}
+		}
+		Collections.sort(xPositions);
+		int n = xPositions.size();
+		double medianXPos = (n % 2 == 0)?((xPositions.get((n/2)-1)+xPositions.get((n/2)))/2):(xPositions.get(((n+1)/2)-1));
+   	double newXPosWoundEdge = kumulativeXPositionWoundEdge / woundEdgeCellCounter;
+		
+		System.out.println("Difference Median - Average:  "+(medianXPos-newXPosWoundEdge));
+   	globalParameters.setPositionXWoundEdge_Mikron(newXPosWoundEdge);
+   	globalParameters.getActualWoundEdgeBorderlineConfig().x1_InMikron = newXPosWoundEdge;
+   	globalParameters.getActualWoundEdgeBorderlineConfig().x2_InMikron = newXPosWoundEdge;	   
    }
 }

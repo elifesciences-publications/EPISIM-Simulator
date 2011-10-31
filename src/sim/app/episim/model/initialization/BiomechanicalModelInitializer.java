@@ -50,19 +50,17 @@ public abstract class BiomechanicalModelInitializer {
 			}
 		}
 		for(XmlUniversalCell xCell : xmlCells){
-			buildCell(xCell);
+			loadedCells.add(buildCell(xCell, loadedCells));
 		}
 
 		return loadedCells;
 	}
 
-	private UniversalCell buildCell(XmlUniversalCell xCell) {
-		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
+	private UniversalCell buildCell(XmlUniversalCell xCell, ArrayList<UniversalCell> loadedCells) {
 		UniversalCell loadCell = null;
 		
 		long id = (Long) xCell.get("iD");
 		long motherID = (Long) xCell.get("motherId");
-		System.out.println(id + " - "+motherID);
 		if(id == motherID){
 			loadCell = new UniversalCell();
 			simulationStateData.alreadyLoadedCells.put(id, loadCell);
@@ -70,12 +68,13 @@ public abstract class BiomechanicalModelInitializer {
 			UniversalCell mother = simulationStateData.alreadyLoadedCells.get(id);
 			if(mother == null){
 				if(simulationStateData.cellsToBeLoaded.get(motherID) != null)
-				mother = buildCell(simulationStateData.cellsToBeLoaded.get(motherID));
-				else
-					System.out.println(); //TODO was tun wenn mutter gelöscht ist?
+				loadedCells.add(mother = buildCell(simulationStateData.cellsToBeLoaded.get(motherID), loadedCells));
+			//	else
+					//System.out.println(); //TODO was tun wenn mutter gelöscht ist?
 			}
 			loadCell = new UniversalCell(mother, null, null);
 		}
+		xCell.copyValuesToTarget(loadCell);
 		return loadCell;
 	}
 

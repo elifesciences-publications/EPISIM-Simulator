@@ -42,7 +42,7 @@ public abstract class BiomechanicalModelInitializer {
 		for (XmlUniversalCell xCell : xmlCells) {
 			try {
 				xCell.importParametersFromXml();
-				simulationStateData.cellsToBeLoaded.put((Long) xCell.get("iD"), xCell);
+				simulationStateData.cellsToBeLoaded.put((Long) xCell.getId(), xCell);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} catch (DOMException e) {
@@ -50,7 +50,7 @@ public abstract class BiomechanicalModelInitializer {
 			}
 		}
 		for(XmlUniversalCell xCell : xmlCells){
-			loadedCells.add(buildCell(xCell, loadedCells));
+			buildCell(xCell, loadedCells);
 		}
 
 		return loadedCells;
@@ -59,22 +59,23 @@ public abstract class BiomechanicalModelInitializer {
 	private UniversalCell buildCell(XmlUniversalCell xCell, ArrayList<UniversalCell> loadedCells) {
 		UniversalCell loadCell = null;
 		
-		long id = (Long) xCell.get("iD");
+		long id = (Long) xCell.getId();
 		long motherID = (Long) xCell.get("motherId");
 		if(id == motherID){
 			loadCell = new UniversalCell();
-			simulationStateData.alreadyLoadedCells.put(id, loadCell);
 		} else{
 			UniversalCell mother = simulationStateData.alreadyLoadedCells.get(id);
 			if(mother == null){
 				if(simulationStateData.cellsToBeLoaded.get(motherID) != null)
-				loadedCells.add(mother = buildCell(simulationStateData.cellsToBeLoaded.get(motherID), loadedCells));
+				buildCell(simulationStateData.cellsToBeLoaded.get(motherID), loadedCells);
 			//	else
 					//System.out.println(); //TODO was tun wenn mutter gelöscht ist?
 			}
 			loadCell = new UniversalCell(mother, null, null);
 		}
 		xCell.copyValuesToTarget(loadCell);
+		simulationStateData.addLoadedCell(xCell, loadCell);
+		loadedCells.add(loadCell);
 		return loadCell;
 	}
 

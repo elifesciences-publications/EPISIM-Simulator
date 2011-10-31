@@ -9,11 +9,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.persistence.XmlFile;
 import sim.util.Double2D;
 
+import episiminterfaces.EpisimCellType;
+import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 
 public class XmlObject {
@@ -51,8 +54,27 @@ public class XmlObject {
 			o = Long.parseLong(objectString);
 		} else if (Double2D.class.isAssignableFrom(objClass)) {
 			o = parseDouble2D(objectString);
+		} else if (EpisimDifferentiationLevel.class.isAssignableFrom(objClass)) {
+			o = parseEpisimDifferentiationLevel(objectString);
+		} else if (EpisimCellType.class.isAssignableFrom(objClass)) {
+			o = parseEpisimCellType(objectString);
+		} return o;
+	}
+	
+	private static EpisimDifferentiationLevel parseEpisimDifferentiationLevel(String objString){
+		for(EpisimDifferentiationLevel diffLevel : ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels()){
+			if (diffLevel.toString().equals(objString))
+				return diffLevel;
 		}
-		return o;
+		return null;
+	}
+	
+	private static EpisimCellType parseEpisimCellType(String objString){
+		for(EpisimCellType cellType : ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes()){
+			if (cellType.toString().equals(objString))
+				return cellType;
+		}
+		return null;
 	}
 
 	private static Double2D parseDouble2D(String objString) {

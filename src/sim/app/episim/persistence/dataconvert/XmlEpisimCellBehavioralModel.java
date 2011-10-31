@@ -22,6 +22,5 @@ public class XmlEpisimCellBehavioralModel extends XmlObject {
 		super.importParametersFromXml(ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass());
 		
 	}
-
-
+	
 }

@@ -38,10 +38,16 @@ public class SimulationStateData {
 	private File loadedModelFile;
 	
 	public HashMap<Long, UniversalCell> alreadyLoadedCells = new HashMap<Long, UniversalCell>();
+	public HashMap<Long, XmlUniversalCell> alreadyLoadedXmlCellsNewID = new HashMap<Long, XmlUniversalCell>();
 	public HashMap<Long, XmlUniversalCell> cellsToBeLoaded = new HashMap<Long, XmlUniversalCell>();
 
 	public SimulationStateData() {
 		reset();
+	}
+	
+	public void addLoadedCell(XmlUniversalCell xmlCell, UniversalCell loadedCell){
+		alreadyLoadedCells.put(xmlCell.getId(), loadedCell);
+		alreadyLoadedXmlCellsNewID.put(loadedCell.getID(),xmlCell);
 	}
 
 	public void reset() {

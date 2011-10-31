@@ -38,7 +38,8 @@ public class CellBehavioralModelInitializer {
 	private void initializeCellEnsembleWithStandardValues(ArrayList<UniversalCell> cellEnsemble) {
 		MersenneTwisterFast random = new MersenneTwisterFast(System.currentTimeMillis());
 		for (UniversalCell actCell : cellEnsemble) {
-			int cellCyclePos = random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleStem());
+			int cellCyclePos = random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
+					.getCellCycleStem());
 
 			// assign random age
 			actCell.getEpisimCellBehavioralModelObject().setAge((double) (cellCyclePos));// somewhere
@@ -47,12 +48,15 @@ public class CellBehavioralModelInitializer {
 																							// stemcellcycle
 			if (actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() != null
 					&& actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector) {
-				((SbmlModelConnector) actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(cellCyclePos);
+				((SbmlModelConnector) actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector())
+						.initializeSBMLModelsWithCellAge(cellCyclePos);
 			}
 			boolean tysonCellCycleAvailable = false;
 			try {
-				Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK6", new Class<?>[] {});
-				m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK4", new Class<?>[] {});
+				Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass()
+						.getMethod("getK6", new Class<?>[] {});
+				m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass()
+						.getMethod("getK4", new Class<?>[] {});
 				tysonCellCycleAvailable = true;
 			} catch (NoSuchMethodException e) {
 				tysonCellCycleAvailable = false;
@@ -62,19 +66,23 @@ public class CellBehavioralModelInitializer {
 				TysonRungeCuttaCalculator.assignRandomCellcyleState(actCell.getEpisimCellBehavioralModelObject(), cellCyclePos); // on
 
 			actCell.getEpisimCellBehavioralModelObject().setDiffLevel(
-					ModelController.getInstance().getCellBehavioralModelController().getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
-			actCell.getEpisimCellBehavioralModelObject().setCellType(ModelController.getInstance().getCellBehavioralModelController().getCellTypeForOrdinal(EpisimCellType.KERATINOCYTE));
+					ModelController.getInstance().getCellBehavioralModelController()
+							.getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
+			actCell.getEpisimCellBehavioralModelObject().setCellType(
+					ModelController.getInstance().getCellBehavioralModelController()
+							.getCellTypeForOrdinal(EpisimCellType.KERATINOCYTE));
 			actCell.getEpisimCellBehavioralModelObject().setIsAlive(true);
 		}
 	}
 
 	protected void initializeCellEnsembleWithFileValues(ArrayList<UniversalCell> cellEnsemble) {
-		MersenneTwisterFast random = new MersenneTwisterFast(System.currentTimeMillis());
 		for (UniversalCell actCell : cellEnsemble) {
 			EpisimCellBehavioralModel cellBehave = actCell.getEpisimCellBehavioralModelObject();
-			if (simulationStateData.cellsToBeLoaded.get(actCell.getID()) != null) {
-				XmlEpisimCellBehavioralModel xCellBehave = simulationStateData.cellsToBeLoaded.get(actCell.getID()).getEpisimCellBehavioralModel();
+			if (simulationStateData.alreadyLoadedXmlCellsNewID.get(actCell.getID()) != null) {
+				XmlEpisimCellBehavioralModel xCellBehave = simulationStateData.alreadyLoadedXmlCellsNewID.get(actCell.getID())
+						.getEpisimCellBehavioralModel();
 				xCellBehave.copyValuesToTarget(cellBehave);
+
 			}
 		}
 	}

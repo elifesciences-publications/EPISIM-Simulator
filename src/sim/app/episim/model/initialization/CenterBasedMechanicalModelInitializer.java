@@ -27,7 +27,7 @@ import sim.portrayal.Portrayal;
 import sim.util.Double2D;
 
 public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelInitializer {
-	
+
 	SimulationStateData simulationStateData = null;
 
 	public CenterBasedMechanicalModelInitializer() {
@@ -44,28 +44,33 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 												// uebergebene y-position
 												// relativ zu rete tiefe
 	{
-		return (y - TissueController.getInstance().getTissueBorder().getUndulationBaseLine()) / ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron();
+		return (y - TissueController.getInstance().getTissueBorder().getUndulationBaseLine())
+				/ ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron();
 	}
 
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 
-		CenterBasedMechanicalModelGlobalParameters biomechanicalModelGlobalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController.getInstance()
-				.getEpisimBioMechanicalModelGlobalParameters();
+		CenterBasedMechanicalModelGlobalParameters biomechanicalModelGlobalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController
+				.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 
 		Double2D lastloc = new Double2D(2, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(2));
 		for (double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidthInPixels(); x += 2) {
 			Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x));
 			double distance = newloc.distance(lastloc);
 
-			if ((depthFrac(newloc.y) > biomechanicalModelGlobalParameters.getSeedMinDepth_frac() && (!biomechanicalModelGlobalParameters.getSeedReverse()))
-					|| (depthFrac(newloc.y) < biomechanicalModelGlobalParameters.getSeedMinDepth_frac() && biomechanicalModelGlobalParameters.getSeedReverse()))
+			if ((depthFrac(newloc.y) > biomechanicalModelGlobalParameters.getSeedMinDepth_frac() && (!biomechanicalModelGlobalParameters
+					.getSeedReverse()))
+					|| (depthFrac(newloc.y) < biomechanicalModelGlobalParameters.getSeedMinDepth_frac() && biomechanicalModelGlobalParameters
+							.getSeedReverse()))
 				if (distance > biomechanicalModelGlobalParameters.getBasalDensity_mikron()) {
 
 					UniversalCell stemCell = new UniversalCell(null, null, null);
-					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject().setXY(((int) newloc.x), ((int) newloc.y));
-					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(newloc);
+					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject().setXY(
+							((int) newloc.x), ((int) newloc.y));
+					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject())
+							.setCellLocationInCellField(newloc);
 					standardCellEnsemble.add(stemCell);
 
 					lastloc = newloc;
@@ -76,54 +81,23 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		}
 		return standardCellEnsemble;
 	}
-	
-	protected ArrayList<UniversalCell> buildInitialCellEnsemble(){
-		ArrayList<UniversalCell> loadedCells = new ArrayList<UniversalCell>();
 
-		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
-		for (XmlUniversalCell xCell : xmlCells) {
-			try {
-				xCell.importParametersFromXml();
-				simulationStateData.cellsToBeLoaded.put((Long) xCell.get("iD"), xCell);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (DOMException e) {
-				e.printStackTrace();
-			}
-		}
-		for(XmlUniversalCell xCell : xmlCells){
-			loadedCells.add(buildCell(xCell, loadedCells));
-		}
+	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
+		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();
 
+		for (UniversalCell uCell : loadedCells) {
+			XmlUniversalCell xCell = simulationStateData.alreadyLoadedXmlCellsNewID.get(uCell.getID());
+			if (xCell != null) {
+				XmlEpisimBiomechanicalModel xCellMechModel = xCell.getEpisimBiomechanicalModel();
+				xCellMechModel.copyValuesToTarget(uCell.getEpisimBioMechanicalModelObject());
+				CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) uCell
+						.getEpisimBioMechanicalModelObject();
+				centerBasedModel.getCellEllipseObject().setXY((int) centerBasedModel.getCellLocationInCellField().x,
+						(int) centerBasedModel.getCellLocationInCellField().y);
+			}else System.out.println(uCell.getID());
+
+		}
 		return loadedCells;
-	}
-
-	private UniversalCell buildCell(XmlUniversalCell xCell, ArrayList<UniversalCell> loadedCells) {
-		UniversalCell loadCell = null;
-		
-		long id = (Long) xCell.get("iD");
-		long motherID = (Long) xCell.get("motherId");
-		if(id == motherID){
-			loadCell = new UniversalCell();
-			simulationStateData.alreadyLoadedCells.put(id, loadCell);
-		} else{
-			UniversalCell mother = simulationStateData.alreadyLoadedCells.get(id);
-			if(mother == null){
-				if(simulationStateData.cellsToBeLoaded.get(motherID) != null)
-				loadedCells.add(mother = buildCell(simulationStateData.cellsToBeLoaded.get(motherID), loadedCells));
-			//	else
-					//System.out.println(); //TODO was tun wenn mutter gelöscht ist?
-			}
-			loadCell = new UniversalCell(mother, null, null);
-		}
-		xCell.copyValuesToTarget(loadCell);
-		
-		XmlEpisimBiomechanicalModel xCellMechModel = xCell.getEpisimBiomechanicalModel();
-		xCellMechModel.copyValuesToTarget(loadCell.getEpisimBioMechanicalModelObject());
-		CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) loadCell.getEpisimBioMechanicalModelObject();
-		centerBasedModel.getCellEllipseObject().setXY((int)centerBasedModel.getCellLocationInCellField().x, (int)centerBasedModel.getCellLocationInCellField().y);
-		
-		return loadCell;
 	}
 
 	// TODO: Initialisierungsmethode implementieren

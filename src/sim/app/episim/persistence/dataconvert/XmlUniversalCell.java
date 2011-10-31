@@ -38,6 +38,10 @@ public class XmlUniversalCell extends XmlObject{
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public long getId(){
+		return (Long)get("iD");
+	}
 
 	@Override
 	public Node toXMLNode(String nodeName, XmlFile xmlFile) {

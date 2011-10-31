@@ -41,7 +41,8 @@ public class SimulationStateFile extends XmlFile {
 	public SimulationStateData loadData() {
 		Node behaviorFile = getRoot().getElementsByTagName(CELLBEHAVIORALMODEL_FILE).item(0);
 		SimulationStateData simStateData = new SimulationStateData();
-		simStateData.setLoadedModelFile(behaviorFile.getTextContent());
+//		simStateData.setLoadedModelFile(behaviorFile.getTextContent());
+		simStateData.setLoadedModelFile(behaviorFile.getAttributes().getNamedItem("modelfile").getNodeValue());
 
 		NodeList nodes = getRoot().getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -73,7 +74,8 @@ public class SimulationStateFile extends XmlFile {
 		simStateData.updateData();
 
 		Element modelFileElement = createElement(CELLBEHAVIORALMODEL_FILE);
-		modelFileElement.setTextContent(simStateData.getLoadedModelFile().getAbsolutePath());
+//		modelFileElement.setTextContent(simStateData.getLoadedModelFile().getAbsolutePath());
+		modelFileElement.setAttribute("modelfile", simStateData.getLoadedModelFile().getAbsolutePath());
 		getRoot().appendChild(modelFileElement);
 
 		getRoot().appendChild(cellListToXML(simStateData.getCells(), CELLS));

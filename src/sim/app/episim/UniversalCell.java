@@ -61,9 +61,7 @@ public class UniversalCell extends AbstractCell
      
    private long local_maxAge;
    
-   private boolean birthWish=false;   
-   private int hasGivenIons=0;  
-   
+  
 //-----------------------------------------------------------------------------------------------------------------------------------------   
   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
@@ -237,7 +235,7 @@ public class UniversalCell extends AbstractCell
 		}
 		else{
 			
-			hasGivenIons = 0;			
+		
 			getEpisimBioMechanicalModelObject().newSimStep(state.schedule.getSteps());
 			
 			//	long timeBefore = System.currentTimeMillis();
@@ -297,22 +295,19 @@ public class UniversalCell extends AbstractCell
 // GETTER-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-   public int getHasGivenIons() { return hasGivenIons; }
-   
-   @CannotBeMonitored
-   public long getLocal_maxAge() {return local_maxAge;}
+  
+  
+   public String getCellName() { return NAME; }	
 	
-	public String getCellName() { return NAME; }	
 	
-	public boolean isBirthWish() { return birthWish; }   // for inspector
     
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 // SETTER-METHODS
 //	--------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	public void setHasGivenIons(int hasGivenIons) {	this.hasGivenIons = hasGivenIons; }
 	
-	public void setLocal_maxAge(long local_maxAge) { this.local_maxAge = local_maxAge; } 
+	
+	 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 

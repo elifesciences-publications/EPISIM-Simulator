@@ -107,7 +107,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
                 }          
                 
                if(!drawCellEllipses){           
-		                if(colorType < 9){                                               
+		                if(colorType < 8){                                               
 			                
 			                Color fillColor = getFillColor(universalCell);
 			                Polygon cellPolygon;
@@ -277,14 +277,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
               if (kcyte.getEpisimCellBehavioralModelObject().getLip()>=ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getMinSigLipidsBarrier()){red=0xCB; green=0x2F; blue=0x9F; }
               else{ red=0xAF; green=0xCB; blue=0x97; }
         }
-        if (coloringType==7)  // ion transport activitiy
-        {                     
-              calculatedColorValue= (int) (255* (1-(kcyte.getHasGivenIons() / 10)));
-              red=calculatedColorValue;
-              green=255;
-              blue=calculatedColorValue;
-        }
-        if(coloringType==8){ //Colors are calculated in the cellbehavioral model
+        if(coloringType==7){ //Colors are calculated in the cellbehavioral model
         	  red=kcyte.getEpisimCellBehavioralModelObject().getColorR();
            green=kcyte.getEpisimCellBehavioralModelObject().getColorG();
            blue=kcyte.getEpisimCellBehavioralModelObject().getColorB();

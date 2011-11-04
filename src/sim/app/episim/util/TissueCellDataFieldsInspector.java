@@ -289,7 +289,9 @@ public class TissueCellDataFieldsInspector {
 		else return true;
 	}
 	
-	public Set<Class<?>> getRequiredClasses(){ return ObjectManipulations.cloneObject(this.requiredClasses);}
+	public Set<Class<?>> getRequiredClasses(){ 
+		return ObjectManipulations.cloneObject(this.requiredClasses);
+	}
 	
 	private String getRedundancyCheckedName(String name, Set<String> nameSet){
 		

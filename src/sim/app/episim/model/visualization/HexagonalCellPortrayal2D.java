@@ -107,12 +107,12 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      }
 	   		if(shape!=null){
 		   	 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
-		   	 	if(mechModel.getIsAtWoundEdge()){
+		   /*	 	if(mechModel.getIsAtWoundEdge()){
 		   	 		graphics.setPaint(Color.YELLOW);
 		   	 	}
-		   	 	else{
+		   	 	else{*/
 		   	 		graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
-		   	 	}
+		   	 //	}
 				   if (filled)
 				   {	        
 				   	graphics.fill(shape);

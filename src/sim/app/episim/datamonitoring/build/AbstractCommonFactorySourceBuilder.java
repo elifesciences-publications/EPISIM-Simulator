@@ -8,6 +8,7 @@ import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Names;
 import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
+import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -87,7 +88,8 @@ public abstract class AbstractCommonFactorySourceBuilder {
 	}
 	
 	protected boolean isRequiredClassNecessary(Class<?> actClass){
-		return !EpisimCellBehavioralModel.class.isAssignableFrom(actClass) 
+		return !EpisimCellBehavioralModel.class.isAssignableFrom(actClass)
+				&& !EpisimBiomechanicalModel.class.isAssignableFrom(actClass)
 		  		&& !AbstractCell.class.isAssignableFrom(actClass) 
 		  		&& !EpisimCellType.class.isAssignableFrom(actClass)
 		  		&& !EpisimDifferentiationLevel.class.isAssignableFrom(actClass);

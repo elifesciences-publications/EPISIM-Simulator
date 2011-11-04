@@ -10,7 +10,7 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public abstract class AbstractMechanicalModel implements EpisimBiomechanicalModel{
+public abstract class AbstractMechanicalModel implements EpisimBiomechanicalModel, java.io.Serializable{
 	
 	private AbstractCell cell;
 	

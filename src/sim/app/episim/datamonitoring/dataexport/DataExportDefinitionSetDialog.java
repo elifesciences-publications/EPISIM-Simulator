@@ -209,7 +209,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		}
 		
 		public EpisimDataExportDefinitionSet showNewDataExportDefinitionSet(){
-			
+			isDirty = true;
 			EpisimDataExportDefinitionSet newDataExportDefinitionSet = showDataExportDefinitionSet(new EpisimDataExportDefinitionSetImpl());
 			if(okButtonPressed) return newDataExportDefinitionSet;
 			
@@ -273,9 +273,10 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			addButton.addActionListener(new ActionListener(){
 
 				public void actionPerformed(ActionEvent e) {
-					isDirty = true;
+					
 		       EpisimDataExportDefinition newDefinition = DataExportController.getInstance().showDataExportCreationWizard(DataExportDefinitionSetDialog.this.owner);
-		       if(newDefinition != null){ 
+		       if(newDefinition != null){
+		      	 isDirty = true;
 		      	 ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).addElement(newDefinition.getName());
 		      	 indexDataExportDefinitionIdMap.put((DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel().getSize()-1), newDefinition.getId());
 		      	 episimDataExportDefinitionSet.addEpisimDataExportDefinition(newDefinition);
@@ -443,7 +444,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 						okButtonPressed = true;
 						dialog.setVisible(false);
 						dialog.dispose();
-						if(checkForDirtyDataExports()){
+						if(checkForDirtyDataExports() || isDirty){
 								resetDirtyDataExports(); 
 							Runnable r = new Runnable(){
 	

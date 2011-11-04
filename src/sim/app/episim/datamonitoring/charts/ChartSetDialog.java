@@ -81,6 +81,7 @@ public class ChartSetDialog extends JDialog {
 	
 	private JButton editButton;
 	private JButton removeButton;
+	JButton okButton;
 	private JWindow progressWindow;
 	private Frame owner;
 	
@@ -220,7 +221,7 @@ public class ChartSetDialog extends JDialog {
 	}
 	
 	public EpisimChartSet showNewChartSet(){
-		
+		isDirty=true;
 		EpisimChartSet newChartSet = showChartSet(new EpisimChartSetImpl());
 		if(okButtonPressed) return newChartSet;
 		
@@ -284,9 +285,10 @@ public class ChartSetDialog extends JDialog {
 		addButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-			 isDirty = true;	
+			 
 	       EpisimChart newChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner);
-	       if(newChart != null){ 
+	       if(newChart != null){
+	      	 isDirty=true;
 	      	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
 	      	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
 	      	 episimChartSet.addEpisimChart(newChart);
@@ -325,6 +327,7 @@ public class ChartSetDialog extends JDialog {
 	           episimChartSet.removeEpisimChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 	           ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).remove(chartsList.getSelectedIndex());
 	           updateIndexMap();
+	           
 	           editButton.setEnabled(false);
 					 removeButton.setEnabled(false);
 	         
@@ -440,15 +443,15 @@ public class ChartSetDialog extends JDialog {
 		c.insets = new Insets(10, 10, 10, 10);
 		c.gridwidth = 1;
 
-		JButton okButton = new JButton("  OK  ");
-		okButton.addActionListener(new ActionListener() {
+		 okButton = new JButton("  OK  ");		
+		 okButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				if(((DefaultListModel)(chartsList.getModel())).getSize() > 0 && episimChartSet.getPath() != null){
 					okButtonPressed = true;
 					dialog.setVisible(false);
 					dialog.dispose();
-					if(episimChartSet.isOneOfTheChartsDirty()){
+					if(episimChartSet.isOneOfTheChartsDirty() || isDirty){
 						resetChartDirtyStatus(); 
 									
 						Runnable r = new Runnable(){

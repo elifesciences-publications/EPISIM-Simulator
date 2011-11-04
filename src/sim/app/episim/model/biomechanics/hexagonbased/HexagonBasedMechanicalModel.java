@@ -181,16 +181,25 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		modelConnector.setIsSpreadingPossible(isSpreadingPossible());
 		
 		checkIfCellIsAtWoundEdge();
+		checkIfCellIsOnTestSurface();
 	}
 	
+	private void checkIfCellIsOnTestSurface(){
+		modelConnector.setIsOnTestSurface(getXPosInMikron() > HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron);
+	}
 	
 	private void checkIfCellIsAtWoundEdge(){
-		double xPosInMikron = (fieldLocation.x+1) *(globalParameters.getWidthInMikron()/ cellField.field.length);
+		double xPosInMikron = getXPosInMikron();
 		
 		isAtWoundEdge = (getRealNeighbours().size() <5 && 
 				(xPosInMikron >= globalParameters.initialPositionWoundEdge_Mikron|| 
 						(xPosInMikron + (1*globalParameters.getCellDiameter_mikron()))>= globalParameters.initialPositionWoundEdge_Mikron));
 	}
+	
+	private double getXPosInMikron(){
+		return ((fieldLocation.x+1) *(globalParameters.getWidthInMikron()/ cellField.field.length));
+	}
+	
 	
 	public boolean isSpreading(){ return this.spreadingLocation != null; }
 	
@@ -355,7 +364,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		double medianXPos = (n % 2 == 0)?((xPositions.get((n/2)-1)+xPositions.get((n/2)))/2):(xPositions.get(((n+1)/2)-1));
    	double newXPosWoundEdge = kumulativeXPositionWoundEdge / woundEdgeCellCounter;
 		
-		System.out.println("Difference Median - Average:  "+(medianXPos-newXPosWoundEdge));
+		
    	globalParameters.setPositionXWoundEdge_Mikron(newXPosWoundEdge);
    	globalParameters.getActualWoundEdgeBorderlineConfig().x1_InMikron = newXPosWoundEdge;
    	globalParameters.getActualWoundEdgeBorderlineConfig().x2_InMikron = newXPosWoundEdge;	   

@@ -7,6 +7,7 @@ import java.util.Set;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.util.Names;
+import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -43,7 +44,7 @@ public abstract class  AbstractCommonSourceBuilder {
 			this.generatedSourceCode.append("GenericBag<AbstractCell> allCells){\n");
 			this.generatedSourceCode.append("    this.allCells = allCells;\n");
 			for(Class<?> actClass: requiredClasses){
-				if(!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCell.class.isAssignableFrom(actClass)){
+				if(!EpisimBiomechanicalModel.class.isAssignableFrom(actClass) &&!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCell.class.isAssignableFrom(actClass)){
 					this.generatedSourceCode.append("    this." + Names.convertClassToVariable(actClass.getSimpleName())+" = "
 							+ Names.convertClassToVariable(actClass.getSimpleName())+";\n");
 				}
@@ -101,8 +102,7 @@ public abstract class  AbstractCommonSourceBuilder {
       for(Class<?> actClass: requiredClasses){
 			if(AbstractCell.class.isAssignableFrom(actClass)){
 				handlerSource.append("    return "+ actClass.getSimpleName()+ ".class;\n}\n");
-				classFound = true;
-				
+				classFound = true;				
 				break;
 			}
 		}
@@ -112,9 +112,11 @@ public abstract class  AbstractCommonSourceBuilder {
       handlerSource.append("  public double calculate(AbstractCell cellTypeLocal) throws CellNotValidException{\n");
       if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasMathematicalExpression()){
 	      handlerSource.append("    EpisimCellBehavioralModel cellBehaviour = cellTypeLocal.getEpisimCellBehavioralModelObject();\n");
+	      handlerSource.append("    EpisimBiomechanicalModel biomechanics = cellTypeLocal.getEpisimBioMechanicalModelObject();\n");
 	      handlerSource.append("    Object cellTypeLocalObj = cellTypeLocal;\n");
 	      appendLocalVars(requiredClasses, handlerSource);
 	      appendAssignmentCheck("cellBehaviour", requiredClasses, handlerSource);
+	      appendAssignmentCheck("biomechanics", requiredClasses, handlerSource);
 	      appendAssignmentCheck("cellTypeLocalObj", requiredClasses, handlerSource);
 	      handlerSource.append("if(isValidCell(cellTypeLocal))");
 	      handlerSource.append("    return (double)("+ config.getArithmeticExpression()[1]+");\n");
@@ -126,9 +128,11 @@ public abstract class  AbstractCommonSourceBuilder {
       handlerSource.append("  public boolean conditionFulfilled(AbstractCell cellTypeLocal) throws CellNotValidException{\n");
       if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(config.getCalculationAlgorithmID()).hasCondition()){
 	      handlerSource.append("    EpisimCellBehavioralModel cellBehaviour = cellTypeLocal.getEpisimCellBehavioralModelObject();\n");
+	      handlerSource.append("    EpisimBiomechanicalModel biomechanics = cellTypeLocal.getEpisimBioMechanicalModelObject();\n");
 	      handlerSource.append("    Object cellTypeLocalObj = cellTypeLocal;\n");
 	      appendLocalVars(requiredClasses, handlerSource);
 	      appendAssignmentCheck("cellBehaviour", requiredClasses, handlerSource);
+	      appendAssignmentCheck("biomechanics", requiredClasses, handlerSource);
 	      appendAssignmentCheck("cellTypeLocalObj", requiredClasses, handlerSource);
 	      handlerSource.append("if(isValidCell(cellTypeLocal))");
 	      handlerSource.append("    return (boolean)("+ config.getBooleanExpression()[1]+");\n");
@@ -164,7 +168,7 @@ public abstract class  AbstractCommonSourceBuilder {
 	
 	private void appendLocalVars(Set<Class<?>> requiredClasses, StringBuffer source){
 		for(Class<?> actClass: requiredClasses){
-			if(EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || AbstractCell.class.isAssignableFrom(actClass))				
+			if(EpisimBiomechanicalModel.class.isAssignableFrom(actClass) ||EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || AbstractCell.class.isAssignableFrom(actClass))				
 				source.append(actClass.getSimpleName()+ " " + Names.convertClassToVariable(actClass.getSimpleName())+" = null;\n");
 		}
 	}
@@ -172,7 +176,7 @@ public abstract class  AbstractCommonSourceBuilder {
 		boolean firstLoop = true;
 		
 		for(Class<?> actClass: requiredClasses){
-			if(EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || AbstractCell.class.isAssignableFrom(actClass)){				
+			if(EpisimBiomechanicalModel.class.isAssignableFrom(actClass) || EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || AbstractCell.class.isAssignableFrom(actClass)){				
 				
 				if(firstLoop){
 					source.append("if("+varName+ ".getClass().isAssignableFrom("+ actClass.getSimpleName()+ ".class)) " + 
@@ -189,7 +193,8 @@ public abstract class  AbstractCommonSourceBuilder {
 		}
 	}
 	protected boolean isRequiredClassNecessary(Class<?> actClass){
-		return !EpisimCellBehavioralModel.class.isAssignableFrom(actClass) 
+		return !EpisimCellBehavioralModel.class.isAssignableFrom(actClass)
+				&& !EpisimBiomechanicalModel.class.isAssignableFrom(actClass)
 		  		&& !AbstractCell.class.isAssignableFrom(actClass) 
 		  		&& !EpisimCellType.class.isAssignableFrom(actClass)
 		  		&& !EpisimDifferentiationLevel.class.isAssignableFrom(actClass);

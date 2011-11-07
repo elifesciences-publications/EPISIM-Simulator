@@ -663,7 +663,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    }
 		
    protected void clearCellField() {
-	   if(cellField.getAllObjects().isEmpty()){
+	   if(!cellField.getAllObjects().isEmpty()){
 	   	cellField.clear();
 	   }
    }

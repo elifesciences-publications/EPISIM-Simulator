@@ -113,13 +113,9 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 
 	protected EpisimPortrayal getCellPortrayal() {
 
-		return new UniversalCellPortrayal2D(java.awt.Color.lightGray) {
-
-			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
-				// make the inspector
-				return new CellInspector(super.getInspector(wrapper, state), wrapper, state);
-			}
-		};
+		UniversalCellPortrayal2D portrayal = new UniversalCellPortrayal2D(java.awt.Color.lightGray);
+		
+		return portrayal;
 	}
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {

@@ -2,6 +2,7 @@ package sim.app.episim.model.visualization;
 import sim.SimStateServer;
 import sim.SimStateServer.SimState;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
@@ -18,6 +19,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.Scale;
+import sim.display.GUIState;
 import sim.portrayal.*;
 
 import java.awt.*;
@@ -74,7 +76,12 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
     
     public String getPortrayalName() {
  	   return NAME;
-    }    
+    }
+    
+ 	public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
+		// make the inspector
+		return new CellInspector(super.getInspector(wrapper, state), wrapper, state);
+	}
     
     // assumes the graphics already has its color set
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info)

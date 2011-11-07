@@ -72,7 +72,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    }
 	
    @CannotBeMonitored
-   public synchronized static final long getNextCellId(){
+   private synchronized static final long getNextCellId(){
    	cellCounter++;
    	return (System.currentTimeMillis() + cellCounter);
    }

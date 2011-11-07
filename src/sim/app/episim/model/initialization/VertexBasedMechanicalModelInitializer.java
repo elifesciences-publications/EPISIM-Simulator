@@ -16,6 +16,7 @@ import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
 import sim.app.episim.model.biomechanics.vertexbased.CellPolygonRegistry;
 import sim.app.episim.model.biomechanics.vertexbased.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
@@ -48,18 +49,18 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
    	CellPolygon[] polygons = CellPolygonNetworkBuilder.getStandardMembraneCellArray();
-   	for(CellPolygon actCellPolygon : polygons){
-   		long id  = AbstractCell.getNextCellId();
-   		CellPolygonRegistry.registerNewCellPolygon(id, actCellPolygon);   		
+   	for(CellPolygon actCellPolygon : polygons){   		  		
    		UniversalCell stemCell = new UniversalCell(null, null, null);
-   		
+   		VertexBasedMechanicalModel mechModel = (VertexBasedMechanicalModel)stemCell.getEpisimBioMechanicalModelObject();
+   		mechModel.initializeWithCellPolygon(actCellPolygon);
    		Vertex cellCenter = actCellPolygon.getCellCenter();
 			Double2D cellLoc = new Double2D(cellCenter.getDoubleX(), cellCenter.getDoubleY());
-			((VertexBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(cellLoc);
+			mechModel.setCellLocationInCellField(cellLoc);
 			standardCellEnsemble.add(stemCell);			
 			GlobalStatistics.getInstance().inkrementActualNumberStemCells();
 			GlobalStatistics.getInstance().inkrementActualNumberKCytes();
-   	}  	
+   	}
+   	VertexBasedModelController.getInstance().bagHasChanged(null);
    	return standardCellEnsemble;
 	}
 	
@@ -80,13 +81,9 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	
 	protected EpisimPortrayal getCellPortrayal() {
 			   
-	   return new UniversalCellPortrayal2D(java.awt.Color.lightGray){
-
-			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
-			// make the inspector
-				return new CellInspector(super.getInspector(wrapper, state), wrapper, state);
-			}
-		};
+	UniversalCellPortrayal2D portrayal = new UniversalCellPortrayal2D(java.awt.Color.lightGray);
+		
+		return portrayal;
    }
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {		

@@ -184,8 +184,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 		}
 		
 		GlobalStatistics.getInstance().reset(true);
-		EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
-		schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());  
+		  
    
 
 	     
@@ -212,7 +211,8 @@ public class Epidermis extends TissueType implements CellDeathListener
 			}
 	     
 	     
-	     
+	     EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
+			schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());
         
  //////////////////////////////////////        
  // CELL STATISTICS & Updating OUTER SURFACE CELLS

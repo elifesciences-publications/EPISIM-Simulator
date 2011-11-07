@@ -41,18 +41,23 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	private DrawInfo2D lastDrawInfo2D;
 	
 	 //TODO: plus 2 Korrektur überprüfen
-   private static Continuous2D cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
-   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() + 2, 
-   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron());	
+   private static Continuous2D cellField;	
    public VertexBasedMechanicalModel(){
    	this(null);
    }
 	public VertexBasedMechanicalModel(AbstractCell cell){
 		super(cell);
+		if(cellField == null){
+			cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
+		   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() + 2, 
+		   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron());
+		}
 		if(cell!= null){
 			cellPolygon = CellPolygonRegistry.getNewCellPolygon(cell.getMotherId());
-			cellPolygon.addProliferationAndApoptosisListener(this);
-			cellField.setObjectLocation(cell, new Double2D(this.getX(), this.getY()));
+			if(cellPolygon!=null){
+				cellPolygon.addProliferationAndApoptosisListener(this);
+				cellField.setObjectLocation(cell, new Double2D(this.getX(), this.getY()));
+			}
 		}
 	}
 	
@@ -225,8 +230,18 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 		// TODO Auto-generated method stub	   
    }
 	
+	/**
+	 * This method should be used only by the model initializer!!!
+	 * @param cellPolygon
+	 */
+	public void initializeWithCellPolygon(CellPolygon cellPolygon){
+		this.cellPolygon = cellPolygon;
+		this.cellPolygon.addProliferationAndApoptosisListener(this);
+		cellField.setObjectLocation(this.getCell(), new Double2D(this.getX(), this.getY()));
+	}
+	
 	protected void clearCellField() {
-	   if(cellField.getAllObjects().isEmpty()){
+	   if(!cellField.getAllObjects().isEmpty()){
 	   	cellField.clear();
 	   }
    }

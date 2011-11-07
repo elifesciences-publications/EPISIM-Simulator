@@ -8,15 +8,17 @@ import episiminterfaces.EpisimBiomechanicalModel;
 
 import sim.app.episim.persistence.XmlFile;
 
-public class XmlEpisimBiomechanicalModel extends XmlObject {
-	
+public class XmlEpisimBiomechanicalModel extends
+		XmlObject<EpisimBiomechanicalModel> {
+
 	Node node;
 
-	public XmlEpisimBiomechanicalModel(EpisimBiomechanicalModel episimBiomechanicalModel) {
+	public XmlEpisimBiomechanicalModel(
+			EpisimBiomechanicalModel episimBiomechanicalModel) {
 		super(episimBiomechanicalModel);
 	}
 
-	public XmlEpisimBiomechanicalModel(Node subNode){
+	public XmlEpisimBiomechanicalModel(Node subNode) {
 		super(subNode);
 		this.node = subNode;
 	}
@@ -26,11 +28,13 @@ public class XmlEpisimBiomechanicalModel extends XmlObject {
 		return false;
 	}
 
-	public void importParametersFromXml() throws ClassNotFoundException, DOMException {
+	public void importParametersFromXml() throws ClassNotFoundException,
+			DOMException {
 		Class clazz;
-		clazz = Class.forName(node.getAttributes().getNamedItem("class").getNodeValue());
+		clazz = Class.forName(node.getAttributes().getNamedItem("class")
+				.getNodeValue());
 		super.importParametersFromXml(clazz);
-		
+
 	}
 
 }

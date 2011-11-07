@@ -3,7 +3,6 @@ package sim.app.episim.persistence;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -11,8 +10,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import sim.app.episim.AbstractCell;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 
 public class SimulationStateFile extends XmlFile {
@@ -21,6 +18,8 @@ public class SimulationStateFile extends XmlFile {
 	private static final String CELLBEHAVIORALMODEL_FILE = "model_file";
 	private static final String MultiCellXML_VERSION = "MultiCellXML_version";
 	private static final String CELLS = "cells";
+	private static final String CELL = "cell";
+	private static final String MODELFILE = "modelfile";
 
 	private Element rootNode = null;
 
@@ -41,8 +40,7 @@ public class SimulationStateFile extends XmlFile {
 	public SimulationStateData loadData() {
 		Node behaviorFile = getRoot().getElementsByTagName(CELLBEHAVIORALMODEL_FILE).item(0);
 		SimulationStateData simStateData = new SimulationStateData();
-//		simStateData.setLoadedModelFile(behaviorFile.getTextContent());
-		simStateData.setLoadedModelFile(behaviorFile.getAttributes().getNamedItem("modelfile").getNodeValue());
+		simStateData.setLoadedModelFile(behaviorFile.getAttributes().getNamedItem(MODELFILE).getNodeValue());
 
 		NodeList nodes = getRoot().getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -53,7 +51,7 @@ public class SimulationStateFile extends XmlFile {
 				for (int j = 0; j < cellNodes.getLength(); j++) {
 					XmlUniversalCell xmlCell;
 					Node cellNode = cellNodes.item(j);
-					if (cellNode.getNodeName().equalsIgnoreCase("cell"))
+					if (cellNode.getNodeName().equalsIgnoreCase(CELL))
 						try {
 							xmlCell = new XmlUniversalCell(cellNode);
 							simStateData.addCell(xmlCell);
@@ -74,8 +72,7 @@ public class SimulationStateFile extends XmlFile {
 		simStateData.updateData();
 
 		Element modelFileElement = createElement(CELLBEHAVIORALMODEL_FILE);
-//		modelFileElement.setTextContent(simStateData.getLoadedModelFile().getAbsolutePath());
-		modelFileElement.setAttribute("modelfile", simStateData.getLoadedModelFile().getAbsolutePath());
+		modelFileElement.setAttribute(MODELFILE, simStateData.getLoadedModelFile().getAbsolutePath());
 		getRoot().appendChild(modelFileElement);
 
 		getRoot().appendChild(cellListToXML(simStateData.getCells(), CELLS));
@@ -99,31 +96,9 @@ public class SimulationStateFile extends XmlFile {
 	public Node cellListToXML(ArrayList<XmlUniversalCell> cells, String nodeName) {
 		Element cellsNode = createElement(nodeName);
 		for (XmlUniversalCell xCell : cells) {
-			cellsNode.appendChild(xCell.toXMLNode("cell", this));
+			cellsNode.appendChild(xCell.toXMLNode(CELL, this));
 		}
 		return cellsNode;
-	}
-
-	private Element convertObjectToNode(String ElementName, Object obj) {
-		Element node = createElement(ElementName);
-		if (obj.getClass().isPrimitive()) {
-			node.setTextContent(obj + "");
-		} else if (obj instanceof Collection) {
-			Collection listObj = (Collection) obj;
-			if (listObj.size() > 0) {
-				node.setAttribute("list", listObj.toArray()[0].getClass().getName());
-				for (Object listElement : listObj) {
-					node.appendChild(convertObjectToNode("listElement", listElement));
-				}
-
-			}
-		} else if (obj instanceof AbstractCell) {
-			node.setAttribute("type", CELLS);
-			node.setTextContent(((AbstractCell) obj).getID() + "");
-		} else {
-			node.setTextContent(obj.toString());
-		}
-		return node;
 	}
 
 }

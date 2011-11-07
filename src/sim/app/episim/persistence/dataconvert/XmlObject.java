@@ -10,8 +10,6 @@ import org.w3c.dom.NodeList;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.persistence.XmlFile;
 import sim.util.Double2D;
 
@@ -19,14 +17,14 @@ import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 
-public class XmlObject {
+public class XmlObject<T> {
 	private HashMap<String, Object> parameters = new HashMap<String, Object>();
-	private Object obj;
-	private Class clazz = Object.class;
+	private Class<? extends Object> clazz;
 	private Node objectNode;
+	private static final String CLASS = "class";
+	private static final String VALUE = "value";
 
 	public XmlObject(Object obj) {
-		this.obj = obj;
 		this.clazz = obj.getClass();
 		exportParametersFromObject(obj);
 	}
@@ -35,7 +33,7 @@ public class XmlObject {
 		this.objectNode = objectNode;
 	}
 
-	protected Object parse(String objectString, Class objClass) {
+	protected Object parse(String objectString, Class<?> objClass) {
 		Object o = null;
 		objectString = objectString.trim();
 		if (objClass.equals(String.class)) {
@@ -58,19 +56,24 @@ public class XmlObject {
 			o = parseEpisimDifferentiationLevel(objectString);
 		} else if (EpisimCellType.class.isAssignableFrom(objClass)) {
 			o = parseEpisimCellType(objectString);
-		} return o;
+		}
+		return o;
 	}
-	
-	private static EpisimDifferentiationLevel parseEpisimDifferentiationLevel(String objString){
-		for(EpisimDifferentiationLevel diffLevel : ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels()){
+
+	private static EpisimDifferentiationLevel parseEpisimDifferentiationLevel(
+			String objString) {
+		for (EpisimDifferentiationLevel diffLevel : ModelController
+				.getInstance().getCellBehavioralModelController()
+				.getAvailableDifferentiationLevels()) {
 			if (diffLevel.toString().equals(objString))
 				return diffLevel;
 		}
 		return null;
 	}
-	
-	private static EpisimCellType parseEpisimCellType(String objString){
-		for(EpisimCellType cellType : ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes()){
+
+	private static EpisimCellType parseEpisimCellType(String objString) {
+		for (EpisimCellType cellType : ModelController.getInstance()
+				.getCellBehavioralModelController().getAvailableCellTypes()) {
 			if (cellType.toString().equals(objString))
 				return cellType;
 		}
@@ -78,11 +81,14 @@ public class XmlObject {
 	}
 
 	private static Double2D parseDouble2D(String objString) {
-		if (!objString.startsWith("Double2D")) return null;
-		String sub = objString.substring(9,objString.length()-1);
+		if (!objString.startsWith("Double2D"))
+			return null;
+		String sub = objString.substring(9, objString.length() - 1);
 		String[] split = sub.split(",");
-		if (split.length != 2)	return null;
-		Double2D retDouble2D = new Double2D(Double.parseDouble(split[0]), Double.parseDouble(split[1]));
+		if (split.length != 2)
+			return null;
+		Double2D retDouble2D = new Double2D(Double.parseDouble(split[0]),
+				Double.parseDouble(split[1]));
 		return retDouble2D;
 
 	}
@@ -90,7 +96,9 @@ public class XmlObject {
 	protected ArrayList<Method> getGetters() {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
-			if ((m.getName().startsWith("get") || m.getName().startsWith("is")) && m.getAnnotation(NoExport.class) == null && !m.getName().equals("getClass")) {
+			if ((m.getName().startsWith("get") || m.getName().startsWith("is"))
+					&& m.getAnnotation(NoExport.class) == null
+					&& !m.getName().equals("getClass")) {
 
 				try {
 					if (m.getParameterTypes().length == 0) {
@@ -107,7 +115,8 @@ public class XmlObject {
 	protected ArrayList<Method> getSetters() {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
-			if (m.getName().startsWith("set") && m.getAnnotation(NoExport.class) == null) {
+			if (m.getName().startsWith("set")
+					&& m.getAnnotation(NoExport.class) == null) {
 
 				try {
 					if (m.getParameterTypes().length == 1) {
@@ -120,35 +129,6 @@ public class XmlObject {
 		}
 		return methods;
 	}
-
-	// private HashMap<String, Object> getParameterObjectsFromObject(Object
-	// object) {
-	//
-	// HashMap<String, Object> objects = new HashMap<String, Object>();
-	// for (Method m : object.getClass().getMethods()) {
-	// if ((m.getName().startsWith("get") || m.getName().startsWith("is")) &&
-	// m.getAnnotation(NoExport.class) == null &&
-	// !m.getName().equals("getClass")) {
-	//
-	// try {
-	// if (m.getParameterTypes().length == 0) {
-	//
-	// objects.put(methodToName(m.getName()), m.invoke(object, new Object[]
-	// {}));
-	// System.out.println(object.getClass().getName() + " : " + m.getName() +
-	// " -> " + objects.get(methodToName(m.getName())));
-	// }
-	// } catch (IllegalAccessException e) {
-	// ExceptionDisplayer.getInstance().displayException(e);
-	// } catch (IllegalArgumentException e) {
-	// ExceptionDisplayer.getInstance().displayException(e);
-	// } catch (InvocationTargetException e) {
-	// ExceptionDisplayer.getInstance().displayException(e.getCause());
-	// }
-	// }
-	// }
-	// return objects;
-	// }
 
 	protected Object invokeGetMethod(Object object, Method actMethod) {
 		Object obj = null;
@@ -201,11 +181,13 @@ public class XmlObject {
 
 	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
 		Element node = xmlFile.createElement(nodeName);
-		node.setAttribute("class", clazz.getCanonicalName());
+		node.setAttribute(CLASS, clazz.getCanonicalName());
 		for (String s : getParameters().keySet()) {
 			Element parameterNode = xmlFile.createElement(s);
 			if (getParameters().get(s) != null)
-				parameterNode.setTextContent(getParameters().get(s).toString());
+				parameterNode.setAttribute(VALUE, getParameters().get(s)
+						.toString());
+//			parameterNode.setTextContent(getParameters().get(s).toString());
 			node.appendChild(parameterNode);
 		}
 		return node;
@@ -229,13 +211,18 @@ public class XmlObject {
 		}
 	}
 
-	public void importParametersFromXml(Class clazz) {
+	public void importParametersFromXml(Class<? extends T> clazz) {
 		this.clazz = clazz;
 		NodeList nl = objectNode.getChildNodes();
 		for (Method m : getGetters()) {
 			for (int i = 0; i < nl.getLength(); i++) {
-				if (nl.item(i).getNodeName().equalsIgnoreCase(methodToName(m.getName()))) {
-					parameters.put(nl.item(i).getNodeName(), parse(nl.item(i).getTextContent(), m.getReturnType()));
+				if (nl.item(i).getNodeName()
+						.equalsIgnoreCase(methodToName(m.getName()))) {
+					parameters.put(
+							nl.item(i).getNodeName(),
+							parse(nl.item(i).getAttributes()
+									.getNamedItem(VALUE).getNodeValue(),
+									m.getReturnType()));
 				}
 			}
 		}

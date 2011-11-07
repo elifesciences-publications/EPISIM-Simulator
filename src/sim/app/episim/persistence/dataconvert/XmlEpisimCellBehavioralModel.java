@@ -8,7 +8,7 @@ import episiminterfaces.EpisimCellBehavioralModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.persistence.XmlFile;
 
-public class XmlEpisimCellBehavioralModel extends XmlObject {
+public class XmlEpisimCellBehavioralModel extends XmlObject<EpisimCellBehavioralModel> {
 
 	public XmlEpisimCellBehavioralModel(EpisimCellBehavioralModel episimCellBehavioralModel) {
 		super(episimCellBehavioralModel);

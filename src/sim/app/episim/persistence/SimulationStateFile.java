@@ -10,6 +10,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 
 public class SimulationStateFile extends XmlFile {
@@ -20,27 +26,35 @@ public class SimulationStateFile extends XmlFile {
 	private static final String CELLS = "cells";
 	private static final String CELL = "cell";
 	private static final String MODELFILE = "modelfile";
+	private static final String EPISIMBIOMECHANICALMODELGLOBALPARAMETERS = "episimbiomechanicalmodelglobalparameters";
+	private static final String EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS = "episimcellbehavioralmodelglobalparameters";
+	private static final String MISCALLENEOUSGLOBALPARAMETERS = "miscalleneousglobalparameters";
 
 	private Element rootNode = null;
 
-	public SimulationStateFile(File path) throws SAXException, IOException, ParserConfigurationException {
+	public SimulationStateFile(File path) throws SAXException, IOException,
+			ParserConfigurationException {
 		super(path);
 		rootNode = getRoot();
 		if (!rootNode.getNodeName().equals(ROOT_NAME))
-			throw new IOException("Wrong file format: " + path.getAbsolutePath());
+			throw new IOException("Wrong file format: "
+					+ path.getAbsolutePath());
 
 	}
 
-	public SimulationStateFile() throws ParserConfigurationException, SAXException {
+	public SimulationStateFile() throws ParserConfigurationException,
+			SAXException {
 		super(ROOT_NAME);
 		rootNode = getRoot();
 		rootNode.setAttribute(MultiCellXML_VERSION, "1.0");
 	}
 
 	public SimulationStateData loadData() {
-		Node behaviorFile = getRoot().getElementsByTagName(CELLBEHAVIORALMODEL_FILE).item(0);
+		Node behaviorFile = getRoot().getElementsByTagName(
+				CELLBEHAVIORALMODEL_FILE).item(0);
 		SimulationStateData simStateData = new SimulationStateData();
-		simStateData.setLoadedModelFile(behaviorFile.getAttributes().getNamedItem(MODELFILE).getNodeValue());
+		simStateData.setLoadedModelFile(behaviorFile.getAttributes()
+				.getNamedItem(MODELFILE).getNodeValue());
 
 		NodeList nodes = getRoot().getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -61,7 +75,28 @@ public class SimulationStateFile extends XmlFile {
 				}
 
 			}
+			if (nodes.item(i).getNodeName()
+					.equalsIgnoreCase(EPISIMBIOMECHANICALMODELGLOBALPARAMETERS)) {
+				simStateData
+						.setEpisimBioMechanicalModelGlobalParameters(new XmlObject<EpisimBiomechanicalModelGlobalParameters>(
+								nodes.item(i)));
+			}
 
+			if (nodes
+					.item(i)
+					.getNodeName()
+					.equalsIgnoreCase(EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS)) {
+				simStateData
+						.setEpisimCellBehavioralModelGlobalParameters(new XmlObject<EpisimCellBehavioralModelGlobalParameters>(
+								nodes.item(i)));
+
+			}
+			if (nodes.item(i).getNodeName()
+					.equalsIgnoreCase(MISCALLENEOUSGLOBALPARAMETERS)) {
+				simStateData
+						.setMiscalleneousGlobalParameters(new XmlObject<MiscalleneousGlobalParameters>(
+								nodes.item(i)));
+			}
 		}
 		return simStateData;
 	}
@@ -72,7 +107,8 @@ public class SimulationStateFile extends XmlFile {
 		simStateData.updateData();
 
 		Element modelFileElement = createElement(CELLBEHAVIORALMODEL_FILE);
-		modelFileElement.setAttribute(MODELFILE, simStateData.getLoadedModelFile().getAbsolutePath());
+		modelFileElement.setAttribute(MODELFILE, simStateData
+				.getLoadedModelFile().getAbsolutePath());
 		getRoot().appendChild(modelFileElement);
 
 		getRoot().appendChild(cellListToXML(simStateData.getCells(), CELLS));
@@ -81,11 +117,19 @@ public class SimulationStateFile extends XmlFile {
 		//
 		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getDeltaInfo(),DELTAINFO));
 		//
-		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getEpisimBioMechanicalModelGlobalParameters(),EPISIMBIOMECHANICALMODELGLOBALPARAMETERS));
+		getRoot().appendChild(
+				simStateData.getEpisimBioMechanicalModelGlobalParameters()
+						.toXMLNode(EPISIMBIOMECHANICALMODELGLOBALPARAMETERS,
+								this));
 		//
-		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getEpisimCellBehavioralModelGlobalParameters(),EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS));
+		getRoot().appendChild(
+				simStateData.getEpisimCellBehavioralModelGlobalParameters()
+						.toXMLNode(EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS,
+								this));
 		//
-		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getMiscalleneousGlobalParameters(),MISCALLENEOUSGLOBALPARAMETERS));
+		getRoot().appendChild(
+				simStateData.getMiscalleneousGlobalParameters().toXMLNode(
+						MISCALLENEOUSGLOBALPARAMETERS, this));
 		//
 		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getTimeSteps(),TIMESTEPS));
 		//

@@ -80,7 +80,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 			for(AbstractCell actCell : this.allCells){
 				if(//actCell.getEpisimCellBehavioralModelObject().getAge() < MINCELLAGE &&
 					actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true
-					&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL) 
+					)//&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL) 
 					return actCell;
 			}
 		}

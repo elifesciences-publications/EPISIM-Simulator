@@ -1,4 +1,6 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.calc;
+
+import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 
 
 public class SimulatedAnnealingForOrderingVertices {
@@ -38,7 +40,7 @@ public class SimulatedAnnealingForOrderingVertices {
 	   *
 	   * @param the vertices to be optimized
 	   */
-	  SimulatedAnnealingForOrderingVertices(Vertex[] vertices)
+	  public SimulatedAnnealingForOrderingVertices(Vertex[] vertices)
 	  {
 	    this.vertices = vertices;
 	    order = new int[vertices.length];

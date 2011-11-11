@@ -1,11 +1,15 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.calc;
 
 import sim.util.Double2D;
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;
 import no.uib.cipr.matrix.Matrix;
 import no.uib.cipr.matrix.Vector;
-
+/**
+ * This class is not used and has to be fully updated (see Conjugate Gradient Optimizer) in case of recycling
+ * @author Thomas
+ *
+ */
 
 public class VertexForcesCalculator {
 /*	

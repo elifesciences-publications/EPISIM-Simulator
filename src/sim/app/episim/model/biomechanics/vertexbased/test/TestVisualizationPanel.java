@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.test;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,6 +11,8 @@ import java.util.Iterator;
 
 
 import javax.swing.JPanel;
+
+import sim.app.episim.model.biomechanics.vertexbased.util.ColorRegistry;
 
 
 

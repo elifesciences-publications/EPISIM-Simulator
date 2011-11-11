@@ -1,6 +1,8 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.util;
 
 import java.util.HashMap;
+
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 
 
 public class CellPolygonRegistry {
@@ -11,7 +13,7 @@ public class CellPolygonRegistry {
 		motherCellId_cellPolygon_map.put(motherCellId, cellPolygon);
 	}
 	
-	protected static CellPolygon getNewCellPolygon(long motherCellId){
+	public static CellPolygon getNewCellPolygon(long motherCellId){
 		if(motherCellId_cellPolygon_map.containsKey(motherCellId)){			
 			CellPolygon pol = motherCellId_cellPolygon_map.get(motherCellId);
 			motherCellId_cellPolygon_map.remove(motherCellId);			
@@ -20,7 +22,7 @@ public class CellPolygonRegistry {
 		return null;
 	}
 	
-	protected static boolean isWaitingForCellProliferation(long motherCellId){
+	public static boolean isWaitingForCellProliferation(long motherCellId){
 		return motherCellId_cellPolygon_map.containsKey(motherCellId);
 	}
 

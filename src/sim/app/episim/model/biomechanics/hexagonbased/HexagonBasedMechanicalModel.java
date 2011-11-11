@@ -85,7 +85,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		   		cellField.field[motherCellMechModel.spreadingLocation.x][motherCellMechModel.spreadingLocation.y] = cell;
 		   		fieldLocation = new Int2D(motherCellMechModel.spreadingLocation.x,motherCellMechModel.spreadingLocation.y);
 		   		motherCellMechModel.spreadingLocation = null;
-		   		motherCellMechModel.modelConnector.setIsSpreading(false);
+		   		motherCellMechModel.modelConnector.setIsSpreadingRGD(false);
+		   		motherCellMechModel.modelConnector.setIsSpreadingFN(false);
 		   	}		   	
 		   }	   
 	   }
@@ -154,54 +155,140 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 
 	public void newSimStep(long simStepNumber) {
 			
-		if(modelConnector.getIsSpreading() && isSpreadingPossible()){
+		if(modelConnector.getIsSpreadingFN() &&isSpreadingOnFNPossible()){
 			if(spreadingLocation == null){ 
-				spread();
+				spread(false);
 			}
 			
 		}
-		else if(modelConnector.getIsSpreading() && !isSpreadingPossible()){
-			if(spreadingLocation==null)modelConnector.setIsSpreading(false);
+		else if(modelConnector.getIsSpreadingFN() && !isSpreadingOnFNPossible()){
+			if(spreadingLocation==null || isLocationOnTestSurface(spreadingLocation))modelConnector.setIsSpreadingFN(false);
 		}
 		
-		if(modelConnector.getIsRetracting() && spreadingLocation!=null){
-			modelConnector.setIsSpreading(false);
-			modelConnector.setIsRetracting(false);
+		if(modelConnector.getIsSpreadingRGD() && isSpreadingOnRGDPossible()){
+			if(spreadingLocation == null){ 
+				spread(true);
+			}
+			
+		}
+		else if(modelConnector.getIsSpreadingRGD() && !isSpreadingOnRGDPossible()){
+			if(spreadingLocation==null || !isLocationOnTestSurface(spreadingLocation))modelConnector.setIsSpreadingRGD(false);
+		}
+		
+		
+		if((modelConnector.getIsRetractingRGD() || modelConnector.getIsRetractingFN()) && spreadingLocation!=null){		
+			retract();
+		}
+		
+		if(modelConnector.getIsProliferating()){
+			modelConnector.setIsSpreadingRGD(false);
+			modelConnector.setIsSpreadingFN(false);
+			modelConnector.setIsProliferating(false);
+		}		
+		this.getCellEllipse().setLastDrawInfo2D(getCellEllipse().getLastDrawInfo2D(), true);		
+		checkIfCellIsAtWoundEdge();
+		modelConnector.setIsOnTestSurface(isLocationOnTestSurface(fieldLocation));
+		modelConnector.setIsAtSurfaceBorder(isLocationAtSurfaceBorder(fieldLocation));
+	}
+	
+	private boolean isLocationOnTestSurface(Int2D location){
+		return (getLocationInMikron(location).x > HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron);
+	}
+	
+	private boolean isLocationAtSurfaceBorder(Int2D location){
+		double xPosInMikron = getLocationInMikron(location).x ;
+		double intervalMin =  HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron - globalParameters.getCellDiameter_mikron();
+		double intervalMax =  HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron + globalParameters.getCellDiameter_mikron();
+		return (xPosInMikron >= intervalMin && xPosInMikron <= intervalMax);
+	}
+	
+	private void checkIfCellIsAtWoundEdge(){
+		double xPosInMikron = getLocationInMikron(fieldLocation).x;
+		
+		isAtWoundEdge = (getRealNeighbours().size() <5 && 
+				(xPosInMikron >= globalParameters.initialPositionWoundEdge_Mikron || 
+						(xPosInMikron + (1*globalParameters.getCellDiameter_mikron()))>= globalParameters.initialPositionWoundEdge_Mikron));
+	}
+	
+	private Double2D getLocationInMikron(Int2D location){
+		double x = ((location.x+1) *(globalParameters.getWidthInMikron()/ cellField.getWidth()));
+		double y = ((location.y+1) *(globalParameters.getHeightInMikron()/ cellField.getHeight()));
+		return new Double2D(x, y);
+	}
+	
+	
+	private void spread(boolean onTestSurface){
+   	IntBag xPos = new IntBag();
+		IntBag yPos = new IntBag();
+	   ArrayList<Integer> spreadingLocationIndices = getPossibleSpreadingLocationIndices(xPos, yPos, onTestSurface);
+	 
+	   if(!spreadingLocationIndices.isEmpty()){
+		   int spreadingLocationIndex = spreadingLocationIndices.get(random.nextInt(spreadingLocationIndices.size()));
+		   this.spreadingLocation = new Int2D(xPos.get(spreadingLocationIndex), yPos.get(spreadingLocationIndex));
+		   cellField.set(this.spreadingLocation.x, this.spreadingLocation.y, getCell());
+	   }
+   }
+	
+	private void retract(){
+		
+		if((modelConnector.getIsRetractingRGD()&& isLocationOnTestSurface(spreadingLocation))
+			 ||(modelConnector.getIsRetractingFN() && !isLocationOnTestSurface(spreadingLocation))){
 			cellField.field[fieldLocation.x][fieldLocation.y] = null;
 			cellField.field[spreadingLocation.x][spreadingLocation.y] = getCell();
 			fieldLocation = spreadingLocation;
 			spreadingLocation = null;
+			modelConnector.setIsSpreadingFN(false);
+			modelConnector.setIsSpreadingRGD(false);
 		}
-		
-		if(modelConnector.getIsProliferating()){
-			modelConnector.setIsSpreading(false);
-			modelConnector.setIsProliferating(false);
-		}		
-		this.getCellEllipse().setLastDrawInfo2D(getCellEllipse().getLastDrawInfo2D(), true);
-		modelConnector.setIsSpreadingPossible(isSpreadingPossible());
-		
-		checkIfCellIsAtWoundEdge();
-		checkIfCellIsOnTestSurface();
+		else if((modelConnector.getIsRetractingRGD()&&isLocationOnTestSurface(fieldLocation))
+		 ||(modelConnector.getIsRetractingFN() && !isLocationOnTestSurface(fieldLocation))){
+			cellField.field[fieldLocation.x][fieldLocation.y] = getCell();
+			cellField.field[spreadingLocation.x][spreadingLocation.y] = null;
+			spreadingLocation = null;
+			modelConnector.setIsSpreadingFN(false);
+			modelConnector.setIsSpreadingRGD(false);
+		}				
+		modelConnector.setIsRetractingFN(false);
+		modelConnector.setIsRetractingRGD(false);
 	}
 	
-	private void checkIfCellIsOnTestSurface(){
-		modelConnector.setIsOnTestSurface(getXPosInMikron() > HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron);
-	}
+   
+   private boolean isSpreadingOnFNPossible(){
+   	return !getPossibleSpreadingLocationIndices(new IntBag(), new IntBag(), false).isEmpty();
+   }
+   private boolean isSpreadingOnRGDPossible(){
+   	return !getPossibleSpreadingLocationIndices(new IntBag(), new IntBag(), true).isEmpty();
+   }
+   private ArrayList<Integer> getPossibleSpreadingLocationIndices(IntBag xPos, IntBag yPos, boolean onTestSurface){   	
+		Bag neighbouringCellsBag = new Bag();
+	   if(fieldLocation != null)cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos);
+	   
+	   ArrayList<Integer> spreadingLocationIndices = new ArrayList<Integer>();
+	   for(int i = 0; i < neighbouringCellsBag.size(); i++){
+	   	if(neighbouringCellsBag.get(i)== null){
+	   		if(onTestSurface){
+	   			if(isLocationOnTestSurface(new Int2D(xPos.get(i), yPos.get(i))))spreadingLocationIndices.add(i);
+	   		}
+	   		else {
+	   			if(!isLocationOnTestSurface(new Int2D(xPos.get(i), yPos.get(i))))spreadingLocationIndices.add(i);
+	   		}  		   
+	   	}
+	   }
+	   return spreadingLocationIndices;
+   }
 	
-	private void checkIfCellIsAtWoundEdge(){
-		double xPosInMikron = getXPosInMikron();
-		
-		isAtWoundEdge = (getRealNeighbours().size() <5 && 
-				(xPosInMikron >= globalParameters.initialPositionWoundEdge_Mikron|| 
-						(xPosInMikron + (1*globalParameters.getCellDiameter_mikron()))>= globalParameters.initialPositionWoundEdge_Mikron));
-	}
 	
-	private double getXPosInMikron(){
-		return ((fieldLocation.x+1) *(globalParameters.getWidthInMikron()/ cellField.field.length));
-	}
+	
+	
+	
+	
 	
 	
 	public boolean isSpreading(){ return this.spreadingLocation != null; }
+	
+	public Int2D getSpreadingLocation(){
+	  	return this.spreadingLocation;
+	}
 	
 	public double getX() {
 		return fieldLocation != null ? fieldLocation.x : -1;
@@ -214,12 +301,12 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	public double getZ() {
 		return 0;
 	}
-
-	protected void clearCellField() {
-	   
+	
+	protected void clearCellField() {	   
 	   	cellField.clear();
 	   
    }
+	
    public void removeCellFromCellField() {
    	cellField.field[fieldLocation.x][fieldLocation.y] = null;
    	if(spreadingLocation != null){
@@ -256,36 +343,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
    	}
    }
    
-   private void spread(){
-   	IntBag xPos = new IntBag();
-		IntBag yPos = new IntBag();
-	   ArrayList<Integer> spreadingLocationIndices = getPossibleSpreadingLocationIndices(xPos, yPos);
-	 
-	   if(!spreadingLocationIndices.isEmpty()){
-		   int spreadingLocationIndex = spreadingLocationIndices.get(random.nextInt(spreadingLocationIndices.size()));
-		   this.spreadingLocation = new Int2D(xPos.get(spreadingLocationIndex), yPos.get(spreadingLocationIndex));
-		   cellField.set(this.spreadingLocation.x, this.spreadingLocation.y, getCell());
-	   }
-   }
    
-   public Int2D getSpreadingLocation(){
-   	return this.spreadingLocation;
-   }
-   
-   private boolean isSpreadingPossible(){
-   	return !getPossibleSpreadingLocationIndices(new IntBag(),new IntBag()).isEmpty();
-   }
-   private ArrayList<Integer> getPossibleSpreadingLocationIndices(IntBag xPos, IntBag yPos){
-   	
-		Bag neighbouringCellsBag = new Bag();
-	   if(fieldLocation != null)cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos);
-	   
-	   ArrayList<Integer> spreadingLocationIndices = new ArrayList<Integer>();
-	   for(int i = 0; i < neighbouringCellsBag.size(); i++){
-	   	if(neighbouringCellsBag.get(i)== null) spreadingLocationIndices.add(i);	   		   
-	   }
-	   return spreadingLocationIndices;
-   }
       
    
    //--------------------------------------------------------------------------------------------------------------------------------------------------------------

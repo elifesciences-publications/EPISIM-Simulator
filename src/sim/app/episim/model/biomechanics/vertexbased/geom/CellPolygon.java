@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.geom;
 
 import java.awt.Color;
 import java.awt.Polygon;
@@ -10,9 +10,14 @@ import java.util.List;
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 
-import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
-import sim.app.episim.model.biomechanics.vertexbased.VertexChangeEvent.VertexChangeEventType;
-import sim.app.episim.model.biomechanics.vertexbased.simanneal.VertexForcesMinimizerSimAnneal;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
+import sim.app.episim.model.biomechanics.vertexbased.calc.ConjugateGradientOptimizer;
+import sim.app.episim.model.biomechanics.vertexbased.calc.SimulatedAnnealingForOrderingVertices;
+import sim.app.episim.model.biomechanics.vertexbased.calc.simanneal.VertexForcesMinimizerSimAnneal;
+import sim.app.episim.model.biomechanics.vertexbased.geom.VertexChangeEvent.VertexChangeEventType;
+import sim.app.episim.model.biomechanics.vertexbased.util.GlobalBiomechanicalStatistics;
+import sim.app.episim.model.biomechanics.vertexbased.util.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EnhancedSteppable;
@@ -362,7 +367,7 @@ public void setPreferredArea(double preferredArea) {
 	this.preferredArea = preferredArea;
 }
 
-protected void apoptosis(){
+public void apoptosis(){
 	notifyAllCellProliferationAndApoptosisListener(new ListenerAction<CellPolygonProliferationSuccessListener>(){
 		public void performAction(CellPolygonProliferationSuccessListener listener){
 			listener.apoptosisCompleted(CellPolygon.this);

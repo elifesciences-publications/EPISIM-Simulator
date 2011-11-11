@@ -1,7 +1,11 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.calc;
 
 import java.util.ArrayList;
 
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 import sim.app.episim.model.controller.ModelController;
 
 import no.uib.cipr.matrix.DenseMatrix;

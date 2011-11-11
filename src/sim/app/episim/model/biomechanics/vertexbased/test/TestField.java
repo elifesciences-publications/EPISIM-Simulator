@@ -1,4 +1,9 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.test;
+
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 
 
 

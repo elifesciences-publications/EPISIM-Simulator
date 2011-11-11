@@ -1,10 +1,10 @@
-package sim.app.episim.model.biomechanics.vertexbased.simanneal;
+package sim.app.episim.model.biomechanics.vertexbased.calc.simanneal;
 
 import java.util.Date;
 
-import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
-import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
-import sim.app.episim.model.biomechanics.vertexbased.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 
 import net.sourceforge.jannealer.AnnealingScheme;
 import net.sourceforge.jannealer.ObjectiveFunction;

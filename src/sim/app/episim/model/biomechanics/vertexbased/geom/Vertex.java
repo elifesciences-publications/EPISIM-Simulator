@@ -1,10 +1,11 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.geom;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import sim.app.episim.model.biomechanics.vertexbased.VertexChangeEvent.VertexChangeEventType;
+import sim.app.episim.model.biomechanics.vertexbased.geom.VertexChangeEvent.VertexChangeEventType;
+
 
 
 public class Vertex implements java.io.Serializable{

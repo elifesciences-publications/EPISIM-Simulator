@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.util;
 
 import java.awt.Color;
 

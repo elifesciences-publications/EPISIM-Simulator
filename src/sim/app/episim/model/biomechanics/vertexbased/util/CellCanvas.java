@@ -1,10 +1,15 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.util;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Stroke;
+
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Line;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 
 
 public class CellCanvas {

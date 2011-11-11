@@ -3,9 +3,9 @@ import sim.app.episim.datamonitoring.GlobalStatistics;
 
 
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.vertexbased.CellPolygon;
-import sim.app.episim.model.biomechanics.vertexbased.CellPolygonCalculator;
-import sim.app.episim.model.biomechanics.vertexbased.CellPolygonNetworkBuilder;
+import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuilder;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.sbml.SbmlModelConnector;

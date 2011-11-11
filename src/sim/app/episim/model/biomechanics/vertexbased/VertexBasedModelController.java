@@ -3,6 +3,10 @@ package sim.app.episim.model.biomechanics.vertexbased;
 import java.util.ArrayList;
 
 import sim.app.episim.AbstractCell;
+import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
+import sim.app.episim.model.biomechanics.vertexbased.util.CellCanvas;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueController.TissueRegistrationListener;
 import sim.app.episim.tissue.TissueType;

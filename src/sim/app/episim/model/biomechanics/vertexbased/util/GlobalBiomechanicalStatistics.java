@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;

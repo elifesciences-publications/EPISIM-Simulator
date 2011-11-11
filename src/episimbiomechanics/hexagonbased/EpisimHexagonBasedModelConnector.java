@@ -14,13 +14,13 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	private static final String ID = "2011-09-23";
 	private static final String NAME = "Hexagon Grid Based Biomechanical Model";
 	
-	private boolean isSpreading = false;
+	private boolean isSpreadingFN = false;
+	private boolean isSpreadingRGD = false;
 	private boolean isProliferating = false;
-	private boolean isRetracting = false;
-	private boolean isSpreadingPossible = true;
+	private boolean isRetractingFN = false;
+	private boolean isRetractingRGD = false;
 	private boolean isOnTestSurface = false;
-	private boolean isAtLeftSideSurfaceBorder = false;
-	private boolean isAtRightSideSurfaceBorder = false;
+	private boolean isAtSurfaceBorder = false;
 
 	protected String getIdForInternalUse() {
 		return ID;
@@ -41,11 +41,18 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 		return HexagonBasedMechanicalModelGlobalParameters.class;
 	}
 	
-	public void setIsSpreading(boolean isSpreading){
-		this.isSpreading = isSpreading;
+	public void setIsSpreadingFN(boolean isSpreadingFN){
+		this.isSpreadingFN = isSpreadingFN;
 	}	
-	public boolean getIsSpreading(){
-		return this.isSpreading;
+	public boolean getIsSpreadingFN(){
+		return this.isSpreadingFN;
+	}
+	
+	public void setIsSpreadingRGD(boolean isSpreadingRGD){
+		this.isSpreadingRGD = isSpreadingRGD;
+	}	
+	public boolean getIsSpreadingRGD(){
+		return this.isSpreadingRGD;
 	}
 	
 	public boolean getIsProliferating(){		
@@ -53,55 +60,37 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	}	
 	public void setIsProliferating(boolean isProliferating) {	
 		this.isProliferating = isProliferating;
-	}
-	
-	
-	public boolean getIsSpreadingPossible(){
-		return isSpreadingPossible;
-	}
-	
-	@Hidden
-	public void setIsSpreadingPossible(boolean isSpreadingPossible){
-		this.isSpreadingPossible = isSpreadingPossible;
 	}	
-
-	public boolean getIsRetracting(){		
-		return isRetracting;
+	
+	public boolean getIsRetractingFN(){		
+		return isRetractingFN;
 	}	
-	public void setIsRetracting(boolean isRetracting) {	
-		this.isRetracting = isRetracting;
+	public void setIsRetractingFN(boolean isRetractingFN) {	
+		this.isRetractingFN = isRetractingFN;
 	}
 	
-   public boolean getIsOnTestSurface() {
-   
+	public boolean getIsRetractingRGD(){		
+		return isRetractingRGD;
+	}	
+	public void setIsRetractingRGD(boolean isRetractingRGD) {	
+		this.isRetractingRGD = isRetractingRGD;
+	}
+	
+   public boolean getIsOnTestSurface() {   
    	return isOnTestSurface;
    }
 	
 	@Hidden
-   public void setIsOnTestSurface(boolean isOnTestSurface) {
-   
+   public void setIsOnTestSurface(boolean isOnTestSurface) {   
    	this.isOnTestSurface = isOnTestSurface;
    }
 	
-   public boolean getIsAtLeftSideSurfaceBorder() {
-   
-   	return isAtLeftSideSurfaceBorder;
+   public boolean getIsAtSurfaceBorder() {   
+   	return isAtSurfaceBorder;
    }
 	
    @Hidden
-   public void setIsAtLeftSideSurfaceBorder(boolean isAtLeftSideSurfaceBorder) {
-   
-   	this.isAtLeftSideSurfaceBorder = isAtLeftSideSurfaceBorder;
-   }
-	
-   public boolean getIsAtRightSideSurfaceBorder() {
-   
-   	return isAtRightSideSurfaceBorder;
-   }
-   @Hidden
-   public void setIsAtRightSideSurfaceBorder(boolean isTheRightSideSurfaceBorder) {
-   
-   	this.isAtRightSideSurfaceBorder = isTheRightSideSurfaceBorder;
-   }
-	
+   public void setIsAtSurfaceBorder(boolean isAtSurfaceBorder){   
+   	this.isAtSurfaceBorder = isAtSurfaceBorder;
+   }	
 }

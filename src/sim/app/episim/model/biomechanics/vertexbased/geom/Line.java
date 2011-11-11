@@ -1,8 +1,9 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.geom;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+
 
 import ec.util.MersenneTwisterFast;
 

@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.test;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -40,8 +40,19 @@ import javax.swing.event.ChangeListener;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
-import sim.app.episim.model.biomechanics.vertexbased.TestVisualizationPanel.TestVisualizationPanelPaintListener;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
+import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuilder;
+import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Line;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased.test.TestVisualizationPanel.TestVisualizationPanelPaintListener;
+import sim.app.episim.model.biomechanics.vertexbased.util.CellCanvas;
+import sim.app.episim.model.biomechanics.vertexbased.util.ColorRegistry;
+import sim.app.episim.model.biomechanics.vertexbased.util.GlobalBiomechanicalStatistics;
+import sim.app.episim.model.biomechanics.vertexbased.util.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ModelParameterModifier;

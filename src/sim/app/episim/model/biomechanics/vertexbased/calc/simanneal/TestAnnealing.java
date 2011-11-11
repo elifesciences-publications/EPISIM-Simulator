@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.vertexbased.simanneal;
+package sim.app.episim.model.biomechanics.vertexbased.calc.simanneal;
 
 import net.sourceforge.jannealer.AnnealingScheme;
 import net.sourceforge.jannealer.ObjectiveFunction;

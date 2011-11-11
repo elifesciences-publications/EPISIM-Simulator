@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.calc;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -8,7 +8,13 @@ import java.util.HashSet;
 
 import ec.util.MersenneTwisterFast;
 
-import sim.app.episim.model.biomechanics.vertexbased.GlobalBiomechanicalStatistics.GBSValue;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Line;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased.util.GlobalBiomechanicalStatistics;
+import sim.app.episim.model.biomechanics.vertexbased.util.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
@@ -29,7 +35,7 @@ public class CellPolygonCalculator {
 	
 	private CellPolygon[] cellPolygons;	
 	
-	protected CellPolygonCalculator(){
+	public CellPolygonCalculator(){
 		this.cellPolygons = new CellPolygon[0];
 		VertexBasedMechanicalModelGlobalParameters globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		min_edge_length = SIDELENGTH * globalParameters.getMin_edge_length_percentage();
@@ -37,7 +43,7 @@ public class CellPolygonCalculator {
 		min_vertex_edge_distance = min_edge_length * 0.8;
 	}
 	
-	protected void setCellPolygons(CellPolygon[] cellPolygons){
+	public void setCellPolygons(CellPolygon[] cellPolygons){
 		this.cellPolygons = cellPolygons;
 	}
 	

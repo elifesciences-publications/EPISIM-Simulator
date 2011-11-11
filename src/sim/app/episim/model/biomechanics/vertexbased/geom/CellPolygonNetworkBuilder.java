@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.vertexbased;
+package sim.app.episim.model.biomechanics.vertexbased.geom;
 
 import java.awt.Polygon;
 import java.awt.geom.Area;
@@ -11,6 +11,9 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
+import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.TissueController;

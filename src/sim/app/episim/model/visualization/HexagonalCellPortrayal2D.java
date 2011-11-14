@@ -41,7 +41,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 private static Color standardCellColor = new Color(255,210,210);
 	 private static Color standardMembraneColor = new Color(150, 0, 0);
 	
-	 private static final double DELTA = 1;
+	 private static final double DELTA = 2;
 	 private HexagonalCellGridPortrayal2D cellGridPortrayal;
 	 
 	 private HashMap<Long, DrawInfo2D> drawInfoRegistry;
@@ -107,12 +107,12 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      }
 	   		if(shape!=null){
 		   	 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
-		   /*	 	if(mechModel.getIsAtWoundEdge()){
-		   	 		graphics.setPaint(Color.YELLOW);
+		   	 	if(mechModel.getIsAtWoundEdge()){
+		   	 		graphics.setPaint(Color.GREEN);
 		   	 	}
-		   	 	else{*/
+		   	 	else{
 		   	 		graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
-		   	 //	}
+		   	   }
 				   if (filled)
 				   {	        
 				   	graphics.fill(shape);

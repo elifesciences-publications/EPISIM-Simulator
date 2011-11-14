@@ -42,11 +42,8 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 		HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		
-		
-		
-		int width = (int)(((HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron)/globalParameters.getCellDiameter_mikron()));
-		int height = (int)((globalParameters.getHeightInMikron()/globalParameters.getCellDiameter_mikron()));
+		int width = (int)HexagonBasedMechanicalModelGlobalParameters.number_of_initially_occupied_columns;
+		int height = (int)HexagonBasedMechanicalModelGlobalParameters.number_of_rows;
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
 				UniversalCell cell = new UniversalCell(null, null, null);

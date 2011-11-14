@@ -7,15 +7,25 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	private double height_mikron = 5000;
-	private double width_mikron = 5000;
-	private double cellDiameter_mikron = 50;
-	private double neighborhood_mikron = 50;
+	public static final double number_of_columns =100;
+	public static final double number_of_rows =100;
+	public static final double number_of_initially_occupied_columns =10;
+	private static final double celldiameter_mikron = 50;
+	public static final double inner_hexagonal_radius = ((celldiameter_mikron/2d)/2d)*Math.sqrt(3d);
+	public static final double outer_hexagonal_radius = (celldiameter_mikron/2d);
+	
+	
+	private double height_mikron = number_of_rows*celldiameter_mikron;
+	private double width_mikron = celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
+	
 	private double numberOfPixelsPerMicrometer = 0.1;
 	
-	public static final double initialPositionWoundEdge_Mikron = 500;
+	public static final double initialPositionWoundEdge_Mikron = celldiameter_mikron + (number_of_initially_occupied_columns-1d)*1.5*outer_hexagonal_radius;
 	
-	private double positionXWoundEdge_Mikron = 500;
+	
+	private double neighborhood_mikron = 2d*inner_hexagonal_radius;
+	
+	private double positionXWoundEdge_Mikron = initialPositionWoundEdge_Mikron;
 	
 	private BorderlineConfig initialWoundEdgeBorderlineConfig;
 	private BorderlineConfig actualWoundEdgeBorderlineConfig;
@@ -84,12 +94,9 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
    }
 	@NoUserModification
    public double getCellDiameter_mikron() {   
-   	return cellDiameter_mikron;
+   	return celldiameter_mikron;
    }	
-   public void setCellDiameter_mikron(double cellDiameter_mikron) {   
-   	this.cellDiameter_mikron = cellDiameter_mikron;
-   }
-
+   
 	public void setNumberOfPixelsPerMicrometer(double val) {
 	   this.numberOfPixelsPerMicrometer	= val;   
    }

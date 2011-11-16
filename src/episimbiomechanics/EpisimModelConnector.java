@@ -13,6 +13,7 @@ import java.util.List;
 
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoExport;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
@@ -51,6 +52,7 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 	public abstract Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass();
 	
 	@Hidden
+	@NoExport
 	public static ArrayList<Class<? extends EpisimModelConnector>> getAvailableModelConnectors(){
 		
 		try{

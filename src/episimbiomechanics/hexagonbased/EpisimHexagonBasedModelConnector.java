@@ -17,10 +17,11 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	private boolean isSpreadingFN = false;
 	private boolean isSpreadingRGD = false;
 	private boolean isProliferating = false;
-	private boolean isRetractingFN = false;
-	private boolean isRetractingRGD = false;
+	private boolean isRetractingToFN = false;
+	private boolean isRetractingToRGD = false;
 	private boolean isOnTestSurface = false;
 	private boolean isAtSurfaceBorder = false;
+	private boolean isRelaxing = false;
 
 	protected String getIdForInternalUse() {
 		return ID;
@@ -62,18 +63,25 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 		this.isProliferating = isProliferating;
 	}	
 	
-	public boolean getIsRetractingFN(){		
-		return isRetractingFN;
+	public boolean getIsRetractingToFN(){		
+		return isRetractingToFN;
 	}	
-	public void setIsRetractingFN(boolean isRetractingFN) {	
-		this.isRetractingFN = isRetractingFN;
+	public void setIsRetractingToFN(boolean isRetractingToFN) {	
+		this.isRetractingToFN = isRetractingToFN;
 	}
 	
-	public boolean getIsRetractingRGD(){		
-		return isRetractingRGD;
+	public boolean getIsRetractingToRGD(){		
+		return isRetractingToRGD;
 	}	
-	public void setIsRetractingRGD(boolean isRetractingRGD) {	
-		this.isRetractingRGD = isRetractingRGD;
+	public void setIsRetractingToRGD(boolean isRetractingToRGD) {	
+		this.isRetractingToRGD = isRetractingToRGD;
+	}
+	
+	public boolean getIsRelaxing(){		
+		return isRelaxing;
+	}	
+	public void setIsRelaxing(boolean isRelaxing) {	
+		this.isRelaxing = isRelaxing;
 	}
 	
    public boolean getIsOnTestSurface() {   

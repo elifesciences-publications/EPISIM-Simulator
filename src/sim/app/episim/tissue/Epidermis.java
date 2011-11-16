@@ -4,6 +4,7 @@ package sim.app.episim.tissue;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
@@ -158,11 +159,44 @@ public class Epidermis extends TissueType implements CellDeathListener
  
 	private void seedInitiallyAvailableCells(){
 		 for(UniversalCell cell : ModelController.getInstance().getInitialCellEnsemble()){
+			 if(!ModeServer.useMonteCarloSteps()){
 					Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
 					cell.setStoppable(stoppable);
+			 }
 		 }	
 	}
+	
+	
+	
+	private void oneMonteCarloSimStep(SimState state){
+		int numberOfCellsAtStart = getAllCells().size();
+		if(numberOfCellsAtStart >0){
+			//System.out.println("------------Number of Cells at Start: " + numberOfCellsAtStart);
+			for(int i = 0; i < numberOfCellsAtStart; i++){
+				int actualNumberOfCells = getAllCells().size();
+				getAllCells().get(random.nextInt(actualNumberOfCells)).step(state);
+			}
+		}
+	}
+	
  
+	private EnhancedSteppable getMonteCarloStepSteppable(){
+		EnhancedSteppable steppable = new EnhancedSteppable(){
+
+			
+         public void step(SimState state) {
+	         oneMonteCarloSimStep(state);
+	         
+         }
+
+         public double getInterval() {
+	         return 1;
+         }
+			
+		};
+		return steppable;
+	}
+	
  
  
  public void start() {
@@ -197,8 +231,9 @@ public class Epidermis extends TissueType implements CellDeathListener
 		  else{
 							 
 			     for(AbstractCell cell: getAllCells()){		   	  
-			   		
-			   		schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
+			   		if(!ModeServer.useMonteCarloSteps()){
+			   			schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
+			   		}
 			   		if(cell instanceof UniversalCell){
 			   			UniversalCell kcyte = (UniversalCell) cell;
 			   			
@@ -209,10 +244,14 @@ public class Epidermis extends TissueType implements CellDeathListener
 			   		
 			     }
 			}
+	     if(ModeServer.useMonteCarloSteps()){
+	   	  EnhancedSteppable mcSteppable = getMonteCarloStepSteppable();
+	   	  schedule.scheduleRepeating(mcSteppable, SchedulePriority.CELLS.getPriority(), mcSteppable.getInterval());
+	     }
 	     
 	     
 	     EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
-			schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());
+	     schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());
         
  //////////////////////////////////////        
  // CELL STATISTICS & Updating OUTER SURFACE CELLS
@@ -231,11 +270,7 @@ public class Epidermis extends TissueType implements CellDeathListener
                  {
                      yLookUp[k]=9999.9; // deepest value, all coming are above
                      xLookUp[k]=null;
-                 }
-                 
-                
-                                     
-                                 
+                 }                           
                  
                  for (int i=0; i<getAllCells().size(); i++)
                  {

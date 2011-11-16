@@ -133,7 +133,12 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 		this.actSimState = state;		
    }
    
-  
+   public boolean equals(Object obj){
+	   if(obj instanceof AbstractCell){
+	   	return this.getID() == ((AbstractCell)obj).getID();
+	   }
+	   else return super.equals(obj);
+   }
    
 	
 }

@@ -87,10 +87,10 @@ public class UniversalCell extends AbstractCell
         kcyte= new UniversalCell(this, cellBehavioralModel, getActSimState()); 
        
          
-            
-        Stoppable stoppable = TissueController.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
-        kcyte.setStoppable(stoppable);
-          
+        if(!ModeServer.useMonteCarloSteps()){   
+	        Stoppable stoppable = TissueController.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
+	        kcyte.setStoppable(stoppable);
+        }
          
         
        

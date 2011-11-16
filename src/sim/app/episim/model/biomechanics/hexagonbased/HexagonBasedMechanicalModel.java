@@ -183,9 +183,13 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 			if(spreadingLocation==null || !isLocationOnTestSurface(spreadingLocation))modelConnector.setIsSpreadingRGD(false);
 		}
 		
+		if(modelConnector.getIsRelaxing()){
+			relax();
+		}
 		
-		if((modelConnector.getIsRetractingRGD() || modelConnector.getIsRetractingFN()) && spreadingLocation!=null){		
-			retract();
+		
+		if((modelConnector.getIsRetractingToRGD() || modelConnector.getIsRetractingToFN()) && spreadingLocation!=null){
+			 retract();
 		}
 		
 		if(modelConnector.getIsProliferating()){
@@ -199,14 +203,85 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		modelConnector.setIsAtSurfaceBorder(isLocationAtSurfaceBorder(fieldLocation));
 	}
 	
+	private boolean rectractingBasedOnNeighbourhood(ArrayList<AbstractCell> neighbourToPull, Int2D locationToBeLeft, Int2D locationToBeKept){
+		ArrayList<AbstractCell> neighboursToBeLost = new ArrayList<AbstractCell>();
+		IntBag xPos = new IntBag();
+		IntBag yPos = new IntBag();
+		Bag neighbouringCellsBag = new Bag();
+	   cellField.getNeighborsHexagonalDistance(locationToBeLeft.x, locationToBeLeft.y, 1, false, neighbouringCellsBag, xPos, yPos);
+		HashSet<Long> neighbouringCellIDs = new HashSet<Long>();
+	   for(Object obj : neighbouringCellsBag.objs){
+			if(obj != null && obj instanceof AbstractCell && obj != this.getCell()){	
+				AbstractCell cell = (AbstractCell)obj;				
+				if(!neighbouringCellIDs.contains(cell.getID())){
+					neighbouringCellIDs.add(cell.getID());
+					neighboursToBeLost.add(cell);
+				}
+			}
+		}
+	   neighbouringCellsBag.clear();
+	   xPos.clear();
+	   yPos.clear();
+	   cellField.getNeighborsHexagonalDistance(locationToBeKept.x, locationToBeKept.y, 1, false, neighbouringCellsBag, xPos, yPos);
+	   for(Object obj : neighbouringCellsBag.objs){
+			if(obj != null && obj instanceof AbstractCell && obj != this.getCell()){	
+				AbstractCell cell = (AbstractCell)obj;				
+				if(neighbouringCellIDs.contains(cell.getID())){
+					neighbouringCellIDs.remove(cell.getID());
+					neighboursToBeLost.remove(cell);
+				}
+			}
+		}
+		double numberOfNeighbours = neighboursToBeLost.size();
+	
+		ArrayList<AbstractCell> nonSpreadingNeighbours = new ArrayList<AbstractCell>();
+		ArrayList<AbstractCell> spreadingNeighbours = new ArrayList<AbstractCell>();
+		boolean shouldRetract = false;		
+		for(int i = 0; i < numberOfNeighbours; i++){
+			if(((HexagonBasedMechanicalModel)neighboursToBeLost.get(i).getEpisimBioMechanicalModelObject()).isSpreading()) spreadingNeighbours.add(neighboursToBeLost.get(i));
+			else nonSpreadingNeighbours.add(neighboursToBeLost.get(i));
+		}
+		
+		double factorAllNeighbours = Math.pow(Math.exp(-0.7d), numberOfNeighbours);
+		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-0.7d), (numberOfNeighbours-1));
+		
+		double multiplicationFactor = Math.pow(10, 7);
+		factorAllNeighbours *= multiplicationFactor;
+		factorAllMinusOneNeighbour *= multiplicationFactor;		
+		int upperLimit = (int) multiplicationFactor;
+		
+		int factorAllNeighboursInt = (int)factorAllNeighbours;
+		int factorAllMinusOneNeighbourInt = (int)factorAllMinusOneNeighbour;
+		
+		int randomNumber = random.nextInt(upperLimit);
+		
+		if(!nonSpreadingNeighbours.isEmpty()){
+			int rn = random.nextInt(100);
+			if(rn <=49){
+				if(randomNumber < factorAllNeighboursInt){
+					shouldRetract = true;
+				}
+			}
+			else{
+				if(randomNumber < factorAllMinusOneNeighbourInt){
+					shouldRetract = true;
+					neighbourToPull.add(nonSpreadingNeighbours.get(random.nextInt(nonSpreadingNeighbours.size())));
+				}
+			}
+		}
+		else{
+			if(randomNumber < factorAllNeighboursInt){
+				shouldRetract = true;
+			}			
+		}		
+		return shouldRetract;
+	}
+	
 	private boolean isLocationOnTestSurface(Int2D location){
 		return (getLocationInMikron(location).x > HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron);
 	}
 	
 	private boolean isLocationAtSurfaceBorder(Int2D location){
-		if(location.x == 9){
-			System.out.println();
-		}
 		double xPosInMikron = getLocationInMikron(location).x ;
 		double intervalMin =  HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron - globalParameters.getCellDiameter_mikron();
 		double intervalMax =  HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron + globalParameters.getCellDiameter_mikron();
@@ -249,28 +324,76 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		   cellField.set(this.spreadingLocation.x, this.spreadingLocation.y, getCell());
 	   }
    }
+	private void relax(){
+		modelConnector.setIsRelaxing(false);
+		if(spreadingLocation != null){
+			 cellField.set(this.spreadingLocation.x, this.spreadingLocation.y, null);
+		}
+		spreadingLocation = null;
+		modelConnector.setIsSpreadingFN(false);
+		modelConnector.setIsSpreadingRGD(false);
+	}
 	
 	private void retract(){
+		ArrayList<AbstractCell> neighbourToPull = new ArrayList<AbstractCell>();
+		 
 		
-		if((modelConnector.getIsRetractingRGD()&& isLocationOnTestSurface(spreadingLocation))
-			 ||(modelConnector.getIsRetractingFN() && !isLocationOnTestSurface(spreadingLocation))){
-			cellField.field[fieldLocation.x][fieldLocation.y] = null;
-			cellField.field[spreadingLocation.x][spreadingLocation.y] = getCell();
-			fieldLocation = spreadingLocation;
-			spreadingLocation = null;
-			modelConnector.setIsSpreadingFN(false);
-			modelConnector.setIsSpreadingRGD(false);
+		if((modelConnector.getIsRetractingToRGD()&& isLocationOnTestSurface(fieldLocation) && isLocationOnTestSurface(spreadingLocation))
+			||(modelConnector.getIsRetractingToFN()&& !isLocationOnTestSurface(fieldLocation) && !isLocationOnTestSurface(spreadingLocation))){
+			int randomNumber = random.nextInt(100);
+		//	if(randomNumber <= 49){
+			if(rectractingBasedOnNeighbourhood(neighbourToPull, fieldLocation, spreadingLocation)){
+				cellField.field[fieldLocation.x][fieldLocation.y] = null;
+				cellField.field[spreadingLocation.x][spreadingLocation.y] = getCell();
+				if(!neighbourToPull.isEmpty()) pullNeighbour(neighbourToPull.get(0), fieldLocation);
+				fieldLocation = spreadingLocation;
+		/*	}
+			else{
+				cellField.field[fieldLocation.x][fieldLocation.y] = getCell();
+				cellField.field[spreadingLocation.x][spreadingLocation.y] = null;
+			}	*/
+			
+				spreadingLocation = null;
+				modelConnector.setIsSpreadingFN(false);
+				modelConnector.setIsSpreadingRGD(false);
+			}
+			//else relax();
 		}
-		else if((modelConnector.getIsRetractingRGD()&&isLocationOnTestSurface(fieldLocation))
-		 ||(modelConnector.getIsRetractingFN() && !isLocationOnTestSurface(fieldLocation))){
-			cellField.field[fieldLocation.x][fieldLocation.y] = getCell();
-			cellField.field[spreadingLocation.x][spreadingLocation.y] = null;
-			spreadingLocation = null;
-			modelConnector.setIsSpreadingFN(false);
-			modelConnector.setIsSpreadingRGD(false);
-		}				
-		modelConnector.setIsRetractingFN(false);
-		modelConnector.setIsRetractingRGD(false);
+		else if((modelConnector.getIsRetractingToFN() && isLocationOnTestSurface(fieldLocation) && !isLocationOnTestSurface(spreadingLocation))
+				||(modelConnector.getIsRetractingToRGD() && !isLocationOnTestSurface(fieldLocation) && isLocationOnTestSurface(spreadingLocation))){
+			if(rectractingBasedOnNeighbourhood(neighbourToPull, fieldLocation, spreadingLocation)){
+				cellField.field[fieldLocation.x][fieldLocation.y] = null;
+				cellField.field[spreadingLocation.x][spreadingLocation.y] = getCell();
+				if(!neighbourToPull.isEmpty()) pullNeighbour(neighbourToPull.get(0), fieldLocation);
+				fieldLocation = spreadingLocation;
+				spreadingLocation = null;
+				modelConnector.setIsSpreadingFN(false);
+				modelConnector.setIsSpreadingRGD(false);
+			}
+		//	else relax();
+		}
+		else if((modelConnector.getIsRetractingToFN() && !isLocationOnTestSurface(fieldLocation) && isLocationOnTestSurface(spreadingLocation))
+				||(modelConnector.getIsRetractingToRGD() && isLocationOnTestSurface(fieldLocation) && !isLocationOnTestSurface(spreadingLocation))){
+			if(rectractingBasedOnNeighbourhood(neighbourToPull, spreadingLocation, fieldLocation)){
+				cellField.field[fieldLocation.x][fieldLocation.y] = getCell();
+				cellField.field[spreadingLocation.x][spreadingLocation.y] = null;
+				if(!neighbourToPull.isEmpty()) pullNeighbour(neighbourToPull.get(0), spreadingLocation);
+				spreadingLocation = null;
+				modelConnector.setIsSpreadingFN(false);
+				modelConnector.setIsSpreadingRGD(false);
+			}
+			//else relax();
+		}
+		modelConnector.setIsRetractingToFN(false);
+		modelConnector.setIsRetractingToRGD(false);
+	}
+	
+	private void pullNeighbour(AbstractCell neighbour, Int2D locationToPull){
+		HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) neighbour.getEpisimBioMechanicalModelObject();
+		mechModel.spreadingLocation = locationToPull;
+		cellField.field[locationToPull.x][locationToPull.y] = neighbour;
+		mechModel.modelConnector.setIsSpreadingFN(!isLocationOnTestSurface(locationToPull));
+		mechModel.modelConnector.setIsSpreadingRGD(isLocationOnTestSurface(locationToPull));		
 	}
 	
    
@@ -297,14 +420,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   }
 	   return spreadingLocationIndices;
    }
-	
-	
-	
-	
-	
-	
-	
-	
+   
 	public boolean isSpreading(){ return this.spreadingLocation != null; }
 	
 	public Int2D getSpreadingLocation(){

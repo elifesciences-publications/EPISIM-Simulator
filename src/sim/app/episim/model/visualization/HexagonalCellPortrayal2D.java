@@ -107,7 +107,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      }
 	   		if(shape!=null){
 		   	 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
-		   	 	if(mechModel.getIsAtWoundEdge()){
+		   	 	if(mechModel.getIsAtSurfaceBorder()){
 		   	 		graphics.setPaint(Color.GREEN);
 		   	 	}
 		   	 	else{

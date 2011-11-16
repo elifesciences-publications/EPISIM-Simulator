@@ -4,9 +4,12 @@
   <modelname name="Hexagon Grid Based Biomechanical Model"/>
   <modelconnectorclass name="episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector"/>
   <modelparameters>
-    <parameter name="isRetractingFN" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="isRetractingToRGD" datatype="boolean"
+      default="false" readonly="false"/>
+    <parameter name="isRetractingToFN" datatype="boolean"
+      default="false" readonly="false"/>
     <parameter name="isProliferating" datatype="boolean" default="false" readonly="false"/>
-    <parameter name="isRetractingRGD" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="isRelaxing" datatype="boolean" default="false" readonly="false"/>
     <parameter name="isAtSurfaceBorder" datatype="boolean"
       default="false" readonly="true"/>
     <parameter name="isSpreadingRGD" datatype="boolean" default="false" readonly="false"/>

@@ -216,12 +216,13 @@ public class XmlObject<T> {
 		NodeList nl = objectNode.getChildNodes();
 		for (Method m : getGetters()) {
 			for (int i = 0; i < nl.getLength(); i++) {
+				Node value = nl.item(i).getAttributes()
+				.getNamedItem(VALUE);
 				if (nl.item(i).getNodeName()
-						.equalsIgnoreCase(methodToName(m.getName()))) {
+						.equalsIgnoreCase(methodToName(m.getName())) && value != null) {
 					parameters.put(
 							nl.item(i).getNodeName(),
-							parse(nl.item(i).getAttributes()
-									.getNamedItem(VALUE).getNodeValue(),
+							parse(value.getNodeValue(),
 									m.getReturnType()));
 				}
 			}

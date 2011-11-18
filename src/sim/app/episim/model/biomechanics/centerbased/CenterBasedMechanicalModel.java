@@ -134,6 +134,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimCenterBasedModelConnector");
    } 
    
+   public EpisimModelConnector getEpisimModelConnector(){
+   	return this.modelConnector;
+   }
+   
   
    public Double2D momentum(){
        return lastd;

@@ -73,8 +73,10 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 		if(modelConnector instanceof EpisimVertexBasedModelConnector){
    		this.modelConnector = (EpisimVertexBasedModelConnector) modelConnector;
    	}
-   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimVertexBasedModelConnector");	   
-   
+   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimVertexBasedModelConnector"); 
+	}
+	public EpisimModelConnector getEpisimModelConnector(){
+	  return this.modelConnector;
 	}
 
 	public GenericBag<AbstractCell> getRealNeighbours() {

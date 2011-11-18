@@ -3,6 +3,7 @@ package sim.app.episim.model.biomechanics;
 import java.awt.geom.GeneralPath;
 import java.io.File;
 
+import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.EpisimBiomechanicalModel;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
@@ -32,6 +33,9 @@ public abstract class AbstractMechanicalModel implements EpisimBiomechanicalMode
 	public abstract Double2D getCellLocationInCellField();
 	protected abstract Object getCellField();
 	protected abstract void setReloadedCellField(Object cellField);
+	
+	public abstract EpisimModelConnector getEpisimModelConnector();
+	
 	
 	/**
 	 * This pseudo-static Method is called ONLY ONE TIME after all cell's mechanical model's newSimStep Method has been called

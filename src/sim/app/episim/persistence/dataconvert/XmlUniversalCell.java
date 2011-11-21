@@ -63,8 +63,8 @@ public class XmlUniversalCell extends XmlObject<AbstractCell> {
 				new XmlEpisimBiomechanicalModel(getObject()
 						.getEpisimBioMechanicalModelObject()));
 		addSubXmlObject(EPISIMCELLBEHAVIORALMODEL,
-				new XmlEpisimBiomechanicalModel(getObject()
-						.getEpisimBioMechanicalModelObject()));
+				new XmlEpisimCellBehavioralModel(getObject()
+						.getEpisimCellBehavioralModelObject()));
 	}
 
 	@Override
@@ -73,12 +73,13 @@ public class XmlUniversalCell extends XmlObject<AbstractCell> {
 		NodeList nl = getObjectNode().getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
-			if(node.getNodeName().equalsIgnoreCase(EPISIMBIOMECHANICALMODEL))
-				addSubXmlObject(EPISIMBIOMECHANICALMODEL, new XmlEpisimBiomechanicalModel(node));
-			if(node.getNodeName().equalsIgnoreCase(EPISIMCELLBEHAVIORALMODEL))
-				addSubXmlObject(EPISIMCELLBEHAVIORALMODEL, new XmlEpisimCellBehavioralModel(node));
+			if (node.getNodeName().equalsIgnoreCase(EPISIMBIOMECHANICALMODEL))
+				addSubXmlObject(EPISIMBIOMECHANICALMODEL,
+						new XmlEpisimBiomechanicalModel(node));
+			if (node.getNodeName().equalsIgnoreCase(EPISIMCELLBEHAVIORALMODEL))
+				addSubXmlObject(EPISIMCELLBEHAVIORALMODEL,
+						new XmlEpisimCellBehavioralModel(node));
 		}
-		// addSubXmlObject(EPISIMBIOMECHANICALMODEL, subXmlObject)
 	}
 
 	public XmlEpisimBiomechanicalModel getEpisimBiomechanicalModel() {

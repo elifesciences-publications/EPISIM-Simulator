@@ -27,18 +27,22 @@ public class XmlPrimitive extends XmlObject<Object> {
 
 	@Override
 	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
-		if(value != null){
-		Element node = xmlFile.createElement(nodeName);
-		node.setAttribute(VALUE, value.toString());
-		return node;}
-		else return null;
-		
+		if (value != null) {
+			Element node = xmlFile.createElement(nodeName);
+			node.setAttribute(VALUE, value.toString());
+			return node;
+		} else
+			return null;
+
 	}
-	
+
 	@Override
 	public void importParametersFromXml(Class<?> clazz) {
-		if(getObjectNode() != null){
-		 setObject(parse(getObjectNode().getAttributes().getNamedItem(VALUE).getNodeValue(),clazz));
+		if (getObjectNode() != null) {
+			Node valueNode = getObjectNode().getAttributes()
+					.getNamedItem(VALUE);
+			if (valueNode != null)
+				setObject(parse(valueNode.getNodeValue(), clazz));
 		}
 	}
 

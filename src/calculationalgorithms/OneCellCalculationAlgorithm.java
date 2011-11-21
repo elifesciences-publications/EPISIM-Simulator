@@ -28,7 +28,8 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 	
 	private Map<String, SingleCellObserver> observers;
 	private Map<Long, String> handlerIdStringIdMap;
-		
+	private int counter = 0;
+	private long lastTimeStep = 0;	
 	public OneCellCalculationAlgorithm(){		
 		this.trackedCells = new HashMap<String, AbstractCell>();
 		observers = new HashMap<String, SingleCellObserver>();
@@ -37,27 +38,32 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 	
 	public void restartSimulation(){
 		this.trackedCells.clear();
+		counter=0;
+		lastTimeStep = 0;
 	}
 	
 	public void reset(){
 		restartSimulation();
 		observers.clear();
 		handlerIdStringIdMap.clear();
+		counter=0;
+		lastTimeStep = 0;
 	}
 		
 	private void checkTrackedCells(CalculationHandler handler) {
 
 		AbstractCell actTrackedCell = null;
 		AbstractCell newTrackedCell = null;		
-
-			actTrackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
+      int searchInterval = (Integer) handler.getParameters().get(CELLSEARCHINGSIMSTEPINTERVAL);
+      if(searchInterval < 1) searchInterval = 1;
+		actTrackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
 			if(actTrackedCell == null || actTrackedCell.getEpisimCellBehavioralModelObject().getIsAlive() == false){			
 				
 				if(actTrackedCell != null){
 					notifySingleCellObserver(handlerIdStringIdMap.get(handler.getID()));
 					actTrackedCell.setTracked(false);
 				}
-				if(counter %100 == 0)
+				if(counter %searchInterval == 0)
 				newTrackedCell = getNewCellForTracking(handler);
 				
 				if(newTrackedCell != null){					
@@ -103,8 +109,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 		return null;
 	}
 	
-	private int counter = 0;
-	private long lastTimeStep = 0;
+	
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
 		if(results.getTimeStep() != lastTimeStep){
 			lastTimeStep =results.getTimeStep();
@@ -146,7 +151,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new HashMap<String, Class<?>>();
-				
+				params.put(CalculationAlgorithm.CELLSEARCHINGSIMSTEPINTERVAL, Integer.TYPE);
 	         return params;
          }	   	
 	   };

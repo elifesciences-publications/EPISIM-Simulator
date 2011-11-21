@@ -11,6 +11,7 @@ import sim.app.episim.gui.EpisimTextOut;
 import episimexceptions.CellNotValidException;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
@@ -86,7 +87,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new HashMap<String, Class<?>>();
-				
+				params.put(CalculationAlgorithm.CELLSEARCHINGSIMSTEPINTERVAL, Integer.TYPE);
 	         return params;
          }	   	
 	   };

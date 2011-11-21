@@ -607,6 +607,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	}
 	
 	@CannotBeMonitored
+	@NoExport
    public CellEllipse getCellEllipseObject(){
    	return this.cellEllipseObject;
    }

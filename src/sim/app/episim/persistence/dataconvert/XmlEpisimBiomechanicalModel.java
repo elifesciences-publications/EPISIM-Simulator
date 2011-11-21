@@ -24,17 +24,7 @@ public class XmlEpisimBiomechanicalModel extends
 	}
 
 	boolean set(String parameterName, Object value) {
-		// TODO Auto-generated method stub
 		return false;
-	}
-
-	public void importParametersFromXml() throws ClassNotFoundException,
-			DOMException {
-		Class clazz;
-		clazz = Class.forName(node.getAttributes().getNamedItem("class")
-				.getNodeValue());
-		super.importParametersFromXml(clazz);
-
 	}
 
 }

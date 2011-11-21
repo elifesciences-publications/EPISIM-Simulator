@@ -69,7 +69,8 @@ public class SimulationStateData {
 				.getCellBehavioralModelController().getActLoadedModelFile();
 		for (AbstractCell cell : TissueController.getInstance()
 				.getActEpidermalTissue().getAllCells()) {
-			cells.add(new XmlUniversalCell(cell));
+			if (cell != null)
+				cells.add(new XmlUniversalCell(cell));
 		}
 		this.episimCellBehavioralModelGlobalParameters = new XmlObject<EpisimCellBehavioralModelGlobalParameters>(
 				ModelController.getInstance()

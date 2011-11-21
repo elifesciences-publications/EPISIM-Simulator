@@ -112,29 +112,20 @@ public class SimulationStateFile extends XmlFile {
 		getRoot().appendChild(modelFileElement);
 
 		getRoot().appendChild(cellListToXML(simStateData.getCells(), CELLS));
-		//
-		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getCellContinuous(),CELLCONTINUOUS));
-		//
-		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getDeltaInfo(),DELTAINFO));
-		//
+
 		getRoot().appendChild(
 				simStateData.getEpisimBioMechanicalModelGlobalParameters()
 						.toXMLNode(EPISIMBIOMECHANICALMODELGLOBALPARAMETERS,
 								this));
-		//
 		getRoot().appendChild(
 				simStateData.getEpisimCellBehavioralModelGlobalParameters()
 						.toXMLNode(EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS,
 								this));
-		//
+
 		getRoot().appendChild(
 				simStateData.getMiscalleneousGlobalParameters().toXMLNode(
 						MISCALLENEOUSGLOBALPARAMETERS, this));
-		//
-		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getTimeSteps(),TIMESTEPS));
-		//
-		// getRoot().appendChild(converter.objectToXML(SimulationStateData.getInstance().getWoundRegionCoordinates(),WOUNDREGIONCOORDINATES));
-		save(path);
+	save(path);
 	}
 
 	public Node cellListToXML(ArrayList<XmlUniversalCell> cells, String nodeName) {

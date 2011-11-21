@@ -94,20 +94,18 @@ public class ModelInitialization {
 					.getInstance()
 					.getEpisimBioMechanicalModelGlobalParameters();
 
-			simulationStateData.getEpisimBioMechanicalModelGlobalParameters()
-					.importParametersFromXml(globalMech.getClass());
+//			simulationStateData.getEpisimBioMechanicalModelGlobalParameters()
+//					.importParametersFromXml();
 			simulationStateData.getEpisimBioMechanicalModelGlobalParameters()
 					.copyValuesToTarget(globalMech);
 
-			simulationStateData.getEpisimCellBehavioralModelGlobalParameters()
-					.importParametersFromXml(globalBehave.getClass());
+//			simulationStateData.getEpisimCellBehavioralModelGlobalParameters()
+//					.importParametersFromXml();
 			simulationStateData.getEpisimCellBehavioralModelGlobalParameters()
 					.copyValuesToTarget(globalBehave);
 
-			simulationStateData
-					.getMiscalleneousGlobalParameters()
-					.importParametersFromXml(
-							MiscalleneousGlobalParameters.instance().getClass());
+//			simulationStateData.getMiscalleneousGlobalParameters()
+//					.importParametersFromXml();
 			simulationStateData.getMiscalleneousGlobalParameters()
 					.copyValuesToTarget(
 							MiscalleneousGlobalParameters.instance());

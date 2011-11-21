@@ -1,5 +1,6 @@
 package sim.app.episim.persistence.dataconvert;
 
+import java.io.ObjectInputStream.GetField;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,21 +20,22 @@ import episiminterfaces.NoExport;
 
 public class XmlObject<T> {
 	private HashMap<String, Object> parameters = new HashMap<String, Object>();
-	private Class<? extends Object> clazz;
+	private HashMap<String, XmlObject<?>> subXmlObjects = new HashMap<String, XmlObject<?>>();
 	private Node objectNode;
+	private T object = null;
 	private static final String CLASS = "class";
 	private static final String VALUE = "value";
 
-	public XmlObject(Object obj) {
-		this.clazz = obj.getClass();
-		exportParametersFromObject(obj);
+	public XmlObject(T obj) {
+		this.object = obj;
+		exportSubXmlObjectsFromParameters();
 	}
 
 	public XmlObject(Node objectNode) {
 		this.objectNode = objectNode;
 	}
 
-	protected Object parse(String objectString, Class<?> objClass) {
+	protected static Object parse(String objectString, Class<?> objClass) {
 		Object o = null;
 		objectString = objectString.trim();
 		if (objClass.equals(String.class)) {
@@ -50,8 +52,6 @@ public class XmlObject<T> {
 			o = Short.parseShort(objectString);
 		} else if (Long.TYPE.isAssignableFrom(objClass)) {
 			o = Long.parseLong(objectString);
-		} else if (Double2D.class.isAssignableFrom(objClass)) {
-			o = parseDouble2D(objectString);
 		} else if (EpisimDifferentiationLevel.class.isAssignableFrom(objClass)) {
 			o = parseEpisimDifferentiationLevel(objectString);
 		} else if (EpisimCellType.class.isAssignableFrom(objClass)) {
@@ -80,20 +80,7 @@ public class XmlObject<T> {
 		return null;
 	}
 
-	private static Double2D parseDouble2D(String objString) {
-		if (!objString.startsWith("Double2D"))
-			return null;
-		String sub = objString.substring(9, objString.length() - 1);
-		String[] split = sub.split(",");
-		if (split.length != 2)
-			return null;
-		Double2D retDouble2D = new Double2D(Double.parseDouble(split[0]),
-				Double.parseDouble(split[1]));
-		return retDouble2D;
-
-	}
-
-	protected ArrayList<Method> getGetters() {
+	protected static ArrayList<Method> getGetters(Class<?> clazz) {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
 			if ((m.getName().startsWith("get") || m.getName().startsWith("is"))
@@ -112,7 +99,7 @@ public class XmlObject<T> {
 		return methods;
 	}
 
-	protected ArrayList<Method> getSetters() {
+	protected static ArrayList<Method> getSetters(Class<?> clazz) {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
 			if (m.getName().startsWith("set")
@@ -130,7 +117,7 @@ public class XmlObject<T> {
 		return methods;
 	}
 
-	protected Object invokeGetMethod(Object object, Method actMethod) {
+	protected static Object invokeGetMethod(Object object, Method actMethod) {
 		Object obj = null;
 		if (actMethod.getParameterTypes().length == 0) {
 			try {
@@ -154,12 +141,34 @@ public class XmlObject<T> {
 			return false;
 	}
 
-	public Object get(String parameterName) {
-		return parameters.get(parameterName);
+	protected Object get(String parameterName) {
+		Object ret = parameters.get(parameterName);
+		if (ret != null)
+			return ret;
+		XmlObject xmlObj = subXmlObjects.get(parameterName);
+		if (xmlObj != null)
+			ret = xmlObj.copyValuesToTarget(null);
+		if (ret != null)
+			return ret;
+		if (objectNode == null)
+			return null;
+		NodeList nl = objectNode.getChildNodes();
+		for (int i = 0; i < nl.getLength(); i++) {
+			Node node = nl.item(i);
+			if (node.getNodeName().equalsIgnoreCase(parameterName)) {
+				Node attNode = node.getAttributes().getNamedItem(VALUE);
+				if (attNode != null)
+					return attNode.getNodeValue();
+			}
+
+		}
+		return null;
 	}
 
-	boolean set(String parameterName, Object value, Object target) {
-		for (Method m : getSetters()) {
+	protected boolean set(String parameterName, Object value, Object target) {
+		if (value == null)
+			return false;
+		for (Method m : getSetters(target.getClass())) {
 			String mName = m.getName().substring(3);
 			if (mName.equalsIgnoreCase(parameterName)) {
 				return invokeSetMethod(target, m, value);
@@ -168,7 +177,7 @@ public class XmlObject<T> {
 		return false;
 	}
 
-	public static String methodToName(String methodName) {
+	protected static String methodToName(String methodName) {
 		String parameterName = methodName;
 		if (methodName.startsWith("get") || methodName.startsWith("set"))
 			parameterName = parameterName.substring(3);
@@ -181,14 +190,12 @@ public class XmlObject<T> {
 
 	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
 		Element node = xmlFile.createElement(nodeName);
-		node.setAttribute(CLASS, clazz.getCanonicalName());
-		for (String s : getParameters().keySet()) {
-			Element parameterNode = xmlFile.createElement(s);
-			if (getParameters().get(s) != null)
-				parameterNode.setAttribute(VALUE, getParameters().get(s)
-						.toString());
-//			parameterNode.setTextContent(getParameters().get(s).toString());
-			node.appendChild(parameterNode);
+		node.setAttribute(CLASS, object.getClass().getCanonicalName());
+		for (String s : getSubXmlObjects().keySet()) {
+			Node subNode = getSubXmlObjects().get(s).toXMLNode(s, xmlFile);
+			if (subNode != null)
+				node.appendChild(getSubXmlObjects().get(s)
+						.toXMLNode(s, xmlFile));
 		}
 		return node;
 	}
@@ -197,41 +204,105 @@ public class XmlObject<T> {
 		return parameters;
 	}
 
-	public void setParameters(HashMap<String, Object> parameters) {
+	public HashMap<String, XmlObject<?>> getSubXmlObjects() {
+		return subXmlObjects;
+	}
+
+	private void setParameters(HashMap<String, Object> parameters) {
 		this.parameters = parameters;
 	}
 
-	public void addParameter(String parameterName, Object parameterValue) {
+	private void addParameter(String parameterName, Object parameterValue) {
 		this.parameters.put(parameterName, parameterValue);
 	}
 
-	public void exportParametersFromObject(Object obj) {
-		for (Method m : getGetters()) {
-			addParameter(methodToName(m.getName()), invokeGetMethod(obj, m));
+	protected void addSubXmlObject(String parameterName,
+			XmlObject<?> subXmlObject) {
+		this.subXmlObjects.put(parameterName, subXmlObject);
+	}
+
+	protected void exportSubXmlObjectsFromParameters() {
+		if (object != null) {
+			for (Method m : getGetters(object.getClass())) {
+				addParameter(methodToName(m.getName()),
+						invokeGetMethod(object, m));
+			}
+			transformParametersToSubXmlObjects();
 		}
 	}
 
-	public void importParametersFromXml(Class<? extends T> clazz) {
-		this.clazz = clazz;
+	private void transformParametersToSubXmlObjects() {
+		for (String parameterName : parameters.keySet()) {
+			Object subObj = parameters.get(parameterName);
+			if (subObj instanceof Double2D) {
+				subXmlObjects.put(parameterName, new XmlDouble2D(
+						(Double2D) subObj));
+			} else {
+				subXmlObjects.put(parameterName, new XmlPrimitive(subObj));
+			}
+		}
+	}
+
+	// public void importPrametersFromXml() {
+	// NodeList nl = objectNode.getChildNodes();
+	// for (Method m : getGetters()) {
+	// for (int i = 0; i < nl.getLength(); i++) {
+	// Node value = nl.item(i).getAttributes().getNamedItem(VALUE);
+	// if (nl.item(i).getNodeName()
+	// .equalsIgnoreCase(methodToName(m.getName()))
+	// && value != null) {
+	// parameters.put(nl.item(i).getNodeName(),
+	// parse(value.getNodeValue(), m.getReturnType()));
+	// }
+	// }
+	// }
+	// }
+
+	protected void importParametersFromXml(Class<?> clazz) {
 		NodeList nl = objectNode.getChildNodes();
-		for (Method m : getGetters()) {
+		for (Method m : getGetters(clazz)) {
 			for (int i = 0; i < nl.getLength(); i++) {
-				Node value = nl.item(i).getAttributes()
-				.getNamedItem(VALUE);
-				if (nl.item(i).getNodeName()
-						.equalsIgnoreCase(methodToName(m.getName())) && value != null) {
-					parameters.put(
-							nl.item(i).getNodeName(),
-							parse(value.getNodeValue(),
-									m.getReturnType()));
+				String methName = methodToName(m.getName());
+				Node node = nl.item(i);
+				if (node.getNodeName().equalsIgnoreCase(methName)) {
+					if (m.getReturnType().equals(Double2D.class)) {
+						XmlDouble2D xmlObject = new XmlDouble2D(node);
+						xmlObject.importParametersFromXml(m.getReturnType());
+						subXmlObjects.put(methName, xmlObject);
+					} else {
+						XmlPrimitive xmlObject = new XmlPrimitive(node);
+						xmlObject.importParametersFromXml(m.getReturnType());
+						subXmlObjects.put(methName, xmlObject);
+					}
 				}
 			}
 		}
 	}
 
-	public void copyValuesToTarget(Object target) {
+	public T copyValuesToTarget(T target) {
+		if (target == null)
+			return null;
+		this.object = target;
+		importParametersFromXml(target.getClass());
+		for (String parameterName : subXmlObjects.keySet()) {
+			XmlObject<?> xmlObj = subXmlObjects.get(parameterName);
+			set(parameterName, xmlObj.copyValuesToTarget(null), target);
+		}
 		for (String parameterName : parameters.keySet()) {
 			set(parameterName, parameters.get(parameterName), target);
 		}
+		return target;
+	}
+
+	protected T getObject() {
+		return object;
+	}
+
+	public void setObject(T object) {
+		this.object = object;
+	}
+
+	protected Node getObjectNode() {
+		return objectNode;
 	}
 }

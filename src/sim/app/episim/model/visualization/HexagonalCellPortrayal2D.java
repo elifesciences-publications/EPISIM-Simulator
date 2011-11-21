@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector;
 import episiminterfaces.EpisimCellBehavioralModel;
 
 
@@ -41,7 +42,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 private static Color standardCellColor = new Color(255,210,210);
 	 private static Color standardMembraneColor = new Color(150, 0, 0);
 	
-	 private static final double DELTA = 2;
+	 private static final double DELTA = 1;
 	 private HexagonalCellGridPortrayal2D cellGridPortrayal;
 	 
 	 private HashMap<Long, DrawInfo2D> drawInfoRegistry;
@@ -77,7 +78,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    		 if(cell.getActSimState() != null &&  cell.getActSimState().schedule != null) actSimStepNo = cell.getActSimState().schedule.getSteps();  		  		 
    		 
    		 filled = true;
-   		 double width = (info.draw.width+DELTA)*scale;
+   		 double width = (info.draw.width+DELTA+2)*scale;
 	       double height = (info.draw.height+DELTA)*scale;	      
 	       
    		 HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
@@ -107,7 +108,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      }
 	   		if(shape!=null){
 		   	 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
-		   	 	if(mechModel.getIsAtSurfaceBorder()){
+		   	 	if(((EpisimHexagonBasedModelConnector)mechModel.getEpisimModelConnector()).getIsAtSurfaceBorder()){
 		   	 		graphics.setPaint(Color.GREEN);
 		   	 	}
 		   	 	else{

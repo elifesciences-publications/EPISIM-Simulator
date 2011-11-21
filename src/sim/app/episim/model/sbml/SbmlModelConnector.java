@@ -72,6 +72,8 @@ public class SbmlModelConnector implements EpisimSbmlModelConnector{
 		else return 0;
    }
 	
+	public HashMap<String, SBMLModelState> getSBMLModelStateMap(){ return this.sbmlModelStates;}
+	
 	public void initializeSBMLModelsWithCellAge(int ageInSimSteps){
 		for(String actSbmlFile : this.sbmlModelConfigurationMap.keySet()){
 			COPASIConnector.getInstance().simulateSBMLModel(this.sbmlModelConfigurationMap.get(actSbmlFile), this.sbmlModelStates.get(actSbmlFile), ageInSimSteps);

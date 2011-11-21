@@ -289,7 +289,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
            green=kcyte.getEpisimCellBehavioralModelObject().getColorG();
            blue=kcyte.getEpisimCellBehavioralModelObject().getColorB();
         }
-
+        
       // Limit the colors to 255
       green=(green>255)?255:((green<0)?0:green);
       red=(red>255)?255:((red<0)?0:red);

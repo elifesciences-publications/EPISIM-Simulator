@@ -14,6 +14,7 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	public static final double inner_hexagonal_radius = ((celldiameter_mikron/2d)/2d)*Math.sqrt(3d);
 	public static final double outer_hexagonal_radius = (celldiameter_mikron/2d);
 	
+	 
 	
 	private double height_mikron = number_of_rows*celldiameter_mikron;
 	private double width_mikron = celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
@@ -31,6 +32,7 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	private BorderlineConfig actualWoundEdgeBorderlineConfig;
 	
 	private boolean useContinuousSpace = false;
+	private boolean useCellCellInteractionEnergy = true;
 
 	public double getNeighborhood_mikron() {
 	   return this.neighborhood_mikron;
@@ -107,6 +109,14 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	
 	public void setUseContinuousSpace(boolean useContinuousSpace){
 		this.useContinuousSpace=useContinuousSpace;
+	}
+	
+	public boolean getUseCellCellInteractionEnergy(){
+		return this.useCellCellInteractionEnergy;
+	}
+	
+	public void setUseCellCellInteractionEnergy(boolean useCellCellInteractionEnergy){
+		this.useCellCellInteractionEnergy = useCellCellInteractionEnergy;
 	}
 	
 	@NoUserModification

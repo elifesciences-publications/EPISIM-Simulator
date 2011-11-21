@@ -57,7 +57,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 					notifySingleCellObserver(handlerIdStringIdMap.get(handler.getID()));
 					actTrackedCell.setTracked(false);
 				}
-				
+				if(counter %100 == 0)
 				newTrackedCell = getNewCellForTracking(handler);
 				
 				if(newTrackedCell != null){					
@@ -103,8 +103,13 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 		return null;
 	}
 	
+	private int counter = 0;
+	private long lastTimeStep = 0;
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
-
+		if(results.getTimeStep() != lastTimeStep){
+			lastTimeStep =results.getTimeStep();
+			counter++;
+		}
 		checkTrackedCells(handler);
 		AbstractCell trackedCell=null;
 			

@@ -28,6 +28,7 @@ public class GlobalClassLoader extends URLClassLoader{
 	public Set<ClassLoaderChangeListener> changeListener;
 	
 	private int orderCounter = 1;
+	private HashSet<String> urlsToBeDeleted = new HashSet<String>();
 	
 	private GlobalClassLoader() {
 
@@ -48,6 +49,7 @@ public class GlobalClassLoader extends URLClassLoader{
 		Set<String> registryCopy = this.urlRegistry;
 		URL[] urls = this.getURLs();
 		
+		HashSet<String> deleteUrlSet = this.urlsToBeDeleted;
 		
 		String modeCopy = this.mode;
 		
@@ -56,7 +58,11 @@ public class GlobalClassLoader extends URLClassLoader{
 		for(ClassLoaderChangeListener listener : setCopy){
 			instance.addClassLoaderChangeListener(listener);
 		}
-		for(URL url: urls) instance.addURL(url);
+		for(URL url: urls){
+			if(!deleteUrlSet.contains(url.getPath())){
+				instance.addURL(url);
+			}
+		}
 		
 		instance.mode =modeCopy;
 		
@@ -64,7 +70,9 @@ public class GlobalClassLoader extends URLClassLoader{
 		
 		for(String str : registryCopy){
 		//	System.out.println(str);
-			instance.urlRegistry.add(str);	
+			if(!deleteUrlSet.contains(str)){
+				instance.urlRegistry.add(str);
+			}
 		}
 		
 		
@@ -76,8 +84,11 @@ public class GlobalClassLoader extends URLClassLoader{
 	}
 	
 	public void registerURL(URL url){
-		if(urlRegistry.contains(url.getPath())){
-			
+		if(urlRegistry.contains(url.getPath()) || containsFormerDataExportOrChartSet(url)){
+			if(!urlRegistry.contains(url.getPath())){
+				urlRegistry.add(url.getPath());
+				super.addURL(url);
+			}
 			if(url.getPath().endsWith(Names.DATAEXPORT_FILETYPE)){
 				
 				if(ChartController.getInstance().isAlreadyChartSetLoaded() && mode.equals(NOMODE)){
@@ -110,6 +121,30 @@ public class GlobalClassLoader extends URLClassLoader{
 			urlRegistry.add(url.getPath());
 			super.addURL(url);
 		}
+	}
+	private boolean containsFormerDataExportOrChartSet(URL url){
+		URL[] registeredUrls = this.getURLs();
+		this.urlsToBeDeleted = new HashSet<String>();
+		boolean result = false;
+		if(registeredUrls != null){
+			if(url.getPath().endsWith(Names.DATAEXPORT_FILETYPE)){
+				for(URL actUrl : registeredUrls){
+					if(actUrl.getPath().endsWith(Names.DATAEXPORT_FILETYPE)){
+						this.urlsToBeDeleted.add(actUrl.getPath());
+						result =  true;
+					}
+				}
+			}
+			else if(url.getPath().endsWith(Names.CHARTSET_FILETYPE)){
+				for(URL actUrl : registeredUrls){
+					if(actUrl.getPath().endsWith(Names.CHARTSET_FILETYPE)){
+						this.urlsToBeDeleted.add(actUrl.getPath());
+						result = true;
+					}
+				}
+			}
+		}
+		return result;
 	}
 	
 	

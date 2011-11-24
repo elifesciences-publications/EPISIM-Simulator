@@ -28,26 +28,15 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 		
 		Class<? extends AbstractCell> requiredClass = handler.getRequiredCellType();
 		try{
-			if(requiredClass == null){
+			if(requiredClass == null){				
 				for(AbstractCell actCell : this.allCells){
-					if(actCell.isTracked() && handler.conditionFulfilled(actCell)) return actCell;
-				}
-				
-				for(AbstractCell actCell : this.allCells){
-					if(actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true 
-							//&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL 
+					if(actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true							 
 							&& handler.conditionFulfilled(actCell)) return actCell;
 				}
 			}
 			else{
-					
-				for(AbstractCell actCell : this.allCells){
-					if(actCell.isTracked() && requiredClass.isAssignableFrom(actCell.getClass()) && handler.conditionFulfilled(actCell)) return actCell;
-				}
-				
-				for(AbstractCell actCell : this.allCells){
-					if(actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true && requiredClass.isAssignableFrom(actCell.getClass())
-							//&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL 
+					for(AbstractCell actCell : this.allCells){
+					if(actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true && requiredClass.isAssignableFrom(actCell.getClass()) 
 							&& handler.conditionFulfilled(actCell)) return actCell;
 				}
 			}
@@ -61,7 +50,25 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 	
 	
 	
-	
+	protected AbstractCell getAlreadyTrackedCell(CalculationHandler handler){
+		Class<? extends AbstractCell> requiredClass = handler.getRequiredCellType();
+		try{
+			if(requiredClass == null){
+				for(AbstractCell cell: this.trackedCells.values()){
+					if(handler.conditionFulfilled(cell)) return cell;
+				}
+			}
+			else{
+				for(AbstractCell cell: this.trackedCells.values()){
+					if(requiredClass.isAssignableFrom(cell.getClass()) && handler.conditionFulfilled(cell)) return cell;
+				}
+			}
+		}
+		catch(CellNotValidException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+		return null;
+	}
 
 	
 	

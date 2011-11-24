@@ -13,5 +13,5 @@ public interface EpisimSbmlModelConnector {
 	double getFluxValue(String originalName, String sbmlFile);
 	
 	void simulateSbmlModels();
-	
+	void switchSbmlModelSimulationOnOrOff(String sbmlModelFile, boolean isSimulationOn);	
 }

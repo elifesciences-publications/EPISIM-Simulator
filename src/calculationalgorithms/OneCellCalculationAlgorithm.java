@@ -24,7 +24,7 @@ import episiminterfaces.calc.marker.SingleCellObserverAlgorithm;
 public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements SingleCellObserverAlgorithm, CalculationAlgorithm{
 		
 	private final int MINCELLAGE = 2;
-	private Map<String, AbstractCell> trackedCells;
+	protected Map<String, AbstractCell> trackedCells;
 	
 	private Map<String, SingleCellObserver> observers;
 	private Map<Long, String> handlerIdStringIdMap;
@@ -53,40 +53,50 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 	private void checkTrackedCells(CalculationHandler handler) {
 
 		AbstractCell actTrackedCell = null;
-		AbstractCell newTrackedCell = null;		
-      int searchInterval = (Integer) handler.getParameters().get(CELLSEARCHINGSIMSTEPINTERVAL);
+		AbstractCell newTrackedCell = null;
+		int searchInterval = (Integer) handler.getParameters().get(CELLSEARCHINGSIMSTEPINTERVAL);
       if(searchInterval < 1) searchInterval = 1;
 		actTrackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
-			if(actTrackedCell == null || actTrackedCell.getEpisimCellBehavioralModelObject().getIsAlive() == false){			
-				
-				if(actTrackedCell != null){
-					notifySingleCellObserver(handlerIdStringIdMap.get(handler.getID()));
-					actTrackedCell.setTracked(false);
-				}
-				if(counter %searchInterval == 0)
-				newTrackedCell = getNewCellForTracking(handler);
-				
-				if(newTrackedCell != null){					
-					newTrackedCell.setTracked(true);
-				}
-				
-				if(newTrackedCell == null) this.trackedCells.remove(handlerIdStringIdMap.get(handler.getID()));				
-				else this.trackedCells.put(handlerIdStringIdMap.get(handler.getID()), newTrackedCell);
-				
-			}		
+		if(actTrackedCell == null || actTrackedCell.getEpisimCellBehavioralModelObject().getIsAlive() == false){			
+			
+			if(actTrackedCell != null){
+				this.trackedCells.remove(handlerIdStringIdMap.get(handler.getID()));
+				notifySingleCellObserver(handlerIdStringIdMap.get(handler.getID()));
+				actTrackedCell.setTracked(false);				
+			}
+			
+			newTrackedCell = getAlreadyTrackedCell(handler);
+			if(newTrackedCell != null && !newTrackedCell.getEpisimCellBehavioralModelObject().getIsAlive()) newTrackedCell = null;
+			
+			if(newTrackedCell == null && counter %searchInterval == 0) newTrackedCell = getNewCellForTracking(handler);
+			
+			if(newTrackedCell != null && trackedCells.get(handlerIdStringIdMap.get(handler.getID()))==null){					
+				newTrackedCell.setTracked(true);
+				this.trackedCells.put(handlerIdStringIdMap.get(handler.getID()), newTrackedCell);
+			}			
+		}		
 	}
-		
+	
+	protected AbstractCell getAlreadyTrackedCell(CalculationHandler handler){
+		Class<? extends AbstractCell> requiredClass = handler.getRequiredCellType();
+		if(requiredClass == null){
+			for(AbstractCell cell: this.trackedCells.values()){
+				return cell;
+			}
+		}
+		else{
+			for(AbstractCell cell: this.trackedCells.values()){
+				if(requiredClass.isAssignableFrom(cell.getClass())) return cell;
+			}
+		}
+		return null;
+	}
 	
 	protected AbstractCell getNewCellForTracking(CalculationHandler handler){
 		Class<? extends AbstractCell> requiredClass = handler.getRequiredCellType();
 		if(requiredClass == null){
 			for(AbstractCell actCell : this.allCells){
-				if(actCell.isTracked()) return actCell;
-			}			
-			for(AbstractCell actCell : this.allCells){
-				if(//actCell.getEpisimCellBehavioralModelObject().getAge() < MINCELLAGE &&
-					actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true
-					)//&& actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL) 
+				if(actCell.getEpisimCellBehavioralModelObject().getIsAlive() == true) 
 					return actCell;
 			}
 		}
@@ -94,16 +104,12 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 			AbstractCell result = null;
 			int counter = 0;
 			
-			for(AbstractCell actCell : this.allCells){
-				if(actCell.isTracked() && requiredClass.isAssignableFrom(actCell.getClass())) return actCell;
-			}	
-			
 			do{
 				counter++;
 				System.out.println("Suche zufällige Zelle für Tracking passend zur Klasse: "+  requiredClass.getCanonicalName());
 				result = this.allCells.getRandomItemOfClass(requiredClass);
 			}
-			while(result != null && result.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL && counter < this.allCells.size());
+			while(result != null && counter < this.allCells.size());
 			return result;
 		}
 		return null;

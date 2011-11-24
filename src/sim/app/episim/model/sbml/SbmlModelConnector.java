@@ -15,11 +15,12 @@ public class SbmlModelConnector implements EpisimSbmlModelConnector{
 	
 	private HashMap<String, EpisimSbmlModelConfiguration> sbmlModelConfigurationMap; 
 	private HashMap<String, SBMLModelState> sbmlModelStates;
-
+	private HashMap<String, Boolean> sbmlModelSimulationEnabled;
 		
 	public SbmlModelConnector(){		
 		sbmlModelConfigurationMap = new HashMap<String, EpisimSbmlModelConfiguration>();
-		sbmlModelStates = new HashMap<String, SBMLModelState>();		
+		sbmlModelStates = new HashMap<String, SBMLModelState>();
+		sbmlModelSimulationEnabled = new HashMap<String, Boolean>();
 	}
 
 	public void setEpisimModelConfigurations(EpisimSbmlModelConfiguration[] episimModelConfigurations){
@@ -28,7 +29,7 @@ public class SbmlModelConnector implements EpisimSbmlModelConnector{
 				for(EpisimSbmlModelConfiguration actConfig : episimModelConfigurations){					
 					sbmlModelConfigurationMap.put(actConfig.getModelFilename(), actConfig);
 					sbmlModelStates.put(actConfig.getModelFilename(), new SBMLModelState());
-			
+					sbmlModelSimulationEnabled.put(actConfig.getModelFilename(), true);
 					COPASIConnector.getInstance().registerNewCopasiDataModelWithSbmlFile(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile(), actConfig.getModelFilename());						
 				}
 			}
@@ -83,8 +84,12 @@ public class SbmlModelConnector implements EpisimSbmlModelConnector{
 
 	public void simulateSbmlModels(){		
 		for(String actSbmlFile : this.sbmlModelConfigurationMap.keySet()){
+			if(sbmlModelSimulationEnabled.get(actSbmlFile)){
 				COPASIConnector.getInstance().simulateSBMLModel(this.sbmlModelConfigurationMap.get(actSbmlFile), this.sbmlModelStates.get(actSbmlFile));
-			
+			}			
 		}
+   }
+   public void switchSbmlModelSimulationOnOrOff(String sbmlModelFile, boolean isSimulationOn){
+   	sbmlModelSimulationEnabled.put(sbmlModelFile, isSimulationOn);
    }
 }

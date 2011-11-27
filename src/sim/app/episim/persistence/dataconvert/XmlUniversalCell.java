@@ -55,6 +55,13 @@ public class XmlUniversalCell extends XmlObject<AbstractCell> {
 		else
 			return (Long) id;
 	}
+	
+	@Override
+	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
+		Node xmlNode = super.toXMLNode(nodeName, xmlFile);
+		XmlFile.sortChildNodes(xmlNode, new String[]{EPISIMCELLBEHAVIORALMODEL, EPISIMBIOMECHANICALMODEL});
+		return xmlNode;
+	}
 
 	@Override
 	protected void exportSubXmlObjectsFromParameters() {

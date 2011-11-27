@@ -40,7 +40,10 @@ public class XmlSbmlModelConnector extends XmlObject<SbmlModelConnector> {
 	
 	@Override
 	public SbmlModelConnector copyValuesToTarget(SbmlModelConnector target) {
-//		SbmlModelConnector modelConnector = super.copyValuesToTarget(target);
+		if(target == null)
+			return null;
+			
+		importParametersFromXml(null);
 		
 		XmlObject<?> xmlObj = getSubXmlObjects().get(SBMLMODELSTATES);
 		

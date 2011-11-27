@@ -190,7 +190,7 @@ public class XmlObject<T> {
 
 	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
 		Element node = xmlFile.createElement(nodeName);
-		node.setAttribute(CLASS, object.getClass().getCanonicalName());
+//		node.setAttribute(CLASS, object.getClass().getCanonicalName());
 		for (String s : getSubXmlObjects().keySet()) {
 			Node subNode = getSubXmlObjects().get(s).toXMLNode(s, xmlFile);
 			if (subNode != null)
@@ -305,4 +305,5 @@ public class XmlObject<T> {
 	protected Node getObjectNode() {
 		return objectNode;
 	}
+	
 }

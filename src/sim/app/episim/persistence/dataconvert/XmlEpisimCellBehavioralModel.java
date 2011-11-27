@@ -35,8 +35,6 @@ public class XmlEpisimCellBehavioralModel extends
 			addSubXmlObject(EPISIMSBMLMODELCONNECTOR,
 					new XmlSbmlModelConnector((SbmlModelConnector) subObj));
 		}
-
-		getObject().getEpisimSbmlModelConnector();
 	}
 
 	@Override

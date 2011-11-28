@@ -77,6 +77,10 @@ public class SimulationStateData {
    public static SimulationStateData getLastSimulationStateLoaded(){
 	   return lastSimulationStateLoaded;
    }
+   
+   public ArrayList<UniversalCell> getAlreadyLoadedCellsAsList() {
+	return new ArrayList<UniversalCell>(alreadyLoadedCells.values());
+}
 
 	public void addLoadedCell(XmlUniversalCell xmlCell, UniversalCell loadedCell) {
 		alreadyLoadedCells.put(xmlCell.getId(), loadedCell);

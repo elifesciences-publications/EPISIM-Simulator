@@ -36,6 +36,7 @@ public abstract class BiomechanicalModelInitializer {
 	protected abstract void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble);
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
+		simulationStateData.clearLoadedCells();
 		ArrayList<UniversalCell> loadedCells = new ArrayList<UniversalCell>();
 
 		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
@@ -48,7 +49,6 @@ public abstract class BiomechanicalModelInitializer {
 		for (XmlUniversalCell xCell : xmlCells) {
 			buildCell(xCell, loadedCells);
 		}
-		simulationStateData.clearLoadedCells();
 		return loadedCells;
 	}
 

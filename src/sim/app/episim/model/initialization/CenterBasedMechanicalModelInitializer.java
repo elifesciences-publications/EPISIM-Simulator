@@ -94,7 +94,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 						.getEpisimBioMechanicalModelObject();
 				centerBasedModel.getCellEllipseObject().setXY((int) centerBasedModel.getCellLocationInCellField().x,
 						(int) centerBasedModel.getCellLocationInCellField().y);
-			}else System.out.println(uCell.getID());
+			}//else System.out.println(getClass().getName()+" - Konnte Zelle "+ uCell.getID()+"nicht laden");
 
 		}
 		return loadedCells;

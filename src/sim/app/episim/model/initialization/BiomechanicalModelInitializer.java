@@ -33,48 +33,45 @@ public abstract class BiomechanicalModelInitializer {
 
 	protected abstract ArrayList<UniversalCell> buildStandardInitialCellEnsemble();
 
-	protected abstract void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble);
+	protected abstract void initializeCellEnsembleBasedOnRandomAgeDistribution(
+			ArrayList<UniversalCell> cellEnsemble);
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
 		simulationStateData.clearLoadedCells();
-		ArrayList<UniversalCell> loadedCells = new ArrayList<UniversalCell>();
 
 		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
 		for (XmlUniversalCell xCell : xmlCells) {
 
-//			xCell.importParametersFromXml();
+			// xCell.importParametersFromXml();
 			simulationStateData.putCellToBeLoaded((Long) xCell.getId(), xCell);
 
 		}
 		for (XmlUniversalCell xCell : xmlCells) {
-			buildCell(xCell, loadedCells);
+			buildCell(xCell);
 		}
-		return loadedCells;
+
+		//System.out.println(xmlCells.size() + " vs. " + simulationStateData.getAlreadyLoadedCellsAsList().size());
+
+		return simulationStateData.getAlreadyLoadedCellsAsList();
 	}
 
-	private UniversalCell buildCell(XmlUniversalCell xCell,
-			ArrayList<UniversalCell> loadedCells) {
-		UniversalCell loadCell = null;
-
-		long id = (Long) xCell.getId();
+	private UniversalCell buildCell(XmlUniversalCell xCell) {
+		if(xCell == null) return null;
+		UniversalCell loadCell = simulationStateData.getAlreadyLoadedCell(xCell.getId());
+		if (loadCell != null)
+			return loadCell;
+		
+		long id = xCell.getId();
 		long motherID = (Long) xCell.getMotherId();
 		if (id == motherID) {
 			loadCell = new UniversalCell();
 		} else {
-			UniversalCell mother = simulationStateData.getAlreadyLoadedCell(id);
-			if (mother == null) {
-				if (simulationStateData.getCellToBeLoaded(motherID) != null)
-					buildCell(
-							simulationStateData.getCellToBeLoaded(motherID), loadedCells);
-				// else
-				// System.out.println(); //TODO was tun wenn mutter gelöscht
-				// ist?
-			}
+			UniversalCell mother = buildCell(simulationStateData.getCellToBeLoaded(motherID));
+				// TODO was tun wenn mutter gelöscht ist?
 			loadCell = new UniversalCell(mother, null, null);
 		}
 		xCell.copyValuesToTarget(loadCell);
 		simulationStateData.addLoadedCell(xCell, loadCell);
-		loadedCells.add(loadCell);
 		return loadCell;
 	}
 

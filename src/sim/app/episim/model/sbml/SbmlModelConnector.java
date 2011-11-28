@@ -1,6 +1,7 @@
 package sim.app.episim.model.sbml;
 
 import java.util.HashMap;
+import java.util.Map;
 
 
 
@@ -91,5 +92,8 @@ public class SbmlModelConnector implements EpisimSbmlModelConnector{
    }
    public void switchSbmlModelSimulationOnOrOff(String sbmlModelFile, boolean isSimulationOn){
    	sbmlModelSimulationEnabled.put(sbmlModelFile, isSimulationOn);
+   }
+   public Map<String, Boolean> getSbmlModelSimulationEnabledMap(){
+   	return this.sbmlModelSimulationEnabled;
    }
 }

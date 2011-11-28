@@ -86,7 +86,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();
 
 		for (UniversalCell uCell : loadedCells) {
-			XmlUniversalCell xCell = simulationStateData.alreadyLoadedXmlCellsNewID.get(uCell.getID());
+			XmlUniversalCell xCell = simulationStateData.getAlreadyLoadedXmlCellNewID(uCell.getID());
 			if (xCell != null) {
 				XmlEpisimBiomechanicalModel xCellMechModel = xCell.getEpisimBiomechanicalModel();
 				xCellMechModel.copyValuesToTarget(uCell.getEpisimBioMechanicalModelObject());

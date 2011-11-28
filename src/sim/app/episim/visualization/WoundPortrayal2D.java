@@ -2,9 +2,6 @@ package sim.app.episim.visualization;
 
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
-import sim.app.episim.snapshot.SnapshotListener;
-import sim.app.episim.snapshot.SnapshotObject;
-import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueController;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.*;
@@ -20,7 +17,7 @@ import java.awt.geom.*;
 import episiminterfaces.EpisimPortrayal;
 
 
-public class WoundPortrayal2D extends ContinuousPortrayal2D implements SnapshotListener, EpisimPortrayal {
+public class WoundPortrayal2D extends ContinuousPortrayal2D implements EpisimPortrayal {
 	
 	private final String NAME = "Wound Region";
 
@@ -52,8 +49,7 @@ public class WoundPortrayal2D extends ContinuousPortrayal2D implements SnapshotL
 			this.width = guiState.EPIDISPLAYWIDTH + (2*guiState.DISPLAYBORDER);
 			this.height = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);
  		}
-		SnapshotWriter.getInstance().addSnapshotListener(this);
-		 Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+		Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
 					TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
 					TissueController.getInstance().getTissueBorder().getHeightInMikron());
 	  	 
@@ -148,15 +144,7 @@ public class WoundPortrayal2D extends ContinuousPortrayal2D implements SnapshotL
 			return 0;
 	}
 
-	public List<SnapshotObject> collectSnapshotObjects() {
-
-		List<SnapshotObject> list = new ArrayList<SnapshotObject>();
-		if(woundRegionCoordinates.size() > 0){
-			list.add(new SnapshotObject(SnapshotObject.WOUND, woundRegionCoordinates));
-			list.add(new SnapshotObject(SnapshotObject.WOUND, new java.awt.geom.Rectangle2D.Double[] { deltaInfo.draw, deltaInfo.clip }));
-		}
-		return list;
-	}
+	
 
 	public void setWoundRegionCoordinates(List<Double2D> woundRegionCoordinates) {
 

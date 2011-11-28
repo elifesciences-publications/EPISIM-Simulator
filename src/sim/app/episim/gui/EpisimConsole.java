@@ -55,7 +55,6 @@ import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.nogui.NoGUIConsole;
-import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.util.Names;
 import sim.display.Console;
 import sim.display.ConsoleHack;
@@ -225,7 +224,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				boolean snapshotPathWasNull = false;
 				if(getPlayState() != ConsoleHack.PS_PAUSED && getPlayState() == ConsoleHack.PS_PLAYING) pressPause();
 							 
-				SnapshotWriter.getInstance().writeSnapshot();
+				//TODO: write code to store tissue export
 				if(getPlayState() == ConsoleHack.PS_PAUSED && getPlayState() != ConsoleHack.PS_PLAYING)pressPause(); 
 				simulation.state.postCheckpoint();
 			}

@@ -16,8 +16,6 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
-import sim.app.episim.snapshot.SnapshotListener;
-import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.tissue.TissueController;
 import sim.engine.SimStateHack.TimeSteps;
 import sim.field.continuous.Continuous2D;
@@ -38,17 +36,56 @@ public class SimulationStateData {
 	private XmlObject<MiscalleneousGlobalParameters> miscalleneousGlobalParameters;
 	private File loadedModelFile;
 
-	public HashMap<Long, UniversalCell> alreadyLoadedCells = new HashMap<Long, UniversalCell>();
-	public HashMap<Long, XmlUniversalCell> alreadyLoadedXmlCellsNewID = new HashMap<Long, XmlUniversalCell>();
-	public HashMap<Long, XmlUniversalCell> cellsToBeLoaded = new HashMap<Long, XmlUniversalCell>();
+	private HashMap<Long, UniversalCell> alreadyLoadedCells = new HashMap<Long, UniversalCell>();
+	private HashMap<Long, XmlUniversalCell> alreadyLoadedXmlCellsNewID = new HashMap<Long, XmlUniversalCell>();
+	private HashMap<Long, XmlUniversalCell> cellsToBeLoaded = new HashMap<Long, XmlUniversalCell>();
+	
+	private static File tissueExportPath;
+	private static SimulationStateData lastSimulationStateLoaded;
 
 	public SimulationStateData() {
 		reset();
-	}
+		lastSimulationStateLoaded = this;
+	}	
+	
+	
+   public UniversalCell getAlreadyLoadedCell(long id) {
+
+	   return alreadyLoadedCells.get(id);
+   }  
+   
+   public XmlUniversalCell getAlreadyLoadedXmlCellNewID(long id) {
+
+	   return alreadyLoadedXmlCellsNewID.get(id);
+   } 
+   
+   public XmlUniversalCell getCellToBeLoaded(long id) {
+
+	   return cellsToBeLoaded.get(id);
+   }
+   
+   public void putCellToBeLoaded(long id, XmlUniversalCell cellToBeLoaded) {
+	   cellsToBeLoaded.put(id, cellToBeLoaded);
+   }
+	
+   public static void setTissueExportPath(File tissueExportPath){
+	   SimulationStateData.tissueExportPath = tissueExportPath;
+   }   
+   public static File getTissueExportPath() {
+	   return tissueExportPath;
+   }   
+   public static SimulationStateData getLastSimulationStateLoaded(){
+	   return lastSimulationStateLoaded;
+   }
 
 	public void addLoadedCell(XmlUniversalCell xmlCell, UniversalCell loadedCell) {
 		alreadyLoadedCells.put(xmlCell.getId(), loadedCell);
 		alreadyLoadedXmlCellsNewID.put(loadedCell.getID(), xmlCell);
+	}
+	
+	public void clearLoadedCells(){
+		alreadyLoadedXmlCellsNewID.clear();
+		alreadyLoadedCells.clear();
 	}
 
 	public void reset() {

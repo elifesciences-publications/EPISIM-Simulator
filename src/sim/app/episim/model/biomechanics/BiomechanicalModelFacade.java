@@ -20,16 +20,13 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.snapshot.SnapshotListener;
-import sim.app.episim.snapshot.SnapshotObject;
-import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ObjectManipulations;
 
 
 
 
-public class BiomechanicalModelFacade implements java.io.Serializable, SnapshotListener{
+public class BiomechanicalModelFacade implements java.io.Serializable{
 		
 	private static final long serialVersionUID = 512640154196012852L;
 	private EpisimBiomechanicalModelGlobalParameters actParametersObject;
@@ -49,8 +46,7 @@ public class BiomechanicalModelFacade implements java.io.Serializable, SnapshotL
 		
 		if(actParametersObject != null){
 	        this.actParametersObject = actParametersObject;
-	        this.resetParametersObject = ObjectManipulations.cloneObject(actParametersObject);
-	        SnapshotWriter.getInstance().addSnapshotListener(this);	        
+	        this.resetParametersObject = ObjectManipulations.cloneObject(actParametersObject);       
 		}      
 		else throw new ModelCompatibilityException("No compatible EpisimCellBehavioralModelGlobalParameters-Object!");	
 	}	
@@ -68,12 +64,6 @@ public class BiomechanicalModelFacade implements java.io.Serializable, SnapshotL
 	
 	public void resetInitialGlobalValues(){
 		ObjectManipulations.resetInitialGlobalValues(actParametersObject, resetParametersObject);
-	}
-
-	public List<SnapshotObject> collectSnapshotObjects() {
-		List<SnapshotObject> list = new ArrayList<SnapshotObject>();
-		list.add(new SnapshotObject(SnapshotObject.MECHANICALMODELGLOBALPARAMETERS, this.actParametersObject));
-		return list;
 	}
 		
 	public EpisimBiomechanicalModel getNewEpisimBiomechanicalModelObject(AbstractCell cell) {

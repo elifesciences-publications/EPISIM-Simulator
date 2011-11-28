@@ -78,8 +78,8 @@ public class CellBehavioralModelInitializer {
 	protected void initializeCellEnsembleWithFileValues(ArrayList<UniversalCell> cellEnsemble) {
 		for (UniversalCell actCell : cellEnsemble) {
 			EpisimCellBehavioralModel cellBehave = actCell.getEpisimCellBehavioralModelObject();
-			if (simulationStateData.alreadyLoadedXmlCellsNewID.get(actCell.getID()) != null) {
-				XmlEpisimCellBehavioralModel xCellBehave = simulationStateData.alreadyLoadedXmlCellsNewID.get(actCell.getID())
+			if (simulationStateData.getAlreadyLoadedXmlCellNewID(actCell.getID()) != null) {
+				XmlEpisimCellBehavioralModel xCellBehave = simulationStateData.getAlreadyLoadedXmlCellNewID(actCell.getID())
 						.getEpisimCellBehavioralModel();
 				xCellBehave.copyValuesToTarget(cellBehave);
 

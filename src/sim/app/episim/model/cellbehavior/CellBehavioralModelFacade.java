@@ -21,15 +21,12 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.snapshot.SnapshotListener;
-import sim.app.episim.snapshot.SnapshotObject;
-import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.tissue.Epidermis;
 
 
 
 
-public class CellBehavioralModelFacade implements java.io.Serializable, SnapshotListener{
+public class CellBehavioralModelFacade implements java.io.Serializable{
 	
 	/**
 	 * 
@@ -47,15 +44,9 @@ public class CellBehavioralModelFacade implements java.io.Serializable, Snapshot
 		
 		
 		if(globalParametersObject != null && globalParametersObject instanceof EpisimCellBehavioralModelGlobalParameters){
-	        this.globalParametersObject= (EpisimCellBehavioralModelGlobalParameters)globalParametersObject;
-	        SnapshotWriter.getInstance().addSnapshotListener(this);
-	        
-		}
-      
-		else throw new ModelCompatibilityException("No compatible EpisimCellBehavioralModelGlobalParameters-Object!");
-		
-		
-        
+	        this.globalParametersObject= (EpisimCellBehavioralModelGlobalParameters)globalParametersObject;	        
+		}      
+		else throw new ModelCompatibilityException("No compatible EpisimCellBehavioralModelGlobalParameters-Object!");        
 	}
 	
 	
@@ -100,11 +91,7 @@ public class CellBehavioralModelFacade implements java.io.Serializable, Snapshot
   }
 
 
-	public List<SnapshotObject> collectSnapshotObjects() {
-		List<SnapshotObject> list = new ArrayList<SnapshotObject>();
-		list.add(new SnapshotObject(SnapshotObject.CELLBEHAVIORALMODELGLOBALPARAMETERS, this.globalParametersObject));
-		return list;
-	}
+	
    
    public CellBehavioralModelInitializer getCellBehavioralModelInitializer(){
    	return new CellBehavioralModelInitializer();

@@ -9,8 +9,6 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.snapshot.SnapshotListener;
-import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EnhancedSteppable;

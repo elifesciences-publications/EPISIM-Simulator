@@ -21,9 +21,6 @@ import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
-import sim.app.episim.snapshot.SnapshotListener;
-import sim.app.episim.snapshot.SnapshotObject;
-import sim.app.episim.snapshot.SnapshotWriter;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -105,10 +102,7 @@ public class Epidermis extends TissueType implements CellDeathListener
  public Epidermis(long seed)
  {
      super(seed);
-     
-    
-     
-     SnapshotWriter.getInstance().addSnapshotListener(this);
+          
      EpisimCellType[] cellTypes = ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes();
      if(cellTypes!= null){
    	  for(EpisimCellType epiType : cellTypes) this.registerCellType(epiType, UniversalCell.class); // Currently the same class is used for all modeled cell types
@@ -218,40 +212,19 @@ public class Epidermis extends TissueType implements CellDeathListener
 		}
 		
 		GlobalStatistics.getInstance().reset(true);
-		  
-   
-
+			     
+	   ModelController.getInstance().getBioMechanicalModelController().clearCellField();
+	   getAllCells().clear();
+	   seedInitiallyAvailableCells();
+	   
+	   if(ModeServer.useMonteCarloSteps()){
+	     EnhancedSteppable mcSteppable = getMonteCarloStepSteppable();
+	     schedule.scheduleRepeating(mcSteppable, SchedulePriority.CELLS.getPriority(), mcSteppable.getInterval());
+	   }
 	     
 	     
-	     if(!isReloadedSnapshot()){
-	   	  ModelController.getInstance().getBioMechanicalModelController().clearCellField();
-	   	  getAllCells().clear();
-	   	  seedInitiallyAvailableCells();
-	     }
-		  else{
-							 
-			     for(AbstractCell cell: getAllCells()){		   	  
-			   		if(!ModeServer.useMonteCarloSteps()){
-			   			schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
-			   		}
-			   		if(cell instanceof UniversalCell){
-			   			UniversalCell kcyte = (UniversalCell) cell;
-			   			
-			   			kcyte.removeCellDeathListener();
-			   			kcyte.addCellDeathListener(this);
-			   			kcyte.addCellDeathListener(GlobalStatistics.getInstance());
-			   		}
-			   		
-			     }
-			}
-	     if(ModeServer.useMonteCarloSteps()){
-	   	  EnhancedSteppable mcSteppable = getMonteCarloStepSteppable();
-	   	  schedule.scheduleRepeating(mcSteppable, SchedulePriority.CELLS.getPriority(), mcSteppable.getInterval());
-	     }
-	     
-	     
-	     EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
-	     schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());
+	   EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
+	   schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());
         
  //////////////////////////////////////        
  // CELL STATISTICS & Updating OUTER SURFACE CELLS
@@ -312,11 +285,7 @@ public class Epidermis extends TissueType implements CellDeathListener
      if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGlobalParameters){
 	     // Schedule the agent to update is Outer Flag     
 	     schedule.scheduleRepeating(airSurface,SchedulePriority.TISSUE.getPriority(),1);
-     }
-     
-     
-     
-    
+     }    
  	} 
 
 	public void removeCells(GeneralPath path){
@@ -340,14 +309,6 @@ public class Epidermis extends TissueType implements CellDeathListener
 	
 	
 	
-	//complex-Methods------------------------------------------------------------------------------------------------------------------
-	public List<SnapshotObject> collectSnapshotObjects() {
-		
-		List<SnapshotObject> list = super.collectSnapshotObjects();
-		list.add(new SnapshotObject(SnapshotObject.CELLFIELD, ModelController.getInstance().getBioMechanicalModelController().getCellField()));
-		
-		return list;
-	} 	
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 //SETTER-METHODS

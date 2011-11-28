@@ -3,13 +3,11 @@ package sim.app.episim.model.misc;
 import java.util.ArrayList;
 import java.util.List;
 
-import sim.app.episim.snapshot.SnapshotListener;
-import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.util.ObjectManipulations;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
-public class MiscalleneousGlobalParameters implements java.io.Serializable, SnapshotListener{
+public class MiscalleneousGlobalParameters implements java.io.Serializable{
 	private static MiscalleneousGlobalParameters instance;
 	
 	private static MiscalleneousGlobalParameters resetinstance;
@@ -58,16 +56,6 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Snap
 
 		if((val < 1) || (val >= typeString.length)) this.typeColor = 1;
 		else this.typeColor = val;
-	}
-
-
-	public List<SnapshotObject> collectSnapshotObjects() {
-
-		List<SnapshotObject> list = new ArrayList<SnapshotObject>();
-		list.add(new SnapshotObject(SnapshotObject.MISCALLENEOUSGLOBALPARAMETERS, instance));
-		return list;
-   }
-	
-	
+	}	
 	
 }

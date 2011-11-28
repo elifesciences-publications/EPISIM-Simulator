@@ -33,8 +33,7 @@ public abstract class BiomechanicalModelInitializer {
 
 	protected abstract ArrayList<UniversalCell> buildStandardInitialCellEnsemble();
 
-	protected abstract void initializeCellEnsembleBasedOnRandomAgeDistribution(
-			ArrayList<UniversalCell> cellEnsemble);
+	protected abstract void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble);
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
 		ArrayList<UniversalCell> loadedCells = new ArrayList<UniversalCell>();
@@ -43,14 +42,13 @@ public abstract class BiomechanicalModelInitializer {
 		for (XmlUniversalCell xCell : xmlCells) {
 
 //			xCell.importParametersFromXml();
-			simulationStateData.cellsToBeLoaded
-					.put((Long) xCell.getId(), xCell);
+			simulationStateData.putCellToBeLoaded((Long) xCell.getId(), xCell);
 
 		}
 		for (XmlUniversalCell xCell : xmlCells) {
 			buildCell(xCell, loadedCells);
 		}
-
+		simulationStateData.clearLoadedCells();
 		return loadedCells;
 	}
 
@@ -63,13 +61,11 @@ public abstract class BiomechanicalModelInitializer {
 		if (id == motherID) {
 			loadCell = new UniversalCell();
 		} else {
-			UniversalCell mother = simulationStateData.alreadyLoadedCells
-					.get(id);
+			UniversalCell mother = simulationStateData.getAlreadyLoadedCell(id);
 			if (mother == null) {
-				if (simulationStateData.cellsToBeLoaded.get(motherID) != null)
+				if (simulationStateData.getCellToBeLoaded(motherID) != null)
 					buildCell(
-							simulationStateData.cellsToBeLoaded.get(motherID),
-							loadedCells);
+							simulationStateData.getCellToBeLoaded(motherID), loadedCells);
 				// else
 				// System.out.println(); //TODO was tun wenn mutter gelöscht
 				// ist?

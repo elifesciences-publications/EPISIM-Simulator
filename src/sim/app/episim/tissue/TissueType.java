@@ -18,8 +18,6 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.snapshot.SnapshotListener;
-import sim.app.episim.snapshot.SnapshotObject;
 import sim.app.episim.util.GenericBag;
 import sim.engine.Schedule;
 import sim.engine.SimState;
@@ -28,7 +26,7 @@ import sim.engine.Steppable;
 import sim.engine.SimStateHack.TimeSteps;
 
 
-public abstract class TissueType extends SimStateHack implements java.io.Serializable, ChartSetChangeListener, DataExportChangeListener, SnapshotListener{
+public abstract class TissueType extends SimStateHack implements java.io.Serializable, ChartSetChangeListener, DataExportChangeListener{
 	
 	
 	public enum SchedulePriority{		
@@ -75,26 +73,10 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	
 	public GenericBag<AbstractCell> getAllCells() {	return allCells; }
 	
-	public List<SnapshotObject> collectSnapshotObjects() {
-		
-		List<SnapshotObject> list = new LinkedList<SnapshotObject>();
-		Iterator<AbstractCell> iter = getAllCells().iterator();
-		
-		while(iter.hasNext()){
-			list.add(new SnapshotObject(SnapshotObject.CELL, iter.next()));
-		}
-		
-		list.add(new SnapshotObject(SnapshotObject.TIMESTEPS, new TimeSteps(schedule.getTime(), schedule.getSteps())));
-		return list;
-	}  
+	
 	
 	public void addSnapshotLoadedCells(List<AbstractCell> cells) { this.allCells.addAll(cells); }
-	
-	public void setReloadedSnapshot(boolean reloadedSnapshot) {	this.reloadedSnapshot = reloadedSnapshot; }
-	
-	@CannotBeMonitored
-	protected boolean isReloadedSnapshot(){ return this.reloadedSnapshot; }
-	
+		
 	public void setSnapshotTimeSteps(TimeSteps timeSteps){
 		this.timeStepsAfterSnapshotReload = timeSteps;
 	}

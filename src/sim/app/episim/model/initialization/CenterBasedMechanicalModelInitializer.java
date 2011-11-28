@@ -38,6 +38,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	public CenterBasedMechanicalModelInitializer(SimulationStateData simulationStateData) {
 		super(simulationStateData);
 		this.simulationStateData = simulationStateData;
+		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 	}
 
 	private final double depthFrac(double y) // wie tief ist in prozent die

@@ -111,11 +111,7 @@ public class Epidermis extends TissueType implements CellDeathListener
      ChartController.getInstance().setChartMonitoredTissue(this);
      DataExportController.getInstance().setDataExportMonitoredTissue(this);
      ChartController.getInstance().registerChartSetChangeListener(this);
-     DataExportController.getInstance().registerDataExportChangeListener(this);
- 
-		
-		
-		
+     DataExportController.getInstance().registerDataExportChangeListener(this);		
  }
  
  public void checkMemory(){
@@ -156,6 +152,9 @@ public class Epidermis extends TissueType implements CellDeathListener
 			 if(!ModeServer.useMonteCarloSteps()){
 					Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
 					cell.setStoppable(stoppable);
+					if(cell.getActSimState() == null){
+						cell.setActSimState(this);
+					}
 			 }
 		 }	
 	}

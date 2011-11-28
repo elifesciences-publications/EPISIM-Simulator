@@ -69,6 +69,8 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    	cellDeathListeners = new LinkedList<CellDeathListener>();      
       cellDeathListeners.add(TissueController.getInstance().getActEpidermalTissue());      
       cellDeathListeners.add(GlobalStatistics.getInstance());
+      
+      
    }
 	
    @CannotBeMonitored
@@ -115,7 +117,8 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    public Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass(){ return this.cellBehavioralModelObject.getClass(); }	
    
 	@NoExport
-	public SimState getActSimState() { return this.actSimState; }      
+	public SimState getActSimState() { return this.actSimState; }
+	public void setActSimState(SimState state) { this.actSimState =state; }      
 	public void removeCellDeathListener(){ this.cellDeathListeners.clear(); }   
 	public void addCellDeathListener(CellDeathListener listener){ this.cellDeathListeners.add(listener); }   
    

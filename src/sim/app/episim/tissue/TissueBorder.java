@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoExport;
 
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.PointSorter;
@@ -35,9 +36,9 @@ public class TissueBorder {
 	
 	private static  TissueBorder instance;
 	
-	private static int basalY=58;          // y coordinate at which undulations start, the base line    
-	private static int basalPeriod=70;      // width of an undulation at the foot
-	private static int startXOfStandardMembrane = 0;
+	private int basalY=58;          // y coordinate at which undulations start, the base line    
+	private int basalPeriod=70;      // width of an undulation at the foot
+	private int startXOfStandardMembrane = 0;
 	
 	
 	
@@ -73,6 +74,7 @@ public class TissueBorder {
 		startXOfStandardMembrane = 0;
 	}
 	
+	
 	public int getUndulationBaseLine(){
 		return basalY;
 	}
@@ -83,6 +85,10 @@ public class TissueBorder {
 	
 	public void setBasalPeriodInMikron(int period){
 		basalPeriod = period;
+	}
+	
+	public int getBasalPeriodInMikron(){
+		return basalPeriod;
 	}
 	
 	public void setStartXOfStandardMembraneInMikron(int start){ startXOfStandardMembrane = start; }

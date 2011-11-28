@@ -43,7 +43,6 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	private Map<EpisimCellType, Class<? extends AbstractCell>> registeredCellTypes;
 
 	private GenericBag<AbstractCell> allCells=new GenericBag<AbstractCell>(3000); //all cells will be stored in this bag
-	private boolean reloadedSnapshot = false;
 	private TimeSteps timeStepsAfterSnapshotReload = null;
 	
 	public TissueType(long seed){ 
@@ -72,10 +71,6 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	}
 	
 	public GenericBag<AbstractCell> getAllCells() {	return allCells; }
-	
-	
-	
-	public void addSnapshotLoadedCells(List<AbstractCell> cells) { this.allCells.addAll(cells); }
 		
 	public void setSnapshotTimeSteps(TimeSteps timeSteps){
 		this.timeStepsAfterSnapshotReload = timeSteps;

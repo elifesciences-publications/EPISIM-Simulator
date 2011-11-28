@@ -58,7 +58,7 @@ public class ModelInitialization {
 
 	public ArrayList<UniversalCell> getCells() {
 
-		return buildStandardCellList();
+		return buildCellList();
 	}
 
 	public EpisimPortrayal getCellPortrayal() {
@@ -75,7 +75,7 @@ public class ModelInitialization {
 				.getAdditionalPortrayalsCellForeground();
 	}
 
-	private ArrayList<UniversalCell> buildStandardCellList() {
+	private ArrayList<UniversalCell> buildCellList() {
 		ArrayList<UniversalCell> initiallyExistingCells = this.biomechanicalModelInitializer
 				.getInitialCellEnsemble();
 

@@ -19,7 +19,7 @@ import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 
 public class SimulationStateFile extends XmlFile {
-
+	
 	private static final String ROOT_NAME = "data_set";
 	private static final String CELLBEHAVIORALMODEL_FILE = "model_file";
 	private static final String MultiCellXML_VERSION = "MultiCellXML_version";
@@ -29,6 +29,9 @@ public class SimulationStateFile extends XmlFile {
 	private static final String EPISIMBIOMECHANICALMODELGLOBALPARAMETERS = "episimbiomechanicalmodelglobalparameters";
 	private static final String EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS = "episimcellbehavioralmodelglobalparameters";
 	private static final String MISCALLENEOUSGLOBALPARAMETERS = "miscalleneousglobalparameters";
+	public static final String FILEEXTENSION ="xml";
+	
+	private static File tissueExportPath;
 
 	private Element rootNode = null;
 
@@ -48,6 +51,16 @@ public class SimulationStateFile extends XmlFile {
 		rootNode = getRoot();
 		rootNode.setAttribute(MultiCellXML_VERSION, "1.0");
 	}
+	
+	
+   public static File getTissueExportPath() {
+	   return tissueExportPath;
+   }
+	
+   public static void setTissueExportPath(File tissueExportPath) {
+	   SimulationStateFile.tissueExportPath = tissueExportPath;
+   }
+	
 
 	public SimulationStateData loadData() {
 		Node behaviorFile = getRoot().getElementsByTagName(
@@ -101,7 +114,28 @@ public class SimulationStateFile extends XmlFile {
 		return simStateData;
 	}
 
-	public void saveData(File path) {
+	public void saveData(){
+		
+		if(SimulationStateFile.tissueExportPath != null){
+			saveData(getFilePath(SimulationStateFile.tissueExportPath));
+		}		
+	}
+	private File getFilePath(File file){
+		File originalFile = file;
+		if(file != null && file.exists()){
+			int i = 2;
+			do{
+				file = new File(originalFile.getAbsolutePath().substring(0, (originalFile.getAbsolutePath().length()-(SimulationStateFile.FILEEXTENSION.length()+1)))
+						          +"_"+i+"."+SimulationStateFile.FILEEXTENSION);
+				i++;
+			}
+			while(file.exists());
+		}
+		return file;
+	}
+	
+	
+	private void saveData(File path) {
 
 		SimulationStateData simStateData = new SimulationStateData();
 		simStateData.updateData();

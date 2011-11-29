@@ -1,4 +1,5 @@
 package sim.app.episim;
+import sim.SimStateServer;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 
 
@@ -51,27 +52,18 @@ public class UniversalCell extends AbstractCell
 	
 	private static final long serialVersionUID = 5212944079288103141L;
    
-   private final String NAME = "Keratinocyte";
-   
-   
-
-//	-----------------------------------------------------------------------------------------------------------------------------------------   
-// VARIABLES
-//	-----------------------------------------------------------------------------------------------------------------------------------------          
-     
-   private long local_maxAge;
-   
-  
+   private final String NAME = "Keratinocyte";   
+    
 //-----------------------------------------------------------------------------------------------------------------------------------------   
   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
    public UniversalCell(){
-   	this(null,  null, null);
+   	this(null,  null);
    }
    
-   public UniversalCell(UniversalCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){   
-   	 super(motherCell, cellBehavioralModel, simState);      
+   public UniversalCell(UniversalCell motherCell, EpisimCellBehavioralModel cellBehavioralModel){   
+   	 super(motherCell, cellBehavioralModel);      
    	 TissueController.getInstance().getActEpidermalTissue().checkMemory();
    	 TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag       
     }  
@@ -84,7 +76,7 @@ public class UniversalCell extends AbstractCell
    	 // Either we get use a currently unused cell oder we allocate a new one
         UniversalCell kcyte;        
        
-        kcyte= new UniversalCell(this, cellBehavioralModel, getActSimState()); 
+        kcyte= new UniversalCell(this, cellBehavioralModel); 
        
          
         if(!ModeServer.useMonteCarloSteps()){   
@@ -95,14 +87,11 @@ public class UniversalCell extends AbstractCell
         
        
          //in the first two thousand sim steps homeostasis has to be achieved, cells max age is set to the sim step time to have more variation  
-        kcyte.local_maxAge= ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getMaxAge();
-        long pSimTime=(long) TissueController.getInstance().getActEpidermalTissue().schedule.time();
-        if (pSimTime<(kcyte.local_maxAge)){ 
-      	  kcyte.local_maxAge=pSimTime;
-      	  cellBehavioralModel.setMaxAge((int)kcyte.local_maxAge);
-        }     
-        
-		              
+        long maxAge= ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getMaxAge();
+        long simTime=SimStateServer.getInstance().getSimStepNumber();
+        if (simTime<(maxAge)){ 
+      	  cellBehavioralModel.setMaxAge((int)maxAge);
+        }		              
         return kcyte;
     }
 
@@ -229,14 +218,14 @@ public class UniversalCell extends AbstractCell
 		
 		super.step(state);
 		
-		final Epidermis epiderm = (Epidermis) state;		
+		
 		if(isInNirvana() || !this.getEpisimCellBehavioralModelObject().getIsAlive()){		
 			removeFromSchedule();			
 		}
 		else{
 			
 		
-			getEpisimBioMechanicalModelObject().newSimStep(state.schedule.getSteps());
+			getEpisimBioMechanicalModelObject().newSimStep(SimStateServer.getInstance().getSimStepNumber());
 			
 			//	long timeBefore = System.currentTimeMillis();
 			/////////////////////////////////////////////////////////

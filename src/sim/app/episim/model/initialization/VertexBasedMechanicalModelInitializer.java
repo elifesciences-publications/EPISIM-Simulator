@@ -50,7 +50,7 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
    	CellPolygon[] polygons = CellPolygonNetworkBuilder.getStandardMembraneCellArray();
    	for(CellPolygon actCellPolygon : polygons){   		  		
-   		UniversalCell stemCell = new UniversalCell(null, null, null);
+   		UniversalCell stemCell = new UniversalCell(null, null);
    		VertexBasedMechanicalModel mechModel = (VertexBasedMechanicalModel)stemCell.getEpisimBioMechanicalModelObject();
    		mechModel.initializeWithCellPolygon(actCellPolygon);
    		Vertex cellCenter = actCellPolygon.getCellCenter();

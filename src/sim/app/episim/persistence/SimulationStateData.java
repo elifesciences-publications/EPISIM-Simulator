@@ -40,7 +40,7 @@ public class SimulationStateData {
 	private HashMap<Long, XmlUniversalCell> alreadyLoadedXmlCellsNewID = new HashMap<Long, XmlUniversalCell>();
 	private HashMap<Long, XmlUniversalCell> cellsToBeLoaded = new HashMap<Long, XmlUniversalCell>();
 	
-	private static File tissueExportPath;
+	
 	private static SimulationStateData lastSimulationStateLoaded;
 
 	public SimulationStateData() {
@@ -68,12 +68,6 @@ public class SimulationStateData {
 	   cellsToBeLoaded.put(id, cellToBeLoaded);
    }
 	
-   public static void setTissueExportPath(File tissueExportPath){
-	   SimulationStateData.tissueExportPath = tissueExportPath;
-   }   
-   public static File getTissueExportPath() {
-	   return tissueExportPath;
-   }   
    public static SimulationStateData getLastSimulationStateLoaded(){
 	   return lastSimulationStateLoaded;
    }

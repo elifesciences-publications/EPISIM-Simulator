@@ -10,6 +10,7 @@ import java.util.Set;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 
+import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
@@ -50,7 +51,7 @@ public class PNGPrinter {
 			fileName = fileName.replace(' ', '_');
 			
 			File pngFile = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH, fileName, FILEEXTENSION);
-			pngFile = new File(pngFile.getAbsolutePath().substring(0, (pngFile.getAbsolutePath().length()-FILEEXTENSION.length()))+"(SimulationStep " +state.schedule.getSteps()+ ")"+FILEEXTENSION);
+			pngFile = new File(pngFile.getAbsolutePath().substring(0, (pngFile.getAbsolutePath().length()-FILEEXTENSION.length()))+"(SimulationStep " +SimStateServer.getInstance().getSimStepNumber()+ ")"+FILEEXTENSION);
 			
 			try{
             ChartUtilities.saveChartAsPNG(pngFile, chart, PNG_CHARTWIDTH, PNG_CHARTHEIGHT);
@@ -62,7 +63,7 @@ public class PNGPrinter {
 		else if(directory != null && directory.isDirectory() && chart != null && state != null){
 			
 			File pngFile = new File(directory.getAbsolutePath()+File.separatorChar + this.fileNameMap.get(chartId) + 
-         		"(SimulationStep " +state.schedule.getSteps()+ ")"+FILEEXTENSION);	
+         		"(SimulationStep " +SimStateServer.getInstance().getSimStepNumber()+ ")"+FILEEXTENSION);	
 			
 			pngFile = checkFile(pngFile);
 			

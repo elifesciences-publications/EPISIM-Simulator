@@ -84,9 +84,8 @@ public class ConsoleHack extends Console implements SimulationConsole{
    	super.setPlayState(state);
    }
    
-   public synchronized void pressPlay(boolean reloadSnapshot)
-   {
-   	
+   public synchronized void pressPlay()
+   {   	
    	 super.pressPlay();
    }
    

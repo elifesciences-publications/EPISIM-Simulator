@@ -46,7 +46,7 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 		int height = (int)HexagonBasedMechanicalModelGlobalParameters.number_of_rows;
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
-				UniversalCell cell = new UniversalCell(null, null, null);
+				UniversalCell cell = new UniversalCell(null, null);
 				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 				((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
 				standardCellEnsemble.add(cell);

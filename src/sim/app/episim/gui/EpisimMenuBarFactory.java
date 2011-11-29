@@ -33,18 +33,17 @@ public class EpisimMenuBarFactory {
 		DATAEXPORT_MENU("Data Export"), 
 		INFO_MENU("Info"),
 		WINDOWS_MENU("Windows"),
-		PARAMETERS_SCAN("Parameter Scan"),
-		TEST_MENU("Test");
+		PARAMETERS_SCAN("Parameter Scan");
 		
 		private String name;
 		private EpisimMenu(String _name){ this.name = _name;}
 		public String toString(){ return name;}
 	
 	}
-	public enum EpisimMenuItem {
-		
-		SET_SNAPSHOT_PATH("Set Tissue-Snaphot-Path"),
-		LOAD_SNAPSHOT("Load Tissue-Snaphot"),
+	
+	public enum EpisimMenuItem {		
+		SET_SNAPSHOT_PATH("Set Tissue-Export-Path"),
+		LOAD_SNAPSHOT("Load Tissue-Export"),
 		OPEN_MODEL_FILE("Open Episim-Cell-Model"),
 		CLOSE_MODEL_FILE("Close Episim-Cell-Model"),
 		BUILD_MODEL_ARCHIVE("Build Episim-Model-Archive"),
@@ -61,24 +60,16 @@ public class EpisimMenuBarFactory {
 		NEW_DATA_EXPORT("New Data-Export-Definition-Set"),
 		CLOSE_DATA_EXPORT("Close Loaded Data-Export-Definition-Set"),
 		
-		ABOUT_EPISIM_SIMULATOR("About Episim Simulator"),
-		
-		GENERATE_PARAMETER_FILES("Param-Scan File-Generator"),
-		
-		AUTO_ARRANGE_WINDOWS("Auto-Arrange Windows"),
-		
-		TEST_SAVE_SNAPSHOT("Save Snapshot"),
-		TEST_LOAD_SNAPSHOT("Load Snapshot");
+		ABOUT_EPISIM_SIMULATOR("About Episim Simulator"),		
+		GENERATE_PARAMETER_FILES("Param-Scan File-Generator"),		
+		AUTO_ARRANGE_WINDOWS("Auto-Arrange Windows");
 		
 		private String name;
 		private EpisimMenuItem(String _name){ this.name = _name;}
 		public String toString(){ return name;}
-	}
-		
+	}		
 	
-	private JMenuBar menuBar;
-	
-	
+	private JMenuBar menuBar;	
 	
 	private EpidermisSimulator simulator;
 	private EpisimAboutDialog aboutDialog;
@@ -95,11 +86,6 @@ public class EpisimMenuBarFactory {
 		buildParamScanMenu(menuBar);
 		buildWindowsMenu(menuBar);		
 		buildInfoMenu(menuBar);
-		
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_TESTMENU) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_TESTMENU).equals(EpisimProperties.ON)){
-			buildTestMenu(menuBar);
-		}
 		
 		if(simulator.getMainFrame() instanceof JFrame){
 			((JFrame)simulator.getMainFrame()).setJMenuBar(menuBar);
@@ -172,7 +158,22 @@ public class EpisimMenuBarFactory {
 		menuItemLoadSnapshot.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				//TODO: Write Load Tissue Export Code	
+				boolean loadTissueExport = false;
+				if(ModelController.getInstance().isModelOpened()){
+					int choice = JOptionPane.showConfirmDialog(simulator.getMainFrame(), "Do you really want to close the opened model?", "Close Model?", JOptionPane.YES_NO_OPTION);
+					if(choice == JOptionPane.OK_OPTION){
+						simulator.closeModel();
+						loadTissueExport = true;
+					}
+				}
+				else loadTissueExport = true;				
+				
+				if(loadTissueExport && simulator.getMainFrame() instanceof JFrame){					
+					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
+					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showOpenDialog((JFrame)simulator.getMainFrame())){
+						simulator.loadSimulationStateFile(chooser.getSelectedFile());						
+					}
+				}			
 			}
 			
 		});
@@ -387,14 +388,11 @@ public class EpisimMenuBarFactory {
 		JMenuItem menuItemAboutEpisimSimulator = new JMenuItem(EpisimMenuItem.ABOUT_EPISIM_SIMULATOR.toString());
 		
 		menuItemAboutEpisimSimulator.addActionListener(new ActionListener(){
-
 			public void actionPerformed(ActionEvent e) {
 				if(simulator.getMainFrame() instanceof JFrame){
 					aboutDialog.showAboutDialog();
-				}
-				
-			}
-			
+				}				
+			}			
 		});
 		
 		infoMenu.add(menuItemAboutEpisimSimulator);
@@ -436,53 +434,7 @@ public class EpisimMenuBarFactory {
 		paramScanMenu.add(menuItemParamFileGen);
 		paramScanMenu.setEnabled(false);
 		menuBar.add(paramScanMenu);
-	}
-	
-	private void buildTestMenu(JMenuBar menuBar)
-	{
-		JMenu testMenu = new JMenu(EpisimMenu.TEST_MENU.toString());
-		
-		final JMenuItem menuItemSaveSnapshot = new JMenuItem(EpisimMenuItem.TEST_SAVE_SNAPSHOT.toString());
-		menuItemSaveSnapshot.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				if(simulator.getMainFrame() instanceof JFrame){					
-					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
-					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showSaveDialog((JFrame)simulator.getMainFrame())){
-						simulator.saveSimulationStateFile(chooser.getSelectedFile());
-						
-					}
-				}				
-         }
-		});
-		
-		final JMenuItem menuItemLoadSnapshot = new JMenuItem(EpisimMenuItem.TEST_LOAD_SNAPSHOT.toString());
-		menuItemLoadSnapshot.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				boolean loadTissueExport = false;
-				if(ModelController.getInstance().isModelOpened()){
-					int choice = JOptionPane.showConfirmDialog(simulator.getMainFrame(), "Do you really want to close the opened model?", "Close Model?", JOptionPane.YES_NO_OPTION);
-					if(choice == JOptionPane.OK_OPTION){
-						simulator.closeModel();
-						loadTissueExport = true;
-					}
-				}
-				else loadTissueExport = true;				
-				
-				if(loadTissueExport && simulator.getMainFrame() instanceof JFrame){					
-					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
-					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showOpenDialog((JFrame)simulator.getMainFrame())){
-						simulator.loadSimulationStateFile(chooser.getSelectedFile());						
-					}
-				}				
-         }
-		});
-		menuItemSaveSnapshot.setEnabled(true);
-		menuItemLoadSnapshot.setEnabled(true);
-		testMenu.add(menuItemSaveSnapshot);
-		testMenu.add(menuItemLoadSnapshot);
-		testMenu.setEnabled(true);
-		menuBar.add(testMenu);
-	}
+	}	
 	
 	public JMenu getEpisimMenu(EpisimMenu menu){
 		

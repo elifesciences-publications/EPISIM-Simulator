@@ -89,7 +89,7 @@ return true;  }
 , noofneighbours1317375085810, false, false));
 steppable = new EnhancedSteppable(){
 public void step(SimState state){
-for(CalculationCallBack callBack: calculationCallbacks) callBack.calculate(state.schedule.getSteps());}
+for(CalculationCallBack callBack: calculationCallbacks) callBack.calculate(SimStateServer.getInstance().getSimStepNumber());}
 public double getInterval(){
 return 1.0;
 }

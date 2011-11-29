@@ -78,7 +78,7 @@ public class ModelInitialization {
 	private ArrayList<UniversalCell> buildCellList() {
 		ArrayList<UniversalCell> initiallyExistingCells = this.biomechanicalModelInitializer
 				.getInitialCellEnsemble();
-
+		
 		this.cellbehavioralModelInitializer
 				.initializeCellEnsemble(initiallyExistingCells);
 		this.biomechanicalModelInitializer

@@ -44,15 +44,14 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    private EpisimCellBehavioralModel cellBehavioralModelObject;
    private EpisimBiomechanicalModel mechanicalModelObject;
    
-   private SimState actSimState;
    
-   public AbstractCell(AbstractCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, SimState simState){
+   
+   public AbstractCell(AbstractCell motherCell, EpisimCellBehavioralModel cellBehavioralModel){
    	inNirvana=false;
    	isOuterCell=false;
    	this.id = getNextCellId();
    	this.motherCell = ((motherCell == null) ? this : motherCell);   	
    	this.cellBehavioralModelObject = cellBehavioralModel;
-   	this.actSimState = simState;
    	final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
    	if(cellBehavioralModel == null){ 
    		this.cellBehavioralModelObject = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
@@ -116,9 +115,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	@CannotBeMonitored @NoExport
    public Class<? extends EpisimCellBehavioralModel> getEpisimCellBehavioralModelClass(){ return this.cellBehavioralModelObject.getClass(); }	
    
-	@NoExport
-	public SimState getActSimState() { return this.actSimState; }
-	public void setActSimState(SimState state) { this.actSimState =state; }      
+	
 	public void removeCellDeathListener(){ this.cellDeathListeners.clear(); }   
 	public void addCellDeathListener(CellDeathListener listener){ this.cellDeathListeners.add(listener); }   
    
@@ -133,7 +130,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    @CannotBeMonitored @NoExport
    public EpisimBiomechanicalModel getEpisimBioMechanicalModelObject(){ return this.mechanicalModelObject; }   
    public void step(SimState state) {		
-		this.actSimState = state;		
+		
    }
    
    public boolean equals(Object obj){

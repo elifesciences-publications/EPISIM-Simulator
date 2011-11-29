@@ -67,7 +67,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 							.getSeedReverse()))
 				if (distance > biomechanicalModelGlobalParameters.getBasalDensity_mikron()) {
 
-					UniversalCell stemCell = new UniversalCell(null, null, null);
+					UniversalCell stemCell = new UniversalCell(null, null);
 					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject().setXY(
 							((int) newloc.x), ((int) newloc.y));
 					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject())

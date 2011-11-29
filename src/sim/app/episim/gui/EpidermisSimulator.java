@@ -62,9 +62,11 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public class EpidermisSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener, SnapshotRestartListener{
+public class EpidermisSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
 	public static final String versionID = "1.3";
+	
+	public static final String SIMULATOR_TITLE = "Episim Simulator v. "+ versionID+" ";
 	
 	private static final String CB_FILE_PARAM_PREFIX = "-cb";
 	private static final String BM_FILE_PARAM_PREFIX = "-bm";
@@ -76,7 +78,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	private JPanel noGUIModeMainPanel;
 	
 	private ExtendedFileChooser jarFileChoose;
-	private ExtendedFileChooser tssFileChoose;
+	private ExtendedFileChooser tissueExportFileChoose;
 	
 	
 	
@@ -131,8 +133,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			mainFrame.getContentPane().add(statusbar, BorderLayout.SOUTH);
 			jarFileChoose= new ExtendedFileChooser("jar");
 			jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
-			tssFileChoose = new ExtendedFileChooser("tss");
-			mainFrame.setTitle("Episim Simulator");
+			tissueExportFileChoose = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
+			mainFrame.setTitle(EpidermisSimulator.SIMULATOR_TITLE);
 		}
 		else{
 			noGUIModeMainPanel.setLayout(new BorderLayout());
@@ -385,7 +387,6 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				
 				ModelController.getInstance().setModelOpened(true);
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH).setEnabled(true);
-				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_SNAPSHOT).setEnabled(false);
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(false);
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(true);
 				menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
@@ -452,7 +453,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	public void classLoaderHasChanged() {
 
 	   if(ModelController.getInstance().isModelOpened()){	   	
-	         reloadModel(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile(), SimulationStateData.getTissueExportPath());        
+	         reloadModel(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile(), SimulationStateFile.getTissueExportPath());        
 	   }	   
    }
 	public void setTissueExportPath(){
@@ -461,21 +462,20 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	}
 	protected void setTissueExportPath(File file, boolean modelReload){
 		if(file == null && !modelReload){
-			tssFileChoose.setDialogTitle("Set Snaphot-Path");
+			tissueExportFileChoose.setDialogTitle("Set Tissue-Export-Path");
 			if(ModeServer.guiMode()){
-				if(tssFileChoose.showSaveDialog(mainFrame) == JFileChooser.APPROVE_OPTION) file = tssFileChoose.getSelectedFile();
+				if(tissueExportFileChoose.showSaveDialog(mainFrame) == JFileChooser.APPROVE_OPTION) file = tissueExportFileChoose.getSelectedFile();
 			}
 			
 		}
 		if(file != null){
 			try{
-	        if(ModeServer.guiMode()) mainFrame.setTitle("Episim Simulator"+ " - Snapshot-Path: "+file.getCanonicalPath());
+	        if(ModeServer.guiMode()) mainFrame.setTitle(EpidermisSimulator.SIMULATOR_TITLE+ "- Tissue-Export-Path: "+file.getCanonicalPath());
          }
          catch (IOException e){
 	         ExceptionDisplayer.getInstance().displayException(e);
          }
-			SimulationStateData.setTissueExportPath(file);
-			 
+			SimulationStateFile.setTissueExportPath(file);			 
 		}		
 	}
 	
@@ -504,7 +504,6 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		else noGUIModeMainPanel.repaint();
 		ModelController.getInstance().setModelOpened(false);
 		TissueController.getInstance().resetTissueSettings();
-		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_SNAPSHOT).setEnabled(true);
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(false);
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(true);
 		menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
@@ -530,7 +529,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		
 		GlobalClassLoader.getInstance().destroyClassLoader();
 		
-		if(ModeServer.guiMode())mainFrame.setTitle("Episim Simulator");
+		if(ModeServer.guiMode())mainFrame.setTitle(EpidermisSimulator.SIMULATOR_TITLE);
 		
 		
 		this.actLoadedSnapshotFile = null;
@@ -602,18 +601,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
    	return ModeServer.guiMode() ? mainFrame : noGUIModeMainPanel; }
 
 		
-	protected void saveSimulationStateFile(File f){
-		try{
-			
-            (new SimulationStateFile()).saveData(f);
-        }
-        catch (ParserConfigurationException e1){
-           ExceptionDisplayer.getInstance().displayException(e1);
-        }
-        catch (SAXException e1){
-        	ExceptionDisplayer.getInstance().displayException(e1);
-        }
-	}
+	
 	
 	protected void loadSimulationStateFile(File f){
 		try{

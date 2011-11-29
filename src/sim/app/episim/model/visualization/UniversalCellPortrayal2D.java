@@ -1,6 +1,6 @@
 package sim.app.episim.model.visualization;
 import sim.SimStateServer;
-import sim.SimStateServer.SimState;
+import sim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
@@ -191,12 +191,12 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
  	}
 
 	private void doCenterBasedModelEllipseDrawing(Graphics2D graphics, DrawInfo2D info, UniversalCell universalCell, boolean showNucleus){
-		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel && universalCell.getActSimState()!= null){
+		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
 			
-			((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(universalCell.getActSimState().schedule.getSteps());
+			((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
 			CellEllipse cellEllipseObject = ((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
 			
-			if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
+			if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PAUSE || SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.STOP){ 
 				cellEllipseObject.translateCell(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
 		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));        
 	      }	      	  
@@ -217,7 +217,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 	    	}
 	    	//must be set at the very end of the paint method
 	       
-	       if(SimStateServer.getInstance().getSimState() == SimState.PLAY || SimStateServer.getInstance().getSimState() == SimState.STEPWISE){ 
+	       if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PLAY || SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.STEPWISE){ 
 	      	 cellEllipseObject.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
 		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)), false);
 	       }         
@@ -303,7 +303,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    	Color myFrameColor = Color.white; //new Color(Red, Green, Blue);   	                               
       int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
    	myFrameColor=new Color(200, 165, 200);                
-   	if (coloringType==3 || coloringType==4 || coloringType==5 || coloringType==6 || coloringType==7 || coloringType==9) // Age coloring
+   	if (coloringType==3 || coloringType==4 || coloringType==5 || coloringType==6 || coloringType==7) // Age coloring
    	{
    		myFrameColor=Color.black;
    	}

@@ -24,7 +24,6 @@ public interface SimulationConsole extends Controller{
 	void pressPlay();
 	void pressStop();
 	GUIState getSimulation();
-	void pressPlay(boolean reloadSnapshot);
 	void doClose();
 	void setWhenShouldEnd(long val);
 	

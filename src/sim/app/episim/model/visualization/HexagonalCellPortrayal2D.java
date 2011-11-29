@@ -19,7 +19,7 @@ import episiminterfaces.EpisimCellBehavioralModel;
 
 
 import sim.SimStateServer;
-import sim.SimStateServer.SimState;
+import sim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.UniversalCell;
@@ -75,7 +75,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    	 if(object instanceof UniversalCell){   	 
    		 UniversalCell cell = (UniversalCell) object;   		 
    		
-   		 if(cell.getActSimState() != null &&  cell.getActSimState().schedule != null) actSimStepNo = cell.getActSimState().schedule.getSteps();  		  		 
+   		 actSimStepNo = SimStateServer.getInstance().getSimStepNumber();  		  		 
    		 
    		 filled = true;
    		 double width = (info.draw.width+DELTA+2)*scale;
@@ -108,12 +108,12 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      }
 	   		if(shape!=null){
 		   	 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
-		   	 	if(((EpisimHexagonBasedModelConnector)mechModel.getEpisimModelConnector()).getIsAtSurfaceBorder()){
+		   	/* 	if(((EpisimHexagonBasedModelConnector)mechModel.getEpisimModelConnector()).getIsAtSurfaceBorder()){
 		   	 		graphics.setPaint(Color.GREEN);
 		   	 	}
-		   	 	else{
+		   	 	else{*/
 		   	 		graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
-		   	   }
+		   	 //  }
 				   if (filled)
 				   {	        
 				   	graphics.fill(shape);
@@ -306,7 +306,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
     }
     
     private void doEllipseDrawing(Graphics2D graphics, DrawInfo2D info, UniversalCell universalCell){
- 		if(universalCell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModel && universalCell.getActSimState()!= null){
+ 		if(universalCell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModel){
  			
  			HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject();
  			
@@ -358,7 +358,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	      }
  			
 	      
-	      if(SimStateServer.getInstance().getSimState() == SimState.PLAY || SimStateServer.getInstance().getSimState() == SimState.STEPWISE){
+	      if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PLAY || SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.STEPWISE){
 	      	boolean translate = (mechModel.getCellEllipse().getLastDrawInfo2D().clip.x != info.clip.x
 	      			           || mechModel.getCellEllipse().getLastDrawInfo2D().clip.y != info.clip.y
 	      			           || mechModel.getCellEllipse().getLastDrawInfo2D().clip.width != info.clip.width
@@ -379,10 +379,10 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
  				mechModel.getCellEllipse().setLastDrawInfo2D(new DrawInfo2D(new Rectangle2D.Double(info.draw.x, info.draw.y, width, height),
 	          		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)), true);        
  	      }*/
-	      calculateClippedCell(universalCell.getActSimState().schedule.getSteps(), mechModel);
+	      calculateClippedCell(SimStateServer.getInstance().getSimStepNumber(), mechModel);
  			
 	      
- 			if(SimStateServer.getInstance().getSimState() == SimState.PAUSE || SimStateServer.getInstance().getSimState() == SimState.STOP){ 
+ 			if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PAUSE || SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.STOP){ 
  				 mechModel.getCellEllipse().translateCell(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(x, y, width, height),
  		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));        
  	      }	    	  

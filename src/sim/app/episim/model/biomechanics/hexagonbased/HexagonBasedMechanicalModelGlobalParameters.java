@@ -21,7 +21,8 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	
 	private double numberOfPixelsPerMicrometer = 0.1;
 	
-	public static final double initialPositionWoundEdge_Mikron = celldiameter_mikron + (number_of_initially_occupied_columns-1d)*1.5*outer_hexagonal_radius;
+	public static final double initialPositionWoundEdge_Mikron = celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
+		//celldiameter_mikron + (number_of_initially_occupied_columns-1d)*1.5*outer_hexagonal_radius;
 	
 	
 	private double neighborhood_mikron = 2d*inner_hexagonal_radius;

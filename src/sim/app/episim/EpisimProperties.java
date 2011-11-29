@@ -47,10 +47,7 @@ public class EpisimProperties {
 	public static final String SIMULATOR_CHARTPNGPRINTFREQ = "simulator.chartpngprintfreq";
 	
 	public static final String SIMULATOR_SIMULATION_RUN_ID = "simulator.simulationrun.id";
-	
-	public static final String SIMULATOR_TESTMENU = "simulator.testmenu";
-
-	
+		
 	public static final String SIMULATOR_SIM_STEP_MODE_MONTE_CARLO="montecarlo";
 	public static final String SIMULATOR_SIM_STEP_MODE_MASON="mason";
 	

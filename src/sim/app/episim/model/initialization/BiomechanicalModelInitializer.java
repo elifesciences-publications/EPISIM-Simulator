@@ -68,7 +68,7 @@ public abstract class BiomechanicalModelInitializer {
 		} else {
 			UniversalCell mother = buildCell(simulationStateData.getCellToBeLoaded(motherID));
 				// TODO was tun wenn mutter gelöscht ist?
-			loadCell = new UniversalCell(mother, null, null);
+			loadCell = new UniversalCell(mother, null);
 		}
 		xCell.copyValuesToTarget(loadCell);
 		simulationStateData.addLoadedCell(xCell, loadCell);

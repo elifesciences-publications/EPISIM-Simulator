@@ -152,9 +152,6 @@ public class Epidermis extends TissueType implements CellDeathListener
 			 if(!ModeServer.useMonteCarloSteps()){
 					Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
 					cell.setStoppable(stoppable);
-					if(cell.getActSimState() == null){
-						cell.setActSimState(this);
-					}
 			 }
 		 }	
 	}

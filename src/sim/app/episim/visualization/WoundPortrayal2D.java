@@ -57,72 +57,50 @@ public class WoundPortrayal2D extends ContinuousPortrayal2D implements EpisimPor
 	  	 this.setField(field);
 	}
 
-	private void createPolygon(DrawInfo2D info) {
-
-		{
-
-			polygon = new GeneralPath();
-			((GeneralPath) polygon).moveTo(lastActualInfo.clip.getMinX() + woundRegionCoordinates.get(0).x - getDeltaX(),
-					lastActualInfo.clip.getMinY() + woundRegionCoordinates.get(0).y - getDeltaY());
-			for(Double2D coord : woundRegionCoordinates){
-				polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + coord.x, lastActualInfo.clip.getMinY() - getDeltaY() + coord.y);
-			}
-			if(closeWoundRegionPath)
-				polygon.closePath();
+	private void createPolygon(DrawInfo2D info) {	
+		polygon = new GeneralPath();
+		((GeneralPath) polygon).moveTo(lastActualInfo.clip.getMinX() + woundRegionCoordinates.get(0).x - getDeltaX(),
+		lastActualInfo.clip.getMinY() + woundRegionCoordinates.get(0).y - getDeltaY());
+		for(Double2D coord : woundRegionCoordinates){
+			polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + coord.x, lastActualInfo.clip.getMinY() - getDeltaY() + coord.y);
 		}
+		if(closeWoundRegionPath)
+			polygon.closePath();		
 	}
 
 	// assumes the graphics already has its color set
 	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
-
 		if(info != null){
 			lastActualInfo = info;
 			graphics.setColor(Color.red);
-
 			graphics.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
 			graphics = (Graphics2D) graphics.create();
-
-			if(woundRegionCoordinates.size() > 1)
-				createPolygon(info);
-
-			else
-				polygon = null;
-
+			if(woundRegionCoordinates.size() > 1) createPolygon(info);
+			else polygon = null;
 			if(polygon != null && lastActualInfo.clip.contains(polygon.getBounds2D())){
-
 				graphics.draw(polygon);
 			}
-
 		}
-
 	}
 
 	public void addMouseCoordinate(Double2D double2d) {
-
 		deltaInfo = lastActualInfo;
 		if(double2d != null && lastActualInfo != null){
-			Double2D newDouble2d = new Double2D(double2d.x - lastActualInfo.clip.getMinX(), double2d.y
-					- lastActualInfo.clip.getMinY());
-
+			Double2D newDouble2d = new Double2D(double2d.x - lastActualInfo.clip.getMinX(), double2d.y - lastActualInfo.clip.getMinY());
 			woundRegionCoordinates.add(newDouble2d);
 		}
 	}
 
 	public void closeWoundRegionPath(boolean closewoundRegionPath) {
-
 		refreshInfo = false;
 		this.closeWoundRegionPath = closewoundRegionPath;
-
 	}
 
-	public GeneralPath getWoundRegion() {
-
+	public GeneralPath getWoundRegion(){
 		return polygon;
 	}
 
-	public void clearWoundRegionCoordinates() {
-
+	public void clearWoundRegionCoordinates(){
 		woundRegionCoordinates.clear();
 	}
 

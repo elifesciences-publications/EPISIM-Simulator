@@ -670,32 +670,28 @@ public class DefaultCharts implements java.io.Serializable{
 	        private long previousSteps = 0;
 	   	  
 	   	  public void step(SimState state)
-	         {   
+	        {   
 	         	
 	   		   if(state.schedule.getSteps() > 400){
 	   		   	long actTime = System.currentTimeMillis()/1000;
-	         	long actSteps = state.schedule.getSteps();
-	   		   long deltaTime = actTime - previousTime;
-	   		   long deltaSteps = actSteps - previousSteps;
-	   		   
-	   		   previousTime = actTime;
-	   		   previousSteps = actSteps;
-	   		   if(deltaTime > 0){
-	   		   double stepsPerTime = deltaSteps/deltaTime;
-	         	getXYSeries("Steps_Time").add(state.schedule.getSteps(), stepsPerTime);
-	   		   getXYSeries("Num_Cells_Steps").add(state.schedule.getSteps(), GlobalStatistics.getInstance().getActualNumberKCytes());
+		         	long actSteps = state.schedule.getSteps();
+		   		   long deltaTime = actTime - previousTime;
+		   		   long deltaSteps = actSteps - previousSteps;
+		   		   
+		   		   previousTime = actTime;
+		   		   previousSteps = actSteps;
+		   		   if(deltaTime > 0){
+		   		   double stepsPerTime = deltaSteps/deltaTime;
+		         	getXYSeries("Steps_Time").add(state.schedule.getSteps(), stepsPerTime);
+		   		   getXYSeries("Num_Cells_Steps").add(state.schedule.getSteps(), GlobalStatistics.getInstance().getActualNumberKCytes());
 	   		   }
-	   		   }	
-	   		   
-	             
-	         }
-
-			public double getInterval() {
-
-	         
+	   		}            
+	      }
+			public double getInterval(){	         
 	         return 100;
          }
-	     });
+			
+	   });
 		//chartUpdaterKinetics
 		this.steppablesMap.put(this.TISSUEKINETICPARAMETERS, new EnhancedSteppable()
 				{

@@ -153,10 +153,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainComponent = mainComp;		
 		this.setConsole(new EpisimConsole(this, reloadSnapshot));		
-		
-		
 	}
 	
+	public Component getMainGUIComponent(){
+		return this.mainComponent;
+	}
 	
 	
 	public Inspector getCellBehavioralModelInspector() {
@@ -422,7 +423,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		      	t.start();
 	       }
 	       else if(console != null && console.getPlayState() == Console.PS_PAUSED){
-	      	 if(SimStateServer.getInstance().getSimState() == SimStateServer.SimState.STEPWISE){
+	      	 if(SimStateServer.getInstance().getEpisimSimulationState() == SimStateServer.EpisimSimulationState.STEPWISE){
 	      		 SimStateServer.getInstance().setSimStatetoPause();
 	      		 mainComponent.validate();
 	      		 mainComponent.repaint();
@@ -454,7 +455,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 					 resizeButtonIsActionSource = false;
 				 }
     	     else if(console != null && console.getPlayState() == Console.PS_PAUSED){
-    	   	 if(SimStateServer.getInstance().getSimState() == SimStateServer.SimState.STEPWISE){
+    	   	 if(SimStateServer.getInstance().getEpisimSimulationState() == SimStateServer.EpisimSimulationState.STEPWISE){
     	   		SimStateServer.getInstance().setSimStatetoPause();
     	   		 displayFrame.validate();
     	   		displayFrame.repaint();
@@ -750,12 +751,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 			woundPortrayal.closeWoundRegionPath(false);
 		}
 		
-	}
-   
-	public void setReloadedSnapshot(boolean reloaded){
-		console.setReloadedSnapshot(reloaded);
-	}
-
+	}	
 	
 	public WoundPortrayal2D getWoundPortrayalDraw() {
 	
@@ -781,10 +777,6 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	public void addSimulationStateChangeListener(SimulationStateChangeListener listener){
 		this.simulationStateListeners.add(listener);
-	}
-	
-	public void addSnapshotRestartListener(SnapshotRestartListener listener){
-		if(this.console != null) console.addSnapshotRestartListener(listener); 
 	}
 
 	public void chartSetHasChanged() {

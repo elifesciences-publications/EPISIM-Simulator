@@ -12,6 +12,7 @@ import java.util.Map;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.monitoring.CannotBeMonitored;
 
+import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ModeServer;
@@ -86,7 +87,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 			schedule.scheduleRepeating(new Steppable(){
 
 				public void step(SimState state) {
-	            ModelController.getInstance().getBioMechanicalModelController().newSimStepGloballyFinished(state.schedule.getSteps());
+	            ModelController.getInstance().getBioMechanicalModelController().newSimStepGloballyFinished(SimStateServer.getInstance().getSimStepNumber());
             }}, SchedulePriority.TISSUE.getPriority(), 1);
 			
 			if(!ModeServer.guiMode()){
@@ -95,11 +96,11 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 					public void step(SimState state) {
 
 			         System.out.print("\r");	         
-			         System.out.print("Simulation Step " + (state.schedule.getSteps()+1));
+			         System.out.print("Simulation Step " + (SimStateServer.getInstance().getSimStepNumber()+1));
 			         if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP) != null){
 							long steps = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP));
 							System.out.print(" of " + steps);
-							if((state.schedule.getSteps()+1) == steps){
+							if((SimStateServer.getInstance().getSimStepNumber()+1) == steps){
 								System.out.println("\n------------Simulation Stopped------------");
 							}
 			         }

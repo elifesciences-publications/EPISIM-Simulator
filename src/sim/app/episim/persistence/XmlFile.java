@@ -30,10 +30,6 @@ public class XmlFile {
 
 	private Document document = null;
 
-	public static void main(String[] args) {
-
-	}
-
 	protected XmlFile(File path) throws SAXException, IOException,
 			ParserConfigurationException {
 		readFile(path);

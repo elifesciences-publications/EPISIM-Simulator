@@ -1,8 +1,10 @@
 package sim.app.episim;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.CellDeathListener;
@@ -39,7 +41,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
       
    private Stoppable stoppable = null;
    
-   private List<CellDeathListener> cellDeathListeners;
+   private Set<CellDeathListener> cellDeathListeners;
       
    private EpisimCellBehavioralModel cellBehavioralModelObject;
    private EpisimBiomechanicalModel mechanicalModelObject;
@@ -65,7 +67,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    	this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);
    	this.cellBehavioralModelObject.setEpisimSbmlModelConnector(ModelController.getInstance().getNewEpisimSbmlModelConnector());
    
-   	cellDeathListeners = new LinkedList<CellDeathListener>();      
+   	cellDeathListeners = new HashSet<CellDeathListener>();      
       cellDeathListeners.add(TissueController.getInstance().getActEpidermalTissue());      
       cellDeathListeners.add(GlobalStatistics.getInstance());
       

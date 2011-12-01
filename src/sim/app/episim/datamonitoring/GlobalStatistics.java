@@ -1,11 +1,14 @@
 package sim.app.episim.datamonitoring;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.calc.CalculationAlgorithm;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
@@ -63,9 +66,20 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	private int histogrammCounter = 0;
 	
 	
+	private Set<CellDeathListener> globalCellDeathListener;
+	
 	private GlobalStatistics(){
-		
+		globalCellDeathListener = new HashSet<CellDeathListener>();
 	}
+	
+	
+	/*
+	 * Calculation Algorithms can register here
+	 */
+	public void addCellDeathListenerCalculationAlgorithm(CellDeathListener listener){
+		if(listener instanceof CalculationAlgorithm)this.globalCellDeathListener.add(listener);
+	}
+	
 	
 	public GenericBag<AbstractCell> getCells(){
 		return this.allCells;		
@@ -322,7 +336,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 
 
 	public void cellIsDead(AbstractCell cell) {
-
+		notifyAllGlobalCellDeathListener(cell);
 	   if(cell instanceof UniversalCell){
 	   	UniversalCell kcyte = (UniversalCell) cell;
 	   	dekrementActualNumberKCytes();
@@ -352,7 +366,13 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	   	
 	   }
 	   
-   }	
+   }
+	
+	private void notifyAllGlobalCellDeathListener(AbstractCell cell){
+		for(CellDeathListener listener: globalCellDeathListener){
+			listener.cellIsDead(cell);
+		}
+	}
 	
    public int getActualNumberStemCells() {return actualNumberStemCells; }
    public int getActualNumberKCytes(){ return actualNumberKCytes; }

@@ -90,7 +90,7 @@ public class UniversalCell extends AbstractCell
         long maxAge= ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getMaxAge();
         long simTime=SimStateServer.getInstance().getSimStepNumber();
         if (simTime<(maxAge)){ 
-      	  cellBehavioralModel.setMaxAge((int)maxAge);
+      	  cellBehavioralModel.setMaxAge((int)simTime);
         }		              
         return kcyte;
     }
@@ -155,7 +155,7 @@ public class UniversalCell extends AbstractCell
   
    	// if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
    	// else 
-   		 this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
+   	 this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
 		
    	 EpisimCellBehavioralModel[] children = this.getEpisimCellBehavioralModelObject().oneStep(realNeighboursDiffModel);
 		/*	long timeAfter = System.currentTimeMillis();

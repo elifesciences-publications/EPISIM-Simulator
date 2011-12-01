@@ -92,7 +92,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	private StatusBar statusbar;
 	
 	
-	private File actLoadedSnapshotFile = null;
+	private SimulationStateData actLoadedSimulationStateData = null;
 	
 	
 	
@@ -345,6 +345,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		
+		
 		File standardDir =new File("d:/");
 		if(ModeServer.guiMode()){
 			jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
@@ -368,6 +369,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			
 			//System.out.println(success);
 			if(success){
+				actLoadedSimulationStateData = simulationStateData;
 				if(simulationStateData == null)ModelController.getInstance().standardInitializationOfModels();
 				else ModelController.getInstance().initializeModels(simulationStateData);
 				ChartController.getInstance().rebuildDefaultCharts();
@@ -418,7 +420,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
       }
 		
 		if(success){
-			
+			if(actLoadedSimulationStateData == null)ModelController.getInstance().standardInitializationOfModels();
+			else ModelController.getInstance().initializeModels(actLoadedSimulationStateData);
 			setTissueExportPath(snapshotPath, true);			
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
@@ -532,7 +535,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		if(ModeServer.guiMode())mainFrame.setTitle(EpidermisSimulator.SIMULATOR_TITLE);
 		
 		
-		this.actLoadedSnapshotFile = null;
+		this.actLoadedSimulationStateData = null;
 	}
 	
 	public void simulationWasStarted(){

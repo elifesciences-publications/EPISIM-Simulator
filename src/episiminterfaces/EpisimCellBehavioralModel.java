@@ -78,6 +78,7 @@ public interface EpisimCellBehavioralModel {
 	void setEpisimSbmlModelConnector(EpisimSbmlModelConnector _modelConnector);
 	
 	EpisimSbmlModelConnector getEpisimSbmlModelConnector();
+	void updateAllSbmlModelParameterValuesFromConnector();
 	
 }
 

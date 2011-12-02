@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.model.controller.ModelController;
@@ -315,7 +316,10 @@ public class EpisimMenuBarFactory {
 					getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(true);
 					getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(false);
 					getEpisimMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT).setEnabled(false);
-					simulator.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
+					if(ModeServer.useMonteCarloSteps()){
+						simulator.getStatusbar().setMessage("Monte Carlo Simulation Steps activated - "+"Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
+					}
+					else simulator.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
 				}
 				
 			}
@@ -335,7 +339,10 @@ public class EpisimMenuBarFactory {
 					getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(true);
 					getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(false);
 					getEpisimMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT).setEnabled(false);
-					simulator.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
+					if(ModeServer.useMonteCarloSteps()){
+						simulator.getStatusbar().setMessage("Monte Carlo Simulation Steps activated - "+"Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
+					}
+					else simulator.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
 				}
 				else{ 
 					if(!DataExportController.getInstance().isAlreadyDataExportSetLoaded()) getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(false);
@@ -349,7 +356,10 @@ public class EpisimMenuBarFactory {
 
 			public void actionPerformed(ActionEvent e) {
 				if(simulator.getMainFrame() instanceof JFrame) DataExportController.getInstance().showEditDataExportDefinitionDialog((JFrame)simulator.getMainFrame());
-				simulator.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
+				if(ModeServer.useMonteCarloSteps()){
+					simulator.getStatusbar().setMessage("Monte Carlo Simulation Steps activated - "+"Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
+				}
+				else simulator.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
 			}
 			
 		});
@@ -364,7 +374,10 @@ public class EpisimMenuBarFactory {
 				getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(false);
 				getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(false);
 				DataExportController.getInstance().closeActLoadedDataExportDefinitonSet();
-				simulator.getStatusbar().setMessage("");
+				if(ModeServer.useMonteCarloSteps()){
+					simulator.getStatusbar().setMessage("Monte Carlo Simulation Steps activated - "+"Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
+				}
+				else simulator.getStatusbar().setMessage("Monte Carlo Simulation Steps activated");
 			}
 			
 		});

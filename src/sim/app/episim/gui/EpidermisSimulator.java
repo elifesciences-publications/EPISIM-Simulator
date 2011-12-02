@@ -189,7 +189,9 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 					
 				}
 			}
-			
+			if(ModeServer.useMonteCarloSteps()){
+				this.getStatusbar().setMessage("Monte Carlo Simulation Steps activated - "+this.getStatusbar().getMessage());
+			}
 		}
 		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		//        TODO: to be changed for video recording
@@ -512,7 +514,11 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
 		menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(false);
 		menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
-		statusbar.setMessage("");
+		
+		if(ModeServer.useMonteCarloSteps()){
+			this.getStatusbar().setMessage("Monte Carlo Simulation Steps activated"+this.getStatusbar().getMessage());
+		}
+		else statusbar.setMessage("");
 		ChartController.getInstance().modelWasClosed();
 		DataExportController.getInstance().modelWasClosed();
 		

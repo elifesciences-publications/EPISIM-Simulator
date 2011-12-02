@@ -27,7 +27,10 @@ public class StatusBar extends JPanel {
        add(statusText, BorderLayout.SOUTH);
    }
    
-   public void setMessage(String message) {
+   public void setMessage(String message){
    	statusText.setText(" "+message);        
-   }        
+   }
+   public String getMessage(){
+   	return statusText.getText();        
+   }
 }

@@ -41,7 +41,7 @@ public class SbmlModelConnector implements EpisimSbmlModelConnector{
    }
 
 	public void setParameterValue(String originalName, String sbmlFile, double value){
-		if(this.sbmlModelStates.containsKey(sbmlFile)){
+		if(this.sbmlModelStates.containsKey(sbmlFile)){			
 			this.sbmlModelStates.get(sbmlFile).addParameterValue(new SBMLModelEntity(originalName, value, 0));			
 		}
    }

@@ -60,7 +60,7 @@ public class XmlEpisimCellBehavioralModel extends
 			XmlSbmlModelConnector connector = (XmlSbmlModelConnector)xmlObj;
 			connector.copyValuesToTarget((SbmlModelConnector) cellModel.getEpisimSbmlModelConnector());
 		}
-		
+		if(cellModel != null) cellModel.updateAllSbmlModelParameterValuesFromConnector();
 		return cellModel;
 	}
 

@@ -70,6 +70,8 @@ public class TissueController {
 		}		
 	}
 	
+	public ImportedTissue getActImportedTissue(){  return this.actImportedTissue; }
+	
 	public void addTissueRegistrationListener(TissueRegistrationListener listener){
 		this.tissueRegistrationListener.add(listener);
 	}

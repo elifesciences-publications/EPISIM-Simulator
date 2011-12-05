@@ -195,8 +195,8 @@ public class TissueBorder {
 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setNumberOfPixelsPerMicrometer((1/ tissue.getResolutionInMicrometerPerPixel()));
 			surface = tissue.getSurfacePoints();
 			basalLayer = tissue.getBasalLayerPoints();
-			Collections.shuffle(surface);
-			Collections.shuffle(basalLayer);
+//			Collections.shuffle(surface);
+//			Collections.shuffle(basalLayer);
 			surfaceArray = surface.toArray(new Point2D[surface.size()]);
 			basalLayerArray = basalLayer.toArray(new Point2D[basalLayer.size()]);
 		
@@ -204,22 +204,21 @@ public class TissueBorder {
 			PointSorter sorting = null;
 			if(!surface.isEmpty()){
 				//sorting = new SimulatedAnnealingForOrderingPoints(surfaceArray);
-				sorting = new PointSorter(surfaceArray);
-				surfaceArray = sorting.getSortedPoints();
+			//	sorting = new PointSorter(surfaceArray);
+			//	surfaceArray = sorting.getSortedPoints();
 			}
 			if(!basalLayer.isEmpty()){
-				long start = System.currentTimeMillis();
+				
 				//sorting = new SimulatedAnnealingForOrderingPoints(basalLayerArray);
-				sorting = new PointSorter(basalLayerArray);
-			   basalLayerArray = sorting.getSortedPoints();
-				long end = System.currentTimeMillis();
-				System.out.println("Time for Sorting: " + (end-start));
+			//	sorting = new PointSorter(basalLayerArray);
+			//   basalLayerArray = sorting.getSortedPoints();
+				
 			}		
 			
 			fullcontour = new ArrayList<Point2D>();
 			for(Point2D point : basalLayerArray)fullcontour.add(point);
 			
-			for(int i = surfaceArray.length-1; i >= 0 ; i--) fullcontour.add(surfaceArray[i]);				
+			//for(int i = surfaceArray.length-1; i >= 0 ; i--) fullcontour.add(surfaceArray[i]);				
 		}			
 		if(this.fullcontour.size() > 0){
 

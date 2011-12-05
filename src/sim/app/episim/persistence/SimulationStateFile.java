@@ -19,18 +19,21 @@ import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 
 public class SimulationStateFile extends XmlFile {
-	
+
 	private static final String ROOT_NAME = "data_set";
 	private static final String CELLBEHAVIORALMODEL_FILE = "model_file";
 	private static final String MultiCellXML_VERSION = "MultiCellXML_version";
 	private static final String CELLS = "cells";
 	private static final String CELL = "cell";
 	private static final String MODELFILE = "modelfile";
+	private static final String SIMSTEP = "simstep";
 	private static final String EPISIMBIOMECHANICALMODELGLOBALPARAMETERS = "episimbiomechanicalmodelglobalparameters";
 	private static final String EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS = "episimcellbehavioralmodelglobalparameters";
 	private static final String MISCALLENEOUSGLOBALPARAMETERS = "miscalleneousglobalparameters";
-	public static final String FILEEXTENSION ="xml";
-	
+	public static final String FILEEXTENSION = "xml";
+	private static final String VALUE = "value";
+	private static final String EPISIM_TISSUE_SIMULATION_HEADER = "episim_tissue_simulation_header";
+
 	private static File tissueExportPath;
 
 	private Element rootNode = null;
@@ -51,23 +54,39 @@ public class SimulationStateFile extends XmlFile {
 		rootNode = getRoot();
 		rootNode.setAttribute(MultiCellXML_VERSION, "1.0");
 	}
-	
-	
-   public static File getTissueExportPath() {
-	   return tissueExportPath;
-   }
-	
-   public static void setTissueExportPath(File tissueExportPath) {
-	   SimulationStateFile.tissueExportPath = tissueExportPath;
-   }
-	
+
+	public static File getTissueExportPath() {
+		return tissueExportPath;
+	}
+
+	public static void setTissueExportPath(File tissueExportPath) {
+		SimulationStateFile.tissueExportPath = tissueExportPath;
+	}
 
 	public SimulationStateData loadData() {
-		Node behaviorFile = getRoot().getElementsByTagName(
-				CELLBEHAVIORALMODEL_FILE).item(0);
+		Node simulationHeader = getRoot().getElementsByTagName(
+				EPISIM_TISSUE_SIMULATION_HEADER).item(0);
 		SimulationStateData simStateData = new SimulationStateData();
-		simStateData.setLoadedModelFile(behaviorFile.getAttributes()
-				.getNamedItem(MODELFILE).getNodeValue());
+
+		if (simulationHeader != null) {
+			NodeList nodes = simulationHeader.getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				if (nodes.item(i).getNodeName()
+						.equalsIgnoreCase(CELLBEHAVIORALMODEL_FILE)) {
+					simStateData.setLoadedModelFile(nodes.item(i)
+							.getAttributes().getNamedItem(MODELFILE)
+							.getNodeValue());
+				} else if (nodes.item(i).getNodeName()
+						.equalsIgnoreCase(SIMSTEP)) {
+					String simstepString = nodes.item(i).getAttributes()
+							.getNamedItem(VALUE).getNodeValue();
+					if (simstepString != null)
+						simStateData.setSimStepNumber(Long
+								.parseLong(simstepString));
+				}
+			}
+
+		}
 
 		NodeList nodes = getRoot().getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -114,36 +133,54 @@ public class SimulationStateFile extends XmlFile {
 		return simStateData;
 	}
 
-	public void saveData(){
-		
-		if(SimulationStateFile.tissueExportPath != null){
+	public void saveData() {
+
+		if (SimulationStateFile.tissueExportPath != null) {
 			saveData(getFilePath(SimulationStateFile.tissueExportPath));
-		}		
+		}
 	}
-	private File getFilePath(File file){
+
+	private File getFilePath(File file) {
 		File originalFile = file;
-		if(file != null && file.exists()){
+		if (file != null && file.exists()) {
 			int i = 2;
-			do{
-				file = new File(originalFile.getAbsolutePath().substring(0, (originalFile.getAbsolutePath().length()-(SimulationStateFile.FILEEXTENSION.length()+1)))
-						          +"_"+i+"."+SimulationStateFile.FILEEXTENSION);
+			do {
+				file = new File(
+						originalFile
+								.getAbsolutePath()
+								.substring(
+										0,
+										(originalFile.getAbsolutePath()
+												.length() - (SimulationStateFile.FILEEXTENSION
+												.length() + 1)))
+								+ "_"
+								+ i
+								+ "."
+								+ SimulationStateFile.FILEEXTENSION);
 				i++;
-			}
-			while(file.exists());
+			} while (file.exists());
 		}
 		return file;
 	}
-	
-	
+
 	private void saveData(File path) {
 
 		SimulationStateData simStateData = new SimulationStateData();
 		simStateData.updateData();
 
+		Element headerElement = createElement(EPISIM_TISSUE_SIMULATION_HEADER);
+
 		Element modelFileElement = createElement(CELLBEHAVIORALMODEL_FILE);
 		modelFileElement.setAttribute(MODELFILE, simStateData
 				.getLoadedModelFile().getAbsolutePath());
-		getRoot().appendChild(modelFileElement);
+		headerElement.appendChild(modelFileElement);
+
+		Element simStepElement = createElement(SIMSTEP);
+		simStepElement.setAttribute(VALUE,
+				Long.toString(simStateData.getSimStepNumber()));
+		headerElement.appendChild(simStepElement);
+
+		getRoot().appendChild(headerElement);
 
 		getRoot().appendChild(
 				simStateData.getEpisimCellBehavioralModelGlobalParameters()

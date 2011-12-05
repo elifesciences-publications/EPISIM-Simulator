@@ -9,6 +9,7 @@ import java.util.List;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpidermisSimulator;
@@ -35,6 +36,7 @@ public class SimulationStateData {
 	private Double[] deltaInfo;
 	private XmlObject<MiscalleneousGlobalParameters> miscalleneousGlobalParameters;
 	private File loadedModelFile;
+	private long simStepNumber = 0;
 
 	private HashMap<Long, UniversalCell> alreadyLoadedCells = new HashMap<Long, UniversalCell>();
 	private HashMap<Long, XmlUniversalCell> alreadyLoadedXmlCellsNewID = new HashMap<Long, XmlUniversalCell>();
@@ -99,6 +101,8 @@ public class SimulationStateData {
 	}
 
 	public void updateData() {
+		
+		this.simStepNumber = SimStateServer.getInstance().getSimStepNumber();
 
 		this.loadedModelFile = ModelController.getInstance()
 				.getCellBehavioralModelController().getActLoadedModelFile();
@@ -182,6 +186,14 @@ public class SimulationStateData {
 
 	public void setDeltaInfo(Double[] deltaInfo) {
 		this.deltaInfo = deltaInfo;
+	}
+	
+	public long getSimStepNumber() {
+		return simStepNumber;
+	}
+	
+	public void setSimStepNumber(long simStepNumber) {
+		this.simStepNumber = simStepNumber;
 	}
 
 	public XmlObject<MiscalleneousGlobalParameters> getMiscalleneousGlobalParameters() {

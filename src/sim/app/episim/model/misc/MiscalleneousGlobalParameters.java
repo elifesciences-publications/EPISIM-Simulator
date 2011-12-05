@@ -14,8 +14,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
 	
 	private int typeColor = 1;
 	
-	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age",
-	      "Color by calcium", "Color by lamella", "Enough lipids for barrier", "Episim-Modeller Custom Coloring"};
+	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age", "Episim-Modeller Custom Coloring"};
 	
 	private MiscalleneousGlobalParameters(){
 		

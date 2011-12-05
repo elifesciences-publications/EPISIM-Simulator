@@ -262,7 +262,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
       	 double maxAge =0;
           try{
 	          m = kcyte.getEpisimCellBehavioralModelObject().getClass().getMethod("_getMaxAge", new Class<?>[0]);
-	          maxAge= (Double) m.invoke(m, new Object[0]);
+	          maxAge= (Double) m.invoke(kcyte.getEpisimCellBehavioralModelObject(), new Object[0]);
           }
           catch (Exception e){
 	          ExceptionDisplayer.getInstance().displayException(e);

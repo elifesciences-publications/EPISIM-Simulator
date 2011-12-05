@@ -38,6 +38,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	public CenterBasedMechanicalModelInitializer(SimulationStateData simulationStateData) {
 		super(simulationStateData);
 		this.simulationStateData = simulationStateData;
+		//FIXME: Löschen und entsprechend beim Einlesen aufrufen
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 	}
 

@@ -3,6 +3,8 @@ package sim.app.episim.tissue;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
+import episiminterfaces.NoExport;
+
 import sim.app.episim.model.visualization.CellEllipse;
 
 
@@ -29,8 +31,9 @@ public class ImportedTissue implements java.io.Serializable {
 	
 	public void setBasalLayerPoints(ArrayList<Point2D> basalLayerPoints) { if(basalLayerPoints != null) this.basalLayerPoints = basalLayerPoints; }
 	
+	@NoExport
 	public ArrayList<Point2D> getSurfacePoints() { return surfacePoints; }
-	
+	@NoExport
 	public void setSurfacePoints(ArrayList<Point2D> surfacePoints){ if(surfacePoints != null)  this.surfacePoints = surfacePoints; }
 	
 	public double getResolutionInMicrometerPerPixel() { return resolution; }
@@ -65,8 +68,10 @@ public class ImportedTissue implements java.io.Serializable {
 	
    public void setScalingFactor(double scalingFactor) { this.scalingFactor = scalingFactor; }
 	
+   @NoExport
    public ArrayList<CellEllipse> getCells() { return cells; }
-
+   
+   @NoExport
    public void setCells(ArrayList<CellEllipse> cells) { this.cells = cells; }
 	
 }

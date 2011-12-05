@@ -100,7 +100,7 @@ public class TissueBorder {
 	public void loadNoMembrane() { this.noMembraneLoaded = true;}	
 	
 	
-	
+	@NoExport
 	public double getNumberOfPixelsPerMicrometer(){
 		if(standardMembraneLoaded || noMembraneLoaded){
 			return ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNumberOfPixelsPerMicrometer();
@@ -130,15 +130,19 @@ public class TissueBorder {
 			return tissue.getTissueDescription();
 		}
 	}
+	@NoExport
 	public double getHeightInPixels(){
 		return getHeight(true);
 	}
+	@NoExport
 	public double getHeightInMikron(){
 		return getHeight(false);
 	}
+	@NoExport
 	public double getWidthInPixels(){
 		return getWidth(true);
 	}
+	@NoExport
 	public double getWidthInMikron(){
 		return getWidth(false);
 	}
@@ -270,14 +274,15 @@ public class TissueBorder {
 		return instance;
 	}
 	
+	@NoExport
 	public GeneralPath getFullContourDrawPolygon(){
 		return (GeneralPath)drawPolygon.clone();		
 	}
-	
+	@NoExport
 	public GeneralPath getSurfaceDrawPolygon(){
 		return (GeneralPath)drawSurface.clone();		
 	}
-	
+	@NoExport
 	public GeneralPath getBasalLayerDrawPolygon(){
 		return (GeneralPath)drawBasalLayer.clone();		
 	}
@@ -358,7 +363,7 @@ public class TissueBorder {
 		}
 		
 	}
-		
+	@NoExport	
 	public Set<Double> getYCoordinateForXCoordinate(double x){
 		
 		if(organizedXPoints.containsKey(x)) return organizedXPoints.get(x);

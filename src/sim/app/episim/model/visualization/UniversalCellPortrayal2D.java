@@ -3,6 +3,7 @@ import sim.SimStateServer;
 import sim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.CellInspector;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
@@ -24,6 +25,8 @@ import sim.portrayal.*;
 
 import java.awt.*;
 import java.awt.geom.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -114,7 +117,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
                 }          
                 
                if(!drawCellEllipses){           
-		                if(colorType < 8){                                               
+		                if(colorType < 5){                                               
 			                
 			                Color fillColor = getFillColor(universalCell);
 			                Polygon cellPolygon;
@@ -162,7 +165,6 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 				                  graphics.drawPolygon(cellPolygon);
 				                }
 			                }
-			                
 			                //TODO: Nucleus ein- und ausschalten
 			              if(showNucleus)
 			              {
@@ -234,7 +236,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
       //
                     
       int calculatedColorValue=0;  
-      double maxAge= kcyte.getEpisimCellBehavioralModelObject().getMaxAge();
+     
       int red=255;         
       int green=0;
       int blue=0;
@@ -248,54 +250,43 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
         	   else if(keratinoType == EpisimDifferentiationLevel.GRANUCELL){red=204; green=0; blue=102;}
         	  
               
-            if((kcyte.isOuterCell()) && (coloringType==2)){red=0xF3; green=0xBE; blue=0x4E;}        
+            if((kcyte.getIsOuterCell()) && (coloringType==2)){red=0xF3; green=0xBE; blue=0x4E;}        
             boolean isMembraneCell = false;
             if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel) isMembraneCell=((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
             if(kcyte.getEpisimBioMechanicalModelObject() instanceof VertexBasedMechanicalModel) isMembraneCell=((VertexBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
             if(isMembraneCell && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
        }
        if (coloringType==3) // Age coloring
-       {
-              calculatedColorValue= (int) (250-250*kcyte.getEpisimCellBehavioralModelObject().getAge()/maxAge);
-              red=255;
-              green=calculatedColorValue;                        
-              blue=calculatedColorValue;
-              if (keratinoType== EpisimDifferentiationLevel.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
+       {              
+      	 Method m=null;
+      	 double maxAge =0;
+          try{
+	          m = kcyte.getEpisimCellBehavioralModelObject().getClass().getMethod("_getMaxAge", new Class<?>[0]);
+	          maxAge= (Double) m.invoke(m, new Object[0]);
+          }
+          catch (Exception e){
+	          ExceptionDisplayer.getInstance().displayException(e);
+          }
+          
+      	 calculatedColorValue= (int) (250-250*kcyte.getEpisimCellBehavioralModelObject().getAge()/maxAge);
+          red=255;
+          green=calculatedColorValue;                        
+          blue=calculatedColorValue;
+          if(keratinoType== EpisimDifferentiationLevel.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
        }
-       if ((coloringType==4))  // Calcium coloring
-       {
-              calculatedColorValue= (int) (255* (1-((kcyte.getEpisimCellBehavioralModelObject().getCa()) / kcyte.getEpisimCellBehavioralModelObject().getMaxCa())));
-              red=calculatedColorValue;         
-              green=calculatedColorValue;
-              blue=255;
-                   
-              drawFrame=false; // immer frame zeichnen
+      
+       if(coloringType==4){ //Colors are calculated in the cellbehavioral model
+         red=kcyte.getEpisimCellBehavioralModelObject().getColorR();
+         green=kcyte.getEpisimCellBehavioralModelObject().getColorG();
+         blue=kcyte.getEpisimCellBehavioralModelObject().getColorB();
        }
-       if (coloringType==5)  // Lamella coloring
-       {
-              calculatedColorValue= (int) (255* (1-(kcyte.getEpisimCellBehavioralModelObject().getLam() / kcyte.getEpisimCellBehavioralModelObject().getMaxLam())));
-              red=calculatedColorValue;         
-              green=255;
-              blue=calculatedColorValue;
-              
-        }
-        if (coloringType==6)  // Lipid coloring
-        {
-              if (kcyte.getEpisimCellBehavioralModelObject().getLip()>=ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getMinSigLipidsBarrier()){red=0xCB; green=0x2F; blue=0x9F; }
-              else{ red=0xAF; green=0xCB; blue=0x97; }
-        }
-        if(coloringType==7){ //Colors are calculated in the cellbehavioral model
-        	  red=kcyte.getEpisimCellBehavioralModelObject().getColorR();
-           green=kcyte.getEpisimCellBehavioralModelObject().getColorG();
-           blue=kcyte.getEpisimCellBehavioralModelObject().getColorB();
-        }
         
       // Limit the colors to 255
       green=(green>255)?255:((green<0)?0:green);
       red=(red>255)?255:((red<0)?0:red);
       blue=(blue>255)?255:((blue<0)?0:blue);
       
-      if(kcyte.isTracked()) return Color.RED;
+      if(kcyte.getIsTracked()) return Color.RED;
       return new Color(red, green, blue);
    }
    

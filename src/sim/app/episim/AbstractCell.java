@@ -85,22 +85,23 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	@NoExport
 	public abstract List<Method> getParameters();
 	
-	public boolean isInNirvana() { return inNirvana; }
+	public boolean getIsInNirvana() { return inNirvana; }
 	public void setInNirvana(boolean inNirvana) { this.inNirvana = inNirvana; }
 	
 	@CannotBeMonitored
 	public long getID() { return id; }   
 	
-	public boolean isBasalStatisticsCell() { return isBasalStatisticsCell; }
+	public boolean getIsBasalStatisticsCell() { return isBasalStatisticsCell; }
 	public void setIsBasalStatisticsCell(boolean val){ this.isBasalStatisticsCell = val; }
-	public boolean isOuterCell() { return isOuterCell; } 	
+	public boolean getIsOuterCell() { return isOuterCell; } 	
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell; }	
 	public long getMotherId(){ return this.motherCell != null ? this.motherCell.getID(): -1; }
 	@NoExport
 	public AbstractCell getMotherCell(){ return this.motherCell; }
 	
 	@CannotBeMonitored
-   public boolean isTracked(){ return tracked; }	
+	@NoExport
+   public boolean getIsTracked(){ return tracked; }	
    public void setTracked(boolean tracked) {	this.tracked = tracked; }
    @NoExport
    public void setStoppable(Stoppable stopperparam){ this.stoppable = stopperparam;}

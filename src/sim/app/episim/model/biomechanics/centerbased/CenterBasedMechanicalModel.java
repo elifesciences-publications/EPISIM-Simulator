@@ -187,7 +187,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
        // for each collision calc a pressure vector and add it to the other's existing one
        HitResultClass hitResult=new HitResultClass();            
-       if (b==null || b.numObjs == 0 || getCell().isInNirvana()) return hitResult;
+       if (b==null || b.numObjs == 0 || getCell().getIsInNirvana()) return hitResult;
        
        
        
@@ -265,7 +265,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
                      neighbors++;                         
                      
                      // lipids do not diffuse
-                     if ((dy>0) && (other.isOuterCell())) hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
+                     if ((dy>0) && (other.getIsOuterCell())) hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
                    }
                }
            }    
@@ -282,7 +282,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	public void setPositionRespectingBounds(Double2D p_potentialLoc)
 	{
 	   // modelling a hole in the wall at position hole holeX with width  holeHalfWidth
-	   if (getCell().isInNirvana()) 
+	   if (getCell().getIsInNirvana()) 
 	           return;
 	   double newx=p_potentialLoc.x;
 	   double newy=p_potentialLoc.y;               
@@ -487,7 +487,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		
 		modelConnector.setX(getNewPosition().getX());
   	 	modelConnector.setY(TissueController.getInstance().getTissueBorder().getHeightInMikron()- getNewPosition().getY());
-  	   modelConnector.setIsSurface(this.getCell().isOuterCell() || nextToOuterCell());
+  	   modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());
   	   
   	   calculateCellEllipse(simstepNumber);
   	   

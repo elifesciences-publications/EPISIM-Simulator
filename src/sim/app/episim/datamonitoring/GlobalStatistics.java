@@ -43,13 +43,13 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	private double apoptosis_LateSpiCounter=0;    // Counter is reset every 100 ticks
 	private double apoptosis_GranuCounter=0;     // Counter is reset every 100 ticks
 	
-	private double barrier_ExtCalcium_Statistics=0;
+/*	private double barrier_ExtCalcium_Statistics=0;
 	private double barrier_Lamella_Statistics=0;
 	private double barrier_Lipids_Statistics=0;
 	
 	private double barrier_ExtCalcium_Statistics_temp=0;
 	private double barrier_Lamella_Statistics_temp=0;
-	private double barrier_Lipids_Statistics_temp=0;
+	private double barrier_Lipids_Statistics_temp=0;*/
 	
 	private int oldNumOuterCells=0;
 	
@@ -157,15 +157,15 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 				  break;
 			  }
 			  
-			  if (actCell.isOuterCell()) // statistics from last time evaluation (so we are always lacking behind one calling period !)
+			  if (actCell.getIsOuterCell()) // statistics from last time evaluation (so we are always lacking behind one calling period !)
            {
-               barrier_ExtCalcium_Statistics_temp += actCell.getEpisimCellBehavioralModelObject().getCa();
+             /*barrier_ExtCalcium_Statistics_temp += actCell.getEpisimCellBehavioralModelObject().getCa();
                barrier_Lamella_Statistics_temp +=actCell.getEpisimCellBehavioralModelObject().getLam();
-               barrier_Lipids_Statistics_temp +=actCell.getEpisimCellBehavioralModelObject().getLip();                            
+               barrier_Lipids_Statistics_temp +=actCell.getEpisimCellBehavioralModelObject().getLip();*/                            
                oldNumOuterCells++;
            }
 			  
-			  if(actCell instanceof UniversalCell && ((UniversalCell) actCell).isBasalStatisticsCell()) this.actualBasalStatisticsCells++;
+			  if(actCell instanceof UniversalCell && ((UniversalCell) actCell).getIsBasalStatisticsCell()) this.actualBasalStatisticsCells++;
 			  sumOfAllAges += actCell.getEpisimCellBehavioralModelObject().getAge();
 		}
 			if(counter == 10){
@@ -175,18 +175,18 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 				  if(this.actualNumberLateSpi>0)this.apoptosis_LateSpi_Statistics=((this.apoptosis_LateSpiCounter/100)/this.actualNumberLateSpi)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
 				  if(this.actualNumberGranuCells>0)this.apoptosis_Granu_Statistics=((this.apoptosis_GranuCounter/100)/this.actualNumberGranuCells)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
 	
-				  barrier_ExtCalcium_Statistics=barrier_ExtCalcium_Statistics_temp/oldNumOuterCells;
+		/*		  barrier_ExtCalcium_Statistics=barrier_ExtCalcium_Statistics_temp/oldNumOuterCells;
 				  barrier_Lipids_Statistics= barrier_Lipids_Statistics_temp/oldNumOuterCells;
-				  barrier_Lamella_Statistics=barrier_Lamella_Statistics_temp/oldNumOuterCells;
+				  barrier_Lamella_Statistics=barrier_Lamella_Statistics_temp/oldNumOuterCells;*/
 				  
 				// System.out.println(this.apoptosis_Basal_Statistics + ", "+this.apoptosis_EarlySpi_Statistics + ", "+ this.apoptosis_LateSpi_Statistics + ", "+ this.apoptosis_Granu_Statistics);
 				  
 				  
 				  oldNumOuterCells=0;
               
-              barrier_ExtCalcium_Statistics_temp=0;
+         /*     barrier_ExtCalcium_Statistics_temp=0;
               barrier_Lipids_Statistics_temp=0;
-              barrier_Lamella_Statistics_temp=0;
+              barrier_Lamella_Statistics_temp=0;*/
 				  
 	           this.apoptosis_BasalCounter=0;    // Cells removed from simulation during last time tick    
 	           this.apoptosis_EarlySpiCounter=0;
@@ -307,9 +307,9 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		dnaContents = new double[NUMBEROFBUCKETS];
 		dnaContentsAveraged = new double [NUMBEROFBUCKETS];
 		
-		barrier_ExtCalcium_Statistics_temp=0;
+	/*	barrier_ExtCalcium_Statistics_temp=0;
 		barrier_Lamella_Statistics_temp=0;
-		barrier_Lipids_Statistics_temp=0;
+		barrier_Lipids_Statistics_temp=0;*/
 		oldNumOuterCells=0;
 		
 		if(isRestartReset){		
@@ -324,9 +324,9 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 			apoptosis_LateSpi_Statistics=0;
 			apoptosis_Granu_Statistics=0;
 			
-			barrier_ExtCalcium_Statistics=0;
+		/*	barrier_ExtCalcium_Statistics=0;
 			barrier_Lamella_Statistics=0;
-			barrier_Lipids_Statistics=0;
+			barrier_Lipids_Statistics=0;*/
 			
 			dnaContentsCumulative = new double [NUMBEROFBUCKETS];
 			histogrammCounter = 0;			
@@ -341,7 +341,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	   	UniversalCell kcyte = (UniversalCell) cell;
 	   	dekrementActualNumberKCytes();
 	   	
-	   	if(kcyte.isBasalStatisticsCell()){ 
+	   	if(kcyte.getIsBasalStatisticsCell()){ 
 	   		this.apoptosis_BasalCounter++;
 	   		
 	   	}
@@ -387,9 +387,9 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	public double getApoptosis_EarlySpi_Statistics(){ return apoptosis_EarlySpi_Statistics; }	
    public double getApoptosis_LateSpi_Statistics(){ return apoptosis_LateSpi_Statistics; }
 	public double getApoptosis_Granu_Statistics(){ return apoptosis_Granu_Statistics; }
-   public double getBarrier_ExtCalcium_Statistics() {	return barrier_ExtCalcium_Statistics; }
+   /*public double getBarrier_ExtCalcium_Statistics() {	return barrier_ExtCalcium_Statistics; }
    public double getBarrier_Lamella_Statistics() { return barrier_Lamella_Statistics; }	
-   public double getBarrier_Lipids_Statistics() {return barrier_Lipids_Statistics; }
+   public double getBarrier_Lipids_Statistics() {return barrier_Lipids_Statistics; }*/
 
 	
    

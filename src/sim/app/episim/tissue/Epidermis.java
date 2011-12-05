@@ -245,7 +245,7 @@ public class Epidermis extends TissueType implements CellDeathListener
                  {
                      // iterate through all cells and determine the KCyte with lowest Y at bin
                      AbstractCell act=(AbstractCell)getAllCells().get(i);
-                     if (act.isInNirvana()) continue;
+                     if (act.getIsInNirvana()) continue;
                      // is a living cell..
                      
                      

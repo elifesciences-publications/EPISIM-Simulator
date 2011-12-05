@@ -219,7 +219,7 @@ public class UniversalCell extends AbstractCell
 		super.step(state);
 		
 		
-		if(isInNirvana() || !this.getEpisimCellBehavioralModelObject().getIsAlive()){		
+		if(getIsInNirvana() || !this.getEpisimCellBehavioralModelObject().getIsAlive()){		
 			removeFromSchedule();			
 		}
 		else{

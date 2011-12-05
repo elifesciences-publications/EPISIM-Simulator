@@ -76,10 +76,10 @@ public class DefaultCharts implements java.io.Serializable{
 	private final String PERFORMANCE = "Performance";
 	private final String CELLCOUNTS = "Cell Counts";
 	private final String TISSUEKINETICPARAMETERS = "Tissue Kinetic Parameters";
-	private final String PARTICLECONCENTRATIONSINBARRIER = "Particle Concentrations in Barrier";
+//	private final String PARTICLECONCENTRATIONSINBARRIER = "Particle Concentrations in Barrier";
 	private final String CELLDEATH = "Cell Death";
-	private final String PARTICLESPERCELLTYPE = "Particles per Cell Type";
-	private final String PARTICLEGRADIENTS = "Particle Gradients";
+//	private final String PARTICLESPERCELLTYPE = "Particles per Cell Type";
+//	private final String PARTICLEGRADIENTS = "Particle Gradients";
 	private final String AGEGRADIENT = "Age Gradient";
 	
 	private final String DNAHISTOGRAMM = "DNA Histogramm";
@@ -327,7 +327,7 @@ public class DefaultCharts implements java.io.Serializable{
 	   // Charts: Barrier
 	   /////////////////////////////////////
 	   
-	   xySeries.put(new String[] { "ChartSeries_Barrier_Calcium", "ChartSeries_Barrier", "0" }, new XYSeries( "Barrier Calcium (mg/kg)" ));
+	/*   xySeries.put(new String[] { "ChartSeries_Barrier_Calcium", "ChartSeries_Barrier", "0" }, new XYSeries( "Barrier Calcium (mg/kg)" ));
 	   xySeries.put(new String[] { "ChartSeries_Barrier_Lamella", "ChartSeries_Barrier", "1" }, new XYSeries( "Barrier Lamella" ));
 	   xySeries.put(new String[] { "ChartSeries_Barrier_Lipids", "ChartSeries_Barrier", "2" }, new XYSeries( "Barrier Lipids" ));
 	   
@@ -350,7 +350,7 @@ public class DefaultCharts implements java.io.Serializable{
 		 lineShapeRenderer.setSeriesPaint(1, Color.green);   // 0 = Calcium
 		 lineShapeRenderer.setSeriesPaint(2, Color.red);    // 2 = Lamella
 		 
-		 chartsMap.put(PARTICLECONCENTRATIONSINBARRIER, new ChartPanel(chart));
+		 chartsMap.put(PARTICLECONCENTRATIONSINBARRIER, new ChartPanel(chart));*/
 			
 		 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	    
@@ -391,7 +391,7 @@ public class DefaultCharts implements java.io.Serializable{
 		 /////////////////////////////////////
 		 // Charts: ParticleCellType
 		 /////////////////////////////////////	
-		 categoryDatasets.put("particleCellTypeDataset", new DefaultCategoryDataset()); 
+	/*	 categoryDatasets.put("particleCellTypeDataset", new DefaultCategoryDataset()); 
 		 categoryDatasets.get("particleCellTypeDataset").clear();
 	    
 		 chart = ChartFactory.createBarChart(PARTICLESPERCELLTYPE, "Cell Type", "Concentration",  
@@ -437,7 +437,7 @@ public class DefaultCharts implements java.io.Serializable{
 	           CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0)
 	       );
 	  
-	  chartsMap.put(PARTICLESPERCELLTYPE, new ChartPanel(chart));
+	  chartsMap.put(PARTICLESPERCELLTYPE, new ChartPanel(chart));*/
 				
 	  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -445,7 +445,7 @@ public class DefaultCharts implements java.io.Serializable{
 	   // Charts: LineChartParticleDistributions
 	   ///////////////////////////////////////////////////
 	  
-      xySeries.put(new String[] { "ExtCalConcAvg", "CollPartDist", "0" }, new XYSeries("Mean Ext. Calcium (mg/kg)"));
+   /*   xySeries.put(new String[] { "ExtCalConcAvg", "CollPartDist", "0" }, new XYSeries("Mean Ext. Calcium (mg/kg)"));
       xySeries.put(new String[] { "LamellaConcAvg", "CollPartDist", "1" }, new XYSeries("Mean Lamella"));
       xySeries.put(new String[] { "LipidsConcAvg", "CollPartDist", "2" }, new XYSeries("Mean Lipids"));     
       xySeries.put(new String[] { "Num", "CollNum", "3"}, new XYSeries("Num Cells")); 
@@ -492,7 +492,7 @@ public class DefaultCharts implements java.io.Serializable{
       rendererXYItem2.setSeriesPaint(0, Color.black);
       xyPlot.setRenderer(1, rendererXYItem2);
       
-      chartsMap.put(PARTICLEGRADIENTS, new ChartPanel(chart));
+      chartsMap.put(PARTICLEGRADIENTS, new ChartPanel(chart));*/
 		
  	  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       
@@ -553,10 +553,10 @@ public class DefaultCharts implements java.io.Serializable{
 		chartEnabled.put(PERFORMANCE, false);
 		chartEnabled.put(CELLCOUNTS, false);
 		chartEnabled.put(TISSUEKINETICPARAMETERS, false);
-		chartEnabled.put(PARTICLECONCENTRATIONSINBARRIER, false);
+//		chartEnabled.put(PARTICLECONCENTRATIONSINBARRIER, false);
 		chartEnabled.put(CELLDEATH, false);
-		chartEnabled.put(PARTICLESPERCELLTYPE, false);
-		chartEnabled.put(PARTICLEGRADIENTS, false);
+//		chartEnabled.put(PARTICLESPERCELLTYPE, false);
+	//	chartEnabled.put(PARTICLEGRADIENTS, false);
 		chartEnabled.put(DNAHISTOGRAMM, false);
 		chartEnabled.put(DNAHISTOGRAMMAVG, false);
 		
@@ -754,7 +754,7 @@ public class DefaultCharts implements java.io.Serializable{
 			
 			
 			
-			this.steppablesMap.put(this.PARTICLEGRADIENTS , new EnhancedSteppable()
+		/*	this.steppablesMap.put(this.PARTICLEGRADIENTS , new EnhancedSteppable()
 		    {
 		             public void step(SimState state)
 		             {
@@ -835,9 +835,9 @@ public class DefaultCharts implements java.io.Serializable{
 						public double getInterval() {
 	                  return 100;
                   }
-		    });
+		    });*/
 			
-			this.steppablesMap.put(this.PARTICLESPERCELLTYPE , new EnhancedSteppable()
+	/*		this.steppablesMap.put(this.PARTICLESPERCELLTYPE , new EnhancedSteppable()
 		    {
 		             public void step(SimState state)
 		             {
@@ -946,7 +946,7 @@ public class DefaultCharts implements java.io.Serializable{
 						public double getInterval() {
 	                  return 100;
                  }
-		    });
+		    });*/
 			
 				//////////////////////////////////////
 		     // CHART Updating Apoptosis Chart
@@ -972,7 +972,7 @@ public class DefaultCharts implements java.io.Serializable{
 		     // CHART Updating Barrier Chart
 		     //////////////////////////////////////
 		    
-			this.steppablesMap.put(this.PARTICLECONCENTRATIONSINBARRIER, new EnhancedSteppable()
+		/*	this.steppablesMap.put(this.PARTICLECONCENTRATIONSINBARRIER, new EnhancedSteppable()
 		    {
 		         public void step(SimState state)
 		         {          
@@ -989,7 +989,7 @@ public class DefaultCharts implements java.io.Serializable{
 					public double getInterval() {
 						return 100;
                }
-		     });
+		     });*/
 			
 			
 			  //////////////////////////////////////

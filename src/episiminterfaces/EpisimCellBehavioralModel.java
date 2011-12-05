@@ -19,29 +19,7 @@ public interface EpisimCellBehavioralModel {
 	double returnMaxNumberProperty(int propertycode);
 	String returnStringProperty(int propertycode);
 	boolean returnBooleanProperty(int propertycode);
-	
-
-	double getMaxCa();
- 	void setMaxCa(double val);
-	 
- 	double getMaxLam();
- 	void setMaxLam(double val);
- 	
- 	double getMaxLip();
- 	void setMaxLip(double val);
-
- 	double getMaxAge();
-	void setMaxAge(double val);
-	
-	double getCa();
-	void setCa(double val);
-	
-	double getLam();
-	void setLam(double val);
-	
-	double getLip();
-	void setLip(double val);
-	
+		
 	EpisimDifferentiationLevel getDiffLevel();
 	void setDiffLevel(EpisimDifferentiationLevel val);
 	

@@ -28,17 +28,6 @@ public class XmlUniversalCell extends XmlObject<AbstractCell> {
 			throws ClassNotFoundException {
 		super(universalCellNode);
 		NodeList nl = universalCellNode.getChildNodes();
-		// for (int i = 0; i < nl.getLength(); i++) {
-		// Node subNode = nl.item(i);
-		// if (subNode.getNodeName().equals("episimBiomechanicalModel")) {
-		// episimBiomechanicalModel = new XmlEpisimBiomechanicalModel(
-		// subNode);
-		// } else if (subNode.getNodeName()
-		// .equals("episimCellBehavioralModel")) {
-		// episimCellBehavioralModel = new XmlEpisimCellBehavioralModel(
-		// subNode);
-		// }
-		// }
 	}
 
 	public long getId() {

@@ -37,6 +37,7 @@ public class SimulationStateFile extends XmlFile {
 	private static final String EPISIM_TISSUE_SIMULATION_HEADER = "episim_tissue_simulation_header";
 	private static final String EPISIM_VERSION = "version";
 	private static final String EXPORT_DATE = "exportdate";
+	private static final String TISSUE_BORDER = "tissueborder";
 
 	private static File tissueExportPath;
 
@@ -189,6 +190,8 @@ public class SimulationStateFile extends XmlFile {
 		headerElement.appendChild(simStepElement);
 
 		getRoot().appendChild(headerElement);
+		
+		getRoot().appendChild(simStateData.getTissueBorder().toXMLNode(TISSUE_BORDER, this));
 
 		getRoot().appendChild(
 				simStateData.getEpisimCellBehavioralModelGlobalParameters()

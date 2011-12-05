@@ -16,6 +16,7 @@ import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.persistence.dataconvert.XmlObject;
+import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.tissue.TissueController;
 import sim.engine.SimStateHack.TimeSteps;
@@ -32,7 +33,8 @@ public class SimulationStateData {
 	private XmlObject<EpisimCellBehavioralModelGlobalParameters> episimCellBehavioralModelGlobalParameters;
 	private XmlObject<MiscalleneousGlobalParameters> miscalleneousGlobalParameters;
 
-
+	private XmlTissueBorder tissueBorder;
+	
 	private HashMap<Long, UniversalCell> alreadyLoadedCells = new HashMap<Long, UniversalCell>();
 	private HashMap<Long, XmlUniversalCell> alreadyLoadedXmlCellsNewID = new HashMap<Long, XmlUniversalCell>();
 	private HashMap<Long, XmlUniversalCell> cellsToBeLoaded = new HashMap<Long, XmlUniversalCell>();
@@ -90,6 +92,9 @@ public class SimulationStateData {
 
 		this.loadedModelFile = ModelController.getInstance()
 				.getCellBehavioralModelController().getActLoadedModelFile();
+		
+		this.tissueBorder = new XmlTissueBorder(TissueController.getInstance().getTissueBorder());
+		
 		for (AbstractCell cell : TissueController.getInstance()
 				.getActEpidermalTissue().getAllCells()) {
 			if (cell != null)
@@ -158,5 +163,13 @@ public class SimulationStateData {
 
 	public void setLoadedModelFile(String file) {
 		this.loadedModelFile = new File(file);
+	}
+	
+	public void setTissueBorder(XmlTissueBorder tissueBorder) {
+		this.tissueBorder = tissueBorder;
+	}
+	
+	public XmlTissueBorder getTissueBorder() {
+		return tissueBorder;
 	}
 }

@@ -28,7 +28,6 @@ public class XmlObject<T> {
 	private static final String VALUE = "value";
 	private static final String MIN = "min";
 	private static final String MAX = "max";
-	
 
 	public XmlObject(T obj) {
 		this.object = obj;
@@ -38,23 +37,19 @@ public class XmlObject<T> {
 	public XmlObject(Node objectNode) {
 		this.objectNode = objectNode;
 	}
-	
-	private void postProcessMinMax(Object object){
-		for(String parameterName : subXmlObjects.keySet()){
-			if(subXmlObjects.get(parameterName) instanceof XmlPrimitive){
-				for (Method m : object.getClass().getMethods()) {
-					if(m.getName().startsWith("_getMin") && m.getName().length() > 7){
-						parameterMinima.put(methodToName(m.getName().substring(1)), invokeGetMethod(object, m));
-					} else if(m.getName().startsWith("_getMax") && m.getName().length() > 7){
-						parameterMaxima.put(methodToName(m.getName().substring(1)), invokeGetMethod(object, m));
-					} 
-				}
+
+	private void postProcessMinMax(Object object) {
+		for (Method m : object.getClass().getMethods()) {
+			if (m.getName().startsWith("_getMin") && m.getName().length() > 7) {
+				parameterMinima.put(methodToName(m.getName()),
+						invokeGetMethod(object, m));
+			} else if (m.getName().startsWith("_getMax")
+					&& m.getName().length() > 7) {
+				parameterMaxima.put(methodToName(m.getName()),
+						invokeGetMethod(object, m));
 			}
 		}
-	}
-	
-	private void postProcessMinMax(Element node){
-		
+
 	}
 
 	protected static Object parse(String objectString, Class<?> objClass) {
@@ -198,8 +193,9 @@ public class XmlObject<T> {
 		}
 		return false;
 	}
-	
-	protected boolean setMinMax(String parameterName, Object value, Object target) {
+
+	protected boolean setMinMax(String parameterName, Object value,
+			Object target) {
 		if (value == null)
 			return false;
 		for (Method m : getSetters(target.getClass())) {
@@ -215,6 +211,8 @@ public class XmlObject<T> {
 		String parameterName = methodName;
 		if (methodName.startsWith("get") || methodName.startsWith("set"))
 			parameterName = parameterName.substring(3);
+		if(methodName.startsWith("_getMax") || methodName.startsWith("_getMin"))
+			parameterName = parameterName.substring(7);
 		StringBuilder sb = new StringBuilder();
 		sb.append(Character.toLowerCase(parameterName.charAt(0)));
 		sb.append(parameterName.substring(1));
@@ -226,14 +224,14 @@ public class XmlObject<T> {
 		Element node = xmlFile.createElement(nodeName);
 		for (String s : getSubXmlObjects().keySet()) {
 			Element subNode = getSubXmlObjects().get(s).toXMLNode(s, xmlFile);
-			if (subNode != null){
-				if(parameterMinima.get(s)!= null)
+			if (subNode != null) {
+				if (parameterMinima.get(s) != null)
 					subNode.setAttribute(MIN, parameterMinima.get(s).toString());
-				if(parameterMaxima.get(s)!= null)
+				if (parameterMaxima.get(s) != null)
 					subNode.setAttribute(MAX, parameterMaxima.get(s).toString());
 				node.appendChild(subNode);
 			}
-				
+
 		}
 		return node;
 	}
@@ -293,14 +291,20 @@ public class XmlObject<T> {
 						XmlPrimitive xmlObject = new XmlPrimitive(node);
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);
-						
+
 						Node maxNode = node.getAttributes().getNamedItem(MAX);
 						Node minNode = node.getAttributes().getNamedItem(MIN);
-						if(maxNode!=null)
-							parameterMaxima.put(methName, parse(maxNode.getNodeValue(),m.getReturnType()));
-						if(minNode!=null)
-							parameterMinima.put(methName, parse(maxNode.getNodeValue(),m.getReturnType()));
-							
+						if (maxNode != null)
+							parameterMaxima.put(
+									methName,
+									parse(maxNode.getNodeValue(),
+											m.getReturnType()));
+						if (minNode != null)
+							parameterMinima.put(
+									methName,
+									parse(maxNode.getNodeValue(),
+											m.getReturnType()));
+
 					}
 				}
 			}
@@ -315,8 +319,10 @@ public class XmlObject<T> {
 		for (String parameterName : subXmlObjects.keySet()) {
 			XmlObject<?> xmlObj = subXmlObjects.get(parameterName);
 			set(parameterName, xmlObj.copyValuesToTarget(null), target);
-			setMinMax(MIN+parameterName, parameterMinima.get(parameterName), target);
-			setMinMax(MAX+parameterName, parameterMaxima.get(parameterName), target);
+			setMinMax(MIN + parameterName, parameterMinima.get(parameterName),
+					target);
+			setMinMax(MAX + parameterName, parameterMaxima.get(parameterName),
+					target);
 		}
 		for (String parameterName : parameters.keySet()) {
 			set(parameterName, parameters.get(parameterName), target);
@@ -335,5 +341,5 @@ public class XmlObject<T> {
 	protected Node getObjectNode() {
 		return objectNode;
 	}
-	
+
 }

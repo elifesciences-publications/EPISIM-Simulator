@@ -3,6 +3,7 @@ package sim.app.episim.persistence;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -14,6 +15,7 @@ import org.xml.sax.SAXException;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
+import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
@@ -33,6 +35,8 @@ public class SimulationStateFile extends XmlFile {
 	public static final String FILEEXTENSION = "xml";
 	private static final String VALUE = "value";
 	private static final String EPISIM_TISSUE_SIMULATION_HEADER = "episim_tissue_simulation_header";
+	private static final String EPISIM_VERSION = "version";
+	private static final String EXPORT_DATE = "exportdate";
 
 	private static File tissueExportPath;
 
@@ -169,6 +173,10 @@ public class SimulationStateFile extends XmlFile {
 		simStateData.updateData();
 
 		Element headerElement = createElement(EPISIM_TISSUE_SIMULATION_HEADER);
+		
+		headerElement.setAttribute(EPISIM_VERSION, EpidermisSimulator.versionID);
+		GregorianCalendar cal = new GregorianCalendar();
+		headerElement.setAttribute(EXPORT_DATE, cal.getTime().toString());
 
 		Element modelFileElement = createElement(CELLBEHAVIORALMODEL_FILE);
 		modelFileElement.setAttribute(MODELFILE, simStateData

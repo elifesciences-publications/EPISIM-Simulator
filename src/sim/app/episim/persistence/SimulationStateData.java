@@ -28,25 +28,21 @@ import sim.util.Double2D;
 public class SimulationStateData {
 
 	private ArrayList<XmlUniversalCell> cells = new ArrayList<XmlUniversalCell>();
-	private Continuous2D cellContinuous;
-	private TimeSteps timeSteps;
 	private XmlObject<EpisimBiomechanicalModelGlobalParameters> episimBioMechanicalModelGlobalParameters;
 	private XmlObject<EpisimCellBehavioralModelGlobalParameters> episimCellBehavioralModelGlobalParameters;
-	private List<Double2D> woundRegionCoordinates;
-	private Double[] deltaInfo;
 	private XmlObject<MiscalleneousGlobalParameters> miscalleneousGlobalParameters;
-	private File loadedModelFile;
-	private long simStepNumber = 0;
+
 
 	private HashMap<Long, UniversalCell> alreadyLoadedCells = new HashMap<Long, UniversalCell>();
 	private HashMap<Long, XmlUniversalCell> alreadyLoadedXmlCellsNewID = new HashMap<Long, XmlUniversalCell>();
 	private HashMap<Long, XmlUniversalCell> cellsToBeLoaded = new HashMap<Long, XmlUniversalCell>();
 	
+	private File loadedModelFile;
+	private long simStepNumber = 0;
 	
 	private static SimulationStateData lastSimulationStateLoaded;
 
 	public SimulationStateData() {
-		reset();
 		lastSimulationStateLoaded = this;
 	}	
 	
@@ -87,19 +83,7 @@ public class SimulationStateData {
 		alreadyLoadedXmlCellsNewID.clear();
 		alreadyLoadedCells.clear();
 	}
-
-	public void reset() {
-		cells = new ArrayList<XmlUniversalCell>();
-		cellContinuous = null;
-		timeSteps = null;
-		episimBioMechanicalModelGlobalParameters = null;
-		episimCellBehavioralModelGlobalParameters = null;
-		woundRegionCoordinates = null;
-		deltaInfo = null;
-		miscalleneousGlobalParameters = null;
-		loadedModelFile = null;
-	}
-
+	
 	public void updateData() {
 		
 		this.simStepNumber = SimStateServer.getInstance().getSimStepNumber();
@@ -121,11 +105,6 @@ public class SimulationStateData {
 						.getEpisimBioMechanicalModelGlobalParameters());
 	}
 
-	public void restoreData() {
-		// SnapshotLoader bzw. EpidermisSimulator.loadSnapshot!
-		// TODO ObjectManipulations.resetInitialGlobalValues
-	}
-
 	public ArrayList<XmlUniversalCell> getCells() {
 		return cells;
 	}
@@ -136,22 +115,6 @@ public class SimulationStateData {
 
 	public void addCell(XmlUniversalCell cell) {
 		this.cells.add(cell);
-	}
-
-	public Continuous2D getCellContinuous() {
-		return cellContinuous;
-	}
-
-	public void setCellContinuous(Continuous2D cellContinuous) {
-		this.cellContinuous = cellContinuous;
-	}
-
-	public TimeSteps getTimeSteps() {
-		return timeSteps;
-	}
-
-	public void setTimeSteps(TimeSteps timeSteps) {
-		this.timeSteps = timeSteps;
 	}
 
 	public XmlObject<EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParameters() {
@@ -170,22 +133,6 @@ public class SimulationStateData {
 	public void setEpisimCellBehavioralModelGlobalParameters(
 			XmlObject<EpisimCellBehavioralModelGlobalParameters> episimCellBehavioralModelGlobalParameters) {
 		this.episimCellBehavioralModelGlobalParameters = episimCellBehavioralModelGlobalParameters;
-	}
-
-	public List<Double2D> getWoundRegionCoordinates() {
-		return woundRegionCoordinates;
-	}
-
-	public void setWoundRegionCoordinates(List<Double2D> woundRegionCoordinates) {
-		this.woundRegionCoordinates = woundRegionCoordinates;
-	}
-
-	public Double[] getDeltaInfo() {
-		return deltaInfo;
-	}
-
-	public void setDeltaInfo(Double[] deltaInfo) {
-		this.deltaInfo = deltaInfo;
 	}
 	
 	public long getSimStepNumber() {

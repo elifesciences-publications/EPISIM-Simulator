@@ -34,7 +34,7 @@ public class XmlSbmlModelStatesHashMap extends
 	}
 
 	@Override
-	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
+	public Element toXMLNode(String nodeName, XmlFile xmlFile) {
 		if (xmlObjectMap != null && xmlObjectMap.size() > 0) {
 			Element node = xmlFile.createElement(nodeName);
 			for (String key : xmlObjectMap.keySet()) {

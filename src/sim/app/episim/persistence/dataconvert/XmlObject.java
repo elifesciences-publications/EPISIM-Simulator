@@ -1,6 +1,5 @@
 package sim.app.episim.persistence.dataconvert;
 
-import java.io.ObjectInputStream.GetField;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,10 +20,15 @@ import episiminterfaces.NoExport;
 public class XmlObject<T> {
 	private HashMap<String, Object> parameters = new HashMap<String, Object>();
 	private HashMap<String, XmlObject<?>> subXmlObjects = new HashMap<String, XmlObject<?>>();
+	private HashMap<String, Object> parameterMinima = new HashMap<String, Object>();
+	private HashMap<String, Object> parameterMaxima = new HashMap<String, Object>();
 	private Node objectNode;
 	private T object = null;
 	private static final String CLASS = "class";
 	private static final String VALUE = "value";
+	private static final String MIN = "min";
+	private static final String MAX = "max";
+	
 
 	public XmlObject(T obj) {
 		this.object = obj;
@@ -33,6 +37,24 @@ public class XmlObject<T> {
 
 	public XmlObject(Node objectNode) {
 		this.objectNode = objectNode;
+	}
+	
+	private void postProcessMinMax(Object object){
+		for(String parameterName : subXmlObjects.keySet()){
+			if(subXmlObjects.get(parameterName) instanceof XmlPrimitive){
+				for (Method m : object.getClass().getMethods()) {
+					if(m.getName().startsWith("_getMin") && m.getName().length() > 7){
+						parameterMinima.put(methodToName(m.getName().substring(1)), invokeGetMethod(object, m));
+					} else if(m.getName().startsWith("_getMax") && m.getName().length() > 7){
+						parameterMaxima.put(methodToName(m.getName().substring(1)), invokeGetMethod(object, m));
+					} 
+				}
+			}
+		}
+	}
+	
+	private void postProcessMinMax(Element node){
+		
 	}
 
 	protected static Object parse(String objectString, Class<?> objClass) {
@@ -145,7 +167,7 @@ public class XmlObject<T> {
 		Object ret = parameters.get(parameterName);
 		if (ret != null)
 			return ret;
-		XmlObject xmlObj = subXmlObjects.get(parameterName);
+		XmlObject<?> xmlObj = subXmlObjects.get(parameterName);
 		if (xmlObj != null)
 			ret = xmlObj.copyValuesToTarget(null);
 		if (ret != null)
@@ -176,6 +198,18 @@ public class XmlObject<T> {
 		}
 		return false;
 	}
+	
+	protected boolean setMinMax(String parameterName, Object value, Object target) {
+		if (value == null)
+			return false;
+		for (Method m : getSetters(target.getClass())) {
+			String mName = m.getName().substring(4);
+			if (mName.equalsIgnoreCase(parameterName)) {
+				return invokeSetMethod(target, m, value);
+			}
+		}
+		return false;
+	}
 
 	protected static String methodToName(String methodName) {
 		String parameterName = methodName;
@@ -188,14 +222,18 @@ public class XmlObject<T> {
 		return parameterName;
 	}
 
-	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
+	public Element toXMLNode(String nodeName, XmlFile xmlFile) {
 		Element node = xmlFile.createElement(nodeName);
-//		node.setAttribute(CLASS, object.getClass().getCanonicalName());
 		for (String s : getSubXmlObjects().keySet()) {
-			Node subNode = getSubXmlObjects().get(s).toXMLNode(s, xmlFile);
-			if (subNode != null)
-				node.appendChild(getSubXmlObjects().get(s)
-						.toXMLNode(s, xmlFile));
+			Element subNode = getSubXmlObjects().get(s).toXMLNode(s, xmlFile);
+			if (subNode != null){
+				if(parameterMinima.get(s)!= null)
+					subNode.setAttribute(MIN, parameterMinima.get(s).toString());
+				if(parameterMaxima.get(s)!= null)
+					subNode.setAttribute(MAX, parameterMaxima.get(s).toString());
+				node.appendChild(subNode);
+			}
+				
 		}
 		return node;
 	}
@@ -206,10 +244,6 @@ public class XmlObject<T> {
 
 	public HashMap<String, XmlObject<?>> getSubXmlObjects() {
 		return subXmlObjects;
-	}
-
-	private void setParameters(HashMap<String, Object> parameters) {
-		this.parameters = parameters;
 	}
 
 	private void addParameter(String parameterName, Object parameterValue) {
@@ -228,6 +262,7 @@ public class XmlObject<T> {
 						invokeGetMethod(object, m));
 			}
 			transformParametersToSubXmlObjects();
+			postProcessMinMax(object);
 		}
 	}
 
@@ -242,21 +277,6 @@ public class XmlObject<T> {
 			}
 		}
 	}
-
-	// public void importPrametersFromXml() {
-	// NodeList nl = objectNode.getChildNodes();
-	// for (Method m : getGetters()) {
-	// for (int i = 0; i < nl.getLength(); i++) {
-	// Node value = nl.item(i).getAttributes().getNamedItem(VALUE);
-	// if (nl.item(i).getNodeName()
-	// .equalsIgnoreCase(methodToName(m.getName()))
-	// && value != null) {
-	// parameters.put(nl.item(i).getNodeName(),
-	// parse(value.getNodeValue(), m.getReturnType()));
-	// }
-	// }
-	// }
-	// }
 
 	protected void importParametersFromXml(Class<?> clazz) {
 		NodeList nl = objectNode.getChildNodes();
@@ -273,6 +293,14 @@ public class XmlObject<T> {
 						XmlPrimitive xmlObject = new XmlPrimitive(node);
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);
+						
+						Node maxNode = node.getAttributes().getNamedItem(MAX);
+						Node minNode = node.getAttributes().getNamedItem(MIN);
+						if(maxNode!=null)
+							parameterMaxima.put(methName, parse(maxNode.getNodeValue(),m.getReturnType()));
+						if(minNode!=null)
+							parameterMinima.put(methName, parse(maxNode.getNodeValue(),m.getReturnType()));
+							
 					}
 				}
 			}
@@ -287,6 +315,8 @@ public class XmlObject<T> {
 		for (String parameterName : subXmlObjects.keySet()) {
 			XmlObject<?> xmlObj = subXmlObjects.get(parameterName);
 			set(parameterName, xmlObj.copyValuesToTarget(null), target);
+			setMinMax(MIN+parameterName, parameterMinima.get(parameterName), target);
+			setMinMax(MAX+parameterName, parameterMaxima.get(parameterName), target);
 		}
 		for (String parameterName : parameters.keySet()) {
 			set(parameterName, parameters.get(parameterName), target);

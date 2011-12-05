@@ -3,6 +3,7 @@ package sim.app.episim.persistence.dataconvert;
 import java.lang.reflect.Method;
 
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -57,8 +58,8 @@ public class XmlUniversalCell extends XmlObject<AbstractCell> {
 	}
 	
 	@Override
-	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
-		Node xmlNode = super.toXMLNode(nodeName, xmlFile);
+	public Element toXMLNode(String nodeName, XmlFile xmlFile) {
+		Element xmlNode = super.toXMLNode(nodeName, xmlFile);
 		XmlFile.sortChildNodes(xmlNode, new String[]{EPISIMCELLBEHAVIORALMODEL, EPISIMBIOMECHANICALMODEL});
 		return xmlNode;
 	}

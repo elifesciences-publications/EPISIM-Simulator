@@ -26,7 +26,7 @@ public class XmlPrimitive extends XmlObject<Object> {
 	}
 
 	@Override
-	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
+	public Element toXMLNode(String nodeName, XmlFile xmlFile) {
 		if (value != null) {
 			Element node = xmlFile.createElement(nodeName);
 			node.setAttribute(VALUE, value.toString());

@@ -24,7 +24,7 @@ public class XmlDouble2D extends XmlObject<Double2D> {
 	}
 
 	@Override
-	public Node toXMLNode(String nodeName, XmlFile xmlFile) {
+	public Element toXMLNode(String nodeName, XmlFile xmlFile) {
 		if (getObject() != null) {
 			Element node = xmlFile.createElement(nodeName);
 			node.setAttribute(X_VALUE, Double.toString(getObject().x));

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import sim.SimStateServer;
 import sim.app.episim.util.ResultSet;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithm;
@@ -60,6 +61,6 @@ public class SimulationTime extends AbstractCommonCalculationAlgorithm implement
 
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {		
 			double scalingFactor = (Double) handler.getParameters().get(CalculationAlgorithm.SIMSTEPTIMESCALINGFACTOR);			
-			results.add1DValue(((double)results.getTimeStep())*scalingFactor);
+			results.add1DValue(((double)SimStateServer.getInstance().getSimStepNumber())*scalingFactor);
 	}
 }

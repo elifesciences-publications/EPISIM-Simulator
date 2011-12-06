@@ -189,9 +189,6 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 					
 				}
 			}
-			if(ModeServer.useMonteCarloSteps()){
-				this.getStatusbar().setMessage("Monte Carlo Simulation Steps activated - "+this.getStatusbar().getMessage());
-			}
 		}
 		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		//        TODO: to be changed for video recording
@@ -380,6 +377,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				else epiUI = new EpisimGUIState(noGUIModeMainPanel);
 				registerSimulationStateListeners(epiUI);
 				epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
+				if(actLoadedSimulationStateData != null)  SimStateServer.getInstance().setSimStepNumberAtStart(actLoadedSimulationStateData.getSimStepNumber());
 				if(ModeServer.guiMode()){
 					mainFrame.validate();
 					mainFrame.repaint();
@@ -432,6 +430,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			
 			registerSimulationStateListeners(epiUI);
 			epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
+			if(actLoadedSimulationStateData != null)  SimStateServer.getInstance().setSimStepNumberAtStart(actLoadedSimulationStateData.getSimStepNumber());			
 			if(ChartController.getInstance().isAlreadyChartSetLoaded() && GlobalClassLoader.getInstance().getMode().equals(GlobalClassLoader.IGNORECHARTSETMODE)){
 				ChartController.getInstance().reloadCurrentlyLoadedChartSet();
 				GlobalClassLoader.getInstance().resetMode();
@@ -515,10 +514,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(false);
 		menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
 		
-		if(ModeServer.useMonteCarloSteps()){
-			this.getStatusbar().setMessage("Monte Carlo Simulation Steps activated"+this.getStatusbar().getMessage());
-		}
-		else statusbar.setMessage("");
+		statusbar.setMessage("Ready");
 		ChartController.getInstance().modelWasClosed();
 		DataExportController.getInstance().modelWasClosed();
 		
@@ -594,8 +590,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	private void centerMe(JFrame frame){
 		if(frame != null){
 			Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-			frame.setLocation(((int)((screenDim.getWidth() /2) - (frame.getPreferredSize().getWidth()/2))), 
-			((int)((screenDim.getHeight() /2) - (frame.getPreferredSize().getHeight()/2))));
+			frame.setLocation(((int)((screenDim.getWidth()/2)-(frame.getPreferredSize().getWidth()/2))), 
+			((int)((screenDim.getHeight()/2)-(frame.getPreferredSize().getHeight()/2))));
 		}
 	}
 
@@ -605,26 +601,29 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
    }
 	
    public Component getMainFrame(){ 
-   	return ModeServer.guiMode() ? mainFrame : noGUIModeMainPanel; }
+   	return ModeServer.guiMode() ? mainFrame : noGUIModeMainPanel; 
+   }
 
 		
 	
 	
 	protected void loadSimulationStateFile(File f){
-		try{
-            SimulationStateData simStateData = new SimulationStateFile(f).loadData();
-            SimStateServer.getInstance().setSimStepNumberAtStart(simStateData.getSimStepNumber());
-            openModel(simStateData.getLoadedModelFile(), simStateData);    		
+		 try{
+            if(f != null){
+            	setTissueExportPath(f, false);
+					SimulationStateData simStateData = new SimulationStateFile(f).loadData();          
+	            openModel(simStateData.getLoadedModelFile(), simStateData);   
+            }
         }
         catch (ParserConfigurationException e1){
-        	ExceptionDisplayer.getInstance().displayException(e1);
+        		ExceptionDisplayer.getInstance().displayException(e1);
         }
         catch (SAXException e1){
-        	ExceptionDisplayer.getInstance().displayException(e1);
+        		ExceptionDisplayer.getInstance().displayException(e1);
         } 
 		  catch (IOException e1) {
-			ExceptionDisplayer.getInstance().displayException(e1);
-		} 
+			  ExceptionDisplayer.getInstance().displayException(e1);
+		  } 
 	}
 
 	

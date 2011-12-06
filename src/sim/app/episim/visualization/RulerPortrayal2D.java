@@ -3,6 +3,7 @@ package sim.app.episim.visualization;
 
 import sim.SimStateServer;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueBorder;
@@ -74,7 +75,8 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 					&& actMousePositionXY.getX() <= getMaxX(info)
 					&& actMousePositionXY.getY() >= getMinY(info)
 					&& actMousePositionXY.getY() <= getMaxY(info))drawCrosshairs(graphics);
-			showTissueInformationLine( graphics,  info);
+			showTissueInformationLine(graphics,  info);
+			showSimStepInformationLine(graphics, info);
 		}
 
 	}
@@ -146,12 +148,12 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 			 double minY = getMinY(info);
 			 double maxY = getMaxY(info);
 			 StringBuffer text = new StringBuffer();
-			 
-			 text.append("[Intervall: "+ getResolutionInMikron()+ " µm]");
+			
+			 text.append("Interval: "+ getResolutionInMikron()+ " µm");
 				graphics.setFont(new Font("Arial", Font.PLAIN, 12));
 				
-			 text.append("    Tissue ID: " + TissueController.getInstance().getTissueBorder().getTissueID());
-			 text.append("    Tissue Description: " + TissueController.getInstance().getTissueBorder().getTissueDescription());
+		/*	 text.append("    Tissue ID: " + TissueController.getInstance().getTissueBorder().getTissueID());
+			 text.append("    Tissue Description: " + TissueController.getInstance().getTissueBorder().getTissueDescription());*/
 				
 				if(actMousePositionXY!= null){
 					
@@ -171,7 +173,15 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 				}
 				graphics.drawString(text.toString(), (float)(info.clip.getMinX() +10), (float)(info.clip.getMinY() +20));
 	    }
-	    
+	    private void showSimStepInformationLine(Graphics2D graphics, DrawInfo2D info){
+	   	 StringBuffer text = new StringBuffer();
+		    if(ModeServer.useMonteCarloSteps()){
+				 text.append("Total MC Sim Step No: " + SimStateServer.getInstance().getSimStepNumber());
+			 }
+			 else text.append("Total Sim Step No: " + SimStateServer.getInstance().getSimStepNumber());
+		    Rectangle2D stringBounds = graphics.getFontMetrics().getStringBounds(text.toString(), graphics);
+		    graphics.drawString(text.toString(), (float)(info.clip.getMaxX() -(stringBounds.getWidth()+10)), (float)(info.clip.getMinY() +20));
+	    }
 	    private void drawCrosshairs(Graphics2D graphics){
 	   	   float[] dash = new float[]{ DOT, SPACE };
 	   		

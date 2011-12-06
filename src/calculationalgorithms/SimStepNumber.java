@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ResultSet;
@@ -65,11 +66,8 @@ public class SimStepNumber extends AbstractCommonCalculationAlgorithm implements
 	
    }
 
-	public void calculate(CalculationHandler handler, ResultSet<Double> results) {		
-			
-			
-			results.add1DValue((double)results.getTimeStep());				
-			
+	public void calculate(CalculationHandler handler, ResultSet<Double> results){		
+			results.add1DValue((double)SimStateServer.getInstance().getSimStepNumber());	
    }
 	
 	

@@ -53,6 +53,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		generatedSourceCode.append("import episiminterfaces.monitoring.*;\n");
 		generatedSourceCode.append("import episimexceptions.*;\n");
 		generatedSourceCode.append("import episimfactories.*;\n");
+		generatedSourceCode.append("import sim.*;\n");
 		generatedSourceCode.append("import sim.app.episim.util.EnhancedSteppable;\n");
 		generatedSourceCode.append("import sim.engine.Steppable;\n");
 		generatedSourceCode.append("import sim.app.episim.util.GenericBag;\n");

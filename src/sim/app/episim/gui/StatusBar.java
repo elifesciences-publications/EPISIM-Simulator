@@ -10,6 +10,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import sim.app.episim.ModeServer;
+
 
 public class StatusBar extends JPanel {
    
@@ -28,7 +30,11 @@ public class StatusBar extends JPanel {
    }
    
    public void setMessage(String message){
-   	statusText.setText(" "+message);        
+   	if(ModeServer.useMonteCarloSteps()){
+			String line = message != null && message.trim().length() >0 ? " - ":" ";
+			statusText.setText(" Monte Carlo Simulation Steps activated"+line+message);   
+		}
+   	else statusText.setText(" "+message);        
    }
    public String getMessage(){
    	return statusText.getText();        

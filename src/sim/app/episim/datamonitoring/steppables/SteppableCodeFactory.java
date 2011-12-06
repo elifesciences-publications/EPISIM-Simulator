@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.jfree.chart.JFreeChart;
 
+import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
@@ -31,7 +32,7 @@ public abstract class SteppableCodeFactory {
 		
 		steppableCode.append("public void step(SimState state){\n");
 		
-		steppableCode.append("for(CalculationCallBack callBack: "+ nameOfCallBackList + ") callBack.calculate(state.schedule.getSteps());");		
+		steppableCode.append("for(CalculationCallBack callBack: "+ nameOfCallBackList + ") callBack.calculate(SimStateServer.getInstance().getSimStepNumber());");		
 		
 		steppableCode.append("}\n");
 		steppableCode.append("public double getInterval(){\n");

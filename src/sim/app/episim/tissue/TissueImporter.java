@@ -122,7 +122,7 @@ public class TissueImporter {
 			
 			loadXML(path);
 		   TissueRotator rotator = new TissueRotator();
-		   rotator.rotateTissue(actImportedTissue, surfaceOrientation);
+	//	   rotator.rotateTissue(actImportedTissue, surfaceOrientation);
 			return actImportedTissue;
 			
 		}

@@ -102,10 +102,7 @@ public class CellBehavioralModelController implements java.io.Serializable{
 		return instance;
 	}
 	
-	public void reloadCellBehavioralModelGlobalParametersObject(EpisimCellBehavioralModelGlobalParameters parametersObject){
-		if(cellBehavioralModel != null) cellBehavioralModel.reloadCellBehavioralModelGlobalParametersObject(parametersObject);
-	}	
-	
+		
 	protected boolean loadModelFile(File modelFile) throws ModelCompatibilityException{
 		
 			CellBehavioralModelJarClassLoader jarLoader = null;

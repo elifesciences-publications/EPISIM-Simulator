@@ -12,6 +12,7 @@ import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -267,6 +268,16 @@ public class TestCanvas extends JPanel {
 				graphics.setColor(new Color(1, 255, 0));
 				graphics.draw(surface);
 				
+				graphics.setColor(oldColor);
+			}
+			if(TissueController.getInstance().getActImportedTissue() != null){
+				Graphics2D graphics = (Graphics2D) g;
+				graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+				Color oldColor = graphics.getColor();				
+				graphics.setColor(Color.RED);
+				for(Point2D p : TissueController.getInstance().getActImportedTissue().getBasalLayerPoints()){				
+					graphics.drawRect((int)p.getX(), (int)p.getY(), 1, 1);					
+				}
 				graphics.setColor(oldColor);
 			}
 		}

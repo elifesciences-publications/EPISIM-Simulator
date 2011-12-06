@@ -578,9 +578,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			
 	}
 
-	public void snapShotRestart() {
-			//TODO: restart? 
-   }
+	
 
 	public void simulationWasPaused() {}
 	

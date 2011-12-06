@@ -78,19 +78,10 @@ public class CellBehavioralModelFacade implements java.io.Serializable{
 		return this.globalParametersObject;
 	}
 	
-	
-		
-   
-	public void reloadCellBehavioralModelGlobalParametersObject(EpisimCellBehavioralModelGlobalParameters parametersObject){
-		if(this.globalParametersObject != null)this.globalParametersObject.setSnapshotValues(parametersObject);
-	}
-     
   
   public void resetInitialGlobalValues(){
 	  if(globalParametersObject !=null) globalParametersObject.resetInitialGlobalValues();
   }
-
-
 	
    
    public CellBehavioralModelInitializer getCellBehavioralModelInitializer(){

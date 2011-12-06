@@ -42,17 +42,17 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	private long currentSimStepNo = 0;
 	
 	private DrawInfo2D lastDrawInfo2D;
-	
-	 //TODO: plus 2 Korrektur überprüfen
-   private static Continuous2D cellField;	
-   public VertexBasedMechanicalModel(){
+	private static Continuous2D cellField;	
+   
+	public VertexBasedMechanicalModel(){
    	this(null);
    }
+	
 	public VertexBasedMechanicalModel(AbstractCell cell){
 		super(cell);
 		if(cellField == null){
 			cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
-		   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() + 2, 
+		   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron(), 
 		   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron());
 		}
 		if(cell!= null){

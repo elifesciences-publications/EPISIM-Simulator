@@ -233,7 +233,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	        	ExceptionDisplayer.getInstance().displayException(e1);
 	        }			
 				
-				//TODO: write code to store tissue export
+				
 				if(getPlayState() == ConsoleHack.PS_PAUSED && getPlayState() != ConsoleHack.PS_PLAYING)pressPause(); 
 				simulation.state.postCheckpoint();
 			}

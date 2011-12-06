@@ -35,11 +35,11 @@ public class EpiDisplay2D {
 	protected GUIState simulation;
 	private SimulationDisplay simulationDisplay;
 	
-	public EpiDisplay2D(final double width, final double height, GUIState simulation, long interval){
+	public EpiDisplay2D(final double width, final double height, GUIState simulation){
 		
 		
-		if(ModeServer.guiMode())simulationDisplay = new Display2DHack(width, height, simulation, interval);
-		else simulationDisplay = new NoGUIDisplay2D(width, height, simulation, interval);
+		if(ModeServer.guiMode())simulationDisplay = new Display2DHack(width, height, simulation);
+		else simulationDisplay = new NoGUIDisplay2D(width, height, simulation);
 		this.simulation = simulation;
 		
 	}

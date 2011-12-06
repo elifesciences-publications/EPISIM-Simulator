@@ -311,7 +311,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		// Internal Frame for EpiSimlation Display
 		// --------------------------------------------------------------------------
 
-		display = new EpiDisplay2D(EPIDISPLAYWIDTH+ (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), this, 1);
+		display = new EpiDisplay2D(EPIDISPLAYWIDTH+ (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), this);
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
 		display.setBackdrop(Color.BLACK);

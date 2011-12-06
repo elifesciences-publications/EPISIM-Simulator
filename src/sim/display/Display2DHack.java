@@ -60,9 +60,9 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 	private boolean moviePathSet = false;
 	private EpisimMovieMaker episimMovieMaker;
 	
-	public Display2DHack(double width, double height, GUIState simulation, long interval) {
+	public Display2DHack(double width, double height, GUIState simulation) {
 
-		super(width, height, simulation, interval);
+		super(width, height, simulation);
 		
 		for(MouseMotionListener listener :insideDisplay.getMouseMotionListeners())insideDisplay.removeMouseMotionListener(listener);
 		for(MouseListener listener :insideDisplay.getMouseListeners())insideDisplay.removeMouseListener(listener);
@@ -274,7 +274,7 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
               }
           });
                       
-      header.add(skipBox);
+    //  header.add(skipBox);
 
 
       skipField = new NumberTextField(null, 1, false)
@@ -312,7 +312,7 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
               }
           };
       skipField.setToolTipText("Specify the interval between screen updates");
-      header.add(skipField);
+     // header.add(skipField);
 
       skipListener.actionPerformed(null);  // have it update the text field accordingly
       

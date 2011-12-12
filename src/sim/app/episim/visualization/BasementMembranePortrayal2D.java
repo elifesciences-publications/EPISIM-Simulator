@@ -39,21 +39,20 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
    private static final double DELTACROSS = 10;
    private static final double DELTAPOINT = 10;
    
-   private int border = 0;
+  
    
    private final double XSHIFTCORRECTION = 3; //Corrects error of affine Transformation
    
-   
+   private EpisimGUIState guiState;
    
    public BasementMembranePortrayal2D() {
-   	 EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+   	 guiState = SimStateServer.getInstance().getEpisimGUIState();
    		
    	 if(guiState != null){   		 
-		    this.width = guiState.EPIDISPLAYWIDTH + (2*guiState.DISPLAYBORDER);
-		  	 this.height = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);		  	 
+		    this.width = guiState.EPIDISPLAYWIDTH + guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT;
+		  	 this.height = guiState.EPIDISPLAYHEIGHT + guiState.DISPLAY_BORDER_BOTTOM+guiState.DISPLAY_BORDER_TOP;		  	 
 		  	 this.INITIALWIDTH = ((int)width);
-		  	 this.INITIALHEIGHT = ((int)height);
-		  	 this.border = guiState.DISPLAYBORDER;	  	 
+		  	 this.INITIALHEIGHT = ((int)height);		  	 	  	 
    	 }
    	 else{   		 
 		  	 this.INITIALWIDTH = 0;
@@ -93,8 +92,8 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					
 					double dispScale = getScaleFactorOfTheDisplay();
 					
-					width=(INITIALWIDTH -2*border)*dispScale ;
-					height=(INITIALHEIGHT-2*border)*dispScale;
+					width=(INITIALWIDTH -(guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT))*dispScale ;
+					height=(INITIALHEIGHT-(guiState.DISPLAY_BORDER_BOTTOM+guiState.DISPLAY_BORDER_TOP))*dispScale;
 					
 					double scaleX = (width/polygon.getBounds2D().getWidth());
 					
@@ -106,8 +105,8 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					transform.scale(scaleX, scaleX);
 					polygon = (GeneralPath) polygon.createTransformedShape(transform);
 								
-					transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX()+ (border*dispScale)-XSHIFTCORRECTION, 
-	                    							info.clip.getMinY()-getDeltaY()+(border*dispScale));
+					transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX()+ (guiState.DISPLAY_BORDER_LEFT*dispScale)-XSHIFTCORRECTION, 
+	                    							info.clip.getMinY()-getDeltaY()+(guiState.DISPLAY_BORDER_TOP*dispScale));
 					
 					polygon = (GeneralPath) polygon.createTransformedShape(transform);
 					
@@ -164,8 +163,8 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay()) + DELTACROSS);
 		
 					if(TissueController.getInstance().getTissueBorder().isOverBasalLayer(new Point2D.Double(
-							(((point.getX()-border) /scaleX)),
-							(((point.getY()-border)/scaleX)))))
+							(((point.getX()-guiState.DISPLAY_BORDER_LEFT) /scaleX)),
+							(((point.getY()-guiState.DISPLAY_BORDER_TOP)/scaleX)))))
 							graphics.setColor(Color.GREEN);
 					else graphics.setColor(Color.RED);
 					graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -259,7 +258,7 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 
     public Rectangle2D.Double getViewPortRectangle() {
  		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
- 	   if(guiState != null)return new Rectangle2D.Double(0,0,guiState.EPIDISPLAYWIDTH+(2*guiState.DISPLAYBORDER), guiState.EPIDISPLAYHEIGHT+(2*guiState.DISPLAYBORDER));
+ 	   if(guiState != null)return new Rectangle2D.Double(0,0,guiState.EPIDISPLAYWIDTH+(guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT), guiState.EPIDISPLAYHEIGHT+(guiState.DISPLAY_BORDER_TOP+guiState.DISPLAY_BORDER_BOTTOM));
  	   else return new Rectangle2D.Double(0,0,0, 0);
     }
 	

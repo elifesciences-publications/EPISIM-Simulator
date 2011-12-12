@@ -22,33 +22,31 @@ public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortr
    private DrawInfo2D lastActualInfo;
    private DrawInfo2D firstInfo;
    	   
-   private int border;
-   private int specificOffset;
-   protected final int OFFSET = 0; //distance ruler <->tissue
-   
+  
+     
    private double implicitScale;
    
    private double resolution = 5;
 	
+   private EpisimGUIState guiState;
+   
 	 public AbstractSpatialityScalePortrayal2D() {
    	 
-		 EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+		 guiState = SimStateServer.getInstance().getEpisimGUIState();
 		 
 		 if(guiState != null){
-			 this.width =  guiState.EPIDISPLAYWIDTH + (2*guiState.DISPLAYBORDER);
-	   	 this.height = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);
+			 this.width =  guiState.EPIDISPLAYWIDTH + guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT;
+	   	 this.height = guiState.EPIDISPLAYHEIGHT + guiState.DISPLAY_BORDER_TOP+guiState.DISPLAY_BORDER_BOTTOM;
 	   	 this.INITIALWIDTH = width;
 	   	 this.INITIALHEIGHT = height;
 	   	
-	   	 this.border = guiState.DISPLAYBORDER;
+	   	
 	   	 this.implicitScale = guiState.INITIALZOOMFACTOR;
 		 }else{
 			 this.INITIALWIDTH=0;
 			 this.INITIALHEIGHT=0;
 		 }
-   	 
-   	 this.specificOffset = (border - OFFSET) < 0 ? 0 : (border - OFFSET);
-   	 
+   	    	 
    	 double heightResolution = Math.round(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron() * 0.02);
 	  	 double widthResolution = Math.round(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() * 0.02);
 	  	 this.resolution = heightResolution > widthResolution ? heightResolution : widthResolution;
@@ -63,17 +61,17 @@ public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortr
     }
 	 
 	 protected double getMinX(DrawInfo2D info){
-		 return lastActualInfo.clip.getMinX() -getDeltaX() + (specificOffset*getScaleFactorOfTheDisplay());
+		 return lastActualInfo.clip.getMinX() -getDeltaX() + (guiState.DISPLAY_BORDER_LEFT*getScaleFactorOfTheDisplay());
 	 }
 	 
 	 protected double getMaxX(DrawInfo2D info){
-		 return lastActualInfo.clip.getMinX()+width-getDeltaX()- (specificOffset*getScaleFactorOfTheDisplay());
+		 return lastActualInfo.clip.getMinX()+width-getDeltaX()- (guiState.DISPLAY_BORDER_RIGHT*getScaleFactorOfTheDisplay());
 	 }
 	 protected double getMinY(DrawInfo2D info){
-		 return lastActualInfo.clip.getMinY()-getDeltaY()+ (specificOffset*getScaleFactorOfTheDisplay());
+		 return lastActualInfo.clip.getMinY()-getDeltaY()+ (guiState.DISPLAY_BORDER_TOP*getScaleFactorOfTheDisplay());
 	 }
 	 protected double getMaxY(DrawInfo2D info){
-	  return lastActualInfo.clip.getMinY()+height-getDeltaY()-(specificOffset*getScaleFactorOfTheDisplay());
+	  return lastActualInfo.clip.getMinY()+height-getDeltaY()-(guiState.DISPLAY_BORDER_BOTTOM*getScaleFactorOfTheDisplay());
 	}
 	protected double getDeltaX(){
    	 if((lastActualInfo.clip.width+1)< width){
@@ -127,19 +125,6 @@ public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortr
    
    	this.firstInfo = firstInfo;
    }
-
-	
-   protected int getBorder() {
-   
-   	return border;
-   }
-
-	
-   protected void setBorder(int border) {
-   
-   	this.border = border;
-   }
-
 	
    protected double getImplicitScale() {
    
@@ -162,22 +147,6 @@ public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortr
    
    	this.resolution = resolution;
    }
-
-
-	
-   protected int getSpecificOffset() {
-   
-   	return specificOffset;
-   }
-
-
-	
-   protected void setSpecificOffset(int specificOffset) {
-   
-   	this.specificOffset = specificOffset;
-   }
-
-
 	
    protected double getHeight() {
    

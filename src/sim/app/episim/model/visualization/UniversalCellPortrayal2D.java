@@ -49,7 +49,8 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
     private final double INITIALWIDTH;
     private final double INITIALHEIGHT;
     
-    private int border = 0;
+   
+    private EpisimGUIState guiState;
     
     public UniversalCellPortrayal2D() {   	 
    	 this(Color.gray, false);   	 
@@ -60,13 +61,13 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
       
     public UniversalCellPortrayal2D(Paint paint, boolean drawFrame)  {   	
    	cBModelController = ModelController.getInstance().getCellBehavioralModelController();
-   	EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+   	guiState = SimStateServer.getInstance().getEpisimGUIState();
    	
    	if(guiState != null){
    		this.implicitScale = guiState.INITIALZOOMFACTOR;
-      	this.INITIALWIDTH = guiState.EPIDISPLAYWIDTH + (2*guiState.DISPLAYBORDER);
-   	  	this.INITIALHEIGHT = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);
-   	  	this.border = guiState.DISPLAYBORDER;
+   		
+   		this.INITIALWIDTH = guiState.EPIDISPLAYWIDTH + guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT;
+   		this.INITIALHEIGHT = guiState.EPIDISPLAYHEIGHT + guiState.DISPLAY_BORDER_BOTTOM+guiState.DISPLAY_BORDER_TOP;
    	}
    	else{
    		this.INITIALHEIGHT=0;
@@ -145,7 +146,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 			               		 xShift -= info.clip.x;
 			               	 }
 			               	 
-			               	 transform.translate(xShift+(border*getScaleFactorOfTheDisplay()), yShift+(border*getScaleFactorOfTheDisplay()));
+			               	 transform.translate(xShift+(guiState.DISPLAY_BORDER_LEFT*getScaleFactorOfTheDisplay()), yShift+(guiState.DISPLAY_BORDER_TOP*getScaleFactorOfTheDisplay()));
 			               	 path.transform(transform);
 			               	
 			               	 graphics.setPaint(fillColor);
@@ -322,7 +323,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    
    public Rectangle2D.Double getViewPortRectangle() {
  		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
- 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAYBORDER,guiState.DISPLAYBORDER,guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
+ 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAY_BORDER_LEFT,guiState.DISPLAY_BORDER_TOP,guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
  	   else return new Rectangle2D.Double(0,0,0, 0);
-    }
+   }
 }

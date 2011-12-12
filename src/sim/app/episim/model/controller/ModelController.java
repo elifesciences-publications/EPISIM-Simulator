@@ -79,6 +79,10 @@ public class ModelController implements java.io.Serializable{
 		return initializer.getCellPortrayal();
 	}
 	
+	public EpisimPortrayal[] getExtraCellularDiffusionPortrayals(){
+		return initializer.getExtraCellularDiffusionPortrayals();
+	}
+	
 	public EpisimPortrayal[] getAdditionalPortrayalsCellBackground(){
 		return initializer.getAdditionalPortrayalsCellBackground();
 	}
@@ -92,13 +96,14 @@ public class ModelController implements java.io.Serializable{
 	}
 	
 	public BiomechanicalModelController getBioMechanicalModelController(){ return BiomechanicalModelController.getInstance();}
-	public CellBehavioralModelController getCellBehavioralModelController() { return CellBehavioralModelController.getInstance();}	
+	public CellBehavioralModelController getCellBehavioralModelController() { return CellBehavioralModelController.getInstance();}
+	public ExtraCellularDiffusionController getExtraCellularDiffusionController(){ return ExtraCellularDiffusionController.getInstance();}
+	
    public boolean isModelOpened(){ return modelOpened; }
    
    public boolean loadCellBehavioralModelFile(File modelFile) throws ModelCompatibilityException{
    	this.initializer = null;
-   	boolean success = CellBehavioralModelController.getInstance().loadModelFile(modelFile);
-   	
+   	boolean success = CellBehavioralModelController.getInstance().loadModelFile(modelFile);   	
    	if(success){
    		if(ModeServer.consoleInput()){
    			ModelParameterModifier parameterModifier = new ModelParameterModifier();
@@ -113,6 +118,7 @@ public class ModelController implements java.io.Serializable{
    			
    		}
    		success = BiomechanicalModelController.getInstance().loadModelFile(CellBehavioralModelController.getInstance().getNewEpisimCellBehavioralModelObject().getIdOfRequiredEpisimModelConnector());
+   		
    	}
    	
    	return success;

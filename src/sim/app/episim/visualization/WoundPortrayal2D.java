@@ -46,8 +46,8 @@ public class WoundPortrayal2D extends ContinuousPortrayal2D implements EpisimPor
  		 EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
  		 
  		if(guiState != null){ 			
-			this.width = guiState.EPIDISPLAYWIDTH + (2*guiState.DISPLAYBORDER);
-			this.height = guiState.EPIDISPLAYHEIGHT + (2*guiState.DISPLAYBORDER);
+ 			this.width = guiState.EPIDISPLAYWIDTH + guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT;
+		  	 this.height = guiState.EPIDISPLAYHEIGHT + guiState.DISPLAY_BORDER_BOTTOM+guiState.DISPLAY_BORDER_TOP;
  		}
 		Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
 					TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
@@ -142,7 +142,7 @@ public class WoundPortrayal2D extends ContinuousPortrayal2D implements EpisimPor
 	
 	public Rectangle2D.Double getViewPortRectangle() {
  		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
- 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAYBORDER, guiState.DISPLAYBORDER, guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
+ 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAY_BORDER_LEFT, guiState.DISPLAY_BORDER_TOP, guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
  	   else return new Rectangle2D.Double(0,0,0, 0);
     }
 

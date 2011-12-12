@@ -95,7 +95,10 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	public final double EPIDISPLAYWIDTH;
 	public final double EPIDISPLAYHEIGHT;
 	
-	public  final int DISPLAYBORDER = 40;	
+	public  final int DISPLAY_BORDER_TOP = 40;
+	public  final int DISPLAY_BORDER_LEFT = 45;
+	public  final int DISPLAY_BORDER_BOTTOM = 40;
+	public  final int DISPLAY_BORDER_RIGHT = 60;
 	private final double MAXHEIGHTFACTOR = 1;
 	
 	private boolean workaroundPauseWasPressed = false;	
@@ -288,6 +291,10 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		display.attach(epiPortrayal, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
 		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
+		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		
+		
 		display.attach(woundPortrayal, woundPortrayal.getPortrayalName(), woundPortrayal.getViewPortRectangle(), true);
 		display.attach(rulerPortrayal, rulerPortrayal.getPortrayalName(), rulerPortrayal.getViewPortRectangle(), true);
 		display.attach(gridPortrayal, gridPortrayal.getPortrayalName(), gridPortrayal.getViewPortRectangle(), true);
@@ -311,7 +318,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		// Internal Frame for EpiSimlation Display
 		// --------------------------------------------------------------------------
 
-		display = new EpiDisplay2D(EPIDISPLAYWIDTH+ (2*DISPLAYBORDER), EPIDISPLAYHEIGHT+(2*DISPLAYBORDER), this);
+		display = new EpiDisplay2D(EPIDISPLAYWIDTH+(DISPLAY_BORDER_LEFT+DISPLAY_BORDER_RIGHT), EPIDISPLAYHEIGHT+(DISPLAY_BORDER_TOP+DISPLAY_BORDER_BOTTOM), this);
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
 		display.setBackdrop(Color.BLACK);
@@ -796,8 +803,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 					frame.toFront();
 					offset+=10;
 				}
-				else desktop.add(frame);
-				
+				else desktop.add(frame);				
 			}
 		   if(autoArrangeWindows)
 		   	arrangeElements(desktop, false);

@@ -28,6 +28,7 @@ public class ModelInitialization {
 
 	private BiomechanicalModelInitializer biomechanicalModelInitializer;
 	private CellBehavioralModelInitializer cellbehavioralModelInitializer;
+	private ExtraCellularDiffusionInitializer extraCellularDiffusionInitializer;
 
 	public ModelInitialization() {
 		this(null);
@@ -42,6 +43,9 @@ public class ModelInitialization {
 			this.cellbehavioralModelInitializer = ModelController.getInstance()
 					.getCellBehavioralModelController()
 					.getCellBehavioralModelInitializer();
+			this.extraCellularDiffusionInitializer = ModelController.getInstance()
+					.getExtraCellularDiffusionController()
+					.getExtraCellularDiffusionInitializer();
 		} else {
 			this.biomechanicalModelInitializer = ModelController.getInstance()
 					.getBioMechanicalModelController()
@@ -49,11 +53,15 @@ public class ModelInitialization {
 			this.cellbehavioralModelInitializer = ModelController.getInstance()
 					.getCellBehavioralModelController()
 					.getCellBehavioralModelInitializer(simStateData);
+			this.extraCellularDiffusionInitializer = ModelController.getInstance()
+					.getExtraCellularDiffusionController()
+					.getExtraCellularDiffusionInitializer(simStateData);
 		}
 		if (this.cellbehavioralModelInitializer == null
-				|| this.biomechanicalModelInitializer == null)
+				|| this.biomechanicalModelInitializer == null
+				|| this.extraCellularDiffusionInitializer == null)
 			throw new IllegalArgumentException(
-					"Neither the CellBehavioralModelInitializer nor the BiomechanicalModelInitializer must be null!");
+					"Neither the CellBehavioralModelInitializer nor the BiomechanicalModelInitializer nor ExtraCellularDiffusionInitializer must be null!");
 	}
 
 	public ArrayList<UniversalCell> getCells() {
@@ -63,6 +71,10 @@ public class ModelInitialization {
 
 	public EpisimPortrayal getCellPortrayal() {
 		return biomechanicalModelInitializer.getCellPortrayal();
+	}
+	
+	public EpisimPortrayal[] getExtraCellularDiffusionPortrayals(){
+		return extraCellularDiffusionInitializer.getExtraCellularDiffusionPortrayals();
 	}
 
 	public EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {
@@ -79,11 +91,12 @@ public class ModelInitialization {
 		ArrayList<UniversalCell> initiallyExistingCells = this.biomechanicalModelInitializer
 				.getInitialCellEnsemble();
 		
+		
 		this.cellbehavioralModelInitializer
 				.initializeCellEnsemble(initiallyExistingCells);
 		this.biomechanicalModelInitializer
 				.initializeCellEnsembleBasedOnRandomAgeDistribution(initiallyExistingCells);
-
+		this.extraCellularDiffusionInitializer.buildExtraCellularDiffusionFields();
 		if (simulationStateData != null) {
 			// TODO global Parameters, sind die hier richtig?
 

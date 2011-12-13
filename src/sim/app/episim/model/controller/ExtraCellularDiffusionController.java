@@ -23,48 +23,54 @@ public class ExtraCellularDiffusionController {
 	      return "TestDiffusionField";
       }
 
-		@Override
+		
       public double getDiffusionCoefficient() {
 
 	      // TODO Auto-generated method stub
 	      return 0.00000000000002;
       }
 
-		@Override
+		
       public double getLatticeSiteSizeInMikron() {
 
 	      // TODO Auto-generated method stub
 	      return 1;
       }
 
-		@Override
+		
       public double getDegradationRate() {
 
 	      // TODO Auto-generated method stub
 	      return 0;
       }
 
-		@Override
+		
       public int getNumberOfIterationsPerCBMSimStep() {
 
 	      // TODO Auto-generated method stub
 	      return 1800;
       }
 
-		@Override
+		
       public double getDeltaTimeInSecondsPerIteration() {	      
 	      return 1;
       }
 
-		@Override
+		
       public double getMaximumConcentration() {	     
 	      return 255;
       }
 
-		@Override
+		
       public double getMinimumConcentration() {	      
 	      return 0;
-      }}};
+      }
+
+
+		public double getDefaultConcentration() {
+
+			return 0;
+		}}};
 	
 	private ExtraCellularDiffusionController(){
 		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();

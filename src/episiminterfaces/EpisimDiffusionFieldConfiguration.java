@@ -1,6 +1,5 @@
 package episiminterfaces;
 
-
 public interface EpisimDiffusionFieldConfiguration {
 	
 	String getDiffusionFieldName();
@@ -9,6 +8,7 @@ public interface EpisimDiffusionFieldConfiguration {
 	double getDegradationRate();
 	int getNumberOfIterationsPerCBMSimStep();
 	double getDeltaTimeInSecondsPerIteration();
+	double getDefaultConcentration();
 	double getMaximumConcentration();
 	double getMinimumConcentration();
 

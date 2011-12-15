@@ -148,7 +148,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
 	
    public void sendDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell) {
 
-	   // TODO Auto-generated method stub
+	   System.out.println("SendDF was called at field: "+ecDiffusionFieldName);
 	   
    }
 	

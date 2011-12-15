@@ -43,8 +43,8 @@ public interface EpisimCellBehavioralModel {
 	int getColorB();
 	void setColorB(int val);
 	
-	int getId();
-	void setId(int val);
+	long getId();
+	void setId(long val);
 	
 	double getDnaContent();
 	void setDnaContent(double val);

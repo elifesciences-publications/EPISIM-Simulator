@@ -22,4 +22,7 @@ public interface EpisimCellBehavioralModelGlobalParameters{
 	@CannotBeMonitored
 	EpisimDifferentiationLevel getDifferentiationLevelForOrdinal(int ordinal);
 	
+	@CannotBeMonitored
+	EpisimDiffusionFieldConfiguration[] getAllExtraCellularDiffusionFieldConfigurations();
+	
 }

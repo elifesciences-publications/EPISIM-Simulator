@@ -59,9 +59,9 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    		this.cellBehavioralModelObject = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
    	}
    	else{
-   		this.cellBehavioralModelObject.setId((int)this.id);
    		this.cellBehavioralModelObject.setSendReceiveAlgorithm(ModelController.getInstance().getCellBehavioralModelController().getNewInstanceOfSendReceiveAlgorithm());
    	}
+   	this.cellBehavioralModelObject.setId(this.id);
    	mechanicalModelObject =  ModelController.getInstance().getNewBioMechanicalModelObject(this);
    	this.mechanicalModelObject.setEpisimModelConnector(modelConnector);
    	this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);

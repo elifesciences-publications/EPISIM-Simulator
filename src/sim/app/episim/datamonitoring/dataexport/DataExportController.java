@@ -48,11 +48,22 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.EpisimDiffFieldDataExport;
 
 
 
 
 public class DataExportController {
+	
+	public enum DataExportType {
+		REGULAR_DATA_EXPORT("Regular Data Export"),
+		DIFF_FIELD_DATA_EXPORT("Diffusion-Field Data Export");
+		
+		private String dataExportType;
+		private DataExportType(String type){ this.dataExportType = type; }
+		public String toString(){ return this.dataExportType;}		
+	}
+	
 	
 	private static DataExportController instance = null;
 	
@@ -132,10 +143,8 @@ public class DataExportController {
 	public EpisimDataExportDefinition showDataExportCreationWizard(Frame parent){
 		return showDataExportCreationWizard(parent, null);
 	}
-	
-	
-	public void getDataExportCSVWriters(){
-		
+	public EpisimDiffFieldDataExport showDiffFieldDataExportCreationWizard(Frame parent){
+		return showDiffFieldDataExportCreationWizard(parent, null);
 	}
 	
 	public EpisimDataExportDefinition showDataExportCreationWizard(Frame parent, EpisimDataExportDefinition exportDefinition){
@@ -148,6 +157,17 @@ public class DataExportController {
 		else creationWizard.showWizard(exportDefinition);
 		
 		return creationWizard.getEpisimDataExport();
+	}
+	
+	public EpisimDiffFieldDataExport showDiffFieldDataExportCreationWizard(Frame parent, EpisimDiffFieldDataExport exportDefinition){
+		
+		DiffFieldDataExportCreationWizard creationWizard = new DiffFieldDataExportCreationWizard(parent, "Data-Export", true);
+		
+		if(exportDefinition == null) creationWizard.showWizard();
+		
+		else creationWizard.showWizard(exportDefinition);
+		
+		return creationWizard.getEpisimDiffFieldDataExport();
 	}
 	
 	public boolean loadDataExportDefinition(Frame parent){
@@ -308,7 +328,10 @@ public class DataExportController {
 	private void resetChartDirtyDataExports(){
 	  for(EpisimDataExportDefinition actDef: this.actLoadedDataExportSet.getEpisimDataExportDefinitions()) {
 		  actDef.setIsDirty(false);
-	  }	   	
+	  }
+	  for(EpisimDiffFieldDataExport actDef: this.actLoadedDataExportSet.getEpisimDiffFieldDataExportDefinitions()) {
+		  actDef.setIsDirty(false);
+	  }
 	}
 	
 	public void newSimulationRun(){

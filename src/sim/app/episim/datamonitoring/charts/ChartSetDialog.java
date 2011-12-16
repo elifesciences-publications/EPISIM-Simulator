@@ -32,6 +32,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -46,12 +47,15 @@ import javax.swing.event.ListSelectionListener;
 import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
+import episiminterfaces.monitoring.EpisimDiffFieldChart;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.datamonitoring.charts.ChartController.ChartType;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectManipulations;
 
@@ -183,12 +187,7 @@ public class ChartSetDialog extends JDialog {
 	   c.weighty =0;
 	   c.insets = new Insets(10,10,10,10);
 	   this.buttonPanel = buildOKCancelButtonPanel();
-	   getContentPane().add(buttonPanel, c);
-	   
-	   
-	   
-	   
-	  
+	   getContentPane().add(buttonPanel, c);	   	  
 	   
 	   setSize(500, 400);
 		validate();
@@ -205,11 +204,18 @@ public class ChartSetDialog extends JDialog {
 		this.chartSetName.setText(chartSet.getName());
 		DefaultListModel listModel = new DefaultListModel();
 		int i = 0;
+		
 		for(EpisimChart actChart : chartSet.getEpisimCharts()){
 			indexChartIdMap.put(i, actChart.getId());
 			listModel.addElement(actChart.getTitle());
 			i++;
 		}
+		for(EpisimDiffFieldChart actChart : chartSet.getEpisimDiffFieldCharts()){
+			indexChartIdMap.put(i, actChart.getId());
+			listModel.addElement(actChart.getChartTitle());
+			i++;
+		}
+		
 		this.chartsList.setModel(listModel);
 		if(chartSet.getPath() != null) this.pathText.setText(chartSet.getPath().getAbsolutePath());
 		centerMe();
@@ -285,16 +291,31 @@ public class ChartSetDialog extends JDialog {
 		addButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-			 
-	       EpisimChart newChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner);
-	       if(newChart != null){
-	      	 isDirty=true;
-	      	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
-	      	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
-	      	 episimChartSet.addEpisimChart(newChart);
-	      	 
-	       }
-	         
+				Object result = null;
+				if(ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfEpisimExtraCellularDiffusionFieldConfigurations() > 0){
+						ChartType[] types = ChartType.values();
+						result= JOptionPane.showInputDialog(ChartSetDialog.this, "Choose Chart-Type:", "Chart-Type", JOptionPane.QUESTION_MESSAGE,
+							  																null, types, ChartType.REGULAR_2D_CHART);
+				}
+				else result =  ChartType.REGULAR_2D_CHART;
+				if(result == ChartType.REGULAR_2D_CHART){
+				    EpisimChart newChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner);
+				    if(newChart != null){
+				    	 isDirty=true;
+				     	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
+				     	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
+				     	 episimChartSet.addEpisimChart(newChart);
+				      }
+				 }
+				 else if(result == ChartType.DIFF_FIELD_CHART){
+					 EpisimDiffFieldChart newChart = ChartController.getInstance().showDiffFieldChartCreationWizard(ChartSetDialog.this.owner);
+				    if(newChart != null){
+				    	 isDirty=true;
+				     	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getChartTitle());
+				     	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
+				     	 episimChartSet.addEpisimChart(newChart);
+				    }
+				 }				         
          }});
 		
 		editButton = new JButton("Edit Chart");
@@ -302,20 +323,36 @@ public class ChartSetDialog extends JDialog {
 		editButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
+				boolean chartEdited = false;
+				String editedChartTitle ="";
+				EpisimChart chartToBeEdited =  episimChartSet.getEpisimChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 				
-				EpisimChart editedChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner, 
-	      		      episimChartSet.getEpisimChart(indexChartIdMap.get(chartsList.getSelectedIndex())));
-				if(editedChart != null){ 
-					episimChartSet.updateChart(editedChart);
+				if(chartToBeEdited != null){
+					EpisimChart editedChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner, chartToBeEdited);
+					if(editedChart != null){ 
+						episimChartSet.updateChart(editedChart);
+						editedChartTitle = editedChart.getTitle();
+						chartEdited= true;
+					}
+				}
+				EpisimDiffFieldChart diffFieldChartToBeEdited =  episimChartSet.getEpisimDiffFieldChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
+				if(diffFieldChartToBeEdited != null){
+					EpisimDiffFieldChart editedChart = ChartController.getInstance().showDiffFieldChartCreationWizard(ChartSetDialog.this.owner, diffFieldChartToBeEdited);
+					if(editedChart != null){ 
+						episimChartSet.updateChart(editedChart);
+						editedChartTitle = editedChart.getChartTitle();
+						chartEdited= true;						
+					}
+				}
+				if(chartEdited){
 					int index = chartsList.getSelectedIndex();
 					if(index > -1){
 					 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).remove(index);
-					 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).insertElementAt(editedChart.getTitle(), index); 
+					 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).insertElementAt(editedChartTitle, index); 
 					 editButton.setEnabled(false);
 					 removeButton.setEnabled(false);
 					}
-				}
-	         
+				}	         
          }});
 		
 		editButton.setEnabled(false);
@@ -325,6 +362,7 @@ public class ChartSetDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				  isDirty = true;
 	           episimChartSet.removeEpisimChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
+	           episimChartSet.removeEpisimDiffFieldChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 	           ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).remove(chartsList.getSelectedIndex());
 	           updateIndexMap();
 	           
@@ -496,6 +534,9 @@ public class ChartSetDialog extends JDialog {
    
    private void resetChartDirtyStatus(){
    	for(EpisimChart actChart: this.episimChartSet.getEpisimCharts()) {
+   		actChart.setIsDirty(false);
+   	}
+   	for(EpisimDiffFieldChart actChart: this.episimChartSet.getEpisimDiffFieldCharts()) {
    		actChart.setIsDirty(false);
    	}
    	isDirty=false;

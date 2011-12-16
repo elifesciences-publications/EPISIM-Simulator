@@ -25,6 +25,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -40,13 +41,17 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetDialog;
 import sim.app.episim.datamonitoring.charts.EpisimChartSetImpl;
+import sim.app.episim.datamonitoring.charts.ChartController.ChartType;
+import sim.app.episim.datamonitoring.dataexport.DataExportController.DataExportType;
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.ObjectManipulations;
 import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
+import episiminterfaces.monitoring.EpisimDiffFieldDataExport;
 
 
 public class DataExportDefinitionSetDialog extends JDialog {
@@ -160,9 +165,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		   c.weighty =0;
 		   c.insets = new Insets(10,10,10,10);
 		   c.gridwidth = GridBagConstraints.REMAINDER;
-		   getContentPane().add(buildPathPanel(), c);
-		  	   
-		  
+		   getContentPane().add(buildPathPanel(), c); 
 		   
 		   c.anchor =GridBagConstraints.WEST;
 		   c.gridwidth=GridBagConstraints.REMAINDER; 
@@ -194,6 +197,11 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			DefaultListModel listModel = new DefaultListModel();
 			int i = 0;
 			for(EpisimDataExportDefinition actDef : dataExportDefinitonSet.getEpisimDataExportDefinitions()){
+				indexDataExportDefinitionIdMap.put(i, actDef.getId());
+				listModel.addElement(actDef.getName());
+				i++;
+			}
+			for(EpisimDiffFieldDataExport actDef : dataExportDefinitonSet.getEpisimDiffFieldDataExportDefinitions()){
 				indexDataExportDefinitionIdMap.put(i, actDef.getId());
 				listModel.addElement(actDef.getName());
 				i++;
@@ -273,16 +281,33 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			addButton.addActionListener(new ActionListener(){
 
 				public void actionPerformed(ActionEvent e) {
-					
-		       EpisimDataExportDefinition newDefinition = DataExportController.getInstance().showDataExportCreationWizard(DataExportDefinitionSetDialog.this.owner);
-		       if(newDefinition != null){
-		      	 isDirty = true;
-		      	 ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).addElement(newDefinition.getName());
-		      	 indexDataExportDefinitionIdMap.put((DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel().getSize()-1), newDefinition.getId());
-		      	 episimDataExportDefinitionSet.addEpisimDataExportDefinition(newDefinition);
-		      	 
-		       }
-		         
+					Object result = null;
+					if(ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfEpisimExtraCellularDiffusionFieldConfigurations() > 0){
+						DataExportType[] types = DataExportType.values();
+						result= JOptionPane.showInputDialog(DataExportDefinitionSetDialog.this, "Choose Data-Export-Type:", "Data-Export-Type", JOptionPane.QUESTION_MESSAGE,
+							  																null, types, DataExportType.REGULAR_DATA_EXPORT);
+					}
+					else result = DataExportType.REGULAR_DATA_EXPORT;
+					if(result == DataExportType.REGULAR_DATA_EXPORT){
+						 EpisimDataExportDefinition newDefinition = DataExportController.getInstance().showDataExportCreationWizard(DataExportDefinitionSetDialog.this.owner);
+				       if(newDefinition != null){
+				      	 isDirty = true;
+				      	 ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).addElement(newDefinition.getName());
+				      	 indexDataExportDefinitionIdMap.put((DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel().getSize()-1), newDefinition.getId());
+				      	 episimDataExportDefinitionSet.addEpisimDataExportDefinition(newDefinition);
+				      	 
+				       }
+					}
+					else if(result == DataExportType.DIFF_FIELD_DATA_EXPORT){
+						 EpisimDiffFieldDataExport newDefinition = DataExportController.getInstance().showDiffFieldDataExportCreationWizard(DataExportDefinitionSetDialog.this.owner);
+				       if(newDefinition != null){
+				      	 isDirty = true;
+				      	 ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).addElement(newDefinition.getName());
+				      	 indexDataExportDefinitionIdMap.put((DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel().getSize()-1), newDefinition.getId());
+				      	 episimDataExportDefinitionSet.addEpisimDataExportDefinition(newDefinition);
+				      	 
+				       }
+					}	         
 	         }});
 			
 			editButton = new JButton("Edit DED");
@@ -290,20 +315,37 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			editButton.addActionListener(new ActionListener(){
 
 				public void actionPerformed(ActionEvent e) {
-					
-					EpisimDataExportDefinition editedExportDefinition = DataExportController.getInstance().showDataExportCreationWizard(DataExportDefinitionSetDialog.this.owner, 
-		      		      episimDataExportDefinitionSet.getEpisimDataExportDefinition(indexDataExportDefinitionIdMap.get(dataExportDefinitionsList.getSelectedIndex())));
-					if(editedExportDefinition != null){ 
-						episimDataExportDefinitionSet.updateDataExportDefinition(editedExportDefinition);
+					boolean dataExportEdited = false;
+					String editedDataExportName = "";
+					EpisimDataExportDefinition dataExportToBeEdited = episimDataExportDefinitionSet.getEpisimDataExportDefinition(indexDataExportDefinitionIdMap.get(dataExportDefinitionsList.getSelectedIndex()));
+					if(dataExportToBeEdited != null){	
+						EpisimDataExportDefinition editedExportDefinition = DataExportController.getInstance().showDataExportCreationWizard(DataExportDefinitionSetDialog.this.owner, dataExportToBeEdited);
+						if(editedExportDefinition != null){ 
+							episimDataExportDefinitionSet.updateDataExportDefinition(editedExportDefinition);
+							editedDataExportName = editedExportDefinition.getName();
+							dataExportEdited=true;
+							
+						}
+					}
+					EpisimDiffFieldDataExport diffFieldDataExportToBeEdited = episimDataExportDefinitionSet.getEpisimDiffFieldDataExportDefinition(indexDataExportDefinitionIdMap.get(dataExportDefinitionsList.getSelectedIndex()));
+					if(diffFieldDataExportToBeEdited != null){	
+						EpisimDiffFieldDataExport editedExportDefinition = DataExportController.getInstance().showDiffFieldDataExportCreationWizard(DataExportDefinitionSetDialog.this.owner, diffFieldDataExportToBeEdited);
+						if(editedExportDefinition != null){ 
+							episimDataExportDefinitionSet.updateDataExportDefinition(editedExportDefinition);
+							editedDataExportName = editedExportDefinition.getName();
+							dataExportEdited=true;
+							
+						}
+					}
+					if(dataExportEdited){
 						int index = dataExportDefinitionsList.getSelectedIndex();
 						if(index > -1){
 						 ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).remove(index);
-						 ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).insertElementAt(editedExportDefinition.getName(), index); 
+						 ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).insertElementAt(editedDataExportName, index); 
 						 editButton.setEnabled(false);
 						 removeButton.setEnabled(false);
 						}
 					}
-		         
 	         }});
 			
 			editButton.setEnabled(false);
@@ -313,6 +355,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 				public void actionPerformed(ActionEvent e) {
 					  isDirty = true;	
 		           episimDataExportDefinitionSet.removeEpisimDataExportDefinition(indexDataExportDefinitionIdMap.get(dataExportDefinitionsList.getSelectedIndex()));
+		           episimDataExportDefinitionSet.removeEpisimDiffFieldDataExportDefinition(indexDataExportDefinitionIdMap.get(dataExportDefinitionsList.getSelectedIndex()));
 		           ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).remove(dataExportDefinitionsList.getSelectedIndex());
 		           updateIndexMap();
 		           editButton.setEnabled(false);
@@ -486,11 +529,17 @@ public class DataExportDefinitionSetDialog extends JDialog {
 	   	for(EpisimDataExportDefinition actDef: this.episimDataExportDefinitionSet.getEpisimDataExportDefinitions()) {
 	   		if(actDef.isDirty()) return true;
 	   	}
+	   	for(EpisimDiffFieldDataExport actDef: this.episimDataExportDefinitionSet.getEpisimDiffFieldDataExportDefinitions()) {
+	   		if(actDef.isDirty()) return true;
+	   	}
 	   	return isDirty;
 	   }
 	   
 	   private void resetDirtyDataExports(){
 	   	for(EpisimDataExportDefinition actDef: this.episimDataExportDefinitionSet.getEpisimDataExportDefinitions()) {
+	   		actDef.setIsDirty(false);
+	   	}
+	   	for(EpisimDiffFieldDataExport actDef: this.episimDataExportDefinitionSet.getEpisimDiffFieldDataExportDefinitions()) {
 	   		actDef.setIsDirty(false);
 	   	}
 	   	isDirty = false;

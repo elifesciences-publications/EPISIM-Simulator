@@ -61,6 +61,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 		FileOutputStream fileOut = null;
 		List<File> javaFiles = new ArrayList<File>();
 		File javaFile = null;
+		
 		for(EpisimChart actChart: chartSet.getEpisimCharts()){
 			try{
 				javaFile = new File(TMPPATH+Names.GENERATED_CHARTS_PACKAGENAME+ System.getProperty("file.separator")+

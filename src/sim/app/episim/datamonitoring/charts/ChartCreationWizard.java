@@ -845,7 +845,7 @@ public class ChartCreationWizard extends JDialog {
 				if(ChartCreationWizard.this.isVisible()){
 					if(e.getStateChange() == ItemEvent.SELECTED){
 						
-						selectPNGPath(false);
+						if(!episimChart.isPNGPrintingEnabled())selectPNGPath(false);
 						
 		          }
 					else{
@@ -945,6 +945,7 @@ public class ChartCreationWizard extends JDialog {
       	this.pngPathField.setText(selectedPath.getAbsolutePath());
       	this.changePngPathButton.setEnabled(true);
       	pngPathField.setEnabled(true);
+      	pngCheck.setSelected(true);
       	//  	Dimension dim = previewChartPanel.getPreferredSize();
       	//   printChartToPDF( previewChart, dim.width, dim.height, fd.getDirectory() + fileName );
       }

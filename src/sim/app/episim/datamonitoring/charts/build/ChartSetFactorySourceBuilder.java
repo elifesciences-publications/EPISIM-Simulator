@@ -41,7 +41,7 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 	
 	public void appendHeader(){
 		super.appendHeader();
-		this.factorySource.append("import "+Names.GENERATED_CHARTS_PACKAGENAME+".*;\n");
+		if(this.actChartSet != null && this.actChartSet.getEpisimCharts() != null && !this.actChartSet.getEpisimCharts().isEmpty())this.factorySource.append("import "+Names.GENERATED_CHARTS_PACKAGENAME+".*;\n");
 		this.factorySource.append("import org.jfree.chart.ChartPanel;\n");
 		this.factorySource.append("public class "+ Names.EPISIM_CHARTSET_FACTORYNAME+" extends AbstractChartSetFactory{\n");
 	}

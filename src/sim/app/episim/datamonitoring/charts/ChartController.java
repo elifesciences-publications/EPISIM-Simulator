@@ -25,6 +25,7 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimChartSet;
+import episiminterfaces.monitoring.EpisimDiffFieldChart;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
@@ -34,6 +35,7 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.parser.*;
 import sim.app.episim.datamonitoring.calc.CalculationController;
+import sim.app.episim.datamonitoring.charts.ChartController.ChartType;
 import sim.app.episim.datamonitoring.charts.io.ECSFileReader;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
 import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
@@ -50,6 +52,16 @@ import sim.field.continuous.Continuous2D;
 public class ChartController {
 	
 	private static ChartController instance = null;
+	
+	public enum ChartType {
+		REGULAR_2D_CHART("2D Chart"),
+		DIFF_FIELD_CHART("3D-Diffusion-Field Chart");
+		
+		private String chartType;
+		private ChartType(String type){ this.chartType = type; }
+		public String toString(){ return this.chartType;}		
+	}
+	
 	
 	
 	
@@ -109,6 +121,10 @@ public class ChartController {
 	protected EpisimChart showChartCreationWizard(Frame parent){
 		return showChartCreationWizard(parent, null);
 	}
+	
+	protected EpisimDiffFieldChart showDiffFieldChartCreationWizard(Frame parent){
+		return showDiffFieldChartCreationWizard(parent, null);
+	}
 	protected EpisimChart showChartCreationWizard(Frame parent, EpisimChart chart){
 		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true, 
 		new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes));
@@ -119,6 +135,16 @@ public class ChartController {
 		}
 			
 		return wizard.getEpisimChart();
+	}
+	
+	protected EpisimDiffFieldChart showDiffFieldChartCreationWizard(Frame parent, EpisimDiffFieldChart chart){
+		DiffFieldChartCreationWizard wizard = new DiffFieldChartCreationWizard(parent, "Chart-Creation-Wizard", true);
+		
+		if(this.chartMonitoredTissue != null){
+			if(chart == null)wizard.showWizard();
+			else wizard.showWizard(chart);
+		}			
+		return wizard.getEpisimDiffFieldChart();
 	}
 	
 	public boolean loadChartSet(Component parent){
@@ -305,6 +331,9 @@ public class ChartController {
 	private void resetChartDirtyStatus(){
 		 if(this.actLoadedChartSet != null){
 		   for(EpisimChart actChart: this.actLoadedChartSet.getEpisimCharts()) {
+		   	actChart.setIsDirty(false);
+		   }
+		   for(EpisimDiffFieldChart actChart: this.actLoadedChartSet.getEpisimDiffFieldCharts()) {
 		   	actChart.setIsDirty(false);
 		   }
 		 }

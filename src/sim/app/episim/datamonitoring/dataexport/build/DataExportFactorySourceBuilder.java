@@ -47,7 +47,8 @@ public class DataExportFactorySourceBuilder  extends AbstractCommonFactorySource
 	
 	public void appendHeader(){
 		super.appendHeader();
-		this.factorySource.append("import "+Names.GENERATED_DATAEXPORT_PACKAGENAME+".*;\n");
+		
+		if(this.actdataExportDefinitionSet != null && this.actdataExportDefinitionSet.getEpisimDataExportDefinitions() != null && !this.actdataExportDefinitionSet.getEpisimDataExportDefinitions().isEmpty())this.factorySource.append("import "+Names.GENERATED_DATAEXPORT_PACKAGENAME+".*;\n");
 
 		this.factorySource.append("public class "+ Names.EPISIM_DATAEXPORT_FACTORYNAME+" extends AbstractDataExportFactory{\n");
 	}

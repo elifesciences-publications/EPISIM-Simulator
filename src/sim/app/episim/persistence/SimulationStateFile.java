@@ -18,6 +18,7 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.dataconvert.XmlObject;
+import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 
 public class SimulationStateFile extends XmlFile {
@@ -125,6 +126,16 @@ public class SimulationStateFile extends XmlFile {
 					.equalsIgnoreCase(EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS)) {
 				simStateData
 						.setEpisimCellBehavioralModelGlobalParameters(new XmlObject<EpisimCellBehavioralModelGlobalParameters>(
+								nodes.item(i)));
+
+			}
+			
+			if (nodes
+					.item(i)
+					.getNodeName()
+					.equalsIgnoreCase(TISSUE_BORDER)) {
+				simStateData
+						.setTissueBorder(new XmlTissueBorder(
 								nodes.item(i)));
 
 			}

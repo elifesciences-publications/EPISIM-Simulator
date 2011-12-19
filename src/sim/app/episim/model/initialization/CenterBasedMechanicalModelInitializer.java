@@ -40,6 +40,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		this.simulationStateData = simulationStateData;
 		//FIXME: Löschen und entsprechend beim Einlesen aufrufen
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
+		simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
 	}
 
 	private final double depthFrac(double y) // wie tief ist in prozent die

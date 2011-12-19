@@ -19,6 +19,7 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 	public static final String STANDARD_MEMBRANE = "standardmembrane";
 	public static final String IMPORTED_TISSUE = "importedtissue";
 	private String tissueType = STANDARD_MEMBRANE;
+	private XmlImportedTissue importedTissue;
 
 	public XmlTissueBorder(TissueBorder obj) {
 		super(obj);
@@ -31,8 +32,8 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 	@Override
 	protected void exportSubXmlObjectsFromParameters() {
 		super.exportSubXmlObjectsFromParameters();
-		addSubXmlObject(IMPORTED_TISSUE, new XmlImportedTissue(TissueController
-				.getInstance().getActImportedTissue()));
+		this.importedTissue = new XmlImportedTissue(TissueController
+				.getInstance().getActImportedTissue());
 	}
 
 	@Override
@@ -46,6 +47,7 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 			tissueType = NOMEMBRANE;
 
 		node.setAttribute(TISSUE_TYPE, tissueType);
+		node.appendChild(importedTissue.toXMLNode(IMPORTED_TISSUE, xmlFile));
 		return node;
 	}
 
@@ -66,7 +68,7 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (node.getNodeName().equalsIgnoreCase(IMPORTED_TISSUE))
-				addSubXmlObject(IMPORTED_TISSUE, new XmlImportedTissue(node));
+				importedTissue = new XmlImportedTissue(node);
 		}
 	}
 
@@ -77,14 +79,10 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 			target.loadNoMembrane();
 		else if (tissueType.equals(STANDARD_MEMBRANE))
 			target.loadStandardMembrane();
-		else if (tissueType.equals(IMPORTED_TISSUE)) {
-			XmlObject<?> xmlObj = getSubXmlObjects().get(IMPORTED_TISSUE);
+		else if (tissueType.equals(IMPORTED_TISSUE) && importedTissue!= null) {
+			target.setImportedTissueBorder(importedTissue
+					.copyValuesToTarget(new ImportedTissue()));
 
-			if (xmlObj != null && xmlObj instanceof XmlImportedTissue) {
-				XmlImportedTissue importedTissue = (XmlImportedTissue) xmlObj;
-				target.setImportedTissueBorder(importedTissue
-						.copyValuesToTarget(new ImportedTissue()));
-			}
 		}
 		return target;
 	}

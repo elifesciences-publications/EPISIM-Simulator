@@ -16,7 +16,9 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 import sim.app.episim.gui.EpidermisSimulator;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray;
 import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
@@ -39,6 +41,7 @@ public class SimulationStateFile extends XmlFile {
 	private static final String EPISIM_VERSION = "version";
 	private static final String EXPORT_DATE = "exportdate";
 	private static final String TISSUE_BORDER = "tissueborder";
+	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY = "ExtraCellularDiffusionFieldArray";
 
 	private static File tissueExportPath;
 
@@ -129,20 +132,23 @@ public class SimulationStateFile extends XmlFile {
 								nodes.item(i)));
 
 			}
-			
-			if (nodes
-					.item(i)
-					.getNodeName()
-					.equalsIgnoreCase(TISSUE_BORDER)) {
+
+			if (nodes.item(i).getNodeName().equalsIgnoreCase(TISSUE_BORDER)) {
 				simStateData
-						.setTissueBorder(new XmlTissueBorder(
-								nodes.item(i)));
+						.setTissueBorder(new XmlTissueBorder(nodes.item(i)));
 
 			}
 			if (nodes.item(i).getNodeName()
 					.equalsIgnoreCase(MISCALLENEOUSGLOBALPARAMETERS)) {
 				simStateData
 						.setMiscalleneousGlobalParameters(new XmlObject<MiscalleneousGlobalParameters>(
+								nodes.item(i)));
+			}
+
+			if (nodes.item(i).getNodeName()
+					.equalsIgnoreCase(EXTRACELLULARDIFFUSIONFIELDARRAY)) {
+				simStateData
+						.setExtraCellularDiffusionFieldArray(new XmlExtraCellularDiffusionFieldArray(
 								nodes.item(i)));
 			}
 		}
@@ -185,8 +191,9 @@ public class SimulationStateFile extends XmlFile {
 		simStateData.updateData();
 
 		Element headerElement = createElement(EPISIM_TISSUE_SIMULATION_HEADER);
-		
-		headerElement.setAttribute(EPISIM_VERSION, EpidermisSimulator.versionID);
+
+		headerElement
+				.setAttribute(EPISIM_VERSION, EpidermisSimulator.versionID);
 		GregorianCalendar cal = new GregorianCalendar();
 		headerElement.setAttribute(EXPORT_DATE, cal.getTime().toString());
 
@@ -201,8 +208,13 @@ public class SimulationStateFile extends XmlFile {
 		headerElement.appendChild(simStepElement);
 
 		getRoot().appendChild(headerElement);
-		
-		getRoot().appendChild(simStateData.getTissueBorder().toXMLNode(TISSUE_BORDER, this));
+
+		getRoot().appendChild(
+				simStateData.getTissueBorder().toXMLNode(TISSUE_BORDER, this));
+
+		getRoot().appendChild(
+				simStateData.getExtraCellularDiffusionFieldArray().toXMLNode(
+						EXTRACELLULARDIFFUSIONFIELDARRAY, this));
 
 		getRoot().appendChild(
 				simStateData.getEpisimCellBehavioralModelGlobalParameters()

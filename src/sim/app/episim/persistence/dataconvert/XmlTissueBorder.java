@@ -47,7 +47,8 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 			tissueType = NOMEMBRANE;
 
 		node.setAttribute(TISSUE_TYPE, tissueType);
-		node.appendChild(importedTissue.toXMLNode(IMPORTED_TISSUE, xmlFile));
+		if (importedTissue != null && tissueType.equals(IMPORTED_TISSUE))
+			node.appendChild(importedTissue.toXMLNode(IMPORTED_TISSUE, xmlFile));
 		return node;
 	}
 
@@ -79,7 +80,7 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 			target.loadNoMembrane();
 		else if (tissueType.equals(STANDARD_MEMBRANE))
 			target.loadStandardMembrane();
-		else if (tissueType.equals(IMPORTED_TISSUE) && importedTissue!= null) {
+		else if (tissueType.equals(IMPORTED_TISSUE) && importedTissue != null) {
 			target.setImportedTissueBorder(importedTissue
 					.copyValuesToTarget(new ImportedTissue()));
 

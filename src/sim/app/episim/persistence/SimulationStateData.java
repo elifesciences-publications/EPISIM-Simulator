@@ -15,6 +15,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray;
 import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
@@ -33,68 +34,69 @@ public class SimulationStateData {
 	private XmlObject<EpisimCellBehavioralModelGlobalParameters> episimCellBehavioralModelGlobalParameters;
 	private XmlObject<MiscalleneousGlobalParameters> miscalleneousGlobalParameters;
 
+	private XmlExtraCellularDiffusionFieldArray extraCellularDiffusionFieldArray;
 	private XmlTissueBorder tissueBorder;
-	
+
 	private HashMap<Long, UniversalCell> alreadyLoadedCells = new HashMap<Long, UniversalCell>();
 	private HashMap<Long, XmlUniversalCell> alreadyLoadedXmlCellsNewID = new HashMap<Long, XmlUniversalCell>();
 	private HashMap<Long, XmlUniversalCell> cellsToBeLoaded = new HashMap<Long, XmlUniversalCell>();
-	
+
 	private File loadedModelFile;
 	private long simStepNumber = 0;
-	
+
 	private static SimulationStateData lastSimulationStateLoaded;
 
 	public SimulationStateData() {
 		lastSimulationStateLoaded = this;
-	}	
-	
-	
-   public UniversalCell getAlreadyLoadedCell(long id) {
+	}
 
-	   return alreadyLoadedCells.get(id);
-   }  
-   
-   public XmlUniversalCell getAlreadyLoadedXmlCellNewID(long id) {
+	public UniversalCell getAlreadyLoadedCell(long id) {
 
-	   return alreadyLoadedXmlCellsNewID.get(id);
-   } 
-   
-   public XmlUniversalCell getCellToBeLoaded(long id) {
+		return alreadyLoadedCells.get(id);
+	}
 
-	   return cellsToBeLoaded.get(id);
-   }
-   
-   public void putCellToBeLoaded(long id, XmlUniversalCell cellToBeLoaded) {
-	   cellsToBeLoaded.put(id, cellToBeLoaded);
-   }
-	
-   public static SimulationStateData getLastSimulationStateLoaded(){
-	   return lastSimulationStateLoaded;
-   }
-   
-   public ArrayList<UniversalCell> getAlreadyLoadedCellsAsList() {
-	return new ArrayList<UniversalCell>(alreadyLoadedCells.values());
-}
+	public XmlUniversalCell getAlreadyLoadedXmlCellNewID(long id) {
+
+		return alreadyLoadedXmlCellsNewID.get(id);
+	}
+
+	public XmlUniversalCell getCellToBeLoaded(long id) {
+
+		return cellsToBeLoaded.get(id);
+	}
+
+	public void putCellToBeLoaded(long id, XmlUniversalCell cellToBeLoaded) {
+		cellsToBeLoaded.put(id, cellToBeLoaded);
+	}
+
+	public static SimulationStateData getLastSimulationStateLoaded() {
+		return lastSimulationStateLoaded;
+	}
+
+	public ArrayList<UniversalCell> getAlreadyLoadedCellsAsList() {
+		return new ArrayList<UniversalCell>(alreadyLoadedCells.values());
+	}
 
 	public void addLoadedCell(XmlUniversalCell xmlCell, UniversalCell loadedCell) {
 		alreadyLoadedCells.put(xmlCell.getId(), loadedCell);
 		alreadyLoadedXmlCellsNewID.put(loadedCell.getID(), xmlCell);
 	}
-	
-	public void clearLoadedCells(){
+
+	public void clearLoadedCells() {
 		alreadyLoadedXmlCellsNewID.clear();
 		alreadyLoadedCells.clear();
 	}
-	
+
 	public void updateData() {
-		
+
 		this.simStepNumber = SimStateServer.getInstance().getSimStepNumber();
 
 		this.loadedModelFile = ModelController.getInstance()
 				.getCellBehavioralModelController().getActLoadedModelFile();
-		
-		this.tissueBorder = new XmlTissueBorder(TissueController.getInstance().getTissueBorder());
-		
+
+		this.tissueBorder = new XmlTissueBorder(TissueController.getInstance()
+				.getTissueBorder());
+
 		for (AbstractCell cell : TissueController.getInstance()
 				.getActEpidermalTissue().getAllCells()) {
 			if (cell != null)
@@ -108,6 +110,11 @@ public class SimulationStateData {
 		this.episimBioMechanicalModelGlobalParameters = new XmlObject<EpisimBiomechanicalModelGlobalParameters>(
 				ModelController.getInstance()
 						.getEpisimBioMechanicalModelGlobalParameters());
+
+		this.extraCellularDiffusionFieldArray = new XmlExtraCellularDiffusionFieldArray(
+				ModelController.getInstance()
+						.getExtraCellularDiffusionController()
+						.getAllExtraCellularDiffusionFields());
 	}
 
 	public ArrayList<XmlUniversalCell> getCells() {
@@ -139,11 +146,11 @@ public class SimulationStateData {
 			XmlObject<EpisimCellBehavioralModelGlobalParameters> episimCellBehavioralModelGlobalParameters) {
 		this.episimCellBehavioralModelGlobalParameters = episimCellBehavioralModelGlobalParameters;
 	}
-	
+
 	public long getSimStepNumber() {
 		return simStepNumber;
 	}
-	
+
 	public void setSimStepNumber(long simStepNumber) {
 		this.simStepNumber = simStepNumber;
 	}
@@ -164,12 +171,21 @@ public class SimulationStateData {
 	public void setLoadedModelFile(String file) {
 		this.loadedModelFile = new File(file);
 	}
-	
+
 	public void setTissueBorder(XmlTissueBorder tissueBorder) {
 		this.tissueBorder = tissueBorder;
 	}
-	
+
 	public XmlTissueBorder getTissueBorder() {
 		return tissueBorder;
+	}
+
+	public XmlExtraCellularDiffusionFieldArray getExtraCellularDiffusionFieldArray() {
+		return extraCellularDiffusionFieldArray;
+	}
+
+	public void setExtraCellularDiffusionFieldArray(
+			XmlExtraCellularDiffusionFieldArray extraCellularDiffusionFieldArray) {
+		this.extraCellularDiffusionFieldArray = extraCellularDiffusionFieldArray;
 	}
 }

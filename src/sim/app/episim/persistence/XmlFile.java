@@ -30,7 +30,7 @@ public class XmlFile {
 
 	private Document document = null;
 
-	protected XmlFile(File path) throws SAXException, IOException,
+	public XmlFile(File path) throws SAXException, IOException,
 			ParserConfigurationException {
 		readFile(path);
 		if (document.getFirstChild() == null)
@@ -38,7 +38,7 @@ public class XmlFile {
 					+ " has no Data");
 	}
 
-	protected XmlFile(String rootNodeName) throws ParserConfigurationException,
+	public XmlFile(String rootNodeName) throws ParserConfigurationException,
 			SAXException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
@@ -59,7 +59,7 @@ public class XmlFile {
 		return document != null;
 	}
 
-	protected void save(File path) {
+	public void save(File path) {
 		DataOutputStream dos = null;
 		try {
 			dos = new DataOutputStream(new FileOutputStream(path));
@@ -86,7 +86,7 @@ public class XmlFile {
 		return document.createElement(name);
 	}
 
-	protected Element getRoot() {
+	public Element getRoot() {
 		return document.getDocumentElement();
 	}
 

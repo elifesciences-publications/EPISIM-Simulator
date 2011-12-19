@@ -12,6 +12,7 @@ import java.net.URL;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 
@@ -192,6 +193,11 @@ public class ChartController {
 	public  List<ChartPanel> getChartPanelsofActLoadedChartSet(){
 		return ChartPanelAndSteppableServer.getInstance().getChartPanels();
 	}
+	public  List<JPanel> getDiffusionChartPanelsofActLoadedChartSet(){
+		return ChartPanelAndSteppableServer.getInstance().getDiffusionChartPanels();
+	}
+	
+	
 	
 	public void modelWasClosed(){
 		ChartPanelAndSteppableServer.getInstance().removeAllListeners();

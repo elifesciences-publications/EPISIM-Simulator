@@ -6,6 +6,7 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +17,7 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.datamonitoring.charts.DiffusionChartFactory;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.ModelCompatibilityException;
@@ -30,7 +32,8 @@ public class ECSFileReader{
 
 	   
 	    private Class factoryClass;
-	    private AbstractChartSetFactory factory;
+	    private AbstractChartSetFactory chartSetFactory;
+	    private DiffusionChartFactory diffusionChartFactory;
 	    
 	    /**
 	     * Creates a new JarClassLoader for the specified url.
@@ -42,18 +45,18 @@ public class ECSFileReader{
 	    }
 	    
 	  public AbstractChartSetFactory getChartSetFactory(){
-		  if(this.factory == null) loadFactory();
-		  return this.factory;
+		  if(this.chartSetFactory == null) loadChartSetFactory();
+		  return this.chartSetFactory;
 	  }
 	  
-	  private void loadFactory(){
+	  private void loadChartSetFactory(){
 		  try{
-      	  GlobalClassLoader.getInstance().registerURL(url);
+      	
+			GlobalClassLoader.getInstance().registerURL(url);
 	      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
 	     
 	      if(factoryClass != null && AbstractChartSetFactory.class.isAssignableFrom(this.factoryClass)){
-	      	factory = (AbstractChartSetFactory) factoryClass.newInstance();
-	      	
+	      	chartSetFactory = (AbstractChartSetFactory) factoryClass.newInstance();	      	
 	      }
 	      else throw new Exception("No compatible EpisimChartSetFactory found!");
         }
@@ -93,29 +96,36 @@ public class ECSFileReader{
 	}
 	    
 	public List<ChartPanel> getChartPanels(){
-		if(this.factory == null) loadFactory();
-		return this.factory.getChartPanels();
+		if(this.chartSetFactory == null) loadChartSetFactory();
+		return this.chartSetFactory.getChartPanels();
 	}
 	
-	public List<JPanel> getDiffusionChartPanels(){	
-		return null;
+	public List<JPanel> getDiffusionChartPanels() throws ModelCompatibilityException{
+		if(this.diffusionChartFactory == null){
+			EpisimChartSet chartSet = getEpisimChartSet();
+			this.diffusionChartFactory = new DiffusionChartFactory(chartSet.getEpisimDiffFieldCharts());
+		}
+		return diffusionChartFactory.getDiffusionChartPanels();
 	}
 	
-	
-	public List<EnhancedSteppable> getChartSteppables(){
-		if(this.factory == null) loadFactory();
-		return this.factory.getSteppablesOfCharts();
+	public List<EnhancedSteppable> getChartSteppables() throws ModelCompatibilityException{
+		if(this.chartSetFactory == null) loadChartSetFactory();
+		if(this.diffusionChartFactory == null){
+			EpisimChartSet chartSet = getEpisimChartSet();
+			this.diffusionChartFactory = new DiffusionChartFactory(chartSet.getEpisimDiffFieldCharts());
+		}
+		List<EnhancedSteppable> steppables = new ArrayList<EnhancedSteppable>();
+		steppables.addAll(this.chartSetFactory.getSteppablesOfCharts());
+		steppables.addAll(this.diffusionChartFactory.getDiffusionChartSteppables());
+		return steppables;
 	}
-	   
 	    
-	    
-	    private String getClassName(Attributes.Name attrName)throws IOException{
-	   	 URL u = new URL("jar", "", url + "!/");
-	       JarURLConnection uc = (JarURLConnection)u.openConnection();
-	       Attributes attr = uc.getMainAttributes();
-	       
-	       return attr != null ? attr.getValue(attrName) : null;
-	    }
+	private String getClassName(Attributes.Name attrName)throws IOException{
+	   URL u = new URL("jar", "", url + "!/");
+	   JarURLConnection uc = (JarURLConnection)u.openConnection();
+	   Attributes attr = uc.getMainAttributes();	       
+	   return attr != null ? attr.getValue(attrName) : null;
+	}
 	     
 	
 

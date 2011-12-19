@@ -93,8 +93,10 @@ public class TissueBorder {
 	
 	public void setStartXOfStandardMembraneInMikron(int start){ startXOfStandardMembrane = start; }
 	
+	@NoExport
 	public boolean isStandardMembraneLoaded() { return this.standardMembraneLoaded;}
 	
+	@NoExport
 	public boolean isNoMembraneLoaded() { return this.noMembraneLoaded;}
 	
 	public void loadNoMembrane() { this.noMembraneLoaded = true;}	

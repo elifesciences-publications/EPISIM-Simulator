@@ -74,9 +74,19 @@ public class ExtraCellularDiffusionField implements EnhancedSteppable{
    }
 	
    public void step(SimState state) {
-   	fEulerDiffReact.updateExtraCellularField();
+   	for(int i = 0; i < fieldConfiguration.getNumberOfIterationsPerCBMSimStep(); i++){
+   		fEulerDiffReact.updateExtraCellularField();
+   	}
    }
-
+   
+   public double getConcentration(double xInMikron, double yInMikron){
+   	int x = (int)(xInMikron/ fieldConfiguration.getLatticeSiteSizeInMikron());
+   	int y = (int)(yInMikron/ fieldConfiguration.getLatticeSiteSizeInMikron());
+   	if(x < extraCellularField.getWidth() && y < extraCellularField.getHeight()){   
+   		return extraCellularField.get(x, y);
+   	}
+   	else return 0;
+   }
    public double getInterval() {
 	   return 1;
    }

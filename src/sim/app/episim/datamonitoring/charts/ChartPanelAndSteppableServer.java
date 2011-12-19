@@ -1,5 +1,6 @@
 package sim.app.episim.datamonitoring.charts;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +36,8 @@ public class ChartPanelAndSteppableServer {
 	
 	private ChartPanelAndSteppableServer(){
 		listeners = new HashSet<ChartSetChangeListener>();
+		diffusionChartPanels = new ArrayList<JPanel>();
+		customChartPanels = new ArrayList<ChartPanel>();
 	}
 	
 	protected static synchronized ChartPanelAndSteppableServer getInstance(){
@@ -107,15 +110,15 @@ public class ChartPanelAndSteppableServer {
 	public void actLoadedChartSetWasClosed(){
 		if(this.customChartPanels != null){ 
 			this.customChartPanels.clear();
-			this.customChartPanels = null;
+			
 		}
 		if(this.diffusionChartPanels != null){ 
 			this.diffusionChartPanels.clear();
-			this.diffusionChartPanels = null;
+			
 		}
 		if(this.customSteppables != null){ 
 			this.customSteppables.clear();
-			this.customSteppables = null;
+			
 		}
 		notifyListeners();
 	}

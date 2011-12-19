@@ -602,7 +602,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 	}
 
-	private JInternalFrame getChartInternalFrame(ChartPanel chartPanel, String title) {
+	private JInternalFrame getChartInternalFrame(JPanel chartPanel, String title) {
 
 		JInternalFrame chartFrame = new JInternalFrame(title, true, false, true, true);
 		chartFrame.setResizable(true);
@@ -792,8 +792,21 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 			removeAllChartInternalFrames(desktop);
 			int offset = 10;
 			int index = 2;
-			for(ChartPanel actPanel : ChartController.getInstance().getChartPanelsofActLoadedChartSet()){
-				JInternalFrame  frame = getChartInternalFrame(actPanel, actPanel.getChart().getTitle().getText());
+			
+			ArrayList<JPanel> chartPanels = new ArrayList<JPanel>();
+			chartPanels.addAll(ChartController.getInstance().getChartPanelsofActLoadedChartSet());
+			chartPanels.addAll(ChartController.getInstance().getDiffusionChartPanelsofActLoadedChartSet());
+			for(JPanel actPanel : chartPanels){
+				String title ="";
+				
+				if(actPanel instanceof ChartPanel){
+				  title = ((ChartPanel)actPanel).getChart().getTitle().getText();
+				}
+				else{
+					title = actPanel.getName();
+				}
+				
+				JInternalFrame frame = getChartInternalFrame(actPanel, title);
 				
 				if(!autoArrangeWindows){
 					desktop.add(frame, index++);

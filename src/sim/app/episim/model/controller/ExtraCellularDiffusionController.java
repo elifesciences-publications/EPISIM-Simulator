@@ -48,7 +48,7 @@ public class ExtraCellularDiffusionController {
       public int getNumberOfIterationsPerCBMSimStep() {
 
 	      // TODO Auto-generated method stub
-	      return 1800;
+	      return 1;
       }
 
 		
@@ -85,8 +85,21 @@ public class ExtraCellularDiffusionController {
 		return episimExtraCellularDiffusionFieldsConfigurations;
 	}
 	
+	public EpisimDiffusionFieldConfiguration getEpisimExtraCellularDiffusionFieldsConfiguration(String fieldName){
+		for(int i = 0; i < this.episimExtraCellularDiffusionFieldsConfigurations.length; i++){
+			if(this.episimExtraCellularDiffusionFieldsConfigurations[i].getDiffusionFieldName().equals(fieldName)){
+				return this.episimExtraCellularDiffusionFieldsConfigurations[i];
+			}
+		}
+		return null;
+	}
+	
 	public ExtraCellularDiffusionField[] getAllExtraCellularDiffusionFields(){
 		return extraCellularFieldMap.values().toArray(new ExtraCellularDiffusionField[extraCellularFieldMap.size()]);
+	}
+	
+	public ExtraCellularDiffusionField getExtraCellularDiffusionField(String name){
+		return this.extraCellularFieldMap.get(name);
 	}
 	
 	public void setExtraCellularFieldMap(HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap){

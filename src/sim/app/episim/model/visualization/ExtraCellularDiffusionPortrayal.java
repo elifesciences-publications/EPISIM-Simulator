@@ -14,7 +14,10 @@ import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.util.DiffusionColorGradient;
+import sim.display.GUIState;
 import sim.portrayal.DrawInfo2D;
+import sim.portrayal.Inspector;
+import sim.portrayal.LocationWrapper;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
 import sim.util.gui.SimpleColorMap;
 
@@ -131,6 +134,8 @@ public class ExtraCellularDiffusionPortrayal extends FastValueGridPortrayal2D im
 			 graphics.drawString(text, (float)(legendX+ legendWidth+5), (float)(legendY+ (y*intervalSizeY)+(stringBounds.getHeight()/3)));
        }
    }
+   
+   public Inspector getInspector(LocationWrapper wrapper, GUIState state){ return null; }
    
    
    

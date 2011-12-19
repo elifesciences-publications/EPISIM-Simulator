@@ -76,7 +76,7 @@ public class ExtraCellularDiffusionInitializer {
 					}						
 				}
 			
-				
+				if(simStateData != null) initializeExtraCellularDiffusionFieldWithSimState(actField);
 				
 				setExtraCellularDiffusionFieldInPortrayal(actField);
 				extraCellularFieldMap.put(actField.getName(), actField);
@@ -84,6 +84,12 @@ public class ExtraCellularDiffusionInitializer {
 			ModelController.getInstance().getExtraCellularDiffusionController().setExtraCellularFieldMap(extraCellularFieldMap);
 		}
 	}
+	
+	private void initializeExtraCellularDiffusionFieldWithSimState(ExtraCellularDiffusionField ecDiffField){
+		
+	}
+	
+	
 	
 	private void setExtraCellularDiffusionFieldInPortrayal(ExtraCellularDiffusionField diffusionField){
 		if(this.currentDiffusionFieldPortrayals != null){

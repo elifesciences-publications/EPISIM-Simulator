@@ -266,7 +266,7 @@ public class ChartController {
 			if(this.actLoadedChartSet != null){
 				actLoadedChartSet.setPath(new File(url.toURI()));
 				if(!actLoadedChartSet.isOneOfTheChartsDirty()){
-					ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());
+					ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getDiffusionChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());
 					CompatibilityChecker checker = new CompatibilityChecker();			
 					checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
 				}

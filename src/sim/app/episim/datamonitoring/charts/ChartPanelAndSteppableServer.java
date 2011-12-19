@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartPanel;
 
 import episimexceptions.MissingObjectsException;
@@ -23,12 +25,14 @@ public class ChartPanelAndSteppableServer {
 	
 	private Set<ChartSetChangeListener> listeners;
 	private List<ChartPanel> customChartPanels;
+	private List<JPanel> diffusionChartPanels;
 	private List<ChartPanel> defaultChartPanels;
 	private List<EnhancedSteppable> customSteppables;
 	private List<EnhancedSteppable> defaultSteppables;
 	private static ChartPanelAndSteppableServer instance = null;
 	private AbstractChartSetFactory factory = null;
 	GenericBag<AbstractCell> alreadyRegisteredVersionAllCells = null;
+	
 	private ChartPanelAndSteppableServer(){
 		listeners = new HashSet<ChartSetChangeListener>();
 	}
@@ -38,12 +42,14 @@ public class ChartPanelAndSteppableServer {
 		return instance;
 	}
 	
-	public void registerCustomChartPanelsAndSteppables(List<ChartPanel> chartPanels, List<EnhancedSteppable> chartSteppables, AbstractChartSetFactory factory){
+	public void registerCustomChartPanelsAndSteppables(List<ChartPanel> chartPanels, List<JPanel> diffusionChartPanels, List<EnhancedSteppable> chartSteppables, AbstractChartSetFactory factory){
 		if(chartPanels == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: List with chart panels to be registered must not be null!");
+		if(diffusionChartPanels == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: List with diffusion chart panels to be registered must not be null!");
 		if(chartSteppables == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: List with chart steppables to be registered must not be null!");
 		if(factory == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: Chart-Set-Factory to be registered must not be null!");
 		this.customSteppables = chartSteppables;
 		this.customChartPanels = chartPanels;
+		this.diffusionChartPanels = diffusionChartPanels;
 		this.factory = factory;
 		notifyListeners();
 		
@@ -66,6 +72,10 @@ public class ChartPanelAndSteppableServer {
 		return allPanels;
 	}
 	
+	public List<JPanel> getDiffusionChartPanels(){	
+		return this.diffusionChartPanels;
+	}
+	
 	public List<EnhancedSteppable> getChartSteppables(GenericBag<AbstractCell> allCells, Object[] objects) throws MissingObjectsException{
 		if(factory != null && alreadyRegisteredVersionAllCells != allCells){
 			alreadyRegisteredVersionAllCells = allCells;
@@ -78,8 +88,7 @@ public class ChartPanelAndSteppableServer {
 		return allSteppables;
 	}
 	
-	public boolean registerChartSetChangeListener(ChartSetChangeListener listener){
-		
+	public boolean registerChartSetChangeListener(ChartSetChangeListener listener){		
 		cleanListeners(listener.getClass().getName());
 		return listeners.add(listener);
 	}
@@ -90,6 +99,7 @@ public class ChartPanelAndSteppableServer {
 	
 	public void removeAllChartPanels(){
 		if(this.customChartPanels != null)this.customChartPanels.clear();
+		if(this.diffusionChartPanels != null)this.diffusionChartPanels.clear();
 		if(this.defaultChartPanels != null)this.defaultChartPanels.clear();
 		notifyListeners();
 	}
@@ -98,6 +108,10 @@ public class ChartPanelAndSteppableServer {
 		if(this.customChartPanels != null){ 
 			this.customChartPanels.clear();
 			this.customChartPanels = null;
+		}
+		if(this.diffusionChartPanels != null){ 
+			this.diffusionChartPanels.clear();
+			this.diffusionChartPanels = null;
 		}
 		if(this.customSteppables != null){ 
 			this.customSteppables.clear();

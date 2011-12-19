@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Attributes;
 
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartPanel;
 
 import sim.app.episim.ExceptionDisplayer;
@@ -94,6 +96,11 @@ public class ECSFileReader{
 		if(this.factory == null) loadFactory();
 		return this.factory.getChartPanels();
 	}
+	
+	public List<JPanel> getDiffusionChartPanels(){	
+		return null;
+	}
+	
 	
 	public List<EnhancedSteppable> getChartSteppables(){
 		if(this.factory == null) loadFactory();

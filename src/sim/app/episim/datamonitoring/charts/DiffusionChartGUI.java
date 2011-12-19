@@ -83,10 +83,11 @@ public class DiffusionChartGUI {
 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		int width = (int) (widthInMikron / this.ecDiffFieldConfig.getLatticeSiteSizeInMikron());
 		int height =(int) (heightInMikron / this.ecDiffFieldConfig.getLatticeSiteSizeInMikron());
+		int xyDimensions = width > height ? width : height;
 		
 		Range range = new Range(0, widthInMikron > heightInMikron ? widthInMikron : heightInMikron);
-		int steps   = width > height ? width : height;
-		if(steps > 75) steps = 75;
+		int steps   = xyDimensions;
+		//if(steps > 75) steps = 75;
 		// Create the object to represent the function over the given range.
 		surface = (Shape)Builder.buildOrthonormal(new OrthonormalGrid(range, steps, range, steps), mapper);
 	
@@ -98,12 +99,10 @@ public class DiffusionChartGUI {
 		
 		// Create a chart 
 		chart = new Chart(Quality.Intermediate,"swing");
-		//chart.getView().getAxe().setScale(null).getBoxBounds().setZmax(this.ecDiffFieldConfig.getMaximumConcentration() < Double.POSITIVE_INFINITY?(float)this.ecDiffFieldConfig.getMaximumConcentration():1000000f);
-		//chart.getView().getAxe().getBoxBounds().setZmin((float)this.ecDiffFieldConfig.getMinimumConcentration());
 		ColorbarLegend legend = new ColorbarLegend(surface, chart.getView().getAxe().getLayout().getZTickProvider(), chart.getView().getAxe().getLayout().getZTickRenderer());		
 		surface.setLegend(legend);
 		chart.getScene().getGraph().add(surface);
-		chart.getView().setBoundManual(new BoundingBox3d(0, 150, 0, 150, 0, 255));
+		chart.getView().setBoundManual(new BoundingBox3d(0, xyDimensions, 0, xyDimensions, 0, this.ecDiffFieldConfig.getMaximumConcentration() < Double.POSITIVE_INFINITY?(float)this.ecDiffFieldConfig.getMaximumConcentration():1000000f));
 		
 		
 	/*	chart.addRenderer(new Renderer2d(){

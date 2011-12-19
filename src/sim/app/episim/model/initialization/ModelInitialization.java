@@ -96,7 +96,7 @@ public class ModelInitialization {
 				.initializeCellEnsemble(initiallyExistingCells);
 		this.biomechanicalModelInitializer
 				.initializeCellEnsembleBasedOnRandomAgeDistribution(initiallyExistingCells);
-		this.extraCellularDiffusionInitializer.buildExtraCellularDiffusionFields();
+		//TODO this.extraCellularDiffusionInitializer.buildExtraCellularDiffusionFields();
 		if (simulationStateData != null) {
 			// TODO global Parameters, sind die hier richtig?
 

@@ -55,9 +55,9 @@ public class XmlImportedTissue extends XmlObject<ImportedTissue> {
 				if (xNode != null && yNode != null) {
 					basalLayer
 							.add(new Point2D.Double((Double) parse(
-									xNode.getNodeValue(), Double.class),
+									xNode.getNodeValue(), Double.TYPE),
 									(Double) parse(yNode.getNodeValue(),
-											Double.class)));
+											Double.TYPE)));
 				}
 			}
 		}
@@ -65,6 +65,7 @@ public class XmlImportedTissue extends XmlObject<ImportedTissue> {
 
 	@Override
 	public ImportedTissue copyValuesToTarget(ImportedTissue target) {
+		importParametersFromXml(null);
 		target.setBasalLayerPoints(basalLayer);
 		return target;
 	}

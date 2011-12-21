@@ -2,16 +2,19 @@ package sim.app.episim.datamonitoring.charts;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -34,12 +37,16 @@ import org.jzy3d.plot3d.primitives.AbstractDrawable;
 import org.jzy3d.plot3d.primitives.Point;
 import org.jzy3d.plot3d.primitives.Polygon;
 import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.primitives.axes.layout.renderers.ScientificNotationTickRenderer;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 import org.jzy3d.plot3d.rendering.legends.colorbars.ColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.Renderer2d;
 import org.jzy3d.plot3d.rendering.view.modes.ViewBoundMode;
 import org.jzy3d.ui.ChartLauncher;
 
+import sim.app.episim.EpisimProperties;
+import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
+import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.tissue.TissueController;
@@ -54,10 +61,9 @@ public class DiffusionChartGUI {
 	private EpisimDiffFieldChart diffChartConfig;
 	private EpisimDiffusionFieldConfiguration ecDiffFieldConfig;
 	
-	protected Chart chart;
-	protected Shape surface;
-	protected Mapper mapper;
-	
+	private Chart chart;
+	private Shape surface;
+	private Mapper mapper;	
 	
 	public DiffusionChartGUI(EpisimDiffFieldChart diffChart){
 		if(diffChart != null){
@@ -83,10 +89,11 @@ public class DiffusionChartGUI {
 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		int width = (int) (widthInMikron / this.ecDiffFieldConfig.getLatticeSiteSizeInMikron());
 		int height =(int) (heightInMikron / this.ecDiffFieldConfig.getLatticeSiteSizeInMikron());
+		
 		int xyDimensions = width > height ? width : height;
 		
 		Range range = new Range(0, widthInMikron > heightInMikron ? widthInMikron : heightInMikron);
-		int steps   = xyDimensions;
+		int steps   = xyDimensions > 100 ? 100 : xyDimensions;
 		//if(steps > 75) steps = 75;
 		// Create the object to represent the function over the given range.
 		surface = (Shape)Builder.buildOrthonormal(new OrthonormalGrid(range, steps, range, steps), mapper);
@@ -95,58 +102,31 @@ public class DiffusionChartGUI {
 		surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0, 255, new Color(1,1,1,.5f)));
 		surface.setFaceDisplayed(true);
 		surface.setWireframeDisplayed(true);
-		surface.setWireframeColor(Color.BLACK);
+		surface.setWireframeColor(new Color(40,40,40));
 		
 		// Create a chart 
-		chart = new Chart(Quality.Intermediate,"swing");
+		chart = new Chart(new Quality(true, false, true, false, false, false, true),"swing");
 		ColorbarLegend legend = new ColorbarLegend(surface, chart.getView().getAxe().getLayout().getZTickProvider(), chart.getView().getAxe().getLayout().getZTickRenderer());		
 		surface.setLegend(legend);
 		chart.getScene().getGraph().add(surface);
 		chart.getView().setBoundManual(new BoundingBox3d(0, xyDimensions, 0, xyDimensions, 0, this.ecDiffFieldConfig.getMaximumConcentration() < Double.POSITIVE_INFINITY?(float)this.ecDiffFieldConfig.getMaximumConcentration():1000000f));
 		
+		chart.getAxeLayout().setXAxeLabel( "X (µm)" );
+		chart.getAxeLayout().setYAxeLabel( "Y (µm)" );
+		chart.getAxeLayout().setZAxeLabel( "Z" );
 		
-	/*	chart.addRenderer(new Renderer2d(){
-			public void paint(Graphics g) {
-				Graphics2D g2d = (Graphics2D)g;
-				g2d.setColor(java.awt.Color.BLACK);
-				g2d.drawString(diffChartConfig.getChartTitle(), 50, 50);
-			}
-		});*/
+
+	//	chart.getAxeLayout().setZTickRenderer( new ScientificNotationTickRenderer(2) );
 		
 		Settings.getInstance().setHardwareAccelerated(true);
 		ChartMouseController mouse   = new ChartMouseController();
 		
-		chart.addController(mouse);
+		chart.addController(mouse);		
+		
+	
 		
 		
-	//	ChartThreadController thread = new ChartThreadController();
-	//	mouse.addSlaveThreadController(thread);
-	//	chart.addController(thread);
-	//	thread.start();
-		
-		// trigger screenshot on 's' letter
-		chart.getCanvas().addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				switch(e.getKeyChar()){
-	    		case 's':
-	    			/*try {
-						ChartLauncher.screenshot(chart, "./data/screenshots/"+title+".png");
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}*/
-	    		default:
-	    			break;
-	    		}
-			}
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-			@Override
-			public void keyPressed(KeyEvent e) {
-			}
-		});
-		//chart.render();
+		chart.render();
 	}
 	
 	public EnhancedSteppable getChartSteppable(){
@@ -156,8 +136,7 @@ public class DiffusionChartGUI {
 					
 					remap(surface, mapper);
 					SwingUtilities.invokeLater(new Runnable(){
-						@Override
-                  public void run() {
+						public void run() {
 
 							chart.render();
 	                  
@@ -170,11 +149,53 @@ public class DiffusionChartGUI {
 		return new EnhancedSteppable(){public void step(SimState state) {} public double getInterval() {return 10000;}};
 	}
 	
+	public EnhancedSteppable getChartPNGSteppable(){
+		
+		if(diffChartConfig.isPNGPrintingEnabled()){
+			return new EnhancedSteppable(){
+				public void step(SimState state) {					
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null
+							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)
+							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){
+						 		PNGPrinter.getInstance().printChartAsPng(diffChartConfig.getId(), null, 
+						 				(diffChartConfig.getChartTitle() == null || diffChartConfig.getChartTitle().length()==0 ? "EpisimChartPNG":diffChartConfig.getChartTitle()), 
+						 				chart, state);
+					}
+					else{					
+						PNGPrinter.getInstance().printChartAsPng(diffChartConfig.getId(), diffChartConfig.getPNGPrintingPath(), diffChartConfig.getChartTitle(), chart, state);						
+					}			
+								
+				} 
+				public double getInterval() {
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null
+							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)
+							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){
+								return EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTFREQ)== null
+										|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTFREQ)) <= 0 ? 100 :
+											Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTFREQ));
+					}
+					else{
+						return diffChartConfig.getPNGPrintingFrequency();
+					}					
+			  }
+			};
+		}
+		
+		return null;
+	}
+	
 	public JPanel getChartPanel(){
 		if(diffChartConfig != null && this.ecDiffFieldConfig != null){
 			JPanel panel = new JPanel(new BorderLayout());
+			
+			JPanel titlePanel = new JPanel();
+			JLabel chartTitle = new JLabel(diffChartConfig.getChartTitle());
+			chartTitle.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
+			titlePanel.add(chartTitle);
+			titlePanel.setBackground(java.awt.Color.WHITE);
+			panel.add(titlePanel, BorderLayout.NORTH);
 			panel.add(((JComponent)chart.getCanvas()), BorderLayout.CENTER);
-		
+			panel.setName(diffChartConfig.getChartTitle());
 			return panel;
 			
 		}

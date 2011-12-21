@@ -126,7 +126,4 @@ public class ECSFileReader{
 	   Attributes attr = uc.getMainAttributes();	       
 	   return attr != null ? attr.getValue(attrName) : null;
 	}
-	     
-	
-
 }

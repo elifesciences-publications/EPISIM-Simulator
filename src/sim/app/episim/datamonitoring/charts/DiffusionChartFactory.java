@@ -24,6 +24,7 @@ public class DiffusionChartFactory {
 			for(EpisimDiffFieldChart diffFieldChart: diffFieldCharts){
 				DiffusionChartGUI chartGUI = new DiffusionChartGUI(diffFieldChart);
 				chartSteppables.add(chartGUI.getChartSteppable());
+				if(chartGUI.getChartPNGSteppable() != null) chartSteppables.add(chartGUI.getChartPNGSteppable());
 				diffusionChartPanels.add(chartGUI.getChartPanel());
 			}			
 		}

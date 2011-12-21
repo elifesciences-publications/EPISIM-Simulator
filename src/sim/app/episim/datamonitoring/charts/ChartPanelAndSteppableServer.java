@@ -131,9 +131,7 @@ public class ChartPanelAndSteppableServer {
 	
 	public void clearAllDefaultChartSeries(){
 		DefaultCharts.getInstance().clearSeries();
-	}
-	
-	
+	}	
 	
 	private void notifyListeners(){
 		for(ChartSetChangeListener actListener : this.listeners) actListener.chartSetHasChanged();

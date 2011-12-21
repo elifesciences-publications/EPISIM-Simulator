@@ -1,5 +1,6 @@
 package sim.app.episim.datamonitoring.dataexport;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,12 +28,15 @@ public class DataExportSteppableServer {
 	
 	private Set<DataExportChangeListener> listeners;
 	private List<GeneratedDataExport> customDataExportDefinitions;
+	private List<DiffusionFieldDataExport> customDiffusionFieldDataExports;
 	private List<EnhancedSteppable> customSteppables;
 	private static DataExportSteppableServer instance = null;
 	private AbstractDataExportFactory factory = null;
 	GenericBag<AbstractCell> alreadyRegisteredVersionAllCells = null;
 	private DataExportSteppableServer(){
 		listeners = new HashSet<DataExportChangeListener>();
+		customDiffusionFieldDataExports = new ArrayList<DiffusionFieldDataExport>();
+		customDataExportDefinitions = new ArrayList<GeneratedDataExport>();
 	}
 	
 	protected static synchronized DataExportSteppableServer getInstance(){
@@ -40,12 +44,14 @@ public class DataExportSteppableServer {
 		return instance;
 	}
 	
-	public void registerCustomDataExportSteppables(List<GeneratedDataExport> dataExportDefinitions, List<EnhancedSteppable> dataExportSteppables, AbstractDataExportFactory factory){
+	public void registerCustomDataExportSteppables(List<GeneratedDataExport> dataExportDefinitions, List<DiffusionFieldDataExport> diffusionFieldDataExport, List<EnhancedSteppable> dataExportSteppables, AbstractDataExportFactory factory){
 		if(dataExportDefinitions == null) throw new IllegalArgumentException("DataExportSteppableServer: List with data export definitions to be registered must not be null!");
+		if(diffusionFieldDataExport == null)throw new IllegalArgumentException("DataExportSteppableServer: List with diffusion field data exports to be registered must not be null!");
 		if(dataExportSteppables == null) throw new IllegalArgumentException("DataExportSteppableServer: List with data export definition steppables to be registered must not be null!");
 		if(factory == null) throw new IllegalArgumentException("DataExportSteppableServer: Data-Export-Factory to be registered must not be null!");
 		this.customSteppables = dataExportSteppables;
 		this.customDataExportDefinitions = dataExportDefinitions;
+		this.customDiffusionFieldDataExports = diffusionFieldDataExport;
 		this.factory = factory;
 		notifyListeners();
 		
@@ -78,6 +84,7 @@ public class DataExportSteppableServer {
 	}
 	public void removeAllDataExports(){
 		if(this.customDataExportDefinitions != null)this.customDataExportDefinitions.clear();
+		if(this.customDiffusionFieldDataExports != null)this.customDiffusionFieldDataExports.clear();
 	}
 	
 	public void newSimulationRun(){
@@ -87,12 +94,22 @@ public class DataExportSteppableServer {
 				dataExport.getCSVWriter().simulationWasStarted();
 			}
 		}
+		if(this.customDiffusionFieldDataExports != null){
+			for(DiffusionFieldDataExport dataExport: this.customDiffusionFieldDataExports){
+				dataExport.getCSVWriter().simulationWasStarted();
+			}
+		}
 	}
 	
 	public void simulationWasStopped(){
 		
 		if(this.customDataExportDefinitions != null){
 			for(GeneratedDataExport dataExport: this.customDataExportDefinitions){
+				dataExport.getCSVWriter().simulationWasStopped();
+			}
+		}
+		if(this.customDiffusionFieldDataExports != null){
+			for(DiffusionFieldDataExport dataExport: this.customDiffusionFieldDataExports){
 				dataExport.getCSVWriter().simulationWasStopped();
 			}
 		}
@@ -109,6 +126,19 @@ public class DataExportSteppableServer {
 				return;
 			}
 		}
+	}
+	
+	public void actLoadedDataExportDefinitionSetWasClosed(){
+		if(this.customDataExportDefinitions != null){ 
+			this.customDataExportDefinitions.clear();			
+		}
+		if(this.customDiffusionFieldDataExports != null){ 
+			this.customDiffusionFieldDataExports.clear();			
+		}
+		if(this.customSteppables != null){ 
+			this.customSteppables.clear();			
+		}
+		notifyListeners();
 	}
 
 }

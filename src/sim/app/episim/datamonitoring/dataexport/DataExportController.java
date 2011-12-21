@@ -123,14 +123,14 @@ public class DataExportController {
 		return showDataExportSetDialog(parent, null);
 	}
 	protected EpisimDataExportDefinitionSet showDataExportSetDialog(Frame parent, EpisimDataExportDefinitionSet dataExportSet){
-		DataExportDefinitionSetDialog dialog = new DataExportDefinitionSetDialog(parent, "Data-Export-Set", true);
 		
+		DataExportDefinitionSetDialog dialog = new DataExportDefinitionSetDialog(parent, "Data-Export-Set", true);		
 		if(this.dataExportMonitoredTissue != null){
 			if(dataExportSet == null) return dialog.showNewDataExportDefinitionSet();
 			else return dialog.showDataExportDefinitionSet(dataExportSet);
-		}
-			
-		return null;	
+		}			
+		return null;
+		
 	}
 	
 	public String getActLoadedDataExportsName(){
@@ -246,7 +246,7 @@ public class DataExportController {
 		try{
 			
 	      loadDataExportDefinitionSet(new File(dataExportSet.getPath().getAbsolutePath()).toURI().toURL());
-	     // if(ChartController.getInstance().isAlreadyChartSetLoaded()) ChartController.getInstance().reloadCurrentlyLoadedChartSet();
+	    
       }
       catch (MalformedURLException e){
 	      ExceptionDisplayer.getInstance().displayException(e);
@@ -276,7 +276,7 @@ public class DataExportController {
 			if(this.actLoadedDataExportSet != null){
 				this.actLoadedDataExportSet.setPath(new File(url.toURI()));
 				if(!this.actLoadedDataExportSet.isOneOfTheDataExportDefinitionsDirty()){
-					DataExportSteppableServer.getInstance().registerCustomDataExportSteppables(edeReader.getDataExports(), edeReader.getDataExportSteppables(), edeReader.getDataExportFactory());
+					DataExportSteppableServer.getInstance().registerCustomDataExportSteppables(edeReader.getDataExports(), edeReader.getDiffusionFieldDataExports(), edeReader.getDataExportSteppables(), edeReader.getDataExportFactory());
 					CompatibilityChecker checker = new CompatibilityChecker();
 					checker.checkEpisimDataExportDefinitionSetForCompatibility(actLoadedDataExportSet, this.dataExportMonitoredTissue);
 				}else{
@@ -348,6 +348,7 @@ public class DataExportController {
 	
 	public void closeActLoadedDataExportDefinitonSet(){
 		this.actLoadedDataExportSet = null;
+		DataExportSteppableServer.getInstance().actLoadedDataExportDefinitionSetWasClosed();
 	}
 	
 	

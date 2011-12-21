@@ -53,12 +53,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	
 	
 	
-	public DataExportCSVWriter(File csvFile, String columnNames) {
-		
-		this.csvFile = csvFile;
-
-		
-		
+	public DataExportCSVWriter(File csvFile, String columnNames) {		
+		this.csvFile = csvFile;		
 		this.columnNames = columnNames;
 	}
 	
@@ -128,37 +124,27 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	}
 	
 	private void writeColumnNames(){
-		try{
-			
-				if(csvWriter != null){
-					
-					csvWriter.write("sim step no;");
-					csvWriter.write(columnNames);
-					csvWriter.flush();
-	         }
-		
-			
+		try{			
+		  if(csvWriter != null){					
+				csvWriter.write("sim step no;");
+				csvWriter.write(columnNames);
+				csvWriter.flush();
+	     }	
 		}
       catch (IOException e){
         ExceptionDisplayer.getInstance().displayException(e);
       }
 	}
 	private void writeHeader(){
-		try{
-			
-			if(csvWriter != null){
-				
-				
-				
+		try{			
+			if(csvWriter != null){				
 				csvWriter.write("Episim Simulation Run on " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault()).format(new Date())+";\n");
 				csvWriter.flush();
-         }
-	
-	}
-   catch (IOException e){
-     ExceptionDisplayer.getInstance().displayException(e);
-   }
-		
+         }	
+		}
+	   catch (IOException e){
+	     ExceptionDisplayer.getInstance().displayException(e);
+	   }		
 	}
 	
 	public void simulationWasStopped(){

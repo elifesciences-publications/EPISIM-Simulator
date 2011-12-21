@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.datamonitoring.dataexport.DiffusionFieldDataExport;
+import sim.app.episim.datamonitoring.dataexport.DiffusionFieldDataExportFactory;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.ModelCompatibilityException;
@@ -19,8 +22,8 @@ public class EDEFileReader{
 	private URL url;
 
 	private Class<?> factoryClass;
-
-	private AbstractDataExportFactory factory;
+	private AbstractDataExportFactory dataExportDefinitionFactory;
+	private DiffusionFieldDataExportFactory diffusionFieldDataExportFactory;
 
 	/**
 	 * Creates a new JarClassLoader for the specified url.
@@ -34,11 +37,11 @@ public class EDEFileReader{
 	private void loadFactory(){
 		try{
 			 GlobalClassLoader.getInstance().registerURL(url);
-		      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
+		    this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
 			
 
 			if(factoryClass != null && AbstractDataExportFactory.class.isAssignableFrom(this.factoryClass)){
-				factory = (AbstractDataExportFactory) factoryClass.newInstance();
+				dataExportDefinitionFactory = (AbstractDataExportFactory) factoryClass.newInstance();
 
 			}
 			else
@@ -80,32 +83,42 @@ public class EDEFileReader{
 	}
 	
 	public AbstractDataExportFactory getDataExportFactory(){
-		if(this.factory == null) loadFactory();
-		return this.factory;
+		if(this.dataExportDefinitionFactory == null) loadFactory();
+		return this.dataExportDefinitionFactory;
 	}
 	
 	public List<GeneratedDataExport> getDataExports(){
-		if(this.factory == null) loadFactory();
-		return this.factory.getDataExports();
+		if(this.dataExportDefinitionFactory == null) loadFactory();
+		return this.dataExportDefinitionFactory.getDataExports();
 	}
 	
-	public List<EnhancedSteppable> getDataExportSteppables(){
-		if(this.factory == null) loadFactory();
-		return this.factory.getSteppablesOfDataExports();
+	public List<DiffusionFieldDataExport> getDiffusionFieldDataExports() throws ModelCompatibilityException{
+		if(this.diffusionFieldDataExportFactory == null){
+			EpisimDataExportDefinitionSet dataExportDefinitionSet = getEpisimDataExportDefinitionSet();
+			this.diffusionFieldDataExportFactory = new DiffusionFieldDataExportFactory(dataExportDefinitionSet.getEpisimDiffFieldDataExportDefinitions());
+		}
+		return diffusionFieldDataExportFactory.getDiffFieldDataExports();
+	}
+	
+	public List<EnhancedSteppable> getDataExportSteppables() throws ModelCompatibilityException{
+		if(this.dataExportDefinitionFactory == null) loadFactory();
+		if(this.diffusionFieldDataExportFactory == null){
+			EpisimDataExportDefinitionSet dataExportDefinitionSet = getEpisimDataExportDefinitionSet();
+			this.diffusionFieldDataExportFactory = new DiffusionFieldDataExportFactory(dataExportDefinitionSet.getEpisimDiffFieldDataExportDefinitions());
+		}
+		List<EnhancedSteppable> steppables = new ArrayList<EnhancedSteppable>();
+		steppables.addAll(this.dataExportDefinitionFactory.getSteppablesOfDataExports());
+		steppables.addAll(this.diffusionFieldDataExportFactory.getDiffFieldDataExportSteppables());
+		return steppables;
 	}
 
 	private String getClassName(Attributes.Name attrName) throws IOException {
-
 		URL u = new URL("jar", "", url + "!/");
 		JarURLConnection uc = (JarURLConnection) u.openConnection();
 		Attributes attr = uc.getMainAttributes();
-
 		return attr != null ? attr.getValue(attrName) : null;
 	}
-		     
-		
-
-	}
+}
 
 
 

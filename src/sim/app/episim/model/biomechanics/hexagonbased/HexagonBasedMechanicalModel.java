@@ -3,6 +3,9 @@ package sim.app.episim.model.biomechanics.hexagonbased;
 import java.awt.Color;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
@@ -39,6 +42,7 @@ import sim.util.Bag;
 import sim.util.Double2D;
 import sim.util.Int2D;
 import sim.util.IntBag;
+import sim.util.MutableInt2D;
 
 
 public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
@@ -609,5 +613,55 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   	globalParameters.getActualWoundEdgeBorderlineConfig().x1_InMikron = newXPosWoundEdge;
 	   	globalParameters.getActualWoundEdgeBorderlineConfig().x2_InMikron = newXPosWoundEdge;
 		}
+   }
+
+   @CannotBeMonitored
+   public Shape getCellBoundariesInMikron() {
+		//TODO: diese methode testen
+		
+		Double2D loc = getLocationInMikron(fieldLocation);
+		Double2D spreadLoc = getLocationInMikron(fieldLocation);
+   	double radius = HexagonBasedMechanicalModelGlobalParameters.outer_hexagonal_radius;
+	   if(isSpreading()){
+	   	
+	  		double x = loc.x < spreadLoc.x ? (loc.x -(radius)): (spreadLoc.x -(radius));
+	    	double y = loc.y < spreadLoc.y ? (loc.y -(radius)): (spreadLoc.y -(radius));
+	    		      	
+	    	double height = (Math.abs(loc.y-spreadLoc.y)+(2*radius));
+	    	double width = (Math.abs(loc.x-spreadLoc.x)+(2*radius));
+	    
+	    	double rotationInDegrees = 0;
+	    	
+	    	
+	    	
+	    				      	
+	    	if((loc.x <spreadLoc.x && loc.y >spreadLoc.y)
+	    			||(loc.x > spreadLoc.x && loc.y < spreadLoc.y)) rotationInDegrees = 155;
+	    	
+	    	if((loc.x <spreadLoc.x && loc.y <spreadLoc.y)
+	    			||(loc.x > spreadLoc.x && loc.y >spreadLoc.y)) rotationInDegrees = 25;
+	    	
+	    	
+	    	
+	    	double ellipseHeight = 2*radius;
+	    	if(rotationInDegrees != 0){
+	    		AffineTransform tansform = new AffineTransform();
+	    		double rotateX = x + (width/2);
+	    		double rotateY = y + (height/2);
+	    		
+	    		y += (height/2);
+		      	y -= (ellipseHeight/2);
+	    		tansform.setToRotation(Math.toRadians(rotationInDegrees), rotateX, rotateY);
+	    		//
+	    		return tansform.createTransformedShape(new Ellipse2D.Double(x, y, (2*radius)*2, ellipseHeight));
+	    	}
+	    	else return new Ellipse2D.Double(x+(Math.abs(ellipseHeight-width)/2), y, ellipseHeight, height);
+	   	
+	   }
+	   else{
+	   	
+	   	return new Ellipse2D.Double(loc.x-radius, loc.y-radius, 2*radius, 2*radius);
+	   }
+	   
    }
 }

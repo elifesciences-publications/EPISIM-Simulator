@@ -24,7 +24,7 @@ import sim.util.gui.SimpleColorMap;
 
 public class ExtraCellularDiffusionPortrayal extends FastValueGridPortrayal2D implements EpisimPortrayal{
 	
-	private static final Color[] COLOR_STEPS = new Color[]{Color.black, Color.blue, Color.cyan, Color.green, Color.yellow, Color.orange, Color.red};
+	private static final Color[] COLOR_STEPS = new Color[]{new Color(0,0,136), Color.blue, Color.cyan, Color.green, Color.yellow, Color.orange, Color.red, new Color(218,0,0)};
 	
 	private String name;
 	private ExtraCellularDiffusionField extraCellularDiffusionField;

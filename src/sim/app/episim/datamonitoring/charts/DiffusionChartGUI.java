@@ -29,6 +29,7 @@ import org.jzy3d.global.Settings;
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Range;
+import org.jzy3d.maths.Scale;
 import org.jzy3d.plot2d.primitive.ColorbarImageGenerator;
 import org.jzy3d.plot3d.builder.Builder;
 import org.jzy3d.plot3d.builder.Mapper;
@@ -80,6 +81,8 @@ public class DiffusionChartGUI {
 		final Random rand = new Random();
 		mapper = new Mapper(){
 			public double f(double x, double y) {
+				y = TissueController.getInstance().getTissueBorder().getHeightInMikron() - y;
+				if(y < 0) return 0;
 				ExtraCellularDiffusionField field= ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
 				return field != null ? field.getConcentration(x, y) : 0;
 			}
@@ -99,18 +102,22 @@ public class DiffusionChartGUI {
 		surface = (Shape)Builder.buildOrthonormal(new OrthonormalGrid(range, steps, range, steps), mapper);
 	
 		//surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), surface.getBounds().getZmin(), surface.getBounds().getZmax(), new Color(1,1,1,.5f)));
-		surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 0, 255, new Color(1,1,1,.5f)));
+		surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), 
+				                             0, (this.ecDiffFieldConfig.getMaximumConcentration() < Double.POSITIVE_INFINITY?(float)this.ecDiffFieldConfig.getMaximumConcentration():1000000f)
+				                             , new Color(1,1,1,.5f)));
 		surface.setFaceDisplayed(true);
 		surface.setWireframeDisplayed(true);
 		surface.setWireframeColor(new Color(40,40,40));
 		
 		// Create a chart 
 		chart = new Chart(new Quality(true, false, true, false, false, false, true),"swing");
-		ColorbarLegend legend = new ColorbarLegend(surface, chart.getView().getAxe().getLayout().getZTickProvider(), chart.getView().getAxe().getLayout().getZTickRenderer());		
-		surface.setLegend(legend);
-		chart.getScene().getGraph().add(surface);
 		chart.getView().setBoundManual(new BoundingBox3d(0, xyDimensions, 0, xyDimensions, 0, this.ecDiffFieldConfig.getMaximumConcentration() < Double.POSITIVE_INFINITY?(float)this.ecDiffFieldConfig.getMaximumConcentration():1000000f));
 		
+		ColorbarLegend legend = new ColorbarLegend(surface, chart.getView().getAxe().getLayout().getZTickProvider(), chart.getView().getAxe().getLayout().getZTickRenderer());		
+		
+		surface.setLegend(legend);		
+		chart.getScene().getGraph().add(surface);
+
 		chart.getAxeLayout().setXAxeLabel( "X (µm)" );
 		chart.getAxeLayout().setYAxeLabel( "Y (µm)" );
 		chart.getAxeLayout().setZAxeLabel( "Z" );
@@ -121,10 +128,7 @@ public class DiffusionChartGUI {
 		Settings.getInstance().setHardwareAccelerated(true);
 		ChartMouseController mouse   = new ChartMouseController();
 		
-		chart.addController(mouse);		
-		
-	
-		
+		chart.addController(mouse);			
 		
 		chart.render();
 	}

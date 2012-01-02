@@ -1,6 +1,7 @@
 package episiminterfaces;
 
 import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.io.File;
 
@@ -18,10 +19,11 @@ public interface EpisimBiomechanicalModel {
 	void setEpisimModelConnector(EpisimModelConnector modelConnector);
 	GenericBag<AbstractCell> getRealNeighbours();
 	
-	Polygon getPolygonCell();
-	Polygon getPolygonCell(DrawInfo2D info);
-	Polygon getPolygonNucleus();
-	Polygon getPolygonNucleus(DrawInfo2D info);
+	Shape getPolygonCell();
+	Shape getPolygonCell(DrawInfo2D info);
+	Shape getPolygonNucleus();
+	Shape getPolygonNucleus(DrawInfo2D info);
+	Shape getCellBoundariesInMikron();
 	void newSimStep(long simStepNumber);
 	double getX();
 	double getY();

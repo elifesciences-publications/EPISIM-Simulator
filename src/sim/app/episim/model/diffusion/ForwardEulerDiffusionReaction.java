@@ -20,10 +20,10 @@ public class ForwardEulerDiffusionReaction {
 		DoubleGrid2D currentValueField = extraCellularField.getExtraCellularField();
 		DoubleGrid2D newValueField = new DoubleGrid2D(currentValueField.getWidth(), currentValueField.getHeight());
 		
-		int startX = extraCellularField.isToroidal() ? 0 : 1;
-		int startY = startX;
-		int stopX = extraCellularField.isToroidal() ? currentValueField.getWidth() : (currentValueField.getWidth()-1);
-		int stopY = extraCellularField.isToroidal() ? currentValueField.getHeight() : (currentValueField.getHeight()-1);
+		int startX = extraCellularField.isToroidalX() ? 0 : 1;
+		int startY = extraCellularField.isToroidalY() ? 0 : 1;;
+		int stopX = extraCellularField.isToroidalX() ? currentValueField.getWidth() : (currentValueField.getWidth()-1);
+		int stopY = extraCellularField.isToroidalY() ? currentValueField.getHeight() : (currentValueField.getHeight()-1);
 		final double latticeSize = extraCellularField.getFieldConfiguration().getLatticeSiteSizeInMikron()/ Math.pow(10, 6);
 		double dt = extraCellularField.getFieldConfiguration().getDeltaTimeInSecondsPerIteration();
 		double dt_dx2 = (dt / (latticeSize*latticeSize));
@@ -44,7 +44,8 @@ public class ForwardEulerDiffusionReaction {
 		double newConcentration = 0;
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < numberOfIterations; i++){
-			if(!extraCellularField.isToroidal())setDirichletBoundaryConditionsInNewField(currentValueField, newValueField);
+			if(!extraCellularField.isToroidalX())setDirichletXBoundaryConditionsInNewField(currentValueField, newValueField);
+			if(!extraCellularField.isToroidalY())setDirichletYBoundaryConditionsInNewField(currentValueField, newValueField);
 			for(int yPos = startY; yPos < stopY; yPos++){
 				for(int xPos = startX; xPos < stopX; xPos++){
 					currentConcentration = currentValueField.get(xPos, yPos);
@@ -63,10 +64,19 @@ public class ForwardEulerDiffusionReaction {
 		//System.out.println("Calculation Time in miliseconds for Diffusion Field: " +((end-start)));
 	}
 	
-	private void setDirichletBoundaryConditionsInNewField(DoubleGrid2D currentValueField, DoubleGrid2D newValueField){
+	private void setDirichletXBoundaryConditionsInNewField(DoubleGrid2D currentValueField, DoubleGrid2D newValueField){
 		for(int y = 0; y < currentValueField.getHeight(); y++){
 			for(int x = 0; x < currentValueField.getWidth(); x++){
-				if(x==0 || x ==(currentValueField.getWidth()-1) || y==0 || y==(currentValueField.getHeight()-1))
+				if(x==0 || x ==(currentValueField.getWidth()-1))
+					newValueField.set(x, y, currentValueField.get(x, y));
+			}						
+		}
+	}
+	
+	private void setDirichletYBoundaryConditionsInNewField(DoubleGrid2D currentValueField, DoubleGrid2D newValueField){
+		for(int y = 0; y < currentValueField.getHeight(); y++){
+			for(int x = 0; x < currentValueField.getWidth(); x++){
+				if(y==0 || y==(currentValueField.getHeight()-1))
 					newValueField.set(x, y, currentValueField.get(x, y));
 			}						
 		}

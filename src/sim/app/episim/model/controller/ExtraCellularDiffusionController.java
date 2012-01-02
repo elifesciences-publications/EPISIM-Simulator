@@ -2,9 +2,12 @@ package sim.app.episim.model.controller;
 
 import java.util.HashMap;
 
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
+import sim.app.episim.model.diffusion.TestDiffusionFieldConfiguration;
 import sim.app.episim.model.initialization.ExtraCellularDiffusionInitializer;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
@@ -18,62 +21,22 @@ public class ExtraCellularDiffusionController {
 	
 	private HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap;
 	
-	private EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[]{ new EpisimDiffusionFieldConfiguration(){
-      public String getDiffusionFieldName() {	     
-	      return "TestDiffusionField";
-      }
-
-		
-      public double getDiffusionCoefficient() {
-
-	      // TODO Auto-generated method stub
-	      return 0.00000000000002;
-      }
-
-		
-      public double getLatticeSiteSizeInMikron() {
-
-	      // TODO Auto-generated method stub
-	      return 1;
-      }
-
-		
-      public double getDegradationRate() {
-
-	      // TODO Auto-generated method stub
-	      return 0;
-      }
-
-		
-      public int getNumberOfIterationsPerCBMSimStep() {
-
-	      // TODO Auto-generated method stub
-	      return 1;
-      }
-
-		
-      public double getDeltaTimeInSecondsPerIteration() {	      
-	      return 1;
-      }
-
-		
-      public double getMaximumConcentration() {	     
-	      return 255;
-      }
-
-		
-      public double getMinimumConcentration() {	      
-	      return 0;
-      }
-
-
-		public double getDefaultConcentration() {
-
-			return 0;
-		}}};
+	private EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations;
 	
 	private ExtraCellularDiffusionController(){
 		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE)!= null &&
+				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE).equals(EpisimProperties.ON)){
+			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[]{new TestDiffusionFieldConfiguration()};
+		}
+		else{
+			EpisimCellBehavioralModelGlobalParameters globalParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
+			if(globalParameters != null){
+				this.episimExtraCellularDiffusionFieldsConfigurations = globalParameters.getAllExtraCellularDiffusionFieldConfigurations();
+			}
+		}
+		if(this.episimExtraCellularDiffusionFieldsConfigurations == null)
+			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[0];
 	}
 	
 	

@@ -148,6 +148,16 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 		return this.numberOfPixelsPerMicrometer;
    }
 
+	@NoUserModification
+   public boolean areDiffusionFieldsContinousInXDirection() {
+		return true;
+   }
+
+	@NoUserModification
+   public boolean areDiffusionFieldsContinousInYDirection() {
+	   return false;
+   }
+
 	
   
 	

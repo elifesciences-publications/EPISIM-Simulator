@@ -5,7 +5,6 @@ import sim.app.episim.util.EnhancedSteppable;
 
 
 public interface GeneratedDataExport {
-	EnhancedSteppable getSteppable();
-	
+	EnhancedSteppable getSteppable();	
 	DataExportCSVWriter getCSVWriter();
 }

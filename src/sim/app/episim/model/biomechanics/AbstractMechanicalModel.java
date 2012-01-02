@@ -34,6 +34,8 @@ public abstract class AbstractMechanicalModel implements EpisimBiomechanicalMode
 	protected abstract Object getCellField();
 	protected abstract void setReloadedCellField(Object cellField);
 	
+	
+	
 	public abstract EpisimModelConnector getEpisimModelConnector();
 	
 	

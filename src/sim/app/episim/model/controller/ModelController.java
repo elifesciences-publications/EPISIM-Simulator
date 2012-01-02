@@ -31,10 +31,8 @@ public class ModelController implements java.io.Serializable{
 	
 	private static ModelController instance;
 	private ModelInitialization initializer;
-	private ModelController(){
 	
-	}
-	
+	private ModelController(){}	
 	
 	public static ModelController getInstance(){
 		
@@ -49,17 +47,15 @@ public class ModelController implements java.io.Serializable{
 		return instance;
 	}
 	
-	public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){
-	
+	public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){	
 		return CellBehavioralModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 	}
-	public EpisimBiomechanicalModelGlobalParameters getEpisimBioMechanicalModelGlobalParameters(){
-		
+	
+	public EpisimBiomechanicalModelGlobalParameters getEpisimBioMechanicalModelGlobalParameters(){		
 		return BiomechanicalModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	}
 	
-	public EpisimCellBehavioralModel getNewEpisimCellBehavioralModelObject(){
-		
+	public EpisimCellBehavioralModel getNewEpisimCellBehavioralModelObject(){		
 		return CellBehavioralModelController.getInstance().getNewEpisimCellBehavioralModelObject();
 	}
 	

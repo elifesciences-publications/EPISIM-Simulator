@@ -252,4 +252,13 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	public double getNumberOfPixelsPerMicrometer() {
 		return this.numberOfPixelsPerMicrometer;
    }
+	@NoUserModification
+   public boolean areDiffusionFieldsContinousInXDirection() {
+		return true;
+   }
+
+	@NoUserModification
+   public boolean areDiffusionFieldsContinousInYDirection() {
+	   return false;
+   }
 }

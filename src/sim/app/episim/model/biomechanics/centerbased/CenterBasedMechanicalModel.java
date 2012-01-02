@@ -2,7 +2,10 @@ package sim.app.episim.model.biomechanics.centerbased;
 
 import java.awt.Color;
 import java.awt.Polygon;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.HashMap;
@@ -17,14 +20,17 @@ import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.centerbased.EpisimCenterBasedModelConnector;
 import episimexceptions.GlobalParameterException;
 
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 
 import episiminterfaces.monitoring.CannotBeMonitored;
 
+import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
@@ -97,9 +103,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    		cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
 					ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() + 2, 
 					ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron());
-   	}
-   	
-   	
+   	}   	
    	
    	extForce=new Vector2D(0,0);      
       keratinoWidth=GINITIALKERATINOWIDTH; //theEpidermis.InitialKeratinoSize;
@@ -587,22 +591,22 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	public double getZ(){ return 0;}
 	
 	@CannotBeMonitored @NoExport
-	public Polygon getPolygonCell(){
+	public Shape getPolygonCell(){
 		return getPolygonCell(null);
 	}
 	
 	@CannotBeMonitored @NoExport
-	public Polygon getPolygonNucleus(){
+	public Shape getPolygonNucleus(){
 		return getPolygonNucleus(null);
 	}
 	
 	@CannotBeMonitored @NoExport
-	public Polygon getPolygonCell(DrawInfo2D info){
+	public Shape getPolygonCell(DrawInfo2D info){
 		return createHexagonalPolygon(info, getKeratinoWidth(), getKeratinoHeight());
 	}
 	
 	@CannotBeMonitored
-	public Polygon getPolygonNucleus(DrawInfo2D info){
+	public Shape getPolygonNucleus(DrawInfo2D info){
 		return createHexagonalPolygon(info, 2, 2);
 	}
 	
@@ -612,30 +616,44 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    	return this.cellEllipseObject;
    }
 	
-	private Polygon createHexagonalPolygon(DrawInfo2D info, double width, double height){
+	private Shape createHexagonalPolygon(DrawInfo2D info, double width, double height){
 				
-		double infoX = getX();
-		double infoY = getY();
-		double infoWidth = 1;
-		double infoHeight = 1;
 		
-		if(info != null){
-			infoX = info.draw.x;
-			infoY = info.draw.y;
-			infoWidth = info.draw.width;
-			infoHeight = info.draw.height;
-		}
 		
-		Polygon polygon = new Polygon(); 
-		polygon.addPoint((int)(infoX+infoWidth/2.0*width), (int)(infoY));
-		polygon.addPoint((int)(infoX+infoWidth/4.0*width), (int)(infoY-infoHeight/2.0*height));
-		polygon.addPoint((int)(infoX-infoWidth/4.0*width), (int)(infoY-infoHeight/2.0*height));
-		polygon.addPoint((int)(infoX-infoWidth/2.0*width), (int)(infoY));
-		polygon.addPoint((int)(infoX-infoWidth/4.0*width), (int)(infoY+infoHeight/2.0*height));
-		polygon.addPoint((int)(infoX+infoWidth/4.0*width), (int)(infoY+infoHeight/2.0*height)); 
-     
-      
-      return polygon;
+		
+		
+		
+		
+		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+		double scaleX = guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron();
+		double scaleY = guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		
+		double x = scaleX*getX();
+		double y = getY();
+		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		y = heightInMikron - y;
+		y*= scaleY;
+		x+=guiState.DISPLAY_BORDER_LEFT;
+		y+=guiState.DISPLAY_BORDER_TOP;
+		
+		double startX = info != null && guiState.EPIDISPLAYWIDTH < info.clip.width ? info.clip.x:0;
+		double startY = info != null && guiState.EPIDISPLAYHEIGHT < info.clip.height ? info.clip.y:0;
+		x+=startX;
+		y+=startY;
+		
+		height *= scaleY;
+		width *= scaleX;
+		
+		Path2D.Double path = new Path2D.Double();
+		path.moveTo((x+width/2.0), (y));
+		path.lineTo((x+width/4.0), (y-height/2.0));
+		path.lineTo((x-width/4.0), (y-height/2.0));
+		path.lineTo((x-width/2.0), (y));
+		path.lineTo((x-width/4.0), (y+height/2.0));
+		path.lineTo((x+width/4.0), (y+height/2.0)); 
+		path.closePath();		
+      return path;
+     // return new Ellipse2D.Double(x-(width/2), y-(height/2), width, height);
 	}
 	
 	public void setLastDrawInfo2DForNewCellEllipse(DrawInfo2D info, Double2D newloc, Double2D oldLoc){
@@ -678,6 +696,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	
    public void setCellLocationInCellField(Double2D location){
 	   cellField.setObjectLocation(this.getCell(), location);
+	   if(modelConnector!=null){
+	   	modelConnector.setX(location.x);
+	   	modelConnector.setY(TissueController.getInstance().getTissueBorder().getHeightInMikron()- location.y);
+	   }
    }
 	
    public Double2D getCellLocationInCellField() {	   
@@ -735,5 +757,33 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	
    protected void newSimStepGloballyFinished(long simStepNumber){
    	//not needed	   
+   }
+
+   @CannotBeMonitored
+   public Shape getCellBoundariesInMikron() {
+   	double x = getX();
+		double y = getY();
+		
+		
+		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		y = heightInMikron - y;
+		double infoWidth = 1;
+		double infoHeight = 1;
+		double width = (double)getKeratinoWidth();
+		double height = (double)getKeratinoHeight();
+		
+		width *=1.15;
+		height*=1.15;
+		
+		Path2D.Double path = new Path2D.Double();
+		path.moveTo((x+infoWidth/2.0*width), (y));
+		path.lineTo((x+infoWidth/4.0*width), (y-infoHeight/2.0*height));
+		path.lineTo((x-infoWidth/4.0*width), (y-infoHeight/2.0*height));
+		path.lineTo((x-infoWidth/2.0*width), (y));
+		path.lineTo((x-infoWidth/4.0*width), (y+infoHeight/2.0*height));
+		path.lineTo((x+infoWidth/4.0*width), (y+infoHeight/2.0*height));
+		path.closePath();
+	  
+	   return new Ellipse2D.Double(x-(width/2), y-(height/2), width, height);
    }
 }

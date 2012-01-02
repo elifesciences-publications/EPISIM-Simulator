@@ -72,7 +72,14 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	}
 	
 	public GenericBag<AbstractCell> getAllCells() {	return allCells; }
-		
+	
+	public AbstractCell getCell(long id){
+		for(AbstractCell cell: allCells){
+			if(cell.getID()==id) return cell;
+		}
+		return null;
+	}
+	
 	public void setSnapshotTimeSteps(TimeSteps timeSteps){
 		this.timeStepsAfterSnapshotReload = timeSteps;
 	}

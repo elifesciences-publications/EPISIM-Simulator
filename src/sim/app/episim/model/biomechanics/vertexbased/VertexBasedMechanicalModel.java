@@ -1,6 +1,7 @@
 package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.io.File;
 import java.util.HashMap;
@@ -283,5 +284,11 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 
 	   //not needed
 	   
+   }
+
+	@CannotBeMonitored
+   public Shape getCellBoundariesInMikron() {
+		//TODO: Diese Methode testen
+	  return getPolygonCell();
    }
  }

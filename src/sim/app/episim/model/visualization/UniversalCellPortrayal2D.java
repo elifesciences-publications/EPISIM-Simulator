@@ -121,8 +121,8 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 		                if(colorType < 5){                                               
 			                
 			                Color fillColor = getFillColor(universalCell);
-			                Polygon cellPolygon;
-			                Polygon nucleusPolygon;               
+			                Shape cellPolygon;
+			                Shape nucleusPolygon;               
 			                cellPolygon = universalCell.getEpisimBioMechanicalModelObject().getPolygonCell(info);
 			                if(!centerBasedModel){
 			               	 AffineTransform transform = new AffineTransform();
@@ -159,11 +159,11 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 			                }
 			                else{
 				                graphics.setPaint(fillColor);
-				                graphics.fillPolygon(cellPolygon);				                
+				                graphics.fill(cellPolygon);				                
 				                if(drawFrame)
 				                {
 				                  graphics.setColor(getContourColor(universalCell));
-				                  graphics.drawPolygon(cellPolygon);
+				                  graphics.draw(cellPolygon);
 				                }
 			                }
 			                //TODO: Nucleus ein- und ausschalten
@@ -173,7 +173,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 			                  nucleusPolygon= universalCell.getEpisimBioMechanicalModelObject().getPolygonNucleus(info);
 			                  if(nucleusPolygon != null){
 				                  graphics.setPaint(nucleusColor);  
-				                  graphics.fillPolygon(nucleusPolygon);
+				                  graphics.fill(nucleusPolygon);
 			                  }
 			              }
 		                
@@ -315,7 +315,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    public boolean hitObject(Object object, DrawInfo2D range)
    {       
       if (object instanceof UniversalCell){
-       Polygon pol = ((UniversalCell)object).getEpisimBioMechanicalModelObject().getPolygonCell();      	 
+       Shape pol = ((UniversalCell)object).getEpisimBioMechanicalModelObject().getPolygonCell();      	 
        return ( pol.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height));
       }
 	   return false; 

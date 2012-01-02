@@ -22,22 +22,7 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
    
 	private final String NAME = "Basement Membrane";
 	
-   private double width;
-   private double height;
-   private final double INITIALWIDTH;
-   private final double INITIALHEIGHT; 
-   private DrawInfo2D lastActualInfo;
-   private DrawInfo2D firstInfo;
-   
-   private List<Point2D> cellPoints;
-
-
-   private boolean hitAndButtonPressed = false;
-   
-   private Point2D actDraggedPoint = null;
-
-   private static final double DELTACROSS = 10;
-   private static final double DELTAPOINT = 10;
+  
    
   
    
@@ -46,19 +31,7 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
    private EpisimGUIState guiState;
    
    public BasementMembranePortrayal2D() {
-   	 guiState = SimStateServer.getInstance().getEpisimGUIState();
-   		
-   	 if(guiState != null){   		 
-		    this.width = guiState.EPIDISPLAYWIDTH + guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT;
-		  	 this.height = guiState.EPIDISPLAYHEIGHT + guiState.DISPLAY_BORDER_BOTTOM+guiState.DISPLAY_BORDER_TOP;		  	 
-		  	 this.INITIALWIDTH = ((int)width);
-		  	 this.INITIALHEIGHT = ((int)height);		  	 	  	 
-   	 }
-   	 else{   		 
-		  	 this.INITIALWIDTH = 0;
-		  	 this.INITIALHEIGHT = 0;
-   	 }
-	  	 cellPoints = new ArrayList<Point2D>();
+   	 guiState = SimStateServer.getInstance().getEpisimGUIState();  	 
 	  	 Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
 					TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
 					TissueController.getInstance().getTissueBorder().getHeightInMikron());
@@ -82,181 +55,53 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 			{
 				if(info != null && polygon.getBounds().getWidth() > 0){
 					 Stroke oldStroke = graphics.getStroke();
-					if(firstInfo == null) firstInfo = info; // wird beim ersten Aufruf gesetzt.
-					lastActualInfo = info;
-			
+				
 					graphics.setColor(new Color(255, 99, 0));
 					graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 			
 					AffineTransform transform = new AffineTransform();
 					
-					double dispScale = getScaleFactorOfTheDisplay();
 					
-					width=(INITIALWIDTH -(guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT))*dispScale ;
-					height=(INITIALHEIGHT-(guiState.DISPLAY_BORDER_BOTTOM+guiState.DISPLAY_BORDER_TOP))*dispScale;
+					EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+					double scaleX = guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron();
+					double scaleY = guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron();
 					
-					double scaleX = (width/polygon.getBounds2D().getWidth());
+					double x = 0;
+					double y = 0;
+				
+					x+=guiState.DISPLAY_BORDER_LEFT;
+					y+=guiState.DISPLAY_BORDER_TOP;
+					
+					double startX = info != null && guiState.EPIDISPLAYWIDTH < info.clip.width ? info.clip.x:0;
+					double startY = info != null && guiState.EPIDISPLAYHEIGHT < info.clip.height ? info.clip.y:0;
+					x+=startX;
+					y+=startY;				
 					
 					if(TissueController.getInstance().getTissueBorder().isStandardMembraneLoaded()){
-						 graphics.setStroke(new BasicStroke((int)(1*scaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+						 graphics.setStroke(new BasicStroke((int)(0.8*scaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 						// scaleX *= 1.06;
 					}					
 					
-					transform.scale(scaleX, scaleX);
-					polygon = (GeneralPath) polygon.createTransformedShape(transform);
+					transform.scale(scaleX, scaleY);
+					Shape tissueBorder = transform.createTransformedShape(polygon);
+					transform.setToTranslation(x, y);
+					tissueBorder = transform.createTransformedShape(tissueBorder);
+					//polygon = (GeneralPath) polygon.createTransformedShape(transform);
 								
-					transform.setToTranslation(lastActualInfo.clip.getMinX()-getDeltaX()+ (guiState.DISPLAY_BORDER_LEFT*dispScale)-XSHIFTCORRECTION, 
-	                    							info.clip.getMinY()-getDeltaY()+(guiState.DISPLAY_BORDER_TOP*dispScale));
+					//transform.setToTranslation(x, y);
 					
-					polygon = (GeneralPath) polygon.createTransformedShape(transform);
-					
+					//polygon = (GeneralPath) polygon.createTransformedShape(transform);
 					
 					
-					graphics.draw(polygon);
-					graphics.setStroke(oldStroke);
-					drawCellPoints(graphics, scaleX);
 					
+					graphics.draw(tissueBorder);
+					graphics.setStroke(oldStroke);					
 				}
 			}
 		}
-		
-	
-	}
-   
-   
-
-   
-   private double getDeltaX(){
-  	 if((lastActualInfo.clip.width+1)< (INITIALWIDTH *getScaleFactorOfTheDisplay())){
-  		 return lastActualInfo.clip.getMinX();
-
-  		 
-  	 }
-  	 else return 0;
-   }
-   
-   private double getDeltaY(){
-  	 
-  	 if((lastActualInfo.clip.height+1) < (INITIALHEIGHT *getScaleFactorOfTheDisplay())){
-  		 return lastActualInfo.clip.getMinY();
-  	 }
-  	 else return 0;
-   }
-	private void drawCellPoints(Graphics2D graphics, double scaleX) {
-	
-		if(graphics != null){
-			
-		
-				for(Point2D point : cellPoints){
-					GeneralPath polygon = new GeneralPath();
-					polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay()) - DELTACROSS, lastActualInfo.clip
-							.getMinY()
-							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay()) - DELTACROSS);
-					polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() +(point.getX()*getScaleFactorOfTheDisplay()) + DELTACROSS, lastActualInfo.clip
-							.getMinY()
-							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay()) + DELTACROSS);
-					polygon.moveTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay()) + DELTACROSS, lastActualInfo.clip
-							.getMinY()
-							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay()) - DELTACROSS);
-					polygon.lineTo(lastActualInfo.clip.getMinX() - getDeltaX() + (point.getX()*getScaleFactorOfTheDisplay()) - DELTACROSS, lastActualInfo.clip
-							.getMinY()
-							- getDeltaY() + (point.getY()*getScaleFactorOfTheDisplay()) + DELTACROSS);
-		
-					if(TissueController.getInstance().getTissueBorder().isOverBasalLayer(new Point2D.Double(
-							(((point.getX()-guiState.DISPLAY_BORDER_LEFT) /scaleX)),
-							(((point.getY()-guiState.DISPLAY_BORDER_TOP)/scaleX)))))
-							graphics.setColor(Color.GREEN);
-					else graphics.setColor(Color.RED);
-					graphics.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		
-					graphics.draw(polygon);
-				}
-			
-		}
-		
-	}
-
-	public boolean getCellPoint(Point2D mouseposition){
-		if(mouseposition != null && lastActualInfo != null){
-	  	
-		mouseposition = new Point2D.Double((mouseposition.getX()-lastActualInfo.clip.getMinX()+getDeltaX()),
-		                             (mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY()));
-		
-		for(Point2D point: cellPoints){
-			
-		
-			if(mouseposition.getX() > ((point.getX()*getScaleFactorOfTheDisplay()) - DELTAPOINT) 
-				&& mouseposition.getX() < ((point.getX()*getScaleFactorOfTheDisplay()) + DELTAPOINT)
-				&& mouseposition.getY() > ((point.getY()*getScaleFactorOfTheDisplay()) - DELTAPOINT)
-				&& mouseposition.getY() < ((point.getY()*getScaleFactorOfTheDisplay()) + DELTAPOINT)
-				&& !hitAndButtonPressed){
-				
-				point.setLocation(mouseposition.getX()/getScaleFactorOfTheDisplay(), mouseposition.getY()/getScaleFactorOfTheDisplay());
-				hitAndButtonPressed=true;
-				actDraggedPoint = point;
-				return true;
-			}
-			else if(hitAndButtonPressed){
-				actDraggedPoint.setLocation(mouseposition.getX()/getScaleFactorOfTheDisplay(), mouseposition.getY()/getScaleFactorOfTheDisplay());
-				return true;
-			}
-			
-		}
-		}
-		return false;
-	
-	}
-	public void addCellPoint(Point2D mouseposition){
-	  
-		if(mouseposition != null && lastActualInfo != null){
-	  	
-			mouseposition = new Point2D.Double((mouseposition.getX()-lastActualInfo.clip.getMinX()+getDeltaX())/getScaleFactorOfTheDisplay(),
-		                             			  (mouseposition.getY()-lastActualInfo.clip.getMinY()+getDeltaY())/getScaleFactorOfTheDisplay());		
-			cellPoints.add(mouseposition);
-		}
-		
-	}
-
-
-
-
-
-	public boolean isHitAndButtonPressed() {
-	
-		return hitAndButtonPressed;
-	}
-
-
-
-	private double getScaleFactorOfTheDisplay(){
-		return Scale.displayScale;
-	}
-
-	public void setHitAndButtonPressed(boolean hitAndButtonPressed) {
-		if(!hitAndButtonPressed) actDraggedPoint = null;
-		this.hitAndButtonPressed = hitAndButtonPressed;
 	} 
-	
-	
-	 private double getTranslationX(DrawInfo2D info){
-		   
-   	 if(info.clip.width< width){
-   		 
-   		 return 0;
-   	 }
-   	 else return info.clip.getMinX();
-   	 
-    }
-    
-    private double getTranslationY(DrawInfo2D info){
-   	 final int BIAS = 20;
-   	 if(info.clip.height < height){
-   		 return BIAS;
-   	 }
-   	 else return info.clip.getMinY()+BIAS;
-    }
 
-    public Rectangle2D.Double getViewPortRectangle() {
+   public Rectangle2D.Double getViewPortRectangle() {
  		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
  	   if(guiState != null)return new Rectangle2D.Double(0,0,guiState.EPIDISPLAYWIDTH+(guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT), guiState.EPIDISPLAYHEIGHT+(guiState.DISPLAY_BORDER_TOP+guiState.DISPLAY_BORDER_BOTTOM));
  	   else return new Rectangle2D.Double(0,0,0, 0);

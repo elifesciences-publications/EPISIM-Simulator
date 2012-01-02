@@ -134,5 +134,15 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
    
    	this.positionXWoundEdge_Mikron = positionXWoundEdge_Mikron;
    }
+   
+   @NoUserModification
+   public boolean areDiffusionFieldsContinousInXDirection() {
+		return getUseContinuousSpace();
+   }
+
+	@NoUserModification
+   public boolean areDiffusionFieldsContinousInYDirection() {
+	   return getUseContinuousSpace();
+   }
 
 }

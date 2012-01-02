@@ -38,6 +38,7 @@ public class EpisimProperties {
 	public static final String SIMULATOR_SEND_RECEIVE_ALGORITHM = "simulator.sendreceivealgorithm";
 	
 	public static final String SIMULATOR_SIM_STEP_MODE = "simulator.simstepmode";
+	public static final String SIMULATOR_DIFFUSION_FIELD_TESTMODE = "simulator.diffusionfield.testmode";
 	public static final String SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP = "simulator.cellbehavioralmodel.globalparametersfile";
 	public static final String SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP = "simulator.biomechanicalmodel.globalparametersfile";
 	public static final String SIMULATOR_MISCPARAMETERSFILE_PROP = "simulator.miscparametersfile";

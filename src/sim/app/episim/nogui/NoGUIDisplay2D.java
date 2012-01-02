@@ -332,7 +332,9 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        // moved to the Display2D ot be at the same level as handleEvent
        insideDisplay.removeListeners();
    }
-   
+   public double getDisplayScale(){
+   	return getScale();
+   }
    
    /** The object which actually does all the drawing.  Perhaps we should move this out. */
    public class InnerDisplay2D extends JComponent

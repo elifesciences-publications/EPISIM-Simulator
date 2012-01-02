@@ -131,7 +131,7 @@ public class ExtraCellularDiffusionField implements EnhancedSteppable{
     *	@param concentrationToBeAdded
     * @return the concentration that was in fact added
     */
-   public double addConcentrationToroidal(double xInMikron, double yInMikron, double concentrationToBeAdded){
+   public double addConcentration(double xInMikron, double yInMikron, double concentrationToBeAdded){
    	int x = mikronToIntPos(xInMikron);
    	int y = mikronToIntPos(yInMikron);
    	if(!toroidalX && !toroidalY && (x==0 || y==0 || x ==(extraCellularField.getWidth()-1) || y ==(extraCellularField.getHeight()-1))){
@@ -157,7 +157,7 @@ public class ExtraCellularDiffusionField implements EnhancedSteppable{
     *	@param concentrationToBeRemoved
     * @return the concentration that was in fact removed
     */
-   public double removeConcentrationToroidal(double xInMikron, double yInMikron, double concentrationToBeRemoved){
+   public double removeConcentration(double xInMikron, double yInMikron, double concentrationToBeRemoved){
    	int x = mikronToIntPos(xInMikron);
    	int y = mikronToIntPos(yInMikron);
    	if(!toroidalX && !toroidalY && (x==0 || y==0 || x ==(extraCellularField.getWidth()-1) || y ==(extraCellularField.getHeight()-1))){

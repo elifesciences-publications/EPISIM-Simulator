@@ -17,5 +17,6 @@ public interface SimulationDisplay {
  void reset();
  void repaint();
  void setBackdrop(Paint c);
+ double getDisplayScale();
   
 }

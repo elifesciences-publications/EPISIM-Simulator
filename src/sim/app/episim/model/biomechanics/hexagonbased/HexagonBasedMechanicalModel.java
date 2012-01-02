@@ -310,7 +310,11 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 			}
 		}
 		return new Double2D(x, y);
-	}	
+	}
+	
+	public Double2D getLocationInMikron(){
+		return getLocationInMikron(fieldLocation);
+	}
 	
 	private void spread(boolean onTestSurface){
    	IntBag xPos = new IntBag();

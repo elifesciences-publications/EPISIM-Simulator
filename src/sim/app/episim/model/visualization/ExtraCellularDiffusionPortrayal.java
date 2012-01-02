@@ -126,7 +126,7 @@ public class ExtraCellularDiffusionPortrayal extends FastValueGridPortrayal2D im
        graphics.setFont(new Font("Arial", Font.PLAIN, 10));
        NumberFormat format = new DecimalFormat("0.0E0");
       // format.setMaximumIntegerDigits(3);
-       for(double y = 0; y <= COLOR_STEPS.length; y++){
+       for(double y = 0; y < COLOR_STEPS.length; y++){
       	 double currentConcentration = maxValue-(y*intervalSizeConcentration);
       	
       	 text = maxValue>=1000?format.format(currentConcentration): ""+((int) currentConcentration);

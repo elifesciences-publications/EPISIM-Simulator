@@ -63,17 +63,26 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					
 					
 					EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
-					double scaleX = guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron();
-					double scaleY = guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron();
+					double displayScale = guiState.getDisplay().getDisplayScale();
+					double scaleX = (guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron())*displayScale;
+					double scaleY = (guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron())*displayScale;
 					
 					double x = 0;
 					double y = 0;
 				
-					x+=guiState.DISPLAY_BORDER_LEFT;
-					y+=guiState.DISPLAY_BORDER_TOP;
+					x+=guiState.DISPLAY_BORDER_LEFT*displayScale;
+					y+=guiState.DISPLAY_BORDER_TOP*displayScale;
 					
-					double startX = info != null && guiState.EPIDISPLAYWIDTH < info.clip.width ? info.clip.x:0;
-					double startY = info != null && guiState.EPIDISPLAYHEIGHT < info.clip.height ? info.clip.y:0;
+					double differenceX = (info.clip.width-((guiState.EPIDISPLAYWIDTH)*displayScale));
+					double differenceY = (info.clip.height-((guiState.EPIDISPLAYHEIGHT)*displayScale));
+					
+					double startX =0; 
+					double startY =0; 
+					if(info != null){
+						startX =differenceX >= 0 ? info.clip.x:0;
+						startY =differenceY >= 0 ? info.clip.y:0;
+					}
+					
 					x+=startX;
 					y+=startY;				
 					
@@ -103,7 +112,7 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 
    public Rectangle2D.Double getViewPortRectangle() {
  		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
- 	   if(guiState != null)return new Rectangle2D.Double(0,0,guiState.EPIDISPLAYWIDTH+(guiState.DISPLAY_BORDER_LEFT+guiState.DISPLAY_BORDER_RIGHT), guiState.EPIDISPLAYHEIGHT+(guiState.DISPLAY_BORDER_TOP+guiState.DISPLAY_BORDER_BOTTOM));
+ 	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAY_BORDER_LEFT,guiState.DISPLAY_BORDER_TOP,guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);
  	   else return new Rectangle2D.Double(0,0,0, 0);
     }
 	

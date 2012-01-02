@@ -51,6 +51,11 @@ public class EpiDisplay2D {
 		else if(simulationDisplay instanceof NoGUIDisplay2D)((NoGUIDisplay2D)simulationDisplay).detatchAll();
 	}
 	
+	public double getDisplayScale(){
+		return simulationDisplay.getDisplayScale();
+	}
+	
+	
 	/**
 	 * Creates Internalframe instead of a JFrame
 	 */

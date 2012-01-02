@@ -623,26 +623,50 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		
 		
 		
+				
+		
+		
+		
+		
+		
 		
 		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
-		double scaleX = guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron();
-		double scaleY = guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		double displayScale = guiState.getDisplay().getDisplayScale();
+		double scaleX = (guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron());
+		double scaleY = (guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron());
 		
-		double x = scaleX*getX();
+		
+		
+		
+		
+		
+		double x = scaleX*getX()*displayScale;
 		double y = getY();
 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		y = heightInMikron - y;
 		y*= scaleY;
-		x+=guiState.DISPLAY_BORDER_LEFT;
-		y+=guiState.DISPLAY_BORDER_TOP;
+		y*=displayScale;
+		x+=guiState.DISPLAY_BORDER_LEFT*displayScale;
+		y+=guiState.DISPLAY_BORDER_TOP*displayScale;
 		
-		double startX = info != null && guiState.EPIDISPLAYWIDTH < info.clip.width ? info.clip.x:0;
-		double startY = info != null && guiState.EPIDISPLAYHEIGHT < info.clip.height ? info.clip.y:0;
+		double differenceX = (info.clip.width-((guiState.EPIDISPLAYWIDTH)*displayScale));
+		double differenceY = (info.clip.height-((guiState.EPIDISPLAYHEIGHT)*displayScale));
+		
+		double startX =0; 
+		double startY =0; 
+		if(info != null){
+			startX =differenceX >= 0 ? info.clip.x:0;
+			startY =differenceY >= 0 ? info.clip.y:0;
+		}
+		
+		
 		x+=startX;
 		y+=startY;
 		
 		height *= scaleY;
 		width *= scaleX;
+		height *= displayScale;
+		width *= displayScale;
 		
 		Path2D.Double path = new Path2D.Double();
 		path.moveTo((x+width/2.0), (y));

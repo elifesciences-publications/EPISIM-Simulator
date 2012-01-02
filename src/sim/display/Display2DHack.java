@@ -44,10 +44,12 @@ import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Scale;
+import sim.display.Display2D.FieldPortrayal2DHolder;
 import sim.display.Display2D.InnerDisplay2D;
 import sim.engine.Schedule;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.portrayal.DrawInfo2D;
 import sim.portrayal.FieldPortrayal2D;
 import sim.util.gui.MovieMaker;
 import sim.util.gui.NumberTextField;
@@ -63,7 +65,7 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 	public Display2DHack(double width, double height, GUIState simulation) {
 
 		super(width, height, simulation);
-		
+		optionButton.setVisible(false);
 		for(MouseMotionListener listener :insideDisplay.getMouseMotionListeners())insideDisplay.removeMouseMotionListener(listener);
 		for(MouseListener listener :insideDisplay.getMouseListeners())insideDisplay.removeMouseListener(listener);
 		
@@ -323,6 +325,12 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 	
 	
 	
+	
+	
+	
+	 public double getDisplayScale(){
+		 return this.getScale();
+	 }
 	public void setPortrayalVisible(String name, boolean visible){
 		FieldPortrayal2DHolder holder =getPortrayalHolder(name);
 		if(holder != null){

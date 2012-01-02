@@ -23,8 +23,11 @@ import sim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
@@ -78,10 +81,58 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    		 actSimStepNo = SimStateServer.getInstance().getSimStepNumber();  		  		 
    		 
    		 filled = true;
-   		 double width = (info.draw.width+DELTA+2)*scale;
-	       double height = (info.draw.height+DELTA)*scale;	      
-	       
    		 HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
+   		 HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+   		 double width = HexagonBasedMechanicalModelGlobalParameters.outer_hexagonal_radius*2*scale;//(info.draw.width+DELTA)*scale;
+	       double height = HexagonBasedMechanicalModelGlobalParameters.outer_hexagonal_radius*2*scale;//(info.draw.height+DELTA)*scale;	      
+	       
+	       EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+	 		double displayScale = guiState.getDisplay().getDisplayScale();
+	 		double scaleX = (guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron());
+	 		double scaleY = (guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron());
+	 		
+	 		
+	 		
+	 		
+	 		
+	 		
+	 		double x = scaleX*mechModel.getLocationInMikron().x*displayScale;
+	 		double y = mechModel.getLocationInMikron().y;
+	 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+	 		y = heightInMikron - y;
+	 		y*= scaleY;
+	 		y*=displayScale;
+	 		x+=guiState.DISPLAY_BORDER_LEFT*displayScale;
+	 		y+=guiState.DISPLAY_BORDER_TOP*displayScale;
+	 		
+	 		double differenceX = (info.clip.width-((guiState.EPIDISPLAYWIDTH)*displayScale));
+	 		double differenceY = (info.clip.height-((guiState.EPIDISPLAYHEIGHT)*displayScale));
+	 		
+	 		double startX =0; 
+	 		double startY =0; 
+	 		if(info != null){
+	 			startX =differenceX >= 0 ? info.clip.x:0;
+	 			startY =differenceY >= 0 ? info.clip.y:0;
+	 		}
+	 		
+	 		
+	 		x+=startX;
+	 		y+=startY;
+	 		
+	 		height *= scaleY;
+	 		width *= scaleX;
+	 		height *= displayScale;
+	 		width *= displayScale;
+	       
+	       
+	       
+	      
+	       
+	       
+	       
+	       
+	      x -= (width/2);
+	      y -= (height/2);
    		 mechModel.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, width, height),
           		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
    		 
@@ -104,7 +155,8 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      	}
  	      	}
 	 	      else{
-		   	  shape = new Ellipse2D.Double(info.draw.x-(width/2), info.draw.y-(height/2), width, height);	
+		   	 // shape = new Ellipse2D.Double(info.draw.x-(width/2), info.draw.y-(height/2), width, height);
+	 	      	 shape = new Ellipse2D.Double(x, y, width, height);
 	 	      }
 	   		if(shape!=null){
 		   	 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();

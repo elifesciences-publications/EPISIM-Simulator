@@ -15,7 +15,7 @@ import episiminterfaces.SendReceiveAlgorithm;
 
 public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
 	
-//	public static TestFrame frame = new TestFrame();
+	public static TestFrame frame = new TestFrame();
 	
 	
 	
@@ -43,7 +43,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
 				double actNeighbourAmount = neighbours[i].returnNumberProperty(propertycode);
 				double actNeigboursRemainingCapacity = cell.returnMaxNumberProperty(propertycode) - actNeighbourAmount;
 										
-				if(actNeigboursRemainingCapacity <   amountForEachNeighbour){//falls Menge kleiner als die  abzugebende Menge
+				if(actNeigboursRemainingCapacity < amountForEachNeighbour){//falls Menge kleiner als die  abzugebende Menge
 					neighbours[i].setNumberProperty(propertycode, neighbours[i].returnNumberProperty(propertycode)+actNeigboursRemainingCapacity);
 					cell.setNumberProperty(propertycode, (cell.returnNumberProperty(propertycode) - actNeigboursRemainingCapacity));		
 				}else{
@@ -170,7 +170,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    		
    		DoubleBag fieldXPos = new DoubleBag();
    		DoubleBag fieldYPos = new DoubleBag();
-   	//	frame.paintShape(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron());
+   		frame.paintShape(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron());
    		double remainingCapacity = diffField.getTotalLocalFieldRemainingCapacity(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(), fieldXPos, fieldYPos);
    	
    		if(remainingCapacity < amountPossible) amountPossible = remainingCapacity;
@@ -184,7 +184,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    	   		final int numberOfFieldPos = fieldXPos.size();
    	   		double amountForEachFieldPos = remainingAmountToBeSent / ((double)numberOfFieldPos);
    	   		for(int i = 0; i < numberOfFieldPos; i++){
-   	   			double realAmountSent = diffField.addConcentrationToroidal(fieldXPos.get(i), fieldYPos.get(i), amountForEachFieldPos);
+   	   			double realAmountSent = diffField.addConcentration(fieldXPos.get(i), fieldYPos.get(i), amountForEachFieldPos);
    	   			if((amountForEachFieldPos-realAmountSent)<= 0){
    	   				newFieldXPos.add(fieldXPos.get(i));
    	   				newFieldYPos.add(fieldYPos.get(i));
@@ -223,7 +223,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    	   		final int numberOfFieldPos = fieldXPos.size();
    	   		double amountFromEachFieldPos = remainingAmountToBeReceived / ((double)numberOfFieldPos);
    	   		for(int i = 0; i < numberOfFieldPos; i++){
-   	   			double realAmountReceived = diffField.removeConcentrationToroidal(fieldXPos.get(i), fieldYPos.get(i), amountFromEachFieldPos);
+   	   			double realAmountReceived = diffField.removeConcentration(fieldXPos.get(i), fieldYPos.get(i), amountFromEachFieldPos);
    	   			if((amountFromEachFieldPos-realAmountReceived)<= 0){
    	   				newFieldXPos.add(fieldXPos.get(i));
    	   				newFieldYPos.add(fieldYPos.get(i));

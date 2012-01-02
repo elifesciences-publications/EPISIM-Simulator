@@ -78,30 +78,25 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    	 if(object instanceof UniversalCell){   	 
    		 UniversalCell cell = (UniversalCell) object;   		 
    		
-   		 actSimStepNo = SimStateServer.getInstance().getSimStepNumber();  		  		 
+   		actSimStepNo = SimStateServer.getInstance().getSimStepNumber();  		  		 
    		 
-   		 filled = true;
-   		 HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
-   		 HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-   		 double width = HexagonBasedMechanicalModelGlobalParameters.outer_hexagonal_radius*2*scale;//(info.draw.width+DELTA)*scale;
-	       double height = HexagonBasedMechanicalModelGlobalParameters.outer_hexagonal_radius*2*scale;//(info.draw.height+DELTA)*scale;	      
+   		filled = true;
+   		HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
+   		HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+   		double width = HexagonBasedMechanicalModelGlobalParameters.outer_hexagonal_radius*2;//(info.draw.width+DELTA)*scale;
+	      double height = HexagonBasedMechanicalModelGlobalParameters.outer_hexagonal_radius*2;//(info.draw.height+DELTA)*scale;	      
 	       
-	       EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
+	      EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
 	 		double displayScale = guiState.getDisplay().getDisplayScale();
-	 		double scaleX = (guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron());
-	 		double scaleY = (guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron());
+	 		double scaleX = (guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron())*displayScale;
+	 		double scaleY = (guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron())*displayScale;	 		
 	 		
-	 		
-	 		
-	 		
-	 		
-	 		
-	 		double x = scaleX*mechModel.getLocationInMikron().x*displayScale;
+	 		double x = scaleX*mechModel.getLocationInMikron().x;
 	 		double y = mechModel.getLocationInMikron().y;
 	 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 	 		y = heightInMikron - y;
 	 		y*= scaleY;
-	 		y*=displayScale;
+	 		
 	 		x+=guiState.DISPLAY_BORDER_LEFT*displayScale;
 	 		y+=guiState.DISPLAY_BORDER_TOP*displayScale;
 	 		
@@ -122,14 +117,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 		height *= scaleY;
 	 		width *= scaleX;
 	 		height *= displayScale;
-	 		width *= displayScale;
-	       
-	       
-	       
-	      
-	       
-	       
-	       
+	 		width *= displayScale;  
 	       
 	      x -= (width/2);
 	      y -= (height/2);

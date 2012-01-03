@@ -8,6 +8,7 @@ import java.awt.geom.Rectangle2D.Double;
 
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.visualization.AbstractSpatialityScalePortrayal2D;
 import sim.portrayal.DrawInfo2D;
 import episiminterfaces.EpisimPortrayal;
@@ -48,13 +49,13 @@ public class BorderlinePortrayal  extends AbstractSpatialityScalePortrayal2D imp
    
    // assumes the graphics already has its color set
    public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
-   	graphics.setStroke(new BasicStroke((int)(2*this.getScaleFactorOfTheDisplay()), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+   	graphics.setStroke(new BasicStroke((int)(2*SimStateServer.getInstance().getEpisimGUIState().getDisplay().getDisplayScale()), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
    	graphics.setPaint(this.color);
-   	
-   	graphics.drawLine((int)(info.draw.x+(this.getScaledNumberOfPixelPerMicrometer(info)*borderlineConfig.x1_InMikron)),
-   			(int)(info.draw.y+(this.getScaledNumberOfPixelPerMicrometer(info)*borderlineConfig.y1_InMikron)),
-   			(int)(info.draw.x+(this.getScaledNumberOfPixelPerMicrometer(info)*borderlineConfig.x2_InMikron)),
-   			(int)(info.draw.y+(this.getScaledNumberOfPixelPerMicrometer(info)*borderlineConfig.y2_InMikron)));
+   	SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);
+   	graphics.drawLine((int)(info.draw.x+(props.displayScaleX*borderlineConfig.x1_InMikron)),
+   			(int)(info.draw.y+(props.displayScaleY*borderlineConfig.y1_InMikron)),
+   			(int)(info.draw.x+(props.displayScaleX*borderlineConfig.x2_InMikron)),
+   			(int)(info.draw.y+(props.displayScaleY*borderlineConfig.y2_InMikron)));
    }
 
 	public String getPortrayalName() {

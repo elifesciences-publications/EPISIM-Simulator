@@ -15,7 +15,7 @@ import episiminterfaces.SendReceiveAlgorithm;
 
 public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
 	
-	public static TestFrame frame = new TestFrame();
+//	public static TestFrame frame = new TestFrame();
 	
 	
 	
@@ -170,15 +170,16 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    		
    		DoubleBag fieldXPos = new DoubleBag();
    		DoubleBag fieldYPos = new DoubleBag();
-   		frame.paintShape(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron());
+   	//	frame.paintShape(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron());
    		double remainingCapacity = diffField.getTotalLocalFieldRemainingCapacity(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(), fieldXPos, fieldYPos);
    	
    		if(remainingCapacity < amountPossible) amountPossible = remainingCapacity;
    		double amountToBeSent = amount < amountPossible ? amount : amountPossible;
    		double remainingAmountToBeSent = amountToBeSent;
    		final double minRemainingAmountToBeSent= (amountToBeSent*0.00001);
-   		if(amountToBeSent > 0){   			
-   			while(remainingAmountToBeSent >= minRemainingAmountToBeSent){
+   		if(amountToBeSent > 0){
+   		
+   			while(remainingAmountToBeSent >= minRemainingAmountToBeSent &&!fieldXPos.isEmpty() && !fieldYPos.isEmpty()){
    				DoubleBag newFieldXPos = new DoubleBag();
    	   		DoubleBag newFieldYPos = new DoubleBag();
    	   		final int numberOfFieldPos = fieldXPos.size();
@@ -193,6 +194,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    	   		}
    	   		fieldXPos = newFieldXPos;
    	   		fieldYPos = newFieldYPos;
+   	   		
    			}
    			double amountSent = amountToBeSent-remainingAmountToBeSent;
    			cell.setNumberProperty(propertycode, (cell.returnNumberProperty(propertycode) - amountSent));
@@ -217,7 +219,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    		double remainingAmountToBeReceived = amountToBeReceived;
    		final double minRemainingAmountToBeReceived= (amountToBeReceived*0.00001);
    		if(amountToBeReceived > 0){   			
-   			while(remainingAmountToBeReceived >= minRemainingAmountToBeReceived){
+   			while(remainingAmountToBeReceived >= minRemainingAmountToBeReceived &&!fieldXPos.isEmpty() && !fieldYPos.isEmpty()){
    				DoubleBag newFieldXPos = new DoubleBag();
    	   		DoubleBag newFieldYPos = new DoubleBag();
    	   		final int numberOfFieldPos = fieldXPos.size();

@@ -124,40 +124,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 			                Shape cellPolygon;
 			                Shape nucleusPolygon;               
 			                cellPolygon = universalCell.getEpisimBioMechanicalModelObject().getPolygonCell(info);
-			                if(!centerBasedModel){
-			               	 AffineTransform transform = new AffineTransform();
-			               	 double scaleFactor = getScaleFactorOfTheDisplay()*implicitScale;
-			               	 transform.scale(scaleFactor, scaleFactor);
-			               	 GeneralPath path = new GeneralPath(cellPolygon);
-			               	 Rectangle2D rectBefore = path.getBounds2D();
-			               	 path.transform(transform);
-			               	 
-			               	 Rectangle2D rectAfter = path.getBounds2D();
-			               	 double xShift = (rectBefore.getCenterX() -rectAfter.getCenterX());
-			               	 double yShift = (rectBefore.getCenterY()-rectAfter.getCenterY());
-			               	 
-			               	 transform = new AffineTransform();
-			               	 
-			               	 if((INITIALHEIGHT*getScaleFactorOfTheDisplay()) > (info.clip.height+1)){
-			               		 yShift -= info.clip.y;
-			               	 }
-			               	 
-			               	 if((INITIALWIDTH*getScaleFactorOfTheDisplay()) > (info.clip.width+1)){
-			               		 xShift -= info.clip.x;
-			               	 }
-			               	 
-			               	 transform.translate(xShift+(guiState.DISPLAY_BORDER_LEFT*getScaleFactorOfTheDisplay()), yShift+(guiState.DISPLAY_BORDER_TOP*getScaleFactorOfTheDisplay()));
-			               	 path.transform(transform);
-			               	
-			               	 graphics.setPaint(fillColor);
-				                graphics.fill(path);				                
-				              
-				                if(drawFrame){
-				                  graphics.setColor(getContourColor(universalCell));
-				                  graphics.draw(path);
-				                }
-			                }
-			                else{
+			          
 				                graphics.setPaint(fillColor);
 				                graphics.fill(cellPolygon);				                
 				                if(drawFrame)
@@ -165,7 +132,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 				                  graphics.setColor(getContourColor(universalCell));
 				                  graphics.draw(cellPolygon);
 				                }
-			                }
+			                
 			                //TODO: Nucleus ein- und ausschalten
 			              if(showNucleus)
 			              {

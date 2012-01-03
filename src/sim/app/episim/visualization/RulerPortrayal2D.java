@@ -5,6 +5,7 @@ import sim.SimStateServer;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
@@ -62,8 +63,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 		
 		setLastActualInfo(info);
 		
-		setWidth(INITIALWIDTH * getScaleFactorOfTheDisplay());
-		setHeight(INITIALHEIGHT * getScaleFactorOfTheDisplay());
+	
 		
 		if(getLastActualInfo() != null && getLastActualInfo().clip !=null){ 
 			
@@ -96,8 +96,9 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 			   
 			   graphics.draw(horizontalAxis);
 				graphics.draw(verticalAxis);
-				
-				double spaceBetweenSmallLines = getScaledNumberOfPixelPerMicrometer(info)*getResolutionInMikron();
+				SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);
+				double spaceBetweenSmallLinesX = props.displayScaleX*getResolutionInMikron();
+				double spaceBetweenSmallLinesY = props.displayScaleY*getResolutionInMikron();
 				
 				double smallLine = 3;
 				double mediumLine = 8;
@@ -105,7 +106,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 				
 				 graphics.setFont(new Font("Arial", Font.PLAIN, 10));
 				//draw lines on horizontal Axis
-				for(double i = minX, lineNumber = 0; i <= maxX; i += spaceBetweenSmallLines, lineNumber++){
+				for(double i = minX, lineNumber = 0; i <= maxX; i += spaceBetweenSmallLinesX, lineNumber++){
 					if((lineNumber%10) == 0)graphics.draw(new Line2D.Double(i, maxY, i, maxY+ bigLine));
 					else if((lineNumber%5) == 0)graphics.draw(new Line2D.Double(i, maxY, i, maxY+ mediumLine));
 					else graphics.draw(new Line2D.Double(i, maxY, i, maxY+ smallLine));
@@ -117,7 +118,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 					}
 				}
 				//draw lines on vertical Axis
-				for(double i = maxY, lineNumber = 0; i >= minY; i -= spaceBetweenSmallLines, lineNumber++){
+				for(double i = maxY, lineNumber = 0; i >= minY; i -= spaceBetweenSmallLinesY, lineNumber++){
 					if((lineNumber%10) == 0)graphics.draw(new Line2D.Double(minX, i, minX - bigLine, i));
 					else if((lineNumber%5) == 0)graphics.draw(new Line2D.Double(minX, i, minX - mediumLine, i));
 					else graphics.draw(new Line2D.Double(minX, i, minX - smallLine, i));
@@ -131,13 +132,13 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 				//end of horizontal Axis
 				graphics.draw(new Line2D.Double(maxX, maxY, maxX, maxY+ bigLine));
 				
-				String text = ""+Math.round((maxX-minX)/getScaledNumberOfPixelPerMicrometer(info));
+				String text = ""+Math.round((maxX-minX)/props.displayScaleX);
 				Rectangle2D stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
 				graphics.drawString(text, (float)(maxX - (stringBounds.getWidth()/2)), (float)(maxY+ bigLine+stringBounds.getHeight()));
 				
 				//end of vertical Axis
 				graphics.draw(new Line2D.Double(minX, minY, minX - bigLine, minY));
-				text = ""+Math.round((maxY-minY)/getScaledNumberOfPixelPerMicrometer(info));
+				text = ""+Math.round((maxY-minY)/props.displayScaleY);
 				stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
 				graphics.drawString(text, (float)(minX- bigLine-stringBounds.getWidth()), (float)(minY + (stringBounds.getHeight()/3)));
 	    }
@@ -161,10 +162,11 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 							&& actMousePositionXY.getX() <= getMaxX(info)
 							&& actMousePositionXY.getY() >= getMinY(info)
 							&& actMousePositionXY.getY() <= getMaxY(info)){
+						SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);		
 							text.append("    Position in µm: "+ 
-									Math.round((actMousePositionXY.getX()- minX)/getScaledNumberOfPixelPerMicrometer(info))+
+									Math.round((actMousePositionXY.getX()- minX)/props.displayScaleX)+
 									", "
-									+Math.abs(Math.round((actMousePositionXY.getY()- maxY)/getScaledNumberOfPixelPerMicrometer(info))));
+									+Math.abs(Math.round((actMousePositionXY.getY()- maxY)/props.displayScaleY)));
 					}
 					else{
 						text.append("    Position in µm: (out of bounds)");

@@ -2,13 +2,17 @@ package sim.app.episim.model.biomechanics.vertexbased;
 
 import java.awt.Polygon;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
@@ -113,12 +117,12 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
    }
 	
 	@CannotBeMonitored
-	public Polygon getPolygonCell() {	   
+	public Shape getPolygonCell() {	   
 		return getPolygonCell(null);
    }
 	
 	@CannotBeMonitored
-	public Polygon getPolygonCell(DrawInfo2D info) {
+	public Shape getPolygonCell(DrawInfo2D info) {
 		lastDrawInfo = info;		
 		Vertex cellCenter = this.cellPolygon.getCellCenter();		
 			
@@ -126,10 +130,38 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 			
 			double scale = info.draw.height > info.draw.width ? info.draw.height : info.draw.width;
 			
-			double deltaX = (info.clip.x)+(scale-1)*cellCenter.getDoubleX();
-			double deltaY = (info.clip.y)+(scale-1)*cellCenter.getDoubleY();
+			SimulationDisplayProperties props = SimStateServer.getInstance().getEpisimGUIState().getSimulationDisplayProperties(info);
 			
-			return VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, (deltaX), (deltaY));
+			double deltaX = props.offsetX+(props.displayScaleX-1)*cellCenter.getDoubleX();
+			double deltaY = props.offsetY+(props.displayScaleY-1)*cellCenter.getDoubleY();
+			
+			
+			
+			Shape pol = VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, (deltaX), (deltaY));
+			AffineTransform transform = new AffineTransform();
+	       transform.scale(props.displayScaleX, props.displayScaleY);
+	       
+	       GeneralPath path = new GeneralPath(pol);
+      	 Rectangle2D rectBefore = path.getBounds2D();
+      	 path.transform(transform);
+      	
+      	 Rectangle2D rectAfter = path.getBounds2D();
+      	 double xShift = (rectBefore.getCenterX() -rectAfter.getCenterX());
+      	 double yShift = (rectBefore.getCenterY()-rectAfter.getCenterY());
+      	 
+      	 transform = new AffineTransform();
+      	 
+      
+      	
+      	
+      	 transform.translate(xShift, yShift);
+      	 path.transform(transform);
+	       
+	       
+	       
+	        
+			return path;
+			
 		}
 	   return VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, 0, 0);
    }

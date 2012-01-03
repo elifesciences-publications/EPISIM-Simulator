@@ -8,6 +8,7 @@ import java.awt.geom.Rectangle2D.Double;
 
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.portrayal.DrawInfo2D;
 import episiminterfaces.EpisimPortrayal;
 
@@ -46,14 +47,14 @@ public class SurfacePortrayal extends AbstractSpatialityScalePortrayal2D impleme
   
   // assumes the graphics already has its color set
   public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
-	  graphics.setStroke(new BasicStroke((int)(1*this.getScaleFactorOfTheDisplay()), BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
+	  graphics.setStroke(new BasicStroke((int)(1*SimStateServer.getInstance().getEpisimGUIState().getDisplay().getDisplayScale()), BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
   	graphics.setPaint(color);
+  	SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);
+  	double width = widthInMikron < 0 ? info.draw.width :props.displayScaleX*widthInMikron;
+  	double height = heightInMikron < 0 ? info.draw.height :props.displayScaleY*heightInMikron;
   	
-  	double width = widthInMikron < 0 ? info.draw.width :this.getScaledNumberOfPixelPerMicrometer(info)*widthInMikron;
-  	double height = heightInMikron < 0 ? info.draw.height :this.getScaledNumberOfPixelPerMicrometer(info)*heightInMikron;
-  	
-  	graphics.fillRect((int)(info.draw.x+(this.getScaledNumberOfPixelPerMicrometer(info)*startXInMikron)),
-  			(int)(info.draw.y+(this.getScaledNumberOfPixelPerMicrometer(info)*startYInMikron)),
+  	graphics.fillRect((int)(info.draw.x+(props.displayScaleX*startXInMikron)),
+  			(int)(info.draw.y+(props.displayScaleY*startYInMikron)),
   			(int)(width),
   			(int)(height));
   }

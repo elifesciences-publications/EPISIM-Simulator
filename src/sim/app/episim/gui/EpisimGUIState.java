@@ -95,7 +95,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	public final double EPIDISPLAYWIDTH;
 	public final double EPIDISPLAYHEIGHT;
 	
-	public  final int DISPLAY_BORDER_TOP = 40;
+	public  final int DISPLAY_BORDER_TOP = 60;
 	public  final int DISPLAY_BORDER_LEFT = 45;
 	public  final int DISPLAY_BORDER_BOTTOM = 40;
 	public  final int DISPLAY_BORDER_RIGHT = 60;
@@ -830,8 +830,45 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		if(autoArrangeWindows) arrangeElements(desktop, false);
 	}
 
+	public SimulationDisplayProperties getSimulationDisplayProperties(DrawInfo2D info){
+		double displayScale = getDisplay().getDisplayScale();
+		double scaleX = (EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron());
+		double scaleY = (EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron());
+		scaleX*=displayScale;
+		scaleY*=displayScale;
+		
+		
+		double offsetX = DISPLAY_BORDER_LEFT*displayScale;
+		double offsetY = DISPLAY_BORDER_TOP*displayScale;
+		
+		double differenceX = (info.clip.width-(EPIDISPLAYWIDTH*displayScale));
+		double differenceY = (info.clip.height-(EPIDISPLAYHEIGHT*displayScale));
+		
+		double startX =0; 
+		double startY =0; 
+		if(info != null){
+			startX =differenceX >= 0 ? info.clip.x:0;
+			startY =differenceY >= 0 ? info.clip.y:0;
+		}
+		offsetX+=startX;
+		offsetY+=startY;
+		
+		return new SimulationDisplayProperties(scaleX, scaleY, offsetX, offsetY);
+	}
 	
-
+	public class SimulationDisplayProperties{
+		public final double displayScaleX;
+		public final double displayScaleY; 
+		public final double offsetX; 
+		public final double offsetY;
+		
+		private SimulationDisplayProperties(double displayScaleX, double displayScaleY, double offsetX, double offsetY){
+			this.displayScaleX = displayScaleX;
+			this.displayScaleY = displayScaleY;
+			this.offsetX = offsetX;
+			this.offsetY = offsetY;
+		}
+	}
 	
 	
 

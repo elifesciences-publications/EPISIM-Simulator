@@ -31,6 +31,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
@@ -533,9 +534,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
          if(actNeighbour.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
             	CenterBasedMechanicalModel neighbourBiomechModel = (CenterBasedMechanicalModel) actNeighbour.getEpisimBioMechanicalModelObject();
             	neighbourBiomechModel.modelConnector.setDy(-1*dy);
-            	neighbourBiomechModel.modelConnector.setDx(dx);
-            	
-            }
+            	neighbourBiomechModel.modelConnector.setDx(dx);            	
+         }
             //  double distance = Math.sqrt(dx*dx + dy*dy);
               
             //  if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
@@ -616,57 +616,22 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    	return this.cellEllipseObject;
    }
 	
-	private Shape createHexagonalPolygon(DrawInfo2D info, double width, double height){
-				
-		
-		
-		
-		
-		
-				
-		
-		
-		
-		
-		
+	private Shape createHexagonalPolygon(DrawInfo2D info, double width, double height){	
 		
 		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
-		double displayScale = guiState.getDisplay().getDisplayScale();
-		double scaleX = (guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron());
-		double scaleY = (guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron());
-		
-		
-		
-		
-		
-		
-		double x = scaleX*getX()*displayScale;
+	
+		SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);
+		double x = getX()*props.displayScaleX;
 		double y = getY();
 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		y = heightInMikron - y;
-		y*= scaleY;
-		y*=displayScale;
-		x+=guiState.DISPLAY_BORDER_LEFT*displayScale;
-		y+=guiState.DISPLAY_BORDER_TOP*displayScale;
+		y*= props.displayScaleY;
+				
+		x+=props.offsetX;
+		y+=props.offsetY;
 		
-		double differenceX = (info.clip.width-((guiState.EPIDISPLAYWIDTH)*displayScale));
-		double differenceY = (info.clip.height-((guiState.EPIDISPLAYHEIGHT)*displayScale));
-		
-		double startX =0; 
-		double startY =0; 
-		if(info != null){
-			startX =differenceX >= 0 ? info.clip.x:0;
-			startY =differenceY >= 0 ? info.clip.y:0;
-		}
-		
-		
-		x+=startX;
-		y+=startY;
-		
-		height *= scaleY;
-		width *= scaleX;
-		height *= displayScale;
-		width *= displayScale;
+		height *= props.displayScaleY;
+		width *= props.displayScaleX;		
 		
 		Path2D.Double path = new Path2D.Double();
 		path.moveTo((x+width/2.0), (y));

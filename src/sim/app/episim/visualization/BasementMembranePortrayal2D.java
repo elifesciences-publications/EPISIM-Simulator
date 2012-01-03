@@ -2,6 +2,7 @@ package sim.app.episim.visualization;
 
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
@@ -20,18 +21,11 @@ import episiminterfaces.EpisimPortrayal;
 public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implements EpisimPortrayal{
 	
    
-	private final String NAME = "Basement Membrane";
-	
+	private final String NAME = "Basement Membrane";  
   
-   
-  
-   
-   private final double XSHIFTCORRECTION = 3; //Corrects error of affine Transformation
-   
-   private EpisimGUIState guiState;
    
    public BasementMembranePortrayal2D() {
-   	 guiState = SimStateServer.getInstance().getEpisimGUIState();  	 
+   	
 	  	 Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
 					TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
 					TissueController.getInstance().getTissueBorder().getHeightInMikron());
@@ -63,46 +57,18 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					
 					
 					EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
-					double displayScale = guiState.getDisplay().getDisplayScale();
-					double scaleX = (guiState.EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron())*displayScale;
-					double scaleY = (guiState.EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron())*displayScale;
-					
-					double x = 0;
-					double y = 0;
-				
-					x+=guiState.DISPLAY_BORDER_LEFT*displayScale;
-					y+=guiState.DISPLAY_BORDER_TOP*displayScale;
-					
-					double differenceX = (info.clip.width-((guiState.EPIDISPLAYWIDTH)*displayScale));
-					double differenceY = (info.clip.height-((guiState.EPIDISPLAYHEIGHT)*displayScale));
-					
-					double startX =0; 
-					double startY =0; 
-					if(info != null){
-						startX =differenceX >= 0 ? info.clip.x:0;
-						startY =differenceY >= 0 ? info.clip.y:0;
-					}
-					
-					x+=startX;
-					y+=startY;				
+					SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);								
 					
 					if(TissueController.getInstance().getTissueBorder().isStandardMembraneLoaded()){
-						 graphics.setStroke(new BasicStroke((int)(0.8*scaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+						 graphics.setStroke(new BasicStroke((int)(0.8*props.displayScaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 						// scaleX *= 1.06;
 					}					
 					
-					transform.scale(scaleX, scaleY);
+					transform.scale(props.displayScaleX, props.displayScaleY);
 					Shape tissueBorder = transform.createTransformedShape(polygon);
-					transform.setToTranslation(x, y);
+					transform.setToTranslation(props.offsetX, props.offsetY);
 					tissueBorder = transform.createTransformedShape(tissueBorder);
-					//polygon = (GeneralPath) polygon.createTransformedShape(transform);
-								
-					//transform.setToTranslation(x, y);
-					
-					//polygon = (GeneralPath) polygon.createTransformedShape(transform);
-					
-					
-					
+										
 					graphics.draw(tissueBorder);
 					graphics.setStroke(oldStroke);					
 				}

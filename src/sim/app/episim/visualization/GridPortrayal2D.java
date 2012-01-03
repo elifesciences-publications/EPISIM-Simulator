@@ -5,6 +5,7 @@ package sim.app.episim.visualization;
 
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.portrayal.*;
 
 
@@ -36,8 +37,7 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implemen
 			
 		}
 		setLastActualInfo(info);
-		setWidth(INITIALWIDTH *getScaleFactorOfTheDisplay());
-		setHeight(INITIALHEIGHT *getScaleFactorOfTheDisplay());
+		
 		
 		if(getLastActualInfo() != null && getLastActualInfo().clip != null){ 			
 			drawGrid(graphics, info);			
@@ -57,19 +57,20 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implemen
 		double maxX = getMaxX(info);
 		double minY = getMinY(info);
 		double maxY = getMaxY(info);			
-				
-		double spaceBetweenSmallLines = getScaledNumberOfPixelPerMicrometer(info)*getResolutionInMikron();				
+		SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);		
+		double spaceBetweenSmallLinesX = props.displayScaleX*getResolutionInMikron();	
+		double spaceBetweenSmallLinesY = props.displayScaleY*getResolutionInMikron();	
 				
 				
 		graphics.setFont(new Font("Arial", Font.PLAIN, 10));
 		
 		//draw vertical lines
-		for(double i = (minX+(spaceBetweenSmallLines*gridResolution)); i <= maxX; i += (spaceBetweenSmallLines*gridResolution))
-			graphics.draw(new Line2D.Double(Math.round(i), minY, Math.round(i), maxY));
+		for(double i = (minX+(spaceBetweenSmallLinesX*gridResolution)); i <= maxX; i += (spaceBetweenSmallLinesX*gridResolution))
+			graphics.draw(new Line2D.Double(i, minY, i, maxY));
 	
 		//draw horizontal lines
-		for(double i = (maxY-(spaceBetweenSmallLines*gridResolution)); i >= minY; i -= (spaceBetweenSmallLines*gridResolution))
-			graphics.draw(new Line2D.Double(minX, Math.round(i), maxX , Math.round(i)));		
+		for(double i = (maxY-(spaceBetweenSmallLinesY*gridResolution)); i >= minY; i -= (spaceBetweenSmallLinesY*gridResolution))
+			graphics.draw(new Line2D.Double(minX, i, maxX ,i));		
 	}
 	
 	public Rectangle2D.Double getViewPortRectangle() {

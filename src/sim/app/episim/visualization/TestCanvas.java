@@ -8,29 +8,27 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import java.awt.Polygon;
-import java.awt.Shape;
-import java.awt.geom.Area;
+
 import java.awt.geom.GeneralPath;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
+
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
+
 import java.util.Set;
 
 import javax.swing.JPanel;
 
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
-import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
+
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuilder;
 import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased.util.CellCanvas;
 import sim.app.episim.model.visualization.CellEllipse;
-import sim.app.episim.tissue.TissueBorder;
+
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
@@ -59,7 +57,7 @@ public class TestCanvas extends JPanel {
 	
 	private int visualizationStep = 0;
 	
-	private boolean importedTissueVisualizationMode = false;
+	private boolean importedTissueVisualizationMode = true;
 	
 	
 	
@@ -68,8 +66,19 @@ public class TestCanvas extends JPanel {
 	private final int CANVAS_ANCHOR_X = 100;
 	private final int CANVAS_ANCHOR_Y = 100;
 	
+	
+	private Color backgroundColor;
+	private Color cellColor;
+	private Color outerSurfaceColor;
+	private Color basementMembraneColor;
+	private Color cellMembraneColor;
+	private Color cellCenterColor;
+	
+	
+	
 	public TestCanvas(){
 		ellipseKeySet = new HashSet<String>();
+		resetColors();
 		this.setBackground(Color.white);
 		
 		 
@@ -144,7 +153,7 @@ public class TestCanvas extends JPanel {
 			if(importedTissueVisualizationMode){
 				g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				Color oldColor = g.getColor();
-				g.setColor(new Color(246, 123, 123));
+				g.setColor(cellColor);
 				g.fill(cellEllipse.getClippedEllipse());
 			/*	if(cellEllipse.getNucleus() != null){
 					g.setColor(new Color(110, 110, 228));
@@ -152,12 +161,12 @@ public class TestCanvas extends JPanel {
 					g.setColor(new Color(0,0, 156));
 					g.draw(cellEllipse.getNucleus().getClippedEllipse());
 				}*/
-				g.setColor(new Color(218,7,0));
+				g.setColor(cellMembraneColor);
 				g.draw(cellEllipse.getClippedEllipse());
 			//	g.setColor(Color.YELLOW);
 			//	g.draw(cellEllipse.getEllipseBoundingBox());
 				g.setColor(oldColor);
-				drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, Color.WHITE);
+				drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellCenterColor);
 				
 			}
 			else{
@@ -271,7 +280,7 @@ public class TestCanvas extends JPanel {
 		}
 		calculateIntersectionPointsForCellEllipses((Graphics2D)g);
 		if(importedTissueVisualizationMode){ 
-			this.setBackground(Color.black);
+			this.setBackground(backgroundColor);
 			for(CellEllipse ell : cellEllipses){				
 				drawCellEllipse((Graphics2D) g,ell, false);
 			/*	if(ell.getAllIntersectionPointsOfEllipse() != null){
@@ -298,7 +307,7 @@ public class TestCanvas extends JPanel {
 				graphics.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				Color oldColor = graphics.getColor();
 				
-				graphics.setColor(new Color(1, 255, 0));
+				graphics.setColor(basementMembraneColor);
 				graphics.draw(basalLayer);				
 				graphics.setColor(oldColor);
 			}
@@ -307,7 +316,7 @@ public class TestCanvas extends JPanel {
 				graphics.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				Color oldColor = graphics.getColor();
 				
-				graphics.setColor(new Color(1, 255, 0));
+				graphics.setColor(outerSurfaceColor);
 				graphics.draw(surface);
 				
 				graphics.setColor(oldColor);
@@ -553,8 +562,87 @@ public class TestCanvas extends JPanel {
    public void setImportedTissueVisualizationMode(boolean importedTissueVisualizationMode) {   
    	this.importedTissueVisualizationMode = importedTissueVisualizationMode;
    }
+
 	
+   public Color getBackgroundColor() {
+   
+   	return backgroundColor;
+   }
+
 	
+   public void setBackgroundColor(Color backgroundColor) {
+   	this.setBackground(backgroundColor);
+   	this.backgroundColor = backgroundColor;
+   }
+
+	
+   public Color getCellColor() {
+   
+   	return cellColor;
+   }
+
+	
+   public void setCellColor(Color cellColor) {
+   
+   	this.cellColor = cellColor;
+   }
+
+	
+   public Color getOuterSurfaceColor() {
+   
+   	return outerSurfaceColor;
+   }
+
+	
+   public void setOuterSurfaceColor(Color outerSurfaceColor) {
+   
+   	this.outerSurfaceColor = outerSurfaceColor;
+   }
+
+	
+   public Color getBasementMembraneColor() {
+   
+   	return basementMembraneColor;
+   }
+
+	
+   public void setBasementMembraneColor(Color basementMembraneColor) {
+   
+   	this.basementMembraneColor = basementMembraneColor;
+   }
+
+	
+   public Color getCellMembraneColor() {
+   
+   	return cellMembraneColor;
+   }
+
+	
+   public void setCellMembraneColor(Color cellMembraneColor) {
+   
+   	this.cellMembraneColor = cellMembraneColor;
+   }
+
+	
+   public Color getCellCenterColor() {
+   
+   	return cellCenterColor;
+   }
+
+	
+   public void setCellCenterColor(Color cellCenterColor) {
+   
+   	this.cellCenterColor = cellCenterColor;
+   }
+	
+	public void resetColors(){
+		backgroundColor = Color.BLACK;
+		cellColor=new Color(246, 123, 123);
+		outerSurfaceColor = new Color(1, 255, 0);
+		basementMembraneColor = new Color(1, 255, 0);
+		cellMembraneColor = new Color(218,7,0);
+		cellCenterColor = Color.WHITE;
+	}
 
 	
 

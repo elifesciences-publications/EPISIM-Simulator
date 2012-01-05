@@ -13,10 +13,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
+
 import sim.app.episim.model.visualization.AbstractCellEllipse;
 import sim.app.episim.model.visualization.CellEllipse;
-import sim.app.episim.model.visualization.NucleusEllipse;
+;
 
 
 

@@ -120,7 +120,7 @@ public class TissueBorder {
 			return "";
 		}
 		else{
-			return tissue.getTissueImageID();
+			return tissue.getTissueID();
 		}
 	}
 	

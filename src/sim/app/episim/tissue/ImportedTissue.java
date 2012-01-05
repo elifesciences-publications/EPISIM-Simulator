@@ -40,7 +40,7 @@ public class ImportedTissue implements java.io.Serializable {
 	
 	public void setResolutionInMicrometerPerPixel(double resolution) { this.resolution = resolution; }
 	
-	public String getTissueImageID() { return tissueImageid; }
+	public String getTissueID() { return tissueImageid; }
 	
 	public void setTissueImageID(String tissueImageid) { this.tissueImageid = tissueImageid; }
 	

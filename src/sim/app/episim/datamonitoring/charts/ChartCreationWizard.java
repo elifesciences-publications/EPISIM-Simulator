@@ -72,6 +72,7 @@ import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.calc.CalculationController;
 
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.util.ExtendedColorWell;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectManipulations;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
@@ -1170,7 +1171,7 @@ public class ChartCreationWizard extends JDialog {
    //Color fillColor = CLEAR;
    
    private JTextField nameF;
-   private ColorWell colorwell;
+   private ExtendedColorWell colorwell;
    private NumberTextField thickitude;
    private JComboBox dashCombo;
    private NumberTextField stretchField; 
@@ -1269,7 +1270,7 @@ public class ChartCreationWizard extends JDialog {
        
        strokeColor = (Color)(getPlot().getRenderer().getSeriesPaint(index));
        
-       colorwell = new ColorWell(strokeColor)
+       colorwell = new ExtendedColorWell(ChartCreationWizard.this, strokeColor)
        {
        public Color changeColor(Color c) 
            {

@@ -49,6 +49,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.ExtendedColorWell;
 import sim.app.episim.util.ExtendedLabelledList;
 import sim.util.gui.ColorWell;
 import sim.util.gui.LabelledListHack;
@@ -232,7 +233,7 @@ public class TestVisualizationMain {
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		ExtendedLabelledList list = new ExtendedLabelledList("Colors");
 		list.setInsets(new Insets(3,3,3,3));
-		ColorWell colorwellBackground = new ColorWell(canvas.getBackgroundColor())
+		ExtendedColorWell colorwellBackground = new ExtendedColorWell(colorChooseDialog, canvas.getBackgroundColor())
        {
 			 public Color changeColor(Color c) 
           {
@@ -241,7 +242,8 @@ public class TestVisualizationMain {
 				 return c;
           }
        };
-       ColorWell colorwellOuterSurface = new ColorWell(canvas.getOuterSurfaceColor())
+       
+       ExtendedColorWell colorwellOuterSurface = new ExtendedColorWell(colorChooseDialog, canvas.getOuterSurfaceColor())
        {
 			 public Color changeColor(Color c) 
           {
@@ -250,7 +252,7 @@ public class TestVisualizationMain {
 				 return c;
           }
        };
-       ColorWell colorwellBasementMembrane = new ColorWell(canvas.getBasementMembraneColor())
+       ExtendedColorWell colorwellBasementMembrane = new ExtendedColorWell(colorChooseDialog, canvas.getBasementMembraneColor())
        {
 			 public Color changeColor(Color c) 
           {
@@ -259,7 +261,7 @@ public class TestVisualizationMain {
 				 return c;
           }
        };
-       ColorWell colorwellCell = new ColorWell(canvas.getCellColor())
+       ExtendedColorWell colorwellCell = new ExtendedColorWell(colorChooseDialog, canvas.getCellColor())
        {
 			 public Color changeColor(Color c) 
           {
@@ -268,7 +270,7 @@ public class TestVisualizationMain {
 				 return c;
           }
        };
-       ColorWell colorwellCellMembrane = new ColorWell(canvas.getCellMembraneColor())
+       ExtendedColorWell colorwellCellMembrane = new ExtendedColorWell(colorChooseDialog, canvas.getCellMembraneColor())
        {
 			 public Color changeColor(Color c) 
           {
@@ -277,7 +279,7 @@ public class TestVisualizationMain {
 				 return c;
           }
        };
-       ColorWell colorwellCellCenter = new ColorWell(canvas.getCellCenterColor())
+       ExtendedColorWell colorwellCellCenter = new ExtendedColorWell(colorChooseDialog, canvas.getCellCenterColor())
        {
 			 public Color changeColor(Color c) 
           {

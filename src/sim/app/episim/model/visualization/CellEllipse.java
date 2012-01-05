@@ -1,20 +1,10 @@
 package sim.app.episim.model.visualization;
 
 import java.awt.Color;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
-import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
+
+
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
-import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
-import sim.portrayal.DrawInfo2D;
 
 
 public class CellEllipse extends AbstractCellEllipse{

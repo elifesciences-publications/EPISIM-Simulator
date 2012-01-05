@@ -4,13 +4,16 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
-import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
+import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.IntersectionPoints;
 import sim.portrayal.DrawInfo2D;
 
 
@@ -33,12 +36,13 @@ public abstract class AbstractCellEllipse implements Serializable{
 	private double scaleFactorWidth = 1;
 	private double scaleFactorHeight = 1;
 	
+	private Path2D.Double ellipseBoundingBox;
 	private Color color;
 	
 	
 	private transient DrawInfo2D lastDrawInfo2D = null;
 	
-	private HashMap<String, XYPoints> xyPointsOfEllipse;
+	private HashMap<String, IntersectionPoints> intersectionPointsOfEllipse;
   
 
 	
@@ -52,6 +56,7 @@ public abstract class AbstractCellEllipse implements Serializable{
 		this.id = id;			
 		clippedEllipse = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
 		ellipseAsArea = getClone(clippedEllipse);
+		ellipseBoundingBox = convertRectangleToPath(ellipseAsArea.getBounds2D());
 		this.x = x;
 		this.y = y;
 		this.majorAxis = majorAxis;
@@ -63,28 +68,20 @@ public abstract class AbstractCellEllipse implements Serializable{
 		this.perimeter_IV = perimeter;
 		this.distanceToBL = distanceToBL;
 		this.rotateCellEllipseInDegrees(orientationInDegrees);
-		this.xyPointsOfEllipse = new HashMap<String, XYPoints>();
+		this.intersectionPointsOfEllipse = new HashMap<String, IntersectionPoints>();
 		CellEllipseIntersectionCalculationRegistry.getInstance().registerCellEllipse(this);
 	}
 	
 	public void resetClippedEllipse(){ 
 		if(ellipseAsArea== null) ellipseAsArea = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
 		clippedEllipse = getClone(this.ellipseAsArea);
-		this.xyPointsOfEllipse.clear();
+		this.intersectionPointsOfEllipse.clear();
 	}
 	
-	public void addXYPoints(XYPoints points, long idOtherEllipse){
-		this.xyPointsOfEllipse.put(getIDString(idOtherEllipse), points);
+	public void addIntersectionPoints(IntersectionPoints points, long idOtherEllipse){
+		this.intersectionPointsOfEllipse.put(getIDString(idOtherEllipse), points);
 	}
-	
-	public Vertex[] getIntersectionPoints(long idOtherEllipse){
-		String idString = getIDString(idOtherEllipse);
-		if(this.xyPointsOfEllipse.containsKey(idString)){
-			return xyPointsOfEllipse.get(idString).intersectionPoints;
-		}
-		return null;
-	}
-	
+		
 	private String getIDString(long idOtherEllipse){
 		return ""+this.id + SEPARATORCHAR + idOtherEllipse;
 	}
@@ -98,8 +95,8 @@ public abstract class AbstractCellEllipse implements Serializable{
    	
    }
 	
-  public Map<String, XYPoints> getAllXYPointsOfEllipse(){
-	  return this.xyPointsOfEllipse;
+  public Map<String, IntersectionPoints> getAllIntersectionPointsOfEllipse(){
+	  return this.intersectionPointsOfEllipse;
   }
 	
    public int getY() { 
@@ -169,7 +166,7 @@ public abstract class AbstractCellEllipse implements Serializable{
       	      	
       	ellipseAsArea = new Area(new Ellipse2D.Double(x - (majorAxis/2),y-(minorAxis/2),majorAxis,minorAxis));
       }	
-      	
+      ellipseBoundingBox = convertRectangleToPath(ellipseAsArea.getBounds2D());	
      this.rotateCellEllipseInRadians(this.orientationInRadians);
      resetClippedEllipse(); 
       
@@ -206,6 +203,7 @@ public abstract class AbstractCellEllipse implements Serializable{
 		AffineTransform trans = new AffineTransform();
 		trans.rotate(radians, x, y);
 		ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));
+		ellipseBoundingBox = (Path2D.Double)trans.createTransformedShape(ellipseBoundingBox);
 		if(this.clippedEllipse != null) this.clippedEllipse = new Area(trans.createTransformedShape(clippedEllipse));
 	}
 	
@@ -241,6 +239,7 @@ public abstract class AbstractCellEllipse implements Serializable{
    
    public DrawInfo2D getLastDrawInfo2D() { return lastDrawInfo2D; }
    
+   public Path2D.Double getEllipseBoundingBox(){ return this.ellipseBoundingBox;}
    
 	
    public void setLastDrawInfo2D(DrawInfo2D lastDrawInfo2D, boolean resetRequired){
@@ -261,8 +260,8 @@ public abstract class AbstractCellEllipse implements Serializable{
    		AffineTransform trans = new AffineTransform();
    		trans.translate(newLastDrawInfo2D.draw.x - this.lastDrawInfo2D.draw.x, newLastDrawInfo2D.draw.y-this.lastDrawInfo2D.draw.y);
    		ellipseAsArea = new Area(trans.createTransformedShape(ellipseAsArea));
-			if(this.clippedEllipse != null) this.clippedEllipse = new Area(trans.createTransformedShape(clippedEllipse));
-   		
+   		ellipseBoundingBox = (Path2D.Double) trans.createTransformedShape(ellipseBoundingBox);
+			if(this.clippedEllipse != null) this.clippedEllipse = new Area(trans.createTransformedShape(clippedEllipse));   		
    		this.lastDrawInfo2D = newLastDrawInfo2D;
    		this.scaleFactorHeight = lastDrawInfo2D.draw.height;
    		this.scaleFactorWidth = lastDrawInfo2D.draw.width;
@@ -284,6 +283,16 @@ public abstract class AbstractCellEllipse implements Serializable{
    	}
    }
    
-   
+   private Path2D.Double convertRectangleToPath(Rectangle2D rect){
+   	final double delta = 10;
+   	Path2D.Double path = new Path2D.Double();   	
+   	path.moveTo(rect.getMinX()-delta, rect.getMinY()-delta);
+   	path.lineTo(rect.getMaxX()+delta, rect.getMinY()-delta);
+   	path.lineTo(rect.getMaxX()+delta, rect.getMaxY()+delta);
+   	path.lineTo(rect.getMinX()-delta, rect.getMaxY()+delta);
+   	path.closePath();
+		return path;
+	}
+  
 
 }

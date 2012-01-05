@@ -19,7 +19,7 @@ import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
-import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.XYPoints;
+import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.IntersectionPoints;
 import sim.util.Double2D;
 
 
@@ -66,99 +66,7 @@ public abstract class CellPolygonNetworkBuilder {
 	}
 	
 	
-	public static void calculateCellPolygons(CellEllipse cellEll){
-		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();
-		CellPolygon cellPol_1 = null, cellPol_2 = null, cellPol_3 = null;
-		if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cellEll.getId()) == null){
-			cellPol_1 = new CellPolygon();
-			CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(cellEll.getId(), cellPol_1);
-		}
-		else cellPol_1 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(cellEll.getId());
-		Map<String, XYPoints> xyPoints = cellEll.getAllXYPointsOfEllipse();
-		Set<String> alreadyCalculatedCouples = new HashSet<String>();
-		
-		Area clippedEll =cellEll.getClippedEllipse();
-		if(xyPoints != null && !xyPoints.isEmpty()){
-			for(String ellId1 : xyPoints.keySet()){
-				for(String ellId2: xyPoints.keySet()){
-					
-				if(!ellId1.equals(ellId2) && !alreadyCalculatedCouples.contains(ellId1+ellId2)){
-					
-					alreadyCalculatedCouples.add(ellId1+ellId2);
-					alreadyCalculatedCouples.add(ellId2+ellId1);
-					Vertex[] isps1 = xyPoints.get(ellId1).intersectionPoints;
-					Vertex[] isps2 = xyPoints.get(ellId2).intersectionPoints;
-					
-						long idOtherEll1 = Long.parseLong(ellId1.split(""+CellEllipse.SEPARATORCHAR)[1]);
-						long idOtherEll2 = Long.parseLong(ellId2.split(""+CellEllipse.SEPARATORCHAR)[1]);
-						
-						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1) == null){
-							cellPol_2 = new CellPolygon();
-							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll1, cellPol_2);
-						}
-						else cellPol_2 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1);
-						
-						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll2) == null){
-							cellPol_3 = new CellPolygon();
-							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll2, cellPol_3);
-						}
-						else cellPol_3 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll2);					
-					
-						if(contains(cellEll, isps1[0].getDoubleX(), isps1[0].getDoubleY())){
-							cellPol_1.addVertex(isps1[0]);
-							cellPol_2.addVertex(isps1[0]);						
-						}
-						if(contains(cellEll, isps1[1].getDoubleX(), isps1[1].getDoubleY()) && !isZeroVertex(isps1[1])){
-							cellPol_1.addVertex(isps1[1]);
-							cellPol_2.addVertex(isps1[1]);
-						}
-						if(contains(cellEll, isps2[0].getDoubleX(), isps2[0].getDoubleY())){
-							cellPol_1.addVertex(isps2[0]);
-							cellPol_3.addVertex(isps2[0]);
-						}
-						if(contains(cellEll, isps2[1].getDoubleX(), isps2[1].getDoubleY())&& !isZeroVertex(isps2[1])){
-							cellPol_1.addVertex(isps2[1]);
-							cellPol_3.addVertex(isps2[1]);
-						}
-									
-						Vertex polygonVertex = (new Line(isps1[0], isps1[1])).getIntersectionOfLines(new Line(isps2[0], isps2[1]));
-							
-						if(polygonVertex != null){
-							if(checkMergeCondition(isps1, isps2, polygonVertex, MAX_MERGE_VERTEX_DISTANCE_FACTOR*cellEll.getMinorAxis())){
-								polygonVertex.setMergeVertex(true);
-								cellPol_1.addVertex(polygonVertex);
-								cellPol_2.addVertex(polygonVertex);
-								cellPol_3.addVertex(polygonVertex);
-							}						
-						}					
-					}					
-				}
-				
-			}
-			}
-			if(xyPoints.keySet().size() == 1){
-				for(String id : xyPoints.keySet()){
-					
-					Vertex[] isps = xyPoints.get(id).intersectionPoints;
-					if(!isps[0].isWasDeleted() && !isps[1].isWasDeleted()){
-						cellPol_1.addVertex(isps[0]);
-						if(!isZeroVertex(isps[1]))cellPol_1.addVertex(isps[1]);
-						
-						long idOtherEll1 = Long.parseLong(id.split(""+CellEllipse.SEPARATORCHAR)[1]);
-						if(CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1) == null){
-							cellPol_2 = new CellPolygon();
-							CellEllipseIntersectionCalculationRegistry.getInstance().registerCellPolygonByCellEllipseId(idOtherEll1, cellPol_2);
-						}
-						else cellPol_2 = CellEllipseIntersectionCalculationRegistry.getInstance().getCellPolygonByCellEllipseId(idOtherEll1);
-						
-						cellPol_2.addVertex(isps[0]);
-						if(!isZeroVertex(isps[1]))	cellPol_2.addVertex(isps[1]);
-					}
-				}
-			}
-			//cleanCellPolygonVertices(cellPol_1);
-		
-	}
+	
 	
 	public static void calculateEstimatedVertices(CellEllipse ellipse){
 		CellPolygonCalculator calculator = VertexBasedModelController.getInstance().getCellPolygonCalculator();

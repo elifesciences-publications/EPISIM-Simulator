@@ -206,21 +206,21 @@ public class TissueBorder {
 			PointSorter sorting = null;
 			if(!surface.isEmpty()){
 				//sorting = new SimulatedAnnealingForOrderingPoints(surfaceArray);
-			//	sorting = new PointSorter(surfaceArray);
-			//	surfaceArray = sorting.getSortedPoints();
+			   sorting = new PointSorter(surfaceArray);
+				surfaceArray = sorting.getSortedPoints();
 			}
 			if(!basalLayer.isEmpty()){
 				
 				//sorting = new SimulatedAnnealingForOrderingPoints(basalLayerArray);
-			//	sorting = new PointSorter(basalLayerArray);
-			//   basalLayerArray = sorting.getSortedPoints();
+				sorting = new PointSorter(basalLayerArray);
+			   basalLayerArray = sorting.getSortedPoints();
 				
 			}		
 			
 			fullcontour = new ArrayList<Point2D>();
 			for(Point2D point : basalLayerArray)fullcontour.add(point);
 			
-			//for(int i = surfaceArray.length-1; i >= 0 ; i--) fullcontour.add(surfaceArray[i]);				
+			for(int i = surfaceArray.length-1; i >= 0 ; i--) fullcontour.add(surfaceArray[i]);				
 		}			
 		if(this.fullcontour.size() > 0){
 

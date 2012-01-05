@@ -122,7 +122,9 @@ public class TissueImporter {
 			
 			loadXML(path);
 		   TissueRotator rotator = new TissueRotator();
-	//	   rotator.rotateTissue(actImportedTissue, surfaceOrientation);
+		   rotator.rotateTissue(actImportedTissue, surfaceOrientation);
+		   TissueFilter filter = new TissueFilter(new File(path.getAbsolutePath().substring(0, path.getAbsolutePath().length()-4)+"_Filter-Results.txt"));
+		   filter.filterTissue(actImportedTissue);
 			return actImportedTissue;
 			
 		}

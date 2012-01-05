@@ -64,7 +64,7 @@ import sim.util.Double2D;
 
 public class EpidermisSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.3";
+	public static final String versionID = "1.4";
 	
 	public static final String SIMULATOR_TITLE = "Episim Simulator v. "+ versionID+" ";
 	

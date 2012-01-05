@@ -2,6 +2,7 @@ package sim.app.episim.visualization;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -10,7 +11,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -20,6 +24,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+
+import com.keypoint.PngEncoder;
 
 import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
 import episimexceptions.ModelCompatibilityException;
@@ -32,6 +38,7 @@ import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.TissueController;
 
 
+
 public class TestVisualizationMain {
 	
 	private JFrame mainFrame;
@@ -41,14 +48,15 @@ public class TestVisualizationMain {
 	
 	
 	private boolean tissueImportMode = false;
+	private File actImportedTissuePath = null;
 	
 	public TestVisualizationMain(){
-		try{
+	/*	try{
 	      ModelController.getInstance().getBioMechanicalModelController().loadModelFile((new EpisimVertexBasedModelConnector()).getBiomechanicalModelId());
       }
       catch (ModelCompatibilityException e1){
 	     e1.printStackTrace();
-      }
+      }*/
 		
 		try{
 			
@@ -75,9 +83,10 @@ public class TestVisualizationMain {
 		
 		JMenu menu = new JMenu("File");
 		JMenuItem loadFileMenuItem = new JMenuItem("Load Tissue File");
-		
+		final JMenuItem saveImageMenuItem = new JMenuItem("Save Image");
+		saveImageMenuItem.setEnabled(false);
 		menu.add(loadFileMenuItem);
-		
+		menu.add(saveImageMenuItem);
 		menuBar.add(menu);
 		
 		final ExtendedFileChooser xmlChooser = new ExtendedFileChooser("xml");
@@ -90,18 +99,44 @@ public class TestVisualizationMain {
 	         xmlChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	         
 	         if(JFileChooser.APPROVE_OPTION== xmlChooser.showOpenDialog(mainFrame)){
-	         	TissueController.getInstance().loadTissue(xmlChooser.getSelectedFile());
+	         	actImportedTissuePath = xmlChooser.getSelectedFile();
+	         	TissueController.getInstance().loadTissue(actImportedTissuePath);
 	         	tissueImportMode = true;
-	         	canvas.addImportedCells(TissueController.getInstance().getImportedCells());
+	         	canvas.clearPanel();
+	         	
+	         	canvas.addImportedCells(TissueController.getInstance().getImportedCells());	         
 	         	canvas.setImportedTissueVisualizationMode(true);
-	         	mainFrame.setSize(new Dimension((int)(TissueController.getInstance().getTissueBorder().getWidthInPixels()+30), 
-	         											  (int)(TissueController.getInstance().getTissueBorder().getHeightInPixels()+30)));
+	         	
+	         	int width = (int)(TissueController.getInstance().getTissueBorder().getWidthInPixels()+60);
+	         	int height = (int)(TissueController.getInstance().getTissueBorder().getHeightInPixels()+100);
+	         	
+	         	mainFrame.setSize(new Dimension(width,height));
+	         	mainFrame.setPreferredSize(new Dimension(width,height));
+	         	centerMe(mainFrame);
 	         	mainFrame.repaint();
+	         	
+	         	saveImageMenuItem.setEnabled(true);
 	         }
 	         	
 	         
          }
 			
+		});
+		
+		saveImageMenuItem.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				if(actImportedTissuePath != null){
+					File imagePath = new File(actImportedTissuePath.getAbsolutePath().substring(0, actImportedTissuePath.getAbsolutePath().length()-3) +"png");
+					try{
+	               savePNGImageOfCellCanvas(imagePath);
+               }
+               catch (IOException e1){
+	               // TODO Auto-generated catch block
+	               e1.printStackTrace();
+               }
+				}
+			}
 		});
 		
 		mainFrame.getContentPane().setLayout(new BorderLayout(0,0));
@@ -184,6 +219,23 @@ public class TestVisualizationMain {
 			((int)((screenDim.getHeight() /2) - (frame.getPreferredSize().getHeight()/2))));
 		}
 	}
+	
+
+	private void savePNGImageOfCellCanvas(File output) throws IOException {
+	    output.delete();
+	    
+	    BufferedImage image = new BufferedImage(this.canvas.getWidth(), this.canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
+	    this.canvas.paintAll(image.getGraphics());
+	    PngEncoder enc = new PngEncoder(image);
+	    enc.setXDpi(300);
+	    enc.setYDpi(300);
+	    FileOutputStream fileOut = new FileOutputStream(output);
+	    fileOut.write(enc.pngEncode());
+	    fileOut.flush();
+	    fileOut.close(); 
+	 }
+
+
 
 	
 	

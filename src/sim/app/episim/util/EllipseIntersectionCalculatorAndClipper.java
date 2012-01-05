@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.Area;
+import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -30,35 +32,19 @@ public class EllipseIntersectionCalculatorAndClipper {
 	private static int noOfRuns = 0;
 	private static int maxNoOfRuns = 0;
 	
-	public static class XYPoints implements java.io.Serializable{
+	public static class IntersectionPoints implements java.io.Serializable{
 		
-		public int[] xPointsQuaderEllipse1;
-		public int[] yPointsQuaderEllipse1;
-		public int[] xPointsQuaderEllipse2;
-		public int[] yPointsQuaderEllipse2;
-		public Vertex[] intersectionPoints;
+		public double[] intersectionPointsX;
+		public double[] intersectionPointsY;
+				
 		
-		protected void swapEllipse1And2(){
-			int[] tmpX = xPointsQuaderEllipse1;
-			int[] tmpY = yPointsQuaderEllipse1;
-			
-			xPointsQuaderEllipse1 = xPointsQuaderEllipse2;
-			yPointsQuaderEllipse1 = yPointsQuaderEllipse2;
-			
-			
-			xPointsQuaderEllipse2 =	tmpX;
-			yPointsQuaderEllipse2 = tmpY;
-		}
 		
 		public String toString(){
 			StringBuffer str = new StringBuffer();
-			str.append("Ellipse 1:\n");
-			for(int i = 0; i < xPointsQuaderEllipse1.length && i < yPointsQuaderEllipse1.length;i++) 
-				str.append("X"+ (i+1)+",Y"+(i+1)+"("+xPointsQuaderEllipse1[i]+","+yPointsQuaderEllipse1[i]+")  ");
-			str.append("\nEllipse 2:\n");
-			for(int i = 0; i < xPointsQuaderEllipse2.length && i < yPointsQuaderEllipse2.length;i++) 
-				str.append("X"+ (i+1)+",Y"+(i+1)+"("+xPointsQuaderEllipse2[i]+","+yPointsQuaderEllipse2[i]+")  ");
-			str.append("\n");
+			str.append("Intersection Points:\n");
+			for(int i = 0; i < intersectionPointsX.length && i < intersectionPointsY.length;i++) 
+				str.append("X"+ (i+1)+",Y"+(i+1)+"("+intersectionPointsX[i]+","+intersectionPointsY[i]+")  ");
+			
 			return str.toString();
 		}
 		
@@ -68,45 +54,40 @@ public class EllipseIntersectionCalculatorAndClipper {
 	
 	
 	
-	public static XYPoints getClippedEllipsesAndXYPoints(CellEllipse actEllipse, CellEllipse otherEllipse){
+	public static IntersectionPoints getClippedEllipsesAndIntersectionPoints(CellEllipse actEllipse, CellEllipse otherEllipse){
 		if(instance == null) instance = new EllipseIntersectionCalculatorAndClipper();
 		noOfCalls++;
 		long timeStart = (new Date()).getTime();
 		
-		XYPoints p = getClippedEllipsesAndXYPoints(null, actEllipse, otherEllipse);
+		IntersectionPoints p = getClippedEllipsesAndXYPoints(null, actEllipse, otherEllipse);
 		long timeEnd = (new Date()).getTime();
 		cumulativeTimeInMillis += (timeEnd-timeStart);
 		if((noOfCalls % 100000) == 0)System.out.println("Durchschnittliche Dauer ("+ noOfCalls+ ", noOfSwaps: "+noOfSwaps+"): "+ (cumulativeTimeInMillis/noOfCalls));
 		return p;
 	}
 	
-	public static XYPoints getClippedEllipsesAndXYPoints(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
+	public static IntersectionPoints getClippedEllipsesAndXYPoints(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
 		if(instance == null) instance = new EllipseIntersectionCalculatorAndClipper();
 		
-		XYPoints p = instance.calculateClippedEllipses(g, actEllipse, otherEllipse);
+		IntersectionPoints p = instance.calculateClippedEllipses(g, actEllipse, otherEllipse);
 		
 		if(p != null){
-			actEllipse.addXYPoints(p, otherEllipse.getId());
-			otherEllipse.addXYPoints(p, actEllipse.getId());
+			actEllipse.addIntersectionPoints(p, otherEllipse.getId());
+			otherEllipse.addIntersectionPoints(p, actEllipse.getId());
 		}
 		
 		
 		return p;
-	}
+	}	
 	
-	public static void getClippedNucleus(CellEllipse actEllipse){
-		if(actEllipse != null && actEllipse.getNucleus() != null){
-			instance.calculateClippedNucleus(actEllipse);
-		}
-	}
-	
-	private XYPoints calculateClippedEllipses(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
+	private IntersectionPoints calculateClippedEllipses(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
 		double distanceEllipses =distance(actEllipse.getX(), actEllipse.getY(), otherEllipse.getX(), otherEllipse.getY());
 		//System.out.println("Ellipsen Distanz: "+ distanceEllipses);
 		if(distanceEllipses > 0 && distanceEllipses < ((actEllipse.getMajorAxis()/2)+(otherEllipse.getMajorAxis()/2))){
 		double [][] intersectionPoints = newtonIntersectionCalculation(actEllipse, otherEllipse);
 			
-			if(intersectionPoints != null){
+			if(intersectionPoints != null && getNumberOfIntersectionPoints(intersectionPoints)>=2){
+				
 				CellEllipseIntersectionCalculationRegistry.getInstance().addIntersectionCellEllipses(actEllipse.getId(), otherEllipse.getId());
 				if(g!= null){
 					for(int i = 0; i < intersectionPoints.length; i++){
@@ -114,27 +95,25 @@ public class EllipseIntersectionCalculatorAndClipper {
 					}
 				}
 				intersectionPoints = select2InterSectionPointsWithMinDistance(intersectionPoints, new double[]{actEllipse.getX(), actEllipse.getY()},new double[]{otherEllipse.getX(), otherEllipse.getY()});
-				XYPoints xyPoints = calculateXYPoints(intersectionPoints[0], intersectionPoints[1], actEllipse, otherEllipse);
-				clipEllipses(actEllipse, otherEllipse, xyPoints);
-				return xyPoints;
+				IntersectionPoints isPoints = getIntersectionPoints(intersectionPoints[0], intersectionPoints[1]);
+				clipEllipses(actEllipse, otherEllipse, isPoints);
+				return isPoints;
 			}
 		}
 		
 		return null;
 	}
 	
-	private void calculateClippedNucleus(CellEllipse actEllipse){
-	
-		double [][] intersectionPoints = newtonIntersectionCalculation(actEllipse, actEllipse.getNucleus());
-			
-			if(intersectionPoints != null){
-				intersectionPoints = select2InterSectionPointsWithMinDistance(intersectionPoints, new double[]{actEllipse.getX(), actEllipse.getY()},new double[]{actEllipse.getNucleus().getX(), actEllipse.getNucleus().getY()});
-				XYPoints xyPoints = calculateXYPoints(intersectionPoints[0], intersectionPoints[1], actEllipse, actEllipse.getNucleus());
-				clipNucleus(actEllipse, actEllipse.getNucleus(), xyPoints);
-				
+	private int getNumberOfIntersectionPoints(double [][] intersectionPoints){
+		int counter = 0;
+		for(int i = 0; i < intersectionPoints.length; i++){
+			if(intersectionPoints[i][0]!=0 && intersectionPoints[i][1]!=0){
+				counter++;
 			}
-		
+		}
+		return counter;
 	}
+	
 	
 	private double[][] newtonIntersectionCalculation(AbstractCellEllipse actEllipse, AbstractCellEllipse otherEllipse){//double x1, double y1, double a1, double a2, double b1, double[] f21, double[] f22, double phi){
 		
@@ -307,144 +286,117 @@ public class EllipseIntersectionCalculatorAndClipper {
 	
 	
 	
-	private XYPoints calculateXYPoints(double[] sp1, double[] sp2, AbstractCellEllipse actEllipse, AbstractCellEllipse otherEllipse){
-		double [] directionVector = new double[]{sp1[0]-sp2[0], sp1[1]-sp2[1]};
-		double[] normalVector; 
+	private IntersectionPoints getIntersectionPoints(double[] sp1, double[] sp2){		
+		IntersectionPoints isps = new IntersectionPoints();
+		isps.intersectionPointsX = new double[]{sp1[0], sp2[0]};
+		isps.intersectionPointsY = new double[]{sp1[1], sp2[1]};
 		
-		if(directionVector[0]==0){ 
-			if(sp1[0]> actEllipse.getX()) normalVector = new double[]{1, 0};
-			else normalVector = new double[]{-1, 0};
+		return isps;
+	}
+	
+	private Area getClippingAreaForEllipse(IntersectionPoints isPoints, AbstractCellEllipse cellEllipse){
+		Rectangle2D boundingBox = cellEllipse.getEllipse().getBounds2D();
+		Point2D.Double[] boundingPoints;/* = new Point2D.Double[]{new Point2D.Double(boundingBox.getMinX(), boundingBox.getMinY()),
+				new Point2D.Double(boundingBox.getMaxX(), boundingBox.getMinY()),
+				new Point2D.Double(boundingBox.getMaxX(), boundingBox.getMaxY()),
+				new Point2D.Double(boundingBox.getMinX(), boundingBox.getMaxY())};*/
+		boundingPoints = getBoundingPoints(cellEllipse);
+		
+		double minDistance = Double.POSITIVE_INFINITY;
+		int[] minIndices = new int[]{-1, -1};
+		for(int p = 0; p < minIndices.length; p++){
+			for(int i = 0; i < boundingPoints.length;i++){
+				double actDistance = boundingPoints[i].distance(isPoints.intersectionPointsX[p], isPoints.intersectionPointsY[p]);
+				if(actDistance < minDistance){
+					minIndices[p]=i;
+					minDistance = actDistance;
+				}
+			}
+			minDistance = Double.POSITIVE_INFINITY;
 		}
-		else if(directionVector[1]==0){
-			if(sp1[1]> actEllipse.getY()) normalVector = new double[]{0, 1};
-			else normalVector = new double[]{0, -1};
+		
+		Path2D.Double path = new Path2D.Double();
+		int minMinIndex = minIndices[0] < minIndices[1] ? minIndices[0] : minIndices[1];
+		int maxMinIndex = minIndices[0] > minIndices[1] ? minIndices[0] : minIndices[1];
+		if(minIndices[0]== minIndices[1]){
+			path.moveTo(isPoints.intersectionPointsX[0], isPoints.intersectionPointsY[0]);
+			path.lineTo(isPoints.intersectionPointsX[1], isPoints.intersectionPointsY[1]);
+			path.lineTo(boundingPoints[minIndices[0]].x, boundingPoints[minIndices[0]].y);
+			path.closePath();
 		}
-		else{ 
-			normalVector = new double[]{-1*(directionVector[1]/directionVector[0]), 1};
-			double normalizationFactor = 1/Math.sqrt(Math.pow(normalVector[0], 2)+Math.pow(normalVector[1], 2));
-			normalVector[0]*= normalizationFactor;
-			normalVector[1]*= normalizationFactor;
+		else if((maxMinIndex-minMinIndex)==1 || ((maxMinIndex+1)%boundingPoints.length)==minMinIndex){
+			
+			path.moveTo(isPoints.intersectionPointsX[0], isPoints.intersectionPointsY[0]);
+			path.lineTo(isPoints.intersectionPointsX[1], isPoints.intersectionPointsY[1]);
+			path.lineTo(boundingPoints[minIndices[1]].x, boundingPoints[minIndices[1]].y);
+			path.lineTo(boundingPoints[minIndices[0]].x, boundingPoints[minIndices[0]].y);
+			path.closePath();
 		}
+		else{
+			int testIndex1 = minIndices[0] < minIndices[1] ? (minIndices[0] + 1) : (minIndices[1]+1);
+			int testIndex2 = minIndices[0] > minIndices[1] ? ((minIndices[0] + 1)%boundingPoints.length) : ((minIndices[1] + 1)%boundingPoints.length);
+			Point2D.Double[] polygon1 = new Point2D.Double[]{
+					new Point2D.Double(isPoints.intersectionPointsX[0], isPoints.intersectionPointsY[0]),
+					new Point2D.Double(isPoints.intersectionPointsX[1], isPoints.intersectionPointsY[1]),
 					
-		XYPoints xyPoints = new XYPoints();
-		
-		double[][] theFinalPoints = new double[4][2];
-		
-		theFinalPoints[0] = pointCorrection(sp1, sp2, directionVector, actEllipse.getMajorAxis()/2);
-		theFinalPoints[1] = pointCorrection(sp2, sp1, directionVector, actEllipse.getMajorAxis()/2);
-		theFinalPoints[2] = new double[]{theFinalPoints[1][0]  + normalVector[0] * actEllipse.getMajorAxis(), theFinalPoints[1][1]  + normalVector[1] * actEllipse.getMajorAxis()};
-		theFinalPoints[3] = new double[]{theFinalPoints[0][0] + normalVector[0] * actEllipse.getMajorAxis(), theFinalPoints[0][1]  + normalVector[1] * actEllipse.getMajorAxis()};
-		
-		xyPoints.xPointsQuaderEllipse1 = new int[]{(int)theFinalPoints[0][0], (int)theFinalPoints[1][0],(int)theFinalPoints[2][0],(int)theFinalPoints[3][0]};/*x-Points*/
-		xyPoints.yPointsQuaderEllipse1 = new int[]{(int)theFinalPoints[0][1], (int)theFinalPoints[1][1],(int)theFinalPoints[2][1],(int)theFinalPoints[3][1]};/*y-Points*/
+					boundingPoints[minIndices[1]],
+					boundingPoints[testIndex1],
+					boundingPoints[minIndices[0]]
+			};
+			Point2D.Double[] polygon2 = new Point2D.Double[]{
+					new Point2D.Double(isPoints.intersectionPointsX[0], isPoints.intersectionPointsY[0]),
+					new Point2D.Double(isPoints.intersectionPointsX[1], isPoints.intersectionPointsY[1]),
+					
+					boundingPoints[minIndices[1]],
+					boundingPoints[testIndex2],
+					boundingPoints[minIndices[0]]
+			};
+			double areaPolygon1 = getPolygonArea(polygon1);
+			double areaPolygon2 = getPolygonArea(polygon2);
+			Point2D.Double[] choosenPolygon = areaPolygon1 < areaPolygon2 ? polygon1 : polygon2;
 			
-		theFinalPoints[2] = new double[]{theFinalPoints[1][0]  + normalVector[0] * actEllipse.getMajorAxis()*-1, theFinalPoints[1][1]  + normalVector[1] * actEllipse.getMajorAxis()*-1};
-		theFinalPoints[3] = new double[]{theFinalPoints[0][0] + normalVector[0] * actEllipse.getMajorAxis()*-1, theFinalPoints[0][1]  + normalVector[1] * actEllipse.getMajorAxis()*-1};
-		
-		xyPoints.xPointsQuaderEllipse2 = new int[]{(int)theFinalPoints[0][0], (int)theFinalPoints[1][0],(int)theFinalPoints[2][0],(int)theFinalPoints[3][0]};/*x-Points*/
-		xyPoints.yPointsQuaderEllipse2 = new int[]{(int)theFinalPoints[0][1], (int)theFinalPoints[1][1],(int)theFinalPoints[2][1],(int)theFinalPoints[3][1]};/*y-Points*/
-		
-		xyPoints.intersectionPoints = new Vertex[2];
-		xyPoints.intersectionPoints[0] = new Vertex(sp1[0], sp1[1]);
-		xyPoints.intersectionPoints[1] = new Vertex(sp2[0], sp2[1]);
+			for(int i = 0; i < choosenPolygon.length; i++){
+				if(i==0) path.moveTo(choosenPolygon[i].x, choosenPolygon[i].y);
+				else path.lineTo(choosenPolygon[i].x, choosenPolygon[i].y);
+			}
+			path.closePath();
+		}		
+		return new Area(path);
+	}
 	
-		
-		//Look if swap is necessary using the distance between centroid of actEllipse and the 
-		//one of the resulting points of the trapeze (different from the intersection points sp)
-		//we're looking for maximal distance
-		
-	//if(distance(actEllipse.getX(), actEllipse.getY(), xyPoints.xPointsQuaderEllipse1[2], xyPoints.yPointsQuaderEllipse1[2]) < 
-	//		distance(actEllipse.getX(), actEllipse.getY(), xyPoints.xPointsQuaderEllipse2[2], xyPoints.yPointsQuaderEllipse2[2])) xyPoints.swapEllipse1And2();
-		
-		if(!(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4).contains(new Point2D.Double(actEllipse.getX(), actEllipse.getY())))
-				||!(new Polygon(xyPoints.xPointsQuaderEllipse1, xyPoints.yPointsQuaderEllipse1, 4).contains(new Point2D.Double(otherEllipse.getX(), otherEllipse.getY())))){
-			 xyPoints.swapEllipse1And2();
+	private Point2D.Double[] getBoundingPoints(AbstractCellEllipse cellEllipse){
+		Path2D.Double boundingPath = cellEllipse.getEllipseBoundingBox();
+		PathIterator pathIter = boundingPath.getPathIterator(null);
+		Point2D.Double[] boundingPoints = new Point2D.Double[4];
+		int pointCounter = 0;
+		while(!pathIter.isDone()){
+			double[] actPoint = new double[2];
+			int type = pathIter.currentSegment(actPoint);
+			if(type == PathIterator.SEG_MOVETO || type == PathIterator.SEG_LINETO){
+				if(pointCounter < boundingPoints.length) boundingPoints[pointCounter++]=new Point2D.Double(actPoint[0], actPoint[1]);
+			}		
+			pathIter.next();
 		}
-		
-		
-		return xyPoints;
+		return boundingPoints;
 	}
 	
-	
-	//Point-correction to make square out in order to cut everything without remaining spaces
-	private double[] pointCorrection(double[] pointToDisplace, double[] referencePoint, double[] directionVector, double displacementFactor){
-		double normFactor = 1/Math.sqrt(Math.pow(directionVector[0], 2) + Math.pow(directionVector[1], 2));
-		double[] directionVectorNormalized = new double[2];
-		directionVectorNormalized[0] = directionVector[0]*normFactor;
-		directionVectorNormalized[1] = directionVector[1]*normFactor;
-				
-		if(!conditionsStillFulfilled(new double[]{pointToDisplace[0]+directionVectorNormalized[0]*displacementFactor,pointToDisplace[1]+directionVectorNormalized[1]*displacementFactor}
-		                             , pointToDisplace, referencePoint)) displacementFactor*=-1;
-		
-		return new double[]{pointToDisplace[0]+directionVectorNormalized[0]*displacementFactor,pointToDisplace[1]+directionVectorNormalized[1]*displacementFactor};
-		
-	}
-	
-	
-	private boolean conditionsStillFulfilled(double[] newPoint,double[] pointToDisplace, double[] referencePoint){
-		boolean firstCondition = false;
-		boolean secondCondition = false;
-		if(pointToDisplace[0] <= referencePoint[0]) firstCondition = newPoint[0]<= pointToDisplace[0];
-		else firstCondition = newPoint[0] > pointToDisplace[0];
-		if(pointToDisplace[1] <= referencePoint[1]) secondCondition = newPoint[1]<= pointToDisplace[1];
-		else secondCondition = newPoint[1] > pointToDisplace[1];
-		
-		return firstCondition && secondCondition;
-	}
-	
-	
-	
-	private void clipEllipses(CellEllipse actEllipse, CellEllipse otherEllipse, XYPoints xyPoints){
-		
-		actEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse1, xyPoints.yPointsQuaderEllipse1, 4)));
-		
-		otherEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4)));
-	
-	/*   double areaOther = areaEllipse(otherEllipse.getClippedEllipse());
-		double areaAct = areaEllipse(actEllipse.getClippedEllipse());
-		//System.out.println("actEllipse / otherEllipse: "+ areaAct / areaOther);
-		//System.out.println("otherEllipse / actEllipse: "+ areaOther / areaAct);
-		if((areaAct / areaOther) < 0.03 || (areaOther / areaAct) < 0.03){
-			//System.out.println("Swap");
-			noOfSwaps++;
-			actEllipse.resetClippedEllipse();
-			otherEllipse.resetClippedEllipse();
-			xyPoints.swapEllipse1And2();
-			actEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse1, xyPoints.yPointsQuaderEllipse1, 4)));			
-			otherEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4)));
-			
-		}*/
-		
-	}
-	private void clipNucleus(CellEllipse actEllipse, NucleusEllipse nucleusEllipse, XYPoints xyPoints){
-		
-		Polygon polygon = new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4);
-		
-		if(polygon.contains(actEllipse.getX(), actEllipse.getY())){
-			xyPoints.swapEllipse1And2();
-			polygon = new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4);
+	private double getPolygonArea(Point2D.Double[] polygon){
+		double area = 0;
+		for(int i = 0; i < polygon.length; i++){
+			double x_i = polygon[i].x;
+			double y_i = polygon[i].y;
+			double x_i_1 = polygon[(i+1)%polygon.length].x;
+			double y_i_1 = polygon[(i+1)%polygon.length].y;
+			area+=((x_i+x_i_1)*(y_i_1-y_i));
 		}
-		nucleusEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4)));
-	
-	  // double areaOther = areaEllipse(nucleusEllipse.getClippedEllipse());
-		//double areaAct = areaEllipse(actEllipse.getClippedEllipse());
-		//System.out.println("actEllipse / otherEllipse: "+ areaAct / areaOther);
-		//System.out.println("otherEllipse / actEllipse: "+ areaOther / areaAct);
-		/*if((areaAct / areaOther) < 0.03 || (areaOther / areaAct) < 0.03){
-			//System.out.println("Swap");
-			
-			
-			nucleusEllipse.resetClippedEllipse();
-			xyPoints.swapEllipse1And2();
-			nucleusEllipse.clipAreaFromEllipse(new Area(new Polygon(xyPoints.xPointsQuaderEllipse2, xyPoints.yPointsQuaderEllipse2, 4)));
-			
-		}*/
-		
+		return Math.abs(area)/2;
 	}
 	
-	private double areaEllipse(Area ell){
-		return ell.getBounds().getHeight()*ell.getBounds().getWidth();
+	private void clipEllipses(CellEllipse actEllipse, CellEllipse otherEllipse, IntersectionPoints isPoints){		
+		actEllipse.clipAreaFromEllipse(getClippingAreaForEllipse(isPoints, actEllipse));
+		otherEllipse.clipAreaFromEllipse(getClippingAreaForEllipse(isPoints, otherEllipse));
 	}
+	
 	
 	private double[][] calculateFoci(double x, double y, double majorAxis, double minorAxis, double angleInRadians){				
 		double[][] result = new double[2][2];
@@ -492,44 +444,8 @@ public class EllipseIntersectionCalculatorAndClipper {
 					min2 = distances[i];
 					min2Index = i;
 				}
-			}
-			
-			
-			
-			
-			//Only the two intersection point pair with the minimal distance should be taken
-		/*	min1 = Double.POSITIVE_INFINITY;
-			min2 = Double.POSITIVE_INFINITY;
-			
-			int[] minIndexPair1 = null;
-			int[] minIndexPair2 = null;
-			
-			for(int i=0; i < intersectionPoints.length; i++){
-				for(int n=0; n < intersectionPoints.length; n++){
-					if(intersectionPoints[i][0] > 0 && intersectionPoints[i][1] > 0 && intersectionPoints[n][0]>0&& intersectionPoints[n][0]>0){
-						double actDist = distance(intersectionPoints[i][0], intersectionPoints[i][1], intersectionPoints[n][0], intersectionPoints[n][0]);
-						if(actDist > 0){
-							if(actDist < min1){ 
-								min2 = min1;
-								min1 = actDist;
-								minIndexPair2 = minIndexPair1;
-								minIndexPair1 = new int[]{i, n};
-							}
-							else if(actDist < min2){ 
-								min2 =actDist;
-								minIndexPair2 = new int[]{i, n};
-							}
-						}
-					}
-				}
-			}
-			if(((min1Index == minIndexPair1[0]||min1Index == minIndexPair1[1])&&(min2Index == minIndexPair1[0] || min2Index == minIndexPair1[1]))||
-				((min1Index == minIndexPair2[0]||min1Index == minIndexPair2[1])&&(min2Index == minIndexPair2[0] || min2Index == minIndexPair2[1]))){
-				System.out.println("Successssssssssss");
-			}
-			else System.out.println("Errorrrrrrrrrrrrrrrrrrrrrr");
-			*/
-			
+			}			
+		
 			return new double[][]{{intersectionPoints[min1Index][0], intersectionPoints[min1Index][1]},{intersectionPoints[min2Index][0], intersectionPoints[min2Index][1]},{0,0},{0,0}};
 		}
 	}

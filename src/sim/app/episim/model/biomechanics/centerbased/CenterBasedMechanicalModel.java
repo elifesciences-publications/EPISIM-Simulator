@@ -667,7 +667,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
     				CenterBasedMechanicalModel biomechModelNeighbour = (CenterBasedMechanicalModel) neighbouringCell.getEpisimBioMechanicalModelObject();
 	 	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), biomechModelNeighbour.getCellEllipseObject().getId(), simstepNumber)){
 	 	   			 CellEllipseIntersectionCalculationRegistry.getInstance().addCellEllipseIntersectionCalculation(cellEllipseCell.getId(),biomechModelNeighbour.getCellEllipseObject().getId());
-	 	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndXYPoints(cellEllipseCell, biomechModelNeighbour.getCellEllipseObject());
+	 	   			 EllipseIntersectionCalculatorAndClipper.getClippedEllipsesAndIntersectionPoints(cellEllipseCell, biomechModelNeighbour.getCellEllipseObject());
 	 	   		 }
  	   		 }
  	   	 }

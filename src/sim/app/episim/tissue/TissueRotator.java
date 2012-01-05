@@ -1,6 +1,7 @@
 package sim.app.episim.tissue;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 import sim.app.episim.model.visualization.CellEllipse;
 
@@ -10,16 +11,16 @@ public class TissueRotator {
 	public void rotateTissue(ImportedTissue tissue, double angleInDegrees) {
      
      
-     double width  = tissue.getEpidermalWidth();
+    double width  = tissue.getEpidermalWidth();
      double height = tissue.getEpidermalHeight();
-     angleInDegrees = (180-angleInDegrees) < angleInDegrees ? (180-angleInDegrees) : angleInDegrees;
+     angleInDegrees = 90 < angleInDegrees ? (180-angleInDegrees) : (360-angleInDegrees);
      double angle = Math.toRadians(angleInDegrees);
      double sin = Math.sin(angle);
      double cos = Math.cos(angle);
      double i0 = 0.5 * (width  - 1);     // point to rotate about
      double j0 = 0.5 * (height - 1);     // center of image
       
-  /*   // rotation
+     // rotation
      for(CellEllipse cell: tissue.getCells()){
        double a = cell.getX() - i0;
        double b = cell.getY() - j0;
@@ -51,9 +52,9 @@ public class TissueRotator {
      double heightB = Math.abs(Math.sin(angle) * height);
      
     tissue.setEpidermalWidth((int)(widthA + heightB));
-    tissue.setEpidermalHeight((int)(widthB + heightA));*/
+    tissue.setEpidermalHeight((int)(widthB + heightA));
     
-   // xyShift(tissue);
+    xyShift(tissue);
   }
 	
 	private void xyShift(ImportedTissue tissue){
@@ -61,8 +62,8 @@ public class TissueRotator {
 		double minY = Double.POSITIVE_INFINITY;
 		double maxX = Double.NEGATIVE_INFINITY;
 		double maxY = Double.NEGATIVE_INFINITY;
-		
-		double maxRadius = Double.NEGATIVE_INFINITY;
+		final double margin = 25;
+	
 		
 		for(CellEllipse cell : tissue.getCells()){
 			if(cell.getX() < minX) minX = cell.getX();
@@ -70,9 +71,23 @@ public class TissueRotator {
 			if(cell.getY() < minY) minY = cell.getY();
 			if(cell.getY()> maxY) maxY = cell.getY();
 			
-			if(cell.getMajorAxis() > maxRadius) maxRadius = cell.getMajorAxis();
-			if(cell.getMinorAxis() > maxRadius) maxRadius = cell.getMinorAxis();
+			
 		}
+		ArrayList<Point2D> points = new ArrayList<Point2D>();
+		points.addAll(tissue.getSurfacePoints());
+		points.addAll(tissue.getBasalLayerPoints());
+		for(Point2D p : points){
+			if(p.getX() < minX) minX = p.getX();
+			if(p.getX()> maxX) maxX = p.getX();
+			if(p.getY() < minY) minY = p.getY();
+			if(p.getY()> maxY) maxY = p.getY();
+		}
+		double calculatedHeight = (maxY - minY);
+		if(tissue.getEpidermalHeight() > calculatedHeight) tissue.setEpidermalHeight(calculatedHeight);
+		
+		minX-=margin;
+		minY-=margin;
+		
 		
 		/*double xShift = 0;
 		double yShift = 0;
@@ -86,21 +101,21 @@ public class TissueRotator {
 		System.out.println("MarginXShift: "+ marginXShift);
 		System.out.println("yShift: "+ yShift);
 		System.out.println("MarginYShift: "+ marginYShift);*/
+		
 		for(CellEllipse cell : tissue.getCells()){			
-			cell.setXY((int)(cell.getX()-minX+ (maxRadius/2)), (int)(cell.getY()-minY+(maxRadius/2)));			
+			cell.setXY((int)(cell.getX()-minX), (int)(cell.getY()-minY));			
 		}
 		
 		for(Point2D p : tissue.getSurfacePoints()){
 			
-			p.setLocation((p.getX()-minX+ (maxRadius/2)), (p.getY()-minY+(maxRadius/2)));
+			p.setLocation((p.getX()-minX), (p.getY()-minY));
 		}
 		for(Point2D p : tissue.getBasalLayerPoints()){
-			p.setLocation((p.getX()-minX+ (maxRadius/2)), (p.getY()-minY+(maxRadius/2)));
+			p.setLocation((p.getX()-minX), (p.getY()-minY));
 		}
 		
 		
-		double calculatedHeight = (maxY - minY)+maxRadius*2;
-		if(tissue.getEpidermalHeight() > calculatedHeight) tissue.setEpidermalHeight(calculatedHeight);
+	
 	}
 
 }

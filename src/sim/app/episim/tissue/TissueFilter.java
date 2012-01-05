@@ -77,6 +77,7 @@ public class TissueFilter {
 	}
 	private void filterCentroidCellCellContainments(ImportedTissue importedTissue){		
 		resultsBuffer.append("\nFiltered Centroid-Cell-Cell-Containments after clipping: \n");
+		CellEllipseIntersectionCalculationRegistry.getInstance().reset();
 		for(CellEllipse ell : importedTissue.getCells()){
 			ell.resetClippedEllipse();
 		}
@@ -105,6 +106,7 @@ public class TissueFilter {
 	
 	private void filterVerySmallCellsAfterClippingContainments(ImportedTissue importedTissue){		
 		resultsBuffer.append("\nFiltered very small cells after clipping: \n");
+		CellEllipseIntersectionCalculationRegistry.getInstance().reset();
 		final double percentage = 0.3;
 		for(CellEllipse ell : importedTissue.getCells()){
 			ell.resetClippedEllipse();
@@ -114,13 +116,11 @@ public class TissueFilter {
 		for(int i = 0; i < cellEllipses.length; i++){
 			CellEllipse ellipse = cellEllipses[i];
 			Rectangle2D ellipseBounds = ellipse.getEllipse().getBounds2D();
-			if(ellipse.getId() == 109){
-				System.out.println();
-			}
 			Rectangle2D clippedEllipseBounds = ellipse.getClippedEllipse().getBounds2D();
 			if((clippedEllipseBounds.getWidth()*clippedEllipseBounds.getHeight()) <((ellipseBounds.getWidth()*ellipseBounds.getHeight())*percentage)) 
 				handleFilteredCell(ellipse, importedTissue);
 		}
+		CellEllipseIntersectionCalculationRegistry.getInstance().reset();
 	}
 	
 	

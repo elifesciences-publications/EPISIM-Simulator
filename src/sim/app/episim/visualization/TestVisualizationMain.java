@@ -66,7 +66,7 @@ public class TestVisualizationMain {
 	public static final String CELLCENTER_COLOR_PROP ="CellCenter";
 	
 	private JFrame mainFrame;
-	
+	private JLabel loadedFileLabel;
 	private TestCanvas canvas;
 	
 	
@@ -75,7 +75,7 @@ public class TestVisualizationMain {
 	private File actImportedTissuePath = null;
 	
 	
-	
+	private static final String loadedFileLabelText = "    Loaded File: ";
 	
 	private JDialog colorChooseDialog;
 	
@@ -108,7 +108,7 @@ public class TestVisualizationMain {
 		JMenuBar menuBar = new JMenuBar();
 		mainFrame.setJMenuBar(menuBar);
 		
-		JMenu menu = new JMenu("File");
+		JMenu menu = new JMenu("Menu");
 		JMenuItem loadFileMenuItem = new JMenuItem("Load Tissue File");
 		final JMenuItem changeColorsMenuItem = new JMenuItem("Change Colors");
 		changeColorsMenuItem.setEnabled(false);
@@ -121,6 +121,8 @@ public class TestVisualizationMain {
 		menu.add(resetColorsMenuItem);
 		menuBar.add(menu);
 		menuBar.add(saveImageButton);
+		loadedFileLabel = new JLabel(loadedFileLabelText);
+		menuBar.add(loadedFileLabel);
 		final ExtendedFileChooser xmlChooser = new ExtendedFileChooser("xml");
 		
 		loadFileMenuItem.addActionListener(new ActionListener(){
@@ -138,7 +140,7 @@ public class TestVisualizationMain {
 	         	canvas.setImportedTissueVisualizationMode(true);
 	         	canvas.addImportedCells(TissueController.getInstance().getImportedCells());	         
 	         	
-	         	
+	         	loadedFileLabel.setText(loadedFileLabelText + actImportedTissuePath.getAbsolutePath());
 	         	int width = (int)(TissueController.getInstance().getTissueBorder().getWidthInPixels()+60);
 	         	int height = (int)(TissueController.getInstance().getTissueBorder().getHeightInPixels()+110);
 	         	

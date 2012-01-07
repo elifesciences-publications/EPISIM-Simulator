@@ -27,9 +27,9 @@ public class TestFrame {
 				Shape[] shapeArray = shapes.toArray(new Shape[shapes.size()]);
 				for(int i = 0; i < shapeArray.length; i++){
 					Shape shape = shapeArray[i];
-					AffineTransform trans = new AffineTransform();
-					trans.setToScale(0.25, 0.25);
-					shape = trans.createTransformedShape(shape);
+					//AffineTransform trans = new AffineTransform();
+				//	trans.setToScale(0.25, 0.25);
+				//	shape = trans.createTransformedShape(shape);
 					g2D.draw(shape);
 					
 				}

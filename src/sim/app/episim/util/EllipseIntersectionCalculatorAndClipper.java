@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
+import sendreceive.TestFrame;
 import sim.app.episim.model.visualization.AbstractCellEllipse;
 import sim.app.episim.model.visualization.CellEllipse;
 ;
@@ -294,14 +295,14 @@ public class EllipseIntersectionCalculatorAndClipper {
 		return isps;
 	}
 	
-	private Area getClippingAreaForEllipse(IntersectionPoints isPoints, AbstractCellEllipse cellEllipse){
+	private Area getClippingAreaForEllipse(IntersectionPoints isPoints, AbstractCellEllipse cellEllipse, AbstractCellEllipse otherEllipse){
 		Rectangle2D boundingBox = cellEllipse.getEllipse().getBounds2D();
 		Point2D.Double[] boundingPoints;/* = new Point2D.Double[]{new Point2D.Double(boundingBox.getMinX(), boundingBox.getMinY()),
 				new Point2D.Double(boundingBox.getMaxX(), boundingBox.getMinY()),
 				new Point2D.Double(boundingBox.getMaxX(), boundingBox.getMaxY()),
 				new Point2D.Double(boundingBox.getMinX(), boundingBox.getMaxY())};*/
 		boundingPoints = getBoundingPoints(cellEllipse);
-		
+	
 		double minDistance = Double.POSITIVE_INFINITY;
 		int[] minIndices = new int[]{-1, -1};
 		for(int p = 0; p < minIndices.length; p++){
@@ -315,16 +316,50 @@ public class EllipseIntersectionCalculatorAndClipper {
 			minDistance = Double.POSITIVE_INFINITY;
 		}
 		
+		
+		Path2D.Double box = getIntersectionPointsDeltaBox(isPoints);
+		
+		
+		boolean minIndexBoundingBoxContainment = box.contains(cellEllipse.getX(), cellEllipse.getY());
+		
+		
 		Path2D.Double path = new Path2D.Double();
 		int minMinIndex = minIndices[0] < minIndices[1] ? minIndices[0] : minIndices[1];
 		int maxMinIndex = minIndices[0] > minIndices[1] ? minIndices[0] : minIndices[1];
+		
+		boolean clippingAreaWasIntverted = false;
+		
 		if(minIndices[0]== minIndices[1]){
+			if(minIndexBoundingBoxContainment){
+				int invertedMinIndex = (minIndices[0]+2)%boundingPoints.length;
+				if(distance(boundingPoints[minIndices[0]].x, boundingPoints[minIndices[0]].y, otherEllipse.getX(), otherEllipse.getY()) >
+						distance(boundingPoints[invertedMinIndex].x, boundingPoints[invertedMinIndex].y, otherEllipse.getX(), otherEllipse.getY())){
+						minIndices[0] = invertedMinIndex;
+						clippingAreaWasIntverted=true;
+				}
+			}
+			
 			path.moveTo(isPoints.intersectionPointsX[0], isPoints.intersectionPointsY[0]);
 			path.lineTo(isPoints.intersectionPointsX[1], isPoints.intersectionPointsY[1]);
 			path.lineTo(boundingPoints[minIndices[0]].x, boundingPoints[minIndices[0]].y);
 			path.closePath();
+			
 		}
 		else if((maxMinIndex-minMinIndex)==1 || ((maxMinIndex+1)%boundingPoints.length)==minMinIndex){
+			if(minIndexBoundingBoxContainment){
+				int invertedMinIndex1 = (minIndices[0]+2)%boundingPoints.length;
+				int invertedMinIndex2 = (minIndices[1]+2)%boundingPoints.length;
+				double distance1 = distance(boundingPoints[minIndices[0]].x, boundingPoints[minIndices[0]].y, otherEllipse.getX(), otherEllipse.getY())
+										 + distance(boundingPoints[minIndices[1]].x, boundingPoints[minIndices[1]].y, otherEllipse.getX(), otherEllipse.getY());
+				double distance2 = distance(boundingPoints[invertedMinIndex1].x, boundingPoints[invertedMinIndex1].y, otherEllipse.getX(), otherEllipse.getY())
+				 						 + distance(boundingPoints[invertedMinIndex2].x, boundingPoints[invertedMinIndex2].y, otherEllipse.getX(), otherEllipse.getY());
+				
+				if(distance1 > distance2){
+						minIndices[0] = invertedMinIndex2;
+						minIndices[1] = invertedMinIndex1;
+						clippingAreaWasIntverted=true;
+				}
+			}		
 			
 			path.moveTo(isPoints.intersectionPointsX[0], isPoints.intersectionPointsY[0]);
 			path.lineTo(isPoints.intersectionPointsX[1], isPoints.intersectionPointsY[1]);
@@ -355,13 +390,83 @@ public class EllipseIntersectionCalculatorAndClipper {
 			double areaPolygon2 = getPolygonArea(polygon2);
 			Point2D.Double[] choosenPolygon = areaPolygon1 < areaPolygon2 ? polygon1 : polygon2;
 			
+			if(minIndexBoundingBoxContainment){
+			/*	double distance1 = distance(boundingPoints[testIndex1].x, boundingPoints[testIndex1].y, otherEllipse.getX(), otherEllipse.getY());
+				double distance2 = distance(boundingPoints[testIndex2].x, boundingPoints[testIndex2].y, otherEllipse.getX(), otherEllipse.getY());
+				
+				if(distance1 > distance2){
+					clippingAreaWasIntverted = (choosenPolygon!=polygon2);
+					choosenPolygon = polygon2;
+				}
+				else if(distance2 > distance1){
+					clippingAreaWasIntverted = (choosenPolygon!=polygon1);
+					choosenPolygon = polygon1;
+					
+				}
+			*/
+			Path2D.Double path1 = new Path2D.Double();
+				for(int i = 0; i < polygon1.length; i++){
+					if(i==0) path1.moveTo(polygon1[i].x, polygon1[i].y);
+					else path1.lineTo(polygon1[i].x, polygon1[i].y);
+				}
+				path1.closePath();
+				Path2D.Double path2 = new Path2D.Double();
+				for(int i = 0; i < polygon2.length; i++){
+					if(i==0) path2.moveTo(polygon2[i].x, polygon2[i].y);
+					else path2.lineTo(polygon2[i].x, polygon2[i].y);
+				}
+				path2.closePath();
+				Area area1 = new Area(path1);
+				Area area2 = new Area(path2);
+				Area cellEllipseArea1 = cellEllipse.getEllipseClone();
+				cellEllipseArea1.subtract(area1);
+				Area cellEllipseArea2 = cellEllipse.getEllipseClone();
+				cellEllipseArea2.subtract(area2);
+				Area otherEllipseArea1 = otherEllipse.getEllipseClone();
+				Area otherEllipseArea2 = otherEllipse.getEllipseClone();
+				otherEllipseArea1.intersect(cellEllipseArea1);
+				otherEllipseArea2.intersect(cellEllipseArea2);
+				Rectangle2D bounds1= otherEllipseArea1.getBounds2D();
+				Rectangle2D bounds2= otherEllipseArea2.getBounds2D();
+				double areaBounds1 =(bounds1.getWidth()*bounds1.getHeight());
+				double areaBounds2 = (bounds2.getWidth()*bounds2.getHeight());
+				
+				if(areaBounds1<areaBounds2){
+					choosenPolygon =polygon1;
+				}
+				else{
+					choosenPolygon =polygon2;
+				}				
+			}	
 			for(int i = 0; i < choosenPolygon.length; i++){
 				if(i==0) path.moveTo(choosenPolygon[i].x, choosenPolygon[i].y);
 				else path.lineTo(choosenPolygon[i].x, choosenPolygon[i].y);
 			}
 			path.closePath();
-		}		
+		}
+		if(clippingAreaWasIntverted){
+		//	System.out.println("Clipping Area was inverted. Cell-Id: "+ cellEllipse.getId());
+		}
+		
 		return new Area(path);
+	}
+	
+	private Path2D.Double getIntersectionPointsDeltaBox(IntersectionPoints isPoints){
+		final double delta = 0.75;
+		double[] directionVector = new double[]{(isPoints.intersectionPointsX[0]-isPoints.intersectionPointsX[1]), (isPoints.intersectionPointsY[0]-isPoints.intersectionPointsY[1])};
+		
+		double length = Math.sqrt(Math.pow(directionVector[0], 2)+Math.pow(directionVector[1], 2));
+		directionVector[0] /= length;
+		directionVector[1] /= length;
+		
+		double[] orthonormalVector = new double[]{directionVector[1], -1*directionVector[0]};
+		Path2D.Double box = new Path2D.Double();
+		box.moveTo(isPoints.intersectionPointsX[0]+(delta*orthonormalVector[0]), isPoints.intersectionPointsY[0]+(delta*orthonormalVector[1]));
+		box.lineTo(isPoints.intersectionPointsX[1]+(delta*orthonormalVector[0]), isPoints.intersectionPointsY[1]+(delta*orthonormalVector[1]));
+		box.lineTo(isPoints.intersectionPointsX[1]-(delta*orthonormalVector[0]), isPoints.intersectionPointsY[1]-(delta*orthonormalVector[1]));
+		box.lineTo(isPoints.intersectionPointsX[0]-(delta*orthonormalVector[0]), isPoints.intersectionPointsY[0]-(delta*orthonormalVector[1]));
+		box.closePath();
+		return box;
 	}
 	
 	private Point2D.Double[] getBoundingPoints(AbstractCellEllipse cellEllipse){
@@ -393,8 +498,8 @@ public class EllipseIntersectionCalculatorAndClipper {
 	}
 	
 	private void clipEllipses(CellEllipse actEllipse, CellEllipse otherEllipse, IntersectionPoints isPoints){		
-		actEllipse.clipAreaFromEllipse(getClippingAreaForEllipse(isPoints, actEllipse));
-		otherEllipse.clipAreaFromEllipse(getClippingAreaForEllipse(isPoints, otherEllipse));
+		actEllipse.clipAreaFromEllipse(getClippingAreaForEllipse(isPoints, actEllipse, otherEllipse));
+		otherEllipse.clipAreaFromEllipse(getClippingAreaForEllipse(isPoints, otherEllipse, actEllipse));
 	}
 	
 	

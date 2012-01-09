@@ -10,6 +10,7 @@ import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
+import sim.app.episim.tissue.TissueController;
 import sim.portrayal.Portrayal;
 
 public abstract class BiomechanicalModelInitializer {
@@ -38,6 +39,7 @@ public abstract class BiomechanicalModelInitializer {
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
 		simulationStateData.clearLoadedCells();
+		simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
 
 		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
 		for (XmlUniversalCell xCell : xmlCells) {

@@ -41,7 +41,7 @@ public class SimulationStateFile extends XmlFile {
 	private static final String EPISIM_VERSION = "version";
 	private static final String EXPORT_DATE = "exportdate";
 	private static final String TISSUE_BORDER = "tissueborder";
-	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY = "ExtraCellularDiffusionFieldArray";
+	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY = "ExtraCellularDiffusionFields";
 
 	private static File tissueExportPath;
 

@@ -13,8 +13,8 @@ import sim.app.episim.tissue.ImportedTissue;
 public class XmlImportedTissue extends XmlObject<ImportedTissue> {
 
 	private static final String POINT = "point";
-	private static final String Y = "x";
-	private static final String X = "y";
+	private static final String Y = "y";
+	private static final String X = "x";
 
 	private ArrayList<Point2D> basalLayer = new ArrayList<Point2D>();
 

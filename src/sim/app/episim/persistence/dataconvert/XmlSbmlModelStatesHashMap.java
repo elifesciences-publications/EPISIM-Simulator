@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import sim.app.episim.model.sbml.SBMLModelState;
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 
 public class XmlSbmlModelStatesHashMap extends
@@ -17,7 +18,7 @@ public class XmlSbmlModelStatesHashMap extends
 
 	private HashMap<String, XmlSBMLModelState> xmlObjectMap;
 
-	public XmlSbmlModelStatesHashMap(HashMap<String, SBMLModelState> obj) {
+	public XmlSbmlModelStatesHashMap(HashMap<String, SBMLModelState> obj) throws ExportException {
 		super(obj);
 	}
 
@@ -26,7 +27,7 @@ public class XmlSbmlModelStatesHashMap extends
 	}
 
 	@Override
-	protected void exportSubXmlObjectsFromParameters() {
+	protected void exportSubXmlObjectsFromParameters() throws ExportException {
 		xmlObjectMap = new HashMap<String, XmlSBMLModelState>();
 		for (String key : getObject().keySet()) {
 			xmlObjectMap.put(key, new XmlSBMLModelState(getObject().get(key)));

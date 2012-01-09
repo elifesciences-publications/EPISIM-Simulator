@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 import sim.app.episim.tissue.ImportedTissue;
 
@@ -18,7 +19,7 @@ public class XmlImportedTissue extends XmlObject<ImportedTissue> {
 
 	private ArrayList<Point2D> basalLayer = new ArrayList<Point2D>();
 
-	public XmlImportedTissue(ImportedTissue obj) {
+	public XmlImportedTissue(ImportedTissue obj) throws ExportException {
 		super(obj);
 	}
 

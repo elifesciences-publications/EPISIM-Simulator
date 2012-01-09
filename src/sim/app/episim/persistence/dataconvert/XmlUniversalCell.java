@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 import sim.util.Double2D;
 
@@ -16,11 +17,11 @@ public class XmlUniversalCell extends XmlObject<AbstractCell> {
 	private static final String EPISIMBIOMECHANICALMODEL = "episimBiomechanicalModel";
 	private static final String EPISIMCELLBEHAVIORALMODEL = "episimCellBehavioralModel";
 
-	public XmlUniversalCell(AbstractCell cell) {
+	public XmlUniversalCell(AbstractCell cell) throws ExportException {
 		this((UniversalCell) cell);
 	}
 
-	public XmlUniversalCell(UniversalCell cell) {
+	public XmlUniversalCell(UniversalCell cell) throws ExportException {
 		super(cell);
 	}
 
@@ -47,14 +48,14 @@ public class XmlUniversalCell extends XmlObject<AbstractCell> {
 	}
 	
 	@Override
-	public Element toXMLNode(String nodeName, XmlFile xmlFile) {
+	public Element toXMLNode(String nodeName, XmlFile xmlFile) throws ExportException {
 		Element xmlNode = super.toXMLNode(nodeName, xmlFile);
 		XmlFile.sortChildNodes(xmlNode, new String[]{EPISIMCELLBEHAVIORALMODEL, EPISIMBIOMECHANICALMODEL});
 		return xmlNode;
 	}
 
 	@Override
-	protected void exportSubXmlObjectsFromParameters() {
+	protected void exportSubXmlObjectsFromParameters() throws ExportException {
 		super.exportSubXmlObjectsFromParameters();
 		addSubXmlObject(EPISIMBIOMECHANICALMODEL,
 				new XmlEpisimBiomechanicalModel(getObject()

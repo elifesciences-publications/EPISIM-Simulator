@@ -11,6 +11,7 @@ import org.w3c.dom.NodeList;
 
 import sim.app.episim.model.sbml.SBMLModelEntity;
 import sim.app.episim.model.sbml.SBMLModelState;
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 
 public class XmlSBMLModelState extends XmlObject<SBMLModelState> {
@@ -35,7 +36,7 @@ public class XmlSBMLModelState extends XmlObject<SBMLModelState> {
 		super(objectNode);
 	}
 
-	public XmlSBMLModelState(SBMLModelState modelState) {
+	public XmlSBMLModelState(SBMLModelState modelState) throws ExportException {
 		super(modelState);
 	}
 

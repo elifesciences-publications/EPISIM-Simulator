@@ -10,6 +10,9 @@ import org.w3c.dom.NodeList;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.persistence.ExportException;
+import sim.app.episim.persistence.ImportException;
+import sim.app.episim.persistence.ImportLog;
 import sim.app.episim.persistence.XmlFile;
 import sim.util.Double2D;
 
@@ -29,13 +32,16 @@ public class XmlObject<T> {
 	private static final String MIN = "min";
 	private static final String MAX = "max";
 
-	public XmlObject(T obj) {
+	public XmlObject(T obj) throws ExportException {
 		this.object = obj;
 		exportSubXmlObjectsFromParameters();
 	}
 
 	public XmlObject(Node objectNode) {
 		this.objectNode = objectNode;
+		if(objectNode!=null){
+			ImportLog.success(objectNode);
+		}
 	}
 
 	private void postProcessMinMax(Object object) {
@@ -211,7 +217,8 @@ public class XmlObject<T> {
 		String parameterName = methodName;
 		if (methodName.startsWith("get") || methodName.startsWith("set"))
 			parameterName = parameterName.substring(3);
-		if(methodName.startsWith("_getMax") || methodName.startsWith("_getMin"))
+		if (methodName.startsWith("_getMax")
+				|| methodName.startsWith("_getMin"))
 			parameterName = parameterName.substring(7);
 		StringBuilder sb = new StringBuilder();
 		sb.append(Character.toLowerCase(parameterName.charAt(0)));
@@ -220,7 +227,8 @@ public class XmlObject<T> {
 		return parameterName;
 	}
 
-	public Element toXMLNode(String nodeName, XmlFile xmlFile) {
+	public Element toXMLNode(String nodeName, XmlFile xmlFile)
+			throws ExportException {
 		Element node = xmlFile.createElement(nodeName);
 		for (String s : getSubXmlObjects().keySet()) {
 			Element subNode = getSubXmlObjects().get(s).toXMLNode(s, xmlFile);
@@ -253,7 +261,7 @@ public class XmlObject<T> {
 		this.subXmlObjects.put(parameterName, subXmlObject);
 	}
 
-	protected void exportSubXmlObjectsFromParameters() {
+	protected void exportSubXmlObjectsFromParameters() throws ExportException {
 		if (object != null) {
 			for (Method m : getGetters(object.getClass())) {
 				addParameter(methodToName(m.getName()),
@@ -261,10 +269,12 @@ public class XmlObject<T> {
 			}
 			transformParametersToSubXmlObjects();
 			postProcessMinMax(object);
-		}
+		} else
+			throw new ExportException(getClass().getSimpleName()
+					+ ": Parameter doesn't exist");
 	}
 
-	private void transformParametersToSubXmlObjects() {
+	private void transformParametersToSubXmlObjects() throws ExportException {
 		for (String parameterName : parameters.keySet()) {
 			Object subObj = parameters.get(parameterName);
 			if (subObj instanceof Double2D) {
@@ -319,10 +329,12 @@ public class XmlObject<T> {
 		for (String parameterName : subXmlObjects.keySet()) {
 			XmlObject<?> xmlObj = subXmlObjects.get(parameterName);
 			set(parameterName, xmlObj.copyValuesToTarget(null), target);
-			setMinMax(MIN + parameterName, parameterMinima.get(parameterName),
-					target);
-			setMinMax(MAX + parameterName, parameterMaxima.get(parameterName),
-					target);
+			
+			setMinMax(MIN + parameterName,
+							parameterMinima.get(parameterName), target);
+			
+			setMinMax(MAX + parameterName,
+							parameterMaxima.get(parameterName), target);
 		}
 		for (String parameterName : parameters.keySet()) {
 			set(parameterName, parameters.get(parameterName), target);

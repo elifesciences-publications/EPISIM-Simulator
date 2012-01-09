@@ -9,6 +9,7 @@ import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.EpisimBiomechanicalModel;
 
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 import sim.util.Double2D;
 
@@ -18,7 +19,7 @@ public class XmlEpisimBiomechanicalModel extends
 	private static final String EPISIMMODELCONNECTOR = "episimModelConnector";
 
 	public XmlEpisimBiomechanicalModel(
-			EpisimBiomechanicalModel episimBiomechanicalModel) {
+			EpisimBiomechanicalModel episimBiomechanicalModel) throws ExportException {
 		super(episimBiomechanicalModel);
 	}
 
@@ -27,13 +28,13 @@ public class XmlEpisimBiomechanicalModel extends
 	}
 
 	@Override
-	protected void exportSubXmlObjectsFromParameters() {
+	protected void exportSubXmlObjectsFromParameters() throws ExportException {
 		super.exportSubXmlObjectsFromParameters();
 		Object subObj = getParameters().get(EPISIMMODELCONNECTOR);
 		if (subObj instanceof EpisimModelConnector) {
 			addSubXmlObject(EPISIMMODELCONNECTOR, new XmlEpisimModelConnector(
 					(EpisimModelConnector) subObj));
-		}
+		} 
 	}
 
 	@Override

@@ -75,6 +75,7 @@ public class SimulationStateFile extends XmlFile {
 	public SimulationStateData loadData() {
 		Node simulationHeader = getRoot().getElementsByTagName(
 				EPISIM_TISSUE_SIMULATION_HEADER).item(0);
+		ImportLog.getInstance().setRoot(getRoot());
 		SimulationStateData simStateData = new SimulationStateData();
 
 		if (simulationHeader != null) {

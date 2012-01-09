@@ -10,6 +10,7 @@ import episiminterfaces.EpisimSbmlModelConnector;
 
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.sbml.SbmlModelConnector;
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 
 public class XmlEpisimCellBehavioralModel extends
@@ -18,7 +19,7 @@ public class XmlEpisimCellBehavioralModel extends
 	private static final String EPISIMSBMLMODELCONNECTOR = "episimSbmlModelConnector";
 
 	public XmlEpisimCellBehavioralModel(
-			EpisimCellBehavioralModel episimCellBehavioralModel) {
+			EpisimCellBehavioralModel episimCellBehavioralModel) throws ExportException {
 		super(episimCellBehavioralModel);
 	}
 
@@ -28,13 +29,13 @@ public class XmlEpisimCellBehavioralModel extends
 	}
 
 	@Override
-	protected void exportSubXmlObjectsFromParameters() {
+	protected void exportSubXmlObjectsFromParameters() throws ExportException {
 		super.exportSubXmlObjectsFromParameters();
 		Object subObj = getParameters().get(EPISIMSBMLMODELCONNECTOR);
 		if (subObj instanceof SbmlModelConnector) {
 			addSubXmlObject(EPISIMSBMLMODELCONNECTOR,
 					new XmlSbmlModelConnector((SbmlModelConnector) subObj));
-		}
+		} else throw new ExportException(getClass().getSimpleName()+": Parameter Export went wrong");
 	}
 
 	@Override

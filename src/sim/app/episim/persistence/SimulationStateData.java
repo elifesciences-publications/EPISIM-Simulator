@@ -1,18 +1,16 @@
 package sim.app.episim.persistence;
 
-import java.awt.geom.Rectangle2D.Double;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+
+import org.w3c.dom.Node;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray;
@@ -20,9 +18,6 @@ import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.tissue.TissueController;
-import sim.engine.SimStateHack.TimeSteps;
-import sim.field.continuous.Continuous2D;
-import sim.util.Double2D;
 
 /*
  * update = Objekte sammeln
@@ -45,6 +40,7 @@ public class SimulationStateData {
 	private long simStepNumber = 0;
 
 	private static SimulationStateData lastSimulationStateLoaded;
+
 
 	public SimulationStateData() {
 		lastSimulationStateLoaded = this;

@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import sim.app.episim.model.sbml.SBMLModelState;
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 import sim.app.episim.tissue.ImportedTissue;
 import sim.app.episim.tissue.TissueBorder;
@@ -21,7 +22,7 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 	private String tissueType = STANDARD_MEMBRANE;
 	private XmlImportedTissue importedTissue;
 
-	public XmlTissueBorder(TissueBorder obj) {
+	public XmlTissueBorder(TissueBorder obj) throws ExportException {
 		super(obj);
 	}
 
@@ -30,13 +31,13 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 	}
 
 	@Override
-	protected void exportSubXmlObjectsFromParameters() {
+	protected void exportSubXmlObjectsFromParameters() throws ExportException {
 		super.exportSubXmlObjectsFromParameters();
 		this.importedTissue = new XmlImportedTissue(TissueController.getInstance().getTissueBorder().getImportedTissue());
 	}
 
 	@Override
-	public Element toXMLNode(String nodeName, XmlFile xmlFile) {
+	public Element toXMLNode(String nodeName, XmlFile xmlFile) throws ExportException {
 		Element node = super.toXMLNode(nodeName, xmlFile);
 		tissueType = IMPORTED_TISSUE;
 

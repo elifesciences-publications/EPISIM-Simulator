@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 import sim.field.grid.DoubleGrid2D;
 
@@ -16,7 +17,7 @@ public class XmlExtraCellularDiffusionFieldArray extends
 	private static final String GRID2D = "grid2d";
 	private static final String NAME = "name";
 
-	public XmlExtraCellularDiffusionFieldArray(ExtraCellularDiffusionField[] obj) {
+	public XmlExtraCellularDiffusionFieldArray(ExtraCellularDiffusionField[] obj) throws ExportException {
 		super(obj);
 	}
 
@@ -29,7 +30,7 @@ public class XmlExtraCellularDiffusionFieldArray extends
 	}
 	
 	@Override
-	public Element toXMLNode(String nodeName, XmlFile xmlFile) {
+	public Element toXMLNode(String nodeName, XmlFile xmlFile) throws ExportException {
 		Element arrayElement = null;
 		if(getObject()!=null){
 			arrayElement = xmlFile.createElement(nodeName);
@@ -38,7 +39,7 @@ public class XmlExtraCellularDiffusionFieldArray extends
 				ecdfElement.setAttribute(NAME, ecdf.getName());
 				arrayElement.appendChild(ecdfElement);
 			}
-		}
+		} else throw new ExportException(getClass().getSimpleName()+" - "+"Can't Export -> Object=null");
 		return arrayElement;
 	}
 	

@@ -3,6 +3,7 @@ package sim.app.episim.persistence.dataconvert;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 import sim.util.Double2D;
 
@@ -11,7 +12,7 @@ public class XmlDouble2D extends XmlObject<Double2D> {
 	private static final String X_VALUE = "X";
 	private static final String Y_VALUE = "Y";
 
-	public XmlDouble2D(Double2D obj) {
+	public XmlDouble2D(Double2D obj) throws ExportException {
 		super(obj);
 	}
 

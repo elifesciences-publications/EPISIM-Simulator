@@ -12,6 +12,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 import sim.field.grid.DoubleGrid2D;
 import sim.util.Double2D;
@@ -24,52 +25,7 @@ public class XmlDoubleGrid2D extends XmlObject<DoubleGrid2D> {
 	private static final String DATA = "data";
 	private static final String INDEX = "i";
 
-	public static void main(String[] args) {
-		try {
-			XmlFile xml = new XmlFile("test");
-			DoubleGrid2D doubleArray = new DoubleGrid2D(4,6);
-			for(int x = 0;x<doubleArray.getHeight();x++){
-				for(int y = 0;y<doubleArray.getWidth();y++){
-					doubleArray.set(y, x, 4*x+y);
-					System.out.print(doubleArray.get(y, x)+"\t");
-				}
-				System.out.println();
-			}
-			
-			XmlDoubleGrid2D fds = new XmlDoubleGrid2D(doubleArray);
-			xml.getRoot().appendChild(fds.toXMLNode("testDouble", xml));
-			xml.save(new File("test"));
-
-			XmlFile xmlLoad = new XmlFile(new File("test"));
-			NodeList nl = xmlLoad.getRoot().getChildNodes();
-			for (int i = 0; i < nl.getLength(); i++) {
-				Node testNode = nl.item(i);
-				if (testNode.getNodeName().equals("testDouble")) {
-					XmlDoubleGrid2D test = new XmlDoubleGrid2D(testNode);
-					DoubleGrid2D testdouble = test.copyValuesToTarget(null);
-					for(int x = 0;x<testdouble.getHeight();x++){
-						for(int y = 0;y<testdouble.getWidth();y++){
-							System.out.print(testdouble.get(y, x)+"\t");
-						}
-						System.out.println();
-					}
-
-				}
-			}
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	public XmlDoubleGrid2D(DoubleGrid2D obj) {
+	public XmlDoubleGrid2D(DoubleGrid2D obj) throws ExportException {
 		super(obj);
 	}
 

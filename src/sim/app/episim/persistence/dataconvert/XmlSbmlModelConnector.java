@@ -8,12 +8,13 @@ import episiminterfaces.EpisimSbmlModelConnector;
 
 import sim.app.episim.model.sbml.SBMLModelState;
 import sim.app.episim.model.sbml.SbmlModelConnector;
+import sim.app.episim.persistence.ExportException;
 
 public class XmlSbmlModelConnector extends XmlObject<SbmlModelConnector> {
 
 	private static final String SBMLMODELSTATES = "sbmlModelStates";
 
-	public XmlSbmlModelConnector(SbmlModelConnector obj) {
+	public XmlSbmlModelConnector(SbmlModelConnector obj) throws ExportException {
 		super(obj);
 	}
 
@@ -22,7 +23,7 @@ public class XmlSbmlModelConnector extends XmlObject<SbmlModelConnector> {
 	}
 
 	@Override
-	protected void exportSubXmlObjectsFromParameters() {
+	protected void exportSubXmlObjectsFromParameters() throws ExportException {
 		addSubXmlObject(SBMLMODELSTATES, new XmlSbmlModelStatesHashMap(
 				getObject().getSBMLModelStateMap()));
 	}

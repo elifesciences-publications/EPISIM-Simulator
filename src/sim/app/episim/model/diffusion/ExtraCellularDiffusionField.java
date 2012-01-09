@@ -244,4 +244,32 @@ public class ExtraCellularDiffusionField implements EnhancedSteppable{
    	else return Double.POSITIVE_INFINITY;
    }
    
+   public double getMaxConcentrationInField(){
+   	return this.extraCellularField.max();
+   }
+   
+   public double getTotalConcentrationInArea(Shape area){   	
+   
+   		double totalConcentration = 0;
+   		Rectangle2D boundaryBox = area.getBounds2D();
+   		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   		
+   		double startX = (isToroidalX() ||  (boundaryBox.getMinX() >= fieldRes)) ? boundaryBox.getMinX() :fieldRes;
+   		double stopX = (isToroidalX() || (boundaryBox.getMaxX() <= (getWidthInMikron()-fieldRes)))?boundaryBox.getMaxX():(getWidthInMikron()-fieldRes);
+   		
+   		double startY = (isToroidalY() ||  (boundaryBox.getMinY() >= fieldRes)) ? boundaryBox.getMinY() :fieldRes;
+   		double stopY = (isToroidalY() || (boundaryBox.getMaxY() <= (getHeightInMikron()-fieldRes)))?boundaryBox.getMaxY():(getHeightInMikron()-fieldRes);
+   		
+   		for(double y = startY; y <= stopY;){
+   			for(double x = startX; x <= stopX;){
+   				if(area.contains(x, y)){
+   					totalConcentration += getConcentration(x, y);
+      			}
+      			x+=fieldRes;
+      		}
+   			y+=fieldRes;
+   		}
+   		return totalConcentration;
+   }
+   
 }

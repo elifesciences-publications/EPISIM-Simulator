@@ -243,8 +243,10 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		ArrayList<AbstractCell> nonSpreadingNeighbours = new ArrayList<AbstractCell>();
 		ArrayList<AbstractCell> spreadingNeighbours = new ArrayList<AbstractCell>();
 		for(int i = 0; i < numberOfNeighbours; i++){
-			if(((HexagonBasedMechanicalModel)neighboursToBeLost.get(i).getEpisimBioMechanicalModelObject()).isSpreading()) spreadingNeighbours.add(neighboursToBeLost.get(i));
-			else nonSpreadingNeighbours.add(neighboursToBeLost.get(i));
+			if(neighboursToBeLost.get(i).getEpisimCellBehavioralModelObject().getCellType() == getCell().getEpisimCellBehavioralModelObject().getCellType()){
+				if(((HexagonBasedMechanicalModel)neighboursToBeLost.get(i).getEpisimBioMechanicalModelObject()).isSpreading()) spreadingNeighbours.add(neighboursToBeLost.get(i));
+				else nonSpreadingNeighbours.add(neighboursToBeLost.get(i));
+			}
 		}		
 		double factorAllNeighbours = Math.pow(Math.exp(-0.7d), numberOfNeighbours);
 		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-0.7d), (numberOfNeighbours-1));
@@ -330,23 +332,85 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   ArrayList<Integer> spreadingLocationIndices = getPossibleSpreadingLocationIndices(xPos, yPos, onTestSurface);
 	 
 	   if(!spreadingLocationIndices.isEmpty()){
-		   int spreadingLocationIndex = getRandomSpreadingLocationIndex(spreadingLocationIndices);
+		   int spreadingLocationIndex = getRandomSpreadingLocationIndex(spreadingLocationIndices, xPos, yPos);
 		   this.spreadingLocation = new Int2D(xPos.get(spreadingLocationIndex), yPos.get(spreadingLocationIndex));
 		   cellField.set(this.spreadingLocation.x, this.spreadingLocation.y, getCell());
 	   }
    }
 	
-	private int getRandomSpreadingLocationIndex(ArrayList<Integer> spreadingLocationIndices){
+	private int getRandomSpreadingLocationIndex(ArrayList<Integer> spreadingLocationIndices, IntBag xPos, IntBag yPos){
 		if(globalParameters.isChemotaxisEnabled()){
 			String chemotacticFieldName = modelConnector.getChemotacticField();
 			if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
 				ExtraCellularDiffusionField ecDiffField =  ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
 				if(ecDiffField != null){
-					//ecDiffField.getTotalLocalFreeFieldConcentration(getCellBoundariesInMikron(), null, null)
+					double[] concentrations = new double[spreadingLocationIndices.size()];
+					for(int i = 0; i < spreadingLocationIndices.size();i++){
+						Double2D locInMikron = getLocationInMikron(new Int2D(xPos.get(spreadingLocationIndices.get(i)), yPos.get(spreadingLocationIndices.get(i))));
+						concentrations[i] = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(locInMikron.x, locInMikron.y));
+					}
+					int choosenIndex = getSpreadingLocationIndexNumberBasedOnNeighbouringConcentrations(ecDiffField, concentrations);
+					if(choosenIndex >= 0) return spreadingLocationIndices.get(choosenIndex);
 				}
 			}
 		}
 		return spreadingLocationIndices.get(random.nextInt(spreadingLocationIndices.size()));
+	}
+	
+	private int getSpreadingLocationIndexNumberBasedOnNeighbouringConcentrations(ExtraCellularDiffusionField ecDiffField, double[] concentrations){
+		double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
+																																				  ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
+																																				  : ecDiffField.getMaxConcentrationInField();
+		final double lambda = globalParameters.getLambdaChem();
+		double localConcentration = ecDiffField.getTotalConcentrationInArea(getCellBoundariesInMikron());
+		double[] normalizedConcentrations = new double[concentrations.length];
+		for(int i = 0; i < concentrations.length; i++){
+			double gradient = lambda*(concentrations[i]-localConcentration);
+			normalizedConcentrations[i]= gradient > 0 ? (gradient/c_max) : 0;
+		}
+		
+		double sumNormalizedConcentrations = 0;
+		int numberOfZeroConcentrations = 0;
+		for(int i = 0; i < normalizedConcentrations.length; i++){
+			if(normalizedConcentrations[i] > 0)sumNormalizedConcentrations+=normalizedConcentrations[i];
+			else numberOfZeroConcentrations++;
+		}
+		HashMap<Integer, Integer> probabilityArrayIndexToConcentrationArrayIndexMap = new HashMap<Integer, Integer>();
+		double[] probabilityArray=null;
+		if(sumNormalizedConcentrations > 0){
+			probabilityArray = new double[normalizedConcentrations.length-numberOfZeroConcentrations];
+			int actProbabIndex = 0;
+			for(int i = 0; i < probabilityArray.length; i++){
+				if(normalizedConcentrations[i] > 0){
+					normalizedConcentrations[i] /= sumNormalizedConcentrations;
+					probabilityArray[actProbabIndex] = actProbabIndex > 0 ? (probabilityArray[actProbabIndex-1]+normalizedConcentrations[i]):normalizedConcentrations[i];
+					probabilityArrayIndexToConcentrationArrayIndexMap.put(actProbabIndex, i);
+					actProbabIndex++;					
+				}
+			}
+		}
+		
+		double randomNumber = random.nextDouble();
+		boolean selectConcentration = false;
+		//This increases the influence of lambda
+		if(sumNormalizedConcentrations >0 && sumNormalizedConcentrations < 1){
+			selectConcentration = randomNumber < sumNormalizedConcentrations;
+		}
+		else if(sumNormalizedConcentrations >=1){
+			selectConcentration = true;
+		}		
+		if(selectConcentration && probabilityArray != null){
+			randomNumber = random.nextDouble();
+			for(int i = 0; i < probabilityArray.length; i++){
+				if(i == 0){
+					if(randomNumber >= 0 && randomNumber < probabilityArray[i]) return probabilityArrayIndexToConcentrationArrayIndexMap.get(i);
+				}
+				else{
+					if(randomNumber >= probabilityArray[i-1] && randomNumber < probabilityArray[i]) return probabilityArrayIndexToConcentrationArrayIndexMap.get(i);
+				}
+			}
+		}	
+		return -1;
 	}
 	
 	private void relax(){
@@ -363,6 +427,24 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		
 		 
 		boolean retraction = false;
+		double normGradient = Double.NEGATIVE_INFINITY;
+		if(globalParameters.isChemotaxisEnabled()){
+			String chemotacticFieldName = modelConnector.getChemotacticField();
+			if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
+				ExtraCellularDiffusionField ecDiffField =  ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
+				if(ecDiffField != null){					
+					double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
+					                                                                            ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
+					                                                                            : ecDiffField.getMaxConcentrationInField();
+		         double c_fieldPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y));
+		         double c_spreadingPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y));  
+					  
+					normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
+					
+					if(normGradient > 1) normGradient = 1;
+				}
+			}		
+		}
 		
 	
 		int randomNumber = random.nextInt(UPPER_PROBABILITY_LIMIT);
@@ -382,6 +464,12 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 				probabilityA = UPPER_PROBABILITY_LIMIT/2;
 				probabilityB = UPPER_PROBABILITY_LIMIT/2;
 			}
+			
+			if(normGradient > 0){
+				int probabGradient = (int) (normGradient*UPPER_PROBABILITY_LIMIT);			
+				probabilityA += probabGradient;
+			}	
+			
 			
 			if((probabilityA + probabilityB) > UPPER_PROBABILITY_LIMIT){
 				 int sum = probabilityA + probabilityB;
@@ -420,6 +508,17 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 			else{
 				probability = UPPER_PROBABILITY_LIMIT;
 			}
+			if(normGradient > 0){
+				int probabGradient = (int) (normGradient*UPPER_PROBABILITY_LIMIT);			
+				probability += probabGradient;
+			}	
+			
+			
+			if(probability > UPPER_PROBABILITY_LIMIT){
+				 int sum = probability;
+				 sum /=UPPER_PROBABILITY_LIMIT;
+				 probability /= sum;
+			}		
 			if(randomNumber < probability){
 				cellField.field[fieldLocation.x][fieldLocation.y] = null;
 				cellField.field[spreadingLocation.x][spreadingLocation.y] = getCell();
@@ -441,6 +540,10 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 			else{
 				probability =UPPER_PROBABILITY_LIMIT;
 			}
+			if(normGradient > 0){
+				int probabGradient = (int) (normGradient*UPPER_PROBABILITY_LIMIT);			
+				probability -= probabGradient;
+			}	
 			if(randomNumber < probability){
 				cellField.field[fieldLocation.x][fieldLocation.y] = getCell();
 				cellField.field[spreadingLocation.x][spreadingLocation.y] = null;
@@ -643,6 +746,21 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   	globalParameters.getActualWoundEdgeBorderlineConfig().x1_InMikron = newXPosWoundEdge;
 	   	globalParameters.getActualWoundEdgeBorderlineConfig().x2_InMikron = newXPosWoundEdge;
 		}
+   }
+   
+   private Shape getEmptyLatticeCellBoundary(double xInMikron, double yInMikron){
+     	double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+    	double width = 0;
+    	double height = 0;
+   	double radiusOuter = HexagonBasedMechanicalModelGlobalParameters.outer_hexagonal_radius;
+   	double radiusInner = HexagonBasedMechanicalModelGlobalParameters.inner_hexagonal_radius;
+   	
+   	yInMikron = heightInMikron - yInMikron;
+ 		width = 2* radiusOuter;
+ 		height = 2 * radiusInner;
+ 		xInMikron-=(width/2d);
+ 		yInMikron-=(height/2d);
+   	return new Ellipse2D.Double(xInMikron,yInMikron,height,width);
    }
 
    @CannotBeMonitored

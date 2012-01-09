@@ -32,8 +32,7 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 	@Override
 	protected void exportSubXmlObjectsFromParameters() {
 		super.exportSubXmlObjectsFromParameters();
-		this.importedTissue = new XmlImportedTissue(TissueController
-				.getInstance().getActImportedTissue());
+		this.importedTissue = new XmlImportedTissue(TissueController.getInstance().getTissueBorder().getImportedTissue());
 	}
 
 	@Override

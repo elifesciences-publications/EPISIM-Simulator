@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 
+import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimPortrayal;
 
 import sim.app.episim.AbstractCell;
@@ -52,9 +53,29 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 				standardCellEnsemble.add(cell);
 			}
 		}	
+		addSekretionCellColony(standardCellEnsemble);
 		return standardCellEnsemble;
 	}
-
+	
+	private void addSekretionCellColony(ArrayList<UniversalCell> standardCellEnsemble){
+		HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		int width = 6;
+		int height = 6;
+		int startX = (int)HexagonBasedMechanicalModelGlobalParameters.number_of_columns-10;
+		int startY = (int)((HexagonBasedMechanicalModelGlobalParameters.number_of_rows/2)-(height/2));
+		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
+		for(int y = 0; y < height; y++){
+			for(int x = 0; x < width; x++){
+				UniversalCell cell = new UniversalCell(null, null);
+				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(startX+x, startY+y));
+				((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[startX+x][startY+y] = cell;
+				
+				if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+				standardCellEnsemble.add(cell);
+			}
+		}	
+	}
+	
 	
 	protected void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble) {
 

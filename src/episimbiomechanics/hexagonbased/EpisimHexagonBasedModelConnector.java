@@ -5,6 +5,7 @@ import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalMode
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.HexagonBasedMechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
+import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
@@ -22,10 +23,13 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	private boolean isOnTestSurface = false;
 	private boolean isAtSurfaceBorder = false;
 	private boolean isRelaxing = false;
-
+	private String chemotacticField="";
+	
+	@Hidden
 	protected String getIdForInternalUse() {
 		return ID;
 	}
+	@Hidden
 	public String getBiomechanicalModelName() {
 		return NAME;
 	}
@@ -100,5 +104,15 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
    @Hidden
    public void setIsAtSurfaceBorder(boolean isAtSurfaceBorder){   
    	this.isAtSurfaceBorder = isAtSurfaceBorder;
+   }
+	
+   public String getChemotacticField() {
+   
+   	return chemotacticField;
+   }
+	
+   public void setChemotacticField(String chemotacticField) {
+   
+   	this.chemotacticField = chemotacticField;
    }	
 }

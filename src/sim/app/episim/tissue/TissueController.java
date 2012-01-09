@@ -18,8 +18,6 @@ public class TissueController {
 	
 	private TissueImporter importer;
 	
-	private ImportedTissue actImportedTissue;
-	
 	public interface TissueRegistrationListener{ public void newTissueWasRegistered();}
 	
 	private HashSet<TissueRegistrationListener> tissueRegistrationListener = new HashSet<TissueRegistrationListener>();
@@ -49,11 +47,11 @@ public class TissueController {
 	
 		
 	public boolean isTissueLoaded(){
-		return (this.actImportedTissue != null);
+		return (TissueBorder.getInstance().getImportedTissue() != null);
 	}
 	
 	public ArrayList<CellEllipse> getImportedCells(){
-		if(this.actImportedTissue != null) return this.actImportedTissue.getCells();
+		if(TissueBorder.getInstance().getImportedTissue() != null) return TissueBorder.getInstance().getImportedTissue().getCells();
 		
 		return null;
 	}
@@ -65,12 +63,12 @@ public class TissueController {
 	public void loadTissue(File file) throws IllegalArgumentException{
 		if(file == null) throw new IllegalArgumentException(this.getClass().getName()+": File must not be null");
 		else{
-			actImportedTissue = importer.loadTissue(file);
-			if(this.actImportedTissue != null) TissueBorder.getInstance().setImportedTissueBorder(actImportedTissue);
+			ImportedTissue actImportedTissue = importer.loadTissue(file);
+			if(actImportedTissue != null) TissueBorder.getInstance().setImportedTissue(actImportedTissue);
 		}		
 	}
 	
-	public ImportedTissue getActImportedTissue(){  return this.actImportedTissue; }
+	public ImportedTissue getActImportedTissue(){  return TissueBorder.getInstance().getImportedTissue(); }
 	
 	public void addTissueRegistrationListener(TissueRegistrationListener listener){
 		this.tissueRegistrationListener.add(listener);
@@ -89,7 +87,7 @@ public class TissueController {
 	public void resetTissueSettings(){
 		tissueRegistrationListener.clear();
 		importer = new TissueImporter();
-		actImportedTissue = null;
+		TissueBorder.getInstance().setImportedTissue(null);
 		TissueBorder.getInstance().resetTissueBorderSettings();
 	}
 }

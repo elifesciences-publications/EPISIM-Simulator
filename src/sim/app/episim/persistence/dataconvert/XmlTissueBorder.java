@@ -81,7 +81,7 @@ public class XmlTissueBorder extends XmlObject<TissueBorder> {
 		else if (tissueType.equals(STANDARD_MEMBRANE))
 			target.loadStandardMembrane();
 		else if (tissueType.equals(IMPORTED_TISSUE) && importedTissue != null) {
-			target.setImportedTissueBorder(importedTissue
+			target.setImportedTissue(importedTissue
 					.copyValuesToTarget(new ImportedTissue()));
 
 		}

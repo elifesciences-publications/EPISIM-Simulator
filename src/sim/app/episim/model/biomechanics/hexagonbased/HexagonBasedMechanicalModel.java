@@ -30,6 +30,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.HexagonBasedMechanicalModelInitializer;
 import sim.app.episim.model.visualization.CellEllipse;
@@ -329,11 +330,25 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   ArrayList<Integer> spreadingLocationIndices = getPossibleSpreadingLocationIndices(xPos, yPos, onTestSurface);
 	 
 	   if(!spreadingLocationIndices.isEmpty()){
-		   int spreadingLocationIndex = spreadingLocationIndices.get(random.nextInt(spreadingLocationIndices.size()));
+		   int spreadingLocationIndex = getRandomSpreadingLocationIndex(spreadingLocationIndices);
 		   this.spreadingLocation = new Int2D(xPos.get(spreadingLocationIndex), yPos.get(spreadingLocationIndex));
 		   cellField.set(this.spreadingLocation.x, this.spreadingLocation.y, getCell());
 	   }
    }
+	
+	private int getRandomSpreadingLocationIndex(ArrayList<Integer> spreadingLocationIndices){
+		if(globalParameters.isChemotaxisEnabled()){
+			String chemotacticFieldName = modelConnector.getChemotacticField();
+			if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
+				ExtraCellularDiffusionField ecDiffField =  ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
+				if(ecDiffField != null){
+					//ecDiffField.getTotalLocalFreeFieldConcentration(getCellBoundariesInMikron(), null, null)
+				}
+			}
+		}
+		return spreadingLocationIndices.get(random.nextInt(spreadingLocationIndices.size()));
+	}
+	
 	private void relax(){
 		modelConnector.setIsRelaxing(false);
 		if(spreadingLocation != null){

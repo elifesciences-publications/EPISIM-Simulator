@@ -292,7 +292,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
 		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
-		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
 		
 		
 		display.attach(woundPortrayal, woundPortrayal.getPortrayalName(), woundPortrayal.getViewPortRectangle(), true);

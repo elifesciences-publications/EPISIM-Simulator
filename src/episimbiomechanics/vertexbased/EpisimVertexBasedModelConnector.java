@@ -6,6 +6,7 @@ import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelG
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.VertexBasedMechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
+import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
@@ -38,10 +39,12 @@ public class EpisimVertexBasedModelConnector extends EpisimModelConnector {
 	
 	public EpisimVertexBasedModelConnector(){}
 	
+	@Hidden
 	protected String getIdForInternalUse(){
 		return ID;
 	}
 	
+	@Hidden
 	public String getBiomechanicalModelName(){
 		return NAME;
 	}

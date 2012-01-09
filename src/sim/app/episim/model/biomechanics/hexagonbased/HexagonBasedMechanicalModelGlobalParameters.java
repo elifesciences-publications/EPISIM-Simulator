@@ -7,8 +7,8 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	public static final double number_of_columns =100;
-	public static final double number_of_rows =100;
+	public static final double number_of_columns =40;
+	public static final double number_of_rows =50;
 	public static final double number_of_initially_occupied_columns =10;
 	private static final double celldiameter_mikron = 50;
 	public static final double inner_hexagonal_radius = ((celldiameter_mikron/2d)/2d)*Math.sqrt(3d);
@@ -34,6 +34,9 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	
 	private boolean useContinuousSpace = false;
 	private boolean useCellCellInteractionEnergy = true;
+	
+	private double lambdaChem = 1;
+	private boolean chemotaxisEnabled = true;
 
 	public double getNeighborhood_mikron() {
 	   return this.neighborhood_mikron;
@@ -143,6 +146,30 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	@NoUserModification
    public boolean areDiffusionFieldsContinousInYDirection() {
 	   return getUseContinuousSpace();
+   }
+
+	
+   public double getLambdaChem() {
+   
+   	return lambdaChem;
+   }
+
+	
+   public void setLambdaChem(double lambdaChem) {
+   
+   	this.lambdaChem = lambdaChem;
+   }
+
+	
+   public boolean isChemotaxisEnabled() {
+   
+   	return chemotaxisEnabled;
+   }
+
+	
+   public void setChemotaxisEnabled(boolean chemotaxisEnabled) {
+   
+   	this.chemotaxisEnabled = chemotaxisEnabled;
    }
 
 }

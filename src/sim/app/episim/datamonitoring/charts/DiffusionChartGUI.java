@@ -95,7 +95,9 @@ public class DiffusionChartGUI {
 		
 		int xyDimensions = width > height ? width : height;
 		
-		Range range = new Range(0, widthInMikron > heightInMikron ? widthInMikron : heightInMikron);
+		double rangeDouble = widthInMikron > heightInMikron ? widthInMikron : heightInMikron;
+		
+		Range range = new Range(0, rangeDouble);
 		int steps   = xyDimensions > 100 ? 100 : xyDimensions;
 		//if(steps > 75) steps = 75;
 		// Create the object to represent the function over the given range.
@@ -111,7 +113,7 @@ public class DiffusionChartGUI {
 		
 		// Create a chart 
 		chart = new Chart(new Quality(true, false, true, false, false, false, true),"swing");
-		chart.getView().setBoundManual(new BoundingBox3d(0, xyDimensions, 0, xyDimensions, 0, this.ecDiffFieldConfig.getMaximumConcentration() < Double.POSITIVE_INFINITY?(float)this.ecDiffFieldConfig.getMaximumConcentration():1000000f));
+		chart.getView().setBoundManual(new BoundingBox3d(0, (float)rangeDouble, 0, (float)rangeDouble, 0, this.ecDiffFieldConfig.getMaximumConcentration() < Double.POSITIVE_INFINITY?(float)this.ecDiffFieldConfig.getMaximumConcentration():1000000f));
 		
 		ColorbarLegend legend = new ColorbarLegend(surface, chart.getView().getAxe().getLayout().getZTickProvider(), chart.getView().getAxe().getLayout().getZTickRenderer());		
 		

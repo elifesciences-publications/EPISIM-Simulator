@@ -64,13 +64,16 @@ public class CellBehavioralModelInitializer {
 
 			if (tysonCellCycleAvailable)
 				TysonRungeCuttaCalculator.assignRandomCellcyleState(actCell.getEpisimCellBehavioralModelObject(), cellCyclePos); // on
-
-			actCell.getEpisimCellBehavioralModelObject().setDiffLevel(
-					ModelController.getInstance().getCellBehavioralModelController()
-							.getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
-			actCell.getEpisimCellBehavioralModelObject().setCellType(
+			if(actCell.getEpisimCellBehavioralModelObject().getDiffLevel()==null){
+				actCell.getEpisimCellBehavioralModelObject().setDiffLevel(
+						ModelController.getInstance().getCellBehavioralModelController()
+								.getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
+			}
+			if(actCell.getEpisimCellBehavioralModelObject().getCellType()==null){
+				actCell.getEpisimCellBehavioralModelObject().setCellType(
 					ModelController.getInstance().getCellBehavioralModelController()
 							.getCellTypeForOrdinal(EpisimCellType.KERATINOCYTE));
+			}
 			actCell.getEpisimCellBehavioralModelObject().setIsAlive(true);
 		}
 	}

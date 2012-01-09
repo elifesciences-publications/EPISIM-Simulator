@@ -148,7 +148,8 @@ public class ModelDescriptorFileGenerator {
 			
 			if(Integer.TYPE.isAssignableFrom(returnType))return "int";
 			else if(Boolean.TYPE.isAssignableFrom(returnType))return "boolean";
-			else if(Double.TYPE.isAssignableFrom(returnType))return "double";			
+			else if(Double.TYPE.isAssignableFrom(returnType))return "double";		
+			else if(String.class.isAssignableFrom(returnType))return "String";
 		}
 		
 		

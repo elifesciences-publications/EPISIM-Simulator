@@ -5,6 +5,7 @@ import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelG
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
+import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
@@ -25,10 +26,12 @@ public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	
 	public EpisimCenterBasedModelConnector(){}
 	
+	@Hidden
 	protected String getIdForInternalUse(){
 		return ID;
 	}
 	
+	@Hidden
 	public String getBiomechanicalModelName(){
 		return NAME;
 	}

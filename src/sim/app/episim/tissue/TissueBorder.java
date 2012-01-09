@@ -43,7 +43,7 @@ public class TissueBorder {
 	
 	
 	private static EpisimBiomechanicalModelGlobalParameters globalParameters;	
-	private ImportedTissue tissue;	
+	private ImportedTissue actImportedTissue;	
 	private boolean standardMembraneLoaded = false;	
 	private boolean noMembraneLoaded = false;
 	
@@ -64,7 +64,7 @@ public class TissueBorder {
 		
 		organizedXPoints = new HashMap<Double, TreeSet<Double>>();
 		
-		tissue = null;
+		actImportedTissue = null;
 		globalParameters = null;
 		standardMembraneLoaded = false;	
 		noMembraneLoaded = false;
@@ -108,7 +108,7 @@ public class TissueBorder {
 			return ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNumberOfPixelsPerMicrometer();
 		}
 		else{
-			double resolutionMicoMPerPixel = tissue != null ? tissue.getResolutionInMicrometerPerPixel() : 1;
+			double resolutionMicoMPerPixel = actImportedTissue != null ? actImportedTissue.getResolutionInMicrometerPerPixel() : 1;
 			
 			return  1 /resolutionMicoMPerPixel;
 		}
@@ -120,7 +120,7 @@ public class TissueBorder {
 			return "";
 		}
 		else{
-			return tissue.getTissueID();
+			return actImportedTissue.getTissueID();
 		}
 	}
 	
@@ -129,7 +129,7 @@ public class TissueBorder {
 			return "";
 		}
 		else{
-			return tissue.getTissueDescription();
+			return actImportedTissue.getTissueDescription();
 		}
 	}
 	@NoExport
@@ -187,16 +187,17 @@ public class TissueBorder {
 		else return Double.POSITIVE_INFINITY;
 	 }
 	
+	public ImportedTissue getImportedTissue(){ return this.actImportedTissue; }
 	
-	public void setImportedTissueBorder(ImportedTissue _tissue) {
+	public void setImportedTissue(ImportedTissue _tissue) {
 		standardMembraneLoaded = false;
 		ArrayList<Point2D> surface = null, basalLayer = null;		
 		Point2D[] surfaceArray = null, basalLayerArray = null;
 		if(_tissue != null){
-			tissue = _tissue;
-			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setNumberOfPixelsPerMicrometer((1/ tissue.getResolutionInMicrometerPerPixel()));
-			surface = tissue.getSurfacePoints();
-			basalLayer = tissue.getBasalLayerPoints();
+			actImportedTissue = _tissue;
+			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setNumberOfPixelsPerMicrometer((1/ actImportedTissue.getResolutionInMicrometerPerPixel()));
+			surface = actImportedTissue.getSurfacePoints();
+			basalLayer = actImportedTissue.getBasalLayerPoints();
 //			Collections.shuffle(surface);
 //			Collections.shuffle(basalLayer);
 			surfaceArray = surface.toArray(new Point2D[surface.size()]);
@@ -236,16 +237,16 @@ public class TissueBorder {
 				polygon.lineTo(polygon.getBounds().getMinX(), polygon.getBounds().getMinY());					
 				
 				this.basalLayer = new GeneralPath();
-				if(!tissue.getBasalLayerPoints().isEmpty()){
+				if(!actImportedTissue.getBasalLayerPoints().isEmpty()){
 					this.basalLayer.moveTo(basalLayerArray[0].getX(), basalLayerArray[0].getY());
 					for(Point2D p : basalLayerArray)this.basalLayer.lineTo(p.getX(), p.getY());
 				}
 				drawBasalLayer = (GeneralPath)this.basalLayer.clone();		
 				
 				this.surface = new GeneralPath();
-				if(!tissue.getSurfacePoints().isEmpty()){
+				if(!actImportedTissue.getSurfacePoints().isEmpty()){
 					this.surface.moveTo(surfaceArray[0].getX(), surfaceArray[0].getY());
-					for(Point2D p : tissue.getSurfacePoints())this.surface.lineTo(p.getX(), p.getY());
+					for(Point2D p : actImportedTissue.getSurfacePoints())this.surface.lineTo(p.getX(), p.getY());
 				}
 				drawSurface = (GeneralPath)this.surface.clone();
 				
@@ -353,7 +354,7 @@ public class TissueBorder {
 	}
 		      
 	private void organizeBasalLayerPoints(){
-		for(Point2D actPoint: tissue.getBasalLayerPoints()){
+		for(Point2D actPoint: actImportedTissue.getBasalLayerPoints()){
 			if(organizedXPoints.containsKey(actPoint.getX()))
 				organizedXPoints.get(actPoint.getX()).add(actPoint.getY());
 			else{
@@ -376,8 +377,8 @@ public class TissueBorder {
 	private void calculateheight(){
 	int maxY = 0;
 	int minY = 0;
-	 for(Point2D point :tissue.getBasalLayerPoints()) if(point.getY() > maxY) maxY = (int)point.getY();
-	 for(Point2D point :tissue.getSurfacePoints()) if(point.getY() < minY) minY = (int)point.getY();
+	 for(Point2D point :actImportedTissue.getBasalLayerPoints()) if(point.getY() > maxY) maxY = (int)point.getY();
+	 for(Point2D point :actImportedTissue.getSurfacePoints()) if(point.getY() < minY) minY = (int)point.getY();
 	 System.out.println("Die berechnete Höhe ist: " + (maxY - minY));
 	}
 	
@@ -387,16 +388,16 @@ public class TissueBorder {
 	private void calculateWidth(){
 	int maxX = 0;
 	int minX = 0;
-	 for(Point2D point :tissue.getBasalLayerPoints()){
+	 for(Point2D point :actImportedTissue.getBasalLayerPoints()){
 		 if(point.getX() > maxX) maxX = (int)point.getX();
 		 else if(point.getX() < minX) minX = (int)point.getX();
 	 }
-	 for(Point2D point :tissue.getSurfacePoints()){
+	 for(Point2D point :actImportedTissue.getSurfacePoints()){
 		 if(point.getX() > maxX) maxX = (int)point.getX();
 		 else if(point.getX() < minX) minX = (int)point.getX();
 	 }
 	 System.out.println("Die berechnete Breite ist: " + (maxX - minX));
-	 System.out.println("Die Höhe, die Thora berechnet hat, ist: " + tissue.getEpidermalWidth());
+	 System.out.println("Die Höhe, die Thora berechnet hat, ist: " + actImportedTissue.getEpidermalWidth());
 	}
 	
 }

@@ -3,5 +3,6 @@
 <lib path="jcommon-1.0.12.jar"/>
 <lib path="jfreechart-1.0.9.jar"/>
 <lib path="jfreechart-1.0.9-experimental.jar"/>
+<lib path="org.jzy3d-0.8.4.jar"/>
 <bin path="Simulator.jar"/>
 </classpath>

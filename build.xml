@@ -36,8 +36,8 @@
 	<property name="linuxJRE32bit" value="jre_32bit.zip"/>
 	<property name="linuxJRE64bit" value="jre_64bit.zip"/>
 	<property name="linuxTar" value="EpisimSimulator.tar"/>
-	<property name="linuxTarGz32bit" value="EpisimSimulator_Linux_32-bit_add_COPASI.tar.gz"/>
-	<property name="linuxTarGz64bit" value="EpisimSimulator_Linux_64-bit_add_COPASI.tar.gz"/>
+	<property name="linuxTarGz32bit" value="EpisimSimulator_Linux_32-bit_add_native_libs.tar.gz"/>
+	<property name="linuxTarGz64bit" value="EpisimSimulator_Linux_64-bit_add_native_libs.tar.gz"/>
 	<property name="macTar" value="EpisimSimulator.tar"/>
 	<property name="macTarGz64bit" value="EpisimSimulator_Mac_OSX_64-bit.tar.gz"/>
 	<property name="macApp" value="EpisimSimulator.zip"/>
@@ -143,6 +143,7 @@
 			<fileset dir="${config}">
 				<include name="**/*"/>
 				<exclude name="**/episimconfig.properties"/>
+				<exclude name="**/cellvisualization.properties"/>
 			</fileset>
 			<fileset dir="${buildres}">
 				<include name="episimconfig.properties"/>

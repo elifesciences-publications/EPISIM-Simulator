@@ -379,6 +379,7 @@ public class TestVisualizationMain {
 	    output.delete();
 	    
 	    BufferedImage image = new BufferedImage(this.canvas.getWidth(), this.canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
+	  
 	    this.canvas.paintAll(image.getGraphics());
 	    PngEncoder enc = new PngEncoder(image);
 	    enc.setXDpi(300);

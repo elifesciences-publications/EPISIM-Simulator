@@ -1,4 +1,4 @@
-Episim Simulator version 1.3.0 ist ein Softwaretool, 
+Episim Simulator version 1.4.0 ist ein Softwaretool, 
 welches es erlaubt, multizelluläre Gewebemodelle 
 auf Basis eines Multiagentensystems zu simulieren.
 
@@ -9,7 +9,7 @@ Einige Features des Episim Simulators:
 - Überwachung der Simulationsergebnisse mittels Diagrammen
 
 Hardware- und Softwareanforderungen:
-- Betriebssystem: für Version 1.3.0 Windows 98/2000/XP/Vista/7
+- Betriebssystem: für Version 1.4.0 Windows 98/2000/XP/Vista/7
 
 
 Contact:
@@ -25,4 +25,4 @@ Hamamatsu TIGA Center
 Universitätsklinikum Heidelberg
 niels.grabe@med.uni-heidelberg.de
 
-Heidelberg, 2011
+Heidelberg, 2012

@@ -211,7 +211,7 @@ public class DataEvaluationWizard {
 							&& !algorithmSelectionPanel.getCalculationAlgorithmDescriptor().hasMathematicalExpression()
 							&& algorithmSelectionPanel.getCalculationAlgorithmDescriptor().getParameters().isEmpty()){
 						configurator = CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(algorithmSelectionPanel.getCalculationAlgorithmDescriptor().getID(), 
-								new String[]{null, null}, new String[]{null, null}, new HashMap<String, Object>());
+								new String[]{null, null}, new String[]{null, null}, false, new HashMap<String, Object>());
 					}
 					else if(actualExpressionEditorPanel != null) configurator = actualExpressionEditorPanel.getCalculationAlgorithmConfigurator();
 				if(configurator != null){

@@ -120,8 +120,8 @@
 			<fileset dir="${lib}">
 				<include name="**/*"/>
 				<exclude name="**/classpathconfig.xml"/>
-				<exclude name="**/copasi_gui.jar"/>
-				<exclude name="**/copasi.jar"/>
+				<!--<exclude name="**/copasi_gui.jar"/>-->
+				<!--<<exclude name="**/copasi.jar"/>-->
 				<exclude name="**/CopasiJava.dll"/>
 				<exclude name="**/Microsoft.VC80.CRT"/>
 				<exclude name="**/Microsoft.VC80.CRT.manifest"/>
@@ -129,9 +129,9 @@
 				<exclude name="**/msvcp80.dll"/>
 				<exclude name="**/msvcr80.dll"/>				
 				<exclude name="**/gluegen-rt.dll"/>
-				<exclude name="**/gluegen-rt.jar"/>
+				<!--<exclude name="**/gluegen-rt.jar"/>-->
 				<exclude name="**/jogl.dll"/>
-				<exclude name="**/jogl.jar"/>
+				<!--<exclude name="**/jogl.jar"/>-->
 				<exclude name="**/jogl_awt.dll"/>
 				<exclude name="**/jogl_cg.dll"/>				
 			</fileset>
@@ -194,6 +194,13 @@
 			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/jcommon-1.0.16.jar"/>
 			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/jfreechart-1.0.13.jar"/>
 			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/jfreechart-1.0.13-experimental.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/org.jzy3d-0.8.4.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/org.convexhull.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/opencsv-2.1.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/copasi.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/copasi_gui.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/gluegen-rt.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/jogl.jar"/>
 		</jar>
 	</target>
 	<!-- ================================= 
@@ -218,9 +225,9 @@
 	</target>
 	
 	<!-- ================================= 
-		  target: copyCOPASI_Windows              
+		  target: copyCOPASI_JOGL_Windows              
 	 	 ================================= -->
-	<target name="copyCOPSASI_Windows" depends="cleanupBinFolder" description="copies the most recent COPASI to the lib folder">
+	<target name="copyCOPSASI_JOGL_Windows" depends="cleanupBinFolder" description="copies the most recent COPASI and JOGL to the lib folder">
 		<unzip src="${buildres}/win/${winCopasi}" dest="${currentbuild}/${build}/lib"/>
 		<unzip src="${buildres}/win/${winJogl}" dest="${currentbuild}/${build}/lib"/>
 	</target>
@@ -228,7 +235,7 @@
 	<!-- ================================= 
           target: copyJDK_Windows              
          ================================= -->
-	<target name="copyJDK_Windows" depends="copyCOPSASI_Windows" description="copies the most recent JDK to the jre folder">
+	<target name="copyJDK_Windows" depends="copyCOPSASI_JOGL_Windows" description="copies the most recent JDK to the jre folder">
 		<echo message="${env.JAVA_HOME}"/>
 		<copy todir="${currentbuild}/${build}/jre">
 			<fileset dir="${env.JAVA_HOME}">

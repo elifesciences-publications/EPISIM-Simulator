@@ -124,10 +124,13 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 		   	 	EpisimCellBehavioralModel cbm = cell.getEpisimCellBehavioralModelObject();
 		   	/* 	if(((EpisimHexagonBasedModelConnector)mechModel.getEpisimModelConnector()).getIsAtSurfaceBorder()){
 		   	 		graphics.setPaint(Color.GREEN);
+		   	 	}*/
+		   	 	if(cell.getIsTracked()){
+		   	 		graphics.setPaint(Color.RED);
 		   	 	}
-		   	 	else{*/
+		   	 	else{
 		   	 		graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
-		   	 //  }
+		   	   }
 				   if (filled)
 				   {	        
 				   	graphics.fill(shape);

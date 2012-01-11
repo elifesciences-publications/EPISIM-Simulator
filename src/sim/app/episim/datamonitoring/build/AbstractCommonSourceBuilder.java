@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.util.Names;
@@ -85,6 +86,10 @@ public abstract class  AbstractCommonSourceBuilder {
 		
       StringBuffer handlerSource = new StringBuffer();
       handlerSource.append("new CalculationHandler(){\n");
+      if(config.isBooleanExpressionOnlyInitiallyChecked()){
+      	handlerSource.append("  private Map<Long, Boolean> wasAlreadyCheckedOnceMap = new HashMap<Long, Boolean>();\n");
+      	handlerSource.append("  private long lastSimStepNo = -1;\n");
+      }
       handlerSource.append("  private Map<String, Object> params;\n");
       handlerSource.append("  {\n");
       appendParameterMapReproduction(handlerSource, "params", config.getParameters());
@@ -134,8 +139,24 @@ public abstract class  AbstractCommonSourceBuilder {
 	      appendAssignmentCheck("cellBehaviour", requiredClasses, handlerSource);
 	      appendAssignmentCheck("biomechanics", requiredClasses, handlerSource);
 	      appendAssignmentCheck("cellTypeLocalObj", requiredClasses, handlerSource);
-	      handlerSource.append("if(isValidCell(cellTypeLocal))");
-	      handlerSource.append("    return (boolean)("+ config.getBooleanExpression()[1]+");\n");
+	      handlerSource.append("if(isValidCell(cellTypeLocal)){\n");
+	      if(config.isBooleanExpressionOnlyInitiallyChecked()){
+	      	handlerSource.append("  if(lastSimStepNo < SimStateServer.getInstance().getSimStepNumber()){ lastSimStepNo = SimStateServer.getInstance().getSimStepNumber();}\n");
+	      	handlerSource.append("  else if(lastSimStepNo > SimStateServer.getInstance().getSimStepNumber()){\n");
+	      	handlerSource.append("    wasAlreadyCheckedOnceMap.clear();\n");
+	      	handlerSource.append("    lastSimStepNo = SimStateServer.getInstance().getSimStepNumber();\n");
+	      	handlerSource.append("  }\n");
+	      	handlerSource.append("  if(!wasAlreadyCheckedOnceMap.containsKey(cellTypeLocal.getID())||(wasAlreadyCheckedOnceMap.containsKey(cellTypeLocal.getID())&&!wasAlreadyCheckedOnceMap.get(cellTypeLocal.getID()))){\n");
+	      	handlerSource.append("    boolean result = (boolean)("+ config.getBooleanExpression()[1]+");\n");
+	      	handlerSource.append("    if(result){\n");
+	      	handlerSource.append("      wasAlreadyCheckedOnceMap.put(cellTypeLocal.getID(), true);\n");
+	      	handlerSource.append("    }\n");
+	      	handlerSource.append("    return result;\n");
+	      	handlerSource.append("  }\n");
+	      	handlerSource.append("  else{return true;}\n");
+	      }
+	      else handlerSource.append("    return (boolean)("+ config.getBooleanExpression()[1]+");\n");
+	      handlerSource.append("}\n");
 	      handlerSource.append("else throw new CellNotValidException(\"Cell is not Valid: \"+ cellTypeLocal.getCellName());\n");
 		}
       else 
@@ -144,7 +165,7 @@ public abstract class  AbstractCommonSourceBuilder {
       }
       handlerSource.append("  }\n");
       handlerSource.append("}\n");
-      
+     
       return handlerSource.toString();  
       
 	}

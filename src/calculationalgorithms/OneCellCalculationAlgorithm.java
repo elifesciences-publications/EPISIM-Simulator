@@ -50,14 +50,14 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 		lastTimeStep = 0;
 	}
 		
-	private void checkTrackedCells(CalculationHandler handler) {
+	private void checkTrackedCells(CalculationHandler handler) throws CellNotValidException {
 
 		AbstractCell actTrackedCell = null;
 		AbstractCell newTrackedCell = null;
 		int searchInterval = (Integer) handler.getParameters().get(CELLSEARCHINGSIMSTEPINTERVAL);
       if(searchInterval < 1) searchInterval = 1;
 		actTrackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
-		if(actTrackedCell == null || actTrackedCell.getEpisimCellBehavioralModelObject().getIsAlive() == false){			
+		if(actTrackedCell == null || actTrackedCell.getEpisimCellBehavioralModelObject().getIsAlive() == false || !handler.conditionFulfilled(actTrackedCell)){			
 			
 			if(actTrackedCell != null){
 				this.trackedCells.remove(handlerIdStringIdMap.get(handler.getID()));
@@ -121,10 +121,11 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 			lastTimeStep =results.getTimeStep();
 			counter++;
 		}
-		checkTrackedCells(handler);
-		AbstractCell trackedCell=null;
+		try{
+				checkTrackedCells(handler);
+				AbstractCell trackedCell=null;
 			
-			try{
+			
 				
 				trackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
 				if(trackedCell != null){

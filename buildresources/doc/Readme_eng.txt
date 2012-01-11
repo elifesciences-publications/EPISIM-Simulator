@@ -1,4 +1,4 @@
-Episim Simulator version 1.3.0 is a software tool that enables 
+Episim Simulator version 1.4.0 is a software tool that enables 
 users to simulate multicellular models 
 of the complex structured epithelial tissue.
 
@@ -9,7 +9,7 @@ Some feature of the EPISIM ModelEditor:
 - Monitoring of the simulation results with flexible charts
 
 Requirements:
-- Operating system for version 1.3.0: Windows 98/2000/XP/Vista/7
+- Operating system for version 1.4.0: Windows 98/2000/XP/Vista/7
 
 Contact:
 Thomas Sütterlin
@@ -23,4 +23,4 @@ Institute for Medical Biometry and Informatics
 Hamamatsu TIGA Center
 niels.grabe@med.uni-heidelberg.de
 
-Heidelberg, 2011
+Heidelberg, 2012

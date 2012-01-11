@@ -3,7 +3,7 @@
 <!-- The info section. -->
 <info>
 <appname>Episim Simulator</appname>
-<appversion>1.3.0</appversion>
+<appversion>1.4.0</appversion>
  <authors>
 <author name="Thomas Suetterlin" email="thomas.suetterlin@med.uni-heidelberg.de"/>
 </authors>
@@ -13,8 +13,8 @@
 <native type="izpack" name="ShellLink.dll"/>
 
 <variables>
-<variable name="app-version" value="1.3.0"/>
-<variable name="released-on" value="07.09.2010"/>
+<variable name="app-version" value="1.4.0"/>
+<variable name="released-on" value="12.01.2012"/>
 </variables>
 
  <!-- The gui preferences indication. -->

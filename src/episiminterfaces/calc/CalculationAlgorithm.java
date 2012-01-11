@@ -32,7 +32,7 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 	public static final String HISTOGRAMNUMBEROFBINSPARAMETER = "number of bins";
 	public static final String SIMSTEPTIMESCALINGFACTOR = "time scaling factor";
 	public static final String ABSOLUTECELLNUMBER = "calculate absolute cell number";
-	public static final String CELLSEARCHINGSIMSTEPINTERVAL = "cell search simtep interval";
+	public static final String CELLSEARCHINGSIMSTEPINTERVAL = "cell search simstep interval";
 	
 	CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id);
 	void registerCells(GenericBag<AbstractCell> allCells);

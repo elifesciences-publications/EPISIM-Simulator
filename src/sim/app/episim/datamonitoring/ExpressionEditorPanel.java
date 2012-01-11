@@ -6,6 +6,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -19,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
@@ -42,7 +46,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	private JTextArea arithmeticExpressionTextArea;
 	private JTextArea booleanExpressionTextArea;
 	
-	public static boolean SHOWMESSAGEFIELDS = true;
+	public static boolean SHOWMESSAGEFIELDS = false;
 	
 	
 	private JPanel parametersPanel;
@@ -50,12 +54,14 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	private JPanel arithmeticExpressionPanel;
 	private JPanel booleanMessagePanel;
 	private JPanel booleanExpressionPanel;
+	private JPanel conditionCheckBoxPanel;
 	
 	private TissueCellDataFieldsInspector dataFieldsInspector;
 	
 	private JTextArea arithmeticMessageTextArea;
 	private JTextArea booleanMessageTextArea;
 	
+	private JCheckBox conditionOnlyInitiallyCheckedCheckBox;
 	
 	
 	private JPanel panel;
@@ -73,6 +79,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	private Component parentComponent;
 	
 	private ExpressionType expressionType = ExpressionType.MATHEMATICAL_EXPRESSION;
+	
+	private boolean isConditionOnlyInitiallyChecked = false;
 	
 	public ExpressionEditorPanel(Component parent, TissueCellDataFieldsInspector _dataFieldsInspector, CalculationAlgorithmDescriptor descriptor){
 		this.parentComponent = parent;
@@ -104,7 +112,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	   	hasParameters = true;
 		   c.fill = GridBagConstraints.BOTH;
 		   c.gridwidth = GridBagConstraints.REMAINDER;
-		   c.weighty =0.7;
+		   c.weighty =0.35;
 		   parametersPanel = buildParameterPanel(descriptor);
 		   JScrollPane scroll = new JScrollPane(parametersPanel);
 		   scroll.setBorder(null);
@@ -133,6 +141,23 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	   this.arithmeticMessagePanel=buildMessageTextAreaPanel(arithmeticMessageTextArea);
 	   panel.add(arithmeticMessagePanel, c);
 	   this.arithmeticMessagePanel.setVisible(false);
+	   
+	   
+	   
+	   c.fill = GridBagConstraints.NONE;
+	   c.gridwidth = GridBagConstraints.REMAINDER;
+	   c.weighty =0;
+	   c.weightx =1;
+	   conditionCheckBoxPanel = new JPanel(new BorderLayout());
+	   conditionOnlyInitiallyCheckedCheckBox = new JCheckBox("Check fulfillment of condition only once", false);
+	   conditionOnlyInitiallyCheckedCheckBox.addActionListener(new ActionListener(){
+	   	public void actionPerformed(ActionEvent e) {
+	   		isConditionOnlyInitiallyChecked = conditionOnlyInitiallyCheckedCheckBox.isSelected();
+	         
+         }});
+	   conditionCheckBoxPanel.add(conditionOnlyInitiallyCheckedCheckBox, BorderLayout.WEST);
+	   panel.add(conditionCheckBoxPanel, c);
+	  	this.conditionCheckBoxPanel.setVisible(hasBooleanCondition);
 	   
 	   
 	   c.fill = GridBagConstraints.BOTH;
@@ -202,6 +227,9 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				}
 				
 			}
+			if(hasBooleanCondition){
+				conditionOnlyInitiallyCheckedCheckBox.setSelected(config.isBooleanExpressionOnlyInitiallyChecked());
+			}
 			if(hasParameters)setParameterValues(config.getParameters());
 		}						
 	}
@@ -239,7 +267,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				}					
 				if(!hasBooleanCondition){
 					if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
-						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, new String[]{null, null}, parameterValues);
+						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, new String[]{null, null}, false, parameterValues);
 					}
 					else{
 						arithmeticMessagePanel.setVisible(true);
@@ -271,10 +299,10 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				}
 				if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
 					if(hasMathematicalExpression){
-						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, booleanExpression, parameterValues);
+						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, booleanExpression, isConditionOnlyInitiallyChecked, parameterValues);
 					}
 					else{
-						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, new String[]{null, null}, booleanExpression, parameterValues);
+						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, new String[]{null, null}, booleanExpression, isConditionOnlyInitiallyChecked, parameterValues);
 					}
 				}
 				else{
@@ -303,7 +331,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 			}
 		}
 		if(!hasBooleanCondition && !hasMathematicalExpression && !parameterValues.isEmpty()){
-			return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, new String[]{null, null}, new String[]{null, null}, parameterValues);
+			return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, new String[]{null, null}, new String[]{null, null}, false, parameterValues);
 		}
 		return null;
 	}
@@ -415,7 +443,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				else if(Integer.TYPE.isAssignableFrom(descriptor.getParameters().get(name)) 
 						|| Byte.TYPE.isAssignableFrom(descriptor.getParameters().get(name))
 						|| Short.TYPE.isAssignableFrom(descriptor.getParameters().get(name))){
-					propField = new NumberTextField(name, 0, false){
+					propField = new NumberTextField(name, 1, false){
 						 public double newValue(double newValue){	return (int)newValue; }
 						 public double getValue(){submit(); return super.getValue();}
 						  public void setVerifyInputWhenFocusTarget(boolean
@@ -433,7 +461,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				}
 				else if(Double.TYPE.isAssignableFrom(descriptor.getParameters().get(name)) 
 						|| Float.TYPE.isAssignableFrom(descriptor.getParameters().get(name))){
-					propField = new NumberTextField(name, 0, false){
+					propField = new NumberTextField(name, 1, false){
 						 public double getValue(){submit(); return super.getValue();}
 						 public void setVerifyInputWhenFocusTarget(boolean
 							      verifyInputWhenFocusTarget) {							  

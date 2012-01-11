@@ -8,5 +8,6 @@ public interface CalculationAlgorithmConfigurator extends java.io.Serializable{
 	String[] getBooleanExpression();
 	String[] getArithmeticExpression();
 	Map<String, Object> getParameters();	
+	boolean isBooleanExpressionOnlyInitiallyChecked();
 	
 }

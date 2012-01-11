@@ -124,7 +124,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 			                Shape cellPolygon;
 			                Shape nucleusPolygon;               
 			                cellPolygon = universalCell.getEpisimBioMechanicalModelObject().getPolygonCell(info);
-			          
+			                if(mechModel.getX() != 0 || mechModel.getY() != 0){
 				                graphics.setPaint(fillColor);
 				                graphics.fill(cellPolygon);				                
 				                if(drawFrame)
@@ -133,16 +133,17 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 				                  graphics.draw(cellPolygon);
 				                }
 			                
-			                //TODO: Nucleus ein- und ausschalten
-			              if(showNucleus)
-			              {
-			                  java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
-			                  nucleusPolygon= universalCell.getEpisimBioMechanicalModelObject().getPolygonNucleus(info);
-			                  if(nucleusPolygon != null){
-				                  graphics.setPaint(nucleusColor);  
-				                  graphics.fill(nucleusPolygon);
-			                  }
-			              }
+					                //TODO: Nucleus ein- und ausschalten
+					              if(showNucleus)
+					              {
+					                  java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
+					                  nucleusPolygon= universalCell.getEpisimBioMechanicalModelObject().getPolygonNucleus(info);
+					                  if(nucleusPolygon != null){
+						                  graphics.setPaint(nucleusColor);  
+						                  graphics.fill(nucleusPolygon);
+					                  }
+					              }
+			                }
 		                
 		              } 
                }
@@ -162,7 +163,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 
 	private void doCenterBasedModelEllipseDrawing(Graphics2D graphics, DrawInfo2D info, UniversalCell universalCell, boolean showNucleus){
 		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
-			
+		    AbstractMechanicalModel mechModel = (AbstractMechanicalModel)universalCell.getEpisimBioMechanicalModelObject();
 			((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
 			CellEllipse cellEllipseObject = ((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
 			
@@ -170,20 +171,22 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 				cellEllipseObject.translateCell(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
 		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));        
 	      }	      	  
-	    	graphics.setPaint(getFillColor(universalCell));    
-	    	Area clippedEllipse = cellEllipseObject.getClippedEllipse();
-	    	if(clippedEllipse != null){
-	    		  graphics.fill(clippedEllipse);
-	       	  if(drawFrame){
-	          	  graphics.setPaint(getContourColor(universalCell));
-	          	  graphics.draw(clippedEllipse);	       	  
-	       	  }
-	    	}
-	    	if(showNucleus){
-	    		Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
-	         graphics.setPaint(nucleusColor);
-	       	final double NUCLEUSRAD = 0.75;
-	         graphics.fill(new Ellipse2D.Double(cellEllipseObject.getX()-NUCLEUSRAD*info.draw.width, cellEllipseObject.getY()-NUCLEUSRAD*info.draw.height,2*NUCLEUSRAD*info.draw.width, 2*NUCLEUSRAD*info.draw.height));
+	    	graphics.setPaint(getFillColor(universalCell));
+	    	if(mechModel.getX() != 0 || mechModel.getY() != 0){
+		    	Area clippedEllipse = cellEllipseObject.getClippedEllipse();
+		    	if(clippedEllipse != null){
+		    		  graphics.fill(clippedEllipse);
+		       	  if(drawFrame){
+		          	  graphics.setPaint(getContourColor(universalCell));
+		          	  graphics.draw(clippedEllipse);	       	  
+		       	  }
+		    	}
+		    	if(showNucleus){
+		    		Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
+		         graphics.setPaint(nucleusColor);
+		       	final double NUCLEUSRAD = 0.75;
+		         graphics.fill(new Ellipse2D.Double(cellEllipseObject.getX()-NUCLEUSRAD*info.draw.width, cellEllipseObject.getY()-NUCLEUSRAD*info.draw.height,2*NUCLEUSRAD*info.draw.width, 2*NUCLEUSRAD*info.draw.height));
+		    	}
 	    	}
 	    	//must be set at the very end of the paint method
 	       

@@ -841,12 +841,15 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double offsetX = DISPLAY_BORDER_LEFT*displayScale;
 		double offsetY = DISPLAY_BORDER_TOP*displayScale;
 		
-		double differenceX = (info.clip.width-(EPIDISPLAYWIDTH*displayScale));
-		double differenceY = (info.clip.height-(EPIDISPLAYHEIGHT*displayScale));
+		double differenceX = 0;
+		double differenceY = 0;
+		
 		
 		double startX =0; 
 		double startY =0; 
 		if(info != null){
+			differenceX = (info.clip.width-(EPIDISPLAYWIDTH*displayScale));
+			differenceY = (info.clip.height-(EPIDISPLAYHEIGHT*displayScale));
 			startX =differenceX >= 0 ? info.clip.x:0;
 			startY =differenceY >= 0 ? info.clip.y:0;
 		}

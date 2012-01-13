@@ -27,7 +27,7 @@
 	<property name="title" value="Episim Simulator"/>
 	<property name="main" value="sim.app.episim.gui.EpidermisSimulator"/>
 	<property name="splash" value="splash.jpg"/>
-	<property name="classpath" value=". ../lib/copasi.jar ../lib/copasi_gui.jar"/>
+	<property name="classpath" value=". ../lib/copasi.jar ../lib/copasi_gui.jar ../lib/jogl.jar ../lib/gluegen-rt.jar"/>
 
 	<property name="iconname" value="start.ico"/>
 	<property name="EpisimSimulatorExe" value="EpisimSimulator.exe"/>
@@ -120,8 +120,8 @@
 			<fileset dir="${lib}">
 				<include name="**/*"/>
 				<exclude name="**/classpathconfig.xml"/>
-				<!--<exclude name="**/copasi_gui.jar"/>-->
-				<!--<<exclude name="**/copasi.jar"/>-->
+				<exclude name="**/copasi_gui.jar"/>
+				<exclude name="**/copasi.jar"/>
 				<exclude name="**/CopasiJava.dll"/>
 				<exclude name="**/Microsoft.VC80.CRT"/>
 				<exclude name="**/Microsoft.VC80.CRT.manifest"/>
@@ -129,9 +129,9 @@
 				<exclude name="**/msvcp80.dll"/>
 				<exclude name="**/msvcr80.dll"/>				
 				<exclude name="**/gluegen-rt.dll"/>
-				<!--<exclude name="**/gluegen-rt.jar"/>-->
+				<exclude name="**/gluegen-rt.jar"/>
 				<exclude name="**/jogl.dll"/>
-				<!--<exclude name="**/jogl.jar"/>-->
+				<exclude name="**/jogl.jar"/>
 				<exclude name="**/jogl_awt.dll"/>
 				<exclude name="**/jogl_cg.dll"/>				
 			</fileset>
@@ -197,10 +197,10 @@
 			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/org.jzy3d-0.8.4.jar"/>
 			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/org.convexhull.jar"/>
 			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/opencsv-2.1.jar"/>
-			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/copasi.jar"/>
-			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/copasi_gui.jar"/>
-			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/gluegen-rt.jar"/>
-			<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/jogl.jar"/>
+			<!--<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/copasi.jar"/>-->
+			<!--<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/copasi_gui.jar"/>-->
+			<!--<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/gluegen-rt.jar"/>-->
+			<!--<zipfileset excludes="META-INF/*.SF" src="${currentbuild}/${build}/lib/jogl.jar"/>-->
 		</jar>
 	</target>
 	<!-- ================================= 

@@ -47,6 +47,8 @@ public class EpisimProperties {
 	public static final String SIMULATOR_CHARTPNGPRINTPATH = "simulator.chartpngprintpath";	
 	public static final String SIMULATOR_CHARTPNGPRINTFREQ = "simulator.chartpngprintfreq";
 	
+	public static final String SIMULATOR_SAVESVGCOPYOFPNG = "simulator.saveSVGCopyOfEachPNG";
+	
 	public static final String SIMULATOR_SIMULATION_RUN_ID = "simulator.simulationrun.id";
 		
 	public static final String SIMULATOR_SIM_STEP_MODE_MONTE_CARLO="montecarlo";

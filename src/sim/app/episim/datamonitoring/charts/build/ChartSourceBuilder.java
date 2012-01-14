@@ -105,6 +105,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.GlobalStatistics;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.calc.*;\n");
 		generatedSourceCode.append("import sim.app.episim.datamonitoring.charts.io.*;\n");
+		generatedSourceCode.append("import sim.app.episim.datamonitoring.charts.*;\n");
 		generatedSourceCode.append("import sim.app.episim.AbstractCell;\n");
 		generatedSourceCode.append("import sim.app.episim.EpisimProperties;\n");
 		generatedSourceCode.append("import sim.engine.SimState;\n");
@@ -176,7 +177,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".getXYPlot().setRangeAxis(new LogarithmicAxis(\""+ actChart.getYLabel()+"\"));\n");
 		}
 		
-		generatedSourceCode.append("  chartPanel = new ChartPanel("+CHARTDATAFIELDNAME+", true);\n");
+		generatedSourceCode.append("  chartPanel = new EpisimChartPanel("+CHARTDATAFIELDNAME+", true);\n");
 		generatedSourceCode.append("  chartPanel.setPreferredSize(new java.awt.Dimension(640,480));\n");
 		generatedSourceCode.append("  chartPanel.setMinimumDrawHeight(10);\n");
 		generatedSourceCode.append("  chartPanel.setMaximumDrawHeight(2000);\n");

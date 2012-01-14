@@ -100,11 +100,7 @@ public class DefaultCharts implements java.io.Serializable{
 	
 	private DefaultCharts() {
 		initChartActivationMap();
-		addDefaultSteppables();
-		
-		
-		
-		
+		addDefaultSteppables();	
 		
 		XYLineAndShapeRenderer lineShapeRenderer;
 		JFreeChart chart;

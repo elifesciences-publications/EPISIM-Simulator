@@ -373,4 +373,7 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
    	this.toroidalZ = toroidalZ;
    }
    
+   public void setToValue(double value) {	   
+	   extraCellularField.setTo(value);
+   }
 }

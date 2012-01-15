@@ -29,9 +29,9 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 		this.csvFile = csvFile;
 		this.diffusionFieldName = diffusionFieldName;
 	}
-	
+	//TODO: implements distinction between 2D and 3D
 	public void writeDiffusionFieldToDisk(){
-		ExtraCellularDiffusionField2D diffusionField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(this.diffusionFieldName);
+		ExtraCellularDiffusionField2D diffusionField = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(this.diffusionFieldName);
 		if(diffusionField != null){
 			if(firstTime){
 				writeHeader();

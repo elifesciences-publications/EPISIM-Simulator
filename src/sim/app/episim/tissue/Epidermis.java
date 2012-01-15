@@ -20,6 +20,7 @@ import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuil
 import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
@@ -218,8 +219,8 @@ public class Epidermis extends TissueType implements CellDeathListener
 	     EnhancedSteppable mcSteppable = getMonteCarloStepSteppable();
 	     schedule.scheduleRepeating(mcSteppable, SchedulePriority.CELLS.getPriority(), mcSteppable.getInterval());
 	   }
-	   ExtraCellularDiffusionField2D[] fields = ModelController.getInstance().getExtraCellularDiffusionController().getAllExtraCellularDiffusionFields();
-	   for(ExtraCellularDiffusionField2D field : fields){	   	
+	   ExtraCellularDiffusionField[] fields = ModelController.getInstance().getExtraCellularDiffusionController().getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]);
+	   for(ExtraCellularDiffusionField field : fields){	   	
 	   	schedule.scheduleRepeating(field, field.getInterval());
 	   }
 	     

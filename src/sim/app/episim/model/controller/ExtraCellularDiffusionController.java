@@ -6,6 +6,7 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 
 import sim.app.episim.EpisimProperties;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.TestDiffusionFieldConfiguration;
 import sim.app.episim.model.initialization.ExtraCellularDiffusionInitializer;
@@ -19,12 +20,12 @@ public class ExtraCellularDiffusionController {
 	
 	private static ExtraCellularDiffusionController instance = new ExtraCellularDiffusionController();
 	
-	private HashMap<String, ExtraCellularDiffusionField2D> extraCellularFieldMap;
+	private HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap;
 	
 	private EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations;
 	
 	private ExtraCellularDiffusionController(){
-		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField2D>();
+		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
 	}
 	
 	
@@ -45,15 +46,18 @@ public class ExtraCellularDiffusionController {
 		return null;
 	}
 	
-	public ExtraCellularDiffusionField2D[] getAllExtraCellularDiffusionFields(){
-		return extraCellularFieldMap.values().toArray(new ExtraCellularDiffusionField2D[extraCellularFieldMap.size()]);
+	public <T extends ExtraCellularDiffusionField> T[] getAllExtraCellularDiffusionFields(T[] fieldArray){
+		if(fieldArray != null && fieldArray.length == getNumberOfFields()) return extraCellularFieldMap.values().toArray(fieldArray);
+		else throw new IllegalArgumentException("fieldArray is null or size does not fit");
 	}
 	
-	public ExtraCellularDiffusionField2D getExtraCellularDiffusionField(String name){
+	public int getNumberOfFields(){ return this.extraCellularFieldMap.size(); } 
+	
+	public ExtraCellularDiffusionField getExtraCellularDiffusionField(String name){
 		return this.extraCellularFieldMap.get(name);
 	}
 	
-	public void setExtraCellularFieldMap(HashMap<String, ExtraCellularDiffusionField2D> extraCellularFieldMap){
+	public void setExtraCellularFieldMap(HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap){
 		this.extraCellularFieldMap = extraCellularFieldMap;
 	}
 	
@@ -70,7 +74,7 @@ public class ExtraCellularDiffusionController {
 	}
 	
 	protected void newCellBehavioralModelLoaded(){
-		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField2D>();
+		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
 		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE)!= null &&
 				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE).equals(EpisimProperties.ON)){
 			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[]{new TestDiffusionFieldConfiguration()};

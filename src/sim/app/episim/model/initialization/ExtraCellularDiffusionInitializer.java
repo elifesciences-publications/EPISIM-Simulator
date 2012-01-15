@@ -2,12 +2,17 @@ package sim.app.episim.model.initialization;
 
 import java.util.HashMap;
 
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal;
+import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal2D;
+import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal3D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 import sim.field.grid.DoubleGrid2D;
@@ -29,34 +34,26 @@ public class ExtraCellularDiffusionInitializer {
 	public EpisimPortrayal[] getExtraCellularDiffusionPortrayals() {
 		if (ModelController.getInstance().getExtraCellularDiffusionController()
 				.getNumberOfEpisimExtraCellularDiffusionFieldConfigurations() > 0) {
-			ExtraCellularDiffusionField2D[] diffusionFields = ModelController
-					.getInstance().getExtraCellularDiffusionController()
-					.getAllExtraCellularDiffusionFields();
+			ExtraCellularDiffusionField[] diffusionFields = ModelController.getInstance().getExtraCellularDiffusionController().
+														getAllExtraCellularDiffusionFields(
+																			new ExtraCellularDiffusionField[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]);
 			currentDiffusionFieldPortrayals = new ExtraCellularDiffusionPortrayal[diffusionFields.length];
 			for (int i = 0; i < diffusionFields.length; i++) {
-				currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal(
-						diffusionFields[i]);
+				if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
+					currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal2D(diffusionFields[i]);
+				}
+				if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+					currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal3D(diffusionFields[i]);
+				}
 			}
 		} else {
 			currentDiffusionFieldPortrayals = new ExtraCellularDiffusionPortrayal[0];
 		}
 		return currentDiffusionFieldPortrayals;
-	}
-
-	private void initializeExtraCellularDiffusionFields(
-			ExtraCellularDiffusionField2D[] diffusionFields) {
-		if (this.simStateData != null) {
-
-		}
-	}
+	}	
 
 	public void buildExtraCellularDiffusionFields() {
 		rebuildExtraCellularDiffusionFields();
-		ExtraCellularDiffusionField2D[] diffusionFields = ModelController
-				.getInstance().getExtraCellularDiffusionController()
-				.getAllExtraCellularDiffusionFields();
-		initializeExtraCellularDiffusionFields(diffusionFields);
-
 	}
 
 	private void rebuildExtraCellularDiffusionFields() {
@@ -66,63 +63,79 @@ public class ExtraCellularDiffusionInitializer {
 					.getInstance().getExtraCellularDiffusionController()
 					.getEpisimExtraCellularDiffusionFieldsConfigurations();
 
-			HashMap<String, ExtraCellularDiffusionField2D> extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField2D>();
+			HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
 
 			double widthInMikron = TissueController.getInstance()
 					.getTissueBorder().getWidthInMikron();
 			double heightInMikron = TissueController.getInstance()
 					.getTissueBorder().getHeightInMikron();
 
-			ExtraCellularDiffusionField2D actField;
+			ExtraCellularDiffusionField actField = null;
 
 			for(int i = 0; i< fieldConfigurations.length; i++){
-				actField = new ExtraCellularDiffusionField2D(fieldConfigurations[i],widthInMikron, heightInMikron, 
-						ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().areDiffusionFieldsContinousInXDirection(),ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().areDiffusionFieldsContinousInYDirection());				
-				actField.getExtraCellularField().setTo(actField.getFieldConfiguration().getDefaultConcentration());
+				if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
+					actField = new ExtraCellularDiffusionField2D(fieldConfigurations[i],widthInMikron, heightInMikron, 
+							ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().areDiffusionFieldsContinousInXDirection(),ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().areDiffusionFieldsContinousInYDirection());				
+				}
+				if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+					actField = new ExtraCellularDiffusionField3D(fieldConfigurations[i],widthInMikron, heightInMikron, heightInMikron,
+							ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().areDiffusionFieldsContinousInXDirection(),ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().areDiffusionFieldsContinousInYDirection(), ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().areDiffusionFieldsContinousInZDirection());				
+				}
+				actField.setToValue(actField.getFieldConfiguration().getDefaultConcentration());
 				if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE)!= null &&
 						EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE).equals(EpisimProperties.ON)){
-					testFieldInitialization(actField.getExtraCellularField());
+					testFieldInitialization(actField);
 				}	
-			
-				if(simStateData != null) initializeExtraCellularDiffusionFieldWithSimState(actField);
-				
-
+							
 				setExtraCellularDiffusionFieldInPortrayal(actField);
 				extraCellularFieldMap.put(actField.getName(), actField);
 			}
 			ModelController.getInstance().getExtraCellularDiffusionController()
 					.setExtraCellularFieldMap(extraCellularFieldMap);
 			if (simStateData != null) {
-				simStateData.getExtraCellularDiffusionFieldArray()
-						.copyValuesToTarget(
-								ModelController.getInstance()
-										.getExtraCellularDiffusionController()
-										.getAllExtraCellularDiffusionFields());
+				if(ModelController.getInstance().getModelDimensionality()== ModelDimensionality.TWO_DIMENSIONAL){
+					simStateData.getExtraCellularDiffusionFieldArray2D()
+							.copyValuesToTarget(
+									ModelController.getInstance()
+											.getExtraCellularDiffusionController()
+											.getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField2D[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]));
+				}
 			}
 		}
 	}
 
-	private void initializeExtraCellularDiffusionFieldWithSimState(
-			ExtraCellularDiffusionField2D ecDiffField) {
-		ModelController.getInstance().getExtraCellularDiffusionController()
-				.getAllExtraCellularDiffusionFields();
-	}
-
 	
-	private void testFieldInitialization(DoubleGrid2D field){
-		int delta = 8;				
-		int width_half = field.getWidth()/2;
-		int height_half = field.getHeight()/2;
-		for(int y = (height_half-delta); y < height_half+delta; y++){
-			for(int x = (width_half-delta-2); x < width_half+delta+2; x++){
-				field.set(x, y, 255);
-			}						
+	
+	private void testFieldInitialization(ExtraCellularDiffusionField field){
+		int delta = 8;
+		if(field instanceof ExtraCellularDiffusionField2D){
+			ExtraCellularDiffusionField2D field2D = (ExtraCellularDiffusionField2D) field;
+			int width_half = field2D.getExtraCellularField().getWidth()/2;
+			int height_half = field2D.getExtraCellularField().getHeight()/2;
+			for(int y = (height_half-delta); y < height_half+delta; y++){
+				for(int x = (width_half-delta-2); x < width_half+delta+2; x++){
+					field2D.getExtraCellularField().set(x, y, 255);
+				}						
+			}
+		}
+		if(field instanceof ExtraCellularDiffusionField3D){
+			ExtraCellularDiffusionField3D field3D = (ExtraCellularDiffusionField3D) field;
+			int width_half = field3D.getExtraCellularField().getWidth()/2;
+			int height_half = field3D.getExtraCellularField().getHeight()/2;
+			int length_half = field3D.getExtraCellularField().getLength()/2;
+			for(int z = (length_half-delta); z < length_half+delta; z++){
+				for(int y = (height_half-delta); y < height_half+delta; y++){
+					for(int x = (width_half-delta-2); x < width_half+delta+2; x++){
+						field3D.getExtraCellularField().set(x, y, z, 255);
+					}						
+				}
+			}
 		}
 	}
 	
 	
 	
-	private void setExtraCellularDiffusionFieldInPortrayal(ExtraCellularDiffusionField2D diffusionField){
+	private void setExtraCellularDiffusionFieldInPortrayal(ExtraCellularDiffusionField diffusionField){
 		if(this.currentDiffusionFieldPortrayals != null){
 			//the name of a diffusionField is unique
 			for(int i = 0; i< this.currentDiffusionFieldPortrayals.length; i++){

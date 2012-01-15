@@ -12,7 +12,7 @@ import sim.field.grid.DoubleGrid2D;
 import sim.util.DoubleBag;
 
 
-public class ExtraCellularDiffusionField2D implements EnhancedSteppable, ExtraCellularDiffusionField{
+public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionField{
 	
 	private DoubleGrid2D extraCellularField;
 	
@@ -268,6 +268,10 @@ public class ExtraCellularDiffusionField2D implements EnhancedSteppable, ExtraCe
    			y+=fieldRes;
    		}
    		return totalConcentration;
+   }
+	
+   public void setToValue(double value) {	   
+	   extraCellularField.setTo(value);
    }
    
 }

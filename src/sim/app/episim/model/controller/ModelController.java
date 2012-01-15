@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import episimexceptions.ModelCompatibilityException;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModel;
@@ -120,6 +121,8 @@ public class ModelController implements java.io.Serializable{
    	
    	return success;
    }
+   
+   public ModelDimensionality getModelDimensionality(){ return getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality();}
    	
    
    

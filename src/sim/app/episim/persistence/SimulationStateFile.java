@@ -13,12 +13,15 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 import sim.app.episim.gui.EpidermisSimulator;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
-import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray;
+import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray2D;
+import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray3D;
 import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
@@ -41,7 +44,8 @@ public class SimulationStateFile extends XmlFile {
 	private static final String EPISIM_VERSION = "version";
 	private static final String EXPORT_DATE = "exportdate";
 	private static final String TISSUE_BORDER = "tissueborder";
-	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY = "ExtraCellularDiffusionFields";
+	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY2D = "ExtraCellularDiffusionFields2D";
+	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY3D = "ExtraCellularDiffusionFields3D";
 
 	private static File tissueExportPath;
 
@@ -147,9 +151,15 @@ public class SimulationStateFile extends XmlFile {
 			}
 
 			if (nodes.item(i).getNodeName()
-					.equalsIgnoreCase(EXTRACELLULARDIFFUSIONFIELDARRAY)) {
+					.equalsIgnoreCase(EXTRACELLULARDIFFUSIONFIELDARRAY2D)) {
 				simStateData
-						.setExtraCellularDiffusionFieldArray(new XmlExtraCellularDiffusionFieldArray(
+						.setExtraCellularDiffusionFieldArray2D(new XmlExtraCellularDiffusionFieldArray2D(
+								nodes.item(i)));
+			}
+			if (nodes.item(i).getNodeName()
+					.equalsIgnoreCase(EXTRACELLULARDIFFUSIONFIELDARRAY3D)) {
+				simStateData
+						.setExtraCellularDiffusionFieldArray3D(new XmlExtraCellularDiffusionFieldArray3D(
 								nodes.item(i)));
 			}
 		}
@@ -213,9 +223,17 @@ public class SimulationStateFile extends XmlFile {
 		getRoot().appendChild(
 				simStateData.getTissueBorder().toXMLNode(TISSUE_BORDER, this));
 
-		getRoot().appendChild(
-				simStateData.getExtraCellularDiffusionFieldArray().toXMLNode(
-						EXTRACELLULARDIFFUSIONFIELDARRAY, this));
+		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
+			getRoot().appendChild(
+					simStateData.getExtraCellularDiffusionFieldArray2D().toXMLNode(
+							EXTRACELLULARDIFFUSIONFIELDARRAY2D, this));
+		}
+	
+		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+			getRoot().appendChild(
+					simStateData.getExtraCellularDiffusionFieldArray3D().toXMLNode(
+							EXTRACELLULARDIFFUSIONFIELDARRAY2D, this));
+		}
 
 		getRoot().appendChild(
 				simStateData.getEpisimCellBehavioralModelGlobalParameters()

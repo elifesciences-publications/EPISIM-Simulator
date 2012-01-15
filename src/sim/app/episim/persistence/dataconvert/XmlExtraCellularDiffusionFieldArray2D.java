@@ -11,17 +11,17 @@ import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 import sim.field.grid.DoubleGrid2D;
 
-public class XmlExtraCellularDiffusionFieldArray extends
+public class XmlExtraCellularDiffusionFieldArray2D extends
 		XmlObject<ExtraCellularDiffusionField2D[]> {
 
 	private static final String GRID2D = "grid2d";
 	private static final String NAME = "name";
 
-	public XmlExtraCellularDiffusionFieldArray(ExtraCellularDiffusionField2D[] obj) throws ExportException {
+	public XmlExtraCellularDiffusionFieldArray2D(ExtraCellularDiffusionField2D[] obj) throws ExportException {
 		super(obj);
 	}
 
-	public XmlExtraCellularDiffusionFieldArray(Node objectNode) {
+	public XmlExtraCellularDiffusionFieldArray2D(Node objectNode) {
 		super(objectNode);
 	}
 	

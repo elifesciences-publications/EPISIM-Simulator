@@ -343,7 +343,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		if(globalParameters.isChemotaxisEnabled()){
 			String chemotacticFieldName = modelConnector.getChemotacticField();
 			if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
-				ExtraCellularDiffusionField2D ecDiffField =  ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
+				ExtraCellularDiffusionField2D ecDiffField =  (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
 				if(ecDiffField != null){
 					double[] concentrations = new double[spreadingLocationIndices.size()];
 					for(int i = 0; i < spreadingLocationIndices.size();i++){
@@ -432,7 +432,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		if(globalParameters.isChemotaxisEnabled()){
 			String chemotacticFieldName = modelConnector.getChemotacticField();
 			if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
-				ExtraCellularDiffusionField2D ecDiffField =  ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
+				ExtraCellularDiffusionField2D ecDiffField =  (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
 				if(ecDiffField != null){					
 					double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 					                                                                            ? ecDiffField.getFieldConfiguration().getMaximumConcentration()

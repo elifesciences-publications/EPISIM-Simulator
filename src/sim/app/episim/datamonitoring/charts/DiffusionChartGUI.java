@@ -75,7 +75,7 @@ public class DiffusionChartGUI {
 			}
 		}
 	}
-	
+	//TODO: implements distinction between 2D and 3D
 	private void buildChart(){
 		
 		final Random rand = new Random();
@@ -83,7 +83,7 @@ public class DiffusionChartGUI {
 			public double f(double x, double y) {
 				y = TissueController.getInstance().getTissueBorder().getHeightInMikron() - y;
 				if(y < 0) return 0;
-				ExtraCellularDiffusionField2D field= ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
+				ExtraCellularDiffusionField2D field= (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
 				return field != null ? field.getConcentration(x, y) : 0;
 			}
 		};

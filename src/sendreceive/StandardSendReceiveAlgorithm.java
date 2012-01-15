@@ -159,10 +159,11 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
 		}
 	}
 	
+	//TODO: implement distinction between 2D and 3D
    public void sendDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell) {
 
    	AbstractCell cellObj = TissueController.getInstance().getActEpidermalTissue().getCell(cell.getId());
-   	ExtraCellularDiffusionField2D diffField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
+   	ExtraCellularDiffusionField2D diffField = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
    	
    	if(cellObj != null && diffField != null){
    	   		
@@ -202,9 +203,10 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    	}	   
    }
 	
+   //TODO: implements distinction between 2D and 3D
    public void receiveDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell) {
    	AbstractCell cellObj = TissueController.getInstance().getActEpidermalTissue().getCell(cell.getId());
-   	ExtraCellularDiffusionField2D diffField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
+   	ExtraCellularDiffusionField2D diffField = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
    	
    	if(cellObj != null && diffField != null){
    	   		

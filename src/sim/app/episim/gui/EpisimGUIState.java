@@ -255,10 +255,10 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	 * ImageIcon(BackImageClass.class.getResource(filename)).getImage(); }
 	 */
 	public void setupPortrayals() {
-		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality()== ModelDimensionality.TWO_DIMENSIONAL){
+		if(ModelController.getInstance().getModelDimensionality()== ModelDimensionality.TWO_DIMENSIONAL){
 			setupPortrayals2D();
 		}
-		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality()== ModelDimensionality.THREE_DIMENSIONAL){
+		if(ModelController.getInstance().getModelDimensionality()== ModelDimensionality.THREE_DIMENSIONAL){
 			setupPortrayals3D();
 		}	
 	}
@@ -423,7 +423,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	}
 	
 	private JInternalFrame buildEpisimDisplay3D(){
-		display3D = new EpisimDisplay3D(EPIDISPLAYWIDTH+(DISPLAY_BORDER_LEFT+DISPLAY_BORDER_RIGHT), EPIDISPLAYHEIGHT+(DISPLAY_BORDER_TOP+DISPLAY_BORDER_BOTTOM), this);
+		display3D = new EpisimDisplay3D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT, this);
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
 		display3D.setBackdrop(Color.BLACK);
@@ -454,10 +454,10 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		
 
-		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality()== ModelDimensionality.TWO_DIMENSIONAL){
+		if(ModelController.getInstance().getModelDimensionality()== ModelDimensionality.TWO_DIMENSIONAL){
 			displayFrame = buildEpisimDisplay2D();
 		}
-		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality()== ModelDimensionality.THREE_DIMENSIONAL){
+		if(ModelController.getInstance().getModelDimensionality()== ModelDimensionality.THREE_DIMENSIONAL){
 			displayFrame = buildEpisimDisplay3D();
 		}
 		

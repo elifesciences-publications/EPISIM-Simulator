@@ -7,13 +7,17 @@ import java.util.HashMap;
 import org.w3c.dom.Node;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
+import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray2D;
+import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray3D;
 import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
@@ -29,7 +33,8 @@ public class SimulationStateData {
 	private XmlObject<EpisimCellBehavioralModelGlobalParameters> episimCellBehavioralModelGlobalParameters;
 	private XmlObject<MiscalleneousGlobalParameters> miscalleneousGlobalParameters;
 
-	private XmlExtraCellularDiffusionFieldArray extraCellularDiffusionFieldArray;
+	private XmlExtraCellularDiffusionFieldArray2D extraCellularDiffusionFieldArray2D;
+	private XmlExtraCellularDiffusionFieldArray3D extraCellularDiffusionFieldArray3D;
 	private XmlTissueBorder tissueBorder;
 
 	private HashMap<Long, UniversalCell> alreadyLoadedCells = new HashMap<Long, UniversalCell>();
@@ -106,11 +111,21 @@ public class SimulationStateData {
 		this.episimBioMechanicalModelGlobalParameters = new XmlObject<EpisimBiomechanicalModelGlobalParameters>(
 				ModelController.getInstance()
 						.getEpisimBioMechanicalModelGlobalParameters());
-
-		this.extraCellularDiffusionFieldArray = new XmlExtraCellularDiffusionFieldArray(
-				ModelController.getInstance()
-						.getExtraCellularDiffusionController()
-						.getAllExtraCellularDiffusionFields());
+		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
+			this.extraCellularDiffusionFieldArray2D = new XmlExtraCellularDiffusionFieldArray2D(
+					ModelController.getInstance()
+							.getExtraCellularDiffusionController()
+							.getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField2D[ModelController.getInstance()
+							                                                    						.getExtraCellularDiffusionController().getNumberOfFields()]));
+		}
+		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+			this.extraCellularDiffusionFieldArray3D = new XmlExtraCellularDiffusionFieldArray3D(
+					ModelController.getInstance()
+							.getExtraCellularDiffusionController()
+							.getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField3D[ModelController.getInstance()
+							                                                    						.getExtraCellularDiffusionController().getNumberOfFields()]));
+		}
+		
 	}
 
 	public ArrayList<XmlUniversalCell> getCells() {
@@ -176,12 +191,21 @@ public class SimulationStateData {
 		return tissueBorder;
 	}
 
-	public XmlExtraCellularDiffusionFieldArray getExtraCellularDiffusionFieldArray() {
-		return extraCellularDiffusionFieldArray;
+	public XmlExtraCellularDiffusionFieldArray2D getExtraCellularDiffusionFieldArray2D() {
+		return extraCellularDiffusionFieldArray2D;
 	}
 
-	public void setExtraCellularDiffusionFieldArray(
-			XmlExtraCellularDiffusionFieldArray extraCellularDiffusionFieldArray) {
-		this.extraCellularDiffusionFieldArray = extraCellularDiffusionFieldArray;
+	public void setExtraCellularDiffusionFieldArray2D(
+			XmlExtraCellularDiffusionFieldArray2D extraCellularDiffusionFieldArray) {
+		this.extraCellularDiffusionFieldArray2D = extraCellularDiffusionFieldArray;
+	}
+	
+	public XmlExtraCellularDiffusionFieldArray3D getExtraCellularDiffusionFieldArray3D() {
+		return extraCellularDiffusionFieldArray3D;
+	}
+
+	public void setExtraCellularDiffusionFieldArray3D(
+			XmlExtraCellularDiffusionFieldArray3D extraCellularDiffusionFieldArray) {
+		this.extraCellularDiffusionFieldArray3D = extraCellularDiffusionFieldArray;
 	}
 }

@@ -49,7 +49,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;
@@ -83,7 +83,7 @@ public class DiffusionChartGUI {
 			public double f(double x, double y) {
 				y = TissueController.getInstance().getTissueBorder().getHeightInMikron() - y;
 				if(y < 0) return 0;
-				ExtraCellularDiffusionField field= ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
+				ExtraCellularDiffusionField2D field= ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
 				return field != null ? field.getConcentration(x, y) : 0;
 			}
 		};

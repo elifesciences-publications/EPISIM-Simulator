@@ -4,6 +4,8 @@ import sim.app.episim.util.NoUserModification;
 
 public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serializable{ 	
 	
+	public enum ModelDimensionality{TWO_DIMENSIONAL, THREE_DIMENSIONAL;}
+	
 	double getNeighborhood_mikron();
  	void setNeighborhood_mikron(double val);
  	
@@ -20,9 +22,14 @@ public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serial
 	double getHeightInMikron();
 	
 	@NoUserModification
+	ModelDimensionality getModelDimensionality();	
+	
+	@NoUserModification
 	boolean areDiffusionFieldsContinousInXDirection();	
 	@NoUserModification
 	boolean areDiffusionFieldsContinousInYDirection();
+	@NoUserModification
+	boolean areDiffusionFieldsContinousInZDirection();
 	
 	void setNumberOfPixelsPerMicrometer(double val);
 	@NoUserModification

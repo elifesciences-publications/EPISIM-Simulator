@@ -62,7 +62,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
-import episiminterfaces.SimulationDisplay;
+import episiminterfaces.EpisimSimulationDisplay;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
@@ -86,6 +86,7 @@ import sim.engine.Stoppable;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.FieldPortrayal2D;
 import sim.portrayal.LocationWrapper;
+import sim.portrayal.Portrayal;
 import sim.portrayal.SimplePortrayal2D;
 import sim.util.Bag;
 import sim.util.gui.Utilities;
@@ -98,7 +99,7 @@ import sim.util.media.PNGEncoder;
 
 
 
-public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationDisplay, Manipulating2D{
+public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimulationDisplay, Manipulating2D{
    private EpisimGUIState epiSimulation = null;
 	
    protected boolean precise = false;
@@ -1005,7 +1006,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        default width and height. 
        Portrayals are drawn on-screen in the order that they are attached; thus the "top-most" portrayal
        will be the last one attached. */
-   public void attach(FieldPortrayal2D portrayal, String name )
+   public void attach(Portrayal portrayal, String name )
        {
        attach(portrayal, name, true);
        }
@@ -1014,7 +1015,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        The portrayal's attached origin, width and height is given in the bounds rectangle. 
        Portrayals are drawn on-screen in the order that they are attached; thus the "top-most" portrayal
        will be the last one attached.*/
-   public void attach(FieldPortrayal2D portrayal, String name, Rectangle2D.Double bounds )
+   public void attach(Portrayal portrayal, String name, Rectangle2D.Double bounds )
        {
        attach(portrayal, name, bounds, true);
        }
@@ -1026,7 +1027,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        visible or not visible.  Portrayals are drawn
        on-screen in the order that they are attached; thus the "top-most" portrayal
        will be the last one attached.*/
-   public void attach(FieldPortrayal2D portrayal, String name, boolean visible )
+   public void attach(Portrayal portrayal, String name, boolean visible )
        {
        attach(portrayal, name, 0, 0, visible);
        }
@@ -1040,7 +1041,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        on-screen in the order that they are attached; thus the "top-most" portrayal
        will be the last one attached. 
    */
-   public void attach(FieldPortrayal2D portrayal, String name, double x, double y, boolean visible)
+   public void attach(Portrayal portrayal, String name, double x, double y, boolean visible)
        {
        attach(portrayal, name, new Rectangle2D.Double(x,y,insideDisplay.width, insideDisplay.height), visible);
        }
@@ -1052,12 +1053,14 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, SimulationD
        may be set to initially visible or not visible.  Portrayals are drawn 
        on-screen in the order that they are attached; thus the "top-most" portrayal
        will be the last one attached.  */
-   public void attach(FieldPortrayal2D portrayal, String name, 
+   public void attach(Portrayal portrayal, String name, 
        Rectangle2D.Double bounds, boolean visible )
        {
-       FieldPortrayal2DHolder p = new FieldPortrayal2DHolder(portrayal,name,bounds,visible);
-       portrayals.add(p);
-       popup.add(p.menuItem);
+	   	if(portrayal instanceof FieldPortrayal2D){
+	       FieldPortrayal2DHolder p = new FieldPortrayal2DHolder((FieldPortrayal2D)portrayal,name,bounds,visible);
+	       portrayals.add(p);
+	       popup.add(p.menuItem);
+	   	}
        }
                
    /** A convenience function: creates a popup menu item of the given name which, when selected, will display the

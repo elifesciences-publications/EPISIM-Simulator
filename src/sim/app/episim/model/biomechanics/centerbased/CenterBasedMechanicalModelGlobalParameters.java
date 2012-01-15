@@ -157,6 +157,18 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
    public boolean areDiffusionFieldsContinousInYDirection() {
 	   return false;
    }
+	
+	@NoUserModification
+	public boolean areDiffusionFieldsContinousInZDirection() {	   
+	   return false;
+   }
+
+	@NoUserModification
+   public ModelDimensionality getModelDimensionality() {	   
+	   return ModelDimensionality.TWO_DIMENSIONAL;
+   }
+
+   
 
 	
   

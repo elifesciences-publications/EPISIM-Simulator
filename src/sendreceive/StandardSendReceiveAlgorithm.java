@@ -5,7 +5,7 @@ import java.awt.geom.Rectangle2D;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.tissue.TissueController;
 import sim.util.DoubleBag;
 import sim.util.IntBag;
@@ -162,7 +162,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    public void sendDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell) {
 
    	AbstractCell cellObj = TissueController.getInstance().getActEpidermalTissue().getCell(cell.getId());
-   	ExtraCellularDiffusionField diffField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
+   	ExtraCellularDiffusionField2D diffField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
    	
    	if(cellObj != null && diffField != null){
    	   		
@@ -204,7 +204,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
 	
    public void receiveDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell) {
    	AbstractCell cellObj = TissueController.getInstance().getActEpidermalTissue().getCell(cell.getId());
-   	ExtraCellularDiffusionField diffField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
+   	ExtraCellularDiffusionField2D diffField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
    	
    	if(cellObj != null && diffField != null){
    	   		

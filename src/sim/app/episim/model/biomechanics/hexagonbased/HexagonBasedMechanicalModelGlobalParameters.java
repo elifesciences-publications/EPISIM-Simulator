@@ -3,6 +3,7 @@ package sim.app.episim.model.biomechanics.hexagonbased;
 import sim.app.episim.model.visualization.BorderlinePortrayal.BorderlineConfig;
 import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
 
 public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
@@ -170,6 +171,16 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
    public void setChemotaxisEnabled(boolean chemotaxisEnabled) {
    
    	this.chemotaxisEnabled = chemotaxisEnabled;
+   }
+   
+   @NoUserModification
+	public boolean areDiffusionFieldsContinousInZDirection() {	   
+	   return false;
+   }
+
+	@NoUserModification
+   public ModelDimensionality getModelDimensionality() {	   
+	   return ModelDimensionality.TWO_DIMENSIONAL;
    }
 
 }

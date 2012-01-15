@@ -11,7 +11,7 @@ import episiminterfaces.EpisimPortrayal;
 
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.util.DiffusionColorGradient;
 import sim.display.GUIState;
@@ -27,7 +27,7 @@ public class ExtraCellularDiffusionPortrayal extends FastValueGridPortrayal2D im
 	private static final Color[] COLOR_STEPS = new Color[]{new Color(0,0,136), Color.blue, Color.cyan, Color.green, Color.yellow, Color.orange, Color.red, new Color(218,0,0)};
 	
 	private String name;
-	private ExtraCellularDiffusionField extraCellularDiffusionField;
+	private ExtraCellularDiffusionField2D extraCellularDiffusionField;
 	
 	private double previousMaxValue;
 	private Color[] legendLookUpTable;
@@ -35,7 +35,7 @@ public class ExtraCellularDiffusionPortrayal extends FastValueGridPortrayal2D im
 	private double minValue=0;
 	private double maxValue=0;
 	
-	public ExtraCellularDiffusionPortrayal(ExtraCellularDiffusionField diffusionField){
+	public ExtraCellularDiffusionPortrayal(ExtraCellularDiffusionField2D diffusionField){
 		super(diffusionField.getName(), false);
 		this.name = diffusionField.getName();
 		this.extraCellularDiffusionField = diffusionField;
@@ -62,11 +62,11 @@ public class ExtraCellularDiffusionPortrayal extends FastValueGridPortrayal2D im
 	
 	
 	
-   public ExtraCellularDiffusionField getExtraCellularDiffusionField() {
+   public ExtraCellularDiffusionField2D getExtraCellularDiffusionField() {
 	   return extraCellularDiffusionField;
    }   
    
-   public void setExtraCellularDiffusionField(ExtraCellularDiffusionField extraCellularDiffusionField) {
+   public void setExtraCellularDiffusionField(ExtraCellularDiffusionField2D extraCellularDiffusionField) {
 	   this.extraCellularDiffusionField = extraCellularDiffusionField;
 	   if(extraCellularDiffusionField != null){
 	   	this.name = extraCellularDiffusionField.getName();

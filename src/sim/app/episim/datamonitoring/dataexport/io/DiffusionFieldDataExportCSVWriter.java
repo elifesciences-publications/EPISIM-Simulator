@@ -14,7 +14,7 @@ import sim.SimStateServer;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 
 public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeListener{
 	
@@ -31,7 +31,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 	}
 	
 	public void writeDiffusionFieldToDisk(){
-		ExtraCellularDiffusionField diffusionField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(this.diffusionFieldName);
+		ExtraCellularDiffusionField2D diffusionField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(this.diffusionFieldName);
 		if(diffusionField != null){
 			if(firstTime){
 				writeHeader();

@@ -1,13 +1,10 @@
 package sim.app.episim.datamonitoring.charts.io;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,13 +15,11 @@ import javax.imageio.ImageIO;
 
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
-import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jzy3d.chart.Chart;
-import org.jzy3d.plot3d.rendering.view.Renderer2d;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 

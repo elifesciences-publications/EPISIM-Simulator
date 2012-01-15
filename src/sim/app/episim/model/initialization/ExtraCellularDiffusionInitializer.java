@@ -6,7 +6,7 @@ import episiminterfaces.EpisimDiffusionFieldConfiguration;
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
@@ -29,7 +29,7 @@ public class ExtraCellularDiffusionInitializer {
 	public EpisimPortrayal[] getExtraCellularDiffusionPortrayals() {
 		if (ModelController.getInstance().getExtraCellularDiffusionController()
 				.getNumberOfEpisimExtraCellularDiffusionFieldConfigurations() > 0) {
-			ExtraCellularDiffusionField[] diffusionFields = ModelController
+			ExtraCellularDiffusionField2D[] diffusionFields = ModelController
 					.getInstance().getExtraCellularDiffusionController()
 					.getAllExtraCellularDiffusionFields();
 			currentDiffusionFieldPortrayals = new ExtraCellularDiffusionPortrayal[diffusionFields.length];
@@ -44,7 +44,7 @@ public class ExtraCellularDiffusionInitializer {
 	}
 
 	private void initializeExtraCellularDiffusionFields(
-			ExtraCellularDiffusionField[] diffusionFields) {
+			ExtraCellularDiffusionField2D[] diffusionFields) {
 		if (this.simStateData != null) {
 
 		}
@@ -52,7 +52,7 @@ public class ExtraCellularDiffusionInitializer {
 
 	public void buildExtraCellularDiffusionFields() {
 		rebuildExtraCellularDiffusionFields();
-		ExtraCellularDiffusionField[] diffusionFields = ModelController
+		ExtraCellularDiffusionField2D[] diffusionFields = ModelController
 				.getInstance().getExtraCellularDiffusionController()
 				.getAllExtraCellularDiffusionFields();
 		initializeExtraCellularDiffusionFields(diffusionFields);
@@ -66,17 +66,17 @@ public class ExtraCellularDiffusionInitializer {
 					.getInstance().getExtraCellularDiffusionController()
 					.getEpisimExtraCellularDiffusionFieldsConfigurations();
 
-			HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
+			HashMap<String, ExtraCellularDiffusionField2D> extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField2D>();
 
 			double widthInMikron = TissueController.getInstance()
 					.getTissueBorder().getWidthInMikron();
 			double heightInMikron = TissueController.getInstance()
 					.getTissueBorder().getHeightInMikron();
 
-			ExtraCellularDiffusionField actField;
+			ExtraCellularDiffusionField2D actField;
 
 			for(int i = 0; i< fieldConfigurations.length; i++){
-				actField = new ExtraCellularDiffusionField(fieldConfigurations[i],widthInMikron, heightInMikron, 
+				actField = new ExtraCellularDiffusionField2D(fieldConfigurations[i],widthInMikron, heightInMikron, 
 						ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().areDiffusionFieldsContinousInXDirection(),ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().areDiffusionFieldsContinousInYDirection());				
 				actField.getExtraCellularField().setTo(actField.getFieldConfiguration().getDefaultConcentration());
 				if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE)!= null &&
@@ -103,7 +103,7 @@ public class ExtraCellularDiffusionInitializer {
 	}
 
 	private void initializeExtraCellularDiffusionFieldWithSimState(
-			ExtraCellularDiffusionField ecDiffField) {
+			ExtraCellularDiffusionField2D ecDiffField) {
 		ModelController.getInstance().getExtraCellularDiffusionController()
 				.getAllExtraCellularDiffusionFields();
 	}
@@ -122,7 +122,7 @@ public class ExtraCellularDiffusionInitializer {
 	
 	
 	
-	private void setExtraCellularDiffusionFieldInPortrayal(ExtraCellularDiffusionField diffusionField){
+	private void setExtraCellularDiffusionFieldInPortrayal(ExtraCellularDiffusionField2D diffusionField){
 		if(this.currentDiffusionFieldPortrayals != null){
 			//the name of a diffusionField is unique
 			for(int i = 0; i< this.currentDiffusionFieldPortrayals.length; i++){

@@ -6,7 +6,7 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.TestDiffusionFieldConfiguration;
 import sim.app.episim.model.initialization.ExtraCellularDiffusionInitializer;
 import sim.app.episim.persistence.SimulationStateData;
@@ -19,24 +19,12 @@ public class ExtraCellularDiffusionController {
 	
 	private static ExtraCellularDiffusionController instance = new ExtraCellularDiffusionController();
 	
-	private HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap;
+	private HashMap<String, ExtraCellularDiffusionField2D> extraCellularFieldMap;
 	
 	private EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations;
 	
 	private ExtraCellularDiffusionController(){
-		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE)!= null &&
-				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE).equals(EpisimProperties.ON)){
-			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[]{new TestDiffusionFieldConfiguration()};
-		}
-		else{
-			EpisimCellBehavioralModelGlobalParameters globalParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
-			if(globalParameters != null){
-				this.episimExtraCellularDiffusionFieldsConfigurations = globalParameters.getAllExtraCellularDiffusionFieldConfigurations();
-			}
-		}
-		if(this.episimExtraCellularDiffusionFieldsConfigurations == null)
-			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[0];
+		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField2D>();
 	}
 	
 	
@@ -57,15 +45,15 @@ public class ExtraCellularDiffusionController {
 		return null;
 	}
 	
-	public ExtraCellularDiffusionField[] getAllExtraCellularDiffusionFields(){
-		return extraCellularFieldMap.values().toArray(new ExtraCellularDiffusionField[extraCellularFieldMap.size()]);
+	public ExtraCellularDiffusionField2D[] getAllExtraCellularDiffusionFields(){
+		return extraCellularFieldMap.values().toArray(new ExtraCellularDiffusionField2D[extraCellularFieldMap.size()]);
 	}
 	
-	public ExtraCellularDiffusionField getExtraCellularDiffusionField(String name){
+	public ExtraCellularDiffusionField2D getExtraCellularDiffusionField(String name){
 		return this.extraCellularFieldMap.get(name);
 	}
 	
-	public void setExtraCellularFieldMap(HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap){
+	public void setExtraCellularFieldMap(HashMap<String, ExtraCellularDiffusionField2D> extraCellularFieldMap){
 		this.extraCellularFieldMap = extraCellularFieldMap;
 	}
 	
@@ -81,6 +69,20 @@ public class ExtraCellularDiffusionController {
 		return new ExtraCellularDiffusionInitializer(simulationStateData);
 	}
 	
-	
+	protected void newCellBehavioralModelLoaded(){
+		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField2D>();
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE)!= null &&
+				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE).equals(EpisimProperties.ON)){
+			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[]{new TestDiffusionFieldConfiguration()};
+		}
+		else{
+			EpisimCellBehavioralModelGlobalParameters globalParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
+			if(globalParameters != null){
+				this.episimExtraCellularDiffusionFieldsConfigurations = globalParameters.getAllExtraCellularDiffusionFieldConfigurations();
+			}
+		}
+		if(this.episimExtraCellularDiffusionFieldsConfigurations == null)
+			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[0];
+	}
 
 }

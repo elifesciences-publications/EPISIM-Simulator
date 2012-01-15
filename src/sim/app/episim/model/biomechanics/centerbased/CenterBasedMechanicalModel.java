@@ -33,6 +33,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
+import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
@@ -749,7 +750,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    }
 
    @CannotBeMonitored
-   public Shape getCellBoundariesInMikron() {
+   public CellBoundaries getCellBoundariesInMikron() {
    	double x = getX();
 		double y = getY();
 		
@@ -773,6 +774,6 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		path.lineTo((x+infoWidth/4.0*width), (y+infoHeight/2.0*height));
 		path.closePath();
 	  
-	   return new Ellipse2D.Double(x-(width/2), y-(height/2), width, height);
+	   return new CellBoundaries(new Ellipse2D.Double(x-(width/2), y-(height/2), width, height));
    }
 }

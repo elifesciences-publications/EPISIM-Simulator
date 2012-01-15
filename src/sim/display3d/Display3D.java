@@ -648,7 +648,7 @@ public class Display3D extends JPanel implements Steppable
             {
             public void actionPerformed(ActionEvent e)
                 {
-                optionPane.setVisible(true);
+              //  optionPane.setVisible(true);
                 }
             });
         header.add(optionButton);
@@ -1749,6 +1749,7 @@ public class Display3D extends JPanel implements Steppable
 
     JButton systemPreferences = new JButton("MASON");
     JButton appPreferences = new JButton("Simulation");
+    /*
     public class OptionPane3D extends JFrame
         {
         OptionPane3D(String label)
@@ -2021,7 +2022,7 @@ public class Display3D extends JPanel implements Steppable
             } 
 
 
-        /** Saves the Option Pane Preferences to a given Preferences Node */
+        
         public void savePreferences(Preferences prefs)
             {
             try
@@ -2076,7 +2077,7 @@ public class Display3D extends JPanel implements Steppable
         static final String DRAW_POLYGONS_KEY = "Draw Polygons";
         static final String DRAW_FACES_KEY = "Draw Faces";
                 
-        /** Resets the Option Pane Preferences by loading from the preference database */
+        
         void resetToPreferences()
             {
             try
@@ -2139,7 +2140,7 @@ public class Display3D extends JPanel implements Steppable
         }
 
 // must be after all other declared widgets because its constructor relies on them existing
-    public OptionPane3D optionPane = new OptionPane3D("3D Options");    
+    public OptionPane3D optionPane = new OptionPane3D("3D Options"); */   
         
         
         

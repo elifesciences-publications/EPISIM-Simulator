@@ -16,6 +16,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -35,7 +36,7 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
-import episiminterfaces.SimulationDisplay;
+import episiminterfaces.EpisimSimulationDisplay;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
@@ -50,12 +51,14 @@ import sim.engine.Schedule;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.portrayal.DrawInfo2D;
+import sim.portrayal.FieldPortrayal;
 import sim.portrayal.FieldPortrayal2D;
+import sim.portrayal.Portrayal;
 import sim.util.gui.MovieMaker;
 import sim.util.gui.NumberTextField;
 
 
-public class Display2DHack extends Display2D implements SimulationDisplay{
+public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	private EpisimGUIState epiSimulation = null;
 	
 	
@@ -231,106 +234,13 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
               }
           };
       scaleField.setToolTipText("Zoom in and out");
-      header.add(scaleField);
-      
-      skipBox = new JComboBox(REDRAW_OPTIONS);
-      skipBox.setSelectedIndex(updateRule);
-      ActionListener skipListener = new ActionListener()
-          {
-          public void actionPerformed(ActionEvent e)
-              {
-              updateRule = skipBox.getSelectedIndex();
-              if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)
-                  {
-                  skipField.getField().setText("");
-                  skipField.setEnabled(false);
-                  }
-              else if (updateRule == UPDATE_RULE_STEPS)
-                  {
-                  skipField.setValue(stepInterval);
-                  skipField.setEnabled(true);
-                  }
-              else if (updateRule == UPDATE_RULE_INTERNAL_TIME)
-                  {
-                  skipField.setValue(timeInterval);
-                  skipField.setEnabled(true);
-                  }
-              else // UPDATE_RULE_WALLCLOCK_TIME
-                  {
-                  skipField.setValue((long)(wallInterval / 1000));
-                  skipField.setEnabled(true);
-                  }
-              }
-          };
-      skipBox.addActionListener(skipListener);
-              
-      // I want right justified text.  This is an ugly way to do it
-      skipBox.setRenderer(new DefaultListCellRenderer()
-          {
-          public Component getListCellRendererComponent(JList list, Object value, int index,  boolean isSelected,  boolean cellHasFocus)
-              {
-              // JLabel is the default
-              JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-              label.setHorizontalAlignment(SwingConstants.RIGHT);
-              return label;
-              }
-          });
-                      
-    //  header.add(skipBox);
-
-
-      skipField = new NumberTextField(null, 1, false)
-          {
-          public double newValue(double newValue)
-              {
-              double val;
-              if (updateRule == UPDATE_RULE_ALWAYS || updateRule == UPDATE_RULE_NEVER)  // shouldn't have happened
-                  {
-                  val = 0;
-                  }
-              else if (updateRule == UPDATE_RULE_STEPS)
-                  {
-                  val = (long) newValue;
-                  if (val < 1) val = stepInterval;
-                  stepInterval = (long) val;
-                  }
-              else if (updateRule == UPDATE_RULE_WALLCLOCK_TIME)
-                  {
-                  val = newValue;
-                  if (val < 0) val = wallInterval / 1000;
-                  wallInterval = (long) (newValue * 1000);
-                  }
-              else // if (updateRule == UPDATE_RULE_INTERNAL_TIME)
-                  {
-                  val = newValue;
-                  if (newValue < 0) newValue = timeInterval;
-                  timeInterval = val;
-                  }
-                      
-              // reset with a new interval
-              reset();
-                      
-              return val;
-              }
-          };
-      skipField.setToolTipText("Specify the interval between screen updates");
-     // header.add(skipField);
-
-      skipListener.actionPerformed(null);  // have it update the text field accordingly
-      
-   
-      
+      header.add(scaleField);     
 		
-	}
+	}	
 	
-	
-	
-	
-	
-	
-	 public double getDisplayScale(){
+	public double getDisplayScale(){
 		 return this.getScale();
-	 }
+	}
 	public void setPortrayalVisible(String name, boolean visible){
 		FieldPortrayal2DHolder holder =getPortrayalHolder(name);
 		if(holder != null){
@@ -449,36 +359,15 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 	         	}
 	             }
 	         else if (episimMovieMaker != null)  // we're not being displayed but we still need to output to a movie
-	             {
+	         {
 	             insideDisplay.paintToMovie(null);
-	             }
+	         }
 	         insideDisplay.updateToolTips();
         }
      }
-		//TODO: update this super class method copy when updating to a new version of mason
-		else{
-			if (shouldUpdate())       // time to update!
-         {
-         if (insideDisplay.isShowing() && 
-             (getFrame().getExtendedState() & java.awt.Frame.ICONIFIED) == 0)   // not minimized on the Mac
-             {
-         	if(isMacOSX){
-         		insideDisplay.repaint();
-         	}
-         	else{
-	         	Graphics g = insideDisplay.getGraphics();
-	            insideDisplay.paintComponent(g,true);
-	            g.dispose();
-         	}
-          }
-         else if (movieMaker != null)  // we're not being displayed but we still need to output to a movie
-             {
-             insideDisplay.paintToMovie(null);
-             }
-         insideDisplay.updateToolTips();
-         }
-     }
-		
+	  else{
+			super.step(state);
+	  }
    }
 	
 	public static boolean isMacOSX(){
@@ -519,5 +408,18 @@ public class Display2DHack extends Display2D implements SimulationDisplay{
 	}
 	public InnerDisplay2D getInsideDisplay() {
       return insideDisplay;
+   }
+
+
+   public void attach(Portrayal portrayal, String name, Rectangle2D.Double bounds, boolean visible) {
+   	if(portrayal instanceof FieldPortrayal2D){
+   		super.attach((FieldPortrayal2D) portrayal, name, bounds, visible);
+   	}
+   }
+	
+   public void attach(Portrayal portrayal, String name) {
+   	if(portrayal instanceof FieldPortrayal2D){
+   		super.attach((FieldPortrayal2D) portrayal, name);
+   	}   
    } 
 }

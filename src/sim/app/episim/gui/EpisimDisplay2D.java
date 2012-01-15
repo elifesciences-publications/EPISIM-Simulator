@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -19,7 +20,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
-import episiminterfaces.SimulationDisplay;
+import episiminterfaces.EpisimSimulationDisplay;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ModeServer;
@@ -30,12 +31,13 @@ import sim.display.Display2DHack;
 import sim.display.GUIState;
 import sim.engine.SimState;
 import sim.portrayal.FieldPortrayal2D;
+import sim.portrayal.Portrayal;
 
-public class EpiDisplay2D {
+public class EpisimDisplay2D implements EpisimSimulationDisplay{
 	protected GUIState simulation;
-	private SimulationDisplay simulationDisplay;
+	private EpisimSimulationDisplay simulationDisplay;
 	
-	public EpiDisplay2D(final double width, final double height, GUIState simulation){
+	public EpisimDisplay2D(final double width, final double height, GUIState simulation){
 		
 		
 		if(ModeServer.guiMode())simulationDisplay = new Display2DHack(width, height, simulation);
@@ -125,6 +127,20 @@ public class EpiDisplay2D {
 		 else ((NoGUIDisplay2D) simulationDisplay).insideDisplay.paintComponent(g, buffer);
 		 
 	 }
+	
+   public void quit() {
+	  simulationDisplay.quit();	   
+   }
+	
+   public void attach(Portrayal portrayal, String name, Double bounds, boolean visible) {
+
+	   simulationDisplay.attach(portrayal, name, bounds, visible);
+	   
+   }
+	
+   public void attach(Portrayal portrayal, String name) {
+	   simulationDisplay.attach(portrayal, name);
+   }
 	
 	
 }

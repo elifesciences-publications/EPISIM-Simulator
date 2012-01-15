@@ -27,6 +27,8 @@ import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.*;
 import sim.portrayal.continuous.*;
 import sim.portrayal.grid.ObjectGridPortrayal2D;
+import sim.portrayal3d.FieldPortrayal3D;
+import sim.portrayal3d.grid.ObjectGridPortrayal3D;
 import sim.portrayal.*;
 import sim.util.Double2D;
 
@@ -61,16 +63,20 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 import org.jfree.chart.*; // ChartPanel;
 
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimPortrayal;
+import episiminterfaces.EpisimSimulationDisplay;
 
 
 public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 
-	public EpiDisplay2D display;
+	private EpisimDisplay2D display2D;
+	
+	private EpisimDisplay3D display3D;
 
-	public JInternalFrame displayFrame;
+	private JInternalFrame displayFrame;
 
 	private Component mainComponent;
 	
@@ -81,12 +87,6 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	private final String CONTROLLERFRAME = "controllerFrame";
 	private final String CHARTFRAME = "chartFrame";
 	
-	
-	
-	
-	
-	
-
 	private JDesktopPane desktop;
 
 	private EpisimConsole console;
@@ -124,7 +124,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	private boolean autoArrangeWindows = true;	
 	
-	FieldPortrayal2D epiPortrayal;
+	FieldPortrayal2D cellPortrayal2D;
+	FieldPortrayal3D cellPortrayal3D;
 	BasementMembranePortrayal2D basementPortrayal;
 	WoundPortrayal2D woundPortrayal;
 	RulerPortrayal2D rulerPortrayal;
@@ -197,7 +198,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 
 		console = cons;
 
-		final JInternalFrame controllerFrame = new JInternalFrame("EpiSimulation-Controller", true, false, true, true);
+		final JInternalFrame controllerFrame = new JInternalFrame("Tissue Simulation Controller", true, false, true, true);
 
 		controllerFrame.setContentPane(cons.getControllerContainer());
 		controllerFrame.setResizable(true);
@@ -222,7 +223,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	public static String getName() {
 
-		return "Epidermis Simulation  - Controller";
+		return "Tissue Simulation - Controller";
 	}
 
 	public void start() {
@@ -243,12 +244,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 
 	public void load(SimState state) {
 
-		super.load(state);
-		
+		super.load(state);		
 		setupPortrayals();
-
-		
-
 	}
 	
 	
@@ -258,8 +255,17 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	 * ImageIcon(BackImageClass.class.getResource(filename)).getImage(); }
 	 */
 	public void setupPortrayals() {
-
-		Epidermis theEpidermis = (Epidermis) state;
+		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality()== ModelDimensionality.TWO_DIMENSIONAL){
+			setupPortrayals2D();
+		}
+		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality()== ModelDimensionality.THREE_DIMENSIONAL){
+			setupPortrayals3D();
+		}	
+	}
+	
+	
+	private void setupPortrayals2D(){
+	
 		// obstacle portrayal needs no setup
 		
 		basementPortrayal = new BasementMembranePortrayal2D();
@@ -275,60 +281,78 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		
 		if(cellPortrayal instanceof UniversalCellPortrayal2D){
-			epiPortrayal = new ContinuousPortrayal2D();
-			epiPortrayal.setPortrayalForClass(UniversalCell.class, (UniversalCellPortrayal2D)cellPortrayal);
+			cellPortrayal2D = new ContinuousPortrayal2D();
+			cellPortrayal2D.setPortrayalForClass(UniversalCell.class, (UniversalCellPortrayal2D)cellPortrayal);
 		}
 		else if(cellPortrayal instanceof ObjectGridPortrayal2D){
-			epiPortrayal = (FieldPortrayal2D) cellPortrayal;
+			cellPortrayal2D = (FieldPortrayal2D) cellPortrayal;
 		}
-		epiPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
+		cellPortrayal2D.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		
-		display.detatchAll();
+		display2D.detatchAll();
 		
-		display.attach(basementPortrayal, basementPortrayal.getPortrayalName(), basementPortrayal.getViewPortRectangle(), true);
+		display2D.attach(basementPortrayal, basementPortrayal.getPortrayalName(), basementPortrayal.getViewPortRectangle(), true);
 		EpisimPortrayal[] portrayals = ModelController.getInstance().getAdditionalPortrayalsCellBackground();
-		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
-		display.attach(epiPortrayal, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
+		for(int i = 0; i < portrayals.length; i++) display2D.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		display2D.attach(cellPortrayal2D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
-		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		for(int i = 0; i < portrayals.length; i++) display2D.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
-		for(int i = 0; i < portrayals.length; i++) display.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
+		for(int i = 0; i < portrayals.length; i++) display2D.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
 		
 		
-		display.attach(woundPortrayal, woundPortrayal.getPortrayalName(), woundPortrayal.getViewPortRectangle(), true);
-		display.attach(rulerPortrayal, rulerPortrayal.getPortrayalName(), rulerPortrayal.getViewPortRectangle(), true);
-		display.attach(gridPortrayal, gridPortrayal.getPortrayalName(), gridPortrayal.getViewPortRectangle(), true);
+		display2D.attach(woundPortrayal, woundPortrayal.getPortrayalName(), woundPortrayal.getViewPortRectangle(), true);
+		display2D.attach(rulerPortrayal, rulerPortrayal.getPortrayalName(), rulerPortrayal.getViewPortRectangle(), true);
+		display2D.attach(gridPortrayal, gridPortrayal.getPortrayalName(), gridPortrayal.getViewPortRectangle(), true);
 		
 		
 		// reschedule the displayer
-		display.reset();
+		display2D.reset();
 
 		// redraw the display
-		display.repaint();
+		display2D.repaint();
+	}
+	
+	private void setupPortrayals3D(){
+		
+		
+		EpisimPortrayal cellPortrayal = ModelController.getInstance().getCellPortrayal();
+		
+		
+		
+		if(cellPortrayal instanceof ObjectGridPortrayal3D){
+			cellPortrayal3D = (FieldPortrayal3D) cellPortrayal;
+		}
+		cellPortrayal3D.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
+		
+		display3D.detatchAll();
+		
+	
+		EpisimPortrayal[] portrayals = ModelController.getInstance().getAdditionalPortrayalsCellBackground();
+		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		display2D.attach(cellPortrayal2D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
+		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
+		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
+		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
+						
+		// reschedule the displayer
+		display2D.reset();
+
+		// redraw the display
+		display2D.repaint();
 	}
 	
 	
-
-	void addInternalFrames(Controller c) {
-
-		desktop = new JDesktopPane();
-		
-		desktop.setBackground(Color.LIGHT_GRAY);
-		// --------------------------------------------------------------------------
-		// Internal Frame for EpiSimlation Display
-		// --------------------------------------------------------------------------
-
-		display = new EpiDisplay2D(EPIDISPLAYWIDTH+(DISPLAY_BORDER_LEFT+DISPLAY_BORDER_RIGHT), EPIDISPLAYHEIGHT+(DISPLAY_BORDER_TOP+DISPLAY_BORDER_BOTTOM), this);
+	
+	
+	
+	private JInternalFrame buildEpisimDisplay2D(){
+		display2D = new EpisimDisplay2D(EPIDISPLAYWIDTH+(DISPLAY_BORDER_LEFT+DISPLAY_BORDER_RIGHT), EPIDISPLAYHEIGHT+(DISPLAY_BORDER_TOP+DISPLAY_BORDER_BOTTOM), this);
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
-		display.setBackdrop(Color.BLACK);
-	
-		
-		
-	
-		
-		
-		display.getInsideDisplay().addMouseListener(new MouseAdapter(){			
+		display2D.setBackdrop(Color.BLACK);		
+		display2D.getInsideDisplay().addMouseListener(new MouseAdapter(){			
 			
 			
 				public void mouseClicked(MouseEvent e){
@@ -363,7 +387,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 				}
 	
 				public void mouseEntered(MouseEvent e){
-					if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())){
+					if(rulerPortrayal != null && display2D.isPortrayalVisible(rulerPortrayal.getPortrayalName())){
 						
 							rulerPortrayal.setCrosshairsVisible(true);
 							rulerPortrayal.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
@@ -371,38 +395,73 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 					}
 				}
 				public void mouseExited(MouseEvent e){
-					if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setCrosshairsVisible(false);
+					if(rulerPortrayal != null && display2D.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setCrosshairsVisible(false);
 				}
 
 			});
-		display.getInsideDisplay().addMouseMotionListener(new MouseMotionAdapter(){
+		display2D.getInsideDisplay().addMouseMotionListener(new MouseMotionAdapter(){
 			public void mouseDragged(MouseEvent e){
 				
 				if(activateDrawing){
 					if(woundPortrayal != null){
 						woundPortrayal.addMouseCoordinate(new Double2D(e.getX(), e.getY()));
-						redrawDisplay();
+						redrawDisplayForDrawing2DWoundingArea();
 					}
 				}
-				if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-				if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())&& (console.getPlayState()==Console.PS_PAUSED
-						||console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplay();	
+				if(rulerPortrayal != null && display2D.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+				if(rulerPortrayal != null && display2D.isPortrayalVisible(rulerPortrayal.getPortrayalName())&& (console.getPlayState()==Console.PS_PAUSED
+						||console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplayForDrawing2DWoundingArea();	
 				
 			}
 			public void mouseMoved(MouseEvent e){
-				if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
-				if(rulerPortrayal != null && display.isPortrayalVisible(rulerPortrayal.getPortrayalName())&&(console.getPlayState()==Console.PS_PAUSED
-						|| console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplay();			
+				if(rulerPortrayal != null && display2D.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
+				if(rulerPortrayal != null && display2D.isPortrayalVisible(rulerPortrayal.getPortrayalName())&&(console.getPlayState()==Console.PS_PAUSED
+						|| console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplayForDrawing2DWoundingArea();			
 			} 
 		});
+		return display2D.createInternalFrame();
+	}
+	
+	private JInternalFrame buildEpisimDisplay3D(){
+		display3D = new EpisimDisplay3D(EPIDISPLAYWIDTH+(DISPLAY_BORDER_LEFT+DISPLAY_BORDER_RIGHT), EPIDISPLAYHEIGHT+(DISPLAY_BORDER_TOP+DISPLAY_BORDER_BOTTOM), this);
+		//display.setClipping(false);
+		Color myBack = new Color(0xE0, 0xCB, 0xF6);
+		display3D.setBackdrop(Color.BLACK);
 		
+		display3D.getInsideDisplay().addMouseListener(new MouseAdapter(){			
+			public void mouseClicked(MouseEvent e){
+				if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2){
+					if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING)console.pressPause();
+				}
+			}
+		});	
+		
+		return display3D.createInternalFrame();
+	}
+	
+	
+	
+	
+	void addInternalFrames(Controller c) {
+
+		desktop = new JDesktopPane();
+		
+		desktop.setBackground(Color.LIGHT_GRAY);
+		// --------------------------------------------------------------------------
+		// Internal Frame for Simulation Display
+		// --------------------------------------------------------------------------
 
 		
 		
-		// display.setBackdrop(Color.white);
-		
 
-		displayFrame = display.createInternalFrame();
+		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality()== ModelDimensionality.TWO_DIMENSIONAL){
+			displayFrame = buildEpisimDisplay2D();
+		}
+		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality()== ModelDimensionality.THREE_DIMENSIONAL){
+			displayFrame = buildEpisimDisplay3D();
+		}
+		
+		
 		maximizeWorkaround(displayFrame);
 		
 	
@@ -473,7 +532,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		});
 		
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------------
-		displayFrame.setTitle("Epidermis Simulation v. "+EpidermisSimulator.versionID);
+		displayFrame.setTitle("Tissue Visualization");
 		displayFrame.setName(SIMULATIONFRAME);
 		displayFrame.setMaximizable(true);
 		displayFrame.setIconifiable(true);
@@ -569,12 +628,12 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		}
 	}
 	
-	public void redrawDisplay(){
-	if(display.getInsideDisplay().getWidth() > 0 && display.getInsideDisplay().getHeight() > 0){	
-  	 Graphics g = display.getInsideDisplay().getGraphics();
-  	 display.paintComponentInInnerDisplay(g,true);
-  	 g.dispose();
-	}
+	private void redrawDisplayForDrawing2DWoundingArea(){
+		if(display2D.getInsideDisplay().getWidth() > 0 && display2D.getInsideDisplay().getHeight() > 0){	
+	  	 Graphics g = display2D.getInsideDisplay().getGraphics();
+	  	 display2D.paintComponentInInnerDisplay(g,true);
+	  	 g.dispose();
+		}
 	}
 
 	public void init(Controller c) {
@@ -582,9 +641,6 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		super.init(c);
 		
 		addInternalFrames(c);
-		
-		
-
 	}
 
 	public void quit() {
@@ -598,8 +654,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		desktop.removeAll();
 		desktop.validate();
 
-		display = null;
-		
+		display2D = null;
+		display3D = null;
 	}
 
 	private JInternalFrame getChartInternalFrame(JPanel chartPanel, String title) {
@@ -760,13 +816,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 	}	
 	
-	public WoundPortrayal2D getWoundPortrayalDraw() {
-	
-		return woundPortrayal;
-	}
-	public EpiDisplay2D getDisplay() {
+	public EpisimSimulationDisplay getDisplay() {
 	   
-   	return display;
+   	if(display2D != null) return display2D;
+   	if(display3D != null) return display3D;   	
+   	return null;
    }
 	
 	public void simulationWasStarted(){

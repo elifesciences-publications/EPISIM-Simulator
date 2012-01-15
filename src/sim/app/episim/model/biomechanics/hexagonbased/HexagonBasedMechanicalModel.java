@@ -28,9 +28,10 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
+import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.HexagonBasedMechanicalModelInitializer;
 import sim.app.episim.model.visualization.CellEllipse;
@@ -342,7 +343,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		if(globalParameters.isChemotaxisEnabled()){
 			String chemotacticFieldName = modelConnector.getChemotacticField();
 			if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
-				ExtraCellularDiffusionField ecDiffField =  ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
+				ExtraCellularDiffusionField2D ecDiffField =  ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
 				if(ecDiffField != null){
 					double[] concentrations = new double[spreadingLocationIndices.size()];
 					for(int i = 0; i < spreadingLocationIndices.size();i++){
@@ -357,7 +358,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		return spreadingLocationIndices.get(random.nextInt(spreadingLocationIndices.size()));
 	}
 	
-	private int getSpreadingLocationIndexNumberBasedOnNeighbouringConcentrations(ExtraCellularDiffusionField ecDiffField, double[] concentrations){
+	private int getSpreadingLocationIndexNumberBasedOnNeighbouringConcentrations(ExtraCellularDiffusionField2D ecDiffField, double[] concentrations){
 		double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 																																				  ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 																																				  : ecDiffField.getMaxConcentrationInField();
@@ -431,7 +432,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		if(globalParameters.isChemotaxisEnabled()){
 			String chemotacticFieldName = modelConnector.getChemotacticField();
 			if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
-				ExtraCellularDiffusionField ecDiffField =  ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
+				ExtraCellularDiffusionField2D ecDiffField =  ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
 				if(ecDiffField != null){					
 					double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 					                                                                            ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
@@ -748,7 +749,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		}
    }
    
-   private Shape getEmptyLatticeCellBoundary(double xInMikron, double yInMikron){
+   private CellBoundaries getEmptyLatticeCellBoundary(double xInMikron, double yInMikron){
      	double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
     	double width = 0;
     	double height = 0;
@@ -760,11 +761,11 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
  		height = 2 * radiusInner;
  		xInMikron-=(width/2d);
  		yInMikron-=(height/2d);
-   	return new Ellipse2D.Double(xInMikron,yInMikron,height,width);
+   	return new CellBoundaries(new Ellipse2D.Double(xInMikron,yInMikron,height,width));
    }
 
    @CannotBeMonitored
-   public Shape getCellBoundariesInMikron() {
+   public CellBoundaries getCellBoundariesInMikron() {
 		Double2D fieldLoc =getLocationInMikron();
     	Double2D spreadingLoc =getSpreadingLocationInMikron();
     	double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
@@ -821,7 +822,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	    		}
 	    	}
 	    	else shape = new Ellipse2D.Double(x, y, width, height); 	
-	   	return shape;
+	   	
+	    	return new CellBoundaries(shape);
 		   	
 	   }
 	   else{
@@ -831,7 +833,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	 		height = 2 * radiusInner;
 	 		x-=(width/2d);
 	 		y-=(height/2d);
-	   	return new Ellipse2D.Double(x,y,height,width);
+	   	return new CellBoundaries(new Ellipse2D.Double(x,y,height,width));
 	   }
 	   
    }

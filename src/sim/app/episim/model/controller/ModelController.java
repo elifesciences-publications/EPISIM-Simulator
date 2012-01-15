@@ -101,6 +101,7 @@ public class ModelController implements java.io.Serializable{
    	this.initializer = null;
    	boolean success = CellBehavioralModelController.getInstance().loadModelFile(modelFile);   	
    	if(success){
+   		ExtraCellularDiffusionController.getInstance().newCellBehavioralModelLoaded();
    		if(ModeServer.consoleInput()){
    			ModelParameterModifier parameterModifier = new ModelParameterModifier();
    			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP) != null){

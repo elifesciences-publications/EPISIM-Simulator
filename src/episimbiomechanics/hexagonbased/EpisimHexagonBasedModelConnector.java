@@ -8,6 +8,7 @@ import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoExport;
 
 
 public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
@@ -26,22 +27,25 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	private String chemotacticField="";
 	
 	@Hidden
+	@NoExport
 	protected String getIdForInternalUse() {
 		return ID;
 	}
 	@Hidden
+	@NoExport
 	public String getBiomechanicalModelName() {
 		return NAME;
 	}
-
+	
+	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
 		return HexagonBasedMechanicalModel.class;
 	}
-
+	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
 		return HexagonBasedMechanicalModelInitializer.class;
 	}
-
+	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
 		return HexagonBasedMechanicalModelGlobalParameters.class;
 	}

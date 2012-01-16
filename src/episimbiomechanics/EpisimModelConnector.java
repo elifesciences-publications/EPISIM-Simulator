@@ -32,8 +32,10 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 	private static File packagePath = null;
 	
 	@Hidden
+	@NoExport
 	protected abstract String getIdForInternalUse();
 	@Hidden
+	@NoExport
 	public final String getBiomechanicalModelId(){
 		String finalId = "";
 		finalId = finalId.concat(getIdForInternalUse());
@@ -44,12 +46,15 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 	public abstract String getBiomechanicalModelName();
 	
 	@Hidden
+	@NoExport
 	public abstract Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass();
 	
 	@Hidden
+	@NoExport
 	public abstract Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass();
 	
 	@Hidden
+	@NoExport
 	public abstract Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass();
 	
 	@Hidden

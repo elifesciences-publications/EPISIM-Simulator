@@ -42,10 +42,11 @@ public class PNGPrinter {
 	private Set<String> filenameSet;
 	private Map<Long, String> fileNameMap;
 	
-
+	private HashSet<Long> chartRecoloringRegistry;
 	
 	private PNGPrinter(){
 		reset();
+		chartRecoloringRegistry = new HashSet<Long>();
 	}
 	
 	public static synchronized PNGPrinter getInstance(){
@@ -55,6 +56,10 @@ public class PNGPrinter {
 	
 	public void printChartAsPng(long chartId, File directory, String fileName, JFreeChart chart, SimState state){
 		if(chart != null){
+			if(!chartRecoloringRegistry.contains(chartId)){
+				changeChartAxisColorsToBlack(chart);
+				chartRecoloringRegistry.add(chartId);
+			}
 			File pngFile = getPNGFile(chartId, directory, fileName, state);
 			if(pngFile != null){
 				saveJFreeChart(chart, pngFile);
@@ -99,7 +104,8 @@ public class PNGPrinter {
 	
 	private void saveJFreeChart(JFreeChart chart, File pngFile){
 		try{
-			changeChartAxisColorsToBlack(chart);
+			
+			
 			ChartUtilities.saveChartAsPNG(pngFile, chart, PNG_CHARTWIDTH, PNG_CHARTHEIGHT);
          if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG) != null 
          		&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG).equalsIgnoreCase(EpisimProperties.ON)){
@@ -173,6 +179,7 @@ public class PNGPrinter {
 	public void reset(){
 		this.filenameSet = new HashSet<String>();
 		this.fileNameMap = new HashMap<Long, String>();
+		this.chartRecoloringRegistry = new HashSet<Long>();
 	}
 	
 	private String findFileName(String name){

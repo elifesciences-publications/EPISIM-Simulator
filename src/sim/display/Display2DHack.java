@@ -3,7 +3,9 @@ package sim.display;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Graphics;
+import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -18,6 +20,14 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -35,13 +45,23 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
+
+import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.svggen.SVGGraphics2DIOException;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 
 import episiminterfaces.EpisimSimulationDisplay;
 
+import sim.SimStateServer;
+import sim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Scale;
@@ -56,6 +76,9 @@ import sim.portrayal.FieldPortrayal2D;
 import sim.portrayal.Portrayal;
 import sim.util.gui.MovieMaker;
 import sim.util.gui.NumberTextField;
+import sim.util.gui.Utilities;
+import sim.util.media.PDFEncoder;
+import sim.util.media.PNGEncoder;
 
 
 public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
@@ -321,6 +344,110 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	   }
 		else super.startMovie();
    }
+	
+	 public void takeSnapshot()
+    {
+			if(SimStateServer.getInstance().getEpisimSimulationState() != EpisimSimulationState.PAUSE
+					&&SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PLAY){
+				SimStateServer.getInstance().getEpisimGUIState().getEpisimConsole().pressPause();
+			}
+					
+					
+					
+
+      
+      
+
+        // snap the shot FIRST
+        Graphics g = insideDisplay.getGraphics();
+        BufferedImage img = insideDisplay.paint(g,true,false);  // notice we're painting to a non-shared buffer
+      
+                            
+        g.dispose();  // because we got it with getGraphics(), we're responsible for it
+                    
+        // Ask what kind of thing we want to save?
+        final int CANCEL_BUTTON = 0;
+        final int PNG_BUTTON = 1;
+        final int SVG_BUTTON = 2;
+        int result = PNG_BUTTON;  //  default
+        Object[] options = { "Cancel", "Save to PNG ", "Save to SVG"};
+            result = JOptionPane.showOptionDialog(getFrame(), "Save window snapshot to what kind of file format?", "Save Format", 
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                null, options, options[0]);
+       
+                    
+        if (result == PNG_BUTTON) 
+            {
+            // NOW pop up the save window
+            FileDialog fd = new FileDialog(getFrame(), 
+                "Save Snapshot as 24-bit PNG...", FileDialog.SAVE);
+            fd.setFile("Untitled.png");
+            fd.setVisible(true);
+            if (fd.getFile()!=null) try
+                                        {
+                                        OutputStream stream = new BufferedOutputStream(new FileOutputStream(
+                                                new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
+                                        PNGEncoder tmpEncoder = new
+                                            PNGEncoder(img, false,PNGEncoder.FILTER_NONE,9);
+                                        stream.write(tmpEncoder.pngEncode());
+                                        stream.close();
+                                        }
+                catch (Exception e) { e.printStackTrace(); }
+            }
+        else if (result == SVG_BUTTON)
+            {
+           ExtendedFileChooser fd = new ExtendedFileChooser("svg");
+           
+            
+            if (fd.showSaveDialog(getFrame())==ExtendedFileChooser.APPROVE_OPTION){ 
+            	try
+               {
+                                        boolean oldprecise = precise;
+                                        precise = true;
+                                       
+                                       saveSVGImage(port, fd.getSelectedFile());
+                                        precise = oldprecise;
+                 }
+                catch (Exception e) { e.printStackTrace(); }
+            }
+        else // (result == 0)  // Cancel
+            {
+            // don't bother
+            }
+        }
+     	
+        if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PAUSE
+					&&SimStateServer.getInstance().getEpisimSimulationState() != EpisimSimulationState.PLAY){
+				SimStateServer.getInstance().getEpisimGUIState().getEpisimConsole().pressPause();
+			}
+	}
+    
+    
+   private void saveSVGImage(Component comp, File file) throws IOException{
+   	if(comp != null && file != null){
+   		if(!file.getAbsolutePath().toLowerCase().endsWith(".svg")){
+   			file = new File(file.getAbsolutePath()+".svg");
+   		}
+   		DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
+   	     // Create an instance of org.w3c.dom.Document.
+   	     String svgNS = "http://www.w3.org/2000/svg";
+   	     Document document = domImpl.createDocument(svgNS, "svg", null);
+
+   	     // Create an instance of the SVG Generator.
+   	     SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+   	     
+   	     comp.paint(svgGenerator);
+   	     
+   	     boolean useCSS = true; // we want to use CSS style attributes
+   	     FileOutputStream fileOut = new FileOutputStream(file);
+   	     Writer out = new OutputStreamWriter(fileOut, "UTF-8");
+   	     svgGenerator.stream(out, useCSS);
+   	     fileOut.flush();
+   	     fileOut.close();
+   	     svgGenerator.dispose();
+   	}
+   }
+    
 	
 	public void stopMovie()
    {

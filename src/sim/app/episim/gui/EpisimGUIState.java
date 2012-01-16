@@ -159,6 +159,10 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		this.setConsole(new EpisimConsole(this, reloadSnapshot));		
 	}
 	
+	public EpisimConsole getEpisimConsole(){
+		return this.console;
+	}
+	
 	public Component getMainGUIComponent(){
 		return this.mainComponent;
 	}

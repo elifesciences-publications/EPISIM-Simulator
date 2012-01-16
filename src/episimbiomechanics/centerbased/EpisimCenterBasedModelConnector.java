@@ -8,6 +8,7 @@ import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoExport;
 
 
 
@@ -27,23 +28,28 @@ public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	public EpisimCenterBasedModelConnector(){}
 	
 	@Hidden
+	@NoExport
 	protected String getIdForInternalUse(){
 		return ID;
 	}
 	
 	@Hidden
+	@NoExport
 	public String getBiomechanicalModelName(){
 		return NAME;
 	}
 	
+	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
 		return CenterBasedMechanicalModel.class;
 	}
 	
+	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
 		return CenterBasedMechanicalModelGlobalParameters.class;
 	}
 	
+	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
 		return CenterBasedMechanicalModelInitializer.class;
 	}

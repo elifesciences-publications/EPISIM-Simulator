@@ -71,7 +71,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 		optionButton.setVisible(false);
 		for(MouseMotionListener listener :insideDisplay.getMouseMotionListeners())insideDisplay.removeMouseMotionListener(listener);
 		for(MouseListener listener :insideDisplay.getMouseListeners())insideDisplay.removeMouseListener(listener);
-		
+
 		insideDisplay.addMouseListener(new MouseAdapter()
       {
       public void mouseClicked(MouseEvent e) 
@@ -111,7 +111,8 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 		
 		if(moviePathSet && ModeServer.consoleInput()){ 
 			movieButton.setEnabled(false);
-			 insideDisplay = new EpisimInnerDisplay2D(width,height); 	
+			 insideDisplay = new EpisimInnerDisplay2D(width,height); 
+			
 			 display = new JScrollPane(insideDisplay,
 		            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 		            JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -234,8 +235,8 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
               }
           };
       scaleField.setToolTipText("Zoom in and out");
-      header.add(scaleField);     
-		
+      header.add(scaleField);
+           
 	}	
 	
 	public double getDisplayScale(){
@@ -366,8 +367,28 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
         }
      }
 	  else{
-			super.step(state);
-	  }
+		  if (shouldUpdate())       // time to update!
+        {
+        if (insideDisplay.isShowing() && 
+            (getFrame().getExtendedState() & java.awt.Frame.ICONIFIED) == 0)   // not minimized on the Mac
+            {
+        	if(isMacOSX){
+        		insideDisplay.repaint();
+        	}
+        	else{
+	         	Graphics g = insideDisplay.getGraphics();
+	            insideDisplay.paintComponent(g, true);
+	            g.dispose();
+        	}
+         }
+        else if (movieMaker != null)  // we're not being displayed but we still need to output to a movie
+            {
+            insideDisplay.paintToMovie(null);
+            }
+        insideDisplay.updateToolTips();
+        }
+
+     }
    }
 	
 	public static boolean isMacOSX(){

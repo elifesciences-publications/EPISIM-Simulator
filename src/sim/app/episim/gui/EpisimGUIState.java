@@ -574,8 +574,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		else if(mainComponent instanceof JPanel){
 			((JPanel)mainComponent).add(desktopScroll, BorderLayout.CENTER);
 		}
-		
-		
+				
 		if(mainComponent instanceof JFrame) ((JFrame)mainComponent).pack();
 		
 		mainComponent.addComponentListener(new ComponentAdapter(){

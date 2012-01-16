@@ -39,7 +39,6 @@ public abstract class BiomechanicalModelInitializer {
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
 		simulationStateData.clearLoadedCells();
-		simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
 
 		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
 		for (XmlUniversalCell xCell : xmlCells) {

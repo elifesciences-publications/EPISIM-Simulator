@@ -611,7 +611,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		 try{
             if(f != null){
             	setTissueExportPath(f, false);
-					SimulationStateData simStateData = new SimulationStateFile(f).loadData();          
+					SimulationStateData simStateData = new SimulationStateFile(f).loadData();   
+					simStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());      
 	            openModel(simStateData.getLoadedModelFile(), simStateData);   
             }
         }

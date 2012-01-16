@@ -29,6 +29,7 @@ import javax.swing.UIManager;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
@@ -619,9 +620,12 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
         catch (ParserConfigurationException e1){
         		ExceptionDisplayer.getInstance().displayException(e1);
         }
-        catch (SAXException e1){
-        		ExceptionDisplayer.getInstance().displayException(e1);
+        catch (SAXParseException e1){
+        	JOptionPane.showMessageDialog(mainFrame,"systemId: "+e1.getSystemId()+"; lineNumber: "+e1.getLineNumber()+"; columnNumber: "+e1.getColumnNumber()+"\n"+e1.getMessage());
         } 
+		 catch(SAXException e1){
+			 ExceptionDisplayer.getInstance().displayException(e1);
+		 }
 		  catch (IOException e1) {
 			  ExceptionDisplayer.getInstance().displayException(e1);
 		  } 

@@ -3,7 +3,7 @@ package sim.app.episim.model.biomechanics.centerbased;
 import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
-public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
 	private int basalAmplitude_mikron = 40; // depth of an undulation
 	private int basalOpening_mikron = 250; // width of undulation at the middle
@@ -22,7 +22,7 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	private boolean drawCellsAsEllipses = false;
 	private double numberOfPixelsPerMicrometer = 1;
 	
-	public CenterBasedMechanicalModelGlobalParameters() {}
+	public CenterBasedMechanicalModelGP() {}
 	
 	public boolean isDrawCellsAsEllipses() {
 		return drawCellsAsEllipses;
@@ -131,12 +131,19 @@ public class CenterBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	}	
 	public double getWidthInMikron() {
 		return width;
-	}	
+	}
    public double getHeightInMikron() {   
    	return height;
    }	
    public void setHeightInMikron(double val) {   
    	if(val > 0) this.height = val;
+   }
+   public double getLengthInMikron() {
+   	//not needed in 2D model
+   	return 0;
+   }	
+   public void setLengthInMikron(double val) {   
+   	//not needed in 2D model
    }
 
 	public void setNumberOfPixelsPerMicrometer(double val) {

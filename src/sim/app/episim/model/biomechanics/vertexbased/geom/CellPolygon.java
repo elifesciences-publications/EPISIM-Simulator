@@ -10,7 +10,7 @@ import java.util.List;
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
 import sim.app.episim.model.biomechanics.vertexbased.calc.ConjugateGradientOptimizer;
 import sim.app.episim.model.biomechanics.vertexbased.calc.SimulatedAnnealingForOrderingVertices;
@@ -46,7 +46,7 @@ public class CellPolygon implements VertexChangeListener{
 	 private MersenneTwisterFast rand = new ec.util.MersenneTwisterFast(System.currentTimeMillis());
 	 private ConjugateGradientOptimizer conGradientOptimizer;
 	 
-	 private VertexBasedMechanicalModelGlobalParameters globalParameters;
+	 private VertexBasedMechanicalModelGP globalParameters;
 	 
 	 protected CellPolygon(double x, double y){
 		id = nextId++;
@@ -55,7 +55,7 @@ public class CellPolygon implements VertexChangeListener{
 		this.x = x;
 		this.y = y;	
 		conGradientOptimizer = new ConjugateGradientOptimizer();
-		globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();	
+		globalParameters = (VertexBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();	
 	 }
 	 public CellPolygon(){
 		 this(0, 0);	
@@ -404,7 +404,7 @@ public boolean hasContactToCellThatIsAttachedToBasalLayer(){
 }
 
 public void step(long simStepNo) {
-	globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();	
+	globalParameters = (VertexBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();	
 	relaxVertices(simStepNo);
 	VertexBasedModelController.getInstance().getCellPolygonCalculator().applyCellPolygonCheckPipeline(this);
 	checkProliferation();

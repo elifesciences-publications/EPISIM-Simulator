@@ -40,7 +40,7 @@ import javax.swing.event.ChangeListener;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
 import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
@@ -555,11 +555,11 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	     e1.printStackTrace();
       }
       
-      VertexBasedMechanicalModelGlobalParameters globalParameters = null;
+      VertexBasedMechanicalModelGP globalParameters = null;
       
       if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() != null
-      	&& ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof VertexBasedMechanicalModelGlobalParameters){
-      	globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+      	&& ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof VertexBasedMechanicalModelGP){
+      	globalParameters = (VertexBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
       }
       
       

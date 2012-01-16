@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.EnhancedSteppable;
@@ -79,9 +79,9 @@ public class GlobalBiomechanicalStatistics implements EnhancedSteppable{
 	
 	public String getCSVFileColumnHeader(){
 		
-		VertexBasedMechanicalModelGlobalParameters globalParameters=null;		
+		VertexBasedMechanicalModelGP globalParameters=null;		
 		
-		globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		globalParameters = (VertexBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		
 		StringBuffer buffer = new StringBuffer();

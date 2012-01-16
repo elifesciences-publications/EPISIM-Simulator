@@ -13,7 +13,7 @@ import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuilder;
@@ -283,7 +283,7 @@ public class Epidermis extends TissueType implements CellDeathListener
            }
      };
      
-     if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGlobalParameters){
+     if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGP){
 	     // Schedule the agent to update is Outer Flag     
 	     schedule.scheduleRepeating(airSurface,SchedulePriority.TISSUE.getPriority(),1);
      }    

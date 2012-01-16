@@ -8,7 +8,7 @@ import java.util.HashSet;
 
 import ec.util.MersenneTwisterFast;
 
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Line;
@@ -37,7 +37,7 @@ public class CellPolygonCalculator {
 	
 	public CellPolygonCalculator(){
 		this.cellPolygons = new CellPolygon[0];
-		VertexBasedMechanicalModelGlobalParameters globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		VertexBasedMechanicalModelGP globalParameters = (VertexBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		min_edge_length = SIDELENGTH * globalParameters.getMin_edge_length_percentage();
 		min_basallayer_distance = SIDELENGTH * globalParameters.getMin_dist_percentage_basal_adhesion();
 		min_vertex_edge_distance = min_edge_length * 0.8;

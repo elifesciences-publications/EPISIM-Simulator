@@ -11,7 +11,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
 import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
 import sim.app.episim.model.controller.ModelController;
@@ -359,7 +359,7 @@ public abstract class CellPolygonNetworkBuilder {
 	
 	public static void setCellPolygonSizeAccordingToAge(double age, CellPolygon cellPolygon){
 		
-		double additionalArea =((VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).getGrowth_rate_per_sim_step()*age;
+		double additionalArea =((VertexBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).getGrowth_rate_per_sim_step()*age;
 		double totalArea = additionalArea + cellPolygon.getCurrentArea();
 		
 		Vertex cellCenter = cellPolygon.getCellCenter();		

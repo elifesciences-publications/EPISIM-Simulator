@@ -345,11 +345,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    
    public void newSimStep(long simstepNumber){
    	
-   	CenterBasedMechanicalModelGlobalParameters globalParameters = null;
+   	CenterBasedMechanicalModelGP globalParameters = null;
    	
    	if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
-   			instanceof CenterBasedMechanicalModelGlobalParameters){
-   		globalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+   			instanceof CenterBasedMechanicalModelGP){
+   		globalParameters = (CenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
    	}
    	
    	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+

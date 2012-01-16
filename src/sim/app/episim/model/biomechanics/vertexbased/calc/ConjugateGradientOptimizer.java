@@ -2,7 +2,7 @@ package sim.app.episim.model.biomechanics.vertexbased.calc;
 
 import java.util.ArrayList;
 
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.ContinuousVertexField;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
@@ -23,7 +23,7 @@ import no.uib.cipr.matrix.sparse.Preconditioner;
 
 
 public class ConjugateGradientOptimizer {
-	private VertexBasedMechanicalModelGlobalParameters globalParameters;
+	private VertexBasedMechanicalModelGP globalParameters;
 	public ConjugateGradientOptimizer(){
 		
 	}
@@ -245,7 +245,7 @@ public class ConjugateGradientOptimizer {
 	}
 		
 	public void relaxVertex(Vertex vertex){
-		this.globalParameters = (VertexBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		this.globalParameters = (VertexBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		Matrix totalResultMatrix = new DenseMatrix(2,2);
 		Vector totalResultVector = new DenseVector(2);				

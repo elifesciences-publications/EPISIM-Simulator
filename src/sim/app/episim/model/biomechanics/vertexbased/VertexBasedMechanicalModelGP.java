@@ -13,7 +13,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
 
-public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class VertexBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
@@ -55,7 +55,7 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
 	//----------------------------------------------------------------------------------------------------------------------
 	
 		
-	public VertexBasedMechanicalModelGlobalParameters() {
+	public VertexBasedMechanicalModelGP() {
 	}
 	
 	public String getStatisticsHeaderString(){ return buildStatisticsHeaderString(); }
@@ -104,6 +104,15 @@ public class VertexBasedMechanicalModelGlobalParameters implements EpisimBiomech
    public void setHeightInMikron(double val) {   
    	if(val > 0) this.height_mikron = val;
    }
+   @NoUserModification
+	public double getLengthInMikron() {
+	   	//not needed in 2D model
+	   	return 0;
+	}
+	@NoUserModification
+	public void setLengthInMikron(double val) {   
+	   	//not needed in 2D model
+	}
 	
    public double getNeighborhood_mikron() { return neighborhood_mikron; }
    public void setNeighborhood_mikron(double neighborhood_mikron) { this.neighborhood_mikron = neighborhood_mikron; }

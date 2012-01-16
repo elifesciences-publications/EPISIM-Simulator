@@ -148,6 +148,14 @@ public class TissueBorder {
 	public double getWidthInMikron(){
 		return getWidth(false);
 	}
+	@NoExport
+	public double getLengthInPixels(){
+		return getLength(true);
+	}
+	@NoExport
+	public double getLengthInMikron(){
+		return getLength(false);
+	}
 	
 	private double getHeight(boolean inPixels){
 		if(standardMembraneLoaded || noMembraneLoaded){
@@ -170,7 +178,11 @@ public class TissueBorder {
 			return inPixels ? (polygon.getBounds().width + 1):((polygon.getBounds().width + 1)/getNumberOfPixelsPerMicrometer());
 		}
 	}	
-	
+	private double getLength(boolean inPixels){
+		
+		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
+		return inPixels ? globalParameters.getLengthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getLengthInMikron();
+	}
 	
 	public double lowerBoundInMikron(double x)
 	 {

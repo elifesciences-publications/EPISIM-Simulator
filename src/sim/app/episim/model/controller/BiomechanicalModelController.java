@@ -18,7 +18,7 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.BiomechanicalModelFacade;
 import sim.app.episim.model.biomechanics.BiomechanicalModelLoader;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
 
@@ -37,7 +37,7 @@ public class BiomechanicalModelController implements java.io.Serializable{
 		private EpisimBiomechanicalModelGlobalParameters dummyGlobalParameters;
 		
 	private BiomechanicalModelController(){
-		dummyGlobalParameters = new CenterBasedMechanicalModelGlobalParameters();
+		dummyGlobalParameters = new CenterBasedMechanicalModelGP();
 	}
 	
 	protected synchronized static BiomechanicalModelController getInstance(){

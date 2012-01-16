@@ -15,7 +15,7 @@ import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased.util.CellPolygonRegistry;

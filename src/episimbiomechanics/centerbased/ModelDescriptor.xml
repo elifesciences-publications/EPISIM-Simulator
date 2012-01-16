@@ -6,10 +6,10 @@
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isMembrane" readonly="true"/>
     <parameter datatype="boolean" default="false" name="isSurface" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="y" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="x" readonly="true"/>
+    <parameter datatype="boolean" default="false" name="hasCollision" readonly="true"/>
     <parameter datatype="double" default="0.0" name="dx" readonly="true"/>
     <parameter datatype="double" default="0.0" name="dy" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="y" readonly="true"/>
-    <parameter datatype="boolean" default="false" name="hasCollision" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="x" readonly="true"/>
   </modelparameters>
 </modeldescriptor>

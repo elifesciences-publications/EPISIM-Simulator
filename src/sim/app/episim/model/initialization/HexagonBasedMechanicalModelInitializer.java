@@ -12,7 +12,7 @@ import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.BorderlinePortrayal;
 import sim.app.episim.model.visualization.HexagonalCellGridPortrayal2D;
@@ -42,9 +42,9 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
-		HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		int width = (int)HexagonBasedMechanicalModelGlobalParameters.number_of_initially_occupied_columns;
-		int height = (int)HexagonBasedMechanicalModelGlobalParameters.number_of_rows;
+		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		int width = (int)HexagonBasedMechanicalModelGP.number_of_initially_occupied_columns;
+		int height = (int)HexagonBasedMechanicalModelGP.number_of_rows;
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
 				UniversalCell cell = new UniversalCell(null, null);
@@ -58,11 +58,11 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 	}
 	
 	private void addSekretionCellColony(ArrayList<UniversalCell> standardCellEnsemble){
-		HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int width = 6;
 		int height = 6;
-		int startX = (int)HexagonBasedMechanicalModelGlobalParameters.number_of_columns-10;
-		int startY = (int)((HexagonBasedMechanicalModelGlobalParameters.number_of_rows/2)-(height/2));
+		int startX = (int)HexagonBasedMechanicalModelGP.number_of_columns-10;
+		int startY = (int)((HexagonBasedMechanicalModelGP.number_of_rows/2)-(height/2));
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
@@ -95,12 +95,12 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 
 	
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {
-		HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		BorderlinePortrayal initialWoundEdge = new BorderlinePortrayal("Initial Wound Edge", Color.WHITE, HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, 0, 
-            HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, globalParameters.getHeightInMikron());
+		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		BorderlinePortrayal initialWoundEdge = new BorderlinePortrayal("Initial Wound Edge", Color.WHITE, HexagonBasedMechanicalModelGP.initialPositionWoundEdge_Mikron, 0, 
+            HexagonBasedMechanicalModelGP.initialPositionWoundEdge_Mikron, globalParameters.getHeightInMikron());
 		globalParameters.setInitialWoundEdgeBorderlineConfig(initialWoundEdge.getBorderlineConfig());
-		BorderlinePortrayal actualWoundEdge = new BorderlinePortrayal("Actual Averaged Wound Edge", Color.RED, HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, 0, 
-            HexagonBasedMechanicalModelGlobalParameters.initialPositionWoundEdge_Mikron, globalParameters.getHeightInMikron());
+		BorderlinePortrayal actualWoundEdge = new BorderlinePortrayal("Actual Averaged Wound Edge", Color.RED, HexagonBasedMechanicalModelGP.initialPositionWoundEdge_Mikron, 0, 
+            HexagonBasedMechanicalModelGP.initialPositionWoundEdge_Mikron, globalParameters.getHeightInMikron());
 		globalParameters.setActualWoundEdgeBorderlineConfig(actualWoundEdge.getBorderlineConfig());
 		return new EpisimPortrayal[]{initialWoundEdge, actualWoundEdge};
 	}

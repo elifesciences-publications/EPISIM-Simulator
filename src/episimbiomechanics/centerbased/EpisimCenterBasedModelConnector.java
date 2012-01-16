@@ -1,7 +1,7 @@
 package episimbiomechanics.centerbased;
 
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
@@ -46,7 +46,7 @@ public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return CenterBasedMechanicalModelGlobalParameters.class;
+		return CenterBasedMechanicalModelGP.class;
 	}
 	
 	@NoExport

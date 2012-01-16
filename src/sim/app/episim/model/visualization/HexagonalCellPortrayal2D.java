@@ -26,7 +26,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
@@ -83,7 +83,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    		 
    		filled = true;
    		HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
-   		HexagonBasedMechanicalModelGlobalParameters globalParameters = (HexagonBasedMechanicalModelGlobalParameters) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+   		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
    			
    		 
    		 if(mechModel.isSpreading()){
@@ -98,8 +98,8 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      		spreadingLoc = mechModel.correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(fieldLoc, spreadingLoc);
 	 	      	
 	 	      		double[] coordinatesAndDimensions = new double[]{((fieldLoc.x+spreadingLoc.x)/2d),((fieldLoc.y+ spreadingLoc.y)/2d),
-									HexagonBasedMechanicalModelGlobalParameters.inner_hexagonal_radius*4,
-									HexagonBasedMechanicalModelGlobalParameters.inner_hexagonal_radius*2};
+									HexagonBasedMechanicalModelGP.inner_hexagonal_radius*4,
+									HexagonBasedMechanicalModelGP.inner_hexagonal_radius*2};
 	 	      					coordinatesAndDimensions = correctCoordinatesAndDimensions(coordinatesAndDimensions, info);
 	 	      		
 	 	      		
@@ -115,8 +115,8 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
  	      	}
 	 	      else{	 		     
 	 	      	double[] coordinatesAndDimensions = new double[]{mechModel.getLocationInMikron().x,mechModel.getLocationInMikron().y,
-	 	      																	HexagonBasedMechanicalModelGlobalParameters.outer_hexagonal_radius*2,
-	 	      																	HexagonBasedMechanicalModelGlobalParameters.inner_hexagonal_radius*2};
+	 	      																	HexagonBasedMechanicalModelGP.outer_hexagonal_radius*2,
+	 	      																	HexagonBasedMechanicalModelGP.inner_hexagonal_radius*2};
 	 	      	coordinatesAndDimensions = correctCoordinatesAndDimensions(coordinatesAndDimensions, info);
 	 	      	 shape = new Ellipse2D.Double(coordinatesAndDimensions[0], coordinatesAndDimensions[1], coordinatesAndDimensions[2], coordinatesAndDimensions[3]);
 	 	      }

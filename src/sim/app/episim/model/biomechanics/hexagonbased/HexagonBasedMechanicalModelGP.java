@@ -6,7 +6,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
 
-public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
 	public static final double number_of_columns =40;
 	public static final double number_of_rows =50;
@@ -99,6 +99,20 @@ public class HexagonBasedMechanicalModelGlobalParameters implements EpisimBiomec
 	public double getHeightInMikron(){
 		return this.height_mikron;
    }
+	
+	@NoUserModification
+	public double getLengthInMikron() {
+	   	//not needed in 2D model
+	   	return 0;
+	}
+	@NoUserModification
+	public void setLengthInMikron(double val) {   
+	   	//not needed in 2D model
+	}
+	
+	
+	
+	
 	@NoUserModification
    public double getCellDiameter_mikron() {   
    	return celldiameter_mikron;

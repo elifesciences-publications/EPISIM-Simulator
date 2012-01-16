@@ -1,7 +1,7 @@
 package episimbiomechanics.hexagonbased;
 
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.HexagonBasedMechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
@@ -47,7 +47,7 @@ public class EpisimHexagonBasedModelConnector extends EpisimModelConnector {
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return HexagonBasedMechanicalModelGlobalParameters.class;
+		return HexagonBasedMechanicalModelGP.class;
 	}
 	
 	public void setIsSpreadingFN(boolean isSpreadingFN){

@@ -11,7 +11,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGlobalParameters;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
@@ -52,7 +52,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 
-		CenterBasedMechanicalModelGlobalParameters biomechanicalModelGlobalParameters = (CenterBasedMechanicalModelGlobalParameters) ModelController
+		CenterBasedMechanicalModelGP biomechanicalModelGlobalParameters = (CenterBasedMechanicalModelGP) ModelController
 				.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 
 		Double2D lastloc = new Double2D(2, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(2));

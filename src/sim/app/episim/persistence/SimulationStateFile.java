@@ -83,15 +83,18 @@ public class SimulationStateFile extends XmlFile {
 		SimulationStateData simStateData = new SimulationStateData();
 
 		if (simulationHeader != null) {
+			ImportLog.success(simulationHeader);
 			NodeList nodes = simulationHeader.getChildNodes();
 			for (int i = 0; i < nodes.getLength(); i++) {
 				if (nodes.item(i).getNodeName()
 						.equalsIgnoreCase(CELLBEHAVIORALMODEL_FILE)) {
+					ImportLog.success(nodes.item(i));
 					simStateData.setLoadedModelFile(nodes.item(i)
 							.getAttributes().getNamedItem(MODELFILE)
 							.getNodeValue());
 				} else if (nodes.item(i).getNodeName()
 						.equalsIgnoreCase(SIMSTEP)) {
+					ImportLog.success(nodes.item(i));
 					String simstepString = nodes.item(i).getAttributes()
 							.getNamedItem(VALUE).getNodeValue();
 					if (simstepString != null)
@@ -107,6 +110,7 @@ public class SimulationStateFile extends XmlFile {
 
 			if (nodes.item(i).getNodeName().equalsIgnoreCase(CELLS)) {
 				NodeList cellNodes = nodes.item(i).getChildNodes();
+				ImportLog.success(nodes.item(i));
 
 				for (int j = 0; j < cellNodes.getLength(); j++) {
 					XmlUniversalCell xmlCell;

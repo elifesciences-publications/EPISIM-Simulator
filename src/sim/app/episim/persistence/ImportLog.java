@@ -7,7 +7,11 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class ImportLog {
+import sim.SimStateServer;
+import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.gui.ShowLog;
+
+public class ImportLog implements SimulationStateChangeListener{
 
 	public static final String WARNING = "WARNING";
 	public static final String SUCCESSFUL = "SUCCESSFUL";
@@ -28,7 +32,12 @@ public class ImportLog {
 		getInstance().log(SUCCESSFUL, "Node was not Ignored", loggedNode);
 	}
 
-	public void log(String type, String message, Node loggedNode) {
+	public static void log(String type, String message, Node loggedNode){
+		getInstance().logEvent(type, message, loggedNode);
+	}
+	
+	
+	public void logEvent(String type, String message, Node loggedNode) {
 		ImportEntryNode log = logNodeMap.get(loggedNode);
 		if (log == null) {
 			log = new ImportEntryNode(loggedNode.getNodeName());
@@ -183,7 +192,27 @@ public class ImportLog {
 	public static ImportLog getInstance() {
 		if (instance == null)
 			instance = new ImportLog();
+		SimStateServer.getInstance().addSimulationStateChangeListener(instance);
 		return instance;
+	}
+
+	@Override
+	public void simulationWasStarted() {
+		
+		
+	}
+
+	@Override
+	public void simulationWasPaused() {
+		
+		
+	}
+
+	@Override
+	public void simulationWasStopped() {
+//		System.out.println(toString());
+//		ShowLog sl = new ShowLog(processedLog);
+//		sl.setVisible(true); TODO Log anzeigen
 	}
 
 }

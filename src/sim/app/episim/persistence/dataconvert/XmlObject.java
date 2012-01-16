@@ -39,7 +39,7 @@ public class XmlObject<T> {
 
 	public XmlObject(Node objectNode) {
 		this.objectNode = objectNode;
-		if(objectNode!=null){
+		if (objectNode != null) {
 			ImportLog.success(objectNode);
 		}
 	}
@@ -107,7 +107,7 @@ public class XmlObject<T> {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
 			if ((m.getName().startsWith("get") || m.getName().startsWith("is"))
-					&& m.getAnnotation(NoExport.class) == null
+					&& !isAnnotated(clazz, m, NoExport.class)
 					&& !m.getName().equals("getClass")) {
 
 				try {
@@ -126,7 +126,7 @@ public class XmlObject<T> {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
 			if (m.getName().startsWith("set")
-					&& m.getAnnotation(NoExport.class) == null) {
+					&& !isAnnotated(clazz, m, NoExport.class)) {
 
 				try {
 					if (m.getParameterTypes().length == 1) {
@@ -138,6 +138,35 @@ public class XmlObject<T> {
 			}
 		}
 		return methods;
+	}
+
+	public static boolean isAnnotated(Class c, Method m, Class annotation) {
+		if (m.isAnnotationPresent(annotation)) {
+			return true;
+		}
+
+		for (Class s : c.getInterfaces()) {
+			Method sm = null;
+			try {
+				if ((sm = s.getMethod(m.getName(), m.getParameterTypes())) != null) {
+					if (isAnnotated(s, sm, annotation)) {
+						return true;
+					}
+				}
+			} catch (Exception e) {}
+		}
+		try {
+			Class sc = c.getSuperclass();
+			if (sc != null) {
+				if (isAnnotated(c.getSuperclass(),
+						sc.getMethod(m.getName(), m.getParameterTypes()),
+						annotation)) {
+					return true;
+				}
+			}
+		} catch (Exception e) {}
+
+		return false;
 	}
 
 	protected static Object invokeGetMethod(Object object, Method actMethod) {
@@ -329,12 +358,12 @@ public class XmlObject<T> {
 		for (String parameterName : subXmlObjects.keySet()) {
 			XmlObject<?> xmlObj = subXmlObjects.get(parameterName);
 			set(parameterName, xmlObj.copyValuesToTarget(null), target);
-			
-			setMinMax(MIN + parameterName,
-							parameterMinima.get(parameterName), target);
-			
-			setMinMax(MAX + parameterName,
-							parameterMaxima.get(parameterName), target);
+
+			setMinMax(MIN + parameterName, parameterMinima.get(parameterName),
+					target);
+
+			setMinMax(MAX + parameterName, parameterMaxima.get(parameterName),
+					target);
 		}
 		for (String parameterName : parameters.keySet()) {
 			set(parameterName, parameters.get(parameterName), target);

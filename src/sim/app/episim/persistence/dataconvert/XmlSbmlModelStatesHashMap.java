@@ -8,6 +8,7 @@ import org.w3c.dom.NodeList;
 
 import sim.app.episim.model.sbml.SBMLModelState;
 import sim.app.episim.persistence.ExportException;
+import sim.app.episim.persistence.ImportLog;
 import sim.app.episim.persistence.XmlFile;
 
 public class XmlSbmlModelStatesHashMap extends
@@ -58,6 +59,7 @@ public class XmlSbmlModelStatesHashMap extends
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (node.getNodeName().equalsIgnoreCase(ENTRY)) {
+				ImportLog.success(node);
 				Node keyNode = node.getAttributes().getNamedItem(KEY);
 				if (keyNode != null) {
 					String key = keyNode.getNodeValue();

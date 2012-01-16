@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import sim.app.episim.persistence.ExportException;
+import sim.app.episim.persistence.ImportLog;
 import sim.app.episim.persistence.XmlFile;
 import sim.app.episim.tissue.ImportedTissue;
 
@@ -51,6 +52,7 @@ public class XmlImportedTissue extends XmlObject<ImportedTissue> {
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (node.getNodeName().equalsIgnoreCase(POINT)) {
+				ImportLog.success(node);
 				Node xNode = node.getAttributes().getNamedItem(X);
 				Node yNode = node.getAttributes().getNamedItem(Y);
 				if (xNode != null && yNode != null) {

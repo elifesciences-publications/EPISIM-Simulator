@@ -29,7 +29,7 @@ public class ImportLog implements SimulationStateChangeListener{
 	private HashMap<Node, ImportEntryNode> logNodeMap;
 
 	public static void success(Node loggedNode) {
-		getInstance().log(SUCCESSFUL, "Node was not Ignored", loggedNode);
+		log(SUCCESSFUL, "Node was not Ignored", loggedNode);
 	}
 
 	public static void log(String type, String message, Node loggedNode){

@@ -24,6 +24,7 @@ public interface EpisimBiomechanicalModel {
 	Shape getPolygonCell(DrawInfo2D info);
 	Shape getPolygonNucleus();
 	Shape getPolygonNucleus(DrawInfo2D info);
+	@NoExport
 	CellBoundaries getCellBoundariesInMikron();
 	void newSimStep(long simStepNumber);
 	double getX();

@@ -149,7 +149,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP) != null){
 				File snapshotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP));
 				if(snapshotPath.isDirectory()){
-					snapshotPath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP, "EpisimSnapshot", "tss");
+					snapshotPath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP, "EpisimSnapshot", "xml");
 				}
 				setTissueExportPath(snapshotPath, false);
 			}

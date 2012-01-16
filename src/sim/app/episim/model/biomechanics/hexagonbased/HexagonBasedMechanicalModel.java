@@ -25,6 +25,7 @@ import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
@@ -765,6 +766,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
    }
 
    @CannotBeMonitored
+   @NoExport
    public CellBoundaries getCellBoundariesInMikron() {
 		Double2D fieldLoc =getLocationInMikron();
     	Double2D spreadingLoc =getSpreadingLocationInMikron();

@@ -32,6 +32,7 @@ import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 import episiminterfaces.EpisimDifferentiationLevel;
+import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 
 
@@ -320,6 +321,7 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
    }
 
 	@CannotBeMonitored
+	@NoExport
    public CellBoundaries getCellBoundariesInMikron() {
 	
 	  return new CellBoundaries(getPolygonCell());

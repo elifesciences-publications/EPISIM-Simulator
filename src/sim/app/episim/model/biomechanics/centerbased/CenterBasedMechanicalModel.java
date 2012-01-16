@@ -750,6 +750,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
    }
 
    @CannotBeMonitored
+   @NoExport
    public CellBoundaries getCellBoundariesInMikron() {
    	double x = getX();
 		double y = getY();

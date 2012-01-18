@@ -11,10 +11,11 @@ import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.util.DiffusionColorGradient;
 import sim.portrayal3d.grid.ValueGridPortrayal3D;
+import sim.portrayal3d.grid.ValueGridPortrayal3DHack;
 import sim.util.gui.SimpleColorMap;
 
 
-public class ExtraCellularDiffusionPortrayal3D extends ValueGridPortrayal3D implements ExtraCellularDiffusionPortrayal{
+public class ExtraCellularDiffusionPortrayal3D extends ValueGridPortrayal3DHack implements ExtraCellularDiffusionPortrayal{
 	
 	private String name;
 	
@@ -26,7 +27,7 @@ public class ExtraCellularDiffusionPortrayal3D extends ValueGridPortrayal3D impl
 	private double maxValue=0;
 	
 	public ExtraCellularDiffusionPortrayal3D(ExtraCellularDiffusionField diffusionField){
-		super(diffusionField.getName());
+		super(diffusionField.getName(), (float)diffusionField.getFieldConfiguration().getLatticeSiteSizeInMikron());
 		this.name = diffusionField.getName();
 		if(diffusionField instanceof ExtraCellularDiffusionField3D)this.extraCellularDiffusionField = (ExtraCellularDiffusionField3D)diffusionField;
 		else throw new IllegalArgumentException("diffusionField must be of type ExtraCellularDiffusionField3D");
@@ -42,7 +43,7 @@ public class ExtraCellularDiffusionPortrayal3D extends ValueGridPortrayal3D impl
 	   							? extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration()
 	   							: extraCellularDiffusionField.getExtraCellularField().max();		 
 		 
-		 this.setMap(buildColorMap());	
+		this.setMap(buildColorMap());	
 		
 		 TransformGroup modelTG = super.createModel();
 		return modelTG;
@@ -50,14 +51,14 @@ public class ExtraCellularDiffusionPortrayal3D extends ValueGridPortrayal3D impl
 	 
 	 public void updateModel(TransformGroup modelTG)
     {
-		/* minValue = extraCellularDiffusionField.getFieldConfiguration().getMinimumConcentration();
+		 minValue = extraCellularDiffusionField.getFieldConfiguration().getMinimumConcentration();
 	    maxValue = extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 	   							? extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration()
 	   							: extraCellularDiffusionField.getExtraCellularField().max();
-		 */
+		 
 		 
 		
-		 this.setMap(buildColorMap());	
+		this.setMap(buildColorMap());	
 		 super.updateModel(modelTG);
     }
 	
@@ -68,7 +69,7 @@ public class ExtraCellularDiffusionPortrayal3D extends ValueGridPortrayal3D impl
       legendLookUpTable = new Color[colorTable.length];
    	for(int i = 0; i < colorTable.length; i++){
    		legendLookUpTable[i]= colorTable[i];
-      	colorTable[i] = new Color(colorTable[i].getRed(), colorTable[i].getGreen(), colorTable[i].getBlue(),MiscalleneousGlobalParameters.instance().getDiffusionFieldOpacity()); 
+      	colorTable[i] = new Color(colorTable[i].getRed(), colorTable[i].getGreen(), colorTable[i].getBlue(),25); 
       }
    	
    	return new SimpleColorMap(colorTable);

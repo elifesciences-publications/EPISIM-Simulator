@@ -11,11 +11,11 @@ public class TestDiffusionFieldConfiguration implements EpisimDiffusionFieldConf
 	
    public double getDiffusionCoefficient() {
 
-      return 0.00000000000002;
+      return 0.000000000002;
    }
 	
    public double getLatticeSiteSizeInMikron() {
-      return 50;
+      return 25;
    }
 	
    public double getDegradationRate() {

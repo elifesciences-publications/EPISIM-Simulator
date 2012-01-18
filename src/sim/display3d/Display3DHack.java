@@ -3,7 +3,9 @@ package sim.display3d;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Paint;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -65,12 +67,6 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	//---------------------------------------------------------------------------------------------------------------------------------------------
 	// TODO: IMPORTANT delete class OptionPane in class Display3D otherwise headless mode in computer cluster environment does not work !!!
 	//----------------------------------------------------------------------------------------------------------------------------------------------
-	
-	
-	
-	
-	
-	
 	
 	
 	private EpisimGUIState epiSimulation = null;
@@ -561,12 +557,18 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
       
        pack();
        setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
-       setLocation(parent.getX() +(parent.getWidth()/2)-(getWidth()/2), parent.getY() +(parent.getHeight()/2)-(getHeight()/2));
+       centerMe(this);
        setResizable(false);
      } 
 
 
-   
+   private void centerMe(JDialog frame){
+		if(frame != null){
+			Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+			frame.setLocation(((int)((screenDim.getWidth()/2)-(frame.getPreferredSize().getWidth()/2))), 
+			((int)((screenDim.getHeight()/2)-(frame.getPreferredSize().getHeight()/2))));
+		}
+	}
    
                    
                    

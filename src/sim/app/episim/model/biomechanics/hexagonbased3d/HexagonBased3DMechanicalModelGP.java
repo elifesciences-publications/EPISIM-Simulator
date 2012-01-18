@@ -5,8 +5,8 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 
-	public static final double number_of_columns =20;
-	public static final double number_of_rows =20;
+	public static final double number_of_columns =10;
+	public static final double number_of_rows =10;
 	public static final double number_of_initially_occupied_columns =10;
 	private static final double celldiameter_mikron = 50;
 	public static final double inner_hexagonal_radius = ((celldiameter_mikron/2d)/2d)*Math.sqrt(3d);

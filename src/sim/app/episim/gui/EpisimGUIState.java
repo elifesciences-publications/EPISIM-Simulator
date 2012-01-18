@@ -22,6 +22,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueServer;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
+import sim.app.episim.visualization.EpisimSimulationBoxPortrayal3D;
 import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;
@@ -336,8 +337,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		double width =  TissueController.getInstance().getTissueBorder().getWidthInMikron();
 		double length =  TissueController.getInstance().getTissueBorder().getLengthInMikron();
+		display3D.attach( new EpisimSimulationBoxPortrayal3D(0,0,0, width, height, length), "Simulation Box");
 		
-		display3D.attach( new WireFrameBoxPortrayal3D(0,0,0, width, height, length), "Frame");
 		
 		
 		EpisimPortrayal[] portrayals = ModelController.getInstance().getAdditionalPortrayalsCellBackground();
@@ -347,7 +348,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
-						
+		
+		
 		// reschedule the displayer
 		display3D.reset();
 
@@ -454,7 +456,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
 		
 		display3D.translate(-.5*width,-.5*height,-0.5*length);
-		display3D.scale(1.0/Math.max(width, Math.max(height, length)));
+		display3D.scale(0.5/Math.max(width, Math.max(height, length)));
        
       
 		return display3D.createInternalFrame();

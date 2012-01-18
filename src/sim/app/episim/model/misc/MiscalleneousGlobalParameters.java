@@ -15,6 +15,8 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
 	private int diffusionFieldOpacity=255;
 	private boolean showDiffusionFieldLegend = true;
 	
+	
+	
 	private int typeColor = 1;
 	
 	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age", "Episim-Modeller Custom Coloring"};
@@ -76,6 +78,5 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
    	if(diffusionFieldOpacity > 255) diffusionFieldOpacity =255;
    	if(diffusionFieldOpacity < 0) diffusionFieldOpacity =0;
    	this.diffusionFieldOpacity = diffusionFieldOpacity;
-   }
-	
+   }	
 }

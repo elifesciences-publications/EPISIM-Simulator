@@ -10,6 +10,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
+import sim.app.episim.model.visualization.ExtraCellularDiffusionIntersectionPortrayal3D;
 import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal;
 import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal2D;
 import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal3D;
@@ -43,7 +44,8 @@ public class ExtraCellularDiffusionInitializer {
 					currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal2D(diffusionFields[i]);
 				}
 				if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
-					currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal3D(diffusionFields[i]);
+					//currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal3D(diffusionFields[i]);
+					currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionIntersectionPortrayal3D(diffusionFields[i]);
 				}
 			}
 		} else {
@@ -112,7 +114,7 @@ public class ExtraCellularDiffusionInitializer {
 	
 	
 	private void testFieldInitialization(ExtraCellularDiffusionField field){
-		int delta = 1;
+		int delta = 2;
 		if(field instanceof ExtraCellularDiffusionField2D){
 			ExtraCellularDiffusionField2D field2D = (ExtraCellularDiffusionField2D) field;
 			int width_half = field2D.getExtraCellularField().getWidth()/2;
@@ -130,7 +132,7 @@ public class ExtraCellularDiffusionInitializer {
 			int length_half = field3D.getExtraCellularField().getLength()/2;
 			for(int z = (length_half-delta); z < length_half+delta; z++){
 				for(int y = (height_half-delta); y < height_half+delta; y++){
-					for(int x = (width_half-delta-2); x < width_half+delta+2; x++){
+					for(int x = (width_half-delta); x < width_half+delta; x++){
 						field3D.getExtraCellularField().set(x, y, z, 255);
 					}						
 				}

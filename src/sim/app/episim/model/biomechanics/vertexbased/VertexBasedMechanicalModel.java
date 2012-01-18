@@ -13,8 +13,10 @@ import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
+import sim.app.episim.model.biomechanics.Episim2DCellShape;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
@@ -22,6 +24,7 @@ import sim.app.episim.model.biomechanics.vertexbased.util.CellPolygonRegistry;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.VertexBasedMechanicalModelInitializer;
+import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.field.continuous.Continuous2D;
@@ -31,12 +34,13 @@ import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
+import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 
 
-public class VertexBasedMechanicalModel extends AbstractMechanicalModel implements CellPolygonProliferationSuccessListener{
+public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implements CellPolygonProliferationSuccessListener{
 	
 	private CellPolygon cellPolygon;	
 	private EpisimVertexBasedModelConnector modelConnector;	
@@ -119,18 +123,18 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
    }
 	
 	@CannotBeMonitored
-	public Shape getPolygonCell() {	   
+	public EpisimCellShape<Shape> getPolygonCell() {	   
 		return getPolygonCell(null);
    }
 	
 	@CannotBeMonitored
-	public Shape getPolygonCell(DrawInfo2D info) {
-		lastDrawInfo = info;		
+	public EpisimCellShape<Shape> getPolygonCell(EpisimDrawInfo<DrawInfo2D> info) {
+		lastDrawInfo = info.getDrawInfo();		
 		Vertex cellCenter = this.cellPolygon.getCellCenter();		
 			
 		if(lastDrawInfo != null){
 			
-			double scale = info.draw.height > info.draw.width ? info.draw.height : info.draw.width;
+			double scale = info.getDrawInfo().draw.height > info.getDrawInfo().draw.width ? info.getDrawInfo().draw.height : info.getDrawInfo().draw.width;
 			
 			SimulationDisplayProperties props = SimStateServer.getInstance().getEpisimGUIState().getSimulationDisplayProperties(info);
 			
@@ -162,19 +166,19 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	       
 	       
 	        
-			return path;
+			return new Episim2DCellShape(path);
 			
 		}
-	   return VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, 0, 0);
+	   return new Episim2DCellShape(VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, 0, 0));
    }
 	
 	@CannotBeMonitored
-	public Polygon getPolygonNucleus(){		
+	public EpisimCellShape<Shape> getPolygonNucleus(){		
 	   return getPolygonNucleus(null);
    }
 	
 	@CannotBeMonitored
-	public Polygon getPolygonNucleus(DrawInfo2D info) {
+	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info) {
 	  //TODO Auto-generated method stub
 		return null;
    }
@@ -324,6 +328,6 @@ public class VertexBasedMechanicalModel extends AbstractMechanicalModel implemen
 	@NoExport
    public CellBoundaries getCellBoundariesInMikron() {
 	
-	  return new CellBoundaries(getPolygonCell());
+	  return new CellBoundaries(getPolygonCell().getCellShape());
    }
  }

@@ -79,7 +79,7 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 	
 	protected void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble) {
 
-		// is not needed int this model
+		// is not needed in this model
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {

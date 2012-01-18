@@ -21,6 +21,7 @@ import episimbiomechanics.centerbased.EpisimCenterBasedModelConnector;
 import episimexceptions.GlobalParameterException;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 
@@ -32,13 +33,16 @@ import sim.app.episim.UniversalCell;
 
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
+import sim.app.episim.model.biomechanics.Episim2DCellShape;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.CellEllipse;
+import sim.app.episim.model.visualization.EpisimDrawInfo;
 
 import sim.app.episim.tissue.TissueController;
 
@@ -53,7 +57,7 @@ import sim.util.Bag;
 import sim.util.Double2D;
 
 
-public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
+public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	public static final double GOPTIMALKERATINODISTANCE=4; // Default: 4
    public static final double GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
@@ -592,23 +596,23 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 	public double getZ(){ return 0;}
 	
 	@CannotBeMonitored @NoExport
-	public Shape getPolygonCell(){
+	public EpisimCellShape<Shape> getPolygonCell(){
 		return getPolygonCell(null);
 	}
 	
 	@CannotBeMonitored @NoExport
-	public Shape getPolygonNucleus(){
+	public EpisimCellShape<Shape> getPolygonNucleus(){
 		return getPolygonNucleus(null);
 	}
 	
 	@CannotBeMonitored @NoExport
-	public Shape getPolygonCell(DrawInfo2D info){
-		return createHexagonalPolygon(info, getKeratinoWidth(), getKeratinoHeight());
+	public EpisimCellShape<Shape> getPolygonCell(EpisimDrawInfo<DrawInfo2D> info){
+		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info.getDrawInfo(), getKeratinoWidth(), getKeratinoHeight()));
 	}
 	
 	@CannotBeMonitored
-	public Shape getPolygonNucleus(DrawInfo2D info){
-		return createHexagonalPolygon(info, 2, 2);
+	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info){
+		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info.getDrawInfo(), 2, 2));
 	}
 	
 	@CannotBeMonitored
@@ -621,7 +625,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 		
 		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
 	
-		SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);
+		SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
 		double x = getX()*props.displayScaleX;
 		double y = getY();
 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
@@ -722,7 +726,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 					}
 					else{
 						 if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel){
-								AbstractMechanicalModel mechanicalModel = (AbstractMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+								AbstractMechanical2DModel mechanicalModel = (AbstractMechanical2DModel) cell.getEpisimBioMechanicalModelObject();
 								map.put(cell.getID(), mechanicalModel.getCellLocationInCellField());
 						 }
 					}
@@ -736,7 +740,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanicalModel {
 			ModelController.getInstance().getBioMechanicalModelController().clearCellField();
 			for(AbstractCell cell: TissueController.getInstance().getActEpidermalTissue().getAllCells()){
 				if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel){
-					AbstractMechanicalModel mechanicalModel = (AbstractMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+					AbstractMechanical2DModel mechanicalModel = (AbstractMechanical2DModel) cell.getEpisimBioMechanicalModelObject();
 					mechanicalModel.setCellLocationInCellField(map.get(cell.getID()));
 				}
 			}

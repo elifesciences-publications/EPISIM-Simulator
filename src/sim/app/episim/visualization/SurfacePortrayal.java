@@ -9,6 +9,7 @@ import java.awt.geom.Rectangle2D.Double;
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.portrayal.DrawInfo2D;
 import episiminterfaces.EpisimPortrayal;
 
@@ -49,7 +50,7 @@ public class SurfacePortrayal extends AbstractSpatialityScalePortrayal2D impleme
   public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 	  graphics.setStroke(new BasicStroke((int)(1*SimStateServer.getInstance().getEpisimGUIState().getDisplay().getDisplayScale()), BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
   	graphics.setPaint(color);
-  	SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);
+  	SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
   	double width = widthInMikron < 0 ? info.draw.width :props.displayScaleX*widthInMikron;
   	double height = heightInMikron < 0 ? info.draw.height :props.displayScaleY*heightInMikron;
   	

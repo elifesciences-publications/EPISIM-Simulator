@@ -14,6 +14,7 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueBorder;
@@ -29,6 +30,7 @@ import sim.portrayal.continuous.*;
 import sim.portrayal.grid.ObjectGridPortrayal2D;
 import sim.portrayal3d.FieldPortrayal3D;
 import sim.portrayal3d.grid.ObjectGridPortrayal3D;
+import sim.portrayal3d.simple.WireFrameBoxPortrayal3D;
 import sim.portrayal.*;
 import sim.util.Double2D;
 
@@ -331,20 +333,26 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		display3D.detatchAll();
 		
-	
+		double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		double width =  TissueController.getInstance().getTissueBorder().getWidthInMikron();
+		double length =  TissueController.getInstance().getTissueBorder().getLengthInMikron();
+		
+		display3D.attach( new WireFrameBoxPortrayal3D(0,0,0, width, height, length), "Frame");
+		
+		
 		EpisimPortrayal[] portrayals = ModelController.getInstance().getAdditionalPortrayalsCellBackground();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
-		display2D.attach(cellPortrayal2D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
+		//display3D.attach(cellPortrayal3D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
 						
 		// reschedule the displayer
-		display2D.reset();
+		display3D.reset();
 
 		// redraw the display
-		display2D.repaint();
+		display3D.repaint();
 	}
 	
 	
@@ -428,6 +436,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	private JInternalFrame buildEpisimDisplay3D(){
 		display3D = new EpisimDisplay3D(EPIDISPLAYWIDTH, EPIDISPLAYHEIGHT, this);
+		
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
 		display3D.setBackdrop(Color.BLACK);
@@ -438,8 +447,16 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 					if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING)console.pressPause();
 				}
 			}
-		});	
+		});
 		
+		double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		double width =  TissueController.getInstance().getTissueBorder().getWidthInMikron();
+		double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
+		
+		display3D.translate(-.5*width,-.5*height,-0.5*length);
+		display3D.scale(1.0/Math.max(width, Math.max(height, length)));
+       
+      
 		return display3D.createInternalFrame();
 	}
 	
@@ -887,7 +904,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		if(autoArrangeWindows) arrangeElements(desktop, false);
 	}
 
-	public SimulationDisplayProperties getSimulationDisplayProperties(DrawInfo2D info){
+	public SimulationDisplayProperties getSimulationDisplayProperties(EpisimDrawInfo<DrawInfo2D> episimInfo){
+		DrawInfo2D info = episimInfo.getDrawInfo();
 		double displayScale = getDisplay().getDisplayScale();
 		double scaleX = (EPIDISPLAYWIDTH / TissueController.getInstance().getTissueBorder().getWidthInMikron());
 		double scaleY = (EPIDISPLAYHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInMikron());

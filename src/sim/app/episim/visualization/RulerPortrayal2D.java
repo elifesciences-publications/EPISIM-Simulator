@@ -7,6 +7,7 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
@@ -96,7 +97,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 			   
 			   graphics.draw(horizontalAxis);
 				graphics.draw(verticalAxis);
-				SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);
+				SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
 				double spaceBetweenSmallLinesX = props.displayScaleX*getResolutionInMikron();
 				double spaceBetweenSmallLinesY = props.displayScaleY*getResolutionInMikron();
 				
@@ -162,7 +163,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 							&& actMousePositionXY.getX() <= getMaxX(info)
 							&& actMousePositionXY.getY() >= getMinY(info)
 							&& actMousePositionXY.getY() <= getMaxY(info)){
-						SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);		
+						SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));		
 							text.append("    Position in µm: "+ 
 									Math.round((actMousePositionXY.getX()- minX)/props.displayScaleX)+
 									", "

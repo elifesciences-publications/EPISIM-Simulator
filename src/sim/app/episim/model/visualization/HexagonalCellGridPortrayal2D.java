@@ -24,13 +24,7 @@ public class HexagonalCellGridPortrayal2D extends HexaObjectGridPortrayal2D impl
 	
 	 private Paint paint;  
        
-    
    
-    
-    private static long actSimStep;
-    
-
-	
 	
 	
 	public HexagonalCellGridPortrayal2D(){

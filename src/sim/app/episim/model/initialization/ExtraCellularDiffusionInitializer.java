@@ -56,6 +56,8 @@ public class ExtraCellularDiffusionInitializer {
 		rebuildExtraCellularDiffusionFields();
 	}
 
+	
+	
 	private void rebuildExtraCellularDiffusionFields() {
 		if (ModelController.getInstance().getExtraCellularDiffusionController()
 				.getNumberOfEpisimExtraCellularDiffusionFieldConfigurations() > 0) {
@@ -110,7 +112,7 @@ public class ExtraCellularDiffusionInitializer {
 	
 	
 	private void testFieldInitialization(ExtraCellularDiffusionField field){
-		int delta = 8;
+		int delta = 1;
 		if(field instanceof ExtraCellularDiffusionField2D){
 			ExtraCellularDiffusionField2D field2D = (ExtraCellularDiffusionField2D) field;
 			int width_half = field2D.getExtraCellularField().getWidth()/2;

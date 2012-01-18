@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.UniversalCell;
+import sim.app.episim.model.visualization.HexagonalCellGridPortrayal3D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 
@@ -18,38 +19,31 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
 		super(simulationStateData);		
 	}
 
-	@Override
+
    protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
-
-	   // TODO Auto-generated method stub
-	   return null;
+   	ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
+   	return standardCellEnsemble;
    }
 
-	@Override
    protected void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble) {
-
-	   // TODO Auto-generated method stub
-	   
+		// is not needed int this model
    }
 
-	@Override
+	
    protected EpisimPortrayal getCellPortrayal() {
-
-	   // TODO Auto-generated method stub
-	   return null;
+	   return new HexagonalCellGridPortrayal3D();
    }
 
-	@Override
+	
    protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {
 
 	   // TODO Auto-generated method stub
-	   return null;
+	   return new EpisimPortrayal[0];
    }
 
-	@Override
+	
    protected EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {
-
-	   // TODO Auto-generated method stub
-	   return null;
+	   
+	   return new EpisimPortrayal[0];
    }
 }

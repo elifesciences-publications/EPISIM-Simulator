@@ -6,6 +6,7 @@ package sim.app.episim.visualization;
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.portrayal.*;
 
 
@@ -57,7 +58,7 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implemen
 		double maxX = getMaxX(info);
 		double minY = getMinY(info);
 		double maxY = getMaxY(info);			
-		SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);		
+		SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));		
 		double spaceBetweenSmallLinesX = props.displayScaleX*getResolutionInMikron();	
 		double spaceBetweenSmallLinesY = props.displayScaleY*getResolutionInMikron();	
 				

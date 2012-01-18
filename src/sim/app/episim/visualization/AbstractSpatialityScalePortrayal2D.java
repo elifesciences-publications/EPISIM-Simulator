@@ -4,6 +4,7 @@ import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
 import sim.field.continuous.Continuous2D;
@@ -59,19 +60,19 @@ public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortr
     }
 	 
 	 protected double getMinX(DrawInfo2D info){
-		 return guiState.getSimulationDisplayProperties(info).offsetX;
+		 return guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info)).offsetX;
 	 }
 	 
 	 protected double getMaxX(DrawInfo2D info){
-		 return guiState.getSimulationDisplayProperties(info).offsetX+getWidth()
+		 return guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info)).offsetX+getWidth()
 		  																							-(guiState.DISPLAY_BORDER_RIGHT*guiState.getDisplay().getDisplayScale())
 		  																							-(guiState.DISPLAY_BORDER_LEFT*guiState.getDisplay().getDisplayScale());
 	 }
 	 protected double getMinY(DrawInfo2D info){
-		 return guiState.getSimulationDisplayProperties(info).offsetY;
+		 return guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info)).offsetY;
 	 }
 	 protected double getMaxY(DrawInfo2D info){
-	  return guiState.getSimulationDisplayProperties(info).offsetY+getHeight()
+	  return guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info)).offsetY+getHeight()
 	  																									-(guiState.DISPLAY_BORDER_BOTTOM*guiState.getDisplay().getDisplayScale())
 	  																									-(guiState.DISPLAY_BORDER_TOP*guiState.getDisplay().getDisplayScale());
 	}

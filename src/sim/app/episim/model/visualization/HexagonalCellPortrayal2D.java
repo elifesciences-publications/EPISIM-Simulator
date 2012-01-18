@@ -149,7 +149,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
     
     private double[] correctCoordinatesAndDimensions(double[] coordinatesAndDimensions, DrawInfo2D info){
    		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
- 	 		SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);
+ 	 		SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
 	 		coordinatesAndDimensions[0] *= props.displayScaleX;
  				
  			double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();

@@ -8,6 +8,8 @@ import org.w3c.dom.NodeList;
 import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.EpisimBiomechanicalModel;
 
+import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
+import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
@@ -52,18 +54,29 @@ public class XmlEpisimBiomechanicalModel extends
 	@Override
 	public EpisimBiomechanicalModel copyValuesToTarget(
 			EpisimBiomechanicalModel target) {
-		AbstractMechanicalModel mechModel = null;
+		AbstractMechanical2DModel mechModel2D = null;
+		AbstractMechanical3DModel mechModel3D = null;
 
-		if (target instanceof AbstractMechanicalModel) {
-			mechModel = (AbstractMechanicalModel) super
-					.copyValuesToTarget(target);
+		if (target instanceof AbstractMechanical2DModel) {
+			mechModel2D = (AbstractMechanical2DModel) super.copyValuesToTarget(target);
 			
 			XmlObject<?> xmlObj = getSubXmlObjects().get(EPISIMMODELCONNECTOR);
 			
 			if(xmlObj != null && xmlObj instanceof XmlEpisimModelConnector){
 			XmlEpisimModelConnector connector = (XmlEpisimModelConnector) xmlObj;
-			connector.copyValuesToTarget(mechModel.getEpisimModelConnector());
-			return mechModel;
+			connector.copyValuesToTarget(mechModel2D.getEpisimModelConnector());
+			return mechModel2D;
+			}
+		}
+		else 	if (target instanceof AbstractMechanical3DModel) {
+			mechModel3D = (AbstractMechanical3DModel) super.copyValuesToTarget(target);
+			
+			XmlObject<?> xmlObj = getSubXmlObjects().get(EPISIMMODELCONNECTOR);
+			
+			if(xmlObj != null && xmlObj instanceof XmlEpisimModelConnector){
+			XmlEpisimModelConnector connector = (XmlEpisimModelConnector) xmlObj;
+			connector.copyValuesToTarget(mechModel3D.getEpisimModelConnector());
+			return mechModel3D;
 			}
 		}
 		return target;

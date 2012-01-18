@@ -51,7 +51,7 @@ public class BorderlinePortrayal  extends AbstractSpatialityScalePortrayal2D imp
    public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
    	graphics.setStroke(new BasicStroke((int)(2*SimStateServer.getInstance().getEpisimGUIState().getDisplay().getDisplayScale()), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
    	graphics.setPaint(this.color);
-   	SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);
+   	SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
    	graphics.drawLine((int)(info.draw.x+(props.displayScaleX*borderlineConfig.x1_InMikron)),
    			(int)(info.draw.y+(props.displayScaleY*borderlineConfig.y1_InMikron)),
    			(int)(info.draw.x+(props.displayScaleX*borderlineConfig.x2_InMikron)),

@@ -6,6 +6,7 @@ import sim.app.episim.CellInspector;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
@@ -96,7 +97,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
             if (object instanceof UniversalCell)
             {                
                 final UniversalCell universalCell=((UniversalCell)object);
-                AbstractMechanicalModel mechModel = (AbstractMechanicalModel)universalCell.getEpisimBioMechanicalModelObject();
+                AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel)universalCell.getEpisimBioMechanicalModelObject();
          		 mechModel.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
                 		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height))); 
                 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGP){
@@ -123,7 +124,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 			                Color fillColor = getFillColor(universalCell);
 			                Shape cellPolygon;
 			                Shape nucleusPolygon;               
-			                cellPolygon = universalCell.getEpisimBioMechanicalModelObject().getPolygonCell(info);
+			                cellPolygon = mechModel.getPolygonCell(new EpisimDrawInfo<DrawInfo2D>(info)).getCellShape();
 			                if(mechModel.getX() != 0 || mechModel.getY() != 0){
 				                graphics.setPaint(fillColor);
 				                graphics.fill(cellPolygon);				                
@@ -137,7 +138,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 					              if(showNucleus)
 					              {
 					                  java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
-					                  nucleusPolygon= universalCell.getEpisimBioMechanicalModelObject().getPolygonNucleus(info);
+					                  nucleusPolygon= mechModel.getPolygonNucleus(new EpisimDrawInfo<DrawInfo2D>(info)).getCellShape();
 					                  if(nucleusPolygon != null){
 						                  graphics.setPaint(nucleusColor);  
 						                  graphics.fill(nucleusPolygon);
@@ -163,7 +164,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 
 	private void doCenterBasedModelEllipseDrawing(Graphics2D graphics, DrawInfo2D info, UniversalCell universalCell, boolean showNucleus){
 		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
-		    AbstractMechanicalModel mechModel = (AbstractMechanicalModel)universalCell.getEpisimBioMechanicalModelObject();
+		    AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel)universalCell.getEpisimBioMechanicalModelObject();
 			((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
 			CellEllipse cellEllipseObject = ((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
 			
@@ -285,7 +286,8 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    public boolean hitObject(Object object, DrawInfo2D range)
    {       
       if (object instanceof UniversalCell){
-       Shape pol = ((UniversalCell)object).getEpisimBioMechanicalModelObject().getPolygonCell();      	 
+      	 AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel)((UniversalCell)object).getEpisimBioMechanicalModelObject();
+      	 Shape pol = mechModel.getPolygonCell().getCellShape();      	 
        return ( pol.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height));
       }
 	   return false; 

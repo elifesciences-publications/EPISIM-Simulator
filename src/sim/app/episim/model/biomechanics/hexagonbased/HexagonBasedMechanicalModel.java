@@ -24,18 +24,22 @@ import episimbiomechanics.EpisimModelConnector;
 
 import episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
+import sim.app.episim.model.biomechanics.Episim2DCellShape;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.initialization.HexagonBasedMechanicalModelInitializer;
 import sim.app.episim.model.visualization.CellEllipse;
+import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.field.continuous.Continuous2D;
@@ -48,7 +52,7 @@ import sim.util.IntBag;
 import sim.util.MutableInt2D;
 
 
-public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
+public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	private EpisimHexagonBasedModelConnector modelConnector;
 	
@@ -60,12 +64,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	
 	private static MersenneTwisterFast random = new MersenneTwisterFast(System.currentTimeMillis());
 	
-	private CellEllipse cellEllipse;
-	
 	private DrawInfo2D lastDrawInfo2D;
-	
-	private static final boolean IS_TOROIDAL = false;
-	
+		
 	private boolean isAtWoundEdge=false;
 	
 	private HexagonBasedMechanicalModelGP globalParameters;
@@ -100,10 +100,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 		   	}		   	
 		   }	   
 	   }
-	   
-	   if(cell != null && getCellEllipse() == null && cell.getEpisimCellBehavioralModelObject() != null){
-			cellEllipse = new CellEllipse(cell.getID(), (int)getX(), (int)getY(), 1, 1, Color.BLUE);    
-		}
+	  	  
 	   lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0),
 		 new Rectangle2D.Double(0, 0, 0, 0));
    }
@@ -156,13 +153,6 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 	   }	  
 		return neighbouringCells;
 	}
-
-	@CannotBeMonitored
-	public CellEllipse getCellEllipse(){
-		return this.cellEllipse;
-	}
-	
-	
 	
 	public boolean isMembraneCell() {
 
@@ -205,13 +195,13 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 			modelConnector.setIsSpreadingFN(false);
 			modelConnector.setIsProliferating(false);
 		}		
-		this.getCellEllipse().setLastDrawInfo2D(getCellEllipse().getLastDrawInfo2D(), true);		
+		
 		checkIfCellIsAtWoundEdge();
 		modelConnector.setIsOnTestSurface(isLocationOnTestSurface(fieldLocation));
 		modelConnector.setIsAtSurfaceBorder(isLocationAtSurfaceBorder(fieldLocation));
 	}
 	
-	private int rectractingProbabilityBasedOnNeighbourhood(ArrayList<AbstractCell> neighbourToPull, Int2D locationToBeLeft, Int2D locationToBeKept){
+	private int rectractingProbabilityFactorBasedOnNeighbourhood(ArrayList<AbstractCell> neighbourToPull, Int2D locationToBeLeft, Int2D locationToBeKept){
 		ArrayList<AbstractCell> neighboursToBeLost = new ArrayList<AbstractCell>();
 		IntBag xPos = new IntBag();
 		IntBag yPos = new IntBag();
@@ -459,8 +449,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 			int probabilityA = 0;
 			int probabilityB = 0;
 			if(globalParameters.getUseCellCellInteractionEnergy()){
-				probabilityA = rectractingProbabilityBasedOnNeighbourhood(neighbourToPullA, fieldLocation, spreadingLocation);
-				probabilityB = rectractingProbabilityBasedOnNeighbourhood(neighbourToPullB, spreadingLocation, fieldLocation);
+				probabilityA = rectractingProbabilityFactorBasedOnNeighbourhood(neighbourToPullA, fieldLocation, spreadingLocation);
+				probabilityB = rectractingProbabilityFactorBasedOnNeighbourhood(neighbourToPullB, spreadingLocation, fieldLocation);
 			}
 			else{
 				probabilityA = UPPER_PROBABILITY_LIMIT/2;
@@ -505,7 +495,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 			ArrayList<AbstractCell> neighbourToPull = new ArrayList<AbstractCell>();
 			int probability = 0;
 			if(globalParameters.getUseCellCellInteractionEnergy()){
-				probability = rectractingProbabilityBasedOnNeighbourhood(neighbourToPull, fieldLocation, spreadingLocation);			
+				probability = rectractingProbabilityFactorBasedOnNeighbourhood(neighbourToPull, fieldLocation, spreadingLocation);			
 			}
 			else{
 				probability = UPPER_PROBABILITY_LIMIT;
@@ -537,7 +527,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
 			ArrayList<AbstractCell> neighbourToPull = new ArrayList<AbstractCell>();
 			int probability = 0;
 			if(globalParameters.getUseCellCellInteractionEnergy()){
-				probability = rectractingProbabilityBasedOnNeighbourhood(neighbourToPull, spreadingLocation, fieldLocation);			
+				probability = rectractingProbabilityFactorBasedOnNeighbourhood(neighbourToPull, spreadingLocation, fieldLocation);			
 			}
 			else{
 				probability =UPPER_PROBABILITY_LIMIT;
@@ -671,24 +661,24 @@ public class HexagonBasedMechanicalModel extends AbstractMechanicalModel {
    // NOT YET NEEDED METHODS
    //--------------------------------------------------------------------------------------------------------------------------------------------------------------
    @CannotBeMonitored
-   public Polygon getPolygonCell() {
+   public EpisimCellShape<Shape> getPolygonCell() {
 		//not yet needed
-		return new Polygon();
+		return new Episim2DCellShape<Polygon>(new Polygon());
 	}
    @CannotBeMonitored
-	public Polygon getPolygonCell(DrawInfo2D info) {
+	public EpisimCellShape<Shape> getPolygonCell(EpisimDrawInfo<DrawInfo2D> info) {
 		//not yet needed
-		return new Polygon();
+		return new Episim2DCellShape<Polygon>(new Polygon());
 	}
    @CannotBeMonitored
-	public Polygon getPolygonNucleus() {
+	public EpisimCellShape<Shape> getPolygonNucleus() {
 		//not yet needed
-		return new Polygon();
+		return new Episim2DCellShape<Polygon>(new Polygon());
 	}
    @CannotBeMonitored
-	public Polygon getPolygonNucleus(DrawInfo2D info) {
+	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info) {
 		//not yet needed
-		return new Polygon();
+		return new Episim2DCellShape<Polygon>(new Polygon());
 	}
    
    public DrawInfo2D getLastDrawInfo2D(){

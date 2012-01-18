@@ -29,10 +29,10 @@ public class ExtraCellularDiffusionPortrayal3D extends ValueGridPortrayal3D impl
 		super(diffusionField.getName());
 		this.name = diffusionField.getName();
 		if(diffusionField instanceof ExtraCellularDiffusionField3D)this.extraCellularDiffusionField = (ExtraCellularDiffusionField3D)diffusionField;
-		else throw new IllegalArgumentException("diffusionField must be of type ExtraCellularDiffusionField2D");
+		else throw new IllegalArgumentException("diffusionField must be of type ExtraCellularDiffusionField3D");
 		this.setField(this.extraCellularDiffusionField.getExtraCellularField());
-		this.setMap(buildColorMap());
-		
+	   this.setMap(buildColorMap());
+	   
 	}
 	
 	 public TransformGroup createModel()
@@ -40,23 +40,23 @@ public class ExtraCellularDiffusionPortrayal3D extends ValueGridPortrayal3D impl
 		 minValue = extraCellularDiffusionField.getFieldConfiguration().getMinimumConcentration();
 	    maxValue = extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 	   							? extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration()
-	   							: extraCellularDiffusionField.getExtraCellularField().max();
-		 
-		 
+	   							: extraCellularDiffusionField.getExtraCellularField().max();		 
 		 
 		 this.setMap(buildColorMap());	
-		 return super.createModel();
+		
+		 TransformGroup modelTG = super.createModel();
+		return modelTG;
     }
 	 
 	 public void updateModel(TransformGroup modelTG)
     {
-		 minValue = extraCellularDiffusionField.getFieldConfiguration().getMinimumConcentration();
+		/* minValue = extraCellularDiffusionField.getFieldConfiguration().getMinimumConcentration();
 	    maxValue = extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 	   							? extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration()
 	   							: extraCellularDiffusionField.getExtraCellularField().max();
+		 */
 		 
-		 
-		 
+		
 		 this.setMap(buildColorMap());	
 		 super.updateModel(modelTG);
     }

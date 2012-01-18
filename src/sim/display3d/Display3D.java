@@ -648,7 +648,7 @@ public class Display3D extends JPanel implements Steppable
             {
             public void actionPerformed(ActionEvent e)
                 {
-              //  optionPane.setVisible(true);
+                //	optionPane.setVisible(true);
                 }
             });
         header.add(optionButton);
@@ -1009,6 +1009,7 @@ public class Display3D extends JPanel implements Steppable
             //if (universe != null)
             //{ remove(canvas); revalidate(); }
             canvas = new CapturingCanvas3D(SimpleUniverse.getPreferredConfiguration());
+            
             add(canvas, BorderLayout.CENTER);
             universe = new SimpleUniverse(canvas);
             universe.getViewingPlatform().setNominalViewingTransform();  //take the viewing point a step back
@@ -1749,8 +1750,8 @@ public class Display3D extends JPanel implements Steppable
 
     JButton systemPreferences = new JButton("MASON");
     JButton appPreferences = new JButton("Simulation");
-    /*
-    public class OptionPane3D extends JFrame
+  
+   /* public class OptionPane3D extends JFrame
         {
         OptionPane3D(String label)
             {
@@ -2140,9 +2141,9 @@ public class Display3D extends JPanel implements Steppable
         }
 
 // must be after all other declared widgets because its constructor relies on them existing
-    public OptionPane3D optionPane = new OptionPane3D("3D Options"); */   
+    public OptionPane3D optionPane = new OptionPane3D("3D Options"); 
         
-        
+      */  
         
         
     void rebuildSkipFrame()

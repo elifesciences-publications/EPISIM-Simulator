@@ -44,25 +44,8 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 	 */
 	public JInternalFrame createInternalFrame()
     {
-    JInternalFrame frame = new JInternalFrame()
-        {
-        public void dispose()
-            {
-            simulationDisplay.quit();       // shut down the movies
-            super.dispose();
-            }
-        };
-        
-    frame.setResizable(true);     
-                            
-    frame.getContentPane().setLayout(new BorderLayout());
-    frame.getContentPane().add(((JComponent)simulationDisplay),BorderLayout.CENTER);
-    
-    frame.setTitle(simulation.getName()  + " Display");    
    
-    frame.setMaximizable(false);
-    frame.pack();
-    return frame;
+    return ((Display3DHack)simulationDisplay).createInternalFrame();
     }
 	
 	
@@ -107,5 +90,13 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 
    public void attach(Portrayal portrayal, String name) {
    	simulationDisplay.attach(portrayal, name);
+   }
+   
+   public void translate(double dx, double dy, double dz){
+   	((Display3DHack)simulationDisplay).translate(dx, dy, dz);
+   }
+   
+   public void scale(double scale){
+   	((Display3DHack)simulationDisplay).scale(scale);
    }
 }

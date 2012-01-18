@@ -3,6 +3,7 @@ package sim.app.episim.visualization;
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
@@ -57,7 +58,7 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					
 					
 					EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();
-					SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(info);								
+					SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));								
 					
 					if(TissueController.getInstance().getTissueBorder().isStandardMembraneLoaded()){
 						 graphics.setStroke(new BasicStroke((int)(0.8*props.displayScaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));

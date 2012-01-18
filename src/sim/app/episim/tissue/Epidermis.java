@@ -11,6 +11,7 @@ import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 
+import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
@@ -230,7 +231,7 @@ public class Epidermis extends TissueType implements CellDeathListener
  //////////////////////////////////////        
  // CELL STATISTICS & Updating OUTER SURFACE CELLS
  //////////////////////////////////////  
-
+	 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGP){
  // the agent that updates the isOuterSurface Flag for the surface exposed cells
      Steppable airSurface = new Steppable()
     {
@@ -259,8 +260,8 @@ public class Epidermis extends TissueType implements CellDeathListener
                      
                      //act.isOuterCell=false; // set new default
                      EpisimBiomechanicalModel biomechanicalModel = act.getEpisimBioMechanicalModelObject();
-                     if(biomechanicalModel instanceof AbstractMechanicalModel){
-	                     Double2D loc= ((AbstractMechanicalModel) biomechanicalModel).getCellLocationInCellField();
+                     if(biomechanicalModel instanceof AbstractMechanical2DModel){
+	                     Double2D loc= ((AbstractMechanical2DModel) biomechanicalModel).getCellLocationInCellField();
 	                     
 	                     int xbin=(int)loc.x / CenterBasedMechanicalModel.GINITIALKERATINOWIDTH;
 	                     if (xLookUp[xbin]==null) 
@@ -283,7 +284,7 @@ public class Epidermis extends TissueType implements CellDeathListener
            }
      };
      
-     if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGP){
+    
 	     // Schedule the agent to update is Outer Flag     
 	     schedule.scheduleRepeating(airSurface,SchedulePriority.TISSUE.getPriority(),1);
      }    

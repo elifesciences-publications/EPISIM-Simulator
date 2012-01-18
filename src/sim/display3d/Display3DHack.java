@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Paint;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -26,6 +27,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -33,7 +35,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameListener;
 
@@ -43,6 +49,10 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.ImageLoader;
+import sim.app.episim.model.controller.ExtraCellularDiffusionController;
+import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.display.Display2D;
 import sim.display.Display2DHack;
@@ -319,6 +329,11 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    } 
    public class OptionPane3D extends JDialog
    {
+   	
+   	private JComboBox<DiffusionFieldCrossSectionMode> planeCombo;
+   	private JSlider planeSlider;
+   	private JLabel planeSliderLabel;
+   	private int lastSliderPosition = 0;
    OptionPane3D(Component parent, String label)
        {
        super((JFrame)parent, label, false);
@@ -480,9 +495,75 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        polyCullbox.setBorder(new javax.swing.border.EmptyBorder(0,0,0,20));
        polyPanel.add(polyCullbox);
        polyPanel.add(Box.createGlue());
-                   
+        
+       Box diffCrossectionPanel = new Box(BoxLayout.Y_AXIS);
+       JPanel mainPanel = new JPanel(new BorderLayout(10,10));
+       mainPanel.setBorder(new javax.swing.border.TitledBorder("Diffusion Field Cross-Section Plane"));
+       JPanel topPanel = new JPanel(new BorderLayout(10,10));
+       JLabel comboBoxLabel = new JLabel(OptionPane3D.CROSSSECTION_PLANE);
+       topPanel.add(comboBoxLabel, BorderLayout.WEST);
+       planeCombo = new JComboBox<DiffusionFieldCrossSectionMode>(ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode.values());
+       planeCombo.setSelectedIndex(0);
+       
+       planeCombo.addItemListener(new ItemListener(){			
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() ==ItemEvent.SELECTED){
+					ModelController.getInstance().getExtraCellularDiffusionController().setSelectedDiffusionFieldCrossSectionMode((DiffusionFieldCrossSectionMode)planeCombo.getSelectedItem());
+				}
+				
+			}});
+       topPanel.add(planeCombo, BorderLayout.CENTER);
+       JPanel bottomPanel = new JPanel(new BorderLayout(10,10));
+       planeSlider = new JSlider(JSlider.HORIZONTAL,0,100,0);
+       planeSlider.setMajorTickSpacing(1);
+       planeSlider.setMinorTickSpacing(1);
+      
+       planeSlider.setPaintLabels(false);
+       
+       planeSliderLabel = new JLabel("  "+planeSlider.getValue()+ "%");
+       
+       
+       planeSlider.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent e) {
+				if(lastSliderPosition != planeSlider.getValue()){
+					lastSliderPosition = planeSlider.getValue();
+					double fact =  ((double) planeSlider.getValue())/100d;
+					DiffusionFieldCrossSectionMode selectedComboItem = (DiffusionFieldCrossSectionMode) planeCombo.getSelectedItem();
+					double result = 0;
+					if(selectedComboItem == DiffusionFieldCrossSectionMode.X_Y_PLANE){
+						double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
+						result =length*fact;
+					}
+					else if(selectedComboItem == DiffusionFieldCrossSectionMode.X_Z_PLANE){
+						double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+						result =height*fact;
+					}
+					else if(selectedComboItem == DiffusionFieldCrossSectionMode.Z_Y_PLANE){
+						double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
+						result =width*fact;
+					}
+					ModelController.getInstance().getExtraCellularDiffusionController().setDiffusionFieldCrossSectionCoordinate(result);
+					String labelText = planeSlider.getValue()+ "%";
+					int upperLimit = 4-labelText.length();
+					String spacer = "";
+					for(int i = 0; i < upperLimit;i++) spacer += " ";
+					planeSliderLabel.setText(spacer+labelText);
+				}
+			
+				
+			}});
+       bottomPanel.add(planeSlider, BorderLayout.CENTER);
+       bottomPanel.add(planeSliderLabel, BorderLayout.EAST);
+       
+       
+       JPanel topAndBottomPanel = new JPanel(new BorderLayout(10,10));
+       topAndBottomPanel.add(topPanel, BorderLayout.NORTH);
+       topAndBottomPanel.add(bottomPanel, BorderLayout.SOUTH);
+       mainPanel.add(topAndBottomPanel, BorderLayout.NORTH);       
+       diffCrossectionPanel.add(mainPanel);
+       
        Box auxillaryPanel = new Box(BoxLayout.Y_AXIS);
-       Box box = new Box(BoxLayout.X_AXIS);
+       JPanel box = new JPanel(new FlowLayout(FlowLayout.LEFT, 10,10));
        auxillaryPanel.setBorder(new javax.swing.border.TitledBorder("Auxillary Elements"));
        box.add(showAxesCheckBox);
        showAxesCheckBox.addItemListener(new ItemListener()
@@ -510,11 +591,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
                    toolTipBehavior.setCanShowToolTips(usingToolTips);
                }
            });
-       box.add(Box.createGlue());
-       auxillaryPanel.add(box);
-                                   
-       // next row
-       box = new Box(BoxLayout.X_AXIS);
+         
        box.add(showSpotlightCheckBox);
        showSpotlightCheckBox.setSelected(true);
        showSpotlightCheckBox.addItemListener(new ItemListener()
@@ -542,7 +619,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        Box optionsPanel = new Box(BoxLayout.Y_AXIS);
        optionsPanel.add(outerBehaviorsPanel);
        optionsPanel.add(rotatePanel);
-       optionsPanel.add(auxillaryPanel);
+       optionsPanel.add(diffCrossectionPanel);
+       optionsPanel.add(auxillaryPanel);      
        optionsPanel.add(polyPanel);
        optionsPanel.add(resetBox);
        //optionsPanel.add(viewPanel);
@@ -589,67 +667,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    static final String BACKDROP_KEY = "Backdrop";
    static final String DRAW_POLYGONS_KEY = "Draw Polygons";
    static final String DRAW_FACES_KEY = "Draw Faces";
-           
-   
-   void resetToPreferences()
-       {
-       try
-           {
-           Preferences systemPrefs = Prefs.getGlobalPreferences(getPreferencesKey());
-           Preferences appPrefs = Prefs.getAppPreferences(simulation, getPreferencesKey());
-                                                   
-           orbitRotateXCheckBox.setSelected(appPrefs.getBoolean(ROTATE_LEFT_RIGHT_KEY,
-                   systemPrefs.getBoolean(ROTATE_LEFT_RIGHT_KEY, true)));
-           orbitRotateYCheckBox.setSelected(appPrefs.getBoolean(ROTATE_UP_DOWN_KEY,
-                   systemPrefs.getBoolean(ROTATE_UP_DOWN_KEY, true)));
-           orbitTranslateXCheckBox.setSelected(appPrefs.getBoolean(TRANSLATE_LEFT_RIGHT_KEY,
-                   systemPrefs.getBoolean(TRANSLATE_LEFT_RIGHT_KEY, true)));
-           orbitTranslateYCheckBox.setSelected(appPrefs.getBoolean(TRANSLATE_UP_DOWN_KEY,
-                   systemPrefs.getBoolean(TRANSLATE_UP_DOWN_KEY, true)));
-           selectBehCheckBox.setSelected(appPrefs.getBoolean(SELECT_KEY,
-                   systemPrefs.getBoolean(SELECT_KEY, true)));
-
-           rotAxis_X.setValue(rotAxis_X.newValue(appPrefs.getDouble(AUTO_ROTATE_X_KEY,
-                       systemPrefs.getDouble(AUTO_ROTATE_X_KEY, 0))));
-           rotAxis_Y.setValue(rotAxis_Y.newValue(appPrefs.getDouble(AUTO_ROTATE_Y_KEY,
-                       systemPrefs.getDouble(AUTO_ROTATE_Y_KEY, 0))));
-           rotAxis_Z.setValue(rotAxis_Z.newValue(appPrefs.getDouble(AUTO_ROTATE_Z_KEY,
-                       systemPrefs.getDouble(AUTO_ROTATE_Z_KEY, 0))));
-           spinDuration.setValue(spinDuration.newValue(appPrefs.getDouble(AUTO_ROTATE_RATE_KEY,
-                       systemPrefs.getDouble(AUTO_ROTATE_RATE_KEY, 0))));
-
-           showAxesCheckBox.setSelected(appPrefs.getBoolean(AXES_KEY,
-                   systemPrefs.getBoolean(AXES_KEY, false)));
-           tooltips.setSelected(appPrefs.getBoolean(TOOLTIPS_KEY,
-                   systemPrefs.getBoolean(TOOLTIPS_KEY, false)));
-           showSpotlightCheckBox.setSelected(appPrefs.getBoolean(SPOTLIGHT_KEY,
-                   systemPrefs.getBoolean(SPOTLIGHT_KEY, true)));
-           showAmbientLightCheckBox.setSelected(appPrefs.getBoolean(AMBIENT_LIGHT_KEY,
-                   systemPrefs.getBoolean(AMBIENT_LIGHT_KEY, false)));
-           showBackgroundCheckBox.setSelected(appPrefs.getBoolean(BACKDROP_KEY,
-                   systemPrefs.getBoolean(BACKDROP_KEY, true)));
-
-           int val = appPrefs.getInt(DRAW_POLYGONS_KEY, 
-               systemPrefs.getInt(DRAW_POLYGONS_KEY,
-                   polyPoint.isSelected() ? 0 : 
-                   polyLine.isSelected() ? 1 : 2));
-           if (val == 0) polyPoint.setSelected(true);
-           else if (val == 1) polyLine.setSelected(true);
-           else // (val == 0) 
-               polyFill.setSelected(true);
-                                                                   
-           val = appPrefs.getInt(DRAW_FACES_KEY, 
-               systemPrefs.getInt(DRAW_FACES_KEY,
-                   polyCullNone.isSelected() ? 0 : 
-                   polyCullBack.isSelected() ? 1 : 2));
-           if (val == 0) polyCullNone.setSelected(true);
-           else if (val == 1) polyCullBack.setSelected(true);
-           else // (val == 0) 
-               polyCullFront.setSelected(true);
-           }
-       catch (java.security.AccessControlException e) { } // it must be an applet
-       }
-                   
+   static final String CROSSSECTION_PLANE="DF Cross-Section-Mode";        
+  
    }
 
 //must be after all other declared widgets because its constructor relies on them existing

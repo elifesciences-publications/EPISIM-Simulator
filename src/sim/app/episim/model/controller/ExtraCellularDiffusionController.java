@@ -16,6 +16,22 @@ import sim.app.episim.tissue.TissueController;
 
 public class ExtraCellularDiffusionController {
 	
+	public enum DiffusionFieldCrossSectionMode{		
+		X_Y_PLANE("X-Y-Plane"),
+		X_Z_PLANE("X-Z-Plane"),
+		Z_Y_PLANE("Y-Z-Plane");
+		
+		private String name;
+		DiffusionFieldCrossSectionMode(String name){
+			this.name = name;
+		
+		}		
+		public String toString(){ return this.name; }
+	}
+	
+	private DiffusionFieldCrossSectionMode selectedDiffusionFieldCrossSectionMode = DiffusionFieldCrossSectionMode.X_Y_PLANE;
+	
+	private double diffusionFieldCrossSectionCoordinateInMikron = 0;
 	
 	
 	private static ExtraCellularDiffusionController instance = new ExtraCellularDiffusionController();
@@ -26,7 +42,9 @@ public class ExtraCellularDiffusionController {
 	
 	private ExtraCellularDiffusionController(){
 		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
-	}
+	}	
+	
+	
 	
 	
 	public int getNumberOfEpisimExtraCellularDiffusionFieldConfigurations(){
@@ -87,6 +105,27 @@ public class ExtraCellularDiffusionController {
 		}
 		if(this.episimExtraCellularDiffusionFieldsConfigurations == null)
 			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[0];
+	}
+
+
+
+
+	
+	public DiffusionFieldCrossSectionMode getSelectedDiffusionFieldCrossSectionMode() {
+	
+		return selectedDiffusionFieldCrossSectionMode;
+	}
+	public void setSelectedDiffusionFieldCrossSectionMode(DiffusionFieldCrossSectionMode selectedDiffusionFieldCrossSectionMode) {
+	
+		this.selectedDiffusionFieldCrossSectionMode = selectedDiffusionFieldCrossSectionMode;
+	}
+	public double getDiffusionFieldCrossSectionCoordinate() {
+	
+		return diffusionFieldCrossSectionCoordinateInMikron;
+	}	
+	public void setDiffusionFieldCrossSectionCoordinate(double diffusionFieldCrossSectionCoordinate) {
+	
+		this.diffusionFieldCrossSectionCoordinateInMikron = diffusionFieldCrossSectionCoordinate;
 	}
 
 }

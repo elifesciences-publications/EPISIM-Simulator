@@ -100,11 +100,7 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		return loadedCells;
 	}
 
-	// TODO: Initialisierungsmethode implementieren
-	protected ArrayList<UniversalCell> buildInitialCellEnsemble(File file) {
-		return new ArrayList<UniversalCell>();
-	}
-
+	
 	protected void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble) {
 
 		// This method has to be implemented but has nothing to do in this model

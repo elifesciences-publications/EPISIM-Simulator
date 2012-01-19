@@ -91,12 +91,10 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      			&& this.simStepTimeStampRegistry.get(cell.getID()) == actSimStepNo){
 	 	      		
 	 	      		Double2D fieldLoc = mechModel.getLocationInMikron();
-	 	      		Double2D spreadingLoc =mechModel.getSpreadingLocationInMikron();
+	 	      		Double2D spreadingLoc =mechModel.getSpreadingLocationInMikron();	      		 
+	 	      		spreadingLoc = mechModel.correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing();	 	  	   	
 	 	      		
 	 	      		
-	 	      		
-	 	      		spreadingLoc = mechModel.correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(fieldLoc, spreadingLoc);
-	 	      	
 	 	      		double[] coordinatesAndDimensions = new double[]{((fieldLoc.x+spreadingLoc.x)/2d),((fieldLoc.y+ spreadingLoc.y)/2d),
 									HexagonBasedMechanicalModelGP.inner_hexagonal_radius*4,
 									HexagonBasedMechanicalModelGP.inner_hexagonal_radius*2};
@@ -181,13 +179,13 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
     	if((fieldLoc.x <spreadingLoc.x && fieldLoc.y >spreadingLoc.y)
     			||(fieldLoc.x > spreadingLoc.x && fieldLoc.y < spreadingLoc.y)){ 
     		rotationInDegrees = 25;
-    		heightDelta = height*0.1*-1d;
+    		//heightDelta = height*0.1*-1d;
     	}
     	
     	if((fieldLoc.x <spreadingLoc.x && fieldLoc.y <spreadingLoc.y)
     			||(fieldLoc.x > spreadingLoc.x && fieldLoc.y > spreadingLoc.y)){ 
     		rotationInDegrees = 155;
-    		heightDelta = height*0.1;
+    	//	heightDelta = height*0.1;
     	}
    	if((fieldLoc.x == spreadingLoc.x && fieldLoc.y !=spreadingLoc.y)){ 
    		rotationInDegrees = 90;

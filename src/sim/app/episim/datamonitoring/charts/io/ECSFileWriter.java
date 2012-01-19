@@ -94,38 +94,7 @@ public class ECSFileWriter {
 								fileIn.close();
 								jarOut.flush();
 							}
-							
-							//TODO: insert cell model class files in ecs File------------------------------------------------------------------------------
-						/*	
-							InputStream in = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass().getResourceAsStream(
-									ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject().getClass().getSimpleName()+".class");
-							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject()
-									                            .getClass().getName().replace(".", "/") + ".class"));
-							
-							byte[]  bytes = new byte[1024];
-							int  available = 0;
-							
-							while ((available = in.read(bytes)) > 0) {
-								jarOut.write(bytes, 0, available);
-							}
-							in.close();
-							jarOut.flush();
-							
-							in = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getResourceAsStream(
-									ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getSimpleName()+".class");
-							jarOut.putNextEntry(new JarEntry(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
-									                            .getClass().getName().replace(".", "/") + ".class"));
-							
-							 bytes = new byte[1024];
-							 available = 0;
-							
-							while ((available = in.read(bytes)) > 0) {
-								jarOut.write(bytes, 0, available);
-							}
-							in.close();
-							jarOut.flush();	*/
-							//-------------------------------------------------------------------------------------------------------------------------
-							
+													
 							
 							
 							ByteArrayOutputStream byteOut = new ByteArrayOutputStream();

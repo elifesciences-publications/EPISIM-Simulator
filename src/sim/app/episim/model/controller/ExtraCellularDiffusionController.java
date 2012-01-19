@@ -19,7 +19,7 @@ public class ExtraCellularDiffusionController {
 	public enum DiffusionFieldCrossSectionMode{		
 		X_Y_PLANE("X-Y-Plane"),
 		X_Z_PLANE("X-Z-Plane"),
-		Z_Y_PLANE("Y-Z-Plane");
+		Y_Z_PLANE("Y-Z-Plane");
 		
 		private String name;
 		DiffusionFieldCrossSectionMode(String name){

@@ -9,14 +9,15 @@ import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.vecmath.Color3f;
-import javax.vecmath.Point3f;
-import javax.vecmath.Vector3d;
+
 import javax.vecmath.Vector3f;
 
 import com.sun.j3d.utils.geometry.Text2D;
 
-import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+
+import sim.display3d.Display3DHack;
 import sim.portrayal3d.simple.WireFrameBoxPortrayal3D;
+
 
 
 public class EpisimSimulationBoxPortrayal3D extends WireFrameBoxPortrayal3D {
@@ -29,7 +30,10 @@ public class EpisimSimulationBoxPortrayal3D extends WireFrameBoxPortrayal3D {
 	private float z2;
 	
 	private static final float OFFSET = 0;
-	 
+	
+	private static final int STANDARD_FONT_SIZE = 12;
+	
+	
 	
 	 /** Draws a white wireframe box from (-0.5,-0.5,-0.5) to (0.5,0.5,0.5) */
    public EpisimSimulationBoxPortrayal3D() { this(-0.5,-0.5,-0.5,0.5,0.5,0.5); }
@@ -66,7 +70,16 @@ public class EpisimSimulationBoxPortrayal3D extends WireFrameBoxPortrayal3D {
 	   	branchGroup.setCapability(BranchGroup.ALLOW_BOUNDS_READ);
 	   	branchGroup.setCapability(BranchGroup.ALLOW_DETACH);
 	   	
-	   	Font font =  new Font(Font.SANS_SERIF, Font.PLAIN, 12);
+	   	double fontSize = STANDARD_FONT_SIZE;
+	   	if(getCurrentDisplay() != null){
+	   		double dispScale = ((Display3DHack) getCurrentDisplay()).getInitialDisplayScale();
+	   		double resultingFontSize = ((double)STANDARD_FONT_SIZE)*dispScale;
+	   		if(resultingFontSize < 0.01){
+	   			fontSize *= (0.01/resultingFontSize);
+	   		}	   		
+	   	}
+	   	
+	   	Font font =  new Font(Font.SANS_SERIF, Font.PLAIN, (int)fontSize);
 	   	String label = "(0,0,0) µm";
 	   	
 	   	addLabel(label, branchGroup, new Vector3f(OFFSET,0f,0f), font, 1);   	

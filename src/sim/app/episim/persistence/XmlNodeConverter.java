@@ -10,6 +10,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import sim.app.episim.ExceptionDisplayer;
+
 public class XmlNodeConverter extends XmlFile {
 
 	private File converted;
@@ -57,15 +59,12 @@ public class XmlNodeConverter extends XmlFile {
 			}
 			xmlFile.save();
 
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SAXException e){			
+			ExceptionDisplayer.getInstance().displayException(e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ExceptionDisplayer.getInstance().displayException(e);
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ExceptionDisplayer.getInstance().displayException(e);
 		}
 	}
 

@@ -293,7 +293,7 @@ public class CellEllipse_ extends AbstractCellEllipse_ {
 		this.cytInt = cytInt;
 	}
 
-	// public void setXY(int x, int y) { TODO
+	// public void setXY(int x, int y) { 
 	// if (this.nucleus != null) {
 	// int deltaX = x - this.getX();
 	// int deltaY = y - this.getY();

@@ -167,8 +167,7 @@ public class TestVisualizationMain {
 	               savePNGImageOfCellCanvas(imagePath);
                }
                catch (IOException e1){
-	               // TODO Auto-generated catch block
-	               e1.printStackTrace();
+               	ExceptionDisplayer.getInstance().displayException(e1);
                }
 				}
 			}

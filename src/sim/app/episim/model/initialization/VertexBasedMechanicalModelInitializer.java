@@ -73,12 +73,7 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		}
 				
 	}	
-	
-	//TODO: implement this Method as soon as an initialization file can be used
-	protected ArrayList<UniversalCell> buildInitialCellEnsemble(File file) {
-		return new ArrayList<UniversalCell>();
-	}
-	
+		
 	protected EpisimPortrayal getCellPortrayal() {
 			   
 	UniversalCellPortrayal2D portrayal = new UniversalCellPortrayal2D(java.awt.Color.lightGray);

@@ -10,7 +10,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
-import sim.app.episim.model.visualization.ExtraCellularDiffusionIntersectionPortrayal3D;
+import sim.app.episim.model.visualization.ExtraCellularDiffusionCrossSectionPortrayal3D;
 import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal;
 import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal2D;
 import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal3D;
@@ -44,8 +44,13 @@ public class ExtraCellularDiffusionInitializer {
 					currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal2D(diffusionFields[i]);
 				}
 				if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
-					//currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal3D(diffusionFields[i]);
-					currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionIntersectionPortrayal3D(diffusionFields[i]);
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_3DVISUALIZATION) != null
+							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_3DVISUALIZATION).toLowerCase().equals(EpisimProperties.SIMULATOR_DF_3DVISUALIZATION_BLOCK_MODE)){
+							currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal3D(diffusionFields[i]);
+						}
+						else{
+							currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionCrossSectionPortrayal3D(diffusionFields[i]);
+						}				
 				}
 			}
 		} else {
@@ -114,8 +119,9 @@ public class ExtraCellularDiffusionInitializer {
 	
 	
 	private void testFieldInitialization(ExtraCellularDiffusionField field){
-		int delta = 2;
+		int delta = 10;
 		if(field instanceof ExtraCellularDiffusionField2D){
+			delta = 8;
 			ExtraCellularDiffusionField2D field2D = (ExtraCellularDiffusionField2D) field;
 			int width_half = field2D.getExtraCellularField().getWidth()/2;
 			int height_half = field2D.getExtraCellularField().getHeight()/2;
@@ -136,7 +142,7 @@ public class ExtraCellularDiffusionInitializer {
 						field3D.getExtraCellularField().set(x, y, z, 255);
 					}						
 				}
-			}
+			}			
 		}
 	}
 	

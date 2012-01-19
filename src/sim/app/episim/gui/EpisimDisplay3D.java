@@ -92,6 +92,10 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
    	simulationDisplay.attach(portrayal, name);
    }
    
+   public void setInitialDisplayScale(double initialScale){ ((Display3DHack)simulationDisplay).setInitialDisplayScale(initialScale); }
+   
+   public double getInitialDisplayScale(double initialScale){ return ((Display3DHack)simulationDisplay).getInitialDisplayScale(); }
+   
    public void translate(double dx, double dy, double dz){
    	((Display3DHack)simulationDisplay).translate(dx, dy, dz);
    }

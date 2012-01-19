@@ -767,13 +767,11 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
     	double height = 0;
    	double radiusOuter = HexagonBasedMechanicalModelGP.outer_hexagonal_radius;
    	double radiusInner = HexagonBasedMechanicalModelGP.inner_hexagonal_radius;
-	   if(isSpreading()){
-	   	
-	   	
+	   if(isSpreading()){	   	
     		
-    		spreadingLoc = correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(fieldLoc, spreadingLoc);
-    		  	
-	   	
+    		 
+    		spreadingLoc = correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing();		
+    		
 	   	x = ((fieldLoc.x+spreadingLoc.x)/2d);
 	 		y = heightInMikron - ((fieldLoc.y+spreadingLoc.y)/2d);
 	 		width = 4* radiusInner;
@@ -789,13 +787,13 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	    	if((fieldLoc.x <spreadingLoc.x && fieldLoc.y >spreadingLoc.y)
 	    			||(fieldLoc.x > spreadingLoc.x && fieldLoc.y < spreadingLoc.y)){ 
 	    		rotationInDegrees = 25;
-	    		heightDelta = height*0.1*-1d;
+	    		//heightDelta = height*0.1*-1d;
 	    	}
 	    	
 	    	if((fieldLoc.x <spreadingLoc.x && fieldLoc.y <spreadingLoc.y)
 	    			||(fieldLoc.x > spreadingLoc.x && fieldLoc.y > spreadingLoc.y)){ 
 	    		rotationInDegrees = 155;
-	    		heightDelta = height*0.1;
+	    	//	heightDelta = height*0.1;
 	    	}
 	   	if((fieldLoc.x == spreadingLoc.x && fieldLoc.y !=spreadingLoc.y)){ 
 	   		rotationInDegrees = 90;
@@ -830,83 +828,29 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	   
    }
    
-   public Double2D correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(Double2D fieldLoc, Double2D spreadingLoc){
-  	 double radiusOuter = HexagonBasedMechanicalModelGP.outer_hexagonal_radius;
- 	 double radiusInner = HexagonBasedMechanicalModelGP.inner_hexagonal_radius;
-	 double x1 = fieldLoc.x;
-	 double y1 = fieldLoc.y;
-	 double x2 = spreadingLoc.x;
-	 double y2 = spreadingLoc.y;
- 	 double distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
- 	 if(distance > 3*radiusInner){
- 		Int2D loc1 = getFieldLocation();
- 		Int2D loc2 = getSpreadingLocation();
- 		boolean upperLeftCorner = loc1.x==0 && loc1.y==0;
-			boolean lowerLeftCorner = loc1.x ==0 && loc1.y == (getCellFieldDimensions().y-1);
-			boolean upperRightCorner = loc1.x ==(getCellFieldDimensions().x-1) && loc1.y == 0;
-			boolean lowerRightCorner = loc1.x ==(getCellFieldDimensions().x-1) && loc1.y ==(getCellFieldDimensions().y-1);
-			
-			boolean left = loc1.x==0 && !upperLeftCorner && !lowerLeftCorner;
-			boolean right = loc1.x ==(getCellFieldDimensions().x-1) && !upperRightCorner && !lowerRightCorner;
-			boolean bottom = loc1.y ==(getCellFieldDimensions().y-1) && !lowerRightCorner && !lowerLeftCorner;
-			boolean top = loc1.y==0 && !upperLeftCorner && !upperRightCorner;
-			
-			boolean upperleftSide = (loc2.x > loc1.x && loc2.y > loc1.y && upperLeftCorner)
-									  		|| (loc2.x < loc1.x && loc2.y > loc1.y && top)
-									  		|| (loc2.x > loc1.x && loc2.y < loc1.y && left)
-									  		|| (loc2.x < loc1.x && loc2.y < loc1.y && !right && !bottom && !lowerRightCorner);
-			boolean upperrightSide = (loc2.x < loc1.x && loc2.y > loc1.y && upperRightCorner)
-			                     	 || (loc2.x > loc1.x && loc2.y > loc1.y && top)
-			                     	 || (loc2.x < loc1.x && loc2.y < loc1.y && right)
-			                     	 || (loc2.x > loc1.x && loc2.y < loc1.y && !left && !lowerLeftCorner && !bottom);
-			boolean lowerleftSide = (loc2.x > loc1.x && loc2.y < loc1.y && lowerLeftCorner)
-       								|| (loc2.x < loc1.x && loc2.y < loc1.y && bottom)
-       								|| (loc2.x > loc1.x && loc2.y > loc1.y && left)
-       								|| (loc2.x < loc1.x && loc2.y > loc1.y && !top && !upperRightCorner && !right); 			
-			boolean lowerrightSide = (loc2.x < loc1.x && loc2.y < loc1.y && lowerRightCorner)
-										 || (loc2.x > loc1.x && loc2.y < loc1.y && bottom)
-										 || (loc2.x < loc1.x && loc2.y > loc1.y && right)
-										 || (loc2.x > loc1.x && loc2.y > loc1.y && !upperLeftCorner && !top && !left);
-			
-			boolean rightSide = (loc2.x < loc1.x && loc2.y == loc1.y && (right || lowerRightCorner ||upperRightCorner))
-		  					 	  || (loc2.x > loc1.x && loc2.y == loc1.y && !(left || lowerLeftCorner ||upperLeftCorner));
-			boolean leftSide = (loc2.x > loc1.x && loc2.y == loc1.y && (left || lowerLeftCorner ||upperLeftCorner))
-	 	  						 || (loc2.x < loc1.x && loc2.y == loc1.y && !(right || lowerRightCorner ||upperRightCorner));
-			boolean upSide = (loc2.x == loc1.x && loc2.y > loc1.y && (top || upperLeftCorner || upperRightCorner))
-			 				  || (loc2.x == loc1.x && loc2.y < loc1.y && !(bottom || lowerLeftCorner || lowerRightCorner));
-			boolean downSide = (loc2.x == loc1.x && loc2.y < loc1.y && (bottom || lowerLeftCorner || lowerRightCorner))
-		  						 || (loc2.x == loc1.x && loc2.y > loc1.y && !(top || upperLeftCorner || upperRightCorner));
- 		 
-			if(upSide){
-				y2 = y1-2*radiusInner;	
-			}
-			if(downSide){
-				y2 = y1+2*radiusInner;						
-			}
-			if(leftSide){
-				x2 = x1 - 2*radiusOuter;
-			}
-			if(rightSide){
-				x2 = x1 + 2*radiusOuter;
-			}
-			if(upperleftSide){
-				x2 = x1 - 1.5*radiusOuter;
-				y2 = y1 - radiusInner;
-			}
-			if(upperrightSide){
-				x2 = x1 + 1.5*radiusOuter;
-				y2 = y1 - radiusInner;			
-			}
-			if(lowerrightSide){
-				x2 = x1 + 1.5*radiusOuter;
-				y2 = y1 + radiusInner;
-			}
-			if(lowerleftSide){
-				x2 = x1 - 1.5*radiusOuter;
-				y2 = y1 + radiusInner;
-			}
- 		 
- 	 }
-	 return new Double2D(x2,y2);
- }
+   
+   public Double2D correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(){
+   
+  	 Int2D loc1 = getFieldLocation();
+	 Int2D loc2 = getSpreadingLocation();
+	 int x = loc2.x;
+	 int y = loc2.y;
+  	 if(Math.abs(loc1.x-loc2.x) > 1){
+  		 if(loc1.x > loc2.x){
+  			 x = cellField.getWidth() - loc2.x;
+  		 }
+  		 else{
+  			 x = loc2.x - cellField.getWidth();
+  		 }
+  	 }
+  	 if(Math.abs(loc1.y-loc2.y) > 1){
+  		 if(loc1.y > loc2.y){
+  			 y = cellField.getHeight() - loc2.y;
+  		 }
+  		 else{
+  			 y = loc2.y - cellField.getHeight();
+  		 }
+  	 }	
+  	 return getLocationInMikron(new Int2D(x,y));
+   }  
 }

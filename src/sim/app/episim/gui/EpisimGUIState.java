@@ -2,6 +2,7 @@ package sim.app.episim.gui;
 
 import sim.SimStateServer;
 import sim.engine.*;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.CellInspector;
@@ -342,7 +343,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		
 		EpisimPortrayal[] portrayals = ModelController.getInstance().getAdditionalPortrayalsCellBackground();
-		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		for(int i = 0; i < portrayals.length; i++)display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		
 		//display3D.attach(cellPortrayal3D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
@@ -456,7 +458,9 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
 		
 		display3D.translate(-.5*width,-.5*height,-0.5*length);
-		display3D.scale(0.5/Math.max(width, Math.max(height, length)));
+		double initialScale = 0.5/Math.max(width, Math.max(height, length));
+		display3D.setInitialDisplayScale(initialScale);
+		display3D.scale(initialScale);
        
       
 		return display3D.createInternalFrame();

@@ -179,12 +179,12 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	
 	@CannotBeMonitored
 	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info) {
-	  //TODO Auto-generated method stub
+	 
 		return null;
    }
 
 	public boolean nextToOuterCell(){
-	   // TODO Auto-generated method stub
+	 
 	   return false;
    }
 

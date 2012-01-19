@@ -38,7 +38,10 @@ public class EpisimProperties {
 	public static final String SIMULATOR_SEND_RECEIVE_ALGORITHM = "simulator.sendreceivealgorithm";
 	
 	public static final String SIMULATOR_SIM_STEP_MODE = "simulator.simstepmode";
+	
 	public static final String SIMULATOR_DIFFUSION_FIELD_TESTMODE = "simulator.diffusionfield.testmode";
+	public static final String SIMULATOR_DIFFUSION_FIELD_3DVISUALIZATION ="simulator.diffusionfield.3dvisualization";
+	
 	public static final String SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP = "simulator.cellbehavioralmodel.globalparametersfile";
 	public static final String SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP = "simulator.biomechanicalmodel.globalparametersfile";
 	public static final String SIMULATOR_MISCPARAMETERSFILE_PROP = "simulator.miscparametersfile";
@@ -54,6 +57,8 @@ public class EpisimProperties {
 	public static final String SIMULATOR_SIM_STEP_MODE_MONTE_CARLO="montecarlo";
 	public static final String SIMULATOR_SIM_STEP_MODE_MASON="mason";
 	
+	public static final String SIMULATOR_DF_3DVISUALIZATION_BLOCK_MODE = "block";
+	public static final String SIMULATOR_DF_3DVISUALIZATION_CROSSSECTION_MODE = "crosssection";
 	
 	public static final String ON = "on";
 	public static final String OFF = "off";

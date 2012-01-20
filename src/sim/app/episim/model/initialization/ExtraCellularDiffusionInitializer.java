@@ -133,7 +133,7 @@ public class ExtraCellularDiffusionInitializer {
 		}
 		if(field instanceof ExtraCellularDiffusionField3D){
 			ExtraCellularDiffusionField3D field3D = (ExtraCellularDiffusionField3D) field;
-			int width_half = field3D.getExtraCellularField().getWidth()/2;
+		 int width_half = field3D.getExtraCellularField().getWidth()/2;
 			int height_half = field3D.getExtraCellularField().getHeight()/2;
 			int length_half = field3D.getExtraCellularField().getLength()/2;
 			for(int z = (length_half-delta); z < length_half+delta; z++){
@@ -142,7 +142,13 @@ public class ExtraCellularDiffusionInitializer {
 						field3D.getExtraCellularField().set(x, y, z, 255);
 					}						
 				}
-			}			
+			}	
+			/*field3D.getExtraCellularField().set(0, 1, 0, 255);
+			field3D.getExtraCellularField().set(0, 2, 0, 255);
+			field3D.getExtraCellularField().set(0, 3, 0, 255);
+			field3D.getExtraCellularField().set(1, 1, 0, 255);
+			field3D.getExtraCellularField().set(1, 2, 0, 255);
+			field3D.getExtraCellularField().set(1, 3, 0, 255);*/
 		}
 	}
 	

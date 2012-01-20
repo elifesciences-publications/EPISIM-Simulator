@@ -15,8 +15,8 @@ public class EpisimDiffFieldChartImpl implements EpisimDiffFieldChart, java.io.S
 	
 	private boolean pngPrintingEnabled = false;
 	
-	private int pngPrintingFrequency = 1;
-	private int chartUpdatingFrequency = 1;
+	private int pngPrintingFrequency = 100;
+	private int chartUpdatingFrequency = 100;
 	
 	private File pngPrintingPath;
 	

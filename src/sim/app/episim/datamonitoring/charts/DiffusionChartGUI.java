@@ -48,12 +48,17 @@ import org.jzy3d.ui.ChartLauncher;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
+import sim.app.episim.model.controller.ExtraCellularDiffusionController;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;
+import sim.field.grid.DoubleGrid2D;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.monitoring.EpisimDiffFieldChart;
 
 
@@ -79,14 +84,7 @@ public class DiffusionChartGUI {
 	private void buildChart(){
 		
 		final Random rand = new Random();
-		mapper = new Mapper(){
-			public double f(double x, double y) {
-				y = TissueController.getInstance().getTissueBorder().getHeightInMikron() - y;
-				if(y < 0) return 0;
-				ExtraCellularDiffusionField2D field= (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
-				return field != null ? field.getConcentration(x, y) : 0;
-			}
-		};
+		mapper = getDataMapper();
 		
 		double widthInMikron = TissueController.getInstance().getTissueBorder().getWidthInMikron();
 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
@@ -134,6 +132,45 @@ public class DiffusionChartGUI {
 		
 		chart.render();
 	}
+	
+	private Mapper getDataMapper(){
+		Mapper dataMapper= null;
+		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
+			final ExtraCellularDiffusionField2D field2D = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
+			final double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+			dataMapper = new Mapper(){
+				public double f(double x, double y) {
+					y =  height - y;
+					if(y < 0) return 0;					
+					return field2D != null ? field2D.getConcentration(x, y) : 0;
+				}
+			};
+		}
+		else if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+			
+			final ExtraCellularDiffusionController controller = ModelController.getInstance().getExtraCellularDiffusionController();
+			dataMapper = new Mapper(){
+				public double f(double x, double y) {
+					ExtraCellularDiffusionField3D field3D = (ExtraCellularDiffusionField3D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
+					DiffusionFieldCrossSectionMode actCrossSectionMode = controller.getSelectedDiffusionFieldCrossSectionMode();
+					double actCrossSectionTranslationCoordinate = controller.getDiffusionFieldCrossSectionCoordinate();				
+					if(actCrossSectionMode == DiffusionFieldCrossSectionMode.X_Y_PLANE){
+						return field3D != null ? field3D.getConcentration(x, y, actCrossSectionTranslationCoordinate) : 0;						
+					}
+					if(actCrossSectionMode == DiffusionFieldCrossSectionMode.X_Z_PLANE){						
+						return field3D != null ? field3D.getConcentration(x, actCrossSectionTranslationCoordinate, y) : 0;						
+					}
+					if(actCrossSectionMode == DiffusionFieldCrossSectionMode.Y_Z_PLANE){					
+						return field3D != null ? field3D.getConcentration(actCrossSectionTranslationCoordinate,y, x) : 0;						
+					}				
+					return 0;
+				}
+			};
+		}		
+		return dataMapper;
+	}
+	
+	
 	
 	public EnhancedSteppable getChartSteppable(){
 		if(diffChartConfig != null && this.ecDiffFieldConfig != null){

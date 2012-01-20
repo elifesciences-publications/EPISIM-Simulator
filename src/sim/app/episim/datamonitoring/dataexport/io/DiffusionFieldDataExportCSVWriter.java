@@ -14,7 +14,9 @@ import sim.SimStateServer;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 
 public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeListener{
 	
@@ -29,36 +31,67 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 		this.csvFile = csvFile;
 		this.diffusionFieldName = diffusionFieldName;
 	}
-	//TODO: implements distinction between 2D and 3D
+	
 	public void writeDiffusionFieldToDisk(){
-		ExtraCellularDiffusionField2D diffusionField = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(this.diffusionFieldName);
+		ExtraCellularDiffusionField diffusionField = ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(this.diffusionFieldName);
 		if(diffusionField != null){
 			if(firstTime){
 				writeHeader();
 				firstTime = false;
 			}
-			try{
-				
-				csvWriter.write("\n\nSimulation Step No. "+ SimStateServer.getInstance().getSimStepNumber()+";\n");
-				EpisimDiffusionFieldConfiguration diffFieldConfig = diffusionField.getFieldConfiguration();
-				int width = diffusionField.getExtraCellularField().getWidth();
-				int height = diffusionField.getExtraCellularField().getHeight();
-				double latticeSideLength = diffFieldConfig.getLatticeSiteSizeInMikron();
+			if(diffusionField instanceof ExtraCellularDiffusionField2D)writeDiffusionField2D((ExtraCellularDiffusionField2D) diffusionField);
+			if(diffusionField instanceof ExtraCellularDiffusionField3D)writeDiffusionField3D((ExtraCellularDiffusionField3D) diffusionField);
+		}			
+	}
+	
+	private void writeDiffusionField2D(ExtraCellularDiffusionField2D diffusionField){
+		try{			
+			csvWriter.write("\n\nSimulation Step No. "+ SimStateServer.getInstance().getSimStepNumber()+";\n");
+			EpisimDiffusionFieldConfiguration diffFieldConfig = diffusionField.getFieldConfiguration();
+			int width = diffusionField.getExtraCellularField().getWidth();
+			int height = diffusionField.getExtraCellularField().getHeight();
+			double latticeSideLength = diffFieldConfig.getLatticeSiteSizeInMikron();
+			csvWriter.write("Y (µm) / X (µm);");
+			for(double i = 0; i< width; i++) csvWriter.write(""+(i*latticeSideLength)+";");
+			csvWriter.write("\n");
+			for(double y = 0; y < height; y++){
+				for(double x = 0; x < width; x++){
+					if(x==0d) csvWriter.write(""+(y*latticeSideLength)+";");
+					csvWriter.write(""+diffusionField.getExtraCellularField().get((int)x, (int)y)+";");
+				}
+				csvWriter.write("\n");
+			}
+		}
+		catch (IOException e){
+	     ExceptionDisplayer.getInstance().displayException(e);
+	   }		
+	}
+	
+	private void writeDiffusionField3D(ExtraCellularDiffusionField3D diffusionField){
+		try{			
+			csvWriter.write("\n\nSimulation Step No. "+ SimStateServer.getInstance().getSimStepNumber()+";\n");
+			EpisimDiffusionFieldConfiguration diffFieldConfig = diffusionField.getFieldConfiguration();
+			int width = diffusionField.getExtraCellularField().getWidth();
+			int height = diffusionField.getExtraCellularField().getHeight();
+			int length = diffusionField.getExtraCellularField().getHeight();
+			double latticeSideLength = diffFieldConfig.getLatticeSiteSizeInMikron();
+			for(double z = 0; z < length; z++){
+				csvWriter.write("\nZ (µm):;"+(z*latticeSideLength)+"\n");
 				csvWriter.write("Y (µm) / X (µm);");
 				for(double i = 0; i< width; i++) csvWriter.write(""+(i*latticeSideLength)+";");
 				csvWriter.write("\n");
 				for(double y = 0; y < height; y++){
 					for(double x = 0; x < width; x++){
 						if(x==0d) csvWriter.write(""+(y*latticeSideLength)+";");
-						csvWriter.write(""+diffusionField.getExtraCellularField().get((int)x, (int)y)+";");
+						csvWriter.write(""+diffusionField.getExtraCellularField().get((int)x, (int)y, (int)z)+";");
 					}
 					csvWriter.write("\n");
 				}
 			}
-			catch (IOException e){
-		     ExceptionDisplayer.getInstance().displayException(e);
-		   }
 		}
+		catch (IOException e){
+	     ExceptionDisplayer.getInstance().displayException(e);
+	   }		
 	}
 	
 	

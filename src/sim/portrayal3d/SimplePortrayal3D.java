@@ -65,7 +65,7 @@ public class SimplePortrayal3D implements Portrayal3D
             appearance.setTransparencyAttributes(tta);
             }
         return appearance;
-        }
+     }
 
     static final Color3f BLACK = new Color3f(Color.black);
 

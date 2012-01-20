@@ -2,6 +2,7 @@ package sim.app.episim.gui;
 
 import sim.SimStateServer;
 import sim.engine.*;
+import sim.field.grid.SparseGrid3D;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
@@ -32,6 +33,7 @@ import sim.portrayal.continuous.*;
 import sim.portrayal.grid.ObjectGridPortrayal2D;
 import sim.portrayal3d.FieldPortrayal3D;
 import sim.portrayal3d.grid.ObjectGridPortrayal3D;
+import sim.portrayal3d.grid.SparseGridPortrayal3D;
 import sim.portrayal3d.simple.WireFrameBoxPortrayal3D;
 import sim.portrayal.*;
 import sim.util.Double2D;
@@ -328,10 +330,20 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		
 		
-		if(cellPortrayal instanceof ObjectGridPortrayal3D){
+		if(cellPortrayal instanceof SparseGridPortrayal3D){
 			cellPortrayal3D = (FieldPortrayal3D) cellPortrayal;
 		}
-		cellPortrayal3D.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
+		//cellPortrayal3D.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
+		SparseGrid3D grid= new SparseGrid3D(10, 10, 10);
+		for(int z = 0; z<10; z++ ){
+			for(int y = 0; y<10; y++ ){
+				for(int x = 0; x<10; x++ ){
+					grid.setObjectLocation(new Object(), x, y, z);
+				}
+			}
+		}
+		grid.setObjectLocation(new Object(), 5, 5, 5);
+		cellPortrayal3D.setField(grid);
 		
 		display3D.detatchAll();
 		
@@ -345,18 +357,18 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		EpisimPortrayal[] portrayals = ModelController.getInstance().getAdditionalPortrayalsCellBackground();
 		for(int i = 0; i < portrayals.length; i++)display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		
-		//display3D.attach(cellPortrayal3D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
-		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
+		display3D.attach(cellPortrayal3D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
+	/*	portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
 		
-		
-		// reschedule the displayer
-		display3D.reset();
-
-		// redraw the display
-		display3D.repaint();
+	*/	
+	// reschedule the displayer
+      display3D.reset();
+              
+      // redraw the display
+      display3D.createSceneGraph();
 	}
 	
 	

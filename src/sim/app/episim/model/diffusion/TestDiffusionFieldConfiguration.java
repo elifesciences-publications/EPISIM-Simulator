@@ -15,7 +15,7 @@ public class TestDiffusionFieldConfiguration implements EpisimDiffusionFieldConf
    }
 	
    public double getLatticeSiteSizeInMikron() {
-      return 25;
+      return 10;
    }
 	
    public double getDegradationRate() {

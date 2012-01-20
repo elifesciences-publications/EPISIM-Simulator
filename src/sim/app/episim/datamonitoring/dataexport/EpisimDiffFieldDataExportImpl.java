@@ -13,7 +13,7 @@ public class EpisimDiffFieldDataExportImpl implements EpisimDiffFieldDataExport,
 	private String name;
 	private String diffusionFieldName;
 	private File csvFilePath;
-	private int dataExportFrequncyInSimulationSteps = 1;
+	private int dataExportFrequncyInSimulationSteps = 100;
 	private boolean isDirty = false;
 	
 	public EpisimDiffFieldDataExportImpl(long id){

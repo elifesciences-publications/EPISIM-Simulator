@@ -22,7 +22,7 @@ import episiminterfaces.EpisimSimulationDisplay;
 public class EpisimDisplay3D implements EpisimSimulationDisplay{
 	
 	protected GUIState simulation;
-	private EpisimSimulationDisplay simulationDisplay;
+	private Display3DHack simulationDisplay;
 	
 	public EpisimDisplay3D(final double width, final double height, GUIState simulation){		
 		
@@ -32,7 +32,7 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 	}
 	
 	public void detatchAll(){
-		((Display3DHack)simulationDisplay).detatchAll();
+		simulationDisplay.detatchAll();
 	}
 	
 	public double getDisplayScale(){
@@ -45,7 +45,7 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 	public JInternalFrame createInternalFrame()
     {
    
-    return ((Display3DHack)simulationDisplay).createInternalFrame();
+    return simulationDisplay.createInternalFrame();
     }
 	
 	
@@ -68,16 +68,20 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 		simulationDisplay.repaint();
 	}
 	
+	public void createSceneGraph(){
+		simulationDisplay.createSceneGraph();
+	}
+	
 	public void setBackdrop(Paint c) {
 		simulationDisplay.setBackdrop(c);
 	}
 	
-	public void changePortrayal(String name, FieldPortrayal2D protrayal){
-		((Display2DHack) simulationDisplay).changePortrayal(name, protrayal);
+	public void changePortrayal(String name, FieldPortrayal3D protrayal){
+		simulationDisplay.changePortrayal(name, protrayal);
 	}
 	
 	public CapturingCanvas3D getInsideDisplay(){
-		return ((Display3DHack) simulationDisplay).getInsideDisplay();
+		return simulationDisplay.getInsideDisplay();
 	}
 	
    public void quit() {	 
@@ -97,10 +101,10 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
    public double getInitialDisplayScale(double initialScale){ return ((Display3DHack)simulationDisplay).getInitialDisplayScale(); }
    
    public void translate(double dx, double dy, double dz){
-   	((Display3DHack)simulationDisplay).translate(dx, dy, dz);
+   	simulationDisplay.translate(dx, dy, dz);
    }
    
    public void scale(double scale){
-   	((Display3DHack)simulationDisplay).scale(scale);
+   	simulationDisplay.scale(scale);
    }
 }

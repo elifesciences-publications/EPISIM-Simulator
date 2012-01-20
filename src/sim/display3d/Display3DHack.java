@@ -174,11 +174,14 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	}
 	 public ArrayList detatchAll()
     {
-	    ArrayList old = portrayals;
-	    popup.removeAll();
-	    
-	    portrayals = new ArrayList();
-	    return old;
+		  ArrayList old = portrayals;
+        popup.removeAll();
+        //createConsoleMenu();
+        portrayals = new ArrayList();
+        portrayalSwitchMask = null;
+        subgraphCount = 0;
+        dirty = true;
+        return old;
     }
 	 
 	 public JInternalFrame createInternalFrame(){
@@ -570,7 +573,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 						ModelController.getInstance().getExtraCellularDiffusionController().setDiffusionFieldCrossSectionCoordinate(result);
 					
 						planeSliderLabel.setText(result + " µm");
-						updateSceneGraph(true);
+						 SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
+						
 					}
 				
 					
@@ -594,7 +598,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 							diffusionFieldOpacity= ((double) opacitySlider.getValue())/100d;
 							
 							opacitySliderLabel.setText(opacitySlider.getValue() + "%");
-							updateSceneGraph(true);
+							 SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(false);}});
 						}
 					
 						

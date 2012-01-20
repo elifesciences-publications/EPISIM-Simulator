@@ -69,9 +69,12 @@ public class DiffFieldChartCreationWizard extends JDialog{
    
    private boolean isDirty = false;
    
+   
+   
    public DiffFieldChartCreationWizard(Frame owner, String title, boolean modal){
    	super(owner, title, modal);
    	this.episimDiffFieldChart = new EpisimDiffFieldChartImpl(ChartController.getInstance().getNextChartId());
+   	
    	setPreferredSize(new Dimension(WIDTH, HEIGHT));
    	
    	mainPanel = new JPanel(new GridBagLayout());

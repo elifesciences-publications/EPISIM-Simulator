@@ -10,7 +10,7 @@ public class Episim2DCellShape<T extends Shape> implements EpisimCellShape<Shape
 	private T cellShape;
 	
 	public Episim2DCellShape(T shape){
-		this.cellShape = cellShape;
+		this.cellShape = shape;
 	}
 	
 	public T getCellShape(){ return cellShape; }

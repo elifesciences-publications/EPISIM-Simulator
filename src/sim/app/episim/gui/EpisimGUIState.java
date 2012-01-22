@@ -286,18 +286,15 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		
 		
-		EpisimPortrayal cellPortrayal = ModelController.getInstance().getCellPortrayal();
+		 EpisimPortrayal cellPortrayal = ModelController.getInstance().getCellPortrayal();
 		
 		
 		
-		if(cellPortrayal instanceof UniversalCellPortrayal2D){
-			cellPortrayal2D = new ContinuousPortrayal2D();
-			cellPortrayal2D.setPortrayalForClass(UniversalCell.class, (UniversalCellPortrayal2D)cellPortrayal);
-		}
-		else if(cellPortrayal instanceof ObjectGridPortrayal2D){
-			cellPortrayal2D = (FieldPortrayal2D) cellPortrayal;
-		}
-		cellPortrayal2D.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
+	
+		 cellPortrayal2D = (FieldPortrayal2D)cellPortrayal;
+		
+		
+		
 		
 		display2D.detatchAll();
 		
@@ -330,20 +327,9 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		
 		
-		if(cellPortrayal instanceof SparseGridPortrayal3D){
-			cellPortrayal3D = (FieldPortrayal3D) cellPortrayal;
-		}
-		//cellPortrayal3D.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
-		SparseGrid3D grid= new SparseGrid3D(10, 10, 10);
-		for(int z = 0; z<10; z++ ){
-			for(int y = 0; y<10; y++ ){
-				for(int x = 0; x<10; x++ ){
-					grid.setObjectLocation(new Object(), x, y, z);
-				}
-			}
-		}
-		grid.setObjectLocation(new Object(), 5, 5, 5);
-		cellPortrayal3D.setField(grid);
+		
+		cellPortrayal3D = (FieldPortrayal3D) cellPortrayal;
+		
 		
 		display3D.detatchAll();
 		

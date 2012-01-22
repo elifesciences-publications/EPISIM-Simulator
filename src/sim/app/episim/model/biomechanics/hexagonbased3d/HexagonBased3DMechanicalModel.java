@@ -48,7 +48,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 
 	private EpisimHexagonBased3DModelConnector modelConnector;
 	
-	private static ObjectGrid3D cellField;
+	private static HexagonalCellField3D cellField;
 	
 	private Int3D fieldLocation = null;
 	
@@ -73,7 +73,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   	int width = (int)HexagonBasedMechanicalModelGP.number_of_columns;
 	   	int length = (int)HexagonBasedMechanicalModelGP.number_of_columns;
 	   	int height = (int)HexagonBasedMechanicalModelGP.number_of_rows;
-	   	cellField = new ObjectGrid3D(width, height, length);
+	   	cellField = new HexagonalCellField3D(width, height, length);
 	   }
 	   if(cell!= null){
 		   AbstractCell motherCell = cell.getMotherCell();
@@ -81,7 +81,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		   if(motherCell != null && motherCell.getID() != cell.getID()){
 		   	HexagonBased3DMechanicalModel motherCellMechModel = (HexagonBased3DMechanicalModel) motherCell.getEpisimBioMechanicalModelObject();
 		   	if(motherCellMechModel.spreadingLocation != null){
-		   		cellField.field[motherCellMechModel.spreadingLocation.x][motherCellMechModel.spreadingLocation.y][motherCellMechModel.spreadingLocation.z] = cell;
+		   		cellField.setFieldLocationOfObject(motherCellMechModel.spreadingLocation, cell);
 		   		fieldLocation = new Int3D(motherCellMechModel.spreadingLocation.x,motherCellMechModel.spreadingLocation.y, motherCellMechModel.spreadingLocation.z);
 		   		motherCellMechModel.spreadingLocation = null;
 		   		motherCellMechModel.modelConnector.setIsSpreading(false);
@@ -90,7 +90,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   }
 	}
 	public void setEpisimModelConnector(EpisimModelConnector modelConnector){
-	   	if(modelConnector instanceof EpisimHexagonBasedModelConnector){
+	   	if(modelConnector instanceof EpisimHexagonBased3DModelConnector){
 	   		this.modelConnector = (EpisimHexagonBased3DModelConnector) modelConnector;
 	   	}
 	   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimHexagonBased3DModelConnector");
@@ -271,7 +271,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   if(!spreadingLocationIndices.isEmpty()){
 		   int spreadingLocationIndex = getRandomSpreadingLocationIndex(spreadingLocationIndices, xPos, yPos, zPos);
 		   this.spreadingLocation = new Int3D(xPos.get(spreadingLocationIndex), yPos.get(spreadingLocationIndex), zPos.get(spreadingLocationIndex));
-		   cellField.set(this.spreadingLocation.x, this.spreadingLocation.y, this.spreadingLocation.z, getCell());
+		   cellField.setSpreadingLocationOfObject(spreadingLocation, getCell());
 	   }
    }
 	
@@ -352,7 +352,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	private void relax(){
 		modelConnector.setIsRelaxing(false);
 		if(spreadingLocation != null){
-			 cellField.set(this.spreadingLocation.x, this.spreadingLocation.y, this.spreadingLocation.z, null);
+			 cellField.setSpreadingLocationOfObject(spreadingLocation, null);
 		}
 		spreadingLocation = null;
 		modelConnector.setIsSpreading(false);
@@ -411,15 +411,15 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				 probabilityB /= sum;
 			}				
 			if(randomNumber < probabilityA){
-					cellField.field[fieldLocation.x][fieldLocation.y][fieldLocation.z] = null;
-					cellField.field[spreadingLocation.x][spreadingLocation.y][spreadingLocation.z] = getCell();
+					cellField.setFieldLocationOfObject(fieldLocation, null);
+					cellField.setFieldLocationOfObject(spreadingLocation, getCell());
 					if(!neighbourToPullA.isEmpty()) pullNeighbour(neighbourToPullA.get(0), fieldLocation);
 					fieldLocation = spreadingLocation;
 					retraction = true;
 			}
 			else if(randomNumber >= probabilityA && randomNumber < (probabilityA + probabilityB)){
-					cellField.field[fieldLocation.x][fieldLocation.y][fieldLocation.z] = getCell();
-					cellField.field[spreadingLocation.x][spreadingLocation.y][spreadingLocation.z] = null;
+					cellField.setFieldLocationOfObject(fieldLocation, getCell());
+					cellField.setSpreadingLocationOfObject(spreadingLocation, null);
 					if(!neighbourToPullB.isEmpty()) pullNeighbour(neighbourToPullB.get(0), spreadingLocation);
 					retraction = true;
 			}		
@@ -435,7 +435,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	private void pullNeighbour(AbstractCell neighbour, Int3D locationToPull){
 		HexagonBased3DMechanicalModel mechModel = (HexagonBased3DMechanicalModel) neighbour.getEpisimBioMechanicalModelObject();
 		mechModel.spreadingLocation = locationToPull;
-		cellField.field[locationToPull.x][locationToPull.y][locationToPull.z] = neighbour;
+		cellField.setFieldLocationOfObject(locationToPull, neighbour);
 		mechModel.modelConnector.setIsSpreading(true);		
 	}
 	
@@ -484,9 +484,9 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	}
 
 	public void removeCellFromCellField() {
-		cellField.field[fieldLocation.x][fieldLocation.y][fieldLocation.z]= null;
+		cellField.setFieldLocationOfObject(fieldLocation, null);
 		if(spreadingLocation != null){
-			cellField.field[spreadingLocation.x][spreadingLocation.y][spreadingLocation.z] = null;
+			cellField.setSpreadingLocationOfObject(spreadingLocation, null);
 		}
 	}
 	
@@ -497,7 +497,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
    public void setCellLocationInCellField(Double3D location){
    	if(fieldLocation != null) removeCellFromCellField();
    	fieldLocation = new Int3D(cellField.tx((int)location.x), cellField.ty((int)location.y), cellField.tz((int)location.z));   	
-   	cellField.field[fieldLocation.x][fieldLocation.y][fieldLocation.z] = getCell();
+   	cellField.setFieldLocationOfObject(fieldLocation, getCell());
    }
    
    @CannotBeMonitored
@@ -514,8 +514,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
    }
    
    protected void setReloadedCellField(Object cellField) {
-   	if(cellField instanceof ObjectGrid3D){
-   		HexagonBased3DMechanicalModel.cellField = (ObjectGrid3D) cellField;
+   	if(cellField instanceof HexagonalCellField3D){
+   		HexagonBased3DMechanicalModel.cellField = (HexagonalCellField3D) cellField;
    	}
    }
    

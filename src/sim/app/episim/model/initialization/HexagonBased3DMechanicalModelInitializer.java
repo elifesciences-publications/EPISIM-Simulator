@@ -4,11 +4,15 @@ import java.util.ArrayList;
 
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.UniversalCell;
+
+import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonalCellField3D;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.visualization.HexagonalCellGridPortrayal3D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
+
+import sim.util.Double3D;
 
 
 public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModelInitializer {
@@ -26,6 +30,12 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
 
    protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
    	ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
+				
+		int x = (int) (HexagonBased3DMechanicalModelGP.number_of_columns /2);
+		int y = (int) (HexagonBased3DMechanicalModelGP.number_of_rows /2);
+		int z = (int) (HexagonBased3DMechanicalModelGP.number_of_columns /2);
+		UniversalCell cell = new UniversalCell(null, null);
+		((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
    	return standardCellEnsemble;
    }
 
@@ -35,8 +45,11 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
 
 	
    protected EpisimPortrayal getCellPortrayal() {
-   	
-	   return new HexagonalCellGridPortrayal3D(2*HexagonBased3DMechanicalModelGP.outer_hexagonal_radius);
+   	Object cellField = ModelController.getInstance().getBioMechanicalModelController().getCellField();
+	   if(cellField instanceof HexagonalCellField3D){
+   	 return ((HexagonalCellField3D) cellField).getCellFieldPortrayal();
+	   }
+	   return null;
    }
 
 	
@@ -51,4 +64,6 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
 	   
 	   return new EpisimPortrayal[0];
    }
+   
+   
 }

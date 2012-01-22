@@ -14,6 +14,7 @@ import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlEpisimBiomechanicalModel;
@@ -24,6 +25,7 @@ import sim.display.GUIState;
 import sim.portrayal.Inspector;
 import sim.portrayal.LocationWrapper;
 import sim.portrayal.Portrayal;
+import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.util.Double2D;
 
 public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelInitializer {
@@ -108,10 +110,11 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {
-
-		UniversalCellPortrayal2D portrayal = new UniversalCellPortrayal2D(java.awt.Color.lightGray);
-		
-		return portrayal;
+		UniversalCellPortrayal2D cellPortrayal = new UniversalCellPortrayal2D(java.awt.Color.lightGray);
+		ContinuousUniversalCellPortrayal2D continousPortrayal = new ContinuousUniversalCellPortrayal2D();
+		continousPortrayal.setPortrayalForClass(UniversalCell.class, cellPortrayal);
+		continousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
+		return continousPortrayal;
 	}
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {

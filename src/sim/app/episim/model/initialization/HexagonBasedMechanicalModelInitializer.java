@@ -49,7 +49,7 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 			for(int x = 0; x < width; x++){
 				UniversalCell cell = new UniversalCell(null, null);
 				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
-				((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
+				//((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
 				standardCellEnsemble.add(cell);
 			}
 		}	
@@ -89,7 +89,8 @@ public class HexagonBasedMechanicalModelInitializer extends BiomechanicalModelIn
 			// make the inspector
 				return new CellInspector(super.getInspector(wrapper, state), wrapper, state);
 			}
-		};		
+		};
+		portrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		return portrayal;
    }
 

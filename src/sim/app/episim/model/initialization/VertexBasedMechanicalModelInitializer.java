@@ -18,6 +18,7 @@ import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuil
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased.util.CellPolygonRegistry;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
@@ -76,9 +77,12 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		
 	protected EpisimPortrayal getCellPortrayal() {
 			   
-	UniversalCellPortrayal2D portrayal = new UniversalCellPortrayal2D(java.awt.Color.lightGray);
+		UniversalCellPortrayal2D cellPortrayal = new UniversalCellPortrayal2D(java.awt.Color.lightGray);
+		ContinuousUniversalCellPortrayal2D continousPortrayal = new ContinuousUniversalCellPortrayal2D();
+		continousPortrayal.setPortrayalForClass(UniversalCell.class, cellPortrayal);
+		continousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		
-		return portrayal;
+		return continousPortrayal;
    }
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {		

@@ -7,96 +7,126 @@ import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
 import javax.media.j3d.BranchGroup;
 import javax.media.j3d.ColoringAttributes;
+import javax.media.j3d.Group;
 import javax.media.j3d.Material;
+import javax.media.j3d.Node;
+import javax.media.j3d.Shape3D;
+import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Color3f;
 import javax.vecmath.Color4f;
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Vector3d;
+import javax.vecmath.Vector3f;
 
 import com.sun.j3d.utils.geometry.Primitive;
 import com.sun.j3d.utils.geometry.Sphere;
 
+import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
+import sim.app.episim.model.controller.ModelController;
+import sim.portrayal.LocationWrapper;
+import sim.portrayal3d.SimplePortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
-import sim.portrayal3d.simple.SpherePortrayal3DHack;
 
 
-public class HexagonalCellPortrayal3D extends SpherePortrayal3DHack {
+public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
+	
+	
+	Transform3D transform;
+
+   Appearance appearance;
+
+ 
+   protected Node group;
+       
+   boolean pickable = true;
 	
 	private Sphere sphere;
 	
 	private static final double FACTOR = 0.7;
 	
+	private float standardCellRadius =1;
+	
+	
+	private HexagonBased3DMechanicalModelGP globalParameters;
+
 	
 	public HexagonalCellPortrayal3D()
    {
-		this(1f);
-   }    
-	 		
-	public HexagonalCellPortrayal3D(double scale)
-   {
-		 this(scale, 30);
-		 
-   }
-	
-
-	
-	public HexagonalCellPortrayal3D( double scale, int divisions)
-   {
 		//this(getCellAppearanceForColor(new Color(230, 130, 170),new Color(255,175,205), new Color(220,0,0)),true,false,scale,divisions);
-		this(getCellAppearanceForColor(new Color(255,180,180)),true,false,scale,divisions);
+		this(getCellAppearanceForColor(new Color(255,180,180)),true,false);
    }
 	
-	public HexagonalCellPortrayal3D(Appearance appearance, boolean generateNormals, boolean generateTextureCoordinates, double scale, int divisions)
+	public HexagonalCellPortrayal3D(Appearance appearance, boolean generateNormals, boolean generateTextureCoordinates)
    {
-		    setAppearance(appearance);  
-		    setScale(null, scale); 
-
-		    this.sphere = new Sphere(0.5f, (generateNormals ? Primitive.GENERATE_NORMALS : 0) | 
-        (generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 
-        divisions, appearance);
-		  AmbientLight ambientLight = new AmbientLight(new Color3f(.5f,.5f,.5f));
-		  ambientLight.setInfluencingBounds(sphere.getBounds());
-		  setShape3DFlags(sphere.getShape(Sphere.BODY));
-		   /*BranchGroup branchGroup = new BranchGroup();
-		   branchGroup.addChild(sphere);
-		   branchGroup.addChild(ambientLight);*/
-		//  
+		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		standardCellRadius = (float)HexagonBased3DMechanicalModelGP.outer_hexagonal_radius;
+		this.appearance = appearance;
+		    
 		
-		  
-		   group = sphere;
+		this.sphere = new Sphere(standardCellRadius, (generateNormals ? Primitive.GENERATE_NORMALS : 0) | 
+        (generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 
+        30, appearance);
+		
+		setShape3DFlags(sphere.getShape(Sphere.BODY));
+		transform = new Transform3D();
+		transform.setTranslation(new Vector3f(standardCellRadius,standardCellRadius*2,standardCellRadius));		 
+		group = sphere;
    }
 	 
 	public TransformGroup getModel(Object obj, TransformGroup j3dModel){
-	   	return super.getModel(obj, j3dModel);
+		if (j3dModel==null)
+       {
+	       j3dModel = new TransformGroup();
+	       j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
+	       
+	       // build a LocationWrapper for the object
+	       LocationWrapper pickI = new LocationWrapper(obj, null, getCurrentFieldPortrayal());
+	
+	       Node g = (Node) (group.cloneTree(true));
+	
+	       if (transform != null)
+	       {
+	           TransformGroup tg = new TransformGroup();
+	           tg.setTransform(transform);
+	           tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+	           tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+	           tg.setCapability(Group.ALLOW_CHILDREN_READ);
+	           tg.addChild(g);
+	           g = tg;
+	       }
+	       j3dModel.addChild(g);
+	
+	       int numShapes = numShapes();
+	       for(int i = 0; i < numShapes; i++)
+	       {
+	           Shape3D shape = getShape(j3dModel, i);
+	           shape.setAppearance(appearance);
+	           if (pickable) setPickableFlags(shape);
+	
+	           // Store the LocationWrapper in the user data of each shape
+	           shape.setUserData(pickI);
+	       }
+       }
+   return j3dModel;
+		//return super.getModel(obj, j3dModel);
 	}
 	
 	private static Appearance getCellAppearanceForColor(Color color){
 		Appearance appearance = new Appearance();
-      setAppearanceFlags(appearance);
-      
+      setAppearanceFlags(appearance);      
       
       float[] hsbColor = new float[3];
-      hsbColor= Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsbColor);
-      
-      
-    
-     
+      hsbColor= Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsbColor); 
       
       Color3f middleColor = getMiddleColor(hsbColor.clone());
       Color3f darkColor = getDarkColor(hsbColor.clone());
-      Color3f brightColor = getBrightColor(hsbColor.clone());
-     
-      				
-
-     
-	   
+      Color3f brightColor = getBrightColor(hsbColor.clone());   
 	   Material ma = new Material(darkColor, darkColor, middleColor, brightColor, 120f);
 	   ma.setCapability(Material.ALLOW_COMPONENT_READ);
 	   ma.setCapability(Material.ALLOW_COMPONENT_WRITE);
-	   appearance.setMaterial(ma);
-      
-	   
-	   
+	   appearance.setMaterial(ma);	   
       if (color.getRGBComponents(null)[3] < 1.0)  // partially transparent
           {
           TransparencyAttributes tta = new TransparencyAttributes(TransparencyAttributes.BLENDED, 1.0f - color.getRGBComponents(null)[3]); // duh, alpha's backwards
@@ -174,6 +204,27 @@ public class HexagonalCellPortrayal3D extends SpherePortrayal3DHack {
                         Math.max((int)(c.getGreen()*FACTOR), 0),
                         Math.max((int)(c.getBlue() *FACTOR), 0),
                         c.getAlpha());
-   }
+  }
+  
+  public static void setShape3DFlags(Shape3D shape)
+  {
+	  shape.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE); // may need to change the appearance (see below)
+	  shape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
+	  shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ); // may need to change the geometry (see below)
+	  shape.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE); // may need to change the geometry (see below)
+	  shape.clearCapabilityIsFrequent(Shape3D.ALLOW_APPEARANCE_READ);
+	  shape.clearCapabilityIsFrequent(Shape3D.ALLOW_APPEARANCE_WRITE);
+	  shape.clearCapabilityIsFrequent(Shape3D.ALLOW_GEOMETRY_READ);
+	  shape.clearCapabilityIsFrequent(Shape3D.ALLOW_GEOMETRY_WRITE);
+  }
+  protected Shape3D getShape(TransformGroup j3dModel, int shapeIndex)
+  {
+	  Node n = j3dModel;
+	  while(n instanceof TransformGroup)
+	      n = ((TransformGroup)n).getChild(0);
+	  Primitive p = (Primitive) n;
+	  return p.getShape(shapeIndex);
+  }
+  protected int numShapes() { return 1; }
 
 }

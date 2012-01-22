@@ -201,16 +201,18 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			
 		//	this.setPreferredSize(new Dimension(1280, 932));
 			
-			
-			mainFrame.addWindowListener(new WindowAdapter() {
+			mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainFrame.addWindowListener(new WindowAdapter() {
 	
 				public void windowClosing(WindowEvent e) {
-	
-					if(epiUI != null){
-						epiUI.closeConsole();
-						System.exit(0);
+					if(ModelController.getInstance().isModelOpened()){
+						int choice = JOptionPane.showConfirmDialog(mainFrame, "Do you really want to close the opened model?", "Close Model?", JOptionPane.YES_NO_OPTION);
+						if(choice == JOptionPane.OK_OPTION){
+							closeModel();	
+							close();
+						}
 					}
-					else System.exit(0);
+					else close();
 	
 				}
 			});
@@ -321,8 +323,12 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		if(!onlyHelpWanted){
 			//if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
 				//	&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
-				//System.setProperty("java.awt.headless", "true"); 
-			EpidermisSimulator episim = new EpidermisSimulator();
+				//System.setProperty("java.awt.headless", "true");
+			SwingUtilities.invokeLater(new Runnable() {
+
+		        public void run() {
+		      	  		EpidermisSimulator episim = new EpidermisSimulator();
+		        }});
 		}
 		else printHelpTextOnConsole();
 		
@@ -557,7 +563,16 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		DataExportController.getInstance().simulationWasStopped();
 	}
 	
-	public void close(){ System.exit(0);}
+	public void close(){
+		 SwingUtilities.invokeLater(new Runnable() {
+
+	        public void run() {
+
+					mainFrame.dispose();
+					System.exit(0);
+	        }
+	    });
+	}
 	
 	private void cleanUpContentPane(){
 		if(ModeServer.guiMode()){

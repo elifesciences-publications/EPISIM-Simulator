@@ -145,6 +145,10 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
         }
 	}
 	
+	public void stopRenderer(){
+		canvas.stopCapturing();
+		canvas.stopRenderer();
+	}
 	
 	public double getDisplayScale(){
 		 return this.getScale();

@@ -107,4 +107,8 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
    public void scale(double scale){
    	simulationDisplay.scale(scale);
    }
+   
+   public void stopRenderer(){
+   	simulationDisplay.stopRenderer();
+   }
 }

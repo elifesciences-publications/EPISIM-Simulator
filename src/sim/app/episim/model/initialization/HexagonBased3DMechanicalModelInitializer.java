@@ -35,7 +35,8 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
 		int y = (int) (HexagonBased3DMechanicalModelGP.number_of_rows /2);
 		int z = (int) (HexagonBased3DMechanicalModelGP.number_of_columns /2);
 		UniversalCell cell = new UniversalCell(null, null);
-		((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
+		((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(0, 0, 0));
+		standardCellEnsemble.add(cell);
    	return standardCellEnsemble;
    }
 

@@ -134,7 +134,6 @@ public class EpisimMenuBarFactory {
 		menuItemCloseSimulator.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				
 				if(ModelController.getInstance().isModelOpened()){
 					int choice = JOptionPane.showConfirmDialog(simulator.getMainFrame(), "Do you really want to close the opened model?", "Close Model?", JOptionPane.YES_NO_OPTION);
 					if(choice == JOptionPane.OK_OPTION){
@@ -143,6 +142,7 @@ public class EpisimMenuBarFactory {
 					}
 				}
 				else simulator.close();
+				
 			}
 			
 		});

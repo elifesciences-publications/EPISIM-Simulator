@@ -19,8 +19,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 		super();
 		setPortrayalForAll(new HexagonalCellPortrayal3D());
 		
-		this.scale(scale);
-		this.translate(scale/2d, scale/2d, scale/2d);
+		
 	}
 	
 	public String getPortrayalName() {

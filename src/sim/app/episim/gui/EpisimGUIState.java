@@ -344,12 +344,12 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		for(int i = 0; i < portrayals.length; i++)display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		
 		display3D.attach(cellPortrayal3D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
-	/*	portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
+		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
 		
-	*/	
+	
 	// reschedule the displayer
       display3D.reset();
               
@@ -669,15 +669,16 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 
 	public void quit() {
 		console.pressStop();
+		if(display3D != null) display3D.stopRenderer();
 		super.quit();
-		
+			
 		if(displayFrame != null)
 			displayFrame.dispose();
 		displayFrame = null;
 		
 		desktop.removeAll();
 		desktop.validate();
-
+		
 		display2D = null;
 		display3D = null;
 	}

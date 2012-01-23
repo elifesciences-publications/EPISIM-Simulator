@@ -283,13 +283,11 @@ public class XmlObject<T> {
 			} else if (subObj instanceof Double3D) {
 				subXmlObjects.put(parameterName, new XmlDouble3D(
 						(Double3D) subObj));
-			}else if (subObj instanceof Int2D) {
-				subXmlObjects.put(parameterName, new XmlInt2D(
-						(Int2D) subObj));
-			}else if (subObj instanceof Int3D) {
-				subXmlObjects.put(parameterName, new XmlInt3D(
-						(Int3D) subObj));
-			}else {
+			} else if (subObj instanceof Int2D) {
+				subXmlObjects.put(parameterName, new XmlInt2D((Int2D) subObj));
+			} else if (subObj instanceof Int3D) {
+				subXmlObjects.put(parameterName, new XmlInt3D((Int3D) subObj));
+			} else {
 				subXmlObjects.put(parameterName, new XmlPrimitive(subObj));
 			}
 		}
@@ -306,22 +304,22 @@ public class XmlObject<T> {
 						XmlDouble2D xmlObject = new XmlDouble2D(node);
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);
-						
+
 					} else if (m.getReturnType().equals(Double3D.class)) {
 						XmlDouble3D xmlObject = new XmlDouble3D(node);
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);
-						
+
 					} else if (m.getReturnType().equals(Int2D.class)) {
 						XmlInt2D xmlObject = new XmlInt2D(node);
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);
-						
+
 					} else if (m.getReturnType().equals(Int3D.class)) {
 						XmlInt3D xmlObject = new XmlInt3D(node);
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);
-						
+
 					} else {
 						XmlPrimitive xmlObject = new XmlPrimitive(node);
 						xmlObject.importParametersFromXml(m.getReturnType());

@@ -12,11 +12,11 @@ import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.DoubleGrid3D;
 
 public class XmlDoubleGrid3D extends XmlObject<DoubleGrid3D> {
-	private static final String DEPTH = "depth";
-	private static final String INDEX = "i";
+	private static final String LENGTH = "length";
+	private static final String LAYNO = "z";
 	private static final String LAYER = "layer";
-	private static final String COLUMNS = "columns";
-	private static final String ROWS = "rows";
+	private static final String WIDTH = "width";
+	private static final String HEIGTH = "height";
 
 	private ArrayList<XmlDoubleGrid2D> dataLayers;
 
@@ -56,14 +56,17 @@ public class XmlDoubleGrid3D extends XmlObject<DoubleGrid3D> {
 		}
 
 		Element arrayNode = xmlFile.createElement(nodeName);
-		arrayNode.setAttribute(DEPTH, depth + "");
-		arrayNode.setAttribute(ROWS, rows + "");
-		arrayNode.setAttribute(COLUMNS, columns + "");
+		arrayNode.setAttribute(LENGTH, depth + "");
+		arrayNode.setAttribute(HEIGTH, rows + "");
+		arrayNode.setAttribute(WIDTH, columns + "");
 
 		for (int i = 0; i < depth; i++) {
 			XmlDoubleGrid2D layer = dataLayers.get(i);
-			if (layer != null)
-				arrayNode.appendChild(layer.toXMLNode(LAYER, xmlFile));
+			if (layer != null){
+				Element layerNode = layer.toXMLNode(LAYER, xmlFile);
+				layerNode.setAttribute(LAYNO, String.valueOf(i));
+				arrayNode.appendChild(layerNode);
+			}
 		}
 
 		return arrayNode;
@@ -76,11 +79,11 @@ public class XmlDoubleGrid3D extends XmlObject<DoubleGrid3D> {
 		if (getObjectNode() != null) {
 
 			rows = Integer.parseInt(getObjectNode().getAttributes()
-					.getNamedItem(ROWS).getNodeValue());
+					.getNamedItem(HEIGTH).getNodeValue());
 			columns = Integer.parseInt(getObjectNode().getAttributes()
-					.getNamedItem(COLUMNS).getNodeValue());
+					.getNamedItem(WIDTH).getNodeValue());
 			depth = Integer.parseInt(getObjectNode().getAttributes()
-					.getNamedItem(DEPTH).getNodeValue());
+					.getNamedItem(LENGTH).getNodeValue());
 			array3d = new DoubleGrid3D(columns, rows, depth);
 
 			NodeList layersNL = getObjectNode().getChildNodes();
@@ -89,7 +92,7 @@ public class XmlDoubleGrid3D extends XmlObject<DoubleGrid3D> {
 				if (layerNode.getNodeName().equalsIgnoreCase(LAYER)) {
 					int layerN = 0;
 					layerN = Integer.parseInt(layerNode.getAttributes()
-							.getNamedItem(LAYER).getNodeValue());
+							.getNamedItem(LAYNO).getNodeValue());
 					DoubleGrid2D layer = new DoubleGrid2D(columns, rows);
 					layer = (new XmlDoubleGrid2D(layerNode)).copyValuesToTarget(layer);
 					if(layer!=null){

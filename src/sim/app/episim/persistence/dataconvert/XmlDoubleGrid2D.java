@@ -23,7 +23,7 @@ public class XmlDoubleGrid2D extends XmlObject<DoubleGrid2D> {
 	private static final String ROWS = "rows";
 	private static final String ROW = "row";
 	private static final String DATA = "data";
-	private static final String INDEX = "i";
+	private static final String ROWNO = "y";
 
 	public XmlDoubleGrid2D(DoubleGrid2D obj) throws ExportException {
 		super(obj);
@@ -53,7 +53,7 @@ public class XmlDoubleGrid2D extends XmlObject<DoubleGrid2D> {
 
 		for (int i = 0; i < rows; i++) {
 			Element rowElement = xmlFile.createElement(ROW);
-			rowElement.setAttribute(INDEX, i + "");
+			rowElement.setAttribute(ROWNO, i + "");
 			StringBuffer rowString = new StringBuffer();
 			for (int j = 0; j < columns; j++) {
 				rowString.append(getObject().get(j,i));
@@ -84,7 +84,7 @@ public class XmlDoubleGrid2D extends XmlObject<DoubleGrid2D> {
 				if (rowNode.getNodeName().equalsIgnoreCase(ROW)) {
 					int row = 0;
 					row = Integer.parseInt(rowNode.getAttributes()
-							.getNamedItem(INDEX).getNodeValue());
+							.getNamedItem(ROWNO).getNodeValue());
 					String[] doubleStringList = rowNode.getTextContent().trim()
 							.split("\t");
 					if (doubleStringList.length >= columns) {

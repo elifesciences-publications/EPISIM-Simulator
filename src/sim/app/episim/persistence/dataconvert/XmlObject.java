@@ -39,9 +39,6 @@ public class XmlObject<T> {
 
 	public XmlObject(Node objectNode) {
 		this.objectNode = objectNode;
-		if (objectNode != null) {
-			ImportLog.success(objectNode);
-		}
 	}
 
 	private void postProcessMinMax(Object object) {
@@ -107,7 +104,7 @@ public class XmlObject<T> {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
 			if ((m.getName().startsWith("get") || m.getName().startsWith("is"))
-					&& !isAnnotated(clazz, m, NoExport.class)
+					&& !clazz.isAnnotationPresent(NoExport.class)
 					&& !m.getName().equals("getClass")) {
 
 				try {
@@ -126,7 +123,7 @@ public class XmlObject<T> {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
 			if (m.getName().startsWith("set")
-					&& !isAnnotated(clazz, m, NoExport.class)) {
+					&& !clazz.isAnnotationPresent(NoExport.class)) {
 
 				try {
 					if (m.getParameterTypes().length == 1) {

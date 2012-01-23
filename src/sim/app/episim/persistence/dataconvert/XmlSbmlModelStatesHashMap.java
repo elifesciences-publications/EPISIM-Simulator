@@ -59,7 +59,6 @@ public class XmlSbmlModelStatesHashMap extends
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (node.getNodeName().equalsIgnoreCase(ENTRY)) {
-				ImportLog.success(node);
 				Node keyNode = node.getAttributes().getNamedItem(KEY);
 				if (keyNode != null) {
 					String key = keyNode.getNodeValue();

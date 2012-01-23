@@ -121,18 +121,14 @@ public class XmlSBMLModelState extends XmlObject<SBMLModelState> {
 
 	private void convertNodeToTarget(Node entityListNode, SBMLModelState target) {
 		NodeList nl = entityListNode.getChildNodes();
-		ImportLog.success(entityListNode);
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			
 			if (node.getNodeName().equalsIgnoreCase(SPECIES)) {
-				ImportLog.success(node);
 				target.addSpeciesValue(convertNodeToSBMLModelEntity(node));
 			} else if (node.getNodeName().equalsIgnoreCase(REACTION)) {
-				ImportLog.success(node);
 				target.addReactionValue(convertNodeToSBMLModelEntity(node));
 			} else if (node.getNodeName().equalsIgnoreCase(PARAMETER)) {
-				ImportLog.success(node);
 				target.addParameterValue(convertNodeToSBMLModelEntity(node));
 			}
 		}

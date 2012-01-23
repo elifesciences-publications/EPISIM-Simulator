@@ -104,7 +104,7 @@ public class XmlObject<T> {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
 			if ((m.getName().startsWith("get") || m.getName().startsWith("is"))
-					&& !clazz.isAnnotationPresent(NoExport.class)
+					&& m.getAnnotation(NoExport.class) == null
 					&& !m.getName().equals("getClass")) {
 
 				try {
@@ -123,7 +123,7 @@ public class XmlObject<T> {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
 			if (m.getName().startsWith("set")
-					&& !clazz.isAnnotationPresent(NoExport.class)) {
+					&& m.getAnnotation(NoExport.class) == null) {
 
 				try {
 					if (m.getParameterTypes().length == 1) {
@@ -135,35 +135,6 @@ public class XmlObject<T> {
 			}
 		}
 		return methods;
-	}
-
-	public static boolean isAnnotated(Class c, Method m, Class annotation) {
-		if (m.isAnnotationPresent(annotation)) {
-			return true;
-		}
-
-		for (Class s : c.getInterfaces()) {
-			Method sm = null;
-			try {
-				if ((sm = s.getMethod(m.getName(), m.getParameterTypes())) != null) {
-					if (isAnnotated(s, sm, annotation)) {
-						return true;
-					}
-				}
-			} catch (Exception e) {}
-		}
-		try {
-			Class sc = c.getSuperclass();
-			if (sc != null) {
-				if (isAnnotated(c.getSuperclass(),
-						sc.getMethod(m.getName(), m.getParameterTypes()),
-						annotation)) {
-					return true;
-				}
-			}
-		} catch (Exception e) {}
-
-		return false;
 	}
 
 	protected static Object invokeGetMethod(Object object, Method actMethod) {

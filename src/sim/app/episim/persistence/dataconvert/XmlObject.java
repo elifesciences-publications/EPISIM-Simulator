@@ -280,7 +280,16 @@ public class XmlObject<T> {
 			if (subObj instanceof Double2D) {
 				subXmlObjects.put(parameterName, new XmlDouble2D(
 						(Double2D) subObj));
-			} else {
+			} if (subObj instanceof Double3D) {
+				subXmlObjects.put(parameterName, new XmlDouble3D(
+						(Double3D) subObj));
+			}if (subObj instanceof Int2D) {
+				subXmlObjects.put(parameterName, new XmlInt2D(
+						(Int2D) subObj));
+			}if (subObj instanceof Int3D) {
+				subXmlObjects.put(parameterName, new XmlInt3D(
+						(Int3D) subObj));
+			}else {
 				subXmlObjects.put(parameterName, new XmlPrimitive(subObj));
 			}
 		}

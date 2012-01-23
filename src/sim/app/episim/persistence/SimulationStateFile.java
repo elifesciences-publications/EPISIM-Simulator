@@ -232,7 +232,7 @@ public class SimulationStateFile extends XmlFile {
 		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
 			getRoot().appendChild(
 					simStateData.getExtraCellularDiffusionFieldArray3D().toXMLNode(
-							EXTRACELLULARDIFFUSIONFIELDARRAY2D, this));
+							EXTRACELLULARDIFFUSIONFIELDARRAY3D, this));
 		}
 
 		getRoot().appendChild(

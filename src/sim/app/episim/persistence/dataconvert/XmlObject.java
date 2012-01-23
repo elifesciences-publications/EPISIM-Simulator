@@ -15,6 +15,9 @@ import sim.app.episim.persistence.ImportException;
 import sim.app.episim.persistence.ImportLog;
 import sim.app.episim.persistence.XmlFile;
 import sim.util.Double2D;
+import sim.util.Double3D;
+import sim.util.Int2D;
+import sim.util.Int3D;
 
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -294,6 +297,22 @@ public class XmlObject<T> {
 						XmlDouble2D xmlObject = new XmlDouble2D(node);
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);
+						
+					} else if (m.getReturnType().equals(Double3D.class)) {
+						XmlDouble3D xmlObject = new XmlDouble3D(node);
+						xmlObject.importParametersFromXml(m.getReturnType());
+						subXmlObjects.put(methName, xmlObject);
+						
+					} else if (m.getReturnType().equals(Int2D.class)) {
+						XmlInt2D xmlObject = new XmlInt2D(node);
+						xmlObject.importParametersFromXml(m.getReturnType());
+						subXmlObjects.put(methName, xmlObject);
+						
+					} else if (m.getReturnType().equals(Int3D.class)) {
+						XmlInt3D xmlObject = new XmlInt3D(node);
+						xmlObject.importParametersFromXml(m.getReturnType());
+						subXmlObjects.put(methName, xmlObject);
+						
 					} else {
 						XmlPrimitive xmlObject = new XmlPrimitive(node);
 						xmlObject.importParametersFromXml(m.getReturnType());

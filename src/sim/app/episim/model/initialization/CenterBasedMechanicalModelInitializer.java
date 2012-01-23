@@ -87,17 +87,9 @@ public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelIni
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
 		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();
 
-		for (UniversalCell uCell : loadedCells) {
-			XmlUniversalCell xCell = simulationStateData.getAlreadyLoadedXmlCellNewID(uCell.getID());
-			if (xCell != null) {
-				XmlEpisimBiomechanicalModel xCellMechModel = xCell.getEpisimBiomechanicalModel();
-				xCellMechModel.copyValuesToTarget(uCell.getEpisimBioMechanicalModelObject());
-				CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) uCell
-						.getEpisimBioMechanicalModelObject();
-				centerBasedModel.getCellEllipseObject().setXY((int) centerBasedModel.getCellLocationInCellField().x,
-						(int) centerBasedModel.getCellLocationInCellField().y);
-			}//else System.out.println(getClass().getName()+" - Konnte Zelle "+ uCell.getID()+"nicht laden");
-
+		for (UniversalCell uCell : loadedCells) {				
+			CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) uCell.getEpisimBioMechanicalModelObject();
+			centerBasedModel.getCellEllipseObject().setXY((int) centerBasedModel.getCellLocationInCellField().x, (int) centerBasedModel.getCellLocationInCellField().y);
 		}
 		return loadedCells;
 	}

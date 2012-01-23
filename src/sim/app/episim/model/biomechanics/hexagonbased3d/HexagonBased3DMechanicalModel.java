@@ -99,9 +99,11 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   	return this.modelConnector;
 	 }
 	 
+	 @NoExport
 	 public GenericBag<AbstractCell> getRealNeighbours(){
 		 return getRealNeighbours(globalParameters.getUseContinuousSpace());
 	 }
+	 @NoExport
 	 private GenericBag<AbstractCell> getRealNeighbours(boolean continuous) {
 			
 		IntBag xPos = new IntBag();
@@ -253,11 +255,12 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		}
 		return new Double3D(x, y, z);
 	}
-	
+	@NoExport
 	public Double3D getLocationInMikron(){
 		return getLocationInMikron(fieldLocation);
 	}
 	
+	@NoExport
 	public Double3D getSpreadingLocationInMikron(){
 		return getLocationInMikron(spreadingLocation);
 	}
@@ -456,24 +459,33 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   return spreadingLocationIndices;
    }
 	
+	@NoExport
 	public boolean isSpreading(){ return this.spreadingLocation != null; }
 	
 	public Int3D getSpreadingLocation(){
 	  	return this.spreadingLocation;
 	}
+	public void setSpreadingLocation(Int3D spreadingLocation){
+	  	this.spreadingLocation = spreadingLocation;
+	}
 	
 	public Int3D getFieldLocation(){
 	  	return this.fieldLocation;
 	}
+	public void setFieldLocation(Int3D fieldLocation){
+	  	this.fieldLocation = fieldLocation;
+	}
 	
+	@NoExport
 	public double getX() {
 		return fieldLocation != null ? fieldLocation.x : -1;
 	}
 	
+	@NoExport
 	public double getY() {
 		return fieldLocation != null ? fieldLocation.y : -1;
 	}
-
+	@NoExport
 	public double getZ() {
 		return fieldLocation != null ? fieldLocation.z : -1;
 	}
@@ -494,6 +506,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
     * Be Careful with this method, existing cells at the location will be overwritten...
     */
    @CannotBeMonitored
+   @NoExport
    public void setCellLocationInCellField(Double3D location){
    	if(fieldLocation != null) removeCellFromCellField();
    	fieldLocation = new Int3D(cellField.tx((int)location.x), cellField.ty((int)location.y), cellField.tz((int)location.z));   	
@@ -501,43 +514,45 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
    }
    
    @CannotBeMonitored
+   @NoExport
    public Double3D getCellLocationInCellField() {	   
 	   return new Double3D(this.fieldLocation.x, this.fieldLocation.y, this.fieldLocation.z);
    }
    @CannotBeMonitored
+   @NoExport
    protected Object getCellField() {	  
 	   return cellField;
    }
-   
+   @NoExport
    public Int3D getCellFieldDimensions(){
    	return new Int3D(cellField.getWidth(), cellField.getHeight(), cellField.getLength());
    }
    
-   protected void setReloadedCellField(Object cellField) {
-   	if(cellField instanceof HexagonalCellField3D){
-   		HexagonBased3DMechanicalModel.cellField = (HexagonalCellField3D) cellField;
-   	}
-   }
+   
    
  //--------------------------------------------------------------------------------------------------------------------------------------------------------------
    // NOT YET NEEDED METHODS
    //--------------------------------------------------------------------------------------------------------------------------------------------------------------
    @CannotBeMonitored
+   @NoExport
    public EpisimCellShape<Shape3D> getPolygonCell() {
 		//not yet needed
 		return new Episim3DCellShape<Shape3D>(new Shape3D());
 	}
    @CannotBeMonitored
+   @NoExport
 	public EpisimCellShape<Shape3D> getPolygonCell(EpisimDrawInfo<TransformGroup> info) {
 		//not yet needed
 		return new Episim3DCellShape<Shape3D>(new Shape3D());
 	}
    @CannotBeMonitored
+   @NoExport
 	public EpisimCellShape<Shape3D> getPolygonNucleus() {
 		//not yet needed
 		return new Episim3DCellShape<Shape3D>(new Shape3D());
 	}
    @CannotBeMonitored
+   @NoExport
 	public EpisimCellShape<Shape3D> getPolygonNucleus(EpisimDrawInfo<TransformGroup> info) {
 		//not yet needed
 		return new Episim3DCellShape<Shape3D>(new Shape3D());

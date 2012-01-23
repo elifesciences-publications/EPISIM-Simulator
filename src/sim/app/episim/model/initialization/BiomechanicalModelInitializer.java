@@ -8,7 +8,9 @@ import org.w3c.dom.DOMException;
 import episiminterfaces.EpisimPortrayal;
 
 import sim.app.episim.UniversalCell;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.persistence.SimulationStateData;
+import sim.app.episim.persistence.dataconvert.XmlEpisimBiomechanicalModel;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.tissue.TissueController;
 import sim.portrayal.Portrayal;
@@ -53,7 +55,18 @@ public abstract class BiomechanicalModelInitializer {
 
 		//System.out.println(xmlCells.size() + " vs. " + simulationStateData.getAlreadyLoadedCellsAsList().size());
 
-		return simulationStateData.getAlreadyLoadedCellsAsList();
+		ArrayList<UniversalCell> universalCells = simulationStateData.getAlreadyLoadedCellsAsList();
+		
+		
+
+		for (UniversalCell uCell : universalCells) {
+			XmlUniversalCell xCell = simulationStateData.getAlreadyLoadedXmlCellNewID(uCell.getID());
+			if (xCell != null) {
+				XmlEpisimBiomechanicalModel xCellMechModel = xCell.getEpisimBiomechanicalModel();
+				xCellMechModel.copyValuesToTarget(uCell.getEpisimBioMechanicalModelObject());
+			}
+		}
+		return universalCells;
 	}
 
 	private UniversalCell buildCell(XmlUniversalCell xCell) {

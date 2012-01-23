@@ -581,18 +581,21 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	private GenericBag<AbstractCell> getNeighbouringCells() {return neighbouringCells;}
 	
 	@CannotBeMonitored
+	@NoExport
 	public double getX(){return modelConnector == null ? 
 			0//TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getX()
  		 : modelConnector.getX();
 	}
 	
 	@CannotBeMonitored
+	@NoExport
 	public double getY(){return modelConnector == null ? 
 			 		0	//	TissueController.getInstance().getTissueBorder().getHeight()- TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getY()
 			 	 : modelConnector.getY();
 	}
 	
 	@CannotBeMonitored
+	@NoExport
 	public double getZ(){ return 0;}
 	
 	@CannotBeMonitored @NoExport
@@ -704,11 +707,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   return cellField;
    }
    
-   protected void setReloadedCellField(Object cellField) {
-   	if(cellField instanceof Continuous2D){
-   		CenterBasedMechanicalModel.cellField = (Continuous2D) cellField;
-   	}
-   }
+   
 
 	protected void removeCellsInWoundArea(GeneralPath woundArea) {
 		Iterator<AbstractCell> iter = TissueController.getInstance().getActEpidermalTissue().getAllCells().iterator();

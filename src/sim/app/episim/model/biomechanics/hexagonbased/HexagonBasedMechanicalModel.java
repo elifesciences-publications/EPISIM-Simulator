@@ -588,27 +588,34 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	public Int2D getSpreadingLocation(){
 	  	return this.spreadingLocation;
 	}
+	public void setSpreadingLocation(Int2D spreadingLocation){
+	  	this.spreadingLocation = spreadingLocation;
+	}
 	
 	public Int2D getFieldLocation(){
 	  	return this.fieldLocation;
 	}
+	public void setFieldLocation(Int2D fieldLocation){
+	  	this.fieldLocation = fieldLocation;
+	}
 	
+	@NoExport
 	public double getX() {
 		return fieldLocation != null ? fieldLocation.x : -1;
 	}
-	
+	@NoExport
 	public double getY() {
 		return fieldLocation != null ? fieldLocation.y : -1;
 	}
-
+	@NoExport
 	public double getZ() {
 		return 0;
 	}
-	
+	@NoExport
 	public boolean getIsOnTestSurface(){
 		return modelConnector.getIsOnTestSurface();
 	}
-	
+	@NoExport
 	public boolean getIsAtSurfaceBorder(){
 		return modelConnector.getIsAtSurfaceBorder();
 	}
@@ -640,20 +647,17 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	   return new Double2D(this.fieldLocation.x, this.fieldLocation.y);
    }
    @CannotBeMonitored
+   @NoExport
    protected Object getCellField() {	  
 	   return cellField;
    }
    
+   @NoExport
    public Int2D getCellFieldDimensions(){
    	return new Int2D(cellField.getWidth(), cellField.getHeight());
    }
    
-   protected void setReloadedCellField(Object cellField) {
-   	if(cellField instanceof ObjectGrid2D){
-   		HexagonBasedMechanicalModel.cellField = (ObjectGrid2D) cellField;
-   	}
-   }
-   
+  
    
       
    
@@ -661,30 +665,36 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
    // NOT YET NEEDED METHODS
    //--------------------------------------------------------------------------------------------------------------------------------------------------------------
    @CannotBeMonitored
+   @NoExport
    public EpisimCellShape<Shape> getPolygonCell() {
 		//not yet needed
 		return new Episim2DCellShape<Polygon>(new Polygon());
 	}
    @CannotBeMonitored
+   @NoExport
 	public EpisimCellShape<Shape> getPolygonCell(EpisimDrawInfo<DrawInfo2D> info) {
 		//not yet needed
 		return new Episim2DCellShape<Polygon>(new Polygon());
 	}
    @CannotBeMonitored
+   @NoExport
 	public EpisimCellShape<Shape> getPolygonNucleus() {
 		//not yet needed
 		return new Episim2DCellShape<Polygon>(new Polygon());
 	}
    @CannotBeMonitored
+   @NoExport
 	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info) {
 		//not yet needed
 		return new Episim2DCellShape<Polygon>(new Polygon());
 	}
    
+   @NoExport
    public DrawInfo2D getLastDrawInfo2D(){
    	return this.lastDrawInfo2D;
    }
    
+   @NoExport
    public void setLastDrawInfo2D(DrawInfo2D info){
    	this.lastDrawInfo2D = info;
    }
@@ -707,6 +717,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 			for(AbstractCell cell :deathCellSet) cell.killCell();
    }
 	
+	@NoExport
 	public boolean getIsAtWoundEdge(){ return this.isAtWoundEdge; }
 
 	

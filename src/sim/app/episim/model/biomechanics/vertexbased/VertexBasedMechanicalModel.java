@@ -307,11 +307,6 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	   return cellField;
    }
    
-   protected void setReloadedCellField(Object cellField) {
-   	if(cellField instanceof Continuous2D){
-   		VertexBasedMechanicalModel.cellField = (Continuous2D) cellField;
-   	}
-   }
 	protected void removeCellsInWoundArea(GeneralPath woundArea) {
 
 	   // TODO Wounding in Vertex Model is not yet supported

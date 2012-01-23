@@ -2,6 +2,7 @@ package sim.app.episim.model.biomechanics;
 
 
 import episimbiomechanics.EpisimModelConnector;
+import episiminterfaces.NoExport;
 import sim.app.episim.AbstractCell;
 
 public abstract class AbstractMechanicalModel<T> implements java.io.Serializable{
@@ -22,9 +23,10 @@ public abstract class AbstractMechanicalModel<T> implements java.io.Serializable
 	protected abstract void clearCellField();
 	public abstract void removeCellFromCellField();
 	public abstract void setCellLocationInCellField(T location);
+	@NoExport
 	public abstract T getCellLocationInCellField();
 	protected abstract Object getCellField();
-	protected abstract void setReloadedCellField(Object cellField);
+	
 	
 	
 	

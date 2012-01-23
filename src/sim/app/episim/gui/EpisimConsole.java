@@ -83,11 +83,14 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	private SimulationConsole console = null;
 	private Component mainGUIComponent = null; 
 	
+	private EpisimGUIState episimGUIState;
+	
 	public EpisimConsole(final GUIState simulation, boolean reloadSnapshot){
 		
 		if(simulation instanceof EpisimGUIState){
-			((EpisimGUIState)simulation).addSimulationStateChangeListener(this);
-			mainGUIComponent = ((EpisimGUIState)simulation).getMainGUIComponent();
+			episimGUIState = ((EpisimGUIState)simulation);
+			episimGUIState.addSimulationStateChangeListener(this);
+			mainGUIComponent = episimGUIState.getMainGUIComponent();
 		}
 		 if(ModeServer.guiMode()){
 			 console = new ConsoleHack(simulation){
@@ -206,7 +209,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 			public void actionPerformed(ActionEvent e) {
 				simulation.state.preCheckpoint();
 				
-				if(getPlayState() != ConsoleHack.PS_PAUSED && getPlayState() == ConsoleHack.PS_PLAYING) pressPause();
+				episimGUIState.pressWorkaroundSimulationPause();
 							 
 				if(mainGUIComponent != null && mainGUIComponent instanceof JFrame && SimulationStateFile.getTissueExportPath() == null){					
 					ExtendedFileChooser chooser = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
@@ -234,7 +237,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	        }			
 				
 				
-				if(getPlayState() == ConsoleHack.PS_PAUSED && getPlayState() != ConsoleHack.PS_PLAYING)pressPause(); 
+	        episimGUIState.pressWorkaroundSimulationPlay(); 
 				simulation.state.postCheckpoint();
 			}
      	 
@@ -546,6 +549,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    	if(console instanceof NoGUIConsole){
    		((EpisimGUIState)console.getSimulation()).simulationWasPaused();   	
    	}
+   	tissueExportButton.setEnabled(true);
    	console.pressPause();
    }
    
@@ -628,8 +632,8 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 
 	public void simulationWasPaused() {
 
-	   // Do nothing
 	   
+		 tissueExportButton.setEnabled(true);
    }
 
 

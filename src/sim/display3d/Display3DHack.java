@@ -131,9 +131,9 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
         public double newValue(double newValue)
             {
             if (newValue <= 0.0) newValue = currentValue;
-            epiSimulation.workaroundConsolePause();
+            epiSimulation.pressWorkaroundSimulationPause();
             setScale(newValue);
-            epiSimulation.workaroundConsolePlay();
+            epiSimulation.pressWorkaroundSimulationPlay();
             return newValue;
             }
         };

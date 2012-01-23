@@ -1,10 +1,9 @@
 package sim.app.episim.model.biomechanics.hexagonbased3d;
 
-import java.awt.Polygon;
+
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,32 +13,27 @@ import javax.media.j3d.TransformGroup;
 
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector;
+
 import episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DModelConnector;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
-import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
+
 import sim.app.episim.model.biomechanics.CellBoundaries;
-import sim.app.episim.model.biomechanics.Episim2DCellShape;
+
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
+
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
+
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
-import sim.field.grid.ObjectGrid2D;
-import sim.field.grid.ObjectGrid3D;
-import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
-import sim.util.Double2D;
 import sim.util.Double3D;
-import sim.util.Int2D;
 import sim.util.Int3D;
 import sim.util.IntBag;
 
@@ -70,9 +64,9 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	
 		if(cellField == null){
 	   	
-	   	int width = (int)HexagonBasedMechanicalModelGP.number_of_columns;
-	   	int length = (int)HexagonBasedMechanicalModelGP.number_of_columns;
-	   	int height = (int)HexagonBasedMechanicalModelGP.number_of_rows;
+	   	int width = (int)HexagonBased3DMechanicalModelGP.number_of_columns;
+	   	int length = (int)HexagonBased3DMechanicalModelGP.number_of_columns;
+	   	int height = (int)HexagonBased3DMechanicalModelGP.number_of_rows;
 	   	cellField = new HexagonalCellField3D(width, height, length);
 	   }
 	   if(cell!= null){
@@ -514,7 +508,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
    }
    
    @CannotBeMonitored
-   @NoExport
+  
    public Double3D getCellLocationInCellField() {	   
 	   return new Double3D(this.fieldLocation.x, this.fieldLocation.y, this.fieldLocation.z);
    }

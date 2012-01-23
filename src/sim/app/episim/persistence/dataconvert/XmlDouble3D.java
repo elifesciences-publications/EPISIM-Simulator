@@ -32,6 +32,7 @@ public class XmlDouble3D extends XmlObject<Double3D> {
 			Element node = xmlFile.createElement(nodeName);
 			node.setAttribute(X_VALUE, Double.toString(getObject().x));
 			node.setAttribute(Y_VALUE, Double.toString(getObject().y));
+			node.setAttribute(Z_VALUE, Double.toString(getObject().z));
 			return node;
 		} else
 			return null;

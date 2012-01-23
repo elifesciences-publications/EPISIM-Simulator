@@ -245,7 +245,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
           public double newValue(double newValue)
               {
               if (newValue <= 0.0) newValue = currentValue;
-              epiSimulation.workaroundConsolePause();
+              epiSimulation.pressWorkaroundSimulationPause();
               setScale(newValue);
               Scale.displayScale = getScale();
               port.setView(insideDisplay);
@@ -253,7 +253,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
               optionPane.xOffsetField.setValue(insideDisplay.xOffset * newValue);
               //optionPane.yOffsetField.add *= (newValue / currentValue);
               optionPane.yOffsetField.setValue(insideDisplay.yOffset * newValue);
-              epiSimulation.workaroundConsolePlay();
+              epiSimulation.pressWorkaroundSimulationPlay();
               return newValue;
               }
           };
@@ -347,16 +347,8 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	
 	 public void takeSnapshot()
     {
-			if(SimStateServer.getInstance().getEpisimSimulationState() != EpisimSimulationState.PAUSE
-					&&SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PLAY){
-				SimStateServer.getInstance().getEpisimGUIState().getEpisimConsole().pressPause();
-			}
-					
-					
-					
-
-      
-      
+			
+		 SimStateServer.getInstance().getEpisimGUIState().pressWorkaroundSimulationPause(); 
 
         // snap the shot FIRST
         Graphics g = insideDisplay.getGraphics();
@@ -416,10 +408,9 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
             }
         }
      	
-        if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PAUSE
-					&&SimStateServer.getInstance().getEpisimSimulationState() != EpisimSimulationState.PLAY){
-				SimStateServer.getInstance().getEpisimGUIState().getEpisimConsole().pressPause();
-			}
+       
+				SimStateServer.getInstance().getEpisimGUIState().pressWorkaroundSimulationPlay();
+			
 	}
     
     

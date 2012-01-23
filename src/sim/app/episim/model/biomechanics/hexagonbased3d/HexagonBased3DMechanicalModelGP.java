@@ -25,7 +25,7 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	
 	private double neighborhood_mikron = 2d*inner_hexagonal_radius;
 		
-	private boolean useContinuousSpace = false;
+	private boolean useContinuousSpace = true;
 	private boolean useCellCellInteractionEnergy = true;
 	
 	private double lambdaChem = 1;

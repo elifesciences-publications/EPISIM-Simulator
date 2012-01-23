@@ -23,7 +23,6 @@ public abstract class AbstractMechanicalModel<T> implements java.io.Serializable
 	protected abstract void clearCellField();
 	public abstract void removeCellFromCellField();
 	public abstract void setCellLocationInCellField(T location);
-	@NoExport
 	public abstract T getCellLocationInCellField();
 	protected abstract Object getCellField();
 	

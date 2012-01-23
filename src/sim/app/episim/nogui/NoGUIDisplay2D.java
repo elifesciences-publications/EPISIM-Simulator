@@ -1501,7 +1501,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
           public double newValue(double newValue)
               {
               if (newValue <= 0.0) newValue = currentValue;
-              epiSimulation.workaroundConsolePause();
+              epiSimulation.pressWorkaroundSimulationPause();
               setScale(newValue);
               Scale.displayScale = getScale();
               port.setView(insideDisplay);
@@ -1509,7 +1509,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
               optionPane.xOffsetField.setValue(insideDisplay.xOffset * newValue);
               //optionPane.yOffsetField.add *= (newValue / currentValue);
               optionPane.yOffsetField.setValue(insideDisplay.yOffset * newValue);
-              epiSimulation.workaroundConsolePlay();
+              epiSimulation.pressWorkaroundSimulationPlay();
               return newValue;
               }
           };

@@ -23,11 +23,16 @@ import javax.vecmath.Vector3f;
 import com.sun.j3d.utils.geometry.Primitive;
 import com.sun.j3d.utils.geometry.Sphere;
 
+import episiminterfaces.EpisimCellBehavioralModel;
+
+import sim.app.episim.UniversalCell;
+import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.portrayal.LocationWrapper;
 import sim.portrayal3d.SimplePortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
+import sim.util.Int3D;
 
 
 public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
@@ -71,46 +76,51 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 		
 		setShape3DFlags(sphere.getShape(Sphere.BODY));
 		transform = new Transform3D();
-		transform.setTranslation(new Vector3f(standardCellRadius,standardCellRadius*2,standardCellRadius));		 
+	//	transform.setTranslation(new Vector3f(standardCellRadius,standardCellRadius,standardCellRadius));		 
 		group = sphere;
    }
 	 
 	public TransformGroup getModel(Object obj, TransformGroup j3dModel){
-		if (j3dModel==null)
-       {
-	       j3dModel = new TransformGroup();
-	       j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
-	       
-	       // build a LocationWrapper for the object
-	       LocationWrapper pickI = new LocationWrapper(obj, null, getCurrentFieldPortrayal());
-	
-	       Node g = (Node) (group.cloneTree(true));
-	
-	       if (transform != null)
-	       {
-	           TransformGroup tg = new TransformGroup();
-	           tg.setTransform(transform);
-	           tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-	           tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-	           tg.setCapability(Group.ALLOW_CHILDREN_READ);
-	           tg.addChild(g);
-	           g = tg;
+		if(obj instanceof UniversalCell){
+			UniversalCell universalCell = (UniversalCell) obj;
+			HexagonBased3DMechanicalModel mechModel = (HexagonBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject();
+			if (j3dModel==null)
+		   {
+		       j3dModel = new TransformGroup();
+		       j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
+		       
+		       // build a LocationWrapper for the object
+		       LocationWrapper pickI = new LocationWrapper(obj, null, getCurrentFieldPortrayal());
+		
+		       Node g = (Node) (group.cloneTree(true));
+		
+		       if (transform != null)
+		       {
+		           TransformGroup tg = new TransformGroup();
+		           tg.setTransform(transform);
+		           tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+		           tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+		           tg.setCapability(Group.ALLOW_CHILDREN_READ);
+		           tg.addChild(g);
+		           g = tg;
+		       }
+		       j3dModel.addChild(g);
+		
+		       
+		       Shape3D shape = getShape(j3dModel, 0);
+		       shape.setAppearance(appearance);
+		       if (pickable) setPickableFlags(shape);
+		       shape.setUserData(pickI);
+		       
 	       }
-	       j3dModel.addChild(g);
-	
-	       int numShapes = numShapes();
-	       for(int i = 0; i < numShapes; i++)
-	       {
-	           Shape3D shape = getShape(j3dModel, i);
-	           shape.setAppearance(appearance);
-	           if (pickable) setPickableFlags(shape);
-	
-	           // Store the LocationWrapper in the user data of each shape
-	           shape.setUserData(pickI);
-	       }
-       }
-   return j3dModel;
-		//return super.getModel(obj, j3dModel);
+			Shape3D shape = getShape(j3dModel, 0);
+			EpisimCellBehavioralModel cbm = universalCell.getEpisimCellBehavioralModelObject();
+			
+		   shape.setAppearance(getCellAppearanceForColor(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB())));
+			
+		} 
+		return j3dModel;
+		
 	}
 	
 	private static Appearance getCellAppearanceForColor(Color color){
@@ -169,6 +179,7 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 		}		
 		float[] c_result = resultingColor.getRGBComponents(null);
 		return new Color3f(c_result[0], c_result[1], c_result[2]);
+		
 	}
 	
 	private static Color brighter(Color c) {
@@ -225,6 +236,6 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	  Primitive p = (Primitive) n;
 	  return p.getShape(shapeIndex);
   }
-  protected int numShapes() { return 1; }
+ 
 
 }

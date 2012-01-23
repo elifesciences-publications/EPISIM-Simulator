@@ -610,12 +610,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	@CannotBeMonitored @NoExport
 	public EpisimCellShape<Shape> getPolygonCell(EpisimDrawInfo<DrawInfo2D> info){
-		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info.getDrawInfo(), getKeratinoWidth(), getKeratinoHeight()));
+		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getKeratinoWidth(), getKeratinoHeight()));
 	}
 	
 	@CannotBeMonitored
 	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info){
-		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info.getDrawInfo(), 2, 2));
+		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, 2, 2));
 	}
 	
 	@CannotBeMonitored

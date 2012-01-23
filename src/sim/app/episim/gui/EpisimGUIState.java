@@ -165,9 +165,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		this.setConsole(new EpisimConsole(this, reloadSnapshot));		
 	}
 	
-	public EpisimConsole getEpisimConsole(){
-		return this.console;
-	}
+	
 	
 	public Component getMainGUIComponent(){
 		return this.mainComponent;
@@ -819,15 +817,15 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	
 	
-	public void workaroundConsolePause(){
+	public void pressWorkaroundSimulationPause(){
 		if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING){
 				console.pressPause();
 				workaroundPauseWasPressed = true;
 		}
 	}
 	
-	public void workaroundConsolePlay(){
-		if(console.getPlayState() == Console.PS_PAUSED && console.getPlayState() != Console.PS_STOPPED){
+	public void pressWorkaroundSimulationPlay(){
+		if(console.getPlayState() == Console.PS_PAUSED && console.getPlayState() != Console.PS_STOPPED && workaroundPauseWasPressed){
 			console.pressPause();
 			workaroundPauseWasPressed = false;
 		}

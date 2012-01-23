@@ -46,7 +46,7 @@ public class XmlInt3D extends XmlObject<Int3D> {
 			x = Integer.parseInt(getObjectNode().getAttributes().getNamedItem(X_VALUE).getNodeValue());
 			y = Integer.parseInt(getObjectNode().getAttributes().getNamedItem(Y_VALUE).getNodeValue());
 			z = Integer.parseInt(getObjectNode().getAttributes().getNamedItem(Z_VALUE).getNodeValue());
-		 setObject(new Int3D(x,y, z));
+		 setObject(new Int3D(x,y,z));
 		}
 	}
 

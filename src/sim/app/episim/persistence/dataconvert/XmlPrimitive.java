@@ -31,7 +31,7 @@ public class XmlPrimitive extends XmlObject<Object> {
 		if (value != null) {
 			Element node = xmlFile.createElement(nodeName);
 			node.setAttribute(VALUE, value.toString());
-			return node;
+			return node; //TODO null Exportieren?
 		} else
 			return null;
 

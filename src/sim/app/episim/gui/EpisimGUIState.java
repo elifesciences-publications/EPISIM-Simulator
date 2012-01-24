@@ -157,6 +157,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		EPIDISPLAYWIDTH = TissueController.getInstance().getTissueBorder().getWidthInPixels() * INITIALZOOMFACTOR;
 		EPIDISPLAYHEIGHT = TissueController.getInstance().getTissueBorder().getHeightInPixels() * INITIALZOOMFACTOR;
+		
+		
 		SimStateServer.getInstance().setEpisimGUIState(this);
 		if(state instanceof TissueType) TissueController.getInstance().registerTissue(((TissueType) state));
 		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();

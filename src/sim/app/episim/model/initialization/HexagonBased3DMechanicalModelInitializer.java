@@ -2,6 +2,7 @@ package sim.app.episim.model.initialization;
 
 import java.util.ArrayList;
 
+import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.UniversalCell;
 
@@ -34,12 +35,14 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
 		int x = (int) (HexagonBased3DMechanicalModelGP.number_of_columns /2);
 		int y = (int) (HexagonBased3DMechanicalModelGP.number_of_rows /2);
 		int z = (int) (HexagonBased3DMechanicalModelGP.number_of_columns /2);
+		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
 		UniversalCell cell = new UniversalCell(null, null);
 		((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(0, 0, 0));
+		if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 		standardCellEnsemble.add(cell);
-		cell = new UniversalCell(null, null);
+	/*	cell = new UniversalCell(null, null);
 		((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
-		standardCellEnsemble.add(cell);
+		standardCellEnsemble.add(cell);*/
    	
 		
 		return standardCellEnsemble;

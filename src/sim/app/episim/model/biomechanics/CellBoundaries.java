@@ -2,6 +2,7 @@ package sim.app.episim.model.biomechanics;
 
 import java.awt.Shape;
 
+import javax.media.j3d.BoundingPolytope;
 import javax.media.j3d.Bounds;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;

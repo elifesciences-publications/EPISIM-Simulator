@@ -8,8 +8,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import javax.media.j3d.BoundingSphere;
+import javax.media.j3d.Group;
 import javax.media.j3d.Shape3D;
+import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
+import javax.vecmath.Vector3f;
+
+import com.sun.j3d.utils.geometry.Primitive;
+import com.sun.j3d.utils.geometry.Sphere;
 
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
@@ -19,6 +28,7 @@ import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
 
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -30,6 +40,7 @@ import sim.app.episim.model.controller.ModelController;
 
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
+import sim.app.episim.model.visualization.HexagonalCellPortrayal3D;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.util.Bag;
@@ -54,6 +65,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	
 	private HexagonBased3DMechanicalModelGP globalParameters;
 	
+	
+	private double standardCellRadius = 0.5;
 	public HexagonBased3DMechanicalModel(){
 		this(null);
 	}
@@ -61,7 +74,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	public HexagonBased3DMechanicalModel(AbstractCell cell){
 		super(cell);
 		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-	
+		standardCellRadius = HexagonBased3DMechanicalModelGP.outer_hexagonal_radius;
 		if(cellField == null){
 	   	
 	   	int width = (int)HexagonBased3DMechanicalModelGP.number_of_columns;
@@ -557,94 +570,86 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
    }
    
    private CellBoundaries getEmptyLatticeCellBoundary(double xInMikron, double yInMikron, double zInMikron){
-   	//TODO: implement this method
-     	double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
-    	double width = 0;
-    	double height = 0;
-   	double radiusOuter = HexagonBasedMechanicalModelGP.outer_hexagonal_radius;
-   	double radiusInner = HexagonBasedMechanicalModelGP.inner_hexagonal_radius;
-   	
-   	yInMikron = heightInMikron - yInMikron;
- 		width = 2* radiusOuter;
- 		height = 2 * radiusInner;
- 		xInMikron-=(width/2d);
- 		yInMikron-=(height/2d);
-   	return new CellBoundaries(new Ellipse2D.Double(xInMikron,yInMikron,height,width));
+   	Vector3d minVector = new Vector3d((xInMikron-standardCellRadius),
+													 (yInMikron-standardCellRadius),
+													 (zInMikron-standardCellRadius));
+
+   	Vector3d maxVector = new Vector3d((xInMikron+standardCellRadius),
+				  									 (yInMikron+standardCellRadius),
+				  									 (zInMikron+standardCellRadius));
+   	 BoundingSphere sphere = new BoundingSphere(new Point3d(xInMikron, yInMikron, zInMikron),standardCellRadius);
+	 	 return new CellBoundaries(sphere, minVector, maxVector);
+   }
+   
+   public static void main(String[] args){
+   	double xInMikron=25, yInMikron=25,zInMikron=25;
+   	double standardCellRadius =25;
+   	Vector3d minVector = new Vector3d((xInMikron-standardCellRadius),
+				 (yInMikron-standardCellRadius),
+				 (zInMikron-standardCellRadius));
+
+			Vector3d maxVector = new Vector3d((xInMikron+standardCellRadius),
+								 (yInMikron+standardCellRadius),
+								 (zInMikron+standardCellRadius));
+			BoundingSphere sphere = new BoundingSphere(new Point3d(xInMikron, yInMikron, zInMikron),standardCellRadius);
+			
+		
+			
+			Transform3D transform = new Transform3D();
+			transform.setTranslation(new Vector3d(xInMikron, yInMikron, zInMikron));
+			//sphere.transform(transform);
+		
+			
+			CellBoundaries cellBoundaries= new CellBoundaries(sphere, minVector, maxVector);
+			int points = 0;
+			for(int z = 0; z <= 50; z++){
+				for(int y = 0; y <= 50; y++){
+					for(int x = 0; x <= 50; x++){
+						if(cellBoundaries.contains(x, y, z)) System.out.println("Enthalten: ("+x+", "+y+", "+z+")");
+					}
+				}
+			}
    }
    
    @CannotBeMonitored
    @NoExport
    public CellBoundaries getCellBoundariesInMikron() {
-   	//TODO: implement this method
-		Double3D fieldLoc =getLocationInMikron();
-    	Double3D spreadingLoc =getSpreadingLocationInMikron();
-    	double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
-    	double x = 0;
-    	double y = 0;
-   	double width = 0;
-    	double height = 0;
-   	double radiusOuter = HexagonBasedMechanicalModelGP.outer_hexagonal_radius;
-   	double radiusInner = HexagonBasedMechanicalModelGP.inner_hexagonal_radius;
-	   if(isSpreading()){	
-    		
-    		spreadingLoc = correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing();    		  	
-	   	
-	   	x = ((fieldLoc.x+spreadingLoc.x)/2d);
-	 		y = heightInMikron - ((fieldLoc.y+spreadingLoc.y)/2d);
-	 		width = 4* radiusInner;
-	 		height = 2 * radiusInner;
-	 		x-=(width/2d);
-	 		y-=(height/2d);	   	
-	   	
-	   	double rotationInDegrees = 0;
-	   	
-	    	double heightDelta= 0;	
-	    	Shape shape;
-	    	if((fieldLoc.x <spreadingLoc.x && fieldLoc.y >spreadingLoc.y)
-	    			||(fieldLoc.x > spreadingLoc.x && fieldLoc.y < spreadingLoc.y)){ 
-	    		rotationInDegrees = 25;
-	    		heightDelta = height*0.1*-1d;
-	    	}
-	    	
-	    	if((fieldLoc.x <spreadingLoc.x && fieldLoc.y <spreadingLoc.y)
-	    			||(fieldLoc.x > spreadingLoc.x && fieldLoc.y > spreadingLoc.y)){ 
-	    		rotationInDegrees = 155;
-	    		heightDelta = height*0.1;
-	    	}
-	    	
-	   	if((fieldLoc.x == spreadingLoc.x && fieldLoc.y !=spreadingLoc.y)){ 
-	   		rotationInDegrees = 90;
-	   	}
-	    
-	    	if(rotationInDegrees != 0){
-	    		AffineTransform transform = new AffineTransform();
-	    		double rotateX = x + (width/2d);
-	    		double rotateY = y + (height/2d);	    		
-	    		
-	    		transform.setToRotation(Math.toRadians(rotationInDegrees), rotateX, rotateY);	    		
-	    		shape = transform.createTransformedShape(new Ellipse2D.Double(x, y, width, height));
-	    		if(heightDelta != 0){	    			
-	    			transform.setToTranslation(0, heightDelta);
-	    			shape = transform.createTransformedShape(shape);
-	    		}
-	    	}
-	    	else shape = new Ellipse2D.Double(x, y, width, height); 	
-	   	
-	    	return new CellBoundaries(shape);
-		   	
-	   }
-	   else{
-	   	x = fieldLoc.x;
-	 		y = heightInMikron - fieldLoc.y;
-	 		width = 2* radiusOuter;
-	 		height = 2 * radiusInner;
-	 		x-=(width/2d);
-	 		y-=(height/2d);
-	   	return new CellBoundaries(new Ellipse2D.Double(x,y,height,width));
-	   }
-	   
+	 	  Double3D fieldLocMikron = getLocationInMikron(getFieldLocation());
+	 	  Vector3d minVector= null;
+	 	  Vector3d maxVector= null;
+	 	  if(isSpreading()){
+	 		  Double3D spreadingLocMikron = getLocationInMikron(correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing());
+	   	   
+	 		  minVector = new Vector3d(fieldLocMikron.x < spreadingLocMikron.x ? (fieldLocMikron.x-standardCellRadius) : (spreadingLocMikron.x-standardCellRadius),
+	 	   								   fieldLocMikron.y < spreadingLocMikron.y ? (fieldLocMikron.y-standardCellRadius) : (spreadingLocMikron.y-standardCellRadius),
+	 	   								   fieldLocMikron.z < spreadingLocMikron.z ? (fieldLocMikron.z-standardCellRadius) : (spreadingLocMikron.z-standardCellRadius));
+	 	     
+	 		  maxVector = new Vector3d(fieldLocMikron.x > spreadingLocMikron.x ? (fieldLocMikron.x+standardCellRadius) : (spreadingLocMikron.x+standardCellRadius),
+												fieldLocMikron.y > spreadingLocMikron.y ? (fieldLocMikron.y+standardCellRadius) : (spreadingLocMikron.y+standardCellRadius),
+												fieldLocMikron.z > spreadingLocMikron.z ? (fieldLocMikron.z+standardCellRadius) : (spreadingLocMikron.z+standardCellRadius));
+	 	  }
+	 	  else{
+	 		 minVector = new Vector3d((fieldLocMikron.x-standardCellRadius),
+					   						(fieldLocMikron.y-standardCellRadius),
+					   						(fieldLocMikron.z-standardCellRadius));
+
+	 		 maxVector = new Vector3d((fieldLocMikron.x+standardCellRadius),
+											  (fieldLocMikron.y+standardCellRadius),
+											  (fieldLocMikron.z+standardCellRadius));
+	 	  }
+	 	 BoundingSphere sphere = new BoundingSphere( new Point3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z),standardCellRadius);
+	 			
+	 	
+	 	 
+	 	 Transform3D transform = new Transform3D();
+	 	 transform.setScale(new Vector3d(2,1,1));
+	 	// addSpreadingCellRotationAndTranslation(transform);
+	 //	 addCellTranslation(transform);
+	 
+	 	 sphere.transform(transform);		   	
+	 	 return new CellBoundaries(sphere, new Vector3d(-100,-100,-100), new Vector3d(200,200,200));	   
    }
-   public Double3D correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(){
+   public Int3D correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(){
       
    	Int3D loc1 = getFieldLocation();
    	Int3D loc2 = getSpreadingLocation();
@@ -675,7 +680,174 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
    			 z = loc2.z - cellField.getLength();
    		 }
    	}	
-    	return getLocationInMikron(new Int3D(x,y,z));
+    	return new Int3D(x,y,z);
    } 
+   
+   public void addCellTranslation(Transform3D mainTrans){		
+   	
+		Int3D location = getFieldLocation();
+		Transform3D translationTrans = new Transform3D();
+		translationTrans.setTranslation(new Vector3f((float)(standardCellRadius + (2f*location.x*standardCellRadius)),
+	      		 (float)(standardCellRadius + (2f*location.y*standardCellRadius)),
+	      		 (float)(standardCellRadius + (2f*location.z*standardCellRadius))));	
+		mainTrans.mul(translationTrans, mainTrans);        
+   }
+
+	public void addSpreadingCellRotationAndTranslation(Transform3D mainTrans){		
+		
+		if(isSpreading()){
+			
+			double transX=0,transY=0, transZ=0;
+			double rotX=0,rotY=0,rotZ=0;
+			double scaleX=1, scaleY=1, scaleZ=1;
+			
+			Int3D fieldLoc = getFieldLocation();
+			Int3D spreadingLoc = correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing();
+			
+			if(fieldLoc.x==spreadingLoc.x && fieldLoc.y == spreadingLoc.y && fieldLoc.z != spreadingLoc.z){
+				scaleZ=2;
+				if(spreadingLoc.z < fieldLoc.z) transZ = -1*standardCellRadius;
+				if(spreadingLoc.z > fieldLoc.z) transZ = standardCellRadius;
+			}
+			else if(fieldLoc.x==spreadingLoc.x && fieldLoc.y != spreadingLoc.y && fieldLoc.z == spreadingLoc.z){
+				scaleY=2;
+				if(spreadingLoc.y < fieldLoc.y) transY = -1*standardCellRadius;
+				if(spreadingLoc.y > fieldLoc.y) transY = standardCellRadius;
+			}
+			else if(fieldLoc.x!=spreadingLoc.x && fieldLoc.y == spreadingLoc.y && fieldLoc.z == spreadingLoc.z){
+				scaleX=2;
+				if(spreadingLoc.x < fieldLoc.x) transX = -1*standardCellRadius;
+				if(spreadingLoc.x > fieldLoc.x) transX = standardCellRadius;
+			}
+			else if(fieldLoc.x==spreadingLoc.x && fieldLoc.y != spreadingLoc.y && fieldLoc.z != spreadingLoc.z){
+				scaleZ=Math.sqrt(2)*2d;
+				if(spreadingLoc.z < fieldLoc.z){
+					transZ = -1*standardCellRadius;
+				}
+				if(spreadingLoc.z > fieldLoc.z){
+					transZ = standardCellRadius;
+				}
+				if(spreadingLoc.y < fieldLoc.y){
+					transY = -1*standardCellRadius;
+				}
+				if(spreadingLoc.y > fieldLoc.y){
+					transY = standardCellRadius;
+				}
+				if((spreadingLoc.y > fieldLoc.y && spreadingLoc.z > fieldLoc.z)
+						|| (spreadingLoc.y < fieldLoc.y && spreadingLoc.z < fieldLoc.z)){
+					rotX=-1*45;
+				}
+				if((spreadingLoc.y < fieldLoc.y && spreadingLoc.z > fieldLoc.z)
+						|| (spreadingLoc.y > fieldLoc.y && spreadingLoc.z < fieldLoc.z)){
+					rotX=45;
+				}				
+			}
+			else if(fieldLoc.x!=spreadingLoc.x && fieldLoc.y == spreadingLoc.y && fieldLoc.z != spreadingLoc.z){
+				scaleX=2d*Math.sqrt(2);
+				if(spreadingLoc.z < fieldLoc.z){
+					transZ = -1*standardCellRadius;
+				}
+				if(spreadingLoc.z > fieldLoc.z){
+					transZ = standardCellRadius;
+				}
+				if(spreadingLoc.x < fieldLoc.x){
+					transX = -1*standardCellRadius;
+				}
+				if(spreadingLoc.x > fieldLoc.x){
+					transX = standardCellRadius;
+				}
+				if((spreadingLoc.x > fieldLoc.x && spreadingLoc.z > fieldLoc.z)
+						|| (spreadingLoc.x < fieldLoc.x && spreadingLoc.z < fieldLoc.z)){
+					rotY=-1*45;
+				}
+				if((spreadingLoc.x < fieldLoc.x && spreadingLoc.z > fieldLoc.z)
+						|| (spreadingLoc.x > fieldLoc.x && spreadingLoc.z < fieldLoc.z)){
+					rotY=45;
+				}				
+			}
+			else if(fieldLoc.x!=spreadingLoc.x && fieldLoc.y != spreadingLoc.y && fieldLoc.z == spreadingLoc.z){
+				scaleY=2d*Math.sqrt(2);
+				if(spreadingLoc.y < fieldLoc.y){
+					transY = -1*standardCellRadius;
+				}
+				if(spreadingLoc.y > fieldLoc.y){
+					transY = standardCellRadius;
+				}				
+				if(spreadingLoc.x < fieldLoc.x){
+					transX = -1*standardCellRadius;
+				}
+				if(spreadingLoc.x > fieldLoc.x){
+					transX = standardCellRadius;
+				}
+				if((spreadingLoc.x > fieldLoc.x && spreadingLoc.y > fieldLoc.y)
+						|| (spreadingLoc.x < fieldLoc.x && spreadingLoc.y < fieldLoc.y)){
+					rotZ=-1*45;
+				}
+				if((spreadingLoc.x < fieldLoc.x && spreadingLoc.y > fieldLoc.y)
+						|| (spreadingLoc.x > fieldLoc.x && spreadingLoc.y < fieldLoc.y)){
+					rotZ=45;
+				}				
+			}
+			else if(fieldLoc.x!=spreadingLoc.x && fieldLoc.y != spreadingLoc.y && fieldLoc.z != spreadingLoc.z){
+				scaleX=2d*Math.sqrt(3);
+				if(spreadingLoc.z < fieldLoc.z){
+					transZ = -1*standardCellRadius;
+				}
+				if(spreadingLoc.z > fieldLoc.z){
+					transZ = standardCellRadius;
+				}
+				if(spreadingLoc.y < fieldLoc.y){
+					transY = -1*standardCellRadius;
+				}
+				if(spreadingLoc.y > fieldLoc.y){
+					transY = standardCellRadius;
+				}				
+				if(spreadingLoc.x < fieldLoc.x){
+					transX = -1*standardCellRadius;
+				}
+				if(spreadingLoc.x > fieldLoc.x){
+					transX = standardCellRadius;
+				}
+				if((spreadingLoc.x < fieldLoc.x && spreadingLoc.y > fieldLoc.y && spreadingLoc.z > fieldLoc.z)
+						|| (spreadingLoc.x > fieldLoc.x && spreadingLoc.y < fieldLoc.y && spreadingLoc.z < fieldLoc.z)){
+					rotY=45;
+					rotZ=-1*45;
+				}
+				if((spreadingLoc.x < fieldLoc.x && spreadingLoc.y > fieldLoc.y && spreadingLoc.z < fieldLoc.z)
+						|| (spreadingLoc.x > fieldLoc.x && spreadingLoc.y < fieldLoc.y && spreadingLoc.z > fieldLoc.z)){
+					rotY=-1*45;
+					rotZ=-1*45;				
+				}
+				if((spreadingLoc.x > fieldLoc.x && spreadingLoc.y > fieldLoc.y && spreadingLoc.z < fieldLoc.z)
+						|| (spreadingLoc.x < fieldLoc.x && spreadingLoc.y < fieldLoc.y && spreadingLoc.z > fieldLoc.z)){
+					rotY=45;
+					rotZ=45;
+				}
+				if((spreadingLoc.x > fieldLoc.x && spreadingLoc.y > fieldLoc.y && spreadingLoc.z > fieldLoc.z)
+						|| (spreadingLoc.x < fieldLoc.x && spreadingLoc.y < fieldLoc.y && spreadingLoc.z < fieldLoc.z)){
+					rotY=-1*45;
+					rotZ=45;
+				}				
+			}		
+			
+			Transform3D translationTrans = new Transform3D();	
+			translationTrans.setTranslation(new Vector3d(transX, transY, transZ));
+			Transform3D scaleTrans = new Transform3D();
+			scaleTrans.setScale(new Vector3d(scaleX,scaleY,scaleZ));
+	   
+			Transform3D rotationTrans1 = new Transform3D();
+			rotationTrans1.rotX(Math.toRadians(rotX));
+			Transform3D rotationTrans2 = new Transform3D();
+			rotationTrans2.rotY(Math.toRadians(rotY));
+			Transform3D rotationTrans3 = new Transform3D();
+			rotationTrans3.rotZ(Math.toRadians(rotZ));			
+			
+			mainTrans.mul(scaleTrans, mainTrans);
+			mainTrans.mul(rotationTrans1, mainTrans);
+			mainTrans.mul(rotationTrans2, mainTrans);
+			mainTrans.mul(rotationTrans3, mainTrans);
+			mainTrans.mul(translationTrans, mainTrans);   
+		}
+	}
 
 }

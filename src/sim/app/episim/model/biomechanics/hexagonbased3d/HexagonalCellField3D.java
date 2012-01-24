@@ -47,7 +47,7 @@ public class HexagonalCellField3D{
 	
 	public void clear(){
 		objectGridCellField.clear();
-		objectGridCellField.clear();
+		sparseGridCellField.clear();
 	}
 	
 	public Bag getNeighborsMaxDistance(int x, int y, int z, int dist, boolean toroidal, Bag result, IntBag xPos, IntBag yPos, IntBag zPos){

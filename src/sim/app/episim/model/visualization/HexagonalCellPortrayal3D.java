@@ -60,7 +60,7 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	public HexagonalCellPortrayal3D()
    {
 		//this(getCellAppearanceForColor(new Color(230, 130, 170),new Color(255,175,205), new Color(220,0,0)),true,false,scale,divisions);
-		this(getCellAppearanceForColor(new Color(255,180,180)),true,false);
+		this(getCellAppearanceForColor(new Color(255,160,160)),true,false);
    }
 	
 	public HexagonalCellPortrayal3D(Appearance appearance, boolean generateNormals, boolean generateTextureCoordinates)
@@ -187,9 +187,9 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
       int g = c.getGreen();
       int b = c.getBlue();
       int alpha = c.getAlpha();
-      r = r == 0 ? 100 : r;
-      g = g == 0 ? 100 : g;
-      b = b == 0 ? 100 : b;
+      r = r == 0 ? 75 : r;
+      g = g == 0 ? 75 : g;
+      b = b == 0 ? 75 : b;
 
       /* From 2D group:
        * 1. black.brighter() should return grey

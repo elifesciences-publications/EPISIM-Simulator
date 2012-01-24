@@ -57,7 +57,11 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	   for(int z = 0; z<objects.numObjs; z++)
 	   {
 	   	 tmpLocalT = new Transform3D();
-	   	 setCellTranslation(objects.objs[z], tmpLocalT);
+	   	 if(objects.objs[z] instanceof UniversalCell){
+	   		 HexagonBased3DMechanicalModel mechModel = ((HexagonBased3DMechanicalModel) ((UniversalCell)objects.objs[z]).getEpisimBioMechanicalModelObject());
+	   		 mechModel.addSpreadingCellRotationAndTranslation(tmpLocalT);
+	   		 mechModel.addCellTranslation(tmpLocalT);
+	   	 }
 	       globalTG.addChild(wrapModelForNewObject(objects.objs[z], tmpLocalT));                     
 	   }
 	   
@@ -109,7 +113,11 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
             p3d.setCurrentFieldPortrayal(this);
             TransformGroup localTG2 = p3d.getModel(fieldObj, localTG);
             tmpLocalT = new Transform3D();
-            setCellTranslation(fieldObj, tmpLocalT);
+            if(fieldObj instanceof UniversalCell){
+            	HexagonBased3DMechanicalModel mechModel = ((HexagonBased3DMechanicalModel) ((UniversalCell)fieldObj).getEpisimBioMechanicalModelObject());
+            	mechModel.addSpreadingCellRotationAndTranslation(tmpLocalT);
+            	mechModel.addCellTranslation(tmpLocalT);
+            }
            
            
             localTG2.setTransform(tmpLocalT);
@@ -147,7 +155,12 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	        {
 	            Object fieldObj = newObjs.next();
 	            tmpLocalT = new Transform3D();
-	            setCellTranslation(fieldObj, tmpLocalT);
+	            if(fieldObj instanceof UniversalCell){
+	            	
+	            	HexagonBased3DMechanicalModel mechModel = ((HexagonBased3DMechanicalModel) ((UniversalCell)fieldObj).getEpisimBioMechanicalModelObject());
+	            	mechModel.addSpreadingCellRotationAndTranslation(tmpLocalT);
+	            	mechModel.addCellTranslation(tmpLocalT);
+	            }
 	            
 	            BranchGroup localBG = wrapModelForNewObject(fieldObj, tmpLocalT);                     
 	            globalTG.addChild(localBG);
@@ -155,15 +168,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
       }
    }
 	 
-	private void setCellTranslation(Object fieldObject,  Transform3D trans){		
-		if(fieldObject instanceof UniversalCell){
-			UniversalCell cell = (UniversalCell) fieldObject;
-			Int3D location = ((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).getFieldLocation();
-      	trans.setTranslation(new Vector3f((float)(standardCellRadius + (2f*location.x*standardCellRadius)),
-  	      		 (float)(standardCellRadius + (2f*location.y*standardCellRadius)),
-  	      		 (float)(standardCellRadius + (2f*location.z*standardCellRadius))));
-      }         
-	}
+	
 	 
 	
 	public String getPortrayalName(){

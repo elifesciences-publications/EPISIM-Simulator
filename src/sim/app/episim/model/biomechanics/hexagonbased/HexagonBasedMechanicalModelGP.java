@@ -20,7 +20,7 @@ public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGl
 	private double height_mikron = number_of_rows*2d*inner_hexagonal_radius;
 	private double width_mikron = celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
 	
-	private double numberOfPixelsPerMicrometer = 0.1;
+	private double numberOfPixelsPerMicrometer = 1;
 	
 	public static final double initialPositionWoundEdge_Mikron = celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
 		//celldiameter_mikron + (number_of_initially_occupied_columns-1d)*1.5*outer_hexagonal_radius;

@@ -320,7 +320,7 @@ public class XmlObject<T> {
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);
 
-					} else {
+					} else if(subXmlObjects.get(methName) == null) {
 						XmlPrimitive xmlObject = new XmlPrimitive(node);
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);

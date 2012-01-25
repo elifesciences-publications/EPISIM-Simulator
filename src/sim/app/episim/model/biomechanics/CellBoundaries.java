@@ -7,10 +7,12 @@ import javax.media.j3d.Bounds;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+import sim.app.episim.model.biomechanics.hexagonbased3d.Ellipsoid;
+
 
 public class CellBoundaries {
 	private Shape shape;
-	private Bounds bounds;
+	private Ellipsoid ellipsoid;
 	
 	private Vector3d minVector;
 	private Vector3d maxVector;
@@ -19,8 +21,8 @@ public class CellBoundaries {
 		this.shape = shape;
 	}
 	
-	public CellBoundaries(Bounds bounds, Vector3d minVector, Vector3d maxVector){
-		this.bounds = bounds;
+	public CellBoundaries(Ellipsoid ellipsoid, Vector3d minVector, Vector3d maxVector){
+		this.ellipsoid = ellipsoid;
 		this.minVector = minVector;
 		this.maxVector = maxVector;
 	}
@@ -83,12 +85,9 @@ public class CellBoundaries {
 	}
 	
 	public boolean contains(double x, double y, double z){
-		if(bounds != null){
-			return bounds.intersect(new Point3d(x,y,z));
+		if(ellipsoid != null){
+			return ellipsoid.contains(x, y, z);
 		}
 		return false;
 	}
-	
-	
-
 }

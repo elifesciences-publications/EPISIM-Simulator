@@ -18,7 +18,7 @@ public interface EpisimBiomechanicalModel<T, I> {
 	EpisimCellShape<T> getPolygonNucleus();
 	EpisimCellShape<T> getPolygonNucleus(EpisimDrawInfo<I> info);
 	@NoExport
-	CellBoundaries getCellBoundariesInMikron();
+	CellBoundaries getCellBoundariesInMikron(double sizeDelta);
 	void newSimStep(long simStepNumber);
 	double getX();
 	double getY();

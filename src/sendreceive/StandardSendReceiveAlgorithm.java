@@ -212,7 +212,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    		DoubleBag fieldXPos = new DoubleBag();
    		DoubleBag fieldYPos = new DoubleBag();
    	//	frame.paintShape(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron());
-   		double remainingCapacity = diffField.getTotalLocalFieldRemainingCapacity(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(), fieldXPos, fieldYPos);
+   		double remainingCapacity = diffField.getTotalLocalFieldRemainingCapacity(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0), fieldXPos, fieldYPos);
    	
    		if(remainingCapacity < amountPossible) amountPossible = remainingCapacity;
    		double amountToBeSent = amount < amountPossible ? amount : amountPossible;
@@ -253,7 +253,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    		
    		DoubleBag fieldXPos = new DoubleBag();
    		DoubleBag fieldYPos = new DoubleBag();
-   		double freeFieldConcentration = diffField.getTotalLocalFreeFieldConcentration(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(), fieldXPos, fieldYPos);
+   		double freeFieldConcentration = diffField.getTotalLocalFreeFieldConcentration(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0), fieldXPos, fieldYPos);
    	
    		if(freeFieldConcentration < amountPossible) amountPossible = freeFieldConcentration;
    		double amountToBeReceived = amount < amountPossible ? amount : amountPossible;
@@ -295,7 +295,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    		DoubleBag fieldYPos = new DoubleBag();
    		DoubleBag fieldZPos = new DoubleBag();
    	
-   		double remainingCapacity = diffField.getTotalLocalFieldRemainingCapacity(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(), fieldXPos, fieldYPos, fieldZPos);
+   		double remainingCapacity = diffField.getTotalLocalFieldRemainingCapacity(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(diffField.getFieldConfiguration().getLatticeSiteSizeInMikron()), fieldXPos, fieldYPos, fieldZPos);
    	
    		if(remainingCapacity < amountPossible) amountPossible = remainingCapacity;
    		double amountToBeSent = amount < amountPossible ? amount : amountPossible;
@@ -338,7 +338,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    		DoubleBag fieldXPos = new DoubleBag();
    		DoubleBag fieldYPos = new DoubleBag();
    		DoubleBag fieldZPos = new DoubleBag();
-   		double freeFieldConcentration = diffField.getTotalLocalFreeFieldConcentration(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(), fieldXPos, fieldYPos, fieldZPos);
+   		double freeFieldConcentration = diffField.getTotalLocalFreeFieldConcentration(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(diffField.getFieldConfiguration().getLatticeSiteSizeInMikron()), fieldXPos, fieldYPos, fieldZPos);
    	
    		if(freeFieldConcentration < amountPossible) amountPossible = freeFieldConcentration;
    		double amountToBeReceived = amount < amountPossible ? amount : amountPossible;

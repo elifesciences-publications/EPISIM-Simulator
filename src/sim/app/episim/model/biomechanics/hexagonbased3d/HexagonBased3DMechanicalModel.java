@@ -255,9 +255,9 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 			double locX = (double) location.x;
 			double locY = (double) location.y;
 			double locZ = (double) location.z;
-			x = HexagonBasedMechanicalModelGP.outer_hexagonal_radius + (locX)*(2d*HexagonBasedMechanicalModelGP.outer_hexagonal_radius);
-			y = HexagonBasedMechanicalModelGP.outer_hexagonal_radius + (locY)*(2d*HexagonBasedMechanicalModelGP.outer_hexagonal_radius);
-			z = HexagonBasedMechanicalModelGP.outer_hexagonal_radius + (locZ)*(2d*HexagonBasedMechanicalModelGP.outer_hexagonal_radius);
+			x = HexagonBased3DMechanicalModelGP.outer_hexagonal_radius + (locX)*(2d*HexagonBased3DMechanicalModelGP.outer_hexagonal_radius);
+			y = HexagonBased3DMechanicalModelGP.outer_hexagonal_radius + (locY)*(2d*HexagonBased3DMechanicalModelGP.outer_hexagonal_radius);
+			z = HexagonBased3DMechanicalModelGP.outer_hexagonal_radius + (locZ)*(2d*HexagonBased3DMechanicalModelGP.outer_hexagonal_radius);
 			
 		}
 		return new Double3D(x, y, z);
@@ -294,7 +294,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 					double[] concentrations = new double[spreadingLocationIndices.size()];
 					for(int i = 0; i < spreadingLocationIndices.size();i++){
 						Double3D locInMikron = getLocationInMikron(new Int3D(xPos.get(spreadingLocationIndices.get(i)), yPos.get(spreadingLocationIndices.get(i)), zPos.get(spreadingLocationIndices.get(i))));
-						concentrations[i] = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(locInMikron.x, locInMikron.y, locInMikron.z));
+						concentrations[i] = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(locInMikron.x, locInMikron.y, locInMikron.z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
 					}
 					int choosenIndex = getSpreadingLocationIndexNumberBasedOnNeighbouringConcentrations(ecDiffField, concentrations);
 					if(choosenIndex >= 0) return spreadingLocationIndices.get(choosenIndex);
@@ -309,7 +309,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 																																				  ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 																																				  : ecDiffField.getMaxConcentrationInField();
 		final double lambda = globalParameters.getLambdaChem();
-		double localConcentration = ecDiffField.getTotalConcentrationInArea(getCellBoundariesInMikron());
+		double localConcentration = ecDiffField.getTotalConcentrationInArea(getCellBoundariesInMikron(ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
 		double[] normalizedConcentrations = new double[concentrations.length];
 		for(int i = 0; i < concentrations.length; i++){
 			double gradient = lambda*(concentrations[i]-localConcentration);
@@ -380,8 +380,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 					double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 					                                                                            ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 					                                                                            : ecDiffField.getMaxConcentrationInField();
-		         double c_fieldPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y, getLocationInMikron().z));
-		         double c_spreadingPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y, getSpreadingLocationInMikron().z));  
+		         double c_fieldPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y, getLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
+		         double c_spreadingPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y, getSpreadingLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));  
 					  
 					normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
 					
@@ -569,7 +569,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
    	
    }
    
-   private CellBoundaries getEmptyLatticeCellBoundary(double xInMikron, double yInMikron, double zInMikron){
+   private CellBoundaries getEmptyLatticeCellBoundary(double xInMikron, double yInMikron, double zInMikron, double sizeDelta){
    	Vector3d minVector = new Vector3d((xInMikron-standardCellRadius),
 													 (yInMikron-standardCellRadius),
 													 (zInMikron-standardCellRadius));
@@ -577,43 +577,15 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
    	Vector3d maxVector = new Vector3d((xInMikron+standardCellRadius),
 				  									 (yInMikron+standardCellRadius),
 				  									 (zInMikron+standardCellRadius));
-   	 BoundingSphere sphere = new BoundingSphere(new Point3d(xInMikron, yInMikron, zInMikron),standardCellRadius);
-	 	 return new CellBoundaries(sphere, minVector, maxVector);
-   }
-   
-   public static void main(String[] args){
-   	double xInMikron=25, yInMikron=25,zInMikron=25;
-   	double standardCellRadius =25;
-   	Vector3d minVector = new Vector3d((xInMikron-standardCellRadius),
-				 (yInMikron-standardCellRadius),
-				 (zInMikron-standardCellRadius));
-
-			Vector3d maxVector = new Vector3d((xInMikron+standardCellRadius),
-								 (yInMikron+standardCellRadius),
-								 (zInMikron+standardCellRadius));
-			BoundingSphere sphere = new BoundingSphere(new Point3d(xInMikron, yInMikron, zInMikron),standardCellRadius);
-			
-		
-			
-			Transform3D transform = new Transform3D();
-			transform.setTranslation(new Vector3d(xInMikron, yInMikron, zInMikron));
-			//sphere.transform(transform);
-		
-			
-			CellBoundaries cellBoundaries= new CellBoundaries(sphere, minVector, maxVector);
-			int points = 0;
-			for(int z = 0; z <= 50; z++){
-				for(int y = 0; y <= 50; y++){
-					for(int x = 0; x <= 50; x++){
-						if(cellBoundaries.contains(x, y, z)) System.out.println("Enthalten: ("+x+", "+y+", "+z+")");
-					}
-				}
-			}
-   }
+   	
+   	 Transform3D trans = new Transform3D();
+   	 trans.setTranslation(new Vector3d(xInMikron, yInMikron, zInMikron));
+	 	 return new CellBoundaries(new Ellipsoid(trans, (standardCellRadius+sizeDelta)), minVector, maxVector);
+   } 
    
    @CannotBeMonitored
    @NoExport
-   public CellBoundaries getCellBoundariesInMikron() {
+   public CellBoundaries getCellBoundariesInMikron(double sizeDelta) {
 	 	  Double3D fieldLocMikron = getLocationInMikron(getFieldLocation());
 	 	  Vector3d minVector= null;
 	 	  Vector3d maxVector= null;
@@ -636,18 +608,11 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	 		 maxVector = new Vector3d((fieldLocMikron.x+standardCellRadius),
 											  (fieldLocMikron.y+standardCellRadius),
 											  (fieldLocMikron.z+standardCellRadius));
-	 	  }
-	 	 BoundingSphere sphere = new BoundingSphere( new Point3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z),standardCellRadius);
-	 			
-	 	
-	 	 
-	 	 Transform3D transform = new Transform3D();
-	 	 transform.setScale(new Vector3d(2,1,1));
-	 	// addSpreadingCellRotationAndTranslation(transform);
-	 //	 addCellTranslation(transform);
-	 
-	 	 sphere.transform(transform);		   	
-	 	 return new CellBoundaries(sphere, new Vector3d(-100,-100,-100), new Vector3d(200,200,200));	   
+	 	  } 	 
+	 	 Transform3D trans = new Transform3D();	 	
+	 	 addSpreadingCellRotationAndTranslation(trans);
+	 	 addCellTranslation(trans);		   	
+	 	 return new CellBoundaries(new Ellipsoid(trans, (standardCellRadius+sizeDelta)), minVector, maxVector);	   
    }
    public Int3D correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(){
       
@@ -655,7 +620,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
    	Int3D loc2 = getSpreadingLocation();
   	 	int x = loc2.x;
   	 	int y = loc2.y;
-  	 	int z = loc2.y;
+  	 	int z = loc2.z;
   	 	if(Math.abs(loc1.x-loc2.x) > 1){
     		 if(loc1.x > loc2.x){
     			 x = cellField.getWidth() - loc2.x;

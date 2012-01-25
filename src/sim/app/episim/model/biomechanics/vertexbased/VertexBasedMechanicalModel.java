@@ -319,9 +319,12 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	   
    }
 
+   /**
+    * Parameter sizeDelta is ignored
+    */
 	@CannotBeMonitored
 	@NoExport
-   public CellBoundaries getCellBoundariesInMikron() {
+   public CellBoundaries getCellBoundariesInMikron(double sizeDelta) {
 	
 	  return new CellBoundaries(getPolygonCell().getCellShape());
    }

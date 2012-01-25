@@ -190,11 +190,11 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		
    		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
    		
-   		double startX = (isToroidalX() ||  (cellBoundaries.getMinXInMikron() >= fieldRes)) ? cellBoundaries.getMinXInMikron() :fieldRes;
-   		double stopX = (isToroidalX() || (cellBoundaries.getMaxXInMikron() <= (getWidthInMikron()-fieldRes)))?cellBoundaries.getMaxXInMikron():(getWidthInMikron()-fieldRes);
+   		double startX = getMinX(cellBoundaries);
+   		double stopX = getMaxX(cellBoundaries);
    		
-   		double startY = (isToroidalY() ||  (cellBoundaries.getMinYInMikron() >= fieldRes)) ? cellBoundaries.getMinYInMikron() :fieldRes;
-   		double stopY = (isToroidalY() || (cellBoundaries.getMaxYInMikron() <= (getHeightInMikron()-fieldRes)))?cellBoundaries.getMaxYInMikron():(getHeightInMikron()-fieldRes);
+   		double startY = getMinY(cellBoundaries);
+   		double stopY = getMaxY(cellBoundaries);
    		
    		for(double y = startY; y <= stopY;){
    			for(double x = startX; x <= stopX;){
@@ -220,11 +220,11 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		
    		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
    		
-   		double startX = (isToroidalX() ||  (cellBoundaries.getMinXInMikron() >= fieldRes)) ? cellBoundaries.getMinXInMikron() :fieldRes;
-   		double stopX = (isToroidalX() || (cellBoundaries.getMaxXInMikron() <= (getWidthInMikron()-fieldRes)))?cellBoundaries.getMaxXInMikron():(getWidthInMikron()-fieldRes);
+   		double startX = getMinX(cellBoundaries);
+   		double stopX = getMaxX(cellBoundaries);
    		
-   		double startY = (isToroidalY() ||  (cellBoundaries.getMinYInMikron() >= fieldRes)) ? cellBoundaries.getMinYInMikron() :fieldRes;
-   		double stopY = (isToroidalY() || (cellBoundaries.getMaxYInMikron() <= (getHeightInMikron()-fieldRes)))?cellBoundaries.getMaxYInMikron():(getHeightInMikron()-fieldRes);
+   		double startY = getMinY(cellBoundaries);
+   		double stopY = getMaxY(cellBoundaries);
    		
    		for(double y = startY; y <= stopY;){
    			for(double x = startX; x <= stopX;){
@@ -252,11 +252,11 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		
    		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
    		
-   		double startX = (isToroidalX() ||  (area.getMinXInMikron() >= fieldRes)) ? area.getMinXInMikron() :fieldRes;
-   		double stopX = (isToroidalX() || (area.getMaxXInMikron() <= (getWidthInMikron()-fieldRes)))?area.getMaxXInMikron():(getWidthInMikron()-fieldRes);
+   		double startX = getMinX(area);
+   		double stopX = getMaxX(area);
    		
-   		double startY = (isToroidalY() ||  (area.getMinYInMikron() >= fieldRes)) ? area.getMinYInMikron() :fieldRes;
-   		double stopY = (isToroidalY() || (area.getMaxYInMikron() <= (getHeightInMikron()-fieldRes)))?area.getMaxYInMikron():(getHeightInMikron()-fieldRes);
+   		double startY = getMinY(area);
+   		double stopY = getMaxY(area);
    		
    		for(double y = startY; y <= stopY;){
    			for(double x = startX; x <= stopX;){
@@ -270,6 +270,24 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		return totalConcentration;
    }
 	
+   private double getMinX(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalX() ||  (boundaries.getMinXInMikron() >= fieldRes)) ? boundaries.getMinXInMikron() :fieldRes;
+   }
+   private double getMaxX(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalX() || (boundaries.getMaxXInMikron() <= (getWidthInMikron()-fieldRes)))?boundaries.getMaxXInMikron():(getWidthInMikron()-fieldRes);
+   }
+   private double getMinY(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalY() ||  (boundaries.getMinYInMikron() >= fieldRes)) ? boundaries.getMinYInMikron() :fieldRes;
+   }
+   private double getMaxY(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalY() || (boundaries.getMaxYInMikron() <= (getHeightInMikron()-fieldRes)))?boundaries.getMaxYInMikron():(getHeightInMikron()-fieldRes);
+   }
+   
+   
    public void setToValue(double value) {	   
 	   extraCellularField.setTo(value);
    }

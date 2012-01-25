@@ -29,7 +29,9 @@ import java.util.prefs.Preferences;
 import javax.media.j3d.Alpha;
 import javax.media.j3d.AmbientLight;
 import javax.media.j3d.BoundingSphere;
+import javax.media.j3d.Bounds;
 import javax.media.j3d.BranchGroup;
+import javax.media.j3d.ModelClip;
 import javax.media.j3d.PointLight;
 import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.RotationInterpolator;
@@ -59,6 +61,7 @@ import javax.swing.event.InternalFrameListener;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
+import javax.vecmath.Vector4d;
 
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
 import com.sun.j3d.utils.universe.SimpleUniverse;
@@ -100,6 +103,25 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	// TODO: IMPORTANT delete class OptionPane in class Display3D otherwise headless mode in computer cluster environment does not work !!!
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	
+	public enum ModelSceneCrossSectionMode{
+		DISABLED("Disabled"),
+		X_Y_PLANE("X-Y-Plane"),
+		X_Z_PLANE("X-Z-Plane"),
+		Y_Z_PLANE("Y-Z-Plane");
+		
+		private String name;
+		ModelSceneCrossSectionMode(String name){
+			this.name = name;
+		
+		}		
+		public String toString(){ return this.name; }
+	}
+	
+	private double modelSceneCrossSectionCoordinateInMikron = -1*TissueController.getInstance().getTissueBorder().getLengthInMikron();
+	
+	private ModelSceneCrossSectionMode modelSceneCrossSectionMode = ModelSceneCrossSectionMode.DISABLED;
+	
+	
 	
 	private EpisimGUIState epiSimulation = null;
 	
@@ -109,7 +131,9 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	private double initialDisplayScale = 1;
 	
 	private double diffusionFieldOpacity = 1;
+	private double modelSceneOpacity = 1;
 	
+	private ModelClip modelClip;
 	
 	
 	public Display3DHack(double width, double height, GUIState simulation) {
@@ -166,7 +190,11 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
       	  optionPane = new OptionPane3D(epiSimulation.getMainGUIComponent(), "3D Options");
         }
       
-	}
+	}	
+	
+   public ModelClip getModelClip() {
+	   return modelClip;
+   }
 	
 	public void stopRenderer(){
 		canvas.stopCapturing();
@@ -382,7 +410,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    // (autoSpinBackground).  This lets us spin the background around with the elements in the universe
    autoSpinBackgroundTransformGroup = new TransformGroup();
    autoSpinBackgroundTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);  // for spin behavior
-
+   
+   modelClip = new ModelClip();
    // ADD THE MODEL
    // Add to the switch each subgraph: all the field portrayals plus the axes.
    portrayalSwitchMask = new BitSet(subgraphCount);
@@ -467,18 +496,30 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    // define attributes -- at this point the optionsPanel has been created so it's okay
    setCullingMode(cullingMode);
    setRasterizationMode(rasterizationMode);
-
+   appendClippingPlanes(bounds);
    // call our hook
    sceneGraphCreated();
 
    // add the universe
    universe.addBranchGraph(root);
-
+   
    // fire it up
    canvas.startRenderer();
    
    //updateSceneGraph(movieMaker != null);  // force a paint into a movie frame if necessary
    }
+	
+	private void appendClippingPlanes(Bounds bounds){
+	
+		modelClip.setInfluencingBounds(bounds);  
+		boolean enables[] = {true, false, false, false, false, false}; 
+		modelClip.setEnables(enables);  
+		modelClip.setPlane(0, new Vector4d(0, 0, 1, -50));
+		//modelClip.addScope(portrayalSwitch);
+		//modelClip.setPlane(1, new Vector4d(0,1,0,-0.1));
+		globalModelTransformGroup.addChild(modelClip);  
+
+	}
 	
 	public void startMovie()
    {
@@ -558,13 +599,21 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    public class OptionPane3D extends JDialog
    {
    	
-   	private JComboBox<DiffusionFieldCrossSectionMode> planeCombo;
-   	private JSlider planeSlider;
-   	private JLabel planeSliderLabel;
-   	private JSlider opacitySlider;
-   	private JLabel opacitySliderLabel;
-   	private int lastPlaneSliderPosition = 0;
-   	private int lastOpacitySliderPosition = 100;
+   	private JComboBox<DiffusionFieldCrossSectionMode> diffFieldPlaneCombo;
+   	private JSlider diffFieldPlaneSlider;
+   	private JLabel diffFieldPlaneSliderLabel;
+   	private JSlider diffFieldOpacitySlider;
+   	private JLabel diffFieldOpacitySliderLabel;
+   	private int lastDiffFieldPlaneSliderPosition = 0;
+   	private int lastDiffFieldOpacitySliderPosition = 100;
+   	
+   	private JComboBox<ModelSceneCrossSectionMode> modelScenePlaneCombo;
+   	private JSlider modelScenePlaneSlider;
+   	private JLabel modelScenePlaneSliderLabel;
+   	private JSlider modelSceneOpacitySlider;
+   	private JLabel modelSceneOpacitySliderLabel;
+   	private int lastModelScenePlaneSliderPosition = 0;
+   	private int lastModelSceneOpacitySliderPosition = 100;
    OptionPane3D(Component parent, String label)
        {
        super((JFrame)parent, label, false);
@@ -733,34 +782,34 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
       	 JPanel mainPanel = new JPanel(new BorderLayout(10,10));
 	       mainPanel.setBorder(new javax.swing.border.TitledBorder("Diffusion Field Cross-Section Plane"));
 	       JPanel planeComboPanel = new JPanel(new BorderLayout(10,10));
-	       JLabel comboBoxLabel = new JLabel(OptionPane3D.CROSSSECTION_PLANE);
+	       JLabel comboBoxLabel = new JLabel(OptionPane3D.DF_CROSSSECTION_PLANE);
 	       planeComboPanel.add(comboBoxLabel, BorderLayout.WEST);
-	       planeCombo = new JComboBox<DiffusionFieldCrossSectionMode>(ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode.values());
-	       planeCombo.setSelectedIndex(0);
+	       diffFieldPlaneCombo = new JComboBox<DiffusionFieldCrossSectionMode>(ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode.values());
+	       diffFieldPlaneCombo.setSelectedIndex(0);
 	       
-	       planeCombo.addItemListener(new ItemListener(){			
+	       diffFieldPlaneCombo.addItemListener(new ItemListener(){			
 				public void itemStateChanged(ItemEvent e) {
 					if(e.getStateChange() ==ItemEvent.SELECTED){
-						ModelController.getInstance().getExtraCellularDiffusionController().setSelectedDiffusionFieldCrossSectionMode((DiffusionFieldCrossSectionMode)planeCombo.getSelectedItem());
+						ModelController.getInstance().getExtraCellularDiffusionController().setSelectedDiffusionFieldCrossSectionMode((DiffusionFieldCrossSectionMode)diffFieldPlaneCombo.getSelectedItem());
 					
 						updateSceneGraph(true);
 					}
 					
 				}});
-	       planeComboPanel.add(planeCombo, BorderLayout.CENTER);
+	       planeComboPanel.add(diffFieldPlaneCombo, BorderLayout.CENTER);
 	      
 	       JPanel planeSilderPanel = new JPanel(new BorderLayout(10,10));
-	       planeSlider = new JSlider(JSlider.HORIZONTAL,0,100,0);
-	       planeSlider.setMajorTickSpacing(1);
-	       planeSlider.setMinorTickSpacing(1);      
-	       planeSlider.setPaintLabels(false);       
-	       planeSliderLabel = new JLabel(planeSlider.getValue()+ " µm");       
-	       planeSlider.addChangeListener(new ChangeListener(){
+	       diffFieldPlaneSlider = new JSlider(JSlider.HORIZONTAL,0,100,0);
+	       diffFieldPlaneSlider.setMajorTickSpacing(1);
+	       diffFieldPlaneSlider.setMinorTickSpacing(1);      
+	       diffFieldPlaneSlider.setPaintLabels(false);       
+	       diffFieldPlaneSliderLabel = new JLabel(diffFieldPlaneSlider.getValue()+ " µm");       
+	       diffFieldPlaneSlider.addChangeListener(new ChangeListener(){
 				public void stateChanged(ChangeEvent e) {
-					if(lastPlaneSliderPosition != planeSlider.getValue()){
-						lastPlaneSliderPosition = planeSlider.getValue();
-						double fact =  ((double) planeSlider.getValue())/100d;
-						DiffusionFieldCrossSectionMode selectedComboItem = (DiffusionFieldCrossSectionMode) planeCombo.getSelectedItem();
+					if(lastDiffFieldPlaneSliderPosition != diffFieldPlaneSlider.getValue()){
+						lastDiffFieldPlaneSliderPosition = diffFieldPlaneSlider.getValue();
+						double fact =  ((double) diffFieldPlaneSlider.getValue())/100d;
+						DiffusionFieldCrossSectionMode selectedComboItem = (DiffusionFieldCrossSectionMode) diffFieldPlaneCombo.getSelectedItem();
 						double result = 0;
 						if(selectedComboItem == DiffusionFieldCrossSectionMode.X_Y_PLANE){
 							double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
@@ -776,7 +825,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 						}
 						ModelController.getInstance().getExtraCellularDiffusionController().setDiffusionFieldCrossSectionCoordinate(result);
 					
-						planeSliderLabel.setText(result + " µm");
+						diffFieldPlaneSliderLabel.setText(result + " µm");
 						 SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
 						
 					}
@@ -784,32 +833,32 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 					
 				}});
 	       planeSilderPanel.add(new JLabel("Position on Axis: "), BorderLayout.WEST);
-	       planeSilderPanel.add(planeSlider, BorderLayout.CENTER);
-	       planeSilderPanel.add(planeSliderLabel, BorderLayout.EAST);
+	       planeSilderPanel.add(diffFieldPlaneSlider, BorderLayout.CENTER);
+	       planeSilderPanel.add(diffFieldPlaneSliderLabel, BorderLayout.EAST);
 	       JPanel opacitySilderPanel = null;
 		  if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_3DVISUALIZATION) == null
 							|| !EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_3DVISUALIZATION).toLowerCase().equals(EpisimProperties.SIMULATOR_DF_3DVISUALIZATION_BLOCK_MODE)){ 
 		       opacitySilderPanel = new JPanel(new BorderLayout(10,10));
-		       opacitySlider = new JSlider(JSlider.HORIZONTAL,0,100,100);
-		       opacitySlider.setMajorTickSpacing(1);
-		       opacitySlider.setMinorTickSpacing(1);      
-		       opacitySlider.setPaintLabels(false);       
-		       opacitySliderLabel = new JLabel(opacitySlider.getValue()+ "%");       
-		       opacitySlider.addChangeListener(new ChangeListener(){
+		       diffFieldOpacitySlider = new JSlider(JSlider.HORIZONTAL,0,100,100);
+		       diffFieldOpacitySlider.setMajorTickSpacing(1);
+		       diffFieldOpacitySlider.setMinorTickSpacing(1);      
+		       diffFieldOpacitySlider.setPaintLabels(false);       
+		       diffFieldOpacitySliderLabel = new JLabel(diffFieldOpacitySlider.getValue()+ "%");       
+		       diffFieldOpacitySlider.addChangeListener(new ChangeListener(){
 					public void stateChanged(ChangeEvent e) {
-						if(lastOpacitySliderPosition != opacitySlider.getValue()){
-							lastOpacitySliderPosition = opacitySlider.getValue();
-							diffusionFieldOpacity= ((double) opacitySlider.getValue())/100d;
+						if(lastDiffFieldOpacitySliderPosition != diffFieldOpacitySlider.getValue()){
+							lastDiffFieldOpacitySliderPosition = diffFieldOpacitySlider.getValue();
+							diffusionFieldOpacity= ((double) diffFieldOpacitySlider.getValue())/100d;
 							
-							opacitySliderLabel.setText(opacitySlider.getValue() + "%");
+							diffFieldOpacitySliderLabel.setText(diffFieldOpacitySlider.getValue() + "%");
 							 SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(false);}});
 						}
 					
 						
 					}});
 		       opacitySilderPanel.add(new JLabel("Diffusion Field Opacity: "), BorderLayout.WEST);
-		       opacitySilderPanel.add(opacitySlider, BorderLayout.CENTER);
-		       opacitySilderPanel.add(opacitySliderLabel, BorderLayout.EAST);
+		       opacitySilderPanel.add(diffFieldOpacitySlider, BorderLayout.CENTER);
+		       opacitySilderPanel.add(diffFieldOpacitySliderLabel, BorderLayout.EAST);
 		   }
 	       
 	       JPanel gridPanel = new JPanel(new GridLayout(opacitySilderPanel != null ? 3: 2,1,10,10));
@@ -818,6 +867,100 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       if(opacitySilderPanel != null)gridPanel.add(opacitySilderPanel);
 	       mainPanel.add(gridPanel, BorderLayout.NORTH);       
 	       diffCrossectionPanel.add(mainPanel);
+	       
+	       
+	       Box modelSceneCrossectionPanel = null;
+	       
+	       modelSceneCrossectionPanel = new Box(BoxLayout.Y_AXIS);
+      	 JPanel modelSceneMainPanel = new JPanel(new BorderLayout(10,10));
+      	 modelSceneMainPanel.setBorder(new javax.swing.border.TitledBorder("Model View"));
+	       JPanel modelScenePlaneComboPanel = new JPanel(new BorderLayout(10,10));
+	       JLabel modelSceneComboBoxLabel = new JLabel(OptionPane3D.MODEL_SCENE_CROSSSECTION_PLANE);
+	       modelScenePlaneComboPanel.add(modelSceneComboBoxLabel, BorderLayout.WEST);
+	       modelScenePlaneCombo = new JComboBox<ModelSceneCrossSectionMode>(ModelSceneCrossSectionMode.values());
+	       modelScenePlaneCombo.setSelectedIndex(0);
+	       
+	       modelScenePlaneCombo.addItemListener(new ItemListener(){			
+				public void itemStateChanged(ItemEvent e) {
+					if(e.getStateChange() ==ItemEvent.SELECTED){
+						modelSceneCrossSectionMode = (ModelSceneCrossSectionMode)modelScenePlaneCombo.getSelectedItem();
+					
+						updateSceneGraph(true);
+					}
+					
+				}});
+	       modelScenePlaneComboPanel.add(modelScenePlaneCombo, BorderLayout.CENTER);
+	      
+	       JPanel modelScenePlaneSilderPanel = new JPanel(new BorderLayout(10,10));
+	       modelScenePlaneSlider = new JSlider(JSlider.HORIZONTAL,0,100,0);
+	       modelScenePlaneSlider.setMajorTickSpacing(1);
+	       modelScenePlaneSlider.setMinorTickSpacing(1);      
+	       modelScenePlaneSlider.setPaintLabels(false);       
+	       modelScenePlaneSliderLabel = new JLabel(modelScenePlaneSlider.getValue()+ " µm");       
+	       modelScenePlaneSlider.addChangeListener(new ChangeListener(){
+				public void stateChanged(ChangeEvent e) {
+					if(lastModelScenePlaneSliderPosition != modelScenePlaneSlider.getValue()){
+						lastModelScenePlaneSliderPosition = modelScenePlaneSlider.getValue();
+						double fact =  ((double) modelScenePlaneSlider.getValue())/100d;
+					/*	DiffusionFieldCrossSectionMode selectedComboItem = (DiffusionFieldCrossSectionMode) diffFieldPlaneCombo.getSelectedItem();
+						double result = 0;
+						if(selectedComboItem == DiffusionFieldCrossSectionMode.X_Y_PLANE){
+							double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
+							result =length*fact;
+						}
+						else if(selectedComboItem == DiffusionFieldCrossSectionMode.X_Z_PLANE){
+							double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+							result =height*fact;
+						}
+						else if(selectedComboItem == DiffusionFieldCrossSectionMode.Y_Z_PLANE){
+							double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
+							result =width*fact;
+						}
+						ModelController.getInstance().getExtraCellularDiffusionController().setDiffusionFieldCrossSectionCoordinate(result);*/
+					
+						//modelScenePlaneSliderLabel.setText(result + " µm");
+						 SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
+						
+					}
+				
+					
+				}});
+	       modelScenePlaneSilderPanel.add(new JLabel("Position on Axis: "), BorderLayout.WEST);
+	       modelScenePlaneSilderPanel.add(modelScenePlaneSlider, BorderLayout.CENTER);
+	       modelScenePlaneSilderPanel.add(modelScenePlaneSliderLabel, BorderLayout.EAST);
+	       JPanel modelSceneOpacitySilderPanel = null;
+		 
+	       modelSceneOpacitySilderPanel = new JPanel(new BorderLayout(10,10));
+	       modelSceneOpacitySlider = new JSlider(JSlider.HORIZONTAL,0,100,100);
+	       modelSceneOpacitySlider.setMajorTickSpacing(1);
+	       modelSceneOpacitySlider.setMinorTickSpacing(1);      
+	       modelSceneOpacitySlider.setPaintLabels(false);       
+	       modelSceneOpacitySliderLabel = new JLabel(modelSceneOpacitySlider.getValue()+ "%");       
+	       modelSceneOpacitySlider.addChangeListener(new ChangeListener(){
+					public void stateChanged(ChangeEvent e) {
+						if(lastDiffFieldOpacitySliderPosition != modelSceneOpacitySlider.getValue()){
+							lastDiffFieldOpacitySliderPosition = modelSceneOpacitySlider.getValue();
+							modelSceneOpacity= ((double) modelSceneOpacitySlider.getValue())/100d;
+							
+							modelSceneOpacitySliderLabel.setText(modelSceneOpacitySlider.getValue() + "%");
+							 SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(false);}});
+						}
+					
+						
+					}});
+		       modelSceneOpacitySilderPanel.add(new JLabel("Model View Opacity: "), BorderLayout.WEST);
+		       modelSceneOpacitySilderPanel.add(modelSceneOpacitySlider, BorderLayout.CENTER);
+		       modelSceneOpacitySilderPanel.add(modelSceneOpacitySliderLabel, BorderLayout.EAST);
+		   
+	       
+	       JPanel modelSceneGridPanel = new JPanel(new GridLayout(modelSceneOpacitySilderPanel != null ? 3: 2,1,10,10));
+	       modelSceneGridPanel.add(modelScenePlaneComboPanel);
+	       modelSceneGridPanel.add(modelScenePlaneSilderPanel);
+	       modelSceneGridPanel.add(modelSceneOpacitySilderPanel);
+	       modelSceneMainPanel.add(modelSceneGridPanel, BorderLayout.NORTH);       
+	       modelSceneCrossectionPanel.add(modelSceneMainPanel);
+	       
+	       
        
        Box auxillaryPanel = new Box(BoxLayout.Y_AXIS);
        JPanel box = new JPanel(new FlowLayout(FlowLayout.LEFT, 10,10));
@@ -876,7 +1019,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        Box optionsPanel = new Box(BoxLayout.Y_AXIS);
        optionsPanel.add(outerBehaviorsPanel);
        optionsPanel.add(rotatePanel);
-       if(diffCrossectionPanel != null)optionsPanel.add(diffCrossectionPanel);
+       if(modelSceneCrossectionPanel != null)optionsPanel.add(modelSceneCrossectionPanel);
+       if(diffCrossectionPanel != null)optionsPanel.add(diffCrossectionPanel);       
        optionsPanel.add(auxillaryPanel);      
        optionsPanel.add(polyPanel);
        optionsPanel.add(resetBox);
@@ -924,7 +1068,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    static final String BACKDROP_KEY = "Backdrop";
    static final String DRAW_POLYGONS_KEY = "Draw Polygons";
    static final String DRAW_FACES_KEY = "Draw Faces";
-   static final String CROSSSECTION_PLANE="DF Cross-Section-Mode";        
+   static final String DF_CROSSSECTION_PLANE="DF Cross-Section-Mode";  
+   static final String MODEL_SCENE_CROSSSECTION_PLANE="Model View Cross-Section-Mode";
   
    }
 

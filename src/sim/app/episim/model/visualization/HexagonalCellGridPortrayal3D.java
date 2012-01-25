@@ -64,7 +64,12 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	   	 }
 	       globalTG.addChild(wrapModelForNewObject(objects.objs[z], tmpLocalT));                     
 	   }
-	   
+	   if(getCurrentDisplay() instanceof Display3DHack){
+	   	Display3DHack disp = (Display3DHack) getCurrentDisplay();
+	   	if(disp.getModelClip() != null){
+	   		disp.getModelClip().addScope(globalTG);
+	   	}
+	   }
 	   return globalTG;
    }
 	

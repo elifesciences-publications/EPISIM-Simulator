@@ -3,11 +3,15 @@ package sim.app.episim.model.misc;
 import java.util.ArrayList;
 import java.util.List;
 
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ObjectManipulations;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
 public class MiscalleneousGlobalParameters implements java.io.Serializable{
+	
+	
+	
 	private static MiscalleneousGlobalParameters instance;
 	
 	private static MiscalleneousGlobalParameters resetinstance;
@@ -24,6 +28,9 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
 	private MiscalleneousGlobalParameters(){
 		
 	}
+	
+	
+   
 	
 	
 	public String getTypeColorName(){

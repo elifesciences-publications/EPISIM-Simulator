@@ -197,14 +197,14 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
    		
    		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
    		
-   		double startX = (isToroidalX() ||  (cellBoundaries.getMinXInMikron() >= fieldRes)) ? cellBoundaries.getMinXInMikron() :fieldRes;
-   		double stopX = (isToroidalX() || (cellBoundaries.getMaxXInMikron() <= (getSizeXInMikron()-fieldRes)))?cellBoundaries.getMaxXInMikron():(getSizeXInMikron()-fieldRes);
+   		double startX = getMinX(cellBoundaries);
+   		double stopX = getMaxX(cellBoundaries);   			
    		
-   		double startY = (isToroidalY() ||  (cellBoundaries.getMinYInMikron() >= fieldRes)) ? cellBoundaries.getMinYInMikron() :fieldRes;
-   		double stopY = (isToroidalY() || (cellBoundaries.getMaxYInMikron() <= (getSizeYInMikron()-fieldRes)))?cellBoundaries.getMaxYInMikron():(getSizeYInMikron()-fieldRes);
+   		double startY = getMinY(cellBoundaries);
+   		double stopY = getMaxY(cellBoundaries);
    		
-   		double startZ = (isToroidalZ() ||  (cellBoundaries.getMinZInMikron() >= fieldRes)) ? cellBoundaries.getMinZInMikron() :fieldRes;
-   		double stopZ = (isToroidalZ() || (cellBoundaries.getMaxZInMikron() <= (getSizeZInMikron()-fieldRes)))?cellBoundaries.getMaxZInMikron():(getSizeZInMikron()-fieldRes);
+   		double startZ = getMinZ(cellBoundaries);
+   		double stopZ = getMaxZ(cellBoundaries);
    		
    		for(double z = startZ; z <= stopZ;){
 	   		for(double y = startY; y <= stopY;){
@@ -234,14 +234,14 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
    		double totalFreeCapacity = 0;
    		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
    		
-   		double startX = (isToroidalX() ||  (cellBoundaries.getMinXInMikron() >= fieldRes)) ? cellBoundaries.getMinXInMikron() :fieldRes;
-   		double stopX = (isToroidalX() || (cellBoundaries.getMaxXInMikron() <= (getSizeXInMikron()-fieldRes)))?cellBoundaries.getMaxXInMikron():(getSizeXInMikron()-fieldRes);
+   		double startX = getMinX(cellBoundaries);
+   		double stopX = getMaxX(cellBoundaries);
    		
-   		double startY = (isToroidalY() ||  (cellBoundaries.getMinYInMikron() >= fieldRes)) ? cellBoundaries.getMinYInMikron() :fieldRes;
-   		double stopY = (isToroidalY() || (cellBoundaries.getMaxYInMikron() <= (getSizeYInMikron()-fieldRes)))?cellBoundaries.getMaxYInMikron():(getSizeYInMikron()-fieldRes);
+   		double startY = getMinY(cellBoundaries);
+   		double stopY = getMaxY(cellBoundaries);
    		
-   		double startZ = (isToroidalZ() ||  (cellBoundaries.getMinZInMikron() >= fieldRes)) ? cellBoundaries.getMinZInMikron() :fieldRes;
-   		double stopZ = (isToroidalZ() || (cellBoundaries.getMaxZInMikron() <= (getSizeZInMikron()-fieldRes)))?cellBoundaries.getMaxZInMikron():(getSizeZInMikron()-fieldRes);
+   		double startZ = getMinZ(cellBoundaries);
+   		double stopZ = getMaxZ(cellBoundaries);
    		
    		for(double z = startZ; z <= stopZ;){
 	   		for(double y = startY; y <= stopY;){
@@ -273,14 +273,15 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
    		
    		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
    		
-   		double startX = (isToroidalX() ||  (area.getMinXInMikron() >= fieldRes)) ? area.getMinXInMikron() :fieldRes;
-   		double stopX = (isToroidalX() || (area.getMaxXInMikron() <= (getSizeXInMikron()-fieldRes)))?area.getMaxXInMikron():(getSizeXInMikron()-fieldRes);
+   		double startX = getMinX(area);
+   		double stopX = getMaxX(area);
    		
-   		double startY = (isToroidalY() ||  (area.getMinYInMikron() >= fieldRes)) ? area.getMinYInMikron() :fieldRes;
-   		double stopY = (isToroidalY() || (area.getMaxYInMikron() <= (getSizeYInMikron()-fieldRes)))?area.getMaxYInMikron():(getSizeYInMikron()-fieldRes);
    		
-   		double startZ = (isToroidalZ() ||  (area.getMinZInMikron() >= fieldRes)) ? area.getMinZInMikron() :fieldRes;
-   		double stopZ = (isToroidalZ() || (area.getMaxZInMikron() <= (getSizeZInMikron()-fieldRes)))?area.getMaxZInMikron():(getSizeZInMikron()-fieldRes);
+   		double startY = getMinY(area);
+   		double stopY = getMaxY(area);
+   		
+   		double startZ = getMinZ(area);
+   		double stopZ = getMaxZ(area);
    		
    		for(double z = startZ; z <= stopZ;){
 	   		for(double y = startY; y <= stopY;){
@@ -297,11 +298,35 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
    		return totalConcentration;
    }
    
+   
+   private double getMinX(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalX() ||  (boundaries.getMinXInMikron() >= fieldRes)) ? (boundaries.getMinXInMikron()-fieldRes) :fieldRes;
+   }
+   private double getMaxX(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalX() || (boundaries.getMaxXInMikron() <= (getSizeXInMikron()-fieldRes)))?(boundaries.getMaxXInMikron()+fieldRes):(getSizeXInMikron()-fieldRes);
+   }
+   private double getMinY(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalY() ||  (boundaries.getMinYInMikron() >= fieldRes)) ? (boundaries.getMinYInMikron()-fieldRes) :fieldRes;
+   }
+   private double getMaxY(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalY() || (boundaries.getMaxYInMikron() <= (getSizeYInMikron()-fieldRes)))?(boundaries.getMaxYInMikron()+fieldRes):(getSizeYInMikron()-fieldRes);
+	}
+   private double getMinZ(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalZ() ||  (boundaries.getMinZInMikron() >= fieldRes)) ? (boundaries.getMinZInMikron()-fieldRes) :fieldRes;
+   }
+   private double getMaxZ(CellBoundaries boundaries){
+   	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+   	return (isToroidalZ() || (boundaries.getMaxZInMikron() <= (getSizeZInMikron()-fieldRes)))?(boundaries.getMaxZInMikron()+fieldRes):(getSizeZInMikron()-fieldRes);
+	} 
+   
    public double getInterval() {
 	   return 1;
-   }
-
-	
+   }	
    public double getSizeXInMikron() {
    
    	return sizeXInMikron;

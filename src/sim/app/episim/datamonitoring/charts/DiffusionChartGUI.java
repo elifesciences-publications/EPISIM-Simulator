@@ -136,10 +136,10 @@ public class DiffusionChartGUI {
 	private Mapper getDataMapper(){
 		Mapper dataMapper= null;
 		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
-			final ExtraCellularDiffusionField2D field2D = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
 			final double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 			dataMapper = new Mapper(){
 				public double f(double x, double y) {
+					ExtraCellularDiffusionField2D field2D = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffFieldConfig.getDiffusionFieldName());
 					y =  height - y;
 					if(y < 0) return 0;					
 					return field2D != null ? field2D.getConcentration(x, y) : 0;

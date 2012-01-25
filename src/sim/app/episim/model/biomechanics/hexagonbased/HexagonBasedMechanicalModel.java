@@ -354,7 +354,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 																																				  ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 																																				  : ecDiffField.getMaxConcentrationInField();
 		final double lambda = globalParameters.getLambdaChem();
-		double localConcentration = ecDiffField.getTotalConcentrationInArea(getCellBoundariesInMikron());
+		double localConcentration = ecDiffField.getTotalConcentrationInArea(getCellBoundariesInMikron(0));
 		double[] normalizedConcentrations = new double[concentrations.length];
 		for(int i = 0; i < concentrations.length; i++){
 			double gradient = lambda*(concentrations[i]-localConcentration);
@@ -765,10 +765,13 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
  		yInMikron-=(height/2d);
    	return new CellBoundaries(new Ellipse2D.Double(xInMikron,yInMikron,height,width));
    }
-
+   
+   /**
+    * Parameter sizeDelta is ignored
+    */
    @CannotBeMonitored
-   @NoExport
-   public CellBoundaries getCellBoundariesInMikron() {
+   @NoExport   
+   public CellBoundaries getCellBoundariesInMikron(double sizeDelta) {
 		Double2D fieldLoc =getLocationInMikron();
     	Double2D spreadingLoc =getSpreadingLocationInMikron();
     	double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();

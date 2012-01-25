@@ -554,8 +554,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    
    
    
-   public double getExtForceX () { return extForce.x; }   // for inspector 
-   public double getExtForceY () { return extForce.y; }   // for inspector
+   public double getExtForceX () { return extForce.x; }  
+   public void setExtForceX (double val) { extForce.x =val; }    
+   public double getExtForceY () { return extForce.y; }
+   public void setExtForceY (double val) { extForce.y =val; } 
    
    
    
@@ -571,8 +573,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	public void setKeratinoWidth(int keratinoWidth) { this.keratinoWidth = keratinoWidth; }
 
 	public Double2D getNewPosition(){ return newLoc; }
+	public void setNewPosition(Double2D loc){ newLoc=loc; }
 
 	public Double2D getOldPosition(){ return oldLoc; }
+	public void setOldPosition(Double2D loc){ oldLoc=loc; }
 
 	public int hitsOtherCell(){ return finalHitResult.numhits; }
 	
@@ -752,9 +756,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    	//not needed	   
    }
 
+   /**
+    * Parameter sizeDelta is ignored
+    */
    @CannotBeMonitored
-   @NoExport
-   public CellBoundaries getCellBoundariesInMikron() {
+   @NoExport  
+   public CellBoundaries getCellBoundariesInMikron(double sizeDelta) {
    	double x = getX();
 		double y = getY();
 		

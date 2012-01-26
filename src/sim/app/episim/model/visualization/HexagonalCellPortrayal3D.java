@@ -10,6 +10,7 @@ import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.Group;
 import javax.media.j3d.Material;
 import javax.media.j3d.Node;
+import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
@@ -29,6 +30,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
+import sim.display3d.Display3DHack;
 import sim.portrayal.LocationWrapper;
 import sim.portrayal3d.SimplePortrayal3D;
 import sim.portrayal3d.simple.SpherePortrayal3D;
@@ -55,19 +57,20 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	
 	
 	private HexagonBased3DMechanicalModelGP globalParameters;
-
+	private PolygonAttributes polygonAttributes;
 	
-	public HexagonalCellPortrayal3D()
+	public HexagonalCellPortrayal3D(PolygonAttributes polygonAttributes)
    {
 		//this(getCellAppearanceForColor(new Color(230, 130, 170),new Color(255,175,205), new Color(220,0,0)),true,false,scale,divisions);
-		this(getCellAppearanceForColor(new Color(255,160,160)),true,false);
+		this(polygonAttributes, true,false);
    }
 	
-	public HexagonalCellPortrayal3D(Appearance appearance, boolean generateNormals, boolean generateTextureCoordinates)
+	public HexagonalCellPortrayal3D(PolygonAttributes polygonAttributes,boolean generateNormals, boolean generateTextureCoordinates)
    {
 		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		standardCellRadius = (float)HexagonBased3DMechanicalModelGP.outer_hexagonal_radius;
-		this.appearance = appearance;
+		standardCellRadius = (float)HexagonBased3DMechanicalModelGP.hexagonal_radius;
+		this.polygonAttributes = polygonAttributes;
+		this.appearance = getCellAppearanceForColor(new Color(255,160,160));
 		    
 		
 		this.sphere = new Sphere(standardCellRadius, (generateNormals ? Primitive.GENERATE_NORMALS : 0) | 
@@ -75,6 +78,7 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
         30, appearance);
 		
 		setShape3DFlags(sphere.getShape(Sphere.BODY));
+		
 		transform = new Transform3D();
 	//	transform.setTranslation(new Vector3f(standardCellRadius,standardCellRadius,standardCellRadius));		 
 		group = sphere;
@@ -83,7 +87,7 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	public TransformGroup getModel(Object obj, TransformGroup j3dModel){
 		if(obj instanceof UniversalCell){
 			UniversalCell universalCell = (UniversalCell) obj;
-			HexagonBased3DMechanicalModel mechModel = (HexagonBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject();
+			
 			if (j3dModel==null)
 		   {
 		       j3dModel = new TransformGroup();
@@ -123,7 +127,7 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 		
 	}
 	
-	private static Appearance getCellAppearanceForColor(Color color){
+	private Appearance getCellAppearanceForColor(Color color){
 		Appearance appearance = new Appearance();
       setAppearanceFlags(appearance);      
       
@@ -136,16 +140,29 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	   Material ma = new Material(darkColor, darkColor, middleColor, brightColor, 120f);
 	   ma.setCapability(Material.ALLOW_COMPONENT_READ);
 	   ma.setCapability(Material.ALLOW_COMPONENT_WRITE);
-	   appearance.setMaterial(ma);	   
-      if (color.getRGBComponents(null)[3] < 1.0)  // partially transparent
-          {
-          TransparencyAttributes tta = new TransparencyAttributes(TransparencyAttributes.BLENDED, 1.0f - color.getRGBComponents(null)[3]); // duh, alpha's backwards
+	  
+	   appearance.setMaterial(ma);	
+	   
+	   float transparencyFactor = 1;
+	   if(getCurrentDisplay() instanceof Display3DHack){
+	   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
+	   }
+	   
+      if (transparencyFactor < 1.0)  // partially transparent
+      {
+          TransparencyAttributes tta = new TransparencyAttributes(TransparencyAttributes.BLENDED, 1.0f - transparencyFactor); 
           tta.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
           tta.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
           appearance.setTransparencyAttributes(tta);
-          }
+      }
+     
+     
+      appearance.setPolygonAttributes(this.polygonAttributes);
       return appearance;
 	}
+	
+	public PolygonAttributes polygonAttributes() { return appearance.getPolygonAttributes(); } // default
+	public void polygonAttributes(PolygonAttributes att) { appearance.setPolygonAttributes(att); }
 	
 	private static Color3f getDarkColor(float[] hsbColor){
 		Color resultingColor = Color.getHSBColor(hsbColor[0],hsbColor[1], hsbColor[2]);
@@ -187,9 +204,9 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
       int g = c.getGreen();
       int b = c.getBlue();
       int alpha = c.getAlpha();
-      r = r == 0 ? 75 : r;
-      g = g == 0 ? 75 : g;
-      b = b == 0 ? 75 : b;
+      r = (r <=75) ? (75+r) : r;
+      g = (g <=75) ? (75+g) : g;
+      b = (b <=75) ? (75+b) : b;
 
       /* From 2D group:
        * 1. black.brighter() should return grey

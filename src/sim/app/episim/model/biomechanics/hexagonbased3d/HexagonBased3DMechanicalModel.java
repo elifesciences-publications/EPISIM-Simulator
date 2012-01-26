@@ -36,6 +36,7 @@ import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
 
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.vertexbased.geom.Line;
 import sim.app.episim.model.controller.ModelController;
 
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
@@ -66,6 +67,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	private HexagonBased3DMechanicalModelGP globalParameters;
 	
 	
+	
 	private double standardCellRadius = 0.5;
 	public HexagonBased3DMechanicalModel(){
 		this(null);
@@ -74,7 +76,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	public HexagonBased3DMechanicalModel(AbstractCell cell){
 		super(cell);
 		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		standardCellRadius = HexagonBased3DMechanicalModelGP.outer_hexagonal_radius;
+		standardCellRadius = HexagonBased3DMechanicalModelGP.hexagonal_radius;
 		if(cellField == null){
 	   	
 	   	int width = (int)HexagonBased3DMechanicalModelGP.number_of_columns;
@@ -255,9 +257,9 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 			double locX = (double) location.x;
 			double locY = (double) location.y;
 			double locZ = (double) location.z;
-			x = HexagonBased3DMechanicalModelGP.outer_hexagonal_radius + (locX)*(2d*HexagonBased3DMechanicalModelGP.outer_hexagonal_radius);
-			y = HexagonBased3DMechanicalModelGP.outer_hexagonal_radius + (locY)*(2d*HexagonBased3DMechanicalModelGP.outer_hexagonal_radius);
-			z = HexagonBased3DMechanicalModelGP.outer_hexagonal_radius + (locZ)*(2d*HexagonBased3DMechanicalModelGP.outer_hexagonal_radius);
+			x = HexagonBased3DMechanicalModelGP.hexagonal_radius + (locX)*(2d*HexagonBased3DMechanicalModelGP.hexagonal_radius);
+			y = HexagonBased3DMechanicalModelGP.hexagonal_radius + (locY)*(2d*HexagonBased3DMechanicalModelGP.hexagonal_radius);
+			z = HexagonBased3DMechanicalModelGP.hexagonal_radius + (locZ)*(2d*HexagonBased3DMechanicalModelGP.hexagonal_radius);
 			
 		}
 		return new Double3D(x, y, z);
@@ -281,7 +283,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   if(!spreadingLocationIndices.isEmpty()){
 		   int spreadingLocationIndex = getRandomSpreadingLocationIndex(spreadingLocationIndices, xPos, yPos, zPos);
 		   this.spreadingLocation = new Int3D(xPos.get(spreadingLocationIndex), yPos.get(spreadingLocationIndex), zPos.get(spreadingLocationIndex));
-		   cellField.setSpreadingLocationOfObject(spreadingLocation, getCell());
+		   cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, getCell());
 	   }
    }
 	
@@ -362,7 +364,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	private void relax(){
 		modelConnector.setIsRelaxing(false);
 		if(spreadingLocation != null){
-			 cellField.setSpreadingLocationOfObject(spreadingLocation, null);
+			 cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
 		}
 		spreadingLocation = null;
 		modelConnector.setIsSpreading(false);
@@ -429,7 +431,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 			}
 			else if(randomNumber >= probabilityA && randomNumber < (probabilityA + probabilityB)){
 					cellField.setFieldLocationOfObject(fieldLocation, getCell());
-					cellField.setSpreadingLocationOfObject(spreadingLocation, null);
+					cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
 					if(!neighbourToPullB.isEmpty()) pullNeighbour(neighbourToPullB.get(0), spreadingLocation);
 					retraction = true;
 			}		
@@ -460,11 +462,51 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   ArrayList<Integer> spreadingLocationIndices = new ArrayList<Integer>();
 	   for(int i = 0; i < neighbouringCellsBag.size(); i++){
 	   	if(neighbouringCellsBag.get(i)== null){
-	   		spreadingLocationIndices.add(i);	   		  		   
+	   		if(!hasIntersectionWithNeighbours(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i)))){
+		   		if(globalParameters.getStickToCellColony()){
+		   			if(hasLocationNeighbouringCells(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i))))spreadingLocationIndices.add(i);
+		   		}
+		   		else spreadingLocationIndices.add(i);
+	   		}	   		
 	   	}
 	   }
 	   return spreadingLocationIndices;
    }
+	
+	private boolean hasIntersectionWithNeighbours(Int3D spreadingLoc){
+		Bag neighbouringCellsBag = new Bag();
+		cellField.getNeighborsMaxDistance(fieldLocation.x, fieldLocation.y, fieldLocation.z, 3, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, new IntBag(), new IntBag(), new IntBag());
+		Double3D fieldLocMikron = getLocationInMikron();
+		Double3D spreadingLocMikron = getLocationInMikron(spreadingLoc);
+		Line3D line= new Line3D(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z), 
+				  new Vector3d(spreadingLocMikron.x, spreadingLocMikron.y, spreadingLocMikron.z));
+		 for(int i = 0; i < neighbouringCellsBag.size(); i++){
+		   	if(neighbouringCellsBag.get(i)!= null && neighbouringCellsBag.get(i) != getCell()){
+		   		AbstractCell cell = (AbstractCell) neighbouringCellsBag.get(i);
+		   		HexagonBased3DMechanicalModel mechModel = (HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+		   		Line3D otherLine = mechModel.getSpreadingLine();
+		   		if(otherLine != null){
+		   			if(line.lineLineIntersect(otherLine, HexagonBased3DMechanicalModelGP.hexagonal_radius*0.5)) return true;
+		   		}
+		   	}
+		 }
+		 return false;
+	}
+	//TODO: Neighbours to pull auf line intersection prüfen
+	private boolean hasLocationNeighbouringCells(Int3D loc){
+		Bag neighbouringCellsBag = new Bag();
+		IntBag xPos = new IntBag();
+		IntBag yPos = new IntBag();
+		IntBag zPos = new IntBag();
+		cellField.getNeighborsMaxDistance(loc.x, loc.y, loc.z, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos, zPos);
+		for(int i = 0; i < neighbouringCellsBag.size(); i++){
+	   	if(neighbouringCellsBag.get(i)!= null && neighbouringCellsBag.get(i)!= getCell()){
+	   		return true;	   		  		   
+	   	}
+	   }
+		return false;
+	}
+	
 	
 	@NoExport
 	public boolean isSpreading(){ return this.spreadingLocation != null; }
@@ -498,14 +540,24 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	}
 	
 	protected void clearCellField() {	   
-   	cellField.clear();
-   
+   	cellField.clear();   
+	}
+	
+	@NoExport
+	public Line3D getSpreadingLine(){
+		if(isSpreading()){
+			Double3D fieldLocMikron = getLocationInMikron();
+			Double3D spreadingLocMikron = getLocationInMikron(spreadingLocation);
+			return new Line3D(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z), 
+					  new Vector3d(spreadingLocMikron.x, spreadingLocMikron.y, spreadingLocMikron.z));
+		}
+		return null;
 	}
 
 	public void removeCellFromCellField() {
 		cellField.setFieldLocationOfObject(fieldLocation, null);
 		if(spreadingLocation != null){
-			cellField.setSpreadingLocationOfObject(spreadingLocation, null);
+			cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
 		}
 	}
 	
@@ -668,24 +720,32 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 			
 			Int3D fieldLoc = getFieldLocation();
 			Int3D spreadingLoc = correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing();
-			
+			final double extensionFactor = 0.8;
 			if(fieldLoc.x==spreadingLoc.x && fieldLoc.y == spreadingLoc.y && fieldLoc.z != spreadingLoc.z){
 				scaleZ=2;
+				scaleX-=(1/scaleZ)*0.5;
+				scaleY-=(1/scaleZ)*0.5;
 				if(spreadingLoc.z < fieldLoc.z) transZ = -1*standardCellRadius;
 				if(spreadingLoc.z > fieldLoc.z) transZ = standardCellRadius;
 			}
 			else if(fieldLoc.x==spreadingLoc.x && fieldLoc.y != spreadingLoc.y && fieldLoc.z == spreadingLoc.z){
 				scaleY=2;
+				scaleX-=(1/scaleY)*0.5;
+				scaleZ-=(1/scaleY)*0.5;
 				if(spreadingLoc.y < fieldLoc.y) transY = -1*standardCellRadius;
 				if(spreadingLoc.y > fieldLoc.y) transY = standardCellRadius;
 			}
 			else if(fieldLoc.x!=spreadingLoc.x && fieldLoc.y == spreadingLoc.y && fieldLoc.z == spreadingLoc.z){
 				scaleX=2;
+				scaleY-=(1/scaleX)*0.5;
+				scaleZ-=(1/scaleX)*0.5;
 				if(spreadingLoc.x < fieldLoc.x) transX = -1*standardCellRadius;
 				if(spreadingLoc.x > fieldLoc.x) transX = standardCellRadius;
 			}
 			else if(fieldLoc.x==spreadingLoc.x && fieldLoc.y != spreadingLoc.y && fieldLoc.z != spreadingLoc.z){
-				scaleZ=Math.sqrt(2)*2d;
+				scaleZ=Math.sqrt(8)*extensionFactor;
+				scaleX-=(1/scaleZ)*0.5;
+				scaleY-=(1/scaleZ)*0.5;
 				if(spreadingLoc.z < fieldLoc.z){
 					transZ = -1*standardCellRadius;
 				}
@@ -708,7 +768,9 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				}				
 			}
 			else if(fieldLoc.x!=spreadingLoc.x && fieldLoc.y == spreadingLoc.y && fieldLoc.z != spreadingLoc.z){
-				scaleX=2d*Math.sqrt(2);
+				scaleX=Math.sqrt(8)*extensionFactor;
+				scaleY-=(1/scaleX)*0.5;
+				scaleZ-=(1/scaleX)*0.5;
 				if(spreadingLoc.z < fieldLoc.z){
 					transZ = -1*standardCellRadius;
 				}
@@ -731,7 +793,9 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				}				
 			}
 			else if(fieldLoc.x!=spreadingLoc.x && fieldLoc.y != spreadingLoc.y && fieldLoc.z == spreadingLoc.z){
-				scaleY=2d*Math.sqrt(2);
+				scaleY=Math.sqrt(8)*extensionFactor;
+				scaleX-=(1/scaleY)*0.5;
+				scaleZ-=(1/scaleY)*0.5;
 				if(spreadingLoc.y < fieldLoc.y){
 					transY = -1*standardCellRadius;
 				}
@@ -754,7 +818,9 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				}				
 			}
 			else if(fieldLoc.x!=spreadingLoc.x && fieldLoc.y != spreadingLoc.y && fieldLoc.z != spreadingLoc.z){
-				scaleX=2d*Math.sqrt(3);
+				scaleX=Math.sqrt(12)*extensionFactor;
+				scaleY-=(1/scaleX)*0.5;
+				scaleZ-=(1/scaleX)*0.5;
 				if(spreadingLoc.z < fieldLoc.z){
 					transZ = -1*standardCellRadius;
 				}
@@ -773,6 +839,9 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				if(spreadingLoc.x > fieldLoc.x){
 					transX = standardCellRadius;
 				}
+				transX*=extensionFactor;
+				transY*=extensionFactor;
+				transZ*=extensionFactor;
 				if((spreadingLoc.x < fieldLoc.x && spreadingLoc.y > fieldLoc.y && spreadingLoc.z > fieldLoc.z)
 						|| (spreadingLoc.x > fieldLoc.x && spreadingLoc.y < fieldLoc.y && spreadingLoc.z < fieldLoc.z)){
 					rotY=45;

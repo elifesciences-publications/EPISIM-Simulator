@@ -14,7 +14,7 @@ import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 
 import sim.util.Double3D;
-import sim.util.Int3D;
+
 
 
 public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModelInitializer {
@@ -33,21 +33,19 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
    protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
    	ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 				
-		int x = (int) (HexagonBased3DMechanicalModelGP.number_of_columns /2);
-		int y = (int) (HexagonBased3DMechanicalModelGP.number_of_rows /2);
-		int z = (int) (HexagonBased3DMechanicalModelGP.number_of_columns /2);
-		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
-		UniversalCell cell = new UniversalCell(null, null);
-		HexagonBased3DMechanicalModel mechModel =((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject());
-		mechModel.setCellLocationInCellField(new Double3D(0, 0, 0));
-		mechModel.setFieldLocation(new Int3D(0,0,0));
-		mechModel.setSpreadingLocation(new Int3D(1,1,1));
-		if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
-		standardCellEnsemble.add(cell);
-	/*	cell = new UniversalCell(null, null);
-		((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
-		standardCellEnsemble.add(cell);*/
-   	
+		int width = (int) (HexagonBased3DMechanicalModelGP.number_of_columns);
+		int height = (int) (HexagonBased3DMechanicalModelGP.number_of_rows);
+		int length= (int) (HexagonBased3DMechanicalModelGP.number_of_columns);
+		for(int y = 0 ;y < height && y < HexagonBased3DMechanicalModelGP.number_of_initially_occupied_layers; y++){
+			for(int z = 0; z < length; z++){
+				for(int x = 0; x < width; x++){
+					UniversalCell cell = new UniversalCell(null, null);
+					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
+				
+					standardCellEnsemble.add(cell);
+				}
+			}
+		}
 		
 		return standardCellEnsemble;
    }

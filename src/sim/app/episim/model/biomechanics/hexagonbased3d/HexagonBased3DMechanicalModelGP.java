@@ -7,15 +7,14 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 
 	public static final double number_of_columns =10;
 	public static final double number_of_rows =10;
-	public static final double number_of_initially_occupied_columns =10;
+	public static final double number_of_initially_occupied_layers =2;
 	private static final double celldiameter_mikron = 50;
-	public static final double inner_hexagonal_radius = ((celldiameter_mikron/2d)/2d)*Math.sqrt(3d);
-	public static final double outer_hexagonal_radius = (celldiameter_mikron/2d);
+	public static final double hexagonal_radius = (celldiameter_mikron/2d);
 	
 	 
 	
-	private double height_mikron = number_of_rows*outer_hexagonal_radius*2d;//number_of_rows*2d*inner_hexagonal_radius;
-	private double width_mikron = number_of_columns*outer_hexagonal_radius*2d;//celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
+	private double height_mikron = number_of_rows*hexagonal_radius*2d;//number_of_rows*2d*inner_hexagonal_radius;
+	private double width_mikron = number_of_columns*hexagonal_radius*2d;//celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
 	private double length_mikron = width_mikron;
 	
 	private double numberOfPixelsPerMicrometer = 0.1;
@@ -23,10 +22,11 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	
 	
 	
-	private double neighborhood_mikron = 2d*inner_hexagonal_radius;
+	private double neighborhood_mikron = 2d*hexagonal_radius;
 		
 	private boolean useContinuousSpace = true;
 	private boolean useCellCellInteractionEnergy = true;
+	private boolean stickToCellColony = true;
 	
 	private double lambdaChem = 1;
 	private boolean chemotaxisEnabled = true;
@@ -100,6 +100,10 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	public void setUseContinuousSpace(boolean useContinuousSpace){
 		this.useContinuousSpace=useContinuousSpace;
 	}
+	
+	public boolean getStickToCellColony(){ return this.stickToCellColony;}
+	
+	public void setStickToCellColony(boolean val){ this.stickToCellColony=val;}
 	
 	public boolean getUseCellCellInteractionEnergy(){
 		return this.useCellCellInteractionEnergy;

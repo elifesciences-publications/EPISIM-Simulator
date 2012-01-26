@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import javax.media.j3d.BranchGroup;
 import javax.media.j3d.Node;
+import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.vecmath.Vector3d;
@@ -34,11 +35,20 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	
 	private float standardCellRadius=0.5f;
 	
+	private final double VISUALIZATIONSCALINGFACTOR = 1.1;
+	private PolygonAttributes polygonAttributes;
 	public HexagonalCellGridPortrayal3D(double scale){
 		super();
-		setPortrayalForAll(new HexagonalCellPortrayal3D());
+		polygonAttributes = new PolygonAttributes();
+		polygonAttributes.setCapability(PolygonAttributes.ALLOW_CULL_FACE_READ);
+		polygonAttributes.setCapability(PolygonAttributes.ALLOW_CULL_FACE_WRITE);
+		polygonAttributes.setCapability(PolygonAttributes.ALLOW_MODE_READ);
+		polygonAttributes.setCapability(PolygonAttributes.ALLOW_MODE_WRITE);
+		polygonAttributes.setPolygonOffsetFactor(1.2f);
+		setPortrayalForAll(new HexagonalCellPortrayal3D(polygonAttributes));
 		
-		standardCellRadius = (float)HexagonBased3DMechanicalModelGP.outer_hexagonal_radius;
+		standardCellRadius = (float)HexagonBased3DMechanicalModelGP.hexagonal_radius;
+		
 	}
 	
 	public TransformGroup createModel()
@@ -60,6 +70,10 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	   	 if(objects.objs[z] instanceof UniversalCell){
 	   		 HexagonBased3DMechanicalModel mechModel = ((HexagonBased3DMechanicalModel) ((UniversalCell)objects.objs[z]).getEpisimBioMechanicalModelObject());
 	   		 mechModel.addSpreadingCellRotationAndTranslation(tmpLocalT);
+	   			Vector3d scales =new Vector3d();
+            	tmpLocalT.getScale(scales);
+            	if(!mechModel.isSpreading())scales.scale(VISUALIZATIONSCALINGFACTOR);
+            	tmpLocalT.setScale(scales);
 	   		 mechModel.addCellTranslation(tmpLocalT);
 	   	 }
 	       globalTG.addChild(wrapModelForNewObject(objects.objs[z], tmpLocalT));                     
@@ -114,13 +128,19 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
                 throw new RuntimeException("Unexpected Portrayal " + p + " for object " + 
                     fieldObj + " -- expecting a SimplePortrayal3D");
             SimplePortrayal3D p3d = (SimplePortrayal3D)p;
-
+            if(p3d instanceof HexagonalCellPortrayal3D){
+            	
+            }
             p3d.setCurrentFieldPortrayal(this);
             TransformGroup localTG2 = p3d.getModel(fieldObj, localTG);
             tmpLocalT = new Transform3D();
             if(fieldObj instanceof UniversalCell){
             	HexagonBased3DMechanicalModel mechModel = ((HexagonBased3DMechanicalModel) ((UniversalCell)fieldObj).getEpisimBioMechanicalModelObject());
             	mechModel.addSpreadingCellRotationAndTranslation(tmpLocalT);
+            	Vector3d scales =new Vector3d();
+            	tmpLocalT.getScale(scales);
+            	if(!mechModel.isSpreading()) scales.scale(VISUALIZATIONSCALINGFACTOR);
+            	tmpLocalT.setScale(scales);
             	mechModel.addCellTranslation(tmpLocalT);
             }
            
@@ -164,6 +184,10 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	            	
 	            	HexagonBased3DMechanicalModel mechModel = ((HexagonBased3DMechanicalModel) ((UniversalCell)fieldObj).getEpisimBioMechanicalModelObject());
 	            	mechModel.addSpreadingCellRotationAndTranslation(tmpLocalT);
+	            	Vector3d scales =new Vector3d();
+	            	tmpLocalT.getScale(scales);
+	            	if(!mechModel.isSpreading())scales.scale(VISUALIZATIONSCALINGFACTOR);
+	            	tmpLocalT.setScale(scales);
 	            	mechModel.addCellTranslation(tmpLocalT);
 	            }
 	            
@@ -173,6 +197,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
       }
    }
 	 
+	 public PolygonAttributes polygonAttributes() { return polygonAttributes; } // default
 	
 	 
 	

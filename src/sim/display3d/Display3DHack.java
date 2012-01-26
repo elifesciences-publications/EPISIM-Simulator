@@ -209,15 +209,17 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    public double getDiffusionFieldOpacity() {
 	   return diffusionFieldOpacity;
    }
+   
+   public double getModelSceneOpacity() {
+	   return modelSceneOpacity;
+   }
 	
    public double getInitialDisplayScale() {
 	   return initialDisplayScale;
    }   
    public void setInitialDisplayScale(double initialDisplayScale) {
    	if(initialDisplayScale > 0)  this.initialDisplayScale = initialDisplayScale;
-   }
-	
-	
+   }	
 	
 	public void setPortrayalVisible(String name, boolean visible){
 		Portrayal3DHolder holder =getPortrayalHolder(name);
@@ -511,10 +513,17 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	
 	private void appendClippingPlanes(Bounds bounds){
 	
+		modelClip.setCapability(ModelClip.ALLOW_PARENT_READ);
+		modelClip.setCapability(ModelClip.ALLOW_ENABLE_READ);
+		modelClip.setCapability(ModelClip.ALLOW_ENABLE_WRITE);
+		modelClip.setCapability(ModelClip.ALLOW_PLANE_READ);
+		modelClip.setCapability(ModelClip.ALLOW_PLANE_WRITE);
 		modelClip.setInfluencingBounds(bounds);  
-		boolean enables[] = {true, false, false, false, false, false}; 
+		boolean enables[] = {false, false, false, false, false, false}; 
 		modelClip.setEnables(enables);  
 		modelClip.setPlane(0, new Vector4d(0, 0, 1, -50));
+		modelClip.setPlane(1, new Vector4d(0, 1, 0, -50));
+		modelClip.setPlane(2, new Vector4d(1, 0, 0, -50));
 		//modelClip.addScope(portrayalSwitch);
 		//modelClip.setPlane(1, new Vector4d(0,1,0,-0.1));
 		globalModelTransformGroup.addChild(modelClip);  
@@ -880,52 +889,94 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       modelScenePlaneCombo = new JComboBox<ModelSceneCrossSectionMode>(ModelSceneCrossSectionMode.values());
 	       modelScenePlaneCombo.setSelectedIndex(0);
 	       
+	       final JLabel modelScenePlaneSliderLabel2 =new JLabel("Position on Axis: ");
+	       
 	       modelScenePlaneCombo.addItemListener(new ItemListener(){			
 				public void itemStateChanged(ItemEvent e) {
 					if(e.getStateChange() ==ItemEvent.SELECTED){
+						ModelSceneCrossSectionMode mode = (ModelSceneCrossSectionMode)modelScenePlaneCombo.getSelectedItem();
+						int modeOrdinal = mode.ordinal();
+						if(mode == ModelSceneCrossSectionMode.DISABLED){
+							modelScenePlaneSlider.setEnabled(false);
+							modelScenePlaneSliderLabel.setEnabled(false);
+							modelScenePlaneSliderLabel2.setEnabled(false);
+							modelClip.setEnables(new boolean[]{false, false, false, false, false, false});
+						}
+						else{
+							modelScenePlaneSlider.setEnabled(true);
+							modelScenePlaneSliderLabel.setEnabled(true);
+							modelScenePlaneSliderLabel2.setEnabled(true);
+							if(modelSceneCrossSectionMode!= ModelSceneCrossSectionMode.DISABLED){
+								modelClip.setEnable(modelSceneCrossSectionMode.ordinal()-1, true);
+							}
+							Vector4d planePosition = new Vector4d();
+							modelClip.getPlane(modeOrdinal-1, planePosition);
+							double result = 0;
+							double fact =  ((double) modelScenePlaneSlider.getValue())/100d;
+							if(mode == ModelSceneCrossSectionMode.X_Y_PLANE){
+								double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
+								result =-1*length*fact;
+							}
+							else if(mode == ModelSceneCrossSectionMode.X_Z_PLANE){
+								double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+								result =-1*height*fact;
+							}
+							else if(mode == ModelSceneCrossSectionMode.Y_Z_PLANE){
+								double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
+								result =-1*width*fact;
+							}
+							planePosition.w =result;
+							modelClip.setPlane(modeOrdinal-1, planePosition);										
+							modelClip.setEnable(modeOrdinal-1, true);
+						}
 						modelSceneCrossSectionMode = (ModelSceneCrossSectionMode)modelScenePlaneCombo.getSelectedItem();
-					
-						updateSceneGraph(true);
+						SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
 					}
 					
 				}});
 	       modelScenePlaneComboPanel.add(modelScenePlaneCombo, BorderLayout.CENTER);
 	      
 	       JPanel modelScenePlaneSilderPanel = new JPanel(new BorderLayout(10,10));
-	       modelScenePlaneSlider = new JSlider(JSlider.HORIZONTAL,0,100,0);
+	       modelScenePlaneSlider = new JSlider(JSlider.HORIZONTAL,0,100,100);
 	       modelScenePlaneSlider.setMajorTickSpacing(1);
 	       modelScenePlaneSlider.setMinorTickSpacing(1);      
-	       modelScenePlaneSlider.setPaintLabels(false);       
-	       modelScenePlaneSliderLabel = new JLabel(modelScenePlaneSlider.getValue()+ " µm");       
+	       modelScenePlaneSlider.setPaintLabels(false);
+	       modelScenePlaneSlider.setEnabled(false);
+	       modelScenePlaneSliderLabel = new JLabel(TissueController.getInstance().getTissueBorder().getLengthInMikron()+ " µm");
+	       modelScenePlaneSliderLabel.setEnabled(false);
+	      
+	       modelScenePlaneSliderLabel2.setEnabled(false);
 	       modelScenePlaneSlider.addChangeListener(new ChangeListener(){
 				public void stateChanged(ChangeEvent e) {
 					if(lastModelScenePlaneSliderPosition != modelScenePlaneSlider.getValue()){
 						lastModelScenePlaneSliderPosition = modelScenePlaneSlider.getValue();
 						double fact =  ((double) modelScenePlaneSlider.getValue())/100d;
-					/*	DiffusionFieldCrossSectionMode selectedComboItem = (DiffusionFieldCrossSectionMode) diffFieldPlaneCombo.getSelectedItem();
+						ModelSceneCrossSectionMode selectedComboItem = (ModelSceneCrossSectionMode) modelScenePlaneCombo.getSelectedItem();
 						double result = 0;
-						if(selectedComboItem == DiffusionFieldCrossSectionMode.X_Y_PLANE){
+						if(selectedComboItem == ModelSceneCrossSectionMode.X_Y_PLANE){
 							double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
-							result =length*fact;
+							result =-1*length*fact;
 						}
-						else if(selectedComboItem == DiffusionFieldCrossSectionMode.X_Z_PLANE){
+						else if(selectedComboItem == ModelSceneCrossSectionMode.X_Z_PLANE){
 							double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
-							result =height*fact;
+							result =-1*height*fact;
 						}
-						else if(selectedComboItem == DiffusionFieldCrossSectionMode.Y_Z_PLANE){
+						else if(selectedComboItem == ModelSceneCrossSectionMode.Y_Z_PLANE){
 							double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
-							result =width*fact;
+							result =-1*width*fact;
 						}
-						ModelController.getInstance().getExtraCellularDiffusionController().setDiffusionFieldCrossSectionCoordinate(result);*/
-					
-						//modelScenePlaneSliderLabel.setText(result + " µm");
-						 SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
+						Vector4d planePosition = new Vector4d();
+						modelClip.getPlane(selectedComboItem.ordinal()-1, planePosition);
+						planePosition.w = result;
+						modelClip.setPlane(selectedComboItem.ordinal()-1, planePosition);
+						modelScenePlaneSliderLabel.setText((-1*result) + " µm");
+						SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
 						
 					}
 				
 					
 				}});
-	       modelScenePlaneSilderPanel.add(new JLabel("Position on Axis: "), BorderLayout.WEST);
+	       modelScenePlaneSilderPanel.add(modelScenePlaneSliderLabel2, BorderLayout.WEST);
 	       modelScenePlaneSilderPanel.add(modelScenePlaneSlider, BorderLayout.CENTER);
 	       modelScenePlaneSilderPanel.add(modelScenePlaneSliderLabel, BorderLayout.EAST);
 	       JPanel modelSceneOpacitySilderPanel = null;

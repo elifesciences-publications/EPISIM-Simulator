@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -70,6 +71,7 @@ import episiminterfaces.EpisimSimulationDisplay;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
+import sim.app.episim.gui.EpisimDisplay3D;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController;
@@ -136,9 +138,11 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	private ModelClip modelClip;
 	
 	
+	
 	public Display3DHack(double width, double height, GUIState simulation) {
 
 		super(width, height, simulation);
+		
 		optionButton.setVisible(true);
 		  optionButton.addActionListener(new ActionListener()
         {
@@ -154,7 +158,10 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 			movieButton.setEnabled(false);
 			 simulation.scheduleAtStart(new Steppable()   // to stop movie when simulation is stopped
           {
-          public void step(SimState state) { startMovie(); }
+          public void step(SimState state) {   SwingUtilities.invokeLater(new Runnable(){
+					public void run() {
+						startMovie();								
+					}}); } 
           });
 		}
 		
@@ -198,7 +205,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	
 	public void stopRenderer(){
 		canvas.stopCapturing();
-		canvas.stopRenderer();
+		if(ModeServer.guiMode())canvas.stopRenderer();
 	}
 	
 	public double getDisplayScale(){
@@ -337,179 +344,251 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	
 	public void createSceneGraph()
    {
-   dirty = false;  // reset dirty flag -- we're creating the scene graph
-   
-   // Recreate the graph -- destroy the existing one
-   if (universe == null)   // make a canvas
-       {
-       //if (universe != null)
-       //{ remove(canvas); revalidate(); }
-   	if(ModeServer.guiMode()){
-       canvas = new CapturingCanvas3D(SimpleUniverse.getPreferredConfiguration());
-   	}
-   	else{
-         canvas = new CapturingCanvas3D(SimpleUniverse.getPreferredConfiguration(), true);
-     	}
-       
-   	
-   	add(canvas, BorderLayout.CENTER);
-   	
-       universe = new SimpleUniverse(canvas);
-       universe.getViewingPlatform().setNominalViewingTransform();  //take the viewing point a step back
-  
-       // set up light switch elements
-       lightSwitch = new Switch(Switch.CHILD_MASK);
-       lightSwitch.setCapability(Switch.ALLOW_SWITCH_WRITE);
-       lightSwitch.setCapability(Switch.ALLOW_CHILDREN_READ);
-       lightSwitch.setCapability(Switch.ALLOW_CHILDREN_EXTEND);
-                   
-       lightSwitchMask.set(SPOTLIGHT_INDEX);    // turn spotlight on
-       lightSwitchMask.clear(AMBIENT_LIGHT_INDEX);    // turn ambient light off 
-       lightSwitch.setChildMask(lightSwitchMask);
-       PointLight pl = new PointLight(new Color3f(1f,1f,1f),
-           new Point3f(0f,0f,0f),
-           new Point3f(1f,0f,0f));
-       pl.setInfluencingBounds(new BoundingSphere(new Point3d(0,0,0), Double.POSITIVE_INFINITY));
-       lightSwitch.addChild(pl);
-       AmbientLight al = new AmbientLight(new Color3f(1f,1f,1f));
-       al.setInfluencingBounds(new BoundingSphere(new Point3d(0,0,0), Double.POSITIVE_INFINITY));
-       lightSwitch.addChild(al);
-                   
-       viewRoot = new BranchGroup();
-       viewRoot.addChild(lightSwitch);
-       universe.getViewingPlatform().getViewPlatformTransform().addChild(viewRoot);
-       
-       }
-   else // reset the canvas
-       {
-       // detatches the root and the selection behavior from the universe.
-       // we'll need to reattach those.  Everything else: the canvas and lights etc.,
-       // will stay connected.
-       destroySceneGraph();
-       }
-   
-   // The root in our universe will be a branchgroup
-   BranchGroup oldRoot = root;
-   root = new BranchGroup();
-   // in order to add/remove spinBehavior, I need these:
-   root.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
-   root.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
-   root.setCapability(BranchGroup.ALLOW_BOUNDS_READ);
-   // I need this one to delete the root when we reset the canvas above
-   root.setCapability(BranchGroup.ALLOW_DETACH);
-
-   // the root's child is a transform group (autoSpinTransformGroup), which can be spun around by the auto-spinner
-   autoSpinTransformGroup = new TransformGroup();
-   autoSpinTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);  // for spin behavior
-
-   // autoSpinTransformGroup contains a switch to turn the various field portrayals on and off
-   portrayalSwitch = new Switch(Switch.CHILD_MASK);
-   portrayalSwitch.setCapability(Switch.ALLOW_SWITCH_WRITE);
-   portrayalSwitch.setCapability(Switch.ALLOW_CHILDREN_READ);
-   portrayalSwitch.setCapability(Switch.ALLOW_CHILDREN_EXTEND);
-
-   // We sneakily include ANOTHER transform group to spin around with another spinner
-   // (autoSpinBackground).  This lets us spin the background around with the elements in the universe
-   autoSpinBackgroundTransformGroup = new TransformGroup();
-   autoSpinBackgroundTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);  // for spin behavior
-   
-   modelClip = new ModelClip();
-   // ADD THE MODEL
-   // Add to the switch each subgraph: all the field portrayals plus the axes.
-   portrayalSwitchMask = new BitSet(subgraphCount);
-   int count = 0;
-   Iterator iter = portrayals.iterator();
-   while (iter.hasNext())
-       {
-       Portrayal3DHolder p3h = (Portrayal3DHolder)(iter.next());
-       Portrayal3D p = p3h.portrayal;
-       Object obj = (p instanceof FieldPortrayal3D)? ((FieldPortrayal3D)p).getField(): null;
-       p.setCurrentDisplay(this);
-       portrayalSwitch.addChild(p.getModel(obj,null));
-       if (p3h.visible)
-           portrayalSwitchMask.set(count);
-       else
-           portrayalSwitchMask.clear(count);
-       count++;  // go to next position in visibility mask
-       }
-   portrayalSwitch.setChildMask(portrayalSwitchMask);
-
-   // add inspection
-   BoundingSphere bounds = new BoundingSphere(new Point3d(0.0,0.0,0.0), Double.POSITIVE_INFINITY);
-   mSelectBehavior =  new SelectionBehavior(canvas, root, bounds, simulation);
-   mSelectBehavior.setSelectsAll(selectionAll, inspectionAll);
-   mSelectBehavior.setEnable(selectBehCheckBox.isSelected());
-
-   toolTipBehavior = new ToolTipBehavior(canvas, root, bounds, simulation);
-   toolTipBehavior.setEnable(true);
-   toolTipBehavior.setCanShowToolTips(usingToolTips);
-   
-   // make autoSpinTransformGroup spinnable
-   // note that Alpha's loop count is ZERO beacuse I want the spin behaivor turned off.
-   // Don't forget to put a -1 instead if you want endless spinning. 
-   if (autoSpin == null)  // haven't set it up yet
-       {
-       autoSpin = new RotationInterpolator(new Alpha(), autoSpinTransformGroup);
-       autoSpin.getAlpha().setLoopCount(0); 
-       autoSpin.setSchedulingBounds(bounds);
-
-       // spin the background too
-       autoSpinBackground = new RotationInterpolator(new Alpha(), autoSpinBackgroundTransformGroup);
-       autoSpinBackground.getAlpha().setLoopCount(0); 
-       autoSpinBackground.setSchedulingBounds(bounds);
-
-       setSpinningEnabled(false);
-       }
-   else 
-       {
-       oldRoot.removeChild(autoSpin);  // so it can be added to the new root
-       oldRoot.removeChild(autoSpinBackground);
-       }
-
-   // create the global model transform group
-   rebuildGlobalModelTransformGroup();
-   
-   // set up auxillary elements
-   rebuildAuxillarySwitch();
-           
-   // add the ability to rotate, translate, and zoom
-   mOrbitBehavior = new OrbitBehavior(canvas, OrbitBehavior.REVERSE_ALL);
-   mOrbitBehavior.setRotateEnable(true);
-   mOrbitBehavior.setRotXFactor(orbitRotateXCheckBox.isSelected() ? 1.0 : 0.0);
-   mOrbitBehavior.setRotYFactor(orbitRotateYCheckBox.isSelected() ? 1.0 : 0.0);
-   mOrbitBehavior.setTranslateEnable(true);
-   mOrbitBehavior.setTransXFactor(orbitTranslateXCheckBox.isSelected() ? 1.0 : 0.0);
-   mOrbitBehavior.setTransYFactor(orbitTranslateYCheckBox.isSelected() ? 1.0 : 0.0);
-   mOrbitBehavior.setZoomEnable(orbitZoomCheckBox.isSelected());
-   mOrbitBehavior.setSchedulingBounds(bounds);
-   universe.getViewingPlatform().setViewPlatformBehavior(mOrbitBehavior);
-           
-   // hook everything up
-   globalModelTransformGroup.addChild(portrayalSwitch);
-   autoSpinTransformGroup.addChild(globalModelTransformGroup);
-   autoSpinTransformGroup.addChild(auxillarySwitch);
-
-   root.addChild(autoSpin);
-   root.addChild(autoSpinBackground);
-   autoSpin.setTarget(autoSpinTransformGroup);  // reuse
-   autoSpinBackground.setTarget(autoSpinBackgroundTransformGroup);  // reuse
-   root.addChild(autoSpinTransformGroup);
-
-   // define attributes -- at this point the optionsPanel has been created so it's okay
-   setCullingMode(cullingMode);
-   setRasterizationMode(rasterizationMode);
-   appendClippingPlanes(bounds);
-   // call our hook
-   sceneGraphCreated();
-
-   // add the universe
-   universe.addBranchGraph(root);
-   
-   // fire it up
-   canvas.startRenderer();
-   
-   //updateSceneGraph(movieMaker != null);  // force a paint into a movie frame if necessary
+	   dirty = false;  // reset dirty flag -- we're creating the scene graph
+	   
+	   // Recreate the graph -- destroy the existing one
+	   if (universe == null)   // make a canvas
+	       {
+	       //if (universe != null)
+	       //{ remove(canvas); revalidate(); }
+	   	
+	       canvas = new CapturingCanvas3D(SimpleUniverse.getPreferredConfiguration());
+	   	
+	       
+	   	
+	   	add(canvas, BorderLayout.CENTER);
+	   	
+	       universe = new SimpleUniverse(canvas);
+	       universe.getViewingPlatform().setNominalViewingTransform();  //take the viewing point a step back
+	  
+	       // set up light switch elements
+	       lightSwitch = new Switch(Switch.CHILD_MASK);
+	       lightSwitch.setCapability(Switch.ALLOW_SWITCH_WRITE);
+	       lightSwitch.setCapability(Switch.ALLOW_CHILDREN_READ);
+	       lightSwitch.setCapability(Switch.ALLOW_CHILDREN_EXTEND);
+	                   
+	       lightSwitchMask.set(SPOTLIGHT_INDEX);    // turn spotlight on
+	       lightSwitchMask.clear(AMBIENT_LIGHT_INDEX);    // turn ambient light off 
+	       lightSwitch.setChildMask(lightSwitchMask);
+	       PointLight pl = new PointLight(new Color3f(1f,1f,1f),
+	           new Point3f(0f,0f,0f),
+	           new Point3f(1f,0f,0f));
+	       pl.setInfluencingBounds(new BoundingSphere(new Point3d(0,0,0), Double.POSITIVE_INFINITY));
+	       lightSwitch.addChild(pl);
+	       AmbientLight al = new AmbientLight(new Color3f(1f,1f,1f));
+	       al.setInfluencingBounds(new BoundingSphere(new Point3d(0,0,0), Double.POSITIVE_INFINITY));
+	       lightSwitch.addChild(al);
+	                   
+	       viewRoot = new BranchGroup();
+	       viewRoot.addChild(lightSwitch);
+	       universe.getViewingPlatform().getViewPlatformTransform().addChild(viewRoot);
+	       
+	       }
+	   else // reset the canvas
+	       {
+	       // detatches the root and the selection behavior from the universe.
+	       // we'll need to reattach those.  Everything else: the canvas and lights etc.,
+	       // will stay connected.
+	       destroySceneGraph();
+	       }
+	   
+	   // The root in our universe will be a branchgroup
+	   BranchGroup oldRoot = root;
+	   root = new BranchGroup();
+	   // in order to add/remove spinBehavior, I need these:
+	   root.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
+	   root.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
+	   root.setCapability(BranchGroup.ALLOW_BOUNDS_READ);
+	   // I need this one to delete the root when we reset the canvas above
+	   root.setCapability(BranchGroup.ALLOW_DETACH);
+	
+	   // the root's child is a transform group (autoSpinTransformGroup), which can be spun around by the auto-spinner
+	   autoSpinTransformGroup = new TransformGroup();
+	   autoSpinTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);  // for spin behavior
+	
+	   // autoSpinTransformGroup contains a switch to turn the various field portrayals on and off
+	   portrayalSwitch = new Switch(Switch.CHILD_MASK);
+	   portrayalSwitch.setCapability(Switch.ALLOW_SWITCH_WRITE);
+	   portrayalSwitch.setCapability(Switch.ALLOW_CHILDREN_READ);
+	   portrayalSwitch.setCapability(Switch.ALLOW_CHILDREN_EXTEND);
+	
+	   // We sneakily include ANOTHER transform group to spin around with another spinner
+	   // (autoSpinBackground).  This lets us spin the background around with the elements in the universe
+	   autoSpinBackgroundTransformGroup = new TransformGroup();
+	   autoSpinBackgroundTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);  // for spin behavior
+	   
+	   modelClip = new ModelClip();
+	   // ADD THE MODEL
+	   // Add to the switch each subgraph: all the field portrayals plus the axes.
+	   portrayalSwitchMask = new BitSet(subgraphCount);
+	   int count = 0;
+	   Iterator iter = portrayals.iterator();
+	   while (iter.hasNext())
+	       {
+	       Portrayal3DHolder p3h = (Portrayal3DHolder)(iter.next());
+	       Portrayal3D p = p3h.portrayal;
+	       Object obj = (p instanceof FieldPortrayal3D)? ((FieldPortrayal3D)p).getField(): null;
+	       p.setCurrentDisplay(this);
+	       portrayalSwitch.addChild(p.getModel(obj,null));
+	       if (p3h.visible)
+	           portrayalSwitchMask.set(count);
+	       else
+	           portrayalSwitchMask.clear(count);
+	       count++;  // go to next position in visibility mask
+	       }
+	   portrayalSwitch.setChildMask(portrayalSwitchMask);
+	
+	   // add inspection
+	   BoundingSphere bounds = new BoundingSphere(new Point3d(0.0,0.0,0.0), Double.POSITIVE_INFINITY);
+	   mSelectBehavior =  new SelectionBehavior(canvas, root, bounds, simulation);
+	   mSelectBehavior.setSelectsAll(selectionAll, inspectionAll);
+	   mSelectBehavior.setEnable(selectBehCheckBox.isSelected());
+	
+	   toolTipBehavior = new ToolTipBehavior(canvas, root, bounds, simulation);
+	   toolTipBehavior.setEnable(true);
+	   toolTipBehavior.setCanShowToolTips(usingToolTips);
+	   
+	   // make autoSpinTransformGroup spinnable
+	   // note that Alpha's loop count is ZERO beacuse I want the spin behaivor turned off.
+	   // Don't forget to put a -1 instead if you want endless spinning. 
+	   if (autoSpin == null)  // haven't set it up yet
+	       {
+	       autoSpin = new RotationInterpolator(new Alpha(), autoSpinTransformGroup);
+	       autoSpin.getAlpha().setLoopCount(0); 
+	       autoSpin.setSchedulingBounds(bounds);
+	
+	       // spin the background too
+	       autoSpinBackground = new RotationInterpolator(new Alpha(), autoSpinBackgroundTransformGroup);
+	       autoSpinBackground.getAlpha().setLoopCount(0); 
+	       autoSpinBackground.setSchedulingBounds(bounds);
+	
+	       setSpinningEnabled(false);
+	       }
+	   else 
+	       {
+	       oldRoot.removeChild(autoSpin);  // so it can be added to the new root
+	       oldRoot.removeChild(autoSpinBackground);
+	       }
+	
+	   // create the global model transform group
+	   rebuildGlobalModelTransformGroup();
+	   
+	   // set up auxillary elements
+	   rebuildAuxillarySwitch();
+	           
+	   // add the ability to rotate, translate, and zoom
+	   mOrbitBehavior = new OrbitBehavior(canvas, OrbitBehavior.REVERSE_ALL);
+	   mOrbitBehavior.setRotateEnable(true);
+	   mOrbitBehavior.setRotXFactor(orbitRotateXCheckBox.isSelected() ? 1.0 : 0.0);
+	   mOrbitBehavior.setRotYFactor(orbitRotateYCheckBox.isSelected() ? 1.0 : 0.0);
+	   mOrbitBehavior.setTranslateEnable(true);
+	   mOrbitBehavior.setTransXFactor(orbitTranslateXCheckBox.isSelected() ? 1.0 : 0.0);
+	   mOrbitBehavior.setTransYFactor(orbitTranslateYCheckBox.isSelected() ? 1.0 : 0.0);
+	   mOrbitBehavior.setZoomEnable(orbitZoomCheckBox.isSelected());
+	   mOrbitBehavior.setSchedulingBounds(bounds);
+	   universe.getViewingPlatform().setViewPlatformBehavior(mOrbitBehavior);
+	           
+	   // hook everything up
+	   globalModelTransformGroup.addChild(portrayalSwitch);
+	   autoSpinTransformGroup.addChild(globalModelTransformGroup);
+	   autoSpinTransformGroup.addChild(auxillarySwitch);
+	
+	   root.addChild(autoSpin);
+	   root.addChild(autoSpinBackground);
+	   autoSpin.setTarget(autoSpinTransformGroup);  // reuse
+	   autoSpinBackground.setTarget(autoSpinBackgroundTransformGroup);  // reuse
+	   root.addChild(autoSpinTransformGroup);
+	
+	   // define attributes -- at this point the optionsPanel has been created so it's okay
+	   setCullingMode(cullingMode);
+	   setRasterizationMode(rasterizationMode);
+	   appendClippingPlanes(bounds);
+	   // call our hook
+	   sceneGraphCreated();
+	
+	   // add the universe
+	   universe.addBranchGraph(root);
+	   
+	   // fire it up
+	   canvas.startRenderer();
+	   
+	   //updateSceneGraph(movieMaker != null);  // force a paint into a movie frame if necessary
    }
+	public void updateSceneGraph(boolean waitForRenderer)
+   {
+		
+		  // we synchronize here so stopMovie() and startMovie() can
+      // prevent us from adding images if necessary.
+		if(ModeServer.consoleInput() && moviePathSet){
+		   if (canvas==null) return;  // hasn't been created yet
+	        
+	        if (dirty && waitForRenderer) { createSceneGraph(); return; }
+	    
+	        //canvas.stopRenderer();
+	                
+	        boolean changes = false;
+	        Iterator iter = portrayals.iterator();
+	        
+	        moveBogusMover();
+	        while(iter.hasNext())
+	            {
+	            Portrayal3DHolder ph = (Portrayal3DHolder)iter.next();
+	            if(portrayalSwitchMask.get(ph.subgraphIndex))	                {
+	                // update model ONLY on what is actually on screen. 
+	                ph.portrayal.setCurrentDisplay(this);
+	                ph.portrayal.getModel(
+	                    (ph.portrayal instanceof FieldPortrayal3D)? ((FieldPortrayal3D)ph.portrayal).getField(): null,
+	                    (TransformGroup)portrayalSwitch.getChild(ph.subgraphIndex));
+	                changes = true;
+	               
+	                }
+	            }
+	        //canvas.startRenderer();
+	                
+	        waitForRenderer &= changes; 
+	        if(!waitForRenderer)
+	            return;
+	            
+	        synchronized(canvas)
+	            {
+	            try
+	                {
+	                if (!Thread.currentThread().isInterrupted())
+	                    // couldn't there be a race condition here?  -- Sean
+	                    canvas.wait(0);
+	                }
+	            catch(InterruptedException ex)
+	                {
+	                try
+	                    {
+	                    Thread.currentThread().interrupt();
+	                    }
+	                catch (SecurityException ex2) { } // some stupid browsers -- *cough* IE -- don't like interrupts
+	                }
+	            }			
+			
+			
+			 if(episimMovieMaker!=null){
+				 
+				synchronized(Display3DHack.this.simulation.state.schedule)
+	          {
+	          // if waitForRenderer is false, does the movie maker ever get updated?  -- Sean
+					  
+	              episimMovieMaker.add(canvas.getLastImage());
+	          }
+			 }
+		}
+		else super.updateSceneGraph(waitForRenderer);
+   }
+	 public void destroySceneGraph()
+    {
+    // unhook the root from the universe so we can reuse the universe (Hmmmm....)
+        
+    mSelectBehavior.detach();
+    root.detach();
+    universe.getLocale().removeBranchGraph(root);
+    if(!canvas.isOffScreen())canvas.stopRenderer();
+    }
 	
 	private void appendClippingPlanes(Bounds bounds){
 	
@@ -530,12 +609,21 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 
 	}
 	
+	 public Frame getFrame()
+    {
+    Component c = this;
+    while(c.getParent() != null)
+        c = c.getParent();
+    return c instanceof Frame ? (Frame)c : null;
+    }
+	
 	public void startMovie()
    {
 		if(ModeServer.consoleInput() && moviePathSet){
+			if (episimMovieMaker != null) return;
 			synchronized(Display3DHack.this.simulation.state.schedule)
 	      {
-				 if (episimMovieMaker != null) return;  // already running
+				   // already running
 		       episimMovieMaker = new EpisimMovieMaker(getFrame());
 		       
 		       canvas.beginCapturing(false);  // emit a single picture to get the image sizes

@@ -324,11 +324,9 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			//if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
 				//	&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
 				//System.setProperty("java.awt.headless", "true");
-			SwingUtilities.invokeLater(new Runnable() {
-
-		        public void run() {
+			
 		      	  		EpidermisSimulator episim = new EpidermisSimulator();
-		        }});
+		       
 		}
 		else printHelpTextOnConsole();
 		

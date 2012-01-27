@@ -232,6 +232,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		
 		int factorAllNeighboursInt = (int)factorAllNeighbours;
 		int factorAllMinusOneNeighbourInt = 0;
+		checkNonSpreadingNeighbourListForIntersectionConflicts(nonSpreadingNeighbours, locationToBeLeft);
 		if(!nonSpreadingNeighbours.isEmpty()){
 			factorAllMinusOneNeighbourInt = (int)factorAllMinusOneNeighbour;
 		}
@@ -241,6 +242,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 			return factorAllNeighboursInt;
 		}
 		else{
+			
 			if(nonSpreadingNeighbours.size() > 1){
 				neighbourToPull.add(nonSpreadingNeighbours.get(random.nextInt(nonSpreadingNeighbours.size())));
 			}
@@ -249,6 +251,33 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 			}
 			return factorAllMinusOneNeighbourInt;
 		}			
+	}
+	
+	private void checkNonSpreadingNeighbourListForIntersectionConflicts(ArrayList<AbstractCell> nonSpreadingNeighbours, Int3D locationToBeLeft){
+		AbstractCell[] nonSpreadingNeighboursArray = nonSpreadingNeighbours.toArray(new AbstractCell[nonSpreadingNeighbours.size()]);
+		for(int n = 0; n < nonSpreadingNeighboursArray.length; n++){
+			AbstractCell neighbour = nonSpreadingNeighboursArray[n];
+			HexagonBased3DMechanicalModel neighbourMechModel = (HexagonBased3DMechanicalModel) neighbour.getEpisimBioMechanicalModelObject();
+			Bag neighbouringCellsBag = new Bag();
+			cellField.getNeighborsMaxDistance(neighbourMechModel.getFieldLocation().x, neighbourMechModel.getFieldLocation().y, neighbourMechModel.getFieldLocation().z, 3, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, new IntBag(), new IntBag(), new IntBag());
+			Double3D fieldLocMikron = neighbourMechModel.getLocationInMikron();
+			Double3D spreadingLocMikron = getLocationInMikron(neighbourMechModel.correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(locationToBeLeft));
+			Line3D line= new Line3D(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z), 
+					  new Vector3d(spreadingLocMikron.x, spreadingLocMikron.y, spreadingLocMikron.z));
+			 for(int i = 0; i < neighbouringCellsBag.size(); i++){
+			   	if(neighbouringCellsBag.get(i)!= null && neighbouringCellsBag.get(i) != getCell() && neighbouringCellsBag.get(i) != neighbour){
+			   		AbstractCell cell = (AbstractCell) neighbouringCellsBag.get(i);
+			   		HexagonBased3DMechanicalModel mechModel = (HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+			   		Line3D otherLine = mechModel.getSpreadingLine();
+			   		if(otherLine != null){
+			   			if(line.lineLineIntersect(otherLine, HexagonBased3DMechanicalModelGP.hexagonal_radius*0.5)){
+			   				nonSpreadingNeighbours.remove(neighbour);
+			   			}
+			   		}
+			   	}
+			 }
+		}
+
 	}
 	
 	private Double3D getLocationInMikron(Int3D location){
@@ -477,7 +506,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		Bag neighbouringCellsBag = new Bag();
 		cellField.getNeighborsMaxDistance(fieldLocation.x, fieldLocation.y, fieldLocation.z, 3, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, new IntBag(), new IntBag(), new IntBag());
 		Double3D fieldLocMikron = getLocationInMikron();
-		Double3D spreadingLocMikron = getLocationInMikron(spreadingLoc);
+		Double3D spreadingLocMikron = getLocationInMikron(correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(spreadingLoc));
 		Line3D line= new Line3D(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z), 
 				  new Vector3d(spreadingLocMikron.x, spreadingLocMikron.y, spreadingLocMikron.z));
 		 for(int i = 0; i < neighbouringCellsBag.size(); i++){
@@ -547,7 +576,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	public Line3D getSpreadingLine(){
 		if(isSpreading()){
 			Double3D fieldLocMikron = getLocationInMikron();
-			Double3D spreadingLocMikron = getLocationInMikron(spreadingLocation);
+			Double3D spreadingLocMikron = getLocationInMikron(correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing());
 			return new Line3D(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z), 
 					  new Vector3d(spreadingLocMikron.x, spreadingLocMikron.y, spreadingLocMikron.z));
 		}
@@ -666,10 +695,15 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	 	 addCellTranslation(trans);		   	
 	 	 return new CellBoundaries(new Ellipsoid(trans, (standardCellRadius+sizeDelta)), minVector, maxVector);	   
    }
+   
    public Int3D correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(){
+   	return correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(getSpreadingLocation());
+   }
+   
+   public Int3D correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing(Int3D potentialSpreadingLocation){
       
    	Int3D loc1 = getFieldLocation();
-   	Int3D loc2 = getSpreadingLocation();
+   	Int3D loc2 = potentialSpreadingLocation;
   	 	int x = loc2.x;
   	 	int y = loc2.y;
   	 	int z = loc2.z;

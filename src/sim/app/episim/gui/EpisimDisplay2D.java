@@ -47,6 +47,11 @@ public class EpisimDisplay2D implements EpisimSimulationDisplay{
 	}
 	
 	
+	public boolean isValid(){
+		if(simulationDisplay instanceof Display2DHack) return((Display2DHack)simulationDisplay).isValid();
+		else if(simulationDisplay instanceof NoGUIDisplay2D)return((NoGUIDisplay2D)simulationDisplay).isValid();
+		return false;
+	}
 	
 	public void detatchAll(){
 		if(simulationDisplay instanceof Display2DHack)((Display2DHack)simulationDisplay).detatchAll();

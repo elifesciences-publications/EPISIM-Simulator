@@ -9,6 +9,7 @@ import java.awt.geom.Rectangle2D.Double;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 
+import sim.app.episim.ModeServer;
 import sim.display.Display2DHack;
 import sim.display.GUIState;
 import sim.display3d.CapturingCanvas3D;
@@ -24,9 +25,13 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 	protected GUIState simulation;
 	private Display3DHack simulationDisplay;
 	
+	public static final int DEFAULT_NO_GUI_WIDTH = 950;
+	public static final int DEFAULT_NO_GUI_HEIGHT = 700;
+	
 	public EpisimDisplay3D(final double width, final double height, GUIState simulation){		
 		
-		simulationDisplay = new Display3DHack(width, height, simulation);
+		if(ModeServer.guiMode()) simulationDisplay = new Display3DHack(width, height, simulation);
+		else simulationDisplay = new Display3DHack(DEFAULT_NO_GUI_WIDTH, DEFAULT_NO_GUI_HEIGHT, simulation);
 		this.simulation = simulation;
 		
 	}
@@ -38,6 +43,8 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 	public double getDisplayScale(){
 		return simulationDisplay.getDisplayScale();
 	}
+	
+	public boolean isValid(){ return simulationDisplay.isValid();}
 	
 	/**
 	 * Creates Internalframe instead of a JFrame

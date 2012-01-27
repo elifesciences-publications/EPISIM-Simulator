@@ -19,6 +19,7 @@ import episimexceptions.PropertyException;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
+import sim.util.gui.MovieMakerHack;
 import sim.util.gui.Utilities;
 import sim.util.gui.MovieMaker;
 
@@ -28,11 +29,10 @@ public class EpisimMovieMaker{
 	public static final int FRAMES_PER_FILE = 2000;
 	
 	Frame parentForDialogs;
-   Object encoder;
-   Class encoderClass;
-   boolean isRunning;
+  
+  
    
-   private MovieMaker movieMaker;
+   private MovieMakerHack movieMaker;
    
 
 	
@@ -45,13 +45,14 @@ public class EpisimMovieMaker{
 	private Object[] encodingFormats;
 	
 	public EpisimMovieMaker(Frame parent) {
-		 movieMaker = new MovieMaker(parent);	
+		 movieMaker = new MovieMakerHack(parent);	
 		 this.parentForDialogs = parent;
-       try
+		
+      /* try
            {
            encoderClass = Class.forName("sim.util.media.MovieEncoder");
            }
-       catch (Throwable e) { encoderClass = null; }  // JMF's not installed
+       catch (Throwable e) { encoderClass = null; }  // JMF's not installed*/
 	   
 	  
 	   
@@ -68,7 +69,7 @@ public class EpisimMovieMaker{
    public synchronized boolean start(BufferedImage typicalImage, float fps){
    	if(!ModeServer.consoleInput()) return movieMaker.start(typicalImage, fps);
    	else{
-   		if (isRunning) return false;
+   		if (movieMaker.isRunning()) return false;
    	   
          int encodeFormatIndex = 0;
          
@@ -81,7 +82,7 @@ public class EpisimMovieMaker{
          	 }
          	
              // get the list of supported formats
-             encodingFormats = (Object[]) encoderClass.
+             encodingFormats = (Object[]) movieMaker.getEncoderClass().
                  getMethod("getEncodingFormats", new Class[] {Float.TYPE, BufferedImage.class}).
                  invoke(null, new Object[] { new Float(fps), typicalImage });
              if (encodingFormats==null) return false;
@@ -96,9 +97,13 @@ public class EpisimMovieMaker{
             	 
              }
              
+             encodingFormats = (Object[])movieMaker.getEncoderClass().
+             getMethod("getEncodingFormats", new Class[] {Float.TYPE, BufferedImage.class}).
+             invoke(null, new Object[] { new Float(fps), typicalImage });
+             
              moviePath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.MOVIE_PATH_PROP, "EpisimMovie", "mov");
              
-             encoder = encoderClass.getConstructor(new Class[]{
+             Object encoder = movieMaker.getEncoderClass().getConstructor(new Class[]{
                          Float.TYPE, 
                          File.class, 
                          BufferedImage.class, 
@@ -109,16 +114,17 @@ public class EpisimMovieMaker{
                                               typicalImage,
                                               encodingFormats[encodeFormatIndex]});
                  
+             movieMaker.setEncoder(encoder);
              }
          catch (Throwable e) // (NoClassDefFoundError e)  // uh oh, JMF's not installed
              {
              ExceptionDisplayer.getInstance().displayException(e);
-             encoder = null;
-             isRunning = false;
+             movieMaker.setEncoder(null);
+             movieMaker.setIsRunning(false);
              return false;
              }
              
-         isRunning = true;
+         movieMaker.setIsRunning(true);
          return true;
     
    	}
@@ -130,7 +136,7 @@ public class EpisimMovieMaker{
    	if(ModeServer.consoleInput()){
    		
    	
-   		if (!isRunning) return false;
+   		if (!movieMaker.isRunning()) return false;
    	   
    		stop();
    		
@@ -145,7 +151,7 @@ public class EpisimMovieMaker{
       			 encodeFormatIndex=1;
       		
              }
-             encoder = encoderClass.getConstructor(new Class[]{
+             Object encoder = movieMaker.getEncoderClass().getConstructor(new Class[]{
                          Float.TYPE, 
                          File.class, 
                          BufferedImage.class, 
@@ -156,16 +162,17 @@ public class EpisimMovieMaker{
                                               typicalImage,
                                               encodingFormats[encodeFormatIndex]});
                  
+             movieMaker.setEncoder(encoder);
              }
          catch (Throwable e) // (NoClassDefFoundError e)  // uh oh, JMF's not installed
              {
              ExceptionDisplayer.getInstance().displayException(e);
-             encoder = null;
-             isRunning = false;
+             movieMaker.setEncoder(null);
+             movieMaker.setIsRunning(false);
              return false;
              }
              
-         isRunning = true;
+         movieMaker.setIsRunning(true);
          return true;
     
    	}
@@ -186,13 +193,13 @@ public class EpisimMovieMaker{
    	
    	if(!ModeServer.consoleInput()) return movieMaker.add(image);
    	else{
-	       if (!isRunning) return false;
+	       if (!movieMaker.isRunning()) return false;
 	       //              ((sim.util.media.MovieEncoder)encoder).add(image);
 	               {
 	               try  // NOT LIKELY TO HAPPEN
 	                   {
-	                   encoderClass.getMethod("add", new Class[]{BufferedImage.class}).
-	                       invoke(encoder, new Object[]{image});
+	               		movieMaker.getEncoderClass().getMethod("add", new Class[]{BufferedImage.class}).
+	                       invoke(movieMaker.getEncoder(), new Object[]{image});
 	                   }
 	               catch(Exception ex)
 	                   {
@@ -207,23 +214,7 @@ public class EpisimMovieMaker{
    /** End the movie stream, finish up writing to disk, and clean up. */
    public synchronized boolean stop()
    {
-   	if(!ModeServer.consoleInput()) return movieMaker.stop();
-   	else{
-	       boolean success = true;
-	       if (!isRunning) return false;  // not running -- why stop?
-	       try
-	           {
-	           //            ((sim.util.media.MovieEncoder)encoder).stop();
-	           success = ((Boolean)(encoderClass.getMethod("stop", new Class[0]).invoke(encoder, new Object[0]))).booleanValue();
-	           }
-	       catch(Exception ex)  // NOT LIKELY TO HAPPEN
-	           {
-	           ex.printStackTrace();
-	           return false;
-	           }
-	       isRunning = false;
-	       return success;
-   	}
+   	return movieMaker.stop();
    }
    
    

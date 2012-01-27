@@ -44,6 +44,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
@@ -209,7 +210,10 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 		     // set ourselves up to quit when stopped
 		        simulation.scheduleAtStart(new Steppable()   // to stop movie when simulation is stopped
 		            {
-		            public void step(SimState state) { startMovie(); }
+		            public void step(SimState state) { SwingUtilities.invokeLater(new Runnable(){
+							public void run() {
+								startMovie();								
+							}}); }
 		            });
 			
 		}

@@ -9,6 +9,7 @@ public interface EpisimSimulationDisplay {
  void attach(Portrayal portrayal, String name, Rectangle2D.Double bounds, boolean visible);
  void attach(Portrayal portrayal, String name );
  boolean isPortrayalVisible(String name);
+ boolean isValid();
  void reset();
  void repaint();
  void setBackdrop(Paint c);

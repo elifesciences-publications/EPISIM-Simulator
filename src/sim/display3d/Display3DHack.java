@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -47,12 +48,14 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -65,6 +68,7 @@ import javax.vecmath.Point3f;
 import javax.vecmath.Vector4d;
 
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
+import com.sun.j3d.utils.geometry.Text2D;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 
 import episiminterfaces.EpisimSimulationDisplay;
@@ -118,8 +122,6 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 		}		
 		public String toString(){ return this.name; }
 	}
-	
-	private double modelSceneCrossSectionCoordinateInMikron = -1*TissueController.getInstance().getTissueBorder().getLengthInMikron();
 	
 	private ModelSceneCrossSectionMode modelSceneCrossSectionMode = ModelSceneCrossSectionMode.DISABLED;
 	
@@ -196,7 +198,9 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
         if(ModeServer.guiMode()){
       	  optionPane = new OptionPane3D(epiSimulation.getMainGUIComponent(), "3D Options");
         }
-      
+      if(ModeServer.consoleInput()){
+      	setRotationToPropertyValues();
+      }
 	}	
 	
    public ModelClip getModelClip() {
@@ -352,7 +356,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       //if (universe != null)
 	       //{ remove(canvas); revalidate(); }
 	   	
-	       canvas = new CapturingCanvas3D(SimpleUniverse.getPreferredConfiguration());
+	       canvas = new CapturingCanvas3DHack(SimpleUniverse.getPreferredConfiguration());
 	   	
 	       
 	   	
@@ -437,7 +441,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       count++;  // go to next position in visibility mask
 	       }
 	   portrayalSwitch.setChildMask(portrayalSwitchMask);
-	
+	  
+	   
 	   // add inspection
 	   BoundingSphere bounds = new BoundingSphere(new Point3d(0.0,0.0,0.0), Double.POSITIVE_INFINITY);
 	   mSelectBehavior =  new SelectionBehavior(canvas, root, bounds, simulation);
@@ -486,10 +491,14 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	   mOrbitBehavior.setTransYFactor(orbitTranslateYCheckBox.isSelected() ? 1.0 : 0.0);
 	   mOrbitBehavior.setZoomEnable(orbitZoomCheckBox.isSelected());
 	   mOrbitBehavior.setSchedulingBounds(bounds);
+	   
+	   
 	   universe.getViewingPlatform().setViewPlatformBehavior(mOrbitBehavior);
+	   
 	           
 	   // hook everything up
 	   globalModelTransformGroup.addChild(portrayalSwitch);
+	   
 	   autoSpinTransformGroup.addChild(globalModelTransformGroup);
 	   autoSpinTransformGroup.addChild(auxillarySwitch);
 	
@@ -498,17 +507,17 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	   autoSpin.setTarget(autoSpinTransformGroup);  // reuse
 	   autoSpinBackground.setTarget(autoSpinBackgroundTransformGroup);  // reuse
 	   root.addChild(autoSpinTransformGroup);
+	   
 	
 	   // define attributes -- at this point the optionsPanel has been created so it's okay
 	   setCullingMode(cullingMode);
 	   setRasterizationMode(rasterizationMode);
 	   appendClippingPlanes(bounds);
 	   // call our hook
-	   sceneGraphCreated();
-	
+	   sceneGraphCreated();	  
+	   
 	   // add the universe
 	   universe.addBranchGraph(root);
-	   
 	   // fire it up
 	   canvas.startRenderer();
 	   
@@ -543,6 +552,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	               
 	                }
 	            }
+	      
 	        //canvas.startRenderer();
 	                
 	        waitForRenderer &= changes; 
@@ -620,27 +630,34 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	public void startMovie()
    {
 		if(ModeServer.consoleInput() && moviePathSet){
-			if (episimMovieMaker != null) return;
-			synchronized(Display3DHack.this.simulation.state.schedule)
-	      {
-				   // already running
-		       episimMovieMaker = new EpisimMovieMaker(getFrame());
-		       
-		       canvas.beginCapturing(false);  // emit a single picture to get the image sizes
-	          final BufferedImage typicalImage = canvas.getLastImage();
-	                    
-	          if (!episimMovieMaker.start(typicalImage))
-	         	 episimMovieMaker = null;  // fail
-	          else
-             {
-	             canvas.beginCapturing(true);
-	             simulation.scheduleAtEnd(new Steppable(){   // to stop movie when simulation is stopped
-	                 public void step(SimState state) { stopMovie(); }
-	             });
-             }
-                             
-         typicalImage.flush();  // just in case -- bug in OS X
-	      }
+			if(ModeServer.guiMode()){
+				if (episimMovieMaker != null) return;
+				synchronized(Display3DHack.this.simulation.state.schedule)
+		      {
+					  
+					 if (episimMovieMaker!=null) return;  // already running
+	
+			       episimMovieMaker = new EpisimMovieMaker(getFrame());
+			       
+			       canvas.beginCapturing(false);  // emit a single picture to get the image sizes
+		          final BufferedImage typicalImage = canvas.getLastImage();
+		                    
+		          if (!episimMovieMaker.start(typicalImage))
+		         	 episimMovieMaker = null;  // fail
+		          else
+	             {
+		             canvas.beginCapturing(true);
+		             simulation.scheduleAtEnd(new Steppable(){   // to stop movie when simulation is stopped
+		                 public void step(SimState state) { stopMovie(); }
+		             });
+	             }
+	                             
+	         typicalImage.flush();  // just in case -- bug in OS X
+		      }
+			}
+			else{
+				System.err.println("WARNING: No movie generation in console mode possible!");
+			}
 		}
 		else super.startMovie();
    }
@@ -687,12 +704,69 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    		super.attach((Portrayal3D) portrayal, name);
    	}   
    }
-	
+   
+   
    public void setBackdrop(Paint c) {
    	if(c instanceof Color){
    		super.setBackdrop((Color)c);
    	}
-   } 
+   }
+   
+   private void setRotationToPropertyValues(){
+   	double rotX=0;
+   	double rotY=0;
+   	double rotZ=0;
+   	double rotPerSec=0;
+   	try{
+   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_X) != null){
+   			rotX = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_X));
+   		}
+   	}catch(NumberFormatException e){/*ignore this exception and do nothing*/}
+   	try{
+   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_Y) != null){
+   			rotY = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_Y));
+   		}
+   	}catch(NumberFormatException e){/*ignore this exception and do nothing*/}
+   	try{
+   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_Z) != null){
+   			rotZ = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_Z));
+   		}
+   	}catch(NumberFormatException e){/*ignore this exception and do nothing*/}
+   	try{
+   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_PERSECOND) != null){
+   			rotPerSec = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_PERSECOND));
+   		}
+   	}catch(NumberFormatException e){/*ignore this exception and do nothing*/}
+   	
+   	if(rotX!=0 || rotY != 0 || rotZ != 0){
+   		autoSpin.setTransformAxis(getTransformForAxis(rotX, rotY, rotZ));
+         // spin background too
+         autoSpinBackground.setTransformAxis(getTransformForAxis(rotX, rotY, rotZ));
+         if (rotPerSec == 0 ||
+             (rotX == 0 && rotY == 0 && rotZ==0))
+             setSpinningEnabled(false);
+         else setSpinningEnabled(true);
+         
+         rotAxis_X.setValue(rotX);
+         rotAxis_Y.setValue(rotY);
+         rotAxis_Z.setValue(rotZ);
+   	}
+   	
+   	if(rotPerSec!=0){
+   		long mSecsPerRot = (rotPerSec == 0 ? 1 /* don't care */ : (long)(1000 / rotPerSec));
+          
+         autoSpin.getAlpha().setIncreasingAlphaDuration(mSecsPerRot);
+         // spin background too
+         autoSpinBackground.getAlpha().setIncreasingAlphaDuration(mSecsPerRot);
+         if (rotPerSec == 0 ||
+            (rotX == 0 && rotY == 0 && rotZ==0))
+            setSpinningEnabled(false);
+         else setSpinningEnabled(true);   		
+         spinDuration.setValue(rotPerSec);
+   	}
+   	  	
+   }
+   
    public class OptionPane3D extends JDialog
    {
    	
@@ -1164,19 +1238,15 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        optionsPanel.add(polyPanel);
        optionsPanel.add(resetBox);
        //optionsPanel.add(viewPanel);
-
-       getContentPane().add(optionsPanel);
        
+       JScrollPane scroll = new JScrollPane(optionsPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+       getContentPane().add(scroll);                  
                    
-                   
-       // add preferences
-                           
-     
-      
+       // add preferences  
        pack();
        setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
        centerMe(this);
-       setResizable(false);
+       setResizable(true);
      } 
 
 
@@ -1214,5 +1284,6 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 
 //must be after all other declared widgets because its constructor relies on them existing
 private OptionPane3D  optionPane;
+
 
 }

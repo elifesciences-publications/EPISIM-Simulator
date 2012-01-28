@@ -53,7 +53,12 @@ public class EpisimProperties {
 	public static final String SIMULATOR_SAVESVGCOPYOFPNG = "simulator.saveSVGCopyOfEachPNG";
 	
 	public static final String SIMULATOR_SIMULATION_RUN_ID = "simulator.simulationrun.id";
-		
+	
+	public static final String SIMULATOR_DISPLAY3D_ROTATION_X="simulator.display3d.rotation.x";
+	public static final String SIMULATOR_DISPLAY3D_ROTATION_Y="simulator.display3d.rotation.y";
+	public static final String SIMULATOR_DISPLAY3D_ROTATION_Z="simulator.display3d.rotation.z";
+	public static final String SIMULATOR_DISPLAY3D_ROTATION_PERSECOND="simulator.display3d.rotation.persecond";
+			
 	public static final String SIMULATOR_SIM_STEP_MODE_MONTE_CARLO="montecarlo";
 	public static final String SIMULATOR_SIM_STEP_MODE_MASON="mason";
 	

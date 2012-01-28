@@ -336,6 +336,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		double width =  TissueController.getInstance().getTissueBorder().getWidthInMikron();
 		double length =  TissueController.getInstance().getTissueBorder().getLengthInMikron();
+	
 		display3D.attach( new EpisimSimulationBoxPortrayal3D(0,0,0, width, height, length), "Simulation Box");
 		
 		

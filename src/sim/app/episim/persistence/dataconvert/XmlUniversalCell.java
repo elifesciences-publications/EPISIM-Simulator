@@ -25,8 +25,7 @@ public class XmlUniversalCell extends XmlObject<AbstractCell> {
 		super(cell);
 	}
 
-	public XmlUniversalCell(Node universalCellNode)
-			throws ClassNotFoundException {
+	public XmlUniversalCell(Node universalCellNode) {
 		super(universalCellNode);
 		NodeList nl = universalCellNode.getChildNodes();
 	}

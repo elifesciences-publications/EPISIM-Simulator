@@ -9,17 +9,14 @@ import org.w3c.dom.NodeList;
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 
-/*
- * TODO Importieren funktioniert nicht!
- */
-public class XmlHashMap<K,V> extends XmlObject<HashMap<K, V>> {
+public abstract class XmlHashMap<V> extends XmlObject<HashMap<Object, V>> {
 
-	private HashMap<XmlPrimitive, XmlObject<V>> entryMap;
-	private static final String KEY = "key";
-	private static final String VALUE = "value";
+	private HashMap<Node, Node> entryNodeMap;
+	protected static final String KEY = "key";
+	protected static final String VALUE = "value";
 	private static final String ENTRY = "entry";
 
-	public XmlHashMap(HashMap<K, V> obj) throws ExportException {
+	public XmlHashMap(HashMap<Object, V> obj) throws ExportException {
 		super(obj);
 	}
 
@@ -29,22 +26,16 @@ public class XmlHashMap<K,V> extends XmlObject<HashMap<K, V>> {
 
 	@Override
 	protected void exportSubXmlObjectsFromParameters() throws ExportException {
-		entryMap = new HashMap<XmlPrimitive, XmlObject<V>>();
-		for (K key : getObject().keySet()) {
-			entryMap.put(new XmlPrimitive(key), new XmlObject<V>(getObject()
-					.get(key)));
-		}
 	}
 
 	@Override
 	public Element toXMLNode(String nodeName, XmlFile xmlFile)
 			throws ExportException {
-		if (entryMap != null && entryMap.size() > 0) {
+		if (entryNodeMap != null && entryNodeMap.size() > 0) {
 			Element node = xmlFile.createElement(nodeName);
-			for (XmlPrimitive key : entryMap.keySet()) {
+			for (Node keyNode : entryNodeMap.keySet()) {
 				Element entryNode = xmlFile.createElement(ENTRY);
-				Element keyNode = key.toXMLNode(KEY, xmlFile);
-				Element valueNode = entryMap.get(key).toXMLNode(VALUE, xmlFile);
+				Node valueNode = entryNodeMap.get(keyNode);
 				if (keyNode != null) {
 					entryNode.appendChild(keyNode);
 					entryNode.appendChild(valueNode);
@@ -74,27 +65,33 @@ public class XmlHashMap<K,V> extends XmlObject<HashMap<K, V>> {
 					}
 				}
 				if (keyNode != null && valueNode != null) {
-					entryMap.put(new XmlPrimitive(keyNode), new XmlObject<V>(
-							valueNode));
+					entryNodeMap.put(keyNode, valueNode);
 				}
 			}
 		}
 	}
 
-	@Override
-	public HashMap<K, V> copyValuesToTarget(HashMap<K, V> target) {
-		importParametersFromXml(null);
-		HashMap<K, V> ret = target;
-		if (target == null) {
-			ret = new HashMap<K, V>();
-
-		}
-		for (XmlPrimitive xmlKey : entryMap.keySet()) {
-			ret.put((K)xmlKey.copyValuesToTarget(null), entryMap.get(xmlKey)
-					.copyValuesToTarget(null));
-		}
-
-		return ret;
+	public HashMap<Node, Node> getEntryNodeMap() {
+		return entryNodeMap;
 	}
+
+	public void addEntryNode(Node key, Node value) {
+		this.entryNodeMap.put(key, value);
+	}
+
+//	@Override
+//	public HashMap<Object, V> copyValuesToTarget(HashMap<Object, V> target) {
+////		importParametersFromXml(null);
+////		HashMap<Object, V> ret = target;
+////		if (target == null) {
+////			ret = new HashMap<Object, V>();
+////		}
+////		for (XmlPrimitive xmlKey : entryMap.keySet()) {
+////			ret.put(xmlKey.copyValuesToTarget(null), entryMap.get(xmlKey)
+////					.copyValuesToTarget(null));
+////		}
+////
+////		return ret;
+//	}
 
 }

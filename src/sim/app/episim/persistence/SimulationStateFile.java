@@ -111,12 +111,11 @@ public class SimulationStateFile extends XmlFile {
 				for (int j = 0; j < cellNodes.getLength(); j++) {
 					XmlUniversalCell xmlCell;
 					Node cellNode = cellNodes.item(j);
-					if (cellNode.getNodeName().equalsIgnoreCase(CELL))
-						try {
-							xmlCell = new XmlUniversalCell(cellNode);
-							simStateData.addCell(xmlCell);
-						} catch (ClassNotFoundException e) {
-						}
+					if (cellNode.getNodeName().equalsIgnoreCase(CELL)) {
+
+						xmlCell = new XmlUniversalCell(cellNode);
+						simStateData.addCell(xmlCell);
+					}
 
 				}
 
@@ -223,16 +222,24 @@ public class SimulationStateFile extends XmlFile {
 		getRoot().appendChild(
 				simStateData.getTissueBorder().toXMLNode(TISSUE_BORDER, this));
 
-		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
-			getRoot().appendChild(
-					simStateData.getExtraCellularDiffusionFieldArray2D().toXMLNode(
-							EXTRACELLULARDIFFUSIONFIELDARRAY2D, this));
+		if (ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL) {
+			getRoot()
+					.appendChild(
+							simStateData
+									.getExtraCellularDiffusionFieldArray2D()
+									.toXMLNode(
+											EXTRACELLULARDIFFUSIONFIELDARRAY2D,
+											this));
 		}
-	
-		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
-			getRoot().appendChild(
-					simStateData.getExtraCellularDiffusionFieldArray3D().toXMLNode(
-							EXTRACELLULARDIFFUSIONFIELDARRAY3D, this));
+
+		if (ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL) {
+			getRoot()
+					.appendChild(
+							simStateData
+									.getExtraCellularDiffusionFieldArray3D()
+									.toXMLNode(
+											EXTRACELLULARDIFFUSIONFIELDARRAY3D,
+											this));
 		}
 
 		getRoot().appendChild(

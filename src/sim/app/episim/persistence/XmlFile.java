@@ -2,6 +2,7 @@ package sim.app.episim.persistence;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -25,10 +26,41 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.persistence.dataconvert.XmlHashMapPrimitiveValue;
+import sim.util.Double2D;
 
 public class XmlFile {
 
 	private Document document = null;
+	
+	public static void main(String[] args) {
+		
+//		HashMap<Double,Double> test = new HashMap<Double, Double>();
+//		test.put(2d, 3d);
+//		test.put(4d, 3d);
+//		test.put(32d, 3d);
+//		test.put(1d, 3d);
+//		test.put(5d, 3d);
+//		test.put(1d, 3d);
+//		
+//		HashMap fds = test;
+//		
+//		XmlHashMapPrimitiveValue testXml = new XmlHashMapPrimitiveValue(fds);
+//		XmlFile xmlFile;
+//		try {
+//			xmlFile = new XmlFile("root");
+//			xmlFile.getRoot().appendChild(testXml.toXMLNode("test", xmlFile));
+//			xmlFile.save(new File("test.xml"));
+//		} catch (SAXException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ParserConfigurationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		
+	}
 
 	public XmlFile(File path) throws SAXException, IOException,
 			ParserConfigurationException {
@@ -53,6 +85,7 @@ public class XmlFile {
 			ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = null;
+		
 		builder = factory.newDocumentBuilder();
 		document = builder.parse(path);
 

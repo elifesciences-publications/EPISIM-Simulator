@@ -29,12 +29,9 @@ import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.*;
-import sim.portrayal.continuous.*;
-import sim.portrayal.grid.ObjectGridPortrayal2D;
+
 import sim.portrayal3d.FieldPortrayal3D;
-import sim.portrayal3d.grid.ObjectGridPortrayal3D;
-import sim.portrayal3d.grid.SparseGridPortrayal3D;
-import sim.portrayal3d.simple.WireFrameBoxPortrayal3D;
+
 import sim.portrayal.*;
 import sim.util.Double2D;
 
@@ -48,19 +45,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.event.WindowStateListener;
+
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+
 import java.util.ArrayList;
 
 
@@ -130,12 +122,14 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	private boolean autoArrangeWindows = true;	
 	
-	FieldPortrayal2D cellPortrayal2D;
-	FieldPortrayal3D cellPortrayal3D;
-	BasementMembranePortrayal2D basementPortrayal;
-	WoundPortrayal2D woundPortrayal;
-	RulerPortrayal2D rulerPortrayal;
-	GridPortrayal2D gridPortrayal;	
+	private FieldPortrayal2D cellPortrayal2D;
+	private FieldPortrayal3D cellPortrayal3D;
+	private BasementMembranePortrayal2D basementPortrayal;
+	private WoundPortrayal2D woundPortrayal;
+	private RulerPortrayal2D rulerPortrayal;
+	private GridPortrayal2D gridPortrayal;
+	
+	private double initialDisplay3DScale = 1;
 	
 	public EpisimGUIState(JFrame mainFrame){			
 		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
@@ -457,14 +451,19 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
 		
 		display3D.translate(-.5*width,-.5*height,-0.5*length);
-		double initialScale = 0.5/Math.max(width, Math.max(height, length));
-		display3D.setInitialDisplayScale(initialScale);
-		display3D.scale(initialScale);
+		initialDisplay3DScale = 0.5/Math.max(width, Math.max(height, length));
+		display3D.setInitialDisplayScale(initialDisplay3DScale);
+		display3D.scale(initialDisplay3DScale);
        
       
 		return display3D.createInternalFrame();
 	}
 	
+	
+   public double getInitialDisplay3DScale() {
+
+	   return initialDisplay3DScale;
+   }
 	
 	
 	

@@ -23,6 +23,7 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implemen
 		 private final String NAME = "Grid";	
 	    
 	    private double gridResolution = 5.0;
+	    private double gridResolutionFact = 1;
 	    public GridPortrayal2D() {
 	   	 super();
 	   	 	   	 
@@ -60,7 +61,29 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implemen
 		double maxY = getMaxY(info);			
 		SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));		
 		double spaceBetweenSmallLinesX = props.displayScaleX*getResolutionInMikron();	
-		double spaceBetweenSmallLinesY = props.displayScaleY*getResolutionInMikron();	
+		double spaceBetweenSmallLinesY = props.displayScaleY*getResolutionInMikron();
+		double factX =1, factY = 1;
+		if(spaceBetweenSmallLinesX < MIN_PIXEL_RESOLUTION){					
+			factX = MIN_PIXEL_RESOLUTION / spaceBetweenSmallLinesX;
+			spaceBetweenSmallLinesX*=factX;
+			spaceBetweenSmallLinesY*=factX;
+		}
+		if(spaceBetweenSmallLinesY < MIN_PIXEL_RESOLUTION){					
+			factY = MIN_PIXEL_RESOLUTION / spaceBetweenSmallLinesY;
+			spaceBetweenSmallLinesX*=factY;
+			spaceBetweenSmallLinesY*=factY;
+		}
+		gridResolutionFact =(factX*factY);
+		
+		if(((getResolutionInMikron()*gridResolutionFact) % 5) != 0){
+			double modul = (getResolutionInMikron()*gridResolutionFact)%5;
+			modul = 5 - modul;
+			modul /= getResolutionInMikron();
+			gridResolutionFact+=modul;
+		}
+	
+		spaceBetweenSmallLinesX = props.displayScaleX*getResolutionInMikron()*gridResolutionFact;
+		spaceBetweenSmallLinesY = props.displayScaleY*getResolutionInMikron()*gridResolutionFact;
 				
 				
 		graphics.setFont(new Font("Arial", Font.PLAIN, 10));

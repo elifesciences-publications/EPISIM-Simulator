@@ -13,7 +13,7 @@ public class ImportedTissue implements java.io.Serializable {
 	private ArrayList<Point2D> basalLayerPoints = new ArrayList<Point2D>();
 	private ArrayList<Point2D> surfacePoints = new ArrayList<Point2D>();
 	private ArrayList<CellEllipse> cells = new ArrayList<CellEllipse>();
-	private double resolution;
+	private double resolution=1;
 	private String tissueImageid = "";
 	private String tissueDescription = "no description";
 	private double epidermalWidth;

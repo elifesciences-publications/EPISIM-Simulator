@@ -1,5 +1,6 @@
 package sim.app.episim.visualization;
 
+import sendreceive.TestFrame;
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
@@ -24,7 +25,7 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
    
 	private final String NAME = "Basement Membrane";  
   
-   
+  
    public BasementMembranePortrayal2D() {
    	
 	  	 Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
@@ -33,6 +34,7 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 	  	 
 	  	 field.setObjectLocation("DummyObject", new Double2D(50, 50));
 	  	 this.setField(field);
+	  	 
    }
    
        
@@ -45,10 +47,11 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
    // assumes the graphics already has its color set
 	public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
 	
-		GeneralPath polygon = TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon();
+		GeneralPath polygon = TissueController.getInstance().getTissueBorder().getBasalLayerDrawPolygon();
 		if(polygon != null){
 			{
 				if(info != null && polygon.getBounds().getWidth() > 0){
+					
 					 Stroke oldStroke = graphics.getStroke();
 				
 					graphics.setColor(new Color(255, 99, 0));
@@ -63,14 +66,18 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					if(TissueController.getInstance().getTissueBorder().isStandardMembraneLoaded()){
 						 graphics.setStroke(new BasicStroke((int)(0.8*props.displayScaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 						// scaleX *= 1.06;
-					}					
+					}
+				
 					
-					transform.scale(props.displayScaleX, props.displayScaleY);
-					Shape tissueBorder = transform.createTransformedShape(polygon);
-					transform.setToTranslation(props.offsetX, props.offsetY);
-					tissueBorder = transform.createTransformedShape(tissueBorder);
+				transform.scale(props.displayScaleX, props.displayScaleY);
+				polygon.transform(transform);
+				transform = new AffineTransform();
+				transform.setToTranslation(props.offsetX, props.offsetY);
+				polygon.transform(transform);
+				
 										
-					graphics.draw(tissueBorder);
+					graphics.draw(polygon);
+				
 					graphics.setStroke(oldStroke);					
 				}
 			}

@@ -87,7 +87,6 @@ public class TissueController {
 	public void resetTissueSettings(){
 		tissueRegistrationListener.clear();
 		importer = new TissueImporter();
-		TissueBorder.getInstance().setImportedTissue(null);
 		TissueBorder.getInstance().resetTissueBorderSettings();
 	}
 }

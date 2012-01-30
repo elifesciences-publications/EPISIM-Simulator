@@ -358,8 +358,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		
 		
 		
-		if((modelFile != null || (jarFileChoose.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION && ModeServer.guiMode()))){
-			if(modelFile == null) modelFile = jarFileChoose.getSelectedFile();
+		if(((modelFile != null && modelFile.exists()) || (jarFileChoose.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION && ModeServer.guiMode()))){
+			if(modelFile == null || !modelFile.exists()) modelFile = jarFileChoose.getSelectedFile();
 			boolean success = false; 
 			try{
 	         success= ModelController.getInstance().loadCellBehavioralModelFile(modelFile);
@@ -375,7 +375,10 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			if(success){
 				actLoadedSimulationStateData = simulationStateData;
 				if(simulationStateData == null)ModelController.getInstance().standardInitializationOfModels();
-				else ModelController.getInstance().initializeModels(simulationStateData);
+				else{
+					simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
+					ModelController.getInstance().initializeModels(simulationStateData);
+				}
 				ChartController.getInstance().rebuildDefaultCharts();
 				cleanUpContentPane();
 				if(ModeServer.guiMode())epiUI = new EpisimGUIState(mainFrame);
@@ -626,8 +629,10 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
             if(f != null){
             	setTissueExportPath(f, false);
 					SimulationStateData simStateData = new SimulationStateFile(f).loadData();   
-					simStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());      
-	            openModel(simStateData.getLoadedModelFile(), simStateData);   
+					if(simStateData.getLoadedModelFile()==null || !simStateData.getLoadedModelFile().exists()) {
+						JOptionPane.showMessageDialog(mainFrame, "Cannot open the cell behavioral model file defined in the export:\n" + simStateData.getLoadedModelFile(), "Error", JOptionPane.ERROR_MESSAGE);
+					}
+					else openModel(simStateData.getLoadedModelFile(), simStateData);   
             }
         }
         catch (ParserConfigurationException e1){

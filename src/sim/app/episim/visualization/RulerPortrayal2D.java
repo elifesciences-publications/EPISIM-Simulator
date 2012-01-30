@@ -45,7 +45,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 	    
 	 private Rectangle2D.Double oldDraw = null;  
 	    
-	   
+	 private double rulerResolutionFact = 1;  
 	    
 	public RulerPortrayal2D(){
 		super();
@@ -100,6 +100,30 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 				SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
 				double spaceBetweenSmallLinesX = props.displayScaleX*getResolutionInMikron();
 				double spaceBetweenSmallLinesY = props.displayScaleY*getResolutionInMikron();
+				double factX =1, factY = 1;
+				if(spaceBetweenSmallLinesX < MIN_PIXEL_RESOLUTION){					
+					factX = MIN_PIXEL_RESOLUTION / spaceBetweenSmallLinesX;
+					spaceBetweenSmallLinesX*=factX;
+					spaceBetweenSmallLinesY*=factX;
+				}
+				if(spaceBetweenSmallLinesY < MIN_PIXEL_RESOLUTION){					
+					factY = MIN_PIXEL_RESOLUTION / spaceBetweenSmallLinesY;
+					spaceBetweenSmallLinesX*=factY;
+					spaceBetweenSmallLinesY*=factY;
+				}
+				rulerResolutionFact =(factX*factY);
+				
+				if(((getResolutionInMikron()*rulerResolutionFact) % 5) != 0){
+					double modul = (getResolutionInMikron()*rulerResolutionFact)%5;
+					modul = 5 - modul;
+					modul /= getResolutionInMikron();
+					rulerResolutionFact+=modul;
+				}
+				
+				spaceBetweenSmallLinesX = props.displayScaleX*getResolutionInMikron()*rulerResolutionFact;
+				spaceBetweenSmallLinesY = props.displayScaleY*getResolutionInMikron()*rulerResolutionFact;
+				
+				
 				
 				double smallLine = 3;
 				double mediumLine = 8;
@@ -113,7 +137,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 					else graphics.draw(new Line2D.Double(i, maxY, i, maxY+ smallLine));
 					
 					if((lineNumber%10) == 0 || (lineNumber%5) == 0){
-						String text = ""+((int)(lineNumber*getResolutionInMikron()));
+						String text = ""+((int)(lineNumber*(getResolutionInMikron()*rulerResolutionFact)));
 						Rectangle2D stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
 						graphics.drawString(text, (float)(i - (stringBounds.getWidth()/2)), (float)(maxY+ bigLine+stringBounds.getHeight()));
 					}
@@ -125,7 +149,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 					else graphics.draw(new Line2D.Double(minX, i, minX - smallLine, i));
 					
 					if((lineNumber%10) == 0 || (lineNumber%5) == 0){
-						String text = ""+((int)(lineNumber*getResolutionInMikron()));
+						String text = ""+((int)(lineNumber*(getResolutionInMikron()*rulerResolutionFact)));
 						Rectangle2D stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
 						graphics.drawString(text, (float)(minX- bigLine-stringBounds.getWidth()), (float)(i + (stringBounds.getHeight()/3)));
 					}
@@ -133,15 +157,15 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 				//end of horizontal Axis
 				graphics.draw(new Line2D.Double(maxX, maxY, maxX, maxY+ bigLine));
 				
-				String text = ""+Math.round((maxX-minX)/props.displayScaleX);
+		/*		String text = ""+Math.round((maxX-minX)/props.displayScaleX);
 				Rectangle2D stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
-				graphics.drawString(text, (float)(maxX - (stringBounds.getWidth()/2)), (float)(maxY+ bigLine+stringBounds.getHeight()));
+				graphics.drawString(text, (float)(maxX - (stringBounds.getWidth()/2)), (float)(maxY+ bigLine+stringBounds.getHeight()));*/
 				
 				//end of vertical Axis
 				graphics.draw(new Line2D.Double(minX, minY, minX - bigLine, minY));
-				text = ""+Math.round((maxY-minY)/props.displayScaleY);
+		/*		text = ""+Math.round((maxY-minY)/props.displayScaleY);
 				stringBounds =graphics.getFontMetrics().getStringBounds(text, graphics);
-				graphics.drawString(text, (float)(minX- bigLine-stringBounds.getWidth()), (float)(minY + (stringBounds.getHeight()/3)));
+				graphics.drawString(text, (float)(minX- bigLine-stringBounds.getWidth()), (float)(minY + (stringBounds.getHeight()/3)));*/
 	    }
 	    
 	    private void showTissueInformationLine(Graphics2D graphics, DrawInfo2D info){
@@ -150,8 +174,10 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 			 double minY = getMinY(info);
 			 double maxY = getMaxY(info);
 			 StringBuffer text = new StringBuffer();
-			
-			 text.append("Interval: "+ getResolutionInMikron()+ " µm");
+			 double resolution = (getResolutionInMikron()*rulerResolutionFact)*10;
+			 resolution = Math.round(resolution);
+			 resolution/=10;
+			 text.append("Interval: "+ (resolution)+ " µm");
 				graphics.setFont(new Font("Arial", Font.PLAIN, 12));
 				
 		/*	 text.append("    Tissue ID: " + TissueController.getInstance().getTissueBorder().getTissueID());

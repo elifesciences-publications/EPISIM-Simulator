@@ -46,6 +46,7 @@ public class XmlImportedTissue extends XmlObject<ImportedTissue> {
 
 	@Override
 	protected void importParametersFromXml(Class<?> clazz) {
+		super.importParametersFromXml(clazz);
 		basalLayer = new ArrayList<Point2D>();
 		NodeList nl = getObjectNode().getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
@@ -66,7 +67,8 @@ public class XmlImportedTissue extends XmlObject<ImportedTissue> {
 
 	@Override
 	public ImportedTissue copyValuesToTarget(ImportedTissue target) {
-		importParametersFromXml(null);
+		super.copyValuesToTarget(target);
+		//importParametersFromXml(null);
 		target.setBasalLayerPoints(basalLayer);
 		return target;
 	}

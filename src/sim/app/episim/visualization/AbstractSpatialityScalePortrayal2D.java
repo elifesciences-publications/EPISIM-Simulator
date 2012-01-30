@@ -27,8 +27,10 @@ public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortr
      
    
    
-   private double resolution = 5;
+   private double resolution = 10;
 	
+   protected double MIN_PIXEL_RESOLUTION = 10;
+   
    protected EpisimGUIState guiState;
   
 	 public AbstractSpatialityScalePortrayal2D() {

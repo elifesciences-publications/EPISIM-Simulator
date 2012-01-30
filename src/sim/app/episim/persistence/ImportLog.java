@@ -2,9 +2,12 @@ package sim.app.episim.persistence;
 
 import java.util.HashMap;
 
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 
 public class ImportLog {
 
@@ -78,5 +81,21 @@ public class ImportLog {
 		}
 
 		return sb.toString();
+	}
+
+	public static void showLog() {
+		JScrollPane scrollPane = null;
+		JTextArea logArea = null;
+		JFrame frame = new JFrame("Nodes read: "
+				+ getInstance().nodeReadCounter + " Recognized: "
+				+ getInstance().nodeRecognizedCounter);
+		scrollPane = new JScrollPane();
+		logArea = new JTextArea();
+		scrollPane.setViewportView(logArea);
+		frame.add(scrollPane);
+
+		logArea.setText(getInstance().toString());
+		frame.setSize(300, 600);
+		frame.setVisible(true);
 	}
 }

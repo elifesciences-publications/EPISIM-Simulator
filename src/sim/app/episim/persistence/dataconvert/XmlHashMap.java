@@ -79,19 +79,4 @@ public abstract class XmlHashMap<V> extends XmlObject<HashMap<Object, V>> {
 		this.entryNodeMap.put(key, value);
 	}
 
-//	@Override
-//	public HashMap<Object, V> copyValuesToTarget(HashMap<Object, V> target) {
-////		importParametersFromXml(null);
-////		HashMap<Object, V> ret = target;
-////		if (target == null) {
-////			ret = new HashMap<Object, V>();
-////		}
-////		for (XmlPrimitive xmlKey : entryMap.keySet()) {
-////			ret.put(xmlKey.copyValuesToTarget(null), entryMap.get(xmlKey)
-////					.copyValuesToTarget(null));
-////		}
-////
-////		return ret;
-//	}
-
 }

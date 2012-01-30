@@ -30,35 +30,6 @@ import sim.app.episim.ExceptionDisplayer;
 public class XmlFile {
 
 	private Document document = null;
-	
-	public static void main(String[] args) {
-		
-//		HashMap<Double,Double> test = new HashMap<Double, Double>();
-//		test.put(2d, 3d);
-//		test.put(4d, 3d);
-//		test.put(32d, 3d);
-//		test.put(1d, 3d);
-//		test.put(5d, 3d);
-//		test.put(1d, 3d);
-//		
-//		HashMap fds = test;
-//		
-//		XmlHashMapPrimitiveValue testXml = new XmlHashMapPrimitiveValue(fds);
-//		XmlFile xmlFile;
-//		try {
-//			xmlFile = new XmlFile("root");
-//			xmlFile.getRoot().appendChild(testXml.toXMLNode("test", xmlFile));
-//			xmlFile.save(new File("test.xml"));
-//		} catch (SAXException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (ParserConfigurationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		
-	}
 
 	public XmlFile(File path) throws SAXException, IOException,
 			ParserConfigurationException {
@@ -121,6 +92,20 @@ public class XmlFile {
 		return document.getDocumentElement();
 	}
 
+	/**
+	 * rearranges the order of subnodes.
+	 * nodeOrder is a List of regular expressions.
+	 * example 1: nodeOrder =  1,4
+	 * new order of subnodes:
+	 * 2 , 3 , 1 , 4
+	 * 
+	 * example 2: nodeOrder = 1,4,*
+	 * new order of subnodes:
+	 * 1 , 4 , 2 , 3
+	 * 
+	 * @param node
+	 * @param nodeOrder
+	 */
 	public static void sortChildNodes(Node node, String[] nodeOrder) {
 
 		List<Node> nodes = new ArrayList<Node>();

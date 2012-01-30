@@ -9,6 +9,12 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 
+
+/**
+ * Beispielimplementierung von HashMap
+ * @author chris
+ *
+ */
 public class XmlHashMapUniversalCell extends XmlHashMap<UniversalCell> {
 
 	public XmlHashMapUniversalCell(HashMap<Object, UniversalCell> obj)

@@ -12,19 +12,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
-import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
-import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-
 import sim.app.episim.gui.EpidermisSimulator;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray2D;
 import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray3D;
 import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 public class SimulationStateFile extends XmlFile {
 

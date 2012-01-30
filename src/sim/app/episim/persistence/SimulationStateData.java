@@ -4,24 +4,22 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.w3c.dom.Node;
-
-import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
-import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
-import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray2D;
 import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray3D;
 import sim.app.episim.persistence.dataconvert.XmlObject;
 import sim.app.episim.persistence.dataconvert.XmlTissueBorder;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.tissue.TissueController;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 /*
  * update = Objekte sammeln

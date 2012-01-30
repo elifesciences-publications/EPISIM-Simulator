@@ -1,21 +1,21 @@
 package sim.app.episim.persistence;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerException;
-
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
-
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
@@ -26,8 +26,6 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.persistence.dataconvert.XmlHashMapPrimitiveValue;
-import sim.util.Double2D;
 
 public class XmlFile {
 

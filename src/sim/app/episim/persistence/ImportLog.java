@@ -1,15 +1,10 @@
 package sim.app.episim.persistence;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import sim.SimStateServer;
-import sim.app.episim.SimulationStateChangeListener;
-import sim.app.episim.gui.ShowLog;
 
 public class ImportLog {
 

@@ -28,7 +28,6 @@ public class XmlObject<T> {
 	private HashMap<String, Object> parameterMaxima = new HashMap<String, Object>();
 	private Node objectNode;
 	private T object = null;
-	private static final String CLASS = "class";
 	private static final String VALUE = "value";
 	private static final String MIN = "min";
 	private static final String MAX = "max";

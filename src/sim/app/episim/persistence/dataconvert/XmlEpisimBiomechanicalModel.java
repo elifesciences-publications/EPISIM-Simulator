@@ -1,7 +1,5 @@
 package sim.app.episim.persistence.dataconvert;
 
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -10,10 +8,7 @@ import episiminterfaces.EpisimBiomechanicalModel;
 
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
-import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.persistence.ExportException;
-import sim.app.episim.persistence.XmlFile;
-import sim.util.Double2D;
 
 public class XmlEpisimBiomechanicalModel extends
 		XmlObject<EpisimBiomechanicalModel> {

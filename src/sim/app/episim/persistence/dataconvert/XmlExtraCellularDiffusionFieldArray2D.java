@@ -9,7 +9,6 @@ import org.w3c.dom.NodeList;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
-import sim.field.grid.DoubleGrid2D;
 
 public class XmlExtraCellularDiffusionFieldArray2D extends
 		XmlObject<ExtraCellularDiffusionField2D[]> {

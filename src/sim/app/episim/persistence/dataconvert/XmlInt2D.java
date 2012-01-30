@@ -5,7 +5,6 @@ import org.w3c.dom.Node;
 
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
-import sim.util.Double2D;
 import sim.util.Int2D;
 
 public class XmlInt2D extends XmlObject<Int2D> {

@@ -3,10 +3,6 @@ package sim.app.episim.persistence.dataconvert;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import episiminterfaces.EpisimCellBehavioralModel;
-import episiminterfaces.EpisimSbmlModelConnector;
-
-import sim.app.episim.model.sbml.SBMLModelState;
 import sim.app.episim.model.sbml.SbmlModelConnector;
 import sim.app.episim.persistence.ExportException;
 

@@ -1,8 +1,6 @@
 package sim.app.episim.persistence.dataconvert;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import sim.app.episim.persistence.ExportException;
 
 import episimbiomechanics.EpisimModelConnector;

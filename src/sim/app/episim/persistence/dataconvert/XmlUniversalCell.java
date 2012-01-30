@@ -1,8 +1,5 @@
 package sim.app.episim.persistence.dataconvert;
 
-import java.lang.reflect.Method;
-
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -11,7 +8,6 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
-import sim.util.Double2D;
 
 public class XmlUniversalCell extends XmlObject<AbstractCell> {
 	private static final String EPISIMBIOMECHANICALMODEL = "episimBiomechanicalModel";

@@ -1,12 +1,9 @@
 package sim.app.episim.persistence.dataconvert;
 
-import java.util.HashMap;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import sim.app.episim.model.sbml.SBMLModelState;
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 import sim.app.episim.tissue.ImportedTissue;

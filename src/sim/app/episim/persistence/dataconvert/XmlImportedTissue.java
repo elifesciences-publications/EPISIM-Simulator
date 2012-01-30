@@ -8,7 +8,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import sim.app.episim.persistence.ExportException;
-import sim.app.episim.persistence.ImportLog;
 import sim.app.episim.persistence.XmlFile;
 import sim.app.episim.tissue.ImportedTissue;
 

@@ -134,7 +134,7 @@ public class TestVisualizationMain {
 	         
 	         if(JFileChooser.APPROVE_OPTION== xmlChooser.showOpenDialog(mainFrame)){
 	         	actImportedTissuePath = xmlChooser.getSelectedFile();
-	         	TissueController.getInstance().loadTissue(actImportedTissuePath);
+	         	TissueController.getInstance().loadTissue(actImportedTissuePath, true);
 	         	tissueImportMode = true;
 	         	canvas.clearPanel();
 	         	canvas.setImportedTissueVisualizationMode(true);

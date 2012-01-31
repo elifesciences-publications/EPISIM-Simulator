@@ -107,8 +107,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    	
    	if(cellField == null){
    		cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
-					ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() + 2, 
-					ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron());
+					TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 
+					TissueController.getInstance().getTissueBorder().getHeightInMikron());
    	}   	
    	
    	extForce=new Vector2D(0,0);      
@@ -124,7 +124,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	             
 	      Double2D oldLoc=cellField.getObjectLocation(cell.getMotherCell());	   
 	       if(oldLoc != null){
-		      Double2D newloc=new Double2D(oldLoc.x + deltaX, oldLoc.y-deltaY);		      
+		      Double2D newloc=new Double2D(oldLoc.x + deltaX, oldLoc.y+deltaY);		      
 		      cellField.setObjectLocation(cell, newloc);		      
 		 	  	DrawInfo2D info = ((CenterBasedMechanicalModel)cell.getMotherCell().getEpisimBioMechanicalModelObject()).getCellEllipseObject().getLastDrawInfo2D();
 		 	  	this.setLastDrawInfo2DForNewCellEllipse(info, newloc, oldLoc);
@@ -153,10 +153,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        return lastd;
    }  
    
-   public final Double2D forceFromBound(Continuous2D pC2dHerd, double x) // Calculate the Force orthogonal to lower bound
+   public final Double2D forceFromBound(Continuous2D pC2dHerd, double x, double y) // Calculate the Force orthogonal to lower bound
    {        
-       double yleft=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(pC2dHerd.stx(x-5));
-       double yright=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(pC2dHerd.stx(x+5));
+       double yleft=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(pC2dHerd.stx(x-5), pC2dHerd.sty(y));
+       double yright=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(pC2dHerd.stx(x+5),pC2dHerd.sty(y));
        return new Double2D(-(yright-yleft),10);
    }    
    public Double2D randomness(MersenneTwisterFast r)
@@ -166,11 +166,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        double l = Math.sqrt(x * x + y * y);
        return new Double2D(0.05*x/l,0.05*y/l);
    }
-   public final double elastic(double x)
-   {        
-       if ((x>0.3) || (x<-0.3)) return x;
-       else return x*x*x;
-   }
+   
  
    private class HitResultClass
    {        
@@ -197,7 +193,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
        // for each collision calc a pressure vector and add it to the other's existing one
        HitResultClass hitResult=new HitResultClass();            
-       if (b==null || b.numObjs == 0 || getCell().getIsInNirvana()) return hitResult;
+       if (b==null || b.numObjs == 0) return hitResult;
        
        
        
@@ -275,7 +271,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
                      neighbors++;                         
                      
                      // lipids do not diffuse
-                     if ((dy>0) && (other.getIsOuterCell())) hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
+                     if ((dy<0) && (other.getIsOuterCell())) hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
                    }
                }
            }    
@@ -292,20 +288,18 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	public void setPositionRespectingBounds(Double2D p_potentialLoc)
 	{
 	   // modelling a hole in the wall at position hole holeX with width  holeHalfWidth
-	   if (getCell().getIsInNirvana()) 
-	           return;
+	  
 	   double newx=p_potentialLoc.x;
 	   double newy=p_potentialLoc.y;               
-	   double maxy=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(p_potentialLoc.x);  
+	   double minY=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(p_potentialLoc.x, p_potentialLoc.y);  
 	   
 	  
-	   if (newy>maxy)
+	   if (newy<minY)
 	   {
-	       newy=maxy;          
+	       newy=minY;          
 	   
 	      
-	   }
-	   else if (newy<10) newy=10;
+	   }	 
 	
 	   Double2D newloc = new Double2D(newx,newy);
 	   cellField.setObjectLocation(getCell(), newloc);
@@ -322,30 +316,22 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   
 	   
 	   newy=yPos;
-	   double maxy=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newx);        
+	   double minY=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newx, newy);        
 	           
-	   if (newy>maxy)  // border crossed
+	   if (newy<minY)  // border crossed
 	   {
-	       if (newy>pC2dHerd.height) // unterste Auffangebene
+	       if (newy<=0) // unterste Auffangebene
 	       {
-	           newy=pC2dHerd.height; 
-	           getCell().setInNirvana(true);
-	          
+	           newy=0;       
 	       }
 	
 	       else            
-	           newy=maxy;       
-	   }
-	   else if (newy<10) newy=10;        
+	           newy=minY;       
+	   }  
 	   return new Double2D(newx, newy);        
 	}
 
-   public final double sigmoid(double x)
-   {
-       // maximum der funktion ist ca. fuer x>3 erreicht
-       // bei x gegen 0 hat die funktionen einen sehr kleinen wert, der aber groesser als Null ist.
-       return 4/(1+0.1*Math.exp((-x-4)/1));
-   }
+  
    
    public void newSimStep(long simstepNumber){
    	
@@ -460,20 +446,20 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
 			if((hitResult2.numhits == 0)
 					|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == getCell().getMotherId()) || (hitResult2.otherMotherId == getCell().getID())))){
-				double dx = potentialLoc.x - oldLoc.x;
+				
 				lastd = new Double2D(potentialLoc.x - oldLoc.x, potentialLoc.y - oldLoc.y);
 				setPositionRespectingBounds(potentialLoc);
 			}
 		}
 
 		newLoc = cellField.getObjectLocation(getCell());
-		double maxy = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newLoc.x);
-		if((maxy - newLoc.y) < globalParameters.getBasalLayerWidth())
+		double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newLoc.x, newLoc.y);
+		if((newLoc.y-minY) < globalParameters.getBasalLayerWidth())
 			getCell().setIsBasalStatisticsCell(true);
 		else
 			getCell().setIsBasalStatisticsCell(false); // ABSOLUTE DISTANZ KONSTANTE
 
-		if((maxy - newLoc.y) < globalParameters.getMembraneCellsWidthInMikron()){
+		if((newLoc.y-minY) < globalParameters.getMembraneCellsWidthInMikron()){
 			modelConnector.setIsMembrane(true);
 			//cell.setIsMembraneCell(true);
 			this.isMembraneCell = true;
@@ -496,7 +482,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		
 		
 		modelConnector.setX(getNewPosition().getX());
-  	 	modelConnector.setY(TissueController.getInstance().getTissueBorder().getHeightInMikron()- getNewPosition().getY());
+  	 	modelConnector.setY(getNewPosition().getY());
   	   modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());
   	   
   	   calculateCellEllipse(simstepNumber);
@@ -533,14 +519,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
       {
   		 	AbstractCell actNeighbour = neighbours.get(i);
     
-         Double2D otherloc=cellField.getObjectLocation(actNeighbour);
-         double dx = cellField.tdx(getNewPosition().getX(),otherloc.x); // dx, dy is what we add to other to get to this
-         double dy = cellField.tdy(getNewPosition().getY(),otherloc.y);
-         if(actNeighbour.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
-            	CenterBasedMechanicalModel neighbourBiomechModel = (CenterBasedMechanicalModel) actNeighbour.getEpisimBioMechanicalModelObject();
-            	neighbourBiomechModel.modelConnector.setDy(-1*dy);
-            	neighbourBiomechModel.modelConnector.setDx(dx);            	
-         }
+      //   Double2D otherloc=cellField.getObjectLocation(actNeighbour);
+    //     double dx = cellField.tdx(getNewPosition().getX(),otherloc.x); // dx, dy is what we add to other to get to this
+     //    double dy = cellField.tdy(getNewPosition().getY(),otherloc.y);
+        
             //  double distance = Math.sqrt(dx*dx + dy*dy);
               
             //  if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
@@ -699,12 +681,13 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   cellField.setObjectLocation(this.getCell(), location);
 	   if(modelConnector!=null){
 	   	modelConnector.setX(location.x);
-	   	modelConnector.setY(TissueController.getInstance().getTissueBorder().getHeightInMikron()- location.y);
+	   	modelConnector.setY(location.y);
 	   }
    }
 	
    public Double2D getCellLocationInCellField() {	   
-	   return cellField.getObjectLocation(getCell());
+	   Double2D loc = cellField.getObjectLocation(getCell());
+	   return loc!= null ? loc : new Double2D(-1,-1);
    }
 
    protected Object getCellField() {	  

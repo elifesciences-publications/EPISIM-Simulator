@@ -42,14 +42,9 @@ public abstract class AbstractSpatialityScalePortrayal2D extends ContinuousPortr
 	   	 this.height = guiState.EPIDISPLAYHEIGHT + guiState.DISPLAY_BORDER_TOP+guiState.DISPLAY_BORDER_BOTTOM;
 	    	 
 		 }
-		 
-		
-	
-	 
-	 
    	    	 
-   	 double heightResolution = Math.round(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron() * 0.02);
-	  	 double widthResolution = Math.round(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron() * 0.02);
+   	 double heightResolution = Math.round(TissueController.getInstance().getTissueBorder().getHeightInMikron() * 0.02);
+	  	 double widthResolution = Math.round(TissueController.getInstance().getTissueBorder().getWidthInMikron() * 0.02);
 	  	 this.resolution = heightResolution > widthResolution ? heightResolution : widthResolution;
 	  	 
 	  	 Continuous2D field = new Continuous2D(TissueController.getInstance().getTissueBorder().getWidthInMikron() + 2, 

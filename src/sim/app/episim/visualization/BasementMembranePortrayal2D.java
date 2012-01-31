@@ -69,11 +69,11 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					}
 				
 					
-				transform.scale(props.displayScaleX, props.displayScaleY);
-				polygon.transform(transform);
-				transform = new AffineTransform();
-				transform.setToTranslation(props.offsetX, props.offsetY);
-				polygon.transform(transform);
+					transform.scale(props.displayScaleX, props.displayScaleY);
+					polygon.transform(transform);
+					transform = new AffineTransform();
+					transform.setToTranslation(props.offsetX, props.offsetY);
+					polygon.transform(transform);
 				
 										
 					graphics.draw(polygon);

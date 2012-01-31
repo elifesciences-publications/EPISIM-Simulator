@@ -137,7 +137,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 					                //TODO: Nucleus ein- und ausschalten
 					              if(showNucleus)
 					              {
-					                  java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
+					                java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
 					                  nucleusPolygon= mechModel.getPolygonNucleus(new EpisimDrawInfo<DrawInfo2D>(info)).getCellShape();
 					                  if(nucleusPolygon != null){
 						                  graphics.setPaint(nucleusColor);  

@@ -69,9 +69,9 @@ public class VertexBasedModelController implements TissueRegistrationListener, B
 			refreshCellPolygonArrayInCalculator();
 			
 			cellCanvas = new CellCanvas(0, 0, (int)TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
-						(int)TissueController.getInstance().getTissueBorder().getWidthInMikron());
+						(int)TissueController.getInstance().getTissueBorder().getHeightInMikron());
 			ContinuousVertexField.initializeContinousVertexField((int)TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
-						(int)TissueController.getInstance().getTissueBorder().getWidthInMikron()); 
+						(int)TissueController.getInstance().getTissueBorder().getHeightInMikron()); 
 				
 		}	   
    }

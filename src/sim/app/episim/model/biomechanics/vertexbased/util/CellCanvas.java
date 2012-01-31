@@ -40,7 +40,7 @@ public class CellCanvas {
 			if(size % 2 != 0) size -= 1;
 			Color oldColor = g.getColor();
 			g.setColor(c);
-			g.fillRect(x-(size/2), y-(size/2), size+1, size+1);
+			g.fillRect(x-(size/2), (height-(y-(size/2))), size+1, size+1);
 			g.setColor(oldColor);
 		}
 	}
@@ -50,7 +50,7 @@ public class CellCanvas {
 		Stroke oldStroke = g.getStroke();
 		g.setColor(c);
 		g.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		g.drawLine(x + line.getV1().getIntX(), y + line.getV1().getIntY(), x + line.getV2().getIntX(), y + line.getV2().getIntY());
+		g.drawLine(x + line.getV1().getIntX(), y + (height-line.getV1().getIntY()), x + line.getV2().getIntX(), y + (height-line.getV2().getIntY()));
 		g.setColor(oldColor);
 		g.setStroke(oldStroke);
 	}
@@ -60,7 +60,7 @@ public class CellCanvas {
 			Polygon p = new Polygon();			
 			Vertex[] sortedVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getSortedVertices());		
 			for(Vertex v : sortedVertices){	
-				p.addPoint(v.getIntX() + x, v.getIntY()+y);				
+				p.addPoint(v.getIntX() + x, y+(height-v.getIntY()));				
 			}			
 			
 			Color oldColor = g.getColor();
@@ -85,20 +85,20 @@ public class CellCanvas {
 		Polygon p = new Polygon();			
 		Vertex[] sortedVertices = ContinuousVertexField.getInstance().getMinDistanceTransformedVertexArrayMajorityQuadrantReferenceSigned(cell.getSortedVertices());		
 		for(Vertex v : sortedVertices){	
-			p.addPoint(v.getIntX() + x + ((int)deltaX), v.getIntY() + y + ((int)deltaY));			
+			p.addPoint(v.getIntX() + x + ((int)deltaX),  (y + ((int)deltaY))+(height-v.getIntY()));			
 		}
 		return p;
 	}	
 	
 	public void drawVertex(Graphics2D g, Vertex vertex, Color color){
 		if(vertex != null){
-			drawPoint(g, vertex.getIntX()+x, vertex.getIntY()+y, 3, color == null ? Color.BLUE : color);						
+			drawPoint(g, vertex.getIntX()+x, y+(height-vertex.getIntY()), 3, color == null ? Color.BLUE : color);						
 		}
 	}
 	
 	public void drawBigVertex(Graphics2D g, Vertex vertex){
 		if(vertex != null){
-			drawPoint(g, vertex.getIntX()+x, vertex.getIntY()+y, 10, Color.BLUE);						
+			drawPoint(g, vertex.getIntX()+x, y+(height-vertex.getIntY()), 10, Color.BLUE);						
 		}
 	}
 }

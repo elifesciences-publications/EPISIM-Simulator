@@ -12,6 +12,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuilder;
@@ -31,12 +32,13 @@ import sim.util.Double2D;
 public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelInitializer {
 	
 	private MersenneTwisterFast random;
-	
+	private VertexBasedMechanicalModelGP globalParameters;
 	public VertexBasedMechanicalModelInitializer(){
 		super();
+		globalParameters = (VertexBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		TissueController.getInstance().getTissueBorder().setBasalPeriodInMikron(550);
 		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembraneInMikron(0);
-		TissueController.getInstance().getTissueBorder().setUndulationBaseLineInMikron(190);
+		TissueController.getInstance().getTissueBorder().setUndulationBaseLineInMikron((int)(globalParameters.getHeightInMikron()/2));
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 		
 		random = new MersenneTwisterFast(System.currentTimeMillis());

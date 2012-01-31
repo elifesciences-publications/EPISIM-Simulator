@@ -60,11 +60,11 @@ public class TissueController {
 		return TissueBorder.getInstance();
 	}
 	
-	public void loadTissue(File file) throws IllegalArgumentException{
+	public void loadTissue(File file, boolean tissueVisualizationMode) throws IllegalArgumentException{
 		if(file == null) throw new IllegalArgumentException(this.getClass().getName()+": File must not be null");
 		else{
 			ImportedTissue actImportedTissue = importer.loadTissue(file);
-			if(actImportedTissue != null) TissueBorder.getInstance().setImportedTissue(actImportedTissue);
+			if(actImportedTissue != null) TissueBorder.getInstance().setImportedTissue(actImportedTissue, tissueVisualizationMode);
 		}		
 	}
 	

@@ -256,10 +256,11 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	private void configureStandardMembrane(){
 		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setBasalAmplitude_mikron(250);
 		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setWidthInMikron(500);
+		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setHeightInMikron(500);
 		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setBasalOpening_mikron(12000);
 		TissueController.getInstance().getTissueBorder().setBasalPeriodInMikron(550);
 		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembraneInMikron(0);
-		TissueController.getInstance().getTissueBorder().setUndulationBaseLineInMikron(160);
+		TissueController.getInstance().getTissueBorder().setUndulationBaseLineInMikron(250);
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 	}	
 	
@@ -364,8 +365,8 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		g.setColor(ColorRegistry.BASAL_LAYER_COLOR);
 		g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		AffineTransform transform = new AffineTransform();
-		transform.translate(CANVAS_ANCHOR_X, CANVAS_ANCHOR_Y);
-		GeneralPath borderPath = TissueController.getInstance().getTissueBorder().getFullContourDrawPolygon();
+		transform.translate(CANVAS_ANCHOR_X, -CANVAS_ANCHOR_Y);
+		GeneralPath borderPath = TissueController.getInstance().getTissueBorder().getBasalLayerDrawPolygon();
 		borderPath.transform(transform);
 		g.draw(borderPath);
 		g.setColor(oldColor);

@@ -134,7 +134,7 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 			
 		if(lastDrawInfo != null){
 			
-			double scale = info.getDrawInfo().draw.height > info.getDrawInfo().draw.width ? info.getDrawInfo().draw.height : info.getDrawInfo().draw.width;
+			
 			
 			SimulationDisplayProperties props = SimStateServer.getInstance().getEpisimGUIState().getSimulationDisplayProperties(info);
 			
@@ -166,7 +166,7 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	       
 	       
 	        
-			return new Episim2DCellShape(path);
+			return new Episim2DCellShape<Shape>(path);
 			
 		}
 	   return new Episim2DCellShape(VertexBasedModelController.getInstance().getCellCanvas().getDrawablePolygon(cellPolygon, 0, 0));

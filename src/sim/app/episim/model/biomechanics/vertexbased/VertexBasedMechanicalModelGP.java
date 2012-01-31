@@ -47,7 +47,7 @@ public class VertexBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 		@NotInStatisticsHeaderString
 		private double width_mikron = 500;
 		@NotInStatisticsHeaderString
-		private double height_mikron = 450;		
+		private double height_mikron = 500;		
 		@NotInStatisticsHeaderString
 		private double neighborhood_mikron= 50.0;
 		@NotInStatisticsHeaderString

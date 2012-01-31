@@ -22,9 +22,7 @@ public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	private boolean isSurface = false;
 	private double x;
 	private double y;
-	private double dx;
-	private double dy;
-	
+		
 	public EpisimCenterBasedModelConnector(){}
 	
 	@Hidden
@@ -92,26 +90,6 @@ public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	@Hidden
 	public void setY(double y) {	
 		this.y = y;
-	}
-
-	
-	public double getDx() {	
-		return dx;
-	}
-
-	@Hidden
-	public void setDx(double dx) {	
-		this.dx = dx;
-	}
-
-	
-	public double getDy() {	
-		return dy;
-	}
-
-	@Hidden
-	public void setDy(double dy) {	
-		this.dy = dy;
 	}
 	
 	public boolean getIsSurface(){

@@ -84,10 +84,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	
 	@NoExport
 	public abstract List<Method> getParameters();
-	
-	public boolean getIsInNirvana() { return inNirvana; }
-	public void setInNirvana(boolean inNirvana) { this.inNirvana = inNirvana; }
-	
+		
 	@CannotBeMonitored
 	public long getID() { return id; }   
 	
@@ -125,7 +122,6 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    public void killCell(){
    	 if(this.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel)((AbstractMechanicalModel)this.getEpisimBioMechanicalModelObject()).removeCellFromCellField();	
 	  	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);	  	 
-	  	 setInNirvana(true);
 	  	 this.getEpisimCellBehavioralModelObject().setIsAlive(false);
 	  	 removeFromSchedule();
    }   

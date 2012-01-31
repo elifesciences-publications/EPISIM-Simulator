@@ -4,6 +4,7 @@ package sim.app.episim.tissue;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -184,36 +185,49 @@ public class TissueBorder {
 		return inPixels ? globalParameters.getLengthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getLengthInMikron();
 	}
 	
-	public double lowerBoundInMikron(double x)
+	public double lowerBoundInMikron(double xCell, double yCell)
 	 {
+		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 		if(standardMembraneLoaded){
 			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 				// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
 		     double p=basalPeriod; 
 		     
-		     double partition=x-(int)(x/p)*p - p/2; // alle 10 einen buckel 5=10/2        
+		     double partition=xCell-(int)(xCell/p)*p - p/2; // alle 10 einen buckel 5=10/2        
 		     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_mikron());
 		     //System.out.println("x:"+x+" p:"+partition+" v:"+v+" Av:"+basalAmplitude*v);
-		     return basalY+globalParameters.getBasalAmplitude_mikron()*v;
+		     double result= basalY+globalParameters.getBasalAmplitude_mikron()*v;
+		     double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		     result = heightInMikron - result;
+		     return result;
 		}
-		else return Double.POSITIVE_INFINITY;
+		else if(noMembraneLoaded) return Double.NEGATIVE_INFINITY;
+		else if(this.actImportedTissue != null) return getLowerYCoordinateForXCoordinate(xCell, yCell);			
+			return Double.NEGATIVE_INFINITY;
+	 }
+	public double upperBoundInMikron(double xCell, double yCell)
+	 {		
+		if(this.actImportedTissue != null){
+			return getUpperYCoordinateForXCoordinate(xCell, yCell);			
+		}
+		else	return Double.POSITIVE_INFINITY;
 	 }
 	
 	public ImportedTissue getImportedTissue(){ return this.actImportedTissue; }
 	
-	public void setImportedTissue(ImportedTissue _tissue) {
+	public void setImportedTissue(ImportedTissue _tissue, boolean tissueVisualizationMode) {
 		standardMembraneLoaded = false;
 		noMembraneLoaded = false;
+		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 		ArrayList<Point2D> surface = null, basalLayer = null;		
 		Point2D[] surfaceArray = null, basalLayerArray = null;
 		if(_tissue != null){
 			actImportedTissue = _tissue;
-			setMinYInPointsToZero();
+			
 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setNumberOfPixelsPerMicrometer((1/ actImportedTissue.getResolutionInMicrometerPerPixel()));
 			surface = actImportedTissue.getSurfacePoints();
 			basalLayer = actImportedTissue.getBasalLayerPoints();
-//			Collections.shuffle(surface);
-//			Collections.shuffle(basalLayer);
+
 			surfaceArray = surface.toArray(new Point2D[surface.size()]);
 			basalLayerArray = basalLayer.toArray(new Point2D[basalLayer.size()]);
 		
@@ -231,7 +245,14 @@ public class TissueBorder {
 			   basalLayerArray = sorting.getSortedPoints();
 				
 			}		
-			
+			actImportedTissue.getSurfacePoints().clear();
+			actImportedTissue.getSurfacePoints().addAll(Arrays.asList(surfaceArray));
+			actImportedTissue.getBasalLayerPoints().clear();
+			actImportedTissue.getBasalLayerPoints().addAll(Arrays.asList(basalLayerArray));
+			if(!tissueVisualizationMode){
+				convertPointsToMikron();
+				setMinYInPointsToZero();		
+			}
 			fullcontour = new ArrayList<Point2D>();
 			for(Point2D point : basalLayerArray)fullcontour.add(point);
 			
@@ -262,9 +283,7 @@ public class TissueBorder {
 					this.surface.moveTo(surfaceArray[0].getX(), surfaceArray[0].getY());
 					for(Point2D p : actImportedTissue.getSurfacePoints())this.surface.lineTo(p.getX(), p.getY());
 				}
-				drawSurface = (GeneralPath)this.surface.clone();
-				
-				
+				drawSurface = (GeneralPath)this.surface.clone();				
 				
 				//polygon.closePath();
 				
@@ -286,7 +305,7 @@ public class TissueBorder {
 					if(p.getY() > maxY) maxY = p.getY();
 				}
 				
-				double deltaHeight = this.actImportedTissue.getEpidermalHeight()-(maxY-minY);
+				double deltaHeight = (this.actImportedTissue.getEpidermalHeight()*this.actImportedTissue.getResolutionInMicrometerPerPixel()) -(maxY-minY);
 				for(Point2D p: this.actImportedTissue.getSurfacePoints()){
 					p.setLocation(p.getX(), (p.getY()-minY+deltaHeight));
 				}
@@ -296,13 +315,27 @@ public class TissueBorder {
 		}
 	}
 	
+	private void convertPointsToMikron(){
+		if(this.actImportedTissue != null){
+			for(Point2D p: this.actImportedTissue.getSurfacePoints()){
+					p.setLocation(p.getX()*actImportedTissue.getResolutionInMicrometerPerPixel(), p.getY()*actImportedTissue.getResolutionInMicrometerPerPixel());
+			}
+			for(Point2D p: this.actImportedTissue.getBasalLayerPoints()){
+					p.setLocation(p.getX()*actImportedTissue.getResolutionInMicrometerPerPixel(), p.getY()*actImportedTissue.getResolutionInMicrometerPerPixel());
+			}			
+				
+		}
+	}
+	
 	public void loadStandardMembrane(){
+		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		
 		standardMembraneLoaded = true;
 		GeneralPath polygon = new GeneralPath();
 	 		final int STEPSIZE = 1;
-	 		((GeneralPath)polygon).moveTo(startXOfStandardMembrane, lowerBoundInMikron(startXOfStandardMembrane));
-	 		for(double i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+getWidthInPixels()); i += STEPSIZE){
-	 		((GeneralPath)polygon).lineTo(i, lowerBoundInMikron(i));
+	 		((GeneralPath)polygon).moveTo(startXOfStandardMembrane, (getHeightInMikron()-lowerBoundInMikron(startXOfStandardMembrane, 0)));
+	 		for(double i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+getWidthInMikron()); i += STEPSIZE){
+	 		((GeneralPath)polygon).lineTo(i, (getHeightInMikron()-lowerBoundInMikron(i, 0)));
 	 		}
 	 		this.polygon = polygon;
 	 		this.drawBasalLayer = (GeneralPath)polygon.clone();
@@ -326,117 +359,63 @@ public class TissueBorder {
 	public GeneralPath getBasalLayerDrawPolygon(){
 		return (GeneralPath)drawBasalLayer.clone();		
 	}
-	Point2D previousPoint = null;
-	
-	public boolean isOverBasalLayer(Point2D point){
-		boolean result = false;
-		if((previousPoint !=null&& previousPoint.getX() != point.getX()&&
-				previousPoint.getY() != point.getY())|| previousPoint ==null)System.out.println("Point: "+ new Double((int)point.getX())+ ", "+ point.getY());
-		if(organizedXPoints.containsKey(new Double((int)point.getX()))){
-			
-			TreeSet<Double> yPoints = organizedXPoints.get(new Double((int)point.getX()));
-			NavigableSet<Double> yPointsSorted = yPoints.descendingSet();
-			Double first =yPointsSorted.first();
-			if((previousPoint !=null&& previousPoint.getX() != point.getX()&&
-					previousPoint.getY() != point.getY())|| previousPoint ==null){
-			
-				
-				Iterator<Double> iter =yPoints.descendingIterator();
-				System.out.print("Y-Points: ");
-				while(iter.hasNext()) System.out.print(iter.next() +", ");
-				System.out.println();
-				
-			}
-			
-			
-			 if(first != null){
-				 Double next = yPointsSorted.higher(first);
-				 
-				 while(result != true && next !=null && first != null){
-				  
-					 if(point.getY() <= first.doubleValue() && point.getY() >= next.doubleValue()) result = true;
-					
-					 
-					 if((previousPoint !=null&& previousPoint.getX() != point.getX()&&
-								previousPoint.getY() != point.getY())|| previousPoint ==null){
-						 System.out.println("First : "+ first);
-						 System.out.println("Next : "+ next);
-						 System.out.println("Result : "+ result);
-						 System.out.println();
-					 }
-					 // jeder wird nur einmal zur Bildung eines Wertpaares herangezogen, damit Schlaufen korrekt behandelt werden
-					 first = yPointsSorted.higher(next);
-					 if(first != null)next = yPointsSorted.higher(first);
-					 else{ 
-						 if(point.getY() <= next.doubleValue()) result = true;
-						 next = null;
-					 }
-				 }
-				 if(next == null && first != null && result == false && point.getY() <= first.doubleValue()){ 
-					 result = true;
-					 
-					 if((previousPoint !=null&& previousPoint.getX() != point.getX()&&
-								previousPoint.getY() != point.getY())|| previousPoint ==null){
-						 System.out.println("First : "+ first);
-						 System.out.println("Result : "+ result);
-						 System.out.println();
-					 }
-				 }
 		
-			 }	 
-		}
-		else System.out.println("X-Wert liegt nicht drin: "+new Double((int)point.getX()));
-		previousPoint = point;
-		
-		return result;
-	}
 		      
 	private void organizeBasalLayerPoints(){
+		double height = actImportedTissue.getEpidermalHeight();
 		for(Point2D actPoint: actImportedTissue.getBasalLayerPoints()){
-			if(organizedXPoints.containsKey(actPoint.getX()))
-				organizedXPoints.get(actPoint.getX()).add(actPoint.getY());
+			double x = actPoint.getX();
+			double y = actPoint.getY();
+			if(organizedXPoints.containsKey(x))
+				organizedXPoints.get(x).add(height-y);
 			else{
 				TreeSet<Double> tmp =new TreeSet<Double>();
-				tmp.add(actPoint.getY());
-				organizedXPoints.put(actPoint.getX(), tmp);
+				tmp.add(height-y);
+				organizedXPoints.put(x, tmp);
 			}
 		}
 		
 	}
 	@NoExport	
-	public Set<Double> getYCoordinateForXCoordinate(double x){
+	public double getLowerYCoordinateForXCoordinate(double xCell, double yCell){
 		
-		if(organizedXPoints.containsKey(x)) return organizedXPoints.get(x);
-		else return new HashSet<Double>();
-	}
-	/**
-	 * Methode, die die Höhe berechnet
-	 */
-	private void calculateheight(){
-	int maxY = 0;
-	int minY = 0;
-	 for(Point2D point :actImportedTissue.getBasalLayerPoints()) if(point.getY() > maxY) maxY = (int)point.getY();
-	 for(Point2D point :actImportedTissue.getSurfacePoints()) if(point.getY() < minY) minY = (int)point.getY();
-	 System.out.println("Die berechnete Höhe ist: " + (maxY - minY));
+		if(organizedXPoints.containsKey(xCell)){
+			TreeSet<Double> yValues = organizedXPoints.get(xCell);
+			Iterator<Double> iter= yValues.iterator();
+		
+			while(iter.hasNext()){
+				double yValue = iter.next();
+				if(yValue < yCell){
+					
+					return yValue;
+				}
+			}
+			return yValues.first();
+		}
+		else return Double.NEGATIVE_INFINITY;
 	}
 	
-	/**
-	 * Methode, die die Höhe berechnet
-	 */
-	private void calculateWidth(){
-	int maxX = 0;
-	int minX = 0;
-	 for(Point2D point :actImportedTissue.getBasalLayerPoints()){
-		 if(point.getX() > maxX) maxX = (int)point.getX();
-		 else if(point.getX() < minX) minX = (int)point.getX();
-	 }
-	 for(Point2D point :actImportedTissue.getSurfacePoints()){
-		 if(point.getX() > maxX) maxX = (int)point.getX();
-		 else if(point.getX() < minX) minX = (int)point.getX();
-	 }
-	 System.out.println("Die berechnete Breite ist: " + (maxX - minX));
-	 System.out.println("Die Höhe, die Thora berechnet hat, ist: " + actImportedTissue.getEpidermalWidth());
+	@NoExport	
+	public double getUpperYCoordinateForXCoordinate(double xCell, double yCell){
+		
+		if(organizedXPoints.containsKey(xCell)){ 
+			TreeSet<Double> yValues = organizedXPoints.get(xCell);
+			Iterator<Double> iter= yValues.iterator();
+		
+			while(iter.hasNext()){
+				double yValue = iter.next();
+				if(yValue > yCell){
+					
+					return yValue;
+				}
+			}
+			return yValues.last();
+		}
+		else return Double.POSITIVE_INFINITY;
 	}
+	
+	
+	
 	
 }
 

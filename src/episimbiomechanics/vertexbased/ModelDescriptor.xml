@@ -17,8 +17,6 @@
     <parameter datatype="double" default="15000.0"
       name="standardBasalCellBondTension" readonly="true"/>
     <parameter datatype="double" default="2340.0" name="prefCellArea" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="dx" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="dy" readonly="true"/>
     <parameter datatype="double" default="15000.0"
       name="standardLateralCellBondTension" readonly="true"/>
     <parameter datatype="double" default="15000.0"

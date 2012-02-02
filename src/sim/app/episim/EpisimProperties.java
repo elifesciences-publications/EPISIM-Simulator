@@ -58,7 +58,11 @@ public class EpisimProperties {
 	public static final String SIMULATOR_DISPLAY3D_ROTATION_Y="simulator.display3d.rotation.y";
 	public static final String SIMULATOR_DISPLAY3D_ROTATION_Z="simulator.display3d.rotation.z";
 	public static final String SIMULATOR_DISPLAY3D_ROTATION_PERSECOND="simulator.display3d.rotation.persecond";
-			
+	
+	public static final String SIMULATOR_DISPLAYSIZE_WIDTH="simulator.displaysize.width";
+	public static final String SIMULATOR_DISPLAYSIZE_HEIGHT="simulator.displaysize.height";
+	
+	
 	public static final String SIMULATOR_SIM_STEP_MODE_MONTE_CARLO="montecarlo";
 	public static final String SIMULATOR_SIM_STEP_MODE_MASON="mason";
 	

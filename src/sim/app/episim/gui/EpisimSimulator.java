@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
@@ -44,6 +47,7 @@ import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
+import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
@@ -63,7 +67,7 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public class EpidermisSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
+public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
 	public static final String versionID = "1.4";
 	
@@ -81,7 +85,8 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	private ExtendedFileChooser jarFileChoose;
 	private ExtendedFileChooser tissueExportFileChoose;
 	
-	
+	public static final double MAINFRAME_WIDTH_FACT = 0.95;
+	public static final double MAINFRAME_HEIGHT_FACT = 0.9;
 	
 	private EpisimGUIState epiUI;
 	
@@ -99,7 +104,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	private EpisimMenuBarFactory menuBarFactory;
 	
-	public EpidermisSimulator() {
+	public EpisimSimulator() {
 
 		if(ModeServer.guiMode()){
 			mainFrame = new JFrame();
@@ -135,7 +140,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			jarFileChoose= new ExtendedFileChooser("jar");
 			jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 			tissueExportFileChoose = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
-			mainFrame.setTitle(EpidermisSimulator.SIMULATOR_TITLE);
+			mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE);
 		}
 		else{
 			noGUIModeMainPanel.setLayout(new BorderLayout());
@@ -195,8 +200,9 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		//        TODO: to be changed for video recording
 		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		if(ModeServer.guiMode()){
-			mainFrame.setPreferredSize(new Dimension((int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()*0.95),
-					(int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight()*0.9)));
+			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+			mainFrame.setPreferredSize(new Dimension((int) (dim.getWidth()*MAINFRAME_WIDTH_FACT),
+					(int) (dim.getHeight()*MAINFRAME_HEIGHT_FACT)));
 			
 			
 		//	this.setPreferredSize(new Dimension(1280, 932));
@@ -280,34 +286,34 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	public static void main(String[] args){
 		boolean onlyHelpWanted = false;
 		
-		if(args.length >= 1 && args[0].equals(EpidermisSimulator.HELP)) onlyHelpWanted = true;
+		if(args.length >= 1 && args[0].equals(EpisimSimulator.HELP)) onlyHelpWanted = true;
 		else{
 		
 			for(int i = 0; i < args.length; i++){
-				if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX) 
-						|| args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)
-						|| args[i].equals(EpidermisSimulator.SIM_ID_PARAM_PREFIX)
-						|| args[i].equals(EpidermisSimulator.M_FILE_PARAM_PREFIX)){
+				if(args[i].equals(EpisimSimulator.BM_FILE_PARAM_PREFIX) 
+						|| args[i].equals(EpisimSimulator.CB_FILE_PARAM_PREFIX)
+						|| args[i].equals(EpisimSimulator.SIM_ID_PARAM_PREFIX)
+						|| args[i].equals(EpisimSimulator.M_FILE_PARAM_PREFIX)){
 					
 					if((i+1) >= args.length) throw new PropertyException("Missing value after parameter: "+ args[i]);
-					if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX) 
-						|| args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)
-						|| args[i].equals(EpidermisSimulator.M_FILE_PARAM_PREFIX)){
+					if(args[i].equals(EpisimSimulator.BM_FILE_PARAM_PREFIX) 
+						|| args[i].equals(EpisimSimulator.CB_FILE_PARAM_PREFIX)
+						|| args[i].equals(EpisimSimulator.M_FILE_PARAM_PREFIX)){
 						File path = new File(args[i+1]);
 						
 						if(!path.exists() || !path.isDirectory()) new PropertyException("Path: " + args[i+1] + " doesn't point to a property file for parameter " + args[i]);
 						
-						if(args[i].equals(EpidermisSimulator.BM_FILE_PARAM_PREFIX)){
+						if(args[i].equals(EpisimSimulator.BM_FILE_PARAM_PREFIX)){
 							EpisimProperties.setProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
 						}
-						else if(args[i].equals(EpidermisSimulator.CB_FILE_PARAM_PREFIX)){
+						else if(args[i].equals(EpisimSimulator.CB_FILE_PARAM_PREFIX)){
 							EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP, path.getAbsolutePath());
 						}
-						else if(args[i].equals(EpidermisSimulator.M_FILE_PARAM_PREFIX)){
+						else if(args[i].equals(EpisimSimulator.M_FILE_PARAM_PREFIX)){
 							EpisimProperties.setProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP, path.getAbsolutePath());
 						}
 					}
-					else if(args[i].equals(EpidermisSimulator.SIM_ID_PARAM_PREFIX)){
+					else if(args[i].equals(EpisimSimulator.SIM_ID_PARAM_PREFIX)){
 						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1].trim());
 					}
 				}			
@@ -325,7 +331,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 				//	&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
 				//System.setProperty("java.awt.headless", "true");
 			
-		      	  		EpidermisSimulator episim = new EpidermisSimulator();
+		      	  		EpisimSimulator episim = new EpisimSimulator();
 		       
 		}
 		else printHelpTextOnConsole();
@@ -344,9 +350,9 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	}
 	
 	
-	protected void openModel(File modelFile, SimulationStateData simulationStateData){
-		ModelController.getInstance().setSimulationStartedOnce(false);
-		
+	protected boolean openModel(File modelFile, SimulationStateData simulationStateData){
+		boolean success = false; 
+		ModelController.getInstance().setSimulationStartedOnce(false);		
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		
 		
@@ -354,13 +360,12 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		if(ModeServer.guiMode()){
 			jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 			if(standardDir.exists())jarFileChoose.setCurrentDirectory(standardDir);
-		}
-		
+		}		
 		
 		
 		if(((modelFile != null && modelFile.exists()) || (jarFileChoose.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION && ModeServer.guiMode()))){
 			if(modelFile == null || !modelFile.exists()) modelFile = jarFileChoose.getSelectedFile();
-			boolean success = false; 
+			
 			try{
 	         success= ModelController.getInstance().loadCellBehavioralModelFile(modelFile);
          }
@@ -406,7 +411,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 			}
 
 		}
-		
+		return success;
 	}
 	
 	protected void openModel(){
@@ -482,7 +487,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		}
 		if(file != null){
 			try{
-	        if(ModeServer.guiMode()) mainFrame.setTitle(EpidermisSimulator.SIMULATOR_TITLE+ "- Tissue-Export-Path: "+file.getCanonicalPath());
+	        if(ModeServer.guiMode()) mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE+ "- Tissue-Export-Path: "+file.getCanonicalPath());
          }
          catch (IOException e){
 	         ExceptionDisplayer.getInstance().displayException(e);
@@ -542,14 +547,20 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		
 		GlobalClassLoader.getInstance().destroyClassLoader();
 		
-		if(ModeServer.guiMode())mainFrame.setTitle(EpidermisSimulator.SIMULATOR_TITLE);
+		if(ModeServer.guiMode())mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE);
 		
-		
+		SimulationStateFile.setTissueExportPath(null);
 		this.actLoadedSimulationStateData = null;
 	}
 	
 	public void simulationWasStarted(){
 		
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.WINDOWS_MENU).setEnabled(false);
+		this.menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(false);
+	}
+	public void simulationWasPaused() {
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.WINDOWS_MENU).setEnabled(false);
@@ -593,7 +604,7 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 
 	
 
-	public void simulationWasPaused() {}
+	
 	
 
 	protected void removeAllChartInternalFrames(){
@@ -606,9 +617,10 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 	
 	private void centerMe(JFrame frame){
 		if(frame != null){
-			Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-			frame.setLocation(((int)((screenDim.getWidth()/2)-(frame.getPreferredSize().getWidth()/2))), 
-			((int)((screenDim.getHeight()/2)-(frame.getPreferredSize().getHeight()/2))));
+			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();	
+			
+			frame.setLocation(((int)((dim.getWidth()/2)-(frame.getPreferredSize().getWidth()/2))), 
+			((int)((dim.getHeight()/2)-(frame.getPreferredSize().getHeight()/2))));
 		}
 	}
 
@@ -628,18 +640,38 @@ public class EpidermisSimulator implements SimulationStateChangeListener, ClassL
 		 try{
             if(f != null){
             	setTissueExportPath(f, false);
-					SimulationStateData simStateData = new SimulationStateFile(f).loadData();   
+					final SimulationStateData simStateData = new SimulationStateFile(f).loadData();   
 					if(simStateData.getLoadedModelFile()==null || !simStateData.getLoadedModelFile().exists()) {
 						JOptionPane.showMessageDialog(mainFrame, "Cannot open the cell behavioral model file defined in the export:\n" + simStateData.getLoadedModelFile(), "Error", JOptionPane.ERROR_MESSAGE);
 					}
-					else openModel(simStateData.getLoadedModelFile(), simStateData);   
+					else{ 
+						setTissueExportPath(f, false);
+						if(ModeServer.guiMode()){
+							EpisimProgressWindow progressWindow = new EpisimProgressWindow(mainFrame);
+							progressWindow.setProgressText("Load Episim Simulation State...");
+							EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback() {											
+								public void taskHasFinished() {}
+								public void executeTask() {
+									boolean success = openModel(simStateData.getLoadedModelFile(), simStateData);
+									if(success && epiUI != null){
+										epiUI.pressPauseAfterLoadingSimulationState();
+									}								
+								}
+							};
+							progressWindow.showProgressWindowForTask(cb);
+						}
+						else{
+							openModel(simStateData.getLoadedModelFile(), simStateData);
+						}
+					}
             }
         }
         catch (ParserConfigurationException e1){
         		ExceptionDisplayer.getInstance().displayException(e1);
         }
         catch (SAXParseException e1){
-        	JOptionPane.showMessageDialog(mainFrame,"systemId: "+e1.getSystemId()+"; lineNumber: "+e1.getLineNumber()+"; columnNumber: "+e1.getColumnNumber()+"\n"+e1.getMessage());
+        	if(ModeServer.guiMode())JOptionPane.showMessageDialog(mainFrame,"systemId: "+e1.getSystemId()+"; lineNumber: "+e1.getLineNumber()+"; columnNumber: "+e1.getColumnNumber()+"\n"+e1.getMessage());
+        	else System.out.println("systemId: "+e1.getSystemId()+"; lineNumber: "+e1.getLineNumber()+"; columnNumber: "+e1.getColumnNumber()+"\n"+e1.getMessage());
         } 
 		 catch(SAXException e1){
 			 ExceptionDisplayer.getInstance().displayException(e1);

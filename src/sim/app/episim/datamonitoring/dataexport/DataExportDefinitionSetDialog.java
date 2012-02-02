@@ -43,7 +43,9 @@ import sim.app.episim.datamonitoring.charts.ChartSetDialog;
 import sim.app.episim.datamonitoring.charts.EpisimChartSetImpl;
 import sim.app.episim.datamonitoring.charts.ChartController.ChartType;
 import sim.app.episim.datamonitoring.dataexport.DataExportController.DataExportType;
+import sim.app.episim.gui.EpisimProgressWindow;
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.ObjectManipulations;
 import episimexceptions.CompilationFailedException;
@@ -75,7 +77,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		
 		private JButton editButton;
 		private JButton removeButton;
-		private JWindow progressWindow;
+		private EpisimProgressWindow progressWindow;
 		private Frame owner;
 		
 		private boolean okButtonPressed = false;
@@ -85,25 +87,8 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		public DataExportDefinitionSetDialog(Frame owner, String title, boolean modal){
 			super(owner, title, modal);
 			
-			progressWindow = new JWindow(owner);
-			
-			progressWindow.getContentPane().setLayout(new BorderLayout(5, 5));
-			if(progressWindow.getContentPane() instanceof JPanel)
-				((JPanel)progressWindow.getContentPane()).setBorder(BorderFactory.createCompoundBorder(
-						BorderFactory.createBevelBorder(BevelBorder.RAISED), BorderFactory.createEmptyBorder(10,10, 10, 10)));
-			JProgressBar progressBar = new JProgressBar();
-			progressBar.setIndeterminate(true);
-			JLabel progressLabel = new JLabel("Writing Episim-DataExportSet-Archive");
-			progressWindow.getContentPane().add(progressLabel, BorderLayout.NORTH);
-			progressWindow.getContentPane().add(progressBar, BorderLayout.CENTER);
-			
-			progressWindow.setSize(400, 65);
-			
-			progressWindow.setLocation(owner.getLocation().x + (owner.getWidth()/2) - (progressWindow.getWidth()/2), 
-					owner.getLocation().y + (owner.getHeight()/2) - (progressWindow.getHeight()/2));
-			
-			
-			
+			progressWindow = new EpisimProgressWindow(owner);		
+			progressWindow.setProgressText("Writing Episim-DataExportSet-Archive");			
 			indexDataExportDefinitionIdMap = new HashMap<Integer, Long>();
 			
 			this.owner = owner;
@@ -488,25 +473,23 @@ public class DataExportDefinitionSetDialog extends JDialog {
 						dialog.setVisible(false);
 						dialog.dispose();
 						if(checkForDirtyDataExports() || isDirty){
-								resetDirtyDataExports(); 
-							Runnable r = new Runnable(){
-	
-								public void run() {
-									progressWindow.setVisible(true);
+								resetDirtyDataExports();
+								EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
 									
-									try{
-	                           DataExportController.getInstance().storeDataExportDefinitionSet(episimDataExportDefinitionSet);
-                           }
-                           catch (CompilationFailedException e){
-	                           ExceptionDisplayer.getInstance().displayException(e);
-                           }
-									
-									progressWindow.setVisible(false);
-		                  }
-						
-							};
-							Thread writingThread = new Thread(r);
-							writingThread.start();
+									public void executeTask() {							
+										try{
+		                           DataExportController.getInstance().storeDataExportDefinitionSet(episimDataExportDefinitionSet);
+	                           }
+	                           catch (CompilationFailedException e){
+		                           ExceptionDisplayer.getInstance().displayException(e);
+	                           }
+				               }
+									public void taskHasFinished(){
+										  
+									}
+							
+								};	
+								progressWindow.showProgressWindowForTask(cb);			
 						}
 					}
 				}

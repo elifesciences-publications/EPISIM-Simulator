@@ -5,6 +5,7 @@ import sim.engine.*;
 import sim.field.grid.SparseGrid3D;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.CellInspector;
 import sim.app.episim.SimulationStateChangeListener;
@@ -130,6 +131,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	private GridPortrayal2D gridPortrayal;
 	
 	private double initialDisplay3DScale = 1;
+	
+	private boolean staticSimulationFrameSize = false;
 	
 	public EpisimGUIState(JFrame mainFrame){			
 		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
@@ -451,7 +454,29 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
 		
 		display3D.translate(-.5*width,-.5*height,-0.5*length);
-		initialDisplay3DScale = 0.5/Math.max(width, Math.max(height, length));
+		double windowFact =0.5;
+		
+		Dimension windowDim = new Dimension((int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()*EpisimSimulator.MAINFRAME_WIDTH_FACT),
+				(int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight()*EpisimSimulator.MAINFRAME_HEIGHT_FACT)); 
+		
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_HEIGHT) != null &&
+				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_WIDTH) != null){
+				try{
+					double displayWidth = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_WIDTH));
+					double displayHeight= Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_HEIGHT));
+					
+					double windowDisplayScale1 = windowDim.width / displayWidth;
+					double windowDisplayScale2 = windowDim.height / displayHeight;
+					
+					windowFact *= windowDisplayScale1 > windowDisplayScale2 ? windowDisplayScale1 : windowDisplayScale2;
+					
+				}
+				catch(NumberFormatException e){}
+		}
+		
+		
+		
+		initialDisplay3DScale = windowFact/Math.max(width, height);
 		display3D.setInitialDisplayScale(initialDisplay3DScale);
 		display3D.scale(initialDisplay3DScale);
        
@@ -564,6 +589,26 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		displayFrame.setResizable(true);
 		displayFrame.setVisible(true);
 		displayFrame.setFrameIcon(null);
+		
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_HEIGHT) != null &&
+			EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_WIDTH) != null){
+			try{
+				int width = Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_WIDTH));
+				int height = Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_HEIGHT));
+				
+				displayFrame.setSize(width, height);
+				displayFrame.setPreferredSize(new Dimension(width, height));
+				displayFrame.setMinimumSize(new Dimension(width, height));
+				displayFrame.setMaximumSize(new Dimension(width, height));				
+				displayFrame.setResizable(false);
+				this.staticSimulationFrameSize=true;
+			}
+			catch(NumberFormatException e){
+				this.staticSimulationFrameSize =false;
+			}
+		}
+		
+		
 		
 		desktop.add(displayFrame);
 
@@ -707,6 +752,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	private void arrangeElements(JComponent comp, boolean resizeArrangement) {
 			
 		Dimension mainFrameDim; 
+		
 		mainFrameDim= comp.getPreferredSize();
 		if(resizeArrangement){
 			mainFrameDim.height = mainFrameDim.height - STATUSBARHEIGHT;
@@ -748,7 +794,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 			actComp = comp.getComponent(i);
 			if(actComp != null && actComp instanceof JInternalFrame){
 				if(((JInternalFrame) actComp).getName().equals(SIMULATIONFRAME)){
-					((JInternalFrame) actComp).setPreferredSize(new Dimension(xDeltaSim, yDeltaSim));
+					if(!staticSimulationFrameSize)((JInternalFrame) actComp).setPreferredSize(new Dimension(xDeltaSim, yDeltaSim));
 					((JInternalFrame) actComp).setLocation(0, 0);
 				}
 				else if(((JInternalFrame) actComp).getName().equals(CHARTFRAME)){
@@ -817,6 +863,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	    }
 	}
 	
+	public void pressPauseAfterLoadingSimulationState(){
+		if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() != Console.PS_PLAYING){
+			console.pressPause();
+		}
+	}
 	
 	
 	public void pressWorkaroundSimulationPause(){

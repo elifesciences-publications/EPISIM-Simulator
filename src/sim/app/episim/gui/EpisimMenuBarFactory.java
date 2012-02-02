@@ -72,10 +72,10 @@ public class EpisimMenuBarFactory {
 	
 	private JMenuBar menuBar;	
 	
-	private EpidermisSimulator simulator;
+	private EpisimSimulator simulator;
 	private EpisimAboutDialog aboutDialog;
 	
-	public EpisimMenuBarFactory(EpidermisSimulator simulator){
+	public EpisimMenuBarFactory(EpisimSimulator simulator){
 		if(simulator == null) throw new IllegalArgumentException("Epidermis Simulator must not be null");
 		else this.simulator = simulator;
 		

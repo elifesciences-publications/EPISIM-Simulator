@@ -996,7 +996,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 						}
 						ModelController.getInstance().getExtraCellularDiffusionController().setDiffusionFieldCrossSectionCoordinate(result);
 					
-						diffFieldPlaneSliderLabel.setText(result + " µm");
+						diffFieldPlaneSliderLabel.setText(Math.round(result) + " µm");
 						 SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
 						
 					}
@@ -1131,7 +1131,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 						modelClip.getPlane(selectedComboItem.ordinal()-1, planePosition);
 						planePosition.w = result;
 						modelClip.setPlane(selectedComboItem.ordinal()-1, planePosition);
-						modelScenePlaneSliderLabel.setText((-1*result) + " µm");
+						modelScenePlaneSliderLabel.setText(Math.round(-1*result) + " µm");
 						SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
 						
 					}

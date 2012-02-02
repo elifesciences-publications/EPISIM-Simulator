@@ -12,7 +12,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import sim.app.episim.gui.EpidermisSimulator;
+import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray2D;
@@ -201,7 +201,7 @@ public class SimulationStateFile extends XmlFile {
 		Element headerElement = createElement(EPISIM_TISSUE_SIMULATION_HEADER);
 
 		headerElement
-				.setAttribute(EPISIM_VERSION, EpidermisSimulator.versionID);
+				.setAttribute(EPISIM_VERSION, EpisimSimulator.versionID);
 		GregorianCalendar cal = new GregorianCalendar();
 		headerElement.setAttribute(EXPORT_DATE, cal.getTime().toString());
 

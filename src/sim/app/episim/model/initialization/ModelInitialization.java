@@ -98,8 +98,7 @@ public class ModelInitialization {
 				.initializeCellEnsembleBasedOnRandomAgeDistribution(initiallyExistingCells);
 		this.extraCellularDiffusionInitializer.buildExtraCellularDiffusionFields();
 		if (simulationStateData != null) {
-			// TODO global Parameters, sind die hier richtig?
-
+			
 			EpisimCellBehavioralModelGlobalParameters globalBehave = ModelController
 					.getInstance()
 					.getEpisimCellBehavioralModelGlobalParameters();

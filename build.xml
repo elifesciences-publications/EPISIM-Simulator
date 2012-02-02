@@ -25,7 +25,7 @@
 	<property name="version" value="1.4.0"/>
 	<property name="vendor" value="Hamamatsu TIGA Center"/>
 	<property name="title" value="Episim Simulator"/>
-	<property name="main" value="sim.app.episim.gui.EpidermisSimulator"/>
+	<property name="main" value="sim.app.episim.gui.EpisimSimulator"/>
 	<property name="splash" value="splash.jpg"/>
 	
 				
@@ -176,7 +176,7 @@
 		</manifestclasspath>
 		<jar destfile="${currentbuild}/${build}/bin/${destjarfile}"  filesetmanifest="mergewithoutmain">
 			<manifest>
-				<attribute name="Main-Class" value="sim.app.episim.gui.EpidermisSimulator"/>
+				<attribute name="Main-Class" value="sim.app.episim.gui.EpisimSimulator"/>
 				<attribute name="Class-Path" value=". ${lib.list}"/>
 				<attribute name="SplashScreen-Image" value="${splash}"/>
 				<attribute name="Built-By" value="${user.name}"/>

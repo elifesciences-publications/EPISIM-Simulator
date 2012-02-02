@@ -35,12 +35,12 @@ public class EpisimTextOut{
 	private EpisimTextOut(){
 		
 		buildTextOutPanel();
-		standardText="Episim Simulator version " + EpidermisSimulator.versionID + "<br>Simulation Text Output:<br><br>";
+		standardText="Episim Simulator version " + EpisimSimulator.versionID + "<br>Simulation Text Output:<br><br>";
 		currentTextOnTextOut = new StringBuffer();
 		appendHTMLStartTags();
 		this.currentTextOnTextOut.append(standardText);
 		textOutput.setText(this.currentTextOnTextOut.toString());
-		EpidermisSimulator.errorOutputStream.addWriteListener(new ByteArrayWriteListener()
+		EpisimSimulator.errorOutputStream.addWriteListener(new ByteArrayWriteListener()
 	    {
 	       
 	       public void textWasWritten(WriteEvent event)
@@ -59,7 +59,7 @@ public class EpisimTextOut{
 			
 	    });
 		
-		EpidermisSimulator.standardOutputStream.addWriteListener(new ByteArrayWriteListener()
+		EpisimSimulator.standardOutputStream.addWriteListener(new ByteArrayWriteListener()
 	    {
 	       
 	       public void textWasWritten(WriteEvent event)

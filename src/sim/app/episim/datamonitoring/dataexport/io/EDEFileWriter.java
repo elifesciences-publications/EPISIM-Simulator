@@ -15,7 +15,7 @@ import java.util.jar.Manifest;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.dataexport.build.DataExportCompiler;
-import sim.app.episim.gui.EpidermisSimulator;
+import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.util.Names;
 import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
@@ -47,7 +47,7 @@ public class EDEFileWriter {
 							StringBuffer sBuffer = new StringBuffer();
 
 							sBuffer.append("Manifest-Version: 1.0\n");
-							sBuffer.append("Created-By: "+EpidermisSimulator.versionID+" (Episim - Uni Heidelberg)\n");
+							sBuffer.append("Created-By: "+EpisimSimulator.versionID+" (Episim - Uni Heidelberg)\n");
 							sBuffer.append("Factory-Class: "+ Names.EPISIM_DATAEXPORT_FACTORYNAME +"\n");
 							
 							

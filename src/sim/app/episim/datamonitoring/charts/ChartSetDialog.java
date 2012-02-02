@@ -52,9 +52,12 @@ import episiminterfaces.monitoring.EpisimDiffFieldChart;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.ChartController.ChartType;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
+import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
+import sim.app.episim.gui.EpisimProgressWindow;
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectManipulations;
@@ -86,7 +89,7 @@ public class ChartSetDialog extends JDialog {
 	private JButton editButton;
 	private JButton removeButton;
 	JButton okButton;
-	private JWindow progressWindow;
+	private EpisimProgressWindow progressWindow;
 	private Frame owner;
 	
 	private boolean okButtonPressed = false;
@@ -96,24 +99,8 @@ public class ChartSetDialog extends JDialog {
 	public ChartSetDialog(Frame owner, String title, boolean modal){
 		super(owner, title, modal);
 		
-		progressWindow = new JWindow(owner);
-		
-		progressWindow.getContentPane().setLayout(new BorderLayout(5, 5));
-		if(progressWindow.getContentPane() instanceof JPanel)
-			((JPanel)progressWindow.getContentPane()).setBorder(BorderFactory.createCompoundBorder(
-					BorderFactory.createBevelBorder(BevelBorder.RAISED), BorderFactory.createEmptyBorder(10,10, 10, 10)));
-		JProgressBar progressBar = new JProgressBar();
-		progressBar.setIndeterminate(true);
-		JLabel progressLabel = new JLabel("Writing Episim-Chartset-Archive");
-		progressWindow.getContentPane().add(progressLabel, BorderLayout.NORTH);
-		progressWindow.getContentPane().add(progressBar, BorderLayout.CENTER);
-		
-		progressWindow.setSize(400, 65);
-		
-		progressWindow.setLocation(owner.getLocation().x + (owner.getWidth()/2) - (progressWindow.getWidth()/2), 
-				owner.getLocation().y + (owner.getHeight()/2) - (progressWindow.getHeight()/2));
-		
-		
+		progressWindow = new EpisimProgressWindow(owner);	
+		progressWindow.setProgressText("Writing Episim-Chartset-Archive");		
 		
 		indexChartIdMap = new HashMap<Integer, Long>();
 		
@@ -490,26 +477,24 @@ public class ChartSetDialog extends JDialog {
 					dialog.setVisible(false);
 					dialog.dispose();
 					if(episimChartSet.isOneOfTheChartsDirty() || isDirty){
-						resetChartDirtyStatus(); 
-									
-						Runnable r = new Runnable(){
-	
-							public void run() {
-								progressWindow.setVisible(true);
+						resetChartDirtyStatus();
+						EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
+							
+							public void executeTask() {							
 								try{
-	                        ChartController.getInstance().storeEpisimChartSet(episimChartSet);
+									ChartController.getInstance().storeEpisimChartSet(episimChartSet);
                         }
                         catch (CompilationFailedException e){
-	                        ExceptionDisplayer.getInstance().displayException(e);
+                           ExceptionDisplayer.getInstance().displayException(e);
                         }
-								progressWindow.setVisible(false);
-	                  }
+		               }
+							public void taskHasFinished(){
+								  
+							}
 					
-						};
-						Thread writingThread = new Thread(r);
-						writingThread.start();
-					}
-					
+						};	
+						progressWindow.showProgressWindowForTask(cb);						
+					}					
 				}
 			}
 		});

@@ -2,6 +2,7 @@ package sim.app.episim.tissue;
 
 
 
+import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
@@ -10,6 +11,8 @@ import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
+import sim.app.episim.gui.EpisimProgressWindow;
+import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
@@ -82,12 +85,6 @@ public class Epidermis extends TissueType implements CellDeathListener
 	
 
 	
-
-	
-	
-   
-
-	
 	// Percentage
 	
 	private transient List<EnhancedSteppable> chartSteppables = null;
@@ -151,8 +148,30 @@ public class Epidermis extends TissueType implements CellDeathListener
  
  
 	private void seedInitiallyAvailableCells(){
-		 for(UniversalCell cell : ModelController.getInstance().getInitialCellEnsemble()){
+		final ArrayList<UniversalCell> initialCellEnsemble = new ArrayList<UniversalCell>();
+		if(ModeServer.guiMode()){
+			if(SimStateServer.getInstance().getEpisimGUIState()!= null 
+					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() != null
+					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() instanceof Frame){
+			
+				EpisimProgressWindow progressWindow = new EpisimProgressWindow((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent());
+				progressWindow.setProgressText("Load initial simulation state...");
+				EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback() {											
+					public void taskHasFinished() {}
+					public void executeTask() {
+						initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());						
+					}
+				};
+				progressWindow.showProgressWindowForTask(cb);
+			}
+		}
+		else{
+			initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());
+		}
+		
+		 for(UniversalCell cell : initialCellEnsemble){
 			 if(!ModeServer.useMonteCarloSteps()){
+				 
 					Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
 					cell.setStoppable(stoppable);
 			 }

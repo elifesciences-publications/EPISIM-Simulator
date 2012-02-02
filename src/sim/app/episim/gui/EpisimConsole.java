@@ -7,6 +7,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.MenuBar;
 import java.awt.event.ActionEvent;
@@ -47,6 +48,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import episimexceptions.CompilationFailedException;
 import episiminterfaces.SimulationConsole;
 
 import sim.SimStateServer;
@@ -56,6 +58,8 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
+import sim.app.episim.datamonitoring.dataexport.DataExportController;
+import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -84,6 +88,8 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	private Component mainGUIComponent = null; 
 	
 	private EpisimGUIState episimGUIState;
+	
+	private EpisimProgressWindow progressWindow;
 	
 	public EpisimConsole(final GUIState simulation, boolean reloadSnapshot){
 		
@@ -217,7 +223,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 						SimulationStateFile.setTissueExportPath(chooser.getSelectedFile());	
 						 if(ModeServer.guiMode()){
 	                  try{
-	                     ((JFrame)mainGUIComponent).setTitle(EpidermisSimulator.SIMULATOR_TITLE+ "- Tissue-Export-Path: "+chooser.getSelectedFile().getCanonicalPath());
+	                     ((JFrame)mainGUIComponent).setTitle(EpisimSimulator.SIMULATOR_TITLE+ "- Tissue-Export-Path: "+chooser.getSelectedFile().getCanonicalPath());
                      }
                      catch (IOException e1){
                      	 ExceptionDisplayer.getInstance().displayException(e1);
@@ -225,25 +231,46 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 						 }
 					}
 				}				
-			  try{
+			
+				if(ModeServer.guiMode()){
+					if(mainGUIComponent instanceof Frame){
+						progressWindow = new EpisimProgressWindow((Frame)mainGUIComponent);
+						progressWindow.setProgressText("Writing simulation state to disk...");
+						EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
+							
+							public void executeTask() {							
+								saveSimulationState();					
+		                }
+							public void taskHasFinished(){
+								  System.out.println("Ich bin fertig!");							
+						        episimGUIState.pressWorkaroundSimulationPlay(); 
+								  simulation.state.postCheckpoint();
+							}
 					
-	            (new SimulationStateFile()).saveData();
-	        }
-	        catch (ParserConfigurationException e1){
-	           ExceptionDisplayer.getInstance().displayException(e1);
-	        }
-	        catch (SAXException e1){
-	        	ExceptionDisplayer.getInstance().displayException(e1);
-	        }			
-				
-				
-	        episimGUIState.pressWorkaroundSimulationPlay(); 
-				simulation.state.postCheckpoint();
+						};	
+						progressWindow.showProgressWindowForTask(cb);
+					}
+				}
+				else{
+					saveSimulationState();	
+				}   		
 			}
      	 
       });
      addTissueExportButton();
      
+	}
+	
+	private void saveSimulationState(){
+		  try{
+			  (new SimulationStateFile()).saveData();							
+		  }
+        catch (ParserConfigurationException e1){
+           ExceptionDisplayer.getInstance().displayException(e1);
+        }
+        catch (SAXException e1){
+        	ExceptionDisplayer.getInstance().displayException(e1);
+        }		
 	}
 	
 	

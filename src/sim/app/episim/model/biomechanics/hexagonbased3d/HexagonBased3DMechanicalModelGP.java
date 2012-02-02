@@ -5,9 +5,9 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 
-	public static final double number_of_columns =10;
-	public static final double number_of_rows =10;
-	public static final double number_of_initially_occupied_layers =2;
+	public static final double number_of_columns =30;
+	public static final double number_of_rows =30;
+	public static final double number_of_initially_occupied_layers =8;
 	private static final double celldiameter_mikron = 50;
 	public static final double hexagonal_radius = (celldiameter_mikron/2d);
 	
@@ -24,7 +24,7 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	
 	private double neighborhood_mikron = 2d*hexagonal_radius;
 		
-	private boolean useContinuousSpace = true;
+	private boolean useContinuousSpace = false;
 	private boolean useCellCellInteractionEnergy = true;
 	private boolean stickToCellColony = true;
 	

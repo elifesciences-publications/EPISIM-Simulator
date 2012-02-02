@@ -25,7 +25,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.build.ChartSetFactorySourceBuilder;
-import sim.app.episim.gui.EpidermisSimulator;
+import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.Names;
 
@@ -55,7 +55,7 @@ public class ECSFileWriter {
 							StringBuffer sBuffer = new StringBuffer();
 
 							sBuffer.append("Manifest-Version: 1.0\n");
-							sBuffer.append("Created-By: "+EpidermisSimulator.versionID+" (Episim - Uni Heidelberg)\n");
+							sBuffer.append("Created-By: "+EpisimSimulator.versionID+" (Episim - Uni Heidelberg)\n");
 							sBuffer.append("Factory-Class: "+ Names.EPISIM_CHARTSET_FACTORYNAME +"\n");
 							
 							

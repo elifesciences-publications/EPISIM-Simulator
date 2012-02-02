@@ -23,7 +23,7 @@ import com.sun.j3d.utils.geometry.Sphere;
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
 
-import episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DModelConnector;
+import episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
@@ -52,7 +52,7 @@ import sim.util.IntBag;
 
 public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 
-	private EpisimHexagonBased3DModelConnector modelConnector;
+	private EpisimHexagonBased3DMC modelConnector;
 	
 	private static HexagonalCellField3D cellField;
 	
@@ -79,9 +79,9 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		standardCellRadius = HexagonBased3DMechanicalModelGP.hexagonal_radius;
 		if(cellField == null){
 	   	
-	   	int width = (int)HexagonBased3DMechanicalModelGP.number_of_columns;
-	   	int length = (int)HexagonBased3DMechanicalModelGP.number_of_columns;
-	   	int height = (int)HexagonBased3DMechanicalModelGP.number_of_rows;
+	   	int width = globalParameters.getNumber_of_columns();
+	   	int length = globalParameters.getNumber_of_columns();
+	   	int height = globalParameters.getNumber_of_rows();
 	   	cellField = new HexagonalCellField3D(width, height, length);
 	   }
 	   if(cell!= null){
@@ -99,8 +99,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   }
 	}
 	public void setEpisimModelConnector(EpisimModelConnector modelConnector){
-	   	if(modelConnector instanceof EpisimHexagonBased3DModelConnector){
-	   		this.modelConnector = (EpisimHexagonBased3DModelConnector) modelConnector;
+	   	if(modelConnector instanceof EpisimHexagonBased3DMC){
+	   		this.modelConnector = (EpisimHexagonBased3DMC) modelConnector;
 	   	}
 	   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimHexagonBased3DModelConnector");
 	 }
@@ -222,8 +222,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				else nonSpreadingNeighbours.add(neighboursToBeLost.get(i));
 			}
 		}		
-		double factorAllNeighbours = Math.pow(Math.exp(-0.7d), numberOfNeighbours);
-		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-0.7d), (numberOfNeighbours-1));
+		double factorAllNeighbours = Math.pow(Math.exp(-1d*globalParameters.getCellCellInteractionEnergy()), numberOfNeighbours);
+		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-1d*globalParameters.getCellCellInteractionEnergy()), (numberOfNeighbours-1));
 		
 		
 		factorAllNeighbours *= (double)UPPER_PROBABILITY_LIMIT;
@@ -344,18 +344,17 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		double[] normalizedConcentrations = new double[concentrations.length];
 		for(int i = 0; i < concentrations.length; i++){
 			double gradient = lambda*(concentrations[i]-localConcentration);
-			normalizedConcentrations[i]= gradient > 0 ? (gradient/c_max) : 0;
+			normalizedConcentrations[i]= gradient > 0 ? ((gradient/c_max)+(1/concentrations.length)) : (1/concentrations.length);
 		}		
 		double sumNormalizedConcentrations = 0;
-		int numberOfZeroConcentrations = 0;
+	
 		for(int i = 0; i < normalizedConcentrations.length; i++){
 			if(normalizedConcentrations[i] > 0)sumNormalizedConcentrations+=normalizedConcentrations[i];
-			else numberOfZeroConcentrations++;
 		}
 		HashMap<Integer, Integer> probabilityArrayIndexToConcentrationArrayIndexMap = new HashMap<Integer, Integer>();
 		double[] probabilityArray=null;
 		if(sumNormalizedConcentrations > 0){
-			probabilityArray = new double[normalizedConcentrations.length-numberOfZeroConcentrations];
+			probabilityArray = new double[normalizedConcentrations.length];
 			int actProbabIndex = 0;
 			for(int i = 0; i < probabilityArray.length; i++){
 				if(normalizedConcentrations[i] > 0){
@@ -368,15 +367,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		}
 		
 		double randomNumber = random.nextDouble();
-		boolean selectConcentration = false;
-		//This increases the influence of lambda
-		if(sumNormalizedConcentrations >0 && sumNormalizedConcentrations < 1){
-			selectConcentration = randomNumber < sumNormalizedConcentrations;
-		}
-		else if(sumNormalizedConcentrations >=1){
-			selectConcentration = true;
-		}		
-		if(selectConcentration && probabilityArray != null){
+				
+		if(probabilityArray != null){
 			randomNumber = random.nextDouble();
 			for(int i = 0; i < probabilityArray.length; i++){
 				if(i == 0){
@@ -416,7 +408,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 					  
 					normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
 					
-					if(normGradient > 1) normGradient = 1;
+					if(normGradient < 0) normGradient = 0;
 				}
 			}		
 		}
@@ -521,13 +513,13 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		 }
 		 return false;
 	}
-	//TODO: Neighbours to pull auf line intersection prüfen
+	
 	private boolean hasLocationNeighbouringCells(Int3D loc){
 		Bag neighbouringCellsBag = new Bag();
 		IntBag xPos = new IntBag();
 		IntBag yPos = new IntBag();
 		IntBag zPos = new IntBag();
-		cellField.getNeighborsMaxDistance(loc.x, loc.y, loc.z, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos, zPos);
+		cellField.getNeighborsHamiltonianDistance(loc.x, loc.y, loc.z, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos, zPos);
 		for(int i = 0; i < neighbouringCellsBag.size(); i++){
 	   	if(neighbouringCellsBag.get(i)!= null && neighbouringCellsBag.get(i)!= getCell()){
 	   		return true;	   		  		   

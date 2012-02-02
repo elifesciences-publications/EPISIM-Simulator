@@ -28,16 +28,16 @@ import sim.portrayal.Portrayal;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.util.Double2D;
 
-public class CenterBasedMechanicalModelInitializer extends BiomechanicalModelInitializer {
+public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 
 	SimulationStateData simulationStateData = null;
 
-	public CenterBasedMechanicalModelInitializer() {
+	public CenterBasedMechModelInit() {
 		super();
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 	}
 
-	public CenterBasedMechanicalModelInitializer(SimulationStateData simulationStateData) {
+	public CenterBasedMechModelInit(SimulationStateData simulationStateData) {
 		super(simulationStateData);
 		this.simulationStateData = simulationStateData;
 	}

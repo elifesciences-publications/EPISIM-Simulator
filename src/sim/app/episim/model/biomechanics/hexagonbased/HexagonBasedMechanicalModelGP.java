@@ -4,26 +4,28 @@ import sim.app.episim.model.visualization.BorderlinePortrayal.BorderlineConfig;
 import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
+import episiminterfaces.NoExport;
 
 
 public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	public static final double number_of_columns =40;
-	public static final double number_of_rows =50;
-	public static final double number_of_initially_occupied_columns =10;
+	
 	private static final double celldiameter_mikron = 50;
 	public static final double inner_hexagonal_radius = ((celldiameter_mikron/2d)/2d)*Math.sqrt(3d);
 	public static final double outer_hexagonal_radius = (celldiameter_mikron/2d);
 	
 	 
 	
-	private double height_mikron = number_of_rows*2d*inner_hexagonal_radius;
-	private double width_mikron = celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
+	
 	
 	private double numberOfPixelsPerMicrometer = 1;
 	
-	public static final double initialPositionWoundEdge_Mikron = celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
-		//celldiameter_mikron + (number_of_initially_occupied_columns-1d)*1.5*outer_hexagonal_radius;
+	
+	private double number_of_columns =40;
+	private double number_of_rows =50;
+	private double number_of_initially_occupied_columns =10;
+	
+	private double initialPositionWoundEdge_Mikron = celldiameter_mikron + (number_of_initially_occupied_columns-1d)*1.5*outer_hexagonal_radius;
 	
 	
 	private double neighborhood_mikron = 2d*inner_hexagonal_radius;
@@ -38,7 +40,68 @@ public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGl
 	
 	private double lambdaChem = 1;
 	private boolean chemotaxisEnabled = true;
+	private double cellCellInteractionEnergy = 0.7;
+	
+	private boolean addSecretingCellColony=true;
+	
+	
+	
+   public void setInitialPositionWoundEdge_Mikron(double initialPositionWoundEdge_Mikron) {
 
+	   this.initialPositionWoundEdge_Mikron = initialPositionWoundEdge_Mikron;
+   }
+   
+   public double getInitialPositionWoundEdge_Mikron() {
+
+	   return initialPositionWoundEdge_Mikron;
+   }
+	
+   public double getNumber_of_columns() {
+
+	   return number_of_columns;
+   }
+   
+   public void setNumber_of_columns(double number_of_columns) {
+
+	   this.number_of_columns = number_of_columns;
+   }
+   
+   public double getNumber_of_rows() {
+
+	   return number_of_rows;
+   }
+   
+   public void setNumber_of_rows(double number_of_rows) {
+
+	   this.number_of_rows = number_of_rows;
+   }
+   
+   
+   public double getNumber_of_initially_occupied_columns() {
+
+	   return number_of_initially_occupied_columns;
+   }
+   
+   
+   public void setNumber_of_initially_occupied_columns(double number_of_initially_occupied_columns) {
+
+	   this.number_of_initially_occupied_columns = number_of_initially_occupied_columns;
+   }
+	
+	public boolean getAddSecretingCellColony(){ return addSecretingCellColony; }	
+   public void setAddSecretingCellColony(boolean addSecretingCellColony) {
+	   this.addSecretingCellColony = addSecretingCellColony;
+   }
+	
+	public double getCellCellInteractionEnergy() {
+	   return cellCellInteractionEnergy;
+	}
+	   
+	   
+	public void setCellCellInteractionEnergy(double cellCellInteractionEnergy) {
+	   if(cellCellInteractionEnergy >= 0)this.cellCellInteractionEnergy = cellCellInteractionEnergy;
+	}
+	
 	public double getNeighborhood_mikron() {
 	   return this.neighborhood_mikron;
    }
@@ -62,18 +125,25 @@ public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGl
 	public void setBasalAmplitude_mikron(int val) {
 		//not needed in first version
    }
-
+	
+	@NoExport
 	public void setWidthInMikron(double val) {
-		this.width_mikron = val;
-   }
+		if(val > 0){
+			number_of_columns = 1+ ((val-celldiameter_mikron)/(1.5*outer_hexagonal_radius));
+		}
+	}
 	
 	@NoUserModification
+	@NoExport
 	public double getWidthInMikron() {
-		return this.width_mikron;
+		return celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
    }
 
+	@NoExport
 	public void setHeightInMikron(double val) {
-		this.height_mikron = val;
+		if(val > 0){
+			number_of_rows= val/(2d*inner_hexagonal_radius);
+		}		
    }
 	
 	public void setInitialWoundEdgeBorderlineConfig(BorderlineConfig config){
@@ -96,8 +166,9 @@ public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGl
 	
 	
 	@NoUserModification
+	@NoExport
 	public double getHeightInMikron(){
-		return this.height_mikron;
+		return number_of_rows*2d*inner_hexagonal_radius;
    }
 	
 	@NoUserModification
@@ -145,12 +216,12 @@ public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGl
 
 	@NoUserModification
    public double getPositionXWoundEdge_Mikron() {
-   
+		if(initialPositionWoundEdge_Mikron > positionXWoundEdge_Mikron) positionXWoundEdge_Mikron = initialPositionWoundEdge_Mikron;
    	return positionXWoundEdge_Mikron;
    }	
-   public void setPositionXWoundEdge_Mikron(double positionXWoundEdge_Mikron) {
-   
+   public void setPositionXWoundEdge_Mikron(double positionXWoundEdge_Mikron) {   	
    	this.positionXWoundEdge_Mikron = positionXWoundEdge_Mikron;
+   	if(initialPositionWoundEdge_Mikron > positionXWoundEdge_Mikron) positionXWoundEdge_Mikron = initialPositionWoundEdge_Mikron;
    }
    
    @NoUserModification

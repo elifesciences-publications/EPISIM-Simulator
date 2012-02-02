@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -77,7 +78,8 @@ public class ModelDescriptorFileGenerator {
 	
 	private Document generateModelDescriptorDocument(Class<? extends EpisimModelConnector> modelConnectorClass) throws DOMException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException, ParserConfigurationException{
 		if(modelConnectorClass != null){
-			Method[] methods = modelConnectorClass.getMethods();
+			Method[] methods = modelConnectorClass.getDeclaredMethods();
+			
 			
 			EpisimModelConnector actConnector = modelConnectorClass.newInstance();
 			
@@ -86,8 +88,8 @@ public class ModelDescriptorFileGenerator {
 			HashMap<String, Method> getterMethods = new HashMap<String, Method>();
 			HashMap<String, Method> setterMethods = new HashMap<String, Method>();
 			for(Method m : methods){
-				if(m.getName().startsWith("get") && m.getAnnotation(Hidden.class) == null)getterMethods.put(m.getName().substring(3), m);				
-				else if(m.getName().startsWith("set") && m.getAnnotation(Hidden.class) == null) setterMethods.put(m.getName().substring(3), m);
+				if(m.getName().startsWith("get") && m.getAnnotation(Hidden.class) == null && m.getModifiers() == Modifier.PUBLIC)getterMethods.put(m.getName().substring(3), m);				
+				else if(m.getName().startsWith("set") && m.getAnnotation(Hidden.class) == null && m.getModifiers() == Modifier.PUBLIC) setterMethods.put(m.getName().substring(3), m);
 			}
 			
 			

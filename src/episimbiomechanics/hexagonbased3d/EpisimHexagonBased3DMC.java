@@ -4,7 +4,7 @@ package episimbiomechanics.hexagonbased3d;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.HexagonBased3DMechanicalModelInitializer;
+import sim.app.episim.model.initialization.HexagonBased3DMechModelInit;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
@@ -12,7 +12,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 
 
-public class EpisimHexagonBased3DModelConnector extends EpisimModelConnector{
+public class EpisimHexagonBased3DMC extends EpisimModelConnector{
 
 	private static final String ID = "2012-01-16";
 	private static final String NAME = "Hexagon Grid Based Biomechanical Model 3D";
@@ -40,7 +40,7 @@ public class EpisimHexagonBased3DModelConnector extends EpisimModelConnector{
 	}
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
-		return HexagonBased3DMechanicalModelInitializer.class;
+		return HexagonBased3DMechModelInit.class;
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){

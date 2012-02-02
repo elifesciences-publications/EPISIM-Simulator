@@ -22,7 +22,7 @@ import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
 
 
-import episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector;
+import episimbiomechanics.hexagonbased2d.EpisimHexagonBased2DMC;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -37,7 +37,7 @@ import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.HexagonBasedMechanicalModelInitializer;
+import sim.app.episim.model.initialization.HexagonBased2DMechModelInit;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
@@ -54,7 +54,7 @@ import sim.util.MutableInt2D;
 
 public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	
-	private EpisimHexagonBasedModelConnector modelConnector;
+	private EpisimHexagonBased2DMC modelConnector;
 	
 	private static ObjectGrid2D cellField;
 	
@@ -82,8 +82,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	  
 	   if(cellField == null){
 	   	
-	   	int width = (int)HexagonBasedMechanicalModelGP.number_of_columns;
-	   	int height = (int)HexagonBasedMechanicalModelGP.number_of_rows;
+	   	int width = (int)globalParameters.getNumber_of_columns();
+	   	int height = (int)globalParameters.getNumber_of_rows();
 	   	cellField = new ObjectGrid2D(width, height);
 	   }
 	   if(cell!= null){
@@ -106,8 +106,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
    }
 
 	 public void setEpisimModelConnector(EpisimModelConnector modelConnector){
-	   	if(modelConnector instanceof EpisimHexagonBasedModelConnector){
-	   		this.modelConnector = (EpisimHexagonBasedModelConnector) modelConnector;
+	   	if(modelConnector instanceof EpisimHexagonBased2DMC){
+	   		this.modelConnector = (EpisimHexagonBased2DMC) modelConnector;
 	   	}
 	   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimHexagonBasedModelConnector");
 	 }
@@ -240,8 +240,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 				else nonSpreadingNeighbours.add(neighboursToBeLost.get(i));
 			}
 		}		
-		double factorAllNeighbours = Math.pow(Math.exp(-0.7d), numberOfNeighbours);
-		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-0.7d), (numberOfNeighbours-1));
+		double factorAllNeighbours = Math.pow(Math.exp(-1d*globalParameters.getCellCellInteractionEnergy()), numberOfNeighbours);
+		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-1d*globalParameters.getCellCellInteractionEnergy()), (numberOfNeighbours-1));
 		
 		
 		factorAllNeighbours *= (double)UPPER_PROBABILITY_LIMIT;
@@ -272,13 +272,13 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	
 	private boolean isLocationOnTestSurface(Int2D location){
-		return (getLocationInMikron(location).x > HexagonBasedMechanicalModelGP.initialPositionWoundEdge_Mikron);
+		return (getLocationInMikron(location).x > globalParameters.getInitialPositionWoundEdge_Mikron());
 	}
 	
 	private boolean isLocationAtSurfaceBorder(Int2D location){
 		double xPosInMikron = getLocationInMikron(location).x ;
-		double intervalMin =  HexagonBasedMechanicalModelGP.initialPositionWoundEdge_Mikron - globalParameters.getCellDiameter_mikron();
-		double intervalMax =  HexagonBasedMechanicalModelGP.initialPositionWoundEdge_Mikron + globalParameters.getCellDiameter_mikron();
+		double intervalMin =  globalParameters.getInitialPositionWoundEdge_Mikron() - globalParameters.getCellDiameter_mikron();
+		double intervalMax =  globalParameters.getInitialPositionWoundEdge_Mikron() + globalParameters.getCellDiameter_mikron();
 		return (xPosInMikron >= intervalMin && xPosInMikron <= intervalMax);
 	}
 	
@@ -288,8 +288,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		int minNeighbourNumber = 5;//isSpreading() ? 6 : 5;
 		
 		isAtWoundEdge = (getRealNeighbours(true).size() < minNeighbourNumber && 
-				(xPosInMikron >= HexagonBasedMechanicalModelGP.initialPositionWoundEdge_Mikron || 
-						(xPosInMikron + (1*globalParameters.getCellDiameter_mikron()))>= HexagonBasedMechanicalModelGP.initialPositionWoundEdge_Mikron));
+				(xPosInMikron >= globalParameters.getInitialPositionWoundEdge_Mikron() || 
+						(xPosInMikron + (1*globalParameters.getCellDiameter_mikron()))>= globalParameters.getInitialPositionWoundEdge_Mikron()));
 	}
 	
 	private Double2D getLocationInMikron(Int2D location){
@@ -358,19 +358,18 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		double[] normalizedConcentrations = new double[concentrations.length];
 		for(int i = 0; i < concentrations.length; i++){
 			double gradient = lambda*(concentrations[i]-localConcentration);
-			normalizedConcentrations[i]= gradient > 0 ? (gradient/c_max) : 0;
+			normalizedConcentrations[i]= gradient > 0 ? ((gradient/c_max)+(1/concentrations.length)) : (1/concentrations.length);
 		}
 		
 		double sumNormalizedConcentrations = 0;
-		int numberOfZeroConcentrations = 0;
+	
 		for(int i = 0; i < normalizedConcentrations.length; i++){
 			if(normalizedConcentrations[i] > 0)sumNormalizedConcentrations+=normalizedConcentrations[i];
-			else numberOfZeroConcentrations++;
 		}
 		HashMap<Integer, Integer> probabilityArrayIndexToConcentrationArrayIndexMap = new HashMap<Integer, Integer>();
 		double[] probabilityArray=null;
 		if(sumNormalizedConcentrations > 0){
-			probabilityArray = new double[normalizedConcentrations.length-numberOfZeroConcentrations];
+			probabilityArray = new double[normalizedConcentrations.length];
 			int actProbabIndex = 0;
 			for(int i = 0; i < probabilityArray.length; i++){
 				if(normalizedConcentrations[i] > 0){
@@ -383,15 +382,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		}
 		
 		double randomNumber = random.nextDouble();
-		boolean selectConcentration = false;
-		//This increases the influence of lambda
-		if(sumNormalizedConcentrations >0 && sumNormalizedConcentrations < 1){
-			selectConcentration = randomNumber < sumNormalizedConcentrations;
-		}
-		else if(sumNormalizedConcentrations >=1){
-			selectConcentration = true;
-		}		
-		if(selectConcentration && probabilityArray != null){
+		
+		if(probabilityArray != null){
 			randomNumber = random.nextDouble();
 			for(int i = 0; i < probabilityArray.length; i++){
 				if(i == 0){
@@ -433,7 +425,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 					  
 					normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
 					
-					if(normGradient > 1) normGradient = 1;
+					if(normGradient < 0) normGradient = 0;
 				}
 			}		
 		}

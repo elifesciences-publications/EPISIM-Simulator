@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2012-01-16_episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC"/>
-  <modelname name="Hexagon Grid Based Biomechanical Model 3D"/>
-  <modelconnectorclass name="episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC"/>
+  <modelid id="2012-02-02_episimbiomechanics.hexagonbased2d.simplified.EpisimHexagonBased2DSimplifiedMC"/>
+  <modelname name="Hexagon Grid Based Biomechanical Model Simplified"/>
+  <modelconnectorclass name="episimbiomechanics.hexagonbased2d.simplified.EpisimHexagonBased2DSimplifiedMC"/>
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isSpreading" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isRelaxing" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isRetracting" readonly="false"/>
     <parameter datatype="String" default="" name="chemotacticField" readonly="false"/>
   </modelparameters>

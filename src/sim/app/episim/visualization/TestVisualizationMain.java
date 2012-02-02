@@ -42,7 +42,7 @@ import binloc.ProjectLocator;
 
 import com.keypoint.PngEncoder;
 
-import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
+import episimbiomechanics.vertexbased.EpisimVertexBasedMC;
 import episimexceptions.ModelCompatibilityException;
 
 import sim.app.episim.ExceptionDisplayer;

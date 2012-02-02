@@ -182,7 +182,7 @@
 				<attribute name="Built-By" value="${user.name}"/>
 
 				<!-- Information about the program itself -->
-				<section name="Episim Modeller">
+				<section name="Episim Simulator">
 					<attribute name="Author" value="${author}"/>
 					<attribute name="Implementation-Vendor" value="${vendor}"/>
 					<attribute name="Implementation-Title" value="${title}"/>

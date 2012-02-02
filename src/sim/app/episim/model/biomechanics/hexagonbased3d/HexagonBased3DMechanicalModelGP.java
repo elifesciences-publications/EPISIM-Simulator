@@ -2,25 +2,24 @@ package sim.app.episim.model.biomechanics.hexagonbased3d;
 
 import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoExport;
 
 public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 
-	public static final double number_of_columns =30;
-	public static final double number_of_rows =30;
-	public static final double number_of_initially_occupied_layers =8;
+	
 	private static final double celldiameter_mikron = 50;
 	public static final double hexagonal_radius = (celldiameter_mikron/2d);
 	
 	 
 	
-	private double height_mikron = number_of_rows*hexagonal_radius*2d;//number_of_rows*2d*inner_hexagonal_radius;
-	private double width_mikron = number_of_columns*hexagonal_radius*2d;//celldiameter_mikron + (number_of_columns-1d)*1.5*outer_hexagonal_radius;
-	private double length_mikron = width_mikron;
 	
+
 	private double numberOfPixelsPerMicrometer = 0.1;
 	
 	
-	
+	private double number_of_columns =30;
+	private double number_of_rows =30;
+	private double number_of_initially_occupied_layers =8;
 	
 	private double neighborhood_mikron = 2d*hexagonal_radius;
 		
@@ -30,7 +29,18 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	
 	private double lambdaChem = 1;
 	private boolean chemotaxisEnabled = true;
-
+	
+	private double cellCellInteractionEnergy = 0.7;
+	
+	
+	private boolean addSecretingCellColony=true;
+	
+	
+	public boolean getAddSecretingCellColony(){ return addSecretingCellColony; }	
+   public void setAddSecretingCellColony(boolean addSecretingCellColony) {
+	   this.addSecretingCellColony = addSecretingCellColony;
+   }
+	
 	public double getNeighborhood_mikron() {
 	   return this.neighborhood_mikron;
    }
@@ -38,50 +48,104 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	public void setNeighborhood_mikron(double val) {
 	   this.neighborhood_mikron = val;	   
    }
+	
+	
+   public double getCellCellInteractionEnergy() {
+
+	   return cellCellInteractionEnergy;
+   }
+   
+   
+   public void setCellCellInteractionEnergy(double cellCellInteractionEnergy) {
+
+	   if(cellCellInteractionEnergy >= 0)this.cellCellInteractionEnergy = cellCellInteractionEnergy;
+   }
+	
+   public int getNumber_of_rows() {
+
+	   return (int) number_of_rows;
+   }
+   
+   public void setNumber_of_rows(int number_of_rows) {
+	   this.number_of_rows = number_of_rows;
+   }
+   
+   
+   public int getNumber_of_columns() {
+
+	   return (int)number_of_columns;
+   }
+   
+   
+   public void setNumber_of_columns(int number_of_columns) {
+
+	   this.number_of_columns = number_of_columns;
+   }
+   
+   public int getNumber_of_initially_occupied_layers() {
+
+	   return (int)number_of_initially_occupied_layers;
+   }
+   
+   public void setNumber_of_initially_occupied_layers(int number_of_initially_occupied_layers) {
+
+	   this.number_of_initially_occupied_layers = number_of_initially_occupied_layers;
+   }
 
 	public int getBasalOpening_mikron() {
 		//not needed in first version
 	   return 0;
    }
+	@NoUserModification
 	public void setBasalOpening_mikron(int val) {
 		//not needed in first version
    }
-
+	@NoUserModification
 	public int getBasalAmplitude_mikron() {
 		//not needed in first version
 	   return 0;
    }
+	@NoUserModification
 	public void setBasalAmplitude_mikron(int val) {
 		//not needed in first version
    }
-
+	@NoUserModification
+	@NoExport
 	public void setWidthInMikron(double val) {
-		this.width_mikron = val;
+		if(val > 0){
+			this.number_of_columns = (int) (val/(2d*hexagonal_radius));
+		}
    }
 	
 	@NoUserModification
+	@NoExport
 	public double getWidthInMikron() {
-		return this.width_mikron;
+		return (this.number_of_columns*2d*hexagonal_radius);
    }
-
+	
+	@NoExport
 	public void setHeightInMikron(double val) {
-		this.height_mikron = val;
+		if(val > 0){
+			this.number_of_rows = (int)(val/(2d*hexagonal_radius));
+		}
    }
 			
 	@NoUserModification
+	@NoExport
 	public double getHeightInMikron(){
-		return this.height_mikron;
+		return (this.number_of_rows*2d*hexagonal_radius);
    }
 	
 	@NoUserModification
 	public double getLengthInMikron() {
-	   	//not needed in 2D model
-	   	return length_mikron;
+		return (this.number_of_columns*2d*hexagonal_radius);
 	}
 	
 	@NoUserModification
-	public void setLengthInMikron(double val) {   
-	   	this.length_mikron = val;
+	public void setLengthInMikron(double val) {
+		if(val > 0){
+	   	this.number_of_columns = (int)(val/(2d*hexagonal_radius));
+		}
 	}	
 	
 	@NoUserModification

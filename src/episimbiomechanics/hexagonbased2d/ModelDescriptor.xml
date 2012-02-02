@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2011-09-23_episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector"/>
+  <modelid id="2011-09-23_episimbiomechanics.hexagonbased2d.EpisimHexagonBased2DMC"/>
   <modelname name="Hexagon Grid Based Biomechanical Model"/>
-  <modelconnectorclass name="episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector"/>
+  <modelconnectorclass name="episimbiomechanics.hexagonbased2d.EpisimHexagonBased2DMC"/>
   <modelparameters>
     <parameter datatype="boolean" default="false"
       name="isRetractingToRGD" readonly="false"/>
     <parameter datatype="boolean" default="false"
+      name="isAtSurfaceBorder" readonly="true"/>
+    <parameter datatype="boolean" default="false"
       name="isRetractingToFN" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isSpreadingRGD" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isSpreadingFN" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isRelaxing" readonly="false"/>
     <parameter datatype="String" default="" name="chemotacticField" readonly="false"/>
-    <parameter datatype="boolean" default="false"
-      name="isAtSurfaceBorder" readonly="true"/>
-    <parameter datatype="boolean" default="false" name="isSpreadingRGD" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isSpreadingFN" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isOnTestSurface" readonly="true"/>
   </modelparameters>
 </modeldescriptor>

@@ -29,11 +29,11 @@ import sim.portrayal.LocationWrapper;
 import sim.portrayal.Portrayal;
 import sim.util.Double2D;
 
-public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelInitializer {
+public class VertexBasedMechModelInit extends BiomechanicalModelInitializer {
 	
 	private MersenneTwisterFast random;
 	private VertexBasedMechanicalModelGP globalParameters;
-	public VertexBasedMechanicalModelInitializer(){
+	public VertexBasedMechModelInit(){
 		super();
 		globalParameters = (VertexBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		TissueController.getInstance().getTissueBorder().setBasalPeriodInMikron(550);
@@ -44,7 +44,7 @@ public class VertexBasedMechanicalModelInitializer extends BiomechanicalModelIni
 		random = new MersenneTwisterFast(System.currentTimeMillis());
 	}
 	
-	public VertexBasedMechanicalModelInitializer(SimulationStateData simulationStateData){
+	public VertexBasedMechModelInit(SimulationStateData simulationStateData){
 		super(simulationStateData);
 	}
 	

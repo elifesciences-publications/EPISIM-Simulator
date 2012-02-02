@@ -4,7 +4,7 @@ package episimbiomechanics.vertexbased;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.VertexBasedMechanicalModelInitializer;
+import sim.app.episim.model.initialization.VertexBasedMechModelInit;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
@@ -12,7 +12,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 
 
-public class EpisimVertexBasedModelConnector extends EpisimModelConnector {
+public class EpisimVertexBasedMC extends EpisimModelConnector {
 
 	private static final String ID = "2011-01-07";
 	private static final String NAME = "Vertex Based Biomechanical Model";
@@ -36,7 +36,7 @@ public class EpisimVertexBasedModelConnector extends EpisimModelConnector {
 	private double x;
 	private double y;
 		
-	public EpisimVertexBasedModelConnector(){}
+	public EpisimVertexBasedMC(){}
 	
 	@Hidden
 	@NoExport
@@ -57,7 +57,7 @@ public class EpisimVertexBasedModelConnector extends EpisimModelConnector {
 	
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
-		return VertexBasedMechanicalModelInitializer.class;
+		return VertexBasedMechModelInit.class;
 	}
 	
 	@NoExport

@@ -23,7 +23,7 @@ import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased.util.CellPolygonRegistry;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.VertexBasedMechanicalModelInitializer;
+import sim.app.episim.model.initialization.VertexBasedMechModelInit;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
@@ -31,7 +31,7 @@ import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
+import episimbiomechanics.vertexbased.EpisimVertexBasedMC;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 import episiminterfaces.EpisimCellShape;
@@ -43,7 +43,7 @@ import episiminterfaces.monitoring.CannotBeMonitored;
 public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implements CellPolygonProliferationSuccessListener{
 	
 	private CellPolygon cellPolygon;	
-	private EpisimVertexBasedModelConnector modelConnector;	
+	private EpisimVertexBasedMC modelConnector;	
 	
 	private Double2D newPosition;
 	private Double2D oldPosition;
@@ -81,8 +81,8 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	
 	public void setEpisimModelConnector(EpisimModelConnector modelConnector){
 		
-		if(modelConnector instanceof EpisimVertexBasedModelConnector){
-   		this.modelConnector = (EpisimVertexBasedModelConnector) modelConnector;
+		if(modelConnector instanceof EpisimVertexBasedMC){
+   		this.modelConnector = (EpisimVertexBasedMC) modelConnector;
    	}
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimVertexBasedModelConnector"); 
 	}

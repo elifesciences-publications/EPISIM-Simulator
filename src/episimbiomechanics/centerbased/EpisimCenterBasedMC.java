@@ -3,7 +3,7 @@ package episimbiomechanics.centerbased;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
+import sim.app.episim.model.initialization.CenterBasedMechModelInit;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
@@ -12,7 +12,7 @@ import episiminterfaces.NoExport;
 
 
 
-public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
+public class EpisimCenterBasedMC extends EpisimModelConnector {
 	
 	private static final String ID = "2010-05-13";
 	private static final String NAME = "Center Based Biomechanical Model";
@@ -23,7 +23,7 @@ public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	private double x;
 	private double y;
 		
-	public EpisimCenterBasedModelConnector(){}
+	public EpisimCenterBasedMC(){}
 	
 	@Hidden
 	@NoExport
@@ -49,7 +49,7 @@ public class EpisimCenterBasedModelConnector extends EpisimModelConnector {
 	
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
-		return CenterBasedMechanicalModelInitializer.class;
+		return CenterBasedMechModelInit.class;
 	}
 	
 	public boolean getHasCollision() {

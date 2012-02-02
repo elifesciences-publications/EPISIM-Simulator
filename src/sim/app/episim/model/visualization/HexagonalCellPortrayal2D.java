@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import episimbiomechanics.hexagonbased.EpisimHexagonBasedModelConnector;
+import episimbiomechanics.hexagonbased2d.EpisimHexagonBased2DMC;
 import episiminterfaces.EpisimCellBehavioralModel;
 
 

@@ -21,15 +21,15 @@ import sim.util.Double3D;
 
 
 
-public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModelInitializer {
+public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 	private HexagonBased3DMechanicalModelGP globalParameters;
-	public HexagonBased3DMechanicalModelInitializer(){
+	public HexagonBased3DMechModelInit(){
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	}
 	
-	public HexagonBased3DMechanicalModelInitializer(SimulationStateData simulationStateData){
+	public HexagonBased3DMechModelInit(SimulationStateData simulationStateData){
 		super(simulationStateData);		
 	}
 
@@ -37,10 +37,10 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
    protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
    	ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 				
-		int width = (int) (HexagonBased3DMechanicalModelGP.number_of_columns);
-		int height = (int) (HexagonBased3DMechanicalModelGP.number_of_rows);
-		int length= (int) (HexagonBased3DMechanicalModelGP.number_of_columns);
-		int delta = (int)HexagonBased3DMechanicalModelGP.number_of_initially_occupied_layers/2;
+		int width = globalParameters.getNumber_of_columns();
+		int height = globalParameters.getNumber_of_rows();
+		int length=  globalParameters.getNumber_of_columns();
+		int delta = globalParameters.getNumber_of_initially_occupied_layers()/2;
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
 			for(int y = ((height/2)-delta) ;y < ((height/2)+delta); y++){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
@@ -51,7 +51,7 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
 				}
 			}
 		}
-		addSekretionCellColony(standardCellEnsemble);
+		if(globalParameters.getAddSecretingCellColony())addSekretionCellColony(standardCellEnsemble);
 		return standardCellEnsemble;
    }
 
@@ -85,10 +85,10 @@ public class HexagonBased3DMechanicalModelInitializer extends BiomechanicalModel
 	
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();	
 		
-		int width = (int) (HexagonBased3DMechanicalModelGP.number_of_columns);
+		int width = (int) (globalParameters.getNumber_of_columns());
 		
-		int length= (int) (HexagonBased3DMechanicalModelGP.number_of_columns);
-		int delta = (int)HexagonBased3DMechanicalModelGP.number_of_initially_occupied_layers/2;
+		int length= (int) (globalParameters.getNumber_of_columns());
+		int delta = (int)globalParameters.getNumber_of_initially_occupied_layers()/2;
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
 			for(int y = 0 ;y < 2; y++){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){

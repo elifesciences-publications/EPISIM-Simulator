@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2010-05-13_episimbiomechanics.centerbased.EpisimCenterBasedModelConnector"/>
+  <modelid id="2010-05-13_episimbiomechanics.centerbased.EpisimCenterBasedMC"/>
   <modelname name="Center Based Biomechanical Model"/>
-  <modelconnectorclass name="episimbiomechanics.centerbased.EpisimCenterBasedModelConnector"/>
+  <modelconnectorclass name="episimbiomechanics.centerbased.EpisimCenterBasedMC"/>
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isMembrane" readonly="true"/>
     <parameter datatype="boolean" default="false" name="isSurface" readonly="true"/>

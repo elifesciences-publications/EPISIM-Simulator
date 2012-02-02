@@ -61,7 +61,7 @@ import sim.app.episim.util.EpisimMovieMaker;
 
 
 import ec.util.MersenneTwisterFast;
-import episimbiomechanics.vertexbased.EpisimVertexBasedModelConnector;
+import episimbiomechanics.vertexbased.EpisimVertexBasedMC;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 
@@ -550,7 +550,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		boolean headless = false;
 		
 		try{
-	      ModelController.getInstance().getBioMechanicalModelController().loadModelFile((new EpisimVertexBasedModelConnector()).getBiomechanicalModelId());
+	      ModelController.getInstance().getBioMechanicalModelController().loadModelFile((new EpisimVertexBasedMC()).getBiomechanicalModelId());
       }
       catch (ModelCompatibilityException e1){
 	     e1.printStackTrace();

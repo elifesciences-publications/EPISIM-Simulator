@@ -17,7 +17,7 @@ import java.util.Map;
 
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.centerbased.EpisimCenterBasedModelConnector;
+import episimbiomechanics.centerbased.EpisimCenterBasedMC;
 import episimexceptions.GlobalParameterException;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
@@ -39,7 +39,7 @@ import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim2DCellShape;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.CenterBasedMechanicalModelInitializer;
+import sim.app.episim.model.initialization.CenterBasedMechModelInit;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
@@ -87,7 +87,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    //maybe more neighbours than real neighbours included inside a circle
    private GenericBag<AbstractCell> neighbouringCells;
    
-   private EpisimCenterBasedModelConnector modelConnector;
+   private EpisimCenterBasedMC modelConnector;
    
    private boolean isMembraneCell = false;
    
@@ -138,8 +138,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    }
    
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
-   	if(modelConnector instanceof EpisimCenterBasedModelConnector){
-   		this.modelConnector = (EpisimCenterBasedModelConnector) modelConnector;
+   	if(modelConnector instanceof EpisimCenterBasedMC){
+   		this.modelConnector = (EpisimCenterBasedMC) modelConnector;
    	}
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimCenterBasedModelConnector");
    } 

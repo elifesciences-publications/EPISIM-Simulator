@@ -51,7 +51,8 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 				}
 			}
 		}
-		if(globalParameters.getAddSecretingCellColony())addSekretionCellColony(standardCellEnsemble);
+		if(globalParameters.getAddSecretingCellColony()
+				&& ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields() > 0)addSekretionCellColony(standardCellEnsemble);
 		return standardCellEnsemble;
    }
 

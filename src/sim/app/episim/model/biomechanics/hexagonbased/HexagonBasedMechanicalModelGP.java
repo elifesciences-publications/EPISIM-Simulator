@@ -21,7 +21,7 @@ public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGl
 	private double numberOfPixelsPerMicrometer = 1;
 	
 	
-	private double number_of_columns =40;
+	private double number_of_columns =50;
 	private double number_of_rows =50;
 	private double number_of_initially_occupied_columns =10;
 	

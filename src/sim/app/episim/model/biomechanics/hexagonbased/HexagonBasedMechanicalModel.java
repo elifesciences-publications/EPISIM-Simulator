@@ -614,7 +614,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	protected void clearCellField() {	   
 	   	cellField.clear();
-	   
+	   	cellField = null;
    }
 	
    public void removeCellFromCellField() {

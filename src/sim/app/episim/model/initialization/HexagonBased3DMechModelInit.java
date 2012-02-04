@@ -39,7 +39,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 				
 		int width = globalParameters.getNumber_of_columns();
 		int height = globalParameters.getNumber_of_rows();
-		int length=  globalParameters.getNumber_of_columns();
+		int length= globalParameters.getNumber_of_columns();
 		int delta = globalParameters.getNumber_of_initially_occupied_layers()/2;
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
 			for(int y = ((height/2)-delta) ;y < ((height/2)+delta); y++){			
@@ -51,8 +51,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 				}
 			}
 		}
-		if(globalParameters.getAddSecretingCellColony()
-				&& ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields() > 0)addSekretionCellColony(standardCellEnsemble);
+		if(globalParameters.getAddSecretingCellColony())addSekretionCellColony(standardCellEnsemble);
 		return standardCellEnsemble;
    }
 

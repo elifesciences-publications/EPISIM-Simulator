@@ -1,17 +1,17 @@
-package sim.app.episim.model.biomechanics.centerbased;
+package sim.app.episim.model.biomechanics.centerbased3d;
 
 import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
-public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
 	private int basalAmplitude_mikron = 40; // depth of an undulation
 	private int basalOpening_mikron = 250; // width of undulation at the middle
 	private double width = 140;
 	private double height = 100;
+	private double length = 100;
 	private double randomness = 0.05;
 	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
-	private boolean seedReverse = false;	
 	private int basalDensity_mikron = 8; // width of undulation at the middle
 	private double externalPush = 1.1; // y-offset
 	private double cohesion = 0.01;
@@ -19,19 +19,10 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private double neighborhood_mikron= 10.0;
 	private double basalLayerWidth=15;  // For Statistics of Basal Layer: Cell Definition (for GrowthFraction): distance to membrane not more than gBasalLayerWidth
 	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
-	private boolean drawCellsAsEllipses = false;
 	private double numberOfPixelsPerMicrometer = 1;
 	
-	public CenterBasedMechanicalModelGP() {}
-	
-	public boolean isDrawCellsAsEllipses() {
-		return drawCellsAsEllipses;
-	}
-	
-	public void setDrawCellsAsEllipses(boolean drawCellsAsEllipses) {
-	  	this.drawCellsAsEllipses = drawCellsAsEllipses;
-	}
-	
+	public CenterBased3DMechanicalModelGP() {}
+			
 	public int getBasalAmplitude_mikron() {
 		return basalAmplitude_mikron;
 	}
@@ -91,14 +82,6 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 			seedMinDepth_frac = val;
 	}
 
-	public boolean getSeedReverse() {
-		return seedReverse;
-	}
-
-	public void setSeedReverse(boolean val) {
-		seedReverse = val;
-	}	
-
 	public int getBasalDensity_mikron() {
 		return basalDensity_mikron;
 	}
@@ -133,11 +116,11 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
    	if(val > 0) this.height = val;
    }
    public double getLengthInMikron() {
-   	//not needed in 2D model
-   	return 0;
+   	
+   	return length;
    }	
    public void setLengthInMikron(double val) {   
-   	//not needed in 2D model
+   	if(val > 0) this.length = val;
    }
 
 	public void setNumberOfPixelsPerMicrometer(double val) {
@@ -161,18 +144,11 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	
 	@NoUserModification
 	public boolean areDiffusionFieldsContinousInZDirection() {	   
-	   return false;
+	   return true;
    }
 
 	@NoUserModification
    public ModelDimensionality getModelDimensionality() {	   
-	   return ModelDimensionality.TWO_DIMENSIONAL;
+	   return ModelDimensionality.THREE_DIMENSIONAL;
    }
-
-   
-
-	
-  
-	
-
 }

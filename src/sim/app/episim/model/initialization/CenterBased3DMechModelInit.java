@@ -1,43 +1,30 @@
 package sim.app.episim.model.initialization;
 
-import java.io.File;
 import java.util.ArrayList;
 
-import org.w3c.dom.DOMException;
-
-import episiminterfaces.EpisimPortrayal;
-
-import sim.app.episim.AbstractCell;
-import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.persistence.dataconvert.XmlEpisimBiomechanicalModel;
-import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.tissue.TissueController;
-import sim.app.episim.gui.EpisimGUIState;
-import sim.display.GUIState;
-import sim.portrayal.Inspector;
-import sim.portrayal.LocationWrapper;
-import sim.portrayal.Portrayal;
-import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.util.Double2D;
+import episiminterfaces.EpisimPortrayal;
 
-public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
+
+public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 
 	SimulationStateData simulationStateData = null;
 
-	public CenterBasedMechModelInit() {
+	public CenterBased3DMechModelInit() {
 		super();
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 	}
 
-	public CenterBasedMechModelInit(SimulationStateData simulationStateData) {
+	public CenterBased3DMechModelInit(SimulationStateData simulationStateData) {
 		super(simulationStateData);
 		this.simulationStateData = simulationStateData;
 	}

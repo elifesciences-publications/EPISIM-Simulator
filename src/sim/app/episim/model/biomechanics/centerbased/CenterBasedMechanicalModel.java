@@ -372,13 +372,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		if(extForce.length() > 0.6)
 			extForce = extForce.setLength(0.6);
 		
-		// die funktion muss 0 bei 0 liefern, daher absenkung auf sigmoid(0)
-		Double2D gravi = new Double2D(0, globalParameters.getGravitation()); // Vector which avoidance has to process
 		Double2D randi = new Double2D(globalParameters.getRandomness()
 				* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), globalParameters.getRandomness()
 				* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
-		Vector2D actionForce = new Vector2D(gravi.x + extForce.x * globalParameters.getExternalPush()
-				+ randi.x, gravi.y + extForce.y * globalParameters.getExternalPush());
+		Vector2D actionForce = new Vector2D(extForce.x * globalParameters.getExternalPush()
+				+ randi.x, extForce.y * globalParameters.getExternalPush());
 		Double2D potentialLoc = null;
 		
 		potentialLoc = new Double2D(cellField.stx(actionForce.x + oldLoc.x), cellField.sty(actionForce.y + oldLoc.y));
@@ -536,11 +534,6 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    
    
    
-   public double getExtForceX () { return extForce.x; }  
-   public void setExtForceX (double val) { extForce.x =val; }    
-   public double getExtForceY () { return extForce.y; }
-   public void setExtForceY (double val) { extForce.y =val; } 
-   
    
    
    public int getGKeratinoHeightGranu() {	return gKeratinoHeightGranu;}
@@ -569,14 +562,14 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	@CannotBeMonitored
 	@NoExport
 	public double getX(){return modelConnector == null ? 
-			0//TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getX()
+			0
  		 : modelConnector.getX();
 	}
 	
 	@CannotBeMonitored
 	@NoExport
 	public double getY(){return modelConnector == null ? 
-			 		0	//	TissueController.getInstance().getTissueBorder().getHeight()- TissueController.getInstance().getActEpidermalTissue().getCellContinous2D().getObjectLocation(cell).getY()
+			 		0	
 			 	 : modelConnector.getY();
 	}
 	

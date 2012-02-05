@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2012-02-05_episimbiomechanics.centerbased3d.EpisimCenterBased3DMC"/>
+  <modelname name="Center Based 3D Biomechanical Model"/>
+  <modelconnectorclass name="episimbiomechanics.centerbased3d.EpisimCenterBased3DMC"/>
+  <modelparameters>
+    <parameter name="isMembrane" datatype="boolean" default="false" readonly="true"/>
+    <parameter name="isSurface" datatype="boolean" default="false" readonly="true"/>
+    <parameter name="y" datatype="double" default="0.0" readonly="true"/>
+    <parameter name="x" datatype="double" default="0.0" readonly="true"/>
+    <parameter name="hasCollision" datatype="boolean" default="false" readonly="true"/>
+    <parameter name="z" datatype="double" default="0.0" readonly="true"/>
+  </modelparameters>
+</modeldescriptor>

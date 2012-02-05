@@ -27,6 +27,7 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 import episimbiomechanics.EpisimModelConnector.Hidden;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.util.GlobalClassLoader;
@@ -162,6 +163,9 @@ public class ModelDescriptorFileGenerator {
 	
 	public static void main(String[] args){
 		ModelDescriptorFileGenerator generator = new ModelDescriptorFileGenerator();
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_STANDARDFILEPATH)!= null){
+			EpisimProperties.removeProperty(EpisimProperties.SIMULATOR_STANDARDFILEPATH);
+		}
 		generator.start();		
 	}
 

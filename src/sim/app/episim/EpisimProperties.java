@@ -105,6 +105,13 @@ public class EpisimProperties {
 		 instance.getProperties().setProperty(name, val);
 	}
 	
+	public static void removeProperty(String name){
+		 if(instance == null) instance = new EpisimProperties();	
+		 if(instance.getProperties().getProperty(name) != null){
+			 instance.getProperties().remove(name);
+		 }
+	}
+	
 	private Properties getProperties(){ return properties;}
 	
 	public static File getFileForPathOfAProperty(final String property, final String filename, final String fileExtension){

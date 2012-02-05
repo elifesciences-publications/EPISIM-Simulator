@@ -171,6 +171,7 @@ public class EpisimMenuBarFactory {
 				
 				if(loadTissueExport && simulator.getMainFrame() instanceof JFrame){					
 					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
+					chooser.setDialogTitle("Open Episim Tissue-Export");
 					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showOpenDialog((JFrame)simulator.getMainFrame())){
 						simulator.loadSimulationStateFile(chooser.getSelectedFile());						
 					}

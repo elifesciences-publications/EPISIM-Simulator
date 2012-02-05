@@ -18,6 +18,7 @@ import sim.field.grid.ObjectGrid2D;
 
 import sim.util.Double2D;
 import sim.util.Double3D;
+import sim.util.Int3D;
 
 
 
@@ -35,6 +36,12 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 
 
    protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
+   	//return regularInitialization();
+   	return testInitialization();
+   }
+
+   
+   private  ArrayList<UniversalCell> regularInitialization() {
    	ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 				
 		int width = globalParameters.getNumber_of_columns();
@@ -54,7 +61,19 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 		if(globalParameters.getAddSecretingCellColony())addSekretionCellColony(standardCellEnsemble);
 		return standardCellEnsemble;
    }
-
+   
+   private  ArrayList<UniversalCell> testInitialization() {
+   	ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
+		UniversalCell cell = new UniversalCell(null, null);
+		HexagonBased3DMechanicalModel mechModel =((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject());
+		mechModel.setCellLocationInCellField(new Double3D(0, 0, 0));
+		mechModel.setSpreadingLocation(new Int3D(1,1,1));
+		standardCellEnsemble.add(cell);
+		
+		return standardCellEnsemble;
+   }
+   
+   
    protected void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble) {
 		// is not needed int this model
    }

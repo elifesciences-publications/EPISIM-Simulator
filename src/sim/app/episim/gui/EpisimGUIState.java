@@ -134,6 +134,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	private boolean staticSimulationFrameSize = false;
 	
+	
+	
 	public EpisimGUIState(JFrame mainFrame){			
 		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
 	}
@@ -347,6 +349,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
 		
+		scaleAndTranslateDisplay3D();
 	
 	// reschedule the displayer
       display3D.reset();
@@ -449,11 +452,21 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 			}
 		});
 		
+		
+       
+      
+		return display3D.createInternalFrame();
+	}
+	
+	private void scaleAndTranslateDisplay3D(){
 		double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		double width =  TissueController.getInstance().getTissueBorder().getWidthInMikron();
 		double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
+		display3D.resetDisplayTransformation();
 		
-		display3D.translate(-.5*width,-.5*height,-0.5*length);
+		display3D.translate(-0.5*width,-0.5*height,-0.5*length);
+		
+	
 		double windowFact =0.5;
 		
 		Dimension windowDim = new Dimension((int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()*EpisimSimulator.MAINFRAME_WIDTH_FACT),
@@ -478,10 +491,10 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		initialDisplay3DScale = windowFact/Math.max(width, height);
 		display3D.setInitialDisplayScale(initialDisplay3DScale);
+		
+		
 		display3D.scale(initialDisplay3DScale);
-       
-      
-		return display3D.createInternalFrame();
+		
 	}
 	
 	

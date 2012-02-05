@@ -242,7 +242,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 								saveSimulationState();					
 		                }
 							public void taskHasFinished(){
-								  System.out.println("Ich bin fertig!");							
+								  			
 						        episimGUIState.pressWorkaroundSimulationPlay(); 
 								  simulation.state.postCheckpoint();
 							}

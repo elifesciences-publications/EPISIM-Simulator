@@ -6,6 +6,7 @@ import java.awt.Paint;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 
+import javax.media.j3d.Transform3D;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 
@@ -113,6 +114,10 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
    
    public void scale(double scale){
    	simulationDisplay.scale(scale);
+   }
+   
+   public void resetDisplayTransformation(){
+   	simulationDisplay.setTransform(new Transform3D());
    }
    
    public void stopRenderer(){

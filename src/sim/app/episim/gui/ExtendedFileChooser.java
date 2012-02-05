@@ -11,6 +11,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 
 
@@ -29,7 +30,12 @@ public class ExtendedFileChooser extends JFileChooser {
             return fileExtension.substring(1)+"-Files";
         }
     });
-		
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_STANDARDFILEPATH) != null){
+			File f = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_STANDARDFILEPATH));
+			if(f.exists() && f.isDirectory()){
+				this.setCurrentDirectory(f);
+			}
+		}
 		
 	}
 	

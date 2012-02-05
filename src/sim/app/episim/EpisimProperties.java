@@ -33,6 +33,9 @@ public class EpisimProperties {
 	public static final String FRAMES_PER_SECOND_PROP = "framespersecond";
 	public static final String SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP = "simulator.cellbehavioralmodelpath";
 	public static final String SIMULATOR_SNAPSHOT_PATH_PROP = "simulator.snapshotpath";
+	
+	public static final String SIMULATOR_STANDARDFILEPATH = "simulator.standardfilepath";
+	
 	public static final String SIMULATOR_AUTOSTART_AND_STOP_PROP = "simulator.autostartandstop";
 	public static final String SIMULATOR_MAX_SIMULATION_STEPS_PROP = "simulator.maxsimulationsteps";
 	public static final String SIMULATOR_SEND_RECEIVE_ALGORITHM = "simulator.sendreceivealgorithm";

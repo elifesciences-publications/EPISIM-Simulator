@@ -31,7 +31,7 @@ public class EpisimSimulationBoxPortrayal3D extends WireFrameBoxPortrayal3D {
 	
 	private static final float OFFSET = 0;
 	
-	private static final int STANDARD_FONT_SIZE = 12;
+	private static final double STANDARD_FONT_SIZE = 12;
 	
 	
 	
@@ -73,13 +73,13 @@ public class EpisimSimulationBoxPortrayal3D extends WireFrameBoxPortrayal3D {
 	   	double fontSize = STANDARD_FONT_SIZE;
 	   	if(getCurrentDisplay() != null){
 	   		double dispScale = ((Display3DHack) getCurrentDisplay()).getInitialDisplayScale();
-	   		double resultingFontSize = ((double)STANDARD_FONT_SIZE)*dispScale;
-	   		if(resultingFontSize < 0.01){
-	   			fontSize *= (0.01/resultingFontSize);
+	   		double resultingFontSize = STANDARD_FONT_SIZE*dispScale;
+	   		if(resultingFontSize != 0.016){
+	   			fontSize *= (0.016/resultingFontSize);
 	   		}	   		
 	   	}
 	   	
-	   	Font font =  new Font(Font.SANS_SERIF, Font.PLAIN, (int)fontSize);
+	   	Font font =  new Font(Font.SANS_SERIF, Font.PLAIN, Math.round((float)fontSize));
 	   	String label = "(0,0,0) µm";
 	   	
 	   	addLabel(label, branchGroup, new Vector3f(OFFSET,0f,0f), font, 1);   	

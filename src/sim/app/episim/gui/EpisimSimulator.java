@@ -330,7 +330,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			//if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
 				//	&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
 				//System.setProperty("java.awt.headless", "true");
-			
+			System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
 		      	  		EpisimSimulator episim = new EpisimSimulator();
 		       
 		}
@@ -356,10 +356,10 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		
 		
-		File standardDir =new File("d:/");
+		
 		if(ModeServer.guiMode()){
 			jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
-			if(standardDir.exists())jarFileChoose.setCurrentDirectory(standardDir);
+			
 		}		
 		
 		

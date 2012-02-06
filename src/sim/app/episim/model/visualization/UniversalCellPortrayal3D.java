@@ -1,45 +1,31 @@
 package sim.app.episim.model.visualization;
 
 import java.awt.Color;
-import java.awt.color.ColorSpace;
 
-import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
-import javax.media.j3d.BranchGroup;
-import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.Group;
-import javax.media.j3d.Material;
 import javax.media.j3d.Node;
 import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
-import javax.media.j3d.TransparencyAttributes;
-import javax.vecmath.Color3f;
-import javax.vecmath.Color4f;
-import javax.vecmath.Matrix3f;
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
+
+import sim.app.episim.UniversalCell;
+import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModelGP;
+import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.visualization.Episim3DAppearanceFactory;
+import sim.display3d.Display3DHack;
+import sim.portrayal.LocationWrapper;
+import sim.portrayal3d.SimplePortrayal3D;
 
 import com.sun.j3d.utils.geometry.Primitive;
 import com.sun.j3d.utils.geometry.Sphere;
 
 import episiminterfaces.EpisimCellBehavioralModel;
 
-import sim.app.episim.UniversalCell;
-import sim.app.episim.gui.EpisimAboutDialog;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
-import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.visualization.Episim3DAppearanceFactory;
-import sim.display3d.Display3DHack;
-import sim.portrayal.LocationWrapper;
-import sim.portrayal3d.SimplePortrayal3D;
-import sim.portrayal3d.simple.SpherePortrayal3D;
-import sim.util.Int3D;
 
-
-public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
+public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 	
 	
 	Transform3D transform;
@@ -53,31 +39,31 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	
 	private Sphere sphere;
 	
-	private static final double FACTOR = 0.7;
+	
 	
 	private float standardCellRadius =1;
 	
 	
-	private HexagonBased3DMechanicalModelGP globalParameters;
+	private CenterBased3DMechanicalModelGP globalParameters;
 	private PolygonAttributes polygonAttributes;
 	
-	public HexagonalCellPortrayal3D(PolygonAttributes polygonAttributes)
+	public UniversalCellPortrayal3D(PolygonAttributes polygonAttributes)
    {
 		//this(getCellAppearanceForColor(new Color(230, 130, 170),new Color(255,175,205), new Color(220,0,0)),true,false,scale,divisions);
 		this(polygonAttributes, true,false);
    }
 	
-	public HexagonalCellPortrayal3D(PolygonAttributes polygonAttributes,boolean generateNormals, boolean generateTextureCoordinates)
+	public UniversalCellPortrayal3D(PolygonAttributes polygonAttributes,boolean generateNormals, boolean generateTextureCoordinates)
    {
-		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		standardCellRadius = (float)HexagonBased3DMechanicalModelGP.hexagonal_radius;
+		globalParameters = (CenterBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		standardCellRadius = CenterBased3DMechanicalModel.GINITIALKERATINOWIDTH;
 		this.polygonAttributes = polygonAttributes;
-		float transparencyFactor = 1.0f;
-		if(getCurrentDisplay() instanceof Display3DHack){
+			
+		 float transparencyFactor = 1.0f;
+		 if(getCurrentDisplay() instanceof Display3DHack){
 		   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
-		}
-		this.appearance = Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes,(new Color(255,160,160)),transparencyFactor);
-	
+		 }
+		this.appearance = Episim3DAppearanceFactory.getCellAppearanceForColor(this.polygonAttributes, new Color(255,160,160), transparencyFactor);
 		    
 		
 		this.sphere = new Sphere(standardCellRadius, (generateNormals ? Primitive.GENERATE_NORMALS : 0) | 
@@ -130,12 +116,18 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 			if(getCurrentDisplay() instanceof Display3DHack){
 			   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
 			}
-		   shape.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes,(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB())),transparencyFactor));
+			
+			shape.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes,(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB())),transparencyFactor));
 			
 		} 
 		return j3dModel;
 		
 	}
+	
+	
+	
+	public PolygonAttributes polygonAttributes() { return appearance.getPolygonAttributes(); } // default
+	public void polygonAttributes(PolygonAttributes att) { appearance.setPolygonAttributes(att); }
 	
 	
   
@@ -158,6 +150,4 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	  Primitive p = (Primitive) n;
 	  return p.getShape(shapeIndex);
   }
- 
-
 }

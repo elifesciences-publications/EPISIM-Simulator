@@ -61,16 +61,19 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	public static final double GOPTIMALKERATINODISTANCE=4; // Default: 4
    public static final double GOPTIMALKERATINODISTANCEGRANU=4; // Default: 3
+   
    //The width of the keratinocyte must be bigger or equals the hight
    public static final int GINITIALKERATINOHEIGHT=5; // Default: 5
    public static final int GINITIALKERATINOWIDTH=5; // Default: 5
+   
+   public static final int GKERATINOWIDTHGRANU=9; // default: 10
+   public static final int GKERATINOHEIGHTGRANU=4;
    
    public final int NEXTTOOUTERCELL=7;
    private double MINDIST=0.1;   
    private static final double CONSISTENCY=0.0;
    
-   private int gKeratinoWidthGranu=9; // default: 10
-   private int gKeratinoHeightGranu=4;
+  
    
    private int keratinoWidth=-11; // breite keratino
    private int keratinoHeight=-1; // höhe keratino
@@ -153,12 +156,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        return lastd;
    }  
    
-   public final Double2D forceFromBound(Continuous2D pC2dHerd, double x, double y) // Calculate the Force orthogonal to lower bound
-   {        
-       double yleft=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(pC2dHerd.stx(x-5), pC2dHerd.sty(y));
-       double yright=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(pC2dHerd.stx(x+5),pC2dHerd.sty(y));
-       return new Double2D(-(yright-yleft),10);
-   }    
+   
    public Double2D randomness(MersenneTwisterFast r)
    {
        double x = r.nextDouble() * 2 - 1.0;
@@ -536,8 +534,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    
    
    
-   public int getGKeratinoHeightGranu() {	return gKeratinoHeightGranu;}
-   public int getGKeratinoWidthGranu() { return gKeratinoWidthGranu;	}
+   public int getGKeratinoHeightGranu() {	return GKERATINOHEIGHTGRANU;}
+   public int getGKeratinoWidthGranu() { return GKERATINOWIDTHGRANU;	}
    
    public int getKeratinoHeight() {	return keratinoHeight; }
 	

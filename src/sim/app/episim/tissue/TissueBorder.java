@@ -13,7 +13,10 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.vecmath.Point3f;
+
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.NoExport;
 
 import sim.app.episim.model.controller.ModelController;
@@ -47,6 +50,8 @@ public class TissueBorder {
 	private ImportedTissue actImportedTissue;	
 	private boolean standardMembraneLoaded = false;	
 	private boolean noMembraneLoaded = false;
+	
+	private Point3f[] standardMembraneCoordinates3D;
 	
 	private TissueBorder(){		
 		resetTissueBorderSettings();
@@ -183,6 +188,10 @@ public class TissueBorder {
 		
 		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 		return inPixels ? globalParameters.getLengthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getLengthInMikron();
+	}
+	
+	public double lowerBoundInMikron(double xCell, double yCell, double zCell){
+		return lowerBoundInMikron(xCell, yCell);
 	}
 	
 	public double lowerBoundInMikron(double xCell, double yCell)
@@ -331,16 +340,44 @@ public class TissueBorder {
 		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		standardMembraneLoaded = true;
+		if(globalParameters.getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL)buildStandardMembrane2D();
+		if(globalParameters.getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL)buildStandardMembrane3D();
+	}
+	
+	private void buildStandardMembrane2D(){
 		GeneralPath polygon = new GeneralPath();
-	 		final int STEPSIZE = 1;
-	 		((GeneralPath)polygon).moveTo(startXOfStandardMembrane, (getHeightInMikron()-lowerBoundInMikron(startXOfStandardMembrane, 0)));
-	 		for(double i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+getWidthInMikron()); i += STEPSIZE){
-	 		((GeneralPath)polygon).lineTo(i, (getHeightInMikron()-lowerBoundInMikron(i, 0)));
-	 		}
-	 		this.polygon = polygon;
-	 		this.drawBasalLayer = (GeneralPath)polygon.clone();
-	 		drawPolygon = (GeneralPath)polygon.clone();
-	}	
+ 		final int STEPSIZE = 1;
+ 		((GeneralPath)polygon).moveTo(startXOfStandardMembrane, (getHeightInMikron()-lowerBoundInMikron(startXOfStandardMembrane, 0)));
+ 		for(double i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+getWidthInMikron()); i += STEPSIZE){
+ 		((GeneralPath)polygon).lineTo(i, (getHeightInMikron()-lowerBoundInMikron(i, 0)));
+ 		}
+ 		this.polygon = polygon;
+ 		this.drawBasalLayer = (GeneralPath)polygon.clone();
+ 		drawPolygon = (GeneralPath)polygon.clone();
+	}
+	
+	private void buildStandardMembrane3D(){
+		ArrayList<Point3f> coordinatesList = new ArrayList<Point3f>();
+		final float STEPSIZE = 2;
+		
+		float width = (float)getWidthInMikron();
+		float length = (float)getLengthInMikron();	
+		
+		for(float i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+width); i += STEPSIZE){
+			coordinatesList.add(new Point3f(i, (float)lowerBoundInMikron(i, 0), 0f));			
+			coordinatesList.add(new Point3f(i, (float)lowerBoundInMikron(i, 0), length));
+			coordinatesList.add(new Point3f(i+STEPSIZE, (float)lowerBoundInMikron(i+STEPSIZE, 0), length));
+			coordinatesList.add(new Point3f(i+STEPSIZE, (float)lowerBoundInMikron(i+STEPSIZE, 0), 0f));		
+		}
+		
+		
+		this.standardMembraneCoordinates3D = new Point3f[coordinatesList.size()];
+		for(int i = 0; i < this.standardMembraneCoordinates3D.length; i++) this.standardMembraneCoordinates3D[i] = coordinatesList.get(i);
+	}
+	
+	public Point3f[] getStandardMembraneCoordinates3D(){
+		return this.standardMembraneCoordinates3D;
+	}
 	
 	protected static synchronized TissueBorder getInstance(){
 		if(instance == null) instance =  new TissueBorder();

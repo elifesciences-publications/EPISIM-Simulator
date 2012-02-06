@@ -25,6 +25,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueServer;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
+import sim.app.episim.visualization.BasementMembranePortrayal3D;
 import sim.app.episim.visualization.EpisimSimulationBoxPortrayal3D;
 import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;
@@ -125,10 +126,9 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	private FieldPortrayal2D cellPortrayal2D;
 	private FieldPortrayal3D cellPortrayal3D;
-	private BasementMembranePortrayal2D basementPortrayal;
 	private WoundPortrayal2D woundPortrayal;
 	private RulerPortrayal2D rulerPortrayal;
-	private GridPortrayal2D gridPortrayal;
+	
 	
 	private double initialDisplay3DScale = 1;
 	
@@ -277,10 +277,10 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 		// obstacle portrayal needs no setup
 		
-		basementPortrayal = new BasementMembranePortrayal2D();
+		BasementMembranePortrayal2D basementPortrayal = new BasementMembranePortrayal2D();
 		woundPortrayal = new WoundPortrayal2D();
 		rulerPortrayal = new RulerPortrayal2D();
-		gridPortrayal = new GridPortrayal2D();
+		GridPortrayal2D gridPortrayal = new GridPortrayal2D();
 		
 		
 		
@@ -335,10 +335,14 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		double width =  TissueController.getInstance().getTissueBorder().getWidthInMikron();
 		double length =  TissueController.getInstance().getTissueBorder().getLengthInMikron();
+		scaleAndTranslateDisplay3D();
 	
 		display3D.attach( new EpisimSimulationBoxPortrayal3D(0,0,0, width, height, length), "Simulation Box");
 		
-		
+		if(!TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()){
+			BasementMembranePortrayal3D basementPortrayal = new BasementMembranePortrayal3D();
+			display3D.attach(basementPortrayal, basementPortrayal.getPortrayalName(), basementPortrayal.getViewPortRectangle(), true);
+		}
 		
 		EpisimPortrayal[] portrayals = ModelController.getInstance().getAdditionalPortrayalsCellBackground();
 		for(int i = 0; i < portrayals.length; i++)display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
@@ -349,7 +353,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
 		
-		scaleAndTranslateDisplay3D();
+		
 	
 	// reschedule the displayer
       display3D.reset();

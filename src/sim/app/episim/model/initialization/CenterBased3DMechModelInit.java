@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
+
+import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
-import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
+import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal3D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
-import sim.util.Double2D;
+import sim.util.Double3D;
 import episiminterfaces.EpisimPortrayal;
 
 
@@ -41,13 +41,12 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 
-		CenterBasedMechanicalModelGP mechModelGP = (CenterBasedMechanicalModelGP) ModelController
-				.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		CenterBased3DMechanicalModelGP mechModelGP = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 
-		Double2D lastloc = new Double2D(2, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(2,0));
+		Double3D lastloc = new Double3D(2, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(2,0,0), 10);
 		
 		for (double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidthInPixels(); x += 2) {
-			Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0));
+			Double3D newloc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0), 10);
 			double distance = newloc.distance(lastloc);
 
 			if ((depthFrac(newloc.y) > mechModelGP.getSeedMinDepth_frac())
@@ -55,10 +54,8 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 				if (distance > mechModelGP.getBasalDensity_mikron()) {
 				
 					UniversalCell stemCell = new UniversalCell(null, null);
-					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject().setXY(
-							((int) newloc.x), ((int)  (newloc.y)));
-					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject())
-							.setCellLocationInCellField(newloc);
+					
+					((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(newloc);
 					standardCellEnsemble.add(stemCell);
 
 					lastloc = newloc;
@@ -71,12 +68,7 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 	}
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
-		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();
-
-		for (UniversalCell uCell : loadedCells) {				
-			CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) uCell.getEpisimBioMechanicalModelObject();
-			centerBasedModel.getCellEllipseObject().setXY((int) centerBasedModel.getCellLocationInCellField().x, (int) centerBasedModel.getCellLocationInCellField().y);
-		}
+		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();	
 		return loadedCells;
 	}
 
@@ -87,12 +79,10 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 
 	}
 
-	protected EpisimPortrayal getCellPortrayal() {
-		UniversalCellPortrayal2D cellPortrayal = new UniversalCellPortrayal2D(java.awt.Color.lightGray);
-		ContinuousUniversalCellPortrayal2D continousPortrayal = new ContinuousUniversalCellPortrayal2D();
-		continousPortrayal.setPortrayalForClass(UniversalCell.class, cellPortrayal);
-		continousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
-		return continousPortrayal;
+	protected EpisimPortrayal getCellPortrayal() {		
+		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D();
+		continuousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
+		return continuousPortrayal;
 	}
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {

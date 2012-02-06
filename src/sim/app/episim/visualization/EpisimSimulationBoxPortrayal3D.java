@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Font;
 
 import javax.media.j3d.BranchGroup;
+import javax.media.j3d.Font3D;
+import javax.media.j3d.FontExtrusion;
 import javax.media.j3d.OrientedShape3D;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
@@ -31,8 +33,15 @@ public class EpisimSimulationBoxPortrayal3D extends WireFrameBoxPortrayal3D {
 	
 	private static final float OFFSET = 0;
 	
-	private static final double STANDARD_FONT_SIZE = 12;
 	
+// A larger font size makes the label bigger but also uses much more memory
+   static final int FONT_SIZE = 18;
+   // A smaller scaling factor reduces the label size
+   static final double SCALING_MODIFIER = 1.0 / 5.0; 
+       
+   double labelScale = 1.0;
+	private Font font;
+	private Font3D font3D;
 	
 	
 	 /** Draws a white wireframe box from (-0.5,-0.5,-0.5) to (0.5,0.5,0.5) */
@@ -58,88 +67,90 @@ public class EpisimSimulationBoxPortrayal3D extends WireFrameBoxPortrayal3D {
    }
    
    public TransformGroup getModel(Object obj, TransformGroup tg){
-   	boolean setChildredAddCapability = (tg ==null);
+   	boolean setChildrenAddCapability = (tg ==null);
    	TransformGroup modelTG = super.getModel(obj, tg);
    	
-	   	if(setChildredAddCapability)modelTG.setCapability(TransformGroup.ALLOW_CHILDREN_EXTEND);
-	   	BranchGroup branchGroup = new BranchGroup();
-	   	branchGroup.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
-	   	branchGroup.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-	   	branchGroup.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
+	   if(setChildrenAddCapability)modelTG.setCapability(TransformGroup.ALLOW_CHILDREN_EXTEND);
+	   BranchGroup branchGroup = new BranchGroup();
+	   branchGroup.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
+	   branchGroup.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
+	   branchGroup.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
+	   
+	   branchGroup.setCapability(BranchGroup.ALLOW_BOUNDS_READ);
+	   branchGroup.setCapability(BranchGroup.ALLOW_DETACH);
+	   
+	
+	   if (font == null) font = new Font("SansSerif",Font.PLAIN, FONT_SIZE);
+      
+      font3D = new Font3D(font, new FontExtrusion());
+	   
+	   
+      if(getCurrentDisplay() != null){
+	   	double dispScale = ((Display3DHack) getCurrentDisplay()).getInitialDisplayScale();
+	   	labelScale = 0.0035/dispScale;
+      }
+	   
+	  
+	   String label = "(0,0,0) µm";
+	   
+	   addLabel(label, branchGroup, new Vector3f(OFFSET,0f,0f), font);   	
 	   	
-	   	branchGroup.setCapability(BranchGroup.ALLOW_BOUNDS_READ);
-	   	branchGroup.setCapability(BranchGroup.ALLOW_DETACH);
-	   	
-	   	double fontSize = STANDARD_FONT_SIZE;
-	   	if(getCurrentDisplay() != null){
-	   		double dispScale = ((Display3DHack) getCurrentDisplay()).getInitialDisplayScale();
-	   		double resultingFontSize = STANDARD_FONT_SIZE*dispScale;
-	   		if(resultingFontSize != 0.016){
-	   			fontSize *= (0.016/resultingFontSize);
-	   		}	   		
-	   	}
-	   	
-	   	Font font =  new Font(Font.SANS_SERIF, Font.PLAIN, Math.round((float)fontSize));
-	   	String label = "(0,0,0) µm";
-	   	
-	   	addLabel(label, branchGroup, new Vector3f(OFFSET,0f,0f), font, 1);   	
-	   	
-	   	
-	   	Vector3f stPt = new Vector3f(x, y, z);
-	      Vector3f endPt = new Vector3f(x2+OFFSET, y, z);
-	      Vector3f v = new Vector3f(stPt);
-	      v.negate();
-	      v.add(new Vector3f(endPt));
-	      label = "("+((int)(x2-x))+",0,0) µm";
-	      addLabel(label, branchGroup, v, font, 1);
+	   
+	   Vector3f stPt = new Vector3f(x, y, z);
+	   Vector3f endPt = new Vector3f(x2+OFFSET, y, z);
+	   Vector3f v = new Vector3f(stPt);
+	   v.negate();
+	   v.add(new Vector3f(endPt));
+	   label = "("+((int)(x2-x))+",0,0) µm";
+	   addLabel(label, branchGroup, v, font);
+	     
+	   stPt = new Vector3f(x, y, z);
+	   endPt = new Vector3f(x+OFFSET, y2, z);
+	   v = new Vector3f(stPt);
+	   v.negate();
+	   v.add(new Vector3f(endPt));
+	   label = "(0,"+((int)(y2-y))+",0) µm";
+	   addLabel(label, branchGroup, v, font);
 	      
-	      stPt = new Vector3f(x, y, z);
-	      endPt = new Vector3f(x+OFFSET, y2, z);
-	      v = new Vector3f(stPt);
-	      v.negate();
-	      v.add(new Vector3f(endPt));
-	      label = "(0,"+((int)(y2-y))+",0) µm";
-	      addLabel(label, branchGroup, v, font, 1);
-	      
-	      stPt = new Vector3f(x, y, z);
-	      endPt = new Vector3f(x+OFFSET, y, z2);
-	      v = new Vector3f(stPt);
-	      v.negate();
-	      v.add(new Vector3f(endPt));
-	      label = "(0,0,"+((int)(z2-z))+") µm";
-	      addLabel(label, branchGroup, v, font, 1);    
+	   stPt = new Vector3f(x, y, z);
+	   endPt = new Vector3f(x+OFFSET, y, z2);
+	   v = new Vector3f(stPt);
+	   v.negate();
+	   v.add(new Vector3f(endPt));
+	   label = "(0,0,"+((int)(z2-z))+") µm";
+	   addLabel(label, branchGroup, v, font);    
 	    
-	      stPt = new Vector3f(x, y, z);
-	      endPt = new Vector3f(x2+OFFSET, y2, z);
-	      v = new Vector3f(stPt);
-	      v.negate();
-	      v.add(new Vector3f(endPt));
-	      label = "("+((int)(x2-x))+","+((int)(y2-y))+",0) µm";
-	      addLabel(label, branchGroup, v, font, 1);
+	   stPt = new Vector3f(x, y, z);
+	   endPt = new Vector3f(x2+OFFSET, y2, z);
+	   v = new Vector3f(stPt);
+	   v.negate();
+	   v.add(new Vector3f(endPt));
+	   label = "("+((int)(x2-x))+","+((int)(y2-y))+",0) µm";
+	   addLabel(label, branchGroup, v, font);
+	    
+	   stPt = new Vector3f(x, y, z);
+	   endPt = new Vector3f(x2+OFFSET, y, z2);
+	   v = new Vector3f(stPt);
+	   v.negate();
+	   v.add(new Vector3f(endPt));
+	   label = "("+((int)(x2-x))+",0,"+((int)(z2-z))+") µm";
+	   addLabel(label, branchGroup, v, font);
 	      
-	      stPt = new Vector3f(x, y, z);
-	      endPt = new Vector3f(x2+OFFSET, y, z2);
-	      v = new Vector3f(stPt);
-	      v.negate();
-	      v.add(new Vector3f(endPt));
-	      label = "("+((int)(x2-x))+",0,"+((int)(z2-z))+") µm";
-	      addLabel(label, branchGroup, v, font, 1);
+	   stPt = new Vector3f(x, y, z);
+	   endPt = new Vector3f(x+OFFSET, y2, z2);
+	   v = new Vector3f(stPt);
+	   v.negate();
+	   v.add(new Vector3f(endPt));
+	   label = "(0,"+((int)(y2-y))+","+((int)(z2-z))+") µm";
+	   addLabel(label, branchGroup, v, font);
 	      
-	      stPt = new Vector3f(x, y, z);
-	      endPt = new Vector3f(x+OFFSET, y2, z2);
-	      v = new Vector3f(stPt);
-	      v.negate();
-	      v.add(new Vector3f(endPt));
-	      label = "(0,"+((int)(y2-y))+","+((int)(z2-z))+") µm";
-	      addLabel(label, branchGroup, v, font, 1);
-	      
-	      stPt = new Vector3f(x, y, z);
-	      endPt = new Vector3f(x2+OFFSET, y2, z2);
-	      v = new Vector3f(stPt);
-	      v.negate();
-	      v.add(new Vector3f(endPt));
-	      label = "("+((int)(x2-x))+","+((int)(y2-y))+","+((int)(z2-z))+") µm";
-	      addLabel(label, branchGroup, v, font, 1);
+	   stPt = new Vector3f(x, y, z);
+	   endPt = new Vector3f(x2+OFFSET, y2, z2);
+	   v = new Vector3f(stPt);
+	   v.negate();
+	   v.add(new Vector3f(endPt));
+	   label = "("+((int)(x2-x))+","+((int)(y2-y))+","+((int)(z2-z))+") µm";
+	   addLabel(label, branchGroup, v, font);
 	      
 	      
 	   	modelTG.addChild(branchGroup);
@@ -147,11 +158,14 @@ public class EpisimSimulationBoxPortrayal3D extends WireFrameBoxPortrayal3D {
       return modelTG;
    }
    
-   private void addLabel(String label, BranchGroup branchGroup, Vector3f position, Font font, float fontScaleFactor){
+   private void addLabel(String label, BranchGroup branchGroup, Vector3f position, Font font){
    	 
+   
+      
+   	
    	 
    	Text2D text = new Text2D(label, new Color3f(Color.WHITE), font.getFamily(), font.getSize(), font.getStyle());
-      text.setRectangleScaleFactor((float)(fontScaleFactor));
+   	text.setRectangleScaleFactor((float)(labelScale * SCALING_MODIFIER));
       
       
       OrientedShape3D o3d = new OrientedShape3D(text.getGeometry(), text.getAppearance(),

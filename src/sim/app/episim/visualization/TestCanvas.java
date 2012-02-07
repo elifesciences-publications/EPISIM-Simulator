@@ -166,7 +166,7 @@ public class TestCanvas extends JPanel {
 			//	g.setColor(Color.YELLOW);
 			//	g.draw(cellEllipse.getEllipseBoundingBox());
 				g.setColor(oldColor);
-				drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellCenterColor);
+				drawPoint(g, (int)cellEllipse.getX(), (int)cellEllipse.getY(), 2, cellCenterColor);
 				
 			}
 			else{
@@ -177,7 +177,7 @@ public class TestCanvas extends JPanel {
 				g.setColor(cellEllipse.getColor());
 				g.draw(cellEllipse.getClippedEllipse());
 				g.setColor(oldColor);
-				drawPoint(g, cellEllipse.getX(), cellEllipse.getY(), 2, cellEllipse.getColor());
+				drawPoint(g, (int)cellEllipse.getX(), (int)cellEllipse.getY(), 2, cellEllipse.getColor());
 			}
 		}
 		if(newCellEllipse) cellEllipses.add(cellEllipse);
@@ -389,7 +389,7 @@ public class TestCanvas extends JPanel {
 			if(   x >= (ell.getX() -ell.getMajorAxis()) && y >= (ell.getY() - ell.getMinorAxis())
 				&& x <= (ell.getX() + ell.getMajorAxis()) && y <= (ell.getY() + ell.getMinorAxis())){
 				
-				double distance = distance(x, y, ell.getX(), ell.getY());
+				double distance = distance(x, y, (int)ell.getX(), (int)ell.getY());
 				
 				if(distance < minimalDistance){
 					minimalDistance = distance;

@@ -16,11 +16,11 @@ public class CellEllipse extends AbstractCellEllipse{
 		
 		private Color fillColor = null;
 		
-		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, Color c){
+		public CellEllipse(long id, double x, double y, double majorAxis, double minorAxis, Color c){
 			this(id, x, y, majorAxis, minorAxis, 0, 0, 0, 0, 0, 0, 0, null, c);
 		}
 		
-		public CellEllipse(long id, int x, int y, int majorAxis, int minorAxis, int height, int width, int orientationInDegrees, double area, double perimeter, double solidity, double distanceToBL, int[] neighbouringCellIDs, Color c){
+		public CellEllipse(long id, double x, double y, double majorAxis, double minorAxis, double height, double width, double orientationInDegrees, double area, double perimeter, double solidity, double distanceToBL, int[] neighbouringCellIDs, Color c){
 			super(id, x, y, majorAxis, minorAxis, height, width, orientationInDegrees, area, perimeter, distanceToBL, c);
 		
 			this.solidity = solidity;
@@ -29,13 +29,13 @@ public class CellEllipse extends AbstractCellEllipse{
 			CellEllipseIntersectionCalculationRegistry.getInstance().registerCellEllipse(this);
 		}
 	
-		public void setXY(int x, int y){
+		public void setXY(double x, double y){
 			if(this.nucleus != null){
-			  int deltaX = x - this.getX();
-			  int deltaY = y - this.getY();
+			  double deltaX = x - this.getX();
+			  double deltaY = y - this.getY();
 				  
-			  int newX =this.getNucleus().getX() + deltaX;
-			  int newY = this.getNucleus().getY() + deltaY;
+			  double newX =this.getNucleus().getX() + deltaX;
+			  double newY = this.getNucleus().getY() + deltaY;
 			  this.getNucleus().setXY(newX, newY);			  
 			  super.setXY(x, y);
 			}

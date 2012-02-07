@@ -3,6 +3,8 @@ package sim.app.episim.model.initialization;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.vecmath.Point2d;
+
 import org.w3c.dom.DOMException;
 
 import episiminterfaces.EpisimPortrayal;
@@ -68,10 +70,11 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 				if (distance > mechModelGP.getBasalDensity_mikron()) {
 				
 					UniversalCell stemCell = new UniversalCell(null, null);
-					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject().setXY(
-							((int) newloc.x), ((int)  (newloc.y)));
-					((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject())
-							.setCellLocationInCellField(newloc);
+					CenterBasedMechanicalModel mechModel = ((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
+					Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
+					
+					mechModel.getCellEllipseObject().setXY(corrPos.x, corrPos.y);
+					mechModel.setCellLocationInCellField(new Double2D(corrPos.x, corrPos.y));
 					standardCellEnsemble.add(stemCell);
 
 					lastloc = newloc;
@@ -88,7 +91,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 
 		for (UniversalCell uCell : loadedCells) {				
 			CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) uCell.getEpisimBioMechanicalModelObject();
-			centerBasedModel.getCellEllipseObject().setXY((int) centerBasedModel.getCellLocationInCellField().x, (int) centerBasedModel.getCellLocationInCellField().y);
+			centerBasedModel.getCellEllipseObject().setXY(centerBasedModel.getCellLocationInCellField().x, centerBasedModel.getCellLocationInCellField().y);
 		}
 		return loadedCells;
 	}

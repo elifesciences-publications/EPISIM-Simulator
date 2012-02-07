@@ -6,6 +6,7 @@ import sim.app.episim.CellInspector;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
@@ -18,6 +19,7 @@ import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.Scale;
@@ -169,8 +171,11 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 			CellEllipse cellEllipseObject = ((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
 			
 			if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PAUSE || SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.STOP){ 
-				cellEllipseObject.translateCell(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
-		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));        
+				SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
+				
+				/*cellEllipseObject.translateCell(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, (props.offsetY+props.displayScaleY*TissueController.getInstance().getTissueBorder().getHeightInPixels())-info.draw.y, props.displayScaleX, props.displayScaleY),
+		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));        */
+				 cellEllipseObject.setLastSimulationDisplayProps(props, false);
 	      }	      	  
 	    	graphics.setPaint(getFillColor(universalCell));
 	    	if(mechModel.getX() != 0 || mechModel.getY() != 0){
@@ -192,8 +197,9 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 	    	//must be set at the very end of the paint method
 	       
 	       if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PLAY || SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.STEPWISE){ 
-	      	 cellEllipseObject.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),
-		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)), false);
+	      	 
+	      	 SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
+	      	 cellEllipseObject.setLastSimulationDisplayProps(props, false);
 	       }         
 		}
 	}

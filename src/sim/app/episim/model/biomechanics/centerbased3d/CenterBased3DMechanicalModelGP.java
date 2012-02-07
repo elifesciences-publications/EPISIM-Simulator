@@ -12,7 +12,7 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
 	private double length = 100;
 	private double randomness = 0.05;
 	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
-	private int basalDensity_mikron = 8; // width of undulation at the middle
+	private int basalDensity_mikron = 9;//OriginalValue: 8; // width of undulation at the middle
 	private double externalPush = 1.1; // y-offset
 	private double cohesion = 0.01;
 	

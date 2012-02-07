@@ -6,10 +6,11 @@ import java.awt.geom.Rectangle2D.Double;
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
+import sim.portrayal.continuous.ContinuousPortrayal2DHack;
 import episiminterfaces.EpisimPortrayal;
 
 
-public class ContinuousUniversalCellPortrayal2D extends ContinuousPortrayal2D implements EpisimPortrayal {
+public class ContinuousUniversalCellPortrayal2D extends ContinuousPortrayal2DHack implements EpisimPortrayal {
 
 	private final String NAME = "Epidermis";
 	

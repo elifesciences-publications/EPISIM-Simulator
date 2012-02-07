@@ -63,7 +63,7 @@ public class EllipseIntersectionCalculatorAndClipper {
 		IntersectionPoints p = getClippedEllipsesAndXYPoints(null, actEllipse, otherEllipse);
 		long timeEnd = (new Date()).getTime();
 		cumulativeTimeInMillis += (timeEnd-timeStart);
-		if((noOfCalls % 100000) == 0)System.out.println("Durchschnittliche Dauer ("+ noOfCalls+ ", noOfSwaps: "+noOfSwaps+"): "+ (cumulativeTimeInMillis/noOfCalls));
+		//if((noOfCalls % 100000) == 0)System.out.println("Durchschnittliche Dauer ("+ noOfCalls+ ", noOfSwaps: "+noOfSwaps+"): "+ (cumulativeTimeInMillis/noOfCalls));
 		return p;
 	}
 	

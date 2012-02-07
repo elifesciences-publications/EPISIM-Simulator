@@ -2,6 +2,8 @@ package sim.app.episim.model.initialization;
 
 import java.util.ArrayList;
 
+import javax.vecmath.Point3d;
+
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
@@ -46,19 +48,19 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 		Double3D lastloc = new Double3D(2, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(2,0,0), 10);
 		
 		for (double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidthInPixels(); x += 2) {
-			Double3D newloc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0), 10);
-			double distance = newloc.distance(lastloc);
+			Double3D newLoc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0), 10);
+			double distance = newLoc.distance(lastloc);
 
-			if ((depthFrac(newloc.y) > mechModelGP.getSeedMinDepth_frac())
-					|| (depthFrac(newloc.y) < mechModelGP.getSeedMinDepth_frac()))
-				if (distance > mechModelGP.getBasalDensity_mikron()) {
-				
+			if ((depthFrac(newLoc.y) > mechModelGP.getSeedMinDepth_frac())
+					|| (depthFrac(newLoc.y) < mechModelGP.getSeedMinDepth_frac()))
+				if (distance > mechModelGP.getBasalDensity_mikron()) {				
 					UniversalCell stemCell = new UniversalCell(null, null);
-					
-					((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(newloc);
+					CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
+					Point3d corrLoc = mechModel.calculateLowerBoundaryPositionForCell(new Point3d(newLoc.x, newLoc.y, newLoc.z));
+					((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));
 					standardCellEnsemble.add(stemCell);
 
-					lastloc = newloc;
+					lastloc = newLoc;
 
 					GlobalStatistics.getInstance().inkrementActualNumberStemCells();
 					GlobalStatistics.getInstance().inkrementActualNumberKCytes();

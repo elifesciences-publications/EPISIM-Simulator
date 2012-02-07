@@ -280,7 +280,7 @@ public class Epidermis extends TissueType implements CellDeathListener
                      if(biomechanicalModel instanceof AbstractMechanical2DModel){
 	                     Double2D loc= ((AbstractMechanical2DModel) biomechanicalModel).getCellLocationInCellField();
 	                     
-	                     int xbin=(int)loc.x / CenterBasedMechanicalModel.GINITIALKERATINOWIDTH;
+	                     int xbin=(int)loc.x / CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH;
 	                     if (xLookUp[xbin]==null) 
 	                     {
 	                         xLookUp[xbin]=act;                            

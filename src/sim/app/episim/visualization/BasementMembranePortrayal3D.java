@@ -140,7 +140,7 @@ public class BasementMembranePortrayal3D extends SimplePortrayal3D implements Ep
 	}
 	private Point3f[] generateLowerFace(Point3f[] points){
 		Point3f[] lowerFace = new Point3f[points.length];
-		final float height =2;
+		final float height =1;
 		for(int i = 0; i < lowerFace.length; i++){
 			lowerFace[i] = new Point3f(points[i].x,points[i].y-height,points[i].z);
 		}

@@ -40,7 +40,7 @@ public class TissueBorder {
 	
 	private static  TissueBorder instance;
 	
-	private int basalY=58;          // y coordinate at which undulations start, the base line    
+	
 	private int basalPeriod=70;      // width of an undulation at the foot
 	private int startXOfStandardMembrane = 0;
 	
@@ -75,19 +75,10 @@ public class TissueBorder {
 		standardMembraneLoaded = false;	
 		noMembraneLoaded = false;
 		
-		basalY=58;
+		
 		basalPeriod=70;
 		startXOfStandardMembrane = 0;
-	}
-	
-	
-	public int getUndulationBaseLine(){
-		return basalY;
-	}
-	
-	public void setUndulationBaseLineInMikron(int _basalY){
-		basalY = _basalY;
-	}
+	}	
 	
 	public void setBasalPeriodInMikron(int period){
 		basalPeriod = period;
@@ -202,17 +193,14 @@ public class TissueBorder {
 				// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
 		     double p=basalPeriod; 
 		     
-		     double partition=xCell-(int)(xCell/p)*p - p/2; // alle 10 einen buckel 5=10/2        
+		     double partition=xCell-(int)(xCell/p)*p - p/2;    
 		     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_mikron());
-		     //System.out.println("x:"+x+" p:"+partition+" v:"+v+" Av:"+basalAmplitude*v);
-		     double result= basalY+globalParameters.getBasalAmplitude_mikron()*v;
-		     double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
-		     result = heightInMikron - result;
+		     double result= (globalParameters.getBasalAmplitude_mikron()+2)-globalParameters.getBasalAmplitude_mikron()*v;
 		     return result;
 		}
 		else if(noMembraneLoaded) return Double.NEGATIVE_INFINITY;
 		else if(this.actImportedTissue != null) return getLowerYCoordinateForXCoordinate(xCell, yCell);			
-			return Double.NEGATIVE_INFINITY;
+		return Double.NEGATIVE_INFINITY;
 	 }
 	public double upperBoundInMikron(double xCell, double yCell)
 	 {		

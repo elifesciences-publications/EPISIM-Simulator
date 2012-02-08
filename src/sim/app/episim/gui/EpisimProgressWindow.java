@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JWindow;
 
 import javax.swing.border.BevelBorder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,10 +22,10 @@ import sim.app.episim.persistence.SimulationStateFile;
 public class EpisimProgressWindow {
 	private JLabel progressLabel;
 	private JProgressBar progressBar;
-	private JDialog progressWindow;
+	private JWindow progressWindow;
 	public EpisimProgressWindow(Frame owner){
-		progressWindow = new JDialog(owner,true);
-		progressWindow.setUndecorated(true);
+		progressWindow = new JWindow(owner);
+		//progressWindow.setUndecorated(true);
 		progressWindow.getContentPane().setLayout(new BorderLayout(5, 5));
 		if(progressWindow.getContentPane() instanceof JPanel)
 			((JPanel)progressWindow.getContentPane()).setBorder(BorderFactory.createCompoundBorder(
@@ -46,22 +47,25 @@ public class EpisimProgressWindow {
 		progressLabel.setText(text);
 	}
 	
-	private boolean taskFinished = false;
+	private  boolean taskFinished = false;
 	public void showProgressWindowForTask(final EpisimProgressWindowCallback callback){
-		taskFinished = false;
+		setTaskFinished(false);
 		Runnable r = new Runnable(){			
-			public void run() {				
+			public void run() {
+				progressWindow.setVisible(true);
 				callback.executeTask();
 				progressWindow.setVisible(false);
+				setTaskFinished(true);				
 				callback.taskHasFinished();
-				taskFinished = true;
-         }
-	
+         }	
 		};
 		Thread t = new Thread(r);
 		t.start();
-		if(!taskFinished)progressWindow.setVisible(true);
-	}	
+		while(!isTaskFinished()){/*wait*/}
+	}
+	
+	private synchronized void setTaskFinished(boolean val){ this.taskFinished = val; }
+	private synchronized boolean isTaskFinished(){ return this.taskFinished; }
 	
 	public interface EpisimProgressWindowCallback {
 		

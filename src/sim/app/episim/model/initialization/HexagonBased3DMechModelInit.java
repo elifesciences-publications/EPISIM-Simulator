@@ -36,8 +36,8 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 
 
    protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
-   	//return regularInitialization();
-   	return testInitialization();
+   	return regularInitialization();
+   	//return testInitialization();
    }
 
    

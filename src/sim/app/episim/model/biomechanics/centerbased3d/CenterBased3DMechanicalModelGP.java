@@ -12,7 +12,7 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
 	private double length = 100;
 	private double randomness = 0.05;
 	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
-	private int basalDensity_mikron = 9;//OriginalValue: 8; // width of undulation at the middle
+	private double basalDensity_mikron = 9;//OriginalValue: 8; // width of undulation at the middle
 	private double externalPush = 1.1; // y-offset
 	private double cohesion = 0.01;
 	
@@ -82,11 +82,11 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
 			seedMinDepth_frac = val;
 	}
 
-	public int getBasalDensity_mikron() {
+	public double getBasalDensity_mikron() {
 		return basalDensity_mikron;
 	}
 
-	public void setBasalDensity_mikron(int val) {
+	public void setBasalDensity_mikron(double val) {
 		if(val >= 0)
 			basalDensity_mikron = val;
 	}

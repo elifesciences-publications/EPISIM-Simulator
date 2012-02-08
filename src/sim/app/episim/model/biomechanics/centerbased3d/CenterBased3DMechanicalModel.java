@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
+import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
@@ -28,6 +29,7 @@ import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
 
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased3d.Ellipsoid;
 import sim.app.episim.model.controller.ModelController;
 
@@ -44,10 +46,7 @@ import sim.util.Double3D;
 
 public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	
-
-	public static final double OPTIMAL_KERATINO_DISTANCE=4; // Default: 4
-   public static final double OPTIMAL_KERATINO_DISTANCE_GRANU=4; // Default: 3
-   
+	
    //The width of the keratinocyte must be bigger or equals the hight
    public static final double INITIAL_KERATINO_HEIGHT=5; // Default: 5
    public static final double INITIAL_KERATINO_LENGTH=5; // Default: 5
@@ -57,17 +56,19 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    public static final double KERATINO_HEIGHT_GRANU=4;
    public static final double KERATINO_LENGTH_GRANU=4;
    
+   private static final double MAX_DISPLACEMENT_FACT = 0.6;
+   
    public final int NEXT_TO_OUTERCELL=7;
    private double MINDIST=0.1;   
    
-   private double keratinoWidth=-11; 
+   private double keratinoWidth=-1; 
    private double keratinoLength=-1; 
    private double keratinoHeight=-1; 
    
-   private Vector3d extForce = new Vector3d(0,0,0);
+   private Vector3d externalForce = new Vector3d(0,0,0);
 
-   private Double3D oldLoc;
-   private Double3D newLoc;
+   private Double3D oldCellLocation;
+   private Double3D newCellLocation;
    
    private HitResult finalHitResult;
    
@@ -78,8 +79,6 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    
    private boolean isMembraneCell = false;
    
-  
-   //TODO: plus 2 Korrektur überprüfen
    private static Continuous3D cellField;
   
    public CenterBased3DMechanicalModel(){
@@ -95,7 +94,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 					TissueController.getInstance().getTissueBorder().getLengthInMikron());
    	}   	
    	
-   	extForce=new Vector3d(0,0,0);      
+   	externalForce=new Vector3d(0,0,0);      
       keratinoWidth=INITIAL_KERATINO_WIDTH; 
       keratinoHeight=INITIAL_KERATINO_HEIGHT; 
       keratinoLength=INITIAL_KERATINO_LENGTH; 
@@ -145,17 +144,13 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
        }
    }
        
-   public HitResult hitsOther(Bag neighbours, Double3D thisloc)
+   public HitResult hitsOther(Bag neighbours, Double3D thisloc, boolean finalPosition)
    {
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
        // for each collision calc a pressure vector and add it to the other's existing one
        HitResult hitResult=new HitResult();            
        if (neighbours==null || neighbours.numObjs == 0) return hitResult;  
-       
-       double optDist = getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()!=EpisimDifferentiationLevel.GRANUCELL ?
-      		 					OPTIMAL_KERATINO_DISTANCE :
-      		 					OPTIMAL_KERATINO_DISTANCE_GRANU;       
-      
+          
        for(int i=0;i<neighbours.numObjs;i++)
        {
           if (!(neighbours.objs[i] instanceof AbstractCell)) continue;
@@ -165,25 +160,33 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
           if (other != getCell())
           {
              Double3D otherloc=cellField.getObjectLocation(other);
+             CenterBased3DMechanicalModel mechModelOther = (CenterBased3DMechanicalModel) other.getEpisimBioMechanicalModelObject();
              double dx = cellField.tdx(thisloc.x,otherloc.x); 
              double dy = cellField.tdy(thisloc.y,otherloc.y);
              double dz = cellField.tdz(thisloc.z,otherloc.z);
-                        
-                                 
+              
+             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(otherloc.x, otherloc.y, otherloc.z), getKeratinoWidth()/2, getKeratinoHeight()/2, getKeratinoLength()/2);
+             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point3d(otherloc.x, otherloc.y, otherloc.z), new Point3d(thisloc.x, thisloc.y, thisloc.z), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2, mechModelOther.getKeratinoLength()/2);
+             
+             double optDist = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther), other); 
+             
              double actdist=Math.sqrt(dx*dx+dy*dy+dz*dz);
                    
              if (optDist-actdist>MINDIST) // is the difference from the optimal distance really significant
              {
-                double fx=(actdist>0)?(optDist/actdist)*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
+                double fx=(actdist>0)?(optDist/actdist)*dx-dx:0;    
                 double fy=(actdist>0)?(optDist/actdist)*dy-dy:0;
                 double fz=(actdist>0)?(optDist/actdist)*dz-dz:0;
                                        
-                     // berechneten Vektor anwenden
-                     hitResult.numhits++;
-                     hitResult.otherId=other.getID();
-                     hitResult.otherMotherId=other.getMotherId();
-                     ((CenterBased3DMechanicalModel) other.getEpisimBioMechanicalModelObject()).extForce.add(new Vector3d(-fx,-fy, -fz)); //von mir wegzeigende kraefte addieren
-                     extForce.add(new Vector3d(fx,fy,fz));                                      
+               
+                
+                
+                
+                hitResult.numhits++;
+                hitResult.otherId=other.getID();
+                hitResult.otherMotherId=other.getMotherId();
+                ((CenterBased3DMechanicalModel) other.getEpisimBioMechanicalModelObject()).externalForce.add(new Vector3d(-fx,-fy,-fz)); //von mir wegzeigende kraefte addieren
+                externalForce.add(new Vector3d(fx,fy,fz));                                      
               }
 
                   
@@ -196,7 +199,74 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
         }     
        return hitResult;
    }  
-
+   
+   
+   private double getMaxDisplacementFactor(){
+		EpisimDifferentiationLevel thisDiffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
+   	
+   	if(thisDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL){
+   		return MAX_DISPLACEMENT_FACT*1.4;
+   	}
+   	else{
+   		return MAX_DISPLACEMENT_FACT;
+   	}
+		
+	}
+   
+   private double calculateDistanceToCellCenter(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
+		 
+		 Vector3d rayDirection = new Vector3d((cellCenter.x-otherCellCenter.x), (cellCenter.y-otherCellCenter.y), (cellCenter.z-otherCellCenter.z));
+		 rayDirection.normalize();
+		 Point3d rayPosition = new Point3d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y), (otherCellCenter.z-cellCenter.z));
+		 //calculates the intersection of an ray with an ellipsoid
+		 double aAxis_2=aAxis * aAxis;
+		 double bAxis_2=bAxis * bAxis;
+		 double cAxis_2=cAxis * cAxis;
+		 
+	    double a = ((rayDirection.x * rayDirection.x) / (aAxis_2))
+	            + ((rayDirection.y * rayDirection.y) / (bAxis_2))
+	            + ((rayDirection.z * rayDirection.z) / (cAxis_2));
+	 
+	    double b = ((2 * rayPosition.x * rayDirection.x) / (aAxis_2))
+	            + ((2 * rayPosition.y * rayDirection.y) / (bAxis_2))
+	            + ((2 * rayPosition.z * rayDirection.z) / (cAxis_2));
+	 
+	    double c = ((rayPosition.x * rayPosition.x) / (aAxis_2))
+	            + ((rayPosition.y * rayPosition.y) / (bAxis_2))
+	            + ((rayPosition.z * rayPosition.z) / (cAxis_2))
+	            - 1;
+	 
+	    double d = ((b * b) - (4.0d * a * c));
+	 
+	    if (d < 0)
+	    {
+	       System.out.println("Error in optimal Ellipsoid distance calculation"); 
+	   	 return -1;
+	    }
+	    else
+	    {
+	        d = Math.sqrt(d);
+	    }	 
+	    double hit = (-b + d) / (2.0f * a);
+	    double hitsecond = (-b - d) / (2.0f * a);
+	    
+	    double linefactor = hit < hitsecond ? hit : hitsecond;
+	    Point3d intersectionPointEllipsoid = new Point3d((cellCenter.x+ rayPosition.x + linefactor*rayDirection.x),(cellCenter.y+ rayPosition.y + linefactor*rayDirection.y),(cellCenter.z+ rayPosition.z + linefactor*rayDirection.z));
+	   
+	    return cellCenter.distance(intersectionPointEllipsoid);
+	}
+   
+   private double normalizeOptimalDistance(double distance, AbstractCell otherCell){
+   	EpisimDifferentiationLevel thisDiffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
+   	EpisimDifferentiationLevel otherDiffLevel = otherCell.getEpisimCellBehavioralModelObject().getDiffLevel();
+   	if(thisDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL && otherDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL){
+   		return distance* 0.65;
+   	}
+   	else{
+   		return distance*0.8;
+   	}
+   }
+   
 	public void setPositionRespectingBounds(Double3D p_potentialLoc)
 	{
 	  
@@ -207,9 +277,9 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	   double minY=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(p_potentialLoc.x, p_potentialLoc.y, p_potentialLoc.z);  
 	   
 	  
-	   if ((newy)<minY)
+	   if (newy<minY)
 	   {
-	   	Point3d newPoint = calculateLowerBoundaryPositionForCell(new Point3d(newx, newy, newz));
+	   	 Point3d newPoint = calculateLowerBoundaryPositionForCell(new Point3d(newx, newy, newz));
 	       newx = newPoint.x;
 	       newy = newPoint.y;
 	       newz = newPoint.z;
@@ -234,7 +304,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	           
 	   if ((newy)<minY)  // border crossed
 	   {
-	       if (newy<=0) // unterste Auffangebene
+	       if (newy<=0) 
 	       {
 	           newy=0;       
 	       }	
@@ -305,7 +375,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    	//////////////////////////////////////////////////
 		// calculate ACTION force
 		//////////////////////////////////////////////////
-		if(!(getCell().getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel)) return;
+		
 		
 		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.GRANUCELL){
    	 	setKeratinoWidth(CenterBased3DMechanicalModel.KERATINO_WIDTH_GRANU);
@@ -313,64 +383,51 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    		setKeratinoLength(CenterBased3DMechanicalModel.KERATINO_LENGTH_GRANU);   		
    	}
 		// calc potential location from gravitation and external pressures
-		oldLoc = cellField.getObjectLocation(getCell());
-		if(oldLoc != null){
-			//TODO: Test this condition
-		if(extForce.length() > 0.6) 
-			extForce = setVector3dLength(extForce, 0.6);
+		oldCellLocation = cellField.getObjectLocation(getCell());
+		if(oldCellLocation != null){
+			
+		if(externalForce.length() > getMaxDisplacementFactor()) externalForce = setVector3dLength(externalForce, getMaxDisplacementFactor());
 		
 		Double3D randi = new Double3D(
 				globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
 				globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5),
 				globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
-		Vector3d actionForce = new Vector3d(extForce.x * globalParameters.getExternalPush() + randi.x, 
-														extForce.y * globalParameters.getExternalPush(),
-														extForce.z * globalParameters.getExternalPush() + randi.z);
+		Vector3d actionForce = new Vector3d(externalForce.x * globalParameters.getExternalPush() + randi.x, 
+														externalForce.y * globalParameters.getExternalPush(),
+														externalForce.z * globalParameters.getExternalPush() + randi.z);
 		Double3D potentialLoc = null;
 		
-		potentialLoc = new Double3D(cellField.stx(actionForce.x + oldLoc.x), cellField.sty(actionForce.y + oldLoc.y), cellField.stz(actionForce.z + oldLoc.z));
+		potentialLoc = new Double3D(cellField.stx(actionForce.x + oldCellLocation.x), cellField.sty(actionForce.y + oldCellLocation.y), cellField.stz(actionForce.z + oldCellLocation.z));
 		
-		extForce.x = 0; // alles einberechnet
-		extForce.y = 0;
-		extForce.z = 0;
+		externalForce.x = 0; // alles einberechnet
+		externalForce.y = 0;
+		externalForce.z = 0;
 
 		//////////////////////////////////////////////////
 		// try ACTION force
 		//////////////////////////////////////////////////
-		Bag b = cellField.getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), false); // theEpidermis.neighborhood
+		Bag neighbours = cellField.getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), false); 
 		HitResult hitResult1;
-		hitResult1 = hitsOther(b, potentialLoc);
+		hitResult1 = hitsOther(neighbours, potentialLoc, false);
 
 		//////////////////////////////////////////////////
 		// estimate optimised POS from REACTION force
 		//////////////////////////////////////////////////
 		// optimise my own position by giving way to the calculated pressures
-		Vector3d reactionForce = extForce;
+		Vector3d reactionForce = externalForce;
 		hitResult1.adhForce.scale(globalParameters.getCohesion());
 		reactionForce.add(hitResult1.adhForce);
 
-		// restrict movement if direction changes to quickly (momentum of a
-		// cell
-		// movement)
+		if(reactionForce.length() > actionForce.length())reactionForce = setVector3dLength(reactionForce,actionForce.length());
 
-		// bound optimised force
-		// problem: each cell bounces back two times as much as it should (to
-		// be
-		// able to move around immobile objects)
-		// but as we don't want bouncing the reaction force must never exceed
-		// the
-		// action force in its length
-		// dx/dy contain move to make
-		if(reactionForce.length() > (actionForce.length() + 0.1))
-			reactionForce = setVector3dLength(reactionForce,(actionForce.length() + 0.1));
-
-		extForce.x = 0;
-		extForce.y = 0;
+		externalForce.x = 0;
+		externalForce.y = 0;
+		externalForce.z = 0;
 
 		// bound also by borders
-		double potX = oldLoc.x + actionForce.x + reactionForce.x;
-		double potY = oldLoc.y + actionForce.y + reactionForce.y;
-		double potZ = oldLoc.z + actionForce.z + reactionForce.z;
+		double potX = oldCellLocation.x + actionForce.x + reactionForce.x;
+		double potY = oldCellLocation.y + actionForce.y + reactionForce.y;
+		double potZ = oldCellLocation.z + actionForce.z + reactionForce.z;
 		potentialLoc = new Double3D(cellField.stx(potX), cellField.sty(potY), cellField.stz(potZ));
 		potentialLoc = calcBoundedPos(cellField, potentialLoc.x, potentialLoc.y, potentialLoc.z);
 
@@ -387,9 +444,9 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		// nicht
 		// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
 
-		b = cellField.getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), false); // theEpidermis.neighborhood
+		neighbours = cellField.getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), false);
 		HitResult hitResult2;
-		hitResult2 = hitsOther(b, potentialLoc);
+		hitResult2 = hitsOther(neighbours, potentialLoc, true);
 
 		// move only on pressure when not stem cell
 		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
@@ -400,29 +457,27 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 			}
 		}
 
-		newLoc = cellField.getObjectLocation(getCell());
-		double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newLoc.x, newLoc.y, newLoc.z);
-		if(((newLoc.y-(getKeratinoWidth()/2))-minY) < globalParameters.getBasalLayerWidth())
+		newCellLocation = cellField.getObjectLocation(getCell());
+		double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newCellLocation.x, newCellLocation.y, newCellLocation.z);
+		if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getBasalLayerWidth())
 			getCell().setIsBasalStatisticsCell(true);
 		else
-			getCell().setIsBasalStatisticsCell(false); // ABSOLUTE DISTANZ KONSTANTE
+			getCell().setIsBasalStatisticsCell(false); 
 
-		if(((newLoc.y-(getKeratinoWidth()/2))-minY) < globalParameters.getMembraneCellsWidthInMikron()){
+		if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getMembraneCellsWidthInMikron()){
 			modelConnector.setIsMembrane(true);
-			//cell.setIsMembraneCell(true);
 			this.isMembraneCell = true;
 		}
 		else{
 			modelConnector.setIsMembrane(false);
-			//cell.setIsMembraneCell(false); // ABSOLUTE DISTANZ KONSTANTE
 			isMembraneCell = false;
 		}
 		
 		
 		neighbouringCells = new GenericBag<AbstractCell>();
-		for(int i = 0; i < b.size(); i++){
-			if(b.get(i) instanceof AbstractCell && ((AbstractCell) b.get(i)).getID() != this.getCell().getID()){
-				neighbouringCells.add((AbstractCell)b.get(i));
+		for(int i = 0; i < neighbours.size(); i++){
+			if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
+				neighbouringCells.add((AbstractCell)neighbours.get(i));
 			}
 		}
 		finalHitResult = hitResult2;
@@ -470,11 +525,11 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	
 	public void setKeratinoLength(double keratinoLength) { this.keratinoLength = keratinoLength; }
 
-	public Double3D getNewPosition(){ return newLoc; }
-	public void setNewPosition(Double3D loc){ newLoc=loc; }
+	public Double3D getNewPosition(){ return newCellLocation; }
+	public void setNewPosition(Double3D loc){ newCellLocation=loc; }
 
-	public Double3D getOldPosition(){ return oldLoc; }
-	public void setOldPosition(Double3D loc){ oldLoc=loc; }
+	public Double3D getOldPosition(){ return oldCellLocation; }
+	public void setOldPosition(Double3D loc){ oldCellLocation=loc; }
 
 	public int hitsOtherCell(){ return finalHitResult.numhits; }
 	

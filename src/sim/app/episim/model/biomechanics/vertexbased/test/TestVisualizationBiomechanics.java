@@ -260,7 +260,6 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().setBasalOpening_mikron(12000);
 		TissueController.getInstance().getTissueBorder().setBasalPeriodInMikron(550);
 		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembraneInMikron(0);
-		TissueController.getInstance().getTissueBorder().setUndulationBaseLineInMikron(250);
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
 	}	
 	

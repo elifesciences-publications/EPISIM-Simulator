@@ -157,11 +157,11 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
 		   // The remaining objects in hm must be new.  We add them to the scenegraph.
 		   // But first, we should check to see if hm is empty.
 	   
-	   	if (!hm.isEmpty())
-	       {
+	   if (!hm.isEmpty())
+	   {
 	       Iterator newObjs = hm.values().iterator();  // yuck, inefficient
 	       while(newObjs.hasNext())
-	           {
+	       {
 	      	 tmpLocalT = new Transform3D();
 	           Object fieldObj = newObjs.next();
 	           if(fieldObj instanceof UniversalCell){
@@ -173,23 +173,23 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
 	           
 	           BranchGroup localBG = wrapModelForNewObject(fieldObj, tmpLocalT);                     
 	           globalTG.addChild(localBG);
-	           }
-	       }
+	      }
+	   }
    }
 	
 	private void manipulateTransformationRegardingCellSize(UniversalCell cell, Transform3D trans){
 		if(cell.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){
 			CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject();
-			  double width = mechModel.getKeratinoWidth();
-		 	  double height = mechModel.getKeratinoHeight();
-		 	  double length = mechModel.getKeratinoLength();
+			 double width = mechModel.getKeratinoWidth();
+		 	 double height = mechModel.getKeratinoHeight();
+		 	 double length = mechModel.getKeratinoLength();
 		 	
-				Vector3d scales = new Vector3d();
-				trans.getScale(scales);
-				scales.x*=(width/height);
-				scales.y*=(height/height);
-				scales.z*=(length/height);
-				trans.setScale(scales);					
+			Vector3d scales = new Vector3d();
+			trans.getScale(scales);
+			scales.x*=(width/height);
+			scales.y*=(height/height);
+			scales.z*=(length/height);
+			trans.setScale(scales);					
 		}
 	}
 

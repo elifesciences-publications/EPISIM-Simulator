@@ -44,12 +44,11 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		this.simulationStateData = simulationStateData;
 	}
 
-	private final double depthFrac(double y) // wie tief ist in prozent die
-												// uebergebene y-position
-												// relativ zu rete tiefe
+	private final double depthFrac(double y)// depth of the position in the rete ridge in percent
 	{
-		return (y + TissueController.getInstance().getTissueBorder().getHeightInMikron() - TissueController.getInstance().getTissueBorder().getUndulationBaseLine())
-				/ ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron();
+		double depthPosition = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron()-y;
+		
+		return depthPosition < 0 ? 0: (depthPosition/ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron());
 	}
 
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
@@ -59,15 +58,14 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		CenterBasedMechanicalModelGP mechModelGP = (CenterBasedMechanicalModelGP) ModelController
 				.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 
-		Double2D lastloc = new Double2D(2, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(2,0));
-		
-		for (double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidthInPixels(); x += 2) {
+		Double2D lastloc = new Double2D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0));
+		boolean firstCell = true;
+		for (double x = 0; x <= TissueController.getInstance().getTissueBorder().getWidthInMikron(); x += 1) {
 			Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0));
 			double distance = newloc.distance(lastloc);
 
-			if ((depthFrac(newloc.y) > mechModelGP.getSeedMinDepth_frac())
-					|| (depthFrac(newloc.y) < mechModelGP.getSeedMinDepth_frac()))
-				if (distance > mechModelGP.getBasalDensity_mikron()) {
+			if (depthFrac(newloc.y) > mechModelGP.getSeedMinDepth_frac()){
+				if (distance > mechModelGP.getBasalDensity_mikron() || firstCell) {
 				
 					UniversalCell stemCell = new UniversalCell(null, null);
 					CenterBasedMechanicalModel mechModel = ((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
@@ -78,10 +76,11 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 					standardCellEnsemble.add(stemCell);
 
 					lastloc = newloc;
-
+					firstCell=false;
 					GlobalStatistics.getInstance().inkrementActualNumberStemCells();
 					GlobalStatistics.getInstance().inkrementActualNumberKCytes();
 				}
+			}
 		}
 		return standardCellEnsemble;
 	}

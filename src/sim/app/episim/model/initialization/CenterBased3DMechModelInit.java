@@ -31,41 +31,57 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 		this.simulationStateData = simulationStateData;
 	}
 
-	private final double depthFrac(double y) // wie tief ist in prozent die
-												// uebergebene y-position
-												// relativ zu rete tiefe
+	private final double depthFrac(double y)// depth of the position in the rete ridge in percent
 	{
-		return (y + TissueController.getInstance().getTissueBorder().getHeightInMikron() - TissueController.getInstance().getTissueBorder().getUndulationBaseLine())
-				/ ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron();
+		double depthPosition = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron()-y;
+		
+		return depthPosition < 0 ? 0: (depthPosition/ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getBasalAmplitude_mikron());
 	}
 
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
-
 		CenterBased3DMechanicalModelGP mechModelGP = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-
-		Double3D lastloc = new Double3D(2, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(2,0,0), 10);
 		
-		for (double x = 2; x <= TissueController.getInstance().getTissueBorder().getWidthInPixels(); x += 2) {
-			Double3D newLoc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0), 10);
-			double distance = newLoc.distance(lastloc);
-
-			if ((depthFrac(newLoc.y) > mechModelGP.getSeedMinDepth_frac())
-					|| (depthFrac(newLoc.y) < mechModelGP.getSeedMinDepth_frac()))
-				if (distance > mechModelGP.getBasalDensity_mikron()) {				
-					UniversalCell stemCell = new UniversalCell(null, null);
-					CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
-					Point3d corrLoc = mechModel.calculateLowerBoundaryPositionForCell(new Point3d(newLoc.x, newLoc.y, newLoc.z));
-					((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));
-					standardCellEnsemble.add(stemCell);
-
-					lastloc = newLoc;
-
-					GlobalStatistics.getInstance().inkrementActualNumberStemCells();
-					GlobalStatistics.getInstance().inkrementActualNumberKCytes();
+		
+		double stopZ = TissueController.getInstance().getTissueBorder().getLengthInMikron()-(mechModelGP.getBasalDensity_mikron()/2);
+		double incrementZ = mechModelGP.getBasalDensity_mikron();
+		
+		int stemCellRowCounter = 0;
+		Double3D lastloc = new Double3D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0,0), 0);			
+		boolean firstCell = true;
+			
+			double startX = 0;
+			
+			for (double x = startX; x <= TissueController.getInstance().getTissueBorder().getWidthInMikron(); x += 1){
+			
+				Double3D newLoc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0,0), 0);
+				double distance = newLoc.distance(lastloc);
+	
+				if (depthFrac(newLoc.y) > mechModelGP.getSeedMinDepth_frac()){
+					if (distance >= (mechModelGP.getBasalDensity_mikron()/2) || firstCell) {
+						double z = (stemCellRowCounter%2)==0 ? 0 : (mechModelGP.getBasalDensity_mikron()/2);
+						lastloc = newLoc;						
+						stemCellRowCounter++;
+						firstCell=false;
+						for(; z <= stopZ; z+=incrementZ){
+							
+							newLoc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0,z), z);
+							
+							UniversalCell stemCell = new UniversalCell(null, null);
+							CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
+							Point3d corrLoc = mechModel.calculateLowerBoundaryPositionForCell(new Point3d(newLoc.x, newLoc.y, newLoc.z));
+							((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));
+							standardCellEnsemble.add(stemCell);							
+							
+							GlobalStatistics.getInstance().inkrementActualNumberStemCells();
+							GlobalStatistics.getInstance().inkrementActualNumberKCytes();
+						}
+						
+					}
 				}
-		}
+			}
+		
 		return standardCellEnsemble;
 	}
 

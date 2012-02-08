@@ -32,6 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.EpisimPortrayal;
 
@@ -136,15 +137,15 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 				                  graphics.draw(cellPolygon);
 				                }
 			                
-					                //TODO: Nucleus ein- und ausschalten
+					                
 					              if(showNucleus)
 					              {
 					                java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
-					                  nucleusPolygon= mechModel.getPolygonNucleus(new EpisimDrawInfo<DrawInfo2D>(info)).getCellShape();
-					                  if(nucleusPolygon != null){
-						                  graphics.setPaint(nucleusColor);  
-						                  graphics.fill(nucleusPolygon);
-					                  }
+					                 EpisimCellShape<Shape> shape = mechModel.getPolygonNucleus(new EpisimDrawInfo<DrawInfo2D>(info));
+					                 if(shape != null && shape.getCellShape() != null){					                  
+							                  graphics.setPaint(nucleusColor);  
+							                  graphics.fill(shape.getCellShape());						                  
+					                 }
 					              }
 			                }
 		                

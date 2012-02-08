@@ -157,7 +157,15 @@ public class Epidermis extends TissueType implements CellDeathListener
 				EpisimProgressWindow progressWindow = new EpisimProgressWindow((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent());
 				progressWindow.setProgressText("Load initial simulation state...");
 				EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback() {											
-					public void taskHasFinished() {}
+					public void taskHasFinished() {
+						for(UniversalCell cell : initialCellEnsemble){
+							 if(!ModeServer.useMonteCarloSteps()){
+								 
+									Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
+									cell.setStoppable(stoppable);
+							 }
+						 }	
+					}
 					public void executeTask() {
 						initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());						
 					}
@@ -167,15 +175,16 @@ public class Epidermis extends TissueType implements CellDeathListener
 		}
 		else{
 			initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());
+			for(UniversalCell cell : initialCellEnsemble){
+				 if(!ModeServer.useMonteCarloSteps()){
+					 
+						Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
+						cell.setStoppable(stoppable);
+				 }
+			 }	
 		}
 		
-		 for(UniversalCell cell : initialCellEnsemble){
-			 if(!ModeServer.useMonteCarloSteps()){
-				 
-					Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
-					cell.setStoppable(stoppable);
-			 }
-		 }	
+		 
 	}
 	
 	
@@ -280,7 +289,7 @@ public class Epidermis extends TissueType implements CellDeathListener
                      if(biomechanicalModel instanceof AbstractMechanical2DModel){
 	                     Double2D loc= ((AbstractMechanical2DModel) biomechanicalModel).getCellLocationInCellField();
 	                     
-	                     int xbin=(int)loc.x / CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH;
+	                     int xbin=(int)(loc.x / CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH);
 	                     if (xLookUp[xbin]==null) 
 	                     {
 	                         xLookUp[xbin]=act;                            

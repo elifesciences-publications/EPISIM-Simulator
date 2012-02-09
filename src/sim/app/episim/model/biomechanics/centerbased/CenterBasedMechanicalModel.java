@@ -674,16 +674,14 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 					AbstractMechanical2DModel mechanicalModel = (AbstractMechanical2DModel) cell.getEpisimBioMechanicalModelObject();
 					mechanicalModel.setCellLocationInCellField(map.get(cell.getID()));
 				}
-			}
-			
-	   
+			}	   
    }
 
 	
    protected void newSimStepGloballyFinished(long simStepNumber){
    	// updates the isOuterSurface Flag for the surface exposed cells
-   	double binResolutionInMikron = 2;
- 	  	int MAX_XBINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()/binResolutionInMikron)+1); // for every 3 x coordinates one bin
+   	double binResolutionInMikron = CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH;
+ 	  	int MAX_XBINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()/binResolutionInMikron)+1); 
       AbstractCell[] xLookUp=new AbstractCell[MAX_XBINS];                                         
       double [] yLookUp=new double[MAX_XBINS]; 
       GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
@@ -694,6 +692,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	      {
 	          // iterate through all cells and determine the KCyte with lowest Y at bin
 	          if(cellArray[i]!=null){
+	         	 cellArray[i].setIsOuterCell(false);
 		          CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
 		          Double2D loc= mechModel.getCellLocationInCellField();
 		          int xbin=(int)(loc.x / binResolutionInMikron);
@@ -709,7 +708,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	          if((xLookUp[k]==null) || (xLookUp[k].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
 	          xLookUp[k].setIsOuterCell(true);
 	      }
-      }
+      } 
    }
 
    /**

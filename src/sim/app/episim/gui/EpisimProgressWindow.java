@@ -68,11 +68,9 @@ public class EpisimProgressWindow {
 	
 	
 	public static synchronized void showProgressWindowForTask(Frame owner, String text, EpisimProgressWindowCallback callback){
-		System.out.println("entered");
 		EpisimProgressWindow window = new EpisimProgressWindow(owner);
 		window.setProgressText(text);
 		window.showProgressWindowForTask(callback);
-		System.out.println("finished");
 	}
 	
 	

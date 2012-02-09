@@ -600,9 +600,10 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	
    protected void newSimStepGloballyFinished(long simStepNumber){
    // updates the isOuterSurface Flag for the surface exposed cells
-   	double binResolutionInMikron = 2;
-   	int MAX_Z_BINS= ((int)(TissueController.getInstance().getTissueBorder().getLengthInMikron()/binResolutionInMikron))+1;
- 	  	int MAX_X_BINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()/binResolutionInMikron))+1; 
+   	double binResolutionXInMikron = CenterBased3DMechanicalModel.INITIAL_KERATINO_WIDTH;
+   	double binResolutionZInMikron = CenterBased3DMechanicalModel.INITIAL_KERATINO_LENGTH;
+   	int MAX_Z_BINS= ((int)(TissueController.getInstance().getTissueBorder().getLengthInMikron()/binResolutionZInMikron))+1;
+ 	  	int MAX_X_BINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()/binResolutionXInMikron))+1; 
       AbstractCell[][] x_z_LookUp=new AbstractCell[MAX_Z_BINS][MAX_X_BINS];                                         
       double [][] yLookUp=new double[MAX_Z_BINS][MAX_X_BINS];    
       GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
@@ -613,10 +614,11 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	      {
 	          // iterate through all cells and determine the KCyte with lowest Y at bin
 	         if(cellArray[i] != null){
+	         	 cellArray[i].setIsOuterCell(false);
 		          CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
 		          Double3D loc= mechModel.getCellLocationInCellField();
-		          int xbin=(int)(loc.x / binResolutionInMikron);
-		          int zbin=(int)(loc.z / binResolutionInMikron);
+		          int xbin=(int)(loc.x / binResolutionXInMikron);
+		          int zbin=(int)(loc.z / binResolutionZInMikron);
 		          if (x_z_LookUp[zbin][xbin]==null || loc.y>yLookUp[zbin][xbin]) 
 		          {
 		             x_z_LookUp[zbin][xbin]=cellArray[i];                            

@@ -735,12 +735,12 @@ public class DefaultCharts implements java.io.Serializable{
 	         public void step(SimState state)
 	         {            	
 	         	// add a new (X,Y) point on the graph, with X = the time step and Y = the number of live cells
-	         	 getXYSeries("ChartSeries_KCyte_All").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberKCytes());
-	         	 getXYSeries("ChartSeries_KCyte_TA").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberTACells());
-	         	 getXYSeries("ChartSeries_KCyte_Spi").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberEarlySpiCells());
-	         	 getXYSeries("ChartSeries_KCyte_LateSpi").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberLateSpi());
-	         	 getXYSeries("ChartSeries_KCyte_Granu").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getActualGranuCells());
-	         	 getXYSeries("ChartSeries_KCyte_MeanAgeDate").add((double)(state.schedule.time()*TIMEFACTOR), GlobalStatistics.getInstance().getMeanAgeOfAllCells()*TIMEFACTOR);
+	         	 getXYSeries("ChartSeries_KCyte_All").add((double)(state.schedule.getTime()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberKCytes());
+	         	 getXYSeries("ChartSeries_KCyte_TA").add((double)(state.schedule.getTime()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberTACells());
+	         	 getXYSeries("ChartSeries_KCyte_Spi").add((double)(state.schedule.getTime()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberEarlySpiCells());
+	         	 getXYSeries("ChartSeries_KCyte_LateSpi").add((double)(state.schedule.getTime()*TIMEFACTOR), GlobalStatistics.getInstance().getActualNumberLateSpi());
+	         	 getXYSeries("ChartSeries_KCyte_Granu").add((double)(state.schedule.getTime()*TIMEFACTOR), GlobalStatistics.getInstance().getActualGranuCells());
+	         	 getXYSeries("ChartSeries_KCyte_MeanAgeDate").add((double)(state.schedule.getTime()*TIMEFACTOR), GlobalStatistics.getInstance().getMeanAgeOfAllCells()*TIMEFACTOR);
 	         }
 
 				public double getInterval() {

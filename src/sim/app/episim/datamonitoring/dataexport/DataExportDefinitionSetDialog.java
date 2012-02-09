@@ -87,8 +87,8 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		public DataExportDefinitionSetDialog(Frame owner, String title, boolean modal){
 			super(owner, title, modal);
 			
-			progressWindow = new EpisimProgressWindow(owner);		
-			progressWindow.setProgressText("Writing Episim-DataExportSet-Archive");			
+			
+			
 			indexDataExportDefinitionIdMap = new HashMap<Integer, Long>();
 			
 			this.owner = owner;
@@ -489,7 +489,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 									}
 							
 								};	
-								progressWindow.showProgressWindowForTask(cb);			
+								EpisimProgressWindow.showProgressWindowForTask(owner, "Writing Episim-DataExportSet-Archive", cb);			
 						}
 					}
 				}

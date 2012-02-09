@@ -647,8 +647,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 					else{ 
 						setTissueExportPath(f, false);
 						if(ModeServer.guiMode()){
-							EpisimProgressWindow progressWindow = new EpisimProgressWindow(mainFrame);
-							progressWindow.setProgressText("Load Episim Simulation State...");
+							
 							EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback() {											
 								public void taskHasFinished() {}
 								public void executeTask() {
@@ -658,7 +657,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 									}								
 								}
 							};
-							progressWindow.showProgressWindowForTask(cb);
+							EpisimProgressWindow.showProgressWindowForTask(mainFrame, "Load Episim Simulation State...", cb);			
 						}
 						else{
 							openModel(simStateData.getLoadedModelFile(), simStateData);

@@ -101,26 +101,31 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 		 if(ModeServer.guiMode()){
 			 console = new ConsoleHack(simulation){
 				 public synchronized void pressPlay(){
+					
 				   	EpisimTextOut.getEpisimTextOut().clear();
 				      ((EpisimGUIState)console.getSimulation()).clearWoundPortrayalDraw();
 				   	((EpisimGUIState)console.getSimulation()).simulationWasStarted();
-				   	super.pressPlay(); 	 	   	
+				    	EpisimConsole.this.disableConsoleButtons();
+				   	super.pressPlay();
+				   	EpisimConsole.this.enableConsoleButtons();
 				   }			   
 				   
 				   public synchronized void pressStop(){
-				   
-				   	((EpisimGUIState)console.getSimulation()).simulationWasStopped();
 				   	
+				   	((EpisimGUIState)console.getSimulation()).simulationWasStopped();
+				   	EpisimConsole.this.disableConsoleButtons();
 				      	
 				   	super.pressStop();
+				   	EpisimConsole.this.enableConsoleButtons();
 				   }
 				   
 				   public synchronized void pressPause(){
-				      
+				   
 				   	((EpisimGUIState)console.getSimulation()).simulationWasPaused();
-				   	
+				   	EpisimConsole.this.disableConsoleButtons();
 				      	
 				   	super.pressPause();
+				   	EpisimConsole.this.enableConsoleButtons();
 				   }
 			 };
 			 controllerContainer = getControllerContainer(((ConsoleHack)console).getContentPane());
@@ -234,8 +239,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 			
 				if(ModeServer.guiMode()){
 					if(mainGUIComponent instanceof Frame){
-						progressWindow = new EpisimProgressWindow((Frame)mainGUIComponent);
-						progressWindow.setProgressText("Writing simulation state to disk...");
+					
 						EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
 							
 							public void executeTask() {							
@@ -247,8 +251,8 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 								  simulation.state.postCheckpoint();
 							}
 					
-						};	
-						progressWindow.showProgressWindowForTask(cb);
+						};
+						EpisimProgressWindow.showProgressWindowForTask((Frame)mainGUIComponent, "Writing simulation state to disk...", cb);						
 					}
 				}
 				else{
@@ -259,6 +263,16 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
       });
      addTissueExportButton();
      
+	}
+	
+	protected void disableConsoleButtons(){
+		((ConsoleHack)this.console).disableConsoleButtons();
+		tissueExportButton.setEnabled(false);
+	}
+	
+	protected void enableConsoleButtons(){
+		((ConsoleHack)this.console).enableConsoleButtons();
+		tissueExportButton.setEnabled(true);
 	}
 	
 	private void saveSimulationState(){
@@ -557,9 +571,9 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	   EpisimTextOut.getEpisimTextOut().clear();	      	
 	   ((EpisimGUIState)console.getSimulation()).clearWoundPortrayalDraw();   	
 	   	
-	   ((EpisimGUIState)console.getSimulation()).simulationWasStarted();
-	   tissueExportButton.setEnabled(true);	
-   	console.pressPlay();   	 	   	
+	   ((EpisimGUIState)console.getSimulation()).simulationWasStarted();	  
+   	console.pressPlay();
+   	tissueExportButton.setEnabled(true);	
    }
    
    
@@ -570,14 +584,15 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    	}
    	tissueExportButton.setEnabled(false);      	
    	console.pressStop();
+   	
    }
    
    public synchronized void pressPause(){
    	if(console instanceof NoGUIConsole){
    		((EpisimGUIState)console.getSimulation()).simulationWasPaused();   	
-   	}
-   	tissueExportButton.setEnabled(true);
+   	}   	
    	console.pressPause();
+   	tissueExportButton.setEnabled(true);
    }
    
    public int getPlayState(){ return console.getPlayState(); }

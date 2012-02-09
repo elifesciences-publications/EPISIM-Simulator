@@ -39,6 +39,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
+import sim.util.Double2D;
 
 import sim.util.Double3D;
 
@@ -598,7 +599,39 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    }	
 	
    protected void newSimStepGloballyFinished(long simStepNumber){
-   	//not needed	   
+   // updates the isOuterSurface Flag for the surface exposed cells
+   	double binResolutionInMikron = 2;
+   	int MAX_Z_BINS= ((int)(TissueController.getInstance().getTissueBorder().getLengthInMikron()/binResolutionInMikron))+1;
+ 	  	int MAX_X_BINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()/binResolutionInMikron))+1; 
+      AbstractCell[][] x_z_LookUp=new AbstractCell[MAX_Z_BINS][MAX_X_BINS];                                         
+      double [][] yLookUp=new double[MAX_Z_BINS][MAX_X_BINS];    
+      GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
+      if(allCells!= null){
+      	AbstractCell[] cellArray = allCells.toArray(new AbstractCell[allCells.size()]);
+	      int numberOfCells = cellArray.length;
+	      for (int i=0; i < numberOfCells; i++)
+	      {
+	          // iterate through all cells and determine the KCyte with lowest Y at bin
+	         if(cellArray[i] != null){
+		          CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+		          Double3D loc= mechModel.getCellLocationInCellField();
+		          int xbin=(int)(loc.x / binResolutionInMikron);
+		          int zbin=(int)(loc.z / binResolutionInMikron);
+		          if (x_z_LookUp[zbin][xbin]==null || loc.y>yLookUp[zbin][xbin]) 
+		          {
+		             x_z_LookUp[zbin][xbin]=cellArray[i];                            
+		             yLookUp[zbin][xbin]=loc.y;
+		          }
+	         }
+	      }      
+	      for (int z=0; z < MAX_Z_BINS; z++){
+		      for (int x=0; x < MAX_X_BINS; x++)
+		      {
+		          if((x_z_LookUp[z][x]==null) || (x_z_LookUp[z][x].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+		          x_z_LookUp[z][x].setIsOuterCell(true);
+		      }
+	      }
+      }
    }
 
    /**

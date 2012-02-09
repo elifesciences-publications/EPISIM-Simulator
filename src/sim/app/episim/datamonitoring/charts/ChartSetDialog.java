@@ -99,8 +99,7 @@ public class ChartSetDialog extends JDialog {
 	public ChartSetDialog(Frame owner, String title, boolean modal){
 		super(owner, title, modal);
 		
-		progressWindow = new EpisimProgressWindow(owner);	
-		progressWindow.setProgressText("Writing Episim-Chartset-Archive");		
+		
 		
 		indexChartIdMap = new HashMap<Integer, Long>();
 		
@@ -492,8 +491,8 @@ public class ChartSetDialog extends JDialog {
 								  
 							}
 					
-						};	
-						progressWindow.showProgressWindowForTask(cb);						
+						};
+						EpisimProgressWindow.showProgressWindowForTask(owner, "Writing Episim-Chartset-Archive", cb);									
 					}					
 				}
 			}

@@ -60,7 +60,7 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 	
 				if (depthFrac(newLoc.y) > mechModelGP.getSeedMinDepth_frac()){
 					if (distance >= (mechModelGP.getBasalDensity_mikron()/2) || firstCell) {
-						double z = (stemCellRowCounter%2)==0 ? 0 : (mechModelGP.getBasalDensity_mikron()/2);
+						double z = (stemCellRowCounter%2)==0 ? (mechModelGP.getBasalDensity_mikron()/2) : (mechModelGP.getBasalDensity_mikron());
 						lastloc = newLoc;						
 						stemCellRowCounter++;
 						firstCell=false;

@@ -14,6 +14,7 @@ import javax.vecmath.Vector3d;
 
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
+import sim.display3d.Display3DHack;
 import sim.field.SparseField;
 import sim.portrayal.Portrayal;
 import sim.portrayal3d.SimplePortrayal3D;
@@ -38,6 +39,9 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
 		polygonAttributes.setPolygonOffsetFactor(1.2f);
 		setPortrayalForAll(new UniversalCellPortrayal3D(polygonAttributes));
 	}
+	
+	public PolygonAttributes polygonAttributes() { return polygonAttributes; } // default
+	public void polygonAttributes(PolygonAttributes att) { this.polygonAttributes = att; }
 	public String getPortrayalName() {
 		return NAME;
 	}
@@ -71,7 +75,12 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
 	      
 	      globalTG.addChild(wrapModelForNewObject(objects.objs[z], tmpLocalT));                     
 	   }
-	   
+	   if(getCurrentDisplay() instanceof Display3DHack){
+	   	Display3DHack disp = (Display3DHack) getCurrentDisplay();
+	   	if(disp.getModelClip() != null){
+	   		disp.getModelClip().addScope(globalTG);
+	   	}
+	   }
 	   return globalTG;
    }
 	

@@ -110,7 +110,13 @@ public class BasementMembranePortrayal3D extends SimplePortrayal3D implements Ep
 	         
 	         Shape3D s = new Shape3D(quadArray,appearance);
 	         modelTG.addChild(s);
-	      }    
+	      }
+	      if(getCurrentDisplay() instanceof Display3DHack){
+		   	Display3DHack disp = (Display3DHack) getCurrentDisplay();
+		   	if(disp.getModelClip() != null){
+		   		disp.getModelClip().addScope(modelTG);
+		   	}
+		   }
 	      return modelTG;
       }
 		else return tg;

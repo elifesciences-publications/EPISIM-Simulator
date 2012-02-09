@@ -267,9 +267,9 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
    	notifyAllBagChangeListeners(new BagChangeEvent<T>(BagChangeEventType.REMOVE_EVENT, Arrays.asList(deletedObjects)));
    }
        
-   public T[] toArray()
+   public Object[] toArray()
    {
-      return (T[])bag.toArray();
+      return bag.toArray();
    }
    
    // ArrayList.toArray(Object[]) generates an error if the array passed in is null.

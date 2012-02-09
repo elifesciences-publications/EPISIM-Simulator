@@ -22,10 +22,11 @@ import sim.app.episim.persistence.SimulationStateFile;
 public class EpisimProgressWindow {
 	private JLabel progressLabel;
 	private JProgressBar progressBar;
-	private JWindow progressWindow;
-	public EpisimProgressWindow(Frame owner){
-		progressWindow = new JWindow(owner);
-		//progressWindow.setUndecorated(true);
+	private JDialog progressWindow;
+	private boolean taskHasStarted = false;
+	private EpisimProgressWindow(Frame owner){
+		progressWindow = new JDialog(owner, false);
+		progressWindow.setUndecorated(true);
 		progressWindow.getContentPane().setLayout(new BorderLayout(5, 5));
 		if(progressWindow.getContentPane() instanceof JPanel)
 			((JPanel)progressWindow.getContentPane()).setBorder(BorderFactory.createCompoundBorder(
@@ -43,29 +44,38 @@ public class EpisimProgressWindow {
 		progressWindow.setAlwaysOnTop(true);
 	}
 	
-	public void setProgressText(String text){
+	private void setProgressText(String text){
 		progressLabel.setText(text);
-	}
+	}	
 	
-	private  boolean taskFinished = false;
-	public void showProgressWindowForTask(final EpisimProgressWindowCallback callback){
-		setTaskFinished(false);
+		
+	private synchronized void showProgressWindowForTask(final EpisimProgressWindowCallback callback){
+		taskHasStarted=false;
 		Runnable r = new Runnable(){			
 			public void run() {
-				progressWindow.setVisible(true);
+				taskHasStarted = true;
 				callback.executeTask();
-				progressWindow.setVisible(false);
-				setTaskFinished(true);				
+				progressWindow.setVisible(false);			
 				callback.taskHasFinished();
          }	
 		};
 		Thread t = new Thread(r);
 		t.start();
-		while(!isTaskFinished()){/*wait*/}
+		while(!taskHasStarted){/*wait*/}
+		progressWindow.setVisible(true);
 	}
 	
-	private synchronized void setTaskFinished(boolean val){ this.taskFinished = val; }
-	private synchronized boolean isTaskFinished(){ return this.taskFinished; }
+	
+	
+	public static synchronized void showProgressWindowForTask(Frame owner, String text, EpisimProgressWindowCallback callback){
+		System.out.println("entered");
+		EpisimProgressWindow window = new EpisimProgressWindow(owner);
+		window.setProgressText(text);
+		window.showProgressWindowForTask(callback);
+		System.out.println("finished");
+	}
+	
+	
 	
 	public interface EpisimProgressWindowCallback {
 		

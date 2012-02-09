@@ -147,15 +147,13 @@ public class Epidermis extends TissueType implements CellDeathListener
  }
  
  
-	private void seedInitiallyAvailableCells(){
+	private boolean seedingHasFinished = false;
+ 	private void seedInitiallyAvailableCells(){
 		final ArrayList<UniversalCell> initialCellEnsemble = new ArrayList<UniversalCell>();
 		if(ModeServer.guiMode()){
 			if(SimStateServer.getInstance().getEpisimGUIState()!= null 
 					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() != null
-					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() instanceof Frame){
-			
-				EpisimProgressWindow progressWindow = new EpisimProgressWindow((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent());
-				progressWindow.setProgressText("Load initial simulation state...");
+					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() instanceof Frame){				
 				EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback() {											
 					public void taskHasFinished() {
 						for(UniversalCell cell : initialCellEnsemble){
@@ -164,13 +162,16 @@ public class Epidermis extends TissueType implements CellDeathListener
 									Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
 									cell.setStoppable(stoppable);
 							 }
-						 }	
+						 }
+						seedingHasFinished = true;
 					}
 					public void executeTask() {
 						initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());						
 					}
 				};
-				progressWindow.showProgressWindowForTask(cb);
+				seedingHasFinished = false;
+				EpisimProgressWindow.showProgressWindowForTask((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent(), "Load initial simulation state...", cb);
+				while(!seedingHasFinished){/* wait */ }
 			}
 		}
 		else{
@@ -256,65 +257,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 	   EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
 	   schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());
         
- //////////////////////////////////////        
- // CELL STATISTICS & Updating OUTER SURFACE CELLS
- //////////////////////////////////////  
-	 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBasedMechanicalModelGP){
- // the agent that updates the isOuterSurface Flag for the surface exposed cells
-     Steppable airSurface = new Steppable()
-    {
-             public void step(SimState state)
-             {
-                 int MAX_XBINS=300; // for every 3 x coordinates one bin
-                 AbstractCell[] xLookUp=new AbstractCell[MAX_XBINS];                                         
-                 double [] yLookUp=new double[MAX_XBINS]; // Concentrations *10 = 0 to 200
-                 boolean [] LookUpUsed=new boolean[MAX_XBINS]; 
-                 for (int k=0; k< MAX_XBINS; k++)
-                 {
-                     yLookUp[k]=9999.9; // deepest value, all coming are above
-                     xLookUp[k]=null;
-                 }                           
-                 
-                 for (int i=0; i<getAllCells().size(); i++)
-                 {
-                     // iterate through all cells and determine the KCyte with lowest Y at bin
-                     AbstractCell act=(AbstractCell)getAllCells().get(i);
-                                   
-                     
-                     
-                   //  if (act.isBasalStatisticsCell()) actualBasalStatisticsCells++;
-                     
-                     //act.isOuterCell=false; // set new default
-                     EpisimBiomechanicalModel biomechanicalModel = act.getEpisimBioMechanicalModelObject();
-                     if(biomechanicalModel instanceof AbstractMechanical2DModel){
-	                     Double2D loc= ((AbstractMechanical2DModel) biomechanicalModel).getCellLocationInCellField();
-	                     
-	                     int xbin=(int)(loc.x / CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH);
-	                     if (xLookUp[xbin]==null) 
-	                     {
-	                         xLookUp[xbin]=act;                            
-	                         yLookUp[xbin]=loc.y;
-	                     }
-	                     else if (loc.y>yLookUp[xbin]) 
-	                     {
-	                         xLookUp[xbin]=act;
-	                         yLookUp[xbin]=loc.y;
-	                     }                     
-                     }
-                 }
-                 for (int k=0; k< MAX_XBINS; k++)
-                 {
-                     if ((xLookUp[k]==null) || (xLookUp[k].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
-                     xLookUp[k].setIsOuterCell(true);
-                 }          
-           }
-     };
-     
-    
-	     // Schedule the agent to update is Outer Flag     
-	     schedule.scheduleRepeating(airSurface,SchedulePriority.TISSUE.getPriority(),1);
-     }    
- 	} 
+ }
 
 	public void removeCells(GeneralPath path){
 		ModelController.getInstance().getBioMechanicalModelController().removeCellsInWoundArea(path);		

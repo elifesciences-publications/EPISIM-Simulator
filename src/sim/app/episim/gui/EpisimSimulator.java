@@ -256,7 +256,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 
 										public void run() {
 											try{
-	                                 Thread.sleep(30000);
+	                                 Thread.sleep(100000);
 	                                 System.out.println("\n======================= Shutting down EPISIM Simulator =======================");
 	      	                        if(epiUI != null){
 	      	         						epiUI.closeConsole();

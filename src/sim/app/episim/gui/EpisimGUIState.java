@@ -922,12 +922,15 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	}
 	
 	public void simulationWasStopped(){
+		
 		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStopped();
 	}
 	
 	public void simulationWasPaused(){
+		
 		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasPaused();
 	}
+	
 	
 	public void addSimulationStateChangeListener(SimulationStateChangeListener listener){
 		this.simulationStateListeners.add(listener);

@@ -53,9 +53,9 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    public static final double INITIAL_KERATINO_LENGTH=5; // Default: 5
    public static final double INITIAL_KERATINO_WIDTH=5; // Default: 5
    
-   public static final double KERATINO_WIDTH_GRANU=9; // default: 10
-   public static final double KERATINO_HEIGHT_GRANU=4;
-   public static final double KERATINO_LENGTH_GRANU=4;
+   public static final double KERATINO_WIDTH_GRANU=7; // default: 10
+   public static final double KERATINO_HEIGHT_GRANU=3;
+   public static final double KERATINO_LENGTH_GRANU=5;
    
    private static final double MAX_DISPLACEMENT_FACT = 0.6;
    
@@ -261,7 +261,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    	EpisimDifferentiationLevel thisDiffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
    	EpisimDifferentiationLevel otherDiffLevel = otherCell.getEpisimCellBehavioralModelObject().getDiffLevel();
    	if(thisDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL && otherDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL){
-   		return distance* 0.65;
+   		return distance* 0.8;
    	}
    	else{
    		return distance*0.8;

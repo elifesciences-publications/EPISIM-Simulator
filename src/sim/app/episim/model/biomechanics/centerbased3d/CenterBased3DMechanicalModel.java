@@ -59,7 +59,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    
    private static final double MAX_DISPLACEMENT_FACT = 0.6;
    
-   public final int NEXT_TO_OUTERCELL=10;
+   public final double NEXT_TO_OUTERCELL=INITIAL_KERATINO_HEIGHT*1;
    private double MINDIST=0.1;   
    
    private double keratinoWidth=-1; 
@@ -534,7 +534,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 
 	public int hitsOtherCell(){ return finalHitResult.numhits; }
 	
-	public boolean nextToOuterCell(){ return finalHitResult.nextToOuterCell; }
+	public boolean nextToOuterCell(){ return finalHitResult != null ?finalHitResult.nextToOuterCell:false; }
 
 	private GenericBag<AbstractCell> getNeighbouringCells() {return neighbouringCells;}
 	
@@ -610,6 +610,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
       if(allCells!= null){
       	AbstractCell[] cellArray = allCells.toArray(new AbstractCell[allCells.size()]);
 	      int numberOfCells = cellArray.length;
+	      double maxYFound = 0;
 	      for (int i=0; i < numberOfCells; i++)
 	      {
 	          // iterate through all cells and determine the KCyte with lowest Y at bin
@@ -623,15 +624,26 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		          {
 		             x_z_LookUp[zbin][xbin]=cellArray[i];                            
 		             yLookUp[zbin][xbin]=loc.y;
+		             if(loc.y > maxYFound) maxYFound = loc.y;
 		          }
 	         }
 	      }      
-	      for (int z=0; z < MAX_Z_BINS; z++){
+	      for (int z=1; z < (MAX_Z_BINS-1); z++){
 		      for (int x=0; x < MAX_X_BINS; x++)
 		      {
 		          if((x_z_LookUp[z][x]==null) || (x_z_LookUp[z][x].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
 		          x_z_LookUp[z][x].setIsOuterCell(true);
 		      }
+	      }
+	      for (int x=0; x < MAX_X_BINS; x++)
+	      {
+	          if((x_z_LookUp[0][x]==null) || (x_z_LookUp[0][x].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+	          if((maxYFound- yLookUp[0][x] <(NEXT_TO_OUTERCELL/2))) x_z_LookUp[0][x].setIsOuterCell(true);
+	      }
+	      for (int x=0; x < MAX_X_BINS; x++)
+	      {
+	          if((x_z_LookUp[(MAX_Z_BINS-1)][x]==null) || (x_z_LookUp[(MAX_Z_BINS-1)][x].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+	          if((maxYFound- yLookUp[(MAX_Z_BINS-1)][x] < (NEXT_TO_OUTERCELL/2))) x_z_LookUp[(MAX_Z_BINS-1)][x].setIsOuterCell(true);
 	      }
       }
    }

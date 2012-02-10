@@ -9,7 +9,7 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
 	private int basalOpening_mikron = 250; // width of undulation at the middle
 	private double width = 140;
 	private double height = 100;
-	private double length = 5;
+	private double length = 10;
 	private double randomness = 0.2;
 	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
 	private double basalDensity_mikron = 9;//OriginalValue: 8; // width of undulation at the middle

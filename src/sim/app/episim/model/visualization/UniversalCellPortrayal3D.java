@@ -184,7 +184,12 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
              
            if((kcyte.getIsOuterCell()) && (coloringType==2)){red=0xF3; green=0xBE; blue=0x4E;}        
            boolean isMembraneCell = false;
-           if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel) isMembraneCell=((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
+           if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){
+         	  isMembraneCell=((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();        
+              if((((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell()) && (coloringType==2))
+              {red=255; green=255; blue=255;}
+              
+           }
            
            if(isMembraneCell && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
       }

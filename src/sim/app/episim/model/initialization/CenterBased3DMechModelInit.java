@@ -39,8 +39,8 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 	}
 
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
-		return buildOneLayerStandardInitialCellEnsemble();
-		//return buildMultiLayerStandardInitialCellEnsemble();
+		//return buildOneLayerStandardInitialCellEnsemble();
+		return buildMultiLayerStandardInitialCellEnsemble();
 		
 	}
 	
@@ -98,7 +98,7 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 		
 		
 		
-		Double3D lastloc = new Double3D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0,0), 2);			
+		Double3D lastloc = new Double3D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0,0), 0);			
 		boolean firstCell = true;
 			
 			double startX = 0;
@@ -116,7 +116,7 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 						firstCell=false;
 					
 							
-							newLoc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0,2), 2);
+							newLoc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0,2), 0);
 							
 							UniversalCell stemCell = new UniversalCell(null, null);
 							CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());

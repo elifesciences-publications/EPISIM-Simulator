@@ -74,7 +74,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    public static final double KERATINO_WIDTH_GRANU=9; // default: 10
    public static final double KERATINO_HEIGHT_GRANU=4;
    
-   public final double NEXT_TO_OUTERCELL=7;
+   public final double NEXT_TO_OUTERCELL=INITIAL_KERATINO_HEIGHT*1.2;
    private double MINDIST=0.1;   
    
    
@@ -510,7 +510,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 
 	public int hitsOtherCell(){ return finalHitResult.numhits; }
 	
-	public boolean nextToOuterCell(){ return finalHitResult.nextToOuterCell; }
+	public boolean nextToOuterCell(){ return finalHitResult != null ?finalHitResult.nextToOuterCell:false; }
 
 	private GenericBag<AbstractCell> getNeighbouringCells() {return neighbouringCells;}
 	

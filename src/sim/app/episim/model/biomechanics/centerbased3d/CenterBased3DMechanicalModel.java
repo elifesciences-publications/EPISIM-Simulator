@@ -59,7 +59,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    
    private static final double MAX_DISPLACEMENT_FACT = 0.6;
    
-   public final int NEXT_TO_OUTERCELL=7;
+   public final int NEXT_TO_OUTERCELL=10;
    private double MINDIST=0.1;   
    
    private double keratinoWidth=-1; 
@@ -601,7 +601,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    protected void newSimStepGloballyFinished(long simStepNumber){
    // updates the isOuterSurface Flag for the surface exposed cells
    	double binResolutionXInMikron = CenterBased3DMechanicalModel.INITIAL_KERATINO_WIDTH;
-   	double binResolutionZInMikron = CenterBased3DMechanicalModel.INITIAL_KERATINO_LENGTH;
+   	double binResolutionZInMikron = CenterBased3DMechanicalModel.INITIAL_KERATINO_LENGTH*0.8;
    	int MAX_Z_BINS= ((int)(TissueController.getInstance().getTissueBorder().getLengthInMikron()/binResolutionZInMikron))+1;
  	  	int MAX_X_BINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()/binResolutionXInMikron))+1; 
       AbstractCell[][] x_z_LookUp=new AbstractCell[MAX_Z_BINS][MAX_X_BINS];                                         

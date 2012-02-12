@@ -126,7 +126,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	
 	private ModelSceneCrossSectionMode modelSceneCrossSectionMode = ModelSceneCrossSectionMode.DISABLED;
 	
-	
+	private double actModelSceneCrossSectionCoordinate = 0;
 	
 	private EpisimGUIState epiSimulation = null;
 	
@@ -864,6 +864,17 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        autoSpinBackgroundTransformGroup.setTransform(new Transform3D());
        canvas.startRenderer();
    }
+    
+	public double getActModelSceneCrossSectionCoordinate() {
+
+		return actModelSceneCrossSectionCoordinate;
+	}
+	
+	
+	public ModelSceneCrossSectionMode getModelSceneCrossSectionMode() {
+
+		return modelSceneCrossSectionMode;
+	}
    
    public class OptionPane3D extends JDialog
    {
@@ -882,8 +893,10 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	private JSlider modelSceneOpacitySlider;
    	private JLabel modelSceneOpacitySliderLabel;
    	private int lastModelScenePlaneSliderPosition = 0;
-   	private int lastModelSceneOpacitySliderPosition = 100;
-   OptionPane3D(Component parent, String label)
+   	private int lastModelSceneOpacitySliderPosition = 100;  
+   	private Box modelSceneCrossectionPanel = null;
+   	private Box diffCrossectionPanel = null;
+   	OptionPane3D(Component parent, String label)
        {
        super((JFrame)parent, label, false);
                    
@@ -1036,7 +1049,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        polyPanel.add(polyCullbox);
        polyPanel.add(Box.createGlue());
         
-       Box diffCrossectionPanel = null;
+     
       
       	 diffCrossectionPanel = new Box(BoxLayout.Y_AXIS);
       	 JPanel mainPanel = new JPanel(new BorderLayout(10,10));
@@ -1050,9 +1063,25 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       diffFieldPlaneCombo.addItemListener(new ItemListener(){			
 				public void itemStateChanged(ItemEvent e) {
 					if(e.getStateChange() ==ItemEvent.SELECTED){
-						ModelController.getInstance().getExtraCellularDiffusionController().setSelectedDiffusionFieldCrossSectionMode((DiffusionFieldCrossSectionMode)diffFieldPlaneCombo.getSelectedItem());
-					
-						updateSceneGraph(true);
+						DiffusionFieldCrossSectionMode selectedComboItem = (DiffusionFieldCrossSectionMode) diffFieldPlaneCombo.getSelectedItem();
+						ModelController.getInstance().getExtraCellularDiffusionController().setSelectedDiffusionFieldCrossSectionMode(selectedComboItem);
+						double result =0;
+						double fact =  ((double) diffFieldPlaneSlider.getValue())/100d;
+						if(selectedComboItem == DiffusionFieldCrossSectionMode.X_Y_PLANE){
+							double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
+							result =length*fact;
+						}
+						else if(selectedComboItem == DiffusionFieldCrossSectionMode.X_Z_PLANE){
+							double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+							result =height*fact;
+						}
+						else if(selectedComboItem == DiffusionFieldCrossSectionMode.Y_Z_PLANE){
+							double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
+							result =width*fact;
+						}
+						ModelController.getInstance().getExtraCellularDiffusionController().setDiffusionFieldCrossSectionCoordinate(result);
+						diffFieldPlaneSliderLabel.setText(Math.round(result) + " µm");
+						SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
 					}
 					
 				}});
@@ -1129,7 +1158,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       diffCrossectionPanel.add(mainPanel);
 	       
 	       
-	       Box modelSceneCrossectionPanel = null;
+	      
 	       
 	       modelSceneCrossectionPanel = new Box(BoxLayout.Y_AXIS);
       	 JPanel modelSceneMainPanel = new JPanel(new BorderLayout(10,10));
@@ -1157,26 +1186,36 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 							modelScenePlaneSlider.setEnabled(true);
 							modelScenePlaneSliderLabel.setEnabled(true);
 							modelScenePlaneSliderLabel2.setEnabled(true);
+							
 							if(modelSceneCrossSectionMode!= ModelSceneCrossSectionMode.DISABLED){
-								modelClip.setEnable(modelSceneCrossSectionMode.ordinal()-1, true);
+								modelClip.setEnable(modelSceneCrossSectionMode.ordinal()-1, false);
+							}
+							if(mode!= ModelSceneCrossSectionMode.DISABLED){
+								
+								modelClip.setEnable(mode.ordinal()-1, true);
 							}
 							Vector4d planePosition = new Vector4d();
 							modelClip.getPlane(modeOrdinal-1, planePosition);
 							double result = 0;
 							double fact =  ((double) modelScenePlaneSlider.getValue())/100d;
-							if(mode == ModelSceneCrossSectionMode.X_Y_PLANE){
+							if(mode == ModelSceneCrossSectionMode.X_Y_PLANE || mode == ModelSceneCrossSectionMode.DISABLED){
 								double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
 								result =-1*length*fact;
+								actModelSceneCrossSectionCoordinate = -1*result;
 							}
 							else if(mode == ModelSceneCrossSectionMode.X_Z_PLANE){
 								double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 								result =-1*height*fact;
+								actModelSceneCrossSectionCoordinate = -1*result;
 							}
 							else if(mode == ModelSceneCrossSectionMode.Y_Z_PLANE){
 								double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
 								result =-1*width*fact;
+								actModelSceneCrossSectionCoordinate = -1*result;
 							}
+							
 							planePosition.w =result;
+							modelScenePlaneSliderLabel.setText(Math.round(-1*result) + " µm");
 							modelClip.setPlane(modeOrdinal-1, planePosition);										
 							modelClip.setEnable(modeOrdinal-1, true);
 						}
@@ -1219,6 +1258,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 						Vector4d planePosition = new Vector4d();
 						modelClip.getPlane(selectedComboItem.ordinal()-1, planePosition);
 						planePosition.w = result;
+						actModelSceneCrossSectionCoordinate = -1*result;
 						modelClip.setPlane(selectedComboItem.ordinal()-1, planePosition);
 						modelScenePlaneSliderLabel.setText(Math.round(-1*result) + " µm");
 						SwingUtilities.invokeLater(new Runnable(){ public void run(){ updateSceneGraph(true);}});
@@ -1337,7 +1377,17 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        centerMe(this);
        setResizable(true);
      } 
-
+   	public void setVisible(boolean val){
+   		if(this.diffCrossectionPanel != null){
+   			if(ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields() > 0){
+   				diffCrossectionPanel.setVisible(true);
+   			}
+   			else{
+   				diffCrossectionPanel.setVisible(false);
+   			}
+   		}
+   		super.setVisible(val);
+   	}
 
    private void centerMe(JDialog frame){
 		if(frame != null){

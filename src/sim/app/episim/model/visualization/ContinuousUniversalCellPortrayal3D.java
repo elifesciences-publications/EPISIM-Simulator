@@ -195,9 +195,9 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
 		 	
 			Vector3d scales = new Vector3d();
 			trans.getScale(scales);
-			scales.x*=(width/height);
-			scales.y*=(height/height);
-			scales.z*=(length/height);
+			scales.x*=(width/CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT);
+			scales.y*=(height/CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT);
+			scales.z*=(length/CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT);
 			trans.setScale(scales);					
 		}
 	}

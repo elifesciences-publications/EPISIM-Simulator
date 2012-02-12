@@ -1,5 +1,6 @@
 package sim.app.episim;
 
+import java.awt.Color;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -11,11 +12,16 @@ import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModel;
+import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
+import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueServer;
@@ -139,5 +145,81 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	   else return super.equals(obj);
    }
    
+   
+   public Color getCellColoring(){
+   	return getFillColor(this);
+   }
+   
+   private Color getFillColor(AbstractCell kcyte){
+   	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
+      int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
+   	//
+      // set colors
+      //
+                    
+      int calculatedColorValue=0;  
+     
+      int red=255;         
+      int green=0;
+      int blue=0;
+            
+      if ((coloringType==1) || (coloringType==2))  // Cell type coloring
+      {              
+        	   if(keratinoType == EpisimDifferentiationLevel.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
+        	   else if(keratinoType == EpisimDifferentiationLevel.TACELL){red=148; green=167; blue=214;}                             
+        	   else if(keratinoType == EpisimDifferentiationLevel.EARLYSPICELL){red=0xE1; green=0x6B; blue=0xF6;}
+        	   else if(keratinoType == EpisimDifferentiationLevel.LATESPICELL){red=0xC1; green=0x4B; blue=0xE6;}
+        	   else if(keratinoType == EpisimDifferentiationLevel.GRANUCELL){red=204; green=0; blue=102;}
+        	  
+              
+            if((kcyte.getIsOuterCell()) && (coloringType==2)){red=0xF3; green=0xBE; blue=0x4E;}      
+            
+            boolean isMembraneCell = false;
+            if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){ 
+            	isMembraneCell=((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
+            	if((((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell()) && (coloringType==2))
+            	{red=255; green=255; blue=255;}
+            }
+            if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){ 
+            	isMembraneCell=((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
+            	if((((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell()) && (coloringType==2))
+            	{red=255; green=255; blue=255;}
+            }
+            if(kcyte.getEpisimBioMechanicalModelObject() instanceof VertexBasedMechanicalModel) isMembraneCell=((VertexBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
+            if(isMembraneCell && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
+       }
+       if (coloringType==3) // Age coloring
+       {              
+      	 Method m=null;
+      	 double maxAge =0;
+          try{
+	          m = kcyte.getEpisimCellBehavioralModelObject().getClass().getMethod("_getMaxAge", new Class<?>[0]);
+	          maxAge= (Double) m.invoke(kcyte.getEpisimCellBehavioralModelObject(), new Object[0]);
+          }
+          catch (Exception e){
+	          ExceptionDisplayer.getInstance().displayException(e);
+          }
+          
+      	 calculatedColorValue= (int) (250-250*kcyte.getEpisimCellBehavioralModelObject().getAge()/maxAge);
+          red=255;
+          green=calculatedColorValue;                        
+          blue=calculatedColorValue;
+          if(keratinoType== EpisimDifferentiationLevel.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
+       }
+      
+       if(coloringType==4){ //Colors are calculated in the cellbehavioral model
+         red=kcyte.getEpisimCellBehavioralModelObject().getColorR();
+         green=kcyte.getEpisimCellBehavioralModelObject().getColorG();
+         blue=kcyte.getEpisimCellBehavioralModelObject().getColorB();
+       }
+        
+      // Limit the colors to 255
+      green=(green>255)?255:((green<0)?0:green);
+      red=(red>255)?255:((red<0)?0:red);
+      blue=(blue>255)?255:((blue<0)?0:blue);
+      
+      if(kcyte.getIsTracked()) return Color.RED;
+      return new Color(red, green, blue);
+   }
 	
 }

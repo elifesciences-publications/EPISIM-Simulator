@@ -12,6 +12,7 @@ import javax.media.j3d.TexCoordGeneration;
 import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
 import javax.media.j3d.TriangleFanArray;
+import javax.vecmath.Color4f;
 import javax.vecmath.Vector4f;
 
 import com.sun.j3d.utils.picking.PickIntersection;
@@ -29,30 +30,31 @@ import sim.portrayal3d.grid.quad.TilePortrayalHack;
 import sim.portrayal3d.grid.quad.ValueGridCellInfo;
 import sim.util.Int2D;
 import sim.util.MutableDouble;
+import sim.util.gui.ColorMap;
 import sim.util.gui.SimpleColorMap;
 
 
 public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 	
 	 private ValueGridCellInfo tmpGCI;
-		
-	 public ValueGrid2DPortrayal3DHack(float scale)
+	 private Color4f[] colors4f = null;
+	 public ValueGrid2DPortrayal3DHack(float scaleX, float scaleY)
     {
-		 this("Value", scale);
+		 this("Value", scaleX, scaleY);
     }
-	 public ValueGrid2DPortrayal3DHack(String valueName, float scale)
+	 public ValueGrid2DPortrayal3DHack(String valueName, float scaleX, float scaleY)
     {
-		 this(valueName,1.0f, scale);
+		 this(valueName,1.0f, scaleX, scaleY);
     }
 	 
-	 public ValueGrid2DPortrayal3DHack(String valueName, double transparency, float scale)
+	 public ValueGrid2DPortrayal3DHack(String valueName, double transparency, float scaleX, float scaleY)
     {
 	    this.valueName = valueName;
 	    // we make a default portrayal that goes from blue to red when going from 0 to 1,
 	    // no change in height
 	    sim.util.gui.SimpleColorMap cm = new sim.util.gui.SimpleColorMap();
 	    cm.setLevels(0.0,1.0,java.awt.Color.blue, java.awt.Color.red);
-	    defaultPortrayal = new TilePortrayalHack(cm, scale);
+	    defaultPortrayal = new TilePortrayalHack(cm, scaleX, scaleY);
 	    this.transparency = transparency;
 	
 	    mPolyAttributes.setCapability(PolygonAttributes.ALLOW_CULL_FACE_WRITE);
@@ -61,9 +63,14 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 	    mPolyAttributes.clearCapabilityIsFrequent(PolygonAttributes.ALLOW_MODE_WRITE);
     }
 	 
-	 public void setMap(SimpleColorMap map){
+	 public void setMap(ColorMap map){
 	 		this.defaultPortrayal.setMap(map);
 	 }
+	 
+	 protected void renewTilePortrayal(float scaleX, float scaleY){
+		    
+	    defaultPortrayal = new TilePortrayalHack(defaultPortrayal.getMap(), scaleX, scaleY);
+	 }	 
 	 
 	 public void setField(Object grid)
     {
@@ -74,7 +81,7 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 		 this.field = localField;
 	    tmpGCI = new ValueGridCellInfo(this, localField);
 	    coords = new float[localField.getWidth()* localField.getHeight()*4*3];    // 3 coordinates: x, y, z
-	    colors = new float[localField.getWidth()* localField.getHeight()*4*3];    // 3 color values -- alpha transparency doesn't work here :-(
+	    colors4f = new Color4f[localField.getWidth()* localField.getHeight()*4];    // 3 color values -- alpha transparency doesn't work here :-(
 	    resetField = true;
     }
 	 
@@ -89,14 +96,14 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 	    
 	    if (field == null) return globalTG;
 	    
-	    QuadPortrayal quadPortrayal = (QuadPortrayal)getPortrayalForObject(tmpGCI);
+	    TilePortrayalHack quadPortrayal = (TilePortrayalHack)getPortrayalForObject(tmpGCI);
 	    
 	   
 	            
 	    GeometryArray ga;
 	    if(!useTriangles)
 	        ga = new QuadArray(4*field.getWidth()*field.getHeight(), 
-	            QuadArray.COORDINATES | QuadArray.COLOR_3 | // 3 color values -- alpha transparency doesn't work here :-(
+	      		  GeometryArray.COORDINATES | GeometryArray.COLOR_4 | // 3 color values -- alpha transparency doesn't work here :-(
 	            (image != null ? QuadArray.TEXTURE_COORDINATE_2 : 0));
 	    else
 	        {
@@ -104,12 +111,13 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 	        for(int i=0; i<lengths.length;i++)
 	            lengths[i]=4;
 	        ga = new TriangleFanArray(      4*lengths.length, 
-	            TriangleFanArray.COORDINATES | TriangleFanArray.COLOR_3 | // 3 color values -- alpha transparency doesn't work here :-(
+	            TriangleFanArray.COORDINATES | TriangleFanArray.COLOR_4 | // 3 color values -- alpha transparency doesn't work here :-(
 	            (image != null ? QuadArray.TEXTURE_COORDINATE_2 : 0),
 	            lengths);
 	        }
 	
 	    ga.setCapability(QuadArray.ALLOW_COLOR_WRITE);
+	    ga.setCapability(QuadArray.ALLOW_COLOR_READ);
 	    ga.setCapability(QuadArray.ALLOW_COORDINATE_WRITE);
 	    SimplePortrayal3D.setPickableFlags(ga);
 	            
@@ -130,12 +138,12 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 	            tmpGCI.y = j;
 	            tmpVect.y = j;
 	            //                              quadPortrayal.setQuad(tmpGCI, qa,quadIndex);
-	            quadPortrayal.setData(tmpGCI, coords, colors, quadIndex, width, height);
+	            quadPortrayal.setData(tmpGCI, coords, colors4f, quadIndex, width, height);
 	            quadIndex++;
 	            }
 	        }
 	    ga.setCoordinates(0, coords);
-	    ga.setColors(0,colors);
+	    ga.setColors(0,colors4f);
 	            
 	    Shape3D shape = new Shape3D(ga);
 	    shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
@@ -152,14 +160,20 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 	        appearance.setTexCoordGeneration(tex);
 	        }
 	    else 
-	        {
+	    {
 	        appearance = new Appearance();
 	        if (transparency < 1.0f )
-	            {
+	        {
 	            appearance.setTransparencyAttributes(
 	                new TransparencyAttributes(TransparencyAttributes.BLENDED, 1.0f - (float)transparency));  // duh, alpha's backwards  
-	            }
 	        }
+	        else{
+	      	  TransparencyAttributes trans = new TransparencyAttributes();
+	      	  trans.setTransparencyMode(TransparencyAttributes.BLENDED);
+	      	  appearance.setTransparencyAttributes(trans);
+	 	    }
+	    }
+	   
 	    
 	    appearance.setCapability(Appearance.ALLOW_POLYGON_ATTRIBUTES_WRITE);
 	    appearance.setPolygonAttributes(mPolyAttributes);
@@ -203,7 +217,7 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 	        {
 		        Grid2D field = (Grid2D)getField();
 		
-		        QuadPortrayal quadPortrayal = (QuadPortrayal)getPortrayalForObject(tmpGCI);         
+		        TilePortrayalHack quadPortrayal = (TilePortrayalHack)getPortrayalForObject(tmpGCI);         
 		        BranchGroup bg = (BranchGroup)modelTG.getChild(0);  
 		        Shape3D shape = (Shape3D)bg.getChild(0);
 		        GeometryArray ga = (GeometryArray)shape.getGeometry();
@@ -218,12 +232,12 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 		                {
 		                tmpGCI.y = j;
 		                //                          quadPortrayal.setQuad(tmpGCI, qa,quadIndex);
-		                quadPortrayal.setData(tmpGCI, coords, colors, quadIndex, width, height);
+		                quadPortrayal.setData(tmpGCI, coords, colors4f, quadIndex, width, height);
 		                quadIndex++;
 		                }
 		            }
 		        ga.setCoordinates(0, coords);
-		        ga.setColors(0,colors);
+		        ga.setColors(0,colors4f);
 	        }
     }
     

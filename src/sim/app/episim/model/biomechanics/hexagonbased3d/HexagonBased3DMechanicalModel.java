@@ -30,6 +30,7 @@ import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
+import sim.app.episim.model.biomechanics.Ellipsoid;
 
 import sim.app.episim.model.biomechanics.CellBoundaries;
 

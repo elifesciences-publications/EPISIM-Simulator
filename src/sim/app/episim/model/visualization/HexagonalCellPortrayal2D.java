@@ -127,7 +127,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 		   	 		graphics.setPaint(Color.RED);
 		   	 	}
 		   	 	else{
-		   	 		graphics.setPaint(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB()));
+		   	 		graphics.setPaint(cell.getCellColoring());
 		   	   }
 				   if (filled)
 				   {	        

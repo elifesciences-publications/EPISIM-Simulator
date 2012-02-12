@@ -130,7 +130,7 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 			if(getCurrentDisplay() instanceof Display3DHack){
 			   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
 			}
-		   shape.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes,(new Color(cbm.getColorR(), cbm.getColorG(), cbm.getColorB())),transparencyFactor));
+		   shape.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes,(universalCell.getCellColoring()),transparencyFactor));
 			
 		} 
 		return j3dModel;

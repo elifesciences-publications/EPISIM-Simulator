@@ -28,9 +28,9 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
 
 import sim.app.episim.model.biomechanics.CellBoundaries;
+import sim.app.episim.model.biomechanics.Ellipsoid;
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased3d.Ellipsoid;
 import sim.app.episim.model.controller.ModelController;
 
 import sim.app.episim.model.visualization.EpisimDrawInfo;
@@ -53,9 +53,9 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    public static final double INITIAL_KERATINO_LENGTH=5; // Default: 5
    public static final double INITIAL_KERATINO_WIDTH=5; // Default: 5
    
-   public static final double KERATINO_WIDTH_GRANU=7; // default: 10
-   public static final double KERATINO_HEIGHT_GRANU=3;
-   public static final double KERATINO_LENGTH_GRANU=5;
+   public static final double KERATINO_WIDTH_GRANU=10; // default: 10
+   public static final double KERATINO_HEIGHT_GRANU=4;
+   public static final double KERATINO_LENGTH_GRANU=7;
    
    private static final double MAX_DISPLACEMENT_FACT = 0.6;
    
@@ -657,22 +657,22 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
  	  Double3D fieldLocMikron = getCellLocationInCellField();
  	  Vector3d minVector= null;
  	  Vector3d maxVector= null;
- 	  double width = getKeratinoWidth();
- 	  double height = getKeratinoHeight();
- 	  double length = getKeratinoLength();
+ 	  double width = getKeratinoWidth()+sizeDelta;
+ 	  double height = getKeratinoHeight()+sizeDelta;
+ 	  double length = getKeratinoLength()+sizeDelta;
  	  
- 	  minVector = new Vector3d((fieldLocMikron.x-width/2),
-				   						(fieldLocMikron.y-height/2),
-				   						(fieldLocMikron.z-length/2));
+ 	  minVector = new Vector3d((fieldLocMikron.x-width/2d),
+				   						(fieldLocMikron.y-height/2d),
+				   						(fieldLocMikron.z-length/2d));
 
- 	  maxVector = new Vector3d((fieldLocMikron.x+width/2),
-										  (fieldLocMikron.y+height/2),
-										  (fieldLocMikron.z+length/2));
+ 	  maxVector = new Vector3d((fieldLocMikron.x+width/2d),
+										  (fieldLocMikron.y+height/2d),
+										  (fieldLocMikron.z+length/2d));
  	   	 
  	 Transform3D trans = new Transform3D();
  	 trans.setTranslation(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z));
- 	 trans.setScale(new Vector3d(width/height, height/height, length/height));
- 	 return new CellBoundaries(new Ellipsoid(trans, ((height/2)+sizeDelta)), minVector, maxVector);
+ 	 trans.setScale(new Vector3d(width/height, height / height, length/height));
+ 	 return new CellBoundaries(new Ellipsoid(trans, height/2d), minVector, maxVector);
   }
 
 

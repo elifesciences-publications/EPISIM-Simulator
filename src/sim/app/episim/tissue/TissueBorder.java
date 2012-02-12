@@ -154,6 +154,26 @@ public class TissueBorder {
 		return getLength(false);
 	}
 	
+	private static final double maxResolution = 500;
+	@NoExport
+	public double get3DTissueCrosssectionXYResolutionFactor(){
+		double height = getHeightInMikron();
+		double width = getWidthInMikron();
+		return Math.min((maxResolution/height), (maxResolution/width));
+	}
+	@NoExport
+	public double get3DTissueCrosssectionXZResolutionFactor(){		
+		double width = getWidthInMikron();
+		double length = getLengthInMikron();
+		return Math.min((maxResolution/width), (maxResolution/length));
+	}
+	@NoExport
+	public double get3DTissueCrosssectionYZResolutionFactor(){
+		double height = getHeightInMikron();
+		double length = getLengthInMikron();		
+		return Math.min((maxResolution/height), (maxResolution/length));
+	}
+	
 	private double getHeight(boolean inPixels){
 		if(standardMembraneLoaded || noMembraneLoaded){
 			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 

@@ -8,6 +8,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.BorderlinePortrayal;
 import sim.app.episim.model.visualization.HexagonalCellGridPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
@@ -26,6 +27,7 @@ public class HexagonBased2DMechModelSimpleInit  extends BiomechanicalModelInitia
 	public HexagonBased2DMechModelSimpleInit(){
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
+		MiscalleneousGlobalParameters.instance().setTypeColor(4);
 	}
 	
 	public HexagonBased2DMechModelSimpleInit(SimulationStateData simulationStateData){

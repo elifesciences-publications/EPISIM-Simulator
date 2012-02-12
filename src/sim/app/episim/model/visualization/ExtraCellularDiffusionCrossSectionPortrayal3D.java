@@ -39,7 +39,7 @@ public class ExtraCellularDiffusionCrossSectionPortrayal3D extends ValueGrid2DPo
 	private double lastCrossSectionTranslationCoordinate = 0;
 	
 	public ExtraCellularDiffusionCrossSectionPortrayal3D(ExtraCellularDiffusionField diffusionField){
-		super(diffusionField.getName(), (float)diffusionField.getFieldConfiguration().getLatticeSiteSizeInMikron());
+		super(diffusionField.getName(), (float)diffusionField.getFieldConfiguration().getLatticeSiteSizeInMikron(), (float)diffusionField.getFieldConfiguration().getLatticeSiteSizeInMikron());
 		this.name = diffusionField.getName();
 		if(diffusionField instanceof ExtraCellularDiffusionField3D)this.extraCellularDiffusionField = (ExtraCellularDiffusionField3D)diffusionField;
 		else throw new IllegalArgumentException("diffusionField must be of type ExtraCellularDiffusionField3D");
@@ -131,7 +131,7 @@ public class ExtraCellularDiffusionCrossSectionPortrayal3D extends ValueGrid2DPo
 	      legendLookUpTable = new Color[colorTable.length];
 	   	for(int i = 0; i < colorTable.length; i++){
 	   		legendLookUpTable[i]= colorTable[i];
-	      	colorTable[i] = new Color(colorTable[i].getRed(), colorTable[i].getGreen(), colorTable[i].getBlue(),25); 
+	      	colorTable[i] = new Color(colorTable[i].getRed(), colorTable[i].getGreen(), colorTable[i].getBlue(),255); 
 	      }
 	   	
 	   	return new SimpleColorMap(colorTable);
@@ -163,9 +163,46 @@ public class ExtraCellularDiffusionCrossSectionPortrayal3D extends ValueGrid2DPo
 		 DiffusionFieldCrossSectionMode actCrossSectionMode = controller.getSelectedDiffusionFieldCrossSectionMode();
 		 double actCrossSectionTranslationCoordinate = controller.getDiffusionFieldCrossSectionCoordinate();
 		 
-		
-		 if(actCrossSectionMode != lastSelectedCrossSectionMode || actCrossSectionTranslationCoordinate != lastCrossSectionTranslationCoordinate){
-			 double translation = (actCrossSectionTranslationCoordinate-lastCrossSectionTranslationCoordinate);
+		 boolean retranslate = false;
+		 
+		 if(actCrossSectionMode != lastSelectedCrossSectionMode){
+			 if(actCrossSectionMode == DiffusionFieldCrossSectionMode.X_Y_PLANE){
+				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.X_Z_PLANE){					
+					 this.translate(0, -1*lastCrossSectionTranslationCoordinate, 0);
+					 this.rotateX(-90);					 
+				 }
+				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.Y_Z_PLANE){
+					 this.translate(-1*lastCrossSectionTranslationCoordinate,0, 0);
+					 this.rotateY(90);					
+				 }
+			 }
+			 if(actCrossSectionMode == DiffusionFieldCrossSectionMode.X_Z_PLANE){
+				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.X_Y_PLANE){
+					 this.translate(0, 0, -1*lastCrossSectionTranslationCoordinate);
+					 this.rotateX(90);					 
+				 }
+				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.Y_Z_PLANE){
+					 this.translate(-1*lastCrossSectionTranslationCoordinate, 0, 0);
+					 this.rotateY(90);
+					 this.rotateX(90);					 
+				 }
+			 }		
+			 if(actCrossSectionMode == DiffusionFieldCrossSectionMode.Y_Z_PLANE){
+				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.X_Y_PLANE){
+					 this.translate(0, 0, -1*lastCrossSectionTranslationCoordinate);
+					 this.rotateY(-90);					 
+				 }
+				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.X_Z_PLANE){
+					 this.translate(0, -1*lastCrossSectionTranslationCoordinate,0);
+					 this.rotateX(-90);
+					 this.rotateY(-90);					 
+				 }
+			 }
+			 lastSelectedCrossSectionMode=actCrossSectionMode;
+			 retranslate = true;
+		 }
+		 if(retranslate || actCrossSectionTranslationCoordinate != lastCrossSectionTranslationCoordinate){
+			 double translation =  retranslate ? actCrossSectionTranslationCoordinate :(actCrossSectionTranslationCoordinate-lastCrossSectionTranslationCoordinate);
 			 if(actCrossSectionMode == DiffusionFieldCrossSectionMode.X_Y_PLANE){
 				 this.translate(0,0,translation);
 			 }
@@ -176,48 +213,6 @@ public class ExtraCellularDiffusionCrossSectionPortrayal3D extends ValueGrid2DPo
 				 this.translate(translation,0 ,0);
 			 }		 	
 		 	 lastCrossSectionTranslationCoordinate=actCrossSectionTranslationCoordinate;
-		 }
-		 if(actCrossSectionMode != lastSelectedCrossSectionMode){
-			 lastCrossSectionTranslationCoordinate=controller.getDiffusionFieldCrossSectionCoordinate();
-			 if(actCrossSectionMode == DiffusionFieldCrossSectionMode.X_Y_PLANE){
-				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.X_Z_PLANE){					
-					 this.translate(0, -1*lastCrossSectionTranslationCoordinate, 0);
-					 this.rotateX(-90);
-					 this.translate(0, 0, lastCrossSectionTranslationCoordinate);
-				 }
-				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.Y_Z_PLANE){
-					 this.translate(-1*lastCrossSectionTranslationCoordinate,0, 0);
-					 this.rotateY(90);
-					 this.translate(0, 0,lastCrossSectionTranslationCoordinate);
-				 }
-			 }
-			 if(actCrossSectionMode == DiffusionFieldCrossSectionMode.X_Z_PLANE){
-				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.X_Y_PLANE){
-					 this.translate(0, 0, -1*lastCrossSectionTranslationCoordinate);
-					 this.rotateX(90);
-					 this.translate(0, lastCrossSectionTranslationCoordinate, 0);
-				 }
-				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.Y_Z_PLANE){
-					 this.translate(-1*lastCrossSectionTranslationCoordinate, 0, 0);
-					 this.rotateY(90);
-					 this.rotateX(90);
-					 this.translate(0, lastCrossSectionTranslationCoordinate, 0);
-				 }
-			 }		
-			 if(actCrossSectionMode == DiffusionFieldCrossSectionMode.Y_Z_PLANE){
-				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.X_Y_PLANE){
-					 this.translate(0, 0, -1*lastCrossSectionTranslationCoordinate);
-					 this.rotateY(-90);
-					 this.translate(lastCrossSectionTranslationCoordinate, 0, 0);
-				 }
-				 if(lastSelectedCrossSectionMode == DiffusionFieldCrossSectionMode.X_Z_PLANE){
-					 this.translate(0, -1*lastCrossSectionTranslationCoordinate,0);
-					 this.rotateX(-90);
-					 this.rotateY(-90);
-					 this.translate(lastCrossSectionTranslationCoordinate, 0, 0);
-				 }
-			 }
-			 lastSelectedCrossSectionMode=actCrossSectionMode;
 		 }
 	 }
 	 

@@ -124,7 +124,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
                if(!drawCellEllipses){           
 		                if(colorType < 5){                                               
 			                
-			                Color fillColor = getFillColor(universalCell);
+			                Color fillColor = universalCell.getCellColoring();
 			                Shape cellPolygon;
 			                Shape nucleusPolygon;               
 			                cellPolygon = mechModel.getPolygonCell(new EpisimDrawInfo<DrawInfo2D>(info)).getCellShape();
@@ -178,7 +178,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 		             		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));        */
 				 cellEllipseObject.setLastSimulationDisplayProps(props, false);
 	      }	      	  
-	    	graphics.setPaint(getFillColor(universalCell));
+	    	graphics.setPaint(universalCell.getCellColoring());
 	    	if(mechModel.getX() != 0 || mechModel.getY() != 0){
 		    	Area clippedEllipse = cellEllipseObject.getClippedEllipse();
 		    	if(clippedEllipse != null){
@@ -207,72 +207,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 		
 
    
-   private Color getFillColor(UniversalCell kcyte){
-   	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
-      int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
-   	//
-      // set colors
-      //
-                    
-      int calculatedColorValue=0;  
-     
-      int red=255;         
-      int green=0;
-      int blue=0;
-            
-      if ((coloringType==1) || (coloringType==2))  // Cell type coloring
-      {              
-        	   if(keratinoType == EpisimDifferentiationLevel.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
-        	   else if(keratinoType == EpisimDifferentiationLevel.TACELL){red=148; green=167; blue=214;}                             
-        	   else if(keratinoType == EpisimDifferentiationLevel.EARLYSPICELL){red=0xE1; green=0x6B; blue=0xF6;}
-        	   else if(keratinoType == EpisimDifferentiationLevel.LATESPICELL){red=0xC1; green=0x4B; blue=0xE6;}
-        	   else if(keratinoType == EpisimDifferentiationLevel.GRANUCELL){red=204; green=0; blue=102;}
-        	  
-              
-            if((kcyte.getIsOuterCell()) && (coloringType==2)){red=0xF3; green=0xBE; blue=0x4E;}      
-            
-            boolean isMembraneCell = false;
-            if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){ 
-            	isMembraneCell=((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
-            	if((((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell()) && (coloringType==2))
-            	{red=255; green=255; blue=255;}
-            }
-            if(kcyte.getEpisimBioMechanicalModelObject() instanceof VertexBasedMechanicalModel) isMembraneCell=((VertexBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
-            if(isMembraneCell && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
-       }
-       if (coloringType==3) // Age coloring
-       {              
-      	 Method m=null;
-      	 double maxAge =0;
-          try{
-	          m = kcyte.getEpisimCellBehavioralModelObject().getClass().getMethod("_getMaxAge", new Class<?>[0]);
-	          maxAge= (Double) m.invoke(kcyte.getEpisimCellBehavioralModelObject(), new Object[0]);
-          }
-          catch (Exception e){
-	          ExceptionDisplayer.getInstance().displayException(e);
-          }
-          
-      	 calculatedColorValue= (int) (250-250*kcyte.getEpisimCellBehavioralModelObject().getAge()/maxAge);
-          red=255;
-          green=calculatedColorValue;                        
-          blue=calculatedColorValue;
-          if(keratinoType== EpisimDifferentiationLevel.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
-       }
-      
-       if(coloringType==4){ //Colors are calculated in the cellbehavioral model
-         red=kcyte.getEpisimCellBehavioralModelObject().getColorR();
-         green=kcyte.getEpisimCellBehavioralModelObject().getColorG();
-         blue=kcyte.getEpisimCellBehavioralModelObject().getColorB();
-       }
-        
-      // Limit the colors to 255
-      green=(green>255)?255:((green<0)?0:green);
-      red=(red>255)?255:((red<0)?0:red);
-      blue=(blue>255)?255:((blue<0)?0:blue);
-      
-      if(kcyte.getIsTracked()) return Color.RED;
-      return new Color(red, green, blue);
-   }
+  
    
    private Color getContourColor(UniversalCell kcyte){
    	Color myFrameColor = Color.white; //new Color(Red, Green, Blue);   	                               

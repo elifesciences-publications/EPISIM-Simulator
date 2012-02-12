@@ -18,6 +18,7 @@ import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
+import sim.app.episim.model.visualization.TissueCrossSectionPortrayal3D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueBorder;
@@ -348,6 +349,8 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		for(int i = 0; i < portrayals.length; i++)display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		
 		display3D.attach(cellPortrayal3D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
+		TissueCrossSectionPortrayal3D tissueCrosssectionPortrayal = new TissueCrossSectionPortrayal3D();
+		display3D.attach(tissueCrosssectionPortrayal, tissueCrosssectionPortrayal.getPortrayalName(), tissueCrosssectionPortrayal.getViewPortRectangle(), false);
 		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();

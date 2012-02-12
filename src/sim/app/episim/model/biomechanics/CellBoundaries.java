@@ -1,5 +1,6 @@
 package sim.app.episim.model.biomechanics;
 
+import java.awt.Color;
 import java.awt.Shape;
 
 import javax.media.j3d.BoundingPolytope;
@@ -7,7 +8,10 @@ import javax.media.j3d.Bounds;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import sim.app.episim.model.biomechanics.hexagonbased3d.Ellipsoid;
+import sim.app.episim.tissue.TissueController;
+import sim.field.grid.DoubleGrid2D;
+import sim.field.grid.IntGrid2D;
+
 
 
 public class CellBoundaries {
@@ -90,4 +94,21 @@ public class CellBoundaries {
 		}
 		return false;
 	}
+	
+	public void getXYCrosssection(double z, IntGrid2D resultingColorPixelMap, Color pixelColor){
+		if(ellipsoid != null){
+			ellipsoid.getXYCrosssection(z, getMinXInMikron()*0.9, getMinYInMikron()*0.9, getMaxXInMikron()*1.1, getMaxYInMikron()*1.1, resultingColorPixelMap, pixelColor);
+		}
+	}
+	public void getXZCrosssection(double y, IntGrid2D resultingColorPixelMap, Color pixelColor){
+		if(ellipsoid != null){
+			ellipsoid.getXZCrosssection(y, getMinXInMikron()*0.9, getMinZInMikron()*0.9, getMaxXInMikron()*1.1, getMaxZInMikron()*1.1, resultingColorPixelMap, pixelColor);
+		}
+	}
+	public void getYZCrosssection(double x, IntGrid2D resultingColorPixelMap, Color pixelColor){
+		if(ellipsoid != null){
+			ellipsoid.getYZCrosssection(x, getMinYInMikron()*0.9, getMinZInMikron()*0.9, getMaxYInMikron()*1.1, getMaxZInMikron()*1.1, resultingColorPixelMap, pixelColor);
+		}
+	}
+	
 }

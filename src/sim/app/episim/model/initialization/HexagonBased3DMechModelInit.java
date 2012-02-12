@@ -12,6 +12,7 @@ import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanical
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonalCellField3D;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 import sim.field.grid.ObjectGrid2D;
@@ -28,6 +29,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		MiscalleneousGlobalParameters.instance().setTypeColor(4);
 	}
 	
 	public HexagonBased3DMechModelInit(SimulationStateData simulationStateData){

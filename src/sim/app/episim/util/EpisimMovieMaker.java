@@ -26,7 +26,7 @@ import sim.util.gui.MovieMaker;
 
 public class EpisimMovieMaker{
 	
-	public static final int FRAMES_PER_FILE = 200;
+	public static final int FRAMES_PER_FILE = 150;
 	
 	Frame parentForDialogs;
   

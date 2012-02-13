@@ -13,7 +13,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
 	private boolean seedReverse = false;	
 	private int basalDensity_mikron = 9;//OriginalValue: 8; 
-	private double externalPush = 1.1; // y-offset
+	private double externalPush = 1.2; // y-offset
 	private double cohesion = 0.01;
 	
 	private double neighborhood_mikron= 10.0;

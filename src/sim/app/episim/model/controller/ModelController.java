@@ -29,6 +29,7 @@ public class ModelController implements java.io.Serializable{
 	private boolean modelOpened = false;
 	
 	private boolean simulationStartedOnce = false;
+	private boolean storedSimStateLoaded = false;
 	
 	private static ModelController instance;
 	private ModelInitialization initializer;
@@ -61,10 +62,14 @@ public class ModelController implements java.io.Serializable{
 	}
 	
 	public void standardInitializationOfModels(){
+		 storedSimStateLoaded = false;
 		 initializer = new ModelInitialization();
 	}
 	
+	public boolean isStoredSimStateLoaded(){ return storedSimStateLoaded; }
+	
 	public void initializeModels(SimulationStateData simStateData){
+		 storedSimStateLoaded = true;
 		 initializer = new ModelInitialization(simStateData);
 	}	
 

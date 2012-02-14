@@ -54,8 +54,9 @@ TOKEN : { < OPEN_PAR : "(" > }
 TOKEN : { < CLOSE_PAR : ")" > }
 
 
-TOKEN : { < BIGGER_SMALLER : <BIG_SMALL>| <BIG_SMALL><EQUAL>>
-	| <#BIG_SMALL:["<", ">"]>
+TOKEN : { < BIGGER_SMALLER : <BIG>|<SMALL>|<BIG><EQUAL>|<SMALL><EQUAL>>
+	| <#BIG:[">"]>
+	| <#SMALL:["<"]>
 	| <#EQUAL:["="]>}
 TOKEN : { < EQUAL_OR_NOT : <EQUAL><EQUAL> | <NOT><EQUAL>>
 		}
@@ -423,18 +424,18 @@ String[] BooleanTerm():{
  	String[] totalResult = new String[2]; 	
  }
  { 
-    exp1 = NotFactor()("&&"{exp1[0] += "&&"; exp1[1] += "&&";} exp2 =NotFactor())*
+    exp1 = NotFactor()("&&"{exp1[0] += "&&"; exp1[1] += "&&";} exp2 =NotFactor()    {
+      if(exp2 != null){
+			exp1[0] +=exp2[0];
+			exp1[1] +=exp2[1];
+		}    })*
     
 	
 	{
-		if(exp2 != null){
-			totalResult[0] =exp1[0]+ exp2[0];
-			totalResult[1] =exp1[1]+ exp2[1];
-		}
-		else{
-			totalResult[0] =exp1[0];
-			totalResult[1] =exp1[1];
-		}
+		
+		totalResult[0] =exp1[0];
+		totalResult[1] =exp1[1];
+		
 		return totalResult;
 	}
 }

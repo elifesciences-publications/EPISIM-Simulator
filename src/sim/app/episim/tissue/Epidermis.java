@@ -150,7 +150,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 	private boolean seedingHasFinished = false;
  	private void seedInitiallyAvailableCells(){
 		final ArrayList<UniversalCell> initialCellEnsemble = new ArrayList<UniversalCell>();
-		if(ModeServer.guiMode()){
+		if(ModeServer.guiMode() && ModelController.getInstance().isStoredSimStateLoaded()){
 			if(SimStateServer.getInstance().getEpisimGUIState()!= null 
 					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() != null
 					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() instanceof Frame){				

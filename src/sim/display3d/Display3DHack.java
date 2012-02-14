@@ -79,6 +79,7 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimDisplay3D;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.ImageLoader;
+import sim.app.episim.gui.NumberInputDialog;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode;
@@ -664,20 +665,6 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    }
 	public void stopMovie()
    {
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_ROTATE_SCENE_AT_MOVIE_END)!=null
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_ROTATE_SCENE_AT_MOVIE_END).equalsIgnoreCase(EpisimProperties.ON)){
-			try{
-				synchronized(Display3DHack.this.simulation.state.schedule)
-			   {
-					startFinalVisualizationAnimation();
-			   }
-			}
-			catch (InterruptedException e){
-				ExceptionDisplayer.getInstance().displayException(e);
-			}
-			
-		}
-		
 		if(ModeServer.consoleInput() && moviePathSet){
 		   synchronized(Display3DHack.this.simulation.state.schedule)
 		   {
@@ -782,74 +769,107 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	  	
    }
    
-   private void startFinalVisualizationAnimation() throws InterruptedException{
+   private void startVisualizationAnimation(final long duration){
    	
-   	final long duration = 30000;
-   	
-      long startTime = System.currentTimeMillis()+100;
-   		autoSpin.setTransformAxis(getTransformForAxis(0, 1, 0));
-         autoSpinBackground.setTransformAxis(getTransformForAxis(0, 1, 0));         
-         autoSpin.getAlpha().setIncreasingAlphaDuration(duration);
-         autoSpinBackground.getAlpha().setIncreasingAlphaDuration(duration);
+   	Runnable r = new Runnable() {
+			
+			@Override
+			public void run() {
+				double oldRotAxisXValue = rotAxis_X.getValue();
+				double oldRotAxisYValue = rotAxis_Y.getValue();
+				double oldRotAxisZValue = rotAxis_Z.getValue();
+				 long startTime = System.currentTimeMillis()+100;
+		   		autoSpin.setTransformAxis(getTransformForAxis(0, 1, 0));
+		         autoSpinBackground.setTransformAxis(getTransformForAxis(0, 1, 0));         
+		         autoSpin.getAlpha().setIncreasingAlphaDuration(duration);
+		         autoSpinBackground.getAlpha().setIncreasingAlphaDuration(duration);
+		        
+		         autoSpin.setEnable(true);
+		         autoSpinBackground.setEnable(true);
+		        
+		         autoSpin.getAlpha().setLoopCount(0);         
+		         autoSpinBackground.getAlpha().setLoopCount(0);
+		         autoSpin.getAlpha().setStartTime(startTime);
+		         autoSpinBackground.getAlpha().setStartTime(startTime);
+		         autoSpin.getAlpha().pause();
+		         autoSpinBackground.getAlpha().pause();
+		         autoSpin.getAlpha().setLoopCount(1); 
+		         autoSpinBackground.getAlpha().setLoopCount(1);
+		        autoSpin.getAlpha().resume(startTime);
+		        autoSpinBackground.getAlpha().resume(startTime);
+		         rotAxis_X.setValue(0);
+		         rotAxis_Y.setValue(1);
+		         rotAxis_Z.setValue(0);
+		        
+		         do{
+		         	updateSceneGraph(true);
+		         	try{
+	                  Thread.sleep(100);
+                  }
+                  catch (InterruptedException e){
+                  	 ExceptionDisplayer.getInstance().displayException(e);
+                  }
+		         	
+		         }while(!autoSpin.getAlpha().finished());
+		    
+		         startTime = System.currentTimeMillis()+100;
+		   		autoSpin.setTransformAxis(getTransformForAxis(1, 0, 0));
+		         autoSpinBackground.setTransformAxis(getTransformForAxis(1, 0, 0));         
+		         autoSpin.getAlpha().setIncreasingAlphaDuration(duration);
+		         autoSpinBackground.getAlpha().setIncreasingAlphaDuration(duration);
+		        
+		         autoSpin.setEnable(true);
+		         autoSpinBackground.setEnable(true);
+		        
+		         autoSpin.getAlpha().setLoopCount(0);         
+		         autoSpinBackground.getAlpha().setLoopCount(0);
+		         autoSpin.getAlpha().setStartTime(startTime);
+		         autoSpinBackground.getAlpha().setStartTime(startTime);
+		         autoSpin.getAlpha().pause();
+		         autoSpinBackground.getAlpha().pause();
+		         autoSpin.getAlpha().setLoopCount(1); 
+		         autoSpinBackground.getAlpha().setLoopCount(1);
+		        autoSpin.getAlpha().resume(startTime);
+		        autoSpinBackground.getAlpha().resume(startTime);
+		         rotAxis_X.setValue(1);
+		         rotAxis_Y.setValue(0);
+		         rotAxis_Z.setValue(0);
+		        
+		        do{
+		         	updateSceneGraph(true);
+		         	try{
+	                  Thread.sleep(100);
+                  }
+                  catch (InterruptedException e){
+                  	 ExceptionDisplayer.getInstance().displayException(e);
+                  }
+		         } while(!autoSpin.getAlpha().finished());
+		        
+		     setSpinningEnabled(false);
+		     for(int i=0; i < 100; i++){
+		   	 updateSceneGraph(true);
+		   	 try{
+	            Thread.sleep(100);
+            }
+            catch (InterruptedException e){
+	           ExceptionDisplayer.getInstance().displayException(e);
+            }
+		     }
+			  	autoSpin.setTransformAxis(getTransformForAxis(oldRotAxisXValue, oldRotAxisYValue, oldRotAxisZValue));
+	         autoSpinBackground.setTransformAxis(getTransformForAxis(oldRotAxisXValue, oldRotAxisYValue, oldRotAxisZValue));         
+	         autoSpin.getAlpha().setIncreasingAlphaDuration(duration);
+	         autoSpinBackground.getAlpha().setIncreasingAlphaDuration(duration);
         
-         autoSpin.setEnable(true);
-         autoSpinBackground.setEnable(true);
-        
-         autoSpin.getAlpha().setLoopCount(0);         
-         autoSpinBackground.getAlpha().setLoopCount(0);
-         autoSpin.getAlpha().setStartTime(startTime);
-         autoSpinBackground.getAlpha().setStartTime(startTime);
-         autoSpin.getAlpha().pause();
-         autoSpinBackground.getAlpha().pause();
-         autoSpin.getAlpha().setLoopCount(1); 
-         autoSpinBackground.getAlpha().setLoopCount(1);
-        autoSpin.getAlpha().resume(startTime);
-        autoSpinBackground.getAlpha().resume(startTime);
-         rotAxis_X.setValue(0);
-         rotAxis_Y.setValue(1);
-         rotAxis_Z.setValue(0);
-        
-         do{
-         	updateSceneGraph(true);
-         	Thread.sleep(100);
-         	
-         }while(!autoSpin.getAlpha().finished());
-    
-         startTime = System.currentTimeMillis()+100;
-   		autoSpin.setTransformAxis(getTransformForAxis(1, 0, 0));
-         autoSpinBackground.setTransformAxis(getTransformForAxis(1, 0, 0));         
-         autoSpin.getAlpha().setIncreasingAlphaDuration(duration);
-         autoSpinBackground.getAlpha().setIncreasingAlphaDuration(duration);
-        
-         autoSpin.setEnable(true);
-         autoSpinBackground.setEnable(true);
-        
-         autoSpin.getAlpha().setLoopCount(0);         
-         autoSpinBackground.getAlpha().setLoopCount(0);
-         autoSpin.getAlpha().setStartTime(startTime);
-         autoSpinBackground.getAlpha().setStartTime(startTime);
-         autoSpin.getAlpha().pause();
-         autoSpinBackground.getAlpha().pause();
-         autoSpin.getAlpha().setLoopCount(1); 
-         autoSpinBackground.getAlpha().setLoopCount(1);
-        autoSpin.getAlpha().resume(startTime);
-        autoSpinBackground.getAlpha().resume(startTime);
-         rotAxis_X.setValue(1);
-         rotAxis_Y.setValue(0);
-         rotAxis_Z.setValue(0);
-        
-        do{
-         	updateSceneGraph(true);
-         	Thread.sleep(100);
-         } while(!autoSpin.getAlpha().finished());
-        
-     setSpinningEnabled(false);
-     for(int i=0; i < 100; i++){
-   	 updateSceneGraph(true);
-   	 Thread.sleep(100);
-     }
-     stopRenderer();
-    // resetDisplaySettings();
+         	autoSpin.setEnable(true);
+         	autoSpinBackground.setEnable(true);
+         	rotAxis_X.setValue(oldRotAxisXValue);
+         	rotAxis_Y.setValue(oldRotAxisYValue);
+         	rotAxis_Z.setValue(oldRotAxisZValue);
+         	spinDuration.newValue(spinDuration.getValue());
+			}
+		};
+   	Thread animationThread = new Thread(r);
+   	animationThread.start();
    }
    
    private void resetDisplaySettings(){
@@ -896,6 +916,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	private int lastModelSceneOpacitySliderPosition = 100;  
    	private Box modelSceneCrossectionPanel = null;
    	private Box diffCrossectionPanel = null;
+   	private JButton sceneAnimationButton;
    	OptionPane3D(Component parent, String label)
        {
        super((JFrame)parent, label, false);
@@ -937,13 +958,12 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        outerBehaviorsPanel.add(Box.createGlue());
                    
                    
-       Box resetBox = new Box(BoxLayout.X_AXIS);
-       resetBox.setBorder(new javax.swing.border.TitledBorder("Viewpoint"));
+       Box resetAndAnimationBox = new Box(BoxLayout.X_AXIS);
+       resetAndAnimationBox.setBorder(new javax.swing.border.TitledBorder("Viewpoint"));
        JButton resetButton = new JButton("Reset Viewpoint");
        resetButton.setToolTipText("Resets display to original rotation, translation, and zoom.");
-       resetBox.add(resetButton);
-       resetBox.add(Box.createGlue());
-
+       resetAndAnimationBox.add(resetButton);
+       resetAndAnimationBox.add(Box.createHorizontalStrut(25));
        resetButton.addActionListener(new ActionListener()
            {
            public void actionPerformed(ActionEvent e)
@@ -951,7 +971,20 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
               		resetDisplaySettings();
                } 
            });
-                   
+       
+       sceneAnimationButton = new JButton("Animate Scene");
+       sceneAnimationButton.setToolTipText("Animates (rotates) the scene that is visualized.");
+       sceneAnimationButton.addActionListener(new ActionListener() {
+      	public void actionPerformed(ActionEvent e) {
+      		Double choice = NumberInputDialog.showDialog((Frame)Display3DHack.OptionPane3D.this.getParent(), "Enter a value", "Rot per sec",1d);
+      		if(choice != null){
+	      		long mSecsPerRot = (choice.doubleValue() == 0 ? 1 /* don't care */ : (long)(1000 / choice.doubleValue()));
+	      		startVisualizationAnimation(mSecsPerRot);
+      		}
+			}
+		});
+       resetAndAnimationBox.add(sceneAnimationButton);
+       resetAndAnimationBox.add(Box.createGlue());
        orbitRotateXCheckBox.addItemListener(new ItemListener()
            {
            public void itemStateChanged(ItemEvent e)
@@ -1365,7 +1398,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
        if(diffCrossectionPanel != null)optionsPanel.add(diffCrossectionPanel);       
        optionsPanel.add(auxillaryPanel);      
        optionsPanel.add(polyPanel);
-       optionsPanel.add(resetBox);
+       optionsPanel.add(resetAndAnimationBox);
        //optionsPanel.add(viewPanel);
        
        JScrollPane scroll = new JScrollPane(optionsPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

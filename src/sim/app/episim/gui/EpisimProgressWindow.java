@@ -22,11 +22,11 @@ import sim.app.episim.persistence.SimulationStateFile;
 public class EpisimProgressWindow {
 	private JLabel progressLabel;
 	private JProgressBar progressBar;
-	private JDialog progressWindow;
+	private JWindow progressWindow;
 	private boolean taskHasStarted = false;
 	private EpisimProgressWindow(Frame owner){
-		progressWindow = new JDialog(owner, false);
-		progressWindow.setUndecorated(true);
+		progressWindow = new JWindow(owner);
+
 		progressWindow.getContentPane().setLayout(new BorderLayout(5, 5));
 		if(progressWindow.getContentPane() instanceof JPanel)
 			((JPanel)progressWindow.getContentPane()).setBorder(BorderFactory.createCompoundBorder(

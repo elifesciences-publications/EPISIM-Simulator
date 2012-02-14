@@ -220,12 +220,13 @@ public class DataExportCreationWizard extends JDialog {
 		propertiesPanel.add(columnsMainPanel, c);
 		
 		previewPanel = this.buildPreviewPanel();
-		previewPanel.setPreferredSize(new Dimension(getPreferredSize().width,	(int)(getPreferredSize().height*0.7)));
+		previewPanel.setPreferredSize(new Dimension(getPreferredSize().width/2,	(int)(getPreferredSize().height*0.7)));
 		previewPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Preview"), 
                                                                       BorderFactory.createEmptyBorder(5,5,5,5)));
 		
 		JPanel layoutCorrectingPanel = new JPanel(new BorderLayout());
 		layoutCorrectingPanel.add(propertiesPanel,BorderLayout.NORTH);
+		layoutCorrectingPanel.setPreferredSize(new Dimension(getPreferredSize().width/2,	(int)(getPreferredSize().height*0.7)));
 		mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
 		new JScrollPane(layoutCorrectingPanel), previewPanel);
       mainSplit.setOneTouchExpandable(false);

@@ -1,6 +1,7 @@
 package sim.app.episim.datamonitoring.charts;
 
 import java.awt.Color;
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,11 +20,16 @@ import org.jfree.ui.ExtensionFileFilter;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
+import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 
 
 public class EpisimChartPanel extends ChartPanel {
+	
+	private static final int PNG_CHARTWIDTH=600;
+	private static final int PNG_CHARTHEIGHT=450;
 	
 	public EpisimChartPanel(JFreeChart chart){
 		super(chart);
@@ -35,35 +41,45 @@ public class EpisimChartPanel extends ChartPanel {
 	}
 	
 	public void doSaveAs(){
-		 JFileChooser fileChooser = new JFileChooser();
-       fileChooser.setCurrentDirectory(getDefaultDirectoryForSaveAs());
-       ExtensionFileFilter filter = new ExtensionFileFilter(
-               localizationResources.getString("PNG_Image_Files"), ".png");
-       fileChooser.addChoosableFileFilter(filter);
-
-       int option = fileChooser.showSaveDialog(this);
-       if(option == JFileChooser.APPROVE_OPTION) {
-	        String filename = fileChooser.getSelectedFile().getPath();
-	        if (isEnforceFileExtensions()) {
-	            if (!filename.endsWith(".png")) {
-	                filename = filename + ".png";
-	            }
-	        }
-	        try{
-	      	 File pngFile = new File(filename);
-	          ChartUtilities.saveChartAsPNG(pngFile,getChart(), getWidth(), getHeight());
-	          if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG) != null 
-	          		&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG).equalsIgnoreCase(EpisimProperties.ON)){
-	          	saveSVGImageOfJFreeChart(pngFile);
-	          }
-		     }
-		     catch(IOException e){
-		         ExceptionDisplayer.getInstance().displayException(e);
-		     }
-       }		
+		int width = PNG_CHARTWIDTH;
+		int height = PNG_CHARTHEIGHT;
+		int[] resolution = null;	
+		if(ModeServer.guiMode()) resolution = ChartImageResolutionDialog.showDialog((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent(), width, height);
+		if(!ModeServer.guiMode() || resolution != null){
+			 if(resolution != null){
+				 width = resolution[0];
+				 height = resolution[1];
+			 }
+			 JFileChooser fileChooser = new JFileChooser();
+	       fileChooser.setCurrentDirectory(getDefaultDirectoryForSaveAs());
+	       ExtensionFileFilter filter = new ExtensionFileFilter(
+	               localizationResources.getString("PNG_Image_Files"), ".png");
+	       fileChooser.addChoosableFileFilter(filter);
+	
+	       int option = fileChooser.showSaveDialog(this);
+	       if(option == JFileChooser.APPROVE_OPTION) {
+		        String filename = fileChooser.getSelectedFile().getPath();
+		        if (isEnforceFileExtensions()) {
+		            if (!filename.endsWith(".png")) {
+		                filename = filename + ".png";
+		            }
+		        }
+		        try{
+		      	 File pngFile = new File(filename);
+		          ChartUtilities.saveChartAsPNG(pngFile,getChart(), width, height);
+		          if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG) != null 
+		          		&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG).equalsIgnoreCase(EpisimProperties.ON)){
+		          	saveSVGImageOfJFreeChart(pngFile, width, height);
+		          }
+			     }
+			     catch(IOException e){
+			         ExceptionDisplayer.getInstance().displayException(e);
+			     }
+	       }
+		}
 	}
 	
-	private void saveSVGImageOfJFreeChart(File pngFile) throws IOException{
+	private void saveSVGImageOfJFreeChart(File pngFile, int width, int height) throws IOException{
 		changeChartAxisColorsToBlack(getChart());
 		File svgFile = new File(pngFile.getAbsolutePath().substring(0, pngFile.getAbsolutePath().length()-3)+"svg");
 		DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
@@ -75,8 +91,8 @@ public class EpisimChartPanel extends ChartPanel {
      // Create an instance of the SVG Generator.
      SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
 
-     ChartPanel chartPanel = new ChartPanel(getChart(), this.getWidth(), this.getHeight(), this.getMinimumDrawWidth(), this.getMinimumDrawHeight(), this.getMaximumDrawWidth(), this.getMaximumDrawHeight(), false, false, false,false, false, false);
-     chartPanel.setSize(this.getWidth(), this.getHeight());
+     ChartPanel chartPanel = new ChartPanel(getChart(), width, height, this.getMinimumDrawWidth(), this.getMinimumDrawHeight(), this.getMaximumDrawWidth(), this.getMaximumDrawHeight(), false, false, false,false, false, false);
+     chartPanel.setSize(width, height);
      chartPanel.paint(svgGenerator);
      // Finally, stream out SVG to the standard output using
      // UTF-8 encoding.

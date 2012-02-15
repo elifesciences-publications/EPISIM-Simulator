@@ -254,6 +254,32 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		}			
 	}
 	
+	private boolean totallyLooseContactToOldNeighbourhoodUponRetraction(){
+		Bag fieldLocNeighbouringCellsBag = new Bag();
+		Bag spreadingLocNeighbouringCellsBag = new Bag();
+		IntBag xPos = new IntBag();
+		IntBag yPos = new IntBag();
+		IntBag zPos = new IntBag();
+		cellField.getNeighborsHamiltonianDistance(fieldLocation.x, fieldLocation.y, fieldLocation.z, 1, globalParameters.getUseContinuousSpace(), fieldLocNeighbouringCellsBag, xPos, yPos, zPos);
+		xPos.clear();
+		yPos.clear();
+		zPos.clear();
+		cellField.getNeighborsHamiltonianDistance(spreadingLocation.x, spreadingLocation.y, spreadingLocation.z, 1, globalParameters.getUseContinuousSpace(), spreadingLocNeighbouringCellsBag, xPos, yPos, zPos);
+		for(int i = 0; i < fieldLocNeighbouringCellsBag.size(); i++){
+			AbstractCell actOldNeighbour = (AbstractCell) fieldLocNeighbouringCellsBag.get(i);
+			if(actOldNeighbour!= null && actOldNeighbour != getCell()){
+				for(int n = 0; n < spreadingLocNeighbouringCellsBag.size(); n++){
+			   	if(spreadingLocNeighbouringCellsBag.get(n)!= null && spreadingLocNeighbouringCellsBag.get(n)!= getCell()){
+			   		if(spreadingLocNeighbouringCellsBag.get(n) == actOldNeighbour){
+			   			return false;
+			   		}
+			   	}
+				}
+			}
+	   }
+		return true;
+	}
+	
 	private void checkNonSpreadingNeighbourListForIntersectionConflicts(ArrayList<AbstractCell> nonSpreadingNeighbours, Int3D locationToBeLeft){
 		AbstractCell[] nonSpreadingNeighboursArray = nonSpreadingNeighbours.toArray(new AbstractCell[nonSpreadingNeighbours.size()]);
 		for(int n = 0; n < nonSpreadingNeighboursArray.length; n++){
@@ -396,28 +422,11 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		 
 		boolean retraction = false;
 		double normGradient = Double.NEGATIVE_INFINITY;
-		if(globalParameters.isChemotaxisEnabled()){
-			String chemotacticFieldName = modelConnector.getChemotacticField();
-			if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
-				ExtraCellularDiffusionField3D ecDiffField =  (ExtraCellularDiffusionField3D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
-				if(ecDiffField != null){					
-					double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
-					                                                                            ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
-					                                                                            : ecDiffField.getMaxConcentrationInField();
-		         double c_fieldPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y, getLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
-		         double c_spreadingPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y, getSpreadingLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));  
-					  
-					normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
-					
-					if(normGradient < 0) normGradient = 0;
-				}
-			}		
-		}
-		
-	
-		int randomNumber = random.nextInt(UPPER_PROBABILITY_LIMIT);
 		if(modelConnector.getIsRetracting()){
-			
+					
+		
+			int randomNumber = random.nextInt(UPPER_PROBABILITY_LIMIT);
+						
 			ArrayList<AbstractCell> neighbourToPullA = new ArrayList<AbstractCell>();
 			ArrayList<AbstractCell> neighbourToPullB = new ArrayList<AbstractCell>();
 			
@@ -431,37 +440,64 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				probabilityA = UPPER_PROBABILITY_LIMIT/2;
 				probabilityB = UPPER_PROBABILITY_LIMIT/2;
 			}
-			
-			if(normGradient > 0){
-				int probabGradient = (int) (normGradient*UPPER_PROBABILITY_LIMIT);			
-				probabilityA += probabGradient;
-			}	
-			
-			
-			if((probabilityA + probabilityB) > UPPER_PROBABILITY_LIMIT){
-				 int sum = probabilityA + probabilityB;
-				 sum /=UPPER_PROBABILITY_LIMIT;
-				 probabilityA /= sum;
-				 probabilityB /= sum;
-			}				
-			if(randomNumber < probabilityA){
-					cellField.setFieldLocationOfObject(fieldLocation, null);
-					cellField.setFieldLocationOfObject(spreadingLocation, getCell());
-					if(!neighbourToPullA.isEmpty()) pullNeighbour(neighbourToPullA.get(0), fieldLocation);
-					fieldLocation = spreadingLocation;
-					retraction = true;
-			}
-			else if(randomNumber >= probabilityA && randomNumber < (probabilityA + probabilityB)){
-					cellField.setFieldLocationOfObject(fieldLocation, getCell());
-					cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
-					if(!neighbourToPullB.isEmpty()) pullNeighbour(neighbourToPullB.get(0), spreadingLocation);
-					retraction = true;
-			}		
-			
-			if(retraction){
+			if(globalParameters.getStickToCellColony() && 
+					((!hasLocationNeighbouringCells(spreadingLocation) && hasLocationNeighbouringCells(fieldLocation))|| totallyLooseContactToOldNeighbourhoodUponRetraction())){
+				cellField.setFieldLocationOfObject(fieldLocation, getCell());
+				cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
+				if(!neighbourToPullB.isEmpty()) pullNeighbour(neighbourToPullB.get(0), spreadingLocation);
+				retraction = true;
 				spreadingLocation = null;
 				modelConnector.setIsSpreading(false);
+			}	
+			else{
+				if(globalParameters.isChemotaxisEnabled()){
+					String chemotacticFieldName = modelConnector.getChemotacticField();
+					if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
+						ExtraCellularDiffusionField3D ecDiffField =  (ExtraCellularDiffusionField3D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
+						if(ecDiffField != null){					
+							double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
+							                                                                            ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
+							                                                                            : ecDiffField.getMaxConcentrationInField();
+				         double c_fieldPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y, getLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
+				         double c_spreadingPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y, getSpreadingLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));  
+							  
+							normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
+							
+							if(normGradient < 0) normGradient = 0;
+						}
+					}		
+				}			
 				
+				if(normGradient > 0){
+					int probabGradient = (int) (normGradient*UPPER_PROBABILITY_LIMIT);			
+					probabilityA += probabGradient;
+				}				
+				
+				if((probabilityA + probabilityB) > UPPER_PROBABILITY_LIMIT){
+					 int sum = probabilityA + probabilityB;
+					 sum /=UPPER_PROBABILITY_LIMIT;
+					 probabilityA /= sum;
+					 probabilityB /= sum;
+				}				
+				if(randomNumber < probabilityA){
+						cellField.setFieldLocationOfObject(fieldLocation, null);
+						cellField.setFieldLocationOfObject(spreadingLocation, getCell());
+						if(!neighbourToPullA.isEmpty()) pullNeighbour(neighbourToPullA.get(0), fieldLocation);
+						fieldLocation = spreadingLocation;
+						retraction = true;
+				}
+				else if(randomNumber >= probabilityA && randomNumber < (probabilityA + probabilityB)){
+						cellField.setFieldLocationOfObject(fieldLocation, getCell());
+						cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
+						if(!neighbourToPullB.isEmpty()) pullNeighbour(neighbourToPullB.get(0), spreadingLocation);
+						retraction = true;
+				}		
+				
+				if(retraction){
+					spreadingLocation = null;
+					modelConnector.setIsSpreading(false);
+					
+				}
 			}
 		}
 		modelConnector.setIsRetracting(false);		
@@ -485,7 +521,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   for(int i = 0; i < neighbouringCellsBag.size(); i++){
 	   	if(neighbouringCellsBag.get(i)== null){
 	   		if(!hasIntersectionWithNeighbours(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i)))){
-		   		if(globalParameters.getStickToCellColony()){
+		   		if(globalParameters.getStickToCellColony() && hasLocationNeighbouringCells(fieldLocation)){
 		   			if(hasLocationNeighbouringCells(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i))))spreadingLocationIndices.add(i);
 		   		}
 		   		else spreadingLocationIndices.add(i);

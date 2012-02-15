@@ -51,7 +51,17 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 		int length= globalParameters.getNumber_of_columns();
 		int delta = globalParameters.getNumber_of_initially_occupied_layers()/2;
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
-			for(int y = ((height/2)-delta) ;y < ((height/2)+delta); y++){			
+			for(int y = height-1 ;y > ((height-1)-delta); y--){			
+				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
+					UniversalCell cell = new UniversalCell(null, null);
+					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
+				
+					standardCellEnsemble.add(cell);
+				}
+			}
+		}
+		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
+			for(int y = 0 ;y < delta; y++){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
@@ -107,11 +117,12 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();	
 		
 		int width = (int) (globalParameters.getNumber_of_columns());
-		
+		int height = globalParameters.getNumber_of_rows();
 		int length= (int) (globalParameters.getNumber_of_columns());
-		int delta = (int)globalParameters.getNumber_of_initially_occupied_layers()/2;
+		int delta = (int)globalParameters.getNumber_of_initially_occupied_layers()/3;
+		delta = delta==0 ? 1 : delta;
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
-			for(int y = 0 ;y < 2; y++){			
+			for(int y = ((height/2)-delta);y < ((height/2)+delta); y++){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));

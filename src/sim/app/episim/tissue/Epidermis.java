@@ -229,12 +229,14 @@ public class Epidermis extends TissueType implements CellDeathListener
 		
 		if(this.chartSteppables != null){
 			for(EnhancedSteppable steppable: this.chartSteppables){
+				if(steppable.getInterval() >1)schedule.scheduleOnce(0,SchedulePriority.DATAMONITORING.getPriority(), steppable);
 		   	schedule.scheduleRepeating(steppable, SchedulePriority.DATAMONITORING.getPriority(), steppable.getInterval());
 		   }
 		}
 		
 		if(this.dataExportSteppables != null){
 			for(EnhancedSteppable steppable: this.dataExportSteppables){
+				if(steppable.getInterval() >1)schedule.scheduleOnce(0,SchedulePriority.DATAMONITORING.getPriority(), steppable);
 		   	schedule.scheduleRepeating(steppable, SchedulePriority.DATAMONITORING.getPriority(), steppable.getInterval());
 		   }
 		}

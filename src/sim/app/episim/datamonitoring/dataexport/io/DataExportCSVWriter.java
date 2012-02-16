@@ -171,6 +171,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	     }
 	     aCellHasBeenChanged = false;
 	     simStepCounter = 0;
+	    lastSimStepCounterWritten=-1;
       
 	}
 	

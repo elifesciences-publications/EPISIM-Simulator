@@ -229,8 +229,23 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 
 	public Set<Class<?>> getAllRequiredClasses() {
 		 Set<Class<?>> allRequiredClasses = new HashSet<Class<?>>();
-		 if(this.requiredClassesForBaseline != null) allRequiredClasses.addAll(requiredClassesForBaseline);
-		 for(EpisimChartSeries series : this.seriesMap.values()) allRequiredClasses.addAll(series.getRequiredClasses());
+		 Set<String> requiredClassesNameSet = getAllRequiredClassesNameSet();
+		 if(this.requiredClassesForBaseline != null){
+			 for(Class<?> actClass : requiredClassesForBaseline){
+				 if(requiredClassesNameSet.contains(actClass.getName())){
+					 allRequiredClasses.add(actClass);
+					 requiredClassesNameSet.remove(actClass.getName());
+				 }				
+			 }
+		 }
+		 for(EpisimChartSeries series : this.seriesMap.values()){ 
+			for(Class<?> actClass : series.getRequiredClasses()){
+				if(requiredClassesNameSet.contains(actClass.getName())){
+					 allRequiredClasses.add(actClass);
+					 requiredClassesNameSet.remove(actClass.getName());
+				}				
+			}
+		 }		
 	    return allRequiredClasses;
    }
 	
@@ -248,9 +263,7 @@ public class EpisimChartImpl implements EpisimChart, java.io.Serializable{
 	public Set<Class<?>> getRequiredClassesForBaseline(){
 		if(this.requiredClassesForBaseline == null) this.requiredClassesForBaseline = new HashSet<Class<?>>();
 	   return ObjectManipulations.cloneObject(requiredClassesForBaseline);
-   }
-	
-	
+   }	
 	
 	public Set<String> getRequiredClassesForBaselineNameSet(){	   
 	   return ObjectManipulations.cloneObject(this.requiredClassesForBaselineNameSet);

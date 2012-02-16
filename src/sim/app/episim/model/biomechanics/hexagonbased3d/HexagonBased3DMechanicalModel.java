@@ -441,7 +441,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				probabilityB = UPPER_PROBABILITY_LIMIT/2;
 			}
 			if(globalParameters.getStickToCellColony() && 
-					((!hasLocationNeighbouringCells(spreadingLocation) && hasLocationNeighbouringCells(fieldLocation))|| totallyLooseContactToOldNeighbourhoodUponRetraction())){
+					((!hasLocationNonSpreadingNeighbouringCells(spreadingLocation) && hasLocationNonSpreadingNeighbouringCells(fieldLocation))|| totallyLooseContactToOldNeighbourhoodUponRetraction())){
 				cellField.setFieldLocationOfObject(fieldLocation, getCell());
 				cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
 				if(!neighbourToPullB.isEmpty()) pullNeighbour(neighbourToPullB.get(0), spreadingLocation);
@@ -521,8 +521,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   for(int i = 0; i < neighbouringCellsBag.size(); i++){
 	   	if(neighbouringCellsBag.get(i)== null){
 	   		if(!hasIntersectionWithNeighbours(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i)))){
-		   		if(globalParameters.getStickToCellColony() && hasLocationNeighbouringCells(fieldLocation)){
-		   			if(hasLocationNeighbouringCells(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i))))spreadingLocationIndices.add(i);
+		   		if(globalParameters.getStickToCellColony() && hasLocationNonSpreadingNeighbouringCells(fieldLocation)){
+		   			if(hasLocationNonSpreadingNeighbouringCells(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i))))spreadingLocationIndices.add(i);
 		   		}
 		   		else spreadingLocationIndices.add(i);
 	   		}	   		
@@ -551,7 +551,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		 return false;
 	}
 	
-	private boolean hasLocationNeighbouringCells(Int3D loc){
+	private boolean hasLocationNonSpreadingNeighbouringCells(Int3D loc){
 		Bag neighbouringCellsBag = new Bag();
 		IntBag xPos = new IntBag();
 		IntBag yPos = new IntBag();
@@ -559,7 +559,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		cellField.getNeighborsHamiltonianDistance(loc.x, loc.y, loc.z, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos, zPos);
 		for(int i = 0; i < neighbouringCellsBag.size(); i++){
 	   	if(neighbouringCellsBag.get(i)!= null && neighbouringCellsBag.get(i)!= getCell()){
-	   		return true;	   		  		   
+	   		if(((HexagonBased3DMechanicalModel)((AbstractCell)neighbouringCellsBag.get(i)).getEpisimBioMechanicalModelObject()).isSpreading()) return true;	   		  		   
 	   	}
 	   }
 		return false;

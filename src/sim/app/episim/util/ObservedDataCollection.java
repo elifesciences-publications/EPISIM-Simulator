@@ -25,7 +25,7 @@ public class ObservedDataCollection<T>{
 	
 	private Set<ValueMapListener<T>> valueMapListenerSet;
 	private ObservedDataCollectionType type;
-	private long simStep = 0;
+	private long simStep = -1;
 	
 	public ObservedDataCollection(ObservedDataCollectionType _type){
 		this.type = _type;
@@ -39,6 +39,7 @@ public class ObservedDataCollection<T>{
 	public void clear() {
 		if(this.type == ObservedDataCollectionType.ONEDIMTYPE && list != null) list.clear();
 		else if(this.type == ObservedDataCollectionType.TWODIMTYPE && map != null) map.clear();
+		simStep = -1;
    }
 
 	

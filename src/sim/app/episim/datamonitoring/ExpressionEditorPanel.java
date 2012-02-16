@@ -228,7 +228,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				
 			}
 			if(hasBooleanCondition){
-				conditionOnlyInitiallyCheckedCheckBox.setSelected(config.isBooleanExpressionOnlyInitiallyChecked());
+				isConditionOnlyInitiallyChecked=config.isBooleanExpressionOnlyInitiallyChecked();
+				conditionOnlyInitiallyCheckedCheckBox.setSelected(isConditionOnlyInitiallyChecked);
 			}
 			if(hasParameters)setParameterValues(config.getParameters());
 		}						

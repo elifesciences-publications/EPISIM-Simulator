@@ -23,7 +23,7 @@ import episiminterfaces.calc.marker.SingleCellObserverAlgorithm;
 
 public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements SingleCellObserverAlgorithm, CalculationAlgorithm{
 		
-	private final int MINCELLAGE = 2;
+	public static final String CELLSEARCHINGSIMSTEPINTERVAL = "cell search simstep interval";
 	protected Map<String, AbstractCell> trackedCells;
 	
 	private Map<String, SingleCellObserver> observers;
@@ -54,7 +54,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 
 		AbstractCell actTrackedCell = null;
 		AbstractCell newTrackedCell = null;
-		int searchInterval = (Integer) handler.getParameters().get(CELLSEARCHINGSIMSTEPINTERVAL);
+		int searchInterval = (Integer) handler.getParameters().get(OneCellCalculationAlgorithm.CELLSEARCHINGSIMSTEPINTERVAL);
       if(searchInterval < 1) searchInterval = 1;
 		actTrackedCell = this.trackedCells.get(handlerIdStringIdMap.get(handler.getID()));
 		if(actTrackedCell == null || actTrackedCell.getEpisimCellBehavioralModelObject().getIsAlive() == false || !handler.conditionFulfilled(actTrackedCell)){			
@@ -158,7 +158,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new HashMap<String, Class<?>>();
-				params.put(CalculationAlgorithm.CELLSEARCHINGSIMSTEPINTERVAL, Integer.TYPE);
+				params.put(OneCellCalculationAlgorithm.CELLSEARCHINGSIMSTEPINTERVAL, Integer.TYPE);
 	         return params;
          }	   	
 	   };

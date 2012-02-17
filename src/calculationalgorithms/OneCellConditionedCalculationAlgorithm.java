@@ -94,7 +94,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new HashMap<String, Class<?>>();
-				params.put(CalculationAlgorithm.CELLSEARCHINGSIMSTEPINTERVAL, Integer.TYPE);
+				params.put(OneCellCalculationAlgorithm.CELLSEARCHINGSIMSTEPINTERVAL, Integer.TYPE);
 	         return params;
          }	   	
 	   };

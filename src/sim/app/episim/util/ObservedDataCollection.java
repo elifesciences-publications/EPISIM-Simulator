@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
 
@@ -19,9 +20,10 @@ public class ObservedDataCollection<T>{
 		void performListenerAction(ValueMapListener<T> listener);
 	}
 	
-	public enum ObservedDataCollectionType {ONEDIMTYPE, TWODIMTYPE}
+	public enum ObservedDataCollectionType {ONEDIMTYPE, TWODIMTYPE, MULTIDIMTYPE}
 	private HashMap<T, T> map = null;
 	private ArrayList<T> list = null;
+	private ArrayList<Vector<T>> multiDimList = null;
 	
 	private Set<ValueMapListener<T>> valueMapListenerSet;
 	private ObservedDataCollectionType type;
@@ -31,6 +33,7 @@ public class ObservedDataCollection<T>{
 		this.type = _type;
 		if(this.type == ObservedDataCollectionType.ONEDIMTYPE) list = new ArrayList<T>();
 		else if(this.type == ObservedDataCollectionType.TWODIMTYPE) map = new HashMap<T,T>();
+		else if(this.type == ObservedDataCollectionType.MULTIDIMTYPE) multiDimList = new ArrayList<Vector<T>>();
 		valueMapListenerSet = new HashSet<ValueMapListener<T>>();
 	}
 
@@ -39,6 +42,7 @@ public class ObservedDataCollection<T>{
 	public void clear() {
 		if(this.type == ObservedDataCollectionType.ONEDIMTYPE && list != null) list.clear();
 		else if(this.type == ObservedDataCollectionType.TWODIMTYPE && map != null) map.clear();
+		else if(this.type == ObservedDataCollectionType.MULTIDIMTYPE && multiDimList != null) multiDimList.clear();
 		simStep = -1;
    }
 
@@ -57,7 +61,7 @@ public class ObservedDataCollection<T>{
 			
 		   map.put(value1, value2);
 		}
-		else throw new MethodNotImplementedException("Oberserved Data Collection is of 1 dim type. Please use method add(final T value) instead!");
+		else throw new MethodNotImplementedException("Oberserved Data Collection is of 1 dim type. Please use method add(final T value) or add(final Vector<T> value) instead!");
    }
 	public void add(final T value) {
 		if(this.type == ObservedDataCollectionType.ONEDIMTYPE){		
@@ -72,7 +76,22 @@ public class ObservedDataCollection<T>{
 			
 		   list.add(value);
 		}
-		else throw new MethodNotImplementedException("Oberserved Data Collection is of 2 dim type. Please use method add(final T value1, final T value2) instead!");
+		else throw new MethodNotImplementedException("Oberserved Data Collection is of 2 dim type. Please use method add(final T value1, final T value2) or add(final Vector<T> value) instead!");
+   }
+	public void add(final Vector<T> value) {
+		if(this.type == ObservedDataCollectionType.MULTIDIMTYPE){		
+			notifyAllListeners(new ListenerAction<T>(){
+	
+				public void performListenerAction(ValueMapListener<T> listener) {
+	
+		         listener.valueAdded(value);
+		         
+	         }});
+			
+			
+		   multiDimList.add(value);
+		}
+		else throw new MethodNotImplementedException("Oberserved Data Collection is of multi dim type. Please use method add(final T value1, final T value2) or add(final T value) instead!");
    }
 	
 	public void observedDataSourceHasChanged(EntityChangeEvent event){
@@ -82,6 +101,7 @@ public class ObservedDataCollection<T>{
 	public int size() {   
 		if(this.type == ObservedDataCollectionType.ONEDIMTYPE) return list.size();
 		else if(this.type == ObservedDataCollectionType.TWODIMTYPE) return map.size();
+		else if(this.type == ObservedDataCollectionType.MULTIDIMTYPE) return multiDimList.size();
 		
 		return 0;
    }
@@ -106,6 +126,6 @@ public class ObservedDataCollection<T>{
 			 }
 			 this.simStep = step;
 		 }
-	 } //hierListenerBenachrichtigungEinfügen
+	 } 
 
 }

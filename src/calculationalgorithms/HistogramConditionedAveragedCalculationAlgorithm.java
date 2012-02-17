@@ -47,9 +47,9 @@ public class HistogramConditionedAveragedCalculationAlgorithm extends HistogramA
 				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
 				
 				
-				params.put(CalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER, Double.TYPE);
-				params.put(CalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER, Double.TYPE);
-				params.put(CalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER, Integer.TYPE);
+				params.put(HistogramCalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER, Double.TYPE);
+				params.put(HistogramCalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER, Double.TYPE);
+				params.put(HistogramCalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER, Integer.TYPE);
 				
 	         
 	        
@@ -60,8 +60,8 @@ public class HistogramConditionedAveragedCalculationAlgorithm extends HistogramA
 
 	
 	protected boolean checkCondition(double result, CalculationHandler handler, AbstractCell cell){
-		double min = (Double) handler.getParameters().get(HISTOGRAMMINVALUEPARAMETER);
-		double max = (Double) handler.getParameters().get(HISTOGRAMMAXVALUEPARAMETER);
+		double min = (Double) handler.getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER);
+		double max = (Double) handler.getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER);
 		
 		try{
 	      return result >= min && result <= max && handler.conditionFulfilled(cell);

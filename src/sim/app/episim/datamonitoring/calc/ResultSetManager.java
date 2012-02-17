@@ -15,7 +15,13 @@ public abstract class ResultSetManager {
 		if(type == CalculationAlgorithmType.ONEDIMRESULT || type == CalculationAlgorithmType.HISTOGRAMRESULT || type == CalculationAlgorithmType.ONEDIMDATASERIESRESULT){
 			return new ResultSet<T>(ResultSetType.ONEDIMRESULTS);
 		}
-		else return new ResultSet<T>(ResultSetType.TWODIMRESULTS);
+		else if(type == CalculationAlgorithmType.TWODIMDATASERIESRESULT || type == CalculationAlgorithmType.TWODIMRESULT){  
+			return new ResultSet<T>(ResultSetType.TWODIMRESULTS);
+		}
+		else if(type == CalculationAlgorithmType.MULTIDIMDATASERIESRESULT){  
+			return new ResultSet<T>(ResultSetType.MULTIDIMRESULTS);
+		}
+		return null;
 	}
 	
 	public static void copyResultSetToDataManager(ResultSet<Double> results1, ResultSet<Double> results2, CalculationDataManager<Double> dataManager) throws DataMonitoringException{
@@ -53,21 +59,27 @@ public abstract class ResultSetManager {
 	}
 	
 	public static void copyResultSetToDataManager(ResultSet<Double> results,  CalculationDataManager<Double> dataManager){
-		if(results.getResultSetType() == ResultSetType.ONEDIMRESULTS){
-			if(dataManager != null && dataManager.getCalculationDataManagerType()==CalculationDataManagerType.TWODIMTYPE) throw new IllegalArgumentException("CalculationDataManager is of TWODIMTYPE. ONEDIMTYPE is required.");	
-			else{
-				for(int i = 0; i < results.size(); i++){
-					dataManager.addNewValue(results.get(i).get(0));
-				}
+		if(dataManager == null)throw new IllegalArgumentException("CalculationDataManager is null.");
+		if(results.getResultSetType() == ResultSetType.ONEDIMRESULTS && dataManager.getCalculationDataManagerType()==CalculationDataManagerType.ONEDIMTYPE){
+			for(int i = 0; i < results.size(); i++){
+				dataManager.addNewValue(results.get(i).get(0));
 			}
+			
 		}
-		else if(results.getResultSetType() == ResultSetType.TWODIMRESULTS){
-			if(dataManager != null && dataManager.getCalculationDataManagerType()==CalculationDataManagerType.ONEDIMTYPE) throw new IllegalArgumentException("CalculationDataManager is of ONEDIMTYPE. TWODIMTYPE is required.");	
-			else{
-				for(int i = 0; i < results.size(); i++){
-					dataManager.addNewValue(results.get(i).get(0), results.get(i).get(1));
-				}
-			}
+		else if(results.getResultSetType() == ResultSetType.TWODIMRESULTS && dataManager.getCalculationDataManagerType()==CalculationDataManagerType.TWODIMTYPE){
+			for(int i = 0; i < results.size(); i++){
+				dataManager.addNewValue(results.get(i).get(0), results.get(i).get(1));
+			}			
+		}
+		else if(results.getResultSetType() == ResultSetType.MULTIDIMRESULTS && dataManager.getCalculationDataManagerType()==CalculationDataManagerType.MULTIDIMTYPE){
+			for(int i = 0; i < results.size(); i++){
+					dataManager.addNewValue(results.get(i));
+			}			
+		}
+		else{
+			if(dataManager != null){
+				throw new IllegalArgumentException("CalculationDataManager is of type: "+ dataManager.getCalculationDataManagerType().toString() + " which cannot be used for result set of type: " + results.getResultSetType().toString());	
+			}			
 		}
 		dataManager.setSimStep(results.getTimeStep());
 	}

@@ -46,7 +46,7 @@ public class CellDeathCounterConditioned extends CellDeathCounterUnconditioned{
 			
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
-				params.put(CalculationAlgorithm.ABSOLUTECELLNUMBER, Boolean.TYPE);		        
+				params.put(CellDeathCounterUnconditioned.ABSOLUTECELLNUMBER, Boolean.TYPE);		        
 	         return params;
          }
 	   };
@@ -73,7 +73,7 @@ public class CellDeathCounterConditioned extends CellDeathCounterUnconditioned{
 				getCellsDiedSinceLastCalculation().clear();	
 			}		
 		
-			boolean calculateAbsoluteNumber = (Boolean) handler.getParameters().get(CalculationAlgorithm.ABSOLUTECELLNUMBER);
+			boolean calculateAbsoluteNumber = (Boolean) handler.getParameters().get(CellDeathCounterUnconditioned.ABSOLUTECELLNUMBER);
 			
 			int relativeCellNumber = 0;
 			for(AbstractCell actCell: copyOfDeadCellList){

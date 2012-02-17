@@ -16,11 +16,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
 import sim.app.episim.util.ObservedDataCollection;
+import sim.app.episim.util.ObservedDataCollection.ObservedDataCollectionType;
 import episiminterfaces.*;
 import episiminterfaces.calc.EntityChangeEvent;
 import episiminterfaces.calc.EntityChangeEvent.EntityChangeEventType;
@@ -36,6 +38,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	private Set<Long> alreadyCalculatedColumnsIds = new HashSet<Long>();
 	
 	private Double[][] values;
+	
+	private Vector<Double>[] columnValues;
 	
 	private boolean firstTime = true;
 	
@@ -87,8 +91,15 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 					simStepCounter = simStep;
 				}
 			}
+			public void valueAdded(Vector<Double> value) {
+				columnValues[indexLookUp.get(columnId)] = value;
+				alreadyCalculatedColumnsIds.add(columnId);
+				checkIfDataWriteToDisk();
+			}
 		});
-		values = new Double[actIndex][2];
+		if(map.getType() == ObservedDataCollectionType.MULTIDIMTYPE) columnValues = new Vector[actIndex];
+		else values = new Double[actIndex][2];
+		
 	}
 	
 	private void checkIfDataWriteToDisk(){
@@ -98,16 +109,29 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 			writeColumnNames();
 			firstTime = false;
 		}
-		if(this.alreadyCalculatedColumnsIds.size() == values.length){
+		if((values != null && this.alreadyCalculatedColumnsIds.size() == values.length)
+				|| (columnValues != null && this.alreadyCalculatedColumnsIds.size() == columnValues.length)){
 			try{
 				if(simStepCounter > lastSimStepCounterWritten){
 					csvWriter.write(simStepCounter+";");
 					lastSimStepCounterWritten = simStepCounter;
 				}
 				else csvWriter.write(";");
-				for(int i = 0; i < values.length; i++){					
-						if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(getFormattedValue(values[i][0]) + ";");											 
-						csvWriter.write(getFormattedValue(values[i][1]) + ";");													
+				if(values != null){
+					for(int i = 0; i < values.length; i++){					
+							if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(getFormattedValue(values[i][0]) + ";");											 
+							csvWriter.write(getFormattedValue(values[i][1]) + ";");													
+					}
+				}
+				if(columnValues != null){
+					int maxVectorSize = getLargestVectorSize(columnValues);
+					for(int n = 0; n < maxVectorSize; n++){
+						if(n>0)csvWriter.write(";");
+						for(int i = 0; i < columnValues.length; i++){
+							csvWriter.write((columnValues[i]!= null && n < columnValues[i].size())? (getFormattedValue(columnValues[i].get(n)) + ";"):";");
+						}
+						csvWriter.write("\n");
+					}					
 				}
 				if(aCellHasBeenChanged){
 					csvWriter.write("(A Cell was changed);");
@@ -121,6 +145,14 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 				ExceptionDisplayer.getInstance().displayException(ex);
 			}
 		}
+	}
+	
+	private int getLargestVectorSize(Vector[] vectors){
+		int maxVectorSize = Integer.MIN_VALUE;
+		for(int i = 0; i < vectors.length; i++){
+			if(vectors[i]!= null && vectors[i].size() > maxVectorSize) maxVectorSize = vectors[i].size();
+		}
+		return maxVectorSize;
 	}
 	
 	private void writeColumnNames(){

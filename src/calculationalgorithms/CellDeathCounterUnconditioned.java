@@ -24,6 +24,8 @@ import episiminterfaces.calc.marker.TissueObserver;
 
 public class CellDeathCounterUnconditioned extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm, CellDeathListener{
 	
+	public static final String ABSOLUTECELLNUMBER = "calculate absolute cell number";
+	
 	private Map<Long, TissueObserver> observers;
 	private List<AbstractCell> cellsDiedSinceLastCalculation;
 	
@@ -64,7 +66,7 @@ public class CellDeathCounterUnconditioned extends AbstractCommonCalculationAlgo
 			
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
-				params.put(CalculationAlgorithm.ABSOLUTECELLNUMBER, Boolean.TYPE);		        
+				params.put(CellDeathCounterUnconditioned.ABSOLUTECELLNUMBER, Boolean.TYPE);		        
 	         return params;
          }
 	   };
@@ -107,7 +109,7 @@ public class CellDeathCounterUnconditioned extends AbstractCommonCalculationAlgo
 				this.relativeNumberOfCellsDied =getCellsDiedSinceLastCalculation().size();
 				getCellsDiedSinceLastCalculation().clear();	
 			}		
-			boolean calculateAbsoluteNumber = (Boolean) handler.getParameters().get(CalculationAlgorithm.ABSOLUTECELLNUMBER);			
+			boolean calculateAbsoluteNumber = (Boolean) handler.getParameters().get(CellDeathCounterUnconditioned.ABSOLUTECELLNUMBER);			
 			setAbsoluteNumberOfCellsDied(handler.getID(),getAbsoluteNumberOfCellsDied(handler.getID()) + relativeNumberOfCellsDied);
 			if(calculateAbsoluteNumber) results.add1DValue((double)getAbsoluteNumberOfCellsDied(handler.getID()));
 			else results.add1DValue((double)relativeNumberOfCellsDied);			   

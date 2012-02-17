@@ -1,6 +1,7 @@
 package sim.app.episim.datamonitoring.calc;
 
 import java.util.Map;
+import java.util.Vector;
 
 import org.jfree.data.statistics.SimpleHistogramDataset;
 import org.jfree.data.xy.XYSeries;
@@ -80,7 +81,12 @@ public abstract class CalculationDataManagerFactory {
 
 						throw new MethodNotImplementedException("Method: addNewValue(Double xValue) is not implemented. Please use the method addNewValue(Double key, Double value) instead!");
 	               
-               }						            			
+               }					
+					public void addNewValue(Vector<Double> columnVector) {
+
+						throw new MethodNotImplementedException("Method: addNewValue(Vector<Double> columnVector) is not implemented. Please use the method addNewValue(Double key, Double value) instead!");
+						
+					}						            			
 				};
 			}
 		}
@@ -132,7 +138,10 @@ public abstract class CalculationDataManagerFactory {
 						
 						else{ dataSet.addObservation(xValue); }
 	               
-               }						            			
+               }					
+					public void addNewValue(Vector<Double> columnVector) {
+						throw new MethodNotImplementedException("Method: addNewValue(Vector<Double> columnVector) is not implemented. Please use the method addNewValue(Double xValue) instead!");						
+					}						            			
 				};
 			}
 		}
@@ -154,12 +163,15 @@ public abstract class CalculationDataManagerFactory {
 				{
 					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE) type = CalculationDataManagerType.ONEDIMTYPE;
 					else if(data.getType() == ObservedDataCollectionType.TWODIMTYPE) type = CalculationDataManagerType.TWODIMTYPE;
+					else if(data.getType() == ObservedDataCollectionType.MULTIDIMTYPE) type = CalculationDataManagerType.MULTIDIMTYPE;
 				}
 				
 				public void addNewValue(Double value1, Double value2) {
 					if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)	data.add(value1, value2);
-					else if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)
+					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)
 						throw new MethodNotImplementedException("Method: addNewValue(Double value1, Double value2) is not implemented. Please use the method addNewValue(Double value) instead!");
+					if(data.getType() == ObservedDataCollectionType.MULTIDIMTYPE)
+						throw new MethodNotImplementedException("Method: addNewValue(Double value1, Double value2) is not implemented. Please use the method addNewValue(Vector<Double> columnVector) instead!");
 	         }
 	
 				public void observedEntityHasChanged(EntityChangeEvent event) {
@@ -179,14 +191,25 @@ public abstract class CalculationDataManagerFactory {
 				public long getSimStep(){ return simStep; }
 				public void addNewValue(Double value) {
 					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)	data.add(value);
-					else if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)
+					if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)
 						throw new MethodNotImplementedException("Method: addNewValue(Double value) is not implemented. Please use the method addNewValue(Double value1, Double value2) instead!");
-            }			
+					if(data.getType() == ObservedDataCollectionType.MULTIDIMTYPE)
+						throw new MethodNotImplementedException("Method: addNewValue(Double value) is not implemented. Please use the method addNewValue(Vector<Double> columnVector) instead!");
+            }				
+				public void addNewValue(Vector<Double> columnVector) {
+					if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)
+						throw new MethodNotImplementedException("Method: addNewValue(Vector<Double> columnVector) is not implemented. Please use the method addNewValue(Double value1, Double value2) instead!");
+					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)
+						throw new MethodNotImplementedException("Method: addNewValue(Vector<Double> columnVector) is not implemented. Please use the method addNewValue(Double value) instead!");
+					if(data.getType() == ObservedDataCollectionType.MULTIDIMTYPE){
+						data.add(columnVector);
+					}
+				}			
 			};
 			}
 		}
 		return null;
-	}
+	}	
 	
 	private static CalculationAlgorithmType getAlgorithmType(CalculationHandler handler){
 		if(handler != null){

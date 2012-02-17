@@ -15,7 +15,7 @@ import episiminterfaces.calc.marker.TissueObserver;
 
 
 public class SimulationTime extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm{
-	
+	public static final String SIMSTEPTIMESCALINGFACTOR = "time scaling factor";
 	private Map<Long, TissueObserver> observers;
 	public  SimulationTime(){
 		observers = new HashMap<Long, TissueObserver>();
@@ -44,7 +44,7 @@ public class SimulationTime extends AbstractCommonCalculationAlgorithm implement
 			
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
-				params.put(CalculationAlgorithm.SIMSTEPTIMESCALINGFACTOR, Double.TYPE);
+				params.put(SimulationTime.SIMSTEPTIMESCALINGFACTOR, Double.TYPE);
 						        
 	         return params;
          }
@@ -60,7 +60,7 @@ public class SimulationTime extends AbstractCommonCalculationAlgorithm implement
 	}
 
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {		
-			double scalingFactor = (Double) handler.getParameters().get(CalculationAlgorithm.SIMSTEPTIMESCALINGFACTOR);			
+			double scalingFactor = (Double) handler.getParameters().get(SimulationTime.SIMSTEPTIMESCALINGFACTOR);			
 			results.add1DValue(((double)SimStateServer.getInstance().getSimStepNumber())*scalingFactor);
 	}
 }

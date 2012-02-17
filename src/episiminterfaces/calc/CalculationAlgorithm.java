@@ -17,7 +17,8 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 		ONEDIMRESULT("one dimensional result"), 
 		TWODIMRESULT("two dimensional result"), 
 		ONEDIMDATASERIESRESULT("one dimensional data series"), 
-		TWODIMDATASERIESRESULT("two dimensional data series (gradient etc.)"), 
+		TWODIMDATASERIESRESULT("two dimensional data series (gradient etc.)"),
+		MULTIDIMDATASERIESRESULT("multi-dimensional data series"),
 		HISTOGRAMRESULT("histogram");
 		
 		private String description;
@@ -27,12 +28,10 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 	
 	
 	
-	public static final String HISTOGRAMMINVALUEPARAMETER = "min value";
-	public static final String HISTOGRAMMAXVALUEPARAMETER = "max value";
-	public static final String HISTOGRAMNUMBEROFBINSPARAMETER = "number of bins";
-	public static final String SIMSTEPTIMESCALINGFACTOR = "time scaling factor";
-	public static final String ABSOLUTECELLNUMBER = "calculate absolute cell number";
-	public static final String CELLSEARCHINGSIMSTEPINTERVAL = "cell search simstep interval";
+
+	
+	
+	
 	
 	CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id);
 	void registerCells(GenericBag<AbstractCell> allCells);

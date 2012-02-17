@@ -192,7 +192,7 @@ public class ChartCreationWizard extends JDialog {
 
 					public void actionPerformed(ActionEvent e) {
 						int index =addSeries();
-	               	comboModel.addElement(DEFAULTSERIENAME + (index+1));
+	               	comboModel.addElement(new ChartSeriesName(DEFAULTSERIENAME + (index+1)));
 	               	seriesCombo.setSelectedIndex(index);
 	               	isDirty = true;
                }
@@ -307,7 +307,7 @@ public class ChartCreationWizard extends JDialog {
       csa.setThickness((float)chartSeries.getThickness());
       seriesPanel.add(csa, ""+index);
       attributesList.add(new Object[] {csa,series});
-      comboModel.addElement(chartSeries.getName());
+      comboModel.addElement(new ChartSeriesName(chartSeries.getName()));
       
       validate();
       rebuildSeriesIdMap();
@@ -1251,7 +1251,7 @@ public class ChartCreationWizard extends JDialog {
               if(index > -1){
                episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setName(name);
                comboModel.removeElementAt(index);
-               comboModel.insertElementAt(name, index);
+               comboModel.insertElementAt(new ChartSeriesName(name), index);
                seriesCombo.setSelectedIndex(index);
               }
                panel.repaint();
@@ -1360,8 +1360,12 @@ public class ChartCreationWizard extends JDialog {
 
 			public void actionPerformed(ActionEvent e) {
 				isDirty = true;
+				Set<CalculationAlgorithmType> allowedTypes = new HashSet<CalculationAlgorithmType>();
+				allowedTypes.addAll(Arrays.asList(CalculationAlgorithmType.values()));
+				allowedTypes.remove(CalculationAlgorithmType.MULTIDIMDATASERIESRESULT);
+			
 	         DataEvaluationWizard editor = new DataEvaluationWizard(
-	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Calculation Algorithm Wizard: " + ((String) seriesCombo.getSelectedItem()), true, cellDataFieldsInspector);
+	         		((Frame)ChartCreationWizard.this.getOwner()), "Series Calculation Algorithm Wizard: " + ((ChartSeriesName) seriesCombo.getSelectedItem()).toString(), true, cellDataFieldsInspector, allowedTypes);
 	         calculationConfig =editor.getCalculationAlgorithmConfigurator(calculationConfig);
 	         
 	         
@@ -1517,7 +1521,11 @@ public class ChartCreationWizard extends JDialog {
 
 	
    
-   
+   private class ChartSeriesName{
+   	private String name;
+   	protected ChartSeriesName(String name){ this.name = name;}
+   	public String toString(){ return this.name; }
+   }
    
    
 	

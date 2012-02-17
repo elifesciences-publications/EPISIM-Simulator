@@ -87,7 +87,8 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 				}
 				else if(type == CalculationAlgorithmType.HISTOGRAMRESULT
 						  || type == CalculationAlgorithmType.TWODIMDATASERIESRESULT 
-						  || type == CalculationAlgorithmType.TWODIMRESULT){
+						  || type == CalculationAlgorithmType.TWODIMRESULT
+						  || type == CalculationAlgorithmType.MULTIDIMDATASERIESRESULT){
 					ResultSetManager.copyResultSetToDataManager(calculate(timeStep, handler), this.dataManagerRegistry.get(managerID));
 				}
 				

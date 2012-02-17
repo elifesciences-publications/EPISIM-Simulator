@@ -3,18 +3,24 @@ package sim.app.episim.util;
 import java.util.*;
 public class ResultSet <T>{
 	
-	public enum ResultSetType { ONEDIMRESULTS, TWODIMRESULTS };
+	public enum ResultSetType { ONEDIMRESULTS, TWODIMRESULTS, MULTIDIMRESULTS };
 	
 	private ResultSetType resultType;
 	
-	private ArrayList <Vector<T>> results;
+	private ArrayList <Vector<T>> results = null;
+	
 	
 	private long timeStep;
 	
 	public ResultSet(ResultSetType type){
 		resultType = type;
 		results = new ArrayList<Vector<T>>();
-	}	
+	}
+	public void addMultiDimValue(Vector<T> columnVector){
+		if(resultType == ResultSetType.MULTIDIMRESULTS){			
+			results.add(columnVector);
+		}		
+	}
 	public void add2DValue(T x, T y){
 		if(resultType == ResultSetType.TWODIMRESULTS){
 			Vector<T> v = new Vector<T>();
@@ -32,14 +38,19 @@ public class ResultSet <T>{
 		}
 	}	
 	public Vector<T> get(int index){
-		return ObjectManipulations.cloneObject(results.get(index));
-	}	
+		if(results != null)return ObjectManipulations.cloneObject(results.get(index));
+		return null;
+	}
+	
 	public void clear(){
-		 results.clear();		 
+		 if(results != null) results.clear();
 	}
 	 
 	public boolean isEmpty(){
-		 return results.isEmpty();
+		 if(results != null){
+				 return results.isEmpty();
+		 }
+		 return true;
 	}
 	 
 	 public void setTimeStep(long timeStep){
@@ -50,7 +61,10 @@ public class ResultSet <T>{
 	 }
 	 
 	 public int size(){
-		 return results.size();
+		 if(results != null){
+				 return results.size();
+		 }
+		 return 0;
 	 }
 	
 	 public ResultSetType getResultSetType(){ return this.resultType;}

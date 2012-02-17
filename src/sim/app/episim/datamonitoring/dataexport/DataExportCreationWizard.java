@@ -187,7 +187,7 @@ public class DataExportCreationWizard extends JDialog {
 						isDirty = true;
 						if(hasNoColumnsWithoutExpression()){
 							int index = addDataExportColumn();
-	               	comboModel.addElement(DEFAULTCOLUMNNAME + (index+1));
+	               	comboModel.addElement(new DataExportColumnName(DEFAULTCOLUMNNAME + (index+1)));
 	               	columnCombo.setSelectedIndex(index);
 						}
 						if(!areAllDataExportColumnsOfType(CalculationAlgorithmType.ONEDIMRESULT)) addColumnButton.setEnabled(false);
@@ -292,7 +292,7 @@ public class DataExportCreationWizard extends JDialog {
 			columnAttr.getFormulaButton().setText("Edit");
 			columnsPanel.add(columnAttr, "" + index);
 			attributesList.add(columnAttr);
-			comboModel.addElement(column.getName());
+			comboModel.addElement(new DataExportColumnName(column.getName()));
 			refreshPreview();
 			validate();
 
@@ -738,7 +738,7 @@ public class DataExportCreationWizard extends JDialog {
 					if(index > -1){
 						episimDataExportDefinition.getEpisimDataExportColumn(columnsIdMap.get(index)).setName(columnName.getText());
 						comboModel.removeElementAt(index);
-						comboModel.insertElementAt(columnName.getText(), index);
+						comboModel.insertElementAt(new DataExportColumnName(columnName.getText()), index);
 						columnCombo.setSelectedIndex(index);
 					}
 					refreshPreview();
@@ -781,18 +781,19 @@ public class DataExportCreationWizard extends JDialog {
 						Set<CalculationAlgorithmType> allowedTypes = new HashSet<CalculationAlgorithmType>();
 						allowedTypes.add(CalculationAlgorithmType.ONEDIMDATASERIESRESULT);
 						allowedTypes.add(CalculationAlgorithmType.TWODIMDATASERIESRESULT);
+						allowedTypes.add(CalculationAlgorithmType.MULTIDIMDATASERIESRESULT);
 						allowedTypes.add(CalculationAlgorithmType.TWODIMRESULT);
 						allowedTypes.add(CalculationAlgorithmType.ONEDIMRESULT);
 						
 					editor = new DataEvaluationWizard(((Frame) DataExportCreationWizard.this.getOwner()),
-					      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
+					      "Calculation Expression Editor: " + ((DataExportColumnName) columnCombo.getSelectedItem()).toString(), true,
 					      cellDataFieldsInspector, allowedTypes);
 					}
 					else{
 						Set<CalculationAlgorithmType> allowedTypes = new HashSet<CalculationAlgorithmType>();
-						allowedTypes.add(CalculationAlgorithmType.ONEDIMRESULT);
+						addAllowedTypesBasedOnOtherColumns(allowedTypes);
 						editor = new DataEvaluationWizard(((Frame) DataExportCreationWizard.this.getOwner()),
-						      "Calculation Expression Editor: " + ((String) columnCombo.getSelectedItem()), true,
+						      "Calculation Expression Editor: " + ((DataExportColumnName) columnCombo.getSelectedItem()).toString(), true,
 						      cellDataFieldsInspector, allowedTypes);
 					}
 					
@@ -805,7 +806,7 @@ public class DataExportCreationWizard extends JDialog {
 						col.setCalculationAlgorithmConfigurator(calculationConfig);
 						col.setRequiredClasses(cellDataFieldsInspector.getRequiredClasses());
 					}
-					addColumnButton.setEnabled(areAllDataExportColumnsOfType(CalculationAlgorithmType.ONEDIMRESULT));
+					addColumnButton.setEnabled(areAllDataExportColumnsOfType(CalculationAlgorithmType.ONEDIMRESULT) || areAllDataExportColumnsOfType(CalculationAlgorithmType.MULTIDIMDATASERIESRESULT));
 					
 				}
 
@@ -822,6 +823,28 @@ public class DataExportCreationWizard extends JDialog {
 			b.add(Box.createGlue());
 			add(b);
 
+		}
+		private void addAllowedTypesBasedOnOtherColumns(Set<CalculationAlgorithmType> allowedTypes){
+			if(episimDataExportDefinition != null){
+				for(EpisimDataExportColumn actColumn :episimDataExportDefinition.getEpisimDataExportColumns()){
+					
+					if(actColumn.getCalculationAlgorithmConfigurator()!=null){
+						if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(actColumn.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType() == CalculationAlgorithmType.ONEDIMRESULT){
+							allowedTypes.add(CalculationAlgorithmType.ONEDIMRESULT);
+							return;
+						}
+						if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(actColumn.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType() == CalculationAlgorithmType.MULTIDIMDATASERIESRESULT){
+							allowedTypes.add(CalculationAlgorithmType.MULTIDIMDATASERIESRESULT);
+							return;
+						}
+					}
+				}
+			}
+			allowedTypes.add(CalculationAlgorithmType.ONEDIMDATASERIESRESULT);
+			allowedTypes.add(CalculationAlgorithmType.TWODIMDATASERIESRESULT);
+			allowedTypes.add(CalculationAlgorithmType.MULTIDIMDATASERIESRESULT);
+			allowedTypes.add(CalculationAlgorithmType.TWODIMRESULT);
+			allowedTypes.add(CalculationAlgorithmType.ONEDIMRESULT);
 		}
 
 		public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator() {
@@ -863,7 +886,11 @@ public class DataExportCreationWizard extends JDialog {
 
 	}
    
-
+   private class DataExportColumnName{
+   	private String name;
+   	protected DataExportColumnName(String name){ this.name = name; }
+   	public String toString(){ return name;}
+   }
 	
 
 	}

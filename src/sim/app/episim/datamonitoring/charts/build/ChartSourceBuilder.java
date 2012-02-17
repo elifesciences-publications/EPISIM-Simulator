@@ -13,6 +13,8 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.xy.XYSeries;
 
+import calculationalgorithms.HistogramCalculationAlgorithm;
+
 import episiminterfaces.*;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
@@ -249,9 +251,9 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			generatedSourceCode.append("  renderer.setSeriesPaint(0, new Color("+actSeries.getColor().getRed()+", "+
 					actSeries.getColor().getGreen()+", "+actSeries.getColor().getBlue()+"));\n");
 		
-			generatedSourceCode.append("  for(SimpleHistogramBin bin: buildBins("+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER)
-					+", "+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER)
-					+","+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(CalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER)+")) "
+			generatedSourceCode.append("  for(SimpleHistogramBin bin: buildBins("+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER)
+					+", "+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER)
+					+","+actSeries.getCalculationAlgorithmConfigurator().getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER)+")) "
 					+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".addBin(bin);\n");
 			
 			generatedSourceCode.append(Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+".setAdjustForBinSize(false);");

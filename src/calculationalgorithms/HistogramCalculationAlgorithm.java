@@ -22,6 +22,10 @@ import episiminterfaces.calc.marker.TissueObserverAlgorithm;
 
 public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm, TissueObserverAlgorithm{
 	
+	public static final String HISTOGRAMMINVALUEPARAMETER = "min value";
+	public static final String HISTOGRAMMAXVALUEPARAMETER = "max value";
+	public static final String HISTOGRAMNUMBEROFBINSPARAMETER = "number of bins";
+	
 	private Map<Long, TissueObserver> observers;
 	public  HistogramCalculationAlgorithm(){
 		observers = new HashMap<Long, TissueObserver>();
@@ -50,9 +54,9 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
 				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
 				
 				
-				params.put(CalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER, Double.TYPE);
-				params.put(CalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER, Double.TYPE);
-				params.put(CalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER, Integer.TYPE);
+				params.put(HistogramCalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER, Double.TYPE);
+				params.put(HistogramCalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER, Double.TYPE);
+				params.put(HistogramCalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER, Integer.TYPE);
 				
 	         
 	        

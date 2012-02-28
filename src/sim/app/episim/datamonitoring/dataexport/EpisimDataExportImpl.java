@@ -12,17 +12,21 @@ import java.util.Set;
 
 import sim.app.episim.util.ObjectManipulations;
 
-import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 
 
 public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5831973552253673234L;
 	private final long id;
 	private Map<Long, EpisimDataExportColumn> columnMap;
 	private int exportFrequency = 100;
 	private String name;
+	private String description;
 	
 	private File csvFilePath;
 	
@@ -68,6 +72,8 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	public long getId() { return this.id; }
 
 	public String getName() { return this.name; }
+	
+	public String getDescription() { return this.description; }
    
 	public void removeAllEpisimDataExportColumns() {  this.columnMap.clear(); }	
 	
@@ -76,6 +82,8 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	public void setDataExportFrequncyInSimulationSteps(int val){if(val>0) this.exportFrequency = val;}
 
 	public void setName(String val) {if(val != null && !val.trim().equals("")) this.name = val; }
+	
+	public void setDescription(String val) {if(val != null && !val.trim().equals("")) this.description = val; }
 
 	public File getCSVFilePath() { return this.csvFilePath; }
 

@@ -27,9 +27,19 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 	
 	private String diffusionFieldName="";
 	
+	private String name = "";
+	private String description = "";
+	
 	public DiffusionFieldDataExportCSVWriter(File csvFile, String diffusionFieldName){
 		this.csvFile = csvFile;
 		this.diffusionFieldName = diffusionFieldName;
+	}
+	
+	public DiffusionFieldDataExportCSVWriter(File csvFile, String diffusionFieldName, String name, String description){
+		this.csvFile = csvFile;
+		this.diffusionFieldName = diffusionFieldName;
+		this.name = name;
+		this.description = description;
 	}
 	
 	public void writeDiffusionFieldToDisk(){
@@ -100,6 +110,8 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 		try{			
 			if(csvWriter != null){				
 				csvWriter.write("Episim Simulation Run on " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault()).format(new Date())+";\n\n");
+				csvWriter.write("Data-Export-Name:;\n" + name +";\n");
+				csvWriter.write("Data-Export-Description:;\n" + description +";\n");
 				csvWriter.flush();
          }	
 		}

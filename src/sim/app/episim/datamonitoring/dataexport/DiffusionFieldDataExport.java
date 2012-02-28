@@ -12,7 +12,7 @@ public class DiffusionFieldDataExport {
 	private DiffusionFieldDataExportCSVWriter csvWriter;
 	public DiffusionFieldDataExport(EpisimDiffFieldDataExport dataExportConfig){
 		this.dataExportConfig = dataExportConfig;
-		csvWriter = new DiffusionFieldDataExportCSVWriter(dataExportConfig.getCSVFilePath(), dataExportConfig.getDiffusionFieldName());
+		csvWriter = new DiffusionFieldDataExportCSVWriter(dataExportConfig.getCSVFilePath(), dataExportConfig.getDiffusionFieldName(), dataExportConfig.getName(), dataExportConfig.getDescription().replace("\n", ";\n"));
 	}
 	
 	public EnhancedSteppable getSteppable(){

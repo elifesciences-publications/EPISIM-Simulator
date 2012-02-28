@@ -55,6 +55,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	
 	private long lastSimStepCounterWritten = -1;
 	
+	private String name = "";
+	private String description = "";
 	
 	
 	public DataExportCSVWriter(File csvFile, String columnNames) {		
@@ -62,7 +64,12 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		this.columnNames = columnNames;
 	}
 	
-	
+	public DataExportCSVWriter(File csvFile, String columnNames, String name, String description) {		
+		this.csvFile = csvFile;		
+		this.columnNames = columnNames;
+		this.name = name;
+		this.description = description;
+	}
 	
 	public void registerObservedDataCollection(final long columnId, ObservedDataCollection<Double> map){
 		indexLookUp.put(columnId, actIndex);
@@ -171,6 +178,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		try{			
 			if(csvWriter != null){				
 				csvWriter.write("Episim Simulation Run on " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault()).format(new Date())+";\n");
+				csvWriter.write("Data-Export-Name:;\n" + name +";\n");
+				csvWriter.write("Data-Export-Description:;\n" + description +";\n");
 				csvWriter.flush();
          }	
 		}

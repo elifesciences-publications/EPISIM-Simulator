@@ -9,8 +9,13 @@ import episiminterfaces.monitoring.EpisimDiffFieldDataExport;
 
 public class EpisimDiffFieldDataExportImpl implements EpisimDiffFieldDataExport, java.io.Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2778694463705729734L;
 	private long id;
 	private String name;
+	private String description;
 	private String diffusionFieldName;
 	private File csvFilePath;
 	private int dataExportFrequncyInSimulationSteps = 100;
@@ -27,9 +32,17 @@ public class EpisimDiffFieldDataExportImpl implements EpisimDiffFieldDataExport,
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	public String getName() {
 		return this.name;
+	}
+	
+	public String getDescription() {
+		return this.description;
 	}
 	
 	public void setDiffusionFieldName(String name) {

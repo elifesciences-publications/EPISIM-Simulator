@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import sim.app.episim.gui.ExtendedFileChooser;
@@ -42,9 +43,9 @@ public class DiffFieldDataExportCreationWizard extends JDialog{
 	private EpisimDiffFieldDataExport episimDiffFieldDataExport;
 	private boolean okButtonPressed = false;
 	
-	private NumberTextField pngFrequencyInSimulationSteps;
+	
    private NumberTextField dataExportFrequencyInSimulationSteps;
-   private JLabel pngFrequencyLabel;
+  
    private JLabel dataExportFrequencyLabel;
    
    private JPanel mainPanel;
@@ -52,14 +53,15 @@ public class DiffFieldDataExportCreationWizard extends JDialog{
    private JTextField csvPathField;
    
    private JTextField dataExportNameField;
-   private JTextField pngPathField;
+   private JTextArea dataExportDescriptionField;
+   
    
    private JComboBox diffFieldsCombo;
    private DefaultComboBoxModel diffFieldsCombBoxModel;
   
 	
-   private final int WIDTH = 600;
-   private final int HEIGHT = 275;
+   private final int WIDTH = 700;
+   private final int HEIGHT = 325;
    
    private boolean isDirty = false;
    
@@ -79,13 +81,13 @@ public class DiffFieldDataExportCreationWizard extends JDialog{
 		c.weighty =0;
 		c.insets = new Insets(10,10,10,10);
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		mainPanel.add(buildChartOptionPanel(), c);
+		mainPanel.add(buildDataExportOptionPanel(), c);
    	
    	
    	
    	JPanel layoutCorrectingPanel = new JPanel(new BorderLayout());
 		layoutCorrectingPanel.add(mainPanel,BorderLayout.NORTH);
-		
+		layoutCorrectingPanel.setPreferredSize(new Dimension((int)(getPreferredSize().width*0.85),	(int)(getPreferredSize().height*0.7)));
 		getContentPane().add(new JScrollPane(layoutCorrectingPanel), BorderLayout.CENTER);
    	getContentPane().add(buildOKCancelButtonPanel(), BorderLayout.SOUTH);
       setSize(WIDTH, HEIGHT);
@@ -93,7 +95,7 @@ public class DiffFieldDataExportCreationWizard extends JDialog{
  		validate();
    }
    
-	private JPanel buildChartOptionPanel() {
+	private JPanel buildDataExportOptionPanel() {
 
 		JPanel optionsPanel = new JPanel(new BorderLayout());
 		Box globalAttributes = Box.createVerticalBox();
@@ -120,7 +122,37 @@ public class DiffFieldDataExportCreationWizard extends JDialog{
 
 		ExtendedLabelledList list = new ExtendedLabelledList("Extracellular Diffusion Field Data Export");
 		list.setInsets(new Insets(2,2,2,2));
-		list.add(new JLabel("Name"), dataExportNameField);
+		list.add(new JLabel("Name: "), dataExportNameField);
+		
+		dataExportDescriptionField = new JTextArea();		
+		JScrollPane descriptionScroll = new JScrollPane(dataExportDescriptionField);
+		descriptionScroll.setPreferredSize(new Dimension(getPreferredSize().width, 50));
+		descriptionScroll.setMaximumSize(new Dimension(getMaximumSize().width, 50));
+		descriptionScroll.setMinimumSize(new Dimension(getMinimumSize().width, 50));
+		descriptionScroll.setSize(new Dimension(getSize().width, 50));
+		descriptionScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		descriptionScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		dataExportDescriptionField.setFont(dataExportNameField.getFont());
+		dataExportDescriptionField.setText("");
+		dataExportDescriptionField.setLineWrap(true);
+		dataExportDescriptionField.setWrapStyleWord(true);
+		this.episimDiffFieldDataExport.setDescription("");
+		dataExportDescriptionField.addKeyListener(new KeyAdapter() {
+
+			public void keyPressed(KeyEvent keyEvent) {
+				isDirty = true;				
+			}
+		});
+		dataExportDescriptionField.addFocusListener(new FocusAdapter() {
+
+			public void focusLost(FocusEvent e) {
+				
+				episimDiffFieldDataExport.setDescription(dataExportDescriptionField.getText());
+			}
+		});	
+		
+		list.add(new JLabel("Description: "), descriptionScroll);
+		
 
 		diffFieldsCombo = new JComboBox();
 		diffFieldsCombBoxModel = (DefaultComboBoxModel) diffFieldsCombo.getModel();
@@ -204,6 +236,7 @@ public class DiffFieldDataExportCreationWizard extends JDialog{
 			this.episimDiffFieldDataExport = dataExport.clone();
 			
 			this.dataExportNameField.setText(episimDiffFieldDataExport.getName());
+			this.dataExportDescriptionField.setText(episimDiffFieldDataExport.getDescription());
 			this.setTitle(episimDiffFieldDataExport.getName());
 			
 			this.diffFieldsCombo.setSelectedItem(episimDiffFieldDataExport.getDiffusionFieldName());			

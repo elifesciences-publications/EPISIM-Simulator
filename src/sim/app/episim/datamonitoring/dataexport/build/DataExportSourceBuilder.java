@@ -105,8 +105,8 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	private void appendConstructor(){
 		generatedSourceCode.append("public " +Names.convertVariableToClass(Names.cleanString(this.actDataExportDefinition.getName())+ this.actDataExportDefinition.getId())+"(){\n");
 		
-		
-	      generatedSourceCode.append("  dataExportCSVWriter = new DataExportCSVWriter(new File(\""+ this.actDataExportDefinition.getCSVFilePath().getPath().replace(File.separatorChar, '/')+"\"), \""+ getColumnNamesString()+"\");\n");
+			String description = actDataExportDefinition.getDescription().replace("\n", ";\\n");
+	      generatedSourceCode.append("  dataExportCSVWriter = new DataExportCSVWriter(new File(\""+ this.actDataExportDefinition.getCSVFilePath().getPath().replace(File.separatorChar, '/')+"\"), \""+ getColumnNamesString()+"\", \""+ actDataExportDefinition.getName()+"\", \""+ description +"\");\n");
    
 	      
 	      

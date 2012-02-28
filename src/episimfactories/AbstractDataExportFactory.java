@@ -42,7 +42,7 @@ public abstract class AbstractDataExportFactory {
 				objIn.close();				
 			}
 			catch (IOException e){				
-				if(e instanceof InvalidClassException) throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data-Export-Definiton-Set!");
+				if(e instanceof InvalidClassException) throw new ModelCompatibilityException("Actually Data Export Version is not Compatible with Data-Export-Definiton-Set!");
 				else{
 					ExceptionDisplayer.getInstance().displayException(e);
 				}

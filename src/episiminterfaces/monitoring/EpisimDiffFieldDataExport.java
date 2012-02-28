@@ -10,6 +10,9 @@ public interface EpisimDiffFieldDataExport {
 	void setName(String name);
 	String getName();
 	
+	void setDescription(String description);
+	String getDescription();
+	
 	void setDiffusionFieldName(String name);
 	String getDiffusionFieldName();
 	

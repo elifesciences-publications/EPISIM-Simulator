@@ -10,6 +10,7 @@ public interface EpisimDataExportDefinition extends java.io.Serializable, Clonea
 	
 	long getId();
 	String getName();
+	String getDescription();
 	int getDataExportFrequncyInSimulationSteps();
 	List<EpisimDataExportColumn> getEpisimDataExportColumns();
 	EpisimDataExportColumn getEpisimDataExportColumn(long id);
@@ -20,6 +21,7 @@ public interface EpisimDataExportDefinition extends java.io.Serializable, Clonea
 	
 	void addEpisimDataExportColumn(EpisimDataExportColumn column);
 	void setName(String val);
+	void setDescription(String val);
 	void setDataExportFrequncyInSimulationSteps(int val);
 	void setCSVFilePath(File path);
 	

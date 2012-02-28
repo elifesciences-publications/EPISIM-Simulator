@@ -51,6 +51,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JWindow;
 import javax.swing.border.BevelBorder;
@@ -73,6 +74,7 @@ import sim.app.episim.gui.ExtendedFileChooser;
 
 
 
+import sim.app.episim.util.ExtendedLabelledList;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 
@@ -101,6 +103,7 @@ public class DataExportCreationWizard extends JDialog {
    private Map<String, AbstractCell> cellTypesMap;
    private Map<Integer, Long> columnsIdMap;
    private JTextField dataExportNameField;
+   private JTextArea dataExportDescriptionField;
   
    protected ArrayList<ColumnAttributes> attributesList = new ArrayList<ColumnAttributes>();
    
@@ -122,7 +125,7 @@ public class DataExportCreationWizard extends JDialog {
    private final String DEFAULTCOLUMNNAME = "Data Export Column ";
    private CardLayout columnsCards;
    private final int WIDTH = 1200;
-   private final int HEIGHT = 450;
+   private final int HEIGHT = 500;
    
    private ExtendedFileChooser edeChooser = new ExtendedFileChooser("ede");
    private ExtendedFileChooser csvChooser = new ExtendedFileChooser("csv");
@@ -430,6 +433,7 @@ public class DataExportCreationWizard extends JDialog {
 			this.episimDataExportDefinition = dataExport.clone();
 			this.columnsIdMap = new HashMap<Integer, Long>();
 			this.dataExportNameField.setText(episimDataExportDefinition.getName());
+			this.dataExportDescriptionField.setText(episimDataExportDefinition.getDescription());
 			this.csvPathField.setText(episimDataExportDefinition.getCSVFilePath().getAbsolutePath());
 			this.dataExportFrequencyInSimulationSteps.setValue(episimDataExportDefinition.getDataExportFrequncyInSimulationSteps());
 			int i = 0;
@@ -448,7 +452,7 @@ public class DataExportCreationWizard extends JDialog {
 		isDirty = false;
 		if(dataExport != null) restoreDataExportValues(dataExport);
 		rebuildColumnsIdMap();
-		if(dataExport != null) addColumnButton.setEnabled(areAllDataExportColumnsOfType(CalculationAlgorithmType.ONEDIMRESULT));
+		if(dataExport != null) addColumnButton.setEnabled(areAllDataExportColumnsOfType(CalculationAlgorithmType.ONEDIMRESULT) || areAllDataExportColumnsOfType(CalculationAlgorithmType.MULTIDIMDATASERIESRESULT));
 		repaint();
 		centerMe();
 		setVisible(true);
@@ -584,9 +588,43 @@ public class DataExportCreationWizard extends JDialog {
 			}
 		});
 
-		LabelledList list = new LabelledList("Data Export");
+		ExtendedLabelledList list = new ExtendedLabelledList("Data Export");
+		list.setInsets(new Insets(3,0,3,0));
 		
-		list.add(new JLabel("Name"), dataExportNameField);
+		list.add(new JLabel("Name: "), dataExportNameField);
+		
+		
+		dataExportDescriptionField = new JTextArea();		
+		JScrollPane descriptionScroll = new JScrollPane(dataExportDescriptionField);
+		descriptionScroll.setPreferredSize(new Dimension(getPreferredSize().width, 50));
+		descriptionScroll.setMaximumSize(new Dimension(getMaximumSize().width, 50));
+		descriptionScroll.setMinimumSize(new Dimension(getMinimumSize().width, 50));
+		descriptionScroll.setSize(new Dimension(getSize().width, 50));
+		descriptionScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		descriptionScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		dataExportDescriptionField.setFont(dataExportNameField.getFont());
+		dataExportDescriptionField.setText("");
+		dataExportDescriptionField.setLineWrap(true);
+		dataExportDescriptionField.setWrapStyleWord(true);
+		this.episimDataExportDefinition.setDescription("");
+		dataExportDescriptionField.addKeyListener(new KeyAdapter() {
+
+			public void keyPressed(KeyEvent keyEvent) {
+				isDirty = true;				
+			}
+		});
+		dataExportDescriptionField.addFocusListener(new FocusAdapter() {
+
+			public void focusLost(FocusEvent e) {
+				
+				episimDataExportDefinition.setDescription(dataExportDescriptionField.getText());
+			}
+		});	
+		
+		list.add(new JLabel("Description: "), descriptionScroll);
+		
+		
+		
 
 		      
       dataExportFrequencyLabel = new JLabel("Data Export Frequency in Simulation Steps: ");
@@ -755,7 +793,7 @@ public class DataExportCreationWizard extends JDialog {
 					}
 				}
 			});
-			addLabelled("Name", columnName);
+			addLabelled("Name: ", columnName);
 
 			JButton removeButton = new JButton("Remove");
 			removeButton.addActionListener(new ActionListener() {
@@ -815,7 +853,7 @@ public class DataExportCreationWizard extends JDialog {
 			JPanel fieldButtonPanel = new JPanel(new BorderLayout(5,0));
 			fieldButtonPanel.add(formulaField, BorderLayout.CENTER);
 			fieldButtonPanel.add(formulaButton, BorderLayout.EAST);
-			add(new JLabel("Expression:"), fieldButtonPanel);
+			add(new JLabel("Expression: "), fieldButtonPanel);
 
 			Box b = new Box(BoxLayout.X_AXIS);
 			b.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));

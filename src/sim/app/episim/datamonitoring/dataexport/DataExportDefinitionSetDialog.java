@@ -505,7 +505,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 	   	
 	   	edeChooser.setDialogTitle("Choose Episim-Chartset-Path");
 			if(edeChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return edeChooser.getSelectedFile();
-			return null;
+			return path != null && !path.equals("") ? new File(path) : null;
 		}
 	   
 	   private boolean checkForDirtyDataExports(){

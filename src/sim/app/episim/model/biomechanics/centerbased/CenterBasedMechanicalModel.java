@@ -84,10 +84,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    private double keratinoHeight=-1; // höhe keratino
    
    private Vector2d externalForce = new Vector2d(0,0);
-
-   private Double2D oldCellLocation;
-   private Double2D newCellLocation;
-   
+      
    private HitResult finalHitResult;
    
    //maybe more neighbours than real neighbours included inside a circle
@@ -102,7 +99,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    private DrawInfo2D lastDrawInfo2D;  
    
    private static Continuous2D cellField;
-  
+   
+   private CenterBasedMechanicalModelGP globalParameters = null;
+   
    public CenterBasedMechanicalModel(){
    	this(null);
    }
@@ -323,7 +322,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    
    public void newSimStep(long simstepNumber){
    	
-   	CenterBasedMechanicalModelGP globalParameters = null;
+   	
    	
    	if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
    			instanceof CenterBasedMechanicalModelGP){
@@ -353,7 +352,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		
 
 		// calc potential location from gravitation and external pressures
-	oldCellLocation = cellField.getObjectLocation(getCell());
+	Double2D oldCellLocation = cellField.getObjectLocation(getCell());
 	if(oldCellLocation != null){
 			if(externalForce.length() > getMaxDisplacementFactor()) externalForce = setVector2dLength(externalForce, getMaxDisplacementFactor());
 			
@@ -405,7 +404,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			// nicht
 			// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
 	
-			neighbours = cellField.getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), false); // theEpidermis.neighborhood
+			neighbours = cellField.getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), true, false); // theEpidermis.neighborhood
 			HitResult hitResult2;
 			hitResult2 = hitsOther(neighbours, potentialLoc, true);
 	
@@ -416,7 +415,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 					setPositionRespectingBounds(potentialLoc);
 				}
 			}
-			newCellLocation = cellField.getObjectLocation(getCell());
+			Double2D newCellLocation = cellField.getObjectLocation(getCell());
 			double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newCellLocation.x, newCellLocation.y);
 			if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getBasalLayerWidth())
 				getCell().setIsBasalStatisticsCell(true);
@@ -443,42 +442,45 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			modelConnector.setHasCollision(hitsOtherCell() != 0);
 			
 			
-			modelConnector.setX(getNewPosition().getX());
-	  	 	modelConnector.setY(getNewPosition().getY());
+			modelConnector.setX(newCellLocation.getX());
+	  	 	modelConnector.setY(newCellLocation.getY());
 	  	   modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());
 	  	   
-	  	   calculateCellEllipse(simstepNumber);
+	  	   this.getCellEllipseObject().setXY(newCellLocation.x, newCellLocation.y);
   	   
 		
    }
    
    }
    
-   private void calculateCellEllipse(long simstepNumber){   	
-			this.getCellEllipseObject().setXY(getNewPosition().x, getNewPosition().y);
-   }
    
    public boolean isMembraneCell(){ return isMembraneCell;}
    
    @NoExport
-   public GenericBag<AbstractCell> getRealNeighbours(){
-   	GenericBag<AbstractCell> neighbours = getNeighbouringCells();
+   public GenericBag<AbstractCell> getDirectNeighbours(){
+   	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood();
    	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
    	for(int i=0;i<neighbours.size();i++)
       {
   		 	AbstractCell actNeighbour = neighbours.get(i);
-    
-      //   Double2D otherloc=cellField.getObjectLocation(actNeighbour);
-    //     double dx = cellField.tdx(getNewPosition().getX(),otherloc.x); // dx, dy is what we add to other to get to this
-     //    double dy = cellField.tdy(getNewPosition().getY(),otherloc.y);
-        
-            //  double distance = Math.sqrt(dx*dx + dy*dy);
-              
-            //  if(distance > 0 && distance <= biomechModelController.getEpisimMechanicalModelGlobalParameters().getNeighborhood_µm()){
-              
-         neighbourCells.add(actNeighbour);
-              	
-            //}
+  		
+       if (actNeighbour != getCell())
+       {
+         CenterBasedMechanicalModel mechModelOther = (CenterBasedMechanicalModel) actNeighbour.getEpisimBioMechanicalModelObject();
+      	 Double2D otherloc = mechModelOther.getCellLocationInCellField();
+      	 double dx = cellField.tdx(getX(),otherloc.x); 
+      	 double dy = cellField.tdy(getY(),otherloc.y);
+       
+	       double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), new Vector2d(-1*dx, -1*dy), getKeratinoWidth()/2, getKeratinoHeight()/2);
+	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Vector2d(dx, dy), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
+	       
+	       
+	       double optDist = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther), actNeighbour);	                               
+	       double actDist=Math.sqrt(dx*dx+dy*dy);	              
+	       if(actDist <= globalParameters.getNeighbourhoodOptDistFact()*optDist)neighbourCells.add(actNeighbour);
+	     //  System.out.println("Neighbourhood radius: " + (2.5*optDist));
+      	 
+       }
       }
   	 	return neighbourCells;
    }
@@ -502,17 +504,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	public void setKeratinoWidth(double keratinoWidth) { this.keratinoWidth = keratinoWidth; }
 
-	public Double2D getNewPosition(){ return newCellLocation; }
-	public void setNewPosition(Double2D loc){ newCellLocation=loc; }
-
-	public Double2D getOldPosition(){ return oldCellLocation; }
-	public void setOldPosition(Double2D loc){ oldCellLocation=loc; }
-
 	public int hitsOtherCell(){ return finalHitResult.numhits; }
 	
 	public boolean nextToOuterCell(){ return finalHitResult != null ?finalHitResult.nextToOuterCell:false; }
 
-	private GenericBag<AbstractCell> getNeighbouringCells() {return neighbouringCells;}
+	private GenericBag<AbstractCell> getCellularNeighbourhood() {return neighbouringCells;}
 	
 	@CannotBeMonitored
 	@NoExport
@@ -601,10 +597,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	public void calculateClippedCell(long simstepNumber){
   	 
     	CellEllipse cellEllipseCell = this.getCellEllipseObject();
-    	GenericBag<AbstractCell> realNeighbours = this.getNeighbouringCells();
+    	GenericBag<AbstractCell> neighbourhood = this.getCellularNeighbourhood();
     	 
-    	if(realNeighbours != null && realNeighbours.size() > 0 && cellEllipseCell.getLastSimulationDisplayProps()!= null){
-    		for(AbstractCell neighbouringCell : realNeighbours){
+    	if(neighbourhood != null && neighbourhood.size() > 0 && cellEllipseCell.getLastSimulationDisplayProps()!= null){
+    		for(AbstractCell neighbouringCell : neighbourhood){
     			if(neighbouringCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
     				CenterBasedMechanicalModel biomechModelNeighbour = (CenterBasedMechanicalModel) neighbouringCell.getEpisimBioMechanicalModelObject();
 	 	   		 if(!CellEllipseIntersectionCalculationRegistry.getInstance().isAreadyCalculated(cellEllipseCell.getId(), biomechModelNeighbour.getCellEllipseObject().getId(), simstepNumber)){
@@ -634,8 +630,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    }
 	
    public Double2D getCellLocationInCellField() {	   
-	   Double2D loc = cellField.getObjectLocation(getCell());
-	   return loc!= null ? loc : new Double2D(-1,-1);
+	  return new Double2D(getX(), getY());
    }
 
    protected Object getCellField() {	  

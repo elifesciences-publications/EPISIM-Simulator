@@ -698,15 +698,7 @@ public class DataExportCreationWizard extends JDialog {
    	
    	csvChooser.setDialogTitle("Choose CSV-File-Path");
 		if(csvChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return csvChooser.getSelectedFile();
-		return null;
-	}
-	private File showDataExportDefinitionPathDialog(String path){
-   	
-   	if(path!= null && !path.equals("")) edeChooser.setCurrentDirectory(new File(path));
-   	
-   	edeChooser.setDialogTitle("Choose Data-Export-Definition-Path");
-		if(edeChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return edeChooser.getSelectedFile();
-		return null;
+		return path != null && !path.equals("") ? new File(path) : null;
 	}
 	
 	

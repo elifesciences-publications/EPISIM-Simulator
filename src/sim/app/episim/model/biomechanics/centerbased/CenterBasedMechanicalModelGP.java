@@ -22,6 +22,8 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private boolean drawCellsAsEllipses = false;
 	private double numberOfPixelsPerMicrometer = 1;
 	
+	private double neighbourhoodOptDistFact = 1.6;
+	
 	public CenterBasedMechanicalModelGP() {}
 	
 	public boolean isDrawCellsAsEllipses() {
@@ -167,6 +169,18 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	@NoUserModification
    public ModelDimensionality getModelDimensionality() {	   
 	   return ModelDimensionality.TWO_DIMENSIONAL;
+   }
+
+	
+   public double getNeighbourhoodOptDistFact() {
+   
+   	return neighbourhoodOptDistFact;
+   }
+
+	
+   public void setNeighbourhoodOptDistFact(double neighbourhoodOptDistFact) {
+   
+   	this.neighbourhoodOptDistFact = neighbourhoodOptDistFact;
    }
 
    

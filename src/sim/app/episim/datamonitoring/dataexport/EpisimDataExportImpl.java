@@ -26,7 +26,7 @@ public class EpisimDataExportImpl implements EpisimDataExportDefinition {
 	private Map<Long, EpisimDataExportColumn> columnMap;
 	private int exportFrequency = 100;
 	private String name;
-	private String description;
+	private String description="";
 	
 	private File csvFilePath;
 	

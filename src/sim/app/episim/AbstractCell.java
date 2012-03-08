@@ -111,7 +111,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	   
    @CannotBeMonitored
    @NoExport
-   public GenericBag<AbstractCell> getNeighbouringCells(){ return this.mechanicalModelObject.getRealNeighbours(); }   
+   public GenericBag<AbstractCell> getNeighbouringCells(){ return this.mechanicalModelObject.getDirectNeighbours(); }   
    public void stop(){}   
 	public void removeFromSchedule(){ if(stoppable != null) stoppable.stop(); }
 		

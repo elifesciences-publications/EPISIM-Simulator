@@ -924,9 +924,7 @@ public class ChartCreationWizard extends JDialog {
 		episimChart.setAntialiasingEnabled(val);
 	}
 	
-	private void selectPNGPath(boolean buttonCall){
-		
-		
+	private void selectPNGPath(boolean buttonCall){		
 		
 		ExtendedFileChooser fileChooser = new ExtendedFileChooser(".png");
 		fileChooser.setDialogTitle("Choose PNG Printing Path");
@@ -952,11 +950,11 @@ public class ChartCreationWizard extends JDialog {
       }
       else{
       	if(!buttonCall){
-      	pngCheck.setSelected(false);
-      	episimChart.setPNGPrintingEnabled(false);
-      	pngFrequencyInSimulationSteps.setEnabled(false);
-      	this.changePngPathButton.setEnabled(false);
-      	pngPathField.setEnabled(false);
+	      	pngCheck.setSelected(false);
+	      	episimChart.setPNGPrintingEnabled(false);
+	      	pngFrequencyInSimulationSteps.setEnabled(false);
+	      	this.changePngPathButton.setEnabled(false);
+	      	pngPathField.setEnabled(false);
       	}
       }
 	}

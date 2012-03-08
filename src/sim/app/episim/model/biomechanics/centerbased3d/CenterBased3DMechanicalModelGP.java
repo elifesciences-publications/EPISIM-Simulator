@@ -21,6 +21,8 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
 	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
 	private double numberOfPixelsPerMicrometer = 1;
 	
+	private double neighbourhoodOptDistFact = 1.6;
+	
 	public CenterBased3DMechanicalModelGP() {}
 			
 	public int getBasalAmplitude_mikron() {
@@ -150,5 +152,17 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
 	@NoUserModification
    public ModelDimensionality getModelDimensionality() {	   
 	   return ModelDimensionality.THREE_DIMENSIONAL;
+   }
+
+	
+   public double getNeighbourhoodOptDistFact() {
+   
+   	return neighbourhoodOptDistFact;
+   }
+
+	
+   public void setNeighbourhoodOptDistFact(double neighbourhoodOptDistFact) {
+   
+   	this.neighbourhoodOptDistFact = neighbourhoodOptDistFact;
    }
 }

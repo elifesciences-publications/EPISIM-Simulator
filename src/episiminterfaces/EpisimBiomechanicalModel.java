@@ -11,7 +11,7 @@ import sim.app.episim.util.GenericBag;
 public interface EpisimBiomechanicalModel<T, I> {
 	
 	void setEpisimModelConnector(EpisimModelConnector modelConnector);
-	GenericBag<AbstractCell> getRealNeighbours();
+	GenericBag<AbstractCell> getDirectNeighbours();
 	
 	EpisimCellShape<T> getPolygonCell();
 	EpisimCellShape<T> getPolygonCell(EpisimDrawInfo<I> info);

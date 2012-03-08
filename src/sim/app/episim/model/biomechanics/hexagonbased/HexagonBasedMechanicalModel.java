@@ -115,7 +115,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	   	return this.modelConnector;
 	 }
 	 
-	 public GenericBag<AbstractCell> getRealNeighbours(){
+	 public GenericBag<AbstractCell> getDirectNeighbours(){
 		 return getRealNeighbours(globalParameters.getUseContinuousSpace());
 	 }
 
@@ -723,7 +723,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 			AbstractCell cell = iter.next();
 			if(cell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModel){
 				HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
-				if(mechModel.isAtWoundEdge && mechModel.getRealNeighbours().size() > 0){
+				if(mechModel.isAtWoundEdge && mechModel.getDirectNeighbours().size() > 0){
 					double xPos = mechModel.getLocationInMikron(mechModel.fieldLocation).x + HexagonBasedMechanicalModelGP.outer_hexagonal_radius;
 					xPositions.add(xPos);
 					kumulativeXPositionWoundEdge += xPos;

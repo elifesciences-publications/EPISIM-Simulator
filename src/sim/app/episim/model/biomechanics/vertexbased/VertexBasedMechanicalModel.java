@@ -90,7 +90,7 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	  return this.modelConnector;
 	}
 
-	public GenericBag<AbstractCell> getRealNeighbours() {
+	public GenericBag<AbstractCell> getDirectNeighbours() {
 		
 		GenericBag<AbstractCell> neighbours = new GenericBag<AbstractCell>();		
 		HashSet<Integer> cellPolygonIds = new HashSet<Integer>();
@@ -194,7 +194,7 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
    }
 
 	public GenericBag<AbstractCell> getNeighbouringCells(){
-	  return getRealNeighbours();
+	  return getDirectNeighbours();
    }
 	
 	private HashMap<Long, Integer> waitingCellsMap = new HashMap<Long, Integer>();

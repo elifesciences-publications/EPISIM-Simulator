@@ -118,7 +118,9 @@ public class UniversalCell extends AbstractCell
     
     private EpisimCellBehavioralModel[] getCellBehavioralModelArray(GenericBag<AbstractCell> neighbours){
    	 List<EpisimCellBehavioralModel> neighbourCellsDiffModel = new ArrayList<EpisimCellBehavioralModel>();
-   	 for(AbstractCell actNeighbour: neighbours) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellBehavioralModelObject());
+   	 for(AbstractCell actNeighbour: neighbours){
+   		 if(actNeighbour != null && actNeighbour.getID() != this.getID()) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellBehavioralModelObject());
+   	 }
    	 return neighbourCellsDiffModel.toArray(new EpisimCellBehavioralModel[neighbourCellsDiffModel.size()]);
     }
    

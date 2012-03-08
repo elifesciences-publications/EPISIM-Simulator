@@ -110,7 +110,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	 }
 	 
 	 @NoExport
-	 public GenericBag<AbstractCell> getRealNeighbours(){
+	 public GenericBag<AbstractCell> getDirectNeighbours(){
 		 return getRealNeighbours(globalParameters.getUseContinuousSpace());
 	 }
 	 @NoExport

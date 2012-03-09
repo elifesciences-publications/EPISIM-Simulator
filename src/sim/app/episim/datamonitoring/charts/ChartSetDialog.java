@@ -506,7 +506,7 @@ public class ChartSetDialog extends JDialog {
 	}
    private File showPathDialog(String path){
    	
-   	if(path!= null && !path.equals("")) ecsChooser.setCurrentDirectory(new File(path));
+   	if(path!= null && !path.equals("")) ecsChooser.setSelectedFile(new File(path));
    	
    	ecsChooser.setDialogTitle("Choose Episim-Chartset-Path");
 		if(ecsChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return ecsChooser.getSelectedFile();

@@ -173,11 +173,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
              {
                 double fx=(actdist>0)?(optDist/actdist)*dx-dx:0;    
                 double fy=(actdist>0)?(optDist/actdist)*dy-dy:0;
-                double fz=(actdist>0)?(optDist/actdist)*dz-dz:0;
-                                       
-               
-                
-                
+                double fz=(actdist>0)?(optDist/actdist)*dz-dz:0;            
                 
                 hitResult.numhits++;
                 hitResult.otherId=other.getID();

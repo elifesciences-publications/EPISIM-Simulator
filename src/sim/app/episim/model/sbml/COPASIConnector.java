@@ -10,16 +10,23 @@ import java.util.HashMap;
 
 import org.COPASI.CCopasiDataModel;
 import org.COPASI.CCopasiMethod;
+import org.COPASI.CCopasiObject;
 import org.COPASI.CCopasiObjectName;
 import org.COPASI.CCopasiParameter;
+import org.COPASI.CCopasiParameterGroup;
 import org.COPASI.CCopasiRootContainer;
+import org.COPASI.CFunctionParameter;
+import org.COPASI.CFunctionParameters;
 import org.COPASI.CMetab;
+import org.COPASI.CModel;
 import org.COPASI.CModelValue;
 import org.COPASI.CReaction;
 import org.COPASI.CTrajectoryMethod;
 import org.COPASI.CTrajectoryProblem;
 import org.COPASI.CTrajectoryTask;
+import org.COPASI.ModelValueVectorN;
 import org.COPASI.ObjectStdVector;
+import org.COPASI.ReactionVectorNS;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.GenericBag;
@@ -102,15 +109,23 @@ public class COPASIConnector {
 	  ObjectStdVector changedObjects=new ObjectStdVector();
 	  dataModel.getModel().clearRefresh();
 	  for(SBMLModelEntity entity : modelState.getParameterValues()){
-		  CModelValue modelValue = dataModel.getModel().getModelValue(entity.name);
+		  			  
+		  CModelValue modelValue = findParameter(dataModel.getModel(), entity.name);
 		  if(modelValue != null){
 			   modelValue.setInitialValue(entity.value);
 			   changedObjects.add(modelValue.getObject(new CCopasiObjectName("Reference=InitialValue")));
-		  } 
+		  }
+		  else{
+			  CCopasiParameter localParameter = findLocalParameter(dataModel.getModel(), entity.name);
+			  if(localParameter != null){
+				  localParameter.setDblValue(entity.value);
+				  changedObjects.add(localParameter.getObject(new CCopasiObjectName("Reference=Value")));
+			  }
+		  }
 	  } 
 	  for(SBMLModelEntity entity : modelState.getSpeciesValues()){
 		  index = dataModel.getModel().findMetabByName(entity.name);          
-	     CMetab metab =  dataModel.getModel().getMetabolite(index);
+	     CMetab metab =  dataModel.getModel().getMetabolite(index);	     
 	     if(metab != null){		      
 		      metab.setInitialConcentration(entity.concentration);
 		      changedObjects.add(metab.getObject(new CCopasiObjectName("Reference=InitialConcentration")));
@@ -118,9 +133,43 @@ public class COPASIConnector {
 	  }
 	  dataModel.getModel().updateInitialValues(changedObjects);     
   }
+  
+  private CModelValue findParameter(CModel model, String name){
+	  ModelValueVectorN valueVect = model.getModelValues();
+	  if(valueVect != null){
+		  for(long i = 0; i < valueVect.size(); i++){
+			  CCopasiObject copObject = valueVect.get(i);
+			  if(copObject != null){
+				  String objectName = copObject.getObjectName();
+				  if(objectName != null && objectName.equals(name)){				 
+					  return model.getModelValue(name);
+				  }
+			  }		  
+		  }
+	  }
+	  return null;
+  }
+  
+  private CCopasiParameter findLocalParameter(CModel model, String name){
+	  for(long i = 0; i < model.getNumReactions(); i++){			  
+			CReaction cReact = model.getReaction(i);
+			  
+			if(cReact != null){
+			  CCopasiParameterGroup parameterGroup = cReact.getParameters();
+			  if(parameterGroup != null){
+				  for(long n = 0; n < parameterGroup.size(); n++){
+					  CCopasiParameter param = parameterGroup.getParameter(n);
+					  if(param != null && param.getObjectName() != null && param.getObjectName().equals(name)){
+						  return param;
+					  }
+				  }
+			  }					  
+			}		  
+	  }
+	  return null;
+  }
  	
-  private void executeTrajectoryTask(CCopasiDataModel dataModel, EpisimSbmlModelConfiguration modelConfig, SBMLModelState modelState, int numberOfSteps){
-		
+  private void executeTrajectoryTask(CCopasiDataModel dataModel, EpisimSbmlModelConfiguration modelConfig, SBMLModelState modelState, int numberOfSteps){		
 		
 		 CTrajectoryTask trajectoryTask = (CTrajectoryTask)dataModel.getTask("Time-Course");
 		 
@@ -140,7 +189,7 @@ public class COPASIConnector {
        
        initializeCopasiDataModel(dataModel, modelState);
        
-       ;
+      
         problem.setStepNumber(modelConfig.getNoOfStepsPerCBMSimstep()*numberOfSteps);
         problem.setDuration((modelConfig.getNoOfTimeUnitsPerCBMSimstep()*((double) numberOfSteps)));
      
@@ -154,9 +203,8 @@ public class COPASIConnector {
       }
       catch (Exception e){
       	ExceptionDisplayer.getInstance().displayException(e);
-      }      
-       
-	}
+      }       
+  }
 	
 	
    private String loadSBMLFile(File file, String sbmlFile) throws IOException{

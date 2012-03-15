@@ -152,19 +152,24 @@ public class COPASIConnector {
   
   private CCopasiParameter findLocalParameter(CModel model, String name){
 	  for(long i = 0; i < model.getNumReactions(); i++){			  
-			CReaction cReact = model.getReaction(i);
+			  CReaction cReact = model.getReaction(i);
 			  
-			if(cReact != null){
-			  CCopasiParameterGroup parameterGroup = cReact.getParameters();
-			  if(parameterGroup != null){
-				  for(long n = 0; n < parameterGroup.size(); n++){
-					  CCopasiParameter param = parameterGroup.getParameter(n);
-					  if(param != null && param.getObjectName() != null && param.getObjectName().equals(name)){
-						  return param;
+			  if(cReact != null){
+				//  System.out.println("Reaction "+i+": "+ cReact.getObjectName());
+				 
+				  CCopasiParameterGroup parameterGroup = cReact.getParameters();
+				  
+				  if(parameterGroup != null){
+					  //if(cReact.isLocalParameter(name)) System.out.println("Parameter gefunden: "+name);
+					  for(long n = 0; n < parameterGroup.size(); n++){
+						  CCopasiParameter param = parameterGroup.getParameter(n);
+						//  System.out.println("local parameter name: "+ param.getObjectName());
+						/*  if(param != null && param.getObjectName() != null && param.getObjectName().equals(name)){
+							  return param;
+						  }*/
 					  }
-				  }
-			  }					  
-			}		  
+				  }					  
+			  }		  
 	  }
 	  return null;
   }
@@ -203,8 +208,9 @@ public class COPASIConnector {
       }
       catch (Exception e){
       	ExceptionDisplayer.getInstance().displayException(e);
-      }       
-  }
+      }      
+       
+	}
 	
 	
    private String loadSBMLFile(File file, String sbmlFile) throws IOException{

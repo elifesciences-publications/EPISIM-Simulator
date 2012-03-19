@@ -100,16 +100,6 @@ public class COPASIConnector {
 		  CReaction reaction = dataModel.getModel().getReaction(i);
 		  if(reaction != null){
 			 modelState.addReactionValue(new SBMLModelEntity(reaction.getObjectName(), reaction.getFlux(), 0));
-			 CCopasiParameterGroup parameterGroup = reaction.getParameters();			  
-			  if(parameterGroup != null){
-				  for(long n = 0; n < parameterGroup.size(); n++){
-					  CCopasiParameter param = parameterGroup.getParameter(n);
-					  if(param != null && param.getObjectName() != null){
-						  
-						  modelState.addParameterValue(new SBMLModelEntity(param.getObjectName(), 2d, 0));
-					  }
-				  }
-			  }	
 		  }
 	  }
   }
@@ -125,13 +115,13 @@ public class COPASIConnector {
 			   modelValue.setInitialValue(entity.value);
 			   changedObjects.add(modelValue.getObject(new CCopasiObjectName("Reference=InitialValue")));
 		  }
-		  else{
+		/*  else{
 			  CCopasiParameter localParameter = findLocalParameter(dataModel.getModel(), entity.name);
 			  if(localParameter != null){
 				  localParameter.setDblValue(entity.value);
 				  changedObjects.add(localParameter.getObject(new CCopasiObjectName("Reference=Value")));
 			  }
-		  }
+		  }*/
 	  } 
 	  for(SBMLModelEntity entity : modelState.getSpeciesValues()){
 		  index = dataModel.getModel().findMetabByName(entity.name);          

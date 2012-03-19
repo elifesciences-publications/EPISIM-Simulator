@@ -82,9 +82,6 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 				}
 			}
 		}
-		UniversalCell cell = standardCellEnsemble.get(0);
-		standardCellEnsemble.clear();
-		standardCellEnsemble.add(cell);
 		return standardCellEnsemble;
 	}
 

@@ -100,6 +100,16 @@ public class COPASIConnector {
 		  CReaction reaction = dataModel.getModel().getReaction(i);
 		  if(reaction != null){
 			 modelState.addReactionValue(new SBMLModelEntity(reaction.getObjectName(), reaction.getFlux(), 0));
+			 CCopasiParameterGroup parameterGroup = reaction.getParameters();			  
+			  if(parameterGroup != null){
+				  for(long n = 0; n < parameterGroup.size(); n++){
+					  CCopasiParameter param = parameterGroup.getParameter(n);
+					  if(param != null && param.getObjectName() != null){
+						  
+						  modelState.addParameterValue(new SBMLModelEntity(param.getObjectName(), 2d, 0));
+					  }
+				  }
+			  }	
 		  }
 	  }
   }
@@ -155,18 +165,15 @@ public class COPASIConnector {
 			  CReaction cReact = model.getReaction(i);
 			  
 			  if(cReact != null){
-				//  System.out.println("Reaction "+i+": "+ cReact.getObjectName());
-				 
+								 
 				  CCopasiParameterGroup parameterGroup = cReact.getParameters();
 				  
 				  if(parameterGroup != null){
-					  //if(cReact.isLocalParameter(name)) System.out.println("Parameter gefunden: "+name);
 					  for(long n = 0; n < parameterGroup.size(); n++){
 						  CCopasiParameter param = parameterGroup.getParameter(n);
-						//  System.out.println("local parameter name: "+ param.getObjectName());
-						/*  if(param != null && param.getObjectName() != null && param.getObjectName().equals(name)){
+						  if(param != null && param.getObjectName() != null && param.getObjectName().equals(name)){
 							  return param;
-						  }*/
+						  }
 					  }
 				  }					  
 			  }		  

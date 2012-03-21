@@ -1,19 +1,31 @@
 package episimbiomechanics;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,7 +41,9 @@ import episimbiomechanics.EpisimModelConnector.Hidden;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.util.GlobalClassLoader;
 import binloc.ProjectLocator;
 
@@ -42,8 +56,22 @@ public class ModelDescriptorFileGenerator {
 	public void start(){
 		ArrayList<Class<? extends EpisimModelConnector>> modelConnector = EpisimModelConnector.getAvailableModelConnectors();
 		Class<? extends EpisimModelConnector> selectedModelConnector = null;
+		
+		
+		try{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (Exception e){
+			
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+		
+		JFrame parentFrame = new JFrame();
+		
+		parentFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
+		
 		if(modelConnector != null){
-			selectedModelConnector = (Class<? extends EpisimModelConnector>)JOptionPane.showInputDialog(null, "Please select the Episim Model Connector Class", "Model Descriptor File Generator", JOptionPane.PLAIN_MESSAGE, null, modelConnector.toArray(), modelConnector.toArray()[0]);
+			selectedModelConnector = (Class<? extends EpisimModelConnector>)JOptionPane.showInputDialog(parentFrame, "Please select the Episim Model Connector Class", "Model Descriptor File Generator", JOptionPane.PLAIN_MESSAGE, null, modelConnector.toArray(), modelConnector.toArray()[0]);
 		}
 		if(selectedModelConnector != null){
 			Document document = null;
@@ -61,21 +89,97 @@ public class ModelDescriptorFileGenerator {
 					if(path.contains("/bin/")){
 						path = path.replace("/bin/", "/src/");
 					}
-					ExtendedFileChooser chooser = new ExtendedFileChooser(".xml");
-					chooser.setCurrentDirectory(new File(path));
-					chooser.setDialogTitle("Select Directory");
-					chooser.setFileSelectionMode(ExtendedFileChooser.DIRECTORIES_ONLY);
-					if(chooser.showSaveDialog(null)== ExtendedFileChooser.APPROVE_OPTION){
-						File file = chooser.getSelectedFile();
-						write(document, file.getCanonicalPath()+"/ModelDescriptor.xml");
+					File file = new File(path);
+					write(document, file.getCanonicalPath()+"/ModelDescriptor.xml");
+					
+					if(path.contains("/src/")){
+						path = path.replace("/src/", "/bin/");
 					}
+					file = new File(path);
+					write(document, file.getCanonicalPath()+"/ModelDescriptor.xml");
+				
+					ExtendedFileChooser chooser = new ExtendedFileChooser(".jar");					
+					chooser.setDialogTitle("Save Model Connector");				
+					if(chooser.showSaveDialog(parentFrame) == ExtendedFileChooser.APPROVE_OPTION){
+						writeJarFile(selectedModelConnector, chooser.getSelectedFile());
+					}			
 				}
 				catch (IOException e){
 					ExceptionDisplayer.getInstance().displayException(e);
 				}
 			}
 		}
+		parentFrame.dispose();
 	}
+	
+	
+	private void writeJarFile(Class<? extends EpisimModelConnector> modelConnectorClass,  File jarPath) throws IOException{
+		JarOutputStream jarOut = null;
+		Manifest manifest;
+		
+
+		StringBuffer sBuffer = new StringBuffer();
+
+		sBuffer.append("Manifest-Version: 1.0\n");
+		sBuffer.append("Created-By: "+EpisimSimulator.versionID+" (Episim - Uni Heidelberg)\n");
+		
+
+		
+		ByteArrayInputStream byteIn = new ByteArrayInputStream(sBuffer
+				.toString().getBytes("UTF-8"));
+
+		manifest = new Manifest(byteIn);
+		jarOut = new JarOutputStream(new FileOutputStream(jarPath), manifest);
+		jarOut.setLevel(1);
+		
+		ArrayList<java.io.File> fileList = new ArrayList<java.io.File>();
+		
+		
+		
+		File modelConnectorClassDirectory = new File(modelConnectorClass.getResource("./").getPath());		
+		File[] requiredClassFiles = modelConnectorClassDirectory.listFiles(new FileFilter(){
+
+		
+         public boolean accept(File pathname) {
+	         return pathname.getAbsolutePath().endsWith(".class");
+         }});
+		
+		fileList.addAll(Arrays.asList(requiredClassFiles));
+		fileList.add(new File(modelConnectorClass.getResource("./").getPath()+"/ModelDescriptor.xml"));
+		
+		modelConnectorClassDirectory = new File(EpisimModelConnector.class.getResource("./").getPath());		
+		requiredClassFiles = modelConnectorClassDirectory.listFiles(new FileFilter(){		
+         public boolean accept(File pathname) {
+	         return pathname.getAbsolutePath().endsWith(".class");
+         }});
+		
+		fileList.addAll(Arrays.asList(requiredClassFiles));
+		
+		
+		for (java.io.File f : fileList){	
+			
+			if(f.isDirectory()) continue;
+			
+			String name = f.getAbsolutePath().replace(java.io.File.separatorChar, '/');
+		//	name = (name.endsWith(".xml") || name.endsWith(".sbml")) ? name.replace(sbmlDir.getAbsolutePath() + java.io.File.separatorChar, "sbml"+ java.io.File.separatorChar):name.replace(projectDir.getAbsolutePath() + java.io.File.separatorChar, "");
+			
+			if(!name.contains(this.getClass().getSimpleName()))jarOut.putNextEntry(new JarEntry(name.substring(name.indexOf("episimbiomechanics"))));
+
+			FileInputStream fileInput = new FileInputStream(f);
+
+			byte[] bytes = new byte[1024];
+			int available;
+			while ((available = fileInput.read(bytes)) > 0) {
+				jarOut.write(bytes, 0, available);
+			}
+			jarOut.flush();
+			fileInput.close();
+		}
+		jarOut.flush();
+		jarOut.finish();
+		jarOut.close();
+	}
+	
 	
 	private Document generateModelDescriptorDocument(Class<? extends EpisimModelConnector> modelConnectorClass) throws DOMException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException, ParserConfigurationException{
 		if(modelConnectorClass != null){

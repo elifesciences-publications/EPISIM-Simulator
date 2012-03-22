@@ -10,7 +10,12 @@
 <url>http://www.tiga.uni-hd.de/</url>
 </info>
 
-<native type="izpack" name="ShellLink.dll"/>
+<native type="izpack" name="ShellLink.dll">
+  <os family="windows" />
+</native>
+<native type="izpack" name="ShellLink_x64.dll">
+  <os family="windows" />
+</native>
 
 <variables>
 <variable name="app-version" value="1.4.0"/>

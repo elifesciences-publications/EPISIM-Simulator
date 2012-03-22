@@ -6,16 +6,16 @@
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isMembrane" readonly="true"/>
     <parameter datatype="boolean" default="false" name="isSurface" readonly="true"/>
+    <parameter datatype="double" default="15000.0"
+      name="basalCellBondTension" readonly="false"/>
     <parameter datatype="boolean" default="false"
       name="cellDivisionPossible" readonly="true"/>
     <parameter datatype="double" default="15000.0"
-      name="basalCellBondTension" readonly="false"/>
-    <parameter datatype="double" default="15000.0"
       name="apicalCellBondTension" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
-    <parameter datatype="double" default="1500.0" name="contractility" readonly="false"/>
     <parameter datatype="double" default="15000.0"
       name="standardBasalCellBondTension" readonly="true"/>
+    <parameter datatype="double" default="1500.0" name="contractility" readonly="false"/>
     <parameter datatype="double" default="2340.0" name="prefCellArea" readonly="false"/>
     <parameter datatype="double" default="15000.0"
       name="standardLateralCellBondTension" readonly="true"/>

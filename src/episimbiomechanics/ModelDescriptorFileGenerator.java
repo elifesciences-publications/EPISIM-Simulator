@@ -132,29 +132,7 @@ public class ModelDescriptorFileGenerator {
 		jarOut = new JarOutputStream(new FileOutputStream(jarPath), manifest);
 		jarOut.setLevel(1);
 		
-		ArrayList<java.io.File> fileList = new ArrayList<java.io.File>();
-		
-		
-		
-		File modelConnectorClassDirectory = new File(modelConnectorClass.getResource("./").getPath());		
-		File[] requiredClassFiles = modelConnectorClassDirectory.listFiles(new FileFilter(){
-
-		
-         public boolean accept(File pathname) {
-	         return pathname.getAbsolutePath().endsWith(".class");
-         }});
-		
-		fileList.addAll(Arrays.asList(requiredClassFiles));
-		fileList.add(new File(modelConnectorClass.getResource("./").getPath()+"/ModelDescriptor.xml"));
-		
-		modelConnectorClassDirectory = new File(EpisimModelConnector.class.getResource("./").getPath());		
-		requiredClassFiles = modelConnectorClassDirectory.listFiles(new FileFilter(){		
-         public boolean accept(File pathname) {
-	         return pathname.getAbsolutePath().endsWith(".class");
-         }});
-		
-		fileList.addAll(Arrays.asList(requiredClassFiles));
-		
+		ArrayList<File> fileList = generateFileList(modelConnectorClass);		
 		
 		for (java.io.File f : fileList){	
 			
@@ -178,6 +156,31 @@ public class ModelDescriptorFileGenerator {
 		jarOut.flush();
 		jarOut.finish();
 		jarOut.close();
+	}
+	
+	private ArrayList<File>	generateFileList(Class<? extends EpisimModelConnector> modelConnectorClass){
+		
+		ArrayList<File> fileList = new ArrayList<File>();
+		
+		fileList.addAll(Arrays.asList(getAllClassFilesOfSamePackage(modelConnectorClass)));
+		fileList.add(new File(modelConnectorClass.getResource("./").getPath()+"/ModelDescriptor.xml"));
+		
+		Class<?> superClass = modelConnectorClass.getSuperclass();
+		while(EpisimModelConnector.class.isAssignableFrom(superClass)){
+			
+			fileList.addAll(Arrays.asList(getAllClassFilesOfSamePackage((Class<? extends EpisimModelConnector>) superClass)));
+			superClass = superClass.getSuperclass();
+		}		
+		return fileList;		
+	}
+	
+	private File[] getAllClassFilesOfSamePackage(Class<? extends EpisimModelConnector> modelConnectorClass){
+		File modelConnectorClassDirectory = new File(modelConnectorClass.getResource("./").getPath());		
+		File[] requiredClassFiles = modelConnectorClassDirectory.listFiles(new FileFilter(){		
+         public boolean accept(File pathname) {
+	         return pathname.getAbsolutePath().endsWith(".class");
+         }});
+		return requiredClassFiles;
 	}
 	
 	

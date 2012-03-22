@@ -4,7 +4,6 @@ package episimbiomechanics.vertexbased;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.VertexBasedMechModelInit;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;

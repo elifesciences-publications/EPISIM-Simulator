@@ -3,7 +3,6 @@ package episimbiomechanics.hexagonbased2d;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.HexagonBased2DMechModelInit;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;

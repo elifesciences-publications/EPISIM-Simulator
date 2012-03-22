@@ -3,7 +3,6 @@ package episimbiomechanics.centerbased3d;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.CenterBased3DMechModelInit;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;

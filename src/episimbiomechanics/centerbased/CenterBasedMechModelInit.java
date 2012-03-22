@@ -1,4 +1,4 @@
-package sim.app.episim.model.initialization;
+package episimbiomechanics.centerbased;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;

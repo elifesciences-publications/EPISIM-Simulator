@@ -1,4 +1,4 @@
-package sim.app.episim.model.initialization;
+package episimbiomechanics.vertexbased;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,6 +19,7 @@ import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuil
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased.util.CellPolygonRegistry;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;

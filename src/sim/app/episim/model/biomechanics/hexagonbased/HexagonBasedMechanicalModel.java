@@ -23,6 +23,7 @@ import episimbiomechanics.EpisimModelConnector;
 
 
 import episimbiomechanics.hexagonbased2d.EpisimHexagonBased2DMC;
+import episimbiomechanics.hexagonbased2d.HexagonBased2DMechModelInit;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -37,7 +38,6 @@ import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.HexagonBased2DMechModelInit;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;

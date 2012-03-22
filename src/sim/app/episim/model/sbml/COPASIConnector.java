@@ -124,7 +124,7 @@ public class COPASIConnector {
 		  }*/
 	  } 
 	  for(SBMLModelEntity entity : modelState.getSpeciesValues()){
-		  index = dataModel.getModel().findMetabByName(entity.name);          
+		  index = dataModel.getModel().findMetabByName(entity.name);
 	     CMetab metab =  dataModel.getModel().getMetabolite(index);	     
 	     if(metab != null){		      
 		      metab.setInitialConcentration(entity.concentration);

@@ -1,4 +1,4 @@
-package sim.app.episim.model.initialization;
+package episimbiomechanics.hexagonbased3d;
 
 import java.util.ArrayList;
 
@@ -12,6 +12,7 @@ import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanical
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonalCellField3D;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;

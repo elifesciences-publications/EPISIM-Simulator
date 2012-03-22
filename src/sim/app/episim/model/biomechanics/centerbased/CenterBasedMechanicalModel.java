@@ -22,6 +22,7 @@ import javax.vecmath.Vector3d;
 
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
+import episimbiomechanics.centerbased.CenterBasedMechModelInit;
 import episimbiomechanics.centerbased.EpisimCenterBasedMC;
 import episimexceptions.GlobalParameterException;
 
@@ -46,7 +47,6 @@ import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim2DCellShape;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.initialization.CenterBasedMechModelInit;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.model.visualization.EpisimDrawInfo;

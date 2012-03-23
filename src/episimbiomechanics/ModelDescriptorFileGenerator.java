@@ -90,13 +90,13 @@ public class ModelDescriptorFileGenerator {
 						path = path.replace("/bin/", "/src/");
 					}
 					File file = new File(path);
-					write(document, file.getCanonicalPath()+"/ModelDescriptor.xml");
+					if(file.isDirectory() && file.exists()) write(document, file.getCanonicalPath()+"/ModelDescriptor.xml");
 					
 					if(path.contains("/src/")){
 						path = path.replace("/src/", "/bin/");
 					}
 					file = new File(path);
-					write(document, file.getCanonicalPath()+"/ModelDescriptor.xml");
+					if(file.isDirectory() && file.exists()) write(document, file.getCanonicalPath()+"/ModelDescriptor.xml");
 				
 					ExtendedFileChooser chooser = new ExtendedFileChooser(".jar");					
 					chooser.setDialogTitle("Save Model Connector");				
@@ -115,6 +115,7 @@ public class ModelDescriptorFileGenerator {
 	
 	private void writeJarFile(Class<? extends EpisimModelConnector> modelConnectorClass,  File jarPath) throws IOException{
 		JarOutputStream jarOut = null;
+		
 		Manifest manifest;
 		
 

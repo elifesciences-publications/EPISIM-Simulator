@@ -214,6 +214,12 @@
 	<target name="copyCOPSASI_JOGL_Windows" depends="cleanupBinFolder" description="copies the most recent COPASI and JOGL to the lib folder">
 		<unzip src="${buildres}/win/${winCopasi}" dest="${currentbuild}/${build}/lib"/>
 		<unzip src="${buildres}/win/${winJogl}" dest="${currentbuild}/${build}/lib"/>
+		<copy todir="${currentbuild}/${build}/bin">
+			<fileset dir="${buildres}/win">
+				<include name="StartModelDescriptorFileGenerator.bat"/>
+				<exclude name="*.zip"/>
+			</fileset>
+		</copy>
 	</target>
 
 	<!-- ================================= 
@@ -268,6 +274,9 @@
 				<include name="**/jogl_awt.dll"/>
 				<include name="**/jogl_cg.dll"/>	
 			</fileset>
+			<fileset dir="${currentbuild}/${build}/bin" defaultexcludes="no">
+				<include name="StartModelDescriptorFileGenerator.bat"/>
+			</fileset>
 			<fileset dir="${currentbuild}/${build}" defaultexcludes="no">
 					<include name="jmf/*.*" />
 					<include name="jmf" />
@@ -290,9 +299,16 @@
 				<fileset dir="${buildres}/linux">
 					<include name="*.*"/>
 					<exclude name="*.zip"/>
+					<exclude name="StartModelDescriptorFileGenerator.sh"/>
 				</fileset>
 			</copy>
 			<unzip src="${buildres}/linux/${linuxJRE32bit}" dest="${currentbuild}/${build}/jre"/>
+			<copy todir="${currentbuild}/${build}/bin">
+				<fileset dir="${buildres}/linux">
+					<include name="StartModelDescriptorFileGenerator.sh"/>
+					<exclude name="*.zip"/>
+				</fileset>
+			</copy>
 		<!--<unzip src="${buildres}/linux/${linuxCopasi}" dest="${currentbuild}/${build}/lib"/>-->
 		</target>
 	
@@ -305,12 +321,14 @@
     			<include name="${build}/jre/bin/java"/>
     			<include name="${build}/jre/bin/javac"/>
     			<include name="${build}/EpisimSimulatorStart.sh"/>
+    			<include name="${build}/bin/StartModelDescriptorFileGenerator.sh"/>
     		</tarfileset>
     		<tarfileset dir="${currentbuild}">
     			<include name= "**/*"/>
     		  	<exclude name="${build}/jre/bin/java"/>
     		    <exclude name="${build}/jre/bin/javac"/>
     		    <exclude name="${build}/EpisimSimulatorStart.sh"/>
+    			<exclude name="${build}/bin/StartModelDescriptorFileGenerator.sh"/>
     			<exclude name="*.*"/>
     		</tarfileset>
     	</tar>    	
@@ -348,12 +366,14 @@
 	    			<include name="${build}/jre/bin/java"/>
 	    			<include name="${build}/jre/bin/javac"/>
 	    			<include name="${build}/EpisimSimulatorStart.sh"/>
+	    			<include name="${build}/bin/StartModelDescriptorFileGenerator.sh"/>
 	    		</tarfileset>
 	    		<tarfileset dir="${currentbuild}">
 	    			<include name= "**/*"/>
 	    		  	<exclude name="${build}/jre/bin/java"/>
 	    		    <exclude name="${build}/jre/bin/javac"/>
 	    		    <exclude name="${build}/EpisimSimulatorStart.sh"/>
+	    			<exclude name="${build}/bin/StartModelDescriptorFileGenerator.sh"/>
 	    			<exclude name="*.*"/>
 	    		</tarfileset>
 	    	</tar>	    	
@@ -382,6 +402,9 @@
 				</fileset> -->
 				<fileset dir="${currentbuild}" defaultexcludes="no">
 					<include name="${linuxTar}" />
+				</fileset>
+				<fileset dir="${currentbuild}/${build}/bin" defaultexcludes="no">
+					<include name="StartModelDescriptorFileGenerator.sh"/>
 				</fileset>
 				<fileset dir="${currentbuild}/${build}" defaultexcludes="no">
 					<include name="jre" />

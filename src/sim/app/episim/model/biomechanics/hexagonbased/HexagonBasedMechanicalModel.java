@@ -277,8 +277,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	private boolean isLocationAtSurfaceBorder(Int2D location){
 		double xPosInMikron = getLocationInMikron(location).x ;
-		double intervalMin =  globalParameters.getInitialPositionWoundEdge_Mikron() - globalParameters.getCellDiameter_mikron();
-		double intervalMax =  globalParameters.getInitialPositionWoundEdge_Mikron() + globalParameters.getCellDiameter_mikron();
+		double intervalMin =  globalParameters.getInitialPositionWoundEdge_Mikron() - globalParameters.getCellDiameterInMikron();
+		double intervalMax =  globalParameters.getInitialPositionWoundEdge_Mikron() + globalParameters.getCellDiameterInMikron();
 		return (xPosInMikron >= intervalMin && xPosInMikron <= intervalMax);
 	}
 	
@@ -289,7 +289,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		
 		isAtWoundEdge = (getRealNeighbours(true).size() < minNeighbourNumber && 
 				(xPosInMikron >= globalParameters.getInitialPositionWoundEdge_Mikron() || 
-						(xPosInMikron + (1*globalParameters.getCellDiameter_mikron()))>= globalParameters.getInitialPositionWoundEdge_Mikron()));
+						(xPosInMikron + (1*globalParameters.getCellDiameterInMikron()))>= globalParameters.getInitialPositionWoundEdge_Mikron()));
 	}
 	
 	private Double2D getLocationInMikron(Int2D location){
@@ -298,13 +298,13 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		if(location !=null){
 			double locX = (double) location.x;
 			double locY = (double) location.y;
-			x = HexagonBasedMechanicalModelGP.outer_hexagonal_radius + (locX)*(1.5d*HexagonBasedMechanicalModelGP.outer_hexagonal_radius);
+			x = globalParameters.getOuter_hexagonal_radius() + (locX)*(1.5d*globalParameters.getOuter_hexagonal_radius());
 			
 			if((location.x%2) ==0){
-				y = HexagonBasedMechanicalModelGP.inner_hexagonal_radius+ (locY)*(2d*HexagonBasedMechanicalModelGP.inner_hexagonal_radius);
+				y = globalParameters.getInner_hexagonal_radius()+ (locY)*(2d*globalParameters.getInner_hexagonal_radius());
 			}
 			else{
-				y = (locY+1d)*(2*HexagonBasedMechanicalModelGP.inner_hexagonal_radius);
+				y = (locY+1d)*(2*globalParameters.getInner_hexagonal_radius());
 			}
 		}
 		return new Double2D(x, y);
@@ -724,7 +724,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 			if(cell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModel){
 				HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
 				if(mechModel.isAtWoundEdge && mechModel.getDirectNeighbours().size() > 0){
-					double xPos = mechModel.getLocationInMikron(mechModel.fieldLocation).x + HexagonBasedMechanicalModelGP.outer_hexagonal_radius;
+					double xPos = mechModel.getLocationInMikron(mechModel.fieldLocation).x + globalParameters.getOuter_hexagonal_radius();
 					xPositions.add(xPos);
 					kumulativeXPositionWoundEdge += xPos;
 					woundEdgeCellCounter++;
@@ -747,8 +747,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
      	double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
     	double width = 0;
     	double height = 0;
-   	double radiusOuter = HexagonBasedMechanicalModelGP.outer_hexagonal_radius;
-   	double radiusInner = HexagonBasedMechanicalModelGP.inner_hexagonal_radius;
+   	double radiusOuter = globalParameters.getOuter_hexagonal_radius();
+   	double radiusInner = globalParameters.getInner_hexagonal_radius();
    	
    	yInMikron = heightInMikron - yInMikron;
  		width = 2* radiusOuter;
@@ -771,10 +771,9 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
     	double y = 0;
    	double width = 0;
     	double height = 0;
-   	double radiusOuter = HexagonBasedMechanicalModelGP.outer_hexagonal_radius;
-   	double radiusInner = HexagonBasedMechanicalModelGP.inner_hexagonal_radius;
-	   if(isSpreading()){	   	
-    		
+   	double radiusOuter = globalParameters.getOuter_hexagonal_radius();
+   	double radiusInner = globalParameters.getInner_hexagonal_radius();
+	   if(isSpreading()){   		
     		 
     		spreadingLoc = correctToroidalSpreadingCoordinatesInMikronForEllipseDrawing();		
     		

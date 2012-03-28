@@ -283,7 +283,7 @@ String[] Expression():
 	String[] totalResult = new String[2];
 }
 {
-  exp1 = Term()[t= <ADD_SUBT_OP> exp2 =Term(){checkIfStringArithExpr(exp2[0]);}]
+  exp1 = Term()[t= <ADD_SUBT_OP> exp2 =Expression(){checkIfStringArithExpr(exp2[0]);}]
 {
    if (t !=null && exp2 != null){
    	totalResult[0] = exp1[0] + t.image + exp2[0];
@@ -310,7 +310,7 @@ String[] Term():
 }
 {
  
- exp1 =SignedFactor()[t=<MULT_DIV_OP> exp2 = Factor(){checkIfStringArithExpr(exp2[0]);}]
+ exp1 =SignedFactor()[t=<MULT_DIV_OP> exp2 = Term(){checkIfStringArithExpr(exp2[0]);}]
  
  {
   if (t !=null && exp2 != null){
@@ -523,92 +523,6 @@ String[] RelationalExpression():{
  })
 
 }
-
-
-/*
-String[] AllCellsWhere():
- {
- 	String[] exp1 = null;
- 	String[] exp2 = null;
- 	String[] totalResult = new String[2];
- }
- {
- ("ACW("exp1 =Expression() "," exp2=BooleanExpression()")")
- {
- 	checkIfStringArithExpr(exp1[0]);
- 	totalResult[0]= "ACW("+exp1[0]+"," +exp2[0]+")";
- 	totalResult[1]="getAllCellsWhere("+exp1[1]+","+exp2[1]+")";
- 	return totalResult;
- }
- }
-
-
-String[] AllCellsMeanValueFunction():
- {
- 	String[] exp1 = null; 
- 	boolean instructOpenedLocal = instructionOpened;
- 	instructionOpened = true;
- 	String[] totalResult = new String[2];
- }
- {
- ("ACMV("exp1 =Expression()(")")) 
- {
- 	
- 	checkIfStringArithExpr(exp1[0]);
- 	if(!(this.tissueDataFieldsInspector.checkForCellTypeConflict(this.recognizedVarNames))) 
- 		throw new ParseException("Usage of parameters owned by different cell types in one expression is not allowed!");
- 		if(!instructOpenedLocal)instructionOpened = false;
- 		
- 		totalResult[0] = "ACMV("+exp1[0]+")";	
- 	    totalResult[1] =SteppableCodeFactory.getCalculationHandlerAndMethodCallForExpression(Names.BUILDACMVHANDLER+exp1[1], this.tissueDataFieldsInspector.getRequiredClasses());
- 	return totalResult;
- }
- }
- 
- 
- String[] GradientFunction():
- {
- 	String[] exp1 = null;
- 	boolean instructOpenedLocal = instructionOpened;
- 	instructionOpened = true;
- 	String[] totalResult = new String[2]; 
- }
- {
- ("GRAD("exp1 =Expression()(")"))
- {
- 	
- 	checkIfStringArithExpr(exp1[0]);
- 	if(!(this.tissueDataFieldsInspector.checkForCellTypeConflict(this.recognizedVarNames))) 
- 		throw new ParseException("Usage of parameters owned by different cell types in one expression is not allowed!"); 	
- 	if(!instructOpenedLocal)instructionOpened = false;
- 	totalResult[0]= "GRAD("+exp1[0]+")";
- 	totalResult[1] = Names.BUILDGRADIENTHANDLER + SteppableCodeFactory.
- 	                          getCalculationHandlerAndMethodCallForExpression(Names.BUILDGRADIENTHANDLER+exp1[1], this.tissueDataFieldsInspector.getRequiredClasses());
- 	return totalResult;
- }
- }
- 
- String[] CellFunction():
- {
- 	String[] exp1 = null;
- 	boolean instructOpenedLocal = instructionOpened;
- 	instructionOpened = true;
- 	String[] totalResult = new String[2]; 
- }
- {
- ("CELL("exp1 =Expression()(")"))
- {
- 	
- 	checkIfStringArithExpr(exp1[0]);
- 	if(!(this.tissueDataFieldsInspector.checkForCellTypeConflict(this.recognizedVarNames))) 
- 		throw new ParseException("Usage of parameters owned by different cell types in one expression is not allowed!"); 	
- 	if(!instructOpenedLocal)instructionOpened = false;
- 	totalResult[0]= "CELL("+exp1[0]+")";
- 	totalResult[1] = Names.BUILDCELLHANDLER + SteppableCodeFactory.
- 	                          getCalculationHandlerAndMethodCallForExpression(Names.BUILDCELLHANDLER+exp1[1], this.tissueDataFieldsInspector.getRequiredClasses());
- 	return totalResult;
- }
- }*/
 
 
 

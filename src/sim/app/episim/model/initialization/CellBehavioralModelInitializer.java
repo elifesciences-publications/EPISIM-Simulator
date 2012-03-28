@@ -42,7 +42,7 @@ public class CellBehavioralModelInitializer {
 					.getCellCycleStem());
 
 			// assign random age
-			actCell.getEpisimCellBehavioralModelObject().setAge((double) (cellCyclePos));// somewhere
+		/*	actCell.getEpisimCellBehavioralModelObject().setAge((double) (cellCyclePos));// somewhere
 																							// in
 																							// the
 																							// stemcellcycle
@@ -50,7 +50,7 @@ public class CellBehavioralModelInitializer {
 					&& actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector) {
 				((SbmlModelConnector) actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector())
 						.initializeSBMLModelsWithCellAge(cellCyclePos);
-			}
+			}*/
 			boolean tysonCellCycleAvailable = false;
 			try {
 				Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass()

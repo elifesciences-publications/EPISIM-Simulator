@@ -81,10 +81,11 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 		int height = (int)globalParameters.getNumber_of_rows();
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
 		double cellDensity = globalParameters.getInitialSecretionCellDensityInPercent() / 100d;
+		double sineModulationFactor = (4*Math.PI/height);
 		for(int y = 0; y < height; y++){
 			double rn =random.nextDouble();
 			if(rn < cellDensity){
-				float delta = (float)(2d*Math.sin(0.235*y));
+				float delta = (float)(2d*Math.sin(sineModulationFactor*y));
 				int x = Math.round(xPos+delta);
 				UniversalCell cell = new UniversalCell(null, null);
 				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));

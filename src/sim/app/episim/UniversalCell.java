@@ -100,12 +100,15 @@ public class UniversalCell extends AbstractCell
         UniversalCell taCell=makeChild(cellBehavioralModel);
          
         //TODO enable / disable random age for TA Cells
-        int randomAge = TissueController.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA());
+        if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
+  				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
+      	  int randomAge = TissueController.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA());
         
-        taCell.getEpisimCellBehavioralModelObject().setAge(randomAge);
-        if(taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()!= null
-      		  && taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector){
-      	  ((SbmlModelConnector)taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(randomAge);
+      	  taCell.getEpisimCellBehavioralModelObject().setAge(randomAge);
+      	  if(taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()!= null
+      		  	&& taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector){
+      	  	((SbmlModelConnector)taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(randomAge);
+      	  }
         }
         // somewhere on the TA Cycle       
     }

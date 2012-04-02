@@ -61,7 +61,7 @@ public class EpisimProgressWindow {
 		};
 		Thread t = new Thread(r);
 		t.start();
-		while(!taskHasStarted){/*wait*/}
+		while(!taskHasStarted){System.out.print("");/*wait*/}
 		progressWindow.setVisible(true);
 	}
 	

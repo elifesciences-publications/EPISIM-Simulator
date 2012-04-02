@@ -132,7 +132,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			   for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
 			   	
 			   	generatedSourceCode.append("  private XYSeries "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-			   			" = new XYSeries(\""+Names.cleanString(actSeries.getName())+"\", false);\n");
+			   			" = new XYSeries(\""+actSeries.getName()+"\", false);\n");
 			   }
 		  }
 		  if(mode == ChartSourceBuilderMode.HISTOGRAMMODE){ 
@@ -141,7 +141,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			   for(EpisimChartSeries actSeries: this.actChart.getEpisimChartSeries()){
 			   	
 			   	generatedSourceCode.append("  private SimpleHistogramDataset "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-			   			" = new SimpleHistogramDataset(\""+Names.cleanString(actSeries.getName())+"\");\n");
+			   			" = new SimpleHistogramDataset(\""+actSeries.getName()+"\");\n");
 			   }
 		  }
 		  

@@ -8,6 +8,7 @@ import episiminterfaces.EpisimPortrayal;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.CellInspector;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.gui.EpisimGUIState;
@@ -68,13 +69,14 @@ public class VertexBasedMechModelInit extends BiomechanicalModelInitializer {
 	}
 	
 	protected void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble){
-		
-		for(UniversalCell cell : cellEnsemble){
-			double age = cell.getEpisimCellBehavioralModelObject().getAge();
-			VertexBasedMechanicalModel model = (VertexBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
-			CellPolygonNetworkBuilder.setCellPolygonSizeAccordingToAge(age, model.getCellPolygon());
-		}
-				
+		if( EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
+				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
+			for(UniversalCell cell : cellEnsemble){
+				double age = cell.getEpisimCellBehavioralModelObject().getAge();
+				VertexBasedMechanicalModel model = (VertexBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+				CellPolygonNetworkBuilder.setCellPolygonSizeAccordingToAge(age, model.getCellPolygon());
+			}
+		}		
 	}	
 		
 	protected EpisimPortrayal getCellPortrayal() {

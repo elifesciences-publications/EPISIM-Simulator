@@ -10,6 +10,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimPortrayal;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
@@ -94,8 +95,11 @@ public class ModelInitialization {
 		
 		this.cellbehavioralModelInitializer
 				.initializeCellEnsemble(initiallyExistingCells);
-		this.biomechanicalModelInitializer
-				.initializeCellEnsembleBasedOnRandomAgeDistribution(initiallyExistingCells);
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
+				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
+			this.biomechanicalModelInitializer
+					.initializeCellEnsembleBasedOnRandomAgeDistribution(initiallyExistingCells);
+		}
 		this.extraCellularDiffusionInitializer.buildExtraCellularDiffusionFields();
 		if (simulationStateData != null) {
 			

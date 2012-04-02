@@ -65,6 +65,8 @@ public class EpisimProperties {
 	public static final String SIMULATOR_DISPLAYSIZE_HEIGHT="simulator.displaysize.height";
 	
 	
+	public static final String SIMULATOR_RANDOM_CELL_AGE_INIT="simulator.cell.randomageinit";
+	
 	public static final String SIMULATOR_SIM_STEP_MODE_MONTE_CARLO="montecarlo";
 	public static final String SIMULATOR_SIM_STEP_MODE_MASON="mason";
 	

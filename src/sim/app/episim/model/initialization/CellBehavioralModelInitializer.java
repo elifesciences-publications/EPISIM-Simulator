@@ -9,6 +9,7 @@ import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.sbml.SbmlModelConnector;
@@ -36,20 +37,22 @@ public class CellBehavioralModelInitializer {
 	}
 
 	private void initializeCellEnsembleWithStandardValues(ArrayList<UniversalCell> cellEnsemble) {
+		boolean randomAgeInit = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
+				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON);
 		MersenneTwisterFast random = new MersenneTwisterFast(System.currentTimeMillis());
+		int cellCyclePos =0;
 		for (UniversalCell actCell : cellEnsemble) {
-			int cellCyclePos = random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
-					.getCellCycleStem());
-
-			// assign random age
-			actCell.getEpisimCellBehavioralModelObject().setAge((double) (cellCyclePos));// somewhere
-																							// in
-																							// the
-																							// stemcellcycle
-			if (actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() != null
-					&& actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector) {
-				((SbmlModelConnector) actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector())
-						.initializeSBMLModelsWithCellAge(cellCyclePos);
+			if(randomAgeInit){
+				cellCyclePos = random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
+						.getCellCycleStem());
+				// assign random age
+				actCell.getEpisimCellBehavioralModelObject().setAge((double) (cellCyclePos));// somewhere in the stemcellcycle
+				
+				if (actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() != null
+						&& actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector) {
+					((SbmlModelConnector) actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector())
+							.initializeSBMLModelsWithCellAge(cellCyclePos);
+				}
 			}
 			boolean tysonCellCycleAvailable = false;
 			try {
@@ -60,8 +63,7 @@ public class CellBehavioralModelInitializer {
 				tysonCellCycleAvailable = false;
 			}
 
-			if (tysonCellCycleAvailable)
-				TysonRungeCuttaCalculator.assignRandomCellcyleState(actCell.getEpisimCellBehavioralModelObject(), cellCyclePos); // on
+			if (tysonCellCycleAvailable &&randomAgeInit) TysonRungeCuttaCalculator.assignRandomCellcyleState(actCell.getEpisimCellBehavioralModelObject(), cellCyclePos); // on
 			if(actCell.getEpisimCellBehavioralModelObject().getDiffLevel()==null){
 				actCell.getEpisimCellBehavioralModelObject().setDiffLevel(
 						ModelController.getInstance().getCellBehavioralModelController()

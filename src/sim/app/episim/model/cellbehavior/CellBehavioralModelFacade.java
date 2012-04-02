@@ -73,24 +73,20 @@ public class CellBehavioralModelFacade implements java.io.Serializable{
 		return null;
 	}
 	
-	public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){
-		
+	public EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){		
 		return this.globalParametersObject;
 	}
 	
   
   public void resetInitialGlobalValues(){
 	  if(globalParametersObject !=null) globalParametersObject.resetInitialGlobalValues();
-  }
-	
-   
-   public CellBehavioralModelInitializer getCellBehavioralModelInitializer(){
+  }	
+  public CellBehavioralModelInitializer getCellBehavioralModelInitializer(){
    	return new CellBehavioralModelInitializer();
-   }
-   
-   public CellBehavioralModelInitializer getCellBehavioralModelInitializer(SimulationStateData simStateData){
+  }   
+  public CellBehavioralModelInitializer getCellBehavioralModelInitializer(SimulationStateData simStateData){
    	return new CellBehavioralModelInitializer(simStateData);
-   }
+  }
    
 }
    

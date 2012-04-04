@@ -494,7 +494,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    
    @NoExport
    public GenericBag<AbstractCell> getDirectNeighbours(){
-   	GenericBag<AbstractCell> neighbours = getNeighbouringCells();
+   	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood();
    	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
    	for(int i=0;neighbours != null && i<neighbours.size();i++)
       {
@@ -542,7 +542,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	
 	public boolean nextToOuterCell(){ return finalHitResult != null ?finalHitResult.nextToOuterCell:false; }
 
-	private GenericBag<AbstractCell> getNeighbouringCells() {return neighbouringCells;}
+	private GenericBag<AbstractCell> getCellularNeighbourhood() {return neighbouringCells;}
 	
 	@CannotBeMonitored
 	@NoExport

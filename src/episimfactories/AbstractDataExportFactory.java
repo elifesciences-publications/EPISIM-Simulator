@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
@@ -23,6 +27,8 @@ import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
 
+import episiminterfaces.monitoring.EpisimChart;
+import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
@@ -54,20 +60,49 @@ public abstract class AbstractDataExportFactory {
 				throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data Export-Definiton-Set!");
 			}
 			if(result != null && result instanceof EpisimDataExportDefinitionSet){
-				try{
-					EpisimDataExportDefinitionSet definitionSet = (EpisimDataExportDefinitionSet) result;
-					for(EpisimDataExportDefinition def: definitionSet.getEpisimDataExportDefinitions()){
-						addRequiredClassesToDataExportDefinition(def);
-					}
-					return definitionSet;
+			try{
+				EpisimDataExportDefinitionSet definitionSet = (EpisimDataExportDefinitionSet) result;
+				for(EpisimDataExportDefinition def: definitionSet.getEpisimDataExportDefinitions()){
+					addRequiredClassesToDataExportDefinition(def);
+					def.setIsDirty(true);
 				}
-				catch(ClassNotFoundException e){
-					throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data Export-Definiton-Set!");
-				}
+				return definitionSet;
 			}
-		
-		
+			catch(ClassNotFoundException e){
+				throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data Export-Definiton-Set!");
+			}
+		}		
 		return null;
+	}
+	
+	public static EpisimDataExportDefinitionSet getEpisimDataExportDefinitionSetBasedOnXML(InputStream stream) throws ModelCompatibilityException{
+		
+		JAXBContext jc = null;
+		Unmarshaller u = null;
+		EpisimDataExportDefinitionSet defSet = null;
+      try{
+	      jc = JAXBContext.newInstance(sim.app.episim.datamonitoring.dataexport.EpisimDataExportDefinitionSetImpl.class);
+	      u = jc.createUnmarshaller();
+	      Object o = u.unmarshal(stream);
+	      if(o instanceof EpisimDataExportDefinitionSet){
+	      	defSet = (EpisimDataExportDefinitionSet) o;
+	      }
+      }
+      catch (JAXBException e){
+	      ExceptionDisplayer.getInstance().displayException(e);
+      }
+      if(defSet != null){
+      	for(EpisimDataExportDefinition export : defSet.getEpisimDataExportDefinitions()){ 
+				try{
+	            checkDataExportDirtyStatus(export);
+            }
+            catch (ClassNotFoundException e){
+            	throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Data Export-Definiton-Set!");
+            }
+			}
+      }
+		return defSet;		
+		
 	}
 
 	private static void addRequiredClassesToDataExportDefinition(EpisimDataExportDefinition definition) throws ClassNotFoundException{
@@ -114,6 +149,33 @@ public abstract class AbstractDataExportFactory {
 					}
 					columnImpl.setRequiredClasses(requiredClassesSet);
 				}
+			}
+		}
+	}
+	private static void checkDataExportDirtyStatus(EpisimDataExportDefinition definition) throws ClassNotFoundException{
+		if(definition instanceof EpisimDataExportImpl){
+			EpisimDataExportImpl definitionImpl = (EpisimDataExportImpl) definition;
+			for(String actClassName :definitionImpl.getAllRequiredClassesNameSet()){
+				try{
+	            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());	            
+            }
+            catch (ClassNotFoundException e){
+            	if(actClassName.contains(".Cell_")){
+            		definitionImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){
+            		definitionImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){
+            		definitionImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){
+            		definitionImpl.setIsDirty(true);
+            	}
+            	else{
+            		throw e;
+            	}
+            }
 			}
 		}
 	}

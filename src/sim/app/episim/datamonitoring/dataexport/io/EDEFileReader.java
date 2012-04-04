@@ -1,5 +1,6 @@
 package sim.app.episim.datamonitoring.dataexport.io;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
@@ -12,6 +13,7 @@ import sim.app.episim.datamonitoring.dataexport.DiffusionFieldDataExport;
 import sim.app.episim.datamonitoring.dataexport.DiffusionFieldDataExportFactory;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
+import sim.app.episim.util.Names;
 import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractDataExportFactory;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
@@ -57,7 +59,7 @@ public class EDEFileReader{
 		URL u = null;
 
 		try{
-			u = new URL("jar", "", url + "!/" + AbstractDataExportFactory.getEpisimDataExportDefinitionSetBinaryName());
+			u = new URL("jar", "", url + "!/" + Names.EPISIM_DATAEXPORT_XML_FILENAME);
 		}
 		catch (MalformedURLException e){
 			ExceptionDisplayer.getInstance().displayException(e);
@@ -73,12 +75,28 @@ public class EDEFileReader{
 		}
 
 		try{
-			return AbstractDataExportFactory.getEpisimDataExportDefinitionSet(uc.getInputStream());
+			return AbstractDataExportFactory.getEpisimDataExportDefinitionSetBasedOnXML(uc.getInputStream());
+		}catch(FileNotFoundException e){
+			System.out.println("DataExport XML File not found, falling back to serialized version!");
+			try{
+				u = new URL("jar", "", url + "!/" + Names.EPISIM_DATAEXPORT_FILENAME);
+			}
+			catch (MalformedURLException ex){
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
+			uc = null;
+			try{
+				uc = (JarURLConnection) u.openConnection();
+				uc.setDefaultUseCaches(false);
+				return AbstractDataExportFactory.getEpisimDataExportDefinitionSet(uc.getInputStream());
+			}
+			catch (IOException ex){
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
 		}
 		catch (IOException e){
 			ExceptionDisplayer.getInstance().displayException(e);
 		}
-
 		return null;
 	}
 	

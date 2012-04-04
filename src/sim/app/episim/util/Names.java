@@ -11,7 +11,9 @@ public abstract class Names {
 	public static final String MECH_MODEL ="Biomechanical-Model";
 	public static final String MISCALLENEOUS = "Miscalleneous";
 	public static final String EPISIM_CHARTSET_FILENAME ="EpisimChartSet.dat";
+	public static final String EPISIM_CHARTSET_XML_FILENAME ="EpisimChartSet.xml";
 	public static final String EPISIM_DATAEXPORT_FILENAME ="EpisimDataExport.dat";
+	public static final String EPISIM_DATAEXPORT_XML_FILENAME ="EpisimDataExport.xml";
 	public static final String EPISIM_CELLBEHAVIORAL_MODEL_VALUE ="cellbehavioralmodel";
 	public static final String GENERATED_CHARTS_PACKAGENAME = "generatedcharts";
 	public static final String GENERATED_DATAEXPORT_PACKAGENAME = "generateddataexports";

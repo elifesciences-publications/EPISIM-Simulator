@@ -16,6 +16,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+
 import episimexceptions.CompilationFailedException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
@@ -40,7 +44,7 @@ public class ECSFileWriter {
 		
 	}
 	
-	public void createChartSetArchive(EpisimChartSet chartSet) throws CompilationFailedException {
+	public void createChartSetArchive(EpisimChartSet chartSet) throws CompilationFailedException, JAXBException {
 				
 				JarOutputStream jarOut=null;
 				Manifest manifest;
@@ -98,19 +102,29 @@ public class ECSFileWriter {
 							
 							
 							ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+							JAXBContext jc = JAXBContext.newInstance(sim.app.episim.datamonitoring.charts.EpisimChartSetImpl.class);
+						   Marshaller m = jc.createMarshaller();
+						   m.marshal(chartSet, byteOut);
+							byteOut.close();
+							jarOut.putNextEntry(new JarEntry(Names.EPISIM_CHARTSET_XML_FILENAME));
+							jarOut.write(byteOut.toByteArray());
+							
+							/*byteOut = new ByteArrayOutputStream();
+							
 							ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
 							objOut.writeObject(chartSet);
 							objOut.flush();
 							objOut.close();
 							byteOut.close();
 							jarOut.putNextEntry(new JarEntry(Names.EPISIM_CHARTSET_FILENAME));
-							jarOut.write(byteOut.toByteArray());
+							jarOut.write(byteOut.toByteArray());*/
+							
 							jarOut.flush();
 		
 							jarOut.finish();
 							jarOut.close();
-						//TODO: Enable / Disable erasure of temp data	
-						chartCompiler.deleteTempData();
+							//TODO: Enable / Disable erasure of temp data	
+							chartCompiler.deleteTempData();
 							
 						} catch (IOException e) {
 							ExceptionDisplayer.getInstance()

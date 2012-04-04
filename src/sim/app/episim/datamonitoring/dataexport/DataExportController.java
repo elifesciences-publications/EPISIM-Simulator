@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.xml.bind.JAXBException;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
@@ -242,14 +243,17 @@ public class DataExportController {
 	
 	protected void storeDataExportDefinitionSet(EpisimDataExportDefinitionSet dataExportSet) throws CompilationFailedException{
 		EDEFileWriter fileWriter = new EDEFileWriter(dataExportSet.getPath());
-		fileWriter.createDataExportDefinitionSetArchive(dataExportSet);
+		
 		try{
-			
+			fileWriter.createDataExportDefinitionSetArchive(dataExportSet);
 	      loadDataExportDefinitionSet(new File(dataExportSet.getPath().getAbsolutePath()).toURI().toURL());
 	    
       }
       catch (MalformedURLException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
+      	 ExceptionDisplayer.getInstance().displayException(e);
+      }
+      catch (JAXBException e){
+      	  ExceptionDisplayer.getInstance().displayException(e);
       }
 	}
 	

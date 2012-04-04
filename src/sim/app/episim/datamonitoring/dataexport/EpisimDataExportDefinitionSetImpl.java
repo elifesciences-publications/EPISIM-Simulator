@@ -4,13 +4,19 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import sim.app.episim.datamonitoring.dataexport.io.xml.EpisimDataExportAdapter;
+import sim.app.episim.datamonitoring.dataexport.io.xml.EpisimDiffFieldDataExportAdapter;
 import sim.app.episim.util.ObjectManipulations;
 
 import episiminterfaces.monitoring.EpisimDataExportDefinition;
 import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 import episiminterfaces.monitoring.EpisimDiffFieldDataExport;
 
-
+@XmlRootElement
 public class EpisimDataExportDefinitionSetImpl implements EpisimDataExportDefinitionSet, java.io.Serializable{
 	
 	private ArrayList<EpisimDataExportDefinition> episimDataExportDefinitions;
@@ -49,10 +55,13 @@ public class EpisimDataExportDefinitionSetImpl implements EpisimDataExportDefini
 		}
 		return null;
 	}	
-
+	@XmlElement
+	@XmlJavaTypeAdapter(EpisimDataExportAdapter.class)
 	public List<EpisimDataExportDefinition> getEpisimDataExportDefinitions(){
 		return episimDataExportDefinitions;
 	}
+	@XmlElement
+	@XmlJavaTypeAdapter(EpisimDiffFieldDataExportAdapter.class)
 	public List<EpisimDiffFieldDataExport> getEpisimDiffFieldDataExportDefinitions() {
 		 return episimDiffFieldDataExportDefinitions;
 	}

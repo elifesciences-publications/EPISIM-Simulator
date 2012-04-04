@@ -6,13 +6,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import sim.app.episim.util.ObjectManipulations;
+
+import sim.app.episim.datamonitoring.charts.io.xml.EpisimChartAdapter;
+import sim.app.episim.datamonitoring.charts.io.xml.EpisimDiffFieldChartAdapter;
 
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDiffFieldChart;
 
-
+@XmlRootElement
 public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable {
 	
 	private ArrayList<EpisimChart> episimCharts;
@@ -29,10 +36,15 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 		episimDiffFieldCharts = new ArrayList<EpisimDiffFieldChart>();
 		name = "";
 	}
-
+	
+	@XmlElement
+	@XmlJavaTypeAdapter(EpisimChartAdapter.class)
 	public List<EpisimChart> getEpisimCharts() {		
 		return episimCharts;
 	}
+	
+	@XmlElement
+	@XmlJavaTypeAdapter(EpisimDiffFieldChartAdapter.class)
 	public List<EpisimDiffFieldChart> getEpisimDiffFieldCharts() {
 		return episimDiffFieldCharts;
 	}

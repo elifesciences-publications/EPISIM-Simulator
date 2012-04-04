@@ -1,9 +1,11 @@
 package sim.app.episim.datamonitoring.charts.io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.DiffusionChartFactory;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
+import sim.app.episim.util.Names;
 import episimexceptions.ModelCompatibilityException;
 import episimfactories.AbstractChartSetFactory;
 import episimfactories.AbstractEpisimCellBehavioralModelFactory;
@@ -70,7 +73,7 @@ public class ECSFileReader{
 		URL u = null;
 
 		try{
-			u = new URL("jar", "", url + "!/" + AbstractChartSetFactory.getEpisimChartSetBinaryName());
+			u = new URL("jar", "", url + "!/" + Names.EPISIM_CHARTSET_XML_FILENAME);
 		}
 		catch (MalformedURLException e){
 			ExceptionDisplayer.getInstance().displayException(e);
@@ -78,7 +81,7 @@ public class ECSFileReader{
 
 		JarURLConnection uc = null;
 		try{
-			uc = (JarURLConnection) u.openConnection();
+			uc = (JarURLConnection) u.openConnection();			
 			uc.setDefaultUseCaches(false);
 		}
 		catch (IOException e){
@@ -86,7 +89,25 @@ public class ECSFileReader{
 		}
 
 		try{
-			return AbstractChartSetFactory.getEpisimChartSet(uc.getInputStream());
+			return AbstractChartSetFactory.getEpisimChartSetBasedOnXml(uc.getInputStream());
+		}
+		catch(FileNotFoundException e){
+			System.out.println("ChartSet XML File not found, falling back to serialized version!");
+			try{
+				u = new URL("jar", "", url + "!/" + Names.EPISIM_CHARTSET_FILENAME);
+			}
+			catch (MalformedURLException ex){
+				ExceptionDisplayer.getInstance().displayException(ex);
+			}
+			uc = null;
+			try{
+				uc = (JarURLConnection) u.openConnection();				
+				uc.setDefaultUseCaches(false);
+				return AbstractChartSetFactory.getEpisimChartSet(uc.getInputStream());
+			}
+			catch (IOException ex){
+				ExceptionDisplayer.getInstance().displayException(ex);
+			}
 		}
 		catch (IOException e){
 			ExceptionDisplayer.getInstance().displayException(e);

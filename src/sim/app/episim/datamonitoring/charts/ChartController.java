@@ -13,6 +13,7 @@ import java.net.URL;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.xml.bind.JAXBException;
 
 import org.jfree.chart.ChartPanel;
 
@@ -235,12 +236,16 @@ public class ChartController {
 	
 	protected void storeEpisimChartSet(EpisimChartSet chartSet) throws CompilationFailedException{
 		ECSFileWriter fileWriter = new ECSFileWriter(chartSet.getPath());
-		fileWriter.createChartSetArchive(chartSet);
+		
 		try{
+			fileWriter.createChartSetArchive(chartSet);
 	      loadEpisimChartSet(new File(chartSet.getPath().getAbsolutePath()).toURI().toURL());
       }
       catch (MalformedURLException e){
 	      ExceptionDisplayer.getInstance().displayException(e);
+      }
+      catch (JAXBException e){
+      	ExceptionDisplayer.getInstance().displayException(e);
       }
 	}
 	

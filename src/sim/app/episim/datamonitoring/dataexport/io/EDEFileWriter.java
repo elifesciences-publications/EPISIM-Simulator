@@ -12,6 +12,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.dataexport.build.DataExportCompiler;
@@ -32,7 +36,7 @@ public class EDEFileWriter {
 		
 	}
 	
-	public void createDataExportDefinitionSetArchive(EpisimDataExportDefinitionSet dataExportSet) throws CompilationFailedException {
+	public void createDataExportDefinitionSetArchive(EpisimDataExportDefinitionSet dataExportSet) throws CompilationFailedException, JAXBException {
 				
 				JarOutputStream jarOut=null;
 				Manifest manifest;
@@ -89,13 +93,25 @@ public class EDEFileWriter {
 							}
 														
 							ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+							JAXBContext jc = JAXBContext.newInstance(sim.app.episim.datamonitoring.dataexport.EpisimDataExportDefinitionSetImpl.class);
+							Marshaller m = jc.createMarshaller();
+						   m.marshal(dataExportSet, byteOut);
+							byteOut.close();
+							jarOut.putNextEntry(new JarEntry(Names.EPISIM_DATAEXPORT_XML_FILENAME));
+							jarOut.write(byteOut.toByteArray());
+							
+							
+							
+							/*byteOut = new ByteArrayOutputStream();
 							ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
 							objOut.writeObject(dataExportSet);
 							objOut.flush();
 							objOut.close();
 							byteOut.close();
 							jarOut.putNextEntry(new JarEntry(Names.EPISIM_DATAEXPORT_FILENAME));
-							jarOut.write(byteOut.toByteArray());
+							jarOut.write(byteOut.toByteArray());*/
+							
+							
 							jarOut.flush();
 		
 							jarOut.finish();

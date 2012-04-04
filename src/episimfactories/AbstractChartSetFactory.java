@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import org.jfree.chart.ChartPanel;
 
@@ -36,9 +39,39 @@ import sim.field.continuous.Continuous2D;
 public abstract class AbstractChartSetFactory {
 
 	
+	public static EpisimChartSet getEpisimChartSetBasedOnXml(InputStream stream) throws ModelCompatibilityException{
+		JAXBContext jc = null;
+		Unmarshaller u = null;
+		EpisimChartSet chartSet = null;
+      try{
+	      jc = JAXBContext.newInstance(sim.app.episim.datamonitoring.charts.EpisimChartSetImpl.class);
+	      u = jc.createUnmarshaller();
+	      Object o = u.unmarshal(stream);
+	      if(o instanceof EpisimChartSet){
+	      	chartSet = (EpisimChartSet) o;
+	      }
+      }
+      catch (JAXBException e){
+	      ExceptionDisplayer.getInstance().displayException(e);
+      }
+      if(chartSet != null){
+      	for(EpisimChart chart :chartSet.getEpisimCharts()){ 
+				try{
+	            checkChartDirtyStatus(chart);
+            }
+            catch (ClassNotFoundException e){
+            	throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Chart-Set!");
+            }
+			}
+      }
+		return chartSet; 
+	}
+	
+	
 	public static EpisimChartSet getEpisimChartSet(InputStream stream) throws ModelCompatibilityException{
 		
 			ObjectInputStream objIn =ObjectStreamFactory.getObjectInputStreamForInputStream(stream);
+			
 			Object result = null;
 			try{
 				result = objIn.readObject();
@@ -64,6 +97,7 @@ public abstract class AbstractChartSetFactory {
 					
 					for(EpisimChart chart :chartSet.getEpisimCharts()){ 
 						addRequiredClassesToChart(chart);
+						chart.setIsDirty(true);
 					}
 					return chartSet;
 				}
@@ -129,12 +163,42 @@ public abstract class AbstractChartSetFactory {
 			}
 		}
 	}	
-	
+	private static void checkChartDirtyStatus(EpisimChart chart) throws ClassNotFoundException{
+		
+		if(chart instanceof EpisimChartImpl){
+			EpisimChartImpl chartImpl = (EpisimChartImpl) chart;
+		
+			for(String actClassName :chartImpl.getAllRequiredClassesNameSet()){
+				try{
+	            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());
+	           
+	            
+            }
+            catch (ClassNotFoundException e){
+            	if(actClassName.contains(".Cell_")){
+            		chartImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){            		
+            		chartImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){            		
+            		chartImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){            		
+            		chartImpl.setIsDirty(true);
+            	}
+            	else{
+            		throw e;
+            	}
+            }
+			}			
+		}
+	}
 
 	
 	public static String getEpisimChartSetBinaryName() {
 		
-		return Names.EPISIM_CHARTSET_FILENAME;
+		return Names.EPISIM_CHARTSET_FILENAME+"ds";
 	}
 	public abstract List<ChartPanel> getChartPanels();
    public abstract List<EnhancedSteppable> getSteppablesOfCharts();

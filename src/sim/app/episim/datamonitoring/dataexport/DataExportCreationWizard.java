@@ -812,6 +812,7 @@ public class DataExportCreationWizard extends JDialog {
 						allowedTypes.add(CalculationAlgorithmType.ONEDIMDATASERIESRESULT);
 						allowedTypes.add(CalculationAlgorithmType.TWODIMDATASERIESRESULT);
 						allowedTypes.add(CalculationAlgorithmType.MULTIDIMDATASERIESRESULT);
+						allowedTypes.add(CalculationAlgorithmType.HISTOGRAMRESULT);
 						allowedTypes.add(CalculationAlgorithmType.TWODIMRESULT);
 						allowedTypes.add(CalculationAlgorithmType.ONEDIMRESULT);
 						

@@ -26,7 +26,7 @@ public abstract class CalculationDataManagerFactory {
 			final long id = handler.getID();
 			CalculationAlgorithmType calType = getAlgorithmType(handler);
 			
-			if(calType != null){//TODO: hier Unterscheidung für die verschiedenen CalculationAlgorithms einfügen
+			if(calType != null){
 				return new CalculationDataManager<Double>(){
 					private CalculationDataManagerType type = CalculationDataManagerType.TWODIMTYPE;
 					private int counter = 0;
@@ -97,7 +97,7 @@ public abstract class CalculationDataManagerFactory {
 		if(dataSet != null){
 			final long id = handler.getID();
 			CalculationAlgorithmType calType = getAlgorithmType(handler);
-			if(calType != null){//TODO: hier Unterscheidung für die verschiedenen CalculationAlgorithms einfügen
+			if(calType != null){
 				return new CalculationDataManager<Double>(){
 					private CalculationDataManagerType type = CalculationDataManagerType.ONEDIMTYPE;
 					private int counter = 0;
@@ -154,7 +154,7 @@ public abstract class CalculationDataManagerFactory {
 		if(data != null){
 			final long id = handler.getID();
 			CalculationAlgorithmType calType = getAlgorithmType(handler);
-			if(calType != null){//TODO: hier Unterscheidung für die verschiedenen CalculationAlgorithms einfügen
+			if(calType != null){
 			return new CalculationDataManager<Double>(){
 								
 				private CalculationDataManagerType type;
@@ -164,11 +164,12 @@ public abstract class CalculationDataManagerFactory {
 					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE) type = CalculationDataManagerType.ONEDIMTYPE;
 					else if(data.getType() == ObservedDataCollectionType.TWODIMTYPE) type = CalculationDataManagerType.TWODIMTYPE;
 					else if(data.getType() == ObservedDataCollectionType.MULTIDIMTYPE) type = CalculationDataManagerType.MULTIDIMTYPE;
+					else if(data.getType() == ObservedDataCollectionType.HISTOGRAMTYPE) type = CalculationDataManagerType.HISTOGRAMTYPE;
 				}
 				
 				public void addNewValue(Double value1, Double value2) {
 					if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)	data.add(value1, value2);
-					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)
+					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE || data.getType() == ObservedDataCollectionType.HISTOGRAMTYPE)
 						throw new MethodNotImplementedException("Method: addNewValue(Double value1, Double value2) is not implemented. Please use the method addNewValue(Double value) instead!");
 					if(data.getType() == ObservedDataCollectionType.MULTIDIMTYPE)
 						throw new MethodNotImplementedException("Method: addNewValue(Double value1, Double value2) is not implemented. Please use the method addNewValue(Vector<Double> columnVector) instead!");
@@ -190,7 +191,7 @@ public abstract class CalculationDataManagerFactory {
 				}
 				public long getSimStep(){ return simStep; }
 				public void addNewValue(Double value) {
-					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)	data.add(value);
+					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE || data.getType() == ObservedDataCollectionType.HISTOGRAMTYPE)	data.add(value);
 					if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)
 						throw new MethodNotImplementedException("Method: addNewValue(Double value) is not implemented. Please use the method addNewValue(Double value1, Double value2) instead!");
 					if(data.getType() == ObservedDataCollectionType.MULTIDIMTYPE)
@@ -199,7 +200,7 @@ public abstract class CalculationDataManagerFactory {
 				public void addNewValue(Vector<Double> columnVector) {
 					if(data.getType() == ObservedDataCollectionType.TWODIMTYPE)
 						throw new MethodNotImplementedException("Method: addNewValue(Vector<Double> columnVector) is not implemented. Please use the method addNewValue(Double value1, Double value2) instead!");
-					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE)
+					if(data.getType() == ObservedDataCollectionType.ONEDIMTYPE || data.getType() == ObservedDataCollectionType.HISTOGRAMTYPE)
 						throw new MethodNotImplementedException("Method: addNewValue(Vector<Double> columnVector) is not implemented. Please use the method addNewValue(Double value) instead!");
 					if(data.getType() == ObservedDataCollectionType.MULTIDIMTYPE){
 						data.add(columnVector);

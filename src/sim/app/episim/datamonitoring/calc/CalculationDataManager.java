@@ -4,7 +4,7 @@ import java.util.Vector;
 import episiminterfaces.calc.EntityChangeEvent;
 
 public interface CalculationDataManager<X> {	
-	public enum CalculationDataManagerType {ONEDIMTYPE, TWODIMTYPE, MULTIDIMTYPE};
+	public enum CalculationDataManagerType {ONEDIMTYPE, TWODIMTYPE, MULTIDIMTYPE, HISTOGRAMTYPE};
 	
 	long getID();
 	boolean isXScaleLogarithmic();

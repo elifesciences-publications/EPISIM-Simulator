@@ -17,7 +17,7 @@ import episiminterfaces.calc.marker.TissueObserver;
 import episiminterfaces.calc.marker.TissueObserverAlgorithm;
 
 
-public class MeanValueCalculationAlgorithm  extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm{
+public class MeanValueCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm{
 	
 	public MeanValueCalculationAlgorithm(){}
 	

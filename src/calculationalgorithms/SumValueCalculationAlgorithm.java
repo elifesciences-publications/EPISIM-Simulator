@@ -14,9 +14,9 @@ import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 
-public class MeanValueConditionedCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm{
+public class SumValueCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm{
 	
-	public MeanValueConditionedCalculationAlgorithm(){}
+	public SumValueCalculationAlgorithm(){}
 	
 	
 	public CalculationAlgorithmDescriptor getCalculationAlgorithmDescriptor(int id) {
@@ -25,21 +25,23 @@ public class MeanValueConditionedCalculationAlgorithm extends AbstractCommonCalc
 	   return new CalculationAlgorithmDescriptor(){
 
 			public String getDescription() {	         
-	         return "This algorithms calculates the mean result of the defined mathematical expression for all Cells. Only cells which fulfil the specified condition are included in the calculation.";
+	         return "This algorithms calculates the sum of the defined mathematical expression over all Cells.";
          }
 
 			public int getID() { return _id; }
 
-			public String getName() { return "Mean Value Calculator Conditioned"; }
+			public String getName() { return "Sum Calculator"; }
 
 			public CalculationAlgorithmType getType() { return CalculationAlgorithmType.ONEDIMRESULT; }
 
-			public boolean hasCondition() { return true; }
+			public boolean hasCondition() { return false; }
 			public boolean hasMathematicalExpression() { return true; }
 			
-			public Map<String, Class<?>> getParameters(){				
-				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
-				return params;
+			public Map<String, Class<?>> getParameters() {
+				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();	
+	         
+	        
+	         return params;
          }
 	   };
 	}
@@ -50,25 +52,19 @@ public class MeanValueConditionedCalculationAlgorithm extends AbstractCommonCalc
 
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
 		double sum = 0;
-		int counter = 0;
 		double result = 0;
 		for(AbstractCell actCell : allCells){
 
 			try{
-				if(handler.conditionFulfilled(actCell)){
-					result = handler.calculate(actCell);
-					sum += result;
-					counter++;
-					if(sum != 0 && counter != 0) results.add1DValue((sum / counter));
-					else results.add1DValue(0d);
-				}
+				result = handler.calculate(actCell);
+				sum += result;
 			}
 			catch (CellNotValidException e){
 				ExceptionDisplayer.getInstance().displayException(e);
 			}
-		}
-		
-		
+		}		
+		if(sum != 0) results.add1DValue(sum);
+		else results.add1DValue(0d);
 	   result = 0;
    }	
 	

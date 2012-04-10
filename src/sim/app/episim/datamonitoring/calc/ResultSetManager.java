@@ -60,7 +60,7 @@ public abstract class ResultSetManager {
 	
 	public static void copyResultSetToDataManager(ResultSet<Double> results,  CalculationDataManager<Double> dataManager){
 		if(dataManager == null)throw new IllegalArgumentException("CalculationDataManager is null.");
-		if(results.getResultSetType() == ResultSetType.ONEDIMRESULTS && dataManager.getCalculationDataManagerType()==CalculationDataManagerType.ONEDIMTYPE){
+		if(results.getResultSetType() == ResultSetType.ONEDIMRESULTS && (dataManager.getCalculationDataManagerType()==CalculationDataManagerType.ONEDIMTYPE || dataManager.getCalculationDataManagerType()==CalculationDataManagerType.HISTOGRAMTYPE)){
 			for(int i = 0; i < results.size(); i++){
 				dataManager.addNewValue(results.get(i).get(0));
 			}

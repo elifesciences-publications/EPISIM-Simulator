@@ -6,6 +6,8 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import calculationalgorithms.HistogramCalculationAlgorithm;
+
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
@@ -83,7 +85,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		   
 		   for(EpisimDataExportColumn actColumn: this.actDataExportDefinition.getEpisimDataExportColumns()){
 		   	CalculationAlgorithmType type = CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(actColumn.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType();
-		   	if(type == CalculationAlgorithmType.ONEDIMDATASERIESRESULT || type == CalculationAlgorithmType.ONEDIMRESULT ||type == CalculationAlgorithmType.HISTOGRAMRESULT){
+		   	if(type == CalculationAlgorithmType.ONEDIMDATASERIESRESULT || type == CalculationAlgorithmType.ONEDIMRESULT){
 			   	generatedSourceCode.append("  private ObservedDataCollection<Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
 			   			" = new ObservedDataCollection<Double>(ObservedDataCollectionType.ONEDIMTYPE);\n");
 		   	}
@@ -94,6 +96,13 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		   	else if(type == CalculationAlgorithmType.MULTIDIMDATASERIESRESULT){
 		   		generatedSourceCode.append("  private ObservedDataCollection<Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
 	   			" = new ObservedDataCollection<Double>(ObservedDataCollectionType.MULTIDIMTYPE);\n");
+		   	}
+		   	else if(type == CalculationAlgorithmType.HISTOGRAMRESULT){
+		   		double min = (Double) actColumn.getCalculationAlgorithmConfigurator().getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER);
+		   		double max = (Double) actColumn.getCalculationAlgorithmConfigurator().getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER);
+		   		int noBins = (Integer) actColumn.getCalculationAlgorithmConfigurator().getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER);
+		   		generatedSourceCode.append("  private ObservedDataCollection<Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
+	   			" = new ObservedDataCollection<Double>("+min+"d, "+max+"d, "+ noBins+");\n");
 		   	}
 		   }
 		  

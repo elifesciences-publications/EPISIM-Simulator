@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.jfree.data.statistics.SimpleHistogramBin;
+
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
@@ -58,6 +60,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	private String name = "";
 	private String description = "";
 	
+	private ObservedDataCollection<Double> singleDataCollection = null;
 	
 	public DataExportCSVWriter(File csvFile, String columnNames) {		
 		this.csvFile = csvFile;		
@@ -72,40 +75,70 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	}
 	
 	public void registerObservedDataCollection(final long columnId, ObservedDataCollection<Double> map){
-		indexLookUp.put(columnId, actIndex);
-		actIndex++;
-		map.addValueMapListener(new ValueMapListener<Double>(){
-			public void valueAdded(Double key, Double value) {				
-		         values[indexLookUp.get(columnId)][0] = key;
-		         values[indexLookUp.get(columnId)][1] = value;
-		         alreadyCalculatedColumnsIds.add(columnId);
-		         checkIfDataWriteToDisk();
-		   }
+		if(map.getType() == ObservedDataCollectionType.HISTOGRAMTYPE){
+			singleDataCollection = map;
+			map.addValueMapListener(new ValueMapListener<Double>(){
+				public void valueAdded(Double key, Double value) {				
+			        //do nothing
+			   }
 
-			public void valueAdded(Double value) {				
-		         values[indexLookUp.get(columnId)][0] = Double.NEGATIVE_INFINITY;
-		         values[indexLookUp.get(columnId)][1] = value;
-		         alreadyCalculatedColumnsIds.add(columnId);
-		         checkIfDataWriteToDisk();
-         }
-			
-			public void observedDataSourceChanged(EntityChangeEvent event){
-				if(event.getEventType() == EntityChangeEventType.CELLCHANGE) aCellHasBeenChanged = true;
-				//if(event.getEventType() == EntityChangeEventType.SIMULATIONSTEPCHANGE) simStepCounter++;
-			}
-			public void simStepChanged(long simStep){
-				if(simStep > simStepCounter){
-					simStepCounter = simStep;
+				public void valueAdded(Double value) {
+			       //do nothing
+	         }
+				
+				public void observedDataSourceChanged(EntityChangeEvent event){
+					if(event.getEventType() == EntityChangeEventType.CELLCHANGE) aCellHasBeenChanged = true;
 				}
-			}
-			public void valueAdded(Vector<Double> value) {
-				columnValues[indexLookUp.get(columnId)] = value;
-				alreadyCalculatedColumnsIds.add(columnId);
-				checkIfDataWriteToDisk();
-			}
-		});
-		if(map.getType() == ObservedDataCollectionType.MULTIDIMTYPE) columnValues = new Vector[actIndex];
-		else values = new Double[actIndex][2];
+				public void simStepChanged(long simStep){
+					if(simStep > simStepCounter){
+						simStepCounter = simStep;
+						
+					}
+					if(simStepCounter > lastSimStepCounterWritten)writeHistogramDataToDisk();
+				}
+				public void valueAdded(Vector<Double> value) {
+					// do nothing
+				}
+			});
+		}
+		else{
+			indexLookUp.put(columnId, actIndex);
+			actIndex++;
+			
+			map.addValueMapListener(new ValueMapListener<Double>(){
+				public void valueAdded(Double key, Double value) {				
+			         values[indexLookUp.get(columnId)][0] = key;
+			         values[indexLookUp.get(columnId)][1] = value;
+			         alreadyCalculatedColumnsIds.add(columnId);
+			         checkIfDataWriteToDisk();
+			   }
+
+				public void valueAdded(Double value) {
+			         values[indexLookUp.get(columnId)][0] = Double.NEGATIVE_INFINITY;
+			         values[indexLookUp.get(columnId)][1] = value;
+			         alreadyCalculatedColumnsIds.add(columnId);
+			         checkIfDataWriteToDisk();
+	         }
+				
+				public void observedDataSourceChanged(EntityChangeEvent event){
+					if(event.getEventType() == EntityChangeEventType.CELLCHANGE) aCellHasBeenChanged = true;
+					//if(event.getEventType() == EntityChangeEventType.SIMULATIONSTEPCHANGE) simStepCounter++;
+				}
+				public void simStepChanged(long simStep){
+					if(simStep > simStepCounter){
+						simStepCounter = simStep;
+					}
+				}
+				public void valueAdded(Vector<Double> value) {
+					columnValues[indexLookUp.get(columnId)] = value;
+					alreadyCalculatedColumnsIds.add(columnId);
+					checkIfDataWriteToDisk();
+				}
+			});
+			if(map.getType() == ObservedDataCollectionType.MULTIDIMTYPE) columnValues = new Vector[actIndex];
+			else values = new Double[actIndex][2];
+		}
+		
 		
 	}
 	
@@ -118,27 +151,62 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		}
 		if((values != null && this.alreadyCalculatedColumnsIds.size() == values.length)
 				|| (columnValues != null && this.alreadyCalculatedColumnsIds.size() == columnValues.length)){
-			try{
-				if(simStepCounter > lastSimStepCounterWritten){
-					csvWriter.write(simStepCounter+";");
-					lastSimStepCounterWritten = simStepCounter;
-				}
-				else csvWriter.write(";");
-				if(values != null){
-					for(int i = 0; i < values.length; i++){					
-							if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(getFormattedValue(values[i][0]) + ";");											 
-							csvWriter.write(getFormattedValue(values[i][1]) + ";");													
+			
+		
+				try{
+					if(simStepCounter > lastSimStepCounterWritten){
+						csvWriter.write(simStepCounter+";");
+						lastSimStepCounterWritten = simStepCounter;
 					}
-				}
-				if(columnValues != null){
-					int maxVectorSize = getLargestVectorSize(columnValues);
-					for(int n = 0; n < maxVectorSize; n++){
-						if(n>0)csvWriter.write(";");
-						for(int i = 0; i < columnValues.length; i++){
-							csvWriter.write((columnValues[i]!= null && n < columnValues[i].size())? (getFormattedValue(columnValues[i].get(n)) + ";"):";");
+					else csvWriter.write(";");
+					if(values != null){
+						for(int i = 0; i < values.length; i++){					
+								if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(getFormattedValue(values[i][0]) + ";");											 
+								csvWriter.write(getFormattedValue(values[i][1]) + ";");													
 						}
-						csvWriter.write("\n");
-					}					
+					}
+					if(columnValues != null){
+						int maxVectorSize = getLargestVectorSize(columnValues);
+						for(int n = 0; n < maxVectorSize; n++){
+							if(n>0)csvWriter.write(";");
+							for(int i = 0; i < columnValues.length; i++){
+								csvWriter.write((columnValues[i]!= null && n < columnValues[i].size())? (getFormattedValue(columnValues[i].get(n)) + ";"):";");
+							}
+							csvWriter.write("\n");
+						}					
+					}
+					if(aCellHasBeenChanged){
+						csvWriter.write("(A Cell was changed);");
+						aCellHasBeenChanged = false;
+					}
+					csvWriter.write("\n");
+					csvWriter.flush();
+					alreadyCalculatedColumnsIds.clear();
+				}
+				
+				catch(IOException ex){
+					ExceptionDisplayer.getInstance().displayException(ex);
+				}
+			}
+		
+	}
+	
+	private void writeHistogramDataToDisk(){
+		if(singleDataCollection != null && singleDataCollection.getType() == ObservedDataCollectionType.HISTOGRAMTYPE){
+			if(firstTime){
+				writeHeader();
+				writeColumnNames();
+				writeHistogramClasses();
+				firstTime = false;
+			}			
+			try{
+				csvWriter.write(simStepCounter+";");
+				lastSimStepCounterWritten = simStepCounter;
+				SimpleHistogramBin[] bins = singleDataCollection.getHistogramBins();
+				if(bins != null){
+					for(SimpleHistogramBin bin : bins){
+						csvWriter.write(bin.getItemCount()+";");
+					}
 				}
 				if(aCellHasBeenChanged){
 					csvWriter.write("(A Cell was changed);");
@@ -147,7 +215,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 				csvWriter.write("\n");
 				csvWriter.flush();
 				alreadyCalculatedColumnsIds.clear();
-			}
+				singleDataCollection.clear();
+			}		
 			catch(IOException ex){
 				ExceptionDisplayer.getInstance().displayException(ex);
 			}
@@ -173,6 +242,26 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
       catch (IOException e){
         ExceptionDisplayer.getInstance().displayException(e);
       }
+	}
+	private void writeHistogramClasses(){
+		if(singleDataCollection != null && singleDataCollection.getType() == ObservedDataCollectionType.HISTOGRAMTYPE){
+			try{			
+			  if(csvWriter != null){					
+					csvWriter.write("histogram classes;");
+					SimpleHistogramBin[] bins = singleDataCollection.getHistogramBins();
+					if(bins != null){
+						for(SimpleHistogramBin bin : bins){
+							csvWriter.write(bin.getLowerBound()+";");
+						}
+					}					
+					csvWriter.write("\n");
+					csvWriter.flush();
+		     }	
+			}
+	      catch (IOException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+	      }
+		}
 	}
 	private void writeHeader(){
 		try{			

@@ -276,17 +276,19 @@ public class ChartController {
 			this.actLoadedChartSet = ecsReader.getEpisimChartSet();
 			if(this.actLoadedChartSet != null){
 				actLoadedChartSet.setPath(new File(url.toURI()));
-				if(!actLoadedChartSet.isOneOfTheChartsDirty()){
+				if(!actLoadedChartSet.isOneOfTheChartsDirty() && !ECSFileReader.foundDirtyChartSeriesDuringImport){
+					ECSFileReader.foundDirtyChartSeriesDuringImport = false;
 					ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getDiffusionChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());
 					CompatibilityChecker checker = new CompatibilityChecker();			
 					checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
 				}
 				else{
+					ECSFileReader.foundDirtyChartSeriesDuringImport = false;
 					for(EpisimChart chart : this.actLoadedChartSet.getEpisimCharts()) updateExpressionsInChart(chart);
 					resetChartDirtyStatus();
-					storeEpisimChartSet(actLoadedChartSet);
-					
+					storeEpisimChartSet(actLoadedChartSet);					
 				}
+				
 				return true;
 			}
 		}

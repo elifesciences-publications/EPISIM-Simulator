@@ -6,6 +6,7 @@ import java.util.HashSet;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import sim.app.episim.datamonitoring.dataexport.EpisimDataExportColumnImpl;
+import sim.app.episim.datamonitoring.dataexport.io.EDEFileReader;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.GlobalClassLoader;
 
@@ -42,15 +43,19 @@ public class EpisimDataExportColumnAdapter extends XmlAdapter<AdaptedEpisimDataE
             catch (ClassNotFoundException e){
             	if(actClassName.contains(".Cell_")){
             		requiredClasses.put(actClassName, ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass());
+            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
             	}
             	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){
-            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass());            		
+            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass());
+            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
             	}
             	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){
             		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableDifferentiationLevels()[0].getClass());
+            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
             	}
             	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){
             		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes()[0].getClass());
+            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
             	}
             	else{
             		throw e;

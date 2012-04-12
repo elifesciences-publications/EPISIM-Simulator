@@ -279,15 +279,18 @@ public class DataExportController {
 			this.actLoadedDataExportSet = edeReader.getEpisimDataExportDefinitionSet();
 			if(this.actLoadedDataExportSet != null){
 				this.actLoadedDataExportSet.setPath(new File(url.toURI()));
-				if(!this.actLoadedDataExportSet.isOneOfTheDataExportDefinitionsDirty()){
+				if(!this.actLoadedDataExportSet.isOneOfTheDataExportDefinitionsDirty() && !EDEFileReader.foundDirtyDataExportColumnDuringImport){
+					EDEFileReader.foundDirtyDataExportColumnDuringImport = false;
 					DataExportSteppableServer.getInstance().registerCustomDataExportSteppables(edeReader.getDataExports(), edeReader.getDiffusionFieldDataExports(), edeReader.getDataExportSteppables(), edeReader.getDataExportFactory());
 					CompatibilityChecker checker = new CompatibilityChecker();
 					checker.checkEpisimDataExportDefinitionSetForCompatibility(actLoadedDataExportSet, this.dataExportMonitoredTissue);
 				}else{
+					EDEFileReader.foundDirtyDataExportColumnDuringImport = false;
 					for(EpisimDataExportDefinition def : this.actLoadedDataExportSet.getEpisimDataExportDefinitions()) updateExpressionsInDataExportDefinition(def);
 					resetChartDirtyDataExports();
 					storeDataExportDefinitionSet(actLoadedDataExportSet);
 				}
+				
 				return true;
 			}
 		}

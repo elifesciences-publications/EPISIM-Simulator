@@ -11,6 +11,7 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 import sim.app.episim.datamonitoring.charts.EpisimChartImpl;
 import sim.app.episim.datamonitoring.charts.EpisimChartSeriesImpl;
+import sim.app.episim.datamonitoring.charts.io.ECSFileReader;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.GlobalClassLoader;
 
@@ -60,18 +61,22 @@ public class EpisimChartAdapter extends XmlAdapter<AdaptedEpisimChart, EpisimCha
             	if(actClassName.contains(".Cell_")){
             		requiredClasses.put(actClassName, ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass());
             		chartImpl.setIsDirty(true);
+            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
             	}
             	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){
             		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass());
             		chartImpl.setIsDirty(true);
+            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
             	}
             	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){
             		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableDifferentiationLevels()[0].getClass());
             		chartImpl.setIsDirty(true);
+            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
             	}
             	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){
             		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes()[0].getClass());
             		chartImpl.setIsDirty(true);
+            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
             	}
             	else{
             		throw e;

@@ -27,6 +27,8 @@ public class EDEFileReader{
 	private AbstractDataExportFactory dataExportDefinitionFactory;
 	private DiffusionFieldDataExportFactory diffusionFieldDataExportFactory;
 
+	public static boolean foundDirtyDataExportColumnDuringImport = false;
+	
 	/**
 	 * Creates a new JarClassLoader for the specified url.
 	 * 

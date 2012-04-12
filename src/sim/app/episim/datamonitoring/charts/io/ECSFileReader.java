@@ -38,6 +38,8 @@ public class ECSFileReader{
 	    private AbstractChartSetFactory chartSetFactory;
 	    private DiffusionChartFactory diffusionChartFactory;
 	    
+	    public static boolean foundDirtyChartSeriesDuringImport = false;
+	    
 	    /**
 	     * Creates a new JarClassLoader for the specified url.
 	     *

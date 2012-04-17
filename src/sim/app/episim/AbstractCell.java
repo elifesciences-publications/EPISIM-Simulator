@@ -94,8 +94,8 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	@CannotBeMonitored
 	public long getID() { return id; }   
 	
-	public boolean getIsBasalStatisticsCell() { return isBasalStatisticsCell; }
-	public void setIsBasalStatisticsCell(boolean val){ this.isBasalStatisticsCell = val; }
+	public boolean getIsBasalCell() { return isBasalStatisticsCell; }
+	public void setIsBasalCell(boolean val){ this.isBasalStatisticsCell = val; }
 	public boolean getIsOuterCell() { return isOuterCell; } 	
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell; }	
 	public long getMotherId(){ return this.motherCell != null ? this.motherCell.getID(): -1; }

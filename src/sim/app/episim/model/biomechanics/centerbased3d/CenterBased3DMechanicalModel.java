@@ -453,9 +453,9 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		Double3D newCellLocation = cellField.getObjectLocation(getCell());
 		double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newCellLocation.x, newCellLocation.y, newCellLocation.z);
 		if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getBasalLayerWidth())
-			getCell().setIsBasalStatisticsCell(true);
+			getCell().setIsBasalCell(true);
 		else
-			getCell().setIsBasalStatisticsCell(false); 
+			getCell().setIsBasalCell(false); 
 
 		if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getMembraneCellsWidthInMikron()){
 			modelConnector.setIsMembrane(true);

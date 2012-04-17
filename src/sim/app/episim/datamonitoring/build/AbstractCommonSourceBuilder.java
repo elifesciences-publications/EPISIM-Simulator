@@ -178,7 +178,7 @@ public abstract class  AbstractCommonSourceBuilder {
 		source.append("  private boolean isValidCell(AbstractCell cellType){\n");
 		for(Class<?> actClass: requiredClasses){
 			if(AbstractCell.class.isAssignableFrom(actClass)){
-				source.append("    if(cellType.getClass().isAssignableFrom("+ actClass.getSimpleName()+ ".class)) return true;\n");
+				source.append("    if("+actClass.getSimpleName()+ ".class.isAssignableFrom(cellType.getClass())) return true;\n");
 				classFound = true;
 			}
 		}
@@ -200,13 +200,13 @@ public abstract class  AbstractCommonSourceBuilder {
 			if(EpisimBiomechanicalModel.class.isAssignableFrom(actClass) || EpisimCellBehavioralModel.class.isAssignableFrom(actClass) || AbstractCell.class.isAssignableFrom(actClass)){				
 				
 				if(firstLoop){
-					source.append("if("+varName+ ".getClass().isAssignableFrom("+ actClass.getSimpleName()+ ".class)) " + 
+					source.append("if("+ actClass.getSimpleName()+ ".class.isAssignableFrom("+varName+ ".getClass())) " + 
 							Names.convertClassToVariable(actClass.getSimpleName())+"= ("+ actClass.getSimpleName()+ ")"+varName+ ";\n");
 					firstLoop = false;
 					
 				}
 				else{
-					source.append("else if("+varName+ ".getClass().isAssignableFrom("+ actClass.getSimpleName()+ ".class)) " + 
+					source.append("else if("+ actClass.getSimpleName()+ ".class.isAssignableFrom("+varName+ ".getClass())) " + 
 							Names.convertClassToVariable(actClass.getSimpleName())+"= ("+ actClass.getSimpleName()+ ")"+varName+ ";\n");
 				}
 				

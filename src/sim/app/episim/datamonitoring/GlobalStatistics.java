@@ -165,7 +165,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
                oldNumOuterCells++;
            }
 			  
-			  if(actCell instanceof UniversalCell && ((UniversalCell) actCell).getIsBasalStatisticsCell()) this.actualBasalStatisticsCells++;
+			  if(actCell instanceof UniversalCell && ((UniversalCell) actCell).getIsBasalCell()) this.actualBasalStatisticsCells++;
 			  sumOfAllAges += actCell.getEpisimCellBehavioralModelObject().getAge();
 		}
 			if(counter == 10){
@@ -202,8 +202,6 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		double intervalSize = getBucketIntervalSize();
 		//System.out.println(intervalSize);
 		
-		
-		
 		for(AbstractCell actCell : allCells){
 			if(actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.TACELL ||
 					actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL){
@@ -214,20 +212,18 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 						dnaContentsCumulative [i] += 1;
 						break;
 					}
-				//	System.out.println("Act Value: " + (FIRSTBUCKETAMOUNT + i * intervalSize));
+					//	System.out.println("Act Value: " + (FIRSTBUCKETAMOUNT + i * intervalSize));
 				}
 			}
 		}
 		histogrammCounter++;
-		//Calcutlate averaged histogramm
+		//Calculate averaged histogramm
 		for(int i = 0; i < dnaContentsAveraged.length; i++){
 			dnaContentsAveraged[i] = dnaContentsCumulative[i] / histogrammCounter;
 		}
 		
-	}
-	
-	public double[] getDNAContentsAveraged(){ return this.dnaContentsAveraged; }
-	
+	}	
+	public double[] getDNAContentsAveraged(){ return this.dnaContentsAveraged; }	
 	
 	//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	// Inkrement
@@ -238,61 +234,16 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	public void inkrementActualNumberKCytes(){
 		actualNumberKCytes++;      // num of kcytes that are not in nirvana
 	}
-	public void inkrementActualNumberEarlySpiCells(){
-		actualNumberEarlySpiCells++;         // Spinosum
-	}
-	public void inkrementActualNumberTASells(){
-		actualNumberTACells++;          // TA Cells
-	}
-	public void inkrementActualNumberLateSpi(){
-		actualNumberLateSpi++;     // Late Spinosum
-	}
-	public void inkrementActualGranuCells(){
-		actualNumberGranuCells++;       // num of Granulosum KCytes
-	}
-	public void inkrementActualBasalStatisticsCells(){
-		actualBasalStatisticsCells++;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
-	}
-	
-	public void inkrementActualNumberOfBasalStatisticsCells(){
-		actualNumberOfBasalStatisticsCells++;
-	}
-	
-	
-	
-	
-	
+		
 	//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	// Dekrement
 	//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
-	public void dekrementActualNumberStemCells(){ 
-		actualNumberStemCells--;        // Stem cells
-	}
 	public void dekrementActualNumberKCytes(){
 		actualNumberKCytes--;      // num of kcytes that are not in nirvana
 	}
-	public void dekrementActualNumberEarlySpiCells(){
-		actualNumberEarlySpiCells--;         // Spinosum
-	}
-	public void dekrementActualNumberTASells(){
-		actualNumberTACells--;          // TA Cells
-	}
-	public void dekrementActualNumberLateSpi(){
-		actualNumberLateSpi--;     // Late Spinosum
-	}
-	public void dekrementActualGranuCells(){
-		actualNumberGranuCells--;       // num of Granulosum KCytes
-	}
-	public void dekrementActualBasalStatisticsCells(){
-		actualBasalStatisticsCells--;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
-	}
-		
-	public void dekrementActualNumberOfBasalStatisticsCells(){
-		actualNumberOfBasalStatisticsCells--;
-	}
 	
 	public void reset(boolean isRestartReset){
+		
 		actualNumberStemCells=0;       
 		actualNumberKCytes=0;      
 		actualNumberEarlySpiCells=0;         
@@ -301,8 +252,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		actualNumberGranuCells=0;      
 		actualBasalStatisticsCells=0;		
 		actualNumberOfBasalStatisticsCells = 0;
-		sumOfAllAges = 0;
-		
+		sumOfAllAges = 0;		
 		
 		dnaContents = new double[NUMBEROFBUCKETS];
 		dnaContentsAveraged = new double [NUMBEROFBUCKETS];
@@ -337,33 +287,29 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 
 	public void cellIsDead(AbstractCell cell) {
 		notifyAllGlobalCellDeathListener(cell);
-	   if(cell instanceof UniversalCell){
-	   	UniversalCell kcyte = (UniversalCell) cell;
-	   	dekrementActualNumberKCytes();
-	   	
-	   	if(kcyte.getIsBasalStatisticsCell()){ 
-	   		this.apoptosis_BasalCounter++;
-	   		
-	   	}
-	   	int diffLevel =  kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();
-	   	  switch(diffLevel){
- 			    case EpisimDifferentiationLevel.EARLYSPICELL:{
- 					  this.apoptosis_EarlySpiCounter++;
- 					 
- 				 }
- 				 break;
- 				 case EpisimDifferentiationLevel.GRANUCELL:{
- 					  	this.apoptosis_GranuCounter++;
- 					  
- 				 }
- 				 break;
- 				 case EpisimDifferentiationLevel.LATESPICELL:{
- 					  	this.apoptosis_LateSpiCounter++;
- 					  
- 				 }
- 				 break; 				  
- 			  }
-	   	
+		   if(cell instanceof UniversalCell){
+		   	UniversalCell kcyte = (UniversalCell) cell;
+		   	dekrementActualNumberKCytes();
+		   	
+		   	if(kcyte.getIsBasalCell()){ 
+		   		this.apoptosis_BasalCounter++;
+		   		
+		   	}
+		   	int diffLevel =  kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();
+		   	switch(diffLevel){
+	 			   case EpisimDifferentiationLevel.EARLYSPICELL:{
+	 				  this.apoptosis_EarlySpiCounter++; 					 
+	 			 }
+	 			 break;
+	 			 case EpisimDifferentiationLevel.GRANUCELL:{
+	 				  	this.apoptosis_GranuCounter++; 					  
+	 			 }
+	 			 break;
+	 			 case EpisimDifferentiationLevel.LATESPICELL:{
+	 				  	this.apoptosis_LateSpiCounter++; 					  
+	 			 }
+	 			 break; 				  
+	 		}	   	
 	   }
 	   
    }

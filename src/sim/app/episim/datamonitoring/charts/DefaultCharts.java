@@ -152,7 +152,7 @@ public class DefaultCharts implements java.io.Serializable{
 		/////////////////////////////////////
 		// Charts: DNA content Histogramm
 		/////////////////////////////////////
-		xySeries.put(new String[] { "DNA_Content", "DNA_Content_Series", "0"}, new XYSeries("DNA content"));
+		xySeries.put(new String[]{"DNA_Content", "DNA_Content_Series", "0"}, new XYSeries("DNA content"));
 		
 		xySeriesCollections.put("DNA_Content_Series", new XYSeriesCollection());
 		

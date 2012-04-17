@@ -418,9 +418,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			Double2D newCellLocation = cellField.getObjectLocation(getCell());
 			double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newCellLocation.x, newCellLocation.y);
 			if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getBasalLayerWidth())
-				getCell().setIsBasalStatisticsCell(true);
+				getCell().setIsBasalCell(true);
 			else
-				getCell().setIsBasalStatisticsCell(false); 
+				getCell().setIsBasalCell(false); 
 	
 			if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getMembraneCellsWidthInMikron()){
 				modelConnector.setIsMembrane(true);

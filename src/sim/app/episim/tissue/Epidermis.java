@@ -243,7 +243,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 		
 		GlobalStatistics.getInstance().reset(true);
 			     
-	   ModelController.getInstance().getBioMechanicalModelController().clearCellField();
+	   ModelController.getInstance().getBioMechanicalModelController().resetCellField();
 	   getAllCells().clear();
 	   seedInitiallyAvailableCells();
 	   

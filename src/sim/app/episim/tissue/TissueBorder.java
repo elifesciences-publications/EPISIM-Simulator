@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -20,6 +21,8 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensiona
 import episiminterfaces.NoExport;
 
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.app.episim.util.PointSorter;
 
 public class TissueBorder {
@@ -51,7 +54,10 @@ public class TissueBorder {
 	private boolean standardMembraneLoaded = false;	
 	private boolean noMembraneLoaded = false;
 	
-	private Point3f[] standardMembraneCoordinates3D;
+	private StandardMembrane3DCoordinates standardMembraneCoordinates3D;
+	
+	
+	private boolean isStandardMembrane2DGauss = false;
 	
 	private TissueBorder(){		
 		resetTissueBorderSettings();
@@ -202,26 +208,53 @@ public class TissueBorder {
 	}
 	
 	public double lowerBoundInMikron(double xCell, double yCell, double zCell){
-		return lowerBoundInMikron(xCell, yCell);
+		return lowerBoundInMikron(xCell, zCell);
 	}
 	
-	public double lowerBoundInMikron(double xCell, double yCell)
+	public double lowerBoundInMikron(double xCell, double zCell)
 	 {
+		
 		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 		if(standardMembraneLoaded){
 			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
-				// y = a * e ^ (-b * x * x) Gaussche Glockenkurve
+			return calculateStandardMembraneValue(xCell, zCell);
+		}
+		else if(noMembraneLoaded) return Double.NEGATIVE_INFINITY;
+		else if(this.actImportedTissue != null) return getLowerYCoordinateForXCoordinate(xCell, zCell);			
+		return Double.NEGATIVE_INFINITY;
+	 }
+	
+	
+	private double calculateStandardMembraneValue(double xCell, double yCell){
+		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL
+		   ||(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
+		       && MiscalleneousGlobalParameters.instance() instanceof MiscalleneousGlobalParameters3D
+		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.instance()).isStandardMembrane_2_Dim_Gauss()))){
+			// Gaussche Glockenkurve
 		     double p=basalPeriod; 
 		     
-		     double partition=xCell-(int)(xCell/p)*p - p/2;    
+		     double partition=xCell-((int)(xCell/p))*p - p/2;
 		     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_mikron());
 		     double result= (globalParameters.getBasalAmplitude_mikron()+2)-globalParameters.getBasalAmplitude_mikron()*v;
 		     return result;
 		}
-		else if(noMembraneLoaded) return Double.NEGATIVE_INFINITY;
-		else if(this.actImportedTissue != null) return getLowerYCoordinateForXCoordinate(xCell, yCell);			
-		return Double.NEGATIVE_INFINITY;
-	 }
+		else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
+		       && MiscalleneousGlobalParameters.instance() instanceof MiscalleneousGlobalParameters3D
+		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.instance()).isStandardMembrane_2_Dim_Gauss())){
+			// Gaussche Glockenkurve
+		     double p=basalPeriod; 
+		     
+		     double partitionX=xCell-((int)(xCell/p))*p - p/2;
+		     double partitionY=yCell-((int)(yCell/p))*p - p/2;
+		     double v=Math.exp(-1*((partitionX*partitionX)+ (partitionY*partitionY))/(globalParameters.getBasalOpening_mikron()+100));
+		     double result= (globalParameters.getBasalAmplitude_mikron()+2)-globalParameters.getBasalAmplitude_mikron()*v;
+		     return result;
+		}
+		return 0;
+	}
+	
+	
+	
 	public double upperBoundInMikron(double xCell, double yCell)
 	 {		
 		if(this.actImportedTissue != null){
@@ -366,24 +399,72 @@ public class TissueBorder {
 	
 	private void buildStandardMembrane3D(){
 		ArrayList<Point3f> coordinatesList = new ArrayList<Point3f>();
+		ArrayList<Point3f> leftCoordinatesList = new ArrayList<Point3f>();
+		ArrayList<Point3f> rightCoordinatesList = new ArrayList<Point3f>();
+		ArrayList<Point3f> frontCoordinatesList = new ArrayList<Point3f>();
+		ArrayList<Point3f> backCoordinatesList = new ArrayList<Point3f>();
 		final float STEPSIZE = 2;
 		
 		float width = (float)getWidthInMikron();
 		float length = (float)getLengthInMikron();	
 		
-		for(float i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+width); i += STEPSIZE){
-			coordinatesList.add(new Point3f(i, (float)lowerBoundInMikron(i, 0), 0f));			
-			coordinatesList.add(new Point3f(i, (float)lowerBoundInMikron(i, 0), length));
-			coordinatesList.add(new Point3f(i+STEPSIZE, (float)lowerBoundInMikron(i+STEPSIZE, 0), length));
-			coordinatesList.add(new Point3f(i+STEPSIZE, (float)lowerBoundInMikron(i+STEPSIZE, 0), 0f));		
+		for(float x = startXOfStandardMembrane; x <= (startXOfStandardMembrane+width); x += STEPSIZE){
+			for(float z = 0; z <= length; z += STEPSIZE){
+				coordinatesList.add(new Point3f(x, (float)lowerBoundInMikron(x, z), z));			
+				coordinatesList.add(new Point3f(x, (float)lowerBoundInMikron(x, z+STEPSIZE), z+STEPSIZE));
+				coordinatesList.add(new Point3f(x+STEPSIZE, (float)lowerBoundInMikron(x+STEPSIZE, z+STEPSIZE), z+STEPSIZE));
+				coordinatesList.add(new Point3f(x+STEPSIZE, (float)lowerBoundInMikron(x+STEPSIZE, z), z));
+				
+				if(x==startXOfStandardMembrane){
+					leftCoordinatesList.add(new Point3f(x, (float)lowerBoundInMikron(x, z), z));			
+					leftCoordinatesList.add(new Point3f(x, (float)lowerBoundInMikron(x, z+STEPSIZE), z+STEPSIZE));
+				}
+				if((x+STEPSIZE) >(startXOfStandardMembrane+width)){
+					rightCoordinatesList.add(new Point3f(x+STEPSIZE, (float)lowerBoundInMikron(x+STEPSIZE, z), z));
+					rightCoordinatesList.add(new Point3f(x+STEPSIZE, (float)lowerBoundInMikron(x+STEPSIZE, z+STEPSIZE), z+STEPSIZE));					
+				}
+				if(z==0){
+					frontCoordinatesList.add(new Point3f(x, (float)lowerBoundInMikron(x, z), z));
+					frontCoordinatesList.add(new Point3f(x+STEPSIZE, (float)lowerBoundInMikron(x+STEPSIZE, z), z));
+				}
+				if((z+STEPSIZE) > length){
+					backCoordinatesList.add(new Point3f(x, (float)lowerBoundInMikron(x, z+STEPSIZE), z+STEPSIZE));
+					backCoordinatesList.add(new Point3f(x+STEPSIZE, (float)lowerBoundInMikron(x+STEPSIZE, z+STEPSIZE), z+STEPSIZE));
+				}				
+			}
 		}
 		
 		
-		this.standardMembraneCoordinates3D = new Point3f[coordinatesList.size()];
-		for(int i = 0; i < this.standardMembraneCoordinates3D.length; i++) this.standardMembraneCoordinates3D[i] = coordinatesList.get(i);
+		this.standardMembraneCoordinates3D = new StandardMembrane3DCoordinates();
+		this.standardMembraneCoordinates3D.coordinates = new Point3f[coordinatesList.size()];
+		this.standardMembraneCoordinates3D.leftCoordinates = new Point3f[leftCoordinatesList.size()];
+		this.standardMembraneCoordinates3D.rightCoordinates = new Point3f[rightCoordinatesList.size()];
+		this.standardMembraneCoordinates3D.frontCoordinates = new Point3f[frontCoordinatesList.size()];
+		this.standardMembraneCoordinates3D.backCoordinates = new Point3f[backCoordinatesList.size()];
+		for(int i = 0; i < this.standardMembraneCoordinates3D.coordinates.length; i++) this.standardMembraneCoordinates3D.coordinates[i] = coordinatesList.get(i);
+		for(int i = 0; i < this.standardMembraneCoordinates3D.leftCoordinates.length; i++) this.standardMembraneCoordinates3D.leftCoordinates[i] = leftCoordinatesList.get(i);
+		for(int i = 0; i < this.standardMembraneCoordinates3D.rightCoordinates.length; i++) this.standardMembraneCoordinates3D.rightCoordinates[i] = rightCoordinatesList.get(i);
+		for(int i = 0; i < this.standardMembraneCoordinates3D.frontCoordinates.length; i++) this.standardMembraneCoordinates3D.frontCoordinates[i] = frontCoordinatesList.get(i);
+		for(int i = 0; i < this.standardMembraneCoordinates3D.backCoordinates.length; i++) this.standardMembraneCoordinates3D.backCoordinates[i] = backCoordinatesList.get(i);
 	}
 	
-	public Point3f[] getStandardMembraneCoordinates3D(){
+	public StandardMembrane3DCoordinates getStandardMembraneCoordinates3D(boolean update){
+		boolean wasUpdated = false;
+		if((ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
+		       && MiscalleneousGlobalParameters.instance() instanceof MiscalleneousGlobalParameters3D
+		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.instance()).isStandardMembrane_2_Dim_Gauss()) && !isStandardMembrane2DGauss)){
+			isStandardMembrane2DGauss = true;
+			wasUpdated= true;
+			buildStandardMembrane3D();
+		}
+		else if((ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
+		       && MiscalleneousGlobalParameters.instance() instanceof MiscalleneousGlobalParameters3D
+		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.instance()).isStandardMembrane_2_Dim_Gauss()) && isStandardMembrane2DGauss)){
+			isStandardMembrane2DGauss = false;
+			wasUpdated= true;
+			buildStandardMembrane3D();
+		}
+		if(update && !wasUpdated)buildStandardMembrane3D();
 		return this.standardMembraneCoordinates3D;
 	}
 	
@@ -459,6 +540,13 @@ public class TissueBorder {
 		else return Double.POSITIVE_INFINITY;
 	}
 	
+	public class StandardMembrane3DCoordinates{
+		public Point3f[] coordinates;
+		public Point3f[] leftCoordinates;
+		public Point3f[] rightCoordinates;
+		public Point3f[] frontCoordinates;
+		public Point3f[] backCoordinates;
+	}
 	
 	
 	

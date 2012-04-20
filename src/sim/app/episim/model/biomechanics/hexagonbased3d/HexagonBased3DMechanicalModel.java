@@ -600,6 +600,13 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	protected void clearCellField() {	   
    	cellField.clear();   
 	}
+	protected void resetCellField() {	   
+   	cellField.clear();
+   	int width = globalParameters.getNumber_of_columns();
+   	int length = globalParameters.getNumber_of_columns();
+   	int height = globalParameters.getNumber_of_rows();
+   	cellField = new HexagonalCellField3D(width, height, length);
+	}
 	
 	@NoExport
 	public Line3D getSpreadingLine(){

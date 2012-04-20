@@ -131,6 +131,12 @@ public class BiomechanicalModelFacade implements java.io.Serializable{
 		if(biomechanicalModel instanceof AbstractMechanicalModel) ((AbstractMechanicalModel) biomechanicalModel).clearCellField();
 	}
 	
+	
+	public void resetCellField(){
+		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
+		if(biomechanicalModel instanceof AbstractMechanicalModel) ((AbstractMechanicalModel) biomechanicalModel).resetCellField();
+	}
+	
 	public void removeCellsInWoundArea(GeneralPath woundArea){
 		if(woundArea!=null){
 			EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);

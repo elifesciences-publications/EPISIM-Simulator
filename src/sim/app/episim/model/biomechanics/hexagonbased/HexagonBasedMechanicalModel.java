@@ -616,6 +616,12 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	   	cellField.clear();
 	   	cellField = null;
    }
+	protected void resetCellField() {	   
+		clearCellField();
+		int width = (int)globalParameters.getNumber_of_columns();
+   	int height = (int)globalParameters.getNumber_of_rows();
+   	cellField = new ObjectGrid2D(width, height);
+	}
 	
    public void removeCellFromCellField() {
    	cellField.field[fieldLocation.x][fieldLocation.y] = null;

@@ -89,6 +89,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 					TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
 					TissueController.getInstance().getTissueBorder().getHeightInMikron(),
 					TissueController.getInstance().getTissueBorder().getLengthInMikron());
+   		
    	}   	
    	
    	externalForce=new Vector3d(0,0,0);      
@@ -108,6 +109,16 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		      cellField.setObjectLocation(cell, newloc);		      
 	      }
       }      
+   }
+   
+   public static GenericBag<AbstractCell> getAllCellsWithinDistance(Double3D location, double distance){
+   	Bag cells =cellField.getObjectsWithinDistance(location, distance, true);
+   	GenericBag<AbstractCell> abstractCells = new GenericBag<AbstractCell>();
+   	for(int i = 0; i< cells.size(); i++){
+   		if(cells.get(i) != null &&  cells.get(i) instanceof AbstractCell) abstractCells.add((AbstractCell) cells.get(i));
+   	}
+   	
+   	return abstractCells;
    }
       
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
@@ -310,40 +321,47 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	}
 	
 	public Point3d calculateLowerBoundaryPositionForCell(Point3d cellPosition){
-		Point3d minXPositionOnBoundary = findMinXPositionOnBoundary(cellPosition, cellPosition.x - (getKeratinoWidth()/2), cellPosition.x + (getKeratinoWidth()/2));
+		Point3d minXPositionOnBoundary = findMinXZPositionOnBoundary(cellPosition, cellPosition.x - (getKeratinoWidth()/2), cellPosition.x + (getKeratinoWidth()/2), cellPosition.z - (getKeratinoLength()/2), cellPosition.z + (getKeratinoLength()/2));
 		Vector3d cellPosBoundaryDirVect = new Vector3d((cellPosition.x-minXPositionOnBoundary.x),(cellPosition.y-minXPositionOnBoundary.y),(cellPosition.z-minXPositionOnBoundary.z));
+		boolean sittingDirectlyOnMembrane = false;
 		if(cellPosBoundaryDirVect.x==0 && cellPosBoundaryDirVect.y==0 && cellPosBoundaryDirVect.z==0){
-			Vector3d tangentVect = new Vector3d();
-			tangentVect.x = (cellPosition.x+1)-(cellPosition.x-1);
-			tangentVect.y = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x+1, cellPosition.y, cellPosition.z)-TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x-1, cellPosition.y, cellPosition.z);
-			tangentVect.z = 0;
-			cellPosBoundaryDirVect.x=tangentVect.y;
-			cellPosBoundaryDirVect.y=-1*tangentVect.x;
-			cellPosBoundaryDirVect.z=tangentVect.z;
+			minXPositionOnBoundary = findMinXZPositionOnBoundary(new Point3d(cellPosition.x,cellPosition.y+1,cellPosition.z), cellPosition.x - (getKeratinoWidth()/2), cellPosition.x + (getKeratinoWidth()/2), cellPosition.z - (getKeratinoLength()/2), cellPosition.z + (getKeratinoLength()/2));
+			cellPosBoundaryDirVect = new Vector3d((cellPosition.x-minXPositionOnBoundary.x),((cellPosition.y+1)-minXPositionOnBoundary.y),(cellPosition.z-minXPositionOnBoundary.z));
+			sittingDirectlyOnMembrane= true;
 		}
-		double distanceCorrectionFactor = 1;
-		if((cellPosition.y-(getKeratinoWidth()/2)) <TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x, cellPosition.y, cellPosition.z)){
-			cellPosBoundaryDirVect.negate();
-			distanceCorrectionFactor = (getKeratinoWidth()/2)+ cellPosition.distance(minXPositionOnBoundary);
+		double requiredDistanceToMembrane = calculateDistanceToCellCenter(new Point3d(getX(), getY(), getZ()), new Point3d(minXPositionOnBoundary.x, minXPositionOnBoundary.y, minXPositionOnBoundary.z), getKeratinoWidth()/2, getKeratinoHeight()/2, getKeratinoLength()/2);
+		double actualDistanceToMembrane = sittingDirectlyOnMembrane ? 0:cellPosition.distance(minXPositionOnBoundary);
+		
+		
+	
+		if(requiredDistanceToMembrane > actualDistanceToMembrane){
+			cellPosBoundaryDirVect.normalize();		
+			cellPosBoundaryDirVect.scale(requiredDistanceToMembrane-actualDistanceToMembrane);
+			Point3d newPoint = new Point3d((cellPosition.x+cellPosBoundaryDirVect.x),(cellPosition.y+cellPosBoundaryDirVect.y),(cellPosition.z+cellPosBoundaryDirVect.z));
+			if(TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newPoint.x, newPoint.y, newPoint.z) > newPoint.y){
+				cellPosBoundaryDirVect.negate();
+				newPoint = new Point3d((cellPosition.x+cellPosBoundaryDirVect.x),(cellPosition.y+cellPosBoundaryDirVect.y),(cellPosition.z+cellPosBoundaryDirVect.z));
+			}
+			if(Math.abs(requiredDistanceToMembrane-actualDistanceToMembrane) > requiredDistanceToMembrane*0.2)return calculateLowerBoundaryPositionForCell(newPoint);
+			return newPoint;
 		}
-		else{
-			distanceCorrectionFactor = (getKeratinoWidth()/2)- cellPosition.distance(minXPositionOnBoundary);
-		}
-		cellPosBoundaryDirVect.normalize();		
-		cellPosBoundaryDirVect.scale(distanceCorrectionFactor);
-		return new Point3d((cellPosition.x+cellPosBoundaryDirVect.x),(cellPosition.y+cellPosBoundaryDirVect.y),(cellPosition.z+cellPosBoundaryDirVect.z));
+		
+		
+		return new Point3d((cellPosition.x),(cellPosition.y),(cellPosition.z));
 	}
 	
-	private Point3d findMinXPositionOnBoundary(Point3d cellPosition, double minX, double maxX){
+	private Point3d findMinXZPositionOnBoundary(Point3d cellPosition, double minX, double maxX, double minZ, double maxZ){
 		double minDist = Double.POSITIVE_INFINITY;
 		Point3d actMinPoint=null;
 		for(double x = minX; x <= maxX; x+=0.5){
-			double actY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x, cellPosition.y, cellPosition.z);
-			Point3d actPos = new Point3d(x, actY,cellPosition.z);
-			if(actPos.distance(cellPosition) < minDist){
-				minDist= actPos.distance(cellPosition);
-				actMinPoint = actPos;
-			}			
+			for(double z = minZ; z <= maxZ; z+=0.5){
+			double actY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x, cellPosition.y, z);
+				Point3d actPos = new Point3d(x, actY, z);
+				if(actPos.distance(cellPosition) < minDist){
+					minDist= actPos.distance(cellPosition);
+					actMinPoint = actPos;
+				}	
+			}
 		}
 		return actMinPoint;
 	}
@@ -569,6 +587,15 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	   if(!cellField.getAllObjects().isEmpty()){
 	   	cellField.clear();
 	   }
+   }
+   protected void resetCellField() {
+	   if(!cellField.getAllObjects().isEmpty()){
+	   	cellField.clear();
+	   }
+	   cellField = new Continuous3D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
+				TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
+				TissueController.getInstance().getTissueBorder().getHeightInMikron(),
+				TissueController.getInstance().getTissueBorder().getLengthInMikron());
    }
    public void removeCellFromCellField() {
 	   cellField.remove(this.getCell());

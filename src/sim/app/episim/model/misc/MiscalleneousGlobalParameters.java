@@ -3,9 +3,11 @@ package sim.app.episim.model.misc;
 import java.util.ArrayList;
 import java.util.List;
 
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ObjectManipulations;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
 
 public class MiscalleneousGlobalParameters implements java.io.Serializable{
@@ -30,6 +32,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
 	}
 	
 	
+	
    
 	
 	
@@ -40,9 +43,15 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
 	}
 	
 	public static synchronized MiscalleneousGlobalParameters instance(){
-		if(instance == null){ 
-			instance = new MiscalleneousGlobalParameters();
-			resetinstance = new MiscalleneousGlobalParameters();
+		if(instance == null){
+			if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
+				instance = new MiscalleneousGlobalParameters();
+				resetinstance = new MiscalleneousGlobalParameters();
+			}
+			else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+				instance = new MiscalleneousGlobalParameters3D();
+				resetinstance = new MiscalleneousGlobalParameters3D();
+			}
 		}
 		return instance;
 	}
@@ -85,5 +94,24 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
    	if(diffusionFieldOpacity > 255) diffusionFieldOpacity =255;
    	if(diffusionFieldOpacity < 0) diffusionFieldOpacity =0;
    	this.diffusionFieldOpacity = diffusionFieldOpacity;
-   }	
+   }
+   
+   public static class MiscalleneousGlobalParameters3D extends MiscalleneousGlobalParameters{
+   	
+   	
+   	private boolean standardMembrane_2_Dim_Gauss = false;
+   	
+   	private MiscalleneousGlobalParameters3D(){}
+   	
+   	public boolean isStandardMembrane_2_Dim_Gauss(){
+      
+      	return standardMembrane_2_Dim_Gauss;
+      }
+		
+      public void setStandardMembrane_2_Dim_Gauss(boolean standardMembrane_2_Dim_Gauss) {      
+      	this.standardMembrane_2_Dim_Gauss = standardMembrane_2_Dim_Gauss;
+      }   	
+   }
+   
+   
 }

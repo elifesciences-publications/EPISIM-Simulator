@@ -15,6 +15,7 @@ import javax.vecmath.Vector3f;
 
 import episiminterfaces.EpisimPortrayal;
 
+import sim.app.episim.tissue.TissueBorder.StandardMembrane3DCoordinates;
 import sim.app.episim.tissue.TissueController;
 import sim.display3d.Display3DHack;
 import sim.portrayal3d.SimplePortrayal3D;
@@ -46,19 +47,20 @@ public class BasementMembranePortrayal3D extends SimplePortrayal3D implements Ep
 	      TransformGroup modelTG = new TransformGroup();
 	      modelTG.setCapability(Group.ALLOW_CHILDREN_READ);
 	      if(TissueController.getInstance().getTissueBorder().isStandardMembraneLoaded()){
-	      	Point3f[] membraneCoordinatesA = TissueController.getInstance().getTissueBorder().getStandardMembraneCoordinates3D();
+	      	StandardMembrane3DCoordinates standardMembraneCoordinates = TissueController.getInstance().getTissueBorder().getStandardMembraneCoordinates3D(true);
+	      	Point3f[] membraneCoordinatesA = standardMembraneCoordinates.coordinates;
 	      	Point3f[] membraneCoordinatesB = generateLowerFace(membraneCoordinatesA);
 	      	Vector3f[] normalsA = generateNormals(membraneCoordinatesA, false);
 	      	Vector3f[] normalsB = generateNormals(membraneCoordinatesB, true);
 	      	
 	      	
-	      	Point3f[] frontFace = generateFrontFace(membraneCoordinatesA, membraneCoordinatesB);
-	      	Point3f[] backFace = generateBackFace(membraneCoordinatesA, membraneCoordinatesB);
+	      	Point3f[] frontFace = generateSideFace(standardMembraneCoordinates.frontCoordinates);
+	      	Point3f[] backFace = generateSideFace(standardMembraneCoordinates.backCoordinates);
 	      	Vector3f[] normalsFront = generateNormals(frontFace, true);
 	      	Vector3f[] normalsBack = generateNormals(backFace, false);
 	      	
-	      	Point3f[] sideFaceLeft = generateSideFaceLeft(membraneCoordinatesA, membraneCoordinatesB);
-	      	Point3f[] sideFaceRight = generateSideFaceRight(membraneCoordinatesA, membraneCoordinatesB);
+	      	Point3f[] sideFaceLeft = generateSideFace(standardMembraneCoordinates.leftCoordinates);
+	      	Point3f[] sideFaceRight = generateSideFace(standardMembraneCoordinates.rightCoordinates);
 	      	Vector3f[] normalsLeft = generateNormals(sideFaceLeft, false);
 	      	Vector3f[] normalsRight = generateNormals(sideFaceRight, true);
 	      	
@@ -154,48 +156,18 @@ public class BasementMembranePortrayal3D extends SimplePortrayal3D implements Ep
 		return lowerFace;
 	}
 	
-	private Point3f[] generateFrontFace(Point3f[] pointsA, Point3f[] pointsB){
-		ArrayList<Point3f> pointsFront = new ArrayList<Point3f>();
-		for(int i = 0; i < pointsA.length; i+=4){
-			pointsFront.add(new Point3f(pointsA[i]));
-			pointsFront.add(new Point3f(pointsB[i]));
-			pointsFront.add(new Point3f(pointsB[i+3]));
-			pointsFront.add(new Point3f(pointsA[i+3]));
+	private Point3f[] generateSideFace(Point3f[] points){
+		ArrayList<Point3f> pointsSide = new ArrayList<Point3f>();
+		final float height =1;
+		for(int i = 0; i < (points.length-1); i++){
+			pointsSide.add(new Point3f(points[i]));
+			pointsSide.add(new Point3f(points[i].x,points[i].y-height,points[i].z));
+			pointsSide.add(new Point3f(points[i+1].x,points[i+1].y-height,points[i+1].z));
+			pointsSide.add(new Point3f(points[i+1]));
 		}		
-		return pointsFront.toArray(new Point3f[pointsFront.size()]);		
+		return pointsSide.toArray(new Point3f[pointsSide.size()]);		
 	}
-	private Point3f[] generateBackFace(Point3f[] pointsA, Point3f[] pointsB){
-		ArrayList<Point3f> pointsBack = new ArrayList<Point3f>();
-		for(int i = 0; i < pointsA.length; i+=4){
-			pointsBack.add(new Point3f(pointsA[i+1]));
-			pointsBack.add(new Point3f(pointsB[i+1]));
-			pointsBack.add(new Point3f(pointsB[i+2]));
-			pointsBack.add(new Point3f(pointsA[i+2]));
-		}		
-		return pointsBack.toArray(new Point3f[pointsBack.size()]);		
-	}
-	
-	private Point3f[] generateSideFaceLeft(Point3f[] pointsA, Point3f[] pointsB){
-		ArrayList<Point3f> pointsFaceLeft = new ArrayList<Point3f>();
-		
-		pointsFaceLeft.add(new Point3f(pointsA[0]));
-		pointsFaceLeft.add(new Point3f(pointsB[0]));
-		pointsFaceLeft.add(new Point3f(pointsB[1]));
-		pointsFaceLeft.add(new Point3f(pointsA[1]));
-			
-		return pointsFaceLeft.toArray(new Point3f[pointsFaceLeft.size()]);		
-	}
-	
-	private Point3f[] generateSideFaceRight(Point3f[] pointsA, Point3f[] pointsB){
-		ArrayList<Point3f> pointsFaceRight = new ArrayList<Point3f>();
-		
-		pointsFaceRight.add(new Point3f(pointsA[pointsA.length-1]));
-		pointsFaceRight.add(new Point3f(pointsB[pointsB.length-1]));
-		pointsFaceRight.add(new Point3f(pointsB[pointsB.length-2]));
-		pointsFaceRight.add(new Point3f(pointsA[pointsA.length-2]));
-			
-		return pointsFaceRight.toArray(new Point3f[pointsFaceRight.size()]);		
-	}
+
 	
 	
 	

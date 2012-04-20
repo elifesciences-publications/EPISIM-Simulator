@@ -108,6 +108,9 @@ public class BiomechanicalModelController implements java.io.Serializable{
 	public void clearCellField(){
 		biomechanicalModel.clearCellField();
 	}
+	public void resetCellField(){
+		biomechanicalModel.resetCellField();
+	}
 	public void removeCellsInWoundArea(GeneralPath woundArea){
 		biomechanicalModel.removeCellsInWoundArea(woundArea);
 	}

@@ -289,6 +289,12 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	   	cellField.clear();
 	   }
    }
+	protected void resetCellField() {
+	  clearCellField();
+	  cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
+	   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getWidthInMikron(), 
+	   		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getHeightInMikron());
+   }
 
 	
    public void removeCellFromCellField() {

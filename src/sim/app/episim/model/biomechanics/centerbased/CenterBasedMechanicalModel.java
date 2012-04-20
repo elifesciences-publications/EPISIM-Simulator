@@ -617,6 +617,14 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   	cellField.clear();
 	   }
    }
+   protected void resetCellField() {
+	   if(!cellField.getAllObjects().isEmpty()){
+	   	cellField.clear();
+	   }
+	   cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
+				TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
+				TissueController.getInstance().getTissueBorder().getHeightInMikron());
+   }
    public void removeCellFromCellField() {
 	   cellField.remove(this.getCell());
    }

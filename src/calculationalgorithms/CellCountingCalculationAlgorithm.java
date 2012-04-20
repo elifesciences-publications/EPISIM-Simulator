@@ -68,11 +68,7 @@ public class CellCountingCalculationAlgorithm extends AbstractCommonCalculationA
    }
 
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
-		try{
-		
-			
-			
-			
+		try{	
 			double cellCounter = 0;
 			for(AbstractCell actCell: allCells){
 				if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){

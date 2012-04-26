@@ -170,23 +170,30 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
         	   else if(keratinoType == EpisimDifferentiationLevel.EARLYSPICELL){red=0xE1; green=0x6B; blue=0xF6;}
         	   else if(keratinoType == EpisimDifferentiationLevel.LATESPICELL){red=0xC1; green=0x4B; blue=0xE6;}
         	   else if(keratinoType == EpisimDifferentiationLevel.GRANUCELL){red=204; green=0; blue=102;}
-        	  
-              
-            if((kcyte.getIsOuterCell()) && (coloringType==2)){red=0xF3; green=0xBE; blue=0x4E;}      
-            
+        	               
+                       
             boolean isMembraneCell = false;
+            boolean isOuterCell = kcyte.getIsOuterCell();
+            boolean isNextToOuterCell = false;
             if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){ 
             	isMembraneCell=((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
-            	if((((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell()) && (coloringType==2))
-            	{red=255; green=255; blue=255;}
+            	isNextToOuterCell = ((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell();
+        
             }
             if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){ 
             	isMembraneCell=((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
-            	if((((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell()) && (coloringType==2))
-            	{red=255; green=255; blue=255;}
+            	isNextToOuterCell = ((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell();
+            	
             }
             if(kcyte.getEpisimBioMechanicalModelObject() instanceof VertexBasedMechanicalModel) isMembraneCell=((VertexBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
-            if(isMembraneCell && (coloringType==2)){red=0xF3; green=0xFF; blue=0x4E;}                        
+           
+            
+            if(coloringType==2){
+            	if(isMembraneCell){ red=230; green=255; blue=80;}
+            	if(isNextToOuterCell){ red=255; green=255; blue=255;}
+            	if(isOuterCell){ red=133; green=133; blue=133;}
+            }
+            
        }
        if (coloringType==3) // Age coloring
        {              

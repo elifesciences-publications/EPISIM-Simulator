@@ -102,6 +102,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    
    private CenterBasedMechanicalModelGP globalParameters = null;
    
+   private double surfaceAreaRatio =0;
+   
    public CenterBasedMechanicalModel(){
    	this(null);
    }
@@ -584,10 +586,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	}
 	
 	public void setLastSimulationDisplayPropsForNewCellEllipse(SimulationDisplayProperties displayProps, Double2D newloc){		
-		if(displayProps != null){
-			
-
-		
+		if(displayProps != null){		
 			getCellEllipseObject().setLastSimulationDisplayProps(displayProps, true);
 			getCellEllipseObject().setXY(newloc.x, newloc.y);
 		}  
@@ -681,7 +680,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    }
 
 	
-   protected void newSimStepGloballyFinished(long simStepNumber){
+   /*protected void newSimStepGloballyFinished(long simStepNumber){
    	// updates the isOuterSurface Flag for the surface exposed cells
    	double binResolutionInMikron = CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH;
  	  	int MAX_XBINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()/binResolutionInMikron)+1); 
@@ -709,10 +708,65 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	      for (int k=0; k< MAX_XBINS; k++)
 	      {
 	          if((xLookUp[k]==null) || (xLookUp[k].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
-	          xLookUp[k].setIsOuterCell(true);
+	          else{
+	         	 xLookUp[k].setIsOuterCell(true);
+	         	 CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)xLookUp[k].getEpisimBioMechanicalModelObject();
+	         	 mechModel.modelConnector.setIsSurface(xLookUp[k].getIsOuterCell() || mechModel.nextToOuterCell());
+	          }
+	      }
+      } 
+   }*/
+   protected void newSimStepGloballyFinished(long simStepNumber){
+   	// updates the isOuterSurface Flag for the surface exposed cells
+   	double binResolutionInMikron = 1;// CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH;
+ 	  	int MAX_XBINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()));///binResolutionInMikron)+1); 
+      AbstractCell[] xLookUp=new AbstractCell[MAX_XBINS];                                         
+      double [] yLookUp=new double[MAX_XBINS]; 
+      GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
+      if(allCells!= null){
+      	AbstractCell[] cellArray = allCells.toArray(new AbstractCell[allCells.size()]);
+	      int numberOfCells = cellArray.length;
+	      for (int i=0; i<numberOfCells; i++)
+	      {
+	          // iterate through all cells and determine the KCyte with lowest Y at bin
+	          if(cellArray[i]!=null){
+	         	 cellArray[i].setIsOuterCell(false);
+		          CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+		          Double2D loc= mechModel.getCellLocationInCellField();
+		          double width = mechModel.getKeratinoWidth();
+		          int xbin= Math.round((float) (loc.x / binResolutionInMikron));
+		          int xbinRight= Math.round((float) ((loc.x+(width/2)) / binResolutionInMikron));
+		          int xbinLeft= Math.round((float) ((loc.x-(width/2)) / binResolutionInMikron));
+		   
+		         // calculate score for free bins and add threshhold
+		          	 double numberOfBinsAssigned = 0;	
+		         	 for(int n = xbinLeft; n <= xbinRight; n++){
+		         		 	int index = n < 0 ? xLookUp.length + n : n >= xLookUp.length ? n - xLookUp.length : n;
+		         		 	if (xLookUp[index]==null || loc.y>yLookUp[index]){
+			         		 	xLookUp[index]=cellArray[i];                            
+				             	yLookUp[index]=loc.y;
+				             	numberOfBinsAssigned++;
+		         		 	}
+			          }
+		        // 	 System.out.println("Number of Bins: " + ((xbinRight+1)-xbinLeft) + "   Bins Assigned: "+ numberOfBinsAssigned);
+		         	 mechModel.surfaceAreaRatio = numberOfBinsAssigned > 0 ? (numberOfBinsAssigned/((double)((xbinRight+1)-xbinLeft))) : 0;
+		        
+		         	//System.out.println("Surface area Ratio: " + mechModel.surfaceAreaRatio);
+		        
+	          }
+	      }      
+	      for (int k=0; k< MAX_XBINS; k++)
+	      {
+	          if((xLookUp[k]==null) || (xLookUp[k].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+	          else{
+	         	 CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)xLookUp[k].getEpisimBioMechanicalModelObject();
+	         	 if(mechModel.surfaceAreaRatio > 0) xLookUp[k].setIsOuterCell(true);
+	         	 mechModel.modelConnector.setIsSurface(xLookUp[k].getIsOuterCell() || mechModel.nextToOuterCell());
+	          }
 	      }
       } 
    }
+    
 
    /**
     * Parameter sizeDelta is ignored

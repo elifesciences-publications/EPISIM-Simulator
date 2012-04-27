@@ -59,7 +59,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    
    private static final double MAX_DISPLACEMENT_FACT = 0.6;
    
-   public final double NEXT_TO_OUTERCELL=INITIAL_KERATINO_HEIGHT*1;
+   public final double NEXT_TO_OUTERCELL=INITIAL_KERATINO_HEIGHT*1.2;
    private double MINDIST=0.1;   
    
    private double keratinoWidth=-1; 

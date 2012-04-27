@@ -78,6 +78,8 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    private static Continuous3D cellField;  
    private CenterBased3DMechanicalModelGP globalParameters = null;
    
+   private double surfaceAreaRatio =0;
+   
    public CenterBased3DMechanicalModel(){
    	this(null);
    }
@@ -630,7 +632,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	   return new Vector3d( vector.x * length / temp, vector.y * length / temp, vector.z * length / temp );
    }	
 	
-   protected void newSimStepGloballyFinished(long simStepNumber){
+/*   protected void newSimStepGloballyFinished(long simStepNumber){
    // updates the isOuterSurface Flag for the surface exposed cells
    	double binResolutionXInMikron = CenterBased3DMechanicalModel.INITIAL_KERATINO_WIDTH;
    	double binResolutionZInMikron = CenterBased3DMechanicalModel.INITIAL_KERATINO_LENGTH*0.8;
@@ -678,7 +680,73 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	          if((maxYFound- yLookUp[(MAX_Z_BINS-1)][x] < (NEXT_TO_OUTERCELL/2))) x_z_LookUp[(MAX_Z_BINS-1)][x].setIsOuterCell(true);
 	      }
       }
-   }
+   }*/
+   
+   protected void newSimStepGloballyFinished(long simStepNumber){
+      // updates the isOuterSurface Flag for the surface exposed cells
+      	double binResolutionXInMikron = 1;//CenterBased3DMechanicalModel.INITIAL_KERATINO_WIDTH;
+      	double binResolutionZInMikron = 1;//CenterBased3DMechanicalModel.INITIAL_KERATINO_LENGTH*0.8;
+      	int MAX_Z_BINS= ((int)(TissueController.getInstance().getTissueBorder().getLengthInMikron()));///binResolutionZInMikron))+1;
+    	  	int MAX_X_BINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()));///binResolutionXInMikron))+1; 
+         AbstractCell[][] x_z_LookUp=new AbstractCell[MAX_Z_BINS][MAX_X_BINS];                                         
+         double [][] yLookUp=new double[MAX_Z_BINS][MAX_X_BINS];    
+         GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
+         if(allCells!= null){
+         	AbstractCell[] cellArray = allCells.toArray(new AbstractCell[allCells.size()]);
+   	      int numberOfCells = cellArray.length;
+   	      double maxYFound = 0;
+   	      for (int i=0; i < numberOfCells; i++)
+   	      {
+   	          // iterate through all cells and determine the KCyte with lowest Y at bin
+   	         if(cellArray[i] != null){
+   	         	 cellArray[i].setIsOuterCell(false);
+   		          CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+   		          Double3D loc= mechModel.getCellLocationInCellField();
+   		          
+   		          double width = mechModel.getKeratinoWidth();
+   		          double length = mechModel.getKeratinoLength();
+   		          
+   		          int xbinRight= Math.round((float) ((loc.x+(width/2)) / binResolutionXInMikron));
+   		          int xbinLeft= Math.round((float) ((loc.x-(width/2)) / binResolutionXInMikron));
+   		          
+   		          int zbinFront= Math.round((float) ((loc.z+(length/2)) / binResolutionZInMikron));
+   		          int zbinBack= Math.round((float) ((loc.z-(length/2)) / binResolutionZInMikron));
+   		          
+   		         
+   		          
+
+   			       // calculate score for free bins and add threshhold
+   			       double numberOfBinsAssigned = 0;	
+   		          for(int m = zbinBack; m <= zbinFront; m++){
+   		         	 int zIndex = m < 0 ? x_z_LookUp.length + m : m >= x_z_LookUp.length ? m - x_z_LookUp.length : m;
+   		         	 for(int n = xbinLeft; n<= xbinRight; n++){
+   		         		 int xIndex = n < 0 ? x_z_LookUp[zIndex].length + n : n >= x_z_LookUp[zIndex].length ? n - x_z_LookUp[zIndex].length : n;
+   		         		 if (x_z_LookUp[zIndex][xIndex]==null || loc.y>yLookUp[zIndex][xIndex]) 
+   	   		          {
+   	   		             x_z_LookUp[zIndex][xIndex]=cellArray[i];                            
+   	   		             yLookUp[zIndex][xIndex]=loc.y;
+   	   		             numberOfBinsAssigned++;
+   	   		          }		         	 
+   		         	 }
+   		          }
+   		          mechModel.surfaceAreaRatio = numberOfBinsAssigned > 0 ? (numberOfBinsAssigned/((double)((xbinRight+1)-xbinLeft)*((zbinFront+1)-zbinBack))) : 0;
+   		         
+   	         }
+   	      }      
+   	      for (int z=0; z < MAX_Z_BINS; z++){
+   		      for (int x=0; x < MAX_X_BINS; x++)
+   		      {  	
+   		      	
+   		      	if((x_z_LookUp[z][x]==null) || (x_z_LookUp[z][x].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+   		      	else{
+   		      		CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel)x_z_LookUp[z][x].getEpisimBioMechanicalModelObject();
+   		      		if(mechModel.surfaceAreaRatio > 0) x_z_LookUp[z][x].setIsOuterCell(true);
+   		      		mechModel.modelConnector.setIsSurface(x_z_LookUp[z][x].getIsOuterCell() || mechModel.nextToOuterCell());
+   		      	}   		      	
+   		      }
+   	      }   	     
+         }
+      }
 
    /**
     * Parameter sizeDelta is ignored

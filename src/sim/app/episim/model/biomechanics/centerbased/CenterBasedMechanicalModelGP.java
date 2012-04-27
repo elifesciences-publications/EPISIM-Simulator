@@ -1,7 +1,7 @@
 package sim.app.episim.model.biomechanics.centerbased;
 
-import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoUserModification;
 
 public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	

@@ -3,6 +3,8 @@ package sim.app.episim.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import episiminterfaces.NoUserModification;
+
 
 
 import sim.app.episim.ExceptionDisplayer;

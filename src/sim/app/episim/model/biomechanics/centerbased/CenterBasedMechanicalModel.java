@@ -734,7 +734,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		          CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
 		          Double2D loc= mechModel.getCellLocationInCellField();
 		          double width = mechModel.getKeratinoWidth();
-		          int xbin= Math.round((float) (loc.x / binResolutionInMikron));
+		         
 		          int xbinRight= Math.round((float) ((loc.x+(width/2)) / binResolutionInMikron));
 		          int xbinLeft= Math.round((float) ((loc.x-(width/2)) / binResolutionInMikron));
 		   
@@ -747,12 +747,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 				             	yLookUp[index]=loc.y;
 				             	numberOfBinsAssigned++;
 		         		 	}
-			          }
-		        // 	 System.out.println("Number of Bins: " + ((xbinRight+1)-xbinLeft) + "   Bins Assigned: "+ numberOfBinsAssigned);
-		         	 mechModel.surfaceAreaRatio = numberOfBinsAssigned > 0 ? (numberOfBinsAssigned/((double)((xbinRight+1)-xbinLeft))) : 0;
-		        
-		         	//System.out.println("Surface area Ratio: " + mechModel.surfaceAreaRatio);
-		        
+			          }		        
+		         	 mechModel.surfaceAreaRatio = numberOfBinsAssigned > 0 ? (numberOfBinsAssigned/((double)((xbinRight+1)-xbinLeft))) : 0;    
 	          }
 	      }      
 	      for (int k=0; k< MAX_XBINS; k++)

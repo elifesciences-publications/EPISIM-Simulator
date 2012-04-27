@@ -1,8 +1,8 @@
 package sim.app.episim.model.biomechanics.hexagonbased;
 
 import sim.app.episim.model.visualization.BorderlinePortrayal.BorderlineConfig;
-import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.NoExport;
 

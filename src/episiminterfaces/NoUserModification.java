@@ -1,4 +1,4 @@
-package sim.app.episim.util;
+package episiminterfaces;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

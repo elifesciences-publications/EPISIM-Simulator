@@ -1,6 +1,5 @@
 package episiminterfaces;
 
-import sim.app.episim.util.NoUserModification;
 
 public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serializable{ 	
 	

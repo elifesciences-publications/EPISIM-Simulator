@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.util.NoUserModification;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
 

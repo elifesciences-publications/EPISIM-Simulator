@@ -1,8 +1,8 @@
 package sim.app.episim.model.biomechanics.hexagonbased3d;
 
-import sim.app.episim.util.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
+import episiminterfaces.NoUserModification;
 
 public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 

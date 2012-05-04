@@ -52,13 +52,11 @@ public class SumValueConditionedCalculationAlgorithm  extends AbstractCommonCalc
 		double sum = 0;
 		double result = 0;
 		for(AbstractCell actCell : allCells){
-
+			result = 0;
 			try{
 				if(handler.conditionFulfilled(actCell)){
 					result = handler.calculate(actCell);
-					sum += result;					
-					if(sum != 0) results.add1DValue(sum);
-					else results.add1DValue(0d);
+					sum += result;				
 				}
 			}
 			catch (CellNotValidException e){
@@ -66,8 +64,8 @@ public class SumValueConditionedCalculationAlgorithm  extends AbstractCommonCalc
 			}
 		}
 		
-		
-	   result = 0;
+		if(sum != 0) results.add1DValue(sum);
+		else results.add1DValue(0d);	   
    }	
 	
 }

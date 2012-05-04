@@ -402,18 +402,16 @@ String[] BooleanExpression():{
  	String[] totalResult = new String[2]; 	
  }
  { 
-    exp1 =BooleanTerm()  ("||" {exp1[0] += "||"; exp1[1] += "||";} exp2=BooleanTerm())*
-    
-	
-	{
-		if(exp2 != null){
-			totalResult[0] =exp1[0]+ exp2[0];
-			totalResult[1] =exp1[1]+ exp2[1];
+    exp1 =BooleanTerm()  ("||" {exp1[0] += "||"; exp1[1] += "||";} exp2=BooleanTerm()    {
+       if(exp2 != null){
+			exp1[0] +=exp2[0];
+			exp1[1] +=exp2[1];
 		}
-		else{
+    })*    
+	
+	{		
 			totalResult[0] =exp1[0];
 			totalResult[1] =exp1[1];
-		}
 		return totalResult;
 	}
 }

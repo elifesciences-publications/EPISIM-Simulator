@@ -54,7 +54,7 @@ public class SumValueCalculationAlgorithm extends AbstractCommonCalculationAlgor
 		double sum = 0;
 		double result = 0;
 		for(AbstractCell actCell : allCells){
-
+			result = 0;
 			try{
 				result = handler.calculate(actCell);
 				sum += result;

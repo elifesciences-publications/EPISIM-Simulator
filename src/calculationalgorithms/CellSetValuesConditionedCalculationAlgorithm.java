@@ -69,10 +69,12 @@ public class CellSetValuesConditionedCalculationAlgorithm extends AbstractCommon
 			Vector<Double> resultingValues = new Vector<Double>();
 			
 			for(AbstractCell actCell: allCells){
+				
 				if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){
 					if(handler.conditionFulfilled(actCell)) resultingValues.add(handler.calculate(actCell));
 				}
 			}
+			
 			results.addMultiDimValue(resultingValues);			
 		}
 		catch(CellNotValidException ex){

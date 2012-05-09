@@ -104,6 +104,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    
    private double surfaceAreaRatio =0;
    
+   
+  
+   
+   
    public CenterBasedMechanicalModel(){
    	this(null);
    }
@@ -360,7 +364,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			
 			Double2D randomPositionData = new Double2D(globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
 					globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
-			Vector2d actionForce = new Vector2d(externalForce.x * globalParameters.getExternalPush()+ randomPositionData.x, externalForce.y * globalParameters.getExternalPush());
+			Vector2d actionForce = new Vector2d(externalForce.x * globalParameters.getExternalPush()+ randomPositionData.x, externalForce.y * globalParameters.getExternalPush()+randomPositionData.y);
 			Double2D potentialLoc = null;
 			
 			potentialLoc = new Double2D(cellField.stx(actionForce.x + oldCellLocation.x), cellField.sty(actionForce.y + oldCellLocation.y));
@@ -384,9 +388,13 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			reactionForce.add(hitResult1.adhForce);				
 			if(reactionForce.length() > actionForce.length())reactionForce = setVector2dLength(reactionForce, actionForce.length());
 	
+			
+	
+			
+			
 			externalForce.x = 0;
 			externalForce.y = 0;
-	
+			
 			// bound also by borders
 			double potX = oldCellLocation.x + actionForce.x + reactionForce.x;
 			double potY = oldCellLocation.y + actionForce.y + reactionForce.y;
@@ -795,4 +803,6 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	  
 	   return new CellBoundaries(new Ellipse2D.Double(x-(width/2), y-(height/2), width, height));
    }
+
+	
 }

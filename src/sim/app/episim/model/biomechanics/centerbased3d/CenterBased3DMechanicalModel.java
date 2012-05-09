@@ -406,7 +406,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 				globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5),
 				globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
 		Vector3d actionForce = new Vector3d(externalForce.x * globalParameters.getExternalPush() + randi.x, 
-														externalForce.y * globalParameters.getExternalPush(),
+														externalForce.y * globalParameters.getExternalPush()+randi.y,
 														externalForce.z * globalParameters.getExternalPush() + randi.z);
 		Double3D potentialLoc = null;
 		

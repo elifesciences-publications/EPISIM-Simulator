@@ -49,7 +49,7 @@ public class TissueBorder {
 	
 	
 	
-	private static EpisimBiomechanicalModelGlobalParameters globalParameters;	
+		
 	private ImportedTissue actImportedTissue;	
 	private boolean standardMembraneLoaded = false;	
 	private boolean noMembraneLoaded = false;
@@ -77,7 +77,7 @@ public class TissueBorder {
 		organizedXPoints = new HashMap<Double, TreeSet<Double>>();
 		
 		actImportedTissue = null;
-		globalParameters = null;
+		
 		standardMembraneLoaded = false;	
 		noMembraneLoaded = false;
 		
@@ -181,6 +181,7 @@ public class TissueBorder {
 	}
 	
 	private double getHeight(boolean inPixels){
+		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 		if(standardMembraneLoaded || noMembraneLoaded){
 			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 			return inPixels ? globalParameters.getHeightInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getHeightInMikron();
@@ -193,7 +194,7 @@ public class TissueBorder {
 	
 	private double getWidth(boolean inPixels){
 		if(standardMembraneLoaded || noMembraneLoaded){
-			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
+			EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 			return inPixels ? globalParameters.getWidthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getWidthInMikron();
 		}
 		else{
@@ -203,7 +204,7 @@ public class TissueBorder {
 	}	
 	private double getLength(boolean inPixels){
 		
-		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
+		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		return inPixels ? globalParameters.getLengthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getLengthInMikron();
 	}
 	
@@ -214,9 +215,9 @@ public class TissueBorder {
 	public double lowerBoundInMikron(double xCell, double zCell)
 	 {
 		
-		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
+		 
 		if(standardMembraneLoaded){
-			if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
+			
 			return calculateStandardMembraneValue(xCell, zCell);
 		}
 		else if(noMembraneLoaded) return Double.NEGATIVE_INFINITY;
@@ -226,6 +227,7 @@ public class TissueBorder {
 	
 	
 	private double calculateStandardMembraneValue(double xCell, double yCell){
+		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL
 		   ||(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
 		       && MiscalleneousGlobalParameters.instance() instanceof MiscalleneousGlobalParameters3D
@@ -268,7 +270,7 @@ public class TissueBorder {
 	public void setImportedTissue(ImportedTissue _tissue, boolean tissueVisualizationMode) {
 		standardMembraneLoaded = false;
 		noMembraneLoaded = false;
-		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
+	 
 		ArrayList<Point2D> surface = null, basalLayer = null;		
 		Point2D[] surfaceArray = null, basalLayerArray = null;
 		if(_tissue != null){
@@ -378,7 +380,7 @@ public class TissueBorder {
 	}
 	
 	public void loadStandardMembrane(){
-		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		standardMembraneLoaded = true;
 		if(globalParameters.getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL)buildStandardMembrane2D();
@@ -483,6 +485,7 @@ public class TissueBorder {
 	}
 	@NoExport
 	public GeneralPath getBasalLayerDrawPolygon(){
+		if(isStandardMembraneLoaded())buildStandardMembrane2D();
 		return (GeneralPath)drawBasalLayer.clone();		
 	}
 		

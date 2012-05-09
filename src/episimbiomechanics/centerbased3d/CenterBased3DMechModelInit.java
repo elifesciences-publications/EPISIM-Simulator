@@ -84,7 +84,7 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 		Double3D newLoc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0,z), z);
 		boolean cellAdded = false;
 		double requiredDistance = mechModelGP.getBasalDensity_mikron()/2d;
-		if (depthFrac(newLoc.y) > mechModelGP.getSeedMinDepth_frac()){					
+		if (depthFrac(newLoc.y) > mechModelGP.getSeedMinDepth_frac()  || mechModelGP.getSeedMinDepth_frac() == 0){					
 			
 			if(CenterBased3DMechanicalModel.getAllCellsWithinDistance(newLoc, requiredDistance).isEmpty()){				   
 					cellAdded = true;		

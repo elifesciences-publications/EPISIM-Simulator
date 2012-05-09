@@ -65,7 +65,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 			Double2D newloc = new Double2D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0));
 			double distance = newloc.distance(lastloc);
 
-			if (depthFrac(newloc.y) > mechModelGP.getSeedMinDepth_frac()){
+			if (depthFrac(newloc.y) > mechModelGP.getSeedMinDepth_frac() || mechModelGP.getSeedMinDepth_frac() == 0){
 				if (distance > mechModelGP.getBasalDensity_mikron() || firstCell) {
 				
 					UniversalCell stemCell = new UniversalCell(null, null);

@@ -108,7 +108,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
                	 centerBasedModel = true;
                 }
                 int keratinoType=universalCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
-                int colorType=MiscalleneousGlobalParameters.instance().getTypeColor();               
+                int colorType=MiscalleneousGlobalParameters.getInstance().getTypeColor();               
                 if(keratinoType == EpisimDifferentiationLevel.STEMCELL
                   	 || keratinoType == EpisimDifferentiationLevel.TACELL
                   	 || keratinoType == EpisimDifferentiationLevel.EARLYSPICELL
@@ -211,7 +211,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    
    private Color getContourColor(UniversalCell kcyte){
    	Color myFrameColor = Color.white; //new Color(Red, Green, Blue);   	                               
-      int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
+      int coloringType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
    	myFrameColor=new Color(200, 165, 200);                
    	if (coloringType==3 || coloringType==4 || coloringType==5 || coloringType==6 || coloringType==7) // Age coloring
    	{

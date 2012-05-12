@@ -26,12 +26,13 @@ import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelJarClassLoader;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 
 
 
 
-public class CellBehavioralModelController implements java.io.Serializable{
+public class CellBehavioralModelController implements java.io.Serializable, ClassLoaderChangeListener{
 	
 	private static final String SEND_RECEIVE_PACKAGENAME = "sendreceive";
 	
@@ -50,6 +51,7 @@ public class CellBehavioralModelController implements java.io.Serializable{
 	private File sendReceivePackagePath;
 	
 	private CellBehavioralModelController(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SEND_RECEIVE_ALGORITHM) != null 
 				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SEND_RECEIVE_ALGORITHM).length() >0){
 			try{
@@ -178,6 +180,10 @@ public class CellBehavioralModelController implements java.io.Serializable{
 		}
 		
 	}
+
+	public void classLoaderHasChanged() {
+		instance = null;	   
+   }
 	
 	
 }

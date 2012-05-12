@@ -7,10 +7,12 @@ import java.util.HashSet;
 import episimexceptions.NoEpidermalTissueAvailableException;
 
 import sim.app.episim.model.visualization.CellEllipse;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.visualization.*;
 
 
-public class TissueController {
+public class TissueController implements ClassLoaderChangeListener{
 	
 	
 	
@@ -23,6 +25,7 @@ public class TissueController {
 	private HashSet<TissueRegistrationListener> tissueRegistrationListener = new HashSet<TissueRegistrationListener>();
 	
 	private TissueController(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		importer = new TissueImporter();
 	}	
 
@@ -89,4 +92,8 @@ public class TissueController {
 		importer = new TissueImporter();
 		TissueBorder.getInstance().resetTissueBorderSettings();
 	}
+
+   public void classLoaderHasChanged() {
+		instance = null;
+   }
 }

@@ -29,11 +29,13 @@ import org.COPASI.ObjectStdVector;
 import org.COPASI.ReactionVectorNS;
 
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.GlobalClassLoader;
 
 import episiminterfaces.EpisimSbmlModelConfiguration;
 
-public class COPASIConnector {
+public class COPASIConnector implements ClassLoaderChangeListener {
 	
 	private static COPASIConnector instance;
 	
@@ -45,7 +47,7 @@ public class COPASIConnector {
 	
 	
 	private COPASIConnector(){
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		sbmlFileCache = new HashMap<String, String>();
 		copasiDataModels = new HashMap<String, CCopasiDataModel>();
 		
@@ -234,6 +236,10 @@ public class COPASIConnector {
 	      return stringBuffer.toString();
    	}
    	
+   }
+
+	public void classLoaderHasChanged() {
+		instance = null;
    }
 
 }

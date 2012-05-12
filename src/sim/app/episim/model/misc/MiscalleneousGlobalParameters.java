@@ -5,12 +5,15 @@ import java.util.List;
 
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ObjectManipulations;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
 
-public class MiscalleneousGlobalParameters implements java.io.Serializable{
+public class MiscalleneousGlobalParameters implements java.io.Serializable, ClassLoaderChangeListener{
 	
 	
 	
@@ -28,7 +31,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
 	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age", "Episim-Modeller Custom Coloring"};
 	
 	private MiscalleneousGlobalParameters(){
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}
 	
 	
@@ -41,8 +44,8 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
 			typeColor = 1;
 		return typeString[typeColor];
 	}
-	
-	public static synchronized MiscalleneousGlobalParameters instance(){
+	@NoUserModification
+	public static synchronized MiscalleneousGlobalParameters getInstance(){
 		if(instance == null){
 			if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
 				instance = new MiscalleneousGlobalParameters();
@@ -111,6 +114,10 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable{
       public void setStandardMembrane_2_Dim_Gauss(boolean standardMembrane_2_Dim_Gauss) {      
       	this.standardMembrane_2_Dim_Gauss = standardMembrane_2_Dim_Gauss;
       }   	
+   }
+	
+   public void classLoaderHasChanged() {
+	   instance = null;
    }
    
    

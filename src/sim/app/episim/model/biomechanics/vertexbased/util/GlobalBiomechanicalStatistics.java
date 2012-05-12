@@ -10,11 +10,13 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.engine.SimState;
 
 
-public class GlobalBiomechanicalStatistics implements EnhancedSteppable{	
+public class GlobalBiomechanicalStatistics implements EnhancedSteppable, ClassLoaderChangeListener{	
 	
 	/**
     * 
@@ -56,10 +58,10 @@ public class GlobalBiomechanicalStatistics implements EnhancedSteppable{
    private HashMap<GBSValue, Double> globalStatistics;
 
 	
-	private static final GlobalBiomechanicalStatistics instance = new GlobalBiomechanicalStatistics();
+	private static GlobalBiomechanicalStatistics instance;
 	
 	private GlobalBiomechanicalStatistics(){		
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		globalStatistics = new HashMap<GBSValue, Double>();
 		initializeGlobalStatisticsMap();
 	}	
@@ -70,7 +72,12 @@ public class GlobalBiomechanicalStatistics implements EnhancedSteppable{
 		}		
 	}
 	
-	public static GlobalBiomechanicalStatistics getInstance(){ return instance; }
+	public static GlobalBiomechanicalStatistics getInstance(){
+		if(instance == null){
+			instance = new GlobalBiomechanicalStatistics();
+		}
+		return instance; 
+	}
 	
 
 	public void step(SimState state) {	   
@@ -132,6 +139,11 @@ public class GlobalBiomechanicalStatistics implements EnhancedSteppable{
 	public double getInterval() {
 
 	  return 1;
+   }
+
+	
+   public void classLoaderHasChanged() {
+   	instance = null;
    }
 
 }

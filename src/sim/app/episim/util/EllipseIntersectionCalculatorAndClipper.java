@@ -22,7 +22,7 @@ import sim.app.episim.model.visualization.CellEllipse;
 
 
 
-public class EllipseIntersectionCalculatorAndClipper {
+public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChangeListener {
 	
 	private static EllipseIntersectionCalculatorAndClipper instance;
 	
@@ -32,6 +32,12 @@ public class EllipseIntersectionCalculatorAndClipper {
 	
 	private static int noOfRuns = 0;
 	private static int maxNoOfRuns = 0;
+	
+	public EllipseIntersectionCalculatorAndClipper(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
+	}
+	
+	
 	
 	public static class IntersectionPoints implements java.io.Serializable{
 		
@@ -657,6 +663,11 @@ public class EllipseIntersectionCalculatorAndClipper {
 				
 		return intersectionPoints;
 	}
+	
+   public void classLoaderHasChanged() {
+		instance = null;
+	   
+   }
 	
 	
 	

@@ -33,9 +33,11 @@ import sim.app.episim.datamonitoring.parser.ParseException;
 
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.CompatibilityChecker;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.field.continuous.Continuous2D;
 
@@ -54,7 +56,7 @@ import episiminterfaces.monitoring.EpisimDiffFieldDataExport;
 
 
 
-public class DataExportController {
+public class DataExportController implements ClassLoaderChangeListener{
 	
 	public enum DataExportType {
 		REGULAR_DATA_EXPORT("Regular Data Export"),
@@ -79,7 +81,7 @@ public class DataExportController {
 	private ExtendedFileChooser edeChooser = null;
 	
 	private DataExportController(){
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		if(ModeServer.guiMode()) edeChooser = new ExtendedFileChooser("ede");
 		markerPrefixes = new HashSet<String>();
 		validDataTypes = new HashSet<Class<?>>();
@@ -357,6 +359,11 @@ public class DataExportController {
 		this.actLoadedDataExportSet = null;
 		DataExportSteppableServer.getInstance().actLoadedDataExportDefinitionSetWasClosed();
 	}
+
+
+   public void classLoaderHasChanged() {
+   	instance = null;	   
+   }
 	
 	
 	

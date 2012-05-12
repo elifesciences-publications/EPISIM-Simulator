@@ -12,10 +12,12 @@ import sim.app.episim.tissue.TissueController.TissueRegistrationListener;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.BagChangeEvent;
 import sim.app.episim.util.BagChangeListener;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.GlobalClassLoader;
 
 
-public class VertexBasedModelController implements TissueRegistrationListener, BagChangeListener<AbstractCell>{
+public class VertexBasedModelController implements TissueRegistrationListener, BagChangeListener<AbstractCell>, ClassLoaderChangeListener{
 	
 	
 	private static VertexBasedModelController instance;
@@ -25,6 +27,7 @@ public class VertexBasedModelController implements TissueRegistrationListener, B
 	private CellCanvas cellCanvas;
 	
 	private VertexBasedModelController(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		calculator = new CellPolygonCalculator();
 		newTissueWasRegistered();
 	}
@@ -78,5 +81,9 @@ public class VertexBasedModelController implements TissueRegistrationListener, B
 
 	public void bagHasChanged(BagChangeEvent<AbstractCell> event){
 	   refreshCellPolygonArrayInCalculator();	   
+   }
+	
+   public void classLoaderHasChanged() {
+		instance = null;
    }
 }

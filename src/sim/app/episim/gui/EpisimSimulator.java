@@ -545,7 +545,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(true);
 		
 		
-		GlobalClassLoader.getInstance().destroyClassLoader();
+		GlobalClassLoader.getInstance().destroyClassLoader(true);
 		
 		if(ModeServer.guiMode())mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE);
 		

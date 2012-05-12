@@ -9,10 +9,12 @@ import java.util.Set;
 import sim.app.episim.datamonitoring.parser.DataMonitoringExpressionChecker;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 
 
-public class ExpressionCheckerController {
+public class ExpressionCheckerController implements ClassLoaderChangeListener{
 	
 	private static ExpressionCheckerController instance;
 	
@@ -22,6 +24,7 @@ public class ExpressionCheckerController {
 	private Map<Integer, Set<String>> varNameRegistry;
 	
 	private ExpressionCheckerController(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		varNameRegistry = new HashMap<Integer, Set<String>>();
 	}
 	
@@ -73,5 +76,9 @@ public class ExpressionCheckerController {
 			else varNameRegistry.put(sessionId, varNames);
 		}
 	}
+	
+   public void classLoaderHasChanged() {
+	   instance = null;
+   }
 
 }

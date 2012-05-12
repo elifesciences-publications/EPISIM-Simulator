@@ -21,19 +21,21 @@ import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 
 import sim.app.episim.util.ByteArrayWriteListener;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.WriteEvent;
 
 
-public class EpisimTextOut{
+public class EpisimTextOut implements ClassLoaderChangeListener{
 	
-	private static EpisimTextOut instance = new EpisimTextOut();
+	private static EpisimTextOut instance;
 	private String standardText;
 	
 	private JPanel simTextOutPanel;
 	JTextPane textOutput;
 	StringBuffer currentTextOnTextOut;
 	private EpisimTextOut(){
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		buildTextOutPanel();
 		standardText="Episim Simulator version " + EpisimSimulator.versionID + "<br>Simulation Text Output:<br><br>";
 		currentTextOnTextOut = new StringBuffer();
@@ -79,7 +81,10 @@ public class EpisimTextOut{
 	
 	}
 	
-	public static EpisimTextOut getEpisimTextOut(){
+	public static synchronized EpisimTextOut getEpisimTextOut(){
+		if(instance == null){
+			instance = new EpisimTextOut();
+		}
 		return instance;
 	}
 	
@@ -148,4 +153,8 @@ public class EpisimTextOut{
 	private void appendHTMLStartTags(){
 		this.currentTextOnTextOut.append("<html><body style=\"font-family:'Courier New',Courier,monospace;\">");
 	}
+
+   public void classLoaderHasChanged() {
+		instance = null;	   
+   }
 }

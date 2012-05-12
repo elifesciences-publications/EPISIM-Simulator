@@ -12,9 +12,11 @@ import sim.app.episim.model.diffusion.TestDiffusionFieldConfiguration;
 import sim.app.episim.model.initialization.ExtraCellularDiffusionInitializer;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 
 
-public class ExtraCellularDiffusionController {
+public class ExtraCellularDiffusionController implements ClassLoaderChangeListener{
 	
 	public enum DiffusionFieldCrossSectionMode{		
 		X_Y_PLANE("X-Y-Plane"),
@@ -34,13 +36,14 @@ public class ExtraCellularDiffusionController {
 	private double diffusionFieldCrossSectionCoordinateInMikron = 0;
 	
 	
-	private static ExtraCellularDiffusionController instance = new ExtraCellularDiffusionController();
+	private static ExtraCellularDiffusionController instance;
 	
 	private HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap;
 	
 	private EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations;
 	
 	private ExtraCellularDiffusionController(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
 	}	
 	
@@ -80,7 +83,10 @@ public class ExtraCellularDiffusionController {
 	}
 	
 	
-	protected static ExtraCellularDiffusionController getInstance(){
+	protected synchronized static ExtraCellularDiffusionController getInstance(){
+		if(instance == null){
+			instance = new ExtraCellularDiffusionController();
+		}
 		return instance;
 	}
 	
@@ -106,10 +112,6 @@ public class ExtraCellularDiffusionController {
 		if(this.episimExtraCellularDiffusionFieldsConfigurations == null)
 			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[0];
 	}
-
-
-
-
 	
 	public DiffusionFieldCrossSectionMode getSelectedDiffusionFieldCrossSectionMode() {
 	
@@ -127,5 +129,9 @@ public class ExtraCellularDiffusionController {
 	
 		this.diffusionFieldCrossSectionCoordinateInMikron = diffusionFieldCrossSectionCoordinate;
 	}
+	
+   public void classLoaderHasChanged() {
+		instance = null;
+   }
 
 }

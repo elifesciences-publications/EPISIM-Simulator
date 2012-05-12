@@ -46,12 +46,14 @@ import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.CompatibilityChecker;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.field.continuous.Continuous2D;
-public class ChartController {
+public class ChartController implements ClassLoaderChangeListener{
 	
 	private static ChartController instance = null;
 	
@@ -77,7 +79,7 @@ public class ChartController {
 	
 	private ChartController(){
 		
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		if(ModeServer.guiMode()) ecsChooser = new ExtendedFileChooser("ecs");
 		markerPrefixes = new HashSet<String>();
 		validDataTypes = new HashSet<Class<?>>();
@@ -376,4 +378,8 @@ public class ChartController {
 		CalculationController.getInstance().restartSimulation();
 		ChartPanelAndSteppableServer.getInstance().clearAllDefaultChartSeries();
 	}
+	
+   public void classLoaderHasChanged() {
+		instance = null;
+   }
 }

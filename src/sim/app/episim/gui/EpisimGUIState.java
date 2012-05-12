@@ -195,7 +195,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	public Inspector getMiscalleneousInspector() {
 
-		Object miscalleneous = MiscalleneousGlobalParameters.instance();
+		Object miscalleneous = MiscalleneousGlobalParameters.getInstance();
 		if(miscalleneous == null)
 			return null;
 		Inspector i = new EpisimSimpleInspector(miscalleneous, this);

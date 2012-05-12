@@ -1,16 +1,18 @@
 package sim.app.episim.tissue;
 
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.NoEpidermalTissueAvailableException;
 
 
-public class TissueServer {
+public class TissueServer implements ClassLoaderChangeListener{
 	
 	private TissueType actTissue;
 	
 	private static TissueServer instance;
 	
 	private TissueServer(){
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}
 	
 	protected static synchronized TissueServer getInstance(){
@@ -30,4 +32,8 @@ public class TissueServer {
 	public TissueType getActTissue(){
 		return actTissue;
 	}
+	
+   public void classLoaderHasChanged() {
+   	instance = null; 
+   }
 }

@@ -13,8 +13,10 @@ import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
 import episimfactories.AbstractChartSetFactory;
@@ -24,7 +26,7 @@ import episiminterfaces.monitoring.GeneratedChart;
 import episiminterfaces.monitoring.GeneratedDataExport;
 
 
-public class DataExportSteppableServer {
+public class DataExportSteppableServer implements ClassLoaderChangeListener{
 	
 	private Set<DataExportChangeListener> listeners;
 	private List<GeneratedDataExport> customDataExportDefinitions;
@@ -34,6 +36,7 @@ public class DataExportSteppableServer {
 	private AbstractDataExportFactory factory = null;
 	GenericBag<AbstractCell> alreadyRegisteredVersionAllCells = null;
 	private DataExportSteppableServer(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		listeners = new HashSet<DataExportChangeListener>();
 		customDiffusionFieldDataExports = new ArrayList<DiffusionFieldDataExport>();
 		customDataExportDefinitions = new ArrayList<GeneratedDataExport>();
@@ -140,5 +143,10 @@ public class DataExportSteppableServer {
 		}
 		notifyListeners();
 	}
+
+   public void classLoaderHasChanged() {
+		instance = null;
+	   
+   }
 
 }

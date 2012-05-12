@@ -21,9 +21,11 @@ import sim.app.episim.model.biomechanics.BiomechanicalModelLoader;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 
 
-public class BiomechanicalModelController implements java.io.Serializable{
+public class BiomechanicalModelController implements java.io.Serializable, ClassLoaderChangeListener{
 		
 		/**
 		 * 
@@ -37,6 +39,7 @@ public class BiomechanicalModelController implements java.io.Serializable{
 		private EpisimBiomechanicalModelGlobalParameters dummyGlobalParameters;
 		
 	private BiomechanicalModelController(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		dummyGlobalParameters = new CenterBasedMechanicalModelGP();
 	}
 	
@@ -140,5 +143,9 @@ public class BiomechanicalModelController implements java.io.Serializable{
    public String getActLoadedBiomechanicalModelId() {
    
    	return actLoadedBiomechanicalModelId;
+   }
+
+	public void classLoaderHasChanged() {
+	   instance = null;
    }
 }

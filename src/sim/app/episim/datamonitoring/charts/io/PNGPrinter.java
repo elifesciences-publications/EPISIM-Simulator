@@ -27,10 +27,12 @@ import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.engine.SimState;
 
 
-public class PNGPrinter {
+public class PNGPrinter implements ClassLoaderChangeListener{
 	
 	private static PNGPrinter instance = null;
 	
@@ -45,6 +47,7 @@ public class PNGPrinter {
 	private HashSet<Long> chartRecoloringRegistry;
 	
 	private PNGPrinter(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		reset();
 		chartRecoloringRegistry = new HashSet<Long>();
 	}
@@ -192,5 +195,9 @@ public class PNGPrinter {
 		this.filenameSet.add(name);
 		return name;
 	}
+	
+   public void classLoaderHasChanged() {
+		instance = null;	   
+   }
 	
 }

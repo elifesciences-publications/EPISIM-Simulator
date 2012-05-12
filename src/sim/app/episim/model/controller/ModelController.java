@@ -21,8 +21,10 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.model.initialization.ModelInitialization;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.portrayal.Portrayal;
-public class ModelController implements java.io.Serializable{
+public class ModelController implements java.io.Serializable, ClassLoaderChangeListener{
 	
 	private static Semaphore sem = new Semaphore(1);
 	
@@ -34,7 +36,9 @@ public class ModelController implements java.io.Serializable{
 	private static ModelController instance;
 	private ModelInitialization initializer;
 	
-	private ModelController(){}	
+	private ModelController(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
+	}	
 	
 	public static ModelController getInstance(){
 		
@@ -115,7 +119,7 @@ public class ModelController implements java.io.Serializable{
    						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP)));
    			}   			
    			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP) != null){   				
-   				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(MiscalleneousGlobalParameters.instance()
+   				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(MiscalleneousGlobalParameters.getInstance()
    						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP)));
    			}
    			
@@ -143,6 +147,9 @@ public class ModelController implements java.io.Serializable{
 	
    public EpisimSbmlModelConnector getNewEpisimSbmlModelConnector(){
    	return SbmlModelController.getInstance().getNewEpisimSbmlModelConnector();
+   }
+   public void classLoaderHasChanged() {
+	   instance = null;
    }
    
 }

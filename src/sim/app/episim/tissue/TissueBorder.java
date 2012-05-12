@@ -23,9 +23,11 @@ import episiminterfaces.NoExport;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.PointSorter;
 
-public class TissueBorder {
+public class TissueBorder implements ClassLoaderChangeListener{
 	
 	private ArrayList<Point2D> fullcontour;
 	
@@ -60,6 +62,7 @@ public class TissueBorder {
 	private boolean isStandardMembrane2DGauss = false;
 	
 	private TissueBorder(){		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		resetTissueBorderSettings();
 	}
 	
@@ -230,8 +233,8 @@ public class TissueBorder {
 		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL
 		   ||(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
-		       && MiscalleneousGlobalParameters.instance() instanceof MiscalleneousGlobalParameters3D
-		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.instance()).isStandardMembrane_2_Dim_Gauss()))){
+		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
+		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).isStandardMembrane_2_Dim_Gauss()))){
 			// Gaussche Glockenkurve
 		     double p=basalPeriod; 
 		     
@@ -241,8 +244,8 @@ public class TissueBorder {
 		     return result;
 		}
 		else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
-		       && MiscalleneousGlobalParameters.instance() instanceof MiscalleneousGlobalParameters3D
-		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.instance()).isStandardMembrane_2_Dim_Gauss())){
+		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
+		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).isStandardMembrane_2_Dim_Gauss())){
 			// Gaussche Glockenkurve
 		     double p=basalPeriod; 
 		     
@@ -453,15 +456,15 @@ public class TissueBorder {
 	public StandardMembrane3DCoordinates getStandardMembraneCoordinates3D(boolean update){
 		boolean wasUpdated = false;
 		if((ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
-		       && MiscalleneousGlobalParameters.instance() instanceof MiscalleneousGlobalParameters3D
-		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.instance()).isStandardMembrane_2_Dim_Gauss()) && !isStandardMembrane2DGauss)){
+		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
+		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).isStandardMembrane_2_Dim_Gauss()) && !isStandardMembrane2DGauss)){
 			isStandardMembrane2DGauss = true;
 			wasUpdated= true;
 			buildStandardMembrane3D();
 		}
 		else if((ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
-		       && MiscalleneousGlobalParameters.instance() instanceof MiscalleneousGlobalParameters3D
-		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.instance()).isStandardMembrane_2_Dim_Gauss()) && isStandardMembrane2DGauss)){
+		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
+		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).isStandardMembrane_2_Dim_Gauss()) && isStandardMembrane2DGauss)){
 			isStandardMembrane2DGauss = false;
 			wasUpdated= true;
 			buildStandardMembrane3D();
@@ -550,6 +553,12 @@ public class TissueBorder {
 		public Point3f[] frontCoordinates;
 		public Point3f[] backCoordinates;
 	}
+
+	
+   public void classLoaderHasChanged() {
+		instance = null;
+	   
+   }
 	
 	
 	

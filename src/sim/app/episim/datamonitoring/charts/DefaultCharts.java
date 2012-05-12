@@ -50,11 +50,13 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.controller.ModelController;
 
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
-public class DefaultCharts implements java.io.Serializable{
+public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeListener{
 	
 	
 	private double TIMEFACTOR=0.5;   // conversion from timeticks to h for all diagrams: 2 time ticks mean 1 hour
@@ -99,6 +101,7 @@ public class DefaultCharts implements java.io.Serializable{
 	
 	
 	private DefaultCharts() {
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		initChartActivationMap();
 		addDefaultSteppables();	
 		
@@ -1053,6 +1056,11 @@ public class DefaultCharts implements java.io.Serializable{
 		     });
 			
 			
+	
 	}
+	
+   public void classLoaderHasChanged() {
+		instance = null;
+   }
 	
 }

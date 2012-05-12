@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import ec.util.MersenneTwisterFast;
 
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.util.Double2D;
 
 /*
@@ -13,7 +15,7 @@ import sim.util.Double2D;
  * 
  * 
  */
-public class ContinuousVertexField{
+public class ContinuousVertexField implements ClassLoaderChangeListener{
 	
 	private class Quadrant{
 		
@@ -35,7 +37,7 @@ public class ContinuousVertexField{
 		}
 	}
 	
-	private static ContinuousVertexField instance = new ContinuousVertexField();	
+	private static ContinuousVertexField instance;	
 	
 	private double height = Double.POSITIVE_INFINITY;
 	private double width = Double.POSITIVE_INFINITY;	
@@ -46,6 +48,7 @@ public class ContinuousVertexField{
 		this(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 	private ContinuousVertexField(double width, double height){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		this.width = width;
 		this.height = height;
 		if(width > Double.NEGATIVE_INFINITY && width < Double.POSITIVE_INFINITY 
@@ -66,6 +69,9 @@ public class ContinuousVertexField{
 	}	
 	
 	public static synchronized ContinuousVertexField getInstance(){
+		if(instance == null){
+			instance = new ContinuousVertexField();
+		}
 		return instance;
 	}
 	
@@ -408,6 +414,9 @@ public class ContinuousVertexField{
 		}
 		return null;
 	}
+	public void classLoaderHasChanged() {
+		instance = null;
+   }
 	
 	
 }

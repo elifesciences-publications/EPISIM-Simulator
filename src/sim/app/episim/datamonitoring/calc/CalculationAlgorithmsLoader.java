@@ -13,17 +13,18 @@ import episiminterfaces.calc.CalculationAlgorithm;
 import binloc.ProjectLocator;
 import sim.app.episim.ExceptionDisplayer;
 
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 
 
-public class CalculationAlgorithmsLoader{
+public class CalculationAlgorithmsLoader implements ClassLoaderChangeListener{
 	
 	private static final String PACKAGENAME = "calculationalgorithms";
-	private static final CalculationAlgorithmsLoader instance = new CalculationAlgorithmsLoader();
+	private static CalculationAlgorithmsLoader instance;
 	private File packagePath = null;
 	
 	private CalculationAlgorithmsLoader(){
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		try{
 	      packagePath = new File(ProjectLocator.class.getResource("../"+PACKAGENAME+"/").toURI());
       }
@@ -32,7 +33,12 @@ public class CalculationAlgorithmsLoader{
       }
 	}
 	
-	public static CalculationAlgorithmsLoader getInstance(){ return instance; }
+	public synchronized static CalculationAlgorithmsLoader getInstance(){
+		if(instance == null){
+			instance = new CalculationAlgorithmsLoader();
+		}
+		return instance; 
+	}
 	
 	public List<Class<?>> loadCalculationAlgorithms(){
 		
@@ -80,6 +86,11 @@ public class CalculationAlgorithmsLoader{
       }
       return foundClassFiles;
 	}
+
+	
+   public void classLoaderHasChanged() {
+   	instance = null;
+   }
 	
 	
 	

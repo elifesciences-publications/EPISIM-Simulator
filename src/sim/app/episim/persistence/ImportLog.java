@@ -9,7 +9,10 @@ import javax.swing.JTextArea;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class ImportLog {
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
+
+public class ImportLog implements ClassLoaderChangeListener{
 
 	private int nodeReadCounter = 0;
 	private int nodeRecognizedCounter = 0;
@@ -33,6 +36,7 @@ public class ImportLog {
 	private static ImportLog instance = null;
 
 	private ImportLog() {
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		logNodeMap = new HashMap<Node, Boolean>();
 	}
 
@@ -98,4 +102,10 @@ public class ImportLog {
 		frame.setSize(300, 600);
 		frame.setVisible(true);
 	}
+
+	
+   public void classLoaderHasChanged() {
+      instance = null;
+	   
+   }
 }

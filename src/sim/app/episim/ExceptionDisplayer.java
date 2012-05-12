@@ -4,6 +4,9 @@ import java.awt.Component;
 
 import javax.swing.JOptionPane;
 
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
+
 import binloc.ProjectLocator;
 
 import java.io.File;
@@ -11,7 +14,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.logging.*;
 
-public class ExceptionDisplayer {
+public class ExceptionDisplayer implements ClassLoaderChangeListener{
 	private static ExceptionDisplayer instance;
 	
 	private static Logger logger;
@@ -20,7 +23,7 @@ public class ExceptionDisplayer {
 	
 	private Component rootComp;
 	private ExceptionDisplayer(){
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		if((loggingState=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_LOGGING_PROP)) != null 
 				&& loggingState.equals(EpisimProperties.ON)){
 			 
@@ -70,5 +73,10 @@ public class ExceptionDisplayer {
 	}
 	
 	public void registerParentComp(Component comp){ this.rootComp = comp; }
+
+
+   public void classLoaderHasChanged() {
+	   instance = null;
+   }
 	
 }

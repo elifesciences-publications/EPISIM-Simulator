@@ -105,7 +105,7 @@ public class SimulationStateData {
 				ModelController.getInstance()
 						.getEpisimCellBehavioralModelGlobalParameters());
 		this.miscalleneousGlobalParameters = new XmlObject<MiscalleneousGlobalParameters>(
-				MiscalleneousGlobalParameters.instance());
+				MiscalleneousGlobalParameters.getInstance());
 		this.episimBioMechanicalModelGlobalParameters = new XmlObject<EpisimBiomechanicalModelGlobalParameters>(
 				ModelController.getInstance()
 						.getEpisimBioMechanicalModelGlobalParameters());

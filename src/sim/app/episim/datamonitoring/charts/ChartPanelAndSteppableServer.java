@@ -16,13 +16,15 @@ import episiminterfaces.monitoring.GeneratedChart;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.calc.CalculationController;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.field.continuous.Continuous2D;
 
 
 
-public class ChartPanelAndSteppableServer {
+public class ChartPanelAndSteppableServer implements ClassLoaderChangeListener{
 	
 	private Set<ChartSetChangeListener> listeners;
 	private List<ChartPanel> customChartPanels;
@@ -35,6 +37,7 @@ public class ChartPanelAndSteppableServer {
 	GenericBag<AbstractCell> alreadyRegisteredVersionAllCells = null;
 	
 	private ChartPanelAndSteppableServer(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		listeners = new HashSet<ChartSetChangeListener>();
 		diffusionChartPanels = new ArrayList<JPanel>();
 		customChartPanels = new ArrayList<ChartPanel>();
@@ -145,5 +148,9 @@ public class ChartPanelAndSteppableServer {
 			}
 		}
 	}
+	
+   public void classLoaderHasChanged() {
+		instance = null;
+   }
 
 }

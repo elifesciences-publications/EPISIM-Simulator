@@ -24,7 +24,7 @@ import episiminterfaces.calc.marker.TissueObserverAlgorithm;
 
 public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	
-	private static final CalculationAlgorithmServer instance = new CalculationAlgorithmServer();
+	private static CalculationAlgorithmServer instance;
 	
 	private Map<Integer, CalculationAlgorithm> calculationAlgorithmsMap;
 	
@@ -34,7 +34,12 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 		buildCalculationAlgorithmsMap(CalculationAlgorithmsLoader.getInstance().loadCalculationAlgorithms());
 	}
 	
-	public static CalculationAlgorithmServer getInstance(){ return instance; }
+	public synchronized static CalculationAlgorithmServer getInstance(){
+		if(instance == null){
+			instance = new CalculationAlgorithmServer();
+		}
+		return instance; 
+	}
 	
 	private void buildCalculationAlgorithmsMap(List<Class<?>> loadedAlgorithms){
 		calculationAlgorithmsMap = new HashMap<Integer, CalculationAlgorithm>();
@@ -120,11 +125,8 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	
 	
 	
-	public void classLoaderHasChanged() {
-		
-		buildCalculationAlgorithmsMap(CalculationAlgorithmsLoader.getInstance().loadCalculationAlgorithms());
-	   
-	   
+	public void classLoaderHasChanged() {	   
+	   instance = null;
    }
 	
 	public void sendRestartSimulationMessageToCalculationAlgorithms(){

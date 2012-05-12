@@ -152,7 +152,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    
    private Color getFillColor(AbstractCell kcyte){
    	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
-      int coloringType=MiscalleneousGlobalParameters.instance().getTypeColor();
+      int coloringType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
    	//
       // set colors
       //

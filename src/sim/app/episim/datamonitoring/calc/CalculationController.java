@@ -10,18 +10,20 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationCallBack;
 import episiminterfaces.calc.CalculationHandler;
 import sim.app.episim.*;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ObservedDataCollection;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 
-public class CalculationController {
+public class CalculationController implements ClassLoaderChangeListener{
 	
 	private static CalculationController instance;
 	
 	
 	
 	private CalculationController(){
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}	
 	
 	public static synchronized CalculationController getInstance(){
@@ -69,4 +71,9 @@ public class CalculationController {
 		CalculationAlgorithmServer.getInstance().sendRestartSimulationMessageToCalculationAlgorithms();
 		CalculationHandlerAndDataManagerRegistry.getInstance().resetDataManager();
 	}
+
+	
+   public void classLoaderHasChanged() {
+   	instance = null;	   
+   }
 }

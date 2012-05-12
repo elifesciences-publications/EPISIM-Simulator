@@ -39,10 +39,12 @@ import org.xml.sax.SAXException;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.model.visualization.NucleusEllipse;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 
 
 
-public class TissueImporter {
+public class TissueImporter{
 	
 	
 //-------------------------------------------------------------------------------------------------------------------
@@ -84,7 +86,7 @@ public class TissueImporter {
 	
 	
 	
-	private static TissueImporter instance;
+	
 	
 	private ImportedTissue actImportedTissue;
 

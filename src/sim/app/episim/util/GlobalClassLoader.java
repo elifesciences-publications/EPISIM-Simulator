@@ -53,7 +53,7 @@ public class GlobalClassLoader extends URLClassLoader{
 		
 		String modeCopy = this.mode;
 		
-		destroyClassLoader();
+		destroyClassLoader(false);
 		instance = new GlobalClassLoader();
 		for(ClassLoaderChangeListener listener : setCopy){
 			instance.addClassLoaderChangeListener(listener);
@@ -78,8 +78,12 @@ public class GlobalClassLoader extends URLClassLoader{
 		
 	}
 	
-	public void destroyClassLoader(){
+	public void destroyClassLoader(boolean notifyListeners){
 		destroyed = true;
+		
+		if(notifyListeners){
+			instance.notifyAllListeners();
+		}
 		instance=null;
 	}
 	

@@ -2,26 +2,35 @@ package sim.app.episim.datamonitoring.calc;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ResultSet;
 import episiminterfaces.calc.CalculationCallBack;
 import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
-public class CalculationHandlerAndDataManagerRegistry implements java.io.Serializable{
+public class CalculationHandlerAndDataManagerRegistry implements java.io.Serializable, ClassLoaderChangeListener{
 	
 	private transient Map<Long, CalculationHandler> calculationHandlerRegistry;
 	private transient Map<Long, CalculationDataManager<Double>> dataManagerRegistry;
 	private transient Map<Long, ResultSet<Double>> baselineResultTempRegistry;
 	
 		
-	private static CalculationHandlerAndDataManagerRegistry instance = new CalculationHandlerAndDataManagerRegistry();	
-	private CalculationHandlerAndDataManagerRegistry(){		
+	private static CalculationHandlerAndDataManagerRegistry instance;	
+	private CalculationHandlerAndDataManagerRegistry(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		calculationHandlerRegistry = new HashMap<Long, CalculationHandler>();
 		dataManagerRegistry = new HashMap<Long, CalculationDataManager<Double>>();
 		baselineResultTempRegistry = new HashMap<Long, ResultSet<Double>>();
 		
 	}	
-	protected static CalculationHandlerAndDataManagerRegistry getInstance(){ return instance;}
+	protected synchronized static CalculationHandlerAndDataManagerRegistry getInstance(){
+		if(instance == null){
+			instance = new CalculationHandlerAndDataManagerRegistry();	
+		}
+		return instance;
+	}
 	
 	public void resetDataManager(){
 		this.baselineResultTempRegistry.clear();
@@ -104,6 +113,10 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 		CalculationAlgorithmServer.getInstance().calculateValues(handler, results);		
 		return results;
 	}
+	
+   public void classLoaderHasChanged() {
+   	instance = null;
+   }
 	
 	
 	

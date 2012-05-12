@@ -5,22 +5,25 @@ import java.util.HashSet;
 
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.engine.SimState;
 
 
-public class SimStateServer implements SimulationStateChangeListener{
+public class SimStateServer implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
 	public enum EpisimSimulationState {PLAY, PAUSE, STOP, STEPWISE}
 	
 	private EpisimSimulationState state = EpisimSimulationState.STOP;
 	private HashSet<SimulationStateChangeListener> simulationStateListeners;
-	private static final SimStateServer instance = new SimStateServer();
+	private static SimStateServer instance;
 	
 	private EpisimGUIState episimGUIState;
 	
 	private long simStepNumberAtStart = 0;
 	
 	private SimStateServer(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		simulationStateListeners = new HashSet<SimulationStateChangeListener>();
 	}
 	
@@ -33,7 +36,12 @@ public class SimStateServer implements SimulationStateChangeListener{
 		this.simStepNumberAtStart = 0;
 	}
 		
-	public static SimStateServer getInstance(){ return instance; }
+	public static SimStateServer getInstance(){
+		if(instance == null){
+			instance = new SimStateServer();
+		}
+		return instance; 
+	}
 	
 	public EpisimSimulationState getEpisimSimulationState(){ return this.state; }
 
@@ -83,7 +91,8 @@ public class SimStateServer implements SimulationStateChangeListener{
 		this.simulationStateListeners.remove(listener);
 	}
 	
-		
-	
+   public void classLoaderHasChanged() {
+	   instance = null;	   
+   }	
 	
 }

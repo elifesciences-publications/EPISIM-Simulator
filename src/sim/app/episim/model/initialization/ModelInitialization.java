@@ -124,7 +124,7 @@ public class ModelInitialization {
 //					.importParametersFromXml();
 			simulationStateData.getMiscalleneousGlobalParameters()
 					.copyValuesToTarget(
-							MiscalleneousGlobalParameters.instance());
+							MiscalleneousGlobalParameters.getInstance());
 		}
 
 		return initiallyExistingCells;

@@ -13,7 +13,7 @@ import sim.app.episim.model.visualization.AbstractCellEllipse;
 import sim.app.episim.model.visualization.CellEllipse;
 
 
-public class CellEllipseIntersectionCalculationRegistry implements SimulationStateChangeListener {
+public class CellEllipseIntersectionCalculationRegistry implements SimulationStateChangeListener, ClassLoaderChangeListener {
 	
 	private long actSimulationStep = 0;
 	
@@ -28,6 +28,7 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	
 	
 	private CellEllipseIntersectionCalculationRegistry(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		alreadyCalculatedCells = new HashSet<String>();
 		intersectingCells = new HashSet<String>();
 		cellEllipseRegistry = new HashMap<Long, AbstractCellEllipse>();
@@ -35,9 +36,14 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 		
 	}
 	
-	private static CellEllipseIntersectionCalculationRegistry instance = new CellEllipseIntersectionCalculationRegistry();
+	private static CellEllipseIntersectionCalculationRegistry instance;
 	
-	public static CellEllipseIntersectionCalculationRegistry getInstance(){ return instance; }
+	public static CellEllipseIntersectionCalculationRegistry getInstance(){ 
+		if(instance == null){
+			instance = new CellEllipseIntersectionCalculationRegistry();
+		}		
+		return instance; 
+	}
 	
 	public void addCellEllipseIntersectionCalculation(long idCell1, long idCell2){
 		this.alreadyCalculatedCells.add(buildStringId(idCell1, idCell2));
@@ -138,12 +144,16 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	
 	
 	public void simulationWasStopped() {
-
 	   reset();
 	   cellEllipseRegistry.clear();
 	   cellPolygonRegistry.clear();
    }
 	
 	public void simulationWasPaused(){}
+
+	
+   public void classLoaderHasChanged() {
+		instance = null;	   
+   }
 
 }

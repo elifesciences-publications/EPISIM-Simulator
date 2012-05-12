@@ -14,10 +14,12 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.GlobalClassLoader;
 import sim.engine.SimState;
-public class GlobalStatistics implements java.io.Serializable, CellDeathListener{
+public class GlobalStatistics implements java.io.Serializable, CellDeathListener, ClassLoaderChangeListener{
 	private static GlobalStatistics instance;
 	
 	
@@ -69,6 +71,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	private Set<CellDeathListener> globalCellDeathListener;
 	
 	private GlobalStatistics(){
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		globalCellDeathListener = new HashSet<CellDeathListener>();
 	}
 	
@@ -336,6 +339,12 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
    /*public double getBarrier_ExtCalcium_Statistics() {	return barrier_ExtCalcium_Statistics; }
    public double getBarrier_Lamella_Statistics() { return barrier_Lamella_Statistics; }	
    public double getBarrier_Lipids_Statistics() {return barrier_Lipids_Statistics; }*/
+
+
+	
+   public void classLoaderHasChanged() {
+	   instance = null;
+   }
 
 	
    

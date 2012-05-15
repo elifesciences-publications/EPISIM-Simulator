@@ -26,7 +26,7 @@ import sim.util.gui.MovieMaker;
 
 public class EpisimMovieMaker{
 	
-	public static final int FRAMES_PER_FILE = 300;
+	private int frames_per_file = 300;
 	
 	Frame parentForDialogs;
   
@@ -47,7 +47,13 @@ public class EpisimMovieMaker{
 	public EpisimMovieMaker(Frame parent) {
 		 movieMaker = new MovieMakerHack(parent);	
 		 this.parentForDialogs = parent;
-		
+		 if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MOVIE_FRAMES_PER_FILE) != null){
+			 try{
+				 int fno = Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MOVIE_FRAMES_PER_FILE));
+				 this.frames_per_file = fno;
+			 }
+			 catch(NumberFormatException e) { /*Ignore this exception*/ }
+		 }
       /* try
            {
            encoderClass = Class.forName("sim.util.media.MovieEncoder");
@@ -189,7 +195,7 @@ public class EpisimMovieMaker{
    public synchronized boolean add(BufferedImage image)
    {
    	frameCounter++;
-   	if((frameCounter % EpisimMovieMaker.FRAMES_PER_FILE) == 0 && ModeServer.consoleInput()) changeFile(image);
+   	if((frameCounter % frames_per_file) == 0 && ModeServer.consoleInput()) changeFile(image);
    	
    	if(!ModeServer.consoleInput()) return movieMaker.add(image);
    	else{

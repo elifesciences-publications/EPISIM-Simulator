@@ -64,6 +64,7 @@ public class EpisimProperties {
 	public static final String SIMULATOR_DISPLAYSIZE_WIDTH="simulator.displaysize.width";
 	public static final String SIMULATOR_DISPLAYSIZE_HEIGHT="simulator.displaysize.height";
 	
+	public static final String SIMULATOR_MOVIE_FRAMES_PER_FILE="simulator.movieframesperfile";
 	
 	public static final String SIMULATOR_RANDOM_CELL_AGE_INIT="simulator.cell.randomageinit";
 	

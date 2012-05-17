@@ -366,6 +366,7 @@ public class EpisimMenuBarFactory {
 				getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(false);
 				getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(false);
 				DataExportController.getInstance().closeActLoadedDataExportDefinitonSet();
+				simulator.getStatusbar().setMessage("Ready");
 			}
 			
 		});

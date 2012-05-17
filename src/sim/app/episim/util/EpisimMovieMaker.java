@@ -169,6 +169,7 @@ public class EpisimMovieMaker{
                                               encodingFormats[encodeFormatIndex]});
                  
              movieMaker.setEncoder(encoder);
+             System.gc();
              }
          catch (Throwable e) // (NoClassDefFoundError e)  // uh oh, JMF's not installed
              {

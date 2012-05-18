@@ -234,7 +234,7 @@ public class TissueBorder implements ClassLoaderChangeListener{
 		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL
 		   ||(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
 		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
-		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).isStandardMembrane_2_Dim_Gauss()))){
+		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()))){
 			// Gaussche Glockenkurve
 		     double p=basalPeriod; 
 		     
@@ -245,7 +245,7 @@ public class TissueBorder implements ClassLoaderChangeListener{
 		}
 		else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
 		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
-		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).isStandardMembrane_2_Dim_Gauss())){
+		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss())){
 			// Gaussche Glockenkurve
 		     double p=basalPeriod; 
 		     
@@ -457,14 +457,14 @@ public class TissueBorder implements ClassLoaderChangeListener{
 		boolean wasUpdated = false;
 		if((ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
 		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
-		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).isStandardMembrane_2_Dim_Gauss()) && !isStandardMembrane2DGauss)){
+		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()) && !isStandardMembrane2DGauss)){
 			isStandardMembrane2DGauss = true;
 			wasUpdated= true;
 			buildStandardMembrane3D();
 		}
 		else if((ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
 		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
-		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).isStandardMembrane_2_Dim_Gauss()) && isStandardMembrane2DGauss)){
+		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()) && isStandardMembrane2DGauss)){
 			isStandardMembrane2DGauss = false;
 			wasUpdated= true;
 			buildStandardMembrane3D();

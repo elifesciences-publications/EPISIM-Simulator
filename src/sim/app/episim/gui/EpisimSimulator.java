@@ -36,6 +36,8 @@ import org.xml.sax.SAXParseException;
 
 import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 import sim.SimStateServer;
 import sim.app.episim.CompileWizard;
@@ -51,6 +53,7 @@ import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.SimulationStateFile;
 
@@ -383,7 +386,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				actLoadedSimulationStateData = simulationStateData;
 				if(simulationStateData == null)ModelController.getInstance().standardInitializationOfModels();
 				else{
-					simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
+					initializeGlobalObjects(simulationStateData);
 					ModelController.getInstance().initializeModels(simulationStateData);
 				}
 				ChartController.getInstance().rebuildDefaultCharts();
@@ -415,6 +418,24 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		}
 		return success;
 	}
+	
+	private void initializeGlobalObjects(SimulationStateData simulationStateData){
+		EpisimCellBehavioralModelGlobalParameters globalBehave = ModelController
+				.getInstance()
+				.getEpisimCellBehavioralModelGlobalParameters();
+		EpisimBiomechanicalModelGlobalParameters globalMech = ModelController
+				.getInstance()
+				.getEpisimBioMechanicalModelGlobalParameters();
+		simulationStateData.getEpisimBioMechanicalModelGlobalParameters()
+		.copyValuesToTarget(globalMech);
+		simulationStateData.getEpisimCellBehavioralModelGlobalParameters()
+				.copyValuesToTarget(globalBehave);
+		simulationStateData.getMiscalleneousGlobalParameters()
+		.copyValuesToTarget(
+				MiscalleneousGlobalParameters.getInstance());
+		simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
+	}
+	
 	
 	protected void openModel(){
 		openModel(null, null);

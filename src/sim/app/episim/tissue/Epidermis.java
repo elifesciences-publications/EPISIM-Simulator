@@ -171,7 +171,15 @@ public class Epidermis extends TissueType implements CellDeathListener
 				};
 				seedingHasFinished = false;
 				EpisimProgressWindow.showProgressWindowForTask((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent(), "Load initial simulation state...", cb);
-				while(!seedingHasFinished){/* wait */ }
+				while(!seedingHasFinished){
+					/* wait, Thread sleep important, otherwise deadlock */ 
+					try{
+	            Thread.sleep(50);
+					}
+					catch (InterruptedException e){
+		            ExceptionDisplayer.getInstance().displayException(e);
+					} 
+					}
 			}
 		}
 		else{

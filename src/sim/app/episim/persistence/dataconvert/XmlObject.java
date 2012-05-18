@@ -214,6 +214,8 @@ public class XmlObject<T> {
 		String parameterName = methodName;
 		if (methodName.startsWith("get") || methodName.startsWith("set"))
 			parameterName = parameterName.substring(3);
+		if (methodName.startsWith("is"))
+			parameterName = parameterName.substring(2);
 		if (methodName.startsWith("_getMax")
 				|| methodName.startsWith("_getMin"))
 			parameterName = parameterName.substring(7);
@@ -359,6 +361,7 @@ public class XmlObject<T> {
 		for (String parameterName : parameters.keySet()) {
 			set(parameterName, parameters.get(parameterName), target);
 		}
+		
 		return target;
 	}
 

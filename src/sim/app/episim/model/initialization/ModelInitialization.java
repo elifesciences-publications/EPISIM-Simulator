@@ -103,28 +103,21 @@ public class ModelInitialization {
 		this.extraCellularDiffusionInitializer.buildExtraCellularDiffusionFields();
 		if (simulationStateData != null) {
 			
-			EpisimCellBehavioralModelGlobalParameters globalBehave = ModelController
-					.getInstance()
-					.getEpisimCellBehavioralModelGlobalParameters();
-			EpisimBiomechanicalModelGlobalParameters globalMech = ModelController
-					.getInstance()
-					.getEpisimBioMechanicalModelGlobalParameters();
+			
 
 //			simulationStateData.getEpisimBioMechanicalModelGlobalParameters()
 //					.importParametersFromXml();
-			simulationStateData.getEpisimBioMechanicalModelGlobalParameters()
-					.copyValuesToTarget(globalMech);
+			
 
 //			simulationStateData.getEpisimCellBehavioralModelGlobalParameters()
 //					.importParametersFromXml();
-			simulationStateData.getEpisimCellBehavioralModelGlobalParameters()
-					.copyValuesToTarget(globalBehave);
+			
 
 //			simulationStateData.getMiscalleneousGlobalParameters()
 //					.importParametersFromXml();
-			simulationStateData.getMiscalleneousGlobalParameters()
-					.copyValuesToTarget(
-							MiscalleneousGlobalParameters.getInstance());
+			
+			
+			
 		}
 
 		return initiallyExistingCells;

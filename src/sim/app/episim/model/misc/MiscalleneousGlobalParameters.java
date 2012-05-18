@@ -81,7 +81,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 		else this.typeColor = val;
 	}	
 	
-   public boolean isShowDiffusionFieldLegend() {
+   public boolean getShowDiffusionFieldLegend() {
 	   return showDiffusionFieldLegend;
    }
    
@@ -106,7 +106,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
    	
    	private MiscalleneousGlobalParameters3D(){}
    	
-   	public boolean isStandardMembrane_2_Dim_Gauss(){
+   	public boolean getStandardMembrane_2_Dim_Gauss(){
       
       	return standardMembrane_2_Dim_Gauss;
       }

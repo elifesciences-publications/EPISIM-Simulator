@@ -56,7 +56,7 @@ public class ExtraCellularDiffusionPortrayal2D extends FastValueGridPortrayal2D 
 		 
 		 this.setMap(buildColorMap());		 
 		 super.draw(object, graphics, info);
-		 if(MiscalleneousGlobalParameters.getInstance().isShowDiffusionFieldLegend()){
+		 if(MiscalleneousGlobalParameters.getInstance().getShowDiffusionFieldLegend()){
 			 drawLegend(graphics, info);
 		 }
 	 }

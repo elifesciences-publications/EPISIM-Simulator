@@ -2,6 +2,7 @@ package sim.app.episim.datamonitoring.dataexport.io.xml;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
@@ -32,39 +33,44 @@ public class EpisimDataExportColumnAdapter extends XmlAdapter<AdaptedEpisimDataE
 		if(column instanceof EpisimDataExportColumnImpl){
 			EpisimDataExportColumnImpl columnImpl = (EpisimDataExportColumnImpl) column;
 			HashMap<String, Class<?>> requiredClasses = new HashMap<String, Class<?>>();
-			for(String actClassName :adaptedColumn.getRequiredClassesNameSet()){
-				try{
-	            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());
-	            if(actClass!= null){
-	            	requiredClasses.put(actClassName, actClass);
+			Set<String> requiredClassesNameSet = adaptedColumn.getRequiredClassesNameSet();
+			if(requiredClassesNameSet != null && !requiredClassesNameSet.isEmpty()){
+				for(String actClassName :requiredClassesNameSet){
+					try{
+		            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());
+		            if(actClass!= null){
+		            	requiredClasses.put(actClassName, actClass);
+		            }
+		            
 	            }
-	            
-            }
-            catch (ClassNotFoundException e){
-            	if(actClassName.contains(".Cell_")){
-            		requiredClasses.put(actClassName, ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass());
-            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
-            	}
-            	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){
-            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass());
-            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
-            	}
-            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){
-            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableDifferentiationLevels()[0].getClass());
-            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
-            	}
-            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){
-            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes()[0].getClass());
-            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
-            	}
-            	else{
-            		throw e;
-            	}
-            }
+	            catch (ClassNotFoundException e){
+	            	if(actClassName.contains(".Cell_")){
+	            		requiredClasses.put(actClassName, ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass());
+	            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
+	            	}
+	            	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){
+	            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass());
+	            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
+	            	}
+	            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){
+	            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableDifferentiationLevels()[0].getClass());
+	            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
+	            	}
+	            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){
+	            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes()[0].getClass());
+	            		EDEFileReader.foundDirtyDataExportColumnDuringImport = true;
+	            	}
+	            	else{
+	            		throw e;
+	            	}
+	            }
+				}
 			}
 			HashSet<Class<?>> requiredClassesSet = new HashSet<Class<?>>();
-			for(String actClass : adaptedColumn.getRequiredClassesNameSet()){
-				if(requiredClasses.containsKey(actClass))requiredClassesSet.add(requiredClasses.get(actClass));
+			if(requiredClassesNameSet != null && !requiredClassesNameSet.isEmpty()){
+				for(String actClass : requiredClassesNameSet){
+					if(requiredClasses.containsKey(actClass))requiredClassesSet.add(requiredClasses.get(actClass));
+				}
 			}
 			columnImpl.setRequiredClasses(requiredClassesSet);
 		}

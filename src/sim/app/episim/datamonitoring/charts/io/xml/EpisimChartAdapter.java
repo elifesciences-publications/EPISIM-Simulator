@@ -2,6 +2,7 @@ package sim.app.episim.datamonitoring.charts.io.xml;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
@@ -49,43 +50,48 @@ public class EpisimChartAdapter extends XmlAdapter<AdaptedEpisimChart, EpisimCha
 		if(chart instanceof EpisimChartImpl){
 			EpisimChartImpl chartImpl = (EpisimChartImpl) chart;
 			HashMap<String, Class<?>> requiredClasses = new HashMap<String, Class<?>>();
-			for(String actClassName : adaptedChart.getRequiredClassesForBaselineNameSet()){
-				try{
-	            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());
-	            if(actClass!= null){
-	            	requiredClasses.put(actClassName, actClass);
+			Set<String> requiredBaselineClasses = adaptedChart.getRequiredClassesForBaselineNameSet();
+			if(requiredBaselineClasses != null && !requiredBaselineClasses.isEmpty()){
+				for(String actClassName : requiredBaselineClasses){
+					try{
+		            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());
+		            if(actClass!= null){
+		            	requiredClasses.put(actClassName, actClass);
+		            }
+		            
 	            }
-	            
-            }
-            catch (ClassNotFoundException e){
-            	if(actClassName.contains(".Cell_")){
-            		requiredClasses.put(actClassName, ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass());
-            		chartImpl.setIsDirty(true);
-            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
-            	}
-            	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){
-            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass());
-            		chartImpl.setIsDirty(true);
-            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
-            	}
-            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){
-            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableDifferentiationLevels()[0].getClass());
-            		chartImpl.setIsDirty(true);
-            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
-            	}
-            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){
-            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes()[0].getClass());
-            		chartImpl.setIsDirty(true);
-            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
-            	}
-            	else{
-            		throw e;
-            	}
-            }
+	            catch (ClassNotFoundException e){
+	            	if(actClassName.contains(".Cell_")){
+	            		requiredClasses.put(actClassName, ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass());
+	            		chartImpl.setIsDirty(true);
+	            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
+	            	}
+	            	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){
+	            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass());
+	            		chartImpl.setIsDirty(true);
+	            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
+	            	}
+	            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){
+	            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableDifferentiationLevels()[0].getClass());
+	            		chartImpl.setIsDirty(true);
+	            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
+	            	}
+	            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){
+	            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes()[0].getClass());
+	            		chartImpl.setIsDirty(true);
+	            		ECSFileReader.foundDirtyChartSeriesDuringImport = true;
+	            	}
+	            	else{
+	            		throw e;
+	            	}
+	            }
+				}
 			}
 			HashSet<Class<?>> requiredClassesSet = new HashSet<Class<?>>();
-			for(String actClass: adaptedChart.getRequiredClassesForBaselineNameSet()){
-				if(requiredClasses.containsKey(actClass))requiredClassesSet.add(requiredClasses.get(actClass));
+			if(requiredBaselineClasses != null && !requiredBaselineClasses.isEmpty()){
+				for(String actClass: requiredBaselineClasses){
+					if(requiredClasses.containsKey(actClass))requiredClassesSet.add(requiredClasses.get(actClass));
+				}				
 			}
 			chartImpl.setRequiredClassesForBaseline(requiredClassesSet);
 		}

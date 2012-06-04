@@ -153,7 +153,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	}
 	
 	protected EpisimCellBehavioralModelGlobalParameters getEpisimCellBehavioralModelGlobalParameters(){
-		return cellBehavioralModel.getEpisimCellBehavioralModelGlobalParameters();
+		return cellBehavioralModel != null ? cellBehavioralModel.getEpisimCellBehavioralModelGlobalParameters() : null;
 	}
 	
 	public CellBehavioralModelInitializer getCellBehavioralModelInitializer(){
@@ -177,8 +177,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 		}
 		catch (Exception e){
 			ExceptionDisplayer.getInstance().displayException(e);
-		}
-		
+		}		
 	}
 
 	public void classLoaderHasChanged() {

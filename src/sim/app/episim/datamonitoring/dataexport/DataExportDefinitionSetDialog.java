@@ -212,9 +212,16 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		
 		
 		private void centerMe(){
-			Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-			this.setLocation(((int)(screenDim.getWidth() /2) - (this.getWidth()/2)), 
-			((int)(screenDim.getHeight() /2) - (this.getHeight()/2)));
+			if(this.getParent() == null){
+				Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+				this.setLocation(((int)(screenDim.getWidth() /2) - (this.getWidth()/2)), 
+				((int)(screenDim.getHeight() /2) - (this.getHeight()/2)));
+			}
+			else{
+				Dimension parentDim = this.getParent().getSize();
+				this.setLocation(((int)(this.getParent().getLocation().getX()+((parentDim.getWidth() /2) - (this.getWidth()/2)))), 
+				((int)(this.getParent().getLocation().getY()+((parentDim.getHeight() /2) - (this.getHeight()/2)))));
+			}
 		}
 		
 		private JPanel buildNamePanel(){

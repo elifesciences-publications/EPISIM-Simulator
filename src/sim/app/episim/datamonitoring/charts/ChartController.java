@@ -275,20 +275,20 @@ public class ChartController implements ClassLoaderChangeListener{
 			PNGPrinter.getInstance().reset();
 			CalculationController.getInstance().reset();
 			ECSFileReader ecsReader = new ECSFileReader(url);
-			this.actLoadedChartSet = ecsReader.getEpisimChartSet();
-			if(this.actLoadedChartSet != null){
-				actLoadedChartSet.setPath(new File(url.toURI()));
-				if(!actLoadedChartSet.isOneOfTheChartsDirty() && !ECSFileReader.foundDirtyChartSeriesDuringImport){
+			ChartController.getInstance().actLoadedChartSet = ecsReader.getEpisimChartSet();
+			if(ChartController.getInstance().actLoadedChartSet != null){
+				ChartController.getInstance().actLoadedChartSet.setPath(new File(url.toURI()));
+				if(!ChartController.getInstance().actLoadedChartSet.isOneOfTheChartsDirty() && !ECSFileReader.foundDirtyChartSeriesDuringImport){
 					ECSFileReader.foundDirtyChartSeriesDuringImport = false;
 					ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getDiffusionChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());
 					CompatibilityChecker checker = new CompatibilityChecker();			
-					checker.checkEpisimChartSetForCompatibility(actLoadedChartSet, this.chartMonitoredTissue);
+					checker.checkEpisimChartSetForCompatibility(ChartController.getInstance().actLoadedChartSet, ChartController.getInstance().chartMonitoredTissue);
 				}
 				else{
 					ECSFileReader.foundDirtyChartSeriesDuringImport = false;
-					for(EpisimChart chart : this.actLoadedChartSet.getEpisimCharts()) updateExpressionsInChart(chart);
-					resetChartDirtyStatus();
-					storeEpisimChartSet(actLoadedChartSet);					
+					for(EpisimChart chart : ChartController.getInstance().actLoadedChartSet.getEpisimCharts()) ChartController.getInstance().updateExpressionsInChart(chart);
+					ChartController.getInstance().resetChartDirtyStatus();
+					ChartController.getInstance().storeEpisimChartSet(ChartController.getInstance().actLoadedChartSet);					
 				}
 				
 				return true;

@@ -383,9 +383,16 @@ public class PropertyFileGeneratorWizard {
 
 		}
 	private void centerMe(){
-		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-		dialog.setLocation(((int)(screenDim.getWidth() /2) - (dialog.getWidth()/2)), 
-		((int)(screenDim.getHeight() /2) - (dialog.getHeight()/2)));
+		if(dialog.getParent() == null){
+			Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+			dialog.setLocation(((int)(screenDim.getWidth() /2) - (dialog.getWidth()/2)), 
+			((int)(screenDim.getHeight() /2) - (dialog.getHeight()/2)));
+		}
+		else{
+			Dimension parentDim = dialog.getParent().getSize();
+			dialog.setLocation(((int)(dialog.getParent().getLocation().getX()+((parentDim.getWidth() /2) - (dialog.getWidth()/2)))), 
+			((int)(dialog.getParent().getLocation().getY()+((parentDim.getHeight() /2) - (dialog.getHeight()/2)))));
+		}
 	}	
 	
 	private void addParameter(String parameterName, Class<?> type, String defaultValue){

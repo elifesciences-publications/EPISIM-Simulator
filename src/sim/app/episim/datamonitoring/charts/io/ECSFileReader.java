@@ -46,7 +46,8 @@ public class ECSFileReader{
 	     * @param url the url of the jar file
 	     */
 	    public ECSFileReader(URL url){	       
-	        this.url = url;      
+	        this.url = url;
+	        GlobalClassLoader.getInstance().registerURL(url);
 	    }
 	    
 	  public AbstractChartSetFactory getChartSetFactory(){
@@ -57,7 +58,7 @@ public class ECSFileReader{
 	  private void loadChartSetFactory(){
 		  try{
       	
-			GlobalClassLoader.getInstance().registerURL(url);
+			
 	      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
 	     
 	      if(factoryClass != null && AbstractChartSetFactory.class.isAssignableFrom(this.factoryClass)){

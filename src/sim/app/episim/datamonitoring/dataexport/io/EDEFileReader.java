@@ -37,10 +37,11 @@ public class EDEFileReader{
 	 */
 	public EDEFileReader(URL url) {		
 		this.url = url;
+		GlobalClassLoader.getInstance().registerURL(url);
 	}
 	private void loadFactory(){
 		try{
-			 GlobalClassLoader.getInstance().registerURL(url);
+			 
 		    this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
 			
 

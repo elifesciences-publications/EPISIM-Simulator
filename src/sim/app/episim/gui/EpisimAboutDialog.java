@@ -102,16 +102,18 @@ public class EpisimAboutDialog{
 	public void showAboutDialog(){
 	// if not on screen right now, move to center of screen
 		  if (!dialog.isVisible())
-		      {
-		      Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		      d.width -= dialog.getWidth();
-		      d.height -= dialog.getHeight();
-		      d.width /= 2;
-		      d.height /= 2;
-		      if (d.width < 0) d.width = 0;
-		      if (d.height < 0) d.height = 0;
-		      dialog.setLocation(d.width,d.height);
-		      }
+		   {
+			  if(dialog.getParent() == null){
+					Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+					dialog.setLocation(((int)(screenDim.getWidth() /2) - (dialog.getWidth()/2)), 
+					((int)(screenDim.getHeight() /2) - (dialog.getHeight()/2)));
+				}
+				else{
+					Dimension parentDim = dialog.getParent().getSize();
+					dialog.setLocation(((int)(dialog.getParent().getLocation().getX()+((parentDim.getWidth() /2) - (dialog.getWidth()/2)))), 
+					((int)(dialog.getParent().getLocation().getY()+((parentDim.getHeight() /2) - (dialog.getHeight()/2)))));
+				}
+		   }
 		  
 		  // show it!
 		  dialog.setVisible(true);

@@ -101,6 +101,8 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	private StatusBar statusbar;
 	
 	
+	private File previouslyLoadedModelFile = null;
+	
 	private SimulationStateData actLoadedSimulationStateData = null;
 	
 	
@@ -383,6 +385,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			
 			//System.out.println(success);
 			if(success){
+				this.previouslyLoadedModelFile = modelFile;
 				actLoadedSimulationStateData = simulationStateData;
 				if(simulationStateData == null)ModelController.getInstance().standardInitializationOfModels();
 				else{
@@ -456,8 +459,12 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
       }
 		
 		if(success){
+			 
 			if(actLoadedSimulationStateData == null)ModelController.getInstance().standardInitializationOfModels();
-			else ModelController.getInstance().initializeModels(actLoadedSimulationStateData);
+			else{ 
+				initializeGlobalObjects(actLoadedSimulationStateData);
+				ModelController.getInstance().initializeModels(actLoadedSimulationStateData);
+			}
 			setTissueExportPath(snapshotPath, true);			
 			ChartController.getInstance().rebuildDefaultCharts();
 			cleanUpContentPane();
@@ -492,8 +499,8 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	
 	public void classLoaderHasChanged() {
 
-	   if(ModelController.getInstance().isModelOpened()){	   	
-	         reloadModel(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile(), SimulationStateFile.getTissueExportPath());        
+	   if(this.previouslyLoadedModelFile != null){	   	
+	         reloadModel(this.previouslyLoadedModelFile, SimulationStateFile.getTissueExportPath());        
 	   }	   
    }
 	public void setTissueExportPath(){
@@ -568,6 +575,8 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(true);
 		
 		
+		//never change the order of the following two commands:
+		this.previouslyLoadedModelFile = null;
 		GlobalClassLoader.getInstance().destroyClassLoader(true);
 		
 		if(ModeServer.guiMode())mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE);
@@ -576,8 +585,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		this.actLoadedSimulationStateData = null;
 	}
 	
-	public void simulationWasStarted(){
-		
+	public void simulationWasStarted(){		
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.WINDOWS_MENU).setEnabled(false);

@@ -278,19 +278,19 @@ public class DataExportController implements ClassLoaderChangeListener{
 		try{
 			CalculationController.getInstance().reset();
 			EDEFileReader edeReader = new EDEFileReader(url);
-			this.actLoadedDataExportSet = edeReader.getEpisimDataExportDefinitionSet();
-			if(this.actLoadedDataExportSet != null){
-				this.actLoadedDataExportSet.setPath(new File(url.toURI()));
-				if(!this.actLoadedDataExportSet.isOneOfTheDataExportDefinitionsDirty() && !EDEFileReader.foundDirtyDataExportColumnDuringImport){
+			DataExportController.getInstance().actLoadedDataExportSet = edeReader.getEpisimDataExportDefinitionSet();
+			if(DataExportController.getInstance().actLoadedDataExportSet != null){
+				DataExportController.getInstance().actLoadedDataExportSet.setPath(new File(url.toURI()));
+				if(!DataExportController.getInstance().actLoadedDataExportSet.isOneOfTheDataExportDefinitionsDirty() && !EDEFileReader.foundDirtyDataExportColumnDuringImport){
 					EDEFileReader.foundDirtyDataExportColumnDuringImport = false;
 					DataExportSteppableServer.getInstance().registerCustomDataExportSteppables(edeReader.getDataExports(), edeReader.getDiffusionFieldDataExports(), edeReader.getDataExportSteppables(), edeReader.getDataExportFactory());
 					CompatibilityChecker checker = new CompatibilityChecker();
-					checker.checkEpisimDataExportDefinitionSetForCompatibility(actLoadedDataExportSet, this.dataExportMonitoredTissue);
+					checker.checkEpisimDataExportDefinitionSetForCompatibility(DataExportController.getInstance().actLoadedDataExportSet, DataExportController.getInstance().dataExportMonitoredTissue);
 				}else{
 					EDEFileReader.foundDirtyDataExportColumnDuringImport = false;
-					for(EpisimDataExportDefinition def : this.actLoadedDataExportSet.getEpisimDataExportDefinitions()) updateExpressionsInDataExportDefinition(def);
-					resetChartDirtyDataExports();
-					storeDataExportDefinitionSet(actLoadedDataExportSet);
+					for(EpisimDataExportDefinition def : DataExportController.getInstance().actLoadedDataExportSet.getEpisimDataExportDefinitions()) DataExportController.getInstance().updateExpressionsInDataExportDefinition(def);
+					DataExportController.getInstance().resetChartDirtyDataExports();
+					DataExportController.getInstance().storeDataExportDefinitionSet(DataExportController.getInstance().actLoadedDataExportSet);
 				}
 				
 				return true;

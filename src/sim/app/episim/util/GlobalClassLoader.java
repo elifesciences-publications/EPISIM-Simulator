@@ -9,6 +9,7 @@ import java.util.Set;
 
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
+import sim.app.episim.gui.EpisimSimulator;
 
 
 public class GlobalClassLoader extends URLClassLoader{
@@ -171,7 +172,12 @@ public class GlobalClassLoader extends URLClassLoader{
 	public void notifyAllListeners(){
 	   Set<ClassLoaderChangeListener> listenerCopy = new HashSet<ClassLoaderChangeListener>();
 	   listenerCopy.addAll(this.changeListener);
-		for(ClassLoaderChangeListener listener: listenerCopy) listener.classLoaderHasChanged();
+	   EpisimSimulator simulator = null;
+		for(ClassLoaderChangeListener listener: listenerCopy){
+			if(listener instanceof EpisimSimulator) simulator = (EpisimSimulator)listener;
+			else listener.classLoaderHasChanged();
+		}
+		if(simulator != null) simulator.classLoaderHasChanged();
 	}
 	
 	private void cleanListeners(String className){

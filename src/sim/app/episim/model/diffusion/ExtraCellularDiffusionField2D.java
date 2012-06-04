@@ -269,6 +269,33 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    		}
    		return totalConcentration;
    }
+   
+   public double getAverageConcentrationInArea(CellBoundaries area){   	
+      
+		double totalConcentration = 0;
+		
+		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+		
+		double startX = getMinX(area);
+		double stopX = getMaxX(area);
+		
+		double startY = getMinY(area);
+		double stopY = getMaxY(area);
+		
+		double numberOfLatticeSites = 0;
+		
+		for(double y = startY; y <= stopY;){
+			for(double x = startX; x <= stopX;){
+				if(area.contains(x, y)){
+					totalConcentration += getConcentration(x, y);
+					numberOfLatticeSites+=1.0;
+   			}
+   			x+=fieldRes;
+   		}
+			y+=fieldRes;
+		}
+		return numberOfLatticeSites > 0 ? (totalConcentration/numberOfLatticeSites) : totalConcentration;
+   }
 	
    private double getMinX(CellBoundaries boundaries){
    	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();

@@ -352,7 +352,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 					double[] concentrations = new double[spreadingLocationIndices.size()];
 					for(int i = 0; i < spreadingLocationIndices.size();i++){
 						Double3D locInMikron = getLocationInMikron(new Int3D(xPos.get(spreadingLocationIndices.get(i)), yPos.get(spreadingLocationIndices.get(i)), zPos.get(spreadingLocationIndices.get(i))));
-						concentrations[i] = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(locInMikron.x, locInMikron.y, locInMikron.z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
+						concentrations[i] = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(locInMikron.x, locInMikron.y, locInMikron.z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
 					}
 					int choosenIndex = getSpreadingLocationIndexNumberBasedOnNeighbouringConcentrations(ecDiffField, concentrations);
 					if(choosenIndex >= 0) return spreadingLocationIndices.get(choosenIndex);
@@ -367,11 +367,11 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 																																				  ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 																																				  : ecDiffField.getMaxConcentrationInField();
 		final double lambda = globalParameters.getLambdaChem();
-		double localConcentration = ecDiffField.getTotalConcentrationInArea(getCellBoundariesInMikron(ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
+		double localConcentration = ecDiffField.getAverageConcentrationInArea(getCellBoundariesInMikron(ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
 		double[] normalizedConcentrations = new double[concentrations.length];
 		for(int i = 0; i < concentrations.length; i++){
 			double gradient = lambda*(concentrations[i]-localConcentration);
-			normalizedConcentrations[i]= gradient > 0 ? ((gradient/c_max)+(1/concentrations.length)) : (1/concentrations.length);
+			normalizedConcentrations[i]= gradient > 0 ? ((gradient/c_max)+(1.0d/((double)concentrations.length))) : (1.0d/((double)concentrations.length));
 		}		
 		double sumNormalizedConcentrations = 0;
 	
@@ -458,8 +458,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 							double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 							                                                                            ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 							                                                                            : ecDiffField.getMaxConcentrationInField();
-				         double c_fieldPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y, getLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
-				         double c_spreadingPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y, getSpreadingLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));  
+				         double c_fieldPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y, getLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
+				         double c_spreadingPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y, getSpreadingLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));  
 							  
 							normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
 							

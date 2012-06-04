@@ -339,7 +339,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 					double[] concentrations = new double[spreadingLocationIndices.size()];
 					for(int i = 0; i < spreadingLocationIndices.size();i++){
 						Double2D locInMikron = getLocationInMikron(new Int2D(xPos.get(spreadingLocationIndices.get(i)), yPos.get(spreadingLocationIndices.get(i))));
-						concentrations[i] = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(locInMikron.x, locInMikron.y));
+						concentrations[i] = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(locInMikron.x, locInMikron.y));
 					}
 					int choosenIndex = getSpreadingLocationIndexNumberBasedOnNeighbouringConcentrations(ecDiffField, concentrations);
 					if(choosenIndex >= 0) return spreadingLocationIndices.get(choosenIndex);
@@ -354,11 +354,11 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 																																				  ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 																																				  : ecDiffField.getMaxConcentrationInField();
 		final double lambda = globalParameters.getLambdaChem();
-		double localConcentration = ecDiffField.getTotalConcentrationInArea(getCellBoundariesInMikron(0));
+		double localConcentration = ecDiffField.getAverageConcentrationInArea(getCellBoundariesInMikron(0));
 		double[] normalizedConcentrations = new double[concentrations.length];
 		for(int i = 0; i < concentrations.length; i++){
 			double gradient = lambda*(concentrations[i]-localConcentration);
-			normalizedConcentrations[i]= gradient > 0 ? ((gradient/c_max)+(1/concentrations.length)) : (1/concentrations.length);
+			normalizedConcentrations[i]= gradient > 0 ? ((gradient/c_max)+(1.0d/((double)concentrations.length))) : (1.0d/(((double)concentrations.length)));
 		}
 		
 		double sumNormalizedConcentrations = 0;
@@ -420,8 +420,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 					double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 					                                                                            ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 					                                                                            : ecDiffField.getMaxConcentrationInField();
-		         double c_fieldPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y));
-		         double c_spreadingPos = ecDiffField.getTotalConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y));  
+		         double c_fieldPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y));
+		         double c_spreadingPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y));  
 					  
 					normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
 					
@@ -547,7 +547,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		mechModel.spreadingLocation = locationToPull;
 		cellField.field[locationToPull.x][locationToPull.y] = neighbour;
 		mechModel.modelConnector.setIsSpreadingFN(!isLocationOnTestSurface(locationToPull));
-		mechModel.modelConnector.setIsSpreadingRGD(isLocationOnTestSurface(locationToPull));		
+		mechModel.modelConnector.setIsSpreadingRGD(isLocationOnTestSurface(locationToPull));
 	}
 	
    

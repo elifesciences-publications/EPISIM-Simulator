@@ -298,6 +298,40 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
    		return totalConcentration;
    }
    
+   public double getAverageConcentrationInArea(CellBoundaries area){   	
+      
+		double totalConcentration = 0;
+		
+		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+		
+		double startX = getMinX(area);
+		double stopX = getMaxX(area);
+		
+		
+		double startY = getMinY(area);
+		double stopY = getMaxY(area);
+		
+		double startZ = getMinZ(area);
+		double stopZ = getMaxZ(area);
+		
+		double numberOfLatticeSites = 0;
+		
+		for(double z = startZ; z <= stopZ;){
+   		for(double y = startY; y <= stopY;){
+   			for(double x = startX; x <= stopX;){
+   				if(area.contains(x, y, z)){
+   					totalConcentration += getConcentration(x, y, z);
+   					numberOfLatticeSites+=1.0;
+      			}
+      			x+=fieldRes;
+      		}
+   			y+=fieldRes;
+   		}
+   		z+=fieldRes;
+		}
+		return numberOfLatticeSites > 0 ? (totalConcentration/numberOfLatticeSites) : totalConcentration;
+}
+   
    
    private double getMinX(CellBoundaries boundaries){
    	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();

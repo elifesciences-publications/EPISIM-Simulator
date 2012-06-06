@@ -180,7 +180,7 @@ public class SimulationStateData {
 	public void setLoadedModelFile(String file) {
 		this.loadedModelFile = new File(file);
 	}
-
+	
 	public void setTissueBorder(XmlTissueBorder tissueBorder) {
 		this.tissueBorder = tissueBorder;
 	}

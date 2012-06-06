@@ -163,10 +163,11 @@ public class SimulationStateFile extends XmlFile {
 		return simStateData;
 	}
 
-	public void saveData() {
+	public void saveData(boolean useSameFile) {
 
 		if (SimulationStateFile.tissueExportPath != null) {
-			saveData(getFilePath(SimulationStateFile.tissueExportPath));
+			if(useSameFile)saveData(SimulationStateFile.tissueExportPath);
+			else saveData(getFilePath(SimulationStateFile.tissueExportPath));
 		}
 	}
 
@@ -191,6 +192,29 @@ public class SimulationStateFile extends XmlFile {
 			} while (file.exists());
 		}
 		return file;
+	}
+	
+	public void saveModelFilePathCorrectedVersion(File cbmFile){
+		if (SimulationStateFile.tissueExportPath != null) {
+			correctCBMPath(cbmFile.getAbsolutePath());
+			save(SimulationStateFile.tissueExportPath);
+			
+		}		
+	}
+	
+	private void correctCBMPath(String path) {
+		Node simulationHeader = getRoot().getElementsByTagName(
+				EPISIM_TISSUE_SIMULATION_HEADER).item(0);
+		if (simulationHeader != null) {
+			NodeList nodes = simulationHeader.getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				if (nodes.item(i).getNodeName()
+						.equalsIgnoreCase(CELLBEHAVIORALMODEL_FILE)) {
+					nodes.item(i).getAttributes().getNamedItem(MODELFILE).setNodeValue(path);
+							
+				} 
+			}
+		}
 	}
 
 	private void saveData(File path) {

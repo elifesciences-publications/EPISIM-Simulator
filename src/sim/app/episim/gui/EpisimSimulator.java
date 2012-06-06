@@ -667,33 +667,56 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		
 	
 	
+	
 	protected void loadSimulationStateFile(File f){
+		 
 		 try{
             if(f != null){
+            	boolean load = true;
+            	
             	setTissueExportPath(f, false);
-					final SimulationStateData simStateData = new SimulationStateFile(f).loadData();   
+            	final SimulationStateFile simulationStateFile = new SimulationStateFile(f);
+					final SimulationStateData simStateData = simulationStateFile.loadData();   
 					if(simStateData.getLoadedModelFile()==null || !simStateData.getLoadedModelFile().exists()) {
-						JOptionPane.showMessageDialog(mainFrame, "Cannot open the cell behavioral model file defined in the export:\n" + simStateData.getLoadedModelFile(), "Error", JOptionPane.ERROR_MESSAGE);
+						load = false;						
+						if(ModeServer.guiMode()){
+							JOptionPane.showMessageDialog(mainFrame, "Cannot find the cell behavioral model file defined in the export:\n" + simStateData.getLoadedModelFile(), "Error", JOptionPane.WARNING_MESSAGE);
+							jarFileChoose.setDialogTitle("Load the Corresponding Episim Cell Behavioral Model");
+							if(jarFileChoose.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION){
+								File modelFile = jarFileChoose.getSelectedFile();
+								if(modelFile != null && modelFile.exists()){
+									simStateData.setLoadedModelFile(modelFile.getAbsolutePath());
+									SimulationStateFile.setTissueExportPath(f);
+									simulationStateFile.saveModelFilePathCorrectedVersion(modelFile);
+									load =true;									
+								}
+							}
+						}			
 					}
-					else{ 
+					if(load){ 
 						setTissueExportPath(f, false);
 						if(ModeServer.guiMode()){
 							
 							EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback() {											
-								public void taskHasFinished() {}
+								public void taskHasFinished() {
+									
+								}
 								public void executeTask() {
 									boolean success = openModel(simStateData.getLoadedModelFile(), simStateData);
 									if(success && epiUI != null){
 										epiUI.pressPauseAfterLoadingSimulationState();
-									}								
+									}
+									
 								}
 							};
-							EpisimProgressWindow.showProgressWindowForTask(mainFrame, "Load Episim Simulation State...", cb);			
+							EpisimProgressWindow.showProgressWindowForTask(mainFrame, "Load Episim Simulation State...", cb);
+						
 						}
 						else{
-							openModel(simStateData.getLoadedModelFile(), simStateData);
+							openModel(simStateData.getLoadedModelFile(), simStateData);							
 						}
 					}
+					
             }
         }
         catch (ParserConfigurationException e1){
@@ -709,7 +732,5 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		  catch (IOException e1) {
 			  ExceptionDisplayer.getInstance().displayException(e1);
 		  } 
-	}
-
-	
+	}	
 }

@@ -277,7 +277,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	
 	private void saveSimulationState(){
 		  try{
-			  (new SimulationStateFile()).saveData();							
+			  (new SimulationStateFile()).saveData(false);							
 		  }
         catch (ParserConfigurationException e1){
            ExceptionDisplayer.getInstance().displayException(e1);

@@ -1,26 +1,28 @@
-Episim Simulator version 1.4.0 is a software tool that enables 
-users to simulate multicellular models 
-of the complex structured epithelial tissue.
+Episim Simulator version 1.4.0 is a software  that enables 
+users to simulate cellular behavior in a multi-cellular tissue
+using a multi-agent based simulation approach.
 
 Some feature of the EPISIM ModelEditor:
 - Easy to use customizable graphical user interface
 - Import of Cell Behavioral Models
-- Simulation of Cell Behavioral Models in the on the basis of a multi agent system
+- Muli-Agent Simulation of Cell Behavioral Models
+- Simulation of SBML Models using COPASI
 - Monitoring of the simulation results with flexible charts
+  and data exports
 
 Requirements:
 - Operating system for version 1.4.0: Windows 98/2000/XP/Vista/7
 
 Contact:
 Thomas Sütterlin
-Institute for Medical Biometry and Informatics
+National Center for Tumor Diseases
 Hamamatsu TIGA Center
 University Hospital Heidelberg
-thomas.suetterlin@med.uni-heidelberg.de
+thomas.suetterlin@bioquant.uni-heidelberg.de
 
 Niels Grabe
-Institute for Medical Biometry and Informatics
+National Center for Tumor Diseases
 Hamamatsu TIGA Center
-niels.grabe@med.uni-heidelberg.de
+niels.grabe@bioquant.uni-heidelberg.de
 
 Heidelberg, 2012

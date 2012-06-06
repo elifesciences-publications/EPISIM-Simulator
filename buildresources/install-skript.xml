@@ -5,7 +5,7 @@
 <appname>Episim Simulator</appname>
 <appversion>1.4.0</appversion>
  <authors>
-<author name="Thomas Suetterlin" email="thomas.suetterlin@med.uni-heidelberg.de"/>
+<author name="Thomas Suetterlin" email="thomas.suetterlin@bioquant.uni-heidelberg.de"/>
 </authors>
 <url>http://www.tiga.uni-hd.de/</url>
 </info>
@@ -19,7 +19,7 @@
 
 <variables>
 <variable name="app-version" value="1.4.0"/>
-<variable name="released-on" value="12.01.2012"/>
+<variable name="released-on" value="06.06.2012"/>
 </variables>
 
  <!-- The gui preferences indication. -->

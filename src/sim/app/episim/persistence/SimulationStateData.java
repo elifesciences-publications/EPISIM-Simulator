@@ -3,6 +3,7 @@ package sim.app.episim.persistence;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
@@ -11,6 +12,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.persistence.dataconvert.XmlEpisimCellBehavioralModel;
 import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray2D;
 import sim.app.episim.persistence.dataconvert.XmlExtraCellularDiffusionFieldArray3D;
 import sim.app.episim.persistence.dataconvert.XmlObject;
@@ -19,6 +21,7 @@ import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.tissue.TissueController;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
+import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 /*
@@ -85,6 +88,8 @@ public class SimulationStateData {
 		alreadyLoadedXmlCellsNewID.clear();
 		alreadyLoadedCells.clear();
 	}
+	
+	
 
 	public void updateData() {
 

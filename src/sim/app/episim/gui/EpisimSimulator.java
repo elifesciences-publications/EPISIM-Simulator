@@ -60,6 +60,7 @@ import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.tissue.Epidermis;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueServer;
+import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
@@ -222,10 +223,10 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 						int choice = JOptionPane.showConfirmDialog(mainFrame, "Do you really want to close the opened model?", "Close Model?", JOptionPane.YES_NO_OPTION);
 						if(choice == JOptionPane.OK_OPTION){
 							closeModel();	
-							close();
+							close(0);
 						}
 					}
-					else close();
+					else close(0);
 	
 				}
 			});
@@ -585,6 +586,61 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		this.actLoadedSimulationStateData = null;
 	}
 	
+	private boolean testSimStateAndCBMCompatibility(File cbmFile, SimulationStateData simStateData){
+		boolean compatibilityTestResult = true;
+		//-----------------------------------------------------------------------------
+		// Open Model
+		//-----------------------------------------------------------------------------
+		ModelController.getInstance().setSimulationStartedOnce(false);		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
+		boolean success = false;
+		try{
+         success= ModelController.getInstance().loadCellBehavioralModelFile(cbmFile);
+      }
+      catch (ModelCompatibilityException e){
+        ExceptionDisplayer.getInstance().displayException(e);
+       
+        success = false;
+      }
+		if(success){
+			ModelController.getInstance().setModelOpened(true);
+		
+		
+			//-----------------------------------------------------------------------------
+			// Check Compatibility
+			//-----------------------------------------------------------------------------			
+			
+			try{
+				initializeGlobalObjects(simStateData);
+				ModelController.getInstance().initializeModels(simStateData);
+				TissueController.getInstance().registerTissue(new Epidermis(System.currentTimeMillis()));
+				compatibilityTestResult = ModelController.getInstance().testCBMFileLoadedSimStateCompatibility();
+			}
+			catch(Exception e){
+				compatibilityTestResult = false;
+			}
+			
+			
+			
+		}
+		//-----------------------------------------------------------------------------
+		// Close Model
+		//-----------------------------------------------------------------------------
+		System.gc();
+		
+		TissueController.getInstance().resetTissueSettings();
+		ChartController.getInstance().modelWasClosed();
+		DataExportController.getInstance().modelWasClosed();
+		this.previouslyLoadedModelFile = null;
+		GlobalClassLoader.getInstance().destroyClassLoader(true);
+		
+		return compatibilityTestResult;
+	}
+	
+	
+	
+	
+	
 	public void simulationWasStarted(){		
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
 		this.menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(false);
@@ -606,13 +662,13 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		DataExportController.getInstance().simulationWasStopped();
 	}
 	
-	public void close(){
+	public void close(final int exitCode){
 		 SwingUtilities.invokeLater(new Runnable() {
 
 	        public void run() {
 
 					mainFrame.dispose();
-					System.exit(0);
+					System.exit(exitCode);
 	        }
 	    });
 	}
@@ -673,10 +729,12 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		 try{
             if(f != null){
             	boolean load = true;
+            	boolean compatible = true;
             	
             	setTissueExportPath(f, false);
             	final SimulationStateFile simulationStateFile = new SimulationStateFile(f);
 					final SimulationStateData simStateData = simulationStateFile.loadData();   
+					
 					if(simStateData.getLoadedModelFile()==null || !simStateData.getLoadedModelFile().exists()) {
 						load = false;						
 						if(ModeServer.guiMode()){
@@ -693,7 +751,40 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 							}
 						}			
 					}
-					if(load){ 
+					
+					if(load){
+						do{
+							compatible=testSimStateAndCBMCompatibility(simStateData.getLoadedModelFile(), simStateData);
+							if(!compatible){
+								if(ModeServer.guiMode()){
+									JOptionPane.showMessageDialog(mainFrame, "The loaded cell behavioral model file: " + simStateData.getLoadedModelFile()+" is not compatible with this simulation state.", "Error", JOptionPane.WARNING_MESSAGE);
+									jarFileChoose.setDialogTitle("Load the Corresponding Episim Cell Behavioral Model");
+									int fileChooserResult = jarFileChoose.showOpenDialog(mainFrame);
+									if(fileChooserResult == JFileChooser.APPROVE_OPTION){
+										File modelFile = jarFileChoose.getSelectedFile();
+										if(modelFile != null && modelFile.exists()){
+											simStateData.setLoadedModelFile(modelFile.getAbsolutePath());
+											SimulationStateFile.setTissueExportPath(f);
+											simulationStateFile.saveModelFilePathCorrectedVersion(modelFile);
+											load =true;									
+										}
+									}
+									else if(fileChooserResult == JFileChooser.ABORT || fileChooserResult == JFileChooser.CANCEL_OPTION){
+										SimulationStateFile.setTissueExportPath(null);
+										this.actLoadedSimulationStateData = null;
+										if(ModeServer.guiMode())mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE);
+										return;
+									}
+								}
+								else{
+									close(-1);
+								}
+							}
+						}while(!compatible);
+					}
+					
+					
+					if(load && compatible){ 
 						setTissueExportPath(f, false);
 						if(ModeServer.guiMode()){
 							

@@ -77,7 +77,16 @@ public class CellBehavioralModelInitializer {
 			actCell.getEpisimCellBehavioralModelObject().setIsAlive(true);
 		}
 	}
-
+	
+	protected void initializeSampleCell(UniversalCell sampleCell){
+		EpisimCellBehavioralModel cellBehave = sampleCell.getEpisimCellBehavioralModelObject();
+		if (simulationStateData.getAlreadyLoadedXmlCellNewID(sampleCell.getID()) != null) {
+			XmlEpisimCellBehavioralModel xCellBehave = simulationStateData.getAlreadyLoadedXmlCellNewID(sampleCell.getID())
+					.getEpisimCellBehavioralModel();
+			xCellBehave.copyValuesToTarget(cellBehave);
+		}
+	}
+	
 	protected void initializeCellEnsembleWithFileValues(ArrayList<UniversalCell> cellEnsemble) {
 		for (UniversalCell actCell : cellEnsemble) {
 			EpisimCellBehavioralModel cellBehave = actCell.getEpisimCellBehavioralModelObject();

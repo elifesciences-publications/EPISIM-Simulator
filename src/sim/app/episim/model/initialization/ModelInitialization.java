@@ -69,6 +69,15 @@ public class ModelInitialization {
 
 		return buildCellList();
 	}
+	
+	public boolean testCBMFileLoadedSimStateCompatibility(){
+		UniversalCell sampleCell = this.biomechanicalModelInitializer.getSampleCell();		
+		if(sampleCell != null){
+			this.cellbehavioralModelInitializer.initializeSampleCell(sampleCell);
+			return true;
+		}
+		return false;
+	}
 
 	public EpisimPortrayal getCellPortrayal() {
 		return biomechanicalModelInitializer.getCellPortrayal();

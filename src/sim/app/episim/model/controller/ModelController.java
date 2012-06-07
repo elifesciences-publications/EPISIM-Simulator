@@ -81,6 +81,11 @@ public class ModelController implements java.io.Serializable, ClassLoaderChangeL
 		return initializer.getCells();
 	}
 	
+	public boolean testCBMFileLoadedSimStateCompatibility(){
+		return initializer.testCBMFileLoadedSimStateCompatibility();
+	}
+	
+	
 	public EpisimPortrayal getCellPortrayal(){
 		return initializer.getCellPortrayal();
 	}

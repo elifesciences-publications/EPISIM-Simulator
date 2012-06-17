@@ -6,6 +6,7 @@ public interface EpisimSbmlModelConnector {
 	void setEpisimModelConfigurations(EpisimSbmlModelConfiguration[] episimModelConfigurations);
 	
 	void setParameterValue(String originalName, String sbmlFile, double value);
+	void setSpeciesQuantity(String originalName, String sbmlFile, double value);
 	void setSpeciesInitialQuantity(String originalName, String sbmlFile, double value);
 	
 	double getSpeciesValue(String originalName, String sbmlFile);

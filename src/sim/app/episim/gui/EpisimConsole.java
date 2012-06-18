@@ -224,7 +224,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 							 
 				if(mainGUIComponent != null && mainGUIComponent instanceof JFrame && SimulationStateFile.getTissueExportPath() == null){					
 					ExtendedFileChooser chooser = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
-					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showSaveDialog((JFrame)mainGUIComponent)){
+					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showSaveDialog((JFrame)mainGUIComponent) && chooser.getSelectedFile() != null){
 						SimulationStateFile.setTissueExportPath(chooser.getSelectedFile());	
 						 if(ModeServer.guiMode()){
 	                  try{
@@ -245,12 +245,10 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 							public void executeTask() {							
 								saveSimulationState();					
 		                }
-							public void taskHasFinished(){
-								  			
+							public void taskHasFinished(){								  			
 						        episimGUIState.pressWorkaroundSimulationPlay(); 
 								  simulation.state.postCheckpoint();
-							}
-					
+							}					
 						};
 						EpisimProgressWindow.showProgressWindowForTask((Frame)mainGUIComponent, "Writing simulation state to disk...", cb);						
 					}

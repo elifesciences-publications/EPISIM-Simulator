@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2012-07-05_episimbiomechanics.hexagonbased2d.bactmacro.EpisimBacteriaMacrophageModelMC"/>
+  <modelname name="Simple Hexagon Grid Based Biomechanical Bacteria Macrophage Model"/>
+  <modelconnectorclass name="episimbiomechanics.hexagonbased2d.bactmacro.EpisimBacteriaMacrophageModelMC"/>
+  <modelparameters>
+    <parameter datatype="boolean" default="false" name="isSpreading" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isRetracting" readonly="false"/>
+    <parameter datatype="String" default="" name="chemotacticField" readonly="false"/>
+  </modelparameters>
+</modeldescriptor>

@@ -1,17 +1,18 @@
-package episimbiomechanics.hexagonbased2d.tumormodel.simple;
+package episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.simple;
 
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurface;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurfaceGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector.Hidden;
-import episimbiomechanics.hexagonbased2d.EpisimHexagonBased2DMC;
-import episimbiomechanics.hexagonbased2d.simplified.HexagonBased2DMechModelSimpleInit;
+import episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC;
+import episimbiomechanics.hexagonbased2d.singlesurface.HexagonBased2DMechModelSingleSurfaceInit;
+import episimbiomechanics.hexagonbased2d.twosurface.EpisimHexagonBased2DTwoSurfaceMC;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 
 
-public class EpisimSimpleTumorModelMC extends EpisimHexagonBased2DMC {
+public class EpisimSimpleTumorModelMC extends EpisimHexagonBased2DSingleSurfaceMC {
 	
 	private static final String ID = "2012-03-26";
 	private static final String NAME = "Simple Hexagon Grid Based Biomechanical Tumor Model";
@@ -30,7 +31,7 @@ public class EpisimSimpleTumorModelMC extends EpisimHexagonBased2DMC {
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return HexagonBasedMechanicalModel.class;
+		return HexagonBasedMechanicalModelSingleSurface.class;
 	}
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
@@ -38,7 +39,7 @@ public class EpisimSimpleTumorModelMC extends EpisimHexagonBased2DMC {
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return HexagonBasedMechanicalModelGP.class;
+		return HexagonBasedMechanicalModelSingleSurfaceGP.class;
 	}
 	
 	public String getChemotacticField(){	   
@@ -50,19 +51,35 @@ public class EpisimSimpleTumorModelMC extends EpisimHexagonBased2DMC {
    }
    
    public void setIsSpreading(boolean isSpreading){
-		super.setIsSpreadingFN(isSpreading);
+		super.setIsSpreading(isSpreading);
 	}
    
 	public boolean getIsSpreading(){
-		return super.getIsSpreadingFN();
+		return super.getIsSpreading();
 	}
 	
 	public void setIsRetracting(boolean isRetracting){
-		super.setIsRetractingToFN(isRetracting);
+		super.setIsRetracting(isRetracting);
 	}
    
 	public boolean getIsRetracting(){
-		return super.getIsRetractingToFN();
+		return super.getIsRetracting();
+	}
+	
+	public void setLambdaChem(double lambdaChem){
+		super.setLambdaChem(lambdaChem);
+	}
+	
+	public double getLambdaChem(){
+		return super.getLambdaChem();
+	}
+	
+	public void setCellCellInteractionEnergy(double energy){
+		super.setCellCellInteractionEnergy(energy);
+	}
+	
+	public double getCellCellInteractionEnergy(){
+		return super.getCellCellInteractionEnergy();
 	}
 	
 	public boolean getIsProliferating(){		

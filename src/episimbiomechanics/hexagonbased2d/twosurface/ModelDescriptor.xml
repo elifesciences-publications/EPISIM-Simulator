@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2011-09-23_episimbiomechanics.hexagonbased2d.twosurface.EpisimHexagonBased2DTwoSurfaceMC"/>
+  <modelname name="Hexagon Grid Based Biomechanical Model Two Surface"/>
+  <modelconnectorclass name="episimbiomechanics.hexagonbased2d.twosurface.EpisimHexagonBased2DTwoSurfaceMC"/>
+  <modelparameters>
+    <parameter name="isRetractingToRGD" datatype="boolean"
+      default="false" readonly="false"/>
+    <parameter name="cellCellInteractionEnergy" datatype="double"
+      default="0.7" readonly="false"/>
+    <parameter name="isRetractingToFN" datatype="boolean"
+      default="false" readonly="false"/>
+    <parameter name="isProliferating" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="isRelaxing" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="chemotacticField" datatype="String" default="" readonly="false"/>
+    <parameter name="isAtSurfaceBorder" datatype="boolean"
+      default="false" readonly="true"/>
+    <parameter name="isSpreadingRGD" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="isSpreadingFN" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="lambdaChem" datatype="double" default="1.0" readonly="false"/>
+    <parameter name="isOnTestSurface" datatype="boolean" default="false" readonly="true"/>
+  </modelparameters>
+</modeldescriptor>

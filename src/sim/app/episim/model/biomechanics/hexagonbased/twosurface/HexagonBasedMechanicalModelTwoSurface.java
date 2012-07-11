@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.hexagonbased;
+package sim.app.episim.model.biomechanics.hexagonbased.twosurface;
 
 import java.awt.Color;
 import java.awt.Polygon;
@@ -22,8 +22,8 @@ import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
 
 
-import episimbiomechanics.hexagonbased2d.EpisimHexagonBased2DMC;
-import episimbiomechanics.hexagonbased2d.HexagonBased2DMechModelInit;
+import episimbiomechanics.hexagonbased2d.twosurface.EpisimHexagonBased2DTwoSurfaceMC;
+import episimbiomechanics.hexagonbased2d.twosurface.HexagonBased2DMechModelTwoSurfaceInit;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -35,6 +35,7 @@ import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim2DCellShape;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
@@ -52,9 +53,9 @@ import sim.util.IntBag;
 import sim.util.MutableInt2D;
 
 
-public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
+public class HexagonBasedMechanicalModelTwoSurface extends AbstractHexagonBasedMechanicalModel {
 	
-	private EpisimHexagonBased2DMC modelConnector;
+	private EpisimHexagonBased2DTwoSurfaceMC modelConnector;
 	
 	private static ObjectGrid2D cellField;
 	
@@ -68,17 +69,17 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		
 	private boolean isAtWoundEdge=false;
 	
-	private HexagonBasedMechanicalModelGP globalParameters;
+	private HexagonBasedMechanicalModelTwoSurfaceGP globalParameters;
 	
 	private static final int UPPER_PROBABILITY_LIMIT = (int) Math.pow(10, 7);
 	
-	public HexagonBasedMechanicalModel(){
+	public HexagonBasedMechanicalModelTwoSurface(){
 		this(null);	
 	}
 
-	public HexagonBasedMechanicalModel(AbstractCell cell) {
+	public HexagonBasedMechanicalModelTwoSurface(AbstractCell cell) {
 	   super(cell);
-	   globalParameters = (HexagonBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+	   globalParameters = (HexagonBasedMechanicalModelTwoSurfaceGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	  
 	   if(cellField == null){
 	   	
@@ -90,7 +91,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		   AbstractCell motherCell = cell.getMotherCell();
 		   
 		   if(motherCell != null && motherCell.getID() != cell.getID()){
-		   	HexagonBasedMechanicalModel motherCellMechModel = (HexagonBasedMechanicalModel) motherCell.getEpisimBioMechanicalModelObject();
+		   	HexagonBasedMechanicalModelTwoSurface motherCellMechModel = (HexagonBasedMechanicalModelTwoSurface) motherCell.getEpisimBioMechanicalModelObject();
 		   	if(motherCellMechModel.spreadingLocation != null){
 		   		cellField.field[motherCellMechModel.spreadingLocation.x][motherCellMechModel.spreadingLocation.y] = cell;
 		   		fieldLocation = new Int2D(motherCellMechModel.spreadingLocation.x,motherCellMechModel.spreadingLocation.y);
@@ -106,8 +107,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
    }
 
 	 public void setEpisimModelConnector(EpisimModelConnector modelConnector){
-	   	if(modelConnector instanceof EpisimHexagonBased2DMC){
-	   		this.modelConnector = (EpisimHexagonBased2DMC) modelConnector;
+	   	if(modelConnector instanceof EpisimHexagonBased2DTwoSurfaceMC){
+	   		this.modelConnector = (EpisimHexagonBased2DTwoSurfaceMC) modelConnector;
 	   	}
 	   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimHexagonBasedModelConnector");
 	 }
@@ -236,12 +237,12 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		ArrayList<AbstractCell> spreadingNeighbours = new ArrayList<AbstractCell>();
 		for(int i = 0; i < numberOfNeighbours; i++){
 			if(neighboursToBeLost.get(i).getEpisimCellBehavioralModelObject().getCellType() == getCell().getEpisimCellBehavioralModelObject().getCellType()){
-				if(((HexagonBasedMechanicalModel)neighboursToBeLost.get(i).getEpisimBioMechanicalModelObject()).isSpreading()) spreadingNeighbours.add(neighboursToBeLost.get(i));
+				if(((HexagonBasedMechanicalModelTwoSurface)neighboursToBeLost.get(i).getEpisimBioMechanicalModelObject()).isSpreading()) spreadingNeighbours.add(neighboursToBeLost.get(i));
 				else nonSpreadingNeighbours.add(neighboursToBeLost.get(i));
 			}
 		}		
-		double factorAllNeighbours = Math.pow(Math.exp(-1d*globalParameters.getCellCellInteractionEnergy()), numberOfNeighbours);
-		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-1d*globalParameters.getCellCellInteractionEnergy()), (numberOfNeighbours-1));
+		double factorAllNeighbours = Math.pow(Math.exp(-1d*modelConnector.getCellCellInteractionEnergy()), numberOfNeighbours);
+		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-1d*modelConnector.getCellCellInteractionEnergy()), (numberOfNeighbours-1));
 		
 		
 		factorAllNeighbours *= (double)UPPER_PROBABILITY_LIMIT;
@@ -353,7 +354,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 																																				  ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 																																				  : ecDiffField.getMaxConcentrationInField();
-		final double lambda = globalParameters.getLambdaChem();
+		final double lambda = modelConnector.getLambdaChem();
 		double localConcentration = ecDiffField.getAverageConcentrationInArea(getCellBoundariesInMikron(0));
 		double[] normalizedConcentrations = new double[concentrations.length];
 		for(int i = 0; i < concentrations.length; i++){
@@ -423,7 +424,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		         double c_fieldPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y));
 		         double c_spreadingPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y));  
 					  
-					normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
+					normGradient = (modelConnector.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
 					
 					if(normGradient < 0) normGradient = 0;
 				}
@@ -543,7 +544,7 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 	}
 	
 	private void pullNeighbour(AbstractCell neighbour, Int2D locationToPull){
-		HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) neighbour.getEpisimBioMechanicalModelObject();
+		HexagonBasedMechanicalModelTwoSurface mechModel = (HexagonBasedMechanicalModelTwoSurface) neighbour.getEpisimBioMechanicalModelObject();
 		mechModel.spreadingLocation = locationToPull;
 		cellField.field[locationToPull.x][locationToPull.y] = neighbour;
 		mechModel.modelConnector.setIsSpreadingFN(!isLocationOnTestSurface(locationToPull));
@@ -705,8 +706,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 			
 			while(iter.hasNext()){
 				AbstractCell cell = iter.next();
-				if(cell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModel){
-					HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+				if(cell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModelTwoSurface){
+					HexagonBasedMechanicalModelTwoSurface mechModel = (HexagonBasedMechanicalModelTwoSurface) cell.getEpisimBioMechanicalModelObject();
 					if(woundArea.contains(mechModel.getLastDrawInfo2D().draw.x, mechModel.getLastDrawInfo2D().draw.y)){  
 						deathCellSet.add(cell);
 					}					
@@ -727,8 +728,8 @@ public class HexagonBasedMechanicalModel extends AbstractMechanical2DModel {
 		ArrayList<Double> xPositions = new ArrayList<Double>();
 		while(iter.hasNext()){
 			AbstractCell cell = iter.next();
-			if(cell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModel){
-				HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+			if(cell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModelTwoSurface){
+				HexagonBasedMechanicalModelTwoSurface mechModel = (HexagonBasedMechanicalModelTwoSurface) cell.getEpisimBioMechanicalModelObject();
 				if(mechModel.isAtWoundEdge && mechModel.getDirectNeighbours().size() > 0){
 					double xPos = mechModel.getLocationInMikron(mechModel.fieldLocation).x + globalParameters.getOuter_hexagonal_radius();
 					xPositions.add(xPos);

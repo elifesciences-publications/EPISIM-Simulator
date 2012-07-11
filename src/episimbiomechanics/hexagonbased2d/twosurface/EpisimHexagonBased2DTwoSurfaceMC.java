@@ -1,7 +1,7 @@
-package episimbiomechanics.hexagonbased2d;
+package episimbiomechanics.hexagonbased2d.twosurface;
 
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.twosurface.HexagonBasedMechanicalModelTwoSurface;
+import sim.app.episim.model.biomechanics.hexagonbased.twosurface.HexagonBasedMechanicalModelTwoSurfaceGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
@@ -10,10 +10,10 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 
 
-public class EpisimHexagonBased2DMC extends EpisimModelConnector {
+public class EpisimHexagonBased2DTwoSurfaceMC extends EpisimModelConnector {
 	
 	private static final String ID = "2011-09-23";
-	private static final String NAME = "Hexagon Grid Based Biomechanical Model";
+	private static final String NAME = "Hexagon Grid Based Biomechanical Model Two Surface";
 	
 	private boolean isSpreadingFN = false;
 	private boolean isSpreadingRGD = false;
@@ -24,6 +24,8 @@ public class EpisimHexagonBased2DMC extends EpisimModelConnector {
 	private boolean isAtSurfaceBorder = false;
 	private boolean isRelaxing = false;
 	private String chemotacticField="";
+	private double cellCellInteractionEnergy = 0.7;
+	private double lambdaChem = 1;
 	
 	@Hidden
 	@NoExport
@@ -38,15 +40,15 @@ public class EpisimHexagonBased2DMC extends EpisimModelConnector {
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return HexagonBasedMechanicalModel.class;
+		return HexagonBasedMechanicalModelTwoSurface.class;
 	}
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
-		return HexagonBased2DMechModelInit.class;
+		return HexagonBased2DMechModelTwoSurfaceInit.class;
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return HexagonBasedMechanicalModelGP.class;
+		return HexagonBasedMechanicalModelTwoSurfaceGP.class;
 	}
 	
 	public void setIsSpreadingFN(boolean isSpreadingFN){
@@ -117,5 +119,24 @@ public class EpisimHexagonBased2DMC extends EpisimModelConnector {
    public void setChemotacticField(String chemotacticField) {
    
    	this.chemotacticField = chemotacticField;
-   }	
+   }
+   
+   public double getCellCellInteractionEnergy() {
+	   return cellCellInteractionEnergy;
+	}
+	   
+	   
+	public void setCellCellInteractionEnergy(double cellCellInteractionEnergy) {
+	   if(cellCellInteractionEnergy >= 0)this.cellCellInteractionEnergy = cellCellInteractionEnergy;
+	}
+	
+	 public double getLambdaChem() {
+		   
+		 return lambdaChem;
+	 }
+
+		
+	 public void setLambdaChem(double lambdaChem) {	   
+	   	this.lambdaChem = lambdaChem;
+	 }
 }

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import episimbiomechanics.hexagonbased2d.EpisimHexagonBased2DMC;
 import episiminterfaces.EpisimCellBehavioralModel;
 
 
@@ -25,8 +24,8 @@ import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
@@ -82,8 +81,8 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    		actSimStepNo = SimStateServer.getInstance().getSimStepNumber();  		  		 
    		 
    		filled = true;
-   		HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
-   		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+   		AbstractHexagonBasedMechanicalModel mechModel = (AbstractHexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
+   		AbstractHexagonBasedMechanicalModelGP globalParameters = (AbstractHexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
    			
    		 
    		 if(mechModel.isSpreading()){
@@ -168,7 +167,6 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
     
     private void drawSpreadingCell(Graphics2D graphics, AbstractCell cell, double x, double y, double width, double height, Double2D fieldLoc, Double2D spreadingLoc){
    	
-   	 HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
    	 this.drawInfoRegistry.remove(cell.getID());
   		 this.simStepTimeStampRegistry.remove(cell.getID());    
   		 double rotationInDegrees = 0;

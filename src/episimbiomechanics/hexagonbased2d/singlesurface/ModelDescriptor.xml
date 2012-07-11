@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2012-07-09_episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC"/>
+  <modelname name="Hexagon Grid Based Biomechanical Model Single Surface"/>
+  <modelconnectorclass name="episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC"/>
+  <modelparameters>
+    <parameter name="isSpreading" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="cellCellInteractionEnergy" datatype="double"
+      default="0.7" readonly="false"/>
+    <parameter name="isProliferating" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="lambdaChem" datatype="double" default="1.0" readonly="false"/>
+    <parameter name="isRetracting" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="chemotacticField" datatype="String" default="" readonly="false"/>
+  </modelparameters>
+</modeldescriptor>

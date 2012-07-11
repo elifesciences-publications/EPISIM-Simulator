@@ -4,10 +4,10 @@
   <modelname name="Center Based Biomechanical Model"/>
   <modelconnectorclass name="episimbiomechanics.centerbased.EpisimCenterBasedMC"/>
   <modelparameters>
-    <parameter datatype="boolean" default="false" name="isMembrane" readonly="true"/>
-    <parameter datatype="boolean" default="false" name="isSurface" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="y" readonly="true"/>
-    <parameter datatype="boolean" default="false" name="hasCollision" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="x" readonly="true"/>
+    <parameter name="isMembrane" datatype="boolean" default="false" readonly="true"/>
+    <parameter name="isSurface" datatype="boolean" default="false" readonly="true"/>
+    <parameter name="y" datatype="double" default="0.0" readonly="true"/>
+    <parameter name="x" datatype="double" default="0.0" readonly="true"/>
+    <parameter name="hasCollision" datatype="boolean" default="false" readonly="true"/>
   </modelparameters>
 </modeldescriptor>

@@ -1,12 +1,12 @@
-package episimbiomechanics.hexagonbased2d.simplified;
+package episimbiomechanics.hexagonbased2d.singlesurface;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
 import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurface;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurfaceGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -23,29 +23,28 @@ import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimPortrayal;
 
 
-public class HexagonBased2DMechModelSimpleInit  extends BiomechanicalModelInitializer {
+public class HexagonBased2DMechModelSingleSurfaceInit extends BiomechanicalModelInitializer {
 	
-	public HexagonBased2DMechModelSimpleInit(){
+	public HexagonBased2DMechModelSingleSurfaceInit(){
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		MiscalleneousGlobalParameters.getInstance().setTypeColor(4);
 	}
 	
-	public HexagonBased2DMechModelSimpleInit(SimulationStateData simulationStateData){
+	public HexagonBased2DMechModelSingleSurfaceInit(SimulationStateData simulationStateData){
 		super(simulationStateData);		
 	}
 
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
-		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		globalParameters.setInitialPositionWoundEdge_Mikron(Double.POSITIVE_INFINITY);
+		HexagonBasedMechanicalModelSingleSurfaceGP globalParameters = (HexagonBasedMechanicalModelSingleSurfaceGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int width = (int)globalParameters.getNumber_of_initially_occupied_columns();
 		int height = (int)globalParameters.getNumber_of_rows();
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
 				UniversalCell cell = new UniversalCell(null, null);
-				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
+				((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 				standardCellEnsemble.add(cell);
 			}
 		}	
@@ -54,7 +53,7 @@ public class HexagonBased2DMechModelSimpleInit  extends BiomechanicalModelInitia
 	}
 	
 	private void addSekretionCellColony(ArrayList<UniversalCell> standardCellEnsemble){
-		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		HexagonBasedMechanicalModelSingleSurfaceGP globalParameters = (HexagonBasedMechanicalModelSingleSurfaceGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int width = 6 < globalParameters.getNumber_of_columns() ? 6:(int)globalParameters.getNumber_of_columns();
 		int height = 6 < globalParameters.getNumber_of_rows() ? 6:(int)globalParameters.getNumber_of_rows();
 		int startX = (int)(globalParameters.getNumber_of_columns()-(globalParameters.getNumber_of_columns()*0.25));
@@ -63,7 +62,7 @@ public class HexagonBased2DMechModelSimpleInit  extends BiomechanicalModelInitia
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
 				UniversalCell cell = new UniversalCell(null, null);
-				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(startX+x, startY+y));
+				((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(startX+x, startY+y));
 				((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[startX+x][startY+y] = cell;
 				
 				if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);

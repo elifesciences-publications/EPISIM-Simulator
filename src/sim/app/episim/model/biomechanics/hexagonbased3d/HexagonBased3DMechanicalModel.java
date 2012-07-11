@@ -36,7 +36,7 @@ import sim.app.episim.model.biomechanics.CellBoundaries;
 
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
 
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.twosurface.HexagonBasedMechanicalModelTwoSurfaceGP;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Line;
 import sim.app.episim.model.controller.ModelController;
 

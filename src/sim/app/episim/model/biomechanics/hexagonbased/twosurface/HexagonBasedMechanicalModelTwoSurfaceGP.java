@@ -1,5 +1,6 @@
-package sim.app.episim.model.biomechanics.hexagonbased;
+package sim.app.episim.model.biomechanics.hexagonbased.twosurface;
 
+import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModelGP;
 import sim.app.episim.model.visualization.BorderlinePortrayal.BorderlineConfig;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoUserModification;
@@ -7,7 +8,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensiona
 import episiminterfaces.NoExport;
 
 
-public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class HexagonBasedMechanicalModelTwoSurfaceGP extends AbstractHexagonBasedMechanicalModelGP {
 	
 	
 	private double celldiameter_mikron = 50;
@@ -40,13 +41,8 @@ public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGl
 	private boolean useContinuousSpace = false;
 	private boolean useCellCellInteractionEnergy = true;
 	
-	private double lambdaChem = 1;
-	private boolean chemotaxisEnabled = true;
-	private double cellCellInteractionEnergy = 0.7;
-	
-	private boolean addSecretingCellColony=true;
-	
-	
+	private boolean chemotaxisEnabled = true;	
+	private boolean addSecretingCellColony=true;	
 	
    public void setInitialPositionWoundEdge_Mikron(double initialPositionWoundEdge_Mikron) {
 
@@ -94,16 +90,7 @@ public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGl
 	public boolean getAddSecretingCellColony(){ return addSecretingCellColony; }	
    public void setAddSecretingCellColony(boolean addSecretingCellColony) {
 	   this.addSecretingCellColony = addSecretingCellColony;
-   }
-	
-	public double getCellCellInteractionEnergy() {
-	   return cellCellInteractionEnergy;
-	}
-	   
-	   
-	public void setCellCellInteractionEnergy(double cellCellInteractionEnergy) {
-	   if(cellCellInteractionEnergy >= 0)this.cellCellInteractionEnergy = cellCellInteractionEnergy;
-	}
+   }	
 	
 	public double getNeighborhood_mikron() {
 	   return this.neighborhood_mikron;
@@ -254,16 +241,7 @@ public class HexagonBasedMechanicalModelGP implements EpisimBiomechanicalModelGl
    }
 
 	
-   public double getLambdaChem() {
    
-   	return lambdaChem;
-   }
-
-	
-   public void setLambdaChem(double lambdaChem) {
-   
-   	this.lambdaChem = lambdaChem;
-   }
 
 	
    public boolean isChemotaxisEnabled() {

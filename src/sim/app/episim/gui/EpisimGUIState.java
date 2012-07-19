@@ -866,28 +866,31 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	private void maximizeWorkaround(JInternalFrame frame){
 		
 		 JComponent title = ((BasicInternalFrameUI)frame.getUI()).getNorthPane();
-	    final Component[] comps =title.getComponents();
-	     
-	     for(int i = 0; i < comps.length; i++){
-	    	 final int n = i;
-	    	 if(comps[i] instanceof JButton && i == 2){
-	    		 ((JButton) comps[i]).addActionListener(new ActionListener(){
-
-	 				public void actionPerformed(ActionEvent e) {
-
-	 					if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING){
-	 						console.pressPause();
-	 						resizeButtonIsActionSource = true;
-	 						
-	 					}
-	 					else if(console.getPlayState() == Console.PS_PAUSED){
-	 						SimStateServer.getInstance().setSimStatetoPause();
-	 					}
-	 				}
-	    			 
-	    		 });
-	    	 }
-	    }
+		 if(title != null){
+			 final Component[] comps =title.getComponents();
+			 if(comps != null){
+			     for(int i = 0; i < comps.length; i++){
+			    	 final int n = i;
+			    	 if(comps[i] instanceof JButton && i == 2){
+			    		 ((JButton) comps[i]).addActionListener(new ActionListener(){
+		
+			 				public void actionPerformed(ActionEvent e) {
+		
+			 					if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING){
+			 						console.pressPause();
+			 						resizeButtonIsActionSource = true;
+			 						
+			 					}
+			 					else if(console.getPlayState() == Console.PS_PAUSED){
+			 						SimStateServer.getInstance().setSimStatetoPause();
+			 					}
+			 				}
+			    			 
+			    		 });
+			    	 }
+			    }
+			 }
+		 }
 	}
 	
 	public void pressPauseAfterLoadingSimulationState(){

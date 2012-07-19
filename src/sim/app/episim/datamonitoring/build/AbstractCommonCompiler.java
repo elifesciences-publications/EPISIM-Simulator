@@ -74,7 +74,10 @@ public abstract class AbstractCommonCompiler {
 			
 				options = Arrays.asList(new String[] { "-cp", 
 					ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile().getAbsolutePath()+configReader.getClasspathSeparatorChar()+
-					pathToEpisimSimulatorBinaries+configReader.getClasspathSeparatorChar()+ configReader.getBinClasspath()+configReader.getLibClasspath()});
+					pathToEpisimSimulatorBinaries+configReader.getClasspathSeparatorChar()+ configReader.getBinClasspath()+configReader.getLibClasspath()
+				,"-source","1.6"
+				,"-target","1.6"
+				});
 			boolean success = compiler.getTask(null, fileManager, null, options, null, compilationUnits).call();
 			if(!success) throw new CompilationFailedException("The compilation of the generated Charts or Data Exports was not successful! Probably a required class is missing.");
 			fileManager.close();

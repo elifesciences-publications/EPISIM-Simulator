@@ -146,7 +146,6 @@ public class ClassPathConfigFileReader {
    }
 	
 	public String getClasspathSeparatorChar(){
-		System.out.println(System.getProperty("os.name"));
 		if(System.getProperty("os.name").toLowerCase().contains("windows")) return ";";
 		if(System.getProperty("os.name").toLowerCase().contains("linux")|| System.getProperty("os.name").toLowerCase().contains("mac")) return ":";
 		

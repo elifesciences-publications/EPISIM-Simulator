@@ -899,7 +899,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    public class OptionPane3D extends JDialog
    {
    	
-   	private JComboBox<DiffusionFieldCrossSectionMode> diffFieldPlaneCombo;
+   	private JComboBox diffFieldPlaneCombo;
    	private JSlider diffFieldPlaneSlider;
    	private JLabel diffFieldPlaneSliderLabel;
    	private JSlider diffFieldOpacitySlider;
@@ -907,7 +907,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	private int lastDiffFieldPlaneSliderPosition = 0;
    	private int lastDiffFieldOpacitySliderPosition = 100;
    	
-   	private JComboBox<ModelSceneCrossSectionMode> modelScenePlaneCombo;
+   	private JComboBox modelScenePlaneCombo;
    	private JSlider modelScenePlaneSlider;
    	private JLabel modelScenePlaneSliderLabel;
    	private JSlider modelSceneOpacitySlider;
@@ -1090,7 +1090,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       JPanel planeComboPanel = new JPanel(new BorderLayout(10,10));
 	       JLabel comboBoxLabel = new JLabel(OptionPane3D.DF_CROSSSECTION_PLANE);
 	       planeComboPanel.add(comboBoxLabel, BorderLayout.WEST);
-	       diffFieldPlaneCombo = new JComboBox<DiffusionFieldCrossSectionMode>(ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode.values());
+	       diffFieldPlaneCombo = new JComboBox(ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode.values());
 	       diffFieldPlaneCombo.setSelectedIndex(0);
 	       
 	       diffFieldPlaneCombo.addItemListener(new ItemListener(){			
@@ -1199,7 +1199,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       JPanel modelScenePlaneComboPanel = new JPanel(new BorderLayout(10,10));
 	       JLabel modelSceneComboBoxLabel = new JLabel(OptionPane3D.MODEL_SCENE_CROSSSECTION_PLANE);
 	       modelScenePlaneComboPanel.add(modelSceneComboBoxLabel, BorderLayout.WEST);
-	       modelScenePlaneCombo = new JComboBox<ModelSceneCrossSectionMode>(ModelSceneCrossSectionMode.values());
+	       modelScenePlaneCombo = new JComboBox(ModelSceneCrossSectionMode.values());
 	       modelScenePlaneCombo.setSelectedIndex(0);
 	       
 	       final JLabel modelScenePlaneSliderLabel2 =new JLabel("Position on Axis: ");

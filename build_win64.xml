@@ -41,6 +41,7 @@
 	<property name="macTar" value="EpisimSimulator.tar"/>
 	<property name="macTarGz64bit" value="EpisimSimulator_Mac_OSX_64-bit.tar.gz"/>
 	<property name="macApp" value="EpisimSimulator.zip"/>
+	<property name="macInstallLibs" value="install_libs.zip"/>
 	
 	<property name="linuxCopasi" value="copasi_linux.zip"/>
 	<property name="winCopasi" value="copasi_windows_64-bit.zip"/>
@@ -418,6 +419,7 @@
 		 ================================= -->
 		<target name="copyMacFiles64bit" depends="cleanUpAfter64bitLinuxBuild" description="All necessary files for the 64 bit Mac build">					
 			<unzip src="${buildres}/mac/${macApp}" dest="${currentbuild}/${build}"/>
+			<unzip src="${buildres}/mac/${macInstallLibs}" dest="${currentbuild}/${build}"/>
 			<unzip src="${buildres}/mac/${macCopasi}" dest="${currentbuild}/${build}/lib"/>
 			<unzip src="${buildres}/mac/${macJogl}" dest="${currentbuild}/${build}/lib"/>
 		</target>

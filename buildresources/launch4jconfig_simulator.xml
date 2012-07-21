@@ -19,8 +19,8 @@
     <maxVersion></maxVersion>
     <jdkPreference>jdkOnly</jdkPreference>
     <opt>-Xss1024k</opt>
-    <opt>-Xmx700M</opt>
-    <opt>-Xms700M</opt>     
+    <opt>-Xmx1024M</opt>
+    <opt>-Xms1024M</opt>     
     <opt>-Djava.library.path=".\\lib"</opt>
   </jre>
 </launch4jConfig>

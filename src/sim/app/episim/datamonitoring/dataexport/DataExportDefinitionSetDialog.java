@@ -125,7 +125,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 			});
 		  
 		  JScrollPane exportDefinitionsListScroll = new JScrollPane(dataExportDefinitionsList);
-		  exportDefinitionsListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Episim-Data-Export-Definitions"),
+		  exportDefinitionsListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("EPISIM-Data-Export-Definitions"),
 			      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 		   
 		   c.anchor =GridBagConstraints.CENTER;
@@ -496,7 +496,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 									}
 							
 								};	
-								EpisimProgressWindow.showProgressWindowForTask(owner, "Writing Episim-DataExportSet-Archive", cb);			
+								EpisimProgressWindow.showProgressWindowForTask(owner, "Writing EPISIM-DataExportSet-Archive", cb);			
 						}
 					}
 				}
@@ -510,7 +510,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 	   	
 	   	if(path!= null && !path.equals("")) edeChooser.setSelectedFile(new File(path));
 	   	
-	   	edeChooser.setDialogTitle("Choose Episim-Chartset-Path");
+	   	edeChooser.setDialogTitle("Choose EPISIM-Chartset-Path");
 			if(edeChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return edeChooser.getSelectedFile();
 			return path != null && !path.equals("") ? new File(path) : null;
 		}

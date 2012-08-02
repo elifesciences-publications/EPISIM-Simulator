@@ -37,7 +37,7 @@ public class EpisimTextOut implements ClassLoaderChangeListener{
 	private EpisimTextOut(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		buildTextOutPanel();
-		standardText="Episim Simulator version " + EpisimSimulator.versionID + "<br>Simulation Text Output:<br><br>";
+		standardText="EPISIM Simulator version " + EpisimSimulator.versionID + "<br>Simulation Text Output:<br><br>";
 		currentTextOnTextOut = new StringBuffer();
 		appendHTMLStartTags();
 		this.currentTextOnTextOut.append(standardText);

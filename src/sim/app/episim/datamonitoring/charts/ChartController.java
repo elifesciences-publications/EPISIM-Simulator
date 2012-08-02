@@ -212,7 +212,7 @@ public class ChartController implements ClassLoaderChangeListener{
 	
 	
 	public void showEditChartSetDialog(Frame parent){
-		ChartSetDialog dialog = new ChartSetDialog(parent, "Episim-Chart-Set", true);
+		ChartSetDialog dialog = new ChartSetDialog(parent, "EPISIM-Chart-Set", true);
 		
 		if(this.chartMonitoredTissue != null){ 
 			
@@ -355,7 +355,7 @@ public class ChartController implements ClassLoaderChangeListener{
 	}
 	
 	public boolean showNewChartSetDialog(Frame parent){
-		ChartSetDialog dialog = new ChartSetDialog(parent, "Episim-Chart-Set", true);
+		ChartSetDialog dialog = new ChartSetDialog(parent, "EPISIM-Chart-Set", true);
 		
 		if(this.chartMonitoredTissue != null){			
 			EpisimChartSet updatedChartSet =dialog.showNewChartSet();

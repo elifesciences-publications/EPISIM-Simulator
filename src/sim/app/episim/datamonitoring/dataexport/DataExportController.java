@@ -127,7 +127,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 	}
 	protected EpisimDataExportDefinitionSet showDataExportSetDialog(Frame parent, EpisimDataExportDefinitionSet dataExportSet){
 		
-		DataExportDefinitionSetDialog dialog = new DataExportDefinitionSetDialog(parent, "Data-Export-Set", true);		
+		DataExportDefinitionSetDialog dialog = new DataExportDefinitionSetDialog(parent, "EPISIM Data-Export-Set", true);		
 		if(this.dataExportMonitoredTissue != null){
 			if(dataExportSet == null) return dialog.showNewDataExportDefinitionSet();
 			else return dialog.showDataExportDefinitionSet(dataExportSet);
@@ -152,7 +152,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 	
 	public EpisimDataExportDefinition showDataExportCreationWizard(Frame parent, EpisimDataExportDefinition exportDefinition){
 		
-		DataExportCreationWizard creationWizard = new DataExportCreationWizard(parent, "Data-Export", true, 
+		DataExportCreationWizard creationWizard = new DataExportCreationWizard(parent, "EPISIM Data-Export", true, 
 				new TissueCellDataFieldsInspector(this.dataExportMonitoredTissue, this.markerPrefixes, this.validDataTypes));
 		
 		if(exportDefinition == null) creationWizard.showWizard();
@@ -164,7 +164,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 	
 	public EpisimDiffFieldDataExport showDiffFieldDataExportCreationWizard(Frame parent, EpisimDiffFieldDataExport exportDefinition){
 		
-		DiffFieldDataExportCreationWizard creationWizard = new DiffFieldDataExportCreationWizard(parent, "Data-Export", true);
+		DiffFieldDataExportCreationWizard creationWizard = new DiffFieldDataExportCreationWizard(parent, " EPISIM Data-Export", true);
 		
 		if(exportDefinition == null) creationWizard.showWizard();
 		

@@ -137,7 +137,7 @@ public class ChartSetDialog extends JDialog {
 		});
 	  
 	  JScrollPane chartsListScroll = new JScrollPane(chartsList);
-	  chartsListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Episim-Charts"),
+	  chartsListScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("EPISIM-Charts"),
 		      BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 	   
 	   c.anchor =GridBagConstraints.CENTER;
@@ -499,7 +499,7 @@ public class ChartSetDialog extends JDialog {
 							}
 					
 						};
-						EpisimProgressWindow.showProgressWindowForTask(owner, "Writing Episim-Chartset-Archive", cb);									
+						EpisimProgressWindow.showProgressWindowForTask(owner, "Writing EPISIM-Chartset-Archive", cb);									
 					}					
 				}
 			}
@@ -515,7 +515,7 @@ public class ChartSetDialog extends JDialog {
    	
    	if(path!= null && !path.equals("")) ecsChooser.setSelectedFile(new File(path));
    	
-   	ecsChooser.setDialogTitle("Choose Episim-Chartset-Path");
+   	ecsChooser.setDialogTitle("Choose EPISIM-Chartset-Path");
 		if(ecsChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) return ecsChooser.getSelectedFile();
 		return path != null && !path.equals("") ? new File(path) : null;
 	}

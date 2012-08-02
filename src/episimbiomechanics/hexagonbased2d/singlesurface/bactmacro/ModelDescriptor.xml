@@ -4,12 +4,12 @@
   <modelname name="Simple Hexagon Grid Based Biomechanical Bacteria Macrophage Model"/>
   <modelconnectorclass name="episimbiomechanics.hexagonbased2d.singlesurface.bactmacro.EpisimBacteriaMacrophageModelMC"/>
   <modelparameters>
-    <parameter name="lamdaChem" datatype="double" default="1.0" readonly="true"/>
-    <parameter name="isSpreading" datatype="boolean" default="false" readonly="false"/>
-    <parameter name="cellCellInteractionEnergy" datatype="double"
-      default="0.7" readonly="false"/>
-    <parameter name="isProliferating" datatype="boolean" default="false" readonly="false"/>
-    <parameter name="isRetracting" datatype="boolean" default="false" readonly="false"/>
-    <parameter name="chemotacticField" datatype="String" default="" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isSpreading" readonly="false"/>
+    <parameter datatype="double" default="0.7"
+      name="cellCellInteractionEnergy" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
+    <parameter datatype="double" default="1.0" name="lambdaChem" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isRetracting" readonly="false"/>
+    <parameter datatype="String" default="" name="chemotacticField" readonly="false"/>
   </modelparameters>
 </modeldescriptor>

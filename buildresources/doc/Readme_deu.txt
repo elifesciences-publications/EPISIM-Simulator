@@ -1,8 +1,8 @@
-Episim Simulator version 1.4.0 ist eine Software, 
+EPISIM Simulator version 1.4.0 ist eine Software, 
 welche erlaubt Zellverhalten in einem multi-zellulären Gewebe 
 auf Basis eines Multiagentensystems zu simulieren.
 
-Einige Features des Episim Simulators:
+Einige Features des EPISIM Simulators:
 - Einfache und intuitive Benutzungsoberfläche.
 - Import von Zellverhaltensmodellen
 - Simulation von Zellverhaltensmodellen

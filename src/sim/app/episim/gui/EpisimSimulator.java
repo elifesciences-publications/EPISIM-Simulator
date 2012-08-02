@@ -75,7 +75,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	
 	public static final String versionID = "1.4";
 	
-	public static final String SIMULATOR_TITLE = "Episim Simulator v. "+ versionID+" ";
+	public static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
 	private static final String CB_FILE_PARAM_PREFIX = "-cb";
 	private static final String BM_FILE_PARAM_PREFIX = "-bm";

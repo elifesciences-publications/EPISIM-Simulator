@@ -45,23 +45,23 @@ public class EpisimMenuBarFactory {
 	public enum EpisimMenuItem {		
 		SET_SNAPSHOT_PATH("Set Tissue-Export-Path"),
 		LOAD_SNAPSHOT("Load Tissue-Export"),
-		OPEN_MODEL_FILE("Open Episim-Cell-Model"),
-		CLOSE_MODEL_FILE("Close Episim-Cell-Model"),
-		BUILD_MODEL_ARCHIVE("Build Episim-Model-Archive"),
-		CLOSE_SIMULATOR("Close Episim Simulator"),
+		OPEN_MODEL_FILE("Open EPISIM-Cell-Model"),
+		CLOSE_MODEL_FILE("Close EPISIM-Cell-Model"),
+		BUILD_MODEL_ARCHIVE("Build EPISIM-Model-Archive"),
+		CLOSE_SIMULATOR("Close EPISIM Simulator"),
 		
 		EDIT_CHART_SET("Edit Chart-Set"),
 		LOAD_CHART_SET("Load Chart-Set"),
 		NEW_CHART_SET("New Chart-Set"),
 		CLOSE_CHART_SET("Close Chart-Set"),
-		SELECT_DEFAULT_CHARTS("Select Episim Default-Charts"),		
+		SELECT_DEFAULT_CHARTS("Select EPISIM Default-Charts"),		
 		
 		EDIT_DATA_EXPORT("Edit Loaded Data-Export-Definition-Set"),
 		LOAD_DATA_EXPORT("Load Data-Export-Definition-Set"),
 		NEW_DATA_EXPORT("New Data-Export-Definition-Set"),
 		CLOSE_DATA_EXPORT("Close Loaded Data-Export-Definition-Set"),
 		
-		ABOUT_EPISIM_SIMULATOR("About Episim Simulator"),		
+		ABOUT_EPISIM_SIMULATOR("About EPISIM Simulator"),		
 		GENERATE_PARAMETER_FILES("Param-Scan File-Generator"),		
 		AUTO_ARRANGE_WINDOWS("Auto-Arrange Windows");
 		
@@ -171,7 +171,7 @@ public class EpisimMenuBarFactory {
 				
 				if(loadTissueExport && simulator.getMainFrame() instanceof JFrame){					
 					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
-					chooser.setDialogTitle("Open Episim Tissue-Export");
+					chooser.setDialogTitle("Open EPISIM Tissue-Export");
 					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showOpenDialog((JFrame)simulator.getMainFrame())){
 						simulator.loadSimulationStateFile(chooser.getSelectedFile());						
 					}

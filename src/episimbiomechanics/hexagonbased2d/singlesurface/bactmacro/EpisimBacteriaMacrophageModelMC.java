@@ -66,7 +66,7 @@ public class EpisimBacteriaMacrophageModelMC extends EpisimHexagonBased2DSingleS
 		super.setLambdaChem(lambdaChem);
 	}
 	
-	public double getLamdaChem(){
+	public double getLambdaChem(){
 		return super.getLambdaChem();
 	}
 	

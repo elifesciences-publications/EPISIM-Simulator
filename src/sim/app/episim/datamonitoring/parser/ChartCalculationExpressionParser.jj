@@ -85,20 +85,25 @@ TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGI
 
 TOKEN : { < #DIGITS : (["0"-"9"])+ > }
 
-String checkExpression(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
+String[] checkExpression(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
 {
 	this.varOrConstantNameSet = tissueDataFieldsInspector.getOverallVarOrConstantNameSet();
 	this.tissueDataFieldsInspector = tissueDataFieldsInspector;
 	this.recognizedVarOrConstantNames = new HashSet<String>();
 String partialResult = "";
 String[] partResultArray = null;
-String totalResult = "";}
+String[] totalResult = new String[2];
+totalResult[0]="";
+totalResult[1]="";
+}
 {
   (partResultArray =Expression()
   
   {
+	partialResult = partResultArray[0];
+  	totalResult[0] = totalResult[0].concat(partialResult);
   	partialResult = partResultArray[1];
-  	totalResult = totalResult.concat(partialResult);
+  	totalResult[1] = totalResult[1].concat(partialResult);
   	if(this.token.next != null && !token.next.image.equals("")) throw new ParseException("Please remove the \""+ token.next.image+"\" after \""+token.image+"\" in line " +token.next.beginLine+" at position " + token.next.beginColumn +".");
   	
   	}
@@ -107,32 +112,31 @@ String totalResult = "";}
 {return totalResult;}
 }
 
-String checkBooleanExpression(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
+String[] checkBooleanExpression(TissueCellDataFieldsInspector tissueDataFieldsInspector) throws NumberFormatException :
 {
 	this.varOrConstantNameSet = tissueDataFieldsInspector.getOverallVarOrConstantNameSet();
 	this.tissueDataFieldsInspector = tissueDataFieldsInspector;
 	this.recognizedVarOrConstantNames = new HashSet<String>();
-String partialResult = "";
-String[] partResultArray = null;
-String totalResult = "";}
-{
-  (partResultArray =BooleanExpression()
-  
-  {
-  	partialResult = partResultArray[1];
-  	totalResult = totalResult.concat(partialResult);
-  	if(this.token.next != null && !token.next.image.equals("")) throw new ParseException("Please remove the \""+ token.next.image+"\" after \""+token.image+"\" in line " +token.next.beginLine+" at position " + token.next.beginColumn +".");
-  	}
-  
-  )
-{return totalResult;}
+	String partialResult = "";
+	String[] partResultArray = null;
+	String[] totalResult = new String[2];
+	totalResult[0]="";
+	totalResult[1]="";
+	}
+	{
+	  (partResultArray =BooleanExpression()
+	  
+	  {
+	  	partialResult = partResultArray[0];
+  		totalResult[0] = totalResult[0].concat(partialResult);
+  		partialResult = partResultArray[1];
+  		totalResult[1] = totalResult[1].concat(partialResult);
+	  	if(this.token.next != null && !token.next.image.equals("")) throw new ParseException("Please remove the \""+ token.next.image+"\" after \""+token.image+"\" in line " +token.next.beginLine+" at position " + token.next.beginColumn +".");
+	  	}
+	  
+	  )
+	{return totalResult;}
 }
-
-
-
-
-
-
 
 
 String[] Factor() throws NumberFormatException :{
@@ -143,12 +147,14 @@ Token t;
 {
   	(t =<NUMBER> { result = t.image; totalResult[0] = result; totalResult[1]= result;}
    	| LOOKAHEAD(5)(t =<NUMBERIDENTIFIER> 
-   		{if(!this.varOrConstantNameSet.contains(t.image))
+   		{
+		  t.image = this.tissueDataFieldsInspector.convertVarOrConstantNameToNewFormat(t.image);	
+   		  if(!this.varOrConstantNameSet.contains(t.image))
    			throw new ParseException("Unknown Identifier: " + t.image);
-   	/*	if(!instructionOpened){
-   			if(!this.tissueDataFieldsInspector.checkIfIdentifierIsGlobalParameter(t.image))
-   			throw new ParseException("Global Simulation Parameter Expected! Found: " + t.image);
-   		} */
+	   	/*	if(!instructionOpened){
+	   			if(!this.tissueDataFieldsInspector.checkIfIdentifierIsGlobalParameter(t.image))
+	   			throw new ParseException("Global Simulation Parameter Expected! Found: " + t.image);
+	   		} */
    				totalResult[0]=t.image;
    				
    				this.recognizedVarOrConstantNames.add(t.image);
@@ -175,7 +181,9 @@ Token t;
 }
 {
   	(LOOKAHEAD(5)(t =<DIFFLEVEL> 
-   		{if(!this.varOrConstantNameSet.contains(t.image))
+   		{
+		  t.image = this.tissueDataFieldsInspector.convertVarOrConstantNameToNewFormat(t.image);		
+   		  if(!this.varOrConstantNameSet.contains(t.image))
    			throw new ParseException("Unknown Differentiation Level: " + t.image);
   
    				totalResult[0]=t.image;
@@ -187,7 +195,9 @@ Token t;
    			
    		})
  | 	LOOKAHEAD(5)(t =<DIFFLEVELIDENTIFIER> 
-   		{if(!this.varOrConstantNameSet.contains(t.image))
+   		{
+		  t.image = this.tissueDataFieldsInspector.convertVarOrConstantNameToNewFormat(t.image);	
+   		  if(!this.varOrConstantNameSet.contains(t.image))
    			throw new ParseException("Unknown Differentiation Level Identifier: " + t.image);
   
    				totalResult[0]=t.image;
@@ -210,7 +220,9 @@ Token t;
 }
 {
   	(LOOKAHEAD(5)(t =<CELLTYPE> 
-   		{if(!this.varOrConstantNameSet.contains(t.image))
+   		{
+		  t.image = this.tissueDataFieldsInspector.convertVarOrConstantNameToNewFormat(t.image);	
+   		  if(!this.varOrConstantNameSet.contains(t.image))
    			throw new ParseException("Unknown Cell Type: " + t.image);
   
    				totalResult[0]=t.image;
@@ -222,7 +234,9 @@ Token t;
    			
    		})
  | 	LOOKAHEAD(5)(t =<CELLTYPEIDENTIFIER> 
-   		{if(!this.varOrConstantNameSet.contains(t.image))
+   		{
+		   t.image = this.tissueDataFieldsInspector.convertVarOrConstantNameToNewFormat(t.image);	
+   		  if(!this.varOrConstantNameSet.contains(t.image))
    			throw new ParseException("Unknown Cell Type Identifier: " + t.image);
   
    				totalResult[0]=t.image;
@@ -250,7 +264,9 @@ Token t;
 {
   		(LOOKAHEAD(2) t =<BOOLEAN> { result = t.image; totalResult[0] = result; if(result.equals("T")) totalResult[1]= "true"; if(result.equals("F")) totalResult[1]= "false";}
    	| LOOKAHEAD(3) t =<BOOLIDENTIFIER> 
-   		{if(!this.varOrConstantNameSet.contains(t.image))
+   		{
+		  t.image = this.tissueDataFieldsInspector.convertVarOrConstantNameToNewFormat(t.image);
+   		  if(!this.varOrConstantNameSet.contains(t.image))
    			throw new ParseException("Unknown Identifier: " + t.image);
    
    			if(!this.tissueDataFieldsInspector.checkIfIdentifierHasBooleanType(t.image))

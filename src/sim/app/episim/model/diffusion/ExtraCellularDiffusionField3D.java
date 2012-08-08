@@ -191,7 +191,7 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
    	yPos.clear();
    	zPos.clear();
    	double maxConcentration = getFieldConfiguration().getMaximumConcentration();
-   	if(maxConcentration < Double.POSITIVE_INFINITY){
+   	
    		
    		double remainingCapacity = 0;
    		
@@ -213,7 +213,7 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
 	      				xPos.add(x);
 	      				yPos.add(y);
 	      				zPos.add(z);
-	      				remainingCapacity += (maxConcentration-getConcentration(x, y, z));
+	      				if(maxConcentration < Double.POSITIVE_INFINITY)remainingCapacity += (maxConcentration-getConcentration(x, y, z));
 	      			}
 	      			x+=fieldRes;
 	      		}
@@ -221,16 +221,17 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
 	   		}
 	   		z+=fieldRes;
    		}
-   		return remainingCapacity;
-   	}
-   	else return Double.POSITIVE_INFINITY;
+   		if(maxConcentration < Double.POSITIVE_INFINITY)return remainingCapacity;
+   		else return Double.POSITIVE_INFINITY;
+   	
+   	
    }
    public double getTotalLocalFreeFieldConcentration(CellBoundaries cellBoundaries, DoubleBag xPos, DoubleBag yPos, DoubleBag zPos){
    	xPos.clear();
    	yPos.clear();
    	zPos.clear();
    	double minConcentration = getFieldConfiguration().getMinimumConcentration();
-   	if(minConcentration > Double.NEGATIVE_INFINITY){
+   	
    		double totalFreeCapacity = 0;
    		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
    		
@@ -250,7 +251,7 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
 	      				xPos.add(x);
 	      				yPos.add(y);
 	      				zPos.add(z);
-	      				totalFreeCapacity += (getConcentration(x, y, z)-minConcentration);
+	      				if(minConcentration > Double.NEGATIVE_INFINITY) totalFreeCapacity += (getConcentration(x, y, z)-minConcentration);
 	      			}
 	      			x+=fieldRes;
 	      		}
@@ -258,9 +259,8 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
 	   		}
 	   		z+=fieldRes;
    		}
-   		return totalFreeCapacity;
-   	}
-   	else return Double.POSITIVE_INFINITY;
+   		if(minConcentration > Double.NEGATIVE_INFINITY)return totalFreeCapacity;   	
+   		else return Double.POSITIVE_INFINITY;
    }
    
    public double getMaxConcentrationInField(){

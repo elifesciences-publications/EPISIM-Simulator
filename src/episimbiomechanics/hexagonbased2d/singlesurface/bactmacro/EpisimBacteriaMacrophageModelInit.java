@@ -67,7 +67,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 			//if(rn < cellDensity){
 				
 				
-		UniversalCell cell = new UniversalCell(null, null);
+		UniversalCell cell = new UniversalCell(null, null, true);
 		((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
 		((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[xPos][yPos] = cell;
 			
@@ -86,7 +86,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 			//if(rn < cellDensity){
 				
 				
-		UniversalCell cell = new UniversalCell(null, null);
+		UniversalCell cell = new UniversalCell(null, null, true);
 		((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
 		((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[xPos][yPos] = cell;
 			

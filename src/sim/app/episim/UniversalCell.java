@@ -52,20 +52,20 @@ public class UniversalCell extends AbstractCell
 	
 	private static final long serialVersionUID = 5212944079288103141L;
    
-   private final String NAME = "Keratinocyte";   
+   private final String NAME = "Cell";   
     
 //-----------------------------------------------------------------------------------------------------------------------------------------   
   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
          
-   public UniversalCell(){
-   	this(null,  null);
+   public UniversalCell(boolean isSimulationCell){
+   	this(null,  null, isSimulationCell);
    }
    
-   public UniversalCell(UniversalCell motherCell, EpisimCellBehavioralModel cellBehavioralModel){   
+   public UniversalCell(UniversalCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, boolean isSimulationCell){   
    	 super(motherCell, cellBehavioralModel);      
    	 TissueController.getInstance().getActEpidermalTissue().checkMemory();
-   	 TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag       
+   	 if(isSimulationCell)TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag       
     }  
     
     public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
@@ -76,7 +76,7 @@ public class UniversalCell extends AbstractCell
    	 // Either we get use a currently unused cell oder we allocate a new one
         UniversalCell kcyte;        
        
-        kcyte= new UniversalCell(this, cellBehavioralModel); 
+        kcyte= new UniversalCell(this, cellBehavioralModel, true); 
        
          
         if(!ModeServer.useMonteCarloSteps()){   

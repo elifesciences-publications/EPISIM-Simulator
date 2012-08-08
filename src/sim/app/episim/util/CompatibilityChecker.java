@@ -34,10 +34,8 @@ public class CompatibilityChecker {
 				classNameHashValueMap.put(actClass.getCanonicalName(), 
 						ObjectStreamClass.lookup(actClass).getSerialVersionUID());
 			}
-		}
-		
-		checkCellBehavioralAndMechanicalModelClasses();
-		checkTissueAndCellTypes(actTissue);			
+		}		
+		checkCellBehavioralAndMechanicalModelClasses();		
 	}
 	
 	public void checkEpisimDataExportDefinitionSetForCompatibility(EpisimDataExportDefinitionSet exportDefinitionSet, TissueType actTissue) throws ModelCompatibilityException{
@@ -52,16 +50,8 @@ public class CompatibilityChecker {
 		for(Class<?> actClass : requiredClasses){
 			classNameHashValueMap.put(actClass.getCanonicalName(), ObjectStreamClass.lookup(actClass).getSerialVersionUID());
 		}				
-		checkCellBehavioralAndMechanicalModelClasses();
-		checkTissueAndCellTypes(actTissue);
-	}
-	
-	private void checkTissueAndCellTypes(TissueType actTissue) throws ModelCompatibilityException{
-		checkForCompatibility(actTissue.getClass());
-		for(Class<? extends AbstractCell> actCellTypeClass: actTissue.getRegisteredCellTypes().values()){
-			checkForCompatibility(actCellTypeClass);
-		}
-	}
+		checkCellBehavioralAndMechanicalModelClasses();	
+	}	
 	
 	private void checkCellBehavioralAndMechanicalModelClasses() throws ModelCompatibilityException{
 		checkForCompatibility(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass());

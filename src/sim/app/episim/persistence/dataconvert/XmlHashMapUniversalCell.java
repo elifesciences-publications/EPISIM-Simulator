@@ -47,7 +47,7 @@ public class XmlHashMapUniversalCell extends XmlHashMap<UniversalCell> {
 		for(Node keyNode : getEntryNodeMap().keySet()){
 			XmlPrimitive xmlKey = new XmlPrimitive(keyNode);
 			XmlUniversalCell xCellValue = new XmlUniversalCell(getEntryNodeMap().get(keyNode));
-			UniversalCell uCell = new UniversalCell();
+			UniversalCell uCell = new UniversalCell(true);
 			xCellValue.copyValuesToTarget(uCell);
 			Object o = xmlKey.copyValuesToTarget(null);
 			ret.put(o, uCell);

@@ -184,8 +184,9 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    public double getTotalLocalFieldRemainingCapacity(CellBoundaries cellBoundaries, DoubleBag xPos, DoubleBag yPos){
    	xPos.clear();
    	yPos.clear();
+   	
    	double maxConcentration = getFieldConfiguration().getMaximumConcentration();
-   	if(maxConcentration < Double.POSITIVE_INFINITY){
+   	
    		double remainingCapacity = 0;
    		
    		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
@@ -201,21 +202,20 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
       			if(cellBoundaries.contains(x, y)){
       				xPos.add(x);
       				yPos.add(y);
-      				remainingCapacity += (maxConcentration-getConcentration(x, y));
+      				if(maxConcentration < Double.POSITIVE_INFINITY) remainingCapacity += (maxConcentration-getConcentration(x, y));
       			}
       			x+=fieldRes;
       		}
    			y+=fieldRes;
    		}
-   		return remainingCapacity;
-   	}
-   	else return Double.POSITIVE_INFINITY;
+   		if(maxConcentration < Double.POSITIVE_INFINITY)return remainingCapacity;
+   		else return Double.POSITIVE_INFINITY;   	
    }
    public double getTotalLocalFreeFieldConcentration(CellBoundaries cellBoundaries, DoubleBag xPos, DoubleBag yPos){
    	xPos.clear();
    	yPos.clear();
    	double minConcentration = getFieldConfiguration().getMinimumConcentration();
-   	if(minConcentration > Double.NEGATIVE_INFINITY){
+   	
    		double totalFreeCapacity = 0;
    		
    		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
@@ -231,15 +231,16 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    				if(cellBoundaries.contains(x, y)){
       				xPos.add(x);
       				yPos.add(y);
-      				totalFreeCapacity += (getConcentration(x, y)-minConcentration);
+      				if(minConcentration > Double.NEGATIVE_INFINITY)totalFreeCapacity += (getConcentration(x, y)-minConcentration);
       			}
       			x+=fieldRes;
       		}
    			y+=fieldRes;
    		}
-   		return totalFreeCapacity;
-   	}
-   	else return Double.POSITIVE_INFINITY;
+   		if(minConcentration > Double.NEGATIVE_INFINITY)return totalFreeCapacity;
+   		else return Double.POSITIVE_INFINITY;
+   	
+   	
    }
    
    public double getMaxConcentrationInField(){

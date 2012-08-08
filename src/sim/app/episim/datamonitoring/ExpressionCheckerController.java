@@ -37,19 +37,19 @@ public class ExpressionCheckerController implements ClassLoaderChangeListener{
 	
 	public int getCheckSessionId(){ return nextCheckSessionId++; }
 		
-	public String checkBooleanDataMonitoringExpression(int sessionId, String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException, NumberFormatException{
+	public String[] checkBooleanDataMonitoringExpression(int sessionId, String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException, NumberFormatException{
 				
 		return checkExpression(sessionId, expression, tissueDataFieldsInspector, BOOLEANTYPE);
 		
 	}
 	
-	public String checkArithmeticDataMonitoringExpression(int sessionId, String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException, NumberFormatException{
+	public String[] checkArithmeticDataMonitoringExpression(int sessionId, String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector) throws ParseException, NumberFormatException{
 		
 		return checkExpression(sessionId, expression, tissueDataFieldsInspector, ARITHMETICTYPE);
 	}
 	
-	private String checkExpression(int sessionId, String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector, int expressionType) throws NumberFormatException, ParseException{
-		String result = "";
+	private String[] checkExpression(int sessionId, String expression, TissueCellDataFieldsInspector tissueDataFieldsInspector, int expressionType) throws NumberFormatException, ParseException{
+		String[] result = null;
 		if(expression != null && tissueDataFieldsInspector != null){
 			 StringReader sr = new java.io.StringReader(expression);
 		    Reader r = new java.io.BufferedReader(sr);
@@ -63,7 +63,7 @@ public class ExpressionCheckerController implements ClassLoaderChangeListener{
 	
 	public boolean hasVarNameConflict(int sessionId, TissueCellDataFieldsInspector tissueDataFieldsInspector){
 		if(varNameRegistry.containsKey(sessionId)){
-			return tissueDataFieldsInspector.hasCellTypeConflict(varNameRegistry.get(sessionId));
+			return false;//tissueDataFieldsInspector.hasCellTypeConflict(varNameRegistry.get(sessionId));
 		}
 		return false;
 	}

@@ -61,15 +61,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	
 	public abstract List<Method> getParameters();
 	
-	public abstract List<Field> getContants();
-	
-	public Map <EpisimCellType, Class<? extends AbstractCell>> getRegisteredCellTypes(){
-		return this.registeredCellTypes;
-	}
-	
-	public void registerCellType(EpisimCellType epiCellType, Class<? extends AbstractCell> celltype){
-		this.registeredCellTypes.put(epiCellType, celltype);
-	}
+	public abstract List<Field> getContants();	
 	
 	public GenericBag<AbstractCell> getAllCells() {	return allCells; }
 	

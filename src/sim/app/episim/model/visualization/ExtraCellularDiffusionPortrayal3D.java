@@ -52,11 +52,11 @@ public class ExtraCellularDiffusionPortrayal3D extends ValueGridPortrayal3DHack 
 	 public void updateModel(TransformGroup modelTG)
     {
 		 minValue = extraCellularDiffusionField.getFieldConfiguration().getMinimumConcentration();
-	    maxValue = extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
+	    double newMaxValue = extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 	   							? extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration()
 	   							: extraCellularDiffusionField.getExtraCellularField().max();
 		 
-		 
+	   if(newMaxValue > maxValue) this.maxValue = newMaxValue;
 		
 		this.setMap(buildColorMap());	
 		 super.updateModel(modelTG);

@@ -68,7 +68,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 			if (depthFrac(newloc.y) > mechModelGP.getSeedMinDepth_frac() || mechModelGP.getSeedMinDepth_frac() == 0){
 				if (distance > mechModelGP.getBasalDensity_mikron() || firstCell) {
 				
-					UniversalCell stemCell = new UniversalCell(null, null);
+					UniversalCell stemCell = new UniversalCell(null, null, true);
 					CenterBasedMechanicalModel mechModel = ((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
 					Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 					

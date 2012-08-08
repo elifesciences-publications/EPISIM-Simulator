@@ -88,7 +88,7 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 			
 			if(CenterBased3DMechanicalModel.getAllCellsWithinDistance(newLoc, requiredDistance).isEmpty()){				   
 					cellAdded = true;		
-					UniversalCell stemCell = new UniversalCell(null, null);
+					UniversalCell stemCell = new UniversalCell(null, null, true);
 					CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
 					Point3d corrLoc = mechModel.calculateLowerBoundaryPositionForCell(new Point3d(newLoc.x, newLoc.y, newLoc.z));
 					((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));					
@@ -129,7 +129,7 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 							
 							newLoc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0,2), 0);
 							
-							UniversalCell stemCell = new UniversalCell(null, null);
+							UniversalCell stemCell = new UniversalCell(null, null, true);
 							CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
 							Point3d corrLoc = mechModel.calculateLowerBoundaryPositionForCell(new Point3d(newLoc.x, newLoc.y, newLoc.z));
 							((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));

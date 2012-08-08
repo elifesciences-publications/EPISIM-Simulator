@@ -50,7 +50,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
 			for(int y = height-1 ;y > ((height-1)-delta); y--){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
-					UniversalCell cell = new UniversalCell(null, null);
+					UniversalCell cell = new UniversalCell(null, null, true);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
 				
 					standardCellEnsemble.add(cell);
@@ -60,7 +60,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
 			for(int y = 0 ;y < delta; y++){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
-					UniversalCell cell = new UniversalCell(null, null);
+					UniversalCell cell = new UniversalCell(null, null, true);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
 				
 					standardCellEnsemble.add(cell);
@@ -73,7 +73,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
    
    private  ArrayList<UniversalCell> testInitialization() {
    	ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
-		UniversalCell cell = new UniversalCell(null, null);
+		UniversalCell cell = new UniversalCell(null, null, true);
 		HexagonBased3DMechanicalModel mechModel =((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject());
 		mechModel.setCellLocationInCellField(new Double3D(0, 0, 0));
 		mechModel.setSpreadingLocation(new Int3D(1,1,1));
@@ -121,7 +121,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
 			for(int y = ((height/2)-delta);y < ((height/2)+delta); y++){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
-					UniversalCell cell = new UniversalCell(null, null);
+					UniversalCell cell = new UniversalCell(null, null, true);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
 					if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 					standardCellEnsemble.add(cell);

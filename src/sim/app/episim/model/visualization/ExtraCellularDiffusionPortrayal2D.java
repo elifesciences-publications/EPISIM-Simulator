@@ -48,12 +48,10 @@ public class ExtraCellularDiffusionPortrayal2D extends FastValueGridPortrayal2D 
 	
 	 public void draw(Object object, Graphics2D graphics, DrawInfo2D info){
 		 minValue = extraCellularDiffusionField.getFieldConfiguration().getMinimumConcentration();
-	    maxValue = extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
+	    double newMaxValue = extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 	   							? extraCellularDiffusionField.getFieldConfiguration().getMaximumConcentration()
-	   							: extraCellularDiffusionField.getExtraCellularField().max();
-		 
-		 
-		 
+	   							: extraCellularDiffusionField.getExtraCellularField().max();		 
+		 if(newMaxValue > maxValue) this.maxValue = newMaxValue;
 		 this.setMap(buildColorMap());		 
 		 super.draw(object, graphics, info);
 		 if(MiscalleneousGlobalParameters.getInstance().getShowDiffusionFieldLegend()){

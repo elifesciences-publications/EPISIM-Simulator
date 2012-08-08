@@ -77,7 +77,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 // CONSTANTS
 //--------------------------------------------------------------------------------------------------------------------------------------------------- 
 		
-	public final String NAME ="Epidermis";
+	public final String NAME ="Tissue";
 	
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 // VARIABLES
@@ -101,13 +101,7 @@ public class Epidermis extends TissueType implements CellDeathListener
  /** Creates a EpidermisClass simulation with the given random number seed. */
  public Epidermis(long seed)
  {
-     super(seed);
-          
-     EpisimCellType[] cellTypes = ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes();
-     if(cellTypes!= null){
-   	  for(EpisimCellType epiType : cellTypes) this.registerCellType(epiType, UniversalCell.class); // Currently the same class is used for all modeled cell types
-     }
-     
+     super(seed);               
      ChartController.getInstance().setChartMonitoredTissue(this);
      DataExportController.getInstance().setDataExportMonitoredTissue(this);
      ChartController.getInstance().registerChartSetChangeListener(this);

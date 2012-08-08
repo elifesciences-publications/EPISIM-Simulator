@@ -318,10 +318,14 @@ public class ChartController implements ClassLoaderChangeListener{
 		try{
 			if(config != null){
 				if(config.getArithmeticExpression()!= null && config.getArithmeticExpression()[0] != null){
-					config.getArithmeticExpression()[1] = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
+					String[] result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
+					config.getArithmeticExpression()[0] = result[0];
+					config.getArithmeticExpression()[1] = result[1];
 				}
 				if(config.getBooleanExpression()!= null && config.getBooleanExpression()[0] != null){
-					config.getBooleanExpression()[1] = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
+					String[] result = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
+					config.getBooleanExpression()[0] = result[0];
+					config.getBooleanExpression()[1] = result[1];
 				}
 			}
 			for(EpisimChartSeries series : chart.getEpisimChartSeries()){
@@ -329,10 +333,14 @@ public class ChartController implements ClassLoaderChangeListener{
 				config = series.getCalculationAlgorithmConfigurator();
 				if(config != null){
 					if(config.getArithmeticExpression()!= null && config.getArithmeticExpression()[0] != null){
-						config.getArithmeticExpression()[1] = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
+						String[] result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpression()[0], inspector);
+						config.getArithmeticExpression()[0] = result[0];
+						config.getArithmeticExpression()[1] = result[1];
 					}
 					if(config.getBooleanExpression()!= null && config.getBooleanExpression()[0] != null){
-						config.getBooleanExpression()[1] = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
+						String[] result = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, config.getBooleanExpression()[0], inspector);
+						config.getBooleanExpression()[0] = result[0];
+						config.getBooleanExpression()[1] = result[1];
 					}
 				}
 			}

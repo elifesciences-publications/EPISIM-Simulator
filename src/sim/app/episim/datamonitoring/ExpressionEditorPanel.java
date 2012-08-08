@@ -259,12 +259,12 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 		try{
 			 
 			 if(hasMathematicalExpression){
-				String result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(actSessionId, arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
-				arithmeticExpression[0]=arithmeticExpressionTextArea.getText().trim();
-				if(result != null && !result.trim().equals("")){ 
-					arithmeticMessageTextArea.setText(result);
+				String[] result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(actSessionId, arithmeticExpressionTextArea.getText().trim(), dataFieldsInspector);
+				arithmeticExpression[0]=result[0];
+				if(result[1] != null && !result[1].trim().equals("")){ 
+					arithmeticMessageTextArea.setText(result[1]);
 					if(SHOWMESSAGEFIELDS)arithmeticMessageTextArea.setVisible(true);
-					arithmeticExpression[1]=result.trim();
+					arithmeticExpression[1]=result[1].trim();
 				}					
 				if(!hasBooleanCondition){
 					if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
@@ -291,12 +291,12 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 		
 		if(hasBooleanCondition){
 			try{
-				String result = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(actSessionId, booleanExpressionTextArea.getText().trim(), dataFieldsInspector);
-				booleanExpression[0]=booleanExpressionTextArea.getText().trim();
-				if(result != null && !result.trim().equals("")){ 
-					booleanMessageTextArea.setText(result);
+				String[] result = ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(actSessionId, booleanExpressionTextArea.getText().trim(), dataFieldsInspector);
+				booleanExpression[0]=result[0];
+				if(result[1] != null && !result[1].trim().equals("")){ 
+					booleanMessageTextArea.setText(result[1]);
 					if(SHOWMESSAGEFIELDS)booleanMessageTextArea.setVisible(true);
-					booleanExpression[1]=result.trim();
+					booleanExpression[1]=result[1].trim();
 				}
 				if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
 					if(hasMathematicalExpression){

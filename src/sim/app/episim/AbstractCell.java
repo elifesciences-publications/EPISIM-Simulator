@@ -225,7 +225,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
       red=(red>255)?255:((red<0)?0:red);
       blue=(blue>255)?255:((blue<0)?0:blue);
       
-      if(kcyte.getIsTracked()) return Color.RED;
+      if(kcyte.getIsTracked() && MiscalleneousGlobalParameters.getInstance().getHighlightTrackedCells()) return Color.RED;
       return new Color(red, green, blue);
    }
 	

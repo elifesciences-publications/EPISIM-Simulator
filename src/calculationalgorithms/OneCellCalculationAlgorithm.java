@@ -26,8 +26,8 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 	public static final String CELLSEARCHINGSIMSTEPINTERVAL = "cell search simstep interval";
 	protected Map<String, AbstractCell> trackedCells;
 	
-	private Map<String, SingleCellObserver> observers;
-	private Map<Long, String> handlerIdStringIdMap;
+	protected Map<String, SingleCellObserver> observers;
+	protected Map<Long, String> handlerIdStringIdMap;
 	private int counter = 0;
 	private long lastTimeStep = 0;	
 	public OneCellCalculationAlgorithm(){		
@@ -50,7 +50,7 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 		lastTimeStep = 0;
 	}
 		
-	private void checkTrackedCells(CalculationHandler handler) throws CellNotValidException {
+	protected void checkTrackedCells(CalculationHandler handler) throws CellNotValidException {
 
 		AbstractCell actTrackedCell = null;
 		AbstractCell newTrackedCell = null;
@@ -115,6 +115,11 @@ public class OneCellCalculationAlgorithm extends AbstractCommonCalculationAlgori
 		return null;
 	}
 	
+	
+	protected long getLastTimeStep(){ return this.lastTimeStep; }
+	
+	protected void setLastTimeStep(long lastTimeStep){ this.lastTimeStep = lastTimeStep;}
+	protected void incrementCounter(){ counter++;}
 	
 	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
 		if(results.getTimeStep() != lastTimeStep){

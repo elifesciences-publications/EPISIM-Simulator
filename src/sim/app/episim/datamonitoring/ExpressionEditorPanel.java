@@ -41,7 +41,7 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	
 	public enum ExpressionType {BOOLEAN_EXPRESSION, MATHEMATICAL_EXPRESSION}
 	
-	
+	public enum ExpressionState {OK, ERROR}
 	
 	private JTextArea arithmeticExpressionTextArea;
 	private JTextArea booleanExpressionTextArea;
@@ -81,6 +81,9 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	private ExpressionType expressionType = ExpressionType.MATHEMATICAL_EXPRESSION;
 	
 	private boolean isConditionOnlyInitiallyChecked = false;
+	
+	private ExpressionState mathExpressionState = ExpressionState.ERROR;
+	private ExpressionState boolExpressionState = ExpressionState.ERROR;
 	
 	public ExpressionEditorPanel(Component parent, TissueCellDataFieldsInspector _dataFieldsInspector, CalculationAlgorithmDescriptor descriptor){
 		this.parentComponent = parent;
@@ -204,8 +207,12 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	
 	public JPanel getExpressionEditorPanel(){ return panel; }
 	
+	public ExpressionState getBooleanConditionState(){ return this.boolExpressionState; }
+	public ExpressionState getMathematicalConditionState(){ return this.mathExpressionState;}
 	
 	public void setExpressionEditorPanelData(CalculationAlgorithmConfigurator config){
+		mathExpressionState = ExpressionState.ERROR;
+		boolExpressionState = ExpressionState.ERROR;
 		if(config.getCalculationAlgorithmID() != this.calculationAlgorithmID) throw new IllegalArgumentException("The CalculationAlgorithmConfigurator does not match the selected calculation algorithm. ID found:  " + config.getCalculationAlgorithmID() + " ID required: " + this.calculationAlgorithmID);
 		this.parameterValues = new HashMap<String, Object>();
 			if(config !=null){			
@@ -255,6 +262,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 	
 	public CalculationAlgorithmConfigurator getCalculationAlgorithmConfigurator(){
 		int actSessionId = ExpressionCheckerController.getInstance().getCheckSessionId();
+		mathExpressionState = ExpressionState.ERROR;
+		boolExpressionState = ExpressionState.ERROR;
 		if(hasParameters)fetchParameterValues();
 		try{
 			 
@@ -268,25 +277,32 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 				}					
 				if(!hasBooleanCondition){
 					if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
+						mathExpressionState = ExpressionState.OK;
+						boolExpressionState = ExpressionState.OK;
 						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, new String[]{null, null}, false, parameterValues);
 					}
 					else{
 						arithmeticMessagePanel.setVisible(true);
 						this.panel.validate();
+						mathExpressionState = ExpressionState.ERROR;
 						arithmeticMessageTextArea.setText("Usage of parameters belonging to different cell types in a single calculation algorithm is not allowed.");
 					}
-				}
+				} 
+				else mathExpressionState = ExpressionState.OK;
 			 }
+			 else mathExpressionState = ExpressionState.OK;
 		}
 		catch (ParseException e1){
 			arithmeticMessagePanel.setVisible(true);
 			this.panel.validate();
 			arithmeticMessageTextArea.setText(e1.getMessage());
+			mathExpressionState = ExpressionState.ERROR;
 		}
 		catch (TokenMgrError e1){
 			arithmeticMessagePanel.setVisible(true);
 			this.panel.validate();
 			arithmeticMessageTextArea.setText(e1.getMessage());
+			mathExpressionState = ExpressionState.ERROR;
 		}
 		
 		if(hasBooleanCondition){
@@ -299,6 +315,8 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 					booleanExpression[1]=result[1].trim();
 				}
 				if(!ExpressionCheckerController.getInstance().hasVarNameConflict(actSessionId, dataFieldsInspector)){
+					if(!hasMathematicalExpression)mathExpressionState = ExpressionState.OK;
+					boolExpressionState = ExpressionState.OK;
 					if(hasMathematicalExpression){
 						return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, arithmeticExpression, booleanExpression, isConditionOnlyInitiallyChecked, parameterValues);
 					}
@@ -317,20 +335,24 @@ public class ExpressionEditorPanel implements ParameterSelectionListener{
 						this.panel.validate();
 						booleanMessageTextArea.setText("Usage of parameters belonging to different cell types in a single calculation algorithm is not allowed.");
 					}
+					mathExpressionState = ExpressionState.ERROR;
+					boolExpressionState = ExpressionState.ERROR;
 				}
-				
 			}
 			catch (ParseException e1){
 				booleanMessagePanel.setVisible(true);
 				this.panel.validate();
 				booleanMessageTextArea.setText(e1.getMessage());
+				boolExpressionState = ExpressionState.ERROR;
 			}
 			catch (TokenMgrError e1){
 				booleanMessagePanel.setVisible(true);
 				this.panel.validate();
 				booleanMessageTextArea.setText(e1.getMessage());
+				boolExpressionState = ExpressionState.ERROR;
 			}
 		}
+		else boolExpressionState = ExpressionState.OK;
 		if(!hasBooleanCondition && !hasMathematicalExpression && !parameterValues.isEmpty()){
 			return CalculationAlgorithmConfiguratorFactory.createCalculationAlgorithmConfiguratorObject(calculationAlgorithmID, new String[]{null, null}, new String[]{null, null}, false, parameterValues);
 		}

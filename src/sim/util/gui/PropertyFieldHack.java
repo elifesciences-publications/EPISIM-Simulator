@@ -57,5 +57,10 @@ public class PropertyFieldHack extends PropertyField{
        }
 	
 	public JCheckBox getCheckField(){ return this.checkField; }
+	
+	public void submit()
+   {
+    super.submit();
+   }
 
 }

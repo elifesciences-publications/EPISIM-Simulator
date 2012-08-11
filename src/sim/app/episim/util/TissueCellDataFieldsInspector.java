@@ -319,7 +319,8 @@ public class TissueCellDataFieldsInspector {
 				newName = newName.concat(subNames[0].substring(0, Names.PREFIX_LENGTH));
 				
 				if(subNames[0].substring(Names.PREFIX_LENGTH) != null && !subNames[0].substring(Names.PREFIX_LENGTH).trim().isEmpty()){
-					if(subNames[0].substring(Names.PREFIX_LENGTH).trim().equals("Epidermis")){
+					if(subNames[0].substring(Names.PREFIX_LENGTH).trim().equals("Epidermis")
+							|| subNames[0].substring(Names.PREFIX_LENGTH).trim().equals(this.inspectedTissue.getTissueName())){
 						newName = newName.concat(this.inspectedTissue.getTissueName());
 					}
 					else{						

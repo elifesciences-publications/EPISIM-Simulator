@@ -51,10 +51,11 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 	
 	private void setInitialGlobalParametersValues(HexagonBasedMechanicalModelSingleSurfaceGP globalParameters){
 		globalParameters.setCellDiameterMikron(20);
-		globalParameters.setWidthInMikron(300);
-		globalParameters.setHeightInMikron(300);
+		globalParameters.setWidthInMikron(200);
+		globalParameters.setHeightInMikron(200);
 		globalParameters.setNumber_of_initially_occupied_columns(0);
 		globalParameters.setInitialCellDensityInPercent(100);		
+		globalParameters.setUseCellCellInteractionEnergy(false);
 	}
 	
 	private void addMakrophageColony(ArrayList<UniversalCell> standardCellEnsemble){

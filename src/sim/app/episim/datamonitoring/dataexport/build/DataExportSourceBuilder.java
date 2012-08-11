@@ -89,7 +89,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 			   	generatedSourceCode.append("  private ObservedDataCollection<Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
 			   			" = new ObservedDataCollection<Double>(ObservedDataCollectionType.ONEDIMTYPE);\n");
 		   	}
-		   	else if(type == CalculationAlgorithmType.TWODIMDATASERIESRESULT || type == CalculationAlgorithmType.TWODIMDATASERIESRESULT){
+		   	else if(type == CalculationAlgorithmType.TWODIMDATASERIESRESULT || type == CalculationAlgorithmType.TWODIMRESULT){
 		   		generatedSourceCode.append("  private ObservedDataCollection<Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
 	   			" = new ObservedDataCollection<Double>(ObservedDataCollectionType.TWODIMTYPE);\n");
 		   	}

@@ -24,7 +24,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 	private int diffusionFieldOpacity=255;
 	private boolean showDiffusionFieldLegend = true;
 	
-	
+	private boolean highlightTrackedCells = true;
 	
 	private int typeColor = 1;
 	
@@ -35,7 +35,9 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 	}
 	
 	
+	public boolean getHighlightTrackedCells(){ return this.highlightTrackedCells;}
 	
+	public void setHighlightTrackedCells(boolean val){ this.highlightTrackedCells = val; }
    
 	
 	

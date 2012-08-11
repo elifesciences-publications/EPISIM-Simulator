@@ -27,6 +27,7 @@ import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
@@ -122,12 +123,9 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 		   	/* 	if(((EpisimHexagonBasedModelConnector)mechModel.getEpisimModelConnector()).getIsAtSurfaceBorder()){
 		   	 		graphics.setPaint(Color.GREEN);
 		   	 	}*/
-		   	 	if(cell.getIsTracked()){
-		   	 		graphics.setPaint(Color.RED);
-		   	 	}
-		   	 	else{
-		   	 		graphics.setPaint(cell.getCellColoring());
-		   	   }
+		   	 
+		   	 	graphics.setPaint(cell.getCellColoring());
+		   	   
 				   if (filled)
 				   {	        
 				   	graphics.fill(shape);

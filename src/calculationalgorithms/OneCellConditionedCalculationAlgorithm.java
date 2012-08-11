@@ -99,5 +99,8 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
          }	   	
 	   };
    }
-
+	
+	
+	
+	
 }

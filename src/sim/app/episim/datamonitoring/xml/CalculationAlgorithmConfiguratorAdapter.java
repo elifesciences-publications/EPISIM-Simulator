@@ -36,16 +36,18 @@ public class CalculationAlgorithmConfiguratorAdapter extends XmlAdapter<AdaptedC
    }
 
    public AdaptedCalculationAlgorithmConfigurator marshal(CalculationAlgorithmConfigurator v) throws Exception {
-   	
-   	AdaptedCalculationAlgorithmConfigurator config = new AdaptedCalculationAlgorithmConfigurator();
-	   
-   	config.setArithmeticExpression(v.getArithmeticExpression());
-   	config.setBooleanExpression(v.getBooleanExpression());
-   	config.setBooleanExpressionOnlyInitiallyChecked(v.isBooleanExpressionOnlyInitiallyChecked());
-   	config.setCalculationAlgorithmID(v.getCalculationAlgorithmID());
-   	config.setParameters(v.getParameters());
-   	
-	   return config;
+   	if(v!=null){
+	   	AdaptedCalculationAlgorithmConfigurator config = new AdaptedCalculationAlgorithmConfigurator();
+		   
+	   	config.setArithmeticExpression(v.getArithmeticExpression());
+	   	config.setBooleanExpression(v.getBooleanExpression());
+	   	config.setBooleanExpressionOnlyInitiallyChecked(v.isBooleanExpressionOnlyInitiallyChecked());
+	   	config.setCalculationAlgorithmID(v.getCalculationAlgorithmID());
+	   	config.setParameters(v.getParameters());
+	   	
+		   return config;
+   	}
+   	else return null;
    }
 
 }

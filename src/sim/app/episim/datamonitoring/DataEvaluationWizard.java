@@ -31,6 +31,7 @@ import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.CalculationAlgorithmSelectionPanel.AlgorithmSelectionListener;
+import sim.app.episim.datamonitoring.ExpressionEditorPanel.ExpressionState;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmConfiguratorFactory;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 
@@ -221,11 +222,14 @@ public class DataEvaluationWizard {
 								new String[]{null, null}, new String[]{null, null}, false, new HashMap<String, Object>());
 					}
 					else if(actualExpressionEditorPanel != null) configurator = actualExpressionEditorPanel.getCalculationAlgorithmConfigurator();
-				if(configurator != null){
+				if(configurator != null 
+						&& actualExpressionEditorPanel.getMathematicalConditionState() == ExpressionState.OK
+						&& actualExpressionEditorPanel.getBooleanConditionState() == ExpressionState.OK){
 					actualConfigurator = configurator;
 					dialog.setVisible(false);
 					dialog.dispose();
 				}
+				else configurator = null;
 			}
 		});
 		bInnerPanel.add(okButton);

@@ -384,9 +384,7 @@ public class HexagonBasedMechanicalModelSingleSurface extends AbstractHexagonBas
 			if(normGradient > 0){
 				int probabGradient = (int) (normGradient*UPPER_PROBABILITY_LIMIT);			
 				probabilityA += probabGradient;
-			}	
-			
-			
+			}			
 			if((probabilityA + probabilityB) > UPPER_PROBABILITY_LIMIT){
 				 int sum = probabilityA + probabilityB;
 				 sum /=UPPER_PROBABILITY_LIMIT;
@@ -455,15 +453,14 @@ public class HexagonBasedMechanicalModelSingleSurface extends AbstractHexagonBas
 	}
 	public void setFieldLocation(Int2D fieldLocation){
 	  	this.fieldLocation = fieldLocation;
-	}
-	
+	}	
 	@NoExport
 	public double getX() {
-		return fieldLocation != null ? fieldLocation.x : -1;
+		return fieldLocation != null ? getLocationInMikron(fieldLocation).x : -1;
 	}
 	@NoExport
 	public double getY() {
-		return fieldLocation != null ? fieldLocation.y : -1;
+		return fieldLocation != null ? getLocationInMikron(fieldLocation).y : -1;
 	}
 	@NoExport
 	public double getZ() {

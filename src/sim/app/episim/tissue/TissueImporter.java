@@ -124,7 +124,8 @@ public class TissueImporter{
 			
 			loadXML(path);
 		   TissueRotator rotator = new TissueRotator();
-		   rotator.rotateTissue(actImportedTissue, surfaceOrientation);
+		   writeNeighbourHistogramDataFile(actImportedTissue, new File(path.getAbsolutePath().substring(0, path.getAbsolutePath().length()-4)+"_NeighbourNo.csv"));
+		   rotator.rotateTissue(actImportedTissue, surfaceOrientation);		   
 		   TissueFilter filter = new TissueFilter(new File(path.getAbsolutePath().substring(0, path.getAbsolutePath().length()-4)+"_Filter-Results.txt"));
 		   filter.filterTissue(actImportedTissue);
 			return actImportedTissue;
@@ -136,6 +137,22 @@ public class TissueImporter{
 			ExceptionDisplayer.getInstance().displayException(new NullPointerException("Tissue Importer: Filepath was null!"));
 			return null;
 		}
+	}
+	
+	private void writeNeighbourHistogramDataFile(ImportedTissue tissue, File histogramDataFile){
+		try{
+			FileWriter writer = new FileWriter(histogramDataFile);
+			writer.write("NeighbourNo;\n");
+			 for(CellEllipse cell :tissue.getCells()){
+				 writer.write(""+cell.getNumberOfNeighbours()+";\n");
+			 }
+			 writer.close();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		
 	}
 	
 	private void addValue(String value){

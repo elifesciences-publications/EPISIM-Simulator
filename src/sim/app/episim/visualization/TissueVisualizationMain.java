@@ -56,7 +56,7 @@ import sim.util.gui.LabelledListHack;
 
 
 
-public class TestVisualizationMain {
+public class TissueVisualizationMain {
 	
 	public static final String BACKGROUND_COLOR_PROP ="Background";
 	public static final String BASALLAYER_COLOR_PROP ="BasalLayer";
@@ -80,7 +80,7 @@ public class TestVisualizationMain {
 	private JDialog colorChooseDialog;
 	
 	
-	public TestVisualizationMain(){
+	public TissueVisualizationMain(){
 	/*	try{
 	      ModelController.getInstance().getBioMechanicalModelController().loadModelFile((new EpisimVertexBasedModelConnector()).getBiomechanicalModelId());
       }
@@ -102,7 +102,7 @@ public class TestVisualizationMain {
 		initCanvas();
 				
 		mainFrame.setTitle("EPISIM Simulator - Tissue Visualization");
-		mainFrame.setIconImage(new ImageIcon(TestVisualizationMain.class.getResource("icon.gif")).getImage());
+		mainFrame.setIconImage(new ImageIcon(TissueVisualizationMain.class.getResource("icon.gif")).getImage());
 		
 		//Menü
 		JMenuBar menuBar = new JMenuBar();
@@ -114,7 +114,7 @@ public class TestVisualizationMain {
 		changeColorsMenuItem.setEnabled(false);
 		final JMenuItem resetColorsMenuItem = new JMenuItem("Reset Default Colors");
 		resetColorsMenuItem.setEnabled(false);
-		final JButton saveImageButton = new JButton(new ImageIcon(TestVisualizationMain.class.getResource("Camera.png")));
+		final JButton saveImageButton = new JButton(new ImageIcon(TissueVisualizationMain.class.getResource("Camera.png")));
 		saveImageButton.setEnabled(false);
 		menu.add(loadFileMenuItem);
 		menu.add(changeColorsMenuItem);
@@ -222,7 +222,7 @@ public class TestVisualizationMain {
 	
 	public static void main(String[] args) {
 
-		new TestVisualizationMain();
+		new TissueVisualizationMain();
 
 	}
 	

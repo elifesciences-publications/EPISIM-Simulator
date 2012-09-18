@@ -74,7 +74,7 @@ public class CellEllipse extends AbstractCellEllipse{
       
       private int[] getNeighbouringCellIDs(){ return this.neighbouringCellIDs; }
       
-      private int getNumberOfNeighbours(){ return this.neighbouringCellIDs != null ? this.neighbouringCellIDs.length :0; }
+      public int getNumberOfNeighbours(){ return this.neighbouringCellIDs != null ? this.neighbouringCellIDs.length :0; }
       
       
       

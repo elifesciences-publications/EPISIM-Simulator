@@ -8,12 +8,15 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -110,11 +113,21 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	
 	private EpisimMenuBarFactory menuBarFactory;
 	
+	
+
+
+	
+	
 	public EpisimSimulator() {
 
 		if(ModeServer.guiMode()){
 			mainFrame = new JFrame();
+			
+			
+			
 			mainFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon.gif")).getImage());
+	
+			
 			ExceptionDisplayer.getInstance().registerParentComp(mainFrame);
 		}
 		else{

@@ -92,9 +92,12 @@ public class ExtraCellularDiffusionPortrayal2D extends FastValueGridPortrayal2D 
       legendLookUpTable = new Color[colorTable.length];
    	for(int i = 0; i < colorTable.length; i++){
    		legendLookUpTable[i]= colorTable[i];
-      	colorTable[i] = new Color(colorTable[i].getRed(), colorTable[i].getGreen(), colorTable[i].getBlue(),MiscalleneousGlobalParameters.getInstance().getDiffusionFieldOpacity()); 
+   		if(i< (colorTable.length*MiscalleneousGlobalParameters.getInstance().getDiffusionFieldColoringMinThreshold()))colorTable[i] = new Color(colorTable[i].getRed(), colorTable[i].getGreen(), colorTable[i].getBlue(),0);
+   		else colorTable[i] = new Color(colorTable[i].getRed(), colorTable[i].getGreen(), colorTable[i].getBlue(),MiscalleneousGlobalParameters.getInstance().getDiffusionFieldOpacity()); 
       }
-   	
+   	for(int i = 0; i < (colorTable.length*0.1); i++){
+   		
+   	}
    	return new SimpleColorMap(colorTable);
    }
    

@@ -28,6 +28,8 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 	
 	private int typeColor = 1;
 	
+	private double coloringThreshold=0.0;
+	
 	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age", "Episim-Modeller Custom Coloring"};
 	
 	private MiscalleneousGlobalParameters(){
@@ -99,6 +101,14 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
    	if(diffusionFieldOpacity > 255) diffusionFieldOpacity =255;
    	if(diffusionFieldOpacity < 0) diffusionFieldOpacity =0;
    	this.diffusionFieldOpacity = diffusionFieldOpacity;
+   }
+   
+   public double getDiffusionFieldColoringMinThreshold(){ return this.coloringThreshold; }
+   
+   public void setDiffusionFieldColoringMinThreshold(double coloringThreshold) {
+   	if(coloringThreshold > 1) coloringThreshold =1;
+   	if(coloringThreshold < 0) coloringThreshold =0;
+   	this.coloringThreshold = coloringThreshold;
    }
    
    public static class MiscalleneousGlobalParameters3D extends MiscalleneousGlobalParameters{

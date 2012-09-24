@@ -13,8 +13,11 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -34,6 +37,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.svggen.SwingSVGPrettyPrint;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -119,7 +127,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	
 	
 	public EpisimSimulator() {
-
+		
 		if(ModeServer.guiMode()){
 			mainFrame = new JFrame();
 			
@@ -837,4 +845,5 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			  ExceptionDisplayer.getInstance().displayException(e1);
 		  } 
 	}	
+	
 }

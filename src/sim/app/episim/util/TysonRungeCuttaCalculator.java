@@ -42,7 +42,7 @@ public class TysonRungeCuttaCalculator {
 		EpisimCellBehavioralModelGlobalParameters globalParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 		try{
 		
-		 Method m = globalParameters.getClass().getMethod("getK6", null);
+		 Method m = globalParameters.getClass().getMethod("getT_k6", null);
 		
 		 Object result = null;
 		 if(m != null) result = m.invoke(globalParameters, null);
@@ -52,7 +52,7 @@ public class TysonRungeCuttaCalculator {
 			
 		}
 		
-		m = globalParameters.getClass().getMethod("getK4", null);
+		m = globalParameters.getClass().getMethod("getT_k4", null);
 		
 		result = null;
 		if(m != null) result = m.invoke(globalParameters, null);
@@ -98,14 +98,14 @@ public class TysonRungeCuttaCalculator {
 		}
 	
 	
-	   m = cellBehavior.getClass().getMethod("setU", new Class[]{Double.TYPE});
+	   m = cellBehavior.getClass().getMethod("setT_u", new Class[]{Double.TYPE});
      
 		if(m != null) {
 			m.invoke(cellBehavior, new Object[]{u});
         	
 		}
 		
-		m = cellBehavior.getClass().getMethod("setZ", new Class[]{Double.TYPE});
+		m = cellBehavior.getClass().getMethod("setT_z", new Class[]{Double.TYPE});
 		if(m != null) {
 			m.invoke(cellBehavior, new Object[]{z});
 			

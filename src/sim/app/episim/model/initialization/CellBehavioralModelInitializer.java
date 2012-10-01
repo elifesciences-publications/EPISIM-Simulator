@@ -56,8 +56,8 @@ public class CellBehavioralModelInitializer {
 			}
 			boolean tysonCellCycleAvailable = false;
 			try {
-				Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK6", new Class<?>[]{});
-				m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK4", new Class<?>[]{});
+				Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getT_k6", new Class<?>[]{});
+				m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getT_k4", new Class<?>[]{});
 				tysonCellCycleAvailable = true;
 			} catch (NoSuchMethodException e) {
 				tysonCellCycleAvailable = false;

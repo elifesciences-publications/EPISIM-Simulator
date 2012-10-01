@@ -93,8 +93,8 @@ public class TysonRungeCuttaCalculator {
 			dz_temp[2] = KAPPA - k4*(K4_PRIME/k4 + Math.pow(u_temp[2], 2))*z_temp[2];
 			
 			
-			u = u + (STEPSIZE/6)*(du + 2*(du_temp[0]+ du_temp[1]) + du_temp[2]);
-			z = z + (STEPSIZE/6)*(dz + 2*(dz_temp[0]+ dz_temp[1]) + dz_temp[2]);
+			u = u + (STEPSIZE/6d)*(du + 2*(du_temp[0]+ du_temp[1]) + du_temp[2]);
+			z = z + (STEPSIZE/6d)*(dz + 2*(dz_temp[0]+ dz_temp[1]) + dz_temp[2]);
 		}
 	
 	

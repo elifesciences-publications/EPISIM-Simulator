@@ -19,6 +19,7 @@ import sim.app.episim.tissue.TissueType.SchedulePriority;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.TysonRungeCuttaCalculator;
 
 import sim.engine.*;
 import sim.field.continuous.*;
@@ -109,6 +110,16 @@ public class UniversalCell extends AbstractCell
       		  	&& taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector){
       	  	((SbmlModelConnector)taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(randomAge);
       	  }
+      	  boolean tysonCellCycleAvailable = false;
+	  		  try {
+	  				Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK6", new Class<?>[]{});
+	  				m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getK4", new Class<?>[]{});
+	  				tysonCellCycleAvailable = true;
+	  		 } catch (NoSuchMethodException e) {
+	  				tysonCellCycleAvailable = false;
+	  		 }
+
+  			if (tysonCellCycleAvailable) TysonRungeCuttaCalculator.assignRandomCellcyleState(taCell.getEpisimCellBehavioralModelObject(), randomAge); // on
         }
         // somewhere on the TA Cycle       
     }

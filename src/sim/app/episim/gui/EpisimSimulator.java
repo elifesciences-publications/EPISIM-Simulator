@@ -86,7 +86,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	
 	public static final String versionID = "1.4";
 	
-	public static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
+	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
 	private static final String CB_FILE_PARAM_PREFIX = "-cb";
 	private static final String BM_FILE_PARAM_PREFIX = "-bm";
@@ -167,7 +167,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			jarFileChoose= new ExtendedFileChooser("jar");
 			jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 			tissueExportFileChoose = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
-			mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE);
+			mainFrame.setTitle(EpisimSimulator.getEpisimSimulatorTitle());
 		}
 		else{
 			noGUIModeMainPanel.setLayout(new BorderLayout());
@@ -367,6 +367,17 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		
 	}
 	
+	public static String getEpisimSimulatorTitle(){
+		StringBuffer title = new StringBuffer();
+		title.append(EpisimSimulator.SIMULATOR_TITLE);
+		if(ModelController.getInstance().isModelOpened()){
+			title.append("- ");
+			title.append(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile().getName());
+			title.append(" ");
+		}
+		return title.toString();
+	}
+	
 	public static void printHelpTextOnConsole(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("------------------------- EPISIM Simulator Help -------------------------\n\n");
@@ -421,16 +432,17 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				registerSimulationStateListeners(epiUI);
 				epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
 				if(actLoadedSimulationStateData != null)  SimStateServer.getInstance().setSimStepNumberAtStart(actLoadedSimulationStateData.getSimStepNumber());
+				ModelController.getInstance().setModelOpened(true);
+				
 				if(ModeServer.guiMode()){
 					mainFrame.validate();
 					mainFrame.repaint();
+					mainFrame.setTitle(getEpisimSimulatorTitle());
 				}
 				else{
 					noGUIModeMainPanel.validate();
 					noGUIModeMainPanel.repaint();
-				}
-				
-				ModelController.getInstance().setModelOpened(true);
+				}				
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH).setEnabled(true);
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(false);
 				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(true);
@@ -504,17 +516,18 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				DataExportController.getInstance().reloadCurrentlyLoadedDataExportDefinitionSet();
 				GlobalClassLoader.getInstance().resetMode();
 			}
-			
+			ModelController.getInstance().setModelOpened(true);
 			if(ModeServer.guiMode()){
 				mainFrame.validate();
 				mainFrame.repaint();
+				mainFrame.setTitle(getEpisimSimulatorTitle());
 			}
 			else{
 				noGUIModeMainPanel.validate();
 				noGUIModeMainPanel.repaint();
 			}
 			
-			ModelController.getInstance().setModelOpened(true);
+			
 			
 		}
 	}
@@ -539,7 +552,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		}
 		if(file != null){
 			try{
-	        if(ModeServer.guiMode()) mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE+ "- Tissue-Export-Path: "+file.getCanonicalPath());
+	        if(ModeServer.guiMode()) mainFrame.setTitle(EpisimSimulator.getEpisimSimulatorTitle()+ "- Tissue-Export-Path: "+file.getCanonicalPath());
          }
          catch (IOException e){
 	         ExceptionDisplayer.getInstance().displayException(e);
@@ -601,7 +614,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		this.previouslyLoadedModelFile = null;
 		GlobalClassLoader.getInstance().destroyClassLoader(true);
 		
-		if(ModeServer.guiMode())mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE);
+		if(ModeServer.guiMode())mainFrame.setTitle(getEpisimSimulatorTitle());
 		
 		SimulationStateFile.setTissueExportPath(null);
 		this.actLoadedSimulationStateData = null;
@@ -793,7 +806,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 									else if(fileChooserResult == JFileChooser.ABORT || fileChooserResult == JFileChooser.CANCEL_OPTION){
 										SimulationStateFile.setTissueExportPath(null);
 										this.actLoadedSimulationStateData = null;
-										if(ModeServer.guiMode())mainFrame.setTitle(EpisimSimulator.SIMULATOR_TITLE);
+										if(ModeServer.guiMode())mainFrame.setTitle(EpisimSimulator.getEpisimSimulatorTitle());
 										return;
 									}
 								}

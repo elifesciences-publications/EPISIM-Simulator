@@ -228,7 +228,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 						SimulationStateFile.setTissueExportPath(chooser.getSelectedFile());	
 						 if(ModeServer.guiMode()){
 	                  try{
-	                     ((JFrame)mainGUIComponent).setTitle(EpisimSimulator.SIMULATOR_TITLE+ "- Tissue-Export-Path: "+chooser.getSelectedFile().getCanonicalPath());
+	                     ((JFrame)mainGUIComponent).setTitle(EpisimSimulator.getEpisimSimulatorTitle()+ "- Tissue-Export-Path: "+chooser.getSelectedFile().getCanonicalPath());
                      }
                      catch (IOException e1){
                      	 ExceptionDisplayer.getInstance().displayException(e1);

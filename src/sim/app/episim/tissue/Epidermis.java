@@ -255,7 +255,7 @@ public class Epidermis extends TissueType implements CellDeathListener
 	   }
 	   ExtraCellularDiffusionField[] fields = ModelController.getInstance().getExtraCellularDiffusionController().getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]);
 	   for(ExtraCellularDiffusionField field : fields){	   	
-	   	schedule.scheduleRepeating(field, field.getInterval());
+	   	schedule.scheduleRepeating(field, SchedulePriority.EXTRACELLULARFIELD.getPriority(),field.getInterval());
 	   }
 	     
 	   EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());

@@ -88,11 +88,14 @@ public class UniversalCell extends AbstractCell
         
        
          //in the first two thousand sim steps homeostasis has to be achieved, cells max age is set to the sim step time to have more variation  
-        double maxAge= cellBehavioralModel.getMaxAge();
-        long simTime=SimStateServer.getInstance().getSimStepNumber();
-        if (simTime<(maxAge)){ 
-      	  cellBehavioralModel.setMaxAge((double)simTime);
-        }		             
+        if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
+    				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
+	        double maxAge= cellBehavioralModel.getMaxAge();
+	        long simTime=SimStateServer.getInstance().getSimStepNumber();
+	        if (simTime<(maxAge)){ 
+	      	  cellBehavioralModel.setMaxAge((double)simTime);
+	        }
+        }
         return kcyte;
     }
 

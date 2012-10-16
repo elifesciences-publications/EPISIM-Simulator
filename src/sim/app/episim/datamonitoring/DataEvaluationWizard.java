@@ -223,8 +223,8 @@ public class DataEvaluationWizard {
 					}
 					else if(actualExpressionEditorPanel != null) configurator = actualExpressionEditorPanel.getCalculationAlgorithmConfigurator();
 				if(configurator != null 
-						&& actualExpressionEditorPanel.getMathematicalConditionState() == ExpressionState.OK
-						&& actualExpressionEditorPanel.getBooleanConditionState() == ExpressionState.OK){
+						&& (actualExpressionEditorPanel == null || actualExpressionEditorPanel.getMathematicalConditionState() == ExpressionState.OK)
+						&& (actualExpressionEditorPanel == null || actualExpressionEditorPanel.getBooleanConditionState() == ExpressionState.OK)){
 					actualConfigurator = configurator;
 					dialog.setVisible(false);
 					dialog.dispose();

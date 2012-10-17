@@ -125,7 +125,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	}
 	
 	public double getBucketIntervalSize(){
-		return ((LASTBUCKETAMOUNT-FIRSTBUCKETAMOUNT)/ ((double)(NUMBEROFBUCKETS-2)));
+		return ((LASTBUCKETAMOUNT-FIRSTBUCKETAMOUNT)/ ((double)(NUMBEROFBUCKETS-2))); //TODO: Correct This
 	}
 	
 	private void updateDataFields(int counter){
@@ -206,8 +206,8 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		//System.out.println(intervalSize);
 		
 		for(AbstractCell actCell : allCells){
-			if(actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.TACELL ||
-					actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL){
+			//if(actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.TACELL ||
+			//		actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL){
 				double dnaContent = actCell.getEpisimCellBehavioralModelObject().getDnaContent();
 				for(int i = 0; i < dnaContents.length; i++){
 					if(dnaContent <= (FIRSTBUCKETAMOUNT + i * intervalSize)){ 
@@ -217,7 +217,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 					}
 					//	System.out.println("Act Value: " + (FIRSTBUCKETAMOUNT + i * intervalSize));
 				}
-			}
+			//}
 		}
 		histogrammCounter++;
 		//Calculate averaged histogramm

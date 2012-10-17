@@ -174,7 +174,7 @@ public class UniversalCell extends AbstractCell
   
    	// if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
    	// else 
-   	 this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
+   		 this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
 		
    	 EpisimCellBehavioralModel[] children = this.getEpisimCellBehavioralModelObject().oneStep(realNeighboursDiffModel);
 		/*	long timeAfter = System.currentTimeMillis();

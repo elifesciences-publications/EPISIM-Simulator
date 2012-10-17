@@ -148,7 +148,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 	   lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
 		lineShapeRenderer.setSeriesPaint(0, Color.black);
 		
-		chartsMap.put(DNAHISTOGRAMMAVG, new ChartPanel(chart));
+		chartsMap.put(DNAHISTOGRAMMAVG, new EpisimChartPanel(chart));
 		
 		
 		
@@ -175,7 +175,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 	   lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
 		lineShapeRenderer.setSeriesPaint(0, Color.black);
 		
-		chartsMap.put(DNAHISTOGRAMM, new ChartPanel(chart));
+		chartsMap.put(DNAHISTOGRAMM, new EpisimChartPanel(chart));
 		
       /////////////////////////////////////
 		// Charts: Performance Statistics
@@ -221,7 +221,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		
 		
 		
-		chartsMap.put(PERFORMANCE, new ChartPanel(chart));
+		chartsMap.put(PERFORMANCE, new EpisimChartPanel(chart));
 
 		// ///////////////////////////////////
 		// Charts: NumCells
@@ -272,7 +272,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		xyPlot.setRenderer(1, rendererXYItem);
 		
 		
-		chartsMap.put(CELLCOUNTS, new ChartPanel(chart));
+		chartsMap.put(CELLCOUNTS, new EpisimChartPanel(chart));
 		
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -318,7 +318,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 	   rendererXYItem.setSeriesPaint(0, Color.darkGray);
 	   xyPlot.setRenderer(1, rendererXYItem);        
 	   
-	   chartsMap.put(TISSUEKINETICPARAMETERS, new ChartPanel(chart));
+	   chartsMap.put(TISSUEKINETICPARAMETERS, new EpisimChartPanel(chart));
 		
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -383,7 +383,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		 lineShapeRenderer.setSeriesPaint(2, Color.red);
 		 lineShapeRenderer.setSeriesPaint(3, Color.green);
 	  
-		 chartsMap.put(CELLDEATH, new ChartPanel(chart));
+		 chartsMap.put(CELLDEATH, new EpisimChartPanel(chart));
 			
 		 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			
@@ -539,7 +539,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
       renderer2.setSeriesPaint(0, Color.black);
       xyPlot.setRenderer(1, renderer2);
       
-      chartsMap.put(AGEGRADIENT, new ChartPanel(chart));
+      chartsMap.put(AGEGRADIENT, new EpisimChartPanel(chart));
 		
   	   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
        

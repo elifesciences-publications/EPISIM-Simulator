@@ -4,10 +4,12 @@
   <modelname name="Hexagon Grid Based Biomechanical Model 3D"/>
   <modelconnectorclass name="episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC"/>
   <modelparameters>
-    <parameter datatype="boolean" default="false" name="isSpreading" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isRelaxing" readonly="false"/>
-    <parameter datatype="boolean" default="false" name="isRetracting" readonly="false"/>
-    <parameter datatype="String" default="" name="chemotacticField" readonly="false"/>
+    <parameter name="isSpreading" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="cellCellInteractionEnergy" datatype="double"
+      default="0.7" readonly="false"/>
+    <parameter name="isProliferating" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="lambdaChem" datatype="double" default="1.0" readonly="false"/>
+    <parameter name="isRetracting" datatype="boolean" default="false" readonly="false"/>
+    <parameter name="chemotacticField" datatype="String" default="" readonly="false"/>
   </modelparameters>
 </modeldescriptor>

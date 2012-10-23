@@ -27,12 +27,7 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	private boolean useCellCellInteractionEnergy = true;
 	private boolean stickToCellColony = true;
 	
-	private double lambdaChem = 1;
-	private boolean chemotaxisEnabled = true;
-	
-	private double cellCellInteractionEnergy = 0.7;
-	
-	
+	private boolean chemotaxisEnabled = true;	
 	private boolean addSecretingCellColony=true;
 	
 	
@@ -49,19 +44,7 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	   this.neighborhood_mikron = val;	   
    }
 	
-	
-   public double getCellCellInteractionEnergy() {
-
-	   return cellCellInteractionEnergy;
-   }
-   
-   
-   public void setCellCellInteractionEnergy(double cellCellInteractionEnergy) {
-
-	   if(cellCellInteractionEnergy >= 0)this.cellCellInteractionEnergy = cellCellInteractionEnergy;
-   }
-	
-   public int getNumber_of_rows() {
+	public int getNumber_of_rows() {
 
 	   return (int) number_of_rows;
    }
@@ -197,20 +180,8 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	@NoUserModification
    public boolean areDiffusionFieldsContinousInZDirection() {
 	   return getUseContinuousSpace();
-   }
-	
-   public double getLambdaChem() {
+   }	
    
-   	return lambdaChem;
-   }
-
-	
-   public void setLambdaChem(double lambdaChem) {
-   
-   	this.lambdaChem = lambdaChem;
-   }
-
-	
    public boolean isChemotaxisEnabled() {
    
    	return chemotaxisEnabled;

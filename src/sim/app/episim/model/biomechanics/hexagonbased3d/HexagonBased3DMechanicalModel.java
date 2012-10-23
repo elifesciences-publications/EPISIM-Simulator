@@ -165,13 +165,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		else if(modelConnector.getIsSpreading() && !isSpreadingPossible()){
 			if(spreadingLocation==null)modelConnector.setIsSpreading(false);
 		}
-		
-			
-		if(modelConnector.getIsRelaxing()){
-			relax();
-		}
-		
-		
+				
 		if(modelConnector.getIsRetracting() && spreadingLocation!=null){
 			 retract();
 		}
@@ -223,8 +217,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				else nonSpreadingNeighbours.add(neighboursToBeLost.get(i));
 			}
 		}		
-		double factorAllNeighbours = Math.pow(Math.exp(-1d*globalParameters.getCellCellInteractionEnergy()), numberOfNeighbours);
-		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-1d*globalParameters.getCellCellInteractionEnergy()), (numberOfNeighbours-1));
+		double factorAllNeighbours = Math.pow(Math.exp(-1d*modelConnector.getCellCellInteractionEnergy()), numberOfNeighbours);
+		double factorAllMinusOneNeighbour = Math.pow(Math.exp(-1d*modelConnector.getCellCellInteractionEnergy()), (numberOfNeighbours-1));
 		
 		
 		factorAllNeighbours *= (double)UPPER_PROBABILITY_LIMIT;
@@ -366,7 +360,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		double c_max = ecDiffField.getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
 																																				  ? ecDiffField.getFieldConfiguration().getMaximumConcentration()
 																																				  : ecDiffField.getMaxConcentrationInField();
-		final double lambda = globalParameters.getLambdaChem();
+		final double lambda = modelConnector.getLambdaChem();
 		double localConcentration = ecDiffField.getAverageConcentrationInArea(getCellBoundariesInMikron(ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
 		double[] normalizedConcentrations = new double[concentrations.length];
 		for(int i = 0; i < concentrations.length; i++){
@@ -407,17 +401,8 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 			}
 		}	
 		return -1;
-	}
-	
-	private void relax(){
-		modelConnector.setIsRelaxing(false);
-		if(spreadingLocation != null){
-			 cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
-		}
-		spreadingLocation = null;
-		modelConnector.setIsSpreading(false);
-	}
-	
+	}	
+		
 	private void retract(){		
 		 
 		boolean retraction = false;
@@ -461,7 +446,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				         double c_fieldPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getLocationInMikron().x, getLocationInMikron().y, getLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));
 				         double c_spreadingPos = ecDiffField.getAverageConcentrationInArea(getEmptyLatticeCellBoundary(getSpreadingLocationInMikron().x, getSpreadingLocationInMikron().y, getSpreadingLocationInMikron().z, ecDiffField.getFieldConfiguration().getLatticeSiteSizeInMikron()));  
 							  
-							normGradient = (globalParameters.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
+							normGradient = (modelConnector.getLambdaChem() *(c_spreadingPos-c_fieldPos))/c_max;
 							
 							if(normGradient < 0) normGradient = 0;
 						}

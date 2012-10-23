@@ -19,8 +19,9 @@ public class EpisimHexagonBased3DMC extends EpisimModelConnector{
 	private boolean isSpreading = false;
 	private boolean isProliferating = false;
 	private boolean isRetracting = false;
-	private boolean isRelaxing = false;
 	private String chemotacticField="";
+	private double cellCellInteractionEnergy = 0.7;
+	private double lambdaChem = 1;
 	
 	@Hidden
 	@NoExport
@@ -66,21 +67,31 @@ public class EpisimHexagonBased3DMC extends EpisimModelConnector{
 	public void setIsRetracting(boolean isRetracting) {	
 		this.isRetracting = isRetracting;
 	}
-	
-	public boolean getIsRelaxing(){		
-		return isRelaxing;
-	}	
-	public void setIsRelaxing(boolean isRelaxing) {	
-		this.isRelaxing = isRelaxing;
-	}
-	
-   public String getChemotacticField() {
-   
-   	return chemotacticField;
+		
+	public String getChemotacticField(){	   
+   	return this.chemotacticField;
    }
 	
-   public void setChemotacticField(String chemotacticField) {
+   public void setChemotacticField(String chemotacticField){   
+   	if(chemotacticField != null)this.chemotacticField=chemotacticField;
+   }
+	public double getCellCellInteractionEnergy() {
+	   return cellCellInteractionEnergy;
+	}	   
+	   
+	public void setCellCellInteractionEnergy(double cellCellInteractionEnergy) {
+	   if(cellCellInteractionEnergy >= 0)this.cellCellInteractionEnergy = cellCellInteractionEnergy;
+	}
+	
+	 public double getLambdaChem() {
+		   
+		 return lambdaChem;
+	 }
+
+		
+	 public void setLambdaChem(double lambdaChem) {	   
+	   	this.lambdaChem = lambdaChem;
+	 }
+
    
-   	this.chemotacticField = chemotacticField;
-   }		
 }

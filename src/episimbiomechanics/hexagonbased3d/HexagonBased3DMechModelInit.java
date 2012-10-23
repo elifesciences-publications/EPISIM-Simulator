@@ -47,12 +47,13 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 		int height = globalParameters.getNumber_of_rows();
 		int length= globalParameters.getNumber_of_columns();
 		int delta = globalParameters.getNumber_of_initially_occupied_layers()/2;
+		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();	
 		for(int z = ((length/2)-delta); z < ((length/2)+delta); z++){
 			for(int y = height-1 ;y > ((height-1)-delta); y--){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null, true);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
-				
+					if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 					standardCellEnsemble.add(cell);
 				}
 			}
@@ -62,7 +63,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null, true);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
-				
+					if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 					standardCellEnsemble.add(cell);
 				}
 			}
@@ -123,7 +124,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null, true);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
-					if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+					if(cellTypes.length >2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
 					standardCellEnsemble.add(cell);
 				}
 			}

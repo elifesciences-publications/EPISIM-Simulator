@@ -84,6 +84,7 @@ public class CellBehavioralModelInitializer {
 			XmlEpisimCellBehavioralModel xCellBehave = simulationStateData.getAlreadyLoadedXmlCellNewID(sampleCell.getID())
 					.getEpisimCellBehavioralModel();
 			xCellBehave.copyValuesToTarget(cellBehave);
+			cellBehave.setId(sampleCell.getID());
 		}
 	}
 	
@@ -94,7 +95,7 @@ public class CellBehavioralModelInitializer {
 				XmlEpisimCellBehavioralModel xCellBehave = simulationStateData.getAlreadyLoadedXmlCellNewID(actCell.getID())
 						.getEpisimCellBehavioralModel();
 				xCellBehave.copyValuesToTarget(cellBehave);
-
+				cellBehave.setId(actCell.getID());
 			}
 		}
 		

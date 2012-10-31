@@ -40,6 +40,7 @@ public class HexagonalCellField3D{
 			UniversalCell oldCell = (UniversalCell)objectGridCellField.field[spreadingLocation.x][spreadingLocation.y][spreadingLocation.z];
 			if((cell != null && oldCell.getID() != cell.getID()) || cell==null)this.spreadingLineRegistry.remove(oldCell.getID());			
 		}
+		
 		objectGridCellField.field[spreadingLocation.x][spreadingLocation.y][spreadingLocation.z] = cell;
 		if(cell != null){
 			Double3D fieldLocMikron = getLocationInMikron(fieldLocation);

@@ -35,7 +35,8 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	
 	private float standardCellRadius=0.5f;
 	
-	private final double VISUALIZATIONSCALINGFACTOR = 1.1;
+	private final double VISUALIZATIONSCALINGFACTOR = 1.2;
+	private final double VISUALIZATION_SPREADING_THICKNESS_SCALING_FACTOR = 1.3;
 	private PolygonAttributes polygonAttributes;
 	public HexagonalCellGridPortrayal3D(double scale){
 		super();
@@ -73,6 +74,9 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	   			Vector3d scales =new Vector3d();
             	tmpLocalT.getScale(scales);
             	if(!mechModel.isSpreading())scales.scale(VISUALIZATIONSCALINGFACTOR);
+            	else{
+            		rescaleSpreadingCells(scales);
+            	}
             	tmpLocalT.setScale(scales);
 	   		 mechModel.addCellTranslation(tmpLocalT);
 	   	 }
@@ -140,6 +144,9 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
             	Vector3d scales =new Vector3d();
             	tmpLocalT.getScale(scales);
             	if(!mechModel.isSpreading()) scales.scale(VISUALIZATIONSCALINGFACTOR);
+            	else{
+            		rescaleSpreadingCells(scales);
+            	}
             	tmpLocalT.setScale(scales);
             	mechModel.addCellTranslation(tmpLocalT);
             }
@@ -199,6 +206,25 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	 
 	 public PolygonAttributes polygonAttributes() { return polygonAttributes; } // default
 	
+	 
+	public void rescaleSpreadingCells(Vector3d scales){
+		double maxScale = Double.NEGATIVE_INFINITY;
+		int maxScaleIndex = -1;
+		double[] scalesArray = new double[3];
+		scales.get(scalesArray);
+		for(int i = 0; i < scalesArray.length; i++){
+			if(scalesArray[i] > maxScale){ 
+				maxScale = scalesArray[i];
+				maxScaleIndex = i;
+			}
+		}
+		for(int i = 0; i < scalesArray.length; i++){
+			if(i != maxScaleIndex){ 
+				scalesArray[i] *= VISUALIZATION_SPREADING_THICKNESS_SCALING_FACTOR;
+			}
+		}
+		scales.set(scalesArray);
+	}
 	 
 	
 	public String getPortrayalName(){

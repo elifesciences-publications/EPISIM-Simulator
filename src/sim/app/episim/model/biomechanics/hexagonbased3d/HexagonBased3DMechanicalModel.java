@@ -248,30 +248,71 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		}			
 	}
 	
-	private boolean totallyLooseContactToOldNeighbourhoodUponRetraction(){
-		Bag fieldLocNeighbouringCellsBag = new Bag();
-		Bag spreadingLocNeighbouringCellsBag = new Bag();
+	private boolean wouldThisCellBeIsolated(Int3D loc){
+		Bag neighbouringCellsBag = new Bag();
 		IntBag xPos = new IntBag();
 		IntBag yPos = new IntBag();
 		IntBag zPos = new IntBag();
-		cellField.getNeighborsHamiltonianDistance(fieldLocation.x, fieldLocation.y, fieldLocation.z, 1, globalParameters.getUseContinuousSpace(), fieldLocNeighbouringCellsBag, xPos, yPos, zPos);
+		
+		
+		
+		cellField.getNeighborsMaxDistance(loc.x, loc.y, loc.z, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos, zPos);
 		xPos.clear();
 		yPos.clear();
 		zPos.clear();
-		cellField.getNeighborsHamiltonianDistance(spreadingLocation.x, spreadingLocation.y, spreadingLocation.z, 1, globalParameters.getUseContinuousSpace(), spreadingLocNeighbouringCellsBag, xPos, yPos, zPos);
-		for(int i = 0; i < fieldLocNeighbouringCellsBag.size(); i++){
-			AbstractCell actOldNeighbour = (AbstractCell) fieldLocNeighbouringCellsBag.get(i);
-			if(actOldNeighbour!= null && actOldNeighbour != getCell()){
-				for(int n = 0; n < spreadingLocNeighbouringCellsBag.size(); n++){
-			   	if(spreadingLocNeighbouringCellsBag.get(n)!= null && spreadingLocNeighbouringCellsBag.get(n)!= getCell()){
-			   		if(spreadingLocNeighbouringCellsBag.get(n) == actOldNeighbour){
-			   			return false;
-			   		}
-			   	}
-				}
-			}
+		
+		for(int i = 0; i < neighbouringCellsBag.size(); i++){
+			AbstractCell actOldNeighbour = (AbstractCell) neighbouringCellsBag.get(i);
+			if(actOldNeighbour!= null && actOldNeighbour != getCell())return false;
 	   }
 		return true;
+	}
+	
+	private boolean wouldACellBeIsolated(Int3D loc){
+		Bag oldLocNeighbouringCellsBag = new Bag();
+		
+		IntBag xPos = new IntBag();
+		IntBag yPos = new IntBag();
+		IntBag zPos = new IntBag();	
+		cellField.getNeighborsMaxDistance(loc.x, loc.y, loc.z, 1, globalParameters.getUseContinuousSpace(), oldLocNeighbouringCellsBag, xPos, yPos, zPos);
+		for(int i = 0; i < xPos.size(); i++){
+			Object cell = cellField.get(xPos.get(i), yPos.get(i), zPos.get(i));
+			if(cell != null && cell != getCell()){
+				Bag neighbouringCellsBag = new Bag();
+				cellField.getNeighborsMaxDistance(xPos.get(i), yPos.get(i), zPos.get(i), 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, new IntBag(), new IntBag(), new IntBag());
+				boolean neighbourFound = false;
+				for(Object neighbourCell : neighbouringCellsBag){
+					if(neighbourCell!= null &&neighbourCell != getCell() && neighbourCell != cell){
+						neighbourFound = true;
+						break;
+					}
+				}
+				if(!neighbourFound){
+					return true;			
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean hasNeighbourhoodIntersection(){
+		Bag oldLocNeighbouringCellsBag = new Bag();
+		Bag newLocNeighbouringCellsBag = new Bag();
+		
+		IntBag xPos = new IntBag();
+		IntBag yPos = new IntBag();
+		IntBag zPos = new IntBag();	
+		cellField.getNeighborsMaxDistance(fieldLocation.x, fieldLocation.y, fieldLocation.z, 1, globalParameters.getUseContinuousSpace(), oldLocNeighbouringCellsBag, xPos, yPos, zPos);
+		cellField.getNeighborsMaxDistance(spreadingLocation.x, spreadingLocation.y, spreadingLocation.z, 1, globalParameters.getUseContinuousSpace(), newLocNeighbouringCellsBag, xPos, yPos, zPos);
+		
+		for(Object cellOld: oldLocNeighbouringCellsBag){
+			if(cellOld != null && cellOld != getCell()){
+				for(Object cellNew : oldLocNeighbouringCellsBag){
+					if(cellNew != null && cellNew != getCell() && cellNew == cellOld) return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	private void checkNonSpreadingNeighbourListForIntersectionConflicts(ArrayList<AbstractCell> nonSpreadingNeighbours, Int3D locationToBeLeft){
@@ -425,14 +466,52 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 				probabilityA = UPPER_PROBABILITY_LIMIT/2;
 				probabilityB = UPPER_PROBABILITY_LIMIT/2;
 			}
-			if(globalParameters.getStickToCellColony() && 
-					((!hasLocationNonSpreadingNeighbouringCells(spreadingLocation) && hasLocationNonSpreadingNeighbouringCells(fieldLocation))|| totallyLooseContactToOldNeighbourhoodUponRetraction())){
-				cellField.setFieldLocationOfObject(fieldLocation, getCell());
-				cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
-				if(!neighbourToPullB.isEmpty()) pullNeighbour(neighbourToPullB.get(0), spreadingLocation);
-				retraction = true;
-				spreadingLocation = null;
-				modelConnector.setIsSpreading(false);
+			boolean isolatedCellSpreadingLoc = wouldACellBeIsolated(spreadingLocation);
+			boolean isolatedCellFieldLoc = wouldACellBeIsolated(fieldLocation);
+			boolean wouldBeIsolatedSpreadingLoc = wouldThisCellBeIsolated(spreadingLocation);
+			boolean wouldBeIsolatedFieldLoc = wouldThisCellBeIsolated(fieldLocation);
+			boolean hasNeighbourhoodIntersection = hasNeighbourhoodIntersection();
+			if(globalParameters.getStickToCellColony() && (!hasNeighbourhoodIntersection ||(wouldBeIsolatedSpreadingLoc^wouldBeIsolatedFieldLoc))){
+				boolean retracting = false;
+				if(!hasNeighbourhoodIntersection && !isolatedCellSpreadingLoc && !wouldBeIsolatedFieldLoc){
+					//System.out.println("Intersection Field");
+					cellField.setFieldLocationOfObject(fieldLocation, getCell());
+					cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
+					if(!neighbourToPullB.isEmpty()) pullNeighbour(neighbourToPullB.get(0), spreadingLocation);
+					retracting=true;
+				}
+				else if(!hasNeighbourhoodIntersection && !isolatedCellFieldLoc && wouldBeIsolatedFieldLoc){
+					//System.out.println("A Cell at spreading");
+					cellField.setFieldLocationOfObject(fieldLocation, null);
+					cellField.setFieldLocationOfObject(spreadingLocation, getCell());
+					if(!neighbourToPullA.isEmpty()) pullNeighbour(neighbourToPullA.get(0), fieldLocation);
+					fieldLocation = spreadingLocation;
+					retracting=true;
+				}
+				else if(wouldBeIsolatedSpreadingLoc){
+					//System.out.println("Isolated spreading");
+					cellField.setFieldLocationOfObject(fieldLocation, getCell());
+					cellField.setSpreadingLocationOfObject(fieldLocation, spreadingLocation, null);
+					if(!neighbourToPullB.isEmpty()) pullNeighbour(neighbourToPullB.get(0), spreadingLocation);
+					retracting=true;
+				}
+				else if(wouldBeIsolatedFieldLoc){
+					//System.out.println("Isolated Field");
+					cellField.setFieldLocationOfObject(fieldLocation, null);
+					cellField.setFieldLocationOfObject(spreadingLocation, getCell());
+					if(!neighbourToPullA.isEmpty()) pullNeighbour(neighbourToPullA.get(0), fieldLocation);
+					fieldLocation = spreadingLocation;
+					retracting=true;
+				}
+				if(retracting){
+					retraction = true;
+					spreadingLocation = null;
+					modelConnector.setIsSpreading(false);
+				}
+				else{
+					modelConnector.setIsRetracting(false);
+					return;
+				}				
 			}	
 			else{
 				if(globalParameters.isChemotaxisEnabled()){
@@ -506,10 +585,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	   for(int i = 0; i < neighbouringCellsBag.size(); i++){
 	   	if(neighbouringCellsBag.get(i)== null){
 	   		if(!hasIntersectionWithNeighbours(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i)))){
-		   		if(globalParameters.getStickToCellColony() && hasLocationNonSpreadingNeighbouringCells(fieldLocation)){
-		   			if(hasLocationNonSpreadingNeighbouringCells(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i))))spreadingLocationIndices.add(i);
-		   		}
-		   		else spreadingLocationIndices.add(i);
+		   		spreadingLocationIndices.add(i);
 	   		}	   		
 	   	}
 	   }
@@ -535,21 +611,6 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		 }
 		 return false;
 	}
-	
-	private boolean hasLocationNonSpreadingNeighbouringCells(Int3D loc){
-		Bag neighbouringCellsBag = new Bag();
-		IntBag xPos = new IntBag();
-		IntBag yPos = new IntBag();
-		IntBag zPos = new IntBag();
-		cellField.getNeighborsHamiltonianDistance(loc.x, loc.y, loc.z, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos, zPos);
-		for(int i = 0; i < neighbouringCellsBag.size(); i++){
-	   	if(neighbouringCellsBag.get(i)!= null && neighbouringCellsBag.get(i)!= getCell()){
-	   		if(((HexagonBased3DMechanicalModel)((AbstractCell)neighbouringCellsBag.get(i)).getEpisimBioMechanicalModelObject()).isSpreading()) return true;	   		  		   
-	   	}
-	   }
-		return false;
-	}
-	
 	
 	@NoExport
 	public boolean isSpreading(){ return this.spreadingLocation != null; }
@@ -668,7 +729,6 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	}
    
    protected void newSimStepGloballyFinished(long simStepNumber) {
-   	
    }
    
    private CellBoundaries getEmptyLatticeCellBoundary(double xInMikron, double yInMikron, double zInMikron, double sizeDelta){

@@ -20,12 +20,14 @@ import episiminterfaces.monitoring.EpisimDataExportDefinitionSet;
 public class DataExportCompiler extends AbstractCommonCompiler {
 	private DataExportSourceBuilder dataExportSourceBuilder;
 	private DataExportFactorySourceBuilder factorySourceBuilder;
-	private final String TMPPATH = System.getProperty("java.io.tmpdir", "temp")+ "episimdataexport"+ System.getProperty("file.separator");
+	private final String TMPPATH;
 	private List<File> factoryFiles = null;
 	private List<File> dataExportFiles = null;
 	
 	public DataExportCompiler(){
-		
+		String userTmpDir = System.getProperty("java.io.tmpdir", "temp");
+		if(!userTmpDir.endsWith(System.getProperty("file.separator"))) userTmpDir = userTmpDir.concat(System.getProperty("file.separator"));
+		TMPPATH= userTmpDir+ "episimdataexports"+ System.getProperty("file.separator");
 		this.dataExportSourceBuilder = new DataExportSourceBuilder();
 		this.factorySourceBuilder = new DataExportFactorySourceBuilder();
 	}

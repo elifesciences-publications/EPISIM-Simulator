@@ -92,6 +92,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	private static final String BM_FILE_PARAM_PREFIX = "-bm";
 	private static final String M_FILE_PARAM_PREFIX = "-mp";
 	private static final String SIM_ID_PARAM_PREFIX = "-id";
+	private static final String DATA_EXPORT_FOLDER_PARAM_PREFIX = "-ef";
 	private static final String HELP = "-help";
 	
 	private JFrame mainFrame;
@@ -322,7 +323,8 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				if(args[i].equals(EpisimSimulator.BM_FILE_PARAM_PREFIX) 
 						|| args[i].equals(EpisimSimulator.CB_FILE_PARAM_PREFIX)
 						|| args[i].equals(EpisimSimulator.SIM_ID_PARAM_PREFIX)
-						|| args[i].equals(EpisimSimulator.M_FILE_PARAM_PREFIX)){
+						|| args[i].equals(EpisimSimulator.M_FILE_PARAM_PREFIX)
+						|| args[i].equals(EpisimSimulator.DATA_EXPORT_FOLDER_PARAM_PREFIX)){
 					
 					if((i+1) >= args.length) throw new PropertyException("Missing value after parameter: "+ args[i]);
 					if(args[i].equals(EpisimSimulator.BM_FILE_PARAM_PREFIX) 
@@ -341,6 +343,11 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 						else if(args[i].equals(EpisimSimulator.M_FILE_PARAM_PREFIX)){
 							EpisimProperties.setProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP, path.getAbsolutePath());
 						}
+					}
+					else if(args[i].equals(EpisimSimulator.DATA_EXPORT_FOLDER_PARAM_PREFIX)){
+							File path = new File(args[i+1]);							
+							if(!path.exists() || !path.isDirectory()) new PropertyException("Path: " + args[i+1] + " doesn't point to an existing folder" + args[i]);						
+							EpisimProperties.setProperty(EpisimProperties.SIMULATOR_DATAEXPORT_CSV_OVERRIDE_FOLDER, path.getAbsolutePath());							
 					}
 					else if(args[i].equals(EpisimSimulator.SIM_ID_PARAM_PREFIX)){
 						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1].trim());
@@ -386,6 +393,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		sb.append("\t[-cb path] to the cell behavioral model parameters file\n");
 		sb.append("\t[-mp path] to the miscellaneous parameters file\n");
 		sb.append("\t[-id identifier] of the current simulation run\n");
+		sb.append("\t[-ef path] of the data export folder used to override the originally defined one\n");
 		System.out.println(sb.toString());
 	}
 	

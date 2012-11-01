@@ -11,7 +11,9 @@ import java.util.Locale;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 
 import sim.SimStateServer;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
@@ -31,8 +33,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 	private String description = "";
 	
 	public DiffusionFieldDataExportCSVWriter(File csvFile, String diffusionFieldName){
-		this.csvFile = csvFile;
-		this.diffusionFieldName = diffusionFieldName;
+		this(csvFile, diffusionFieldName, "", "");
 	}
 	
 	public DiffusionFieldDataExportCSVWriter(File csvFile, String diffusionFieldName, String name, String description){
@@ -40,6 +41,39 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 		this.diffusionFieldName = diffusionFieldName;
 		this.name = name;
 		this.description = description;
+		if(ModeServer.consoleInput()){
+			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID)!= null){
+				String path;
+            try{
+	            path = this.csvFile.getCanonicalPath();
+	            if(path != null && path.length() > 4 ){
+						path = path.substring(0, path.length()-4);
+						path = path.concat("_");
+						path = path.concat(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID));
+						path = path.concat(".csv");
+						this.csvFile = new File(path);
+					}
+            }
+            catch (Exception e){
+	           ExceptionDisplayer.getInstance().displayException(e);
+            }				
+			}
+			String overrideFolder = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORT_CSV_OVERRIDE_FOLDER);
+			if(overrideFolder!= null){
+				if(!overrideFolder.endsWith(System.getProperty("file.separator"))) overrideFolder = overrideFolder.concat(System.getProperty("file.separator"));
+				String filename;
+            try{
+	            filename = this.csvFile.getName();
+	            if(filename != null && filename.length() > 4 ){
+					
+						this.csvFile = new File(overrideFolder+filename);
+					}
+            }
+            catch (Exception e){
+	           ExceptionDisplayer.getInstance().displayException(e);
+            }				
+			}
+		}
 	}
 	
 	public void writeDiffusionFieldToDisk(){

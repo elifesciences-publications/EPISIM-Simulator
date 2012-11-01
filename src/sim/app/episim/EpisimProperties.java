@@ -50,6 +50,7 @@ public class EpisimProperties {
 	public static final String SIMULATOR_MISCPARAMETERSFILE_PROP = "simulator.miscparametersfile";
 	public static final String SIMULATOR_CHARTSETPATH = "simulator.chartsetpath";
 	public static final String SIMULATOR_DATAEXPORTPATH = "simulator.dataexportpath";
+	public static final String SIMULATOR_DATAEXPORT_CSV_OVERRIDE_FOLDER = "simulator.dataexport.csvoverridefolder";
 	public static final String SIMULATOR_CHARTPNGPRINTPATH = "simulator.chartpngprintpath";	
 	public static final String SIMULATOR_CHARTPNGPRINTFREQ = "simulator.chartpngprintfreq";
 	

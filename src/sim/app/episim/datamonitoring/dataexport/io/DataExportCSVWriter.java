@@ -20,7 +20,9 @@ import java.util.Vector;
 
 import org.jfree.data.statistics.SimpleHistogramBin;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.ModeServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
 import sim.app.episim.util.ObservedDataCollection;
@@ -63,8 +65,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	private ObservedDataCollection<Double> singleDataCollection = null;
 	
 	public DataExportCSVWriter(File csvFile, String columnNames) {		
-		this.csvFile = csvFile;		
-		this.columnNames = columnNames;
+		this(csvFile, columnNames, "", "");
 	}
 	
 	public DataExportCSVWriter(File csvFile, String columnNames, String name, String description) {		
@@ -72,6 +73,39 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		this.columnNames = columnNames;
 		this.name = name;
 		this.description = description;
+		if(ModeServer.consoleInput()){
+			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID)!= null){
+				String path;
+            try{
+	            path = this.csvFile.getCanonicalPath();
+	            if(path != null && path.length() > 4 ){
+						path = path.substring(0, path.length()-4);
+						path = path.concat("_");
+						path = path.concat(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID));
+						path = path.concat(".csv");
+						this.csvFile = new File(path);
+					}
+            }
+            catch (Exception e){
+	           ExceptionDisplayer.getInstance().displayException(e);
+            }				
+			}
+			String overrideFolder = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORT_CSV_OVERRIDE_FOLDER);
+			if(overrideFolder!= null){
+				if(!overrideFolder.endsWith(System.getProperty("file.separator"))) overrideFolder = overrideFolder.concat(System.getProperty("file.separator"));
+				String filename;
+            try{
+	            filename = this.csvFile.getName();
+	            if(filename != null && filename.length() > 4 ){
+					
+						this.csvFile = new File(overrideFolder+filename);
+					}
+            }
+            catch (Exception e){
+	           ExceptionDisplayer.getInstance().displayException(e);
+            }				
+			}
+		}
 	}
 	
 	public void registerObservedDataCollection(final long columnId, ObservedDataCollection<Double> map){

@@ -20,9 +20,9 @@ public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonB
 	private double numberOfPixelsPerMicrometer = 1;
 	
 	
-	private double number_of_columns =50;
-	private double number_of_rows =50;
-	private double number_of_initially_occupied_columns =10;
+	private double number_of_columns =54;
+	private double number_of_rows =47;
+	private double number_of_initially_occupied_columns =8;
 	private int initialCellDensityInPercent = 100;
 	private int initialSecretionCellDensityInPercent = 100;
 	

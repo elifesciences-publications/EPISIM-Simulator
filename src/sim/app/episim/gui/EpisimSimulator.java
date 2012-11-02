@@ -286,7 +286,15 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 
 										public void run() {
 											try{
-	                                 Thread.sleep(100000);
+												long waitingTimeInMs=100000;
+												if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_WAITINGTIME_BEFORE_SHUTDOWN_IN_MS) != null){
+													try{
+														waitingTimeInMs = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_WAITINGTIME_BEFORE_SHUTDOWN_IN_MS));
+													}
+													catch(NumberFormatException e){}
+												}
+												
+	                                 Thread.sleep(waitingTimeInMs);
 	                                 System.out.println("\n======================= Shutting down EPISIM Simulator =======================");
 	      	                        if(epiUI != null){
 	      	         						epiUI.closeConsole();

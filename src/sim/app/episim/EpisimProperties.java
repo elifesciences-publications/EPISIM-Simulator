@@ -38,6 +38,7 @@ public class EpisimProperties {
 	
 	public static final String SIMULATOR_AUTOSTART_AND_STOP_PROP = "simulator.autostartandstop";
 	public static final String SIMULATOR_MAX_SIMULATION_STEPS_PROP = "simulator.maxsimulationsteps";
+	public static final String SIMULATOR_WAITINGTIME_BEFORE_SHUTDOWN_IN_MS ="simulator.waitingTimeBeforeShutdownInMs";
 	public static final String SIMULATOR_SEND_RECEIVE_ALGORITHM = "simulator.sendreceivealgorithm";
 	
 	public static final String SIMULATOR_SIM_STEP_MODE = "simulator.simstepmode";

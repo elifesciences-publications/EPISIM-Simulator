@@ -47,18 +47,16 @@ public class HexagonBased2DMechModelSingleSurfaceInit extends BiomechanicalModel
 		
 		
 		int delta = (int)globalParameters.getNumber_of_initially_occupied_columns()/2;
-			
-		for(int y = ((height/2)-delta); y < ((height/2)+delta); y++){
-			for(int x = 0; x < delta; x++){
+		for(int y = 0; y < delta; y++){
+			for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){			
 				UniversalCell cell = new UniversalCell(null, null, true);
 				((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 				if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 				standardCellEnsemble.add(cell);
 			}
 		}		
-		
-		for(int y = ((height/2)-delta); y < ((height/2)+delta); y++){			
-			for(int x = width-1; x > ((width-1)-delta); x--){
+		for(int y = height-1; y > ((height-1)-delta); y--){
+			for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){	
 				UniversalCell cell = new UniversalCell(null, null, true);
 				((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 				if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);

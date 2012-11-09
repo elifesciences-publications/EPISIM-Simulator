@@ -6,7 +6,7 @@ import episiminterfaces.NoUserModification;
 
 public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 
-	
+	//TODO: Make this flexible
 	private static final double celldiameter_mikron = 50;
 	public static final double hexagonal_radius = (celldiameter_mikron/2d);
 	

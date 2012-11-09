@@ -119,7 +119,7 @@ public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonB
    }	
 	
 
-	public void setCellDiameterMikron(double val) {
+	public void setCellDiameterInMikron(double val) {
 		if(val > 0){
 			double widthInMikron = getWidthInMikron();
 			double heightInMikron = getHeightInMikron();
@@ -136,7 +136,7 @@ public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonB
 	public double getCellDiameterInMikron() {
 		return celldiameter_mikron ;
    }
-	
+			
 	@NoExport
 	public void setHeightInMikron(double val) {
 		if(val > 0){
@@ -248,16 +248,28 @@ public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonB
    	this.initialSecretionCellDensityInPercent = initialSecretionCellDensityInPercent;
    }
 
-	
+   @NoUserModification
    public double getInner_hexagonal_radius() {
    
    	return inner_hexagonal_radius;
    }
 
-	
+   @NoUserModification
    public double getOuter_hexagonal_radius() {
    
    	return outer_hexagonal_radius;
+   }
+   
+   @NoUserModification
+   public void setInner_hexagonal_radius(double val) {
+   
+   	inner_hexagonal_radius=val;
+   }
+
+   @NoUserModification
+   public void setOuter_hexagonal_radius(double val) {
+   
+   	outer_hexagonal_radius = val;
    }
 
 }

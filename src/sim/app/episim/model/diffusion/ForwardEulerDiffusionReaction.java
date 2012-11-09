@@ -49,7 +49,6 @@ public class ForwardEulerDiffusionReaction {
 		//manipulate delta_time if diffusion coefficient is too large
 		if(dt_dx2*diffConst > DIFFUSION_COEFFICIENT_THRESHHOLD){
 			numberOfIterations = Math.floor((dt_dx2*diffConst)/DIFFUSION_COEFFICIENT_THRESHHOLD);
-			dt /= numberOfIterations;
 			dt_dx2 /= numberOfIterations;
 		}	
 		double currentConcentration = 0;
@@ -61,9 +60,9 @@ public class ForwardEulerDiffusionReaction {
 			for(int yPos = startY; yPos < stopY; yPos++){
 				for(int xPos = startX; xPos < stopX; xPos++){
 					currentConcentration = currentValueField.get(xPos, yPos);
-					
+					newConcentration = 0;
 					newConcentration = dt_dx2*diffConst*laplacian(xPos,yPos, currentValueField)+currentConcentration;
-					newConcentration -= dt*(decayConst*currentConcentration);
+					if(i==(numberOfIterations-1))newConcentration -= dt*(decayConst*newConcentration);
 					if(newConcentration > maxConcentration) newConcentration = maxConcentration;
 					if(newConcentration < minConcentration) newConcentration = minConcentration;
 					newValueField.set(xPos, yPos, newConcentration);
@@ -71,7 +70,7 @@ public class ForwardEulerDiffusionReaction {
 			}
 			currentValueField.setTo(newValueField);
 			newValueField.setTo(0);
-		}
+		}	
 		long end = System.currentTimeMillis();
 		//System.out.println("Calculation Time in miliseconds for Diffusion Field: " +((end-start)));
 	}
@@ -103,7 +102,6 @@ public class ForwardEulerDiffusionReaction {
 		//manipulate delta_time if diffusion coefficient is too large
 		if(dt_dx2*diffConst > DIFFUSION_COEFFICIENT_THRESHHOLD){
 			numberOfIterations = Math.floor((dt_dx2*diffConst)/DIFFUSION_COEFFICIENT_THRESHHOLD);
-			dt /= numberOfIterations;
 			dt_dx2 /= numberOfIterations;
 		}	
 		double currentConcentration = 0;
@@ -117,9 +115,9 @@ public class ForwardEulerDiffusionReaction {
 				for(int yPos = startY; yPos < stopY; yPos++){
 					for(int xPos = startX; xPos < stopX; xPos++){
 						currentConcentration = currentValueField.get(xPos, yPos, zPos);
-						
+						newConcentration = 0;
 						newConcentration = dt_dx2*diffConst*laplacian(xPos,yPos, zPos, currentValueField)+currentConcentration;
-						newConcentration -= dt*(decayConst*currentConcentration);
+						if(i==(numberOfIterations-1))newConcentration -= dt*(decayConst*newConcentration);
 						if(newConcentration > maxConcentration) newConcentration = maxConcentration;
 						if(newConcentration < minConcentration) newConcentration = minConcentration;
 						newValueField.set(xPos, yPos, zPos, newConcentration);

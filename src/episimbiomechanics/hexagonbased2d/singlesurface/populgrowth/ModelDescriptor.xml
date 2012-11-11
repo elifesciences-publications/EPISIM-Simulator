@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2012-11-11_episimbiomechanics.hexagonbased2d.singlesurface.populgrowth.EpisimPopulationGrowthMC"/>
+  <modelname name="Episim Population Growth Test Model"/>
+  <modelconnectorclass name="episimbiomechanics.hexagonbased2d.singlesurface.populgrowth.EpisimPopulationGrowthMC"/>
+  <modelparameters>
+    <parameter datatype="boolean" default="false" name="isSpreading" readonly="false"/>
+    <parameter datatype="double" default="0.7"
+      name="cellCellInteractionEnergy" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isProliferating" readonly="false"/>
+    <parameter datatype="double" default="1.0" name="lambdaChem" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isRetracting" readonly="false"/>
+    <parameter datatype="String" default="" name="chemotacticField" readonly="false"/>
+  </modelparameters>
+</modeldescriptor>

@@ -38,7 +38,6 @@ public class Ellipsoid {
 		Matrix3d rotM = new Matrix3d();
 		transform.get(rotM);
 		rotM.mul(rotM, identityMatrix);
-		
 		Vector3d[] vect = new Vector3d[]{ new Vector3d(), new Vector3d(),new Vector3d()};
 		
 		for(int i = 0; i < vect.length; i++) rotM.getColumn(i, vect[i]);

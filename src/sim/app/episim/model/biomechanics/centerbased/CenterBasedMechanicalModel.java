@@ -384,9 +384,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			//////////////////////////////////////////////////
 			// optimise my own position by giving way to the calculated pressures
 			Vector2d reactionForce = externalForce;
-			hitResult1.adhForce.scale(globalParameters.getCohesion());
-			reactionForce.add(hitResult1.adhForce);				
-			if(reactionForce.length() > actionForce.length())reactionForce = setVector2dLength(reactionForce, actionForce.length());
+			double reactLength= reactionForce.length();
+			double actLength = actionForce.length();
+			double reactionForceLengthScaled = (actLength/(1+ Math.exp((actLength-reactLength)/0.01*actLength)));
+			//if(reactionForce.length() > actionForce.length()) 
+				reactionForce = setVector2dLength(reactionForce, actionForce.length());
 	
 			
 	
@@ -417,7 +419,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			neighbours = cellField.getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), true, false); // theEpidermis.neighborhood
 			HitResult hitResult2;
 			hitResult2 = hitsOther(neighbours, potentialLoc, true);
-	
+			externalForce.x = 0;
+			externalForce.y = 0;
 			// move only on pressure when not stem cell
 			if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
 				if((hitResult2.numhits == 0)

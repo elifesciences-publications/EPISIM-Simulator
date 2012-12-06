@@ -177,7 +177,6 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
               
              double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(otherloc.x, otherloc.y, otherloc.z), getKeratinoWidth()/2, getKeratinoHeight()/2, getKeratinoLength()/2);
              double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point3d(otherloc.x, otherloc.y, otherloc.z), new Point3d(thisloc.x, thisloc.y, thisloc.z), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2, mechModelOther.getKeratinoLength()/2);
-             
              double optDist = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther), other); 
              
              double actdist=Math.sqrt(dx*dx+dy*dy+dz*dz);
@@ -218,8 +217,8 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    	}
 		
 	}
-   
-   private double calculateDistanceToCellCenter(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
+   //Old slow version
+   /*private double calculateDistanceToCellCenter(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
 		 
 		 Vector3d rayDirection = new Vector3d((cellCenter.x-otherCellCenter.x), (cellCenter.y-otherCellCenter.y), (cellCenter.z-otherCellCenter.z));
 		 rayDirection.normalize();
@@ -260,7 +259,36 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	    Point3d intersectionPointEllipsoid = new Point3d((cellCenter.x+ rayPosition.x + linefactor*rayDirection.x),(cellCenter.y+ rayPosition.y + linefactor*rayDirection.y),(cellCenter.z+ rayPosition.z + linefactor*rayDirection.z));
 	   
 	    return cellCenter.distance(intersectionPointEllipsoid);
+	}*/
+   
+   private static double calculateDistanceToCellCenter(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
+		 
+		 Vector3d rayDirection = new Vector3d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y), (otherCellCenter.z-cellCenter.z));
+		 rayDirection.normalize();
+		 //calculates the intersection of an ray with an ellipsoid
+		 double aAxis_2=aAxis * aAxis;
+		 double bAxis_2=bAxis * bAxis;
+		 double cAxis_2=cAxis * cAxis;
+		 
+	    double a = ((rayDirection.x * rayDirection.x) / (aAxis_2))
+	            + ((rayDirection.y * rayDirection.y) / (bAxis_2))
+	            + ((rayDirection.z * rayDirection.z) / (cAxis_2));
+	  
+	    if (a < 0)
+	    {
+	       System.out.println("Error in optimal Ellipsoid distance calculation"); 
+	   	 return -1;
+	    }
+	   double sqrtA = Math.sqrt(a);	 
+	   double hit = 1 / sqrtA;
+	   double hitsecond = -1*(1 / sqrtA);
+	    
+	   double linefactor = hit < hitsecond ? hit : hitsecond;
+	   Point3d intersectionPointEllipsoid = new Point3d((cellCenter.x+ linefactor*rayDirection.x),(cellCenter.y+ linefactor*rayDirection.y),(cellCenter.z+ linefactor*rayDirection.z));
+	   
+	   return cellCenter.distance(intersectionPointEllipsoid);
 	}
+   
    
    private double normalizeOptimalDistance(double distance, AbstractCell otherCell){
    	EpisimDifferentiationLevel thisDiffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
@@ -428,10 +456,12 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		//////////////////////////////////////////////////
 		// optimise my own position by giving way to the calculated pressures
 		Vector3d reactionForce = externalForce;
-		hitResult1.adhForce.scale(globalParameters.getCohesion());
-		reactionForce.add(hitResult1.adhForce);
+		double reactLength= reactionForce.length();
+		double actLength = actionForce.length();
+		double reactionForceLengthScaled = (actLength/(1+ Math.exp((0.75*actLength-reactLength)/0.02*actLength)));
+		//if(reactionForce.length() > actionForce.length()) 
+			reactionForce = setVector3dLength(reactionForce, reactionForceLengthScaled);
 
-		if(reactionForce.length() > actionForce.length())reactionForce = setVector3dLength(reactionForce,actionForce.length());
 
 		externalForce.x = 0;
 		externalForce.y = 0;
@@ -460,7 +490,9 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		neighbours = cellField.getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), false);
 		HitResult hitResult2;
 		hitResult2 = hitsOther(neighbours, potentialLoc, true);
-
+		externalForce.x = 0;
+		externalForce.y = 0;
+		externalForce.z = 0;
 		// move only on pressure when not stem cell
 		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
 			if((hitResult2.numhits == 0)

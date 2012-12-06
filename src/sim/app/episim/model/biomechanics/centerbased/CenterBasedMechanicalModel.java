@@ -386,9 +386,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			Vector2d reactionForce = externalForce;
 			double reactLength= reactionForce.length();
 			double actLength = actionForce.length();
-			double reactionForceLengthScaled = (actLength/(1+ Math.exp((actLength-reactLength)/0.01*actLength)));
+			double reactionForceLengthScaled = (actLength/(1+ Math.exp((0.75*actLength-reactLength)/0.02*actLength)));
 			//if(reactionForce.length() > actionForce.length()) 
-				reactionForce = setVector2dLength(reactionForce, actionForce.length());
+				reactionForce = setVector2dLength(reactionForce, reactionForceLengthScaled);
 	
 			
 	

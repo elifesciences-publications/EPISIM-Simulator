@@ -72,15 +72,15 @@ public class HexagonBased2DMechModelSingleSurfaceInit extends BiomechanicalModel
 		HexagonBasedMechanicalModelSingleSurfaceGP globalParameters = (HexagonBasedMechanicalModelSingleSurfaceGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int width = (int) (globalParameters.getNumber_of_columns());
 		int height = (int) globalParameters.getNumber_of_rows();
-		globalParameters.setNumber_of_initially_occupied_columns(globalParameters.getNumber_of_columns()/4);
+		//globalParameters.setNumber_of_initially_occupied_columns(globalParameters.getNumber_of_columns()/4);
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
-		int delta = (int)globalParameters.getNumber_of_initially_occupied_columns()/3;
+		int delta = (int)globalParameters.getNumber_of_initially_occupied_columns()/4;
 		delta = delta==0 ? 1 : delta;		
 		for(int y = ((height/2)-delta);y < ((height/2)+delta); y++){			
 			for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 				UniversalCell cell = new UniversalCell(null, null, true);
 				((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
-				if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+				if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
 				standardCellEnsemble.add(cell);
 			}
 		}		

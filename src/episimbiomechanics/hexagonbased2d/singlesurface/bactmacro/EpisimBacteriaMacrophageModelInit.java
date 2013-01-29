@@ -54,14 +54,18 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 		globalParameters.setWidthInMikron(200);
 		globalParameters.setHeightInMikron(200);
 		globalParameters.setNumber_of_initially_occupied_columns(0);
-		globalParameters.setInitialCellDensityInPercent(100);		
+		globalParameters.setInitialCellDensityInPercent(40);		
 		globalParameters.setUseCellCellInteractionEnergy(false);
+		globalParameters.setAddSecretingCellColony(false);
 	}
 	
 	private void addMakrophageColony(ArrayList<UniversalCell> standardCellEnsemble){
 		HexagonBasedMechanicalModelSingleSurfaceGP globalParameters = (HexagonBasedMechanicalModelSingleSurfaceGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int xPos = 0;//(float)(globalParameters.getNumber_of_columns() /2d);
-		int yPos = (int)(globalParameters.getNumber_of_rows() /2d);	
+		int yPos = (int)(globalParameters.getNumber_of_rows() /2d);
+		if(globalParameters.getWidthInMikron() >250){
+			xPos = (int)((globalParameters.getNumber_of_columns() /2d)-7);
+		}
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
 		double cellDensity = globalParameters.getInitialSecretionCellDensityInPercent() / 100d;
 		double rn =random.nextDouble();
@@ -80,7 +84,9 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 		HexagonBasedMechanicalModelSingleSurfaceGP globalParameters = (HexagonBasedMechanicalModelSingleSurfaceGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int xPos = (int)(globalParameters.getNumber_of_columns() - 1);
 		int yPos = (int)(globalParameters.getNumber_of_rows() /2d);
-	
+		if(globalParameters.getWidthInMikron() >250){
+			xPos = (int)((globalParameters.getNumber_of_columns() /2d)+6);
+		}
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
 		double cellDensity = globalParameters.getInitialSecretionCellDensityInPercent() / 100d;
 		double rn =random.nextDouble();

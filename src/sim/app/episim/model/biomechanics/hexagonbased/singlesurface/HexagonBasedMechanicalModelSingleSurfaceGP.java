@@ -38,7 +38,7 @@ public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonB
 	
 	
 	private boolean addSecretingCellColony=true;
-	
+	private boolean addErythrocyteColony=false;
 
 	
    public double getNumber_of_columns() {
@@ -78,9 +78,12 @@ public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonB
    public void setAddSecretingCellColony(boolean addSecretingCellColony) {
 	   this.addSecretingCellColony = addSecretingCellColony;
    }
+   
 	
-	
-	
+   public boolean getAddErythrocyteColony(){ return addErythrocyteColony; }	
+   public void setAddErythrocyteColony(boolean addErythrocyteColony) {
+	   this.addErythrocyteColony = addErythrocyteColony;
+   }
 	public double getNeighborhood_mikron() {
 	   return this.neighborhood_mikron;
    }

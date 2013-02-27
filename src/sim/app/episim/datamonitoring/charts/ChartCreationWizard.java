@@ -740,7 +740,6 @@ public class ChartCreationWizard extends JDialog {
 				
 				
 				Set<CalculationAlgorithmType> allowedTypes = new HashSet<CalculationAlgorithmType>();
-				if(areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMDATASERIESRESULT)) allowedTypes.add(CalculationAlgorithmType.ONEDIMDATASERIESRESULT);
 				if(areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMRESULT)) allowedTypes.add(CalculationAlgorithmType.ONEDIMRESULT);
 				
 				
@@ -1046,15 +1045,8 @@ public class ChartCreationWizard extends JDialog {
    	
    
    	
-   	if(descr.getType() == CalculationAlgorithmType.ONEDIMDATASERIESRESULT){
-   		if(this.baselineCalculationAlgorithmConfigurator != null 
-   				&& CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(this.baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getType() == CalculationAlgorithmType.ONEDIMRESULT)
-   				deactivateBaseLine = true;
-   	}
-   	else if(descr.getType() == CalculationAlgorithmType.ONEDIMRESULT){
-      		if(this.baselineCalculationAlgorithmConfigurator != null 
-      				&& CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(this.baselineCalculationAlgorithmConfigurator.getCalculationAlgorithmID()).getType() == CalculationAlgorithmType.ONEDIMDATASERIESRESULT)
-      				deactivateBaseLine = true;
+   	if(descr.getType() == CalculationAlgorithmType.ONEDIMRESULT){
+      		
       }
    	else deactivateBaseLine = true;
    	
@@ -1105,7 +1097,7 @@ public class ChartCreationWizard extends JDialog {
    private boolean checkIfBaseLineShouldBeEnabled(){
    		
    	
-   	return (areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMDATASERIESRESULT) || areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMRESULT));
+   	return (areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMRESULT));
    }
    
    private boolean areAllChartSeriesOfType(CalculationAlgorithmType type){

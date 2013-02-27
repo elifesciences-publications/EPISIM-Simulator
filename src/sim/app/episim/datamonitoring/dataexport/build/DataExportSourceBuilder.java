@@ -85,7 +85,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 		   
 		   for(EpisimDataExportColumn actColumn: this.actDataExportDefinition.getEpisimDataExportColumns()){
 		   	CalculationAlgorithmType type = CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(actColumn.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType();
-		   	if(type == CalculationAlgorithmType.ONEDIMDATASERIESRESULT || type == CalculationAlgorithmType.ONEDIMRESULT){
+		   	if(type == CalculationAlgorithmType.ONEDIMRESULT){
 			   	generatedSourceCode.append("  private ObservedDataCollection<Double> "+Names.convertClassToVariable(Names.cleanString(actColumn.getName())+actColumn.getId())+
 			   			" = new ObservedDataCollection<Double>(ObservedDataCollectionType.ONEDIMTYPE);\n");
 		   	}

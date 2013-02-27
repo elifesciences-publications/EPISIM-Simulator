@@ -79,7 +79,7 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 			}
 			else{
 				CalculationAlgorithmType type = CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(handler.getCalculationAlgorithmID()).getType();
-				if(type == CalculationAlgorithmType.ONEDIMDATASERIESRESULT || type == CalculationAlgorithmType.ONEDIMRESULT){
+				if(type == CalculationAlgorithmType.ONEDIMRESULT){
 					if((baselineResultTempRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID()) 
 							&& baselineResultTempRegistry.get(handler.getCorrespondingBaselineCalculationHandlerID()).getTimeStep() != timeStep)
 							|| (!baselineResultTempRegistry.containsKey(handler.getCorrespondingBaselineCalculationHandlerID())

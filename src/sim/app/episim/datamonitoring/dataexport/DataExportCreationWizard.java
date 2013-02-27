@@ -816,7 +816,6 @@ public class DataExportCreationWizard extends JDialog {
 					
 					if(episimDataExportDefinition.getEpisimDataExportColumns().size() <= 1){
 						Set<CalculationAlgorithmType> allowedTypes = new HashSet<CalculationAlgorithmType>();
-						allowedTypes.add(CalculationAlgorithmType.ONEDIMDATASERIESRESULT);
 						allowedTypes.add(CalculationAlgorithmType.TWODIMDATASERIESRESULT);
 						allowedTypes.add(CalculationAlgorithmType.MULTIDIMDATASERIESRESULT);
 						allowedTypes.add(CalculationAlgorithmType.HISTOGRAMRESULT);
@@ -878,7 +877,6 @@ public class DataExportCreationWizard extends JDialog {
 					}
 				}
 			}
-			allowedTypes.add(CalculationAlgorithmType.ONEDIMDATASERIESRESULT);
 			allowedTypes.add(CalculationAlgorithmType.TWODIMDATASERIESRESULT);
 			allowedTypes.add(CalculationAlgorithmType.MULTIDIMDATASERIESRESULT);
 			allowedTypes.add(CalculationAlgorithmType.TWODIMRESULT);

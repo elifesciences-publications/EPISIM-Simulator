@@ -43,6 +43,10 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
+		HexagonBasedMechanicalModelSingleSurfaceGP globalParameters = (HexagonBasedMechanicalModelSingleSurfaceGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		if(globalParameters.getAddErythrocyteColony()){
+			addErythrocyteColony(standardCellEnsemble);
+		}
 		addMakrophageColony(standardCellEnsemble);
 		addBacteriaColony(standardCellEnsemble);
 		return standardCellEnsemble;
@@ -51,10 +55,10 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 	
 	private void setInitialGlobalParametersValues(HexagonBasedMechanicalModelSingleSurfaceGP globalParameters){
 		globalParameters.setCellDiameterInMikron(20);
-		globalParameters.setWidthInMikron(200);
-		globalParameters.setHeightInMikron(200);
+		globalParameters.setWidthInMikron(600);
+		globalParameters.setHeightInMikron(600);
 		globalParameters.setNumber_of_initially_occupied_columns(0);
-		globalParameters.setInitialCellDensityInPercent(40);		
+		globalParameters.setInitialCellDensityInPercent(25);		
 		globalParameters.setUseCellCellInteractionEnergy(false);
 		globalParameters.setAddSecretingCellColony(false);
 	}
@@ -67,15 +71,13 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 			xPos = (int)((globalParameters.getNumber_of_columns() /2d)-7);
 		}
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
-		double cellDensity = globalParameters.getInitialSecretionCellDensityInPercent() / 100d;
-		double rn =random.nextDouble();
-			//if(rn < cellDensity){
+		
 				
 				
 		UniversalCell cell = new UniversalCell(null, null, true);
 		((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
 		((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[xPos][yPos] = cell;
-			
+		//System.out.println("Macrophage: "+((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).getLocationInMikron());	
 		if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 		standardCellEnsemble.add(cell);			
 		
@@ -88,17 +90,38 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 			xPos = (int)((globalParameters.getNumber_of_columns() /2d)+6);
 		}
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
-		double cellDensity = globalParameters.getInitialSecretionCellDensityInPercent() / 100d;
-		double rn =random.nextDouble();
-			//if(rn < cellDensity){
+	
 				
 				
 		UniversalCell cell = new UniversalCell(null, null, true);
 		((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
-		((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[xPos][yPos] = cell;
-			
+		((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[xPos][yPos] = cell;			
 		if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
 		standardCellEnsemble.add(cell);			
+		
+	}
+	
+	private void addErythrocyteColony(ArrayList<UniversalCell> standardCellEnsemble){
+		HexagonBasedMechanicalModelSingleSurfaceGP globalParameters = (HexagonBasedMechanicalModelSingleSurfaceGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		int noCols = (int)(globalParameters.getNumber_of_columns());
+		int noRows = (int)(globalParameters.getNumber_of_rows());
+		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
+		double cellDensity = globalParameters.getInitialCellDensityInPercent()/100d;
+		int erythrocyteCounter = 0;
+		for(int y = 0;y<noRows;y++){
+			for(int x = 0;x<noCols;x++){
+				double rn =random.nextDouble();
+				if(rn < cellDensity){				
+					UniversalCell cell = new UniversalCell(null, null, true);
+					((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
+					((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
+						
+					if(cellTypes.length >=4) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[3]);
+					standardCellEnsemble.add(cell);
+					erythrocyteCounter++;
+				}
+			}			
+		}
 		
 	}
 	

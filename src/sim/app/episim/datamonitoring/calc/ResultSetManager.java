@@ -12,7 +12,7 @@ public abstract class ResultSetManager {
 	
 	public static <T> ResultSet<T> createResultSetForCalculationAlgorithm(int calculationAlgorithmID){
 		CalculationAlgorithmType type = CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(calculationAlgorithmID).getType();
-		if(type == CalculationAlgorithmType.ONEDIMRESULT || type == CalculationAlgorithmType.HISTOGRAMRESULT || type == CalculationAlgorithmType.ONEDIMDATASERIESRESULT){
+		if(type == CalculationAlgorithmType.ONEDIMRESULT || type == CalculationAlgorithmType.HISTOGRAMRESULT){
 			return new ResultSet<T>(ResultSetType.ONEDIMRESULTS);
 		}
 		else if(type == CalculationAlgorithmType.TWODIMDATASERIESRESULT || type == CalculationAlgorithmType.TWODIMRESULT){  

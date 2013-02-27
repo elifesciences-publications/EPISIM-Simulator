@@ -12,7 +12,9 @@ import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
 
-public class CellPositionTrackerConditioned extends OneCellConditionedCalculationAlgorithm{
+public class CellPositionTrackerConditioned {}
+
+/*extends OneCellConditionedCalculationAlgorithm{
 	public static final String X = "X coordinate";
 	public static final String Y = "Y coordinate";
 	public static final String Z = "Z coordinate";
@@ -86,4 +88,4 @@ public class CellPositionTrackerConditioned extends OneCellConditionedCalculatio
 			} 
    }
 
-}
+}*/

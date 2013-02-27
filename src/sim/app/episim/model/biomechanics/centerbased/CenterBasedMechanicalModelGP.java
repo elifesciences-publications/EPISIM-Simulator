@@ -79,9 +79,10 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 			randomness = val;
 	}
 	
-	
+	@NoUserModification
 	public double getNeighborhood_mikron() { return neighborhood_mikron; }
 	
+	@NoUserModification
  	public void setNeighborhood_mikron(double val) { if (val > 0) neighborhood_mikron= val; }	
 
 	public double getSeedMinDepth_frac() {
@@ -116,12 +117,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 		if(val > 0)
 			externalPush = val;
 	}
-	public double getCohesion() {
-		return cohesion;
-	}
-	public void setCohesion(double val) {
-		if(val >= 0.0) cohesion = val;
-	}
+	
 	public void setWidthInMikron(double val) {
 		if(val > 0)	width = val;
 	}	
@@ -171,13 +167,13 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	   return ModelDimensionality.TWO_DIMENSIONAL;
    }
 
-	
+	@NoUserModification
    public double getNeighbourhoodOptDistFact() {
    
    	return neighbourhoodOptDistFact;
    }
 
-	
+	@NoUserModification
    public void setNeighbourhoodOptDistFact(double neighbourhoodOptDistFact) {
    
    	this.neighbourhoodOptDistFact = neighbourhoodOptDistFact;

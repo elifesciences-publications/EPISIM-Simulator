@@ -71,8 +71,9 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 		globalParameters.setCellDiameterInMikron(25);
 		globalParameters.setWidthInMikron(1000);
 		globalParameters.setHeightInMikron(2000);
+		globalParameters.setUseCellCellInteractionEnergy(false);
 		globalParameters.setNumber_of_initially_occupied_columns(4);
-		globalParameters.setInitialCellDensityInPercent(40);
+		globalParameters.setInitialCellDensityInPercent(100);
 	}
 	private void addSekretionCellColony(ArrayList<UniversalCell> standardCellEnsemble){
 		HexagonBasedMechanicalModelSingleSurfaceGP globalParameters = (HexagonBasedMechanicalModelSingleSurfaceGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();

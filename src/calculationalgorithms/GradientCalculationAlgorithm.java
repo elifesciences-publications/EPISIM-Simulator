@@ -9,6 +9,7 @@ import org.jfree.data.xy.XYSeries;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ResultSet;
 import sim.app.episim.util.Sorting;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
@@ -79,10 +80,10 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				for(AbstractCell actCell: allCells){
 					if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){
 						EpisimBiomechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
-						if(biomech.getX() >= GlobalStatistics.getInstance().getGradientMinX()
-								&& biomech.getX() <= GlobalStatistics.getInstance().getGradientMaxX()
-								&& biomech.getY() >= GlobalStatistics.getInstance().getGradientMinY()
-								&& biomech.getY() <= GlobalStatistics.getInstance().getGradientMaxY()){						
+						if(biomech.getX() >= getGradientMinX()
+								&& biomech.getX() <= getGradientMaxX()
+								&& biomech.getY() >= getGradientMinY()
+								&& biomech.getY() <= getGradientMaxY()){						
 								
 								resultMap.put(biomech.getY(), handler.calculate(actCell));
 						}
@@ -108,5 +109,18 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				}
 			}
 	   }
+		
+		private double getGradientMinX(){
+			return 30;
+		}
+		private double getGradientMaxX(){
+			return 40;
+		}
+		private double getGradientMinY(){
+			return 0;
+		}
+		private double getGradientMaxY(){
+			return TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		}
 		
 	}

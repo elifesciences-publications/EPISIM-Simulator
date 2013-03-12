@@ -40,11 +40,33 @@ public class CellBehavioralModelInitializer {
 		boolean randomAgeInit = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
 				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON);
 		MersenneTwisterFast random = new MersenneTwisterFast(System.currentTimeMillis());
-		int cellCyclePos =0;
+		int cellCyclePos =0;		
+		int cellCycleStem = 1;
 		for (UniversalCell actCell : cellEnsemble) {
 			if(randomAgeInit){
-				cellCyclePos = random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
-						.getCellCycleStem());
+				Object result = null;
+				try {
+					Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getCellCycleStem", new Class<?>[]{});
+					result =m.invoke(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), new Object[0]);
+					
+				} catch (Exception e1) {
+					try {
+						Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getCellCycle", new Class<?>[]{});
+						result =m.invoke(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), new Object[0]);
+						
+					} catch (Exception e2) {}
+				}
+				if(result != null){
+					if(result instanceof Integer){
+						cellCycleStem = ((Integer) result).intValue();
+ 					}
+					else if(result instanceof Double){
+						cellCycleStem = (int)((Double) result).doubleValue();
+					}
+				}
+				
+				
+				cellCyclePos = random.nextInt(cellCycleStem);
 				// assign random age
 				actCell.getEpisimCellBehavioralModelObject().setAge((double) (cellCyclePos));// somewhere in the stemcellcycle
 				
@@ -65,14 +87,10 @@ public class CellBehavioralModelInitializer {
 
 			if (tysonCellCycleAvailable &&randomAgeInit) TysonRungeCuttaCalculator.assignRandomCellcyleState(actCell.getEpisimCellBehavioralModelObject(), cellCyclePos); // on
 			if(actCell.getEpisimCellBehavioralModelObject().getDiffLevel()==null){
-				actCell.getEpisimCellBehavioralModelObject().setDiffLevel(
-						ModelController.getInstance().getCellBehavioralModelController()
-								.getDifferentiationLevelForOrdinal(EpisimDifferentiationLevel.STEMCELL));
+				actCell.assignDefaultDiffLevel();
 			}
 			if(actCell.getEpisimCellBehavioralModelObject().getCellType()==null){
-				actCell.getEpisimCellBehavioralModelObject().setCellType(
-					ModelController.getInstance().getCellBehavioralModelController()
-							.getCellTypeForOrdinal(EpisimCellType.KERATINOCYTE));
+				actCell.assignDefaultCellType();
 			}
 			actCell.getEpisimCellBehavioralModelObject().setIsAlive(true);
 		}

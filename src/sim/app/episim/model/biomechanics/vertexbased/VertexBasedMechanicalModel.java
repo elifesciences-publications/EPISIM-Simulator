@@ -11,6 +11,7 @@ import java.util.HashSet;
 
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
@@ -21,6 +22,7 @@ import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelG
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased.util.CellPolygonRegistry;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
@@ -208,7 +210,12 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 		if(modelConnector.getIsProliferating() && !cellPolygon.isProliferating()){			
 			cellPolygon.proliferate();
 		}
-		if(cellPolygon.isProliferating() && getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL){
+		UniversalCell universalCell=null;
+		
+		if(getCell() instanceof UniversalCell){
+			universalCell = (UniversalCell) getCell();
+		}
+		if(cellPolygon.isProliferating() && universalCell != null && universalCell.getStandardDiffLevel() == StandardDiffLevel.EARLYSPICELL){
 			System.out.println(" --------------------------------- Ich sollte nicht proliferieren");
 		
 		}
@@ -250,8 +257,12 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	public CellPolygon getCellPolygon(){ return cellPolygon; }		
 	
 	public void proliferationCompleted(CellPolygon oldCell, CellPolygon newCell){		
-		EpisimDifferentiationLevel diffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
-		if(diffLevel.ordinal() == EpisimDifferentiationLevel.STEMCELL || diffLevel.ordinal() == EpisimDifferentiationLevel.TACELL){
+		
+		UniversalCell universalCell=null;		
+		if(getCell() instanceof UniversalCell){
+			universalCell = (UniversalCell) getCell();
+		}
+		if(universalCell != null&&(universalCell.getStandardDiffLevel() == StandardDiffLevel.STEMCELL || universalCell.getStandardDiffLevel() == StandardDiffLevel.TACELL)){
 			double distanceOld = VertexBasedModelController.getInstance().getCellPolygonCalculator().getDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(), oldCell.getCellCenter(), false);
 			double distanceNew = VertexBasedModelController.getInstance().getCellPolygonCalculator().getDistanceToBasalLayer(TissueController.getInstance().getTissueBorder(), newCell.getCellCenter(), false);
 			if(distanceOld > distanceNew){

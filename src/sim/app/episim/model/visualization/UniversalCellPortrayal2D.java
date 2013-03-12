@@ -15,6 +15,7 @@ import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
@@ -107,19 +108,21 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
                	 drawCellEllipses = ((CenterBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
                	 centerBasedModel = true;
                 }
-                int keratinoType=universalCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
-                int colorType=MiscalleneousGlobalParameters.getInstance().getTypeColor();               
-                if(keratinoType == EpisimDifferentiationLevel.STEMCELL
-                  	 || keratinoType == EpisimDifferentiationLevel.TACELL
-                  	 || keratinoType == EpisimDifferentiationLevel.EARLYSPICELL
-                  	 || keratinoType == EpisimDifferentiationLevel.LATESPICELL){ 
-                  	 showNucleus=true; 
-                  	 drawFrame=true;
-                } 
-                else if(keratinoType == EpisimDifferentiationLevel.GRANUCELL){ 
-                  	 drawFrame=true;                  	 
-                  	 showNucleus=false;
-                }          
+                StandardDiffLevel sDiffLevel = universalCell.getStandardDiffLevel();                                
+                int colorType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
+                if(sDiffLevel != null){
+	                if(sDiffLevel == StandardDiffLevel.STEMCELL
+	                  	 || sDiffLevel == StandardDiffLevel.TACELL
+	                  	 || sDiffLevel == StandardDiffLevel.EARLYSPICELL
+	                  	 || sDiffLevel == StandardDiffLevel.LATESPICELL){ 
+	                  	 showNucleus=true; 
+	                  	 drawFrame=true;
+	                } 
+	                else if(sDiffLevel == StandardDiffLevel.GRANUCELL){ 
+	                  	 drawFrame=true;                  	 
+	                  	 showNucleus=false;
+	                }
+                }
                 
                if(!drawCellEllipses){           
 		                if(colorType < 5){                                               

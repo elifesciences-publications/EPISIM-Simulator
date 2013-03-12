@@ -110,7 +110,7 @@ public class Epidermis extends TissueType implements CellDeathListener
  
  public void checkMemory(){
 	 // Memory Management
-    if (GlobalStatistics.getInstance().getActualNumberKCytes()>getAllCells().size()-50) // for safety -50
+    if (getAllCells().size()>getAllCells().size()-50) // for safety -50
         getAllCells().resize(getAllCells().size()+500); // alloc 500 in advance
  }
  

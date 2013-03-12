@@ -61,8 +61,6 @@ public class VertexBasedMechModelInit extends BiomechanicalModelInitializer {
 			Double2D cellLoc = new Double2D(cellCenter.getDoubleX(), cellCenter.getDoubleY());
 			mechModel.setCellLocationInCellField(cellLoc);
 			standardCellEnsemble.add(stemCell);			
-			GlobalStatistics.getInstance().inkrementActualNumberStemCells();
-			GlobalStatistics.getInstance().inkrementActualNumberKCytes();
    	}
    	VertexBasedModelController.getInstance().bagHasChanged(null);
    	return standardCellEnsemble;

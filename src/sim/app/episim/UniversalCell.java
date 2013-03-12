@@ -7,6 +7,8 @@ import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuilder;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardCellType;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.sbml.SbmlModelConnector;
@@ -27,6 +29,7 @@ import sim.util.*;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellType;
 import episiminterfaces.NoExport;
 
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -72,7 +75,7 @@ public class UniversalCell extends AbstractCell
     public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
     {       
         
-   	 GlobalStatistics.getInstance().inkrementActualNumberKCytes();
+   	 
    	 
    	 // Either we get use a currently unused cell oder we allocate a new one
         UniversalCell kcyte;        
@@ -106,7 +109,28 @@ public class UniversalCell extends AbstractCell
         //TODO enable / disable random age for TA Cells
         if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
   				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
-      	  int randomAge = TissueController.getInstance().getActEpidermalTissue().random.nextInt(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getCellCycleTA());
+      	  int cellCycleDuration = 1;
+      	  Object result = null;
+				try {
+					Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getCellCycleTA", new Class<?>[]{});
+					result =m.invoke(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), new Object[0]);
+					
+				} catch (Exception e1) {
+					try {
+						Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getCellCycle", new Class<?>[]{});
+						result =m.invoke(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), new Object[0]);
+						
+					} catch (Exception e2) {}
+				}
+				if(result != null){
+					if(result instanceof Integer){
+						cellCycleDuration = ((Integer) result).intValue();
+					}
+					else if(result instanceof Double){
+						cellCycleDuration = (int)((Double) result).doubleValue();
+					}
+				}    	  
+      	  int randomAge = TissueController.getInstance().getActEpidermalTissue().random.nextInt(cellCycleDuration);
         
       	  taCell.getEpisimCellBehavioralModelObject().setAge(randomAge);
       	  if(taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()!= null
@@ -221,15 +245,23 @@ public class UniversalCell extends AbstractCell
     
     private void makeChildren(EpisimCellBehavioralModel[] children){
    	 if(children!=null){
-   		 for(EpisimCellBehavioralModel actChild: children){   			 
-   			 if(actChild.getDiffLevel().ordinal() == EpisimDifferentiationLevel.TACELL) makeTACell(actChild);
-   			 else if(actChild.getDiffLevel().ordinal() == EpisimDifferentiationLevel.EARLYSPICELL) makeSpiCell(actChild);
+   		 for(EpisimCellBehavioralModel actChild: children){
+   			 if(ModelController.getInstance().isStandardKeratinocyteModel()){
+	   			 if(convertToStandardDiffLevel(actChild.getDiffLevel()) == StandardDiffLevel.TACELL) makeTACell(actChild);
+	   			 else if(convertToStandardDiffLevel(actChild.getDiffLevel()) == StandardDiffLevel.EARLYSPICELL) makeSpiCell(actChild);
+	   			 else{
+	   				 makeChild(actChild);
+	   			 }
+   			 }
    			 else{
    				 makeChild(actChild);
    			 }
    		 }
    	 }
-    }    
+    }
+    
+    
+
 
     // static  long actNumberSteps = 0;
     // static  long deltaTime = 0;

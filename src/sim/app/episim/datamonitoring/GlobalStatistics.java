@@ -1,12 +1,14 @@
 package sim.app.episim.datamonitoring;
 
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.calc.CalculationAlgorithm;
 import sim.app.episim.AbstractCell;
@@ -27,34 +29,6 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	public static final double LASTBUCKETAMOUNT = 2;
 	public static final double FIRSTBUCKETAMOUNT = 1;
 	
-	private int actualNumberStemCells=0;        // Stem cells
-	private int actualNumberKCytes=0;      // num of kcytes that are not in nirvana
-	private int actualNumberEarlySpiCells=0;         // Spinosum
-	private int actualNumberTACells=0;          // TA Cells
-	private int actualNumberLateSpi=0;     // Late Spinosum
-	private int actualNumberGranuCells=0;       // num of Granulosum KCytes
-	private int actualBasalStatisticsCells=0;   // Cells which have the Flag isBasalStatisticsCell (ydist<10 from basal membrane)
-	
-	private double apoptosis_Basal_Statistics=0;    // apoptosis events during 100 ticks, is calculated from  ..Counter   
-	private double apoptosis_EarlySpi_Statistics=0;
-	private double apoptosis_LateSpi_Statistics=0;
-	private double apoptosis_Granu_Statistics=0;
-	
-	private double apoptosis_BasalCounter=0;        // Counter is reset every 100 ticks
-	private double apoptosis_EarlySpiCounter=0;    // Counter is reset every 100 ticks
-	private double apoptosis_LateSpiCounter=0;    // Counter is reset every 100 ticks
-	private double apoptosis_GranuCounter=0;     // Counter is reset every 100 ticks
-	
-/*	private double barrier_ExtCalcium_Statistics=0;
-	private double barrier_Lamella_Statistics=0;
-	private double barrier_Lipids_Statistics=0;
-	
-	private double barrier_ExtCalcium_Statistics_temp=0;
-	private double barrier_Lamella_Statistics_temp=0;
-	private double barrier_Lipids_Statistics_temp=0;*/
-	
-	private int oldNumOuterCells=0;
-	
 	private int actualNumberOfBasalStatisticsCells = 0;
 	
 	private GenericBag<AbstractCell> allCells;
@@ -70,11 +44,69 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	
 	private Set<CellDeathListener> globalCellDeathListener;
 	
+	private int allLivingCells = 0;
+	
+	private HashMap<EpisimCellType, Integer> cellTypeLivingCounterMap;
+	private HashMap<EpisimCellType, Integer> cellTypeApoptosisCounterMap;
+	private HashMap<EpisimCellType, Double> cellTypeApoptosisStatisticsMap;
+	
+	
+	private HashMap<EpisimDifferentiationLevel, Integer> diffLevelLivingCounterMap;
+	private HashMap<EpisimDifferentiationLevel, Integer> diffLevelApoptosisCounterMap;
+	private HashMap<EpisimDifferentiationLevel, Double> diffLevelApoptosisStatisticsMap;
+	
 	private GlobalStatistics(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		globalCellDeathListener = new HashSet<CellDeathListener>();
+		buildCounterMaps();
 	}
 	
+	private void buildCounterMaps(){
+		EpisimCellType[] cellTypes = ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes();
+		EpisimDifferentiationLevel[] diffLevels = ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels();
+		cellTypeLivingCounterMap = new HashMap<EpisimCellType, Integer>();
+		cellTypeApoptosisCounterMap = new HashMap<EpisimCellType, Integer>();
+		cellTypeApoptosisStatisticsMap = new HashMap<EpisimCellType, Double>();
+		diffLevelLivingCounterMap = new HashMap<EpisimDifferentiationLevel, Integer>();
+		diffLevelApoptosisCounterMap = new HashMap<EpisimDifferentiationLevel, Integer>();
+		diffLevelApoptosisStatisticsMap = new HashMap<EpisimDifferentiationLevel, Double>();
+		for(EpisimCellType cellType : cellTypes){
+			cellTypeLivingCounterMap.put(cellType, 0);
+			cellTypeApoptosisCounterMap.put(cellType, 0);
+			cellTypeApoptosisStatisticsMap.put(cellType, 0d);
+		}
+		for(EpisimDifferentiationLevel diffLevel : diffLevels){
+			diffLevelLivingCounterMap.put(diffLevel, 0);
+			diffLevelApoptosisCounterMap.put(diffLevel, 0);
+			diffLevelApoptosisStatisticsMap.put(diffLevel, 0d);
+		}
+	}
+	private void resetCounterMaps(HashMap<EpisimCellType, Integer> cellTypeMap, HashMap<EpisimDifferentiationLevel, Integer> diffLevelMap){
+		EpisimCellType[] cellTypes = ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes();
+		EpisimDifferentiationLevel[] diffLevels = ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels();
+		for(EpisimCellType cellType : cellTypes){
+			cellTypeMap.put(cellType, 0);
+		}
+		for(EpisimDifferentiationLevel diffLevel : diffLevels){
+			diffLevelMap.put(diffLevel, 0);
+		}
+	}
+	private void resetStatisticsMaps(HashMap<EpisimCellType, Double> cellTypeMap, HashMap<EpisimDifferentiationLevel, Double> diffLevelMap){
+		EpisimCellType[] cellTypes = ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes();
+		EpisimDifferentiationLevel[] diffLevels = ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels();
+		for(EpisimCellType cellType : cellTypes){
+			cellTypeMap.put(cellType, 0d);
+		}
+		for(EpisimDifferentiationLevel diffLevel : diffLevels){
+			diffLevelMap.put(diffLevel, 0d);
+		}
+	}
+	
+	
+	
+	public int getNumberOfAllLivingCells(){
+		return this.allLivingCells;
+	}
 	
 	/*
 	 * Calculation Algorithms can register here
@@ -84,21 +116,8 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	}
 	
 	
-	public GenericBag<AbstractCell> getCells(){
-		return this.allCells;		
-	}
-	public double getGradientMinX(){
-		return 30;
-	}
-	public double getGradientMaxX(){
-		return 40;
-	}
-	public double getGradientMinY(){
-		return 0;
-	}
-	public double getGradientMaxY(){
-		return TissueController.getInstance().getTissueBorder().getHeightInMikron();
-	}
+	
+
 	
 	public static synchronized GlobalStatistics getInstance(){
 		if(instance == null) instance = new GlobalStatistics();
@@ -131,70 +150,41 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	private void updateDataFields(int counter){
 		
 		reset(false);
-		this.actualNumberKCytes = allCells.size();
+		 
 		calculateDnaAmountHistogramm(allCells);
 		
 		
 		for(AbstractCell actCell: allCells){
-			int diffLevel =  actCell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();
-			  switch(diffLevel){
-				  case EpisimDifferentiationLevel.EARLYSPICELL:{
-					  this.actualNumberEarlySpiCells++;
-				  }
-				  break;
-				  case EpisimDifferentiationLevel.GRANUCELL:{
-					  this.actualNumberGranuCells++;
-				  }
-				  break;
-				  case EpisimDifferentiationLevel.LATESPICELL:{
-					  this.actualNumberLateSpi++;
-				  }
-				  break;
-				  case EpisimDifferentiationLevel.STEMCELL:{
-					  this.actualNumberStemCells++;
-				  }
-				  break;
-				  case EpisimDifferentiationLevel.TACELL:{
-					  this.actualNumberTACells++;
-				  }
-				  break;
-			  }
+			if(actCell.getEpisimCellBehavioralModelObject().getIsAlive()){
+				this.allLivingCells++;
+				EpisimDifferentiationLevel diffLevel = actCell.getEpisimCellBehavioralModelObject().getDiffLevel();
+				EpisimCellType cellType = actCell.getEpisimCellBehavioralModelObject().getCellType();
+				this.diffLevelLivingCounterMap.put(diffLevel, this.diffLevelLivingCounterMap.get(diffLevel)+1);
+				this.cellTypeLivingCounterMap.put(cellType, this.cellTypeLivingCounterMap.get(cellType)+1);
+			}
+			
+			
 			  
-			  if (actCell.getIsOuterCell()) // statistics from last time evaluation (so we are always lacking behind one calling period !)
-           {
-             /*barrier_ExtCalcium_Statistics_temp += actCell.getEpisimCellBehavioralModelObject().getCa();
-               barrier_Lamella_Statistics_temp +=actCell.getEpisimCellBehavioralModelObject().getLam();
-               barrier_Lipids_Statistics_temp +=actCell.getEpisimCellBehavioralModelObject().getLip();*/                            
-               oldNumOuterCells++;
-           }
+			 
 			  
-			  if(actCell instanceof UniversalCell && ((UniversalCell) actCell).getIsBasalCell()) this.actualBasalStatisticsCells++;
+			  if(actCell instanceof UniversalCell && ((UniversalCell) actCell).getIsBasalCell()) this.actualNumberOfBasalStatisticsCells++;
 			  sumOfAllAges += actCell.getEpisimCellBehavioralModelObject().getAge();
 		}
 			if(counter == 10){
-				
-				  if(this.actualBasalStatisticsCells>0) this.apoptosis_Basal_Statistics=((this.apoptosis_BasalCounter/100)/actualBasalStatisticsCells)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
-				  if(this.actualNumberEarlySpiCells>0) this.apoptosis_EarlySpi_Statistics=((this.apoptosis_EarlySpiCounter/100)/this.actualNumberEarlySpiCells)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
-				  if(this.actualNumberLateSpi>0)this.apoptosis_LateSpi_Statistics=((this.apoptosis_LateSpiCounter/100)/this.actualNumberLateSpi)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
-				  if(this.actualNumberGranuCells>0)this.apoptosis_Granu_Statistics=((this.apoptosis_GranuCounter/100)/this.actualNumberGranuCells)*100;    // /100: per 100 timeticks, then:percentage of Apopotosis
-	
-		/*		  barrier_ExtCalcium_Statistics=barrier_ExtCalcium_Statistics_temp/oldNumOuterCells;
-				  barrier_Lipids_Statistics= barrier_Lipids_Statistics_temp/oldNumOuterCells;
-				  barrier_Lamella_Statistics=barrier_Lamella_Statistics_temp/oldNumOuterCells;*/
-				  
-				// System.out.println(this.apoptosis_Basal_Statistics + ", "+this.apoptosis_EarlySpi_Statistics + ", "+ this.apoptosis_LateSpi_Statistics + ", "+ this.apoptosis_Granu_Statistics);
-				  
-				  
-				  oldNumOuterCells=0;
-              
-         /*     barrier_ExtCalcium_Statistics_temp=0;
-              barrier_Lipids_Statistics_temp=0;
-              barrier_Lamella_Statistics_temp=0;*/
-				  
-	           this.apoptosis_BasalCounter=0;    // Cells removed from simulation during last time tick    
-	           this.apoptosis_EarlySpiCounter=0;
-	           this.apoptosis_LateSpiCounter=0;
-	           this.apoptosis_GranuCounter=0;
+				  this.resetStatisticsMaps(cellTypeApoptosisStatisticsMap, diffLevelApoptosisStatisticsMap);
+				  for(EpisimCellType cellType: this.cellTypeApoptosisCounterMap.keySet()){
+					  if(this.cellTypeLivingCounterMap.get(cellType) > 0){
+						  double result = ((this.cellTypeApoptosisCounterMap.get(cellType)/100d)/this.cellTypeLivingCounterMap.get(cellType))*100d;
+						  cellTypeApoptosisStatisticsMap.put(cellType, result);
+					  }
+				  }
+				  for(EpisimDifferentiationLevel diffLevel: this.diffLevelApoptosisCounterMap.keySet()){
+					  if(this.diffLevelLivingCounterMap.get(diffLevel) > 0){
+						  double result = ((this.diffLevelApoptosisCounterMap.get(diffLevel)/100d)/this.diffLevelLivingCounterMap.get(diffLevel))*100d;
+						  diffLevelApoptosisStatisticsMap.put(diffLevel, result);
+					  }
+				  }		
+				  this.resetCounterMaps(cellTypeApoptosisCounterMap, diffLevelApoptosisCounterMap);
 			}
 		
 	}
@@ -228,93 +218,41 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	}	
 	public double[] getDNAContentsAveraged(){ return this.dnaContentsAveraged; }	
 	
-	//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	// Inkrement
-	//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	public void inkrementActualNumberStemCells(){ 
-		actualNumberStemCells++;        // Stem cells
-	}
-	public void inkrementActualNumberKCytes(){
-		actualNumberKCytes++;      // num of kcytes that are not in nirvana
-	}
-		
-	//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	// Dekrement
-	//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	public void dekrementActualNumberKCytes(){
-		actualNumberKCytes--;      // num of kcytes that are not in nirvana
-	}
+	
+
 	
 	public void reset(boolean isRestartReset){
 		
-		actualNumberStemCells=0;       
-		actualNumberKCytes=0;      
-		actualNumberEarlySpiCells=0;         
-		actualNumberTACells=0;          
-		actualNumberLateSpi=0;     
-		actualNumberGranuCells=0;      
-		actualBasalStatisticsCells=0;		
 		actualNumberOfBasalStatisticsCells = 0;
 		sumOfAllAges = 0;		
-		
+		this.allLivingCells =0;
 		dnaContents = new double[NUMBEROFBUCKETS];
 		dnaContentsAveraged = new double [NUMBEROFBUCKETS];
 		
-	/*	barrier_ExtCalcium_Statistics_temp=0;
-		barrier_Lamella_Statistics_temp=0;
-		barrier_Lipids_Statistics_temp=0;*/
-		oldNumOuterCells=0;
+	
 		
 		if(isRestartReset){		
-			
-			apoptosis_BasalCounter=0;
-			apoptosis_EarlySpiCounter=0; 
-			apoptosis_LateSpiCounter=0;
-			apoptosis_GranuCounter=0;
-			
-			apoptosis_Basal_Statistics=0;       
-			apoptosis_EarlySpi_Statistics=0;
-			apoptosis_LateSpi_Statistics=0;
-			apoptosis_Granu_Statistics=0;
-			
-		/*	barrier_ExtCalcium_Statistics=0;
-			barrier_Lamella_Statistics=0;
-			barrier_Lipids_Statistics=0;*/
-			
+			buildCounterMaps();
+					
 			dnaContentsCumulative = new double [NUMBEROFBUCKETS];
-			histogrammCounter = 0;			
-			
-		}	
+			histogrammCounter = 0;	
+		}
+		else{
+			resetCounterMaps(this.cellTypeLivingCounterMap, this.diffLevelLivingCounterMap);
+		}
 	}
 
 
 	public void cellIsDead(AbstractCell cell) {
 		notifyAllGlobalCellDeathListener(cell);
-		   if(cell instanceof UniversalCell){
-		   	UniversalCell kcyte = (UniversalCell) cell;
-		   	dekrementActualNumberKCytes();
-		   	
-		   	if(kcyte.getIsBasalCell()){ 
-		   		this.apoptosis_BasalCounter++;
-		   		
-		   	}
-		   	int diffLevel =  kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();
-		   	switch(diffLevel){
-	 			   case EpisimDifferentiationLevel.EARLYSPICELL:{
-	 				  this.apoptosis_EarlySpiCounter++; 					 
-	 			 }
-	 			 break;
-	 			 case EpisimDifferentiationLevel.GRANUCELL:{
-	 				  	this.apoptosis_GranuCounter++; 					  
-	 			 }
-	 			 break;
-	 			 case EpisimDifferentiationLevel.LATESPICELL:{
-	 				  	this.apoptosis_LateSpiCounter++; 					  
-	 			 }
-	 			 break; 				  
-	 		}	   	
-	   }
-	   
+		if(cell instanceof UniversalCell){
+		  	UniversalCell kcyte = (UniversalCell) cell;
+		  	
+		  	EpisimCellType cellType =  kcyte.getEpisimCellBehavioralModelObject().getCellType();
+		  	EpisimDifferentiationLevel diffLevel =  kcyte.getEpisimCellBehavioralModelObject().getDiffLevel();
+		  	this.cellTypeApoptosisCounterMap.put(cellType, this.cellTypeApoptosisCounterMap.get(cellType)+1);
+		  	this.diffLevelApoptosisCounterMap.put(diffLevel, this.diffLevelApoptosisCounterMap.get(diffLevel)+1);
+	 	}   
    }
 	
 	private void notifyAllGlobalCellDeathListener(AbstractCell cell){
@@ -323,29 +261,49 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		}
 	}
 	
-   public int getActualNumberStemCells() {return actualNumberStemCells; }
-   public int getActualNumberKCytes(){ return actualNumberKCytes; }
-   public int getActualNumberEarlySpiCells() { return actualNumberEarlySpiCells; }
-   public int getActualNumberTACells(){ return actualNumberTACells; }
-   public int getActualNumberLateSpi(){ return actualNumberLateSpi; }
-   public int getActualGranuCells(){ return actualNumberGranuCells; }
-   public int getActualBasalStatisticsCells(){ return actualBasalStatisticsCells; }
+ 
    public int getActualNumberOfBasalStatisticsCells() { return actualNumberOfBasalStatisticsCells; }
-   public double getMeanAgeOfAllCells(){ return (this.sumOfAllAges / this.actualNumberKCytes); }
-   public double getApoptosis_Basal_Statistics(){ return apoptosis_Basal_Statistics; }
-	public double getApoptosis_EarlySpi_Statistics(){ return apoptosis_EarlySpi_Statistics; }	
-   public double getApoptosis_LateSpi_Statistics(){ return apoptosis_LateSpi_Statistics; }
-	public double getApoptosis_Granu_Statistics(){ return apoptosis_Granu_Statistics; }
-   /*public double getBarrier_ExtCalcium_Statistics() {	return barrier_ExtCalcium_Statistics; }
-   public double getBarrier_Lamella_Statistics() { return barrier_Lamella_Statistics; }	
-   public double getBarrier_Lipids_Statistics() {return barrier_Lipids_Statistics; }*/
-
-
+   public double getMeanAgeOfAllCells(){ return (this.sumOfAllAges / this.allLivingCells); }
+  
 	
    public void classLoaderHasChanged() {
 	   instance = null;
    }
 
+
 	
-   
+	public HashMap<EpisimCellType, Integer> getCellTypeLivingCounterMap() {
+	
+		return cellTypeLivingCounterMap;
+	}
+
+
+	
+	public HashMap<EpisimCellType, Integer> getCellTypeApoptosisCounterMap() {
+	
+		return cellTypeApoptosisCounterMap;
+	}
+	
+	public HashMap<EpisimCellType, Double> getCellTypeApoptosisStatisticsMap() {
+		
+		return cellTypeApoptosisStatisticsMap;
+	}
+
+
+	
+	public HashMap<EpisimDifferentiationLevel, Integer> getDiffLevelLivingCounterMap() {
+	
+		return diffLevelLivingCounterMap;
+	}
+
+
+	
+	public HashMap<EpisimDifferentiationLevel, Integer> getDiffLevelApoptosisCounterMap() {
+	
+		return diffLevelApoptosisCounterMap;
+	}
+	public HashMap<EpisimDifferentiationLevel, Double> getDiffLevelApoptosisStatisticsMap() {
+		
+		return diffLevelApoptosisStatisticsMap;
+	}  
 }

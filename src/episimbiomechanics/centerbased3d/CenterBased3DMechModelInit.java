@@ -92,9 +92,6 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 					CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
 					Point3d corrLoc = mechModel.calculateLowerBoundaryPositionForCell(new Point3d(newLoc.x, newLoc.y, newLoc.z));
 					((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));					
-					standardCellEnsemble.add(stemCell);			
-					GlobalStatistics.getInstance().inkrementActualNumberStemCells();
-					GlobalStatistics.getInstance().inkrementActualNumberKCytes();				 
 			}						
 		}
 		return cellAdded;
@@ -134,10 +131,7 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 							Point3d corrLoc = mechModel.calculateLowerBoundaryPositionForCell(new Point3d(newLoc.x, newLoc.y, newLoc.z));
 							((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));
 							standardCellEnsemble.add(stemCell);							
-							
-							GlobalStatistics.getInstance().inkrementActualNumberStemCells();
-							GlobalStatistics.getInstance().inkrementActualNumberKCytes();						
-						
+											
 					}
 				}
 			}

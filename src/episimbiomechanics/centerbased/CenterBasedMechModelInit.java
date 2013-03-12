@@ -58,7 +58,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 
 		CenterBasedMechanicalModelGP mechModelGP = (CenterBasedMechanicalModelGP) ModelController
 				.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-
+		
 		Double2D lastloc = new Double2D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0));
 		boolean firstCell = true;
 		for (double x = 0; x <= TissueController.getInstance().getTissueBorder().getWidthInMikron(); x += 1) {
@@ -78,8 +78,6 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 
 					lastloc = newloc;
 					firstCell=false;
-					GlobalStatistics.getInstance().inkrementActualNumberStemCells();
-					GlobalStatistics.getInstance().inkrementActualNumberKCytes();
 				}
 			}
 		}

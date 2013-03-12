@@ -29,7 +29,8 @@ import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 
-
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardCellType;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 
 
 public class CellBehavioralModelController implements java.io.Serializable, ClassLoaderChangeListener{
@@ -49,6 +50,9 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	private File actLoadedCellBehavioralFile;
 	private Class<? extends SendReceiveAlgorithm> sendReceiveAlgorithmClass;
 	private File sendReceivePackagePath;
+	
+	private String checkedStandardModelFileName = null;
+	private boolean isStandardKeratinocyteModel = false;
 	
 	private CellBehavioralModelController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
@@ -106,7 +110,8 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	
 		
 	protected boolean loadModelFile(File modelFile) throws ModelCompatibilityException{
-		
+			checkedStandardModelFileName = null;
+			isStandardKeratinocyteModel = false;
 			CellBehavioralModelJarClassLoader jarLoader = null;
          try{
 	         jarLoader = new CellBehavioralModelJarClassLoader(modelFile.toURI().toURL());
@@ -184,5 +189,30 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 		instance = null;	   
    }
 	
+	protected boolean isStandardKeratinocyteModel(){
+	   if(this.actLoadedCellBehavioralFile == null) return false;
+	   else if(checkedStandardModelFileName == null){
+	   	EpisimCellType[] cellTypes =this.getAvailableCellTypes();
+	   	EpisimDifferentiationLevel[] diffLevels =this.getAvailableDifferentiationLevels();
+	   	boolean everyStandardCellTypeFound = true;
+	   	for(StandardCellType sCellType: StandardCellType.values()){
+	   		boolean found = false;
+	   		for(EpisimCellType cellType : cellTypes){
+	   			if(cellType.toString().equals(sCellType.toString())) found = true;
+	   		}
+	   		if(!found) everyStandardCellTypeFound= false;
+	   	}
+	   	boolean everyStandardDiffLevelFound = true;
+	   	for(StandardDiffLevel sDiffLevel: StandardDiffLevel.values()){
+	   		boolean found = false;
+	   		for(EpisimDifferentiationLevel diffLevel : diffLevels){
+	   			if(diffLevel.toString().equals(sDiffLevel.toString())) found = true;
+	   		}
+	   		if(!found) everyStandardDiffLevelFound= false;
+	   	}
+	   	isStandardKeratinocyteModel = (everyStandardCellTypeFound && everyStandardDiffLevelFound);
+	   }	   	
+	   return isStandardKeratinocyteModel;
+	}
 	
 }

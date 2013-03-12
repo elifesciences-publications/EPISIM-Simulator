@@ -31,6 +31,7 @@ import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Ellipsoid;
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 
 import sim.app.episim.model.visualization.EpisimDrawInfo;
@@ -206,10 +207,8 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    }  
    
    
-   private double getMaxDisplacementFactor(){
-		EpisimDifferentiationLevel thisDiffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
-   	
-   	if(thisDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL){
+   private double getMaxDisplacementFactor(){   			   	
+   	if(getCell().getStandardDiffLevel()==StandardDiffLevel.GRANUCELL){
    		return MAX_DISPLACEMENT_FACT*1.4;
    	}
    	else{
@@ -291,9 +290,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    
    
    private double normalizeOptimalDistance(double distance, AbstractCell otherCell){
-   	EpisimDifferentiationLevel thisDiffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
-   	EpisimDifferentiationLevel otherDiffLevel = otherCell.getEpisimCellBehavioralModelObject().getDiffLevel();
-   	if(thisDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL && otherDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL){
+     	if(getCell().getStandardDiffLevel()==StandardDiffLevel.GRANUCELL && otherCell.getStandardDiffLevel()==StandardDiffLevel.GRANUCELL){
    		return distance* 0.8;
    	}
    	else{
@@ -418,7 +415,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		//////////////////////////////////////////////////
 		
 		
-		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.GRANUCELL){
+		if(getCell().getStandardDiffLevel()==StandardDiffLevel.GRANUCELL){
    	 	setKeratinoWidth(CenterBased3DMechanicalModel.KERATINO_WIDTH_GRANU);
    		setKeratinoHeight(CenterBased3DMechanicalModel.KERATINO_HEIGHT_GRANU);
    		setKeratinoLength(CenterBased3DMechanicalModel.KERATINO_LENGTH_GRANU);   		
@@ -494,7 +491,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		externalForce.y = 0;
 		externalForce.z = 0;
 		// move only on pressure when not stem cell
-		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
+		if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){
 			if((hitResult2.numhits == 0)
 					|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == getCell().getMotherId()) || (hitResult2.otherMotherId == getCell().getID())))){
 				
@@ -769,7 +766,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    		      for (int x=0; x < MAX_X_BINS; x++)
    		      {  	
    		      	
-   		      	if((x_z_LookUp[z][x]==null) || (x_z_LookUp[z][x].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+   		      	if((x_z_LookUp[z][x]==null) || (x_z_LookUp[z][x].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
    		      	else{
    		      		CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel)x_z_LookUp[z][x].getEpisimBioMechanicalModelObject();
    		      		if(mechModel.surfaceAreaRatio > 0) x_z_LookUp[z][x].setIsOuterCell(true);

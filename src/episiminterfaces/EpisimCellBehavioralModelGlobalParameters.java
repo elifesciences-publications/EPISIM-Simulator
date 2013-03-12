@@ -4,12 +4,6 @@ import episiminterfaces.monitoring.CannotBeMonitored;
 
 public interface EpisimCellBehavioralModelGlobalParameters{
 	
-	int getCellCycleStem();
- 	void setCellCycleStem(int val);
-	
-	int getCellCycleTA();
- 	void setCellCycleTA(int val);
- 		 	
 	void resetInitialGlobalValues();
 		
 	@CannotBeMonitored
@@ -23,6 +17,5 @@ public interface EpisimCellBehavioralModelGlobalParameters{
 	EpisimDifferentiationLevel getDifferentiationLevelForOrdinal(int ordinal);
 	
 	@CannotBeMonitored
-	EpisimDiffusionFieldConfiguration[] getAllExtraCellularDiffusionFieldConfigurations();
-	
+	EpisimDiffusionFieldConfiguration[] getAllExtraCellularDiffusionFieldConfigurations();	
 }

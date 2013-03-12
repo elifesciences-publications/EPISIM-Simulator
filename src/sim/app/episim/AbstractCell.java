@@ -12,6 +12,7 @@ import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModel;
+import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
@@ -20,6 +21,8 @@ import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardCellType;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.CellEllipse;
@@ -151,7 +154,10 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    }
    
    private Color getFillColor(AbstractCell kcyte){
-   	int keratinoType=kcyte.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal();                                
+   	StandardDiffLevel sDiffLevel = null; 
+   	if(kcyte instanceof UniversalCell){
+   		sDiffLevel = ((UniversalCell)kcyte).getStandardDiffLevel();
+   	}
       int coloringType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
    	//
       // set colors
@@ -165,12 +171,14 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
             
       if ((coloringType==1) || (coloringType==2))  // Cell type coloring
       {              
-        	   if(keratinoType == EpisimDifferentiationLevel.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
-        	   else if(keratinoType == EpisimDifferentiationLevel.TACELL){red=148; green=167; blue=214;}                             
-        	   else if(keratinoType == EpisimDifferentiationLevel.EARLYSPICELL){red=0xE1; green=0x6B; blue=0xF6;}
-        	   else if(keratinoType == EpisimDifferentiationLevel.LATESPICELL){red=0xC1; green=0x4B; blue=0xE6;}
-        	   else if(keratinoType == EpisimDifferentiationLevel.GRANUCELL){red=204; green=0; blue=102;}
-        	               
+        	   
+      		if(sDiffLevel != null){
+	      		if(sDiffLevel == StandardDiffLevel.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
+	        	   else if(sDiffLevel == StandardDiffLevel.TACELL){red=148; green=167; blue=214;}                             
+	        	   else if(sDiffLevel == StandardDiffLevel.EARLYSPICELL){red=0xE1; green=0x6B; blue=0xF6;}
+	        	   else if(sDiffLevel == StandardDiffLevel.LATESPICELL){red=0xC1; green=0x4B; blue=0xE6;}
+	        	   else if(sDiffLevel == StandardDiffLevel.GRANUCELL){red=204; green=0; blue=102;}
+      		}           
                        
             boolean isMembraneCell = false;
             boolean isOuterCell = kcyte.getIsOuterCell();
@@ -211,7 +219,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
           red=255;
           green=calculatedColorValue;                        
           blue=calculatedColorValue;
-          if(keratinoType== EpisimDifferentiationLevel.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
+          if(sDiffLevel != null && sDiffLevel == StandardDiffLevel.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
        }
       
        if(coloringType==4){ //Colors are calculated in the cellbehavioral model
@@ -228,5 +236,56 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
       if(kcyte.getIsTracked() && MiscalleneousGlobalParameters.getInstance().getHighlightTrackedCells()) return Color.RED;
       return new Color(red, green, blue);
    }
-	
+   public void assignDefaultCellType(){
+  	 if(ModelController.getInstance().isStandardKeratinocyteModel()){
+  		 EpisimCellType[] cellTypes = ModelController.getInstance().getCellBehavioralModelController().getAvailableCellTypes();
+  		 for(EpisimCellType cellType: cellTypes){
+  			 if(cellType.toString().equals(StandardCellType.KERATINOCYTE.toString())){
+  				 this.getEpisimCellBehavioralModelObject().setCellType(cellType);
+  				 break;
+  			 }
+  		 }
+  	 }
+   }
+   
+   public void assignDefaultDiffLevel(){
+  	 if(ModelController.getInstance().isStandardKeratinocyteModel()){
+  		 EpisimDifferentiationLevel[] diffLevels = ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels();
+  		 for(EpisimDifferentiationLevel diffLevel: diffLevels){
+  			 if(diffLevel.toString().equals(StandardDiffLevel.STEMCELL.toString())){
+  				 this.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevel);
+  				 break;
+  			 }
+  		 }
+  	 }
+   }
+   
+   public StandardDiffLevel getStandardDiffLevel(){
+  	 return convertToStandardDiffLevel(this.getEpisimCellBehavioralModelObject().getDiffLevel());
+   }
+   
+   public StandardCellType getStandardCellType(){
+  	return convertToStandardCellType(this.getEpisimCellBehavioralModelObject().getCellType());
+   }
+   
+   public StandardDiffLevel convertToStandardDiffLevel(EpisimDifferentiationLevel diffLevel){
+  	 if(ModelController.getInstance().isStandardKeratinocyteModel()){
+  		 StandardDiffLevel[] sDiffLevels = StandardDiffLevel.values();
+  		 for(StandardDiffLevel sDiffLevel: sDiffLevels){
+  			 if(sDiffLevel.toString().equals(diffLevel.name())) return sDiffLevel;
+  		 }
+  	 }
+  	 return null;
+   }
+   
+   public StandardCellType convertToStandardCellType(EpisimCellType cellType){
+  	 if(ModelController.getInstance().isStandardKeratinocyteModel()){
+  		 
+  		 StandardCellType[] sCellTypes = StandardCellType.values();
+  		 for(StandardCellType sCellType: sCellTypes){
+  			 if(sCellType.toString().equals(cellType.name())) return sCellType;
+  		 }
+  	 }
+  	 return null;
+   }
 }

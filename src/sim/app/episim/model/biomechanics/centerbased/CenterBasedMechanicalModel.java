@@ -45,6 +45,7 @@ import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim2DCellShape;
+import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -225,9 +226,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        return hitResult;
    }
    private double normalizeOptimalDistance(double distance, AbstractCell otherCell){
-   	EpisimDifferentiationLevel thisDiffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
-   	EpisimDifferentiationLevel otherDiffLevel = otherCell.getEpisimCellBehavioralModelObject().getDiffLevel();
-   	if(thisDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL && otherDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL){
+   	if(getCell().getStandardDiffLevel()==StandardDiffLevel.GRANUCELL && otherCell.getStandardDiffLevel()==StandardDiffLevel.GRANUCELL){
    		return distance* 0.65;
    	}
    	else{
@@ -314,9 +313,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	}
 	
 	private double getMaxDisplacementFactor(){
-		EpisimDifferentiationLevel thisDiffLevel = getCell().getEpisimCellBehavioralModelObject().getDiffLevel();
-   	
-   	if(thisDiffLevel.ordinal()==EpisimDifferentiationLevel.GRANUCELL){
+		if(getCell().getStandardDiffLevel()==StandardDiffLevel.GRANUCELL){
    		return MAX_DISPLACEMENT_FACT*1.4;
    	}
    	else{
@@ -346,7 +343,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		//////////////////////////////////////////////////
 		
 		
-	if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.GRANUCELL){
+	if(getCell().getStandardDiffLevel()==StandardDiffLevel.GRANUCELL){
    	 	setKeratinoWidth(CenterBasedMechanicalModel.KERATINO_WIDTH_GRANU);
    		setKeratinoHeight(CenterBasedMechanicalModel.KERATINO_HEIGHT_GRANU);
    		getCellEllipseObject().setMajorAxisAndMinorAxis(CenterBasedMechanicalModel.KERATINO_WIDTH_GRANU, CenterBasedMechanicalModel.KERATINO_HEIGHT_GRANU);
@@ -422,7 +419,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			externalForce.x = 0;
 			externalForce.y = 0;
 			// move only on pressure when not stem cell
-			if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){
+			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){
 				if((hitResult2.numhits == 0)
 						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == getCell().getMotherId()) || (hitResult2.otherMotherId == getCell().getID())))){				
 					setPositionRespectingBounds(potentialLoc);
@@ -665,7 +662,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 				if(cell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
 					CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
 					if(woundArea.contains(mechModel.lastDrawInfo2D.draw.x, mechModel.lastDrawInfo2D.draw.y)&&
-							cell.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() != EpisimDifferentiationLevel.STEMCELL){  
+							getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){  
 						deadCells.add(cell);
 						i++;
 					}
@@ -764,7 +761,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	      }      
 	      for (int k=0; k< MAX_XBINS; k++)
 	      {
-	          if((xLookUp[k]==null) || (xLookUp[k].getEpisimCellBehavioralModelObject().getDiffLevel().ordinal()==EpisimDifferentiationLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+	          if((xLookUp[k]==null) || (xLookUp[k].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
 	          else{
 	         	 CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)xLookUp[k].getEpisimBioMechanicalModelObject();
 	         	 if(mechModel.surfaceAreaRatio > 0) xLookUp[k].setIsOuterCell(true);

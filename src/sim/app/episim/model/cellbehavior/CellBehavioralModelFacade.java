@@ -37,7 +37,22 @@ public class CellBehavioralModelFacade implements java.io.Serializable{
 	
 	private EpisimCellBehavioralModelGlobalParameters globalParametersObject;
 
-		
+	public enum StandardCellType{ 
+		KERATINOCYTE("CT_Keratinocyte");
+	 	private String name = "";
+	 	private StandardCellType(String name){ this.name = name;}
+	 	public String toString(){ return name;}
+	}
+	public enum StandardDiffLevel{ 
+		STEMCELL("DL_StemCell"),
+		TACELL("DL_TaCell"),
+		EARLYSPICELL("DL_EarlySpiCell"),	
+		LATESPICELL("DL_LateSpiCell"),	
+		GRANUCELL("DL_GranuCell");		
+ 	private String name = "";
+ 	private StandardDiffLevel(String name){ this.name = name;}
+ 	public String toString(){ return name;}
+}
 	
 	public CellBehavioralModelFacade(Class<EpisimCellBehavioralModel> cellBehavioralModelClass, Object globalParametersObject) throws ModelCompatibilityException{
 		this.cellBehavioralModelClass = cellBehavioralModelClass;

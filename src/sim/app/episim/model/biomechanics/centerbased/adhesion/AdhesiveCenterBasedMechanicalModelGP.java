@@ -1,12 +1,151 @@
 package sim.app.episim.model.biomechanics.centerbased.adhesion;
 
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.NoUserModification;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
-
-public class AdhesiveCenterBasedMechanicalModelGP extends CenterBasedMechanicalModelGP {
-
-	public AdhesiveCenterBasedMechanicalModelGP(){
-		super();
+public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+	
+	private int basalAmplitude_mikron = 0; // depth of an undulation
+	private int basalOpening_mikron = 250; // width of undulation at the middle
+	private double width = 100;
+	private double height = 50;
+	private double randomness = 0.07;
+	
+	
+	private double externalPush = 1.2; // y-offset
+	
+	
+	private double neighborhood_mikron= 10.0;
+	private boolean drawCellsAsEllipses = false;
+	private double numberOfPixelsPerMicrometer = 1;
+	
+	private double neighbourhoodOptDistFact = 1.6;
+	
+	
+	private double initCellCoveredDistInMikron = 30;
+	
+	public AdhesiveCenterBasedMechanicalModelGP() {}
+	
+	public boolean isDrawCellsAsEllipses() {
+		return drawCellsAsEllipses;
 	}
 	
+	public void setDrawCellsAsEllipses(boolean drawCellsAsEllipses) {
+	  	this.drawCellsAsEllipses = drawCellsAsEllipses;
+	}
+	
+	public int getBasalAmplitude_mikron() {
+		return basalAmplitude_mikron;
+	}
+
+	public void setBasalAmplitude_mikron(int val) {
+		if(val >= 0.0)
+			basalAmplitude_mikron = val;
+	}
+	
+	public int getBasalOpening_mikron() {
+		return basalOpening_mikron;
+	}
+
+	public void setBasalOpening_mikron(int val) {
+		if(val >= 0.0)
+			basalOpening_mikron = val;
+	}	
+	
+	public double getRandomness() {
+		return randomness;
+	}
+
+	public void setRandomness(double val) {
+		if(val >= 0.0)
+			randomness = val;
+	}
+	
+	@NoUserModification
+	public double getNeighborhood_mikron() { return neighborhood_mikron; }
+	
+	@NoUserModification
+ 	public void setNeighborhood_mikron(double val) { if (val > 0) neighborhood_mikron= val; }	
+	
+	
+	public double getExternalPush() {
+		return externalPush;
+	}
+	public void setExternalPush(double val) {
+		if(val > 0)
+			externalPush = val;
+	}
+	
+	public void setWidthInMikron(double val) {
+		if(val > 0)	width = val;
+	}	
+	public double getWidthInMikron() {
+		return width;
+	}
+   public double getHeightInMikron() {   
+   	return height;
+   }	
+   public void setHeightInMikron(double val) {   
+   	if(val > 0) this.height = val;
+   }
+   public double getLengthInMikron() {
+   	//not needed in 2D model
+   	return 0;
+   }	
+   public void setLengthInMikron(double val) {   
+   	//not needed in 2D model
+   }
+
+	public void setNumberOfPixelsPerMicrometer(double val) {
+		this.numberOfPixelsPerMicrometer = val;
+   }
+	
+	@NoUserModification
+	public double getNumberOfPixelsPerMicrometer() {
+		return this.numberOfPixelsPerMicrometer;
+   }
+
+	@NoUserModification
+   public boolean areDiffusionFieldsContinousInXDirection() {
+		return true;
+   }
+
+	@NoUserModification
+   public boolean areDiffusionFieldsContinousInYDirection() {
+	   return false;
+   }
+	
+	@NoUserModification
+	public boolean areDiffusionFieldsContinousInZDirection() {	   
+	   return false;
+   }
+
+	@NoUserModification
+   public ModelDimensionality getModelDimensionality() {	   
+	   return ModelDimensionality.TWO_DIMENSIONAL;
+   }
+
+	@NoUserModification
+   public double getNeighbourhoodOptDistFact() {
+   
+   	return neighbourhoodOptDistFact;
+   }
+
+	@NoUserModification
+   public void setNeighbourhoodOptDistFact(double neighbourhoodOptDistFact) {
+		
+   	this.neighbourhoodOptDistFact = neighbourhoodOptDistFact;
+   }
+
+	
+   public double getInitCellCoveredDistInMikron() {
+   
+   	return initCellCoveredDistInMikron;
+   }
+
+	
+   public void setInitCellCoveredDistInMikron(double initCellCoveredDistInMikron) {   
+   	this.initCellCoveredDistInMikron = initCellCoveredDistInMikron <0 ?0 : initCellCoveredDistInMikron > this.width? this.width:initCellCoveredDistInMikron;
+   }
 }

@@ -74,23 +74,17 @@ public class UniversalCell extends AbstractCell
     
     public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
     {       
-        
-   	 
    	 
    	 // Either we get use a currently unused cell oder we allocate a new one
-        UniversalCell kcyte;        
-       
-        kcyte= new UniversalCell(this, cellBehavioralModel, true); 
-       
+        UniversalCell kcyte;   
+        kcyte= new UniversalCell(this, cellBehavioralModel, true);       
          
         if(!ModeServer.useMonteCarloSteps()){   
 	        Stoppable stoppable = TissueController.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
 	        kcyte.setStoppable(stoppable);
-        }
-         
-        
+        }        
        
-         //in the first two thousand sim steps homeostasis has to be achieved, cells max age is set to the sim step time to have more variation  
+        //in the first two thousand sim steps homeostasis has to be achieved, cells max age is set to the sim step time to have more variation  
         if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
     				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
 	        double maxAge= cellBehavioralModel.getMaxAge();

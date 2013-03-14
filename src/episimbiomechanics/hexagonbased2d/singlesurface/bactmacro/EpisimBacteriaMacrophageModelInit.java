@@ -78,7 +78,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 		((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
 		((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[xPos][yPos] = cell;
 		//System.out.println("Macrophage: "+((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).getLocationInMikron());	
-		if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+		if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 		standardCellEnsemble.add(cell);			
 		
 	}
@@ -96,7 +96,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 		UniversalCell cell = new UniversalCell(null, null, true);
 		((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
 		((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[xPos][yPos] = cell;			
-		if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
+		if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 		standardCellEnsemble.add(cell);			
 		
 	}
@@ -116,7 +116,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 					((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 					((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
 						
-					if(cellTypes.length >=4) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[3]);
+					if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
 					standardCellEnsemble.add(cell);
 					erythrocyteCounter++;
 				}

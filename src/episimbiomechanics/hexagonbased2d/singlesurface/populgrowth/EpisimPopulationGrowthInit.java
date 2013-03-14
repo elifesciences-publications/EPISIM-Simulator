@@ -45,7 +45,7 @@ public class EpisimPopulationGrowthInit extends BiomechanicalModelInitializer {
 			for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 				UniversalCell cell = new UniversalCell(null, null, true);
 				((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
-				if(cellTypes.length >2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
+				if(cellTypes.length >0) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 				standardCellEnsemble.add(cell);
 			}
 		}	

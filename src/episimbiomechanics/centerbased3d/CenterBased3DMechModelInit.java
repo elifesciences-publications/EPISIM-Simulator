@@ -91,7 +91,8 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 					UniversalCell stemCell = new UniversalCell(null, null, true);
 					CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
 					Point3d corrLoc = mechModel.calculateLowerBoundaryPositionForCell(new Point3d(newLoc.x, newLoc.y, newLoc.z));
-					((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));					
+					((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));
+					standardCellEnsemble.add(stemCell);	
 			}						
 		}
 		return cellAdded;

@@ -64,7 +64,7 @@ public class CellBehavioralModelInitializer {
 						cellCycleStem = (int)((Double) result).doubleValue();
 					}
 				}
-				
+				if(cellCycleStem ==0)cellCycleStem=1;
 				
 				cellCyclePos = random.nextInt(cellCycleStem);
 				// assign random age

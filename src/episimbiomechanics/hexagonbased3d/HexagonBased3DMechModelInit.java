@@ -53,7 +53,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null, true);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
-					if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+					if(cellTypes.length >0) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 					standardCellEnsemble.add(cell);
 				}
 			}
@@ -63,7 +63,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null, true);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
-					if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+					if(cellTypes.length >0) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 					standardCellEnsemble.add(cell);
 				}
 			}
@@ -124,7 +124,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null, true);
 					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
-					if(cellTypes.length >2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
+					if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 					standardCellEnsemble.add(cell);
 				}
 			}

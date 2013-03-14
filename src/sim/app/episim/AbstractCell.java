@@ -211,9 +211,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	          m = kcyte.getEpisimCellBehavioralModelObject().getClass().getMethod("_getMaxAge", new Class<?>[0]);
 	          maxAge= (Double) m.invoke(kcyte.getEpisimCellBehavioralModelObject(), new Object[0]);
           }
-          catch (Exception e){
-	          ExceptionDisplayer.getInstance().displayException(e);
-          }
+          catch (Exception e){}
           
       	 calculatedColorValue= (int) (250-250*kcyte.getEpisimCellBehavioralModelObject().getAge()/maxAge);
           red=255;

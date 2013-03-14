@@ -29,7 +29,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	public static final double LASTBUCKETAMOUNT = 2;
 	public static final double FIRSTBUCKETAMOUNT = 1;
 	
-	private int actualNumberOfBasalStatisticsCells = 0;
+	
 	
 	private GenericBag<AbstractCell> allCells;
 	
@@ -167,7 +167,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 			  
 			 
 			  
-			  if(actCell instanceof UniversalCell && ((UniversalCell) actCell).getIsBasalCell()) this.actualNumberOfBasalStatisticsCells++;
+			  
 			  sumOfAllAges += actCell.getEpisimCellBehavioralModelObject().getAge();
 		}
 			if(counter == 10){
@@ -223,7 +223,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	
 	public void reset(boolean isRestartReset){
 		
-		actualNumberOfBasalStatisticsCells = 0;
+		
 		sumOfAllAges = 0;		
 		this.allLivingCells =0;
 		dnaContents = new double[NUMBEROFBUCKETS];
@@ -262,7 +262,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	}
 	
  
-   public int getActualNumberOfBasalStatisticsCells() { return actualNumberOfBasalStatisticsCells; }
+  
    public double getMeanAgeOfAllCells(){ return (this.sumOfAllAges / this.allLivingCells); }
   
 	

@@ -7,18 +7,22 @@
     <parameter datatype="double" default="1.0" name="adhesionBasalCell" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isSurface" readonly="true"/>
     <parameter datatype="double" default="0.0" name="height" readonly="false"/>
+    <parameter datatype="String" default=""
+      name="nameDiffLevelEarlySuprabasalCell" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isMigratory" readonly="false"/>
     <parameter datatype="String" default=""
       name="nameDiffLevelSuprabasalCell" readonly="false"/>
     <parameter datatype="String" default="" name="nameDiffLevelStemCell" readonly="false"/>
     <parameter datatype="double" default="1.0"
       name="adhesionSuprabasalCell" readonly="false"/>
-    <parameter datatype="double" default="1.0" name="adhesionStemCell" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isBasal" readonly="true"/>
+    <parameter datatype="double" default="1.0" name="adhesionStemCell" readonly="false"/>
+    <parameter datatype="double" default="1.0"
+      name="adhesionEarlySuprabasalCell" readonly="false"/>
     <parameter datatype="double" default="0.0" name="width" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="y" readonly="true"/>
     <parameter datatype="String" default=""
       name="nameDiffLevelBasalCell" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="y" readonly="true"/>
     <parameter datatype="double" default="0.0" name="x" readonly="true"/>
     <parameter datatype="boolean" default="false" name="hasCollision" readonly="true"/>
     <parameter datatype="double" default="1.0"

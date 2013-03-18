@@ -16,6 +16,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
+import sim.app.episim.tissue.StandardMembrane;
 import sim.app.episim.tissue.TissueController;
 import sim.util.Double2D;
 import episimbiomechanics.centerbased.CenterBasedMechModelInit;
@@ -30,9 +31,9 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 	SimulationStateData simulationStateData = null;
 
 	public AdhesiveCenterBasedMechModelInit() {
-		super();
-		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
+		super();		
 		AdhesiveCenterBasedMechanicalModelGP globalParameters = (AdhesiveCenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		TissueController.getInstance().getTissueBorder().loadStandardMembrane(globalParameters.getBasalMembraneDiscrSteps(), globalParameters.getBasalMembraneContactTimeThreshold());
 		setInitialGlobalParametersValues(globalParameters);
 	}
 
@@ -47,7 +48,8 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 		double BASAL_CELL_HEIGHT=0;
 		double SUPRABASAL_CELL_WIDTH=0;
 		double SUPRABASAL_CELL_HEIGHT=0;
-		
+		AdhesiveCenterBasedMechanicalModelGP globalParameters = (AdhesiveCenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		TissueController.getInstance().getTissueBorder().loadStandardMembrane(globalParameters.getBasalMembraneDiscrSteps(), globalParameters.getBasalMembraneContactTimeThreshold());
 		
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 		AdhesiveCenterBasedMechanicalModelGP mechModelGP = (AdhesiveCenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
@@ -85,7 +87,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 		EpisimDifferentiationLevel[] diffLevels = ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels();
 		
 		
-		//seed basal layer
+		//seed basal layer left side
 		boolean firstCell = true;
 		double yZeroLine = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0);
 		for (double x = (0.5*BASAL_CELL_WIDTH); x <= mechModelGP.getInitCellCoveredDistInMikron(); x += BASAL_CELL_WIDTH) {
@@ -109,7 +111,55 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 			firstCell=false;			
 		}
 		
-		//seed suprabasal layers
+		//set basal contact time to threshold
+		StandardMembrane membrane = TissueController.getInstance().getTissueBorder().getStandardMembrane();
+		if(membrane != null && membrane.isDiscretizedMembrane()){
+			for (double x = 0; x < mechModelGP.getInitCellCoveredDistInMikron(); x += 1){
+				membrane.setContactTimeForReferenceCoordinate2D(new Double2D(x, membrane.lowerBoundInMikron(x, 0)), mechModelGP.getBasalMembraneContactTimeThreshold());
+			}
+		}
+		
+		
+		
+		
+		//seed basal layer right side
+				firstCell = true;
+				yZeroLine = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0);
+				for (double x = (mechModelGP.getWidthInMikron()-(0.5*BASAL_CELL_WIDTH)); x >= (mechModelGP.getWidthInMikron()- mechModelGP.getInitCellCoveredDistInMikron()); x -= BASAL_CELL_WIDTH) {
+					Double2D newloc = new Double2D(x, yZeroLine+ (BASAL_CELL_HEIGHT/2));				
+					UniversalCell cell = new UniversalCell(null, null, true);
+					AdhesiveCenterBasedMechanicalModel mechModel = ((AdhesiveCenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject());
+					Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
+					mechModel.setKeratinoWidth(BASAL_CELL_WIDTH);
+					mechModel.setKeratinoHeight(BASAL_CELL_HEIGHT);	
+					mechModel.getCellEllipseObject().setXY(corrPos.x, corrPos.y);
+					mechModel.setCellLocationInCellField(new Double2D(corrPos.x, corrPos.y));
+					standardCellEnsemble.add(cell);
+					
+					cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
+					if(firstCell){
+						cell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[0]);
+						mechModel.setDividesToTheLeft(true);
+					}
+					else{
+						if(diffLevels.length>1)cell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[1]);
+					}
+					firstCell=false;			
+				}
+				
+				//set basal contact time to threshold
+				membrane = TissueController.getInstance().getTissueBorder().getStandardMembrane();
+				if(membrane != null && membrane.isDiscretizedMembrane()){
+					for (double x = mechModelGP.getWidthInMikron(); x > (mechModelGP.getWidthInMikron()-mechModelGP.getInitCellCoveredDistInMikron()); x -= 1){
+						membrane.setContactTimeForReferenceCoordinate2D(new Double2D(x, membrane.lowerBoundInMikron(x, 0)), mechModelGP.getBasalMembraneContactTimeThreshold());
+					}
+				}
+		
+		
+		
+		
+		
+		//seed suprabasal layers left side
 		boolean firstSuprabasalLayer = true;
 		for (double y = 0; y < 3 ; y++) {
 			firstCell = true;
@@ -131,6 +181,30 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 			}
 			firstSuprabasalLayer = false;
 		}
+		
+		//seed suprabasal layers right side
+				firstSuprabasalLayer = true;
+				for (double y = 0; y < 3 ; y++) {
+					firstCell = true;
+					for (double x = (mechModelGP.getWidthInMikron()-(0.5*SUPRABASAL_CELL_WIDTH)); x >= (mechModelGP.getWidthInMikron()-mechModelGP.getInitCellCoveredDistInMikron()); x -= SUPRABASAL_CELL_WIDTH) {
+						Double2D newloc = new Double2D(x, yZeroLine+BASAL_CELL_HEIGHT + (SUPRABASAL_CELL_HEIGHT/2d) +(y*SUPRABASAL_CELL_HEIGHT));				
+						UniversalCell cell = new UniversalCell(null, null, true);
+						AdhesiveCenterBasedMechanicalModel mechModel = ((AdhesiveCenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject());
+						Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
+						mechModel.setKeratinoWidth(SUPRABASAL_CELL_WIDTH);
+						mechModel.setKeratinoHeight(SUPRABASAL_CELL_HEIGHT);
+						mechModel.getCellEllipseObject().setXY(corrPos.x, corrPos.y);
+						mechModel.setCellLocationInCellField(new Double2D(corrPos.x, corrPos.y));
+						standardCellEnsemble.add(cell);
+						
+						cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
+						if(firstCell) mechModel.setHasFixedPosition(true);
+						if(diffLevels.length>2)cell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[2]);
+						firstCell=false;
+					}
+					firstSuprabasalLayer = false;
+				}
+		
 		return standardCellEnsemble;
 	}
 

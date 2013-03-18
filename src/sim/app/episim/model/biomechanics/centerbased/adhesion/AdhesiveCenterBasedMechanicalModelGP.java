@@ -8,7 +8,7 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
 	
 	private int basalAmplitude_mikron = 0; // depth of an undulation
 	private int basalOpening_mikron = 250; // width of undulation at the middle
-	private double width = 100;
+	private double width = 200;
 	private double height = 50;
 	private double randomness = 0.07;
 	
@@ -24,6 +24,12 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
 	
 	
 	private double initCellCoveredDistInMikron = 30;
+	private int cellSizeDeltaSimSteps =300;
+	private double optDistanceAdhesionFact = 1.25;
+	private int basalMembraneDiscrSteps= 40;
+	private int basalMembraneContactTimeThreshold= 1000;
+	private double basalMembraneHighAdhesionFactor=1.05;
+	private double optDistanceScalingFactor = 0.95;
 	
 	public AdhesiveCenterBasedMechanicalModelGP() {}
 	
@@ -148,4 +154,80 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
    public void setInitCellCoveredDistInMikron(double initCellCoveredDistInMikron) {   
    	this.initCellCoveredDistInMikron = initCellCoveredDistInMikron <0 ?0 : initCellCoveredDistInMikron > this.width? this.width:initCellCoveredDistInMikron;
    }
+
+	
+   public int getCellSizeDeltaSimSteps() {
+   
+   	return cellSizeDeltaSimSteps;
+   }
+
+	
+   public void setCellSizeDeltaSimSteps(int cellSizeDeltaSimSteps) {
+   
+   	this.cellSizeDeltaSimSteps = cellSizeDeltaSimSteps < 1 ?1:cellSizeDeltaSimSteps;
+   }
+
+	
+   public double getOptDistanceAdhesionFact() {
+   
+   	return optDistanceAdhesionFact;
+   }
+
+	
+   public void setOptDistanceAdhesionFact(double optDistanceAdhesionFact) {
+   
+   	this.optDistanceAdhesionFact = optDistanceAdhesionFact>= 1?optDistanceAdhesionFact:1;
+   }
+
+	
+   public int getBasalMembraneDiscrSteps() {
+   
+   	return basalMembraneDiscrSteps;
+   }
+
+	
+   public void setBasalMembraneDiscrSteps(int basalMembraneDiscrSteps) {
+   
+   	this.basalMembraneDiscrSteps = basalMembraneDiscrSteps >= 10 ? basalMembraneDiscrSteps : 10;;
+   }
+
+	
+   public int getBasalMembraneContactTimeThreshold() {
+   
+   	return basalMembraneContactTimeThreshold;
+   }
+
+	
+   public void setBasalMembraneContactTimeThreshold(int basalMembraneContactTimeThreshold) {
+   
+   	this.basalMembraneContactTimeThreshold = basalMembraneContactTimeThreshold >0 ? basalMembraneContactTimeThreshold : 0;
+   }
+
+	
+   public double getOptDistanceScalingFactor() {
+   
+   	return optDistanceScalingFactor;
+   }
+
+	
+   public void setOptDistanceScalingFactor(double optDistanceScalingFactor) {
+   
+   	this.optDistanceScalingFactor = optDistanceScalingFactor > 0 ? optDistanceScalingFactor: 0.001;
+   }
+
+	
+   public double getBasalMembraneHighAdhesionFactor() {
+   
+   	return basalMembraneHighAdhesionFactor;
+   }
+
+	
+   public void setBasalMembraneHighAdhesionFactor(double basalMembraneHighAdhesionFactor) {
+   
+   	this.basalMembraneHighAdhesionFactor = basalMembraneHighAdhesionFactor;
+   }
+
+  
+
+  
 }

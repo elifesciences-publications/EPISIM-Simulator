@@ -28,10 +28,12 @@ public class EpisimAdhesiveCenterBasedMC extends EpisimModelConnector {
 	private double adhesionBasalMembrane=1;
 	private double adhesionBasalCell=1;
 	private double adhesionSuprabasalCell=1;
+	private double adhesionEarlySuprabasalCell=1;
 	private double adhesionStemCell=1;
 	
 	private String nameDiffLevelBasalCell="";
 	private String nameDiffLevelSuprabasalCell="";
+	private String nameDiffLevelEarlySuprabasalCell="";
 	private String nameDiffLevelStemCell="";
 		
 	public EpisimAdhesiveCenterBasedMC(){}
@@ -198,6 +200,30 @@ public class EpisimAdhesiveCenterBasedMC extends EpisimModelConnector {
    public void setNameDiffLevelStemCell(String nameDiffLevelStemCell) {
    
    	this.nameDiffLevelStemCell = nameDiffLevelStemCell;
+   }
+
+	
+   public String getNameDiffLevelEarlySuprabasalCell() {
+   
+   	return nameDiffLevelEarlySuprabasalCell;
+   }
+
+	
+   public void setNameDiffLevelEarlySuprabasalCell(String nameDiffLevelEarlySuprabasalCell) {
+   
+   	this.nameDiffLevelEarlySuprabasalCell = nameDiffLevelEarlySuprabasalCell;
+   }
+
+	
+   public double getAdhesionEarlySuprabasalCell() {
+   
+   	return adhesionEarlySuprabasalCell;
+   }
+
+	
+   public void setAdhesionEarlySuprabasalCell(double adhesionEarlySuprabasalCell) {
+   
+   	this.adhesionEarlySuprabasalCell = adhesionEarlySuprabasalCell;
    }
 	
 }

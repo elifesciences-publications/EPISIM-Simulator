@@ -15,7 +15,7 @@ import javax.vecmath.Vector3f;
 
 import episiminterfaces.EpisimPortrayal;
 
-import sim.app.episim.tissue.TissueBorder.StandardMembrane3DCoordinates;
+import sim.app.episim.tissue.StandardMembrane.StandardMembrane3DCoordinates;
 import sim.app.episim.tissue.TissueController;
 import sim.display3d.Display3DHack;
 import sim.portrayal3d.SimplePortrayal3D;

@@ -5,6 +5,7 @@ import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
+import sim.app.episim.tissue.StandardMembrane;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Scale;
@@ -74,16 +75,49 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					transform = new AffineTransform();
 					transform.setToTranslation(props.offsetX, props.offsetY);
 					polygon.transform(transform);
-				
-										
-					graphics.draw(polygon);
+					StandardMembrane membrane = TissueController.getInstance().getTissueBorder().getStandardMembrane();
+					if(membrane != null && membrane.isDiscretizedMembrane()){
+						ArrayList<Double> contactTimeList = membrane.getContactTimeToMembraneSegmentList();
+						PathIterator iterator = polygon.getPathIterator(new AffineTransform());
+						double[] coordinatesNew = new double[6];
+						double[] coordinatesOld = new double[6];
+						iterator.currentSegment(coordinatesOld);
+						int type = 0;
+						int segmentCounter = 0;
+						double threshold = membrane.getCellContactTimeThreshold();
+						do{							
+							iterator.next();
+							type=iterator.currentSegment(coordinatesNew);
+							if(type==PathIterator.SEG_LINETO){
+								double contactTime = Double.POSITIVE_INFINITY;
+								if(segmentCounter < contactTimeList.size()){
+									contactTime = contactTimeList.get(segmentCounter);
+								}
+								Color c = getColor(contactTime, threshold);
+								graphics.setColor(c);
+								graphics.drawLine((int)coordinatesOld[0], (int)coordinatesOld[1], (int)coordinatesNew[0], (int)coordinatesNew[1]);
+								coordinatesOld = coordinatesNew;
+								coordinatesNew = new double[6];
+								segmentCounter++;
+							}
+						}while(!iterator.isDone());
+					}
+					else graphics.draw(polygon);
+					
 				
 					graphics.setStroke(oldStroke);					
 				}
 			}
 		}
 	} 
-
+	private Color getColor(double contactTime, double threshold){
+		if(threshold > 0){
+		contactTime = contactTime < 0 ? 0 : contactTime > threshold ? threshold: contactTime;
+				
+		return new Color(255, (int) (255- 156*(contactTime/threshold)), (int) (255- 255*(contactTime/threshold)));
+		}
+		return  new Color(255, 99, 0);
+	}
    public Rectangle2D.Double getViewPortRectangle() {
  		EpisimGUIState guiState = SimStateServer.getInstance().getEpisimGUIState();	   
  	   if(guiState != null)return new Rectangle2D.Double(guiState.DISPLAY_BORDER_LEFT,guiState.DISPLAY_BORDER_TOP,guiState.EPIDISPLAYWIDTH, guiState.EPIDISPLAYHEIGHT);

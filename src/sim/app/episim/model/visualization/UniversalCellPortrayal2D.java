@@ -11,6 +11,8 @@ import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased.adhesion.AdhesiveCenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.adhesion.AdhesiveCenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
@@ -108,6 +110,10 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
                	 drawCellEllipses = ((CenterBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
                	 centerBasedModel = true;
                 }
+                else if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof AdhesiveCenterBasedMechanicalModelGP){
+               	 drawCellEllipses = ((AdhesiveCenterBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
+               	 centerBasedModel = true;
+                }
                 StandardDiffLevel sDiffLevel = universalCell.getStandardDiffLevel();                                
                 int colorType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
                 if(sDiffLevel != null){
@@ -169,11 +175,18 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
  	}
 
 	private void doCenterBasedModelEllipseDrawing(Graphics2D graphics, DrawInfo2D info, UniversalCell universalCell, boolean showNucleus){
-		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+		if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel
+				|| universalCell.getEpisimBioMechanicalModelObject() instanceof AdhesiveCenterBasedMechanicalModel){
 		    AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel)universalCell.getEpisimBioMechanicalModelObject();
-			((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
-			CellEllipse cellEllipseObject = ((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
-			
+		    CellEllipse cellEllipseObject = null;
+		    if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
+				((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
+				cellEllipseObject = ((CenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
+		    }
+		    if(universalCell.getEpisimBioMechanicalModelObject() instanceof AdhesiveCenterBasedMechanicalModel){
+					((AdhesiveCenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).calculateClippedCell(SimStateServer.getInstance().getSimStepNumber());
+					cellEllipseObject = ((AdhesiveCenterBasedMechanicalModel) universalCell.getEpisimBioMechanicalModelObject()).getCellEllipseObject();
+			    }
 			if(SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.PAUSE || SimStateServer.getInstance().getEpisimSimulationState() == EpisimSimulationState.STOP){ 
 				SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));
 				
@@ -195,7 +208,9 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 		    		Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
 		         graphics.setPaint(nucleusColor);
 		       	final double NUCLEUSRAD = 0.75;
-		         graphics.fill(new Ellipse2D.Double(cellEllipseObject.getX()-NUCLEUSRAD*info.draw.width, cellEllipseObject.getY()-NUCLEUSRAD*info.draw.height,2*NUCLEUSRAD*info.draw.width, 2*NUCLEUSRAD*info.draw.height));
+		       	double width = cellEllipseObject.getMajorAxis()*0.3;
+		       	double height = cellEllipseObject.getMinorAxis()*0.3;		
+		         graphics.fill(new Ellipse2D.Double(cellEllipseObject.getX()-(width/2), cellEllipseObject.getY()-(height/2), width, height));
 		    	}
 	    	}
 	    	//must be set at the very end of the paint method

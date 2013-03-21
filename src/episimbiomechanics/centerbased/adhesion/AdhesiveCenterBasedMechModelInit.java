@@ -175,7 +175,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 				standardCellEnsemble.add(cell);
 				
 				cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
-				if(firstCell) mechModel.setHasFixedPosition(true);
+				if(firstCell&&firstSuprabasalLayer) mechModel.setHasFixedPosition(true);
 				if(diffLevels.length>2)cell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[2]);
 				firstCell=false;
 			}
@@ -198,7 +198,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 						standardCellEnsemble.add(cell);
 						
 						cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
-						if(firstCell) mechModel.setHasFixedPosition(true);
+						if(firstCell&&firstSuprabasalLayer) mechModel.setHasFixedPosition(true);
 						if(diffLevels.length>2)cell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[2]);
 						firstCell=false;
 					}

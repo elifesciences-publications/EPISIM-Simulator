@@ -20,16 +20,17 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
 	private boolean drawCellsAsEllipses = false;
 	private double numberOfPixelsPerMicrometer = 1;
 	
-	private double neighbourhoodOptDistFact = 1.6;
+	private double neighbourhoodOptDistFact = 1.3;
 	
 	
 	private double initCellCoveredDistInMikron = 30;
-	private int cellSizeDeltaSimSteps =300;
+	private int cellSizeDeltaSimSteps =100;
 	private double optDistanceAdhesionFact = 1.25;
 	private int basalMembraneDiscrSteps= 40;
-	private int basalMembraneContactTimeThreshold= 1000;
-	private double basalMembraneHighAdhesionFactor=1.05;
+	private int basalMembraneContactTimeThreshold= 2000;
+	private double basalMembraneHighAdhesionFactor=3;
 	private double optDistanceScalingFactor = 0.95;
+	private double randomGravity = 0.3;
 	
 	public AdhesiveCenterBasedMechanicalModelGP() {}
 	
@@ -132,13 +133,13 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
 	   return ModelDimensionality.TWO_DIMENSIONAL;
    }
 
-	@NoUserModification
+	
    public double getNeighbourhoodOptDistFact() {
    
    	return neighbourhoodOptDistFact;
    }
 
-	@NoUserModification
+	
    public void setNeighbourhoodOptDistFact(double neighbourhoodOptDistFact) {
 		
    	this.neighbourhoodOptDistFact = neighbourhoodOptDistFact;
@@ -225,6 +226,18 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
    public void setBasalMembraneHighAdhesionFactor(double basalMembraneHighAdhesionFactor) {
    
    	this.basalMembraneHighAdhesionFactor = basalMembraneHighAdhesionFactor;
+   }
+
+	
+   public double getRandomGravity() {
+   
+   	return randomGravity;
+   }
+
+	
+   public void setRandomGravity(double randomGravity) {
+   
+   	this.randomGravity = randomGravity;
    }
 
   

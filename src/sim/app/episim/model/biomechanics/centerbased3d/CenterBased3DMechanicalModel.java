@@ -322,7 +322,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	
 	
 
-	public Double3D calcBoundedPos(Continuous3D pC2dHerd, double xPos, double yPos, double zPos)
+	public Double3D calcBoundedPos(double xPos, double yPos, double zPos)
 	{
 	
 	   double newx=0, newy=0, newz=0;	   
@@ -469,7 +469,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		double potY = oldCellLocation.y + actionForce.y + reactionForce.y;
 		double potZ = oldCellLocation.z + actionForce.z + reactionForce.z;
 		potentialLoc = new Double3D(cellField.stx(potX), cellField.sty(potY), cellField.stz(potZ));
-		potentialLoc = calcBoundedPos(cellField, potentialLoc.x, potentialLoc.y, potentialLoc.z);
+		potentialLoc = calcBoundedPos(potentialLoc.x, potentialLoc.y, potentialLoc.z);
 
 		// ////////////////////////////////////////////////
 		// try optimised POS

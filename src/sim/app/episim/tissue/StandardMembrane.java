@@ -12,6 +12,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.util.Double2D;
+import sim.util.Double3D;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
@@ -28,56 +29,103 @@ public class StandardMembrane {
 	private boolean isStandardMembrane2DGauss = false;	
 	private StandardMembrane3DCoordinates standardMembraneCoordinates3D;
 	
-	private int discretizationSteps = 0;
+	private int discretizationStepsX = 0;
+	private int discretizationStepsZ = 0;
 	private double cellContactTimeThreshold= 0;
-	private BasalMembraneDiscretizationStep[] basalMembraneDiscretization = null;
+	private BasalMembraneDiscretizationStep2D[] basalMembraneDiscretization2D = null;
+	private BasalMembraneDiscretizationStep3D[][] basalMembraneDiscretization3D = null;
 	private final int DRAWING_STEPSIZE = 1;
-	private ArrayList<Double> contactTimeToMembraneSegmentList;
+	private ArrayList<Double> contactTimeToMembraneSegmentList2D;
+	private ArrayList<Double> contactTimeToMembraneSegmentList3D;
 	boolean isDiscretizedMembrane = false;
+	EpisimBiomechanicalModelGlobalParameters globalParameters;
 	protected StandardMembrane(){
-		this(0,0);
+		this(0,0,0);
 	}
 	protected StandardMembrane(int discretizationSteps, double cellContactTimeThreshold){
-		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		this(discretizationSteps, discretizationSteps,cellContactTimeThreshold);		
+	}
+	
+	protected StandardMembrane(int discretizationStepsX,int discretizationStepsZ, double cellContactTimeThreshold){
+		globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		if(globalParameters.getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){			
-			if(discretizationSteps > 1){
-				this.discretizationSteps = discretizationSteps; 
+			if(discretizationStepsX > 1){
+				this.discretizationStepsX = discretizationStepsX; 
 				this.cellContactTimeThreshold = cellContactTimeThreshold;
-				buildAdhesionDiscretization();
+				buildAdhesionDiscretization2D();
 				isDiscretizedMembrane=true;
 			}
 			buildStandardMembrane2D();
 		}
-		if(globalParameters.getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL)buildStandardMembrane3D();
+		if(globalParameters.getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+			if(discretizationStepsX > 1 && discretizationStepsZ > 1){
+				this.discretizationStepsX = discretizationStepsX; 
+				this.discretizationStepsZ = discretizationStepsZ;
+				this.cellContactTimeThreshold = cellContactTimeThreshold;
+				buildAdhesionDiscretization3D();
+				isDiscretizedMembrane=true;
+			}
+			buildStandardMembrane3D();
+		}
 		
 	}
 	
 	protected void buildStandardMembrane2D(){
 		GeneralPath polygon = new GeneralPath();
-		if(this.isDiscretizedMembrane) contactTimeToMembraneSegmentList = new ArrayList<Double>();
+		if(this.isDiscretizedMembrane) contactTimeToMembraneSegmentList2D = new ArrayList<Double>();
  		((GeneralPath)polygon).moveTo(startXOfStandardMembrane, (getHeightInMikron()-lowerBoundInMikron(startXOfStandardMembrane, 0)));
  		for(double i = startXOfStandardMembrane; i <= (startXOfStandardMembrane+getWidthInMikron()); i += DRAWING_STEPSIZE){
  		((GeneralPath)polygon).lineTo(i, (getHeightInMikron()-lowerBoundInMikron(i, 0)));
 	 		if(this.isDiscretizedMembrane){ 
-	 		  BasalMembraneDiscretizationStep step = getBasalMembraneDiscretizationStepForCoordinates(new Double2D(i, lowerBoundInMikron(i, 0)));
-	 		  if(step != null)contactTimeToMembraneSegmentList.add(step.contactTime);
+	 		  BasalMembraneDiscretizationStep2D step = getBasalMembraneDiscretizationStep2DForCoordinates(new Double2D(i, lowerBoundInMikron(i, 0)));
+	 		  if(step != null)contactTimeToMembraneSegmentList2D.add(step.contactTime);
 	 		}
  		}
  		this.polygon = polygon;
  		this.drawBasalLayer = (GeneralPath)polygon.clone();
  		drawPolygon = (GeneralPath)polygon.clone();
 	}
-	protected void buildAdhesionDiscretization(){
+	protected void buildAdhesionDiscretization2D(){
 		double width = getWidthInMikron();
-		double intervalSize = width/((double)discretizationSteps);
-		basalMembraneDiscretization = new BasalMembraneDiscretizationStep[discretizationSteps];
-		for(int i = 0; i < discretizationSteps; i++){
-			this.basalMembraneDiscretization[i] = new BasalMembraneDiscretizationStep();
-			this.basalMembraneDiscretization[i].lowerBound = new Double2D(i*intervalSize, lowerBoundInMikron(i*intervalSize, 0));
-			this.basalMembraneDiscretization[i].upperBound = new Double2D((i+1)*intervalSize, lowerBoundInMikron((i+1)*intervalSize, 0));
-			double referenceX = (this.basalMembraneDiscretization[i].lowerBound.x + this.basalMembraneDiscretization[i].upperBound.x) /2d;
-			this.basalMembraneDiscretization[i].referenceCoordinates = new Double2D(referenceX, lowerBoundInMikron(referenceX, 0));
-			this.basalMembraneDiscretization[i].contactTime = 0;
+		double intervalSize = width/((double)discretizationStepsX);
+		basalMembraneDiscretization2D = new BasalMembraneDiscretizationStep2D[discretizationStepsX];
+		for(int i = 0; i < discretizationStepsX; i++){
+			this.basalMembraneDiscretization2D[i] = new BasalMembraneDiscretizationStep2D();
+			this.basalMembraneDiscretization2D[i].lowerBound = new Double2D(i*intervalSize, lowerBoundInMikron(i*intervalSize, 0));
+			this.basalMembraneDiscretization2D[i].upperBound = new Double2D((i+1)*intervalSize, lowerBoundInMikron((i+1)*intervalSize, 0));
+			double referenceX = (this.basalMembraneDiscretization2D[i].lowerBound.x + this.basalMembraneDiscretization2D[i].upperBound.x) /2d;
+			this.basalMembraneDiscretization2D[i].referenceCoordinates = new Double2D(referenceX, lowerBoundInMikron(referenceX, 0));
+			this.basalMembraneDiscretization2D[i].contactTime = 0;
+		}
+	}
+	protected void buildAdhesionDiscretization3D(){
+		double width = getWidthInMikron();
+		double length = getLengthInMikron();
+		double intervalSizeX = width / ((double)discretizationStepsX);
+		double intervalSizeZ = length / ((double)discretizationStepsZ);
+		basalMembraneDiscretization3D = new BasalMembraneDiscretizationStep3D[discretizationStepsZ][discretizationStepsX];
+		for(int i = 0; i < discretizationStepsZ; i++){
+			for(int n = 0; n < discretizationStepsX; n++){
+				
+				this.basalMembraneDiscretization3D[i][n] = new BasalMembraneDiscretizationStep3D();
+				
+				this.basalMembraneDiscretization3D[i][n].lowerBoundZ1 = new Double3D(n*intervalSizeX, lowerBoundInMikron(n*intervalSizeX, i*intervalSizeZ),i*intervalSizeZ);
+				this.basalMembraneDiscretization3D[i][n].upperBoundZ1 = new Double3D((n+1)*intervalSizeX, lowerBoundInMikron((n+1)*intervalSizeX, i*intervalSizeZ),i*intervalSizeZ);
+				
+				this.basalMembraneDiscretization3D[i][n].lowerBoundZ2 = new Double3D(n*intervalSizeX, lowerBoundInMikron(n*intervalSizeX, (i+1)*intervalSizeZ),(i+1)*intervalSizeZ);
+				this.basalMembraneDiscretization3D[i][n].upperBoundZ2 = new Double3D((n+1)*intervalSizeX, lowerBoundInMikron((n+1)*intervalSizeX, (i+1)*intervalSizeZ), (i+1)*intervalSizeZ);
+				
+				double referenceX = (this.basalMembraneDiscretization3D[i][n].lowerBoundZ1.x 
+											+ this.basalMembraneDiscretization3D[i][n].upperBoundZ1.x
+											+ this.basalMembraneDiscretization3D[i][n].lowerBoundZ2.x 
+											+ this.basalMembraneDiscretization3D[i][n].upperBoundZ2.x) /4d;
+				double referenceZ = (this.basalMembraneDiscretization3D[i][n].lowerBoundZ1.z 
+											+ this.basalMembraneDiscretization3D[i][n].upperBoundZ1.z
+											+ this.basalMembraneDiscretization3D[i][n].lowerBoundZ2.z 
+											+ this.basalMembraneDiscretization3D[i][n].upperBoundZ2.z) /4d;
+				this.basalMembraneDiscretization3D[i][n].referenceCoordinates = new Double3D(referenceX, lowerBoundInMikron(referenceX, referenceZ), referenceZ);
+				this.basalMembraneDiscretization3D[i][n].contactTime = 0;
+			}
 		}
 	}
 	
@@ -154,7 +202,8 @@ public class StandardMembrane {
 	}
 	
 	protected double calculateStandardMembraneValue(double xCell, double yCell){
-		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		if(globalParameters.getBasalAmplitude_mikron()!=0){
+		
 		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL
 		   ||(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
 		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
@@ -180,15 +229,17 @@ public class StandardMembrane {
 		     return result;
 		}
 		return 0;
+		}
+		else return 2;
+		
 	}
 	private double getHeight(boolean inPixels){
-		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
+	
 		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 		return inPixels ? globalParameters.getHeightInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getHeightInMikron();
 	}
 	
 	private double getWidth(boolean inPixels){
-		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 		return inPixels ? globalParameters.getWidthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getWidthInMikron();	
 	}
 	
@@ -226,8 +277,6 @@ public class StandardMembrane {
 	}
 	
 	private double getLength(boolean inPixels){
-		
-		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		return inPixels ? globalParameters.getLengthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getLengthInMikron();
 	}
 	public double lowerBoundInMikron(double xCell, double yCell, double zCell){
@@ -245,34 +294,85 @@ public class StandardMembrane {
 		drawBasalLayer = new GeneralPath();
 		basalPeriod=70;
 		startXOfStandardMembrane = 0;
-		discretizationSteps = 0;
+		discretizationStepsX = 0;
 		cellContactTimeThreshold= 0;
-		contactTimeToMembraneSegmentList=null;
+		contactTimeToMembraneSegmentList2D=null;
+		contactTimeToMembraneSegmentList3D=null;
 		isDiscretizedMembrane=false;
 		
 	}
 	
 	public boolean isDiscretizedMembrane(){ return this.isDiscretizedMembrane; }
-	private BasalMembraneDiscretizationStep getBasalMembraneDiscretizationStepForCoordinates(Double2D coord){
-		if(this.basalMembraneDiscretization != null){
+	
+	private BasalMembraneDiscretizationStep2D getBasalMembraneDiscretizationStep2DForCoordinates(Double2D coord){
+		if(this.basalMembraneDiscretization2D != null){
 			double width = getWidthInMikron();
-			double intervalSize = width/((double)discretizationSteps);
+			double intervalSize = width/((double)discretizationStepsX);
 			int index = (int)(coord.x /intervalSize);
-			return this.basalMembraneDiscretization[index >= this.basalMembraneDiscretization.length ? (this.basalMembraneDiscretization.length-1):index< 0? 0: index];
+			return this.basalMembraneDiscretization2D[index >= this.basalMembraneDiscretization2D.length ? (this.basalMembraneDiscretization2D.length-1):index< 0? 0: index];
+		}
+		return null;
+	}
+	private BasalMembraneDiscretizationStep3D getBasalMembraneDiscretizationStep3DForCoordinates(Double3D coord){
+		if(this.basalMembraneDiscretization3D != null){
+			double width = getWidthInMikron();
+			double length = getLengthInMikron();
+			double intervalSizeX = width/((double)discretizationStepsX);
+			double intervalSizeZ = length/((double)discretizationStepsZ);
+			int indexX = (int)(coord.x /intervalSizeX);
+			int indexZ = (int)(coord.z /intervalSizeZ);
+			indexZ = indexZ >= this.basalMembraneDiscretization3D.length ? (this.basalMembraneDiscretization3D.length-1):indexZ< 0? 0: indexZ;
+			indexX = indexX >= this.basalMembraneDiscretization3D[indexZ].length ? (this.basalMembraneDiscretization3D[indexZ].length-1):indexX< 0? 0: indexX;
+			return this.basalMembraneDiscretization3D[indexZ][indexX];
 		}
 		return null;
 	}
 	
-	public BasalMembraneDiscretizationStep[] getBasalMembraneDiscretizationStepsCopy(){
-		if(this.basalMembraneDiscretization != null){
-			BasalMembraneDiscretizationStep[] copy = new BasalMembraneDiscretizationStep[this.basalMembraneDiscretization.length];
-			for(int i = 0; i < this.basalMembraneDiscretization.length; i++){
-				if(this.basalMembraneDiscretization[i] != null){
-					copy[i] = new BasalMembraneDiscretizationStep();
-					copy[i].contactTime = this.basalMembraneDiscretization[i].contactTime;
-					copy[i].upperBound = new Double2D(this.basalMembraneDiscretization[i].upperBound.x, this.basalMembraneDiscretization[i].upperBound.y);
-					copy[i].lowerBound = new Double2D(this.basalMembraneDiscretization[i].lowerBound.x, this.basalMembraneDiscretization[i].lowerBound.y);
-					copy[i].referenceCoordinates = new Double2D(this.basalMembraneDiscretization[i].referenceCoordinates.x, this.basalMembraneDiscretization[i].referenceCoordinates.y);
+	public BasalMembraneDiscretizationStep2D[] getBasalMembraneDiscretizationSteps2DCopy(){
+		if(this.basalMembraneDiscretization2D != null){
+			BasalMembraneDiscretizationStep2D[] copy = new BasalMembraneDiscretizationStep2D[this.basalMembraneDiscretization2D.length];
+			for(int i = 0; i < this.basalMembraneDiscretization2D.length; i++){
+				if(this.basalMembraneDiscretization2D[i] != null){
+					copy[i] = new BasalMembraneDiscretizationStep2D();
+					copy[i].contactTime = this.basalMembraneDiscretization2D[i].contactTime;
+					copy[i].upperBound = new Double2D(this.basalMembraneDiscretization2D[i].upperBound.x, this.basalMembraneDiscretization2D[i].upperBound.y);
+					copy[i].lowerBound = new Double2D(this.basalMembraneDiscretization2D[i].lowerBound.x, this.basalMembraneDiscretization2D[i].lowerBound.y);
+					copy[i].referenceCoordinates = new Double2D(this.basalMembraneDiscretization2D[i].referenceCoordinates.x, this.basalMembraneDiscretization2D[i].referenceCoordinates.y);
+				}
+			}
+			return copy;
+		}
+		return null;
+	}
+	public BasalMembraneDiscretizationStep3D[][] getBasalMembraneDiscretizationSteps3DCopy(){
+		if(this.basalMembraneDiscretization3D != null && this.basalMembraneDiscretization3D[0] != null){
+			BasalMembraneDiscretizationStep3D[][] copy = new BasalMembraneDiscretizationStep3D[this.basalMembraneDiscretization3D.length][this.basalMembraneDiscretization3D[0].length];
+			for(int i = 0; i < this.basalMembraneDiscretization3D.length; i++){
+				if(this.basalMembraneDiscretization2D[i] != null){
+					for(int n = 0; n < this.basalMembraneDiscretization3D[i].length; n++){
+						copy[i][n] = new BasalMembraneDiscretizationStep3D();
+						copy[i][n].contactTime = this.basalMembraneDiscretization3D[i][n].contactTime;
+						copy[i][n].upperBoundZ1 = new Double3D(this.basalMembraneDiscretization3D[i][n].upperBoundZ1.x,
+																			this.basalMembraneDiscretization3D[i][n].upperBoundZ1.y,
+																			this.basalMembraneDiscretization3D[i][n].upperBoundZ1.z);
+						
+						copy[i][n].lowerBoundZ1 = new Double3D(this.basalMembraneDiscretization3D[i][n].lowerBoundZ1.x,
+																			this.basalMembraneDiscretization3D[i][n].lowerBoundZ1.y,
+																			this.basalMembraneDiscretization3D[i][n].lowerBoundZ1.z);
+						
+						copy[i][n].upperBoundZ2 = new Double3D(this.basalMembraneDiscretization3D[i][n].upperBoundZ2.x,
+																			this.basalMembraneDiscretization3D[i][n].upperBoundZ2.y,
+																			this.basalMembraneDiscretization3D[i][n].upperBoundZ2.z);
+						
+						copy[i][n].lowerBoundZ2 = new Double3D(this.basalMembraneDiscretization3D[i][n].lowerBoundZ2.x,
+																			this.basalMembraneDiscretization3D[i][n].lowerBoundZ2.y,
+																			this.basalMembraneDiscretization3D[i][n].lowerBoundZ2.z);
+						
+						copy[i][n].referenceCoordinates = new Double3D(this.basalMembraneDiscretization3D[i][n].referenceCoordinates.x, 
+																					  this.basalMembraneDiscretization3D[i][n].referenceCoordinates.y,
+																					  this.basalMembraneDiscretization3D[i][n].referenceCoordinates.z);
+					
+					}
 				}
 			}
 			return copy;
@@ -281,8 +381,8 @@ public class StandardMembrane {
 	}
 	
 	public Double2D getBasalAdhesionReferenceCoordinates2D(Double2D cellCoordinates){
-		if(this.basalMembraneDiscretization != null){
-			BasalMembraneDiscretizationStep step = getBasalMembraneDiscretizationStepForCoordinates(cellCoordinates);
+		if(this.basalMembraneDiscretization2D != null){
+			BasalMembraneDiscretizationStep2D step = getBasalMembraneDiscretizationStep2DForCoordinates(cellCoordinates);
 			if(step != null){
 				return step.referenceCoordinates;
 			}
@@ -290,8 +390,8 @@ public class StandardMembrane {
 		return null;
 	}
 	public double getContactTimeForReferenceCoordinate2D(Double2D cellCoordinates){
-		if(this.basalMembraneDiscretization != null){
-			BasalMembraneDiscretizationStep step = getBasalMembraneDiscretizationStepForCoordinates(cellCoordinates);
+		if(this.basalMembraneDiscretization2D != null){
+			BasalMembraneDiscretizationStep2D step = getBasalMembraneDiscretizationStep2DForCoordinates(cellCoordinates);
 			if(step != null){
 				return step.contactTime;
 			}
@@ -299,27 +399,75 @@ public class StandardMembrane {
 		return -1;
 	}
 	public void setContactTimeForReferenceCoordinate2D(Double2D cellCoordinates, double contactTime){
-		if(this.basalMembraneDiscretization != null){
-			BasalMembraneDiscretizationStep step = getBasalMembraneDiscretizationStepForCoordinates(cellCoordinates);
+		if(this.basalMembraneDiscretization2D != null){
+			BasalMembraneDiscretizationStep2D step = getBasalMembraneDiscretizationStep2DForCoordinates(cellCoordinates);
 			if(step != null){
 				step.contactTime = contactTime;
 			}
 		}		
 	}
 	public void inkrementContactTimeForReferenceCoordinate2D(Double2D cellCoordinates){
-		if(this.basalMembraneDiscretization != null){
-			BasalMembraneDiscretizationStep step = getBasalMembraneDiscretizationStepForCoordinates(cellCoordinates);
+		if(this.basalMembraneDiscretization2D != null){
+			BasalMembraneDiscretizationStep2D step = getBasalMembraneDiscretizationStep2DForCoordinates(cellCoordinates);
 			if(step != null){
 				step.contactTime++;
 			}
 		}
 	}
 	
-	private class BasalMembraneDiscretizationStep{
+	
+	public Double3D getBasalAdhesionReferenceCoordinates3D(Double3D cellCoordinates){
+		if(this.basalMembraneDiscretization3D != null){
+			BasalMembraneDiscretizationStep3D step = getBasalMembraneDiscretizationStep3DForCoordinates(cellCoordinates);
+			if(step != null){
+				return step.referenceCoordinates;
+			}
+		}
+		return null;
+	}
+	public double getContactTimeForReferenceCoordinate3D(Double3D cellCoordinates){
+		if(this.basalMembraneDiscretization3D != null){
+			BasalMembraneDiscretizationStep3D step = getBasalMembraneDiscretizationStep3DForCoordinates(cellCoordinates);
+			if(step != null){
+				return step.contactTime;
+			}
+		}
+		return -1;
+	}
+	public void setContactTimeForReferenceCoordinate3D(Double3D cellCoordinates, double contactTime){
+		if(this.basalMembraneDiscretization3D != null){
+			BasalMembraneDiscretizationStep3D step = getBasalMembraneDiscretizationStep3DForCoordinates(cellCoordinates);
+			if(step != null){
+				step.contactTime = contactTime;
+			}
+		}		
+	}
+	public void inkrementContactTimeForReferenceCoordinate3D(Double3D cellCoordinates){
+		if(this.basalMembraneDiscretization3D != null){
+			BasalMembraneDiscretizationStep3D step = getBasalMembraneDiscretizationStep3DForCoordinates(cellCoordinates);
+			if(step != null){
+				step.contactTime++;
+			}
+		}
+	}
+	
+	
+	
+	
+	private class BasalMembraneDiscretizationStep2D{
 		public double contactTime = 0;
 		public Double2D lowerBound = null;
 		public Double2D referenceCoordinates = null;
 		public Double2D upperBound = null;
+	}
+	
+	private class BasalMembraneDiscretizationStep3D{
+		public double contactTime = 0;
+		public Double3D lowerBoundZ1 = null;
+		public Double3D lowerBoundZ2 = null;
+		public Double3D referenceCoordinates = null;
+		public Double3D upperBoundZ1 = null;
+		public Double3D upperBoundZ2 = null;
 	}
 	
 	
@@ -341,9 +489,9 @@ public class StandardMembrane {
 		return (GeneralPath)drawBasalLayer.clone();		
 	}
 	
-   public ArrayList<Double> getContactTimeToMembraneSegmentList() {
+   public ArrayList<Double> getContactTimeToMembraneSegmentList2D() {
    
-   	return contactTimeToMembraneSegmentList;
+   	return contactTimeToMembraneSegmentList2D;
    }
 	
 }

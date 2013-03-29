@@ -54,7 +54,13 @@ public class CellBehavioralModelInitializer {
 						Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getCellCycle", new Class<?>[]{});
 						result =m.invoke(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), new Object[0]);
 						
-					} catch (Exception e2) {}
+					} catch (Exception e2) {
+						try {
+							Method m = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass().getMethod("getCellCycleBurst", new Class<?>[]{});
+							result =m.invoke(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), new Object[0]);
+							
+						} catch (Exception e3) {}
+					}
 				}
 				if(result != null){
 					if(result instanceof Integer){

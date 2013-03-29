@@ -1,10 +1,11 @@
-package sim.app.episim.model.biomechanics.centerbased.adhesion;
+package sim.app.episim.model.biomechanics.centerbased3d.adhesion;
+
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
-public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class AdhesiveCenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
 	private int basalAmplitude_mikron = 0; // depth of an undulation
 	private int basalOpening_mikron = 250; // width of undulation at the middle
@@ -32,7 +33,7 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
 	private double optDistanceScalingFactor = 0.95;
 	private double randomGravity = 0.2;
 	
-	public AdhesiveCenterBasedMechanicalModelGP() {}
+	public AdhesiveCenterBased3DMechanicalModelGP() {}
 	
 	public boolean isDrawCellsAsEllipses() {
 		return drawCellsAsEllipses;
@@ -96,12 +97,15 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
    public void setHeightInMikron(double val) {   
    	if(val > 0) this.height = val;
    }
+   
+   @NoUserModification
    public double getLengthInMikron() {
-   	//not needed in 2D model
-   	return 0;
+   	
+   	return getWidthInMikron();
    }	
+   @NoUserModification
    public void setLengthInMikron(double val) {   
-   	//not needed in 2D model
+   	setWidthInMikron(val);
    }
 
 	public void setNumberOfPixelsPerMicrometer(double val) {
@@ -125,12 +129,12 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
 	
 	@NoUserModification
 	public boolean areDiffusionFieldsContinousInZDirection() {	   
-	   return false;
+	   return true;
    }
 
 	@NoUserModification
    public ModelDimensionality getModelDimensionality() {	   
-	   return ModelDimensionality.TWO_DIMENSIONAL;
+	   return ModelDimensionality.THREE_DIMENSIONAL;
    }
 
 	

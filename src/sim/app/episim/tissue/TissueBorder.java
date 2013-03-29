@@ -367,6 +367,11 @@ public class TissueBorder implements ClassLoaderChangeListener{
 		standardMembrane = new StandardMembrane(discretizationSteps, (double)contactTimeThreshold);
 	}
 	
+	public void loadStandardMembrane(int discretizationStepsX, int discretizationStepsZ, int contactTimeThreshold){		
+		standardMembraneLoaded = true;
+		standardMembrane = new StandardMembrane(discretizationStepsX, discretizationStepsZ, (double)contactTimeThreshold);
+	}
+	
 	
 	
 	public StandardMembrane3DCoordinates getStandardMembraneCoordinates3D(boolean update){

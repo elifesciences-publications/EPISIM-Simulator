@@ -32,6 +32,19 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 	
 	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age", "Episim-Modeller Custom Coloring"};
 	
+	static{
+		if(instance == null){
+			if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
+				instance = new MiscalleneousGlobalParameters();
+				resetinstance = new MiscalleneousGlobalParameters();
+			}
+			else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+				instance = new MiscalleneousGlobalParameters3D();
+				resetinstance = new MiscalleneousGlobalParameters3D();
+			}
+		}
+	}
+	
 	private MiscalleneousGlobalParameters(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}
@@ -49,17 +62,8 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 		return typeString[typeColor];
 	}
 	@NoUserModification
-	public static synchronized MiscalleneousGlobalParameters getInstance(){
-		if(instance == null){
-			if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
-				instance = new MiscalleneousGlobalParameters();
-				resetinstance = new MiscalleneousGlobalParameters();
-			}
-			else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
-				instance = new MiscalleneousGlobalParameters3D();
-				resetinstance = new MiscalleneousGlobalParameters3D();
-			}
-		}
+	public static MiscalleneousGlobalParameters getInstance(){
+		
 		return instance;
 	}
 	

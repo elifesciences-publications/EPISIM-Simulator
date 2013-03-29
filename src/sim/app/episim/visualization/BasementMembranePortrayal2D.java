@@ -65,7 +65,10 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					SimulationDisplayProperties props = guiState.getSimulationDisplayProperties(new EpisimDrawInfo<DrawInfo2D>(info));								
 					
 					if(TissueController.getInstance().getTissueBorder().isStandardMembraneLoaded()){
-						 graphics.setStroke(new BasicStroke((int)(0.8*props.displayScaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+						double strokeFact = 4;
+						StandardMembrane membrane = TissueController.getInstance().getTissueBorder().getStandardMembrane();
+						if(membrane!= null && membrane.isDiscretizedMembrane())graphics.setStroke(new BasicStroke((int)(strokeFact*props.displayScaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+						else graphics.setStroke(new BasicStroke((int)(0.8*props.displayScaleX), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 						// scaleX *= 1.06;
 					}
 				
@@ -77,7 +80,7 @@ public class BasementMembranePortrayal2D extends ContinuousPortrayal2D implement
 					polygon.transform(transform);
 					StandardMembrane membrane = TissueController.getInstance().getTissueBorder().getStandardMembrane();
 					if(membrane != null && membrane.isDiscretizedMembrane()){
-						ArrayList<Double> contactTimeList = membrane.getContactTimeToMembraneSegmentList();
+						ArrayList<Double> contactTimeList = membrane.getContactTimeToMembraneSegmentList2D();
 						PathIterator iterator = polygon.getPathIterator(new AffineTransform());
 						double[] coordinatesNew = new double[6];
 						double[] coordinatesOld = new double[6];

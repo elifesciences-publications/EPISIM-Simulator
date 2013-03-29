@@ -56,6 +56,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
     private final double INITIALWIDTH;
     private final double INITIALHEIGHT;
     
+    private Color nucleusColor = new Color(78,191,250); //(Red, Green, Blue); 
    
     private EpisimGUIState guiState;
     
@@ -205,7 +206,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 		       	  }
 		    	}
 		    	if(showNucleus){
-		    		Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
+		    		
 		         graphics.setPaint(nucleusColor);
 		       	final double NUCLEUSRAD = 0.75;
 		       	double width = cellEllipseObject.getMajorAxis()*0.3;
@@ -233,7 +234,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    	myFrameColor=new Color(200, 165, 200);                
    	if (coloringType==3 || coloringType==4 || coloringType==5 || coloringType==6 || coloringType==7) // Age coloring
    	{
-   		myFrameColor=Color.black;
+   		myFrameColor=new Color(180,180,180);
    	}
    	return myFrameColor;      
    }

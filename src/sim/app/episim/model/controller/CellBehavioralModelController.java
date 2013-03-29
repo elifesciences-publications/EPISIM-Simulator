@@ -41,7 +41,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	 * 
 	 */
 	private static final long serialVersionUID = 2406025736169916469L;
-	private static CellBehavioralModelController instance;
+	private static CellBehavioralModelController instance = new CellBehavioralModelController();;
 	private CellBehavioralModelFacade cellBehavioralModel;
 	
 	
@@ -103,8 +103,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
       return foundClassFiles;
 	}
 	
-	protected synchronized static CellBehavioralModelController getInstance(){
-		if(instance == null) instance = new CellBehavioralModelController();
+	protected static CellBehavioralModelController getInstance(){
 		return instance;
 	}
 	

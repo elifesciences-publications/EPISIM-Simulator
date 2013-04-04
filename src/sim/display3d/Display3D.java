@@ -156,7 +156,7 @@ public class Display3D extends JPanel implements Steppable
     /** The combo box for skipping frames */
     public JComboBox skipBox;
     /** The frame which holds the skip controls */
-    public JFrame skipFrame;
+    public JFrame skipFrame = new JFrame();
         
     /** The Java3D canvas holding the universe. A good time to fool around with this is
         in the sceneGraphCreated() hook. */

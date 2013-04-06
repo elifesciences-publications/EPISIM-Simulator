@@ -41,7 +41,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	 * 
 	 */
 	private static final long serialVersionUID = 2406025736169916469L;
-	private static CellBehavioralModelController instance = new CellBehavioralModelController();;
+	private static CellBehavioralModelController instance = new CellBehavioralModelController();
 	private CellBehavioralModelFacade cellBehavioralModel;
 	
 	
@@ -53,6 +53,8 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	
 	private String checkedStandardModelFileName = null;
 	private boolean isStandardKeratinocyteModel = false;
+	
+	
 	
 	private CellBehavioralModelController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
@@ -104,6 +106,9 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	}
 	
 	protected static CellBehavioralModelController getInstance(){
+		if(instance==null){
+			instance = new CellBehavioralModelController();
+		}
 		return instance;
 	}
 	

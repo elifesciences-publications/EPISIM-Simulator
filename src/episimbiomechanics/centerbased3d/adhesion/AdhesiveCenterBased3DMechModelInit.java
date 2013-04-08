@@ -157,15 +157,15 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 		}
 		
 		//seed suprabasal layers 
-		boolean firstSuprabasalLayer = true;
+/*		boolean firstSuprabasalLayer = true;
 		for (double y = 0; y < 3 ; y++) {
 			firstCell = true;
 			for(double actCircleRadius = circleRadius; (circleRadius-actCircleRadius)<=globalParameters.getInitCellCoveredDistInMikron();actCircleRadius-=SUPRABASAL_CELL_WIDTH){
 				double angleIncrement = 2*Math.asin(SUPRABASAL_CELL_WIDTH/(2*actCircleRadius));
 				double angleIncremtentDegrees = Math.toDegrees(angleIncrement);
-			/*	while((360%angleIncremtentDegrees)!=0 && angleIncremtentDegrees<360){
-					angleIncremtentDegrees++;
-				}*/			
+			//	while((360%angleIncremtentDegrees)!=0 && angleIncremtentDegrees<360){
+			//		angleIncremtentDegrees++;
+			//	}			
 				for (double alpha= 0; alpha < 360; alpha += angleIncremtentDegrees){
 					
 						Double3D newloc = new Double3D((circleCenter.x+ (actCircleRadius*Math.cos(Math.toRadians(alpha)))), 
@@ -188,7 +188,7 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 				firstCell=false;
 			}			
 			firstSuprabasalLayer = false;
-		}
+		}*/
 		
 		return standardCellEnsemble;
 	}

@@ -270,8 +270,7 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DMode
    private double calculateDistanceToCellCenter(Point2d cellCenter, Vector2d directionVectorToOtherCell, double aAxis, double bAxis){
    	Vector2d xAxis = new Vector2d(1d,0d); 
    	double angle = directionVectorToOtherCell.angle(xAxis);   	
-   	Point2d pointOnMembrane = new Point2d((cellCenter.x+aAxis*Math.cos(angle)), (cellCenter.y+bAxis*Math.sin(angle)));
-   	
+   	Point2d pointOnMembrane = new Point2d((cellCenter.x+aAxis*Math.cos(angle)), (cellCenter.y+bAxis*Math.sin(angle)));   	
    	return cellCenter.distance(pointOnMembrane);
    }
 

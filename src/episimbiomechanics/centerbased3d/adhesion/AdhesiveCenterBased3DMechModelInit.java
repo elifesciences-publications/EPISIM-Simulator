@@ -157,7 +157,7 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 		}
 		
 		//seed suprabasal layers 
-/*		boolean firstSuprabasalLayer = true;
+		boolean firstSuprabasalLayer = true;
 		for (double y = 0; y < 3 ; y++) {
 			firstCell = true;
 			for(double actCircleRadius = circleRadius; (circleRadius-actCircleRadius)<=globalParameters.getInitCellCoveredDistInMikron();actCircleRadius-=SUPRABASAL_CELL_WIDTH){
@@ -188,7 +188,7 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 				firstCell=false;
 			}			
 			firstSuprabasalLayer = false;
-		}*/
+		}
 		
 		return standardCellEnsemble;
 	}

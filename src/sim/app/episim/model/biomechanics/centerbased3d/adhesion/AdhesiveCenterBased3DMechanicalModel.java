@@ -279,7 +279,7 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractMechanical3DMo
 	   double hit = 1 / sqrtA;
 	   double hitsecond = -1*(1 / sqrtA);
 	    
-	   double linefactor = hit < hitsecond ? hit : hitsecond;
+	   double linefactor = hit;// < hitsecond ? hit : hitsecond;
 	   Point3d intersectionPointEllipsoid = new Point3d((cellCenter.x+ linefactor*rayDirection.x),(cellCenter.y+ linefactor*rayDirection.y),(cellCenter.z+ linefactor*rayDirection.z));
 	   
 	   return cellCenter.distance(intersectionPointEllipsoid);

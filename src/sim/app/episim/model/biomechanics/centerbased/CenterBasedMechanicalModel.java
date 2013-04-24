@@ -196,9 +196,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
              double dx = cellField.tdx(thisloc.x,otherloc.x); 
              double dy = cellField.tdy(thisloc.y,otherloc.y);
              
-             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Vector2d(-1*dx, -1*dy), getKeratinoWidth()/2, getKeratinoHeight()/2);
-             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Vector2d(dx, dy), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
-             
+             //double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Vector2d(-1*dx, -1*dy), getKeratinoWidth()/2, getKeratinoHeight()/2);
+             //double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Vector2d(dx, dy), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
+             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
+             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
+            
              
              double optDist = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther), other);    
            //  System.out.println("Optimal Distance: "+ optDist);
@@ -227,7 +229,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    }
    private double normalizeOptimalDistance(double distance, AbstractCell otherCell){
    	if(getCell().getStandardDiffLevel()==StandardDiffLevel.GRANUCELL && otherCell.getStandardDiffLevel()==StandardDiffLevel.GRANUCELL){
-   		return distance* 0.65;
+   		return distance* 0.8;//0.65;
    	}
    	else{
    		return distance*0.8;
@@ -241,6 +243,31 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    	
    	return cellCenter.distance(pointOnMembrane);
    }
+   
+   private double calculateDistanceToCellCenter(Point2d cellCenter, Point2d otherCellCenter, double aAxis, double bAxis){
+		 
+		 Vector2d rayDirection = new Vector2d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y));
+		 rayDirection.normalize();
+		 //calculates the intersection of an ray with an ellipsoid
+		 double aAxis_2=aAxis * aAxis;
+		 double bAxis_2=bAxis * bAxis;		 
+	    double a = ((rayDirection.x * rayDirection.x) / (aAxis_2))
+	            + ((rayDirection.y * rayDirection.y) / (bAxis_2));
+	  
+	    if (a < 0)
+	    {
+	       System.out.println("Error in optimal Ellipsoid distance calculation"); 
+	   	 return -1;
+	    }
+	   double sqrtA = Math.sqrt(a);	 
+	   double hit = 1 / sqrtA;
+	   double hitsecond = -1*(1 / sqrtA);
+	    
+	   double linefactor = hit;// < hitsecond ? hit : hitsecond;
+	   Point2d intersectionPointEllipse = new Point2d((cellCenter.x+ linefactor*rayDirection.x),(cellCenter.y+ linefactor*rayDirection.y));
+	   
+	   return cellCenter.distance(intersectionPointEllipse);
+	}
 
 	public void setPositionRespectingBounds(Double2D p_potentialLoc)
 	{
@@ -481,8 +508,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
       	 double dx = cellField.tdx(getX(),otherloc.x); 
       	 double dy = cellField.tdy(getY(),otherloc.y);
        
-	       double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), new Vector2d(-1*dx, -1*dy), getKeratinoWidth()/2, getKeratinoHeight()/2);
-	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Vector2d(dx, dy), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
+	     //  double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), new Vector2d(-1*dx, -1*dy), getKeratinoWidth()/2, getKeratinoHeight()/2);
+	      // double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Vector2d(dx, dy), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
+	       double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), new Point2d(otherloc.x, otherloc.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
+	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(getX(), getY()), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
 	       
 	       
 	       double optDist = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther), actNeighbour);	                               

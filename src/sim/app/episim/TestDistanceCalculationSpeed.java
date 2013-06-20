@@ -15,7 +15,7 @@ public class TestDistanceCalculationSpeed {
 	private Point2d calculateDistanceToCellCenter(Point2d cellCenter, Vector2d directionVectorToOtherCell, double aAxis, double bAxis){
    	Vector2d xAxis = new Vector2d(1d,0d); 
    	double angle = directionVectorToOtherCell.angle(xAxis);   	
-   	Point2d pointOnMembrane = new Point2d((cellCenter.x+aAxis*Math.cos(-1*angle)), (cellCenter.y+bAxis*Math.sin(-1*angle)));
+   	Point2d pointOnMembrane = new Point2d((cellCenter.x+aAxis*Math.cos(angle)), (cellCenter.y+bAxis*Math.sin(angle)));
    	
    	return pointOnMembrane;//cellCenter.distance(pointOnMembrane);
    }
@@ -73,14 +73,14 @@ public class TestDistanceCalculationSpeed {
 				double width = 100;
 				double x = 200;
 				double y = 200;
-				double x2 = 250;
-				double y2 = 150;
+				double x2 = 350;
+				double y2 = 50;
 				for(double i = 0; i <= 360; i+=0.5){
 					Point2d pointOnMembrane = new Point2d((x+width*Math.cos(Math.toRadians(i))), (y+height*Math.sin(Math.toRadians(i))));
 					g.drawLine((int)pointOnMembrane.x, (int)pointOnMembrane.y, (int)pointOnMembrane.x, (int)pointOnMembrane.y);
 				}				
 				TestDistanceCalculationSpeed test = new TestDistanceCalculationSpeed();
-				Point2d pointA = test.calculateDistanceToCellCenter(new Point2d(x, y), new Vector2d(50, -50), width, height);
+				Point2d pointA = test.calculateDistanceToCellCenter(new Point2d(x, y), new Vector2d(150, -150), width, height);
 				Point2d pointB =test.calculateDistanceToCellCenter(new Point2d(x, y), new Point2d(x2, y2), width, height);
 				g.fillOval((int)x-4, (int)y-4, 8, 8);
 				g.setColor(Color.RED);

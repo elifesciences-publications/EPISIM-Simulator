@@ -26,24 +26,25 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 
 public class SimulationStateFile extends XmlFile {
 
-	private static final String ROOT_NAME = "data_set";
+	private static final String ROOT_NAME = "episim_tissue_simulation_state";
+	private static final String ROOT_NAME_OLD = "data_set";
 	private static final String CELLBEHAVIORALMODEL_FILE = "model_file";
 	private static final String MultiCellXML_VERSION = "MultiCellXML_version";
 	private static final String CELLS = "cells";
 	private static final String CELL = "cell";
 	private static final String MODELFILE = "modelfile";
 	private static final String SIMSTEP = "simstep";
-	private static final String EPISIMBIOMECHANICALMODELGLOBALPARAMETERS = "episimbiomechanicalmodelglobalparameters";
-	private static final String EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS = "episimcellbehavioralmodelglobalparameters";
-	private static final String MISCALLENEOUSGLOBALPARAMETERS = "miscalleneousglobalparameters";
+	private static final String EPISIMBIOMECHANICALMODELGLOBALPARAMETERS = "episimBiomechanicalModelGlobalParameters";
+	private static final String EPISIMCELLBEHAVIORALMODELGLOBALPARAMETERS = "episimCellBehavioralModelGlobalParameters";
+	private static final String MISCALLENEOUSGLOBALPARAMETERS = "miscalleneousGlobalParameters";
 	public static final String FILEEXTENSION = "xml";
 	private static final String VALUE = "value";
 	private static final String EPISIM_TISSUE_SIMULATION_HEADER = "episim_tissue_simulation_header";
 	private static final String EPISIM_VERSION = "version";
 	private static final String EXPORT_DATE = "exportdate";
 	private static final String TISSUE_BORDER = "tissueborder";
-	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY2D = "ExtraCellularDiffusionFields2D";
-	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY3D = "ExtraCellularDiffusionFields3D";
+	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY2D = "extraCellularDiffusionFields2D";
+	private static final String EXTRACELLULARDIFFUSIONFIELDARRAY3D = "extraCellularDiffusionFields3D";
 
 	private static File tissueExportPath;
 
@@ -53,7 +54,7 @@ public class SimulationStateFile extends XmlFile {
 			ParserConfigurationException {
 		super(path);
 		rootNode = getRoot();
-		if (!rootNode.getNodeName().equals(ROOT_NAME))
+		if (!rootNode.getNodeName().equals(ROOT_NAME) && !rootNode.getNodeName().equals(ROOT_NAME_OLD))
 			throw new IOException("Wrong file format: "
 					+ path.getAbsolutePath());
 

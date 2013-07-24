@@ -54,7 +54,7 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    public static final double INITIAL_KERATINO_LENGTH=5; // Default: 5
    public static final double INITIAL_KERATINO_WIDTH=5; // Default: 5
    
-   public static final double KERATINO_WIDTH_GRANU=10; // default: 10
+   public static final double KERATINO_WIDTH_GRANU=9; // default: 10
    public static final double KERATINO_HEIGHT_GRANU=4;
    public static final double KERATINO_LENGTH_GRANU=7;
    

@@ -24,6 +24,7 @@ public class EpisimProperties {
 	private static final String FILENAME = "episimconfig.properties";
 	
 	public static final String EXCEPTION_LOGGING_PROP = "exception.logging";
+	public static final String INFO_LOGGING_PROP = "info.logging";
 	public static final String EPISIMBUILD_JARNAME_PROP = "episimbuild.jarname";
 	public static final String EXCEPTION_DISPLAYMODE_PROP = "exception.displaymode";
 	public static final String STANDARD_OUTPUT = "standardoutput";

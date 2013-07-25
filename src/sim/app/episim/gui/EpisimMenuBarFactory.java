@@ -61,7 +61,8 @@ public class EpisimMenuBarFactory {
 		NEW_DATA_EXPORT("New Data-Export-Definition-Set"),
 		CLOSE_DATA_EXPORT("Close Loaded Data-Export-Definition-Set"),
 		
-		ABOUT_EPISIM_SIMULATOR("About EPISIM Simulator"),		
+		ABOUT_EPISIM_SIMULATOR("About EPISIM Simulator"),
+		UPDATE_EPISIM_SIMULATOR("Update EPISIM Simulator"),
 		GENERATE_PARAMETER_FILES("Param-Scan File-Generator"),		
 		AUTO_ARRANGE_WINDOWS("Auto-Arrange Windows");
 		
@@ -74,6 +75,7 @@ public class EpisimMenuBarFactory {
 	
 	private EpisimSimulator simulator;
 	private EpisimAboutDialog aboutDialog;
+	private EpisimUpdateDialog updateDialog;
 	
 	public EpisimMenuBarFactory(EpisimSimulator simulator){
 		if(simulator == null) throw new IllegalArgumentException("Epidermis Simulator must not be null");
@@ -91,6 +93,7 @@ public class EpisimMenuBarFactory {
 		if(simulator.getMainFrame() instanceof JFrame){
 			((JFrame)simulator.getMainFrame()).setJMenuBar(menuBar);
 			aboutDialog = new EpisimAboutDialog(((JFrame)simulator.getMainFrame()));
+			updateDialog = new EpisimUpdateDialog(((JFrame)simulator.getMainFrame()));
 		}
 	}
 	
@@ -386,6 +389,20 @@ public class EpisimMenuBarFactory {
 		//--------------------------------------------------------------------------------------------------------------
 		
 		JMenu infoMenu = new JMenu(EpisimMenu.INFO_MENU.toString());
+		
+		JMenuItem menuItemUpdateEpisimSimulator = new JMenuItem(EpisimMenuItem.UPDATE_EPISIM_SIMULATOR.toString());
+		
+		menuItemUpdateEpisimSimulator.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if(simulator.getMainFrame() instanceof JFrame){
+					updateDialog.showUpdateDialog();
+				}				
+			}			
+		});		
+		infoMenu.add(menuItemUpdateEpisimSimulator);
+		
+		
+		infoMenu.addSeparator();
 		
 		JMenuItem menuItemAboutEpisimSimulator = new JMenuItem(EpisimMenuItem.ABOUT_EPISIM_SIMULATOR.toString());
 		

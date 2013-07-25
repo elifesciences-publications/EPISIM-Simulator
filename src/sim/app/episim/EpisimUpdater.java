@@ -147,9 +147,10 @@ public class EpisimUpdater {
 					  out.close();					 
 				  }
 				  cb.progressOfUpdate((int)entry.getCompressedSize());
-			  }			 
+			  }
+			  updateZip.close();
 			  cb.updateHasFinished();
-			  currentUpdateFile.delete();
+			  System.out.println("Delete update file: " +currentUpdateFile.delete());
 		  }	  
 	  }
   }

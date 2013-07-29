@@ -75,7 +75,7 @@ public class EpisimUpdater {
 	      EpisimLogger.getInstance().logInfo(ftpClient.getWelcomeMsg());
 	      ftpClient.changeDirectory(ROOT_DIR);
 	      ftpClient.setBinaryType();
-	      EpisimLogger.getInstance().logInfo("Connection Successfull");	   
+	      EpisimLogger.getInstance().logInfo("Connection Successful");	   
   }
   
   public void downloadUpdate(EpisimUpdateCallback cb) throws FtpProtocolException, IOException{

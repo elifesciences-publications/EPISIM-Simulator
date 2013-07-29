@@ -9,7 +9,9 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -27,6 +29,8 @@ import javax.swing.ProgressMonitorInputStream;
 import javax.swing.UIManager;
 
 import org.jfree.ui.HorizontalAlignment;
+
+import binloc.ProjectLocator;
 
 import sim.app.episim.EpisimUpdater;
 import sim.app.episim.EpisimUpdater.EpisimUpdateState;
@@ -224,6 +228,24 @@ public class EpisimUpdateDialog {
 				cancelButton.setText("OK");
 				progressBar.setVisible(false);
 				progressLabel.setText("    There are no updates available");
+				String episimPath="";
+				try{
+					episimPath = ProjectLocator.getBinPath().getParentFile().getAbsolutePath();
+				}
+				catch (URISyntaxException e){
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				  if(!episimPath.endsWith(System.getProperty("file.separator"))) episimPath = episimPath.concat(System.getProperty("file.separator"));	  
+				  
+				  StringBuilder cmd = new StringBuilder();
+			     cmd.append(episimPath + "jre" + File.separator + "bin" + File.separator + "java -jar ");
+			     for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
+			        if(!jvmArg.contains("Simulator.jar")) cmd.append(jvmArg + " ");
+			     }
+			    // cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" ");
+			     cmd.append(episimPath + "bin" + File.separator + "Simulator.jar");
+			     System.out.println(cmd.toString());
 			}
 		}
       

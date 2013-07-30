@@ -74,9 +74,14 @@ public class ModelDescriptorFileGenerator {
 			selectedModelConnector = (Class<? extends EpisimModelConnector>)JOptionPane.showInputDialog(parentFrame, "Please select the Episim Model Connector Class", "Model Descriptor File Generator", JOptionPane.PLAIN_MESSAGE, null, modelConnector.toArray(), modelConnector.toArray()[0]);
 		}
 		if(selectedModelConnector != null){
+			String modelConnectorName = null;
+			do{
+			 modelConnectorName = JOptionPane.showInputDialog(parentFrame, "Please provide a name for this Model Connector", "Model Descriptor File Generator", JOptionPane.PLAIN_MESSAGE);
+			}
+			while(modelConnectorName == null || modelConnectorName.trim().isEmpty());
 			Document document = null;
 			try{
-				document = generateModelDescriptorDocument(selectedModelConnector);
+				document = generateModelDescriptorDocument(selectedModelConnector, modelConnectorName);
 			}
 			catch (Exception e){
 				ExceptionDisplayer.getInstance().displayException(e);
@@ -185,7 +190,7 @@ public class ModelDescriptorFileGenerator {
 	}
 	
 	
-	private Document generateModelDescriptorDocument(Class<? extends EpisimModelConnector> modelConnectorClass) throws DOMException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException, ParserConfigurationException{
+	private Document generateModelDescriptorDocument(Class<? extends EpisimModelConnector> modelConnectorClass, String visibleName) throws DOMException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException, ParserConfigurationException{
 		if(modelConnectorClass != null){
 			Method[] methods = modelConnectorClass.getDeclaredMethods();
 			
@@ -215,6 +220,11 @@ public class ModelDescriptorFileGenerator {
 			Element modelIdElement = document.createElement("modelid");
 			modelIdElement.setAttribute("id", actConnector.getBiomechanicalModelId());
 			rootElement.appendChild(modelIdElement);
+			
+			Element visibleNameElement = document.createElement("visiblename");
+			visibleNameElement.setAttribute("name", visibleName);
+			rootElement.appendChild(visibleNameElement);
+			
 			
 			Element modelNameElement = document.createElement("modelname");
 			modelNameElement.setAttribute("name", actConnector.getBiomechanicalModelName());

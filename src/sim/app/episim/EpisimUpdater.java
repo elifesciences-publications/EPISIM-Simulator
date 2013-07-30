@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
@@ -129,7 +130,7 @@ public class EpisimUpdater {
 			  if(!installationPath.endsWith(System.getProperty("file.separator"))) installationPath = installationPath.concat(System.getProperty("file.separator"));
 			 
 			  //add this when developing inside Eclipse
-			  // installationPath = installationPath.concat("update"+System.getProperty("file.separator"));
+			 //  installationPath = installationPath.concat("update"+System.getProperty("file.separator"));
 			  while(entries.hasMoreElements()){
 				  ZipEntry entry = (ZipEntry)entries.nextElement();
 				  if(entry.isDirectory()) {
@@ -150,7 +151,7 @@ public class EpisimUpdater {
 			  }
 			  updateZip.close();
 			  cb.updateHasFinished();
-			  System.out.println("Delete update file: " +currentUpdateFile.delete());
+			  currentUpdateFile.delete();
 		  }	  
 	  }
   }
@@ -219,18 +220,30 @@ public class EpisimUpdater {
   }  
   public void restartApplication() throws IOException, URISyntaxException{
 	  String episimPath = ProjectLocator.getBinPath().getParentFile().getAbsolutePath();
-	  if(!episimPath.endsWith(System.getProperty("file.separator"))) episimPath = episimPath.concat(System.getProperty("file.separator"));	  
-	  
-	  StringBuilder cmd = new StringBuilder();
-     cmd.append(episimPath + "jre" + File.separator + "bin" + File.separator + "java -jar ");
-     for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
-        if(!jvmArg.contains("Simulator.jar")) cmd.append(jvmArg + " ");
+	  if(!episimPath.endsWith(System.getProperty("file.separator"))) episimPath = episimPath.concat(System.getProperty("file.separator"));  
+     List<String> jvmArgs = ManagementFactory.getRuntimeMXBean().getInputArguments();   
+     int counter = 2;
+     for (String jvmArg : jvmArgs) {
+        if(!jvmArg.contains("Simulator.jar")){      	 
+      	 counter++;
+        }
      }
-    // cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" ");
-     cmd.append(episimPath + "bin" + File.separator + "Simulator.jar");
-     System.out.println(cmd.toString());
-     Runtime.getRuntime().exec(cmd.toString());     
-     System.exit(0);
+     counter++;
+     String[] cmd = new String[counter];
+     cmd[0]= episimPath + "jre" + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "java";
+     cmd[1] ="-jar";
+     counter = 2;
+     for (String jvmArg : jvmArgs) {
+        if(!jvmArg.contains("Simulator.jar")){
+      	 cmd[counter]= jvmArg;
+      	 counter++;
+        }
+     }    
+     cmd[counter]=episimPath + "bin" + System.getProperty("file.separator") + "Simulator.jar";
+    
+ 
+    Runtime.getRuntime().exec(cmd);  
+    System.exit(0);
   }
 
  

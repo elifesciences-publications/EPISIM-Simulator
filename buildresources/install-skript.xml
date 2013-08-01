@@ -2,7 +2,7 @@
 <installation version="1.0">
 <!-- The info section. -->
 <info>
-<appname>Episim Simulator</appname>
+<appname>EPISIM Simulator</appname>
 <appversion>1.4.0</appversion>
  <authors>
 <author name="Thomas Suetterlin" email="thomas.suetterlin@bioquant.uni-heidelberg.de"/>

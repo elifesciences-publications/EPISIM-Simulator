@@ -192,23 +192,20 @@ public class ModelDescriptorFileGenerator {
 	
 	private Document generateModelDescriptorDocument(Class<? extends EpisimModelConnector> modelConnectorClass, String visibleName) throws DOMException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException, ParserConfigurationException{
 		if(modelConnectorClass != null){
-			Method[] methods = modelConnectorClass.getDeclaredMethods();
 			
+			Method[] methods = modelConnectorClass.getDeclaredMethods();			
 			
-			EpisimModelConnector actConnector = modelConnectorClass.newInstance();
-			
-			
+			EpisimModelConnector actConnector = modelConnectorClass.newInstance();		
 			
 			HashMap<String, Method> getterMethods = new HashMap<String, Method>();
 			HashMap<String, Method> setterMethods = new HashMap<String, Method>();
+			
 			for(Method m : methods){
 				if(m.getName().startsWith("get") && m.getAnnotation(Hidden.class) == null && m.getModifiers() == Modifier.PUBLIC)getterMethods.put(m.getName().substring(3), m);				
 				else if(m.getName().startsWith("set") && m.getAnnotation(Hidden.class) == null && m.getModifiers() == Modifier.PUBLIC) setterMethods.put(m.getName().substring(3), m);
-			}
+			}			
 			
-			
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();			
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			
 			Document document = builder.newDocument();

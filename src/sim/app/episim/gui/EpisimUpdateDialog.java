@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.ProgressMonitorInputStream;
 import javax.swing.UIManager;
 
@@ -52,7 +53,7 @@ public class EpisimUpdateDialog {
 	private JButton restartButton;
 	
 	private final int DIALOG_WIDTH = 450;
-	private final int DIALOG_HEIGHT = 200;
+	private final int DIALOG_HEIGHT = 230;
 	private final int BORDER_SIZE = 20;
 	
 	private EpisimUpdater episimUpdater;
@@ -150,7 +151,10 @@ public class EpisimUpdateDialog {
 		progressLabel = new JLabel(" ");
 		
 		progressLabel.setIcon(UIManager.getIcon("OptionPane.informationIcon"));
-		progressPanel.add(progressLabel, BorderLayout.CENTER);
+		JScrollPane scrollPane = new JScrollPane(progressLabel);
+		scrollPane.setBorder(null);
+		scrollPane.setViewportBorder(null);
+		progressPanel.add(scrollPane, BorderLayout.CENTER);
 		progressPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
 		progressBar = new JProgressBar();
 		

@@ -253,7 +253,7 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DMode
    	
    	EpisimDifferentiationLevel otherCellDiffLevel = otherCell.getEpisimCellBehavioralModelObject().getDiffLevel();
    	if(otherCellDiffLevel.name().equals(modelConnector.getNameDiffLevelBasalCell())) return modelConnector.getAdhesionBasalCell();
-   	else if(otherCellDiffLevel.name().equals(modelConnector.getNameDiffLevelStemCell())) return modelConnector.getAdhesionStemCell();
+   	else if(otherCellDiffLevel.name().equals(modelConnector.getNameDiffLevelFastDividingCell())) return modelConnector.getAdhesionFastDividingCell();
    	else if(otherCellDiffLevel.name().equals(modelConnector.getNameDiffLevelSuprabasalCell())) return modelConnector.getAdhesionSuprabasalCell();	
    	else if(otherCellDiffLevel.name().equals(modelConnector.getNameDiffLevelEarlySuprabasalCell())) return modelConnector.getAdhesionEarlySuprabasalCell();
    	return 0;
@@ -398,7 +398,7 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DMode
    	
    	
    	boolean isFixedCell=
-   			getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name().equals(modelConnector.getNameDiffLevelStemCell())
+   			getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name().equals(modelConnector.getNameDiffLevelFastDividingCell())
    			||(!modelConnector.getIsMigratory() && isHasFixedPosition());
 		
    	

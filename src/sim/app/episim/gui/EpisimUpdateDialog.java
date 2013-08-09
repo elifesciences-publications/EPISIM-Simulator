@@ -151,10 +151,8 @@ public class EpisimUpdateDialog {
 		progressLabel = new JLabel(" ");
 		
 		progressLabel.setIcon(UIManager.getIcon("OptionPane.informationIcon"));
-		JScrollPane scrollPane = new JScrollPane(progressLabel);
-		scrollPane.setBorder(null);
-		scrollPane.setViewportBorder(null);
-		progressPanel.add(scrollPane, BorderLayout.CENTER);
+	
+		progressPanel.add(progressLabel, BorderLayout.CENTER);
 		progressPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
 		progressBar = new JProgressBar();
 		
@@ -198,7 +196,7 @@ public class EpisimUpdateDialog {
 		episimUpdater = new EpisimUpdater();
 		EpisimUpdateState updateState= null;
 		try{
-	      episimUpdater.connect();
+	      
 	      updateState= episimUpdater.checkForUpdates();
       }
       catch (Exception e){
@@ -208,15 +206,7 @@ public class EpisimUpdateDialog {
 	      updateState = null;
       }
 		
-		try{
-			episimUpdater.disconnect();
-      }
-      catch (IOException e){
-      	progressLabel.setText("    Error while disconnecting from EPISIM update server");
-      	progressLabel.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
-      	ExceptionDisplayer.getInstance().displayException(e);
-      	updateState = null;
-      }
+	
 		if(updateState != null){
 			if(updateState == EpisimUpdateState.POSSIBLE){
 				updateButton.setVisible(true);
@@ -231,25 +221,7 @@ public class EpisimUpdateDialog {
 			else if(updateState == EpisimUpdateState.NOTAVAILABLE){
 				cancelButton.setText("OK");
 				progressBar.setVisible(false);
-				progressLabel.setText("    There are no updates available");
-				String episimPath="";
-				try{
-					episimPath = ProjectLocator.getBinPath().getParentFile().getAbsolutePath();
-				}
-				catch (URISyntaxException e){
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				  if(!episimPath.endsWith(System.getProperty("file.separator"))) episimPath = episimPath.concat(System.getProperty("file.separator"));	  
-				  
-				  StringBuilder cmd = new StringBuilder();
-			     cmd.append(episimPath + "jre" + File.separator + "bin" + File.separator + "java -jar ");
-			     for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
-			        if(!jvmArg.contains("Simulator.jar")) cmd.append(jvmArg + " ");
-			     }
-			    // cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" ");
-			     cmd.append(episimPath + "bin" + File.separator + "Simulator.jar");
-			     System.out.println(cmd.toString());
+				progressLabel.setText("    There are no updates available");			
 			}
 		}
       
@@ -261,18 +233,9 @@ public class EpisimUpdateDialog {
 		progressLabel.setText("    Connect to EPISIM update server");
 		Runnable r = new Runnable(){			
 			public void run() {
-				try{
-					updater.connect();						
-					operationSuccessful= true;
-				}
-				catch (Exception e){
-		      	progressLabel.setText("    Cannot connect to EPISIM update server");
-		      	progressLabel.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
-		      	ExceptionDisplayer.getInstance().displayException(e);
-		      	cancelButton.setEnabled(true);
-		      }
-				if(operationSuccessful){
-					operationSuccessful = false;							
+				
+									
+											
 					try{
 						updater.downloadUpdate(new EpisimUpdateCallback(){
 							         	 
@@ -291,12 +254,12 @@ public class EpisimUpdateDialog {
 							    public void updateHasFinished(){
 							   	 	progressLabel.setText("    Disconnect from EPISIM update server");
 							   	 	try{
-								         updater.disconnect();
+								        
 								         operationSuccessful=true;
 								         installUpdate(updater);
 							         }
-							         catch (IOException e){
-							         	progressLabel.setText("    Error while disconnecting from EPISIM update server");
+							         catch (Exception e){
+							         	progressLabel.setText("    Error while installing EPISIM update ");
 							         	progressLabel.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
 							         	ExceptionDisplayer.getInstance().displayException(e);
 							         	cancelButton.setEnabled(true);
@@ -310,8 +273,7 @@ public class EpisimUpdateDialog {
 					        	ExceptionDisplayer.getInstance().displayException(e);
 					        	cancelButton.setEnabled(true);
 					     }				
-					}	
-				}				
+					}								
          	
 		};
 		Thread t = new Thread(r);

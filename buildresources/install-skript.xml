@@ -3,7 +3,7 @@
 <!-- The info section. -->
 <info>
 <appname>EPISIM Simulator</appname>
-<appversion>1.4.0</appversion>
+<appversion>1.4.1</appversion>
  <authors>
 <author name="Thomas Suetterlin" email="thomas.suetterlin@bioquant.uni-heidelberg.de"/>
 </authors>
@@ -18,8 +18,8 @@
 </native>
 
 <variables>
-<variable name="app-version" value="1.4.0"/>
-<variable name="released-on" value="06.06.2012"/>
+<variable name="app-version" value="1.4.1"/>
+<variable name="released-on" value="09.08.2013"/>
 </variables>
 
  <!-- The gui preferences indication. -->

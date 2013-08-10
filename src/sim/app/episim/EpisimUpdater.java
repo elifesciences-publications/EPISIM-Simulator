@@ -156,6 +156,9 @@ public class EpisimUpdater {
 					  }
 				  }
 				  else{
+					  if(!(new File(installationPath+entry.getName())).getParentFile().exists()){
+						  (new File(installationPath+entry.getName())).getParentFile().mkdirs();
+					  }
 					  byte[] buffer = new byte[1024];
 					  int len;
 					  InputStream in = updateZip.getInputStream(entry);
@@ -228,7 +231,7 @@ public class EpisimUpdater {
 		  FTPFile[] file = ftpClient.listFiles("./"+UPDATE_META_DATA_FILE);
 		  if(file!=null && file.length >0 && file[0] != null){
 			  size = file[0].getSize();
-		  }    
+		  }	      
 	      		
 	      if (size > 0) {  
 		      InputStream in = ftpClient.retrieveFileStream("./"+UPDATE_META_DATA_FILE);
@@ -254,7 +257,10 @@ public class EpisimUpdater {
      }
      counter++;
      String[] cmd = new String[counter];
-     cmd[0]= episimPath + "jre" + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "java";
+     if (System.getProperty("os.name").toLowerCase().contains("mac")){
+   	  cmd[0]= "java";
+	  }
+     else cmd[0]= episimPath + "jre" + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "java";
      cmd[1] ="-jar";
      counter = 2;
      for (String jvmArg : jvmArgs) {

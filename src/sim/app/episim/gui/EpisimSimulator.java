@@ -20,6 +20,7 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -53,6 +54,8 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.SimStateServer;
 import sim.app.episim.CompileWizard;
 import sim.app.episim.EpisimProperties;
+import sim.app.episim.EpisimUpdater;
+import sim.app.episim.EpisimUpdater.EpisimUpdateState;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimulationStateChangeListener;
@@ -61,6 +64,7 @@ import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
+import sim.app.episim.gui.EpisimUpdateDialog.UpdateCancelledCallback;
 
 import sim.app.episim.model.biomechanics.hexagonbased.twosurface.HexagonBasedMechanicalModelTwoSurface;
 import sim.app.episim.model.controller.ModelController;
@@ -123,21 +127,31 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	private EpisimMenuBarFactory menuBarFactory;
 	
 	
-
+	private boolean updateAvailable=false;
 
 	
 	
 	public EpisimSimulator() {
 		
 		if(ModeServer.guiMode()){
-			mainFrame = new JFrame();
-			
-			
+			mainFrame = new JFrame();	
 			
 			mainFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon_old.gif")).getImage());
 	
 			
 			ExceptionDisplayer.getInstance().registerParentComp(mainFrame);
+			
+			EpisimUpdater updater = new EpisimUpdater();
+			EpisimUpdateState state = null;
+			try{
+				state = updater.checkForUpdates();
+			}
+			catch (IOException e){
+				if(!(e instanceof UnknownHostException)){
+					ExceptionDisplayer.getInstance().displayException(e);
+				}
+			}
+			this.updateAvailable = (state==EpisimUpdateState.POSSIBLE);
 		}
 		else{
 			noGUIModeMainPanel = new JPanel();
@@ -168,7 +182,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			jarFileChoose= new ExtendedFileChooser("jar");
 			jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 			tissueExportFileChoose = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
-			mainFrame.setTitle(EpisimSimulator.getEpisimSimulatorTitle());
+			mainFrame.setTitle(EpisimSimulator.getEpisimSimulatorTitle());			
 		}
 		else{
 			noGUIModeMainPanel.setLayout(new BorderLayout());
@@ -177,55 +191,8 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		}		
 		
 		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		if(!updateAvailable) loadPresetFiles();
 		
-		if(ModeServer.consoleInput()){
-			
-			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP) != null){
-				File snapshotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP));
-				if(snapshotPath.isDirectory()){
-					snapshotPath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP, "EpisimSnapshot", "xml");
-				}
-				setTissueExportPath(snapshotPath, false);
-			}
-			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP) != null){
-				File cellbehavioralModelFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP));
-				if(!cellbehavioralModelFile.exists() || !cellbehavioralModelFile.isFile()) throw new PropertyException("No existing Cell Behavioral Model File specified: "+cellbehavioralModelFile.getAbsolutePath());
-				else{
-					openModel(cellbehavioralModelFile, null);
-					//TODO: implement the case that a snapshot path is set
-					
-					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTSETPATH) != null){
-						File chartSetFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTSETPATH));
-						if(!chartSetFile.exists() || !chartSetFile.isFile()) throw new PropertyException("No existing Chart-Set File specified: "+chartSetFile.getAbsolutePath());
-						else{
-							ChartController.getInstance().loadChartSet(chartSetFile);
-							if(ModeServer.guiMode()){
-								menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_CHART_SET).setEnabled(false);
-								menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_CHART_SET).setEnabled(false);
-								menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(true);
-								menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(true);
-							}
-						}
-					}
-					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTPATH) != null){
-						File dataExportDefinitionFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTPATH));
-						if(!dataExportDefinitionFile.exists() || !dataExportDefinitionFile.isFile()) throw new PropertyException("No existing Data Export Definition File specified: "+dataExportDefinitionFile.getAbsolutePath());
-						else{
-							DataExportController.getInstance().loadDataExportDefinition(dataExportDefinitionFile);
-							
-							if(ModeServer.guiMode()){
-								this.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
-								menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT).setEnabled(false);
-								menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(false);
-								menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(true);
-								menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(true);
-							}
-						}
-					}
-					
-				}
-			}
-		}
 		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		//        TODO: to be changed for video recording
 		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -255,11 +222,73 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			mainFrame.pack();
 			centerMe(mainFrame);
 			mainFrame.setVisible(true);
+			if(updateAvailable){
+				EpisimUpdateDialog updateDialog = new EpisimUpdateDialog(mainFrame);
+				updateDialog.showUpdateDialog(new UpdateCancelledCallback(){				
+					public void updateWasCancelled() {				
+						loadPresetFiles();
+						autoStartSimulation();					
+					}
+				});
+			}
 		}
 		else{
 			noGUIModeMainPanel.setPreferredSize(new Dimension(1900, 1200));		
 			noGUIModeMainPanel.setVisible(true);
 		}
+		if(!updateAvailable) autoStartSimulation();
+	}
+	private void loadPresetFiles(){
+		if(ModeServer.consoleInput()){
+					
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP) != null){
+						File snapshotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP));
+						if(snapshotPath.isDirectory()){
+							snapshotPath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP, "EpisimSnapshot", "xml");
+						}
+						setTissueExportPath(snapshotPath, false);
+					}
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP) != null){
+						File cellbehavioralModelFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP));
+						if(!cellbehavioralModelFile.exists() || !cellbehavioralModelFile.isFile()) throw new PropertyException("No existing Cell Behavioral Model File specified: "+cellbehavioralModelFile.getAbsolutePath());
+						else{
+							openModel(cellbehavioralModelFile, null);
+							//TODO: implement the case that a snapshot path is set
+							
+							if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTSETPATH) != null){
+								File chartSetFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTSETPATH));
+								if(!chartSetFile.exists() || !chartSetFile.isFile()) throw new PropertyException("No existing Chart-Set File specified: "+chartSetFile.getAbsolutePath());
+								else{
+									ChartController.getInstance().loadChartSet(chartSetFile);
+									if(ModeServer.guiMode()){
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_CHART_SET).setEnabled(false);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_CHART_SET).setEnabled(false);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(true);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(true);
+									}
+								}
+							}
+							if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTPATH) != null){
+								File dataExportDefinitionFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTPATH));
+								if(!dataExportDefinitionFile.exists() || !dataExportDefinitionFile.isFile()) throw new PropertyException("No existing Data Export Definition File specified: "+dataExportDefinitionFile.getAbsolutePath());
+								else{
+									DataExportController.getInstance().loadDataExportDefinition(dataExportDefinitionFile);
+									
+									if(ModeServer.guiMode()){
+										this.getStatusbar().setMessage("Loaded Data Export: "+ DataExportController.getInstance().getActLoadedDataExportsName());
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT).setEnabled(false);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(false);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(true);
+										menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(true);
+									}
+								}
+							}
+							
+						}
+					}
+				}
+	}
+	private void autoStartSimulation(){
 		if(ModeServer.consoleInput()){			
 			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP) != null){
 				long steps = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP));

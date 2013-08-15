@@ -59,8 +59,14 @@ public class EpisimUpdateDialog {
 	private EpisimUpdater episimUpdater;
 	
 	private Frame owner;
+	private boolean startup = false;
+	private UpdateCancelledCallback cancelledCallback = null;
 	public EpisimUpdateDialog(Frame owner){
+		this(owner, false);
+	}
+	public EpisimUpdateDialog(Frame owner, boolean startup){
 		this.owner = owner;
+		this.startup = startup;
 		createDialog();
 	}
 	
@@ -94,7 +100,8 @@ public class EpisimUpdateDialog {
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener(){			
 			public void actionPerformed(ActionEvent e){			
-				dialog.setVisible(false);				
+				dialog.setVisible(false);
+				if(cancelledCallback != null) cancelledCallback.updateWasCancelled();
 			}
 		});		
 		
@@ -167,6 +174,10 @@ public class EpisimUpdateDialog {
 	
 	
 	public void showUpdateDialog(){
+		showUpdateDialog(null);
+	}
+	public void showUpdateDialog(UpdateCancelledCallback callback){
+		this.cancelledCallback = callback;
 		createDialog();
 		// if not on screen right now, move to center of screen
 			  if (!dialog.isVisible())
@@ -184,7 +195,7 @@ public class EpisimUpdateDialog {
 			   }
 			  
 			  // show it!
-			  dialog.setVisible(true);
+			 if(!startup) dialog.setVisible(true);
 			  checkForUpdates();
 	}
 	
@@ -212,13 +223,14 @@ public class EpisimUpdateDialog {
 				updateButton.setVisible(true);
 				updateButton.setEnabled(true);
 				progressLabel.setText("<html>&nbsp;&nbsp;&nbsp;&nbsp;There are updates available.<br>&nbsp;&nbsp;&nbsp;&nbsp;Your version: "+ EpisimSimulator.versionID + "<br>&nbsp;&nbsp;&nbsp;&nbsp;New Version: "+ episimUpdater.getMostCurrentVersion()+"</html>");
+				if(startup) dialog.setVisible(true);
 			}
-			else if(updateState == EpisimUpdateState.NOTPOSSIBLE){
+			else if(updateState == EpisimUpdateState.NOTPOSSIBLE && !startup){
 				progressLabel.setText("<html>&nbsp;&nbsp;&nbsp;&nbsp;Your version ("+ EpisimSimulator.versionID +") is too old to update.<br>&nbsp;&nbsp;&nbsp;&nbsp;Please download the newest version and re-install EPISIM Simulator<br>&nbsp;&nbsp;&nbsp;&nbsp;manually.</html>");
 				downloadButton.setEnabled(true);
 				downloadButton.setVisible(true);
 			}
-			else if(updateState == EpisimUpdateState.NOTAVAILABLE){
+			else if(updateState == EpisimUpdateState.NOTAVAILABLE && !startup){
 				cancelButton.setText("OK");
 				progressBar.setVisible(false);
 				progressLabel.setText("    There are no updates available");			
@@ -316,6 +328,9 @@ public class EpisimUpdateDialog {
 		};
 		Thread t = new Thread(r);
 		t.start();
+	}
+	public interface UpdateCancelledCallback{
+		void updateWasCancelled();
 	}
 
 }

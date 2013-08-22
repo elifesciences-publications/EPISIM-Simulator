@@ -1,8 +1,8 @@
 package episimbiomechanics.centerbased.adhesion;
 
 
-import sim.app.episim.model.biomechanics.centerbased.adhesion.AdhesiveCenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.adhesion.AdhesiveCenterBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased.adhesion.old.AdhesiveCenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.adhesion.old.AdhesiveCenterBasedMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;

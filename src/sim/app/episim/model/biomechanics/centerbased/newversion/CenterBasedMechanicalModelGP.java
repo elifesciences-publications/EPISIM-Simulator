@@ -1,38 +1,35 @@
-package sim.app.episim.model.biomechanics.centerbased.adhesion;
+package sim.app.episim.model.biomechanics.centerbased.newversion;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
-public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+
+public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	private int basalAmplitude_mikron = 0; // depth of an undulation
+	private int basalAmplitude_mikron = 40; // depth of an undulation
 	private int basalOpening_mikron = 250; // width of undulation at the middle
-	private double width = 400;
+	private double width = 140;
 	private double height = 100;
-	private double randomness = 0.14;
-	
-	
+	private double randomness = 0.05;
+	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
+	private boolean seedReverse = false;	
+	private int basalDensity_mikron = 9;//OriginalValue: 8; 
 	private double externalPush = 1.2; // y-offset
 	
 	
-	private double neighborhood_mikron= 0.0;
-	private boolean drawCellsAsEllipses = true;
-	private double numberOfPixelsPerMicrometer = 2;
+	private double neighborhood_mikron= 10.0;
+	private double basalLayerWidth=15;  // For Statistics of Basal Layer: Cell Definition (for GrowthFraction): distance to membrane not more than gBasalLayerWidth
+	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
+	private boolean drawCellsAsEllipses = false;
+	private double numberOfPixelsPerMicrometer = 1;
 	
-	private double neighbourhoodOptDistFact = 1.8;
-	
-	
-	private double initCellCoveredDistInMikron = 60;
-	private int cellSizeDeltaSimSteps =350;
+	private double neighbourhoodOptDistFact = 1.6;	
 	private double optDistanceAdhesionFact = 1.25;
-	private int basalMembraneDiscrSteps= 40;
-	private int basalMembraneContactTimeThreshold= 1050;
-	private double basalMembraneHighAdhesionFactor=2.5;
-	private double optDistanceScalingFactor = 0.95;
-	private double randomGravity = 0.2;
+	private double optDistanceScalingFactor = 0.8;
+	private double randomGravity =0;// 0.2;
 	
-	public AdhesiveCenterBasedMechanicalModelGP() {}
+	public CenterBasedMechanicalModelGP() {}
 	
 	public boolean isDrawCellsAsEllipses() {
 		return drawCellsAsEllipses;
@@ -58,6 +55,24 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
 	public void setBasalOpening_mikron(int val) {
 		if(val >= 0.0)
 			basalOpening_mikron = val;
+	}
+	
+	public double getBasalLayerWidth() {
+		return basalLayerWidth;
+	}
+
+	public void setBasalLayerWidth(double val) {
+		if(val >= 0.0)
+			basalLayerWidth = val;
+	}
+
+	public double getMembraneCellsWidthInMikron() {
+		return membraneCellsWidth;
+	}
+
+	public void setMembraneCellsWidth(double val) {
+		if(val >= 0.0)
+			membraneCellsWidth = val;
 	}	
 	
 	public double getRandomness() {
@@ -74,8 +89,32 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
 	
 	@NoUserModification
  	public void setNeighborhood_mikron(double val) { if (val > 0) neighborhood_mikron= val; }	
-	
-	
+
+	public double getSeedMinDepth_frac() {
+		return seedMinDepth_frac;
+	}
+
+	public void setSeedMinDepth_frac(double val) {
+		if(val >= 0.0)
+			seedMinDepth_frac = val;
+	}
+
+	public boolean getSeedReverse() {
+		return seedReverse;
+	}
+
+	public void setSeedReverse(boolean val) {
+		seedReverse = val;
+	}	
+
+	public int getBasalDensity_mikron() {
+		return basalDensity_mikron;
+	}
+
+	public void setBasalDensity_mikron(int val) {
+		if(val >= 0)
+			basalDensity_mikron = val;
+	}
 	public double getExternalPush() {
 		return externalPush;
 	}
@@ -133,41 +172,18 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
 	   return ModelDimensionality.TWO_DIMENSIONAL;
    }
 
-	
+	@NoUserModification
    public double getNeighbourhoodOptDistFact() {
    
    	return neighbourhoodOptDistFact;
    }
 
-	
+	@NoUserModification
    public void setNeighbourhoodOptDistFact(double neighbourhoodOptDistFact) {
-		
+   
    	this.neighbourhoodOptDistFact = neighbourhoodOptDistFact;
    }
-
 	
-   public double getInitCellCoveredDistInMikron() {
-   
-   	return initCellCoveredDistInMikron;
-   }
-
-	
-   public void setInitCellCoveredDistInMikron(double initCellCoveredDistInMikron) {   
-   	this.initCellCoveredDistInMikron = initCellCoveredDistInMikron <0 ?0 : initCellCoveredDistInMikron > this.width? this.width:initCellCoveredDistInMikron;
-   }
-
-	
-   public int getCellSizeDeltaSimSteps() {
-   
-   	return cellSizeDeltaSimSteps;
-   }
-
-	
-   public void setCellSizeDeltaSimSteps(int cellSizeDeltaSimSteps) {
-   
-   	this.cellSizeDeltaSimSteps = cellSizeDeltaSimSteps < 1 ?1:cellSizeDeltaSimSteps;
-   }
-
 	
    public double getOptDistanceAdhesionFact() {
    
@@ -178,30 +194,6 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
    public void setOptDistanceAdhesionFact(double optDistanceAdhesionFact) {
    
    	this.optDistanceAdhesionFact = optDistanceAdhesionFact>= 1?optDistanceAdhesionFact:1;
-   }
-
-	
-   public int getBasalMembraneDiscrSteps() {
-   
-   	return basalMembraneDiscrSteps;
-   }
-
-	
-   public void setBasalMembraneDiscrSteps(int basalMembraneDiscrSteps) {
-   
-   	this.basalMembraneDiscrSteps = basalMembraneDiscrSteps >= 10 ? basalMembraneDiscrSteps : 10;;
-   }
-
-	
-   public int getBasalMembraneContactTimeThreshold() {
-   
-   	return basalMembraneContactTimeThreshold;
-   }
-
-	
-   public void setBasalMembraneContactTimeThreshold(int basalMembraneContactTimeThreshold) {
-   
-   	this.basalMembraneContactTimeThreshold = basalMembraneContactTimeThreshold >0 ? basalMembraneContactTimeThreshold : 0;
    }
 
 	
@@ -217,18 +209,6 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
    }
 
 	
-   public double getBasalMembraneHighAdhesionFactor() {
-   
-   	return basalMembraneHighAdhesionFactor;
-   }
-
-	
-   public void setBasalMembraneHighAdhesionFactor(double basalMembraneHighAdhesionFactor) {
-   
-   	this.basalMembraneHighAdhesionFactor = basalMembraneHighAdhesionFactor;
-   }
-
-	
    public double getRandomGravity() {
    
    	return randomGravity;
@@ -239,8 +219,4 @@ public class AdhesiveCenterBasedMechanicalModelGP implements EpisimBiomechanical
    
    	this.randomGravity = randomGravity;
    }
-
-  
-
-  
 }

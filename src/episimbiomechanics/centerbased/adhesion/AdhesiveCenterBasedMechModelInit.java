@@ -7,8 +7,8 @@ import javax.vecmath.Point2d;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased.adhesion.AdhesiveCenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.adhesion.AdhesiveCenterBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased.adhesion.old.AdhesiveCenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased.adhesion.old.AdhesiveCenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurfaceGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

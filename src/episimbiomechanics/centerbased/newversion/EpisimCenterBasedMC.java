@@ -23,12 +23,12 @@ public class EpisimCenterBasedMC extends EpisimModelConnector {
 	private double width=0;
 	private double height=0;
 	
-	private double adhesionStemCell=1;
-	private double adhesionTACell=1;
-	private double adhesionEarlySpinosumCell=1;
-	private double adhesionLateSpinosumCell=1;
-	private double adhesionGranulosumCell=1;
-	private double adhesionCorneocyte=1;
+	private double adhesionStemCell=0;
+	private double adhesionTACell=0;
+	private double adhesionEarlySpinosumCell=0;
+	private double adhesionLateSpinosumCell=0;
+	private double adhesionGranulosumCell=0;
+	private double adhesionCorneocyte=0;
 	
 	private String nameDiffLevelStemCell="";
 	private String nameDiffLevelTACell="";
@@ -273,6 +273,8 @@ public class EpisimCenterBasedMC extends EpisimModelConnector {
    	this.nameDiffLevelCorneocyte = nameDiffLevelCorneocyte;
    }
    
+	@Hidden
+	@NoExport
    public double getAdhesionFactorForDiffLevel(EpisimDifferentiationLevel diffLevel){
    	if(diffLevel.name().equals(getNameDiffLevelStemCell())) return getAdhesionStemCell();
    	else if(diffLevel.name().equals(getNameDiffLevelTACell())) return getAdhesionTACell();

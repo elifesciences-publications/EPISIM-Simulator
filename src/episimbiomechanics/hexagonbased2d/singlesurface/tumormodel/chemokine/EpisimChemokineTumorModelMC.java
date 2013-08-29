@@ -2,6 +2,7 @@ package episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.chemokine;
 
 import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.tumor.chemokine.HexagonBasedMechanicalModelCytokineTumorGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC;
@@ -37,7 +38,7 @@ public class EpisimChemokineTumorModelMC extends EpisimHexagonBased2DSingleSurfa
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return HexagonBasedMechanicalModelGP.class;
+		return HexagonBasedMechanicalModelCytokineTumorGP.class;
 	}
 	
 	public String getChemotacticField(){	   

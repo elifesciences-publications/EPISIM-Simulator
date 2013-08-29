@@ -263,9 +263,10 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 	   /*
 	    * TODO: Parallelized Diff Field Sim Version
 	    */
-	   EnhancedSteppable diffFieldsSimSteppable = ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionFieldsSimulationSteppable();
-	   schedule.scheduleRepeating(diffFieldsSimSteppable, SchedulePriority.EXTRACELLULARFIELD.getPriority(),diffFieldsSimSteppable.getInterval());
-	   
+	   if(ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()>0){
+		   EnhancedSteppable diffFieldsSimSteppable = ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionFieldsSimulationSteppable();
+		   schedule.scheduleRepeating(diffFieldsSimSteppable, SchedulePriority.EXTRACELLULARFIELD.getPriority(),diffFieldsSimSteppable.getInterval());
+	   }
 	   
 	   EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
 	   schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());

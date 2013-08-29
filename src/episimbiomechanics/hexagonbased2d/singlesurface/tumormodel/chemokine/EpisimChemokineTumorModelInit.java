@@ -63,26 +63,26 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 					((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));					
 					if(x < sectionWidth){ // AL Cells
 						if(rn_secr < al_sec_density){
-							if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+							if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
 						}
 						else{
-							if(cellTypes.length >=1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
+							if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 						}						
 					}				
 					else if(x < (2*sectionWidth)){ // IM Cells
 						if(rn_secr < im_sec_density){
-							if(cellTypes.length >=4) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[3]);
+							if(cellTypes.length >=5) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[4]);
 						}
 						else{
-							if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
+							if(cellTypes.length >=4) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[3]);
 						}
 					}
 					else if(x < width){ // IM Cells
 						if(rn_secr < lm_sec_density){
-							if(cellTypes.length >=6) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[5]);
+							if(cellTypes.length >=7) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[6]);
 						}
 						else{
-							if(cellTypes.length >=5) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[4]);
+							if(cellTypes.length >=6) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[5]);
 						}
 					}					
 					standardCellEnsemble.add(cell);
@@ -94,11 +94,14 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 	
 	
 	private void setInitialGlobalParametersValues(HexagonBasedMechanicalModelCytokineTumorGP globalParameters){
-		globalParameters.setCellDiameterInMikron(2);
+		globalParameters.setCellDiameterInMikron(20);
 		globalParameters.setWidthInMikron(1000);
 		globalParameters.setHeightInMikron(1000);
 		globalParameters.setUseCellCellInteractionEnergy(false);
 		globalParameters.setInitialCellDensityInPercent(100);
+		globalParameters.setAL_SecretionCellDensityInPerc(33);
+		globalParameters.setIM_SecretionCellDensityInPerc(33);
+		globalParameters.setLM_SecretionCellDensityInPerc(33);
 	}
 		
 	
@@ -107,8 +110,7 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 		// is not needed in this model
 	}
 
-	protected EpisimPortrayal getCellPortrayal() {
-			   
+	protected EpisimPortrayal getCellPortrayal() {			   
 		HexagonalCellGridPortrayal2D portrayal =  new HexagonalCellGridPortrayal2D(java.awt.Color.lightGray){
 			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
 			// make the inspector

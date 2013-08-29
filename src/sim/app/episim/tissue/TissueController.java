@@ -30,7 +30,7 @@ public class TissueController implements ClassLoaderChangeListener{
 	}	
 
 	
-	public Epidermis getActEpidermalTissue() throws NoEpidermalTissueAvailableException{
+	public UniversalTissue getActEpidermalTissue() throws NoEpidermalTissueAvailableException{
 		return TissueServer.getInstance().getActEpidermalTissue();
 	}
 	

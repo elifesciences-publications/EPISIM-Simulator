@@ -72,7 +72,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.SimulationStateFile;
 
-import sim.app.episim.tissue.Epidermis;
+import sim.app.episim.tissue.UniversalTissue;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueServer;
 import sim.app.episim.tissue.TissueType;
@@ -696,7 +696,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			try{
 				initializeGlobalObjects(simStateData);
 				ModelController.getInstance().initializeModels(simStateData);
-				TissueController.getInstance().registerTissue(new Epidermis(System.currentTimeMillis()));
+				TissueController.getInstance().registerTissue(new UniversalTissue(System.currentTimeMillis()));
 				compatibilityTestResult = ModelController.getInstance().testCBMFileLoadedSimStateCompatibility();
 			}
 			catch(Exception e){

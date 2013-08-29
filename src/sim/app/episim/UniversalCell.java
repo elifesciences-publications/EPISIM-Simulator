@@ -13,7 +13,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.sbml.SbmlModelConnector;
 import sim.app.episim.model.visualization.CellEllipse;
-import sim.app.episim.tissue.Epidermis;
+import sim.app.episim.tissue.UniversalTissue;
 import sim.app.episim.tissue.TissueServer;
 
 import sim.app.episim.tissue.TissueController;

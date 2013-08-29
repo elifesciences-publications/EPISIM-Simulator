@@ -1,7 +1,8 @@
 package episimbiomechanics.hexagonbased2d.singlesurface.bactmacro;
 
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurface;
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurfaceGP;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.bact.HexagonBasedMechanicalModelBactGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC;
@@ -29,7 +30,7 @@ public class EpisimBacteriaMacrophageModelMC extends EpisimHexagonBased2DSingleS
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return HexagonBasedMechanicalModelSingleSurface.class;
+		return HexagonBasedMechanicalModel.class;
 	}
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
@@ -37,7 +38,7 @@ public class EpisimBacteriaMacrophageModelMC extends EpisimHexagonBased2DSingleS
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return HexagonBasedMechanicalModelSingleSurfaceGP.class;
+		return HexagonBasedMechanicalModelBactGP.class;
 	}
 	
 	public String getChemotacticField(){	   

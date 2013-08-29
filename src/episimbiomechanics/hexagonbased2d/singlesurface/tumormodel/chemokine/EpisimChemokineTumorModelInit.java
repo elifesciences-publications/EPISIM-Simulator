@@ -1,11 +1,11 @@
-package episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.simple;
+package episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.chemokine;
 
 import java.util.ArrayList;
 
 import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.tumor.simple.HexagonBasedMechanicalModelSimpleTumorGP;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.tumor.chemokine.HexagonBasedMechanicalModelCytokineTumorGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -13,7 +13,6 @@ import sim.app.episim.model.visualization.HexagonalCellGridPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 import sim.display.GUIState;
-import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.Inspector;
 import sim.portrayal.LocationWrapper;
 import sim.util.Double2D;
@@ -22,20 +21,20 @@ import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimPortrayal;
 
 
-public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
+public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer {
 	
 	MersenneTwisterFast random; 
 	
-	public EpisimSimpleTumorModelInit(){
+	public EpisimChemokineTumorModelInit(){
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		MiscalleneousGlobalParameters.getInstance().setTypeColor(4);
 		random = new MersenneTwisterFast(System.currentTimeMillis());
-		HexagonBasedMechanicalModelSimpleTumorGP globalParameters = (HexagonBasedMechanicalModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
+		HexagonBasedMechanicalModelCytokineTumorGP globalParameters = (HexagonBasedMechanicalModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
 		setInitialGlobalParametersValues(globalParameters);
 	}
 	
-	public EpisimSimpleTumorModelInit(SimulationStateData simulationStateData){
+	public EpisimChemokineTumorModelInit(SimulationStateData simulationStateData){
 		super(simulationStateData);
 		random = new MersenneTwisterFast(System.currentTimeMillis());
 	}
@@ -43,59 +42,65 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
-		HexagonBasedMechanicalModelSimpleTumorGP globalParameters = (HexagonBasedMechanicalModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		HexagonBasedMechanicalModelCytokineTumorGP globalParameters = (HexagonBasedMechanicalModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		
 		
-		int width = (int)globalParameters.getNumber_of_initially_occupied_columns();
+		int width = (int)globalParameters.getNumber_of_columns();
+		double sectionWidth = Math.floor(((double)width) / 3d);
 		int height = (int)globalParameters.getNumber_of_rows();
 		double cellDensity = globalParameters.getInitialCellDensityInPercent() / 100d;
+		double al_sec_density = globalParameters.getAL_SecretionCellDensityInPerc() / 100d;
+		double im_sec_density = globalParameters.getIM_SecretionCellDensityInPerc() / 100d;
+		double lm_sec_density = globalParameters.getLM_SecretionCellDensityInPerc() / 100d;
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
 				double rn =random.nextDouble();
+				double rn_secr = random.nextDouble();
 				if(rn < cellDensity){
 					UniversalCell cell = new UniversalCell(null, null, true);
-					((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
-					if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
+					((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));					
+					if(x < sectionWidth){ // AL Cells
+						if(rn_secr < al_sec_density){
+							if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+						}
+						else{
+							if(cellTypes.length >=1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
+						}						
+					}				
+					else if(x < (2*sectionWidth)){ // IM Cells
+						if(rn_secr < im_sec_density){
+							if(cellTypes.length >=4) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[3]);
+						}
+						else{
+							if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
+						}
+					}
+					else if(x < width){ // IM Cells
+						if(rn_secr < lm_sec_density){
+							if(cellTypes.length >=6) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[5]);
+						}
+						else{
+							if(cellTypes.length >=5) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[4]);
+						}
+					}					
 					standardCellEnsemble.add(cell);
 				}
 			}
-		}	
-		addSekretionCellColony(standardCellEnsemble);
+		}		
 		return standardCellEnsemble;
 	}
 	
 	
-	private void setInitialGlobalParametersValues(HexagonBasedMechanicalModelSimpleTumorGP globalParameters){
-		globalParameters.setCellDiameterInMikron(20);
+	private void setInitialGlobalParametersValues(HexagonBasedMechanicalModelCytokineTumorGP globalParameters){
+		globalParameters.setCellDiameterInMikron(2);
 		globalParameters.setWidthInMikron(1000);
 		globalParameters.setHeightInMikron(1000);
-		globalParameters.setUseCellCellInteractionEnergy(false);		
+		globalParameters.setUseCellCellInteractionEnergy(false);
 		globalParameters.setInitialCellDensityInPercent(100);
 	}
-	private void addSekretionCellColony(ArrayList<UniversalCell> standardCellEnsemble){
-		HexagonBasedMechanicalModelSimpleTumorGP globalParameters = (HexagonBasedMechanicalModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		float xPos = (float)(globalParameters.getNumber_of_columns() /2d);
-		int height = (int)globalParameters.getNumber_of_rows();
-		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
-		double cellDensity = globalParameters.getInitialSecretionCellDensityInPercent() / 100d;
-		double sineModulationFactor = (4*Math.PI/height);
-		for(int y = 0; y < height; y++){
-			double rn =random.nextDouble();
-			if(rn < cellDensity){
-				float delta = (float)(2d*Math.sin(sineModulationFactor*y));
-				int x = Math.round(xPos+delta);
-				UniversalCell cell = new UniversalCell(null, null, true);
-				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
-				((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
-				
-				if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
-				standardCellEnsemble.add(cell);
-			}
-		}	
-	}
-	
+		
 	
 	protected void initializeCellEnsembleBasedOnRandomAgeDistribution(ArrayList<UniversalCell> cellEnsemble) {
 

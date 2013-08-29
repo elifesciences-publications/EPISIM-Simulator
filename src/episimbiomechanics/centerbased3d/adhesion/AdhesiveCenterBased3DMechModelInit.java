@@ -10,7 +10,7 @@ import sim.app.episim.UniversalCell;
 
 import sim.app.episim.model.biomechanics.centerbased3d.adhesion.AdhesiveCenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.adhesion.AdhesiveCenterBased3DMechanicalModelGP;
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurfaceGP;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;

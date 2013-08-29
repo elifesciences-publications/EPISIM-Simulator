@@ -21,7 +21,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.tissue.Epidermis;
+import sim.app.episim.tissue.UniversalTissue;
 
 
 

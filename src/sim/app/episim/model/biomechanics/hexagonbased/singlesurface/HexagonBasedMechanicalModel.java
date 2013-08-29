@@ -39,7 +39,7 @@ import sim.util.IntBag;
 
 
 
-public class HexagonBasedMechanicalModelSingleSurface extends AbstractHexagonBasedMechanicalModel {
+public class HexagonBasedMechanicalModel extends AbstractHexagonBasedMechanicalModel {
 	
 	private EpisimHexagonBased2DSingleSurfaceMC modelConnector;
 	
@@ -55,17 +55,17 @@ public class HexagonBasedMechanicalModelSingleSurface extends AbstractHexagonBas
 		
 	private boolean isAtWoundEdge=false;
 	
-	private HexagonBasedMechanicalModelSingleSurfaceGP globalParameters;
+	private HexagonBasedMechanicalModelGP globalParameters;
 	
 	private static final int UPPER_PROBABILITY_LIMIT = (int) Math.pow(10, 7);
 	
-	public HexagonBasedMechanicalModelSingleSurface(){
+	public HexagonBasedMechanicalModel(){
 		this(null);	
 	}
 
-	public HexagonBasedMechanicalModelSingleSurface(AbstractCell cell) {
+	public HexagonBasedMechanicalModel(AbstractCell cell) {
 	   super(cell);
-	   globalParameters = (HexagonBasedMechanicalModelSingleSurfaceGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+	   globalParameters = (HexagonBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	  
 	   if(cellField == null){
 	   	
@@ -77,7 +77,7 @@ public class HexagonBasedMechanicalModelSingleSurface extends AbstractHexagonBas
 		   AbstractCell motherCell = cell.getMotherCell();
 		   
 		   if(motherCell != null && motherCell.getID() != cell.getID()){
-		   	HexagonBasedMechanicalModelSingleSurface motherCellMechModel = (HexagonBasedMechanicalModelSingleSurface) motherCell.getEpisimBioMechanicalModelObject();
+		   	HexagonBasedMechanicalModel motherCellMechModel = (HexagonBasedMechanicalModel) motherCell.getEpisimBioMechanicalModelObject();
 		   	if(motherCellMechModel.spreadingLocation != null){
 		   		cellField.field[motherCellMechModel.spreadingLocation.x][motherCellMechModel.spreadingLocation.y] = cell;
 		   		fieldLocation = new Int2D(motherCellMechModel.spreadingLocation.x,motherCellMechModel.spreadingLocation.y);
@@ -202,7 +202,7 @@ public class HexagonBasedMechanicalModelSingleSurface extends AbstractHexagonBas
 		ArrayList<AbstractCell> spreadingNeighbours = new ArrayList<AbstractCell>();
 		for(int i = 0; i < numberOfNeighbours; i++){
 			if(neighboursToBeLost.get(i).getEpisimCellBehavioralModelObject().getCellType() == getCell().getEpisimCellBehavioralModelObject().getCellType()){
-				if(((HexagonBasedMechanicalModelSingleSurface)neighboursToBeLost.get(i).getEpisimBioMechanicalModelObject()).isSpreading()) spreadingNeighbours.add(neighboursToBeLost.get(i));
+				if(((HexagonBasedMechanicalModel)neighboursToBeLost.get(i).getEpisimBioMechanicalModelObject()).isSpreading()) spreadingNeighbours.add(neighboursToBeLost.get(i));
 				else nonSpreadingNeighbours.add(neighboursToBeLost.get(i));
 			}
 		}		
@@ -415,7 +415,7 @@ public class HexagonBasedMechanicalModelSingleSurface extends AbstractHexagonBas
 	}
 	
 	private void pullNeighbour(AbstractCell neighbour, Int2D locationToPull){
-		HexagonBasedMechanicalModelSingleSurface mechModel = (HexagonBasedMechanicalModelSingleSurface) neighbour.getEpisimBioMechanicalModelObject();
+		HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) neighbour.getEpisimBioMechanicalModelObject();
 		mechModel.spreadingLocation = locationToPull;
 		cellField.field[locationToPull.x][locationToPull.y] = neighbour;
 		mechModel.modelConnector.setIsSpreading(true);
@@ -560,8 +560,8 @@ public class HexagonBasedMechanicalModelSingleSurface extends AbstractHexagonBas
 			
 			while(iter.hasNext()){
 				AbstractCell cell = iter.next();
-				if(cell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModelSingleSurface){
-					HexagonBasedMechanicalModelSingleSurface mechModel = (HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject();
+				if(cell.getEpisimBioMechanicalModelObject() instanceof HexagonBasedMechanicalModel){
+					HexagonBasedMechanicalModel mechModel = (HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
 					if(woundArea.contains(mechModel.getLastDrawInfo2D().draw.x, mechModel.getLastDrawInfo2D().draw.y)){  
 						deathCellSet.add(cell);
 					}					

@@ -6,27 +6,20 @@ import episiminterfaces.NoUserModification;
 import episiminterfaces.NoExport;
 
 
-public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonBasedMechanicalModelGP {
+public class HexagonBasedMechanicalModelGP extends AbstractHexagonBasedMechanicalModelGP {
 	
 	
 	private double celldiameter_mikron = 50;
 	private double inner_hexagonal_radius = ((celldiameter_mikron/2d)/2d)*Math.sqrt(3d);
-	private double outer_hexagonal_radius = (celldiameter_mikron/2d);
-	
-	 
-	
-	
+	private double outer_hexagonal_radius = (celldiameter_mikron/2d);	
 	
 	private double numberOfPixelsPerMicrometer = 1;
 	
 	
 	private double number_of_columns =54;
 	private double number_of_rows =47;
-	private double number_of_initially_occupied_columns =8;
-	private int initialCellDensityInPercent = 100;
-	private int initialSecretionCellDensityInPercent = 100;
 	
-	
+	private int initialCellDensityInPercent = 100;	
 	
 	private double neighborhood_mikron = 2d*inner_hexagonal_radius;
 	
@@ -35,11 +28,6 @@ public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonB
 	
 	
 	private boolean chemotaxisEnabled = true;
-	
-	
-	private boolean addSecretingCellColony=true;
-	private boolean addErythrocyteColony=false;
-
 	
    public double getNumber_of_columns() {
    	
@@ -61,29 +49,7 @@ public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonB
 	   this.number_of_rows = (int)number_of_rows;
 	   if((this.number_of_rows %2) > 0) this.number_of_rows++;
    }
-   
-   
-   public double getNumber_of_initially_occupied_columns() {
-
-	   return number_of_initially_occupied_columns;
-   }
-   
-   
-   public void setNumber_of_initially_occupied_columns(double number_of_initially_occupied_columns) {
-
-	   this.number_of_initially_occupied_columns = number_of_initially_occupied_columns;
-   }
-	
-	public boolean getAddSecretingCellColony(){ return addSecretingCellColony; }	
-   public void setAddSecretingCellColony(boolean addSecretingCellColony) {
-	   this.addSecretingCellColony = addSecretingCellColony;
-   }
-   
-	
-   public boolean getAddErythrocyteColony(){ return addErythrocyteColony; }	
-   public void setAddErythrocyteColony(boolean addErythrocyteColony) {
-	   this.addErythrocyteColony = addErythrocyteColony;
-   }
+   	
 	public double getNeighborhood_mikron() {
 	   return this.neighborhood_mikron;
    }
@@ -238,18 +204,7 @@ public class HexagonBasedMechanicalModelSingleSurfaceGP extends AbstractHexagonB
    public void setInitialCellDensityInPercent(int initialCellDensityInPercent) {
    
    	this.initialCellDensityInPercent = initialCellDensityInPercent;
-   }
-   
-   public int getInitialSecretionCellDensityInPercent() {
-      
-   	return initialSecretionCellDensityInPercent;
-   }
-
-	
-   public void setInitialSecretionCellDensityInPercent(int initialSecretionCellDensityInPercent) {
-   
-   	this.initialSecretionCellDensityInPercent = initialSecretionCellDensityInPercent;
-   }
+   }   
 
    @NoUserModification
    public double getInner_hexagonal_radius() {

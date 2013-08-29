@@ -1,7 +1,7 @@
 package episimbiomechanics.hexagonbased2d.singlesurface;
 
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurface;
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelSingleSurfaceGP;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.demo.HexagonBasedMechanicalModelDemoGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
@@ -35,7 +35,7 @@ public class EpisimHexagonBased2DSingleSurfaceMC extends EpisimModelConnector {
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return HexagonBasedMechanicalModelSingleSurface.class;
+		return HexagonBasedMechanicalModel.class;
 	}
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
@@ -43,7 +43,7 @@ public class EpisimHexagonBased2DSingleSurfaceMC extends EpisimModelConnector {
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return HexagonBasedMechanicalModelSingleSurfaceGP.class;
+		return HexagonBasedMechanicalModelDemoGP.class;
 	}
 	
 	public String getChemotacticField(){	   

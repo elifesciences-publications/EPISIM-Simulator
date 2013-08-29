@@ -20,7 +20,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.model.visualization.TissueCrossSectionPortrayal3D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
-import sim.app.episim.tissue.Epidermis;
+import sim.app.episim.tissue.UniversalTissue;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueServer;
@@ -138,14 +138,14 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	
 	public EpisimGUIState(JFrame mainFrame){			
-		this(new Epidermis(System.currentTimeMillis()), mainFrame, false);
+		this(new UniversalTissue(System.currentTimeMillis()), mainFrame, false);
 	}
 	public EpisimGUIState(JPanel mainPanel){	
-		this(new Epidermis(System.currentTimeMillis()), (Component)mainPanel, false);
+		this(new UniversalTissue(System.currentTimeMillis()), (Component)mainPanel, false);
 	}
 
 	public EpisimGUIState(SimState state, JPanel mainPanel, boolean reloadSnapshot){
-		this(new Epidermis(System.currentTimeMillis()), (Component)mainPanel, reloadSnapshot);
+		this(new UniversalTissue(System.currentTimeMillis()), (Component)mainPanel, reloadSnapshot);
 	}	
 	public EpisimGUIState(SimState state, Component mainComp, boolean reloadSnapshot){		
 		super(state);
@@ -401,7 +401,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 					//	if(console.getPlayState() == Console.PS_PAUSED)console.pressPause();
 						if(woundPortrayal != null){
 							woundPortrayal.closeWoundRegionPath(true);
-							((Epidermis) state).removeCells(woundPortrayal.getWoundRegion());
+							((UniversalTissue) state).removeCells(woundPortrayal.getWoundRegion());
 							activateDrawing = false;
 						}
 					}

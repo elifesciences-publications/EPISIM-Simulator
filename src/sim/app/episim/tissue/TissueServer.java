@@ -24,8 +24,8 @@ public class TissueServer implements ClassLoaderChangeListener{
 		this.actTissue = tissue;
 	}
 
-	public Epidermis getActEpidermalTissue() throws NoEpidermalTissueAvailableException{
-		if(actTissue != null && actTissue instanceof Epidermis) return (Epidermis) actTissue;
+	public UniversalTissue getActEpidermalTissue() throws NoEpidermalTissueAvailableException{
+		if(actTissue != null && actTissue instanceof UniversalTissue) return (UniversalTissue) actTissue;
 		else throw new NoEpidermalTissueAvailableException("There is no epidermal tissue registered!");
 	}
 	

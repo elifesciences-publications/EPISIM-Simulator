@@ -36,10 +36,13 @@ public class XmlUniversalCell extends XmlObject<AbstractCell> {
 
 	public long getMotherId() {
 		Object id = get("motherId");
-		if (id instanceof String)
-			return Long.parseLong((String) id);
-		else
-			return (Long) id;
+		if(id != null){
+			if (id instanceof String)
+				return Long.parseLong((String) id);
+			else
+				return (Long) id;
+		}
+		else return Long.MIN_VALUE;
 	}
 	
 	@Override

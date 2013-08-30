@@ -5,10 +5,14 @@ import java.util.ArrayList;
 
 import org.w3c.dom.DOMException;
 
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimPortrayal;
 
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlEpisimBiomechanicalModel;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
@@ -71,6 +75,9 @@ public abstract class BiomechanicalModelInitializer {
 			ArrayList<UniversalCell> cellEnsemble);
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {
+		EpisimBiomechanicalModelGlobalParameters globalMech = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		if(simulationStateData.getEpisimBioMechanicalModelGlobalParameters() != null)simulationStateData.getEpisimBioMechanicalModelGlobalParameters().copyValuesToTarget(globalMech);
+		if(simulationStateData.getTissueBorder() != null)simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
 		simulationStateData.clearLoadedCells();
 
 		ArrayList<XmlUniversalCell> xmlCells = simulationStateData.getCells();
@@ -107,16 +114,19 @@ public abstract class BiomechanicalModelInitializer {
 			return loadCell;
 		
 		long id = xCell.getId();
-		long motherID = (Long) xCell.getMotherId();
-		if (id == motherID) {
-			loadCell = new UniversalCell(true);
-		} else {
-			UniversalCell mother = buildCell(simulationStateData.getCellToBeLoaded(motherID));
-				// TODO was tun wenn mutter gelöscht ist?
-			loadCell = new UniversalCell(mother, null, true);
+	
+			long motherID = (Long) xCell.getMotherId();
+			if (id == motherID || xCell.getMotherId() == Long.MIN_VALUE) {
+				loadCell = new UniversalCell(true);
+			} else {
+				UniversalCell mother = buildCell(simulationStateData.getCellToBeLoaded(motherID));
+					// TODO was tun wenn mutter gelöscht ist?
+				loadCell = new UniversalCell(mother, null, true);
+			}
+		if(loadCell != null){
+			xCell.copyValuesToTarget(loadCell);
+			simulationStateData.addLoadedCell(xCell, loadCell);
 		}
-		xCell.copyValuesToTarget(loadCell);
-		simulationStateData.addLoadedCell(xCell, loadCell);
 		return loadCell;
 	}
 

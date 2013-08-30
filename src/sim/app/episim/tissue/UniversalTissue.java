@@ -160,7 +160,13 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 						seedingHasFinished = true;
 					}
 					public void executeTask() {
-						initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());						
+						initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());
+						try{
+			            Thread.sleep(50);
+							}
+							catch (InterruptedException e){
+				            ExceptionDisplayer.getInstance().displayException(e);
+							} 
 					}
 				};
 				seedingHasFinished = false;

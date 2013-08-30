@@ -9,7 +9,6 @@ import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.tissue.TissueController;
 import sim.util.DoubleBag;
-import sim.util.IntBag;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.SendReceiveAlgorithm;

@@ -36,16 +36,18 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 	
 	public EpisimChemokineTumorModelInit(SimulationStateData simulationStateData){
 		super(simulationStateData);
+		TissueController.getInstance().getTissueBorder().loadNoMembrane();
+		MiscalleneousGlobalParameters.getInstance().setTypeColor(4);
 		random = new MersenneTwisterFast(System.currentTimeMillis());
+		HexagonBasedMechanicalModelCytokineTumorGP globalParameters = (HexagonBasedMechanicalModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
+		setInitialGlobalParametersValues(globalParameters);
 	}
 
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 		HexagonBasedMechanicalModelCytokineTumorGP globalParameters = (HexagonBasedMechanicalModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		
-		
-		
+
 		int width = (int)globalParameters.getNumber_of_columns();
 		double sectionWidth = Math.floor(((double)width) / 3d);
 		int height = (int)globalParameters.getNumber_of_rows();

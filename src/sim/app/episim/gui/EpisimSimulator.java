@@ -88,7 +88,7 @@ import sim.util.Double2D;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.4.1.0.4";
+	public static final String versionID = "1.4.1.0.5";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -503,20 +503,12 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	}
 	
 	private void initializeGlobalObjects(SimulationStateData simulationStateData){
-		EpisimCellBehavioralModelGlobalParameters globalBehave = ModelController
-				.getInstance()
-				.getEpisimCellBehavioralModelGlobalParameters();
-		EpisimBiomechanicalModelGlobalParameters globalMech = ModelController
-				.getInstance()
-				.getEpisimBioMechanicalModelGlobalParameters();
-		simulationStateData.getEpisimBioMechanicalModelGlobalParameters()
-		.copyValuesToTarget(globalMech);
-		simulationStateData.getEpisimCellBehavioralModelGlobalParameters()
-				.copyValuesToTarget(globalBehave);
-		simulationStateData.getMiscalleneousGlobalParameters()
-		.copyValuesToTarget(
-				MiscalleneousGlobalParameters.getInstance());
-		simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
+		EpisimCellBehavioralModelGlobalParameters globalBehave = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
+		EpisimBiomechanicalModelGlobalParameters globalMech = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		if(simulationStateData.getEpisimBioMechanicalModelGlobalParameters() != null)simulationStateData.getEpisimBioMechanicalModelGlobalParameters().copyValuesToTarget(globalMech);
+		if(simulationStateData.getEpisimCellBehavioralModelGlobalParameters() != null)simulationStateData.getEpisimCellBehavioralModelGlobalParameters().copyValuesToTarget(globalBehave);
+		if(simulationStateData.getMiscalleneousGlobalParameters() != null)simulationStateData.getMiscalleneousGlobalParameters().copyValuesToTarget(MiscalleneousGlobalParameters.getInstance());
+		if(simulationStateData.getTissueBorder() != null)simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
 	}
 	
 	

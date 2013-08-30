@@ -5,16 +5,20 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import ec.util.MersenneTwisterFast;
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.sbml.SbmlModelConnector;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlEpisimCellBehavioralModel;
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.TysonRungeCuttaCalculator;
 
 public class CellBehavioralModelInitializer {
@@ -113,6 +117,8 @@ public class CellBehavioralModelInitializer {
 	}
 	
 	protected void initializeCellEnsembleWithFileValues(ArrayList<UniversalCell> cellEnsemble) {
+		EpisimCellBehavioralModelGlobalParameters globalBehave = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
+		if(simulationStateData.getEpisimCellBehavioralModelGlobalParameters() != null)simulationStateData.getEpisimCellBehavioralModelGlobalParameters().copyValuesToTarget(globalBehave);
 		for (UniversalCell actCell : cellEnsemble) {
 			EpisimCellBehavioralModel cellBehave = actCell.getEpisimCellBehavioralModelObject();
 			if (simulationStateData.getAlreadyLoadedXmlCellNewID(actCell.getID()) != null) {

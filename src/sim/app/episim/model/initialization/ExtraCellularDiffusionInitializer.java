@@ -99,18 +99,21 @@ public class ExtraCellularDiffusionInitializer {
 			ModelController.getInstance().getExtraCellularDiffusionController().setExtraCellularFieldMap(extraCellularFieldMap);
 			if (simStateData != null) {
 				if(ModelController.getInstance().getModelDimensionality()== ModelDimensionality.TWO_DIMENSIONAL){
-					simStateData.getExtraCellularDiffusionFieldArray2D()
-							.copyValuesToTarget(
-									ModelController.getInstance()
-											.getExtraCellularDiffusionController()
-											.getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField2D[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]));
+					if(simStateData.getExtraCellularDiffusionFieldArray2D() != null){
+						simStateData.getExtraCellularDiffusionFieldArray2D().copyValuesToTarget(
+								ModelController.getInstance().getExtraCellularDiffusionController()
+												.getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField2D[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]));
+					
+					}
 				}
 				if(ModelController.getInstance().getModelDimensionality()== ModelDimensionality.THREE_DIMENSIONAL){
-					simStateData.getExtraCellularDiffusionFieldArray3D()
-							.copyValuesToTarget(
-									ModelController.getInstance()
-											.getExtraCellularDiffusionController()
-											.getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField3D[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]));
+					if(simStateData.getExtraCellularDiffusionFieldArray3D() != null){
+						simStateData.getExtraCellularDiffusionFieldArray3D()
+								.copyValuesToTarget(
+										ModelController.getInstance()
+												.getExtraCellularDiffusionController()
+												.getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField3D[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]));
+					}	
 				}
 			}
 		}

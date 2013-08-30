@@ -100,7 +100,7 @@ public class HexagonBasedMechanicalModel extends AbstractHexagonBasedMechanicalM
 	 public EpisimModelConnector getEpisimModelConnector(){
 	   	return this.modelConnector;
 	 }
-	 
+	 @NoExport
 	 public GenericBag<AbstractCell> getDirectNeighbours(){
 		 return getRealNeighbours(globalParameters.getUseContinuousSpace());
 	 }
@@ -447,8 +447,8 @@ public class HexagonBasedMechanicalModel extends AbstractHexagonBasedMechanicalM
 	public void setSpreadingLocation(Int2D spreadingLocation){
 	  	this.spreadingLocation = spreadingLocation;
 	}
-	
-	public Int2D getFieldLocation(){
+	@NoExport
+	private Int2D getFieldLocation(){
 	  	return this.fieldLocation;
 	}
 	public void setFieldLocation(Int2D fieldLocation){

@@ -428,17 +428,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			potentialLoc = calcBoundedPos(potentialLoc.x, potentialLoc.y);
 	
 			// ////////////////////////////////////////////////
-			// try optimised POS
-			// ////////////////////////////////////////////////
-			// check whether there is anything in the way at the new position
-	
-			// aufgrund der gnaedigen Kollisionspruefung, die bei Aktueller Zelle
-			// (2)
-			// und Vorgaenger(1) keine Kollision meldet,
-			// ueberlappen beide ein wenig, falls es eng wird. Wird dann die (2)
-			// selber nachgefolgt von (3), so wird (2) rausgeschoben, aber (3)
-			// nicht
-			// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
+			
 	
 			neighbours = cellField.getObjectsWithinDistance(potentialLoc, globalParameters.getNeighborhood_mikron(), true, false); // theEpidermis.neighborhood
 			HitResult hitResult2;

@@ -46,10 +46,10 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		double STEM_CELL_HEIGHT=0;
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();		
 		try{
-	      Field field = cbGP.getClass().getDeclaredField("STEM_CELL_WIDTH");
+	      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
 	      STEM_CELL_WIDTH = field.getDouble(cbGP);
 	      
-	      field = cbGP.getClass().getDeclaredField("STEM_CELL_HEIGHT");
+	      field = cbGP.getClass().getDeclaredField("HEIGHT_DEFAULT");
 	      STEM_CELL_HEIGHT = field.getDouble(cbGP);   
       }
       catch (NoSuchFieldException e){

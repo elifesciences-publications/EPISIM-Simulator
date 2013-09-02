@@ -427,18 +427,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			potentialLoc = calcBoundedPos(potentialLoc.x, potentialLoc.y);
 	
 			// ////////////////////////////////////////////////
-			// try optimised POS
-			// ////////////////////////////////////////////////
-			// check whether there is anything in the way at the new position
-	
-			// aufgrund der gnaedigen Kollisionspruefung, die bei Aktueller Zelle
-			// (2)
-			// und Vorgaenger(1) keine Kollision meldet,
-			// ueberlappen beide ein wenig, falls es eng wird. Wird dann die (2)
-			// selber nachgefolgt von (3), so wird (2) rausgeschoben, aber (3)
-			// nicht
-			// damit ueberlappen 3 und 1 und es kommt zum Stillstand.
-	
+			
 			neighbours = cellField.getObjectsWithinDistance(potentialLoc, getKeratinoWidth()*globalParameters.getNeighbourhoodOptDistFact(), true, false); // theEpidermis.neighborhood
 			HitResult hitResult2;
 			hitResult2 = hitsOther(neighbours, potentialLoc, true);
@@ -449,8 +438,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 				/**
 				 * TODO: Check this condition and compare it with the wound closure model
 				 */
-				if((hitResult2.numhits == 0)
-						|| ((hitResult2.numhits == 1) && ((hitResult2.otherId == getCell().getMotherId()) || (hitResult2.otherMotherId == getCell().getID())))){				
+				if((hitResult2.numhits < 2)){				
 					setPositionRespectingBounds(potentialLoc);
 				}
 			}
@@ -483,8 +471,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			
 			modelConnector.setX(newCellLocation.getX());
 	  	 	modelConnector.setY(newCellLocation.getY());
-	  	   modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());
-	  	   
+	  	 	modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());
 	  	   this.getCellEllipseObject().setXY(newCellLocation.x, newCellLocation.y);
   	   
 		

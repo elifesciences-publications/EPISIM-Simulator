@@ -557,7 +557,6 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractMechanical3DMo
 				
 			if((newCellLocation.y-getKeratinoHeight()) <= MIN_Y){
 				modelConnector.setIsBasal(true);
-				getCell().setIsBasalCell(true);
 				StandardMembrane membrane = TissueController.getInstance().getTissueBorder().getStandardMembrane();
 				if(membrane != null){
 					membrane.inkrementContactTimeForReferenceCoordinate3D(new Double3D(newCellLocation.x, newCellLocation.y, newCellLocation.z));
@@ -565,7 +564,6 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractMechanical3DMo
 			}
 			else{
 				modelConnector.setIsBasal(false);
-				getCell().setIsBasalCell(false); 
 			}
 			
 			

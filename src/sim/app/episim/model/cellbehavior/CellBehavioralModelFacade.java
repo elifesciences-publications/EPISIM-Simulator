@@ -45,9 +45,7 @@ public class CellBehavioralModelFacade implements java.io.Serializable{
 	}
 	public enum StandardDiffLevel{ 
 		STEMCELL("DL_StemCell"),
-		TACELL("DL_TaCell"),
-		EARLYSPICELL("DL_EarlySpiCell"),	
-		LATESPICELL("DL_LateSpiCell"),	
+		TACELL("DL_TaCell"),		
 		GRANUCELL("DL_GranuCell");		
  	private String name = "";
  	private StandardDiffLevel(String name){ this.name = name;}

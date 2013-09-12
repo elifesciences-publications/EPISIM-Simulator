@@ -29,7 +29,7 @@ public class HexagonBased2DMechModelSingleSurfaceInit extends BiomechanicalModel
 	public HexagonBased2DMechModelSingleSurfaceInit(){
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
-		MiscalleneousGlobalParameters.getInstance().setTypeColor(4);
+		
 	}
 	
 	public HexagonBased2DMechModelSingleSurfaceInit(SimulationStateData simulationStateData){

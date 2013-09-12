@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.engine.SimState;
@@ -89,6 +90,13 @@ public class SimStateServer implements SimulationStateChangeListener, ClassLoade
 	}
 	public void removeSimulationStateChangeListener(SimulationStateChangeListener listener){
 		this.simulationStateListeners.remove(listener);
+	}
+	public void reloadCurrentlyLoadedModel(){
+		for(SimulationStateChangeListener listener:simulationStateListeners){
+			if(listener instanceof EpisimSimulator){
+				((EpisimSimulator)listener).reloadCurrentlyLoadedModel();
+			}
+		}
 	}
 	
    public void classLoaderHasChanged() {

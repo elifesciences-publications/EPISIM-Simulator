@@ -8,26 +8,27 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensiona
 public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
 	private int basalAmplitude_mikron = 40; // depth of an undulation
-	private int basalOpening_mikron = 250; // width of undulation at the middle
-	private double width = 140;
-	private double height = 100;
+	private int basalPeriod_mikron = 100;
+	private int basalYDelta_mikron = 5;
+	private int basalOpening_mikron = 500; // width of undulation at the middle
+	private double width = 300;
+	private double height = 150;
 	private double randomness = 0.05;
-	private double seedMinDepth_frac = 0.02; // beginning with which depth a stem cell is seeded
+	private double seedMinDepth_frac = 0.25; // beginning with which depth a stem cell is seeded
 	private boolean seedReverse = false;	
-	private int basalDensity_mikron = 9;//OriginalValue: 8; 
+	private int basalDensity_mikron = 30;//OriginalValue: 8; 
 	private double externalPush = 1.2; // y-offset
 	
 	
-	private double neighborhood_mikron= 10.0;
-	private double basalLayerWidth=15;  // For Statistics of Basal Layer: Cell Definition (for GrowthFraction): distance to membrane not more than gBasalLayerWidth
-	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
+	private double neighborhood_mikron= 20.0;
+	private double membraneCellsWidth=8;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
 	private boolean drawCellsAsEllipses = false;
 	private double numberOfPixelsPerMicrometer = 1;
 	
 	private double neighbourhoodOptDistFact = 1.6;	
 	private double optDistanceAdhesionFact = 1.25;
 	private double optDistanceScalingFactor = 0.8;
-	private double randomGravity =0;// 0.2;
+	private double randomGravity =0.05;// 0.2;
 	
 	public CenterBasedMechanicalModelGP() {}
 	
@@ -55,16 +56,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	public void setBasalOpening_mikron(int val) {
 		if(val >= 0.0)
 			basalOpening_mikron = val;
-	}
-	
-	public double getBasalLayerWidth() {
-		return basalLayerWidth;
-	}
-
-	public void setBasalLayerWidth(double val) {
-		if(val >= 0.0)
-			basalLayerWidth = val;
-	}
+	}	
 
 	public double getMembraneCellsWidthInMikron() {
 		return membraneCellsWidth;
@@ -218,5 +210,29 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
    public void setRandomGravity(double randomGravity) {
    
    	this.randomGravity = randomGravity;
+   }
+
+	
+   public int getBasalPeriod_mikron() {
+   
+   	return basalPeriod_mikron;
+   }
+
+	
+   public void setBasalPeriod_mikron(int basalPeriod_mikron) {
+   
+   	this.basalPeriod_mikron = basalPeriod_mikron;
+   }
+
+	
+   public int getBasalYDelta_mikron() {
+   
+   	return basalYDelta_mikron;
+   }
+
+	
+   public void setBasalYDelta_mikron(int basalYDelta_mikron) {
+   
+   	this.basalYDelta_mikron = basalYDelta_mikron;
    }
 }

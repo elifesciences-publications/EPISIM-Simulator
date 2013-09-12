@@ -38,7 +38,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	
 	
    private boolean isOuterCell=false;
-   private boolean isBasalStatisticsCell=false; // for counting of growth fraction a wider range is necessary, not only membrane sitting cells
+   
   
    private boolean inNirvana=false; // unvisible and without action: only ageing is active
    private final long id;
@@ -97,8 +97,6 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	@CannotBeMonitored
 	public long getID() { return id; }   
 	
-	public boolean getIsBasalCell() { return isBasalStatisticsCell; }
-	public void setIsBasalCell(boolean val){ this.isBasalStatisticsCell = val; }
 	public boolean getIsOuterCell() { return isOuterCell; } 	
 	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell; }	
 	public long getMotherId(){ return this.motherCell != null ? this.motherCell.getID(): -1; }
@@ -153,78 +151,11 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    	return getFillColor(this);
    }
    
-   private Color getFillColor(AbstractCell kcyte){
-   	StandardDiffLevel sDiffLevel = null; 
-   	if(kcyte instanceof UniversalCell){
-   		sDiffLevel = ((UniversalCell)kcyte).getStandardDiffLevel();
-   	}
-      int coloringType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
-   	//
-      // set colors
-      //
-                    
-      int calculatedColorValue=0;  
-     
-      int red=255;         
-      int green=0;
-      int blue=0;
-            
-      if ((coloringType==1) || (coloringType==2))  // Cell type coloring
-      {              
-        	   
-      		if(sDiffLevel != null){
-	      		if(sDiffLevel == StandardDiffLevel.STEMCELL){red=0x46; green=0x72; blue=0xBE;} 
-	        	   else if(sDiffLevel == StandardDiffLevel.TACELL){red=148; green=167; blue=214;}                             
-	        	   else if(sDiffLevel == StandardDiffLevel.EARLYSPICELL){red=0xE1; green=0x6B; blue=0xF6;}
-	        	   else if(sDiffLevel == StandardDiffLevel.LATESPICELL){red=0xC1; green=0x4B; blue=0xE6;}
-	        	   else if(sDiffLevel == StandardDiffLevel.GRANUCELL){red=204; green=0; blue=102;}
-      		}           
-                       
-            boolean isMembraneCell = false;
-            boolean isOuterCell = kcyte.getIsOuterCell();
-            boolean isNextToOuterCell = false;
-            if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){ 
-            	isMembraneCell=((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
-            	isNextToOuterCell = ((CenterBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell();
-        
-            }
-            if(kcyte.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){ 
-            	isMembraneCell=((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
-            	isNextToOuterCell = ((CenterBased3DMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).nextToOuterCell();
-            	
-            }
-            if(kcyte.getEpisimBioMechanicalModelObject() instanceof VertexBasedMechanicalModel) isMembraneCell=((VertexBasedMechanicalModel)kcyte.getEpisimBioMechanicalModelObject()).isMembraneCell();
-           
-            
-            if(coloringType==2){
-            	if(isMembraneCell){ red=230; green=255; blue=80;}
-            	if(isNextToOuterCell){ red=255; green=255; blue=255;}
-            	if(isOuterCell){ red=133; green=133; blue=133;}
-            }
-            
-       }
-       if (coloringType==3) // Age coloring
-       {              
-      	 Method m=null;
-      	 double maxAge =0;
-          try{
-	          m = kcyte.getEpisimCellBehavioralModelObject().getClass().getMethod("_getMaxAge", new Class<?>[0]);
-	          maxAge= (Double) m.invoke(kcyte.getEpisimCellBehavioralModelObject(), new Object[0]);
-          }
-          catch (Exception e){}
-          
-      	 calculatedColorValue= (int) (250-250*kcyte.getEpisimCellBehavioralModelObject().getAge()/maxAge);
-          red=255;
-          green=calculatedColorValue;                        
-          blue=calculatedColorValue;
-          if(sDiffLevel != null && sDiffLevel == StandardDiffLevel.STEMCELL){ red=148; green=167; blue=214; } // stem cells do not age
-       }
+   private Color getFillColor(AbstractCell kcyte){  	
       
-       if(coloringType==4){ //Colors are calculated in the cellbehavioral model
-         red=kcyte.getEpisimCellBehavioralModelObject().getColorR();
-         green=kcyte.getEpisimCellBehavioralModelObject().getColorG();
-         blue=kcyte.getEpisimCellBehavioralModelObject().getColorB();
-       }
+      int  red=kcyte.getEpisimCellBehavioralModelObject().getColorR();
+      int  green=kcyte.getEpisimCellBehavioralModelObject().getColorG();
+      int  blue=kcyte.getEpisimCellBehavioralModelObject().getColorB();       
         
       // Limit the colors to 255
       green=(green>255)?255:((green<0)?0:green);

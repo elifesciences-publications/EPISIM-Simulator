@@ -13,14 +13,9 @@ public class HexagonBasedMechanicalModelTwoSurfaceGP extends AbstractHexagonBase
 	
 	private double celldiameter_mikron = 50;
 	private double inner_hexagonal_radius = ((celldiameter_mikron/2d)/2d)*Math.sqrt(3d);
-	private double outer_hexagonal_radius = (celldiameter_mikron/2d);
+	private double outer_hexagonal_radius = (celldiameter_mikron/2d);	
 	
-	 
-	
-	
-	
-	private double numberOfPixelsPerMicrometer = 1;
-	
+	private double numberOfPixelsPerMicrometer = 1;	
 	
 	private double number_of_columns =50;
 	private double number_of_rows =50;
@@ -95,24 +90,50 @@ public class HexagonBasedMechanicalModelTwoSurfaceGP extends AbstractHexagonBase
 	public double getNeighborhood_mikron() {
 	   return this.neighborhood_mikron;
    }
-
+	
 	public void setNeighborhood_mikron(double val) {
 	   this.neighborhood_mikron = val;	   
    }
-
+	@NoUserModification
+	@NoExport
 	public int getBasalOpening_mikron() {
 		//not needed in first version
 	   return 0;
    }
+	@NoUserModification
+	@NoExport
 	public void setBasalOpening_mikron(int val) {
 		//not needed in first version
    }
-
+	@NoUserModification
+	@NoExport
 	public int getBasalAmplitude_mikron() {
 		//not needed in first version
 	   return 0;
    }
 	public void setBasalAmplitude_mikron(int val) {
+		//not needed in first version
+   }
+	@NoUserModification
+	@NoExport
+   public int getBasalPeriod_mikron() {
+		//not needed in first version
+	   return 0;
+   }
+	@NoUserModification
+	@NoExport
+   public void setBasalPeriod_mikron(int val) {
+		//not needed in first version   
+   }
+	@NoUserModification
+	@NoExport
+   public int getBasalYDelta_mikron() {
+		//not needed in first version
+	   return 0;
+   }
+	@NoUserModification
+	@NoExport
+   public void setBasalYDelta_mikron(int val) {
 		//not needed in first version
    }
 	

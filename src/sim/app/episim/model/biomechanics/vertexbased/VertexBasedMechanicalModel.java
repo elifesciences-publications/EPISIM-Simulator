@@ -215,7 +215,7 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 		if(getCell() instanceof UniversalCell){
 			universalCell = (UniversalCell) getCell();
 		}
-		if(cellPolygon.isProliferating() && universalCell != null && universalCell.getStandardDiffLevel() == StandardDiffLevel.EARLYSPICELL){
+		if(cellPolygon.isProliferating() && universalCell != null && universalCell.getStandardDiffLevel() != StandardDiffLevel.STEMCELL && universalCell.getStandardDiffLevel() != StandardDiffLevel.TACELL){
 			System.out.println(" --------------------------------- Ich sollte nicht proliferieren");
 		
 		}

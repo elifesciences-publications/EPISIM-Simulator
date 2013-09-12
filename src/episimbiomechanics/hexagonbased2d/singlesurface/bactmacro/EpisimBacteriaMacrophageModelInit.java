@@ -30,7 +30,6 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 	public EpisimBacteriaMacrophageModelInit(){
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
-		MiscalleneousGlobalParameters.getInstance().setTypeColor(4);
 		random = new MersenneTwisterFast(System.currentTimeMillis());
 		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
 		setInitialGlobalParametersValues(globalParameters);

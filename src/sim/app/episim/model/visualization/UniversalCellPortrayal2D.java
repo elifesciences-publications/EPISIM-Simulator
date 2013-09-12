@@ -115,24 +115,12 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
                	 drawCellEllipses = ((AdhesiveCenterBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).isDrawCellsAsEllipses();
                	 centerBasedModel = true;
                 }
-                StandardDiffLevel sDiffLevel = universalCell.getStandardDiffLevel();                                
-                int colorType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
-                if(sDiffLevel != null){
-	                if(sDiffLevel == StandardDiffLevel.STEMCELL
-	                  	 || sDiffLevel == StandardDiffLevel.TACELL
-	                  	 || sDiffLevel == StandardDiffLevel.EARLYSPICELL
-	                  	 || sDiffLevel == StandardDiffLevel.LATESPICELL){ 
-	                  	 showNucleus=true; 
-	                  	 drawFrame=true;
-	                } 
-	                else if(sDiffLevel == StandardDiffLevel.GRANUCELL){ 
-	                  	 drawFrame=true;                  	 
-	                  	 showNucleus=false;
-	                }
-                }
+                drawFrame=true;
+               
+                
                 
                if(!drawCellEllipses){           
-		                if(colorType < 5){                                               
+		                                                          
 			                
 			                Color fillColor = universalCell.getCellColoring();
 			                Shape cellPolygon;
@@ -148,18 +136,17 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
 				                }
 			                
 					                
-					              if(showNucleus)
-					              {
-					                java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
-					                 EpisimCellShape<Shape> shape = mechModel.getPolygonNucleus(new EpisimDrawInfo<DrawInfo2D>(info));
-					                 if(shape != null && shape.getCellShape() != null){					                  
-							                  graphics.setPaint(nucleusColor);  
-							                  graphics.fill(shape.getCellShape());						                  
-					                 }
-					              }
+					              
+					             java.awt.Color nucleusColor = new Color(140,140,240); //(Red, Green, Blue); 
+					             EpisimCellShape<Shape> shape = mechModel.getPolygonNucleus(new EpisimDrawInfo<DrawInfo2D>(info));
+					             if(shape != null && shape.getCellShape() != null){					                  
+							          graphics.setPaint(nucleusColor);  
+							          graphics.fill(shape.getCellShape());						                  
+					             }
+					             
 			                }
 		                
-		              } 
+		              
                }
                else{
                	doCenterBasedModelEllipseDrawing(graphics, info, universalCell, showNucleus);
@@ -230,12 +217,7 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    
    private Color getContourColor(UniversalCell kcyte){
    	Color myFrameColor = Color.white; //new Color(Red, Green, Blue);   	                               
-      int coloringType=MiscalleneousGlobalParameters.getInstance().getTypeColor();
-   	myFrameColor=new Color(200, 165, 200);                
-   	if (coloringType==3 || coloringType==4 || coloringType==5 || coloringType==6 || coloringType==7) // Age coloring
-   	{
-   		myFrameColor=new Color(180,180,180);
-   	}
+      myFrameColor=new Color(200, 165, 200);   	
    	return myFrameColor;      
    }
    

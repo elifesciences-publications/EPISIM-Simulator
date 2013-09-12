@@ -206,14 +206,16 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	   		}
 	   		if(!found) everyStandardCellTypeFound= false;
 	   	}
-	   	boolean everyStandardDiffLevelFound = true;
-	   	for(StandardDiffLevel sDiffLevel: StandardDiffLevel.values()){
-	   		boolean found = false;
-	   		for(EpisimDifferentiationLevel diffLevel : diffLevels){
-	   			if(diffLevel.toString().equals(sDiffLevel.toString())) found = true;
-	   		}
-	   		if(!found) everyStandardDiffLevelFound= false;
+	   	boolean everyStandardDiffLevelFound = false;
+	   
+	   	boolean stemCellFound = false;
+	   	boolean taCellFound = false;
+	   	for(EpisimDifferentiationLevel diffLevel : diffLevels){
+	   		if(diffLevel.toString().equals(StandardDiffLevel.STEMCELL.toString())) stemCellFound = true;
+	   		if(diffLevel.toString().equals(StandardDiffLevel.TACELL.toString())) taCellFound = true;
 	   	}
+	   	if(stemCellFound && taCellFound) everyStandardDiffLevelFound= true;
+	   	
 	   	isStandardKeratinocyteModel = (everyStandardCellTypeFound && everyStandardDiffLevelFound);
 	   }	   	
 	   return isStandardKeratinocyteModel;

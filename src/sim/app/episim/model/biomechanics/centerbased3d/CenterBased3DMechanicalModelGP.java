@@ -6,6 +6,8 @@ import episiminterfaces.NoUserModification;
 public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
 	private int basalAmplitude_mikron = 40; // depth of an undulation
+	private int basalPeriod_mikron = 70;
+	private int basalYDelta_mikron = 2;
 	private int basalOpening_mikron = 250; // width of undulation at the middle
 	private double width = 140;
 	private double height = 100;
@@ -17,7 +19,6 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
 	private double cohesion = 0.01;
 	
 	private double neighborhood_mikron= 10.0;
-	private double basalLayerWidth=15;  // For Statistics of Basal Layer: Cell Definition (for GrowthFraction): distance to membrane not more than gBasalLayerWidth
 	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
 	private double numberOfPixelsPerMicrometer = 1;
 	
@@ -43,15 +44,6 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
 			basalOpening_mikron = val;
 	}
 	
-	public double getBasalLayerWidth() {
-		return basalLayerWidth;
-	}
-
-	public void setBasalLayerWidth(double val) {
-		if(val >= 0.0)
-			basalLayerWidth = val;
-	}
-
 	public double getMembraneCellsWidthInMikron() {
 		return membraneCellsWidth;
 	}
@@ -160,5 +152,29 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
    public void setNeighbourhoodOptDistFact(double neighbourhoodOptDistFact) {
    
    	this.neighbourhoodOptDistFact = neighbourhoodOptDistFact;
+   }
+
+	
+   public int getBasalPeriod_mikron() {
+   
+   	return basalPeriod_mikron;
+   }
+
+	
+   public void setBasalPeriod_mikron(int basalPeriod_mikron) {
+   
+   	this.basalPeriod_mikron = basalPeriod_mikron;
+   }
+
+	
+   public int getBasalYDelta_mikron() {
+   
+   	return basalYDelta_mikron;
+   }
+
+	
+   public void setBasalYDelta_mikron(int basalYDelta_mikron) {
+   
+   	this.basalYDelta_mikron = basalYDelta_mikron;
    }
 }

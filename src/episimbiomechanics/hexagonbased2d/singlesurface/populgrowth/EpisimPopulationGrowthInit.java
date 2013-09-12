@@ -25,7 +25,7 @@ public class EpisimPopulationGrowthInit extends BiomechanicalModelInitializer {
 	public EpisimPopulationGrowthInit(){
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
-		MiscalleneousGlobalParameters.getInstance().setTypeColor(4);
+		
 	}
 	
 	public EpisimPopulationGrowthInit(SimulationStateData simulationStateData){

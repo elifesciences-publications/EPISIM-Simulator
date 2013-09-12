@@ -11,6 +11,7 @@ import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMecha
 import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;

@@ -444,11 +444,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			}
 			Double2D newCellLocation = cellField.getObjectLocation(getCell());
 			double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newCellLocation.x, newCellLocation.y);
-			if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getBasalLayerWidth())
-				getCell().setIsBasalCell(true);
-			else
-				getCell().setIsBasalCell(false); 
-	
+			
 			if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getMembraneCellsWidthInMikron()){
 				modelConnector.setIsMembrane(true);
 				this.isMembraneCell = true;
@@ -574,7 +570,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	@CannotBeMonitored
 	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info){
-		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, 2, 2));
+		if(this.getCell().convertToStandardDiffLevel(this.getCell().getEpisimCellBehavioralModelObject().getDiffLevel())!= StandardDiffLevel.GRANUCELL){
+			return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, 2, 2));
+		}
+		return null;
 	}
 	
 	@CannotBeMonitored

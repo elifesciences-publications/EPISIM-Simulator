@@ -480,7 +480,7 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DMode
 				
 			if((newCellLocation.y-getKeratinoHeight()) <= MIN_Y){
 				modelConnector.setIsBasal(true);
-				getCell().setIsBasalCell(true);
+				
 				StandardMembrane membrane = TissueController.getInstance().getTissueBorder().getStandardMembrane();
 				if(membrane != null){
 					membrane.inkrementContactTimeForReferenceCoordinate2D(new Double2D(newCellLocation.x, newCellLocation.y));
@@ -488,7 +488,7 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DMode
 			}
 			else{
 				modelConnector.setIsBasal(false);
-				getCell().setIsBasalCell(false); 
+				
 			}
 			
 			

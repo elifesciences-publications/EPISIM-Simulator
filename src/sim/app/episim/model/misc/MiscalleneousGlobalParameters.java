@@ -26,12 +26,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 	
 	private boolean highlightTrackedCells = true;
 	
-	private int typeColor = 1;
-	
 	private double coloringThreshold=0.0;
-	
-	public String[] typeString = { "Unused", "Color by cell type", "Cell type and outer cells", "Color by age", "Episim-Modeller Custom Coloring"};
-	
 	
 	private MiscalleneousGlobalParameters(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
@@ -40,15 +35,8 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 	
 	public boolean getHighlightTrackedCells(){ return this.highlightTrackedCells;}
 	
-	public void setHighlightTrackedCells(boolean val){ this.highlightTrackedCells = val; }
-   
+	public void setHighlightTrackedCells(boolean val){ this.highlightTrackedCells = val; }	
 	
-	
-	public String getTypeColorName(){
-		if((typeColor < 1) || (typeColor >= typeString.length))
-			typeColor = 1;
-		return typeString[typeColor];
-	}
 	@NoUserModification
 	public static MiscalleneousGlobalParameters getInstance(){
 		if(instance == null){
@@ -75,16 +63,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 		ObjectManipulations.resetInitialGlobalValues(instance, resetinstance);
 	}
 	
-	public int getTypeColor() {
-
-		return typeColor;
-	}
-
-	public void setTypeColor(int val) {
-
-		if((val < 1) || (val >= typeString.length)) this.typeColor = 1;
-		else this.typeColor = val;
-	}	
+	
 	
    public boolean getShowDiffusionFieldLegend() {
 	   return showDiffusionFieldLegend;

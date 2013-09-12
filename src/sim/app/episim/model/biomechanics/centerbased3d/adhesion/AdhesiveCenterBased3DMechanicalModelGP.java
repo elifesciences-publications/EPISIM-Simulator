@@ -9,6 +9,8 @@ public class AdhesiveCenterBased3DMechanicalModelGP implements EpisimBiomechanic
 	
 	private int basalAmplitude_mikron = 0; // depth of an undulation
 	private int basalOpening_mikron = 250; // width of undulation at the middle
+	private int basalPeriod_mikron = 70;
+	private int basalYDelta_mikron = 2;
 	private double width = 400;
 	private double height = 100;
 	private double randomness = 0.14;
@@ -242,6 +244,30 @@ public class AdhesiveCenterBased3DMechanicalModelGP implements EpisimBiomechanic
    public void setRandomGravity(double randomGravity) {
    
    	this.randomGravity = randomGravity;
+   }
+
+	
+   public int getBasalPeriod_mikron() {
+   
+   	return basalPeriod_mikron;
+   }
+
+	
+   public void setBasalPeriod_mikron(int basalPeriod_mikron) {
+   
+   	this.basalPeriod_mikron = basalPeriod_mikron;
+   }
+
+	
+   public int getBasalYDelta_mikron() {
+   
+   	return basalYDelta_mikron;
+   }
+
+	
+   public void setBasalYDelta_mikron(int basalYDelta_mikron) {
+   
+   	this.basalYDelta_mikron = basalYDelta_mikron;
    }
 
   

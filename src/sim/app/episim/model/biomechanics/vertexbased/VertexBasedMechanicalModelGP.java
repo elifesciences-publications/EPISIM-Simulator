@@ -43,6 +43,10 @@ public class VertexBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 		@NotInStatisticsHeaderString
 		private int basalAmplitude_mikron = 250; // depth of an undulation
 		@NotInStatisticsHeaderString
+		private int basalPeriod_mikron = 70;
+		@NotInStatisticsHeaderString
+		private int basalYDelta_mikron = 2;
+		@NotInStatisticsHeaderString
 		private int basalOpening_mikron = 12000; // width of undulation at the middle
 		@NotInStatisticsHeaderString
 		private double width_mikron = 500;
@@ -280,5 +284,29 @@ public class VertexBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	@NoUserModification
    public ModelDimensionality getModelDimensionality() {	   
 	   return ModelDimensionality.TWO_DIMENSIONAL;
+   }
+
+	
+   public int getBasalPeriod_mikron() {
+   
+   	return basalPeriod_mikron;
+   }
+
+	
+   public void setBasalPeriod_mikron(int basalPeriod_mikron) {
+   
+   	this.basalPeriod_mikron = basalPeriod_mikron;
+   }
+
+	
+   public int getBasalYDelta_mikron() {
+   
+   	return basalYDelta_mikron;
+   }
+
+	
+   public void setBasalYDelta_mikron(int basalYDelta_mikron) {
+   
+   	this.basalYDelta_mikron = basalYDelta_mikron;
    }
 }

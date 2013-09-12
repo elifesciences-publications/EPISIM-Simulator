@@ -563,11 +563,80 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			else{
 				noGUIModeMainPanel.validate();
 				noGUIModeMainPanel.repaint();
-			}
-			
-			
-			
+			}			
 		}
+	}
+	
+	public void reloadCurrentlyLoadedModel(){
+		 if(this.previouslyLoadedModelFile != null){
+	   	
+	   		File snapshotPath =SimulationStateFile.getTissueExportPath();    
+	      	SimulationStateData simulationStateData = actLoadedSimulationStateData;
+	      	File currentlyLoadedChartSet = null;
+	      	File currentlyLoadedDataExportDefinitionSet= null;
+	      	File loadedModelFile = this.previouslyLoadedModelFile;
+	      	if(ChartController.getInstance().isAlreadyChartSetLoaded()){
+	      		currentlyLoadedChartSet = ChartController.getInstance().getCurrentlyLoadedChartsetFile();   				
+	      	}
+	      	if(DataExportController.getInstance().isAlreadyDataExportSetLoaded()){
+ 				currentlyLoadedDataExportDefinitionSet=DataExportController.getInstance().getCurrentlyLoadedDataExportDefinitionSet();   				
+	      	}   	
+	      	
+	      	closeModel();
+	      	
+	      	GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
+	   		boolean success = false; 
+	   		try{
+	            success= ModelController.getInstance().loadCellBehavioralModelFile(loadedModelFile);
+	         }
+	         catch(ModelCompatibilityException e){
+	           ExceptionDisplayer.getInstance().displayException(e);
+	           if(ModeServer.guiMode())JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
+	           success = false;
+	         }
+	   		
+	   		if(success){
+	   			this.previouslyLoadedModelFile = loadedModelFile;
+					actLoadedSimulationStateData = simulationStateData;
+	   			if(simulationStateData == null)ModelController.getInstance().standardInitializationOfModels();
+	   			else{ 
+	   				initializeGlobalObjects(simulationStateData);
+	   				ModelController.getInstance().initializeModels(simulationStateData);
+	   			}
+	   			setTissueExportPath(snapshotPath, true);			
+	   			ChartController.getInstance().rebuildDefaultCharts();
+	   			cleanUpContentPane();
+	   			if(ModeServer.guiMode())epiUI = new EpisimGUIState(mainFrame);
+	   			else epiUI = new EpisimGUIState(noGUIModeMainPanel);
+	   			
+	   			registerSimulationStateListeners(epiUI);
+	   			epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
+	   			if(simulationStateData != null)  SimStateServer.getInstance().setSimStepNumberAtStart(simulationStateData.getSimStepNumber());			
+	   			if(currentlyLoadedChartSet != null){
+	   				ChartController.getInstance().loadChartSet(currentlyLoadedChartSet);	   			
+	   			}
+	   			if(currentlyLoadedDataExportDefinitionSet !=null){
+	   				DataExportController.getInstance().loadDataExportDefinition(currentlyLoadedDataExportDefinitionSet);	   				
+	   			}
+	   			ModelController.getInstance().setModelOpened(true);
+	   			if(ModeServer.guiMode()){
+	   				mainFrame.validate();
+	   				mainFrame.repaint();
+	   				mainFrame.setTitle(getEpisimSimulatorTitle());
+	   			}
+	   			else{
+	   				noGUIModeMainPanel.validate();
+	   				noGUIModeMainPanel.repaint();
+	   			} 
+	   			menuBarFactory.getEpisimMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH).setEnabled(true);
+					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(false);
+					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(true);
+					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.UPDATE_EPISIM_SIMULATOR).setEnabled(false);
+					menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
+					menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(true);
+					menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);
+	   		}
+	   }	   
 	}
 	
 	public void classLoaderHasChanged() {

@@ -29,7 +29,7 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 	public EpisimSimpleTumorModelInit(){
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
-		MiscalleneousGlobalParameters.getInstance().setTypeColor(4);
+		
 		random = new MersenneTwisterFast(System.currentTimeMillis());
 		HexagonBasedMechanicalModelSimpleTumorGP globalParameters = (HexagonBasedMechanicalModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
 		setInitialGlobalParametersValues(globalParameters);

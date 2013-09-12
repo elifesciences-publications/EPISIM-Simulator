@@ -273,6 +273,11 @@ public class DataExportController implements ClassLoaderChangeListener{
       }
 	}
 	
+	public File getCurrentlyLoadedDataExportDefinitionSet(){
+		if(this.actLoadedDataExportSet != null) return this.actLoadedDataExportSet.getPath();
+		return null;
+	}
+	
 
 	private boolean loadDataExportDefinition(URL url, Frame parent){
 		try{

@@ -25,15 +25,15 @@ public class EpisimCenterBasedMC extends EpisimModelConnector {
 	
 	private double adhesionStemCell=0;
 	private double adhesionTACell=0;
-	private double adhesionEarlySpinosumCell=0;
-	private double adhesionLateSpinosumCell=0;
+	private double adhesionBasalCell=0;
+	private double adhesionSpinosumCell=0;
 	private double adhesionGranulosumCell=0;
 	private double adhesionCorneocyte=0;
 	
 	private String nameDiffLevelStemCell="";
 	private String nameDiffLevelTACell="";
-	private String nameDiffLevelEarlySpinosumCell="";
-	private String nameDiffLevelLateSpinosumCell="";
+	private String nameDiffLevelBasalCell="";
+	private String nameDiffLevelSpinosumCell="";
 	private String nameDiffLevelGranulosumCell="";
 	private String nameDiffLevelCorneocyte="";
 		
@@ -154,27 +154,27 @@ public class EpisimCenterBasedMC extends EpisimModelConnector {
    }
 
 	
-   public double getAdhesionEarlySpinosumCell() {
+   public double getAdhesionBasalCell() {
    
-   	return adhesionEarlySpinosumCell;
+   	return adhesionBasalCell;
    }
 
 	
-   public void setAdhesionEarlySpinosumCell(double adhesionEarlySpinosumCell) {
+   public void setAdhesionBasalCell(double adhesionBasalCell) {
    
-   	this.adhesionEarlySpinosumCell = adhesionEarlySpinosumCell;
+   	this.adhesionBasalCell = adhesionBasalCell;
    }
 
 	
-   public double getAdhesionLateSpinosumCell() {
+   public double getAdhesionSpinosumCell() {
    
-   	return adhesionLateSpinosumCell;
+   	return adhesionSpinosumCell;
    }
 
 	
-   public void setAdhesionLateSpinosumCell(double adhesionLateSpinosumCell) {
+   public void setAdhesionSpinosumCell(double adhesionSpinosumCell) {
    
-   	this.adhesionLateSpinosumCell = adhesionLateSpinosumCell;
+   	this.adhesionSpinosumCell = adhesionSpinosumCell;
    }
 
 	
@@ -226,27 +226,27 @@ public class EpisimCenterBasedMC extends EpisimModelConnector {
    }
 
 	
-   public String getNameDiffLevelEarlySpinosumCell() {
+   public String getNameDiffLevelBasalCell() {
    
-   	return nameDiffLevelEarlySpinosumCell;
+   	return nameDiffLevelBasalCell;
    }
 
 	
-   public void setNameDiffLevelEarlySpinosumCell(String nameDiffLevelEarlySpinosumCell) {
+   public void setNameDiffLevelBasalCell(String nameDiffLevelBasalCell) {
    
-   	this.nameDiffLevelEarlySpinosumCell = nameDiffLevelEarlySpinosumCell;
+   	this.nameDiffLevelBasalCell = nameDiffLevelBasalCell;
    }
 
 	
-   public String getNameDiffLevelLateSpinosumCell() {
+   public String getNameDiffLevelSpinosumCell() {
    
-   	return nameDiffLevelLateSpinosumCell;
+   	return nameDiffLevelSpinosumCell;
    }
 
 	
-   public void setNameDiffLevelLateSpinosumCell(String nameDiffLevelLateSpinosumCell) {
+   public void setNameDiffLevelSpinosumCell(String nameDiffLevelSpinosumCell) {
    
-   	this.nameDiffLevelLateSpinosumCell = nameDiffLevelLateSpinosumCell;
+   	this.nameDiffLevelSpinosumCell = nameDiffLevelSpinosumCell;
    }
 
 	
@@ -278,8 +278,8 @@ public class EpisimCenterBasedMC extends EpisimModelConnector {
    public double getAdhesionFactorForDiffLevel(EpisimDifferentiationLevel diffLevel){
    	if(diffLevel.name().equals(getNameDiffLevelStemCell())) return getAdhesionStemCell();
    	else if(diffLevel.name().equals(getNameDiffLevelTACell())) return getAdhesionTACell();
-   	else if(diffLevel.name().equals(getNameDiffLevelEarlySpinosumCell())) return getAdhesionEarlySpinosumCell();
-   	else if(diffLevel.name().equals(getNameDiffLevelLateSpinosumCell())) return getAdhesionLateSpinosumCell();
+   	else if(diffLevel.name().equals(getNameDiffLevelBasalCell())) return getAdhesionBasalCell();
+   	else if(diffLevel.name().equals(getNameDiffLevelSpinosumCell())) return getAdhesionSpinosumCell();
    	else if(diffLevel.name().equals(getNameDiffLevelGranulosumCell())) return getAdhesionGranulosumCell();
    	else if(diffLevel.name().equals(getNameDiffLevelCorneocyte())) return getAdhesionCorneocyte();   	
    	return 0;

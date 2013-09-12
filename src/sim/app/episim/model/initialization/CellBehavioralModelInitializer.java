@@ -11,6 +11,7 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 
+import sim.app.episim.EpisimLogger;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
@@ -95,7 +96,12 @@ public class CellBehavioralModelInitializer {
 				tysonCellCycleAvailable = false;
 			}
 
-			if (tysonCellCycleAvailable &&randomAgeInit) TysonRungeCuttaCalculator.assignRandomCellcyleState(actCell.getEpisimCellBehavioralModelObject(), cellCyclePos); // on
+			if (tysonCellCycleAvailable &&randomAgeInit){ 
+				boolean available =TysonRungeCuttaCalculator.assignRandomCellcyleState(actCell.getEpisimCellBehavioralModelObject(), cellCyclePos); // on
+				if(!available){
+					EpisimLogger.getInstance().logInfo("Tyson Cell Cycle not available!");
+				}
+			}
 			if(actCell.getEpisimCellBehavioralModelObject().getDiffLevel()==null){
 				actCell.assignDefaultDiffLevel();
 			}

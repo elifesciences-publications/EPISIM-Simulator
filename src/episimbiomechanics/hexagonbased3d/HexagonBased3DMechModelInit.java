@@ -26,7 +26,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		MiscalleneousGlobalParameters.getInstance().setTypeColor(4);
+		
 	}
 	
 	public HexagonBased3DMechModelInit(SimulationStateData simulationStateData){

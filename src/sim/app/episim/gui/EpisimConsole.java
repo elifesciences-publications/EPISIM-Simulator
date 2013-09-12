@@ -83,6 +83,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	private JButton resetButton;
 	private List<JButton> refreshButtons;
 	private JButton tissueExportButton;
+	private JButton reloadModelButton;
 	private final static String RESETTEXT = "Reset";	
 	private SimulationConsole console = null;
 	private Component mainGUIComponent = null; 
@@ -108,6 +109,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				    	EpisimConsole.this.disableConsoleButtons();
 				   	super.pressPlay();
 				   	EpisimConsole.this.enableConsoleButtons();
+				   	EpisimConsole.this.reloadModelButton.setEnabled(false);
 				   }			   
 				   
 				   public synchronized void pressStop(){
@@ -117,6 +119,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				      	
 				   	super.pressStop();
 				   	EpisimConsole.this.enableConsoleButtons();
+				   	EpisimConsole.this.reloadModelButton.setEnabled(true);
 				   }
 				   
 				   public synchronized void pressPause(){
@@ -126,6 +129,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				      	
 				   	super.pressPause();
 				   	EpisimConsole.this.enableConsoleButtons();
+				   	EpisimConsole.this.reloadModelButton.setEnabled(false);
 				   }
 			 };
 			 controllerContainer = getControllerContainer(((ConsoleHack)console).getContentPane());
@@ -259,7 +263,36 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 			}
      	 
       });
-     addTissueExportButton();
+      
+      reloadModelButton = new JButton();
+      reloadModelButton.setContentAreaFilled( false );
+      reloadModelButton.setBorderPainted( false );
+      reloadModelButton.setFocusPainted( true );
+      reloadModelButton.addMouseListener(new MouseAdapter(){
+			public void mouseEntered(MouseEvent e) {
+				reloadModelButton.setContentAreaFilled( true );
+				reloadModelButton.setBorderPainted( true );
+				
+			}
+			public void mouseExited(MouseEvent e) {
+
+				reloadModelButton.setContentAreaFilled( false );
+				reloadModelButton.setBorderPainted( false );
+				
+			}
+      });
+      reloadModelButton.setIcon(new ImageIcon(ImageLoader.class.getResource("reload-model.png")));
+      reloadModelButton.setPressedIcon(new ImageIcon(ImageLoader.class.getResource("reload-model-pressed.png")));
+      reloadModelButton.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+      reloadModelButton.addActionListener(new ActionListener(){
+         public void actionPerformed(ActionEvent e) {
+         	SimStateServer.getInstance().reloadCurrentlyLoadedModel();
+         }});
+      reloadModelButton.setEnabled(true);
+      
+      
+      
+     addTissueExportAndRelaodButton();
      
 	}
 	
@@ -571,7 +604,8 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	   	
 	   ((EpisimGUIState)console.getSimulation()).simulationWasStarted();	  
    	console.pressPlay();
-   	tissueExportButton.setEnabled(true);	
+   	tissueExportButton.setEnabled(true);
+   	reloadModelButton.setEnabled(false);
    }
    
    
@@ -582,6 +616,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    	}
    	tissueExportButton.setEnabled(false);      	
    	console.pressStop();
+   	reloadModelButton.setEnabled(true);
    	
    }
    
@@ -591,6 +626,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    	}   	
    	console.pressPause();
    	tissueExportButton.setEnabled(true);
+   	reloadModelButton.setEnabled(false);
    }
    
    public int getPlayState(){ return console.getPlayState(); }
@@ -603,7 +639,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    	console.setWhenShouldEnd(val);
    }
    
-   private void addTissueExportButton(){
+   private void addTissueExportAndRelaodButton(){
    	Container mainContainer = null;
    	if(ModeServer.guiMode()) mainContainer = ((ConsoleHack)console).getContentPane();
    	else mainContainer = (NoGUIConsole) console;
@@ -612,7 +648,8 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    	if(mainContainer.getLayout() instanceof BorderLayout){
    		final Component comp =((BorderLayout) mainContainer.getLayout()).getLayoutComponent(BorderLayout.SOUTH);
    		if(comp != null && comp instanceof Box){
-   			((Box) comp).add(tissueExportButton, 3);
+   			((Box) comp).add(reloadModelButton, 3);
+   			((Box) comp).add(tissueExportButton, 4);
    			((JButton)((Box) comp).getComponent(0)).addMouseListener(new MouseAdapter(){
    				public void mouseEntered(MouseEvent e) {
    					((JButton)((Box) comp).getComponent(0)).setContentAreaFilled( true );
@@ -666,6 +703,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	public void simulationWasStarted() {
 
 	   tissueExportButton.setEnabled(true);
+	   reloadModelButton.setEnabled(false);
 	   
    }
 
@@ -674,12 +712,14 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 
 	   
 		 tissueExportButton.setEnabled(true);
+		 reloadModelButton.setEnabled(false);
    }
 
 
 	public void simulationWasStopped() {
 
 	  tissueExportButton.setEnabled(false);
+	  reloadModelButton.setEnabled(true);
 	   
    }
 }

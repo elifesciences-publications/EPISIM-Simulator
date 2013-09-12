@@ -60,7 +60,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    private double MINDIST=0.1;   
    
    
-   private static final double MAX_DISPLACEMENT_FACT = 0.6;
+   private static final double MAX_DISPLACEMENT_FACT = 1.2;
    
    private double keratinoWidth=-1; // breite keratino
    private double keratinoHeight=-1; // höhe keratino
@@ -339,8 +339,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	 * @return
 	 */
 	private double getMaxDisplacementFactor(){
-		if(getCell().getStandardDiffLevel()==StandardDiffLevel.GRANUCELL){
-   		return MAX_DISPLACEMENT_FACT*1.4;
+		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name().equals(modelConnector.getNameDiffLevelGranulosumCell())
+				||getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name().equals(modelConnector.getNameDiffLevelCorneocyte())){
+   		return MAX_DISPLACEMENT_FACT;//*1.4;
    	}
    	else{
    		return MAX_DISPLACEMENT_FACT;
@@ -349,15 +350,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	}
   
    
-   public void newSimStep(long simstepNumber){
-   	
-   	
+   public void newSimStep(long simstepNumber){   	
    	
    	if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
    			instanceof CenterBasedMechanicalModelGP){
    		globalParameters = (CenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-   	}
-   	
+   	}   	
    	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
    			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
    	
@@ -372,9 +370,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		
 		
 	
-	if(getCellEllipseObject() == null){			
-			System.out.println("Field cellEllipseObject is not set");
-	}
+		if(getCellEllipseObject() == null){			
+				System.out.println("Field cellEllipseObject is not set");
+		}
 		
 		
 
@@ -444,11 +442,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			}
 			Double2D newCellLocation = cellField.getObjectLocation(getCell());
 			double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newCellLocation.x, newCellLocation.y);
-			if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getBasalLayerWidth())
-				getCell().setIsBasalCell(true);
-			else
-				getCell().setIsBasalCell(false); 
-	
+				
 			if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getMembraneCellsWidthInMikron()){
 				modelConnector.setIsBasal(true);
 				this.isMembraneCell = true;
@@ -573,7 +567,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	@CannotBeMonitored
 	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info){
-		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, 2, 2));
+		String diffLevel =this.getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name();
+		
+		if(!diffLevel.equals(modelConnector.getNameDiffLevelGranulosumCell())&&!diffLevel.equals(modelConnector.getNameDiffLevelCorneocyte())){
+			return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getKeratinoWidth()/3, getKeratinoHeight()/3));
+		}
+		return null;
 	}
 	
 	@CannotBeMonitored

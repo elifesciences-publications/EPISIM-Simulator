@@ -173,6 +173,11 @@ public class ChartController implements ClassLoaderChangeListener{
 		}
 	}
 	
+	public File getCurrentlyLoadedChartsetFile(){
+		if(this.actLoadedChartSet != null)	return this.actLoadedChartSet.getPath();
+		return null;
+	}
+	
 	
 	
 	public void registerChartSetChangeListener(ChartSetChangeListener changeListener){

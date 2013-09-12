@@ -226,7 +226,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 	}
 
 	private void setInitialGlobalParametersValues(AdhesiveCenterBasedMechanicalModelGP globalParameters){
-		MiscalleneousGlobalParameters.getInstance().setTypeColor(4);
+		
 	}
 	
 	

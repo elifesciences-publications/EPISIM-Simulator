@@ -3,6 +3,7 @@ package sim.app.episim.util;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import sim.app.episim.EpisimLogger;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.controller.ModelController;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -32,13 +33,13 @@ public class TysonRungeCuttaCalculator {
 	
 	
 	
-	public static void assignRandomCellcyleState(EpisimCellBehavioralModel cellBehavior, int numberOfSteps){
+	public static boolean assignRandomCellcyleState(EpisimCellBehavioralModel cellBehavior, int numberOfSteps){
 		double [] u_temp = new double[3];
 		double [] z_temp = new double[3];
 				
 		double [] du_temp = new double[3];
 		double [] dz_temp = new double[3];
-		
+		boolean tysonCellCycleAvailable = true;
 		EpisimCellBehavioralModelGlobalParameters globalParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 		try{
 		
@@ -116,20 +117,23 @@ public class TysonRungeCuttaCalculator {
       	ExceptionDisplayer.getInstance().displayException(e);
       }
       catch (NoSuchMethodException e){
-      	ExceptionDisplayer.getInstance().displayException(e); 
-      	System.out.println("Tyson Cellcycle is not available!");
+      	//ExceptionDisplayer.getInstance().displayException(e);
+      	tysonCellCycleAvailable=false;
+      	
       }
       catch (IllegalArgumentException e){
       	ExceptionDisplayer.getInstance().displayException(e);
+      	tysonCellCycleAvailable=false;
       }
       catch (IllegalAccessException e){
       	ExceptionDisplayer.getInstance().displayException(e);
+      	tysonCellCycleAvailable=false;
       }
       catch (InvocationTargetException e){
       	ExceptionDisplayer.getInstance().displayException(e);
+      	tysonCellCycleAvailable=false;
       }
-		
-		
+		return false;
 	}
 
 }

@@ -145,11 +145,7 @@ public class UniversalCell extends AbstractCell
         // somewhere on the TA Cycle       
     }
    
-    public void makeSpiCell(EpisimCellBehavioralModel cellBehavioralModel)
-    {         	 
-       makeChild(cellBehavioralModel);
-    }
- 
+  
     
     private EpisimCellBehavioralModel[] getCellBehavioralModelArray(GenericBag<AbstractCell> neighbours){
    	 List<EpisimCellBehavioralModel> neighbourCellsDiffModel = new ArrayList<EpisimCellBehavioralModel>();
@@ -242,9 +238,9 @@ public class UniversalCell extends AbstractCell
    		 for(EpisimCellBehavioralModel actChild: children){
    			 if(ModelController.getInstance().isStandardKeratinocyteModel()){
 	   			 if(convertToStandardDiffLevel(actChild.getDiffLevel()) == StandardDiffLevel.TACELL) makeTACell(actChild);
-	   			 else if(convertToStandardDiffLevel(actChild.getDiffLevel()) == StandardDiffLevel.EARLYSPICELL) makeSpiCell(actChild);
 	   			 else{
 	   				 makeChild(actChild);
+	   				
 	   			 }
    			 }
    			 else{

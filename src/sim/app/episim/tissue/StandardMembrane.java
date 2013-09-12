@@ -20,7 +20,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensiona
 
 public class StandardMembrane {
 	
-	private int basalPeriod=70;      // width of an undulation at the foot
+	
 	private int startXOfStandardMembrane = 0;
 	
 	private GeneralPath drawPolygon;	
@@ -209,23 +209,23 @@ public class StandardMembrane {
 		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
 		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()))){
 			// Gaussche Glockenkurve
-		     double p=basalPeriod; 
+		     double p=globalParameters.getBasalPeriod_mikron(); 
 		     
 		     double partition=xCell-((int)(xCell/p))*p - p/2;
 		     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_mikron());
-		     double result= (globalParameters.getBasalAmplitude_mikron()+2)-globalParameters.getBasalAmplitude_mikron()*v;
+		     double result= (globalParameters.getBasalAmplitude_mikron()+globalParameters.getBasalYDelta_mikron())-globalParameters.getBasalAmplitude_mikron()*v;
 		     return result;
 		}
 		else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
 		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
 		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss())){
 			// Gaussche Glockenkurve
-		     double p=basalPeriod; 
+		     double p=globalParameters.getBasalPeriod_mikron(); 
 		     
 		     double partitionX=xCell-((int)(xCell/p))*p - p/2;
 		     double partitionY=yCell-((int)(yCell/p))*p - p/2;
 		     double v=Math.exp(-1*((partitionX*partitionX)+ (partitionY*partitionY))/(globalParameters.getBasalOpening_mikron()+100));
-		     double result= (globalParameters.getBasalAmplitude_mikron()+2)-globalParameters.getBasalAmplitude_mikron()*v;
+		     double result= (globalParameters.getBasalAmplitude_mikron()+globalParameters.getBasalYDelta_mikron())-globalParameters.getBasalAmplitude_mikron()*v;
 		     return result;
 		}
 		return 0;
@@ -243,9 +243,7 @@ public class StandardMembrane {
 		return inPixels ? globalParameters.getWidthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getWidthInMikron();	
 	}
 	
-	public void setBasalPeriodInMikron(int period){
-		this.basalPeriod = period;
-	}
+	
 	public void setStartXOfStandardMembraneInMikron(int start){ startXOfStandardMembrane = start; }
 	public double getNumberOfPixelsPerMicrometer(){
 		return ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNumberOfPixelsPerMicrometer();
@@ -292,7 +290,6 @@ public class StandardMembrane {
 		polygon = new GeneralPath();
 		drawPolygon = new GeneralPath();		
 		drawBasalLayer = new GeneralPath();
-		basalPeriod=70;
 		startXOfStandardMembrane = 0;
 		discretizationStepsX = 0;
 		cellContactTimeThreshold= 0;

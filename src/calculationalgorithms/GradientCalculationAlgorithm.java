@@ -24,7 +24,8 @@ import episiminterfaces.calc.marker.TissueObserver;
 import episiminterfaces.calc.marker.TissueObserverAlgorithm;
 
 public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm, TissueObserverAlgorithm{
-		
+	public static final String GRADIENT_MIN_X_PARAMETER = "min X coord.";
+	public static final String GRADIENT_MAX_X_PARAMETER = "max X coord.";
 		private Map<Long, TissueObserver> observers;
 		public  GradientCalculationAlgorithm(){
 			observers = new HashMap<Long, TissueObserver>();
@@ -52,7 +53,8 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				
 				public Map<String, Class<?>> getParameters() {
 					Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
-							        
+					params.put(GradientCalculationAlgorithm.GRADIENT_MIN_X_PARAMETER, Double.TYPE);
+					params.put(GradientCalculationAlgorithm.GRADIENT_MAX_X_PARAMETER, Double.TYPE);
 		         return params;
 	         }
 		   };
@@ -80,10 +82,15 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				for(AbstractCell actCell: allCells){
 					if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){
 						EpisimBiomechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
-						if(biomech.getX() >= getGradientMinX()
-								&& biomech.getX() <= getGradientMaxX()
-								&& biomech.getY() >= getGradientMinY()
-								&& biomech.getY() <= getGradientMaxY()){						
+						double min = (Double) handler.getParameters().get(GRADIENT_MIN_X_PARAMETER);
+						double max = (Double) handler.getParameters().get(GRADIENT_MAX_X_PARAMETER);
+						if(max < min){
+							double tmp = max;
+							max = min;
+							min = tmp;
+						}
+						if(biomech.getX() >= min
+								&& biomech.getX() <= max){						
 								
 								resultMap.put(biomech.getY(), handler.calculate(actCell));
 						}

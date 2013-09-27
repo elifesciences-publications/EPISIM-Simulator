@@ -11,7 +11,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private int basalPeriod_mikron = 100;
 	private int basalYDelta_mikron = 5;
 	private int basalOpening_mikron = 500; // width of undulation at the middle
-	private double width = 300;
+	private double width = 400;
 	private double height = 150;
 	private double randomness = 0.05;
 	private double seedMinDepth_frac = 0.25; // beginning with which depth a stem cell is seeded
@@ -27,8 +27,9 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	
 	private double neighbourhoodOptDistFact = 1.6;	
 	private double optDistanceAdhesionFact = 1.25;
-	private double optDistanceScalingFactor = 0.8;
-	private double randomGravity =0.05;// 0.2;
+	private double optDistanceScalingFactor = 0.85;
+	private double randomGravity =0.01;// 0.2;
+	private double minAbsAdhesionDist_mikron=4.5;
 	
 	public CenterBasedMechanicalModelGP() {}
 	
@@ -234,5 +235,17 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
    public void setBasalYDelta_mikron(int basalYDelta_mikron) {
    
    	this.basalYDelta_mikron = basalYDelta_mikron;
+   }
+
+	
+   public double getMinAbsAdhesionDist_mikron() {
+   
+   	return minAbsAdhesionDist_mikron;
+   }
+
+	
+   public void setMinAbsAdhesionDist_mikron(double minAbsAdhesionDist_mikron) {
+   
+   	this.minAbsAdhesionDist_mikron = minAbsAdhesionDist_mikron;
    }
 }

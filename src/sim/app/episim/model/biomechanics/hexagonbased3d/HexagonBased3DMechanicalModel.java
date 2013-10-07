@@ -45,6 +45,7 @@ import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.model.visualization.HexagonalCellPortrayal3D;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
+import sim.engine.SimState;
 import sim.util.Bag;
 import sim.util.Double3D;
 import sim.util.Int3D;
@@ -728,7 +729,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		return new Episim3DCellShape<Shape3D>(new Shape3D());
 	}
    
-   protected void newSimStepGloballyFinished(long simStepNumber) {
+   protected void newSimStepGloballyFinished(long simStepNumber, SimState state) {
    }
    
    private CellBoundaries getEmptyLatticeCellBoundary(double xInMikron, double yInMikron, double zInMikron, double sizeDelta){

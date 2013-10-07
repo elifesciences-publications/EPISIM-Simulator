@@ -201,9 +201,20 @@ public class ModelDescriptorFileGenerator {
 			HashMap<String, Method> setterMethods = new HashMap<String, Method>();
 			
 			for(Method m : methods){
-				if(m.getName().startsWith("get") && m.getAnnotation(Hidden.class) == null && m.getModifiers() == Modifier.PUBLIC)getterMethods.put(m.getName().substring(3), m);				
-				else if(m.getName().startsWith("set") && m.getAnnotation(Hidden.class) == null && m.getModifiers() == Modifier.PUBLIC) setterMethods.put(m.getName().substring(3), m);
-			}			
+				if(m.getName().startsWith("get") && m.getAnnotation(Hidden.class) == null && Modifier.isPublic(m.getModifiers()))getterMethods.put(m.getName().substring(3), m);				
+				else if(m.getName().startsWith("set") && m.getAnnotation(Hidden.class) == null && Modifier.isPublic(m.getModifiers())) setterMethods.put(m.getName().substring(3), m);
+			}
+			
+			Class modelConnectorSuperClass =modelConnectorClass.getSuperclass();
+			while(modelConnectorSuperClass != null && EpisimModelConnector.class.isAssignableFrom(modelConnectorSuperClass)){				
+				methods = modelConnectorSuperClass.getDeclaredMethods();
+				for(Method m : methods){
+					if(m.getName().startsWith("get") && m.getAnnotation(Hidden.class) == null && Modifier.isPublic(m.getModifiers()) && !getterMethods.containsKey(m.getName().substring(3)))getterMethods.put(m.getName().substring(3), m);				
+					else if(m.getName().startsWith("set") && m.getAnnotation(Hidden.class) == null && Modifier.isPublic(m.getModifiers()) && !setterMethods.containsKey(m.getName().substring(3))) setterMethods.put(m.getName().substring(3), m);
+				}
+				modelConnectorSuperClass = modelConnectorSuperClass.getSuperclass();
+			}
+			
 			
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();			
 			DocumentBuilder builder = factory.newDocumentBuilder();

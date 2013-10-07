@@ -16,7 +16,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private boolean seedReverse = false;	
 	private int basalDensity_mikron = 9;//OriginalValue: 8; 
 	private double externalPush = 1.2; // y-offset
-	private double cohesion = 0.01;
+	
 	
 	private double neighborhood_mikron= 10.0;
 	private double membraneCellsWidth=4;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  

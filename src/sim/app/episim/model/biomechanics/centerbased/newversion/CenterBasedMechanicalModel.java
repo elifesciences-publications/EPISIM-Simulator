@@ -6,11 +6,16 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
@@ -18,6 +23,7 @@ import javax.vecmath.Vector3d;
 
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
@@ -25,18 +31,22 @@ import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim2DCellShape;
 import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased.newversion.chemotaxis.CenterBasedChemotaxisMechanicalModelGP;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
+import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
 import sim.util.Double2D;
+import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.centerbased.newversion.EpisimCenterBasedMC;
 import episimexceptions.GlobalParameterException;
@@ -57,24 +67,26 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
  //  public static final double KERATINO_HEIGHT_GRANU=4;
    
    public final double NEXT_TO_OUTERCELL_FACT=1.2;
-   private double MINDIST=0.1;   
+   private double MIN_OVERLAP_MICRON=0.1;   
    
    
-   private static final double MAX_DISPLACEMENT_FACT = 0.6;
+   
    
    private double keratinoWidth=-1; // breite keratino
    private double keratinoHeight=-1; // höhe keratino
    
-   private Vector2d externalForce = new Vector2d(0,0);
+   private boolean isChemotaxisEnabled = false;
+   private boolean isContinuousInXDirection = true;
+   private boolean isContinuousInYDirection = false;
+   
       
-   private HitResult finalHitResult;
+   private InteractionResult finalInteractionResult;
    
    //maybe more neighbours than real neighbours included inside a circle
    private GenericBag<AbstractCell> neighbouringCells;
    
    private EpisimCenterBasedMC modelConnector;
    
-   private boolean isMembraneCell = false;
    
    private CellEllipse cellEllipseObject;
    
@@ -83,12 +95,16 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    private static Continuous2D cellField;
    
    private CenterBasedMechanicalModelGP globalParameters = null;
+   private CenterBasedChemotaxisMechanicalModelGP globalParametersChemotaxis=null;
    
    private double surfaceAreaRatio =0;
    
    
    private static double FIELD_RESOLUTION_IN_MIKRON=7;
    
+   private static double DELTA_TIME_IN_SECONDS_PER_EULER_STEP = 36;
+   
+   private static final double MAX_DISPLACEMENT = 10;
    
    public CenterBasedMechanicalModel(){
    	this(null);
@@ -102,14 +118,13 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 					TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
 					TissueController.getInstance().getTissueBorder().getHeightInMikron());
    	}   	
-   	
-   	externalForce=new Vector2d(0,0);      
+   	  
       if(cell != null && getCellEllipseObject() == null && cell.getEpisimCellBehavioralModelObject() != null){
 			cellEllipseObject = new CellEllipse(cell.getID(), getX(), getY(), (double) keratinoWidth, (double)keratinoHeight, Color.BLUE);    
 		}
       if(cell != null && cell.getMotherCell() != null){
-	      double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.25;
-	      double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.5-0.1;
+	      double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;
+	      double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005;
 	      
 	      if(cell.getMotherCell().getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
 	      	EpisimModelConnector motherCellConnector =((CenterBasedMechanicalModel) cell.getMotherCell().getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
@@ -122,8 +137,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	      Double2D oldLoc=cellField.getObjectLocation(cell.getMotherCell());	   
 	       if(oldLoc != null){
 		      Double2D newloc=new Double2D(oldLoc.x + deltaX, oldLoc.y + deltaY);		      
-		      cellField.setObjectLocation(cell, newloc);		      
-		 	  	SimulationDisplayProperties props = ((CenterBasedMechanicalModel)cell.getMotherCell().getEpisimBioMechanicalModelObject()).getCellEllipseObject().getLastSimulationDisplayProps();
+		      cellField.setObjectLocation(cell, newloc);
+		     	SimulationDisplayProperties props = ((CenterBasedMechanicalModel)cell.getMotherCell().getEpisimBioMechanicalModelObject()).getCellEllipseObject().getLastSimulationDisplayProps();
 		 	  	this.setLastSimulationDisplayPropsForNewCellEllipse(props, newloc);
 	      }
       }
@@ -137,6 +152,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
    	if(modelConnector instanceof EpisimCenterBasedMC){
    		this.modelConnector = (EpisimCenterBasedMC) modelConnector;
+   		Double2D loc = cellField.getObjectLocation(getCell());
+   		if(loc != null){
+   			this.modelConnector.setX(loc.x);
+   			this.modelConnector.setY(loc.y);
+   		}
+   		
    	}
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimCenterBasedModelConnector");
    } 
@@ -145,29 +166,30 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    	return this.modelConnector;
    }
    
-   private class HitResult
+   private class InteractionResult
    {        
        int numhits;    // number of hits
-       long otherId; // when only one hit, then how id of this hit (usually this will be the mother)
-       long otherMotherId; // mother of other
-       Vector2d adhForce;
+       private Vector2d adhesionForce;
+       private Vector2d repulsiveForce;
+       private Vector2d chemotacticForce;
        boolean nextToOuterCell;
                
-       HitResult()
+       InteractionResult()
        {
            nextToOuterCell=false;
            numhits=0;
-           otherId=0;
-           otherMotherId=0;
-           adhForce=new Vector2d(0,0);
+           adhesionForce=new Vector2d(0,0);
+           repulsiveForce=new Vector2d(0,0);
+           chemotacticForce = new Vector2d(0,0);
        }
+       
    }
        
-   public HitResult hitsOther(Bag neighbours, Double2D thisloc, boolean finalPosition)
+/*   public InteractionResult hitsOther(Bag neighbours, Double2D thisloc, boolean finalPosition)
    {
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
        // for each collision calc a pressure vector and add it to the other's existing one
-       HitResult hitResult=new HitResult();            
+       InteractionResult hitResult=new InteractionResult();            
        if (neighbours==null || neighbours.numObjs == 0) return hitResult;      
       
        for(int i=0;i<neighbours.numObjs;i++)
@@ -195,7 +217,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
                                      
              double actdist=Math.sqrt(dx*dx+dy*dy);
                    
-             if (optDistScaled-actdist>MINDIST) // is the difference from the optimal distance really significant
+             if (optDistScaled-actdist>MIN_OVERLAP_MICRON) // is the difference from the optimal distance really significant
              {
                 double fx=(actdist>0)?(optDistScaled/actdist)*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
                 double fy=(actdist>0)?(optDistScaled/actdist)*dy-dy:0;                                            
@@ -207,12 +229,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
                 mechModelOther.externalForce.add(new Vector2d(-fx,-fy)); //von mir wegzeigende kraefte addieren
                 externalForce.add(new Vector2d(fx,fy));                                      
               }
-             else if(((optDistScaled-actdist)<=MINDIST) &&(actdist < optDist*globalParameters.getOptDistanceAdhesionFact() || actdist < globalParameters.getMinAbsAdhesionDist_mikron())) // attraction forces 
+             else if(((optDistScaled-actdist)<=MIN_OVERLAP_MICRON) &&(actdist < optDist*globalParameters.getOptDistanceAdhesionFact() || actdist < globalParameters.getMinAbsAdhesionDist_mikron())) // attraction forces 
              {
                  double adhfac=getAdhesionFactor(other);                          
                  double sx=dx-dx*optDist/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
                  double sy=dy-dy*optDist/actdist;                  
-                 hitResult.adhForce.add(new Vector2d(-sx*adhfac,-sy*adhfac));                                                                 
+                 hitResult.adhesionForce.add(new Vector2d(-sx*adhfac,-sy*adhfac));                                                                 
              }
              if (actdist <= (getKeratinoHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
                     	// lipids do not diffuse
@@ -221,24 +243,147 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
            }
         }     
        return hitResult;
-   }
-   private double getAdhesionFactor(AbstractCell otherCell){
-   	
-   	EpisimDifferentiationLevel otherCellDiffLevel = otherCell.getEpisimCellBehavioralModelObject().getDiffLevel();
-   	return modelConnector.getAdhesionFactorForDiffLevel(otherCellDiffLevel);
+   }*/
+   
+   public InteractionResult calculateRepulsiveAdhesiveAndChemotacticForces(Bag neighbours, Double2D thisloc)
+   {
+       // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
+       // for each collision calc a pressure vector and add it to the other's existing one
+       InteractionResult interactionResult=new InteractionResult();            
+       if (neighbours==null || neighbours.numObjs == 0) return interactionResult;      
+      
+       for(int i=0;i<neighbours.numObjs;i++)
+       {
+          if (!(neighbours.objs[i] instanceof AbstractCell)) continue;
+          
+       
+          AbstractCell other = (AbstractCell)(neighbours.objs[i]);
+          if (other != getCell())
+          {
+             CenterBasedMechanicalModel mechModelOther = (CenterBasedMechanicalModel) other.getEpisimBioMechanicalModelObject();
+         	 Double2D otherloc=cellField.getObjectLocation(other);
+             double dx = cellField.tdx(thisloc.x,otherloc.x); 
+             double dy = cellField.tdy(thisloc.y,otherloc.y);
+             
+             
+             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
+             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
+            
+             
+             double optDistScaled = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther));
+             double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
+          
+                                     
+             double actDist=Math.sqrt(dx*dx+dy*dy);
+                   
+             if (optDistScaled-actDist>MIN_OVERLAP_MICRON && actDist > 0) // is the difference from the optimal distance really significant
+             {
+                //According to Pathmanathan et al. 2009
+            	 double overlap = optDistScaled - actDist;
+            	 double stiffness = globalParameters.getRepulSpringStiffness_N_per_micro_m(); //Standard: 2.2x10^-3Nm^-1*1*10^-6 conversion in micron 
+            	 double linearToExpMaxOverlap = globalParameters.getLinearToExpMaxOverlap_mikron();
+            	 double alpha=1;
+            	 
+            	 //without hard core
+            	 double force = overlap*stiffness;//overlap<= linearToExpMaxOverlap ? overlap*stiffness: stiffness * linearToExpMaxOverlap*Math.exp(alpha*((overlap/linearToExpMaxOverlap)-1));
+            	 interactionResult.repulsiveForce.x += force*dx/actDist;
+            	 interactionResult.repulsiveForce.y += force*dy/actDist;
+                                       
+              
+                interactionResult.numhits++;
+                                                                
+              }
+            else if(((optDistScaled-actDist)<=-1*MIN_OVERLAP_MICRON) &&(actDist < optDistScaled*globalParameters.getOptDistanceAdhesionFact())) // attraction forces 
+             {
+            	//contact area approximated according to Dallon and Othmer 2004
+            	//calculated for ellipsoids not ellipses
+               double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
+               double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
+               double d_membrane_this=requiredDistanceToMembraneThis*globalParameters.getOptDistanceScalingFactor();
+               double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
+            	double radius_this_square = Math.pow((adh_Dist_Fact*d_membrane_this),2);
+            	double radius_other_square = Math.pow((adh_Dist_Fact*d_membrane_other),2);
+            	double actDist_square = Math.pow(actDist, 2);
+            	double intercell_gap = actDist - optDistScaled;
+                               	
+            	double contactArea = (Math.PI/(4*actDist_square))*(2*actDist_square*(radius_this_square+radius_other_square)
+            																		+2*radius_this_square*radius_other_square
+            																		-Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
+            																		-Math.pow(actDist_square, 2));
+            	
+            	double smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
+            										 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
+            										 ? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
+            										 : 1;
+            	double adhesionCoefficient = globalParameters.getAdhSpringStiffness_N_per_square_micro_m()*getAdhesionFactor(other);
+            										 
+            	//System.out.println("pre-Adhesion: "+((contactArea*smoothingFunction)/sphereArea));									 
+            	double adhesion = adhesionCoefficient*(contactArea*smoothingFunction);
+            	
+            	interactionResult.adhesionForce.x += adhesion*((-dx)/actDist);
+            	interactionResult.adhesionForce.y += adhesion*((-dy)/actDist);
+            	
+             }
+             if (actDist <= (getKeratinoHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
+                    	
+                    interactionResult.nextToOuterCell=true;  
+             }
+           }          
+        }       
+       // calculate basal adhesion
+       if(modelConnector.getAdhesionBasalMembrane() >0){
+      		Point2d membraneReferencePoint = findReferencePositionOnBoundary(new Point2d(thisloc.x, thisloc.y), thisloc.x - (getKeratinoWidth()/2), thisloc.x + (getKeratinoWidth()/2));
+      		double dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
+            double dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
+      		double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
+      		double optDist = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
+      		optDist*=globalParameters.getOptDistanceToBMScalingFactor();
+      		
+      		if(distToMembrane < optDist*globalParameters.getOptDistanceAdhesionFact()){
+      			double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
+               double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
+               double radius_this = (adh_Dist_Fact*optDist);
+            	double gap = distToMembrane - optDist;
+            	
+            	double contactArea = Math.PI*radius_this*(radius_this-distToMembrane);
+            	
+            	double smoothingFunction = (((-1*adh_Dist_Perc*optDist) < gap)
+							 && (gap < (adh_Dist_Perc*optDist)))
+							 ? Math.abs(Math.sin((0.5*Math.PI)*(gap/(adh_Dist_Perc*optDist))))
+							 : 1;
+							 
+					double adhesionCoefficient = globalParameters.getAdhSpringStiffness_N_per_square_micro_m()*modelConnector.getAdhesionBasalMembrane();
+							 
+			      double adhesion = adhesionCoefficient*(contactArea*smoothingFunction);
+			      
+			      interactionResult.adhesionForce.x += adhesion * ((-dx)/distToMembrane);
+			      interactionResult.adhesionForce.y += adhesion * ((-dy)/distToMembrane);
+      		}    		
+       }
+       if(isChemotaxisEnabled){
+				String chemotacticFieldName = ((episimbiomechanics.centerbased.newversion.chemotaxis.EpisimCenterBasedMC)modelConnector).getChemotacticField();
+				if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
+					ExtraCellularDiffusionField2D ecDiffField =  (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
+					if(ecDiffField != null){
+						double lambda = ((episimbiomechanics.centerbased.newversion.chemotaxis.EpisimCenterBasedMC)modelConnector).getLambdaChem();
+						if(lambda > 0){
+							interactionResult.chemotacticForce = ecDiffField.getChemotaxisVectorForCellBoundary(getChemotaxisCellBoundariesInMikron());
+							interactionResult.chemotacticForce.scale(lambda);
+							interactionResult.chemotacticForce.scale(globalParameters.getRepulSpringStiffness_N_per_micro_m());
+						}
+					}
+				}
+			}
+      return interactionResult;
+   } 
+     
+   private double getAdhesionFactor(AbstractCell otherCell){   	
+   	return modelConnector.getAdhesionFactorForCell(otherCell);
    } 
    
-   private double normalizeOptimalDistance(double distance, AbstractCell otherCell){   	
+   private double normalizeOptimalDistance(double distance){   	
    	return distance*globalParameters.getOptDistanceScalingFactor();   	
-   }
-   
-   private double calculateDistanceToCellCenter(Point2d cellCenter, Vector2d directionVectorToOtherCell, double aAxis, double bAxis){
-   	Vector2d xAxis = new Vector2d(1d,0d); 
-   	double angle = directionVectorToOtherCell.angle(xAxis);   	
-   	Point2d pointOnMembrane = new Point2d((cellCenter.x+aAxis*Math.cos(angle)), (cellCenter.y+bAxis*Math.sin(angle)));
-   	
-   	return cellCenter.distance(pointOnMembrane);
-   }
+   }  
    
    private double calculateDistanceToCellCenter(Point2d cellCenter, Point2d otherCellCenter, double aAxis, double bAxis){
 		 
@@ -248,7 +393,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		 double aAxis_2=aAxis * aAxis;
 		 double bAxis_2=bAxis * bAxis;		 
 	    double a = ((rayDirection.x * rayDirection.x) / (aAxis_2))
-	            + ((rayDirection.y * rayDirection.y) / (bAxis_2));
+	             + ((rayDirection.y * rayDirection.y) / (bAxis_2));
 	  
 	    if (a < 0)
 	    {
@@ -265,97 +410,83 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   return cellCenter.distance(intersectionPointEllipse);
 	}
 
-	public void setPositionRespectingBounds(Double2D p_potentialLoc)
+	public void setPositionRespectingBounds(Point2d cellPosition)
 	{
-	   double newx=p_potentialLoc.x;
-	   double newy=p_potentialLoc.y;               
-	   double minY=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(p_potentialLoc.x, p_potentialLoc.y); 	  
-	   if (newy<minY)
-	   {	      
-	       Point2d newPoint = calculateLowerBoundaryPositionForCell(new Point2d(newx, newy));
-	       newx = newPoint.x;
-	       newy = newPoint.y;
-	   } 
-	
+		
+		double tissueWidth = TissueController.getInstance().getTissueBorder().getWidthInMikron();
+		double tissueHeight = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		double newx = isContinuousInXDirection ? cellField.tx(cellPosition.x): cellPosition.x < 0 ? 0 : cellPosition.x > tissueWidth ? tissueWidth : cellPosition.x;
+	   double newy = isContinuousInYDirection ? cellField.ty(cellPosition.y): cellPosition.y < 0 ? 0 : cellPosition.y > tissueHeight ? tissueHeight : cellPosition.y;
+	   
+	   if(!this.isContinuousInYDirection){
+		   
+	   	Point2d membraneReferencePoint = findReferencePositionOnBoundary(cellPosition, cellPosition.x - (getKeratinoWidth()/2), cellPosition.x + (getKeratinoWidth()/2));
+			
+		   double dx = cellField.tdx(cellPosition.x, membraneReferencePoint.x); 
+	      double dy = cellField.tdy(cellPosition.y, membraneReferencePoint.y);
+			double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
+			double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(cellPosition.x, cellPosition.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
+			double optDistScaled = normalizeOptimalDistance(requiredDistanceToMembraneThis);
+		   
+			if(optDistScaled > distToMembrane)
+		   {	      
+		       Point2d newPoint = calculateLowerBoundaryPositionForCell(new Point2d(newx, newy), membraneReferencePoint, optDistScaled);
+		       newx = newPoint.x;
+		       newy = newPoint.y;
+		   }	
+	   }
 	   Double2D newloc = new Double2D(newx,newy);
 	   cellField.setObjectLocation(getCell(), newloc);
 	}
-	public Double2D calcBoundedPos(double xPos, double yPos)
-	{	
-	   double newx=xPos, newy=yPos;	 
-	   double minY=TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newx, newy);      
-	           
-	   if ((newy-(getKeratinoWidth()/2)) <minY)  // border crossed
-	   {
-	       if (newy<=0) 
-	       {
-	           newy=0;       
-	       }	
-	       Point2d newPoint = calculateLowerBoundaryPositionForCell(new Point2d(newx, newy));
-	       newx = newPoint.x;
-	       newy = newPoint.y;	      
-	   }  
-	   return new Double2D(newx, newy);       
-	}
-	public Point2d calculateLowerBoundaryPositionForCell(Point2d cellPosition){
-		Point2d minXPositionOnBoundary = findMinXPositionOnBoundary(cellPosition, cellPosition.x - (getKeratinoWidth()/2), cellPosition.x + (getKeratinoWidth()/2));
-		Vector2d cellPosBoundaryDirVect = new Vector2d((cellPosition.x-minXPositionOnBoundary.x),(cellPosition.y-minXPositionOnBoundary.y));
-		if(cellPosBoundaryDirVect.x==0 && cellPosBoundaryDirVect.y==0){
-			Vector3d tangentVect = new Vector3d();
+	
+	public Point2d calculateLowerBoundaryPositionForCell(Point2d cellPosition, Point2d referencePosition, double optDistance){
+		Vector2d cellPosBoundaryDirVect = new Vector2d((cellPosition.x-referencePosition.x),(cellPosition.y-referencePosition.y));
+		if(cellPosBoundaryDirVect.x == 0 && cellPosBoundaryDirVect.y == 0){
+			Vector2d tangentVect = new Vector2d();
 			tangentVect.x = (cellPosition.x+1)-(cellPosition.x-1);
 			tangentVect.y = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x+1, cellPosition.y)-TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x-1, cellPosition.y);
 			
-			cellPosBoundaryDirVect.x=tangentVect.y;
-			cellPosBoundaryDirVect.y=-1*tangentVect.x;
+			cellPosBoundaryDirVect.x = tangentVect.y;
+			cellPosBoundaryDirVect.y = -1*tangentVect.x;
 		}
 		double distanceCorrectionFactor = 1;
-		if((cellPosition.y-(getKeratinoWidth()/2)) <TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x, cellPosition.y)){
+		if(cellPosition.y < TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x, cellPosition.y)){
 			cellPosBoundaryDirVect.negate();
-			distanceCorrectionFactor = (getKeratinoWidth()/2)+ cellPosition.distance(minXPositionOnBoundary);
+			distanceCorrectionFactor = optDistance + cellPosition.distance(referencePosition);
 		}
 		else{
-			distanceCorrectionFactor = (getKeratinoWidth()/2)- cellPosition.distance(minXPositionOnBoundary);
+			distanceCorrectionFactor = optDistance - cellPosition.distance(referencePosition);
 		}
 		cellPosBoundaryDirVect.normalize();		
 		cellPosBoundaryDirVect.scale(distanceCorrectionFactor);
 		return new Point2d((cellPosition.x+cellPosBoundaryDirVect.x),(cellPosition.y+cellPosBoundaryDirVect.y));
 	}
 	
-	private Point2d findMinXPositionOnBoundary(Point2d cellPosition, double minX, double maxX){
+	private Point2d findReferencePositionOnBoundary(Point2d cellPosition, double minX, double maxX){
 		double minDist = Double.POSITIVE_INFINITY;
 		Point2d actMinPoint=null;
-		for(double x = minX; x <= maxX; x+=0.5){
-			double actY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x, cellPosition.y);
-			Point2d actPos = new Point2d(x, actY);
-			if(actPos.distance(cellPosition) < minDist){
-				minDist= actPos.distance(cellPosition);
-				actMinPoint = actPos;
-			}			
+		if(!TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()){
+			for(double x = minX; x <= maxX; x+=0.5){
+				double actY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x, cellPosition.y);
+				Point2d actPos = new Point2d(x, actY);
+				double actDist = actPos.distance(cellPosition);
+				if(actDist < minDist){
+					minDist= actDist;
+					actMinPoint = actPos;
+				}			
+			}
+			return actMinPoint;
 		}
-		return actMinPoint;
+		return new Point2d(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
 	}
-	/**
-	 * TODO: Das hier eventuell anpassen, Faktor ist bei Wundheilung auch bei den großen Zellen gleich 1
-	 * @return
-	 */
-	private double getMaxDisplacementFactor(){
-		if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name().equals(modelConnector.getNameDiffLevelGranulosumCell())
-				||getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name().equals(modelConnector.getNameDiffLevelCorneocyte())){
-   		return MAX_DISPLACEMENT_FACT;//*1.4;
-   	}
-   	else{
-   		return MAX_DISPLACEMENT_FACT;
-   	}
-		
-	}
-  
+	
    
 	private double oldWidth =0;
 	private double oldHeight=0;
 	
-   public void newSimStep(long simstepNumber){   	
-   	
-   	if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
+  	
+	public void initNewSimStep(){
+		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
    			instanceof CenterBasedMechanicalModelGP){
    		globalParameters = (CenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
    	}   	
@@ -371,123 +502,111 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    	if(shapeChangeActive){
    		getCellEllipseObject().setMajorAxisAndMinorAxis(modelConnector.getWidth(), modelConnector.getHeight());
    	}
-   	
-   	
-   	//////////////////////////////////////////////////
-		// calculate ACTION force
-		//////////////////////////////////////////////////
-		
-		
+   	if(getCellEllipseObject() == null){			
+			System.out.println("Field cellEllipseObject is not set");
+   	}
+	}
 	
-		if(getCellEllipseObject() == null){			
-				System.out.println("Field cellEllipseObject is not set");
+	public void calculateSimStep(){
+		//according to Pathmanathan et al.2008
+		Double2D oldCellLocation = cellField.getObjectLocation(getCell());
+		
+		double frictionConstantMedium = 0.0000004;//Galle, Loeffler Drasdo 2005 epithelial cells 0.4 Ns/m (* 10^-6 for conversion to micron )			
+				
+		if(oldCellLocation != null){
+			
+			Bag neighbours = cellField.getObjectsWithinDistance(oldCellLocation, getKeratinoWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);	
+			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(neighbours, oldCellLocation);
+						
+			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){		
+				Double2D gravitation = new Double2D(0,globalParameters.getRandomGravity() * (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 1));
+				Double2D randomPositionData = new Double2D(globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
+						globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
+				gravitation = null;
+				
+				
+				
+				
+				double newX = oldCellLocation.x+randomPositionData.x+((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.x+interactionResult.adhesionForce.x+interactionResult.chemotacticForce.x));
+				double newY = oldCellLocation.y+randomPositionData.y+((DELTA_TIME_IN_SECONDS_PER_EULER_STEP/frictionConstantMedium)*(interactionResult.repulsiveForce.y+interactionResult.adhesionForce.y+interactionResult.chemotacticForce.y));
+				
+				if(Math.abs(newX-oldCellLocation.x)> MAX_DISPLACEMENT
+						|| Math.abs(newY-oldCellLocation.y)> MAX_DISPLACEMENT){
+					System.out.println("Biomechanical Artefakt ");
+				}else{
+					setPositionRespectingBounds(new Point2d(newX, newY));
+				}
+				
+				
+			}			
+			finalInteractionResult = interactionResult;
+		}
+	}
+	
+	public void finishNewSimStep(){
+		Double2D newCellLocation = cellField.getObjectLocation(getCell());
+		Point2d minPositionOnBoundary = findReferencePositionOnBoundary(new Point2d(newCellLocation.x, newCellLocation.y), newCellLocation.x - (getKeratinoWidth()/2), newCellLocation.x + (getKeratinoWidth()/2));
+		
+		double distanceToBasalMembrane = Math.sqrt(Math.pow((newCellLocation.x-minPositionOnBoundary.x), 2)+Math.pow((newCellLocation.y-minPositionOnBoundary.y), 2));	
+		if(distanceToBasalMembrane <= ((getKeratinoWidth()))){///2)*globalParameters.getOptDistanceAdhesionFact())){
+			modelConnector.setIsBasal(true);			
+		}
+		else{
+			modelConnector.setIsBasal(false);			
 		}
 		
+		Bag neighbours = cellField.getObjectsWithinDistance(cellField.getObjectLocation(getCell()), getKeratinoWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);
+		neighbouringCells = new GenericBag<AbstractCell>();
+		for(int i = 0; i < neighbours.size(); i++){
+			if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
+				neighbouringCells.add((AbstractCell)neighbours.get(i));
+			}
+		}
+		modelConnector.setHasCollision(hitsOtherCell() > 0);
 		
-
-		// calc potential location from gravitation and external pressures
-	Double2D oldCellLocation = cellField.getObjectLocation(getCell());
-	if(oldCellLocation != null){
-			if(externalForce.length() > getMaxDisplacementFactor()) externalForce = setVector2dLength(externalForce, getMaxDisplacementFactor());
-			
-			Double2D randomPositionData = new Double2D(globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
-					globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
-			Double2D gravitation = new Double2D(0,globalParameters.getRandomGravity() * (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 1));
-			Vector2d actionForce = new Vector2d(externalForce.x * globalParameters.getExternalPush()+ randomPositionData.x, externalForce.y * globalParameters.getExternalPush()+randomPositionData.y+gravitation.y);
-			Double2D potentialLoc = null;
-			
-			potentialLoc = new Double2D(cellField.stx(actionForce.x + oldCellLocation.x), cellField.sty(actionForce.y + oldCellLocation.y));
-			
-			externalForce.x = 0; // alles einberechnet
-			externalForce.y = 0;
-	
-			//////////////////////////////////////////////////
-			// try ACTION force
-			//////////////////////////////////////////////////
-			Bag neighbours = cellField.getObjectsWithinDistance(potentialLoc, getKeratinoWidth()*globalParameters.getNeighbourhoodOptDistFact(), false); 
-			HitResult hitResult1;
-			hitResult1 = hitsOther(neighbours, potentialLoc, false);
-	
-			//////////////////////////////////////////////////
-			// estimate optimised POS from REACTION force
-			//////////////////////////////////////////////////
-			// optimise my own position by giving way to the calculated pressures
-			Vector2d reactionForce = new Vector2d(externalForce.x, externalForce.y);
-			reactionForce.add(hitResult1.adhForce);
-			double reactLength= reactionForce.length();
-			double actLength = actionForce.length();
-			double reactionForceLengthScaled = (actLength/(1+ Math.exp((0.75*actLength-reactLength)/0.02*actLength)));
-			//if(reactionForce.length() > actionForce.length()) 
-				reactionForce = setVector2dLength(reactionForce, reactionForceLengthScaled);
-	
+		
+		modelConnector.setX(newCellLocation.getX());
+  	 	modelConnector.setY(newCellLocation.getY());
+  	 	modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());
+  	   this.getCellEllipseObject().setXY(newCellLocation.x, newCellLocation.y);
+	   
+	}
 			
 	
-			
-			
-			externalForce.x = 0;
-			externalForce.y = 0;
-			
-			// bound also by borders
-			double potX = oldCellLocation.x + actionForce.x + reactionForce.x;
-			double potY = oldCellLocation.y + actionForce.y + reactionForce.y;
-			potentialLoc = new Double2D(cellField.stx(potX), cellField.sty(potY));
-			potentialLoc = calcBoundedPos(potentialLoc.x, potentialLoc.y);
-	
-			// ////////////////////////////////////////////////
-			
-			neighbours = cellField.getObjectsWithinDistance(potentialLoc, getKeratinoWidth()*globalParameters.getNeighbourhoodOptDistFact(), true, false); // theEpidermis.neighborhood
-			HitResult hitResult2;
-			hitResult2 = hitsOther(neighbours, potentialLoc, true);
-			externalForce.x = 0;
-			externalForce.y = 0;
-			// move only on pressure when not stem cell
-			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){
-				/**
-				 * TODO: Check this condition and compare it with the wound closure model
-				 */
-				
-				if(finalHitResult==null||(hitResult2.numhits <= finalHitResult.numhits)|| shapeChangeActive){
-					if(getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name().equals(modelConnector.getNameDiffLevelCorneocyte())){
-						if((finalHitResult!=null&&hitResult2.numhits< finalHitResult.numhits) || shapeChangeActive)setPositionRespectingBounds(potentialLoc);
-					}
-					else setPositionRespectingBounds(potentialLoc);
-				}
-			}
-			Double2D newCellLocation = cellField.getObjectLocation(getCell());
-			double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newCellLocation.x, newCellLocation.y);
-				
-			if(((newCellLocation.y-(getKeratinoWidth()/2))-minY) < globalParameters.getMembraneCellsWidthInMikron()){
-				modelConnector.setIsBasal(true);
-				this.isMembraneCell = true;
-			}
-			else{
-				modelConnector.setIsBasal(false);
-				isMembraneCell = false;
-			}
-			
-			
+   
+ public void newSimStep(long simstepNumber){
+	 if(globalParameters == null){
+		 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
+		 			instanceof CenterBasedMechanicalModelGP){
+		 		globalParameters = (CenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		 	}   	
+		 	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
+		 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
+	 }
+	 if(neighbouringCells==null){		
+		 Double2D cellLocation =cellField.getObjectLocation(getCell());
+		 if(cellLocation!= null){
+		 Bag neighbours = cellField.getObjectsWithinDistance(cellLocation, getKeratinoWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);
 			neighbouringCells = new GenericBag<AbstractCell>();
 			for(int i = 0; i < neighbours.size(); i++){
 				if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
 					neighbouringCells.add((AbstractCell)neighbours.get(i));
 				}
 			}
-			finalHitResult = hitResult2;
-			modelConnector.setHasCollision(hitsOtherCell() > 0);
-			
-			
-			modelConnector.setX(newCellLocation.getX());
-	  	 	modelConnector.setY(newCellLocation.getY());
-	  	 	modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());
-	  	   this.getCellEllipseObject().setXY(newCellLocation.x, newCellLocation.y);
-  	   
-		
-   }
-   
-   }
+		 }
+		 else neighbouringCells = new GenericBag<AbstractCell>();
+	 }
+	 if(globalParameters instanceof CenterBasedChemotaxisMechanicalModelGP){
+		 this.globalParametersChemotaxis = ((CenterBasedChemotaxisMechanicalModelGP) globalParameters);
+		 this.isChemotaxisEnabled = globalParametersChemotaxis.isChemotaxisEnabled();
+		 this.isContinuousInXDirection = globalParametersChemotaxis.isContinousDiffusionInXDirection();
+		 this.isContinuousInYDirection = globalParametersChemotaxis.isContinousDiffusionInYDirection();
+	 }
+ }
+
    
    
-   public boolean isMembraneCell(){ return isMembraneCell;}
+  
    
    @NoExport
    public GenericBag<AbstractCell> getDirectNeighbours(){
@@ -510,7 +629,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(getX(), getY()), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
 	       
 	       
-	       double optDist = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther), actNeighbour);	                               
+	       double optDist = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther));	                               
 	       double actDist=Math.sqrt(dx*dx+dy*dy);	              
 	       if(actDist <= globalParameters.getNeighbourhoodOptDistFact()*optDist)neighbourCells.add(actNeighbour);
 	     //  System.out.println("Neighbourhood radius: " + (2.5*optDist));
@@ -535,13 +654,13 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	public double getKeratinoWidth() {return keratinoWidth;}
 	
-	public void setKeratinoHeight(double keratinoHeight) { this.keratinoHeight = keratinoHeight;	}
+	public void setKeratinoHeight(double keratinoHeight) { this.keratinoHeight = keratinoHeight>0?keratinoHeight:this.keratinoHeight;	}
 	
-	public void setKeratinoWidth(double keratinoWidth) { this.keratinoWidth = keratinoWidth; }
+	public void setKeratinoWidth(double keratinoWidth) { this.keratinoWidth = keratinoWidth>0?keratinoWidth:this.keratinoWidth; }
 
-	public int hitsOtherCell(){ return finalHitResult.numhits; }
+	public int hitsOtherCell(){ return finalInteractionResult.numhits; }
 	
-	public boolean nextToOuterCell(){ return finalHitResult != null ?finalHitResult.nextToOuterCell:false; }
+	public boolean nextToOuterCell(){ return finalInteractionResult != null ?finalInteractionResult.nextToOuterCell:false; }
 
 	private GenericBag<AbstractCell> getCellularNeighbourhood() {return neighbouringCells;}
 	
@@ -581,10 +700,13 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	@CannotBeMonitored
 	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info){
 		String diffLevel =this.getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name();
-		
-		if(!diffLevel.equals(modelConnector.getNameDiffLevelGranulosumCell())&&!diffLevel.equals(modelConnector.getNameDiffLevelCorneocyte())){
-			return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getKeratinoWidth()/3, getKeratinoHeight()/3));
+		if(modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+			episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC modelConnectorEpidermis = (episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector;
+			if(!diffLevel.equals(modelConnectorEpidermis.getNameDiffLevelGranulosumCell())&&!diffLevel.equals(modelConnectorEpidermis.getNameDiffLevelCorneocyte())){
+				return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getKeratinoWidth()/3, getKeratinoHeight()/3));
+			}
 		}
+		
 		return null;
 	}
 	
@@ -716,9 +838,36 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 				}
 			}	   
    }
-  
-   protected void newSimStepGloballyFinished(long simStepNumber){
-   	// updates the isOuterSurface Flag for the surface exposed cells
+	
+  protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
+   	final MersenneTwisterFast random = state.random;
+   	GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
+   	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
+   	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;
+   	if(allCells.size() >0){
+   		numberOfSeconds = ((CenterBasedMechanicalModel)allCells.get(0).getEpisimBioMechanicalModelObject()).modelConnector.getNumberOfSecondsPerSimStep();
+   	}
+   	double numberOfIterationsDouble = (numberOfSeconds/DELTA_TIME_IN_SECONDS_PER_EULER_STEP); //according to Pathmanathan et al.2008
+   	if(numberOfIterationsDouble < 1){
+   		DELTA_TIME_IN_SECONDS_PER_EULER_STEP=numberOfSeconds;
+   		numberOfIterationsDouble=1;
+   	}
+   	int numberOfIterations = ((int)numberOfIterationsDouble);
+   	for(int i = 0; i<numberOfIterations; i++){
+   		allCells.shuffle(random);
+   		int totalCellNumber = allCells.size();
+   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+   			CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
+   			if(i == 0) cellBM.initNewSimStep();
+   			cellBM.calculateSimStep();
+   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
+   		}
+   	}
+   	calculateSurfaceCells();
+   }
+   
+   private void calculateSurfaceCells(){
+   // updates the isOuterSurface Flag for the surface exposed cells
    	double binResolutionInMikron = 1;// CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH;
  	  	int MAX_XBINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()));///binResolutionInMikron)+1); 
       AbstractCell[] xLookUp=new AbstractCell[MAX_XBINS];                                         
@@ -743,10 +892,15 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		          	 double numberOfBinsAssigned = 0;	
 		         	 for(int n = xbinLeft; n <= xbinRight; n++){
 		         		 	int index = n < 0 ? xLookUp.length + n : n >= xLookUp.length ? n - xLookUp.length : n;
-		         		 	if (xLookUp[index]==null || loc.y>yLookUp[index]){
-			         		 	xLookUp[index]=cellArray[i];                            
-				             	yLookUp[index]=loc.y;
-				             	numberOfBinsAssigned++;
+		         		 	if(index >=0 && index < xLookUp.length && index < yLookUp.length){
+			         		 	if (xLookUp[index]==null || loc.y>yLookUp[index]){
+				         		 	xLookUp[index]=cellArray[i];                            
+					             	yLookUp[index]=loc.y;
+					             	numberOfBinsAssigned++;
+			         		 	}
+		         		 	}
+		         		 	else{
+		         		 		System.out.println("Lookup Error: xbinRight: "+xbinRight+"  xbinLeft: "+xbinLeft+"  index: "+index);
 		         		 	}
 			          }		        
 		         	 mechModel.surfaceAreaRatio = numberOfBinsAssigned > 0 ? (numberOfBinsAssigned/((double)((xbinRight+1)-xbinLeft))) : 0;    
@@ -764,36 +918,41 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
       } 
    }
     
+   @CannotBeMonitored
+   @NoExport  
+   private CellBoundaries getChemotaxisCellBoundariesInMikron() {
+   	double x = getX();
+		double y = getY();		
+		
+		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		y = heightInMikron - y;	
+		
+		double width = (double)getKeratinoWidth();
+		double height = (double)getKeratinoHeight();
+		
+		double deltaFact = globalParametersChemotaxis.getChemotaxisCellSizeDeltaFact();
+		width *=deltaFact;
+		height *= deltaFact;
+		
+	   return new CellBoundaries(new Ellipse2D.Double(x-(width/2), y-(height/2), width, height));
+   }
 
-   /**
-    * Parameter sizeDelta is ignored
-    */
+   
    @CannotBeMonitored
    @NoExport  
    public CellBoundaries getCellBoundariesInMikron(double sizeDelta) {
    	double x = getX();
-		double y = getY();
-		
+		double y = getY();		
 		
 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
-		y = heightInMikron - y;
-		double infoWidth = 1;
-		double infoHeight = 1;
+		y = heightInMikron - y;	
+		
 		double width = (double)getKeratinoWidth();
 		double height = (double)getKeratinoHeight();
 		
-		width *=1.15;
-		height*=1.15;
+		width +=sizeDelta;
+		height+=sizeDelta;
 		
-		Path2D.Double path = new Path2D.Double();
-		path.moveTo((x+infoWidth/2.0*width), (y));
-		path.lineTo((x+infoWidth/4.0*width), (y-infoHeight/2.0*height));
-		path.lineTo((x-infoWidth/4.0*width), (y-infoHeight/2.0*height));
-		path.lineTo((x-infoWidth/2.0*width), (y));
-		path.lineTo((x-infoWidth/4.0*width), (y+infoHeight/2.0*height));
-		path.lineTo((x+infoWidth/4.0*width), (y+infoHeight/2.0*height));
-		path.closePath();
-	  
 	   return new CellBoundaries(new Ellipse2D.Double(x-(width/2), y-(height/2), width, height));
    }
 

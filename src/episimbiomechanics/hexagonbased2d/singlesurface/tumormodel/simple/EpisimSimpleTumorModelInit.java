@@ -39,7 +39,6 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 		super(simulationStateData);
 		random = new MersenneTwisterFast(System.currentTimeMillis());
 	}
-
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();

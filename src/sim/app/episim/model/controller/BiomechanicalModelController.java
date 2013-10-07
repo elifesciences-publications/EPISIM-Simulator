@@ -23,6 +23,7 @@ import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
+import sim.engine.SimState;
 
 
 public class BiomechanicalModelController implements java.io.Serializable, ClassLoaderChangeListener{
@@ -122,8 +123,8 @@ public class BiomechanicalModelController implements java.io.Serializable, Class
 		return biomechanicalModel.getCellField();
 	}
 	
-	public void newSimStepGloballyFinished(long simStepNumber){
-		biomechanicalModel.newSimStepGloballyFinished(simStepNumber);
+	public void newSimStepGloballyFinished(long simStepNumber, SimState state){
+		biomechanicalModel.newSimStepGloballyFinished(simStepNumber, state);
 	}
 	
 	

@@ -27,6 +27,7 @@ import sim.app.episim.tissue.StandardMembrane;
 import sim.app.episim.tissue.TissueController;
 
 import sim.app.episim.util.GenericBag;
+import sim.engine.SimState;
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double3D;
@@ -696,7 +697,7 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractMechanical3DMo
 	
 
    
-   protected void newSimStepGloballyFinished(long simStepNumber){
+   protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
       // updates the isOuterSurface Flag for the surface exposed cells
       	double binResolutionXInMikron = 1;//CenterBased3DMechanicalModel.INITIAL_KERATINO_WIDTH;
       	double binResolutionZInMikron = 1;//CenterBased3DMechanicalModel.INITIAL_KERATINO_LENGTH*0.8;

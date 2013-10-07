@@ -43,6 +43,7 @@ import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
+import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.DrawInfo2D;
@@ -720,7 +721,7 @@ public class HexagonBasedMechanicalModelTwoSurface extends AbstractHexagonBasedM
 	public boolean getIsAtWoundEdge(){ return this.isAtWoundEdge; }
 
 	
-   protected void newSimStepGloballyFinished(long simStepNumber) {
+   protected void newSimStepGloballyFinished(long simStepNumber, SimState state) {
    	
    	Iterator<AbstractCell> iter = TissueController.getInstance().getActEpidermalTissue().getAllCells().iterator();
    	double kumulativeXPositionWoundEdge=0;

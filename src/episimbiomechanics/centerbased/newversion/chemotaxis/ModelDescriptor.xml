@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2013-10-04_episimbiomechanics.centerbased.newversion.chemotaxis.EpisimCenterBasedMC"/>
+  <visiblename name="Continuous Chemotaxis Center Based Model 2D"/>
+  <modelname name="New Center Based Chemotaxis Biomechanical Model"/>
+  <modelconnectorclass name="episimbiomechanics.centerbased.newversion.chemotaxis.EpisimCenterBasedMC"/>
+  <modelparameters>
+    <parameter datatype="boolean" default="false" name="isSurface" readonly="true"/>
+    <parameter datatype="String" default=""
+      name="nameCellTypeSecretoryCell" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="height" readonly="false"/>
+    <parameter datatype="String" default="" name="chemotacticField" readonly="false"/>
+    <parameter datatype="double" default="0.0"
+      name="adhesionDefaultCell" readonly="false"/>
+    <parameter datatype="double" default="0.0"
+      name="adhesionSecretoryCell" readonly="false"/>
+    <parameter datatype="int" default="1"
+      name="numberOfSecondsPerSimStep" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="adhesionTCell" readonly="false"/>
+    <parameter datatype="String" default=""
+      name="nameCellTypeDefaultCell" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isBasal" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="width" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="y" readonly="true"/>
+    <parameter datatype="double" default="1.0" name="lambdaChem" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="hasCollision" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="x" readonly="true"/>
+    <parameter datatype="String" default="" name="nameCellTypeTCell" readonly="false"/>
+    <parameter datatype="double" default="0.0"
+      name="adhesionBasalMembrane" readonly="false"/>
+  </modelparameters>
+</modeldescriptor>

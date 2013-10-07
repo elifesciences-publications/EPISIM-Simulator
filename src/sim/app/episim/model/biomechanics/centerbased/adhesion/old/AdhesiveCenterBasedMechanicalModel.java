@@ -40,6 +40,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
+import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
@@ -735,7 +736,7 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DMode
    }
 
    
-   protected void newSimStepGloballyFinished(long simStepNumber){
+   protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
    	// updates the isOuterSurface Flag for the surface exposed cells
    	double binResolutionInMikron = 1;
  	  	int MAX_XBINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()));///binResolutionInMikron)+1); 

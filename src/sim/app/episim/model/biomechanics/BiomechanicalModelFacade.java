@@ -22,6 +22,7 @@ import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ObjectManipulations;
+import sim.engine.SimState;
 
 
 
@@ -146,10 +147,10 @@ public class BiomechanicalModelFacade implements java.io.Serializable{
 		}
 	}	
 	
-	public void newSimStepGloballyFinished(long simStepNumber){
+	public void newSimStepGloballyFinished(long simStepNumber, SimState state){
 		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
 		if(biomechanicalModel instanceof AbstractMechanicalModel){
-			((AbstractMechanicalModel) biomechanicalModel).newSimStepGloballyFinished(simStepNumber);
+			((AbstractMechanicalModel) biomechanicalModel).newSimStepGloballyFinished(simStepNumber, state);
 		}
 	}
 	

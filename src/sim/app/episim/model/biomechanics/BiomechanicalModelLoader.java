@@ -1,5 +1,6 @@
 package sim.app.episim.model.biomechanics;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 
 import sim.app.episim.ExceptionDisplayer;
@@ -45,8 +46,11 @@ public class BiomechanicalModelLoader{
 		
 		for(Class<? extends EpisimModelConnector> actModelConnectorClass : EpisimModelConnector.getAvailableModelConnectors()){
 			try{
-	         EpisimModelConnector modelConnectorInstance = actModelConnectorClass.newInstance();
-	         if(modelConnectorInstance.getBiomechanicalModelId().equals(modelConnectorId)) foundModelConnectors.add(modelConnectorInstance);
+			
+				if(!Modifier.isAbstract(actModelConnectorClass.getModifiers())){
+					EpisimModelConnector modelConnectorInstance = actModelConnectorClass.newInstance();
+		         if(modelConnectorInstance.getBiomechanicalModelId().equals(modelConnectorId)) foundModelConnectors.add(modelConnectorInstance);
+				}				
          }
          catch (InstantiationException e){
 	         ExceptionDisplayer.getInstance().displayException(e);

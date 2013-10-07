@@ -30,6 +30,7 @@ import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
+import sim.engine.SimState;
 import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
@@ -574,7 +575,7 @@ public class HexagonBasedMechanicalModel extends AbstractHexagonBasedMechanicalM
 	public boolean getIsAtWoundEdge(){ return this.isAtWoundEdge; }
 
 	
-   protected void newSimStepGloballyFinished(long simStepNumber) {   	
+   protected void newSimStepGloballyFinished(long simStepNumber, SimState state) {   	
    	
    }
    

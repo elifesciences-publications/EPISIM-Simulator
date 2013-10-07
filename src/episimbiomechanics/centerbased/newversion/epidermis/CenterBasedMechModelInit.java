@@ -1,4 +1,4 @@
-package episimbiomechanics.centerbased.newversion;
+package episimbiomechanics.centerbased.newversion.epidermis;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

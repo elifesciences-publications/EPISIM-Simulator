@@ -4,6 +4,7 @@ package sim.app.episim.model.biomechanics;
 import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.NoExport;
 import sim.app.episim.AbstractCell;
+import sim.engine.SimState;
 
 public abstract class AbstractMechanicalModel<T> implements java.io.Serializable{
 	
@@ -38,6 +39,6 @@ public abstract class AbstractMechanicalModel<T> implements java.io.Serializable
 	 * The method is called at ONLY ONE arbitrary model instance and should implement global mechanical operations after a sim step has been calculated
 	 * 
 	 */
-	protected abstract void newSimStepGloballyFinished(long simStepNumber);
+	protected abstract void newSimStepGloballyFinished(long simStepNumber, SimState state);
 
 }

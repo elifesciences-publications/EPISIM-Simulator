@@ -3,6 +3,8 @@ package sim.app.episim.model.diffusion;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
+import javax.vecmath.Vector2d;
+
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -296,6 +298,75 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
 			y+=fieldRes;
 		}
 		return numberOfLatticeSites > 0 ? (totalConcentration/numberOfLatticeSites) : totalConcentration;
+   }
+   public Vector2d getChemotaxisVectorForCellBoundary(CellBoundaries area){		
+		
+		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+		
+		double startX = getMinX(area);
+		double stopX = getMaxX(area);
+		
+		double startY = getMinY(area);
+		double stopY = getMaxY(area);
+		
+		double topLeftConcentration=0;
+		double bottomLeftConcentration=0;
+		double topRightConcentration=0;
+		double bottomRightConcentration=0;
+		
+		double topLeftLatticeSites=0;
+		double bottomLeftLatticeSites=0;
+		double topRightLatticeSites=0;
+		double bottomRightLatticeSites=0;
+		
+		double verticalReflectionAxis = startX+((stopX-startX)/2);
+		double horizontalReflectionAxis = startY+((stopY-startY)/2);
+		
+		for(double y = startY; y <= stopY;){
+			for(double x = startX; x <= stopX;){
+				if(area.contains(x, y)){
+					if(x < verticalReflectionAxis && y < horizontalReflectionAxis){
+						topLeftConcentration += getConcentration(x, y);
+						topLeftLatticeSites++;
+					}
+					else if(x < verticalReflectionAxis && y > horizontalReflectionAxis){
+						bottomLeftConcentration += getConcentration(x, y);
+						bottomLeftLatticeSites++;
+					}
+					else if(x > verticalReflectionAxis && y < horizontalReflectionAxis){
+						topRightConcentration += getConcentration(x, y);
+						topRightLatticeSites++;
+					}
+					else if(x > verticalReflectionAxis && y > horizontalReflectionAxis){
+						bottomRightConcentration += getConcentration(x, y);
+						bottomRightLatticeSites++;
+					}
+   			}
+   			x+=fieldRes;
+   		}
+			y+=fieldRes;
+		}
+		
+		topLeftLatticeSites = topLeftLatticeSites==0 ? 1 : topLeftLatticeSites;
+		bottomLeftLatticeSites = bottomLeftLatticeSites==0 ? 1 : bottomLeftLatticeSites;
+		topRightLatticeSites = topRightLatticeSites==0 ? 1 : topRightLatticeSites;
+		bottomRightLatticeSites = bottomRightLatticeSites==0 ? 1: bottomRightLatticeSites;
+		
+		
+		topLeftConcentration /= topLeftLatticeSites;
+		bottomLeftConcentration /= bottomLeftLatticeSites;
+		topRightConcentration /= topRightLatticeSites;
+		bottomRightConcentration /= bottomRightLatticeSites;
+		
+		
+		double dx = ((topRightConcentration+bottomRightConcentration)/2)-((topLeftConcentration+bottomLeftConcentration)/2);
+		double dy = ((topLeftConcentration+topRightConcentration)/2)-((bottomLeftConcentration+bottomRightConcentration)/2);
+		double c_max = getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
+				  ? getFieldConfiguration().getMaximumConcentration()
+				  : getMaxConcentrationInField();
+		dx /= c_max;
+		dy /= c_max;
+		return new Vector2d(dx, dy);
    }
 	
    private double getMinX(CellBoundaries boundaries){

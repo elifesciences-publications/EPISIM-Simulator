@@ -12,24 +12,28 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private int basalYDelta_mikron = 5;
 	private int basalOpening_mikron = 500; // width of undulation at the middle
 	private double width = 400;
-	private double height = 150;
+	private double height = 200;
 	private double randomness = 0.05;
 	private double seedMinDepth_frac = 0.25; // beginning with which depth a stem cell is seeded
 	private boolean seedReverse = false;	
 	private int basalDensity_mikron = 30;//OriginalValue: 8; 
-	private double externalPush = 1.2; // y-offset
+
 	
 	
-	private double neighborhood_mikron= 20.0;
-	private double membraneCellsWidth=8;  // Cells sitting directly on membrane: must not differentiate but take up dermal molecules distance to membrane not more than gBasalLayerWidth  
+	private double neighborhood_mikron= 20.0; 
 	private boolean drawCellsAsEllipses = false;
 	private double numberOfPixelsPerMicrometer = 1;
 	
 	private double neighbourhoodOptDistFact = 1.6;	
 	private double optDistanceAdhesionFact = 1.25;
 	private double optDistanceScalingFactor = 0.85;
+	private double optDistanceToBMScalingFactor = 0.8;
+	private double linearToExpMaxOverlap_mikron = 2.5;
+	private double repulSpringStiffness_N_per_micro_m =     0.0000000022;
+	private double adhSpringStiffness_N_per_square_micro_m =0.000000000022;//0.000000000149;
 	private double randomGravity =0.01;// 0.2;
-	private double minAbsAdhesionDist_mikron=4.5;
+
+	
 	
 	public CenterBasedMechanicalModelGP() {}
 	
@@ -59,14 +63,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 			basalOpening_mikron = val;
 	}	
 
-	public double getMembraneCellsWidthInMikron() {
-		return membraneCellsWidth;
-	}
-
-	public void setMembraneCellsWidth(double val) {
-		if(val >= 0.0)
-			membraneCellsWidth = val;
-	}	
+	
 	
 	public double getRandomness() {
 		return randomness;
@@ -108,13 +105,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 		if(val >= 0)
 			basalDensity_mikron = val;
 	}
-	public double getExternalPush() {
-		return externalPush;
-	}
-	public void setExternalPush(double val) {
-		if(val > 0)
-			externalPush = val;
-	}
+	
 	
 	public void setWidthInMikron(double val) {
 		if(val > 0)	width = val;
@@ -238,14 +229,52 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
    }
 
 	
-   public double getMinAbsAdhesionDist_mikron() {
    
-   	return minAbsAdhesionDist_mikron;
+	
+   public double getLinearToExpMaxOverlap_mikron() {
+   
+   	return linearToExpMaxOverlap_mikron;
    }
 
 	
-   public void setMinAbsAdhesionDist_mikron(double minAbsAdhesionDist_mikron) {
+   public void setLinearToExpMaxOverlap_mikron(double linearToExpMaxOverlap_mikron) {
    
-   	this.minAbsAdhesionDist_mikron = minAbsAdhesionDist_mikron;
+   	this.linearToExpMaxOverlap_mikron = linearToExpMaxOverlap_mikron;
    }
+
+	
+   public double getRepulSpringStiffness_N_per_micro_m() {
+   
+   	return repulSpringStiffness_N_per_micro_m;
+   }
+
+	
+   public void setRepulSpringStiffness_N_per_micro_m(double repulSpringStiffness_N_per_micro_m) {
+   
+   	this.repulSpringStiffness_N_per_micro_m = repulSpringStiffness_N_per_micro_m;
+   }
+
+	
+   public double getAdhSpringStiffness_N_per_square_micro_m() {
+   
+   	return adhSpringStiffness_N_per_square_micro_m;
+   }
+
+	
+   public void setAdhSpringStiffness_N_per_square_micro_m(double adhSpringStiffness_N_per_square_micro_m) {
+   
+   	this.adhSpringStiffness_N_per_square_micro_m = adhSpringStiffness_N_per_square_micro_m;
+   }
+
+	
+   public double getOptDistanceToBMScalingFactor() {
+   
+   	return optDistanceToBMScalingFactor;
+   }
+
+	
+   public void setOptDistanceToBMScalingFactor(double optDistanceToBMScalingFactor) {
+   
+   	this.optDistanceToBMScalingFactor = optDistanceToBMScalingFactor;
+   }   
 }

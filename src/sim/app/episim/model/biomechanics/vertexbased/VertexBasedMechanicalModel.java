@@ -28,6 +28,7 @@ import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
+import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
@@ -330,7 +331,7 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	   
    }
 	
-   protected void newSimStepGloballyFinished(long simStepNumber) {
+   protected void newSimStepGloballyFinished(long simStepNumber, SimState state) {
 
 	   //not needed
 	   

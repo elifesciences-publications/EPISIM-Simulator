@@ -7,7 +7,6 @@ import java.awt.FileDialog;
 import java.awt.Graphics;
 import java.awt.Paint;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -18,7 +17,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
+
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -28,6 +27,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -54,6 +55,7 @@ import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimSimulationDisplay;
 
 import sim.SimStateServer;
@@ -64,7 +66,9 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.EpisimMovieMaker;
+import sim.app.episim.util.Names;
 import sim.app.episim.util.Scale;
 import sim.display.Display2D.FieldPortrayal2DHolder;
 import sim.display.Display2D.InnerDisplay2D;
@@ -88,6 +92,9 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	
 	private boolean moviePathSet = false;
 	private EpisimMovieMaker episimMovieMaker;
+	private EpisimCellBehavioralModelGlobalParameters globalCBMParameters;
+	private Method cellColoringGetterMethod;
+	private Method cellColoringSetterMethod;
 	
 	public Display2DHack(double width, double height, GUIState simulation) {
 
@@ -263,8 +270,84 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
           };
       scaleField.setToolTipText("Zoom in and out");
       header.add(scaleField);
+      
+      findCellColoringMethods();
+      if(this.cellColoringGetterMethod != null && this.cellColoringSetterMethod != null){
+      	
+	      // add the scale field
+      	Object defaultValue = null;
+      	try{
+	         defaultValue = this.cellColoringGetterMethod.invoke(this.globalCBMParameters, new Object[0]);
+         }
+         catch (Exception e1){
+	         ExceptionDisplayer.getInstance().displayException(e1);
+         }
+         double defaultVal = 0;
+         if(defaultValue != null){
+         	defaultVal = defaultValue instanceof Integer ? (double)((Integer)defaultValue).intValue() : defaultValue instanceof Double ? ((Double)defaultValue).doubleValue() :0;
+         }
+	      NumberTextField cellColoringField = new NumberTextField("     Cell Coloring: ", defaultVal, true)
+	      {
+	          public double newValue(double newValue)
+	          {
+	              if (newValue > 0){
+	            	  if(Integer.TYPE.isAssignableFrom(cellColoringGetterMethod.getReturnType())){
+	            		  int val = (int) newValue;
+	            		  try{
+	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{val});
+	            		  }
+	            		  catch (Exception e){
+                     	 ExceptionDisplayer.getInstance().displayException(e);
+	            		  }
+	            	  }
+	            	  else{
+	            		  
+	            		  try{
+	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{newValue});
+	            		  }
+	            		  catch (Exception e){
+                     	 ExceptionDisplayer.getInstance().displayException(e);
+	            		  }
+	            	  }
+	            	  currentValue = newValue;
+	            	  return newValue;
+	              }             
+	              return currentValue;
+	          }
+	      };
+	      scaleField.setToolTipText("Change Cell Coloring Mode");
+	      header.add(cellColoringField);
+      }
            
-	}	
+	}
+	
+	private void findCellColoringMethods(){
+		//cellColoringMode
+		if(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters() != null){
+			globalCBMParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
+			Method[] methods =globalCBMParameters.getClass().getMethods();
+			for(Method m : methods){
+				if(m.getName().startsWith("get") 
+						&& (m.getName().trim().toLowerCase().contains(Names.CELL_COLORING_MODE_NAME_I)
+						  || m.getName().trim().toLowerCase().contains(Names.CELL_COLORING_MODE_NAME_II)
+						  || m.getName().trim().toLowerCase().contains(Names.CELL_COLORING_MODE_NAME_III))){
+						this.cellColoringGetterMethod = m;
+						break;
+				}
+			}
+			if(this.cellColoringGetterMethod != null){
+				String setterName = "s"+this.cellColoringGetterMethod.getName().trim().substring(1);
+				for(Method m : methods){
+					if(m.getName().equals(setterName)){
+						this.cellColoringSetterMethod=m;
+						break;
+					}
+				}
+			}			
+		}		
+	}
+	
+	
 	
 	public double getDisplayScale(){
 		 return this.getScale();

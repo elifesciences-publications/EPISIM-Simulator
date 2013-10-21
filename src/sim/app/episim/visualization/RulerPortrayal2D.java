@@ -75,7 +75,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 					&& actMousePositionXY.getX() >= getMinX(info)
 					&& actMousePositionXY.getX() <= getMaxX(info)
 					&& actMousePositionXY.getY() >= getMinY(info)
-					&& actMousePositionXY.getY() <= getMaxY(info))drawCrosshairs(graphics);
+					&& actMousePositionXY.getY() <= getMaxY(info))drawCrosshairs(graphics, info);
 			showTissueInformationLine(graphics,  info);
 			showSimStepInformationLine(graphics, info);
 		}
@@ -211,7 +211,7 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 		    Rectangle2D stringBounds = graphics.getFontMetrics().getStringBounds(text.toString(), graphics);
 		    graphics.drawString(text.toString(), (float)(info.clip.getMaxX() -(stringBounds.getWidth()+10)), (float)(info.clip.getMinY() +20));
 	    }
-	    private void drawCrosshairs(Graphics2D graphics){
+	    private void drawCrosshairs(Graphics2D graphics, DrawInfo2D info){
 	   	   float[] dash = new float[]{ DOT, SPACE };
 	   		
 				graphics.setColor(Color.WHITE);
@@ -219,10 +219,9 @@ public class RulerPortrayal2D extends AbstractSpatialityScalePortrayal2D impleme
 							
 				
 				
-				Line2D horizontalLine = new Line2D.Double(getLastActualInfo().clip.getMinX(), actMousePositionXY.getY(), 
-																		getLastActualInfo().clip.getMinX()+getWidth(),actMousePositionXY.getY());
-				Line2D verticalLine = new Line2D.Double(actMousePositionXY.getX(), getLastActualInfo().clip.getMinY(), 
-						                               actMousePositionXY.getX(), getLastActualInfo().clip.getMinY()+getHeight());  
+				Line2D horizontalLine = new Line2D.Double(getMinX(info), actMousePositionXY.getY(), getMaxX(info),actMousePositionXY.getY());
+				Line2D verticalLine = new Line2D.Double(actMousePositionXY.getX(), getMinY(info), 
+						                               actMousePositionXY.getX(), getMaxY(info));  
 				graphics.draw(horizontalLine);
 				graphics.draw(verticalLine);
 	    }

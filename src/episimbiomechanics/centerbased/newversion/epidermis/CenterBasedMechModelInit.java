@@ -84,8 +84,8 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 					UniversalCell stemCell = new UniversalCell(null, null, true);
 					CenterBasedMechanicalModel mechModel = ((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
 					Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
-					mechModel.setKeratinoWidth(STEM_CELL_WIDTH);
-					mechModel.setKeratinoHeight(STEM_CELL_HEIGHT);	
+					mechModel.setCellWidth(STEM_CELL_WIDTH);
+					mechModel.setCellHeight(STEM_CELL_HEIGHT);	
 					mechModel.getCellEllipseObject().setXY(corrPos.x, corrPos.y);
 					mechModel.setCellLocationInCellField(new Double2D(corrPos.x, corrPos.y));
 					standardCellEnsemble.add(stemCell);

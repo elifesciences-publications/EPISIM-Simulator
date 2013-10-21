@@ -21,6 +21,10 @@ public abstract class Names {
 	public static final String EPISIM_CHARTSET_FACTORYNAME ="EpisimChartSetFactory";
 	public static final String EPISIM_DATAEXPORT_FACTORYNAME ="EpisimDataExportFactory";
 	
+	public static final String CELL_COLORING_MODE_NAME_I ="cellcoloringmode";
+	public static final String CELL_COLORING_MODE_NAME_II ="cellcoloring";
+	public static final String CELL_COLORING_MODE_NAME_III ="coloringmode";
+	
 	
 	public static final String NUMBER_PREFIX = "n_";
 	public static final String BOOLEAN_PREFIX = "b_";

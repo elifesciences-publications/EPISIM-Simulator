@@ -72,8 +72,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    
    
    
-   private double keratinoWidth=-1; // breite keratino
-   private double keratinoHeight=-1; // höhe keratino
+   private double cellWidth=-1; // breite keratino
+   private double cellHeight=-1; // höhe keratino
    
    private boolean isChemotaxisEnabled = false;
    private boolean isContinuousInXDirection = true;
@@ -120,7 +120,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    	}   	
    	  
       if(cell != null && getCellEllipseObject() == null && cell.getEpisimCellBehavioralModelObject() != null){
-			cellEllipseObject = new CellEllipse(cell.getID(), getX(), getY(), (double) keratinoWidth, (double)keratinoHeight, Color.BLUE);    
+			cellEllipseObject = new CellEllipse(cell.getID(), getX(), getY(), (double) cellWidth, (double)cellHeight, Color.BLUE);    
 		}
       if(cell != null && cell.getMotherCell() != null){
 	      double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;
@@ -129,8 +129,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	      if(cell.getMotherCell().getEpisimBioMechanicalModelObject() instanceof CenterBasedMechanicalModel){
 	      	EpisimModelConnector motherCellConnector =((CenterBasedMechanicalModel) cell.getMotherCell().getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
 	      	if(motherCellConnector instanceof EpisimCenterBasedMC){
-	      		setKeratinoWidth(((EpisimCenterBasedMC)motherCellConnector).getWidth()); 
-	      		setKeratinoHeight(((EpisimCenterBasedMC)motherCellConnector).getHeight());	    	     
+	      		setCellWidth(((EpisimCenterBasedMC)motherCellConnector).getWidth()); 
+	      		setCellHeight(((EpisimCenterBasedMC)motherCellConnector).getHeight());	    	     
 	      	}
 	      }
 	             
@@ -266,8 +266,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
              double dy = cellField.tdy(thisloc.y,otherloc.y);
              
              
-             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
-             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
+             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), getCellWidth()/2, getCellHeight()/2);
+             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2);
             
              
              double optDistScaled = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther));
@@ -281,7 +281,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
                 //According to Pathmanathan et al. 2009
             	 double overlap = optDistScaled - actDist;
             	 double stiffness = globalParameters.getRepulSpringStiffness_N_per_micro_m(); //Standard: 2.2x10^-3Nm^-1*1*10^-6 conversion in micron 
-            	 double linearToExpMaxOverlap = globalParameters.getLinearToExpMaxOverlap_mikron();
+            	// double linearToExpMaxOverlap = globalParameters.getLinearToExpMaxOverlap_mikron();
             	 double alpha=1;
             	 
             	 //without hard core
@@ -324,7 +324,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
             	interactionResult.adhesionForce.y += adhesion*((-dy)/actDist);
             	
              }
-             if (actDist <= (getKeratinoHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
+             if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
                     	
                     interactionResult.nextToOuterCell=true;  
              }
@@ -332,11 +332,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
         }       
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >0){
-      		Point2d membraneReferencePoint = findReferencePositionOnBoundary(new Point2d(thisloc.x, thisloc.y), thisloc.x - (getKeratinoWidth()/2), thisloc.x + (getKeratinoWidth()/2));
+      		Point2d membraneReferencePoint = findReferencePositionOnBoundary(new Point2d(thisloc.x, thisloc.y), thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2));
       		double dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
             double dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
       		double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
-      		double optDist = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
+      		double optDist = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getCellWidth()/2, getCellHeight()/2);
       		optDist*=globalParameters.getOptDistanceToBMScalingFactor();
       		
       		if(distToMembrane < optDist*globalParameters.getOptDistanceAdhesionFact()){
@@ -420,12 +420,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   
 	   if(!this.isContinuousInYDirection){
 		   
-	   	Point2d membraneReferencePoint = findReferencePositionOnBoundary(cellPosition, cellPosition.x - (getKeratinoWidth()/2), cellPosition.x + (getKeratinoWidth()/2));
+	   	Point2d membraneReferencePoint = findReferencePositionOnBoundary(cellPosition, cellPosition.x - (getCellWidth()/2), cellPosition.x + (getCellWidth()/2));
 			
 		   double dx = cellField.tdx(cellPosition.x, membraneReferencePoint.x); 
 	      double dy = cellField.tdy(cellPosition.y, membraneReferencePoint.y);
 			double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
-			double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(cellPosition.x, cellPosition.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
+			double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(cellPosition.x, cellPosition.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getCellWidth()/2, getCellHeight()/2);
 			double optDistScaled = normalizeOptimalDistance(requiredDistanceToMembraneThis);
 		   
 			if(optDistScaled > distToMembrane)
@@ -497,8 +497,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    	boolean shapeChangeActive = ((modelConnector.getHeight() != oldHeight) ||(modelConnector.getWidth() != oldWidth));
    	oldHeight = modelConnector.getHeight();
    	oldWidth = modelConnector.getWidth();
-   	setKeratinoHeight(modelConnector.getHeight());
-   	setKeratinoWidth(modelConnector.getWidth());
+   	setCellHeight(modelConnector.getHeight());
+   	setCellWidth(modelConnector.getWidth());
    	if(shapeChangeActive){
    		getCellEllipseObject().setMajorAxisAndMinorAxis(modelConnector.getWidth(), modelConnector.getHeight());
    	}
@@ -515,14 +515,14 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 				
 		if(oldCellLocation != null){
 			
-			Bag neighbours = cellField.getObjectsWithinDistance(oldCellLocation, getKeratinoWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);	
+			Bag neighbours = cellField.getObjectsWithinDistance(oldCellLocation, getCellWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);	
 			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(neighbours, oldCellLocation);
 						
 			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){		
-				Double2D gravitation = new Double2D(0,globalParameters.getRandomGravity() * (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 1));
+				
 				Double2D randomPositionData = new Double2D(globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5), 
 						globalParameters.getRandomness()* (TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5));
-				gravitation = null;
+				
 				
 				
 				
@@ -545,17 +545,17 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	public void finishNewSimStep(){
 		Double2D newCellLocation = cellField.getObjectLocation(getCell());
-		Point2d minPositionOnBoundary = findReferencePositionOnBoundary(new Point2d(newCellLocation.x, newCellLocation.y), newCellLocation.x - (getKeratinoWidth()/2), newCellLocation.x + (getKeratinoWidth()/2));
+		Point2d minPositionOnBoundary = findReferencePositionOnBoundary(new Point2d(newCellLocation.x, newCellLocation.y), newCellLocation.x - (getCellWidth()/2), newCellLocation.x + (getCellWidth()/2));
 		
 		double distanceToBasalMembrane = Math.sqrt(Math.pow((newCellLocation.x-minPositionOnBoundary.x), 2)+Math.pow((newCellLocation.y-minPositionOnBoundary.y), 2));	
-		if(distanceToBasalMembrane <= ((getKeratinoWidth()))){///2)*globalParameters.getOptDistanceAdhesionFact())){
+		if(distanceToBasalMembrane <= ((getCellWidth()))){///2)*globalParameters.getOptDistanceAdhesionFact())){
 			modelConnector.setIsBasal(true);			
 		}
 		else{
 			modelConnector.setIsBasal(false);			
 		}
 		
-		Bag neighbours = cellField.getObjectsWithinDistance(cellField.getObjectLocation(getCell()), getKeratinoWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);
+		Bag neighbours = cellField.getObjectsWithinDistance(cellField.getObjectLocation(getCell()), getCellWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);
 		neighbouringCells = new GenericBag<AbstractCell>();
 		for(int i = 0; i < neighbours.size(); i++){
 			if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
@@ -586,7 +586,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	 if(neighbouringCells==null){		
 		 Double2D cellLocation =cellField.getObjectLocation(getCell());
 		 if(cellLocation!= null){
-		 Bag neighbours = cellField.getObjectsWithinDistance(cellLocation, getKeratinoWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);
+		 Bag neighbours = cellField.getObjectsWithinDistance(cellLocation, getCellWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);
 			neighbouringCells = new GenericBag<AbstractCell>();
 			for(int i = 0; i < neighbours.size(); i++){
 				if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
@@ -625,8 +625,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        
       	// double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), new Vector2d(-1*dx, -1*dy), getKeratinoWidth()/2, getKeratinoHeight()/2);
 	      // double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Vector2d(dx, dy), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
-	       double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), new Point2d(otherloc.x, otherloc.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
-	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(getX(), getY()), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
+	       double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), new Point2d(otherloc.x, otherloc.y), getCellWidth()/2, getCellHeight()/2);
+	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(getX(), getY()), mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2);
 	       
 	       
 	       double optDist = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther));	                               
@@ -650,13 +650,13 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   return new Vector2d(vector.x * length / temp, vector.y * length / temp);
    }	   
    
-   public double getKeratinoHeight() {	return keratinoHeight; }
+   public double getCellHeight() {	return cellHeight; }
 	
-	public double getKeratinoWidth() {return keratinoWidth;}
+	public double getCellWidth() {return cellWidth;}
 	
-	public void setKeratinoHeight(double keratinoHeight) { this.keratinoHeight = keratinoHeight>0?keratinoHeight:this.keratinoHeight;	}
+	public void setCellHeight(double cellHeight) { this.cellHeight = cellHeight>0?cellHeight:this.cellHeight;	}
 	
-	public void setKeratinoWidth(double keratinoWidth) { this.keratinoWidth = keratinoWidth>0?keratinoWidth:this.keratinoWidth; }
+	public void setCellWidth(double cellWidth) { this.cellWidth = cellWidth>0?cellWidth:this.cellWidth; }
 
 	public int hitsOtherCell(){ return finalInteractionResult.numhits; }
 	
@@ -694,7 +694,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	@CannotBeMonitored @NoExport
 	public EpisimCellShape<Shape> getPolygonCell(EpisimDrawInfo<DrawInfo2D> info){
-		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getKeratinoWidth(), getKeratinoHeight()));
+		return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getCellWidth(), getCellHeight()));
 	}
 	
 	@CannotBeMonitored
@@ -703,7 +703,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		if(modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
 			episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC modelConnectorEpidermis = (episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector;
 			if(!diffLevel.equals(modelConnectorEpidermis.getNameDiffLevelGranulosumCell())&&!diffLevel.equals(modelConnectorEpidermis.getNameDiffLevelCorneocyte())){
-				return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getKeratinoWidth()/3, getKeratinoHeight()/3));
+				return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getCellWidth()/3, getCellHeight()/3));
 			}
 		}
 		
@@ -883,7 +883,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	         	 cellArray[i].setIsOuterCell(false);
 		          CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
 		          Double2D loc= mechModel.getCellLocationInCellField();
-		          double width = mechModel.getKeratinoWidth();
+		          double width = mechModel.getCellWidth();
 		         
 		          int xbinRight= Math.round((float) ((loc.x+(width/2)) / binResolutionInMikron));
 		          int xbinLeft= Math.round((float) ((loc.x-(width/2)) / binResolutionInMikron));
@@ -927,8 +927,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		y = heightInMikron - y;	
 		
-		double width = (double)getKeratinoWidth();
-		double height = (double)getKeratinoHeight();
+		double width = (double)getCellWidth();
+		double height = (double)getCellHeight();
 		
 		double deltaFact = globalParametersChemotaxis.getChemotaxisCellSizeDeltaFact();
 		width *=deltaFact;
@@ -947,8 +947,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 		y = heightInMikron - y;	
 		
-		double width = (double)getKeratinoWidth();
-		double height = (double)getKeratinoHeight();
+		double width = (double)getCellWidth();
+		double height = (double)getCellHeight();
 		
 		width +=sizeDelta;
 		height+=sizeDelta;

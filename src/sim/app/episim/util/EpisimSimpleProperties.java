@@ -41,19 +41,18 @@ public class EpisimSimpleProperties extends SimplePropertiesHack {
         {
             Method m2 = c.getMethod("hide" + (m.getName().substring(3)), new Class[] { });
             if (m2 != null && m2.getReturnType() == Boolean.TYPE) return m2;
+            
         }
         else if (m.getName().startsWith("is"))
         {
             Method m2 = c.getMethod("hide" + (m.getName().substring(2)), new Class[] { });
-            if (m2 != null &&m2.getReturnType() == Boolean.TYPE) return m2;
+            if (m2 != null &&m2.getReturnType() == Boolean.TYPE) return m2;            
         }
         
         
     }  	  	  
     catch (Exception e)
-    {
-   	 
-   	 
+    {  	 
    	 if((m.getName().startsWith("get")||m.getName().startsWith("is")) &&  m.getAnnotation(NoUserModification.class)!=null){
      	  try{
 	      return (new Object(){ public boolean getThisMethodReturnsAlwaysTrue(){
@@ -66,7 +65,22 @@ public class EpisimSimpleProperties extends SimplePropertiesHack {
      	  catch (NoSuchMethodException e1){
      		  ExceptionDisplayer.getInstance().displayException(e);
      	  }	
-    }
+   	}
+   	 if(m.getName().toLowerCase().trim().contains(Names.CELL_COLORING_MODE_NAME_I)
+             || m.getName().toLowerCase().trim().contains(Names.CELL_COLORING_MODE_NAME_II)
+             || m.getName().toLowerCase().trim().contains(Names.CELL_COLORING_MODE_NAME_III)){
+           	try{
+        	      return (new Object(){ public boolean getThisMethodReturnsAlwaysTrue(){
+        	      	  return true;
+        	      	  }}).getClass().getMethod(Names.TRUE_RETURNING_METHOD);
+             	  }
+             	  catch (SecurityException e1){
+             		  ExceptionDisplayer.getInstance().displayException(e1);
+             	  }
+             	  catch (NoSuchMethodException e1){
+             		  ExceptionDisplayer.getInstance().displayException(e1);
+             	  }	
+         } 
     }
     return null;
   }

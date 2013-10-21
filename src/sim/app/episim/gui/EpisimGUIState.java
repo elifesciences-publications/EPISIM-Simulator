@@ -186,8 +186,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	public Inspector getBiomechnicalModelInspector() {
 
 		EpisimBiomechanicalModelGlobalParameters mechModel = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		if(mechModel == null)
-			return null;
+		if(mechModel == null) return null;
 		Inspector i = new EpisimSimpleInspector(mechModel, this);
 		i.setVolatile(false);
 		return i;

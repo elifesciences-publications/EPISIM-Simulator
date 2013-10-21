@@ -13,9 +13,9 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private int basalOpening_mikron = 500; // width of undulation at the middle
 	private double width = 400;
 	private double height = 200;
-	private double randomness = 0.05;
+	private double randomness = 0.00000000125;
 	private double seedMinDepth_frac = 0.25; // beginning with which depth a stem cell is seeded
-	private boolean seedReverse = false;	
+	
 	private int basalDensity_mikron = 30;//OriginalValue: 8; 
 
 	
@@ -24,14 +24,14 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private boolean drawCellsAsEllipses = false;
 	private double numberOfPixelsPerMicrometer = 1;
 	
-	private double neighbourhoodOptDistFact = 1.6;	
-	private double optDistanceAdhesionFact = 1.25;
+	private double neighbourhoodOptDistFact = 1.5;	
+	private double optDistanceAdhesionFact = 1.3;
 	private double optDistanceScalingFactor = 0.85;
 	private double optDistanceToBMScalingFactor = 0.8;
-	private double linearToExpMaxOverlap_mikron = 2.5;
+	private double linearToExpMaxOverlap_Perc = 0.5;
 	private double repulSpringStiffness_N_per_micro_m =     0.0000000022;
 	private double adhSpringStiffness_N_per_square_micro_m =0.000000000022;//0.000000000149;
-	private double randomGravity =0.01;// 0.2;
+	
 
 	
 	
@@ -89,13 +89,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 			seedMinDepth_frac = val;
 	}
 
-	public boolean getSeedReverse() {
-		return seedReverse;
-	}
-
-	public void setSeedReverse(boolean val) {
-		seedReverse = val;
-	}	
+	
 
 	public int getBasalDensity_mikron() {
 		return basalDensity_mikron;
@@ -191,19 +185,6 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
    
    	this.optDistanceScalingFactor = optDistanceScalingFactor > 0 ? optDistanceScalingFactor: 0.001;
    }
-
-	
-   public double getRandomGravity() {
-   
-   	return randomGravity;
-   }
-
-	
-   public void setRandomGravity(double randomGravity) {
-   
-   	this.randomGravity = randomGravity;
-   }
-
 	
    public int getBasalPeriod_mikron() {
    
@@ -231,15 +212,15 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	
    
 	
-   public double getLinearToExpMaxOverlap_mikron() {
+   public double getLinearToExpMaxOverlap_perc() {
    
-   	return linearToExpMaxOverlap_mikron;
+   	return linearToExpMaxOverlap_Perc;
    }
 
 	
-   public void setLinearToExpMaxOverlap_mikron(double linearToExpMaxOverlap_mikron) {
+   public void setLinearToExpMaxOverlap_perc(double linearToExpMaxOverlap_Perc) {
    
-   	this.linearToExpMaxOverlap_mikron = linearToExpMaxOverlap_mikron;
+   	this.linearToExpMaxOverlap_Perc = linearToExpMaxOverlap_Perc;
    }
 
 	

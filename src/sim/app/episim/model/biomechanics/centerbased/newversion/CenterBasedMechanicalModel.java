@@ -250,7 +250,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
        // for each collision calc a pressure vector and add it to the other's existing one
        InteractionResult interactionResult=new InteractionResult();            
-       if (neighbours==null || neighbours.numObjs == 0) return interactionResult;      
+       if (neighbours==null || neighbours.numObjs == 0) return interactionResult;
+       double majorAxisThis = getCellWidth()/2;
+       double minorAxisThis = getCellHeight()/2;
       
        for(int i=0;i<neighbours.numObjs;i++)
        {
@@ -261,17 +263,19 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
           if (other != getCell())
           {
              CenterBasedMechanicalModel mechModelOther = (CenterBasedMechanicalModel) other.getEpisimBioMechanicalModelObject();
+             double majorAxisOther = mechModelOther.getCellWidth()/2;
+             double minorAxisOther = mechModelOther.getCellHeight()/2;
          	 Double2D otherloc=cellField.getObjectLocation(other);
              double dx = cellField.tdx(thisloc.x,otherloc.x); 
              double dy = cellField.tdy(thisloc.y,otherloc.y);
              
              
-             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), getCellWidth()/2, getCellHeight()/2);
-             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2);
+             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), majorAxisThis, minorAxisThis);
+             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), majorAxisOther, minorAxisOther);
             
              
-             double optDistScaled = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther));
-             double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
+             double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
+             //double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
           
                                      
              double actDist=Math.sqrt(dx*dx+dy*dy);
@@ -310,6 +314,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
             																		+2*radius_this_square*radius_other_square
             																		-Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
             																		-Math.pow(actDist_square, 2));
+            	
+            	
+            	double contactAreaNew = calculateContactAreaNew(majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
             	
             	double smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
             										 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
@@ -376,14 +383,57 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			}
       return interactionResult;
    } 
+   
+   private double calculateContactAreaNew(double majorAxisThis, double minorAxisThis, double majorAxisOther, double minorAxisOther, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
+   	double contactArea = 0;
+   	double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
+      double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
+      double smoothingFunction = 1;
+;
+   	
+      double r1 = adh_Dist_Fact*d_membrane_this;
+      double r2 = adh_Dist_Fact*d_membrane_other;
+     
+      double r1_scaled = (minorAxisThis/r1)*(majorAxisThis);
+      double r2_scaled = (minorAxisOther/r2)*(majorAxisOther);
+      
+      double actDist_scale = ((r1_scaled/r1)*(r1/(r1+r2))+(r2_scaled/r2)*(r2/(r1+r2)));
+      double actDist_scaled = actDist*actDist_scale;
+      
+      double actDist_square = Math.pow(actDist_scaled, 2);
+      
+      double radius_this_square = Math.pow(r1_scaled,2);
+   	double radius_other_square = Math.pow(r2_scaled,2);
+   	
+                      	
+   	contactArea = (Math.PI/(4*actDist_square))*(2*actDist_square*(radius_this_square+radius_other_square)
+   																		+2*radius_this_square*radius_other_square
+   																		-Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
+   																		-Math.pow(actDist_square, 2));
+   	double intercell_gap = actDist_scaled - optDistScaled;
+   	smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
+				 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
+				 ? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
+				 : 1;
+	
+//	}
+	
+	
+	
+	
+	//double adhesionCoefficient = globalParameters.getAdhSpringStiffness_N_per_square_micro_m()*getAdhesionFactor(other);
+										 
+					 
+	//double adhesion = adhesionCoefficient*(contactArea*smoothingFunction);
+				 return contactArea;
+   }
+   
      
    private double getAdhesionFactor(AbstractCell otherCell){   	
    	return modelConnector.getAdhesionFactorForCell(otherCell);
    } 
    
-   private double normalizeOptimalDistance(double distance){   	
-   	return distance*globalParameters.getOptDistanceScalingFactor();   	
-   }  
+  
    
    private double calculateDistanceToCellCenter(Point2d cellCenter, Point2d otherCellCenter, double aAxis, double bAxis){
 		 
@@ -426,7 +476,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	      double dy = cellField.tdy(cellPosition.y, membraneReferencePoint.y);
 			double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
 			double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(cellPosition.x, cellPosition.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getCellWidth()/2, getCellHeight()/2);
-			double optDistScaled = normalizeOptimalDistance(requiredDistanceToMembraneThis);
+			double optDistScaled = requiredDistanceToMembraneThis*globalParameters.getOptDistanceToBMScalingFactor();
 		   
 			if(optDistScaled > distToMembrane)
 		   {	      
@@ -629,7 +679,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(getX(), getY()), mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2);
 	       
 	       
-	       double optDist = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther));	                               
+	       double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();	                               
 	       double actDist=Math.sqrt(dx*dx+dy*dy);	              
 	       if(actDist <= globalParameters.getNeighbourhoodOptDistFact()*optDist)neighbourCells.add(actNeighbour);
 	     //  System.out.println("Neighbourhood radius: " + (2.5*optDist));

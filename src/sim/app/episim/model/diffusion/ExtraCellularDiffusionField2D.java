@@ -81,7 +81,7 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    	return toroidalY;
    }
 	
-   public void setToroidal(boolean toroidalY) {   
+   public void setToroidalY(boolean toroidalY) {   
    	this.toroidalY = toroidalY;
    }
    

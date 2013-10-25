@@ -32,13 +32,6 @@ public interface EpisimBiomechanicalModelGlobalParameters extends java.io.Serial
 	@NoUserModification
 	ModelDimensionality getModelDimensionality();	
 	
-	@NoUserModification
-	boolean areDiffusionFieldsContinousInXDirection();	
-	@NoUserModification
-	boolean areDiffusionFieldsContinousInYDirection();
-	@NoUserModification
-	boolean areDiffusionFieldsContinousInZDirection();
-	
 	void setNumberOfPixelsPerMicrometer(double val);
 	@NoUserModification
 	double getNumberOfPixelsPerMicrometer();

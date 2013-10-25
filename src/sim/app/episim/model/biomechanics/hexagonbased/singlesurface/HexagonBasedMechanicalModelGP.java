@@ -187,22 +187,8 @@ public class HexagonBasedMechanicalModelGP extends AbstractHexagonBasedMechanica
 	public double getNumberOfPixelsPerMicrometer() {
 	   return this.numberOfPixelsPerMicrometer;
    }
-   
-   @NoUserModification
-   public boolean areDiffusionFieldsContinousInXDirection() {
-		return getUseContinuousSpace();
-   }
-
-	@NoUserModification
-   public boolean areDiffusionFieldsContinousInYDirection() {
-	   return getUseContinuousSpace();
-   }
-
 	
-  
-
-	
-   public boolean isChemotaxisEnabled() {
+	public boolean isChemotaxisEnabled() {
    
    	return chemotaxisEnabled;
    }

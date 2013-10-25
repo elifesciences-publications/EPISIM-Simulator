@@ -523,6 +523,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				if(pressedButton.getActionCommand() != null){
 					if(pressedButton.getActionCommand().equals(Names.BIOCHEM_MODEL))ModelController.getInstance().getCellBehavioralModelController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MECH_MODEL))ModelController.getInstance().getBioMechanicalModelController().resetInitialGlobalValues();
+					else if(pressedButton.getActionCommand().equals(Names.DIFFUSION_MODEL))ModelController.getInstance().getExtraCellularDiffusionController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MISCALLENEOUS))MiscalleneousGlobalParameters.getInstance().resetInitialGlobalValues();
 				}
 				this.clickRefreshButtons();

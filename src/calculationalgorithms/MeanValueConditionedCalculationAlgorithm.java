@@ -59,15 +59,15 @@ public class MeanValueConditionedCalculationAlgorithm extends AbstractCommonCalc
 					result = handler.calculate(actCell);
 					sum += result;
 					counter++;
-					if(sum != 0 && counter != 0) results.add1DValue((sum / counter));
-					else results.add1DValue(0d);
+					
 				}
 			}
 			catch (CellNotValidException e){
 				ExceptionDisplayer.getInstance().displayException(e);
 			}
 		}
-		
+		if(sum != 0 && counter != 0) results.add1DValue((sum / counter));
+		else results.add1DValue(0d);
 		
 	   result = 0;
    }	

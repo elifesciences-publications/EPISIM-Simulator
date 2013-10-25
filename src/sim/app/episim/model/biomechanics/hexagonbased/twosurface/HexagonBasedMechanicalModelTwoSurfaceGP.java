@@ -250,20 +250,6 @@ public class HexagonBasedMechanicalModelTwoSurfaceGP extends AbstractHexagonBase
    	this.positionXWoundEdge_Mikron = positionXWoundEdge_Mikron;
    	if(initialPositionWoundEdge_Mikron > positionXWoundEdge_Mikron) positionXWoundEdge_Mikron = initialPositionWoundEdge_Mikron;
    }
-   
-   @NoUserModification
-   public boolean areDiffusionFieldsContinousInXDirection() {
-		return getUseContinuousSpace();
-   }
-
-	@NoUserModification
-   public boolean areDiffusionFieldsContinousInYDirection() {
-	   return getUseContinuousSpace();
-   }
-
-	
-   
-
 	
    public boolean isChemotaxisEnabled() {
    

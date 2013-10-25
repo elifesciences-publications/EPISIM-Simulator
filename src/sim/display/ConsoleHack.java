@@ -18,8 +18,10 @@ import javax.swing.JScrollPane;
 import episiminterfaces.SimulationConsole;
 
 
+import sim.app.episim.gui.DiffusionModelGlobalParametersPanel;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimTextOut;
+import sim.app.episim.model.controller.ModelController;
 
 import sim.app.episim.util.Names;
 
@@ -29,6 +31,7 @@ import sim.portrayal.Inspector;
 public class ConsoleHack extends Console implements SimulationConsole{
 	JScrollPane cellbehavioralModelInspectorScrollPane;
 	JScrollPane biomechanicalModelInspectorScrollPane;
+	JScrollPane diffusionModelGlobalParametersScrollPane;
 	JScrollPane miscalleneousInspectorScrollPane;
 	JScrollPane episimTextOutInspectorScrollPane;
 	
@@ -101,6 +104,8 @@ public class ConsoleHack extends Console implements SimulationConsole{
 			deployInspector(epiGUIState.getCellBehavioralModelInspector(), this.cellbehavioralModelInspectorScrollPane, Names.BIOCHEM_MODEL);
 		
 			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECH_MODEL);
+			if(ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields() >0)deployInspector(new DiffusionModelGlobalParametersPanel(), this.diffusionModelGlobalParametersScrollPane, Names.DIFFUSION_MODEL);
+			
 			deployInspector(epiGUIState.getMiscalleneousInspector(), this.miscalleneousInspectorScrollPane, Names.MISCALLENEOUS);
 			deployInspector(EpisimTextOut.getEpisimTextOut().getEpisimTextOutPanel(), this.episimTextOutInspectorScrollPane, Names.EPISIM_TEXTOUT);
 			

@@ -190,23 +190,6 @@ public class HexagonBased3DMechanicalModelGP implements EpisimBiomechanicalModel
 	public double getNumberOfPixelsPerMicrometer() {
 	   return this.numberOfPixelsPerMicrometer;
    }
-
-	
-   
-   @NoUserModification
-   public boolean areDiffusionFieldsContinousInXDirection() {
-		return getUseContinuousSpace();
-   }
-
-	@NoUserModification
-   public boolean areDiffusionFieldsContinousInYDirection() {
-	   return getUseContinuousSpace();
-   }
-	
-	@NoUserModification
-   public boolean areDiffusionFieldsContinousInZDirection() {
-	   return getUseContinuousSpace();
-   }	
    
    public boolean isChemotaxisEnabled() {
    

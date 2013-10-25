@@ -7,6 +7,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.tumor.chemokine.HexagonBasedMechanicalModelCytokineTumorGP;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.diffusion.DiffusionModelGlobalParameters.BoundaryCondition;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.HexagonalCellGridPortrayal2D;
@@ -65,26 +66,26 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 					((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));					
 					if(x < sectionWidth){ // AL Cells
 						if(rn_secr < al_sec_density){
-							if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
+							if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 						}
 						else{
-							if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
+							cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 						}						
 					}				
 					else if(x < (2*sectionWidth)){ // IM Cells
 						if(rn_secr < im_sec_density){
-							if(cellTypes.length >=5) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[4]);
+							if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
 						}
 						else{
-							if(cellTypes.length >=4) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[3]);
+							cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 						}
 					}
 					else if(x < width){ // IM Cells
 						if(rn_secr < lm_sec_density){
-							if(cellTypes.length >=7) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[6]);
+							if(cellTypes.length >=4) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[3]);
 						}
 						else{
-							if(cellTypes.length >=6) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[5]);
+							cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 						}
 					}					
 					standardCellEnsemble.add(cell);
@@ -101,9 +102,14 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 		globalParameters.setHeightInMikron(1000);
 		globalParameters.setUseCellCellInteractionEnergy(false);
 		globalParameters.setInitialCellDensityInPercent(100);
-		globalParameters.setAL_SecretionCellDensityInPerc(33);
+		globalParameters.setAL_SecretionCellDensityInPerc(20);
 		globalParameters.setIM_SecretionCellDensityInPerc(33);
-		globalParameters.setLM_SecretionCellDensityInPerc(33);
+		globalParameters.setLM_SecretionCellDensityInPerc(90);
+		ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setBoundaryConditionX(BoundaryCondition.NEUMANN);
+		ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setConstantFlowX(4*Math.pow(10, -23));
+		ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setBoundaryConditionY(BoundaryCondition.NEUMANN);
+		ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setConstantFlowY(4*Math.pow(10, -23));
+		
 	}
 		
 	

@@ -266,21 +266,7 @@ public class VertexBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	public double getNumberOfPixelsPerMicrometer() {
 		return this.numberOfPixelsPerMicrometer;
    }
-	@NoUserModification
-   public boolean areDiffusionFieldsContinousInXDirection() {
-		return true;
-   }
-
-	@NoUserModification
-   public boolean areDiffusionFieldsContinousInYDirection() {
-	   return false;
-   }
 	
-	@NoUserModification
-	public boolean areDiffusionFieldsContinousInZDirection() {	   
-	   return false;
-   }
-
 	@NoUserModification
    public ModelDimensionality getModelDimensionality() {	   
 	   return ModelDimensionality.TWO_DIMENSIONAL;

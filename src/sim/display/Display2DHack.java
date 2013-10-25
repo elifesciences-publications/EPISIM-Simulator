@@ -462,8 +462,9 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
                 "Save Snapshot as 24-bit PNG...", FileDialog.SAVE);
             fd.setFile("Untitled.png");
             fd.setVisible(true);
-            if (fd.getFile()!=null) try
-                                        {
+            if (fd.getFile()!=null) 
+            	try
+               {
                                         OutputStream stream = new BufferedOutputStream(new FileOutputStream(
                                                 new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
                                         PNGEncoder tmpEncoder = new
@@ -515,7 +516,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
    	     SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
    	     
    	     comp.paint(svgGenerator);
-   	     
+   	  
    	     boolean useCSS = true; // we want to use CSS style attributes
    	     FileOutputStream fileOut = new FileOutputStream(file);
    	     Writer out = new OutputStreamWriter(fileOut, "UTF-8");

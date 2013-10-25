@@ -123,21 +123,6 @@ public class CenterBased3DMechanicalModelGP implements EpisimBiomechanicalModelG
    }
 
 	@NoUserModification
-   public boolean areDiffusionFieldsContinousInXDirection() {
-		return true;
-   }
-
-	@NoUserModification
-   public boolean areDiffusionFieldsContinousInYDirection() {
-	   return false;
-   }
-	
-	@NoUserModification
-	public boolean areDiffusionFieldsContinousInZDirection() {	   
-	   return true;
-   }
-
-	@NoUserModification
    public ModelDimensionality getModelDimensionality() {	   
 	   return ModelDimensionality.THREE_DIMENSIONAL;
    }

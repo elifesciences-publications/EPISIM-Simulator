@@ -16,6 +16,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
+import sim.app.episim.model.diffusion.DiffusionModelGlobalParameters;
 import sim.app.episim.model.diffusion.TestDiffusionFieldConfiguration;
 import sim.app.episim.model.initialization.ExtraCellularDiffusionInitializer;
 import sim.app.episim.persistence.SimulationStateData;
@@ -83,7 +84,7 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 		else throw new IllegalArgumentException("fieldArray is null or size does not fit");
 	}
 	
-	public int getNumberOfFields(){ return this.extraCellularFieldMap.size(); } 
+	public int getNumberOfFields(){ return this.episimExtraCellularDiffusionFieldsConfigurations.length; } 
 	
 	public ExtraCellularDiffusionField getExtraCellularDiffusionField(String name){
 		return this.extraCellularFieldMap.get(name);
@@ -231,8 +232,23 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 		this.diffusionFieldCrossSectionCoordinateInMikron = diffusionFieldCrossSectionCoordinate;
 	}
 	
+	public DiffusionModelGlobalParameters getDiffusionModelGlobalParameters(){
+		return DiffusionModelGlobalParameters.getInstance();
+	}
+	
    public void classLoaderHasChanged() {
 		instance = null;
+		DiffusionModelGlobalParameters.getInstance().classLoaderHasChanged();
    }
+   
+   
+   public void resetInitialGlobalValues(){
+   	DiffusionModelGlobalParameters.getInstance().resetInitialGlobalValues();
+   }
+   
+   
+   
+   
+   
 
 }

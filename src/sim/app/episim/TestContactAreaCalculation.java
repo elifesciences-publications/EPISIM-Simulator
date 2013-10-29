@@ -227,7 +227,8 @@ public class TestContactAreaCalculation {
 			Point2d centerEllipse1 = new Point2d(ell1.x, ell1.y);
 			Point2d centerEllipse2 = new Point2d(ell2.x, ell2.y);
 			double contactRadius=0;
-			if((ell1.a/ell1.b) > 10 && (ell2.a/ell2.b) > 10){
+			final double AXIS_RATIO_THRES = 5;
+			if((ell1.a/ell1.b) > AXIS_RATIO_THRES && (ell2.a/ell2.b) > AXIS_RATIO_THRES){
 				Rectangle2D.Double rect1 = new Rectangle2D.Double(ell1.x-ell1.a, ell1.y-ell1.b, 2*ell1.a,2*ell1.b);
 				Rectangle2D.Double rect2 = new Rectangle2D.Double(ell2.x-ell2.a, ell2.y-ell2.b, 2*ell2.a,2*ell2.b);
 				Rectangle2D.Double intersectionRect = new Rectangle2D.Double();
@@ -237,14 +238,14 @@ public class TestContactAreaCalculation {
 				contactRadius/=2;
 				this.contactAreaBar = new ContactAreaBar(10+contactRadius, 30, 2*contactRadius, false);
 			}
-			else if((ell1.a/ell1.b) > 10 || (ell2.a/ell2.b) > 10){
+			else if((ell1.a/ell1.b) > AXIS_RATIO_THRES|| (ell2.a/ell2.b) > AXIS_RATIO_THRES){
 				this.circles.clear();
 				Ellipse flatEllipse=null, otherEllipse=null;
-				if((ell1.a/ell1.b) > 10){
+				if((ell1.a/ell1.b) > AXIS_RATIO_THRES){
 					flatEllipse = ell1;
 					otherEllipse = ell2;
 				}
-				else if((ell2.a/ell2.b) > 10){ 
+				else if((ell2.a/ell2.b) > AXIS_RATIO_THRES){ 
 					flatEllipse = ell2;
 					otherEllipse = ell1;
 				}
@@ -301,10 +302,10 @@ public class TestContactAreaCalculation {
 	}
 	
 	public void start(){
-		double a1 = 200;
-		double b1 = 10;
-		double a2 = 200;
-		double b2 = 10;
+		double a1 = 240;
+		double b1 = 40;
+		double a2 = 240;
+		double b2 = 40;
 		Point2d centerEllipse1 = new Point2d(300, 200);
 		Point2d centerEllipse2 = new Point2d(450, 200);
 		

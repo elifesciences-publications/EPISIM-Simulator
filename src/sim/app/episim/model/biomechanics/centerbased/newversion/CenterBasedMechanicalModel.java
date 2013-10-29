@@ -5,6 +5,7 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -301,27 +302,31 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
              {
             	//contact area approximated according to Dallon and Othmer 2004
             	//calculated for ellipsoids not ellipses
-               double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
-               double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
+            //   double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
+             //  double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
                double d_membrane_this=requiredDistanceToMembraneThis*globalParameters.getOptDistanceScalingFactor();
                double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
-            	double radius_this_square = Math.pow((adh_Dist_Fact*d_membrane_this),2);
-            	double radius_other_square = Math.pow((adh_Dist_Fact*d_membrane_other),2);
-            	double actDist_square = Math.pow(actDist, 2);
-            	double intercell_gap = actDist - optDistScaled;
+            //	double radius_this_square = Math.pow((adh_Dist_Fact*d_membrane_this),2);
+            //	double radius_other_square = Math.pow((adh_Dist_Fact*d_membrane_other),2);
+            //	double actDist_square = Math.pow(actDist, 2);
+            //	double intercell_gap = actDist - optDistScaled;
                                	
-            	double contactArea = (Math.PI/(4*actDist_square))*(2*actDist_square*(radius_this_square+radius_other_square)
+           /* 	double contactAreaOld = (Math.PI/(4*actDist_square))*(2*actDist_square*(radius_this_square+radius_other_square)
             																		+2*radius_this_square*radius_other_square
             																		-Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
             																		-Math.pow(actDist_square, 2));
+            	*/
+            	
+            	double contactArea = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
             	
             	
-            	double contactAreaNew = calculateContactAreaNew(majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
+            
+            		
             	
-            	double smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
+            	double smoothingFunction = 1;/*(((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
             										 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
             										 ? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
-            										 : 1;
+            										 : 1;*/
             	double adhesionCoefficient = globalParameters.getAdhSpringStiffness_N_per_square_micro_m()*getAdhesionFactor(other);
             										 
             	//System.out.println("pre-Adhesion: "+((contactArea*smoothingFunction)/sphereArea));									 
@@ -384,13 +389,50 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
       return interactionResult;
    } 
    
-   private double calculateContactAreaNew(double majorAxisThis, double minorAxisThis, double majorAxisOther, double minorAxisOther, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
+   private double calculateContactAreaNew(Point2d posOther,double dy, double majorAxisThis, double minorAxisThis, double majorAxisOther, double minorAxisOther, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
    	double contactArea = 0;
    	double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
       double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
       double smoothingFunction = 1;
-;
-   	
+      final double AXIS_RATIO_THRES = 5;
+      if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES && majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
+		double contactRadius = 0;
+		Rectangle2D.Double rect1 = new Rectangle2D.Double(getX()-majorAxisThis, getY()-minorAxisThis, 2*majorAxisThis,2*minorAxisThis);
+		Rectangle2D.Double rect2 = new Rectangle2D.Double(posOther.x-majorAxisOther, posOther.y-minorAxisOther, 2*majorAxisOther,2*minorAxisOther);
+		Rectangle2D.Double intersectionRect = new Rectangle2D.Double();
+		Rectangle2D.Double.intersect(rect1, rect2, intersectionRect);
+		contactRadius = (intersectionRect.contains(new Point2D.Double(getX(), getY())) || intersectionRect.contains(new Point2D.Double(posOther.x, posOther.y))) 
+										? Math.min(intersectionRect.width, intersectionRect.height) : Math.max(intersectionRect.width, intersectionRect.height);
+		contactRadius/=2;
+		contactArea = Math.PI*Math.pow(contactRadius, 2);
+	}
+	else if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES || majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
+		double flatEllMajor= 0, flatEllMinor = 0, otherEllMajor=0, otherEllMinor=0;
+		double contactRadius = 0;
+		if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES){
+			flatEllMajor=majorAxisThis;
+			flatEllMinor=minorAxisThis;
+			otherEllMajor=majorAxisOther;
+			otherEllMinor=minorAxisOther;
+		}
+		else if(majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
+			flatEllMajor=majorAxisOther;
+			flatEllMinor=minorAxisOther;
+			otherEllMajor=majorAxisThis;
+			otherEllMinor=minorAxisThis;
+		}
+		if(Math.abs(dy) <= flatEllMinor){
+			contactRadius = flatEllMinor;
+		}
+		else{
+			double d=(Math.abs(dy)-flatEllMinor)*(otherEllMajor/otherEllMinor);
+			double overlap_square= Math.pow(otherEllMajor, 2)-Math.pow(d, 2);
+			contactRadius = overlap_square>0 ? Math.sqrt(overlap_square):0;
+			
+		}
+		contactArea = Math.PI*Math.pow(contactRadius, 2);
+	}
+	else{     
       double r1 = adh_Dist_Fact*d_membrane_this;
       double r2 = adh_Dist_Fact*d_membrane_other;
      
@@ -416,9 +458,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 				 ? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
 				 : 1;
 	
-//	}
+	}
 	
-	
+      if(Double.isNaN(contactArea)){
+      	System.out.println(" ");
+      }
 	
 	
 	//double adhesionCoefficient = globalParameters.getAdhSpringStiffness_N_per_square_micro_m()*getAdhesionFactor(other);
@@ -598,7 +642,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		Point2d minPositionOnBoundary = findReferencePositionOnBoundary(new Point2d(newCellLocation.x, newCellLocation.y), newCellLocation.x - (getCellWidth()/2), newCellLocation.x + (getCellWidth()/2));
 		
 		double distanceToBasalMembrane = Math.sqrt(Math.pow((newCellLocation.x-minPositionOnBoundary.x), 2)+Math.pow((newCellLocation.y-minPositionOnBoundary.y), 2));	
-		if(distanceToBasalMembrane <= ((getCellWidth()))){///2)*globalParameters.getOptDistanceAdhesionFact())){
+		
+		
+		
+		if(distanceToBasalMembrane <= ((getCellHeight()))){///2)*globalParameters.getOptDistanceAdhesionFact())){
 			modelConnector.setIsBasal(true);			
 		}
 		else{

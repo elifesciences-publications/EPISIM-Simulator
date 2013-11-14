@@ -7,7 +7,6 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.tumor.chemokine.HexagonBasedMechanicalModelCytokineTumorGP;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.DiffusionModelGlobalParameters.BoundaryCondition;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.HexagonalCellGridPortrayal2D;
@@ -105,10 +104,10 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 		globalParameters.setAL_SecretionCellDensityInPerc(20);
 		globalParameters.setIM_SecretionCellDensityInPerc(33);
 		globalParameters.setLM_SecretionCellDensityInPerc(90);
-		ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setBoundaryConditionX(BoundaryCondition.NEUMANN);
-		ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setConstantFlowX(4*Math.pow(10, -23));
-		ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setBoundaryConditionY(BoundaryCondition.NEUMANN);
-		ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setConstantFlowY(4*Math.pow(10, -23));
+		//ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setBoundaryConditionX(BoundaryCondition.NEUMANN);
+		//ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setConstantFlowX(4*Math.pow(10, -23));
+		//ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setBoundaryConditionY(BoundaryCondition.NEUMANN);
+		//ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters().setConstantFlowY(4*Math.pow(10, -23));
 		
 	}
 		

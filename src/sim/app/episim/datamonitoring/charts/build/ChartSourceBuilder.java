@@ -9,6 +9,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.xy.XYSeries;
@@ -248,6 +249,9 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			
 			generatedSourceCode.append("  plot.setDataset("+ i + ", "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+ ");\n");
 			generatedSourceCode.append("  renderer = new XYBarRenderer();\n");
+			generatedSourceCode.append("  renderer.setShadowVisible(false);\n");
+			generatedSourceCode.append("  renderer.setBarPainter(new StandardXYBarPainter());\n");
+			generatedSourceCode.append("  renderer.setGradientPaintTransformer(null);\n");
 			generatedSourceCode.append("  renderer.setSeriesPaint(0, new Color("+actSeries.getColor().getRed()+", "+
 					actSeries.getColor().getGreen()+", "+actSeries.getColor().getBlue()+"));\n");
 		

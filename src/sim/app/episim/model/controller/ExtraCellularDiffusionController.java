@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 
@@ -16,7 +17,8 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
-import sim.app.episim.model.diffusion.DiffusionModelGlobalParameters;
+import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D;
+import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
 import sim.app.episim.model.diffusion.TestDiffusionFieldConfiguration;
 import sim.app.episim.model.initialization.ExtraCellularDiffusionInitializer;
 import sim.app.episim.persistence.SimulationStateData;
@@ -51,29 +53,54 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 	private static ExtraCellularDiffusionController instance;
 	
 	private HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap;
+	private HashMap<String, ExtracellularDiffusionFieldBCConfig2D> extraCellularFieldBCConfigMap;
 	
-	private EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations;
+	
 	
 	private ExtraCellularDiffusionController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
+		extraCellularFieldBCConfigMap = new HashMap<String, ExtracellularDiffusionFieldBCConfig2D>();
+		buildExtraCellularFieldBCConfigMap();
+		
 	}	
 	
+	private void buildExtraCellularFieldBCConfigMap(){
+		EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations =getEpisimDiffusionFieldConfigurations();
+		if(episimExtraCellularDiffusionFieldsConfigurations!= null){
+			extraCellularFieldBCConfigMap.clear();
+			for(EpisimDiffusionFieldConfiguration config: episimExtraCellularDiffusionFieldsConfigurations){
+				if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
+					extraCellularFieldBCConfigMap.put(config.getDiffusionFieldName(), new ExtracellularDiffusionFieldBCConfig2D());
+				}
+				else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+					extraCellularFieldBCConfigMap.put(config.getDiffusionFieldName(), new ExtracellularDiffusionFieldBCConfig3D());
+				}
+			}
+		}
+	}
 	
-	
+	public ExtracellularDiffusionFieldBCConfig2D getExtraCellularFieldBCConfiguration(String fieldName){
+		if(fieldName != null && this.extraCellularFieldBCConfigMap != null && this.extraCellularFieldBCConfigMap.containsKey(fieldName)){
+			return this.extraCellularFieldBCConfigMap.get(fieldName);
+		}
+		return null;
+	}
 	
 	public int getNumberOfEpisimExtraCellularDiffusionFieldConfigurations(){
+		EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations =getEpisimDiffusionFieldConfigurations();
 		return episimExtraCellularDiffusionFieldsConfigurations != null ? episimExtraCellularDiffusionFieldsConfigurations.length: 0;
 	}
 	
 	public EpisimDiffusionFieldConfiguration[] getEpisimExtraCellularDiffusionFieldsConfigurations(){
-		return episimExtraCellularDiffusionFieldsConfigurations;
+		return getEpisimDiffusionFieldConfigurations();
 	}
 	
 	public EpisimDiffusionFieldConfiguration getEpisimExtraCellularDiffusionFieldsConfiguration(String fieldName){
-		for(int i = 0; i < this.episimExtraCellularDiffusionFieldsConfigurations.length; i++){
-			if(this.episimExtraCellularDiffusionFieldsConfigurations[i].getDiffusionFieldName().equals(fieldName)){
-				return this.episimExtraCellularDiffusionFieldsConfigurations[i];
+		EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations =getEpisimDiffusionFieldConfigurations();
+		for(int i = 0; i < episimExtraCellularDiffusionFieldsConfigurations.length; i++){
+			if(episimExtraCellularDiffusionFieldsConfigurations[i].getDiffusionFieldName().equals(fieldName)){
+				return episimExtraCellularDiffusionFieldsConfigurations[i];
 			}
 		}
 		return null;
@@ -84,7 +111,10 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 		else throw new IllegalArgumentException("fieldArray is null or size does not fit");
 	}
 	
-	public int getNumberOfFields(){ return this.episimExtraCellularDiffusionFieldsConfigurations.length; } 
+	public int getNumberOfFields(){ 
+		EpisimDiffusionFieldConfiguration[] episimExtraCellularDiffusionFieldsConfigurations =getEpisimDiffusionFieldConfigurations();
+		return episimExtraCellularDiffusionFieldsConfigurations != null ? episimExtraCellularDiffusionFieldsConfigurations.length: 0;
+	} 
 	
 	public ExtraCellularDiffusionField getExtraCellularDiffusionField(String name){
 		return this.extraCellularFieldMap.get(name);
@@ -109,20 +139,26 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 		return new ExtraCellularDiffusionInitializer(simulationStateData);
 	}
 	
-	protected void newCellBehavioralModelLoaded(){
-		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
+	private EpisimDiffusionFieldConfiguration[] getEpisimDiffusionFieldConfigurations(){
 		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE)!= null &&
 				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_TESTMODE).equals(EpisimProperties.ON)){
-			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[]{new TestDiffusionFieldConfiguration()};
+			return new EpisimDiffusionFieldConfiguration[]{new TestDiffusionFieldConfiguration()};
 		}
 		else{
 			EpisimCellBehavioralModelGlobalParameters globalParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 			if(globalParameters != null){
-				this.episimExtraCellularDiffusionFieldsConfigurations = globalParameters.getAllExtraCellularDiffusionFieldConfigurations();
+				return globalParameters.getAllExtraCellularDiffusionFieldConfigurations();
 			}
 		}
-		if(this.episimExtraCellularDiffusionFieldsConfigurations == null)
-			this.episimExtraCellularDiffusionFieldsConfigurations = new EpisimDiffusionFieldConfiguration[0];
+	
+		return new EpisimDiffusionFieldConfiguration[0];
+	}
+	
+	
+	protected void newCellBehavioralModelLoaded(){
+		extraCellularFieldMap = new HashMap<String, ExtraCellularDiffusionField>();
+		extraCellularFieldBCConfigMap = new HashMap<String, ExtracellularDiffusionFieldBCConfig2D>();
+		buildExtraCellularFieldBCConfigMap();
 	}
 	
 	private int numberOfThreadsCompleted = 0;
@@ -230,25 +266,10 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 	public void setDiffusionFieldCrossSectionCoordinate(double diffusionFieldCrossSectionCoordinate) {
 	
 		this.diffusionFieldCrossSectionCoordinateInMikron = diffusionFieldCrossSectionCoordinate;
-	}
+	}	
 	
-	public DiffusionModelGlobalParameters getDiffusionModelGlobalParameters(){
-		return DiffusionModelGlobalParameters.getInstance();
-	}
 	
    public void classLoaderHasChanged() {
-		instance = null;
-		DiffusionModelGlobalParameters.getInstance().classLoaderHasChanged();
+		instance = null;		
    }
-   
-   
-   public void resetInitialGlobalValues(){
-   	DiffusionModelGlobalParameters.getInstance().resetInitialGlobalValues();
-   }
-   
-   
-   
-   
-   
-
 }

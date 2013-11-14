@@ -534,6 +534,7 @@ public class ChartCreationWizard extends JDialog {
 				i++;
 			}
 			if(!checkIfBaseLineShouldBeEnabled()) deactivateBaseLine();
+			if(!checkIfLogarithmicAxisShouldBeEnabled()) deactivateLogarithmicAxis();
 			this.isDirty = false;
 		}
 		
@@ -1032,6 +1033,25 @@ public class ChartCreationWizard extends JDialog {
    	baselineEnabled = true;
    	this.baselineButton.setEnabled(true);
    }
+   
+   private void activateLogarithmicAxis(){
+   	if(xAxisLogarithmicCheck != null){ 
+			xAxisLogarithmicCheck.setEnabled(true);
+		}
+		if(yAxisLogarithmicCheck != null){ 
+			yAxisLogarithmicCheck.setEnabled(true);
+		}
+   }
+   private void deactivateLogarithmicAxis(){
+   	if(xAxisLogarithmicCheck != null){ 
+			xAxisLogarithmicCheck.setSelected(false);
+			xAxisLogarithmicCheck.setEnabled(false);
+		}
+		if(yAxisLogarithmicCheck != null){ 
+			yAxisLogarithmicCheck.setSelected(false);
+			yAxisLogarithmicCheck.setEnabled(false);
+		}
+   }
 	
    private boolean checkSeriesCalculationConfiguratorCompatibility(long seriesID, CalculationAlgorithmConfigurator config){
    	boolean deactivateBaseLine = false;
@@ -1046,9 +1066,14 @@ public class ChartCreationWizard extends JDialog {
    
    	
    	if(descr.getType() == CalculationAlgorithmType.ONEDIMRESULT){
-      		
+   		activateLogarithmicAxis();
       }
-   	else deactivateBaseLine = true;
+   	else{
+   		if(descr.getType() == CalculationAlgorithmType.HISTOGRAMRESULT){
+   			deactivateLogarithmicAxis();
+   		}
+   		deactivateBaseLine = true;
+   	}
    	
    	for(EpisimChartSeries series: incompatibleSeries){
    		if(series.getId() == seriesID) incompatibleSeries.remove(series);
@@ -1100,6 +1125,12 @@ public class ChartCreationWizard extends JDialog {
    	return (areAllChartSeriesOfType(CalculationAlgorithmType.ONEDIMRESULT));
    }
    
+   private boolean checkIfLogarithmicAxisShouldBeEnabled(){
+   		
+   	
+   	return !(isThereChartSeriesOfType(CalculationAlgorithmType.HISTOGRAMRESULT));
+   }
+   
    private boolean areAllChartSeriesOfType(CalculationAlgorithmType type){
    	boolean areAllOfType = true;
    	for(EpisimChartSeries series: this.episimChart.getEpisimChartSeries()){
@@ -1111,6 +1142,18 @@ public class ChartCreationWizard extends JDialog {
    		}
    	}
    	return areAllOfType;
+   }
+   
+   private boolean isThereChartSeriesOfType(CalculationAlgorithmType type){
+   	
+   	for(EpisimChartSeries series: this.episimChart.getEpisimChartSeries()){
+   		if(series.getCalculationAlgorithmConfigurator() != null){
+   			if(CalculationAlgorithmServer.getInstance().getCalculationAlgorithmDescriptor(series.getCalculationAlgorithmConfigurator().getCalculationAlgorithmID()).getType() == type){
+   				return true;
+   			}
+   		}
+   	}
+   	return false;
    }
    
    private Set<EpisimChartSeries> lookForAlgorithmTypeInSeries(Set<CalculationAlgorithmType> typesToLookFor){
@@ -1347,6 +1390,9 @@ public class ChartCreationWizard extends JDialog {
                        null) == 0)  // remove
               	 ChartCreationWizard.this.removeSeries(seriesIndex);
                if(checkIfBaseLineShouldBeEnabled()) activateBaseline();
+               if(checkIfLogarithmicAxisShouldBeEnabled()) activateLogarithmicAxis();
+               
+               
                }
            });
        
@@ -1380,6 +1426,8 @@ public class ChartCreationWizard extends JDialog {
 	               }
 	               if(checkIfBaseLineShouldBeEnabled()) activateBaseline();
 	               else deactivateBaseLine();
+	               if(checkIfLogarithmicAxisShouldBeEnabled()) activateLogarithmicAxis();
+	               else deactivateLogarithmicAxis();
 	         	}
 	         	else calculationConfig = null;
 	         }

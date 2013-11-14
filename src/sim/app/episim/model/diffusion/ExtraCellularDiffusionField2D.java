@@ -8,6 +8,7 @@ import javax.vecmath.Vector2d;
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 import sim.app.episim.model.biomechanics.CellBoundaries;
+import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D.BoundaryCondition;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;
 import sim.field.grid.DoubleGrid2D;
@@ -24,14 +25,16 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
 	private boolean toroidalX;
 	private boolean toroidalY;
 	private EpisimDiffusionFieldConfiguration fieldConfiguration;
+	private ExtracellularDiffusionFieldBCConfig2D fieldBCConfig;
 	private ForwardEulerDiffusionReaction fEulerDiffReact;
 	
-	public ExtraCellularDiffusionField2D(EpisimDiffusionFieldConfiguration fieldConfiguration, double widthInMikron, double heightInMikron, boolean toroidalX, boolean toroidalY){
+	public ExtraCellularDiffusionField2D(EpisimDiffusionFieldConfiguration fieldConfiguration, ExtracellularDiffusionFieldBCConfig2D fieldBCConfig, double widthInMikron, double heightInMikron){
 		this.widthInMikron = widthInMikron;
 		this.heightInMikron = heightInMikron;
-		this.toroidalX = toroidalX;
-		this.toroidalY = toroidalY;
+		this.toroidalX = fieldBCConfig.getBoundaryConditionX()==BoundaryCondition.PERIODIC;
+		this.toroidalY = fieldBCConfig.getBoundaryConditionY()==BoundaryCondition.PERIODIC;
 		this.fieldConfiguration = fieldConfiguration;
+		this.fieldBCConfig = fieldBCConfig;
 		
 		int width = (int)Math.floor(widthInMikron / fieldConfiguration.getLatticeSiteSizeInMikron());
 		int height = (int)Math.floor(heightInMikron / fieldConfiguration.getLatticeSiteSizeInMikron());
@@ -66,8 +69,7 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
 	
    public void setHeightInMikron(double heightInMikron) {   
    	this.heightInMikron = heightInMikron;
-   }
-   
+   }   
 	
    public boolean isToroidalX() {   
    	return toroidalX;
@@ -389,6 +391,12 @@ public class ExtraCellularDiffusionField2D implements ExtraCellularDiffusionFiel
    
    public void setToValue(double value) {	   
 	   extraCellularField.setTo(value);
+   }
+
+	
+   public ExtracellularDiffusionFieldBCConfig2D getFieldBCConfig() {
+   
+   	return fieldBCConfig;
    }
    
 }

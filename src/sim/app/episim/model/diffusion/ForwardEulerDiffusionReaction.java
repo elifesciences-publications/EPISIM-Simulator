@@ -1,8 +1,7 @@
 package sim.app.episim.model.diffusion;
 
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.DiffusionModelGlobalParameters.BoundaryCondition;
-import sim.app.episim.model.diffusion.DiffusionModelGlobalParameters.DiffusionModelGlobalParameters3D;
+import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D.BoundaryCondition;
 import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.DoubleGrid3D;
 
@@ -14,17 +13,15 @@ public class ForwardEulerDiffusionReaction {
 	private ExtraCellularDiffusionField2D extraCellularField2D;
 	private ExtraCellularDiffusionField3D extraCellularField3D;
 	
-	private DiffusionModelGlobalParameters globalParameters2D;
-	private DiffusionModelGlobalParameters3D globalParameters3D;
+	
 	
 	public ForwardEulerDiffusionReaction(ExtraCellularDiffusionField2D extraCellularField){
 		this.extraCellularField2D = extraCellularField;
-		globalParameters2D = ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters();
+		
 	}
 	
 	public ForwardEulerDiffusionReaction(ExtraCellularDiffusionField3D extraCellularField){
 		this.extraCellularField3D = extraCellularField;
-		globalParameters3D = (DiffusionModelGlobalParameters3D)ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionModelGlobalParameters();
 	}
 	
 	
@@ -139,17 +136,17 @@ public class ForwardEulerDiffusionReaction {
 	}
 	
 	private void setDirichletOrNeumannXAxisBC(DoubleGrid2D currentValueField, DoubleGrid2D newValueField){
-		BoundaryCondition cond = globalParameters2D.getBoundaryConditionX();
+		BoundaryCondition cond = this.extraCellularField2D.getFieldBCConfig().getBoundaryConditionX();
 		if(cond==BoundaryCondition.DIRICHLET){
 			int y = 0;
-			double constValue = globalParameters2D.getConstantValueX();
+			double constValue = this.extraCellularField2D.getFieldBCConfig().getConstantValueX();
 			for(int x = 0; x < currentValueField.getWidth(); x++) newValueField.set(x, y, constValue);
 			y=(currentValueField.getHeight()-1);
 			for(int x = 0; x < currentValueField.getWidth(); x++) newValueField.set(x, y, constValue);
 		}
 		else if(cond==BoundaryCondition.NEUMANN){
 			int y = 0;
-			double constFlow = globalParameters2D.getConstantFlowX();
+			double constFlow = this.extraCellularField2D.getFieldBCConfig().getConstantFlowX();
 			double minValue = this.extraCellularField2D.getFieldConfiguration().getMinimumConcentration();
 			double maxValue = this.extraCellularField2D.getFieldConfiguration().getMaximumConcentration();
 			for(int x = 0; x < currentValueField.getWidth(); x++){
@@ -165,17 +162,17 @@ public class ForwardEulerDiffusionReaction {
 	}
 	
 	private void setDirichletOrNeumannYAxisBC(DoubleGrid2D currentValueField, DoubleGrid2D newValueField){
-		BoundaryCondition cond = globalParameters2D.getBoundaryConditionY();
+		BoundaryCondition cond = this.extraCellularField2D.getFieldBCConfig().getBoundaryConditionY();
 		if(cond==BoundaryCondition.DIRICHLET){
 			int x = 0;
-			double constValue = globalParameters2D.getConstantValueY();
+			double constValue = this.extraCellularField2D.getFieldBCConfig().getConstantValueY();
 			for(int y = 0; y < currentValueField.getHeight(); y++) newValueField.set(x, y, constValue);
 			x=(currentValueField.getWidth()-1);
 			for(int y = 0; y < currentValueField.getHeight(); y++) newValueField.set(x, y, constValue);
 		}
 		else if(cond==BoundaryCondition.NEUMANN){
 			int x = 0;
-			double constFlow = globalParameters2D.getConstantFlowY();
+			double constFlow = this.extraCellularField2D.getFieldBCConfig().getConstantFlowY();
 			double minValue = this.extraCellularField2D.getFieldConfiguration().getMinimumConcentration();
 			double maxValue = this.extraCellularField2D.getFieldConfiguration().getMaximumConcentration();
 			for(int y = 0; y < currentValueField.getHeight(); y++){
@@ -191,10 +188,10 @@ public class ForwardEulerDiffusionReaction {
 	}
 	
 	private void setDirichletOrNeumannXAxisBC(DoubleGrid3D currentValueField, DoubleGrid3D newValueField){
-		BoundaryCondition cond = globalParameters3D.getBoundaryConditionX();
+		BoundaryCondition cond = this.extraCellularField3D.getFieldBCConfig3D().getBoundaryConditionX();
 		if(cond==BoundaryCondition.DIRICHLET){
 			int y = 0;
-			double constValue = globalParameters3D.getConstantValueX();
+			double constValue = this.extraCellularField3D.getFieldBCConfig3D().getConstantValueX();
 			for(int z = 0; z < currentValueField.getLength(); z++){
 				for(int x = 0; x < currentValueField.getWidth(); x++){						
 					newValueField.set(x, y, z, constValue);											
@@ -209,7 +206,7 @@ public class ForwardEulerDiffusionReaction {
 		}
 		else if(cond==BoundaryCondition.NEUMANN){
 			int y = 0;
-			double constFlow = globalParameters3D.getConstantFlowX();
+			double constFlow = this.extraCellularField3D.getFieldBCConfig3D().getConstantFlowX();
 			double minValue = this.extraCellularField3D.getFieldConfiguration().getMinimumConcentration();
 			double maxValue = this.extraCellularField3D.getFieldConfiguration().getMaximumConcentration();
 			for(int z = 0; z < currentValueField.getLength(); z++){
@@ -229,10 +226,10 @@ public class ForwardEulerDiffusionReaction {
 	}
 	
 	private void setDirichletOrNeumannYAxisBC(DoubleGrid3D currentValueField, DoubleGrid3D newValueField){
-		BoundaryCondition cond = globalParameters3D.getBoundaryConditionY();
+		BoundaryCondition cond = this.extraCellularField3D.getFieldBCConfig3D().getBoundaryConditionY();
 		if(cond==BoundaryCondition.DIRICHLET){
 			int x = 0;
-			double constValue = globalParameters3D.getConstantValueY();
+			double constValue = this.extraCellularField3D.getFieldBCConfig3D().getConstantValueY();
 			for(int z = 0; z < currentValueField.getLength(); z++){
 				for(int y = 0; y < currentValueField.getHeight(); y++){						
 					newValueField.set(x, y, z, constValue);											
@@ -247,7 +244,7 @@ public class ForwardEulerDiffusionReaction {
 		}
 		else if(cond==BoundaryCondition.NEUMANN){
 			int x = 0;
-			double constFlow = globalParameters3D.getConstantFlowY();
+			double constFlow = this.extraCellularField3D.getFieldBCConfig3D().getConstantFlowY();
 			double minValue = this.extraCellularField3D.getFieldConfiguration().getMinimumConcentration();
 			double maxValue = this.extraCellularField3D.getFieldConfiguration().getMaximumConcentration();
 			for(int z = 0; z < currentValueField.getLength(); z++){
@@ -266,10 +263,10 @@ public class ForwardEulerDiffusionReaction {
 		}		
 	}
 	private void setDirichletOrNeumannZAxisBC(DoubleGrid3D currentValueField, DoubleGrid3D newValueField){
-		BoundaryCondition cond = globalParameters3D.getBoundaryConditionZ();
+		BoundaryCondition cond = this.extraCellularField3D.getFieldBCConfig3D().getBoundaryConditionZ();
 		if(cond==BoundaryCondition.DIRICHLET){
 			int z = 0;
-			double constValue = globalParameters3D.getConstantValueZ();
+			double constValue = this.extraCellularField3D.getFieldBCConfig3D().getConstantValueZ();
 			for(int y = 0; y < currentValueField.getHeight(); y++){
 				for(int x = 0; x < currentValueField.getWidth(); x++){						
 					newValueField.set(x, y, z, constValue);											
@@ -284,7 +281,7 @@ public class ForwardEulerDiffusionReaction {
 		}
 		else if(cond==BoundaryCondition.NEUMANN){
 			int z = 0;
-			double constFlow = globalParameters3D.getConstantFlowZ();
+			double constFlow = this.extraCellularField3D.getFieldBCConfig3D().getConstantFlowZ();
 			double minValue = this.extraCellularField3D.getFieldConfiguration().getMinimumConcentration();
 			double maxValue = this.extraCellularField3D.getFieldConfiguration().getMaximumConcentration();
 			for(int y = 0; y < currentValueField.getHeight(); y++){

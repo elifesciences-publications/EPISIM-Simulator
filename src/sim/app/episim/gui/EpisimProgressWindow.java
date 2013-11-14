@@ -41,7 +41,7 @@ public class EpisimProgressWindow {
 		
 		progressWindow.setLocation(owner.getLocation().x + (owner.getWidth()/2) - (progressWindow.getWidth()/2), 
 				owner.getLocation().y + (owner.getHeight()/2) - (progressWindow.getHeight()/2));
-		progressWindow.setAlwaysOnTop(true);
+		progressWindow.setAlwaysOnTop(false);
 	}
 	
 	private void setProgressText(String text){

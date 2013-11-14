@@ -15,5 +15,7 @@ public interface ExtraCellularDiffusionField extends EnhancedSteppable{
 	
 	EpisimDiffusionFieldConfiguration getFieldConfiguration();
 	
+	ExtracellularDiffusionFieldBCConfig2D getFieldBCConfig();
+	
 	String getName();
 }

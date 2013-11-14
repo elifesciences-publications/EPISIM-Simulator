@@ -4,6 +4,7 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
 import sim.app.episim.model.biomechanics.CellBoundaries;
+import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D.BoundaryCondition;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;
 import sim.field.grid.DoubleGrid3D;
@@ -23,16 +24,18 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
 	private boolean toroidalY;
 	private boolean toroidalZ;
 	private EpisimDiffusionFieldConfiguration fieldConfiguration;
+	private ExtracellularDiffusionFieldBCConfig3D fieldBCConfig;
 	private ForwardEulerDiffusionReaction fEulerDiffReact;
 	
-	public ExtraCellularDiffusionField3D(EpisimDiffusionFieldConfiguration fieldConfiguration, double sizeXInMikron, double sizeYInMikron, double sizeZInMikron, boolean toroidalX, boolean toroidalY, boolean toroidalZ){
+	public ExtraCellularDiffusionField3D(EpisimDiffusionFieldConfiguration fieldConfiguration,  ExtracellularDiffusionFieldBCConfig3D fieldBCConfig, double sizeXInMikron, double sizeYInMikron, double sizeZInMikron){
 		this.sizeXInMikron = sizeXInMikron;
 		this.sizeYInMikron = sizeYInMikron;
 		this.sizeZInMikron = sizeZInMikron;
-		this.toroidalX = toroidalX;
-		this.toroidalY = toroidalY;
-		this.toroidalZ = toroidalZ;
+		this.toroidalX = fieldBCConfig.getBoundaryConditionX()==BoundaryCondition.PERIODIC;
+		this.toroidalY = fieldBCConfig.getBoundaryConditionY()==BoundaryCondition.PERIODIC;
+		this.toroidalZ = fieldBCConfig.getBoundaryConditionZ()==BoundaryCondition.PERIODIC;
 		this.fieldConfiguration = fieldConfiguration;
+		this.fieldBCConfig = fieldBCConfig;
 		
 		int sizeX = (int)Math.floor(sizeXInMikron / fieldConfiguration.getLatticeSiteSizeInMikron());
 		int sizeY = (int)Math.floor(sizeYInMikron / fieldConfiguration.getLatticeSiteSizeInMikron());
@@ -434,5 +437,15 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
    
    public void setToValue(double value) {	   
 	   extraCellularField.setTo(value);
+   }
+
+	
+   public ExtracellularDiffusionFieldBCConfig3D getFieldBCConfig3D() {
+   
+   	return fieldBCConfig;
+   }
+   public ExtracellularDiffusionFieldBCConfig2D getFieldBCConfig() {
+      
+   	return fieldBCConfig;
    }
 }

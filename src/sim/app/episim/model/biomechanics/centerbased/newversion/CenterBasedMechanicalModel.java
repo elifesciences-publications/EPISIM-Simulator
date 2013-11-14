@@ -185,66 +185,6 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        }
        
    }
-       
-/*   public InteractionResult hitsOther(Bag neighbours, Double2D thisloc, boolean finalPosition)
-   {
-       // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
-       // for each collision calc a pressure vector and add it to the other's existing one
-       InteractionResult hitResult=new InteractionResult();            
-       if (neighbours==null || neighbours.numObjs == 0) return hitResult;      
-      
-       for(int i=0;i<neighbours.numObjs;i++)
-       {
-          if (!(neighbours.objs[i] instanceof AbstractCell)) continue;
-          
-       
-          AbstractCell other = (AbstractCell)(neighbours.objs[i]);
-          if (other != getCell())
-          {
-             CenterBasedMechanicalModel mechModelOther = (CenterBasedMechanicalModel) other.getEpisimBioMechanicalModelObject();
-         	 Double2D otherloc=cellField.getObjectLocation(other);
-             double dx = cellField.tdx(thisloc.x,otherloc.x); 
-             double dy = cellField.tdy(thisloc.y,otherloc.y);
-             
-             //double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Vector2d(-1*dx, -1*dy), getKeratinoWidth()/2, getKeratinoHeight()/2);
-             //double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Vector2d(dx, dy), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
-             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), getKeratinoWidth()/2, getKeratinoHeight()/2);
-             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
-            
-             
-             double optDistScaled = normalizeOptimalDistance((requiredDistanceToMembraneThis+requiredDistanceToMembraneOther), other);
-             double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
-           //  System.out.println("Optimal Distance: "+ optDist);
-                                     
-             double actdist=Math.sqrt(dx*dx+dy*dy);
-                   
-             if (optDistScaled-actdist>MIN_OVERLAP_MICRON) // is the difference from the optimal distance really significant
-             {
-                double fx=(actdist>0)?(optDistScaled/actdist)*dx-dx:0;    // nur die differenz zum jetzigen abstand draufaddieren
-                double fy=(actdist>0)?(optDistScaled/actdist)*dy-dy:0;                                            
-                                       
-                // berechneten Vektor anwenden
-                hitResult.numhits++;
-                hitResult.otherId=other.getID();
-                hitResult.otherMotherId=other.getMotherId();
-                mechModelOther.externalForce.add(new Vector2d(-fx,-fy)); //von mir wegzeigende kraefte addieren
-                externalForce.add(new Vector2d(fx,fy));                                      
-              }
-             else if(((optDistScaled-actdist)<=MIN_OVERLAP_MICRON) &&(actdist < optDist*globalParameters.getOptDistanceAdhesionFact() || actdist < globalParameters.getMinAbsAdhesionDist_mikron())) // attraction forces 
-             {
-                 double adhfac=getAdhesionFactor(other);                          
-                 double sx=dx-dx*optDist/actdist;    // nur die differenz zum jetzigen abstand draufaddieren
-                 double sy=dy-dy*optDist/actdist;                  
-                 hitResult.adhesionForce.add(new Vector2d(-sx*adhfac,-sy*adhfac));                                                                 
-             }
-             if (actdist <= (getKeratinoHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
-                    	// lipids do not diffuse
-                    hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
-              }
-           }
-        }     
-       return hitResult;
-   }*/
    
    public InteractionResult calculateRepulsiveAdhesiveAndChemotacticForces(Bag neighbours, Double2D thisloc)
    {
@@ -286,11 +226,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
                 //According to Pathmanathan et al. 2009
             	 double overlap = optDistScaled - actDist;
             	 double stiffness = globalParameters.getRepulSpringStiffness_N_per_micro_m(); //Standard: 2.2x10^-3Nm^-1*1*10^-6 conversion in micron 
-            	// double linearToExpMaxOverlap = globalParameters.getLinearToExpMaxOverlap_mikron();
+            	 double linearToExpMaxOverlapPerc = globalParameters.getLinearToExpMaxOverlap_perc();
             	 double alpha=1;
             	 
             	 //without hard core
-            	 double force = overlap*stiffness;//overlap<= linearToExpMaxOverlap ? overlap*stiffness: stiffness * linearToExpMaxOverlap*Math.exp(alpha*((overlap/linearToExpMaxOverlap)-1));
+            	 double force = overlap<= (optDistScaled*linearToExpMaxOverlapPerc) ? overlap*stiffness: stiffness * (optDistScaled*linearToExpMaxOverlapPerc)*Math.exp(alpha*((overlap/(optDistScaled*linearToExpMaxOverlapPerc))-1));
             	 interactionResult.repulsiveForce.x += force*dx/actDist;
             	 interactionResult.repulsiveForce.y += force*dy/actDist;
                                        
@@ -302,31 +242,31 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
              {
             	//contact area approximated according to Dallon and Othmer 2004
             	//calculated for ellipsoids not ellipses
-            //   double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
-             //  double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
+               double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
+               double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
                double d_membrane_this=requiredDistanceToMembraneThis*globalParameters.getOptDistanceScalingFactor();
                double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
-            //	double radius_this_square = Math.pow((adh_Dist_Fact*d_membrane_this),2);
-            //	double radius_other_square = Math.pow((adh_Dist_Fact*d_membrane_other),2);
-            //	double actDist_square = Math.pow(actDist, 2);
-            //	double intercell_gap = actDist - optDistScaled;
+            	double radius_this_square = Math.pow((adh_Dist_Fact*d_membrane_this),2);
+            	double radius_other_square = Math.pow((adh_Dist_Fact*d_membrane_other),2);
+            	double actDist_square = Math.pow(actDist, 2);
+            	double intercell_gap = actDist - optDistScaled;
                                	
-           /* 	double contactAreaOld = (Math.PI/(4*actDist_square))*(2*actDist_square*(radius_this_square+radius_other_square)
+            	double contactArea = (Math.PI/(4*actDist_square))*(2*actDist_square*(radius_this_square+radius_other_square)
             																		+2*radius_this_square*radius_other_square
             																		-Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
             																		-Math.pow(actDist_square, 2));
-            	*/
             	
-            	double contactArea = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
+            	
+            //	double contactArea = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
             	
             	
             
             		
             	
-            	double smoothingFunction = 1;/*(((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
+            	double smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
             										 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
             										 ? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
-            										 : 1;*/
+            										 : 1;
             	double adhesionCoefficient = globalParameters.getAdhSpringStiffness_N_per_square_micro_m()*getAdhesionFactor(other);
             										 
             	//System.out.println("pre-Adhesion: "+((contactArea*smoothingFunction)/sphereArea));									 

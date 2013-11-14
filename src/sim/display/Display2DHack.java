@@ -286,7 +286,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
          if(defaultValue != null){
          	defaultVal = defaultValue instanceof Integer ? (double)((Integer)defaultValue).intValue() : defaultValue instanceof Double ? ((Double)defaultValue).doubleValue() :0;
          }
-	      NumberTextField cellColoringField = new NumberTextField("     Cell Coloring: ", defaultVal, true)
+	      NumberTextField cellColoringField = new NumberTextField("     Cell Coloring: ", defaultVal, 1,1)
 	      {
 	          public double newValue(double newValue)
 	          {
@@ -316,6 +316,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	          }
 	      };
 	      scaleField.setToolTipText("Change Cell Coloring Mode");
+	      
 	      header.add(cellColoringField);
       }
            

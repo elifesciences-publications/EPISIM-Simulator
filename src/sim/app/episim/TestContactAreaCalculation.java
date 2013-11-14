@@ -23,6 +23,18 @@ import javax.swing.JPanel;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.statistics.SimpleHistogramBin;
+import org.jfree.data.statistics.SimpleHistogramDataset;
+
+import ec.util.MersenneTwisterFast;
+
 public class TestContactAreaCalculation {
 	private JFrame frame;
 	
@@ -149,7 +161,24 @@ public class TestContactAreaCalculation {
 		});
 		drawPanel.setBackground(Color.WHITE);
 		drawPanel.setDoubleBuffered(true);
-		frame.getContentPane().add(drawPanel, BorderLayout.CENTER);
+		
+		SimpleHistogramDataset test = new SimpleHistogramDataset("Test");
+		JFreeChart chart = ChartFactory.createHistogram("Test", "Test", "Test", test, PlotOrientation.VERTICAL, true, true, false);
+		
+		XYPlot plot = chart.getXYPlot();
+		plot.setDataset(test);
+		
+		
+		test.addBin(new SimpleHistogramBin(0, 100));
+		test.addObservation(10);
+		test.addObservation(10);
+		test.addObservation(10);
+		test.addObservation(10);
+		
+		//renderer.setShadowVisible(false);
+		plot.setForegroundAlpha(0.6F);
+		ChartPanel cp = new ChartPanel(chart);
+		frame.getContentPane().add(cp, BorderLayout.CENTER);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		centerMe(frame);
@@ -302,10 +331,10 @@ public class TestContactAreaCalculation {
 	}
 	
 	public void start(){
-		double a1 = 240;
-		double b1 = 40;
-		double a2 = 240;
-		double b2 = 40;
+		double a1 = 200;
+		double b1 = 20;
+		double a2 = 200;
+		double b2 = 20;
 		Point2d centerEllipse1 = new Point2d(300, 200);
 		Point2d centerEllipse2 = new Point2d(450, 200);
 		
@@ -323,10 +352,7 @@ public class TestContactAreaCalculation {
 	public static void main(String[] args) {
 		
 		TestContactAreaCalculation test = new TestContactAreaCalculation();
-		test.start();
-		
-		
-		
+		test.start();		
 	}
 
 }

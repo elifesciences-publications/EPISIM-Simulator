@@ -88,7 +88,7 @@ import sim.util.Double2D;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.4.1.1.1";
+	public static final String versionID = "1.4.1.1.3";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -509,6 +509,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		if(simulationStateData.getEpisimCellBehavioralModelGlobalParameters() != null)simulationStateData.getEpisimCellBehavioralModelGlobalParameters().copyValuesToTarget(globalBehave);
 		if(simulationStateData.getMiscalleneousGlobalParameters() != null)simulationStateData.getMiscalleneousGlobalParameters().copyValuesToTarget(MiscalleneousGlobalParameters.getInstance());
 		if(simulationStateData.getTissueBorder() != null)simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
+		
 	}
 	
 	
@@ -613,10 +614,18 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	   			epiUI.setAutoArrangeWindows(menuBarFactory.getEpisimMenuItem(EpisimMenuItem.AUTO_ARRANGE_WINDOWS).isSelected());
 	   			if(simulationStateData != null)  SimStateServer.getInstance().setSimStepNumberAtStart(simulationStateData.getSimStepNumber());			
 	   			if(currentlyLoadedChartSet != null){
-	   				ChartController.getInstance().loadChartSet(currentlyLoadedChartSet);	   			
+	   				ChartController.getInstance().loadChartSet(currentlyLoadedChartSet);
+	   				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_CHART_SET).setEnabled(true);
+	   				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_CHART_SET).setEnabled(true);
+	   				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_CHART_SET).setEnabled(false);
+	   				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_CHART_SET).setEnabled(false);
 	   			}
 	   			if(currentlyLoadedDataExportDefinitionSet !=null){
-	   				DataExportController.getInstance().loadDataExportDefinition(currentlyLoadedDataExportDefinitionSet);	   				
+	   				DataExportController.getInstance().loadDataExportDefinition(currentlyLoadedDataExportDefinitionSet);
+	   				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(true);
+	   				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(true);
+	   				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(false);
+	   				menuBarFactory.getEpisimMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT).setEnabled(false);
 	   			}
 	   			ModelController.getInstance().setModelOpened(true);
 	   			if(ModeServer.guiMode()){
@@ -761,6 +770,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				compatibilityTestResult = ModelController.getInstance().testCBMFileLoadedSimStateCompatibility();
 			}
 			catch(Exception e){
+				ExceptionDisplayer.getInstance().displayException(e);
 				compatibilityTestResult = false;
 			}
 			

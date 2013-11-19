@@ -161,24 +161,7 @@ public class TestContactAreaCalculation {
 		});
 		drawPanel.setBackground(Color.WHITE);
 		drawPanel.setDoubleBuffered(true);
-		
-		SimpleHistogramDataset test = new SimpleHistogramDataset("Test");
-		JFreeChart chart = ChartFactory.createHistogram("Test", "Test", "Test", test, PlotOrientation.VERTICAL, true, true, false);
-		
-		XYPlot plot = chart.getXYPlot();
-		plot.setDataset(test);
-		
-		
-		test.addBin(new SimpleHistogramBin(0, 100));
-		test.addObservation(10);
-		test.addObservation(10);
-		test.addObservation(10);
-		test.addObservation(10);
-		
-		//renderer.setShadowVisible(false);
-		plot.setForegroundAlpha(0.6F);
-		ChartPanel cp = new ChartPanel(chart);
-		frame.getContentPane().add(cp, BorderLayout.CENTER);
+		frame.getContentPane().add(drawPanel, BorderLayout.CENTER);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		centerMe(frame);

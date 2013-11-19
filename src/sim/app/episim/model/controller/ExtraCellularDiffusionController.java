@@ -1,5 +1,6 @@
 package sim.app.episim.model.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
@@ -17,6 +22,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionFieldBCConfigRW;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
 import sim.app.episim.model.diffusion.TestDiffusionFieldConfiguration;
@@ -77,6 +83,13 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 					extraCellularFieldBCConfigMap.put(config.getDiffusionFieldName(), new ExtracellularDiffusionFieldBCConfig3D());
 				}
 			}
+			ExtraCellularDiffusionFieldBCConfigRW configRW = new ExtraCellularDiffusionFieldBCConfigRW(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile());
+			try{
+	          configRW.readBCConfigs(getExtraCellularFieldBCConfigurationsMap());
+	      }
+	      catch (Exception e){
+	      	ExceptionDisplayer.getInstance().displayException(e);
+	      }
 		}
 	}
 	
@@ -85,6 +98,10 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 			return this.extraCellularFieldBCConfigMap.get(fieldName);
 		}
 		return null;
+	}
+	
+	public HashMap<String, ExtracellularDiffusionFieldBCConfig2D> getExtraCellularFieldBCConfigurationsMap(){
+		return this.extraCellularFieldBCConfigMap;		
 	}
 	
 	public int getNumberOfEpisimExtraCellularDiffusionFieldConfigurations(){

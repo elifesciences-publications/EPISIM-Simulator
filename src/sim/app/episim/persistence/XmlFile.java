@@ -2,11 +2,13 @@ package sim.app.episim.persistence;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -83,7 +85,6 @@ public class XmlFile {
 			ExceptionDisplayer.getInstance().displayException(e);
 		}
 	}
-
 	public Element createElement(String name) {
 		return document.createElement(name);
 	}

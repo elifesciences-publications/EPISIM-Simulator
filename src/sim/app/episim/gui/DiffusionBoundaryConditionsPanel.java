@@ -27,13 +27,13 @@ public class DiffusionBoundaryConditionsPanel extends JPanel {
 	private NumberTextField  constantValueNumberFieldX;
 	private NumberTextField  constantFlowNumberFieldX;
 	
-	JComboBox<BoundaryCondition> comboBoxBoundaryY;
+	private JComboBox<BoundaryCondition> comboBoxBoundaryY;
 	private JLabel constantValueLabelY;
 	private JLabel constantFlowLabelY;
 	private NumberTextField  constantValueNumberFieldY;
 	private NumberTextField  constantFlowNumberFieldY;
 	
-	JComboBox<BoundaryCondition> comboBoxBoundaryZ;
+	private JComboBox<BoundaryCondition> comboBoxBoundaryZ;
 	private JLabel constantValueLabelZ;
 	private JLabel constantFlowLabelZ;
 	private NumberTextField  constantValueNumberFieldZ;
@@ -44,12 +44,14 @@ public class DiffusionBoundaryConditionsPanel extends JPanel {
 	
 	public DiffusionBoundaryConditionsPanel(ExtracellularDiffusionFieldBCConfig2D fieldBCConfig){		
 		this.fieldBCConfig = fieldBCConfig;		
-		buildPanel();	
+		buildPanel();
+		initPanel();
 	}
 	
 	public DiffusionBoundaryConditionsPanel(ExtracellularDiffusionFieldBCConfig3D fieldBCConfig){
 		this.fieldBCConfig = fieldBCConfig;	
-		buildPanel();		
+		buildPanel();
+		initPanel();
 	}
 	
 	
@@ -307,6 +309,86 @@ public class DiffusionBoundaryConditionsPanel extends JPanel {
 				BorderFactory.createTitledBorder("Boundary Conditions"), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 	}
 	
-	
+	private void initPanel(){
+		this.constantFlowNumberFieldX.setValue(this.fieldBCConfig.getConstantFlowX());
+		this.constantFlowNumberFieldY.setValue(this.fieldBCConfig.getConstantFlowY());
+		
+		this.constantValueNumberFieldX.setValue(this.fieldBCConfig.getConstantValueX());
+		this.constantValueNumberFieldY.setValue(this.fieldBCConfig.getConstantValueY());
+		
+		this.comboBoxBoundaryX.setSelectedItem(this.fieldBCConfig.getBoundaryConditionX());
+		this.comboBoxBoundaryY.setSelectedItem(this.fieldBCConfig.getBoundaryConditionY());
+		
+		if(this.fieldBCConfig.getBoundaryConditionX()==BoundaryCondition.DIRICHLET){			
+			this.constantValueLabelX.setVisible(true);
+			this.constantValueNumberFieldX.setVisible(true);
+			
+			this.constantFlowLabelX.setVisible(false);
+			this.constantFlowNumberFieldX.setVisible(false);
+		}
+		else if(this.fieldBCConfig.getBoundaryConditionX()==BoundaryCondition.NEUMANN){
+			this.constantValueLabelX.setVisible(false);
+			this.constantValueNumberFieldX.setVisible(false);
+			
+			this.constantFlowLabelX.setVisible(true);
+			this.constantFlowNumberFieldX.setVisible(true);
+		}
+		else if(this.fieldBCConfig.getBoundaryConditionX()==BoundaryCondition.PERIODIC){
+			this.constantValueLabelX.setVisible(false);
+			this.constantValueNumberFieldX.setVisible(false);
+			
+			this.constantFlowLabelX.setVisible(false);
+			this.constantFlowNumberFieldX.setVisible(false);
+		}
+		
+		if(this.fieldBCConfig.getBoundaryConditionY()==BoundaryCondition.DIRICHLET){			
+			this.constantValueLabelY.setVisible(true);
+			this.constantValueNumberFieldY.setVisible(true);
+			
+			this.constantFlowLabelY.setVisible(false);
+			this.constantFlowNumberFieldY.setVisible(false);
+		}
+		else if(this.fieldBCConfig.getBoundaryConditionY()==BoundaryCondition.NEUMANN){
+			this.constantValueLabelY.setVisible(false);
+			this.constantValueNumberFieldY.setVisible(false);
+			
+			this.constantFlowLabelY.setVisible(true);
+			this.constantFlowNumberFieldY.setVisible(true);
+		}
+		else if(this.fieldBCConfig.getBoundaryConditionY()==BoundaryCondition.PERIODIC){
+			this.constantValueLabelY.setVisible(false);
+			this.constantValueNumberFieldY.setVisible(false);
+			
+			this.constantFlowLabelY.setVisible(false);
+			this.constantFlowNumberFieldY.setVisible(false);
+		}
+		if(fieldBCConfig instanceof ExtracellularDiffusionFieldBCConfig3D){
+			this.constantValueNumberFieldZ.setValue(((ExtracellularDiffusionFieldBCConfig3D)fieldBCConfig).getConstantValueZ());
+			this.constantFlowNumberFieldZ.setValue(((ExtracellularDiffusionFieldBCConfig3D)fieldBCConfig).getConstantFlowZ());
+			this.comboBoxBoundaryZ.setSelectedItem(((ExtracellularDiffusionFieldBCConfig3D)fieldBCConfig).getBoundaryConditionZ());
+			
+			if(((ExtracellularDiffusionFieldBCConfig3D)fieldBCConfig).getBoundaryConditionZ()==BoundaryCondition.DIRICHLET){			
+				this.constantValueLabelZ.setVisible(true);
+				this.constantValueNumberFieldZ.setVisible(true);
+				
+				this.constantFlowLabelZ.setVisible(false);
+				this.constantFlowNumberFieldZ.setVisible(false);
+			}
+			else if(((ExtracellularDiffusionFieldBCConfig3D)fieldBCConfig).getBoundaryConditionZ()==BoundaryCondition.NEUMANN){
+				this.constantValueLabelZ.setVisible(false);
+				this.constantValueNumberFieldZ.setVisible(false);
+				
+				this.constantFlowLabelZ.setVisible(true);
+				this.constantFlowNumberFieldZ.setVisible(true);
+			}
+			else if(((ExtracellularDiffusionFieldBCConfig3D)fieldBCConfig).getBoundaryConditionZ()==BoundaryCondition.PERIODIC){
+				this.constantValueLabelZ.setVisible(false);
+				this.constantValueNumberFieldZ.setVisible(false);
+				
+				this.constantFlowLabelZ.setVisible(false);
+				this.constantFlowNumberFieldZ.setVisible(false);
+			}
+		}
+	}
 
 }

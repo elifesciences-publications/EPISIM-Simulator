@@ -83,9 +83,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
       
    private InteractionResult finalInteractionResult;
    
-   //maybe more neighbours than real neighbours included inside a circle
-   private GenericBag<AbstractCell> neighbouringCells;
-   
+
    private EpisimCenterBasedMC modelConnector;
    
    
@@ -592,13 +590,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			modelConnector.setIsBasal(false);			
 		}
 		
-		Bag neighbours = cellField.getObjectsWithinDistance(cellField.getObjectLocation(getCell()), getCellWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);
-		neighbouringCells = new GenericBag<AbstractCell>();
-		for(int i = 0; i < neighbours.size(); i++){
-			if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
-				neighbouringCells.add((AbstractCell)neighbours.get(i));
-			}
-		}
+		
 		modelConnector.setHasCollision(hitsOtherCell() > 0);
 		
 		
@@ -619,19 +611,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		 	}   	
 		 	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
 		 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
-	 }
-	 if(neighbouringCells==null){		
-		 Double2D cellLocation =cellField.getObjectLocation(getCell());
-		 if(cellLocation!= null){
-		 Bag neighbours = cellField.getObjectsWithinDistance(cellLocation, getCellWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);
-			neighbouringCells = new GenericBag<AbstractCell>();
-			for(int i = 0; i < neighbours.size(); i++){
-				if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
-					neighbouringCells.add((AbstractCell)neighbours.get(i));
-				}
-			}
-		 }
-		 else neighbouringCells = new GenericBag<AbstractCell>();
+	 
 	 }
 	 if(globalParameters instanceof CenterBasedChemotaxisMechanicalModelGP){
 		 this.globalParametersChemotaxis = ((CenterBasedChemotaxisMechanicalModelGP) globalParameters);
@@ -647,7 +627,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    
    @NoExport
    public GenericBag<AbstractCell> getDirectNeighbours(){
-   	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood();
+   	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
    	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
    	for(int i=0;i<neighbours.size();i++)
       {
@@ -699,7 +679,16 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	public boolean nextToOuterCell(){ return finalInteractionResult != null ?finalInteractionResult.nextToOuterCell:false; }
 
-	private GenericBag<AbstractCell> getCellularNeighbourhood() {return neighbouringCells;}
+	private GenericBag<AbstractCell> getCellularNeighbourhood(boolean toroidal) {
+		Bag neighbours = cellField.getObjectsWithinDistance(cellField.getObjectLocation(getCell()), getCellWidth()*globalParameters.getNeighbourhoodOptDistFact(), toroidal, true);
+		GenericBag<AbstractCell> neighbouringCells = new GenericBag<AbstractCell>();
+		for(int i = 0; i < neighbours.size(); i++){
+			if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){
+				neighbouringCells.add((AbstractCell)neighbours.get(i));
+			}
+		}
+		return neighbouringCells;
+	}
 	
 	@CannotBeMonitored
 	@NoExport
@@ -793,7 +782,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	public void calculateClippedCell(long simstepNumber){
   	 
     	CellEllipse cellEllipseCell = this.getCellEllipseObject();
-    	GenericBag<AbstractCell> neighbourhood = this.getCellularNeighbourhood();
+    	GenericBag<AbstractCell> neighbourhood = this.getCellularNeighbourhood(false);
     	 
     	if(neighbourhood != null && neighbourhood.size() > 0 && cellEllipseCell.getLastSimulationDisplayProps()!= null){
     		for(AbstractCell neighbouringCell : neighbourhood){

@@ -1,6 +1,11 @@
 package sim.app.episim.model.initialization;
 
+import java.io.IOException;
 import java.util.HashMap;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
@@ -10,6 +15,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionFieldBCConfigRW;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
 import sim.app.episim.model.visualization.ExtraCellularDiffusionCrossSectionPortrayal3D;
@@ -98,7 +104,8 @@ public class ExtraCellularDiffusionInitializer {
 				setExtraCellularDiffusionFieldInPortrayal(actField);
 				extraCellularFieldMap.put(actField.getName(), actField);
 			}
-			ModelController.getInstance().getExtraCellularDiffusionController().setExtraCellularFieldMap(extraCellularFieldMap);
+			ModelController.getInstance().getExtraCellularDiffusionController().setExtraCellularFieldMap(extraCellularFieldMap);			
+			
 			if (simStateData != null) {
 				if(ModelController.getInstance().getModelDimensionality()== ModelDimensionality.TWO_DIMENSIONAL){
 					if(simStateData.getExtraCellularDiffusionFieldArray2D() != null){

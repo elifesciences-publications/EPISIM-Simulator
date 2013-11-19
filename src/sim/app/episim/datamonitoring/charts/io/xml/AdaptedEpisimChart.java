@@ -37,30 +37,25 @@ public class AdaptedEpisimChart implements java.io.Serializable{
 	private List<EpisimChartSeries> episimChartSeries;
 	
 	private Set<String> requiredClassesForBaselineNameSet;
-
 	
 	public AdaptedEpisimChart(){}
 	
-   public long getId() {
-   
+   public long getId() {   
    	return id;
    }
 
 	
-   public void setId(long id) {
-   
+   public void setId(long id){   
    	this.id = id;
    }
 
 	
-   public String getTitle() {
-   
+   public String getTitle() {   
    	return title;
    }
 
 	
-   public void setTitle(String title) {
-   
+   public void setTitle(String title) {   
    	this.title = title;
    }
 

@@ -68,6 +68,7 @@ import sim.app.episim.gui.EpisimUpdateDialog.UpdateCancelledCallback;
 
 import sim.app.episim.model.biomechanics.hexagonbased.twosurface.HexagonBasedMechanicalModelTwoSurface;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.diffusion.ExtraCellularDiffusionFieldBCConfigRW;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.SimulationStateFile;
@@ -88,7 +89,7 @@ import sim.util.Double2D;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.4.1.1.3";
+	public static final String versionID = "1.4.1.1.4";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -583,7 +584,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
  				currentlyLoadedDataExportDefinitionSet=DataExportController.getInstance().getCurrentlyLoadedDataExportDefinitionSet();   				
 	      	}   	
 	      	
-	      	closeModel();
+	      	closeModel(false);
 	      	
 	      	GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	   		boolean success = false; 
@@ -690,8 +691,17 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		}
 		
 	}
-	
 	protected void closeModel(){
+		closeModel(true);
+	}
+	protected void closeModel(boolean storeEcdfBCConfigs){
+		ExtraCellularDiffusionFieldBCConfigRW configRW = new ExtraCellularDiffusionFieldBCConfigRW(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile());
+		try{
+         configRW.saveBCConfigs(ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularFieldBCConfigurationsMap());
+      }
+      catch (Exception e){
+      	ExceptionDisplayer.getInstance().displayException(e);
+      }
 		if(epiUI != null){
 			
 			epiUI.quit();

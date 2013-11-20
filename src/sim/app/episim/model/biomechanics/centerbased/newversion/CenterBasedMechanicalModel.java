@@ -547,7 +547,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 				
 		if(oldCellLocation != null){
 			
-			Bag neighbours = cellField.getObjectsWithinDistance(oldCellLocation, getCellWidth()*globalParameters.getNeighbourhoodOptDistFact(), false);	
+			Bag neighbours = cellField.getObjectsWithinDistance(oldCellLocation, getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact(), false);	
 			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(neighbours, oldCellLocation);
 						
 			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){		
@@ -648,13 +648,15 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	       
 	       double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();	                               
 	       double actDist=Math.sqrt(dx*dx+dy*dy);	              
-	       if(actDist <= globalParameters.getNeighbourhoodOptDistFact()*optDist)neighbourCells.add(actNeighbour);
+	       if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist)neighbourCells.add(actNeighbour);
 	     //  System.out.println("Neighbourhood radius: " + (2.5*optDist));
       	 
        }
       }
   	 	return neighbourCells;
    }
+   
+  
    
    private Vector2d setVector2dLength(Vector2d vector, double length)
    {
@@ -680,7 +682,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	public boolean nextToOuterCell(){ return finalInteractionResult != null ?finalInteractionResult.nextToOuterCell:false; }
 
 	private GenericBag<AbstractCell> getCellularNeighbourhood(boolean toroidal) {
-		Bag neighbours = cellField.getObjectsWithinDistance(cellField.getObjectLocation(getCell()), getCellWidth()*globalParameters.getNeighbourhoodOptDistFact(), toroidal, true);
+		Bag neighbours = cellField.getObjectsWithinDistance(cellField.getObjectLocation(getCell()), getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact(), toroidal, true);
 		GenericBag<AbstractCell> neighbouringCells = new GenericBag<AbstractCell>();
 		for(int i = 0; i < neighbours.size(); i++){
 			if(neighbours.get(i) instanceof AbstractCell && ((AbstractCell) neighbours.get(i)).getID() != this.getCell().getID()){

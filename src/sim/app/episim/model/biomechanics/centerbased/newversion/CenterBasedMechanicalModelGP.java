@@ -24,7 +24,8 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private boolean drawCellsAsEllipses = false;
 	private double numberOfPixelsPerMicrometer = 1;
 	
-	private double neighbourhoodOptDistFact = 1.5;	
+	private double mechanicalNeighbourhoodOptDistFact = 1.5;
+	private double directNeighbourhoodOptDistFact = 1.5;	
 	private double optDistanceAdhesionFact = 1.3;
 	private double optDistanceScalingFactor = 0.85;
 	private double optDistanceToBMScalingFactor = 0.8;
@@ -136,15 +137,27 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
    }
 
 	@NoUserModification
-   public double getNeighbourhoodOptDistFact() {
+   public double getMechanicalNeighbourhoodOptDistFact() {
    
-   	return neighbourhoodOptDistFact;
+   	return mechanicalNeighbourhoodOptDistFact;
    }
 
 	@NoUserModification
-   public void setNeighbourhoodOptDistFact(double neighbourhoodOptDistFact) {
+   public void setMechanicalNeighbourhoodOptDistFact(double neighbourhoodOptDistFact) {
    
-   	this.neighbourhoodOptDistFact = neighbourhoodOptDistFact;
+   	this.mechanicalNeighbourhoodOptDistFact = neighbourhoodOptDistFact;
+   }
+	
+	
+   public double getDirectNeighbourhoodOptDistFact() {
+   
+   	return directNeighbourhoodOptDistFact;
+   }
+
+	@NoUserModification
+   public void setDirectNeighbourhoodOptDistFact(double directNeighbourhoodOptDistFact) {
+   
+   	if(directNeighbourhoodOptDistFact>=1)this.directNeighbourhoodOptDistFact = directNeighbourhoodOptDistFact;
    }
 	
 	

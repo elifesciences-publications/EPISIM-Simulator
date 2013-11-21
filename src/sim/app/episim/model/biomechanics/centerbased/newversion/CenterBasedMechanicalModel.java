@@ -209,9 +209,17 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
              double dy = cellField.tdy(thisloc.y,otherloc.y);
              
              
-             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), majorAxisThis, minorAxisThis);
-             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), majorAxisOther, minorAxisOther);
+             //double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), majorAxisThis, minorAxisThis);
+             //double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), majorAxisOther, minorAxisOther);
             
+             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), 
+							otherPosToroidalCorrection(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y)), 
+							majorAxisThis, minorAxisThis);
+             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), 
+								otherPosToroidalCorrection(new Point2d(otherloc.x, otherloc.y),new Point2d(thisloc.x, thisloc.y)), 
+								majorAxisOther, minorAxisOther);
+             
+             
              
              double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
              //double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
@@ -468,7 +476,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		   }	
 	   }
 	   Double2D newloc = new Double2D(newx,newy);
-	   cellField.setObjectLocation(getCell(), newloc);
+	   setCellLocationInCellField(newloc);
 	}
 	
 	public Point2d calculateLowerBoundaryPositionForCell(Point2d cellPosition, Point2d referencePosition, double optDistance){
@@ -642,20 +650,43 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        
       	// double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), new Vector2d(-1*dx, -1*dy), getKeratinoWidth()/2, getKeratinoHeight()/2);
 	      // double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Vector2d(dx, dy), mechModelOther.getKeratinoWidth()/2, mechModelOther.getKeratinoHeight()/2);
-	       double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), new Point2d(otherloc.x, otherloc.y), getCellWidth()/2, getCellHeight()/2);
-	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(getX(), getY()), mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2);
+	       double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(getX(), getY()), 
+	      		 																					otherPosToroidalCorrection(new Point2d(getX(), getY()), new Point2d(otherloc.x, otherloc.y)), 
+	      		 																					getCellWidth()/2, getCellHeight()/2);
+	       double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), 
+	      		 																						otherPosToroidalCorrection(new Point2d(otherloc.x, otherloc.y),new Point2d(getX(), getY())), 
+	      		 																						mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2);
 	       
 	       
 	       double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();	                               
 	       double actDist=Math.sqrt(dx*dx+dy*dy);	              
-	       if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist)neighbourCells.add(actNeighbour);
-	     //  System.out.println("Neighbourhood radius: " + (2.5*optDist));
+	       if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist){
+	      	 neighbourCells.add(actNeighbour);
+	       }
+	     
       	 
        }
       }
   	 	return neighbourCells;
    }
    
+   
+   public Point2d otherPosToroidalCorrection(Point2d thisCell, Point2d otherCell)
+   {
+	   double height = cellField.height;
+	   double width = cellField.width;
+	   double otherY=-1;
+	   double otherX=-1;
+	   if (Math.abs(thisCell.y-otherCell.y) <= height / 2) otherY = otherCell.y;
+	   else{
+	   	otherY = thisCell.y > otherCell.y ? (otherCell.y+height): (otherCell.y-height);
+	   }
+	   if (Math.abs(thisCell.x-otherCell.x) <= width / 2) otherX = otherCell.x;
+	   else{
+	   	otherX = thisCell.x > otherCell.x ? (otherCell.x+width): (otherCell.x-width);
+	   }
+	   return new Point2d(otherX, otherY);
+   }
   
    
    private Vector2d setVector2dLength(Vector2d vector, double length)

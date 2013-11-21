@@ -12,15 +12,17 @@ import sim.util.DoubleBag;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.SendReceiveAlgorithm;
+import episiminterfaces.SendReceiveAlgorithmExt;
 
 
-public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
+public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 	
 //	public static TestFrame frame = new TestFrame();
 	
 	private interface SendReceiveDiffusionFieldConnector{
 		void sendToDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell);
 		void receiveFromDF(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell);
+		double senseFromDF(String ecDiffusionFieldName, EpisimCellBehavioralModel cell);
 	}
 	
 	private SendReceiveDiffusionFieldConnector sendReceiveDFConnector = null;
@@ -35,6 +37,9 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
 				public void receiveFromDF(String ecDiffusionFieldName, int propertycode, double amount,
 						EpisimCellBehavioralModel cell) {
 					receiveFrom2DDiffField(ecDiffusionFieldName, propertycode, amount, cell);					
+				}
+				public double senseFromDF(String ecDiffusionFieldName, EpisimCellBehavioralModel cell){ 
+					return senseFrom2DDiffField(ecDiffusionFieldName, cell);
 				}};
 		}
 		else if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
@@ -46,6 +51,9 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
 				public void receiveFromDF(String ecDiffusionFieldName, int propertycode, double amount,
 						EpisimCellBehavioralModel cell) {
 					receiveFrom3DDiffField(ecDiffusionFieldName, propertycode, amount, cell);
+				}
+				public double senseFromDF(String ecDiffusionFieldName, EpisimCellBehavioralModel cell){ 
+					return senseFrom3DDiffField(ecDiffusionFieldName, cell);
 				}};
 		}
 	}
@@ -281,6 +289,19 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    	}	     
    } 
    
+   private double senseFrom2DDiffField(String ecDiffusionFieldName, EpisimCellBehavioralModel cell) {
+   	AbstractCell cellObj = TissueController.getInstance().getActEpidermalTissue().getCell(cell.getId());
+   	ExtraCellularDiffusionField2D diffField = (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
+   	
+   	if(cellObj != null && diffField != null){
+   		return diffField.getTotalConcentrationInArea(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0));  	 	
+   	}
+   	return 0;
+   } 
+   
+   
+   
+   
    private void sendTo3DDiffField(String ecDiffusionFieldName, int propertycode, double amount, EpisimCellBehavioralModel cell) {
 
    	AbstractCell cellObj = TissueController.getInstance().getActEpidermalTissue().getCell(cell.getId());
@@ -367,5 +388,19 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithm{
    			cell.setNumberProperty(propertycode, (cell.returnNumberProperty(propertycode) + amountReceived));
    		}   	
    	}	     
+   }
+   private double senseFrom3DDiffField(String ecDiffusionFieldName, EpisimCellBehavioralModel cell) {
+   	AbstractCell cellObj = TissueController.getInstance().getActEpidermalTissue().getCell(cell.getId());
+   	ExtraCellularDiffusionField3D diffField = (ExtraCellularDiffusionField3D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(ecDiffusionFieldName);
+   	
+   	if(cellObj != null && diffField != null){
+   		return diffField.getTotalConcentrationInArea(cellObj.getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0));  	 	
+   	}
+   	return 0;
+   } 
+
+	
+   public double sense(String ecDiffusionFieldName, EpisimCellBehavioralModel cell) {
+	   return this.sendReceiveDFConnector.senseFromDF(ecDiffusionFieldName, cell);
    } 
 }

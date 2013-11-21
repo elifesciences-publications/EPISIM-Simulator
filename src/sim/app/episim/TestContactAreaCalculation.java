@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.FileNotFoundException;
@@ -44,6 +45,11 @@ public class TestContactAreaCalculation {
 	
 	private Point2d firstCoordinate = null;
 	private double measuredDistance = 0;
+	private double optimalDistance =0;
+	private Point2d intersectionPointEll1 =null;
+	private Point2d intersectionPointEll2 =null;
+	
+	private final Point2d ORIGIN = new Point2d(500, 750);
 	
 	private Ellipse selectedEllipse = null;
 	private Point2d mouseDraggingCoordinate = null;
@@ -99,10 +105,10 @@ public class TestContactAreaCalculation {
 				}
 				if(circles != null){
 					for(Circle circ : circles){
-						drawCircle((Graphics2D)g, circ);
+						//drawCircle((Graphics2D)g, circ);
 					}
 				}
-				if(contactAreaBar != null)drawContactAreaBar((Graphics2D)g, contactAreaBar);
+				if(contactAreaBar != null)drawInfos((Graphics2D)g, contactAreaBar);
 			}
 			
 		};
@@ -114,7 +120,7 @@ public class TestContactAreaCalculation {
 					Ellipse minDistEll= null;
 					double minDist = Double.POSITIVE_INFINITY;
 					for(Ellipse ell : ellipses){
-						Ellipse2D.Double ell2D = new Ellipse2D.Double(ell.x-ell.a, ell.y-ell.b,2*ell.a, 2*ell.b);
+						Ellipse2D.Double ell2D = new Ellipse2D.Double(ORIGIN.x + ell.x-ell.a, ell.y-ell.b,2*ell.a, 2*ell.b);
 						if(ell2D.contains(mousePos.x, mousePos.y)){
 							double dist = mousePos.distance(new Point2d(ell.x, ell.y));
 							if(dist < minDist){
@@ -176,8 +182,8 @@ public class TestContactAreaCalculation {
 	
 	private void drawEllipse(Graphics2D graphics, Ellipse ell){
 		final double centerRadius = 8;
-		Ellipse2D.Double e = new Ellipse2D.Double(ell.x-ell.a, ell.y-ell.b,2*ell.a, 2*ell.b);
-		Ellipse2D.Double e2 = new Ellipse2D.Double(ell.x-(centerRadius/2), ell.y-(centerRadius/2),centerRadius, centerRadius);
+		Ellipse2D.Double e = new Ellipse2D.Double(ORIGIN.x + ell.x-ell.a, (ell.y-ell.b),2*ell.a, 2*ell.b);
+		Ellipse2D.Double e2 = new Ellipse2D.Double(ORIGIN.x + ell.x-(centerRadius/2), (ell.y-(centerRadius/2)),centerRadius, centerRadius);
 		graphics.draw(e);
 		graphics.fill(e2);
 	}
@@ -193,14 +199,29 @@ public class TestContactAreaCalculation {
 		graphics.setColor(c);
 	}
 	
-	private void drawContactAreaBar(Graphics2D graphics, ContactAreaBar contactAreaBar){
+	private void drawInfos(Graphics2D graphics, ContactAreaBar contactAreaBar){
 		final double barThickness = 8;
-		Rectangle2D.Double bar =null;
-		if(contactAreaBar.vertical)bar= new Rectangle2D.Double(contactAreaBar.x-(barThickness/2), contactAreaBar.y-(contactAreaBar.length/2), barThickness, contactAreaBar.length);
-		else bar= new Rectangle2D.Double(contactAreaBar.x-(contactAreaBar.length/2), contactAreaBar.y-(barThickness/2), contactAreaBar.length, barThickness);
-		graphics.drawString("Contact Diameter: "+ contactAreaBar.length, 10, 20);
-		graphics.drawString("Measured Diameter: "+ measuredDistance, 10, 50);
+		graphics.drawString("Ellipse 1: ("+ this.ellipses.get(0).x+", "+this.ellipses.get(0).y+")", 10, 20);
+		graphics.drawString("Ellipse 2: ("+ this.ellipses.get(1).x+", "+this.ellipses.get(1).y+")", 10, 40);
+		graphics.drawString("Optimal Distance: "+optimalDistance, 10, 60);
+		graphics.drawString("Contact Diameter: "+ contactAreaBar.length, 10, 90);
+		graphics.drawString("Measured Diameter: "+ measuredDistance, 10, 130);
+		
+		
+		
+		Rectangle2D coordinateSystem = new Rectangle2D.Double(ORIGIN.x, 50, 1000, ORIGIN.y);
+		
+		graphics.draw(coordinateSystem);
+		
 		graphics.setColor(Color.BLUE);
+		Rectangle2D.Double bar =null;
+		Line2D.Double line1 = new Line2D.Double(ORIGIN.x+ this.ellipses.get(0).x, this.ellipses.get(0).y, ORIGIN.x+ intersectionPointEll1.x, intersectionPointEll1.y);
+		graphics.draw(line1);
+		
+		Line2D.Double line2 = new Line2D.Double(ORIGIN.x+this.ellipses.get(1).x, this.ellipses.get(1).y,ORIGIN.x+ intersectionPointEll2.x, intersectionPointEll2.y);
+		graphics.draw(line2);
+		
+		bar= new Rectangle2D.Double(contactAreaBar.x-(contactAreaBar.length/2), contactAreaBar.y-(barThickness/2)+75, contactAreaBar.length, barThickness);
 		graphics.fill(bar);
 	}
 	
@@ -230,6 +251,28 @@ public class TestContactAreaCalculation {
 		   
 		   return cellCenter.distance(intersectionPointEllipse);
 		}
+	  private Point2d calculateIntersectionPoint(Point2d cellCenter, Point2d otherCellCenter, double aAxis, double bAxis){
+			 
+			 Vector2d rayDirection = new Vector2d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y));
+			 rayDirection.normalize();
+			 //calculates the intersection of an ray with an ellipsoid
+			 double aAxis_2=aAxis * aAxis;
+			 double bAxis_2=bAxis * bAxis;		 
+		    double a = ((rayDirection.x * rayDirection.x) / (aAxis_2))
+		             + ((rayDirection.y * rayDirection.y) / (bAxis_2));
+		  
+		    if (a < 0)
+		    {
+		       System.out.println("Error in optimal Ellipsoid distance calculation"); 
+		   	 return null;
+		    }
+		   double sqrtA = Math.sqrt(a);	 
+		   double hit = 1 / sqrtA;
+		   double hitsecond = -1*(1 / sqrtA);
+		    
+		   double linefactor = hit;// < hitsecond ? hit : hitsecond;
+		   return new Point2d((cellCenter.x+ linefactor*rayDirection.x),(cellCenter.y+ linefactor*rayDirection.y));		   
+		}
 	  
 	private void calculateContactArea(){
 		if(this.circles == null) this.circles = new ArrayList<Circle>();
@@ -239,7 +282,7 @@ public class TestContactAreaCalculation {
 			Point2d centerEllipse1 = new Point2d(ell1.x, ell1.y);
 			Point2d centerEllipse2 = new Point2d(ell2.x, ell2.y);
 			double contactRadius=0;
-			final double AXIS_RATIO_THRES = 5;
+			final double AXIS_RATIO_THRES = 10;
 			if((ell1.a/ell1.b) > AXIS_RATIO_THRES && (ell2.a/ell2.b) > AXIS_RATIO_THRES){
 				Rectangle2D.Double rect1 = new Rectangle2D.Double(ell1.x-ell1.a, ell1.y-ell1.b, 2*ell1.a,2*ell1.b);
 				Rectangle2D.Double rect2 = new Rectangle2D.Double(ell2.x-ell2.a, ell2.y-ell2.b, 2*ell2.a,2*ell2.b);
@@ -277,6 +320,12 @@ public class TestContactAreaCalculation {
 			else{
 				double r1_old = calculateDistanceToCellCenter(centerEllipse1, centerEllipse2, ell1.a, ell1.b);
 				double r2_old = calculateDistanceToCellCenter(centerEllipse2, centerEllipse1, ell2.a, ell2.b);
+				optimalDistance = r1_old+r2_old;
+				
+				intersectionPointEll1 = calculateIntersectionPoint(centerEllipse1, centerEllipse2, ell1.a, ell1.b);
+				intersectionPointEll2 = calculateIntersectionPoint(centerEllipse2, centerEllipse1, ell2.a, ell2.b);
+				
+				
 				double h_old = centerEllipse1.distance(centerEllipse2);
 				contactRadius = 0;
 				double r1=0, r2=0;
@@ -318,8 +367,8 @@ public class TestContactAreaCalculation {
 		double b1 = 20;
 		double a2 = 200;
 		double b2 = 20;
-		Point2d centerEllipse1 = new Point2d(300, 200);
-		Point2d centerEllipse2 = new Point2d(450, 200);
+		Point2d centerEllipse1 = new Point2d(0, 200);
+		Point2d centerEllipse2 = new Point2d(100, 200);
 		
 		this.ellipses = new ArrayList<Ellipse>();
 		this.ellipses.add(new Ellipse(centerEllipse1.x,centerEllipse1.y,a1,b1));

@@ -2,6 +2,7 @@ package sim.app.episim.model.visualization;
 import sim.SimStateServer;
 import sim.SimStateServer.EpisimSimulationState;
 
+import sim.app.episim.AbstractCell;
 import sim.app.episim.CellInspector;
 
 import sim.app.episim.UniversalCell;
@@ -15,6 +16,7 @@ import sim.app.episim.model.biomechanics.centerbased.adhesion.old.AdhesiveCenter
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Scale;
 import sim.display.GUIState;
 import sim.portrayal.*;

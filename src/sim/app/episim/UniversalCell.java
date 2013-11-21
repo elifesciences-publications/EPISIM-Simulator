@@ -61,7 +61,7 @@ public class UniversalCell extends AbstractCell
 //-----------------------------------------------------------------------------------------------------------------------------------------   
   
 //-----------------------------------------------------------------------------------------------------------------------------------------   
-         
+    
    public UniversalCell(boolean isSimulationCell){
    	this(null,  null, isSimulationCell);
    }
@@ -258,7 +258,6 @@ public class UniversalCell extends AbstractCell
 	public void step(SimState state) {
 		
 		super.step(state);
-		
 		
 		if(!this.getEpisimCellBehavioralModelObject().getIsAlive()){		
 			removeFromSchedule();			

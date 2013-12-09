@@ -72,7 +72,7 @@ public class ChartController implements ClassLoaderChangeListener{
 	private long nextChartId = 0;
 	
 	private TissueType chartMonitoredTissue;
-	private EpisimChartSet actLoadedChartSet;
+	private static EpisimChartSet actLoadedChartSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
 	private ExtendedFileChooser ecsChooser = null;

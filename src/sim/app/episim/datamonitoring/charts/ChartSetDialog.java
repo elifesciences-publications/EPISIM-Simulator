@@ -484,22 +484,22 @@ public class ChartSetDialog extends JDialog {
 					dialog.dispose();
 					if(episimChartSet.isOneOfTheChartsDirty() || isDirty){
 						resetChartDirtyStatus();
-						EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
+					//	EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
 							
-							public void executeTask() {							
+						//	public void executeTask() {							
 								try{
 									ChartController.getInstance().storeEpisimChartSet(episimChartSet);
                         }
-                        catch (CompilationFailedException e){
-                           ExceptionDisplayer.getInstance().displayException(e);
+                        catch (CompilationFailedException e1){
+                           ExceptionDisplayer.getInstance().displayException(e1);
                         }
-		               }
-							public void taskHasFinished(){
+		             //  }
+						//	public void taskHasFinished(){
 								  
-							}
+						//	}
 					
-						};
-						EpisimProgressWindow.showProgressWindowForTask(owner, "Writing EPISIM-Chartset-Archive", cb);									
+						//};
+					//	EpisimProgressWindow.showProgressWindowForTask(owner, "Writing EPISIM-Chartset-Archive", cb);									
 					}					
 				}
 			}

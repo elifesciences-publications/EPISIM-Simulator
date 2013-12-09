@@ -481,22 +481,22 @@ public class DataExportDefinitionSetDialog extends JDialog {
 						dialog.dispose();
 						if(checkForDirtyDataExports() || isDirty){
 								resetDirtyDataExports();
-								EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
+							//	EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
 									
-									public void executeTask() {							
+							//		public void executeTask() {							
 										try{
 		                           DataExportController.getInstance().storeDataExportDefinitionSet(episimDataExportDefinitionSet);
 	                           }
-	                           catch (CompilationFailedException e){
-		                           ExceptionDisplayer.getInstance().displayException(e);
+	                           catch (CompilationFailedException e1){
+		                           ExceptionDisplayer.getInstance().displayException(e1);
 	                           }
-				               }
-									public void taskHasFinished(){
+				         //      }
+							//		public void taskHasFinished(){
 										  
-									}
+							//		}
 							
-								};	
-								EpisimProgressWindow.showProgressWindowForTask(owner, "Writing EPISIM-DataExportSet-Archive", cb);			
+							//	};	
+							//	EpisimProgressWindow.showProgressWindowForTask(owner, "Writing EPISIM-DataExportSet-Archive", cb);			
 						}
 					}
 				}

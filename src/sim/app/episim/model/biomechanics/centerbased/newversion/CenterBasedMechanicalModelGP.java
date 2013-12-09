@@ -25,7 +25,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private double numberOfPixelsPerMicrometer = 1;
 	
 	private double mechanicalNeighbourhoodOptDistFact = 1.5;
-	private double directNeighbourhoodOptDistFact = 1.17;	
+	private double directNeighbourhoodOptDistFact = 1.3;	
 	private double optDistanceAdhesionFact = 1.3;
 	private double optDistanceScalingFactor = 0.85;
 	private double optDistanceToBMScalingFactor = 0.8;

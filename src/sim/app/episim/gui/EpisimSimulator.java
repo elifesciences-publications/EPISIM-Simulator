@@ -89,7 +89,7 @@ import sim.util.Double2D;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.4.1.1.7";
+	public static final String versionID = "1.4.1.1.9";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	

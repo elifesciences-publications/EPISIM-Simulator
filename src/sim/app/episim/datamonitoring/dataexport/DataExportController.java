@@ -75,7 +75,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 	private long nextDataExportId = 0;
 	
 	private TissueType dataExportMonitoredTissue;
-	private EpisimDataExportDefinitionSet actLoadedDataExportSet;
+	private static EpisimDataExportDefinitionSet actLoadedDataExportSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
 	private ExtendedFileChooser edeChooser = null;

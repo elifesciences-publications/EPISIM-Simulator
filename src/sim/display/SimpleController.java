@@ -46,6 +46,7 @@ public class SimpleController implements Controller
     {
     /** Our simulation */
     GUIState simulation;
+    public GUIState getSimulation() { return simulation; }
     
     static 
         {
@@ -249,7 +250,7 @@ public class SimpleController implements Controller
             // increment the random number seed if the user had said to do so
             if (getIncrementSeedOnStop())
                 {
-                randomSeed++;
+                randomSeed = (int)(randomSeed + 1);  // 32 bits only
                 }
             }
         }
@@ -368,7 +369,7 @@ public class SimpleController implements Controller
                 }
             } 
         catch (InterruptedException e)
-            { System.err.println("This should never happen: " + e); }
+            { System.err.println("WARNING: This should never happen: " + e); }
         }
 
 

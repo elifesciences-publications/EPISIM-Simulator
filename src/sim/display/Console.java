@@ -78,6 +78,7 @@ public class Console extends JFrame implements Controller
 
     /** Our simulation */
     GUIState simulation;
+    public GUIState getSimulation() { return simulation; }
         
     /** List of fully qualified classnames to include in the Console's "New Simulation" combo box */
     static Vector classNames = new Vector();
@@ -733,6 +734,7 @@ public class Console extends JFrame implements Controller
                         Utilities.inform("Seed Will Be Truncated",
                             "The random number generator only uses 32 bits of a given seed.  You've specified a longer seed than this." + 
                             "Not all the bits of this seed will be used.", Console.this);           
+                    l = (int) l;  // force to 32 bits
                     randomSeed = l;
                     // setRandomNumberGenerator(randomSeed);
                     lock = false;
@@ -1118,8 +1120,6 @@ public class Console extends JFrame implements Controller
         modelInspector = simulation.getInspector();
         if (modelInspector!=null)
             {
-            String name = modelInspector.getName();
-            if (name==null || name.length() == 0) name = "Model";
             modelInspectorScrollPane = new JScrollPane(modelInspector)
                 {
                 Insets insets = new Insets(0,0,0,0);  // MacOS X adds a border
@@ -1130,7 +1130,7 @@ public class Console extends JFrame implements Controller
                 };
             modelInspectorScrollPane.getViewport().
                 setBackground(new JPanel().getBackground()); // UIManager.getColor("window"));  // make nice stripes on MacOS X
-            tabPane.addTab(name,modelInspectorScrollPane);
+            tabPane.addTab("Model",modelInspectorScrollPane);
             }
         tabPane.revalidate();
         }
@@ -1624,7 +1624,7 @@ public class Console extends JFrame implements Controller
             spacer.setFont(new Font("Dialog",0,6));
             b.add(spacer);
                         
-            j = new JLabel("MASON is (c) 2005-2011 Sean Luke and George Mason University,");
+            j = new JLabel("MASON is (c) 2005-2012 Sean Luke and George Mason University,");
             j.setFont(small);
             b.add(j);
 
@@ -1707,11 +1707,11 @@ public class Console extends JFrame implements Controller
     static void buildClassList()
         {
         // just in case someone crazy tries to load twice
- /*       synchronized(classLock) { if (classListLoaded) return; else classListLoaded = true; }
+        synchronized(classLock) { if (classListLoaded) return; else classListLoaded = true; }
                 
         ///////// Build doNew() comboBox
         allowOtherClassNames = true;
-        try
+      /*  try
             {
             InputStream s = Console.class.getResourceAsStream("simulation.classes");
             StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(s)));
@@ -1749,7 +1749,7 @@ public class Console extends JFrame implements Controller
                         catch (Throwable e) 
                             {
                             if (!errout) 
-                                System.err.println("Not all classes loaded, due to error: probably no Java3D." 
+                                System.err.println("WARNING: Not all classes loaded, due to error: probably no Java3D." 
                                     // + " \nFirst problematic class: " + st.sval
                                     );
                             errout = true;
@@ -1764,12 +1764,12 @@ public class Console extends JFrame implements Controller
                         }
                     }
                 }
-            if (nextName != null) System.err.println("Spurious NAME tag at end of simulation.classes file:\n\tNAME: " + nextName);
+            if (nextName != null) System.err.println("WARNING: Spurious NAME tag at end of simulation.classes file:\n\tNAME: " + nextName);
             s.close();
             }
         catch (Exception e)
             {
-            System.err.println("Couldn't load the simulation.classes file because of error. \nLikely the file does not exist or could not be opened.\nThe error was:\n");
+            System.err.println("WARNING: Couldn't load the simulation.classes file because of error. \nLikely the file does not exist or could not be opened.\nThe error was:\n");
             e.printStackTrace();
             }*/
         }
@@ -1838,12 +1838,33 @@ public class Console extends JFrame implements Controller
                     }
                 });
 
+
+            // The list of models will be placed into a Java dialog box.  When we double-click on a model,
+            // we'd like it to essentially click on the "Select" button, but we don't have much control over that.
+            // The best we can do is dispose the dialog window, but this looks like we've canceled things.
+            // So what we'll do here is create a boolean called doubleClick, and fill it out with 'true' if
+            // we're disposing the window because the user double-clicked on a list element rather than
+            // cancelling and closing the window.  Thus here are the possible situations:
+            //
+            // User hit the close box or pressed ESCAPE:    doubleClick[0] = false, reply = -1
+            // User hit the "Quit" button:                  doubleClick[0] = false, reply = 1
+            // User hit the "Selet" button:                 doubleClick[0] = false, reply = 0
+            // User double-clicked on a model:              doubleClick[0] = true, reply = -1
+            //
+            // ('reply' is the integer value that the modal dialog box returns after you call showOptionDialog below)
+            //
+            // So if doubleClick[0] = true OR if reply = 0, then we have a valid model to load
+            // Otherwise we want to cancel the dialog
+
+            final boolean[] doubleClick = new boolean[]{ false };
             list.addMouseListener(new MouseAdapter() 
                 {
                 public void mouseClicked(MouseEvent e) 
                     {
                     if (e.getClickCount() == 2) 
                         {
+                        doubleClick[0] = true;      // see long comment above
+                        
                         // prematurely get frame and close it
                         Component c = list;
                         while(c.getParent() != null)
@@ -1861,7 +1882,7 @@ public class Console extends JFrame implements Controller
                         
             int reply = showOptionDialog(null, p, "New Simulation", new Object[] {"Select", 
                                                                                   startingUp ? "Quit" : "Cancel"}, true);
-            if (reply == 1)  // not -1 -- caused by disposing the window, and not 0 -- caused by "Select"
+            if (reply != 0 && !doubleClick[0])  // see long comment above
                 {
                 return false;
                 }
@@ -2162,7 +2183,7 @@ public class Console extends JFrame implements Controller
             // increment the random number seed if the user had said to do so
             if (incrementSeedOnStop.isSelected())
                 {
-                randomSeed++;
+                randomSeed = (int)(randomSeed + 1);  // 32 bits only
                 randomField.setValue("" + randomSeed);
                 }
 //            setRandomNumberGenerator(randomSeed);
@@ -2444,7 +2465,7 @@ public class Console extends JFrame implements Controller
                 }
             } 
         catch (InterruptedException e)
-            { System.err.println("This should never happen: " + e); }
+            { System.err.println("WARNING: This should never happen: " + e); }
         }
 
 
@@ -2478,16 +2499,19 @@ public class Console extends JFrame implements Controller
 
             public void run()
                 {
+                double currentRate = 0.0;
                 try
                     {
                     // set up the step history
                     //long v = System.currentTimeMillis();
                     //for (int x = 0; x < STEPHISTORY; x++)
                     //    stephistory[x] = v;
-                    long lastStepTime = System.currentTimeMillis();
+                    long lastRateDisplayStepTime = System.currentTimeMillis();
+                    long lastTimeDisplayStepTime = lastRateDisplayStepTime;
+                    
                     int currentSteps = 0;
-                    double currentRate = 0.0;
-                    final long RATE_UPDATE_INTERVAL = 500;
+                    final long RATE_UPDATE_INTERVAL = 500;  // 1/2 second
+                    final long TIME_UPDATE_INTERVAL = 40;   // 1/25 second
 
                     // we begin by doing a blocker on the swing event loop.  This gives any
                     // existing repaints a chance to do their thing.  See comments below as to
@@ -2509,7 +2533,7 @@ public class Console extends JFrame implements Controller
                             }                    
                         catch (java.lang.reflect.InvocationTargetException e)
                             {
-                            System.err.println("This should never happen: " + e);
+                            System.err.println("WARNING: This should never happen: " + e);
                             }                    
                         catch (Exception e)
                             {
@@ -2530,6 +2554,10 @@ public class Console extends JFrame implements Controller
                             break;
 
                         result = simulation.step();
+                        
+                        
+                        // update time JLabel
+                        
                         double t = simulation.state.schedule.getTime();
                         long s = simulation.state.schedule.getSteps();
                         //setTime(t);
@@ -2555,15 +2583,19 @@ public class Console extends JFrame implements Controller
                         // now we do something different instead anyway, so the above bug fix is immaterial
                         currentSteps++;
                         long l = System.currentTimeMillis();
-                        if (l - lastStepTime >= RATE_UPDATE_INTERVAL)
+                        if (l - lastRateDisplayStepTime >= RATE_UPDATE_INTERVAL)
                             {
-                            currentRate = currentSteps / ((double) (l - lastStepTime) / 1000.0);
+                            currentRate = currentSteps / ((double) (l - lastRateDisplayStepTime) / 1000.0);
                             currentSteps = 0;
-                            lastStepTime = l;
+                            lastRateDisplayStepTime = l;
                             }
-                                                        
-                        updateTime(s, t, currentRate);  // 1000 / (a / (double) numSteps));
-
+                        
+                        if (l - lastTimeDisplayStepTime >= TIME_UPDATE_INTERVAL)
+                            {
+                            updateTime(s, t, currentRate);  // 1000 / (a / (double) numSteps));
+                            lastTimeDisplayStepTime = l;
+                            }
+                            
                         // Some steps (notably 2D displays and the timer) call repaint()
                         // to update themselves.  We need to try to guarantee that this repaint()
                         // actually gets fulfilled and not bundled up with other repaints
@@ -2591,7 +2623,7 @@ public class Console extends JFrame implements Controller
                                 }                        
                             catch (java.lang.reflect.InvocationTargetException e)
                                 {
-                                System.err.println("This should never happen" + e);
+                                System.err.println("WARNING: This should never happen" + e);
                                 }                        
                             catch (Exception e)
                                 {
@@ -2646,7 +2678,7 @@ public class Console extends JFrame implements Controller
                                     }                        
                                 catch (Exception e)
                                     {  
-                                    System.err.println("This should never happen: " + e);
+                                    System.err.println("WARNING: This should never happen: " + e);
                                     } // On X Windows, if we close the window during an invokeLater, we get a spurious exception
                                 }
                             });
@@ -2667,12 +2699,15 @@ public class Console extends JFrame implements Controller
                                     }                        
                                 catch (Exception e)
                                     {  
-                                    System.err.println("This should never happen: " + e);
+                                    System.err.println("WARNING: This should never happen: " + e);
                                     } // On X Windows, if we close the window during an invokeLater, we get a spurious exception
                                 }
                             });
                     }
                 catch(Exception e) {e.printStackTrace();}
+
+                // before we quit, do a final update
+                updateTime(simulation.state.schedule.getSteps(), simulation.state.schedule.getTime(), currentRate);
                 }
             };
         playThread = new Thread(run);

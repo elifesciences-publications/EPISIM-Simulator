@@ -11,10 +11,9 @@ import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-// From MASON (cs.gmu.edu/~eclab/projects/mason/)
 import sim.util.gui.*;
 
-// From JFreeChart (jfreechart.org)
+// From JFreeChart
 import org.jfree.data.xy.*;
 import org.jfree.chart.*;
 import org.jfree.chart.plot.*;
@@ -40,7 +39,7 @@ import com.lowagie.text.pdf.*;
    the generator to properly update the chart to reflect changes the user has made to its display.
 */
 
-public class TimeSeriesChartGenerator extends ChartGenerator
+public class TimeSeriesChartGenerator extends XYChartGenerator
     {
     public void removeSeries(int index)
         {
@@ -53,7 +52,7 @@ public class TimeSeriesChartGenerator extends ChartGenerator
         {
         super.moveSeries(index, up);
                 
-        if ((index > 0 && up) || (index < getSeriesDataset().getSeriesCount() - 1 && !up))  // it's not the first or the last given the move
+        if ((index > 0 && up) || (index < getSeriesCount() - 1 && !up))  // it's not the first or the last given the move
             {
             XYSeriesCollection xysc = (XYSeriesCollection) getSeriesDataset();
             // this requires removing everything from the dataset and resinserting, duh
@@ -73,7 +72,7 @@ public class TimeSeriesChartGenerator extends ChartGenerator
     /** Adds a series, plus a (possibly null) SeriesChangeListener which will receive a <i>single</i>
         event if/when the series is deleted from the chart by the user.  The series should have a key
         in the form of a String.  Returns the series attributes. */
-    public TimeSeriesAttributes addSeries( final XYSeries series, final SeriesChangeListener stopper)
+    public SeriesAttributes addSeries( final XYSeries series, final SeriesChangeListener stopper)
         {
         XYSeriesCollection xysc = (XYSeriesCollection) getSeriesDataset();
 
@@ -95,13 +94,10 @@ public class TimeSeriesChartGenerator extends ChartGenerator
         ((XYLineAndShapeRenderer)(((XYPlot)(chart.getPlot())).getRenderer())).setDrawSeriesLineAsPath(true);
 
         chart.setAntiAlias(true);
-        chartPanel = new ChartPanel(chart, true);                       
-        chartPanel.setPreferredSize(new java.awt.Dimension(640,480));
-        chartPanel.setMinimumDrawHeight(10);
-        chartPanel.setMaximumDrawHeight(2000);
-        chartPanel.setMinimumDrawWidth(20);
-        chartPanel.setMaximumDrawWidth(2000);
-        chartHolder.getViewport().setView(chartPanel);
+        //chartPanel = new ScrollableChartPanel(chart, true); 
+        chartPanel = buildChartPanel(chart);           
+        setChartPanel(chartPanel);           
+//        chartHolder.getViewport().setView(chartPanel);
                 
         // this must come last because the chart must exist for us to set its dataset
         setSeriesDataset(collection);

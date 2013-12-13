@@ -12,7 +12,7 @@ import java.awt.event.*;
 import java.util.*;
 import sim.util.gui.*;
 
-// From JFreeChart (jfreechart.org)
+// From JFreeChart
 import org.jfree.data.xy.*;
 import org.jfree.chart.*;
 import org.jfree.chart.event.*;
@@ -38,11 +38,18 @@ public abstract class SeriesAttributes extends LabelledList
     /** The ChartGenerator which holds the series that this SeriesAttributes is responsible for. */
     ChartGenerator generator;
     
-    /** Sets the name of the series. */
+    String seriesName;
+    /** @deprecated
+        Sets the name of the series. */
     public void setName(String val) { super.setName(val); }  // this just uses Component's setName
-    /** Returns the name of the series. */
+    public void setSeriesName(String val) { seriesName = val; }  // this just uses Component's setName
+    /** @deprecated 
+        Returns the name of the series. */
     public String getName() { return super.getName(); } // this just uses Component's getName
-                
+    public String getSeriesName() { return seriesName; } // this just uses Component's getName
+    
+    
+    
     /** Updates features of the series to reflect the current widget settings as specified by the user. */
     public abstract void rebuildGraphicsDefinitions();
                 
@@ -57,10 +64,10 @@ public abstract class SeriesAttributes extends LabelledList
         return new Color(c.getRed(),c.getGreen(),c.getBlue(),(int)(opacity*255));
         }
 
-    /** Returns the Chart's Plot cast into an XYPlot.  If it's not an XYPlot, this method will generate an error. */
-    public XYPlot getPlot()
+    /** Returns the Chart's Plot. */
+    public Plot getPlot()
         {
-        return generator.getChartPanel().getChart().getXYPlot();
+        return generator.getChartPanel().getChart().getPlot();
         }
                         
     /** Returns the ChartGenerator holding the series this SeriesAttributes is responsible for. */
@@ -72,10 +79,10 @@ public abstract class SeriesAttributes extends LabelledList
         in the Generator. */
     public void setSeriesIndex(int val) { seriesIndex = val; }
                 
-                
+    
     public XYItemRenderer getRenderer()
         {
-        return getPlot().getRenderer();
+        return ((XYPlot)getPlot()).getRenderer();
         }
         
     public static final ImageIcon I_DOWN = iconFor("DownArrow.png");
@@ -104,7 +111,7 @@ public abstract class SeriesAttributes extends LabelledList
             public void actionPerformed ( ActionEvent e )
                 {
                 if (JOptionPane.showOptionDialog(
-                        null,"Remove the Series " + getName() + "?","Confirm",
+                        null,"Remove the Series " + getSeriesName() + "?","Confirm",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE,null,
                         new Object[] { "Remove", "Cancel" },
@@ -112,6 +119,7 @@ public abstract class SeriesAttributes extends LabelledList
                     getGenerator().removeSeries(getSeriesIndex());
                 }
             });
+        removeButton.setToolTipText("Remove this series");
         
         JButton upButton = new JButton(I_UP);
         upButton.setPressedIcon(I_UP_PRESSED);
@@ -125,6 +133,7 @@ public abstract class SeriesAttributes extends LabelledList
                 getGenerator().moveSeries(getSeriesIndex(), true);
                 }
             });
+        upButton.setToolTipText("Draw this series higher in the series order");
         
         JButton downButton = new JButton(I_DOWN);
         downButton.setPressedIcon(I_DOWN_PRESSED);
@@ -138,12 +147,24 @@ public abstract class SeriesAttributes extends LabelledList
                 getGenerator().moveSeries(getSeriesIndex(), false);
                 }
             });
+        downButton.setToolTipText("Draw this series lower in the series order");
         
         manipulators.add(removeButton);
         manipulators.add(upButton);
         manipulators.add(downButton);
         }
+    
+    boolean plotVisible = true;
+    public void setPlotVisible(boolean val)
+        {
+        plotVisible = val;
+        getRenderer().setSeriesVisible(seriesIndex, new Boolean(val));
+        }
         
+    public boolean isPlotVisible()
+        {
+        return plotVisible;
+        }
         
     /** Builds a SeriesAttributes with the provided generator, name for the series, and index for the series.  Calls
         buildAttributes to construct custom elements in the LabelledList, then finally calls rebuildGraphicsDefinitions()
@@ -160,8 +181,7 @@ public abstract class SeriesAttributes extends LabelledList
             {
             public void actionPerformed(ActionEvent e)
                 {
-                getRenderer().setSeriesVisible(getSeriesIndex(),
-                    new Boolean(check.isSelected()));  // why in the WORLD is it Boolean?
+                setPlotVisible(check.isSelected());
                 }
             });
 
@@ -180,7 +200,7 @@ public abstract class SeriesAttributes extends LabelledList
             {
             public String newValue(String newValue)
                 {
-                SeriesAttributes.this.setName(newValue);
+                SeriesAttributes.this.setSeriesName(newValue);
                 getGenerator().getChartPanel().repaint();
                 return newValue;
                 }

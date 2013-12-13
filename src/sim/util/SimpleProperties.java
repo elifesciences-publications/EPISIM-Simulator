@@ -25,7 +25,7 @@ import java.lang.reflect.*;
  *  You can also hide a property by creating a boolean method called hideFoo() which returns true.
  *
  *  <p>A few classes have special hard-coded properties because they lack get() and set() methods.  Notably:
- *  Strings and StringBuffers have toString() considered a property, integer Numbers have longValue() considered
+ *  CharSequences (Strings, StringBuffers, StringBuilders, etc.) have toString() considered a property, integer Numbers have longValue() considered
  *  a property, other Numbers have doubleValue() considered a property, and Booleans have booleanValue() considered
  *  a property.  In all cases the name of the property is simply "Value" and it is read-only.
  *
@@ -112,10 +112,14 @@ import java.lang.reflect.*;
 
 public class SimpleProperties extends Properties implements java.io.Serializable
     {
+    private static final long serialVersionUID = 1;
+
     ArrayList getMethods = new ArrayList();
     ArrayList setMethods = new ArrayList(); // if no setters, that corresponding spot will be null
     ArrayList domMethods = new ArrayList(); // if no domain, that corresponding spot will be null
+    ArrayList desMethods = new ArrayList(); // if no description, that corresponding spot will be null
     ArrayList hideMethods = new ArrayList(); // if not hidden (or explicitly shown), that corresponding spot will be null
+    ArrayList nameMethods = new ArrayList(); // if not hidden (or explicitly shown), that corresponding spot will be null
     Properties auxillary = null;  // if non-null, we use this properties instead
     
     /** Gathers all properties for the object, including ones defined in superclasses. 
@@ -168,6 +172,8 @@ public class SimpleProperties extends Properties implements java.io.Serializable
                     setMethods.add(null);
                     domMethods.add(null);
                     hideMethods.add(null);
+                    desMethods.add(null);
+                    nameMethods.add(null);
                     }
                                                                                                                 
                 // handle other kinds of numbers
@@ -178,6 +184,8 @@ public class SimpleProperties extends Properties implements java.io.Serializable
                     setMethods.add(null);
                     domMethods.add(null);
                     hideMethods.add(null);
+                    desMethods.add(null);
+                    nameMethods.add(null);
                     }
                                                                                                                 
                 // handle Booleans
@@ -188,16 +196,20 @@ public class SimpleProperties extends Properties implements java.io.Serializable
                     setMethods.add(null);
                     domMethods.add(null);
                     hideMethods.add(null);
+                    desMethods.add(null);
+                    nameMethods.add(null);
                     }
                                                                                                                 
                 // handle Strings
-                if (object instanceof String || object instanceof StringBuffer)
+                if (object instanceof CharSequence)
                     {
                     Method meth = c.getMethod("toString", new Class[0]);
                     getMethods.add(meth);
                     setMethods.add(null);
                     domMethods.add(null);
                     hideMethods.add(null);
+                    desMethods.add(null);
+                    nameMethods.add(null);
                     }
 
                 // handle general properties
@@ -220,6 +232,8 @@ public class SimpleProperties extends Properties implements java.io.Serializable
                                 setMethods.add(getWriteProperty(m[x],c));
                                 domMethods.add(getDomain(m[x],c,includeExtensions));
                                 hideMethods.add(getHidden(m[x], c, includeExtensions));
+                                desMethods.add(getDescription(m[x],c,includeExtensions));
+                                nameMethods.add(getName(m[x],c,includeExtensions));
                                                                                                                                          
                                 // simple check for invalid Interval domains
                                 int lastIndex = domMethods.size() - 1;
@@ -338,6 +352,50 @@ public class SimpleProperties extends Properties implements java.io.Serializable
             return null;
             }
         }
+
+    Method getDescription(Method m, Class c, boolean includeExtensions)
+        {
+        if (!includeExtensions) return null;
+        try
+            {
+            if (m.getName().startsWith("get"))
+                {
+                return c.getMethod("des" + (m.getName().substring(3)), new Class[] {});
+                }
+            else if (m.getName().startsWith("is"))
+                {
+                return c.getMethod("des" + (m.getName().substring(2)), new Class[] { });
+                }
+            else return null;
+            }
+        catch (Exception e)
+            {
+            // couldn't find a domain
+            return null;
+            }
+        }
+    
+    Method getName(Method m, Class c, boolean includeExtensions)
+        {
+        if (!includeExtensions) return null;
+        try
+            {
+            if (m.getName().startsWith("get"))
+                {
+                return c.getMethod("name" + (m.getName().substring(3)), new Class[] {});
+                }
+            else if (m.getName().startsWith("is"))
+                {
+                return c.getMethod("name" + (m.getName().substring(2)), new Class[] { });
+                }
+            else return null;
+            }
+        catch (Exception e)
+            {
+            // couldn't find a domain
+            return null;
+            }
+        }
     
     public boolean isVolatile() { if (auxillary!=null) return auxillary.isVolatile(); return false; }
 
@@ -353,7 +411,19 @@ public class SimpleProperties extends Properties implements java.io.Serializable
     public String getName(int index)
         {
         if (auxillary!=null) return auxillary.getName(index);
-        if (index < 0 || index > numProperties()) return null;
+        if (index < 0 || index >= numProperties()) return null;
+
+        try
+            {
+            if (nameMethods.get(index) != null) 
+                return (String)(((Method)(nameMethods.get(index))).invoke(object, new Object[0]));
+            }
+        catch (Exception e)
+            {
+            e.printStackTrace();
+            return null;
+            }
+
         String name = ((Method)(getMethods.get(index))).getName();
         if (name.startsWith("is"))
             return name.substring(2);
@@ -373,7 +443,7 @@ public class SimpleProperties extends Properties implements java.io.Serializable
     public boolean isReadWrite(int index)
         {
         if (auxillary!=null) return auxillary.isReadWrite(index);
-        if (index < 0 || index > numProperties()) return false;
+        if (index < 0 || index >= numProperties()) return false;
         if (isComposite(index)) return false;
         return (setMethods.get(index)!=null);
         }
@@ -383,7 +453,7 @@ public class SimpleProperties extends Properties implements java.io.Serializable
     public Class getType(int index)
         {
         if (auxillary!=null) return auxillary.getType(index);
-        if (index < 0 || index > numProperties()) return null;
+        if (index < 0 || index >= numProperties()) return null;
         Class returnType = ((Method)(getMethods.get(index))).getReturnType();
 
         return getTypeConversion(returnType);
@@ -395,7 +465,7 @@ public class SimpleProperties extends Properties implements java.io.Serializable
     public Object getValue(int index)
         {
         if (auxillary!=null) return auxillary.getValue(index);
-        if (index < 0 || index > numProperties()) return null;
+        if (index < 0 || index >= numProperties()) return null;
         try
             {
             return ((Method)(getMethods.get(index))).invoke(object, new Object[0]);
@@ -423,10 +493,26 @@ public class SimpleProperties extends Properties implements java.io.Serializable
             }
         }
 
+    public String getDescription(int index)
+        {
+        if (auxillary!=null) return auxillary.getDescription(index);
+        if (index < 0 || index >= numProperties()) return null;
+        try
+            {
+            if (desMethods.get(index) == null) return null;
+            return (String)(((Method)(desMethods.get(index))).invoke(object, new Object[0]));
+            }
+        catch (Exception e)
+            {
+            e.printStackTrace();
+            return null;
+            }
+        }
+
     public Object getDomain(int index)
         {
         if (auxillary!=null) return auxillary.getDomain(index);
-        if (index < 0 || index > numProperties()) return null;
+        if (index < 0 || index >= numProperties()) return null;
         try
             {
             if (domMethods.get(index) == null) return null;
@@ -442,7 +528,7 @@ public class SimpleProperties extends Properties implements java.io.Serializable
     public boolean isHidden(int index)
         {
         if (auxillary!=null) return auxillary.isHidden(index);
-        if (index < 0 || index > numProperties()) return false;
+        if (index < 0 || index >= numProperties()) return false;
         try
             {
             if (hideMethods.get(index) == null) return false;

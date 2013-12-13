@@ -38,6 +38,8 @@ import java.lang.reflect.*;
 
 public class Bag implements java.util.Collection, java.io.Serializable, Cloneable, Indexed
     {
+    private static final long serialVersionUID = 1;
+
     public Object[] objs;
     public int numObjs;
     
@@ -95,10 +97,11 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
     public boolean addAll(int index, Object[] other)
         {
         // throws NullPointerException if other == null,
-        // ArrayIndexOutOfBoundsException if index < 0,
-        // and IndexOutOfBoundsException if index > numObjs
+        // ArrayArrayIndexOutOfBoundsException if index < 0,
+        // and ArrayIndexOutOfBoundsException if index > numObjs
         if (index > numObjs)
-            throwIndexOutOfBoundsException(index);
+            throw new ArrayIndexOutOfBoundsException(index);
+        // throwArrayIndexOutOfBoundsException(index);
         if (other.length == 0) return false;
         // make Bag big enough
         if (numObjs+other.length > objs.length)
@@ -115,10 +118,11 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
     public boolean addAll(int index, Bag other)
         {
         // throws NullPointerException if other == null,
-        // ArrayIndexOutOfBoundsException if index < 0,
-        // and IndexOutOfBoundsException if index > numObjs
+        // ArrayArrayIndexOutOfBoundsException if index < 0,
+        // and ArrayIndexOutOfBoundsException if index > numObjs
         if (index > numObjs) 
-            throwIndexOutOfBoundsException(index);
+            throw new ArrayIndexOutOfBoundsException(index);
+        // throwArrayIndexOutOfBoundsException(index);
         if (other.numObjs <= 0) return false;
         // make Bag big enough
         if (numObjs+other.numObjs > objs.length)
@@ -244,7 +248,8 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
     public Object get(int index)
         {
         if (index>=numObjs) // || index < 0)
-            throwIndexOutOfBoundsException(index);
+            throw new ArrayIndexOutOfBoundsException(index);
+        //throwArrayIndexOutOfBoundsException(index);
         return objs[index];
         }
 
@@ -252,14 +257,16 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
     public Object getValue(int index)
         {
         if (index>=numObjs) // || index < 0)
-            throwIndexOutOfBoundsException(index);
+            throw new ArrayIndexOutOfBoundsException(index);
+        //throwArrayIndexOutOfBoundsException(index);
         return objs[index];
         }
 
     public Object set(int index, Object element)
         {
         if (index>=numObjs) // || index < 0)
-            throwIndexOutOfBoundsException(index);
+            throw new ArrayIndexOutOfBoundsException(index);
+        // throwArrayIndexOutOfBoundsException(index);
         Object returnval = objs[index];
         objs[index] = element;
         return returnval;
@@ -269,7 +276,8 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
     public Object setValue(int index, Object element)
         {
         if (index>=numObjs) // || index < 0)
-            throwIndexOutOfBoundsException(index);
+            throw new ArrayIndexOutOfBoundsException(index);
+        // throwArrayIndexOutOfBoundsException(index);
         Object returnval = objs[index];
         objs[index] = element;
         return returnval;
@@ -301,13 +309,28 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
     public Object removeNondestructively(int index)
         {
         if (index>=numObjs) // || index < 0)
-            throwIndexOutOfBoundsException(index);
+            // throwArrayIndexOutOfBoundsException(index);
+            throw new ArrayIndexOutOfBoundsException(index);
         Object ret = objs[index];
         if (index < numObjs - 1)  // it's not the topmost object, must swap down
             System.arraycopy(objs, index+1, objs, index, numObjs - index - 1);
         objs[numObjs-1] = null;  // let GC
         numObjs--;
         return ret;
+        }
+    
+    /** Removes the object, shifting the other objects down. */
+    public boolean removeNondestructively(Object o)
+        {
+        int numObjs = this.numObjs;
+        Object[] objs = this.objs;
+        for(int x=0;x<numObjs;x++)
+            if (o==null ?  objs[x]==null :  o==objs[x] || o.equals(objs[x])) 
+                {
+                removeNondestructively(x);
+                return true;
+                }
+        return false;
         }
     
     /** Removes the object, moving the topmost object into its position. */
@@ -345,7 +368,8 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         {
         int _numObjs = numObjs;
         if (index >= _numObjs) // || index < 0)
-            throwIndexOutOfBoundsException(index);
+            //throwArrayIndexOutOfBoundsException(index);
+            throw new ArrayIndexOutOfBoundsException(index);
         Object[] _objs = this.objs;
         Object ret = _objs[index];
         _objs[index] = _objs[_numObjs-1];
@@ -353,11 +377,13 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
         numObjs--;
         return ret;
         }
-        
-    protected void throwIndexOutOfBoundsException(int index)
-        {
-        throw new IndexOutOfBoundsException(""+index);
-        }
+    
+    /*
+      protected void throwArrayIndexOutOfBoundsException(int index)
+      {
+      throw new ArrayIndexOutOfBoundsException(""+index);
+      }
+    */
 
     /** Removes all objects in the Bag.  This is done by clearing the internal array but 
         not replacing it with a new, smaller one. */
@@ -391,6 +417,16 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
             o[numObjs] = null;
         System.arraycopy(objs,0,o,0,numObjs);
         return o;
+        }
+
+    /**    
+           Copies 'len' elements from the Bag into the provided array.
+           The 'len' elements start at index 'fromStart' in the Bag, and
+           are copied into the provided array starting at 'toStat'.
+    */ 
+    public void copyIntoArray(int fromStart, Object[] to, int toStart, int len)
+        {
+        System.arraycopy(objs, fromStart, to, toStart, len);
         }
 
 
@@ -484,6 +520,8 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
 
     static class BagIterator implements Iterator, java.io.Serializable
         {
+        private static final long serialVersionUID = 1;
+
         int obj = 0;
         Bag bag;
         boolean canRemove = false;
@@ -509,6 +547,5 @@ public class Bag implements java.util.Collection, java.io.Serializable, Cloneabl
             obj--;
             canRemove = false;
             }
-        // static inner class -- no need to add a serialVersionUID
         }
     }

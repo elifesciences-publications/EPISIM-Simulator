@@ -58,7 +58,7 @@ public class TabbedInspector extends Inspector
     /** Calls updateInspector() and repaint() on the currently-displayed inspector */
     void updateDisplayedInspector()
         {
-        if (inspectors.size() > 0)
+        if (tabs.getTabCount() > 0)
             {
             Inspector i = ((Inspector)(inspectors.get(tabs.getSelectedIndex())));
             i.updateInspector();
@@ -103,8 +103,17 @@ public class TabbedInspector extends Inspector
     /** Adds an inspector with the given tab name. */
     public void addInspector(Inspector i, String tab)
         {
+        i.setTitle(tab);
         inspectors.add(i);
         tabs.addTab(tab,i);
+        i.setVolatile(isVolatile());
+        }
+    
+    /** Adds an inspector. Inspector must already have its name field set. */
+    public void addInspector(Inspector i)
+        {
+        inspectors.add(i);
+        tabs.addTab(i.getTitle(),i);
         i.setVolatile(isVolatile());
         }
         

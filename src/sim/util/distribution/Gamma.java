@@ -47,6 +47,8 @@ import ec.util.MersenneTwisterFast;
  * @version 1.0, 09/24/99
  */
 public class Gamma extends AbstractContinousDistribution { 
+    private static final long serialVersionUID = 1;
+
     protected double alpha;
     protected double lambda;
 
@@ -116,7 +118,7 @@ public class Gamma extends AbstractContinousDistribution {
         // Check for invalid input values
 
         if (a <= 0.0) throw new IllegalArgumentException(); 
-        if (lambda <= 0.0) new IllegalArgumentException(); 
+        if (lambda <= 0.0) throw new IllegalArgumentException(); 
 
         if (a < 1.0) { // CASE A: Acceptance rejection algorithm gs
             b = 1.0 + 0.36788794412 * a;              // Step 1

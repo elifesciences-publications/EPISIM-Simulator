@@ -30,14 +30,14 @@ import java.awt.*;
 public class NumberTextField extends JComponent
     {
     JTextField valField = new JTextField();
-    public JButton downButton;
-    public JButton upButton;
-    public JButton bellyButton;
-    JLabel fieldLabel;
-    double initialValue;
-    double multiply;
-    double add;
-    protected double currentValue;
+   public JButton downButton;
+   public JButton upButton;
+   public JButton bellyButton;
+   JLabel fieldLabel;
+   double initialValue;
+   double multiply;
+   double add;
+   protected double currentValue;
 
     Color defaultColor;
     Color editedColor = new Color(225,225,255);
@@ -304,5 +304,16 @@ public class NumberTextField extends JComponent
         if (bellyButton!=null) bellyButton.setEnabled(b);
         if (valField!=null) valField.setEnabled(b);
         if (fieldLabel!=null) fieldLabel.setEnabled(b);
+        }
+        
+    /** Only call this to access the value field directly */
+    public void setText(String val)
+        {
+        valField.setText(val);
+        }
+    
+    public String getText()
+        {
+        return valField.getText();
         }
     }

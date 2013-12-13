@@ -68,8 +68,8 @@ public class TimeSeriesChartingPropertyInspector extends ChartingPropertyInspect
                 {
                 // take control
                 getGenerator().setTitle("" + properties.getName(index) + " of " + properties.getObject());
-                getGenerator().setYAxisLabel("" + properties.getName(index));
-                getGenerator().setXAxisLabel("Time");
+                ((XYChartGenerator)getGenerator()).setYAxisLabel("" + properties.getName(index));
+                ((XYChartGenerator)getGenerator()).setXAxisLabel("Time");
                 }
                         
             chartSeries = new XYSeries( properties.getName(index), false );
@@ -182,11 +182,13 @@ public class TimeSeriesChartingPropertyInspector extends ChartingPropertyInspect
                     n++;
                     }
                 if (n == 0)
-                    System.err.println( "No element????" );
+                    {
+                    // System.err.println( "No element????" );
+                    }
                 else addToMainSeries(sumX / n, y, false);
                 break;
             default:
-                System.err.println( "There are only four aggregation method implemented" );
+                throw new RuntimeException("No valid aggregation method provided");
             }
         aggregateSeries.clear();
         }

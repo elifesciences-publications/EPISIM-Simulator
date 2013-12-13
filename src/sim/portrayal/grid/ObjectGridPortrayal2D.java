@@ -116,8 +116,8 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
             final double xScale = info.draw.width / maxX;
             final double yScale = info.draw.height / maxY;
 
-            DrawInfo2D newinfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(0,0, xScale, yScale),
-                info.clip);  // we don't do further clipping 
+            DrawInfo2D newinfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(0,0, xScale, yScale), info.clip);  // we don't do further clipping 
+            newinfo.precise = info.precise;
 
             Int2D loc = (Int2D) location;
             if (location == null) return null;
@@ -172,6 +172,7 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
         int endy = /*starty +*/ (int)((info.clip.y - info.draw.y + info.clip.height) / yScale) + /*2*/ 1;  // with rounding, height be as much as 1 off
 
         DrawInfo2D newinfo = new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(0,0, xScale, yScale), info.clip);  // we don't do further clipping 
+        newinfo.precise = info.precise;
         newinfo.location = locationToPass;
         newinfo.fieldPortrayal = this;
 
@@ -227,7 +228,8 @@ public class ObjectGridPortrayal2D extends FieldPortrayal2D
         Object[][] grid = field.field;
         if (grid[loc.x][loc.y] == object)
             return new Int2D(loc.x, loc.y);
-        field.getNeighborsMaxDistance(loc.x, loc.y, SEARCH_DISTANCE, true, xPos, yPos);
+        //field.getNeighborsMaxDistance(loc.x, loc.y, SEARCH_DISTANCE, true, xPos, yPos);
+        field.getMooreLocations(loc.x, loc.y, SEARCH_DISTANCE, Grid2D.TOROIDAL, true, xPos, yPos);  // we include the origin but it doesn't matter
         for(int i=0;i<xPos.numObjs;i++)
             if (grid[xPos.get(i)][yPos.get(i)] == object) return new Int2D(xPos.get(i), yPos.get(i));
         return null;

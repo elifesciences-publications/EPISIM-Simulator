@@ -37,13 +37,14 @@ import ec.util.*;
    event for time getTime(), then actually this event will occur at time getTime()+epsilon, that is, the
    smallest possible slice of time greater than getTime().
 
-   <p><b>IMPORTANT NOTE:</b> we have disabled the setShuffling() procedure by making the methods private.  The reason for this is that although turning off shuffling causes the Steppables to be stepped in a <i>predictable order</i>, they will note necessarily be stepped in <i>the order in which they were submitted</i>, which was the whole point of the methods.  The reason for this is that a binary heap is not "stable": it doesn't break ties by returning elements in the same order in which they appeared.  This potentially could cause bugs in simulations and we want to make it very clear.
+   <p><b>IMPORTANT NOTE:</b> we have disabled the setShuffling() procedure by making the methods private.  The reason for this is that although turning off shuffling causes the Steppables to be stepped in a <i>predictable order</i>, they will not necessarily be stepped in <i>the order in which they were submitted</i>, which was the whole point of the methods.  The reason for this is that a binary heap is not "stable": it doesn't break ties by returning elements in the same order in which they appeared.  This potentially could cause bugs in simulations and we want to make it very clear.
   
-   <!-- 
    <p>Events at a step are further subdivided and scheduled according to their <i>ordering</i>, an integer.
    Objects for scheduled for lower orderings for a given time will be executed before objects with
    higher orderings for the same time.  If objects are scheduled for the same time and
-   have the same ordering value, their execution will be randomly ordered with respect to one another
+   have the same ordering value, their execution will be randomly ordered with respect to one another.
+   
+   <!-- 
    unless (in the very rare case) you have called setShuffling(false);.  Generally speaking, most experiments with
    good model methodologies will want random shuffling left on, and if you need an explicit ordering, it may be
    better to rely on Steppable's orderings or to use a Sequence.
@@ -92,6 +93,8 @@ import ec.util.*;
 
 public class Schedule implements java.io.Serializable
     {
+    private static final long serialVersionUID = 1;
+
     /** The first possible schedulable time. */
     public static final double EPOCH = 0.0;
     /** The time which indicates that the Schedule hasn't started yet. Less than EPOCH. */
@@ -106,24 +109,27 @@ public class Schedule implements java.io.Serializable
     // should we shuffle individuals with the same timestep and ordering?
     boolean shuffling = true;  // by default, we WANT to shuffle
 
-    Heap queue = createHeap();
+    /** The Schedule's queue. */
+    protected Heap queue = createHeap();
     
     /** Returns a Heap to be used by the Schedule.  By default, returns a
         binary heap.  Override this to provide your own
         subclass of Heap tuned for your particular problem. */
     protected Heap createHeap() { return new Heap(); }
     
-    // the time
-    double time;
+    /** The current time, as returned by getTime().  
+        If you modify this in a subclass, be sure to synchronize on Schedule.lock first. */
+    protected double time;
     
-    // the number of times step() has been called on me
-    long steps;
+    /** The current steps, as returned by getSteps().  
+        If you modify this in a subclass, be sure to synchronize on Schedule.lock first. */
+    protected long steps;
         
-    // is the Schedule sealed?
-    boolean sealed = false;
+    /** Whether the schedule is sealed, as returned by isSealed().  
+        If you modify this in a subclass, be sure to synchronize on Schedule.lock first. */
+    protected boolean sealed = false;
                 
-    // time steps lock  -- the objective here is to enable synchronization on a different lock
-    // so people can read the time and the steps without having to wait on the general schedule lock
+    /** The schedule lock.  Many methods synchronize on this lock before modifying internal variables. */
     protected Object lock = new boolean[1];  // an array is a unique, serializable object
     
     /** Sets the schedule to randomly shuffle the order of Steppables (the default), or to not do so, when they
@@ -161,7 +167,7 @@ public class Schedule implements java.io.Serializable
     /** Returns the current timestep 
         @deprecated use getTime()
     */
-    public double time() { synchronized(lock) { return time; } }
+    public double time() { return getTime(); }
 
     /** Returns the current timestep */
     public double getTime() { synchronized(lock) { return time; } }
@@ -185,10 +191,11 @@ public class Schedule implements java.io.Serializable
     // could be static, but why not let it be overridden?
     public String getTimestamp(double time, final String beforeSimulationString, final String afterSimulationString)
         {
-        if (time < EPOCH) return beforeSimulationString;
-        if (time >= AFTER_SIMULATION) return afterSimulationString;
-        if (time == (long)time) return Long.toString((long)time);
-        return Double.toString(time);
+        double _time = getTime();
+        if (_time < EPOCH) return beforeSimulationString;
+        if (_time >= AFTER_SIMULATION) return afterSimulationString;
+        if (_time == (long)_time) return Long.toString((long)_time);
+        return Double.toString(_time);
         }
 
     /** Returns the number of steps the Schedule has pulsed so far. */
@@ -249,6 +256,26 @@ public class Schedule implements java.io.Serializable
             {
             return queue.isEmpty();
             }
+        }
+    
+    /**
+       Merge a given schedule into this one.  The other schedule is not modified, but the queue of the
+       original schedule is changed.
+    */
+    public void merge(Schedule other) 
+        {
+        if (inStep || other.inStep) 
+            throw new RuntimeException("May not merge with another schedule while inside a step method.");
+        if (sealed || other.sealed)
+            throw new RuntimeException("May not merge with a sealed schedule.");
+        if (!other.queue.isEmpty())
+            {
+            double minKey = ((Key)(other.queue.getMinKey())).getTime();
+            if (minKey <= getTime())  // uh oh
+                throw new RuntimeException("May not merge with a schedule which has Steppables scheduled for an earlier time than my current time value."); 
+            }
+        
+        queue = queue.merge(other.queue);
         }
 
     Bag currentSteps = new Bag();
@@ -321,7 +348,9 @@ public class Schedule implements java.io.Serializable
             {
             for(int x=0;x<len;x++)  // if we're not being killed...
                 {
+                assert sim.util.LocationLog.set(((Steppable)(objs[x])));
                 ((Steppable)(objs[x])).step(state);
+                assert sim.util.LocationLog.clear();
                 objs[x] = null;  // let gc even if being killed
                 }
             }
@@ -448,8 +477,7 @@ public class Schedule implements java.io.Serializable
     boolean _scheduleOnce(Key key, final Steppable event)
         {
         // locals are a teeny bit faster
-        double time = 0;
-        time = this.time;
+        double time = this.time;
         double t = key.time;
 
         // check to see if we're scheduling for the same exact time -- even if of different orderings, that doesn't matter
@@ -457,16 +485,13 @@ public class Schedule implements java.io.Serializable
             // bump up time to the next possible item, unless we're at infinity already (AFTER_SIMULATION)
             t = key.time = Double.longBitsToDouble(Double.doubleToRawLongBits(t)+1L);
 
-        if (sealed | t >= AFTER_SIMULATION)             // lighter weight and more common situations, no exception throwing
+        if (sealed | t >= AFTER_SIMULATION)             // situations where no further events can be added
             {
             return false;
             }
         else if (t < EPOCH)
             throw new IllegalArgumentException("For the Steppable...\n\n"+event+
                 "\n\n...the time provided ("+t+") is < EPOCH (" + EPOCH + ")");
-        //else if (t >= AFTER_SIMULATION)
-        //      throw new IllegalArgumentException("For the Steppable...\n\n"+event+
-        //              "\n\n...the time provided ("+t+") is >= AFTER_SIMULATION (" + AFTER_SIMULATION + ")");
         else if (t != t /* NaN */)
             throw new IllegalArgumentException("For the Steppable...\n\n"+event+
                 "\n\n...the time provided ("+t+") is NaN");
@@ -475,9 +500,6 @@ public class Schedule implements java.io.Serializable
                 "\n\n...the time provided ("+t+") is less than the current time (" + time + ")");
         else if (event == null)
             throw new IllegalArgumentException("The provided Steppable is null");
-        //else if (sealed)
-        //      throw new IllegalArgumentException("The Steppable...\n\n"+event+
-        //              "\n\n...culd not be scheduled because the Schedule has been sealed.");
         
         queue.add(event, key);
         return true;
@@ -645,7 +667,7 @@ public class Schedule implements java.io.Serializable
         {
         if (interval <= 0) throw new IllegalArgumentException("The steppable " +  event + " was scheduled repeating with an impossible interval ("+interval+")");
         Schedule.Key k = new Schedule.Key(time,ordering);
-        Repeat r = new Repeat(event,interval,k);
+        IterativeRepeat r = new IterativeRepeat(event,interval,k);
 
         synchronized(lock)
             {
@@ -671,8 +693,12 @@ public class Schedule implements java.io.Serializable
                 
         public boolean equals(Object obj)
             {
-            Key o = (Key)obj;
-            return (o.time == time && o.ordering == ordering);
+            if (obj != null && obj instanceof Key)
+                {
+                Key o = (Key)obj;
+                return (o.time == time && o.ordering == ordering);
+                }
+            else return false;
             }
                         
         public int hashCode()
@@ -720,21 +746,21 @@ public class Schedule implements java.io.Serializable
 
 
 /**
-   Handles repeated steps.  This is done by wrapping the Steppable with a Repeat object
+   Handles repeated steps.  This is done by wrapping the Steppable with a IterativeRepeat object
    which is itself Steppable, and on its step calls its subsidiary Steppable, then reschedules
-   itself.  Repeat is stopped by setting its subsidiary to null, and so the next time it's
+   itself.  IterativeRepeat is stopped by setting its subsidiary to null, and so the next time it's
    scheduled it won't reschedule itself (or call the subsidiary).   A private class for
    Schedule.  We've moved it out of being an inner class of Schedule and will ultimately make
    it a separate class in the package.
 */
 
-class Repeat implements Steppable, Stoppable
+class IterativeRepeat implements Steppable, Stoppable
     {
     double interval;
     Steppable step;  // if null, does not reschedule
     Schedule.Key key;
         
-    public Repeat(final Steppable step, final double interval, final Schedule.Key key)
+    public IterativeRepeat(final Steppable step, final double interval, final Schedule.Key key)
         {
         if (interval < 0)
             throw new IllegalArgumentException("For the Steppable...\n\n" + step +
@@ -763,7 +789,9 @@ class Repeat implements Steppable, Stoppable
                 {
                 e.printStackTrace(); // something bad happened
                 }
+            assert sim.util.LocationLog.set(step);
             step.step(state);
+            assert sim.util.LocationLog.clear();
             }
         }
         
@@ -772,6 +800,6 @@ class Repeat implements Steppable, Stoppable
         step = null;
         }
         
-    public String toString() { return "Repeat[" + step + "]"; }
+    public String toString() { return "Schedule.IterativeRepeat[" + step + "]"; }
     }
 

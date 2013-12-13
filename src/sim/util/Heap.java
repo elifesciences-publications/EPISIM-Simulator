@@ -25,6 +25,8 @@ package sim.util;
 
 public class Heap implements java.io.Serializable
     {
+    private static final long serialVersionUID = 1;
+
     // the keys
     Comparable[] keys = null;
 
@@ -218,5 +220,24 @@ public class Heap implements java.io.Serializable
                         
         numElem = 0;
         }
+    
+    /**
+       Produces a new heap which is the union of this heap with the other.
+       The original heaps are not modified.  The new heap is returned.
+    */
+    public Heap merge(Heap other) 
+        {
+        int n = this.numElem + other.numElem;
+        Comparable[] combinedKeys = new Comparable[n];
+        Object[] combinedObjects = new Object[n];
+        
+        System.arraycopy(keys, 0, combinedKeys, 0, this.numElem);
+        System.arraycopy(other.keys, 0, combinedKeys, this.numElem, other.numElem);
 
+        System.arraycopy(objects, 0, combinedObjects, 0, this.numElem);
+        System.arraycopy(other.objects, 0, combinedObjects, this.numElem, other.numElem);
+
+        return new Heap(combinedKeys, combinedObjects);
+        }
+    
     }

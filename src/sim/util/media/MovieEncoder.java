@@ -230,7 +230,7 @@ public class MovieEncoder implements DataSinkListener, ControllerListener, java.
                 { evt.getSourceController().close(); }
             catch (Exception e) 
                 {
-                System.err.println("Spurious Sun JMF Error?\n\n"); e.printStackTrace(); 
+                System.err.println("WARNING: Spurious Sun JMF Error?\n\n"); e.printStackTrace(); 
                     
                 // system sometimes gives no further event updates, so the waiter hangs, 
                 // and I'm not sure why -- so here we make it fail.  I wonder if this will work -- Sean
@@ -312,15 +312,6 @@ public class MovieEncoder implements DataSinkListener, ControllerListener, java.
         processor.setContentDescriptor(new ContentDescriptor(FileTypeDescriptor.QUICKTIME));
     
         TrackControl tcs[] = processor.getTrackControls();
-        
-        // old -- just take first one
-        /*
-          Format f[] = tcs[0].getSupportedFormats();
-          if (f == null || f.length <= 0)
-          throw new RuntimeException("The mux does not support the input format: " + tcs[0].getFormat());
-          tcs[0].setFormat(f[0]);
-          System.out.println(tcs[0]);
-          System.out.println(f[0]);*/
         
         // new - set by requested format
         tcs[0].setFormat(encodeFormat);
@@ -464,7 +455,7 @@ class MovieEncoderDataStream implements PullBufferStream
     boolean endAcknowledged = false;
     float frameRate;
     
-    MovieEncoderDataStream(Format format, float frameRate) { frameRate = this.frameRate ;this.format = format; }
+    MovieEncoderDataStream(Format format, float frameRate) { this.frameRate = frameRate ;this.format = format; }
     
     void finish()
         {

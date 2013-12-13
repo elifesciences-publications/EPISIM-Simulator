@@ -87,6 +87,8 @@ import java.util.*;
 
 public abstract class SparseField implements java.io.Serializable
     {
+    private static final long serialVersionUID = 1;
+
     /** Should we remove bags in the field if they have been emptied, and let them GC, or should
         we keep them around?   This doesn't include the allObjects bag. */
     public boolean removeEmptyBags = true;
@@ -108,22 +110,33 @@ public abstract class SparseField implements java.io.Serializable
 
     /** LocationAndIndex objects (locations and indexes into the allObjects array) hashed by Object.  Ideally you would
         store only immutable or hash-by-pointer objects, el se they'll get lost in the HashMap. */
-    public HashMap locationAndIndexHash = new HashMap();
+    public Map locationAndIndexHash = buildMap(ANY_SIZE);
 
     /** Bags of objects hashed by location.  Do not rely on these bags always being the same objects. */
-    public HashMap objectHash = new HashMap();
+    public Map objectHash = buildMap(ANY_SIZE);
 
     /** All the objects in the sparse field.  For fast scans.  Do not rely on this bag always being the same object. */
     public Bag allObjects = new Bag();
     
+    /** Pass this into buildMap to indicate that it should make a map of any size it likes. */
+    public static final int ANY_SIZE = 0;
+    /** Creates a Map which is a copy of another. By default, HashMap is used. */
+    public Map buildMap(Map other) { return new HashMap(other); }
+    /** Creates a map of the provided size (or any size it likes if ANY_SIZE is passed in).  By default, HashMap is used. */
+    public Map buildMap(int size) 
+        {
+        if (size <= ANY_SIZE) return new HashMap();
+        else return new HashMap(size);
+        }
+
     protected SparseField() { }
         
     protected SparseField(SparseField other)
         {
         removeEmptyBags = other.removeEmptyBags;
         replaceLargeBags = other.replaceLargeBags;
-        locationAndIndexHash = new HashMap(other.locationAndIndexHash);
-        objectHash = new HashMap(other.objectHash);
+        locationAndIndexHash = buildMap(other.locationAndIndexHash);
+        objectHash = buildMap(other.objectHash);
         allObjects = new Bag(other.allObjects);
         }
         
@@ -152,6 +165,7 @@ public abstract class SparseField implements java.io.Serializable
         {
         LocationAndIndex lai = ((LocationAndIndex)(locationAndIndexHash.get(obj)));
         if (lai == null) return null;
+        assert sim.util.LocationLog.it(this, lai.location);
         return lai.location;
         }
     
@@ -160,6 +174,7 @@ public abstract class SparseField implements java.io.Serializable
         {
         final Bag b = (Bag)(objectHash.get(location));
         if (b==null) return 0;
+        assert sim.util.LocationLog.it(this, location);
         return b.numObjs;
         }
     
@@ -190,6 +205,7 @@ public abstract class SparseField implements java.io.Serializable
         Bag b = (Bag)(objectHash.get(location));
         if (b==null) return null;
         if (b.numObjs == 0) return null;
+        assert sim.util.LocationLog.it(this, location);
         return b;
         }
                 
@@ -205,6 +221,7 @@ public abstract class SparseField implements java.io.Serializable
         {
         LocationAndIndex lai = ((LocationAndIndex)(locationAndIndexHash.get(obj)));
         if (lai == null) return null;
+        assert sim.util.LocationLog.it(this, lai.location);
         return lai.otherObjectsAtLocation;  // should be non-null
         }
                         
@@ -215,6 +232,7 @@ public abstract class SparseField implements java.io.Serializable
         {
         LocationAndIndex lai = ((LocationAndIndex)(locationAndIndexHash.get(obj)));
         if (lai == null) return 0;
+        assert sim.util.LocationLog.it(this, lai.location);
         return lai.otherObjectsAtLocation.numObjs;
         }
 
@@ -229,6 +247,7 @@ public abstract class SparseField implements java.io.Serializable
                 // remove location
                 LocationAndIndex lai = (LocationAndIndex)(locationAndIndexHash.remove(objs.objs[j]));
                 // remove object from allobjects bag
+                assert sim.util.LocationLog.it(this, lai.location);
                 allObjects.remove(lai.index);
                 if (allObjects.numObjs > lai.index)    // update the index of the guy who just got moved
                     ((LocationAndIndex)(locationAndIndexHash.get(allObjects.objs[lai.index]))).index = lai.index;
@@ -241,8 +260,8 @@ public abstract class SparseField implements java.io.Serializable
         just make a brand new Sparse Field and let the garbage collector do its magic. */
     public Bag clear()
         {
-        locationAndIndexHash = new HashMap();
-        objectHash = new HashMap();
+        locationAndIndexHash = buildMap(ANY_SIZE);
+        objectHash = buildMap(ANY_SIZE);
         Bag retval = allObjects;
         allObjects = new Bag();
         return retval;
@@ -273,6 +292,7 @@ public abstract class SparseField implements java.io.Serializable
             if (allObjects.numObjs > lai.index)    // update the index of the guy who just got moved
                 ((LocationAndIndex)(locationAndIndexHash.get(allObjects.objs[lai.index]))).index = lai.index;
             
+            assert sim.util.LocationLog.it(this, lai.location);
             return lai.location;
             }
         else return null;
@@ -315,6 +335,7 @@ public abstract class SparseField implements java.io.Serializable
             ///// End commentable out
             
             // write in new location  -- we're reusing the LocationAndIndex
+            assert sim.util.LocationLog.it(this, lai.location);
             lai.location = location;
             }
         else   // add new object
@@ -327,6 +348,7 @@ public abstract class SparseField implements java.io.Serializable
             }
 
         // put into objectHash
+        assert sim.util.LocationLog.it(this, location);
         Bag objs = (Bag)(objectHash.get(location));                         // HASH
         if (objs==null)
             {

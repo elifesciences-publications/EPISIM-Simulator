@@ -49,7 +49,18 @@ import java.util.prefs.*;
 
 public class Display2D extends JComponent implements Steppable, Manipulating2D
     {
-    protected boolean precise = false;
+    boolean forcePrecise = false;  // PDF sets this
+    boolean precise = false;
+    
+    /** Returns true if this display has been set to always draw precisely.  Note that even if this 
+        function returns false, the display may draw precisely in certain circumstances, such as
+        when outputting to a PDF. */
+    public boolean getPrecise() { return precise; }
+
+    /** Sets this display to always draw precisely (or not).  Note that even if this display has
+        been set to not display precisely, it may still draw precisely in certain circumstances, such as
+        when outputting to a PDF. */
+    public void setPrecise(boolean precise) { this.precise = precise; }
         
     public String DEFAULT_PREFERENCES_KEY = "Display2D";
     String preferencesKey = DEFAULT_PREFERENCES_KEY;  // default 
@@ -131,11 +142,18 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             p2.setLayout(new BorderLayout());
             p2.add(p,BorderLayout.NORTH);
 
-            LabelledList l = new LabelledList("Offset in Pixels");
+            LabelledList l = new LabelledList("Origin Offset in Pixels");
             l.addLabelled("X Offset", xOffsetField);
             l.addLabelled("Y Offset", yOffsetField);
             p2.add(l,BorderLayout.CENTER);
             getContentPane().add(p2,BorderLayout.NORTH);
+            String text = "<html>Sets the offset of the origin of the display.  This is <b>independent of the scrollbars</b>." + 
+                "<br><br>If the simulation has enabled it, you can also change the offset by dragging with the" +
+                "<br>right mouse button down (or on the Mac, a two finger tap-drag or Command-drag)." +
+                "<br><br>Additionally, you can reset the origin to (0,0) with a right-mouse button double-click.</html>"; 
+            l.setToolTipText(text);
+            xOffsetField.setToolTipText(text);
+            yOffsetField.setToolTipText(text);
 
             b = new Box(BoxLayout.Y_AXIS);
             b.add(antialias);
@@ -607,6 +625,9 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             return buffer;
             }
         
+    
+        
+        
         /** Paints an image unbuffered inside the provided clip. Not synchronized.
             You should probably call paintComponent() instead. */
         void paintUnbuffered(Graphics2D g, Rectangle2D clip)
@@ -614,12 +635,11 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             if (g==null) return;
             
             g.setRenderingHints(unbufferedHints);
-
+            
             // dunno if we want this
             if (isClipping()) g.setClip(clip);
             if (clip.getWidth()!=0 && clip.getHeight()!=0)
                 {
-                // presently not scaled
                 if (backdrop!=null)
                     {
                     g.setPaint(backdrop);
@@ -734,7 +754,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     public static final boolean isWindows = isWindows();
 
     /** Set to the version number */
-    public static final String javaVersion = getVersion();
+    public static final String javaVersion = getJavaVersion();
 
     static boolean isMacOSX() 
         {
@@ -754,7 +774,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         catch (Throwable e) { return false; }
         }
 
-    static String getVersion()
+    static String getJavaVersion()
         {
         try
             {
@@ -815,6 +835,11 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         return new ImageIcon(Display2D.class.getResource(name));
         }
     
+    // Unfortunately OS X does not properly display the Move and Hand cursors.  :-(  We have to draw our
+    // own.  I'm using the old-style MacOS ones.
+    public static final ImageIcon OPEN_HAND_CURSOR_P = iconFor("OpenHand.png");
+    public static final ImageIcon CLOSED_HAND_CURSOR_P = iconFor("ClosedHand.png");
+    
     public static final ImageIcon LAYERS_ICON = iconFor("Layers.png");
     public static final ImageIcon LAYERS_ICON_P = iconFor("LayersPressed.png");
     public static final ImageIcon REFRESH_ICON = iconFor("Reload.png");
@@ -832,7 +857,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
 
     /** Use tool tips? */
     boolean useTooltips;
-
+    
     /** The last steps for a frame that was painted to the screen.  Keeping this
         variable around enables our movie maker to ensure that it doesn't write
         a frame twice to its movie stream. */
@@ -885,7 +910,58 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     double scale = 1.0;
     final Object scaleLock = new Object();  // scale lock
     /** Sets the scale (the zoom value) of the Display2D */
-    public void setScale(double val) { synchronized (scaleLock)  { if (val > 0.0) scale = val; } }
+
+    public void setScale(double val) 
+        { 
+        double oldScale = scale;
+
+        synchronized (scaleLock)  
+            { 
+            if (val > 0.0) 
+                {
+                scale = val; 
+                scaleField.setValue(scale);
+                }
+            else throw new RuntimeException("setScale requires a value which is > 0.");  // don't bother rescaling
+            }
+        
+
+        // lock the paint lock so we don't try repainting until we request it.
+        // JScrollView tries to jump the gun, making things flashy.
+        insideDisplay.paintLock = true;
+                
+        // grab the original location
+        Rectangle r = port.getViewRect();
+
+        // scroll to keep the zoomed-in region centered -- this is prettier
+        double centerx = r.x + r.width/2.0;
+        double centery = r.y + r.height/2.0;
+        centerx *= scale / oldScale;
+        centery *= scale / oldScale;
+        Point topleft = new Point((int)(centerx - r.width/2.0), (int)(centery - r.height/2.0));
+        if (topleft.x < 0) topleft.x = 0;
+        if (topleft.y < 0) topleft.y = 0;
+
+
+        if (SwingUtilities.isEventDispatchThread())
+            port.setView(insideDisplay);
+        else
+            {
+            SwingUtilities.invokeLater(new Runnable() { public void run() { port.setView(insideDisplay); } });
+            }
+
+
+        optionPane.xOffsetField.setValue(insideDisplay.xOffset * scale);
+        optionPane.yOffsetField.setValue(insideDisplay.yOffset * scale);
+                 
+        // now release the paint lock and repaint
+        insideDisplay.paintLock = false;
+                
+        port.setViewPosition(topleft);
+        Display2D.this.repaint();
+
+        }
+        
     /** Returns the scale (the zoom value) of the Display2D */
     public double getScale() { synchronized (scaleLock) { return scale; } }
 
@@ -917,7 +993,132 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     /** Returns the backdrop color or paint.  The backdrop is the region behind where the simulation actually draws.
         If set to null, no color/paint is used. */
     public Paint getBackdrop() { return backdrop; }
+    
+    
+    /// SCROLLING FACILITY
+    /// First off, yes, yes, we could have done this with scrollRectToVisible, but what's the fun in that?  Actually
+    /// scrollRectToVisible is just as complex and also has serious flashing problems as well due to the background
+    /// being painted even if set to empty.  What fun!
+    
+    /// The general idea here is that we collect the minimum, maximum, and current values of the scroll bars either
+    /// to return percentage information or to set it.  But there are bugs in JScrollPane: its scroll bars don't return
+    /// valid minimum or maximum values.  So we have to test for them by setting the biggest and smallest we can set
+    /// and see what we're bounded to.  This causes repaints so we have to watch for flashing problems, hence the hack.
+    /// The hack is that we set the scroll mode to the costly "backing store" mode (double-buffered), then do the testing
+    /// and/or additional setting of the scroll bars, then force a repaint, then AFTERWARDS set the scroll mode back to 
+    /// "blit" mode (the fast mode).  Total ugly hack, I know.
+    
+    int horizontalMaximum;
+    int horizontalMinimum;
+    int horizontalCurrent;
+    int verticalMaximum;
+    int verticalMinimum;
+    int verticalCurrent;
+    
+    final Object scrollLock = new Object();  // scroll lock
+    void loadScrollValues()
+        {
+        // first change the scroll mode so the hack below works right
+        port.setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
+
+        // JScrollPane's JScrollBars do not report correct minimum and maximum values.  So we have to just
+        // test it by setting them and seeing what they go to.  What a hack.
+        JScrollBar horizontal = display.getHorizontalScrollBar();
+        horizontalCurrent = horizontal.getValue();
+        horizontal.setValue(Integer.MAX_VALUE);
+        horizontalMaximum = horizontal.getValue();
+        horizontal.setValue(Integer.MIN_VALUE);
+        horizontalMinimum = horizontal.getValue();
+        horizontal.setValue(horizontalCurrent);
+
+        JScrollBar vertical = display.getVerticalScrollBar();
+        verticalCurrent = vertical.getValue();
+        vertical.setValue(Integer.MAX_VALUE);
+        verticalMaximum = vertical.getValue();
+        vertical.setValue(Integer.MIN_VALUE);
+        verticalMinimum = vertical.getValue();
+        vertical.setValue(verticalCurrent);
+        }
         
+    void loadScrollValuesHack() 
+        {         
+        // the following hack ensures we redraw without filling the screen with flashy stuff
+        repaint();
+        // issue something which changes the background again
+        SwingUtilities.invokeLater(new Runnable() { public void run() { port.setScrollMode(JViewport.BLIT_SCROLL_MODE); } });
+        // ugh, what a hack
+        }
+    
+    /** Returns the current scroll positions (x and y) as proportional values between 0.0 (minimum scroll position) and 1.0 (maximum scroll position). */
+    public Double2D getScrollPosition()
+        {
+        synchronized(scrollLock)
+            {
+            loadScrollValues();
+            loadScrollValuesHack();
+            
+            return new Double2D(
+            
+                horizontalMaximum - (double)horizontalMinimum <= 0 ? 0 :
+                (horizontalCurrent - (double)horizontalMinimum) / (horizontalMaximum - (double)horizontalMinimum),
+                
+                verticalMaximum - (double)verticalMinimum <= 0 ? 0 :
+                (verticalCurrent - (double)verticalMinimum) / (verticalMaximum - (double)verticalMinimum)
+                );
+            }
+        }
+    
+    /** Sets the current scroll positions (x and y) to proportional values between 0.0 (minimum scroll position) and 1.0 (maximum scroll position). */
+    public void setScrollPosition(Double2D vals) { setScrollPosition(vals.x, vals.y); }
+
+    /** Sets the current scroll positions (x and y) to proportional values between 0.0 (minimum scroll position) and 1.0 (maximum scroll position). */
+    public void setScrollPosition(double x, double y)
+        {
+        synchronized(scrollLock)
+            {
+            if (x < 0.0 || x > 1.0 || y < 0.0 || y > 1.0)
+                throw new RuntimeException("X or Y value out of bounds.  Must be >= 0.0 and <= 1.0.");
+            
+            loadScrollValues();
+            int h = (int)(horizontalMinimum + x * (horizontalMaximum - (double) horizontalMinimum));
+            int v = (int)(verticalMinimum + y * (verticalMaximum - (double) verticalMinimum));
+            
+            // set values
+            
+            JScrollBar horizontal = display.getHorizontalScrollBar();
+            horizontal.setValue(h);
+            JScrollBar vertical = display.getVerticalScrollBar();
+            vertical.setValue(v);
+            
+            loadScrollValuesHack();
+            }
+        }
+    
+    
+    
+    
+    /** Sets the offset of the origin of the display.  By default the offset is (0,0). */
+    public void setOffset(double x, double y)
+        {
+        insideDisplay.xOffset = x;
+        insideDisplay.yOffset = y;
+        repaint();
+        }
+        
+    /** Sets the offset of the origin of the display.  By default the offset is (0,0). */
+    public void setOffset(Point2D.Double d)
+        {
+        setOffset(d.getX(), d.getY());
+        }
+    
+    /** Returns the offset of the origin of the display.  By default the offset is (0,0). */
+    public Point2D.Double getOffset()
+        {
+        return new Point2D.Double(insideDisplay.xOffset, insideDisplay.yOffset);
+        }
+    
+    
+    
     /** Quits the Display2D.  Okay, so finalize is evil and we're not supposed to rely on it.
         We're not.  But it's an additional cargo-cult programming measure just in case. */
     protected void finalize() throws Throwable
@@ -1306,36 +1507,11 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             public double newValue(double newValue)
                 {
                 if (newValue <= 0.0) newValue = currentValue;
-
-                // lock the paint lock so we don't try repainting until we request it.
-                // JScrollView tries to jump the gun, making things flashy.
-                insideDisplay.paintLock = true;
-                
-                // grab the original location
-                Rectangle r = port.getViewRect();
-
-                // scroll to keep the zoomed-in region centered -- this is prettier
-                double centerx = r.x + r.width/2.0;
-                double centery = r.y + r.height/2.0;
-                centerx *= (newValue / (double) currentValue);
-                centery *= (newValue / (double) currentValue);
-                Point topleft = new Point((int)(centerx - r.width/2.0), (int)(centery - r.height/2.0));
-                if (topleft.x < 0) topleft.x = 0;
-                if (topleft.y < 0) topleft.y = 0;
-
                 setScale(newValue);
-                optionPane.xOffsetField.setValue(insideDisplay.xOffset * newValue);
-                optionPane.yOffsetField.setValue(insideDisplay.yOffset * newValue);
-                port.setView(insideDisplay);
-                
-                // now release the paint lock and repaint
-                insideDisplay.paintLock = false;
-                
-                port.setViewPosition(topleft);
-                Display2D.this.repaint();
                 return newValue;
                 }
             };
+            
         scaleField.setToolTipText("Zoom in and out");
         scaleField.setBorder(BorderFactory.createEmptyBorder(0,0,0,2));
         header.add(scaleField);
@@ -1356,7 +1532,8 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         // update preferences
         optionPane.resetToPreferences();
         }
-
+        
+        
     /** Returns LocationWrappers for all the objects which fall within the coordinate rectangle specified by rect.  This 
         rectangle is in the coordinate system of the (InnerDisplay2D) component inside the scroll
         view of the Display2D class.  The return value is an array of Bags.  For each FieldPortrayal
@@ -1425,10 +1602,6 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         int origindx = 0;
         int origindy = 0;
 
-        // offset according to user's specification
-        origindx += (int)(insideDisplay.xOffset*scale);
-        origindy += (int)(insideDisplay.yOffset*scale);
-
         // for information on why we use getViewRect, see computeClip()
         Rectangle2D fullComponent = insideDisplay.getViewRect();
         if (fullComponent.getWidth() > (insideDisplay.width * scale))
@@ -1436,6 +1609,10 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         if (fullComponent.getHeight() > (insideDisplay.height*scale))
             origindy = (int)((fullComponent.getHeight() - insideDisplay.height*scale)/2);
                                 
+        // offset according to user's specification
+        origindx += (int)(insideDisplay.xOffset*scale);
+        origindy += (int)(insideDisplay.yOffset*scale);
+
         Rectangle2D.Double region = new Rectangle2D.Double(
             // we floor to an integer because we're dealing with exact pixels at this point
             (int)(holder.bounds.x * scale) + origindx,
@@ -1444,15 +1621,25 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             (int)(holder.bounds.height * scale));
         DrawInfo2D d2d = new DrawInfo2D(simulation, holder.portrayal, region, clip);
         d2d.gui = simulation;
-        d2d.precise = precise;
+        d2d.precise = forcePrecise || precise;
         return d2d;
         }
                 
     /** */
     ArrayList selectedWrappers = new ArrayList();
     
+    /** Returns as LocationWrappers all the currently selected objects in the
+        display.  Do not modify these wrapper objects; they are used internally. 
+        These LocationWrappers may be invalid at any time in the near future if
+        the user deselects objects.
+    */
+    public LocationWrapper[] getSelectedWrappers()
+        {
+        return (LocationWrapper[]) selectedWrappers.toArray(new LocationWrapper[selectedWrappers.size()]);
+        }
+    
     /** Selects the following object, deselecting other objects if so asked. */
-    public void performSelection( LocationWrapper wrapper)
+    public void performSelection(LocationWrapper wrapper)
         {
         Bag b = new Bag();
         b.add(wrapper);
@@ -1469,22 +1656,12 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         selectedWrappers.clear();
         }
         
-    public void performSelection( Bag locationWrappers )
+    public void performSelection( Point2D point )
         {
-        clearSelections();
-                
-        if (locationWrappers == null) return;  // deselect everything
-        
-        // add new wrappers
-        for(int x=0;x < locationWrappers.size(); x++)
-            {
-            LocationWrapper wrapper = ((LocationWrapper)(locationWrappers.get(x)));
-            wrapper.getFieldPortrayal().setSelected(wrapper, true);
-            selectedWrappers.add(wrapper);
-            }
+        performSelection(new Rectangle2D.Double(point.getX(), point.getY(), 1, 1));
         }
-        
-    public void performSelection( final Rectangle2D.Double rect )
+
+    public void performSelection( Rectangle2D.Double rect )
         {
         // gather objects hit and select them, and put in selectedObjects
         Bag[] hitObjects = objectsHitBy(rect);
@@ -1494,6 +1671,41 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         performSelection(collection);
         }
 
+
+    public static int SELECTION_MODE_MULTI = 0;
+    public static int SELECTION_MODE_SINGLE = 1;
+    
+    int selectionMode = SELECTION_MODE_MULTI;
+    /** Returns whether selecting a region will select all the objects within that region (the default), or instead a single object. */
+    public int getSelectionMode() { return selectionMode; }
+    /** Sets whether selecting a region will select all the objects within that region (the default), or instead a single object. */
+    public void setSelectionMode(int val) { selectionMode = val; }
+
+    public void performSelection( Bag locationWrappers )
+        {
+        clearSelections();
+                
+        if (locationWrappers == null) return;  // deselect everything
+        
+        // add new wrappers
+        if (selectionMode == SELECTION_MODE_SINGLE )
+            {
+            if (locationWrappers.size() > 0)
+                {
+                LocationWrapper wrapper = ((LocationWrapper)(locationWrappers.get(locationWrappers.size() - 1)));  // get the top one, it's likely the agent drawn last, thus on top.  Maybe?
+                wrapper.getFieldPortrayal().setSelected(wrapper, true);
+                selectedWrappers.add(wrapper);
+                }
+            }
+        else // SELECTION_MODE_MULTI
+            for(int x=0;x < locationWrappers.size(); x++)
+                {
+                LocationWrapper wrapper = ((LocationWrapper)(locationWrappers.get(x)));
+                wrapper.getFieldPortrayal().setSelected(wrapper, true);
+                selectedWrappers.add(wrapper);
+                }
+        }
+        
     /** Determines the inspectors appropriate for the given selection region (rect), and sends
         them on to the Controller. */
     public void createInspectors( final Rectangle2D.Double rect, final GUIState simulation )
@@ -1568,12 +1780,6 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     /** Takes a snapshot of the Display2D's currently displayed simulation.
         Ought only be done from the main event loop. */
         
-    // Why are we using PNG?  For a couple of reasons.  First, GIF only supports 256 colors.  That had begun
-    // to bite us.  Second, JPEG is good for photos but quite poor for screenshots which have lots of
-    // straight lines and aliased stuff.  PNG is the RIGHT choice for what we need to do.  Unfortunately
-    // it's not properly supported by old versions Internet Exploder, and so to make web-ready snapshots 
-    // you may need to convert it.  :-(
-
     // We're using our own small PNG package (see sim.util.media) because the JAI isn't standard across
     // all platforms (notably 1.3.1) and at the time we made the call, it wasn't available on the Mac at all.
 
@@ -1596,10 +1802,10 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             }
         else // type == TYPE_PDF
             {
-            boolean oldprecise = precise;
-            precise = true;
+            boolean oldprecise = forcePrecise;
+            forcePrecise = true;
             PDFEncoder.generatePDF(port, file);
-            precise = oldprecise;
+            forcePrecise = oldprecise;
             }
         }
         
@@ -1677,13 +1883,13 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 fd.setVisible(true);
                 if (fd.getFile()!=null) try
                                             {
-                                            boolean oldprecise = precise;
-                                            precise = true;
+                                            boolean oldprecise = forcePrecise;
+                                            forcePrecise = true;
                                             Paint b = getBackdrop();
                                             if (result == PDF_NO_BACKDROP_BUTTON)  // temporarily remove backdrop
                                                 setBackdrop(null);
                                             PDFEncoder.generatePDF(port, new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".pdf")));
-                                            precise = oldprecise;
+                                            forcePrecise = oldprecise;
                                             if (result == PDF_NO_BACKDROP_BUTTON)
                                                 setBackdrop(b);
                                             }
@@ -1791,10 +1997,10 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     public final static int UPDATE_RULE_WALLCLOCK_TIME = 2;
     public final static int UPDATE_RULE_ALWAYS = 3;
     public final static int UPDATE_RULE_NEVER = 4;
-    int updateRule = UPDATE_RULE_ALWAYS;
-    long stepInterval = 1;
-    double timeInterval = 0;
-    long wallInterval = 0;
+    protected int updateRule = UPDATE_RULE_ALWAYS;
+    protected long stepInterval = 1;
+    protected double timeInterval = 0;
+    protected long wallInterval = 0;
     long lastStep = -1;
     double lastTime = Schedule.BEFORE_SIMULATION;
     long lastWall = -1;  // the current time is around 1266514720569 so this should be fine (knock on wood)
@@ -1832,9 +2038,87 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         return val;
         }
 
+
+    double originalXOffset;
+    double originalYOffset;
+    Point originalMousePoint = null;
+    String originalText = "";
+    
+    boolean mouseChangesOffset = false;
+    
+    /** Sets whether the user can change the offset by right-mouse-button-dragging,
+        (or on OS X) Command-dragging or two-finger-click-dragging.  By default FALSE. */
+    public void setMouseChangesOffset(boolean val) { mouseChangesOffset = val; }
+
+    /** Sets whether the user can change the offset by right-mouse-button-dragging,
+        (or on OS X) Command-dragging or two-finger-click-dragging.  By default FALSE. */
+    public boolean getMouseChangesOffset() { return mouseChangesOffset; }
+    
+    boolean openHand = false;
+    Cursor OPEN_HAND_CURSOR_C = getToolkit().createCustomCursor(OPEN_HAND_CURSOR_P.getImage(), new Point(8,8), "Open Hand");
+    Cursor CLOSED_HAND_CURSOR_C = getToolkit().createCustomCursor(CLOSED_HAND_CURSOR_P.getImage(), new Point(8,8), "Closed Hand");
     public boolean handleMouseEvent(MouseEvent event)
         {
-        // first, let's propagate the event to selected objects
+        // first, we handle our own facility for handling offsets
+        if (mouseChangesOffset && (event.getModifiers() & MouseEvent.BUTTON3_MASK) == MouseEvent.BUTTON3_MASK)
+            {
+            if (event.getID() == MouseEvent.MOUSE_CLICKED && event.getClickCount() >= 2)
+                {
+                // reset
+                insideDisplay.xOffset = 0;
+                insideDisplay.yOffset = 0;
+                setScale(1.0);
+                Display2D.this.repaint();
+                }
+            else if (event.getID() == MouseEvent.MOUSE_CLICKED && event.getClickCount() == 1)
+                {
+                // scroll and scale
+                MouseEvent m = SwingUtilities.convertMouseEvent(insideDisplay, event, port);
+                insideDisplay.xOffset -= m.getX() - port.getWidth() / 2 ;
+                insideDisplay.yOffset -= m.getY() - port.getHeight() / 2 ;
+                setScale(getScale() * 2);
+                Display2D.this.repaint();
+                }
+            else if (event.getID() == MouseEvent.MOUSE_PRESSED)  // middle button
+                {
+                setCursor(OPEN_HAND_CURSOR_C);
+                openHand = true;
+                event = SwingUtilities.convertMouseEvent(this, event, display);
+                originalXOffset = insideDisplay.xOffset;
+                originalYOffset = insideDisplay.yOffset;
+                originalMousePoint = event.getPoint();
+                originalText = scaleField.getText();
+                return true;
+                }
+            else if (event.getID() == MouseEvent.MOUSE_RELEASED)  // middle button
+                {
+                setCursor(new Cursor(Cursor.MOVE_CURSOR));
+                openHand = false;
+                
+                scaleField.setText(originalText);
+                originalMousePoint = null;
+                return true;
+                }
+            else if (event.getID() == MouseEvent.MOUSE_DRAGGED)  // middle button
+                {
+                if (openHand)
+                    {
+                    setCursor(CLOSED_HAND_CURSOR_C);
+                    openHand = false;
+                    }
+
+                event = SwingUtilities.convertMouseEvent(this, event, display);  // do we need to do this?
+                insideDisplay.xOffset =  originalXOffset - (originalMousePoint.x - event.getX()) / scale;
+                insideDisplay.yOffset =  originalYOffset - (originalMousePoint.y - event.getY()) / scale;
+                optionPane.xOffsetField.setValue(insideDisplay.xOffset);
+                optionPane.yOffsetField.setValue(insideDisplay.yOffset);
+                scaleField.setText("Translating Origin to (" + insideDisplay.xOffset + ", " + insideDisplay.yOffset + ")");
+                Display2D.this.repaint();
+                return true;
+                }
+            }
+        
+        // next, let's propagate the event to selected objects
                 
         Point2D.Double p = new Point2D.Double(event.getX(), event.getY());
         for(int x=0;x<selectedWrappers.size();x++)
@@ -1873,7 +2157,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         return false;
         }
 
-    void rebuildSkipFrame()
+    protected void rebuildSkipFrame()
         {
         skipFrame.getContentPane().removeAll();
         skipFrame.getContentPane().invalidate();
@@ -1972,7 +2256,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         skipListener.actionPerformed(null);  // have it update the text field accordingly
         }
 
-    void rebuildRefreshPopup()
+    protected void rebuildRefreshPopup()
         {
         refreshPopup.removeAll();
         String s = "";

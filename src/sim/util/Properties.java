@@ -5,6 +5,7 @@
 */
 
 package sim.util;
+import java.text.*;
 import java.util.*;
 
 /**
@@ -21,11 +22,15 @@ import java.util.*;
    <li><b>Type</b> (Readable).  The type of the object as a Class.  ints return Integer.TYPE, etc.
    <li><b>Composite Nature</b> (Readable).  Whether or not the Property is composite or atomic.  Atomic types are int, float, etc., plus String.
    <li><b>Domain</b> (Readable).  Whether or not the object has defined a Domain (a set or range of legal values) for the Property.  Domains allow a GUI to set up sliders, pull-down menus and combo-boxes, etc.
+   <li><b>Description</b> (Readable).  A string describing an extended description of the property.  Returns null (the default) if there is no extended description. 
+   <li><b>Hiddenness</b> (Readable).  A boolean indicating whether the property should be shown to the user. 
    </ul>
 */
 
 public abstract class Properties implements java.io.Serializable
     {
+    private static final long serialVersionUID = 1;
+
     /** Returns a Properties object for the given object.  If the object is an array, Map, Indexed, or Collection,
         then it will be treated using CollectionProperties.  Otherwise it will be
         treated using SimpleProperties.  The returned SimpleProperties will include superclasses properties.
@@ -101,6 +106,14 @@ public abstract class Properties implements java.io.Serializable
         </dl>
     */
     public Object getDomain(int index) { return null; }
+
+    /** Returns the description of the property at the given index. 
+        Descriptions are defined by methods of the form <tt>des<i>Property</i>()</tt>
+        and are either <tt>null</tt> (no description), or are Strings, possibly
+        including HTML data.  The primary function of description methods is to provide
+        tooltip information for widgets describing the Property.
+    */
+    public String getDescription(int index) { return null; }
 
     /** Returns true if the property at the given index is both readable and writable (as opposed to read-only). */
     public abstract boolean isReadWrite(int index);
@@ -187,16 +200,39 @@ public abstract class Properties implements java.io.Serializable
                     }
                 }
             else if ( type == Float.TYPE ) return _setValue(index,Float.valueOf(value));
-            else if ( type == Double.TYPE ) return _setValue(index,Double.valueOf(value));
+            else if ( type == Double.TYPE ) return _setValue(index,betterDoubleValueOf(value));
             else if ( type == Character.TYPE ) return _setValue(index,new Character(value.charAt(0)));
             else if ( type == String.class ) return _setValue(index,value);
             else return null;
             }
         catch (Exception e)
             {
-            //e.printStackTrace();
+            e.printStackTrace();
             return null;
             }
+        }
+    
+    NumberFormat format = NumberFormat.getInstance();
+    /**
+     * Replaces <code>Double.valueOf()</code> for the GUI.
+     * 
+     * <p>
+     * For specific locals, the separator char may be other than <code>'.'</code> (like <code>','</code> for instance),
+     * and in these cases a simple <code>Double.valueOf()</code> code results in a <code>NumberFormatException</code>.
+     * </p>
+     * 
+     * <p>
+     * This cause an error when there is a double parameter with a <code>domFoo()</code> function returning an
+     * <code>Interval</code> object and the systems current local setting is non-US.
+     * </p>
+     * 
+     * @param s the string object to transform into a <code>Double</code>
+     * @return a <code>Double</code> instance representing <code>s</code>.
+     * @throws ParseException if the specified <code>s</code> string cannot be parsed as a <code>Double</code>
+     */
+    Double betterDoubleValueOf(String s) throws ParseException
+        {
+        return Double.valueOf( format.parse(s).doubleValue() );
         }
     
     /*

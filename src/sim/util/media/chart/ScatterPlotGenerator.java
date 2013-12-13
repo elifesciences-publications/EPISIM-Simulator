@@ -11,10 +11,9 @@ import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-// From MASON (cs.gmu.edu/~eclab/projects/mason/)
 import sim.util.gui.*;
 
-// From JFreeChart (jfreechart.org)
+// From JFreeChart
 import org.jfree.chart.*;
 import org.jfree.chart.plot.*;
 import org.jfree.data.general.*;
@@ -32,7 +31,7 @@ import com.lowagie.text.pdf.*;
     import com.itextpdf.text.pdf.*;
 */
 
-public class ScatterPlotGenerator extends ChartGenerator
+public class ScatterPlotGenerator extends XYChartGenerator
     {
     public void removeSeries(int index)
         {
@@ -52,13 +51,10 @@ public class ScatterPlotGenerator extends ChartGenerator
         chart = ChartFactory.createScatterPlot("Untitled Chart","Untitled X Axis","Untitled Y Axis",dataset,
             PlotOrientation.VERTICAL, false, true, false);
         chart.setAntiAlias(true);
-        chartPanel = new ChartPanel(chart, true);
-        chartPanel.setPreferredSize(new java.awt.Dimension(640,480));
-        chartPanel.setMinimumDrawHeight(10);
-        chartPanel.setMaximumDrawHeight(2000);
-        chartPanel.setMinimumDrawWidth(20);
-        chartPanel.setMaximumDrawWidth(2000);
-        chartHolder.getViewport().setView(chartPanel);
+        //chartPanel = new ScrollableChartPanel(chart, true); 
+        chartPanel = buildChartPanel(chart);           
+        //chartHolder.getViewport().setView(chartPanel);
+        setChartPanel(chartPanel);
         chart.getXYPlot().setRenderer(new XYLineAndShapeRenderer(false, true));
 //              ((StandardLegend) chart.getLegend()).setDisplaySeriesShapes(true);
 
@@ -67,7 +63,7 @@ public class ScatterPlotGenerator extends ChartGenerator
         }
 
 
-    public void update()
+    protected void update()
         {
         // we'll rebuild the plot from scratch
                 
@@ -78,13 +74,13 @@ public class ScatterPlotGenerator extends ChartGenerator
         for(int i=0; i < sa.length; i++)
             {
             ScatterPlotSeriesAttributes attributes = (ScatterPlotSeriesAttributes)(sa[i]);
-            dataset.addSeries(attributes.getName(), attributes.getValues());
+            dataset.addSeries(attributes.getSeriesName(), attributes.getValues());
             }
 
         setSeriesDataset(dataset);
         }
 
-    public ScatterPlotSeriesAttributes addSeries(double[][] values, String name, final org.jfree.data.general.SeriesChangeListener stopper)
+    public SeriesAttributes addSeries(double[][] values, String name, final org.jfree.data.general.SeriesChangeListener stopper)
         {
         DefaultXYDataset dataset = (DefaultXYDataset)(getSeriesDataset());
         int i = dataset.getSeriesCount();
@@ -106,6 +102,9 @@ public class ScatterPlotGenerator extends ChartGenerator
     public void updateSeries(int index, double[][] vals)
         {
         if (index < 0) // this happens when we're a dead chart but the inspector doesn't know
+            return;
+
+        if (index >= getNumSeriesAttributes())  // this can happen when we close a window if we use the Histogram in a display
             return;
 
         ScatterPlotSeriesAttributes series = (ScatterPlotSeriesAttributes)(getSeriesAttribute(index));

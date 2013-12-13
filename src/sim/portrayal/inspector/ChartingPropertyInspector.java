@@ -107,6 +107,7 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
         {
         //the parent is ignored in PropertyInspector anyway, so I just sent a null
         super(properties,index,null,simulation);
+        
         if(generator!=null)
             {
             if(!validChartGenerator(generator))
@@ -127,7 +128,7 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
             public void windowIconified(WindowEvent e) {}
             public void windowOpened(WindowEvent e) {}
             };
-        generator.getFrame().addWindowListener(wl);
+        this.generator.getFrame().addWindowListener(wl);
 
         globalAttributes = findGlobalAttributes();  // so we share timer information.  If null, we're in trouble.
         setValidInspector(this.generator!=null); //this should always be true.
@@ -175,7 +176,9 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
             {
             ChartGenerator g = (ChartGenerator)(charts.objs[i]);
             if (!validChartGenerator(g))  // I can't use this chart
-                { charts.remove(g); i--; }
+                { charts.remove(g); i--; 
+            System.err.println(g);
+                }
             }
 
         if( charts.numObjs == 0 )
@@ -308,7 +311,8 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
         generator.addGlobalAttribute(pan);  // it'll be added last
                 
         getCharts(simulation).add( generator );                 // put me in the global charts list
-        chartFrame = generator.createFrame();
+        chartFrame = generator.createFrame(true);
+        chartFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);  //  by default it's HIDE_ON_CLOSE
 
         WindowListener wl = new WindowListener()
             {
@@ -380,7 +384,7 @@ public abstract class ChartingPropertyInspector extends PropertyInspector
                 case REDRAW_DONT:  // do nothing
                     break;
                 default:
-                    System.err.println("Unknown redraw time specified");
+                    throw new RuntimeException("Unknown redraw time specified.");
                 }
             }
         }

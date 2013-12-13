@@ -11,10 +11,9 @@ import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-// From MASON (cs.gmu.edu/~eclab/projects/mason/)
 import sim.util.gui.*;
 
-// From JFreeChart (jfreechart.org)
+// From JFreeChart
 import org.jfree.chart.*;
 import org.jfree.chart.plot.*;
 import org.jfree.data.general.*;
@@ -41,7 +40,7 @@ import com.lowagie.text.pdf.*;
    the generator to properly update the chart to reflect changes the user has made to its display.
 */
 
-public class HistogramGenerator extends ChartGenerator
+public class HistogramGenerator extends XYChartGenerator
     {
     HistogramType histogramType = HistogramType.FREQUENCY;
 
@@ -67,13 +66,10 @@ public class HistogramGenerator extends ChartGenerator
         chart = ChartFactory.createHistogram("Untitled Chart","Untitled X Axis","Untitled Y Axis",dataset,
             PlotOrientation.VERTICAL, false, true, false);
         chart.setAntiAlias(true);
-        chartPanel = new ChartPanel(chart, true);
-        chartPanel.setPreferredSize(new java.awt.Dimension(640,480));
-        chartPanel.setMinimumDrawHeight(10);
-        chartPanel.setMaximumDrawHeight(2000);
-        chartPanel.setMinimumDrawWidth(20);
-        chartPanel.setMaximumDrawWidth(2000);
-        chartHolder.getViewport().setView(chartPanel);
+        //chartPanel = new ScrollableChartPanel(chart, true);         
+        chartPanel = buildChartPanel(chart);           
+        setChartPanel(chartPanel);   
+        //chartHolder.getViewport().setView(chartPanel);
         ((XYBarRenderer)(chart.getXYPlot().getRenderer())).setShadowVisible(false);
         ((XYBarRenderer)(chart.getXYPlot().getRenderer())).setBarPainter(new StandardXYBarPainter());
 
@@ -81,20 +77,19 @@ public class HistogramGenerator extends ChartGenerator
         setSeriesDataset(dataset);
         }
  
-    public void update()
+    protected void update()
         {
         // We have to rebuild the dataset from scratch (deleting and replacing it) because JFreeChart's
         // histogram facility doesn't have a way to remove or move elements.  Stupid stupid stupid.
 
         SeriesAttributes[] sa = getSeriesAttributes();
-        XYPlot xyplot = (XYPlot)(chart.getPlot());
         HistogramDataset dataset = new HistogramDataset();
         dataset.setType(histogramType);
                 
         for(int i=0; i < sa.length; i++)
             {
             HistogramSeriesAttributes attributes = (HistogramSeriesAttributes)(sa[i]);
-            dataset.addSeries(attributes.getName(), attributes.getValues(), attributes.getNumBins());
+            dataset.addSeries(attributes.getSeriesName(), attributes.getValues(), attributes.getNumBins());
             }
                         
         setSeriesDataset(dataset);
@@ -104,7 +99,7 @@ public class HistogramGenerator extends ChartGenerator
         {
         // buildChart is called by super() first
                 
-        LabelledList list = new LabelledList("Show Histograms...");
+        LabelledList list = new LabelledList("Show Histogram...");
         DisclosurePanel pan1 = new DisclosurePanel("Show Histogram...", list);
                 
         final HistogramType[] styles = new HistogramType[] 
@@ -126,7 +121,7 @@ public class HistogramGenerator extends ChartGenerator
 
     /** Adds a series, plus a (possibly null) SeriesChangeListener which will receive a <i>single</i>
         event if/when the series is deleted from the chart by the user. Returns the series attributes. */
-    public HistogramSeriesAttributes addSeries(double[] vals, int bins, String name, SeriesChangeListener stopper)
+    public SeriesAttributes addSeries(double[] vals, int bins, String name, SeriesChangeListener stopper)
         {
         if (vals == null || vals.length == 0) vals = new double[] { 0 };  // ya gotta have at least one val
         HistogramDataset dataset = (HistogramDataset)(getSeriesDataset());
@@ -151,6 +146,9 @@ public class HistogramGenerator extends ChartGenerator
     public void updateSeries(int index, double[] vals)
         {
         if (index < 0) // this happens when we're a dead chart but the inspector doesn't know
+            return;
+            
+        if (index >= getNumSeriesAttributes())  // this can happen when we close a window if we use the Histogram in a display
             return;
 
         if (vals == null || vals.length == 0) vals = new double[] { 0 };  // ya gotta have at least one val

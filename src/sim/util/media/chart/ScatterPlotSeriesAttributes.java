@@ -8,21 +8,14 @@ package sim.util.media.chart;
 
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.geom.*;
 import java.awt.event.*;
 import java.util.*;
 import sim.util.gui.*;
 
-// From JFreeChart (jfreechart.org)
-import org.jfree.data.xy.*;
-import org.jfree.chart.*;
-import org.jfree.chart.event.*;
-import org.jfree.chart.plot.*;
-import org.jfree.data.general.*;
+// From JFreeChart
 import org.jfree.chart.renderer.xy.*;
 import org.jfree.data.general.*;
-import org.jfree.data.xy.*;
 
 public class ScatterPlotSeriesAttributes extends SeriesAttributes
     {
@@ -112,8 +105,7 @@ public class ScatterPlotSeriesAttributes extends SeriesAttributes
         super(generator, name, index, stoppable);
                 
         setValues(values);
-        //setName(name);
-        super.setName(name);  // just set the name, don't update
+        super.setSeriesName(name);  // just set the name, don't update.  Bypasses standard method below.
 
         // increment shape counter
         shapeCounter++;
@@ -128,9 +120,9 @@ public class ScatterPlotSeriesAttributes extends SeriesAttributes
         renderer.setAutoPopulateSeriesShape(false);
         }
 
-    public void setName(String val) 
+    public void setSeriesName(String val) 
         {
-        setName(val);
+        super.setSeriesName(val);
         ((ScatterPlotGenerator)generator).update();
         }
                         
@@ -138,6 +130,7 @@ public class ScatterPlotSeriesAttributes extends SeriesAttributes
         {
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer)getRenderer();
         renderer.setSeriesPaint(getSeriesIndex(), reviseColor(color, opacity));
+        // shape may be null at this point, that's fine
         renderer.setSeriesShape(getSeriesIndex(), shape);
         renderer.setAutoPopulateSeriesShape(false);
         repaint();

@@ -20,6 +20,8 @@ import java.awt.event.*;
    
    <p>SimpleInspector automatically creates an UpdateButton and adds it to itself at position BorderLayout.NORTH
    whenever you set it to be non-volatile, and when you set it to be volatile, it removes the UpdateButton.
+   
+   <p>SimpleInspector automatically sets the title of the inspetor to the object name.
 */
 
 public class SimpleInspector extends Inspector
@@ -28,16 +30,12 @@ public class SimpleInspector extends Inspector
     int maxProperties = DEFAULT_MAX_PROPERTIES;
     /** The GUIState  of the simulation */
     GUIState state;
-    /** The object being inspected */
-    Object object;
     /** The property list displayed -- this may change at any time */
     LabelledList propertyList;
     /** The generated object properties -- this may change at any time */
     Properties properties;
     /** Each of the property fields in the property list, not all of which may exist at any time. */
     PropertyField[] members = new PropertyField[0];
-    /** The displayed name of the inspector */
-    String name;
     /** The current index of the topmost element */
     int start = 0;
     /** The number of items presently in the propertyList */
@@ -46,43 +44,55 @@ public class SimpleInspector extends Inspector
         {
         public Insets getInsets () { return new Insets(2,2,2,2); }
         };
+    String listName;  // used internally
 
     JLabel numElements = new JLabel();
     Box startField = null;
     
     public GUIState getGUIState() { return state; }
-    public Object getObject() { return object; }
-    public String getName() { return name; }
     public int getMaxProperties() { return maxProperties; }
     
+    /** Creates a new SimpleInspector with the given properties, state, maximum number of properties, and
+        "name".  The name is what's shown in the labelled list of the SimpleInspector.  It is not the
+        title of the SimpleInspector (what appears in a window).  For that, use setTitle. */
     public SimpleInspector(Properties properties, GUIState state, String name, int maxProperties)
         {
         this.maxProperties = maxProperties;
         setLayout(new BorderLayout());
-        this.object = null;
         this.state = state;
-        this.name = name;
+        listName = name;
         header.setLayout(new BorderLayout());
         add(header,BorderLayout.NORTH);
         this.properties = properties;
         generateProperties(0);
+        setTitle("" + properties.getObject());
         }
         
+    /** Creates a new SimpleInspector with the given properties, state, and
+        "name".  The name is what's shown in the labelled list of the SimpleInspector.  It is not the
+        title of the SimpleInspector (what appears in a window).  For that, use setTitle. */
     public SimpleInspector(Properties properties, GUIState state, String name)
         {
         this(properties, state, name, DEFAULT_MAX_PROPERTIES);
         }
         
+    /** Creates a new SimpleInspector with the given properties and state. */
     public SimpleInspector(Object object, GUIState state)
         {
         this(object,state,null);
         }
         
+    /** Creates a new SimpleInspector with the given object, state, and
+        "name".  The name is what's shown in the labelled list of the SimpleInspector.  It is not the
+        title of the SimpleInspector (what appears in a window).  For that, use setTitle. */
     public SimpleInspector(Object object, GUIState state, String name) 
         {
         this(object, state, name, DEFAULT_MAX_PROPERTIES);
         }
         
+    /** Creates a new SimpleInspector with the given object, state, maximum number of properties, and
+        "name".  The name is what's shown in the labelled list of the SimpleInspector.  It is not the
+        title of the SimpleInspector (what appears in a window).  For that, use setTitle. */
     public SimpleInspector(Object object, GUIState state, String name, int maxProperties) 
         {
         this(Properties.getProperties(object), state, name, maxProperties);
@@ -185,7 +195,7 @@ public class SimpleInspector extends Inspector
                 
         if (propertyList != null) 
             remove(propertyList);
-        propertyList = new LabelledList(name);
+        propertyList = new LabelledList(listName);
 
         if (len > maxProperties)
             {
@@ -231,12 +241,23 @@ public class SimpleInspector extends Inspector
             {
             if (!properties.isHidden(i))  // don't show if the user asked that it be hidden
                 {
+                JLabel label = new JLabel(properties.getName(i) + " ");
+                JToggleButton toggle = PropertyInspector.getPopupMenu(properties,i,state, makePreliminaryPopup(i));
                 members[i] = makePropertyField(i);
                 propertyList.add(null,
-                    new JLabel(properties.getName(i) + " "), 
-                    PropertyInspector.getPopupMenu(properties,i,state, makePreliminaryPopup(i)), 
+                    label, 
+                    toggle, 
                     members[i], 
                     null);
+                
+                // load tooltips
+                String description = properties.getDescription(i);
+                if (description != null)
+                    {
+                    if (label != null) label.setToolTipText(description);
+                    if (toggle != null) toggle.setToolTipText(description);    // do we want this one?
+                    if (members[i] != null) members[i].setToolTipText(description);  // do we want this one?
+                    }
                 }
             else members[i] = null;
             }
@@ -289,10 +310,5 @@ public class SimpleInspector extends Inspector
         else for( int i = start ; i < start+count ; i++ )
                  if (members[i] != null) 
                      members[i].setValue(properties.betterToString(properties.getValue(i)));
-        }
-                
-    public String getTitle()
-        {
-        return "" + object;
         }
     }

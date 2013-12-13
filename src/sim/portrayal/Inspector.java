@@ -92,7 +92,9 @@ public abstract class Inspector extends JPanel
     /** Called by the system to come up with an appropriate title for a free-floating inspector window.
         Often this is toString() on the underlying object.  Some inspectors never become free-floating
         and so don't need to override this method.  By default this method returns an empty String. */
-    public String getTitle() { return ""; } 
+    String title = "";
+    public String getTitle() { return title; } 
+    public void setTitle(String title) { this.title = title; } 
     
     /**
        Called whenever the system needs to get a Steppable which, when stepped, will update the inspector and
@@ -212,6 +214,7 @@ public abstract class Inspector extends JPanel
                 stopperHolder[0] = null;
                 }
             };
+        frame.getRootPane().putClientProperty("Window.style", "small");  // on the Mac
 
         frame.setTitle(getTitle());
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

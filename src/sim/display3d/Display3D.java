@@ -116,6 +116,7 @@ import java.util.prefs.*;
 
    @author Gabriel Balan 
 **/
+
 public class Display3D extends JPanel implements Steppable
     {
     public String DEFAULT_PREFERENCES_KEY = "Display3D";
@@ -156,7 +157,7 @@ public class Display3D extends JPanel implements Steppable
     /** The combo box for skipping frames */
     public JComboBox skipBox;
     /** The frame which holds the skip controls */
-    public JFrame skipFrame = new JFrame();
+    public JFrame skipFrame;
         
     /** The Java3D canvas holding the universe. A good time to fool around with this is
         in the sceneGraphCreated() hook. */
@@ -648,7 +649,7 @@ public class Display3D extends JPanel implements Steppable
             {
             public void actionPerformed(ActionEvent e)
                 {
-                //	optionPane.setVisible(true);
+                //optionPane.setVisible(true);
                 }
             });
         header.add(optionButton);
@@ -679,6 +680,10 @@ public class Display3D extends JPanel implements Steppable
         showBackgroundCheckBox.setSelected(true);
         
         createSceneGraph();
+        
+        skipFrame = new JFrame();
+        rebuildSkipFrame();
+        skipFrame.pack();
 
         createConsoleMenu();
         }
@@ -1009,7 +1014,6 @@ public class Display3D extends JPanel implements Steppable
             //if (universe != null)
             //{ remove(canvas); revalidate(); }
             canvas = new CapturingCanvas3D(SimpleUniverse.getPreferredConfiguration());
-            
             add(canvas, BorderLayout.CENTER);
             universe = new SimpleUniverse(canvas);
             universe.getViewingPlatform().setNominalViewingTransform();  //take the viewing point a step back
@@ -1242,10 +1246,10 @@ public class Display3D extends JPanel implements Steppable
         } 
 
 
-    int updateRule = Display2D.UPDATE_RULE_ALWAYS;
-    long stepInterval = 1;
-    double timeInterval = 0;
-    long wallInterval = 0;
+    protected int updateRule = Display2D.UPDATE_RULE_ALWAYS;
+    protected long stepInterval = 1;
+    protected double timeInterval = 0;
+    protected long wallInterval = 0;
     long lastStep = -1;
     double lastTime = Schedule.BEFORE_SIMULATION;
     long lastWall = -1;  // the current time is around 1266514720569 so this should be fine (knock on wood)
@@ -1663,7 +1667,7 @@ public class Display3D extends JPanel implements Steppable
         Mode can be PolygonAttributes.POLYGON_FILL, PolygonAttributes.POLYGON_LINE, 
         or PolygonAttributes.POLYGON_POINT. */
     int rasterizationMode = PolygonAttributes.POLYGON_FILL;
-    void setRasterizationMode(int mode)
+    public void setRasterizationMode(int mode)
         {
         rasterizationMode = mode;
         polyFill.setSelected(mode==PolygonAttributes.POLYGON_FILL);
@@ -1687,7 +1691,7 @@ public class Display3D extends JPanel implements Steppable
         Mode can be PolygonAttributes.CULL_BACK, PolygonAttributes.CULL_FRONT, 
         or PolygonAttributes.CULL_NONE. */
     int cullingMode = PolygonAttributes.CULL_NONE;
-    void setCullingMode(int mode)
+    public void setCullingMode(int mode)
         {
         cullingMode = mode;
         polyCullNone.setSelected(mode==PolygonAttributes.CULL_NONE);
@@ -1709,6 +1713,17 @@ public class Display3D extends JPanel implements Steppable
     
     /** */
     ArrayList selectedWrappers = new ArrayList();
+
+    /** Returns as LocationWrappers all the currently selected objects in the
+        display.  Do not modify these wrapper objects; they are used internally. 
+        These LocationWrappers may be invalid at any time in the near future if
+        the user deselects objects.
+    */
+    public LocationWrapper[] getSelectedWrappers()
+        {
+        return (LocationWrapper[]) selectedWrappers.toArray(new LocationWrapper[selectedWrappers.size()]);
+        }
+    
     
     public void performSelection( LocationWrapper wrapper)
         {
@@ -1750,8 +1765,7 @@ public class Display3D extends JPanel implements Steppable
 
     JButton systemPreferences = new JButton("MASON");
     JButton appPreferences = new JButton("Simulation");
-  
-   /* public class OptionPane3D extends JFrame
+  /*  public class OptionPane3D extends JFrame
         {
         OptionPane3D(String label)
             {
@@ -2023,7 +2037,7 @@ public class Display3D extends JPanel implements Steppable
             } 
 
 
-        
+       
         public void savePreferences(Preferences prefs)
             {
             try
@@ -2078,7 +2092,7 @@ public class Display3D extends JPanel implements Steppable
         static final String DRAW_POLYGONS_KEY = "Draw Polygons";
         static final String DRAW_FACES_KEY = "Draw Faces";
                 
-        
+       
         void resetToPreferences()
             {
             try
@@ -2141,12 +2155,13 @@ public class Display3D extends JPanel implements Steppable
         }
 
 // must be after all other declared widgets because its constructor relies on them existing
-    public OptionPane3D optionPane = new OptionPane3D("3D Options"); 
-        
-      */  
+    public OptionPane3D optionPane = new OptionPane3D("3D Options");    
         
         
-    void rebuildSkipFrame()
+*/
+        
+        
+    protected void rebuildSkipFrame()
         {
         skipFrame.getContentPane().removeAll();
         skipFrame.getContentPane().invalidate();
@@ -2245,7 +2260,7 @@ public class Display3D extends JPanel implements Steppable
         skipListener.actionPerformed(null);  // have it update the text field accordingly
         }
 
-    void rebuildRefreshPopup()
+    protected void rebuildRefreshPopup()
         {
         refreshPopup.removeAll();
         String s = "";

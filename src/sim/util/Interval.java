@@ -33,4 +33,8 @@ public class Interval
     public Number getMin() { return min; }
     public Number getMax() { return max; }
     public boolean isDouble() { return isDouble; }
+    
+    public boolean contains(Number val) { return contains(val.doubleValue()); }
+    public boolean contains(double val) { return (val >= min.doubleValue() && val <= max.doubleValue()); }
+
     }

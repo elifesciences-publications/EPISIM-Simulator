@@ -31,6 +31,8 @@ import ec.util.MersenneTwisterFast;
  * @version 1.0, 09/24/99
  */
 public class Logarithmic extends AbstractContinousDistribution {
+    private static final long serialVersionUID = 1;
+
     protected double my_p;
 
     // cached vars for method nextDouble(a) (for performance only)
@@ -100,7 +102,6 @@ public class Logarithmic extends AbstractContinousDistribution {
             k = 1;
             p = t;
             while (u > p) {
-                //System.out.println("u="+u+", p="+p);
                 u -= p;
                 k++;
                 p *= a * (k-1.0)/(double)k;

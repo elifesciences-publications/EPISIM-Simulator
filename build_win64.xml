@@ -22,7 +22,7 @@
 
 	<!-- properties of the manifest file -->
 	<property name="author" value="Thomas Suetterlin"/>
-	<property name="version" value="1.4.0"/>
+	<property name="version" value="1.5.0"/>
 	<property name="vendor" value="Hamamatsu TIGA Center"/>
 	<property name="title" value="Episim Simulator"/>
 	<property name="main" value="sim.app.episim.gui.EpisimSimulator"/>
@@ -95,8 +95,8 @@
 		<javac  encoding="8859_1"
     	         srcdir="${src}"
     	         destdir="${currentbuild}/${build}/bin"
-    	 		 source="1.5"
-    	         target="1.5"
+    	 		 source="1.7"
+    	         target="1.7"
     	 		 nowarn="on"	
     	  >
 			<classpath>
@@ -121,15 +121,10 @@
 			<fileset dir="${lib}">
 				<include name="**/*"/>
 				<exclude name="**/classpathconfig.xml"/>
-				<!--<exclude name="**/copasi_gui.jar"/>-->
-				<!--<exclude name="**/copasi.jar"/>-->
 				<exclude name="**/CopasiJava.dll"/>			
-				<exclude name="**/gluegen-rt.dll"/>
-				<!--<exclude name="**/gluegen-rt.jar"/>-->
-				<exclude name="**/jogl.dll"/>
-				<!--<exclude name="**/jogl.jar"/>-->
-				<exclude name="**/jogl_awt.dll"/>
-				<exclude name="**/jogl_cg.dll"/>				
+				<exclude name="**/gluegen-rt-natives-windows-amd64.jar"/>
+				<exclude name="**/jogl-all-natives-windows-amd64.jar"/>
+				<exclude name="**/joal-natives-windows-amd64.jar"/>								
 			</fileset>
 			<fileset dir="${buildres}">
 				<include name="classpathconfig.xml"/>
@@ -268,12 +263,9 @@
 				<include name="**/copasi_gui.jar"/>
 				<include name="**/copasi.jar"/>
 				<include name="**/CopasiJava.dll"/>				
-				<include name="**/gluegen-rt.dll"/>
-				<include name="**/gluegen-rt.jar"/>
-				<include name="**/jogl.dll"/>
-				<include name="**/jogl.jar"/>
-				<include name="**/jogl_awt.dll"/>
-				<include name="**/jogl_cg.dll"/>	
+				<include name="**/gluegen-rt-natives-windows-amd64.jar"/>
+				<include name="**/jogl-all-natives-windows-amd64.jar"/>
+				<include name="**/joal-natives-windows-amd64.jar"/>	
 			</fileset>
 			<fileset dir="${currentbuild}/${build}/bin" defaultexcludes="no">
 				<include name="StartModelDescriptorFileGenerator.bat"/>

@@ -122,7 +122,7 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 	
 	private void saveDiffusion3DChart(Chart chart, File pngFile){
 		try{
-			ImageIO.write(chart.screenshot(), "png", pngFile);
+			chart.screenshot(pngFile);
       }
       catch (IOException e){
         ExceptionDisplayer.getInstance().displayException(e);

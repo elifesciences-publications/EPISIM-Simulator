@@ -244,7 +244,8 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 				lineShapeRenderer.setSeriesPaint(seriesIndex, colors[seriesIndex]);
 			}
 			else{
-				lineShapeRenderer.setSeriesPaint(seriesIndex, org.jzy3d.colors.Color.random().awt());
+				org.jzy3d.colors.Color randCol =org.jzy3d.colors.Color.random();
+				lineShapeRenderer.setSeriesPaint(seriesIndex, new Color(randCol.r, randCol.g, randCol.b));
 			}
 			seriesIndex++;
 		}
@@ -254,7 +255,8 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 				lineShapeRenderer.setSeriesPaint(seriesIndex, colors[seriesIndex]);
 			}
 			else{
-				lineShapeRenderer.setSeriesPaint(seriesIndex, org.jzy3d.colors.Color.random().awt());
+				org.jzy3d.colors.Color randCol =org.jzy3d.colors.Color.random();
+				lineShapeRenderer.setSeriesPaint(seriesIndex, new Color(randCol.r, randCol.g, randCol.b));
 			}
 			seriesIndex++;
 		}		
@@ -333,7 +335,8 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 				lineShapeRenderer.setSeriesPaint(seriesIndex, colors[seriesIndex]);
 			}
 			else{
-				lineShapeRenderer.setSeriesPaint(seriesIndex, org.jzy3d.colors.Color.random().awt());
+				org.jzy3d.colors.Color randCol =org.jzy3d.colors.Color.random();
+				lineShapeRenderer.setSeriesPaint(seriesIndex, new Color(randCol.r, randCol.g, randCol.b));
 			}
 			seriesIndex++;
 		}
@@ -343,7 +346,8 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 				lineShapeRenderer.setSeriesPaint(seriesIndex, colors[seriesIndex]);
 			}
 			else{
-				lineShapeRenderer.setSeriesPaint(seriesIndex, org.jzy3d.colors.Color.random().awt());
+				org.jzy3d.colors.Color randCol =org.jzy3d.colors.Color.random();
+				lineShapeRenderer.setSeriesPaint(seriesIndex, new Color(randCol.r, randCol.g, randCol.b));
 			}
 			seriesIndex++;
 		}	

@@ -1,30 +1,24 @@
 package sim.app.episim.datamonitoring.charts;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.IOException;
+
 import java.util.List;
 import java.util.Random;
 
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.controllers.mouse.ChartMouseController;
-import org.jzy3d.chart.controllers.thread.ChartThreadController;
+import org.jzy3d.chart.controllers.mouse.camera.AWTCameraMouseController;
+import org.jzy3d.chart.factories.AWTChartComponentFactory;
 import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
-import org.jzy3d.global.Settings;
+import org.jzy3d.chart.Settings;
 
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
@@ -40,10 +34,14 @@ import org.jzy3d.plot3d.primitives.Polygon;
 import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.primitives.axes.layout.renderers.ScientificNotationTickRenderer;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
-import org.jzy3d.plot3d.rendering.legends.colorbars.ColorbarLegend;
+import org.jzy3d.plot3d.rendering.legends.ILegend;
+import org.jzy3d.plot3d.rendering.legends.colorbars.AWTColorbarLegend;
+import org.jzy3d.plot3d.rendering.legends.colorbars.IColorbarLegend;
 import org.jzy3d.plot3d.rendering.view.Renderer2d;
 import org.jzy3d.plot3d.rendering.view.modes.ViewBoundMode;
-import org.jzy3d.ui.ChartLauncher;
+import org.jzy3d.chart.ChartLauncher;
+
+import com.jogamp.newt.event.MouseEvent;
 
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
@@ -110,10 +108,11 @@ public class DiffusionChartGUI {
 		surface.setWireframeColor(new Color(40,40,40));
 		
 		// Create a chart 
-		chart = new Chart(new Quality(true, false, true, false, false, false, true),"swing");
+		chart = AWTChartComponentFactory.chart(new Quality(true, false, true, false, false, false, true),"awt");
+
 		chart.getView().setBoundManual(new BoundingBox3d(0, (float)rangeDouble, 0, (float)rangeDouble, 0, this.ecDiffFieldConfig.getMaximumConcentration() < Double.POSITIVE_INFINITY?(float)this.ecDiffFieldConfig.getMaximumConcentration():1000000f));
 		
-		ColorbarLegend legend = new ColorbarLegend(surface, chart.getView().getAxe().getLayout().getZTickProvider(), chart.getView().getAxe().getLayout().getZTickRenderer());		
+		ILegend legend = new AWTColorbarLegend(surface, chart.getView().getAxe().getLayout().getZTickProvider(), chart.getView().getAxe().getLayout().getZTickRenderer());		
 		
 		surface.setLegend(legend);		
 		chart.getScene().getGraph().add(surface);
@@ -126,7 +125,7 @@ public class DiffusionChartGUI {
 	//	chart.getAxeLayout().setZTickRenderer( new ScientificNotationTickRenderer(2) );
 		
 		Settings.getInstance().setHardwareAccelerated(true);
-		ChartMouseController mouse   = new ChartMouseController();
+		AWTCameraMouseController mouse   = new AWTCameraMouseController();
 		
 		chart.addController(mouse);			
 		
@@ -237,7 +236,7 @@ public class DiffusionChartGUI {
 			titlePanel.add(chartTitle);
 			titlePanel.setBackground(java.awt.Color.WHITE);
 			panel.add(titlePanel, BorderLayout.NORTH);
-			panel.add(((JComponent)chart.getCanvas()), BorderLayout.CENTER);
+			panel.add(((java.awt.Component)chart.getCanvas()), BorderLayout.CENTER);
 			panel.setName(diffChartConfig.getChartTitle());
 			return panel;
 			

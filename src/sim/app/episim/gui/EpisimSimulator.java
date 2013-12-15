@@ -135,9 +135,17 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	public EpisimSimulator() {
 		
 		if(ModeServer.guiMode()){
+			
 			mainFrame = new JFrame();	
 			
-			mainFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("icon_old.gif")).getImage());
+			
+			List<Image> icons = new ArrayList<Image>();
+			icons.add(new ImageIcon(ImageLoader.class.getResource("episim_16_16.png")).getImage());
+			icons.add(new ImageIcon(ImageLoader.class.getResource("episim_32_32.png")).getImage());
+			icons.add(new ImageIcon(ImageLoader.class.getResource("episim_48_48.png")).getImage());
+			mainFrame.setIconImages(icons);
+			
+			//mainFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("episim_16_16.png")).getImage());
 	
 			
 			ExceptionDisplayer.getInstance().registerParentComp(mainFrame);

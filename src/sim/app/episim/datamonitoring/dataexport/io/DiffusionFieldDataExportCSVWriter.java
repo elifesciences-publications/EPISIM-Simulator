@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
-
 import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
@@ -65,14 +64,21 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
             try{
 	            filename = this.csvFile.getName();
 	            if(filename != null && filename.length() > 4 ){
-					
+	            	if(filename.contains("\\")){
+	            		int index = filename.lastIndexOf('\\');
+	                  filename = filename.substring(index + 1);
+	            	}
+	            	else if(filename.contains("/")){
+	            		int index = filename.lastIndexOf('/');
+	                  filename = filename.substring(index + 1);
+	            	}
 						this.csvFile = new File(overrideFolder+filename);
 					}
             }
             catch (Exception e){
 	           ExceptionDisplayer.getInstance().displayException(e);
             }				
-			}
+			}			
 		}
 	}
 	

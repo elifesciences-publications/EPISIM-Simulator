@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <classpath>
-<lib path="jcommon-1.0.12.jar"/>
-<lib path="jfreechart-1.0.9.jar"/>
-<lib path="jfreechart-1.0.9-experimental.jar"/>
+<lib path="jcommon-1.0.21.jar"/>
+<lib path="jfreechart-1.0.17.jar"/>
+<lib path="jfreechart-1.0.17-experimental.jar"/>
 <lib path="jzy3d-api-0.9.1.jar"/>
 <lib path="jzy3d-jdt-core-0.9.1.jar"/>
 <bin path="Simulator.jar"/>

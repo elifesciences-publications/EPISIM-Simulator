@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import calculationalgorithms.HistogramCalculationAlgorithm;
-
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory;
+import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory.SteppableType;
 import sim.app.episim.util.Names;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
@@ -151,7 +151,7 @@ public class DataExportSourceBuilder extends AbstractCommonSourceBuilder {
 	
 	private void appendSteppable(){
 		
-		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATION_CALLBACK_LIST, this.actDataExportDefinition.getDataExportFrequncyInSimulationSteps())+";\n");
+		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATION_CALLBACK_LIST, this.actDataExportDefinition.getDataExportFrequncyInSimulationSteps(), SteppableType.DATAEXPORT)+";\n");
 	
 	}
 	

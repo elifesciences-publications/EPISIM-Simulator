@@ -53,8 +53,12 @@ public class EpisimProperties {
 	public static final String SIMULATOR_CHARTSETPATH = "simulator.chartsetpath";
 	public static final String SIMULATOR_DATAEXPORTPATH = "simulator.dataexportpath";
 	public static final String SIMULATOR_DATAEXPORT_CSV_OVERRIDE_FOLDER = "simulator.dataexport.csvoverridefolder";
-	public static final String SIMULATOR_CHARTPNGPRINTPATH = "simulator.chartpngprintpath";	
+	public static final String SIMULATOR_CHARTPNGPRINTPATH = "simulator.chartpngprintpath";
+	
 	public static final String SIMULATOR_CHARTPNGPRINTFREQ = "simulator.chartpngprintfreq";
+	public static final String SIMULATOR_CHARTUPDATEFREQ = "simulator.chartupdatefreq";
+	public static final String SIMULATOR_DATAEXPORTUPDATEFREQ = "simulator.dataexportupdatefreq";
+	
 	
 	public static final String SIMULATOR_SAVESVGCOPYOFPNG = "simulator.saveSVGCopyOfEachPNG";
 	

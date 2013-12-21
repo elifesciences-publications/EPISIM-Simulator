@@ -23,9 +23,9 @@ public abstract class SteppableCodeFactory {
 	private static StringBuffer steppableCode;
 	
 	
-	
+	public enum SteppableType{CHART, DATAEXPORT}
 	//returns something like new EnhancedSteppable(){...}
-	public synchronized static String getEnhancedSteppableSourceCode(String nameOfCallBackList, double updatingFrequency){
+	public synchronized static String getEnhancedSteppableSourceCode(String nameOfCallBackList, double updatingFrequency, SteppableType type){
 				
 		steppableCode = new StringBuffer();
 		steppableCode.append("new EnhancedSteppable(){\n");
@@ -36,7 +36,22 @@ public abstract class SteppableCodeFactory {
 		
 		steppableCode.append("}\n");
 		steppableCode.append("public double getInterval(){\n");
+		steppableCode.append("if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null"+
+				"&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)){");
+		if(type == SteppableType.CHART){
+			steppableCode.append("return EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ)== null"+ 
+					"|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ)) <= 0 ?" +updatingFrequency +":" +
+					"Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ));\n");
+		}
+		else if(type == SteppableType.DATAEXPORT){
+			steppableCode.append("return EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTUPDATEFREQ)== null"+ 
+					"|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTUPDATEFREQ)) <= 0 ? " +updatingFrequency +" :" +
+					"Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTUPDATEFREQ));\n");
+		}
+		steppableCode.append("}\n");
+		steppableCode.append("else{");
 		steppableCode.append("return " + updatingFrequency + ";\n");
+		steppableCode.append("}\n");
 		steppableCode.append("}\n");
 		steppableCode.append("}\n");
 		

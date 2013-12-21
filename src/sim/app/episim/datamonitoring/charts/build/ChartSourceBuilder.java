@@ -15,7 +15,6 @@ import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.xy.XYSeries;
 
 import calculationalgorithms.HistogramCalculationAlgorithm;
-
 import episiminterfaces.*;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
@@ -30,6 +29,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory;
+import sim.app.episim.datamonitoring.steppables.SteppableCodeFactory.SteppableType;
 import sim.app.episim.util.Names;
 import sim.engine.Steppable;
 
@@ -273,7 +273,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	
 	private void appendSteppable(long baselineCalculationHandlerID, Map<Long, Long> seriesCalculationHandlerIDs){
 		
-		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATION_CALLBACK_LIST, this.actChart.getChartUpdatingFrequency())+";\n");
+		generatedSourceCode.append("steppable = "+SteppableCodeFactory.getEnhancedSteppableSourceCode(Names.CALCULATION_CALLBACK_LIST, this.actChart.getChartUpdatingFrequency(), SteppableType.CHART)+";\n");
 	}
 	
 	private void appendPNGSteppable(){

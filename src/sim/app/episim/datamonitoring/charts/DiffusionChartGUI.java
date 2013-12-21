@@ -185,7 +185,17 @@ public class DiffusionChartGUI {
                   }});
 					
 				} 
-				public double getInterval() {return diffChartConfig.getChartUpdatingFrequency();}
+				public double getInterval() {
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null
+							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)){
+								return EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ)== null
+										|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ)) <= 0 ? 100 :
+											Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ));
+					}
+					else{
+						return diffChartConfig.getChartUpdatingFrequency();
+					}
+				}
 			};
 		}
 		return new EnhancedSteppable(){public void step(SimState state) {} public double getInterval() {return 10000;}};

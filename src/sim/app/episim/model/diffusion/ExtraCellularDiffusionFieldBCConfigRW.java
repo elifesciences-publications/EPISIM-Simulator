@@ -137,12 +137,14 @@ public class ExtraCellularDiffusionFieldBCConfigRW {
 	    while (entry != null) {
 	        String name = entry.getName();
 	        // Add JAR entry to output stream.
-	        if(!name.endsWith(BCCONFIGSFILE))jarOut.putNextEntry(new JarEntry(name));
-	            // Transfer bytes from the JAR file to the output file
-	        int len;
-	        while ((len = jarIn.read(buf)) > 0) {
-	           jarOut.write(buf, 0, len);
-	        }       
+	        if(!name.endsWith(BCCONFIGSFILE)){
+	      	  jarOut.putNextEntry(new JarEntry(name));
+		            // Transfer bytes from the JAR file to the output file
+		        int len;
+		        while ((len = jarIn.read(buf)) > 0) {
+		           jarOut.write(buf, 0, len);
+		        }
+	        }
 	        entry = jarIn.getNextJarEntry();
 	    }
 	    // Close the streams        

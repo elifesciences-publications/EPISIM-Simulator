@@ -239,7 +239,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		
 		int seriesIndex = 1;
 		for(EpisimCellType cellType: cellTypes){
-			xySeries.put(new String[] { "CellCount-"+cellType.toString(), "ChartSeries_CellCount", ""+seriesIndex }, new XYSeries(cellType.toString().substring(3)));
+			xySeries.put(new String[] { "CellCount-"+cellType.toString(), "ChartSeries_CellCount", ""+seriesIndex }, new XYSeries(cellType.toString()));
 			if(seriesIndex < colors.length){
 				lineShapeRenderer.setSeriesPaint(seriesIndex, colors[seriesIndex]);
 			}
@@ -250,7 +250,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 			seriesIndex++;
 		}
 		for(EpisimDifferentiationLevel diffLevel: diffLevels){
-			xySeries.put(new String[] { "CellCount-"+diffLevel.toString(), "ChartSeries_CellCount", ""+seriesIndex }, new XYSeries(diffLevel.toString().substring(3)));
+			xySeries.put(new String[] { "CellCount-"+diffLevel.toString(), "ChartSeries_CellCount", ""+seriesIndex }, new XYSeries(diffLevel.toString()));
 			if(seriesIndex < colors.length){
 				lineShapeRenderer.setSeriesPaint(seriesIndex, colors[seriesIndex]);
 			}
@@ -330,7 +330,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		
 		seriesIndex =0;
 		for(EpisimCellType cellType: cellTypes){
-			xySeries.put(new String[] { "Apoptosis-"+cellType.toString(), "ChartSeries_Apoptosis", ""+seriesIndex }, new XYSeries(cellType.toString().substring(3)));
+			xySeries.put(new String[] { "Apoptosis-"+cellType.toString(), "ChartSeries_Apoptosis", ""+seriesIndex }, new XYSeries(cellType.toString()));
 			if(seriesIndex < colors.length){
 				lineShapeRenderer.setSeriesPaint(seriesIndex, colors[seriesIndex]);
 			}
@@ -341,7 +341,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 			seriesIndex++;
 		}
 		for(EpisimDifferentiationLevel diffLevel: diffLevels){
-			xySeries.put(new String[] { "Apoptosis-"+diffLevel.toString(), "ChartSeries_Apoptosis", ""+seriesIndex }, new XYSeries(diffLevel.toString().substring(3)));
+			xySeries.put(new String[] { "Apoptosis-"+diffLevel.toString(), "ChartSeries_Apoptosis", ""+seriesIndex }, new XYSeries(diffLevel.toString()));
 			if(seriesIndex < colors.length){
 				lineShapeRenderer.setSeriesPaint(seriesIndex, colors[seriesIndex]);
 			}

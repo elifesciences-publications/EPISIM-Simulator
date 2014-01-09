@@ -1,6 +1,7 @@
 package sim.app.episim.datamonitoring.dataexport;
 
 import episiminterfaces.monitoring.EpisimDiffFieldDataExport;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.dataexport.io.DiffusionFieldDataExportCSVWriter;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;
@@ -21,10 +22,18 @@ public class DiffusionFieldDataExport {
 	         csvWriter.writeDiffusionFieldToDisk();
          }
 		
-         public double getInterval() {        
-	         return dataExportConfig.getDataExportFrequncyInSimulationSteps();
-         }
-			
+         public double getInterval() {    
+         	
+         	if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null
+						&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)){
+							return EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTUPDATEFREQ)== null
+									|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTUPDATEFREQ)) <= 0 ? dataExportConfig.getDataExportFrequncyInSimulationSteps() :
+										Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTUPDATEFREQ));
+				}
+				else{
+					return dataExportConfig.getDataExportFrequncyInSimulationSteps();
+				}      
+         }			
 		};
 	}
 	

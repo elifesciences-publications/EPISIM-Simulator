@@ -69,7 +69,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 		if(requestedAmount < 0){
 			receiveRegular(propertycode, (-1*requestedAmount), cell, neighbours);
 		}
-		else{
+		else if(neighbours.length>0){
 			double amount = cell.returnNumberProperty(propertycode); //aktuelle Anzahl Einheiten an "var"
 			
 			double amountPossible = amount - cell.returnMinNumberProperty(propertycode); //Menge, die abgegeben werden kann
@@ -149,7 +149,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 		if(requestedAmount < 0){
 			sendRegular(propertycode, (-1*requestedAmount), cell, neighbours);
 		}
-		else{
+		else if(neighbours.length>0){
 			//if(!modelCycleActivated.contains(callingMethodId)&& fromNeighbour)requestedAmount = requestedAmount* neighbours.length; //jeder Nachbar bekommt gleich viel
 			double amount = cell.returnNumberProperty(propertycode); //aktuelle Anzahl Einheiten an "var"
 			double amountPossible = cell.returnMaxNumberProperty(propertycode) - amount; //Menge, die aufgenommen werden kann

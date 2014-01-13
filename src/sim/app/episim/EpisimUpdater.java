@@ -85,12 +85,12 @@ public class EpisimUpdater {
 	      EpisimLogger.getInstance().logInfo("Connection Successful");	   
   }
   
-  public void downloadUpdate(EpisimUpdateCallback cb) throws IOException{
+  public void downloadUpdate(EpisimUpdateCallback cb, boolean log) throws IOException{
 	  connect();
 	  if (ftpClient != null && cb != null) {
 		  
 		  byte[] buffer = new byte[BUFFER_SIZE];
-		  EpisimLogger.getInstance().logInfo("Read EPISIM update metadata.");
+		  if(log)EpisimLogger.getInstance().logInfo("Read EPISIM update metadata.");
 		  readUpdateMetadata();
 		  
 		  long size = 0;
@@ -103,7 +103,7 @@ public class EpisimUpdater {
 		  
 	     if (size > 0) {
 	   	  currentFileSize=size;
-	   	  EpisimLogger.getInstance().logInfo("EPISIM-Update-File " + updateFile + ": " + size + " bytes");
+	   	  if(log)EpisimLogger.getInstance().logInfo("EPISIM-Update-File " + updateFile + ": " + size + " bytes");
 	        cb.sizeOfUpdate((int)size);   
 	     
 		     InputStream in = ftpClient.retrieveFileStream(updateFile);
@@ -112,7 +112,7 @@ public class EpisimUpdater {
 			  if(!userTmpDir.endsWith(System.getProperty("file.separator"))) userTmpDir = userTmpDir.concat(System.getProperty("file.separator"));		     
 			  currentUpdateFile = new File(userTmpDir+"EPISIM_Update.zip");
 			  FileOutputStream fileOut = new FileOutputStream(currentUpdateFile);
-			  EpisimLogger.getInstance().logInfo("Downloading EPISIM-Update-File");
+			  if(log)EpisimLogger.getInstance().logInfo("Downloading EPISIM-Update-File");
 		     while (true) {	       
 		        int bytes = in.read(buffer);
 		        if (bytes < 0) break;
@@ -122,7 +122,7 @@ public class EpisimUpdater {
 		     fileOut.close();
 		     in.close();
 		     if(!ftpClient.completePendingCommand()) throw new IOException("Cannot complete Download of Update File");
-		     EpisimLogger.getInstance().logInfo("Successfully Downloaded EPISIM-Update-File");
+		     if(log) EpisimLogger.getInstance().logInfo("Successfully Downloaded EPISIM-Update-File");
 	     }
 	     else throw new IOException("Cannot Download Update File");
 	     disconnect();
@@ -132,10 +132,10 @@ public class EpisimUpdater {
   
   public String getMostCurrentVersion(){ return this.mostCurrentVersion;}
   
-  public void installUpdate(EpisimUpdateCallback cb) throws IOException, URISyntaxException{
+  public void installUpdate(EpisimUpdateCallback cb, boolean log) throws IOException, URISyntaxException{
 	  if (cb != null) {
 		
-		  EpisimLogger.getInstance().logInfo("Installing EPISIM update ");
+		  if(log)EpisimLogger.getInstance().logInfo("Installing EPISIM update ");
 		  long zipFileSize = currentUpdateFile.length();
 		  if(zipFileSize > 0){
 			  cb.sizeOfUpdate((int) zipFileSize);
@@ -147,7 +147,8 @@ public class EpisimUpdater {
 			  if(!installationPath.endsWith(System.getProperty("file.separator"))) installationPath = installationPath.concat(System.getProperty("file.separator"));
 			 
 			  //add this when developing inside Eclipse
-			//   installationPath = installationPath.concat("update"+System.getProperty("file.separator"));
+		     //installationPath = installationPath.concat("update"+System.getProperty("file.separator"));
+		     deleteFolderContent(new File(installationPath+"bin"+System.getProperty("file.separator")));
 			  while(entries.hasMoreElements()){
 				  ZipEntry entry = (ZipEntry)entries.nextElement();
 				  if(entry.isDirectory()) {
@@ -170,8 +171,8 @@ public class EpisimUpdater {
 				  cb.progressOfUpdate((int)entry.getCompressedSize());
 			  }
 			  updateZip.close();
-			  cb.updateHasFinished();
 			  currentUpdateFile.delete();
+			  cb.updateHasFinished();			  
 		  }	  
 	  }
   }
@@ -276,7 +277,32 @@ public class EpisimUpdater {
     System.exit(0);
   }
 
- 
+  private void deleteFolderContent(File folder) {
+	    File[] files = folder.listFiles();
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	            if(f.isDirectory()) {
+	                deleteFolder(f);
+	            } else {
+	                f.delete();
+	            }
+	        }
+	    }
+	    
+  }
+  private void deleteFolder(File folder) {
+	    File[] files = folder.listFiles();
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	            if(f.isDirectory()) {
+	                deleteFolder(f);
+	            } else {
+	                f.delete();
+	            }
+	        }
+	    }
+	    folder.delete();
+	}
   
   public interface EpisimUpdateCallback {
 		

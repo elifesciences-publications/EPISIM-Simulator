@@ -50,7 +50,6 @@ import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-
 import sim.SimStateServer;
 import sim.app.episim.CompileWizard;
 import sim.app.episim.EpisimProperties;
@@ -65,14 +64,12 @@ import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sim.app.episim.gui.EpisimUpdateDialog.UpdateCancelledCallback;
-
 import sim.app.episim.model.biomechanics.hexagonbased.twosurface.HexagonBasedMechanicalModelTwoSurface;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionFieldBCConfigRW;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.SimulationStateFile;
-
 import sim.app.episim.tissue.UniversalTissue;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueServer;
@@ -85,11 +82,12 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
+import sim.util.EpisimUpdateDialogText;
 
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.0.0.4";
+	public static final String versionID = "1.5.0.0.5";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -98,6 +96,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	private static final String M_FILE_PARAM_PREFIX = "-mp";
 	private static final String SIM_ID_PARAM_PREFIX = "-id";
 	private static final String DATA_EXPORT_FOLDER_PARAM_PREFIX = "-ef";
+	private static final String UDATE_SIMULATOR = "-update";
 	private static final String HELP = "-help";
 	
 	private JFrame mainFrame;
@@ -312,9 +311,13 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 
 							epiUI.startSimulation();
 							if(!ModeServer.guiMode()){
-								System.out.println(" ----------------------------------------");
-								System.out.println("|              EPISIM SIMULATOR          |");
-								System.out.println(" ----------------------------------------\n");
+								System.out.print(" ---------------------------------------------");
+								for(int i =0; i< EpisimSimulator.versionID.length(); i++)System.out.print("-");
+								System.out.print("\n");
+								System.out.println("|              EPISIM SIMULATOR (v. "+EpisimSimulator.versionID+")         |");
+								System.out.print(" ---------------------------------------------");
+								for(int i =0; i< EpisimSimulator.versionID.length(); i++)System.out.print("-");
+								System.out.print("\n\n");
 								System.out.println("------------Simulation Started------------");
 							}
 							epiUI.scheduleAtEnd(new Steppable(){
@@ -361,8 +364,16 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	
 	public static void main(String[] args){
 		boolean onlyHelpWanted = false;
-		
+		boolean onlyUpdate = false;
 		if(args.length >= 1 && args[0].equals(EpisimSimulator.HELP)) onlyHelpWanted = true;
+		if(args.length >= 1 && args[0].equals(EpisimSimulator.UDATE_SIMULATOR)){
+			if(!ModeServer.guiMode()){
+				onlyUpdate = true;
+				EpisimUpdateDialogText updateText = new EpisimUpdateDialogText();
+				updateText.showUpdateTextDialog();
+				System.exit(0);
+			}	
+		}
 		else{
 		
 			for(int i = 0; i < args.length; i++){
@@ -412,8 +423,10 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			//if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP) != null 
 				//	&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_GUI_PROP).equals(EpisimProperties.OFF_SIMULATOR_GUI_VAL))
 				//System.setProperty("java.awt.headless", "true");
-			System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-		      	  		EpisimSimulator episim = new EpisimSimulator();
+			if(!onlyUpdate){
+				System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+			   EpisimSimulator episim = new EpisimSimulator();
+			}
 		       
 		}
 		else printHelpTextOnConsole();
@@ -433,8 +446,9 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	
 	public static void printHelpTextOnConsole(){
 		StringBuffer sb = new StringBuffer();
-		sb.append("------------------------- EPISIM Simulator Help -------------------------\n\n");
+		sb.append("------------------------- EPISIM Simulator (v. "+EpisimSimulator.versionID+") Help -------------------------\n\n");
 		sb.append("The EPISIM Simulator supports the following input parameters:\n");
+		sb.append("\t[-update] check for updates at startup\n");
 		sb.append("\t[-bm path] to the biomedical model parameters file\n");
 		sb.append("\t[-cb path] to the cell behavioral model parameters file\n");
 		sb.append("\t[-mp path] to the miscellaneous parameters file\n");

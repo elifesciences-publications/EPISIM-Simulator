@@ -604,7 +604,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		
 		modelConnector.setX(newCellLocation.getX());
   	 	modelConnector.setY(newCellLocation.getY());
-  	 	modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());
+  	 	modelConnector.setSurfaceRatio(surfaceAreaRatio);
+  	 	modelConnector.setIsSurface(this.getCell().getIsOuterCell());// || nextToOuterCell());
   	   this.getCellEllipseObject().setXY(newCellLocation.x, newCellLocation.y);
 	   
 	}
@@ -932,6 +933,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
       AbstractCell[] xLookUp=new AbstractCell[MAX_XBINS];                                         
       double [] yLookUp=new double[MAX_XBINS]; 
       GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
+      HashMap<Long, Integer> cellIdToNumberOfBinsMap = new HashMap<Long, Integer>();
       if(allCells!= null){
       	AbstractCell[] cellArray = allCells.toArray(new AbstractCell[allCells.size()]);
 	      int numberOfCells = cellArray.length;
@@ -941,6 +943,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	          if(cellArray[i]!=null){
 	         	 cellArray[i].setIsOuterCell(false);
 		          CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+		          mechModel.surfaceAreaRatio=0;
 		          Double2D loc= mechModel.getCellLocationInCellField();
 		          double width = mechModel.getCellWidth();
 		         
@@ -948,30 +951,48 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		          int xbinLeft= Math.round((float) ((loc.x-(width/2)) / binResolutionInMikron));
 		   
 		         // calculate score for free bins and add threshhold
-		          	 double numberOfBinsAssigned = 0;	
+		          	 
 		         	 for(int n = xbinLeft; n <= xbinRight; n++){
 		         		 	int index = n < 0 ? xLookUp.length + n : n >= xLookUp.length ? n - xLookUp.length : n;
 		         		 	if(index >=0 && index < xLookUp.length && index < yLookUp.length){
 			         		 	if (xLookUp[index]==null || loc.y>yLookUp[index]){
 				         		 	xLookUp[index]=cellArray[i];                            
-					             	yLookUp[index]=loc.y;
-					             	numberOfBinsAssigned++;
+					             	yLookUp[index]=loc.y;	             	
 			         		 	}
 		         		 	}
 		         		 	else{
 		         		 		System.out.println("Lookup Error: xbinRight: "+xbinRight+"  xbinLeft: "+xbinLeft+"  index: "+index);
 		         		 	}
 			          }		        
-		         	 mechModel.surfaceAreaRatio = numberOfBinsAssigned > 0 ? (numberOfBinsAssigned/((double)((xbinRight+1)-xbinLeft))) : 0;    
+		         	 cellIdToNumberOfBinsMap.put(cellArray[i].getID(), ((xbinRight+1)-xbinLeft));
 	          }
-	      }      
+	      }
+	      
+	      HashMap<Long, Integer> numberOfAssignedBinsMap = new HashMap<Long, Integer>();
+	      for (int k=0; k< MAX_XBINS; k++){
+	      	  if((xLookUp[k]==null) || (xLookUp[k].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+		        else{
+		      	  long id= xLookUp[k].getID();
+		      	  if(numberOfAssignedBinsMap.containsKey(id)){
+		      		  int numberOfAssignedBins= numberOfAssignedBinsMap.get(id);
+		      		  numberOfAssignedBinsMap.put(id, (numberOfAssignedBins+1));
+		      	  }
+		      	  else numberOfAssignedBinsMap.put(id, 1);
+		        }
+	      }	      
 	      for (int k=0; k< MAX_XBINS; k++)
 	      {
 	          if((xLookUp[k]==null) || (xLookUp[k].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
 	          else{
 	         	 CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)xLookUp[k].getEpisimBioMechanicalModelObject();
-	         	 if(mechModel.surfaceAreaRatio > 0) xLookUp[k].setIsOuterCell(true);
-	         	 mechModel.modelConnector.setIsSurface(xLookUp[k].getIsOuterCell() || mechModel.nextToOuterCell());
+	         	 
+	         	 if(numberOfAssignedBinsMap.containsKey(xLookUp[k].getID())
+	         			 &&numberOfAssignedBinsMap.get(xLookUp[k].getID())>0){
+	         		 mechModel.surfaceAreaRatio = cellIdToNumberOfBinsMap.get(xLookUp[k].getID())<=0?0d:(double)((double)(numberOfAssignedBinsMap.get(xLookUp[k].getID()))/(double)(cellIdToNumberOfBinsMap.get(xLookUp[k].getID())));
+	         		 xLookUp[k].setIsOuterCell(true);
+	         	 }
+	         	 mechModel.modelConnector.setSurfaceRatio(mechModel.surfaceAreaRatio);
+	         	 mechModel.modelConnector.setIsSurface(xLookUp[k].getIsOuterCell());// || mechModel.nextToOuterCell());
 	          }
 	      }
       } 

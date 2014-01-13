@@ -19,6 +19,7 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
 	private boolean hasCollision =false;
 	private boolean isBasal =false;
 	private boolean isSurface = false;
+	private double surfaceRatio=0;
 	private double x=0;
 	private double y=0;
 	private double width=0;
@@ -111,5 +112,17 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
    }	
    public void setAdhesionBasalMembrane(double adhesionBasalMembrane) {   
    	this.adhesionBasalMembrane = adhesionBasalMembrane;
+   }
+
+	
+   public double getSurfaceRatio() {
+   
+   	return surfaceRatio;
+   }
+
+   @Hidden
+   public void setSurfaceRatio(double surfaceRatio) {
+   
+   	this.surfaceRatio = surfaceRatio;
    }	
 }

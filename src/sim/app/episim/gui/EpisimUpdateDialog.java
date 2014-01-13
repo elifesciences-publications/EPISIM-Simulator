@@ -277,7 +277,7 @@ public class EpisimUpdateDialog {
 							         	cancelButton.setEnabled(true);
 							         }
 							    }
-							    });
+							    }, true);
 					     }
 					     catch (Exception e){
 					       	progressLabel.setText("    Error while downloading update from EPISIM update server");
@@ -316,7 +316,7 @@ public class EpisimUpdateDialog {
 						   	 	cancelButton.setVisible(false);
 						   	 	restartButton.setVisible(true);
 						    }
-						    });
+						    }, true);
 				     }
 				     catch (Exception e){
 				       	progressLabel.setText("    Error while installing EPISIM update");

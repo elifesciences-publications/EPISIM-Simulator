@@ -3,11 +3,13 @@ package sendreceive;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
+import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.GenericBag;
 import sim.util.DoubleBag;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -81,16 +83,19 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 			}else{
 				amountForEachNeighbour = requestedAmount / neighbours.length;
 			}
-			if(amountPossible >= 0){		
-				for(int i = 0; i <  neighbours.length; i++){
-					double actNeighbourAmount = neighbours[i].returnNumberProperty(propertycode);
+			if(amountPossible >= 0){
+				GenericBag<EpisimCellBehavioralModel> neighbourBag = new GenericBag<EpisimCellBehavioralModel>();
+				neighbourBag.addAll(0, neighbours);
+				neighbourBag.shuffle(SimStateServer.getInstance().getEpisimGUIState().state.random);
+				for(int i = 0; i <  neighbourBag.size(); i++){
+					double actNeighbourAmount = neighbourBag.get(i).returnNumberProperty(propertycode);
 					double actNeigboursRemainingCapacity = cell.returnMaxNumberProperty(propertycode) - actNeighbourAmount;
 											
 					if(actNeigboursRemainingCapacity < amountForEachNeighbour){//falls Menge kleiner als die  abzugebende Menge
-						neighbours[i].setNumberProperty(propertycode, neighbours[i].returnNumberProperty(propertycode)+actNeigboursRemainingCapacity);
+						neighbourBag.get(i).setNumberProperty(propertycode, neighbourBag.get(i).returnNumberProperty(propertycode)+actNeigboursRemainingCapacity);
 						cell.setNumberProperty(propertycode, (cell.returnNumberProperty(propertycode) - actNeigboursRemainingCapacity));		
 					}else{
-						neighbours[i].setNumberProperty(propertycode, neighbours[i].returnNumberProperty(propertycode)+amountForEachNeighbour);
+						neighbourBag.get(i).setNumberProperty(propertycode, neighbourBag.get(i).returnNumberProperty(propertycode)+amountForEachNeighbour);
 						cell.setNumberProperty(propertycode, (cell.returnNumberProperty(propertycode) - amountForEachNeighbour));
 					}					
 				}
@@ -163,14 +168,17 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 				amountFromEachNeighbour = requestedAmount / neighbours.length;
 			}
 			if(amountPossible >= 0){
-				for(int i = 0; i <  neighbours.length; i++){
-					double actNeighbourAmount = neighbours[i].returnNumberProperty(propertycode);
+				GenericBag<EpisimCellBehavioralModel> neighbourBag = new GenericBag<EpisimCellBehavioralModel>();
+				neighbourBag.addAll(0, neighbours);
+				neighbourBag.shuffle(SimStateServer.getInstance().getEpisimGUIState().state.random);
+				for(int i = 0; i <  neighbourBag.size(); i++){
+					double actNeighbourAmount = neighbourBag.get(i).returnNumberProperty(propertycode);
 					double actNeigboursRemainingCapacity = actNeighbourAmount - cell.returnMinNumberProperty(propertycode);				
 					if(actNeigboursRemainingCapacity <  amountFromEachNeighbour){//falls Menge kleiner als die aufzunehmende Menge
-						neighbours[i].setNumberProperty(propertycode, neighbours[i].returnNumberProperty(propertycode)-actNeigboursRemainingCapacity);
+						neighbourBag.get(i).setNumberProperty(propertycode, neighbourBag.get(i).returnNumberProperty(propertycode)-actNeigboursRemainingCapacity);
 						cell.setNumberProperty(propertycode, (cell.returnNumberProperty(propertycode) + actNeigboursRemainingCapacity));
 					}else{
-						neighbours[i].setNumberProperty(propertycode, neighbours[i].returnNumberProperty(propertycode)- amountFromEachNeighbour);
+						neighbourBag.get(i).setNumberProperty(propertycode, neighbourBag.get(i).returnNumberProperty(propertycode)- amountFromEachNeighbour);
 						cell.setNumberProperty(propertycode, (cell.returnNumberProperty(propertycode) + amountFromEachNeighbour));
 					}					
 				}

@@ -1,8 +1,6 @@
 package sim.app.episim;
 import sim.SimStateServer;
 import sim.app.episim.datamonitoring.GlobalStatistics;
-
-
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
@@ -15,36 +13,30 @@ import sim.app.episim.model.sbml.SbmlModelConnector;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.UniversalTissue;
 import sim.app.episim.tissue.TissueServer;
-
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueType.SchedulePriority;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.TysonRungeCuttaCalculator;
-
 import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
+import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.NoExport;
-
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.CannotBeMonitored;
 
 import java.awt.geom.Rectangle2D;
-
 import java.lang.reflect.Method;
-
 import java.util.ArrayList;
 import java.util.HashSet;
-
 import java.util.List;
 import java.util.Set;
-
 
 import sim.portrayal.*;
 
@@ -180,11 +172,15 @@ public class UniversalCell extends AbstractCell
     static  long actNumberSteps = 0;
     static  long deltaTime = 0;
     int cellDivisionCounter = 0;
-    public void newSimStepCellBehavioralModel()
+    public void newSimStepCellBehavioralModel(MersenneTwisterFast random)
     {
      	
-     	 
-     	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(this.getNeighbouringCells());  	 
+     	 //Shuffling of the neighbour cells to avoid sequence dependency
+   	 
+   	GenericBag<AbstractCell> neighbours = this.getNeighbouringCells();
+   	neighbours.shuffle(random);
+   	 
+     	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(neighbours);  	 
   
    	// if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
    	// else 
@@ -271,7 +267,7 @@ public class UniversalCell extends AbstractCell
 			/////////////////////////////////////////////////////////
 			//   Differentiation: Calling the loaded Cell-Diff-Model
 			/////////////////////////////////////////////////////////
-			newSimStepCellBehavioralModel();
+			newSimStepCellBehavioralModel(state.random);
 						
 			//newSimStepCellBehavioralModel();			
 /*			long timeAfter = System.currentTimeMillis();

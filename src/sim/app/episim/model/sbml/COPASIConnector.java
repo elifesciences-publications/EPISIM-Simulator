@@ -32,8 +32,8 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.GlobalClassLoader;
-
 import episiminterfaces.EpisimSbmlModelConfiguration;
+import episiminterfaces.EpisimSbmlModelConfigurationEx;
 
 public class COPASIConnector implements ClassLoaderChangeListener {
 	
@@ -200,8 +200,19 @@ public class COPASIConnector implements ClassLoaderChangeListener {
       // problem.setTimeSeriesRequested(true);
        
        CTrajectoryMethod method = (CTrajectoryMethod)trajectoryTask.getMethod();
-       CCopasiParameter parameter = method.getParameter("Absolute Tolerance");
-       parameter.setDblValue(modelConfig.getErrorTolerance());
+       if(modelConfig instanceof EpisimSbmlModelConfigurationEx){
+      	 CCopasiParameter absoluteTolerance = method.getParameter("Absolute Tolerance");
+          System.out.println("Die Absolute Fehlertoleranz ist: " + ((EpisimSbmlModelConfigurationEx)modelConfig).getAbsoluteErrorTolerance());
+          CCopasiParameter relativeTolerance = method.getParameter("Relative Tolerance");
+          System.out.println("Die Relative Fehlertoleranz ist: " + ((EpisimSbmlModelConfigurationEx)modelConfig).getRelativeErrorTolerance());
+          absoluteTolerance.setDblValue(((EpisimSbmlModelConfigurationEx)modelConfig).getAbsoluteErrorTolerance());
+          relativeTolerance.setDblValue(((EpisimSbmlModelConfigurationEx)modelConfig).getRelativeErrorTolerance());
+       }
+       else{
+      	 CCopasiParameter absoluteTolerance = method.getParameter("Absolute Tolerance");
+      	 absoluteTolerance.setDblValue(modelConfig.getErrorTolerance());
+       } 
+      
        try{
 	      trajectoryTask.process(true);
       }

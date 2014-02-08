@@ -202,9 +202,9 @@ public class COPASIConnector implements ClassLoaderChangeListener {
        CTrajectoryMethod method = (CTrajectoryMethod)trajectoryTask.getMethod();
        if(modelConfig instanceof EpisimSbmlModelConfigurationEx){
       	 CCopasiParameter absoluteTolerance = method.getParameter("Absolute Tolerance");
-          System.out.println("Die Absolute Fehlertoleranz ist: " + ((EpisimSbmlModelConfigurationEx)modelConfig).getAbsoluteErrorTolerance());
+          //System.out.println("Die Absolute Fehlertoleranz ist: " + ((EpisimSbmlModelConfigurationEx)modelConfig).getAbsoluteErrorTolerance());
           CCopasiParameter relativeTolerance = method.getParameter("Relative Tolerance");
-          System.out.println("Die Relative Fehlertoleranz ist: " + ((EpisimSbmlModelConfigurationEx)modelConfig).getRelativeErrorTolerance());
+          //System.out.println("Die Relative Fehlertoleranz ist: " + ((EpisimSbmlModelConfigurationEx)modelConfig).getRelativeErrorTolerance());
           absoluteTolerance.setDblValue(((EpisimSbmlModelConfigurationEx)modelConfig).getAbsoluteErrorTolerance());
           relativeTolerance.setDblValue(((EpisimSbmlModelConfigurationEx)modelConfig).getRelativeErrorTolerance());
        }

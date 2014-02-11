@@ -73,7 +73,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		this.columnNames = columnNames;
 		this.name = name;
 		this.description = description;
-		if(ModeServer.consoleInput()){
+		
 			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID)!= null){
 				String path;
             try{
@@ -112,7 +112,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	           ExceptionDisplayer.getInstance().displayException(e);
             }				
 			}
-		}
+		
 	}
 	
 	public void registerObservedDataCollection(final long columnId, ObservedDataCollection<Double> map){

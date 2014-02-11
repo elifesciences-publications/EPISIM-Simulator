@@ -36,8 +36,7 @@ public abstract class SteppableCodeFactory {
 		
 		steppableCode.append("}\n");
 		steppableCode.append("public double getInterval(){\n");
-		steppableCode.append("if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null"+
-				"&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)){");
+
 		if(type == SteppableType.CHART){
 			steppableCode.append("return EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ)== null"+ 
 					"|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ)) <= 0 ?" +updatingFrequency +":" +
@@ -48,10 +47,8 @@ public abstract class SteppableCodeFactory {
 					"|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTUPDATEFREQ)) <= 0 ? " +updatingFrequency +" :" +
 					"Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORTUPDATEFREQ));\n");
 		}
-		steppableCode.append("}\n");
-		steppableCode.append("else{");
-		steppableCode.append("return " + updatingFrequency + ";\n");
-		steppableCode.append("}\n");
+		
+	
 		steppableCode.append("}\n");
 		steppableCode.append("}\n");
 		
@@ -66,9 +63,7 @@ public abstract class SteppableCodeFactory {
 		steppableCode.append("public void step(SimState state){\n");
 	
 			
-			steppableCode.append("if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null"+
-				"&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)"+
-				"&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){");
+			steppableCode.append("if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){");
 			steppableCode.append("  PNGPrinter.getInstance().printChartAsPng("+ chart.getId()+"l, "+
 					                  "null, "+
 					                  "\""+ (chart.getTitle() == null || chart.getTitle().length()==0 ? "EpisimChartPNG":chart.getTitle()) +"\", "+ChartSourceBuilder.CHARTDATAFIELDNAME+", state);\n");
@@ -82,9 +77,7 @@ public abstract class SteppableCodeFactory {
 			steppableCode.append("}\n");			
 			steppableCode.append("}\n");
 			steppableCode.append("public double getInterval(){\n");
-			steppableCode.append("if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null"+
-					"&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)"+
-					"&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){");
+			steppableCode.append("if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){");
 			steppableCode.append("return EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTFREQ)== null"+ 
 					"|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTFREQ)) <= 0 ? 100 :" +
 					"Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTFREQ));\n");

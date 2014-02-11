@@ -104,8 +104,8 @@ public class ModelInitialization {
 		
 		this.cellbehavioralModelInitializer
 				.initializeCellEnsemble(initiallyExistingCells);
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
-				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
+		if(EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT) != null &&
+				EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
 			this.biomechanicalModelInitializer
 					.initializeCellEnsembleBasedOnRandomAgeDistribution(initiallyExistingCells);
 		}

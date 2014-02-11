@@ -42,8 +42,8 @@ public class CellBehavioralModelInitializer {
 	}
 
 	private void initializeCellEnsembleWithStandardValues(ArrayList<UniversalCell> cellEnsemble) {
-		boolean randomAgeInit = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT) != null &&
-				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON);
+		boolean randomAgeInit = EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT) != null &&
+				EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON);
 		MersenneTwisterFast random = new MersenneTwisterFast(System.currentTimeMillis());
 		int cellCyclePos =0;		
 		int cellCycleStem = 1;

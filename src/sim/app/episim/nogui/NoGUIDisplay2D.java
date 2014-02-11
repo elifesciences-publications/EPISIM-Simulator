@@ -2322,7 +2322,7 @@ void rebuildRefreshPopup()
 	
 	public void startMovie()
    {
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 			synchronized(NoGUIDisplay2D.this.simulation.state.schedule)
 	       {
 	       
@@ -2411,7 +2411,7 @@ void rebuildRefreshPopup()
 	
 	public void stopMovie()
    {
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 		   synchronized(NoGUIDisplay2D.this.simulation.state.schedule)
 		   {
 		       if (episimMovieMaker == null) return;  // already stopped
@@ -2454,7 +2454,7 @@ void rebuildRefreshPopup()
 	
 	public void step(final SimState state)
    {
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 			long steps = simulation.state.schedule.getSteps();
 	      
 	      if ((insideDisplay.isShowing()    // only draw if we can be seen

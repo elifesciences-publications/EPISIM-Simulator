@@ -571,7 +571,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			for(int i = 0; i < args.length; i++){
 				if(args[i] != null && (i+1)<args.length){					
 					if(args[i].equals("-mp")) moviePath = args[i+1];
-					else if(args[i].equals("-fps")) EpisimProperties.setProperty(EpisimProperties.FRAMES_PER_SECOND_PROP, args[i+1]);
+					else if(args[i].equals("-fps")) EpisimProperties.setProperty(EpisimProperties.MOVIE_FRAMES_PER_SECOND_PROP, args[i+1]);
 					else if(args[i].equals("-id")) EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1]);
 					else if(args[i].equals("-mnp")) maxNumberOfProliferation = Integer.parseInt(args[i+1]);
 					else if(args[i].equals("-p")) modifier.setGlobalModelPropertiesToValuesInPropertiesFile(globalParameters, new File(args[i+1]));

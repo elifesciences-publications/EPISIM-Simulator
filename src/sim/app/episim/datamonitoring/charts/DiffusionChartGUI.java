@@ -186,15 +186,11 @@ public class DiffusionChartGUI {
 					
 				} 
 				public double getInterval() {
-					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null
-							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)){
+		
 								return EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ)== null
 										|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ)) <= 0 ? diffChartConfig.getChartUpdatingFrequency() :
 											Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTUPDATEFREQ));
-					}
-					else{
-						return diffChartConfig.getChartUpdatingFrequency();
-					}
+					
 				}
 			};
 		}
@@ -206,9 +202,7 @@ public class DiffusionChartGUI {
 		if(diffChartConfig.isPNGPrintingEnabled()){
 			return new EnhancedSteppable(){
 				public void step(SimState state) {					
-					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null
-							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)
-							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){
 						 		PNGPrinter.getInstance().printChartAsPng(diffChartConfig.getId(), null, 
 						 				(diffChartConfig.getChartTitle() == null || diffChartConfig.getChartTitle().length()==0 ? "EpisimChartPNG":diffChartConfig.getChartTitle()), 
 						 				chart, state);
@@ -219,9 +213,7 @@ public class DiffusionChartGUI {
 								
 				} 
 				public double getInterval() {
-					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP) != null
-							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CONSOLE_INPUT_PROP).equals(EpisimProperties.ON)
-							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){
 								return EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTFREQ)== null
 										|| Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTFREQ)) <= 0 ? diffChartConfig.getPNGPrintingFrequency() :
 											Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTFREQ));

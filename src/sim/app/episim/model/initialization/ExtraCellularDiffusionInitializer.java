@@ -52,8 +52,8 @@ public class ExtraCellularDiffusionInitializer {
 					currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal2D(diffusionFields[i]);
 				}
 				if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
-					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_3DVISUALIZATION) != null
-							&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_3DVISUALIZATION).toLowerCase().equals(EpisimProperties.SIMULATOR_DF_3DVISUALIZATION_BLOCK_MODE)){
+					if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_DIFFUSION_FIELD_3DVISUALIZATION) != null
+							&& EpisimProperties.getProperty(EpisimProperties.DISPLAY_DIFFUSION_FIELD_3DVISUALIZATION).toLowerCase().equals(EpisimProperties.DISPLAY_DF_3DVISUALIZATION_BLOCK_MODE)){
 							currentDiffusionFieldPortrayals[i] = new ExtraCellularDiffusionPortrayal3D(diffusionFields[i]);
 						}
 						else{

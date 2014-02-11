@@ -82,8 +82,7 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 	private File getPNGFile(long chartId, File directory, String fileName, SimState state){
 		if(!this.fileNameMap.keySet().contains(chartId)) this.fileNameMap.put(chartId, findFileName(fileName));
 		
-		if(ModeServer.consoleInput()
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null
 				&& state != null){
 			
 			fileName = fileName.replace(' ', '_');
@@ -110,8 +109,8 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 			
 			
 			ChartUtilities.saveChartAsPNG(pngFile, chart, PNG_CHARTWIDTH, PNG_CHARTHEIGHT);
-         if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG) != null 
-         		&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG).equalsIgnoreCase(EpisimProperties.ON)){
+         if(EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG) != null 
+         		&& EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG).equalsIgnoreCase(EpisimProperties.ON)){
          	saveSVGImageOfJFreeChart(chart, pngFile);
          }
       }

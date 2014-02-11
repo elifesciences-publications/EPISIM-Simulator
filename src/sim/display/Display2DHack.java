@@ -140,7 +140,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 		moviePathSet = EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP) != null;
 		
 		
-		if(moviePathSet && ModeServer.consoleInput()){ 
+		if(moviePathSet){ 
 			movieButton.setEnabled(false);
 			 insideDisplay = new EpisimInnerDisplay2D(width,height); 
 			
@@ -396,7 +396,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	
 	public void startMovie()
    {
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 			synchronized(Display2DHack.this.simulation.state.schedule)
 	       {
 	       
@@ -531,7 +531,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	
 	public void stopMovie()
    {
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 		   synchronized(Display2DHack.this.simulation.state.schedule)
 		   {
 		       if (episimMovieMaker == null) return;  // already stopped
@@ -549,7 +549,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	
 	public void step(final SimState state)
    {
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 			
 	      
 			if (shouldUpdate())       // time to update!

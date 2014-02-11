@@ -96,8 +96,8 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 
 			         System.out.print("\r");	         
 			         System.out.print("Simulation Step " + (SimStateServer.getInstance().getSimStepNumber()+1));
-			         if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP) != null){
-							long steps = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP));
+			         if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_MAX_STEPS_PROP) != null){
+							long steps = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATION_MAX_STEPS_PROP));
 							System.out.print(" of " + steps);
 							if((SimStateServer.getInstance().getSimStepNumber()+1) == steps){
 								System.out.println("\n------------Simulation Stopped------------");

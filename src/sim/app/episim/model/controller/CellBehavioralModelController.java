@@ -58,8 +58,8 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	
 	private CellBehavioralModelController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SEND_RECEIVE_ALGORITHM) != null 
-				&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SEND_RECEIVE_ALGORITHM).length() >0){
+		if(EpisimProperties.getProperty(EpisimProperties.MODEL_SEND_RECEIVE_ALGORITHM) != null 
+				&& EpisimProperties.getProperty(EpisimProperties.MODEL_SEND_RECEIVE_ALGORITHM).length() >0){
 			try{
 				sendReceivePackagePath = new File (ProjectLocator.getBinPath().getAbsolutePath() + System.getProperty("file.separator") +SEND_RECEIVE_PACKAGENAME);
 	         if(sendReceivePackagePath!=null){
@@ -69,7 +69,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	 				for(File file: getSendReceiveClassFiles()){					
 	 		           Class<?> loadedClass = GlobalClassLoader.getInstance().loadClass(SEND_RECEIVE_PACKAGENAME+"."+file.getName().substring(0, (file.getName().length()-".class".length())));
 	 		           if(SendReceiveAlgorithm.class.isAssignableFrom(loadedClass) 
-	 		         		  && loadedClass.getCanonicalName().endsWith(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SEND_RECEIVE_ALGORITHM))){
+	 		         		  && loadedClass.getCanonicalName().endsWith(EpisimProperties.getProperty(EpisimProperties.MODEL_SEND_RECEIVE_ALGORITHM))){
 	 		         	   this.sendReceiveAlgorithmClass = (Class<? extends SendReceiveAlgorithm>) loadedClass;
 	 		           }
 	 				}

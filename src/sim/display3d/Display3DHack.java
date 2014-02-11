@@ -158,7 +158,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
             }
         });
 		moviePathSet = EpisimProperties.getProperty(EpisimProperties.MOVIE_PATH_PROP) != null;
-		if(moviePathSet && ModeServer.consoleInput()){ 
+		if(moviePathSet){ 
 			movieButton.setEnabled(false);
 			 simulation.scheduleAtStart(new Steppable()   // to stop movie when simulation is stopped
           {
@@ -200,9 +200,9 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
         if(ModeServer.guiMode()){
       	  optionPane = new OptionPane3D(epiSimulation.getMainGUIComponent(), "3D Options");
         }
-      if(ModeServer.consoleInput()){
+    
       	setRotationToPropertyValues();
-      }
+      
 	}	
 	
    public ModelClip getModelClip() {
@@ -530,7 +530,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 		
 		  // we synchronize here so stopMovie() and startMovie() can
       // prevent us from adding images if necessary.
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 		   if (canvas==null) return;  // hasn't been created yet
 	        
 	        if (dirty && waitForRenderer) { createSceneGraph(); return; }
@@ -631,7 +631,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	
 	public void startMovie()
    {
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 			if(ModeServer.guiMode()){
 				if (episimMovieMaker != null) return;
 				synchronized(Display3DHack.this.simulation.state.schedule)
@@ -665,7 +665,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    }
 	public void stopMovie()
    {
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 		   synchronized(Display3DHack.this.simulation.state.schedule)
 		   {
 		       if (episimMovieMaker == null) return;  // already stopped
@@ -682,7 +682,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	
 	public void step(final SimState state)
    {
-		if(ModeServer.consoleInput() && moviePathSet){
+		if(moviePathSet){
 			 if (shouldUpdate() &&
                 (canvas.isShowing()    // only draw if we can be seen
                 || episimMovieMaker != null ))      // OR draw to a movie even if we can't be seen
@@ -720,23 +720,23 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	double rotZ=0;
    	double rotPerSec=0;
    	try{
-   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_X) != null){
-   			rotX = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_X));
+   		if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_ROTATION_X) != null){
+   			rotX = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_ROTATION_X));
    		}
    	}catch(NumberFormatException e){/*ignore this exception and do nothing*/}
    	try{
-   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_Y) != null){
-   			rotY = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_Y));
+   		if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_ROTATION_Y) != null){
+   			rotY = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_ROTATION_Y));
    		}
    	}catch(NumberFormatException e){/*ignore this exception and do nothing*/}
    	try{
-   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_Z) != null){
-   			rotZ = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_Z));
+   		if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_ROTATION_Z) != null){
+   			rotZ = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_ROTATION_Z));
    		}
    	}catch(NumberFormatException e){/*ignore this exception and do nothing*/}
    	try{
-   		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_PERSECOND) != null){
-   			rotPerSec = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAY3D_ROTATION_PERSECOND));
+   		if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_ROTATION_PERSECOND) != null){
+   			rotPerSec = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_3D_ROTATION_PERSECOND));
    		}
    	}catch(NumberFormatException e){/*ignore this exception and do nothing*/}
    	
@@ -1158,8 +1158,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       planeSilderPanel.add(diffFieldPlaneSlider, BorderLayout.CENTER);
 	       planeSilderPanel.add(diffFieldPlaneSliderLabel, BorderLayout.EAST);
 	       JPanel opacitySilderPanel = null;
-		  if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_3DVISUALIZATION) == null
-							|| !EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DIFFUSION_FIELD_3DVISUALIZATION).toLowerCase().equals(EpisimProperties.SIMULATOR_DF_3DVISUALIZATION_BLOCK_MODE)){ 
+		  if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_DIFFUSION_FIELD_3DVISUALIZATION) == null
+							|| !EpisimProperties.getProperty(EpisimProperties.DISPLAY_DIFFUSION_FIELD_3DVISUALIZATION).toLowerCase().equals(EpisimProperties.DISPLAY_DF_3DVISUALIZATION_BLOCK_MODE)){ 
 		       opacitySilderPanel = new JPanel(new BorderLayout(10,10));
 		       diffFieldOpacitySlider = new JSlider(JSlider.HORIZONTAL,0,100,100);
 		       diffFieldOpacitySlider.setMajorTickSpacing(1);

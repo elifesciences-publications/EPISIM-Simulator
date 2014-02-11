@@ -47,9 +47,9 @@ public class EpisimMovieMaker{
 	public EpisimMovieMaker(Frame parent) {
 		 movieMaker = new MovieMakerHack(parent);	
 		 this.parentForDialogs = parent;
-		 if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MOVIE_FRAMES_PER_FILE) != null){
+		 if(EpisimProperties.getProperty(EpisimProperties.MOVIE_FRAMES_PER_FILE) != null){
 			 try{
-				 int fno = Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MOVIE_FRAMES_PER_FILE));
+				 int fno = Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.MOVIE_FRAMES_PER_FILE));
 				 this.frames_per_file = fno;
 			 }
 			 catch(NumberFormatException e) { /*Ignore this exception*/ }
@@ -73,8 +73,7 @@ public class EpisimMovieMaker{
        
    
    public synchronized boolean start(BufferedImage typicalImage, float fps){
-   	if(!ModeServer.consoleInput()) return movieMaker.start(typicalImage, fps);
-   	else{
+   	
    		if (movieMaker.isRunning()) return false;
    	   
          int encodeFormatIndex = 0;
@@ -82,8 +81,8 @@ public class EpisimMovieMaker{
          try
              {
          	
-         	 if(EpisimProperties.getProperty(EpisimProperties.FRAMES_PER_SECOND_PROP)!= null){ 
-         		 fps = Float.parseFloat(EpisimProperties.getProperty(EpisimProperties.FRAMES_PER_SECOND_PROP));
+         	 if(EpisimProperties.getProperty(EpisimProperties.MOVIE_FRAMES_PER_SECOND_PROP)!= null){ 
+         		 fps = Float.parseFloat(EpisimProperties.getProperty(EpisimProperties.MOVIE_FRAMES_PER_SECOND_PROP));
          		 this.fps = fps;
          	 }
          	
@@ -133,13 +132,13 @@ public class EpisimMovieMaker{
          movieMaker.setIsRunning(true);
          return true;
     
-   	}
+   	
    }
    
    private synchronized boolean changeFile(BufferedImage typicalImage){
    	
    	
-   	if(ModeServer.consoleInput()){
+   	
    		
    	
    		if (!movieMaker.isRunning()) return false;
@@ -180,15 +179,7 @@ public class EpisimMovieMaker{
              }
              
          movieMaker.setIsRunning(true);
-         return true;
-    
-   	}
-   	
-   	
-   	
-   	
-   	return false;
-   	
+         return true;  	
    }
    
    
@@ -196,11 +187,9 @@ public class EpisimMovieMaker{
    public synchronized boolean add(BufferedImage image)
    {
    	frameCounter++;
-   	if((frameCounter % frames_per_file) == 0 && ModeServer.consoleInput()) changeFile(image);
+   	if((frameCounter % frames_per_file) == 0) changeFile(image);
    	
-   	if(!ModeServer.consoleInput()) return movieMaker.add(image);
-   	else{
-	       if (!movieMaker.isRunning()) return false;
+   	  if (!movieMaker.isRunning()) return false;
 	       //              ((sim.util.media.MovieEncoder)encoder).add(image);
 	               {
 	               try  // NOT LIKELY TO HAPPEN
@@ -215,8 +204,8 @@ public class EpisimMovieMaker{
 	                   }
 	               }
 	       return true;
-   	}
-      }
+   	
+   }
    
    /** End the movie stream, finish up writing to disk, and clean up. */
    public synchronized boolean stop()

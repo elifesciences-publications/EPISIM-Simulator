@@ -289,8 +289,8 @@ public class ModelDescriptorFileGenerator {
 	
 	public static void main(String[] args){
 		ModelDescriptorFileGenerator generator = new ModelDescriptorFileGenerator();
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_STANDARDFILEPATH)!= null){
-			EpisimProperties.removeProperty(EpisimProperties.SIMULATOR_STANDARDFILEPATH);
+		if(EpisimProperties.getProperty(EpisimProperties.DIALOG_STANDARDFILEPATH)!= null){
+			EpisimProperties.removeProperty(EpisimProperties.DIALOG_STANDARDFILEPATH);
 		}
 		generator.start();		
 	}

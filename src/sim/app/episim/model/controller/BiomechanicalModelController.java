@@ -98,12 +98,11 @@ public class BiomechanicalModelController implements java.io.Serializable, Class
 			this.biomechanicalModel = new BiomechanicalModelFacade(modelLoader.getEpisimBiomechanicalModelClass(), modelLoader.getEpisimModelConnectorClass(), modelLoader.getEpisimBiomechnicalModelGlobalParametersObject(), modelLoader.getBiomechanicalModelInitializerClass());
 			
 			
-			if(ModeServer.consoleInput()){
-				ModelParameterModifier parameterModifier = new ModelParameterModifier();
-				if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
+			
+			ModelParameterModifier parameterModifier = new ModelParameterModifier();
+			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
 					parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(BiomechanicalModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()
 							, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP)));
-				}
 			}
 			return true;
 		}

@@ -40,7 +40,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 		this.diffusionFieldName = diffusionFieldName;
 		this.name = name;
 		this.description = description;
-		if(ModeServer.consoleInput()){
+		
 			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID)!= null){
 				String path;
             try{
@@ -79,7 +79,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 	           ExceptionDisplayer.getInstance().displayException(e);
             }				
 			}			
-		}
+		
 	}
 	
 	public void writeDiffusionFieldToDisk(){

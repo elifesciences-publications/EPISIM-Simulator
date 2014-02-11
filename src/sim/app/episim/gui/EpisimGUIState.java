@@ -478,11 +478,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		Dimension windowDim = new Dimension((int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth()*EpisimSimulator.MAINFRAME_WIDTH_FACT),
 				(int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight()*EpisimSimulator.MAINFRAME_HEIGHT_FACT)); 
 		
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_HEIGHT) != null &&
-				EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_WIDTH) != null){
+		if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_SIZE_HEIGHT) != null &&
+				EpisimProperties.getProperty(EpisimProperties.DISPLAY_SIZE_WIDTH) != null){
 				try{
-					double displayWidth = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_WIDTH));
-					double displayHeight= Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_HEIGHT));
+					double displayWidth = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_SIZE_WIDTH));
+					double displayHeight= Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_SIZE_HEIGHT));
 					
 					double windowDisplayScale1 = windowDim.width / displayWidth;
 					double windowDisplayScale2 = windowDim.height / displayHeight;
@@ -609,11 +609,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		displayFrame.setVisible(true);
 		displayFrame.setFrameIcon(null);
 		
-		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_HEIGHT) != null &&
-			EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_WIDTH) != null){
+		if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_SIZE_HEIGHT) != null &&
+			EpisimProperties.getProperty(EpisimProperties.DISPLAY_SIZE_WIDTH) != null){
 			try{
-				int width = Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_WIDTH));
-				int height = Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DISPLAYSIZE_HEIGHT));
+				int width = Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.DISPLAY_SIZE_WIDTH));
+				int height = Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.DISPLAY_SIZE_HEIGHT));
 				
 				displayFrame.setSize(width, height);
 				displayFrame.setPreferredSize(new Dimension(width, height));

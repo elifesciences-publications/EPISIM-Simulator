@@ -116,7 +116,6 @@ public class ModelController implements java.io.Serializable, ClassLoaderChangeL
    	this.initializer = null;
    	boolean success = CellBehavioralModelController.getInstance().loadModelFile(modelFile);   	
    	if(success){
-   		if(ModeServer.consoleInput()){
    			ModelParameterModifier parameterModifier = new ModelParameterModifier();
    			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
    				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(CellBehavioralModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters()
@@ -127,7 +126,7 @@ public class ModelController implements java.io.Serializable, ClassLoaderChangeL
    						, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP)));
    			}
    			
-   		}
+   		
    		success = BiomechanicalModelController.getInstance().loadModelFile(CellBehavioralModelController.getInstance().getNewEpisimCellBehavioralModelObject().getIdOfRequiredEpisimModelConnector());
    		ExtraCellularDiffusionController.getInstance().newCellBehavioralModelLoaded();
    	}

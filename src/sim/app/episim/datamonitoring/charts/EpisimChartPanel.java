@@ -67,8 +67,8 @@ public class EpisimChartPanel extends ChartPanel {
 		        try{
 		      	 File pngFile = new File(filename);
 		          ChartUtilities.saveChartAsPNG(pngFile,getChart(), width, height);
-		          if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG) != null 
-		          		&& EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SAVESVGCOPYOFPNG).equalsIgnoreCase(EpisimProperties.ON)){
+		          if(EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG) != null 
+		          		&& EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG).equalsIgnoreCase(EpisimProperties.ON)){
 		          	saveSVGImageOfJFreeChart(pngFile, width, height);
 		          }
 			     }

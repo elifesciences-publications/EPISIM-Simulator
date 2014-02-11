@@ -87,7 +87,7 @@ import sim.util.EpisimUpdateDialogText;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.0.0.6";
+	public static final String versionID = "1.5.0.0.8";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -95,6 +95,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	private static final String BM_FILE_PARAM_PREFIX = "-bm";
 	private static final String M_FILE_PARAM_PREFIX = "-mp";
 	private static final String SIM_ID_PARAM_PREFIX = "-id";
+	private static final String CONFIGURATION_FILE_PATH_PREFIX = "-cf";
 	private static final String DATA_EXPORT_FOLDER_PARAM_PREFIX = "-ef";
 	private static final String UDATE_SIMULATOR = "-update";
 	private static final String HELP = "-help";
@@ -247,17 +248,17 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		if(!updateAvailable) autoStartSimulation();
 	}
 	private void loadPresetFiles(){
-		if(ModeServer.consoleInput()){
+		
 					
-					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP) != null){
-						File snapshotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP));
+					if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_SNAPSHOT_PATH_PROP) != null){
+						File snapshotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATION_SNAPSHOT_PATH_PROP));
 						if(snapshotPath.isDirectory()){
-							snapshotPath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_SNAPSHOT_PATH_PROP, "EpisimSnapshot", "xml");
+							snapshotPath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATION_SNAPSHOT_PATH_PROP, "EpisimSnapshot", "xml");
 						}
 						setTissueExportPath(snapshotPath, false);
 					}
-					if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP) != null){
-						File cellbehavioralModelFile = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELL_BEHAVIORAL_MODEL_PATH_PROP));
+					if(EpisimProperties.getProperty(EpisimProperties.MODEL_CELL_BEHAVIORAL_MODEL_PATH_PROP) != null){
+						File cellbehavioralModelFile = new File(EpisimProperties.getProperty(EpisimProperties.MODEL_CELL_BEHAVIORAL_MODEL_PATH_PROP));
 						if(!cellbehavioralModelFile.exists() || !cellbehavioralModelFile.isFile()) throw new PropertyException("No existing Cell Behavioral Model File specified: "+cellbehavioralModelFile.getAbsolutePath());
 						else{
 							openModel(cellbehavioralModelFile, null);
@@ -294,16 +295,15 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 							
 						}
 					}
-				}
+				
 	}
 	private void autoStartSimulation(){
-		if(ModeServer.consoleInput()){			
-			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP) != null){
-				long steps = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MAX_SIMULATION_STEPS_PROP));
+			if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_MAX_STEPS_PROP) != null){
+				long steps = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATION_MAX_STEPS_PROP));
 				if(epiUI != null && steps > 0) epiUI.setMaxSimulationSteps(steps);
 			}			
-			if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_AND_STOP_PROP) != null && 
-					EpisimProperties.getProperty(EpisimProperties.SIMULATOR_AUTOSTART_AND_STOP_PROP).equals(EpisimProperties.ON)){
+			if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_AUTOSTART_AND_STOP_PROP) != null && 
+					EpisimProperties.getProperty(EpisimProperties.SIMULATION_AUTOSTART_AND_STOP_PROP).equals(EpisimProperties.ON)){
 				if(epiUI != null){ 
 					Runnable r  = new Runnable(){
 
@@ -328,9 +328,9 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 										public void run() {
 											try{
 												long waitingTimeInMs=100000;
-												if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_WAITINGTIME_BEFORE_SHUTDOWN_IN_MS) != null){
+												if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_SHUTDOWN_WAIT_MS) != null){
 													try{
-														waitingTimeInMs = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_WAITINGTIME_BEFORE_SHUTDOWN_IN_MS));
+														waitingTimeInMs = Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATION_SHUTDOWN_WAIT_MS));
 													}
 													catch(NumberFormatException e){}
 												}
@@ -359,7 +359,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
                   SwingUtilities.invokeLater(r);
 				}
 			}
-		}
+		
 	}
 	
 	public static void main(String[] args){
@@ -375,6 +375,17 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			}	
 		}
 		else{
+			
+			//check for config file property
+			for(int i = 0; i < args.length; i++){
+				if(args[i].equals(EpisimSimulator.CONFIGURATION_FILE_PATH_PREFIX)){
+					if((i+1) >= args.length) throw new PropertyException("Missing value after parameter: "+ args[i]);
+					if(EpisimProperties.loadCustomConfigPropertiesFile(args[i+1])){
+						System.out.println("Custom EPISIM Simulator Configuration File successfully loaded: "+args[i+1]);
+					}
+					else System.out.println("Custom EPISIM Simulator Configuration File cannot be loaded: "+args[i+1]+"\nDefault Configuration File loaded!");
+				}
+			}
 		
 			for(int i = 0; i < args.length; i++){
 				if(args[i].equals(EpisimSimulator.BM_FILE_PARAM_PREFIX) 
@@ -413,7 +424,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			}
 		}
 		String mode;
-		if((mode=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_DISPLAYMODE_PROP)) != null 
+		if((mode=EpisimProperties.getProperty(EpisimProperties.EXCEPTION_OUTPUT_PROP)) != null 
 				&& mode.equals(EpisimProperties.SIMULATOR))  System.setErr(new PrintStream(errorOutputStream));
 		
 		if((mode=EpisimProperties.getProperty(EpisimProperties.STANDARD_OUTPUT)) != null 
@@ -454,6 +465,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		sb.append("\t[-mp path] to the miscellaneous parameters file\n");
 		sb.append("\t[-id identifier] of the current simulation run\n");
 		sb.append("\t[-ef path] of the data export folder used to override the originally defined one\n");
+		sb.append("\t[-cf path] of the custom EPISIM Simulator configuration file to be used instead of the default one\n");
 		System.out.println(sb.toString());
 	}
 	

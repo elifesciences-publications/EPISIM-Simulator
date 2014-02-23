@@ -184,7 +184,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
        
    }
    
-   public InteractionResult calculateRepulsiveAdhesiveAndChemotacticForces(Bag neighbours, Double2D thisloc)
+   public InteractionResult calculateRepulsiveAdhesiveAndChemotacticForces(Bag neighbours, Double2D thisloc, boolean finalSimStep)
    {
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
        // for each collision calc a pressure vector and add it to the other's existing one
@@ -265,9 +265,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
             	
             //	double contactArea = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
             	
-            	
-            
-            		
+            	if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
+            		double contactAreaCorrect = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
+            		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), contactAreaCorrect);
+            	}
             	
             	double smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
             										 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
@@ -547,7 +548,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    	}
 	}
 	
-	public void calculateSimStep(){
+	public void calculateSimStep(boolean finalSimStep){
+		if(finalSimStep)this.modelConnector.resetPairwiseParameters();
 		//according to Pathmanathan et al.2008
 		Double2D oldCellLocation = cellField.getObjectLocation(getCell());
 		
@@ -556,7 +558,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		if(oldCellLocation != null){
 			
 			Bag neighbours = cellField.getNeighborsWithinDistance(oldCellLocation, getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact(), true, true);	
-			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(neighbours, oldCellLocation);
+			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(neighbours, oldCellLocation, finalSimStep);
 						
 			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){		
 				
@@ -919,7 +921,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
    			CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
    			if(i == 0) cellBM.initNewSimStep();
-   			cellBM.calculateSimStep();
+   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
    			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
    		}
    	}

@@ -38,7 +38,7 @@ import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 import episimbiomechanics.EpisimModelConnector.Hidden;
-
+import episimbiomechanics.EpisimModelConnector.Pairwise;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpisimSimulator;
@@ -127,14 +127,11 @@ public class ModelDescriptorFileGenerator {
 		StringBuffer sBuffer = new StringBuffer();
 
 		sBuffer.append("Manifest-Version: 1.0\n");
-		sBuffer.append("Created-By: "+EpisimSimulator.versionID+" (Episim - Uni Heidelberg)\n");
+		sBuffer.append("Created-By: "+EpisimSimulator.versionID+" (EPISIM - Uni Heidelberg)\n");
 		
-
-		
-		ByteArrayInputStream byteIn = new ByteArrayInputStream(sBuffer
-				.toString().getBytes("UTF-8"));
-
+		ByteArrayInputStream byteIn = new ByteArrayInputStream(sBuffer.toString().getBytes("UTF-8"));
 		manifest = new Manifest(byteIn);
+		
 		jarOut = new JarOutputStream(new FileOutputStream(jarPath), manifest);
 		jarOut.setLevel(1);
 		
@@ -246,14 +243,17 @@ public class ModelDescriptorFileGenerator {
 			rootElement.appendChild(modelParametersElement);
 			
 			for(String m : getterMethods.keySet()){
+				boolean isPairwise=((getterMethods.get(m).getAnnotation(Pairwise.class)!=null)
+						||(setterMethods.containsKey(m)&& setterMethods.get(m).getAnnotation(Pairwise.class)!=null));
 				if(isValidReturnType(getterMethods.get(m).getReturnType())){
 					Element parameterElement = document.createElement("parameter");
 					modelParametersElement.appendChild(parameterElement);
 					
 					parameterElement.setAttribute("name", m.substring(0,1).toLowerCase()+m.substring(1));
 					parameterElement.setAttribute("datatype", getReturnTypeString(getterMethods.get(m).getReturnType()));
-					parameterElement.setAttribute("default", ""+getterMethods.get(m).invoke(actConnector, null));
+					parameterElement.setAttribute("default", ""+ (isPairwise ? 0 :getterMethods.get(m).invoke(actConnector, null)));
 					parameterElement.setAttribute("readonly",""+ !setterMethods.containsKey(m));
+					parameterElement.setAttribute("pairwise", ""+ isPairwise);
 				}
 			}
 			return document;

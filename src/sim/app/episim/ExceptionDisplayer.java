@@ -4,9 +4,10 @@ import java.awt.Component;
 
 import javax.swing.JOptionPane;
 
+import episimexceptions.ZeroNeighbourCellsAccessException;
+import sim.SimStateServer;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
-
 import binloc.ProjectLocator;
 
 import java.io.File;
@@ -36,8 +37,15 @@ public class ExceptionDisplayer implements ClassLoaderChangeListener{
 	}
 	
 	public synchronized void displayException(Throwable t){
-		
-		EpisimLogger.getInstance().logException("", t);
+		if(t instanceof ZeroNeighbourCellsAccessException){
+			if(ModeServer.guiMode()){
+				JOptionPane.showMessageDialog(rootComp, "A cell with no neighbours tried to access parameters of a neighboring cell.\nDefine checks for the existance of neighbouring cells (numberOfNeighbours>0)\nin your graphical cell behavioral model before accessing parameters of neighbouring cells!\nEPISIM Simulator will shut down...", "Invalid neighbour cell access", JOptionPane.ERROR_MESSAGE);
+			}
+			EpisimLogger.getInstance().logException("", t);
+			System.exit(0);
+			
+		}
+		else EpisimLogger.getInstance().logException("", t);
 	}
 	
 	public void registerParentComp(Component comp){ this.rootComp = comp; }

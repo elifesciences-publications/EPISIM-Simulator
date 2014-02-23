@@ -117,7 +117,7 @@ public class CellBehavioralModelInitializer {
 		if (simulationStateData.getAlreadyLoadedXmlCellNewID(sampleCell.getID()) != null) {
 			XmlEpisimCellBehavioralModel xCellBehave = simulationStateData.getAlreadyLoadedXmlCellNewID(sampleCell.getID())
 					.getEpisimCellBehavioralModel();
-			xCellBehave.copyValuesToTarget(cellBehave);
+			if(xCellBehave != null)xCellBehave.copyValuesToTarget(cellBehave);
 			cellBehave.setId(sampleCell.getID());
 		}
 	}
@@ -130,7 +130,7 @@ public class CellBehavioralModelInitializer {
 			if (simulationStateData.getAlreadyLoadedXmlCellNewID(actCell.getID()) != null) {
 				XmlEpisimCellBehavioralModel xCellBehave = simulationStateData.getAlreadyLoadedXmlCellNewID(actCell.getID())
 						.getEpisimCellBehavioralModel();
-				xCellBehave.copyValuesToTarget(cellBehave);
+				if(xCellBehave != null)xCellBehave.copyValuesToTarget(cellBehave);
 				cellBehave.setId(actCell.getID());
 			}
 		}

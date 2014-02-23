@@ -1,6 +1,8 @@
 package sim.app.episim.persistence.dataconvert;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,11 +18,9 @@ import sim.util.Double2D;
 import sim.util.Double3D;
 import sim.util.Int2D;
 import sim.util.Int3D;
-
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
-import episiminterfaces.EpisimDiffusionFieldConfigurationEx;
 import episiminterfaces.NoExport;
 
 public class XmlObject<T> {
@@ -62,17 +62,17 @@ public class XmlObject<T> {
 		objectString = objectString.trim();
 		if (objClass.equals(String.class)) {
 			o = objectString;
-		} else if (Integer.TYPE.isAssignableFrom(objClass)) {
+		} else if (Integer.TYPE.isAssignableFrom(getTypeConversion(objClass))) {
 			o = Integer.parseInt(objectString);
-		} else if (Double.TYPE.isAssignableFrom(objClass)) {
+		} else if (Double.TYPE.isAssignableFrom(getTypeConversion(objClass))) {
 			o = Double.parseDouble(objectString);
-		} else if (Float.TYPE.isAssignableFrom(objClass)) {
+		} else if (Float.TYPE.isAssignableFrom(getTypeConversion(objClass))) {
 			o = Float.parseFloat(objectString);
-		} else if (Boolean.TYPE.isAssignableFrom(objClass)) {
+		} else if (Boolean.TYPE.isAssignableFrom(getTypeConversion(objClass))) {
 			o = Boolean.parseBoolean(objectString);
-		} else if (Short.TYPE.isAssignableFrom(objClass)) {
+		} else if (Short.TYPE.isAssignableFrom(getTypeConversion(objClass))) {
 			o = Short.parseShort(objectString);
-		} else if (Long.TYPE.isAssignableFrom(objClass)) {
+		} else if (Long.TYPE.isAssignableFrom(getTypeConversion(objClass))) {
 			o = Long.parseLong(objectString);
 		} else if (EpisimDifferentiationLevel.class.isAssignableFrom(objClass)) {
 			o = parseEpisimDifferentiationLevel(objectString);
@@ -292,12 +292,48 @@ public class XmlObject<T> {
 			else if(subObj instanceof EpisimDiffusionFieldConfiguration[]){				
 				subXmlObjects.put(parameterName, new XmlEpisimDiffusionFieldConfigurationExArray((EpisimDiffusionFieldConfiguration[]) subObj));					
 			}
+			else if(subObj instanceof HashMap){
+				HashMap map = ((HashMap) subObj);
+				if(!map.isEmpty()){
+					if(isPrimitive(map.keySet().toArray()[0].getClass()) && isPrimitive(map.values().toArray()[0].getClass())){
+						subXmlObjects.put(parameterName, new XmlHashMapPrimitiveValue(map));
+					}
+				}
+			}
 			else {
 				subXmlObjects.put(parameterName, new XmlPrimitive(subObj));
 			}
 			
 		}
 	}
+	
+	 public boolean isPrimitive(Class type)
+    {    
+		 	type = getTypeConversion(type);
+     		return (type.isPrimitive() || type == String.class);
+    }
+	
+	private static Class getTypeConversion(Class type)
+   {
+   if (type==Boolean.class || type==Boolean.TYPE)
+       return Boolean.TYPE;
+   else if (type==Byte.class || type==Byte.TYPE)
+       return Byte.TYPE;
+   else if (type==Short.class || type==Short.TYPE)
+       return Short.TYPE;
+   else if (type==Integer.class || type==Integer.TYPE)
+       return Integer.TYPE;
+   else if (type==Long.class || type==Long.TYPE)
+       return Long.TYPE;
+   else if (type==Float.class || type==Float.TYPE)
+       return Float.TYPE;
+   else if (type==Double.class || type==Double.TYPE)
+       return Double.TYPE;
+   else if (type==Character.class || type==Character.TYPE)
+       return Character.TYPE;
+   else return type;
+   }
+
 
 	protected void importParametersFromXml(Class<?> clazz) {
 		NodeList nl = objectNode.getChildNodes();
@@ -331,7 +367,14 @@ public class XmlObject<T> {
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);
 
-					} else if(subXmlObjects.get(methName) == null) {
+					} 
+					else if(m.getReturnType().equals(HashMap.class)){
+						
+						XmlHashMapPrimitiveValue xmlObject = new XmlHashMapPrimitiveValue(node);
+						xmlObject.importParametersFromXml(m.getGenericReturnType());
+						subXmlObjects.put(methName, xmlObject);						
+					}					
+					else if(subXmlObjects.get(methName) == null) {
 						XmlPrimitive xmlObject = new XmlPrimitive(node);
 						xmlObject.importParametersFromXml(m.getReturnType());
 						subXmlObjects.put(methName, xmlObject);

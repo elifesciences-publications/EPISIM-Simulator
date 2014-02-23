@@ -58,7 +58,7 @@ public abstract class BiomechanicalModelInitializer {
 							xCell = simulationStateData.getAlreadyLoadedXmlCellNewID(uCell.getID());
 							if (xCell != null) {
 								XmlEpisimBiomechanicalModel xCellMechModel = xCell.getEpisimBiomechanicalModel();
-								xCellMechModel.copyValuesToTarget(uCell.getEpisimBioMechanicalModelObject());
+								if(xCellMechModel != null)xCellMechModel.copyValuesToTarget(uCell.getEpisimBioMechanicalModelObject());
 								return uCell;
 							}
 						}
@@ -101,7 +101,7 @@ public abstract class BiomechanicalModelInitializer {
 			XmlUniversalCell xCell = simulationStateData.getAlreadyLoadedXmlCellNewID(uCell.getID());
 			if (xCell != null) {
 				XmlEpisimBiomechanicalModel xCellMechModel = xCell.getEpisimBiomechanicalModel();
-				xCellMechModel.copyValuesToTarget(uCell.getEpisimBioMechanicalModelObject());
+				if(xCellMechModel != null)xCellMechModel.copyValuesToTarget(uCell.getEpisimBioMechanicalModelObject());
 			}
 		}
 		return universalCells;

@@ -1,5 +1,7 @@
 package sim.app.episim.persistence.dataconvert;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import org.w3c.dom.Element;
@@ -53,9 +55,14 @@ public class XmlHashMapPrimitiveValue<K, V> extends XmlObject<HashMap<K,V>> {
 		} else
 			return null;
 	}
-
+	
 	@Override
 	protected void importParametersFromXml(Class<?> clazz) {
+		importParametersFromXml((Type) null);
+	}
+	
+	protected void importParametersFromXml(Type genericType) {
+		entryMap = new HashMap<XmlPrimitive, XmlPrimitive>();
 		NodeList hashMapNL = getObjectNode().getChildNodes();
 		for (int i = 0; i < hashMapNL.getLength(); i++) {
 			Node entryNode = hashMapNL.item(i);
@@ -63,7 +70,7 @@ public class XmlHashMapPrimitiveValue<K, V> extends XmlObject<HashMap<K,V>> {
 				NodeList entryNL = entryNode.getChildNodes();
 				Node keyNode = null, valueNode = null;
 				for (int e = 0; e < hashMapNL.getLength(); e++) {
-					Node node = hashMapNL.item(e);
+					Node node = entryNL.item(e);
 					if (node.getNodeName().equalsIgnoreCase(KEY)) {
 						keyNode = node;
 					} else if (node.getNodeName().equalsIgnoreCase(VALUE)) {
@@ -71,8 +78,16 @@ public class XmlHashMapPrimitiveValue<K, V> extends XmlObject<HashMap<K,V>> {
 					}
 				}
 				if (keyNode != null && valueNode != null) {
-					entryMap.put(new XmlPrimitive(keyNode), new XmlPrimitive(
-							valueNode));
+					XmlPrimitive primitiveKey = new XmlPrimitive(keyNode);
+					XmlPrimitive primitiveValue = new XmlPrimitive(valueNode);
+					if(genericType != null && genericType instanceof ParameterizedType){
+						Type[] typeArguments =((ParameterizedType)genericType).getActualTypeArguments();
+						if(typeArguments.length >=2){
+							primitiveKey.importParametersFromXml((Class<?>)typeArguments[0]);
+							primitiveValue.importParametersFromXml((Class<?>)typeArguments[1]);
+						}
+					}
+					entryMap.put(primitiveKey, primitiveValue);
 				}
 			}
 		}
@@ -80,17 +95,16 @@ public class XmlHashMapPrimitiveValue<K, V> extends XmlObject<HashMap<K,V>> {
 
 	@Override
 	public HashMap<K, V> copyValuesToTarget(HashMap<K, V> target) {
-		importParametersFromXml(null);
 		HashMap<K, V> ret = target;
 		if (target == null) {
 			ret = new HashMap<K, V>();
 
 		}
-		for (XmlPrimitive xmlKey : entryMap.keySet()) {
-			ret.put((K)xmlKey.copyValuesToTarget(null), (V)entryMap.get(xmlKey)
-					.copyValuesToTarget(null));
+		if(entryMap != null){
+			for (XmlPrimitive xmlKey : entryMap.keySet()) {
+				ret.put((K)xmlKey.copyValuesToTarget(null), (V)entryMap.get(xmlKey).copyValuesToTarget(null));
+			}
 		}
-
 		return ret;
 	}
 

@@ -1,5 +1,7 @@
 package episimbiomechanics.centerbased.newversion.epidermis;
 
+import java.util.HashMap;
+
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModelGP;
@@ -30,9 +32,14 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
 	private String nameDiffLevelSpinosumCell="";
 	private String nameDiffLevelGranulosumCell="";
 	private String nameDiffLevelCorneocyte="";
-	
+	private HashMap<Long, Double> contactArea = new HashMap<Long, Double>();
 		
 	public EpisimCenterBasedMC(){}
+	
+	@NoExport
+	public void resetPairwiseParameters(){
+		this.contactArea.clear();
+	}
 	
 	@Hidden
 	@NoExport
@@ -191,6 +198,7 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
    }
 
 	
+   
    public String getNameDiffLevelCorneocyte() {
    
    	return nameDiffLevelCorneocyte;
@@ -201,6 +209,28 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
    
    	this.nameDiffLevelCorneocyte = nameDiffLevelCorneocyte;
    }
+   
+   @Hidden
+   @Pairwise
+   @NoExport
+   public void setContactArea(long cellId, double contactArea){
+   	this.contactArea.put(cellId, contactArea);
+   }
+   @Pairwise
+   @NoExport
+   public double getContactArea(long cellId){
+   	return this.contactArea.get(cellId);
+   }
+   
+   @Hidden
+   public void setContactArea(HashMap<Long, Double> contactArea){
+   	if(contactArea != null) this.contactArea = contactArea;
+   }
+   
+   @Hidden
+   public HashMap<Long, Double> getContactArea(){
+   	return this.contactArea;
+   }   
    
 	@Hidden
 	@NoExport

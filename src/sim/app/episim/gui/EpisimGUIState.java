@@ -905,7 +905,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 				workaroundPauseWasPressed = true;
 		}
 	}
-	
+		
 	public void pressWorkaroundSimulationPlay(){
 		if(console.getPlayState() == Console.PS_PAUSED && console.getPlayState() != Console.PS_STOPPED && workaroundPauseWasPressed){
 			console.pressPause();

@@ -28,6 +28,10 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 	@Target(ElementType.METHOD)
 	public @interface Hidden{}	
 	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
+	public @interface Pairwise{}
+	
 	private static final String PACKAGENAME = "episimbiomechanics";
 	private static File packagePath = null;
 	
@@ -44,6 +48,12 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 		finalId = finalId.concat(this.getClass().getCanonicalName());
 		return finalId;
 	}
+	
+	/**
+	 * This method should be overridden in subclasses in case that pairwise parameters are defined
+	 */
+	@NoExport
+	public void resetPairwiseParameters(){}
 	
 	@Hidden
 	@NoExport

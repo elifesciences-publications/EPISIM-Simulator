@@ -24,6 +24,7 @@ import sim.field.continuous.*;
 import sim.util.*;
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector.Hidden;
+import episimexceptions.ZeroNeighbourCellsAccessException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellType;
@@ -185,8 +186,15 @@ public class UniversalCell extends AbstractCell
    	// if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
    	// else 
    		 this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
-		
-   	 EpisimCellBehavioralModel[] children = this.getEpisimCellBehavioralModelObject().oneStep(realNeighboursDiffModel);
+   		 EpisimCellBehavioralModel[] children=null;
+		try{
+   	  children = this.getEpisimCellBehavioralModelObject().oneStep(realNeighboursDiffModel);
+		}
+		catch(ZeroNeighbourCellsAccessException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+   	 
+   	 
 		/*	long timeAfter = System.currentTimeMillis();
 	        //  	long actSteps = state.schedule.getSteps();
 			long deltaTimeTmp = timeAfter-timeBefore;

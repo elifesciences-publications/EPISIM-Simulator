@@ -264,12 +264,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
             	
             	
             //	double contactArea = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
-            	
-            	if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
-            		double contactAreaCorrect = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
-            		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), contactAreaCorrect);
-            	}
-            	
+            	           	
             	double smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
             										 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
             										 ? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
@@ -283,6 +278,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
             	interactionResult.adhesionForce.y += adhesion*((-dy)/actDist);
             	
              }
+             if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
+            	 double d_membrane_this=requiredDistanceToMembraneThis*globalParameters.getOptDistanceScalingFactor();
+                double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
+          		double contactAreaCorrect = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
+          		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), contactAreaCorrect);
+          	 }
              if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
                     	
                     interactionResult.nextToOuterCell=true;  

@@ -219,7 +219,7 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
    @Pairwise
    @NoExport
    public double getContactArea(long cellId){
-   	return this.contactArea.get(cellId);
+   	return this.contactArea.containsKey(cellId)? this.contactArea.get(cellId):0;
    }
    
    @Hidden

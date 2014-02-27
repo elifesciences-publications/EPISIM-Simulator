@@ -217,10 +217,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 							majorAxisThis, minorAxisThis);
              double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), 
 								otherPosToroidalCorrection(new Point2d(otherloc.x, otherloc.y),new Point2d(thisloc.x, thisloc.y)), 
-								majorAxisOther, minorAxisOther);
-             
-             
-             
+								majorAxisOther, minorAxisOther);            
              double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
              //double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
           

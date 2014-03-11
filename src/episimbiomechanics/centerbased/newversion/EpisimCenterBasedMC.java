@@ -19,7 +19,7 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
 	private boolean hasCollision =false;
 	private boolean isBasal =false;
 	private boolean isSurface = false;
-	private double surfaceRatio=0;
+	private double epidermalSurfaceRatio=0;
 	private double x=0;
 	private double y=0;
 	private double width=0;
@@ -115,14 +115,14 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
    }
 
 	
-   public double getSurfaceRatio() {
+   public double getEpidermalSurfaceRatio() {
    
-   	return surfaceRatio;
+   	return epidermalSurfaceRatio;
    }
 
    @Hidden
-   public void setSurfaceRatio(double surfaceRatio) {
+   public void setEpidermalSurfaceRatio(double epidermalSurfaceRatio) {
    
-   	this.surfaceRatio = surfaceRatio;
+   	this.epidermalSurfaceRatio = epidermalSurfaceRatio;
    }	
 }

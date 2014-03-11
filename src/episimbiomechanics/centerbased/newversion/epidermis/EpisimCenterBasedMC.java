@@ -33,7 +33,12 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
 	private String nameDiffLevelGranulosumCell="";
 	private String nameDiffLevelCorneocyte="";
 	private HashMap<Long, Double> contactArea = new HashMap<Long, Double>();
-		
+	
+	private double cellVolume = 0;
+	private double extCellSpaceVolume = 0;
+	private double extCellSpaceMikron = 0.2d;
+	private double cellSurfaceArea=0;
+	
 	public EpisimCenterBasedMC(){}
 	
 	@NoExport
@@ -243,6 +248,53 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
    	else if(diffLevel.name().equals(getNameDiffLevelGranulosumCell())) return getAdhesionGranulosumCell();
    	else if(diffLevel.name().equals(getNameDiffLevelCorneocyte())) return getAdhesionCorneocyte();   	
    	return 0;
+   }
+
+	
+   public double getCellVolume() {   
+   	return cellVolume;
+   }
+
+   @Hidden
+   public void setCellVolume(double cellVolume) {
+   
+   	this.cellVolume = cellVolume;
+   }
+
+	
+   public double getExtCellSpaceVolume() {
+   
+   	return extCellSpaceVolume;
+   }
+
+   @Hidden
+   public void setExtCellSpaceVolume(double extCellSpaceVolume) {
+   
+   	this.extCellSpaceVolume = extCellSpaceVolume;
+   }
+
+	
+   public double getExtCellSpaceMikron() {
+   
+   	return extCellSpaceMikron;
+   }
+
+	
+   public void setExtCellSpaceMikron(double extCellSpaceMikron) {
+   
+   	this.extCellSpaceMikron = extCellSpaceMikron;
+   }
+
+	
+   public double getCellSurfaceArea() {
+   
+   	return cellSurfaceArea;
+   }
+
+   @Hidden
+   public void setCellSurfaceArea(double cellSurfaceArea) {
+   
+   	this.cellSurfaceArea = cellSurfaceArea;
    }
 	
   	

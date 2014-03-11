@@ -599,15 +599,49 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		}
 		
 		
-		modelConnector.setHasCollision(hitsOtherCell() > 0);
-		
-		
-		modelConnector.setX(newCellLocation.getX());
-  	 	modelConnector.setY(newCellLocation.getY());
-  	 	modelConnector.setSurfaceRatio(surfaceAreaRatio);
+		modelConnector.setHasCollision(hitsOtherCell() > 0);		
+		modelConnector.setX(newCellLocation.getX());		
+		modelConnector.setY(newCellLocation.getY());
+  	 	modelConnector.setEpidermalSurfaceRatio(surfaceAreaRatio);
   	 	modelConnector.setIsSurface(this.getCell().getIsOuterCell());// || nextToOuterCell());
+  	 	
+  	 	if(modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+  	 		episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC mc = (episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC) modelConnector;
+  	 		mc.setCellSurfaceArea(getSurfaceArea());
+  	 		mc.setCellVolume(getCellVolume());
+  	 		mc.setExtCellSpaceVolume(getExtraCellSpaceVolume(mc.getExtCellSpaceMikron()));
+  	 	}
+  	 	
+  	 	
   	   this.getCellEllipseObject().setXY(newCellLocation.x, newCellLocation.y);
 	   
+	}
+	
+	private double getSurfaceArea(){
+		//this method was implemented according to Knud Thomsens Approximation
+		final double p=1.6075d;
+		double a = modelConnector.getWidth()/2d;
+		double b = modelConnector.getWidth()/2d;
+		double c = modelConnector.getHeight()/2d;
+		
+		double axisSum = (Math.pow(a, p)*Math.pow(b, p))+(Math.pow(a, p)*Math.pow(c, p))+(Math.pow(b, p)*Math.pow(c, p));
+		double p_root = Math.pow((axisSum/3), (1.0/p));
+		
+		return 4*Math.PI*p_root;
+	}
+	
+	private double getCellVolume(){
+		double a = modelConnector.getWidth()/2d;
+		double b = modelConnector.getWidth()/2d;
+		double c = modelConnector.getHeight()/2d;		
+		return (4.0d/3.0d)*Math.PI*a*b*c;
+	}
+	
+	private double getExtraCellSpaceVolume(double extCellSpaceDelta){
+		double a = (modelConnector.getWidth()/2d)+extCellSpaceDelta;
+		double b = (modelConnector.getWidth()/2d)+extCellSpaceDelta;
+		double c = (modelConnector.getHeight()/2d)+extCellSpaceDelta;		
+		return ((4.0d/3.0d)*Math.PI*a*b*c)-getCellVolume();
 	}
 			
 	
@@ -991,7 +1025,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	         		 mechModel.surfaceAreaRatio = cellIdToNumberOfBinsMap.get(xLookUp[k].getID())<=0?0d:(double)((double)(numberOfAssignedBinsMap.get(xLookUp[k].getID()))/(double)(cellIdToNumberOfBinsMap.get(xLookUp[k].getID())));
 	         		 xLookUp[k].setIsOuterCell(true);
 	         	 }
-	         	 mechModel.modelConnector.setSurfaceRatio(mechModel.surfaceAreaRatio);
+	         	 mechModel.modelConnector.setEpidermalSurfaceRatio(mechModel.surfaceAreaRatio);
 	         	 mechModel.modelConnector.setIsSurface(xLookUp[k].getIsOuterCell());// || mechModel.nextToOuterCell());
 	          }
 	      }

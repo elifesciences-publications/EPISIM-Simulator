@@ -10,6 +10,7 @@ import java.util.Set;
 import episimbiomechanics.EpisimModelConnector;
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.EpisimCellBehavioralModelExt;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellType;
@@ -63,7 +64,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    	this.id = getNextCellId();
    	this.motherCell = ((motherCell == null) ? this : motherCell);   	
    	this.cellBehavioralModelObject = cellBehavioralModel;
-   	final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
+   	
    	if(cellBehavioralModel == null){ 
    		this.cellBehavioralModelObject = ModelController.getInstance().getCellBehavioralModelController().getNewEpisimCellBehavioralModelObject();
    	}
@@ -72,8 +73,15 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    	}
    	this.cellBehavioralModelObject.setId(this.id);
    	mechanicalModelObject =  ModelController.getInstance().getNewBioMechanicalModelObject(this);
-   	this.mechanicalModelObject.setEpisimModelConnector(modelConnector);
-   	this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);
+   	if(cellBehavioralModel instanceof EpisimCellBehavioralModelExt && ((EpisimCellBehavioralModelExt)cellBehavioralModel).getEpisimModelConnector() != null){
+   		final EpisimModelConnector modelConnector = ((EpisimCellBehavioralModelExt)cellBehavioralModel).getEpisimModelConnector();
+      	this.mechanicalModelObject.setEpisimModelConnector(modelConnector);
+   	}else{
+   		final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
+      	this.mechanicalModelObject.setEpisimModelConnector(modelConnector);
+      	this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);
+   	}
+   	
    	this.cellBehavioralModelObject.setEpisimSbmlModelConnector(ModelController.getInstance().getNewEpisimSbmlModelConnector());
    
    	cellDeathListeners = new HashSet<CellDeathListener>();      

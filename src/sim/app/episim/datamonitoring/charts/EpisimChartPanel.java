@@ -1,7 +1,18 @@
 package sim.app.episim.datamonitoring.charts;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,6 +20,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import javax.swing.JFileChooser;
+import javax.swing.JPanel;
 
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -31,18 +43,70 @@ public class EpisimChartPanel extends ChartPanel {
 	private static final int PNG_CHARTWIDTH=600;
 	private static final int PNG_CHARTHEIGHT=450;
 	
+	private double widthToHeightScale = 2;
+	private boolean registeredAtParent = false;
+	private boolean autoScaleToRatio = false;
 	public EpisimChartPanel(JFreeChart chart){
 		super(chart);
 		
 	}
 	
 	public EpisimChartPanel(JFreeChart chart, boolean useBuffer){
-		super(chart, useBuffer);
+		this(chart, useBuffer, false);
 	}
+	
+	public EpisimChartPanel(JFreeChart chart, boolean useBuffer, boolean autoScaleToRatio){
+		super(chart, useBuffer);
+		this.autoScaleToRatio = autoScaleToRatio;
+		if(autoScaleToRatio){
+			this.addHierarchyListener(new HierarchyListener(){
+            public void hierarchyChanged(HierarchyEvent e) {
+
+	            if(EpisimChartPanel.this.getParent() != null && !registeredAtParent){
+	            	EpisimChartPanel.this.getParent().addComponentListener(new ComponentAdapter() {							
+							public void componentResized(ComponentEvent e) {						
+								setToScale(EpisimChartPanel.this.getParent().getWidth(), EpisimChartPanel.this.getParent().getHeight());							
+							}				
+						});
+	            	
+	            }	            
+            }				
+			});
+		}
+	}
+	
+	public void setWidthToHeightScale(double scale){
+		this.widthToHeightScale = scale;
+	}
+	public boolean isAutoScaleToRatio(){ return this.autoScaleToRatio;}
+	public void doLayout(){
+		if(this.getParent()!=null && autoScaleToRatio)
+			setToScale(EpisimChartPanel.this.getParent().getWidth(), EpisimChartPanel.this.getParent().getHeight());
+		super.doLayout();
+	}
+	private void setToScale(double parentWidth, double parentHeight){		
+		
+		if(this.getChartRenderingInfo()!=null && this.getChartRenderingInfo().getPlotInfo()!= null && this.getChartRenderingInfo().getPlotInfo().getDataArea()!=null){
+			final double delta = 10; //absolute height to width bias with default settings 
+					
+			if((parentWidth*(1/widthToHeightScale))>= parentHeight){
+				this.setBounds((int)(((parentWidth-(parentHeight*widthToHeightScale))/2)-delta),0,(int)(parentHeight*widthToHeightScale), (int)parentHeight);
+			}
+			else{
+				this.setBounds(0,0,(int)parentWidth, (int)(((parentWidth*(1/widthToHeightScale)))+delta));
+			}
+		}
+	}
+	
+	
 	
 	public void doSaveAs(){
 		int width = PNG_CHARTWIDTH;
 		int height = PNG_CHARTHEIGHT;
+		if(this.autoScaleToRatio){
+			width= this.getBounds().width;
+			height= this.getBounds().height;
+		}
 		int[] resolution = null;	
 		if(ModeServer.guiMode()) resolution = ChartImageResolutionDialog.showDialog((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent(), width, height);
 		if(!ModeServer.guiMode() || resolution != null){

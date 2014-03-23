@@ -11,10 +11,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import sim.app.episim.util.ObjectManipulations;
-
+import sim.app.episim.datamonitoring.charts.io.xml.EpisimCellVisualizationChartAdapter;
 import sim.app.episim.datamonitoring.charts.io.xml.EpisimChartAdapter;
 import sim.app.episim.datamonitoring.charts.io.xml.EpisimDiffFieldChartAdapter;
-
+import episiminterfaces.monitoring.EpisimCellVisualizationChart;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDiffFieldChart;
@@ -23,6 +23,7 @@ import episiminterfaces.monitoring.EpisimDiffFieldChart;
 public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable {
 	
 	private ArrayList<EpisimChart> episimCharts;
+	private ArrayList<EpisimCellVisualizationChart> episimCellVisualizationCharts;
 	private ArrayList<EpisimDiffFieldChart> episimDiffFieldCharts;
 	
 	private String name;
@@ -33,6 +34,7 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 	
 	public EpisimChartSetImpl(){
 		episimCharts = new ArrayList<EpisimChart>();
+		episimCellVisualizationCharts = new ArrayList<EpisimCellVisualizationChart>();
 		episimDiffFieldCharts = new ArrayList<EpisimDiffFieldChart>();
 		name = "";
 	}
@@ -44,6 +46,12 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 	}
 	
 	@XmlElement
+	@XmlJavaTypeAdapter(EpisimCellVisualizationChartAdapter.class)
+	public List<EpisimCellVisualizationChart> getEpisimCellVisualizationCharts() {
+		return episimCellVisualizationCharts;
+	}
+	
+	@XmlElement
 	@XmlJavaTypeAdapter(EpisimDiffFieldChartAdapter.class)
 	public List<EpisimDiffFieldChart> getEpisimDiffFieldCharts() {
 		return episimDiffFieldCharts;
@@ -52,6 +60,9 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 	public void addEpisimChart(EpisimChart chart) {
 	   this.episimCharts.add(chart);	   
    }
+	public void addEpisimChart(EpisimCellVisualizationChart chart) {
+		this.episimCellVisualizationCharts.add(chart);
+	}
 	public void addEpisimChart(EpisimDiffFieldChart chart) {
 		this.episimDiffFieldCharts.add(chart);
 	}
@@ -67,6 +78,13 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 		episimCharts.add(index, chart);
 	}
 
+	public void updateChart(EpisimCellVisualizationChart chart) {
+		EpisimCellVisualizationChart oldChart = getEpisimCellVisualizationChart(chart.getId());		
+		int index = episimCellVisualizationCharts.indexOf(oldChart);
+		episimCellVisualizationCharts.remove(index);
+		episimCellVisualizationCharts.add(index, chart);		
+	}
+	
 	public void updateChart(EpisimDiffFieldChart chart) {
 		EpisimDiffFieldChart oldChart = getEpisimDiffFieldChart(chart.getId());		
 		int index = episimDiffFieldCharts.indexOf(oldChart);
@@ -78,10 +96,12 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 	public void removeEpisimChart(long id) {	 
 			  episimCharts.remove(getEpisimChart(id)); 
    }
+	public void removeEpisimCellVisualizationChart(long id) {
+		episimCellVisualizationCharts.remove(getEpisimCellVisualizationChart(id));
+	}
 	public void removeEpisimDiffFieldChart(long id) {
 		episimDiffFieldCharts.remove(getEpisimDiffFieldChart(id));
 	}
-	
 	
 	public EpisimChart getEpisimChart(long id) {
 
@@ -91,6 +111,14 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 			  }
 		  }
 		   return null;
+	}
+	public EpisimCellVisualizationChart getEpisimCellVisualizationChart(long id) {
+		  for(EpisimCellVisualizationChart chart: episimCellVisualizationCharts){
+			  if(chart.getId() == id){ 
+				 return chart;
+			  }
+		  }
+		  return null;
 	}
 	public EpisimDiffFieldChart getEpisimDiffFieldChart(long id) {
 		  for(EpisimDiffFieldChart chart: episimDiffFieldCharts){
@@ -117,6 +145,9 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 		for(EpisimChart chart: episimCharts){
 			if(chart.isDirty()) return true;			
 		}
+		for(EpisimCellVisualizationChart chart: episimCellVisualizationCharts){
+			if(chart.isDirty()) return true;			
+		}
 		for(EpisimDiffFieldChart chart: episimDiffFieldCharts){
 			if(chart.isDirty()) return true;			
 		}
@@ -129,10 +160,14 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 			newChartSet.removeEpisimChart(oldChart.getId());
 			newChartSet.addEpisimChart(oldChart.clone());
 		}
+		for(EpisimCellVisualizationChart oldChart : this.getEpisimCellVisualizationCharts()){
+			newChartSet.removeEpisimCellVisualizationChart(oldChart.getId());
+			newChartSet.addEpisimChart(oldChart.clone());
+		}
 		for(EpisimDiffFieldChart oldChart : this.getEpisimDiffFieldCharts()){
 			newChartSet.removeEpisimDiffFieldChart(oldChart.getId());
 			newChartSet.addEpisimChart(oldChart.clone());
-		}	
+		}
 		return newChartSet;
 	}
 }

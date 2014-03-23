@@ -620,6 +620,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	private double getSurfaceArea(){
 		//this method was implemented according to Knud Thomsens Approximation
 		final double p=1.6075d;
+		
 		double a = modelConnector.getWidth()/2d;
 		double b = modelConnector.getWidth()/2d;
 		double c = modelConnector.getHeight()/2d;
@@ -874,7 +875,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   if(!cellField.getAllObjects().isEmpty()){
 	   	cellField.clear();
 	   }
-	   cellField = new Continuous2D(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getNeighborhood_mikron() / 1.5, 
+	   cellField = new Continuous2D(FIELD_RESOLUTION_IN_MIKRON / 1.5, 
 				TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
 				TissueController.getInstance().getTissueBorder().getHeightInMikron());
    }

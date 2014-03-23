@@ -116,12 +116,11 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
    }
    
    public static GenericBag<AbstractCell> getAllCellsWithinDistance(Double3D location, double distance){
-   	Bag cells =cellField.getObjectsWithinDistance(location, distance, true);
+   	Bag cells =cellField.getNeighborsWithinDistance(location, distance, true);
    	GenericBag<AbstractCell> abstractCells = new GenericBag<AbstractCell>();
    	for(int i = 0; i< cells.size(); i++){
    		if(cells.get(i) != null &&  cells.get(i) instanceof AbstractCell) abstractCells.add((AbstractCell) cells.get(i));
-   	}
-   	
+   	}   	
    	return abstractCells;
    }
       

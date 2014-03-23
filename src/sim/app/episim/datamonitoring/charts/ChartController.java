@@ -3,7 +3,6 @@ package sim.app.episim.datamonitoring.charts;
 import java.awt.Component;
 import java.awt.Frame;
 import java.util.*;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -24,16 +23,16 @@ import episimexceptions.PropertyException;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.calc.CalculationAlgorithmConfigurator;
+import episiminterfaces.calc.CellColoringConfigurator;
+import episiminterfaces.monitoring.EpisimCellVisualizationChart;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDiffFieldChart;
-
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
-
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.parser.*;
 import sim.app.episim.datamonitoring.calc.CalculationController;
@@ -59,6 +58,7 @@ public class ChartController implements ClassLoaderChangeListener{
 	
 	public enum ChartType {
 		REGULAR_2D_CHART("2D Chart"),
+		CELL_VISUALIZATION_CHART("2D Cell Visualization Chart"),
 		DIFF_FIELD_CHART("3D-Diffusion-Field Chart");
 		
 		private String chartType;
@@ -75,6 +75,7 @@ public class ChartController implements ClassLoaderChangeListener{
 	private static EpisimChartSet actLoadedChartSet;
 	private Set<String> markerPrefixes;
 	private Set<Class<?>> validDataTypes;
+	private Set<Class<?>> validDataTypesCellVisualization;
 	private ExtendedFileChooser ecsChooser = null;
 	
 	private ChartController(){
@@ -83,6 +84,7 @@ public class ChartController implements ClassLoaderChangeListener{
 		if(ModeServer.guiMode()) ecsChooser = new ExtendedFileChooser("ecs");
 		markerPrefixes = new HashSet<String>();
 		validDataTypes = new HashSet<Class<?>>();
+		validDataTypesCellVisualization = new HashSet<Class<?>>();
 		
 		markerPrefixes.add("get");
 		markerPrefixes.add("is");
@@ -96,6 +98,13 @@ public class ChartController implements ClassLoaderChangeListener{
 		validDataTypes.add(Boolean.TYPE);
 		validDataTypes.add(EpisimCellType.class);
 		validDataTypes.add(EpisimDifferentiationLevel.class);
+		
+		validDataTypesCellVisualization.add(Integer.TYPE);
+		validDataTypesCellVisualization.add(Short.TYPE);
+		validDataTypesCellVisualization.add(Byte.TYPE);
+		validDataTypesCellVisualization.add(Long.TYPE);
+		validDataTypesCellVisualization.add(Float.TYPE);
+		validDataTypesCellVisualization.add(Double.TYPE);
 	}
 	
 	public boolean isAlreadyChartSetLoaded(){
@@ -129,6 +138,11 @@ public class ChartController implements ClassLoaderChangeListener{
 	protected EpisimDiffFieldChart showDiffFieldChartCreationWizard(Frame parent){
 		return showDiffFieldChartCreationWizard(parent, null);
 	}
+	
+	protected EpisimCellVisualizationChart showCellVisualizationChartCreationWizard(Frame parent){
+		return showCellVisualizationChartCreationWizard(parent, null);
+	}
+	
 	protected EpisimChart showChartCreationWizard(Frame parent, EpisimChart chart){
 		ChartCreationWizard wizard = new ChartCreationWizard(parent, "Chart-Creation-Wizard", true, 
 		new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypes));
@@ -139,6 +153,17 @@ public class ChartController implements ClassLoaderChangeListener{
 		}
 			
 		return wizard.getEpisimChart();
+	}
+	
+	protected EpisimCellVisualizationChart showCellVisualizationChartCreationWizard(Frame parent, EpisimCellVisualizationChart chart){
+		CellVisualizationChartCreationWizard wizard = new CellVisualizationChartCreationWizard(parent, "Chart Creation Wizard", true, 
+		new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypesCellVisualization));
+		
+		if(this.chartMonitoredTissue != null){
+			if(chart == null)wizard.showWizard();
+			else wizard.showWizard(chart);
+		}			
+		return wizard.getEpisimCellVisualizationChart();
 	}
 	
 	protected EpisimDiffFieldChart showDiffFieldChartCreationWizard(Frame parent, EpisimDiffFieldChart chart){
@@ -292,6 +317,7 @@ public class ChartController implements ClassLoaderChangeListener{
 				else{
 					ECSFileReader.foundDirtyChartSeriesDuringImport = false;
 					for(EpisimChart chart : ChartController.getInstance().actLoadedChartSet.getEpisimCharts()) ChartController.getInstance().updateExpressionsInChart(chart);
+					for(EpisimCellVisualizationChart chart : ChartController.getInstance().actLoadedChartSet.getEpisimCellVisualizationCharts()) ChartController.getInstance().updateExpressionsInCellVisualizationChart(chart);
 					ChartController.getInstance().resetChartDirtyStatus();
 					ChartController.getInstance().storeEpisimChartSet(ChartController.getInstance().actLoadedChartSet);					
 				}
@@ -356,9 +382,42 @@ public class ChartController implements ClassLoaderChangeListener{
 		}
 	}
 	
+	private void updateExpressionsInCellVisualizationChart(EpisimCellVisualizationChart chart){
+		int sessionID = ExpressionCheckerController.getInstance().getCheckSessionId();
+		TissueCellDataFieldsInspector inspector = new TissueCellDataFieldsInspector(this.chartMonitoredTissue, this.markerPrefixes, this.validDataTypesCellVisualization);
+		CellColoringConfigurator config =  chart.getCellColoringConfigurator();
+		try{
+			if(config != null){
+				if(config.getArithmeticExpressionColorR()!= null && config.getArithmeticExpressionColorR()[0] != null){
+					String[] result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpressionColorR()[0], inspector);
+					config.getArithmeticExpressionColorR()[0] = result[0];
+					config.getArithmeticExpressionColorR()[1] = result[1];
+				}
+				if(config.getArithmeticExpressionColorG()!= null && config.getArithmeticExpressionColorG()[0] != null){
+					String[] result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpressionColorG()[0], inspector);
+					config.getArithmeticExpressionColorG()[0] = result[0];
+					config.getArithmeticExpressionColorG()[1] = result[1];
+				}
+				if(config.getArithmeticExpressionColorB()!= null && config.getArithmeticExpressionColorB()[0] != null){
+					String[] result = ExpressionCheckerController.getInstance().checkArithmeticDataMonitoringExpression(sessionID, config.getArithmeticExpressionColorB()[0], inspector);
+					config.getArithmeticExpressionColorB()[0] = result[0];
+					config.getArithmeticExpressionColorB()[1] = result[1];
+				}				
+			}			
+		}
+		catch(ParseException e){
+			ExceptionDisplayer.getInstance().displayException(e);
+		}
+	}
+	
+	
+	
 	private void resetChartDirtyStatus(){
 		 if(this.actLoadedChartSet != null){
 		   for(EpisimChart actChart: this.actLoadedChartSet.getEpisimCharts()) {
+		   	actChart.setIsDirty(false);
+		   }
+		   for(EpisimCellVisualizationChart actChart: this.actLoadedChartSet.getEpisimCellVisualizationCharts()) {
 		   	actChart.setIsDirty(false);
 		   }
 		   for(EpisimDiffFieldChart actChart: this.actLoadedChartSet.getEpisimDiffFieldCharts()) {

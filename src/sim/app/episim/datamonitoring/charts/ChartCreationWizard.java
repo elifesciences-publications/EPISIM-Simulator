@@ -452,28 +452,7 @@ public class ChartCreationWizard extends JDialog {
        return ((XYPlot)(previewChart.getPlot())).getDomainAxis().getLabel();
    
    }
-   void printChartToPDF( JFreeChart chart, int width, int height, String fileName )
-       {
-       try
-           {
-           Document document = new Document(new com.lowagie.text.Rectangle(width,height));
-           PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
-           document.addAuthor("Epidermis Simulator");
-           document.open();
-           PdfContentByte cb = writer.getDirectContent();
-           PdfTemplate tp = cb.createTemplate(width, height); 
-           Graphics2D g2 = tp.createGraphics(width, height, new DefaultFontMapper());
-           Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, width, height); 
-           chart.draw(g2, rectangle2D);
-           g2.dispose();
-           cb.addTemplate(tp, 0, 0);
-           document.close();
-           }
-       catch( Exception e )
-           {
-           e.printStackTrace();
-           }
-       }
+  
 	
 	public void showWizard(){
 		
@@ -631,8 +610,7 @@ public class ChartCreationWizard extends JDialog {
 			ChartCreationWizard.this.setVisible(false);
 			ChartCreationWizard.this.dispose();
 		}
-	}
-	
+	}	
 	private boolean hasEverySeriesAnConfigurator(){
 		for(EpisimChartSeries chartSeries:this.episimChart.getEpisimChartSeries()){
 			if(!CalculationController.getInstance().isValidCalculationAlgorithmConfiguration(chartSeries.getCalculationAlgorithmConfigurator(), true, this.cellDataFieldsInspector)) return false;

@@ -18,7 +18,7 @@ import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModelGP;
-import sim.app.episim.model.biomechanics.centerbased3d.adhesion.AdhesiveCenterBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;

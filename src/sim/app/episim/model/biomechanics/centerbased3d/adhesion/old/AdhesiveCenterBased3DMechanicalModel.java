@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.centerbased3d.adhesion;
+package sim.app.episim.model.biomechanics.centerbased3d.adhesion.old;
 
 
 
@@ -9,23 +9,20 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 
+
+
 import sim.app.episim.AbstractCell;
-
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
-
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Ellipsoid;
-
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
 
 
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
-
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.StandardMembrane;
 import sim.app.episim.tissue.TissueController;
-
 import sim.app.episim.util.GenericBag;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous3D;

@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.centerbased3d.adhesion;
+package sim.app.episim.model.biomechanics.centerbased3d.adhesion.old;
 
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

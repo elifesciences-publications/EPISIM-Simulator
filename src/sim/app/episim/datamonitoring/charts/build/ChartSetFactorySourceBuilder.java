@@ -4,6 +4,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellBehavioralModel;
+import episiminterfaces.monitoring.EpisimCellVisualizationChart;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
@@ -41,7 +42,10 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 	
 	public void appendHeader(){
 		super.appendHeader();
-		if(this.actChartSet != null && this.actChartSet.getEpisimCharts() != null && !this.actChartSet.getEpisimCharts().isEmpty())this.factorySource.append("import "+Names.GENERATED_CHARTS_PACKAGENAME+".*;\n");
+		if(this.actChartSet != null && 
+				((this.actChartSet.getEpisimCharts() != null && !this.actChartSet.getEpisimCharts().isEmpty())
+						||(this.actChartSet.getEpisimCellVisualizationCharts() != null && !this.actChartSet.getEpisimCellVisualizationCharts().isEmpty())))
+									this.factorySource.append("import "+Names.GENERATED_CHARTS_PACKAGENAME+".*;\n");
 		this.factorySource.append("import org.jfree.chart.ChartPanel;\n");
 		this.factorySource.append("public class "+ Names.EPISIM_CHARTSET_FACTORYNAME+" extends AbstractChartSetFactory{\n");
 	}
@@ -53,6 +57,10 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 			this.factorySource.append("  private "+ Names.convertVariableToClass(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
 					" " + Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId())+";\n");
 		}
+		for(EpisimCellVisualizationChart actChart:actChartSet.getEpisimCellVisualizationCharts()){
+			this.factorySource.append("  private "+ Names.convertVariableToClass(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
+					" " + Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId())+";\n");
+		}
 		this.factorySource.append("  private List<GeneratedChart> allChartsOfTheSet;\n");
 			
 	}
@@ -61,6 +69,11 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 		this.factorySource.append("public "+ Names.EPISIM_CHARTSET_FACTORYNAME+"(){\n");
 		this.factorySource.append("  this.allChartsOfTheSet = new ArrayList<GeneratedChart>();\n");
 		for(EpisimChart actChart:actChartSet.getEpisimCharts()){
+			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
+					" = new " + Names.convertVariableToClass(Names.cleanString(actChart.getTitle())+ actChart.getId())+"();\n");
+			this.factorySource.append("  this.allChartsOfTheSet.add(this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId())+");\n");
+		}
+		for(EpisimCellVisualizationChart actChart:actChartSet.getEpisimCellVisualizationCharts()){
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
 					" = new " + Names.convertVariableToClass(Names.cleanString(actChart.getTitle())+ actChart.getId())+"();\n");
 			this.factorySource.append("  this.allChartsOfTheSet.add(this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId())+");\n");
@@ -99,6 +112,16 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
 					".registerRequiredObjects(");
 			for(Class<?> actClass: actChart.getAllRequiredClasses()){
+				if(isRequiredClassNecessary(actClass)){
+					this.factorySource.append(Names.convertClassToVariable(actClass.getSimpleName())+", ");
+				}
+			}
+			this.factorySource.append("allCells);\n");
+		}
+		for(EpisimCellVisualizationChart actChart:actChartSet.getEpisimCellVisualizationCharts()){
+			this.factorySource.append("  this."+ Names.convertClassToVariable(Names.cleanString(actChart.getTitle())+ actChart.getId()) +
+					".registerRequiredObjects(");
+			for(Class<?> actClass: actChart.getRequiredClasses()){
 				if(isRequiredClassNecessary(actClass)){
 					this.factorySource.append(Names.convertClassToVariable(actClass.getSimpleName())+", ");
 				}

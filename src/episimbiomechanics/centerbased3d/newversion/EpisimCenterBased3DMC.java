@@ -1,11 +1,11 @@
-package episimbiomechanics.centerbased.newversion;
+package episimbiomechanics.centerbased3d.newversion;
 
 import sim.app.episim.AbstractCell;
 import episimbiomechanics.EpisimModelConnector;
+import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.NoExport;
 
-
-public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
+public abstract class EpisimCenterBased3DMC extends EpisimModelConnector {
 	
 	
    
@@ -15,8 +15,10 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
 	private double epidermalSurfaceRatio=0;
 	private double x=0;
 	private double y=0;
+	private double z=0;
 	private double width=0;
 	private double height=0;
+	private double length=0;
 	private int numberOfSecondsPerSimStep=1;
 	
 	private double adhesionBasalMembrane=0;
@@ -63,13 +65,12 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
 		this.y = y;
 	}
 	
-	public boolean getIsSurface(){
-		return isSurface;
+	public double getZ() {	
+		return z;
 	}
-	
 	@Hidden
-	public void setIsSurface(boolean isSurface){
-		this.isSurface = isSurface;
+	public void setZ(double z) {	
+		this.z = z;
 	}
 	
 	public double getWidth() {	
@@ -84,6 +85,13 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
 	}
 	public void setHeight(double height) {	
 		this.height = height;
+	}
+	
+	public double getLength() {	
+		return height;
+	}
+	public void setLength(double length) {	
+		this.length = length;
 	}   
    
 	@Hidden
@@ -119,3 +127,4 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
    	this.epidermalSurfaceRatio = epidermalSurfaceRatio;
    }	
 }
+

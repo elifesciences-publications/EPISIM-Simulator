@@ -18,12 +18,13 @@ import org.jfree.chart.ChartPanel;
 
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
+import episiminterfaces.monitoring.EpisimCellVisualizationChart;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimChartSet;
-
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.datamonitoring.charts.EpisimCellVisualizationChartImpl;
 import sim.app.episim.datamonitoring.charts.EpisimChartImpl;
 import sim.app.episim.datamonitoring.charts.EpisimChartSeriesImpl;
 import sim.app.episim.model.controller.ModelController;
@@ -56,6 +57,14 @@ public abstract class AbstractChartSetFactory {
       }
       if(chartSet != null){
       	for(EpisimChart chart :chartSet.getEpisimCharts()){ 
+				try{
+	            checkChartDirtyStatus(chart);
+            }
+            catch (ClassNotFoundException e){
+            	throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Chart-Set!");
+            }
+			}
+      	for(EpisimCellVisualizationChart chart :chartSet.getEpisimCellVisualizationCharts()){ 
 				try{
 	            checkChartDirtyStatus(chart);
             }
@@ -96,6 +105,10 @@ public abstract class AbstractChartSetFactory {
 					EpisimChartSet chartSet = (EpisimChartSet) result;
 					
 					for(EpisimChart chart :chartSet.getEpisimCharts()){ 
+						addRequiredClassesToChart(chart);
+						chart.setIsDirty(true);
+					}
+					for(EpisimCellVisualizationChart chart :chartSet.getEpisimCellVisualizationCharts()){ 
 						addRequiredClassesToChart(chart);
 						chart.setIsDirty(true);
 					}
@@ -162,17 +175,57 @@ public abstract class AbstractChartSetFactory {
 				}
 			}
 		}
+	}
+	private static void addRequiredClassesToChart(EpisimCellVisualizationChart chart) throws ClassNotFoundException{
+		
+		if(chart instanceof EpisimCellVisualizationChartImpl){
+			EpisimCellVisualizationChartImpl chartImpl = (EpisimCellVisualizationChartImpl) chart;
+			HashMap<String, Class<?>> requiredClasses = new HashMap<String, Class<?>>();
+			for(String actClassName :chartImpl.getRequiredClassesNameSet()){
+				try{
+	            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());
+	            if(actClass!= null){
+	            	requiredClasses.put(actClassName, actClass);
+	            }
+	            
+            }
+            catch (ClassNotFoundException e){
+            	if(actClassName.contains(".Cell_")){
+            		requiredClasses.put(actClassName, ModelController.getInstance().getNewEpisimCellBehavioralModelObject().getClass());
+            		chartImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){
+            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getClass());
+            		chartImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){
+            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableDifferentiationLevels()[0].getClass());
+            		chartImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){
+            		requiredClasses.put(actClassName, ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes()[0].getClass());
+            		chartImpl.setIsDirty(true);
+            	}
+            	else{
+            		throw e;
+            	}
+            }
+			}
+			HashSet<Class<?>> requiredClassesSet = new HashSet<Class<?>>();
+			for(String actClass: chartImpl.getRequiredClassesNameSet()){
+				if(requiredClasses.containsKey(actClass))requiredClassesSet.add(requiredClasses.get(actClass));
+			}
+			chartImpl.setRequiredClasses(requiredClassesSet);		
+		}
 	}	
+	
 	private static void checkChartDirtyStatus(EpisimChart chart) throws ClassNotFoundException{
 		
 		if(chart instanceof EpisimChartImpl){
-			EpisimChartImpl chartImpl = (EpisimChartImpl) chart;
-		
+			EpisimChartImpl chartImpl = (EpisimChartImpl) chart;		
 			for(String actClassName :chartImpl.getAllRequiredClassesNameSet()){
 				try{
-	            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());
-	           
-	            
+	            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());        
             }
             catch (ClassNotFoundException e){
             	if(actClassName.contains(".Cell_")){
@@ -194,7 +247,35 @@ public abstract class AbstractChartSetFactory {
 			}			
 		}
 	}
-
+	private static void checkChartDirtyStatus(EpisimCellVisualizationChart chart) throws ClassNotFoundException{
+		
+		if(chart instanceof EpisimCellVisualizationChartImpl){
+			EpisimCellVisualizationChartImpl chartImpl = (EpisimCellVisualizationChartImpl) chart;
+		
+			for(String actClassName :chartImpl.getRequiredClassesNameSet()){
+				try{
+	            Class<?> actClass = Class.forName(actClassName, true, GlobalClassLoader.getInstance());         
+            }
+            catch (ClassNotFoundException e){
+            	if(actClassName.contains(".Cell_")){
+            		chartImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && !(actClassName.endsWith("DiffLevel") || actClassName.endsWith("CellType"))){            		
+            		chartImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("DiffLevel")){            		
+            		chartImpl.setIsDirty(true);
+            	}
+            	else if(actClassName.contains(".Parameters_") && actClassName.endsWith("CellType")){            		
+            		chartImpl.setIsDirty(true);
+            	}
+            	else{
+            		throw e;
+            	}
+            }
+			}			
+		}
+	}
 	
 	public static String getEpisimChartSetBinaryName() {
 		

@@ -45,14 +45,13 @@ public abstract class  AbstractCommonSourceBuilder {
 			this.generatedSourceCode.append("GenericBag<AbstractCell> allCells){\n");
 			this.generatedSourceCode.append("    this.allCells = allCells;\n");
 			for(Class<?> actClass: requiredClasses){
-				if(!EpisimBiomechanicalModel.class.isAssignableFrom(actClass) &&!EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCell.class.isAssignableFrom(actClass)){
+				if(!EpisimBiomechanicalModel.class.isAssignableFrom(actClass) && !EpisimCellBehavioralModel.class.isAssignableFrom(actClass) && !AbstractCell.class.isAssignableFrom(actClass)){
 					this.generatedSourceCode.append("    this." + Names.convertClassToVariable(actClass.getSimpleName())+" = "
 							+ Names.convertClassToVariable(actClass.getSimpleName())+";\n");
 				}
 			}	
 			this.generatedSourceCode.append(" }\n");
-		}
-		
+		}		
 	}
 	
 	private void appendParameterMapReproduction(StringBuffer source, String parameterMapDataFieldName, Map<String, Object> parameterValueMap){

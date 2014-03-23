@@ -45,10 +45,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import episimexceptions.CompilationFailedException;
+import episiminterfaces.monitoring.EpisimCellVisualizationChart;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDiffFieldChart;
-
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.charts.ChartController.ChartType;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
@@ -196,6 +196,11 @@ public class ChartSetDialog extends JDialog {
 			listModel.addElement(actChart.getTitle());
 			i++;
 		}
+		for(EpisimCellVisualizationChart actChart : chartSet.getEpisimCellVisualizationCharts()){
+			indexChartIdMap.put(i, actChart.getId());
+			listModel.addElement(actChart.getTitle());
+			i++;
+		}
 		for(EpisimDiffFieldChart actChart : chartSet.getEpisimDiffFieldCharts()){
 			indexChartIdMap.put(i, actChart.getId());
 			listModel.addElement(actChart.getChartTitle());
@@ -290,9 +295,22 @@ public class ChartSetDialog extends JDialog {
 						result= JOptionPane.showInputDialog(ChartSetDialog.this, "Choose Chart-Type:", "Chart-Type", JOptionPane.QUESTION_MESSAGE,
 							  																null, types, ChartType.REGULAR_2D_CHART);
 				}
-				else result =  ChartType.REGULAR_2D_CHART;
+				else{
+					ChartType[] types = new ChartType[]{ChartType.REGULAR_2D_CHART, ChartType.CELL_VISUALIZATION_CHART};
+					result= JOptionPane.showInputDialog(ChartSetDialog.this, "Choose Chart-Type:", "Chart-Type", JOptionPane.QUESTION_MESSAGE,
+								null, types, ChartType.REGULAR_2D_CHART);
+				}
 				if(result == ChartType.REGULAR_2D_CHART){
 				    EpisimChart newChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner);
+				    if(newChart != null){
+				    	 isDirty=true;
+				     	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
+				     	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
+				     	 episimChartSet.addEpisimChart(newChart);
+				      }
+				 }
+				 else if(result == ChartType.CELL_VISUALIZATION_CHART){
+				    EpisimCellVisualizationChart newChart = ChartController.getInstance().showCellVisualizationChartCreationWizard(ChartSetDialog.this.owner);
 				    if(newChart != null){
 				    	 isDirty=true;
 				     	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
@@ -328,6 +346,16 @@ public class ChartSetDialog extends JDialog {
 						chartEdited= true;
 					}
 				}
+				EpisimCellVisualizationChart cellVisualizationChartToBeEdited =  episimChartSet.getEpisimCellVisualizationChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
+				
+				if(cellVisualizationChartToBeEdited != null){
+					EpisimCellVisualizationChart editedChart = ChartController.getInstance().showCellVisualizationChartCreationWizard(ChartSetDialog.this.owner, cellVisualizationChartToBeEdited);
+					if(editedChart != null){ 
+						episimChartSet.updateChart(editedChart);
+						editedChartTitle = editedChart.getTitle();
+						chartEdited= true;
+					}
+				}
 				EpisimDiffFieldChart diffFieldChartToBeEdited =  episimChartSet.getEpisimDiffFieldChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 				if(diffFieldChartToBeEdited != null){
 					EpisimDiffFieldChart editedChart = ChartController.getInstance().showDiffFieldChartCreationWizard(ChartSetDialog.this.owner, diffFieldChartToBeEdited);
@@ -355,6 +383,7 @@ public class ChartSetDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				  isDirty = true;
 	           episimChartSet.removeEpisimChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
+	           episimChartSet.removeEpisimCellVisualizationChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 	           episimChartSet.removeEpisimDiffFieldChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 	           ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).remove(chartsList.getSelectedIndex());
 	           updateIndexMap();

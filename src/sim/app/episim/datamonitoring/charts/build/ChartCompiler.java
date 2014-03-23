@@ -8,11 +8,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
 import binloc.ProjectLocator;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.build.AbstractCommonCompiler;
 import sim.app.episim.util.Names;
 import episimexceptions.CompilationFailedException;
+import episiminterfaces.monitoring.EpisimCellVisualizationChart;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
@@ -73,6 +75,29 @@ public class ChartCompiler extends AbstractCommonCompiler {
          }
 			try{
 	         fileOut.write(chartSourceBuilder.buildEpisimChartSource(actChart).getBytes("UTF-8"));
+	         fileOut.flush();
+	         fileOut.close();
+         }
+         catch (UnsupportedEncodingException e){
+         	ExceptionDisplayer.getInstance().displayException(e);
+         }
+         catch (IOException e){
+         	ExceptionDisplayer.getInstance().displayException(e);
+         }
+         javaFiles.add(javaFile);
+         
+		}
+		for(EpisimCellVisualizationChart actChart: chartSet.getEpisimCellVisualizationCharts()){
+			try{
+				javaFile = new File(TMPPATH+Names.GENERATED_CHARTS_PACKAGENAME+ System.getProperty("file.separator")+
+						Names.convertVariableToClass(Names.cleanString(actChart.getTitle())+actChart.getId())+".java");
+	         fileOut = new FileOutputStream(javaFile);
+         }
+         catch (FileNotFoundException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+			try{
+	         fileOut.write(chartSourceBuilder.buildEpisimCellVisualizationChartSource(actChart).getBytes("UTF-8"));
 	         fileOut.flush();
 	         fileOut.close();
          }

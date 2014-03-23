@@ -1,7 +1,9 @@
 package sim.app.episim.datamonitoring.charts;
 //Charts
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.GradientPaint;
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +18,7 @@ import java.util.TreeMap;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYShapeAnnotation;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -23,14 +26,10 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ChartFactory;
-
 import org.jfree.data.statistics.HistogramDataset; // Histogram
-
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.TextTitle;
-
 import org.jfree.data.statistics.HistogramType;
-
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
@@ -38,21 +37,22 @@ import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
-
 import org.jfree.data.category.DefaultCategoryDataset;
-
 import org.jfree.chart.*;
 
+import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
-
+import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.controller.ModelController;
-
+import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
+import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -73,6 +73,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 	
 	//Available Default Charts
 	private final String PERFORMANCE = "Performance";
+	private final String VISUALIZATION = "Alternative Cell Visualization";
 	private final String CELLCOUNTS = "Cell Counts";
 //	private final String TISSUEKINETICPARAMETERS = "Tissue Kinetic Parameters";
 	private final String CELLDEATH = "Cell Death";	
@@ -112,6 +113,38 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		//-----------------------------------------------------------------------------------------------------------------------
 		
 	this.xySeries = new TreeMap<String[], XYSeries>(new SeriesComparator());
+	
+		////////////////////////////////////////////
+		// Charts: Alternative Visualization
+		////////////////////////////////////////////
+		xySeries.put(new String[] { "Cell_Visualization", "Cell_Visualization_Series", "0"}, new XYSeries("Cell Visualization"));	
+		xySeriesCollections.put("Visualization_Series", new XYSeriesCollection());
+		
+		
+	
+		chart = ChartFactory.createXYLineChart(VISUALIZATION, "X", "Y", 
+				xySeriesCollections.get("Visualization_Series"), PlotOrientation.VERTICAL, false, false, false); 		
+		
+		chart.setBackgroundPaint(Color.white);
+		
+		xyPlot = chart.getXYPlot();
+		xyPlot.setDomainGridlinesVisible(false);
+		xyPlot.setRangeGridlinesVisible(false);
+		xyPlot.setBackgroundPaint(Color.WHITE);
+		xyPlot.getRangeAxis().setAutoRange(false);
+		xyPlot.getDomainAxis().setAutoRange(false);
+		xyPlot.getDomainAxis().setRange(0, TissueController.getInstance().getTissueBorder().getWidthInMikron());
+		xyPlot.getRangeAxis().setRange(0, TissueController.getInstance().getTissueBorder().getHeightInMikron());
+		
+	   lineShapeRenderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
+		lineShapeRenderer.setSeriesPaint(0, Color.red);
+		
+			
+		
+		
+		chartsMap.put(VISUALIZATION, new EpisimChartPanel(chart));
+	
+	
 		
 		////////////////////////////////////////////
 		// Charts: DNA content Histogramm Averaged
@@ -361,6 +394,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 	private void initChartActivationMap(){
 		
 		chartEnabled.put(PERFORMANCE, false);
+		chartEnabled.put(VISUALIZATION, false);
 		chartEnabled.put(CELLCOUNTS, false);
 //		chartEnabled.put(TISSUEKINETICPARAMETERS, false);
 		chartEnabled.put(CELLDEATH, false);
@@ -482,6 +516,30 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 	         return 100;
          }
 			
+	   });
+		
+		this.steppablesMap.put(this.VISUALIZATION, new EnhancedSteppable()
+	    {
+	        
+	   	  
+	   	  public void step(SimState state)
+	        {   
+	   		  JFreeChart chart = chartsMap.get(VISUALIZATION).getChart();
+	   		  XYPlot plot = chart.getXYPlot();
+	   		  plot.clearAnnotations();
+	   		  GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
+	   		  for(AbstractCell actCell : allCells){
+	   			  EpisimBiomechanicalModel bmModel = actCell.getEpisimBioMechanicalModelObject();
+	   			  CellBoundaries cb = bmModel.getCellBoundariesInMikron(0);
+	   			  double width = cb.getMaxXInMikron()-cb.getMinXInMikron();
+	   			  double height = cb.getMaxYInMikron()-cb.getMinYInMikron();
+	   				
+	   				plot.addAnnotation(new XYShapeAnnotation(new Ellipse2D.Double(bmModel.getX()-(width/2), bmModel.getY()-(height/2), width, height), new BasicStroke(1), Color.black, actCell.getCellColoring()));
+	   		  }
+	        }
+	   	  public double getInterval(){	         
+	   		  return 1;
+	   	  }			
 	   });
 		//chartUpdaterKinetics
 	/*	this.steppablesMap.put(this.TISSUEKINETICPARAMETERS, new EnhancedSteppable()

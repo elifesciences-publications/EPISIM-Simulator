@@ -56,11 +56,9 @@ public class ECSFileReader{
 	  }
 	  
 	  private void loadChartSetFactory(){
-		  try{
-      	
+		  try{     	
 			
-	      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));
-	     
+	      this.factoryClass = GlobalClassLoader.getInstance().loadClass(getClassName(new Attributes.Name("Factory-Class")));	     
 	      if(factoryClass != null && AbstractChartSetFactory.class.isAssignableFrom(this.factoryClass)){
 	      	chartSetFactory = (AbstractChartSetFactory) factoryClass.newInstance();	      	
 	      }

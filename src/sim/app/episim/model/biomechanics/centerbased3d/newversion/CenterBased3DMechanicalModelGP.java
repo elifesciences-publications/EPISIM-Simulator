@@ -1,11 +1,11 @@
-package sim.app.episim.model.biomechanics.centerbased.newversion;
+package sim.app.episim.model.biomechanics.centerbased3d.newversion;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
 
-public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class CenterBased3DMechanicalModelGP  implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
 	private int basalAmplitude_mikron = 40; // depth of an undulation
 	private int basalPeriod_mikron = 100;
@@ -13,6 +13,7 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private int basalOpening_mikron = 500; // width of undulation at the middle
 	private double width = 400;
 	private double height = 200;
+	private double length = 400;
 	private double randomness = 0;//0.00000000125;
 	private double seedMinDepth_frac = 0.25; // beginning with which depth a stem cell is seeded
 	
@@ -21,7 +22,6 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	
 	
 	private double neighborhood_mikron= 20.0; 
-	private boolean drawCellsAsEllipses = false;
 	private double numberOfPixelsPerMicrometer = 1;
 	
 	private double mechanicalNeighbourhoodOptDistFact = 1.5;
@@ -36,16 +36,9 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 
 	
 	
-	public CenterBasedMechanicalModelGP() {}
+	public CenterBased3DMechanicalModelGP() {}
 	
-	public boolean isDrawCellsAsEllipses() {
-		return drawCellsAsEllipses;
-	}
-	
-	public void setDrawCellsAsEllipses(boolean drawCellsAsEllipses) {
-	  	this.drawCellsAsEllipses = drawCellsAsEllipses;
-	}
-	
+		
 	public int getBasalAmplitude_mikron() {
 		return basalAmplitude_mikron;
 	}
@@ -114,12 +107,11 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
    public void setHeightInMikron(double val) {   
    	if(val > 0) this.height = val;
    }
-   public double getLengthInMikron() {
-   	//not needed in 2D model
-   	return 0;
+   public double getLengthInMikron() {   	
+   	return this.length;
    }	
    public void setLengthInMikron(double val) {   
-   	//not needed in 2D model
+   	if(val > 0) this.length = val;
    }
 
 	public void setNumberOfPixelsPerMicrometer(double val) {
@@ -255,5 +247,5 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
    public void setOptDistanceToBMScalingFactor(double optDistanceToBMScalingFactor) {
    
    	this.optDistanceToBMScalingFactor = optDistanceToBMScalingFactor;
-   }   
+   }
 }

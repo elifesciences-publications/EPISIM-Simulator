@@ -59,7 +59,7 @@ public class ECSFileWriter {
 							StringBuffer sBuffer = new StringBuffer();
 
 							sBuffer.append("Manifest-Version: 1.0\n");
-							sBuffer.append("Created-By: "+EpisimSimulator.versionID+" (Episim - Uni Heidelberg)\n");
+							sBuffer.append("Created-By: "+EpisimSimulator.versionID+" (EPISIM - Uni Heidelberg)\n");
 							sBuffer.append("Factory-Class: "+ Names.EPISIM_CHARTSET_FACTORYNAME +"\n");
 							
 							

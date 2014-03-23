@@ -16,7 +16,7 @@ import javax.vecmath.Vector3d;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.adhesion.AdhesiveCenterBased3DMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.display3d.Display3DHack;
 import sim.field.SparseField;

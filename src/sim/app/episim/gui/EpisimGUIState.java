@@ -12,8 +12,7 @@ import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
-
-
+import sim.app.episim.datamonitoring.charts.EpisimChartPanel;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -32,32 +31,22 @@ import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.*;
-
 import sim.portrayal3d.FieldPortrayal3D;
-
 import sim.portrayal.*;
 import sim.util.Double2D;
 
 import javax.swing.*;
 
 import java.awt.*;
-
-
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import java.awt.event.MouseMotionAdapter;
-
 import java.awt.geom.Point2D;
-
 import java.util.ArrayList;
-
 
 import javax.swing.JFrame;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
@@ -759,8 +748,14 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		JInternalFrame chartFrame = new JInternalFrame(title, true, false, true, true);
 		chartFrame.setResizable(true);
 		chartFrame.setIconifiable(false);
-		chartFrame.getContentPane().setLayout(new BorderLayout());
-		chartFrame.getContentPane().add(chartPanel, BorderLayout.CENTER);
+		if(chartPanel instanceof EpisimChartPanel && ((EpisimChartPanel)chartPanel).isAutoScaleToRatio()){
+			chartFrame.getContentPane().setLayout(new FlowLayout());
+			chartFrame.getContentPane().add(chartPanel);
+		}
+		else{
+			chartFrame.getContentPane().setLayout(new BorderLayout());
+			chartFrame.getContentPane().add(chartPanel, BorderLayout.CENTER);
+		}
 		chartFrame.setName(CHARTFRAME);
 		
 		chartFrame.setFrameIcon(null);

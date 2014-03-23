@@ -58,6 +58,9 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 	}
 	
 	public void printChartAsPng(long chartId, File directory, String fileName, JFreeChart chart, SimState state){
+		printChartAsPng(chartId, directory, fileName, chart, state, Double.POSITIVE_INFINITY);
+	}
+	public void printChartAsPng(long chartId, File directory, String fileName, JFreeChart chart, SimState state, double widthToHeightScale){
 		if(chart != null){
 			if(!chartRecoloringRegistry.contains(chartId)){
 				changeChartAxisColorsToBlack(chart);
@@ -65,10 +68,10 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 			}
 			File pngFile = getPNGFile(chartId, directory, fileName, state);
 			if(pngFile != null){
-				saveJFreeChart(chart, pngFile);
+				saveJFreeChart(chart, pngFile, widthToHeightScale);
 			}
 		}		
-	}	
+	}
 	
 	public void printChartAsPng(long chartId, File directory, String fileName, Chart chart, SimState state){
 		if(chart != null){
@@ -104,14 +107,25 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 		return null;
 	}
 	
-	private void saveJFreeChart(JFreeChart chart, File pngFile){
+	private void saveJFreeChart(JFreeChart chart, File pngFile, double widthToHeightScale){
 		try{
-			
-			
-			ChartUtilities.saveChartAsPNG(pngFile, chart, PNG_CHARTWIDTH, PNG_CHARTHEIGHT);
+			int width = PNG_CHARTWIDTH;
+			int height = PNG_CHARTHEIGHT;
+			if(widthToHeightScale <Double.POSITIVE_INFINITY){
+				if(widthToHeightScale >=1){
+					double newHeight = (1.0d*width)*(1.0d/widthToHeightScale);
+					height = (int) newHeight;
+				}
+				else if(widthToHeightScale >0 && widthToHeightScale<1){
+					height = width;					
+					double newWidth = height*widthToHeightScale;
+					width = (int) newWidth;
+				}
+			}
+			ChartUtilities.saveChartAsPNG(pngFile, chart, width, height);
          if(EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG) != null 
          		&& EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG).equalsIgnoreCase(EpisimProperties.ON)){
-         	saveSVGImageOfJFreeChart(chart, pngFile);
+         	saveSVGImageOfJFreeChart(chart, pngFile, width, height);
          }
       }
       catch (Exception e){
@@ -129,7 +143,7 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 	}
 	
 	
-	private void saveSVGImageOfJFreeChart(JFreeChart chart, File pngFile) throws IOException{
+	private void saveSVGImageOfJFreeChart(JFreeChart chart, File pngFile, int width, int height) throws IOException{
 		File svgFile = new File(pngFile.getAbsolutePath().substring(0, pngFile.getAbsolutePath().length()-3)+"svg");
 		DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
 
@@ -140,9 +154,14 @@ public class PNGPrinter implements ClassLoaderChangeListener{
      // Create an instance of the SVG Generator.
      SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
 
-     ChartPanel chartPanel = new ChartPanel(chart,PNG_CHARTWIDTH,PNG_CHARTHEIGHT,PNG_CHARTWIDTH,PNG_CHARTHEIGHT,PNG_CHARTWIDTH,PNG_CHARTHEIGHT, false, false, false,false, false, false);
-     chartPanel.setSize(PNG_CHARTWIDTH, PNG_CHARTHEIGHT);
-     chartPanel.paint(svgGenerator);
+     ChartPanel chartPanel = new ChartPanel(chart,width,height,width,height,width,height, false, false, false,false, false, false);
+     chartPanel.setSize(width, height);
+     try{
+   	  chartPanel.paint(svgGenerator);
+     }
+     catch(NullPointerException e){
+   	  
+     }
      // Finally, stream out SVG to the standard output using
      // UTF-8 encoding.
      boolean useCSS = true; // we want to use CSS style attributes

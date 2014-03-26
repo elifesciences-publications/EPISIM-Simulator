@@ -87,7 +87,8 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
    		AbstractHexagonBasedMechanicalModel mechModel = (AbstractHexagonBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject();
    		AbstractHexagonBasedMechanicalModelGP globalParameters = (AbstractHexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
    			
-   		 
+   		mechModel.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),		      
+		        		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
    		 if(mechModel.isSpreading()){
 	 	      	if(this.drawInfoRegistry.containsKey(cell.getID()) 
 	 	      			&& this.simStepTimeStampRegistry.get(cell.getID()) == actSimStepNo){
@@ -108,8 +109,7 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      	else{ 	      				
 	 	  		      	this.drawInfoRegistry.put(cell.getID(), new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),		      
 	 	  			        		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
-	 	  		      	mechModel.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),		      
-	 	  			        		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
+	 	  		      	
 	 	  		         this.drawInfoRegistry.get(cell.getID()).location = info.location;
 	 	  		      	this.simStepTimeStampRegistry.put(cell.getID(), actSimStepNo);
 	 	  		      	shape = null;	 	      		
@@ -145,10 +145,17 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
     public boolean hitObject(Object object, DrawInfo2D range)
     {       
        if (object instanceof UniversalCell){
-       	 AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel)((UniversalCell)object).getEpisimBioMechanicalModelObject();
-       //	 Shape pol = mechModel.getPolygonCell().getCellShape();
-       	 Shape pol = mechModel.getPolygonCell(new EpisimDrawInfo<DrawInfo2D>(mechModel.getLastDrawInfo2D())).getCellShape();
-          return ( pol.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height));
+      	AbstractHexagonBasedMechanicalModel mechModel = (AbstractHexagonBasedMechanicalModel)((UniversalCell) object).getEpisimBioMechanicalModelObject();
+    		AbstractHexagonBasedMechanicalModelGP globalParameters = (AbstractHexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+    			
+       	double[] coordinatesAndDimensions = new double[]{mechModel.getLocationInMikron().x,mechModel.getLocationInMikron().y,
+	      			globalParameters.getOuter_hexagonal_radius()*2,
+	      			globalParameters.getInner_hexagonal_radius()*2};
+       
+       	coordinatesAndDimensions = correctCoordinatesAndDimensions(coordinatesAndDimensions, mechModel.getLastDrawInfo2D());
+       	Shape ell  = new Ellipse2D.Double(coordinatesAndDimensions[0], coordinatesAndDimensions[1], coordinatesAndDimensions[2], coordinatesAndDimensions[3]);
+       	 
+          return ( ell.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height));
        }
  	   return false; 
     }

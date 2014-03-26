@@ -579,12 +579,12 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 	}
 	
 	private ArrayList<Integer> getPossibleSpreadingLocationIndices(IntBag xPos, IntBag yPos, IntBag zPos){   	
-		Bag neighbouringCellsBag = new Bag();
-	   if(fieldLocation != null)cellField.getNeighborsMaxDistance(fieldLocation.x, fieldLocation.y, fieldLocation.z, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos, zPos);
+		
+	   if(fieldLocation != null)cellField.getNeighborLocationsMaxDistance(fieldLocation.x, fieldLocation.y, fieldLocation.z, 1, globalParameters.getUseContinuousSpace(),  xPos, yPos, zPos);
 	   
 	   ArrayList<Integer> spreadingLocationIndices = new ArrayList<Integer>();
-	   for(int i = 0; i < neighbouringCellsBag.size(); i++){
-	   	if(neighbouringCellsBag.get(i)== null){
+	   for(int i = 0; i < xPos.size(); i++){
+	   	if(cellField.get(xPos.objs[i],yPos.objs[i], zPos.objs[i])== null){
 	   		if(!hasIntersectionWithNeighbours(new Int3D(xPos.get(i), yPos.get(i), zPos.get(i)))){
 		   		spreadingLocationIndices.add(i);
 	   		}	   		

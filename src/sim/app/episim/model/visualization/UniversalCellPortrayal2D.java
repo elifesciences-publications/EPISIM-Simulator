@@ -232,7 +232,9 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    {       
       if (object instanceof UniversalCell){
       	 AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel)((UniversalCell)object).getEpisimBioMechanicalModelObject();
-      	 Shape pol = mechModel.getPolygonCell().getCellShape();      	 
+      //	 Shape pol = mechModel.getPolygonCell().getCellShape();
+      	 Shape pol = mechModel.getPolygonCell(new EpisimDrawInfo<DrawInfo2D>(mechModel.getLastDrawInfo2D())).getCellShape();
+      	
        return ( pol.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height));
       }
 	   return false; 

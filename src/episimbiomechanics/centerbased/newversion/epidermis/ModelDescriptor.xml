@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2013-08-22_episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC"/>
-  <visiblename name="New Center Based Model 2D Epidermis"/>
+  <visiblename name="2D Center Based Model Epidermis New"/>
   <modelname name="New Center Based Biomechanical Model"/>
   <modelconnectorclass name="episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC"/>
   <modelparameters>
@@ -11,12 +11,12 @@
       pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0"
       name="epidermalSurfaceRatio" pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.2" name="extCellSpaceMikron"
-      pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="adhesionCorneocyte"
       pairwise="false" readonly="false"/>
     <parameter datatype="String" default=""
       name="nameDiffLevelGranulosumCell" pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.2" name="extCellSpaceMikron"
+      pairwise="false" readonly="false"/>
     <parameter datatype="String" default=""
       name="nameDiffLevelSpinosumCell" pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="extCellSpaceVolume"
@@ -25,9 +25,9 @@
       name="nameDiffLevelCorneocyte" pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="width"
       pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
     <parameter datatype="String" default=""
       name="nameDiffLevelBasalCell" pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="cellVolume"
       pairwise="false" readonly="true"/>
@@ -46,6 +46,8 @@
     <parameter datatype="String" default="" name="nameDiffLevelTACell"
       pairwise="false" readonly="false"/>
     <parameter datatype="String" default="" name="nameDiffLevelStemCell"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="length"
       pairwise="false" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isBasal"
       pairwise="false" readonly="true"/>

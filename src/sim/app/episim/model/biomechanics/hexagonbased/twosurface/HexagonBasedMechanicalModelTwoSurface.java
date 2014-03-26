@@ -45,6 +45,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
+import sim.field.grid.Grid2D;
 import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
@@ -560,12 +561,12 @@ public class HexagonBasedMechanicalModelTwoSurface extends AbstractHexagonBasedM
    	return !getPossibleSpreadingLocationIndices(new IntBag(), new IntBag(), true).isEmpty();
    }
    private ArrayList<Integer> getPossibleSpreadingLocationIndices(IntBag xPos, IntBag yPos, boolean onTestSurface){   	
-		Bag neighbouringCellsBag = new Bag();
-	   if(fieldLocation != null)cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos);
+		
+	   if(fieldLocation != null)cellField.getHexagonalLocations(fieldLocation.x, fieldLocation.y, 1, globalParameters.getUseContinuousSpace()?Grid2D.TOROIDAL:Grid2D.BOUNDED, false, xPos, yPos);
 	   
 	   ArrayList<Integer> spreadingLocationIndices = new ArrayList<Integer>();
-	   for(int i = 0; i < neighbouringCellsBag.size(); i++){
-	   	if(neighbouringCellsBag.get(i)== null){
+	   for(int i = 0; i < xPos.size(); i++){
+	   	if(cellField.field[xPos.objs[i]][yPos.objs[i]]== null){
 	   		if(onTestSurface){
 	   			if(isLocationOnTestSurface(new Int2D(xPos.get(i), yPos.get(i))))spreadingLocationIndices.add(i);
 	   		}

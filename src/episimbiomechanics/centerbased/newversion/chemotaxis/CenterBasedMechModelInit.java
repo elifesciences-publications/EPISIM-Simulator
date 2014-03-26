@@ -83,7 +83,9 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 				Double2D cellPos =new Double2D(x, y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 				mechModel.setCellWidth(CELL_WIDTH);
 				mechModel.setCellHeight(CELL_HEIGHT);	
+				
 				mechModel.getCellEllipseObject().setXY(cellPos.x, cellPos.y);
+				mechModel.getCellEllipseObject().setMajorAxisAndMinorAxis(CELL_WIDTH, CELL_HEIGHT);
 				mechModel.setCellLocationInCellField(cellPos);
 				
 				EpisimCellBehavioralModel cbm=  cell.getEpisimCellBehavioralModelObject();
@@ -125,6 +127,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		for (UniversalCell uCell : loadedCells) {				
 			CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) uCell.getEpisimBioMechanicalModelObject();
 			centerBasedModel.getCellEllipseObject().setXY(centerBasedModel.getCellLocationInCellField().x, centerBasedModel.getCellLocationInCellField().y);
+			centerBasedModel.getCellEllipseObject().setMajorAxisAndMinorAxis(centerBasedModel.getCellWidth(), centerBasedModel.getCellHeight());
 		}
 		return loadedCells;
 	}

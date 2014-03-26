@@ -81,6 +81,10 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	public void setLastDrawInfo2D(DrawInfo2D info){
    	this.lastDrawInfo2D = info;
    }
+	public DrawInfo2D getLastDrawInfo2D(){
+   	return this.lastDrawInfo2D;
+   }
+	
 	
 	public void setEpisimModelConnector(EpisimModelConnector modelConnector){
 		

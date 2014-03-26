@@ -10,7 +10,7 @@ public abstract class Names {
 	public static final String EPISIM_TEXTOUT ="Episim Text Output";
 	public static final String MECH_MODEL ="Biomechanical-Model";
 	public static final String DIFFUSION_MODEL ="Diffusion-Model";
-	public static final String MISCALLENEOUS = "Miscalleneous";
+	public static final String MISCELLANEOUS = "Miscellaneous";
 	public static final String EPISIM_CHARTSET_FILENAME ="EpisimChartSet.dat";
 	public static final String EPISIM_CHARTSET_XML_FILENAME ="EpisimChartSet.xml";
 	public static final String EPISIM_DATAEXPORT_FILENAME ="EpisimDataExport.dat";

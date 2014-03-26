@@ -147,6 +147,10 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DMode
    	this.lastDrawInfo2D = info;
    }
    
+   public DrawInfo2D getLastDrawInfo2D(){
+   	return this.lastDrawInfo2D;
+   }
+   
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
    	if(modelConnector instanceof EpisimAdhesiveCenterBasedMC){
    		this.modelConnector = (EpisimAdhesiveCenterBasedMC) modelConnector;

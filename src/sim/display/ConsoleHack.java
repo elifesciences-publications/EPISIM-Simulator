@@ -106,7 +106,7 @@ public class ConsoleHack extends Console implements SimulationConsole{
 			deployInspector(epiGUIState.getBiomechnicalModelInspector(), this.biomechanicalModelInspectorScrollPane, Names.MECH_MODEL);
 			if(ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields() >0)deployInspector(new DiffusionModelGlobalParametersPanel(), this.diffusionModelGlobalParametersScrollPane, Names.DIFFUSION_MODEL);
 			
-			deployInspector(epiGUIState.getMiscalleneousInspector(), this.miscalleneousInspectorScrollPane, Names.MISCALLENEOUS);
+			deployInspector(epiGUIState.getMiscalleneousInspector(), this.miscalleneousInspectorScrollPane, Names.MISCELLANEOUS);
 			deployInspector(EpisimTextOut.getEpisimTextOut().getEpisimTextOutPanel(), this.episimTextOutInspectorScrollPane, Names.EPISIM_TEXTOUT);
 			
 		}

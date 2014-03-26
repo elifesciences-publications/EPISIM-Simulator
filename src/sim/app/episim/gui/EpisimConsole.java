@@ -392,11 +392,11 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 			
 		}
 		for(int i=0; i< (tabPane= ((JTabbedPane) obj)).getTabCount(); i++){
-			if (tabPane.getTitleAt(i).equals(Names.BIOCHEM_MODEL) || tabPane.getTitleAt(i).equals(Names.MECH_MODEL) || tabPane.getTitleAt(i).equals(Names.MISCALLENEOUS)){
+			if (tabPane.getTitleAt(i).equals(Names.BIOCHEM_MODEL) || tabPane.getTitleAt(i).equals(Names.MECH_MODEL) || tabPane.getTitleAt(i).equals(Names.MISCELLANEOUS)){
 				String actionString = null;
 				if (tabPane.getTitleAt(i).equals(Names.BIOCHEM_MODEL)) actionString = Names.BIOCHEM_MODEL;
 				else if (tabPane.getTitleAt(i).equals(Names.MECH_MODEL)) actionString = Names.MECH_MODEL;
-				else if (tabPane.getTitleAt(i).equals(Names.MISCALLENEOUS)) actionString = Names.MISCALLENEOUS;
+				else if (tabPane.getTitleAt(i).equals(Names.MISCELLANEOUS)) actionString = Names.MISCELLANEOUS;
 				Component comp = tabPane.getComponentAt(i); 
 				if(comp instanceof Container){ 
 					SimpleInspectorHack inspector = findSimpleInspectorHack(((Container)comp));
@@ -523,7 +523,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 				if(pressedButton.getActionCommand() != null){
 					if(pressedButton.getActionCommand().equals(Names.BIOCHEM_MODEL))ModelController.getInstance().getCellBehavioralModelController().resetInitialGlobalValues();
 					else if(pressedButton.getActionCommand().equals(Names.MECH_MODEL))ModelController.getInstance().getBioMechanicalModelController().resetInitialGlobalValues();
-					else if(pressedButton.getActionCommand().equals(Names.MISCALLENEOUS))MiscalleneousGlobalParameters.getInstance().resetInitialGlobalValues();
+					else if(pressedButton.getActionCommand().equals(Names.MISCELLANEOUS))MiscalleneousGlobalParameters.getInstance().resetInitialGlobalValues();
 				}
 				this.clickRefreshButtons();
 				if(console.getPlayState() == ConsoleHack.PS_PAUSED)console.pressPause();

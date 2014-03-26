@@ -91,6 +91,7 @@ public class ContinuousPortrayal2DHack extends ContinuousPortrayal2D {
                        }
                        else */ portrayal.draw(portrayedObject, graphics, newinfo);
                     }
+                
                 }
             }
         

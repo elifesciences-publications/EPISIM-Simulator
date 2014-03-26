@@ -9,6 +9,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Line;
 import sim.app.episim.model.visualization.HexagonalCellGridPortrayal3D;
+import sim.field.grid.Grid3D;
 import sim.field.grid.ObjectGrid3D;
 import sim.field.grid.SparseGrid3D;
 import sim.util.Bag;
@@ -86,11 +87,15 @@ public class HexagonalCellField3D{
 	}
 	
 	public Bag getNeighborsMaxDistance(int x, int y, int z, int dist, boolean toroidal, Bag result, IntBag xPos, IntBag yPos, IntBag zPos){
-		return objectGridCellField.getNeighborsMaxDistance(x, y, z, dist, toroidal, result, xPos, yPos, zPos);
+		return objectGridCellField.getMooreNeighbors(x, y, z, dist, toroidal ? Grid3D.TOROIDAL : Grid3D.BOUNDED, false, result, xPos, yPos, zPos);
+	}
+	public void getNeighborLocationsMaxDistance(int x, int y, int z, int dist, boolean toroidal, IntBag xPos, IntBag yPos, IntBag zPos){
+		objectGridCellField.getMooreLocations( x, y, z, dist, toroidal ? Grid3D.TOROIDAL : Grid3D.BOUNDED, false, xPos, yPos, zPos );
 	}
 	
+	
 	public Bag getNeighborsHamiltonianDistance(int x, int y, int z, int dist, boolean toroidal, Bag result, IntBag xPos, IntBag yPos, IntBag zPos){
-		return objectGridCellField.getNeighborsHamiltonianDistance(x, y, z, dist, toroidal, result, xPos, yPos, zPos);
+		return objectGridCellField.getVonNeumannNeighbors(x, y, z, dist, toroidal ? Grid3D.TOROIDAL : Grid3D.BOUNDED, false,result, xPos, yPos, zPos);
 	}
 	public final Object get(final int x, final int y, final int z){
 		return objectGridCellField.get(x, y, z);

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
@@ -24,6 +25,7 @@ import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
@@ -106,6 +108,8 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 	      	else{ 	      				
 	 	  		      	this.drawInfoRegistry.put(cell.getID(), new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),		      
 	 	  			        		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
+	 	  		      	mechModel.setLastDrawInfo2D(new DrawInfo2D(info.gui, info.fieldPortrayal, new Rectangle2D.Double(info.draw.x, info.draw.y, info.draw.width, info.draw.height),		      
+	 	  			        		 new Rectangle2D.Double(info.clip.x, info.clip.y, info.clip.width, info.clip.height)));
 	 	  		         this.drawInfoRegistry.get(cell.getID()).location = info.location;
 	 	  		      	this.simStepTimeStampRegistry.put(cell.getID(), actSimStepNo);
 	 	  		      	shape = null;	 	      		
@@ -138,6 +142,16 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	   		}
 	   	}	   	
     }
+    public boolean hitObject(Object object, DrawInfo2D range)
+    {       
+       if (object instanceof UniversalCell){
+       	 AbstractMechanical2DModel mechModel = (AbstractMechanical2DModel)((UniversalCell)object).getEpisimBioMechanicalModelObject();
+       //	 Shape pol = mechModel.getPolygonCell().getCellShape();
+       	 Shape pol = mechModel.getPolygonCell(new EpisimDrawInfo<DrawInfo2D>(mechModel.getLastDrawInfo2D())).getCellShape();
+          return ( pol.intersects( range.clip.x, range.clip.y, range.clip.width, range.clip.height));
+       }
+ 	   return false; 
+    }
     
     
     
@@ -149,17 +163,17 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
  				
  			double heightInMikron = TissueController.getInstance().getTissueBorder().getHeightInMikron();
  			coordinatesAndDimensions[1] = heightInMikron - coordinatesAndDimensions[1];
+ 			
  			coordinatesAndDimensions[1]*= props.displayScaleY;
- 		
+ 			
  			coordinatesAndDimensions[0] += props.offsetX;
  			coordinatesAndDimensions[1] += props.offsetY;
- 			
  			coordinatesAndDimensions[2] *= props.displayScaleX;
  			coordinatesAndDimensions[3] *= props.displayScaleY;
        
  			coordinatesAndDimensions[0] -= (coordinatesAndDimensions[2]/2);
  			coordinatesAndDimensions[1] -= (coordinatesAndDimensions[3]/2); 
-   	 
+ 			
    	 return coordinatesAndDimensions;
     } 
     

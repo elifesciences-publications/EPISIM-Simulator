@@ -251,7 +251,8 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
    }
 
 	
-   public double getCellVolume() {   
+   public double getCellVolume() {
+   	
    	return cellVolume;
    }
 
@@ -292,8 +293,7 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
    }
 
    @Hidden
-   public void setCellSurfaceArea(double cellSurfaceArea) {
-   
+   public void setCellSurfaceArea(double cellSurfaceArea) {   
    	this.cellSurfaceArea = cellSurfaceArea;
    }
 	

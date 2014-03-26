@@ -45,13 +45,17 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		double STEM_CELL_WIDTH=0;
 		double STEM_CELL_HEIGHT=0;
+		double STEM_CELL_LENGTH=0;
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();		
 		try{
 	      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
 	      STEM_CELL_WIDTH = field.getDouble(cbGP);
 	      
 	      field = cbGP.getClass().getDeclaredField("HEIGHT_DEFAULT");
-	      STEM_CELL_HEIGHT = field.getDouble(cbGP);   
+	      STEM_CELL_HEIGHT = field.getDouble(cbGP);
+	      
+	      field = cbGP.getClass().getDeclaredField("LENGTH_DEFAULT");
+	      STEM_CELL_LENGTH = field.getDouble(cbGP);
       }
       catch (NoSuchFieldException e){
       	ExceptionDisplayer.getInstance().displayException(e);
@@ -85,8 +89,10 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 					CenterBasedMechanicalModel mechModel = ((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
 					Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 					mechModel.setCellWidth(STEM_CELL_WIDTH);
-					mechModel.setCellHeight(STEM_CELL_HEIGHT);	
+					mechModel.setCellHeight(STEM_CELL_HEIGHT);
+					mechModel.setCellLength(STEM_CELL_LENGTH);	
 					mechModel.getCellEllipseObject().setXY(corrPos.x, corrPos.y);
+					mechModel.getCellEllipseObject().setMajorAxisAndMinorAxis(STEM_CELL_WIDTH, STEM_CELL_HEIGHT);
 					mechModel.setCellLocationInCellField(new Double2D(corrPos.x, corrPos.y));
 					standardCellEnsemble.add(stemCell);
 
@@ -104,6 +110,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		for (UniversalCell uCell : loadedCells) {				
 			CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) uCell.getEpisimBioMechanicalModelObject();
 			centerBasedModel.getCellEllipseObject().setXY(centerBasedModel.getCellLocationInCellField().x, centerBasedModel.getCellLocationInCellField().y);
+			centerBasedModel.getCellEllipseObject().setMajorAxisAndMinorAxis(centerBasedModel.getCellWidth(), centerBasedModel.getCellHeight());
 		}
 		return loadedCells;
 	}

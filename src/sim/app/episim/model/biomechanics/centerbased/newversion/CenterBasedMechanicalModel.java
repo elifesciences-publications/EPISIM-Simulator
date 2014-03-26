@@ -70,12 +70,6 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    public final double NEXT_TO_OUTERCELL_FACT=1.2;
    private double MIN_OVERLAP_MICRON=0.1;   
    
-   
-   
-   
-   private double cellWidth=-1; // breite keratino
-   private double cellHeight=-1; // höhe keratino
-   
    private boolean isChemotaxisEnabled = false;
    private boolean isContinuousInXDirection = true;
    private boolean isContinuousInYDirection = false;
@@ -118,8 +112,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 					TissueController.getInstance().getTissueBorder().getHeightInMikron());
    	}   	
    	  
-      if(cell != null && getCellEllipseObject() == null && cell.getEpisimCellBehavioralModelObject() != null){
-			cellEllipseObject = new CellEllipse(cell.getID(), getX(), getY(), (double) cellWidth, (double)cellHeight, Color.BLUE);    
+      if(cell != null&& getCellEllipseObject() == null){
+			cellEllipseObject = new CellEllipse(cell.getID(), getX(), getY(), (double) getCellWidth(), (double)getCellHeight(), Color.BLUE);    
 		}
       if(cell != null && cell.getMotherCell() != null){
 	      double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;
@@ -129,7 +123,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	      	EpisimModelConnector motherCellConnector =((CenterBasedMechanicalModel) cell.getMotherCell().getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
 	      	if(motherCellConnector instanceof EpisimCenterBasedMC){
 	      		setCellWidth(((EpisimCenterBasedMC)motherCellConnector).getWidth()); 
-	      		setCellHeight(((EpisimCenterBasedMC)motherCellConnector).getHeight());	    	     
+	      		setCellHeight(((EpisimCenterBasedMC)motherCellConnector).getHeight());
+	      		cellEllipseObject.setMajorAxisAndMinorAxis(((EpisimCenterBasedMC)motherCellConnector).getWidth(), ((EpisimCenterBasedMC)motherCellConnector).getHeight());
 	      	}
 	      }
 	             
@@ -147,7 +142,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    public void setLastDrawInfo2D(DrawInfo2D info){
    	this.lastDrawInfo2D = info;
    }
-   
+   public DrawInfo2D getLastDrawInfo2D(){
+   	return this.lastDrawInfo2D;
+   }
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
    	if(modelConnector instanceof EpisimCenterBasedMC){
    		this.modelConnector = (EpisimCenterBasedMC) modelConnector;
@@ -279,7 +276,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
             	 double d_membrane_this=requiredDistanceToMembraneThis*globalParameters.getOptDistanceScalingFactor();
                 double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
           		double contactAreaCorrect = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
-          		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), contactAreaCorrect);
+          		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
           	 }
              if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
                     	
@@ -536,8 +533,6 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    	boolean shapeChangeActive = ((modelConnector.getHeight() != oldHeight) ||(modelConnector.getWidth() != oldWidth));
    	oldHeight = modelConnector.getHeight();
    	oldWidth = modelConnector.getWidth();
-   	setCellHeight(modelConnector.getHeight());
-   	setCellWidth(modelConnector.getWidth());
    	if(shapeChangeActive){
    		getCellEllipseObject().setMajorAxisAndMinorAxis(modelConnector.getWidth(), modelConnector.getHeight());
    	}
@@ -622,25 +617,27 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		final double p=1.6075d;
 		
 		double a = modelConnector.getWidth()/2d;
-		double b = modelConnector.getWidth()/2d;
+		double b = modelConnector.getLength()/2d;
 		double c = modelConnector.getHeight()/2d;
 		
 		double axisSum = (Math.pow(a, p)*Math.pow(b, p))+(Math.pow(a, p)*Math.pow(c, p))+(Math.pow(b, p)*Math.pow(c, p));
 		double p_root = Math.pow((axisSum/3), (1.0/p));
 		
-		return 4*Math.PI*p_root;
+		double result= 4*Math.PI*p_root;		
+		return result;
 	}
 	
 	private double getCellVolume(){
 		double a = modelConnector.getWidth()/2d;
-		double b = modelConnector.getWidth()/2d;
+		double b = modelConnector.getLength()/2d;
 		double c = modelConnector.getHeight()/2d;		
-		return (4.0d/3.0d)*Math.PI*a*b*c;
+		double result= (4.0d/3.0d)*Math.PI*a*b*c;		
+		return result;
 	}
 	
 	private double getExtraCellSpaceVolume(double extCellSpaceDelta){
 		double a = (modelConnector.getWidth()/2d)+extCellSpaceDelta;
-		double b = (modelConnector.getWidth()/2d)+extCellSpaceDelta;
+		double b = (modelConnector.getLength()/2d)+extCellSpaceDelta;
 		double c = (modelConnector.getHeight()/2d)+extCellSpaceDelta;		
 		return ((4.0d/3.0d)*Math.PI*a*b*c)-getCellVolume();
 	}
@@ -736,13 +733,17 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   return new Vector2d(vector.x * length / temp, vector.y * length / temp);
    }	   
    
-   public double getCellHeight() {	return cellHeight; }
+   public double getCellHeight() {	return modelConnector == null ? 0 : modelConnector.getHeight(); }
 	
-	public double getCellWidth() {return cellWidth;}
+	public double getCellWidth() {return modelConnector == null ? 0 : modelConnector.getWidth();}
 	
-	public void setCellHeight(double cellHeight) { this.cellHeight = cellHeight>0?cellHeight:this.cellHeight;	}
+	public double getCellLength() {return modelConnector == null ? 0 : modelConnector.getLength();}
 	
-	public void setCellWidth(double cellWidth) { this.cellWidth = cellWidth>0?cellWidth:this.cellWidth; }
+	public void setCellHeight(double cellHeight) { if(modelConnector!=null)modelConnector.setHeight(cellHeight>0?cellHeight:getCellHeight());	}
+	
+	public void setCellWidth(double cellWidth) { if(modelConnector!=null)modelConnector.setWidth(cellWidth>0?cellWidth:getCellWidth());	 }
+	
+	public void setCellLength(double cellLength) { if(modelConnector!=null)modelConnector.setLength(cellLength>0?cellLength:getCellLength());	 }
 
 	public int hitsOtherCell(){ return finalInteractionResult.numhits; }
 	

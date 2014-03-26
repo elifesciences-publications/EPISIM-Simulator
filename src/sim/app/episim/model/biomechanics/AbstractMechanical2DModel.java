@@ -21,6 +21,7 @@ public abstract class AbstractMechanical2DModel extends AbstractMechanicalModel<
 	}
 	
 	public abstract void setLastDrawInfo2D(DrawInfo2D info);
+	public abstract DrawInfo2D getLastDrawInfo2D();
 	protected abstract void removeCellsInWoundArea(GeneralPath woundArea);
 	
 }

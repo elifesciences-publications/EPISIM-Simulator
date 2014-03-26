@@ -15,7 +15,6 @@ import java.util.Iterator;
 
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
-
 import episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
@@ -31,6 +30,7 @@ import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.engine.SimState;
+import sim.field.grid.Grid2D;
 import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
@@ -84,7 +84,8 @@ public class HexagonBasedMechanicalModel extends AbstractHexagonBasedMechanicalM
 		   		fieldLocation = new Int2D(motherCellMechModel.spreadingLocation.x,motherCellMechModel.spreadingLocation.y);
 		   		motherCellMechModel.spreadingLocation = null;
 		   		motherCellMechModel.modelConnector.setIsSpreading(false);
-		   	}		   	
+		   	}
+		   	
 		   }	   
 	   }
 	  	  
@@ -111,7 +112,7 @@ public class HexagonBasedMechanicalModel extends AbstractHexagonBasedMechanicalM
 		IntBag xPos = new IntBag();
 		IntBag yPos = new IntBag();
 		Bag neighbouringCellsBag = new Bag();
-	   cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, continuous, neighbouringCellsBag, xPos, yPos);
+		cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, continuous, neighbouringCellsBag, xPos, yPos);
 		GenericBag<AbstractCell> neighbouringCells = new GenericBag<AbstractCell>();
 		HashSet<Long> neighbouringCellIDs = new HashSet<Long>();
 	   for(Object obj : neighbouringCellsBag.objs){
@@ -148,7 +149,7 @@ public class HexagonBasedMechanicalModel extends AbstractHexagonBasedMechanicalM
 
 	public void newSimStep(long simStepNumber) {
 			
-		if(modelConnector.getIsSpreading() &&isSpreadingPossible()){
+		if(modelConnector.getIsSpreading()&&isSpreadingPossible()){
 			if(spreadingLocation == null){ 
 				spread();
 			}
@@ -428,12 +429,12 @@ public class HexagonBasedMechanicalModel extends AbstractHexagonBasedMechanicalM
    	return !getPossibleSpreadingLocationIndices(new IntBag(), new IntBag()).isEmpty();
    }
    private ArrayList<Integer> getPossibleSpreadingLocationIndices(IntBag xPos, IntBag yPos){   	
-		Bag neighbouringCellsBag = new Bag();
-	   if(fieldLocation != null)cellField.getNeighborsHexagonalDistance(fieldLocation.x, fieldLocation.y, 1, globalParameters.getUseContinuousSpace(), neighbouringCellsBag, xPos, yPos);
+		
+	   if(fieldLocation != null)cellField.getHexagonalLocations(fieldLocation.x, fieldLocation.y, 1, globalParameters.getUseContinuousSpace()? Grid2D.TOROIDAL:Grid2D.BOUNDED, false, xPos, yPos);
 	   
 	   ArrayList<Integer> spreadingLocationIndices = new ArrayList<Integer>();
-	   for(int i = 0; i < neighbouringCellsBag.size(); i++){
-	   	if(neighbouringCellsBag.get(i)== null){
+	   for(int i = 0; i < xPos.size(); i++){
+	   	if(cellField.field[xPos.objs[i]][yPos.objs[i]]== null){
 	   			spreadingLocationIndices.add(i);	   		  		   
 	   	}
 	   }

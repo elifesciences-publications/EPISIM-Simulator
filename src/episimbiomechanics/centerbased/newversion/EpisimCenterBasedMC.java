@@ -17,6 +17,7 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
 	private double y=0;
 	private double width=0;
 	private double height=0;
+	private double length = 0;
 	private int numberOfSecondsPerSimStep=1;
 	
 	private double adhesionBasalMembrane=0;
@@ -84,7 +85,14 @@ public abstract class EpisimCenterBasedMC extends EpisimModelConnector {
 	}
 	public void setHeight(double height) {	
 		this.height = height;
-	}   
+	}
+	
+	public double getLength() {	
+		return length;
+	}
+	public void setLength(double length) {	
+		this.length = length;
+	}
    
 	@Hidden
 	@NoExport

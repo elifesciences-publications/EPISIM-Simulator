@@ -198,11 +198,16 @@ public class CellVisualizationChartCreationWizard extends JDialog {
 			
 			this.maxXField.setValue(episimChart.getMaxXMikron());
 			this.maxYField.setValue(episimChart.getMaxYMikron());
-			this.maxZField.setValue(episimChart.getMaxZMikron());
+			
 			
 			this.minXField.setValue(episimChart.getMinXMikron());
 			this.minYField.setValue(episimChart.getMinYMikron());
-			this.minZField.setValue(episimChart.getMinZMikron());
+			
+			
+			if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+				this.maxZField.setValue(episimChart.getMaxZMikron());
+				this.minZField.setValue(episimChart.getMinZMikron());
+			}
 			
 			this.cellProjectionPlaneCombo.setSelectedItem(episimChart.getCellProjectionPlane());
 						

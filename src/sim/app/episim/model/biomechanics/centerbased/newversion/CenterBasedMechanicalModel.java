@@ -402,10 +402,7 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	}
 	
-      if(Double.isNaN(contactArea)){
-      	System.out.println(" ");
-      }
-	
+      
 	
 	//double adhesionCoefficient = globalParameters.getAdhSpringStiffness_N_per_square_micro_m()*getAdhesionFactor(other);
 										 

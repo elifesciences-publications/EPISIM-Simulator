@@ -453,9 +453,12 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
    	   appendAssignmentCheck("biomechanics", episimChart.getRequiredClasses(), handlerSource);
    	   appendAssignmentCheck("cellTypeLocalObj", episimChart.getRequiredClasses(), handlerSource);
    	   handlerSource.append("    if(isValidCell(cellTypeLocal)){\n");
-   	   handlerSource.append("       int colorR = (((int)("+ episimChart.getCellColoringConfigurator().getArithmeticExpressionColorR()[1]+"))%256);\n");
-   	   handlerSource.append("       int colorG = (((int)("+ episimChart.getCellColoringConfigurator().getArithmeticExpressionColorG()[1]+"))%256);\n");
-   	   handlerSource.append("       int colorB = (((int)("+ episimChart.getCellColoringConfigurator().getArithmeticExpressionColorB()[1]+"))%256);\n");
+   	   handlerSource.append("       int colorR = (int)("+ episimChart.getCellColoringConfigurator().getArithmeticExpressionColorR()[1]+");\n");
+   	   handlerSource.append("       int colorG = (int)("+ episimChart.getCellColoringConfigurator().getArithmeticExpressionColorG()[1]+");\n");
+   	   handlerSource.append("       int colorB = (int)("+ episimChart.getCellColoringConfigurator().getArithmeticExpressionColorB()[1]+");\n");
+   	   handlerSource.append("       colorR = Math.min(Math.max(0, colorR), 255);\n");
+   	   handlerSource.append("       colorG = Math.min(Math.max(0, colorG), 255);\n");
+   	   handlerSource.append("       colorB = Math.min(Math.max(0, colorB), 255);\n");
    	   handlerSource.append("       return new Color(colorR, colorG, colorB);\n");
          handlerSource.append("    }\n");
    	   handlerSource.append("    else throw new CellNotValidException(\"Cell is not Valid: \"+ cellTypeLocal.getCellName());\n");        

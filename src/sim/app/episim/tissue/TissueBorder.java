@@ -208,7 +208,6 @@ public class TissueBorder implements ClassLoaderChangeListener{
 		}
 	}	
 	private double getLength(boolean inPixels){
-		
 		EpisimBiomechanicalModelGlobalParameters globalParameters =ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		return inPixels ? globalParameters.getLengthInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getLengthInMikron();
 	}

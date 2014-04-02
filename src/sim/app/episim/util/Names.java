@@ -5,7 +5,7 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 
 public abstract class Names {
-	private static String [] charactersToRemove = new String[]{";", "/", "\\", ",", ".", ":", "?", "!", "_", "-", "<", ">", "&", "%", "+", "*", " " ,"}","{",")","(", "|","'","´","`","°","~","§","ß", "\""};
+	private static String [] charactersToRemove = new String[]{";", "/", "\\", ",", ".", ":", "?", "!", "_", "-", "<", ">", "&", "%", "+", "*", " " ,"}","{",")","(","[","]","|","'","´","`","°","~","§","ß", "\""};
 	public static final String BIOCHEM_MODEL ="Cell-Behavioral-Model";
 	public static final String EPISIM_TEXTOUT ="Episim Text Output";
 	public static final String MECH_MODEL ="Biomechanical-Model";

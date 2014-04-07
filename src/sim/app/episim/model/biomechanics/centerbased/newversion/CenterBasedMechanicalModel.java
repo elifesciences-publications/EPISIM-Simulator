@@ -275,7 +275,10 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
              if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
             	 double d_membrane_this=requiredDistanceToMembraneThis*globalParameters.getOptDistanceScalingFactor();
                 double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
-          		double contactAreaCorrect = calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, d_membrane_this, d_membrane_other, actDist, optDistScaled);
+          		double contactAreaCorrect =0; 
+          		if(actDist < optDistScaled*globalParameters.getOptDistanceAdhesionFact()){	
+          			contactAreaCorrect= calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, getCellLength(), mechModelOther.getCellLength(), d_membrane_this, d_membrane_other, actDist, optDistScaled);
+          		}
           		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
           	 }
              if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
@@ -331,22 +334,25 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
       return interactionResult;
    } 
    
-   private double calculateContactAreaNew(Point2d posOther,double dy, double majorAxisThis, double minorAxisThis, double majorAxisOther, double minorAxisOther, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
+   private double calculateContactAreaNew(Point2d posOther,double dy, double majorAxisThis, double minorAxisThis, double majorAxisOther, double minorAxisOther, double lengthThis, double lengthOther, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
    	double contactArea = 0;
    	double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
       double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
       double smoothingFunction = 1;
       final double AXIS_RATIO_THRES = 5;
       if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES && majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
-		double contactRadius = 0;
-		Rectangle2D.Double rect1 = new Rectangle2D.Double(getX()-majorAxisThis, getY()-minorAxisThis, 2*majorAxisThis,2*minorAxisThis);
-		Rectangle2D.Double rect2 = new Rectangle2D.Double(posOther.x-majorAxisOther, posOther.y-minorAxisOther, 2*majorAxisOther,2*minorAxisOther);
-		Rectangle2D.Double intersectionRect = new Rectangle2D.Double();
-		Rectangle2D.Double.intersect(rect1, rect2, intersectionRect);
-		contactRadius = (intersectionRect.contains(new Point2D.Double(getX(), getY())) || intersectionRect.contains(new Point2D.Double(posOther.x, posOther.y))) 
-										? Math.min(intersectionRect.width, intersectionRect.height) : Math.max(intersectionRect.width, intersectionRect.height);
-		contactRadius/=2;
-		contactArea = Math.PI*Math.pow(contactRadius, 2);
+			double contactRadius = 0;		
+			Rectangle2D.Double rect1 = new Rectangle2D.Double(getX()-majorAxisThis, getY()-minorAxisThis, 2*majorAxisThis,2*minorAxisThis);
+			Rectangle2D.Double rect2 = new Rectangle2D.Double(posOther.x-majorAxisOther, posOther.y-minorAxisOther, 2*majorAxisOther,2*minorAxisOther);
+			Rectangle2D.Double intersectionRectXY = new Rectangle2D.Double();
+			Rectangle2D.Double.intersect(rect1, rect2, intersectionRectXY);
+			double contactRadiusXY =  intersectionRectXY.height < minorAxisThis ? intersectionRectXY.width : intersectionRectXY.height;
+			contactRadiusXY/=2;
+
+			double contactRadiusZY = Math.min(lengthThis, lengthOther);			
+			contactRadiusZY/=2;
+			
+			contactArea = Math.PI*contactRadiusXY*contactRadiusZY;
 	}
 	else if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES || majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
 		double flatEllMajor= 0, flatEllMinor = 0, otherEllMajor=0, otherEllMinor=0;

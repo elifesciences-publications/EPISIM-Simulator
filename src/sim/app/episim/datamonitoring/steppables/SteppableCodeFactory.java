@@ -43,9 +43,15 @@ public abstract class SteppableCodeFactory {
 		steppableCode.append("new EnhancedSteppable(){\n");
 		
 		steppableCode.append("public void step(SimState state){\n");
-		
+		if(type == SteppableType.CHART){
+			steppableCode.append("     	  SwingUtilities.invokeLater(new Runnable() {\n");
+			steppableCode.append("     	  public void run() {\n");
+		}		
 		steppableCode.append("for(CalculationCallBack callBack: "+ nameOfCallBackList + ") callBack.calculate(SimStateServer.getInstance().getSimStepNumber());");		
-		
+		if(type == SteppableType.CHART){
+			steppableCode.append("     	    }\n");
+			steppableCode.append("     	  });\n");
+		}
 		steppableCode.append("}\n");
 		steppableCode.append("public double getInterval(){\n");
 

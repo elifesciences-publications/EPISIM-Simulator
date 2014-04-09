@@ -19,10 +19,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector2d;
@@ -117,7 +119,7 @@ public class TestContactAreaCalculation {
 				}
 				if(circles != null){
 					for(Sphere circ : circles){
-						//drawCircle((Graphics2D)g, circ);
+						drawCircle((Graphics2D)g, circ);
 					}
 				}
 				if(contactAreaBar != null)drawInfos((Graphics2D)g, contactAreaBar);
@@ -221,8 +223,8 @@ public class TestContactAreaCalculation {
 	private void drawCircle(Graphics2D graphics, Sphere circ){
 		final double centerRadius = 8;
 		
-		Ellipse2D.Double e = new Ellipse2D.Double(circ.x-circ.r, circ.y-circ.r,2*circ.r, 2*circ.r);
-		Ellipse2D.Double e2 = new Ellipse2D.Double(circ.x-(centerRadius/2), circ.y-(centerRadius/2),centerRadius, centerRadius);
+		Ellipse2D.Double e = new Ellipse2D.Double(ORIGIN.x +circ.x-circ.r, circ.y-circ.r,2*circ.r, 2*circ.r);
+		Ellipse2D.Double e2 = new Ellipse2D.Double(ORIGIN.x +circ.x-(centerRadius/2), circ.y-(centerRadius/2),centerRadius, centerRadius);
 		Color c = graphics.getColor();
 		graphics.setColor(Color.BLUE);
 		graphics.draw(e);
@@ -288,6 +290,56 @@ public class TestContactAreaCalculation {
 	   
 	   return cellCenter.distance(intersectionPointEllipsoid);
 	}
+	
+	private double[] calculateIntersectionEllipseSemiAxes(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
+		 //According to P.P. Klein 2012 on the Ellipsoid and Plane Intersection Equation
+		 Vector3d directR = new Vector3d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y), (otherCellCenter.z-cellCenter.z));
+		 directR.normalize();
+		 Vector3d directTemp = new Vector3d(0, 1, 0);
+		 directTemp.normalize();
+		 if(directTemp.equals(directR)){
+			 directTemp = new Vector3d(1, 0, 0);
+			 directTemp.normalize();
+		 }
+		 
+		 Vector3d normalVect =new Vector3d();
+		 normalVect.cross(directR, directTemp);
+		 normalVect.normalize();
+		 
+		 Vector3d directS = new Vector3d();		 
+		 directS.cross(normalVect, directR);
+		 directS.normalize();
+		 Matrix3d diagMatrixD = new Matrix3d(1d/aAxis,0,0,0,1d/bAxis,0,0,0,1d/cAxis);
+		 double dr_dr = mult(diagMatrixD, directR).dot(mult(diagMatrixD, directR));
+		 double ds_ds = mult(diagMatrixD, directS).dot(mult(diagMatrixD, directS));
+		 double dr_ds = mult(diagMatrixD, directR).dot(mult(diagMatrixD, directS));
+		 
+		 double diff_drdr_dsds = dr_dr-ds_ds;
+		 
+		 double angle =diff_drdr_dsds != 0 ? (0.5*Math.atan((2*dr_ds)/diff_drdr_dsds)) : (Math.PI/4d);
+		 
+		 double sinAngle = Math.sin(angle);
+		 double cosAngle = Math.cos(angle);
+		 
+		 Vector3d rVect = new Vector3d((cosAngle*directR.x+sinAngle*directS.x),(cosAngle*directR.y+sinAngle*directS.y), (cosAngle*directR.z+sinAngle*directS.z));
+		 Vector3d sVect = new Vector3d((cosAngle*directS.x-sinAngle*directR.x),(cosAngle*directS.y-sinAngle*directR.y), (cosAngle*directS.z-sinAngle*directR.z));
+		 
+		 Vector3d qVect = new Vector3d(0,0,0);//cellCenter.x, cellCenter.y, cellCenter.z);
+		 
+		 dr_dr = mult(diagMatrixD, rVect).dot(mult(diagMatrixD, rVect));
+		 ds_ds = mult(diagMatrixD, sVect).dot(mult(diagMatrixD, sVect));
+		 double dq_dq = mult(diagMatrixD, qVect).dot(mult(diagMatrixD, qVect));
+		 double dq_dr = mult(diagMatrixD, qVect).dot(mult(diagMatrixD, rVect));
+		 double dq_ds = mult(diagMatrixD, qVect).dot(mult(diagMatrixD, sVect));		 
+		 double dFact = dq_dq - (Math.pow(dq_dr, 2)/dr_dr) -(Math.pow(dq_ds, 2)/ds_ds);
+		 return new double[]{Math.sqrt((1-dFact)/dr_dr),Math.sqrt((1-dFact)/ds_ds)};
+	}
+	
+	private Vector3d mult(Matrix3d m, Vector3d v ){
+		return new Vector3d((m.m00*v.x + m.m01*v.y+ m.m02*v.z), (m.m10*v.x + m.m11*v.y+ m.m12*v.z), (m.m20*v.x + m.m21*v.y+ m.m22*v.z));
+	}
+	
+	
 	private Point3d calculateIntersectionPoint(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
 		 
 		 Vector3d rayDirection = new Vector3d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y), (otherCellCenter.z-cellCenter.z));
@@ -325,32 +377,32 @@ public class TestContactAreaCalculation {
 			Point3d centerEllipse2 = new Point3d(ell2.x, ell2.y, ell2.z);
 			double contactRadius=0;
 			final double AXIS_RATIO_THRES = 5;
-			if((ell1.a/ell1.b) > AXIS_RATIO_THRES && (ell2.a/ell2.b) > AXIS_RATIO_THRES){
+			if((ell1.a/ell1.b) > AXIS_RATIO_THRES|| (ell2.a/ell2.b) > AXIS_RATIO_THRES){
+			//if((ell1.a/ell1.b) > AXIS_RATIO_THRES && (ell2.a/ell2.b) > AXIS_RATIO_THRES){
 				Rectangle2D.Double rect1 = new Rectangle2D.Double(ell1.x-ell1.a, ell1.y-ell1.b, 2*ell1.a,2*ell1.b);
 				Rectangle2D.Double rect2 = new Rectangle2D.Double(ell2.x-ell2.a, ell2.y-ell2.b, 2*ell2.a,2*ell2.b);
 				Rectangle2D.Double intersectionRectXY = new Rectangle2D.Double();
 				Rectangle2D.Double.intersect(rect1, rect2, intersectionRectXY);
-				double contactRadiusXY =  intersectionRectXY.height < ell1.b ? intersectionRectXY.width : intersectionRectXY.height;
- 						
-				System.out.println("XY-Rect width: "+ intersectionRectXY.width + "  height: "+ intersectionRectXY.height);
-				System.out.println("Contact-Diameter-XY: "+ contactRadiusXY);
-				contactRadiusXY/=2;
+				double contactRadiusXY =  intersectionRectXY.height < ell1.b && intersectionRectXY.height < ell2.b ? intersectionRectXY.width : intersectionRectXY.height;
+ 				contactRadiusXY/=2;
 				
 				rect1 = new Rectangle2D.Double(ell1.z-ell1.c, ell1.y-ell1.b, 2*ell1.c,2*ell1.b);
 				rect2 = new Rectangle2D.Double(ell2.z-ell2.c, ell2.y-ell2.b, 2*ell2.c,2*ell2.b);
 				Rectangle2D.Double intersectionRectZY = new Rectangle2D.Double();
 				Rectangle2D.Double.intersect(rect1, rect2, intersectionRectZY);
 				double contactRadiusZY = intersectionRectZY.width;
-				System.out.println("Contact-Diameter-ZY: "+ contactRadiusZY );
 				contactRadiusZY/=2;
 				
 				double contactArea = Math.PI*contactRadiusXY*contactRadiusZY;
-				System.out.println("Contact Area: "+ contactArea);
-				contactRadius = Math.sqrt(contactArea /Math.PI);
+			
+				contactRadius = 0;
+				if(intersectionRectXY.height > 0 && intersectionRectXY.width > 0 && intersectionRectZY.width >0){
+					contactRadius = Math.sqrt(contactArea /Math.PI);
+				}
 				this.contactAreaBar = new ContactAreaBar(10+contactRadius, 30, 2*contactRadius, false);
-				System.out.println();
+				
 			}
-			else if((ell1.a/ell1.b) > AXIS_RATIO_THRES|| (ell2.a/ell2.b) > AXIS_RATIO_THRES){
+		/*	if((ell1.a/ell1.b) > AXIS_RATIO_THRES|| (ell2.a/ell2.b) > AXIS_RATIO_THRES){
 				this.circles.clear();
 				Ellipsoid flatEllipse=null, otherEllipse=null;
 				if((ell1.a/ell1.b) > AXIS_RATIO_THRES){
@@ -374,7 +426,7 @@ public class TestContactAreaCalculation {
 					this.circles.add(new Sphere((otherEllipse.x), (flatEllipse.y)+(Math.signum(dy)*(d+flatEllipse.b)), 0,otherEllipse.a));
 				}
 				this.contactAreaBar = new ContactAreaBar(10+contactRadius, 30, 2*contactRadius, false);
-			}
+			}*/
 			else{
 				double r1_old = calculateDistanceToCellCenter(centerEllipse1, centerEllipse2, ell1.a, ell1.b, ell1.c);
 				double r2_old = calculateDistanceToCellCenter(centerEllipse2, centerEllipse1, ell2.a, ell2.b, ell2.c);
@@ -383,18 +435,20 @@ public class TestContactAreaCalculation {
 				intersectionPointEll1 = calculateIntersectionPoint(centerEllipse1, centerEllipse2, ell1.a, ell1.b, ell1.c);
 				intersectionPointEll2 = calculateIntersectionPoint(centerEllipse2, centerEllipse1, ell2.a, ell2.b, ell2.c);
 				
-				
+				double[] semiAxesEll1 = calculateIntersectionEllipseSemiAxes(centerEllipse1, centerEllipse2, ell1.a, ell1.b, ell1.c);
+				double[] semiAxesEll2 = calculateIntersectionEllipseSemiAxes(centerEllipse2, centerEllipse1, ell2.a, ell2.b, ell2.c);
+				System.out.println("A: "+semiAxesEll1[0]+"B: "+semiAxesEll1[1]);
 				double h_old = centerEllipse1.distance(centerEllipse2);
 				contactRadius = 0;
 				double r1=0, r2=0;
 				double h_diff = 0;
+			
 				if(h_old < (r1_old+r2_old)){
-				 
-					r1=(ell1.b/r1_old)*ell1.a;
-					r2=(ell2.b/r2_old)*ell2.a;
+				
+					r1=(semiAxesEll1[1]*semiAxesEll1[0])/r1_old;
+					r2=(semiAxesEll2[1]*semiAxesEll2[0])/r2_old;			
 					
-					
-					double h_scale =((r1/r1_old)*(r1_old/(r1_old+r2_old))+(r2/r2_old)*(r2_old/(r1_old+r2_old)));
+					double h_scale =((r1)*(1/(r1_old+r2_old))+(r2)*(1/(r1_old+r2_old)));					
 					double h=h_old*h_scale;
 					h_diff=h-h_old;
 					double contactArea = (Math.PI/(4*Math.pow(h, 2)))*(2*Math.pow(h, 2)*(Math.pow(r1, 2)+Math.pow(r2, 2))
@@ -421,16 +475,18 @@ public class TestContactAreaCalculation {
 	}
 	
 	public void start(){
-		double a1 = 200;
-		double b1 = 20;
-		double a2 = 200;
-		double b2 = 20;
+		double a1 = 50;
+		double b1 = 100;
+		double c1 = 75;
+		double a2 =50;
+		double b2 =100;
+		double c2 = 50;
 		Point3d centerEllipse1 = new Point3d(0, 200,0);
 		Point3d centerEllipse2 = new Point3d(100, 200, deltaZ);
 		
 		this.ellipses = new ArrayList<Ellipsoid>();
-		this.ellipses.add(new Ellipsoid(centerEllipse1.x,centerEllipse1.y,centerEllipse1.z,a1,b1,a1));
-		this.ellipses.add(new Ellipsoid(centerEllipse2.x,centerEllipse2.y,centerEllipse2.z,a2,b2,a2));
+		this.ellipses.add(new Ellipsoid(centerEllipse1.x,centerEllipse1.y,centerEllipse1.z,a1,b1,c1));
+		this.ellipses.add(new Ellipsoid(centerEllipse2.x,centerEllipse2.y,centerEllipse2.z,a2,b2,c2));
 		calculateContactArea();
 		frame.repaint();
 	}

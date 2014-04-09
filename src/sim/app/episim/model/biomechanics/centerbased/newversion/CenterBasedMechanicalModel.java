@@ -277,7 +277,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
                 double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
           		double contactAreaCorrect =0; 
           		if(actDist < optDistScaled*globalParameters.getOptDistanceAdhesionFact()){	
-          			contactAreaCorrect= calculateContactAreaNew(new Point2d(mechModelOther.getX(), mechModelOther.getY()),dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, getCellLength(), mechModelOther.getCellLength(), d_membrane_this, d_membrane_other, actDist, optDistScaled);
+          			contactAreaCorrect= calculateContactAreaNew(otherPosToroidalCorrection(new Point2d(thisloc.x, thisloc.y), new Point2d(mechModelOther.getX(), mechModelOther.getY())),
+          					dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, getCellLength(), mechModelOther.getCellLength(), d_membrane_this, d_membrane_other, actDist, optDistScaled);
           		}
           		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
           	 }
@@ -340,45 +341,19 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
       double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
       double smoothingFunction = 1;
       final double AXIS_RATIO_THRES = 5;
-      if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES && majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
-			double contactRadius = 0;		
+      if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES || majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
+				
 			Rectangle2D.Double rect1 = new Rectangle2D.Double(getX()-majorAxisThis, getY()-minorAxisThis, 2*majorAxisThis,2*minorAxisThis);
 			Rectangle2D.Double rect2 = new Rectangle2D.Double(posOther.x-majorAxisOther, posOther.y-minorAxisOther, 2*majorAxisOther,2*minorAxisOther);
 			Rectangle2D.Double intersectionRectXY = new Rectangle2D.Double();
 			Rectangle2D.Double.intersect(rect1, rect2, intersectionRectXY);
-			double contactRadiusXY =  intersectionRectXY.height < minorAxisThis ? intersectionRectXY.width : intersectionRectXY.height;
+			double contactRadiusXY =  intersectionRectXY.height < minorAxisThis && intersectionRectXY.height < minorAxisOther? intersectionRectXY.width : intersectionRectXY.height;
 			contactRadiusXY/=2;
 
 			double contactRadiusZY = Math.min(lengthThis, lengthOther);			
 			contactRadiusZY/=2;
 			
 			contactArea = Math.PI*contactRadiusXY*contactRadiusZY;
-	}
-	else if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES || majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
-		double flatEllMajor= 0, flatEllMinor = 0, otherEllMajor=0, otherEllMinor=0;
-		double contactRadius = 0;
-		if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES){
-			flatEllMajor=majorAxisThis;
-			flatEllMinor=minorAxisThis;
-			otherEllMajor=majorAxisOther;
-			otherEllMinor=minorAxisOther;
-		}
-		else if(majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
-			flatEllMajor=majorAxisOther;
-			flatEllMinor=minorAxisOther;
-			otherEllMajor=majorAxisThis;
-			otherEllMinor=minorAxisThis;
-		}
-		if(Math.abs(dy) <= flatEllMinor){
-			contactRadius = flatEllMinor;
-		}
-		else{
-			double d=(Math.abs(dy)-flatEllMinor)*(otherEllMajor/otherEllMinor);
-			double overlap_square= Math.pow(otherEllMajor, 2)-Math.pow(d, 2);
-			contactRadius = overlap_square>0 ? Math.sqrt(overlap_square):0;
-			
-		}
-		contactArea = Math.PI*Math.pow(contactRadius, 2);
 	}
 	else{     
       double r1 = adh_Dist_Fact*d_membrane_this;
@@ -400,11 +375,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    																		+2*radius_this_square*radius_other_square
    																		-Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
    																		-Math.pow(actDist_square, 2));
-   	double intercell_gap = actDist_scaled - optDistScaled;
-   	smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
+   	//double intercell_gap = actDist_scaled - optDistScaled;
+   /*	smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
 				 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
 				 ? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
-				 : 1;
+				 : 1;*/
 	
 	}
 	

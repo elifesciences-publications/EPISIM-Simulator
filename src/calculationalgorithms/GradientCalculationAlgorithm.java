@@ -38,7 +38,7 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 		   return new CalculationAlgorithmDescriptor(){
 
 				public String getDescription() {	         
-		         return "This algorithm calculates a very simple gradient over the thickest part of the tissue using the defined mathematical expression.";
+		         return "This algorithm calculates a very simple gradient over the define X-Interval of the tissue using the defined mathematical expression.";
 	         }
 
 				public int getID() { return _id; }

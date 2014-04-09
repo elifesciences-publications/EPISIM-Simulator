@@ -117,7 +117,7 @@ public class UniversalCell extends AbstractCell
 						cellCycleDuration = (int)((Double) result).doubleValue();
 					}
 				}    	  
-      	  int randomAge = TissueController.getInstance().getActEpidermalTissue().random.nextInt(cellCycleDuration);
+      	  int randomAge = TissueController.getInstance().getActEpidermalTissue().random.nextInt(cellCycleDuration ==0?1:cellCycleDuration);
         
       	  taCell.getEpisimCellBehavioralModelObject().setAge(randomAge);
       	  if(taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()!= null

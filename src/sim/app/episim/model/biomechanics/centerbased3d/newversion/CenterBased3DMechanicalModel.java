@@ -6,6 +6,7 @@ import java.awt.geom.Rectangle2D;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector2d;
@@ -22,18 +23,12 @@ import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Ellipsoid;
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModelGP;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel.InteractionResult;
-import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
-import sim.util.Double2D;
 import sim.util.Double3D;
 
 
@@ -232,12 +227,13 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
                 double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
           		double contactAreaCorrect = 0;
           		if(actDist < optDistScaled*globalParameters.getOptDistanceAdhesionFact()){
-          			contactAreaCorrect = calculateContactAreaNew(new Point3d(mechModelOther.getX(), mechModelOther.getY(), mechModelOther.getZ()),dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisB, otherSemiAxisA, otherSemiAxisB,otherSemiAxisC, d_membrane_this, d_membrane_other, actDist, optDistScaled);
+          			contactAreaCorrect = calculateContactAreaNew(new Point3d(thisloc.x, thisloc.y, thisloc.z),
+          					otherPosToroidalCorrection(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(mechModelOther.getX(), mechModelOther.getY(), mechModelOther.getZ())),
+          					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisB, otherSemiAxisA, otherSemiAxisB,otherSemiAxisC, d_membrane_this, d_membrane_other, actDist, optDistScaled);
           		}
           		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
           	 }
-             if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
-                    	
+             if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){                    	
                     interactionResult.nextToOuterCell=true;  
              }
            }          
@@ -291,58 +287,40 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
       return interactionResult;
    }
    
-   private double calculateContactAreaNew(Point3d posOther, double dy, double thisSemiAxisA, double thisSemiAxisB, double thisSemiAxisC, double otherSemiAxisA, double otherSemiAxisB, double otherSemiAxisC, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
+   private double calculateContactAreaNew(Point3d posThis, Point3d posOther, double dy, double thisSemiAxisA, double thisSemiAxisB, double thisSemiAxisC, double otherSemiAxisA, double otherSemiAxisB, double otherSemiAxisC, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
    	double contactArea = 0;
    	double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
       double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
       double smoothingFunction = 1;
       final double AXIS_RATIO_THRES = 5;
-      if(thisSemiAxisA/thisSemiAxisB >= AXIS_RATIO_THRES && otherSemiAxisA/otherSemiAxisB >=AXIS_RATIO_THRES){
-			double contactRadius = 0;
+      if(thisSemiAxisA/thisSemiAxisB >= AXIS_RATIO_THRES || otherSemiAxisA/otherSemiAxisB >=AXIS_RATIO_THRES){		
+			Rectangle2D.Double rect1 = new Rectangle2D.Double(posThis.x-thisSemiAxisA, posThis.y-thisSemiAxisB, 2*thisSemiAxisA,2*thisSemiAxisB);
+			Rectangle2D.Double rect2 = new Rectangle2D.Double(posOther.x-otherSemiAxisA, posOther.y-otherSemiAxisB, 2*otherSemiAxisA, 2*otherSemiAxisB);
+			Rectangle2D.Double intersectionRectXY = new Rectangle2D.Double();
+			Rectangle2D.Double.intersect(rect1, rect2, intersectionRectXY);
+			double contactRadiusXY =  intersectionRectXY.height < thisSemiAxisB && intersectionRectXY.height < otherSemiAxisB ? intersectionRectXY.width : intersectionRectXY.height;						
+			contactRadiusXY/=2;
 			
-			Rectangle2D.Double rect1 = new Rectangle2D.Double(getX()-majorAxisThis, getY()-minorAxisThis, 2*majorAxisThis,2*minorAxisThis);
-			Rectangle2D.Double rect2 = new Rectangle2D.Double(posOther.x-majorAxisOther, posOther.y-minorAxisOther, 2*majorAxisOther,2*minorAxisOther);
-			Rectangle2D.Double intersectionRect = new Rectangle2D.Double();
-			Rectangle2D.Double.intersect(rect1, rect2, intersectionRect);
-			contactRadius = (intersectionRect.contains(new Point2D.Double(getX(), getY())) || intersectionRect.contains(new Point2D.Double(posOther.x, posOther.y))) 
-											? Math.min(intersectionRect.width, intersectionRect.height) : Math.max(intersectionRect.width, intersectionRect.height);
-			contactRadius/=2;
-			contactArea = Math.PI*Math.pow(contactRadius, 2);
-		}
-		else if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES || majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
-			double flatEllMajor= 0, flatEllMinor = 0, otherEllMajor=0, otherEllMinor=0;
-			double contactRadius = 0;
-			if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES){
-				flatEllMajor=majorAxisThis;
-				flatEllMinor=minorAxisThis;
-				otherEllMajor=majorAxisOther;
-				otherEllMinor=minorAxisOther;
-			}
-			else if(majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
-				flatEllMajor=majorAxisOther;
-				flatEllMinor=minorAxisOther;
-				otherEllMajor=majorAxisThis;
-				otherEllMinor=minorAxisThis;
-			}
-			if(Math.abs(dy) <= flatEllMinor){
-				contactRadius = flatEllMinor;
-			}
-			else{
-				double d=(Math.abs(dy)-flatEllMinor)*(otherEllMajor/otherEllMinor);
-				double overlap_square= Math.pow(otherEllMajor, 2)-Math.pow(d, 2);
-				contactRadius = overlap_square>0 ? Math.sqrt(overlap_square):0;
-				
-			}
-			contactArea = Math.PI*Math.pow(contactRadius, 2);
+			rect1 = new Rectangle2D.Double(posThis.z-thisSemiAxisC, posThis.y-thisSemiAxisB, 2*thisSemiAxisC, 2*thisSemiAxisB);
+			rect2 = new Rectangle2D.Double(posOther.z-otherSemiAxisC, posOther.y-otherSemiAxisB, 2*otherSemiAxisC, 2*otherSemiAxisB);
+			Rectangle2D.Double intersectionRectZY = new Rectangle2D.Double();
+			Rectangle2D.Double.intersect(rect1, rect2, intersectionRectZY);
+			double contactRadiusZY = intersectionRectZY.width;
+			contactRadiusZY/=2;
+			
+			contactArea = Math.PI*contactRadiusXY*contactRadiusZY;
 		}
 		else{     
 	      double r1 = adh_Dist_Fact*d_membrane_this;
 	      double r2 = adh_Dist_Fact*d_membrane_other;
 	     
-	      double r1_scaled = (minorAxisThis/r1)*(majorAxisThis);
-	      double r2_scaled = (minorAxisOther/r2)*(majorAxisOther);
+	      double[] semiAxesCellThis = calculateIntersectionEllipseSemiAxes(posThis, posOther, thisSemiAxisA, thisSemiAxisB, thisSemiAxisC);
+			double[] semiAxesCellOther = calculateIntersectionEllipseSemiAxes(posOther, posThis, otherSemiAxisA, otherSemiAxisB, otherSemiAxisC);
 	      
-	      double actDist_scale = ((r1_scaled/r1)*(r1/(r1+r2))+(r2_scaled/r2)*(r2/(r1+r2)));
+	      double r1_scaled = (semiAxesCellThis[1]*semiAxesCellThis[0])/r1;
+	      double r2_scaled = (semiAxesCellOther[1]*semiAxesCellOther[0])/r2;
+	      
+	      double actDist_scale = ((r1_scaled)*(1/(r1+r2))+(r2_scaled)*(1/(r1+r2)));
 	      double actDist_scaled = actDist*actDist_scale;
 	      
 	      double actDist_square = Math.pow(actDist_scaled, 2);
@@ -355,11 +333,11 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 	   																		+2*radius_this_square*radius_other_square
 	   																		-Math.pow(radius_this_square, 2)-Math.pow(radius_other_square, 2)
 	   																		-Math.pow(actDist_square, 2));
-	   	double intercell_gap = actDist_scaled - optDistScaled;
+	   /*	double intercell_gap = actDist_scaled - optDistScaled;
 	   	smoothingFunction = (((-1*adh_Dist_Perc*d_membrane_this) < intercell_gap)
 					 && (intercell_gap < (adh_Dist_Perc*d_membrane_this)))
 					 ? Math.abs(Math.sin((0.5*Math.PI)*(intercell_gap/(adh_Dist_Perc*d_membrane_this))))
-					 : 1;
+					 : 1;*/
 		
 		}
 	
@@ -372,7 +350,52 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 				 return contactArea;
    }
      
-   
+   private double[] calculateIntersectionEllipseSemiAxes(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
+		 //According to P.P. Klein 2012 on the Ellipsoid and Plane Intersection Equation
+		 Vector3d directR = new Vector3d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y), (otherCellCenter.z-cellCenter.z));
+		 directR.normalize();
+		 Vector3d directTemp = new Vector3d(0, 1, 0);
+		 directTemp.normalize();
+		 if(directTemp.equals(directR)){
+			 directTemp = new Vector3d(1, 0, 0);
+			 directTemp.normalize();
+		 }
+		 
+		 Vector3d normalVect =new Vector3d();
+		 normalVect.cross(directR, directTemp);
+		 normalVect.normalize();
+		 
+		 Vector3d directS = new Vector3d();		 
+		 directS.cross(normalVect, directR);
+		 directS.normalize();
+		 Matrix3d diagMatrixD = new Matrix3d(1d/aAxis,0,0,0,1d/bAxis,0,0,0,1d/cAxis);
+		 double dr_dr = mult(diagMatrixD, directR).dot(mult(diagMatrixD, directR));
+		 double ds_ds = mult(diagMatrixD, directS).dot(mult(diagMatrixD, directS));
+		 double dr_ds = mult(diagMatrixD, directR).dot(mult(diagMatrixD, directS));
+		 
+		 double diff_drdr_dsds = dr_dr-ds_ds;
+		 
+		 double angle =diff_drdr_dsds != 0 ? (0.5*Math.atan((2*dr_ds)/diff_drdr_dsds)) : (Math.PI/4d);
+		 
+		 double sinAngle = Math.sin(angle);
+		 double cosAngle = Math.cos(angle);
+		 
+		 Vector3d rVect = new Vector3d((cosAngle*directR.x+sinAngle*directS.x),(cosAngle*directR.y+sinAngle*directS.y), (cosAngle*directR.z+sinAngle*directS.z));
+		 Vector3d sVect = new Vector3d((cosAngle*directS.x-sinAngle*directR.x),(cosAngle*directS.y-sinAngle*directR.y), (cosAngle*directS.z-sinAngle*directR.z));
+		 
+		 Vector3d qVect = new Vector3d(0,0,0);//cellCenter.x, cellCenter.y, cellCenter.z);
+		 
+		 dr_dr = mult(diagMatrixD, rVect).dot(mult(diagMatrixD, rVect));
+		 ds_ds = mult(diagMatrixD, sVect).dot(mult(diagMatrixD, sVect));
+		 double dq_dq = mult(diagMatrixD, qVect).dot(mult(diagMatrixD, qVect));
+		 double dq_dr = mult(diagMatrixD, qVect).dot(mult(diagMatrixD, rVect));
+		 double dq_ds = mult(diagMatrixD, qVect).dot(mult(diagMatrixD, sVect));		 
+		 double dFact = dq_dq - (Math.pow(dq_dr, 2)/dr_dr) -(Math.pow(dq_ds, 2)/ds_ds);
+		 return new double[]{Math.sqrt((1-dFact)/dr_dr),Math.sqrt((1-dFact)/ds_ds)};
+	}
+   private Vector3d mult(Matrix3d m, Vector3d v ){
+		return new Vector3d((m.m00*v.x + m.m01*v.y+ m.m02*v.z), (m.m10*v.x + m.m11*v.y+ m.m12*v.z), (m.m20*v.x + m.m21*v.y+ m.m22*v.z));
+	}
    
    private Point3d findReferencePositionOnBoundary(Point3d cellPosition, double minX, double maxX, double minZ, double maxZ){
 		double minDist = Double.POSITIVE_INFINITY;

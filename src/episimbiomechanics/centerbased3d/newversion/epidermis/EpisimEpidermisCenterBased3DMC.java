@@ -3,12 +3,12 @@ package episimbiomechanics.centerbased3d.newversion.epidermis;
 import java.util.HashMap;
 
 import sim.app.episim.AbstractCell;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModelGP;
+
+import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episimbiomechanics.EpisimModelConnector.Pairwise;
-import episimbiomechanics.centerbased.newversion.epidermis.CenterBasedMechModelInit;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -32,7 +32,9 @@ public class EpisimEpidermisCenterBased3DMC extends episimbiomechanics.centerbas
 	private String nameDiffLevelSpinosumCell="";
 	private String nameDiffLevelGranulosumCell="";
 	private String nameDiffLevelCorneocyte="";
+	
 	private HashMap<Long, Double> contactArea = new HashMap<Long, Double>();
+	private double bmContactArea=0;
 	
 	private double cellVolume = 0;
 	private double extCellSpaceVolume = 0;
@@ -60,17 +62,17 @@ public class EpisimEpidermisCenterBased3DMC extends episimbiomechanics.centerbas
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return CenterBasedMechanicalModel.class;
+		return CenterBased3DMechanicalModel.class;
 	}
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return CenterBasedMechanicalModelGP.class;
+		return CenterBased3DMechanicalModelGP.class;
 	}
 	
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
-		return CenterBasedMechModelInit.class;
+		return EpidermisCenterBasedMechModelInit.class;
 	}
 		
    public double getAdhesionStemCell() {
@@ -297,6 +299,16 @@ public class EpisimEpidermisCenterBased3DMC extends episimbiomechanics.centerbas
    	this.cellSurfaceArea = cellSurfaceArea;
    }
 	
+   public double getBmContactArea() {
+      
+   	return bmContactArea;
+   }
+
+   @Hidden
+   public void setBmContactArea(double bmContactArea) {
+   
+   	this.bmContactArea = bmContactArea;
+   }
   	
 }
 

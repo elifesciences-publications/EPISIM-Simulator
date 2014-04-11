@@ -73,6 +73,14 @@ public abstract class EpisimCenterBased3DMC extends EpisimModelConnector {
 		this.z = z;
 	}
 	
+	public boolean getIsSurface(){
+		return isSurface;
+	}		
+	@Hidden
+	public void setIsSurface(boolean isSurface){
+		this.isSurface = isSurface;
+	}
+	
 	public double getWidth() {	
 		return width;
 	}
@@ -88,7 +96,7 @@ public abstract class EpisimCenterBased3DMC extends EpisimModelConnector {
 	}
 	
 	public double getLength() {	
-		return height;
+		return length;
 	}
 	public void setLength(double length) {	
 		this.length = length;
@@ -125,6 +133,6 @@ public abstract class EpisimCenterBased3DMC extends EpisimModelConnector {
    public void setEpidermalSurfaceRatio(double epidermalSurfaceRatio) {
    
    	this.epidermalSurfaceRatio = epidermalSurfaceRatio;
-   }	
+   }
 }
 

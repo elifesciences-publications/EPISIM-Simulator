@@ -13,7 +13,7 @@ public class CenterBased3DMechanicalModelGP  implements EpisimBiomechanicalModel
 	private int basalOpening_mikron = 500; // width of undulation at the middle
 	private double width = 400;
 	private double height = 200;
-	private double length = 400;
+	private double length = 200;
 	private double randomness = 0;//0.00000000125;
 	private double seedMinDepth_frac = 0.25; // beginning with which depth a stem cell is seeded
 	
@@ -125,7 +125,7 @@ public class CenterBased3DMechanicalModelGP  implements EpisimBiomechanicalModel
 
 	@NoUserModification
    public ModelDimensionality getModelDimensionality() {	   
-	   return ModelDimensionality.TWO_DIMENSIONAL;
+	   return ModelDimensionality.THREE_DIMENSIONAL;
    }
 
 	@NoUserModification

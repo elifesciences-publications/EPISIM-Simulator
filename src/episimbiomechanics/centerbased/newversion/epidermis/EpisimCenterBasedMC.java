@@ -32,7 +32,9 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
 	private String nameDiffLevelSpinosumCell="";
 	private String nameDiffLevelGranulosumCell="";
 	private String nameDiffLevelCorneocyte="";
+	
 	private HashMap<Long, Double> contactArea = new HashMap<Long, Double>();
+	private double bmContactArea =0;
 	
 	private double cellVolume = 0;
 	private double extCellSpaceVolume = 0;
@@ -296,7 +298,17 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
    public void setCellSurfaceArea(double cellSurfaceArea) {   
    	this.cellSurfaceArea = cellSurfaceArea;
    }
+
 	
-  	
+   public double getBmContactArea() {
+   
+   	return bmContactArea;
+   }
+
+   @Hidden
+   public void setBmContactArea(double bmContactArea) {
+   
+   	this.bmContactArea = bmContactArea;
+   }  	
 }
 

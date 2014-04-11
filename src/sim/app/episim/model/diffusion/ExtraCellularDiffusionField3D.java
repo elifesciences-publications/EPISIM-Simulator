@@ -3,6 +3,9 @@ package sim.app.episim.model.diffusion;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
+import javax.vecmath.Vector2d;
+import javax.vecmath.Vector3d;
+
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D.BoundaryCondition;
 import sim.app.episim.util.EnhancedSteppable;
@@ -335,6 +338,110 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
 		return numberOfLatticeSites > 0 ? (totalConcentration/numberOfLatticeSites) : totalConcentration;
 }
    
+   
+   public Vector3d getChemotaxisVectorForCellBoundary(CellBoundaries area){		
+		
+		double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();
+		
+		double startX = getMinX(area);
+		double stopX = getMaxX(area);
+		
+		double startY = getMinY(area);
+		double stopY = getMaxY(area);
+		
+		double startZ = getMinZ(area);
+		double stopZ = getMaxZ(area);
+		
+		double c_top_left_front=0;
+		double c_top_left_back=0;
+		double c_bottom_left_front=0;
+		double c_bottom_left_back=0;
+		double c_top_right_front=0;
+		double c_top_right_back=0;
+		double c_bottom_right_front=0;
+		double c_bottom_right_back=0;
+		
+		double ls_top_left_front=0;
+		double ls_top_left_back=0;
+		double ls_bottom_left_front=0;
+		double ls_bottom_left_back=0;
+		double ls_top_right_front=0;
+		double ls_top_right_back=0;
+		double ls_bottom_right_front=0;
+		double ls_bottom_right_back=0;
+		
+		double verticalReflectionAxis = startX+((stopX-startX)/2);
+		double horizontalReflectionAxis = startY+((stopY-startY)/2);
+		double middleReflectionAxis = startZ+((stopZ-startZ)/2);
+		for(double z = startZ; z <= stopZ;){
+			for(double y = startY; y <= stopY;){
+				for(double x = startX; x <= stopX;){
+					if(area.contains(x, y)){
+						if(x < verticalReflectionAxis && y > horizontalReflectionAxis && z > middleReflectionAxis){
+							c_top_left_front += getConcentration(x, y, z);
+							ls_top_left_front++;
+						}
+						else if(x < verticalReflectionAxis && y < horizontalReflectionAxis && z > middleReflectionAxis){
+							c_bottom_left_front += getConcentration(x, y, z);
+							ls_bottom_left_front++;
+						}
+						else if(x < verticalReflectionAxis && y > horizontalReflectionAxis && z < middleReflectionAxis){
+							c_top_left_back += getConcentration(x, y, z);
+							ls_top_left_back++;
+						}
+						else if(x < verticalReflectionAxis && y < horizontalReflectionAxis && z < middleReflectionAxis){
+							c_bottom_left_back += getConcentration(x, y, z);
+							ls_bottom_left_back++;
+						}						
+						else if(x > verticalReflectionAxis && y > horizontalReflectionAxis && z > middleReflectionAxis){
+							c_top_right_front += getConcentration(x, y, z);
+							ls_top_right_front++;
+						}
+						else if(x > verticalReflectionAxis && y < horizontalReflectionAxis && z > middleReflectionAxis){
+							c_bottom_right_front += getConcentration(x, y, z);
+							ls_bottom_right_front++;
+						}
+						else if(x > verticalReflectionAxis && y > horizontalReflectionAxis && z < middleReflectionAxis){
+							c_top_right_back += getConcentration(x, y, z);
+							ls_top_right_back++;
+						}
+						else if(x > verticalReflectionAxis && y < horizontalReflectionAxis && z < middleReflectionAxis){
+							c_bottom_right_back += getConcentration(x, y, z);
+							ls_bottom_right_back++;
+						}			
+	   			}
+	   			x+=fieldRes;
+	   		}
+				y+=fieldRes;
+			}
+			z+=fieldRes;
+		}		
+		
+		c_top_left_front /= correctLatticeSiteNumber(ls_top_left_front);
+		c_top_left_back /= correctLatticeSiteNumber(ls_top_left_back);
+		c_top_right_front /= correctLatticeSiteNumber(ls_top_right_front);
+		c_top_right_back /= correctLatticeSiteNumber(ls_top_right_back);
+		
+		c_bottom_left_front /= correctLatticeSiteNumber(ls_bottom_left_front);
+		c_bottom_left_back /= correctLatticeSiteNumber(ls_bottom_left_back);
+		c_bottom_right_front /= correctLatticeSiteNumber(ls_bottom_right_front);
+		c_bottom_right_back /= correctLatticeSiteNumber(ls_bottom_right_back);		
+		
+		double dx = ((c_top_right_front+c_bottom_right_front+c_top_right_back+c_bottom_right_back)/4)-((c_top_left_front+c_bottom_left_front+c_top_left_back+c_bottom_left_back)/4);
+		double dy = ((c_top_left_front+c_top_right_front+c_top_left_back+c_top_right_back)/4)-((c_bottom_left_front+c_bottom_right_front+c_bottom_left_back+c_bottom_right_back)/4);
+		double dz = ((c_top_left_front+c_top_right_front+c_bottom_left_front+c_bottom_right_front)/4)-((c_top_left_back+c_top_right_back+c_bottom_left_back+c_bottom_right_back)/4);
+		double c_max = getFieldConfiguration().getMaximumConcentration() < Double.POSITIVE_INFINITY 
+				  ? getFieldConfiguration().getMaximumConcentration()
+				  : getMaxConcentrationInField();
+		dx /= c_max;
+		dy /= c_max;
+		dz /= c_max;
+		return new Vector3d(dx, dy, dz);
+   }
+   private double correctLatticeSiteNumber(double number){
+   	return number==0d?1d:number;
+   }
+	
    
    private double getMinX(CellBoundaries boundaries){
    	double fieldRes = getFieldConfiguration().getLatticeSiteSizeInMikron();

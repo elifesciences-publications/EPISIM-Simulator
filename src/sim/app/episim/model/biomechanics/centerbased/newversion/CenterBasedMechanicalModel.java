@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.vecmath.Point2d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
@@ -289,10 +290,15 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
            }          
         }       
        // calculate basal adhesion
-       if(modelConnector.getAdhesionBasalMembrane() >0){
+       if(modelConnector.getAdhesionBasalMembrane() >=0){
       		Point2d membraneReferencePoint = findReferencePositionOnBoundary(new Point2d(thisloc.x, thisloc.y), thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2));
       		double dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
             double dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
+            if(dx==0 && dy==0){
+            	addRandomBiasToPoint(membraneReferencePoint,  0.1);
+            	dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
+               dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
+            }
       		double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
       		double optDist = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getCellWidth()/2, getCellHeight()/2);
       		optDist*=globalParameters.getOptDistanceToBMScalingFactor();
@@ -304,6 +310,9 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
             	double gap = distToMembrane - optDist;
             	
             	double contactArea = Math.PI*radius_this*(radius_this-distToMembrane);
+            	if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+            		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setBmContactArea(contactArea);
+            	}
             	
             	double smoothingFunction = (((-1*adh_Dist_Perc*optDist) < gap)
 							 && (gap < (adh_Dist_Perc*optDist)))
@@ -334,6 +343,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			}
       return interactionResult;
    } 
+   
+   private Point2d addRandomBiasToPoint(Point2d point, double scalingFact){
+   	point.setX(point.getX()+((TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5)*scalingFact));
+   	point.setY(point.getY()+((TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5)*scalingFact));
+   	return point;
+   }
    
    private double calculateContactAreaNew(Point2d posOther,double dy, double majorAxisThis, double minorAxisThis, double majorAxisOther, double minorAxisOther, double lengthThis, double lengthOther, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
    	double contactArea = 0;
@@ -438,6 +453,11 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 			
 		   double dx = cellField.tdx(cellPosition.x, membraneReferencePoint.x); 
 	      double dy = cellField.tdy(cellPosition.y, membraneReferencePoint.y);
+	      if(dx==0 && dy==0){
+         	addRandomBiasToPoint(membraneReferencePoint,  0.1);
+         	dx = cellField.tdx(cellPosition.x,membraneReferencePoint.x); 
+            dy = cellField.tdy(cellPosition.y,membraneReferencePoint.y);
+         }
 			double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
 			double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(cellPosition.x, cellPosition.y), new Point2d(membraneReferencePoint.x, membraneReferencePoint.y), getCellWidth()/2, getCellHeight()/2);
 			double optDistScaled = requiredDistanceToMembraneThis*globalParameters.getOptDistanceToBMScalingFactor();
@@ -455,14 +475,16 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	public Point2d calculateLowerBoundaryPositionForCell(Point2d cellPosition, Point2d referencePosition, double optDistance){
 		Vector2d cellPosBoundaryDirVect = new Vector2d((cellPosition.x-referencePosition.x),(cellPosition.y-referencePosition.y));
-		if(cellPosBoundaryDirVect.x == 0 && cellPosBoundaryDirVect.y == 0){
+		//Should not be needed as in this case the method is called with a slightly randomly biased reference point
+		/*if(cellPosBoundaryDirVect.x == 0 && cellPosBoundaryDirVect.y == 0){
+			System.out.println("Das ist so!");
 			Vector2d tangentVect = new Vector2d();
 			tangentVect.x = (cellPosition.x+1)-(cellPosition.x-1);
 			tangentVect.y = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x+1, cellPosition.y)-TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x-1, cellPosition.y);
 			
 			cellPosBoundaryDirVect.x = tangentVect.y;
 			cellPosBoundaryDirVect.y = -1*tangentVect.x;
-		}
+		}*/
 		double distanceCorrectionFactor = 1;
 		if(cellPosition.y < TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellPosition.x, cellPosition.y)){
 			cellPosBoundaryDirVect.negate();
@@ -595,8 +617,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		final double p=1.6075d;
 		
 		double a = modelConnector.getWidth()/2d;
-		double b = modelConnector.getLength()/2d;
-		double c = modelConnector.getHeight()/2d;
+		double b = modelConnector.getHeight()/2d;
+		double c = modelConnector.getLength()/2d;
 		
 		double axisSum = (Math.pow(a, p)*Math.pow(b, p))+(Math.pow(a, p)*Math.pow(c, p))+(Math.pow(b, p)*Math.pow(c, p));
 		double p_root = Math.pow((axisSum/3), (1.0/p));
@@ -607,16 +629,16 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	
 	private double getCellVolume(){
 		double a = modelConnector.getWidth()/2d;
-		double b = modelConnector.getLength()/2d;
-		double c = modelConnector.getHeight()/2d;		
+		double b = modelConnector.getHeight()/2d;
+		double c = modelConnector.getLength()/2d;		
 		double result= (4.0d/3.0d)*Math.PI*a*b*c;		
 		return result;
 	}
 	
 	private double getExtraCellSpaceVolume(double extCellSpaceDelta){
 		double a = (modelConnector.getWidth()/2d)+extCellSpaceDelta;
-		double b = (modelConnector.getLength()/2d)+extCellSpaceDelta;
-		double c = (modelConnector.getHeight()/2d)+extCellSpaceDelta;		
+		double b = (modelConnector.getHeight()/2d)+extCellSpaceDelta;
+		double c = (modelConnector.getLength()/2d)+extCellSpaceDelta;		
 		return ((4.0d/3.0d)*Math.PI*a*b*c)-getCellVolume();
 	}
 			
@@ -711,16 +733,12 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 	   return new Vector2d(vector.x * length / temp, vector.y * length / temp);
    }	   
    
-   public double getCellHeight() {	return modelConnector == null ? 0 : modelConnector.getHeight(); }
-	
-	public double getCellWidth() {return modelConnector == null ? 0 : modelConnector.getWidth();}
-	
+   public double getCellHeight() {	return modelConnector == null ? 0 : modelConnector.getHeight(); }	
+	public double getCellWidth() {return modelConnector == null ? 0 : modelConnector.getWidth();}	
 	public double getCellLength() {return modelConnector == null ? 0 : modelConnector.getLength();}
 	
-	public void setCellHeight(double cellHeight) { if(modelConnector!=null)modelConnector.setHeight(cellHeight>0?cellHeight:getCellHeight());	}
-	
-	public void setCellWidth(double cellWidth) { if(modelConnector!=null)modelConnector.setWidth(cellWidth>0?cellWidth:getCellWidth());	 }
-	
+	public void setCellHeight(double cellHeight) { if(modelConnector!=null)modelConnector.setHeight(cellHeight>0?cellHeight:getCellHeight());	}	
+	public void setCellWidth(double cellWidth) { if(modelConnector!=null)modelConnector.setWidth(cellWidth>0?cellWidth:getCellWidth());	 }	
 	public void setCellLength(double cellLength) { if(modelConnector!=null)modelConnector.setLength(cellLength>0?cellLength:getCellLength());	 }
 
 	public int hitsOtherCell(){ return finalInteractionResult.numhits; }

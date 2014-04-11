@@ -719,7 +719,6 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
          if(allCells!= null){
          	AbstractCell[] cellArray = allCells.toArray(new AbstractCell[allCells.size()]);
    	      int numberOfCells = cellArray.length;
-   	      double maxYFound = 0;
    	      for (int i=0; i < numberOfCells; i++)
    	      {
    	          // iterate through all cells and determine the KCyte with lowest Y at bin

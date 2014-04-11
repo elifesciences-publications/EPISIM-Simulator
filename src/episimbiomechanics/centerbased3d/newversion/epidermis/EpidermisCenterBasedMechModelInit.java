@@ -12,6 +12,8 @@ import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DM
 import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
 import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal3D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
@@ -33,6 +35,10 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 	public EpidermisCenterBasedMechModelInit() {
 		super();
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
+		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
+		if(param instanceof MiscalleneousGlobalParameters3D){
+			((MiscalleneousGlobalParameters3D)param).setStandardMembrane_2_Dim_Gauss(true);
+		}
 	}
 
 	public EpidermisCenterBasedMechModelInit(SimulationStateData simulationStateData) {
@@ -47,10 +53,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 	}
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
-		double STEM_CELL_WIDTH=0;
-		double STEM_CELL_HEIGHT=0;
-		double STEM_CELL_LENGTH=0;
-		
+			
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();		
 		try{
 	      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
@@ -121,11 +124,11 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 					cellAdded = true;		
 					UniversalCell stemCell = new UniversalCell(null, null, true);
 					CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
-					Point3d corrLoc = mechModel.calculateLowerBoundaryPositionForCell(new Point3d(newLoc.x, newLoc.y, newLoc.z));
+					mechModel.setPositionRespectingBounds(new Point3d(newLoc.x, newLoc.y, newLoc.z), mechModelGP.getOptDistanceToBMScalingFactor());
 					mechModel.setCellWidth(STEM_CELL_WIDTH);
 					mechModel.setCellHeight(STEM_CELL_HEIGHT);
 					mechModel.setCellLength(STEM_CELL_LENGTH);	
-					mechModel.setCellLocationInCellField(new Double3D(corrLoc.x, corrLoc.y, corrLoc.z));
+					
 					standardCellEnsemble.add(stemCell);	
 			}						
 		}

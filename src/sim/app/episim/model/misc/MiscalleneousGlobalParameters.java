@@ -95,7 +95,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
    	
    	
    	private boolean standardMembrane_2_Dim_Gauss = false;
-   	
+   	private boolean optimizedGraphics = false;
    	private MiscalleneousGlobalParameters3D(){}
    	
    	public boolean getStandardMembrane_2_Dim_Gauss(){
@@ -105,7 +105,12 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 		
       public void setStandardMembrane_2_Dim_Gauss(boolean standardMembrane_2_Dim_Gauss) {      
       	this.standardMembrane_2_Dim_Gauss = standardMembrane_2_Dim_Gauss;
-      }   	
+      }  
+      
+   	@NoUserModification
+      public boolean getOptimizedGraphics(){ return optimizedGraphics; }
+   	@NoUserModification
+      public void setOptimizedGraphics(boolean val){ this.optimizedGraphics = val; }
    }
 	
    public void classLoaderHasChanged() {

@@ -11,7 +11,10 @@ import javax.vecmath.Vector3d;
 
 
 
+
+
 import sim.app.episim.AbstractCell;
+import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical3DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Ellipsoid;
@@ -36,7 +39,7 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 
-public class AdhesiveCenterBased3DMechanicalModel extends AbstractMechanical3DModel {
+public class AdhesiveCenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3DModel {
 	
 
    
@@ -45,9 +48,13 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractMechanical3DMo
    
    private static final double MAX_DISPLACEMENT_FACT = 1.2;
    
-   private double keratinoWidth=-1; // breite keratino
-   private double keratinoHeight=-1; // höhe keratino
+   private double keratinoWidth=-1; 
+   private double keratinoHeight=-1; 
    private double keratinoLength=-1;
+   
+   private double standardCellWidth=0; 
+   private double standardCellHeight=0; 
+   private double standardCellLength=0;
    
    private Vector3d externalForce = new Vector3d(0,0,0);
       
@@ -801,7 +808,40 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractMechanical3DMo
    }
 
 	
-  
+   public double getStandardCellHeight() {
+	   return standardCellHeight;
+   }
+
+   public void setStandardCellHeight(double val) {
+   	this.standardCellHeight = val;	   
+   }
+
+   public double getStandardCellWidth() {
+	   return this.standardCellWidth;
+   }
+   
+   public void setStandardCellWidth(double val) {
+   	this.standardCellWidth = val;
+   }
+
+   public double getStandardCellLength() {
+	   return this.standardCellLength;
+   }
+   
+   public void setStandardCellLength(double val) {
+   	this.standardCellLength = val;
+   }	
+   public double getCellHeight() {
+	   return getKeratinoHeight();
+   }
+
+   public double getCellWidth() {
+	   return getKeratinoWidth();
+   }
+
+   public double getCellLength() {
+	   return getCellLength();
+   }
    
    //--------------------------------------------------------------------------------------------------------------------------------------------------------------
    // NOT YET NEEDED METHODS
@@ -830,7 +870,5 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractMechanical3DMo
 		//not yet needed
 		return new Episim3DCellShape<Shape3D>(new Shape3D());
 	}
-
-	
 }
 

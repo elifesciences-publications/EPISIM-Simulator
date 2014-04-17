@@ -2,7 +2,6 @@ package sim.app.episim.model.visualization;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -13,19 +12,15 @@ import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.vecmath.Vector3d;
 
-import sim.app.episim.ExceptionDisplayer;
+
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModel;
-import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical3DModel;
 import sim.display3d.Display3DHack;
 import sim.field.SparseField;
 import sim.portrayal.Portrayal;
 import sim.portrayal3d.SimplePortrayal3D;
 import sim.portrayal3d.continuous.ContinuousPortrayal3D;
 import sim.util.Bag;
-import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.EpisimPortrayal;
 
 
@@ -35,7 +30,7 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
 	
 	private PolygonAttributes polygonAttributes;
 	
-	private static double BASAL_CELL_HEIGHT =-1;
+	
 	public ContinuousUniversalCellPortrayal3D(){
 		super();		
 		polygonAttributes = new PolygonAttributes();
@@ -194,49 +189,19 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
    }
 	
 	private void manipulateTransformationRegardingCellSize(UniversalCell cell, Transform3D trans){
-		if(cell.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){
-			CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject();
-			 double width = mechModel.getKeratinoWidth();
-		 	 double height = mechModel.getKeratinoHeight();
-		 	 double length = mechModel.getKeratinoLength();
-		 	
+		if(cell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBasedMechanical3DModel){
+			
+			AbstractCenterBasedMechanical3DModel mechModel = (AbstractCenterBasedMechanical3DModel) cell.getEpisimBioMechanicalModelObject();
+			 double width = mechModel.getCellWidth();
+		 	 double height = mechModel.getCellHeight();
+		 	 double length = mechModel.getCellLength();
 			Vector3d scales = new Vector3d();
 			trans.getScale(scales);
-			scales.x*=(width/CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT);
-			scales.y*=(height/CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT);
-			scales.z*=(length/CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT);
-			trans.setScale(scales);					
-		}
-		else if(cell.getEpisimBioMechanicalModelObject() instanceof AdhesiveCenterBased3DMechanicalModel){
-			if(BASAL_CELL_HEIGHT <= 1){
-				EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
-				try{
-			      Field field = cbGP.getClass().getDeclaredField("BASAL_CELL_HEIGHT");
-			      BASAL_CELL_HEIGHT = field.getDouble(cbGP);
-			      
-		      }
-		      catch (NoSuchFieldException e){
-		      	ExceptionDisplayer.getInstance().displayException(e);
-		      }
-		      catch (SecurityException e){
-		      	ExceptionDisplayer.getInstance().displayException(e);
-		      }
-		      catch (IllegalArgumentException e){
-		      	ExceptionDisplayer.getInstance().displayException(e);
-		      }
-		      catch (IllegalAccessException e){
-		      	ExceptionDisplayer.getInstance().displayException(e);
-		      }
-			}
-			AdhesiveCenterBased3DMechanicalModel mechModel = (AdhesiveCenterBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject();
-			 double width = mechModel.getKeratinoWidth();
-		 	 double height = mechModel.getKeratinoHeight();
-		 	 double length = mechModel.getKeratinoLength();
-			Vector3d scales = new Vector3d();
-			trans.getScale(scales);
-			scales.x*=(width/BASAL_CELL_HEIGHT);
-			scales.y*=(height/BASAL_CELL_HEIGHT);
-			scales.z*=(length/BASAL_CELL_HEIGHT);
+			double standardHeight= mechModel.getStandardCellHeight();
+			standardHeight = standardHeight==0 ? 1 : standardHeight;
+			scales.x*=(width/standardHeight);
+			scales.y*=(height/standardHeight);
+			scales.z*=(length/standardHeight);
 			trans.setScale(scales);	
 		}
 	}

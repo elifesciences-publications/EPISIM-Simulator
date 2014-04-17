@@ -121,6 +121,11 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 					mechModel.setKeratinoWidth(BASAL_CELL_WIDTH);
 					mechModel.setKeratinoHeight(BASAL_CELL_HEIGHT);
 					mechModel.setKeratinoLength(BASAL_CELL_LENGTH);
+					
+					mechModel.setStandardCellWidth(BASAL_CELL_WIDTH);
+					mechModel.setStandardCellHeight(BASAL_CELL_HEIGHT);
+					mechModel.setStandardCellLength(BASAL_CELL_LENGTH);
+					
 					mechModel.setCellLocationInCellField(newloc);
 					standardCellEnsemble.add(cell);					
 					cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);					
@@ -176,6 +181,9 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 						mechModel.setKeratinoWidth(SUPRABASAL_CELL_WIDTH);
 						mechModel.setKeratinoHeight(SUPRABASAL_CELL_HEIGHT);
 						mechModel.setKeratinoLength(SUPRABASAL_CELL_LENGTH);
+						mechModel.setStandardCellWidth(BASAL_CELL_WIDTH);
+						mechModel.setStandardCellHeight(BASAL_CELL_HEIGHT);
+						mechModel.setStandardCellLength(BASAL_CELL_LENGTH);
 						mechModel.setCellLocationInCellField(newloc);
 						standardCellEnsemble.add(cell);					
 						cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);					

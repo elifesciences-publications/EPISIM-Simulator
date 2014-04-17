@@ -15,13 +15,11 @@ import javax.vecmath.Vector3d;
 
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModelGP;
+
+
 import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModelGP;
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.visualization.Episim3DAppearanceFactory;
 import sim.display3d.Display3DHack;
 import sim.portrayal.LocationWrapper;
@@ -68,13 +66,32 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
    {
 		EpisimBiomechanicalModelGlobalParameters globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
-		if(globalParameters instanceof CenterBased3DMechanicalModelGP)
+		if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModelGP)
 		{
-			standardCellRadius = (float)(CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT/2d);
+			standardCellRadius = (float)(sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT/2d);
 		}
 		else if(globalParameters instanceof AdhesiveCenterBased3DMechanicalModelGP){
 			try{
 		      Field field = cbGP.getClass().getDeclaredField("BASAL_CELL_WIDTH");
+		      standardCellRadius = (float)field.getDouble(cbGP);
+		      standardCellRadius /=2;
+	      }
+	      catch (NoSuchFieldException e){
+	      	ExceptionDisplayer.getInstance().displayException(e);
+	      }
+	      catch (SecurityException e){
+	      	ExceptionDisplayer.getInstance().displayException(e);
+	      }
+	      catch (IllegalArgumentException e){
+	      	ExceptionDisplayer.getInstance().displayException(e);
+	      }
+	      catch (IllegalAccessException e){
+	      	ExceptionDisplayer.getInstance().displayException(e);
+	      }	
+		}
+		else if(globalParameters instanceof CenterBased3DMechanicalModelGP){
+			try{
+		      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
 		      standardCellRadius = (float)field.getDouble(cbGP);
 		      standardCellRadius /=2;
 	      }
@@ -98,9 +115,8 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 		   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
 		 }
 		this.appearance = Episim3DAppearanceFactory.getCellAppearanceForColor(this.polygonAttributes, new Color(255,160,160), transparencyFactor);
-		    
-		
-		this.sphere = new Sphere(standardCellRadius, (generateNormals ? Primitive.GENERATE_NORMALS : 0) | 
+	   		
+		this.sphere = new Sphere(standardCellRadius, (generateNormals ? Sphere.GENERATE_NORMALS : 0) | 
         (generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 
         30, appearance);
 		

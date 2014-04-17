@@ -25,29 +25,26 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical3DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
-
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Ellipsoid;
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
-
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
-
 import sim.app.episim.util.GenericBag;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double2D;
-
 import sim.util.Double3D;
 
 
 
-public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
+public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3DModel{
 	
 	
    //The width of the keratinocyte must be bigger or equals the hight
@@ -829,6 +826,44 @@ public class CenterBased3DMechanicalModel extends AbstractMechanical3DModel{
 		//not yet needed
 		return new Episim3DCellShape<Shape3D>(new Shape3D());
 	}
+
+	public double getStandardCellHeight() {	   
+	   return CenterBased3DMechanicalModel.INITIAL_KERATINO_HEIGHT;
+   }
+
+	
+   public void setStandardCellHeight(double val) {
+	   // Do nothing, is constant	   
+   }
+
+	public double getStandardCellWidth() {
+	   return  CenterBased3DMechanicalModel.INITIAL_KERATINO_WIDTH;
+   }
+
+	
+   public void setStandardCellWidth(double val) {
+		// Do nothing, is constant	   
+   }
+
+	public double getStandardCellLength() {
+		return  CenterBased3DMechanicalModel.INITIAL_KERATINO_LENGTH;
+   }
+
+	public void setStandardCellLength(double val) {
+		// Do nothing, is constant	   
+   }
+
+	public double getCellHeight() {	   
+	   return getKeratinoHeight();
+   }
+
+	public double getCellWidth() {
+	  return getKeratinoWidth();
+   }
+
+	public double getCellLength() {
+	   return getKeratinoLength();
+   }
 
 	
 

@@ -28,6 +28,7 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -58,7 +59,7 @@ import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 
 
-public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
+public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DModel {
 	
    
    //The width of the keratinocyte must be bigger or equals the hight
@@ -93,6 +94,8 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
    
    private double surfaceAreaRatio =0;
    
+   private double standardCellHeight = 0;
+   private double standardCellWidth = 0;
    
    private static double FIELD_RESOLUTION_IN_MIKRON=7;
    
@@ -1066,6 +1069,23 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		height+=sizeDelta;
 		
 	   return new CellBoundaries(new Ellipse2D.Double(x-(width/2), y-(height/2), width, height));
+   }
+
+	
+   public double getStandardCellHeight() {
+   	return this.standardCellHeight;
+   }
+
+	public void setStandardCellHeight(double val) {
+	  this.standardCellHeight = val;	   
+   }
+
+	public double getStandardCellWidth() {
+	   return this.standardCellWidth;
+   }
+
+   public void setStandardCellWidth(double val) {
+	   this.standardCellWidth = val;	   
    }
 
 	

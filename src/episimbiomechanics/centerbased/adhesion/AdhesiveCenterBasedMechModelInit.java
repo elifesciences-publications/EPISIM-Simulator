@@ -97,6 +97,8 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 			Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 			mechModel.setKeratinoWidth(BASAL_CELL_WIDTH);
 			mechModel.setKeratinoHeight(BASAL_CELL_HEIGHT);	
+			mechModel.setStandardCellWidth(BASAL_CELL_WIDTH);
+			mechModel.setStandardCellHeight(BASAL_CELL_HEIGHT);	
 			mechModel.getCellEllipseObject().setXY(corrPos.x, corrPos.y);
 			mechModel.setCellLocationInCellField(new Double2D(corrPos.x, corrPos.y));
 			standardCellEnsemble.add(cell);
@@ -131,7 +133,9 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 					AdhesiveCenterBasedMechanicalModel mechModel = ((AdhesiveCenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject());
 					Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 					mechModel.setKeratinoWidth(BASAL_CELL_WIDTH);
-					mechModel.setKeratinoHeight(BASAL_CELL_HEIGHT);	
+					mechModel.setKeratinoHeight(BASAL_CELL_HEIGHT);
+					mechModel.setStandardCellWidth(BASAL_CELL_WIDTH);
+					mechModel.setStandardCellHeight(BASAL_CELL_HEIGHT);
 					mechModel.getCellEllipseObject().setXY(corrPos.x, corrPos.y);
 					mechModel.setCellLocationInCellField(new Double2D(corrPos.x, corrPos.y));
 					standardCellEnsemble.add(cell);
@@ -170,6 +174,8 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 				Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 				mechModel.setKeratinoWidth(SUPRABASAL_CELL_WIDTH);
 				mechModel.setKeratinoHeight(SUPRABASAL_CELL_HEIGHT);
+				mechModel.setStandardCellWidth(BASAL_CELL_WIDTH);
+				mechModel.setStandardCellHeight(BASAL_CELL_HEIGHT);
 				mechModel.getCellEllipseObject().setXY(corrPos.x, corrPos.y);
 				mechModel.setCellLocationInCellField(new Double2D(corrPos.x, corrPos.y));
 				standardCellEnsemble.add(cell);
@@ -193,6 +199,8 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 						Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 						mechModel.setKeratinoWidth(SUPRABASAL_CELL_WIDTH);
 						mechModel.setKeratinoHeight(SUPRABASAL_CELL_HEIGHT);
+						mechModel.setStandardCellWidth(BASAL_CELL_WIDTH);
+						mechModel.setStandardCellHeight(BASAL_CELL_HEIGHT);
 						mechModel.getCellEllipseObject().setXY(corrPos.x, corrPos.y);
 						mechModel.setCellLocationInCellField(new Double2D(corrPos.x, corrPos.y));
 						standardCellEnsemble.add(cell);

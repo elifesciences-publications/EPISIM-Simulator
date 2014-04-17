@@ -88,7 +88,10 @@ public class ChemotaxisCenterBasedMechModelInit  extends BiomechanicalModelIniti
 					Double3D cellPos =new Double3D(x, y, z);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 					mechModel.setCellWidth(CELL_WIDTH);
 					mechModel.setCellHeight(CELL_HEIGHT);
-					mechModel.setCellLength(CELL_LENGTH);					
+					mechModel.setCellLength(CELL_LENGTH);
+					mechModel.setStandardCellWidth(CELL_WIDTH);
+					mechModel.setStandardCellHeight(CELL_HEIGHT);
+					mechModel.setStandardCellLength(CELL_LENGTH);	
 				
 					mechModel.setCellLocationInCellField(cellPos);
 					

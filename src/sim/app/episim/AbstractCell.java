@@ -18,6 +18,8 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical2DModel;
+import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical3DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
@@ -80,6 +82,19 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    		final EpisimModelConnector modelConnector = ModelController.getInstance().getBioMechanicalModelController().getNewEpisimModelConnector();
       	this.mechanicalModelObject.setEpisimModelConnector(modelConnector);
       	this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);
+   	}
+   	if(this.motherCell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBasedMechanical3DModel){
+   		AbstractCenterBasedMechanical3DModel motherMech = (AbstractCenterBasedMechanical3DModel)this.motherCell.getEpisimBioMechanicalModelObject();
+   		AbstractCenterBasedMechanical3DModel thisMech = (AbstractCenterBasedMechanical3DModel)mechanicalModelObject;
+   		thisMech.setStandardCellHeight(motherMech.getStandardCellHeight());
+   		thisMech.setStandardCellWidth(motherMech.getStandardCellWidth());
+   		thisMech.setStandardCellLength(motherMech.getStandardCellLength());
+   	}
+   	if(this.motherCell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBasedMechanical2DModel){
+   		AbstractCenterBasedMechanical2DModel motherMech = (AbstractCenterBasedMechanical2DModel)this.motherCell.getEpisimBioMechanicalModelObject();
+   		AbstractCenterBasedMechanical2DModel thisMech = (AbstractCenterBasedMechanical2DModel)mechanicalModelObject;
+   		thisMech.setStandardCellHeight(motherMech.getStandardCellHeight());
+   		thisMech.setStandardCellWidth(motherMech.getStandardCellWidth());   		
    	}
    	
    	this.cellBehavioralModelObject.setEpisimSbmlModelConnector(ModelController.getInstance().getNewEpisimSbmlModelConnector());

@@ -27,6 +27,7 @@ import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -46,7 +47,7 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
 import sim.util.Double2D;
 
-public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DModel {
+public class AdhesiveCenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DModel {
 	
 
    
@@ -91,6 +92,9 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DMode
    private static double FIELD_RESOLUTION_IN_MIKRON=18;
    
    private final double MIN_Y;
+   
+   private double standardWidth = 0;
+   private double standardHeight = 0;
    
    public AdhesiveCenterBasedMechanicalModel(){
    	this(null);
@@ -836,6 +840,34 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractMechanical2DMode
    public void setDividesToTheLeft(boolean dividesToTheLeft) {
    
    	this.dividesToTheLeft = dividesToTheLeft;
+   }
+
+	public double getStandardCellHeight() {
+	   return standardHeight;
+   }
+
+	
+   public void setStandardCellHeight(double val) {
+   	this.standardHeight = val;
+   }
+	
+   public double getStandardCellWidth() {
+	   return this.standardWidth;
+   }
+
+	
+   public void setStandardCellWidth(double val) {
+		this.standardWidth = val;
+   }
+
+	
+   public double getCellHeight() {
+	   return getKeratinoHeight();
+   }
+
+	
+   public double getCellWidth() {
+	   return getKeratinoWidth();
    }
 
 	

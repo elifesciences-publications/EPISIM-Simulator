@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 
+import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
@@ -19,6 +20,7 @@ import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal3D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.GenericBag;
 import sim.util.Double2D;
 import sim.util.Double3D;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
@@ -38,6 +40,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
 		if(param instanceof MiscalleneousGlobalParameters3D){
 			((MiscalleneousGlobalParameters3D)param).setStandardMembrane_2_Dim_Gauss(true);
+			((MiscalleneousGlobalParameters3D)param).setOptimizedGraphics(true);
 		}
 	}
 
@@ -86,7 +89,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 		
 		double stopZ = TissueController.getInstance().getTissueBorder().getLengthInMikron();
 		double startZ = mechModelGP.getBasalDensity_mikron()/2;
-		final double increment = 0.1;
+		final double increment = 1;
 			
 			
 		
@@ -110,29 +113,45 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 					if(cellAdded)cellCounter++;
 				}
 			}			
-		}	
+		}
 		return standardCellEnsemble;
 	}
 	
 	private boolean checkIfCellHasToBeAdded(CenterBased3DMechanicalModelGP mechModelGP, ArrayList<UniversalCell> standardCellEnsemble, double x, double z){
 		Double3D newLoc = new Double3D(x, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x,0,z), z);
 		boolean cellAdded = false;
-		double requiredDistance = mechModelGP.getBasalDensity_mikron()/2d;
+		double requiredDistance = mechModelGP.getBasalDensity_mikron();
 		if (depthFrac(newLoc.y) > mechModelGP.getSeedMinDepth_frac()  || mechModelGP.getSeedMinDepth_frac() == 0){					
 			
-			if(CenterBased3DMechanicalModel.getAllCellsWithinDistance(newLoc, requiredDistance).isEmpty()){				   
+			if(distanceToNeighbouringStemCellSufficient(newLoc, requiredDistance)){				   
 					cellAdded = true;		
 					UniversalCell stemCell = new UniversalCell(null, null, true);
-					CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
-					mechModel.setPositionRespectingBounds(new Point3d(newLoc.x, newLoc.y, newLoc.z), mechModelGP.getOptDistanceToBMScalingFactor());
+					CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());					
 					mechModel.setCellWidth(STEM_CELL_WIDTH);
 					mechModel.setCellHeight(STEM_CELL_HEIGHT);
-					mechModel.setCellLength(STEM_CELL_LENGTH);	
-					
+					mechModel.setCellLength(STEM_CELL_LENGTH);
+					mechModel.setStandardCellWidth(STEM_CELL_WIDTH);
+					mechModel.setStandardCellHeight(STEM_CELL_HEIGHT);
+					mechModel.setStandardCellLength(STEM_CELL_LENGTH);
+					mechModel.setPositionRespectingBounds(new Point3d(newLoc.x, newLoc.y, newLoc.z), mechModelGP.getOptDistanceToBMScalingFactor());			
 					standardCellEnsemble.add(stemCell);	
 			}						
 		}
 		return cellAdded;
+	}
+	
+	private boolean distanceToNeighbouringStemCellSufficient(Double3D newLoc, double requiredDistance){
+		GenericBag<AbstractCell> cells = CenterBased3DMechanicalModel.getAllCellsWithinDistance(newLoc, requiredDistance);
+		if(cells.isEmpty()) return true;
+		else{
+			for(AbstractCell cell : cells){
+				Double3D pos = new Double3D(cell.getEpisimBioMechanicalModelObject().getX(), cell.getEpisimBioMechanicalModelObject().getY(), cell.getEpisimBioMechanicalModelObject().getZ());
+				if(pos.distance(newLoc) < requiredDistance){
+					return false;
+				}
+			}
+			return true;
+		}		
 	}
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {

@@ -8,6 +8,8 @@ import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Color3f;
 
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.display3d.Display3DHack;
 import sim.portrayal3d.SimplePortrayal3D;
 
@@ -26,6 +28,11 @@ public class Episim3DAppearanceFactory {
 	public static Appearance getCellAppearanceForColor(PolygonAttributes polygonAttributes, Color color, float opacity){
 		Appearance appearance = new Appearance();
       SimplePortrayal3D.setAppearanceFlags(appearance);      
+      MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
+      boolean optimizedGraphicsActivated =false;
+      if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
+			optimizedGraphicsActivated = true;
+		}
       
       float[] hsbColor = new float[3];
       hsbColor= Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsbColor); 
@@ -33,7 +40,21 @@ public class Episim3DAppearanceFactory {
       Color3f middleColor = getMiddleColor(hsbColor.clone());
       Color3f darkColor = getDarkColor(hsbColor.clone());
       Color3f brightColor = getBrightColor(hsbColor.clone());   
-	   Material ma = new Material(darkColor, darkColor, middleColor, brightColor, 120f);
+	   
+      
+      Color3f emissiveColor =new Color3f(new Color(0,0,0));
+      Color3f specularColor =new Color3f(new Color(12,12,12));
+      Material ma = new Material(darkColor, darkColor, middleColor, brightColor, 120f);
+    
+      if(optimizedGraphicsActivated)ma = new Material(brightColor, emissiveColor, middleColor, specularColor, 7f);
+      
+      
+	     
+    /*  Color3f ambientColor =new Color3f(new Color(255,204,204));
+      Color3f diffuseColor =new Color3f(new Color(255,102,102));
+      Color3f emissiveColor =new Color3f(new Color(0,0,0));
+      Color3f specularColor =new Color3f(new Color(12,12,12));
+      Material ma = new Material(ambientColor, emissiveColor, diffuseColor, specularColor, 7f);*/
 	   ma.setCapability(Material.ALLOW_COMPONENT_READ);
 	   ma.setCapability(Material.ALLOW_COMPONENT_WRITE);
 	  

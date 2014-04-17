@@ -20,27 +20,25 @@ import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
 
+
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.centerbased.CenterBasedMechModelInit;
 import episimbiomechanics.centerbased.EpisimCenterBasedMC;
 import episimexceptions.GlobalParameterException;
-
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
-
 import episiminterfaces.monitoring.CannotBeMonitored;
-
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.UniversalCell;
-
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -51,9 +49,7 @@ import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
-
 import sim.app.episim.tissue.TissueController;
-
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
@@ -66,7 +62,7 @@ import sim.util.Bag;
 import sim.util.Double2D;
 
 
-public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
+public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DModel {
 	
 	   
    //The width of the keratinocyte must be bigger or equals the hight
@@ -821,9 +817,32 @@ public class CenterBasedMechanicalModel extends AbstractMechanical2DModel {
 		path.lineTo((x-infoWidth/2.0*width), (y));
 		path.lineTo((x-infoWidth/4.0*width), (y+infoHeight/2.0*height));
 		path.lineTo((x+infoWidth/4.0*width), (y+infoHeight/2.0*height));
-		path.closePath();
-	  
+		path.closePath();	  
 	   return new CellBoundaries(new Ellipse2D.Double(x-(width/2), y-(height/2), width, height));
+   }
+
+   public double getStandardCellHeight(){
+		return CenterBasedMechanicalModel.INITIAL_KERATINO_HEIGHT;
+   }
+
+	public void setStandardCellHeight(double val){
+	   //Do nothing, is constant	   
+   }
+	
+   public double getStandardCellWidth() {
+	  return CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH;
+   }
+	
+   public void setStandardCellWidth(double val) {
+	   //Do nothing, is constant	   
+   }
+	
+   public double getCellHeight() {	  
+	   return getKeratinoHeight();
+   }
+   
+   public double getCellWidth() {	 
+	   return getKeratinoWidth();
    }
 
 	

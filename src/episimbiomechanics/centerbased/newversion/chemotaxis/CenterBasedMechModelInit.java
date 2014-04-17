@@ -83,6 +83,8 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 				Double2D cellPos =new Double2D(x, y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 				mechModel.setCellWidth(CELL_WIDTH);
 				mechModel.setCellHeight(CELL_HEIGHT);	
+				mechModel.setStandardCellWidth(CELL_WIDTH);
+				mechModel.setStandardCellHeight(CELL_HEIGHT);
 				
 				mechModel.getCellEllipseObject().setXY(cellPos.x, cellPos.y);
 				mechModel.getCellEllipseObject().setMajorAxisAndMinorAxis(CELL_WIDTH, CELL_HEIGHT);

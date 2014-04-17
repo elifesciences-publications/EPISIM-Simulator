@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GraphicsConfiguration;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -23,6 +24,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Iterator;
@@ -33,6 +35,7 @@ import javax.media.j3d.AmbientLight;
 import javax.media.j3d.BoundingSphere;
 import javax.media.j3d.Bounds;
 import javax.media.j3d.BranchGroup;
+import javax.media.j3d.GraphicsConfigTemplate3D;
 import javax.media.j3d.ModelClip;
 import javax.media.j3d.PointLight;
 import javax.media.j3d.PolygonAttributes;
@@ -72,6 +75,7 @@ import com.sun.j3d.utils.behaviors.vp.WandViewBehavior.ResetViewListener;
 import com.sun.j3d.utils.geometry.Text2D;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimSimulationDisplay;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
@@ -83,8 +87,12 @@ import sim.app.episim.gui.NumberInputDialog;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EpisimMovieMaker;
+import sim.app.episim.util.Names;
+import sim.app.episim.visualization.Optimized3DVisualization;
 import sim.display.Display2D;
 import sim.display.Display2DHack;
 import sim.display.GUIState;
@@ -93,7 +101,6 @@ import sim.display3d.Display3D.LocalWindowListener;
 import sim.display3d.Display3D.Portrayal3DHolder;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-
 import sim.portrayal.FieldPortrayal;
 import sim.portrayal.FieldPortrayal2D;
 import sim.portrayal.Portrayal;
@@ -141,12 +148,17 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	
 	private ModelClip modelClip;
 	
-	
-	
+	private EpisimCellBehavioralModelGlobalParameters globalCBMParameters;
+	private Method cellColoringGetterMethod;
+	private Method cellColoringSetterMethod;
+	private boolean optimizedGraphicsActivated = false;
 	public Display3DHack(double width, double height, GUIState simulation) {
 
 		super(width, height, simulation);
-		
+		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
+		if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
+			optimizedGraphicsActivated = true;
+		}
 		optionButton.setVisible(true);
 		  optionButton.addActionListener(new ActionListener()
         {
@@ -202,6 +214,55 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
         }
     
       	setRotationToPropertyValues();
+      	
+      	 findCellColoringMethods();
+          if(this.cellColoringGetterMethod != null && this.cellColoringSetterMethod != null){
+          	
+    	      // add the scale field
+          	Object defaultValue = null;
+          	try{
+    	         defaultValue = this.cellColoringGetterMethod.invoke(this.globalCBMParameters, new Object[0]);
+             }
+             catch (Exception e1){
+    	         ExceptionDisplayer.getInstance().displayException(e1);
+             }
+             double defaultVal = 0;
+             if(defaultValue != null){
+             	defaultVal = defaultValue instanceof Integer ? (double)((Integer)defaultValue).intValue() : defaultValue instanceof Double ? ((Double)defaultValue).doubleValue() :0;
+             }
+    	      NumberTextField cellColoringField = new NumberTextField("     Cell Coloring: ", defaultVal, 1,1)
+    	      {
+    	          public double newValue(double newValue)
+    	          {
+    	              if (newValue > 0){
+    	            	  if(Integer.TYPE.isAssignableFrom(cellColoringGetterMethod.getReturnType())){
+    	            		  int val = (int) newValue;
+    	            		  try{
+    	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{val});
+    	            		  }
+    	            		  catch (Exception e){
+                         	 ExceptionDisplayer.getInstance().displayException(e);
+    	            		  }
+    	            	  }
+    	            	  else{
+    	            		  
+    	            		  try{
+    	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{newValue});
+    	            		  }
+    	            		  catch (Exception e){
+                         	 ExceptionDisplayer.getInstance().displayException(e);
+    	            		  }
+    	            	  }
+    	            	  currentValue = newValue;
+    	            	  return newValue;
+    	              }             
+    	              return currentValue;
+    	          }
+    	      };
+    	      scaleField.setToolTipText("Change Cell Coloring Mode");
+    	      
+    	      header.add(cellColoringField);
+          }
       
 	}	
 	
@@ -299,7 +360,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	               previouslyShown = true;
 	           }
 	       };
-	       
+	      
+	   canvas.getView().setSceneAntialiasingEnable(true); 
 	   frame.setResizable(true);
 	   
 	   // these bugs are tickled by our constant redraw requests.
@@ -320,6 +382,34 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	  return frame;
 	 }
 
+	 
+	 private void findCellColoringMethods(){
+			//cellColoringMode
+			if(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters() != null){
+				globalCBMParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
+				Method[] methods =globalCBMParameters.getClass().getMethods();
+				for(Method m : methods){
+					if(m.getName().startsWith("get") 
+							&& (m.getName().trim().toLowerCase().contains(Names.CELL_COLORING_MODE_NAME_I)
+							  || m.getName().trim().toLowerCase().contains(Names.CELL_COLORING_MODE_NAME_II)
+							  || m.getName().trim().toLowerCase().contains(Names.CELL_COLORING_MODE_NAME_III))){
+							this.cellColoringGetterMethod = m;
+							break;
+					}
+				}
+				if(this.cellColoringGetterMethod != null){
+					String setterName = "s"+this.cellColoringGetterMethod.getName().trim().substring(1);
+					for(Method m : methods){
+						if(m.getName().equals(setterName)){
+							this.cellColoringSetterMethod=m;
+							break;
+						}
+					}
+				}			
+			}		
+		}
+	 
+	 
 	
 	public boolean isPortrayalVisible(String name){
 		Portrayal3DHolder holder =getPortrayalHolder(name);
@@ -357,8 +447,18 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       {
 	       //if (universe != null)
 	       //{ remove(canvas); revalidate(); }
-	   	
-	       canvas = new CapturingCanvas3DHack(SimpleUniverse.getPreferredConfiguration());
+	   		GraphicsConfiguration gc = SimpleUniverse.getPreferredConfiguration();
+	   		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
+	   		if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
+	   			optimizedGraphicsActivated = true;
+	   		}
+	   		if(optimizedGraphicsActivated){			
+	   			GraphicsConfigTemplate3D gct3D= new GraphicsConfigTemplate3D();
+		   		gct3D.setSceneAntialiasing(GraphicsConfigTemplate3D.REQUIRED);
+		   		gc= java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getBestConfiguration(gct3D); 
+	   		} 
+	   		
+	       canvas = new CapturingCanvas3DHack(gc);
 	   	
 	       
 	   	
@@ -374,14 +474,16 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	       lightSwitch.setCapability(Switch.ALLOW_CHILDREN_EXTEND);
 	                   
 	       lightSwitchMask.set(SPOTLIGHT_INDEX);    // turn spotlight on
-	       lightSwitchMask.clear(AMBIENT_LIGHT_INDEX);    // turn ambient light off 
+	       if(optimizedGraphicsActivated) lightSwitchMask.set(AMBIENT_LIGHT_INDEX);
+	       else lightSwitchMask.clear(AMBIENT_LIGHT_INDEX);    // turn ambient light off 
 	       lightSwitch.setChildMask(lightSwitchMask);
-	       PointLight pl = new PointLight(new Color3f(1f,1f,1f),
-	           new Point3f(0f,0f,0f),
-	           new Point3f(1f,0f,0f));
+	       PointLight pl = optimizedGraphicsActivated ? new PointLight(new Color3f(1.0f, 1.5f, 1.5f), new Point3f(0f,0f,0f), new Point3f(1f,0f,0f))
+	      		 :  new PointLight(new Color3f(1f,1f,1f), new Point3f(0f,0f,0f), new Point3f(1f,0f,0f));
+	       
 	       pl.setInfluencingBounds(new BoundingSphere(new Point3d(0,0,0), Double.POSITIVE_INFINITY));
 	       lightSwitch.addChild(pl);
-	       AmbientLight al = new AmbientLight(new Color3f(1f,1f,1f));
+	       AmbientLight al = optimizedGraphicsActivated ? new AmbientLight(new Color3f(0.3f, 0.3f, 0.3f))
+	      		 :new AmbientLight(new Color3f(1f,1f,1f));
 	       al.setInfluencingBounds(new BoundingSphere(new Point3d(0,0,0), Double.POSITIVE_INFINITY));
 	       lightSwitch.addChild(al);
 	                   
@@ -1378,6 +1480,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
            });
 
        box.add(showAmbientLightCheckBox);
+       showAmbientLightCheckBox.setSelected(optimizedGraphicsActivated);
        showAmbientLightCheckBox.addItemListener(new ItemListener()
            {
            public void itemStateChanged(ItemEvent e)

@@ -16,6 +16,7 @@ import sim.app.episim.datamonitoring.charts.EpisimChartPanel;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.model.visualization.TissueCrossSectionPortrayal3D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
@@ -28,13 +29,17 @@ import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.BasementMembranePortrayal3D;
 import sim.app.episim.visualization.EpisimSimulationBoxPortrayal3D;
 import sim.app.episim.visualization.GridPortrayal2D;
+import sim.app.episim.visualization.Optimized3DVisualization;
 import sim.app.episim.visualization.RulerPortrayal2D;
 import sim.app.episim.visualization.WoundPortrayal2D;
 import sim.display.*;
 import sim.portrayal3d.FieldPortrayal3D;
+import sim.portrayal3d.simple.LightPortrayal3D;
 import sim.portrayal.*;
 import sim.util.Double2D;
 
+import javax.media.j3d.BoundingSphere;
+import javax.media.j3d.PointLight;
 import javax.swing.*;
 
 import java.awt.*;
@@ -50,6 +55,9 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
+import javax.vecmath.Color3f;
+import javax.vecmath.Point3d;
+import javax.vecmath.Point3f;
 
 import org.jfree.chart.*; // ChartPanel;
 
@@ -124,7 +132,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	private boolean staticSimulationFrameSize = false;
 	
-	
+	private boolean optimizedGraphicsActivated = false;
 	
 	public EpisimGUIState(JFrame mainFrame){			
 		this(new UniversalTissue(System.currentTimeMillis()), mainFrame, false);
@@ -138,6 +146,12 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	}	
 	public EpisimGUIState(SimState state, Component mainComp, boolean reloadSnapshot){		
 		super(state);
+		
+		 MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
+	     
+	    if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
+				optimizedGraphicsActivated = true;
+	    }
 		
 		double zoomFactorHeight = EPIDISPLAYSTANDARDHEIGHT / TissueController.getInstance().getTissueBorder().getHeightInPixels();
 		double zoomFactorWidth = EPIDISPLAYSTANDARDWIDTH / TissueController.getInstance().getTissueBorder().getWidthInPixels();
@@ -325,8 +339,13 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		double width =  TissueController.getInstance().getTissueBorder().getWidthInMikron();
 		double length =  TissueController.getInstance().getTissueBorder().getLengthInMikron();
 		scaleAndTranslateDisplay3D();
-	
-		display3D.attach( new EpisimSimulationBoxPortrayal3D(0,0,0, width, height, length), "Simulation Box");
+		
+		Color boxColor = Color.white;
+		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
+		if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){			
+			boxColor = Optimized3DVisualization.simulationBoxColor;
+		} 
+		display3D.attach( new EpisimSimulationBoxPortrayal3D(0,0,0, width, height, length, boxColor), "Simulation Box");
 		
 		if(!TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()){
 			BasementMembranePortrayal3D basementPortrayal = new BasementMembranePortrayal3D();
@@ -344,6 +363,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
 		
+		if(optimizedGraphicsActivated){
+			  PointLight pl = new PointLight(new Color3f(0.3f, 0.3f, 0.3f), new Point3f((float)width/2f,(float)height,(float)length/2f), new Point3f(1.0f,0.0f,0.0f));     
+			  pl.setInfluencingBounds(new BoundingSphere(new Point3d(width/2d,Double.POSITIVE_INFINITY,length/2d), Double.POSITIVE_INFINITY));
+		//	  display3D.attach(new LightPortrayal3D(pl), "Additional Point Light 1");
+		}
 		
 	
 	// reschedule the displayer
@@ -437,7 +461,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		//display.setClipping(false);
 		Color myBack = new Color(0xE0, 0xCB, 0xF6);
-		display3D.setBackdrop(Color.BLACK);
+		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
+		if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){			
+			display3D.setBackdrop(Optimized3DVisualization.backgroundColor);
+		} 
+		else display3D.setBackdrop(Color.BLACK);
 		
 		display3D.getInsideDisplay().addMouseListener(new MouseAdapter(){			
 			public void mouseClicked(MouseEvent e){

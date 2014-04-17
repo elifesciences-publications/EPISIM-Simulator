@@ -27,6 +27,7 @@ public class BasementMembranePortrayal3D extends SimplePortrayal3D implements Ep
 	private final String NAME = "Basement Membrane";  
 	private Appearance appearance;
 	private PolygonAttributes polygonAttributes;
+	private boolean optimizedGraphicsActivated = false;
 	public BasementMembranePortrayal3D(){
 		
 		polygonAttributes = new PolygonAttributes();
@@ -40,14 +41,14 @@ public class BasementMembranePortrayal3D extends SimplePortrayal3D implements Ep
 		if(getCurrentDisplay() instanceof Display3DHack){
 		   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
 		}
-		Color basementMembraneColor = new Color(255,165,65);
+		
 		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
-		if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){			
-			basementMembraneColor = Optimized3DVisualization.basementMembraneColor;
+		if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){		
+			optimizedGraphicsActivated = true;
 		} 
+		Color basementMembraneColor = optimizedGraphicsActivated ? Optimized3DVisualization.basementMembraneColor:new Color(255,165,65);
 		this.appearance = Episim3DAppearanceFactory.getCellAppearanceForColor(this.polygonAttributes, basementMembraneColor, transparencyFactor);
-		if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){			
-			basementMembraneColor = Optimized3DVisualization.basementMembraneColor;
+		if(optimizedGraphicsActivated){			
 			LineAttributes la =this.appearance.getLineAttributes();
 			if(la == null) la = new LineAttributes();
 	     	la.setLineAntialiasingEnable(true);
@@ -63,24 +64,18 @@ public class BasementMembranePortrayal3D extends SimplePortrayal3D implements Ep
 			if(getCurrentDisplay() instanceof Display3DHack){
 		   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
 			}
-			Color basementMembraneColor = new Color(255,165,65);
-			MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
-			if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){			
-				basementMembraneColor = Optimized3DVisualization.basementMembraneColor;
-			}
-			
+			Color basementMembraneColor = optimizedGraphicsActivated?Optimized3DVisualization.basementMembraneColor:new Color(255,165,65);		
 			this.appearance = Episim3DAppearanceFactory.getCellAppearanceForColor(this.polygonAttributes, basementMembraneColor, transparencyFactor);
-		/*	if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){			
-				basementMembraneColor = Optimized3DVisualization.basementMembraneColor;
+			if(optimizedGraphicsActivated){			
 				LineAttributes la =this.appearance.getLineAttributes();
 				if(la == null) la = new LineAttributes();
 		     	la.setLineAntialiasingEnable(true);
 		     	this.appearance.setLineAttributes(la);
-			} */
+			} 
 			TransformGroup modelTG = new TransformGroup();
 	      modelTG.setCapability(Group.ALLOW_CHILDREN_READ);
 	      if(TissueController.getInstance().getTissueBorder().isStandardMembraneLoaded()){
-	      	StandardMembrane3DCoordinates standardMembraneCoordinates = TissueController.getInstance().getTissueBorder().getStandardMembraneCoordinates3D(true);
+	      	StandardMembrane3DCoordinates standardMembraneCoordinates = TissueController.getInstance().getTissueBorder().getStandardMembraneCoordinates3D(true,optimizedGraphicsActivated);
 	      	Point3f[] membraneCoordinatesA = standardMembraneCoordinates.coordinates;
 	      	Point3f[] membraneCoordinatesB = generateLowerFace(membraneCoordinatesA);
 	      	Vector3f[] normalsA = generateNormals(membraneCoordinatesA, false);

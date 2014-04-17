@@ -6,9 +6,10 @@ import java.awt.Color;
 import javax.media.j3d.Transform3D;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-
 import javax.vecmath.Vector3d;
 
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.app.episim.tissue.TissueController;
 import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.IntGrid2D;
@@ -24,13 +25,17 @@ public class Ellipsoid {
 	private Matrix3d ellipsoidMatrix;
 	
 	private Vector3d ellipsoidCenter;
-	
+	private  boolean optimizedGraphicsActivated =false;
 	public Ellipsoid(Transform3D transform, double radius){
 		ellipsoidMatrix = calculateEllipsoidMatrix(transform, radius);
 		Matrix4d m = new Matrix4d();
 		transform.get(m);
 		ellipsoidCenter = new Vector3d();
 		m.get(ellipsoidCenter);
+		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();     
+      if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
+			optimizedGraphicsActivated = true;
+		}
 	}
 	
 	
@@ -84,7 +89,7 @@ public class Ellipsoid {
 	
 	public void getXYCrosssection(double z, double minX, double minY, double maxX, double maxY, IntGrid2D resultingColorPixelMap, Color pixelColor){
 		double factorXY = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXYResolutionFactor();
-		
+		if(optimizedGraphicsActivated)factorXY*=2;
 		double incrementX = 1 / factorXY;
 		double incrementY = 1 / factorXY;
 		int[][] colorMap = new int[(int)((maxX-minX)*factorXY+1)][(int)((maxY-minY)*factorXY+1)];
@@ -108,7 +113,7 @@ public class Ellipsoid {
 	}
 	public void getXZCrosssection(double y, double minX, double minZ, double maxX, double maxZ, IntGrid2D resultingColorPixelMap, Color pixelColor){
 		double factorXZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXZResolutionFactor();
-		
+		if(optimizedGraphicsActivated)factorXZ*=2;
 		double incrementX = 1 / factorXZ;
 		double incrementZ = 1 / factorXZ;
 		int[][] colorMap = new int[(int)((maxX-minX)*factorXZ)+1][(int)((maxZ-minZ)*factorXZ+1)];
@@ -132,7 +137,7 @@ public class Ellipsoid {
 	}
 	public void getYZCrosssection(double x, double minY, double minZ, double maxY, double maxZ, IntGrid2D resultingColorPixelMap, Color pixelColor){
 		double factorYZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionYZResolutionFactor();
-		
+		if(optimizedGraphicsActivated)factorYZ*=2;
 		double incrementZ = 1 / factorYZ;
 		double incrementY = 1 / factorYZ;
 		int[][] colorMap = new int[(int)((maxZ-minZ)*factorYZ+1)][(int)((maxY-minY)*factorYZ+1)];

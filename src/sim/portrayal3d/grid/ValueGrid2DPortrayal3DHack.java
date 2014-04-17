@@ -143,7 +143,7 @@ public class ValueGrid2DPortrayal3DHack extends ValueGrid2DPortrayal3D {
 	            }
 	        }
 	    ga.setCoordinates(0, coords);
-	    ga.setColors(0,colors4f);
+	    if(colors4f != null)ga.setColors(0,colors4f);
 	            
 	    Shape3D shape = new Shape3D(ga);
 	    shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);

@@ -6,10 +6,11 @@ import java.awt.geom.Rectangle2D;
 import javax.media.j3d.TransformGroup;
 
 import episiminterfaces.EpisimPortrayal;
-
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.display3d.Display3DHack.ModelSceneCrossSectionMode;
@@ -31,10 +32,17 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 	private ModelSceneCrossSectionMode lastSelectedCrossSectionMode = ModelSceneCrossSectionMode.X_Y_PLANE;
 	private double lastCrossSectionTranslationCoordinate = 0;
 	
-	private final Color standardColor = Color.BLACK.brighter();
-	
+	private Color standardColor = Color.BLACK.brighter();
+	private boolean optimizedGraphicsActivated =false;
 	public TissueCrossSectionPortrayal3D(){
 		super(NAME, 1.0f, 1.0f);
+		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
+      
+      if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
+			optimizedGraphicsActivated = true;
+			standardColor = Color.BLACK;
+			
+		}
 		setField(createInt2DField());
 		this.setMap(buildColorMap());
 		doCrossSectionPlaneTransformation();
@@ -63,7 +71,11 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 		double factorXY = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXYResolutionFactor();
 		double factorXZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXZResolutionFactor();
 		double factorYZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionYZResolutionFactor();
-		
+		if(optimizedGraphicsActivated){
+			factorXY*=2;
+			factorXZ*=2;
+			factorYZ*=2;
+		}
 		double height = TissueController.getInstance().getTissueBorder().getHeightInMikron(); 
 		double width = TissueController.getInstance().getTissueBorder().getWidthInMikron(); 
 		double length = TissueController.getInstance().getTissueBorder().getLengthInMikron(); 

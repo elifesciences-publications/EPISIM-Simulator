@@ -65,7 +65,7 @@ public class StandardMembrane {
 				buildAdhesionDiscretization3D();
 				isDiscretizedMembrane=true;
 			}
-			buildStandardMembrane3D();
+			buildStandardMembrane3D(false);
 		}
 		
 	}
@@ -130,13 +130,13 @@ public class StandardMembrane {
 	}
 	
 	
-	protected void buildStandardMembrane3D(){
+	protected void buildStandardMembrane3D(boolean optimized){
 		ArrayList<Point3f> coordinatesList = new ArrayList<Point3f>();
 		ArrayList<Point3f> leftCoordinatesList = new ArrayList<Point3f>();
 		ArrayList<Point3f> rightCoordinatesList = new ArrayList<Point3f>();
 		ArrayList<Point3f> frontCoordinatesList = new ArrayList<Point3f>();
 		ArrayList<Point3f> backCoordinatesList = new ArrayList<Point3f>();
-		final float STEPSIZE = 2;
+		final float STEPSIZE = optimized ?0.75f:2f;
 		
 		float width = (float)getWidthInMikron();
 		float length = (float)getLengthInMikron();	
@@ -181,60 +181,57 @@ public class StandardMembrane {
 		for(int i = 0; i < this.standardMembraneCoordinates3D.backCoordinates.length; i++) this.standardMembraneCoordinates3D.backCoordinates[i] = backCoordinatesList.get(i);
 	}
 	
-	protected StandardMembrane3DCoordinates getStandardMembraneCoordinates3D(boolean update){
-		boolean wasUpdated = false;
+	protected StandardMembrane3DCoordinates getStandardMembraneCoordinates3D(boolean update, boolean optimized){
+		boolean wasUpdated = false;		
 		if((ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
 		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
 		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()) && !isStandardMembrane2DGauss)){
 			isStandardMembrane2DGauss = true;
 			wasUpdated= true;
-			buildStandardMembrane3D();
+			buildStandardMembrane3D(optimized);
 		}
 		else if((ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
 		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
 		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()) && isStandardMembrane2DGauss)){
 			isStandardMembrane2DGauss = false;
 			wasUpdated= true;
-			buildStandardMembrane3D();
+			buildStandardMembrane3D(optimized);
 		}
-		if(update && !wasUpdated)buildStandardMembrane3D();
+		if(update && !wasUpdated)buildStandardMembrane3D(optimized);
 		return this.standardMembraneCoordinates3D;
 	}
 	
 	protected double calculateStandardMembraneValue(double xCell, double yCell){
-		if(globalParameters.getBasalAmplitude_mikron()!=0){
 		
-		if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL
-		   ||(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
-		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
-		       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()))){
-			// Gaussche Glockenkurve
-		     double p=globalParameters.getBasalPeriod_mikron(); 
-		     
-		     double partition=xCell-((int)(xCell/p))*p - p/2;
-		     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_mikron());
-		     double result= (globalParameters.getBasalAmplitude_mikron()+globalParameters.getBasalYDelta_mikron())-globalParameters.getBasalAmplitude_mikron()*v;
-		     return result;
-		}
-		else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
-		       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
-		       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss())){
-			// Gaussche Glockenkurve
-		     double p=globalParameters.getBasalPeriod_mikron(); 
-		     
-		     double partitionX=xCell-((int)(xCell/p))*p - p/2;
-		     double partitionY=yCell-((int)(yCell/p))*p - p/2;
-		     double v=Math.exp(-1*((partitionX*partitionX)+ (partitionY*partitionY))/(globalParameters.getBasalOpening_mikron()+100));
-		     double result= (globalParameters.getBasalAmplitude_mikron()+globalParameters.getBasalYDelta_mikron())-globalParameters.getBasalAmplitude_mikron()*v;
-		     return result;
-		}
-		return 0;
+		if(globalParameters.getBasalAmplitude_mikron()!=0){		
+			if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL
+			   ||(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
+			       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
+			       && !(((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss()))){
+				  // Gaussche Glockenkurve
+			     double p=globalParameters.getBasalPeriod_mikron();		     
+			     double partition=xCell-((int)(xCell/p))*p - p/2;
+			     double v=Math.exp(-partition*partition/globalParameters.getBasalOpening_mikron());
+			     double result= (globalParameters.getBasalAmplitude_mikron()+globalParameters.getBasalYDelta_mikron())-globalParameters.getBasalAmplitude_mikron()*v;
+			     return result;
+			}
+			else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL 
+			       && MiscalleneousGlobalParameters.getInstance() instanceof MiscalleneousGlobalParameters3D
+			       && (((MiscalleneousGlobalParameters3D)MiscalleneousGlobalParameters.getInstance()).getStandardMembrane_2_Dim_Gauss())){			
+				  // Gaussche Glockenkurve
+			     double p=globalParameters.getBasalPeriod_mikron(); 
+			     double partitionX=xCell-((int)(xCell/p))*p - p/2;
+			     double partitionY=yCell-((int)(yCell/p))*p - p/2;
+			     double v=Math.exp(-1*((partitionX*partitionX)+ (partitionY*partitionY))/(globalParameters.getBasalOpening_mikron()+100));
+			     double result= (globalParameters.getBasalAmplitude_mikron()+globalParameters.getBasalYDelta_mikron())-globalParameters.getBasalAmplitude_mikron()*v;
+			     return result;
+			}
+			return 0;
 		}
 		else return 2;
 		
 	}
-	private double getHeight(boolean inPixels){
-	
+	private double getHeight(boolean inPixels){	
 		if(globalParameters == null) globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(); 
 		return inPixels ? globalParameters.getHeightInMikron()*getNumberOfPixelsPerMicrometer() : globalParameters.getHeightInMikron();
 	}

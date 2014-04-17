@@ -66,6 +66,7 @@ public class TissueBorder implements ClassLoaderChangeListener{
 	private TissueBorder(){		
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		resetTissueBorderSettings();
+		 
 	}
 	
 	public void resetTissueBorderSettings(){
@@ -165,24 +166,25 @@ public class TissueBorder implements ClassLoaderChangeListener{
 		return getLength(false);
 	}
 	
-	private static final double maxResolution = 500;
+	private static final double maxResolutionNormal = 500;
 	@NoExport
 	public double get3DTissueCrosssectionXYResolutionFactor(){
 		double height = getHeightInMikron();
 		double width = getWidthInMikron();
-		return Math.min((maxResolution/height), (maxResolution/width));
+		
+		return Math.min((maxResolutionNormal/height), (maxResolutionNormal/width));
 	}
 	@NoExport
 	public double get3DTissueCrosssectionXZResolutionFactor(){		
 		double width = getWidthInMikron();
 		double length = getLengthInMikron();
-		return Math.min((maxResolution/width), (maxResolution/length));
+		return Math.min((maxResolutionNormal/width), (maxResolutionNormal/length));
 	}
 	@NoExport
 	public double get3DTissueCrosssectionYZResolutionFactor(){
 		double height = getHeightInMikron();
 		double length = getLengthInMikron();		
-		return Math.min((maxResolution/height), (maxResolution/length));
+		return Math.min((maxResolutionNormal/height), (maxResolutionNormal/length));
 	}
 	
 	private double getHeight(boolean inPixels){
@@ -373,8 +375,8 @@ public class TissueBorder implements ClassLoaderChangeListener{
 	
 	
 	
-	public StandardMembrane3DCoordinates getStandardMembraneCoordinates3D(boolean update){
-		return standardMembrane.getStandardMembraneCoordinates3D(update);
+	public StandardMembrane3DCoordinates getStandardMembraneCoordinates3D(boolean update, boolean optimized){
+		return standardMembrane.getStandardMembraneCoordinates3D(update, optimized);
 	}
 	
 	protected static synchronized TissueBorder getInstance(){

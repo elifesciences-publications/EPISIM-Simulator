@@ -328,7 +328,15 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 			      
 			      interactionResult.adhesionForce.x += adhesion * ((-dx)/distToMembrane);
 			      interactionResult.adhesionForce.y += adhesion * ((-dy)/distToMembrane);
-      		}    		
+      		}else{
+      			if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+            		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setBmContactArea(0);
+            	}
+      		}
+       }else{
+      	 if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+       		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setBmContactArea(0);
+       	}
        }
        if(isChemotaxisEnabled){
 				String chemotacticFieldName = ((episimbiomechanics.centerbased.newversion.chemotaxis.EpisimCenterBasedMC)modelConnector).getChemotacticField();
@@ -784,6 +792,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	
 	@CannotBeMonitored @NoExport
 	public EpisimCellShape<Shape> getPolygonNucleus(){
+		int i = 0;
 		return getPolygonNucleus(null);
 	}
 	
@@ -794,10 +803,9 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	
 	@CannotBeMonitored
 	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info){
-		String diffLevel =this.getCell().getEpisimCellBehavioralModelObject().getDiffLevel().name();
 		if(modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
 			episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC modelConnectorEpidermis = (episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector;
-			if(!diffLevel.equals(modelConnectorEpidermis.getNameDiffLevelGranulosumCell())&&!diffLevel.equals(modelConnectorEpidermis.getNameDiffLevelCorneocyte())){
+			if(modelConnectorEpidermis.getIsNucleated()){
 				return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getCellWidth()/3, getCellHeight()/3));
 			}
 		}

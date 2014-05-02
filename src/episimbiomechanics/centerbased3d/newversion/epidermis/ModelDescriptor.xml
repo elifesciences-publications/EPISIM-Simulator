@@ -1,65 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2014-03-12_episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC"/>
-  <visiblename name="EPISIM Epidermis New Center Based 3D Model"/>
+  <visiblename name="Epidermis 3D New Center Based Model"/>
   <modelname name="New Epidermis Center Based Biomechanical 3D Model"/>
   <modelconnectorclass name="episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC"/>
   <modelparameters>
-    <parameter datatype="double" default="0.0" name="adhesionBasalCell"
-      pairwise="false" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isSurface"
       pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0"
       name="epidermalSurfaceRatio" pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="adhesionCorneocyte"
+    <parameter datatype="double" default="0.0" name="cellSurfaceArea"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="boolean" default="true" name="isNucleated"
       pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="height"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0" name="contactArea"
+      pairwise="true" readonly="true"/>
     <parameter datatype="double" default="0.2" name="extCellSpaceMikron"
       pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="bmContactArea"
       pairwise="false" readonly="true"/>
-    <parameter datatype="String" default=""
-      name="nameDiffLevelGranulosumCell" pairwise="false" readonly="false"/>
-    <parameter datatype="String" default=""
-      name="nameDiffLevelSpinosumCell" pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="extCellSpaceVolume"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="String" default=""
-      name="nameDiffLevelCorneocyte" pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="width"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
-    <parameter datatype="String" default=""
-      name="nameDiffLevelBasalCell" pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="cellVolume"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="cellSurfaceArea"
-      pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0" name="contactArea"
-      pairwise="true" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="height"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0"
-      name="adhesionSpinosumCell" pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0" name="adhesionTACell"
-      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0" name="cellCellAdhesion"
+      pairwise="true" readonly="false"/>
     <parameter datatype="int" default="1"
       name="numberOfSecondsPerSimStep" pairwise="false" readonly="false"/>
-    <parameter datatype="String" default="" name="nameDiffLevelTACell"
-      pairwise="false" readonly="false"/>
-    <parameter datatype="String" default="" name="nameDiffLevelStemCell"
-      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="extCellSpaceVolume"
+      pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="length"
       pairwise="false" readonly="false"/>
     <parameter datatype="boolean" default="false" name="isBasal"
       pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="adhesionStemCell"
+    <parameter datatype="double" default="0.0" name="width"
       pairwise="false" readonly="false"/>
-    <parameter datatype="double" default="0.0"
-      name="adhesionGranulosumCell" pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
     <parameter datatype="boolean" default="false" name="hasCollision"
       pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="cellVolume"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0"
       name="adhesionBasalMembrane" pairwise="false" readonly="false"/>
   </modelparameters>

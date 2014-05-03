@@ -42,19 +42,19 @@ public class Episim3DAppearanceFactory {
       Color3f brightColor = getBrightColor(hsbColor.clone());   
 	   
       
-      Color3f emissiveColor =new Color3f(new Color(0,0,0));
-      Color3f specularColor =new Color3f(new Color(12,12,12));
-      Material ma = new Material(darkColor, darkColor, middleColor, brightColor, 120f);
+  //    Color3f emissiveColor =new Color3f(new Color(0,0,0));
+   //   Color3f specularColor =new Color3f(new Color(12,12,12));
+   //   Material ma = new Material(darkColor, darkColor, middleColor, brightColor, 120f);
     
-      if(optimizedGraphicsActivated)ma = new Material(brightColor, emissiveColor, middleColor, specularColor, 7f);
+     // if(optimizedGraphicsActivated)ma = new Material(brightColor, emissiveColor, middleColor, specularColor, 7f);
       
       
 	     
-    /*  Color3f ambientColor =new Color3f(new Color(255,204,204));
+    Color3f ambientColor =new Color3f(new Color(255,204,204));
       Color3f diffuseColor =new Color3f(new Color(255,102,102));
       Color3f emissiveColor =new Color3f(new Color(0,0,0));
       Color3f specularColor =new Color3f(new Color(12,12,12));
-      Material ma = new Material(ambientColor, emissiveColor, diffuseColor, specularColor, 7f);*/
+      Material ma = new Material(ambientColor, emissiveColor, diffuseColor, specularColor, 7f);
 	   ma.setCapability(Material.ALLOW_COMPONENT_READ);
 	   ma.setCapability(Material.ALLOW_COMPONENT_WRITE);
 	  

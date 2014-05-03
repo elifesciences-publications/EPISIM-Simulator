@@ -48,6 +48,7 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 	
 	private Sphere sphere;
 	
+	private Sphere nucleusSphere;
 	
 	
 	private float standardCellRadius =1;
@@ -109,6 +110,7 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 	      }	
 		}
 		this.polygonAttributes = polygonAttributes;
+			this.polygonAttributes.setBackFaceNormalFlip(true);
 			
 		 float transparencyFactor = 1.0f;
 		 if(getCurrentDisplay() instanceof Display3DHack){
@@ -156,6 +158,7 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 		       
 		       Shape3D shape = getShape(j3dModel, 0);
 		       shape.setAppearance(appearance);
+		       
 		       if (pickable) setPickableFlags(shape);
 		       shape.setUserData(pickI);
 		       

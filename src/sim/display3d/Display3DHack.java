@@ -594,6 +594,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	   mOrbitBehavior.setTransXFactor(orbitTranslateXCheckBox.isSelected() ? 1.0 : 0.0);
 	   mOrbitBehavior.setTransYFactor(orbitTranslateYCheckBox.isSelected() ? 1.0 : 0.0);
 	   mOrbitBehavior.setZoomEnable(orbitZoomCheckBox.isSelected());
+	   mOrbitBehavior.setZoomFactor(0.1);
 	   mOrbitBehavior.setSchedulingBounds(bounds);
 	   
 	   

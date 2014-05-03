@@ -366,7 +366,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		if(optimizedGraphicsActivated){
 			  PointLight pl = new PointLight(new Color3f(0.3f, 0.3f, 0.3f), new Point3f((float)width/2f,(float)height,(float)length/2f), new Point3f(1.0f,0.0f,0.0f));     
 			  pl.setInfluencingBounds(new BoundingSphere(new Point3d(width/2d,Double.POSITIVE_INFINITY,length/2d), Double.POSITIVE_INFINITY));
-		//	  display3D.attach(new LightPortrayal3D(pl), "Additional Point Light 1");
+			  display3D.attach(new LightPortrayal3D(pl), "Additional Point Light 1");
 		}
 		
 	

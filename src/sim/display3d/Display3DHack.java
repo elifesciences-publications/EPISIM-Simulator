@@ -118,6 +118,8 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	// TODO: IMPORTANT delete class OptionPane in class Display3D otherwise headless mode in computer cluster environment does not work !!!
 	//----------------------------------------------------------------------------------------------------------------------------------------------
 	
+	private static final double TRANSLATION_FACTOR=0.1;
+	private static final double ROTATION_FACTOR=0.5;
 	public enum ModelSceneCrossSectionMode{
 		DISABLED("Disabled"),
 		X_Y_PLANE("X-Y-Plane"),
@@ -588,11 +590,11 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	   // add the ability to rotate, translate, and zoom
 	   mOrbitBehavior = new OrbitBehavior(canvas, OrbitBehavior.REVERSE_ALL);
 	   mOrbitBehavior.setRotateEnable(true);
-	   mOrbitBehavior.setRotXFactor(orbitRotateXCheckBox.isSelected() ? 1.0 : 0.0);
-	   mOrbitBehavior.setRotYFactor(orbitRotateYCheckBox.isSelected() ? 1.0 : 0.0);
+	   mOrbitBehavior.setRotXFactor(orbitRotateXCheckBox.isSelected() ? ROTATION_FACTOR : 0.0);
+	   mOrbitBehavior.setRotYFactor(orbitRotateYCheckBox.isSelected() ? ROTATION_FACTOR : 0.0);
 	   mOrbitBehavior.setTranslateEnable(true);
-	   mOrbitBehavior.setTransXFactor(orbitTranslateXCheckBox.isSelected() ? 1.0 : 0.0);
-	   mOrbitBehavior.setTransYFactor(orbitTranslateYCheckBox.isSelected() ? 1.0 : 0.0);
+	   mOrbitBehavior.setTransXFactor(orbitTranslateXCheckBox.isSelected() ? TRANSLATION_FACTOR : 0.0);
+	   mOrbitBehavior.setTransYFactor(orbitTranslateYCheckBox.isSelected() ? TRANSLATION_FACTOR : 0.0);
 	   mOrbitBehavior.setZoomEnable(orbitZoomCheckBox.isSelected());
 	   mOrbitBehavior.setZoomFactor(0.1);
 	   mOrbitBehavior.setSchedulingBounds(bounds);
@@ -1092,25 +1094,25 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
            {
            public void itemStateChanged(ItemEvent e)
                {
-               if (mOrbitBehavior!=null) mOrbitBehavior.setRotXFactor(orbitRotateXCheckBox.isSelected() ? 1.0 : 0.0); }
+               if (mOrbitBehavior!=null) mOrbitBehavior.setRotXFactor(orbitRotateXCheckBox.isSelected() ? ROTATION_FACTOR : 0.0); }
            });
        orbitRotateYCheckBox.addItemListener(new ItemListener()
            {
            public void itemStateChanged(ItemEvent e)
                {
-               if (mOrbitBehavior!=null) mOrbitBehavior.setRotYFactor(orbitRotateYCheckBox.isSelected() ? 1.0 : 0.0); }
+               if (mOrbitBehavior!=null) mOrbitBehavior.setRotYFactor(orbitRotateYCheckBox.isSelected() ? ROTATION_FACTOR : 0.0); }
            });
        orbitTranslateXCheckBox.addItemListener(new ItemListener()
            {
            public void itemStateChanged(ItemEvent e)
                {
-               if (mOrbitBehavior!=null) mOrbitBehavior.setTransXFactor(orbitTranslateXCheckBox.isSelected() ? 1.0 : 0.0); }
+               if (mOrbitBehavior!=null) mOrbitBehavior.setTransXFactor(orbitTranslateXCheckBox.isSelected() ? TRANSLATION_FACTOR: 0.0); }
            });
        orbitTranslateYCheckBox.addItemListener(new ItemListener()
            {
            public void itemStateChanged(ItemEvent e)
                {
-               if (mOrbitBehavior!=null) mOrbitBehavior.setTransYFactor(orbitTranslateYCheckBox.isSelected() ? 1.0 : 0.0); }
+               if (mOrbitBehavior!=null) mOrbitBehavior.setTransYFactor(orbitTranslateYCheckBox.isSelected() ? TRANSLATION_FACTOR : 0.0); }
            });
        orbitZoomCheckBox.addItemListener(new ItemListener()
            {

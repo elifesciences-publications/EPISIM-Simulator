@@ -51,8 +51,8 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 	
 	public Object getField()
    {
-	
-		setField(createInt2DField());
+		
+		setField(createInt2DField());	
 		return this.field;
    }
 	
@@ -105,6 +105,7 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 			this.renewTilePortrayal((float)(1f/factorYZ), (float)(1f/factorYZ));
 			field2D = new IntGrid2D(Math.round((float)(length*factorYZ)), Math.round((float)(height*factorYZ)));
 			initializeFieldWithColor(field2D);
+			
 			for(int i = 0; i < allCells.size(); i++){
 				CellBoundaries boundaries =allCells.get(i).getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0);
 				if(boundaries!= null) boundaries.getYZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());

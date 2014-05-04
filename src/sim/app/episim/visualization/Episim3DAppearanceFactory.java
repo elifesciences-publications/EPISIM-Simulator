@@ -3,8 +3,10 @@ package sim.app.episim.visualization;
 import java.awt.Color;
 
 import javax.media.j3d.Appearance;
+import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.Material;
 import javax.media.j3d.PolygonAttributes;
+import javax.media.j3d.RenderingAttributes;
 import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Color3f;
 
@@ -27,6 +29,7 @@ public class Episim3DAppearanceFactory {
 	
 	public static Appearance getCellAppearanceForColor(PolygonAttributes polygonAttributes, Color color, float opacity){
 		Appearance appearance = new Appearance();
+		appearance.setRenderingAttributes(new RenderingAttributes());
       SimplePortrayal3D.setAppearanceFlags(appearance);      
       MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
       boolean optimizedGraphicsActivated =false;
@@ -75,6 +78,51 @@ public class Episim3DAppearanceFactory {
       if(polygonAttributes != null) appearance.setPolygonAttributes(polygonAttributes);
       return appearance;
 	}
+	
+	public static Appearance getCellAppearanceForColorNoMaterial(Color color){
+		return getCellAppearanceForColor(color, 1.0f);
+	}
+	
+	public static Appearance getCellAppearanceForColorNoMaterial(Color color, float opacity){
+		return getCellAppearanceForColor(null, color, opacity);
+	}	
+	
+	public static Appearance getCellAppearanceForColorNoMaterial(PolygonAttributes polygonAttributes, Color color, float opacity){
+		Appearance appearance = new Appearance();
+		appearance.setRenderingAttributes(new RenderingAttributes());
+      SimplePortrayal3D.setAppearanceFlags(appearance);      
+      MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
+      boolean optimizedGraphicsActivated =false;
+      if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
+			optimizedGraphicsActivated = true;
+		}
+      
+     
+	     
+    Color3f color3f =new Color3f(color);
+     
+	   
+	  appearance.setColoringAttributes(new ColoringAttributes(color3f, ColoringAttributes.NICEST));
+	  
+	   
+      if (opacity < 1.0)  // partially transparent
+      {
+          TransparencyAttributes tta = new TransparencyAttributes(TransparencyAttributes.BLENDED, 1.0f - opacity); 
+          tta.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
+          tta.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
+          appearance.setTransparencyAttributes(tta);
+      } 
+      if(polygonAttributes != null) appearance.setPolygonAttributes(polygonAttributes);
+      return appearance;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	private static Color3f getDarkColor(float[] hsbColor){
 		Color resultingColor = Color.getHSBColor(hsbColor[0],hsbColor[1], hsbColor[2]);

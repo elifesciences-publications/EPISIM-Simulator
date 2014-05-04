@@ -1064,6 +1064,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    @CannotBeMonitored
    @NoExport  
    public CellBoundaries getNucleusBoundariesInMikron(double sizeDelta) {
+   	
  	  Double3D fieldLocMikron = getCellLocationInCellField();
  	  Vector3d minVector= null;
  	  Vector3d maxVector= null;

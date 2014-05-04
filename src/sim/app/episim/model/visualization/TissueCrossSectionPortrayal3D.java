@@ -115,7 +115,7 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 				if(boundariesCell!= null) boundariesCell.getYZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
 				if(bm instanceof CenterBased3DMechanicalModel){
 					CellBoundaries boundariesNucleus =((CenterBased3DMechanicalModel)bm).getNucleusBoundariesInMikron(0);
-					if(boundariesNucleus!= null)	boundariesNucleus.getYZCrosssection(positionInMikrometer, field2D, Color.YELLOW);
+					if(boundariesNucleus!= null)	boundariesNucleus.getYZCrosssection(positionInMikrometer, field2D, new Color(140,140,240));
 				}
 			}
 			addTransparentColor(field2D);

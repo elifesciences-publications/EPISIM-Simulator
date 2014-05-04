@@ -1060,6 +1060,30 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
  	 trans.setScale(new Vector3d(width/height, height / height, length/height));
  	 return new CellBoundaries(new Ellipsoid(trans, height/2d), minVector, maxVector);
   }
+   
+   @CannotBeMonitored
+   @NoExport  
+   public CellBoundaries getNucleusBoundariesInMikron(double sizeDelta) {
+ 	  Double3D fieldLocMikron = getCellLocationInCellField();
+ 	  Vector3d minVector= null;
+ 	  Vector3d maxVector= null;
+ 	  double width = (getCellWidth()+sizeDelta)/3d;
+ 	  double height = (getCellHeight()+sizeDelta)/3d;
+ 	  double length = (getCellLength()+sizeDelta)/3d;
+ 	  
+ 	  minVector = new Vector3d((fieldLocMikron.x-width/2d),
+				   						(fieldLocMikron.y-height/2d),
+				   						(fieldLocMikron.z-length/2d));
+
+ 	  maxVector = new Vector3d((fieldLocMikron.x+width/2d),
+										  (fieldLocMikron.y+height/2d),
+										  (fieldLocMikron.z+length/2d));
+ 	   	 
+ 	 Transform3D trans = new Transform3D();
+ 	 trans.setTranslation(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z));
+ 	 trans.setScale(new Vector3d(width/height, height / height, length/height));
+ 	 return new CellBoundaries(new Ellipsoid(trans, height/2d), minVector, maxVector);
+  }
 
    public double getStandardCellHeight() {
 	   return standardCellHeight;

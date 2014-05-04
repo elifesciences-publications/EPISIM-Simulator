@@ -22,7 +22,7 @@ import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DM
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.visualization.Episim3DAppearanceFactory;
+import sim.app.episim.visualization.threedim.Episim3DAppearanceFactory;
 import sim.display3d.Display3DHack;
 import sim.display3d.Display3DHack.ModelSceneCrossSectionMode;
 import sim.portrayal.LocationWrapper;

@@ -5,9 +5,11 @@ import java.awt.geom.Rectangle2D;
 
 import javax.media.j3d.TransformGroup;
 
+import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
+import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
@@ -107,8 +109,14 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 			initializeFieldWithColor(field2D);
 			
 			for(int i = 0; i < allCells.size(); i++){
-				CellBoundaries boundaries =allCells.get(i).getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0);
-				if(boundaries!= null) boundaries.getYZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
+				EpisimBiomechanicalModel bm = allCells.get(i).getEpisimBioMechanicalModelObject();
+				CellBoundaries boundariesCell =bm.getCellBoundariesInMikron(0);
+				
+				if(boundariesCell!= null) boundariesCell.getYZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
+				if(bm instanceof CenterBased3DMechanicalModel){
+					CellBoundaries boundariesNucleus =((CenterBased3DMechanicalModel)bm).getNucleusBoundariesInMikron(0);
+					if(boundariesNucleus!= null)	boundariesNucleus.getYZCrosssection(positionInMikrometer, field2D, Color.YELLOW);
+				}
 			}
 			addTransparentColor(field2D);
 		}

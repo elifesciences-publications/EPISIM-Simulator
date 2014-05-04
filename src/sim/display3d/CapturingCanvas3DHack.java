@@ -11,7 +11,7 @@ import sim.SimStateServer;
 import sim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.visualization.Optimized3DVisualization;
+import sim.app.episim.visualization.threedim.Optimized3DVisualization;
 
 
 

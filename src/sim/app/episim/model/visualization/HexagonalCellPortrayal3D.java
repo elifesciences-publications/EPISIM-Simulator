@@ -25,13 +25,12 @@ import com.sun.j3d.utils.geometry.Primitive;
 import com.sun.j3d.utils.geometry.Sphere;
 
 import episiminterfaces.EpisimCellBehavioralModel;
-
 import sim.app.episim.UniversalCell;
 import sim.app.episim.gui.EpisimAboutDialog;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.visualization.Episim3DAppearanceFactory;
+import sim.app.episim.visualization.threedim.Episim3DAppearanceFactory;
 import sim.display3d.Display3DHack;
 import sim.portrayal.LocationWrapper;
 import sim.portrayal3d.SimplePortrayal3D;

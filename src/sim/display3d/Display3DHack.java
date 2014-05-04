@@ -92,7 +92,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlob
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Names;
-import sim.app.episim.visualization.Optimized3DVisualization;
+import sim.app.episim.visualization.threedim.Optimized3DVisualization;
 import sim.display.Display2D;
 import sim.display.Display2DHack;
 import sim.display.GUIState;

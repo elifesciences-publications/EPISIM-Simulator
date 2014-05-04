@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.threedim;
 
 import java.awt.Color;
 

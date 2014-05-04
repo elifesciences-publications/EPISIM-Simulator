@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.threedim;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -15,6 +15,8 @@ import javax.vecmath.Color3f;
 import javax.vecmath.Vector3f;
 
 import com.sun.j3d.utils.geometry.Text2D;
+
+
 
 
 

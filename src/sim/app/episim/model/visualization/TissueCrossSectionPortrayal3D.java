@@ -82,45 +82,51 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 		double width = TissueController.getInstance().getTissueBorder().getWidthInMikron(); 
 		double length = TissueController.getInstance().getTissueBorder().getLengthInMikron(); 
 		IntGrid2D field2D = null;
+		
+		
+		
 		GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
-		if(actCrossSectionMode == ModelSceneCrossSectionMode.X_Y_PLANE){
-			this.renewTilePortrayal((float)(1f/factorXY), (float)(1f/factorXY));
-			field2D = new IntGrid2D(Math.round((float)(width*factorXY)), Math.round((float)(height*factorXY)));
-			initializeFieldWithColor(field2D);
-			for(int i = 0; i < allCells.size(); i++){
-				CellBoundaries boundaries =allCells.get(i).getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0);
-				if(boundaries!= null) boundaries.getXYCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
+		if(actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED){
+			if(actCrossSectionMode == ModelSceneCrossSectionMode.X_Y_PLANE){
+				this.renewTilePortrayal((float)(1f/factorXY), (float)(1f/factorXY));
+				field2D = new IntGrid2D(Math.round((float)(width*factorXY)), Math.round((float)(height*factorXY)));
+				initializeFieldWithColor(field2D);
 			}
-			addTransparentColor(field2D);
-		}
-		if(actCrossSectionMode == ModelSceneCrossSectionMode.X_Z_PLANE){
-			this.renewTilePortrayal((float)(1f/factorXZ), (float)(1f/factorXZ));
-			field2D = new IntGrid2D(Math.round((float)(width*factorXZ)), Math.round((float)(length*factorXZ)));
-			initializeFieldWithColor(field2D);
-			for(int i = 0; i < allCells.size(); i++){
-				CellBoundaries boundaries =allCells.get(i).getEpisimBioMechanicalModelObject().getCellBoundariesInMikron(0);
-				if(boundaries!= null) boundaries.getXZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
+			else if(actCrossSectionMode == ModelSceneCrossSectionMode.X_Z_PLANE){
+				this.renewTilePortrayal((float)(1f/factorXZ), (float)(1f/factorXZ));
+				field2D = new IntGrid2D(Math.round((float)(width*factorXZ)), Math.round((float)(length*factorXZ)));
+				initializeFieldWithColor(field2D);
 			}
-			addTransparentColor(field2D);
-		}
-		if(actCrossSectionMode == ModelSceneCrossSectionMode.Y_Z_PLANE){
-			this.renewTilePortrayal((float)(1f/factorYZ), (float)(1f/factorYZ));
-			field2D = new IntGrid2D(Math.round((float)(length*factorYZ)), Math.round((float)(height*factorYZ)));
-			initializeFieldWithColor(field2D);
+			else if(actCrossSectionMode == ModelSceneCrossSectionMode.Y_Z_PLANE){
+				this.renewTilePortrayal((float)(1f/factorYZ), (float)(1f/factorYZ));
+				field2D = new IntGrid2D(Math.round((float)(length*factorYZ)), Math.round((float)(height*factorYZ)));
+				initializeFieldWithColor(field2D);
+			}
 			
-			for(int i = 0; i < allCells.size(); i++){
+			for(int i = 0; i < allCells.size(); i++){				
 				EpisimBiomechanicalModel bm = allCells.get(i).getEpisimBioMechanicalModelObject();
 				CellBoundaries boundariesCell =bm.getCellBoundariesInMikron(0);
-				
-				if(boundariesCell!= null) boundariesCell.getYZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
+				CellBoundaries boundariesNucleus=null;
 				if(bm instanceof CenterBased3DMechanicalModel){
-					CellBoundaries boundariesNucleus =((CenterBased3DMechanicalModel)bm).getNucleusBoundariesInMikron(0);
-					if(boundariesNucleus!= null)	boundariesNucleus.getYZCrosssection(positionInMikrometer, field2D, new Color(140,140,240));
+					boundariesNucleus =((CenterBased3DMechanicalModel)bm).getNucleusBoundariesInMikron(0);					
+				}
+				if(actCrossSectionMode == ModelSceneCrossSectionMode.X_Y_PLANE){				
+						if(boundariesCell!= null) boundariesCell.getXYCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
+						if(boundariesNucleus!= null) boundariesNucleus.getXYCrosssection(positionInMikrometer, field2D, new Color(140,140,240));
+				}
+				else if(actCrossSectionMode == ModelSceneCrossSectionMode.X_Z_PLANE){						
+						if(boundariesCell != null) boundariesCell.getXZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
+						if(boundariesNucleus != null) boundariesNucleus.getXZCrosssection(positionInMikrometer, field2D, new Color(140,140,240));
+				
+				}
+				else if(actCrossSectionMode == ModelSceneCrossSectionMode.Y_Z_PLANE){						
+						if(boundariesCell!= null) boundariesCell.getYZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());						
+						if(boundariesNucleus!= null)	boundariesNucleus.getYZCrosssection(positionInMikrometer, field2D, new Color(140,140,240));	
 				}
 			}
 			addTransparentColor(field2D);
 		}
-		if(actCrossSectionMode == ModelSceneCrossSectionMode.DISABLED){
+		else {
 			field2D = new IntGrid2D(Math.round((float)(width*factorXY)), Math.round((float)(height*factorXY)));
 			addTransparentColorForWholeField(field2D);
 		}

@@ -3,6 +3,8 @@ package sim.app.episim.model.biomechanics.centerbased3d.newversion;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
@@ -21,6 +23,7 @@ import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
+import sim.Loop;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical3DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
@@ -720,10 +723,10 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 	  		 this.isContinuousInZDirection = globalParametersChemotaxis.isContinousDiffusionInZDirection();
 	  	 }
    }
-   
+   private static final int CPUs = Runtime.getRuntime().availableProcessors();
    protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
    	final MersenneTwisterFast random = state.random;
-   	GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
+   	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
    	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
    	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;
    	if(allCells.size() >0){
@@ -734,17 +737,36 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    		DELTA_TIME_IN_SECONDS_PER_EULER_STEP=numberOfSeconds;
    		numberOfIterationsDouble=1;
    	}
-   	int numberOfIterations = ((int)numberOfIterationsDouble);
-   	for(int i = 0; i<numberOfIterations; i++){
-   		allCells.shuffle(random);
-   		int totalCellNumber = allCells.size();
-   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+   	final int numberOfIterations = ((int)numberOfIterationsDouble);
+   	  ExecutorService executor = Executors.newFixedThreadPool(CPUs);
+   	  try{
+	   	for(int i = 0; i<numberOfIterations; i++){
+	   		
+	   		allCells.shuffle(random);
+	   		final int totalCellNumber = allCells.size();
+	   		final int iterationNo =i;
+	   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+	   			final int cellNo1=cellNo;
+	   			executor.submit(new Runnable() {			            
+			            public void run() {
+				   			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo1).getEpisimBioMechanicalModelObject()); 
+				   			if(iterationNo == 0) cellBM.initNewSimStep();
+				   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
+				   			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
+			            }
+			        });
+	   		}
+	   	
+   	/*	for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
    			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
    			if(i == 0) cellBM.initNewSimStep();
    			cellBM.calculateSimStep((i == (numberOfIterations-1)));
    			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
-   		}
+   		}*/
    	}
+   	  } finally {
+   		  executor.shutdown();
+			}
    	calculateSurfaceCells();
    }
    

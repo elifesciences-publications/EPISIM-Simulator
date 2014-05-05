@@ -206,7 +206,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		// Charts: Performance Statistics
 		/////////////////////////////////////
 
-		xySeries.put(new String[] { "Steps_Time", "Performance_Series", "0"}, new XYSeries("Steps / Time"));
+		xySeries.put(new String[] { "Steps_Time", "Performance_Series", "0"}, new XYSeries("Time"));
 		
 		xySeries.put(new String[] { "Num_Cells_Steps", "Performance_Series_Num_Cells", "1"}, new XYSeries("Number Of Cells"));
 		
@@ -214,7 +214,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		xySeriesCollections.put("Performance_Series_Num_Cells", new XYSeriesCollection());
 		
 
-		chart = ChartFactory.createXYLineChart(PERFORMANCE, "Steps", "Steps per time", 
+		chart = ChartFactory.createXYLineChart(PERFORMANCE, "Steps", "ms per step", 
 				xySeriesCollections.get("Performance_Series"), PlotOrientation.VERTICAL, true, true, false); 		
 		
 		chart.setBackgroundPaint(Color.white);
@@ -394,7 +394,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 	private void initChartActivationMap(){
 		
 		chartEnabled.put(PERFORMANCE, false);
-		chartEnabled.put(VISUALIZATION, false);
+	//	chartEnabled.put(VISUALIZATION, false);
 		chartEnabled.put(CELLCOUNTS, false);
 //		chartEnabled.put(TISSUEKINETICPARAMETERS, false);
 		chartEnabled.put(CELLDEATH, false);
@@ -496,24 +496,24 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 	   	  
 	   	  public void step(SimState state)
 	        {   
-	         	
-	   		   if(state.schedule.getSteps() > 400){
-	   		   	long actTime = System.currentTimeMillis()/1000;
+	         	if(previousTime==0)previousTime=System.currentTimeMillis();
+	   		   if(state.schedule.getSteps() > 10){
+	   		   	long actTime = System.currentTimeMillis();
 		         	long actSteps = state.schedule.getSteps();
 		   		   long deltaTime = actTime - previousTime;
 		   		   long deltaSteps = actSteps - previousSteps;
 		   		   
 		   		   previousTime = actTime;
 		   		   previousSteps = actSteps;
-		   		   if(deltaTime > 0){
-		   		   double stepsPerTime = deltaSteps/deltaTime;
-		         	getXYSeries("Steps_Time").add(state.schedule.getSteps(), stepsPerTime);
+		   		   if(deltaSteps > 0){
+		   		   double msPerStep = ((double)deltaTime)/((double)deltaSteps);
+		         	getXYSeries("Steps_Time").add(state.schedule.getSteps(), msPerStep);
 		   		   getXYSeries("Num_Cells_Steps").add(state.schedule.getSteps(), GlobalStatistics.getInstance().getNumberOfAllLivingCells());
 	   		   }
 	   		}            
 	      }
 			public double getInterval(){	         
-	         return 100;
+	         return 10;
          }
 			
 	   });

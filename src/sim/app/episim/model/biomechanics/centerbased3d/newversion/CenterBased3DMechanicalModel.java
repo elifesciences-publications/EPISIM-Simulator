@@ -745,14 +745,18 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 	   		allCells.shuffle(random);
 	   		final int totalCellNumber = allCells.size();
 	   		final int iterationNo =i;
-	   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
-	   			final int cellNo1=cellNo;
+	   		final int chunkSize = totalCellNumber/CPUs;
+	   		for(int cpu = 0; cpu < CPUs; cpu++){
+	   			final int start = cpu*chunkSize;
+	   			final int end = cpu== (CPUs-1)?totalCellNumber : (cpu+1)*chunkSize;
 	   			executor.submit(new Runnable() {			            
 			            public void run() {
-				   			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo1).getEpisimBioMechanicalModelObject()); 
-				   			if(iterationNo == 0) cellBM.initNewSimStep();
-				   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
-				   			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
+			            	for(int cellNo = start; cellNo < end; cellNo++){
+					   			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
+					   			if(iterationNo == 0) cellBM.initNewSimStep();
+					   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
+					   			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
+			            	}
 			            }
 			        });
 	   		}

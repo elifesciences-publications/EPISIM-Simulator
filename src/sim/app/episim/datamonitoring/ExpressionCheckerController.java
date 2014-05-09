@@ -5,7 +5,9 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.parser.DataMonitoringExpressionChecker;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
@@ -23,6 +25,8 @@ public class ExpressionCheckerController implements ClassLoaderChangeListener{
 	
 	private Map<Integer, Set<String>> varNameRegistry;
 	
+	private static Semaphore sem = new Semaphore(1);
+	
 	private ExpressionCheckerController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		varNameRegistry = new HashMap<Integer, Set<String>>();
@@ -30,8 +34,18 @@ public class ExpressionCheckerController implements ClassLoaderChangeListener{
 	
 	private int nextCheckSessionId = 1;
 	
-	public static synchronized ExpressionCheckerController getInstance(){
-		if(instance == null) instance = new ExpressionCheckerController();
+	public static ExpressionCheckerController getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new ExpressionCheckerController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	

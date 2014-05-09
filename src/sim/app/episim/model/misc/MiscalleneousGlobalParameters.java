@@ -2,7 +2,9 @@ package sim.app.episim.model.misc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ClassLoaderChangeListener;
@@ -27,7 +29,7 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 	private boolean highlightTrackedCells = true;
 	
 	private double coloringThreshold=0.0;
-	
+	private static Semaphore sem = new Semaphore(1);
 	private MiscalleneousGlobalParameters(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}
@@ -39,16 +41,25 @@ public class MiscalleneousGlobalParameters implements java.io.Serializable, Clas
 	
 	@NoUserModification
 	public static MiscalleneousGlobalParameters getInstance(){
-		if(instance == null){
-			if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
-				instance = new MiscalleneousGlobalParameters();
-				resetinstance = new MiscalleneousGlobalParameters();
-			}
-			else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
-				instance = new MiscalleneousGlobalParameters3D();
-				resetinstance = new MiscalleneousGlobalParameters3D();
-			}
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.TWO_DIMENSIONAL){
+					instance = new MiscalleneousGlobalParameters();
+					resetinstance = new MiscalleneousGlobalParameters();
+				}
+				else if(ModelController.getInstance().getModelDimensionality() == ModelDimensionality.THREE_DIMENSIONAL){
+					instance = new MiscalleneousGlobalParameters3D();
+					resetinstance = new MiscalleneousGlobalParameters3D();
+				}				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
 		}
+		
 		return instance;
 	}
 	

@@ -2,14 +2,13 @@ package sim.app.episim.datamonitoring.dataexport;
 
 import java.awt.Frame;
 import java.io.File;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
-
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -30,7 +29,6 @@ import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileReader;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileWriter;
 import sim.app.episim.datamonitoring.parser.ParseException;
-
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.ClassLoaderChangeListener;
@@ -40,7 +38,6 @@ import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
 import sim.field.continuous.Continuous2D;
-
 import episimexceptions.CompilationFailedException;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
@@ -80,6 +77,8 @@ public class DataExportController implements ClassLoaderChangeListener{
 	private Set<Class<?>> validDataTypes;
 	private ExtendedFileChooser edeChooser = null;
 	
+	private static Semaphore sem = new Semaphore(1);
+	
 	private DataExportController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		if(ModeServer.guiMode()) edeChooser = new ExtendedFileChooser("ede");
@@ -112,8 +111,18 @@ public class DataExportController implements ClassLoaderChangeListener{
 		return System.currentTimeMillis() + (this.nextDataExportId++);
 	}
 		
-	public synchronized static DataExportController getInstance(){
-		if(instance == null) instance = new DataExportController();
+	public static DataExportController getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new DataExportController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		
 		return instance;
 	}

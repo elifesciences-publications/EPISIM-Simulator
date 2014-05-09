@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 import episiminterfaces.CellDeathListener;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -12,6 +13,7 @@ import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.calc.CalculationAlgorithm;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueBorder;
@@ -29,7 +31,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	public static final double LASTBUCKETAMOUNT = 2;
 	public static final double FIRSTBUCKETAMOUNT = 1;
 	
-	
+	private static Semaphore sem = new Semaphore(1);
 	
 	private GenericBag<AbstractCell> allCells;
 	
@@ -119,8 +121,18 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	
 
 	
-	public static synchronized GlobalStatistics getInstance(){
-		if(instance == null) instance = new GlobalStatistics();
+	public static GlobalStatistics getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new GlobalStatistics();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	

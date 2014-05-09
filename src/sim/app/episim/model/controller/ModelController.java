@@ -12,7 +12,6 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimPortrayal;
 import episiminterfaces.EpisimSbmlModelConnector;
-
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
@@ -33,23 +32,25 @@ public class ModelController implements java.io.Serializable, ClassLoaderChangeL
 	private boolean simulationStartedOnce = false;
 	private boolean storedSimStateLoaded = false;
 	
-	private static ModelController instance;
+	private static ModelController instance = new ModelController();
 	private ModelInitialization initializer;
 	
 	private ModelController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}	
 	
-	public static ModelController getInstance(){
-		
-		try{
-		   sem.acquire();
-	      if(instance == null) instance = new ModelController();
-			sem.release();
-		}
-      catch (InterruptedException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
-      }
+	public static ModelController getInstance(){		
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new ModelController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}		
 		return instance;
 	}
 	
@@ -154,7 +155,7 @@ public class ModelController implements java.io.Serializable, ClassLoaderChangeL
    	return SbmlModelController.getInstance().getNewEpisimSbmlModelConnector();
    }
    public void classLoaderHasChanged() {
-	   instance = null;
+   	instance = null;
    }
    
 }

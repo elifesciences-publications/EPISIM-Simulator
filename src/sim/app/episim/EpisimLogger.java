@@ -3,13 +3,13 @@ package sim.app.episim;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.Semaphore;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import binloc.ProjectLocator;
-
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 
@@ -21,6 +21,8 @@ public class EpisimLogger implements ClassLoaderChangeListener{
 	private static FileHandler fh;
 	private boolean exceptionLoggingState;
 	private boolean infoLoggingState;
+	
+	private static Semaphore sem = new Semaphore(1);
 	
 	private EpisimLogger(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
@@ -55,8 +57,18 @@ public class EpisimLogger implements ClassLoaderChangeListener{
 		}
 	}
 	
-	public static synchronized EpisimLogger getInstance(){
-		if (instance == null) instance = new EpisimLogger();
+	public static EpisimLogger getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new EpisimLogger();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	

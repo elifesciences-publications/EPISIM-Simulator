@@ -1,6 +1,7 @@
 package sim.app.episim.persistence;
 
 import java.util.HashMap;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -9,6 +10,7 @@ import javax.swing.JTextArea;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 
@@ -16,7 +18,7 @@ public class ImportLog implements ClassLoaderChangeListener{
 
 	private int nodeReadCounter = 0;
 	private int nodeRecognizedCounter = 0;
-
+	private static Semaphore sem = new Semaphore(1);
 	private HashMap<Node, Boolean> logNodeMap;
 
 	public static void nodeRead(Node node) {
@@ -41,8 +43,17 @@ public class ImportLog implements ClassLoaderChangeListener{
 	}
 
 	public static ImportLog getInstance() {
-		if (instance == null)
-			instance = new ImportLog();
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new ImportLog();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 

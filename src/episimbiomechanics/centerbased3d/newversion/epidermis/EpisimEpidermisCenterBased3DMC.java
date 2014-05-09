@@ -22,6 +22,7 @@ public class EpisimEpidermisCenterBased3DMC extends episimbiomechanics.centerbas
 	private HashMap<Long, Double> cellcellAdhesion = new HashMap<Long, Double>();
 	private double bmContactArea=0;
 	private boolean isNucleated = true;
+	private boolean isViable = true;
 	
 	private double cellVolume = 0;
 	private double extCellSpaceVolume = 0;
@@ -174,5 +175,9 @@ public class EpisimEpidermisCenterBased3DMC extends episimbiomechanics.centerbas
    public boolean getIsNucleated(){ return this.isNucleated; }
    
    public void setIsNucleated(boolean val){ this.isNucleated = val; }
+   
+   public boolean getIsViable(){ return this.isViable; }
+   
+   public void setIsViable(boolean val){ this.isViable = val; }
 }
 

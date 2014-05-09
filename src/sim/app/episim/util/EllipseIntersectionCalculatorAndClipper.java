@@ -14,7 +14,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 
+import java.util.concurrent.Semaphore;
+
 import sendreceive.TestFrame;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.visualization.AbstractCellEllipse;
 import sim.app.episim.model.visualization.CellEllipse;
 ;
@@ -32,7 +35,7 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
 	
 	private static int noOfRuns = 0;
 	private static int maxNoOfRuns = 0;
-	
+	private static Semaphore sem = new Semaphore(1);
 	public EllipseIntersectionCalculatorAndClipper(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}
@@ -62,7 +65,17 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
 	
 	
 	public static IntersectionPoints getClippedEllipsesAndIntersectionPoints(CellEllipse actEllipse, CellEllipse otherEllipse){
-		if(instance == null) instance = new EllipseIntersectionCalculatorAndClipper();
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new EllipseIntersectionCalculatorAndClipper();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		noOfCalls++;
 		long timeStart = (new Date()).getTime();
 		
@@ -74,7 +87,17 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
 	}
 	
 	public static IntersectionPoints getClippedEllipsesAndXYPoints(Graphics2D g, CellEllipse actEllipse, CellEllipse otherEllipse){
-		if(instance == null) instance = new EllipseIntersectionCalculatorAndClipper();
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new EllipseIntersectionCalculatorAndClipper();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		
 		IntersectionPoints p = instance.calculateClippedEllipses(g, actEllipse, otherEllipse);
 		

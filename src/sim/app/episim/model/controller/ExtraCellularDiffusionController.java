@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -17,7 +18,6 @@ import org.xml.sax.SAXException;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
-
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
@@ -56,12 +56,12 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 	private double diffusionFieldCrossSectionCoordinateInMikron = 0;
 	
 	
-	private static ExtraCellularDiffusionController instance;
+	private static ExtraCellularDiffusionController instance= new ExtraCellularDiffusionController();
 	
 	private HashMap<String, ExtraCellularDiffusionField> extraCellularFieldMap;
 	private HashMap<String, ExtracellularDiffusionFieldBCConfig2D> extraCellularFieldBCConfigMap;
 	
-	
+	private static Semaphore sem = new Semaphore(1);
 	
 	private ExtraCellularDiffusionController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
@@ -142,9 +142,17 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 	}
 	
 	
-	protected synchronized static ExtraCellularDiffusionController getInstance(){
-		if(instance == null){
-			instance = new ExtraCellularDiffusionController();
+	protected static ExtraCellularDiffusionController getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new ExtraCellularDiffusionController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
 		}
 		return instance;
 	}

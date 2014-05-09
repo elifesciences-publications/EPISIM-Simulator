@@ -23,7 +23,6 @@ import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
-import sim.Loop;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical3DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
@@ -43,9 +42,12 @@ import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double2D;
 import sim.util.Double3D;
+import sim.util.Loop;
 
 
 public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3DModel{
+	
+	private static final Point3d NEGATIVE_INFINITY_POINT = new Point3d(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
 	
 	public final double NEXT_TO_OUTERCELL_FACT=1.2;
    private double MIN_OVERLAP_MICRON=0.1;   
@@ -156,7 +158,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
        double thisSemiAxisA = getCellWidth()/2;      
        double thisSemiAxisB = getCellHeight()/2;
        double thisSemiAxisC = getCellLength()/2;
-      
+       Point3d thislocP= new Point3d(thisloc.x, thisloc.y, thisloc.z);
+       
        for(int i=0;i<neighbours.numObjs;i++)
        {
           
@@ -177,13 +180,16 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
              
              double dx = cellField.tdx(thisloc.x,otherloc.x); 
              double dy = cellField.tdy(thisloc.y,otherloc.y);
-             double dz = cellField.tdz(thisloc.z,otherloc.z);             
+             double dz = cellField.tdz(thisloc.z,otherloc.z); 
+             
+            
+             Point3d otherlocP= new Point3d(otherloc.x, otherloc.y, otherloc.z);
                                       
-             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point3d(thisloc.x, thisloc.y, thisloc.z), 
-							otherPosToroidalCorrection(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(otherloc.x, otherloc.y, otherloc.z)), 
+             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(thislocP, 
+							otherPosToroidalCorrection(thislocP, otherlocP), 
 							thisSemiAxisA, thisSemiAxisB, thisSemiAxisC);
-             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point3d(otherloc.x, otherloc.y, otherloc.z), 
-								otherPosToroidalCorrection(new Point3d(otherloc.x, otherloc.y, otherloc.z),new Point3d(thisloc.x, thisloc.y, thisloc.z)), 
+             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(otherlocP, 
+								otherPosToroidalCorrection(otherlocP, thislocP), 
 								otherSemiAxisA, otherSemiAxisB, otherSemiAxisC);            
              double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
              //double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
@@ -245,8 +251,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
                 double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
           		double contactAreaCorrect = 0;
           		if(actDist < optDistScaled*globalParameters.getOptDistanceAdhesionFact()){
-          			contactAreaCorrect = calculateContactAreaNew(new Point3d(thisloc.x, thisloc.y, thisloc.z),
-          					otherPosToroidalCorrection(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(mechModelOther.getX(), mechModelOther.getY(), mechModelOther.getZ())),
+          			contactAreaCorrect = calculateContactAreaNew(thislocP,
+          					otherPosToroidalCorrection(thislocP, otherlocP),
           					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisB, otherSemiAxisA, otherSemiAxisB,otherSemiAxisC, d_membrane_this, d_membrane_other, actDist, optDistScaled);
           		}
           		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
@@ -258,7 +264,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
         }       
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >=0){
-      		Point3d membraneReferencePoint = findReferencePositionOnBoundary(new Point3d(thisloc.x, thisloc.y, thisloc.z), thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2), thisloc.z - (getCellLength()/2), thisloc.z + (getCellLength()/2));
+      		Point3d membraneReferencePoint = findReferencePositionOnBoundary(thislocP, thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2), thisloc.z - (getCellLength()/2), thisloc.z + (getCellLength()/2));
       		double dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
             double dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
             double dz = cellField.tdy(thisloc.z,membraneReferencePoint.z);
@@ -269,7 +275,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
                dz = cellField.tdy(thisloc.z,membraneReferencePoint.z);
             }
       		double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)+Math.pow(dz,2));
-      		double optDist = calculateDistanceToCellCenter(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(membraneReferencePoint.x, membraneReferencePoint.y, membraneReferencePoint.z), getCellWidth()/2, getCellHeight()/2,  getCellLength()/2);
+      		double optDist = calculateDistanceToCellCenter(thislocP, membraneReferencePoint, getCellWidth()/2, getCellHeight()/2,  getCellLength()/2);
       		optDist*=globalParameters.getOptDistanceToBMScalingFactor();
       		
       		if(distToMembrane < optDist*globalParameters.getOptDistanceAdhesionFact()){
@@ -487,7 +493,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 	      	membraneReferencePoint = findReferencePositionOnBoundary(membraneReferencePoint, membraneReferencePoint.x - (getCellWidth()/2), membraneReferencePoint.x + (getCellWidth()/2), membraneReferencePoint.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
            */
 	      	cellPosition.add(new Point3d(0,1,0));
-	      	membraneReferencePoint = findReferencePositionOnBoundary(new Point3d(cellPosition.x,cellPosition.y,cellPosition.z), cellPosition.x - (getCellWidth()/2), cellPosition.x + (getCellWidth()/2), cellPosition.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
+	      	membraneReferencePoint = findReferencePositionOnBoundary(cellPosition, cellPosition.x - (getCellWidth()/2), cellPosition.x + (getCellWidth()/2), cellPosition.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
 	      	
 	      	cellPosBoundaryDirVect = new Vector3d((cellPosition.x-membraneReferencePoint.x),((cellPosition.y)-membraneReferencePoint.y),(cellPosition.z-membraneReferencePoint.z));
 	      	dx = cellField.tdx(cellPosition.x,membraneReferencePoint.x); 
@@ -496,7 +502,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
             onMembrane = true;
          }
 			double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)+Math.pow(dz,2));
-			double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point3d(cellPosition.x, cellPosition.y, cellPosition.z), new Point3d(membraneReferencePoint.x, membraneReferencePoint.y, membraneReferencePoint.z), getCellWidth()/2, getCellHeight()/2, getCellLength()/2);
+			double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(cellPosition, membraneReferencePoint, getCellWidth()/2, getCellHeight()/2, getCellLength()/2);
 			double optDistScaled = requiredDistanceToMembraneThis*optDistScalingFact;
 			double actualDistanceToMembrane = onMembrane ? 0:distToMembrane;
 			if(optDistScaled > distToMembrane)
@@ -520,7 +526,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 			cellPosBoundaryDirVect = new Vector3d((cellPosition.x-minXPositionOnBoundary.x),((cellPosition.y+1)-minXPositionOnBoundary.y),(cellPosition.z-minXPositionOnBoundary.z));
 			sittingDirectlyOnMembrane= true;
 		}
-		double requiredDistanceToMembrane = calculateDistanceToCellCenter(new Point3d(getX(), getY(), getZ()), new Point3d(minXPositionOnBoundary.x, minXPositionOnBoundary.y, minXPositionOnBoundary.z), getCellWidth()/2, getCellHeight()/2, getCellLength()/2);
+		double requiredDistanceToMembrane = calculateDistanceToCellCenter(new Point3d(getX(), getY(), getZ()), minXPositionOnBoundary, getCellWidth()/2, getCellHeight()/2, getCellLength()/2);
 		double actualDistanceToMembrane = sittingDirectlyOnMembrane ? 0:cellPosition.distance(minXPositionOnBoundary);
 		
 		
@@ -575,22 +581,27 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    
    private Point3d findReferencePositionOnBoundary(Point3d cellPosition, double minX, double maxX, double minZ, double maxZ){
 		double minDist = Double.POSITIVE_INFINITY;
-		Point3d actMinPoint=null;
+		Point3d actMinPoint= new Point3d();
+		Point3d actPos = new Point3d();
 		if(!TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()){
 			for(double x = minX; x <= maxX; x+=0.5){
 				for(double z = minZ; z <= maxZ; z+=0.5){
-					double actY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x, cellPosition.y, z);
-					Point3d actPos = new Point3d(x, actY, z);
+					double actY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x, cellPosition.y, z);					
+					actPos.x=x;
+					actPos.y=actY;
+					actPos.z=z;
 					double actDist = actPos.distance(cellPosition);
 					if(actDist < minDist){
 						minDist = actDist;
-						actMinPoint = actPos;
+						actMinPoint.x = actPos.x;
+						actMinPoint.y = actPos.y;
+						actMinPoint.z = actPos.z;
 					}
 				}
 			}
 			return actMinPoint;
 		}
-		return new Point3d(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+		return NEGATIVE_INFINITY_POINT;
 	}
    private Point3d addRandomBiasToPoint(Point3d point, double scalingFact){
    	point.setX(point.getX()+((TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5)*scalingFact));
@@ -738,39 +749,28 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    		numberOfIterationsDouble=1;
    	}
    	final int numberOfIterations = ((int)numberOfIterationsDouble);
-   	  ExecutorService executor = Executors.newFixedThreadPool(CPUs);
-   	  try{
-	   	for(int i = 0; i<numberOfIterations; i++){
+   	 
+	   for(int i = 0; i<numberOfIterations; i++){
 	   		
 	   		allCells.shuffle(random);
 	   		final int totalCellNumber = allCells.size();
 	   		final int iterationNo =i;
-	   		final int chunkSize = totalCellNumber/CPUs;
-	   		for(int cpu = 0; cpu < CPUs; cpu++){
-	   			final int start = cpu*chunkSize;
-	   			final int end = cpu== (CPUs-1)?totalCellNumber : (cpu+1)*chunkSize;
-	   			executor.submit(new Runnable() {			            
-			            public void run() {
-			            	for(int cellNo = start; cellNo < end; cellNo++){
-					   			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
-					   			if(iterationNo == 0) cellBM.initNewSimStep();
-					   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
-					   			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
-			            	}
-			            }
-			        });
-	   		}
+	   		Loop.withIndex(0, totalCellNumber, new Loop.Each() {
+	             public void run(int n) {
+	            		CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
+			   			if(iterationNo == 0) cellBM.initNewSimStep();
+			   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
+			   			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
+	             }
+	         });  		
 	   	
-   	/*	for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
-   			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
-   			if(i == 0) cellBM.initNewSimStep();
-   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
-   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
-   		}*/
-   	}
-   	  } finally {
-   		  executor.shutdown();
-			}
+	   	/*	for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+	   			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
+	   			if(i == 0) cellBM.initNewSimStep();
+	   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
+	   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
+	   		}*/
+   	}   	  
    	calculateSurfaceCells();
    }
    
@@ -867,6 +867,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    public GenericBag<AbstractCell> getDirectNeighbours(){
    	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
    	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
+   	Point3d thisLocP = new Point3d(getX(), getY(), getZ());
+
    	for(int i=0;neighbours != null && i<neighbours.size();i++)
       {
   		 	  AbstractCell actNeighbour = neighbours.get(i);  		 	
@@ -875,15 +877,16 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 	       {
 	  			 CenterBased3DMechanicalModel mechModelOther = (CenterBased3DMechanicalModel) actNeighbour.getEpisimBioMechanicalModelObject();
 	      	 Double3D otherloc = mechModelOther.getCellLocationInCellField();
-	      	 double dx = cellField.tdx(getX(),otherloc.x); 
-	          double dy = cellField.tdy(getY(),otherloc.y);
-	          double dz = cellField.tdz(getZ(),otherloc.z);
+	      	 Point3d otherlocP = new Point3d(otherloc.x, otherloc.y, otherloc.z);
+	      	 double dx = cellField.tdx(thisLocP.x,otherloc.x); 
+	          double dy = cellField.tdy(thisLocP.y,otherloc.y);
+	          double dz = cellField.tdz(thisLocP.z,otherloc.z);
 	           
-	          double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point3d(getX(), getY(), getZ()), 
-							otherPosToroidalCorrection(new Point3d(getX(), getY(), getZ()), new Point3d(otherloc.x, otherloc.y, otherloc.z)), 
+	          double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(thisLocP, 
+							otherPosToroidalCorrection(thisLocP, otherlocP), 
 							getCellWidth()/2, getCellHeight()/2, getCellLength()/2);
-	          double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point3d(otherloc.x, otherloc.y, otherloc.z), 
-							otherPosToroidalCorrection(new Point3d(otherloc.x, otherloc.y, otherloc.z),new Point3d(getX(), getY(), getZ())), 
+	          double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(otherlocP, 
+							otherPosToroidalCorrection(otherlocP,thisLocP), 
 							mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2, mechModelOther.getCellLength()/2);
 	          
 	          double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor(); 
@@ -920,6 +923,20 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 	   }
 	   return new Point3d(otherX, otherY, otherZ);
    } 
+   
+   public boolean hasNucleus(){ 
+   	if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+   		return ((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)modelConnector).getIsNucleated();
+   	}
+   	return true;
+   }
+   
+   public boolean hasViablility(){ 
+   	if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+   		return ((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)modelConnector).getIsViable();
+   	}
+   	return true;
+   }
    
    public double getCellHeight() {	return modelConnector == null ? 0 : modelConnector.getHeight(); }	
 	public double getCellWidth() {return modelConnector == null ? 0 : modelConnector.getWidth(); }	
@@ -1090,26 +1107,28 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    @CannotBeMonitored
    @NoExport  
    public CellBoundaries getNucleusBoundariesInMikron(double sizeDelta) {
-   	
- 	  Double3D fieldLocMikron = getCellLocationInCellField();
- 	  Vector3d minVector= null;
- 	  Vector3d maxVector= null;
- 	  double width = (getCellWidth()+sizeDelta)/3d;
- 	  double height = (getCellHeight()+sizeDelta)/3d;
- 	  double length = (getCellLength()+sizeDelta)/3d;
- 	  
- 	  minVector = new Vector3d((fieldLocMikron.x-width/2d),
-				   						(fieldLocMikron.y-height/2d),
-				   						(fieldLocMikron.z-length/2d));
-
- 	  maxVector = new Vector3d((fieldLocMikron.x+width/2d),
-										  (fieldLocMikron.y+height/2d),
-										  (fieldLocMikron.z+length/2d));
- 	   	 
- 	 Transform3D trans = new Transform3D();
- 	 trans.setTranslation(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z));
- 	 trans.setScale(new Vector3d(width/height, height / height, length/height));
- 	 return new CellBoundaries(new Ellipsoid(trans, height/2d), minVector, maxVector);
+   	if(hasNucleus()){
+	 	  Double3D fieldLocMikron = getCellLocationInCellField();
+	 	  Vector3d minVector= null;
+	 	  Vector3d maxVector= null;
+	 	  double width = (getCellWidth()+sizeDelta)/3d;
+	 	  double height = (getCellHeight()+sizeDelta)/3d;
+	 	  double length = (getCellLength()+sizeDelta)/3d;
+	 	  
+	 	  minVector = new Vector3d((fieldLocMikron.x-width/2d),
+					   						(fieldLocMikron.y-height/2d),
+					   						(fieldLocMikron.z-length/2d));
+	
+	 	  maxVector = new Vector3d((fieldLocMikron.x+width/2d),
+											  (fieldLocMikron.y+height/2d),
+											  (fieldLocMikron.z+length/2d));
+	 	   	 
+	 	 Transform3D trans = new Transform3D();
+	 	 trans.setTranslation(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z));
+	 	 trans.setScale(new Vector3d(width/height, height / height, length/height));
+	 	 return new CellBoundaries(new Ellipsoid(trans, height/2d), minVector, maxVector);
+   	}
+   	return null;
   }
 
    public double getStandardCellHeight() {

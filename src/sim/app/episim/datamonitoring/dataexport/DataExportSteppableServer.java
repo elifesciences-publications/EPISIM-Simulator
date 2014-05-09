@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 import org.jfree.chart.ChartPanel;
 
 import sim.app.episim.AbstractCell;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.datamonitoring.charts.ChartPanelAndSteppableServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
@@ -28,6 +30,7 @@ import episiminterfaces.monitoring.GeneratedDataExport;
 
 public class DataExportSteppableServer implements ClassLoaderChangeListener{
 	
+	private static Semaphore sem = new Semaphore(1);
 	private Set<DataExportChangeListener> listeners;
 	private List<GeneratedDataExport> customDataExportDefinitions;
 	private List<DiffusionFieldDataExport> customDiffusionFieldDataExports;
@@ -42,8 +45,18 @@ public class DataExportSteppableServer implements ClassLoaderChangeListener{
 		customDataExportDefinitions = new ArrayList<GeneratedDataExport>();
 	}
 	
-	protected static synchronized DataExportSteppableServer getInstance(){
-		if(instance == null) instance = new DataExportSteppableServer();
+	protected static DataExportSteppableServer getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new DataExportSteppableServer();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	

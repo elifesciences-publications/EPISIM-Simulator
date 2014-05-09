@@ -13,12 +13,14 @@ import binloc.ProjectLocator;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.Semaphore;
 import java.util.logging.*;
 
 public class ExceptionDisplayer implements ClassLoaderChangeListener{
-	private static ExceptionDisplayer instance;
 	
-
+	
+	private static ExceptionDisplayer instance;
+	private static Semaphore sem = new Semaphore(1);
 	
 	private Component rootComp;
 	private ExceptionDisplayer(){
@@ -26,8 +28,18 @@ public class ExceptionDisplayer implements ClassLoaderChangeListener{
 		
 	}
 
-	public static synchronized ExceptionDisplayer getInstance(){
-		if (instance == null) instance = new ExceptionDisplayer();
+	public static ExceptionDisplayer getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new ExceptionDisplayer();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	

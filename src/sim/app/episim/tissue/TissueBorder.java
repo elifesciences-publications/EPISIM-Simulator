@@ -13,13 +13,14 @@ import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Semaphore;
 
 import javax.vecmath.Point3f;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.NoExport;
-
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
@@ -44,14 +45,8 @@ public class TissueBorder implements ClassLoaderChangeListener{
 	
 	
 	
-	private static  TissueBorder instance;
+	private static  TissueBorder instance = new TissueBorder();
 	
-	
-	
-	
-	
-	
-		
 	private ImportedTissue actImportedTissue;	
 	private boolean standardMembraneLoaded = false;
 	private StandardMembrane standardMembrane = null;
@@ -60,7 +55,7 @@ public class TissueBorder implements ClassLoaderChangeListener{
 	
 	
 	
-	
+	private static Semaphore sem = new Semaphore(1);
 	
 	
 	private TissueBorder(){		
@@ -379,8 +374,18 @@ public class TissueBorder implements ClassLoaderChangeListener{
 		return standardMembrane.getStandardMembraneCoordinates3D(update, optimized);
 	}
 	
-	protected static synchronized TissueBorder getInstance(){
-		if(instance == null) instance =  new TissueBorder();
+	protected static TissueBorder getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new TissueBorder();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	
@@ -460,8 +465,7 @@ public class TissueBorder implements ClassLoaderChangeListener{
 	}
 	
    public void classLoaderHasChanged() {
-		instance = null;
-	   
+   	instance = null;	   
    }
 	
 	

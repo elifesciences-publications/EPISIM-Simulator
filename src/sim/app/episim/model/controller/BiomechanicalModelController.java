@@ -4,13 +4,12 @@ import java.awt.geom.GeneralPath;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 import episimbiomechanics.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
-
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
-
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
@@ -32,20 +31,30 @@ public class BiomechanicalModelController implements java.io.Serializable, Class
 		 * 
 		 */
 		private static final long serialVersionUID = 2406025736169916469L;
-		private static BiomechanicalModelController instance;
+		private static BiomechanicalModelController instance= new BiomechanicalModelController();;
 		private BiomechanicalModelFacade biomechanicalModel;
 		private String actLoadedBiomechanicalModelName = "";
 		private String actLoadedBiomechanicalModelId = "";
 		
 		private EpisimBiomechanicalModelGlobalParameters dummyGlobalParameters;
-		
+		private static Semaphore sem = new Semaphore(1);
 	private BiomechanicalModelController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		dummyGlobalParameters = new CenterBasedMechanicalModelGP();
 	}
 	
-	protected synchronized static BiomechanicalModelController getInstance(){
-		if(instance == null) instance = new BiomechanicalModelController();
+	protected static BiomechanicalModelController getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new BiomechanicalModelController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 		

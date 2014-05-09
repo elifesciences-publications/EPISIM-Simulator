@@ -2,6 +2,7 @@ package sim.app.episim.datamonitoring.calc;
 
 
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import org.jfree.data.statistics.SimpleHistogramDataset;
 import org.jfree.data.xy.XYSeries;
@@ -20,14 +21,24 @@ public class CalculationController implements ClassLoaderChangeListener{
 	
 	private static CalculationController instance;
 	
-	
+	private static Semaphore sem = new Semaphore(1);
 	
 	private CalculationController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}	
 	
-	public static synchronized CalculationController getInstance(){
-		if(instance==null) instance = new CalculationController();
+	public static CalculationController getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new CalculationController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	

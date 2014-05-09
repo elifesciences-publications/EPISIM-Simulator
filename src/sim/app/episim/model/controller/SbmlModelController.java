@@ -1,5 +1,8 @@
 package sim.app.episim.model.controller;
 
+import java.util.concurrent.Semaphore;
+
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.sbml.SbmlModelConnector;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
@@ -8,15 +11,22 @@ import episiminterfaces.EpisimSbmlModelConnector;
 
 public class SbmlModelController implements ClassLoaderChangeListener{
 	
-	private static SbmlModelController instance;
-	
+	private static SbmlModelController instance = new SbmlModelController();
+	private static Semaphore sem = new Semaphore(1);
 	private SbmlModelController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}
 	
-	protected static synchronized SbmlModelController getInstance(){
-		if(instance == null){
-			instance = new SbmlModelController();
+	protected static SbmlModelController getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new SbmlModelController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }				
 		}
 		return instance;
 	}
@@ -26,8 +36,7 @@ public class SbmlModelController implements ClassLoaderChangeListener{
 	}
 
 	public void classLoaderHasChanged() {
-		instance = null;
-	   
+		instance = null;	   
    }
 	
 	

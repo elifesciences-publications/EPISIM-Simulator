@@ -18,6 +18,7 @@ import sim.app.episim.UniversalCell;
 
 
 import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -125,7 +126,7 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 		 if(getCurrentDisplay() instanceof Display3DHack){
 		   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
 		 }
-		this.appearance = Episim3DAppearanceFactory.getCellAppearanceForColor(this.polygonAttributes, new Color(255,160,160), transparencyFactor);
+		this.appearance = Episim3DAppearanceFactory.getCellAppearanceForColor(this.polygonAttributes, new Color(255,160,160), transparencyFactor, true);
 	   		
 		this.cellSphere = new Sphere(standardCellRadius, (generateNormals ? Sphere.GENERATE_NORMALS : 0) |(generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 30, appearance);
 		setShape3DFlags(cellSphere.getShape(Sphere.BODY));
@@ -186,7 +187,13 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 		      		 j3dModel.addChild(nucleusSphere.cloneTree(true));
 		      		 j3dModel.addChild(innerNucleusSphere.cloneTree(true));
 		      	 }
-		       }       
+		       }
+		   	 boolean isNucleated = true;
+	      	 boolean isViable = true;
+	      	 if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){
+	      		 isNucleated=((CenterBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject()).hasNucleus();
+	      		 isViable=((CenterBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject()).hasViablility();
+	      	 }
 		       Shape3D shape = getShape(j3dModel, 0);
 		       shape.setAppearance(appearance);		       
 		       if (pickable) setPickableFlags(shape);
@@ -199,13 +206,18 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 		      	 shapeInnerCell.setAppearance(a);
 		      	 
 		      	 Shape3D shapeNucleus = getShape(j3dModel, 2);		      	
-		      	 a = Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes, nucleusColor,1.0f);
-		      	 if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(!(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED));
+		      	 a = Episim3DAppearanceFactory.getNucleusAppearance(polygonAttributes, 1.0f);
+		      	 
+		      
+		      		
+		      	 if(a.getRenderingAttributes() !=null){      		
+		      		 a.getRenderingAttributes().setVisible(!(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED) && isNucleated);
+		      	 }
 		      	 shapeNucleus.setAppearance(a);  	 
 		      	 
 		      	 Shape3D shapeInnerNucleus = getShape(j3dModel, 3);		      	
 		      	 a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, nucleusColor,1.0f);
-		      	 if(a.getRenderingAttributes() !=null) a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED);
+		      	 if(a.getRenderingAttributes() !=null) a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED && isNucleated);
 		      	 shapeInnerNucleus.setAppearance(a);
 		       }
 		       
@@ -214,24 +226,31 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 			float transparencyFactor = 1.0f;
 			if(getCurrentDisplay() instanceof Display3DHack){
 			   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
-			}	
+			}
+			 boolean isNucleated = true;
+			 boolean isViable = true;
+      	 if(universalCell.getEpisimBioMechanicalModelObject() instanceof CenterBased3DMechanicalModel){
+      		 isNucleated=((CenterBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject()).hasNucleus();
+      		 isViable=((CenterBased3DMechanicalModel)universalCell.getEpisimBioMechanicalModelObject()).hasViablility();
+      	 }
 			Color cellColor =universalCell.getCellColoring();
 			Shape3D shapeCell = getShape(j3dModel, 0);
-			shapeCell.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes, cellColor,transparencyFactor));
+			shapeCell.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes, cellColor,transparencyFactor, isViable));
 			if(optimizedGraphicsActivated){
+				
 				Shape3D shapeInnerCell = getShape(j3dModel, 1);
 				Appearance a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, cellColor,transparencyFactor);
 				if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED);
 				shapeInnerCell.setAppearance(a);
 				
 				Shape3D shapeNucleus = getShape(j3dModel, 2);
-				a = Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes, nucleusColor,transparencyFactor);
-				if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(!(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED));
+				a = Episim3DAppearanceFactory.getNucleusAppearance(polygonAttributes, transparencyFactor);
+				if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(!(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED) &&isNucleated);
 				shapeNucleus.setAppearance(a);
 				
 				Shape3D shapeInnerNucleus = getShape(j3dModel, 3);
 				a = Episim3DAppearanceFactory.getCellAppearanceForColorNoMaterial(polygonAttributes, nucleusColor,transparencyFactor);
-				if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED);
+				if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED&&isNucleated);
 				shapeInnerNucleus.setAppearance(a);
 			}
 		} 

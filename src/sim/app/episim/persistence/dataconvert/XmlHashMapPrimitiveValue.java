@@ -69,12 +69,17 @@ public class XmlHashMapPrimitiveValue<K, V> extends XmlObject<HashMap<K,V>> {
 			if (entryNode.getNodeName().equalsIgnoreCase(ENTRY)) {
 				NodeList entryNL = entryNode.getChildNodes();
 				Node keyNode = null, valueNode = null;
-				for (int e = 0; e < hashMapNL.getLength(); e++) {
+				for (int e = 0; e < entryNL.getLength(); e++) {
 					Node node = entryNL.item(e);
-					if (node.getNodeName().equalsIgnoreCase(KEY)) {
-						keyNode = node;
-					} else if (node.getNodeName().equalsIgnoreCase(VALUE)) {
-						valueNode = node;
+					if(node== null || node.getNodeName()==null){
+						//do nothing
+					}
+					else{
+						if (node.getNodeName().equalsIgnoreCase(KEY)) {						
+							keyNode = node;
+						} else if (node.getNodeName().equalsIgnoreCase(VALUE)) {
+							valueNode = node;
+						}
 					}
 				}
 				if (keyNode != null && valueNode != null) {

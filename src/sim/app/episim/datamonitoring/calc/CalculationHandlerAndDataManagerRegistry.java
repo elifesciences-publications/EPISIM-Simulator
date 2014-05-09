@@ -2,7 +2,9 @@ package sim.app.episim.datamonitoring.calc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ResultSet;
@@ -18,6 +20,8 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 	
 		
 	private static CalculationHandlerAndDataManagerRegistry instance;	
+	
+	private static Semaphore sem = new Semaphore(1);
 	private CalculationHandlerAndDataManagerRegistry(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		calculationHandlerRegistry = new HashMap<Long, CalculationHandler>();
@@ -25,10 +29,18 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 		baselineResultTempRegistry = new HashMap<Long, ResultSet<Double>>();
 		
 	}	
-	protected synchronized static CalculationHandlerAndDataManagerRegistry getInstance(){
-		if(instance == null){
-			instance = new CalculationHandlerAndDataManagerRegistry();	
-		}
+	protected static CalculationHandlerAndDataManagerRegistry getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new CalculationHandlerAndDataManagerRegistry();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}		
 		return instance;
 	}
 	

@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
@@ -26,7 +28,7 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	private Map<Long, AbstractCellEllipse> cellEllipseRegistry;
 	private Map<Long, CellPolygon> cellPolygonRegistry;
 	
-	
+	private static Semaphore sem = new Semaphore(1);
 	private CellEllipseIntersectionCalculationRegistry(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		alreadyCalculatedCells = new HashSet<String>();
@@ -39,9 +41,17 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 	private static CellEllipseIntersectionCalculationRegistry instance;
 	
 	public static CellEllipseIntersectionCalculationRegistry getInstance(){ 
-		if(instance == null){
-			instance = new CellEllipseIntersectionCalculationRegistry();
-		}		
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new CellEllipseIntersectionCalculationRegistry();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}	
 		return instance; 
 	}
 	

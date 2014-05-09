@@ -63,6 +63,70 @@ public class SimplePropertiesHack extends SimpleProperties {
 	protected Properties getAuxillary(){ return this.auxillary; }
 	protected ArrayList getHideMethods(){ return this.hideMethods; }
 	
-	
+	/**
+	 * This override fixes the locale bug, double values should be always in the english format
+	 */
+	public Object setValue(int index, String value)
+   {
+   try
+       {
+       Class type = getType(index);
+       if ( type == Boolean.TYPE ) return _setValue(index,Boolean.valueOf(value));
+       else if ( type == Byte.TYPE ) 
+           {
+           try { return _setValue(index,Byte.valueOf(value)); }
+           catch (NumberFormatException e) // try again for x.0 stuff
+               { 
+               double d = Double.parseDouble(value); 
+               byte b = (byte) d; 
+               if (b==d) return _setValue(index,new Byte(b)); 
+               else throw e; 
+               }
+           }
+       else if ( type == Short.TYPE )
+           {
+           try { return _setValue(index,Short.valueOf(value)); }
+           catch (NumberFormatException e) // try again for x.0 stuff
+               { 
+               double d = Double.parseDouble(value); 
+               short b = (short) d; 
+               if (b==d) return _setValue(index,new Short(b)); 
+               else throw e; 
+               }
+           }
+       else if ( type == Integer.TYPE )
+           {
+           try { return _setValue(index,Integer.valueOf(value)); }
+           catch (NumberFormatException e) // try again for x.0 stuff
+               { 
+               double d = Double.parseDouble(value); 
+               int b = (int) d; 
+               if (b==d) return _setValue(index,new Integer(b)); 
+               else throw e; 
+               }
+           }
+       else if ( type == Long.TYPE )
+           {
+           try { return _setValue(index,Long.valueOf(value)); }
+           catch (NumberFormatException e) // try again for x.0 stuff
+               { 
+               double d = Double.parseDouble(value); 
+               long b = (long) d; 
+               if (b==d) return _setValue(index,new Long(b)); 
+               else throw e; 
+               }
+           }
+       else if ( type == Float.TYPE ) return _setValue(index,Float.valueOf(value));
+       else if ( type == Double.TYPE ) return _setValue(index, Double.valueOf(value));
+       else if ( type == Character.TYPE ) return _setValue(index,new Character(value.charAt(0)));
+       else if ( type == String.class ) return _setValue(index,value);
+       else return null;
+       }
+   catch (Exception e)
+       {
+       e.printStackTrace();
+       return null;
+       }
+   }	
 
 }

@@ -25,9 +25,38 @@ public class Episim3DAppearanceFactory {
 	
 	public static Appearance getCellAppearanceForColor(Color color, float opacity){
 		return getCellAppearanceForColor(null, color, opacity);
-	}	
+	}
 	
+	public static Appearance getNucleusAppearance(PolygonAttributes polygonAttributes, float opacity){
+		Appearance appearance = new Appearance();
+		appearance.setRenderingAttributes(new RenderingAttributes());
+      SimplePortrayal3D.setAppearanceFlags(appearance);
+      Color3f ambientColor =new Color3f(new Color(204,204,255));
+      Color3f diffuseColor =new Color3f(new Color(102,102,255));
+      Color3f emissiveColor =new Color3f(new Color(0,0,0));
+      Color3f specularColor =new Color3f(new Color(12,12,12));
+      Material ma = new Material(ambientColor, emissiveColor, diffuseColor, specularColor, 7f);
+	   ma.setCapability(Material.ALLOW_COMPONENT_READ);
+	   ma.setCapability(Material.ALLOW_COMPONENT_WRITE);
+	  
+	   appearance.setMaterial(ma); 
+	   
+      if (opacity < 1.0)  // partially transparent
+      {
+          TransparencyAttributes tta = new TransparencyAttributes(TransparencyAttributes.BLENDED, 1.0f - opacity); 
+          tta.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
+          tta.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
+          appearance.setTransparencyAttributes(tta);
+      }
+     
+     
+      if(polygonAttributes != null) appearance.setPolygonAttributes(polygonAttributes);
+      return appearance;
+	}
 	public static Appearance getCellAppearanceForColor(PolygonAttributes polygonAttributes, Color color, float opacity){
+		return getCellAppearanceForColor(polygonAttributes, color, opacity, false);
+	}
+	public static Appearance getCellAppearanceForColor(PolygonAttributes polygonAttributes, Color color, float opacity, boolean viable){
 		Appearance appearance = new Appearance();
 		appearance.setRenderingAttributes(new RenderingAttributes());
       SimplePortrayal3D.setAppearanceFlags(appearance);      
@@ -52,18 +81,26 @@ public class Episim3DAppearanceFactory {
      // if(optimizedGraphicsActivated)ma = new Material(brightColor, emissiveColor, middleColor, specularColor, 7f);
       
       
-	     
-    Color3f ambientColor =new Color3f(new Color(255,204,204));
-      Color3f diffuseColor =new Color3f(new Color(255,102,102));
-      Color3f emissiveColor =new Color3f(new Color(0,0,0));
-      Color3f specularColor =new Color3f(new Color(12,12,12));
-      Material ma = new Material(ambientColor, emissiveColor, diffuseColor, specularColor, 7f);
-	   ma.setCapability(Material.ALLOW_COMPONENT_READ);
-	   ma.setCapability(Material.ALLOW_COMPONENT_WRITE);
-	  
-	   appearance.setMaterial(ma);	
-	   
-	  
+	     if(viable){
+	      Color3f ambientColor =new Color3f(new Color(255,204,204));
+	      Color3f diffuseColor =new Color3f(new Color(255,101,125));
+	      Color3f emissiveColor =new Color3f(new Color(0,0,0));
+	      Color3f specularColor =new Color3f(new Color(12,12,12));
+	      Material ma = new Material(ambientColor, emissiveColor, diffuseColor, specularColor, 7f);
+		   ma.setCapability(Material.ALLOW_COMPONENT_READ);
+		   ma.setCapability(Material.ALLOW_COMPONENT_WRITE);	  
+		   appearance.setMaterial(ma);	   
+	     }
+	     else{
+	   	  Color3f ambientColor =new Color3f(new Color(255,229,230));
+		      Color3f diffuseColor =new Color3f(new Color(255,102,102));
+		      Color3f emissiveColor =new Color3f(new Color(0,0,0));
+		      Color3f specularColor =new Color3f(new Color(12,12,12));
+		      Material ma = new Material(ambientColor, emissiveColor, diffuseColor, specularColor, 7f);
+			   ma.setCapability(Material.ALLOW_COMPONENT_READ);
+			   ma.setCapability(Material.ALLOW_COMPONENT_WRITE);	  
+			   appearance.setMaterial(ma);	 
+	     }
 	  
 	   
       if (opacity < 1.0)  // partially transparent

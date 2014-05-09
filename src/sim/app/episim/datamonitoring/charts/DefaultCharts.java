@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.Semaphore;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.chart.JFreeChart;
@@ -45,6 +46,7 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -82,6 +84,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 	
 	private static  DefaultCharts instance;
 	
+	private static Semaphore sem = new Semaphore(1);
 	
 	private class SeriesComparator implements Comparator<String[]>, java.io.Serializable{
 
@@ -448,8 +451,18 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		return null;
 	} 
   
-	protected static synchronized DefaultCharts getInstance(){
-		if(instance == null) instance = new DefaultCharts();
+	protected static DefaultCharts getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new DefaultCharts();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		
 		return instance;
 	}

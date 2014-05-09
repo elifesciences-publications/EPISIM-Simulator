@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JPanel;
 
@@ -13,8 +14,8 @@ import org.jfree.chart.ChartPanel;
 import episimexceptions.MissingObjectsException;
 import episimfactories.AbstractChartSetFactory;
 import episiminterfaces.monitoring.GeneratedChart;
-
 import sim.app.episim.AbstractCell;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.calc.CalculationController;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
@@ -35,7 +36,7 @@ public class ChartPanelAndSteppableServer implements ClassLoaderChangeListener{
 	private static ChartPanelAndSteppableServer instance = null;
 	private AbstractChartSetFactory factory = null;
 	GenericBag<AbstractCell> alreadyRegisteredVersionAllCells = null;
-	
+	private static Semaphore sem = new Semaphore(1);
 	private ChartPanelAndSteppableServer(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		listeners = new HashSet<ChartSetChangeListener>();
@@ -43,8 +44,18 @@ public class ChartPanelAndSteppableServer implements ClassLoaderChangeListener{
 		customChartPanels = new ArrayList<ChartPanel>();
 	}
 	
-	protected static synchronized ChartPanelAndSteppableServer getInstance(){
-		if(instance == null) instance = new ChartPanelAndSteppableServer();
+	protected static ChartPanelAndSteppableServer getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new ChartPanelAndSteppableServer();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	

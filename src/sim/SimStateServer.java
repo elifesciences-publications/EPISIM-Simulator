@@ -2,7 +2,9 @@ package sim;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.concurrent.Semaphore;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimSimulator;
@@ -23,6 +25,8 @@ public class SimStateServer implements SimulationStateChangeListener, ClassLoade
 	
 	private long simStepNumberAtStart = 0;
 	
+	private static Semaphore sem = new Semaphore(1);
+	
 	private SimStateServer(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		simulationStateListeners = new HashSet<SimulationStateChangeListener>();
@@ -38,8 +42,16 @@ public class SimStateServer implements SimulationStateChangeListener, ClassLoade
 	}
 		
 	public static SimStateServer getInstance(){
-		if(instance == null){
-			instance = new SimStateServer();
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new SimStateServer();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
 		}
 		return instance; 
 	}

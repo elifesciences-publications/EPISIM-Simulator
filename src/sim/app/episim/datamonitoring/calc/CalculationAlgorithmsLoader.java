@@ -1,18 +1,17 @@
 package sim.app.episim.datamonitoring.calc;
 
 import java.io.File;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
 
-import episiminterfaces.calc.CalculationAlgorithm;
+import java.util.concurrent.Semaphore;
 
+import episiminterfaces.calc.CalculationAlgorithm;
 import binloc.ProjectLocator;
 import sim.app.episim.ExceptionDisplayer;
-
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 
@@ -22,6 +21,8 @@ public class CalculationAlgorithmsLoader implements ClassLoaderChangeListener{
 	private static final String PACKAGENAME = "calculationalgorithms";
 	private static CalculationAlgorithmsLoader instance;
 	private File packagePath = null;
+	
+	private static Semaphore sem = new Semaphore(1);
 	
 	private CalculationAlgorithmsLoader(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
@@ -33,9 +34,17 @@ public class CalculationAlgorithmsLoader implements ClassLoaderChangeListener{
       }
 	}
 	
-	public synchronized static CalculationAlgorithmsLoader getInstance(){
-		if(instance == null){
-			instance = new CalculationAlgorithmsLoader();
+	public static CalculationAlgorithmsLoader getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new CalculationAlgorithmsLoader();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
 		}
 		return instance; 
 	}

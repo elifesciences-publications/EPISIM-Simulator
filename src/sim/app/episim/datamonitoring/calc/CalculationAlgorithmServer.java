@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
@@ -27,16 +28,24 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	private static CalculationAlgorithmServer instance;
 	
 	private Map<Integer, CalculationAlgorithm> calculationAlgorithmsMap;
-	
+	private static Semaphore sem = new Semaphore(1);
 	
 	private CalculationAlgorithmServer(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		buildCalculationAlgorithmsMap(CalculationAlgorithmsLoader.getInstance().loadCalculationAlgorithms());
 	}
 	
-	public synchronized static CalculationAlgorithmServer getInstance(){
-		if(instance == null){
-			instance = new CalculationAlgorithmServer();
+	public static CalculationAlgorithmServer getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new CalculationAlgorithmServer();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
 		}
 		return instance; 
 	}

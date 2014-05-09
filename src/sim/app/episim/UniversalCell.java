@@ -188,6 +188,7 @@ public class UniversalCell extends AbstractCell
    		 this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
    		 EpisimCellBehavioralModel[] children=null;
 		try{
+			
    	  children = this.getEpisimCellBehavioralModelObject().oneStep(realNeighboursDiffModel);
 		}
 		catch(ZeroNeighbourCellsAccessException e){

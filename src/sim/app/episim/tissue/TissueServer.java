@@ -1,5 +1,8 @@
 package sim.app.episim.tissue;
 
+import java.util.concurrent.Semaphore;
+
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import episimexceptions.NoEpidermalTissueAvailableException;
@@ -10,14 +13,24 @@ public class TissueServer implements ClassLoaderChangeListener{
 	private TissueType actTissue;
 	
 	private static TissueServer instance;
-	
+	private static Semaphore sem = new Semaphore(1);
 	private TissueServer(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 	}
 	
-	protected static synchronized TissueServer getInstance(){
-				if(instance == null) instance = new TissueServer();
-				return instance;
+	protected static TissueServer getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new TissueServer();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
+		return instance;
 	}
 	
 	public void registerTissue(TissueType tissue){

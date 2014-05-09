@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Frame;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -66,7 +67,7 @@ public class ChartController implements ClassLoaderChangeListener{
 		public String toString(){ return this.chartType;}		
 	}
 	
-	
+	private static Semaphore sem = new Semaphore(1);
 	
 	
 	private long nextChartId = 0;
@@ -118,12 +119,18 @@ public class ChartController implements ClassLoaderChangeListener{
 		return System.currentTimeMillis() + (this.nextChartId++);
 	}
 		
-	public synchronized static ChartController getInstance(){
-		if(instance == null){ 
-			
-			instance = new ChartController();
+	public static ChartController getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new ChartController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
 		}
-		
 		return instance;
 	}
 	   

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.concurrent.Semaphore;
 
 import org.COPASI.CCopasiDataModel;
 import org.COPASI.CCopasiMethod;
@@ -45,6 +46,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 	
 	private HashMap<String, CCopasiDataModel> copasiDataModels;
 	
+	private static Semaphore sem = new Semaphore(1);
 	
 	private COPASIConnector(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
@@ -54,8 +56,18 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 		CCopasiRootContainer.getRoot();
 	}
 	
-	protected synchronized static COPASIConnector getInstance(){		
-		if(instance == null) instance = new COPASIConnector();		
+	protected static COPASIConnector getInstance(){		
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new COPASIConnector();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}		
 		return instance;		
 	}
 	

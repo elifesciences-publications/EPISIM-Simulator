@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2014-03-12_episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC"/>
-  <visiblename name="Epidermis 3D New Center Based Model"/>
+  <visiblename name="Epidermis Center Based Model 3D New"/>
   <modelname name="New Epidermis Center Based Biomechanical 3D Model"/>
   <modelconnectorclass name="episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC"/>
   <modelparameters>
@@ -9,6 +9,8 @@
       pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0"
       name="epidermalSurfaceRatio" pairwise="false" readonly="true"/>
+    <parameter datatype="boolean" default="true" name="isViable"
+      pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="cellSurfaceArea"
       pairwise="false" readonly="true"/>
     <parameter datatype="boolean" default="true" name="isNucleated"
@@ -39,8 +41,8 @@
     <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="cellVolume"
       pairwise="false" readonly="true"/>
-    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0"
       name="adhesionBasalMembrane" pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
   </modelparameters>
 </modeldescriptor>

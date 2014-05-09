@@ -3,9 +3,10 @@ package sim.app.episim.tissue;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.concurrent.Semaphore;
 
 import episimexceptions.NoEpidermalTissueAvailableException;
-
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
@@ -16,13 +17,15 @@ public class TissueController implements ClassLoaderChangeListener{
 	
 	
 	
-	private static TissueController instance;
+	private static TissueController instance = new TissueController();;
 	
 	private TissueImporter importer;
 	
 	public interface TissueRegistrationListener{ public void newTissueWasRegistered();}
 	
 	private HashSet<TissueRegistrationListener> tissueRegistrationListener = new HashSet<TissueRegistrationListener>();
+	
+	private static Semaphore sem = new Semaphore(1);
 	
 	private TissueController(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
@@ -43,8 +46,18 @@ public class TissueController implements ClassLoaderChangeListener{
 		notifyAllTissueRegistrationListener();
 	}
 	
-	public static synchronized TissueController getInstance(){
-		if(instance == null) instance = new TissueController();
+	public static TissueController getInstance(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new TissueController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	

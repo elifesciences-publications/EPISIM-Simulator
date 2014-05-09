@@ -49,6 +49,7 @@ import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
 import sim.util.Double2D;
+import sim.util.Loop;
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.centerbased.newversion.EpisimCenterBasedMC;
@@ -102,6 +103,8 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
    private static double DELTA_TIME_IN_SECONDS_PER_EULER_STEP = 36;
    
    private static final double MAX_DISPLACEMENT = 10;
+   
+   
    
    public CenterBasedMechanicalModel(){
    	this(null);
@@ -561,8 +564,8 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 				
 		if(oldCellLocation != null){
 			
-			Bag neighbours = cellField.getNeighborsWithinDistance(oldCellLocation, getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact(), true, true);	
-			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(neighbours, oldCellLocation, finalSimStep);
+			Bag actNeighborBag = cellField.getNeighborsWithinDistance(oldCellLocation, getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact(), true, true);	
+			InteractionResult interactionResult = calculateRepulsiveAdhesiveAndChemotacticForces(actNeighborBag, oldCellLocation, finalSimStep);
 						
 			if(getCell().getStandardDiffLevel()!=StandardDiffLevel.STEMCELL){		
 				
@@ -672,15 +675,12 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 		 this.isContinuousInYDirection = globalParametersChemotaxis.isContinousDiffusionInYDirection();
 	 }
  }
-
-   
-   
-  
    
    @NoExport
    public GenericBag<AbstractCell> getDirectNeighbours(){
    	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
    	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
+   	
    	for(int i=0;i<neighbours.size();i++)
       {
   		 	AbstractCell actNeighbour = neighbours.get(i);
@@ -944,7 +944,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	
   protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
    	final MersenneTwisterFast random = state.random;
-   	GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
+   	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
    	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
    	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;
    	if(allCells.size() >0){
@@ -955,16 +955,27 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
    		DELTA_TIME_IN_SECONDS_PER_EULER_STEP=numberOfSeconds;
    		numberOfIterationsDouble=1;
    	}
-   	int numberOfIterations = ((int)numberOfIterationsDouble);
+   	final int numberOfIterations = ((int)numberOfIterationsDouble);
    	for(int i = 0; i<numberOfIterations; i++){
    		allCells.shuffle(random);
-   		int totalCellNumber = allCells.size();
-   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+   		final int totalCellNumber = allCells.size();
+   		final int iterationNo =i;
+   		 Loop.withIndex(0, totalCellNumber, new Loop.Each() {
+             public void run(int n) {
+            		CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
+         			if(iterationNo == 0) cellBM.initNewSimStep();
+         			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
+         			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
+         			//System.out.println("Zelle: "+n);
+             }
+         });
+   	//	System.out.println("neue iteration");
+   	/*for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
    			CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
    			if(i == 0) cellBM.initNewSimStep();
    			cellBM.calculateSimStep((i == (numberOfIterations-1)));
    			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
-   		}
+   		}*/
    	}
    	calculateSurfaceCells();
    }

@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -20,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ByteArrayWriteListener;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
@@ -34,6 +36,7 @@ public class EpisimTextOut implements ClassLoaderChangeListener{
 	private JPanel simTextOutPanel;
 	JTextPane textOutput;
 	StringBuffer currentTextOnTextOut;
+	private static Semaphore sem = new Semaphore(1);
 	private EpisimTextOut(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		buildTextOutPanel();
@@ -81,9 +84,17 @@ public class EpisimTextOut implements ClassLoaderChangeListener{
 	
 	}
 	
-	public static synchronized EpisimTextOut getEpisimTextOut(){
-		if(instance == null){
-			instance = new EpisimTextOut();
+	public static EpisimTextOut getEpisimTextOut(){
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new EpisimTextOut();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
 		}
 		return instance;
 	}

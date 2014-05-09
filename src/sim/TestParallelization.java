@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import sim.field.grid.IntGrid2D;
+import sim.util.Loop;
 
 
 public class TestParallelization {
@@ -55,7 +56,26 @@ public class TestParallelization {
 			System.out.println("Dauer 3: "+(end3-start3)+ " ms");
 	}
 	
+	public void test(){
+		
+		long start2 = System.currentTimeMillis();
+	
+			for(int n = 1; n <= 3; n++){
+				
+				Loop.withIndex(0, 8, new Loop.Each() {
+		           public void run(int i) {
+		         	  for(int x = 0; x < 100000000; x++){			   					
+		            		i++;
+		            	}
+		            	System.out.println("fertig");
+		           }
+		       });				
+				System.out.println("Ganz fertig "+n);
+			}		
+		
+	}
+	
 	public static void main(String[] args){
-		new TestParallelization().start();
+		new TestParallelization().test();
 	}
 }

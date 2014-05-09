@@ -1,15 +1,14 @@
 package sim.app.episim.model.controller;
 
 import java.io.File;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import binloc.ProjectLocator;
-
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
@@ -28,7 +27,6 @@ import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
-
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardCellType;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 
@@ -54,6 +52,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	private String checkedStandardModelFileName = null;
 	private boolean isStandardKeratinocyteModel = false;
 	
+	private static Semaphore sem = new Semaphore(1);
 	
 	
 	private CellBehavioralModelController(){
@@ -107,7 +106,15 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	
 	protected static CellBehavioralModelController getInstance(){
 		if(instance==null){
-			instance = new CellBehavioralModelController();
+			try{
+	         sem.acquire();
+	         instance = new CellBehavioralModelController();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
 		}
 		return instance;
 	}
@@ -190,7 +197,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	}
 
 	public void classLoaderHasChanged() {
-		instance = null;	   
+		instance = null;
    }
 	
 	protected boolean isStandardKeratinocyteModel(){

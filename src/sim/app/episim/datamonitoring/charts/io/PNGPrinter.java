@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 import javax.imageio.ImageIO;
 
@@ -46,6 +47,8 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 	
 	private HashSet<Long> chartRecoloringRegistry;
 	
+	private static Semaphore sem = new Semaphore(1);
+	
 	private PNGPrinter(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
 		reset();
@@ -53,7 +56,17 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 	}
 	
 	public static synchronized PNGPrinter getInstance(){
-		if(instance == null) instance = new PNGPrinter();
+		if(instance==null){
+			try{
+	         sem.acquire();
+	         instance = new PNGPrinter();				
+				sem.release();
+         }
+         catch (InterruptedException e){
+	        ExceptionDisplayer.getInstance().displayException(e);
+         }
+				
+		}
 		return instance;
 	}
 	

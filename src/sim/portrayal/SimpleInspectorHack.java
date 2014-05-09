@@ -4,7 +4,9 @@ package sim.portrayal;
 import javax.swing.Box;
 import javax.swing.JPanel;
 
+import sim.app.episim.util.EpisimProperties;
 import sim.display.GUIState;
+import sim.util.Interval;
 import sim.util.Properties;
 import sim.util.gui.PropertyField;
 
@@ -28,5 +30,7 @@ public class SimpleInspectorHack extends SimpleInspector {
 	public PropertyField[] getMembers(){ return this.members;}
 	
 	public Properties getProperties(){ return this.properties; }
+	
+	 
 	
 }

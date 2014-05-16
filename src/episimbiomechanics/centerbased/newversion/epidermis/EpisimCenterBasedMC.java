@@ -33,7 +33,7 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
 	
 	@NoExport
 	public void resetPairwiseParameters(){
-		this.contactArea.clear();
+		//this.contactArea.clear();
 	}
 	
 	@Hidden

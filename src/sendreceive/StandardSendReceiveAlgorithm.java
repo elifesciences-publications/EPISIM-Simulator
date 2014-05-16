@@ -89,7 +89,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 				neighbourBag.shuffle(SimStateServer.getInstance().getEpisimGUIState().state.random);
 				for(int i = 0; i <  neighbourBag.size(); i++){
 					double actNeighbourAmount = neighbourBag.get(i).returnNumberProperty(propertycode);
-					double actNeigboursRemainingCapacity = cell.returnMaxNumberProperty(propertycode) - actNeighbourAmount;
+					double actNeigboursRemainingCapacity = neighbourBag.get(i).returnMaxNumberProperty(propertycode) - actNeighbourAmount;
 											
 					if(actNeigboursRemainingCapacity < amountForEachNeighbour){//falls Menge kleiner als die  abzugebende Menge
 						neighbourBag.get(i).setNumberProperty(propertycode, neighbourBag.get(i).returnNumberProperty(propertycode)+actNeigboursRemainingCapacity);
@@ -129,7 +129,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 			if(amountPossible >= 0){		
 				
 				double actNeighbourAmount = neighbours[actNeighbour].returnNumberProperty(propertycode);
-				double actNeigboursRemainingCapacity = cell.returnMaxNumberProperty(propertycode) - actNeighbourAmount;
+				double actNeigboursRemainingCapacity = neighbours[actNeighbour].returnMaxNumberProperty(propertycode) - actNeighbourAmount;
 												
 				if(actNeigboursRemainingCapacity <   amountForEachNeighbour){//falls Menge kleiner als die  abzugebende Menge
 					neighbours[actNeighbour].setNumberProperty(propertycode, neighbours[actNeighbour].returnNumberProperty(propertycode)+actNeigboursRemainingCapacity);
@@ -173,7 +173,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 				neighbourBag.shuffle(SimStateServer.getInstance().getEpisimGUIState().state.random);
 				for(int i = 0; i <  neighbourBag.size(); i++){
 					double actNeighbourAmount = neighbourBag.get(i).returnNumberProperty(propertycode);
-					double actNeigboursRemainingCapacity = actNeighbourAmount - cell.returnMinNumberProperty(propertycode);				
+					double actNeigboursRemainingCapacity = actNeighbourAmount - neighbourBag.get(i).returnMinNumberProperty(propertycode);				
 					if(actNeigboursRemainingCapacity <  amountFromEachNeighbour){//falls Menge kleiner als die aufzunehmende Menge
 						neighbourBag.get(i).setNumberProperty(propertycode, neighbourBag.get(i).returnNumberProperty(propertycode)-actNeigboursRemainingCapacity);
 						cell.setNumberProperty(propertycode, (cell.returnNumberProperty(propertycode) + actNeigboursRemainingCapacity));
@@ -213,7 +213,7 @@ public class StandardSendReceiveAlgorithm implements SendReceiveAlgorithmExt{
 			}				
 			if(amountPossible >= 0){
 				double actNeighbourAmount = neighbours[actNeighbour].returnNumberProperty(propertycode);
-				double actNeigboursRemainingCapacity = actNeighbourAmount - cell.returnMinNumberProperty(propertycode);					
+				double actNeigboursRemainingCapacity = actNeighbourAmount - neighbours[actNeighbour].returnMinNumberProperty(propertycode);					
 				if(actNeigboursRemainingCapacity < amountFromEachNeighbour){//falls Menge kleiner als die  aufzunehmende Menge
 					neighbours[actNeighbour].setNumberProperty(propertycode, neighbours[actNeighbour].returnNumberProperty(propertycode)-actNeigboursRemainingCapacity);
 					cell.setNumberProperty(propertycode, (cell.returnNumberProperty(propertycode) + actNeigboursRemainingCapacity));

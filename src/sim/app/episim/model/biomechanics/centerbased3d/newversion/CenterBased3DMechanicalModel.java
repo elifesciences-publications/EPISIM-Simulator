@@ -192,7 +192,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 								otherPosToroidalCorrection(otherlocP, thislocP), 
 								otherSemiAxisA, otherSemiAxisB, otherSemiAxisC);            
              double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
-             //double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
+             double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
           
                                      
              double actDist=Math.sqrt(dx*dx+dy*dy+dz*dz);
@@ -214,18 +214,18 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
                 interactionResult.numhits++;
                                                                 
               }
-            else if(((optDistScaled-actDist)<=-1*MIN_OVERLAP_MICRON) &&(actDist < optDistScaled*globalParameters.getOptDistanceAdhesionFact())) // attraction forces 
+            else if(((optDist-actDist)<=-1*MIN_OVERLAP_MICRON) &&(actDist < optDist*globalParameters.getOptDistanceAdhesionFact())) // attraction forces 
              {
             	//contact area approximated according to Dallon and Othmer 2004
             	//calculated for ellipsoids not ellipses
                double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
                double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
-               double d_membrane_this=requiredDistanceToMembraneThis*globalParameters.getOptDistanceScalingFactor();
-               double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
+               double d_membrane_this=requiredDistanceToMembraneThis;
+               double d_membrane_other=requiredDistanceToMembraneOther;
             	double radius_this_square = Math.pow((adh_Dist_Fact*d_membrane_this),2);
             	double radius_other_square = Math.pow((adh_Dist_Fact*d_membrane_other),2);
             	double actDist_square = Math.pow(actDist, 2);
-            	double intercell_gap = actDist - optDistScaled;
+            	double intercell_gap = actDist - optDist;
                                	
             	double contactArea = (Math.PI/(4*actDist_square))*(2*actDist_square*(radius_this_square+radius_other_square)
             																		+2*radius_this_square*radius_other_square
@@ -247,13 +247,13 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
             	
              }
              if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
-            	 double d_membrane_this=requiredDistanceToMembraneThis*globalParameters.getOptDistanceScalingFactor();
-                double d_membrane_other=requiredDistanceToMembraneOther*globalParameters.getOptDistanceScalingFactor();
+            	 double d_membrane_this=requiredDistanceToMembraneThis;
+                double d_membrane_other=requiredDistanceToMembraneOther;
           		double contactAreaCorrect = 0;
-          		if(actDist < optDistScaled*globalParameters.getOptDistanceAdhesionFact()){
+          		if(actDist < optDist*globalParameters.getOptDistanceAdhesionFact()){
           			contactAreaCorrect = calculateContactAreaNew(thislocP,
           					otherPosToroidalCorrection(thislocP, otherlocP),
-          					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisB, otherSemiAxisA, otherSemiAxisB,otherSemiAxisC, d_membrane_this, d_membrane_other, actDist, optDistScaled);
+          					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisB, otherSemiAxisA, otherSemiAxisB,otherSemiAxisC, d_membrane_this, d_membrane_other, actDist, optDist);
           		}
           		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
           	 }
@@ -276,7 +276,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
             }
       		double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)+Math.pow(dz,2));
       		double optDist = calculateDistanceToCellCenter(thislocP, membraneReferencePoint, getCellWidth()/2, getCellHeight()/2,  getCellLength()/2);
-      		optDist*=globalParameters.getOptDistanceToBMScalingFactor();
+      		
       		
       		if(distToMembrane < optDist*globalParameters.getOptDistanceAdhesionFact()){
       			double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
@@ -889,7 +889,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 							otherPosToroidalCorrection(otherlocP,thisLocP), 
 							mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2, mechModelOther.getCellLength()/2);
 	          
-	          double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor(); 
+	          double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther); 
 	          double actDist=Math.sqrt(dx*dx+dy*dy+dz*dz);        
 		       if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist){
 		      	 neighbourCells.add(actNeighbour);

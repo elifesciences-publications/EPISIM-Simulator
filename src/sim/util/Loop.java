@@ -3,6 +3,9 @@ package sim.util;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import sim.app.episim.ExceptionDisplayer;
 
 
 public class Loop {
@@ -31,7 +34,9 @@ public class Loop {
        }
        try {
            latch.await();
-       } catch (InterruptedException e) {}
+       } catch (InterruptedException e) {
+      	 ExceptionDisplayer.getInstance().displayException(e);
+       }
        executor.shutdown();
    }
 

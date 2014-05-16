@@ -241,7 +241,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 					}
 				}				
 			
-				if(ModeServer.guiMode()){
+				if(ModeServer.guiMode()&& SimulationStateFile.getTissueExportPath() != null){
 					if(mainGUIComponent instanceof Frame){
 					
 						EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
@@ -258,7 +258,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 					}
 				}
 				else{
-					saveSimulationState();	
+					if(SimulationStateFile.getTissueExportPath() != null)saveSimulationState();	
 				}   		
 			}
      	 

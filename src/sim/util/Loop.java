@@ -33,18 +33,23 @@ public class Loop {
            });
        }
        try {
-           latch.await();
+      	// System.out.println("\nStarted Waiting");
+      	// long startTime = System.currentTimeMillis();
+          latch.await(10l, TimeUnit.SECONDS);
+         // long endTime = System.currentTimeMillis();
+       //   System.out.println("Stopped Waiting after: "+((endTime-startTime)/1000)+ " seconds");
+        
        } catch (InterruptedException e) {
       	 ExceptionDisplayer.getInstance().displayException(e);
        }
        executor.shutdown();
    }
 
-   public static void main(String [] argv) {
+   /*public static void main(String [] argv) {
        Loop.withIndex(0, 9, new Loop.Each() {
            public void run(int i) {
                System.out.println(i*10);
            }
        });
-   }
+   }*/
 }

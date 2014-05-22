@@ -28,13 +28,10 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private double directNeighbourhoodOptDistFact = 1.3;	
 	private double optDistanceAdhesionFact = 1.3;
 	private double optDistanceScalingFactor = 0.85;
-	private double optDistanceToBMScalingFactor = 0.8;
+	private double optDistanceToBMScalingFactor = 0.95;
 	private double linearToExpMaxOverlap_Perc = 0.5;
 	private double repulSpringStiffness_N_per_micro_m = 0.0000000022;
 	private double adhSpringStiffness_N_per_square_micro_m = 0.000000000022;//0.000000000149;
-	
-
-	
 	
 	public CenterBasedMechanicalModelGP() {}
 	

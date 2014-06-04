@@ -24,6 +24,7 @@ import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical3DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -749,27 +750,30 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    		numberOfIterationsDouble=1;
    	}
    	final int numberOfIterations = ((int)numberOfIterationsDouble);
-   	 
+   	boolean parallelizationOn = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
 	   for(int i = 0; i<numberOfIterations; i++){
 	   		
 	   		allCells.shuffle(random);
 	   		final int totalCellNumber = allCells.size();
 	   		final int iterationNo =i;
-	   		Loop.withIndex(0, totalCellNumber, new Loop.Each() {
-	             public void run(int n) {
-	            		CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
-			   			if(iterationNo == 0) cellBM.initNewSimStep();
-			   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
-			   			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
-	             }
-	         });  		
-	   	
-	   	/*	for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
-	   			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
-	   			if(i == 0) cellBM.initNewSimStep();
-	   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
-	   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
-	   		}*/
+	   		if(parallelizationOn){
+		   		Loop.withIndex(0, totalCellNumber, new Loop.Each() {
+		             public void run(int n) {
+		            		CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
+				   			if(iterationNo == 0) cellBM.initNewSimStep();
+				   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
+				   			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
+		             }
+		         });  		
+	   		}
+	   		else{
+	   			for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+		   			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
+		   			if(i == 0) cellBM.initNewSimStep();
+		   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
+		   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
+		   		}
+	   		}	   	
    	}   	  
    	calculateSurfaceCells();
    }

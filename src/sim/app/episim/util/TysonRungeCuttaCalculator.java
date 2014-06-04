@@ -133,7 +133,7 @@ public class TysonRungeCuttaCalculator {
       	ExceptionDisplayer.getInstance().displayException(e);
       	tysonCellCycleAvailable=false;
       }
-		return false;
+		return tysonCellCycleAvailable;
 	}
 
 }

@@ -25,6 +25,7 @@ import javax.vecmath.Vector3d;
 
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
@@ -955,26 +956,30 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
    		numberOfIterationsDouble=1;
    	}
    	final int numberOfIterations = ((int)numberOfIterationsDouble);
+   	boolean parallelizationOn = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
    	for(int i = 0; i<numberOfIterations; i++){
    		allCells.shuffle(random);
    		final int totalCellNumber = allCells.size();
    		final int iterationNo =i;
-   		 Loop.withIndex(0, totalCellNumber, new Loop.Each() {
-             public void run(int n) {
-            		CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
-         			if(iterationNo == 0) cellBM.initNewSimStep();
-         			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
-         			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
-         			//System.out.println("Zelle: "+n);
-             }
-         });
-   	//	System.out.println("neue iteration");
-   	/*for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
-   			CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
-   			if(i == 0) cellBM.initNewSimStep();
-   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
-   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
-   		}*/
+   		if(parallelizationOn){
+	   		 Loop.withIndex(0, totalCellNumber, new Loop.Each() {
+	             public void run(int n) {
+	            		CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
+	         			if(iterationNo == 0) cellBM.initNewSimStep();
+	         			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
+	         			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
+	         			//System.out.println("Zelle: "+n);
+	             }
+	         });
+   		}
+   		else{
+   			for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+	   			CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
+	   			if(i == 0) cellBM.initNewSimStep();
+	   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
+	   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
+   			}
+   		}   	
    	}
    	calculateSurfaceCells();
    }

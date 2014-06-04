@@ -80,6 +80,7 @@ public class EpisimProperties {
 	public static final String MODEL_RANDOM_CELL_AGE_INIT="model.cell.randomageinit";
 	
 	public static final String SIMULATION_AUTOSTART_AND_STOP_PROP = "simulation.autostartandstop";
+	public static final String SIMULATION_PARALLELIZATION = "simulation.parallelization";
 	public static final String SIMULATION_MAX_STEPS_PROP = "simulation.steps.max";
 	public static final String SIMULATION_SIM_STEP_MODE = "simulation.steps.mode";
 	public static final String SIMULATION_SHUTDOWN_WAIT_MS ="simulation.shutdown.waitms";

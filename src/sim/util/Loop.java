@@ -34,10 +34,14 @@ public class Loop {
        }
        try {
       	// System.out.println("\nStarted Waiting");
-      	// long startTime = System.currentTimeMillis();
-          latch.await(10l, TimeUnit.SECONDS);
-         // long endTime = System.currentTimeMillis();
-       //   System.out.println("Stopped Waiting after: "+((endTime-startTime)/1000)+ " seconds");
+      //	 long startTime = System.currentTimeMillis();
+          	latch.await(10l, TimeUnit.SECONDS);
+        //  long endTime = System.currentTimeMillis();
+        //  long waitingTime = ((endTime-startTime)/1000);
+        //  System.out.println("Stopped Waiting after: "+((endTime-startTime)/1000)+ " seconds");
+        //  if(waitingTime >8){
+        // 	 System.out.println("It seems to freeze");
+         // }
         
        } catch (InterruptedException e) {
       	 ExceptionDisplayer.getInstance().displayException(e);

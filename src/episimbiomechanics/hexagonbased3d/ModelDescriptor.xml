@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2012-01-16_episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC"/>
+  <visiblename name="Lattice-Based Cell Model 3D - Chemotaxis Demo"/>
   <modelname name="Hexagon Grid Based Biomechanical Model 3D"/>
   <modelconnectorclass name="episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC"/>
   <modelparameters>
-    <parameter name="isSpreading" datatype="boolean" default="false" readonly="false"/>
-    <parameter name="cellCellInteractionEnergy" datatype="double"
-      default="0.7" readonly="false"/>
-    <parameter name="isProliferating" datatype="boolean" default="false" readonly="false"/>
-    <parameter name="lambdaChem" datatype="double" default="1.0" readonly="false"/>
-    <parameter name="isRetracting" datatype="boolean" default="false" readonly="false"/>
-    <parameter name="chemotacticField" datatype="String" default="" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isSpreading"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.7"
+      name="cellCellInteractionEnergy" pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isProliferating"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="boolean" default="false" name="isRetracting"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="1.0" name="lambdaChem"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="String" default="" name="chemotacticField"
+      pairwise="false" readonly="false"/>
   </modelparameters>
 </modeldescriptor>

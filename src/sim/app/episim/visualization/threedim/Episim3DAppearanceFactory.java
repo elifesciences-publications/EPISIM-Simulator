@@ -122,7 +122,7 @@ public class Episim3DAppearanceFactory {
       }
      
      
-      if(polygonAttributes != null) appearance.setPolygonAttributes(polygonAttributes);
+   if(polygonAttributes != null) appearance.setPolygonAttributes(polygonAttributes);
       return appearance;
 	}
 	

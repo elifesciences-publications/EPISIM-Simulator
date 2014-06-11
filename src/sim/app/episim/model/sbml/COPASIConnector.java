@@ -136,8 +136,8 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 				  changedObjects.add(localParameter.getObject(new CCopasiObjectName("Reference=Value")));
 			  }
 		  }*/
-	  } 
-	  for(SBMLModelEntity entity : modelState.getSpeciesValues()){
+	  }
+	   for(SBMLModelEntity entity : modelState.getSpeciesValues()){
 		  index = dataModel.getModel().findMetabByName(entity.name);
 	     CMetab metab =  dataModel.getModel().getMetabolite(index);	     
 	     if(metab != null){		      

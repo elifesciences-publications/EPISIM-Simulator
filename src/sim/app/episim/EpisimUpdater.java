@@ -177,6 +177,7 @@ public class EpisimUpdater {
 	  }
   }
   
+  
   public EpisimUpdateState checkForUpdates() throws IOException{
 	  connect();
 	  readUpdateMetadata();

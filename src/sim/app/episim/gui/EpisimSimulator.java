@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -191,7 +192,8 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			jarFileChoose= new ExtendedFileChooser("jar");
 			jarFileChoose.setDialogTitle("Open Episim Cell Behavioral Model");
 			tissueExportFileChoose = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
-			mainFrame.setTitle(EpisimSimulator.getEpisimSimulatorTitle());			
+			mainFrame.setTitle(EpisimSimulator.getEpisimSimulatorTitle());
+			if(System.getProperty("os.name").toLowerCase().contains("windows"))checkForCOPASIInstallation();
 		}
 		else{
 			noGUIModeMainPanel.setLayout(new BorderLayout());
@@ -360,6 +362,23 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				}
 			}
 		
+	}
+	
+	private void checkForCOPASIInstallation(){
+		 Map<String, String> env = System.getenv();
+		 boolean copasiDetected = false;
+		 String copasiKey = "";
+	    for (String envName : env.keySet()) {
+	      	if(envName.toLowerCase().contains("copasidir")){
+	      		copasiKey = envName;
+	      		copasiDetected=true;
+	      		break;
+	      	}	      	
+	    }
+	    if(copasiDetected){
+	   	 if(env.get(copasiKey) != null && new File(env.get(copasiKey)).exists())
+	   		 JOptionPane.showMessageDialog(this.mainFrame, "EPISIM Simulator detected that you have installed COPASI\non your Windows OS:\n\n"+env.get(copasiKey)+"\n\nCOPASI installations with version numbers higher than 4.8.35\nlead to an EPISIM Simulator crash for EPISIM models containing\nan SBML-based submodel.\nA quick fix for this problem is temporarily adding a '_' to the COPASI\ninstallation folder name before running EPISIM Simulator.\nWe are sorry for this inconvenience.\nThis error is beyond our control.", "COPASI installation detected", JOptionPane.WARNING_MESSAGE);
+	    }
 	}
 	
 	public static void main(String[] args){

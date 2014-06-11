@@ -19,6 +19,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ import sim.SimStateServer;
 import sim.app.episim.CompileWizard;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimUpdater;
+import sim.app.episim.EpisimUpdater.EpisimUpdateCallback;
 import sim.app.episim.EpisimUpdater.EpisimUpdateState;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
@@ -88,7 +90,7 @@ import sim.util.EpisimUpdateDialogText;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.0.2.0";
+	public static final String versionID = "1.5.0.2.1";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -376,9 +378,49 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	      	}	      	
 	    }
 	    if(copasiDetected){
-	   	 if(env.get(copasiKey) != null && new File(env.get(copasiKey)).exists())
-	   		 JOptionPane.showMessageDialog(this.mainFrame, "EPISIM Simulator detected that you have installed COPASI\non your Windows OS:\n\n"+env.get(copasiKey)+"\n\nCOPASI installations with version numbers higher than 4.8.35\nlead to an EPISIM Simulator crash for EPISIM models containing\nan SBML-based submodel.\nA quick fix for this problem is temporarily adding a '_' to the COPASI\ninstallation folder name before running EPISIM Simulator.\nWe are sorry for this inconvenience.\nThis error is beyond our control.", "COPASI installation detected", JOptionPane.WARNING_MESSAGE);
+	   	 if(env.get(copasiKey) != null && new File(env.get(copasiKey)).exists()){
+	   		 JOptionPane.showMessageDialog(this.mainFrame, "EPISIM Simulator detected that you have installed COPASI\non your Windows OS:\n\n"+env.get(copasiKey)+"\n\nCOPASI installations with version numbers higher than 4.8.35\nlead to an EPISIM Simulator crash for EPISIM models containing\nan SBML-based submodel.\nEPISIM Simulator will patch the file EpisimSimulator.exe.\nMake sure that your computer has internet connection, and press ok.\nEPISIM Simulator will shut down. Restart it manually.\nWe are sorry for this inconvenience.", "COPASI installation detected", JOptionPane.WARNING_MESSAGE);
+	   		 installEpisimEXEPatch();
+	   	 }
 	    }
+	}
+	
+	private void installEpisimEXEPatch(){
+		final EpisimUpdater updater = new EpisimUpdater();
+		try{
+	      updater.downloadEXEPatch(new EpisimUpdateCallback(){      	
+	      	public void updateHasFinished() {	      	
+	      		
+	               try{
+	                  updater.installEXEPatch(new EpisimUpdateCallback() {						
+	                  	
+	                  	public void updateHasFinished() {
+	                  		System.exit(0);
+	                  	}
+	                  	
+	                  	@Override
+	                  	public void sizeOfUpdate(int size) {}
+	                  	
+	                  	
+	                  	public void progressOfUpdate(int progress) {}
+	                  }, true);
+                  }
+                  catch (IOException | URISyntaxException e){
+                  	ExceptionDisplayer.getInstance().displayException(e);             	
+                  }
+              	
+	      	}      	
+	      	public void sizeOfUpdate(int size) {			
+	      		System.out.println("EXE-Path size: "+ size+ "bytes");				
+	      	}      	
+	      	public void progressOfUpdate(int progress) {		
+	      		
+	      	}
+	      }, true);
+      }
+      catch (IOException e){
+	     ExceptionDisplayer.getInstance().displayException(e);
+      }
 	}
 	
 	public static void main(String[] args){

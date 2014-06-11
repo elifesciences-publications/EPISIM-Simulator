@@ -130,7 +130,97 @@ public class EpisimUpdater {
 	  }
   }
   
+  public void downloadEXEPatch(EpisimUpdateCallback cb, boolean log) throws IOException{
+	  final String patchFile = "./exe_patch.zip";
+	  connect();
+	  if (ftpClient != null && cb != null) {
+		  
+		  byte[] buffer = new byte[BUFFER_SIZE];
+		  
+		  
+		  long size = 0;
+		  	  
+		  FTPFile[] file =ftpClient.listFiles(patchFile);
+		
+		  if(file!=null && file.length >0 && file[0] != null){
+			  size = file[0].getSize();
+		  }
+		  
+	     if (size > 0) {
+	   	  currentFileSize=size;
+	   	  if(log)EpisimLogger.getInstance().logInfo("EPISIM-EXE-Patch-File " + patchFile + ": " + size + " bytes");
+	        cb.sizeOfUpdate((int)size);   
+	     
+		     InputStream in = ftpClient.retrieveFileStream(patchFile);
+			  
+		     String userTmpDir = System.getProperty("java.io.tmpdir", "temp");
+			  if(!userTmpDir.endsWith(System.getProperty("file.separator"))) userTmpDir = userTmpDir.concat(System.getProperty("file.separator"));		     
+			  currentUpdateFile = new File(userTmpDir+"EPISIM_Update.zip");
+			  FileOutputStream fileOut = new FileOutputStream(currentUpdateFile);
+			  if(log)EpisimLogger.getInstance().logInfo("Downloading EPISIM-EXE-Patch-File");
+		     while (true) {	       
+		        int bytes = in.read(buffer);
+		        if (bytes < 0) break;
+		        fileOut.write(buffer, 0, bytes);
+		        cb.progressOfUpdate(bytes);
+		     }
+		     fileOut.close();
+		     in.close();
+		     if(!ftpClient.completePendingCommand()) throw new IOException("Cannot complete Download of EPISIM-EXE-Patch-File");
+		     if(log) EpisimLogger.getInstance().logInfo("Successfully Downloaded EPISIM-EXE-Patch-File");
+	     }
+	     else throw new IOException("Cannot Download EPISIM-EXE-Patch-File");
+	     disconnect();
+		  cb.updateHasFinished();
+	  }
+  }
+  
   public String getMostCurrentVersion(){ return this.mostCurrentVersion;}
+  
+  public void installEXEPatch(EpisimUpdateCallback cb, boolean log) throws IOException, URISyntaxException{
+	  if (cb != null) {
+		
+		  if(log)EpisimLogger.getInstance().logInfo("Installing EPISIM EXE-Patch ");
+		  long zipFileSize = currentUpdateFile.length();
+		  if(zipFileSize > 0){
+			  cb.sizeOfUpdate((int) zipFileSize);
+			  
+			  ZipFile updateZip = new ZipFile(currentUpdateFile);
+			  Enumeration<? extends ZipEntry> entries = updateZip.entries();
+			  
+			  String installationPath = ProjectLocator.getBinPath().getParentFile().getAbsolutePath();
+			  if(!installationPath.endsWith(System.getProperty("file.separator"))) installationPath = installationPath.concat(System.getProperty("file.separator"));
+			 
+			  //add this when developing inside Eclipse
+		     //installationPath = installationPath.concat("update"+System.getProperty("file.separator"));
+		     //deleteFolderContent(new File(installationPath+"bin"+System.getProperty("file.separator")));
+			  while(entries.hasMoreElements()){
+				  ZipEntry entry = (ZipEntry)entries.nextElement();
+				  if(entry.isDirectory()) {
+					  if(!(new File(installationPath+entry.getName())).exists()){
+						  (new File(installationPath+entry.getName())).mkdirs();
+					  }
+				  }
+				  else{
+					  if(!(new File(installationPath+entry.getName())).getParentFile().exists()){
+						  (new File(installationPath+entry.getName())).getParentFile().mkdirs();
+					  }
+					  byte[] buffer = new byte[1024];
+					  int len;
+					  InputStream in = updateZip.getInputStream(entry);
+					  BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(installationPath+entry.getName()));
+					  while((len = in.read(buffer)) >= 0) out.write(buffer, 0, len);
+					  in.close();
+					  out.close();					 
+				  }
+				  cb.progressOfUpdate((int)entry.getCompressedSize());
+			  }
+			  updateZip.close();
+			  currentUpdateFile.delete();
+			  cb.updateHasFinished();			  
+		  }	  
+	  }
+  }
   
   public void installUpdate(EpisimUpdateCallback cb, boolean log) throws IOException, URISyntaxException{
 	  if (cb != null) {

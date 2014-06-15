@@ -87,7 +87,10 @@ public abstract class SteppableCodeFactory {
 		steppableCode.append("           for(AbstractCell actCell : allCells){\n");
 		steppableCode.append("   	       final EpisimBiomechanicalModel bmModel = actCell.getEpisimBioMechanicalModelObject();\n");
 		
-		
+		steppableCode.append("      	  final CellBoundaries cb = bmModel.getCellBoundariesInMikron(0);\n");
+		steppableCode.append("     	  final double width = cb.getMaxXInMikron()-cb.getMinXInMikron();\n");
+		steppableCode.append("      	  final double height = cb.getMaxYInMikron()-cb.getMinYInMikron();\n");
+		steppableCode.append("      	  final double length = cb.getMaxZInMikron()-cb.getMinZInMikron();\n");
 		if(episimChart.getMinXMikron() > Double.NEGATIVE_INFINITY
 			|| episimChart.getMinYMikron() > Double.NEGATIVE_INFINITY
 			|| episimChart.getMinZMikron() > Double.NEGATIVE_INFINITY
@@ -97,47 +100,40 @@ public abstract class SteppableCodeFactory {
 			steppableCode.append("   	  if(");
 			boolean alreadyConditionDefined = false;
 			if(episimChart.getMinXMikron() > Double.NEGATIVE_INFINITY){
-				steppableCode.append("bmModel.getX()>= "+episimChart.getMinXMikron());
+				steppableCode.append("(bmModel.getX()+(width/2))>= "+episimChart.getMinXMikron());
 				alreadyConditionDefined=true;
 			}
 			if(episimChart.getMaxXMikron() < Double.POSITIVE_INFINITY){
 				if(alreadyConditionDefined) steppableCode.append(" && ");
-				steppableCode.append("bmModel.getX()<= "+episimChart.getMaxXMikron());
+				steppableCode.append("(bmModel.getX()-(width/2))<= "+episimChart.getMaxXMikron());
 				alreadyConditionDefined=true;
 			}
 			if(episimChart.getMinYMikron() > Double.NEGATIVE_INFINITY){
 				if(alreadyConditionDefined) steppableCode.append(" && ");
-				steppableCode.append("bmModel.getY()>= "+episimChart.getMinYMikron());
+				steppableCode.append("(bmModel.getY()+(height/2))>= "+episimChart.getMinYMikron());
 				alreadyConditionDefined=true;
 			}
 			if(episimChart.getMaxYMikron() < Double.POSITIVE_INFINITY){
 				if(alreadyConditionDefined) steppableCode.append(" && ");
-				steppableCode.append("bmModel.getY()<= " + episimChart.getMaxYMikron());
+				steppableCode.append("(bmModel.getY()-(height/2))<= " + episimChart.getMaxYMikron());
 				alreadyConditionDefined=true;
 			}
 			if(episimChart.getMinZMikron() > Double.NEGATIVE_INFINITY){
 				if(alreadyConditionDefined) steppableCode.append(" && ");
-				steppableCode.append("bmModel.getZ()>= "+episimChart.getMinZMikron());
+				steppableCode.append("(bmModel.getZ()+(length/2))>= "+episimChart.getMinZMikron());
 				alreadyConditionDefined=true;
 			}
 			if(episimChart.getMaxZMikron() < Double.POSITIVE_INFINITY){
 				if(alreadyConditionDefined) steppableCode.append(" && ");
-				steppableCode.append("bmModel.getZ() <= "+episimChart.getMaxZMikron());
+				steppableCode.append("(bmModel.getZ()-(length/2))<= "+episimChart.getMaxZMikron());
 				alreadyConditionDefined=true;
 			}
 			steppableCode.append("){\n");	
 		}
 		
-		
-		steppableCode.append("      	  final CellBoundaries cb = bmModel.getCellBoundariesInMikron(0);\n");
-		steppableCode.append("     	  final double width = cb.getMaxXInMikron()-cb.getMinXInMikron();\n");
-		steppableCode.append("      	  final double height = cb.getMaxYInMikron()-cb.getMinYInMikron();\n");
-		steppableCode.append("      	  final double length = cb.getMaxZInMikron()-cb.getMinZInMikron();\n");
 		steppableCode.append("      	  final AbstractCell theCell = actCell;\n");
-		
-		
-	          
 		steppableCode.append("            try{\n");
+		
 		if(episimChart.getCellProjectionPlane() == ProjectionPlane.XY_PLANE){
 			steppableCode.append("     	  xyPlot.addAnnotation(new XYShapeAnnotation(new Ellipse2D.Double(bmModel.getX()-(width/2), bmModel.getY()-(height/2), width, height), new BasicStroke(1), Color.black, getCellColoring(theCell)));\n");
 		}

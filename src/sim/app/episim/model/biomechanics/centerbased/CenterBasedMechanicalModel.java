@@ -140,6 +140,8 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
       lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0), new Rectangle2D.Double(0, 0, 0, 0));
    }
    
+   public boolean isEpidermisDemoModel(){ return modelConnector.isEpidermisDemoModel();}
+   
    public void setLastDrawInfo2D(DrawInfo2D info){
    	this.lastDrawInfo2D = info;
    }

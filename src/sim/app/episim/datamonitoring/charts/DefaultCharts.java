@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.geom.Ellipse2D;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,6 +37,8 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.axis.StandardTickUnitSource;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -233,6 +236,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 		
 		//	 Second Vertical Axis
 		axis2 = new NumberAxis("Number of Cells");
+		chart.getXYPlot().getRangeAxis().setStandardTickUnits(new StandardTickUnitSource());
 		axis2.setLabelPaint(Color.darkGray);
 		axis2.setTickLabelPaint(Color.darkGray);
 		xyPlot.setRangeAxis(1, axis2);

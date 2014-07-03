@@ -131,7 +131,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    public EpisimModelConnector getEpisimModelConnector(){
    	return this.modelConnector;
    }   
-   
+   public boolean isEpidermisDemoModel(){ return modelConnector.isEpidermisDemoModel();}
  
    private class HitResult
    {        

@@ -92,10 +92,11 @@ public class UniversalCell extends AbstractCell
     public void makeTACell(EpisimCellBehavioralModel cellBehavioralModel)
     {    
         UniversalCell taCell=makeChild(cellBehavioralModel);
-         
+        
         //TODO enable / disable random age for TA Cells
         if(EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT) != null &&
-  				EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
+  				EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)
+  				&& isDemoModel(taCell)){
       	  int cellCycleDuration = 1;
       	  Object result = null;
 				try {
@@ -137,7 +138,16 @@ public class UniversalCell extends AbstractCell
         }
         // somewhere on the TA Cycle       
     }
-   
+   private boolean isDemoModel(UniversalCell cell){
+   	boolean isDemoModel = false;
+   	if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel){
+   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
+   	}
+   	else if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel){
+   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
+   	}   	
+   	return isDemoModel;
+   }
   
     
     private EpisimCellBehavioralModel[] getCellBehavioralModelArray(GenericBag<AbstractCell> neighbours){

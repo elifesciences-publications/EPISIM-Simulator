@@ -36,6 +36,10 @@ public class EpisimCenterBased3DMC extends EpisimModelConnector {
 		return NAME;
 	}
 	
+	@Hidden
+	@NoExport
+	public boolean isEpidermisDemoModel(){ return true; }
+	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
 		return CenterBased3DMechanicalModel.class;

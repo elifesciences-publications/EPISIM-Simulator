@@ -51,6 +51,10 @@ public class EpisimCenterBasedMC extends EpisimModelConnector {
 		return CenterBasedMechModelInit.class;
 	}
 	
+	@Hidden
+	@NoExport
+	public boolean isEpidermisDemoModel(){ return true; }
+	
 	public boolean getHasCollision() {
 	
 		return hasCollision;

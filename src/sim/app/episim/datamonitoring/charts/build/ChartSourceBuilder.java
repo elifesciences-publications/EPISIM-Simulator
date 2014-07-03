@@ -9,6 +9,7 @@ import java.util.Set;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.axis.StandardTickUnitSource;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
@@ -206,11 +207,15 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		generatedSourceCode.append("   xyPlot.setDomainGridlinePaint(Color.LIGHT_GRAY);\n");
 		generatedSourceCode.append("   xyPlot.setRangeGridlinePaint(Color.LIGHT_GRAY);\n");
 		
-		if(episimChart.isXAxisLogarithmic()){
-			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".getXYPlot().setDomainAxis(new LogarithmicAxis(\""+ episimChart.getXLabel()+"\"));\n");
+		if(episimChart.isXAxisLogarithmic()){			
+			generatedSourceCode.append("  LogarithmicAxis xLogAxis =new LogarithmicAxis(\""+ episimChart.getXLabel()+"\");\n");
+			generatedSourceCode.append("  xLogAxis.setExpTickLabelsFlag(true);\n");			
+			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".getXYPlot().setDomainAxis(xLogAxis);\n");			
 		}
 		if(episimChart.isYAxisLogarithmic()){
-			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".getXYPlot().setRangeAxis(new LogarithmicAxis(\""+ episimChart.getYLabel()+"\"));\n");
+			generatedSourceCode.append("  LogarithmicAxis yLogAxis =new LogarithmicAxis(\""+ episimChart.getYLabel()+"\");\n");
+			generatedSourceCode.append("  yLogAxis.setExpTickLabelsFlag(true);\n");			
+			generatedSourceCode.append("  "+CHARTDATAFIELDNAME+".getXYPlot().setRangeAxis(yLogAxis);\n");		
 		}
 		
 		generatedSourceCode.append("  chartPanel = new EpisimChartPanel("+CHARTDATAFIELDNAME+", true);\n");

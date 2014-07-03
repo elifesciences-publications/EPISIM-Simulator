@@ -83,8 +83,7 @@ public class CellBehavioralModelInitializer {
 				
 				if (actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() != null
 						&& actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector) {
-					((SbmlModelConnector) actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector())
-							.initializeSBMLModelsWithCellAge(cellCyclePos);
+					((SbmlModelConnector) actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(cellCyclePos);
 				}
 			}
 			boolean tysonCellCycleAvailable = false;

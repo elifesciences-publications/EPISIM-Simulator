@@ -753,7 +753,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	public void setCellLength(double cellLength) { if(modelConnector!=null)modelConnector.setLength(cellLength>0?cellLength:getCellLength());	 }
 
 	public int hitsOtherCell(){ return finalInteractionResult.numhits; }
-	
+	public int getNumberOfOverlappingCells(){return hitsOtherCell();}
 	public boolean nextToOuterCell(){ return finalInteractionResult != null ?finalInteractionResult.nextToOuterCell:false; }
 
 	private GenericBag<AbstractCell> getCellularNeighbourhood(boolean toroidal) {

@@ -61,6 +61,10 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 	
 	@Hidden
 	@NoExport
+	public boolean isEpidermisDemoModel(){ return false; }
+	
+	@Hidden
+	@NoExport
 	public abstract Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass();
 	
 	@Hidden

@@ -86,13 +86,14 @@ public class HistogramAveragedCalculationAlgorithm extends AbstractCommonCalcula
 	  this.binMap.clear(); 
    }
 
-	public void calculate(CalculationHandler handler, ResultSet<Double> results) {
-		try{
+	public void calculate(CalculationHandler handler, ResultSet<Double> results){
 		
+		try{		
+			
 			notifyTissueObserver(handler.getID());
 			
 			if(this.calculationNumberMap.containsKey(handler.getID())) this.calculationNumberMap.put(handler.getID(), (this.calculationNumberMap.get(handler.getID()).intValue()+1));
-			else this.calculationNumberMap.put(handler.getID(), 1);			 
+			else this.calculationNumberMap.put(handler.getID(), 1);
 			
 			if(!this.datasetMap.containsKey(handler.getID())) buildHistogramDataset(handler);
 			
@@ -100,13 +101,9 @@ public class HistogramAveragedCalculationAlgorithm extends AbstractCommonCalcula
 				 if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(cell.getClass())){
 					 double result = handler.calculate(cell);
 					 if(checkCondition(result, handler, cell)) this.datasetMap.get(handler.getID()).addObservation(result);
-				 }
-				 
-			 }
-			
-			
-			calculateAveragedResults(handler, results);
-			
+				 }				 
+			}			
+			calculateAveragedResults(handler, results);			
 		}
 		catch(CellNotValidException ex){
 			ExceptionDisplayer.getInstance().displayException(ex);

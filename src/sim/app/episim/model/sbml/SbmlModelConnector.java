@@ -5,12 +5,15 @@ import java.util.Map;
 
 
 
+
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.controller.ModelController;
 
 
 import episiminterfaces.EpisimSbmlModelConfiguration;
+import episiminterfaces.EpisimSbmlModelConfigurationEx;
 import episiminterfaces.EpisimSbmlModelConnector;
+import episiminterfaces.InterfaceVersion;
 
 public class SbmlModelConnector implements EpisimSbmlModelConnector{
 	
@@ -32,6 +35,17 @@ public class SbmlModelConnector implements EpisimSbmlModelConnector{
 					sbmlModelStates.put(actConfig.getModelFilename(), new SBMLModelState());
 					sbmlModelSimulationEnabled.put(actConfig.getModelFilename(), true);
 					COPASIConnector.getInstance().registerNewCopasiDataModelWithSbmlFile(ModelController.getInstance().getCellBehavioralModelController().getActLoadedModelFile(), actConfig.getModelFilename());						
+					 if(actConfig instanceof EpisimSbmlModelConfigurationEx){
+						 EpisimSbmlModelConfigurationEx actConfigEx = (EpisimSbmlModelConfigurationEx) actConfig;
+			      	 if(actConfig.getClass().isAnnotationPresent(InterfaceVersion.class)){
+			      		 InterfaceVersion version = actConfig.getClass().getAnnotation(InterfaceVersion.class);
+			      		 if(version.number()>=2){
+			      			  if(!actConfigEx.isSimulationOnByDefault()){
+			      				  switchSbmlModelSimulationOnOrOff(actConfig.getModelFilename(), false);
+			      			  }
+			      		 }
+			      	 }						
+					}
 				}
 			}
 			catch(Exception e){
@@ -84,9 +98,19 @@ public class SbmlModelConnector implements EpisimSbmlModelConnector{
 	
 	public void initializeSBMLModelsWithCellAge(int ageInSimSteps){
 		for(String actSbmlFile : this.sbmlModelConfigurationMap.keySet()){
-			COPASIConnector.getInstance().simulateSBMLModel(this.sbmlModelConfigurationMap.get(actSbmlFile), this.sbmlModelStates.get(actSbmlFile), ageInSimSteps);
-		
-	}
+			EpisimSbmlModelConfiguration actConfig = this.sbmlModelConfigurationMap.get(actSbmlFile);
+			boolean onByDefault = true;
+			if(actConfig instanceof EpisimSbmlModelConfigurationEx){
+				 EpisimSbmlModelConfigurationEx actConfigEx = (EpisimSbmlModelConfigurationEx) actConfig;
+	      	 if(actConfig.getClass().isAnnotationPresent(InterfaceVersion.class)){
+	      		 InterfaceVersion version = actConfig.getClass().getAnnotation(InterfaceVersion.class);
+	      		 if(version.number()>=2){
+	      			 onByDefault=actConfigEx.isSimulationOnByDefault();
+	      		 }
+	      	 }						
+			}
+			if(onByDefault) COPASIConnector.getInstance().simulateSBMLModel(this.sbmlModelConfigurationMap.get(actSbmlFile), this.sbmlModelStates.get(actSbmlFile), ageInSimSteps);
+		}
 	}	
 
 	public void simulateSbmlModels(){		

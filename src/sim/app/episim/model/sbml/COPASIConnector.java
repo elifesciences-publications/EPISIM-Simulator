@@ -35,6 +35,7 @@ import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.GlobalClassLoader;
 import episiminterfaces.EpisimSbmlModelConfiguration;
 import episiminterfaces.EpisimSbmlModelConfigurationEx;
+import episiminterfaces.InterfaceVersion;
 
 public class COPASIConnector implements ClassLoaderChangeListener {
 	
@@ -213,6 +214,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
        
        CTrajectoryMethod method = (CTrajectoryMethod)trajectoryTask.getMethod();
        if(modelConfig instanceof EpisimSbmlModelConfigurationEx){
+     	 
       	 CCopasiParameter absoluteTolerance = method.getParameter("Absolute Tolerance");
           //System.out.println("Die Absolute Fehlertoleranz ist: " + ((EpisimSbmlModelConfigurationEx)modelConfig).getAbsoluteErrorTolerance());
           CCopasiParameter relativeTolerance = method.getParameter("Relative Tolerance");

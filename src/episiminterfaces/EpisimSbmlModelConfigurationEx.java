@@ -1,7 +1,7 @@
 package episiminterfaces;
 
-public interface EpisimSbmlModelConfigurationEx extends EpisimSbmlModelConfiguration{
-	
+public interface EpisimSbmlModelConfigurationEx extends EpisimSbmlModelConfiguration{	
 	double getAbsoluteErrorTolerance();
 	double getRelativeErrorTolerance();
+	boolean isSimulationOnByDefault();
 }

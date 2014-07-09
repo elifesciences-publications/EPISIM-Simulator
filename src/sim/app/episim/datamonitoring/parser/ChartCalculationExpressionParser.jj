@@ -166,6 +166,9 @@ Token t;
    			
    	| totalResult = SqrtFunction() 
     | totalResult = PowFunction()
+    | totalResult = ExpFunction()
+    | totalResult = LogFunction()
+    | totalResult = LnFunction()
    // | result = AllCellsWhere() 
    // | totalResult = AllCellsMeanValueFunction()
     | <OPEN_PAR> totalResult = Expression() <CLOSE_PAR> {totalResult[0] = "(" + totalResult[0] +")";totalResult[1] = "(" + totalResult[1] +")";})
@@ -383,8 +386,9 @@ String[] totalResult = new String[2];
  ("Pow(" exp1 =Expression() "," exp2=Expression()")")
  {
  	
- 	
- 	totalResult[0] ="java.lang.Math.pow("+exp1[0]+","+exp2[0]+")";
+ 	checkIfStringArithExpr(exp1[0]);
+ 	checkIfStringArithExpr(exp2[0]);
+ 	totalResult[0] ="Pow("+exp1[0]+","+exp2[0]+")";
  	totalResult[1] ="java.lang.Math.pow("+exp1[1]+","+exp2[1]+")";
  	return totalResult;
  }
@@ -407,6 +411,51 @@ String[] totalResult = new String[2];
  	checkIfStringArithExpr(exp[0]);
  	totalResult[0]= "Sqrt("+exp[0]+")";
  	totalResult[1]="java.lang.Math.sqrt("+exp[1]+")";
+ 	
+ 	return totalResult;	
+ }
+ }
+ String[] ExpFunction():
+ {
+ 	String[] exp = null;
+ 	String[] totalResult = new String[2];
+ }
+ {
+ ("Exp("exp =Expression()")")
+ {
+ 	checkIfStringArithExpr(exp[0]);
+ 	totalResult[0]= "Exp("+exp[0]+")";
+ 	totalResult[1]="java.lang.Math.exp("+exp[1]+")";
+ 	
+ 	return totalResult;	
+ }
+ }
+ String[] LogFunction():
+ {
+ 	String[] exp = null;
+ 	String[] totalResult = new String[2];
+ }
+ {
+ ("Log("exp =Expression()")")
+ {
+ 	checkIfStringArithExpr(exp[0]);
+ 	totalResult[0]= "Log("+exp[0]+")";
+ 	totalResult[1]="java.lang.Math.log10("+exp[1]+")";
+ 	
+ 	return totalResult;	
+ }
+ }
+ String[] LnFunction():
+ {
+ 	String[] exp = null;
+ 	String[] totalResult = new String[2];
+ }
+ {
+ ("Ln("exp =Expression()")")
+ {
+ 	checkIfStringArithExpr(exp[0]);
+ 	totalResult[0]= "Ln("+exp[0]+")";
+ 	totalResult[1]="java.lang.Math.log("+exp[1]+")";
  	
  	return totalResult;	
  }

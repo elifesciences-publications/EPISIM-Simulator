@@ -32,6 +32,7 @@ public class ChartPanelAndSteppableServer implements ClassLoaderChangeListener{
 	private List<JPanel> diffusionChartPanels;
 	private List<ChartPanel> defaultChartPanels;
 	private List<EnhancedSteppable> customSteppables;
+	private List<EnhancedSteppable> customPNGWriterSteppables;
 	private List<EnhancedSteppable> defaultSteppables;
 	private static ChartPanelAndSteppableServer instance = null;
 	private AbstractChartSetFactory factory = null;
@@ -59,12 +60,14 @@ public class ChartPanelAndSteppableServer implements ClassLoaderChangeListener{
 		return instance;
 	}
 	
-	public void registerCustomChartPanelsAndSteppables(List<ChartPanel> chartPanels, List<JPanel> diffusionChartPanels, List<EnhancedSteppable> chartSteppables, AbstractChartSetFactory factory){
+	public void registerCustomChartPanelsAndSteppables(List<ChartPanel> chartPanels, List<JPanel> diffusionChartPanels, List<EnhancedSteppable> chartSteppables, List<EnhancedSteppable> pngWriterSteppables, AbstractChartSetFactory factory){
 		if(chartPanels == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: List with chart panels to be registered must not be null!");
 		if(diffusionChartPanels == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: List with diffusion chart panels to be registered must not be null!");
 		if(chartSteppables == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: List with chart steppables to be registered must not be null!");
+		if(pngWriterSteppables == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: List with png writer steppables to be registered must not be null!");
 		if(factory == null) throw new IllegalArgumentException("ChartPanelAndSteppableServer: Chart-Set-Factory to be registered must not be null!");
 		this.customSteppables = chartSteppables;
+		this.customPNGWriterSteppables = pngWriterSteppables;
 		this.customChartPanels = chartPanels;
 		this.diffusionChartPanels = diffusionChartPanels;
 		this.factory = factory;
@@ -104,6 +107,13 @@ public class ChartPanelAndSteppableServer implements ClassLoaderChangeListener{
 		if(this.defaultSteppables != null)allSteppables.addAll(this.defaultSteppables);
 		return allSteppables;
 	}
+	public List<EnhancedSteppable> getPNGWriterSteppables() {
+		
+		List<EnhancedSteppable> allSteppables = new LinkedList<EnhancedSteppable>();
+		if(this.customPNGWriterSteppables != null)allSteppables.addAll(this.customPNGWriterSteppables);
+		
+		return allSteppables;
+	}
 	
 	public boolean registerChartSetChangeListener(ChartSetChangeListener listener){		
 		cleanListeners(listener.getClass().getName());
@@ -134,12 +144,17 @@ public class ChartPanelAndSteppableServer implements ClassLoaderChangeListener{
 			this.customSteppables.clear();
 			
 		}
+		if(this.customPNGWriterSteppables != null){ 
+			this.customPNGWriterSteppables.clear();
+			
+		}
 		notifyListeners();
 	}
 	
 	
 	public void removeAllSteppables(){
 		if(this.customSteppables != null)this.customSteppables.clear();
+		if(this.customPNGWriterSteppables != null)this.customPNGWriterSteppables.clear();
 		if(this.defaultSteppables != null)this.defaultSteppables.clear();
 	}
 	

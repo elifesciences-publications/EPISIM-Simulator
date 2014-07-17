@@ -197,7 +197,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
        if (neighbours==null || neighbours.numObjs == 0) return interactionResult;
        double majorAxisThis = getCellWidth()/2;
        double minorAxisThis = getCellHeight()/2;
-      
+       double totalContactArea = 0;
        for(int i=0;i<neighbours.numObjs;i++)
        {
           if (!(neighbours.objs[i] instanceof AbstractCell)) continue;
@@ -289,13 +289,19 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
           			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
           		}
           		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
+          		totalContactArea+=Math.abs(contactAreaCorrect);
           	 }
              if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
                     	
                     interactionResult.nextToOuterCell=true;  
              }
            }          
-        }       
+        }
+       if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
+      	 ((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setTotalContactArea(totalContactArea);
+       }
+       
+       
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >=0){
       		Point2d membraneReferencePoint = findReferencePositionOnBoundary(new Point2d(thisloc.x, thisloc.y), thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2));

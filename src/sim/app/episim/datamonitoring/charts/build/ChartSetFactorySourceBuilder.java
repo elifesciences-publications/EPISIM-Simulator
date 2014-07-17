@@ -1,7 +1,10 @@
 package sim.app.episim.datamonitoring.charts.build;
 
+import java.util.List;
+
 import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
+import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.monitoring.EpisimCellVisualizationChart;
@@ -34,6 +37,7 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 		appendCheckForMissingObjectsMethod();
 		appendGetChartPanelsMethod();
 		appendGetSteppablesOfChartsMethod();
+		appendGetSteppablesOfPNGWritersMethod();
 		appendRegisterRequiredObjectsMethod();
 		appendEnd();
 		
@@ -98,9 +102,17 @@ public class ChartSetFactorySourceBuilder  extends AbstractCommonFactorySourceBu
 		this.factorySource.append("  List<EnhancedSteppable> chartSteppables = new ArrayList<EnhancedSteppable>();\n");
 		this.factorySource.append("  for(GeneratedChart actChart : allChartsOfTheSet){\n");
 		this.factorySource.append("    chartSteppables.add(actChart.getSteppable());\n");
-		this.factorySource.append("    if(actChart.getPNGSteppable() != null) chartSteppables.add(actChart.getPNGSteppable());\n");
 		this.factorySource.append("  }\n");
 		this.factorySource.append("  return chartSteppables;\n");
+		this.factorySource.append("}\n");
+	}
+	private void appendGetSteppablesOfPNGWritersMethod(){
+		this.factorySource.append("public List<EnhancedSteppable> getSteppablesOfPNGWriters(){\n");
+		this.factorySource.append("  List<EnhancedSteppable> pngWriterSteppables = new ArrayList<EnhancedSteppable>();\n");
+		this.factorySource.append("  for(GeneratedChart actChart : allChartsOfTheSet){\n");
+		this.factorySource.append("    if(actChart.getPNGSteppable() != null) pngWriterSteppables.add(actChart.getPNGSteppable());\n");
+		this.factorySource.append("  }\n");
+		this.factorySource.append("  return pngWriterSteppables;\n");
 		this.factorySource.append("}\n");
 	}
 	

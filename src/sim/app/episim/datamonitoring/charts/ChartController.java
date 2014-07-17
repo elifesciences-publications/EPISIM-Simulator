@@ -306,6 +306,10 @@ public class ChartController implements ClassLoaderChangeListener{
 		return ChartPanelAndSteppableServer.getInstance().getChartSteppables(allCells, objects );
 	}
 	
+	public List<EnhancedSteppable> getPNGWriterSteppablesOfActLoadedChartSet() {
+		return ChartPanelAndSteppableServer.getInstance().getPNGWriterSteppables();
+	}
+	
 	
 	private boolean loadEpisimChartSet(URL url, Component parent){
 		try{
@@ -317,7 +321,7 @@ public class ChartController implements ClassLoaderChangeListener{
 				ChartController.getInstance().actLoadedChartSet.setPath(new File(url.toURI()));
 				if(!ChartController.getInstance().actLoadedChartSet.isOneOfTheChartsDirty() && !ECSFileReader.foundDirtyChartSeriesDuringImport){
 					ECSFileReader.foundDirtyChartSeriesDuringImport = false;
-					ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getDiffusionChartPanels(), ecsReader.getChartSteppables(), ecsReader.getChartSetFactory());
+					ChartPanelAndSteppableServer.getInstance().registerCustomChartPanelsAndSteppables(ecsReader.getChartPanels(), ecsReader.getDiffusionChartPanels(), ecsReader.getChartSteppables(),ecsReader.getPNGWriterSteppables(), ecsReader.getChartSetFactory());
 					CompatibilityChecker checker = new CompatibilityChecker();			
 					checker.checkEpisimChartSetForCompatibility(ChartController.getInstance().actLoadedChartSet, ChartController.getInstance().chartMonitoredTissue);
 				}

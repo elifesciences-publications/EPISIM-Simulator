@@ -32,7 +32,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	
 	public enum SchedulePriority{		
 		
-		EXTRACELLULARFIELD(1),CELLS(2), TISSUE(3), STATISTICS(4), DATAMONITORING(5), OTHER(6);
+		EXTRACELLULARFIELD(1),CELLS(2), TISSUE(3), STATISTICS(4), DATAMONITORING(5),PNGWRITING(6), OTHER(7);
 		
 		private int priority;
 		

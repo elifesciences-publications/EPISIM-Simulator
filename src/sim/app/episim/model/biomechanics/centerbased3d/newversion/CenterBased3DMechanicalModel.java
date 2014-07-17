@@ -160,7 +160,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
        double thisSemiAxisB = getCellHeight()/2;
        double thisSemiAxisC = getCellLength()/2;
        Point3d thislocP= new Point3d(thisloc.x, thisloc.y, thisloc.z);
-       
+       double totalContactArea=0;
        for(int i=0;i<neighbours.numObjs;i++)
        {
           
@@ -257,12 +257,16 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
           					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisB, otherSemiAxisA, otherSemiAxisB,otherSemiAxisC, d_membrane_this, d_membrane_other, actDist, optDist);
           		}
           		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
-          	 }
+          		totalContactArea+= Math.abs(contactAreaCorrect);         		
+             }
              if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){                    	
                     interactionResult.nextToOuterCell=true;  
              }
            }          
-        }       
+        }
+       if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
+      	 ((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setTotalContactArea(totalContactArea);
+       }
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >=0){
       		Point3d membraneReferencePoint = findReferencePositionOnBoundary(thislocP, thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2), thisloc.z - (getCellLength()/2), thisloc.z + (getCellLength()/2));

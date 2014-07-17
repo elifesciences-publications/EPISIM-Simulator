@@ -28,6 +28,7 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
 	private double extCellSpaceVolume = 0;
 	private double extCellSpaceMikron = 0.2d;
 	private double cellSurfaceArea=0;
+	private double totalContactArea= 0;
 	
 	public EpisimCenterBasedMC(){}
 	
@@ -176,5 +177,17 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
    public boolean getIsNucleated(){ return this.isNucleated; }
    
    public void setIsNucleated(boolean val){ this.isNucleated = val; }
+
+	
+   public double getTotalContactArea() {
+   
+   	return totalContactArea;
+   }
+
+   @Hidden
+   public void setTotalContactArea(double totalContactArea) {
+   
+   	this.totalContactArea = totalContactArea;
+   }
 }
 

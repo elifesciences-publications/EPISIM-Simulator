@@ -10,11 +10,13 @@ import episiminterfaces.monitoring.EpisimDiffFieldChart;
 public class DiffusionChartFactory {
 	
 	private List<EnhancedSteppable> chartSteppables;
+	private List<EnhancedSteppable> pngWriterSteppables;
 	private List<JPanel> diffusionChartPanels;
 	
 	
 	public DiffusionChartFactory(List<EpisimDiffFieldChart> diffFieldCharts){
 		chartSteppables = new ArrayList<EnhancedSteppable>();
+		pngWriterSteppables = new ArrayList<EnhancedSteppable>();
 		diffusionChartPanels = new ArrayList<JPanel>();
 		buildChartsAndSteppables(diffFieldCharts);
 	}
@@ -24,7 +26,7 @@ public class DiffusionChartFactory {
 			for(EpisimDiffFieldChart diffFieldChart: diffFieldCharts){
 				DiffusionChartGUI chartGUI = new DiffusionChartGUI(diffFieldChart);
 				chartSteppables.add(chartGUI.getChartSteppable());
-				if(chartGUI.getChartPNGSteppable() != null) chartSteppables.add(chartGUI.getChartPNGSteppable());
+				if(chartGUI.getChartPNGSteppable() != null) pngWriterSteppables.add(chartGUI.getChartPNGSteppable());
 				diffusionChartPanels.add(chartGUI.getChartPanel());
 			}			
 		}
@@ -36,5 +38,8 @@ public class DiffusionChartFactory {
 	
 	public List<EnhancedSteppable> getDiffusionChartSteppables(){
 		return this.chartSteppables;
+	}
+	public List<EnhancedSteppable> getDiffusionChartPNGWriterSteppables(){
+		return this.pngWriterSteppables;
 	}
 }

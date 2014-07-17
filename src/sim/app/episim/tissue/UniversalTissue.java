@@ -88,6 +88,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 	// Percentage
 	
 	private transient List<EnhancedSteppable> chartSteppables = null;
+	private transient List<EnhancedSteppable> chartPNGWriterSteppables = null;
 	
 	private transient List<EnhancedSteppable> dataExportSteppables = null;
 	
@@ -241,6 +242,12 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 		   	schedule.scheduleRepeating(steppable, SchedulePriority.DATAMONITORING.getPriority(), steppable.getInterval());
 		   }
 		}
+		if(this.chartPNGWriterSteppables != null){
+			for(EnhancedSteppable steppable: this.chartPNGWriterSteppables){
+				if(steppable.getInterval() >1)schedule.scheduleOnce(0,SchedulePriority.PNGWRITING.getPriority(), steppable);
+		   	schedule.scheduleRepeating(steppable, SchedulePriority.PNGWRITING.getPriority(), steppable.getInterval());
+		   }
+		}
 		
 		if(this.dataExportSteppables != null){
 			for(EnhancedSteppable steppable: this.dataExportSteppables){
@@ -351,6 +358,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 		      		ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters(), 
 		      		ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters(), 
 		      		this});
+		      this.chartPNGWriterSteppables = ChartController.getInstance().getPNGWriterSteppablesOfActLoadedChartSet();
 		   }
       }
       catch (MissingObjectsException e){

@@ -28,6 +28,7 @@ public class EpisimEpidermisCenterBased3DMC extends episimbiomechanics.centerbas
 	private double extCellSpaceVolume = 0;
 	private double extCellSpaceMikron = 0.2d;
 	private double cellSurfaceArea=0;
+	private double totalContactArea=0;
 	
 	public EpisimEpidermisCenterBased3DMC(){}
 	
@@ -179,5 +180,16 @@ public class EpisimEpidermisCenterBased3DMC extends episimbiomechanics.centerbas
    public boolean getIsViable(){ return this.isViable; }
    
    public void setIsViable(boolean val){ this.isViable = val; }
+   
+   public double getTotalContactArea() {
+      
+   	return totalContactArea;
+   }
+
+   @Hidden
+   public void setTotalContactArea(double totalContactArea) {
+   
+   	this.totalContactArea = totalContactArea;
+   }
 }
 

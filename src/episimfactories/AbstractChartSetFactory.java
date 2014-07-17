@@ -283,6 +283,7 @@ public abstract class AbstractChartSetFactory {
 	}
 	public abstract List<ChartPanel> getChartPanels();
    public abstract List<EnhancedSteppable> getSteppablesOfCharts();
+   public abstract List<EnhancedSteppable> getSteppablesOfPNGWriters();
    
    public abstract void registerNecessaryObjects(GenericBag<AbstractCell> allCells, Object[] objects) throws MissingObjectsException;
 }

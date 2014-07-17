@@ -8,9 +8,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
+
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.datamonitoring.dataexport.DiffusionFieldDataExport;
 import sim.app.episim.datamonitoring.dataexport.DiffusionFieldDataExportFactory;
+import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.Names;
@@ -78,6 +80,8 @@ public class EDEFileReader{
 		}
 
 		try{
+			boolean dataExportSetDirtyDueToVersionChange = hasSimulatorVersionChanged(new Attributes.Name("Created-By"));
+			EDEFileReader.foundDirtyDataExportColumnDuringImport = dataExportSetDirtyDueToVersionChange;
 			return AbstractDataExportFactory.getEpisimDataExportDefinitionSetBasedOnXML(uc.getInputStream());
 		}catch(FileNotFoundException e){
 			System.out.println("DataExport XML File not found, falling back to serialized version!");
@@ -139,6 +143,19 @@ public class EDEFileReader{
 		Attributes attr = uc.getMainAttributes();
 		return attr != null ? attr.getValue(attrName) : null;
 	}
+	private boolean hasSimulatorVersionChanged(Attributes.Name attrName)throws IOException{
+	   URL u = new URL("jar", "", url + "!/");
+	   JarURLConnection uc = (JarURLConnection)u.openConnection();
+	   Attributes attr = uc.getMainAttributes();	       
+	   String simulatorVersion= attr != null ? attr.getValue(attrName) : null;
+	   if(simulatorVersion!= null){
+	   	String[] simulatorVersionParts= simulatorVersion.split(" ");
+	   	if(simulatorVersionParts != null && simulatorVersionParts[0]!=null){
+	   		if(simulatorVersionParts[0].equals(EpisimSimulator.versionID)) return false;
+	   	}
+	   }
+	   return true;
+	}    
 }
 
 

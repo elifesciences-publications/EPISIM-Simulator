@@ -7,6 +7,8 @@ import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.SwingUtilities;
+
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYShapeAnnotation;
 
@@ -191,26 +193,34 @@ public abstract class SteppableCodeFactory {
 		steppableCode = new StringBuffer();
 		steppableCode.append("new EnhancedSteppable(){\n");
 		
-		steppableCode.append("public void step(SimState state){\n");			
+		steppableCode.append("public void step(SimState state){\n");
+		steppableCode.append("    final SimState _state = state;\n");
+		steppableCode.append("  SwingUtilities.invokeLater(new Runnable(){\n");
+		steppableCode.append("    public void run() {\n");
+		
+					
+            
+			
 			steppableCode.append("if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){");
 			steppableCode.append("  PNGPrinter.getInstance().printChartAsPng("+ id+"l, "+
 					                  "null, "+
-					                  "\""+ (title == null || title.length()==0 ? "EpisimChartPNG":title) +"\", "+ChartSourceBuilder.CHARTDATAFIELDNAME+", state);\n");
+					                  "\""+ (title == null || title.length()==0 ? "EpisimChartPNG":title) +"\", "+ChartSourceBuilder.CHARTDATAFIELDNAME+", _state);\n");
 			steppableCode.append("}\n");
 			steppableCode.append("else{");
 			if(pngFilePath!=null){
 				if(widthToHeightScale < Double.POSITIVE_INFINITY){
 					steppableCode.append("  PNGPrinter.getInstance().printChartAsPng("+ id +"l, "+
 		               "new File(\""+ pngFilePath.getAbsolutePath().replace(File.separatorChar, '/')+"\"), "+
-		               "\""+ title +"\", "+ChartSourceBuilder.CHARTDATAFIELDNAME+", state,"+widthToHeightScale+");\n");
+		               "\""+ title +"\", "+ChartSourceBuilder.CHARTDATAFIELDNAME+", _state,"+widthToHeightScale+");\n");
 				}
 				else{
 					steppableCode.append("  PNGPrinter.getInstance().printChartAsPng("+ id +"l, "+
 		               "new File(\""+ pngFilePath.getAbsolutePath().replace(File.separatorChar, '/')+"\"), "+
-		               "\""+ title +"\", "+ChartSourceBuilder.CHARTDATAFIELDNAME+", state);\n");
+		               "\""+ title +"\", "+ChartSourceBuilder.CHARTDATAFIELDNAME+", _state);\n");
 				}
 			}
-			steppableCode.append("}\n");			
+			steppableCode.append("}\n");
+			steppableCode.append("        }});\n");
 			steppableCode.append("}\n");
 			steppableCode.append("public double getInterval(){\n");
 			steppableCode.append("if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null){");

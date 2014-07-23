@@ -222,44 +222,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
       tissueExportButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				simulation.state.preCheckpoint();
-				
-				episimGUIState.pressWorkaroundSimulationPause();
-							 
-				if(mainGUIComponent != null && mainGUIComponent instanceof JFrame && SimulationStateFile.getTissueExportPath() == null){					
-					ExtendedFileChooser chooser = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
-					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showSaveDialog((JFrame)mainGUIComponent) && chooser.getSelectedFile() != null){
-						SimulationStateFile.setTissueExportPath(chooser.getSelectedFile());	
-						 if(ModeServer.guiMode()){
-	                  try{
-	                     ((JFrame)mainGUIComponent).setTitle(EpisimSimulator.getEpisimSimulatorTitle()+ "- Tissue-Export-Path: "+chooser.getSelectedFile().getCanonicalPath());
-                     }
-                     catch (IOException e1){
-                     	 ExceptionDisplayer.getInstance().displayException(e1);
-                     }
-						 }
-					}
-				}				
-			
-				if(ModeServer.guiMode()&& SimulationStateFile.getTissueExportPath() != null){
-					if(mainGUIComponent instanceof Frame){
-					
-						EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
-							
-							public void executeTask() {							
-								saveSimulationState();					
-		                }
-							public void taskHasFinished(){								  			
-						        episimGUIState.pressWorkaroundSimulationPlay(); 
-								  simulation.state.postCheckpoint();
-							}					
-						};
-						EpisimProgressWindow.showProgressWindowForTask((Frame)mainGUIComponent, "Writing simulation state to disk...", cb);						
-					}
-				}
-				else{
-					if(SimulationStateFile.getTissueExportPath() != null)saveSimulationState();	
-				}   		
+				episimGUIState.saveTissueSimulationSnapshot();
 			}
      	 
       });
@@ -306,17 +269,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 		tissueExportButton.setEnabled(true);
 	}
 	
-	private void saveSimulationState(){
-		  try{
-			  (new SimulationStateFile()).saveData(false);							
-		  }
-        catch (ParserConfigurationException e1){
-           ExceptionDisplayer.getInstance().displayException(e1);
-        }
-        catch (SAXException e1){
-        	ExceptionDisplayer.getInstance().displayException(e1);
-        }		
-	}
+	
 	
 	
 	private Container getControllerContainer(Container con){

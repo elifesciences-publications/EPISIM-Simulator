@@ -1,10 +1,11 @@
-package sim.util;
+package sim.app.episim.util;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 
 
@@ -13,8 +14,11 @@ public class Loop {
        void run(int i);
    }
 
-   private static final int CPUs = Runtime.getRuntime().availableProcessors();
-
+   private static final int CPUs = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION_THREAD_NO) == null ? 
+   														Runtime.getRuntime().availableProcessors() : Math.abs(Integer.parseInt(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION_THREAD_NO)));
+   static{
+   	System.out.println("Number of used CPUs in class Loop: "+CPUs);
+   }
    public static void withIndex(int start, int stop, final Each body) {
        int chunksize = (stop - start + CPUs - 1) / CPUs;
        int loops = (stop - start + chunksize - 1) / chunksize;

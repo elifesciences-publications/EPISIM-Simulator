@@ -1,7 +1,9 @@
 package sim.app.episim.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Frame;
+import java.awt.Window;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -9,7 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JWindow;
-
 import javax.swing.border.BevelBorder;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -26,7 +27,16 @@ public class EpisimProgressWindow {
 	private boolean taskHasStarted = false;
 	private EpisimProgressWindow(Frame owner){
 		progressWindow = new JWindow(owner);
-
+		createProgressWindow(progressWindow, owner);
+	
+	}
+	private EpisimProgressWindow(Window owner){
+		progressWindow = new JWindow(owner);
+		createProgressWindow(progressWindow, owner);
+	
+	}
+	
+	private void createProgressWindow(JWindow progressWindow, Component owner){
 		progressWindow.getContentPane().setLayout(new BorderLayout(5, 5));
 		if(progressWindow.getContentPane() instanceof JPanel)
 			((JPanel)progressWindow.getContentPane()).setBorder(BorderFactory.createCompoundBorder(
@@ -65,7 +75,11 @@ public class EpisimProgressWindow {
 		progressWindow.setVisible(true);
 	}
 	
-	
+	public static synchronized void showProgressWindowForTask(Window owner, String text, EpisimProgressWindowCallback callback){
+		EpisimProgressWindow window = new EpisimProgressWindow(owner);
+		window.setProgressText(text);
+		window.showProgressWindowForTask(callback);
+	}
 	
 	public static synchronized void showProgressWindowForTask(Frame owner, String text, EpisimProgressWindowCallback callback){
 		EpisimProgressWindow window = new EpisimProgressWindow(owner);

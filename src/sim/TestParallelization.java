@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import sim.app.episim.util.Loop;
 import sim.field.grid.IntGrid2D;
-import sim.util.Loop;
 
 
 public class TestParallelization {

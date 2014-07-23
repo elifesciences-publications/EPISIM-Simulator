@@ -38,12 +38,12 @@ import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.Loop;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double2D;
 import sim.util.Double3D;
-import sim.util.Loop;
 
 
 public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3DModel{

@@ -58,15 +58,21 @@ public class UniversalCell extends AbstractCell
    public UniversalCell(boolean isSimulationCell){
    	this(null,  null, isSimulationCell);
    }
+   public UniversalCell(long cellId, boolean isSimulationCell){
+   	this(cellId, null,  null, isSimulationCell);
+   }
    
    public UniversalCell(UniversalCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, boolean isSimulationCell){   
-   	 super(motherCell, cellBehavioralModel);      
-   	 TissueController.getInstance().getActEpidermalTissue().checkMemory();
-   	 if(isSimulationCell)TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag       
+   	this(Long.MIN_VALUE, motherCell, cellBehavioralModel, isSimulationCell);
     }  
     
-    public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
-    {       
+   public UniversalCell(long cellId, UniversalCell motherCell, EpisimCellBehavioralModel cellBehavioralModel, boolean isSimulationCell){   
+	  	 super(cellId, motherCell, cellBehavioralModel);      
+	  	 TissueController.getInstance().getActEpidermalTissue().checkMemory();
+	  	 if(isSimulationCell)TissueController.getInstance().getActEpidermalTissue().getAllCells().add(this); // register this as additional one in Bag       
+   }
+   public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
+   {       
    	 
    	 // Either we get use a currently unused cell oder we allocate a new one
         UniversalCell kcyte;   

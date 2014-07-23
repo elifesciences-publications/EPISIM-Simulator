@@ -13,6 +13,7 @@ import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.charts.EpisimChartPanel;
+import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -20,6 +21,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlob
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.model.visualization.TissueCrossSectionPortrayal3D;
 import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
+import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.tissue.UniversalTissue;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
@@ -51,6 +53,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Point2D;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -58,8 +61,10 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.jfree.chart.*; // ChartPanel;
+import org.xml.sax.SAXException;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
@@ -915,9 +920,9 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		 }
 	}
 	
-	public void pressPauseAfterLoadingSimulationState(){
+	public void pressStartAfterLoadingSimulationState(){
 		if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() != Console.PS_PLAYING){
-			console.pressPause();
+			console.pressPlay();
 		}
 	}
 	
@@ -1059,6 +1064,60 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		}
 	}
 	
+	public void saveTissueSimulationSnapshot(){
+		state.preCheckpoint();		
+		pressWorkaroundSimulationPause();
+					 
+		if(this.getMainGUIComponent() != null && this.getMainGUIComponent() instanceof JFrame && SimulationStateFile.getTissueExportPath() == null){					
+			ExtendedFileChooser chooser = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
+			if(ExtendedFileChooser.APPROVE_OPTION == chooser.showSaveDialog((JFrame)this.getMainGUIComponent()) && chooser.getSelectedFile() != null){
+				SimulationStateFile.setTissueExportPath(chooser.getSelectedFile());	
+				 if(ModeServer.guiMode()){
+               try{
+                  ((JFrame)this.getMainGUIComponent()).setTitle(EpisimSimulator.getEpisimSimulatorTitle()+ "- Tissue-Export-Path: "+chooser.getSelectedFile().getCanonicalPath());
+               }
+               catch (IOException e1){
+               	 ExceptionDisplayer.getInstance().displayException(e1);
+               }
+				 }
+			}
+		}				
 	
+		if(ModeServer.guiMode()&& SimulationStateFile.getTissueExportPath() != null){
+			if(this.getMainGUIComponent() instanceof Frame){
+			
+				EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback(){
+					
+					public void executeTask() {							
+							saveSimulationStateToDisk();				
+                }
+					public void taskHasFinished(){								  			
+				        pressWorkaroundSimulationPlay(); 
+				        state.postCheckpoint();
+					}					
+				};
+				EpisimProgressWindow.showProgressWindowForTask((Frame)this.getMainGUIComponent(), "Writing simulation state to disk...", cb);						
+			}
+		}
+		else{
+			if(SimulationStateFile.getTissueExportPath() != null){
+				saveSimulationStateToDisk();
+				pressWorkaroundSimulationPlay(); 
+		      state.postCheckpoint();
+			}
+		}
+	}
+	
+	private void saveSimulationStateToDisk(){
+		 try{
+			  (new SimulationStateFile()).saveData(false);							
+		  }
+       catch (ParserConfigurationException e1){
+          ExceptionDisplayer.getInstance().displayException(e1);
+       }
+       catch (SAXException e1){
+       	ExceptionDisplayer.getInstance().displayException(e1);
+       }		
+	}
 
 }

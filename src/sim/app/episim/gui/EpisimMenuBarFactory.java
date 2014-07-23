@@ -20,6 +20,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
+import sim.app.episim.datamonitoring.dataexport.TissueSnapshotDataExportDialog;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.propfilegenerator.PropertyFileGeneratorWizard;
@@ -60,6 +61,7 @@ public class EpisimMenuBarFactory {
 		LOAD_DATA_EXPORT("Load Data-Export-Definition-Set"),
 		NEW_DATA_EXPORT("New Data-Export-Definition-Set"),
 		CLOSE_DATA_EXPORT("Close Loaded Data-Export-Definition-Set"),
+		DATA_EXPORT_SIMULATION_SNAPSHOT("Export Data from Simulation Snapshot"),
 		
 		ABOUT_EPISIM_SIMULATOR("About EPISIM Simulator"),
 		UPDATE_EPISIM_SIMULATOR("Update EPISIM Simulator"),
@@ -176,7 +178,7 @@ public class EpisimMenuBarFactory {
 					ExtendedFileChooser chooser = new ExtendedFileChooser("xml");
 					chooser.setDialogTitle("Open EPISIM Tissue-Export");
 					if(ExtendedFileChooser.APPROVE_OPTION == chooser.showOpenDialog((JFrame)simulator.getMainFrame())){
-						simulator.loadSimulationStateFile(chooser.getSelectedFile());						
+						simulator.loadSimulationStateFile(chooser.getSelectedFile(),true,false);						
 					}
 				}			
 			}
@@ -307,7 +309,7 @@ public class EpisimMenuBarFactory {
 		//--------------------------------------------------------------------------------------------------------------
 		
 		JMenu dataExportMenu = new JMenu(EpisimMenu.DATAEXPORT_MENU.toString());
-		dataExportMenu.setEnabled(false);
+		dataExportMenu.setEnabled(true);
 		
 		JMenuItem menuItemNewDataExport = new JMenuItem(EpisimMenuItem.NEW_DATA_EXPORT.toString());
 		menuItemNewDataExport.addActionListener(new ActionListener(){
@@ -326,6 +328,7 @@ public class EpisimMenuBarFactory {
 			}
 			
 		});
+		menuItemNewDataExport.setEnabled(false);
 		
 		JMenuItem menuItemLoadDataExport = new JMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT.toString());
 		menuItemLoadDataExport.addActionListener(new ActionListener(){
@@ -348,7 +351,7 @@ public class EpisimMenuBarFactory {
 			}
 			
 		});
-		
+		menuItemLoadDataExport.setEnabled(false);
 		JMenuItem menuItemEditDataExport = new JMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT.toString());
 		menuItemEditDataExport.addActionListener(new ActionListener(){
 
@@ -375,11 +378,32 @@ public class EpisimMenuBarFactory {
 		});
 		menuItemCloseDataExport.setEnabled(false);
 		
+		JMenuItem menuItemDataExportSimulationSnaphot = new JMenuItem(EpisimMenuItem.DATA_EXPORT_SIMULATION_SNAPSHOT.toString());
+		menuItemDataExportSimulationSnaphot.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				if(ModeServer.guiMode()){
+					TissueSnapshotDataExportDialog dialog = new TissueSnapshotDataExportDialog((JFrame)simulator.getMainFrame(), true);
+					dialog.showDialog(simulator);
+				}
+				/*getEpisimMenuItem(EpisimMenuItem.NEW_DATA_EXPORT).setEnabled(true);
+				getEpisimMenuItem(EpisimMenuItem.LOAD_DATA_EXPORT).setEnabled(true);
+				getEpisimMenuItem(EpisimMenuItem.CLOSE_DATA_EXPORT).setEnabled(false);
+				getEpisimMenuItem(EpisimMenuItem.EDIT_DATA_EXPORT).setEnabled(false);
+				DataExportController.getInstance().closeActLoadedDataExportDefinitonSet();
+				simulator.getStatusbar().setMessage("Ready");*/
+			}
+			
+		});
+		menuItemDataExportSimulationSnaphot.setEnabled(true);
+		
 		dataExportMenu.add(menuItemNewDataExport);
 		dataExportMenu.add(menuItemLoadDataExport);
 		dataExportMenu.add(menuItemEditDataExport);
 		dataExportMenu.addSeparator();
 		dataExportMenu.add(menuItemCloseDataExport);
+		dataExportMenu.addSeparator();
+		dataExportMenu.add(menuItemDataExportSimulationSnaphot);
 		menuBar.add(dataExportMenu);
 	}
 	

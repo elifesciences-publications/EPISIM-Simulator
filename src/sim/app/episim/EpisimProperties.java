@@ -81,10 +81,13 @@ public class EpisimProperties {
 	
 	public static final String SIMULATION_AUTOSTART_AND_STOP_PROP = "simulation.autostartandstop";
 	public static final String SIMULATION_PARALLELIZATION = "simulation.parallelization";
+	public static final String SIMULATION_PARALLELIZATION_THREAD_NO = "simulation.parallelization.threads";
 	public static final String SIMULATION_MAX_STEPS_PROP = "simulation.steps.max";
 	public static final String SIMULATION_SIM_STEP_MODE = "simulation.steps.mode";
 	public static final String SIMULATION_SHUTDOWN_WAIT_MS ="simulation.shutdown.waitms";
-	public static final String SIMULATION_SNAPSHOT_PATH_PROP = "simulation.snapshotpath";
+	public static final String SIMULATION_SNAPSHOT_STORAGE_PATH_PROP = "simulation.snapshotpath";
+	public static final String SIMULATION_SNAPSHOT_LOAD_PATH_PROP = "simulation.snapshotpath.load";
+	public static final String SIMULATION_SNAPSHOT_SAVE_FREQUENCY = "simulation.snapshotfreq";
 	
 	
 	public static final String SIMULATOR_CHARTSETPATH = "charts.path";

@@ -4,6 +4,7 @@ package sim.app.episim.tissue;
 
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
@@ -13,7 +14,6 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.EpisimProgressWindow;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
-
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
@@ -27,6 +27,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
+import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -39,10 +40,15 @@ import sim.field.continuous.*;
 //Charts
 import org.jfree.chart.JFreeChart;
 
+
+
+
+
+
+
 //PDF Writer + ELSE
 import java.awt.*; 
 import java.awt.geom.*; 
-
 //PDF Writer
 import java.io.*;       
 import java.lang.reflect.Constructor;
@@ -58,6 +64,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
+
+import javax.swing.JOptionPane;
 
 import com.lowagie.text.*;  
 import com.lowagie.text.pdf.*;  
@@ -142,48 +151,20 @@ public class UniversalTissue extends TissueType implements CellDeathListener
  }
  
  
-	private boolean seedingHasFinished = false;
+	
  	private void seedInitiallyAvailableCells(){
 		final ArrayList<UniversalCell> initialCellEnsemble = new ArrayList<UniversalCell>();
 		if(ModeServer.guiMode() && ModelController.getInstance().isStoredSimStateLoaded()){
 			if(SimStateServer.getInstance().getEpisimGUIState()!= null 
 					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() != null
-					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() instanceof Frame){				
-				EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback() {											
-					public void taskHasFinished() {
-						for(UniversalCell cell : initialCellEnsemble){
-							 if(!ModeServer.useMonteCarloSteps()){
-								 
-									Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
-									cell.setStoppable(stoppable);
-							 }
-						 }
-						seedingHasFinished = true;
-					}
-					public void executeTask() {
-						initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());
-						try{
-			            Thread.sleep(50);
-							}
-							catch (InterruptedException e){
-				            ExceptionDisplayer.getInstance().displayException(e);
-							} 
-					}
-				};
-				seedingHasFinished = false;
-				EpisimProgressWindow.showProgressWindowForTask((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent(), "Load initial simulation state...", cb);
-				while(!seedingHasFinished){
-					/* wait, Thread sleep important, otherwise deadlock */ 
-					try{
-	            Thread.sleep(50);
-					}
-					catch (InterruptedException e){
-		            ExceptionDisplayer.getInstance().displayException(e);
-					} 
-					}
+					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() instanceof Frame){	
+				JOptionPane.showMessageDialog((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent(), 
+						"Starting the simulation requires retrieval of the tissue simulation snapshot you loaded!\nDuring this time EPISIM Simulator is not responding.\nSimulation starts automatically after successful processing of the tissue simulatoin snapshot.", 
+						"Simulation Start", JOptionPane.INFORMATION_MESSAGE);
+									
 			}
 		}
-		else{
+	
 			initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());
 			for(UniversalCell cell : initialCellEnsemble){
 				 if(!ModeServer.useMonteCarloSteps()){
@@ -192,7 +173,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 						cell.setStoppable(stoppable);
 				 }
 			 }	
-		}
+
 		
 		 
 	}
@@ -255,7 +236,11 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 		   	schedule.scheduleRepeating(steppable, SchedulePriority.DATAMONITORING.getPriority(), steppable.getInterval());
 		   }
 		}
-		
+		if(SimulationStateFile.getTissueExportPath() != null && EpisimProperties.getProperty(EpisimProperties.SIMULATION_SNAPSHOT_SAVE_FREQUENCY) !=null)
+		{
+			EnhancedSteppable steppable = getTissueSimulationSnaphshotSaveSteppable();
+			schedule.scheduleRepeating(steppable, SchedulePriority.DATAMONITORING.getPriority(), steppable.getInterval());			
+		}
 		GlobalStatistics.getInstance().reset(true);
 			     
 	   ModelController.getInstance().getBioMechanicalModelController().resetCellField();
@@ -289,9 +274,37 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 	public void removeCells(GeneralPath path){
 		ModelController.getInstance().getBioMechanicalModelController().removeCellsInWoundArea(path);		
 	}
+	
+	public void simulateASingleDataExtractionStepForDataExport(){
+		DataExportController.getInstance().newSimulationRun();
+		SimStateServer.getInstance().simulationWasStarted();
+		ModelController.getInstance().getInitialCellEnsemble();
+		if(this.dataExportSteppables != null){
+			for(EnhancedSteppable steppable: this.dataExportSteppables){
+				steppable.step(this);				
+		   }
+		}
+		SimStateServer.getInstance().simulationWasStopped();
+	}
 
 
-
+	private EnhancedSteppable getTissueSimulationSnaphshotSaveSteppable(){
+		final double frequency = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATION_SNAPSHOT_SAVE_FREQUENCY));
+		EnhancedSteppable steppable = new EnhancedSteppable() {
+			
+			
+			public void step(SimState state) {
+				if(SimStateServer.getInstance().getEpisimGUIState() != null){
+					SimStateServer.getInstance().getEpisimGUIState().saveTissueSimulationSnapshot();
+				}				
+			}			
+			
+			public double getInterval() {				
+				return frequency;
+			}
+		};
+		return steppable;
+	}
 
  
 	

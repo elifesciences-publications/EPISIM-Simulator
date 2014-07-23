@@ -303,7 +303,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 				}else{
 					EDEFileReader.foundDirtyDataExportColumnDuringImport = false;
 					for(EpisimDataExportDefinition def : DataExportController.getInstance().actLoadedDataExportSet.getEpisimDataExportDefinitions()) DataExportController.getInstance().updateExpressionsInDataExportDefinition(def);
-					DataExportController.getInstance().resetChartDirtyDataExports();
+					DataExportController.getInstance().resetDirtyDataExports();
 					DataExportController.getInstance().storeDataExportDefinitionSet(DataExportController.getInstance().actLoadedDataExportSet);
 				}
 				
@@ -311,7 +311,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 			}
 		}
 		catch (ModelCompatibilityException e){
-			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Data-Export Definition!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
+			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded EPISIM Cell-Model ist not compatible with this Data-Export Definition!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
 			ExceptionDisplayer.getInstance().displayException(e);
 			return false;
 		}
@@ -320,7 +320,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 			return false;
       }
       catch (CompilationFailedException e){
-      	if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Data-Export Definition!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
+      	if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded EPISIM Cell-Model ist not compatible with this Data-Export Definition!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
 			ExceptionDisplayer.getInstance().displayException(e);
 			return false;
       }
@@ -352,7 +352,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 		}
 	}
 	
-	private void resetChartDirtyDataExports(){
+	private void resetDirtyDataExports(){
 	  for(EpisimDataExportDefinition actDef: this.actLoadedDataExportSet.getEpisimDataExportDefinitions()) {
 		  actDef.setIsDirty(false);
 	  }

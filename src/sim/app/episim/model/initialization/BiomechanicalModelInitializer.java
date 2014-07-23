@@ -117,11 +117,11 @@ public abstract class BiomechanicalModelInitializer {
 	
 			long motherID = (Long) xCell.getMotherId();
 			if (id == motherID || xCell.getMotherId() == Long.MIN_VALUE) {
-				loadCell = new UniversalCell(true);
+				loadCell = new UniversalCell(id, true);
 			} else {
 				UniversalCell mother = buildCell(simulationStateData.getCellToBeLoaded(motherID));
 					// TODO was tun wenn mutter gelöscht ist?
-				loadCell = new UniversalCell(mother, null, true);
+				loadCell = new UniversalCell(id, mother, null, true);
 			}
 		if(loadCell != null){
 			xCell.copyValuesToTarget(loadCell);

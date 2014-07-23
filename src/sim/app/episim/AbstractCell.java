@@ -58,12 +58,14 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    private EpisimCellBehavioralModel cellBehavioralModelObject;
    private EpisimBiomechanicalModel mechanicalModelObject;
    
-   
-   
    public AbstractCell(AbstractCell motherCell, EpisimCellBehavioralModel cellBehavioralModel){
+   	this(Long.MIN_VALUE, motherCell, cellBehavioralModel);
+   }
+   
+   public AbstractCell(long cellId, AbstractCell motherCell, EpisimCellBehavioralModel cellBehavioralModel){
    	inNirvana=false;
    	isOuterCell=false;
-   	this.id = getNextCellId();
+   	this.id = cellId ==Long.MIN_VALUE ? getNextCellId(): cellId;
    	this.motherCell = ((motherCell == null) ? this : motherCell);   	
    	this.cellBehavioralModelObject = cellBehavioralModel;
    	

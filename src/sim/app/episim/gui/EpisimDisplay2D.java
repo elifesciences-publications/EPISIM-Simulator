@@ -36,16 +36,30 @@ import sim.portrayal.Portrayal;
 public class EpisimDisplay2D implements EpisimSimulationDisplay{
 	protected GUIState simulation;
 	private EpisimSimulationDisplay simulationDisplay;
-	
+	boolean autoVisualizationSnaphotEnabled = false;
 	public EpisimDisplay2D(final double width, final double height, GUIState simulation){
 		
 		
-		if(ModeServer.guiMode())simulationDisplay = new Display2DHack(width, height, simulation);
-		else simulationDisplay = new NoGUIDisplay2D(width, height, simulation);
+		if(ModeServer.guiMode()){
+			simulationDisplay = new Display2DHack(width, height, simulation);
+			autoVisualizationSnaphotEnabled = ((Display2DHack)simulationDisplay).isAutomatedPNGSnapshotsEnabled(); 
+		}
+		else{
+			simulationDisplay = new NoGUIDisplay2D(width, height, simulation);
+			autoVisualizationSnaphotEnabled = ((NoGUIDisplay2D)simulationDisplay).isAutomatedPNGSnapshotsEnabled(); 
+		}
 		this.simulation = simulation;
 		
 	}
 	
+	 public void takeSnapshot(){
+		 if(ModeServer.guiMode())((Display2DHack)simulationDisplay).takeSnapshot();
+		 else((NoGUIDisplay2D)simulationDisplay).takeSnapshot();
+	 }
+	 public void changeCellColoringMode(double val){
+		 if(ModeServer.guiMode())((Display2DHack)simulationDisplay).changeCellColoringMode(val);
+		 else((NoGUIDisplay2D)simulationDisplay).changeCellColoringMode(val);
+	 }
 	
 	public boolean isValid(){
 		if(simulationDisplay instanceof Display2DHack) return((Display2DHack)simulationDisplay).isValid();
@@ -88,7 +102,7 @@ public class EpisimDisplay2D implements EpisimSimulationDisplay{
     frame.setTitle(simulation.getName()  + " Display");
    
     
-   
+    frame.setIconifiable(!autoVisualizationSnaphotEnabled);
     frame.setMaximizable(false);
     frame.pack();
     return frame;

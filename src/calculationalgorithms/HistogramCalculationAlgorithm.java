@@ -21,7 +21,7 @@ import episiminterfaces.calc.marker.TissueObserverAlgorithm;
 
 
 public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm, TissueObserverAlgorithm{
-	
+	public static final String HISTOGRAM_COUNT_CELL_ONCE_PARAMETER = "count cell only once";
 	public static final String HISTOGRAMMINVALUEPARAMETER = "min value";
 	public static final String HISTOGRAMMAXVALUEPARAMETER = "max value";
 	public static final String HISTOGRAMNUMBEROFBINSPARAMETER = "number of bins";

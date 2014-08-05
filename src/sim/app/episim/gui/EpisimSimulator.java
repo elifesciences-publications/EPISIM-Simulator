@@ -69,7 +69,10 @@ import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sim.app.episim.gui.EpisimUpdateDialog.UpdateCancelledCallback;
 import sim.app.episim.model.biomechanics.hexagonbased.twosurface.HexagonBasedMechanicalModelTwoSurface;
+import sim.app.episim.model.controller.BiomechanicalModelController;
+import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.controller.ModelParameterModifier;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionFieldBCConfigRW;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
@@ -91,7 +94,7 @@ import sim.util.EpisimUpdateDialogText;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.0.2.5";
+	public static final String versionID = "1.5.0.3.3";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -647,6 +650,17 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		if(simulationStateData.getMiscalleneousGlobalParameters() != null)simulationStateData.getMiscalleneousGlobalParameters().copyValuesToTarget(MiscalleneousGlobalParameters.getInstance());
 		if(simulationStateData.getTissueBorder() != null)simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
 		
+		ModelParameterModifier parameterModifier = new ModelParameterModifier();
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
+				parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(globalMech, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP)));
+		}
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
+			parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(globalBehave, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CELLBEHAVIORALMODEL_GLOBALPARAMETERSFILE_PROP)));
+		}   			
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP) != null){   				
+			parameterModifier.setGlobalModelPropertiesToValuesInPropertiesFile(MiscalleneousGlobalParameters.getInstance()
+					, new File(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP)));
+		}
 	}
 	
 	
@@ -1094,7 +1108,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 					
 					if(load && compatible){ 
 						setTissueExportPath(f, false);
-						if(ModeServer.guiMode()){
+					/*	if(ModeServer.guiMode() && false){
 							final Semaphore sem = new Semaphore(1);
 							EpisimProgressWindowCallback cb = new EpisimProgressWindowCallback() {											
 								public void taskHasFinished() {
@@ -1121,11 +1135,11 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
                      }
 							return snapshotLoadSuccess;
 						}
-						else{
+						else{*/
 							boolean success = openModel(simStateData.getLoadedModelFile(), simStateData, snapshotDataExportLoad);
 							dataExtractionFromSimulationSnapshotMode = success && snapshotDataExportLoad;
 							return success;
-						}
+					//	}
 						
 					}
 					

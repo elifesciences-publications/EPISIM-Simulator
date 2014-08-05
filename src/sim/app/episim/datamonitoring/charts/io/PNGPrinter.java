@@ -44,6 +44,7 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 	private static final String FILEEXTENSION = ".png";
 	private Set<String> filenameSet;
 	private Map<Long, String> fileNameMap;
+	private Map<Long, Integer> chartIdPNGCounterMap;
 	
 	private HashSet<Long> chartRecoloringRegistry;
 	
@@ -96,22 +97,23 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 	}
 	
 	private File getPNGFile(long chartId, File directory, String fileName, SimState state){
-		if(!this.fileNameMap.keySet().contains(chartId)) this.fileNameMap.put(chartId, findFileName(fileName));
+		if(!this.fileNameMap.keySet().contains(chartId)){
+			this.fileNameMap.put(chartId, findFileName(fileName));
+		}
 		
 		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH) != null
 				&& state != null){
 			
 			fileName = fileName.replace(' ', '_');
 			
-			File pngFile = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH, fileName, FILEEXTENSION);
-			pngFile = new File(pngFile.getAbsolutePath().substring(0, (pngFile.getAbsolutePath().length()-FILEEXTENSION.length()))+"(SimulationStep " +SimStateServer.getInstance().getSimStepNumber()+ ")"+FILEEXTENSION);
+			File pngFile = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH, fileName, FILEEXTENSION, SimStateServer.getInstance().getSimStepNumber());
+			pngFile = new File(pngFile.getAbsolutePath().substring(0, (pngFile.getAbsolutePath().length()-FILEEXTENSION.length()))+FILEEXTENSION);
 			
 			return pngFile;
 		}		
 		else if(directory != null && directory.isDirectory() && state != null){
 			
-			File pngFile = new File(directory.getAbsolutePath()+File.separatorChar + this.fileNameMap.get(chartId) + 
-         		"(SimulationStep " +SimStateServer.getInstance().getSimStepNumber()+ ")"+FILEEXTENSION);	
+			File pngFile = new File(directory.getAbsolutePath()+File.separatorChar +SimStateServer.getInstance().getSimStepNumber()+"_"+ this.fileNameMap.get(chartId) +FILEEXTENSION);	
 			
 			pngFile = checkFile(pngFile);
 			
@@ -213,6 +215,7 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 	public void reset(){
 		this.filenameSet = new HashSet<String>();
 		this.fileNameMap = new HashMap<Long, String>();
+		this.chartIdPNGCounterMap  = new HashMap<Long, Integer>();
 		this.chartRecoloringRegistry = new HashSet<Long>();
 	}
 	

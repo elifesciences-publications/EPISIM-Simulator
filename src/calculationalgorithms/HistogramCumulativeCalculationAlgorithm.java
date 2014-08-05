@@ -1,8 +1,10 @@
 package calculationalgorithms;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.statistics.SimpleHistogramDataset;
@@ -27,12 +29,13 @@ public class HistogramCumulativeCalculationAlgorithm extends AbstractCommonCalcu
 	private Map<Long, Integer> calculationNumberMap;
 	private Map<Long, SimpleHistogramDataset> datasetMap;
 	private Map<Long, SimpleHistogramBin[]> binMap;
-	
+	private Map<Long, Set<Long>> alreadyCountedCellIds;
 	public  HistogramCumulativeCalculationAlgorithm(){
 		observers = new HashMap<Long, TissueObserver>();
 		calculationNumberMap = new HashMap<Long, Integer>();
 		datasetMap = new HashMap<Long, SimpleHistogramDataset>();
 		binMap = new HashMap<Long, SimpleHistogramBin[]>();
+		alreadyCountedCellIds = new HashMap<Long, Set<Long>>();
 	}
 	
 	
@@ -55,14 +58,13 @@ public class HistogramCumulativeCalculationAlgorithm extends AbstractCommonCalcu
 			public boolean hasMathematicalExpression() { return true; }
 			
 			public Map<String, Class<?>> getParameters() {
+				
 				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
 				
-				
+				params.put(HistogramCalculationAlgorithm.HISTOGRAM_COUNT_CELL_ONCE_PARAMETER, Boolean.TYPE);
 				params.put(HistogramCalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER, Double.TYPE);
 				params.put(HistogramCalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER, Double.TYPE);
-				params.put(HistogramCalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER, Integer.TYPE);
-				
-	         
+				params.put(HistogramCalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER, Integer.TYPE);      
 	        
 	         return params;
          }
@@ -79,15 +81,16 @@ public class HistogramCumulativeCalculationAlgorithm extends AbstractCommonCalcu
 
 	  this.calculationNumberMap.clear();
 	  this.datasetMap.clear();
-	  this.binMap.clear(); 
+	  this.binMap.clear();
+	  this.alreadyCountedCellIds.clear();
    }
 
 	public void calculate(CalculationHandler handler, ResultSet<Double> results){
-		
+		boolean countCellOnce = (Boolean)handler.getParameters().get(HistogramCalculationAlgorithm.HISTOGRAM_COUNT_CELL_ONCE_PARAMETER);
 		try{		
 			
 			notifyTissueObserver(handler.getID());
-			
+			if(!this.alreadyCountedCellIds.containsKey(handler.getID())) this.alreadyCountedCellIds.put(handler.getID(), new HashSet<Long>());
 			if(this.calculationNumberMap.containsKey(handler.getID())) this.calculationNumberMap.put(handler.getID(), (this.calculationNumberMap.get(handler.getID()).intValue()+1));
 			else this.calculationNumberMap.put(handler.getID(), 1);
 			
@@ -95,8 +98,13 @@ public class HistogramCumulativeCalculationAlgorithm extends AbstractCommonCalcu
 			
 			for(AbstractCell cell: allCells){ 
 				 if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(cell.getClass())){
-					 double result = handler.calculate(cell);
-					 if(checkCondition(result, handler, cell)) this.datasetMap.get(handler.getID()).addObservation(result);
+					 if((countCellOnce && !this.alreadyCountedCellIds.get(handler.getID()).contains(cell.getID())) ||!countCellOnce){
+						 double result = handler.calculate(cell);
+						 if(checkCondition(result, handler, cell)){ 
+							 this.datasetMap.get(handler.getID()).addObservation(result);
+							 this.alreadyCountedCellIds.get(handler.getID()).add(cell.getID());
+						 }
+					 }
 				 }				 
 			}			
 			calculateCumulativeResults(handler, results);			

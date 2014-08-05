@@ -92,7 +92,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 	
 	private EpisimProgressWindow progressWindow;
 	
-	public EpisimConsole(final GUIState simulation, boolean reloadSnapshot){
+	public EpisimConsole(final GUIState simulation){
 		
 		if(simulation instanceof EpisimGUIState){
 			episimGUIState = ((EpisimGUIState)simulation);

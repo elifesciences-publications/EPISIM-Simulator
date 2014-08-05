@@ -180,12 +180,12 @@ public abstract class SteppableCodeFactory {
 	
 	public synchronized static String getEnhancedSteppableForPNGPrinting(EpisimChart chart){
 		if(chart.isPNGPrintingEnabled()) return getEnhancedSteppableForPNGPrinting(chart.getId(), chart.getTitle(), chart.getPNGPrintingPath(), chart.getPNGPrintingFrequency(), Double.POSITIVE_INFINITY);		
-		return getEnhancedSteppableForPNGPrinting(chart.getId(), chart.getTitle(), null, chart.getPNGPrintingFrequency(), Double.POSITIVE_INFINITY);
+		return getEnhancedSteppableForPNGPrinting(chart.getId(), Names.cleanString(chart.getTitle()), null, chart.getPNGPrintingFrequency(), Double.POSITIVE_INFINITY);
 	}
 	
 	public synchronized static String getEnhancedSteppableForPNGPrinting(EpisimCellVisualizationChart chart, double widthToHeightScale){		
 		if(chart.isPNGPrintingEnabled()) return getEnhancedSteppableForPNGPrinting(chart.getId(), chart.getTitle(), chart.getPNGPrintingPath(), chart.getPNGPrintingFrequency(), widthToHeightScale);		
-		return getEnhancedSteppableForPNGPrinting(chart.getId(), chart.getTitle(), null, chart.getPNGPrintingFrequency(), widthToHeightScale);		
+		return getEnhancedSteppableForPNGPrinting(chart.getId(), Names.cleanString(chart.getTitle()), null, chart.getPNGPrintingFrequency(), widthToHeightScale);		
 	}
 			
 	private synchronized static String getEnhancedSteppableForPNGPrinting(long id, String title, File pngFilePath, int printFrequency, double widthToHeightScale){

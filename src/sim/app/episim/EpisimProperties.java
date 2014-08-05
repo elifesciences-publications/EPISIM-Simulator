@@ -88,6 +88,8 @@ public class EpisimProperties {
 	public static final String SIMULATION_SNAPSHOT_STORAGE_PATH_PROP = "simulation.snapshotpath";
 	public static final String SIMULATION_SNAPSHOT_LOAD_PATH_PROP = "simulation.snapshotpath.load";
 	public static final String SIMULATION_SNAPSHOT_SAVE_FREQUENCY = "simulation.snapshotfreq";
+	public static final String SIMULATION_PNG_PATH = "simulation.png.path";
+	public static final String SIMULATION_PNG_PRINT_FREQUENCY = "simulation.png.printfreq";
 	
 	
 	public static final String SIMULATOR_CHARTSETPATH = "charts.path";
@@ -111,9 +113,12 @@ public class EpisimProperties {
 	public static final String DISPLAY_3D_ROTATION_Z="display.3d.rotation.z";
 	public static final String DISPLAY_3D_ROTATION_PERSECOND="display.3d.rotation.persecond";	
 	
-	public static final String DISPLAY_SIZE_WIDTH="display.size.width";
-	public static final String DISPLAY_SIZE_HEIGHT="display.size.height";
-	
+	public static final String DISPLAY_SIZE_WIDTH = "display.size.width";
+	public static final String DISPLAY_SIZE_HEIGHT = "display.size.height";
+	public static final String DISPLAY_COLORMODE_FREQ = "display.colormode.freq";
+	public static final String DISPLAY_COLORMODE_MIN = "display.colormode.min";	
+	public static final String DISPLAY_COLORMODE_MAX = "display.colormode.max";
+	public static final String DISPLAY_COLORMODE_INCR = "display.colormode.incr";
 	
 	
 	public static final String SIMULATOR_DIFFUSION_FIELD_TESTMODE = "simulator.diffusionfield.testmode";
@@ -314,32 +319,33 @@ public class EpisimProperties {
 	private Properties getProperties(){ return properties;}
 	
 	public static File getFileForPathOfAProperty(final String property, final String filename, final String fileExtension){
+		return getFileForPathOfAProperty(property, filename, fileExtension, Long.MAX_VALUE);
+	}
+	
+	public static File getFileForPathOfAProperty(final String property, final String filename, final String fileExtension, long counter){
 	
 	   	String path = EpisimProperties.getProperty(property);
 	   	File f = new File(path);
 	   	if(!f.exists() || !f.isDirectory() || !f.canWrite()) throw new PropertyException("Property -  " + property +": " + f.getAbsolutePath() + " is not an (existing or accessable) directory!");
 	   	GregorianCalendar cal = new GregorianCalendar();
 	   	cal.setTime(new Date());
+	   	String date = cal.get(Calendar.YEAR)+"_"
+					+ cal.get(Calendar.MONTH)+ "_"
+					+ cal.get(Calendar.DAY_OF_MONTH)+ "_"
+					+ cal.get(Calendar.HOUR_OF_DAY)+ "_"
+					+ cal.get(Calendar.MINUTE)+ "_"
+					+ cal.get(Calendar.SECOND)+ "_";
+	   	String counterStr = counter != Long.MAX_VALUE ? (counter)+"_":"";
 	   	File file = new File(f.getAbsolutePath()+System.getProperty("file.separator")
-	   										+ cal.get(Calendar.YEAR)+"_"
-	   										+ cal.get(Calendar.MONTH)+ "_"
-	   										+ cal.get(Calendar.DAY_OF_MONTH)+ "_"
-	   										+ cal.get(Calendar.HOUR_OF_DAY)+ "_"
-	   										+ cal.get(Calendar.MINUTE)+ "_"
-	   										+ cal.get(Calendar.SECOND)+ "_"
-	   										+ (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID) != null ? (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID).trim() +"_"):"")
+	   										+ counterStr
+	   										+ (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID) != null ? (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID).trim() +"_"):date)
 	   										+ filename 
 	   										+(fileExtension.startsWith(".") ? fileExtension : ("."+fileExtension)));
 	   	int index = 1;
 	   	while(file.exists()){
-	   		file = new File(f.getAbsolutePath()+System.getProperty("file.separator")
-						+ cal.get(Calendar.YEAR)+"_"
-						+ cal.get(Calendar.MONTH)+ "_"
-						+ cal.get(Calendar.DAY_OF_MONTH)+ "_"
-						+ cal.get(Calendar.HOUR_OF_DAY)+ "_"
-						+ cal.get(Calendar.MINUTE)+ "_"
-						+ cal.get(Calendar.SECOND)+ "_"
-						+ (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID) != null ? (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID).trim() +"_"):"")
+	   		
+	   		file = new File(f.getAbsolutePath()+System.getProperty("file.separator")						
+						+ (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID) != null ? (EpisimProperties.getProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID).trim() +"_"):date)
 						+ filename  +"_"+(index++)+ (fileExtension.startsWith(".") ? fileExtension : ("."+fileExtension)));
 	   	}
 	   	return file;

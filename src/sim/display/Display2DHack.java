@@ -92,17 +92,26 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	
 	private boolean moviePathSet = false;
 	private EpisimMovieMaker episimMovieMaker;
-	private EpisimCellBehavioralModelGlobalParameters globalCBMParameters;
+	private EpisimCellBehavioralModelGlobalParameters globalCBMParameters;	
+	private boolean automatedPNGSnapshotsEnabled = false;
 	private Method cellColoringGetterMethod;
 	private Method cellColoringSetterMethod;
-	
+	private NumberTextField cellColoringField =null;
 	public Display2DHack(double width, double height, GUIState simulation) {
 
 		super(width, height, simulation);
 		optionButton.setVisible(false);
 		for(MouseMotionListener listener :insideDisplay.getMouseMotionListeners())insideDisplay.removeMouseMotionListener(listener);
 		for(MouseListener listener :insideDisplay.getMouseListeners())insideDisplay.removeMouseListener(listener);
-
+		
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PATH) != null && EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_FREQUENCY)!=null){
+			File pngSnaphotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PATH));
+			if(pngSnaphotPath.exists() && pngSnaphotPath.isDirectory()){
+				automatedPNGSnapshotsEnabled=true;
+			}
+		}
+		
+		
 		insideDisplay.addMouseListener(new MouseAdapter()
       {
       public void mouseClicked(MouseEvent e) 
@@ -286,7 +295,7 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
          if(defaultValue != null){
          	defaultVal = defaultValue instanceof Integer ? (double)((Integer)defaultValue).intValue() : defaultValue instanceof Double ? ((Double)defaultValue).doubleValue() :0;
          }
-	      NumberTextField cellColoringField = new NumberTextField("     Cell Coloring: ", defaultVal, 1,1)
+	      cellColoringField = new NumberTextField("     Cell Coloring: ", defaultVal, 1,1)
 	      {
 	          public double newValue(double newValue)
 	          {
@@ -320,6 +329,12 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	      header.add(cellColoringField);
       }
            
+	}
+	public void changeCellColoringMode(double val){
+		if(cellColoringField!=null){
+			cellColoringField.newValue(val);
+			cellColoringField.setValue(val);
+		}		
 	}
 	
 	private void findCellColoringMethods(){
@@ -451,23 +466,29 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
         final int SVG_BUTTON = 2;
         int result = PNG_BUTTON;  //  default
         Object[] options = { "Cancel", "Save to PNG ", "Save to SVG"};
+        if(!automatedPNGSnapshotsEnabled){
             result = JOptionPane.showOptionDialog(getFrame(), "Save window snapshot to what kind of file format?", "Save Format", 
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
                 null, options, options[0]);
+        }
        
                     
-        if (result == PNG_BUTTON) 
+        if (result == PNG_BUTTON || automatedPNGSnapshotsEnabled) 
             {
             // NOW pop up the save window
             FileDialog fd = new FileDialog(getFrame(), 
                 "Save Snapshot as 24-bit PNG...", FileDialog.SAVE);
             fd.setFile("Untitled.png");
-            fd.setVisible(true);
-            if (fd.getFile()!=null) 
+           if(!automatedPNGSnapshotsEnabled) fd.setVisible(true);
+            if (fd.getFile()!=null || automatedPNGSnapshotsEnabled) 
             	try
                {
-                                        OutputStream stream = new BufferedOutputStream(new FileOutputStream(
-                                                new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
+                                        
+            		 File pngFile= automatedPNGSnapshotsEnabled	? EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATION_PNG_PATH, "EPISIM_Visualization_Snapshot", ".png")
+									:  new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"));
+            		
+            		
+            		OutputStream stream = new BufferedOutputStream(new FileOutputStream(pngFile));
                                         PNGEncoder tmpEncoder = new
                                             PNGEncoder(img, false,PNGEncoder.FILTER_NONE,9);
                                         stream.write(tmpEncoder.pngEncode());
@@ -475,19 +496,23 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
                                         }
                 catch (Exception e) { e.printStackTrace(); }
             }
-        else if (result == SVG_BUTTON)
+        if (result == SVG_BUTTON ||(automatedPNGSnapshotsEnabled 
+      		  && EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG) != null 
+      		  && EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG).equals(EpisimProperties.ON)))
             {
-           ExtendedFileChooser fd = new ExtendedFileChooser("svg");
+      	  		ExtendedFileChooser fd = new ExtendedFileChooser("svg");
            
             
-            if (fd.showSaveDialog(getFrame())==ExtendedFileChooser.APPROVE_OPTION){ 
+            if (automatedPNGSnapshotsEnabled || fd.showSaveDialog(getFrame())==ExtendedFileChooser.APPROVE_OPTION){ 
             	try
                {
-                                        boolean oldprecise = precise;
-                                        precise = true;
-                                       
-                                       saveSVGImage(port, fd.getSelectedFile());
-                                        precise = oldprecise;
+                      boolean oldprecise = precise;
+                      precise = true;
+                      File svgFile= automatedPNGSnapshotsEnabled	? EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATION_PNG_PATH, "EPISIM_Visualization_Snapshot", ".svg")
+                     		 													: fd.getSelectedFile();
+                      
+                      saveSVGImage(port, svgFile);
+                      precise = oldprecise;
                  }
                 catch (Exception e) { e.printStackTrace(); }
             }
@@ -649,5 +674,11 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
    	if(portrayal instanceof FieldPortrayal2D){
    		super.attach((FieldPortrayal2D) portrayal, name);
    	}   
+   }
+
+	
+   public boolean isAutomatedPNGSnapshotsEnabled() {
+   
+   	return automatedPNGSnapshotsEnabled;
    } 
 }

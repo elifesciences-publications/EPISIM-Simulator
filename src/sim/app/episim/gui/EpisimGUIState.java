@@ -140,16 +140,13 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	private boolean optimizedGraphicsActivated = false;
 	
 	public EpisimGUIState(JFrame mainFrame){			
-		this(new UniversalTissue(System.currentTimeMillis()), mainFrame, false);
+		this(new UniversalTissue(System.currentTimeMillis()), mainFrame);
 	}
 	public EpisimGUIState(JPanel mainPanel){	
-		this(new UniversalTissue(System.currentTimeMillis()), (Component)mainPanel, false);
+		this(new UniversalTissue(System.currentTimeMillis()), (Component)mainPanel);
 	}
 
-	public EpisimGUIState(SimState state, JPanel mainPanel, boolean reloadSnapshot){
-		this(new UniversalTissue(System.currentTimeMillis()), (Component)mainPanel, reloadSnapshot);
-	}	
-	public EpisimGUIState(SimState state, Component mainComp, boolean reloadSnapshot){		
+	public EpisimGUIState(SimState state, Component mainComp){		
 		super(state);
 		
 		 MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
@@ -172,7 +169,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();
 		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainComponent = mainComp;		
-		this.setConsole(new EpisimConsole(this, reloadSnapshot));		
+		this.setConsole(new EpisimConsole(this));		
 	}
 	
 	
@@ -361,12 +358,21 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		for(int i = 0; i < portrayals.length; i++)display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
 		
 		display3D.attach(cellPortrayal3D, cellPortrayal.getPortrayalName(), cellPortrayal.getViewPortRectangle(), true);
+		
 		TissueCrossSectionPortrayal3D tissueCrosssectionPortrayal = new TissueCrossSectionPortrayal3D();
-		display3D.attach(tissueCrosssectionPortrayal, tissueCrosssectionPortrayal.getPortrayalName(), tissueCrosssectionPortrayal.getViewPortRectangle(), false);
+		display3D.attach(tissueCrosssectionPortrayal, tissueCrosssectionPortrayal.getPortrayalName(), tissueCrosssectionPortrayal.getViewPortRectangle(), true);
+		display3D.setPortrayalVisible(tissueCrosssectionPortrayal.getPortrayalName(), false);
+		
 		portrayals = ModelController.getInstance().getAdditionalPortrayalsCellForeground();
 		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		
+		
+		
 		portrayals = ModelController.getInstance().getExtraCellularDiffusionPortrayals();
-		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
+		for(int i = 0; i < portrayals.length; i++) display3D.attach((FieldPortrayal3D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), true);
+		//Deactive initially, portrayals have to be attached visibly otherwise they don't appear in the image/movie export
+		for(int i = 0; i < portrayals.length; i++)display3D.setPortrayalVisible(portrayals[i].getPortrayalName(), false);
+		
 		
 		if(optimizedGraphicsActivated){
 			  PointLight pl = new PointLight(new Color3f(0.3f, 0.3f, 0.3f), new Point3f((float)width/2f,(float)height,(float)length/2f), new Point3f(1.0f,0.0f,0.0f));     
@@ -384,7 +390,14 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	
 	
-	
+	public void takeVisualizationSnapshot(){
+		if(display2D != null) display2D.takeSnapshot();
+		if(display3D != null) display3D.takeSnapshot();
+	}
+	public void changeCellColoringMode(double val){
+		if(display2D != null) display2D.changeCellColoringMode(val);
+		if(display3D != null) display3D.changeCellColoringMode(val);
+	}
 	
 	private JInternalFrame buildEpisimDisplay2D(){
 		display2D = new EpisimDisplay2D(EPIDISPLAYWIDTH+(DISPLAY_BORDER_LEFT+DISPLAY_BORDER_RIGHT), EPIDISPLAYHEIGHT+(DISPLAY_BORDER_TOP+DISPLAY_BORDER_BOTTOM), this);
@@ -626,7 +639,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		displayFrame.setTitle("Tissue Visualization");
 		displayFrame.setName(SIMULATIONFRAME);
 		displayFrame.setMaximizable(true);
-		displayFrame.setIconifiable(true);
+		displayFrame.setIconifiable(displayFrame.isIconifiable());
 		displayFrame.setResizable(true);
 		displayFrame.setVisible(true);
 		displayFrame.setFrameIcon(null);

@@ -36,7 +36,13 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 		this.simulation = simulation;
 		
 	}
-	
+	public void takeSnapshot()
+	{
+		if(ModeServer.guiMode())simulationDisplay.takeSnapshot();
+	}
+	public void changeCellColoringMode(double val){
+		simulationDisplay.changeCellColoringMode(val);
+	}
 	public void detatchAll(){
 		simulationDisplay.detatchAll();
 	}
@@ -67,6 +73,9 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
 	
 	public boolean isPortrayalVisible(String name){
 		return simulationDisplay.isPortrayalVisible(name);
+	}
+	public void setPortrayalVisible(String name, boolean visible){
+		 simulationDisplay.setPortrayalVisible(name, visible);
 	}
 	
 	public void reset(){

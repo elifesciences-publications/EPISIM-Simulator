@@ -30,6 +30,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.prefs.Preferences;
@@ -62,13 +65,22 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
-import episiminterfaces.EpisimSimulationDisplay;
+import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.svggen.SVGGraphics2D;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 
+import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
+import episiminterfaces.EpisimSimulationDisplay;
+import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimGUIState;
+import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.EpisimMovieMaker;
+import sim.app.episim.util.Names;
 import sim.app.episim.util.Scale;
 import sim.display.Console;
 import sim.display.Display2D;
@@ -105,9 +117,16 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
    protected boolean precise = false;
 	private boolean moviePathSet = false;
 	private EpisimMovieMaker episimMovieMaker;
-	
+	private boolean automatedPNGSnapshotsEnabled = false;
    public String DEFAULT_PREFERENCES_KEY = "Display2D";
    String preferencesKey = DEFAULT_PREFERENCES_KEY;  // default 
+	private Method cellColoringGetterMethod;
+	private Method cellColoringSetterMethod;
+	private NumberTextField cellColoringField =null;
+	private EpisimCellBehavioralModelGlobalParameters globalCBMParameters;	
+	
+	
+	
    /** If you have more than one Display2D in your simulation and you want them to have
        different preferences, set each to a different key value.    The default value is DEFAULT_PREFERENCES_KEY.
        You may not have a key which ends in a forward slash (/) when trimmed  
@@ -1131,7 +1150,12 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
        this.simulation = simulation;
        
        reset();  // must happen AFTER simulation and interval are assigned
-       
+       if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PATH) != null && EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_FREQUENCY)!=null){
+ 			File pngSnaphotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PATH));
+ 			if(pngSnaphotPath.exists() && pngSnaphotPath.isDirectory()){
+ 				automatedPNGSnapshotsEnabled=true;
+ 			}
+ 		}
        final Color transparentBackground = new JPanel().getBackground();  // sacrificial JPanel
 
        // create the inner display and put it in a Scroll Panel
@@ -1369,6 +1393,64 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
        scaleField.setToolTipText("Zoom in and out");
        header.add(scaleField);
        
+       findCellColoringMethods();
+       if(this.cellColoringGetterMethod != null && this.cellColoringSetterMethod != null){
+       	
+ 	      // add the scale field
+       	Object defaultValue = null;
+       	try{
+ 	         defaultValue = this.cellColoringGetterMethod.invoke(this.globalCBMParameters, new Object[0]);
+          }
+          catch (Exception e1){
+ 	         ExceptionDisplayer.getInstance().displayException(e1);
+          }
+          double defaultVal = 0;
+          if(defaultValue != null){
+          	defaultVal = defaultValue instanceof Integer ? (double)((Integer)defaultValue).intValue() : defaultValue instanceof Double ? ((Double)defaultValue).doubleValue() :0;
+          }
+ 	      cellColoringField = new NumberTextField("     Cell Coloring: ", defaultVal, 1,1)
+ 	      {
+ 	          public double newValue(double newValue)
+ 	          {
+ 	              if (newValue > 0){
+ 	            	  if(Integer.TYPE.isAssignableFrom(cellColoringGetterMethod.getReturnType())){
+ 	            		  int val = (int) newValue;
+ 	            		  try{
+ 	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{val});
+ 	            		  }
+ 	            		  catch (Exception e){
+                      	 ExceptionDisplayer.getInstance().displayException(e);
+ 	            		  }
+ 	            	  }
+ 	            	  else{
+ 	            		  
+ 	            		  try{
+ 	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{newValue});
+ 	            		  }
+ 	            		  catch (Exception e){
+                      	 ExceptionDisplayer.getInstance().displayException(e);
+ 	            		  }
+ 	            	  }
+ 	            	  currentValue = newValue;
+ 	            	  return newValue;
+ 	              }             
+ 	              return currentValue;
+ 	          }
+ 	      };
+ 	      scaleField.setToolTipText("Change Cell Coloring Mode");
+ 	      
+ 	      header.add(cellColoringField);
+       }
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
        skipFrame = new JPanel();
        rebuildSkipFrame();
 
@@ -1519,6 +1601,38 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
      
        
        }
+   
+   private void findCellColoringMethods(){
+		//cellColoringMode
+		if(ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters() != null){
+			globalCBMParameters = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
+			Method[] methods =globalCBMParameters.getClass().getMethods();
+			for(Method m : methods){
+				if(m.getName().startsWith("get") 
+						&& (m.getName().trim().toLowerCase().contains(Names.CELL_COLORING_MODE_NAME_I)
+						  || m.getName().trim().toLowerCase().contains(Names.CELL_COLORING_MODE_NAME_II)
+						  || m.getName().trim().toLowerCase().contains(Names.CELL_COLORING_MODE_NAME_III))){
+						this.cellColoringGetterMethod = m;
+						break;
+				}
+			}
+			if(this.cellColoringGetterMethod != null){
+				String setterName = "s"+this.cellColoringGetterMethod.getName().trim().substring(1);
+				for(Method m : methods){
+					if(m.getName().equals(setterName)){
+						this.cellColoringSetterMethod=m;
+						break;
+					}
+				}
+			}			
+		}		
+	}
+   public void changeCellColoringMode(double val){
+		if(cellColoringField!=null){
+			cellColoringField.newValue(val);
+			cellColoringField.setValue(val);
+		}		
+	}
 
    /** Returns LocationWrappers for all the objects which fall within the coordinate rectangle specified by rect.  This 
        rectangle is in the coordinate system of the (InnerDisplay2D) component inside the scroll
@@ -1767,63 +1881,44 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
    
    public void takeSnapshot()
    {
-   synchronized(NoGUIDisplay2D.this.simulation.state.schedule)
-       {
-       if (SimApplet.isApplet)
-           {
-           Object[] options = {"Oops"};
-           JOptionPane.showOptionDialog(
-               this, "You cannot save snapshots from an applet.",
-               "MASON Applet Restriction",
-               JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE,
-               null, options, options[0]);
-           return;
-           }
-
-       // do we have the PDFEncoder?
-       boolean havePDF = false;
+   	 SimStateServer.getInstance().getEpisimGUIState().pressWorkaroundSimulationPause(); 
 
        // snap the shot FIRST
        Graphics g = insideDisplay.getGraphics();
        BufferedImage img = insideDisplay.paint(g,true,false);  // notice we're painting to a non-shared buffer
-       try
-           {
-           sacrificialObj = Class.forName("com.lowagie.text.Cell").newInstance(); // sacrificial
-           // if we survived that, then iText is installed and we're good.
-           havePDF = true; 
-           }
-       catch (Exception e)
-           {
-           // oh well...
-           }
+     
                            
-       g.dispose();  // because we got it with getGraphics(), we're responsible for it
+     if(g!=null)  g.dispose();  // because we got it with getGraphics(), we're responsible for it
                    
        // Ask what kind of thing we want to save?
        final int CANCEL_BUTTON = 0;
        final int PNG_BUTTON = 1;
-       final int PDF_BUTTON = 2;
-       final int PDF_NO_BACKDROP_BUTTON = 3;
+       final int SVG_BUTTON = 2;
        int result = PNG_BUTTON;  //  default
-       if (havePDF) 
-           {
-           Object[] options = { "Cancel", "Save to PNG Bitmap", "Save to PDF", "Save to PDF with no Backdrop" };
+       Object[] options = { "Cancel", "Save to PNG ", "Save to SVG"};
+       if(!automatedPNGSnapshotsEnabled){
            result = JOptionPane.showOptionDialog(getFrame(), "Save window snapshot to what kind of file format?", "Save Format", 
                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
                null, options, options[0]);
-           }
+       }
+      
                    
-       if (result == PNG_BUTTON) 
+       if (result == PNG_BUTTON || automatedPNGSnapshotsEnabled) 
            {
            // NOW pop up the save window
            FileDialog fd = new FileDialog(getFrame(), 
                "Save Snapshot as 24-bit PNG...", FileDialog.SAVE);
            fd.setFile("Untitled.png");
-           fd.setVisible(true);
-           if (fd.getFile()!=null) try
-                                       {
-                                       OutputStream stream = new BufferedOutputStream(new FileOutputStream(
-                                               new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"))));
+          if(!automatedPNGSnapshotsEnabled) fd.setVisible(true);
+           if (fd.getFile()!=null || automatedPNGSnapshotsEnabled) 
+           	try
+              {
+                                       
+           		 File pngFile= automatedPNGSnapshotsEnabled	? EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATION_PNG_PATH, "EPISIM_Visualization_Snapshot", ".png")
+									:  new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"));
+           		
+           		
+           		OutputStream stream = new BufferedOutputStream(new FileOutputStream(pngFile));
                                        PNGEncoder tmpEncoder = new
                                            PNGEncoder(img, false,PNGEncoder.FILTER_NONE,9);
                                        stream.write(tmpEncoder.pngEncode());
@@ -1831,24 +1926,24 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
                                        }
                catch (Exception e) { e.printStackTrace(); }
            }
-       else if (result == PDF_BUTTON || result == PDF_NO_BACKDROP_BUTTON)
+       if (result == SVG_BUTTON ||(automatedPNGSnapshotsEnabled 
+     		  && EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG) != null 
+     		  && EpisimProperties.getProperty(EpisimProperties.IMAGE_SAVESVGCOPYOFPNG).equals(EpisimProperties.ON)))
            {
-           FileDialog fd = new FileDialog(getFrame(), 
-               "Save Snapshot as PDF...", FileDialog.SAVE);
-           fd.setFile("Untitled.pdf");
-           fd.setVisible(true);
-           if (fd.getFile()!=null) try
-                                       {
-                                       boolean oldprecise = precise;
-                                       precise = true;
-                                       Paint b = getBackdrop();
-                                       if (result == PDF_NO_BACKDROP_BUTTON)  // temporarily remove backdrop
-                                           setBackdrop(null);
-                                       PDFEncoder.generatePDF(port, new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".pdf")));
-                                       precise = oldprecise;
-                                       if (result == PDF_NO_BACKDROP_BUTTON)
-                                           setBackdrop(b);
-                                       }
+     	  		ExtendedFileChooser fd = new ExtendedFileChooser("svg");
+          
+           
+           if (automatedPNGSnapshotsEnabled || fd.showSaveDialog(getFrame())==ExtendedFileChooser.APPROVE_OPTION){ 
+           	try
+              {
+                     boolean oldprecise = precise;
+                     precise = true;
+                     File svgFile= automatedPNGSnapshotsEnabled	? EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATION_PNG_PATH, "EPISIM_Visualization_Snapshot", ".svg")
+                    		 													: fd.getSelectedFile();
+                     
+                     saveSVGImage(port, svgFile);
+                     precise = oldprecise;
+                }
                catch (Exception e) { e.printStackTrace(); }
            }
        else // (result == 0)  // Cancel
@@ -1856,6 +1951,33 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
            // don't bother
            }
        }
+    	
+      
+				SimStateServer.getInstance().getEpisimGUIState().pressWorkaroundSimulationPlay();
+   }
+   private void saveSVGImage(Component comp, File file) throws IOException{
+   	if(comp != null && file != null){
+   		if(!file.getAbsolutePath().toLowerCase().endsWith(".svg")){
+   			file = new File(file.getAbsolutePath()+".svg");
+   		}
+   		DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
+   	     // Create an instance of org.w3c.dom.Document.
+   	     String svgNS = "http://www.w3.org/2000/svg";
+   	     Document document = domImpl.createDocument(svgNS, "svg", null);
+
+   	     // Create an instance of the SVG Generator.
+   	     SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+   	     
+   	     comp.paint(svgGenerator);
+   	  
+   	     boolean useCSS = true; // we want to use CSS style attributes
+   	     FileOutputStream fileOut = new FileOutputStream(file);
+   	     Writer out = new OutputStreamWriter(fileOut, "UTF-8");
+   	     svgGenerator.stream(out, useCSS);
+   	     fileOut.flush();
+   	     fileOut.close();
+   	     svgGenerator.dispose();
+   	}
    }
 
    /** Starts a Quicktime movie on the given Display2D.  The size of the movie frame will be the size of
@@ -2539,7 +2661,10 @@ void rebuildRefreshPopup()
 		}
 	}
 	
-	
+	public boolean isAutomatedPNGSnapshotsEnabled() {
+	   
+   	return automatedPNGSnapshotsEnabled;
+   } 
 }
 
 	

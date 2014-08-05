@@ -16,7 +16,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -85,9 +87,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		private boolean isDirty = false;
 		
 		public DataExportDefinitionSetDialog(Frame owner, String title, boolean modal){
-			super(owner, title, modal);
-			
-			
+			super(owner, title, modal);		
 			
 			indexDataExportDefinitionIdMap = new HashMap<Integer, Long>();
 			
@@ -346,10 +346,11 @@ public class DataExportDefinitionSetDialog extends JDialog {
 
 				public void actionPerformed(ActionEvent e) {
 					  isDirty = true;	
+					  int removeIndex = dataExportDefinitionsList.getSelectedIndex();
 		           episimDataExportDefinitionSet.removeEpisimDataExportDefinition(indexDataExportDefinitionIdMap.get(dataExportDefinitionsList.getSelectedIndex()));
 		           episimDataExportDefinitionSet.removeEpisimDiffFieldDataExportDefinition(indexDataExportDefinitionIdMap.get(dataExportDefinitionsList.getSelectedIndex()));
 		           ((DefaultListModel)(DataExportDefinitionSetDialog.this.dataExportDefinitionsList.getModel())).remove(dataExportDefinitionsList.getSelectedIndex());
-		           updateIndexMap();
+		           updateIndexMap(removeIndex);
 		           editButton.setEnabled(false);
 						 removeButton.setEnabled(false);
 		         
@@ -364,18 +365,19 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		}
 		
 		
-		private void updateIndexMap(){
-			
-			int elementCount = ((DefaultListModel)(dataExportDefinitionsList.getModel())).getSize(); 
-			for(int i = 0; i < elementCount; i++ ){
-				if(!indexDataExportDefinitionIdMap.keySet().contains(i)){
-					long chartId = indexDataExportDefinitionIdMap.get(i+1);
-					indexDataExportDefinitionIdMap.remove(i+1);
-					indexDataExportDefinitionIdMap.put(i, chartId);
+		
+		private void updateIndexMap(int removeIndex){
+			Set<Integer> keys = new HashSet<Integer>();
+			keys.addAll(indexDataExportDefinitionIdMap.keySet());
+			for(int i :keys){
+				if(i > removeIndex){
+					long chartId = indexDataExportDefinitionIdMap.get(i);
+					indexDataExportDefinitionIdMap.remove(i);
+					indexDataExportDefinitionIdMap.put(i-1, chartId);
 				}
+				if(i==removeIndex)indexDataExportDefinitionIdMap.remove(i);
 			}
 		}
-		
 		 private JPanel buildPathPanel() {
 
 				JPanel pPanel = new JPanel(new GridBagLayout());

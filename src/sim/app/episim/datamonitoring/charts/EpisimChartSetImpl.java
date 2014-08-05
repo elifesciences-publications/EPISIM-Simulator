@@ -93,14 +93,17 @@ public class EpisimChartSetImpl implements EpisimChartSet, java.io.Serializable 
 	}
 	
 	
-	public void removeEpisimChart(long id) {	 
-			  episimCharts.remove(getEpisimChart(id)); 
+	public void removeEpisimChart(long id) {
+		EpisimChart chart = getEpisimChart(id);
+		if(chart != null)episimCharts.remove(chart); 
    }
 	public void removeEpisimCellVisualizationChart(long id) {
-		episimCellVisualizationCharts.remove(getEpisimCellVisualizationChart(id));
+		EpisimCellVisualizationChart chart =  getEpisimCellVisualizationChart(id);
+		if(chart != null)episimCellVisualizationCharts.remove(chart);
 	}
 	public void removeEpisimDiffFieldChart(long id) {
-		episimDiffFieldCharts.remove(getEpisimDiffFieldChart(id));
+		EpisimDiffFieldChart chart =  getEpisimDiffFieldChart(id);
+		if(chart != null)episimDiffFieldCharts.remove(chart);
 	}
 	
 	public EpisimChart getEpisimChart(long id) {

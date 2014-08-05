@@ -46,6 +46,8 @@ import org.jfree.chart.JFreeChart;
 
 
 
+
+
 //PDF Writer + ELSE
 import java.awt.*; 
 import java.awt.geom.*; 
@@ -67,6 +69,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import com.lowagie.text.*;  
 import com.lowagie.text.pdf.*;  
@@ -241,6 +244,23 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 			EnhancedSteppable steppable = getTissueSimulationSnaphshotSaveSteppable();
 			schedule.scheduleRepeating(steppable, SchedulePriority.DATAMONITORING.getPriority(), steppable.getInterval());			
 		}
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PATH) != null && EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_FREQUENCY)!=null){
+			File pngSnaphotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PATH));
+			if(pngSnaphotPath.exists() && pngSnaphotPath.isDirectory()){
+				EnhancedSteppable steppable = getTissueVisualizationSnaphshotSaveSteppable();
+				schedule.scheduleRepeating(steppable, SchedulePriority.PNGWRITING.getPriority(), steppable.getInterval());
+			}
+		}
+		
+		if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_FREQ) != null
+				&& EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MIN) != null
+				&& EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MAX) != null){
+				EnhancedSteppable steppable = getTissueVisualizationColorChangeSteppable();
+				schedule.scheduleRepeating(steppable, SchedulePriority.OTHER.getPriority(), steppable.getInterval());
+		}
+		
+		
+		
 		GlobalStatistics.getInstance().reset(true);
 			     
 	   ModelController.getInstance().getBioMechanicalModelController().resetCellField();
@@ -306,7 +326,55 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 		return steppable;
 	}
 
- 
+	private EnhancedSteppable getTissueVisualizationSnaphshotSaveSteppable(){
+		final double frequency = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_FREQUENCY));
+		EnhancedSteppable steppable = new EnhancedSteppable() {
+			
+			
+			public void step(SimState state) {
+				if(SimStateServer.getInstance().getEpisimGUIState() != null){
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							SimStateServer.getInstance().getEpisimGUIState().takeVisualizationSnapshot();							
+						}
+					});
+					
+				}				
+			}			
+			
+			public double getInterval() {				
+				return frequency;
+			}
+		};
+		return steppable;
+	}
+	
+	private EnhancedSteppable getTissueVisualizationColorChangeSteppable(){
+		final double min = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MIN));
+		final double max = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MAX));
+		final double freq = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_FREQ));
+		final double incr = EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_INCR)!=null
+									? Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_INCR))
+											:1.0d;
+		EnhancedSteppable steppable = new EnhancedSteppable() {
+			private double val = 1.0;
+			
+			public void step(SimState state) {
+				if(SimStateServer.getInstance().getEpisimGUIState() != null){
+					if(val< min || val>=max) val=min;
+					else{
+						val+=incr;
+					}
+					SimStateServer.getInstance().getEpisimGUIState().changeCellColoringMode(val);
+				}				
+			}			
+			
+			public double getInterval() {				
+				return freq;
+			}
+		};
+		return steppable;
+	}
 	
 	
 	

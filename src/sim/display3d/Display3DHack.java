@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
@@ -24,6 +25,12 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -57,6 +64,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -97,6 +105,7 @@ import sim.display.Display2D;
 import sim.display.Display2DHack;
 import sim.display.GUIState;
 import sim.display.Prefs;
+import sim.display.SimApplet;
 import sim.display3d.Display3D.LocalWindowListener;
 import sim.display3d.Display3D.Portrayal3DHolder;
 import sim.engine.SimState;
@@ -109,6 +118,7 @@ import sim.portrayal3d.Portrayal3D;
 import sim.util.gui.LabelledList;
 import sim.util.gui.NumberTextField;
 import sim.util.gui.Utilities;
+import sim.util.media.PNGEncoder;
 
 
 
@@ -120,6 +130,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	
 	private static final double TRANSLATION_FACTOR=0.1;
 	private static final double ROTATION_FACTOR=0.5;
+	private NumberTextField cellColoringField =null;
 	public enum ModelSceneCrossSectionMode{
 		DISABLED("Disabled"),
 		X_Y_PLANE("X-Y-Plane"),
@@ -154,9 +165,16 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	private Method cellColoringGetterMethod;
 	private Method cellColoringSetterMethod;
 	private boolean optimizedGraphicsActivated = false;
+	private boolean automatedPNGSnapshotsEnabled = false;
 	public Display3DHack(double width, double height, GUIState simulation) {
 
 		super(width, height, simulation);
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PATH) != null && EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_FREQUENCY)!=null){
+			File pngSnaphotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PATH));
+			if(pngSnaphotPath.exists() && pngSnaphotPath.isDirectory()){
+				automatedPNGSnapshotsEnabled=true;
+			}
+		}
 		MiscalleneousGlobalParameters param = MiscalleneousGlobalParameters.getInstance();
 		if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
 			optimizedGraphicsActivated = true;
@@ -232,7 +250,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
              if(defaultValue != null){
              	defaultVal = defaultValue instanceof Integer ? (double)((Integer)defaultValue).intValue() : defaultValue instanceof Double ? ((Double)defaultValue).doubleValue() :0;
              }
-    	      NumberTextField cellColoringField = new NumberTextField("     Cell Coloring: ", defaultVal, 1,1)
+    	      cellColoringField = new NumberTextField("     Cell Coloring: ", defaultVal, 1,1)
     	      {
     	          public double newValue(double newValue)
     	          {
@@ -261,12 +279,58 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
     	              return currentValue;
     	          }
     	      };
-    	      scaleField.setToolTipText("Change Cell Coloring Mode");
+    	      cellColoringField.setToolTipText("Change Cell Coloring Mode");
     	      
     	      header.add(cellColoringField);
           }
       
-	}	
+	}
+	public void changeCellColoringMode(double val){
+		if(cellColoringField!=null){
+			cellColoringField.newValue(val);
+			cellColoringField.setValue(val);
+		}		
+	}
+	public void takeSnapshot()
+   {
+   if (SimApplet.isApplet)
+       {
+       Object[] options = {"Oops"};
+       JOptionPane.showOptionDialog(
+           this, "You cannot save snapshots from an applet.",
+           "MASON Applet Restriction",
+           JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE,
+           null, options, options[0]);
+       return;
+       }
+
+   // start the image
+   canvas.beginCapturing(false);
+   
+   // NOW pop up the save window
+   FileDialog fd = new FileDialog(getFrame(), 
+       "Save Snapshot as 24-bit PNG...", 
+       FileDialog.SAVE);
+   if(!automatedPNGSnapshotsEnabled){
+	   fd.setFile("Untitled.png");
+	   fd.setVisible(true);
+   }
+   if (fd.getFile()!=null ||automatedPNGSnapshotsEnabled)
+       try
+           {
+           File snapShotFile = automatedPNGSnapshotsEnabled ? EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATION_PNG_PATH, "EPISIM_Visualization_Snapshot", ".png")
+         		  : new File(fd.getDirectory(), Utilities.ensureFileEndsWith(fd.getFile(),".png"));
+//           PNGEncoder tmpEncoder = new PNGEncoder(image, false,PNGEncoder.FILTER_NONE,9);
+           BufferedImage image = canvas.getLastImage();
+           PNGEncoder tmpEncoder = new PNGEncoder(image, false,PNGEncoder.FILTER_NONE,9);
+           OutputStream stream = new BufferedOutputStream(new FileOutputStream(snapShotFile));
+           stream.write(tmpEncoder.pngEncode());
+           stream.close();
+           image.flush();  // just in case -- OS X bug?
+           }
+       catch (FileNotFoundException e) { } // fail
+       catch (IOException e) { /* could happen on close? */} // fail
+   }
 	
    public ModelClip getModelClip() {
 	   return modelClip;
@@ -301,6 +365,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 		Portrayal3DHolder holder =getPortrayalHolder(name);
 		if(holder != null){
 			holder.visible = visible;
+			holder.menuItem.setSelected(visible);
 			canvas.repaint();
 		}
 		
@@ -365,7 +430,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	      
 	   canvas.getView().setSceneAntialiasingEnable(true); 
 	   frame.setResizable(true);
-	   
+	   frame.setIconifiable(!automatedPNGSnapshotsEnabled);
 	   // these bugs are tickled by our constant redraw requests.
 	   frame.addComponentListener(new ComponentAdapter()
 	       {
@@ -414,10 +479,11 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	 
 	
 	public boolean isPortrayalVisible(String name){
-		Portrayal3DHolder holder =getPortrayalHolder(name);
+		Portrayal3DHolder holder =getPortrayalHolder(name);		
 		if(holder != null) return holder.visible;
 		else return false;
 	}
+	
 	
 	private Portrayal3DHolder getPortrayalHolder(String name){
 		Portrayal3DHolder holder;
@@ -1560,6 +1626,11 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 
 //must be after all other declared widgets because its constructor relies on them existing
 private OptionPane3D  optionPane;
+
+public boolean isAutomatedPNGSnapshotsEnabled() {
+
+	return automatedPNGSnapshotsEnabled;
+}
 
 
 }

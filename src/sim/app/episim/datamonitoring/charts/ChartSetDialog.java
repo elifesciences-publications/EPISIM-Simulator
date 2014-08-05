@@ -20,6 +20,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -300,12 +301,14 @@ public class ChartSetDialog extends JDialog {
 					result= JOptionPane.showInputDialog(ChartSetDialog.this, "Choose Chart-Type:", "Chart-Type", JOptionPane.QUESTION_MESSAGE,
 								null, types, ChartType.REGULAR_2D_CHART);
 				}
+				String title =null;
+				long id = Long.MAX_VALUE;
 				if(result == ChartType.REGULAR_2D_CHART){
 				    EpisimChart newChart = ChartController.getInstance().showChartCreationWizard(ChartSetDialog.this.owner);
 				    if(newChart != null){
 				    	 isDirty=true;
-				     	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
-				     	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
+				    	 title = newChart.getTitle();
+				     	 id = newChart.getId();
 				     	 episimChartSet.addEpisimChart(newChart);
 				      }
 				 }
@@ -313,8 +316,8 @@ public class ChartSetDialog extends JDialog {
 				    EpisimCellVisualizationChart newChart = ChartController.getInstance().showCellVisualizationChartCreationWizard(ChartSetDialog.this.owner);
 				    if(newChart != null){
 				    	 isDirty=true;
-				     	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getTitle());
-				     	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
+				    	 title = newChart.getTitle();
+				     	 id = newChart.getId();
 				     	 episimChartSet.addEpisimChart(newChart);
 				      }
 				 }
@@ -322,11 +325,15 @@ public class ChartSetDialog extends JDialog {
 					 EpisimDiffFieldChart newChart = ChartController.getInstance().showDiffFieldChartCreationWizard(ChartSetDialog.this.owner);
 				    if(newChart != null){
 				    	 isDirty=true;
-				     	 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(newChart.getChartTitle());
-				     	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), newChart.getId());
+				     	 title = newChart.getChartTitle();
+				     	 id = newChart.getId();
 				     	 episimChartSet.addEpisimChart(newChart);
 				    }
-				 }				         
+				 }
+				if(title!=null && id != Long.MAX_VALUE){
+					 ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).addElement(title);
+			     	 indexChartIdMap.put((ChartSetDialog.this.chartsList.getModel().getSize()-1), id);
+				}
          }});
 		
 		editButton = new JButton("Edit Chart");
@@ -382,11 +389,12 @@ public class ChartSetDialog extends JDialog {
 
 			public void actionPerformed(ActionEvent e) {
 				  isDirty = true;
+				  int removeIndex =chartsList.getSelectedIndex();
 	           episimChartSet.removeEpisimChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 	           episimChartSet.removeEpisimCellVisualizationChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 	           episimChartSet.removeEpisimDiffFieldChart(indexChartIdMap.get(chartsList.getSelectedIndex()));
 	           ((DefaultListModel)(ChartSetDialog.this.chartsList.getModel())).remove(chartsList.getSelectedIndex());
-	           updateIndexMap();
+	           updateIndexMap(removeIndex);
 	           
 	           editButton.setEnabled(false);
 					 removeButton.setEnabled(false);
@@ -402,15 +410,17 @@ public class ChartSetDialog extends JDialog {
 	}
 	
 	
-	private void updateIndexMap(){
+	private void updateIndexMap(int removeIndex){
 		
-		int elementCount = ((DefaultListModel)(chartsList.getModel())).getSize(); 
-		for(int i = 0; i < elementCount; i++ ){
-			if(!indexChartIdMap.keySet().contains(i)){
-				long chartId = indexChartIdMap.get(i+1);
-				indexChartIdMap.remove(i+1);
-				indexChartIdMap.put(i, chartId);
+		Set<Integer> keys = new HashSet<Integer>();
+		keys.addAll(indexChartIdMap.keySet());
+		for(int i :keys){
+			if(i > removeIndex){
+				long chartId = indexChartIdMap.get(i);
+				indexChartIdMap.remove(i);
+				indexChartIdMap.put(i-1, chartId);
 			}
+			if(i==removeIndex)indexChartIdMap.remove(i);
 		}
 	}
 	

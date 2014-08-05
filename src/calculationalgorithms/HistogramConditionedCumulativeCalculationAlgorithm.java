@@ -40,7 +40,7 @@ public class HistogramConditionedCumulativeCalculationAlgorithm extends Histogra
 			public Map<String, Class<?>> getParameters() {
 				Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
 				
-				
+				params.put(HistogramCalculationAlgorithm.HISTOGRAM_COUNT_CELL_ONCE_PARAMETER, Boolean.TYPE);
 				params.put(HistogramCalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER, Double.TYPE);
 				params.put(HistogramCalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER, Double.TYPE);
 				params.put(HistogramCalculationAlgorithm.HISTOGRAMNUMBEROFBINSPARAMETER, Integer.TYPE);

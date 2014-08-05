@@ -518,10 +518,12 @@ public class ChartCreationWizard extends JDialog {
 		}
 		
 	}	
-		
+	private boolean chartRestoreMode=false;	
 	public void showWizard(EpisimChart chart){
+		chartRestoreMode=true;	
 		isDirty = false;
 		if(chart != null) restoreChartValues(chart);
+		chartRestoreMode=false;
 		repaint();
 		centerMe();
 		setVisible(true);
@@ -1233,7 +1235,24 @@ public class ChartCreationWizard extends JDialog {
        //renderer.setSeriesOutlinePaint(seriesIndex,strokeColor);
        repaint();
        }
-   
+   public String getUniqueSeriesName(String name){
+   	boolean duplicateFound = false;
+   	int counter = 1;
+   	String newName = name;
+   	do{
+   		duplicateFound = false;
+	   	
+	   	for(int i=0; i < dataset.getSeriesCount();i++){
+	   		 XYSeries series = dataset.getSeries(i);
+	   		 if(series.getKey().equals(newName.trim()) && series != getSeries()) duplicateFound = true;
+	   	}
+	   	if(duplicateFound){
+	   		newName = name + " "+(counter++);
+	   	}
+   	}
+   	while(duplicateFound);
+   	return newName;
+   }
    public ChartSeriesAttributes(ChartPanel pan, int index)
    {
        super("" + dataset.getSeries(index).getKey());  //((XYSeriesCollection)(pan.getChart().getXYPlot().getDataset())).getSeries(index).getKey());
@@ -1262,9 +1281,10 @@ public class ChartCreationWizard extends JDialog {
                {
          	  isDirty = true;
                name = nameF.getText();
-               
+               name = getUniqueSeriesName(name);
+               nameF.setText(name);
                setBorderTitle(name);
-               getSeries().setKey(name);
+               getSeries().setKey(name);               
                int index = seriesCombo.getSelectedIndex();
               if(index > -1){
                episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setName(name);
@@ -1292,11 +1312,14 @@ public class ChartCreationWizard extends JDialog {
        {
        public Color changeColor(Color c) 
            {
-      	 	isDirty = true;
+      	 	
            ChartSeriesAttributes.this.strokeColor = c;
-           int index = seriesCombo.getSelectedIndex();
-           if(index > -1){
-           episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setColor(c);
+           if(!chartRestoreMode){
+         	  isDirty = true;
+	           int index = seriesCombo.getSelectedIndex();
+	           if(index > -1){
+	           episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setColor(c);
+	           }
            }
            rebuildGraphicsDefinitions();
            return c;
@@ -1309,12 +1332,15 @@ public class ChartCreationWizard extends JDialog {
        {
            public double newValue(double newValue) 
            {
-         	  isDirty = true; 
+         	  
          	  if (newValue < 0.0) 
                    newValue = currentValue;
                thickness = (float)newValue;
-               int index = seriesCombo.getSelectedIndex();
-               if(index >= 0)episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setThickness(thickness);
+               if(!chartRestoreMode){
+               	isDirty = true; 
+	               int index = seriesCombo.getSelectedIndex();
+	               if(index >= 0)episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setThickness(thickness);
+               }
                rebuildGraphicsDefinitions();
                return newValue;
             }
@@ -1329,11 +1355,14 @@ public class ChartCreationWizard extends JDialog {
            {
            public void actionPerformed ( ActionEvent e )
            {
-         	  isDirty = true; 
+         	  
          	  dash = dashes[dashCombo.getSelectedIndex()];
-               int index = seriesCombo.getSelectedIndex();
-               if(index >= 0) episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setDash(dash);
-               rebuildGraphicsDefinitions();
+         	  if(!chartRestoreMode){
+	         		isDirty = true; 
+	               int index = seriesCombo.getSelectedIndex();
+	               if(index >= 0) episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setDash(dash);
+         	  }
+              rebuildGraphicsDefinitions();
            }
            });
        addLabelled("Dash",dashCombo);
@@ -1341,13 +1370,16 @@ public class ChartCreationWizard extends JDialog {
            {
            public double newValue(double newValue) 
                {
-         	  isDirty = true;
+         	  
                if (newValue < 0.0) 
                    newValue = currentValue;
                stretch = (float)newValue;
-               int index = seriesCombo.getSelectedIndex();
-               if(index > -1){
-               	episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setStretch(stretch);
+               if(!chartRestoreMode){
+               	isDirty = true;
+	               int index = seriesCombo.getSelectedIndex();
+	               if(index > -1){
+	               	episimChart.getEpisimChartSeries(seriesIdMap.get(index)).setStretch(stretch);
+	               }
                }
                rebuildGraphicsDefinitions();
                return newValue;
@@ -1453,6 +1485,7 @@ public class ChartCreationWizard extends JDialog {
    public void setStretch(float stretch) {
    
    	this.stretch = stretch;
+   	this.stretchField.newValue(stretch);
    	this.stretchField.setValue(stretch);
    }
 
@@ -1463,10 +1496,10 @@ public class ChartCreationWizard extends JDialog {
    }
 
 	
-   public void setThickness(float thickness) {
-   
+   public void setThickness(float thickness) {   
    	this.thickness = thickness;
    	this.thickitude.newValue(thickness);
+   	this.thickitude.setValue(thickness);
    }
 
 	

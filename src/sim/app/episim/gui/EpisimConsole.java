@@ -222,7 +222,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
       tissueExportButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				episimGUIState.saveTissueSimulationSnapshot();
+				episimGUIState.saveTissueSimulationSnapshot(false);
 			}
      	 
       });
@@ -649,30 +649,19 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    private void clickRefreshButtons(){
    	for(JButton refreshButton: refreshButtons) refreshButton.doClick();
    }
-	
-	
-
-
-	public void simulationWasStarted() {
-
+   
+   public void simulationWasStarted() {
 	   tissueExportButton.setEnabled(true);
-	   reloadModelButton.setEnabled(false);
-	   
+	   reloadModelButton.setEnabled(false);	   
    }
 
-
-	public void simulationWasPaused() {
-
-	   
+	public void simulationWasPaused() {	   
 		 tissueExportButton.setEnabled(true);
 		 reloadModelButton.setEnabled(false);
-   }
-
+	}
 
 	public void simulationWasStopped() {
-
 	  tissueExportButton.setEnabled(false);
-	  reloadModelButton.setEnabled(true);
-	   
+	  reloadModelButton.setEnabled(true);	   
    }
 }

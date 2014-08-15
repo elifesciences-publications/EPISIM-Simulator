@@ -1077,10 +1077,12 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		}
 	}
 	
-	public void saveTissueSimulationSnapshot(){
-		state.preCheckpoint();		
-		pressWorkaroundSimulationPause();
-					 
+	public void saveTissueSimulationSnapshot(final boolean steppableCall){
+		if(!steppableCall){
+			state.preCheckpoint();
+			pressWorkaroundSimulationPause();
+		}
+							 
 		if(this.getMainGUIComponent() != null && this.getMainGUIComponent() instanceof JFrame && SimulationStateFile.getTissueExportPath() == null){					
 			ExtendedFileChooser chooser = new ExtendedFileChooser(SimulationStateFile.FILEEXTENSION);
 			if(ExtendedFileChooser.APPROVE_OPTION == chooser.showSaveDialog((JFrame)this.getMainGUIComponent()) && chooser.getSelectedFile() != null){
@@ -1105,8 +1107,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 							saveSimulationStateToDisk();				
                 }
 					public void taskHasFinished(){								  			
-				        pressWorkaroundSimulationPlay(); 
-				        state.postCheckpoint();
+				        if(!steppableCall){
+				      	  pressWorkaroundSimulationPlay();
+				      	  state.postCheckpoint();
+				        }
+				        
 					}					
 				};
 				EpisimProgressWindow.showProgressWindowForTask((Frame)this.getMainGUIComponent(), "Writing simulation state to disk...", cb);						
@@ -1115,8 +1120,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		else{
 			if(SimulationStateFile.getTissueExportPath() != null){
 				saveSimulationStateToDisk();
-				pressWorkaroundSimulationPlay(); 
-		      state.postCheckpoint();
+				if(!steppableCall){
+					pressWorkaroundSimulationPlay();
+					state.postCheckpoint();
+				}
+				
 			}
 		}
 	}

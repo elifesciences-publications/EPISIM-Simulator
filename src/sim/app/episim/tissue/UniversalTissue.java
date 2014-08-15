@@ -315,7 +315,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 			
 			public void step(SimState state) {
 				if(SimStateServer.getInstance().getEpisimGUIState() != null){
-					SimStateServer.getInstance().getEpisimGUIState().saveTissueSimulationSnapshot();
+					SimStateServer.getInstance().getEpisimGUIState().saveTissueSimulationSnapshot(true);
 				}				
 			}			
 			

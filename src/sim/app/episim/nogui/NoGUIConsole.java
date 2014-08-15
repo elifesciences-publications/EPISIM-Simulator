@@ -2309,7 +2309,9 @@ public class NoGUIConsole extends JPanel implements SimulationConsole{
 		                }
 		            } 
 		        catch (InterruptedException e)
-		            { System.err.println("This should never happen: " + e); }
+		            { System.err.println("This should never happen: " + e); 
+		            	e.printStackTrace();
+		            }
 		        }
 
 

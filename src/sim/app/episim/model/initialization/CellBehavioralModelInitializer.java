@@ -123,7 +123,7 @@ public class CellBehavioralModelInitializer {
 	
 	protected void initializeCellEnsembleWithFileValues(ArrayList<UniversalCell> cellEnsemble) {
 		EpisimCellBehavioralModelGlobalParameters globalBehave = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
-		if(simulationStateData.getEpisimCellBehavioralModelGlobalParameters() != null)simulationStateData.getEpisimCellBehavioralModelGlobalParameters().copyValuesToTarget(globalBehave);
+	//	if(simulationStateData.getEpisimCellBehavioralModelGlobalParameters() != null)simulationStateData.getEpisimCellBehavioralModelGlobalParameters().copyValuesToTarget(globalBehave);
 		for (UniversalCell actCell : cellEnsemble) {
 			EpisimCellBehavioralModel cellBehave = actCell.getEpisimCellBehavioralModelObject();
 			if (simulationStateData.getAlreadyLoadedXmlCellNewID(actCell.getID()) != null) {

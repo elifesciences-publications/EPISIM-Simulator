@@ -423,6 +423,7 @@ public class SimpleController implements Controller
                         catch (java.lang.reflect.InvocationTargetException e)
                             {
                             System.err.println("This should never happen: " + e);
+                           
                             }                    
                         catch (Exception e)
                             {

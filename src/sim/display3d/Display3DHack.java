@@ -520,11 +520,11 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	   		if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
 	   			optimizedGraphicsActivated = true;
 	   		}
-	   		if(optimizedGraphicsActivated){			
+	   				
 	   			GraphicsConfigTemplate3D gct3D= new GraphicsConfigTemplate3D();
 		   		gct3D.setSceneAntialiasing(GraphicsConfigTemplate3D.REQUIRED);
 		   		gc= java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getBestConfiguration(gct3D); 
-	   		} 
+	   		
 	   		
 	       canvas = new CapturingCanvas3DHack(gc);
 	   	

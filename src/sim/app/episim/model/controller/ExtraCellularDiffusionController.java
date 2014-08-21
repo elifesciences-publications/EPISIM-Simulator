@@ -32,6 +32,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;
+import sim.app.episim.util.Loop;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -186,7 +187,7 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 		buildExtraCellularFieldBCConfigMap();
 	}
 	
-	private int numberOfThreadsCompleted = 0;
+
 /*	public EnhancedSteppable getDiffusionFieldsSimulationSteppable(){
 		return new EnhancedSteppable() {
 			
@@ -221,60 +222,22 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 			public double getInterval() { return 1; }
 		};
 	}*/
-	private ExecutorService exec;
+	
 	public EnhancedSteppable getDiffusionFieldsSimulationSteppable(){
-		if(exec != null && !exec.isShutdown()){
-			exec.shutdown();			
-		}
-		//System.out.println("Available Processors: "+ Runtime.getRuntime().availableProcessors());
-		exec = Executors.newFixedThreadPool(getNumberOfFields());
+		
 		return new EnhancedSteppable() {
 			
-			final ExtraCellularDiffusionField[] fields = getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField[getNumberOfFields()]);
-			final int numberOfFields = getNumberOfFields();
-			SimState stateGlobal = null;
-			final ArrayList<Callable<Integer>> runnables = new ArrayList<Callable<Integer>>();
-			{
-				for(int i = 0; i < fields.length; i++){
-					final int number = i;
-					Callable<Integer> r = new Callable<Integer>(){						
-                  public Integer call() {
-	                 fields[number].step(stateGlobal);	
-	                 increaseNumberOfThreadsCompleted();
-	                 return new Integer(number);
-                  }						
-					};
-					
-					runnables.add(r);
-				}
-			}
-			public void step(SimState state) {
-				numberOfThreadsCompleted = 0;
-				stateGlobal =state;
-				List<Future<Integer>> results = null;
-				try{
-	           results = exec.invokeAll(runnables);
-            }
-            catch (InterruptedException e1){
-            	ExceptionDisplayer.getInstance().displayException(e1);
-            }
-				while(numberOfThreadsCompleted < numberOfFields){
-					try{
-	               Thread.sleep(1l);
-               }
-               catch (InterruptedException e){
-	              ExceptionDisplayer.getInstance().displayException(e);
-               }
-				}
+			final ExtraCellularDiffusionField[] fields = getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField[getNumberOfFields()]);	
+			public void step(final SimState state) {				
+				Loop.withIndex(0, fields.length, new Loop.Each() {				
+					public void run(int i) {					
+						 fields[i].step(state);						
+					}
+				});				
 			}
 			public double getInterval() { return 1; }
 		};		
 	}
-	
-	private synchronized void increaseNumberOfThreadsCompleted(){
-		numberOfThreadsCompleted++;
-	}
-	
 	
 	public DiffusionFieldCrossSectionMode getSelectedDiffusionFieldCrossSectionMode() {
 	

@@ -64,7 +64,7 @@ public class ExtraCellularDiffusionField3D implements EnhancedSteppable, ExtraCe
 	   return fieldConfiguration;
    }
 	
-   public void step(SimState state) {
+   public void step(SimState state) {   	
    	for(int i = 0; i < fieldConfiguration.getNumberOfIterationsPerCBMSimStep(); i++){
    		fEulerDiffReact.updateExtraCellularField();
    	}

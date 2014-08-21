@@ -1,7 +1,9 @@
 package sim.app.episim.model.diffusion;
 
+import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D.BoundaryCondition;
+import sim.app.episim.util.Loop;
 import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.DoubleGrid3D;
 
@@ -14,14 +16,16 @@ public class ForwardEulerDiffusionReaction {
 	private ExtraCellularDiffusionField3D extraCellularField3D;
 	
 	
+	private boolean parallelizationOn = false;
 	
 	public ForwardEulerDiffusionReaction(ExtraCellularDiffusionField2D extraCellularField){
 		this.extraCellularField2D = extraCellularField;
-		
+		parallelizationOn = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
 	}
 	
 	public ForwardEulerDiffusionReaction(ExtraCellularDiffusionField3D extraCellularField){
 		this.extraCellularField3D = extraCellularField;
+		parallelizationOn = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
 	}
 	
 	
@@ -57,8 +61,8 @@ public class ForwardEulerDiffusionReaction {
 		}	
 		double currentConcentration = 0;
 		double newConcentration = 0;
-		long start = System.currentTimeMillis();
-		for(int i = 0; i < numberOfIterations; i++){
+		
+		for(int i = 0; i < numberOfIterations; i++){			
 			if(!extraCellularField2D.isToroidalX())setDirichletOrNeumannXAxisBC(currentValueField, newValueField);
 			if(!extraCellularField2D.isToroidalY())setDirichletOrNeumannYAxisBC(currentValueField, newValueField);
 			for(int yPos = startY; yPos < stopY; yPos++){
@@ -73,66 +77,96 @@ public class ForwardEulerDiffusionReaction {
 				}
 			}
 			currentValueField.setTo(newValueField);
-			newValueField.setTo(0);
+			newValueField.setTo(0);			
 		}	
-		long end = System.currentTimeMillis();
-		//System.out.println("Calculation Time in miliseconds for Diffusion Field: " +((end-start)));
+		
+		
 	}
 	
 	private void update3DField(){
 		//assume Dirichlet Boundary Conditions if not toroidal
-		DoubleGrid3D currentValueField = extraCellularField3D.getExtraCellularField();
-		DoubleGrid3D newValueField = new DoubleGrid3D(currentValueField.getWidth(), currentValueField.getHeight(), currentValueField.getLength());
+		final DoubleGrid3D currentValueField = extraCellularField3D.getExtraCellularField();
+		final DoubleGrid3D newValueField = new DoubleGrid3D(currentValueField.getWidth(), currentValueField.getHeight(), currentValueField.getLength());
 		
-		int startX = extraCellularField3D.isToroidalX() ? 0 : 1;
-		int startY = extraCellularField3D.isToroidalY() ? 0 : 1;
-		int startZ = extraCellularField3D.isToroidalZ() ? 0 : 1;
+		final int startX = extraCellularField3D.isToroidalX() ? 0 : 1;
+		final int startY = extraCellularField3D.isToroidalY() ? 0 : 1;
+		final int startZ = extraCellularField3D.isToroidalZ() ? 0 : 1;
 		
-		int stopX = extraCellularField3D.isToroidalX() ? currentValueField.getWidth() : (currentValueField.getWidth()-1);
-		int stopY = extraCellularField3D.isToroidalY() ? currentValueField.getHeight() : (currentValueField.getHeight()-1);
-		int stopZ = extraCellularField3D.isToroidalZ() ? currentValueField.getLength() : (currentValueField.getLength()-1);
+		final int stopX = extraCellularField3D.isToroidalX() ? currentValueField.getWidth() : (currentValueField.getWidth()-1);
+		final int stopY = extraCellularField3D.isToroidalY() ? currentValueField.getHeight() : (currentValueField.getHeight()-1);
+		final int stopZ = extraCellularField3D.isToroidalZ() ? currentValueField.getLength() : (currentValueField.getLength()-1);
 		
 		
 		final double latticeSize = extraCellularField3D.getFieldConfiguration().getLatticeSiteSizeInMikron()/ Math.pow(10, 6);
-		double dt = extraCellularField3D.getFieldConfiguration().getDeltaTimeInSecondsPerIteration();
+		final double dt = extraCellularField3D.getFieldConfiguration().getDeltaTimeInSecondsPerIteration();
 		double dt_dx2 = (dt / (latticeSize*latticeSize));
-		double diffConst = extraCellularField3D.getFieldConfiguration().getDiffusionCoefficient();
-		double decayConst = extraCellularField3D.getFieldConfiguration().getDegradationRate();
+		final double diffConst = extraCellularField3D.getFieldConfiguration().getDiffusionCoefficient();
+		final double decayConst = extraCellularField3D.getFieldConfiguration().getDegradationRate();
 		
-		double maxConcentration = extraCellularField3D.getFieldConfiguration().getMaximumConcentration();
-		double minConcentration = extraCellularField3D.getFieldConfiguration().getMinimumConcentration();
+		final double maxConcentration = extraCellularField3D.getFieldConfiguration().getMaximumConcentration();
+		final double minConcentration = extraCellularField3D.getFieldConfiguration().getMinimumConcentration();
 		
 		double numberOfIterations = 1;
 		//manipulate delta_time if diffusion coefficient is too large
 		if(dt_dx2*diffConst > DIFFUSION_COEFFICIENT_THRESHHOLD){
 			numberOfIterations = Math.floor((dt_dx2*diffConst)/DIFFUSION_COEFFICIENT_THRESHHOLD);
 			dt_dx2 /= numberOfIterations;
-		}	
+		}
+		final double DT_DX2 = dt_dx2;
 		double currentConcentration = 0;
 		double newConcentration = 0;
-		long start = System.currentTimeMillis();
+		
 		for(int i = 0; i < numberOfIterations; i++){
+			long start = System.currentTimeMillis();
 			if(!extraCellularField3D.isToroidalX())setDirichletOrNeumannXAxisBC(currentValueField, newValueField);
 			if(!extraCellularField3D.isToroidalY())setDirichletOrNeumannYAxisBC(currentValueField, newValueField);
 			if(!extraCellularField3D.isToroidalZ())setDirichletOrNeumannZAxisBC(currentValueField, newValueField);
-			for(int zPos = startZ; zPos < stopZ; zPos++){
-				for(int yPos = startY; yPos < stopY; yPos++){
-					for(int xPos = startX; xPos < stopX; xPos++){
-						currentConcentration = currentValueField.get(xPos, yPos, zPos);
-						newConcentration = 0;
-						newConcentration = dt_dx2*diffConst*laplacian(xPos,yPos, zPos, currentValueField)+currentConcentration;
-						if(i==(numberOfIterations-1))newConcentration -= dt*(decayConst*newConcentration);
-						if(newConcentration > maxConcentration) newConcentration = maxConcentration;
-						if(newConcentration < minConcentration) newConcentration = minConcentration;
-						newValueField.set(xPos, yPos, zPos, newConcentration);
+			
+			final int iterationNo = i;
+			final double NUMBER_OF_ITERATIONS=numberOfIterations;
+			if(parallelizationOn){
+				Loop.withIndex(startZ, stopZ, new Loop.Each() {
+	             public void run(int zPos) {
+	            	double currentConcentration = 0;
+	            	double newConcentration = 0;
+	            	 for(int yPos = startY; yPos < stopY; yPos++){
+	 						for(int xPos = startX; xPos < stopX; xPos++){
+	 							currentConcentration = currentValueField.get(xPos, yPos, zPos);
+	 							newConcentration = 0;
+	 							newConcentration = DT_DX2*diffConst*laplacian(xPos,yPos, zPos, currentValueField)+currentConcentration;
+	 							if(iterationNo==(NUMBER_OF_ITERATIONS-1))newConcentration -= dt*(decayConst*newConcentration);
+	 							if(newConcentration > maxConcentration) newConcentration = maxConcentration;
+	 							if(newConcentration < minConcentration) newConcentration = minConcentration;
+	 							newValueField.set(xPos, yPos, zPos, newConcentration);
+	 						}
+	 					}
+	             }
+	         });
+	            
+			}
+			else{
+				for(int zPos = startZ; zPos < stopZ; zPos++){
+					for(int yPos = startY; yPos < stopY; yPos++){
+						for(int xPos = startX; xPos < stopX; xPos++){
+							currentConcentration = currentValueField.get(xPos, yPos, zPos);
+							newConcentration = 0;
+							newConcentration = dt_dx2*diffConst*laplacian(xPos,yPos, zPos, currentValueField)+currentConcentration;
+							if(i==(numberOfIterations-1))newConcentration -= dt*(decayConst*newConcentration);
+							if(newConcentration > maxConcentration) newConcentration = maxConcentration;
+							if(newConcentration < minConcentration) newConcentration = minConcentration;
+							newValueField.set(xPos, yPos, zPos, newConcentration);
+						}
 					}
 				}
 			}
+			long end = System.currentTimeMillis();
+			//System.out.println("Calculation Time in miliseconds for Diffusion Field: " +((end-start)));
 			currentValueField.setTo(newValueField);
 			newValueField.setTo(0);
+			
+	
 		}
-		long end = System.currentTimeMillis();
-		//System.out.println("Calculation Time in miliseconds for Diffusion Field: " +((end-start)));
+		
 	}
 	
 	private void setDirichletOrNeumannXAxisBC(DoubleGrid2D currentValueField, DoubleGrid2D newValueField){

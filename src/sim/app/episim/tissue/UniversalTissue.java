@@ -271,19 +271,23 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 	     EnhancedSteppable mcSteppable = getMonteCarloStepSteppable();
 	     schedule.scheduleRepeating(mcSteppable, SchedulePriority.CELLS.getPriority(), mcSteppable.getInterval());
 	   }
-	   /*
-	    * TODO: Sequential Diff Field Sim Version
-	    */
-	//   ExtraCellularDiffusionField[] fields = ModelController.getInstance().getExtraCellularDiffusionController().getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]);
-	//   for(ExtraCellularDiffusionField field : fields){	   	
-	//   	schedule.scheduleRepeating(field, SchedulePriority.EXTRACELLULARFIELD.getPriority(),field.getInterval());
-	//   }
+	   
+	   boolean parallelizationOn = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
 	   /*
 	    * TODO: Parallelized Diff Field Sim Version
 	    */
 	   if(ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()>0){
-		   EnhancedSteppable diffFieldsSimSteppable = ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionFieldsSimulationSteppable();
-		   schedule.scheduleRepeating(diffFieldsSimSteppable, SchedulePriority.EXTRACELLULARFIELD.getPriority(),diffFieldsSimSteppable.getInterval());
+	   	if(parallelizationOn){
+			   EnhancedSteppable diffFieldsSimSteppable = ModelController.getInstance().getExtraCellularDiffusionController().getDiffusionFieldsSimulationSteppable();
+			   schedule.scheduleRepeating(diffFieldsSimSteppable, SchedulePriority.EXTRACELLULARFIELD.getPriority(),diffFieldsSimSteppable.getInterval());
+	   	}
+	   	else{
+	   		ExtraCellularDiffusionField[] fields = ModelController.getInstance().getExtraCellularDiffusionController().getAllExtraCellularDiffusionFields(new ExtraCellularDiffusionField[ModelController.getInstance().getExtraCellularDiffusionController().getNumberOfFields()]);
+	 		   for(ExtraCellularDiffusionField field : fields){	   	
+	 		   	schedule.scheduleRepeating(field, SchedulePriority.EXTRACELLULARFIELD.getPriority(),field.getInterval());
+	 		   }
+	   	}
+		   
 	   }
 	   
 	   EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());

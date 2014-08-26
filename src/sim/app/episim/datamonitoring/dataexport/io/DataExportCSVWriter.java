@@ -288,11 +288,13 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		if(singleDataCollection != null && singleDataCollection.getType() == ObservedDataCollectionType.HISTOGRAMTYPE){
 			try{			
 			  if(csvWriter != null){					
-					csvWriter.write("histogram classes;");
+					csvWriter.write("histo class (lower boundary);");
 					SimpleHistogramBin[] bins = singleDataCollection.getHistogramBins();
 					if(bins != null){
-						for(SimpleHistogramBin bin : bins){
-							csvWriter.write(bin.getLowerBound()+";");
+						for(int i = 0; i < bins.length; i++){
+							if(i==0)csvWriter.write("outlier low;");
+							else if(i==(bins.length-1))csvWriter.write("outlier high;");
+							else csvWriter.write(bins[i].getLowerBound()+";");
 						}
 					}					
 					csvWriter.write("\n");

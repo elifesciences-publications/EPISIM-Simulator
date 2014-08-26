@@ -170,11 +170,15 @@ public class ObservedDataCollection<T>{
 	     if(minValue == maxValue)maxValue = (minValue + 1);
 	     if(numberOfBins < 0)numberOfBins = Math.abs(numberOfBins);
 	     if(numberOfBins == 0)numberOfBins = 1;
-	     double binSize = (Math.abs(maxValue - minValue)+1) / ((double)numberOfBins);
-	     SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins];				
+	     double binSize = (Math.abs(maxValue - minValue)) / ((double)numberOfBins);
+	    
+	     SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins+2];
+	     bins[0] = new SimpleHistogramBin(Double.NEGATIVE_INFINITY, minValue, true, false);
 	     for(int i = 0; i < numberOfBins; i ++){
-	       bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, false);
-	     }		
+	       if(i< (numberOfBins-1))bins[i+1] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, false);
+	       else bins[i+1] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, true);
+	     }
+	     bins[numberOfBins+1] = new SimpleHistogramBin(maxValue, Double.POSITIVE_INFINITY, false, true);
 	     return bins;
 	   }
 

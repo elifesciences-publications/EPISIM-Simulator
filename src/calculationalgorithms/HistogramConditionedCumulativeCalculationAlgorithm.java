@@ -25,7 +25,7 @@ public class HistogramConditionedCumulativeCalculationAlgorithm extends Histogra
 	   return new CalculationAlgorithmDescriptor(){
 
 			public String getDescription() {	         
-	         return "This algorithms calculates a histogram based on the defined mathematical expression for all cells which fulfil the defined condition. Only results within the specified interval [min value, max value] are included. The results are summed up over all calculation cycles.";
+	         return "This algorithms calculates a histogram based on the defined mathematical expression for all cells which fulfil the defined condition. The results are summed up over all calculation cycles. binSize = (maxValue-minValue)/numberOfBins";
          }
 
 			public int getID() { return _id; }
@@ -54,11 +54,9 @@ public class HistogramConditionedCumulativeCalculationAlgorithm extends Histogra
 
 	
 	protected boolean checkCondition(double result, CalculationHandler handler, AbstractCell cell){
-		double min = (Double) handler.getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER);
-		double max = (Double) handler.getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER);
-		
+				
 		try{
-	      return result >= min && result <= max && handler.conditionFulfilled(cell);
+	      return !Double.isNaN(result) && handler.conditionFulfilled(cell);
       }
       catch (CellNotValidException e){
 	      ExceptionDisplayer.getInstance().displayException(e);

@@ -9,7 +9,6 @@ import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.statistics.SimpleHistogramDataset;
 
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
-
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.GenericBag;
@@ -46,7 +45,7 @@ public class HistogramAveragedCalculationAlgorithm extends AbstractCommonCalcula
 	   return new CalculationAlgorithmDescriptor(){
 
 			public String getDescription() {	         
-	         return "This algorithms calculates a histogram on the basis of the defined mathematical expression for all cells. Only results within the specified interval [min value, max value] are included. The results are averaged over all calculation cycles.";
+	         return "This algorithms calculates a histogram on the basis of the defined mathematical expression for all cells. The results are averaged over all calculation cycles. binSize = (maxValue-minValue)/numberOfBins";
          }
 
 			public int getID() { return _id; }
@@ -141,10 +140,8 @@ public class HistogramAveragedCalculationAlgorithm extends AbstractCommonCalcula
 	}
 	
 	protected boolean checkCondition(double result, CalculationHandler handler, AbstractCell cell){
-		double min = (Double) handler.getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMINVALUEPARAMETER);
-		double max = (Double) handler.getParameters().get(HistogramCalculationAlgorithm.HISTOGRAMMAXVALUEPARAMETER);
-		
-		return result >= min && result <= max;
+				
+		return !Double.isNaN(result);
 	}
 
 	private void notifyTissueObserver(long id){
@@ -161,21 +158,25 @@ public class HistogramAveragedCalculationAlgorithm extends AbstractCommonCalcula
 		}
    }
 	
-	private SimpleHistogramBin[] buildBins(double minValue, double maxValue, int numberOfBins){
+	private SimpleHistogramBin[] buildBins(double minValue, double maxValue, int numberOfBins){	     
 	     if(minValue > maxValue){
-	       double tmp = minValue;
-	       minValue = maxValue;
-	       maxValue = tmp;
-	     }	
-	     if(minValue == maxValue)maxValue = (minValue + 1);
-	     if(numberOfBins < 0)numberOfBins = Math.abs(numberOfBins);
-	     if(numberOfBins == 0)numberOfBins = 1;
-	     double binSize = (Math.abs(maxValue - minValue)+1) / ((double)numberOfBins);
-	     SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins];				
-	     for(int i = 0; i < numberOfBins; i ++){
-	       bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, false);
-	     }		
-	     return bins;
+		       double tmp = minValue;
+		       minValue = maxValue;
+		       maxValue = tmp;
+		     }	
+		     if(minValue == maxValue)maxValue = (minValue + 1);
+		     if(numberOfBins < 0)numberOfBins = Math.abs(numberOfBins);
+		     if(numberOfBins == 0)numberOfBins = 1;
+		     double binSize = (Math.abs(maxValue - minValue)) / ((double)numberOfBins);
+		    
+		     SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins+2];
+		     bins[0] = new SimpleHistogramBin(Double.NEGATIVE_INFINITY, minValue, true, false);
+		     for(int i = 0; i < numberOfBins; i ++){
+		       if(i< (numberOfBins-1))bins[i+1] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, false);
+		       else bins[i+1] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, true);
+		     }
+		     bins[numberOfBins+1] = new SimpleHistogramBin(maxValue, Double.POSITIVE_INFINITY, false, true);
+		     return bins;	     
 	   }
 	
 }

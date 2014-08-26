@@ -38,7 +38,7 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
 	   return new CalculationAlgorithmDescriptor(){
 
 			public String getDescription() {	         
-	         return "This algorithm calculates a histogram on the basis of the defined mathematical expression for all cells. Only results within the specified interval [min value, max value] are included.";
+	         return "This algorithm calculates a histogram on the basis of the defined mathematical expression for all cells. binSize = (maxValue-minValue)/numberOfBins";
          }
 
 			public int getID() { return _id; }
@@ -98,10 +98,8 @@ public class HistogramCalculationAlgorithm extends AbstractCommonCalculationAlgo
    }
 	
 	protected boolean checkCondition(double result, CalculationHandler handler, AbstractCell cell){
-		double min = (Double) handler.getParameters().get(HISTOGRAMMINVALUEPARAMETER);
-		double max = (Double) handler.getParameters().get(HISTOGRAMMAXVALUEPARAMETER);
-		
-		return result >= min && result <= max;
+				
+		return !Double.isNaN(result);
 	}
 
 	private void notifyTissueObserver(long id){

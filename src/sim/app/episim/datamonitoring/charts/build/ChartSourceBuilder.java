@@ -431,13 +431,16 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 	   generatedSourceCode.append("  if(minValue == maxValue)maxValue = (minValue + 1);\n");
 	   generatedSourceCode.append("  if(numberOfBins < 0)numberOfBins = Math.abs(numberOfBins);\n");
 	   generatedSourceCode.append("  if(numberOfBins == 0)numberOfBins = 1;\n");
-	   generatedSourceCode.append("  double binSize = (Math.abs(maxValue - minValue)+1) / ((double)numberOfBins);\n");
-	   generatedSourceCode.append("  SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins];\n");				
+	   generatedSourceCode.append("  double binSize = (Math.abs(maxValue - minValue)) / ((double)numberOfBins);\n");
+	   generatedSourceCode.append("  SimpleHistogramBin[]  bins = new SimpleHistogramBin[numberOfBins+2];\n");
+	   generatedSourceCode.append("  bins[0] = new SimpleHistogramBin(Double.NEGATIVE_INFINITY, minValue, true, false);\n");
 	   generatedSourceCode.append("  for(int i = 0; i < numberOfBins; i ++){\n");
-	   generatedSourceCode.append("    bins[i] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, false);\n");
-	   generatedSourceCode.append("  }\n");		
+	   generatedSourceCode.append("    if(i< (numberOfBins-1))bins[i+1] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, false);\n");
+	   generatedSourceCode.append("    else bins[i+1] = new SimpleHistogramBin((minValue + i*binSize), (minValue + (i+1)*binSize), true, true);\n");
+	   generatedSourceCode.append("  }\n");
+	   generatedSourceCode.append("  bins[numberOfBins+1] = new SimpleHistogramBin(maxValue, Double.POSITIVE_INFINITY, false, true);\n");
 	   generatedSourceCode.append("  return bins;\n");
-	   generatedSourceCode.append("}\n");
+	   generatedSourceCode.append("}\n");     
 	}
 	
 	

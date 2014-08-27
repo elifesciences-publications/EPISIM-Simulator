@@ -163,8 +163,8 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 		  }
 		  if(mode == ChartSourceBuilderMode.HISTOGRAMMODE){	  				   
 			   for(EpisimChartSeries actSeries: episimChart.getEpisimChartSeries()){			   	
-			   	generatedSourceCode.append("  private SimpleHistogramDataset "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
-			   			" = new SimpleHistogramDataset(\""+actSeries.getName()+"\");\n");
+			   	generatedSourceCode.append("  private OutlierSimpleHistogramDataset "+Names.convertClassToVariable(Names.cleanString(actSeries.getName())+actSeries.getId())+
+			   			" = new OutlierSimpleHistogramDataset(\""+actSeries.getName()+"\");\n");
 			   }
 		  }
 		  for(Class<?> actClass : episimChart.getAllRequiredClasses())
@@ -405,7 +405,7 @@ public class ChartSourceBuilder extends AbstractCommonSourceBuilder{
 			}
 			else if(mode == ChartSourceBuilderMode.HISTOGRAMMODE){
 				generatedSourceCode.append(buildCalculationHandler(baselineCalculationHandlerID, baselineCalculationHandlerID, true, config, episimChart.getRequiredClassesForBaseline())
-						+", ((SimpleHistogramDataset) null), "+ episimChart.isXAxisLogarithmic() + ", " + episimChart.isYAxisLogarithmic()+"));\n");
+						+", ((OutlierSimpleHistogramDataset) null), "+ episimChart.isXAxisLogarithmic() + ", " + episimChart.isYAxisLogarithmic()+"));\n");
 			}
 		}
 		for(EpisimChartSeries actSeries: episimChart.getEpisimChartSeries()){

@@ -120,8 +120,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    			this.modelConnector.setX(loc.x);
    			this.modelConnector.setY(loc.y);
    			this.modelConnector.setZ(loc.z);
-   		}
-   		
+   		}   		
    	}
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimCenterBased3DMC");
    } 
@@ -248,13 +247,17 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
             	
              }
              if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
-            	 double d_membrane_this=requiredDistanceToMembraneThis;
-                double d_membrane_other=requiredDistanceToMembraneOther;
+            	 
           		double contactAreaCorrect = 0;
           		if(actDist < optDist*globalParameters.getOptDistanceAdhesionFact()){
-          			contactAreaCorrect = calculateContactAreaNew(thislocP,
-          					otherPosToroidalCorrection(thislocP, otherlocP),
-          					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisB, otherSemiAxisA, otherSemiAxisB,otherSemiAxisC, d_membrane_this, d_membrane_other, actDist, optDist);
+          		//	contactAreaCorrect = calculateContactAreaNew(thislocP,
+          		//			otherPosToroidalCorrection(thislocP, otherlocP),
+          		//			dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisB, otherSemiAxisA, otherSemiAxisB,otherSemiAxisC, d_membrane_this, d_membrane_other, actDist, optDist);
+          			
+          			contactAreaCorrect= calculateContactAreaNew(new Point3d(thisloc.x, thisloc.y, thisloc.z),
+          						otherPosToroidalCorrection(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(mechModelOther.getX(), mechModelOther.getY(), mechModelOther.getZ())),
+          					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisC, otherSemiAxisA, otherSemiAxisB, otherSemiAxisC, requiredDistanceToMembraneThis, requiredDistanceToMembraneOther, actDist, optDist);
+          			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
           		}
           		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
           		totalContactArea+= Math.abs(contactAreaCorrect);         		
@@ -272,17 +275,16 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
       		Point3d membraneReferencePoint = findReferencePositionOnBoundary(thislocP, thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2), thisloc.z - (getCellLength()/2), thisloc.z + (getCellLength()/2));
       		double dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
             double dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
-            double dz = cellField.tdy(thisloc.z,membraneReferencePoint.z);
+            double dz = cellField.tdz(thisloc.z,membraneReferencePoint.z);
             if(dx==0 && dy==0 && dz==0){
             	addRandomBiasToPoint(membraneReferencePoint,  0.1);
             	dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
                dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
-               dz = cellField.tdy(thisloc.z,membraneReferencePoint.z);
+               dz = cellField.tdz(thisloc.z,membraneReferencePoint.z);
             }
       		double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)+Math.pow(dz,2));
-      		double optDist = calculateDistanceToCellCenter(thislocP, membraneReferencePoint, getCellWidth()/2, getCellHeight()/2,  getCellLength()/2);
-      		
-      		
+      		double optDist = calculateDistanceToCellCenter(new Point3d(thislocP.x,thislocP.y,thislocP.z), new Point3d(membraneReferencePoint.x, membraneReferencePoint.y, membraneReferencePoint.z), getCellWidth()/2, getCellHeight()/2,  getCellLength()/2);
+           		
       		if(distToMembrane < optDist*globalParameters.getOptDistanceAdhesionFact()){
       			double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
                double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
@@ -306,8 +308,17 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 			      interactionResult.adhesionForce.x += adhesion * ((-dx)/distToMembrane);
 			      interactionResult.adhesionForce.y += adhesion * ((-dy)/distToMembrane);
 			      interactionResult.adhesionForce.z += adhesion * ((-dz)/distToMembrane);
-      		}    		
-       }
+      		}
+      		else{
+      			if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+            		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(0);
+            	}
+      		}
+       }else{
+ 			if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+      		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(0);
+      	}
+		}
       if(isChemotaxisEnabled){
 				String chemotacticFieldName = ((episimbiomechanics.centerbased3d.newversion.chemotaxis.EpisimChemotaxisCenterBased3DMC)modelConnector).getChemotacticField();
 				if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
@@ -324,6 +335,13 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 		}
       return interactionResult;
    }
+   
+   private Point3d addRandomBiasToPoint(Point3d point, double scalingFact){
+   	point.setX(point.getX()+((TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5)*scalingFact));
+   	point.setY(point.getY()+((TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5)*scalingFact));
+   	point.setZ(point.getZ()+((TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5)*scalingFact));
+   	return point;
+   }	
    
    private double calculateContactAreaNew(Point3d posThis, Point3d posOther, double dy, double thisSemiAxisA, double thisSemiAxisB, double thisSemiAxisC, double otherSemiAxisA, double otherSemiAxisB, double otherSemiAxisC, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
    	double contactArea = 0;
@@ -442,7 +460,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    	return modelConnector.getAdhesionFactorForCell(otherCell);
    } 
    
-   private static double calculateDistanceToCellCenter(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
+   private double calculateDistanceToCellCenter(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
 		 
 		 Vector3d rayDirection = new Vector3d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y), (otherCellCenter.z-cellCenter.z));
 		 rayDirection.normalize();
@@ -607,13 +625,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 			return actMinPoint;
 		}
 		return NEGATIVE_INFINITY_POINT;
-	}
-   private Point3d addRandomBiasToPoint(Point3d point, double scalingFact){
-   	point.setX(point.getX()+((TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5)*scalingFact));
-   	point.setY(point.getY()+((TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5)*scalingFact));
-   	point.setZ(point.getZ()+((TissueController.getInstance().getActEpidermalTissue().random.nextDouble() - 0.5)*scalingFact));
-   	return point;
-   }	
+	}   
   	
 	public void initNewSimStep(){
 		if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() instanceof CenterBased3DMechanicalModelGP){
@@ -714,9 +726,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 		double b = (modelConnector.getHeight()/2d)+extCellSpaceDelta;
 		double c = (modelConnector.getLength()/2d)+extCellSpaceDelta;		
 		return ((4.0d/3.0d)*Math.PI*a*b*c)-getCellVolume();
-	}
-		
-   
+	} 
    
    
    
@@ -739,7 +749,68 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 	  		 this.isContinuousInZDirection = globalParametersChemotaxis.isContinousDiffusionInZDirection();
 	  	 }
    }
-   private static final int CPUs = Runtime.getRuntime().availableProcessors();
+   
+   @NoExport
+   public GenericBag<AbstractCell> getDirectNeighbours(){
+   	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
+   	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
+   	Point3d thisLocP = new Point3d(getX(), getY(), getZ());
+
+   	for(int i=0;neighbours != null && i<neighbours.size();i++)
+      {
+  		 	  AbstractCell actNeighbour = neighbours.get(i);  		 	
+  		 	
+	  		 if (actNeighbour != getCell())
+	       {
+	  			 CenterBased3DMechanicalModel mechModelOther = (CenterBased3DMechanicalModel) actNeighbour.getEpisimBioMechanicalModelObject();
+	      	 Double3D otherloc = mechModelOther.getCellLocationInCellField();
+	      	 Point3d otherlocP = new Point3d(otherloc.x, otherloc.y, otherloc.z);
+	      	 double dx = cellField.tdx(thisLocP.x,otherloc.x); 
+	          double dy = cellField.tdy(thisLocP.y,otherloc.y);
+	          double dz = cellField.tdz(thisLocP.z,otherloc.z);
+	           
+	          double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(thisLocP, 
+							otherPosToroidalCorrection(thisLocP, otherlocP), 
+							getCellWidth()/2, getCellHeight()/2, getCellLength()/2);
+	          double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(otherlocP, 
+							otherPosToroidalCorrection(otherlocP,thisLocP), 
+							mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2, mechModelOther.getCellLength()/2);
+	          
+	          double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther); 
+	          double actDist=Math.sqrt(dx*dx+dy*dy+dz*dz);        
+		       if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist){
+		      	 neighbourCells.add(actNeighbour);
+		       }
+		     //  System.out.println("Neighbourhood radius: " + (2.5*optDist));
+	      	 
+	       }
+      }
+  	 	return neighbourCells;
+   }  
+   
+   public Point3d otherPosToroidalCorrection(Point3d thisCell, Point3d otherCell)
+   {
+	   double height = cellField.height;
+	   double width = cellField.width;
+	   double length = cellField.length;
+	   double otherZ=-1;
+	   double otherY=-1;
+	   double otherX=-1;
+	   if (Math.abs(thisCell.z-otherCell.z) <= length / 2) otherZ = otherCell.z;
+	   else{
+	   	otherZ = thisCell.z > otherCell.z ? (otherCell.z+length): (otherCell.z-length);
+	   }
+	   if (Math.abs(thisCell.y-otherCell.y) <= height / 2) otherY = otherCell.y;
+	   else{
+	   	otherY = thisCell.y > otherCell.y ? (otherCell.y+height): (otherCell.y-height);
+	   }
+	   if (Math.abs(thisCell.x-otherCell.x) <= width / 2) otherX = otherCell.x;
+	   else{
+	   	otherX = thisCell.x > otherCell.x ? (otherCell.x+width): (otherCell.x-width);
+	   }
+	   return new Point3d(otherX, otherY, otherZ);
+   } 
+   
    protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
    	final MersenneTwisterFast random = state.random;
    	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
@@ -755,8 +826,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    	}
    	final int numberOfIterations = ((int)numberOfIterationsDouble);
    	boolean parallelizationOn = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
-	   for(int i = 0; i<numberOfIterations; i++){
-	   		
+	   for(int i = 0; i<numberOfIterations; i++){	   		
 	   		allCells.shuffle(random);
 	   		final int totalCellNumber = allCells.size();
 	   		final int iterationNo =i;
@@ -868,69 +938,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    	      }
    	    }
       } 
-   }
-   
-   
-   @NoExport
-   public GenericBag<AbstractCell> getDirectNeighbours(){
-   	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
-   	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
-   	Point3d thisLocP = new Point3d(getX(), getY(), getZ());
-
-   	for(int i=0;neighbours != null && i<neighbours.size();i++)
-      {
-  		 	  AbstractCell actNeighbour = neighbours.get(i);  		 	
-  		 	
-	  		 if (actNeighbour != getCell())
-	       {
-	  			 CenterBased3DMechanicalModel mechModelOther = (CenterBased3DMechanicalModel) actNeighbour.getEpisimBioMechanicalModelObject();
-	      	 Double3D otherloc = mechModelOther.getCellLocationInCellField();
-	      	 Point3d otherlocP = new Point3d(otherloc.x, otherloc.y, otherloc.z);
-	      	 double dx = cellField.tdx(thisLocP.x,otherloc.x); 
-	          double dy = cellField.tdy(thisLocP.y,otherloc.y);
-	          double dz = cellField.tdz(thisLocP.z,otherloc.z);
-	           
-	          double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(thisLocP, 
-							otherPosToroidalCorrection(thisLocP, otherlocP), 
-							getCellWidth()/2, getCellHeight()/2, getCellLength()/2);
-	          double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(otherlocP, 
-							otherPosToroidalCorrection(otherlocP,thisLocP), 
-							mechModelOther.getCellWidth()/2, mechModelOther.getCellHeight()/2, mechModelOther.getCellLength()/2);
-	          
-	          double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther); 
-	          double actDist=Math.sqrt(dx*dx+dy*dy+dz*dz);        
-		       if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist){
-		      	 neighbourCells.add(actNeighbour);
-		       }
-		     //  System.out.println("Neighbourhood radius: " + (2.5*optDist));
-	      	 
-	       }
-      }
-  	 	return neighbourCells;
    }   
-   
-   public Point3d otherPosToroidalCorrection(Point3d thisCell, Point3d otherCell)
-   {
-	   double height = cellField.height;
-	   double width = cellField.width;
-	   double length = cellField.length;
-	   double otherZ=-1;
-	   double otherY=-1;
-	   double otherX=-1;
-	   if (Math.abs(thisCell.z-otherCell.z) <= length / 2) otherZ = otherCell.z;
-	   else{
-	   	otherZ = thisCell.z > otherCell.z ? (otherCell.z+length): (otherCell.z-length);
-	   }
-	   if (Math.abs(thisCell.y-otherCell.y) <= height / 2) otherY = otherCell.y;
-	   else{
-	   	otherY = thisCell.y > otherCell.y ? (otherCell.y+height): (otherCell.y-height);
-	   }
-	   if (Math.abs(thisCell.x-otherCell.x) <= width / 2) otherX = otherCell.x;
-	   else{
-	   	otherX = thisCell.x > otherCell.x ? (otherCell.x+width): (otherCell.x-width);
-	   }
-	   return new Point3d(otherX, otherY, otherZ);
-   } 
    
    public boolean hasNucleus(){ 
    	if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){

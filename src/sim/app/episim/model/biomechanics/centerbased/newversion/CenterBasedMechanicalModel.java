@@ -160,8 +160,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
    		if(loc != null){
    			this.modelConnector.setX(loc.x);
    			this.modelConnector.setY(loc.y);
-   		}
-   		
+   		}   		
    	}
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimCenterBasedModelConnector");
    } 
@@ -197,6 +196,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
        if (neighbours==null || neighbours.numObjs == 0) return interactionResult;
        double majorAxisThis = getCellWidth()/2;
        double minorAxisThis = getCellHeight()/2;
+       Point2d thislocP= new Point2d(thisloc.x, thisloc.y);
        double totalContactArea = 0;
        for(int i=0;i<neighbours.numObjs;i++)
        {
@@ -216,12 +216,14 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
              
              //double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y), majorAxisThis, minorAxisThis);
              //double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), new Point2d(thisloc.x, thisloc.y), majorAxisOther, minorAxisOther);
-            
-             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(new Point2d(thisloc.x, thisloc.y), 
-							otherPosToroidalCorrection(new Point2d(thisloc.x, thisloc.y), new Point2d(otherloc.x, otherloc.y)), 
+             
+             Point2d otherlocP= new Point2d(otherloc.x, otherloc.y);
+                          
+             double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(thislocP, 
+							otherPosToroidalCorrection(thislocP, otherlocP), 
 							majorAxisThis, minorAxisThis);
-             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(new Point2d(otherloc.x, otherloc.y), 
-								otherPosToroidalCorrection(new Point2d(otherloc.x, otherloc.y),new Point2d(thisloc.x, thisloc.y)), 
+             double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(otherlocP, 
+								otherPosToroidalCorrection(otherlocP,thislocP), 
 								majorAxisOther, minorAxisOther);            
              double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
              double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
@@ -284,7 +286,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
             	
           		double contactAreaCorrect =0; 
           		if(actDist < optDist*globalParameters.getOptDistanceAdhesionFact()){	
-          			contactAreaCorrect= calculateContactAreaNew(otherPosToroidalCorrection(new Point2d(thisloc.x, thisloc.y), new Point2d(mechModelOther.getX(), mechModelOther.getY())),
+          			contactAreaCorrect= calculateContactAreaNew(new Point2d(thisloc.x, thisloc.y), otherPosToroidalCorrection(new Point2d(thisloc.x, thisloc.y), new Point2d(mechModelOther.getX(), mechModelOther.getY())),
           					dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, getCellLength(), mechModelOther.getCellLength(), requiredDistanceToMembraneThis, requiredDistanceToMembraneOther, actDist, optDist);
           			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
           		}
@@ -304,7 +306,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
        
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >=0){
-      		Point2d membraneReferencePoint = findReferencePositionOnBoundary(new Point2d(thisloc.x, thisloc.y), thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2));
+      		Point2d membraneReferencePoint = findReferencePositionOnBoundary(thislocP, thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2));
       		double dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
             double dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
             if(dx==0 && dy==0){
@@ -370,7 +372,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
    	return point;
    }
    
-   private double calculateContactAreaNew(Point2d posOther,double dy, double majorAxisThis, double minorAxisThis, double majorAxisOther, double minorAxisOther, double lengthThis, double lengthOther, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
+   private double calculateContactAreaNew(Point2d posThis, Point2d posOther,double dy, double majorAxisThis, double minorAxisThis, double majorAxisOther, double minorAxisOther, double lengthThis, double lengthOther, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
    	double contactArea = 0;
    	double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
       double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
@@ -378,7 +380,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
       final double AXIS_RATIO_THRES = 5;
       if(majorAxisThis/minorAxisThis >= AXIS_RATIO_THRES || majorAxisOther/minorAxisOther >=AXIS_RATIO_THRES){
 				
-			Rectangle2D.Double rect1 = new Rectangle2D.Double(getX()-majorAxisThis, getY()-minorAxisThis, 2*majorAxisThis,2*minorAxisThis);
+			Rectangle2D.Double rect1 = new Rectangle2D.Double(posThis.x-majorAxisThis, posThis.y-minorAxisThis, 2*majorAxisThis,2*minorAxisThis);
 			Rectangle2D.Double rect2 = new Rectangle2D.Double(posOther.x-majorAxisOther, posOther.y-minorAxisOther, 2*majorAxisOther,2*minorAxisOther);
 			Rectangle2D.Double intersectionRectXY = new Rectangle2D.Double();
 			Rectangle2D.Double.intersect(rect1, rect2, intersectionRectXY);
@@ -661,9 +663,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 		double c = (modelConnector.getLength()/2d)+extCellSpaceDelta;		
 		return ((4.0d/3.0d)*Math.PI*a*b*c)-getCellVolume();
 	}
-			
 	
-   
  public void newSimStep(long simstepNumber){
 	 if(globalParameters == null){
 		 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
@@ -737,7 +737,120 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	   }
 	   return new Point2d(otherX, otherY);
    }
-  
+   
+   protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
+   	final MersenneTwisterFast random = state.random;
+   	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
+   	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
+   	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;
+   	if(allCells.size() >0){
+   		numberOfSeconds = ((CenterBasedMechanicalModel)allCells.get(0).getEpisimBioMechanicalModelObject()).modelConnector.getNumberOfSecondsPerSimStep();
+   	}
+   	double numberOfIterationsDouble = (numberOfSeconds/DELTA_TIME_IN_SECONDS_PER_EULER_STEP); //according to Pathmanathan et al.2008
+   	if(numberOfIterationsDouble < 1){
+   		DELTA_TIME_IN_SECONDS_PER_EULER_STEP=numberOfSeconds;
+   		numberOfIterationsDouble=1;
+   	}
+   	final int numberOfIterations = ((int)numberOfIterationsDouble);
+   	boolean parallelizationOn = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
+   	for(int i = 0; i<numberOfIterations; i++){
+   		allCells.shuffle(random);
+   		final int totalCellNumber = allCells.size();
+   		final int iterationNo =i;
+   		if(parallelizationOn){
+	   		 Loop.withIndex(0, totalCellNumber, new Loop.Each() {
+	             public void run(int n) {
+	            		CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
+	         			if(iterationNo == 0) cellBM.initNewSimStep();
+	         			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
+	         			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
+	         			//System.out.println("Zelle: "+n);
+	             }
+	         });
+   		}
+   		else{
+   			for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+	   			CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
+	   			if(i == 0) cellBM.initNewSimStep();
+	   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
+	   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
+   			}
+   		}   	
+   	}
+   	calculateSurfaceCells();
+   }
+   
+   private void calculateSurfaceCells(){
+   // updates the isOuterSurface Flag for the surface exposed cells
+   	double binResolutionInMikron = 1;// CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH;
+ 	  	int MAX_XBINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()));///binResolutionInMikron)+1); 
+      AbstractCell[] xLookUp=new AbstractCell[MAX_XBINS];                                         
+      double [] yLookUp=new double[MAX_XBINS]; 
+      GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
+      HashMap<Long, Integer> cellIdToNumberOfBinsMap = new HashMap<Long, Integer>();
+      if(allCells!= null){
+      	AbstractCell[] cellArray = allCells.toArray(new AbstractCell[allCells.size()]);
+	      int numberOfCells = cellArray.length;
+	      for (int i=0; i<numberOfCells; i++)
+	      {
+	          // iterate through all cells and determine the KCyte with lowest Y at bin
+	          if(cellArray[i]!=null){
+	         	 cellArray[i].setIsOuterCell(false);
+		          CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+		          mechModel.surfaceAreaRatio=0;
+		          Double2D loc= mechModel.getCellLocationInCellField();
+		          double width = mechModel.getCellWidth();
+		         
+		          int xbinRight= Math.round((float) ((loc.x+(width/2)) / binResolutionInMikron));
+		          int xbinLeft= Math.round((float) ((loc.x-(width/2)) / binResolutionInMikron));
+		   
+		         // calculate score for free bins and add threshhold
+		          	 
+		         	 for(int n = xbinLeft; n <= xbinRight; n++){
+		         		 	int index = n < 0 ? xLookUp.length + n : n >= xLookUp.length ? n - xLookUp.length : n;
+		         		 	if(index >=0 && index < xLookUp.length && index < yLookUp.length){
+			         		 	if (xLookUp[index]==null || loc.y>yLookUp[index]){
+				         		 	xLookUp[index]=cellArray[i];                            
+					             	yLookUp[index]=loc.y;	             	
+			         		 	}
+		         		 	}
+		         		 	else{
+		         		 		System.out.println("Lookup Error: xbinRight: "+xbinRight+"  xbinLeft: "+xbinLeft+"  index: "+index);
+		         		 	}
+			          }		        
+		         	 cellIdToNumberOfBinsMap.put(cellArray[i].getID(), ((xbinRight+1)-xbinLeft));
+	          }
+	      }
+	      
+	      HashMap<Long, Integer> numberOfAssignedBinsMap = new HashMap<Long, Integer>();
+	      for (int k=0; k< MAX_XBINS; k++){
+	      	  if((xLookUp[k]==null) || (xLookUp[k].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+		        else{
+		      	  long id= xLookUp[k].getID();
+		      	  if(numberOfAssignedBinsMap.containsKey(id)){
+		      		  int numberOfAssignedBins= numberOfAssignedBinsMap.get(id);
+		      		  numberOfAssignedBinsMap.put(id, (numberOfAssignedBins+1));
+		      	  }
+		      	  else numberOfAssignedBinsMap.put(id, 1);
+		        }
+	      }	      
+	      for (int k=0; k< MAX_XBINS; k++)
+	      {
+	          if((xLookUp[k]==null) || (xLookUp[k].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+	          else{
+	         	 CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)xLookUp[k].getEpisimBioMechanicalModelObject();
+	         	 
+	         	 if(numberOfAssignedBinsMap.containsKey(xLookUp[k].getID())
+	         			 &&numberOfAssignedBinsMap.get(xLookUp[k].getID())>0){
+	         		 mechModel.surfaceAreaRatio = cellIdToNumberOfBinsMap.get(xLookUp[k].getID())<=0?0d:(double)((double)(numberOfAssignedBinsMap.get(xLookUp[k].getID()))/(double)(cellIdToNumberOfBinsMap.get(xLookUp[k].getID())));
+	         		 xLookUp[k].setIsOuterCell(true);
+	         	 }
+	         	 mechModel.modelConnector.setEpidermalSurfaceRatio(mechModel.surfaceAreaRatio);
+	         	 mechModel.modelConnector.setIsSurface(xLookUp[k].getIsOuterCell());// || mechModel.nextToOuterCell());
+	          }
+	      }
+      } 
+   }
    
    private Vector2d setVector2dLength(Vector2d vector, double length)
    {
@@ -948,119 +1061,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 			}	   
    }
 	
-  protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
-   	final MersenneTwisterFast random = state.random;
-   	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
-   	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
-   	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;
-   	if(allCells.size() >0){
-   		numberOfSeconds = ((CenterBasedMechanicalModel)allCells.get(0).getEpisimBioMechanicalModelObject()).modelConnector.getNumberOfSecondsPerSimStep();
-   	}
-   	double numberOfIterationsDouble = (numberOfSeconds/DELTA_TIME_IN_SECONDS_PER_EULER_STEP); //according to Pathmanathan et al.2008
-   	if(numberOfIterationsDouble < 1){
-   		DELTA_TIME_IN_SECONDS_PER_EULER_STEP=numberOfSeconds;
-   		numberOfIterationsDouble=1;
-   	}
-   	final int numberOfIterations = ((int)numberOfIterationsDouble);
-   	boolean parallelizationOn = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION) == null || EpisimProperties.getProperty(EpisimProperties.SIMULATION_PARALLELIZATION).equalsIgnoreCase(EpisimProperties.ON);
-   	for(int i = 0; i<numberOfIterations; i++){
-   		allCells.shuffle(random);
-   		final int totalCellNumber = allCells.size();
-   		final int iterationNo =i;
-   		if(parallelizationOn){
-	   		 Loop.withIndex(0, totalCellNumber, new Loop.Each() {
-	             public void run(int n) {
-	            		CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
-	         			if(iterationNo == 0) cellBM.initNewSimStep();
-	         			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));
-	         			if(iterationNo == (numberOfIterations-1)) cellBM.finishNewSimStep();
-	         			//System.out.println("Zelle: "+n);
-	             }
-	         });
-   		}
-   		else{
-   			for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
-	   			CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
-	   			if(i == 0) cellBM.initNewSimStep();
-	   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
-	   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
-   			}
-   		}   	
-   	}
-   	calculateSurfaceCells();
-   }
-   
-   private void calculateSurfaceCells(){
-   // updates the isOuterSurface Flag for the surface exposed cells
-   	double binResolutionInMikron = 1;// CenterBasedMechanicalModel.INITIAL_KERATINO_WIDTH;
- 	  	int MAX_XBINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()));///binResolutionInMikron)+1); 
-      AbstractCell[] xLookUp=new AbstractCell[MAX_XBINS];                                         
-      double [] yLookUp=new double[MAX_XBINS]; 
-      GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
-      HashMap<Long, Integer> cellIdToNumberOfBinsMap = new HashMap<Long, Integer>();
-      if(allCells!= null){
-      	AbstractCell[] cellArray = allCells.toArray(new AbstractCell[allCells.size()]);
-	      int numberOfCells = cellArray.length;
-	      for (int i=0; i<numberOfCells; i++)
-	      {
-	          // iterate through all cells and determine the KCyte with lowest Y at bin
-	          if(cellArray[i]!=null){
-	         	 cellArray[i].setIsOuterCell(false);
-		          CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
-		          mechModel.surfaceAreaRatio=0;
-		          Double2D loc= mechModel.getCellLocationInCellField();
-		          double width = mechModel.getCellWidth();
-		         
-		          int xbinRight= Math.round((float) ((loc.x+(width/2)) / binResolutionInMikron));
-		          int xbinLeft= Math.round((float) ((loc.x-(width/2)) / binResolutionInMikron));
-		   
-		         // calculate score for free bins and add threshhold
-		          	 
-		         	 for(int n = xbinLeft; n <= xbinRight; n++){
-		         		 	int index = n < 0 ? xLookUp.length + n : n >= xLookUp.length ? n - xLookUp.length : n;
-		         		 	if(index >=0 && index < xLookUp.length && index < yLookUp.length){
-			         		 	if (xLookUp[index]==null || loc.y>yLookUp[index]){
-				         		 	xLookUp[index]=cellArray[i];                            
-					             	yLookUp[index]=loc.y;	             	
-			         		 	}
-		         		 	}
-		         		 	else{
-		         		 		System.out.println("Lookup Error: xbinRight: "+xbinRight+"  xbinLeft: "+xbinLeft+"  index: "+index);
-		         		 	}
-			          }		        
-		         	 cellIdToNumberOfBinsMap.put(cellArray[i].getID(), ((xbinRight+1)-xbinLeft));
-	          }
-	      }
-	      
-	      HashMap<Long, Integer> numberOfAssignedBinsMap = new HashMap<Long, Integer>();
-	      for (int k=0; k< MAX_XBINS; k++){
-	      	  if((xLookUp[k]==null) || (xLookUp[k].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
-		        else{
-		      	  long id= xLookUp[k].getID();
-		      	  if(numberOfAssignedBinsMap.containsKey(id)){
-		      		  int numberOfAssignedBins= numberOfAssignedBinsMap.get(id);
-		      		  numberOfAssignedBinsMap.put(id, (numberOfAssignedBins+1));
-		      	  }
-		      	  else numberOfAssignedBinsMap.put(id, 1);
-		        }
-	      }	      
-	      for (int k=0; k< MAX_XBINS; k++)
-	      {
-	          if((xLookUp[k]==null) || (xLookUp[k].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
-	          else{
-	         	 CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)xLookUp[k].getEpisimBioMechanicalModelObject();
-	         	 
-	         	 if(numberOfAssignedBinsMap.containsKey(xLookUp[k].getID())
-	         			 &&numberOfAssignedBinsMap.get(xLookUp[k].getID())>0){
-	         		 mechModel.surfaceAreaRatio = cellIdToNumberOfBinsMap.get(xLookUp[k].getID())<=0?0d:(double)((double)(numberOfAssignedBinsMap.get(xLookUp[k].getID()))/(double)(cellIdToNumberOfBinsMap.get(xLookUp[k].getID())));
-	         		 xLookUp[k].setIsOuterCell(true);
-	         	 }
-	         	 mechModel.modelConnector.setEpidermalSurfaceRatio(mechModel.surfaceAreaRatio);
-	         	 mechModel.modelConnector.setIsSurface(xLookUp[k].getIsOuterCell());// || mechModel.nextToOuterCell());
-	          }
-	      }
-      } 
-   }
+  
     
    @CannotBeMonitored
    @NoExport  

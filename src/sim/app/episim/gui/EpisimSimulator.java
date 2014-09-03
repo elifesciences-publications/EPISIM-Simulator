@@ -94,7 +94,7 @@ import sim.util.EpisimUpdateDialogText;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.0.3.8";
+	public static final String versionID = "1.5.0.4.2";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -510,7 +510,8 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 					else if(args[i].equals(EpisimSimulator.IMAGE_EXPORT_FOLDER_PARAM_PREFIX)){
 						File path = new File(args[i+1]);							
 						if(!path.exists() || !path.isDirectory()) new PropertyException("Path: " + args[i+1] + " doesn't point to an existing folder" + args[i]);						
-						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH, path.getAbsolutePath());							
+						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_CHARTPNGPRINTPATH, path.getAbsolutePath());
+						EpisimProperties.setProperty(EpisimProperties.SIMULATION_PNG_PATH, path.getAbsolutePath());		
 					}					
 					else if(args[i].equals(EpisimSimulator.SIM_ID_PARAM_PREFIX)){
 						EpisimProperties.setProperty(EpisimProperties.SIMULATOR_SIMULATION_RUN_ID, args[i+1].trim());
@@ -531,7 +532,12 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				//System.setProperty("java.awt.headless", "true");
 			if(!onlyUpdate){
 				System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-			   EpisimSimulator episim = new EpisimSimulator();
+				SwingUtilities.invokeLater(new Runnable() {
+			      @Override
+			      public void run() {
+			      		final EpisimSimulator episim = new EpisimSimulator();
+			      }
+			     });
 			}
 		       
 		}

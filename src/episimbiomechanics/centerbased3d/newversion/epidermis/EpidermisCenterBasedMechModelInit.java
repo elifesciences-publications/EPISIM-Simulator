@@ -133,7 +133,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 					mechModel.setStandardCellWidth(STEM_CELL_WIDTH);
 					mechModel.setStandardCellHeight(STEM_CELL_HEIGHT);
 					mechModel.setStandardCellLength(STEM_CELL_LENGTH);
-					mechModel.setPositionRespectingBounds(new Point3d(newLoc.x, newLoc.y, newLoc.z), mechModelGP.getOptDistanceToBMScalingFactor());			
+					mechModel.setPositionRespectingBounds(new Point3d(newLoc.x, newLoc.y, newLoc.z), mechModelGP.getOptDistanceToBMScalingFactor(), true);			
 					standardCellEnsemble.add(stemCell);	
 			}						
 		}

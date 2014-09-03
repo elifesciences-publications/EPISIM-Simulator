@@ -23,9 +23,9 @@ public class ExceptionDisplayer implements ClassLoaderChangeListener{
 	private static Semaphore sem = new Semaphore(1);
 	
 	private Component rootComp;
+	
 	private ExceptionDisplayer(){
-		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
-		
+		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);		
 	}
 
 	public static ExceptionDisplayer getInstance(){
@@ -37,34 +37,28 @@ public class ExceptionDisplayer implements ClassLoaderChangeListener{
          }
          catch (InterruptedException e){
 	        ExceptionDisplayer.getInstance().displayException(e);
-         }
-				
+         }				
 		}
 		return instance;
 	}
 	
-	public synchronized void displayException(Exception ex){
-		
+	public void displayException(Exception ex){		
 		displayException(((Throwable) ex));
 	}
 	
-	public synchronized void displayException(Throwable t){
+	public void displayException(Throwable t){
 		if(t instanceof ZeroNeighbourCellsAccessException){
 			if(ModeServer.guiMode()){
 				JOptionPane.showMessageDialog(rootComp, "A cell with no neighbours tried to access parameters of a neighboring cell.\nDefine checks for the existance of neighbouring cells (numberOfNeighbours>0)\nin your graphical cell behavioral model before accessing parameters of neighbouring cells!\nEPISIM Simulator will shut down...", "Invalid neighbour cell access", JOptionPane.ERROR_MESSAGE);
 			}
 			EpisimLogger.getInstance().logException("", t);
-			System.exit(0);
-			
+			System.exit(0);			
 		}
 		else EpisimLogger.getInstance().logException("", t);
 	}
 	
 	public void registerParentComp(Component comp){ this.rootComp = comp; }
 
-
-   public void classLoaderHasChanged() {
-	   instance = null;
-   }
+   public void classLoaderHasChanged() { instance = null; }
 	
 }

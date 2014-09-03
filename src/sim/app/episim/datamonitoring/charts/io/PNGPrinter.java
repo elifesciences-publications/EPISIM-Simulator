@@ -56,7 +56,7 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 		chartRecoloringRegistry = new HashSet<Long>();
 	}
 	
-	public static synchronized PNGPrinter getInstance(){
+	public static PNGPrinter getInstance(){
 		if(instance==null){
 			try{
 	         sem.acquire();

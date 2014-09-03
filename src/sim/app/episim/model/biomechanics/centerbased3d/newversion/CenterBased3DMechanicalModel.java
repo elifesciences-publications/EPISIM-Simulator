@@ -76,6 +76,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    private static double DELTA_TIME_IN_SECONDS_PER_EULER_STEP = 36;   
    private static final double MAX_DISPLACEMENT = 10;
    
+   private Double3D newLocation=null;
+   
 	public CenterBased3DMechanicalModel(){
    	this(null);
    }
@@ -153,7 +155,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
        // for each collision calc a pressure vector and add it to the other's existing one
        InteractionResult interactionResult=new InteractionResult();            
-       if (neighbours==null || neighbours.numObjs == 0) return interactionResult;
+       if (neighbours==null || neighbours.numObjs == 0 || thisloc == null) return interactionResult;
        
        double thisSemiAxisA = getCellWidth()/2;      
        double thisSemiAxisB = getCellHeight()/2;
@@ -163,14 +165,12 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
        for(int i=0;i<neighbours.numObjs;i++)
        {
           
-      	 if (!(neighbours.objs[i] instanceof AbstractCell)) continue;          
+      	 if (neighbours.objs[i]==null || !(neighbours.objs[i] instanceof AbstractCell)) continue;          
        
           AbstractCell other = (AbstractCell)(neighbours.objs[i]);
-          
-          if (other != getCell())
-          {
-             
-         	 CenterBased3DMechanicalModel mechModelOther = (CenterBased3DMechanicalModel) other.getEpisimBioMechanicalModelObject();
+          CenterBased3DMechanicalModel mechModelOther = (CenterBased3DMechanicalModel) other.getEpisimBioMechanicalModelObject();
+          if (other != getCell() && mechModelOther !=null)
+          {   	 
              
          	 double otherSemiAxisA = mechModelOther.getCellWidth()/2;             
              double otherSemiAxisB = mechModelOther.getCellHeight()/2;
@@ -488,12 +488,12 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 	   return cellCenter.distance(intersectionPointEllipsoid);
 	}
    
-   public void setPositionRespectingBounds(Point3d cellPosition)
+   public void setPositionRespectingBounds(Point3d cellPosition, boolean setPostionInCellField)
 	{
-   	setPositionRespectingBounds(cellPosition, globalParameters.getOptDistanceToBMScalingFactor());
+   	setPositionRespectingBounds(cellPosition, globalParameters.getOptDistanceToBMScalingFactor(), setPostionInCellField);
 	}
    
-   public void setPositionRespectingBounds(Point3d cellPosition, double optDistScalingFact)
+   public void setPositionRespectingBounds(Point3d cellPosition, double optDistScalingFact, boolean setPostionInCellField)
 	{
 		
 		double tissueWidth = TissueController.getInstance().getTissueBorder().getWidthInMikron();
@@ -537,7 +537,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 		   }	
 	   }
 	   Double3D newloc = new Double3D(newx,newy,newz);
-	   setCellLocationInCellField(newloc);
+	   newLocation = newloc;
+	   if(setPostionInCellField)setCellLocationInCellField(newloc);
 	}
    
    public Point3d calculateLowerBoundaryPositionForCell(Point3d cellPosition){
@@ -663,7 +664,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 						|| Math.abs(newZ-oldCellLocation.z)> MAX_DISPLACEMENT){
 					System.out.println("Biomechanical Artefakt ");
 				}else{
-					setPositionRespectingBounds(new Point3d(newX, newY, newZ));
+					setPositionRespectingBounds(new Point3d(newX, newY, newZ), false);
 				}				
 			}			
 			finalInteractionResult = interactionResult;
@@ -847,7 +848,11 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 		   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
 		   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
 		   		}
-	   		}	   	
+	   		}
+	   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+	   			CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
+	   			if(cellBM.newLocation!=null)cellBM.setCellLocationInCellField(cellBM.newLocation);
+	   		}
    	}   	  
    	calculateSurfaceCells();
    }

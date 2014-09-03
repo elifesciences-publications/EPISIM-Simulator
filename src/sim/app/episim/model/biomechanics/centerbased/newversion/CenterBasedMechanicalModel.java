@@ -105,7 +105,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
    
    private static final double MAX_DISPLACEMENT = 10;
    
-   
+   private Double2D newLocation = null;
    
    public CenterBasedMechanicalModel(){
    	this(null);
@@ -193,20 +193,20 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
        // check of actual position involves a collision, if so return TRUE, otherwise return FALSE
        // for each collision calc a pressure vector and add it to the other's existing one
        InteractionResult interactionResult=new InteractionResult();            
-       if (neighbours==null || neighbours.numObjs == 0) return interactionResult;
+       if (neighbours==null || neighbours.numObjs == 0 || thisloc == null) return interactionResult;
        double majorAxisThis = getCellWidth()/2;
        double minorAxisThis = getCellHeight()/2;
        Point2d thislocP= new Point2d(thisloc.x, thisloc.y);
        double totalContactArea = 0;
        for(int i=0;i<neighbours.numObjs;i++)
        {
-          if (!(neighbours.objs[i] instanceof AbstractCell)) continue;
-          
+          if (neighbours.objs[i]==null || !(neighbours.objs[i] instanceof AbstractCell)) continue;          
        
           AbstractCell other = (AbstractCell)(neighbours.objs[i]);
-          if (other != getCell())
-          {
-             CenterBasedMechanicalModel mechModelOther = (CenterBasedMechanicalModel) other.getEpisimBioMechanicalModelObject();
+          CenterBasedMechanicalModel mechModelOther = (CenterBasedMechanicalModel) other.getEpisimBioMechanicalModelObject();
+          
+          if (other != getCell() && mechModelOther != null)
+          {             
              double majorAxisOther = mechModelOther.getCellWidth()/2;
              double minorAxisOther = mechModelOther.getCellHeight()/2;
          	 Double2D otherloc=cellField.getObjectLocation(other);
@@ -299,11 +299,9 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
              }
            }          
         }
-       if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
-      	 ((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setTotalContactArea(totalContactArea);
-       }
-       
-       
+	     if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
+	      	 ((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setTotalContactArea(totalContactArea);
+	     }       
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >=0){
       		Point2d membraneReferencePoint = findReferencePositionOnBoundary(thislocP, thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2));
@@ -461,7 +459,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	   return cellCenter.distance(intersectionPointEllipse);
 	}
 
-	public void setPositionRespectingBounds(Point2d cellPosition)
+	public void setPositionRespectingBounds(Point2d cellPosition, boolean setPositionInField)
 	{
 		
 		double tissueWidth = TissueController.getInstance().getTissueBorder().getWidthInMikron();
@@ -492,7 +490,8 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 		   }	
 	   }
 	   Double2D newloc = new Double2D(newx,newy);
-	   setCellLocationInCellField(newloc);
+	   newLocation = newloc;
+	   if(setPositionInField) setCellLocationInCellField(newloc);
 	}
 	
 	public Point2d calculateLowerBoundaryPositionForCell(Point2d cellPosition, Point2d referencePosition, double optDistance){
@@ -591,7 +590,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 						|| Math.abs(newY-oldCellLocation.y)> MAX_DISPLACEMENT){
 					System.out.println("Biomechanical Artefakt ");
 				}else{
-					setPositionRespectingBounds(new Point2d(newX, newY));
+					setPositionRespectingBounds(new Point2d(newX, newY), false);
 				}
 				
 				
@@ -775,7 +774,11 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	   			cellBM.calculateSimStep((i == (numberOfIterations-1)));
 	   			if(i == (numberOfIterations-1)) cellBM.finishNewSimStep();
    			}
-   		}   	
+   		}
+   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
+   			CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
+   			if(cellBM.newLocation != null)cellBM.setCellLocationInCellField(cellBM.newLocation);
+   		}
    	}
    	calculateSurfaceCells();
    }
@@ -1100,7 +1103,8 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 		
 	   return new CellBoundaries(new Ellipse2D.Double(x-(width/2), y-(height/2), width, height));
    }
-
+   
+  
 	
    public double getStandardCellHeight() {
    	return this.standardCellHeight;

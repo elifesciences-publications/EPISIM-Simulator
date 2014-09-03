@@ -30,16 +30,28 @@ public class Loop {
            final int hi = (i<stop) ? i : stop;
            executor.submit(new Runnable() {
                public void run() {
-                   for (int i=lo; i<hi; i++)
+               	try{
+                   for (int i=lo; i<hi; i++){
                        body.run(i);
+                   }
+               	}
+               	catch(Exception e){
+               		e.printStackTrace();
+               	}
+               	catch(Error er){
+               		er.printStackTrace();
+               	}
+               	finally{
                    latch.countDown();
+               	}
                }
            });
        }
        try {
       	// System.out.println("\nStarted Waiting");
       //	 long startTime = System.currentTimeMillis();
-          	latch.await(10l, TimeUnit.SECONDS);
+          	//latch.await(10l, TimeUnit.SECONDS);
+          	latch.await();
         //  long endTime = System.currentTimeMillis();
         //  long waitingTime = ((endTime-startTime)/1000);
         //  System.out.println("Stopped Waiting after: "+((endTime-startTime)/1000)+ " seconds");

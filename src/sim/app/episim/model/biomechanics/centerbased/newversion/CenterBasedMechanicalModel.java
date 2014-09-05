@@ -106,7 +106,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
    private static final double MAX_DISPLACEMENT = 10;
    
    private Double2D newLocation = null;
-   
+   private GenericBag<AbstractCell> directNeighbours;
    public CenterBasedMechanicalModel(){
    	this(null);
    }
@@ -145,6 +145,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	      }
       }
       lastDrawInfo2D = new DrawInfo2D(null, null, new Rectangle2D.Double(0, 0, 0, 0), new Rectangle2D.Double(0, 0, 0, 0));
+      directNeighbours = new GenericBag<AbstractCell>();
    }
    
    public void setLastDrawInfo2D(DrawInfo2D info){
@@ -198,6 +199,9 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
        double minorAxisThis = getCellHeight()/2;
        Point2d thislocP= new Point2d(thisloc.x, thisloc.y);
        double totalContactArea = 0;
+       
+       if(finalSimStep)directNeighbours.clear();
+       
        for(int i=0;i<neighbours.numObjs;i++)
        {
           if (neighbours.objs[i]==null || !(neighbours.objs[i] instanceof AbstractCell)) continue;          
@@ -293,6 +297,9 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
           		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
           		totalContactArea+=Math.abs(contactAreaCorrect);
           	 }
+             if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist && finalSimStep){
+   	      	 directNeighbours.add(other);
+   	       }
              if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){
                     	
                     interactionResult.nextToOuterCell=true;  
@@ -683,7 +690,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
    
    @NoExport
    public GenericBag<AbstractCell> getDirectNeighbours(){
-   	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
+   	/*GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
    	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
    	
    	for(int i=0;i<neighbours.size();i++)
@@ -716,7 +723,8 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
       	 
        }
       }
-  	 	return neighbourCells;
+  	 	return neighbourCells;*/
+   	return directNeighbours;
    }
    
    

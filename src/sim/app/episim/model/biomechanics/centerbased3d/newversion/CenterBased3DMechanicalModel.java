@@ -77,7 +77,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    private static final double MAX_DISPLACEMENT = 10;
    
    private Double3D newLocation=null;
-   
+   private GenericBag<AbstractCell> directNeighbours;
 	public CenterBased3DMechanicalModel(){
    	this(null);
    }
@@ -111,7 +111,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 		      Double3D newloc=new Double3D(oldLoc.x + deltaX, oldLoc.y+deltaY, oldLoc.z+deltaZ);		      
 		      cellField.setObjectLocation(cell, newloc);		      
 	      }
-      }      
+      } 
+      directNeighbours = new GenericBag<AbstractCell>();
    } 
    
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
@@ -162,6 +163,9 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
        double thisSemiAxisC = getCellLength()/2;
        Point3d thislocP= new Point3d(thisloc.x, thisloc.y, thisloc.z);
        double totalContactArea=0;
+       
+       if(finalSimStep)directNeighbours.clear();
+       
        for(int i=0;i<neighbours.numObjs;i++)
        {
           
@@ -211,8 +215,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
             	 interactionResult.repulsiveForce.y += force*dy/actDist;
             	 interactionResult.repulsiveForce.z += force*dz/actDist;                                       
               
-                interactionResult.numhits++;
-                                                                
+                interactionResult.numhits++;                                                           
               }
             else if(((optDist-actDist)<=-1*MIN_OVERLAP_MICRON) &&(actDist < optDist*globalParameters.getOptDistanceAdhesionFact())) // attraction forces 
              {
@@ -246,6 +249,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
             	interactionResult.adhesionForce.z += adhesion*((-dz)/actDist);
             	
              }
+             
              if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
             	 
           		double contactAreaCorrect = 0;
@@ -258,10 +262,14 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
           						otherPosToroidalCorrection(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(mechModelOther.getX(), mechModelOther.getY(), mechModelOther.getZ())),
           					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisC, otherSemiAxisA, otherSemiAxisB, otherSemiAxisC, requiredDistanceToMembraneThis, requiredDistanceToMembraneOther, actDist, optDist);
           			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
-          		}
+          			
+          		}          		
           		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
           		totalContactArea+= Math.abs(contactAreaCorrect);         		
              }
+             if(actDist <= globalParameters.getDirectNeighbourhoodOptDistFact()*optDist && finalSimStep){
+        			directNeighbours.add(other);
+        		 }
              if (actDist <= (getCellHeight()*NEXT_TO_OUTERCELL_FACT) && dy < 0 && other.getIsOuterCell()){                    	
                     interactionResult.nextToOuterCell=true;  
              }
@@ -753,7 +761,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    
    @NoExport
    public GenericBag<AbstractCell> getDirectNeighbours(){
-   	GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
+   	/*GenericBag<AbstractCell> neighbours = getCellularNeighbourhood(true);
    	GenericBag<AbstractCell> neighbourCells = new GenericBag<AbstractCell>();
    	Point3d thisLocP = new Point3d(getX(), getY(), getZ());
 
@@ -786,7 +794,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 	      	 
 	       }
       }
-  	 	return neighbourCells;
+   	return neighbourCells;*/
+   	return directNeighbours;
    }  
    
    public Point3d otherPosToroidalCorrection(Point3d thisCell, Point3d otherCell)

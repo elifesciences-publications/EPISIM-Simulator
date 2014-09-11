@@ -97,6 +97,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
+import sim.app.episim.model.visualization.TissueCrossSectionPortrayal3D;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Names;
@@ -878,6 +879,12 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
    	}   
    }
    
+   public void attach(Portrayal portrayal, String name, boolean visible) {
+   	if(portrayal instanceof Portrayal3D){
+   		super.attach((Portrayal3D) portrayal, name, visible);
+   	}   
+   }
+   
    
    public void setBackdrop(Paint c) {
    	if(c instanceof Color){
@@ -1406,16 +1413,19 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 								double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
 								result =-1*length*fact;
 								actModelSceneCrossSectionCoordinate = -1*result;
+								TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
 							}
 							else if(mode == ModelSceneCrossSectionMode.X_Z_PLANE){
 								double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 								result =-1*height*fact;
 								actModelSceneCrossSectionCoordinate = -1*result;
+								TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
 							}
 							else if(mode == ModelSceneCrossSectionMode.Y_Z_PLANE){
 								double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
 								result =-1*width*fact;
 								actModelSceneCrossSectionCoordinate = -1*result;
+								TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
 							}
 							
 							planePosition.w =result;
@@ -1450,14 +1460,17 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 						if(selectedComboItem == ModelSceneCrossSectionMode.X_Y_PLANE){
 							double length = TissueController.getInstance().getTissueBorder().getLengthInMikron();
 							result =-1*length*fact;
+							TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
 						}
 						else if(selectedComboItem == ModelSceneCrossSectionMode.X_Z_PLANE){
 							double height = TissueController.getInstance().getTissueBorder().getHeightInMikron();
 							result =-1*height*fact;
+							TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
 						}
 						else if(selectedComboItem == ModelSceneCrossSectionMode.Y_Z_PLANE){
 							double width = TissueController.getInstance().getTissueBorder().getWidthInMikron();
 							result =-1*width*fact;
+							TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
 						}
 						Vector4d planePosition = new Vector4d();
 						modelClip.getPlane(selectedComboItem.ordinal()-1, planePosition);

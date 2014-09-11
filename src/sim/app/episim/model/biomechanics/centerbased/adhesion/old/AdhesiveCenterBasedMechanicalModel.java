@@ -743,6 +743,7 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractCenterBasedMecha
 			}	   
    }
 
+	protected void newGlobalSimStep(long simStepNumber, SimState state){ /* NOT NEEDED IN THIS MODEL */ }
    
    protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
    	// updates the isOuterSurface Flag for the surface exposed cells

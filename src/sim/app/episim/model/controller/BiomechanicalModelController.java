@@ -134,6 +134,9 @@ public class BiomechanicalModelController implements java.io.Serializable, Class
 	public void newSimStepGloballyFinished(long simStepNumber, SimState state){
 		biomechanicalModel.newSimStepGloballyFinished(simStepNumber, state);
 	}
+	public void newGlobalSimStep(long simStepNumber, SimState state){
+		biomechanicalModel.newGlobalSimStep(simStepNumber, state);
+	}
 	
 	
 	public void reloadMechanicalModelGlobalParametersObject(EpisimBiomechanicalModelGlobalParameters parametersObject){

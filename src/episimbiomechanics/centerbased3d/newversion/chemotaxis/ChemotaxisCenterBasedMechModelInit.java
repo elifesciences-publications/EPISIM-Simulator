@@ -130,6 +130,7 @@ public class ChemotaxisCenterBasedMechModelInit  extends BiomechanicalModelIniti
 		mechModelGP.setWidthInMikron(200);
 		mechModelGP.setHeightInMikron(200);
 		mechModelGP.setLengthInMikron(200);
+		mechModelGP.setNumberOfSecondsPerSimStep(1);
 	}
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {

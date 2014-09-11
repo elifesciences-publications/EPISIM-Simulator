@@ -728,6 +728,7 @@ public class HexagonBased3DMechanicalModel extends AbstractMechanical3DModel {
 		//not yet needed
 		return new Episim3DCellShape<Shape3D>(new Shape3D());
 	}
+   protected void newGlobalSimStep(long simStepNumber, SimState state){ /* NOT NEEDED IN THIS MODEL */ }
    
    protected void newSimStepGloballyFinished(long simStepNumber, SimState state) {
    }

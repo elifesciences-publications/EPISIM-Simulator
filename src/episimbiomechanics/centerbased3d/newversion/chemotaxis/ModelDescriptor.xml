@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
-  <modelid id="2013-10-04_episimbiomechanics.centerbased.newversion.chemotaxis.EpisimCenterBasedMC"/>
-  <visiblename name="Center-Based Model New 2D - Chemotaxis"/>
-  <modelname name="New Center Based Chemotaxis Biomechanical Model"/>
-  <modelconnectorclass name="episimbiomechanics.centerbased.newversion.chemotaxis.EpisimCenterBasedMC"/>
+  <modelid id="2014-04-10_episimbiomechanics.centerbased3d.newversion.chemotaxis.EpisimChemotaxisCenterBased3DMC"/>
+  <visiblename name="Center-Based Model New 3D - Chemotaxis"/>
+  <modelname name="New Center Based Chemotaxis 3D Biomechanical Model"/>
+  <modelconnectorclass name="episimbiomechanics.centerbased3d.newversion.chemotaxis.EpisimChemotaxisCenterBased3DMC"/>
   <modelparameters>
     <parameter datatype="boolean" default="false" name="isSurface"
       pairwise="false" readonly="true"/>
@@ -37,6 +37,7 @@
     <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
     <parameter datatype="String" default="" name="nameCellTypeTCell"
       pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0"
       name="adhesionBasalMembrane" pairwise="false" readonly="false"/>
   </modelparameters>

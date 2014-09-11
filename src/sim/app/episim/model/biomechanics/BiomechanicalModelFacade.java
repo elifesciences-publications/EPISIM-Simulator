@@ -155,6 +155,12 @@ public class BiomechanicalModelFacade implements java.io.Serializable{
 			((AbstractMechanicalModel) biomechanicalModel).newSimStepGloballyFinished(simStepNumber, state);
 		}
 	}
+	public void newGlobalSimStep(long simStepNumber, SimState state){
+		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
+		if(biomechanicalModel instanceof AbstractMechanicalModel){
+			((AbstractMechanicalModel) biomechanicalModel).newGlobalSimStep(simStepNumber, state);
+		}
+	}
 	
 	public Object getCellField(){
 		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);

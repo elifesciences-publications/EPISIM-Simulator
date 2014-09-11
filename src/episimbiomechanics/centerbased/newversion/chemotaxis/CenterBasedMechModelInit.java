@@ -121,6 +121,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		mechModelGP.setRandomness(0.1);
 		mechModelGP.setWidthInMikron(200);
 		mechModelGP.setHeightInMikron(200);
+		mechModelGP.setNumberOfSecondsPerSimStep(1);
 	}
 
 	protected ArrayList<UniversalCell> buildInitialCellEnsemble() {

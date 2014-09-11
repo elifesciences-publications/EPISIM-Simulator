@@ -74,25 +74,26 @@ public class UniversalCell extends AbstractCell
    public UniversalCell makeChild(EpisimCellBehavioralModel cellBehavioralModel)
    {       
    	 
-   	 // Either we get use a currently unused cell oder we allocate a new one
-        UniversalCell kcyte;   
-        kcyte= new UniversalCell(this, cellBehavioralModel, true);       
+   	 
+        UniversalCell newCell;   
+        newCell= new UniversalCell(this, cellBehavioralModel, true);       
          
         if(!ModeServer.useMonteCarloSteps()){   
-	        Stoppable stoppable = TissueController.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(kcyte, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
-	        kcyte.setStoppable(stoppable);
+	        Stoppable stoppable = TissueController.getInstance().getActEpidermalTissue().schedule.scheduleRepeating(newCell, SchedulePriority.CELLS.getPriority(), 1);   // schedule only if not already running
+	        newCell.setStoppable(stoppable);
         }        
        
         //in the first two thousand sim steps homeostasis has to be achieved, cells max age is set to the sim step time to have more variation  
         if(EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT) != null &&
-    				EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
+    				EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)
+    				&& isDemoModel(newCell)){
 	        double maxAge= cellBehavioralModel.getMaxAge();
 	        long simTime=SimStateServer.getInstance().getSimStepNumber();
 	        if (simTime<(maxAge)){ 
 	      	  cellBehavioralModel.setMaxAge((double)simTime);
 	        }
         }
-        return kcyte;
+        return newCell;
     }
 
     public void makeTACell(EpisimCellBehavioralModel cellBehavioralModel)
@@ -260,8 +261,7 @@ public class UniversalCell extends AbstractCell
    			 if(ModelController.getInstance().isStandardKeratinocyteModel()){
 	   			 if(convertToStandardDiffLevel(actChild.getDiffLevel()) == StandardDiffLevel.TACELL) makeTACell(actChild);
 	   			 else{
-	   				 makeChild(actChild);
-	   				
+	   				 makeChild(actChild);	   				
 	   			 }
    			 }
    			 else{

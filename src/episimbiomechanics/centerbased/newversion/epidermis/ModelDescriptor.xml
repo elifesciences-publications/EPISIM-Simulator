@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modeldescriptor>
   <modelid id="2013-08-22_episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC"/>
-  <visiblename name="New Center-Based Biomechanical Model 2D - Epidermis"/>
+  <visiblename name="Center-Based Model New 2D - Epidermis"/>
   <modelname name="New Center Based Biomechanical Model"/>
   <modelconnectorclass name="episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC"/>
   <modelparameters>
@@ -25,8 +25,6 @@
       pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0" name="cellCellAdhesion"
       pairwise="true" readonly="false"/>
-    <parameter datatype="int" default="1"
-      name="numberOfSecondsPerSimStep" pairwise="false" readonly="false"/>
     <parameter datatype="double" default="0.0" name="extCellSpaceVolume"
       pairwise="false" readonly="true"/>
     <parameter datatype="double" default="0.0" name="length"

@@ -19,8 +19,7 @@ public abstract class EpisimCenterBased3DMC extends EpisimModelConnector {
 	private double width=0;
 	private double height=0;
 	private double length=0;
-	private int numberOfSecondsPerSimStep=1;
-	
+		
 	private double adhesionBasalMembrane=0;
 	
 		
@@ -104,17 +103,7 @@ public abstract class EpisimCenterBased3DMC extends EpisimModelConnector {
    
 	@Hidden
 	@NoExport
-   public abstract double getAdhesionFactorForCell(AbstractCell cell);
-
-	
-   public int getNumberOfSecondsPerSimStep() {   
-   	return numberOfSecondsPerSimStep;
-   }
-
-	
-   public void setNumberOfSecondsPerSimStep(int numberOfSecondsPerSimStep) {   
-   	this.numberOfSecondsPerSimStep = numberOfSecondsPerSimStep;
-   }
+   public abstract double getAdhesionFactorForCell(AbstractCell cell);   
    
    public double getAdhesionBasalMembrane() {      
    	return adhesionBasalMembrane;

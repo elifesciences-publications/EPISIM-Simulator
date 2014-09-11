@@ -23,6 +23,7 @@ public class CenterBased3DMechanicalModelGP  implements EpisimBiomechanicalModel
 	
 	private double neighborhood_mikron= 20.0; 
 	private double numberOfPixelsPerMicrometer = 1;
+	private int numberOfSecondsPerSimStep=1800;
 	
 	private double mechanicalNeighbourhoodOptDistFact = 1.5;
 	private double directNeighbourhoodOptDistFact = 1.3;	
@@ -246,5 +247,13 @@ public class CenterBased3DMechanicalModelGP  implements EpisimBiomechanicalModel
    public void setOptDistanceToBMScalingFactor(double optDistanceToBMScalingFactor) {
    
    	this.optDistanceToBMScalingFactor = optDistanceToBMScalingFactor;
+   }
+   public int getNumberOfSecondsPerSimStep() {   
+   	return numberOfSecondsPerSimStep;
+   }
+
+	
+   public void setNumberOfSecondsPerSimStep(int numberOfSecondsPerSimStep) {   
+   	if(numberOfSecondsPerSimStep>0)this.numberOfSecondsPerSimStep = numberOfSecondsPerSimStep;
    }
 }

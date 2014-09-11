@@ -162,7 +162,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() != null
 					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() instanceof Frame){	
 				JOptionPane.showMessageDialog((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent(), 
-						"Starting the simulation requires retrieval of the tissue simulation snapshot you loaded!\nDuring this time EPISIM Simulator is not responding.\nSimulation starts automatically after successful processing of the tissue simulatoin snapshot.", 
+						"Starting the simulation requires retrieval of the tissue simulation snapshot you loaded!\nDuring this time EPISIM Simulator is not responding.\nSimulation starts automatically after successful processing of the tissue simulation snapshot.", 
 						"Simulation Start", JOptionPane.INFORMATION_MESSAGE);
 									
 			}

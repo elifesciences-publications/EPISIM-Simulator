@@ -2,6 +2,7 @@ package sim.app.episim.model.visualization;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 import javax.media.j3d.TransformGroup;
 
@@ -15,6 +16,8 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.util.Loop;
+import sim.app.episim.util.Loop.Each;
 import sim.display3d.Display3DHack.ModelSceneCrossSectionMode;
 import sim.display3d.Display3DHack;
 import sim.field.grid.DoubleGrid2D;
@@ -29,7 +32,7 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 	
 	private static final String NAME = "Tissue Cross Section";
 	
-	
+	private static boolean tissueCrossSectionDirty = true;
 	
 	private ModelSceneCrossSectionMode lastSelectedCrossSectionMode = ModelSceneCrossSectionMode.X_Y_PLANE;
 	private double lastCrossSectionTranslationCoordinate = 0;
@@ -50,11 +53,14 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 		doCrossSectionPlaneTransformation();
 	}
 	
+	public static void setTissueCrossSectionDirty(){
+		tissueCrossSectionDirty = true;
+	}
 	
 	public Object getField()
    {
 		
-		setField(createInt2DField());	
+		if(tissueCrossSectionDirty)setField(createInt2DField());	
 		return this.field;
    }
 	
@@ -69,7 +75,7 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 			actCrossSectionTranslationCoordinate = ((Display3DHack)getCurrentDisplay()).getActModelSceneCrossSectionCoordinate();
 		}
 		
-		double positionInMikrometer = actCrossSectionTranslationCoordinate;
+		final double positionInMikrometer = actCrossSectionTranslationCoordinate;
 		double factorXY = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXYResolutionFactor();
 		double factorXZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionXZResolutionFactor();
 		double factorYZ = TissueController.getInstance().getTissueBorder().get3DTissueCrosssectionYZResolutionFactor();
@@ -85,7 +91,7 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 		
 		
 		
-		GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
+		final GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
 		if(actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED){
 			if(actCrossSectionMode == ModelSceneCrossSectionMode.X_Y_PLANE){
 				this.renewTilePortrayal((float)(1f/factorXY), (float)(1f/factorXY));
@@ -103,34 +109,78 @@ public class TissueCrossSectionPortrayal3D extends ValueGrid2DPortrayal3DHack im
 				initializeFieldWithColor(field2D);
 			}
 			
+			final ModelSceneCrossSectionMode actCrossSectionModeFinal=actCrossSectionMode;
+			final IntGrid2D field2DFinal= field2D;
+		//	long start = System.currentTimeMillis();
+			final ArrayList<AbstractCell> cellsInCrossSection = new ArrayList<AbstractCell>();
+			final ArrayList<CellBoundaries> cellsBoundariesInCrossSection = new ArrayList<CellBoundaries>();
 			for(int i = 0; i < allCells.size(); i++){				
 				EpisimBiomechanicalModel bm = allCells.get(i).getEpisimBioMechanicalModelObject();
 				CellBoundaries boundariesCell =bm.getCellBoundariesInMikron(0);
+				if(actCrossSectionModeFinal == ModelSceneCrossSectionMode.X_Y_PLANE){					
+					if(positionInMikrometer >= (boundariesCell.getMinZInMikron()*0.9) && positionInMikrometer <= (boundariesCell.getMaxZInMikron()*1.1)){
+						cellsInCrossSection.add(allCells.get(i));
+						cellsBoundariesInCrossSection.add(boundariesCell);
+					}
+				}
+				else if(actCrossSectionModeFinal == ModelSceneCrossSectionMode.X_Z_PLANE){
+					if(positionInMikrometer >= (boundariesCell.getMinYInMikron()*0.9) && positionInMikrometer <= (boundariesCell.getMaxYInMikron()*1.1)){
+						cellsInCrossSection.add(allCells.get(i));
+						cellsBoundariesInCrossSection.add(boundariesCell);
+					}				
+				}
+				else if(actCrossSectionModeFinal == ModelSceneCrossSectionMode.Y_Z_PLANE){
+					if(positionInMikrometer >= (boundariesCell.getMinXInMikron()*0.9) && positionInMikrometer <= (boundariesCell.getMaxXInMikron()*1.1)){
+						cellsInCrossSection.add(allCells.get(i));
+						cellsBoundariesInCrossSection.add(boundariesCell);
+					}
+				}
+				
+			}
+			//for(int i = 0; i < cellsInCrossSection.size(); i++){
+			if(cellsInCrossSection.size()>0){
+			Loop.withIndex(0, cellsInCrossSection.size(), new Loop.Each() {
+				public void run(int i) {
+		
+				EpisimBiomechanicalModel bm = cellsInCrossSection.get(i).getEpisimBioMechanicalModelObject();
+				CellBoundaries boundariesCell =cellsBoundariesInCrossSection.get(i);
 				CellBoundaries boundariesNucleus=null;
 				if(bm instanceof CenterBased3DMechanicalModel){
 					boundariesNucleus =((CenterBased3DMechanicalModel)bm).getNucleusBoundariesInMikron(0);					
 				}
-				if(actCrossSectionMode == ModelSceneCrossSectionMode.X_Y_PLANE){				
-						if(boundariesCell!= null) boundariesCell.getXYCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
-						if(boundariesNucleus!= null) boundariesNucleus.getXYCrosssection(positionInMikrometer, field2D, new Color(140,140,240));
+				if(actCrossSectionModeFinal == ModelSceneCrossSectionMode.X_Y_PLANE){					
+					if(positionInMikrometer >= (boundariesCell.getMinZInMikron()*0.9) && positionInMikrometer <= (boundariesCell.getMaxZInMikron()*1.1)){
+						if(boundariesCell!= null) boundariesCell.getXYCrosssection(positionInMikrometer, field2DFinal, cellsInCrossSection.get(i).getCellColoring());
+						if(boundariesNucleus!= null) boundariesNucleus.getXYCrosssection(positionInMikrometer, field2DFinal, new Color(140,140,240));
+					}
 				}
-				else if(actCrossSectionMode == ModelSceneCrossSectionMode.X_Z_PLANE){						
-						if(boundariesCell != null) boundariesCell.getXZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());
-						if(boundariesNucleus != null) boundariesNucleus.getXZCrosssection(positionInMikrometer, field2D, new Color(140,140,240));
-				
+				else if(actCrossSectionModeFinal == ModelSceneCrossSectionMode.X_Z_PLANE){
+					if(positionInMikrometer >= (boundariesCell.getMinYInMikron()*0.9) && positionInMikrometer <= (boundariesCell.getMaxYInMikron()*1.1)){
+						if(boundariesCell != null) boundariesCell.getXZCrosssection(positionInMikrometer, field2DFinal, cellsInCrossSection.get(i).getCellColoring());
+						if(boundariesNucleus != null) boundariesNucleus.getXZCrosssection(positionInMikrometer, field2DFinal, new Color(140,140,240));
+					}				
 				}
-				else if(actCrossSectionMode == ModelSceneCrossSectionMode.Y_Z_PLANE){						
-						if(boundariesCell!= null) boundariesCell.getYZCrosssection(positionInMikrometer, field2D, allCells.get(i).getCellColoring());						
-						if(boundariesNucleus!= null)	boundariesNucleus.getYZCrosssection(positionInMikrometer, field2D, new Color(140,140,240));	
+				else if(actCrossSectionModeFinal == ModelSceneCrossSectionMode.Y_Z_PLANE){
+					if(positionInMikrometer >= (boundariesCell.getMinXInMikron()*0.9) && positionInMikrometer <= (boundariesCell.getMaxXInMikron()*1.1)){
+						if(boundariesCell!= null) boundariesCell.getYZCrosssection(positionInMikrometer, field2DFinal, cellsInCrossSection.get(i).getCellColoring());						
+						if(boundariesNucleus!= null)	boundariesNucleus.getYZCrosssection(positionInMikrometer, field2DFinal, new Color(140,140,240));
+					}
 				}
+				}
+			});	
 			}
+			//long end = System.currentTimeMillis();
+			//System.out.println("Cross Section Calculation Time in ms:"+(end-start));
+		//	start=System.currentTimeMillis();
 			addTransparentColor(field2D);
+	//		end = System.currentTimeMillis();
+		//	System.out.println("Add Transparent Color Calculation Time in ms:"+(end-start));
 		}
 		else {
 			field2D = new IntGrid2D(Math.round((float)(width*factorXY)), Math.round((float)(height*factorXY)));
 			addTransparentColorForWholeField(field2D);
 		}
-		
+		tissueCrossSectionDirty=false;
 		return field2D;
 	}
 	

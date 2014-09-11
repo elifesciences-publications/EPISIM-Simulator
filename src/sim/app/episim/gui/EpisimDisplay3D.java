@@ -112,6 +112,9 @@ public class EpisimDisplay3D implements EpisimSimulationDisplay{
    public void attach(Portrayal portrayal, String name) {
    	simulationDisplay.attach(portrayal, name);
    }
+   public void attach(Portrayal portrayal, String name, boolean visible) {
+   	simulationDisplay.attach(portrayal, name, visible);
+   }
    
    public void setInitialDisplayScale(double initialScale){ ((Display3DHack)simulationDisplay).setInitialDisplayScale(initialScale); }
    

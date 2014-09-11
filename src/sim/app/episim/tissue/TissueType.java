@@ -11,14 +11,15 @@ import java.util.Map;
 
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.monitoring.CannotBeMonitored;
-
 import sim.SimStateServer;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
+import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
 import sim.app.episim.model.controller.ModelController;
+import sim.app.episim.model.visualization.TissueCrossSectionPortrayal3D;
 import sim.app.episim.util.GenericBag;
 import sim.engine.Schedule;
 import sim.engine.SimState;
@@ -32,7 +33,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	
 	public enum SchedulePriority{		
 		
-		EXTRACELLULARFIELD(1),CELLS(2), TISSUE(3), STATISTICS(4), DATAMONITORING(5),PNGWRITING(6), OTHER(7);
+		EXTRACELLULARFIELD(1),GLOBALBIOMECHANICS(2),CELLS(3), TISSUE(4), STATISTICS(5), DATAMONITORING(6),PNGWRITING(7), OTHER(8);
 		
 		private int priority;
 		
@@ -79,7 +80,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	public void cellIsDead(AbstractCell cell) {
 		this.allCells.remove(cell);		
 	}
-	
+	private long start = System.currentTimeMillis();
 	 public void start() {
 
 			super.start(timeStepsAfterSnapshotReload);			
@@ -87,9 +88,17 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 
 				public void step(SimState state) {
 	            ModelController.getInstance().getBioMechanicalModelController().newSimStepGloballyFinished(SimStateServer.getInstance().getSimStepNumber(), state);
+	            TissueCrossSectionPortrayal3D.setTissueCrossSectionDirty();
+	            //long end = System.currentTimeMillis();
+	            //System.out.println("Time for sim step: "+ (end-start)+" ms");
+	            //start = end;
             }}, SchedulePriority.TISSUE.getPriority(), 1);
+			schedule.scheduleRepeating(new Steppable(){
+				public void step(SimState state) {
+	            ModelController.getInstance().getBioMechanicalModelController().newGlobalSimStep(SimStateServer.getInstance().getSimStepNumber(), state);
+            }}, SchedulePriority.GLOBALBIOMECHANICS.getPriority(), 1);
 			
-			if(!ModeServer.guiMode()){
+				if(!ModeServer.guiMode()){
 		   	  Steppable consoleOutputSteppable = new Steppable(){
 
 					public void step(SimState state) {

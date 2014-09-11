@@ -704,6 +704,9 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
       }
    }*/
    
+   
+   protected void newGlobalSimStep(long simStepNumber, SimState state){ /* NOT NEEDED IN THIS MODEL */ }
+   
    protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
       // updates the isOuterSurface Flag for the surface exposed cells
       	double binResolutionXInMikron = 1;//CenterBased3DMechanicalModel.INITIAL_KERATINO_WIDTH;

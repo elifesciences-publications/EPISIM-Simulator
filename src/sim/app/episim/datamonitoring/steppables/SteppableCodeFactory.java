@@ -85,7 +85,7 @@ public abstract class SteppableCodeFactory {
 		steppableCode.append("     	  SwingUtilities.invokeLater(new Runnable() {\n");
 		steppableCode.append("     	  public void run() {\n");
 		steppableCode.append("           xyPlot.clearAnnotations();\n");		
-		
+	//	steppableCode.append("           long start = System.currentTimeMillis();\n");
 		steppableCode.append("           for(AbstractCell actCell : allCells){\n");
 		steppableCode.append("   	       final EpisimBiomechanicalModel bmModel = actCell.getEpisimBioMechanicalModelObject();\n");
 		
@@ -159,7 +159,8 @@ public abstract class SteppableCodeFactory {
 		steppableCode.append("   }\n");
 		}	
 		steppableCode.append("}\n");	
-		
+		//steppableCode.append("           long end = System.currentTimeMillis();\n");
+		//steppableCode.append("          System.out.println(\"Dauer: \"+(end-start));\n");
 		steppableCode.append("     	    }\n");
 		steppableCode.append("     	  });\n");
 		

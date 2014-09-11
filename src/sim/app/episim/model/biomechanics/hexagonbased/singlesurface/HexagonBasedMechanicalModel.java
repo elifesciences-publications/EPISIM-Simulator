@@ -575,6 +575,7 @@ public class HexagonBasedMechanicalModel extends AbstractHexagonBasedMechanicalM
 	@NoExport
 	public boolean getIsAtWoundEdge(){ return this.isAtWoundEdge; }
 
+	protected void newGlobalSimStep(long simStepNumber, SimState state){ /* NOT NEEDED IN THIS MODEL */ }
 	
    protected void newSimStepGloballyFinished(long simStepNumber, SimState state) {   	
    	

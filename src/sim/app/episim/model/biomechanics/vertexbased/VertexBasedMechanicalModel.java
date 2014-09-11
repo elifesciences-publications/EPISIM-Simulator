@@ -206,6 +206,8 @@ public class VertexBasedMechanicalModel extends AbstractMechanical2DModel implem
 	
 	private HashMap<Long, Integer> waitingCellsMap = new HashMap<Long, Integer>();
 	
+	protected void newGlobalSimStep(long simStepNumber, SimState state){ /* NOT NEEDED IN THIS MODEL */ }
+	
 	public void newSimStep(long simStepNumber){
 		currentSimStepNo = simStepNumber;
 		Vertex cellCenter = cellPolygon.getCellCenter();

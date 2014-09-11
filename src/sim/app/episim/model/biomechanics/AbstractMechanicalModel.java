@@ -40,5 +40,12 @@ public abstract class AbstractMechanicalModel<T> implements java.io.Serializable
 	 * 
 	 */
 	protected abstract void newSimStepGloballyFinished(long simStepNumber, SimState state);
-
+	
+	/**
+	 * This pseudo-static Method is called ONLY ONE TIME before all cell's mechanical model's newSimStep Method has been called
+	 * The method is called at ONLY ONE arbitrary model instance and should implement global mechanical operations before the sim step of the cell behavioral model 
+	 * including the imported SBML-Models are called. This allows for calculating more than one simulation step for the BM in just one simulation step of the whole simulation.	 * 
+	 */
+	protected abstract void newGlobalSimStep(long simStepNumber, SimState state);
+	
 }

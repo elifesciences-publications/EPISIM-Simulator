@@ -77,7 +77,7 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractCenterBasedMecha
    private AdhesiveCenterBasedMechanicalModelGP globalParameters = null;
    
    private double surfaceAreaRatio =0;
-   
+   private boolean isSurfaceCell = false;
    
    private boolean hasFixedPosition = false;
    
@@ -759,8 +759,8 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractCenterBasedMecha
 	      {
 	          // iterate through all cells and determine the KCyte with lowest Y at bin
 	          if(cellArray[i]!=null){
-	         	 cellArray[i].setIsOuterCell(false);
 	         	 AdhesiveCenterBasedMechanicalModel mechModel = (AdhesiveCenterBasedMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+	         	 mechModel.isSurfaceCell = false;
 		          Double2D loc= mechModel.getCellLocationInCellField();
 		          double width = mechModel.getKeratinoWidth();
 		         
@@ -785,8 +785,8 @@ public class AdhesiveCenterBasedMechanicalModel extends AbstractCenterBasedMecha
 	          if((xLookUp[k]==null)) continue; // stem cells cannot be outer cells (Assumption)                        
 	          else{
 	         	 AdhesiveCenterBasedMechanicalModel mechModel = (AdhesiveCenterBasedMechanicalModel)xLookUp[k].getEpisimBioMechanicalModelObject();
-	         	 if(mechModel.surfaceAreaRatio > 0) xLookUp[k].setIsOuterCell(true);
-	         	 mechModel.modelConnector.setIsSurface(xLookUp[k].getIsOuterCell());
+	         	 if(mechModel.surfaceAreaRatio > 0) mechModel.isSurfaceCell = true;
+	         	 mechModel.modelConnector.setIsSurface(mechModel.isSurfaceCell);
 	          }
 	      }
       } 

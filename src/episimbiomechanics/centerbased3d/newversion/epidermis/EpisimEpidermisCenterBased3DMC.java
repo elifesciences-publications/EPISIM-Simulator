@@ -34,7 +34,7 @@ public class EpisimEpidermisCenterBased3DMC extends episimbiomechanics.centerbas
 	
 	@NoExport
 	public void resetPairwiseParameters(){
-		this.contactArea.clear();
+		//this.contactArea.clear();
 	}
 	
 	@Hidden

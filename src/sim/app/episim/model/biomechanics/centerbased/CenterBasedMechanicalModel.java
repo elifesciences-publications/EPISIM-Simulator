@@ -101,7 +101,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
    private CenterBasedMechanicalModelGP globalParameters = null;
    
    private double surfaceAreaRatio =0;
-   
+   private boolean isSurfaceCell = false;
    
   
    
@@ -221,7 +221,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
                 mechModelOther.externalForce.add(new Vector2d(-fx,-fy)); //von mir wegzeigende kraefte addieren
                 externalForce.add(new Vector2d(fx,fy));                                      
               }
-             if (actdist <= NEXT_TO_OUTERCELL && dy < 0 && other.getIsOuterCell()){
+             if (actdist <= NEXT_TO_OUTERCELL && dy < 0 && mechModelOther.isSurfaceCell){
                     	// lipids do not diffuse
                     hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
               }
@@ -469,7 +469,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 			
 			modelConnector.setX(newCellLocation.getX());
 	  	 	modelConnector.setY(newCellLocation.getY());
-	  	   modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());
+	  	   modelConnector.setIsSurface(this.isSurfaceCell || nextToOuterCell());
 	  	   
 	  	   this.getCellEllipseObject().setXY(newCellLocation.x, newCellLocation.y);
   	   
@@ -761,8 +761,9 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	      {
 	          // iterate through all cells and determine the KCyte with lowest Y at bin
 	          if(cellArray[i]!=null){
-	         	 cellArray[i].setIsOuterCell(false);
+	         	
 		          CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+		          mechModel.isSurfaceCell = false;
 		          Double2D loc= mechModel.getCellLocationInCellField();
 		          double width = mechModel.getKeratinoWidth();
 		         
@@ -787,8 +788,8 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	          if((xLookUp[k]==null) || (xLookUp[k].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
 	          else{
 	         	 CenterBasedMechanicalModel mechModel = (CenterBasedMechanicalModel)xLookUp[k].getEpisimBioMechanicalModelObject();
-	         	 if(mechModel.surfaceAreaRatio > 0) xLookUp[k].setIsOuterCell(true);
-	         	 mechModel.modelConnector.setIsSurface(xLookUp[k].getIsOuterCell() || mechModel.nextToOuterCell());
+	         	 if(mechModel.surfaceAreaRatio > 0) mechModel.isSurfaceCell= true;
+	         	 mechModel.modelConnector.setIsSurface(mechModel.isSurfaceCell || mechModel.nextToOuterCell());
 	          }
 	      }
       } 

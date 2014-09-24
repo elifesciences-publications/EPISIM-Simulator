@@ -158,34 +158,12 @@ public class UniversalCell extends AbstractCell
   
     
     private EpisimCellBehavioralModel[] getCellBehavioralModelArray(GenericBag<AbstractCell> neighbours){
-   	 List<EpisimCellBehavioralModel> neighbourCellsDiffModel = new ArrayList<EpisimCellBehavioralModel>();
+   	 List<EpisimCellBehavioralModel> neighbourCellsCBMs = new ArrayList<EpisimCellBehavioralModel>();
    	 for(AbstractCell actNeighbour: neighbours){
-   		 if(actNeighbour != null && actNeighbour.getID() != this.getID()) neighbourCellsDiffModel.add(actNeighbour.getEpisimCellBehavioralModelObject());
+   		 if(actNeighbour != null && actNeighbour.getID() != this.getID()) neighbourCellsCBMs.add(actNeighbour.getEpisimCellBehavioralModelObject());
    	 }
-   	 return neighbourCellsDiffModel.toArray(new EpisimCellBehavioralModel[neighbourCellsDiffModel.size()]);
-    }
-   
-    private boolean isSurfaceCell(EpisimCellBehavioralModel[] neighbours){
-   	/* if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) return false;
-   	 else{
-   		
-   		 int leftSideNeighbours = 0;
-   		 int rightSideNeighbours= 0;
-   		 int upperNeighbours = 0;
-   		 for(EpisimCellBehavioralModel actNeighbour :neighbours){
-   			  double dx =actNeighbour.getDx();
-   			  double dy =actNeighbour.getDy();
-   			  if(dy <=0 && dx == 0) upperNeighbours++;
-   			  else if(dy <=0 && dx < 0) leftSideNeighbours++;
-   			  else if(dy <=0  && dx > 0) rightSideNeighbours++;
-   		  }
-   		 
-   		 if(upperNeighbours == 0 || rightSideNeighbours == 0 || leftSideNeighbours == 0) return true;   		 
-   	 }
-   	 return false;*/
-   	 return false;
-    }
-    
+   	 return neighbourCellsCBMs.toArray(new EpisimCellBehavioralModel[neighbourCellsCBMs.size()]);
+    }    
     
     static  long actNumberSteps = 0;
     static  long deltaTime = 0;
@@ -198,57 +176,20 @@ public class UniversalCell extends AbstractCell
    	GenericBag<AbstractCell> neighbours = this.getNeighbouringCells();
    	neighbours.shuffle(random);
    	 
-     	 EpisimCellBehavioralModel[] realNeighboursDiffModel = getCellBehavioralModelArray(neighbours);  	 
-  
-   	// if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL) this.getEpisimCellBehavioralModelObject().setAge(0);
-   	// else 
-   		 this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
-   		 EpisimCellBehavioralModel[] children=null;
+     	 EpisimCellBehavioralModel[] neighbourCBMs = getCellBehavioralModelArray(neighbours); 	 
+     	 this.getEpisimCellBehavioralModelObject().setAge(this.getEpisimCellBehavioralModelObject().getAge()+1);   	
+   	 EpisimCellBehavioralModel[] children=null;
 		try{
 			
-   	  children = this.getEpisimCellBehavioralModelObject().oneStep(realNeighboursDiffModel);
+   	  children = this.getEpisimCellBehavioralModelObject().oneStep(neighbourCBMs);
 		}
 		catch(ZeroNeighbourCellsAccessException e){
 			ExceptionDisplayer.getInstance().displayException(e);
 		}
+   	   	
+   	makeChildren(children);
    	 
-   	 
-		/*	long timeAfter = System.currentTimeMillis();
-	        //  	long actSteps = state.schedule.getSteps();
-			long deltaTimeTmp = timeAfter-timeBefore;
-		
-			if(state.schedule.getSteps() > actNumberSteps){
-				actNumberSteps = state.schedule.getSteps();
-			    		
-		    		// if(this.follow && this.KeratinoAge <=2000){   		
-		   			  	
-				 
-				   try {
-		           BufferedWriter out = new BufferedWriter(new FileWriter("d:\\performance_neu_10000.csv", true));
-		        //   out.write(NumberFormat.getInstance(Locale.GERMANY).format(actSteps)+ ";");
-		           out.write(NumberFormat.getInstance(Locale.GERMANY).format(deltaTime)+ ";");
-		      //     out.write(NumberFormat.getInstance(Locale.GERMANY).format(allCells.size())+ ";");
-		                   
-		           out.write("\n");
-		           out.flush();
-		           out.close();
-		            } catch (IOException e) {}
-				   
-				  
-				 deltaTime = 0;
-			}
-			deltaTime +=deltaTimeTmp;		*/
-   	 
-   	 /*if(children != null && children.length >= 1){
-   		 if(this.getEpisimCellBehavioralModelObject().getDiffLevel().ordinal() == EpisimDifferentiationLevel.STEMCELL){
-   			cellDivisionCounter++;
-   			System.out.println(cellDivisionCounter + ". Teilung im Alter von " + this.getEpisimCellBehavioralModelObject().getAge());
-   		 }
-   	 }*/
-   	
-   	 makeChildren(children);
-   	 
-      if(!this.getEpisimCellBehavioralModelObject().getIsAlive()) // && (isOuterCell))
+      if(!this.getEpisimCellBehavioralModelObject().getIsAlive())
       {
          killCell();
       }

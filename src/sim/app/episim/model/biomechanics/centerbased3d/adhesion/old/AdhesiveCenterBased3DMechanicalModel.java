@@ -72,7 +72,7 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractCenterBasedMec
    private AdhesiveCenterBased3DMechanicalModelGP globalParameters = null;
    
    private double surfaceAreaRatio =0;
-   
+   private boolean isSurfaceCell = false;
    
    private boolean hasFixedPosition = false;
    
@@ -86,6 +86,7 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractCenterBasedMec
    private Double3D cellFieldCenter;
    private double cellFieldRadius=0;
    private final double MIN_Y;
+  
    public AdhesiveCenterBased3DMechanicalModel(){
    	this(null);
    }
@@ -718,8 +719,8 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractCenterBasedMec
    	      {
    	          // iterate through all cells and determine the KCyte with lowest Y at bin
    	         if(cellArray[i] != null){
-   	         	 cellArray[i].setIsOuterCell(false);
    	         	 AdhesiveCenterBased3DMechanicalModel mechModel = (AdhesiveCenterBased3DMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+   	         	 mechModel.isSurfaceCell = false;
    		          Double3D loc= mechModel.getCellLocationInCellField();
    		          
    		          double width = mechModel.getKeratinoWidth();
@@ -759,8 +760,8 @@ public class AdhesiveCenterBased3DMechanicalModel extends AbstractCenterBasedMec
    		      	if((x_z_LookUp[z][x]==null) || (x_z_LookUp[z][x].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
    		      	else{
    		      		AdhesiveCenterBased3DMechanicalModel mechModel = (AdhesiveCenterBased3DMechanicalModel)x_z_LookUp[z][x].getEpisimBioMechanicalModelObject();
-   		      		if(mechModel.surfaceAreaRatio > 0) x_z_LookUp[z][x].setIsOuterCell(true);
-   		      		mechModel.modelConnector.setIsSurface(x_z_LookUp[z][x].getIsOuterCell());
+   		      		if(mechModel.surfaceAreaRatio > 0) mechModel.isSurfaceCell = true;
+   		      		mechModel.modelConnector.setIsSurface(mechModel.isSurfaceCell);
    		      	}   		      	
    		      }
    	      }   	     

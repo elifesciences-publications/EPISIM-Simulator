@@ -34,6 +34,8 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	private double repulSpringStiffness_N_per_micro_m = 0.0000000022;
 	private double adhSpringStiffness_N_per_square_micro_m = 0.000000000022;//0.000000000149;
 	
+	private int neighbourLostThres = 10;
+	
 	public CenterBasedMechanicalModelGP() {}
 	
 	public boolean isDrawCellsAsEllipses() {
@@ -261,5 +263,17 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	
    public void setNumberOfSecondsPerSimStep(int numberOfSecondsPerSimStep) {   
    	if(numberOfSecondsPerSimStep>0)this.numberOfSecondsPerSimStep = numberOfSecondsPerSimStep;
+   }
+
+	
+   public int getNeighbourLostThres() {
+   
+   	return neighbourLostThres;
+   }
+
+	
+   public void setNeighbourLostThres(int neighbourLostThres) {
+   
+   	this.neighbourLostThres = neighbourLostThres;
    }
 }

@@ -40,12 +40,9 @@ import sim.engine.Stoppable;
 public abstract class AbstractCell implements Steppable, Stoppable, java.io.Serializable{
 	
 	
-   private boolean isOuterCell=false;
-   
-  
-   private boolean inNirvana=false; // unvisible and without action: only ageing is active
+ 
    private final long id;
-   private final AbstractCell motherCell;   // -1 means not yet set
+   private final AbstractCell motherCell;   
    
    private static int cellCounter = 0;
    
@@ -63,8 +60,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    }
    
    public AbstractCell(long cellId, AbstractCell motherCell, EpisimCellBehavioralModel cellBehavioralModel){
-   	inNirvana=false;
-   	isOuterCell=false;
+   	
    	this.id = cellId ==Long.MIN_VALUE ? getNextCellId(): cellId;
    	this.motherCell = ((motherCell == null) ? this : motherCell);   	
    	this.cellBehavioralModelObject = cellBehavioralModel;
@@ -121,9 +117,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 		
 	@CannotBeMonitored
 	public long getID() { return id; }   
-	
-	public boolean getIsOuterCell() { return isOuterCell; } 	
-	public void setIsOuterCell(boolean isOuterCell) {	this.isOuterCell = isOuterCell; }	
+		
 	public long getMotherId(){ return this.motherCell != null ? this.motherCell.getID(): -1; }
 	@NoExport
 	public AbstractCell getMotherCell(){ return this.motherCell; }
@@ -161,7 +155,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
    @CannotBeMonitored @NoExport
    public EpisimBiomechanicalModel getEpisimBioMechanicalModelObject(){ return this.mechanicalModelObject; }   
    public void step(SimState state) {		
-		
+		/* DOES NOTHING */
    }
    
    public boolean equals(Object obj){

@@ -77,7 +77,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    private static Continuous3D cellField;  
    private CenterBased3DMechanicalModelGP globalParameters = null;
    
-   private double surfaceAreaRatio =0;
+   private double surfaceAreaRatio =0;   
+   private boolean isSurfaceCell = false;
    
    public CenterBased3DMechanicalModel(){
    	this(null);
@@ -194,7 +195,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 
                   
 
-              if (actdist <= NEXT_TO_OUTERCELL && dy < 0 && other.getIsOuterCell()){
+              if (actdist <= NEXT_TO_OUTERCELL && dy < 0 && mechModelOther.isSurfaceCell){
                     	// lipids do not diffuse
                     hitResult.nextToOuterCell=true; // if the one above is an outer cell, I belong to the barrier 
               }
@@ -522,7 +523,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 		modelConnector.setX(newCellLocation.getX());
   	 	modelConnector.setY(newCellLocation.getY());
   	 	modelConnector.setZ(newCellLocation.getZ());
-  	   modelConnector.setIsSurface(this.getCell().getIsOuterCell() || nextToOuterCell());		
+  	   modelConnector.setIsSurface(this.isSurfaceCell || nextToOuterCell());		
    }
    
    }   
@@ -723,8 +724,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    	      {
    	          // iterate through all cells and determine the KCyte with lowest Y at bin
    	         if(cellArray[i] != null){
-   	         	 cellArray[i].setIsOuterCell(false);
-   		          CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+   	         	 CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel)cellArray[i].getEpisimBioMechanicalModelObject();
+   		          mechModel.isSurfaceCell=false;
    		          Double3D loc= mechModel.getCellLocationInCellField();
    		          
    		          double width = mechModel.getKeratinoWidth();
@@ -764,8 +765,8 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    		      	if((x_z_LookUp[z][x]==null) || (x_z_LookUp[z][x].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
    		      	else{
    		      		CenterBased3DMechanicalModel mechModel = (CenterBased3DMechanicalModel)x_z_LookUp[z][x].getEpisimBioMechanicalModelObject();
-   		      		if(mechModel.surfaceAreaRatio > 0) x_z_LookUp[z][x].setIsOuterCell(true);
-   		      		mechModel.modelConnector.setIsSurface(x_z_LookUp[z][x].getIsOuterCell() || mechModel.nextToOuterCell());
+   		      		if(mechModel.surfaceAreaRatio > 0) mechModel.isSurfaceCell = true;
+   		      		mechModel.modelConnector.setIsSurface(mechModel.isSurfaceCell || mechModel.nextToOuterCell());
    		      	}   		      	
    		      }
    	      }   	     

@@ -129,7 +129,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 
 		for (UniversalCell uCell : loadedCells) {				
 			CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) uCell.getEpisimBioMechanicalModelObject();
-			centerBasedModel.getCellEllipseObject().setXY(centerBasedModel.getCellLocationInCellField().x, centerBasedModel.getCellLocationInCellField().y);
+			centerBasedModel.getCellEllipseObject().setXY(centerBasedModel.getX(), centerBasedModel.getY());
 			centerBasedModel.getCellEllipseObject().setMajorAxisAndMinorAxis(centerBasedModel.getCellWidth(), centerBasedModel.getCellHeight());
 		}
 		return loadedCells;

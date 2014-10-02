@@ -323,6 +323,18 @@ public class Display2DHack extends Display2D implements EpisimSimulationDisplay{
 	              }             
 	              return currentValue;
 	          }
+	          public void repaint(){
+	         	
+	         	 int val = -1;
+	         	  try{
+                   val = (int) cellColoringGetterMethod.invoke(globalCBMParameters, null);
+           		  }
+           		  catch (Exception e){
+                 	 ExceptionDisplayer.getInstance().displayException(e);
+           		  }
+	         	 cellColoringField.setText(""+val);
+	         	 super.repaint();
+	          }
 	      };
 	      scaleField.setToolTipText("Change Cell Coloring Mode");
 	      

@@ -276,4 +276,5 @@ public class CenterBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
    
    	this.neighbourLostThres = neighbourLostThres;
    }
+  
 }

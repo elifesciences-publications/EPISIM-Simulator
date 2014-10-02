@@ -93,6 +93,13 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 	            //System.out.println("Time for sim step: "+ (end-start)+" ms");
 	          //  start = end;
             }}, SchedulePriority.TISSUE.getPriority(), 1);
+			
+			schedule.scheduleRepeating(new Steppable(){
+				public void step(SimState state) {
+	           SimStateServer.getInstance().executeSimulationTriggers();
+            }}, SchedulePriority.OTHER.getPriority(), 1);
+			
+			
 			schedule.scheduleRepeating(new Steppable(){
 				public void step(SimState state) {
 	            ModelController.getInstance().getBioMechanicalModelController().newGlobalSimStep(SimStateServer.getInstance().getSimStepNumber(), state);

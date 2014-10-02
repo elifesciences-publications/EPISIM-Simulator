@@ -51,6 +51,7 @@ import org.xml.sax.SAXParseException;
 
 import episimexceptions.ModelCompatibilityException;
 import episimexceptions.PropertyException;
+import episimexceptions.SimulationTriggerException;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.SimStateServer;
@@ -85,6 +86,8 @@ import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ObservedByteArrayOutputStream;
+import sim.app.episim.util.SimulationTrigger;
+import sim.app.episim.util.SimulationTriggerFileReader;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.portrayal.DrawInfo2D;
@@ -94,7 +97,7 @@ import sim.util.EpisimUpdateDialogText;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.0.4.6";
+	public static final String versionID = "1.5.0.4.7";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -103,6 +106,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	private static final String M_FILE_PARAM_PREFIX = "-mp";
 	private static final String SIM_ID_PARAM_PREFIX = "-id";
 	private static final String CONFIGURATION_FILE_PATH_PREFIX = "-cf";
+	private static final String TRIGGER_FILE_PATH_PREFIX = "-tf";
 	private static final String TISSUE_SIMULATION_SNAPSHOT_FILE_PATH_PREFIX = "-ts";
 	private static final String DATA_EXPORT_FOLDER_PARAM_PREFIX = "-ef";
 	private static final String IMAGE_EXPORT_FOLDER_PARAM_PREFIX = "-ie";
@@ -476,6 +480,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 						|| args[i].equals(EpisimSimulator.SIM_ID_PARAM_PREFIX)
 						|| args[i].equals(EpisimSimulator.M_FILE_PARAM_PREFIX)
 						|| args[i].equals(EpisimSimulator.DATA_EXPORT_FOLDER_PARAM_PREFIX)
+						|| args[i].equals(EpisimSimulator.TRIGGER_FILE_PATH_PREFIX)
 						|| args[i].equals(EpisimSimulator.IMAGE_EXPORT_FOLDER_PARAM_PREFIX)
 						|| args[i].equals(EpisimSimulator.TISSUE_SIMULATION_SNAPSHOT_FILE_PATH_PREFIX)){
 					
@@ -496,6 +501,11 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 						else if(args[i].equals(EpisimSimulator.M_FILE_PARAM_PREFIX)){
 							EpisimProperties.setProperty(EpisimProperties.SIMULATOR_MISCPARAMETERSFILE_PROP, path.getAbsolutePath());
 						}
+					}
+					else if(args[i].equals(EpisimSimulator.TRIGGER_FILE_PATH_PREFIX)){
+						File path = new File(args[i+1]);							
+						if(!path.exists() || !path.isDirectory()) new PropertyException("Path: " + args[i+1] + " doesn't point to an existing file" + args[i]);						
+						EpisimProperties.setProperty(EpisimProperties.SIMULATION_TRIGGER_FILE_PATH_PROP, path.getAbsolutePath());							
 					}
 					else if(args[i].equals(EpisimSimulator.TISSUE_SIMULATION_SNAPSHOT_FILE_PATH_PREFIX)){
 						File path = new File(args[i+1]);							
@@ -568,6 +578,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		sb.append("\t[-ef path] of the data export folder used to override the originally defined one\n");
 		sb.append("\t[-ie path] of the image export folder used to override the originally defined one\n");
 		sb.append("\t[-cf path] of the custom EPISIM Simulator configuration file to be used instead of the default one\n");
+		sb.append("\t[-tf path] of the file containing the triggers for global simulation parameter changes\n");
 		sb.append("\t[-ts path] of the EPISIM Tissue Simulation Snaphot file to be loaded after startup\n");
 		System.out.println(sb.toString());
 	}
@@ -608,6 +619,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 					initializeGlobalObjects(simulationStateData);
 					ModelController.getInstance().initializeModels(simulationStateData);
 				}
+				loadSimulationTrigger();
 				ChartController.getInstance().rebuildDefaultCharts();
 				cleanUpContentPane();
 				
@@ -646,6 +658,19 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 
 		}
 		return success;
+	}
+	
+	private void loadSimulationTrigger(){
+		if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_TRIGGER_FILE_PATH_PROP)!= null){
+			SimulationTriggerFileReader fileReader = new SimulationTriggerFileReader(new File(EpisimProperties.getProperty(EpisimProperties.SIMULATION_TRIGGER_FILE_PATH_PROP)));
+			try{
+				ArrayList<SimulationTrigger> triggerList = fileReader.getSimulationTrigger();
+				SimStateServer.getInstance().registerSimulationTrigger(triggerList);
+			}
+			catch(SimulationTriggerException e){
+				ExceptionDisplayer.getInstance().displayException(e);
+			}
+		}
 	}
 	
 	private void initializeGlobalObjects(SimulationStateData simulationStateData){
@@ -695,8 +720,11 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				initializeGlobalObjects(actLoadedSimulationStateData);
 				ModelController.getInstance().initializeModels(actLoadedSimulationStateData);
 			}
+			SimStateServer.getInstance().removeAllSimulationTrigger();
+			loadSimulationTrigger();
 			setTissueExportPath(snapshotPath, true);			
 			ChartController.getInstance().rebuildDefaultCharts();
+			
 			if(!dataExtractionFromSimulationSnapshotMode){
 				cleanUpContentPane();
 				if(ModeServer.guiMode())epiUI = new EpisimGUIState(mainFrame);
@@ -762,6 +790,8 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	   				initializeGlobalObjects(simulationStateData);
 	   				ModelController.getInstance().initializeModels(simulationStateData);
 	   			}
+	   			
+	   			loadSimulationTrigger();
 	   			setTissueExportPath(snapshotPath, true);			
 	   			ChartController.getInstance().rebuildDefaultCharts();
 	   			cleanUpContentPane();
@@ -879,6 +909,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		else noGUIModeMainPanel.repaint();
 		ModelController.getInstance().setModelOpened(false);
 		TissueController.getInstance().resetTissueSettings();
+		SimStateServer.getInstance().removeAllSimulationTrigger();
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(false);
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(true);
 		menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);

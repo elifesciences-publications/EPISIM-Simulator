@@ -59,8 +59,26 @@ public class ModelParameterModifier {
 		
 	}
 	
+	public boolean doesParameterExist(Object globalModelPropertiesObj, String name){
+		Map<String, Method> methodMap = buildMethodMapWithoutSetterPrefix(globalModelPropertiesObj);
+		return methodMap.containsKey(name.toLowerCase());
+	}
+	public Class<?> getParameterDatatype(Object globalModelPropertiesObj, String name){
+		Map<String, Method> methodMap = buildMethodMapWithoutSetterPrefix(globalModelPropertiesObj);
+		if(methodMap.containsKey(name.toLowerCase())){
+			Class<?>[] paramType = methodMap.get(name.toLowerCase()).getParameterTypes();
+			return paramType[0];
+		}		
+		return null;
+	}
 	
-	
+	public void setParameterValue(Object globalModelPropertiesObj, String name, String value){
+		Map<String, Method> methodMap = buildMethodMapWithoutSetterPrefix(globalModelPropertiesObj);
+		if(methodMap.containsKey(name.toLowerCase())){
+			Method m = methodMap.get(name.toLowerCase());
+			callSetterMethod(m, value, globalModelPropertiesObj);
+		}
+	}
 	
 	
 	private void callSetterMethod(Method m, String val, Object globalModelPropertiesObj){
@@ -68,7 +86,8 @@ public class ModelParameterModifier {
 		
 		try{
 			if(Byte.TYPE.isAssignableFrom(paramType[0])){
-				 m.invoke(globalModelPropertiesObj, new Object[]{Byte.parseByte(val)}); 
+				 double doubleVal = Double.parseDouble(val);
+				 m.invoke(globalModelPropertiesObj, new Object[]{((byte)doubleVal)}); 
 			}
 			else if(Double.TYPE.isAssignableFrom(paramType[0])){				
 		       m.invoke(globalModelPropertiesObj, new Object[]{Double.parseDouble(val)});   
@@ -77,13 +96,15 @@ public class ModelParameterModifier {
 				 m.invoke(globalModelPropertiesObj, new Object[]{Float.parseFloat(val)}); 
 			}
 			else if(Integer.TYPE.isAssignableFrom(paramType[0])){
-				 m.invoke(globalModelPropertiesObj, new Object[]{Integer.parseInt(val)}); 
+				double doubleVal = Double.parseDouble(val);
+				m.invoke(globalModelPropertiesObj, new Object[]{((int)doubleVal)}); 
 			}
-			else if(Long.TYPE.isAssignableFrom(paramType[0])){
+			else if(Long.TYPE.isAssignableFrom(paramType[0])){				
 				 m.invoke(globalModelPropertiesObj, new Object[]{Long.parseLong(val)}); 
 			}
 			else if(Short.TYPE.isAssignableFrom(paramType[0])){
-				 m.invoke(globalModelPropertiesObj, new Object[]{Short.parseShort(val)}); 
+				 double doubleVal = Double.parseDouble(val);
+				 m.invoke(globalModelPropertiesObj, new Object[]{((short)doubleVal)}); 
 			}
 			else if(Boolean.TYPE.isAssignableFrom(paramType[0])){
 				 m.invoke(globalModelPropertiesObj, new Object[]{Boolean.parseBoolean(val)}); 

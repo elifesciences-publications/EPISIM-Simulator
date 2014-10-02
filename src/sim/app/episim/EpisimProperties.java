@@ -91,6 +91,7 @@ public class EpisimProperties {
 	public static final String SIMULATION_PNG_PATH = "simulation.png.path";
 	public static final String SIMULATION_PNG_PRINT_FREQUENCY = "simulation.png.printfreq";
 	
+	public static final String SIMULATION_TRIGGER_FILE_PATH_PROP ="simulation.trigger.file.path";
 	
 	public static final String SIMULATOR_CHARTSETPATH = "charts.path";
 	public static final String SIMULATOR_CHARTPNGPRINTPATH = "charts.png.path";

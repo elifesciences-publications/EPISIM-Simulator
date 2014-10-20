@@ -90,6 +90,8 @@ public class EpisimProperties {
 	public static final String SIMULATION_SNAPSHOT_SAVE_FREQUENCY = "simulation.snapshotfreq";
 	public static final String SIMULATION_PNG_PATH = "simulation.png.path";
 	public static final String SIMULATION_PNG_PRINT_FREQUENCY = "simulation.png.printfreq";
+	public static final String SIMULATION_PNG_PRINT_SEQUENCE = "simulation.png.printseq";
+	public static final String SIMULATION_PNG_PRINT_DELAY_IN_MS = "simulation.png.printdelayinms";
 	
 	public static final String SIMULATION_TRIGGER_FILE_PATH_PROP ="simulation.trigger.file.path";
 	

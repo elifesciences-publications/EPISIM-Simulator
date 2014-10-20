@@ -48,6 +48,9 @@ import org.jfree.chart.JFreeChart;
 
 
 
+
+
+
 //PDF Writer + ELSE
 import java.awt.*; 
 import java.awt.geom.*; 
@@ -104,7 +107,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 	
 	private transient List<EnhancedSteppable> dataExportSteppables = null;
 	
-	
+	private transient double globalColorMode = 1;
 	
 	
 	
@@ -128,39 +131,14 @@ public class UniversalTissue extends TissueType implements CellDeathListener
  }
  
  
- void printChartToPDF( JFreeChart chart, int width, int height, String fileName )
- {
-     // call: printChartToPDF( EpidermisClass.createChart(), 500, 500, "test.pdf" );
-	 try
-	     {
-	     Document document = new Document(new com.lowagie.text.Rectangle(width,height));
-	     PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
-	     document.addAuthor("EPISIM Simulator");
-	     document.open();
-	     PdfContentByte cb = writer.getDirectContent();
-	     PdfTemplate tp = cb.createTemplate(width, height); 
-	     Graphics2D g2 = tp.createGraphics(width, height, new DefaultFontMapper());
-	     Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, width, height); 
-	     chart.draw(g2, rectangle2D);
-	     g2.dispose();
-	     cb.addTemplate(tp, 0, 0);
-	     document.close();
-	     writer.close();
-	     }
-	 catch( Exception e )
-	     {
-	     e.printStackTrace();
-	     }
- }
- 
- 
-	
- 	private void seedInitiallyAvailableCells(){
+ private void seedInitiallyAvailableCells(){
 		final ArrayList<UniversalCell> initialCellEnsemble = new ArrayList<UniversalCell>();
 		if(ModeServer.guiMode() && ModelController.getInstance().isStoredSimStateLoaded()){
 			if(SimStateServer.getInstance().getEpisimGUIState()!= null 
 					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() != null
-					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() instanceof Frame){	
+					&& SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent() instanceof Frame
+					&& !(EpisimProperties.getProperty(EpisimProperties.SIMULATION_AUTOSTART_AND_STOP_PROP) != null &&EpisimProperties.getProperty(EpisimProperties.SIMULATION_AUTOSTART_AND_STOP_PROP).equals(EpisimProperties.ON))
+					){	
 				JOptionPane.showMessageDialog((Frame)SimStateServer.getInstance().getEpisimGUIState().getMainGUIComponent(), 
 						"Starting the simulation requires retrieval of the tissue simulation snapshot you loaded!\nDuring this time EPISIM Simulator is not responding.\nSimulation starts automatically after successful processing of the tissue simulation snapshot.", 
 						"Simulation Start", JOptionPane.INFORMATION_MESSAGE);
@@ -168,21 +146,15 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 			}
 		}
 	
-			initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());
-			for(UniversalCell cell : initialCellEnsemble){
-				 if(!ModeServer.useMonteCarloSteps()){
-					 
-						Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
-						cell.setStoppable(stoppable);
-				 }
-			 }	
-
-		
-		 
+		initialCellEnsemble.addAll(ModelController.getInstance().getInitialCellEnsemble());
+		for(UniversalCell cell : initialCellEnsemble){
+			 if(!ModeServer.useMonteCarloSteps()){					 
+				Stoppable stoppable = schedule.scheduleRepeating(cell, SchedulePriority.CELLS.getPriority(), 1);
+				cell.setStoppable(stoppable);
+			 }
+		 }
 	}
-	
-	
-	
+		
 	private void oneMonteCarloSimStep(SimState state){
 		int numberOfCellsAtStart = getAllCells().size();
 		if(numberOfCellsAtStart >0){
@@ -252,9 +224,9 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 			}
 		}
 		
-		if(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_FREQ) != null
+		if((EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_FREQ) != null
 				&& EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MIN) != null
-				&& EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MAX) != null){
+				&& EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MAX) != null)){
 				EnhancedSteppable steppable = getTissueVisualizationColorChangeSteppable();
 				schedule.scheduleRepeating(steppable, SchedulePriority.OTHER.getPriority(), steppable.getInterval());
 		}
@@ -337,12 +309,55 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 			
 			public void step(SimState state) {
 				if(SimStateServer.getInstance().getEpisimGUIState() != null){
+					final boolean pngSequenceMode = EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_SEQUENCE)!=null;
+					final double pngSeqLength= EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_SEQUENCE)!=null
+							? Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_SEQUENCE))
+									:1.0d;
+					final double incr = EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_INCR)!=null
+									? Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_INCR))
+											:1.0d;
+					final long printDelayInMs= EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_DELAY_IN_MS)!=null
+							? Long.parseLong(EpisimProperties.getProperty(EpisimProperties.SIMULATION_PNG_PRINT_DELAY_IN_MS))
+									:1000l;
+							
+							
+					if(pngSequenceMode){
+							globalColorMode+=incr;
+							SimStateServer.getInstance().getEpisimGUIState().changeCellColoringMode(globalColorMode);							
+					}
 					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
+						public void run() {							
 							SimStateServer.getInstance().getEpisimGUIState().takeVisualizationSnapshot();							
 						}
-					});
-					
+					});					
+					if(pngSequenceMode){								
+								for(int i = 1; i < pngSeqLength; i++){
+									final int n = i;
+									schedule.scheduleOnceIn(i,
+											new Steppable(){
+												public void step(SimState state) {
+													if(n==(pngSeqLength-1)) globalColorMode=1;
+													else{
+														globalColorMode+=incr;																
+													}
+													SimStateServer.getInstance().getEpisimGUIState().changeCellColoringMode(globalColorMode);
+													
+													SwingUtilities.invokeLater(new Runnable() {
+														public void run() {
+															try{
+	                                             Thread.sleep(printDelayInMs);
+                                             }
+                                             catch (InterruptedException e){
+	                                           ExceptionDisplayer.getInstance().displayException(e); /*  Race Conditions Workaround */
+                                             }
+															SimStateServer.getInstance().getEpisimGUIState().takeVisualizationSnapshot();
+													
+														}
+													});
+				                        }}
+												, SchedulePriority.PNGWRITING.getPriority());
+								}
+							}
 				}				
 			}			
 			
@@ -354,22 +369,32 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 	}
 	
 	private EnhancedSteppable getTissueVisualizationColorChangeSteppable(){
-		final double min = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MIN));
-		final double max = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MAX));
-		final double freq = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_FREQ));
+		final double min = EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MIN) != null 
+									? Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MIN))
+											:1.0d;
+		final double max = EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MAX) != null
+									? Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_MAX))
+											:1.0d;
+		final double freq = EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_FREQ)!= null
+									? Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_FREQ))
+											:1.0d;
+		
 		final double incr = EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_INCR)!=null
 									? Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.DISPLAY_COLORMODE_INCR))
 											:1.0d;
+		
+	
 		EnhancedSteppable steppable = new EnhancedSteppable() {
 			private double val = 1.0;
 			
 			public void step(SimState state) {
 				if(SimStateServer.getInstance().getEpisimGUIState() != null){
+				
 					if(val< min || val>=max) val=min;
-					else{
-						val+=incr;
-					}
-					SimStateServer.getInstance().getEpisimGUIState().changeCellColoringMode(val);
+						else{
+							val+=incr;
+						}
+						SimStateServer.getInstance().getEpisimGUIState().changeCellColoringMode(val);				
 				}				
 			}			
 			

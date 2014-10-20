@@ -97,7 +97,7 @@ import sim.util.EpisimUpdateDialogText;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.0.4.7";
+	public static final String versionID = "1.5.0.4.9";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -1173,6 +1173,14 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 							return snapshotLoadSuccess;
 						}
 						else{*/
+						if(EpisimProperties.getProperty(EpisimProperties.SIMULATION_SNAPSHOT_STORAGE_PATH_PROP) != null){
+							File snapshotPath = new File(EpisimProperties.getProperty(EpisimProperties.SIMULATION_SNAPSHOT_STORAGE_PATH_PROP));
+							if(snapshotPath.isDirectory()){
+								snapshotPath = EpisimProperties.getFileForPathOfAProperty(EpisimProperties.SIMULATION_SNAPSHOT_STORAGE_PATH_PROP, "EpisimSnapshot", "xml");
+							}
+							setTissueExportPath(snapshotPath, false);
+						}
+						
 							boolean success = openModel(simStateData.getLoadedModelFile(), simStateData, snapshotDataExportLoad);
 							dataExtractionFromSimulationSnapshotMode = success && snapshotDataExportLoad;
 							return success;

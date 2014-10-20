@@ -1,6 +1,7 @@
 package sim.app.episim.tissue;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,7 +103,7 @@ public abstract class TissueType extends SimStateHack implements java.io.Seriali
 			
 			schedule.scheduleRepeating(new Steppable(){
 				public void step(SimState state) {
-	            ModelController.getInstance().getBioMechanicalModelController().newGlobalSimStep(SimStateServer.getInstance().getSimStepNumber(), state);
+	            ModelController.getInstance().getBioMechanicalModelController().newGlobalSimStep(SimStateServer.getInstance().getSimStepNumber(), state);	            
             }}, SchedulePriority.GLOBALBIOMECHANICS.getPriority(), 1);
 			
 				if(!ModeServer.guiMode()){

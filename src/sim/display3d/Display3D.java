@@ -1295,7 +1295,7 @@ public class Display3D extends JPanel implements Steppable
                 (canvas.isShowing()    // only draw if we can be seen
                 || movieMaker != null ))      // OR draw to a movie even if we can't be seen
             {
-            updateSceneGraph(true);
+            updateSceneGraph(true);           
             }
         }
         

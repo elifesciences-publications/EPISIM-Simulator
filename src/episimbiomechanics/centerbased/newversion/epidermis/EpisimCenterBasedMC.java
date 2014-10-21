@@ -29,6 +29,7 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
 	private double extCellSpaceMikron = 0.2d;
 	private double cellSurfaceArea=0;
 	private double totalContactArea= 0;
+	private boolean basalCellContact = false;
 	
 	public EpisimCenterBasedMC(){}
 	
@@ -188,6 +189,18 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
    public void setTotalContactArea(double totalContactArea) {
    
    	this.totalContactArea = totalContactArea;
+   }
+
+	
+   public boolean getBasalCellContact() {
+   
+   	return basalCellContact;
+   }
+
+   @Hidden
+   public void setBasalCellContact(boolean basalCellContact) {
+   
+   	this.basalCellContact = basalCellContact;
    }
 }
 

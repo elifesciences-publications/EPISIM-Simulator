@@ -114,6 +114,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 				}
 			}			
 		}
+	//	System.out.println("No of stem cells: " + standardCellEnsemble.size());
 		return standardCellEnsemble;
 	}
 	

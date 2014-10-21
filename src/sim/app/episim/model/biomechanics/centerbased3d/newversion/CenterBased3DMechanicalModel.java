@@ -723,7 +723,13 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
 		else{
 			modelConnector.setIsBasal(false);			
 		}
-		
+		boolean basalNeighbouringCellFound = false;
+		if(directNeighbours != null){
+			for(AbstractCell neighbour : directNeighbours){
+				CenterBased3DMechanicalModel cellBM = ((CenterBased3DMechanicalModel)neighbour.getEpisimBioMechanicalModelObject());
+				if(cellBM.modelConnector.getIsBasal())basalNeighbouringCellFound=true;
+			}
+		}
 		
 		modelConnector.setHasCollision(hitsOtherCell() > 0);		
 		modelConnector.setX(newCellLocation.getX());		
@@ -733,34 +739,35 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
   	 	modelConnector.setIsSurface(this.isSurfaceCell);
   	 	
   	 	if(modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
-  	 	episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC mc = (episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC) modelConnector;
+  	 		episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC mc = (episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC) modelConnector;
   	 		mc.setCellSurfaceArea(getSurfaceArea());
   	 		mc.setCellVolume(getCellVolume());
   	 		mc.setExtCellSpaceVolume(getExtraCellSpaceVolume(mc.getExtCellSpaceMikron()));
-  	 	Set<Long> keySet = new HashSet<Long>();
- 		keySet.addAll(mc.getCellCellAdhesion().keySet());
- 		HashMap<Long, Double> cellCellAdhesion = mc.getCellCellAdhesion();
- 		for(Long key : keySet){
- 			if(!directNeighbourIDs.contains(key)){
- 				int neighbourLostSteps = 0;
- 				if(!lostNeighbourContactInSimSteps.containsKey(key))lostNeighbourContactInSimSteps.put(key, neighbourLostSteps);
- 				else{
- 					neighbourLostSteps =lostNeighbourContactInSimSteps.get(key) +1;
- 					lostNeighbourContactInSimSteps.put(key, neighbourLostSteps);
- 				}
- 				if(neighbourLostSteps>= globalParameters.getNeighbourLostThres()){
- 					cellCellAdhesion.remove(key);
- 					lostNeighbourContactInSimSteps.remove(key);
- 				}
- 			}
- 			else{
- 				if(lostNeighbourContactInSimSteps.containsKey(key)){
- 				//	int steps = lostNeighbourContactInSimSteps.get(key);
- 				//	if(steps > 10)System.out.println("Didn't see you for: "+steps);
- 					lostNeighbourContactInSimSteps.remove(key);
- 				}
- 			}
- 		}
+  	 		mc.setBasalCellContact(mc.getIsBasal()||basalNeighbouringCellFound);
+	  	 	Set<Long> keySet = new HashSet<Long>();
+	 		keySet.addAll(mc.getCellCellAdhesion().keySet());
+	 		HashMap<Long, Double> cellCellAdhesion = mc.getCellCellAdhesion();
+	 		for(Long key : keySet){
+	 			if(!directNeighbourIDs.contains(key)){
+	 				int neighbourLostSteps = 0;
+	 				if(!lostNeighbourContactInSimSteps.containsKey(key))lostNeighbourContactInSimSteps.put(key, neighbourLostSteps);
+	 				else{
+	 					neighbourLostSteps =lostNeighbourContactInSimSteps.get(key) +1;
+	 					lostNeighbourContactInSimSteps.put(key, neighbourLostSteps);
+	 				}
+	 				if(neighbourLostSteps>= globalParameters.getNeighbourLostThres()){
+	 					cellCellAdhesion.remove(key);
+	 					lostNeighbourContactInSimSteps.remove(key);
+	 				}
+	 			}
+	 			else{
+	 				if(lostNeighbourContactInSimSteps.containsKey(key)){
+	 				//	int steps = lostNeighbourContactInSimSteps.get(key);
+	 				//	if(steps > 10)System.out.println("Didn't see you for: "+steps);
+	 					lostNeighbourContactInSimSteps.remove(key);
+	 				}
+	 			}
+	 		}
   	 	} 
 	}
 	private double getSurfaceArea(){

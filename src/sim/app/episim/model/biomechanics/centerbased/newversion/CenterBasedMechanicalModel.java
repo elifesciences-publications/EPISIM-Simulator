@@ -647,7 +647,13 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 		else{
 			modelConnector.setIsBasal(false);			
 		}
-		
+		boolean basalNeighbouringCellFound = false;
+		if(directNeighbours != null){
+			for(AbstractCell neighbour : directNeighbours){
+				CenterBasedMechanicalModel cellBM = ((CenterBasedMechanicalModel)neighbour.getEpisimBioMechanicalModelObject());
+				if(cellBM.modelConnector.getIsBasal())basalNeighbouringCellFound=true;
+			}
+		}
 		
 		modelConnector.setHasCollision(hitsOtherCell() > 0);		
 		modelConnector.setX(newCellLocation.getX());		
@@ -660,6 +666,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
   	 		mc.setCellSurfaceArea(getSurfaceArea());
   	 		mc.setCellVolume(getCellVolume());
   	 		mc.setExtCellSpaceVolume(getExtraCellSpaceVolume(mc.getExtCellSpaceMikron()));
+  	 		mc.setBasalCellContact(mc.getIsBasal()||basalNeighbouringCellFound);
   	 		Set<Long> keySet = new HashSet<Long>();
 	 		keySet.addAll(mc.getCellCellAdhesion().keySet());
 	 		HashMap<Long, Double> cellCellAdhesion = mc.getCellCellAdhesion();

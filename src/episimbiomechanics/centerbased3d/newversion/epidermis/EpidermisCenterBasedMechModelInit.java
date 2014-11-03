@@ -23,6 +23,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.util.Double2D;
 import sim.util.Double3D;
+import ec.util.MersenneTwisterFast;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimPortrayal;
 
@@ -89,10 +90,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 		
 		double stopZ = TissueController.getInstance().getTissueBorder().getLengthInMikron();
 		double startZ = mechModelGP.getBasalDensity_mikron()/2;
-		final double increment = 1;
-			
-			
-		
+		final double increment = 0.5;
 		boolean regularOrder = true;
 		double cellCounter = 0;
 		double oldCellCounter = 0;
@@ -114,7 +112,8 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 				}
 			}			
 		}
-	//	System.out.println("No of stem cells: " + standardCellEnsemble.size());
+
+		System.out.println("No of stem cells: " + standardCellEnsemble.size());
 		return standardCellEnsemble;
 	}
 	

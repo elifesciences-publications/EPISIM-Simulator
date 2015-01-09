@@ -4,17 +4,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jfree.data.xy.XYSeries;
-
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ResultSet;
 import sim.app.episim.util.Sorting;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import episimexceptions.CellNotValidException;
-import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
@@ -23,11 +19,12 @@ import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 import episiminterfaces.calc.marker.TissueObserver;
 import episiminterfaces.calc.marker.TissueObserverAlgorithm;
 
-public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm, TissueObserverAlgorithm{
-	public static final String GRADIENT_MIN_X_PARAMETER = "min X coord.";
-	public static final String GRADIENT_MAX_X_PARAMETER = "max X coord.";
+
+public class AveragedConditionedGradientCalculationAlgorithm extends AbstractCommonCalculationAlgorithm implements CalculationAlgorithm, TissueObserverAlgorithm{
+	public static final String Y_AXIS_BIN_SIZE_IN_MIKRON = "y axis bin size in mikron";
+	
 		private Map<Long, TissueObserver> observers;
-		public  GradientCalculationAlgorithm(){
+		public  AveragedConditionedGradientCalculationAlgorithm(){
 			observers = new HashMap<Long, TissueObserver>();
 		}
 		
@@ -36,26 +33,26 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 			final int _id = id;
 		   
 		   return new CalculationAlgorithmDescriptor(){
+		   	
 
 				public String getDescription() {	         
-		         return "This algorithm calculates a very simple gradient over the given X-Interval of the tissue using the defined mathematical expression.";
+		         return "This algorithm calculates a gradient over the discretized y-Axis of the tissue. The y-axis is discretized in bins with the given size in micron. The results of the defined mathematical expression are averaged over all cells within a particular y-axis bin.";
 	         }
 
 				public int getID() { return _id; }
 
-				public String getName() { return "Gradient Calculator"; }
+				public String getName() { return "Averaged Conditioned Gradient Calculator"; }
 
 				public CalculationAlgorithmType getType() { return CalculationAlgorithmType.TWODIMDATASERIESRESULT; }
 
-				public boolean hasCondition() { return false; }
+				public boolean hasCondition() { return true; }
 				
 				public boolean hasMathematicalExpression() { return true; }
 				
 				public Map<String, Class<?>> getParameters() {
 					Map<String, Class<?>> params = new LinkedHashMap<String, Class<?>>();
-					params.put(GradientCalculationAlgorithm.GRADIENT_MIN_X_PARAMETER, Double.TYPE);
-					params.put(GradientCalculationAlgorithm.GRADIENT_MAX_X_PARAMETER, Double.TYPE);
-		         return params;
+					params.put(AveragedConditionedGradientCalculationAlgorithm.Y_AXIS_BIN_SIZE_IN_MIKRON, Double.TYPE);
+					return params;
 	         }
 		   };
 		}
@@ -78,23 +75,24 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				notifyTissueObserver(handler.getID());
 				
 				Map<Double, Double> resultMap = new LinkedHashMap<Double, Double>();
-				
+				final double binSizeMikron = (Double) handler.getParameters().get(Y_AXIS_BIN_SIZE_IN_MIKRON);
+				final int arraySize = ((int)(TissueController.getInstance().getTissueBorder().getHeightInMikron() / binSizeMikron)+1);
+				double[] cummulativeValues = new double[arraySize];
+				double[] numberOfCellsInBin = new double[arraySize];
 				for(AbstractCell actCell: allCells){
-					if(handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())){
+					if((handler.getRequiredCellType() == null || handler.getRequiredCellType().isAssignableFrom(actCell.getClass())) && handler.conditionFulfilled(actCell)){
 						EpisimBiomechanicalModel biomech = actCell.getEpisimBioMechanicalModelObject();
-						double min = (Double) handler.getParameters().get(GRADIENT_MIN_X_PARAMETER);
-						double max = (Double) handler.getParameters().get(GRADIENT_MAX_X_PARAMETER);
-						if(max < min){
-							double tmp = max;
-							max = min;
-							min = tmp;
-						}
-						if(biomech.getX() >= min
-								&& biomech.getX() <= max){						
-								
-								resultMap.put(biomech.getY(), handler.calculate(actCell));
-						}
+						int index = calculateBinIndex(biomech.getY(), binSizeMikron);
+						double result = handler.calculate(actCell);
+						numberOfCellsInBin[index] += 1;
+						cummulativeValues[index] += result;
+						
 					}
+				}
+				for(double i = 0; i < arraySize; i++){
+					if(numberOfCellsInBin[(int)i] > 0){
+						resultMap.put(i*binSizeMikron, cummulativeValues[(int)i] / numberOfCellsInBin[(int)i]);
+					}			
 				}
 			   Sorting.sort2DMapValuesIntoResultSet(resultMap, results);							
 			}
@@ -102,6 +100,10 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 				ExceptionDisplayer.getInstance().displayException(ex);
 			}		   
 	   }
+		private int calculateBinIndex(double cellYPos, double binSizeMikron){
+			double index = cellYPos / binSizeMikron;
+			return (int) index;
+		}
 		
 		private void notifyTissueObserver(long id){
 		  	if(this.observers.containsKey(id)){
@@ -115,19 +117,7 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 					this.observers.put(id, observer);
 				}
 			}
-	   }
-		
-		private double getGradientMinX(){
-			return 30;
-		}
-		private double getGradientMaxX(){
-			return 40;
-		}
-		private double getGradientMinY(){
-			return 0;
-		}
-		private double getGradientMaxY(){
-			return TissueController.getInstance().getTissueBorder().getHeightInMikron();
-		}
+	   }		
+	
 		
 	}

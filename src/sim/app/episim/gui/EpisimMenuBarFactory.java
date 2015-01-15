@@ -48,7 +48,6 @@ public class EpisimMenuBarFactory {
 		LOAD_SNAPSHOT("Load Tissue-Export"),
 		OPEN_MODEL_FILE("Open EPISIM-Cell-Model"),
 		CLOSE_MODEL_FILE("Close EPISIM-Cell-Model"),
-		BUILD_MODEL_ARCHIVE("Build EPISIM-Model-Archive"),
 		CLOSE_SIMULATOR("Close EPISIM Simulator"),
 		
 		EDIT_CHART_SET("Edit Chart-Set"),
@@ -184,24 +183,13 @@ public class EpisimMenuBarFactory {
 			}
 			
 		});
-		JMenuItem menuItemBuild = new JMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE.toString());
-		menuItemBuild.addActionListener(new ActionListener(){
-
-			public void actionPerformed(ActionEvent e) {
-				simulator.buildModelArchive();				
-			}
-			
-		});
-		
-		menuItemBuild.setVisible(false);
-		
+				
 		menuItemLoadSnapshot.setEnabled(true);
 		
 		fileMenu.add(menuItemOpen);
 		fileMenu.add(menuItemSetSnapshotPath);
 		fileMenu.add(menuItemLoadSnapshot);
 		//fileMenu.addSeparator();
-		fileMenu.add(menuItemBuild);
 		fileMenu.addSeparator();
 		fileMenu.add(menuItemClose);
 		fileMenu.addSeparator();

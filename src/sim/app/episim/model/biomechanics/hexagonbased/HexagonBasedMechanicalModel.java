@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.hexagonbased.singlesurface;
+package sim.app.episim.model.biomechanics.hexagonbased;
 
 
 import java.awt.Polygon;
@@ -23,7 +23,6 @@ import sim.app.episim.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim2DCellShape;
-import sim.app.episim.model.biomechanics.hexagonbased.AbstractHexagonBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.visualization.EpisimDrawInfo;

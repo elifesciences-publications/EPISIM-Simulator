@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import sim.app.episim.CellInspector;
 import sim.app.episim.UniversalCell;
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.tumor.simple.HexagonBasedMechanicalModelSimpleTumorGP;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.hexagonbased.tumor.simple.HexagonBasedMechanicalModelSimpleTumorGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;

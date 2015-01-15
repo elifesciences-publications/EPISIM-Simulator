@@ -1,6 +1,6 @@
-package sim.app.episim.model.biomechanics.hexagonbased.singlesurface.bact;
+package sim.app.episim.model.biomechanics.hexagonbased.bact;
 
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 
 
 public class HexagonBasedMechanicalModelBactGP extends HexagonBasedMechanicalModelGP{

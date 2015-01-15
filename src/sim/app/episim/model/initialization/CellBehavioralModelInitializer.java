@@ -16,7 +16,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
-import sim.app.episim.model.sbml.SbmlModelConnector;
+import sim.app.episim.model.sbml.SBMLModelConnector;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlEpisimCellBehavioralModel;
 import sim.app.episim.tissue.TissueController;
@@ -82,8 +82,8 @@ public class CellBehavioralModelInitializer {
 				actCell.getEpisimCellBehavioralModelObject().setAge((double) (cellCyclePos));// somewhere in the stemcellcycle
 				
 				if (actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() != null
-						&& actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector) {
-					((SbmlModelConnector) actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(cellCyclePos);
+						&& actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SBMLModelConnector) {
+					((SBMLModelConnector) actCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(cellCyclePos);
 				}
 			}
 			boolean tysonCellCycleAvailable = false;

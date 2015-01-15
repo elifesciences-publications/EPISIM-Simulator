@@ -639,6 +639,13 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 	
 	public void finishNewSimStep(){
 		Double2D newCellLocation = cellLocation == null? cellField.getObjectLocation(getCell()):cellLocation;
+		
+		if(getCell().getStandardDiffLevel()==StandardDiffLevel.STEMCELL && !TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()){			
+			double minY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(cellLocation.x, cellLocation.y);
+			newCellLocation =new Double2D(cellLocation.x, minY);
+			if(Math.abs(cellLocation.y - minY) > 0.1)setCellLocationInCellField(newCellLocation);
+		}
+		
 		Point2d minPositionOnBoundary = findReferencePositionOnBoundary(new Point2d(newCellLocation.x, newCellLocation.y), newCellLocation.x - (getCellWidth()/2), newCellLocation.x + (getCellWidth()/2));
 		double distanceToBasalMembrane = Math.sqrt(Math.pow((newCellLocation.x-minPositionOnBoundary.x), 2)+Math.pow((newCellLocation.y-minPositionOnBoundary.y), 2));	
 		if(distanceToBasalMembrane <= ((getCellHeight()))){///2)*globalParameters.getOptDistanceAdhesionFact())){
@@ -654,6 +661,7 @@ public class CenterBasedMechanicalModel extends AbstractCenterBasedMechanical2DM
 				if(cellBM.modelConnector.getIsBasal())basalNeighbouringCellFound=true;
 			}
 		}
+		
 		
 		modelConnector.setHasCollision(hitsOtherCell() > 0);		
 		modelConnector.setX(newCellLocation.getX());		

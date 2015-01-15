@@ -1,8 +1,8 @@
 package episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.chemokine;
 
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelGP;
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.tumor.chemokine.HexagonBasedMechanicalModelCytokineTumorGP;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.tumor.chemokine.HexagonBasedMechanicalModelCytokineTumorGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC;

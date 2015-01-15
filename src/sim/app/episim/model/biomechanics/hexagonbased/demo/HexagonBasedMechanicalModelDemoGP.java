@@ -1,6 +1,6 @@
-package sim.app.episim.model.biomechanics.hexagonbased.singlesurface.demo;
+package sim.app.episim.model.biomechanics.hexagonbased.demo;
 
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 
 
 

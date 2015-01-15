@@ -1,6 +1,6 @@
-package sim.app.episim.model.biomechanics.hexagonbased.singlesurface.tumor.chemokine;
+package sim.app.episim.model.biomechanics.hexagonbased.tumor.chemokine;
 
-import sim.app.episim.model.biomechanics.hexagonbased.singlesurface.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 
 
 public class HexagonBasedMechanicalModelCytokineTumorGP extends HexagonBasedMechanicalModelGP {

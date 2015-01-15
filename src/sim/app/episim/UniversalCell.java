@@ -9,7 +9,7 @@ import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardCellT
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
-import sim.app.episim.model.sbml.SbmlModelConnector;
+import sim.app.episim.model.sbml.SBMLModelConnector;
 import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.UniversalTissue;
 import sim.app.episim.tissue.TissueServer;
@@ -129,8 +129,8 @@ public class UniversalCell extends AbstractCell
         
       	  taCell.getEpisimCellBehavioralModelObject().setAge(randomAge);
       	  if(taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()!= null
-      		  	&& taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SbmlModelConnector){
-      	  	((SbmlModelConnector)taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(randomAge);
+      		  	&& taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector() instanceof SBMLModelConnector){
+      	  	((SBMLModelConnector)taCell.getEpisimCellBehavioralModelObject().getEpisimSbmlModelConnector()).initializeSBMLModelsWithCellAge(randomAge);
       	  }
       	  boolean tysonCellCycleAvailable = false;
 	  		  try {

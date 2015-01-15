@@ -1,6 +1,5 @@
 package sim.app.episim.visualization;
 
-import sendreceive.TestFrame;
 import sim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;

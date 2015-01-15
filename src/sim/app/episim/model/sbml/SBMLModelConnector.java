@@ -15,13 +15,13 @@ import episiminterfaces.EpisimSbmlModelConfigurationEx;
 import episiminterfaces.EpisimSbmlModelConnector;
 import episiminterfaces.InterfaceVersion;
 
-public class SbmlModelConnector implements EpisimSbmlModelConnector{
+public class SBMLModelConnector implements EpisimSbmlModelConnector{
 	
 	private HashMap<String, EpisimSbmlModelConfiguration> sbmlModelConfigurationMap; 
 	private HashMap<String, SBMLModelState> sbmlModelStates;
 	private HashMap<String, Boolean> sbmlModelSimulationEnabled;
 		
-	public SbmlModelConnector(){		
+	public SBMLModelConnector(){		
 		sbmlModelConfigurationMap = new HashMap<String, EpisimSbmlModelConfiguration>();
 		sbmlModelStates = new HashMap<String, SBMLModelState>();
 		sbmlModelSimulationEnabled = new HashMap<String, Boolean>();

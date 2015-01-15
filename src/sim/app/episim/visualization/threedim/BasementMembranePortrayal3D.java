@@ -53,8 +53,7 @@ public class BasementMembranePortrayal3D extends SimplePortrayal3D implements Ep
 			if(la == null) la = new LineAttributes();
 	     	la.setLineAntialiasingEnable(true);
 	     	this.appearance.setLineAttributes(la);
-		} 
-	   
+		}	   
 	}
 	
 	public TransformGroup getModel(Object obj, TransformGroup tg){

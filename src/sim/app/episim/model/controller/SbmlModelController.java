@@ -3,7 +3,7 @@ package sim.app.episim.model.controller;
 import java.util.concurrent.Semaphore;
 
 import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.model.sbml.SbmlModelConnector;
+import sim.app.episim.model.sbml.SBMLModelConnector;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import episiminterfaces.EpisimSbmlModelConnector;
@@ -32,7 +32,7 @@ public class SbmlModelController implements ClassLoaderChangeListener{
 	}
 	
 	protected EpisimSbmlModelConnector getNewEpisimSbmlModelConnector(){
-		return new SbmlModelConnector();
+		return new SBMLModelConnector();
 	}
 
 	public void classLoaderHasChanged() {

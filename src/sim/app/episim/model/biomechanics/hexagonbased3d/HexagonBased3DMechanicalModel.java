@@ -1,24 +1,19 @@
 package sim.app.episim.model.biomechanics.hexagonbased3d;
 
 
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.media.j3d.BoundingSphere;
-import javax.media.j3d.Group;
+
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
-import com.sun.j3d.utils.geometry.Primitive;
-import com.sun.j3d.utils.geometry.Sphere;
+
 
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
@@ -36,14 +31,11 @@ import sim.app.episim.model.biomechanics.CellBoundaries;
 
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
 
-import sim.app.episim.model.biomechanics.hexagonbased.twosurface.HexagonBasedMechanicalModelTwoSurfaceGP;
-import sim.app.episim.model.biomechanics.vertexbased.geom.Line;
+
 import sim.app.episim.model.controller.ModelController;
 
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
-import sim.app.episim.model.visualization.HexagonalCellPortrayal3D;
-import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.engine.SimState;
 import sim.util.Bag;

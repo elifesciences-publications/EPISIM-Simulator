@@ -103,8 +103,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
 			 console = new ConsoleHack(simulation){
 				 public synchronized void pressPlay(){
 					
-				   	EpisimTextOut.getEpisimTextOut().clear();
-				      ((EpisimGUIState)console.getSimulation()).clearWoundPortrayalDraw();
+				   	EpisimTextOut.getEpisimTextOut().clear();		   	
 				   	((EpisimGUIState)console.getSimulation()).simulationWasStarted();
 				    	EpisimConsole.this.disableConsoleButtons();
 				   	super.pressPlay();
@@ -553,7 +552,7 @@ public class EpisimConsole implements ActionListener, SimulationStateChangeListe
    public synchronized void pressPlay(){
    	
 	   EpisimTextOut.getEpisimTextOut().clear();	      	
-	   ((EpisimGUIState)console.getSimulation()).clearWoundPortrayalDraw();   	
+	      	
 	   	
 	   ((EpisimGUIState)console.getSimulation()).simulationWasStarted();	  
    	console.pressPlay();

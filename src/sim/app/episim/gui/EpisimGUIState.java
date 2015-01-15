@@ -30,7 +30,7 @@ import sim.app.episim.tissue.TissueType;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;
-import sim.app.episim.visualization.WoundPortrayal2D;
+ 
 import sim.app.episim.visualization.threedim.BasementMembranePortrayal3D;
 import sim.app.episim.visualization.threedim.EpisimSimulationBoxPortrayal3D;
 import sim.app.episim.visualization.threedim.Optimized3DVisualization;
@@ -128,8 +128,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	private boolean autoArrangeWindows = true;	
 	
 	private FieldPortrayal2D cellPortrayal2D;
-	private FieldPortrayal3D cellPortrayal3D;
-	private WoundPortrayal2D woundPortrayal;
+	private FieldPortrayal3D cellPortrayal3D;	
 	private RulerPortrayal2D rulerPortrayal;
 	
 	
@@ -283,7 +282,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		// obstacle portrayal needs no setup
 		
 		BasementMembranePortrayal2D basementPortrayal = new BasementMembranePortrayal2D();
-		woundPortrayal = new WoundPortrayal2D();
+		
 		rulerPortrayal = new RulerPortrayal2D();
 		GridPortrayal2D gridPortrayal = new GridPortrayal2D();
 		
@@ -312,7 +311,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		for(int i = 0; i < portrayals.length; i++) display2D.attach((FieldPortrayal2D)portrayals[i], portrayals[i].getPortrayalName(), portrayals[i].getViewPortRectangle(), false);
 		
 		
-		display2D.attach(woundPortrayal, woundPortrayal.getPortrayalName(), woundPortrayal.getViewPortRectangle(), true);
+		
 		display2D.attach(rulerPortrayal, rulerPortrayal.getPortrayalName(), rulerPortrayal.getViewPortRectangle(), true);
 		display2D.attach(gridPortrayal, gridPortrayal.getPortrayalName(), gridPortrayal.getViewPortRectangle(), true);
 		
@@ -418,26 +417,11 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 			
 				public void mousePressed(MouseEvent e) {
 	
-					if(e.getButton() == MouseEvent.BUTTON3){
-						if(console.getPlayState() != Console.PS_PAUSED && console.getPlayState() == Console.PS_PLAYING)console.pressPause();
-						if(woundPortrayal != null){
-							woundPortrayal.clearWoundRegionCoordinates();
-							woundPortrayal.closeWoundRegionPath(false);
-						}
-						activateDrawing = true;
-					}
 					
 				}
 				public void mouseReleased(MouseEvent e) {
 	
-					if(e.getButton() == MouseEvent.BUTTON3){
-					//	if(console.getPlayState() == Console.PS_PAUSED)console.pressPause();
-						if(woundPortrayal != null){
-							woundPortrayal.closeWoundRegionPath(true);
-							((UniversalTissue) state).removeCells(woundPortrayal.getWoundRegion());
-							activateDrawing = false;
-						}
-					}
+				
 					
 				}
 	
@@ -457,12 +441,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		display2D.getInsideDisplay().addMouseMotionListener(new MouseMotionAdapter(){
 			public void mouseDragged(MouseEvent e){
 				
-				if(activateDrawing){
-					if(woundPortrayal != null){
-						woundPortrayal.addMouseCoordinate(new Double2D(e.getX(), e.getY()));
-						redrawDisplayForDrawing2DWoundingArea();
-					}
-				}
+				
 				if(rulerPortrayal != null && display2D.isPortrayalVisible(rulerPortrayal.getPortrayalName())) rulerPortrayal.setActMousePosition(new Point2D.Double(e.getX(), e.getY()));
 				if(rulerPortrayal != null && display2D.isPortrayalVisible(rulerPortrayal.getPortrayalName())&& (console.getPlayState()==Console.PS_PAUSED
 						||console.getPlayState()==Console.PS_STOPPED) && ModelController.getInstance().isSimulationStartedOnce()) redrawDisplayForDrawing2DWoundingArea();	
@@ -955,14 +934,6 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 			console.pressPause();
 			workaroundPauseWasPressed = false;
 		}
-	}
-	
-	public void clearWoundPortrayalDraw(){
-		if(woundPortrayal != null){
-			woundPortrayal.clearWoundRegionCoordinates();
-			woundPortrayal.closeWoundRegionPath(false);
-		}
-		
 	}	
 	
 	public EpisimSimulationDisplay getDisplay() {

@@ -55,7 +55,6 @@ import episimexceptions.SimulationTriggerException;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import sim.SimStateServer;
-import sim.app.episim.CompileWizard;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimUpdater;
 import sim.app.episim.EpisimUpdater.EpisimUpdateCallback;
@@ -69,7 +68,6 @@ import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenuItem;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sim.app.episim.gui.EpisimUpdateDialog.UpdateCancelledCallback;
-import sim.app.episim.model.biomechanics.hexagonbased.twosurface.HexagonBasedMechanicalModelTwoSurface;
 import sim.app.episim.model.controller.BiomechanicalModelController;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
@@ -644,7 +642,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				}
 				if(!snapshotDataExportLoad){
 					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH).setEnabled(true);
-					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(false);
+									
 					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(true);
 					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.UPDATE_EPISIM_SIMULATOR).setEnabled(false);
 					menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
@@ -676,10 +674,10 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	private void initializeGlobalObjects(SimulationStateData simulationStateData){
 		EpisimCellBehavioralModelGlobalParameters globalBehave = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
 		EpisimBiomechanicalModelGlobalParameters globalMech = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		if(simulationStateData.getEpisimBioMechanicalModelGlobalParameters() != null)simulationStateData.getEpisimBioMechanicalModelGlobalParameters().copyValuesToTarget(globalMech);
-		if(simulationStateData.getEpisimCellBehavioralModelGlobalParameters() != null)simulationStateData.getEpisimCellBehavioralModelGlobalParameters().copyValuesToTarget(globalBehave);
-		if(simulationStateData.getMiscalleneousGlobalParameters() != null)simulationStateData.getMiscalleneousGlobalParameters().copyValuesToTarget(MiscalleneousGlobalParameters.getInstance());
-		if(simulationStateData.getTissueBorder() != null)simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
+		if(simulationStateData.getEpisimBioMechanicalModelGlobalParameters() != null) simulationStateData.getEpisimBioMechanicalModelGlobalParameters().copyValuesToTarget(globalMech);
+		if(simulationStateData.getEpisimCellBehavioralModelGlobalParameters() != null) simulationStateData.getEpisimCellBehavioralModelGlobalParameters().copyValuesToTarget(globalBehave);
+		if(simulationStateData.getMiscalleneousGlobalParameters() != null) simulationStateData.getMiscalleneousGlobalParameters().copyValuesToTarget(MiscalleneousGlobalParameters.getInstance());
+		if(simulationStateData.getTissueBorder() != null) simulationStateData.getTissueBorder().copyValuesToTarget(TissueController.getInstance().getTissueBorder());
 		
 		ModelParameterModifier parameterModifier = new ModelParameterModifier();
 		if(EpisimProperties.getProperty(EpisimProperties.SIMULATOR_BIOMECHNICALMODEL_GLOBALPARAMETERSFILE_PROP) != null){
@@ -826,7 +824,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	   				noGUIModeMainPanel.repaint();
 	   			} 
 	   			menuBarFactory.getEpisimMenuItem(EpisimMenuItem.SET_SNAPSHOT_PATH).setEnabled(true);
-					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(false);
+					
 					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(true);
 					menuBarFactory.getEpisimMenuItem(EpisimMenuItem.UPDATE_EPISIM_SIMULATOR).setEnabled(false);
 					menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(true);
@@ -873,13 +871,6 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		SimStateServer.getInstance().addSimulationStateChangeListener(this);
 		SimStateServer.getInstance().addSimulationStateChangeListener(CellEllipseIntersectionCalculationRegistry.getInstance());
 	}
-	protected void buildModelArchive(){
-		if(ModeServer.guiMode()){
-			CompileWizard wizard = new CompileWizard(mainFrame);
-			wizard.showSelectFilesDialogs();
-		}
-		
-	}
 	protected void closeModel(){
 		closeModel(true, false);
 	}
@@ -911,7 +902,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 		TissueController.getInstance().resetTissueSettings();
 		SimStateServer.getInstance().removeAllSimulationTrigger();
 		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.CLOSE_MODEL_FILE).setEnabled(false);
-		menuBarFactory.getEpisimMenuItem(EpisimMenuItem.BUILD_MODEL_ARCHIVE).setEnabled(true);
+			
 		menuBarFactory.getEpisimMenu(EpisimMenu.CHART_MENU).setEnabled(false);
 		menuBarFactory.getEpisimMenu(EpisimMenu.PARAMETERS_SCAN).setEnabled(false);
 		menuBarFactory.getEpisimMenu(EpisimMenu.DATAEXPORT_MENU).setEnabled(true);

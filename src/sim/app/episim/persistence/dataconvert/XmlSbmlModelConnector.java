@@ -3,14 +3,14 @@ package sim.app.episim.persistence.dataconvert;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import sim.app.episim.model.sbml.SbmlModelConnector;
+import sim.app.episim.model.sbml.SBMLModelConnector;
 import sim.app.episim.persistence.ExportException;
 
-public class XmlSbmlModelConnector extends XmlObject<SbmlModelConnector> {
+public class XmlSbmlModelConnector extends XmlObject<SBMLModelConnector> {
 
 	private static final String SBMLMODELSTATES = "sbmlModelStates";
 
-	public XmlSbmlModelConnector(SbmlModelConnector obj) throws ExportException {
+	public XmlSbmlModelConnector(SBMLModelConnector obj) throws ExportException {
 		super(obj);
 	}
 
@@ -36,7 +36,7 @@ public class XmlSbmlModelConnector extends XmlObject<SbmlModelConnector> {
 	}
 	
 	@Override
-	public SbmlModelConnector copyValuesToTarget(SbmlModelConnector target) {
+	public SBMLModelConnector copyValuesToTarget(SBMLModelConnector target) {
 		if(target == null)
 			return null;
 			

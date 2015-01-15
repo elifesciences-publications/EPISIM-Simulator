@@ -16,11 +16,11 @@ import java.util.Set;
 
 import java.util.concurrent.Semaphore;
 
-import sendreceive.TestFrame;
+
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.model.visualization.AbstractCellEllipse;
 import sim.app.episim.model.visualization.CellEllipse;
-;
+
 
 
 

@@ -10,7 +10,7 @@ import episiminterfaces.EpisimDiffusionFieldConfiguration;
 import episiminterfaces.EpisimDiffusionFieldConfigurationEx;
 
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
-import sim.app.episim.model.sbml.SbmlModelConnector;
+import sim.app.episim.model.sbml.SBMLModelConnector;
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 

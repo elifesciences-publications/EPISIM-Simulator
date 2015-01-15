@@ -9,9 +9,7 @@ import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.portrayal.*;
 
-
 import java.awt.*;
-
 import java.awt.geom.*;
 
 import episiminterfaces.EpisimPortrayal;
@@ -22,6 +20,9 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implemen
 	
 		 private final String NAME = "Grid";	
 	    
+		 private static final float DOT = 2;
+		 private static final float SPACE = 2;
+		 
 	    private double gridResolution = 5.0;
 	    private double gridResolutionFact = 1;
 	    public GridPortrayal2D() {
@@ -53,7 +54,10 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implemen
 	private void drawGrid(Graphics2D graphics, DrawInfo2D info){
 	   	 
 		graphics.setColor(new Color(192, 192, 192, 150));
-		graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
+		 float[] dash = new float[]{ DOT, SPACE };
+ 		
+		graphics.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND,0,dash,0));
+		
 			 
 		double minX = getMinX(info);
 		double maxX = getMaxX(info);

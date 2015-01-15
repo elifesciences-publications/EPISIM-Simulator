@@ -4,7 +4,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import episiminterfaces.EpisimCellBehavioralModel;
-import sim.app.episim.model.sbml.SbmlModelConnector;
+import sim.app.episim.model.sbml.SBMLModelConnector;
 import sim.app.episim.persistence.ExportException;
 
 public class XmlEpisimCellBehavioralModel extends
@@ -26,9 +26,9 @@ public class XmlEpisimCellBehavioralModel extends
 	protected void exportSubXmlObjectsFromParameters() throws ExportException {
 		super.exportSubXmlObjectsFromParameters();
 		Object subObj = getParameters().get(EPISIMSBMLMODELCONNECTOR);
-		if (subObj instanceof SbmlModelConnector) {
+		if (subObj instanceof SBMLModelConnector) {
 			addSubXmlObject(EPISIMSBMLMODELCONNECTOR,
-					new XmlSbmlModelConnector((SbmlModelConnector) subObj));
+					new XmlSbmlModelConnector((SBMLModelConnector) subObj));
 		} else throw new ExportException(getClass().getSimpleName()+": Parameter Export went wrong");
 	}
 
@@ -53,7 +53,7 @@ public class XmlEpisimCellBehavioralModel extends
 		
 		if(xmlObj != null && xmlObj instanceof XmlSbmlModelConnector){
 			XmlSbmlModelConnector connector = (XmlSbmlModelConnector)xmlObj;
-			connector.copyValuesToTarget((SbmlModelConnector) cellModel.getEpisimSbmlModelConnector());
+			connector.copyValuesToTarget((SBMLModelConnector) cellModel.getEpisimSbmlModelConnector());
 		}
 		if(cellModel != null) cellModel.updateAllSbmlModelParameterValuesFromConnector();
 		return cellModel;

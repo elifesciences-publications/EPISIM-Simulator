@@ -138,18 +138,12 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		}
 		initializeBiomechanics(standardCellEnsemble);
 		setDiffLevels(standardCellEnsemble, cellSize);
-		ArrayList<DummyCell> dummyCellEnsemble = new ArrayList<DummyCell>();
-		for(UniversalCell cell: standardCellEnsemble){
-			if((cell.getEpisimBioMechanicalModelObject().getX()-mechModelGP.getInnerEyeCenter().x) <= (cellSize/3)){
-				dummyCellEnsemble.add(new DummyCell(
-						new Double3D(mechModelGP.getInnerEyeCenter().x-(cellSize/2d), cell.getEpisimBioMechanicalModelObject().getY(), cell.getEpisimBioMechanicalModelObject().getZ()),
-										 CELL_WIDTH, CELL_HEIGHT, CELL_LENGTH));
-			}
-		}
-		if(!dummyCellEnsemble.isEmpty()) CenterBased3DMechanicalModel.setDummyCells(dummyCellEnsemble);
+		CenterBased3DMechanicalModel.setDummyCellSize(cellSize);
+		 
 		System.out.println("No of stem cells: " + standardCellEnsemble.size()+ "    Cells Ingnored: " + ignoredCells);
 		return standardCellEnsemble;
 	}
+	
 	private void setDiffLevels(ArrayList<UniversalCell> standardCellEnsemble, double cellSize){
 		CenterBased3DMechanicalModelGP mechModelGP = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		EpisimDifferentiationLevel[] diffLevels = ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels();
@@ -216,7 +210,10 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	}
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {
-		return new EpisimPortrayal[0];
+		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D();
+		continuousPortrayal.setField(CenterBased3DMechanicalModel.getDummyCellField());
+		
+		return new EpisimPortrayal[]{continuousPortrayal};
 	}
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellBackground() {

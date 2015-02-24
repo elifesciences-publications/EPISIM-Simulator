@@ -27,6 +27,7 @@ import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Loop;
 import sim.engine.SimState;
+import sim.field.continuous.Continuous3D;
 import sim.field.continuous.Continuous3DExt;
 import sim.util.Bag;
 import sim.util.Double3D;
@@ -73,6 +74,7 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
       
    private static Continuous3DExt dummyCellField;
    private static boolean dummyCellsAdded = false;
+   private static double dummyCellSize = 0;   
    
 	public CenterBased3DMechanicalModel(){
    	this(null);
@@ -121,22 +123,38 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
       directNeighbourIDs = new HashSet<Long>();
       lostNeighbourContactInSimSteps=new HashMap<Long, Integer>();
    }
-   
-   public static void setDummyCells(List<DummyCell> dummyCellColony){
-   	if(dummyCellColony != null && !dummyCellColony.isEmpty()){
-	   	
-	   		dummyCellField = new Continuous3DExt(FIELD_RESOLUTION_IN_MIKRON / 1.5, 
-						TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
-						TissueController.getInstance().getTissueBorder().getHeightInMikron(),
-						TissueController.getInstance().getTissueBorder().getLengthInMikron());	   	
+   public static Continuous3D getDummyCellField(){
+   	return dummyCellField;
+   }
+   public static void setDummyCellSize(double dummyCellSize){
+   	if(dummyCellSize >0){
+   		dummyCellField	= new Continuous3DExt(FIELD_RESOLUTION_IN_MIKRON / 1.5, 
+   				TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
+   				TissueController.getInstance().getTissueBorder().getHeightInMikron(),
+   				TissueController.getInstance().getTissueBorder().getLengthInMikron());
+	   		   	
 	   		
-	   		dummyCellsAdded = true;
-	   		
-	   		for(DummyCell cell : dummyCellColony){
-	   			dummyCellField.setObjectLocation(cell, cell.getCellPosition());
-	   		}
+	   		dummyCellsAdded = true;	   		
+	   		CenterBased3DMechanicalModel.dummyCellSize = dummyCellSize;
    	}
    }
+   private void generateDummyCells(double cellSize){
+		CenterBased3DMechanicalModelGP mechModelGP = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		double circumference = 2*mechModelGP.getInnerEyeRadius()*Math.PI;
+		double scalingFact = mechModelGP.getDummyCellOptDistanceScalingFactor();
+		double numberOfCells = Math.ceil(circumference/(cellSize*scalingFact));
+		double angleIncrement = (2*Math.PI)/numberOfCells;
+		Point3d fishEyeCenter = mechModelGP.getInnerEyeCenter();
+		dummyCellField.clear();
+		for(double i = 0; i < (2*Math.PI);i+=angleIncrement){
+			double z = fishEyeCenter.z + mechModelGP.getInnerEyeRadius()* Math.cos(i);
+			double y = fishEyeCenter.y + mechModelGP.getInnerEyeRadius()* Math.sin(i);
+			Double3D newPos = new Double3D((fishEyeCenter.x - (cellSize/2d)), y, z);			
+			DummyCell dummyCell= new DummyCell(newPos,cellSize, cellSize, cellSize);
+			dummyCellField.setObjectLocation(dummyCell, newPos);
+		}
+		
+	}
    
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
    	if(modelConnector instanceof EpisimFishEyeCenterBased3DMC){
@@ -799,7 +817,10 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
    	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
    	setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
-   	if(dummyCellsAdded)setDummyCellsRespectingBounds();
+   	if(dummyCellsAdded){
+   		generateDummyCells(dummyCellSize);
+   		setDummyCellsRespectingBounds();
+   	}
    	
    	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;
    	

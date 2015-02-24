@@ -36,7 +36,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
-
+import sim.app.episim.model.biomechanics.centerbased3d.fisheye.DummyCell;
 
 public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 	
@@ -254,6 +254,62 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 				if(a.getRenderingAttributes() !=null)a.getRenderingAttributes().setVisible(actCrossSectionMode != null && actCrossSectionMode != ModelSceneCrossSectionMode.DISABLED&&isNucleated);
 				shapeInnerNucleus.setAppearance(a);
 			}
+		}
+		else if (obj instanceof DummyCell){
+			DummyCell dummyCell = (DummyCell) obj;
+			ModelSceneCrossSectionMode actCrossSectionMode=null;
+			if(((Display3DHack)getCurrentDisplay()) != null){
+				actCrossSectionMode = ((Display3DHack)getCurrentDisplay()).getModelSceneCrossSectionMode();
+				
+			}
+			if (j3dModel==null)
+		   {
+		       j3dModel = new TransformGroup();
+		       j3dModel.setCapability(Group.ALLOW_CHILDREN_READ);
+		       
+		       // build a LocationWrapper for the object
+		       LocationWrapper pickI = new LocationWrapper(obj, null, getCurrentFieldPortrayal());
+		
+		      
+		
+		       if (transform != null)
+		       {
+		           TransformGroup tg = new TransformGroup();
+		           tg.setTransform(transform);
+		           tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+		           tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+		           tg.setCapability(Group.ALLOW_CHILDREN_READ);
+		           tg.addChild(cellSphere.cloneTree(true));
+		           if(optimizedGraphicsActivated){
+			           tg.addChild(innerCellSphere.cloneTree(true));
+			           tg.addChild(nucleusSphere.cloneTree(true));
+			           tg.addChild(innerNucleusSphere.cloneTree(true));
+		           }
+		           j3dModel.addChild(tg);
+		       }
+		       else{
+		      	 j3dModel.addChild(cellSphere.cloneTree(true));
+		      	 if(optimizedGraphicsActivated){
+		      		 j3dModel.addChild(innerCellSphere.cloneTree(true));
+		      		 j3dModel.addChild(nucleusSphere.cloneTree(true));
+		      		 j3dModel.addChild(innerNucleusSphere.cloneTree(true));
+		      	 }
+		       }
+		   	  Shape3D shape = getShape(j3dModel, 0);
+		       shape.setAppearance(appearance);		       
+		       if (pickable) setPickableFlags(shape);
+		       shape.setUserData(pickI);
+		       	       
+	       }
+			
+			float transparencyFactor = 1.0f;
+			if(getCurrentDisplay() instanceof Display3DHack){
+			   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
+			}
+			 
+			Color cellColor = Color.WHITE;
+			Shape3D shapeCell = getShape(j3dModel, 0);
+			shapeCell.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes, cellColor,transparencyFactor, false));			
 		} 
 		return j3dModel;
 		

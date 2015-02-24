@@ -1,6 +1,7 @@
 package calculationalgorithms.common;
 
 import sim.app.episim.AbstractCell;
+import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
 
 
@@ -11,5 +12,6 @@ public abstract class AbstractCommonCalculationAlgorithm {
 		this.allCells = allCells;		
 	}
 	
+	public void newSimStep(){ }
 	
 }

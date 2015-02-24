@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modeldescriptor>
+  <modelid id="2015-01-27_episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC"/>
+  <visiblename name="Fisheye Center Based 3D"/>
+  <modelname name="Fish Eye Center Based Biomechanical 3D Model"/>
+  <modelconnectorclass name="episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC"/>
+  <modelparameters>
+    <parameter datatype="double" default="0.0" name="cellSurfaceArea"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="totalContactArea"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="height"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0" name="contactArea"
+      pairwise="true" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="bmContactArea"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.2" name="extCellSpaceMikron"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0" name="cellCellAdhesion"
+      pairwise="true" readonly="false"/>
+    <parameter datatype="double" default="100.0" name="innerEyeRadius"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="extCellSpaceVolume"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="adhesionMembrane"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="length"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="width"
+      pairwise="false" readonly="false"/>
+    <parameter datatype="double" default="0.0" name="y" pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="x" pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="cellVolume"
+      pairwise="false" readonly="true"/>
+    <parameter datatype="double" default="0.0" name="z" pairwise="false" readonly="true"/>
+  </modelparameters>
+</modeldescriptor>

@@ -9,6 +9,7 @@ import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.ModeServer;
 import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
@@ -39,6 +40,8 @@ import sim.field.continuous.*;
 
 //Charts
 import org.jfree.chart.JFreeChart;
+
+
 
 
 
@@ -204,10 +207,15 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 		   	schedule.scheduleRepeating(steppable, SchedulePriority.PNGWRITING.getPriority(), steppable.getInterval());
 		   }
 		}
+		schedule.scheduleRepeating(new Steppable(){			
+         public void step(SimState state) {
+	         CalculationAlgorithmServer.getInstance().callMeEverySimulationStep();
+         }},SchedulePriority.STATISTICS.getPriority(), 1);
 		
 		if(this.dataExportSteppables != null){
 			for(EnhancedSteppable steppable: this.dataExportSteppables){
-				if(steppable.getInterval() >1)schedule.scheduleOnce(0,SchedulePriority.DATAMONITORING.getPriority(), steppable);
+				//if(steppable.getInterval() >1)
+					schedule.scheduleOnce(0,SchedulePriority.DATAMONITORING.getPriority(), steppable);
 		   	schedule.scheduleRepeating(steppable, SchedulePriority.DATAMONITORING.getPriority(), steppable.getInterval());
 		   }
 		}
@@ -264,6 +272,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 	   
 	   EnhancedSteppable globalStatisticsSteppable = GlobalStatistics.getInstance().getUpdateSteppable(getAllCells());
 	   schedule.scheduleRepeating(globalStatisticsSteppable, SchedulePriority.STATISTICS.getPriority(), globalStatisticsSteppable.getInterval());
+	 
         
  }
 
@@ -286,15 +295,12 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 
 	private EnhancedSteppable getTissueSimulationSnaphshotSaveSteppable(){
 		final double frequency = Double.parseDouble(EpisimProperties.getProperty(EpisimProperties.SIMULATION_SNAPSHOT_SAVE_FREQUENCY));
-		EnhancedSteppable steppable = new EnhancedSteppable() {
-			
-			
+		EnhancedSteppable steppable = new EnhancedSteppable() {			
 			public void step(SimState state) {
 				if(SimStateServer.getInstance().getEpisimGUIState() != null){
 					SimStateServer.getInstance().getEpisimGUIState().saveTissueSimulationSnapshot(true);
 				}				
 			}			
-			
 			public double getInterval() {				
 				return frequency;
 			}

@@ -24,9 +24,10 @@ import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.engine.SimState;
 public class GlobalStatistics implements java.io.Serializable, CellDeathListener, ClassLoaderChangeListener{
-	private static GlobalStatistics instance;
 	
 	
+	
+	private static GlobalStatistics instance;	
 	private static final int  NUMBEROFBUCKETS = 10;
 	public static final double LASTBUCKETAMOUNT = 2;
 	public static final double FIRSTBUCKETAMOUNT = 1;
@@ -34,6 +35,7 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	private static Semaphore sem = new Semaphore(1);
 	
 	private GenericBag<AbstractCell> allCells;
+	
 	
 	private double sumOfAllAges = 0;
 	
@@ -155,6 +157,8 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 		
 	}
 	
+	
+	
 	public double getBucketIntervalSize(){
 		return ((LASTBUCKETAMOUNT-FIRSTBUCKETAMOUNT)/ ((double)(NUMBEROFBUCKETS-2))); //TODO: Correct This
 	}
@@ -233,25 +237,23 @@ public class GlobalStatistics implements java.io.Serializable, CellDeathListener
 	
 
 	
-	public void reset(boolean isRestartReset){
-		
+	public void reset(boolean isRestartReset){		
 		
 		sumOfAllAges = 0;		
 		this.allLivingCells =0;
 		dnaContents = new double[NUMBEROFBUCKETS];
 		dnaContentsAveraged = new double [NUMBEROFBUCKETS];
 		
-	
-		
 		if(isRestartReset){		
+			
 			buildCounterMaps();
-					
 			dnaContentsCumulative = new double [NUMBEROFBUCKETS];
 			histogrammCounter = 0;	
 		}
 		else{
 			resetCounterMaps(this.cellTypeLivingCounterMap, this.diffLevelLivingCounterMap);
 		}
+		
 	}
 
 

@@ -62,6 +62,8 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	private String name = "";
 	private String description = "";
 	
+	private int initialValueWrittenCounter = 0;
+	
 	private ObservedDataCollection<Double> singleDataCollection = null;
 	
 	public DataExportCSVWriter(File csvFile, String columnNames) {		
@@ -195,34 +197,38 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 			
 		
 				try{
-					if(simStepCounter > lastSimStepCounterWritten){
-						csvWriter.write(simStepCounter+";");
-						lastSimStepCounterWritten = simStepCounter;
-					}
-					else csvWriter.write(";");
-					if(values != null){
-						for(int i = 0; i < values.length; i++){					
-								if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(getFormattedValue(values[i][0]) + ";");											 
-								csvWriter.write(getFormattedValue(values[i][1]) + ";");													
+					if(simStepCounter >0 || (simStepCounter==0 && (initialValueWrittenCounter == 0 || initialValueWrittenCounter==2))){
+						if(simStepCounter > lastSimStepCounterWritten || (simStepCounter==0)){
+							if(simStepCounter==0 && initialValueWrittenCounter == 0)csvWriter.write((simStepCounter)+";");
+							else csvWriter.write((simStepCounter+1)+";");
+							lastSimStepCounterWritten = simStepCounter;						
 						}
-					}
-					if(columnValues != null){
-						int maxVectorSize = getLargestVectorSize(columnValues);
-						for(int n = 0; n < maxVectorSize; n++){
-							if(n>0)csvWriter.write(";");
-							for(int i = 0; i < columnValues.length; i++){
-								csvWriter.write((columnValues[i]!= null && n < columnValues[i].size())? (getFormattedValue(columnValues[i].get(n)) + ";"):";");
+						else csvWriter.write(";");
+						if(values != null){
+							for(int i = 0; i < values.length; i++){					
+									if(values[i][0] != Double.NEGATIVE_INFINITY) csvWriter.write(getFormattedValue(values[i][0]) + ";");											 
+									csvWriter.write(getFormattedValue(values[i][1]) + ";");													
 							}
-							csvWriter.write("\n");
-						}					
+						}
+						if(columnValues != null){
+							int maxVectorSize = getLargestVectorSize(columnValues);
+							for(int n = 0; n < maxVectorSize; n++){
+								if(n>0)csvWriter.write(";");
+								for(int i = 0; i < columnValues.length; i++){
+									csvWriter.write((columnValues[i]!= null && n < columnValues[i].size())? (getFormattedValue(columnValues[i].get(n)) + ";"):";");
+								}
+								csvWriter.write("\n");
+							}					
+						}
+						if(aCellHasBeenChanged){
+							csvWriter.write("(A Cell was changed);");
+							aCellHasBeenChanged = false;
+						}
+						csvWriter.write("\n");
+						csvWriter.flush();
+						alreadyCalculatedColumnsIds.clear();
 					}
-					if(aCellHasBeenChanged){
-						csvWriter.write("(A Cell was changed);");
-						aCellHasBeenChanged = false;
-					}
-					csvWriter.write("\n");
-					csvWriter.flush();
-					alreadyCalculatedColumnsIds.clear();
+					if(simStepCounter == 0) initialValueWrittenCounter++;
 				}
 				
 				catch(IOException ex){
@@ -344,6 +350,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	     }
 	     aCellHasBeenChanged = false;
 	     simStepCounter = 0;
+	     initialValueWrittenCounter=0;
 	    lastSimStepCounterWritten=-1;
       
 	}

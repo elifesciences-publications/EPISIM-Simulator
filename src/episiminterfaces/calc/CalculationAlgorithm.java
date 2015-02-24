@@ -37,6 +37,6 @@ public interface CalculationAlgorithm extends java.io.Serializable{
 	void reset();
 	void restartSimulation();	
 	void calculate(CalculationHandler handler, ResultSet<Double> results);
-	
+	void newSimStep();
 	
 }

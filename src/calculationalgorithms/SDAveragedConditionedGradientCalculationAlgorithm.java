@@ -34,8 +34,7 @@ public class SDAveragedConditionedGradientCalculationAlgorithm extends AbstractC
 	   
 	   return new CalculationAlgorithmDescriptor(){
 	   	
-
-			public String getDescription() {	         
+	   	public String getDescription() {	         
 	         return "This algorithm calculates the standard deviation within a bin of the discretized y-axis. This complements the algorithm Averaged Conditioned Gradient Calculator.";
          }
 

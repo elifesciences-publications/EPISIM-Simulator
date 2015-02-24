@@ -19,7 +19,7 @@ import sim.app.episim.UniversalCell;
 
 import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModelGP;
 import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModelGP;
+
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
@@ -100,7 +100,7 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 	      	ExceptionDisplayer.getInstance().displayException(e);
 	      }	
 		}
-		else if(globalParameters instanceof CenterBased3DMechanicalModelGP){
+		else if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModelGP ||globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModelGP){
 			try{
 		      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
 		      standardCellRadius = (float)field.getDouble(cbGP);
@@ -129,6 +129,7 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 		this.appearance = Episim3DAppearanceFactory.getCellAppearanceForColor(this.polygonAttributes, new Color(255,160,160), transparencyFactor, true);
 	   		
 		this.cellSphere = new Sphere(standardCellRadius, (generateNormals ? Sphere.GENERATE_NORMALS : 0) |(generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 30, appearance);
+		
 		setShape3DFlags(cellSphere.getShape(Sphere.BODY));
 		if(optimizedGraphicsActivated){
 			this.innerCellSphere = new Sphere(standardCellRadius*0.95f, (generateNormals ? Sphere.GENERATE_NORMALS : 0) |(generateTextureCoordinates ? Primitive.GENERATE_TEXTURE_COORDS : 0), 30, appearance);

@@ -437,7 +437,7 @@ public class TestContactAreaCalculation {
 				
 				double[] semiAxesEll1 = calculateIntersectionEllipseSemiAxes(centerEllipse1, centerEllipse2, ell1.a, ell1.b, ell1.c);
 				double[] semiAxesEll2 = calculateIntersectionEllipseSemiAxes(centerEllipse2, centerEllipse1, ell2.a, ell2.b, ell2.c);
-				System.out.println("A: "+semiAxesEll1[0]+"B: "+semiAxesEll1[1]);
+				//System.out.println("A: "+semiAxesEll1[0]+"B: "+semiAxesEll1[1]);
 				double h_old = centerEllipse1.distance(centerEllipse2);
 				contactRadius = 0;
 				double r1=0, r2=0;
@@ -455,6 +455,7 @@ public class TestContactAreaCalculation {
 							                                           + 2*Math.pow(r1, 2)*Math.pow(r2, 2)
 							                                           - Math.pow(r1, 4)-Math.pow(r2, 4)-Math.pow(h, 4));
 					 contactRadius = Math.sqrt(contactArea/Math.PI);
+					 System.out.println("Contact Area: "+contactArea);
 				}
 				this.contactAreaBar = new ContactAreaBar(10+contactRadius, 30, 2*contactRadius, false);
 				
@@ -475,12 +476,12 @@ public class TestContactAreaCalculation {
 	}
 	
 	public void start(){
-		double a1 = 50;
-		double b1 = 100;
-		double c1 = 75;
-		double a2 =50;
+		double a1 = 7;
+		double b1 = 7;
+		double c1 = 7;
+		double a2 =100;
 		double b2 =100;
-		double c2 = 50;
+		double c2 =100;
 		Point3d centerEllipse1 = new Point3d(0, 200,0);
 		Point3d centerEllipse2 = new Point3d(100, 200, deltaZ);
 		

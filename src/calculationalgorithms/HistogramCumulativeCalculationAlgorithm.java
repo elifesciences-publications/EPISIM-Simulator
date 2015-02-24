@@ -165,7 +165,7 @@ public class HistogramCumulativeCalculationAlgorithm extends AbstractCommonCalcu
 	
 	private SimpleHistogramBin[] buildBins(double minValue, double maxValue, int numberOfBins){
 	     
-	     if(minValue > maxValue){
+	     	  if(minValue > maxValue){
 		       double tmp = minValue;
 		       minValue = maxValue;
 		       maxValue = tmp;

@@ -3,11 +3,14 @@ package sim.app.episim.datamonitoring.calc;
 
 import java.io.ObjectStreamClass;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
+import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import sim.app.episim.AbstractCell;
 import sim.app.episim.ExceptionDisplayer;
 import sim.app.episim.util.ClassLoaderChangeListener;
@@ -18,6 +21,7 @@ import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;
 import episiminterfaces.calc.EntityChangeEvent;
+import episiminterfaces.calc.marker.CallMeEverySimStep;
 import episiminterfaces.calc.marker.SingleCellObserver;
 import episiminterfaces.calc.marker.SingleCellObserverAlgorithm;
 import episiminterfaces.calc.marker.TissueObserver;
@@ -28,11 +32,14 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	private static CalculationAlgorithmServer instance;
 	
 	private Map<Integer, CalculationAlgorithm> calculationAlgorithmsMap;
+	private Set<CalculationAlgorithm> toBeCalledAtEverySimulationStep;
 	private static Semaphore sem = new Semaphore(1);
 	
 	private CalculationAlgorithmServer(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
+		toBeCalledAtEverySimulationStep = new HashSet<CalculationAlgorithm>();
 		buildCalculationAlgorithmsMap(CalculationAlgorithmsLoader.getInstance().loadCalculationAlgorithms());
+		
 	}
 	
 	public static CalculationAlgorithmServer getInstance(){
@@ -65,7 +72,10 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
             	ExceptionDisplayer.getInstance().displayException(e);
             }
             int id = actClass.getCanonicalName().hashCode();  
-            if(alg != null) calculationAlgorithmsMap.put(id, alg);
+            if(alg != null){ 
+            	calculationAlgorithmsMap.put(id, alg);
+            	if(alg instanceof CallMeEverySimStep) toBeCalledAtEverySimulationStep.add(alg);
+            }
             alg = null;
 			}
 		}
@@ -137,6 +147,12 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	public void classLoaderHasChanged() {	   
 	   instance = null;
    }
+	
+	public void callMeEverySimulationStep(){
+		for(CalculationAlgorithm alg : this.toBeCalledAtEverySimulationStep){
+			alg.newSimStep();
+		}
+	}
 	
 	public void sendRestartSimulationMessageToCalculationAlgorithms(){
 		for(CalculationAlgorithm alg : this.calculationAlgorithmsMap.values()) alg.restartSimulation();

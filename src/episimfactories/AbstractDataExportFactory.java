@@ -13,10 +13,11 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.dataexport.EpisimDataExportColumnImpl;
 import sim.app.episim.datamonitoring.dataexport.EpisimDataExportImpl;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -26,7 +27,6 @@ import sim.app.episim.util.ObjectStreamFactory;
 import sim.field.continuous.Continuous2D;
 import episimexceptions.MissingObjectsException;
 import episimexceptions.ModelCompatibilityException;
-
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDataExportColumn;
@@ -50,7 +50,7 @@ public abstract class AbstractDataExportFactory {
 			catch (IOException e){				
 				if(e instanceof InvalidClassException) throw new ModelCompatibilityException("Actually Data Export Version is not Compatible with Data-Export-Definiton-Set!");
 				else{
-					ExceptionDisplayer.getInstance().displayException(e);
+					EpisimExceptionHandler.getInstance().displayException(e);
 				}
 			}
 			catch(ClassNotFoundException e){
@@ -89,7 +89,7 @@ public abstract class AbstractDataExportFactory {
 	      }
       }
       catch (JAXBException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
       }
       if(defSet != null){
       	for(EpisimDataExportDefinition export : defSet.getEpisimDataExportDefinitions()){ 

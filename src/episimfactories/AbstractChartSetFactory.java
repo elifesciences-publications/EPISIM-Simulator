@@ -22,11 +22,11 @@ import episiminterfaces.monitoring.EpisimCellVisualizationChart;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimChartSet;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.charts.EpisimCellVisualizationChartImpl;
 import sim.app.episim.datamonitoring.charts.EpisimChartImpl;
 import sim.app.episim.datamonitoring.charts.EpisimChartSeriesImpl;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -53,7 +53,7 @@ public abstract class AbstractChartSetFactory {
 	      }
       }
       catch (JAXBException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
       }
       if(chartSet != null){
       	for(EpisimChart chart :chartSet.getEpisimCharts()){ 
@@ -91,7 +91,7 @@ public abstract class AbstractChartSetFactory {
 			catch (IOException e){				
 				if(e instanceof InvalidClassException) throw new ModelCompatibilityException("Actually Loaded Model is not Compatible with Chart-Set!");
 				else{
-					ExceptionDisplayer.getInstance().displayException(e);
+					EpisimExceptionHandler.getInstance().displayException(e);
 				}
 			}
 			catch(ClassNotFoundException e){

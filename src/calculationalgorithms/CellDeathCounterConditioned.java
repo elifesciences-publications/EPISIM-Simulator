@@ -5,10 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import sim.SimStateServer;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ResultSet;
-
 import episimexceptions.CellNotValidException;
 import episiminterfaces.calc.CalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
@@ -88,7 +87,7 @@ public class CellDeathCounterConditioned extends CellDeathCounterUnconditioned{
 			else results.add1DValue((double)relativeCellNumber);
 		}
 		catch(CellNotValidException ex){
-			ExceptionDisplayer.getInstance().displayException(ex);
+			EpisimExceptionHandler.getInstance().displayException(ex);
 		}		   
    }
 

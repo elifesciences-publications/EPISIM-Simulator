@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ResultSet;
 import sim.app.episim.util.Sorting;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
@@ -79,7 +79,7 @@ public class CellCountingCalculationAlgorithm extends AbstractCommonCalculationA
 			
 		}
 		catch(CellNotValidException ex){
-			ExceptionDisplayer.getInstance().displayException(ex);
+			EpisimExceptionHandler.getInstance().displayException(ex);
 		}		   
    }
 	

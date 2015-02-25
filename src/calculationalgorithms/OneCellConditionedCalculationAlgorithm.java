@@ -4,10 +4,9 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.gui.EpisimTextOut;
-
+import sim.app.episim.model.AbstractCell;
 import episimexceptions.CellNotValidException;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -42,7 +41,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 			}
 		}
 		catch(CellNotValidException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 		EpisimTextOut.getEpisimTextOut().println("No Cell found which matches the specified oberservation requirements.", Color.BLACK);
 		return null;
@@ -65,7 +64,7 @@ public class OneCellConditionedCalculationAlgorithm extends OneCellCalculationAl
 			}
 		}
 		catch(CellNotValidException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 		return null;
 	}

@@ -6,9 +6,9 @@ import java.util.Map;
 
 import org.jfree.data.xy.XYSeries;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ResultSet;
 import sim.app.episim.util.Sorting;
@@ -99,7 +99,7 @@ public class GradientCalculationAlgorithm extends AbstractCommonCalculationAlgor
 			   Sorting.sort2DMapValuesIntoResultSet(resultMap, results);							
 			}
 			catch(CellNotValidException ex){
-				ExceptionDisplayer.getInstance().displayException(ex);
+				EpisimExceptionHandler.getInstance().displayException(ex);
 			}		   
 	   }
 		

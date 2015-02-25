@@ -3,9 +3,8 @@ package calculationalgorithms;
 import java.util.HashMap;
 import java.util.Map;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ResultSet;
-
 import episimexceptions.CellNotValidException;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationHandler;

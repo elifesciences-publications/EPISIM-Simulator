@@ -1,14 +1,13 @@
 package calculationalgorithms;
 
 import java.util.ArrayList;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
-import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.calc.CalculationDataManager;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ResultSet;
 import episimexceptions.CellNotValidException;
 import episiminterfaces.*;

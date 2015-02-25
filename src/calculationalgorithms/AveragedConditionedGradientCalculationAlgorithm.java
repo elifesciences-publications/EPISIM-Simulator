@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.ResultSet;
 import sim.app.episim.util.Sorting;
@@ -97,7 +97,7 @@ public class AveragedConditionedGradientCalculationAlgorithm extends AbstractCom
 			   Sorting.sort2DMapValuesIntoResultSet(resultMap, results);							
 			}
 			catch(CellNotValidException ex){
-				ExceptionDisplayer.getInstance().displayException(ex);
+				EpisimExceptionHandler.getInstance().displayException(ex);
 			}		   
 	   }
 		private int calculateBinIndex(double cellYPos, double binSizeMikron){

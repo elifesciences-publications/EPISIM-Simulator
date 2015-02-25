@@ -1,6 +1,6 @@
 package calculationalgorithms.common;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
 

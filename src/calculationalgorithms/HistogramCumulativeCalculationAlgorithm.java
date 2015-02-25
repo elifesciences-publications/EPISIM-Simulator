@@ -9,8 +9,8 @@ import java.util.Set;
 import org.jfree.data.statistics.SimpleHistogramBin;
 import org.jfree.data.statistics.SimpleHistogramDataset;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ResultSet;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import episimexceptions.CellNotValidException;
@@ -110,7 +110,7 @@ public class HistogramCumulativeCalculationAlgorithm extends AbstractCommonCalcu
 			calculateCumulativeResults(handler, results);			
 		}
 		catch(CellNotValidException ex){
-			ExceptionDisplayer.getInstance().displayException(ex);
+			EpisimExceptionHandler.getInstance().displayException(ex);
 		}
 	   
    }

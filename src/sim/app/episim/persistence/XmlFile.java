@@ -27,7 +27,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 
 public class XmlFile {
 
@@ -78,11 +78,11 @@ public class XmlFile {
 			dos.close();
 
 		} catch (TransformerException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		} catch (FileNotFoundException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		} catch (IOException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 	}
 	public Element createElement(String name) {

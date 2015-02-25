@@ -10,7 +10,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
@@ -114,7 +114,7 @@ public class XmlObject<T> {
 						methods.add(m);
 					}
 				} catch (IllegalArgumentException e) {
-					ExceptionDisplayer.getInstance().displayException(e);
+					EpisimExceptionHandler.getInstance().displayException(e);
 				}
 			}
 		}
@@ -132,7 +132,7 @@ public class XmlObject<T> {
 						methods.add(m);
 					}
 				} catch (IllegalArgumentException e) {
-					ExceptionDisplayer.getInstance().displayException(e);
+					EpisimExceptionHandler.getInstance().displayException(e);
 				}
 			}
 		}

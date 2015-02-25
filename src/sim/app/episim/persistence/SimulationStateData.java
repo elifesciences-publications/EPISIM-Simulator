@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import sim.SimStateServer;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;

@@ -4,8 +4,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
 

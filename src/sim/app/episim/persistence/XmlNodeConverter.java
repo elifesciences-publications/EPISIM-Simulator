@@ -10,7 +10,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 
 public class XmlNodeConverter extends XmlFile {
 
@@ -60,11 +60,11 @@ public class XmlNodeConverter extends XmlFile {
 			xmlFile.save();
 
 		} catch (SAXException e){			
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		} catch (IOException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		} catch (ParserConfigurationException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 	}
 

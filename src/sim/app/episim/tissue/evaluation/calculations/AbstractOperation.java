@@ -6,8 +6,8 @@ import java.util.Collections;
 import sim.app.episim.tissue.evaluation.tabledata.CellColumn;
 import sim.app.episim.tissue.evaluation.tabledata.CellGroup;
 import sim.app.episim.tissue.evaluation.tabledata.GroupColumn;
-import sim.app.episim.visualization.CellEllipse_;
-import sim.app.episim.visualization.CellEllipse_.CellMember;
+import sim.app.episim.visualization.legacy.CellEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_.CellMember;
 
 public abstract class AbstractOperation implements GroupColumn {
 

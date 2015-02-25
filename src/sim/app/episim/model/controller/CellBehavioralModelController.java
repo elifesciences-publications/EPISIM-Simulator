@@ -19,8 +19,8 @@ import episiminterfaces.SendReceiveAlgorithm;
 
 import sendreceive.StandardSendReceiveAlgorithm;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelJarClassLoader;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
@@ -76,13 +76,13 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	         if(sendReceiveAlgorithmClass==null) sendReceiveAlgorithmClass = StandardSendReceiveAlgorithm.class;
          }
          catch (URISyntaxException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (ClassNotFoundException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (MalformedURLException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
 		}
 		else{
@@ -112,7 +112,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}
@@ -128,7 +128,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	         jarLoader = new CellBehavioralModelJarClassLoader(modelFile.toURI().toURL());
          }
          catch (MalformedURLException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 			if(jarLoader.isDiffModel()){
 				cellBehavioralModel = new CellBehavioralModelFacade(jarLoader.getModelClass(EpisimCellBehavioralModel.class), 
@@ -149,10 +149,10 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 	      return this.sendReceiveAlgorithmClass.newInstance();
       }
       catch (InstantiationException e){
-	     ExceptionDisplayer.getInstance().displayException(e);
+	     EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalAccessException e){
-      	 ExceptionDisplayer.getInstance().displayException(e);
+      	 EpisimExceptionHandler.getInstance().displayException(e);
       }
       return null;
 	}
@@ -192,7 +192,7 @@ public class CellBehavioralModelController implements java.io.Serializable, Clas
 			cellBehavioralModel.resetInitialGlobalValues();
 		}
 		catch (Exception e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}		
 	}
 

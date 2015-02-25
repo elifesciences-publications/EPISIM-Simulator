@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.util.BagChangeEvent.BagChangeEventType;
 import sim.util.Bag;
 import sim.util.Indexed;
@@ -207,7 +207,7 @@ public class GenericBag<T> implements java.util.Collection<T>, java.io.Serializa
 	      return (Bag) bag.clone();
       }
       catch (CloneNotSupportedException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
 	      return null;
       }
    }

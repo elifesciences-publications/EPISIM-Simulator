@@ -21,7 +21,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.tissue.ImportedTissue_;
 import sim.app.episim.tissue.TissueRotator_;
 
@@ -154,7 +154,7 @@ public class TissueImporter_ {
 		}
 
 		else {
-			ExceptionDisplayer.getInstance().displayException(
+			EpisimExceptionHandler.getInstance().displayException(
 					new NullPointerException(
 							"Tissue Importer: Filepath was null!"));
 			return null;
@@ -195,11 +195,11 @@ public class TissueImporter_ {
 			builder = factory.newDocumentBuilder();
 			document = builder.parse(file);
 		} catch (ParserConfigurationException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		} catch (SAXException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		} catch (IOException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 
 		if (document != null)

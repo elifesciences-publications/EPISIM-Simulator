@@ -12,9 +12,9 @@ import javax.swing.SwingUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYShapeAnnotation;
 
-import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
 import sim.app.episim.model.AbstractCell;

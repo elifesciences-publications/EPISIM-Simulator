@@ -7,7 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 
 
 public class Loop {
@@ -66,7 +66,7 @@ public class Loop {
          // }
         
        } catch (InterruptedException e) {
-      	 ExceptionDisplayer.getInstance().displayException(e);
+      	 EpisimExceptionHandler.getInstance().displayException(e);
        }
        executor.shutdown();
    }
@@ -140,7 +140,7 @@ public class Loop {
         // }
        
       } catch (InterruptedException e) {
-     	 ExceptionDisplayer.getInstance().displayException(e);
+     	 EpisimExceptionHandler.getInstance().displayException(e);
       }
       executor.shutdown();
   }

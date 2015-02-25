@@ -6,10 +6,9 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 
-import sim.SimStateServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
-import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.portrayal.DrawInfo2D;
 import episiminterfaces.EpisimPortrayal;
 

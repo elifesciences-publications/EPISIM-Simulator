@@ -31,10 +31,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.ExpressionEditorPanel.ExpressionType;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueType;
 import episiminterfaces.*;

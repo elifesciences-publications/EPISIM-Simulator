@@ -15,8 +15,7 @@ import javax.swing.JPanel;
 
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 import episiminterfaces.EpisimDiffusionFieldConfigurationEx;
-
-import sim.SimStateServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;

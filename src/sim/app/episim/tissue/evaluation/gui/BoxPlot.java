@@ -65,8 +65,8 @@ import org.jfree.util.LogContext;
 import sim.app.episim.tissue.evaluation.tabledata.CellGroup;
 import sim.app.episim.tissue.evaluation.tabledata.GroupColumn;
 import sim.app.episim.tissue.evaluation.tabledata.GroupedTable;
-import sim.app.episim.visualization.CellEllipse_;
-import sim.app.episim.visualization.CellEllipse_.CellMember;
+import sim.app.episim.visualization.legacy.CellEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_.CellMember;
 
 /**
  * 

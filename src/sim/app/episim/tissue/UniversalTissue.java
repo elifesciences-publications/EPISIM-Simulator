@@ -2,12 +2,10 @@ package sim.app.episim.tissue;
 
 
 
-import sim.SimStateServer;
-import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
@@ -15,6 +13,8 @@ import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.EpisimProgressWindow;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
@@ -40,6 +40,8 @@ import sim.field.continuous.*;
 
 //Charts
 import org.jfree.chart.JFreeChart;
+
+
 
 
 
@@ -354,7 +356,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 	                                             Thread.sleep(printDelayInMs);
                                              }
                                              catch (InterruptedException e){
-	                                           ExceptionDisplayer.getInstance().displayException(e); /*  Race Conditions Workaround */
+	                                           EpisimExceptionHandler.getInstance().displayException(e); /*  Race Conditions Workaround */
                                              }
 															SimStateServer.getInstance().getEpisimGUIState().takeVisualizationSnapshot();
 													
@@ -478,7 +480,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 		   }
       }
       catch (MissingObjectsException e){
-	     ExceptionDisplayer.getInstance().displayException(e);
+	     EpisimExceptionHandler.getInstance().displayException(e);
       }
 		}
 
@@ -504,7 +506,7 @@ public class UniversalTissue extends TissueType implements CellDeathListener
 	   	}
       }
       catch (MissingObjectsException e){
-      	 ExceptionDisplayer.getInstance().displayException(e);
+      	 EpisimExceptionHandler.getInstance().displayException(e);
       }
 	   
    }

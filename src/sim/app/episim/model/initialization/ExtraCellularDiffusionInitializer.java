@@ -18,12 +18,12 @@ import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionFieldBCConfigRW;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
-import sim.app.episim.model.visualization.ExtraCellularDiffusionCrossSectionPortrayal3D;
-import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal;
-import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal2D;
-import sim.app.episim.model.visualization.ExtraCellularDiffusionPortrayal3D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.visualization.ExtraCellularDiffusionCrossSectionPortrayal3D;
+import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal;
+import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal2D;
+import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal3D;
 import sim.field.grid.DoubleGrid2D;
 
 public class ExtraCellularDiffusionInitializer {

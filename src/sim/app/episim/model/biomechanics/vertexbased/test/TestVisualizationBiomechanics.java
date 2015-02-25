@@ -39,7 +39,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
 import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
@@ -309,7 +309,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 		            Thread.sleep(1);
 	            }
 	            catch (InterruptedException e){
-		            ExceptionDisplayer.getInstance().displayException(e);
+		            EpisimExceptionHandler.getInstance().displayException(e);
 	            }
 					
 				}
@@ -325,7 +325,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 			if(episimMovieMaker != null){
 				if (!episimMovieMaker.stop())
 		      {		           
-		           ExceptionDisplayer.getInstance().displayException(new Exception("Your movie did not write to disk\ndue to a spurious JMF movie generation bug."));		             
+		           EpisimExceptionHandler.getInstance().displayException(new Exception("Your movie did not write to disk\ndue to a spurious JMF movie generation bug."));		             
 		      }
 		      episimMovieMaker = null;
 			}
@@ -336,7 +336,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	               csvWriter.close();
                }
                catch (IOException e){
-	               ExceptionDisplayer.getInstance().displayException(e);
+	               EpisimExceptionHandler.getInstance().displayException(e);
                }
 				}
 			}
@@ -493,7 +493,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
 	            csvWriter.flush();
             }
             catch(IOException e){
-            	ExceptionDisplayer.getInstance().displayException(e);
+            	EpisimExceptionHandler.getInstance().displayException(e);
             }
 			}			
 			
@@ -536,7 +536,7 @@ public class TestVisualizationBiomechanics implements CellPolygonProliferationSu
          csvWriter.flush();
       }
 		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 	}
 	

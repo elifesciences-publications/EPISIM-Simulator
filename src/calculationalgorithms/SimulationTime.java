@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import sim.SimStateServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.util.ResultSet;
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
 import episiminterfaces.calc.CalculationAlgorithm;

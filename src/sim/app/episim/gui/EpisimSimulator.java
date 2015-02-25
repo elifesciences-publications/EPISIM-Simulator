@@ -54,13 +54,13 @@ import episimexceptions.PropertyException;
 import episimexceptions.SimulationTriggerException;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
-import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimUpdater;
 import sim.app.episim.EpisimUpdater.EpisimUpdateCallback;
 import sim.app.episim.EpisimUpdater.EpisimUpdateState;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
@@ -82,6 +82,7 @@ import sim.app.episim.tissue.TissueServer;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.ClassLoaderChangeListener;
+import sim.app.episim.util.EpisimUpdateDialogText;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ObservedByteArrayOutputStream;
 import sim.app.episim.util.SimulationTrigger;
@@ -90,7 +91,6 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
-import sim.util.EpisimUpdateDialogText;
 
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{

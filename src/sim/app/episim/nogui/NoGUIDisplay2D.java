@@ -72,10 +72,10 @@ import org.w3c.dom.Document;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimSimulationDisplay;
-import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.model.controller.ModelController;

@@ -6,12 +6,11 @@ import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import sim.SimStateServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
 import sim.util.gui.LabelledListHack;
 import sim.util.gui.NumberTextField;
-
 import episiminterfaces.EpisimDiffusionFieldConfigurationEx;
 
 

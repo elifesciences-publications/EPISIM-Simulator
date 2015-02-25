@@ -10,11 +10,11 @@ import episimbiomechanics.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
-import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.BiomechanicalModelFacade;
 import sim.app.episim.model.biomechanics.BiomechanicalModelLoader;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
@@ -51,7 +51,7 @@ public class BiomechanicalModelController implements java.io.Serializable, Class
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}
@@ -63,7 +63,7 @@ public class BiomechanicalModelController implements java.io.Serializable, Class
 			return biomechanicalModel.getNewEpisimBiomechanicalModelObject(cell);
 		}
 		catch (Exception e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 			return null;
 		}
 	}
@@ -73,7 +73,7 @@ public class BiomechanicalModelController implements java.io.Serializable, Class
 			return biomechanicalModel.getNewEpisimModelConnector();
 		}
 		catch (Exception e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 			return null;
 		}
 	}
@@ -84,7 +84,7 @@ public class BiomechanicalModelController implements java.io.Serializable, Class
 			else return this.dummyGlobalParameters;
 		}
 		catch (Exception e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 			return null;
 		}
 	}	

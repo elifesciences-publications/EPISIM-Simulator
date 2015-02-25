@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import sim.app.episim.EpisimLogger;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.controller.ModelController;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
@@ -114,7 +114,7 @@ public class TysonRungeCuttaCalculator {
 		
 		 }
       catch (SecurityException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (NoSuchMethodException e){
       	//ExceptionDisplayer.getInstance().displayException(e);
@@ -122,15 +122,15 @@ public class TysonRungeCuttaCalculator {
       	
       }
       catch (IllegalArgumentException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       	tysonCellCycleAvailable=false;
       }
       catch (IllegalAccessException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       	tysonCellCycleAvailable=false;
       }
       catch (InvocationTargetException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       	tysonCellCycleAvailable=false;
       }
 		return tysonCellCycleAvailable;

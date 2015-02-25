@@ -3,8 +3,8 @@ package sendreceive;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
-import sim.SimStateServer;
-import sim.app.episim.AbstractCell;
+import sim.app.episim.SimStateServer;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;

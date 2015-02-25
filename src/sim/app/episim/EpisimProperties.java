@@ -213,10 +213,10 @@ public class EpisimProperties {
         if(isConfigFileConversationRequired()) convertPropertiesToNewFormat();
       }
       catch (IOException e1){
-	      ExceptionDisplayer.getInstance().displayException(e1);
+	      EpisimExceptionHandler.getInstance().displayException(e1);
       }
       catch (URISyntaxException e2){
-      	ExceptionDisplayer.getInstance().displayException(e2);
+      	EpisimExceptionHandler.getInstance().displayException(e2);
       }      
 	}
 	

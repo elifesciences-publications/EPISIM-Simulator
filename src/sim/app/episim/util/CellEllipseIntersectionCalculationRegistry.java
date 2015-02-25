@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
-import sim.app.episim.model.visualization.AbstractCellEllipse;
-import sim.app.episim.model.visualization.CellEllipse;
+import sim.app.episim.visualization.AbstractCellEllipse;
+import sim.app.episim.visualization.CellEllipse;
 
 
 public class CellEllipseIntersectionCalculationRegistry implements SimulationStateChangeListener, ClassLoaderChangeListener {
@@ -48,7 +48,7 @@ public class CellEllipseIntersectionCalculationRegistry implements SimulationSta
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}	

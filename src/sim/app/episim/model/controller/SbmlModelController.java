@@ -2,7 +2,7 @@ package sim.app.episim.model.controller;
 
 import java.util.concurrent.Semaphore;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.sbml.SBMLModelConnector;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
@@ -25,7 +25,7 @@ public class SbmlModelController implements ClassLoaderChangeListener{
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }				
 		}
 		return instance;

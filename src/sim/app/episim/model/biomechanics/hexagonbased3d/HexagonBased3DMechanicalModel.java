@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 
+
+
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
@@ -15,28 +17,26 @@ import javax.vecmath.Vector3f;
 
 
 
+
+
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
-
 import episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.AbstractMechanical3DModel;
 import sim.app.episim.model.biomechanics.Ellipsoid;
-
 import sim.app.episim.model.biomechanics.CellBoundaries;
-
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
 
 
 import sim.app.episim.model.controller.ModelController;
-
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
-import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.engine.SimState;
 import sim.util.Bag;
 import sim.util.Double3D;

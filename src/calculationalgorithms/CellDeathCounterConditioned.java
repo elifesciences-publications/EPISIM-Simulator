@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import sim.SimStateServer;
 import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ResultSet;
 import episimexceptions.CellNotValidException;

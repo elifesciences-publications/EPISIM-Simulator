@@ -6,8 +6,8 @@ import java.io.Writer;
 
 import sim.app.episim.tissue.evaluation.tabledata.AbstractTable;
 import sim.app.episim.tissue.evaluation.tabledata.Column;
-import sim.app.episim.visualization.CellEllipse_;
-import sim.app.episim.visualization.CellEllipse_.CellMember;
+import sim.app.episim.visualization.legacy.CellEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_.CellMember;
 
 
 public class CellCSVWriter {

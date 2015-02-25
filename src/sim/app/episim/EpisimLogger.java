@@ -46,13 +46,13 @@ public class EpisimLogger implements ClassLoaderChangeListener{
 	         logger.setLevel(Level.ALL);
 	      }
          catch (SecurityException e){
-	         ExceptionDisplayer.getInstance().displayException(e);
+	         EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (IOException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (URISyntaxException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
 		}
 	}
@@ -65,7 +65,7 @@ public class EpisimLogger implements ClassLoaderChangeListener{
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}

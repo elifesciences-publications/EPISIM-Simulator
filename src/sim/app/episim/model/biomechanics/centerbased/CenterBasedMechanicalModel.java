@@ -21,6 +21,9 @@ import javax.vecmath.Vector3d;
 
 
 
+
+
+
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.centerbased.CenterBasedMechModelInit;
@@ -33,11 +36,11 @@ import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
-import sim.SimStateServer;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
@@ -47,14 +50,14 @@ import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffL
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
-import sim.app.episim.model.visualization.CellEllipse;
-import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
 
 
+import sim.app.episim.visualization.CellEllipse;
+import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;

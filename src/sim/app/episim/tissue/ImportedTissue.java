@@ -4,8 +4,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import episiminterfaces.NoExport;
-
-import sim.app.episim.model.visualization.CellEllipse;
+import sim.app.episim.visualization.CellEllipse;
 
 
 public class ImportedTissue implements java.io.Serializable {

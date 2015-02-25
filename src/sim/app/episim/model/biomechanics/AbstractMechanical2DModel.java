@@ -3,10 +3,9 @@ package sim.app.episim.model.biomechanics;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
-
 import episiminterfaces.EpisimBiomechanicalModel;
 
 

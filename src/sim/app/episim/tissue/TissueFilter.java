@@ -14,12 +14,12 @@ import java.util.Locale;
 import javax.swing.text.DateFormatter;
 import javax.swing.text.NumberFormatter;
 
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.model.visualization.AbstractCellEllipse;
-import sim.app.episim.model.visualization.CellEllipse;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.IntersectionPoints;
+import sim.app.episim.visualization.AbstractCellEllipse;
+import sim.app.episim.visualization.CellEllipse;
 
 
 public class TissueFilter {
@@ -36,7 +36,7 @@ public class TissueFilter {
 	      resultsBuffer.append("----- Tissue Filtering Results ("+dformat.valueToString(time)+") ------\n\n");
       }
       catch (ParseException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	
@@ -51,7 +51,7 @@ public class TissueFilter {
 	      writeFilterResults(resultsBuffer.toString());
       }
       catch (IOException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	

@@ -17,7 +17,7 @@ import javax.swing.JTextField;
 import episimexceptions.PropertyException;
 
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.util.gui.MovieMakerHack;
 import sim.util.gui.Utilities;
@@ -123,7 +123,7 @@ public class EpisimMovieMaker{
              }
          catch (Throwable e) // (NoClassDefFoundError e)  // uh oh, JMF's not installed
              {
-             ExceptionDisplayer.getInstance().displayException(e);
+             EpisimExceptionHandler.getInstance().displayException(e);
              movieMaker.setEncoder(null);
              movieMaker.setIsRunning(false);
              return false;
@@ -172,7 +172,7 @@ public class EpisimMovieMaker{
              }
          catch (Throwable e) // (NoClassDefFoundError e)  // uh oh, JMF's not installed
              {
-             ExceptionDisplayer.getInstance().displayException(e);
+             EpisimExceptionHandler.getInstance().displayException(e);
              movieMaker.setEncoder(null);
              movieMaker.setIsRunning(false);
              return false;

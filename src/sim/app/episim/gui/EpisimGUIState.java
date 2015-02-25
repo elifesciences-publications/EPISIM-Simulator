@@ -1,11 +1,11 @@
 package sim.app.episim.gui;
 
-import sim.SimStateServer;
 import sim.engine.*;
 import sim.field.grid.SparseGrid3D;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;

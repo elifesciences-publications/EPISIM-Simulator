@@ -9,10 +9,10 @@ import java.util.Date;
 import java.util.Locale;
 
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
-import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;

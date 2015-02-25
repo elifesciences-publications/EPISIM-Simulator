@@ -15,9 +15,9 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
@@ -81,27 +81,27 @@ public class BiomechanicalModelFacade implements java.io.Serializable{
 	         return biomechanicalModel;
          }
          catch (InstantiationException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
          catch (IllegalAccessException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
          catch (SecurityException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
          catch (NoSuchMethodException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
          catch (IllegalArgumentException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
          catch (InvocationTargetException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
 		
@@ -116,11 +116,11 @@ public class BiomechanicalModelFacade implements java.io.Serializable{
 	         return modelConnector;
          }
          catch (InstantiationException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
          catch (IllegalAccessException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
 		
@@ -176,10 +176,10 @@ public class BiomechanicalModelFacade implements java.io.Serializable{
 	      modelInitializer = this.biomechanicalModelInitializerClass.newInstance();
       }
       catch (InstantiationException e){
-	     ExceptionDisplayer.getInstance().displayException(e);
+	     EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalAccessException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
 		return modelInitializer;
 	}
@@ -192,22 +192,22 @@ public class BiomechanicalModelFacade implements java.io.Serializable{
 	      modelInitializer = constructor.newInstance(new Object[]{simStateData});
       }
       catch (SecurityException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (NoSuchMethodException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalArgumentException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (InstantiationException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalAccessException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (InvocationTargetException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }		
 		return modelInitializer;
 	}

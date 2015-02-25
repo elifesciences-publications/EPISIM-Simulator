@@ -2,7 +2,7 @@ package sim.app.episim.tissue.evaluation.filter;
 
 import java.util.ArrayList;
 
-import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_;
 
 public class Filter {
 	

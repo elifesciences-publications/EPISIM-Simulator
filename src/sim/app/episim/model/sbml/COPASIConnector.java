@@ -29,7 +29,7 @@ import org.COPASI.ModelValueVectorN;
 import org.COPASI.ObjectStdVector;
 import org.COPASI.ReactionVectorNS;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.GlobalClassLoader;
@@ -65,7 +65,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}		
@@ -231,7 +231,7 @@ public class COPASIConnector implements ClassLoaderChangeListener {
 	      trajectoryTask.process(true);
       }
       catch (Exception e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }      
        
 	}

@@ -16,9 +16,8 @@ import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
-
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.UniversalTissue;
@@ -75,11 +74,11 @@ public class CellBehavioralModelFacade implements java.io.Serializable{
 	         return cellBehavioralModel;
          }
          catch (InstantiationException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
          catch (IllegalAccessException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          	return null;
          }
 		

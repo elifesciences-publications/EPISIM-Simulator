@@ -10,7 +10,7 @@ import episiminterfaces.NoUserModification;
 
 
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.util.SimplePropertiesHack;
 
 
@@ -60,10 +60,10 @@ public class EpisimSimpleProperties extends SimplePropertiesHack {
 	      	  }}).getClass().getMethod(Names.TRUE_RETURNING_METHOD);
      	  }
      	  catch (SecurityException e1){
-     		  ExceptionDisplayer.getInstance().displayException(e);
+     		  EpisimExceptionHandler.getInstance().displayException(e);
      	  }
      	  catch (NoSuchMethodException e1){
-     		  ExceptionDisplayer.getInstance().displayException(e);
+     		  EpisimExceptionHandler.getInstance().displayException(e);
      	  }	
    	}
    	 if(m.getName().toLowerCase().trim().contains(Names.CELL_COLORING_MODE_NAME_I)
@@ -75,10 +75,10 @@ public class EpisimSimpleProperties extends SimplePropertiesHack {
         	      	  }}).getClass().getMethod(Names.TRUE_RETURNING_METHOD);
              	  }
              	  catch (SecurityException e1){
-             		  ExceptionDisplayer.getInstance().displayException(e1);
+             		  EpisimExceptionHandler.getInstance().displayException(e1);
              	  }
              	  catch (NoSuchMethodException e1){
-             		  ExceptionDisplayer.getInstance().displayException(e1);
+             		  EpisimExceptionHandler.getInstance().displayException(e1);
              	  }	
          } 
     }

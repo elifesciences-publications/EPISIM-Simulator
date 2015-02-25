@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import sim.app.episim.tissue.evaluation.filter.Condition;
 import sim.app.episim.tissue.evaluation.filter.Filter;
-import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_;
 
 
 public class CellGroup {

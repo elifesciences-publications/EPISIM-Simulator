@@ -24,10 +24,10 @@ import org.jzy3d.chart.Chart;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
-import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.engine.SimState;

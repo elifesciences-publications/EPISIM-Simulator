@@ -9,10 +9,9 @@ import org.w3c.dom.DOMException;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimPortrayal;
-
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;

@@ -17,9 +17,10 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.model.visualization.AbstractCellEllipse;
-import sim.app.episim.model.visualization.CellEllipse;
+
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.visualization.AbstractCellEllipse;
+import sim.app.episim.visualization.CellEllipse;
 
 
 
@@ -72,7 +73,7 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}
@@ -94,7 +95,7 @@ public class EllipseIntersectionCalculatorAndClipper implements ClassLoaderChang
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}

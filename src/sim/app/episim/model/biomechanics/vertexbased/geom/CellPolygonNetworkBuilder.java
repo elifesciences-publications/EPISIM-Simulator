@@ -7,19 +7,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
 import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.model.visualization.CellEllipse;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.IntersectionPoints;
+import sim.app.episim.visualization.CellEllipse;
 import sim.util.Double2D;
 
 

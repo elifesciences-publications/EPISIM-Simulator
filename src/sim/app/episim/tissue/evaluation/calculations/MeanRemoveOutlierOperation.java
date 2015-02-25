@@ -1,7 +1,7 @@
 package sim.app.episim.tissue.evaluation.calculations;
 
 import sim.app.episim.tissue.evaluation.tabledata.CellGroup;
-import sim.app.episim.visualization.CellEllipse_.CellMember;
+import sim.app.episim.visualization.legacy.CellEllipse_.CellMember;
 
 public class MeanRemoveOutlierOperation extends AbstractOperation{
 	

@@ -1,8 +1,8 @@
 package sim.app.episim.tissue.evaluation.filter;
 
 import sim.app.episim.tissue.evaluation.tabledata.CellColumn;
-import sim.app.episim.visualization.CellEllipse_;
-import sim.app.episim.visualization.CellEllipse_.CellMember;
+import sim.app.episim.visualization.legacy.CellEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_.CellMember;
 
 public class ConditionInterval implements Condition {
 

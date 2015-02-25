@@ -3,10 +3,9 @@ package sim.app.episim.visualization;
 
 
 
-import sim.SimStateServer;
+import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
-import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.portrayal.*;
 
 import java.awt.*;

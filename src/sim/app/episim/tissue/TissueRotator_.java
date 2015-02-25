@@ -3,7 +3,7 @@ package sim.app.episim.tissue;
 import java.awt.geom.Point2D;
 
 import sim.app.episim.tissue.xmlread.ImportedTissueData;
-import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_;
 
 public class TissueRotator_ {
 	

@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import sim.app.episim.tissue.xmlread.ImportedCellData;
 import sim.app.episim.tissue.xmlread.ImportedNucleusData;
 import sim.app.episim.tissue.xmlread.ImportedTissueData;
-import sim.app.episim.visualization.CellEllipse_;
-import sim.app.episim.visualization.NucleusEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_;
+import sim.app.episim.visualization.legacy.NucleusEllipse_;
 
 public class ImportedTissue_ {
 	private ArrayList<Point2D> basalLayerPoints;

@@ -3,9 +3,8 @@ package sim.app.episim.model.biomechanics;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.TransformGroup;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.util.Double3D;
-
 import episiminterfaces.EpisimBiomechanicalModel;
 
 

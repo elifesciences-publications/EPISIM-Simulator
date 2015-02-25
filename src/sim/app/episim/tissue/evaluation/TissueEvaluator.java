@@ -10,8 +10,8 @@ import sim.app.episim.tissue.evaluation.gui.BoxPlot;
 import sim.app.episim.tissue.evaluation.gui.Chart;
 import sim.app.episim.tissue.evaluation.tabledata.*;
 import sim.app.episim.tissue.xmlread.TissueImporter_;
-import sim.app.episim.visualization.CellEllipse_;
-import sim.app.episim.visualization.CellEllipse_.CellMember;
+import sim.app.episim.visualization.legacy.CellEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_.CellMember;
 
 public class TissueEvaluator {
 	CellTable table = null;

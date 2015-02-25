@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoUserModification;
@@ -81,10 +81,10 @@ public class VertexBasedMechanicalModelGP implements EpisimBiomechanicalModelGlo
 	            headerStringBuffer.append(f.get(this));
             }
             catch (IllegalArgumentException e){
-	            ExceptionDisplayer.getInstance().displayException(e);
+	            EpisimExceptionHandler.getInstance().displayException(e);
             }
             catch (IllegalAccessException e){
-            	 ExceptionDisplayer.getInstance().displayException(e);
+            	 EpisimExceptionHandler.getInstance().displayException(e);
             }
 				headerStringBuffer.append(";");
 			}

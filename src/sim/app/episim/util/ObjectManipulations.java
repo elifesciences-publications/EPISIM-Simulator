@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 
 
 public abstract class ObjectManipulations {
@@ -39,7 +39,7 @@ public abstract class ObjectManipulations {
 			
 		}
 		catch(Exception e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 		
 		return null;
@@ -64,7 +64,7 @@ public abstract class ObjectManipulations {
 	   	}
 	   	}
 	   	catch(Exception e){
-	   		ExceptionDisplayer.getInstance().displayException(e);
+	   		EpisimExceptionHandler.getInstance().displayException(e);
 	   	}
 	}
 	private static List<Method> getMethods(String prefix, Object object) throws SecurityException, NoSuchMethodException{

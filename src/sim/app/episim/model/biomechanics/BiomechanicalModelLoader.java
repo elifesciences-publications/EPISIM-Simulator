@@ -3,7 +3,7 @@ package sim.app.episim.model.biomechanics;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 
 import episimbiomechanics.EpisimModelConnector;
@@ -33,10 +33,10 @@ public class BiomechanicalModelLoader{
 	         this.episimBiomechnicalModelGlobalParametersObject = modelConnector.getEpisimBioMechanicalModelGlobalParametersClass().newInstance();
          }
          catch (InstantiationException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (IllegalAccessException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
 		}
 	}
@@ -53,10 +53,10 @@ public class BiomechanicalModelLoader{
 				}				
          }
          catch (InstantiationException e){
-	         ExceptionDisplayer.getInstance().displayException(e);
+	         EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (IllegalAccessException e){
-         	 ExceptionDisplayer.getInstance().displayException(e);
+         	 EpisimExceptionHandler.getInstance().displayException(e);
          }
 		}
 		if(foundModelConnectors.size() <= 0) throw new ModelCompatibilityException("Found no Model Connector which is compatible with the loaded Cell Behavioral Model!");

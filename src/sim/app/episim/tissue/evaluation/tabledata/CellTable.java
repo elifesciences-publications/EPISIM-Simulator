@@ -9,7 +9,7 @@ import sim.app.episim.tissue.evaluation.filter.ConditionInterval;
 import sim.app.episim.tissue.evaluation.filter.ConditionValue;
 import sim.app.episim.tissue.evaluation.filter.Filter;
 import sim.app.episim.tissue.evaluation.filter.Interval;
-import sim.app.episim.visualization.CellEllipse_;
+import sim.app.episim.visualization.legacy.CellEllipse_;
 
 public class CellTable extends AbstractTable{
 

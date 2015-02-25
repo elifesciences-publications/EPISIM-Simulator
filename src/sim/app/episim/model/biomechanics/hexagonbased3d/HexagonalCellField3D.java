@@ -5,10 +5,10 @@ import java.util.HashMap;
 import javax.vecmath.Vector3d;
 
 import episiminterfaces.EpisimPortrayal;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.vertexbased.geom.Line;
-import sim.app.episim.model.visualization.HexagonalCellGridPortrayal3D;
+import sim.app.episim.visualization.HexagonalCellGridPortrayal3D;
 import sim.field.grid.Grid3D;
 import sim.field.grid.ObjectGrid3D;
 import sim.field.grid.SparseGrid3D;

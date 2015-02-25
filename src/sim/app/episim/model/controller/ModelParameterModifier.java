@@ -12,7 +12,7 @@ import java.util.Properties;
 
 import episimexceptions.GlobalParameterException;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 
 public class ModelParameterModifier {
 	
@@ -36,7 +36,7 @@ public class ModelParameterModifier {
          stream.close();
       }
       catch (IOException e1){
-	      ExceptionDisplayer.getInstance().displayException(new GlobalParameterException("Could not read Global Properties File: "+ propertiesFile.getAbsolutePath() + "Detailed Exception: "+e1.getMessage()));
+	      EpisimExceptionHandler.getInstance().displayException(new GlobalParameterException("Could not read Global Properties File: "+ propertiesFile.getAbsolutePath() + "Detailed Exception: "+e1.getMessage()));
       }
       return properties;
 	}
@@ -114,7 +114,7 @@ public class ModelParameterModifier {
 			}
 		}
 		catch(Exception e){
-			ExceptionDisplayer.getInstance().displayException(new GlobalParameterException("The Value of a Global Parameter could not be set! Method-Name: " +m.getName() + " Value: "+ val + "Detailed Error Message: " + e.getMessage()));
+			EpisimExceptionHandler.getInstance().displayException(new GlobalParameterException("The Value of a Global Parameter could not be set! Method-Name: " +m.getName() + " Value: "+ val + "Detailed Error Message: " + e.getMessage()));
 		}
 	}
 	

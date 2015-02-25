@@ -19,7 +19,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensiona
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionFieldBCConfigRW;
@@ -89,7 +89,7 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 	          configRW.readBCConfigs(getExtraCellularFieldBCConfigurationsMap());
 	      }
 	      catch (Exception e){
-	      	ExceptionDisplayer.getInstance().displayException(e);
+	      	EpisimExceptionHandler.getInstance().displayException(e);
 	      }
 		}
 	}
@@ -151,7 +151,7 @@ public class ExtraCellularDiffusionController implements ClassLoaderChangeListen
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}

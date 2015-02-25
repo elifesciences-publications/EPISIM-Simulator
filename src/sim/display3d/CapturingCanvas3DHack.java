@@ -7,8 +7,8 @@ import java.awt.geom.Rectangle2D;
 
 import javax.media.j3d.J3DGraphics2D;
 
-import sim.SimStateServer;
-import sim.SimStateServer.EpisimSimulationState;
+import sim.app.episim.SimStateServer;
+import sim.app.episim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.app.episim.visualization.threedim.Optimized3DVisualization;

@@ -6,7 +6,7 @@ import javax.swing.UIManager;
 
 import sim.SimStateServer;
 import sim.app.episim.EpisimUpdater;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.EpisimUpdater.EpisimUpdateCallback;
 import sim.app.episim.EpisimUpdater.EpisimUpdateState;
 import sim.app.episim.gui.EpisimSimulator;
@@ -31,7 +31,7 @@ public class EpisimUpdateDialogText {
       }
       catch (Exception e){
       	System.out.println("Cannot connect to EPISIM update server");
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
 	      updateState = null;
       }
 		
@@ -91,7 +91,7 @@ public class EpisimUpdateDialogText {
 							         }
 							         catch (Exception e){
 							         	System.out.println("Error while installing EPISIM update ");
-							         	ExceptionDisplayer.getInstance().displayException(e);
+							         	EpisimExceptionHandler.getInstance().displayException(e);
 							         	updateFinished=true;
 							         }
 							    }
@@ -99,7 +99,7 @@ public class EpisimUpdateDialogText {
 					     }
 					     catch (Exception e){
 					   	  System.out.println("Error while downloading update from EPISIM update server");					        	
-					        ExceptionDisplayer.getInstance().displayException(e);
+					        EpisimExceptionHandler.getInstance().displayException(e);
 					        updateFinished=true;
 					     }				
 					}								
@@ -152,7 +152,7 @@ public class EpisimUpdateDialogText {
 					     catch (Exception e){
 					   	  System.out.println();
 					   	  System.out.println("Error while installing EPISIM update");				        	
-					        ExceptionDisplayer.getInstance().displayException(e);
+					        EpisimExceptionHandler.getInstance().displayException(e);
 					        installationFinished=true;
 					     }				
 					}       	

@@ -175,7 +175,7 @@ app.setTransparencyAttributes(ta);
             Appearance appearance = getAppearance(j3dModel);        
             float[] c = color.getRGBComponents(null);
             appearance.getColoringAttributes().setColor(c[0],c[1],c[2]);
-                if(appearance.getTransparencyAttributes() != null) appearance.getTransparencyAttributes().setTransparency(1.0f - c[3]);  // duh, alpha's backwards
+            appearance.getTransparencyAttributes().setTransparency(1.0f - c[3]);  // duh, alpha's backwards
             }
         return j3dModel;
         }

@@ -39,7 +39,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetDialog;
 import sim.app.episim.datamonitoring.charts.EpisimChartSetImpl;
@@ -490,7 +490,7 @@ public class DataExportDefinitionSetDialog extends JDialog {
 		                           DataExportController.getInstance().storeDataExportDefinitionSet(episimDataExportDefinitionSet);
 	                           }
 	                           catch (CompilationFailedException e1){
-		                           ExceptionDisplayer.getInstance().displayException(e1);
+		                           EpisimExceptionHandler.getInstance().displayException(e1);
 	                           }
 				         //      }
 							//		public void taskHasFinished(){

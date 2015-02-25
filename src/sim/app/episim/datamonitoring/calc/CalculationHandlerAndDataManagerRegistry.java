@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ResultSet;
@@ -37,7 +37,7 @@ public class CalculationHandlerAndDataManagerRegistry implements java.io.Seriali
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}		

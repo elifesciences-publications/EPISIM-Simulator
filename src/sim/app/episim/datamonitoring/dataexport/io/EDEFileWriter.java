@@ -16,7 +16,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.dataexport.build.DataExportCompiler;
 import sim.app.episim.gui.EpisimSimulator;
@@ -120,7 +120,7 @@ public class EDEFileWriter {
 							dataExportCompiler.deleteTempData();
 							
 						} catch (IOException e) {
-							ExceptionDisplayer.getInstance()
+							EpisimExceptionHandler.getInstance()
 									.displayException(e);
 
 						}

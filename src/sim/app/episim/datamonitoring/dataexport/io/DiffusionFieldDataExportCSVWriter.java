@@ -11,7 +11,7 @@ import java.util.Locale;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.model.controller.ModelController;
@@ -54,7 +54,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 					}
             }
             catch (Exception e){
-	           ExceptionDisplayer.getInstance().displayException(e);
+	           EpisimExceptionHandler.getInstance().displayException(e);
             }				
 			}
 			String overrideFolder = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORT_CSV_OVERRIDE_FOLDER);
@@ -76,7 +76,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 					}
             }
             catch (Exception e){
-	           ExceptionDisplayer.getInstance().displayException(e);
+	           EpisimExceptionHandler.getInstance().displayException(e);
             }				
 			}			
 		
@@ -113,7 +113,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 			}
 		}
 		catch (IOException e){
-	     ExceptionDisplayer.getInstance().displayException(e);
+	     EpisimExceptionHandler.getInstance().displayException(e);
 	   }		
 	}
 	
@@ -140,7 +140,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 			}
 		}
 		catch (IOException e){
-	     ExceptionDisplayer.getInstance().displayException(e);
+	     EpisimExceptionHandler.getInstance().displayException(e);
 	   }		
 	}
 	
@@ -156,7 +156,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
          }	
 		}
 	   catch (IOException e){
-	     ExceptionDisplayer.getInstance().displayException(e);
+	     EpisimExceptionHandler.getInstance().displayException(e);
 	   }		
 	}
 	public void simulationWasStopped(){		  
@@ -170,10 +170,10 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 	               csvWriter.close();
              }
              catch (IOException e){
-             	ExceptionDisplayer.getInstance().displayException(e);
+             	EpisimExceptionHandler.getInstance().displayException(e);
              }
              catch (InterruptedException e){
-             	ExceptionDisplayer.getInstance().displayException(e);
+             	EpisimExceptionHandler.getInstance().displayException(e);
              }	            
           }};
           t = new Thread(r);
@@ -186,7 +186,7 @@ public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeL
 			csvWriter = new BufferedWriter(new FileWriter(csvFile, true));
 		}
 		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 		firstTime = true;	   
    }

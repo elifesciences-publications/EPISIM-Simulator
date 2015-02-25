@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.charts.DiffusionChartFactory;
 import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.util.EnhancedSteppable;
@@ -66,7 +66,7 @@ public class ECSFileReader{
 	      else throw new Exception("No compatible EpisimChartSetFactory found!");
         }
         catch (Exception e){
-      	  ExceptionDisplayer.getInstance().displayException(e);
+      	  EpisimExceptionHandler.getInstance().displayException(e);
         }
 	  }
 	    
@@ -78,7 +78,7 @@ public class ECSFileReader{
 			u = new URL("jar", "", url + "!/" + Names.EPISIM_CHARTSET_XML_FILENAME);
 		}
 		catch (MalformedURLException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 
 		JarURLConnection uc = null;
@@ -87,7 +87,7 @@ public class ECSFileReader{
 			uc.setDefaultUseCaches(false);
 		}
 		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 
 		try{
@@ -101,7 +101,7 @@ public class ECSFileReader{
 				u = new URL("jar", "", url + "!/" + Names.EPISIM_CHARTSET_FILENAME);
 			}
 			catch (MalformedURLException ex){
-				ExceptionDisplayer.getInstance().displayException(ex);
+				EpisimExceptionHandler.getInstance().displayException(ex);
 			}
 			uc = null;
 			try{
@@ -110,11 +110,11 @@ public class ECSFileReader{
 				return AbstractChartSetFactory.getEpisimChartSet(uc.getInputStream());
 			}
 			catch (IOException ex){
-				ExceptionDisplayer.getInstance().displayException(ex);
+				EpisimExceptionHandler.getInstance().displayException(ex);
 			}
 		}
 		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 
 		return null;

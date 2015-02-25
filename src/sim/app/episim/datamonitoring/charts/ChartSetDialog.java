@@ -50,7 +50,7 @@ import episiminterfaces.monitoring.EpisimCellVisualizationChart;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDiffFieldChart;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.charts.ChartController.ChartType;
 import sim.app.episim.datamonitoring.charts.io.ECSFileWriter;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
@@ -530,7 +530,7 @@ public class ChartSetDialog extends JDialog {
 									ChartController.getInstance().storeEpisimChartSet(episimChartSet);
                         }
                         catch (CompilationFailedException e1){
-                           ExceptionDisplayer.getInstance().displayException(e1);
+                           EpisimExceptionHandler.getInstance().displayException(e1);
                         }
 		             //  }
 						//	public void taskHasFinished(){

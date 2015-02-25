@@ -13,11 +13,11 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYShapeAnnotation;
 
 import sim.SimStateServer;
-import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Names;

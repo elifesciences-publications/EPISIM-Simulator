@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.dataexport.DiffusionFieldDataExport;
 import sim.app.episim.datamonitoring.dataexport.DiffusionFieldDataExportFactory;
 import sim.app.episim.gui.EpisimSimulator;
@@ -55,7 +55,7 @@ public class EDEFileReader{
 				throw new Exception("No compatible EpisimDataExportFactory found!");
 		}
 		catch (Exception e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 	}
 
@@ -67,7 +67,7 @@ public class EDEFileReader{
 			u = new URL("jar", "", url + "!/" + Names.EPISIM_DATAEXPORT_XML_FILENAME);
 		}
 		catch (MalformedURLException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 
 		JarURLConnection uc = null;
@@ -76,7 +76,7 @@ public class EDEFileReader{
 			uc.setDefaultUseCaches(false);
 		}
 		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 
 		try{
@@ -89,7 +89,7 @@ public class EDEFileReader{
 				u = new URL("jar", "", url + "!/" + Names.EPISIM_DATAEXPORT_FILENAME);
 			}
 			catch (MalformedURLException ex){
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 			uc = null;
 			try{
@@ -98,11 +98,11 @@ public class EDEFileReader{
 				return AbstractDataExportFactory.getEpisimDataExportDefinitionSet(uc.getInputStream());
 			}
 			catch (IOException ex){
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 		}
 		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 		return null;
 	}

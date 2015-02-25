@@ -14,9 +14,9 @@ import org.jfree.chart.ChartPanel;
 import episimexceptions.MissingObjectsException;
 import episimfactories.AbstractChartSetFactory;
 import episiminterfaces.monitoring.GeneratedChart;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.calc.CalculationController;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GenericBag;
@@ -53,7 +53,7 @@ public class ChartPanelAndSteppableServer implements ClassLoaderChangeListener{
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}

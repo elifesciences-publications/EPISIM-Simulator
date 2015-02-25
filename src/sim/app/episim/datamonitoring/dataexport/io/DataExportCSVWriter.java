@@ -21,7 +21,7 @@ import java.util.Vector;
 import org.jfree.data.statistics.SimpleHistogramBin;
 
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
@@ -89,7 +89,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 					}
             }
             catch (Exception e){
-	           ExceptionDisplayer.getInstance().displayException(e);
+	           EpisimExceptionHandler.getInstance().displayException(e);
             }				
 			}
 			String overrideFolder = EpisimProperties.getProperty(EpisimProperties.SIMULATOR_DATAEXPORT_CSV_OVERRIDE_FOLDER);
@@ -111,7 +111,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 					}
             }
             catch (Exception e){
-	           ExceptionDisplayer.getInstance().displayException(e);
+	           EpisimExceptionHandler.getInstance().displayException(e);
             }				
 			}
 		
@@ -232,7 +232,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 				}
 				
 				catch(IOException ex){
-					ExceptionDisplayer.getInstance().displayException(ex);
+					EpisimExceptionHandler.getInstance().displayException(ex);
 				}
 			}
 		
@@ -265,7 +265,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 				singleDataCollection.clear();
 			}		
 			catch(IOException ex){
-				ExceptionDisplayer.getInstance().displayException(ex);
+				EpisimExceptionHandler.getInstance().displayException(ex);
 			}
 		}
 	}
@@ -287,7 +287,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	     }	
 		}
       catch (IOException e){
-        ExceptionDisplayer.getInstance().displayException(e);
+        EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	private void writeHistogramClasses(){
@@ -308,7 +308,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 		     }	
 			}
 	      catch (IOException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
 	      }
 		}
 	}
@@ -322,7 +322,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
          }	
 		}
 	   catch (IOException e){
-	     ExceptionDisplayer.getInstance().displayException(e);
+	     EpisimExceptionHandler.getInstance().displayException(e);
 	   }		
 	}
 	
@@ -339,10 +339,10 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 	               csvWriter.close();
                }
                catch (IOException e){
-               	ExceptionDisplayer.getInstance().displayException(e);
+               	EpisimExceptionHandler.getInstance().displayException(e);
                }
                catch (InterruptedException e){
-               	ExceptionDisplayer.getInstance().displayException(e);
+               	EpisimExceptionHandler.getInstance().displayException(e);
                }	            
             }};
             t = new Thread(r);
@@ -360,7 +360,7 @@ public class DataExportCSVWriter implements SimulationStateChangeListener{
 			csvWriter = new BufferedWriter(new FileWriter(csvFile, true));
 		}
 		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 		firstTime = true;
 	   

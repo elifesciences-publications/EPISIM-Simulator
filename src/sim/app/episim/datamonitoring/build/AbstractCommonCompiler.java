@@ -20,7 +20,7 @@ import javax.tools.ToolProvider;
 import episimexceptions.CompilationFailedException;
 
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.gui.EpisimTextOut;
 import sim.app.episim.model.controller.ModelController;
 import binloc.ProjectLocator;
@@ -83,11 +83,11 @@ public abstract class AbstractCommonCompiler {
 			if(!success) throw new CompilationFailedException("The compilation of the generated Charts or Data Exports was not successful! Probably a required class is missing.");
 			fileManager.close();
 		} catch (IOException e) {
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 
 		}
       catch (URISyntaxException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
 		
 		checkForMissingClassFiles(classFiles);

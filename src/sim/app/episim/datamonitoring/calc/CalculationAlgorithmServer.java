@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import calculationalgorithms.common.AbstractCommonCalculationAlgorithm;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.GlobalClassLoader;
@@ -50,7 +50,7 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}
@@ -66,10 +66,10 @@ public class CalculationAlgorithmServer implements ClassLoaderChangeListener{
 	            alg = (CalculationAlgorithm) actClass.newInstance();
             }
             catch (InstantiationException e){
-	            ExceptionDisplayer.getInstance().displayException(e);
+	            EpisimExceptionHandler.getInstance().displayException(e);
             }
             catch (IllegalAccessException e){
-            	ExceptionDisplayer.getInstance().displayException(e);
+            	EpisimExceptionHandler.getInstance().displayException(e);
             }
             int id = actClass.getCanonicalName().hashCode();  
             if(alg != null){ 

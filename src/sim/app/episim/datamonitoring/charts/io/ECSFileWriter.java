@@ -25,7 +25,7 @@ import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;
 
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.charts.build.ChartCompiler;
 import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.build.ChartSetFactorySourceBuilder;
@@ -127,7 +127,7 @@ public class ECSFileWriter {
 							chartCompiler.deleteTempData();
 							
 						} catch (IOException e) {
-							ExceptionDisplayer.getInstance()
+							EpisimExceptionHandler.getInstance()
 									.displayException(e);
 
 						}

@@ -27,12 +27,12 @@ import episiminterfaces.monitoring.EpisimChartSeries;
 
 
 
-import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.build.SteppableCodeFactory;
 import sim.app.episim.datamonitoring.build.SteppableCodeFactory.SteppableType;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ProjectionPlane;

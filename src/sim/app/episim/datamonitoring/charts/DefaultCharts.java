@@ -48,10 +48,10 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.tissue.TissueController;
@@ -463,7 +463,7 @@ public class DefaultCharts implements java.io.Serializable, ClassLoaderChangeLis
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}

@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 
 import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
@@ -64,7 +64,7 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}
@@ -144,7 +144,7 @@ public class PNGPrinter implements ClassLoaderChangeListener{
          }
       }
       catch (Exception e){
-        ExceptionDisplayer.getInstance().displayException(e);
+        EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	
@@ -153,7 +153,7 @@ public class PNGPrinter implements ClassLoaderChangeListener{
 			chart.screenshot(pngFile);
       }
       catch (IOException e){
-        ExceptionDisplayer.getInstance().displayException(e);
+        EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	

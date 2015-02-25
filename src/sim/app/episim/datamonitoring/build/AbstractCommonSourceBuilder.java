@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Set;
 
 import sim.SimStateServer;
-import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;

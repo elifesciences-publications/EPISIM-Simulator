@@ -27,7 +27,7 @@ import javax.swing.JPanel;
 
 import javax.swing.JTextField;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.gui.EpisimProgressWindow;
 import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.gui.ExtendedFileChooser;
@@ -250,7 +250,7 @@ public class TissueSnapshotDataExportDialog extends JDialog {
 			}
 			catch(Exception e){
 				JOptionPane.showMessageDialog(TissueSnapshotDataExportDialog.this, "Error occurred: Extraction of the simulation data was not sucessful!", "Error", JOptionPane.ERROR_MESSAGE);
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 		}
 	};

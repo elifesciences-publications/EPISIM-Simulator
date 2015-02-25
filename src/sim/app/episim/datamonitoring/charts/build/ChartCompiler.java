@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import binloc.ProjectLocator;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.build.AbstractCommonCompiler;
 import sim.app.episim.util.Names;
 import episimexceptions.CompilationFailedException;
@@ -71,7 +71,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 	         fileOut = new FileOutputStream(javaFile);
          }
          catch (FileNotFoundException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 			try{
 	         fileOut.write(chartSourceBuilder.buildEpisimChartSource(actChart).getBytes("UTF-8"));
@@ -79,10 +79,10 @@ public class ChartCompiler extends AbstractCommonCompiler {
 	         fileOut.close();
          }
          catch (UnsupportedEncodingException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (IOException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
          javaFiles.add(javaFile);
          
@@ -94,7 +94,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 	         fileOut = new FileOutputStream(javaFile);
          }
          catch (FileNotFoundException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 			try{
 	         fileOut.write(chartSourceBuilder.buildEpisimCellVisualizationChartSource(actChart).getBytes("UTF-8"));
@@ -102,10 +102,10 @@ public class ChartCompiler extends AbstractCommonCompiler {
 	         fileOut.close();
          }
          catch (UnsupportedEncodingException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (IOException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
          javaFiles.add(javaFile);
          
@@ -122,7 +122,7 @@ public class ChartCompiler extends AbstractCommonCompiler {
 	         fileOut = new FileOutputStream(javaFile);
          }
          catch (FileNotFoundException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 			try{
 	         fileOut.write(factorySourceBuilder.buildEpisimFactorySource(chartSet).getBytes("UTF-8"));
@@ -130,10 +130,10 @@ public class ChartCompiler extends AbstractCommonCompiler {
 	         fileOut.close();
          }
          catch (UnsupportedEncodingException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (IOException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
          return javaFile;
 	}

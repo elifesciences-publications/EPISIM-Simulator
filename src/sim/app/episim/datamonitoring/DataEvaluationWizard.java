@@ -29,7 +29,7 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.calc.CalculationAlgorithm.CalculationAlgorithmType;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.CalculationAlgorithmSelectionPanel.AlgorithmSelectionListener;
 import sim.app.episim.datamonitoring.ExpressionEditorPanel.ExpressionState;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmConfiguratorFactory;
@@ -250,10 +250,10 @@ public class DataEvaluationWizard {
 	               if(actualDescriptor.hasCondition()) ExpressionCheckerController.getInstance().checkBooleanDataMonitoringExpression(sessionID, actualConfigurator.getBooleanExpression()[0], dataFieldsInspector);
                  }
                   catch (NumberFormatException e1){
-                  	ExceptionDisplayer.getInstance().displayException(e1);
+                  	EpisimExceptionHandler.getInstance().displayException(e1);
                   }
                   catch (ParseException e1){
-                  	ExceptionDisplayer.getInstance().displayException(e1);
+                  	EpisimExceptionHandler.getInstance().displayException(e1);
                   }
 						
 				}

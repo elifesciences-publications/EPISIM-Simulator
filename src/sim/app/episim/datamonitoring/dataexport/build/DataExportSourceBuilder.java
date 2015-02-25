@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import calculationalgorithms.HistogramCalculationAlgorithm;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.build.AbstractCommonSourceBuilder;
 import sim.app.episim.datamonitoring.build.SteppableCodeFactory;
 import sim.app.episim.datamonitoring.build.SteppableCodeFactory.SteppableType;

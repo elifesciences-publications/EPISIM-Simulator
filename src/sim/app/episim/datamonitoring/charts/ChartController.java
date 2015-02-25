@@ -30,9 +30,8 @@ import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
 import episiminterfaces.monitoring.EpisimChartSet;
 import episiminterfaces.monitoring.EpisimDiffFieldChart;
-import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.parser.*;
@@ -45,6 +44,7 @@ import sim.app.episim.datamonitoring.parser.DataMonitoringExpressionChecker;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.CompatibilityChecker;
@@ -127,7 +127,7 @@ public class ChartController implements ClassLoaderChangeListener{
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}
@@ -190,7 +190,7 @@ public class ChartController implements ClassLoaderChangeListener{
 				return loadEpisimChartSet(ecsChooser.getSelectedFile().toURI().toURL(), parent);	
 			}
 			catch (MalformedURLException e){
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 		}
 		return false;
@@ -201,7 +201,7 @@ public class ChartController implements ClassLoaderChangeListener{
 			loadEpisimChartSet(file.toURI().toURL(), null);	
 		}
 		catch (MalformedURLException e){
-			ExceptionDisplayer.getInstance().displayException(new PropertyException("The Chart-Set " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
+			EpisimExceptionHandler.getInstance().displayException(new PropertyException("The Chart-Set " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
 		}
 	}
 	
@@ -281,10 +281,10 @@ public class ChartController implements ClassLoaderChangeListener{
 	      loadEpisimChartSet(new File(chartSet.getPath().getAbsolutePath()).toURI().toURL());
       }
       catch (MalformedURLException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (JAXBException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	
@@ -294,7 +294,7 @@ public class ChartController implements ClassLoaderChangeListener{
 	      loadEpisimChartSet(new File(this.actLoadedChartSet.getPath().getAbsolutePath()).toURI().toURL());
       }
       catch (MalformedURLException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	
@@ -338,16 +338,16 @@ public class ChartController implements ClassLoaderChangeListener{
 		}
 		catch (ModelCompatibilityException e){
 			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 			return false;
 		}
       catch (URISyntaxException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
 			return false;
       }
       catch (CompilationFailedException e){
       	if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded Cell-Diff-Model ist not compatible with this Chart-Set!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 			return false;
       }
 		return false;
@@ -389,7 +389,7 @@ public class ChartController implements ClassLoaderChangeListener{
 			
 		}
 		catch(ParseException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 	}
 	
@@ -417,7 +417,7 @@ public class ChartController implements ClassLoaderChangeListener{
 			}			
 		}
 		catch(ParseException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 	}
 	

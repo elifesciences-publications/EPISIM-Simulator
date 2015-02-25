@@ -11,12 +11,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
 import java.awt.geom.Rectangle2D;
-
 import java.io.File;
 import java.io.FileOutputStream;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,7 +25,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.*;
-
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -62,16 +58,13 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationAlgorithmDescriptor;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSeries;
-
-import sim.app.episim.AbstractCell;
-
 import sim.app.episim.datamonitoring.DataEvaluationWizard;
 
 
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
 import sim.app.episim.datamonitoring.calc.CalculationController;
-
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ExtendedColorWell;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ObjectManipulations;

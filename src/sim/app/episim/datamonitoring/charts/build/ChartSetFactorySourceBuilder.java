@@ -2,8 +2,8 @@ package sim.app.episim.datamonitoring.charts.build;
 
 import java.util.List;
 
-import sim.app.episim.AbstractCell;
 import sim.app.episim.datamonitoring.build.AbstractCommonFactorySourceBuilder;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.Names;
 import episiminterfaces.EpisimCellBehavioralModel;

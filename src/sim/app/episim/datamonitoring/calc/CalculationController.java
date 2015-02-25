@@ -11,6 +11,7 @@ import episiminterfaces.calc.CalculationAlgorithmConfigurator;
 import episiminterfaces.calc.CalculationCallBack;
 import episiminterfaces.calc.CalculationHandler;
 import sim.app.episim.*;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.GlobalClassLoader;
@@ -35,7 +36,7 @@ public class CalculationController implements ClassLoaderChangeListener{
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}

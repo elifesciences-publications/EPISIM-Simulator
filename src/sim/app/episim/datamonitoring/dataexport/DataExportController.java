@@ -14,9 +14,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBException;
 
-import sim.app.episim.AbstractCell;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 
 
@@ -30,6 +29,7 @@ import sim.app.episim.datamonitoring.dataexport.io.EDEFileReader;
 import sim.app.episim.datamonitoring.dataexport.io.EDEFileWriter;
 import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.gui.ExtendedFileChooser;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.tissue.TissueType;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.CompatibilityChecker;
@@ -119,7 +119,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 				sem.release();
          }
          catch (InterruptedException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
          }
 				
 		}
@@ -189,7 +189,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 				return loadDataExportDefinition(edeChooser.getSelectedFile().toURI().toURL(), parent);	
 			}
 			catch (MalformedURLException e){
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 		}
 		return false;
@@ -200,7 +200,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 			loadDataExportDefinition(file.toURI().toURL(), null);	
 		}
 		catch (MalformedURLException e){
-			ExceptionDisplayer.getInstance().displayException(new PropertyException("The Data-Export-Definition " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
+			EpisimExceptionHandler.getInstance().displayException(new PropertyException("The Data-Export-Definition " +file.getAbsolutePath()+" specified in the Properties-File cannot be loaded. Detailed Error-Message: "+e.getMessage()));
 		}		
 	}
 	
@@ -261,10 +261,10 @@ public class DataExportController implements ClassLoaderChangeListener{
 	    
       }
       catch (MalformedURLException e){
-      	 ExceptionDisplayer.getInstance().displayException(e);
+      	 EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (JAXBException e){
-      	  ExceptionDisplayer.getInstance().displayException(e);
+      	  EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	
@@ -278,7 +278,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 			loadDataExportDefinitionSet(new File(this.actLoadedDataExportSet.getPath().getAbsolutePath()).toURI().toURL());
       }
       catch (MalformedURLException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	
@@ -312,16 +312,16 @@ public class DataExportController implements ClassLoaderChangeListener{
 		}
 		catch (ModelCompatibilityException e){
 			if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded EPISIM Cell-Model ist not compatible with this Data-Export Definition!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 			return false;
 		}
       catch (URISyntaxException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
 			return false;
       }
       catch (CompilationFailedException e){
       	if(parent != null) JOptionPane.showMessageDialog(parent, "The currently loaded EPISIM Cell-Model ist not compatible with this Data-Export Definition!", "Incompatibility Error", JOptionPane.ERROR_MESSAGE);
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 			return false;
       }
 		return false;
@@ -348,7 +348,7 @@ public class DataExportController implements ClassLoaderChangeListener{
 			
 		}
 		catch(ParseException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 	}
 	

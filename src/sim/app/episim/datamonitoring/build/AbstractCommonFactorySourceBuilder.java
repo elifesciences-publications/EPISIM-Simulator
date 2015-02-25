@@ -3,7 +3,7 @@ package sim.app.episim.datamonitoring.build;
 import java.util.HashSet;
 import java.util.Set;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Names;
 import sim.field.continuous.Continuous2D;

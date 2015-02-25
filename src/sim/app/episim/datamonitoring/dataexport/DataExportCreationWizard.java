@@ -60,8 +60,7 @@ import javax.swing.table.TableColumn;
 
 import org.jfree.data.xy.XYSeries;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.datamonitoring.ExpressionCheckerController;
 import sim.app.episim.datamonitoring.DataEvaluationWizard;
 import sim.app.episim.datamonitoring.calc.CalculationAlgorithmServer;
@@ -74,10 +73,10 @@ import sim.app.episim.gui.ExtendedFileChooser;
 
 
 
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.ExtendedLabelledList;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.TissueCellDataFieldsInspector;
-
 import sim.util.gui.LabelledList;
 import sim.util.gui.NumberTextField;
 

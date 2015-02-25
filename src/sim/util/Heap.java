@@ -34,6 +34,20 @@ public class Heap implements java.io.Serializable
     Object[] objects = null;
 
     int numElem = 0;
+    
+    public Comparable[] getKeys()
+        {
+        Comparable[] k = new Comparable[numElem];
+        System.arraycopy(keys,0,k,0,numElem);
+        return k;
+        }
+    
+    public Object[] getObjects()
+        {
+        Object[] o = new Object[numElem];
+        System.arraycopy(objects,0,o,0,numElem);
+        return o;
+        }
 
     // constructs the heap
     public Heap()
@@ -99,6 +113,13 @@ public class Heap implements java.io.Serializable
         {
         if (numElem == 0) return null;
         return keys[1-1];
+        }
+        
+    /** Returns the current min element.  Returns null if there is no such element.  Does not extract the element. */
+    public Object getMin()
+        {
+        if (numElem == 0) return null;
+        return objects[1-1];
         }
         
     /* Removes elements in order and adds them to a Bag, so long as the provided
@@ -198,6 +219,11 @@ public class Heap implements java.io.Serializable
         
         // put back
         this.numElem = numElem;
+        }
+
+    public int size()
+        {
+        return numElem;
         }
 
     public boolean isEmpty()

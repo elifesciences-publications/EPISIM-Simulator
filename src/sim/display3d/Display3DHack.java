@@ -86,7 +86,7 @@ import com.sun.j3d.utils.universe.SimpleUniverse;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimSimulationDisplay;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimDisplay3D;
 import sim.app.episim.gui.EpisimGUIState;
@@ -97,10 +97,10 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.model.visualization.TissueCrossSectionPortrayal3D;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Names;
+import sim.app.episim.visualization.TissueCrossSectionPortrayal3D;
 import sim.app.episim.visualization.threedim.Optimized3DVisualization;
 import sim.display.Display2D;
 import sim.display.Display2DHack;
@@ -245,7 +245,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
     	         defaultValue = this.cellColoringGetterMethod.invoke(this.globalCBMParameters, new Object[0]);
              }
              catch (Exception e1){
-    	         ExceptionDisplayer.getInstance().displayException(e1);
+    	         EpisimExceptionHandler.getInstance().displayException(e1);
              }
              double defaultVal = 0;
              if(defaultValue != null){
@@ -262,7 +262,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
     	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{val});
     	            		  }
     	            		  catch (Exception e){
-                         	 ExceptionDisplayer.getInstance().displayException(e);
+                         	 EpisimExceptionHandler.getInstance().displayException(e);
     	            		  }
     	            	  }
     	            	  else{
@@ -271,7 +271,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
     	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{newValue});
     	            		  }
     	            		  catch (Exception e){
-                         	 ExceptionDisplayer.getInstance().displayException(e);
+                         	 EpisimExceptionHandler.getInstance().displayException(e);
     	            		  }
     	            	  }
     	            	  currentValue = newValue;
@@ -844,7 +844,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 		       canvas.stopCapturing();
 		       if (!episimMovieMaker.stop())
 		       {		           
-		           ExceptionDisplayer.getInstance().displayException(new Exception("Your movie did not write to disk\ndue to a spurious JMF movie generation bug."));		             
+		           EpisimExceptionHandler.getInstance().displayException(new Exception("Your movie did not write to disk\ndue to a spurious JMF movie generation bug."));		             
 		       }
 		       episimMovieMaker = null;		       
 		   }
@@ -985,7 +985,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	                  Thread.sleep(100);
                   }
                   catch (InterruptedException e){
-                  	 ExceptionDisplayer.getInstance().displayException(e);
+                  	 EpisimExceptionHandler.getInstance().displayException(e);
                   }
 		         	
 		         }while(!autoSpin.getAlpha().finished());
@@ -1019,7 +1019,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	                  Thread.sleep(100);
                   }
                   catch (InterruptedException e){
-                  	 ExceptionDisplayer.getInstance().displayException(e);
+                  	 EpisimExceptionHandler.getInstance().displayException(e);
                   }
 		         } while(!autoSpin.getAlpha().finished());
 		        
@@ -1030,7 +1030,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	            Thread.sleep(100);
             }
             catch (InterruptedException e){
-	           ExceptionDisplayer.getInstance().displayException(e);
+	           EpisimExceptionHandler.getInstance().displayException(e);
             }
 		     }
 			  	autoSpin.setTransformAxis(getTransformForAxis(oldRotAxisXValue, oldRotAxisYValue, oldRotAxisZValue));

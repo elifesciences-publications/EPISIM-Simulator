@@ -74,7 +74,7 @@ import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimSimulationDisplay;
 import sim.SimStateServer;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.ExtendedFileChooser;
@@ -1402,7 +1402,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
  	         defaultValue = this.cellColoringGetterMethod.invoke(this.globalCBMParameters, new Object[0]);
           }
           catch (Exception e1){
- 	         ExceptionDisplayer.getInstance().displayException(e1);
+ 	         EpisimExceptionHandler.getInstance().displayException(e1);
           }
           double defaultVal = 0;
           if(defaultValue != null){
@@ -1419,7 +1419,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
  	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{val});
  	            		  }
  	            		  catch (Exception e){
-                      	 ExceptionDisplayer.getInstance().displayException(e);
+                      	 EpisimExceptionHandler.getInstance().displayException(e);
  	            		  }
  	            	  }
  	            	  else{
@@ -1428,7 +1428,7 @@ public class NoGUIDisplay2D extends JComponent implements Steppable, EpisimSimul
  	                     cellColoringSetterMethod.invoke(globalCBMParameters, new Object[]{newValue});
  	            		  }
  	            		  catch (Exception e){
-                      	 ExceptionDisplayer.getInstance().displayException(e);
+                      	 EpisimExceptionHandler.getInstance().displayException(e);
  	            		  }
  	            	  }
  	            	  currentValue = newValue;
@@ -2540,7 +2540,7 @@ void rebuildRefreshPopup()
 		       if (!episimMovieMaker.stop())
 		       {
 		           
-		           ExceptionDisplayer.getInstance().displayException(new Exception("Your movie did not write to disk\ndue to a spurious JMF movie generation bug."));
+		           EpisimExceptionHandler.getInstance().displayException(new Exception("Your movie did not write to disk\ndue to a spurious JMF movie generation bug."));
 		             
 		       }
 		       episimMovieMaker = null;		       

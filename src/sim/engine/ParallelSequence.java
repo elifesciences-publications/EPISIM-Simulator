@@ -291,7 +291,7 @@ class ThreadPool
                 // add myself back in the list
                 synchronized(threads)
                     {
-                    threads.push(this);
+                    threads.add(this);  // adds to the tail
                     if (totalThreads == threads.size())  // we're all in the bag, let the pool know if it's joining
                         threads.notify();
                     }
@@ -300,7 +300,7 @@ class ThreadPool
             }
         }
         
-    Bag threads = new Bag();
+    LinkedList threads = new LinkedList();
     int totalThreads = 0;  // synchronize on threads first
                 
     // Joins and kills all threads, both those running and those sitting in the pool
@@ -311,7 +311,7 @@ class ThreadPool
             joinThreads();
             while(!threads.isEmpty())
                 {
-                Node node = (Node)(threads.pop());
+                Node node = (Node)(threads.remove());  // removes from head
                 synchronized(node) { node.die = true; node.notify(); }  // reel it in
                 try { node.thread.join(); }
                 catch (InterruptedException e) { } // ignore
@@ -325,14 +325,14 @@ class ThreadPool
         {
         synchronized(threads)
             {
-            if(totalThreads > threads.size())  // there are still outstanding threads
+            while(totalThreads > threads.size())  // there are still outstanding threads
                 try { threads.wait(); }
                 catch (InterruptedException e) { }  // ignore
             }
         }
         
     // Starts a thread running on the given runnable
-    void startThread(Runnable run) { startThread(run, "ThreadPool"); }
+    void startThread(Runnable run) { startThread(run, "ParallelSequence"); }
         
     void startThread(Runnable run, String name)
         {
@@ -348,7 +348,7 @@ class ThreadPool
                 }
             else  // pull a thread
                 {
-                node = (Node)(threads.pop());
+                node = (Node)(threads.remove());  // removes from the head
                 }
             }
         synchronized(node) { node.toRun = run; node.go = true; node.notify(); }  // get it running

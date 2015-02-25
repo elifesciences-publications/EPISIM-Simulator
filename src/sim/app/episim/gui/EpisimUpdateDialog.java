@@ -35,7 +35,7 @@ import binloc.ProjectLocator;
 
 import sim.app.episim.EpisimUpdater;
 import sim.app.episim.EpisimUpdater.EpisimUpdateState;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.EpisimUpdater.EpisimUpdateCallback;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sun.net.ftp.FtpProtocolException;
@@ -131,7 +131,7 @@ public class EpisimUpdateDialog {
 		      catch (Exception ex){
 		      	progressLabel.setText("    Error while restarting EPISIM Simulator");
 		        	progressLabel.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
-		        	ExceptionDisplayer.getInstance().displayException(ex);
+		        	EpisimExceptionHandler.getInstance().displayException(ex);
 		      	cancelButton.setEnabled(true);
 		      	cancelButton.setVisible(true);
 		      	restartButton.setVisible(false);
@@ -213,7 +213,7 @@ public class EpisimUpdateDialog {
       catch (Exception e){
       	progressLabel.setText("    Cannot connect to EPISIM update server");
       	progressLabel.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
 	      updateState = null;
       }
 		
@@ -273,7 +273,7 @@ public class EpisimUpdateDialog {
 							         catch (Exception e){
 							         	progressLabel.setText("    Error while installing EPISIM update ");
 							         	progressLabel.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
-							         	ExceptionDisplayer.getInstance().displayException(e);
+							         	EpisimExceptionHandler.getInstance().displayException(e);
 							         	cancelButton.setEnabled(true);
 							         }
 							    }
@@ -282,7 +282,7 @@ public class EpisimUpdateDialog {
 					     catch (Exception e){
 					       	progressLabel.setText("    Error while downloading update from EPISIM update server");
 					        	progressLabel.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
-					        	ExceptionDisplayer.getInstance().displayException(e);
+					        	EpisimExceptionHandler.getInstance().displayException(e);
 					        	cancelButton.setEnabled(true);
 					     }				
 					}								
@@ -321,7 +321,7 @@ public class EpisimUpdateDialog {
 				     catch (Exception e){
 				       	progressLabel.setText("    Error while installing EPISIM update");
 				        	progressLabel.setIcon(UIManager.getIcon("OptionPane.errorIcon"));
-				        	ExceptionDisplayer.getInstance().displayException(e);
+				        	EpisimExceptionHandler.getInstance().displayException(e);
 				        	cancelButton.setEnabled(true);
 				     }				
 				}       	

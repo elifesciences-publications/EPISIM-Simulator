@@ -16,7 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;

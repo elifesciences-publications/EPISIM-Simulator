@@ -4,33 +4,32 @@ import sim.SimStateServer;
 import sim.engine.*;
 import sim.field.grid.SparseGrid3D;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
-import sim.app.episim.UniversalCell;
-import sim.app.episim.CellInspector;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.charts.EpisimChartPanel;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.controller.CellBehavioralModelController;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.model.visualization.EpisimDrawInfo;
-import sim.app.episim.model.visualization.TissueCrossSectionPortrayal3D;
-import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.tissue.UniversalTissue;
 import sim.app.episim.tissue.TissueBorder;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.tissue.TissueServer;
 import sim.app.episim.tissue.TissueType;
+import sim.app.episim.util.CellInspector;
 import sim.app.episim.visualization.BasementMembranePortrayal2D;
+import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.app.episim.visualization.GridPortrayal2D;
 import sim.app.episim.visualization.RulerPortrayal2D;
- 
+import sim.app.episim.visualization.TissueCrossSectionPortrayal3D;
+import sim.app.episim.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.visualization.threedim.BasementMembranePortrayal3D;
 import sim.app.episim.visualization.threedim.EpisimSimulationBoxPortrayal3D;
 import sim.app.episim.visualization.threedim.Optimized3DVisualization;
@@ -569,7 +568,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	                     checkForRestartAfterMainFrameResize();
                      }
                      catch (InterruptedException e){
-	                    ExceptionDisplayer.getInstance().displayException(e);
+	                    EpisimExceptionHandler.getInstance().displayException(e);
                      }	                  
                   }});
 		      	t.start();
@@ -1066,7 +1065,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
                   ((JFrame)this.getMainGUIComponent()).setTitle(EpisimSimulator.getEpisimSimulatorTitle()+ "- Tissue-Export-Path: "+chooser.getSelectedFile().getCanonicalPath());
                }
                catch (IOException e1){
-               	 ExceptionDisplayer.getInstance().displayException(e1);
+               	 EpisimExceptionHandler.getInstance().displayException(e1);
                }
 				 }
 			}
@@ -1108,10 +1107,10 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 			  (new SimulationStateFile()).saveData(false);							
 		  }
        catch (ParserConfigurationException e1){
-          ExceptionDisplayer.getInstance().displayException(e1);
+          EpisimExceptionHandler.getInstance().displayException(e1);
        }
        catch (SAXException e1){
-       	ExceptionDisplayer.getInstance().displayException(e1);
+       	EpisimExceptionHandler.getInstance().displayException(e1);
        }		
 	}
 

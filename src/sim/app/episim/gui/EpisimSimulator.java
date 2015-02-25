@@ -59,7 +59,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimUpdater;
 import sim.app.episim.EpisimUpdater.EpisimUpdateCallback;
 import sim.app.episim.EpisimUpdater.EpisimUpdateState;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimulationStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
@@ -95,7 +95,7 @@ import sim.util.EpisimUpdateDialogText;
 
 public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
 	
-	public static final String versionID = "1.5.0.5.4";
+	public static final String versionID = "1.5.0.5.5";
 	
 	private static final String SIMULATOR_TITLE = "EPISIM Simulator v. "+ versionID+" ";
 	
@@ -159,7 +159,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			//mainFrame.setIconImage(new ImageIcon(ImageLoader.class.getResource("episim_16_16.png")).getImage());
 	
 			
-			ExceptionDisplayer.getInstance().registerParentComp(mainFrame);
+			EpisimExceptionHandler.getInstance().registerParentComp(mainFrame);
 			
 			EpisimUpdater updater = new EpisimUpdater();
 			EpisimUpdateState state = null;
@@ -168,7 +168,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			}
 			catch (IOException e){
 				if(!(e instanceof UnknownHostException)){
-					ExceptionDisplayer.getInstance().displayException(e);
+					EpisimExceptionHandler.getInstance().displayException(e);
 				}
 			}
 			this.updateAvailable = (state==EpisimUpdateState.POSSIBLE);
@@ -185,7 +185,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 			}
 			catch (Exception e){
 				
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 		}
 		
@@ -372,7 +372,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	      	         					else System.exit(0);
                                  }
                                  catch (InterruptedException e){
-	                                 ExceptionDisplayer.getInstance().displayException(e);
+	                                 EpisimExceptionHandler.getInstance().displayException(e);
                                  }                              
 	                              
                               }										
@@ -430,7 +430,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	                  }, true);
                   }
                   catch (IOException | URISyntaxException e){
-                  	ExceptionDisplayer.getInstance().displayException(e);             	
+                  	EpisimExceptionHandler.getInstance().displayException(e);             	
                   }
               	
 	      	}      	
@@ -443,7 +443,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	      }, true);
       }
       catch (IOException e){
-	     ExceptionDisplayer.getInstance().displayException(e);
+	     EpisimExceptionHandler.getInstance().displayException(e);
       }
 	}
 	
@@ -602,7 +602,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	         success= ModelController.getInstance().loadCellBehavioralModelFile(modelFile);
          }
          catch (ModelCompatibilityException e){
-	        ExceptionDisplayer.getInstance().displayException(e);
+	        EpisimExceptionHandler.getInstance().displayException(e);
 	        if(ModeServer.guiMode())JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
 	        success = false;
          }
@@ -666,7 +666,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				SimStateServer.getInstance().registerSimulationTrigger(triggerList);
 			}
 			catch(SimulationTriggerException e){
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 		}
 	}
@@ -706,7 +706,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
          success= ModelController.getInstance().loadCellBehavioralModelFile(modelFile);
       }
       catch(ModelCompatibilityException e){
-        ExceptionDisplayer.getInstance().displayException(e);
+        EpisimExceptionHandler.getInstance().displayException(e);
         if(ModeServer.guiMode())JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
         success = false;
       }
@@ -775,7 +775,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	            success= ModelController.getInstance().loadCellBehavioralModelFile(loadedModelFile);
 	         }
 	         catch(ModelCompatibilityException e){
-	           ExceptionDisplayer.getInstance().displayException(e);
+	           EpisimExceptionHandler.getInstance().displayException(e);
 	           if(ModeServer.guiMode())JOptionPane.showMessageDialog(mainFrame, e.getMessage(), "Model-File-Error", JOptionPane.ERROR_MESSAGE);
 	           success = false;
 	         }
@@ -859,7 +859,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	        if(ModeServer.guiMode()) mainFrame.setTitle(EpisimSimulator.getEpisimSimulatorTitle()+ "- Tissue-Export-Path: "+file.getCanonicalPath());
          }
          catch (IOException e){
-	         ExceptionDisplayer.getInstance().displayException(e);
+	         EpisimExceptionHandler.getInstance().displayException(e);
          }
 			SimulationStateFile.setTissueExportPath(file);			 
 		}		
@@ -887,7 +887,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 	         configRW.saveBCConfigs(ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularFieldBCConfigurationsMap());
 	      }
 	      catch (Exception e){
-	      	ExceptionDisplayer.getInstance().displayException(e);
+	      	EpisimExceptionHandler.getInstance().displayException(e);
 	      }
 		}
 		if(epiUI != null && !closeAfterSnapshotDataExport){
@@ -950,7 +950,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
          success= ModelController.getInstance().loadCellBehavioralModelFile(cbmFile);
       }
       catch (ModelCompatibilityException e){
-        ExceptionDisplayer.getInstance().displayException(e);
+        EpisimExceptionHandler.getInstance().displayException(e);
        
         success = false;
       }
@@ -969,7 +969,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
 				compatibilityTestResult = ModelController.getInstance().testCBMFileLoadedSimStateCompatibility();
 			}
 			catch(Exception e){
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 				compatibilityTestResult = false;
 			}
 			
@@ -1182,7 +1182,7 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
             }
         }
         catch (ParserConfigurationException e1){
-        		ExceptionDisplayer.getInstance().displayException(e1);
+        		EpisimExceptionHandler.getInstance().displayException(e1);
         		return false;
         }
         catch (SAXParseException e1){
@@ -1191,11 +1191,11 @@ public class EpisimSimulator implements SimulationStateChangeListener, ClassLoad
         	return false;
         } 
 		 catch(SAXException e1){
-			 ExceptionDisplayer.getInstance().displayException(e1);
+			 EpisimExceptionHandler.getInstance().displayException(e1);
 			 return false;
 		 }
 		  catch (IOException e1) {
-			  ExceptionDisplayer.getInstance().displayException(e1);
+			  EpisimExceptionHandler.getInstance().displayException(e1);
 			  return false;
 		  }
 		 return false;

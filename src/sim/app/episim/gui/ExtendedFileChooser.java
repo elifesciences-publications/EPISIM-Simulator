@@ -12,7 +12,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 
 
 public class ExtendedFileChooser extends JFileChooser {
@@ -44,7 +44,7 @@ public class ExtendedFileChooser extends JFileChooser {
 	      Thread.sleep(100); //is needed because otherwise VM crashes since COPASI C++ Library has to be loaded...strange Error!
       }
       catch (InterruptedException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
       }
 		return super.showOpenDialog(mainFrame);	
 	}

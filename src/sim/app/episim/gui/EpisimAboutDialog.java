@@ -29,7 +29,7 @@ import javax.swing.JTextArea;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.engine.SimState;
 
 
@@ -93,7 +93,7 @@ public class EpisimAboutDialog{
 		   panel.add(htmlPane,c);
       }
       catch (IOException e){
-	     ExceptionDisplayer.getInstance().displayException(e);
+	     EpisimExceptionHandler.getInstance().displayException(e);
       }	     
 	  	  
 	   
@@ -145,10 +145,10 @@ public class EpisimAboutDialog{
 	                  desktop.browse(e.getURL().toURI());
                   }
                   catch (IOException e1){
-	                 ExceptionDisplayer.getInstance().displayException(e1);
+	                 EpisimExceptionHandler.getInstance().displayException(e1);
                   }
                   catch (URISyntaxException e1){
-                  	ExceptionDisplayer.getInstance().displayException(e1);
+                  	EpisimExceptionHandler.getInstance().displayException(e1);
                   }
 					}					
 				}

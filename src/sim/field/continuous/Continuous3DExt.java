@@ -67,7 +67,7 @@ public Bag getNeighborsWithinDistance( Double3D position, final double distanceX
    else result = new Bag(expectedBagSize);
    Bag temp;
 
-   MutableInt3D speedyMutableInt3D = this.speedyMutableInt3D;  // a little faster (local)
+   MutableInt3D speedyMutableInt3D = new MutableInt3D();  // a little faster (local)
 
 
    // do the loop

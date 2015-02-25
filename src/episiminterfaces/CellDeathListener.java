@@ -1,6 +1,6 @@
 package episiminterfaces;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 
 
 public interface CellDeathListener {

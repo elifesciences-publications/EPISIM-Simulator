@@ -1,10 +1,10 @@
 package episiminterfaces;
 
 import episimbiomechanics.EpisimModelConnector;
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
-import sim.app.episim.model.visualization.EpisimDrawInfo;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.visualization.EpisimDrawInfo;
 
 
 

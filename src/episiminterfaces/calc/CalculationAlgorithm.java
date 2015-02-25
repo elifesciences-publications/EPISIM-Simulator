@@ -1,6 +1,6 @@
 package episiminterfaces.calc;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.ResultSet;
 

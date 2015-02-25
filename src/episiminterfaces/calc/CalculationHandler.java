@@ -2,7 +2,7 @@ package episiminterfaces.calc;
 
 import java.util.Map;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import episimexceptions.CellNotValidException;
 import episimexceptions.MissingObjectsException;
 

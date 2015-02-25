@@ -21,20 +21,33 @@ import sim.util.*;
  * is provided.  If it's between min-level and max-level, then a linear interpolation between min-Color and
  * max-Color is provided.  
  *
- * <p>You can customize the interpolation by overriding the filterLevel(double) method.  This method receives
- * a level value converted to between 0.0 and 1.0 inclusive, and is supposed to return a revised value between
- * 0.0 and 1.0.  For example, if you'd like to nudge colors up towards the maximum portion of the table, 
- * you could return the square root of the value you receive.  The default simply returns the value itself.
+ * <p>You can customize the interpolation by overriding the transformLevel(...) method.  This method receives
+ * a level value and the minimum and maximum values before it's clamped to a minimum or maximum color;
+ * you can modify this level value and return a new value (ideally between the minimum and maximum).
+ * For example, you could move the values to a log of their previous values.  
+ *
+ * <p>The default of transformLevel(...) calls another optional function you can override: the filterLevel(...)
+ * method.  This method is passed a level value which has been pre-transformed such that 0.0 is the "minimum"
+ * and 1.0 is the "maximum".  You can override this method to return a new value between 0.0 and 1.0
+ * which will be "de-transformed" and used instead.  The default simply returns the value itself.
+ *
+ * <p>You should only override transformLevel(...), of filterLevel(...), or none, but not both.
  * </ol>
  *
  * <p>The user can provide both a color table <i>and</i> an interpolation; in this case, the color table takes
  * precedence over the interpolation in that region where the color table is relevant.  You specify a color
- * table with setColorTable(), and you specify an interpolation range with setLevels().
+ * table with setColorTable(), and you specify an interpolation range with setLevels().  It's important to
+ * note that transformLevel(...) and filterLevel(...) are <i>not</i> applied to the color table, only to the
+ * interpolation.  So if you provide 2.7 as a level, and have some fancy-shmancy transformation for that
+ * in transformLevel(...), but you've made a color table 5 elements long, color number 2 will be used
+ * directly without every checking your transformLevel(...) method.
  *
  * <p>validLevel() is set to return true if the level range is between min-level and max-level, or
- * if it's inside the color table range.
+ * if it's inside the color table range.  Neither transformLevel(...) nor filterLevel(...) are called.
  *
  * <p>defaultValue() is set to return 0 if the color table exists, else min-level is provided.
+ *
+ * <p>NaN is assumed to be the same color as negative infinity.
  *
  * @author Sean Luke
  * 
@@ -132,13 +145,32 @@ public class SimpleColorMap implements ColorMap
         colors = colorTable;
         return retval;
         }
+                
+    /** Override this to convert level values to new values using some appropriate mathematical transformation.
+        The provided level value will be scaled to between 0 and 1 inclusive, which represent the minimum and 
+        maximum possible colors. The value you return must also be between 0 and 1 inclusive.  The default
+        version of this function just returns the level. 
         
-    public double filterLevel(double level) { return level; }
-        
-    /** Override this if you'd like to customize the color for values in the portrayal.  The default version
-        looks up the value in the colors[] table, else computes the interpolated color and grabs it out of
-        a predefined color cache (there can't be more than about 1024 or so interpolated colors, max). 
+        <p><b>Do not override both this function and transformLevel(...).  transformLevel simply calls this
+        function.</b>
     */
+    public double filterLevel(double level) { return level; }
+    
+    /** Override this to convert level values to new values using some appropriate mathematical transformation.
+        The values you return ought to be >= minLevel and <= maxLevel; values outside these bounds will be
+        trimmed to minLevel or maxLevel respectively prior to conversion to a color.  The default implementation
+        simply returns the passed-in level.  The default version scales level to a range between 0 and 1 in such a
+        way that minLevel is 0 and maxLevel is 1; it then calls filterLevel, then un-scales the result and returns it.
+        
+        <p><b>Do not override both this function and filterLevel(...).  filterLevel is just used by this function.</b>
+    */
+    public double transformLevel(double level, double minLevel, double maxLevel)
+        {
+        if (level <= minLevel) return minLevel;
+        if (level >= maxLevel) return maxLevel;
+        double interval = maxLevel - minLevel;
+        return filterLevel((level - minLevel) / interval) * interval + minLevel;
+        }
     
     /** Sets the color levels for the ValueGridPortrayal2D values for use by the default getColor(...)
         method.  These are overridden by any array provided in setColorTable().  If the value in the IntGrid2D or DoubleGrid2D
@@ -146,6 +178,8 @@ public class SimpleColorMap implements ColorMap
         maxColor is used.  Otherwise a linear interpolation from minColor to maxColor is used. */
     public void setLevels(double minLevel, double maxLevel, Color minColor, Color maxColor)
         {
+        if (maxLevel != maxLevel || minLevel != minLevel) throw new RuntimeException("maxLevel or minLevel cannot be NaN");
+        if (Double.isInfinite(maxLevel) || Double.isInfinite(minLevel)) throw new RuntimeException("maxLevel or minLevel cannot be infinite");
         if (maxLevel < minLevel) throw new RuntimeException("maxLevel cannot be less than minLevel");
         minRed = minColor.getRed(); minGreen = minColor.getGreen(); minBlue = minColor.getBlue(); minAlpha = minColor.getAlpha();
         maxRed = maxColor.getRed(); maxGreen = maxColor.getGreen(); maxBlue = maxColor.getBlue(); maxAlpha = maxColor.getAlpha();
@@ -176,19 +210,11 @@ public class SimpleColorMap implements ColorMap
             }
         else
             {
-            double minLevel = this.minLevel;
-            double maxLevel = this.maxLevel;
-            // these next two also handle the possibility that maxLevel = minLevel
-            if (level >= maxLevel) return maxColor;
-            else if (level <= minLevel) return minColor;
-            else 
-                {
-                // now convert to between 0 and 1
-                double interval = maxLevel - minLevel;
-                // finally call the convert() function, then set back to between minLevel and maxLevel
-                level = filterLevel((level - minLevel) / interval) * interval + minLevel;
-                }
-
+            // preprocess the level
+            level = transformLevel(level, minLevel, maxLevel);
+        
+            if (level != level) level = Double.NEGATIVE_INFINITY;  // NaN handling
+            
             if (level == minLevel) return minColor;  // so we don't divide by zero (maxLevel - minLevel)
             else if (level == maxLevel) return maxColor;  // so we don't overflow
             
@@ -225,74 +251,67 @@ public class SimpleColorMap implements ColorMap
 
     public int getAlpha(double level)
         {
-        if (colors != null)
+        if (colors != null && level >= 0 && level < colors.length)
             {
-            if (level >= 0 && level < colors.length)
-                return colors[(int)level].getAlpha();
+            return colors[(int)level].getAlpha();
             }
-
-        // else...
-            
-        final double minLevel = this.minLevel;
-        final double maxLevel = this.maxLevel;
-        // these next two also handle the possibility that maxLevel = minLevel
-        if (level >= maxLevel) return maxColor.getAlpha();
-        else if (level <= minLevel) return minColor.getAlpha();
-        else 
+        else
             {
-            // now convert to between 0 and 1
-            double interval = maxLevel - minLevel;
-            // finally call the convert() function, then set back to between minLevel and maxLevel
-            level = filterLevel((level - minLevel) / interval) * interval + minLevel;
+            // preprocess the level
+            level = transformLevel(level, minLevel, maxLevel);
+                
+            if (level != level) level = Double.NEGATIVE_INFINITY;  // NaN handling
+
+            // else...
+                        
+            // these next two also handle the possibility that maxLevel = minLevel
+            if (level >= maxLevel) return maxColor.getAlpha();
+            if (level <= minLevel) return minColor.getAlpha();
+
+            final double interpolation = (level - minLevel) / (maxLevel - minLevel);
+
+            final int maxAlpha = this.maxAlpha;
+            final int minAlpha = this.minAlpha;
+            return (maxAlpha == minAlpha ? minAlpha : (int)(interpolation * (maxAlpha - minAlpha) + minAlpha));
             }
-
-        final double interpolation = (level - minLevel) / (maxLevel - minLevel);
-
-        final int maxAlpha = this.maxAlpha;
-        final int minAlpha = this.minAlpha;
-        return (maxAlpha == minAlpha ? minAlpha : (int)(interpolation * (maxAlpha - minAlpha) + minAlpha));
         }
+                
                 
     public int getRGB(double level)
         {
-        if (colors != null)
+        if (colors != null && level >= 0 && level < colors.length)
             {
-            if (level >= 0 && level < colors.length)
-                return colors[(int)level].getRGB();
+            return colors[(int)level].getRGB();
             }
-            
-        // else...
-            
-        final double minLevel = this.minLevel;
-        final double maxLevel = this.maxLevel;
-        // these next two also handle the possibility that maxLevel = minLevel
-        if (level >= maxLevel) return maxColor.getRGB();
-        else if (level <= minLevel) return minColor.getRGB();
-        else 
+        else
             {
-            // now convert to between 0 and 1
-            double interval = maxLevel - minLevel;
-            // finally call the convert() function, then set back to between minLevel and maxLevel
-            level = filterLevel((level - minLevel) / interval) * interval + minLevel;
+            // preprocess the level
+            level = transformLevel(level, minLevel, maxLevel);
+        
+            if (level != level) level = Double.NEGATIVE_INFINITY;  // NaN handling
+
+            // these next two also handle the possibility that maxLevel = minLevel
+            if (level >= maxLevel) return maxColor.getRGB();
+            if (level <= minLevel) return minColor.getRGB();
+
+            final double interpolation = (level - minLevel) / (maxLevel - minLevel);
+
+            final int maxAlpha = this.maxAlpha;
+            final int minAlpha = this.minAlpha;
+            final int alpha = (maxAlpha == minAlpha ? minAlpha : (int)(interpolation * (maxAlpha - minAlpha) + minAlpha));
+            if (alpha==0) return 0;
+
+            final int maxRed = this.maxRed;
+            final int minRed = this.minRed;
+            final int maxGreen = this.maxGreen;
+            final int minGreen = this.minGreen;
+            final int maxBlue = this.maxBlue;
+            final int minBlue = this.minBlue;
+            final int red = (maxRed == minRed ? minRed : (int)(interpolation * (maxRed - minRed) + minRed));
+            final int green = (maxGreen == minGreen ? minGreen : (int)(interpolation * (maxGreen - minGreen) + minGreen));
+            final int blue = (maxBlue == minBlue ? minBlue : (int)(interpolation * (maxBlue - minBlue) + minBlue));
+            return (alpha << 24) | (red << 16) | (green << 8) | blue;
             }
-
-        final double interpolation = (level - minLevel) / (maxLevel - minLevel);
-
-        final int maxAlpha = this.maxAlpha;
-        final int minAlpha = this.minAlpha;
-        final int alpha = (maxAlpha == minAlpha ? minAlpha : (int)(interpolation * (maxAlpha - minAlpha) + minAlpha));
-        if (alpha==0) return 0;
-
-        final int maxRed = this.maxRed;
-        final int minRed = this.minRed;
-        final int maxGreen = this.maxGreen;
-        final int minGreen = this.minGreen;
-        final int maxBlue = this.maxBlue;
-        final int minBlue = this.minBlue;
-        final int red = (maxRed == minRed ? minRed : (int)(interpolation * (maxRed - minRed) + minRed));
-        final int green = (maxGreen == minGreen ? minGreen : (int)(interpolation * (maxGreen - minGreen) + minGreen));
-        final int blue = (maxBlue == minBlue ? minBlue : (int)(interpolation * (maxBlue - minBlue) + minBlue));
-        return (alpha << 24) | (red << 16) | (green << 8) | blue;
         }
 
     public boolean validLevel(double value)

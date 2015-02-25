@@ -70,17 +70,17 @@ public class SimApplet extends Applet
         
     void setupApplet(Class GUIStateClass) throws Exception  // yes, purposely capitalized
         {
-        if (GUIStateClass.equals(Console.class))
-            Console.main(new String[] {});
-        else
-            {
+      //  if (GUIStateClass.equals(Console.class))
+       //     Console.main(new String[] {});
+       // else
+        //    {
             GUIState state = (GUIState)(GUIStateClass.newInstance());
             /*
               Console c = new Console(state);
               c.setVisible(true);
             */
             state.createController();
-            }
+    //        }
         }
     
     void doException(JComponent button, Exception e)

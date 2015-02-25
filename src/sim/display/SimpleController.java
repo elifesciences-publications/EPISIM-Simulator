@@ -744,7 +744,8 @@ public class SimpleController implements Controller
     /** Calls forth the "New Simulation" window. */
     public boolean doNew()
         {
-        return Console.doNew(null, false);
+       // return Console.doNew(null, false);
+   	 return false;
         }
                 
 

@@ -1718,17 +1718,7 @@ public class Console extends JFrame implements Controller
         }
 
     static boolean sacrificial;
-    /** Pops up a window allowing the user to enter in a class name to start a new simulation. */
-    public static void main(String[] args)
-        {
-        // this line is to fix a stupidity in MacOS X 1.3.1, where if Display2D isn't loaded before
-        // windows are created (so its static { } can be executed before the graphics subsystem
-        // fires up) the underlying graphics subsystem is messed up.  Apple's fixed this in 1.4.1.
-        sacrificial = Display2D.isMacOSX();  // sacrificial  -- something to force Display2D.class to load
-                
-        // Okay here we go with the real code.
-        if (!doNew(null, true) && !SimApplet.isApplet) System.exit(0); // just a dummy JFrame
-        }               
+            
     
     /** Pops up the about box */
     static JFrame aboutFrame = null;
@@ -1841,7 +1831,7 @@ public class Console extends JFrame implements Controller
     /** Pops up a window allowing the user to enter in a class name to start a new simulation. */
     public void doNew()
         {
-        doNew(this, false);
+       // doNew(this, false);
         }
         
     /** Returns the index of the option selected, or -1 if the user pressed the
@@ -1944,124 +1934,7 @@ public class Console extends JFrame implements Controller
     
     
     /** Returns true if a new simulation has been created; false if the user cancelled. */
-    static boolean doNew(JFrame originalFrame, boolean startingUp)
-        {
-        buildClassList();
-        if (classNames.size() == 1)  // just launch it directly
-            {
-            return launchClass(originalFrame, (String) classNames.get(0));
-            }
-
-        final String defaultText = "<html><body bgcolor='white'><font face='dialog'><br><br><br><br><p align='center'>Select a MASON simulation from the list at left,<br>or type a Java class name below.</p></font></body></html>";
-        final String nothingSelectedText = "<html><body bgcolor='white'></body></html>";
-                
-        while(true)
-            {
-            final JList list = new JList(classNames);
-            final JScrollPane pane = new JScrollPane(list);
-                        
-            list.setCellRenderer(new DefaultListCellRenderer()
-                {
-                public Component getListCellRendererComponent(
-                    JList list,
-                    Object value,
-                    int index,
-                    boolean isSelected,
-                    boolean cellHasFocus) 
-                    {
-                    JLabel label = (JLabel)(super.getListCellRendererComponent(
-                            list,value,index,isSelected,cellHasFocus)); 
-                    if (index >= 0)
-                        {
-                        label.setText("<html><body><font face='dialog'> " + shortNames.get(index) + 
-                            "<font size='-2' color='#AAAAAA'><br> " + classNames.get(index) +
-                            "</font></font></body></html>");
-                        }
-                    return label;
-                    }
-                });
-                        
-            final HTMLBrowser browser = new HTMLBrowser(defaultText)
-                {
-                public Dimension getPreferredSize() { return new Dimension(400, 400); }
-                public Dimension getMinimumSize() { return new Dimension(10,10); }
-                };
-                        
-            final JTextField field = new JTextField("sim.app.");
-            JPanel fieldp = new JPanel();
-            fieldp.setLayout(new BorderLayout());
-            fieldp.add(field,BorderLayout.CENTER);
-            fieldp.add(new JLabel("Simulation class name: "), BorderLayout.WEST);
-            fieldp.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
-                        
-            list.addListSelectionListener(new ListSelectionListener()
-                {
-                public void valueChanged(ListSelectionEvent e)
-                    {
-                    if (!e.getValueIsAdjusting()) try
-                                                      {
-                                                      field.setText((String)list.getSelectedValue());
-                                                      browser.setText(GUIState.getInfo(Class.forName(field.getText(), true, Thread.currentThread().getContextClassLoader())));
-                                                      }
-                        catch (Throwable ex)
-                            {
-                            field.setText((String)list.getSelectedValue());
-                            browser.setText(nothingSelectedText);
-                            }
-                    }
-                });
-
-
-            // The list of models will be placed into a Java dialog box.  When we double-click on a model,
-            // we'd like it to essentially click on the "Select" button, but we don't have much control over that.
-            // The best we can do is dispose the dialog window, but this looks like we've canceled things.
-            // So what we'll do here is create a boolean called doubleClick, and fill it out with 'true' if
-            // we're disposing the window because the user double-clicked on a list element rather than
-            // cancelling and closing the window.  Thus here are the possible situations:
-            //
-            // User hit the close box or pressed ESCAPE:    doubleClick[0] = false, reply = -1
-            // User hit the "Quit" button:                  doubleClick[0] = false, reply = 1
-            // User hit the "Selet" button:                 doubleClick[0] = false, reply = 0
-            // User double-clicked on a model:              doubleClick[0] = true, reply = -1
-            //
-            // ('reply' is the integer value that the modal dialog box returns after you call showOptionDialog below)
-            //
-            // So if doubleClick[0] = true OR if reply = 0, then we have a valid model to load
-            // Otherwise we want to cancel the dialog
-
-            final boolean[] doubleClick = new boolean[]{ false };
-            list.addMouseListener(new MouseAdapter() 
-                {
-                public void mouseClicked(MouseEvent e) 
-                    {
-                    if (e.getClickCount() == 2) 
-                        {
-                        doubleClick[0] = true;      // see long comment above
-                        
-                        // prematurely get frame and close it
-                        Component c = list;
-                        while(c.getParent() != null)
-                            c = c.getParent();
-                        ((Window)c).dispose();
-                        }
-                    }
-                });
-
-            JPanel p = new JPanel();
-            p.setLayout(new BorderLayout());
-            p.add(browser, BorderLayout.CENTER);
-            p.add(pane,BorderLayout.WEST);
-            if (allowOtherClassNames) p.add(fieldp, BorderLayout.SOUTH);
-                        
-            int reply = showOptionDialog(null, p, "New Simulation", new Object[] {"Select", startingUp ? "Quit" : "Cancel"}, true);
-            if (reply != 0 && !doubleClick[0])  // see long comment above
-                {
-                return false;
-                }
-            
-            return launchClass(originalFrame, field.getText());           
-            }
-        }
+    
 
     /** The last filename the user requested.  Used to open file dialogs intelligently */
     File simulationFile = null;

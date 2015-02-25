@@ -151,7 +151,7 @@ public class ChemotaxisCenterBasedMechModelInit  extends BiomechanicalModelIniti
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {
-		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D();
+		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Cells");
 		continuousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		return continuousPortrayal;
 	}

@@ -204,13 +204,13 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {
-		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D();
+		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Fish Eye");
 		continuousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		return continuousPortrayal;
 	}
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {
-		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D();
+		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Dummy Cells");
 		continuousPortrayal.setField(CenterBased3DMechanicalModel.getDummyCellField());
 		
 		return new EpisimPortrayal[]{continuousPortrayal};

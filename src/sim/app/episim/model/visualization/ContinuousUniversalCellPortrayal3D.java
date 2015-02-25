@@ -26,13 +26,14 @@ import episiminterfaces.EpisimPortrayal;
 
 public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D implements EpisimPortrayal {
 
-	private final String NAME = "Epidermis";
+	private String name = "No Name";
 	
 	private PolygonAttributes polygonAttributes;
 	
 	
-	public ContinuousUniversalCellPortrayal3D(){
-		super();		
+	public ContinuousUniversalCellPortrayal3D(String name){
+		super();
+		this.name = name;
 		polygonAttributes = new PolygonAttributes();
 		polygonAttributes.setCapability(PolygonAttributes.ALLOW_CULL_FACE_READ);
 		polygonAttributes.setCapability(PolygonAttributes.ALLOW_CULL_FACE_WRITE);
@@ -45,7 +46,7 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
 	public PolygonAttributes polygonAttributes() { return polygonAttributes; } // default
 	public void polygonAttributes(PolygonAttributes att) { this.polygonAttributes = att; }
 	public String getPortrayalName() {
-		return NAME;
+		return name;
 	}
 
 	public Double getViewPortRectangle() {

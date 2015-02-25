@@ -817,13 +817,13 @@ public class CenterBased3DMechanicalModel extends AbstractCenterBasedMechanical3
    	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
    	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
    	setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
+   	
    	if(dummyCellsAdded){
    		generateDummyCells(dummyCellSize);
    		setDummyCellsRespectingBounds();
    	}
    	
-   	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;
-   	
+   	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;   	
    	numberOfSeconds = ((CenterBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).getNumberOfSecondsPerSimStep();
    	
    	double numberOfIterationsDouble = 1; 

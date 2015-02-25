@@ -167,7 +167,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {
-		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D();
+		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Epidermis");
 		continuousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		return continuousPortrayal;
 	}

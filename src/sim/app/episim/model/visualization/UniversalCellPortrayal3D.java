@@ -307,7 +307,7 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 			   	transparencyFactor = (float)((Display3DHack)getCurrentDisplay()).getModelSceneOpacity();
 			}
 			 
-			Color cellColor = Color.WHITE;
+			Color cellColor = Color.YELLOW;
 			Shape3D shapeCell = getShape(j3dModel, 0);
 			shapeCell.setAppearance(Episim3DAppearanceFactory.getCellAppearanceForColor(polygonAttributes, cellColor,transparencyFactor, false));			
 		} 

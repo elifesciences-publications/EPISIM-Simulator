@@ -29,7 +29,7 @@ public class SimApplet extends Applet
         i = Console.DEFAULT_WIDTH;
         }
 
-    static boolean isApplet = false;
+    public static boolean isApplet = false;
     public SimApplet() { isApplet = true; }
     
     public static boolean isApplet() { return isApplet; }

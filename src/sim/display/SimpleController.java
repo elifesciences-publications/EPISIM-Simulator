@@ -56,10 +56,10 @@ public class SimpleController implements Controller
             System.setProperty( "Quaqua.TabbedPane.design","auto" );  // UI Manager Properties docs differ
             System.setProperty( "Quaqua.visualMargin","1,1,1,1" );
             UIManager.put("Panel.opaque", Boolean.TRUE);
-            UIManager.setLookAndFeel((String)(Class.forName("ch.randelshofer.quaqua.QuaquaManager").
+            UIManager.setLookAndFeel((String)(Class.forName("ch.randelshofer.quaqua.QuaquaManager", true, Thread.currentThread().getContextClassLoader()).
                     getMethod("getLookAndFeelClassName",(Class[])null).invoke(null,(Object[])null)));
             } 
-        catch (Exception e) { /* e.printStackTrace(); */ }
+        catch (Exception e) { /* e.printStackTrace(); */ } // just in case we throw a RuntimeException here
 
         try  // now we try to set certain properties if the security permits it
             {
@@ -70,7 +70,7 @@ public class SimpleController implements Controller
             // if we're on a mac, let's make the tabs smaller
             // System.setProperty("com.apple.macos.smallTabs", "true");  // nah, looks dorky...
             }
-        catch (Exception e) { }
+        catch (Exception e) { }  // just in case we throw a RuntimeException here
         }
 
     /** Random number generator seed */
@@ -176,7 +176,7 @@ public class SimpleController implements Controller
     void startSimulation()
         {
         removeAllInspectors(true);      // clear inspectors
-        simulation.state.setSeed(randomSeed);   // reseed the generator
+        simulation.state.setSeed(randomSeed);   // reseed the generator.  Do this BEFORE calling start() so it gets properly primed
         simulation.start();
         }
 
@@ -423,7 +423,6 @@ public class SimpleController implements Controller
                         catch (java.lang.reflect.InvocationTargetException e)
                             {
                             System.err.println("This should never happen: " + e);
-                           
                             }                    
                         catch (Exception e)
                             {

@@ -17,7 +17,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
-
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -57,12 +56,11 @@ import org.w3c.dom.Document;
 
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimSimulationDisplay;
-
-import sim.SimStateServer;
-import sim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
+import sim.app.episim.SimStateServer;
+import sim.app.episim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;

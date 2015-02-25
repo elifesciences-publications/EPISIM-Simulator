@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 
 public class PropertyFileGenerator {
 	
@@ -80,7 +80,7 @@ public class PropertyFileGenerator {
 			fileOut.close();
 		}
 		catch (IOException e){
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 	}
 	

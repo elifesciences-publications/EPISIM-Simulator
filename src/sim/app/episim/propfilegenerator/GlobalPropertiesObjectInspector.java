@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.util.SortedJList;
 
 public class GlobalPropertiesObjectInspector {
@@ -115,7 +115,7 @@ public class GlobalPropertiesObjectInspector {
 	                     globalParameterDefaultValuesMap.put(paramName, ""+ actMethod.invoke(globalParametersObject, null));
                      }
                      catch (Exception e){
-	                   ExceptionDisplayer.getInstance().displayException(e);
+	                   EpisimExceptionHandler.getInstance().displayException(e);
                      }
                     
 	   				}

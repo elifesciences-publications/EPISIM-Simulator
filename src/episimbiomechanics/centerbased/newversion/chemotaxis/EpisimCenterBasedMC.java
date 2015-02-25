@@ -1,12 +1,10 @@
 package episimbiomechanics.centerbased.newversion.chemotaxis;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.newversion.chemotaxis.CenterBasedChemotaxisMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-
 import episimbiomechanics.centerbased.newversion.chemotaxis.CenterBasedMechModelInit;
-
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellType;

@@ -2,16 +2,17 @@ package episimbiomechanics.centerbased.newversion.chemotaxis;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
+
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased.newversion.chemotaxis.CenterBasedChemotaxisMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
-import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.visualization.ContinuousUniversalCellPortrayal2D;
+import sim.app.episim.visualization.UniversalCellPortrayal2D;
 import sim.util.Double2D;
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -54,16 +55,16 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 	      CELL_HEIGHT = field.getDouble(cbGP);   
       }
       catch (NoSuchFieldException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (SecurityException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalArgumentException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalAccessException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }	
 		
 

@@ -3,15 +3,15 @@ package episimbiomechanics.centerbased3d.newversion.chemotaxis;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.newversion.chemotaxis.CenterBasedChemotaxis3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal3D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.visualization.ContinuousUniversalCellPortrayal3D;
 import sim.util.Double3D;
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -57,16 +57,16 @@ public class ChemotaxisCenterBasedMechModelInit  extends BiomechanicalModelIniti
 	      CELL_LENGTH = field.getDouble(cbGP);   
       }
       catch (NoSuchFieldException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (SecurityException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalArgumentException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalAccessException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }	
 		
 

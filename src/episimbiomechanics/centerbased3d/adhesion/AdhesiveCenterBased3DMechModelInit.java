@@ -5,20 +5,20 @@ import java.util.ArrayList;
 
 import javax.vecmath.Point2d;
 
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModelGP;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
-import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
-import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal3D;
-import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.StandardMembrane;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.visualization.ContinuousUniversalCellPortrayal2D;
+import sim.app.episim.visualization.ContinuousUniversalCellPortrayal3D;
+import sim.app.episim.visualization.UniversalCellPortrayal2D;
 import sim.util.Double2D;
 import sim.util.Double3D;
 import episimbiomechanics.centerbased.CenterBasedMechModelInit;
@@ -80,16 +80,16 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 	      
       }
       catch (NoSuchFieldException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (SecurityException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalArgumentException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalAccessException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }	
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();

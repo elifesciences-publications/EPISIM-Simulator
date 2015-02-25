@@ -2,17 +2,17 @@ package episimbiomechanics.hexagonbased2d.singlesurface.bactmacro;
 
 import java.util.ArrayList;
 
-import sim.app.episim.CellInspector;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.hexagonbased.bact.HexagonBasedMechanicalModelBactGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
-import sim.app.episim.model.visualization.HexagonalCellGridPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.CellInspector;
+import sim.app.episim.visualization.HexagonalCellGridPortrayal2D;
 import sim.display.GUIState;
 import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.Inspector;

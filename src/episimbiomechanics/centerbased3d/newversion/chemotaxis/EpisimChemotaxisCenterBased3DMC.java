@@ -1,6 +1,6 @@
 package episimbiomechanics.centerbased3d.newversion.chemotaxis;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.newversion.chemotaxis.CenterBasedChemotaxis3DMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

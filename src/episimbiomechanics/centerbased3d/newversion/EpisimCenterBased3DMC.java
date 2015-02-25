@@ -1,6 +1,6 @@
 package episimbiomechanics.centerbased3d.newversion;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episiminterfaces.NoExport;

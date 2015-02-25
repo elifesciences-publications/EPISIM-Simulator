@@ -4,16 +4,15 @@ import java.util.ArrayList;
 
 import javax.vecmath.Point3d;
 
-import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
-
 import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal3D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.visualization.ContinuousUniversalCellPortrayal3D;
 import sim.util.Double3D;
 import episiminterfaces.EpisimPortrayal;
 

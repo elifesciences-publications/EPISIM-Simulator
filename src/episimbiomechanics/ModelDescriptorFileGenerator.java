@@ -40,7 +40,7 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episimbiomechanics.EpisimModelConnector.Pairwise;
 import sim.app.episim.EpisimProperties;
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.gui.EpisimSimulator;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;
@@ -63,7 +63,7 @@ public class ModelDescriptorFileGenerator {
 		}
 		catch (Exception e){
 			
-			ExceptionDisplayer.getInstance().displayException(e);
+			EpisimExceptionHandler.getInstance().displayException(e);
 		}
 		
 		JFrame parentFrame = new JFrame();
@@ -84,7 +84,7 @@ public class ModelDescriptorFileGenerator {
 				document = generateModelDescriptorDocument(selectedModelConnector, modelConnectorName);
 			}
 			catch (Exception e){
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 			if(document != null){
 				try{
@@ -110,7 +110,7 @@ public class ModelDescriptorFileGenerator {
 					}			
 				}
 				catch (IOException e){
-					ExceptionDisplayer.getInstance().displayException(e);
+					EpisimExceptionHandler.getInstance().displayException(e);
 				}
 			}
 		}

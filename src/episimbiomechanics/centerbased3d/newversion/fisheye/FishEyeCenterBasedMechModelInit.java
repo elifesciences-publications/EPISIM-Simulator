@@ -6,9 +6,9 @@ import java.util.HashSet;
 
 import javax.vecmath.Point3d;
 
-import sim.app.episim.AbstractCell;
-import sim.app.episim.ExceptionDisplayer;
-import sim.app.episim.UniversalCell;
+import sim.app.episim.EpisimExceptionHandler;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.DummyCell;
@@ -16,11 +16,11 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal3D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Icosahedron;
+import sim.app.episim.visualization.ContinuousUniversalCellPortrayal3D;
 import sim.util.Double3D;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
@@ -70,16 +70,16 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	      CELL_LENGTH = field.getDouble(cbGP);   
       }
       catch (NoSuchFieldException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (SecurityException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalArgumentException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }
       catch (IllegalAccessException e){
-      	ExceptionDisplayer.getInstance().displayException(e);
+      	EpisimExceptionHandler.getInstance().displayException(e);
       }	
 		
 

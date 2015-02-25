@@ -2,7 +2,7 @@ package episimbiomechanics.centerbased3d.newversion.fisheye;
  
 import java.util.HashMap;
 
-import sim.app.episim.AbstractCell;
+import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

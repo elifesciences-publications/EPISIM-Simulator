@@ -8,21 +8,20 @@ import javax.vecmath.Point2d;
 import org.w3c.dom.DOMException;
 
 import episiminterfaces.EpisimPortrayal;
-
-import sim.app.episim.AbstractCell;
-import sim.app.episim.CellInspector;
-import sim.app.episim.UniversalCell;
 import sim.app.episim.datamonitoring.GlobalStatistics;
+import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModelGP;
 import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.model.visualization.ContinuousUniversalCellPortrayal2D;
-import sim.app.episim.model.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlEpisimBiomechanicalModel;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.tissue.TissueController;
+import sim.app.episim.util.CellInspector;
+import sim.app.episim.visualization.ContinuousUniversalCellPortrayal2D;
+import sim.app.episim.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.display.GUIState;
 import sim.portrayal.Inspector;

@@ -4,8 +4,7 @@ import java.util.ArrayList;
 
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimPortrayal;
-import sim.app.episim.UniversalCell;
-
+import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
 import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonalCellField3D;
@@ -14,7 +13,6 @@ import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.tissue.TissueController;
-
 import sim.util.Double3D;
 import sim.util.Int3D;
 

@@ -15,7 +15,7 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 
-import sim.app.episim.ExceptionDisplayer;
+import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.util.GlobalClassLoader;
 import binloc.ProjectLocator;
@@ -83,7 +83,7 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 	      packagePath = new File(ProjectLocator.class.getResource("../"+PACKAGENAME+"/").toURI());
       }
       catch (URISyntaxException e){
-	      ExceptionDisplayer.getInstance().displayException(e);
+	      EpisimExceptionHandler.getInstance().displayException(e);
       }
       if(packagePath != null){
       	
@@ -104,10 +104,10 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 				return resultList;
 			}
          catch (ClassNotFoundException e){
-            ExceptionDisplayer.getInstance().displayException(e);
+            EpisimExceptionHandler.getInstance().displayException(e);
          }
          catch (MalformedURLException e){
-         	ExceptionDisplayer.getInstance().displayException(e);
+         	EpisimExceptionHandler.getInstance().displayException(e);
          }
       	
       	
@@ -139,7 +139,7 @@ public abstract class EpisimModelConnector implements java.io.Serializable{
 				return resultString;				
 			}
 			catch (IOException e){
-				ExceptionDisplayer.getInstance().displayException(e);
+				EpisimExceptionHandler.getInstance().displayException(e);
 			}
 			
 			

@@ -8,6 +8,7 @@ package sim.portrayal;
 import java.awt.*;
 import java.awt.geom.*;
 import sim.display.*;
+import sim.portrayal.network.*;
 
 /**
    The DrawInfo2D class provides two Rectangles which define a simple drawing situation.
@@ -47,11 +48,6 @@ import sim.display.*;
    Fields are free to not store anything here if they see fit.  Further, this
    object may not be the actual kind of object used to store the location (for example,
    it might be a MutableDouble2D, even though the object is associated with a Double2D). 
-   
-   <p>Note that DrawInfo2D overrides equals() to compare by value, but does NOT override
-   hashcode(), since it makes little sense to do so.  This is technically a violation of
-   the hashcode contract in Object.java.  So don't use DrawInfo2D as a key in a hashtable
-   or hashset.
 */
 
 public class DrawInfo2D
@@ -64,20 +60,6 @@ public class DrawInfo2D
     public boolean precise;
     public Object location;
     
-    /*
-      public DrawInfo2D(Rectangle2D.Double draw, Rectangle2D.Double clip)
-      {
-      this.draw = draw; this.clip = clip; precise = false;
-      }
-        
-      public DrawInfo2D(Rectangle draw, Rectangle clip)
-      {
-      this.draw = new Rectangle2D.Double(draw.x, draw.y, draw.width, draw.height);
-      this.clip = new Rectangle2D.Double(clip.x, clip.y, clip.width, clip.height);
-      precise = false;
-      } 
-    */
-
     public DrawInfo2D(GUIState gui, FieldPortrayal2D fieldPortrayal, RectangularShape draw, RectangularShape clip)
         {
         this.draw = new Rectangle2D.Double();
@@ -89,16 +71,6 @@ public class DrawInfo2D
         this.fieldPortrayal = fieldPortrayal;
         }
 
-/*
-  public DrawInfo2D(RectangularShape draw, RectangularShape clip)
-  {
-  this.draw = new Rectangle2D.Double();
-  this.draw.setRect(draw.getFrame());
-  this.clip = new Rectangle2D.Double();
-  this.clip.setRect(clip.getFrame());
-  precise = false;
-  }
-*/
     public DrawInfo2D(DrawInfo2D other, double translateX, double translateY)
         {
         Rectangle2D.Double odraw = other.draw;
@@ -107,26 +79,18 @@ public class DrawInfo2D
         clip = new Rectangle2D.Double(oclip.x+translateX,oclip.y+translateY,oclip.width,oclip.height);
         precise = other.precise;
         gui = other.gui;
+        fieldPortrayal = other.fieldPortrayal;
+        selected = other.selected;
+        // location = other.location;  // would location be invalid?
         }
         
     public DrawInfo2D(DrawInfo2D other)
         {
         this(other, 0, 0);
+        location = other.location;
         }
-        
-    public boolean equals(Object obj)
-        {
-        if (obj == this) return true;
-        if (obj == null) return false;
-        if (obj instanceof DrawInfo2D)
-            {
-            DrawInfo2D other = (DrawInfo2D) obj;
-            return (draw.equals(other.draw) && clip.equals(other.clip) && other.precise==precise);
-            }
-        return false;
-        }
-        
-    public String toString() { return "DrawInfo2D[ Draw: " + draw + " Clip: " + clip + " Precise: " + precise + " Location : " + location + "]"; }
+    
+    public String toString() { return "DrawInfo2D[ Draw: " + draw + " Clip: " + clip + " Precise: " + precise + " Location : " + location + " portrayal: " + fieldPortrayal + "]"; }
     }
     
     

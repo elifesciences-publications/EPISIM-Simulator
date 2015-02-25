@@ -102,7 +102,6 @@ public class SimpleInspector extends Inspector
        view the object instead of using the ViewButton.  If not, returns null. */
     JPopupMenu makePreliminaryPopup(final int index)
         {
-        Class type = properties.getType(index);
         if (properties.isComposite(index))
             {
             JPopupMenu popup = new JPopupMenu();
@@ -114,8 +113,17 @@ public class SimpleInspector extends Inspector
                     {
                     Properties props = properties;
                     final SimpleInspector simpleInspector = new SimpleInspector(props.getValue(index), SimpleInspector.this.state, null, maxProperties);
-                    final Stoppable stopper = simpleInspector.reviseStopper(
-                        SimpleInspector.this.state.scheduleRepeatingImmediatelyAfter(simpleInspector.getUpdateSteppable()));
+                    Stoppable stopper = null;
+                    try 
+                        {
+                        stopper = SimpleInspector.this.state.scheduleRepeatingImmediatelyAfter(simpleInspector.getUpdateSteppable());
+                        }
+                    catch (java.lang.IllegalArgumentException ee)  // this can happen if the simulation is over, so nothing further can be scheduled (notably the Stopper)
+                        {
+                        // make a dummy stopper
+                        stopper = new Stoppable() { public void stop() { } };
+                        }
+                    stopper = simpleInspector.reviseStopper(stopper);
                     SimpleInspector.this.state.controller.registerInspector(simpleInspector,stopper);
                     JFrame frame = simpleInspector.createFrame(stopper);
                     frame.setVisible(true);

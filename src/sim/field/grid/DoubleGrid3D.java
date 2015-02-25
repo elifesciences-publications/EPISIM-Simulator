@@ -45,6 +45,11 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
         setTo(values);
         }
 
+    public DoubleGrid3D(double[][][] values)
+        {
+        setTo(values);
+        }
+        
     /** Sets location (x,y,z) to val */
     public final double set(final int x, final int y, final int z, final double val)
         {
@@ -204,6 +209,50 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
         return this;
         }
 
+    /** Sets the grid to a copy of the provided array, which must be rectangular. */
+    public DoubleGrid3D setTo(double[][][] field)
+        {
+        // check info
+        
+        if (field == null)
+            throw new RuntimeException("DoubleGrid3D set to null field.");
+        int w = field.length;
+        int h = 0;
+        int l = 0;
+        if (w != 0) 
+            { 
+            h = field[0].length; 
+            if (h != 0)
+                l = field[0][0].length;
+            }
+                
+        for(int i = 0; i < w; i++)
+            {
+            if (field[i].length != h) // uh oh
+                throw new RuntimeException("DoubleGrid3D initialized with a non-rectangular field.");
+            for(int j = 0; j < h; j++)
+                {
+                if (field[i][j].length != l) // uh oh
+                    throw new RuntimeException("DoubleGrid3D initialized with a non-rectangular field.");
+                }
+            }
+
+        // load
+        
+        width = w;
+        height = h;
+        length = l;
+        this.field = new double[w][h][l];
+        for(int i = 0; i < w; i++)
+            for(int j=0; j< h; j++)
+                {
+                this.field[i][j] = (double[]) field[i][j].clone();
+                }
+        return this;
+        }
+
+
+
     /** Thresholds the grid so that values greater to <i>toNoMoreThanThisMuch</i> are changed to <i>toNoMoreThanThisMuch</i>.
         Returns the modified grid. 
     */
@@ -283,6 +332,7 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
     */
     public final DoubleGrid3D add(IntGrid3D withThis)
         {
+        checkBounds(withThis);
         int[][][] otherField = withThis.field;
         int[][] ofieldx = null;
         int[] ofieldxy = null;        
@@ -312,6 +362,7 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
     */
     public final DoubleGrid3D add(DoubleGrid3D withThis)
         {
+        checkBounds(withThis);
         double[][][] otherField = withThis.field;
         double[][] ofieldx = null;
         double[] ofieldxy = null;        
@@ -365,6 +416,7 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
     */
     public final DoubleGrid3D multiply(IntGrid3D withThis)
         {
+        checkBounds(withThis);
         int[][][] otherField = withThis.field;
         int[][] ofieldx = null;
         int[] ofieldxy = null;        
@@ -394,6 +446,7 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
     */
     public final DoubleGrid3D multiply(DoubleGrid3D withThis)
         {
+        checkBounds(withThis);
         double[][][] otherField = withThis.field;
         double[][] ofieldx = null;
         double[] ofieldxy = null;        
@@ -466,7 +519,7 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
     /** Eliminates the decimal portion of each value in the grid (rounds towards zero).
         Returns the modified grid. 
     */
-    public final DoubleGrid3D  truncate()
+    public final DoubleGrid3D truncate()
         {
         double[][] fieldx = null;
         double[] fieldxy = null;                        
@@ -480,10 +533,11 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
                 {
                 fieldxy = fieldx[y];
                 for(int z=0;z<length;z++)
-                    if (fieldxy[z] > 0.0) 
-                        /*Strict*/Math.floor(fieldxy[z]);
-                    else
-                        /*Strict*/Math.ceil(fieldxy[z]);
+                    fieldxy[z] = (int) fieldxy[z];
+                //if (fieldxy[z] > 0.0) 
+                //    /*Strict*/Math.floor(fieldxy[z]);
+                //else
+                //    /*Strict*/Math.ceil(fieldxy[z]);
                 }
             }
         return this;
@@ -516,6 +570,33 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
         }
     
     
+    /**
+     * Replace instances of one value to another.
+     * @param from any element that matches this value will be replaced
+     * @param to with this value
+     */
+
+    public final void replaceAll(double from, double to)
+        {
+        final int width = this.width;
+        final int height = this.height;
+        final int length = this.length;
+        double[][] fieldx = null;
+        double[] fieldxy = null;
+        for(int x = 0; x < width; x++)
+            {
+            fieldx = field[x];
+            for(int y = 0;  y < height; y++)
+                {
+                fieldxy = fieldx[y];
+                for(int z = 0; z < length; z++)
+                    {
+                    if (fieldxy[z] == from)
+                        fieldxy[z] = to;
+                    }
+                }
+            }
+        }
     
     
     /**
@@ -675,7 +756,7 @@ public /*strictfp*/ class DoubleGrid3D extends AbstractGrid3D
 
     public DoubleBag getRadialNeighbors( final int x, final int y, final int z, final int dist, int mode, boolean includeOrigin,DoubleBag result, IntBag xPos, IntBag yPos, IntBag zPos )
         {
-        return getRadialNeighbors(x, y, z, dist, mode, includeOrigin, result, xPos, yPos, zPos);
+        return getRadialNeighbors(x, y, z, dist, mode, includeOrigin, Grid3D.ANY, true, result, xPos, yPos, zPos);
         }
 
     public DoubleBag getRadialNeighbors( final int x, final int y, int z, final int dist, int mode, boolean includeOrigin,  int measurementRule, boolean closed,  DoubleBag result, IntBag xPos, IntBag yPos, IntBag zPos)

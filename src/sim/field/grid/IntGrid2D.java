@@ -95,11 +95,11 @@ public /*strictfp*/ class IntGrid2D extends AbstractGrid2D
 
         // load
         
+        width = w;
+        height = h;
         this.field = new int[w][h];
         for(int i = 0; i < w; i++)
             this.field[i] = (int[]) field[i].clone();
-        width = w;
-        height = h;
         return this;
         }
 
@@ -286,6 +286,7 @@ public /*strictfp*/ class IntGrid2D extends AbstractGrid2D
 
     public final IntGrid2D add(IntGrid2D withThis)
         {
+        checkBounds(withThis);
         int[][]ofield = withThis.field;
         int[] ofieldx = null;
         int[] fieldx = null;
@@ -332,6 +333,7 @@ public /*strictfp*/ class IntGrid2D extends AbstractGrid2D
 
     public final IntGrid2D multiply(IntGrid2D withThis)
         {
+        checkBounds(withThis);
         int[][]ofield = withThis.field;
         int[] ofieldx = null;
         int[] fieldx = null;
@@ -348,6 +350,28 @@ public /*strictfp*/ class IntGrid2D extends AbstractGrid2D
                 }
             }
         return this;
+        }
+        
+    /**
+     * Replace instances of one value to another.
+     * @param from any element that matches this value will be replaced
+     * @param to with this value
+     */
+
+    public final void replaceAll(int from, int to)
+        {
+        final int width = this.width;
+        final int height = this.height;
+        int[] fieldx = null;
+        for(int x = 0; x < width; x++)
+            {
+            fieldx = field[x];
+            for(int y = 0;  y < height; y++)
+                {
+                if (fieldx[y] == from)
+                    fieldx[y] = to;
+                }
+            }
         }
 
 
@@ -754,7 +778,7 @@ public /*strictfp*/ class IntGrid2D extends AbstractGrid2D
                 
     public IntBag getRadialNeighbors( final int x, final int y, final int dist, int mode, boolean includeOrigin, IntBag result, IntBag xPos, IntBag yPos )
         {
-        return getRadialNeighbors(x, y, dist, mode, includeOrigin, result, xPos, yPos);
+        return getRadialNeighbors(x, y, dist, mode, includeOrigin, Grid2D.ANY, true, result, xPos, yPos);
         }
 
     public IntBag getRadialNeighbors( final int x, final int y, final int dist, int mode, boolean includeOrigin,  int measurementRule, boolean closed,  IntBag result, IntBag xPos, IntBag yPos )

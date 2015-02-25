@@ -163,15 +163,10 @@ public class SparseGrid3D extends SparseField implements Grid3D, SparseField3D
         { if (z >= 0) { if (z < length) return z ; return z - length; } return z + length; }
 
 
-    MutableInt3D speedyMutableInt3D = new MutableInt3D();
     /** Returns the number of objects stored in the grid at the given location. */
     public int numObjectsAtLocation(final int x, final int y, final int z)
         {
-        MutableInt3D speedyMutableInt3D = this.speedyMutableInt3D;  // a little faster (local)
-        speedyMutableInt3D.x = x;
-        speedyMutableInt3D.y = y;
-        speedyMutableInt3D.z = z;
-        return numObjectsAtLocation(speedyMutableInt3D);
+        return numObjectsAtLocation(new Int3D(x,y,z));
         }
 
     /** Returns a bag containing all the objects at a given location -- which MIGHT be empty or MIGHT be null
@@ -184,11 +179,7 @@ public class SparseGrid3D extends SparseField implements Grid3D, SparseField3D
     */
     public Bag getObjectsAtLocation(final int x, final int y, final int z)
         {
-        MutableInt3D speedyMutableInt3D = this.speedyMutableInt3D;  // a little faster (local)
-        speedyMutableInt3D.x = x;
-        speedyMutableInt3D.y = y;
-        speedyMutableInt3D.z = z;
-        return getObjectsAtLocation(speedyMutableInt3D);
+        return getObjectsAtLocation(new Int3D(x,y,z));
         }
 
     /** Returns the object location as a Double3D, or as null if there is no such object. */
@@ -208,11 +199,7 @@ public class SparseGrid3D extends SparseField implements Grid3D, SparseField3D
     /** Removes all the objects stored at the given location and returns them as a Bag (which you are free to modify). */
     public Bag removeObjectsAtLocation(final int x, final int y, final int z)
         {
-        MutableInt3D speedyMutableInt3D = this.speedyMutableInt3D;  // a little faster (local)
-        speedyMutableInt3D.x = x;
-        speedyMutableInt3D.y = y;
-        speedyMutableInt3D.z = z;
-        return removeObjectsAtLocation(speedyMutableInt3D);
+        return removeObjectsAtLocation(new Int3D(x,y,z));
         }
 
     /** Changes the location of an object, or adds if it doesn't exist yet.  Returns false
@@ -889,7 +876,7 @@ public class SparseGrid3D extends SparseField implements Grid3D, SparseField3D
 
     public void getRadialLocations( final int x, final int y, final int z, final double dist, int mode, boolean includeOrigin, IntBag xPos, IntBag yPos, IntBag zPos )
         {
-        getRadialLocations(x, y, z, dist, mode, includeOrigin, Grid2D.ANY, true, xPos, yPos, zPos);
+        getRadialLocations(x, y, z, dist, mode, includeOrigin, Grid3D.ANY, true, xPos, yPos, zPos);
         }
         
     public void getRadialLocations( final int x, final int y, final int z, final double dist, int mode, boolean includeOrigin, int measurementRule, boolean closed, IntBag xPos, IntBag yPos, IntBag zPos )
@@ -902,7 +889,7 @@ public class SparseGrid3D extends SparseField implements Grid3D, SparseField3D
             throw new RuntimeException( "Distance must be positive" );
             }
             
-        if (measurementRule != Grid2D.ANY && measurementRule != Grid2D.ALL && measurementRule != Grid2D.CENTER)
+        if (measurementRule != Grid3D.ANY && measurementRule != Grid3D.ALL && measurementRule != Grid3D.CENTER)
             {
             throw new RuntimeException(" Measurement rule must be one of ANY, ALL, or CENTER" );
             }
@@ -928,7 +915,7 @@ public class SparseGrid3D extends SparseField implements Grid3D, SparseField3D
             int zp = zPos.get(i);
             boolean remove = false;
                 
-            if (measurementRule == Grid2D.ANY)
+            if (measurementRule == Grid3D.ANY)
                 {
                 if (z == zp)
                     {
@@ -1010,7 +997,7 @@ public class SparseGrid3D extends SparseField implements Grid3D, SparseField3D
                         }
                     }
                 }
-            else if (measurementRule == Grid2D.ALL)
+            else if (measurementRule == Grid3D.ALL)
                 {
                 if (z < zp)
                     {
@@ -1048,7 +1035,7 @@ public class SparseGrid3D extends SparseField implements Grid3D, SparseField3D
                     }
 
                 }
-            else // (measurementRule == Grid2D.CENTER)
+            else // (measurementRule == Grid3D.CENTER)
                 {
                 remove = !within(x,y,z,xp,yp,zp,distsq,closed);
                 }
@@ -1071,13 +1058,13 @@ public class SparseGrid3D extends SparseField implements Grid3D, SparseField3D
 
     public Bag getRadialNeighbors( final int x, final int y, final int z, final int dist, int mode, boolean includeOrigin,  Bag result, IntBag xPos, IntBag yPos, IntBag zPos )
         {
-        return getRadialNeighbors(x, y, z, dist, mode, includeOrigin, Grid2D.ANY, true, result, xPos, yPos, zPos);
+        return getRadialNeighbors(x, y, z, dist, mode, includeOrigin, Grid3D.ANY, true, result, xPos, yPos, zPos);
         }
 
 
     public Bag getRadialNeighborsAndLocations( final int x, final int y, final int z, final int dist, int mode, boolean includeOrigin, Bag result, IntBag xPos, IntBag yPos, IntBag zPos )
         {
-        return getRadialNeighborsAndLocations(x, y, z, dist, mode, includeOrigin, Grid2D.ANY, true, result, xPos, yPos, zPos);
+        return getRadialNeighborsAndLocations(x, y, z, dist, mode, includeOrigin, Grid3D.ANY, true, result, xPos, yPos, zPos);
         }
 
 

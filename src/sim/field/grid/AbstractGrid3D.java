@@ -330,19 +330,16 @@ public abstract class AbstractGrid3D implements Grid3D
                         
             final int zmin = ((z-dist>=0 || !bounded)?z-dist:0);
             final int zmax = ((z+dist<=length-1 || !bounded)?z+dist:length-1);
-                        
+
             for( int x0 = xmin ; x0 <= xmax ; x0++ )
                 {
                 for( int y0 = ymin ; y0 <= ymax ; y0++ )
                     {
                     for( int z0 = zmin ; z0 <= zmax ; z0++ )
                         {
-                        if( x0 != x || y0 != y || z0 != z )
-                            {
-                            xPos.add( x0 );
-                            yPos.add( y0 );
-                            zPos.add( z0 );
-                            }
+                        xPos.add( x0 );
+                        yPos.add( y0 );
+                        zPos.add( z0 );
                         }
                     }
                 }
@@ -460,12 +457,9 @@ public abstract class AbstractGrid3D implements Grid3D
                     for( int z0 = zmin; z0 <= zmax; z0++ )
                         {
                         final int z_0 = z0;
-                        if( x_0 != x || y_0 != y || z_0 != z )
-                            {
-                            xPos.add( x_0 );
-                            yPos.add( y_0 );
-                            zPos.add( z_0 );
-                            }
+                        xPos.add( x_0 );
+                        yPos.add( y_0 );
+                        zPos.add( z_0 );
                         }
                     }
                 }
@@ -488,7 +482,7 @@ public abstract class AbstractGrid3D implements Grid3D
         
     public void getRadialLocations( final int x, final int y, final int z, final double dist, int mode, boolean includeOrigin, IntBag xPos, IntBag yPos, IntBag zPos )
         {
-        getRadialLocations(x, y, z, dist, mode, includeOrigin, Grid2D.ANY, true, xPos, yPos, zPos);
+        getRadialLocations(x, y, z, dist, mode, includeOrigin, Grid3D.ANY, true, xPos, yPos, zPos);
         }
         
 
@@ -502,7 +496,7 @@ public abstract class AbstractGrid3D implements Grid3D
             throw new RuntimeException( "Distance must be positive" );
             }
             
-        if (measurementRule != Grid2D.ANY && measurementRule != Grid2D.ALL && measurementRule != Grid2D.CENTER)
+        if (measurementRule != Grid3D.ANY && measurementRule != Grid3D.ALL && measurementRule != Grid3D.CENTER)
             {
             throw new RuntimeException(" Measurement rule must be one of ANY, ALL, or CENTER" );
             }
@@ -528,7 +522,7 @@ public abstract class AbstractGrid3D implements Grid3D
             int zp = zPos.get(i);
             boolean remove = false;
                 
-            if (measurementRule == Grid2D.ANY)
+            if (measurementRule == Grid3D.ANY)
                 {
                 if (z == zp)
                     {
@@ -610,7 +604,7 @@ public abstract class AbstractGrid3D implements Grid3D
                         }
                     }
                 }
-            else if (measurementRule == Grid2D.ALL)
+            else if (measurementRule == Grid3D.ALL)
                 {
                 if (z < zp)
                     {
@@ -648,7 +642,7 @@ public abstract class AbstractGrid3D implements Grid3D
                     }
 
                 }
-            else // (measurementRule == Grid2D.CENTER)
+            else // (measurementRule == Grid3D.CENTER)
                 {
                 remove = !within(x,y,z,xp,yp,zp,distsq,closed);
                 }
@@ -669,6 +663,12 @@ public abstract class AbstractGrid3D implements Grid3D
         }
 
 
+    protected void checkBounds(Grid3D other)
+        {
+        if (getHeight() != other.getHeight() || getWidth() != other.getWidth() || getLength() != other.getLength())
+            throw new IllegalArgumentException("Grids must be the same dimensions.");
+        }
+    
 
     }
 

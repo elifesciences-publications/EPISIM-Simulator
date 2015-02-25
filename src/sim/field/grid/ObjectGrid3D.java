@@ -47,6 +47,11 @@ public class ObjectGrid3D extends AbstractGrid3D
         setTo(values);
         }
         
+    public ObjectGrid3D(Object[][][] values)
+        {
+        setTo(values);
+        }
+        
     public final void set(final int x, final int y, final int z, final Object val)
         {
         field[x][y][z] = val;
@@ -80,6 +85,53 @@ public class ObjectGrid3D extends AbstractGrid3D
         }
 
         
+    /**
+     * Replace instances of one value to another.  Equality is measured using equals(...).
+     * null is considered equal to null.  This is equivalent to calling replaceAll(from, to, false)
+     * @param from any element that matches this value will be replaced
+     * @param to with this value
+     */
+
+    public final void replaceAll(Object from, Object to)
+        {
+        replaceAll(from, to, false);
+        }
+
+    /**
+     * Replace instances of one value to another.  Equality is measured
+     * as follows.  (1) if onlyIfSameObject is true, then objects must be "== from"
+     * to one another to be considered equal.  (2) if onlyIfSameObject is false,
+     * then objects in the field must be "equals(from)".  In either case, null
+     * is considered equal to null.
+     * @param from any element that matches this value will be replaced
+     * @param to with this value
+     */
+
+    public final void replaceAll(Object from, Object to, boolean onlyIfSameObject)
+        {
+        final int width = this.width;
+        final int height = this.height;
+        final int length = this.length;
+        Object[][] fieldx = null;
+        Object[] fieldxy = null;
+        for(int x = 0; x < width; x++)
+            {
+            fieldx = field[x];
+            for(int y = 0;  y < height; y++)
+                {
+                fieldxy = fieldx[y];
+                for(int z = 0; z < length; z++)
+                    {
+                    Object obj = fieldxy[z];
+                    if ((obj == null && from == null) ||
+                        (onlyIfSameObject && obj == from) ||
+                        (!onlyIfSameObject && obj.equals(from)))
+                        fieldxy[z] = to;
+                    }
+                }
+            }
+        }
+
     /** Flattens the grid to a one-dimensional array, storing the elements in row-major order,including duplicates and null values. 
         Returns the grid. */
     public final Object[] toArray()
@@ -199,6 +251,53 @@ public class ObjectGrid3D extends AbstractGrid3D
             }
         return this;
         }
+
+
+
+    /** Sets the grid to a copy of the provided array, which must be rectangular. */
+    public ObjectGrid3D setTo(Object[][][] field)
+        {
+        // check info
+        
+        if (field == null)
+            throw new RuntimeException("ObjectGrid3D set to null field.");
+        int w = field.length;
+        int h = 0;
+        int l = 0;
+        if (w != 0) 
+            { 
+            h = field[0].length; 
+            if (h != 0)
+                l = field[0][0].length;
+            }
+                
+        for(int i = 0; i < w; i++)
+            {
+            if (field[i].length != h) // uh oh
+                throw new RuntimeException("ObjectGrid3D initialized with a non-rectangular field.");
+            for(int j = 0; j < h; j++)
+                {
+                if (field[i][j].length != l) // uh oh
+                    throw new RuntimeException("ObjectGrid3D initialized with a non-rectangular field.");
+                }
+            }
+
+        // load
+        
+        width = w;
+        height = h;
+        length = l;
+        this.field = new Object[w][h][l];
+        for(int i = 0; i < w; i++)
+            for(int j=0; j< h; j++)
+                {
+                this.field[i][j] = (Object[]) field[i][j].clone();
+                }
+        return this;
+        }
+
+
+
 
     /**
      * Gets all neighbors of a location that satisfy max( abs(x-X) , abs(y-Y), abs(z-Z) ) <= dist.  This region forms a
@@ -452,13 +551,13 @@ public class ObjectGrid3D extends AbstractGrid3D
 
     public Bag getRadialNeighbors( final int x, final int y, final int z, final int dist, int mode, boolean includeOrigin,  Bag result, IntBag xPos, IntBag yPos, IntBag zPos )
         {
-        return getRadialNeighbors(x, y, z, dist, mode, includeOrigin, Grid2D.ANY, true, result, xPos, yPos, zPos);
+        return getRadialNeighbors(x, y, z, dist, mode, includeOrigin, Grid3D.ANY, true, result, xPos, yPos, zPos);
         }
 
 
     public Bag getRadialNeighborsAndLocations( final int x, final int y, final int z, final int dist, int mode, boolean includeOrigin, Bag result, IntBag xPos, IntBag yPos, IntBag zPos )
         {
-        return getRadialNeighborsAndLocations(x, y, z, dist, mode, includeOrigin, Grid2D.ANY, true, result, xPos, yPos, zPos);
+        return getRadialNeighborsAndLocations(x, y, z, dist, mode, includeOrigin, Grid3D.ANY, true, result, xPos, yPos, zPos);
         }
 
 

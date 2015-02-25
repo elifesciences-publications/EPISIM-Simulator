@@ -91,11 +91,11 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
 
         // load
 
-        this.field = new double[w][h];
-        for(int i = 0; i < width; i++)
-            this.field[i] = (double[]) field[i].clone();
         width = w;
         height = h;
+        this.field = new double[w][h];
+        for(int i = 0; i < w; i++)
+            this.field[i] = (double[]) field[i].clone();
         return this;
         }
 
@@ -249,6 +249,7 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
     */
     public final DoubleGrid2D add(final IntGrid2D withThis)
         {
+        checkBounds(withThis);
         final int[][] otherField = withThis.field;
         double[] fieldx = null;
         int[] ofieldx = null;
@@ -269,6 +270,7 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
     */
     public final DoubleGrid2D add(final DoubleGrid2D withThis)
         {
+        checkBounds(withThis);
         final double[][] otherField = withThis.field;
         double[] fieldx = null;
         double[] ofieldx = null;
@@ -307,6 +309,7 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
     */
     public final DoubleGrid2D multiply(final IntGrid2D withThis)
         {
+        checkBounds(withThis);
         final int[][] otherField = withThis.field;
         double[] fieldx = null;
         int[] ofieldx = null;
@@ -327,6 +330,7 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
     */
     public final DoubleGrid2D multiply(final DoubleGrid2D withThis)
         {
+        checkBounds(withThis);
         final double[][] otherField = withThis.field;
         double[] fieldx = null;
         double[] ofieldx = null;
@@ -389,10 +393,12 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
             {
             fieldx = field[x]; 
             for(int y=0;y<height;y++)
-                if (fieldx[y] > 0.0) 
-                    /*Strict*/Math.floor(fieldx[y]);
-                else
-                    /*Strict*/Math.ceil(fieldx[y]);
+                fieldx[y] = (int) fieldx[y];
+            //if (fieldx[y] > 0.0) 
+            //    fieldx[y] = /*Strict*/Math.floor(fieldx[y]);
+            //else
+            //    fieldx[y] = /*Strict*/Math.ceil(fieldx[y]);
+                
             }
         return this;
         }
@@ -414,6 +420,28 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
                 fieldx[y] = /*Strict*/Math.rint(fieldx[y]);
             }
         return this;
+        }
+
+    /**
+     * Replace instances of one value to another.
+     * @param from any element that matches this value will be replaced
+     * @param to with this value
+     */
+
+    public final void replaceAll(double from, double to)
+        {
+        final int width = this.width;
+        final int height = this.height;
+        double[] fieldx = null;
+        for(int x = 0; x < width; x++)
+            {
+            fieldx = field[x];
+            for(int y = 0;  y < height; y++)
+                {
+                if (fieldx[y] == from)
+                    fieldx[y] = to;
+                }
+            }
         }
 
 
@@ -832,7 +860,7 @@ public /*strictfp*/ class DoubleGrid2D extends AbstractGrid2D
 
     public DoubleBag getRadialNeighbors( final int x, final int y, final int dist, int mode, boolean includeOrigin,DoubleBag result, IntBag xPos, IntBag yPos )
         {
-        return getRadialNeighbors(x, y, dist, mode, includeOrigin, result, xPos, yPos);
+        return getRadialNeighbors(x, y, dist, mode, includeOrigin, Grid2D.ANY, true, result, xPos, yPos);
         }
                 
 

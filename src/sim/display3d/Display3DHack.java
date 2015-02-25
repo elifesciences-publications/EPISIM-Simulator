@@ -622,7 +622,7 @@ public class Display3DHack extends Display3D implements EpisimSimulationDisplay{
 	   mSelectBehavior.setSelectsAll(selectionAll, inspectionAll);
 	   mSelectBehavior.setEnable(selectBehCheckBox.isSelected());
 	
-	   toolTipBehavior = new ToolTipBehavior(canvas, root, bounds, simulation);
+	   toolTipBehavior = new ToolTipBehavior(canvas, root, bounds);	   		
 	   toolTipBehavior.setEnable(true);
 	   toolTipBehavior.setCanShowToolTips(usingToolTips);
 	   

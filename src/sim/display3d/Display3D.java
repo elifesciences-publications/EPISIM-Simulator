@@ -228,10 +228,10 @@ public class Display3D extends JPanel implements Steppable
             System.setProperty( "Quaqua.TabbedPane.design","auto" );  // UI Manager Properties docs differ
             System.setProperty( "Quaqua.visualMargin","1,1,1,1" );
             UIManager.put("Panel.opaque", Boolean.TRUE);
-            UIManager.setLookAndFeel((String)(Class.forName("ch.randelshofer.quaqua.QuaquaManager").
+            UIManager.setLookAndFeel((String)(Class.forName("ch.randelshofer.quaqua.QuaquaManager", true, Thread.currentThread().getContextClassLoader()).
                     getMethod("getLookAndFeelClassName",(Class[])null).invoke(null,(Object[])null)));
             } 
-        catch (Exception e) { /* e.printStackTrace(); */ }
+        catch (Exception e) { /* e.printStackTrace(); */ }  // just in case there's a RuntimeException raised
 
         try  // now we try to set certain properties if the security permits it
             {
@@ -251,7 +251,7 @@ public class Display3D extends JPanel implements Steppable
             // in common use...
             System.setProperty("com.apple.macos.use-file-dialog-packages","true");
             }
-        catch (Exception e) { }
+        catch (Exception e) { }  // just in case there's a RuntimeException raised
         }
 
     /** 
@@ -275,7 +275,7 @@ public class Display3D extends JPanel implements Steppable
                 unabated underneath. */ 
             public void addWindowListener(WindowListener l) 
                 {
-                if ((new String("class javax.media.j3d.EventCatcher")).compareTo(l.getClass().toString()) == 0)
+                if ("class javax.media.j3d.EventCatcher".compareTo(l.getClass().toString()) == 0)
                     l = new LocalWindowListener(); 
                                                 
                 super.addWindowListener(l); 
@@ -326,7 +326,7 @@ public class Display3D extends JPanel implements Steppable
         return frame;
         }
         
-    class LocalWindowListener extends java.awt.event.WindowAdapter 
+    static class LocalWindowListener extends java.awt.event.WindowAdapter 
         {
         // empty class to replace the windowlistener spawned by Canvas3D        
         }
@@ -1099,7 +1099,7 @@ public class Display3D extends JPanel implements Steppable
         mSelectBehavior.setSelectsAll(selectionAll, inspectionAll);
         mSelectBehavior.setEnable(selectBehCheckBox.isSelected());
 
-        toolTipBehavior = new ToolTipBehavior(canvas, root, bounds, simulation);
+        toolTipBehavior = new ToolTipBehavior(canvas, root, bounds);
         toolTipBehavior.setEnable(true);
         toolTipBehavior.setCanShowToolTips(usingToolTips);
         
@@ -1253,13 +1253,28 @@ public class Display3D extends JPanel implements Steppable
     long lastStep = -1;
     double lastTime = Schedule.BEFORE_SIMULATION;
     long lastWall = -1;  // the current time is around 1266514720569 so this should be fine (knock on wood)
-        
+    Object[] updateLock = new Object[0];
+    boolean updateOnce = false;
+
+    /** Asks Display3D to update itself next iteration regardless of the current redrawing/updating rule. */
+    public void requestUpdate()
+        {
+        synchronized(updateLock)
+            {
+            updateOnce = true;
+            }
+        }
+
     /** Returns whether it's time to update. */
     public boolean shouldUpdate()
         {
         boolean val = false;
-                
-        if (updateRule == Display2D.UPDATE_RULE_ALWAYS)
+        boolean up = false;
+        synchronized(updateLock) { up = updateOnce; } 
+        
+        if (up)
+            val = true;
+        else if (updateRule == Display2D.UPDATE_RULE_ALWAYS)
             val = true;
         else if (updateRule == Display2D.UPDATE_RULE_STEPS)
             {
@@ -1284,6 +1299,9 @@ public class Display3D extends JPanel implements Steppable
             }
         // else val = false;
                 
+        // reset updateOnce
+        synchronized(updateLock) { updateOnce = false; }
+        
         return val;
         }
 
@@ -1295,7 +1313,7 @@ public class Display3D extends JPanel implements Steppable
                 (canvas.isShowing()    // only draw if we can be seen
                 || movieMaker != null ))      // OR draw to a movie even if we can't be seen
             {
-            updateSceneGraph(true);           
+            updateSceneGraph(true);
             }
         }
         
@@ -1406,7 +1424,7 @@ public class Display3D extends JPanel implements Steppable
         Ought only be done from the main event loop. */
     public void takeSnapshot()
         {
-        if (SimApplet.isApplet)
+        if (SimApplet.isApplet())
             {
             Object[] options = {"Oops"};
             JOptionPane.showOptionDialog(
@@ -1452,7 +1470,7 @@ public class Display3D extends JPanel implements Steppable
     public void startMovie()
         {
         // can't start a movie if we're in an applet
-        if (SimApplet.isApplet)
+        if (SimApplet.isApplet())
             {
             Object[] options = {"Oops"};
             JOptionPane.showOptionDialog(
@@ -1759,6 +1777,10 @@ public class Display3D extends JPanel implements Steppable
             }
             
         updateSceneGraph(false);
+
+        // finally, update the model inspector and other stuff, since this may
+        // be affected by the new selection
+        simulation.controller.refresh();
         }
 
 
@@ -2037,7 +2059,7 @@ public class Display3D extends JPanel implements Steppable
             } 
 
 
-       
+        // Saves the Option Pane Preferences to a given Preferences Node 
         public void savePreferences(Preferences prefs)
             {
             try
@@ -2092,7 +2114,7 @@ public class Display3D extends JPanel implements Steppable
         static final String DRAW_POLYGONS_KEY = "Draw Polygons";
         static final String DRAW_FACES_KEY = "Draw Faces";
                 
-       
+        // Resets the Option Pane Preferences by loading from the preference database 
         void resetToPreferences()
             {
             try
@@ -2197,7 +2219,7 @@ public class Display3D extends JPanel implements Steppable
                     }
                 else // Display2D.UPDATE_RULE_WALLCLOCK_TIME
                     {
-                    skipField.setValue((long)(wallInterval / 1000));
+                    skipField.setValue((long)(wallInterval / 1000));  // integer division
                     skipField.setEnabled(true);
                     }
                 }
@@ -2243,7 +2265,7 @@ public class Display3D extends JPanel implements Steppable
                 else // if (updateRule == Display2D.UPDATE_RULE_INTERNAL_TIME)
                     {
                     val = newValue;
-                    if (newValue < 0) newValue = timeInterval;
+                    if (val < 0) val = timeInterval;
                     timeInterval = val;
                     }
                         
@@ -2284,6 +2306,8 @@ public class Display3D extends JPanel implements Steppable
             case Display2D.UPDATE_RULE_NEVER:
                 s = "Currently never redrawing except when the window is redrawn";
                 break;
+            default:
+                throw new RuntimeException("default case should never occur");
             }
         JMenuItem m = new JMenuItem(s);
         m.setEnabled(false);
@@ -2374,6 +2398,16 @@ public class Display3D extends JPanel implements Steppable
             });
                         
         refreshPopup.addSeparator();
+
+        m = new JMenuItem("Redraw once at the next step");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                requestUpdate();
+                }
+            });
 
         // add other menu items
         m = new JMenuItem("More Options...");

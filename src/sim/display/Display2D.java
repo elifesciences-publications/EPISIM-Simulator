@@ -60,7 +60,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     /** Sets this display to always draw precisely (or not).  Note that even if this display has
         been set to not display precisely, it may still draw precisely in certain circumstances, such as
         when outputting to a PDF. */
-    public void setPrecise(boolean precise) { this.precise = precise; }
+    public void setPrecise(boolean precise) { this.precise = precise; optionPane.preciseDrawing.setSelected(precise); }
         
     public String DEFAULT_PREFERENCES_KEY = "Display2D";
     String preferencesKey = DEFAULT_PREFERENCES_KEY;  // default 
@@ -91,6 +91,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         JCheckBox alphaInterpolation = new JCheckBox("Better Transparency");
         JCheckBox interpolation = new JCheckBox("Bilinear Interpolation of Images");
         JCheckBox tooltips = new JCheckBox("Tool Tips");
+        JCheckBox preciseDrawing = new JCheckBox("Precise Drawing");
         
         JButton systemPreferences = new JButton("MASON");
         JButton appPreferences = new JButton("Simulation");
@@ -160,6 +161,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             b.add(interpolation);
             b.add(alphaInterpolation);
             b.add(tooltips);
+            b.add(preciseDrawing);
             p = new JPanel();
             p.setLayout(new BorderLayout());
             p.setBorder(new javax.swing.border.TitledBorder("Graphics Features"));
@@ -171,6 +173,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 public void actionPerformed(ActionEvent e)
                     {
                     useTooltips = tooltips.isSelected();
+                    precise = preciseDrawing.isSelected();
                     if (useDefault.isSelected())
                         buffering = FieldPortrayal2D.DEFAULT;
                     else if (useBuffer.isSelected())
@@ -187,6 +190,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             alphaInterpolation.addActionListener(listener);
             interpolation.addActionListener(listener);
             tooltips.addActionListener(listener);
+            preciseDrawing.addActionListener(listener);
 
             // add preferences
                         
@@ -241,6 +245,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 prefs.putBoolean(BETTER_TRANSPARENCY_KEY, alphaInterpolation.isSelected());
                 prefs.putBoolean(INTERPOLATION_KEY, interpolation.isSelected());
                 prefs.putBoolean(TOOLTIPS_KEY, tooltips.isSelected());
+                prefs.putBoolean(PRECISE_KEY, preciseDrawing.isSelected());
                                                         
                 if (!Prefs.save(prefs))
                     Utilities.inform ("Preferences Cannot be Saved", "Your Java system can't save preferences.  Perhaps this is an applet?", this);
@@ -256,7 +261,8 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         static final String BETTER_TRANSPARENCY_KEY = "Better Transparency";
         static final String INTERPOLATION_KEY = "Bilinear Interpolation";
         static final String TOOLTIPS_KEY = "Tool Tips";
-                
+        static final String PRECISE_KEY = "Precise Drawing";
+
         /** Resets the Option Pane Preferences by loading from the preference database */
         void resetToPreferences()
             {
@@ -284,6 +290,8 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                         systemPrefs.getBoolean(INTERPOLATION_KEY, false)));
                 tooltips.setSelected(appPrefs.getBoolean(TOOLTIPS_KEY,
                         systemPrefs.getBoolean(TOOLTIPS_KEY, false)));
+                preciseDrawing.setSelected(appPrefs.getBoolean(PRECISE_KEY,
+                        systemPrefs.getBoolean(PRECISE_KEY, false)));
                 // trigger resets by calling the listener.  Don't bother with an event
                 listener.actionPerformed(null);
                 }
@@ -803,10 +811,10 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             System.setProperty( "Quaqua.TabbedPane.design","auto" );  // UI Manager Properties docs differ
             System.setProperty( "Quaqua.visualMargin","1,1,1,1" );
             UIManager.put("Panel.opaque", Boolean.TRUE);
-            UIManager.setLookAndFeel((String)(Class.forName("ch.randelshofer.quaqua.QuaquaManager").
+            UIManager.setLookAndFeel((String)(Class.forName("ch.randelshofer.quaqua.QuaquaManager", true, Thread.currentThread().getContextClassLoader()).
                     getMethod("getLookAndFeelClassName",(Class[])null).invoke(null,(Object[])null)));
             } 
-        catch (Exception e) { /* e.printStackTrace(); */ }
+        catch (Exception e) { /* e.printStackTrace(); */ }  // just in case a runtime exception is thrown
 
         try  // now we try to set certain properties if the security permits it
             {
@@ -1274,8 +1282,6 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         this.simulation = simulation;
         
         reset();  // must happen AFTER simulation and interval are assigned
-        
-        final Color transparentBackground = new JPanel().getBackground();  // sacrificial JPanel
 
         // create the inner display and put it in a Scroll Panel
         insideDisplay = new InnerDisplay2D(width,height);
@@ -1672,8 +1678,8 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         }
 
 
-    public static int SELECTION_MODE_MULTI = 0;
-    public static int SELECTION_MODE_SINGLE = 1;
+    public static final int SELECTION_MODE_MULTI = 0;
+    public static final int SELECTION_MODE_SINGLE = 1;
     
     int selectionMode = SELECTION_MODE_MULTI;
     /** Returns whether selecting a region will select all the objects within that region (the default), or instead a single object. */
@@ -1704,6 +1710,10 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 wrapper.getFieldPortrayal().setSelected(wrapper, true);
                 selectedWrappers.add(wrapper);
                 }
+                
+        // finally, update the model inspector and other stuff, since this may
+        // be affected by the new selection
+        simulation.controller.refresh();
         }
         
     /** Determines the inspectors appropriate for the given selection region (rect), and sends
@@ -1832,7 +1842,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             BufferedImage img = insideDisplay.paint(g,true,false);  // notice we're painting to a non-shared buffer
             try
                 {
-                sacrificialObj = Class.forName("com.lowagie.text.Cell").newInstance(); // sacrificial
+                sacrificialObj = Class.forName("com.lowagie.text.Cell", true, Thread.currentThread().getContextClassLoader()).newInstance(); // sacrificial
                 // if we survived that, then iText is installed and we're good.
                 havePDF = true; 
                 }
@@ -2004,13 +2014,28 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
     long lastStep = -1;
     double lastTime = Schedule.BEFORE_SIMULATION;
     long lastWall = -1;  // the current time is around 1266514720569 so this should be fine (knock on wood)
-        
+    Object[] updateLock = new Object[0];
+    boolean updateOnce = false;
+    
+    /** Asks Display2D to update itself next iteration regardless of the current redrawing/updating rule. */
+    public void requestUpdate()
+        {
+        synchronized(updateLock)
+            {
+            updateOnce = true;
+            }
+        }
+    
     /** Returns whether it's time to update. */
     public boolean shouldUpdate()
         {
         boolean val = false;
-                
-        if (updateRule == UPDATE_RULE_ALWAYS)
+        boolean up = false;
+        synchronized(updateLock) { up = updateOnce; } 
+        
+        if (up)
+            val = true;
+        else if (updateRule == UPDATE_RULE_ALWAYS)
             val = true;
         else if (updateRule == UPDATE_RULE_STEPS)
             {
@@ -2034,7 +2059,10 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             if (val) lastTime = time;
             }
         // else val = false;
-                
+        
+        // reset updateOnce
+        synchronized(updateLock) { updateOnce = false; }
+        
         return val;
         }
 
@@ -2193,7 +2221,7 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                     }
                 else // UPDATE_RULE_WALLCLOCK_TIME
                     {
-                    skipField.setValue((long)(wallInterval / 1000));
+                    skipField.setValue((long)(wallInterval / 1000));  // integer division
                     skipField.setEnabled(true);
                     }
                 }
@@ -2233,13 +2261,13 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                 else if (updateRule == UPDATE_RULE_WALLCLOCK_TIME)
                     {
                     val = newValue;
-                    if (val < 0) val = wallInterval / 1000;
+                    if (val < 0) val = wallInterval / 1000;  // integer division
                     wallInterval = (long) (newValue * 1000);
                     }
                 else // if (updateRule == UPDATE_RULE_INTERNAL_TIME)
                     {
                     val = newValue;
-                    if (newValue < 0) newValue = timeInterval;
+                    if (val < 0) val = timeInterval;
                     timeInterval = val;
                     }
                         
@@ -2280,6 +2308,8 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
             case UPDATE_RULE_NEVER:
                 s = "Currently never redrawing except when the window is redrawn";
                 break;
+            default:
+                throw new RuntimeException("default case should never occur");
             }
         JMenuItem m = new JMenuItem(s);
         m.setEnabled(false);
@@ -2371,6 +2401,16 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
                         
         refreshPopup.addSeparator();
 
+        m = new JMenuItem("Redraw once at the next step");
+        refreshPopup.add(m);
+        m.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                requestUpdate();
+                }
+            });
+
         // add other menu items
         m = new JMenuItem("More Options...");
         refreshPopup.add(m);
@@ -2395,8 +2435,27 @@ public class Display2D extends JComponent implements Steppable, Manipulating2D
         {
         if (shouldUpdate())       // time to update!
             {
-            if (insideDisplay.isShowing() && 
-                (getFrame().getExtendedState() & java.awt.Frame.ICONIFIED) == 0)   // not minimized on the Mac
+            // POTENTIAL BUG ALERT
+            // We have seen a bug tickled in Linux Java 6, where getExtendedState()
+            // can potentially hang.  This is doubly problematic because we both
+            // call it explicitly below and also it's called implicitly inside
+            // calls to repaint() in the Java GUI source.
+            //
+            // See http://bugs.java.com/view_bug.do?bug_id=6798036
+            //
+            // This is tickled in an unusual situation when we (1) merge Display2D
+            // with Console in an interesting way (2) do some updates of button states 
+            // rapidly (3) run under Linux.  So it's a pretty unusual combination.
+            //
+            // At any rate, if you get bitten by this bug, you can work around it
+            // by commenting out && (getFrame().getExtendedState() & java.awt.Frame.ICONIFIED) == 0)
+            // and also by replacing insideDisplay.repaint() with
+            // SwingUtilities.invokeLater(new Runnable() { public void run() { insideDisplay.repaint(); } }):
+            //
+            // Yuck.  Stupid Java bugs.
+
+            if (insideDisplay.isShowing()
+                && (getFrame().getExtendedState() & java.awt.Frame.ICONIFIED) == 0)   // not minimized on the Mac
                 {
                 insideDisplay.repaint();
                 }

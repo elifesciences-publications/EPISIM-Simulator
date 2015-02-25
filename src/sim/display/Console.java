@@ -123,7 +123,7 @@ public class Console extends JFrame implements Controller
             UIManager.setLookAndFeel((String)(Class.forName("ch.randelshofer.quaqua.QuaquaManager").
                     getMethod("getLookAndFeelClassName",(Class[])null).invoke(null,(Object[])null)));
             } 
-        catch (Exception e) { /* e.printStackTrace(); */ }
+        catch (Exception e) { /* e.printStackTrace(); */ }  // in case there's a runtime exception thrown
 
         try  // now we try to set certain properties if the security permits it
             {
@@ -174,13 +174,15 @@ public class Console extends JFrame implements Controller
     /** The current time */
     JLabel time;
     /** The frame rate */
-    JSlider slider;
+    JSlider frameRateSlider;
     /** The associated text with the speed of play slider */
-    JLabel sliderText;
+    JLabel frameRateSliderText;
+    boolean frameRateSliderChanging = false;
     /** The slider which controls the number of steps per press of the step-button */
     JSlider stepSlider;
     /** The associated text for number of steps per press of the step-button */
     JLabel stepSliderText;
+    boolean stepSliderChanging = false;
     /* The slider which controls the thread priority of the underlying model thread */
     // JSlider prioritySlider;
     /* The associiated text for the thread priority of the underlying model thread */
@@ -248,7 +250,6 @@ public class Console extends JFrame implements Controller
         when there is NO underlying play thread (stepping happens inside the event loop, with the
         play thread killed), it can be safely set, but only do so from the event loop. */
     int numStepsPerStepButtonPress = 1;
-    
     
     /////////////////////// CONSTRUCTORS
     /////////////////////// This is the single most elaborate piece of code in Console.java, but it's
@@ -447,15 +448,47 @@ public class Console extends JFrame implements Controller
             });
         b.add(button);
         b.add(Box.createGlue());
+        
+        ///////// Create the Save as Defaults buttons
+                
+        Box displayPrefs = new Box(BoxLayout.X_AXIS);
+        JButton saveDisplayPreferences = new JButton("Save");
+        JButton resetDisplayPreferences = new JButton("Reset");
+        JLabel displayLabel = new JLabel(" Window Position Defaults: ");
+        displayLabel.putClientProperty( "JComponent.sizeVariant", "mini" );
+        displayPrefs.add(Box.createGlue());
+        displayPrefs.add(displayLabel);
+        displayPrefs.add(saveDisplayPreferences);
+        displayPrefs.add(resetDisplayPreferences);
+                
+        saveDisplayPreferences.putClientProperty( "JComponent.sizeVariant", "mini" );
+        saveDisplayPreferences.putClientProperty( "JButton.buttonType", "bevel" );
+        saveDisplayPreferences.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                saveDisplayPreferences();
+                }
+            });
+        resetDisplayPreferences.putClientProperty( "JComponent.sizeVariant", "mini" );
+        resetDisplayPreferences.putClientProperty( "JButton.buttonType", "bevel" );
+        resetDisplayPreferences.addActionListener(new ActionListener()
+            {
+            public void actionPerformed(ActionEvent e)
+                {
+                resetDisplayPreferences();
+                }
+            });
+        Box combinedPanel = new Box(BoxLayout.Y_AXIS);
+        combinedPanel.add(b);
+        combinedPanel.add(displayPrefs);
+        
         JPanel frameListPanel = new JPanel();
         frameListPanel.setLayout(new BorderLayout());
         frameListPanel.add(new JScrollPane(frameListDisplay), BorderLayout.CENTER);
-        frameListPanel.add(b, BorderLayout.SOUTH);
-
-
-
-
-
+        frameListPanel.add(combinedPanel, BorderLayout.SOUTH);
+        //frameListPanel.add(b, BorderLayout.NORTH);
+        //frameListPanel.add(displayPrefs, BorderLayout.SOUTH);
 
 
         //////// Create the "Console" tab panel  
@@ -471,20 +504,12 @@ public class Console extends JFrame implements Controller
                 }
             };
 
-
-        // create speed slider
-        // Slider:  0   1     2    3   4  5  6 7  8  9
-        // speed:   0   1/4  1/2   1   2  4  8 16 32 64 (speed is in seconds per tick, higher is slower)
-        slider = new JSlider(0, 1000, 0); // ranges from 0 to 1000
-        slider.addChangeListener(new ChangeListener()
+        frameRateSlider = new JSlider(0, MAX_FRAME_RATE_SLIDER_VALUE, 0);
+        frameRateSlider.addChangeListener(new ChangeListener()
             {
             public void stateChanged(ChangeEvent e)
                 {
-                int val = slider.getValue();
-                long speed = (long)( 512000.0 / (Math.pow(4,5)-1) * ( Math.pow(4,val/1000.0) - 1 ) );
-                if (!slider.getValueIsAdjusting())
-                    setPlaySleep(speed); // convert to milliseconds
-                sliderText.setText("" + ((double) (speed)) / 1000);
+                setPlaySleep(sliderToFrameRate(frameRateSlider.getValue()));
                 }
             });
         b = new Box(BoxLayout.X_AXIS)
@@ -495,11 +520,11 @@ public class Console extends JFrame implements Controller
                 return insets;
                 }
             };
-        b.add(slider);
-        sliderText = new JLabel("0.0");
-        sliderText.setMinimumSize(new JLabel("88.888").getMinimumSize()); // ensure enough space
-        sliderText.setPreferredSize(new JLabel("88.888").getPreferredSize()); // ensure enough space
-        b.add(sliderText);
+        b.add(frameRateSlider);
+        frameRateSliderText = new JLabel("0");
+        frameRateSliderText.setMinimumSize(new JLabel("88.88").getMinimumSize()); // ensure enough space
+        frameRateSliderText.setPreferredSize(new JLabel("88.88").getPreferredSize()); // ensure enough space
+        b.add(frameRateSliderText);
         controlPanel.addLabelled("Delay (Sec/Step) ", b);
 
         // removed -- this is so rarely used that it's just confusing to users
@@ -540,10 +565,6 @@ public class Console extends JFrame implements Controller
             public void stateChanged(ChangeEvent e)
                 {
                 setNumStepsPerStepButtonPress(stepSlider.getValue());
-                /*
-                  numStepsPerStepButtonPress = stepSlider.getValue();
-                  stepSliderText.setText("" + numStepsPerStepButtonPress);
-                */
                 }
             });
         b = new Box(BoxLayout.X_AXIS)
@@ -806,12 +827,14 @@ public class Console extends JFrame implements Controller
         ///////// Create the Save as Defaults buttons
                 
         Box defaults = new Box(BoxLayout.X_AXIS);
-        defaults.add(new JLabel(" Save as Defaults for "));
+        JLabel defaultsLabel = new JLabel(" Save as Defaults for ");
+        defaultsLabel.putClientProperty( "JComponent.sizeVariant", "mini" );
+        defaults.add(Box.createGlue());
+        defaults.add(defaultsLabel);
         JButton appPreferences = new JButton("Simulation");
         JButton systemPreferences = new JButton("MASON");
         defaults.add(appPreferences);
         defaults.add(systemPreferences);
-        defaults.add(Box.createGlue());
                 
         systemPreferences.putClientProperty( "JComponent.sizeVariant", "mini" );
         systemPreferences.putClientProperty( "JButton.buttonType", "bevel" );
@@ -1070,32 +1093,73 @@ public class Console extends JFrame implements Controller
         // some ConcurrentModificationException bugs we were seeing.
         invokeInSwing(new Runnable() { public void run() { try { simulation.init(Console.this); } catch (Exception e) { e.printStackTrace(); } } });
 
-        // Set the location of the console if it hasn't already
-        // been set by the user
-        Point loc = getLocation();
-        if (loc.x == -10000 && loc.y == -10000)  // user didn't set me I think
+        // rearrange display location according to preferences
+        try
             {
-            Rectangle screen = GraphicsEnvironment.getLocalGraphicsEnvironment().
-                getDefaultScreenDevice().getDefaultConfiguration().getBounds();
-            // If there is room, put us to the far right of all the displays
-            // which have been attached so far.
-            Rectangle bounds = new Rectangle(0,0,0,0);
-            Iterator i = frameList.iterator();
-            while(i.hasNext())
-                bounds = bounds.union(((Component)i.next()).getBounds());
-            if (bounds.width + getWidth() + DEFAULT_GUTTER <= screen.width)  // enough space on right, though MacOS X will be a problem
-                setLocation(bounds.width + DEFAULT_GUTTER,defLoc.y);
-            else setLocation(defLoc);
+            // first, get a bounding rectangle for all our monitors
+            Rectangle screen = new Rectangle(0,0,0,0);
+            GraphicsDevice[] screens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+            for(int i = 0; i < screens.length; i++)
+                screen = screen.union(screens[i].getDefaultConfiguration().getBounds());
+
+            Preferences appPrefs = Prefs.getAppPreferences(simulation, DEFAULT_PREFERENCES_KEY);
+            if (appPrefs.getInt(NUM_DISPLAYS_KEY, -1) != -1)  // user set preferences.  Assume it's correct
+                {
+                // zero: hide everything
+                //System.err.println(DEFAULT_PREFERENCES_KEY);
+                //System.err.println(NUM_DISPLAYS_KEY);
+                //System.err.println(appPrefs.getInt(NUM_DISPLAYS_KEY, -1) );
+                Iterator iter = frameList.iterator();  // should all be here now
+                while(iter.hasNext())
+                    ((Component)(iter.next())).setVisible(false);
+
+                // Now move and show
+                Iterator i = frameList.iterator();  // should all be here now
+                int count = 0;
+                while(i.hasNext())
+                    {
+                    Component c = (Component)(i.next());
+                    Rectangle bounds = c.getBounds();
+                    bounds.x = appPrefs.getInt(DISPLAY_X_KEY + count, bounds.x);
+                    bounds.y = appPrefs.getInt(DISPLAY_Y_KEY + count, bounds.y);
+                    bounds.width = appPrefs.getInt(DISPLAY_WIDTH_KEY + count, bounds.width);
+                    bounds.height = appPrefs.getInt(DISPLAY_HEIGHT_KEY + count, bounds.height);
+                    c.setBounds(bounds.intersection(screen));  // constrain to screen?
+                    c.setVisible(appPrefs.getBoolean(DISPLAY_SHOWN_KEY + count, c.isVisible()));
+                    count++;
+                    }
+                Rectangle bounds = getBounds();  // of the Console
+                bounds.x = appPrefs.getInt(DISPLAY_X_KEY + CONSOLE_KEY, bounds.x);
+                bounds.y = appPrefs.getInt(DISPLAY_Y_KEY + CONSOLE_KEY, bounds.y);
+                bounds.width = appPrefs.getInt(DISPLAY_WIDTH_KEY + CONSOLE_KEY, bounds.width);
+                bounds.height = appPrefs.getInt(DISPLAY_HEIGHT_KEY + CONSOLE_KEY, bounds.height);
+                setBounds(bounds.intersection(screen));
+                }
+            else  // user has not set preferences -- use standard method for positioning the console                
+                {
+                // Set the location of the console if it hasn't already
+                // been set by the user
+                Point loc = getLocation();
+                if (loc.x == -10000 && loc.y == -10000)  // user didn't set me I think
+                    {
+                    // If there is room, put us to the far right of all the displays
+                    // which have been attached so far.
+                    Rectangle bounds = new Rectangle(0,0,0,0);
+                    Iterator i = frameList.iterator();
+                    while(i.hasNext())
+                        bounds = bounds.union(((Component)i.next()).getBounds());
+                    if (bounds.width + getWidth() + DEFAULT_GUTTER <= screen.width)  // enough space on right, though MacOS X will be a problem
+                        setLocation(bounds.width + DEFAULT_GUTTER,defLoc.y);
+                    else setLocation(defLoc);
+                    }
+                }
+
             }
+        catch (java.security.AccessControlException e) { } // it must be an applet
 
         // update preferences
         invokeInSwing(new Runnable() { public void run() { resetToPreferences(); }});
         }
-
-
-
-
-
 
 
     /** If I'm already in the Swing dispatch thread, just run this.  Otherwise call SwingUtilities.invokeAndWait on it. */
@@ -1138,17 +1202,15 @@ public class Console extends JFrame implements Controller
 
     /////////////////////// PREFERENCES MANIPULATION
         
-    static final String DEFAULT_PREFERENCES_KEY = "Console";
-    static final String DELAY_KEY = "Delay";
-    static final String STEPS_KEY = "Steps";
-    static final String AUTOMATIC_STOP_STEPS_KEY = "Automatically Stop at Step";
-    static final String AUTOMATIC_STOP_TIME_KEY = "Automatically Stop after Time";
-    static final String AUTOMATIC_PAUSE_STEPS_KEY = "Automatically Pause at Step";
-    static final String AUTOMATIC_PAUSE_TIME_KEY = "Automatically Pause after Time";
-    static final String INCREMENT_KEY = "Increment";
-    static final String REPEAT_KEY = "Repeat";
-//              public static final String SEED_KEY = "Seed";
-//    public String static final THREAD_PRIORITY_KEY = "Thread Priority";
+    public static final String DEFAULT_PREFERENCES_KEY = "Console";
+    public static final String DELAY_KEY = "Delay";
+    public static final String STEPS_KEY = "Steps";
+    public static final String AUTOMATIC_STOP_STEPS_KEY = "Automatically Stop at Step";
+    public static final String AUTOMATIC_STOP_TIME_KEY = "Automatically Stop after Time";
+    public static final String AUTOMATIC_PAUSE_STEPS_KEY = "Automatically Pause at Step";
+    public static final String AUTOMATIC_PAUSE_TIME_KEY = "Automatically Pause after Time";
+    public static final String INCREMENT_KEY = "Increment";
+    public static final String REPEAT_KEY = "Repeat";
                 
     void savePreferences(boolean appPreferences)
         {
@@ -1160,14 +1222,12 @@ public class Console extends JFrame implements Controller
             else
                 prefs = Prefs.getGlobalPreferences(DEFAULT_PREFERENCES_KEY);
                         
-            prefs.putInt(DELAY_KEY,slider.getValue());
-//            prefs.putInt(THREAD_PRIORITY_KEY, prioritySlider.getValue());
-            prefs.putInt(STEPS_KEY, stepSlider.getValue());
+            prefs.putInt(DELAY_KEY,frameRateSlider.getValue());
+            prefs.putInt(STEPS_KEY, getNumStepsPerStepButtonPress());
             prefs.put(AUTOMATIC_STOP_STEPS_KEY, endField.getValue());
             prefs.put(AUTOMATIC_STOP_TIME_KEY, timeEndField.getValue());
             prefs.put(AUTOMATIC_PAUSE_STEPS_KEY, pauseField.getValue());
             prefs.put(AUTOMATIC_PAUSE_TIME_KEY, timePauseField.getValue());
-//                                                      prefs.put(SEED_KEY, randomField.getValue());
             prefs.putBoolean(INCREMENT_KEY, incrementSeedOnStop.isSelected());
             prefs.putBoolean(REPEAT_KEY, repeatButton.isSelected());
                         
@@ -1183,17 +1243,90 @@ public class Console extends JFrame implements Controller
             {
             Preferences systemPrefs = Prefs.getGlobalPreferences(DEFAULT_PREFERENCES_KEY);
             Preferences appPrefs = Prefs.getAppPreferences(simulation, DEFAULT_PREFERENCES_KEY);
-            slider.setValue(appPrefs.getInt(DELAY_KEY, systemPrefs.getInt(DELAY_KEY, slider.getValue())));
-//            prioritySlider.setValue(appPrefs.getInt(THREAD_PRIORITY_KEY, systemPrefs.getInt(THREAD_PRIORITY_KEY, prioritySlider.getValue())));
-            stepSlider.setValue(appPrefs.getInt(STEPS_KEY, systemPrefs.getInt(STEPS_KEY, stepSlider.getValue())));
+            frameRateSlider.setValue(appPrefs.getInt(DELAY_KEY, systemPrefs.getInt(DELAY_KEY, frameRateSlider.getValue())));
+            setNumStepsPerStepButtonPress(appPrefs.getInt(STEPS_KEY, systemPrefs.getInt(STEPS_KEY, stepSlider.getValue())));
             endField.setValue(endField.newValue(appPrefs.get(AUTOMATIC_STOP_STEPS_KEY, systemPrefs.get(AUTOMATIC_STOP_STEPS_KEY, endField.getValue()))));
             timeEndField.setValue(timeEndField.newValue(appPrefs.get(AUTOMATIC_STOP_TIME_KEY, systemPrefs.get(AUTOMATIC_STOP_TIME_KEY, timeEndField.getValue()))));
             pauseField.setValue(pauseField.newValue(appPrefs.get(AUTOMATIC_PAUSE_STEPS_KEY, systemPrefs.get(AUTOMATIC_PAUSE_STEPS_KEY, pauseField.getValue()))));
             timePauseField.setValue(timePauseField.newValue(appPrefs.get(AUTOMATIC_PAUSE_TIME_KEY, systemPrefs.get(AUTOMATIC_PAUSE_TIME_KEY, timePauseField.getValue()))));
-            //                      randomField.setValue(randomField.newValue(appPrefs.get(SEED_KEY, systemPrefs.get(SEED_KEY, randomField.getValue()))));
             incrementSeedOnStop.setSelected(appPrefs.getBoolean(INCREMENT_KEY, systemPrefs.getBoolean(INCREMENT_KEY, incrementSeedOnStop.isSelected())));
             repeatButton.setSelected(appPrefs.getBoolean(REPEAT_KEY, systemPrefs.getBoolean(REPEAT_KEY, repeatButton.isSelected())));
             setShouldRepeat(repeatButton.isSelected());
+            }
+        catch (java.security.AccessControlException e) { } // it must be an applet
+        }
+
+
+
+
+    /////////////////////// DISPLAY PREFERENCES MANIPULATION
+        
+    public static final String NUM_DISPLAYS_KEY = "Number of Displays";
+    public static final String DISPLAY_X_KEY = "Display X ";
+    public static final String DISPLAY_Y_KEY = "Display Y ";
+    public static final String DISPLAY_WIDTH_KEY = "Display Width ";
+    public static final String DISPLAY_HEIGHT_KEY = "Display Height ";
+    public static final String DISPLAY_SHOWN_KEY = "Display Shown ";
+    public static final String CONSOLE_KEY = "-1";
+    
+    void saveDisplayPreferences()
+        {
+        try
+            {
+            resetDisplayPreferences();
+            Preferences appPrefs = Prefs.getAppPreferences(simulation, DEFAULT_PREFERENCES_KEY);
+            Iterator i = frameList.iterator();
+            int count = 0;
+            while(i.hasNext())
+                {
+                Component c = (Component)(i.next());
+                Rectangle bounds = c.getBounds();
+                appPrefs.putInt(DISPLAY_X_KEY + count, bounds.x);
+                appPrefs.putInt(DISPLAY_Y_KEY + count, bounds.y);
+                appPrefs.putInt(DISPLAY_WIDTH_KEY + count, bounds.width);
+                appPrefs.putInt(DISPLAY_HEIGHT_KEY + count, bounds.height);
+                appPrefs.putBoolean(DISPLAY_SHOWN_KEY + count, c.isVisible());
+                count++;
+                }
+            Rectangle bounds = getBounds();  // of the Console
+            appPrefs.putInt(DISPLAY_X_KEY + CONSOLE_KEY, bounds.x);
+            appPrefs.putInt(DISPLAY_Y_KEY + CONSOLE_KEY, bounds.y);
+            appPrefs.putInt(DISPLAY_WIDTH_KEY + CONSOLE_KEY, bounds.width);
+            appPrefs.putInt(DISPLAY_HEIGHT_KEY + CONSOLE_KEY, bounds.height);
+            appPrefs.putBoolean(DISPLAY_SHOWN_KEY + CONSOLE_KEY, true);  // can't hide the console
+
+            appPrefs.putInt(NUM_DISPLAYS_KEY, count);
+            }
+        catch (java.security.AccessControlException e) { } // it must be an applet
+        }
+                                   
+    void resetDisplayPreferences()
+        {
+        try
+            {
+            Preferences appPrefs = Prefs.getAppPreferences(simulation, DEFAULT_PREFERENCES_KEY);
+            Iterator i = frameList.iterator();
+            int count = 0;
+            while(i.hasNext())
+                {
+                i.next();  // ignore
+                count++;
+                }
+            
+            // we'll remove up to the maximum of the current window count
+            // and the claimed number of displays in the preferences.  That
+            // should get rid of everything.
+            int totalcount = Math.max(count, appPrefs.getInt(NUM_DISPLAYS_KEY, 0));
+            for(int j = -1; j < totalcount; j++)   // -1 is the Console
+                {
+                appPrefs.remove(DISPLAY_X_KEY + j);
+                appPrefs.remove(DISPLAY_Y_KEY + j);
+                appPrefs.remove(DISPLAY_WIDTH_KEY + j);
+                appPrefs.remove(DISPLAY_HEIGHT_KEY + j);
+                appPrefs.remove(DISPLAY_SHOWN_KEY + j);
+                }
+                
+            appPrefs.remove(NUM_DISPLAYS_KEY);
             }
         catch (java.security.AccessControlException e) { } // it must be an applet
         }
@@ -1237,6 +1370,7 @@ public class Console extends JFrame implements Controller
         synchronized (playThreadLock)
             {
             threadPriority = val;
+            // findbugs thinks playThread must be synchronized, which isn't correct
             if (playThread != null)
                 playThread.setPriority(threadPriority);
             }
@@ -1341,14 +1475,46 @@ public class Console extends JFrame implements Controller
     /** Milliseconds of how long we should sleep between each step. Don't play with this. */
     long playSleep = 0;
     
-    /** Sets (in milliseconds) how long we should sleep between each step in the play thread. 
-        This method is run as a doChangeCode so it can interrupt the possibly sleeping
-        thread and give it a new interval. */
-    public void setPlaySleep(final long sleep)
+    static final double MAX_FRAME_RATE = 8.0;
+    static final int MAX_FRAME_RATE_SLIDER_VALUE = 1024;
+    long sliderToFrameRate(int val)
         {
-        synchronized (playThreadLock)
+        double maxAsPowerOfTwo = Math.log(MAX_FRAME_RATE) / Math.log(2.0);
+        double v = val / (double) MAX_FRAME_RATE_SLIDER_VALUE * 2.0; // v ranges from 0 to 2
+        return Math.round(Math.pow(v, maxAsPowerOfTwo) * 1000);  // put into milliseconds
+        }
+
+    int frameRateToSlider(long valInMS)
+        {
+        double val = valInMS / 1000.0;
+        double maxAsPowerOfTwo = Math.log(MAX_FRAME_RATE) / Math.log(2.0);
+        double v = Math.pow(val, 1.0 / maxAsPowerOfTwo);
+        return (int) Math.round(v * ((double) MAX_FRAME_RATE_SLIDER_VALUE) / 2.0);
+        }
+    
+            
+        
+    /** Sets (in milliseconds) how long we should sleep between each step in the play thread. 
+        Must be a value >= 0, else it will be set to 0.  */
+    public void setPlaySleep(long sleep)
+        {
+        if (sleep < 0) sleep = 0;
+        if (!frameRateSliderChanging)
             {
-            playSleep = sleep;
+            frameRateSliderChanging = true;
+            synchronized (playThreadLock)
+                {
+                playSleep = sleep;
+                }
+            frameRateSlider.setValue(frameRateToSlider(sleep));
+            DecimalFormat format = new DecimalFormat();
+            format.setMinimumFractionDigits(0);
+            format.setDecimalSeparatorAlwaysShown(false);
+            String text = format.format(sleep / 1000.0);
+            if (text.length() > 5)  // "88.88" remember...
+                text = text.substring(0, 5);
+            frameRateSliderText.setText(text);
+            frameRateSliderChanging = false;
             }
         }
 
@@ -1364,8 +1530,9 @@ public class Console extends JFrame implements Controller
     /** The thread that actually goes through the steps */
     Thread playThread;
     
-    /** A general lock used by a number of short methods which need to "synchronize on the play thread"
-        even if it's changing to another thread.  To do this, we use this official 'play thread lock' */
+    /** A general lock used by a number of short methods which need to synchronize on stuff used by
+        the play thread.  It's NOT needed to modify the play thread itself -- that's only done in the
+        outer GUI thread.  */
     final Object playThreadLock = new Object();
     
     /** Whether the thread should stop.  Don't play with this. */
@@ -1428,7 +1595,7 @@ public class Console extends JFrame implements Controller
     void startSimulation()
         {
         removeAllInspectors(true);      // clear inspectors
-        simulation.state.setSeed(randomSeed);   // reseed the generator
+        simulation.state.setSeed(randomSeed);   // reseed the generator.  Do this BEFORE simulation.start() so it gets properly primed
         simulation.start();
         updateTime(simulation.state.schedule.getSteps(), simulation.state.schedule.getTime(), -1.0);
         //setTime(simulation.state.schedule.getTime());
@@ -1773,12 +1940,18 @@ public class Console extends JFrame implements Controller
             e.printStackTrace();
             }*/
         }
-
+        
+    
+    
     /** Returns true if a new simulation has been created; false if the user cancelled. */
     static boolean doNew(JFrame originalFrame, boolean startingUp)
         {
         buildClassList();
-                
+        if (classNames.size() == 1)  // just launch it directly
+            {
+            return launchClass(originalFrame, (String) classNames.get(0));
+            }
+
         final String defaultText = "<html><body bgcolor='white'><font face='dialog'><br><br><br><br><p align='center'>Select a MASON simulation from the list at left,<br>or type a Java class name below.</p></font></body></html>";
         final String nothingSelectedText = "<html><body bgcolor='white'></body></html>";
                 
@@ -1828,7 +2001,7 @@ public class Console extends JFrame implements Controller
                     if (!e.getValueIsAdjusting()) try
                                                       {
                                                       field.setText((String)list.getSelectedValue());
-                                                      browser.setText(GUIState.getInfo(Class.forName(field.getText())));
+                                                      browser.setText(GUIState.getInfo(Class.forName(field.getText(), true, Thread.currentThread().getContextClassLoader())));
                                                       }
                         catch (Throwable ex)
                             {
@@ -1880,42 +2053,13 @@ public class Console extends JFrame implements Controller
             p.add(pane,BorderLayout.WEST);
             if (allowOtherClassNames) p.add(fieldp, BorderLayout.SOUTH);
                         
-            int reply = showOptionDialog(null, p, "New Simulation", new Object[] {"Select", 
-                                                                                  startingUp ? "Quit" : "Cancel"}, true);
+            int reply = showOptionDialog(null, p, "New Simulation", new Object[] {"Select", startingUp ? "Quit" : "Cancel"}, true);
             if (reply != 0 && !doubleClick[0])  // see long comment above
                 {
                 return false;
                 }
-                                                
-            String className = field.getText(); // (String)cb.getEditor().getItem();
-            try
-                {
-                // check first for a default constructor
-                java.lang.reflect.Constructor cons = Class.forName(className).getConstructor(new Class[] {});
-                // okay, we're past that.  Now try to build the instance
-                final GUIState state = (GUIState)(Class.forName(className).newInstance());
-                                
-                // Now we create the controller, which calls init on the state.  If we were just started up,
-                // doNew() is being called from main(), and thus from the main thread rather than the dispatch
-                // thread.  This creates weird bugs if mouse events get tangled up when adding new portrayals
-                // because the mouse events try to check to see how many portrayals there are (for hitObjects()),
-                // creating race conditions.  So we'll check for that condition and call invokeAndWait if so.
-                // Otherwise we'll just call it directly.
-                                
-                if (SwingUtilities.isEventDispatchThread())
-                    state.createController();
-                else SwingUtilities.invokeAndWait(new Runnable() { public void run() { state.createController(); } });
-                return true;
-                }
-            catch (NoSuchMethodException e)
-                {
-                Utilities.informOfError(e, "The simulation does not have a default constructor: " + className, originalFrame);
-                }
-            catch (Throwable e)  // Most likely NoClassDefFoundError
-                {
-                Utilities.informOfError(e, 
-                    "An error occurred while creating the simulation " + className, originalFrame);
-                }
+            
+            return launchClass(originalFrame, field.getText());           
             }
         }
 
@@ -2048,7 +2192,9 @@ public class Console extends JFrame implements Controller
     /** Called when the "show" button is pressed in the Displays window.  */
     synchronized void showSelectedFrames()
         {
-        Object[] vals = (Object[]) (frameListDisplay.getSelectedValues());
+        // for the time being we're using the old method because the new method is ONLY supported in >= 1.7
+        Object[] vals = frameListDisplay.getSelectedValues();
+//        Object[] vals = (Object[]) (frameListDisplay.getSelectedValuesList().toArray());
         for (int x = 0; x < vals.length; x++)
             {
             ((JFrame) (vals[x])).toFront();
@@ -2073,7 +2219,9 @@ public class Console extends JFrame implements Controller
     /** Called when the "hide" button is pressed in the Displays window */
     synchronized void hideSelectedFrames()
         {
-        Object[] vals = (Object[]) (frameListDisplay.getSelectedValues());
+        // for the time being we're using the old method because the new method is ONLY supported in >= 1.7
+        Object[] vals = frameListDisplay.getSelectedValues();
+//        Object[] vals = (Object[]) (frameListDisplay.getSelectedValuesList().toArray());
         for (int x = 0; x < vals.length; x++)
             {
             ((JFrame) (vals[x])).setVisible(false);
@@ -2263,17 +2411,20 @@ public class Console extends JFrame implements Controller
         return numStepsPerStepButtonPress;
         }
         
-    /** Sets the number of steps per stepp button press.  The value must be > 0 */
+    /** Sets the number of steps per stepp button press.  The value must be > 0.  If not, it will be set to 1. */
     public void setNumStepsPerStepButtonPress(int val)
         {
-        if (val > 0)
+        if (val <= 0) val = 1;
+        if (!stepSliderChanging)
             {
+            stepSliderChanging = true;
             numStepsPerStepButtonPress = val;
-            stepSliderText.setText("" + numStepsPerStepButtonPress);
-            slider.setValue(val);
+            stepSlider.setValue(val);
+            stepSliderText.setText("" + val);
+            stepSliderChanging = false;
             }
         }
-        
+
     /** Called when the user presses the play button.  You can call this as well to simulate the same.  Keep in mind that play will change to step if pause is down. */
     public synchronized void pressPlay()
         {
@@ -2340,7 +2491,7 @@ public class Console extends JFrame implements Controller
     final static int SHOWING_TIME = 0;
     final static int SHOWING_STEPS = 1;
     final static int SHOWING_TPS = 2;
-    final static int SHOWING_NOTHING = -1;
+    final static int SHOWING_NOTHING = 3;
     int showing = SHOWING_TIME;
      
     /** How the frame rate should look */
@@ -2394,9 +2545,11 @@ public class Console extends JFrame implements Controller
             case SHOWING_TPS:
                 if (lastRate != 0) updateTimeText(lastRate < 0 ? "" : rateFormat.format(lastRate));
                 break;
-            default:
+            case SHOWING_NOTHING:
                 updateTimeText("");
                 break;
+            default:
+                throw new RuntimeException("default case should never occur");
             }
         }
 
@@ -2910,9 +3063,9 @@ public class Console extends JFrame implements Controller
         These bags must match in size, else an exception will be thrown. */
     public void setInspectors(final Bag inspectors, final Bag names)
         {
-        Object oldSelectedInspector = null;
-        if (inspectors.objs.length > preferredInspectorIndex)
-            oldSelectedInspector = inspectors.objs[preferredInspectorIndex];
+        //Object oldSelectedInspector = null;
+        //if (inspectors.objs.length > preferredInspectorIndex)
+        //    oldSelectedInspector = inspectors.objs[preferredInspectorIndex];
         
         // clear out old inspectors
         removeAllInspectors(false);
@@ -2931,7 +3084,6 @@ public class Console extends JFrame implements Controller
                     {
                     public void step(final SimState state)
                         {
-                        final Steppable foo = this;
                         SwingUtilities.invokeLater(new Runnable()
                             {
                             Inspector inspector = (Inspector)(inspectors.objs[xx]);
@@ -3067,6 +3219,5 @@ public class Console extends JFrame implements Controller
         inspectorToolbars = new Vector();
         resetInspectors(-1);
         }
-
     }
 

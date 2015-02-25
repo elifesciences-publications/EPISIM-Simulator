@@ -30,13 +30,13 @@ import com.lowagie.text.pdf.*;
 */
 
 /**
-   TimeSeriesChartGenerator is a ChartGenerator which displays a histogram using the JFreeChart library.
+   HistogramGenerator is a ChartGenerator which displays a histogram using the JFreeChart library.
    The generator uses the HistoramDataset as its dataset, which holds histogram elements consisting of
    a name, an array of doubles (the samples), and an integer (the number of bins).  
    representing a time series displayed on the chart.  You add series to the generator with the <tt>addSeries</tt>
    method.
    
-   <p>TimeSeriesChartGenerator creates attributes components in the form of TimeSeriesAttributes, which work with
+   <p>HistogramGenerator creates attributes components in the form of HistogramSeriesAttributes, which work with
    the generator to properly update the chart to reflect changes the user has made to its display.
 */
 
@@ -89,7 +89,7 @@ public class HistogramGenerator extends XYChartGenerator
         for(int i=0; i < sa.length; i++)
             {
             HistogramSeriesAttributes attributes = (HistogramSeriesAttributes)(sa[i]);
-            dataset.addSeries(attributes.getSeriesName(), attributes.getValues(), attributes.getNumBins());
+            dataset.addSeries(new UniqueString(attributes.getSeriesName()), attributes.getValues(), attributes.getNumBins());
             }
                         
         setSeriesDataset(dataset);
@@ -127,7 +127,7 @@ public class HistogramGenerator extends XYChartGenerator
         HistogramDataset dataset = (HistogramDataset)(getSeriesDataset());
         int i = dataset.getSeriesCount();
         dataset.setType(histogramType);  // It looks like the histograms reset
-        dataset.addSeries(name, vals, bins);
+        dataset.addSeries(new UniqueString(name), vals, bins);
                 
         // need to have added the dataset BEFORE calling this since it'll try to change the name of the series
         HistogramSeriesAttributes csa = new HistogramSeriesAttributes(this, name, i, vals, bins, stopper);

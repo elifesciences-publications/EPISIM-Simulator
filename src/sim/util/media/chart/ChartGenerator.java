@@ -252,7 +252,7 @@ public abstract class ChartGenerator extends JPanel
     public void startMovie()
         {
         // can't start a movie if we're in an applet
-        if (SimApplet.isApplet)
+        if (SimApplet.isApplet())
             {
             Object[] options = {"Oops"};
             JOptionPane.showOptionDialog(
@@ -303,9 +303,7 @@ public abstract class ChartGenerator extends JPanel
 
 
     public abstract int getSeriesCount();
-
-
-
+    
 
     /** Deletes all series from the chart. */
     public void removeAllSeries()
@@ -393,8 +391,10 @@ public abstract class ChartGenerator extends JPanel
         {
         return validChartTitle;
         }
-                        
-
+    
+    //static int uniqueNameKey = 0;
+    //protected static String makeUniqueString(String name) { return name + (uniqueNameKey++); }
+                     
     /** Returns the underlying chart. **/
     public JFreeChart getChart()
         {
@@ -454,7 +454,6 @@ public abstract class ChartGenerator extends JPanel
 
 
         final JCheckBox legendCheck = new JCheckBox();
-        legendCheck.setSelected(false);
         ItemListener il = new ItemListener()
             {
             public void itemStateChanged(ItemEvent e)
@@ -473,6 +472,7 @@ public abstract class ChartGenerator extends JPanel
             };
         legendCheck.addItemListener(il);
         list.add(new JLabel("Legend"), legendCheck);
+        legendCheck.setSelected(true);
 
 /*
   final JCheckBox aliasCheck = new JCheckBox();
@@ -727,7 +727,7 @@ public abstract class ChartGenerator extends JPanel
                 }
             else // hope there's no one using 1.2! 
                 UIManager.put("ColorChooserUI", 
-                    Class.forName("ch.randelshofer.quaqua.Quaqua14ColorChooserUI").getName());
+                    Class.forName("ch.randelshofer.quaqua.Quaqua14ColorChooserUI", true, Thread.currentThread().getContextClassLoader()).getName());
             }
         catch (Exception e) { }
         }
@@ -836,7 +836,41 @@ public abstract class ChartGenerator extends JPanel
         {
         return new ScrollableChartPanel(chart, true); 
         }
+
+
+    // This ridiculous class exists so we can create Strings (of sorts) which are completely
+    // uncomparable and have a total sort order regardless of their values.  Otherwise
+    // (this is true) MultiplePiePlot won't allow multiple PiePlots with the same name.
+    public static class UniqueString implements java.lang.Comparable
+        {
+        String string;
         
-    }
+        public UniqueString(Object obj)
+            {
+            string = "" + obj;
+            }
+        
+        public boolean equals(Object obj)
+            {
+            return obj == this;
+            }
+                
+        public int compareTo(Object obj)
+            {
+            if (obj == this) return 0;
+            if (obj == null) throw new NullPointerException();
+            if (!(obj instanceof UniqueString)) return -1;
+            UniqueString us = (UniqueString)obj; 
+            if (us.string.equals(string))  // gotcha.  Gotta differentiate
+                {
+                if (System.identityHashCode(this) > System.identityHashCode(us))
+                    return 1; 
+                else return -1;
+                }
+            else return us.string.compareTo(string);
+            }
+                
+        public String toString() { return string; }
+        }    }
 
         

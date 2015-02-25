@@ -41,6 +41,15 @@ import com.lowagie.text.pdf.*;
 
 public class TimeSeriesChartGenerator extends XYChartGenerator
     {
+    public void clearAllSeries()
+        {
+        SeriesAttributes[] c = getSeriesAttributes();
+        for (int i = 0; i < c.length; i++)
+            {
+            ((TimeSeriesAttributes)(c[i])).clear();
+            }
+        }
+        
     public void removeSeries(int index)
         {
         super.removeSeries(index);
@@ -77,6 +86,7 @@ public class TimeSeriesChartGenerator extends XYChartGenerator
         XYSeriesCollection xysc = (XYSeriesCollection) getSeriesDataset();
 
         int i = xysc.getSeriesCount();
+        series.setKey(new ChartGenerator.UniqueString(series.getKey()));
         xysc.addSeries(series);
         TimeSeriesAttributes csa = new TimeSeriesAttributes(this, series, i, stopper); 
         seriesAttributes.add(csa);
@@ -152,6 +162,5 @@ public class TimeSeriesChartGenerator extends XYChartGenerator
                     }
                 }
             }); 
-
         }
     }

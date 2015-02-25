@@ -37,6 +37,16 @@ public class TimeSeriesAttributes extends SeriesAttributes
     static final float SPACE = 3;
     /** A long space */
     static final float SKIP = DASH;
+    
+    public static final int PATTERN_SOLID = 0;
+    public static final int PATTERN_LONG_DASH = 1;
+    public static final int PATTERN_STRETCH_DASH = 2;
+    public static final int PATTERN_DASH = 3;
+    public static final int PATTERN_DASH_DASH_DOT = 4;
+    public static final int PATTERN_DASH_DOT = 5;
+    public static final int PATTERN_DASH_DOT_DOT = 6;
+    public static final int PATTERN_DOT = 7;
+    public static final int PATTERN_STRETCH_DOT = 8;
 
     /** Nine dash combinations that the user might find helpful. */
     static final float[][] dashPatterns = 
@@ -86,9 +96,23 @@ public class TimeSeriesAttributes extends SeriesAttributes
 
     /** The time series in question.  */
     XYSeries series;
-    public void setSeriesName(String val) { series.setKey(val); }  // bypasses super.setSeriesName
+    public XYSeries getSeries() { return series; }
+    /** Clears the existing internal XYSeries, then adds all the series elements in the provided XYSeries to the
+        internal XYSeries.  Does not notify the chart to update.
+    */
+    public void setSeries(XYSeries series) 
+        {
+        this.series.clear();
+        int count = series.getItemCount();
+        for(int i = 0; i < count; i++)
+            this.series.add(series.getDataItem(i), true);
+        }  
+        
+    public void setSeriesName(String val) { series.setKey(new ChartGenerator.UniqueString(val)); }  // bypasses super.setSeriesName
     public String getSeriesName() { return "" + series.getKey(); }  // bypasses super.getSeriesName
-                
+    
+    public void clear() { series.clear(); }
+    
     /** Builds a TimeSeriesAttributes with the given generator, series, and index for the series. */
     public TimeSeriesAttributes(ChartGenerator generator, XYSeries series, int index, SeriesChangeListener stoppable)
         { 
@@ -103,7 +127,7 @@ public class TimeSeriesAttributes extends SeriesAttributes
             if (stretch*thickness > 0)
                 newDashPattern[x] = dashPatterns[dashPattern][x] * stretch * thickness;  // include thickness so we dont' get overlaps -- will this confuse users?
                 
-        XYItemRenderer renderer = getRenderer();
+        XYItemRenderer renderer = (XYItemRenderer)(((XYPlot)getPlot()).getRenderer());
             
         // we do two different BasicStroke options here because recent versions of Java (for example, 1.6.0_35_b10-428-11M3811 on Retina Displays)
         // break when defining solid strokes as { X, 0.0 } even though that's perfecty cromulent.  So instead we hack it so that the "solid" stroke
@@ -130,7 +154,7 @@ public class TimeSeriesAttributes extends SeriesAttributes
         thickness = 2.0f;
 
         // strokeColor = Color.black;  // rebuildGraphicsDefinitions will get called by our caller afterwards
-        XYItemRenderer renderer = getRenderer();
+        XYItemRenderer renderer = (((XYPlot)getPlot()).getRenderer());
 
         // NOTE:
         // Paint paint = renderer.getSeriesPaint(getSeriesIndex());        
@@ -209,13 +233,13 @@ public class TimeSeriesAttributes extends SeriesAttributes
             return false;
         }
                 
-    static Bag tmpBag = new Bag();
     void deleteItems(IntBag items)
         {
+        Bag tmpBag = new Bag();
+        
         if(items.numObjs==0)
             return;
 
-        tmpBag.clear();
         int currentTabooIndex = 0;
         int currentTaboo = items.objs[0];
         Iterator iter = series.getItems().iterator();
@@ -245,7 +269,6 @@ public class TimeSeriesAttributes extends SeriesAttributes
         //only clear the rest using delete(start, end).
         for(int i=0;i<tmpBag.numObjs;i++)
             series.add((XYDataItem)(tmpBag.objs[i]), false);//no notifying just yet.
-        tmpBag.clear();
         //it doesn't matter that I clear this twice in a row 
         //(once here, once at next time through this fn), the second time is O(1).
         series.fireSeriesChanged();

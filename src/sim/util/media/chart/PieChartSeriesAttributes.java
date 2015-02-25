@@ -31,19 +31,29 @@ import org.jfree.data.general.*;
 
 public class PieChartSeriesAttributes extends SeriesAttributes
     {
+    Object[] elements = null;
+    Collection elements2 = null;
+    
+    Object[] getElements() 
+        {
+        if (elements != null) return elements;
+        else return elements2.toArray();
+        }
+        
+    public void setElements(Object[] elts) { if (elts != null) elts = (Object[])(elts.clone()); elements = elts; elements2 = null; values = null; labels = null;}
+    public void setElements(Collection elts) { if (elts != null) elts = new ArrayList(elts); elements2 = elts; elements = null; values = null; labels = null;}
+    
     double[] values; 
-    double[] getValues() { return values; }
-    void setValues(double[] vals) { values = vals; }
+    public double[] getValues() { return values; }
+    public void setValues(double[] vals) { if (vals != null) vals = (double[])(vals.clone()); values = vals; elements = null; elements2 = null; }
     
     String[] labels;
-    String[] getLabels() { return labels; }
-    void setLabels(String[] labs) { labels = labs; }
+    public String[] getLabels() { return labels; }
+    public void setLabels(String[] labs) { if (labs != null) labs = (String[])(labs.clone()); labels = labs; }
     
-    public PieChartSeriesAttributes(ChartGenerator generator, String name, int index, double[] values, String[] labels, SeriesChangeListener stoppable)  // , boolean includeMargin)
+    public PieChartSeriesAttributes(ChartGenerator generator, String name, int index, SeriesChangeListener stoppable)  // , boolean includeMargin)
         { 
         super(generator, name, index, stoppable);
-        setValues(values);
-        setLabels(labels);
         super.setSeriesName(name);  // just set the name, don't update
         }
 

@@ -131,41 +131,41 @@ public class BiomechanicalModelFacade implements java.io.Serializable{
 	
 	public void clearCellField(){
 		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
-		if(biomechanicalModel instanceof AbstractMechanicalModel) ((AbstractMechanicalModel) biomechanicalModel).clearCellField();
+		if(biomechanicalModel instanceof AbstractBiomechanicalModel) ((AbstractBiomechanicalModel) biomechanicalModel).clearCellField();
 	}
 	
 	
 	public void resetCellField(){
 		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
-		if(biomechanicalModel instanceof AbstractMechanicalModel) ((AbstractMechanicalModel) biomechanicalModel).resetCellField();
+		if(biomechanicalModel instanceof AbstractBiomechanicalModel) ((AbstractBiomechanicalModel) biomechanicalModel).resetCellField();
 	}
 	
 	public void removeCellsInWoundArea(GeneralPath woundArea){
 		if(woundArea!=null){
 			EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
-			if(biomechanicalModel instanceof AbstractMechanical2DModel){ 
-				((AbstractMechanical2DModel) biomechanicalModel).removeCellsInWoundArea(woundArea);
+			if(biomechanicalModel instanceof AbstractBiomechanical2DModel){ 
+				((AbstractBiomechanical2DModel) biomechanicalModel).removeCellsInWoundArea(woundArea);
 			}
 		}
 	}	
 	
 	public void newSimStepGloballyFinished(long simStepNumber, SimState state){
 		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
-		if(biomechanicalModel instanceof AbstractMechanicalModel){
-			((AbstractMechanicalModel) biomechanicalModel).newSimStepGloballyFinished(simStepNumber, state);
+		if(biomechanicalModel instanceof AbstractBiomechanicalModel){
+			((AbstractBiomechanicalModel) biomechanicalModel).newSimStepGloballyFinished(simStepNumber, state);
 		}
 	}
 	public void newGlobalSimStep(long simStepNumber, SimState state){
 		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
-		if(biomechanicalModel instanceof AbstractMechanicalModel){
-			((AbstractMechanicalModel) biomechanicalModel).newGlobalSimStep(simStepNumber, state);
+		if(biomechanicalModel instanceof AbstractBiomechanicalModel){
+			((AbstractBiomechanicalModel) biomechanicalModel).newGlobalSimStep(simStepNumber, state);
 		}
 	}
 	
 	public Object getCellField(){
 		EpisimBiomechanicalModel biomechanicalModel = this.getNewEpisimBiomechanicalModelObject(null);
-		if(biomechanicalModel instanceof AbstractMechanicalModel){
-			return ((AbstractMechanicalModel) biomechanicalModel).getCellField();
+		if(biomechanicalModel instanceof AbstractBiomechanicalModel){
+			return ((AbstractBiomechanicalModel) biomechanicalModel).getCellField();
 		}
 		return null;
 	}

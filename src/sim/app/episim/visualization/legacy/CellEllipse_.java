@@ -3,8 +3,8 @@ package sim.app.episim.visualization.legacy;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import sim.app.episim.tissue.evaluation.tabledata.CellColumn;
-import sim.app.episim.tissue.xmlread.ImportedCellData;
+import sim.app.episim.tissueimport.evaluation.tabledata.CellColumn;
+import sim.app.episim.tissueimport.xmlread.ImportedCellData;
 
 public class CellEllipse_ extends AbstractCellEllipse_ {
 

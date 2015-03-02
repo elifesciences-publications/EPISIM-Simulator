@@ -23,6 +23,7 @@ import java.io.File;
 
 
 
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -39,7 +40,7 @@ import sim.app.episim.datamonitoring.CellColoringConfigurationPanel;
 import sim.app.episim.datamonitoring.ExpressionEditorPanel.ExpressionState;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.ObjectManipulations;
 import sim.app.episim.util.ProjectionPlane;
 import sim.app.episim.util.TissueCellDataFieldsInspector;

@@ -97,7 +97,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.EpisimMovieMaker;
 import sim.app.episim.util.Names;
 import sim.app.episim.visualization.TissueCrossSectionPortrayal3D;

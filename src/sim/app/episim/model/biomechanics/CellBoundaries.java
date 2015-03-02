@@ -8,7 +8,7 @@ import javax.media.j3d.Bounds;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.IntGrid2D;
 

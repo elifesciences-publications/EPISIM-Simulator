@@ -25,7 +25,7 @@ import sim.app.episim.model.biomechanics.vertexbased2D.util.CellPolygonRegistry;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.engine.SimState;

@@ -9,7 +9,7 @@ import org.w3c.dom.NodeList;
 
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
-import sim.app.episim.tissue.ImportedTissue;
+import sim.app.episim.tissueimport.ImportedTissue;
 
 public class XmlImportedTissue extends XmlObject<ImportedTissue> {
 

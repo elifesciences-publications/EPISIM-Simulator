@@ -6,7 +6,7 @@ import java.util.concurrent.Semaphore;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.GlobalClassLoader;
 import sim.app.episim.util.ObjectManipulations;

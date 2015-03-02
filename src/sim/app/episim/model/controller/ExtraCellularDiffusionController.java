@@ -28,7 +28,7 @@ import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
 import sim.app.episim.model.diffusion.TestDiffusionFieldConfiguration;
 import sim.app.episim.model.initialization.ExtraCellularDiffusionInitializer;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.app.episim.util.GlobalClassLoader;

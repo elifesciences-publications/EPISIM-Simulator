@@ -1,9 +1,7 @@
 package sim.app.episim.datamonitoring.charts;
 
 import java.awt.BorderLayout;
-
 import java.awt.Font;
-
 import java.util.List;
 import java.util.Random;
 
@@ -19,7 +17,6 @@ import org.jzy3d.colors.Color;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
 import org.jzy3d.chart.Settings;
-
 import org.jzy3d.maths.BoundingBox3d;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.maths.Range;
@@ -51,7 +48,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.ExtraCellularDiffusionController.DiffusionFieldCrossSectionMode;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.EnhancedSteppable;
 import sim.engine.SimState;
 import sim.field.grid.DoubleGrid2D;

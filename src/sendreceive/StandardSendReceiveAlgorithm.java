@@ -8,7 +8,7 @@ import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.util.DoubleBag;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;

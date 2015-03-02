@@ -20,7 +20,7 @@ import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.ObjectManipulations;
 import sim.engine.SimState;
 

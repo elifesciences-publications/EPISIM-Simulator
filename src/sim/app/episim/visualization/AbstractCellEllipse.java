@@ -5,14 +5,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
-
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper.IntersectionPoints;
 import sim.portrayal.DrawInfo2D;

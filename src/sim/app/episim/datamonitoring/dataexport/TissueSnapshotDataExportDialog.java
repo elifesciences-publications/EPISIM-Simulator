@@ -34,9 +34,9 @@ import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.gui.ImageLoader;
 import sim.app.episim.gui.EpisimProgressWindow.EpisimProgressWindowCallback;
 import sim.app.episim.persistence.SimulationStateFile;
-import sim.app.episim.tissue.TissueController;
-import sim.app.episim.tissue.TissueType;
-import sim.app.episim.tissue.UniversalTissue;
+import sim.app.episim.tissueimport.TissueController;
+import sim.app.episim.tissueimport.TissueType;
+import sim.app.episim.tissueimport.UniversalTissue;
 
 
 public class TissueSnapshotDataExportDialog extends JDialog {

@@ -10,7 +10,7 @@ import javax.vecmath.Vector3d;
 
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.field.grid.DoubleGrid2D;
 import sim.field.grid.IntGrid2D;
 

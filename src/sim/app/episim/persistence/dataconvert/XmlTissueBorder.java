@@ -6,9 +6,9 @@ import org.w3c.dom.NodeList;
 
 import sim.app.episim.persistence.ExportException;
 import sim.app.episim.persistence.XmlFile;
-import sim.app.episim.tissue.ImportedTissue;
-import sim.app.episim.tissue.TissueBorder;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.ImportedTissue;
+import sim.app.episim.tissueimport.TissueBorder;
+import sim.app.episim.tissueimport.TissueController;
 
 public class XmlTissueBorder extends XmlObject<TissueBorder> {
 

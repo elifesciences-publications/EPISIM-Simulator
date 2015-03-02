@@ -15,7 +15,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlEpisimBiomechanicalModel;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.portrayal.Portrayal;
 
 public abstract class BiomechanicalModelInitializer {

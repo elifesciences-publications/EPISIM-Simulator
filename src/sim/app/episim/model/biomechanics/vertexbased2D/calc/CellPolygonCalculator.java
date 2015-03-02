@@ -15,8 +15,8 @@ import sim.app.episim.model.biomechanics.vertexbased2D.geom.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased2D.util.GlobalBiomechanicalStatistics;
 import sim.app.episim.model.biomechanics.vertexbased2D.util.GlobalBiomechanicalStatistics.GBSValue;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissue.TissueBorder;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueBorder;
+import sim.app.episim.tissueimport.TissueController;
 
 
 public class CellPolygonCalculator {

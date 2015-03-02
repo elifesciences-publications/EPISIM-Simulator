@@ -33,7 +33,7 @@ import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DMod
 import sim.app.episim.model.biomechanics.centerbased3D.AbstractCenterBased3DModel;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.engine.SimState;

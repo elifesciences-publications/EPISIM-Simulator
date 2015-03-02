@@ -3,7 +3,7 @@ package sim.app.episim.visualization.legacy;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 
-import sim.app.episim.tissue.xmlread.AbstractImportedObjectData;
+import sim.app.episim.tissueimport.xmlread.AbstractImportedObjectData;
 
 public abstract class AbstractCellEllipse_ {
 	private transient Area clippedEllipse;

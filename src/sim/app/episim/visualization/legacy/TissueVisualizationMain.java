@@ -46,7 +46,7 @@ import episimexceptions.ModelCompatibilityException;
 import episimmcc.vertexbased.EpisimVertexBasedMC;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.gui.ExtendedFileChooser;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.ExtendedColorWell;
 import sim.app.episim.util.ExtendedLabelledList;
 import sim.app.episim.visualization.CellEllipse;

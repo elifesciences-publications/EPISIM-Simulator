@@ -20,7 +20,7 @@ import sim.app.episim.model.biomechanics.vertexbased2D.util.CellPolygonRegistry;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.CellInspector;
 import sim.app.episim.visualization.ContinuousUniversalCellPortrayal2D;
 import sim.app.episim.visualization.UniversalCellPortrayal2D;

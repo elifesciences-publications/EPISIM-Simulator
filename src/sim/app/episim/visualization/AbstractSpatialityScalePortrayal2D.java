@@ -4,7 +4,7 @@ import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.Scale;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;

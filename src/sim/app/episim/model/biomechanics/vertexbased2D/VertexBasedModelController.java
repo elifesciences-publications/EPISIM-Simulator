@@ -7,9 +7,9 @@ import sim.app.episim.model.biomechanics.vertexbased2D.calc.CellPolygonCalculato
 import sim.app.episim.model.biomechanics.vertexbased2D.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased2D.geom.ContinuousVertexField;
 import sim.app.episim.model.biomechanics.vertexbased2D.util.CellCanvas;
-import sim.app.episim.tissue.TissueController;
-import sim.app.episim.tissue.TissueController.TissueRegistrationListener;
-import sim.app.episim.tissue.TissueType;
+import sim.app.episim.tissueimport.TissueController;
+import sim.app.episim.tissueimport.TissueType;
+import sim.app.episim.tissueimport.TissueController.TissueRegistrationListener;
 import sim.app.episim.util.BagChangeEvent;
 import sim.app.episim.util.BagChangeListener;
 import sim.app.episim.util.ClassLoaderChangeListener;

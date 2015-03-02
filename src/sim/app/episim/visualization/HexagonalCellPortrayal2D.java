@@ -30,7 +30,7 @@ import sim.app.episim.model.biomechanics.latticebased2D.AbstractLatticeBased2DMo
 import sim.app.episim.model.biomechanics.latticebased2D.AbstractLatticeBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;

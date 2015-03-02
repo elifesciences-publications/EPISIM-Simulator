@@ -45,7 +45,7 @@ import sim.app.episim.datamonitoring.parser.ParseException;
 import sim.app.episim.datamonitoring.parser.TokenMgrError;
 import sim.app.episim.gui.ExtendedFileChooser;
 import sim.app.episim.model.AbstractCell;
-import sim.app.episim.tissue.TissueType;
+import sim.app.episim.tissueimport.TissueType;
 import sim.app.episim.util.ClassLoaderChangeListener;
 import sim.app.episim.util.CompatibilityChecker;
 import sim.app.episim.util.EnhancedSteppable;

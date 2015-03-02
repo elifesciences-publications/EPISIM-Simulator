@@ -19,7 +19,7 @@ import sim.app.episim.model.diffusion.ExtraCellularDiffusionFieldBCConfigRW;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.visualization.ExtraCellularDiffusionCrossSectionPortrayal3D;
 import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal;
 import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal2D;

@@ -8,7 +8,7 @@ import java.util.Set;
 
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissue.TissueType;
+import sim.app.episim.tissueimport.TissueType;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.monitoring.EpisimChart;
 import episiminterfaces.monitoring.EpisimChartSet;

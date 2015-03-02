@@ -36,7 +36,7 @@ import sim.app.episim.datamonitoring.ExpressionEditorPanel.ExpressionType;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.tissue.TissueType;
+import sim.app.episim.tissueimport.TissueType;
 import episiminterfaces.*;
 
 public class TissueCellDataFieldsInspector {

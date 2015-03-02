@@ -19,7 +19,7 @@ import sim.app.episim.datamonitoring.charts.build.ChartSourceBuilder;
 import sim.app.episim.datamonitoring.charts.io.PNGPrinter;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.Names;
 import sim.app.episim.util.ProjectionPlane;
 import sim.engine.SimState;

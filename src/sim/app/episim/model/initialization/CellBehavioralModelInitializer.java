@@ -18,7 +18,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.sbml.SBMLModelConnector;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlEpisimCellBehavioralModel;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.TysonRungeCuttaCalculator;
 
 public class CellBehavioralModelInitializer {

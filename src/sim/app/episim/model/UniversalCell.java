@@ -13,10 +13,10 @@ import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffL
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.sbml.SBMLModelConnector;
-import sim.app.episim.tissue.UniversalTissue;
-import sim.app.episim.tissue.TissueServer;
-import sim.app.episim.tissue.TissueController;
-import sim.app.episim.tissue.TissueType.SchedulePriority;
+import sim.app.episim.tissueimport.TissueController;
+import sim.app.episim.tissueimport.TissueServer;
+import sim.app.episim.tissueimport.UniversalTissue;
+import sim.app.episim.tissueimport.TissueType.SchedulePriority;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;

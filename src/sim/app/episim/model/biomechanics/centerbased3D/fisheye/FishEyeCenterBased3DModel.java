@@ -22,7 +22,7 @@ import sim.app.episim.model.biomechanics.centerbased3D.AbstractCenterBased3DMode
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
-import sim.app.episim.tissue.TissueController;
+import sim.app.episim.tissueimport.TissueController;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Loop;
 import sim.app.episim.visualization.EpisimDrawInfo;

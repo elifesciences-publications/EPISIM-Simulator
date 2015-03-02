@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.centerbased3D.oldmodel;
+package sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel;
 
 import java.awt.Color;
 import java.awt.Shape;

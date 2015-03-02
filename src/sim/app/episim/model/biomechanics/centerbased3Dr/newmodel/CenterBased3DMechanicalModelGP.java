@@ -1,42 +1,63 @@
-package sim.app.episim.model.biomechanics.centerbased3D.fisheye;
-
-import javax.vecmath.Point3d;
+package sim.app.episim.model.biomechanics.centerbased3Dr.newmodel;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoUserModification;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters.ModelDimensionality;
 
 
-public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
+public class CenterBased3DMechanicalModelGP  implements EpisimBiomechanicalModelGlobalParameters, java.io.Serializable {
 	
-	private double width = 550;
-	private double height = 1050;
-	private double length = 1050;
-	
-	private double initialInnerEyeRadius = 100;
-	private double innerEyeRadius = 100;
+	private int basalAmplitude_mikron = 40; // depth of an undulation
+	private int basalPeriod_mikron = 100;
+	private int basalYDelta_mikron = 5;
+	private int basalOpening_mikron = 500; // width of undulation at the middle
+	private double width = 200;
+	private double height = 200;
+	private double length = 200;
 	private double randomness = 0;//0.00000000125;
-		
+	private double seedMinDepth_frac = 0.02;//0.25; // beginning with which depth a stem cell is seeded
+	
+	private int basalDensity_mikron = 18;//
+
+	
+	
 	private double neighborhood_mikron= 20.0; 
 	private double numberOfPixelsPerMicrometer = 1;
-	private int numberOfSecondsPerSimStep=3600;
+	private int numberOfSecondsPerSimStep=1800;
 	
 	private double mechanicalNeighbourhoodOptDistFact = 1.5;
 	private double directNeighbourhoodOptDistFact = 1.3;	
 	private double optDistanceAdhesionFact = 1.3;
-	private double optDistanceScalingFactor = 0.95;
+	private double optDistanceScalingFactor = 0.85;
 	private double optDistanceToBMScalingFactor = 0.95;
-	private double dummyCellOptDistanceScalingFactor = 0.5;
-	private double linearToExpMaxOverlap_Perc = 0.8;
+	private double linearToExpMaxOverlap_Perc = 0.5;
 	private double repulSpringStiffness_N_per_micro_m = 0.0000000022;
 	private double adhSpringStiffness_N_per_square_micro_m = 0.000000000022;//0.000000000149;
 	
-	private double initMinAverageMigration = 0.6;
-	private double prolifCompWidthMikron= 20;
 	private int neighbourLostThres = 10;
 	
 	
-	public FishEyeCenterBased3DModelGP() {}	
+	public CenterBased3DMechanicalModelGP() {}	
+		
+	public int getBasalAmplitude_mikron() {
+		return basalAmplitude_mikron;
+	}
+
+	public void setBasalAmplitude_mikron(int val) {
+		if(val >= 0.0)
+			basalAmplitude_mikron = val;
+	}
+	
+	public int getBasalOpening_mikron() {
+		return basalOpening_mikron;
+	}
+
+	public void setBasalOpening_mikron(int val) {
+		if(val >= 0.0)
+			basalOpening_mikron = val;
+	}	
+
+	
 	
 	public double getRandomness() {
 		return randomness;
@@ -52,6 +73,27 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
 	
 	@NoUserModification
  	public void setNeighborhood_mikron(double val) { if (val > 0) neighborhood_mikron= val; }	
+
+	public double getSeedMinDepth_frac() {
+		return seedMinDepth_frac;
+	}
+
+	public void setSeedMinDepth_frac(double val) {
+		if(val >= 0.0)
+			seedMinDepth_frac = val;
+	}
+
+	
+
+	public int getBasalDensity_mikron() {
+		return basalDensity_mikron;
+	}
+
+	public void setBasalDensity_mikron(int val) {
+		if(val >= 0)
+			basalDensity_mikron = val;
+	}
+	
 	
 	public void setWidthInMikron(double val) {
 		if(val > 0)	width = val;
@@ -132,7 +174,33 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
    public void setOptDistanceScalingFactor(double optDistanceScalingFactor) {
    
    	this.optDistanceScalingFactor = optDistanceScalingFactor > 0 ? optDistanceScalingFactor: 0.001;
-   }  
+   }
+	
+   public int getBasalPeriod_mikron() {
+   
+   	return basalPeriod_mikron;
+   }
+
+	
+   public void setBasalPeriod_mikron(int basalPeriod_mikron) {
+   
+   	this.basalPeriod_mikron = basalPeriod_mikron;
+   }
+
+	
+   public int getBasalYDelta_mikron() {
+   
+   	return basalYDelta_mikron;
+   }
+
+	
+   public void setBasalYDelta_mikron(int basalYDelta_mikron) {
+   
+   	this.basalYDelta_mikron = basalYDelta_mikron;
+   }
+
+	
+   
 	
    public double getLinearToExpMaxOverlap_perc() {
    
@@ -200,120 +268,4 @@ public class FishEyeCenterBased3DModelGP implements EpisimBiomechanicalModelGlob
    
    	this.neighbourLostThres = neighbourLostThres;
    }
-
-	@Override
-   public int getBasalOpening_mikron() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
-   }
-
-	@Override
-   public void setBasalOpening_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
-   }
-
-	@Override
-   public int getBasalAmplitude_mikron() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
-   }
-
-	@Override
-   public void setBasalAmplitude_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
-   }
-
-	@Override
-   public int getBasalPeriod_mikron() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
-   }
-
-	@Override
-   public void setBasalPeriod_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
-   }
-
-	@Override
-   public int getBasalYDelta_mikron() {
-
-	   // TODO Auto-generated method stub
-	   return 0;
-   }
-
-	@Override
-   public void setBasalYDelta_mikron(int val) {
-
-	   // TODO Auto-generated method stub
-	   
-   }
-
-	
-   public double getInitialInnerEyeRadius(){   
-   	return initialInnerEyeRadius;
-   }
-	
-   public void setInitialInnerEyeRadius(double initialInnerEyeRadius) {   
-   	this.initialInnerEyeRadius = initialInnerEyeRadius;
-   }
-
-	@NoUserModification
-   public double getInnerEyeRadius() {   
-   	return innerEyeRadius;
-   }
-
-	@NoUserModification
-   public void setInnerEyeRadius(double innerEyeRadius) {   
-   	this.innerEyeRadius = innerEyeRadius;
-   }
-	@NoUserModification
-	public Point3d getInnerEyeCenter(){
-		return new Point3d(50d, getHeightInMikron()/2d, getLengthInMikron()/2d );
-	}
-
-	
-   public double getInitMinAverageMigration() {
-   
-   	return initMinAverageMigration;
-   }
-
-	
-   public void setInitMinAverageMigration(double initMinAverageMigration) {
-   
-   	this.initMinAverageMigration = initMinAverageMigration;
-   }
-
-	
-   public double getProlifCompWidthMikron() {
-   
-   	return prolifCompWidthMikron;
-   }
-
-	
-   public void setProlifCompWidthMikron(double prolifCompWidthMikron) {
-   
-   	this.prolifCompWidthMikron = prolifCompWidthMikron;
-   }
-
-	
-   public double getDummyCellOptDistanceScalingFactor() {
-   
-   	return dummyCellOptDistanceScalingFactor;
-   }
-
-	
-   public void setDummyCellOptDistanceScalingFactor(double dummyCellOptDistanceScalingFactor) {
-   
-   	this.dummyCellOptDistanceScalingFactor = dummyCellOptDistanceScalingFactor;
-   }
-
 }

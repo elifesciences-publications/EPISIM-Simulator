@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.centerbased3D.oldmodel.wound;
+package sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.wound;
 
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

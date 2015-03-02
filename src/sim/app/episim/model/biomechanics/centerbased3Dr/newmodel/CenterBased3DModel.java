@@ -1,24 +1,39 @@
-package sim.app.episim.model.biomechanics.centerbased3D.fisheye;
+package sim.app.episim.model.biomechanics.centerbased3Dr.newmodel;
 
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.vecmath.Matrix3d;
+import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
+import ec.util.MersenneTwisterFast;
+import episimbiomechanics.EpisimModelConnector;
+import episimbiomechanics.centerbased.newversion.EpisimCenterBasedMC;
+import episimbiomechanics.centerbased3d.newversion.EpisimCenterBased3DMC;
+import episimexceptions.GlobalParameterException;
+import episiminterfaces.EpisimCellShape;
+import episiminterfaces.NoExport;
+import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
 import sim.app.episim.model.biomechanics.AbstractCenterBased3DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Ellipsoid;
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
+import sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased3Dr.newmodel.chemotaxis.ChemotaxisCenterBased3DModelGP;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
@@ -30,32 +45,34 @@ import sim.engine.SimState;
 import sim.field.continuous.Continuous3D;
 import sim.field.continuous.Continuous3DExt;
 import sim.util.Bag;
+import sim.util.Double2D;
 import sim.util.Double3D;
-import ec.util.MersenneTwisterFast;
-import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC;
-import episimexceptions.GlobalParameterException;
-import episiminterfaces.EpisimCellShape;
-import episiminterfaces.NoExport;
-import episiminterfaces.monitoring.CannotBeMonitored;
 
 
-public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
-		
+public class CenterBased3DModel extends AbstractCenterBased3DModel{
+	
+	private static final Point3d NEGATIVE_INFINITY_POINT = new Point3d(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+	
 	public final double NEXT_TO_OUTERCELL_FACT=1.2;
    private double MIN_OVERLAP_MICRON=0.1;   
-	   
+	
+   private boolean isChemotaxisEnabled = false;
+   private boolean isContinuousInXDirection = true;
+   private boolean isContinuousInYDirection = false;
+   private boolean isContinuousInZDirection = true;
+   
    private double standardCellWidth=0; 
    private double standardCellHeight=0; 
    private double standardCellLength=0;
    
    private InteractionResult finalInteractionResult;
    
-   private EpisimFishEyeCenterBased3DMC modelConnector;
+   private EpisimCenterBased3DMC modelConnector;
    
-   private FishEyeCenterBased3DModelGP globalParameters = null;
-   
-   private double migrationDistPerSimStep = 0;
+   private CenterBased3DMechanicalModelGP globalParameters = null;
+   private ChemotaxisCenterBased3DModelGP globalParametersChemotaxis=null;
+   private double surfaceAreaRatio =0;
+   private boolean isSurfaceCell = false;
    
 	private static Continuous3DExt cellField;
 	
@@ -65,33 +82,27 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    private static final double MAX_DISPLACEMENT = 10;
    
    private Double3D cellLocation=null;
-   private Double3D oldCellLocation = null;
    private GenericBag<AbstractCell> directNeighbours;
    private HashSet<Long> directNeighbourIDs;
    private HashMap<Long, Integer> lostNeighbourContactInSimSteps;
    
-   private double motherCellInnerEyeRadius = 0;
-      
-   private static Continuous3DExt dummyCellField;
-   private static boolean dummyCellsAdded = false;
-   private static double dummyCellSize = 0;   
-   
-	public FishEyeCenterBased3DModel(){
+	public CenterBased3DModel(){
    	this(null);
    }
    
-   public FishEyeCenterBased3DModel(AbstractCell cell){
+   public CenterBased3DModel(AbstractCell cell){
    	super(cell);   	
    	if(cellField == null){
    		cellField = new Continuous3DExt(FIELD_RESOLUTION_IN_MIKRON / 1.5, 
 					TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
 					TissueController.getInstance().getTissueBorder().getHeightInMikron(),
-					TissueController.getInstance().getTissueBorder().getLengthInMikron());   		
-   	}
-     	if(globalParameters == null){
+					TissueController.getInstance().getTissueBorder().getLengthInMikron());
+   		
+   	}   	
+   	if(globalParameters == null){
 	  		 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
-	  		 			instanceof FishEyeCenterBased3DModelGP){
-	  		 		globalParameters = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+	  		 			instanceof CenterBased3DMechanicalModelGP){
+	  		 		globalParameters = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	  		 	}   	
 	  		 	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
 	  		 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
@@ -99,16 +110,15 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	 	}
       if(cell != null && cell.getMotherCell() != null){
 	      double deltaX = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;
-	      double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025; 
+	      double deltaY = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005; 
 	      double deltaZ = TissueController.getInstance().getActEpidermalTissue().random.nextDouble()*0.005-0.0025;    
 	      
-	      if(cell.getMotherCell().getEpisimBioMechanicalModelObject() instanceof FishEyeCenterBased3DModel){
-	      	EpisimModelConnector motherCellConnector =((FishEyeCenterBased3DModel) cell.getMotherCell().getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
-	      	if(motherCellConnector instanceof EpisimFishEyeCenterBased3DMC){
-	      		motherCellInnerEyeRadius= ((EpisimFishEyeCenterBased3DMC) motherCellConnector).getInnerEyeRadius();
-	      		setCellWidth(((EpisimFishEyeCenterBased3DMC)motherCellConnector).getWidth()); 
-	      		setCellHeight(((EpisimFishEyeCenterBased3DMC)motherCellConnector).getHeight());
-	      		setCellLength(((EpisimFishEyeCenterBased3DMC)motherCellConnector).getLength());
+	      if(cell.getMotherCell().getEpisimBioMechanicalModelObject() instanceof CenterBased3DModel){
+	      	EpisimModelConnector motherCellConnector =((CenterBased3DModel) cell.getMotherCell().getEpisimBioMechanicalModelObject()).getEpisimModelConnector();
+	      	if(motherCellConnector instanceof EpisimCenterBased3DMC){
+	      		setCellWidth(((EpisimCenterBased3DMC)motherCellConnector).getWidth()); 
+	      		setCellHeight(((EpisimCenterBased3DMC)motherCellConnector).getHeight());
+	      		setCellLength(((EpisimCenterBased3DMC)motherCellConnector).getLength());
 	      	}
 	      }
 	      
@@ -122,54 +132,17 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
       directNeighbours = new GenericBag<AbstractCell>();
       directNeighbourIDs = new HashSet<Long>();
       lostNeighbourContactInSimSteps=new HashMap<Long, Integer>();
-   }
-   public static Continuous3D getDummyCellField(){
-   	return dummyCellField;
-   }
-   public static void setDummyCellSize(double dummyCellSize){
-   	if(dummyCellSize >0){
-   		dummyCellField	= new Continuous3DExt(FIELD_RESOLUTION_IN_MIKRON / 1.5, 
-   				TissueController.getInstance().getTissueBorder().getWidthInMikron(), 
-   				TissueController.getInstance().getTissueBorder().getHeightInMikron(),
-   				TissueController.getInstance().getTissueBorder().getLengthInMikron());
-	   		   	
-	   		
-	   		dummyCellsAdded = true;	   		
-	   		FishEyeCenterBased3DModel.dummyCellSize = dummyCellSize;
-   	}
-   }
-   private void generateDummyCells(double cellSize){
-		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		double circumference = 2*mechModelGP.getInnerEyeRadius()*Math.PI;
-		double scalingFact = mechModelGP.getDummyCellOptDistanceScalingFactor();
-		double numberOfCells = Math.ceil(circumference/(cellSize*scalingFact));
-		double angleIncrement = (2*Math.PI)/numberOfCells;
-		Point3d fishEyeCenter = mechModelGP.getInnerEyeCenter();
-		dummyCellField.clear();
-		for(double i = 0; i < (2*Math.PI);i+=angleIncrement){
-			double z = fishEyeCenter.z + mechModelGP.getInnerEyeRadius()* Math.cos(i);
-			double y = fishEyeCenter.y + mechModelGP.getInnerEyeRadius()* Math.sin(i);
-			Double3D newPos = new Double3D((fishEyeCenter.x - (cellSize/2d)), y, z);			
-			DummyCell dummyCell= new DummyCell(newPos,cellSize, cellSize, cellSize);
-			dummyCellField.setObjectLocation(dummyCell, newPos);
-		}
-		
-	}
+   } 
    
    public void setEpisimModelConnector(EpisimModelConnector modelConnector){
-   	if(modelConnector instanceof EpisimFishEyeCenterBased3DMC){
-   		this.modelConnector = (EpisimFishEyeCenterBased3DMC) modelConnector;
+   	if(modelConnector instanceof EpisimCenterBased3DMC){
+   		this.modelConnector = (EpisimCenterBased3DMC) modelConnector;
    		Double3D loc = cellLocation == null? cellField.getObjectLocation(getCell()):cellLocation;
    		if(loc != null){
    			this.modelConnector.setX(loc.x);
    			this.modelConnector.setY(loc.y);
    			this.modelConnector.setZ(loc.z);
-   		}
-   		if(motherCellInnerEyeRadius>0){
-   			 this.modelConnector.setInnerEyeRadius(motherCellInnerEyeRadius);
-   			 motherCellInnerEyeRadius=-1;
-   		}
-   		else if(globalParameters != null) this.modelConnector.setInnerEyeRadius(globalParameters.getInnerEyeRadius());
+   		}   		
    	}
    	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimCenterBased3DMC");
    } 
@@ -214,7 +187,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
       	 if (neighbours.objs[i]==null || !(neighbours.objs[i] instanceof AbstractCell)) continue;          
        
           AbstractCell other = (AbstractCell)(neighbours.objs[i]);
-          FishEyeCenterBased3DModel mechModelOther = (FishEyeCenterBased3DModel) other.getEpisimBioMechanicalModelObject();
+          CenterBased3DModel mechModelOther = (CenterBased3DModel) other.getEpisimBioMechanicalModelObject();
           if (other != getCell() && mechModelOther !=null)
           {   	 
              
@@ -222,14 +195,14 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
              double otherSemiAxisB = mechModelOther.getCellHeight()/2;
              double otherSemiAxisC = mechModelOther.getCellLength()/2;
          	 
-             Double3D otherloc = mechModelOther.cellLocation == null ? cellField.getObjectLocation(other) : mechModelOther.cellLocation;
+             Double3D otherloc=mechModelOther.cellLocation == null? cellField.getObjectLocation(other) : mechModelOther.cellLocation;
              
              double dx = cellField.tdx(thisloc.x,otherloc.x); 
              double dy = cellField.tdy(thisloc.y,otherloc.y);
              double dz = cellField.tdz(thisloc.z,otherloc.z); 
              
             
-             Point3d otherlocP = new Point3d(otherloc.x, otherloc.y, otherloc.z);
+             Point3d otherlocP= new Point3d(otherloc.x, otherloc.y, otherloc.z);
                                       
              double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(thislocP, 
 							otherPosToroidalCorrection(thislocP, otherlocP), 
@@ -292,7 +265,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
             	
              }
              
-             if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC && finalSimStep){
+             if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
             	 
           		double contactAreaCorrect = 0;
           		if(actDist < optDist*globalParameters.getOptDistanceAdhesionFact()){
@@ -304,7 +277,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
           						otherPosToroidalCorrection(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(mechModelOther.getX(), mechModelOther.getY(), mechModelOther.getZ())),
           					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisC, otherSemiAxisA, otherSemiAxisB, otherSemiAxisC, requiredDistanceToMembraneThis, requiredDistanceToMembraneOther, actDist, optDist);
           			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
-          			((episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
+          			((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
              		totalContactArea+= Math.abs(contactAreaCorrect); 
           		}          		
           		        		
@@ -312,80 +285,59 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
              
            }          
         }
-       	//calculate forces of dummy neighbours at boundary
-       if(dummyCellsAdded){
-      	 Bag dummyNeighbours = dummyCellField.getNeighborsWithinDistance(thisloc, 
- 					getCellWidth()*globalParameters.getMechanicalNeighbourhoodOptDistFact(),
- 					getCellHeight()*globalParameters.getMechanicalNeighbourhoodOptDistFact(),
- 					getCellLength()*globalParameters.getMechanicalNeighbourhoodOptDistFact(),					
- 					true, true);
-      	 for(int i = 0; i < dummyNeighbours.size(); i++){
-      		 
-      		 DummyCell dummyNeighbour = (DummyCell)dummyNeighbours.get(i);
-	      	 double otherSemiAxisA = dummyNeighbour.getCellWidth()/2;             
-	          double otherSemiAxisB = dummyNeighbour.getCellHeight()/2;
-	          double otherSemiAxisC = dummyNeighbour.getCellLength()/2;
-	      	 
-	          Double3D otherloc = dummyNeighbour.getCellPosition();
-	          
-	          double dx = dummyCellField.tdx(thisloc.x,otherloc.x); 
-	          double dy = dummyCellField.tdy(thisloc.y,otherloc.y);
-	          double dz = dummyCellField.tdz(thisloc.z,otherloc.z); 
-	          
-	         
-	          Point3d otherlocP = new Point3d(otherloc.x, otherloc.y, otherloc.z);
-	                                   
-	          double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(thislocP, 
-							otherPosToroidalCorrection(thislocP, otherlocP), 
-							thisSemiAxisA, thisSemiAxisB, thisSemiAxisC);
-	          double requiredDistanceToMembraneOther = calculateDistanceToCellCenter(otherlocP, 
-								otherPosToroidalCorrection(otherlocP, thislocP), 
-								otherSemiAxisA, otherSemiAxisB, otherSemiAxisC);            
-	          double optDistScaled = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther)*globalParameters.getOptDistanceScalingFactor();
-	          double optDist = (requiredDistanceToMembraneThis+requiredDistanceToMembraneOther);    
-	       
-	                                  
-	          double actDist=Math.sqrt(dx*dx+dy*dy+dz*dz);
-	                
-	          if (optDistScaled-actDist>MIN_OVERLAP_MICRON && actDist > 0) // is the difference from the optimal distance really significant
-	          {
-	             //According to Pathmanathan et al. 2009
-	         	 double overlap = optDistScaled - actDist;
-	         	 double stiffness = globalParameters.getRepulSpringStiffness_N_per_micro_m(); //Standard: 2.2x10^-3Nm^-1*1*10^-6 conversion in micron 
-	         	 double linearToExpMaxOverlapPerc = globalParameters.getLinearToExpMaxOverlap_perc();
-	         	 double alpha=1;
-	         	 
-	         	 //without hard core
-	         	 double force = overlap<= (optDistScaled*linearToExpMaxOverlapPerc) ? overlap*stiffness: stiffness * (optDistScaled*linearToExpMaxOverlapPerc)*Math.exp(alpha*((overlap/(optDistScaled*linearToExpMaxOverlapPerc))-1));
-	         	 interactionResult.repulsiveForce.x += force*dx/actDist;
-	         	 interactionResult.repulsiveForce.y += force*dy/actDist;
-	         	 interactionResult.repulsiveForce.z += force*dz/actDist;                                                           
-	           }
-      	 }
+       if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
+      	 ((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setTotalContactArea(totalContactArea);
        }
-       	
-       
-        modelConnector.setContactAreaInnerEye(0);
-        if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC && finalSimStep){
-      	 ((episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC)this.modelConnector).setTotalContactArea(totalContactArea);
-      	 
-      	  double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(thislocP, 
-						otherPosToroidalCorrection(thislocP, globalParameters.getInnerEyeCenter()), 
-						thisSemiAxisA, thisSemiAxisB, thisSemiAxisC);
-      	 Point3d thisLocPoint = new Point3d(thisloc.x, thisloc.y, thisloc.z);
-      	 double dy = cellField.tdy(thisloc.y,globalParameters.getInnerEyeCenter().y);
-      	 double contactAreaInnerEyeCorrect= calculateContactAreaNew(thisLocPoint,
-						otherPosToroidalCorrection(thisLocPoint, globalParameters.getInnerEyeCenter()),
-								dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisC, globalParameters.getInnerEyeRadius(), globalParameters.getInnerEyeRadius(), 
-								globalParameters.getInnerEyeRadius(), requiredDistanceToMembraneThis, globalParameters.getInnerEyeRadius(), thisLocPoint.distance(globalParameters.getInnerEyeCenter()), 
-								((requiredDistanceToMembraneThis*globalParameters.getOptDistanceToBMScalingFactor())+globalParameters.getInnerEyeRadius()));
-      	 contactAreaInnerEyeCorrect = Double.isNaN(contactAreaInnerEyeCorrect) || Double.isInfinite(contactAreaInnerEyeCorrect) || contactAreaInnerEyeCorrect < 0  ? 0: contactAreaInnerEyeCorrect;
-      	 modelConnector.setContactAreaInnerEye(contactAreaInnerEyeCorrect);
-      	 
-       }
-       
-
-     /* if(isChemotaxisEnabled){
+       // calculate basal adhesion
+       if(modelConnector.getAdhesionBasalMembrane() >=0){
+      		Point3d membraneReferencePoint = findReferencePositionOnBoundary(thislocP, thisloc.x - (getCellWidth()/2), thisloc.x + (getCellWidth()/2), thisloc.z - (getCellLength()/2), thisloc.z + (getCellLength()/2));
+      		double dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
+            double dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
+            double dz = cellField.tdz(thisloc.z,membraneReferencePoint.z);
+            if(dx==0 && dy==0 && dz==0){
+            	addRandomBiasToPoint(membraneReferencePoint,  0.1);
+            	dx = cellField.tdx(thisloc.x,membraneReferencePoint.x); 
+               dy = cellField.tdy(thisloc.y,membraneReferencePoint.y);
+               dz = cellField.tdz(thisloc.z,membraneReferencePoint.z);
+            }
+      		double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)+Math.pow(dz,2));
+      		double optDist = calculateDistanceToCellCenter(new Point3d(thislocP.x,thislocP.y,thislocP.z), new Point3d(membraneReferencePoint.x, membraneReferencePoint.y, membraneReferencePoint.z), getCellWidth()/2, getCellHeight()/2,  getCellLength()/2);
+           		
+      		if(distToMembrane < optDist*globalParameters.getOptDistanceAdhesionFact()){
+      			double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
+               double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
+               double radius_this = (adh_Dist_Fact*optDist);
+            	double gap = distToMembrane - optDist;
+            	
+            	double contactArea = Math.PI*radius_this*(radius_this-distToMembrane);
+            	if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+            		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(contactArea);
+            	}
+            	
+            	double smoothingFunction = (((-1*adh_Dist_Perc*optDist) < gap)
+							 && (gap < (adh_Dist_Perc*optDist)))
+							 ? Math.abs(Math.sin((0.5*Math.PI)*(gap/(adh_Dist_Perc*optDist))))
+							 : 1;
+							 
+					double adhesionCoefficient = globalParameters.getAdhSpringStiffness_N_per_square_micro_m()*modelConnector.getAdhesionBasalMembrane();
+							 
+			      double adhesion = adhesionCoefficient*(contactArea*smoothingFunction);
+			      
+			      interactionResult.adhesionForce.x += adhesion * ((-dx)/distToMembrane);
+			      interactionResult.adhesionForce.y += adhesion * ((-dy)/distToMembrane);
+			      interactionResult.adhesionForce.z += adhesion * ((-dz)/distToMembrane);
+      		}
+      		else{
+      			if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+            		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(0);
+            	}
+      		}
+       }else{
+ 			if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+      		((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(0);
+      	}
+		}
+      if(isChemotaxisEnabled){
 				String chemotacticFieldName = ((episimbiomechanics.centerbased3d.newversion.chemotaxis.EpisimChemotaxisCenterBased3DMC)modelConnector).getChemotacticField();
 				if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
 					ExtraCellularDiffusionField3D ecDiffField =  (ExtraCellularDiffusionField3D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
@@ -398,7 +350,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 						}
 					}
 				}
-		}*/
+		}
       return interactionResult;
    }
    
@@ -411,8 +363,9 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    
    private double calculateContactAreaNew(Point3d posThis, Point3d posOther, double dy, double thisSemiAxisA, double thisSemiAxisB, double thisSemiAxisC, double otherSemiAxisA, double otherSemiAxisB, double otherSemiAxisC, double d_membrane_this, double d_membrane_other, double actDist, double optDistScaled){
    	double contactArea = 0;
-   	double adh_Dist_Fact = 1;//should be 1 because we want the precise contact area here//globalParameters.getOptDistanceAdhesionFact();
-      
+   	double adh_Dist_Fact = globalParameters.getOptDistanceAdhesionFact();
+      double adh_Dist_Perc = globalParameters.getOptDistanceAdhesionFact()-1;
+      double smoothingFunction = 1;
       final double AXIS_RATIO_THRES = 5;
       if(thisSemiAxisA/thisSemiAxisB >= AXIS_RATIO_THRES || otherSemiAxisA/otherSemiAxisB >=AXIS_RATIO_THRES){		
 			Rectangle2D.Double rect1 = new Rectangle2D.Double(posThis.x-thisSemiAxisA, posThis.y-thisSemiAxisB, 2*thisSemiAxisA,2*thisSemiAxisB);
@@ -526,12 +479,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    } 
    
    private double calculateDistanceToCellCenter(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
-   	Point3d intersectionPointEllipsoid = calculateIntersectionPointOnEllipsoid(cellCenter, otherCellCenter, aAxis, bAxis, cAxis);	   
-	   return cellCenter.distance(intersectionPointEllipsoid);
-	}
-   
-   private Point3d calculateIntersectionPointOnEllipsoid(Point3d cellCenter, Point3d otherCellCenter, double aAxis, double bAxis, double cAxis){
-   	 Vector3d rayDirection = new Vector3d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y), (otherCellCenter.z-cellCenter.z));
+		 
+		 Vector3d rayDirection = new Vector3d((otherCellCenter.x-cellCenter.x), (otherCellCenter.y-cellCenter.y), (otherCellCenter.z-cellCenter.z));
 		 rayDirection.normalize();
 		 //calculates the intersection of an ray with an ellipsoid
 		 double aAxis_2=aAxis * aAxis;
@@ -545,78 +494,182 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	    if (a < 0)
 	    {
 	       System.out.println("Error in optimal Ellipsoid distance calculation"); 
-	   	 return null;
+	   	 return -1;
 	    }
 	   double sqrtA = Math.sqrt(a);	 
 	   double hit = 1 / sqrtA;
 	   double hitsecond = -1*(1 / sqrtA);
 	    
 	   double linefactor = hit;// < hitsecond ? hit : hitsecond;
-	   return new Point3d((cellCenter.x+ linefactor*rayDirection.x),(cellCenter.y+ linefactor*rayDirection.y),(cellCenter.z+ linefactor*rayDirection.z));
-   }
-   
-   public void setPositionRespectingBounds(Point3d cellPosition, double aAxis, double bAxis, double cAxis, boolean setPostionInCellField)
-	{
-   	setPositionRespectingBounds(cellPosition, aAxis, bAxis, cAxis, globalParameters.getOptDistanceToBMScalingFactor(), setPostionInCellField);
+	   Point3d intersectionPointEllipsoid = new Point3d((cellCenter.x+ linefactor*rayDirection.x),(cellCenter.y+ linefactor*rayDirection.y),(cellCenter.z+ linefactor*rayDirection.z));
+	   
+	   return cellCenter.distance(intersectionPointEllipsoid);
 	}
    
-   public void setPositionRespectingBounds(Point3d cellPosition, double aAxis, double bAxis, double cAxis, double optDistScalingFact, boolean setPostionInCellField)
+   public void setPositionRespectingBounds(Point3d cellPosition, boolean setPostionInCellField)
 	{
-	   Point3d newloc = calculateLowerBoundaryPositionForCell(cellPosition, aAxis, bAxis, cAxis, optDistScalingFact);
-	   oldCellLocation = cellLocation;
-	   cellLocation = new Double3D(newloc.x, newloc.y, newloc.z);
-	   if(setPostionInCellField)setCellLocationInCellField(cellLocation);
-	}   
+   	setPositionRespectingBounds(cellPosition, globalParameters.getOptDistanceToBMScalingFactor(), setPostionInCellField);
+	}
+   
+   public void setPositionRespectingBounds(Point3d cellPosition, double optDistScalingFact, boolean setPostionInCellField)
+	{
+		
+		double tissueWidth = TissueController.getInstance().getTissueBorder().getWidthInMikron();
+		double tissueHeight = TissueController.getInstance().getTissueBorder().getHeightInMikron();
+		double tissueLength = TissueController.getInstance().getTissueBorder().getLengthInMikron();
+		double newx = isContinuousInXDirection ? cellField.tx(cellPosition.x): cellPosition.x < 0 ? 0 : cellPosition.x > tissueWidth ? tissueWidth : cellPosition.x;
+	   double newy = isContinuousInYDirection ? cellField.ty(cellPosition.y): cellPosition.y < 0 ? 0 : cellPosition.y > tissueHeight ? tissueHeight : cellPosition.y;
+	   double newz = isContinuousInZDirection ? cellField.tz(cellPosition.z): cellPosition.z < 0 ? 0 : cellPosition.z > tissueLength ? tissueLength : cellPosition.z;
+	   
+	   if(!this.isContinuousInYDirection){
+		   
+	   	Point3d membraneReferencePoint = findReferencePositionOnBoundary(cellPosition, cellPosition.x - (getCellWidth()/2), cellPosition.x + (getCellWidth()/2), cellPosition.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
+	   	Vector3d cellPosBoundaryDirVect = new Vector3d((cellPosition.x-membraneReferencePoint.x),(cellPosition.y-membraneReferencePoint.y),(cellPosition.z-membraneReferencePoint.z));
+		   double dx = cellField.tdx(cellPosition.x, membraneReferencePoint.x); 
+	      double dy = cellField.tdy(cellPosition.y, membraneReferencePoint.y);
+	      double dz = cellField.tdz(cellPosition.z, membraneReferencePoint.z);
+	      boolean onMembrane = false;
+	      if(dx==0 && dy==0 && dz==0){
+	      /*	addRandomBiasToPoint(membraneReferencePoint,  0.1);
+	      	membraneReferencePoint = findReferencePositionOnBoundary(membraneReferencePoint, membraneReferencePoint.x - (getCellWidth()/2), membraneReferencePoint.x + (getCellWidth()/2), membraneReferencePoint.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
+           */
+	      	cellPosition.add(new Point3d(0,1,0));
+	      	membraneReferencePoint = findReferencePositionOnBoundary(cellPosition, cellPosition.x - (getCellWidth()/2), cellPosition.x + (getCellWidth()/2), cellPosition.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
+	      	
+	      	cellPosBoundaryDirVect = new Vector3d((cellPosition.x-membraneReferencePoint.x),((cellPosition.y)-membraneReferencePoint.y),(cellPosition.z-membraneReferencePoint.z));
+	      	dx = cellField.tdx(cellPosition.x,membraneReferencePoint.x); 
+            dy = cellField.tdy(cellPosition.y,membraneReferencePoint.y);
+            dz = cellField.tdz(cellPosition.z,membraneReferencePoint.z);
+            onMembrane = true;
+         }
+			double distToMembrane = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)+Math.pow(dz,2));
+			double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(cellPosition, membraneReferencePoint, getCellWidth()/2, getCellHeight()/2, getCellLength()/2);
+			double optDistScaled = requiredDistanceToMembraneThis*optDistScalingFact;
+			double actualDistanceToMembrane = onMembrane ? 0:distToMembrane;
+			if(optDistScaled > distToMembrane)
+		   {	      
+		       Point3d newPoint = calculateLowerBoundaryPositionForCell(new Point3d(newx, newy, newz),cellPosBoundaryDirVect,optDistScaled,actualDistanceToMembrane);
+		       newx = newPoint.x;
+		       newy = newPoint.y;
+		       newz = newPoint.z;
+		   }	
+	   }
+	   Double3D newloc = new Double3D(newx,newy,newz);
+	   cellLocation = newloc;
+	   if(setPostionInCellField)setCellLocationInCellField(newloc);
+	}
+   
+   public Point3d calculateLowerBoundaryPositionForCell(Point3d cellPosition){
+		Point3d minXPositionOnBoundary = findReferencePositionOnBoundary(cellPosition, cellPosition.x - (getCellWidth()/2), cellPosition.x + (getCellWidth()/2), cellPosition.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
+		Vector3d cellPosBoundaryDirVect = new Vector3d((cellPosition.x-minXPositionOnBoundary.x),(cellPosition.y-minXPositionOnBoundary.y),(cellPosition.z-minXPositionOnBoundary.z));
+		boolean sittingDirectlyOnMembrane = false;
+		if(cellPosBoundaryDirVect.x==0 && cellPosBoundaryDirVect.y==0 && cellPosBoundaryDirVect.z==0){
+			minXPositionOnBoundary = findReferencePositionOnBoundary(new Point3d(cellPosition.x,cellPosition.y+1,cellPosition.z), cellPosition.x - (getCellWidth()/2), cellPosition.x + (getCellWidth()/2), cellPosition.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
+			cellPosBoundaryDirVect = new Vector3d((cellPosition.x-minXPositionOnBoundary.x),((cellPosition.y+1)-minXPositionOnBoundary.y),(cellPosition.z-minXPositionOnBoundary.z));
+			sittingDirectlyOnMembrane= true;
+		}
+		double requiredDistanceToMembrane = calculateDistanceToCellCenter(new Point3d(getX(), getY(), getZ()), minXPositionOnBoundary, getCellWidth()/2, getCellHeight()/2, getCellLength()/2);
+		double actualDistanceToMembrane = sittingDirectlyOnMembrane ? 0:cellPosition.distance(minXPositionOnBoundary);
+		
+		
+	
+		if(requiredDistanceToMembrane > actualDistanceToMembrane){
+			cellPosBoundaryDirVect.normalize();		
+			cellPosBoundaryDirVect.scale(requiredDistanceToMembrane-actualDistanceToMembrane);
+			Point3d newPoint = new Point3d((cellPosition.x+cellPosBoundaryDirVect.x),(cellPosition.y+cellPosBoundaryDirVect.y),(cellPosition.z+cellPosBoundaryDirVect.z));
+			if(TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newPoint.x, newPoint.y, newPoint.z) > newPoint.y){
+				cellPosBoundaryDirVect.negate();
+				newPoint = new Point3d((cellPosition.x+cellPosBoundaryDirVect.x),(cellPosition.y+cellPosBoundaryDirVect.y),(cellPosition.z+cellPosBoundaryDirVect.z));
+			}
+		//	if(Math.abs(requiredDistanceToMembrane-actualDistanceToMembrane) > requiredDistanceToMembrane*0.2)return calculateLowerBoundaryPositionForCell(newPoint);
+			return newPoint;
+		}		
+		return new Point3d((cellPosition.x),(cellPosition.y),(cellPosition.z));
+	}
+   
+  
    
    
-   public void setDummyCellsRespectingBounds(){
-   	Bag dummyCells = dummyCellField.getAllObjects();
-   	for(int i = 0; i < dummyCells.size(); i++){
-   		DummyCell dummyCell = (DummyCell) dummyCells.get(i);
-   		Double3D actPos = dummyCell.getCellPosition();
-   		Point3d newloc = calculateLowerBoundaryPositionForCell(new Point3d(actPos.x, actPos.y, actPos.z), 
-   				dummyCell.getCellWidth()/2, dummyCell.getCellHeight()/2, dummyCell.getCellLength()/2, globalParameters.getOptDistanceToBMScalingFactor());   		
-   		dummyCell.setCellPosition(new Double3D(newloc.x, newloc.y, newloc.z));
-   		dummyCellField.setObjectLocation(dummyCell, dummyCell.getCellPosition());
-   	}   	
-   }
-   
-   public Point3d calculateLowerBoundaryPositionForCell(Point3d cellCenter,  double aAxis, double bAxis, double cAxis, double optDistScalingFact){
-   	Point3d innerEyeCenter = globalParameters.getInnerEyeCenter();
+  
+   public Point3d calculateLowerBoundaryPositionForCell(Point3d cellPosition, Vector3d cellPosBoundaryDirVect, double optDistance, double actualDistanceToMembrane){
    	
-   	Vector3d rayDirection = new Vector3d((cellCenter.x-innerEyeCenter.x), (cellCenter.y-innerEyeCenter.y), (cellCenter.z-innerEyeCenter.z));
-		rayDirection.normalize();
-   	double cellMembraneToCenterDistance = calculateDistanceToCellCenter(cellCenter, innerEyeCenter, aAxis, bAxis, cAxis);
-   	cellMembraneToCenterDistance*=optDistScalingFact;
-   	rayDirection.scale((globalParameters.getInnerEyeRadius()+ cellMembraneToCenterDistance));
-   	double newX = innerEyeCenter.x + rayDirection.x;
-   	if(!dummyCellsAdded) newX = newX < globalParameters.getInnerEyeCenter().x ? globalParameters.getInnerEyeCenter().x : newX;
-   	return new Point3d(newX, innerEyeCenter.y + rayDirection.y, innerEyeCenter.z + rayDirection.z);	
+   	//Should not be needed as in this case the method is called with a slightly randomly biased reference point
+	
+   /*	boolean sittingDirectlyOnMembrane = false;
+		if(cellPosBoundaryDirVect.x==0 && cellPosBoundaryDirVect.y==0 && cellPosBoundaryDirVect.z==0){
+			referencePosition = findReferencePositionOnBoundary(new Point3d(cellPosition.x,cellPosition.y+1,cellPosition.z), cellPosition.x - (getCellWidth()/2), cellPosition.x + (getCellWidth()/2), cellPosition.z - (getCellLength()/2), cellPosition.z + (getCellLength()/2));
+			cellPosBoundaryDirVect = new Vector3d((cellPosition.x-referencePosition.x),((cellPosition.y+1)-referencePosition.y),(cellPosition.z-referencePosition.z));
+			sittingDirectlyOnMembrane= true;
+		}*/
+   	
+   
+			
+		if(optDistance > actualDistanceToMembrane){
+			cellPosBoundaryDirVect.normalize();		
+			cellPosBoundaryDirVect.scale(optDistance-actualDistanceToMembrane);
+			Point3d newPoint = new Point3d((cellPosition.x+cellPosBoundaryDirVect.x),(cellPosition.y+cellPosBoundaryDirVect.y),(cellPosition.z+cellPosBoundaryDirVect.z));
+			if(TissueController.getInstance().getTissueBorder().lowerBoundInMikron(newPoint.x, newPoint.y, newPoint.z) > newPoint.y){
+				cellPosBoundaryDirVect.negate();
+				newPoint = new Point3d((cellPosition.x+cellPosBoundaryDirVect.x),(cellPosition.y+cellPosBoundaryDirVect.y),(cellPosition.z+cellPosBoundaryDirVect.z));
+			}
+			
+			//TODO: Is this check really needed???
+			//if(Math.abs(optDistance-actualDistanceToMembrane) > optDistance*0.2)return calculateLowerBoundaryPositionForCell(newPoint, referencePosition, optDistance);
+			return newPoint;
+		}
+		return new Point3d((cellPosition.x),(cellPosition.y),(cellPosition.z));
 	}
    
    
-   private Point3d findReferencePositionOnBoundary(Point3d cellPosition){
-   	return calculateIntersectionPointOnEllipsoid(globalParameters.getInnerEyeCenter(), cellPosition, globalParameters.getInnerEyeRadius(), globalParameters.getInnerEyeRadius(), globalParameters.getInnerEyeRadius());
+   private Point3d findReferencePositionOnBoundary(Point3d cellPosition, double minX, double maxX, double minZ, double maxZ){
+		double minDist = Double.POSITIVE_INFINITY;
+		Point3d actMinPoint= new Point3d();
+		Point3d actPos = new Point3d();
+		if(!TissueController.getInstance().getTissueBorder().isNoMembraneLoaded()){
+			for(double x = minX; x <= maxX; x+=0.5){
+				for(double z = minZ; z <= maxZ; z+=0.5){
+					double actY = TissueController.getInstance().getTissueBorder().lowerBoundInMikron(x, cellPosition.y, z);					
+					actPos.x=x;
+					actPos.y=actY;
+					actPos.z=z;
+					double actDist = actPos.distance(cellPosition);
+					if(actDist < minDist){
+						minDist = actDist;
+						actMinPoint.x = actPos.x;
+						actMinPoint.y = actPos.y;
+						actMinPoint.z = actPos.z;
+					}
+				}
+			}
+			return actMinPoint;
+		}
+		return NEGATIVE_INFINITY_POINT;
 	}   
   	
 	public void initNewSimStep(){
 		if(globalParameters == null){
 	  		 if(ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters() 
-	  		 			instanceof FishEyeCenterBased3DModelGP){
-	  		 		globalParameters = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+	  		 			instanceof CenterBased3DMechanicalModelGP){
+	  		 		globalParameters = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 	  		 	}   	
 	  		 	else throw new GlobalParameterException("Datatype of Global Mechanical Model Parameters does not fit : "+
 	  		 			ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters().getClass().getName());
  	 
  	 	}
-		migrationDistPerSimStep=0;
+	  	 if(globalParameters instanceof ChemotaxisCenterBased3DModelGP){
+	  		 this.globalParametersChemotaxis = ((ChemotaxisCenterBased3DModelGP) globalParameters);
+	  		 this.isChemotaxisEnabled = globalParametersChemotaxis.isChemotaxisEnabled();
+	  		 this.isContinuousInXDirection = globalParametersChemotaxis.isContinousDiffusionInXDirection();
+	  		 this.isContinuousInYDirection = globalParametersChemotaxis.isContinousDiffusionInYDirection();
+	  		 this.isContinuousInZDirection = globalParametersChemotaxis.isContinousDiffusionInZDirection();
+	  	 }	  	 
 	}
 	
 	public void calculateSimStep(boolean finalSimStep){
 		if(finalSimStep){
 			this.modelConnector.resetPairwiseParameters();
-			if(modelConnector instanceof episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC){				
-		  		 ((episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC) modelConnector).getContactArea().clear();
+			if(modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){				
+		  		 ((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC) modelConnector).getContactArea().clear();
 		  	}
 		}
 		//according to Pathmanathan et al.2008
@@ -650,7 +703,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 						|| Math.abs(newZ-loc.z)> MAX_DISPLACEMENT){
 					System.out.println("Biomechanical Artefakt ");
 				}else{
-					setPositionRespectingBounds(new Point3d(newX, newY, newZ),getCellWidth()/2d, getCellHeight()/2d, getCellLength()/2d, false);
+					setPositionRespectingBounds(new Point3d(newX, newY, newZ), false);
 				}				
 			}			
 			finalInteractionResult = interactionResult;
@@ -659,19 +712,38 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	}
 	
 	public void finishNewSimStep(){
-		Double3D newCellLocation = cellLocation == null? cellField.getObjectLocation(getCell()):cellLocation;		
+		Double3D newCellLocation = cellLocation == null? cellField.getObjectLocation(getCell()):cellLocation;
+		Point3d minPositionOnBoundary = findReferencePositionOnBoundary(new Point3d(newCellLocation.x, newCellLocation.y, newCellLocation.z), newCellLocation.x - (getCellWidth()/2), newCellLocation.x + (getCellWidth()/2), newCellLocation.z - (getCellLength()/2), newCellLocation.z + (getCellLength()/2));
+		
+		double distanceToBasalMembrane = Math.sqrt(Math.pow((newCellLocation.x-minPositionOnBoundary.x), 2)+Math.pow((newCellLocation.y-minPositionOnBoundary.y), 2)+Math.pow((newCellLocation.z-minPositionOnBoundary.z), 2));	
+		
+		if(distanceToBasalMembrane <= ((getCellHeight()))){///2)*globalParameters.getOptDistanceAdhesionFact())){
+			modelConnector.setIsBasal(true);			
+		}
+		else{
+			modelConnector.setIsBasal(false);			
+		}
+		boolean basalNeighbouringCellFound = false;
+		if(directNeighbours != null){
+			for(AbstractCell neighbour : directNeighbours){
+				CenterBased3DModel cellBM = ((CenterBased3DModel)neighbour.getEpisimBioMechanicalModelObject());
+				if(cellBM.modelConnector.getIsBasal())basalNeighbouringCellFound=true;
+			}
+		}
+		
+		modelConnector.setHasCollision(hitsOtherCell() > 0);		
 		modelConnector.setX(newCellLocation.getX());		
 		modelConnector.setY(newCellLocation.getY());
 		modelConnector.setZ(newCellLocation.getZ());
-  	 	modelConnector.setInnerEyeRadius(globalParameters.getInnerEyeRadius());
+  	 	modelConnector.setEpidermalSurfaceRatio(surfaceAreaRatio);
+  	 	modelConnector.setIsSurface(this.isSurfaceCell);
   	 	
-  	 	
-  	 	if(modelConnector instanceof episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC){
-  	 		episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC mc = (episimbiomechanics.centerbased3d.newversion.fisheye.EpisimFishEyeCenterBased3DMC) modelConnector;
+  	 	if(modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+  	 		episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC mc = (episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC) modelConnector;
   	 		mc.setCellSurfaceArea(getSurfaceArea());
   	 		mc.setCellVolume(getCellVolume());
   	 		mc.setExtCellSpaceVolume(getExtraCellSpaceVolume(mc.getExtCellSpaceMikron()));
-  	 		
+  	 		mc.setBasalCellContact(mc.getIsBasal()||basalNeighbouringCellFound);
 	  	 	Set<Long> keySet = new HashSet<Long>();
 	 		keySet.addAll(mc.getCellCellAdhesion().keySet());
 	 		HashMap<Long, Double> cellCellAdhesion = mc.getCellCellAdhesion();
@@ -696,7 +768,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	 				}
 	 			}
 	 		}
-  	 	}  	 	
+  	 	} 
 	}
 	private double getSurfaceArea(){
 		//this method was implemented according to Knud Thomsens Approximation
@@ -735,7 +807,11 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
    
    @NoExport
    public GenericBag<AbstractCell> getDirectNeighbours(){
-   	   	
+   	if(directNeighbours == null || directNeighbours.isEmpty()){	   	
+	   	
+	   	
+  	}
+   	
    	return directNeighbours;
    }
    
@@ -752,7 +828,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
   		 	 AbstractCell actNeighbour = neighbours.get(i);	  		 	
 	  		 if (actNeighbour != getCell())
 	       {
-	  			 FishEyeCenterBased3DModel mechModelOther = (FishEyeCenterBased3DModel) actNeighbour.getEpisimBioMechanicalModelObject();
+	  			 CenterBased3DModel mechModelOther = (CenterBased3DModel) actNeighbour.getEpisimBioMechanicalModelObject();
 	      	 Double3D otherloc = mechModelOther.cellLocation == null ? cellField.getObjectLocation(actNeighbour) : mechModelOther.cellLocation;
 	      	 Point3d otherlocP = new Point3d(otherloc.x, otherloc.y, otherloc.z);
 	      	 double dx = cellField.tdx(thisLocP.x,otherloc.x); 
@@ -801,34 +877,20 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   return new Point3d(otherX, otherY, otherZ);
    } 
    
-   private void setInnerEyeRadius(AbstractCell cell){
-   	((FishEyeCenterBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).setInnerEyeRadius(
-   			((FishEyeCenterBased3DModel)cell.getEpisimBioMechanicalModelObject()).modelConnector.getInnerEyeRadius());
-   }
-   
-   public void initialisationGlobalSimStep(){
-   	newGlobalSimStep(Long.MIN_VALUE, null);
-   }
-   
    
    protected void newGlobalSimStep(long simStepNumber, SimState state){
-   //	long start = System.currentTimeMillis();   	
-   	final MersenneTwisterFast random = state!= null ? state.random : new MersenneTwisterFast(System.currentTimeMillis());
+   //	long start = System.currentTimeMillis();
+   	
+   	final MersenneTwisterFast random = state.random;
    	final GenericBag<AbstractCell> allCells = new GenericBag<AbstractCell>(); 
    	allCells.addAll(TissueController.getInstance().getActEpidermalTissue().getAllCells());
-   	setInnerEyeRadius(allCells.get(random.nextInt(allCells.size())));
+   	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;
    	
-   	if(dummyCellsAdded){
-   		generateDummyCells(dummyCellSize);
-   		setDummyCellsRespectingBounds();
-   	}
-   	
-   	double numberOfSeconds = DELTA_TIME_IN_SECONDS_PER_EULER_STEP;   	
-   	numberOfSeconds = ((FishEyeCenterBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).getNumberOfSecondsPerSimStep();
+   	numberOfSeconds = ((CenterBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters()).getNumberOfSecondsPerSimStep();
    	
    	double numberOfIterationsDouble = 1; 
    	if(DELTA_TIME_IN_SECONDS_PER_EULER_STEP > numberOfSeconds){
-   		DELTA_TIME_IN_SECONDS_PER_EULER_STEP = numberOfSeconds;   		
+   		DELTA_TIME_IN_SECONDS_PER_EULER_STEP=numberOfSeconds;   		
    	}
    	else if(numberOfSeconds > DELTA_TIME_IN_SECONDS_PER_EULER_STEP){
    		DELTA_TIME_IN_SECONDS_PER_EULER_STEP = numberOfSeconds > DELTA_TIME_IN_SECONDS_PER_EULER_STEP_MAX ? DELTA_TIME_IN_SECONDS_PER_EULER_STEP_MAX : numberOfSeconds;   		   		
@@ -843,7 +905,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   		if(parallelizationOn){
 		   		Loop.withIndex(0, totalCellNumber, new Loop.Each() {
 		             public void run(int n) {
-		            		FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
+		            		CenterBased3DModel cellBM = ((CenterBased3DModel)allCells.get(n).getEpisimBioMechanicalModelObject()); 
 				   			if(iterationNo == 0) cellBM.initNewSimStep();
 				   			cellBM.calculateSimStep((iterationNo == (numberOfIterations-1)));				   			
 		             }
@@ -851,41 +913,129 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	   		}
 	   		else{
 	   			for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
-		   			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
+		   			CenterBased3DModel cellBM = ((CenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject()); 
 		   			if(i == 0) cellBM.initNewSimStep();
 		   			cellBM.calculateSimStep((i == (numberOfIterations-1)));		   			
 		   		}
 	   		}
 	   		for(int cellNo = 0; cellNo < totalCellNumber; cellNo++){
-	   			FishEyeCenterBased3DModel cellBM = ((FishEyeCenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
-	   			if(cellBM.cellLocation!=null){
-	   				if(cellBM.oldCellLocation != null){
-	   					cellBM.migrationDistPerSimStep += cellBM.oldCellLocation.distance(cellBM.cellLocation);
-	   				}
-	   				cellBM.setCellLocationInCellField(cellBM.cellLocation);	   				
-	   			}
+	   			CenterBased3DModel cellBM = ((CenterBased3DModel)allCells.get(cellNo).getEpisimBioMechanicalModelObject());
+	   			if(cellBM.cellLocation!=null)cellBM.setCellLocationInCellField(cellBM.cellLocation);
 	   			if(iterationNo == (numberOfIterations-1)){
 	   				cellBM.updateDirectNeighbours();
 	   				cellBM.finishNewSimStep();
 	   			}
 	   		}
    	}   	  
-   	
+   	calculateSurfaceCells();
    //	long end = System.currentTimeMillis();
   // 	System.out.println("Global BM Sim Step: "+(end-start)+" ms");
    }
    
    protected void newSimStepGloballyFinished(long simStepNumber, SimState state){
    	/* NOT NEEDED IN THIS MODEL */   	
-   } 
+   }
+   
+   private void calculateSurfaceCells(){
+      // updates the isOuterSurface Flag for the surface exposed cells
+   	double binResolutionXInMikron = 1;//CenterBased3DMechanicalModel.INITIAL_KERATINO_WIDTH;
+   	double binResolutionZInMikron = 1;//CenterBased3DMechanicalModel.INITIAL_KERATINO_LENGTH*0.8;
+   	int MAX_Z_BINS= ((int)(TissueController.getInstance().getTissueBorder().getLengthInMikron()));///binResolutionZInMikron))+1;
+ 	  	int MAX_X_BINS= ((int)(TissueController.getInstance().getTissueBorder().getWidthInMikron()));///binResolutionXInMikron))+1; 
+      AbstractCell[][] x_z_LookUp=new AbstractCell[MAX_Z_BINS][MAX_X_BINS];                                                                
+      double [][] yLookUp=new double[MAX_Z_BINS][MAX_X_BINS];
+      GenericBag<AbstractCell> allCells = TissueController.getInstance().getActEpidermalTissue().getAllCells();
+      HashMap<Long, Integer> cellIdToNumberOfBinsMap = new HashMap<Long, Integer>();
+      if(allCells!= null){
+       	AbstractCell[] cellArray = allCells.toArray(new AbstractCell[allCells.size()]);
+       	int numberOfCells = cellArray.length;
+   	   for (int i=0; i<numberOfCells; i++)
+   	   {
+   	      // iterate through all cells and determine the KCyte with lowest Y at bin
+   	      if(cellArray[i]!=null){
+   	       	      	 
+   		       CenterBased3DModel mechModel = (CenterBased3DModel)cellArray[i].getEpisimBioMechanicalModelObject();
+   		       mechModel.surfaceAreaRatio=0;
+   		       mechModel.isSurfaceCell=false;
+   		       Double3D loc= mechModel.getCellLocationInCellField();
+   		       
+   		       double width = mechModel.getCellWidth();
+   		       double length = mechModel.getCellLength();
+   		         
+   		       int xbinRight= Math.round((float) ((loc.x+(width/2)) / binResolutionXInMikron));
+		          int xbinLeft= Math.round((float) ((loc.x-(width/2)) / binResolutionXInMikron));
+		          
+		          int zbinFront= Math.round((float) ((loc.z+(length/2)) / binResolutionZInMikron));
+		          int zbinBack= Math.round((float) ((loc.z-(length/2)) / binResolutionZInMikron));
+   		   
+   		       // calculate score for free bins and add threshhold
+		          for(int m = zbinBack; m <= zbinFront; m++){
+		         	 int zIndex = m < 0 ? x_z_LookUp.length + m : m >= x_z_LookUp.length ? m - x_z_LookUp.length : m;
+		         	 for(int n = xbinLeft; n<= xbinRight; n++){
+		         		 int xIndex = n < 0 ? x_z_LookUp[zIndex].length + n : n >= x_z_LookUp[zIndex].length ? n - x_z_LookUp[zIndex].length : n;
+		         		 if(zIndex >= 0 && xIndex>=0 && zIndex < x_z_LookUp.length && zIndex < yLookUp.length && xIndex < x_z_LookUp[zIndex].length && xIndex < yLookUp[zIndex].length){
+			         		 if (x_z_LookUp[zIndex][xIndex]==null || loc.y>yLookUp[zIndex][xIndex]) 
+		   		          {
+		   		             x_z_LookUp[zIndex][xIndex]=cellArray[i];                            
+		   		             yLookUp[zIndex][xIndex]=loc.y;	   		             
+		   		          }
+		         		 }
+		         		 else{
+		         		 		System.out.println("Lookup Error: xbinRight: "+xbinRight+"  xbinLeft: "+xbinLeft+"  xIndex: "+xIndex
+		         		 								+"  zbinRight: "+zbinBack+"  zbinFront: "+zbinFront+"  zIndex: "+zIndex);
+		         		 }
+		         	 }
+		          }		       
+   		       cellIdToNumberOfBinsMap.put(cellArray[i].getID(), ((xbinRight+1)-xbinLeft)*((zbinFront+1)-zbinBack));
+   	        }
+   	    }
+   	      
+   	    HashMap<Long, Integer> numberOfAssignedBinsMap = new HashMap<Long, Integer>();
+   	    for (int z=0; z < MAX_Z_BINS; z++){
+ 		      for (int x=0; x < MAX_X_BINS; x++)
+ 		      {   		      	
+ 		      	if((x_z_LookUp[z][x]==null) || (x_z_LookUp[z][x].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)
+   	         else{
+   		      	  long id= x_z_LookUp[z][x].getID();
+   		      	  if(numberOfAssignedBinsMap.containsKey(id)){
+   		      		  int numberOfAssignedBins= numberOfAssignedBinsMap.get(id);
+   		      		  numberOfAssignedBinsMap.put(id, (numberOfAssignedBins+1));
+   		      	  }
+   		      	  else numberOfAssignedBinsMap.put(id, 1);
+   		        }
+   	      }
+   	    }
+   	    for (int z=0; z < MAX_Z_BINS; z++){
+  		      for (int x=0; x < MAX_X_BINS; x++)
+  		      {   		      	
+  		      	if((x_z_LookUp[z][x]==null) || (x_z_LookUp[z][x].getStandardDiffLevel()==StandardDiffLevel.STEMCELL)) continue; // stem cells cannot be outer cells (Assumption)                        
+   	         else{
+   	         	 CenterBased3DModel mechModel = (CenterBased3DModel)x_z_LookUp[z][x].getEpisimBioMechanicalModelObject();
+   	         	 
+   	         	 if(numberOfAssignedBinsMap.containsKey(x_z_LookUp[z][x].getID())
+   	         			 &&numberOfAssignedBinsMap.get(x_z_LookUp[z][x].getID())>0){
+   	         		 mechModel.surfaceAreaRatio = cellIdToNumberOfBinsMap.get(x_z_LookUp[z][x].getID())<=0?0d:(double)((double)(numberOfAssignedBinsMap.get(x_z_LookUp[z][x].getID()))/(double)(cellIdToNumberOfBinsMap.get(x_z_LookUp[z][x].getID())));
+   	         		 mechModel.isSurfaceCell=true;   	         		 
+   	         	 }
+   	         	 mechModel.modelConnector.setEpidermalSurfaceRatio(mechModel.surfaceAreaRatio);
+   	         	 mechModel.modelConnector.setIsSurface(mechModel.isSurfaceCell);
+   	         }
+   	      }
+   	    }
+      } 
+   }   
    
    public boolean hasNucleus(){ 
-   	
+   	if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+   		return ((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)modelConnector).getIsNucleated();
+   	}
    	return true;
    }
    
    public boolean hasViablility(){ 
-   	
+   	if(this.modelConnector instanceof episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+   		return ((episimbiomechanics.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)modelConnector).getIsViable();
+   	}
    	return true;
    }
    
@@ -966,7 +1116,6 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	
 	public void setCellLocationInCellField(Double3D location){
 	   cellField.setObjectLocation(this.getCell(), location);
-	   
 	   this.cellLocation = new Double3D(location.x, location.y, location.z);
 	   if(modelConnector!=null){
 	   	modelConnector.setX(location.x);
@@ -1003,13 +1152,21 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	
 	   
 	   
+	public static GenericBag<AbstractCell> getAllCellsWithinDistance(Double3D location, double distance){
+   	Bag cells =cellField.getNeighborsWithinDistance(location, distance, true);
+   	GenericBag<AbstractCell> abstractCells = new GenericBag<AbstractCell>();
+   	for(int i = 0; i< cells.size(); i++){
+   		if(cells.get(i) != null &&  cells.get(i) instanceof AbstractCell) abstractCells.add((AbstractCell) cells.get(i));
+   	}   	
+   	return abstractCells;
+   }
 	
 	
  
    @CannotBeMonitored
    @NoExport  
    public CellBoundaries getChemotaxisCellBoundariesInMikron() {
- /*	  Double3D fieldLocMikron = getCellLocationInCellField();
+ 	  Double3D fieldLocMikron = getCellLocationInCellField();
  	  Vector3d minVector= null;
  	  Vector3d maxVector= null;
  	  double width = getCellWidth();
@@ -1032,8 +1189,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
  	 Transform3D trans = new Transform3D();
  	 trans.setTranslation(new Vector3d(fieldLocMikron.x, fieldLocMikron.y, fieldLocMikron.z));
  	 trans.setScale(new Vector3d(width/height, height / height, length/height));
- 	 return new CellBoundaries(new Ellipsoid(trans, height/2d), minVector, maxVector);*/
-   	return null;
+ 	 return new CellBoundaries(new Ellipsoid(trans, height/2d), minVector, maxVector);
   }	
 	
 	
@@ -1141,13 +1297,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 		return new Episim3DCellShape<Shape3D>(new Shape3D());
 	}
 
+
+
 	
-   public double getMigrationDistPerSimStep() {
-   
-   	return migrationDistPerSimStep;
-   }
-
-
-
-
 }

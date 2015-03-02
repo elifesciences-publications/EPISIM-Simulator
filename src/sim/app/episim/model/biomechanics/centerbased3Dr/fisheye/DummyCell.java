@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.centerbased3D.fisheye;
+package sim.app.episim.model.biomechanics.centerbased3Dr.fisheye;
 
 import sim.util.Double3D;
 

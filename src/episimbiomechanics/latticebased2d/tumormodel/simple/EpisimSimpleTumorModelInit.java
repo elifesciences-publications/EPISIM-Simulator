@@ -1,4 +1,4 @@
-package episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.simple;
+package episimbiomechanics.latticebased2d.tumormodel.simple;
 
 import java.util.ArrayList;
 

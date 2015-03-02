@@ -1,4 +1,4 @@
-package episimbiomechanics.hexagonbased2d.singlesurface;
+package episimbiomechanics.latticebased2d;
 
 import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
 import sim.app.episim.model.biomechanics.latticebased2D.demo.LatticeBased2DModelDemoGP;
@@ -10,7 +10,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 
 
-public class EpisimHexagonBased2DSingleSurfaceMC extends EpisimModelConnector {
+public class EpisimLatticeBased2DSingleSurfaceMC extends EpisimModelConnector {
 	
 	private static final String ID = "2012-07-09";
 	private static final String NAME = "Hexagon Grid Based Biomechanical Model Single Surface";
@@ -39,7 +39,7 @@ public class EpisimHexagonBased2DSingleSurfaceMC extends EpisimModelConnector {
 	}
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
-		return HexagonBased2DMechModelSingleSurfaceInit.class;
+		return LatticeBased2DMechModelSingleSurfaceInit.class;
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){

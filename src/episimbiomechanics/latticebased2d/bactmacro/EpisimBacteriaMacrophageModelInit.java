@@ -1,4 +1,4 @@
-package episimbiomechanics.hexagonbased2d.singlesurface.bactmacro;
+package episimbiomechanics.latticebased2d.bactmacro;
 
 import java.util.ArrayList;
 

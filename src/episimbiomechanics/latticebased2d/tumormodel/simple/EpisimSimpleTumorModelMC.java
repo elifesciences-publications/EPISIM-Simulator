@@ -1,20 +1,20 @@
-package episimbiomechanics.hexagonbased2d.singlesurface.bactmacro;
+package episimbiomechanics.latticebased2d.tumormodel.simple;
 
 import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
-import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModelGP;
-import sim.app.episim.model.biomechanics.latticebased2D.bact.LatticeBased2DModelBactGP;
+import sim.app.episim.model.biomechanics.latticebased2D.tumor.simple.LatticeBased2DModelSimpleTumorGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector.Hidden;
-import episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC;
+import episimbiomechanics.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
+import episimbiomechanics.latticebased2d.LatticeBased2DMechModelSingleSurfaceInit;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoExport;
 
 
-public class EpisimBacteriaMacrophageModelMC extends EpisimHexagonBased2DSingleSurfaceMC {
+public class EpisimSimpleTumorModelMC extends EpisimLatticeBased2DSingleSurfaceMC {
 	
-	private static final String ID = "2012-07-05";
-	private static final String NAME = "Simple Hexagon Grid Based Biomechanical Bacteria Macrophage Model";
+	private static final String ID = "2012-03-26";
+	private static final String NAME = "Simple Hexagon Grid Based Biomechanical Tumor Model";
 	
 		
 	@Hidden
@@ -34,11 +34,11 @@ public class EpisimBacteriaMacrophageModelMC extends EpisimHexagonBased2DSingleS
 	}
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
-		return EpisimBacteriaMacrophageModelInit.class;
+		return EpisimSimpleTumorModelInit.class;
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return LatticeBased2DModelBactGP.class;
+		return LatticeBased2DModelSimpleTumorGP.class;
 	}
 	
 	public String getChemotacticField(){	   
@@ -59,10 +59,12 @@ public class EpisimBacteriaMacrophageModelMC extends EpisimHexagonBased2DSingleS
 	
 	public void setIsRetracting(boolean isRetracting){
 		super.setIsRetracting(isRetracting);
-	}   
+	}
+   
 	public boolean getIsRetracting(){
 		return super.getIsRetracting();
 	}
+	
 	public void setLambdaChem(double lambdaChem){
 		super.setLambdaChem(lambdaChem);
 	}
@@ -78,6 +80,7 @@ public class EpisimBacteriaMacrophageModelMC extends EpisimHexagonBased2DSingleS
 	public double getCellCellInteractionEnergy(){
 		return super.getCellCellInteractionEnergy();
 	}
+	
 	public boolean getIsProliferating(){		
 		return super.getIsProliferating();
 	}	

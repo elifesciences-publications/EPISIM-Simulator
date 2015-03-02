@@ -15,7 +15,7 @@ import java.util.Iterator;
 
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC;
+import episimbiomechanics.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
@@ -41,7 +41,7 @@ import sim.util.IntBag;
 
 public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
 	
-	private EpisimHexagonBased2DSingleSurfaceMC modelConnector;
+	private EpisimLatticeBased2DSingleSurfaceMC modelConnector;
 	
 	private static ObjectGrid2D cellField;
 	
@@ -93,8 +93,8 @@ public class LatticeBased2DModel extends AbstractLatticeBased2DModel {
    }
 
 	 public void setEpisimModelConnector(EpisimModelConnector modelConnector){
-	   	if(modelConnector instanceof EpisimHexagonBased2DSingleSurfaceMC){
-	   		this.modelConnector = (EpisimHexagonBased2DSingleSurfaceMC) modelConnector;
+	   	if(modelConnector instanceof EpisimLatticeBased2DSingleSurfaceMC){
+	   		this.modelConnector = (EpisimLatticeBased2DSingleSurfaceMC) modelConnector;
 	   	}
 	   	else throw new IllegalArgumentException("Episim Model Connector must be of type: EpisimHexagonBasedModelConnector");
 	 }

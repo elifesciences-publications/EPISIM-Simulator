@@ -1,4 +1,4 @@
-package episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.chemokine;
+package episimbiomechanics.latticebased2d.tumormodel.chemokine;
 
 import java.util.ArrayList;
 import java.util.HashSet;

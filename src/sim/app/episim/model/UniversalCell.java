@@ -5,7 +5,7 @@ import sim.app.episim.ModeServer;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.AbtractTissue.SchedulePriority;
-import sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.CenterBased2DModel;
 import sim.app.episim.model.biomechanics.vertexbased2Dr.calc.CellPolygonCalculator;
 import sim.app.episim.model.biomechanics.vertexbased2Dr.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased2Dr.geom.CellPolygonNetworkBuilder;
@@ -152,8 +152,8 @@ public class UniversalCell extends AbstractCell
    	if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.CenterBased3DModel){
    		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.CenterBased3DModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
    	}
-   	else if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.CenterBased2DModel){
-   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.CenterBased2DModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
+   	else if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.CenterBased2DModel){
+   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.CenterBased2DModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
    	}   	
    	return isDemoModel;
    }

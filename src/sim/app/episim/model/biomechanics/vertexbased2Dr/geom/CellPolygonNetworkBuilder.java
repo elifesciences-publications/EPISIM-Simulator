@@ -10,7 +10,7 @@ import java.util.Set;
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.CenterBased2DModel;
 import sim.app.episim.model.biomechanics.vertexbased2Dr.VertexBasedModelController;
 import sim.app.episim.model.biomechanics.vertexbased2Dr.VertexBasedModelGP;
 import sim.app.episim.model.biomechanics.vertexbased2Dr.calc.CellPolygonCalculator;

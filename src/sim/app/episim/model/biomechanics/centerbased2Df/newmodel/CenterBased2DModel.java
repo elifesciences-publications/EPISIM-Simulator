@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.centerbased2Dr.newmodel;
+package sim.app.episim.model.biomechanics.centerbased2Df.newmodel;
 
 import java.awt.Color;
 import java.awt.Shape;
@@ -35,9 +35,9 @@ import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractBiomechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim2DCellShape;
-import sim.app.episim.model.biomechanics.centerbased2Dr.AbstractCenterBased2DModel;
-import sim.app.episim.model.biomechanics.centerbased2Dr.newmodel.CenterBased2DModelGP;
-import sim.app.episim.model.biomechanics.centerbased2Dr.newmodel.chemotaxis.ChemotaxisCenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2Df.AbstractCenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2Df.newmodel.CenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2Df.newmodel.chemotaxis.ChemotaxisCenterBased2DModelGP;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;

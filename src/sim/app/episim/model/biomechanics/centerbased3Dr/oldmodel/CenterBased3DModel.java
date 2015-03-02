@@ -29,7 +29,7 @@ import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Ellipsoid;
 import sim.app.episim.model.biomechanics.Episim3DCellShape;
-import sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.CenterBased2DModel;
 import sim.app.episim.model.biomechanics.centerbased3Dr.AbstractCenterBased3DModel;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;

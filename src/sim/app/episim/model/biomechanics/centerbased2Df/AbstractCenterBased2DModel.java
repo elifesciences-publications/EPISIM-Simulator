@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.centerbased2Dr;
+package sim.app.episim.model.biomechanics.centerbased2Df;
 
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;

@@ -1,4 +1,4 @@
-package sim.app.episim.model.biomechanics.centerbased2Dr.newmodel;
+package sim.app.episim.model.biomechanics.centerbased2Df.newmodel;
 
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.NoUserModification;

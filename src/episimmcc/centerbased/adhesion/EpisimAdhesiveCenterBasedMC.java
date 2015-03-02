@@ -1,8 +1,8 @@
 package episimmcc.centerbased.adhesion;
 
 
-import sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.wound.AdhesiveCenterBased2DModel;
-import sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.wound.AdhesiveCenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.wound.AdhesiveCenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.wound.AdhesiveCenterBased2DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

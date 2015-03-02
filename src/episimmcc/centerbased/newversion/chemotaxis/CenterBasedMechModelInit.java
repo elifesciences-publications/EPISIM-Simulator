@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased2Dr.newmodel.CenterBased2DModel;
-import sim.app.episim.model.biomechanics.centerbased2Dr.newmodel.chemotaxis.ChemotaxisCenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2Df.newmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2Df.newmodel.chemotaxis.ChemotaxisCenterBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

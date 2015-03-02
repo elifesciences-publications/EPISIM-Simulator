@@ -1,7 +1,7 @@
-package sim.app.episim.model.biomechanics.centerbased2Dr.newmodel.chemotaxis;
+package sim.app.episim.model.biomechanics.centerbased2Df.newmodel.chemotaxis;
 
 import episiminterfaces.NoUserModification;
-import sim.app.episim.model.biomechanics.centerbased2Dr.newmodel.CenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2Df.newmodel.CenterBased2DModelGP;
 
 
 public class ChemotaxisCenterBased2DModelGP extends CenterBased2DModelGP {

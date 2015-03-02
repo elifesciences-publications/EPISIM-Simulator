@@ -18,7 +18,7 @@ import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractBiomechanicalModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim2DCellShape;
-import sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.CenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.CenterBased2DModelGP;
 import sim.app.episim.model.biomechanics.vertexbased2Dr.geom.CellPolygon;
 import sim.app.episim.model.biomechanics.vertexbased2Dr.geom.Vertex;
 import sim.app.episim.model.biomechanics.vertexbased2Dr.util.CellPolygonRegistry;

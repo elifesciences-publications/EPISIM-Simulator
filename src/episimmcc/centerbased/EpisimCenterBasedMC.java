@@ -1,7 +1,7 @@
 package episimmcc.centerbased;
 
-import sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.CenterBased2DModel;
-import sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.CenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2Df.oldmodel.CenterBased2DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

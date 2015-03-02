@@ -3,9 +3,8 @@ package sim.app.episim.persistence.dataconvert;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import episimbiomechanics.EpisimModelConnector;
+import episim_mcc_init.EpisimModelConnector;
 import episiminterfaces.EpisimBiomechanicalModel;
-
 import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
 import sim.app.episim.persistence.ExportException;

@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import episimbiomechanics.EpisimModelConnector;
+import episim_mcc_init.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

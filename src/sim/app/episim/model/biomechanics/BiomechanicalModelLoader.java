@@ -5,8 +5,7 @@ import java.util.ArrayList;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-
-import episimbiomechanics.EpisimModelConnector;
+import episim_mcc_init.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

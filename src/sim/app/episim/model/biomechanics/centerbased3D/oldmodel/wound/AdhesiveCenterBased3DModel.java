@@ -18,6 +18,7 @@ import javax.vecmath.Vector3d;
 
 
 
+
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
@@ -36,8 +37,8 @@ import sim.engine.SimState;
 import sim.field.continuous.Continuous3D;
 import sim.util.Bag;
 import sim.util.Double3D;
-import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.centerbased3d.adhesion.EpisimAdhesiveCenterBased3DMC;
+import episim_mcc_init.EpisimModelConnector;
+import episim_mcc_init.centerbased3d.adhesion.EpisimAdhesiveCenterBased3DMC;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;

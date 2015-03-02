@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
-import episimbiomechanics.EpisimModelConnector;
+import episim_mcc_init.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

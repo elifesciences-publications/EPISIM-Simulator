@@ -26,7 +26,7 @@ import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
 import ec.util.MersenneTwisterFast;
-import episimbiomechanics.EpisimModelConnector.Hidden;
+import episim_mcc_init.EpisimModelConnector.Hidden;
 import episimexceptions.ZeroNeighbourCellsAccessException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;

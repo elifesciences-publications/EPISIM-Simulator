@@ -17,8 +17,8 @@ import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
 import ec.util.MersenneTwisterFast;
-import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.centerbased3d.EpisimCenterBased3DMC;
+import episim_mcc_init.EpisimModelConnector;
+import episim_mcc_init.centerbased3d.EpisimCenterBased3DMC;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;

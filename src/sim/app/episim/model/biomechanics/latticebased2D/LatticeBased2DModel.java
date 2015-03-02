@@ -14,8 +14,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import ec.util.MersenneTwisterFast;
-import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
+import episim_mcc_init.EpisimModelConnector;
+import episim_mcc_init.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;

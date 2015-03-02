@@ -1,6 +1,6 @@
 package episiminterfaces;
 
-import episimbiomechanics.EpisimModelConnector;
+import episim_mcc_init.EpisimModelConnector;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.util.GenericBag;

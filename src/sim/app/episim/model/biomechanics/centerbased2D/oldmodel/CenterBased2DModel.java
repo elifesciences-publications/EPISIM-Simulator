@@ -27,10 +27,11 @@ import javax.vecmath.Vector3d;
 
 
 
+
 import ec.util.MersenneTwisterFast;
-import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.centerbased.CenterBasedMechModelInit;
-import episimbiomechanics.centerbased.EpisimCenterBasedMC;
+import episim_mcc_init.EpisimModelConnector;
+import episim_mcc_init.centerbased.CenterBasedMechModelInit;
+import episim_mcc_init.centerbased.EpisimCenterBasedMC;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

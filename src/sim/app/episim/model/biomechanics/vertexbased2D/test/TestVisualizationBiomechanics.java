@@ -61,7 +61,7 @@ import sim.app.episim.util.EpisimMovieMaker;
 
 
 import ec.util.MersenneTwisterFast;
-import episimbiomechanics.vertexbased.EpisimVertexBasedMC;
+import episim_mcc_init.vertexbased.EpisimVertexBasedMC;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 

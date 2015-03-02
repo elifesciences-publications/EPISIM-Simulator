@@ -16,8 +16,8 @@ import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
-import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.centerbased.adhesion.EpisimAdhesiveCenterBasedMC;
+import episim_mcc_init.EpisimModelConnector;
+import episim_mcc_init.centerbased.adhesion.EpisimAdhesiveCenterBasedMC;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;

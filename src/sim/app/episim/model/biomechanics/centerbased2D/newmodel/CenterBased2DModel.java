@@ -55,8 +55,8 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Bag;
 import sim.util.Double2D;
 import ec.util.MersenneTwisterFast;
-import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.centerbased.newversion.EpisimCenterBasedMC;
+import episim_mcc_init.EpisimModelConnector;
+import episim_mcc_init.centerbased.newversion.EpisimCenterBasedMC;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
@@ -304,22 +304,22 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
             	interactionResult.adhesionForce.y += adhesion*((-dy)/actDist);
             	
              }
-             if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
+             if(this.modelConnector instanceof episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
             	
           		double contactAreaCorrect =0; 
           		if(actDist < optDist*globalParameters.getOptDistanceAdhesionFact()){	
           			contactAreaCorrect= calculateContactAreaNew(new Point2d(thisloc.x, thisloc.y), otherPosToroidalCorrection(new Point2d(thisloc.x, thisloc.y), new Point2d(mechModelOther.getX(), mechModelOther.getY())),
           					dy, majorAxisThis, minorAxisThis, majorAxisOther, minorAxisOther, getCellLength(), mechModelOther.getCellLength(), requiredDistanceToMembraneThis, requiredDistanceToMembraneOther, actDist, optDist);
           			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
-          			((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
+          			((episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
              		totalContactArea+=Math.abs(contactAreaCorrect);
           		}
           		
           	 }                     
            }          
         }
-	     if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
-	      	 ((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setTotalContactArea(totalContactArea);
+	     if(this.modelConnector instanceof episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC && finalSimStep){
+	      	 ((episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setTotalContactArea(totalContactArea);
 	     }       
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >=0){
@@ -341,8 +341,8 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
             	double gap = distToMembrane - optDist;
             	
             	double contactArea = Math.PI*radius_this*(radius_this-distToMembrane);
-            	if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
-            		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setBmContactArea(contactArea);
+            	if(this.modelConnector instanceof episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+            		((episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setBmContactArea(contactArea);
             	}
             	
             	double smoothingFunction = (((-1*adh_Dist_Perc*optDist) < gap)
@@ -357,21 +357,21 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 			      interactionResult.adhesionForce.x += adhesion * ((-dx)/distToMembrane);
 			      interactionResult.adhesionForce.y += adhesion * ((-dy)/distToMembrane);
       		}else{
-      			if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
-            		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setBmContactArea(0);
+      			if(this.modelConnector instanceof episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+            		((episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setBmContactArea(0);
             	}
       		}
        }else{
-      	 if(this.modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
-       		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setBmContactArea(0);
+      	 if(this.modelConnector instanceof episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+       		((episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector).setBmContactArea(0);
        	}
        }
        if(isChemotaxisEnabled){
-				String chemotacticFieldName = ((episimbiomechanics.centerbased.newversion.chemotaxis.EpisimCenterBasedMC)modelConnector).getChemotacticField();
+				String chemotacticFieldName = ((episim_mcc_init.centerbased.newversion.chemotaxis.EpisimCenterBasedMC)modelConnector).getChemotacticField();
 				if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
 					ExtraCellularDiffusionField2D ecDiffField =  (ExtraCellularDiffusionField2D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
 					if(ecDiffField != null){
-						double lambda = ((episimbiomechanics.centerbased.newversion.chemotaxis.EpisimCenterBasedMC)modelConnector).getLambdaChem();
+						double lambda = ((episim_mcc_init.centerbased.newversion.chemotaxis.EpisimCenterBasedMC)modelConnector).getLambdaChem();
 						if(lambda > 0){
 							interactionResult.chemotacticForce = ecDiffField.getChemotaxisVectorForCellBoundary(getChemotaxisCellBoundariesInMikron());
 							interactionResult.chemotacticForce.scale(lambda);
@@ -595,8 +595,8 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 	public void calculateSimStep(boolean finalSimStep){
 		if(finalSimStep){
 			this.modelConnector.resetPairwiseParameters();
-			if(modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
-	   		((episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC) modelConnector).getContactArea().clear();
+			if(modelConnector instanceof episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+	   		((episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC) modelConnector).getContactArea().clear();
 	   	}
 		}
 		
@@ -669,8 +669,8 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
   	 	modelConnector.setEpidermalSurfaceRatio(surfaceAreaRatio);
   	 	modelConnector.setIsSurface(this.isSurfaceCell);
   	 	
-  	 	if(modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
-  	 		episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC mc = (episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC) modelConnector;
+  	 	if(modelConnector instanceof episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+  	 		episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC mc = (episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC) modelConnector;
   	 		mc.setCellSurfaceArea(getSurfaceArea());
   	 		mc.setCellVolume(getCellVolume());
   	 		mc.setExtCellSpaceVolume(getExtraCellSpaceVolume(mc.getExtCellSpaceMikron()));
@@ -1006,8 +1006,8 @@ public class CenterBased2DModel extends AbstractCenterBased2DModel {
 	
 	@CannotBeMonitored
 	public EpisimCellShape<Shape> getPolygonNucleus(EpisimDrawInfo<DrawInfo2D> info){
-		if(modelConnector instanceof episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC){
-			episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC modelConnectorEpidermis = (episimbiomechanics.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector;
+		if(modelConnector instanceof episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC){
+			episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC modelConnectorEpidermis = (episim_mcc_init.centerbased.newversion.epidermis.EpisimCenterBasedMC)this.modelConnector;
 			if(modelConnectorEpidermis.getIsNucleated()){
 				return new Episim2DCellShape<Shape>(createHexagonalPolygon(info != null ? info.getDrawInfo(): null, getCellWidth()/3, getCellHeight()/3));
 			}

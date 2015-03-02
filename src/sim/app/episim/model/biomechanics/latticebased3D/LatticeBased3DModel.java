@@ -9,6 +9,8 @@ import java.util.HashSet;
 
 
 
+
+
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
@@ -19,9 +21,11 @@ import javax.vecmath.Vector3f;
 
 
 
+
+
 import ec.util.MersenneTwisterFast;
-import episimbiomechanics.EpisimModelConnector;
-import episimbiomechanics.hexagonbased3d.EpisimHexagonBased3DMC;
+import episim_mcc_init.EpisimModelConnector;
+import episim_mcc_init.latticebased3d.EpisimHexagonBased3DMC;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;

@@ -4,10 +4,10 @@ import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.datamonitoring.GlobalStatistics;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.vertexbased.calc.CellPolygonCalculator;
-import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
-import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuilder;
+import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.vertexbased2D.calc.CellPolygonCalculator;
+import sim.app.episim.model.biomechanics.vertexbased2D.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased2D.geom.CellPolygonNetworkBuilder;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardCellType;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
@@ -150,11 +150,11 @@ public class UniversalCell extends AbstractCell
     }
    private boolean isDemoModel(UniversalCell cell){
    	boolean isDemoModel = false;
-   	if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel){
-   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
+   	if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModel){
+   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
    	}
-   	else if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel){
-   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
+   	else if(cell.getEpisimBioMechanicalModelObject() instanceof sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel){
+   		isDemoModel = ((sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel)cell.getEpisimBioMechanicalModelObject()).isEpidermisDemoModel();
    	}   	
    	return isDemoModel;
    }

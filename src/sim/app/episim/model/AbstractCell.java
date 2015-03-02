@@ -18,12 +18,12 @@ import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
 import sim.app.episim.datamonitoring.GlobalStatistics;
-import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical2DModel;
-import sim.app.episim.model.biomechanics.AbstractCenterBasedMechanical3DModel;
-import sim.app.episim.model.biomechanics.AbstractMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.AbstractBiomechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased2D.AbstractCenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.AbstractCenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.vertexbased2D.VertexBasedModel;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardCellType;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
@@ -81,16 +81,16 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
       	this.mechanicalModelObject.setEpisimModelConnector(modelConnector);
       	this.cellBehavioralModelObject.setEpisimModelConnector(modelConnector);
    	}
-   	if(this.motherCell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBasedMechanical3DModel){
-   		AbstractCenterBasedMechanical3DModel motherMech = (AbstractCenterBasedMechanical3DModel)this.motherCell.getEpisimBioMechanicalModelObject();
-   		AbstractCenterBasedMechanical3DModel thisMech = (AbstractCenterBasedMechanical3DModel)mechanicalModelObject;
+   	if(this.motherCell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBased3DModel){
+   		AbstractCenterBased3DModel motherMech = (AbstractCenterBased3DModel)this.motherCell.getEpisimBioMechanicalModelObject();
+   		AbstractCenterBased3DModel thisMech = (AbstractCenterBased3DModel)mechanicalModelObject;
    		thisMech.setStandardCellHeight(motherMech.getStandardCellHeight());
    		thisMech.setStandardCellWidth(motherMech.getStandardCellWidth());
    		thisMech.setStandardCellLength(motherMech.getStandardCellLength());
    	}
-   	if(this.motherCell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBasedMechanical2DModel){
-   		AbstractCenterBasedMechanical2DModel motherMech = (AbstractCenterBasedMechanical2DModel)this.motherCell.getEpisimBioMechanicalModelObject();
-   		AbstractCenterBasedMechanical2DModel thisMech = (AbstractCenterBasedMechanical2DModel)mechanicalModelObject;
+   	if(this.motherCell.getEpisimBioMechanicalModelObject() instanceof AbstractCenterBased2DModel){
+   		AbstractCenterBased2DModel motherMech = (AbstractCenterBased2DModel)this.motherCell.getEpisimBioMechanicalModelObject();
+   		AbstractCenterBased2DModel thisMech = (AbstractCenterBased2DModel)mechanicalModelObject;
    		thisMech.setStandardCellHeight(motherMech.getStandardCellHeight());
    		thisMech.setStandardCellWidth(motherMech.getStandardCellWidth());   		
    	}
@@ -146,7 +146,7 @@ public abstract class AbstractCell implements Steppable, Stoppable, java.io.Seri
 	public void addCellDeathListener(CellDeathListener listener){ this.cellDeathListeners.add(listener); }   
    
    public void killCell(){
-   	 if(this.getEpisimBioMechanicalModelObject() instanceof AbstractMechanicalModel)((AbstractMechanicalModel)this.getEpisimBioMechanicalModelObject()).removeCellFromCellField();	
+   	 if(this.getEpisimBioMechanicalModelObject() instanceof AbstractBiomechanicalModel)((AbstractBiomechanicalModel)this.getEpisimBioMechanicalModelObject()).removeCellFromCellField();	
 	  	 for(CellDeathListener listener: cellDeathListeners) listener.cellIsDead(this);	  	 
 	  	 this.getEpisimCellBehavioralModelObject().setIsAlive(false);
 	  	 removeFromSchedule();

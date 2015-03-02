@@ -6,8 +6,8 @@ import javax.vecmath.Point3d;
 
 import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.CenterBased3DModel;
-import sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.CenterBased3DModelGP;
+import sim.app.episim.model.biomechanics.centerbased3d.oldmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3d.oldmodel.CenterBased3DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

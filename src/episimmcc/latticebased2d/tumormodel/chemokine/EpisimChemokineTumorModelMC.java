@@ -1,8 +1,8 @@
 package episimmcc.latticebased2d.tumormodel.chemokine;
 
-import sim.app.episim.model.biomechanics.latticebased2Dr.LatticeBased2DModel;
-import sim.app.episim.model.biomechanics.latticebased2Dr.LatticeBased2DModelGP;
-import sim.app.episim.model.biomechanics.latticebased2Dr.tumor.chemokine.LatticeBased2DModelCytokineTumorGP;
+import sim.app.episim.model.biomechanics.latticebased2d.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2d.LatticeBased2DModelGP;
+import sim.app.episim.model.biomechanics.latticebased2d.tumor.chemokine.LatticeBased2DModelCytokineTumorGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

@@ -18,8 +18,9 @@ import javax.vecmath.Vector3d;
 
 
 
+
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3Dr.AbstractCenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3d.AbstractCenterBased3DModel;
 import sim.display3d.Display3DHack;
 import sim.field.SparseField;
 import sim.portrayal.Portrayal;

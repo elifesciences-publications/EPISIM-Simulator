@@ -1,8 +1,8 @@
 package episimmcc.latticebased3d;
 
 
-import sim.app.episim.model.biomechanics.latticebased3Dr.LatticeBased3DModel;
-import sim.app.episim.model.biomechanics.latticebased3Dr.LatticeBased3DModelGP;
+import sim.app.episim.model.biomechanics.latticebased3d.LatticeBased3DModel;
+import sim.app.episim.model.biomechanics.latticebased3d.LatticeBased3DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

@@ -3,8 +3,8 @@ package episimmcc.latticebased2d.tumormodel.simple;
 import java.util.ArrayList;
 
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.latticebased2Dr.LatticeBased2DModel;
-import sim.app.episim.model.biomechanics.latticebased2Dr.tumor.simple.LatticeBased2DModelSimpleTumorGP;
+import sim.app.episim.model.biomechanics.latticebased2d.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2d.tumor.simple.LatticeBased2DModelSimpleTumorGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

@@ -7,9 +7,9 @@ import javax.vecmath.Point2d;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.wound.AdhesiveCenterBased3DModel;
-import sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.wound.AdhesiveCenterBased3DModelGP;
-import sim.app.episim.model.biomechanics.latticebased2Dr.LatticeBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased3d.oldmodel.wound.AdhesiveCenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3d.oldmodel.wound.AdhesiveCenterBased3DModelGP;
+import sim.app.episim.model.biomechanics.latticebased2d.LatticeBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

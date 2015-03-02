@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.latticebased2Dr.LatticeBased2DModel;
-import sim.app.episim.model.biomechanics.latticebased2Dr.tumor.chemokine.LatticeBased2DModelCytokineTumorGP;
+import sim.app.episim.model.biomechanics.latticebased2d.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2d.tumor.chemokine.LatticeBased2DModelCytokineTumorGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

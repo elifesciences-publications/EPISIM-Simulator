@@ -1,4 +1,4 @@
-package episimbiomechanics.centerbased3d.newversion.fisheye;
+package episimbiomechanics.centerbased3d.fisheye;
  
 import java.util.HashMap;
 

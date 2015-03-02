@@ -144,7 +144,7 @@ public class ModelDescriptorFileGenerator {
 			String name = f.getAbsolutePath().replace(java.io.File.separatorChar, '/');
 		//	name = (name.endsWith(".xml") || name.endsWith(".sbml")) ? name.replace(sbmlDir.getAbsolutePath() + java.io.File.separatorChar, "sbml"+ java.io.File.separatorChar):name.replace(projectDir.getAbsolutePath() + java.io.File.separatorChar, "");
 			
-			if(!name.contains(this.getClass().getSimpleName()))jarOut.putNextEntry(new JarEntry(name.substring(name.indexOf("episimbiomechanics"))));
+			if(!name.contains(this.getClass().getSimpleName()))jarOut.putNextEntry(new JarEntry(name.substring(name.indexOf("episimmcc"))));
 
 			FileInputStream fileInput = new FileInputStream(f);
 

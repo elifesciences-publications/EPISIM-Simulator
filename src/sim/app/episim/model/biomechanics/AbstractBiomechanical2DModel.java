@@ -9,13 +9,13 @@ import sim.util.Double2D;
 import episiminterfaces.EpisimBiomechanicalModel;
 
 
-public abstract class AbstractMechanical2DModel extends AbstractMechanicalModel<Double2D> implements EpisimBiomechanicalModel<Shape, DrawInfo2D>{
+public abstract class AbstractBiomechanical2DModel extends AbstractBiomechanicalModel<Double2D> implements EpisimBiomechanicalModel<Shape, DrawInfo2D>{
 
-	public AbstractMechanical2DModel(){
+	public AbstractBiomechanical2DModel(){
 		this(null);
 	}
 	
-	public AbstractMechanical2DModel(AbstractCell cell){
+	public AbstractBiomechanical2DModel(AbstractCell cell){
 		super(cell);
 	}
 	

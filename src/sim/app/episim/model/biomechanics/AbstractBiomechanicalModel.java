@@ -6,15 +6,15 @@ import episiminterfaces.NoExport;
 import sim.app.episim.model.AbstractCell;
 import sim.engine.SimState;
 
-public abstract class AbstractMechanicalModel<T> implements java.io.Serializable{
+public abstract class AbstractBiomechanicalModel<T> implements java.io.Serializable{
 	
 	private AbstractCell cell;
 	
-	public AbstractMechanicalModel(){
+	public AbstractBiomechanicalModel(){
 		this(null);
 	}
 	
-	public AbstractMechanicalModel(AbstractCell cell){
+	public AbstractBiomechanicalModel(AbstractCell cell){
 		this.cell = cell;
 	}
 	

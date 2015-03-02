@@ -3,12 +3,12 @@ package sim.app.episim.model.biomechanics;
 import sim.app.episim.model.AbstractCell;
 
 
-public abstract class AbstractCenterBasedMechanical2DModel extends AbstractMechanical2DModel{
+public abstract class AbstractCenterBased2DModel extends AbstractBiomechanical2DModel{
 	
-	public AbstractCenterBasedMechanical2DModel(){
+	public AbstractCenterBased2DModel(){
 		this(null);
 	}	
-	public AbstractCenterBasedMechanical2DModel(AbstractCell cell){
+	public AbstractCenterBased2DModel(AbstractCell cell){
 		super(cell);
 	}
 	

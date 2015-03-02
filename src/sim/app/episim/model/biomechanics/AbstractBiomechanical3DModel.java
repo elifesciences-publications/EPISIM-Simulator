@@ -8,13 +8,13 @@ import sim.util.Double3D;
 import episiminterfaces.EpisimBiomechanicalModel;
 
 
-public abstract class AbstractMechanical3DModel extends AbstractMechanicalModel<Double3D> implements EpisimBiomechanicalModel<Shape3D, TransformGroup>{
+public abstract class AbstractBiomechanical3DModel extends AbstractBiomechanicalModel<Double3D> implements EpisimBiomechanicalModel<Shape3D, TransformGroup>{
 	
-	public AbstractMechanical3DModel(){
+	public AbstractBiomechanical3DModel(){
 		this(null);
 	}
 	
-	public AbstractMechanical3DModel(AbstractCell cell){
+	public AbstractBiomechanical3DModel(AbstractCell cell){
 		super(cell);
 	}
 }

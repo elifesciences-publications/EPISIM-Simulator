@@ -9,7 +9,7 @@ import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased.CenterBasedMechanicalModel;
+import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;

@@ -20,7 +20,7 @@ import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.dataexport.DataExportChangeListener;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.GenericBag;
-import sim.app.episim.visualization.TissueCrossSectionPortrayal3D;
+import sim.app.episim.visualization.threedim.TissueCrossSectionPortrayal3D;
 import sim.engine.Schedule;
 import sim.engine.SimState;
 import sim.engine.SimStateHack;

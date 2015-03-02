@@ -20,7 +20,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlob
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Icosahedron;
-import sim.app.episim.visualization.ContinuousUniversalCellPortrayal3D;
+import sim.app.episim.visualization.threedim.ContinuousCellFieldPortrayal3D;
 import sim.util.Double3D;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
@@ -204,13 +204,13 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {
-		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Fish Eye");
+		ContinuousCellFieldPortrayal3D continuousPortrayal = new ContinuousCellFieldPortrayal3D("Fish Eye");
 		continuousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		return continuousPortrayal;
 	}
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {
-		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Dummy Cells");
+		ContinuousCellFieldPortrayal3D continuousPortrayal = new ContinuousCellFieldPortrayal3D("Dummy Cells");
 		continuousPortrayal.setField(FishEyeCenterBased3DModel.getDummyCellField());
 		
 		return new EpisimPortrayal[]{continuousPortrayal};

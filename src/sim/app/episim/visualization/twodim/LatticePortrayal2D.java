@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.twodim;
 
 
 
@@ -6,6 +6,7 @@ package sim.app.episim.visualization;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.portrayal.*;
 
 import java.awt.*;
@@ -15,7 +16,7 @@ import episiminterfaces.EpisimPortrayal;
 
 
 
-public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implements EpisimPortrayal{
+public class LatticePortrayal2D extends AbstractSpatialityScalePortrayal2D implements EpisimPortrayal{
 	
 		 private final String NAME = "Grid";	
 	    
@@ -24,7 +25,7 @@ public class GridPortrayal2D extends AbstractSpatialityScalePortrayal2D implemen
 		 
 	    private double gridResolution = 5.0;
 	    private double gridResolutionFact = 1;
-	    public GridPortrayal2D() {
+	    public LatticePortrayal2D() {
 	   	 super();
 	   	 	   	 
 	    }

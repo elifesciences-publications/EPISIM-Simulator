@@ -23,7 +23,7 @@ import org.jfree.data.statistics.SimpleHistogramBin;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
-import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.SimStateChangeListener;
 import sim.app.episim.datamonitoring.dataexport.ValueMapListener;
 import sim.app.episim.util.ObservedDataCollection;
 import sim.app.episim.util.ObservedDataCollection.ObservedDataCollectionType;
@@ -31,7 +31,7 @@ import episiminterfaces.*;
 import episiminterfaces.calc.EntityChangeEvent;
 import episiminterfaces.calc.EntityChangeEvent.EntityChangeEventType;
 
-public class DataExportCSVWriter implements SimulationStateChangeListener{
+public class DataExportCSVWriter implements SimStateChangeListener{
 	
 
 	

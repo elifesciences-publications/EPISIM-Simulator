@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.threedim;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
@@ -28,14 +28,14 @@ import sim.util.Bag;
 import episiminterfaces.EpisimPortrayal;
 
 
-public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D implements EpisimPortrayal {
+public class ContinuousCellFieldPortrayal3D extends ContinuousPortrayal3D implements EpisimPortrayal {
 
 	private String name = "No Name";
 	
 	private PolygonAttributes polygonAttributes;
 	
 	
-	public ContinuousUniversalCellPortrayal3D(String name){
+	public ContinuousCellFieldPortrayal3D(String name){
 		super();
 		this.name = name;
 		polygonAttributes = new PolygonAttributes();
@@ -44,7 +44,7 @@ public class ContinuousUniversalCellPortrayal3D extends ContinuousPortrayal3D im
 		polygonAttributes.setCapability(PolygonAttributes.ALLOW_MODE_READ);
 		polygonAttributes.setCapability(PolygonAttributes.ALLOW_MODE_WRITE);
 		polygonAttributes.setPolygonOffsetFactor(1.2f);
-		setPortrayalForAll(new UniversalCellPortrayal3D(polygonAttributes));
+		setPortrayalForAll(new ContinousCellPortrayal3D(polygonAttributes));
 	}
 	
 	public PolygonAttributes polygonAttributes() { return polygonAttributes; } // default

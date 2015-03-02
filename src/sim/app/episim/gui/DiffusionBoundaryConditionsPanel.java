@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import sim.app.episim.SimStateServer;
-import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.SimStateChangeListener;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D.BoundaryCondition;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
@@ -235,7 +235,7 @@ public class DiffusionBoundaryConditionsPanel extends JPanel {
 			optionList.add(constantFlowLabelZ, constantFlowNumberFieldZ);
 		}
 		
-		SimStateServer.getInstance().addSimulationStateChangeListener(new SimulationStateChangeListener() {
+		SimStateServer.getInstance().addSimulationStateChangeListener(new SimStateChangeListener() {
 			
 			
 			public void simulationWasStopped() {		

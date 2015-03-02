@@ -11,7 +11,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.visualization.ContinuousUniversalCellPortrayal3D;
+import sim.app.episim.visualization.threedim.ContinuousCellFieldPortrayal3D;
 import sim.util.Double3D;
 import ec.util.MersenneTwisterFast;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -151,7 +151,7 @@ public class ChemotaxisCenterBasedMechModelInit  extends BiomechanicalModelIniti
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {
-		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Cells");
+		ContinuousCellFieldPortrayal3D continuousPortrayal = new ContinuousCellFieldPortrayal3D("Cells");
 		continuousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		return continuousPortrayal;
 	}

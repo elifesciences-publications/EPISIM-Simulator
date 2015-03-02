@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.twodim;
 
 
 import sim.app.episim.EpisimExceptionHandler;
@@ -10,6 +10,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.tissue.TissueBorder;
 import sim.app.episim.util.Scale;
+import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.portrayal.*;
 
 import java.awt.*;

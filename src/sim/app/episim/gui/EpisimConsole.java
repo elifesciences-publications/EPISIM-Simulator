@@ -54,7 +54,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimStateServer;
-import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.SimStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
@@ -73,7 +73,7 @@ import sim.portrayal.SimpleInspectorHack;
 import sim.util.gui.NumberTextField;
 import sim.util.gui.PropertyField;
 
-public class EpisimConsole implements ActionListener, SimulationStateChangeListener{
+public class EpisimConsole implements ActionListener, SimStateChangeListener{
 	private Container controllerContainer;
 	
 	private KeyListener keyListener;

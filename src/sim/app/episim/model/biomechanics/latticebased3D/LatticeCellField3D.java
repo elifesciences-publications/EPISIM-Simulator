@@ -8,7 +8,7 @@ import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.vertexbased2D.geom.Line;
-import sim.app.episim.visualization.HexagonalCellGridPortrayal3D;
+import sim.app.episim.visualization.threedim.LatticeCellFieldPortrayal3D;
 import sim.field.grid.Grid3D;
 import sim.field.grid.ObjectGrid3D;
 import sim.field.grid.SparseGrid3D;
@@ -65,7 +65,7 @@ public class LatticeCellField3D{
 	
 	
 	public EpisimPortrayal getCellFieldPortrayal(){
-		HexagonalCellGridPortrayal3D portrayal = new HexagonalCellGridPortrayal3D(2*LatticeBased3DModelGP.hexagonal_radius);
+		LatticeCellFieldPortrayal3D portrayal = new LatticeCellFieldPortrayal3D(2*LatticeBased3DModelGP.hexagonal_radius);
 		portrayal.setField(sparseGridCellField);
 		return portrayal;
 	}

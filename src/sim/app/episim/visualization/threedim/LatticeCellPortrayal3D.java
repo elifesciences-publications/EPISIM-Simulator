@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.threedim;
 
 import java.awt.Color;
 import java.awt.color.ColorSpace;
@@ -30,7 +30,6 @@ import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModel;
 import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModelGP;
 import sim.app.episim.model.controller.ModelController;
-import sim.app.episim.visualization.threedim.Episim3DAppearanceFactory;
 import sim.display3d.Display3DHack;
 import sim.portrayal.LocationWrapper;
 import sim.portrayal3d.SimplePortrayal3D;
@@ -38,7 +37,7 @@ import sim.portrayal3d.simple.SpherePortrayal3D;
 import sim.util.Int3D;
 
 
-public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
+public class LatticeCellPortrayal3D extends SimplePortrayal3D {
 	
 	
 	Transform3D transform;
@@ -60,13 +59,13 @@ public class HexagonalCellPortrayal3D extends SimplePortrayal3D {
 	private LatticeBased3DModelGP globalParameters;
 	private PolygonAttributes polygonAttributes;
 	
-	public HexagonalCellPortrayal3D(PolygonAttributes polygonAttributes)
+	public LatticeCellPortrayal3D(PolygonAttributes polygonAttributes)
    {
 		//this(getCellAppearanceForColor(new Color(230, 130, 170),new Color(255,175,205), new Color(220,0,0)),true,false,scale,divisions);
 		this(polygonAttributes, true,false);
    }
 	
-	public HexagonalCellPortrayal3D(PolygonAttributes polygonAttributes,boolean generateNormals, boolean generateTextureCoordinates)
+	public LatticeCellPortrayal3D(PolygonAttributes polygonAttributes,boolean generateNormals, boolean generateTextureCoordinates)
    {
 		globalParameters = (LatticeBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		standardCellRadius = (float)LatticeBased3DModelGP.hexagonal_radius;

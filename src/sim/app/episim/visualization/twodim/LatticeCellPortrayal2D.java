@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.twodim;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -19,7 +19,7 @@ import episiminterfaces.EpisimCellBehavioralModel;
 
 
 import sim.app.episim.SimStateServer;
-import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.SimStateChangeListener;
 import sim.app.episim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
@@ -34,6 +34,7 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.util.CellEllipseIntersectionCalculationRegistry;
 import sim.app.episim.util.EllipseIntersectionCalculatorAndClipper;
 import sim.app.episim.util.GenericBag;
+import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.simple.HexagonalPortrayal2DHack;
 import sim.util.Double2D;
@@ -41,7 +42,7 @@ import sim.util.Int2D;
 import sim.util.MutableInt2D;
 
 
-public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implements SimulationStateChangeListener{
+public class LatticeCellPortrayal2D extends HexagonalPortrayal2DHack implements SimStateChangeListener{
 	
 	   
 	
@@ -49,23 +50,23 @@ public class HexagonalCellPortrayal2D extends HexagonalPortrayal2DHack implement
 	 private static Color standardMembraneColor = new Color(150, 0, 0);
 	
 	 private static final double DELTA = 1;
-	 private HexagonalCellGridPortrayal2D cellGridPortrayal;
+	 private LatticeCellFieldPortrayal2D cellGridPortrayal;
 	 
 	 private HashMap<Long, DrawInfo2D> drawInfoRegistry;
 	 private HashMap<Long, Long> simStepTimeStampRegistry;
 	 
-	 public HexagonalCellPortrayal2D(HexagonalCellGridPortrayal2D cellGridPortrayal) { this(cellGridPortrayal,standardCellColor,1.0,true); }
-    public HexagonalCellPortrayal2D(HexagonalCellGridPortrayal2D cellGridPortrayal,Paint paint)  { this(cellGridPortrayal,paint,1.0,true); }
-    public HexagonalCellPortrayal2D(HexagonalCellGridPortrayal2D cellGridPortrayal, double scale) { this(cellGridPortrayal,standardCellColor,scale,true); }
-    public HexagonalCellPortrayal2D(HexagonalCellGridPortrayal2D cellGridPortrayal, boolean filled) { this(cellGridPortrayal,standardCellColor,1.0,filled); }
-    public HexagonalCellPortrayal2D(HexagonalCellGridPortrayal2D cellGridPortrayal, Paint paint, double scale)  { this(cellGridPortrayal,paint,scale,true); }
-    public HexagonalCellPortrayal2D(HexagonalCellGridPortrayal2D cellGridPortrayal, Paint paint, boolean filled)  { this(cellGridPortrayal,paint,1.0,filled); }
-    public HexagonalCellPortrayal2D(HexagonalCellGridPortrayal2D cellGridPortrayal, double scale, boolean filled)  { this(cellGridPortrayal,standardCellColor,scale,filled); }
+	 public LatticeCellPortrayal2D(LatticeCellFieldPortrayal2D cellGridPortrayal) { this(cellGridPortrayal,standardCellColor,1.0,true); }
+    public LatticeCellPortrayal2D(LatticeCellFieldPortrayal2D cellGridPortrayal,Paint paint)  { this(cellGridPortrayal,paint,1.0,true); }
+    public LatticeCellPortrayal2D(LatticeCellFieldPortrayal2D cellGridPortrayal, double scale) { this(cellGridPortrayal,standardCellColor,scale,true); }
+    public LatticeCellPortrayal2D(LatticeCellFieldPortrayal2D cellGridPortrayal, boolean filled) { this(cellGridPortrayal,standardCellColor,1.0,filled); }
+    public LatticeCellPortrayal2D(LatticeCellFieldPortrayal2D cellGridPortrayal, Paint paint, double scale)  { this(cellGridPortrayal,paint,scale,true); }
+    public LatticeCellPortrayal2D(LatticeCellFieldPortrayal2D cellGridPortrayal, Paint paint, boolean filled)  { this(cellGridPortrayal,paint,1.0,filled); }
+    public LatticeCellPortrayal2D(LatticeCellFieldPortrayal2D cellGridPortrayal, double scale, boolean filled)  { this(cellGridPortrayal,standardCellColor,scale,filled); }
     
     
     private static long actSimStepNo = -1; 
     
-    public HexagonalCellPortrayal2D(HexagonalCellGridPortrayal2D cellGridPortrayal, Paint paint, double scale, boolean filled)
+    public LatticeCellPortrayal2D(LatticeCellFieldPortrayal2D cellGridPortrayal, Paint paint, double scale, boolean filled)
     {
    	 super(paint, scale, filled);
    	 this.cellGridPortrayal = cellGridPortrayal;

@@ -61,7 +61,7 @@ import sim.app.episim.EpisimUpdater.EpisimUpdateState;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimStateServer;
-import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.SimStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.dataexport.DataExportController;
 import sim.app.episim.gui.EpisimMenuBarFactory.EpisimMenu;
@@ -93,7 +93,7 @@ import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
 
 
-public class EpisimSimulator implements SimulationStateChangeListener, ClassLoaderChangeListener{
+public class EpisimSimulator implements SimStateChangeListener, ClassLoaderChangeListener{
 	
 	public static final String versionID = "1.5.0.5.5";
 	

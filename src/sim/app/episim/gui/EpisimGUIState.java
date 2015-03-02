@@ -6,7 +6,7 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimStateServer;
-import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.SimStateChangeListener;
 import sim.app.episim.datamonitoring.charts.ChartController;
 import sim.app.episim.datamonitoring.charts.ChartSetChangeListener;
 import sim.app.episim.datamonitoring.charts.DefaultCharts;
@@ -24,15 +24,15 @@ import sim.app.episim.model.tissue.TissueBorder;
 import sim.app.episim.model.tissue.TissueServer;
 import sim.app.episim.persistence.SimulationStateFile;
 import sim.app.episim.util.CellInspector;
-import sim.app.episim.visualization.BasementMembranePortrayal2D;
 import sim.app.episim.visualization.EpisimDrawInfo;
-import sim.app.episim.visualization.GridPortrayal2D;
-import sim.app.episim.visualization.RulerPortrayal2D;
-import sim.app.episim.visualization.TissueCrossSectionPortrayal3D;
-import sim.app.episim.visualization.UniversalCellPortrayal2D;
 import sim.app.episim.visualization.threedim.BasementMembranePortrayal3D;
 import sim.app.episim.visualization.threedim.EpisimSimulationBoxPortrayal3D;
 import sim.app.episim.visualization.threedim.Optimized3DVisualization;
+import sim.app.episim.visualization.threedim.TissueCrossSectionPortrayal3D;
+import sim.app.episim.visualization.twodim.BasementMembranePortrayal2D;
+import sim.app.episim.visualization.twodim.ContinousCellPortrayal2D;
+import sim.app.episim.visualization.twodim.LatticePortrayal2D;
+import sim.app.episim.visualization.twodim.RulerPortrayal2D;
 import sim.display.*;
 import sim.portrayal3d.FieldPortrayal3D;
 import sim.portrayal3d.simple.LightPortrayal3D;
@@ -122,7 +122,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	private boolean activateDrawing = false;
 	
-	private ArrayList<SimulationStateChangeListener> simulationStateListeners;
+	private ArrayList<SimStateChangeListener> simulationStateListeners;
 	
 	private boolean autoArrangeWindows = true;	
 	
@@ -164,7 +164,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		
 		SimStateServer.getInstance().setEpisimGUIState(this);
 		if(state instanceof AbtractTissue) TissueController.getInstance().registerTissue(((AbtractTissue) state));
-		simulationStateListeners = new ArrayList<SimulationStateChangeListener>();
+		simulationStateListeners = new ArrayList<SimStateChangeListener>();
 		ChartController.getInstance().registerChartSetChangeListener(this);
 		this.mainComponent = mainComp;		
 		this.setConsole(new EpisimConsole(this));		
@@ -283,7 +283,7 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 		BasementMembranePortrayal2D basementPortrayal = new BasementMembranePortrayal2D();
 		
 		rulerPortrayal = new RulerPortrayal2D();
-		GridPortrayal2D gridPortrayal = new GridPortrayal2D();
+		LatticePortrayal2D gridPortrayal = new LatticePortrayal2D();
 		
 		
 		
@@ -944,21 +944,21 @@ public class EpisimGUIState extends GUIState implements ChartSetChangeListener{
 	
 	public void simulationWasStarted(){
 		ModelController.getInstance().setSimulationStartedOnce(true);
-		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStarted();
+		for(SimStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStarted();
 	}
 	
 	public void simulationWasStopped(){
 		
-		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStopped();
+		for(SimStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStopped();
 	}
 	
 	public void simulationWasPaused(){
 		
-		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasPaused();
+		for(SimStateChangeListener actListener: simulationStateListeners) actListener.simulationWasPaused();
 	}
 	
 	
-	public void addSimulationStateChangeListener(SimulationStateChangeListener listener){
+	public void addSimulationStateChangeListener(SimStateChangeListener listener){
 		this.simulationStateListeners.add(listener);
 	}
 

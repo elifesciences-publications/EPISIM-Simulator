@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.twodim;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
@@ -10,11 +10,11 @@ import sim.portrayal.continuous.ContinuousPortrayal2DHack;
 import episiminterfaces.EpisimPortrayal;
 
 
-public class ContinuousUniversalCellPortrayal2D extends ContinuousPortrayal2DHack implements EpisimPortrayal {
+public class ContinuousCellFieldPortrayal2D extends ContinuousPortrayal2DHack implements EpisimPortrayal {
 
 	private final String NAME = "Epidermis";
 	
-	public ContinuousUniversalCellPortrayal2D(){
+	public ContinuousCellFieldPortrayal2D(){
 		super();
 	}
 	public String getPortrayalName() {

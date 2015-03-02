@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.twodim;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -9,6 +9,7 @@ import java.awt.geom.Rectangle2D.Double;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;
+import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.portrayal.DrawInfo2D;
 import episiminterfaces.EpisimPortrayal;
 

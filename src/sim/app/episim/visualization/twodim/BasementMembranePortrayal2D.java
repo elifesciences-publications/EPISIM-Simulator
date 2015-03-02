@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.twodim;
 
 import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
@@ -7,6 +7,7 @@ import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.tissue.StandardMembrane;
 import sim.app.episim.model.tissue.TissueBorder;
 import sim.app.episim.util.Scale;
+import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.*;
 import sim.portrayal.continuous.ContinuousPortrayal2D;

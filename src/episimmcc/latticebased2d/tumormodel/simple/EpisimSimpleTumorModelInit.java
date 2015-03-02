@@ -11,7 +11,7 @@ import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.util.CellInspector;
-import sim.app.episim.visualization.HexagonalCellGridPortrayal2D;
+import sim.app.episim.visualization.twodim.LatticeCellFieldPortrayal2D;
 import sim.display.GUIState;
 import sim.field.grid.ObjectGrid2D;
 import sim.portrayal.Inspector;
@@ -104,7 +104,7 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 
 	protected EpisimPortrayal getCellPortrayal() {
 			   
-		HexagonalCellGridPortrayal2D portrayal =  new HexagonalCellGridPortrayal2D(java.awt.Color.lightGray){
+		LatticeCellFieldPortrayal2D portrayal =  new LatticeCellFieldPortrayal2D(java.awt.Color.lightGray){
 			public Inspector getInspector(LocationWrapper wrapper, GUIState state) {
 			// make the inspector
 				return new CellInspector(super.getInspector(wrapper, state), wrapper, state);

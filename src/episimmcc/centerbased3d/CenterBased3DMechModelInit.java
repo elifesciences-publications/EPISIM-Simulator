@@ -12,7 +12,7 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.visualization.ContinuousUniversalCellPortrayal3D;
+import sim.app.episim.visualization.threedim.ContinuousCellFieldPortrayal3D;
 import sim.util.Double3D;
 import episiminterfaces.EpisimPortrayal;
 
@@ -153,7 +153,7 @@ public class CenterBased3DMechModelInit extends BiomechanicalModelInitializer {
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {		
-		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Epidermis");
+		ContinuousCellFieldPortrayal3D continuousPortrayal = new ContinuousCellFieldPortrayal3D("Epidermis");
 		continuousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		return continuousPortrayal;
 	}

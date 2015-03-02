@@ -7,7 +7,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import sim.app.episim.SimStateServer;
-import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.SimStateChangeListener;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
 import sim.util.gui.LabelledListHack;
 import sim.util.gui.NumberTextField;
@@ -91,7 +91,7 @@ public class DiffusionFieldConfigurationPanel extends JPanel{
 		optionList.addLabelled("Maximum Concentration", maximumConcentration);
 		
 		
-		SimStateServer.getInstance().addSimulationStateChangeListener(new SimulationStateChangeListener() {
+		SimStateServer.getInstance().addSimulationStateChangeListener(new SimStateChangeListener() {
 			
 			
 			public void simulationWasStopped() {		

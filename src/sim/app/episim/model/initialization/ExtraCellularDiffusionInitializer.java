@@ -20,10 +20,10 @@ import sim.app.episim.model.diffusion.ExtraCellularDiffusionFieldBCConfigRW;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig3D;
 import sim.app.episim.persistence.SimulationStateData;
-import sim.app.episim.visualization.ExtraCellularDiffusionCrossSectionPortrayal3D;
 import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal;
-import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal2D;
-import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal3D;
+import sim.app.episim.visualization.threedim.ExtraCellularDiffusionCrossSectionPortrayal3D;
+import sim.app.episim.visualization.threedim.ExtraCellularDiffusionPortrayal3D;
+import sim.app.episim.visualization.twodim.ExtraCellularDiffusionPortrayal2D;
 import sim.field.grid.DoubleGrid2D;
 
 public class ExtraCellularDiffusionInitializer {

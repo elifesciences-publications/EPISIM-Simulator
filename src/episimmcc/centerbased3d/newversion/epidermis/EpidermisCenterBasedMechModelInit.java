@@ -18,9 +18,9 @@ import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.util.GenericBag;
-import sim.app.episim.visualization.ContinuousUniversalCellPortrayal2D;
-import sim.app.episim.visualization.ContinuousUniversalCellPortrayal3D;
-import sim.app.episim.visualization.UniversalCellPortrayal2D;
+import sim.app.episim.visualization.threedim.ContinuousCellFieldPortrayal3D;
+import sim.app.episim.visualization.twodim.ContinousCellPortrayal2D;
+import sim.app.episim.visualization.twodim.ContinuousCellFieldPortrayal2D;
 import sim.util.Double2D;
 import sim.util.Double3D;
 import ec.util.MersenneTwisterFast;
@@ -167,7 +167,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {
-		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Epidermis");
+		ContinuousCellFieldPortrayal3D continuousPortrayal = new ContinuousCellFieldPortrayal3D("Epidermis");
 		continuousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		return continuousPortrayal;
 	}

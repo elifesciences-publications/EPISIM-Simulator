@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.threedim;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
@@ -32,7 +32,7 @@ import sim.util.Bag;
 import sim.util.Int3D;
 
 
-public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implements EpisimPortrayal{
+public class LatticeCellFieldPortrayal3D extends SparseGridPortrayal3D implements EpisimPortrayal{
 	private static final String NAME = "Epithelial Cells";
 	
 	private float standardCellRadius=0.5f;
@@ -40,7 +40,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 	private final double VISUALIZATIONSCALINGFACTOR = 1.2;
 	private final double VISUALIZATION_SPREADING_THICKNESS_SCALING_FACTOR = 1.3;
 	private PolygonAttributes polygonAttributes;
-	public HexagonalCellGridPortrayal3D(double scale){
+	public LatticeCellFieldPortrayal3D(double scale){
 		super();
 		polygonAttributes = new PolygonAttributes();
 		polygonAttributes.setCapability(PolygonAttributes.ALLOW_CULL_FACE_READ);
@@ -48,7 +48,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
 		polygonAttributes.setCapability(PolygonAttributes.ALLOW_MODE_READ);
 		polygonAttributes.setCapability(PolygonAttributes.ALLOW_MODE_WRITE);
 		polygonAttributes.setPolygonOffsetFactor(1.2f);
-		setPortrayalForAll(new HexagonalCellPortrayal3D(polygonAttributes));
+		setPortrayalForAll(new LatticeCellPortrayal3D(polygonAttributes));
 		
 		standardCellRadius = (float)LatticeBased3DModelGP.hexagonal_radius;
 		
@@ -134,7 +134,7 @@ public class HexagonalCellGridPortrayal3D extends SparseGridPortrayal3D implemen
                 throw new RuntimeException("Unexpected Portrayal " + p + " for object " + 
                     fieldObj + " -- expecting a SimplePortrayal3D");
             SimplePortrayal3D p3d = (SimplePortrayal3D)p;
-            if(p3d instanceof HexagonalCellPortrayal3D){
+            if(p3d instanceof LatticeCellPortrayal3D){
             	
             }
             p3d.setCurrentFieldPortrayal(this);

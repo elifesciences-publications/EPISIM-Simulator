@@ -1,7 +1,7 @@
 package sim.app.episim;
 
 
-public interface SimulationStateChangeListener {
+public interface SimStateChangeListener {
 	
 	void simulationWasStarted();
 	void simulationWasPaused();

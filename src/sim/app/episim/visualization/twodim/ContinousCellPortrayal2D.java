@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.twodim;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.SimStateServer.EpisimSimulationState;
 import sim.app.episim.gui.EpisimGUIState;
@@ -13,6 +13,8 @@ import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.util.CellInspector;
 import sim.app.episim.util.GenericBag;
 import sim.app.episim.util.Scale;
+import sim.app.episim.visualization.CellEllipse;
+import sim.app.episim.visualization.EpisimDrawInfo;
 import sim.display.GUIState;
 import sim.portrayal.*;
 
@@ -25,7 +27,7 @@ import episiminterfaces.EpisimPortrayal;
 
 
 
-public class UniversalCellPortrayal2D extends SimplePortrayal2D implements EpisimPortrayal
+public class ContinousCellPortrayal2D extends SimplePortrayal2D implements EpisimPortrayal
 {
     
 		private final String NAME = "Epidermis";	
@@ -43,14 +45,14 @@ public class UniversalCellPortrayal2D extends SimplePortrayal2D implements Episi
    
     private EpisimGUIState guiState;
     
-    public UniversalCellPortrayal2D() {   	 
+    public ContinousCellPortrayal2D() {   	 
    	 this(Color.gray, false);   	 
     }    
-    public UniversalCellPortrayal2D(Paint paint){   	 
+    public ContinousCellPortrayal2D(Paint paint){   	 
    	 this(paint, true);  	 
     }    
       
-    public UniversalCellPortrayal2D(Paint paint, boolean drawFrame)  {   	
+    public ContinousCellPortrayal2D(Paint paint, boolean drawFrame)  {   	
    	cBModelController = ModelController.getInstance().getCellBehavioralModelController();
    	guiState = SimStateServer.getInstance().getEpisimGUIState();
    	

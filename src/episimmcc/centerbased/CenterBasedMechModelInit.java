@@ -20,8 +20,8 @@ import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.persistence.dataconvert.XmlEpisimBiomechanicalModel;
 import sim.app.episim.persistence.dataconvert.XmlUniversalCell;
 import sim.app.episim.util.CellInspector;
-import sim.app.episim.visualization.ContinuousUniversalCellPortrayal2D;
-import sim.app.episim.visualization.UniversalCellPortrayal2D;
+import sim.app.episim.visualization.twodim.ContinousCellPortrayal2D;
+import sim.app.episim.visualization.twodim.ContinuousCellFieldPortrayal2D;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.display.GUIState;
 import sim.portrayal.Inspector;
@@ -101,8 +101,8 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 	}
 
 	protected EpisimPortrayal getCellPortrayal() {
-		UniversalCellPortrayal2D cellPortrayal = new UniversalCellPortrayal2D(java.awt.Color.lightGray);
-		ContinuousUniversalCellPortrayal2D continousPortrayal = new ContinuousUniversalCellPortrayal2D();
+		ContinousCellPortrayal2D cellPortrayal = new ContinousCellPortrayal2D(java.awt.Color.lightGray);
+		ContinuousCellFieldPortrayal2D continousPortrayal = new ContinuousCellFieldPortrayal2D();
 		continousPortrayal.setPortrayalForClass(UniversalCell.class, cellPortrayal);
 		continousPortrayal.setField(ModelController.getInstance().getBioMechanicalModelController().getCellField());
 		return continousPortrayal;

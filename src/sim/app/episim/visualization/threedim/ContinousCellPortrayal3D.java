@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.threedim;
 
 import java.awt.Color;
 import java.lang.reflect.Field;
@@ -23,7 +23,6 @@ import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.wound.AdhesiveCe
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
-import sim.app.episim.visualization.threedim.Episim3DAppearanceFactory;
 import sim.display3d.Display3DHack;
 import sim.display3d.Display3DHack.ModelSceneCrossSectionMode;
 import sim.portrayal.LocationWrapper;
@@ -37,7 +36,7 @@ import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimDifferentiationLevel;
 
-public class UniversalCellPortrayal3D extends SimplePortrayal3D {
+public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 	
 	
 	Transform3D transform;
@@ -61,13 +60,13 @@ public class UniversalCellPortrayal3D extends SimplePortrayal3D {
 	private PolygonAttributes polygonAttributes;
 	private final Color nucleusColor = new Color(140,140,240);
 	
-	public UniversalCellPortrayal3D(PolygonAttributes polygonAttributes)
+	public ContinousCellPortrayal3D(PolygonAttributes polygonAttributes)
    {
 		//this(getCellAppearanceForColor(new Color(230, 130, 170),new Color(255,175,205), new Color(220,0,0)),true,false,scale,divisions);
 		this(polygonAttributes, true,false);
    }
 	
-	public UniversalCellPortrayal3D(PolygonAttributes polygonAttributes,boolean generateNormals, boolean generateTextureCoordinates)
+	public ContinousCellPortrayal3D(PolygonAttributes polygonAttributes,boolean generateNormals, boolean generateTextureCoordinates)
    {
 		EpisimBiomechanicalModelGlobalParameters globalParameters = ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();

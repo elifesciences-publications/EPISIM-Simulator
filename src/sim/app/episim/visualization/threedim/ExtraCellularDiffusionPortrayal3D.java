@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.threedim;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
@@ -10,6 +10,7 @@ import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.util.DiffusionColorGradient;
+import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal;
 import sim.portrayal3d.grid.ValueGridPortrayal3D;
 import sim.portrayal3d.grid.ValueGridPortrayal3DHack;
 import sim.util.gui.SimpleColorMap;

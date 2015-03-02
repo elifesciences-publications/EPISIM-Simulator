@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 import episiminterfaces.EpisimDiffusionFieldConfiguration;
 import episiminterfaces.EpisimDiffusionFieldConfigurationEx;
 import sim.app.episim.SimStateServer;
-import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.SimStateChangeListener;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtracellularDiffusionFieldBCConfig2D;
@@ -75,7 +75,7 @@ public class DiffusionModelGlobalParametersPanel extends JPanel {
 		
 		this.add(propertiesPanel, BorderLayout.CENTER);		
 		propertiesPanelCL.show(propertiesPanel, diffFieldNames[0]);
-		SimStateServer.getInstance().addSimulationStateChangeListener(new SimulationStateChangeListener() {		
+		SimStateServer.getInstance().addSimulationStateChangeListener(new SimStateChangeListener() {		
 			
 			public void simulationWasStopped(){	
 				comboBoxDiffusionFields.setEnabled(true);

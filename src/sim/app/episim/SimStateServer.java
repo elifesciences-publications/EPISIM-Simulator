@@ -13,12 +13,13 @@ import sim.app.episim.util.SimulationTrigger;
 import sim.engine.SimState;
 
 
-public class SimStateServer implements SimulationStateChangeListener, ClassLoaderChangeListener{
+public class SimStateServer implements SimStateChangeListener, ClassLoaderChangeListener{
 	
 	public enum EpisimSimulationState {PLAY, PAUSE, STOP, STEPWISE}
 	
+	
 	private EpisimSimulationState state = EpisimSimulationState.STOP;
-	private HashSet<SimulationStateChangeListener> simulationStateListeners;
+	private HashSet<SimStateChangeListener> simulationStateListeners;
 	private static SimStateServer instance;
 	
 	private EpisimGUIState episimGUIState;
@@ -31,7 +32,7 @@ public class SimStateServer implements SimulationStateChangeListener, ClassLoade
 	
 	private SimStateServer(){
 		GlobalClassLoader.getInstance().addClassLoaderChangeListener(this);
-		simulationStateListeners = new HashSet<SimulationStateChangeListener>();
+		simulationStateListeners = new HashSet<SimStateChangeListener>();
 		registeredSimulationTrigger = new HashSet<SimulationTrigger>();
 	}
 	
@@ -87,7 +88,7 @@ public class SimStateServer implements SimulationStateChangeListener, ClassLoade
 		else if(state== EpisimSimulationState.STOP){
 			state =EpisimSimulationState.STEPWISE;
 		}
-		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasPaused();
+		for(SimStateChangeListener actListener: simulationStateListeners) actListener.simulationWasPaused();
    }
 
 	public void setSimStatetoPause(){ state= EpisimSimulationState.PAUSE;}
@@ -95,7 +96,7 @@ public class SimStateServer implements SimulationStateChangeListener, ClassLoade
 	public void simulationWasStarted() {
 		if(state == EpisimSimulationState.STOP)state = EpisimSimulationState.PLAY;
 		else if(state == EpisimSimulationState.PAUSE) state = EpisimSimulationState.STEPWISE;
-		for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStarted();
+		for(SimStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStarted();
    }
 	
 	public long getSimStepNumber(){
@@ -111,17 +112,17 @@ public class SimStateServer implements SimulationStateChangeListener, ClassLoade
 
 	public void simulationWasStopped() {
 	   state = EpisimSimulationState.STOP;
-	   for(SimulationStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStopped();
+	   for(SimStateChangeListener actListener: simulationStateListeners) actListener.simulationWasStopped();
    }
 	
-	public void addSimulationStateChangeListener(SimulationStateChangeListener listener){
+	public void addSimulationStateChangeListener(SimStateChangeListener listener){
 		this.simulationStateListeners.add(listener);
 	}
-	public void removeSimulationStateChangeListener(SimulationStateChangeListener listener){
+	public void removeSimulationStateChangeListener(SimStateChangeListener listener){
 		this.simulationStateListeners.remove(listener);
 	}
 	public void reloadCurrentlyLoadedModel(){
-		for(SimulationStateChangeListener listener:simulationStateListeners){
+		for(SimStateChangeListener listener:simulationStateListeners){
 			if(listener instanceof EpisimSimulator){
 				((EpisimSimulator)listener).reloadCurrentlyLoadedModel();
 			}

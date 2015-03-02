@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.twodim;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -13,6 +13,7 @@ import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.util.DiffusionColorGradient;
+import sim.app.episim.visualization.ExtraCellularDiffusionPortrayal;
 import sim.display.GUIState;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.Inspector;

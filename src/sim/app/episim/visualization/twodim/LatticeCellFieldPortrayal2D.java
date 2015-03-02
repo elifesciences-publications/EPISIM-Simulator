@@ -1,4 +1,4 @@
-package sim.app.episim.visualization;
+package sim.app.episim.visualization.twodim;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -23,26 +23,26 @@ import sim.util.Double2D;
 import sim.util.Int2D;
 
 
-public class HexagonalCellGridPortrayal2D extends HexaObjectGridPortrayal2DHack implements EpisimPortrayal{
+public class LatticeCellFieldPortrayal2D extends HexaObjectGridPortrayal2DHack implements EpisimPortrayal{
 	private static final String NAME = "Corneal Epithelial Cells";
-	private HexagonalCellPortrayal2D defaultHexPortrayal;
+	private LatticeCellPortrayal2D defaultHexPortrayal;
 	
 	 private Paint paint;  
        
    
 	
 	
-	public HexagonalCellGridPortrayal2D(){
+	public LatticeCellFieldPortrayal2D(){
 		this(Color.BLACK); 
 	}
 	
 	 
       
-    public HexagonalCellGridPortrayal2D(Paint paint){ 
+    public LatticeCellFieldPortrayal2D(Paint paint){ 
    	super();   	
    	this.paint = paint;   
    	
-	  	defaultHexPortrayal = new HexagonalCellPortrayal2D(this, false);
+	  	defaultHexPortrayal = new LatticeCellPortrayal2D(this, false);
     }    
 	
 	

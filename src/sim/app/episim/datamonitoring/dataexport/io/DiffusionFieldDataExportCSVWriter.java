@@ -13,13 +13,13 @@ import sim.app.episim.EpisimProperties;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.ModeServer;
 import sim.app.episim.SimStateServer;
-import sim.app.episim.SimulationStateChangeListener;
+import sim.app.episim.SimStateChangeListener;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField2D;
 import sim.app.episim.model.diffusion.ExtraCellularDiffusionField3D;
 
-public class DiffusionFieldDataExportCSVWriter implements SimulationStateChangeListener{
+public class DiffusionFieldDataExportCSVWriter implements SimStateChangeListener{
 	
 	private BufferedWriter csvWriter;	
 	private File csvFile;

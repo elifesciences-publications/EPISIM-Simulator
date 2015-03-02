@@ -17,7 +17,7 @@ import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.BiomechanicalModelFacade;
 import sim.app.episim.model.biomechanics.BiomechanicalModelLoader;
-import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.CenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.centerbased2Dr.oldmodel.CenterBased2DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
 import sim.app.episim.util.ClassLoaderChangeListener;

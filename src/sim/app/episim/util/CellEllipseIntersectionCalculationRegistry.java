@@ -9,8 +9,8 @@ import java.util.concurrent.Semaphore;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.SimStateChangeListener;
-import sim.app.episim.model.biomechanics.vertexbased2D.geom.CellPolygon;
-import sim.app.episim.model.biomechanics.vertexbased2D.geom.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased2Dr.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased2Dr.geom.Vertex;
 import sim.app.episim.visualization.AbstractCellEllipse;
 import sim.app.episim.visualization.CellEllipse;
 

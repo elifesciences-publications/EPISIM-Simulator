@@ -17,9 +17,9 @@ import sim.app.episim.EpisimExceptionHandler;
 
 
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3D.fisheye.DummyCell;
-import sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DModel;
-import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.wound.AdhesiveCenterBased3DModelGP;
+import sim.app.episim.model.biomechanics.centerbased3Dr.fisheye.DummyCell;
+import sim.app.episim.model.biomechanics.centerbased3Dr.newmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.wound.AdhesiveCenterBased3DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters.MiscalleneousGlobalParameters3D;
@@ -75,9 +75,9 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 	      if(param instanceof MiscalleneousGlobalParameters3D && ((MiscalleneousGlobalParameters3D)param).getOptimizedGraphics()){	
 				optimizedGraphicsActivated = true;
 			}
-		if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModelGP)
+		if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.CenterBased3DModelGP)
 		{
-			standardCellRadius = (float)(sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModel.INITIAL_KERATINO_HEIGHT/2d);
+			standardCellRadius = (float)(sim.app.episim.model.biomechanics.centerbased3Dr.oldmodel.CenterBased3DModel.INITIAL_KERATINO_HEIGHT/2d);
 		}
 		else if(globalParameters instanceof AdhesiveCenterBased3DModelGP){
 			try{
@@ -98,7 +98,7 @@ public class ContinousCellPortrayal3D extends SimplePortrayal3D {
 	      	EpisimExceptionHandler.getInstance().displayException(e);
 	      }	
 		}
-		else if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3D.fisheye.FishEyeCenterBased3DModelGP ||globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DMechanicalModelGP){
+		else if(globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3Dr.fisheye.FishEyeCenterBased3DModelGP ||globalParameters instanceof sim.app.episim.model.biomechanics.centerbased3Dr.newmodel.CenterBased3DMechanicalModelGP){
 			try{
 		      Field field = cbGP.getClass().getDeclaredField("WIDTH_DEFAULT");
 		      standardCellRadius = (float)field.getDouble(cbGP);

@@ -16,10 +16,11 @@ import javax.vecmath.Vector3f;
 
 
 
+
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModel;
-import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModelGP;
+import sim.app.episim.model.biomechanics.latticebased3Dr.LatticeBased3DModel;
+import sim.app.episim.model.biomechanics.latticebased3Dr.LatticeBased3DModelGP;
 import sim.display3d.Display3DHack;
 import sim.field.SparseField;
 import sim.portrayal.Portrayal;

@@ -10,7 +10,7 @@ import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.CellBoundaries;
-import sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3Dr.newmodel.CenterBased3DModel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;

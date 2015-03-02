@@ -3,8 +3,8 @@ package episimmcc.latticebased2d.populgrowth;
 import java.util.ArrayList;
 
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
-import sim.app.episim.model.biomechanics.latticebased2D.demo.LatticeBased2DModelDemoGP;
+import sim.app.episim.model.biomechanics.latticebased2Dr.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2Dr.demo.LatticeBased2DModelDemoGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.controller.TissueController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

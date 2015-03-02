@@ -1,8 +1,8 @@
 package episimmcc.vertexbased;
 
 
-import sim.app.episim.model.biomechanics.vertexbased2D.VertexBasedModel;
-import sim.app.episim.model.biomechanics.vertexbased2D.VertexBasedModelGP;
+import sim.app.episim.model.biomechanics.vertexbased2Dr.VertexBasedModel;
+import sim.app.episim.model.biomechanics.vertexbased2Dr.VertexBasedModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

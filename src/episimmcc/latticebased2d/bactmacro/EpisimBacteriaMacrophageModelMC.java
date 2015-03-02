@@ -1,8 +1,8 @@
 package episimmcc.latticebased2d.bactmacro;
 
-import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
-import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModelGP;
-import sim.app.episim.model.biomechanics.latticebased2D.bact.LatticeBased2DModelBactGP;
+import sim.app.episim.model.biomechanics.latticebased2Dr.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2Dr.LatticeBased2DModelGP;
+import sim.app.episim.model.biomechanics.latticebased2Dr.bact.LatticeBased2DModelBactGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

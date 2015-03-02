@@ -1,7 +1,7 @@
 package episimmcc.latticebased2d.populgrowth;
 
-import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
-import sim.app.episim.model.biomechanics.latticebased2D.demo.LatticeBased2DModelDemoGP;
+import sim.app.episim.model.biomechanics.latticebased2Dr.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2Dr.demo.LatticeBased2DModelDemoGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;

@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimPortrayal;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonalCellField3D;
+import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModel;
+import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModelGP;
+import sim.app.episim.model.biomechanics.latticebased3D.LatticeCellField3D;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -19,11 +19,11 @@ import sim.util.Int3D;
 
 
 public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
-	private HexagonBased3DMechanicalModelGP globalParameters;
+	private LatticeBased3DModelGP globalParameters;
 	public HexagonBased3DMechModelInit(){
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
-		globalParameters = (HexagonBased3DMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		globalParameters = (LatticeBased3DModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 	}
 	
@@ -50,7 +50,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 			for(int y = height-1 ;y > ((height-1)-delta); y--){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null, true);
-					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
+					((LatticeBased3DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
 					if(cellTypes.length >0) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 					standardCellEnsemble.add(cell);
 				}
@@ -60,7 +60,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 			for(int y = 0 ;y < delta; y++){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null, true);
-					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
+					((LatticeBased3DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
 					if(cellTypes.length >0) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 					standardCellEnsemble.add(cell);
 				}
@@ -73,7 +73,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
    private  ArrayList<UniversalCell> testInitialization() {
    	ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 		UniversalCell cell = new UniversalCell(null, null, true);
-		HexagonBased3DMechanicalModel mechModel =((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject());
+		LatticeBased3DModel mechModel =((LatticeBased3DModel) cell.getEpisimBioMechanicalModelObject());
 		mechModel.setCellLocationInCellField(new Double3D(0, 0, 0));
 		mechModel.setSpreadingLocation(new Int3D(1,1,1));
 		standardCellEnsemble.add(cell);
@@ -89,8 +89,8 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 	
    protected EpisimPortrayal getCellPortrayal() {
    	Object cellField = ModelController.getInstance().getBioMechanicalModelController().getCellField();
-	   if(cellField instanceof HexagonalCellField3D){
-   	 return ((HexagonalCellField3D) cellField).getCellFieldPortrayal();
+	   if(cellField instanceof LatticeCellField3D){
+   	 return ((LatticeCellField3D) cellField).getCellFieldPortrayal();
 	   }
 	   return null;
    }
@@ -121,7 +121,7 @@ public class HexagonBased3DMechModelInit extends BiomechanicalModelInitializer {
 			for(int y = ((height/2)-delta);y < ((height/2)+delta); y++){			
 				for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 					UniversalCell cell = new UniversalCell(null, null, true);
-					((HexagonBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
+					((LatticeBased3DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double3D(x, y, z));
 					if(cellTypes.length >1) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 					standardCellEnsemble.add(cell);
 				}

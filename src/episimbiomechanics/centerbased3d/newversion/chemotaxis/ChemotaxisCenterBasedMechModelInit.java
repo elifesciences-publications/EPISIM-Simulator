@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.newversion.chemotaxis.CenterBasedChemotaxis3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.newmodel.chemotaxis.ChemotaxisCenterBased3DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
@@ -28,7 +28,7 @@ public class ChemotaxisCenterBasedMechModelInit  extends BiomechanicalModelIniti
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		random = new MersenneTwisterFast(System.currentTimeMillis());
-		CenterBasedChemotaxis3DMechanicalModelGP mechModelGP = (CenterBasedChemotaxis3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		ChemotaxisCenterBased3DModelGP mechModelGP = (ChemotaxisCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		setInitialGlobalParametersValues(mechModelGP);
 	}
 
@@ -72,7 +72,7 @@ public class ChemotaxisCenterBasedMechModelInit  extends BiomechanicalModelIniti
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 
-		CenterBasedChemotaxis3DMechanicalModelGP mechModelGP = (CenterBasedChemotaxis3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		ChemotaxisCenterBased3DModelGP mechModelGP = (ChemotaxisCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 			
 		double width = mechModelGP.getWidthInMikron();
 		double height = mechModelGP.getHeightInMikron();
@@ -84,7 +84,7 @@ public class ChemotaxisCenterBasedMechModelInit  extends BiomechanicalModelIniti
 			for (double y = (CELL_HEIGHT/2); y <= (height-(CELL_HEIGHT/2)); y += (CELL_HEIGHT*cellDistanceFact)) {
 				for (double x = (CELL_WIDTH/2); x < (width-(CELL_WIDTH/2)); x += (CELL_WIDTH*cellDistanceFact)) {
 					UniversalCell cell = new UniversalCell(null, null, true);
-					CenterBased3DMechanicalModel mechModel = ((CenterBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject());
+					CenterBased3DModel mechModel = ((CenterBased3DModel) cell.getEpisimBioMechanicalModelObject());
 					Double3D cellPos =new Double3D(x, y, z);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 					mechModel.setCellWidth(CELL_WIDTH);
 					mechModel.setCellHeight(CELL_HEIGHT);
@@ -121,7 +121,7 @@ public class ChemotaxisCenterBasedMechModelInit  extends BiomechanicalModelIniti
 		return standardCellEnsemble;
 	}
 	
-	private void setInitialGlobalParametersValues(CenterBasedChemotaxis3DMechanicalModelGP mechModelGP){
+	private void setInitialGlobalParametersValues(ChemotaxisCenterBased3DModelGP mechModelGP){
 		mechModelGP.setContinousDiffusionInXDirection(false);
 		mechModelGP.setContinousDiffusionInYDirection(false);
 		mechModelGP.setContinousDiffusionInZDirection(false);

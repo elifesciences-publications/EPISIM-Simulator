@@ -1,7 +1,7 @@
 package episimbiomechanics.hexagonbased2d.singlesurface.populgrowth;
 
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.demo.HexagonBasedMechanicalModelDemoGP;
+import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2D.demo.LatticeBased2DModelDemoGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episimbiomechanics.hexagonbased2d.singlesurface.EpisimHexagonBased2DSingleSurfaceMC;
@@ -30,7 +30,7 @@ public class EpisimPopulationGrowthMC extends EpisimHexagonBased2DSingleSurfaceM
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return HexagonBasedMechanicalModel.class;
+		return LatticeBased2DModel.class;
 	}
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
@@ -38,7 +38,7 @@ public class EpisimPopulationGrowthMC extends EpisimHexagonBased2DSingleSurfaceM
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return HexagonBasedMechanicalModelDemoGP.class;
+		return LatticeBased2DModelDemoGP.class;
 	}
 	
 	public String getChemotacticField(){	   

@@ -3,8 +3,8 @@ package episimbiomechanics.centerbased3d.newversion.fisheye;
 import java.util.HashMap;
 
 import sim.app.episim.model.AbstractCell;
-import sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3D.fisheye.FishEyeCenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.fisheye.FishEyeCenterBased3DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
@@ -118,12 +118,12 @@ public class EpisimFishEyeCenterBased3DMC extends EpisimModelConnector {
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return CenterBased3DMechanicalModel.class;
+		return FishEyeCenterBased3DModel.class;
 	}
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return CenterBased3DMechanicalModelGP.class;
+		return FishEyeCenterBased3DModelGP.class;
 	}
 	
 	@NoExport

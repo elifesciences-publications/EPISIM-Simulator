@@ -3,8 +3,8 @@ package episimbiomechanics.centerbased3d.newversion.epidermis;
 import java.util.HashMap;
 
 import sim.app.episim.model.AbstractCell;
-import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector.Hidden;
 import episimbiomechanics.EpisimModelConnector.Pairwise;
@@ -53,7 +53,7 @@ public class EpisimEpidermisCenterBased3DMC extends episimbiomechanics.centerbas
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return CenterBased3DMechanicalModel.class;
+		return CenterBased3DModel.class;
 	}
 	
 	@NoExport

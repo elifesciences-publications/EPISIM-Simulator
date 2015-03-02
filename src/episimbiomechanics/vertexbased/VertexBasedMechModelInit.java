@@ -10,13 +10,13 @@ import sim.app.episim.datamonitoring.GlobalStatistics;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedMechanicalModelGP;
-import sim.app.episim.model.biomechanics.vertexbased.VertexBasedModelController;
-import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygon;
-import sim.app.episim.model.biomechanics.vertexbased.geom.CellPolygonNetworkBuilder;
-import sim.app.episim.model.biomechanics.vertexbased.geom.Vertex;
-import sim.app.episim.model.biomechanics.vertexbased.util.CellPolygonRegistry;
+import sim.app.episim.model.biomechanics.vertexbased2D.VertexBasedModel;
+import sim.app.episim.model.biomechanics.vertexbased2D.VertexBasedModelGP;
+import sim.app.episim.model.biomechanics.vertexbased2D.VertexBasedModelController;
+import sim.app.episim.model.biomechanics.vertexbased2D.geom.CellPolygon;
+import sim.app.episim.model.biomechanics.vertexbased2D.geom.CellPolygonNetworkBuilder;
+import sim.app.episim.model.biomechanics.vertexbased2D.geom.Vertex;
+import sim.app.episim.model.biomechanics.vertexbased2D.util.CellPolygonRegistry;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.persistence.SimulationStateData;
@@ -33,10 +33,10 @@ import sim.util.Double2D;
 public class VertexBasedMechModelInit extends BiomechanicalModelInitializer {
 	
 	private MersenneTwisterFast random;
-	private VertexBasedMechanicalModelGP globalParameters;
+	private VertexBasedModelGP globalParameters;
 	public VertexBasedMechModelInit(){
 		super();
-		globalParameters = (VertexBasedMechanicalModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		globalParameters = (VertexBasedModelGP)ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		TissueController.getInstance().getTissueBorder().setBasalPeriodInMikron(550);
 		TissueController.getInstance().getTissueBorder().setStartXOfStandardMembraneInMikron(0);
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane();
@@ -54,7 +54,7 @@ public class VertexBasedMechModelInit extends BiomechanicalModelInitializer {
    	CellPolygon[] polygons = CellPolygonNetworkBuilder.getStandardMembraneCellArray();
    	for(CellPolygon actCellPolygon : polygons){   		  		
    		UniversalCell stemCell = new UniversalCell(null, null, true);
-   		VertexBasedMechanicalModel mechModel = (VertexBasedMechanicalModel)stemCell.getEpisimBioMechanicalModelObject();
+   		VertexBasedModel mechModel = (VertexBasedModel)stemCell.getEpisimBioMechanicalModelObject();
    		mechModel.initializeWithCellPolygon(actCellPolygon);
    		Vertex cellCenter = actCellPolygon.getCellCenter();
 			Double2D cellLoc = new Double2D(cellCenter.getDoubleX(), cellCenter.getDoubleY());
@@ -70,7 +70,7 @@ public class VertexBasedMechModelInit extends BiomechanicalModelInitializer {
 				EpisimProperties.getProperty(EpisimProperties.MODEL_RANDOM_CELL_AGE_INIT).equals(EpisimProperties.ON)){
 			for(UniversalCell cell : cellEnsemble){
 				double age = cell.getEpisimCellBehavioralModelObject().getAge();
-				VertexBasedMechanicalModel model = (VertexBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject();
+				VertexBasedModel model = (VertexBasedModel) cell.getEpisimBioMechanicalModelObject();
 				CellPolygonNetworkBuilder.setCellPolygonSizeAccordingToAge(age, model.getCellPolygon());
 			}
 		}		

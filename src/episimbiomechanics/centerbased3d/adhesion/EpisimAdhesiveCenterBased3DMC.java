@@ -1,8 +1,8 @@
 package episimbiomechanics.centerbased3d.adhesion;
 
 
-import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.wound.AdhesiveCenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.wound.AdhesiveCenterBased3DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
@@ -54,12 +54,12 @@ public class EpisimAdhesiveCenterBased3DMC extends EpisimModelConnector {
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return AdhesiveCenterBased3DMechanicalModel.class;
+		return AdhesiveCenterBased3DModel.class;
 	}
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return AdhesiveCenterBased3DMechanicalModelGP.class;
+		return AdhesiveCenterBased3DModelGP.class;
 	}
 	
 	@NoExport

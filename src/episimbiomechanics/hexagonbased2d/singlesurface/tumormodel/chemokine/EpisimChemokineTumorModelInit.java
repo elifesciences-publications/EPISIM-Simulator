@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.tumor.chemokine.HexagonBasedMechanicalModelCytokineTumorGP;
+import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2D.tumor.chemokine.LatticeBased2DModelCytokineTumorGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -33,7 +33,7 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		
 		random = new MersenneTwisterFast(System.currentTimeMillis());
-		HexagonBasedMechanicalModelCytokineTumorGP globalParameters = (HexagonBasedMechanicalModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
+		LatticeBased2DModelCytokineTumorGP globalParameters = (LatticeBased2DModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
 		setInitialGlobalParametersValues(globalParameters);
 	}
 	
@@ -42,14 +42,14 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		
 		random = new MersenneTwisterFast(System.currentTimeMillis());
-		HexagonBasedMechanicalModelCytokineTumorGP globalParameters = (HexagonBasedMechanicalModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
+		LatticeBased2DModelCytokineTumorGP globalParameters = (LatticeBased2DModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
 		setInitialGlobalParametersValues(globalParameters);
 	}
 
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
-		HexagonBasedMechanicalModelCytokineTumorGP globalParameters = (HexagonBasedMechanicalModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		LatticeBased2DModelCytokineTumorGP globalParameters = (LatticeBased2DModelCytokineTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 
 		int width = (int)globalParameters.getNumber_of_columns();
 		double sectionWidth = Math.floor(((double)width) / 3d);
@@ -99,21 +99,21 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 		// AL Secretory Cells
 		for(Int2D cellPos:secretoryPositionsAL){
 			UniversalCell cell = new UniversalCell(null, null, true);
-			((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(cellPos.x, cellPos.y));
+			((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(cellPos.x, cellPos.y));
 			if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 			standardCellEnsemble.add(cell);
 		}
 		// IM Secretory Cells
 		for(Int2D cellPos:secretoryPositionsIM){
 			UniversalCell cell = new UniversalCell(null, null, true);
-			((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(cellPos.x, cellPos.y));
+			((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(cellPos.x, cellPos.y));
 			if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);
 			standardCellEnsemble.add(cell);
 		}
 		// LM Secretory Cells
 		for(Int2D cellPos:secretoryPositionsLM){
 			UniversalCell cell = new UniversalCell(null, null, true);
-			((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(cellPos.x, cellPos.y));
+			((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(cellPos.x, cellPos.y));
 			if(cellTypes.length >=4) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[3]);
 			standardCellEnsemble.add(cell);
 		}
@@ -123,7 +123,7 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 				Int2D cellPos = new Int2D(x,y);
 				if(!secretoryPositionsAL.contains(cellPos)&&!secretoryPositionsIM.contains(cellPos)&&!secretoryPositionsLM.contains(cellPos)){
 					UniversalCell cell = new UniversalCell(null, null, true);
-					((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(cellPos.x, cellPos.y));
+					((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(cellPos.x, cellPos.y));
 					cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 					standardCellEnsemble.add(cell);
 				}				
@@ -133,7 +133,7 @@ public class EpisimChemokineTumorModelInit extends BiomechanicalModelInitializer
 	}
 	
 	
-	private void setInitialGlobalParametersValues(HexagonBasedMechanicalModelCytokineTumorGP globalParameters){
+	private void setInitialGlobalParametersValues(LatticeBased2DModelCytokineTumorGP globalParameters){
 		globalParameters.setCellDiameterInMikron(20);
 		globalParameters.setWidthInMikron(1000);
 		globalParameters.setHeightInMikron(1000);

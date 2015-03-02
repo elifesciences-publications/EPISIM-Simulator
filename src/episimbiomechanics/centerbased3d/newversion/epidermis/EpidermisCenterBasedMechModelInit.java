@@ -9,8 +9,8 @@ import javax.vecmath.Point3d;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.newversion.CenterBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.newmodel.CenterBased3DMechanicalModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -126,7 +126,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 			if(distanceToNeighbouringStemCellSufficient(newLoc, requiredDistance)){				   
 					cellAdded = true;		
 					UniversalCell stemCell = new UniversalCell(null, null, true);
-					CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());					
+					CenterBased3DModel mechModel=((CenterBased3DModel) stemCell.getEpisimBioMechanicalModelObject());					
 					mechModel.setCellWidth(STEM_CELL_WIDTH);
 					mechModel.setCellHeight(STEM_CELL_HEIGHT);
 					mechModel.setCellLength(STEM_CELL_LENGTH);
@@ -141,7 +141,7 @@ public class EpidermisCenterBasedMechModelInit extends BiomechanicalModelInitial
 	}
 	
 	private boolean distanceToNeighbouringStemCellSufficient(Double3D newLoc, double requiredDistance){
-		GenericBag<AbstractCell> cells = CenterBased3DMechanicalModel.getAllCellsWithinDistance(newLoc, requiredDistance);
+		GenericBag<AbstractCell> cells = CenterBased3DModel.getAllCellsWithinDistance(newLoc, requiredDistance);
 		if(cells.isEmpty()) return true;
 		else{
 			for(AbstractCell cell : cells){

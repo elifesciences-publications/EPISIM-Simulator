@@ -7,8 +7,8 @@ import javax.vecmath.Point2d;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -73,7 +73,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 
-		CenterBasedMechanicalModelGP mechModelGP = (CenterBasedMechanicalModelGP) ModelController
+		CenterBased2DModelGP mechModelGP = (CenterBased2DModelGP) ModelController
 				.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		Double2D lastloc = new Double2D(0, TissueController.getInstance().getTissueBorder().lowerBoundInMikron(0,0));
@@ -86,7 +86,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 				if (distance > mechModelGP.getBasalDensity_mikron() || firstCell) {
 				
 					UniversalCell stemCell = new UniversalCell(null, null, true);
-					CenterBasedMechanicalModel mechModel = ((CenterBasedMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());
+					CenterBased2DModel mechModel = ((CenterBased2DModel) stemCell.getEpisimBioMechanicalModelObject());
 					Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 					mechModel.setCellWidth(STEM_CELL_WIDTH);
 					mechModel.setCellHeight(STEM_CELL_HEIGHT);
@@ -110,7 +110,7 @@ public class CenterBasedMechModelInit extends BiomechanicalModelInitializer {
 		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();
 
 		for (UniversalCell uCell : loadedCells) {				
-			CenterBasedMechanicalModel centerBasedModel = (CenterBasedMechanicalModel) uCell.getEpisimBioMechanicalModelObject();
+			CenterBased2DModel centerBasedModel = (CenterBased2DModel) uCell.getEpisimBioMechanicalModelObject();
 			centerBasedModel.getCellEllipseObject().setXY(centerBasedModel.getX(), centerBasedModel.getY());
 			centerBasedModel.getCellEllipseObject().setMajorAxisAndMinorAxis(centerBasedModel.getCellWidth(), centerBasedModel.getCellHeight());
 		}

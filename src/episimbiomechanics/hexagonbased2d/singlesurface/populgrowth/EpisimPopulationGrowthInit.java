@@ -3,8 +3,8 @@ package episimbiomechanics.hexagonbased2d.singlesurface.populgrowth;
 import java.util.ArrayList;
 
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.demo.HexagonBasedMechanicalModelDemoGP;
+import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2D.demo.LatticeBased2DModelDemoGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -35,7 +35,7 @@ public class EpisimPopulationGrowthInit extends BiomechanicalModelInitializer {
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
-		HexagonBasedMechanicalModelDemoGP globalParameters = (HexagonBasedMechanicalModelDemoGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		LatticeBased2DModelDemoGP globalParameters = (LatticeBased2DModelDemoGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int width = (int) (globalParameters.getNumber_of_columns());
 		int height = (int) globalParameters.getNumber_of_rows();
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
@@ -44,7 +44,7 @@ public class EpisimPopulationGrowthInit extends BiomechanicalModelInitializer {
 		for(int y = ((height/2)-delta);y < ((height/2)+delta); y++){			
 			for(int x = ((width/2)-delta); x < ((width/2)+delta); x++){
 				UniversalCell cell = new UniversalCell(null, null, true);
-				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
+				((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 				if(cellTypes.length >0) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 				standardCellEnsemble.add(cell);
 			}

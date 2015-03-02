@@ -3,9 +3,9 @@ package episimbiomechanics.hexagonbased2d.singlesurface.bactmacro;
 import java.util.ArrayList;
 
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
-import sim.app.episim.model.biomechanics.hexagonbased.bact.HexagonBasedMechanicalModelBactGP;
+import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModelGP;
+import sim.app.episim.model.biomechanics.latticebased2D.bact.LatticeBased2DModelBactGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -31,7 +31,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 		super();
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		random = new MersenneTwisterFast(System.currentTimeMillis());
-		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
+		LatticeBased2DModelGP globalParameters = (LatticeBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
 		setInitialGlobalParametersValues(globalParameters);
 	}
 	
@@ -43,7 +43,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
-		HexagonBasedMechanicalModelBactGP globalParameters = (HexagonBasedMechanicalModelBactGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		LatticeBased2DModelBactGP globalParameters = (LatticeBased2DModelBactGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		if(globalParameters.getAddErythrocyteColony()){
 			addErythrocyteColony(standardCellEnsemble);
 		}
@@ -53,7 +53,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 	}
 	
 	
-	private void setInitialGlobalParametersValues(HexagonBasedMechanicalModelGP globalParameters){
+	private void setInitialGlobalParametersValues(LatticeBased2DModelGP globalParameters){
 		globalParameters.setCellDiameterInMikron(20);
 		globalParameters.setWidthInMikron(200);
 		globalParameters.setHeightInMikron(200);
@@ -62,7 +62,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 	}
 	
 	private void addMakrophageColony(ArrayList<UniversalCell> standardCellEnsemble){
-		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		LatticeBased2DModelGP globalParameters = (LatticeBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int xPos = 0;//(float)(globalParameters.getNumber_of_columns() /2d);
 		int yPos = (int)(globalParameters.getNumber_of_rows() /2d);
 		if(globalParameters.getWidthInMikron() >250){
@@ -73,7 +73,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 				
 				
 		UniversalCell cell = new UniversalCell(null, null, true);
-		((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
+		((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
 		((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[xPos][yPos] = cell;
 		//System.out.println("Macrophage: "+((HexagonBasedMechanicalModelSingleSurface) cell.getEpisimBioMechanicalModelObject()).getLocationInMikron());	
 		if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
@@ -81,7 +81,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 		
 	}
 	private void addBacteriaColony(ArrayList<UniversalCell> standardCellEnsemble){
-		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		LatticeBased2DModelGP globalParameters = (LatticeBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int xPos = (int)(globalParameters.getNumber_of_columns() - 1);
 		int yPos = (int)(globalParameters.getNumber_of_rows() /2d);
 		if(globalParameters.getWidthInMikron() >250){
@@ -92,7 +92,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 				
 				
 		UniversalCell cell = new UniversalCell(null, null, true);
-		((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
+		((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(xPos, yPos));
 		((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[xPos][yPos] = cell;			
 		if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);
 		standardCellEnsemble.add(cell);			
@@ -100,7 +100,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 	}
 	
 	private void addErythrocyteColony(ArrayList<UniversalCell> standardCellEnsemble){
-		HexagonBasedMechanicalModelGP globalParameters = (HexagonBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		LatticeBased2DModelGP globalParameters = (LatticeBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		int noCols = (int)(globalParameters.getNumber_of_columns());
 		int noRows = (int)(globalParameters.getNumber_of_rows());
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
@@ -111,7 +111,7 @@ public class EpisimBacteriaMacrophageModelInit  extends BiomechanicalModelInitia
 				double rn =random.nextDouble();
 				if(rn < cellDensity){				
 					UniversalCell cell = new UniversalCell(null, null, true);
-					((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
+					((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 					((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
 						
 					if(cellTypes.length >=3) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[2]);

@@ -3,8 +3,8 @@ package episimbiomechanics.centerbased.newversion.epidermis;
 import java.util.HashMap;
 
 import sim.app.episim.model.AbstractCell;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
@@ -52,12 +52,12 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return CenterBasedMechanicalModel.class;
+		return CenterBased2DModel.class;
 	}
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return CenterBasedMechanicalModelGP.class;
+		return CenterBased2DModelGP.class;
 	}
 	
 	@NoExport

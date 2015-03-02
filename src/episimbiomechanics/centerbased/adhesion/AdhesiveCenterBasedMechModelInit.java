@@ -7,9 +7,9 @@ import javax.vecmath.Point2d;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased.adhesion.old.AdhesiveCenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.adhesion.old.AdhesiveCenterBasedMechanicalModelGP;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.wound.AdhesiveCenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2D.oldmodel.wound.AdhesiveCenterBased2DModelGP;
+import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -32,7 +32,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 
 	public AdhesiveCenterBasedMechModelInit() {
 		super();		
-		AdhesiveCenterBasedMechanicalModelGP globalParameters = (AdhesiveCenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		AdhesiveCenterBased2DModelGP globalParameters = (AdhesiveCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane(globalParameters.getBasalMembraneDiscrSteps(), globalParameters.getBasalMembraneContactTimeThreshold());
 		setInitialGlobalParametersValues(globalParameters);
 	}
@@ -48,11 +48,11 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 		double BASAL_CELL_HEIGHT=0;
 		double SUPRABASAL_CELL_WIDTH=0;
 		double SUPRABASAL_CELL_HEIGHT=0;
-		AdhesiveCenterBasedMechanicalModelGP globalParameters = (AdhesiveCenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		AdhesiveCenterBased2DModelGP globalParameters = (AdhesiveCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane(globalParameters.getBasalMembraneDiscrSteps(), globalParameters.getBasalMembraneContactTimeThreshold());
 		
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
-		AdhesiveCenterBasedMechanicalModelGP mechModelGP = (AdhesiveCenterBasedMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		AdhesiveCenterBased2DModelGP mechModelGP = (AdhesiveCenterBased2DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		try{
 	      Field field = cbGP.getClass().getDeclaredField("BASAL_CELL_WIDTH");
@@ -93,7 +93,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 		for (double x = (0.5*BASAL_CELL_WIDTH); x <= mechModelGP.getInitCellCoveredDistInMikron(); x += BASAL_CELL_WIDTH) {
 			Double2D newloc = new Double2D(x, yZeroLine+ (BASAL_CELL_HEIGHT/2));				
 			UniversalCell cell = new UniversalCell(null, null, true);
-			AdhesiveCenterBasedMechanicalModel mechModel = ((AdhesiveCenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject());
+			AdhesiveCenterBased2DModel mechModel = ((AdhesiveCenterBased2DModel) cell.getEpisimBioMechanicalModelObject());
 			Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 			mechModel.setKeratinoWidth(BASAL_CELL_WIDTH);
 			mechModel.setKeratinoHeight(BASAL_CELL_HEIGHT);	
@@ -130,7 +130,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 				for (double x = (mechModelGP.getWidthInMikron()-(0.5*BASAL_CELL_WIDTH)); x >= (mechModelGP.getWidthInMikron()- mechModelGP.getInitCellCoveredDistInMikron()); x -= BASAL_CELL_WIDTH) {
 					Double2D newloc = new Double2D(x, yZeroLine+ (BASAL_CELL_HEIGHT/2));				
 					UniversalCell cell = new UniversalCell(null, null, true);
-					AdhesiveCenterBasedMechanicalModel mechModel = ((AdhesiveCenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject());
+					AdhesiveCenterBased2DModel mechModel = ((AdhesiveCenterBased2DModel) cell.getEpisimBioMechanicalModelObject());
 					Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 					mechModel.setKeratinoWidth(BASAL_CELL_WIDTH);
 					mechModel.setKeratinoHeight(BASAL_CELL_HEIGHT);
@@ -170,7 +170,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 			for (double x = (0.5*SUPRABASAL_CELL_WIDTH); x <= mechModelGP.getInitCellCoveredDistInMikron(); x += SUPRABASAL_CELL_WIDTH) {
 				Double2D newloc = new Double2D(x, yZeroLine+BASAL_CELL_HEIGHT + (SUPRABASAL_CELL_HEIGHT/2d) +(y*SUPRABASAL_CELL_HEIGHT));				
 				UniversalCell cell = new UniversalCell(null, null, true);
-				AdhesiveCenterBasedMechanicalModel mechModel = ((AdhesiveCenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject());
+				AdhesiveCenterBased2DModel mechModel = ((AdhesiveCenterBased2DModel) cell.getEpisimBioMechanicalModelObject());
 				Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 				mechModel.setKeratinoWidth(SUPRABASAL_CELL_WIDTH);
 				mechModel.setKeratinoHeight(SUPRABASAL_CELL_HEIGHT);
@@ -195,7 +195,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 					for (double x = (mechModelGP.getWidthInMikron()-(0.5*SUPRABASAL_CELL_WIDTH)); x >= (mechModelGP.getWidthInMikron()-mechModelGP.getInitCellCoveredDistInMikron()); x -= SUPRABASAL_CELL_WIDTH) {
 						Double2D newloc = new Double2D(x, yZeroLine+BASAL_CELL_HEIGHT + (SUPRABASAL_CELL_HEIGHT/2d) +(y*SUPRABASAL_CELL_HEIGHT));				
 						UniversalCell cell = new UniversalCell(null, null, true);
-						AdhesiveCenterBasedMechanicalModel mechModel = ((AdhesiveCenterBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject());
+						AdhesiveCenterBased2DModel mechModel = ((AdhesiveCenterBased2DModel) cell.getEpisimBioMechanicalModelObject());
 						Point2d corrPos =new Point2d(newloc.x, newloc.y);//mechModel.calculateLowerBoundaryPositionForCell(new Point2d(newloc.x, newloc.y));
 						mechModel.setKeratinoWidth(SUPRABASAL_CELL_WIDTH);
 						mechModel.setKeratinoHeight(SUPRABASAL_CELL_HEIGHT);
@@ -220,7 +220,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();
 
 		for (UniversalCell uCell : loadedCells) {				
-			AdhesiveCenterBasedMechanicalModel centerBasedModel = (AdhesiveCenterBasedMechanicalModel) uCell.getEpisimBioMechanicalModelObject();
+			AdhesiveCenterBased2DModel centerBasedModel = (AdhesiveCenterBased2DModel) uCell.getEpisimBioMechanicalModelObject();
 			centerBasedModel.getCellEllipseObject().setXY(centerBasedModel.getCellLocationInCellField().x, centerBasedModel.getCellLocationInCellField().y);
 		}
 		return loadedCells;
@@ -233,7 +233,7 @@ public class AdhesiveCenterBasedMechModelInit extends BiomechanicalModelInitiali
 
 	}
 
-	private void setInitialGlobalParametersValues(AdhesiveCenterBasedMechanicalModelGP globalParameters){
+	private void setInitialGlobalParametersValues(AdhesiveCenterBased2DModelGP globalParameters){
 		
 	}
 	

@@ -1,8 +1,8 @@
 package episimbiomechanics.hexagonbased3d;
 
 
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased3d.HexagonBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModel;
+import sim.app.episim.model.biomechanics.latticebased3D.LatticeBased3DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
@@ -36,7 +36,7 @@ public class EpisimHexagonBased3DMC extends EpisimModelConnector{
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return HexagonBased3DMechanicalModel.class;
+		return LatticeBased3DModel.class;
 	}
 	@NoExport
 	public Class<? extends BiomechanicalModelInitializer> getEpisimBioMechanicalModelInitializerClass(){
@@ -44,7 +44,7 @@ public class EpisimHexagonBased3DMC extends EpisimModelConnector{
 	}
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return HexagonBased3DMechanicalModelGP.class;
+		return LatticeBased3DModelGP.class;
 	}
 	
 	public void setIsSpreading(boolean isSpreading){

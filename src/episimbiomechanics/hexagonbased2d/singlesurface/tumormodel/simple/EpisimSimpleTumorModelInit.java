@@ -3,8 +3,8 @@ package episimbiomechanics.hexagonbased2d.singlesurface.tumormodel.simple;
 import java.util.ArrayList;
 
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.hexagonbased.tumor.simple.HexagonBasedMechanicalModelSimpleTumorGP;
+import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModel;
+import sim.app.episim.model.biomechanics.latticebased2D.tumor.simple.LatticeBased2DModelSimpleTumorGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -31,7 +31,7 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 		TissueController.getInstance().getTissueBorder().loadNoMembrane();
 		
 		random = new MersenneTwisterFast(System.currentTimeMillis());
-		HexagonBasedMechanicalModelSimpleTumorGP globalParameters = (HexagonBasedMechanicalModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
+		LatticeBased2DModelSimpleTumorGP globalParameters = (LatticeBased2DModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();		
 		setInitialGlobalParametersValues(globalParameters);
 	}
 	
@@ -42,7 +42,7 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 	
 	protected ArrayList<UniversalCell> buildStandardInitialCellEnsemble() {
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
-		HexagonBasedMechanicalModelSimpleTumorGP globalParameters = (HexagonBasedMechanicalModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		LatticeBased2DModelSimpleTumorGP globalParameters = (LatticeBased2DModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		
 		
@@ -55,7 +55,7 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 				double rn =random.nextDouble();
 				if(rn < cellDensity){
 					UniversalCell cell = new UniversalCell(null, null, true);
-					((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
+					((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 					if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[0]);
 					standardCellEnsemble.add(cell);
 				}
@@ -66,7 +66,7 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 	}
 	
 	
-	private void setInitialGlobalParametersValues(HexagonBasedMechanicalModelSimpleTumorGP globalParameters){
+	private void setInitialGlobalParametersValues(LatticeBased2DModelSimpleTumorGP globalParameters){
 		globalParameters.setCellDiameterInMikron(25);
 		globalParameters.setNumber_of_initially_occupied_columns(4);
 		globalParameters.setNumber_of_columns(54);
@@ -75,7 +75,7 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 		globalParameters.setInitialCellDensityInPercent(100);
 	}
 	private void addSekretionCellColony(ArrayList<UniversalCell> standardCellEnsemble){
-		HexagonBasedMechanicalModelSimpleTumorGP globalParameters = (HexagonBasedMechanicalModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		LatticeBased2DModelSimpleTumorGP globalParameters = (LatticeBased2DModelSimpleTumorGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		float xPos = (float)(globalParameters.getNumber_of_columns() /2d);
 		int height = (int)globalParameters.getNumber_of_rows();
 		EpisimCellType[] cellTypes =ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters().getAvailableCellTypes();
@@ -87,7 +87,7 @@ public class EpisimSimpleTumorModelInit extends BiomechanicalModelInitializer {
 				float delta = (float)(2d*Math.sin(sineModulationFactor*y));
 				int x = Math.round(xPos+delta);
 				UniversalCell cell = new UniversalCell(null, null, true);
-				((HexagonBasedMechanicalModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
+				((LatticeBased2DModel) cell.getEpisimBioMechanicalModelObject()).setCellLocationInCellField(new Double2D(x, y));
 				((ObjectGrid2D) ModelController.getInstance().getBioMechanicalModelController().getCellField()).field[x][y] = cell;
 				
 				if(cellTypes.length >=2) cell.getEpisimCellBehavioralModelObject().setCellType(cellTypes[1]);

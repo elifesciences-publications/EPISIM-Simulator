@@ -1,8 +1,8 @@
 package episimbiomechanics.centerbased.newversion.chemotaxis;
 
 import sim.app.episim.model.AbstractCell;
-import sim.app.episim.model.biomechanics.centerbased.newversion.CenterBasedMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased.newversion.chemotaxis.CenterBasedChemotaxisMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased2D.newmodel.CenterBased2DModel;
+import sim.app.episim.model.biomechanics.centerbased2D.newmodel.chemotaxis.ChemotaxisCenterBased2DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.centerbased.newversion.chemotaxis.CenterBasedMechModelInit;
 import episiminterfaces.EpisimBiomechanicalModel;
@@ -42,12 +42,12 @@ public class EpisimCenterBasedMC extends episimbiomechanics.centerbased.newversi
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return CenterBasedMechanicalModel.class;
+		return CenterBased2DModel.class;
 	}
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return CenterBasedChemotaxisMechanicalModelGP.class;
+		return ChemotaxisCenterBased2DModelGP.class;
 	}
 	
 	@NoExport

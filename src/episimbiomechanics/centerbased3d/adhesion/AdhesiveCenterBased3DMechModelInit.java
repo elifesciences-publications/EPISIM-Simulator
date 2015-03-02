@@ -7,9 +7,9 @@ import javax.vecmath.Point2d;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.adhesion.old.AdhesiveCenterBased3DMechanicalModelGP;
-import sim.app.episim.model.biomechanics.hexagonbased.HexagonBasedMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.wound.AdhesiveCenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.wound.AdhesiveCenterBased3DModelGP;
+import sim.app.episim.model.biomechanics.latticebased2D.LatticeBased2DModelGP;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -34,7 +34,7 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 
 	public AdhesiveCenterBased3DMechModelInit() {
 		super();		
-		AdhesiveCenterBased3DMechanicalModelGP globalParameters = (AdhesiveCenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		AdhesiveCenterBased3DModelGP globalParameters = (AdhesiveCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane(globalParameters.getBasalMembraneDiscrSteps(), globalParameters.getBasalMembraneDiscrSteps(), globalParameters.getBasalMembraneContactTimeThreshold());
 		setInitialGlobalParametersValues(globalParameters);
 	}
@@ -53,11 +53,11 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 		double SUPRABASAL_CELL_HEIGHT=0;
 		double SUPRABASAL_CELL_LENGTH=0;
 		
-		AdhesiveCenterBased3DMechanicalModelGP globalParameters = (AdhesiveCenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		AdhesiveCenterBased3DModelGP globalParameters = (AdhesiveCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		TissueController.getInstance().getTissueBorder().loadStandardMembrane(globalParameters.getBasalMembraneDiscrSteps(), globalParameters.getBasalMembraneContactTimeThreshold());
 		
 		EpisimCellBehavioralModelGlobalParameters cbGP = ModelController.getInstance().getEpisimCellBehavioralModelGlobalParameters();
-		AdhesiveCenterBased3DMechanicalModelGP mechModelGP = (AdhesiveCenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		AdhesiveCenterBased3DModelGP mechModelGP = (AdhesiveCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		
 		try{
 	      Field field = cbGP.getClass().getDeclaredField("BASAL_CELL_WIDTH");
@@ -117,7 +117,7 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 					Double3D newloc = new Double3D((circleCenter.x+ (actCircleRadius*Math.cos(Math.toRadians(alpha)))), yZeroLine+ (BASAL_CELL_HEIGHT/2), (circleCenter.y+ (actCircleRadius*Math.sin(Math.toRadians(alpha)))));
 					UniversalCell cell = new UniversalCell(null, null, true);					
 					
-					AdhesiveCenterBased3DMechanicalModel mechModel = ((AdhesiveCenterBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject());					
+					AdhesiveCenterBased3DModel mechModel = ((AdhesiveCenterBased3DModel) cell.getEpisimBioMechanicalModelObject());					
 					mechModel.setKeratinoWidth(BASAL_CELL_WIDTH);
 					mechModel.setKeratinoHeight(BASAL_CELL_HEIGHT);
 					mechModel.setKeratinoLength(BASAL_CELL_LENGTH);
@@ -177,7 +177,7 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 								 								  (circleCenter.y+ (actCircleRadius*Math.sin(Math.toRadians(alpha)))));
 						UniversalCell cell = new UniversalCell(null, null, true);					
 						
-						AdhesiveCenterBased3DMechanicalModel mechModel = ((AdhesiveCenterBased3DMechanicalModel) cell.getEpisimBioMechanicalModelObject());					
+						AdhesiveCenterBased3DModel mechModel = ((AdhesiveCenterBased3DModel) cell.getEpisimBioMechanicalModelObject());					
 						mechModel.setKeratinoWidth(SUPRABASAL_CELL_WIDTH);
 						mechModel.setKeratinoHeight(SUPRABASAL_CELL_HEIGHT);
 						mechModel.setKeratinoLength(SUPRABASAL_CELL_LENGTH);
@@ -204,7 +204,7 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 		ArrayList<UniversalCell> loadedCells = super.buildInitialCellEnsemble();
 
 		for (UniversalCell uCell : loadedCells) {				
-			AdhesiveCenterBased3DMechanicalModel centerBasedModel = (AdhesiveCenterBased3DMechanicalModel) uCell.getEpisimBioMechanicalModelObject();
+			AdhesiveCenterBased3DModel centerBasedModel = (AdhesiveCenterBased3DModel) uCell.getEpisimBioMechanicalModelObject();
 		}
 		return loadedCells;
 	}
@@ -216,7 +216,7 @@ public class AdhesiveCenterBased3DMechModelInit extends BiomechanicalModelInitia
 
 	}
 
-	private void setInitialGlobalParametersValues(AdhesiveCenterBased3DMechanicalModelGP globalParameters){
+	private void setInitialGlobalParametersValues(AdhesiveCenterBased3DModelGP globalParameters){
 		
 	}
 	

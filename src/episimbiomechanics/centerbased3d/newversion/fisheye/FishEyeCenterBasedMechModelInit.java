@@ -9,9 +9,9 @@ import javax.vecmath.Point3d;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
-import sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.fisheye.CenterBased3DMechanicalModelGP;
-import sim.app.episim.model.biomechanics.centerbased3d.fisheye.DummyCell;
+import sim.app.episim.model.biomechanics.centerbased3D.fisheye.FishEyeCenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.fisheye.FishEyeCenterBased3DModelGP;
+import sim.app.episim.model.biomechanics.centerbased3D.fisheye.DummyCell;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import sim.app.episim.model.misc.MiscalleneousGlobalParameters;
@@ -85,7 +85,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 
 		ArrayList<UniversalCell> standardCellEnsemble = new ArrayList<UniversalCell>();
 
-		CenterBased3DMechanicalModelGP mechModelGP = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		mechModelGP.setInnerEyeRadius(mechModelGP.getInitialInnerEyeRadius());
 		
 		Point3d fishEyeCenter = mechModelGP.getInnerEyeCenter();
@@ -117,7 +117,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 				if(!existingCoordinates.contains(newPos) && newPos.x >= fishEyeCenter.x && (previousPoint == null || previousPoint.distance(newPos)>=cellSize)){
 					//if(previousPoint==null ||(previousPoint.distance(newPos))>=cellSize){
 						UniversalCell stemCell = new UniversalCell(null, null, true);
-						CenterBased3DMechanicalModel mechModel=((CenterBased3DMechanicalModel) stemCell.getEpisimBioMechanicalModelObject());					
+						FishEyeCenterBased3DModel mechModel=((FishEyeCenterBased3DModel) stemCell.getEpisimBioMechanicalModelObject());					
 						
 						mechModel.setCellWidth(CELL_WIDTH);
 						mechModel.setCellHeight(CELL_HEIGHT);
@@ -138,14 +138,14 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 		}
 		initializeBiomechanics(standardCellEnsemble);
 		setDiffLevels(standardCellEnsemble, cellSize);
-		CenterBased3DMechanicalModel.setDummyCellSize(cellSize);
+		FishEyeCenterBased3DModel.setDummyCellSize(cellSize);
 		 
 		System.out.println("No of stem cells: " + standardCellEnsemble.size()+ "    Cells Ingnored: " + ignoredCells);
 		return standardCellEnsemble;
 	}
 	
 	private void setDiffLevels(ArrayList<UniversalCell> standardCellEnsemble, double cellSize){
-		CenterBased3DMechanicalModelGP mechModelGP = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
 		EpisimDifferentiationLevel[] diffLevels = ModelController.getInstance().getCellBehavioralModelController().getAvailableDifferentiationLevels();
 		double prolifBeltSize = mechModelGP.getProlifCompWidthMikron();
 		double radius = mechModelGP.getInitialInnerEyeRadius();
@@ -155,7 +155,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 			
 			UniversalCell actCell = standardCellEnsemble.get(i);
 			EpisimBiomechanicalModel biomech =  actCell.getEpisimBioMechanicalModelObject();			
-			if(biomech instanceof CenterBased3DMechanicalModel){
+			if(biomech instanceof FishEyeCenterBased3DModel){
 				if(diffLevels.length>2){
 					if((biomech.getX()+(cellSize/2d)) <= (mechModelGP.getInnerEyeCenter().x + xDelta)){
 						actCell.getEpisimCellBehavioralModelObject().setDiffLevel(diffLevels[1]);
@@ -169,9 +169,9 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	}
 	private void initializeBiomechanics(ArrayList<UniversalCell> standardCellEnsemble){
 		EpisimBiomechanicalModel biomech =  ModelController.getInstance().getBioMechanicalModelController().getNewEpisimBioMechanicalModelObject(null);
-		CenterBased3DMechanicalModelGP mechModelGP = (CenterBased3DMechanicalModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
-		if(biomech instanceof CenterBased3DMechanicalModel){
-			CenterBased3DMechanicalModel cbBioMech = (CenterBased3DMechanicalModel) biomech;			
+		FishEyeCenterBased3DModelGP mechModelGP = (FishEyeCenterBased3DModelGP) ModelController.getInstance().getEpisimBioMechanicalModelGlobalParameters();
+		if(biomech instanceof FishEyeCenterBased3DModel){
+			FishEyeCenterBased3DModel cbBioMech = (FishEyeCenterBased3DModel) biomech;			
 			double cumulativeMigrationDist=0;
 			do{
 				cbBioMech.initialisationGlobalSimStep();
@@ -185,7 +185,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 	private double getCumulativeMigrationDistance(ArrayList<UniversalCell> standardCellEnsemble){
 		double cumulativeMigrationDistance = 0;
 		for(int i = 0; i < standardCellEnsemble.size(); i++){
-			CenterBased3DMechanicalModel mechModel = ((CenterBased3DMechanicalModel) standardCellEnsemble.get(i).getEpisimBioMechanicalModelObject());
+			FishEyeCenterBased3DModel mechModel = ((FishEyeCenterBased3DModel) standardCellEnsemble.get(i).getEpisimBioMechanicalModelObject());
 			cumulativeMigrationDistance += mechModel.getMigrationDistPerSimStep();
 		}
 		return cumulativeMigrationDistance;
@@ -211,7 +211,7 @@ public class FishEyeCenterBasedMechModelInit extends BiomechanicalModelInitializ
 
 	protected EpisimPortrayal[] getAdditionalPortrayalsCellForeground() {
 		ContinuousUniversalCellPortrayal3D continuousPortrayal = new ContinuousUniversalCellPortrayal3D("Dummy Cells");
-		continuousPortrayal.setField(CenterBased3DMechanicalModel.getDummyCellField());
+		continuousPortrayal.setField(FishEyeCenterBased3DModel.getDummyCellField());
 		
 		return new EpisimPortrayal[]{continuousPortrayal};
 	}

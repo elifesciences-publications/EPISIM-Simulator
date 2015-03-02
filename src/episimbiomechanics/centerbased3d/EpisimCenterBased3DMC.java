@@ -1,7 +1,7 @@
 package episimbiomechanics.centerbased3d;
 
-import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModel;
-import sim.app.episim.model.biomechanics.centerbased3d.CenterBased3DMechanicalModelGP;
+import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModel;
+import sim.app.episim.model.biomechanics.centerbased3D.oldmodel.CenterBased3DModelGP;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.EpisimModelConnector.Hidden;
@@ -42,12 +42,12 @@ public class EpisimCenterBased3DMC extends EpisimModelConnector {
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModel> getEpisimBioMechanicalModelClass(){
-		return CenterBased3DMechanicalModel.class;
+		return CenterBased3DModel.class;
 	}
 	
 	@NoExport
 	public Class<? extends EpisimBiomechanicalModelGlobalParameters> getEpisimBioMechanicalModelGlobalParametersClass(){
-		return CenterBased3DMechanicalModelGP.class;
+		return CenterBased3DModelGP.class;
 	}
 	
 	@NoExport

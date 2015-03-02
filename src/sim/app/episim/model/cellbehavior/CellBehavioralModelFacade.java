@@ -10,12 +10,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import episim_mcc_init.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimCellBehavioralModel;
 import episiminterfaces.EpisimCellBehavioralModelGlobalParameters;
 import episiminterfaces.EpisimCellType;
 import episiminterfaces.EpisimDifferentiationLevel;
+import episimmcc.EpisimModelConnector;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.initialization.CellBehavioralModelInitializer;

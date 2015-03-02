@@ -18,13 +18,13 @@ import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
 import ec.util.MersenneTwisterFast;
-import episim_mcc_init.EpisimModelConnector;
-import episim_mcc_init.centerbased.newversion.EpisimCenterBasedMC;
-import episim_mcc_init.centerbased3d.newversion.EpisimCenterBased3DMC;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
+import episimmcc.EpisimModelConnector;
+import episimmcc.centerbased.newversion.EpisimCenterBasedMC;
+import episimmcc.centerbased3d.newversion.EpisimCenterBased3DMC;
 import sim.app.episim.EpisimProperties;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
@@ -265,7 +265,7 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
             	
              }
              
-             if(this.modelConnector instanceof episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
+             if(this.modelConnector instanceof episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
             	 
           		double contactAreaCorrect = 0;
           		if(actDist < optDist*globalParameters.getOptDistanceAdhesionFact()){
@@ -277,7 +277,7 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
           						otherPosToroidalCorrection(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(mechModelOther.getX(), mechModelOther.getY(), mechModelOther.getZ())),
           					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisC, otherSemiAxisA, otherSemiAxisB, otherSemiAxisC, requiredDistanceToMembraneThis, requiredDistanceToMembraneOther, actDist, optDist);
           			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
-          			((episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
+          			((episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
              		totalContactArea+= Math.abs(contactAreaCorrect); 
           		}          		
           		        		
@@ -285,8 +285,8 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
              
            }          
         }
-       if(this.modelConnector instanceof episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
-      	 ((episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setTotalContactArea(totalContactArea);
+       if(this.modelConnector instanceof episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC && finalSimStep){
+      	 ((episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setTotalContactArea(totalContactArea);
        }
        // calculate basal adhesion
        if(modelConnector.getAdhesionBasalMembrane() >=0){
@@ -310,8 +310,8 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
             	double gap = distToMembrane - optDist;
             	
             	double contactArea = Math.PI*radius_this*(radius_this-distToMembrane);
-            	if(this.modelConnector instanceof episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
-            		((episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(contactArea);
+            	if(this.modelConnector instanceof episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+            		((episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(contactArea);
             	}
             	
             	double smoothingFunction = (((-1*adh_Dist_Perc*optDist) < gap)
@@ -328,21 +328,21 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 			      interactionResult.adhesionForce.z += adhesion * ((-dz)/distToMembrane);
       		}
       		else{
-      			if(this.modelConnector instanceof episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
-            		((episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(0);
+      			if(this.modelConnector instanceof episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+            		((episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(0);
             	}
       		}
        }else{
- 			if(this.modelConnector instanceof episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
-      		((episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(0);
+ 			if(this.modelConnector instanceof episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+      		((episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)this.modelConnector).setBmContactArea(0);
       	}
 		}
       if(isChemotaxisEnabled){
-				String chemotacticFieldName = ((episim_mcc_init.centerbased3d.newversion.chemotaxis.EpisimChemotaxisCenterBased3DMC)modelConnector).getChemotacticField();
+				String chemotacticFieldName = ((episimmcc.centerbased3d.newversion.chemotaxis.EpisimChemotaxisCenterBased3DMC)modelConnector).getChemotacticField();
 				if(chemotacticFieldName != null && !chemotacticFieldName.trim().isEmpty()){
 					ExtraCellularDiffusionField3D ecDiffField =  (ExtraCellularDiffusionField3D)ModelController.getInstance().getExtraCellularDiffusionController().getExtraCellularDiffusionField(chemotacticFieldName);
 					if(ecDiffField != null){
-						double lambda = ((episim_mcc_init.centerbased3d.newversion.chemotaxis.EpisimChemotaxisCenterBased3DMC)modelConnector).getLambdaChem();
+						double lambda = ((episimmcc.centerbased3d.newversion.chemotaxis.EpisimChemotaxisCenterBased3DMC)modelConnector).getLambdaChem();
 						if(lambda > 0){
 							interactionResult.chemotacticForce = ecDiffField.getChemotaxisVectorForCellBoundary(getChemotaxisCellBoundariesInMikron());
 							interactionResult.chemotacticForce.scale(lambda);
@@ -668,8 +668,8 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
 	public void calculateSimStep(boolean finalSimStep){
 		if(finalSimStep){
 			this.modelConnector.resetPairwiseParameters();
-			if(modelConnector instanceof episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){				
-		  		 ((episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC) modelConnector).getContactArea().clear();
+			if(modelConnector instanceof episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){				
+		  		 ((episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC) modelConnector).getContactArea().clear();
 		  	}
 		}
 		//according to Pathmanathan et al.2008
@@ -738,8 +738,8 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
   	 	modelConnector.setEpidermalSurfaceRatio(surfaceAreaRatio);
   	 	modelConnector.setIsSurface(this.isSurfaceCell);
   	 	
-  	 	if(modelConnector instanceof episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
-  	 		episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC mc = (episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC) modelConnector;
+  	 	if(modelConnector instanceof episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+  	 		episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC mc = (episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC) modelConnector;
   	 		mc.setCellSurfaceArea(getSurfaceArea());
   	 		mc.setCellVolume(getCellVolume());
   	 		mc.setExtCellSpaceVolume(getExtraCellSpaceVolume(mc.getExtCellSpaceMikron()));
@@ -1026,15 +1026,15 @@ public class CenterBased3DModel extends AbstractCenterBased3DModel{
    }   
    
    public boolean hasNucleus(){ 
-   	if(this.modelConnector instanceof episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
-   		return ((episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)modelConnector).getIsNucleated();
+   	if(this.modelConnector instanceof episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+   		return ((episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)modelConnector).getIsNucleated();
    	}
    	return true;
    }
    
    public boolean hasViablility(){ 
-   	if(this.modelConnector instanceof episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
-   		return ((episim_mcc_init.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)modelConnector).getIsViable();
+   	if(this.modelConnector instanceof episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC){
+   		return ((episimmcc.centerbased3d.newversion.epidermis.EpisimEpidermisCenterBased3DMC)modelConnector).getIsViable();
    	}
    	return true;
    }

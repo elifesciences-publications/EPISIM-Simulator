@@ -16,13 +16,13 @@ import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
-import episim_mcc_init.EpisimModelConnector;
-import episim_mcc_init.centerbased.adhesion.EpisimAdhesiveCenterBasedMC;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
+import episimmcc.EpisimModelConnector;
+import episimmcc.centerbased.adhesion.EpisimAdhesiveCenterBasedMC;
 import sim.app.episim.SimStateServer;
 import sim.app.episim.gui.EpisimGUIState;
 import sim.app.episim.gui.EpisimGUIState.SimulationDisplayProperties;

@@ -1,6 +1,6 @@
 package episiminterfaces;
 
-import episim_mcc_init.EpisimModelConnector;
+import episimmcc.EpisimModelConnector;
 
 public interface EpisimCellBehavioralModel {
 	

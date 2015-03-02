@@ -11,6 +11,7 @@ import java.util.HashSet;
 
 
 
+
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
@@ -23,12 +24,13 @@ import javax.vecmath.Vector3f;
 
 
 
+
 import ec.util.MersenneTwisterFast;
-import episim_mcc_init.EpisimModelConnector;
-import episim_mcc_init.latticebased3d.EpisimHexagonBased3DMC;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
+import episimmcc.EpisimModelConnector;
+import episimmcc.latticebased3d.EpisimHexagonBased3DMC;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;

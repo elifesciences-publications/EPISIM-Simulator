@@ -32,15 +32,15 @@ import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.util.Double2D;
-import episim_mcc_init.EpisimModelConnector;
-import episim_mcc_init.vertexbased.EpisimVertexBasedMC;
-import episim_mcc_init.vertexbased.VertexBasedMechModelInit;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.CellPolygonProliferationSuccessListener;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
+import episimmcc.EpisimModelConnector;
+import episimmcc.vertexbased.EpisimVertexBasedMC;
+import episimmcc.vertexbased.VertexBasedMechModelInit;
 
 
 public class VertexBasedModel extends AbstractBiomechanical2DModel implements CellPolygonProliferationSuccessListener{

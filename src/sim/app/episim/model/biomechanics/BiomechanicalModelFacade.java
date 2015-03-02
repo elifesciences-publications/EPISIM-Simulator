@@ -9,12 +9,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import episim_mcc_init.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
 
 
+import episimmcc.EpisimModelConnector;
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;

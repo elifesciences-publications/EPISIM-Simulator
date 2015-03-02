@@ -1,8 +1,8 @@
 package sim.app.episim.model.biomechanics;
 
 
-import episim_mcc_init.EpisimModelConnector;
 import episiminterfaces.NoExport;
+import episimmcc.EpisimModelConnector;
 import sim.app.episim.model.AbstractCell;
 import sim.engine.SimState;
 

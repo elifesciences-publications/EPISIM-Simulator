@@ -5,10 +5,10 @@ import java.util.ArrayList;
 
 import sim.app.episim.EpisimExceptionHandler;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;
-import episim_mcc_init.EpisimModelConnector;
 import episimexceptions.ModelCompatibilityException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimBiomechanicalModelGlobalParameters;
+import episimmcc.EpisimModelConnector;
 
 
 public class BiomechanicalModelLoader{

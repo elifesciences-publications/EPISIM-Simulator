@@ -26,7 +26,6 @@ import sim.engine.*;
 import sim.field.continuous.*;
 import sim.util.*;
 import ec.util.MersenneTwisterFast;
-import episim_mcc_init.EpisimModelConnector.Hidden;
 import episimexceptions.ZeroNeighbourCellsAccessException;
 import episiminterfaces.EpisimBiomechanicalModel;
 import episiminterfaces.EpisimCellBehavioralModel;
@@ -34,6 +33,7 @@ import episiminterfaces.EpisimCellType;
 import episiminterfaces.NoExport;
 import episiminterfaces.EpisimDifferentiationLevel;
 import episiminterfaces.monitoring.CannotBeMonitored;
+import episimmcc.EpisimModelConnector.Hidden;
 
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Method;

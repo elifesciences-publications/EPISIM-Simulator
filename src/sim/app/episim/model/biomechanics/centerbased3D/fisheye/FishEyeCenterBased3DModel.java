@@ -32,12 +32,12 @@ import sim.field.continuous.Continuous3DExt;
 import sim.util.Bag;
 import sim.util.Double3D;
 import ec.util.MersenneTwisterFast;
-import episim_mcc_init.EpisimModelConnector;
-import episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC;
 import episimexceptions.GlobalParameterException;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
+import episimmcc.EpisimModelConnector;
+import episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC;
 
 
 public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
@@ -292,7 +292,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
             	
              }
              
-             if(this.modelConnector instanceof episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC && finalSimStep){
+             if(this.modelConnector instanceof episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC && finalSimStep){
             	 
           		double contactAreaCorrect = 0;
           		if(actDist < optDist*globalParameters.getOptDistanceAdhesionFact()){
@@ -304,7 +304,7 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
           						otherPosToroidalCorrection(new Point3d(thisloc.x, thisloc.y, thisloc.z), new Point3d(mechModelOther.getX(), mechModelOther.getY(), mechModelOther.getZ())),
           					dy, thisSemiAxisA, thisSemiAxisB, thisSemiAxisC, otherSemiAxisA, otherSemiAxisB, otherSemiAxisC, requiredDistanceToMembraneThis, requiredDistanceToMembraneOther, actDist, optDist);
           			contactAreaCorrect = Double.isNaN(contactAreaCorrect) || Double.isInfinite(contactAreaCorrect) ? 0: contactAreaCorrect;
-          			((episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
+          			((episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC)this.modelConnector).setContactArea(other.getID(), Math.abs(contactAreaCorrect));
              		totalContactArea+= Math.abs(contactAreaCorrect); 
           		}          		
           		        		
@@ -366,8 +366,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
        	
        
         modelConnector.setContactAreaInnerEye(0);
-        if(this.modelConnector instanceof episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC && finalSimStep){
-      	 ((episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC)this.modelConnector).setTotalContactArea(totalContactArea);
+        if(this.modelConnector instanceof episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC && finalSimStep){
+      	 ((episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC)this.modelConnector).setTotalContactArea(totalContactArea);
       	 
       	  double requiredDistanceToMembraneThis = calculateDistanceToCellCenter(thislocP, 
 						otherPosToroidalCorrection(thislocP, globalParameters.getInnerEyeCenter()), 
@@ -615,8 +615,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
 	public void calculateSimStep(boolean finalSimStep){
 		if(finalSimStep){
 			this.modelConnector.resetPairwiseParameters();
-			if(modelConnector instanceof episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC){				
-		  		 ((episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC) modelConnector).getContactArea().clear();
+			if(modelConnector instanceof episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC){				
+		  		 ((episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC) modelConnector).getContactArea().clear();
 		  	}
 		}
 		//according to Pathmanathan et al.2008
@@ -666,8 +666,8 @@ public class FishEyeCenterBased3DModel extends AbstractCenterBased3DModel{
   	 	modelConnector.setInnerEyeRadius(globalParameters.getInnerEyeRadius());
   	 	
   	 	
-  	 	if(modelConnector instanceof episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC){
-  	 		episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC mc = (episim_mcc_init.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC) modelConnector;
+  	 	if(modelConnector instanceof episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC){
+  	 		episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC mc = (episimmcc.centerbased3d.fisheye.EpisimFishEyeCenterBased3DMC) modelConnector;
   	 		mc.setCellSurfaceArea(getSurfaceArea());
   	 		mc.setCellVolume(getCellVolume());
   	 		mc.setExtCellSpaceVolume(getExtraCellSpaceVolume(mc.getExtCellSpaceMikron()));

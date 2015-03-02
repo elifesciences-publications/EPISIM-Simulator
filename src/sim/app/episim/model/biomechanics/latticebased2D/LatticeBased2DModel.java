@@ -14,11 +14,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import ec.util.MersenneTwisterFast;
-import episim_mcc_init.EpisimModelConnector;
-import episim_mcc_init.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
 import episiminterfaces.EpisimCellShape;
 import episiminterfaces.NoExport;
 import episiminterfaces.monitoring.CannotBeMonitored;
+import episimmcc.EpisimModelConnector;
+import episimmcc.latticebased2d.EpisimLatticeBased2DSingleSurfaceMC;
 import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;

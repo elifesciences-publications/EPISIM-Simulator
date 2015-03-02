@@ -26,6 +26,7 @@ import javax.vecmath.Vector3d;
 
 
 
+
 import ec.util.MersenneTwisterFast;
 import episimbiomechanics.EpisimModelConnector;
 import episimbiomechanics.centerbased.CenterBasedMechModelInit;
@@ -45,9 +46,9 @@ import sim.app.episim.model.AbstractCell;
 import sim.app.episim.model.UniversalCell;
 import sim.app.episim.model.biomechanics.AbstractBiomechanical2DModel;
 import sim.app.episim.model.biomechanics.AbstractBiomechanicalModel;
-import sim.app.episim.model.biomechanics.AbstractCenterBased2DModel;
 import sim.app.episim.model.biomechanics.CellBoundaries;
 import sim.app.episim.model.biomechanics.Episim2DCellShape;
+import sim.app.episim.model.biomechanics.centerbased2D.AbstractCenterBased2DModel;
 import sim.app.episim.model.cellbehavior.CellBehavioralModelFacade.StandardDiffLevel;
 import sim.app.episim.model.controller.ModelController;
 import sim.app.episim.model.initialization.BiomechanicalModelInitializer;

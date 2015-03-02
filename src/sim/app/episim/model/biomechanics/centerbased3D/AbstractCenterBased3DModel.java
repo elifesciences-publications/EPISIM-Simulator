@@ -1,6 +1,7 @@
-package sim.app.episim.model.biomechanics;
+package sim.app.episim.model.biomechanics.centerbased3D;
 
 import sim.app.episim.model.AbstractCell;
+import sim.app.episim.model.biomechanics.AbstractBiomechanical3DModel;
 
 
 public abstract class AbstractCenterBased3DModel extends AbstractBiomechanical3DModel{
